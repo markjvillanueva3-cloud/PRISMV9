@@ -23,12 +23,16 @@ import { z } from "zod";
 export const RoleCode = z.enum([
   "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8",
 ]);
+/** Role Code type definition.
+ */
 export type RoleCode = z.infer<typeof RoleCode>;
 
 /** Model spec — single model or escalation chain. */
 export const ModelSpec = z.string().describe(
   'Model identifier or escalation chain, e.g. "opus-4.6", "sonnet-4.6", "haiku->sonnet->opus"'
 );
+/** Model Spec type definition.
+ */
 export type ModelSpec = z.infer<typeof ModelSpec>;
 
 /** Deliverable type classification. */
@@ -36,10 +40,14 @@ export const DeliverableType = z.enum([
   "skill", "script", "hook", "command", "schema",
   "config", "state", "doc", "test", "source", "template", "data",
 ]);
+/** Deliverable Type type definition.
+ */
 export type DeliverableType = z.infer<typeof DeliverableType>;
 
 /** Gap severity levels used by the scrutinizer. */
 export const GapSeverity = z.enum(["CRITICAL", "MAJOR", "MINOR", "INFO"]);
+/** Gap Severity type definition.
+ */
 export type GapSeverity = z.infer<typeof GapSeverity>;
 
 /** Gap categories the scrutinizer checks for. */
@@ -49,6 +57,8 @@ export const GapCategory = z.enum([
   "effort_mismatch", "missing_indexing", "missing_skills",
   "orphaned_deliverables", "underspecified_steps", "missing_tests",
 ]);
+/** Gap Category type definition.
+ */
 export type GapCategory = z.infer<typeof GapCategory>;
 
 // ─── Step ──────────────────────────────────────────────────────────
@@ -66,6 +76,8 @@ export const RoadmapStep = z.object({
   /** Tips, warnings, edge cases (optional). */
   notes: z.string().optional(),
 });
+/** Roadmap Step type definition.
+ */
 export type RoadmapStep = z.infer<typeof RoadmapStep>;
 
 // ─── Deliverable ───────────────────────────────────────────────────
@@ -83,6 +95,8 @@ export const RoadmapDeliverable = z.object({
   /** How it appears in MASTER.md (optional). */
   index_entry: z.string().optional(),
 });
+/** Roadmap Deliverable type definition.
+ */
 export type RoadmapDeliverable = z.infer<typeof RoadmapDeliverable>;
 
 // ─── Tool Reference ────────────────────────────────────────────────
@@ -96,6 +110,8 @@ export const ToolRef = z.object({
   /** Parameter hints. */
   params_hint: z.string().optional(),
 });
+/** Tool Ref type definition.
+ */
 export type ToolRef = z.infer<typeof ToolRef>;
 
 // ─── Unit ──────────────────────────────────────────────────────────
@@ -169,6 +185,8 @@ export const RoadmapUnit = z.object({
   /** Whether this unit produces a new slash command. */
   creates_command: z.boolean().default(false),
 });
+/** Roadmap Unit type definition.
+ */
 export type RoadmapUnit = z.infer<typeof RoadmapUnit>;
 
 // ─── Gate ──────────────────────────────────────────────────────────
@@ -196,6 +214,8 @@ export const RoadmapGate = z.object({
   /** Additional validation steps. */
   custom_checks: z.array(z.string()).default([]),
 });
+/** Roadmap Gate type definition.
+ */
 export type RoadmapGate = z.infer<typeof RoadmapGate>;
 
 // ─── Phase ─────────────────────────────────────────────────────────
@@ -223,6 +243,8 @@ export const RoadmapPhase = z.object({
   /** What the scrutinizer should focus on in this phase. */
   scrutiny_focus: z.array(z.string()).default([]),
 });
+/** Roadmap Phase type definition.
+ */
 export type RoadmapPhase = z.infer<typeof RoadmapPhase>;
 
 // ─── Scrutiny ──────────────────────────────────────────────────────
@@ -246,6 +268,8 @@ export const Gap = z.object({
   /** Which pass resolved it. */
   resolved_in_pass: z.number().int().optional(),
 });
+/** Gap type definition.
+ */
 export type Gap = z.infer<typeof Gap>;
 
 /** A single scrutinization pass result. */
@@ -265,6 +289,8 @@ export const ScrutinyPass = z.object({
   /** Whether convergence was reached after this pass. */
   converged: z.boolean().default(false),
 });
+/** Scrutiny Pass type definition.
+ */
 export type ScrutinyPass = z.infer<typeof ScrutinyPass>;
 
 /** Configuration for the adaptive scrutiny system. */
@@ -293,6 +319,8 @@ export const ScrutinyConfig = z.object({
   /** Stop improving when score exceeds this. */
   improvement_threshold: z.number().min(0).max(1).default(0.92),
 });
+/** Scrutiny Config type definition.
+ */
 export type ScrutinyConfig = z.infer<typeof ScrutinyConfig>;
 
 /** Full scrutiny audit trail for a roadmap. */
@@ -308,6 +336,8 @@ export const ScrutinyLog = z.object({
   /** All unresolved gaps (if any). */
   unresolved_gaps: z.array(Gap).default([]),
 });
+/** Scrutiny Log type definition.
+ */
 export type ScrutinyLog = z.infer<typeof ScrutinyLog>;
 
 // ─── Envelope Metadata ─────────────────────────────────────────────
@@ -320,6 +350,8 @@ export const RoleSpec = z.object({
   effort: z.number().int().min(0).max(100),
   description: z.string().optional(),
 });
+/** Role Spec type definition.
+ */
 export type RoleSpec = z.infer<typeof RoleSpec>;
 
 /** A tool used in this roadmap and which phases use it. */
@@ -328,6 +360,8 @@ export const ToolMapEntry = z.object({
   phases: z.array(z.string()),
   purpose: z.string().optional(),
 });
+/** Tool Map Entry type definition.
+ */
 export type ToolMapEntry = z.infer<typeof ToolMapEntry>;
 
 /** An existing asset being leveraged by this roadmap. */
@@ -337,6 +371,8 @@ export const LeverageEntry = z.object({
   count: z.number().int().nonnegative().optional(),
   usage: z.string().optional(),
 });
+/** Leverage Entry type definition.
+ */
 export type LeverageEntry = z.infer<typeof LeverageEntry>;
 
 // ─── Roadmap Envelope ──────────────────────────────────────────────
@@ -388,12 +424,16 @@ export const RoadmapEnvelope = z.object({
   /** Path to state/{roadmap-id}/. */
   state_dir: z.string().optional(),
 });
+/** Roadmap Envelope type definition.
+ */
 export type RoadmapEnvelope = z.infer<typeof RoadmapEnvelope>;
 
 // ─── Milestone Index ──────────────────────────────────────────────
 
 /** Status of a milestone in the roadmap index. */
 export const MilestoneStatus = z.enum(["not_started", "in_progress", "complete"]);
+/** Milestone Status type definition.
+ */
 export type MilestoneStatus = z.infer<typeof MilestoneStatus>;
 
 /** A lightweight reference to a milestone — used in the roadmap index. */
@@ -421,6 +461,8 @@ export const MilestoneEntry = z.object({
   /** Freeform notes (e.g. deferred units). */
   notes: z.string().optional(),
 });
+/** Milestone Entry type definition.
+ */
 export type MilestoneEntry = z.infer<typeof MilestoneEntry>;
 
 /** Top-level roadmap index — lightweight manifest of all milestones. */
@@ -438,6 +480,8 @@ export const RoadmapIndex = z.object({
   /** Completed milestone count. */
   completed_milestones: z.number().int().nonnegative().default(0),
 });
+/** Roadmap Index type definition.
+ */
 export type RoadmapIndex = z.infer<typeof RoadmapIndex>;
 
 /** Parse and validate a roadmap index JSON. Throws on error. */

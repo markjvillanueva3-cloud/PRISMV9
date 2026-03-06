@@ -30,6 +30,8 @@ export interface DimensionInput {
   ambient_temp_C?: number;
 }
 
+/** Dimension Prediction configuration/data structure.
+ */
 export interface DimensionPrediction {
   nominal_mm: number;
   predicted_actual_mm: number;
@@ -42,6 +44,8 @@ export interface DimensionPrediction {
   recommendations: string[];
 }
 
+/** Error Budget configuration/data structure.
+ */
 export interface ErrorBudget {
   machine_accuracy_mm: number;
   tool_deflection_mm: number;
@@ -53,6 +57,8 @@ export interface ErrorBudget {
   total_worst_case_mm: number;        // arithmetic sum
 }
 
+/** Dimension Validation configuration/data structure.
+ */
 export interface DimensionValidation {
   achievable: boolean;
   margin_mm: number;
@@ -60,6 +66,8 @@ export interface DimensionValidation {
   issues: string[];
 }
 
+/** Tolerance Budget configuration/data structure.
+ */
 export interface ToleranceBudget {
   total_tolerance_mm: number;
   allocated: { source: string; allocation_mm: number; pct: number }[];
@@ -81,6 +89,8 @@ const WEAR_RATE: Record<string, number> = { P: 0.0003, M: 0.0005, K: 0.0002, N: 
 // ENGINE CLASS
 // ============================================================================
 
+/** Dimensional Analysis Engine engine/manager.
+ */
 export class DimensionalAnalysisEngine {
   /**
    * Predict dimensional accuracy.
@@ -224,4 +234,6 @@ export class DimensionalAnalysisEngine {
   }
 }
 
+/** Dimensional Analysis Engine constant.
+ */
 export const dimensionalAnalysisEngine = new DimensionalAnalysisEngine();

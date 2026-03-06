@@ -31,6 +31,9 @@ const ACTIONS = [
   "work_envelope", "inverse_kin",
 ] as const;
 
+/** Registers five axis dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerFiveAxisDispatcher(server: any): void {
   server.tool(
     "prism_5axis",

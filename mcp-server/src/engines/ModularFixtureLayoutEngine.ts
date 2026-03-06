@@ -18,6 +18,8 @@
 
 export type GridSystem = "16mm" | "M12_50mm" | "M16_75mm" | "M20_100mm" | "imperial_2in";
 
+/** Modular Fixture Input configuration/data structure.
+ */
 export interface ModularFixtureInput {
   workpiece_length_mm: number;
   workpiece_width_mm: number;
@@ -32,6 +34,8 @@ export interface ModularFixtureInput {
   batch_size: number;
 }
 
+/** Locator Point configuration/data structure.
+ */
 export interface LocatorPoint {
   id: string;
   type: "rest_pad" | "locating_pin" | "vee_block" | "edge_stop";
@@ -40,6 +44,8 @@ export interface LocatorPoint {
   constrains: string[];          // e.g., ["Z translation", "X rotation"]
 }
 
+/** Clamp Point configuration/data structure.
+ */
 export interface ClampPoint {
   id: string;
   type: "strap_clamp" | "toe_clamp" | "swing_clamp" | "toggle_clamp" | "screw_clamp";
@@ -49,6 +55,8 @@ export interface ClampPoint {
   opposes: string;               // locator ID this clamp pushes against
 }
 
+/** Modular Fixture Result configuration/data structure.
+ */
 export interface ModularFixtureResult {
   locators: LocatorPoint[];
   clamps: ClampPoint[];
@@ -77,6 +85,8 @@ const CLAMP_FORCE: Record<ClampPoint["type"], number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Modular Fixture Layout Engine engine/manager.
+ */
 export class ModularFixtureLayoutEngine {
   layout(input: ModularFixtureInput): ModularFixtureResult {
     const pitch = GRID_PITCH[input.grid_system];
@@ -150,4 +160,6 @@ export class ModularFixtureLayoutEngine {
   }
 }
 
+/** Modular Fixture Layout Engine constant.
+ */
 export const modularFixtureLayoutEngine = new ModularFixtureLayoutEngine();

@@ -20,6 +20,8 @@ import { log } from "../utils/Logger.js";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Modal Parameters configuration/data structure.
+ */
 export interface ModalParameters {
   natural_frequency: number;    // fn [Hz]
   damping_ratio: number;        // ζ (zeta) - typically 0.02-0.05
@@ -27,6 +29,8 @@ export interface ModalParameters {
   mass?: number;                // m [kg]
 }
 
+/** Stability Result configuration/data structure.
+ */
 export interface StabilityResult {
   critical_depth: number;       // blim [mm] - limiting axial depth
   spindle_speeds: number[];     // Array of stable speeds [rpm]
@@ -37,6 +41,8 @@ export interface StabilityResult {
   warnings: string[];
 }
 
+/** Stability Lobe configuration/data structure.
+ */
 export interface StabilityLobe {
   lobe_number: number;
   speed_min: number;            // rpm
@@ -44,6 +50,8 @@ export interface StabilityLobe {
   depth_limit: number;          // mm
 }
 
+/** Deflection Result configuration/data structure.
+ */
 export interface DeflectionResult {
   static_deflection: number;    // δ [mm]
   dynamic_deflection: number;   // δ_dyn [mm]
@@ -54,6 +62,8 @@ export interface DeflectionResult {
   warnings: string[];
 }
 
+/** Thermal Result configuration/data structure.
+ */
 export interface ThermalResult {
   cutting_temperature: number;  // T [°C]
   chip_temperature: number;     // Tc [°C]
@@ -68,6 +78,8 @@ export interface ThermalResult {
   warnings: string[];
 }
 
+/** Optimization Result configuration/data structure.
+ */
 export interface OptimizationResult {
   optimal_speed: number;        // Vc [m/min]
   optimal_feed: number;         // fz [mm]
@@ -85,6 +97,8 @@ export interface OptimizationResult {
   warnings: string[];
 }
 
+/** Cost Parameters configuration/data structure.
+ */
 export interface CostParameters {
   machine_rate: number;         // $/min
   tool_cost: number;            // $/tool
@@ -504,6 +518,8 @@ export function calculateMinimumCostSpeed(
 // MULTI-OBJECTIVE OPTIMIZATION
 // ============================================================================
 
+/** Optimization Constraints configuration/data structure.
+ */
 export interface OptimizationConstraints {
   max_power?: number;           // kW
   max_force?: number;           // N
@@ -514,6 +530,8 @@ export interface OptimizationConstraints {
   max_deflection?: number;      // mm
 }
 
+/** Optimization Weights configuration/data structure.
+ */
 export interface OptimizationWeights {
   productivity: number;         // Weight for MRR (0-1)
   cost: number;                 // Weight for cost (0-1)
@@ -647,6 +665,8 @@ export function optimizeCuttingParameters(
 }
 
 // Export singleton
+/** Advanced Calculations constant.
+ */
 export const advancedCalculations = {
   stabilityLobes: calculateStabilityLobes,
   toolDeflection: calculateToolDeflection,

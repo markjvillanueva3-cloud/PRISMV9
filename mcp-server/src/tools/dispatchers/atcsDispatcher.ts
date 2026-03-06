@@ -380,6 +380,9 @@ function err(message: string, extra?: any) {
 // DISPATCHER
 // ============================================================================
 
+/** Registers atcs dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerAtcsDispatcher(server: any): void {
   server.tool(
     "prism_atcs",

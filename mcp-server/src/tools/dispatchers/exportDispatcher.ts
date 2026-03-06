@@ -26,6 +26,9 @@ const ACTIONS = [
   "render_step", "render_gcode", "render_setup_sheet", "batch_export",
 ] as const;
 
+/** Registers export dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerExportDispatcher(server: any): void {
   server.tool(
     "prism_export",

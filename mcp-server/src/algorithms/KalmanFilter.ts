@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Kalman Filter Input configuration/data structure.
+ */
 export interface KalmanFilterInput {
   /** State dimension. */
   n_states: number;
@@ -44,6 +46,8 @@ export interface KalmanFilterInput {
   u?: number[][];
 }
 
+/** Kalman State configuration/data structure.
+ */
 export interface KalmanState {
   x: number[];
   P_diag: number[];
@@ -51,6 +55,8 @@ export interface KalmanState {
   gain_trace: number;
 }
 
+/** Kalman Filter Output configuration/data structure.
+ */
 export interface KalmanFilterOutput extends WithWarnings {
   states: KalmanState[];
   final_state: number[];
@@ -61,6 +67,8 @@ export interface KalmanFilterOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Kalman Filter engine/manager.
+ */
 export class KalmanFilter implements Algorithm<KalmanFilterInput, KalmanFilterOutput> {
 
   validate(input: KalmanFilterInput): ValidationResult {

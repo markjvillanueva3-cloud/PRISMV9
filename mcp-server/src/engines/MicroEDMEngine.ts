@@ -16,6 +16,8 @@
 
 export type MicroEDMProcess = "micro_drill" | "micro_mill" | "micro_wire" | "micro_sinker";
 
+/** Micro E D M Input configuration/data structure.
+ */
 export interface MicroEDMInput {
   process: MicroEDMProcess;
   feature_size_um: number;             // target feature dimension
@@ -27,6 +29,8 @@ export interface MicroEDMInput {
   target_surface_finish_Ra_um: number;
 }
 
+/** Micro E D M Result configuration/data structure.
+ */
 export interface MicroEDMResult {
   recommended_electrode_um: number;
   spark_gap_um: number;
@@ -45,6 +49,8 @@ export interface MicroEDMResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Micro E D M Engine engine/manager.
+ */
 export class MicroEDMEngine {
   calculate(input: MicroEDMInput): MicroEDMResult {
     // Spark gap at micro scale (much smaller than conventional)
@@ -120,4 +126,6 @@ export class MicroEDMEngine {
   }
 }
 
+/** Micro E D M Engine constant.
+ */
 export const microEDMEngine = new MicroEDMEngine();

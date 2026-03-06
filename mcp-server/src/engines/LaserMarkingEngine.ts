@@ -15,9 +15,15 @@
 // ============================================================================
 
 export type MarkType = "anneal" | "engrave" | "etch" | "color_change" | "foam" | "ablation";
+/** Mark Content type definition.
+ */
 export type MarkContent = "text" | "data_matrix" | "qr_code" | "barcode_1d" | "logo" | "serial";
+/** Laser Mark Source type definition.
+ */
 export type LaserMarkSource = "fiber_1064" | "co2_10600" | "uv_355" | "green_532";
 
+/** Laser Mark Input configuration/data structure.
+ */
 export interface LaserMarkInput {
   laser_source: LaserMarkSource;
   power_W: number;
@@ -32,6 +38,8 @@ export interface LaserMarkInput {
   compliance_standard?: string;        // e.g., "AMS 2431", "FDA UDI"
 }
 
+/** Laser Mark Result configuration/data structure.
+ */
 export interface LaserMarkResult {
   recommended_speed_mm_per_sec: number;
   recommended_frequency_kHz: number;
@@ -61,6 +69,8 @@ const MARK_DEPTH: Record<MarkType, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Laser Marking Engine engine/manager.
+ */
 export class LaserMarkingEngine {
   calculate(input: LaserMarkInput): LaserMarkResult {
     const baseSpeed = input.scan_speed_mm_per_sec || 500;
@@ -149,4 +159,6 @@ export class LaserMarkingEngine {
   }
 }
 
+/** Laser Marking Engine constant.
+ */
 export const laserMarkingEngine = new LaserMarkingEngine();

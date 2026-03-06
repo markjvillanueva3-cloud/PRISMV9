@@ -22,8 +22,14 @@ import { fileExists, readJsonFile, listDirectory } from "../utils/files.js";
 // TYPES
 // ============================================================================
 
+/** Hook Priority type definition.
+ */
 export type HookPriority = "critical" | "high" | "normal" | "low";
+/** Hook Timing type definition.
+ */
 export type HookTiming = "before" | "after" | "around" | "on";
+/** Hook Category type definition.
+ */
 export type HookCategory = 
   | "system" 
   | "cognitive" 
@@ -35,6 +41,8 @@ export type HookCategory =
   | "validation"
   | "optimization";
 
+/** Hook Handler configuration/data structure.
+ */
 export interface HookHandler {
   handler_id: string;
   type: "function" | "agent" | "webhook" | "script";
@@ -43,12 +51,16 @@ export interface HookHandler {
   enabled: boolean;
 }
 
+/** Hook Condition configuration/data structure.
+ */
 export interface HookCondition {
   field: string;
   operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "contains" | "matches";
   value: unknown;
 }
 
+/** Hook configuration/data structure.
+ */
 export interface Hook {
   hook_id: string;
   name: string;
@@ -99,6 +111,8 @@ export interface Hook {
 // HOOK REGISTRY
 // ============================================================================
 
+/** Hook Registry engine/manager.
+ */
 export class HookRegistry extends BaseRegistry<Hook> {
   private indexByCategory: Map<HookCategory, Set<string>> = new Map();
   private indexByEvent: Map<string, Set<string>> = new Map();
@@ -998,4 +1012,6 @@ export class HookRegistry extends BaseRegistry<Hook> {
 }
 
 // Export singleton instance
+/** Hook Registry constant.
+ */
 export const hookRegistry = new HookRegistry();

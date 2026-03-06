@@ -48,6 +48,9 @@ const ACTIONS = [
   "settings_safety", "settings_apply_preset",
 ] as const;
 
+/** Registers l2 engine dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerL2EngineDispatcher(server: any): void {
   server.tool(
     "prism_l2",

@@ -24,6 +24,8 @@ import { DomainTemplate, HookCategory, HookPriority, HookMode } from "./HookGene
 // EXTENDED DOMAIN TEMPLATES (45 additional domains)
 // ============================================================================
 
+/** E X T E N D E D_ D O M A I N_ T E M P L A T E S constant.
+ */
 export const EXTENDED_DOMAIN_TEMPLATES: Record<string, DomainTemplate> = {
   // =========================================================================
   // THERMAL DOMAIN - 60 hooks

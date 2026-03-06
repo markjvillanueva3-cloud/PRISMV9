@@ -28,6 +28,8 @@ export interface ThermalInput {
   ambient_temp_C?: number;
 }
 
+/** Thermal Result configuration/data structure.
+ */
 export interface ThermalResult {
   cutting_zone_temp_C: number;
   tool_interface_temp_C: number;
@@ -44,6 +46,8 @@ export interface ThermalResult {
   recommendations: string[];
 }
 
+/** Thermal Damage Risk configuration/data structure.
+ */
 export interface ThermalDamageRisk {
   burn_risk: "none" | "low" | "medium" | "high" | "critical";
   white_layer_risk: boolean;
@@ -52,6 +56,8 @@ export interface ThermalDamageRisk {
   max_safe_temp_C: number;
 }
 
+/** Thermal Optimization configuration/data structure.
+ */
 export interface ThermalOptimization {
   current_temp_C: number;
   optimized_temp_C: number;
@@ -86,6 +92,8 @@ const TOOL_TEMP_MAX: Record<string, number> = { carbide: 1000, hss: 600, ceramic
 // ENGINE CLASS
 // ============================================================================
 
+/** Thermal Sim Engine engine/manager.
+ */
 export class ThermalSimEngine {
   /**
    * Predict thermal conditions.
@@ -229,4 +237,6 @@ export class ThermalSimEngine {
   }
 }
 
+/** Thermal Sim Engine constant.
+ */
 export const thermalSimEngine = new ThermalSimEngine();

@@ -20,6 +20,8 @@
 
 export type DisclosureLevel = 0 | 1 | 2 | 3 | 4;
 
+/** User Profile configuration/data structure.
+ */
 export interface UserProfile {
   name?: string;
   company?: string;
@@ -35,6 +37,8 @@ export interface UserProfile {
   certifications?: string[];
 }
 
+/** Onboarding State configuration/data structure.
+ */
 export interface OnboardingState {
   interaction_count: number;
   disclosure_level: DisclosureLevel;
@@ -45,12 +49,16 @@ export interface OnboardingState {
   operations_seen: string[];
 }
 
+/** Welcome Message configuration/data structure.
+ */
 export interface WelcomeMessage {
   greeting: string;
   suggestions: string[];
   capabilities_hint: string;
 }
 
+/** Disclosure Suggestion configuration/data structure.
+ */
 export interface DisclosureSuggestion {
   level: DisclosureLevel;
   message: string;

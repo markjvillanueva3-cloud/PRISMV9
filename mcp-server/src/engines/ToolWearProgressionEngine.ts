@@ -9,8 +9,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ToolGrade = "HSS" | "COBALT_HSS" | "CARBIDE" | "CARBIDE_COATED" | "CERMET" | "CERAMIC" | "CBN" | "PCD";
+/** Wear Stage type definition.
+ */
 export type WearStage = "initial" | "steady" | "accelerated" | "critical";
 
+/** Wear Progression Input configuration/data structure.
+ */
 export interface WearProgressionInput {
   cutting_speed_m_min: number;
   feed_mm_rev: number;
@@ -25,6 +29,8 @@ export interface WearProgressionInput {
   taylor_n?: number;                  // Taylor exponent n
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -33,6 +39,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Wear Progression Result configuration/data structure.
+ */
 export interface WearProgressionResult {
   current_vb_mm: AtomicValue;
   wear_rate_um_per_min: AtomicValue;
@@ -89,6 +97,8 @@ const estimateTemperature = (vc: number, f: number, hrc: number): number => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Tool Wear Progression Engine engine/manager.
+ */
 export class ToolWearProgressionEngine {
   /**
    * Compute wear progression state and remaining useful life.
@@ -259,4 +269,6 @@ export class ToolWearProgressionEngine {
   }
 }
 
+/** Tool Wear Progression Engine constant.
+ */
 export const toolWearProgressionEngine = new ToolWearProgressionEngine();

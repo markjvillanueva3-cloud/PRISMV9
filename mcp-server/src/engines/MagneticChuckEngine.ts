@@ -18,6 +18,8 @@
 
 export type ChuckType = "permanent" | "electropermanent" | "electromagnetic";
 
+/** Magnetic Chuck Input configuration/data structure.
+ */
 export interface MagneticChuckInput {
   chuck_type: ChuckType;
   chuck_pull_force_N_per_cm2: number;  // rated pull force
@@ -33,6 +35,8 @@ export interface MagneticChuckInput {
   surface_roughness_Ra_um: number;     // of contact face
 }
 
+/** Magnetic Chuck Result configuration/data structure.
+ */
 export interface MagneticChuckResult {
   holding_force_N: number;
   required_force_N: number;
@@ -74,6 +78,8 @@ const REQUIRED_SF: Record<MagneticChuckInput["operation"], number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Magnetic Chuck Engine engine/manager.
+ */
 export class MagneticChuckEngine {
   calculate(input: MagneticChuckInput): MagneticChuckResult {
     // Material permeability
@@ -158,4 +164,6 @@ export class MagneticChuckEngine {
   }
 }
 
+/** Magnetic Chuck Engine constant.
+ */
 export const magneticChuckEngine = new MagneticChuckEngine();

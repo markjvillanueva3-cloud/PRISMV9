@@ -17,6 +17,9 @@ import { hookEngine, type HookDefinition } from "../engines/HookEngine.js";
 let PHASE0_HOOKS: HookDefinition[] = [];
 
 // Function to set PHASE0_HOOKS from hookToolsV3.ts after module loads
+/** Sets phase0 hooks.
+ * @param hooks - hooks
+ */
 export function setPhase0Hooks(hooks: HookDefinition[]): void {
   PHASE0_HOOKS = hooks;
 }
@@ -45,6 +48,8 @@ const COGNITIVE_PREFIXES = [
 // TYPES
 // ============================================================================
 
+/** Hook Fire Result configuration/data structure.
+ */
 export interface HookFireResult {
   success: boolean;
   hookId: string;
@@ -55,6 +60,8 @@ export interface HookFireResult {
   fallback?: boolean;
 }
 
+/** Cognitive Hook configuration/data structure.
+ */
 export interface CognitiveHook {
   id: string;
   name: string;
@@ -68,6 +75,8 @@ export interface CognitiveHook {
 // COGNITIVE HOOKS REGISTRY (Python-side hooks)
 // ============================================================================
 
+/** C O G N I T I V E_ H O O K S constant.
+ */
 export const COGNITIVE_HOOKS: CognitiveHook[] = [
   // Bayesian Hooks
   {

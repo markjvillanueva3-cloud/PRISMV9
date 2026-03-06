@@ -20,6 +20,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Factor Def configuration/data structure.
+ */
 export interface FactorDef {
   name: string;
   low: number;
@@ -27,12 +29,16 @@ export interface FactorDef {
   unit: string;
 }
 
+/** Experiment Run configuration/data structure.
+ */
 export interface ExperimentRun {
   levels: number[];  // coded levels (-1 or +1, 0 for center)
   response: number;
   replicate?: number;
 }
 
+/** D O E Input configuration/data structure.
+ */
 export interface DOEInput {
   factors: FactorDef[];
   runs: ExperimentRun[];
@@ -40,6 +46,8 @@ export interface DOEInput {
   alpha?: number;                 // significance level (default 0.05)
 }
 
+/** Effect Estimate configuration/data structure.
+ */
 export interface EffectEstimate {
   term: string;
   coefficient: number;
@@ -51,6 +59,8 @@ export interface EffectEstimate {
   is_significant: boolean;
 }
 
+/** A N O V A Table configuration/data structure.
+ */
 export interface ANOVATable {
   terms: EffectEstimate[];
   error_ss: number;
@@ -62,6 +72,8 @@ export interface ANOVATable {
   r_squared_adj: number;
 }
 
+/** D O E Result configuration/data structure.
+ */
 export interface DOEResult {
   model_equation: string;
   anova: ANOVATable;
@@ -71,12 +83,16 @@ export interface DOEResult {
   recommendations: string[];
 }
 
+/** Design Matrix configuration/data structure.
+ */
 export interface DesignMatrix {
   runs: number[][];   // coded levels for each run
   labels: string[];   // treatment labels
   factor_names: string[];
 }
 
+/** Fractional Design Result configuration/data structure.
+ */
 export interface FractionalDesignResult {
   design: DesignMatrix;
   defining_relation: string;

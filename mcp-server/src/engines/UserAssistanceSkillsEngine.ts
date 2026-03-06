@@ -38,6 +38,8 @@ export interface AssistanceSkill {
   };
 }
 
+/** Physics Explanation configuration/data structure.
+ */
 export interface PhysicsExplanation {
   parameter: string;
   value: number | string;
@@ -47,6 +49,8 @@ export interface PhysicsExplanation {
   simplified: string;
 }
 
+/** Confidence Report configuration/data structure.
+ */
 export interface ConfidenceReport {
   overall_confidence: number;
   data_quality: "high" | "medium" | "low";
@@ -55,6 +59,8 @@ export interface ConfidenceReport {
   recommendation: string;
 }
 
+/** Alternative Option configuration/data structure.
+ */
 export interface AlternativeOption {
   rank: number;
   name: string;
@@ -63,6 +69,8 @@ export interface AlternativeOption {
   vs_primary: { better: string[]; worse: string[] };
 }
 
+/** Safety Report configuration/data structure.
+ */
 export interface SafetyReport {
   score: number;
   grade: "SAFE" | "CAUTION" | "WARNING" | "DANGER";
@@ -71,6 +79,8 @@ export interface SafetyReport {
   recommendation: string;
 }
 
+/** Common Mistake configuration/data structure.
+ */
 export interface CommonMistake {
   id: string;
   mistake: string;

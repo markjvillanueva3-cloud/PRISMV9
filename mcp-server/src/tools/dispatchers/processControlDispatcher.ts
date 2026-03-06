@@ -28,6 +28,9 @@ const ACTIONS = [
   "spc_ewma", "spc_cusum", "doe_analyze",
 ] as const;
 
+/** Registers process control dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerProcessControlDispatcher(server: any): void {
   server.tool(
     "prism_process_control",

@@ -94,6 +94,9 @@ function parseActionTracker(content: string): object {
 
 const ACTIONS = ["list", "read", "write", "append", "roadmap_status", "action_tracker", "migrate"] as const;
 
+/** Registers document dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerDocumentDispatcher(server: any): void {
   server.tool(
     "prism_doc",

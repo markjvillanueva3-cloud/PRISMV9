@@ -14,6 +14,8 @@
 
 export type BarFeederType = "magazine" | "hydrodynamic" | "servo" | "short_bar";
 
+/** Bar Puller Input configuration/data structure.
+ */
 export interface BarPullerInput {
   bar_diameter_mm: number;
   bar_length_mm: number;               // total bar stock length
@@ -29,6 +31,8 @@ export interface BarPullerInput {
   remnant_min_mm: number;              // minimum bar remnant before new bar
 }
 
+/** Bar Puller Result configuration/data structure.
+ */
 export interface BarPullerResult {
   pull_distance_mm: number;
   parts_per_bar: number;
@@ -44,6 +48,8 @@ export interface BarPullerResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Bar Puller Timing Engine engine/manager.
+ */
 export class BarPullerTimingEngine {
   calculate(input: BarPullerInput): BarPullerResult {
     // Pull distance = part length + cutoff + facing allowance
@@ -109,4 +115,6 @@ export class BarPullerTimingEngine {
   }
 }
 
+/** Bar Puller Timing Engine constant.
+ */
 export const barPullerTimingEngine = new BarPullerTimingEngine();

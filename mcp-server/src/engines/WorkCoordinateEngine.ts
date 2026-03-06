@@ -14,6 +14,8 @@
 
 export type WCSCode = "G54" | "G55" | "G56" | "G57" | "G58" | "G59" | string;
 
+/** W C S Offset configuration/data structure.
+ */
 export interface WCSOffset {
   id: string;
   code: WCSCode;
@@ -24,6 +26,8 @@ export interface WCSOffset {
   setup_id?: string;
 }
 
+/** Datum Point configuration/data structure.
+ */
 export interface DatumPoint {
   id: string;
   name: string;                      // "A", "B", "C" or descriptive
@@ -32,6 +36,8 @@ export interface DatumPoint {
   method: "probe" | "edge_finder" | "indicator" | "visual" | "fixture";
 }
 
+/** W C S Setup configuration/data structure.
+ */
 export interface WCSSetup {
   wcs: WCSOffset;
   datum_points: DatumPoint[];
@@ -40,6 +46,8 @@ export interface WCSSetup {
   notes: string[];
 }
 
+/** Coord Transform configuration/data structure.
+ */
 export interface CoordTransform {
   from_wcs: WCSCode;
   to_wcs: WCSCode;
@@ -47,6 +55,8 @@ export interface CoordTransform {
   rotation_deg: { da: number; db: number; dc: number };
 }
 
+/** Multi Part Setup configuration/data structure.
+ */
 export interface MultiPartSetup {
   fixture_id: string;
   parts: { part_id: string; wcs: WCSCode; offset: WCSOffset }[];
@@ -55,6 +65,8 @@ export interface MultiPartSetup {
   total_setup_time_min: number;
 }
 
+/** W C S Validation configuration/data structure.
+ */
 export interface WCSValidation {
   valid: boolean;
   issues: string[];
@@ -82,6 +94,8 @@ const PROBE_SEQUENCES: Record<DatumPoint["type"], string[]> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Work Coordinate Engine engine/manager.
+ */
 export class WorkCoordinateEngine {
   private offsets: WCSOffset[] = [];
 
@@ -224,4 +238,6 @@ export class WorkCoordinateEngine {
   }
 }
 
+/** Work Coordinate Engine constant.
+ */
 export const workCoordinateEngine = new WorkCoordinateEngine();

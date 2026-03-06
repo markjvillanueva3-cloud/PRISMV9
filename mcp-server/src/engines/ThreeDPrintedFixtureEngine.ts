@@ -14,8 +14,12 @@
 // ============================================================================
 
 export type PrintProcess = "FDM" | "SLA" | "SLS" | "DMLS";
+/** Print Material type definition.
+ */
 export type PrintMaterial = "PLA" | "PETG" | "ABS" | "Nylon_FDM" | "PA12_SLS" | "Rigid_Resin" | "AlSi10Mg" | "316L";
 
+/** Three D Print Fixture Input configuration/data structure.
+ */
 export interface ThreeDPrintFixtureInput {
   process: PrintProcess;
   material: PrintMaterial;
@@ -29,6 +33,8 @@ export interface ThreeDPrintFixtureInput {
   conventional_lead_days: number;
 }
 
+/** Three D Print Fixture Result configuration/data structure.
+ */
 export interface ThreeDPrintFixtureResult {
   feasible: boolean;
   recommended_wall_mm: number;
@@ -70,6 +76,8 @@ const MATERIAL_PROPS: Record<PrintMaterial, {
 // ENGINE CLASS
 // ============================================================================
 
+/** Three D Printed Fixture Engine engine/manager.
+ */
 export class ThreeDPrintedFixtureEngine {
   evaluate(input: ThreeDPrintFixtureInput): ThreeDPrintFixtureResult {
     const props = MATERIAL_PROPS[input.material];
@@ -143,4 +151,6 @@ export class ThreeDPrintedFixtureEngine {
   }
 }
 
+/** Three D Printed Fixture Engine constant.
+ */
 export const threeDPrintedFixtureEngine = new ThreeDPrintedFixtureEngine();

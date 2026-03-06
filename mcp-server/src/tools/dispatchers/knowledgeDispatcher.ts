@@ -24,6 +24,9 @@ async function getEngine(): Promise<any> {
   return knowledgeEngine;
 }
 
+/** Registers knowledge dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerKnowledgeDispatcher(server: any): void {
   server.tool(
     "prism_knowledge",

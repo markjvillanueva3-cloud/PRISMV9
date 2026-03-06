@@ -234,6 +234,8 @@ export const materialRef = () => z.string().min(1).optional();
 
 // ── Physical bound constants (from safetyCalcSchema.ts) ──
 
+/** B O U N D S constant.
+ */
 export const BOUNDS = {
   CUTTING_SPEED: 2000,     // m/min — fastest aluminum HSM
   FEED_PER_TOOTH: 10,      // mm — covers roughing inserts

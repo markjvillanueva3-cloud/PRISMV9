@@ -637,6 +637,11 @@ function getCorrectionFactor(id: string): Record<string, unknown> {
 
 // ─── Dispatcher ──────────────────────────────────────────────────────────────
 
+/** Federated Learning.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns record<string, unknown>
+ */
 export function federatedLearning(action: string, params: Record<string, unknown> = {}): Record<string, unknown> {
   switch (action) {
     case "learn_contribute": {
@@ -712,6 +717,8 @@ export function federatedLearning(action: string, params: Record<string, unknown
 // AUTO-GENERATED from MASTER_EXTRACTION_INDEX_V2.json — 80 LOW-priority extracted JS modules
 // that feed into this engine. Used for traceability, safety auditing, and wiring verification.
 
+/** F E D E R A T E D_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const FEDERATED_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

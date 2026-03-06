@@ -15,8 +15,12 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type HeatTreatment = "annealed" | "normalized" | "quench_temper" | "solution_aged" | "as_cast" | "stress_relieved";
+/** Chip Formation type definition.
+ */
 export type ChipFormation = "continuous" | "segmented" | "discontinuous" | "bue_prone";
 
+/** Composition configuration/data structure.
+ */
 export interface Composition {
   C?: number; Si?: number; Mn?: number; Cr?: number; Ni?: number; Mo?: number;
   V?: number; W?: number; Co?: number; Ti?: number; Al?: number; Cu?: number;
@@ -24,6 +28,8 @@ export interface Composition {
   Zn?: number; Mg?: number;
 }
 
+/** Mechanical Fingerprint configuration/data structure.
+ */
 export interface MechanicalFingerprint {
   hardness_hrc: number;
   hardness_hb: number;
@@ -34,6 +40,8 @@ export interface MechanicalFingerprint {
   johnson_cook?: { A: number; B: number; C: number; n: number; m: number };
 }
 
+/** Thermal Fingerprint configuration/data structure.
+ */
 export interface ThermalFingerprint {
   conductivity_w_mk: number;
   specific_heat_j_kgk: number;
@@ -42,6 +50,8 @@ export interface ThermalFingerprint {
   melting_point_c: number;
 }
 
+/** Machinability Fingerprint configuration/data structure.
+ */
 export interface MachinabilityFingerprint {
   kc1_1: number; // specific cutting force (N/mm²)
   mc: number;    // cutting force exponent
@@ -55,6 +65,8 @@ export interface MachinabilityFingerprint {
   vc_range_carbide: [number, number]; // m/min
 }
 
+/** Surface Integrity Response configuration/data structure.
+ */
 export interface SurfaceIntegrityResponse {
   residual_stress_tendency: "compressive" | "tensile" | "neutral";
   white_layer_risk: "none" | "low" | "medium" | "high";
@@ -62,6 +74,8 @@ export interface SurfaceIntegrityResponse {
   roughness_correction_factor: number; // multiplier on theoretical Ra
 }
 
+/** Behavioral Pattern configuration/data structure.
+ */
 export interface BehavioralPattern {
   jobs_recorded: number;
   avg_tool_life_vs_predicted: number; // ratio: >1 = better than predicted
@@ -70,6 +84,8 @@ export interface BehavioralPattern {
   last_updated: string;
 }
 
+/** Genome Record configuration/data structure.
+ */
 export interface GenomeRecord {
   genome_id: string;
   material_name: string;
@@ -85,6 +101,8 @@ export interface GenomeRecord {
   family: string;
 }
 
+/** Genome Prediction configuration/data structure.
+ */
 export interface GenomePrediction {
   prediction_id: string;
   genome_id: string;
@@ -99,6 +117,8 @@ export interface GenomePrediction {
   adjustments: string[];
 }
 
+/** Similarity Result configuration/data structure.
+ */
 export interface SimilarityResult {
   genome_id: string;
   material: string;

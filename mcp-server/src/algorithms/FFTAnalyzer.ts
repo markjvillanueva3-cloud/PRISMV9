@@ -19,8 +19,12 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Window Function type definition.
+ */
 export type WindowFunction = "rectangular" | "hann" | "hamming" | "blackman" | "flattop";
 
+/** F F T Analyzer Input configuration/data structure.
+ */
 export interface FFTAnalyzerInput {
   /** Time-domain signal samples. */
   signal: number[];
@@ -38,6 +42,8 @@ export interface FFTAnalyzerInput {
   compute_psd?: boolean;
 }
 
+/** F F T Peak configuration/data structure.
+ */
 export interface FFTPeak {
   frequency: number;
   magnitude: number;
@@ -46,6 +52,8 @@ export interface FFTPeak {
   harmonic_of?: number;
 }
 
+/** F F T Analyzer Output configuration/data structure.
+ */
 export interface FFTAnalyzerOutput extends WithWarnings {
   frequencies: number[];
   magnitudes: number[];
@@ -60,6 +68,8 @@ export interface FFTAnalyzerOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** F F T Analyzer engine/manager.
+ */
 export class FFTAnalyzer implements Algorithm<FFTAnalyzerInput, FFTAnalyzerOutput> {
 
   validate(input: FFTAnalyzerInput): ValidationResult {

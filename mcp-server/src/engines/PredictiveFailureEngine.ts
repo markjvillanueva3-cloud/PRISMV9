@@ -153,6 +153,8 @@ function computeParamSignature(params: any): string {
 // PREDICTIVE FAILURE ENGINE — SINGLETON
 // ============================================================================
 
+/** Predictive Failure Engine engine/manager.
+ */
 export class PredictiveFailureEngine {
   private config: PFPConfig;
   private history: ActionRecord[] = [];
@@ -788,6 +790,8 @@ export class PredictiveFailureEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Pfp Engine constant.
+ */
 export const pfpEngine = new PredictiveFailureEngine();
 
 export { computeParamSignature, computeActionChecksum, validateActionChecksum };

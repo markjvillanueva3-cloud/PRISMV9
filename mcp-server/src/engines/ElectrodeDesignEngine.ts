@@ -16,6 +16,8 @@
 
 export type ElectrodeMaterial = "graphite_fine" | "graphite_std" | "copper" | "copper_tungsten" | "tellurium_copper";
 
+/** Electrode Design Input configuration/data structure.
+ */
 export interface ElectrodeDesignInput {
   cavity_depth_mm: number;
   cavity_width_mm: number;
@@ -28,6 +30,8 @@ export interface ElectrodeDesignInput {
   electrode_material: ElectrodeMaterial;
 }
 
+/** Electrode Design Result configuration/data structure.
+ */
 export interface ElectrodeDesignResult {
   num_electrodes_needed: number;       // rough + semi + finish
   overcut_per_side_mm: number;
@@ -63,6 +67,8 @@ const GAP_BY_STAGE: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Electrode Design Engine engine/manager.
+ */
 export class ElectrodeDesignEngine {
   design(input: ElectrodeDesignInput): ElectrodeDesignResult {
     const matKey = this._workpieceKey(input.workpiece_material);
@@ -152,4 +158,6 @@ export class ElectrodeDesignEngine {
   }
 }
 
+/** Electrode Design Engine constant.
+ */
 export const electrodeDesignEngine = new ElectrodeDesignEngine();

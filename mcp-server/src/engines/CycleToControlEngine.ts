@@ -14,8 +14,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ControllerType = "proportional" | "integral";
+/** Disturbance Type type definition.
+ */
 export type DisturbanceType = "uncorrelated" | "correlated" | "unknown";
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -24,6 +28,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Ct C Process Input configuration/data structure.
+ */
 export interface CtCProcessInput {
   process_gain_Kp: number;          // K_p: process gain (output/input units)
   controller_type: ControllerType;  // P or I controller
@@ -38,6 +44,8 @@ export interface CtCProcessInput {
   num_cycles?: number;              // n: simulation cycles (default 100)
 }
 
+/** Ct C Result configuration/data structure.
+ */
 export interface CtCResult {
   loop_gain_K: AtomicValue;                   // K = K_c * K_p
   is_stable: boolean;
@@ -55,6 +63,8 @@ export interface CtCResult {
   is_safe: boolean;
 }
 
+/** Ct C Optimal Gain Result configuration/data structure.
+ */
 export interface CtCOptimalGainResult {
   optimal_gain_Kc: AtomicValue;
   min_quality_loss: AtomicValue;
@@ -64,6 +74,8 @@ export interface CtCOptimalGainResult {
   recommendations: string[];
 }
 
+/** Autocorrelation Result configuration/data structure.
+ */
 export interface AutocorrelationResult {
   lag_values: number[];                       // autocorrelation at each lag
   disturbance_type: DisturbanceType;

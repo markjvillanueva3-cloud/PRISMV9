@@ -27,6 +27,8 @@ const STATE_DIR = PATHS.STATE_DIR;
 // TYPES
 // ============================================================================
 
+/** Skill Excerpt configuration/data structure.
+ */
 export interface SkillExcerpt {
   skill_id: string;
   title: string;
@@ -36,6 +38,8 @@ export interface SkillExcerpt {
   lines_extracted: number;   // Lines we kept
 }
 
+/** Chain Recommendation configuration/data structure.
+ */
 export interface ChainRecommendation {
   chain_name: string;
   purpose: string;
@@ -43,6 +47,8 @@ export interface ChainRecommendation {
   match_reason: string;
 }
 
+/** Skill Auto Load Result configuration/data structure.
+ */
 export interface SkillAutoLoadResult {
   success: boolean;
   call_number: number;
@@ -287,6 +293,10 @@ function extractKeyContent(skillPath: string, maxLines: number): SkillExcerpt | 
 // CHAIN RECOMMENDATION
 // ============================================================================
 
+/** Gets chain for domain.
+ * @param domain - domain string
+ * @returns chain recommendation | null
+ */
 export function getChainForDomain(domain: string): ChainRecommendation | null {
   const mapping = DOMAIN_CHAIN_MAP[domain];
   if (!mapping) return null;
@@ -410,6 +420,10 @@ export function autoLoadForTask(
 // Used by _context injection to include skill knowledge
 // ============================================================================
 
+/** Gets loaded excerpts block.
+ * @param result - result
+ * @returns string
+ */
 export function getLoadedExcerptsBlock(result: SkillAutoLoadResult): string {
   if (result.excerpts.length === 0) return "";
   
@@ -427,6 +441,8 @@ export function getLoadedExcerptsBlock(result: SkillAutoLoadResult): string {
 // UTILITY: Clear cache (for testing or session reset)
 // ============================================================================
 
+/** Clear Skill Cache.
+ */
 export function clearSkillCache(): void {
   excerptCache.clear();
   cacheSessionId = "";

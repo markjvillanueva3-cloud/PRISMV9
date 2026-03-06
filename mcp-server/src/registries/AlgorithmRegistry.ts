@@ -310,6 +310,8 @@ const BUILT_IN_ALGORITHMS: AlgorithmEntry[] = [
 // ALGORITHM TYPES (categories for indexing)
 // ============================================================================
 
+/** A L G O R I T H M_ T Y P E S constant.
+ */
 export const ALGORITHM_TYPES: AlgorithmType[] = [
   "graph",
   "optimization",
@@ -331,6 +333,8 @@ export const ALGORITHM_TYPES: AlgorithmType[] = [
 // ALGORITHM REGISTRY CLASS
 // ============================================================================
 
+/** Algorithm Registry engine/manager.
+ */
 export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
   private indexByType: Map<string, string[]> = new Map();
   private indexBySafetyClass: Map<string, string[]> = new Map();
@@ -880,4 +884,6 @@ export class AlgorithmRegistry extends BaseRegistry<AlgorithmEntry> {
 }
 
 // Export singleton instance
+/** Algorithm Registry constant.
+ */
 export const algorithmRegistry = new AlgorithmRegistry();

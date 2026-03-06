@@ -16,8 +16,12 @@
 // ============================================================================
 
 export type JawProfile = "flat" | "step" | "vee_90" | "vee_120" | "contour" | "dovetail";
+/** Jaw Material type definition.
+ */
 export type JawMaterial = "6061_aluminum" | "1018_steel" | "brass" | "nylon" | "delrin";
 
+/** Soft Jaw Input configuration/data structure.
+ */
 export interface SoftJawInput {
   workpiece_shape: "round" | "hex" | "square" | "rectangular" | "irregular";
   workpiece_dimension_mm: number;      // OD for round, across-flats for hex, width for rect
@@ -31,6 +35,8 @@ export interface SoftJawInput {
   surface_finish_critical: boolean;
 }
 
+/** Soft Jaw Result configuration/data structure.
+ */
 export interface SoftJawResult {
   profile: JawProfile;
   bore_diameter_mm: number;
@@ -69,6 +75,8 @@ const FRICTION_COEFF: Record<JawMaterial, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Soft Jaw Profile Engine engine/manager.
+ */
 export class SoftJawProfileEngine {
   design(input: SoftJawInput): SoftJawResult {
     // Select profile based on workpiece shape
@@ -160,4 +168,6 @@ export class SoftJawProfileEngine {
   }
 }
 
+/** Soft Jaw Profile Engine constant.
+ */
 export const softJawProfileEngine = new SoftJawProfileEngine();

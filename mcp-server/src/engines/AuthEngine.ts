@@ -19,6 +19,8 @@ import * as crypto from "crypto";
 // TYPES
 // ============================================================================
 
+/** Auth User configuration/data structure.
+ */
 export interface AuthUser {
   id: string;
   username: string;
@@ -34,6 +36,8 @@ export interface AuthUser {
   locked_until?: string;
 }
 
+/** Auth Token configuration/data structure.
+ */
 export interface AuthToken {
   access_token: string;
   refresh_token: string;
@@ -44,6 +48,8 @@ export interface AuthToken {
   roles: string[];
 }
 
+/** Auth Session configuration/data structure.
+ */
 export interface AuthSession {
   session_id: string;
   user_id: string;
@@ -54,14 +60,20 @@ export interface AuthSession {
   is_active: boolean;
 }
 
+/** Auth Role type definition.
+ */
 export type AuthRole = "admin" | "operator" | "viewer" | "programmer" | "maintenance" | "quality" | "guest";
 
+/** Role Definition configuration/data structure.
+ */
 export interface RoleDefinition {
   name: AuthRole;
   permissions: string[];
   description: string;
 }
 
+/** Auth Result configuration/data structure.
+ */
 export interface AuthResult {
   success: boolean;
   user_id?: string;
@@ -70,6 +82,8 @@ export interface AuthResult {
   requires_mfa?: boolean;
 }
 
+/** Permission Check configuration/data structure.
+ */
 export interface PermissionCheck {
   allowed: boolean;
   user_id: string;
@@ -109,6 +123,8 @@ const HASH_DIGEST = "sha512";
 // ENGINE CLASS
 // ============================================================================
 
+/** Auth Engine engine/manager.
+ */
 export class AuthEngine {
   private users = new Map<string, AuthUser>();
   private sessions = new Map<string, AuthSession>();
@@ -324,4 +340,6 @@ export class AuthEngine {
   }
 }
 
+/** Auth Engine constant.
+ */
 export const authEngine = new AuthEngine();

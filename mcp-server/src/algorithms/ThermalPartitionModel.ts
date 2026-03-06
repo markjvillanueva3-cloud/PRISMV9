@@ -34,6 +34,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Thermal Input configuration/data structure.
+ */
 export interface ThermalInput {
   /** Cutting force Fc [N]. */
   cutting_force: number;
@@ -61,6 +63,8 @@ export interface ThermalInput {
   ambient_temp?: number;
 }
 
+/** Thermal Output configuration/data structure.
+ */
 export interface ThermalOutput extends WithWarnings {
   /** Net cutting power [kW]. */
   power_cutting_kw: number;
@@ -99,6 +103,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Thermal Partition Model engine/manager.
+ */
 export class ThermalPartitionModel implements Algorithm<ThermalInput, ThermalOutput> {
 
   validate(input: ThermalInput): ValidationResult {

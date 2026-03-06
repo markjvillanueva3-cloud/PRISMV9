@@ -16,10 +16,18 @@ export type GrindingMode =
   | "creep_feed"
   | "centerless";
 
+/** Coolant Type type definition.
+ */
 export type CoolantType = "flood" | "mist" | "dry" | "cryogenic";
+/** Dressing Condition type definition.
+ */
 export type DressingCondition = "sharp" | "medium" | "dull";
+/** Wheel Bond Type type definition.
+ */
 export type WheelBondType = "vitrified" | "resinoid" | "metal" | "electroplated";
 
+/** Grinding Surface Finish Input configuration/data structure.
+ */
 export interface GrindingSurfaceFinishInput {
   wheel_diameter_mm: number;
   wheel_speed_m_s: number;             // typically 25–45 m/s
@@ -39,6 +47,8 @@ export interface GrindingSurfaceFinishInput {
   target_Ra_um?: number;               // desired Ra for pass/fail check
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -47,6 +57,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Grinding Surface Finish Result configuration/data structure.
+ */
 export interface GrindingSurfaceFinishResult {
   predicted_Ra_um: AtomicValue;
   predicted_Rz_um: AtomicValue;
@@ -112,6 +124,8 @@ const BURN_RISK_THRESHOLD_UM = 0.1; // predicted Ra below this with dull wheel =
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Grinding Surface Finish Engine engine/manager.
+ */
 export class GrindingSurfaceFinishEngine {
   /**
    * Predict surface roughness (Ra, Rz) for a grinding operation.
@@ -271,4 +285,6 @@ export class GrindingSurfaceFinishEngine {
   }
 }
 
+/** Grinding Surface Finish Engine constant.
+ */
 export const grindingSurfaceFinishEngine = new GrindingSurfaceFinishEngine();

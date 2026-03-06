@@ -649,6 +649,9 @@ function uid(unit: any): number { return unit.unit_id ?? unit.id ?? 0; }
 // DISPATCHER REGISTRATION
 // ============================================================================
 
+/** Registers autonomous dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerAutonomousDispatcher(server: any): void {
   server.tool(
     "prism_autonomous",

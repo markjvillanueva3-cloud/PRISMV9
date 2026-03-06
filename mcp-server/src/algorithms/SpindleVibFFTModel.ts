@@ -32,6 +32,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Spindle Vib F F T Input configuration/data structure.
+ */
 export interface SpindleVibFFTInput {
   /** Time-domain vibration signal (acceleration or velocity). */
   signal: number[];
@@ -51,6 +53,8 @@ export interface SpindleVibFFTInput {
   max_chatter_freq?: number;
 }
 
+/** Spectral Peak configuration/data structure.
+ */
 export interface SpectralPeak {
   frequency_hz: number;
   magnitude: number;
@@ -58,12 +62,16 @@ export interface SpectralPeak {
   harmonic_order: number | null;
 }
 
+/** Stable R P M Option configuration/data structure.
+ */
 export interface StableRPMOption {
   rpm: number;
   lobe_number: number;
   method: string;
 }
 
+/** Spindle Vib F F T Output configuration/data structure.
+ */
 export interface SpindleVibFFTOutput extends WithWarnings {
   /** Dominant frequency [Hz]. */
   dominant_frequency_hz: number;
@@ -106,6 +114,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Spindle Vib F F T Model engine/manager.
+ */
 export class SpindleVibFFTModel implements Algorithm<SpindleVibFFTInput, SpindleVibFFTOutput> {
 
   validate(input: SpindleVibFFTInput): ValidationResult {

@@ -10,9 +10,15 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type SpindleBearingType = "angular_contact" | "roller" | "hydrostatic";
+/** Tool Material Thermal type definition.
+ */
 export type ToolMaterialThermal = "carbide" | "hss" | "ceramic" | "cbn" | "pcd";
+/** Workpiece Material Thermal type definition.
+ */
 export type WorkpieceMaterialThermal = "steel" | "aluminum" | "cast_iron" | "titanium" | "stainless" | "inconel";
 
+/** Thermal Growth Input configuration/data structure.
+ */
 export interface ThermalGrowthInput {
   spindle_speed_rpm: number;
   cutting_time_min: number;
@@ -27,6 +33,8 @@ export interface ThermalGrowthInput {
   coolant_active?: boolean;                   // default true
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -35,6 +43,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Thermal Growth Result configuration/data structure.
+ */
 export interface ThermalGrowthResult {
   spindle_growth_um: AtomicValue;
   tool_holder_growth_um: AtomicValue;
@@ -86,6 +96,8 @@ const THERMAL_TAU: Record<SpindleBearingType, number> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Thermal Growth Compensation Engine engine/manager.
+ */
 export class ThermalGrowthCompensationEngine {
   calculate(input: ThermalGrowthInput): ThermalGrowthResult {
     const {
@@ -237,4 +249,6 @@ export class ThermalGrowthCompensationEngine {
   }
 }
 
+/** Thermal Growth Compensation Engine constant.
+ */
 export const thermalGrowthCompensationEngine = new ThermalGrowthCompensationEngine();

@@ -24,6 +24,8 @@
 
 export type ConversationState = "idle" | "exploring" | "planning" | "executing" | "reviewing";
 
+/** Job Context configuration/data structure.
+ */
 export interface JobContext {
   id: string;
   created: string;
@@ -48,6 +50,8 @@ export interface JobContext {
   actual_results: { description: string; timestamp: string }[];
 }
 
+/** Conversation Context configuration/data structure.
+ */
 export interface ConversationContext {
   session_id: string;
   current_state: ConversationState;
@@ -56,6 +60,8 @@ export interface ConversationContext {
   response_style: ResponseStyle;
 }
 
+/** Response Style configuration/data structure.
+ */
 export interface ResponseStyle {
   verbosity: "terse" | "normal" | "detailed";
   focus: "safety" | "productivity" | "quality" | "cost" | "general";

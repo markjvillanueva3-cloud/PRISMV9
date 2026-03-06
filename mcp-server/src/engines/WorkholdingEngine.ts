@@ -459,6 +459,8 @@ const MAGNETIC_PERMEABILITY: Record<string, number> = {
 // Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
 // ============================================================================
 
+/** W O R K H O L D I N G_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const WORKHOLDING_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -1492,6 +1494,8 @@ class WorkholdingEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Workholding Engine constant.
+ */
 export const workholdingEngine = new WorkholdingEngine();
 
 // Export types and engine

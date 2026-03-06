@@ -32,6 +32,8 @@ export const R2_TOLERANCES = {
   multi_op: 0.15,
 } as const satisfies Record<string, number>;
 
+/** Tolerance Category type definition.
+ */
 export type ToleranceCategory = keyof typeof R2_TOLERANCES;
 
 /**

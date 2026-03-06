@@ -178,6 +178,9 @@ function integrationExtractKeyValues(action: string, result: any): Record<string
 // REGISTRATION
 // ============================================================================
 
+/** Registers integration dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerIntegrationDispatcher(server: any): void {
   server.tool(
     "prism_integration",

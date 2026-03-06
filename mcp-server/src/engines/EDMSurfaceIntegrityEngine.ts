@@ -18,6 +18,8 @@
 
 export type EDMType = "wire" | "sinker" | "hole_drill" | "micro";
 
+/** E D M Surface Input configuration/data structure.
+ */
 export interface EDMSurfaceInput {
   edm_type: EDMType;
   discharge_energy_mJ: number;
@@ -29,6 +31,8 @@ export interface EDMSurfaceInput {
   spec_standard?: string;              // e.g., "AMS 2628"
 }
 
+/** E D M Surface Result configuration/data structure.
+ */
 export interface EDMSurfaceResult {
   recast_layer_depth_um: number;
   heat_affected_zone_depth_um: number;
@@ -60,6 +64,8 @@ const SPEC_LIMITS: Record<string, { max_recast_um: number; max_haz_um: number; r
 // ENGINE CLASS
 // ============================================================================
 
+/** E D M Surface Integrity Engine engine/manager.
+ */
 export class EDMSurfaceIntegrityEngine {
   assess(input: EDMSurfaceInput): EDMSurfaceResult {
     // Base recast depth from discharge energy
@@ -153,4 +159,6 @@ export class EDMSurfaceIntegrityEngine {
   }
 }
 
+/** Edm Surface Integrity Engine constant.
+ */
 export const edmSurfaceIntegrityEngine = new EDMSurfaceIntegrityEngine();

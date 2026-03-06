@@ -15,6 +15,8 @@
 
 export type RateLimitAlgorithm = "token_bucket" | "sliding_window" | "fixed_window";
 
+/** Rate Limit Rule configuration/data structure.
+ */
 export interface RateLimitRule {
   id: string;
   name: string;
@@ -26,6 +28,8 @@ export interface RateLimitRule {
   cooldown_sec: number;
 }
 
+/** Rate Limit State configuration/data structure.
+ */
 export interface RateLimitState {
   rule_id: string;
   key: string;
@@ -36,6 +40,8 @@ export interface RateLimitState {
   retry_after_sec: number;
 }
 
+/** Rate Limit Check Result configuration/data structure.
+ */
 export interface RateLimitCheckResult {
   allowed: boolean;
   remaining: number;
@@ -74,6 +80,8 @@ const DEFAULT_RULES: RateLimitRule[] = [
 // ENGINE CLASS
 // ============================================================================
 
+/** Rate Limit Engine engine/manager.
+ */
 export class RateLimitEngine {
   private rules = new Map<string, RateLimitRule>();
   private buckets = new Map<string, BucketState>();
@@ -216,4 +224,6 @@ export class RateLimitEngine {
   }
 }
 
+/** Rate Limit Engine constant.
+ */
 export const rateLimitEngine = new RateLimitEngine();

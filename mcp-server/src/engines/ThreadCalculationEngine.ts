@@ -36,8 +36,12 @@ import {
 // TYPES
 // ============================================================================
 
+/** Thread Type type definition.
+ */
 export type ThreadType = 'ISO' | 'UNC' | 'UNF' | 'UNEF' | 'NPT' | 'NPTF' | 'BSP' | 'BSPT' | 'ACME' | 'TRAPEZOIDAL' | 'UNKNOWN';
 
+/** Thread Spec configuration/data structure.
+ */
 export interface ThreadSpec {
   designation: string;
   type: ThreadType;
@@ -53,6 +57,8 @@ export interface ThreadSpec {
   originalData: ISOMetricThread | UnifiedThread | PipeThread | ACMEThread | TrapezoidalThread | null;
 }
 
+/** Tap Drill Result configuration/data structure.
+ */
 export interface TapDrillResult {
   threadDesignation: string;
   engagementPercent: number;
@@ -66,6 +72,8 @@ export interface TapDrillResult {
   warnings: string[];
 }
 
+/** Thread Mill Result configuration/data structure.
+ */
 export interface ThreadMillResult {
   threadDesignation: string;
   toolDiameter: number;
@@ -80,6 +88,8 @@ export interface ThreadMillResult {
   warnings: string[];
 }
 
+/** Stripping Result configuration/data structure.
+ */
 export interface StrippingResult {
   threadDesignation: string;
   engagementLength: number;  // mm
@@ -92,6 +102,8 @@ export interface StrippingResult {
   warnings: string[];
 }
 
+/** Gauge Result configuration/data structure.
+ */
 export interface GaugeResult {
   threadDesignation: string;
   fitClass: string;
@@ -112,6 +124,8 @@ export interface GaugeResult {
 // THREAD CALCULATION ENGINE
 // ============================================================================
 
+/** Thread Calculation Engine engine/manager.
+ */
 export class ThreadCalculationEngine {
   
   // ========== THREAD PARSING & LOOKUP ==========
@@ -654,6 +668,8 @@ export class ThreadCalculationEngine {
 }
 
 // Singleton instance
+/** Thread Engine constant.
+ */
 export const threadEngine = new ThreadCalculationEngine();
 
 console.log('[ThreadCalculationEngine] Initialized');

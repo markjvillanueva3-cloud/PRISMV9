@@ -14,11 +14,17 @@ import * as crypto from "crypto";
 // TYPES
 // ============================================================================
 
+/** Webhook Event type definition.
+ */
 export type WebhookEvent = "job.created" | "job.completed" | "job.failed" | "alarm.triggered" | "alarm.cleared" |
   "machine.status_changed" | "tool.worn" | "tool.broken" | "quality.out_of_spec" | "export.ready" | "custom";
 
+/** Webhook Status type definition.
+ */
 export type WebhookStatus = "active" | "disabled" | "failing";
 
+/** Webhook Registration configuration/data structure.
+ */
 export interface WebhookRegistration {
   id: string;
   url: string;
@@ -33,6 +39,8 @@ export interface WebhookRegistration {
   total_failures: number;
 }
 
+/** Webhook Delivery configuration/data structure.
+ */
 export interface WebhookDelivery {
   id: string;
   webhook_id: string;
@@ -47,6 +55,8 @@ export interface WebhookDelivery {
   signature: string;
 }
 
+/** Webhook Stats configuration/data structure.
+ */
 export interface WebhookStats {
   total_webhooks: number;
   active: number;
@@ -63,6 +73,8 @@ export interface WebhookStats {
 let webhookIdCounter = 0;
 let deliveryIdCounter = 0;
 
+/** Webhook Engine engine/manager.
+ */
 export class WebhookEngine {
   private webhooks = new Map<string, WebhookRegistration>();
   private deliveries: WebhookDelivery[] = [];
@@ -204,4 +216,6 @@ export class WebhookEngine {
   }
 }
 
+/** Webhook Engine constant.
+ */
 export const webhookEngine = new WebhookEngine();

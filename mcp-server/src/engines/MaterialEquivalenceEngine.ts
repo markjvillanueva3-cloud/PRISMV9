@@ -14,12 +14,16 @@
 
 export type MaterialStandard = "AISI" | "DIN" | "EN" | "JIS" | "BS" | "UNS" | "GOST" | "ISO";
 
+/** Material Equiv Input configuration/data structure.
+ */
 export interface MaterialEquivInput {
   designation: string;
   standard: MaterialStandard;
   target_standards?: MaterialStandard[];
 }
 
+/** Material Equivalent configuration/data structure.
+ */
 export interface MaterialEquivalent {
   standard: MaterialStandard;
   designation: string;
@@ -27,6 +31,8 @@ export interface MaterialEquivalent {
   notes?: string;
 }
 
+/** Material Equiv Result configuration/data structure.
+ */
 export interface MaterialEquivResult {
   input_designation: string;
   input_standard: MaterialStandard;
@@ -66,6 +72,8 @@ const EQUIV_DB: {
 // ENGINE CLASS
 // ============================================================================
 
+/** Material Equivalence Engine engine/manager.
+ */
 export class MaterialEquivalenceEngine {
   findEquivalent(input: MaterialEquivInput): MaterialEquivResult {
     const desig = input.designation.toUpperCase().replace(/\s+/g, "");
@@ -129,4 +137,6 @@ export class MaterialEquivalenceEngine {
   }
 }
 
+/** Material Equivalence Engine constant.
+ */
 export const materialEquivalenceEngine = new MaterialEquivalenceEngine();

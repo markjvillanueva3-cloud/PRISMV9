@@ -29,6 +29,8 @@ export interface OperationInput {
   tolerance_mm?: number;
 }
 
+/** Job Input configuration/data structure.
+ */
 export interface JobInput {
   id: string;
   operations: OperationInput[];
@@ -36,6 +38,8 @@ export interface JobInput {
   priority: 'rush' | 'normal' | 'low';
 }
 
+/** Machine Input configuration/data structure.
+ */
 export interface MachineInput {
   id: string;
   capabilities?: string[];
@@ -44,8 +48,12 @@ export interface MachineInput {
   hourly_rate?: number;
 }
 
+/** Optimize For type definition.
+ */
 export type OptimizeFor = 'min_makespan' | 'min_tardiness' | 'max_utilization' | 'balanced';
 
+/** Shop Schedule Input configuration/data structure.
+ */
 export interface ShopScheduleInput {
   jobs: JobInput[];
   machines: (string | MachineInput)[];
@@ -53,6 +61,8 @@ export interface ShopScheduleInput {
   schedule_start?: string;           // ISO date (default: now)
 }
 
+/** Assignment configuration/data structure.
+ */
 export interface Assignment {
   job_id: string;
   operation_index: number;
@@ -61,6 +71,8 @@ export interface Assignment {
   end_time_min: number;
 }
 
+/** Machine Schedule configuration/data structure.
+ */
 export interface MachineSchedule {
   machine: string;
   assignments: Assignment[];
@@ -68,6 +80,8 @@ export interface MachineSchedule {
   total_busy_min: number;
 }
 
+/** Schedule Metrics configuration/data structure.
+ */
 export interface ScheduleMetrics {
   total_makespan_min: number;
   average_utilization_pct: number;
@@ -78,6 +92,8 @@ export interface ScheduleMetrics {
   unschedulable_operations: number;
 }
 
+/** Shop Schedule Result configuration/data structure.
+ */
 export interface ShopScheduleResult {
   schedule: MachineSchedule[];
   metrics: ScheduleMetrics;
@@ -86,12 +102,16 @@ export interface ShopScheduleResult {
   safety: { score: number; warnings: string[] };
 }
 
+/** Machine Utilization Input configuration/data structure.
+ */
 export interface MachineUtilizationInput {
   machines: (string | MachineInput)[];
   schedule?: ShopScheduleResult;
   jobs?: JobInput[];
 }
 
+/** Machine Utilization Result configuration/data structure.
+ */
 export interface MachineUtilizationResult {
   machines: {
     id: string;
@@ -136,6 +156,8 @@ const DEFAULT_MACHINE_CAPS: Record<string, string[]> = {
 // monolith that feed into ShopSchedulerEngine workflows. Used for traceability,
 // safety auditing, and wiring verification.
 
+/** S C H E D U L E R_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const SCHEDULER_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -433,6 +455,10 @@ function sortTasks(tasks: OpTask[], optimizeFor: OptimizeFor): OpTask[] {
   return sorted;
 }
 
+/** Shop Schedule.
+ * @param input - input input
+ * @returns shop schedule result
+ */
 export function shopSchedule(input: ShopScheduleInput): ShopScheduleResult {
   const machines = resolveMachines(input.machines);
   const optimizeFor = input.optimize_for ?? 'balanced';
@@ -621,6 +647,10 @@ export function shopSchedule(input: ShopScheduleInput): ShopScheduleResult {
 // MACHINE UTILIZATION ANALYSIS
 // ============================================================================
 
+/** Machine Utilization.
+ * @param input - input input
+ * @returns machine utilization result
+ */
 export function machineUtilization(input: MachineUtilizationInput): MachineUtilizationResult {
   const resolved = resolveMachines(input.machines);
   const warnings: string[] = [];
@@ -726,6 +756,11 @@ const ACTIONS: Record<string, (params: Record<string, any>) => any> = {
   machine_utilization: (params) => machineUtilization(params as unknown as MachineUtilizationInput),
 };
 
+/** Shop Scheduler.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function shopScheduler(action: string, params: Record<string, any>): any {
   const fn = ACTIONS[action];
   if (!fn) {

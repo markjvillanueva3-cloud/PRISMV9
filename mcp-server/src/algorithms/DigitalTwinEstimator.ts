@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Twin State configuration/data structure.
+ */
 export interface TwinState {
   /** State variable name. */
   name: string;
@@ -34,6 +36,8 @@ export interface TwinState {
   unit?: string;
 }
 
+/** Digital Twin Estimator Input configuration/data structure.
+ */
 export interface DigitalTwinEstimatorInput {
   /** State variables to estimate. */
   states: TwinState[];
@@ -47,6 +51,8 @@ export interface DigitalTwinEstimatorInput {
   health_threshold_pct?: number;
 }
 
+/** Twin Estimate configuration/data structure.
+ */
 export interface TwinEstimate {
   name: string;
   fused_value: number;
@@ -58,6 +64,8 @@ export interface TwinEstimate {
   unit: string;
 }
 
+/** Digital Twin Estimator Output configuration/data structure.
+ */
 export interface DigitalTwinEstimatorOutput extends WithWarnings {
   estimates: TwinEstimate[];
   overall_health: number;
@@ -67,6 +75,8 @@ export interface DigitalTwinEstimatorOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Digital Twin Estimator engine/manager.
+ */
 export class DigitalTwinEstimator implements Algorithm<DigitalTwinEstimatorInput, DigitalTwinEstimatorOutput> {
 
   validate(input: DigitalTwinEstimatorInput): ValidationResult {

@@ -25,6 +25,9 @@ import type { AnomalySeverity } from "../../types/telemetry-types.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
+/** Registers telemetry dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerTelemetryDispatcher(server: McpServer): void {
   (server as any).tool(
     "prism_telemetry",

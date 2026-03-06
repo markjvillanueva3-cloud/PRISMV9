@@ -23,25 +23,39 @@
 
 export type AxisCapability = '2D' | '2.5D' | '3D' | '4D' | '5D';
 
+/** Strategy Category type definition.
+ */
 export type StrategyCategory = 
   | 'milling_roughing' | 'milling_finishing' | 'hole_making' 
   | 'turning' | 'multiaxis' | 'prism_novel';
 
+/** Milling Roughing Subcategory type definition.
+ */
 export type MillingRoughingSubcategory = 
   | 'hsm' | 'traditional' | 'entry' | 'specialized' | 'secondary';
 
+/** Milling Finishing Subcategory type definition.
+ */
 export type MillingFinishingSubcategory = 
   | '2d' | '3d' | 'edge' | 'specialized' | 'secondary';
 
+/** Hole Making Subcategory type definition.
+ */
 export type HoleMakingSubcategory = 
   | 'drilling' | 'boring' | 'reaming' | 'threading' | 'secondary';
 
+/** Turning Subcategory type definition.
+ */
 export type TurningSubcategory = 
   | 'roughing' | 'finishing' | 'grooving' | 'threading' | 'parting' | 'special';
 
+/** Multi Axis Subcategory type definition.
+ */
 export type MultiAxisSubcategory = 
   | '4axis' | '5axis';
 
+/** Toolpath Strategy configuration/data structure.
+ */
 export interface ToolpathStrategy {
   id: string;
   name: string;
@@ -55,6 +69,8 @@ export interface ToolpathStrategy {
   prismNovel?: boolean;
 }
 
+/** Strategy Selection Result configuration/data structure.
+ */
 export interface StrategySelectionResult {
   strategy: ToolpathStrategy;
   confidence: number;
@@ -62,6 +78,8 @@ export interface StrategySelectionResult {
   alternatives: ToolpathStrategy[];
 }
 
+/** Strategy Params configuration/data structure.
+ */
 export interface StrategyParams {
   stepover: number;
   stepdown: number;
@@ -74,6 +92,8 @@ export interface StrategyParams {
 // MILLING ROUGHING STRATEGIES (127)
 // ============================================================================
 
+/** M I L L I N G_ R O U G H I N G_ S T R A T E G I E S constant.
+ */
 export const MILLING_ROUGHING_STRATEGIES: Record<string, ToolpathStrategy> = {
   // HSM/ADAPTIVE (15)
   ADAPTIVE_CLEARING: {
@@ -469,6 +489,8 @@ console.log(`[ToolpathStrategyRegistry] Milling Roughing: ${MILLING_ROUGHING_COU
 // MILLING FINISHING STRATEGIES (156)
 // ============================================================================
 
+/** M I L L I N G_ F I N I S H I N G_ S T R A T E G I E S constant.
+ */
 export const MILLING_FINISHING_STRATEGIES: Record<string, ToolpathStrategy> = {
   // 2D FINISHING (25)
   CONTOUR_2D: {
@@ -882,6 +904,8 @@ console.log(`[ToolpathStrategyRegistry] Milling Finishing: ${MILLING_FINISHING_C
 // HOLE MAKING STRATEGIES (98)
 // ============================================================================
 
+/** H O L E_ M A K I N G_ S T R A T E G I E S constant.
+ */
 export const HOLE_MAKING_STRATEGIES: Record<string, ToolpathStrategy> = {
   // DRILLING (25)
   SPOT_DRILL: {
@@ -1164,6 +1188,8 @@ console.log(`[ToolpathStrategyRegistry] Hole Making: ${HOLE_MAKING_COUNT} strate
 // TURNING STRATEGIES (124)
 // ============================================================================
 
+/** T U R N I N G_ S T R A T E G I E S constant.
+ */
 export const TURNING_STRATEGIES: Record<string, ToolpathStrategy> = {
   // ROUGHING (25)
   TURN_OD_ROUGH: {
@@ -1445,6 +1471,8 @@ console.log(`[ToolpathStrategyRegistry] Turning: ${TURNING_COUNT} strategies`);
 // MULTI-AXIS STRATEGIES (157)
 // ============================================================================
 
+/** M U L T I A X I S_ S T R A T E G I E S constant.
+ */
 export const MULTIAXIS_STRATEGIES: Record<string, ToolpathStrategy> = {
   // 4-AXIS (30)
   '4AXIS_WRAP': {
@@ -1744,6 +1772,8 @@ console.log(`[ToolpathStrategyRegistry] Multi-Axis: ${MULTIAXIS_COUNT} strategie
 // PRISM NOVEL STRATEGIES (50+) - PRISM Inventions
 // ============================================================================
 
+/** P R I S M_ N O V E L_ S T R A T E G I E S constant.
+ */
 export const PRISM_NOVEL_STRATEGIES: Record<string, ToolpathStrategy> = {
   // AI-OPTIMIZED STRATEGIES (15)
   AI_ADAPTIVE_LEARNING: {
@@ -2316,6 +2346,8 @@ export class ToolpathStrategyRegistry {
 }
 
 // Export singleton instance
+/** Toolpath Registry constant.
+ */
 export const toolpathRegistry = ToolpathStrategyRegistry.getInstance();
 
 // Log statistics on load
@@ -2333,6 +2365,8 @@ console.log(`  - PRISM Novel: ${stats.prism_novel}`);
 // ADDITIONAL MILLING ROUGHING STRATEGIES (55 more)
 // ============================================================================
 
+/** M I L L I N G_ R O U G H I N G_ E X T E N D E D constant.
+ */
 export const MILLING_ROUGHING_EXTENDED: Record<string, ToolpathStrategy> = {
   // TROCHOIDAL VARIANTS (12)
   TROCHOIDAL_MILLING: {
@@ -2581,6 +2615,8 @@ console.log(`[ToolpathStrategyRegistry] Extended Milling Roughing: ${Object.keys
 // ADDITIONAL MILLING ROUGHING STRATEGIES (55 more)
 // ============================================================================
 
+/** M I L L I N G_ R O U G H I N G_ A D D I T I O N A L constant.
+ */
 export const MILLING_ROUGHING_ADDITIONAL: Record<string, ToolpathStrategy> = {
   // ADVANCED HSM VARIANTS
   VOLUMILL_2D: {
@@ -2832,6 +2868,8 @@ export const MILLING_ROUGHING_ADDITIONAL: Record<string, ToolpathStrategy> = {
 // ADDITIONAL MILLING FINISHING STRATEGIES (66 more)
 // ============================================================================
 
+/** M I L L I N G_ F I N I S H I N G_ E X T E N D E D constant.
+ */
 export const MILLING_FINISHING_EXTENDED: Record<string, ToolpathStrategy> = {
   // 3D SURFACE FINISHING (20)
   PARALLEL_FINISH: {
@@ -3179,6 +3217,8 @@ export const MILLING_FINISHING_EXTENDED: Record<string, ToolpathStrategy> = {
 // ADDITIONAL HOLE MAKING STRATEGIES (42 more)
 // ============================================================================
 
+/** H O L E_ M A K I N G_ E X T E N D E D constant.
+ */
 export const HOLE_MAKING_EXTENDED: Record<string, ToolpathStrategy> = {
   // DRILLING (15)
   SPOT_DRILL: {
@@ -3411,6 +3451,8 @@ export const HOLE_MAKING_EXTENDED: Record<string, ToolpathStrategy> = {
 // ADDITIONAL TURNING STRATEGIES (56 more)
 // ============================================================================
 
+/** T U R N I N G_ E X T E N D E D constant.
+ */
 export const TURNING_EXTENDED: Record<string, ToolpathStrategy> = {
   // ROUGHING (15)
   OD_ROUGH: {
@@ -3711,6 +3753,8 @@ export const TURNING_EXTENDED: Record<string, ToolpathStrategy> = {
 // ADDITIONAL MULTI-AXIS STRATEGIES (112 more)
 // ============================================================================
 
+/** M U L T I A X I S_ E X T E N D E D constant.
+ */
 export const MULTIAXIS_EXTENDED: Record<string, ToolpathStrategy> = {
   // 3+2 INDEXED (15)
   INDEXED_3PLUS2: {
@@ -4242,6 +4286,8 @@ export function consolidateExtendedStrategies(): Map<string, ToolpathStrategy> {
 }
 
 // Add to main registry on load
+/** E X T E N D E D_ S T R A T E G I E S constant.
+ */
 export const EXTENDED_STRATEGIES = consolidateExtendedStrategies();
 
 /**

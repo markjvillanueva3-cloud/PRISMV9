@@ -18,8 +18,12 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type Persona = "machinist" | "programmer" | "manager" | "auto";
+/** Unit System type definition.
+ */
 export type UnitSystem = "imperial" | "metric" | "auto";
 
+/** Format Options configuration/data structure.
+ */
 export interface FormatOptions {
   persona: Persona;
   units?: UnitSystem;
@@ -37,6 +41,8 @@ export interface FormatOptions {
   setup_time_min?: number;
 }
 
+/** Formatted Response configuration/data structure.
+ */
 export interface FormattedResponse {
   persona: Persona;
   units: UnitSystem;
@@ -45,6 +51,8 @@ export interface FormattedResponse {
   sections: FormattedSection[];
 }
 
+/** Formatted Section configuration/data structure.
+ */
 export interface FormattedSection {
   id: string;
   label: string;

@@ -30,6 +30,9 @@ function ok(data: any) {
   return { content: [{ type: 'text' as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
+/** Registers n l hook dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerNLHookDispatcher(server: any): void {
   server.tool(
     'prism_nl_hook',

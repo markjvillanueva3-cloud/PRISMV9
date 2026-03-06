@@ -11,6 +11,8 @@ import { safeWriteSync } from "../utils/atomicWrite.js";
 
 // ── Types ──────────────────────────────────────────────────────────────
 
+/** Dispatcher Entry configuration/data structure.
+ */
 export interface DispatcherEntry {
   name: string;
   file: string;
@@ -20,6 +22,8 @@ export interface DispatcherEntry {
   dsl_eligible_actions: string[];
 }
 
+/** Engine Entry configuration/data structure.
+ */
 export interface EngineEntry {
   name: string;
   file: string;
@@ -28,24 +32,32 @@ export interface EngineEntry {
   auto_fire_eligible: boolean;
 }
 
+/** Hook Entry configuration/data structure.
+ */
 export interface HookEntry {
   name: string;
   file: string;
   event: string;
 }
 
+/** Service Entry configuration/data structure.
+ */
 export interface ServiceEntry {
   name: string;
   file: string;
   exports: string[];
 }
 
+/** Util Entry configuration/data structure.
+ */
 export interface UtilEntry {
   name: string;
   file: string;
   exports: string[];
 }
 
+/** Master Index configuration/data structure.
+ */
 export interface MasterIndex {
   generated_at: string;
   dispatchers: DispatcherEntry[];
@@ -177,6 +189,9 @@ function extractDSLEligible(content: string, actions: string[]): string[] {
 
 // ── Main Generator ─────────────────────────────────────────────────────
 
+/** Generates generate.
+ * @returns promise< master index>
+ */
 export async function generate(): Promise<MasterIndex> {
   const dispatchers: DispatcherEntry[] = [];
   const engines: EngineEntry[] = [];

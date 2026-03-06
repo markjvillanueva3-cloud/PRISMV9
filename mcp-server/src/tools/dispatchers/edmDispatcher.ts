@@ -27,6 +27,9 @@ const ACTIONS = [
   "electrode_design", "wire_settings", "surface_integrity", "micro_edm",
 ] as const;
 
+/** Registers edm dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerEdmDispatcher(server: any): void {
   server.tool(
     "prism_edm",

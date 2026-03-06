@@ -21,6 +21,8 @@ export interface EnergyInput {
   electricity_cost_per_kWh?: number; // default $0.12
 }
 
+/** Energy Operation configuration/data structure.
+ */
 export interface EnergyOperation {
   operation_name: string;
   cutting_time_min: number;
@@ -33,6 +35,8 @@ export interface EnergyOperation {
   coolant_active: boolean;
 }
 
+/** Energy Analysis configuration/data structure.
+ */
 export interface EnergyAnalysis {
   total_energy_kWh: number;
   cutting_energy_kWh: number;
@@ -44,6 +48,8 @@ export interface EnergyAnalysis {
   by_operation: { name: string; energy_kWh: number; pct: number }[];
 }
 
+/** Energy Optimization configuration/data structure.
+ */
 export interface EnergyOptimization {
   original_energy_kWh: number;
   optimized_energy_kWh: number;
@@ -54,6 +60,8 @@ export interface EnergyOptimization {
   changes: EnergyChange[];
 }
 
+/** Energy Change configuration/data structure.
+ */
 export interface EnergyChange {
   operation: string;
   parameter: string;
@@ -91,6 +99,8 @@ function cuttingPower(
 // ENGINE CLASS
 // ============================================================================
 
+/** Energy Optimization Engine engine/manager.
+ */
 export class EnergyOptimizationEngine {
   analyze(input: EnergyInput): EnergyAnalysis {
     const idlePower = input.idle_power_kW || input.machine_power_kW * 0.2;
@@ -219,4 +229,6 @@ export class EnergyOptimizationEngine {
   }
 }
 
+/** Energy Optimization Engine constant.
+ */
 export const energyOptimizationEngine = new EnergyOptimizationEngine();

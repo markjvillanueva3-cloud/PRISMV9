@@ -18,8 +18,12 @@ export type ToolpathStrategy =
   | "thread_mill" | "slot" | "rest_machining" | "pencil"
   | "scallop" | "flowline" | "morph_spiral" | "project";
 
+/** Cut Direction type definition.
+ */
 export type CutDirection = "climb" | "conventional" | "both";
 
+/** Toolpath Params configuration/data structure.
+ */
 export interface ToolpathParams {
   strategy: ToolpathStrategy;
   tool_diameter_mm: number;
@@ -35,6 +39,8 @@ export interface ToolpathParams {
   entry_strategy?: "helix" | "ramp" | "plunge" | "pre_drill";
 }
 
+/** Toolpath Segment configuration/data structure.
+ */
 export interface ToolpathSegment {
   type: "rapid" | "feed" | "arc_cw" | "arc_ccw" | "plunge" | "retract";
   x?: number; y?: number; z?: number;
@@ -43,6 +49,8 @@ export interface ToolpathSegment {
   description?: string;
 }
 
+/** Generated Toolpath configuration/data structure.
+ */
 export interface GeneratedToolpath {
   id: string;
   feature_id: string;
@@ -56,6 +64,8 @@ export interface GeneratedToolpath {
   tool_diameter_mm: number;
 }
 
+/** Toolpath Optimization configuration/data structure.
+ */
 export interface ToolpathOptimization {
   original_time_sec: number;
   optimized_time_sec: number;
@@ -64,6 +74,8 @@ export interface ToolpathOptimization {
   changes: string[];
 }
 
+/** Toolpath Simulation configuration/data structure.
+ */
 export interface ToolpathSimulation {
   total_time_sec: number;
   material_removed_mm3: number;
@@ -123,6 +135,8 @@ const DEFAULT_STEPDOWN_FACTOR = 0.5;
 // ENGINE CLASS
 // ============================================================================
 
+/** Toolpath Generation Engine engine/manager.
+ */
 export class ToolpathGenerationEngine {
   /** Get material-aware stepdown (ap) = factor * toolDiameter */
   getStepdownForMaterial(material: string, toolDiameter: number): number {
@@ -322,4 +336,6 @@ export class ToolpathGenerationEngine {
   }
 }
 
+/** Toolpath Generation Engine constant.
+ */
 export const toolpathGenerationEngine = new ToolpathGenerationEngine();

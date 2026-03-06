@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type JobStatus = "pending" | "processing" | "completed" | "failed" | "cancelled" | "dead_letter";
+/** Job Priority type definition.
+ */
 export type JobPriority = "critical" | "high" | "normal" | "low";
 
+/** Queue Job configuration/data structure.
+ */
 export interface QueueJob<T = unknown> {
   id: string;
   queue_name: string;
@@ -32,6 +36,8 @@ export interface QueueJob<T = unknown> {
   delay_until?: string;
 }
 
+/** Queue Stats configuration/data structure.
+ */
 export interface QueueStats {
   queue_name: string;
   pending: number;
@@ -43,6 +49,8 @@ export interface QueueStats {
   avg_processing_time_ms: number;
 }
 
+/** Enqueue Options configuration/data structure.
+ */
 export interface EnqueueOptions {
   priority?: JobPriority;
   max_attempts?: number;
@@ -62,6 +70,8 @@ const PRIORITY_ORDER: Record<JobPriority, number> = { critical: 0, high: 1, norm
 
 let jobIdCounter = 0;
 
+/** Queue Engine engine/manager.
+ */
 export class QueueEngine {
   private jobs = new Map<string, QueueJob>();
   private processingTimes: number[] = [];
@@ -201,4 +211,6 @@ export class QueueEngine {
   clear(): void { this.jobs.clear(); this.processingTimes = []; jobIdCounter = 0; }
 }
 
+/** Queue Engine constant.
+ */
 export const queueEngine = new QueueEngine();

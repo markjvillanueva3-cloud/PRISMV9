@@ -22,6 +22,8 @@ export type ReportType =
   | "alarm_report"
   | "speed_feed_card";
 
+/** Report Meta configuration/data structure.
+ */
 export interface ReportMeta {
   report_id: string;
   type: ReportType;
@@ -33,6 +35,8 @@ export interface ReportMeta {
   revision?: string;
 }
 
+/** Setup Sheet Data configuration/data structure.
+ */
 export interface SetupSheetData {
   meta: ReportMeta;
   machine: { name: string; controller: string; axes: number; spindle_taper: string };
@@ -45,6 +49,8 @@ export interface SetupSheetData {
   safety_warnings: string[];
 }
 
+/** Process Plan Data configuration/data structure.
+ */
 export interface ProcessPlanData {
   meta: ReportMeta;
   material: { name: string; iso_group: string; hardness_HRC?: number; condition?: string };
@@ -73,6 +79,8 @@ export interface ProcessPlanData {
   safety_summary: { critical_ops: number; warnings: string[] };
 }
 
+/** Cost Estimate Data configuration/data structure.
+ */
 export interface CostEstimateData {
   meta: ReportMeta;
   material_cost: { material: string; weight_kg: number; cost_per_kg: number; total: number };
@@ -85,6 +93,8 @@ export interface CostEstimateData {
   margin_analysis: { cost: number; suggested_price: number; margin_percent: number };
 }
 
+/** Tool List Data configuration/data structure.
+ */
 export interface ToolListData {
   meta: ReportMeta;
   tools: Array<{
@@ -113,6 +123,8 @@ export interface ToolListData {
   notes: string[];
 }
 
+/** Inspection Plan Data configuration/data structure.
+ */
 export interface InspectionPlanData {
   meta: ReportMeta;
   features: Array<{
@@ -131,6 +143,8 @@ export interface InspectionPlanData {
   notes: string[];
 }
 
+/** Alarm Report Data configuration/data structure.
+ */
 export interface AlarmReportData {
   meta: ReportMeta;
   alarms: Array<{
@@ -148,6 +162,8 @@ export interface AlarmReportData {
   machine: { name: string; controller: string };
 }
 
+/** Speed Feed Card Data configuration/data structure.
+ */
 export interface SpeedFeedCardData {
   meta: ReportMeta;
   material: { name: string; iso_group: string; hardness?: string };
@@ -175,6 +191,8 @@ export interface SpeedFeedCardData {
   algorithms_used: string[];
 }
 
+/** Report Data type definition.
+ */
 export type ReportData =
   | SetupSheetData
   | ProcessPlanData
@@ -206,6 +224,8 @@ const REPORT_TEMPLATES: ReportTemplate[] = [
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** Report Engine engine/manager.
+ */
 export class ReportEngine {
   private counter = 0;
 
@@ -392,4 +412,6 @@ export class ReportEngine {
   }
 }
 
+/** Report Engine constant.
+ */
 export const reportEngine = new ReportEngine();

@@ -11,6 +11,8 @@
 
 export type EnergySource = "grid_average" | "coal" | "natural_gas" | "nuclear" | "renewable";
 
+/** Specific Cutting Energy Input configuration/data structure.
+ */
 export interface SpecificCuttingEnergyInput {
   // Method 1: provide force and chip geometry directly
   cutting_force_N?: number;
@@ -39,6 +41,8 @@ export interface SpecificCuttingEnergyInput {
   energy_source?: EnergySource;
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -47,6 +51,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Specific Cutting Energy Result configuration/data structure.
+ */
 export interface SpecificCuttingEnergyResult {
   specific_energy_J_mm3: AtomicValue;
   cutting_power_kW: AtomicValue;
@@ -94,6 +100,8 @@ const classifyEnergy = (u: number): string => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Specific Cutting Energy Engine engine/manager.
+ */
 export class SpecificCuttingEnergyEngine {
   calculate(input: SpecificCuttingEnergyInput): SpecificCuttingEnergyResult {
     const {
@@ -318,4 +326,6 @@ export class SpecificCuttingEnergyEngine {
   }
 }
 
+/** Specific Cutting Energy Engine constant.
+ */
 export const specificCuttingEnergyEngine = new SpecificCuttingEnergyEngine();

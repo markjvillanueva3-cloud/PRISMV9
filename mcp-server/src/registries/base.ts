@@ -10,6 +10,8 @@ import { readJsonFile, writeJsonFile, fileExists } from "../utils/files.js";
 // REGISTRY TYPES
 // ============================================================================
 
+/** Registry Metadata configuration/data structure.
+ */
 export interface RegistryMetadata {
   created: string;
   updated: string;
@@ -17,12 +19,16 @@ export interface RegistryMetadata {
   source?: string;
 }
 
+/** Registry Entry configuration/data structure.
+ */
 export interface RegistryEntry<T> {
   id: string;
   data: T;
   metadata: RegistryMetadata;
 }
 
+/** Registry configuration/data structure.
+ */
 export interface Registry<T> {
   name: string;
   version: string;
@@ -35,6 +41,8 @@ export interface Registry<T> {
 // BASE REGISTRY CLASS
 // ============================================================================
 
+/** Base Registry engine/manager.
+ */
 export class BaseRegistry<T> {
   protected entries: Map<string, RegistryEntry<T>> = new Map();
   protected loaded: boolean = false;
@@ -257,4 +265,6 @@ export class RegistryManager {
 }
 
 // Global registry manager instance
+/** Registry Manager constant.
+ */
 export const registryManager = new RegistryManager();

@@ -168,6 +168,9 @@ function productExtractKeyValues(action: string, result: any): Record<string, an
 // REGISTRATION
 // ============================================================================
 
+/** Registers product dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerProductDispatcher(server: any): void {
   server.tool(
     "prism_product",

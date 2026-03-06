@@ -76,6 +76,8 @@ import { algorithmEngine } from "./AlgorithmEngine.js";
 // Maps all 19 extracted business JS files from the PRISM v8.89.002 monolith
 // to their target engines. Used for traceability, safety auditing, and wiring.
 
+/** B U S I N E S S_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const BUSINESS_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -288,7 +290,11 @@ export const BUSINESS_SOURCE_FILE_CATALOG: Record<string, {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+/** Product Tier type definition.
+ */
 export type ProductTier = "free" | "pro" | "enterprise";
+/** S F C Action type definition.
+ */
 export type SFCAction =
   | "sfc_calculate"
   | "sfc_compare"
@@ -301,6 +307,8 @@ export type SFCAction =
   | "sfc_history"
   | "sfc_get";
 
+/** P P G Action type definition.
+ */
 export type PPGAction =
   | "ppg_validate"
   | "ppg_translate"
@@ -313,6 +321,8 @@ export type PPGAction =
   | "ppg_history"
   | "ppg_get";
 
+/** Shop Action type definition.
+ */
 export type ShopAction =
   | "shop_quote"
   | "shop_cost"
@@ -325,6 +335,8 @@ export type ShopAction =
   | "shop_history"
   | "shop_get";
 
+/** A C N C Action type definition.
+ */
 export type ACNCAction =
   | "acnc_program"
   | "acnc_feature"
@@ -337,8 +349,12 @@ export type ACNCAction =
   | "acnc_history"
   | "acnc_get";
 
+/** Product Action type definition.
+ */
 export type ProductAction = SFCAction | PPGAction | ShopAction | ACNCAction;
 
+/** S F C Input configuration/data structure.
+ */
 export interface SFCInput {
   material?: string;
   material_hardness?: number;
@@ -354,6 +370,8 @@ export interface SFCInput {
   tier?: ProductTier;
 }
 
+/** S F C Result configuration/data structure.
+ */
 export interface SFCResult {
   // Core parameters
   cutting_speed_m_min: number;
@@ -407,6 +425,8 @@ export interface SFCResult {
   tier_limited: boolean;
 }
 
+/** S F C Compare Result configuration/data structure.
+ */
 export interface SFCCompareResult {
   approaches: Array<{
     name: string;
@@ -422,6 +442,8 @@ export interface SFCCompareResult {
   comparison_notes: string[];
 }
 
+/** S F C Optimize Result configuration/data structure.
+ */
 export interface SFCOptimizeResult {
   objective: string;
   original: { vc: number; fz: number; ap: number; ae: number };
@@ -1029,6 +1051,11 @@ function recordHistory(action: string, input: any): void {
 
 // ─── Main SFC Dispatcher ────────────────────────────────────────────────────
 
+/** Product S F C.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function productSFC(action: string, params: Record<string, any>): any {
   recordHistory(action, params);
 
@@ -1314,6 +1341,11 @@ function ppgTranslateGCode(gcode: string, sourceController: string, targetContro
   };
 }
 
+/** Product P P G.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function productPPG(action: string, params: Record<string, any>): any {
   const tier: ProductTier = params.tier || "pro";
 
@@ -1891,6 +1923,11 @@ function shopCompare(params: Record<string, any>): any {
   };
 }
 
+/** Product Shop.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function productShop(action: string, params: Record<string, any>): any {
   const tier: ProductTier = params.tier || "pro";
 
@@ -2538,6 +2575,19 @@ export function productACNC(action: string, params: Record<string, any>): any {
 // Provides typed access to all 50 Algorithm<I,O> implementations.
 export { algorithmEngine };
 
+/** Gets source file catalog.
+ * @param filter - filter
+ * @returns {
+  entries: typeof  b u s i n e s s_ s o u r c e_ f i l e_ c a t a l o g;
+  summary: {
+    total_files: number;
+    total_lines: number;
+    by_engine:  record<string, number>;
+    by_category:  record<string, number>;
+    by_safety:  record<string, number>;
+  };
+}
+ */
 export function getSourceFileCatalog(filter?: {
   target_engine?: string;
   category?: string;

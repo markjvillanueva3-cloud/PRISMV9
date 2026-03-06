@@ -21,6 +21,8 @@ export type CoatingType =
   | "nACo"       // nanocomposite AlCrN — universal hard coating
   | "ZrN";       // Zirconium Nitride — non-ferrous, medical
 
+/** Material Class type definition.
+ */
 export type MaterialClass =
   | "carbon_steel"
   | "alloy_steel"
@@ -39,6 +41,8 @@ export type MaterialClass =
   | "graphite"
   | "plastic";
 
+/** Operation Type type definition.
+ */
 export type OperationType =
   | "roughing"
   | "finishing"
@@ -49,8 +53,12 @@ export type OperationType =
   | "reaming"
   | "threading";
 
+/** Coolant Strategy type definition.
+ */
 export type CoolantStrategy = "flood" | "mql" | "dry" | "cryogenic";
 
+/** Tool Coating Input configuration/data structure.
+ */
 export interface ToolCoatingInput {
   material_class: MaterialClass;
   operation_type: OperationType;
@@ -62,6 +70,8 @@ export interface ToolCoatingInput {
   requires_re_grind?: boolean;        // uncoated may be preferred for regrinding
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -70,12 +80,16 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Coating Recommendation configuration/data structure.
+ */
 export interface CoatingRecommendation {
   coating: CoatingType;
   score: number;               // 0–1 suitability score
   reason: string;
 }
 
+/** Tool Coating Result configuration/data structure.
+ */
 export interface ToolCoatingResult {
   primary_recommendation: CoatingType;
   suitability_score: AtomicValue;
@@ -160,6 +174,8 @@ const INTERRUPTED_CUT_BONUS: Partial<Record<CoatingType, number>> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Tool Coating Selection Engine engine/manager.
+ */
 export class ToolCoatingSelectionEngine {
   /**
    * Select optimal tool coating for given material, operation, and conditions.
@@ -349,4 +365,6 @@ export class ToolCoatingSelectionEngine {
   }
 }
 
+/** Tool Coating Selection Engine constant.
+ */
 export const toolCoatingSelectionEngine = new ToolCoatingSelectionEngine();

@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Clustering Engine Input configuration/data structure.
+ */
 export interface ClusteringEngineInput {
   /** Data points: each row is a data vector. */
   data: number[][];
@@ -34,6 +36,8 @@ export interface ClusteringEngineInput {
   seed?: number;
 }
 
+/** Cluster Result configuration/data structure.
+ */
 export interface ClusterResult {
   centroid: number[];
   size: number;
@@ -41,6 +45,8 @@ export interface ClusterResult {
   members: number[];
 }
 
+/** Clustering Engine Output configuration/data structure.
+ */
 export interface ClusteringEngineOutput extends WithWarnings {
   k: number;
   clusters: ClusterResult[];
@@ -56,6 +62,8 @@ function mulberry32(seed: number) {
   return () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
+/** Clustering Engine engine/manager.
+ */
 export class ClusteringEngine implements Algorithm<ClusteringEngineInput, ClusteringEngineOutput> {
 
   validate(input: ClusteringEngineInput): ValidationResult {

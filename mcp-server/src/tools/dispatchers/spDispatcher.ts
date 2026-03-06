@@ -342,6 +342,9 @@ function generateSynthesisFromLenses(problem: string, lenses: Record<string, str
   };
 }
 
+/** Registers sp dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerSpDispatcher(server: any): void {
   server.tool(
     "prism_sp",

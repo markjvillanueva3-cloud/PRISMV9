@@ -64,6 +64,9 @@ async function executeAssessment(content: string, context?: string): Promise<any
   return { assessment: result, timestamp: new Date().toISOString(), model: apiConfig.opusModel };
 }
 
+/** Registers ralph dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerRalphDispatcher(server: any): void {
   server.tool(
     "prism_ralph",

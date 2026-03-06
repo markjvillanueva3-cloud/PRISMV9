@@ -22,10 +22,16 @@
 // ── Types ─────────────────────────────────────────────────────────────
 
 export interface Vec2 { x: number; y: number; }
+/** Vec3 configuration/data structure.
+ */
 export interface Vec3 { x: number; y: number; z: number; }
 
+/** Toolpath Move Type type definition.
+ */
 export type ToolpathMoveType = "rapid" | "feed" | "arc_cw" | "arc_ccw" | "helix_ramp" | "plunge" | "comment";
 
+/** Toolpath Move configuration/data structure.
+ */
 export interface ToolpathMove {
   type: ToolpathMoveType;
   x?: number;
@@ -38,6 +44,8 @@ export interface ToolpathMove {
   text?: string;
 }
 
+/** Toolpath Stats configuration/data structure.
+ */
 export interface ToolpathStats {
   total_moves: number;
   rapid_moves: number;
@@ -47,6 +55,8 @@ export interface ToolpathStats {
   estimated_time_sec: number;
 }
 
+/** Toolpath configuration/data structure.
+ */
 export interface Toolpath {
   id: string;
   operation: string;
@@ -57,6 +67,8 @@ export interface Toolpath {
   z_top: number;
 }
 
+/** Operation Type type definition.
+ */
 export type OperationType =
   | "face_mill" | "pocket_2d" | "contour_2d" | "adaptive_clear" | "hsm_pocket"
   | "thread_mill" | "chamfer" | "engrave" | "zigzag_pocket"
@@ -65,16 +77,26 @@ export type OperationType =
   | "drill_peck" | "drill_chip_break" | "helix_bore"
   | "helical_ramp";
 
+/** Material Type type definition.
+ */
 export type MaterialType = "aluminum" | "steel" | "stainless" | "titanium" | "inconel"
   | "steel_mild" | "steel_alloy" | "cast_iron" | "brass" | "copper" | "plastic";
 
+/** Entry Strategy type definition.
+ */
 export type EntryStrategy = "helix" | "ramp" | "plunge" | "arc_entry" | "pre_drill";
+/** Exit Strategy type definition.
+ */
 export type ExitStrategy = "arc_exit" | "linear_exit" | "retract";
 
+/** Controller Type type definition.
+ */
 export type ControllerType = "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma";
 
 // ── Tool Types ────────────────────────────────────────────────────────
 
+/** Tool Spec configuration/data structure.
+ */
 export interface ToolSpec {
   id: string;
   type: "endmill" | "ballnose" | "bull_nose" | "drill" | "tap" | "face_mill" | "chamfer" | "thread_mill";
@@ -89,6 +111,8 @@ export interface ToolSpec {
 
 // ── Chip Thinning Types ───────────────────────────────────────────────
 
+/** Chip Thinning Result configuration/data structure.
+ */
 export interface ChipThinningResult {
   programmed_chipload: number;
   actual_chipload: number;
@@ -99,6 +123,8 @@ export interface ChipThinningResult {
 
 // ── Engagement Types ──────────────────────────────────────────────────
 
+/** Engagement Result configuration/data structure.
+ */
 export interface EngagementResult {
   engagement_angle_deg: number;
   radial_depth: number;
@@ -108,12 +134,16 @@ export interface EngagementResult {
 
 // ── Entry/Exit Types ──────────────────────────────────────────────────
 
+/** Entry Params configuration/data structure.
+ */
 export interface EntryParams {
   strategy: EntryStrategy;
   moves: ToolpathMove[];
   description: string;
 }
 
+/** Helix Entry Params configuration/data structure.
+ */
 export interface HelixEntryParams {
   helix_diameter: number;
   helix_angle_deg: number;
@@ -125,6 +155,8 @@ export interface HelixEntryParams {
 
 // ── G-Code Types ──────────────────────────────────────────────────────
 
+/** G Code Params configuration/data structure.
+ */
 export interface GCodeParams {
   controller: ControllerType;
   decimal_places?: number;
@@ -135,6 +167,8 @@ export interface GCodeParams {
   wcs?: string;
 }
 
+/** G Code Program configuration/data structure.
+ */
 export interface GCodeProgram {
   lines: string[];
   line_count: number;
@@ -144,6 +178,8 @@ export interface GCodeProgram {
 
 // ── Collision Types ───────────────────────────────────────────────────
 
+/** Collision Check Result configuration/data structure.
+ */
 export interface CollisionCheckResult {
   has_collision: boolean;
   collisions: Array<{
@@ -160,6 +196,8 @@ export interface CollisionCheckResult {
 
 // ── Clearance Plane Types ─────────────────────────────────────────
 
+/** Clearance Plane Config configuration/data structure.
+ */
 export interface ClearancePlaneConfig {
   globalClearanceZ: number;
   localClearanceZ?: number;
@@ -170,6 +208,8 @@ export interface ClearancePlaneConfig {
 
 // ── Operation Sequencing Types ────────────────────────────────────
 
+/** Sequenced Operation configuration/data structure.
+ */
 export interface SequencedOperation {
   id: string;
   type: OperationType | string;
@@ -183,6 +223,8 @@ export interface SequencedOperation {
   rest_reference_id?: string;
 }
 
+/** Sequence Result configuration/data structure.
+ */
 export interface SequenceResult {
   sorted: SequencedOperation[];
   warnings: string[];
@@ -259,6 +301,8 @@ const MATERIAL_ENTRY_FACTORS: Record<string, MaterialEntryFactor> = {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** C A M Kernel Engine engine/manager.
+ */
 export class CAMKernelEngine {
   // ── Scallop & Stepover Math ─────────────────────────────────────
 
@@ -1180,4 +1224,6 @@ export class CAMKernelEngine {
   }
 }
 
+/** Cam Kernel Engine constant.
+ */
 export const camKernelEngine = new CAMKernelEngine();

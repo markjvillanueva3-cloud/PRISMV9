@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type PassivationMethod = "nitric_acid" | "citric_acid" | "electropolish";
+/** Stainless Family type definition.
+ */
 export type StainlessFamily = "austenitic" | "ferritic" | "martensitic" | "duplex" | "PH";
 
+/** Passivation Input configuration/data structure.
+ */
 export interface PassivationInput {
   alloy: string;                       // e.g., "304", "316L", "17-4PH"
   family: StainlessFamily;
@@ -25,6 +29,8 @@ export interface PassivationInput {
   tank_volume_liters: number;
 }
 
+/** Passivation Result configuration/data structure.
+ */
 export interface PassivationResult {
   acid_concentration_pct: number;
   temperature_C: number;
@@ -73,6 +79,8 @@ const PASSIVATION_PARAMS: Record<PassivationMethod, Record<StainlessFamily, {
 // ENGINE CLASS
 // ============================================================================
 
+/** Passivation Engine engine/manager.
+ */
 export class PassivationEngine {
   calculate(input: PassivationInput): PassivationResult {
     const params = PASSIVATION_PARAMS[input.method][input.family];
@@ -152,4 +160,6 @@ export class PassivationEngine {
   }
 }
 
+/** Passivation Engine constant.
+ */
 export const passivationEngine = new PassivationEngine();

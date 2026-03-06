@@ -17,6 +17,8 @@ export type DrillCycleType =
   | "bta"            // boring and trepanning — L/D > 20, large diameter
   | "step";          // incremental depth increase — fragile drills
 
+/** Material Chip Behavior type definition.
+ */
 export type MaterialChipBehavior =
   | "long_stringy"   // aluminum, copper — needs aggressive pecking
   | "short_breaking" // cast iron, brass — minimal pecking needed
@@ -24,6 +26,8 @@ export type MaterialChipBehavior =
   | "gummy"          // stainless, titanium — heat + adhesion concern
   | "abrasive";      // composites, MMC — tool wear concern
 
+/** Coolant Delivery type definition.
+ */
 export type CoolantDelivery =
   | "flood_external"
   | "through_tool"
@@ -31,6 +35,8 @@ export type CoolantDelivery =
   | "dry"
   | "none";
 
+/** Drill Cycle Input configuration/data structure.
+ */
 export interface DrillCycleInput {
   drill_diameter_mm: number;
   hole_depth_mm: number;
@@ -48,6 +54,8 @@ export interface DrillCycleInput {
   spot_drill_used?: boolean;                       // default true for accuracy
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -56,6 +64,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Drill Cycle Result configuration/data structure.
+ */
 export interface DrillCycleResult {
   recommended_cycle: DrillCycleType;
   depth_to_diameter_ratio: number;
@@ -120,6 +130,8 @@ function coolantAdequate(ld: number, delivery: CoolantDelivery): boolean {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Drill Cycle Optimization Engine engine/manager.
+ */
 export class DrillCycleOptimizationEngine {
   /**
    * Select optimal drill cycle and compute peck parameters.
@@ -316,4 +328,6 @@ export class DrillCycleOptimizationEngine {
   }
 }
 
+/** Drill Cycle Optimization Engine constant.
+ */
 export const drillCycleOptimizationEngine = new DrillCycleOptimizationEngine();

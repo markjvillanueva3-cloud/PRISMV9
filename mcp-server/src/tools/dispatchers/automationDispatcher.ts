@@ -27,6 +27,9 @@ const ACTIONS = [
   "oee_calc", "bottleneck", "digital_thread", "work_instructions", "shift_handoff",
 ] as const;
 
+/** Registers automation dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerAutomationDispatcher(server: any): void {
   server.tool(
     "prism_automation",

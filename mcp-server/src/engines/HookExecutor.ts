@@ -295,6 +295,8 @@ const DEFAULT_CONFIG: HookExecutorConfig = {
 // HOOK EXECUTOR ENGINE
 // ============================================================================
 
+/** Hook Executor engine/manager.
+ */
 export class HookExecutor {
   private hooks: Map<string, HookDefinition> = new Map();
   private phaseHooks: Map<HookPhase, Set<string>> = new Map();
@@ -848,4 +850,6 @@ export function hookWarning(
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Hook Executor constant.
+ */
 export const hookExecutor = new HookExecutor();

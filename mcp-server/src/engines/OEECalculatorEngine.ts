@@ -28,6 +28,8 @@ export interface OEEInput {
   date?: string;
 }
 
+/** O E E Result configuration/data structure.
+ */
 export interface OEEResult {
   oee_pct: number;
   availability_pct: number;
@@ -52,6 +54,8 @@ export interface OEEResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** O E E Calculator Engine engine/manager.
+ */
 export class OEECalculatorEngine {
   calculate(input: OEEInput): OEEResult {
     // Available time = planned production - planned downtime
@@ -129,4 +133,6 @@ export class OEECalculatorEngine {
   }
 }
 
+/** Oee Calculator Engine constant.
+ */
 export const oeeCalculatorEngine = new OEECalculatorEngine();

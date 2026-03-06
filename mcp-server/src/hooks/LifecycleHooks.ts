@@ -763,6 +763,8 @@ const onSessionResumeProgressVerify: HookDefinition = {
 // EXPORT ALL LIFECYCLE HOOKS
 // ============================================================================
 
+/** Lifecycle Hooks constant.
+ */
 export const lifecycleHooks: HookDefinition[] = [
   // Session start
   onSessionStart,

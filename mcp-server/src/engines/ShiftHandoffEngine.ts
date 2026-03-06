@@ -14,6 +14,8 @@
 
 export type MachineStatus = "running" | "idle" | "setup" | "down_planned" | "down_unplanned" | "maintenance";
 
+/** Machine State configuration/data structure.
+ */
 export interface MachineState {
   machine_id: string;
   status: MachineStatus;
@@ -24,6 +26,8 @@ export interface MachineState {
   alerts: string[];
 }
 
+/** Shift Handoff Input configuration/data structure.
+ */
 export interface ShiftHandoffInput {
   outgoing_shift: string;
   incoming_shift: string;
@@ -35,6 +39,8 @@ export interface ShiftHandoffInput {
   notes: string;
 }
 
+/** Shift Handoff Result configuration/data structure.
+ */
 export interface ShiftHandoffResult {
   handoff_id: string;
   summary: string;
@@ -49,6 +55,8 @@ export interface ShiftHandoffResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Shift Handoff Engine engine/manager.
+ */
 export class ShiftHandoffEngine {
   generate(input: ShiftHandoffInput): ShiftHandoffResult {
     // Machine summary
@@ -107,4 +115,6 @@ export class ShiftHandoffEngine {
   }
 }
 
+/** Shift Handoff Engine constant.
+ */
 export const shiftHandoffEngine = new ShiftHandoffEngine();

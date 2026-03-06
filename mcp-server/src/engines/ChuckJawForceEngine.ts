@@ -17,8 +17,12 @@
 // ============================================================================
 
 export type JawType = "hard" | "soft" | "pie" | "special";
+/** Chuck Type type definition.
+ */
 export type ChuckType = "3_jaw_scroll" | "3_jaw_power" | "4_jaw_independent" | "6_jaw" | "collet";
 
+/** Chuck Force Input configuration/data structure.
+ */
 export interface ChuckForceInput {
   chuck_type: ChuckType;
   jaw_type: JawType;
@@ -37,6 +41,8 @@ export interface ChuckForceInput {
   jaw_stroke_mm?: number;
 }
 
+/** Chuck Force Result configuration/data structure.
+ */
 export interface ChuckForceResult {
   required_gripping_force_N: number;
   centrifugal_force_N: number;
@@ -68,6 +74,8 @@ const SAFETY_FACTOR_MIN = 2.5; // ISO 10218 for machine tools
 // ENGINE CLASS
 // ============================================================================
 
+/** Chuck Jaw Force Engine engine/manager.
+ */
 export class ChuckJawForceEngine {
   calculate(input: ChuckForceInput): ChuckForceResult {
     // Friction coefficient
@@ -181,4 +189,6 @@ export class ChuckJawForceEngine {
   }
 }
 
+/** Chuck Jaw Force Engine constant.
+ */
 export const chuckJawForceEngine = new ChuckJawForceEngine();

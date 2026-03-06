@@ -17,8 +17,12 @@ export type ToolMaterialType =
   | "cbn"
   | "pcd";
 
+/** Cut Direction type definition.
+ */
 export type CutDirection = "radial" | "axial" | "resultant";
 
+/** Tool Deflection Input configuration/data structure.
+ */
 export interface ToolDeflectionInput {
   tool_diameter_mm: number;
   tool_overhang_mm: number;          // stickout from holder face
@@ -32,6 +36,8 @@ export interface ToolDeflectionInput {
   tolerance_target_mm?: number;      // part tolerance for pass/fail
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -40,6 +46,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Tool Deflection Result configuration/data structure.
+ */
 export interface ToolDeflectionResult {
   static_deflection_um: AtomicValue;
   dimensional_error_um: AtomicValue;
@@ -93,6 +101,8 @@ const fluteCorrection = (flutes: number): number => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Tool Deflection Prediction Engine engine/manager.
+ */
 export class ToolDeflectionPredictionEngine {
   calculate(input: ToolDeflectionInput): ToolDeflectionResult {
     const {
@@ -297,4 +307,6 @@ export class ToolDeflectionPredictionEngine {
   }
 }
 
+/** Tool Deflection Prediction Engine constant.
+ */
 export const toolDeflectionPredictionEngine = new ToolDeflectionPredictionEngine();

@@ -17,6 +17,8 @@
 
 export type FeatureGeometry = "floor" | "wall" | "web" | "rib";
 
+/** Thin Feature Input configuration/data structure.
+ */
 export interface ThinFeatureInput {
   geometry: FeatureGeometry;
   thickness_mm: number;
@@ -31,6 +33,8 @@ export interface ThinFeatureInput {
   tool_diameter_mm: number;
 }
 
+/** Thin Feature Result configuration/data structure.
+ */
 export interface ThinFeatureResult {
   natural_freq_Hz: number;            // 1st mode
   tooth_passing_freq_Hz: number;
@@ -60,6 +64,8 @@ const BC_FACTOR: Record<FeatureGeometry, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Thin Floor Vibration Engine engine/manager.
+ */
 export class ThinFloorVibrationEngine {
   analyze(input: ThinFeatureInput): ThinFeatureResult {
     const t = input.thickness_mm / 1000;  // to meters
@@ -184,4 +190,6 @@ export class ThinFloorVibrationEngine {
   }
 }
 
+/** Thin Floor Vibration Engine constant.
+ */
 export const thinFloorVibrationEngine = new ThinFloorVibrationEngine();

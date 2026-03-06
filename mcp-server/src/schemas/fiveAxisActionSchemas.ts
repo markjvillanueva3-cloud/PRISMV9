@@ -128,6 +128,8 @@ const inverse_kin = z.object({
 // SCHEMA REGISTRY
 // ============================================================================
 
+/** A C T I O N_ F I V E A X I S_ S C H E M A S constant.
+ */
 export const ACTION_FIVEAXIS_SCHEMAS: ActionSchemaMap = {
   rtcp_calc,
   singularity_check,

@@ -23,6 +23,8 @@ export interface GCodeLine {
   is_comment: boolean;
 }
 
+/** G Code Analysis configuration/data structure.
+ */
 export interface GCodeAnalysis {
   total_lines: number;
   code_lines: number;
@@ -41,6 +43,8 @@ export interface GCodeAnalysis {
   warnings: string[];
 }
 
+/** Optimization Result configuration/data structure.
+ */
 export interface OptimizationResult {
   original_lines: number;
   optimized_lines: number;
@@ -56,6 +60,8 @@ export interface OptimizationResult {
   gcode: string;
 }
 
+/** G Code Comparison configuration/data structure.
+ */
 export interface GCodeComparison {
   program_a: GCodeAnalysis;
   program_b: GCodeAnalysis;
@@ -100,6 +106,8 @@ function parseLine(raw: string): GCodeLine {
 // ENGINE CLASS
 // ============================================================================
 
+/** G Code Optimization Engine engine/manager.
+ */
 export class GCodeOptimizationEngine {
   analyze(gcode: string): GCodeAnalysis {
     const rawLines = gcode.split("\n");
@@ -262,4 +270,6 @@ export class GCodeOptimizationEngine {
   }
 }
 
+/** Gcode Optimization Engine constant.
+ */
 export const gcodeOptimizationEngine = new GCodeOptimizationEngine();

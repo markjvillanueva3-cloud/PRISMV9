@@ -22,11 +22,15 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Complex Value configuration/data structure.
+ */
 export interface ComplexValue {
   real: number;
   imag: number;
 }
 
+/** F R F Point configuration/data structure.
+ */
 export interface FRFPoint {
   /** Frequency [Hz]. */
   frequency: number;
@@ -34,6 +38,8 @@ export interface FRFPoint {
   compliance: ComplexValue;
 }
 
+/** F R F Stability Lobe Input configuration/data structure.
+ */
 export interface FRFStabilityLobeInput {
   /** Measured/modeled FRF data points. */
   frf_data: FRFPoint[];
@@ -55,12 +61,16 @@ export interface FRFStabilityLobeInput {
   frf_units?: "m_per_N" | "um_per_N" | "mm_per_N";
 }
 
+/** Stability Point configuration/data structure.
+ */
 export interface StabilityPoint {
   speed_rpm: number;
   depth_limit_mm: number;
   lobe_number: number;
 }
 
+/** F R F Stability Lobe Output configuration/data structure.
+ */
 export interface FRFStabilityLobeOutput extends WithWarnings {
   /** Stability boundary points (speed vs depth limit). */
   stability_boundary: StabilityPoint[];
@@ -77,6 +87,8 @@ export interface FRFStabilityLobeOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** F R F Stability Lobe engine/manager.
+ */
 export class FRFStabilityLobe implements Algorithm<FRFStabilityLobeInput, FRFStabilityLobeOutput> {
 
   validate(input: FRFStabilityLobeInput): ValidationResult {

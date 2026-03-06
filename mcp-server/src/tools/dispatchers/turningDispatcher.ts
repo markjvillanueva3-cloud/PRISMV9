@@ -35,6 +35,9 @@ const ACTIONS = [
   "part_off_force",
 ] as const;
 
+/** Registers turning dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerTurningDispatcher(server: any): void {
   server.tool(
     "prism_turning",

@@ -8,6 +8,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PATHS } from "../constants.js";
 
+/** Config Options configuration/data structure.
+ */
 export interface ConfigOptions {
   dataPath: string;
   userDataPath: string;
@@ -31,6 +33,8 @@ const defaultConfig: ConfigOptions = {
   qualityThreshold: 0.70,
 };
 
+/** Config engine/manager.
+ */
 export class Config {
   private static instance: Config;
   private config: ConfigOptions;

@@ -555,6 +555,8 @@ const algorithm_benchmark = z.object({
 // EXPORT: ACTION_CALC_SCHEMAS
 // ============================================================================
 
+/** A C T I O N_ C A L C_ S C H E M A S constant.
+ */
 export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   // Core calculations
   cutting_force,

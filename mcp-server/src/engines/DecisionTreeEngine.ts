@@ -25,6 +25,8 @@ export interface DecisionResult {
   warnings: string[];
 }
 
+/** Tool Type Decision configuration/data structure.
+ */
 export interface ToolTypeDecision extends DecisionResult {
   tool_type: string;
   geometry: {
@@ -38,6 +40,8 @@ export interface ToolTypeDecision extends DecisionResult {
   alternatives: Array<{ tool_type: string; note: string }>;
 }
 
+/** Insert Grade Decision configuration/data structure.
+ */
 export interface InsertGradeDecision extends DecisionResult {
   grade: string;
   coating: string;
@@ -46,6 +50,8 @@ export interface InsertGradeDecision extends DecisionResult {
   alternatives: Array<{ grade: string; coating: string; note: string }>;
 }
 
+/** Coolant Decision configuration/data structure.
+ */
 export interface CoolantDecision extends DecisionResult {
   strategy: string;
   pressure_bar: number;
@@ -54,6 +60,8 @@ export interface CoolantDecision extends DecisionResult {
   alternatives: Array<{ strategy: string; note: string }>;
 }
 
+/** Workholding Decision configuration/data structure.
+ */
 export interface WorkholdingDecision extends DecisionResult {
   fixture_type: string;
   clamping_method: string;
@@ -62,6 +70,8 @@ export interface WorkholdingDecision extends DecisionResult {
   alternatives: Array<{ fixture_type: string; note: string }>;
 }
 
+/** Strategy Decision configuration/data structure.
+ */
 export interface StrategyDecision extends DecisionResult {
   strategy: string;
   entry_method: string;
@@ -70,6 +80,8 @@ export interface StrategyDecision extends DecisionResult {
   alternatives: Array<{ strategy: string; note: string }>;
 }
 
+/** Approach Retract Decision configuration/data structure.
+ */
 export interface ApproachRetractDecision extends DecisionResult {
   approach: { method: string; description: string; gcode_hint?: string };
   retract: { method: string; description: string; gcode_hint?: string };
@@ -80,6 +92,8 @@ export interface ApproachRetractDecision extends DecisionResult {
 // CONSTANTS
 // ============================================================================
 
+/** D E C I S I O N_ T R E E S constant.
+ */
 export const DECISION_TREES: string[] = [
   "selectToolType",
   "selectInsertGrade",
@@ -136,6 +150,8 @@ function requireParam(value: unknown, name: string): void {
 // 1. selectToolType
 // ============================================================================
 
+/** Select Tool Type Params configuration/data structure.
+ */
 export interface SelectToolTypeParams {
   material: string;
   operation: string;
@@ -143,6 +159,10 @@ export interface SelectToolTypeParams {
   roughing_finishing?: "roughing" | "finishing" | "both";
 }
 
+/** Selects tool type.
+ * @param params - params for the operation
+ * @returns tool type decision
+ */
 export function selectToolType(params: SelectToolTypeParams): ToolTypeDecision {
   requireParam(params.material, "material");
   requireParam(params.operation, "operation");
@@ -377,6 +397,8 @@ export function selectToolType(params: SelectToolTypeParams): ToolTypeDecision {
 // 2. selectInsertGrade
 // ============================================================================
 
+/** Select Insert Grade Params configuration/data structure.
+ */
 export interface SelectInsertGradeParams {
   material: string;
   hardness_hrc?: number;
@@ -384,6 +406,10 @@ export interface SelectInsertGradeParams {
   condition?: "stable" | "interrupted" | "heavy_interrupted";
 }
 
+/** Selects insert grade.
+ * @param params - params for the operation
+ * @returns insert grade decision
+ */
 export function selectInsertGrade(params: SelectInsertGradeParams): InsertGradeDecision {
   requireParam(params.material, "material");
   requireParam(params.operation, "operation");
@@ -508,6 +534,8 @@ export function selectInsertGrade(params: SelectInsertGradeParams): InsertGradeD
 // 3. selectCoolantStrategy
 // ============================================================================
 
+/** Select Coolant Strategy Params configuration/data structure.
+ */
 export interface SelectCoolantStrategyParams {
   material: string;
   cutting_speed_m_min: number;
@@ -517,6 +545,10 @@ export interface SelectCoolantStrategyParams {
   machine_has_tsc?: boolean;
 }
 
+/** Selects coolant strategy.
+ * @param params - params for the operation
+ * @returns coolant decision
+ */
 export function selectCoolantStrategy(params: SelectCoolantStrategyParams): CoolantDecision {
   requireParam(params.material, "material");
   requireParam(params.cutting_speed_m_min, "cutting_speed_m_min");
@@ -671,6 +703,8 @@ export function selectCoolantStrategy(params: SelectCoolantStrategyParams): Cool
 // 4. selectWorkholding
 // ============================================================================
 
+/** Select Workholding Params configuration/data structure.
+ */
 export interface SelectWorkholdingParams {
   part_geometry: "prismatic" | "cylindrical" | "thin_wall" | "complex" | "disc" | "long_shaft";
   cutting_force_n?: number;
@@ -681,6 +715,10 @@ export interface SelectWorkholdingParams {
   diameter_mm?: number;
 }
 
+/** Selects workholding.
+ * @param params - params for the operation
+ * @returns workholding decision
+ */
 export function selectWorkholding(params: SelectWorkholdingParams): WorkholdingDecision {
   requireParam(params.part_geometry, "part_geometry");
 
@@ -836,6 +874,8 @@ export function selectWorkholding(params: SelectWorkholdingParams): WorkholdingD
 // 5. selectStrategy
 // ============================================================================
 
+/** Select Strategy Params configuration/data structure.
+ */
 export interface SelectStrategyParams {
   feature: "pocket" | "slot" | "profile" | "face" | "hole" | "thread" | "3d_surface";
   material: string;
@@ -846,6 +886,10 @@ export interface SelectStrategyParams {
   tool_diameter_mm?: number;
 }
 
+/** Selects strategy.
+ * @param params - params for the operation
+ * @returns strategy decision
+ */
 export function selectStrategy(params: SelectStrategyParams): StrategyDecision {
   requireParam(params.feature, "feature");
   requireParam(params.material, "material");
@@ -1036,6 +1080,8 @@ export function selectStrategy(params: SelectStrategyParams): StrategyDecision {
 // 6. selectApproachRetract
 // ============================================================================
 
+/** Select Approach Retract Params configuration/data structure.
+ */
 export interface SelectApproachRetractParams {
   operation: string;
   material: string;
@@ -1044,6 +1090,10 @@ export interface SelectApproachRetractParams {
   tool_type?: string;
 }
 
+/** Selects approach retract.
+ * @param params - params for the operation
+ * @returns approach retract decision
+ */
 export function selectApproachRetract(params: SelectApproachRetractParams): ApproachRetractDecision {
   requireParam(params.operation, "operation");
   requireParam(params.material, "material");
@@ -1212,6 +1262,8 @@ import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 // fileURLToPath removed — esbuild banner already declares it (duplicate causes crash)
 
+/** Select Material Params configuration/data structure.
+ */
 export interface SelectMaterialParams {
   application: string;
   hardness_required?: "low" | "medium" | "high" | "very_high";
@@ -1222,6 +1274,8 @@ export interface SelectMaterialParams {
   weight_priority?: "low" | "medium" | "high";
 }
 
+/** Material Decision configuration/data structure.
+ */
 export interface MaterialDecision extends DecisionResult {
   material_family: string;
   recommended_alloys: string[];
@@ -1287,6 +1341,10 @@ const CORROSION_RANK: Record<string, number> = {
   low: 1, medium: 2, high: 3, very_high: 4,
 };
 
+/** Selects material.
+ * @param params - params for the operation
+ * @returns material decision
+ */
 export function selectMaterial(params: SelectMaterialParams): MaterialDecision {
   requireParam(params.application, "application");
 

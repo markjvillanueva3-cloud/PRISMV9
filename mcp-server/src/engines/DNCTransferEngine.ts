@@ -19,10 +19,18 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type DNCSystem = "cimco" | "predator" | "sfa" | "haas_net" | "mazak_smooth" | "file_system" | "qr_code";
+/** Transfer Action type definition.
+ */
 export type TransferAction = "send" | "compare" | "verify" | "list";
+/** Transfer Status type definition.
+ */
 export type TransferStatus = "pending" | "sent" | "verified" | "mismatch" | "error";
+/** Controller Type type definition.
+ */
 export type ControllerType = "fanuc" | "siemens" | "haas" | "mazak" | "heidenhain" | "generic";
 
+/** G Code Parameter Block configuration/data structure.
+ */
 export interface GCodeParameterBlock {
   program_number: string;
   material: string;
@@ -41,6 +49,8 @@ export interface GCodeParameterBlock {
   controller: ControllerType;
 }
 
+/** D N C Transfer Request configuration/data structure.
+ */
 export interface DNCTransferRequest {
   program_number: string;
   machine: string;
@@ -49,6 +59,8 @@ export interface DNCTransferRequest {
   system: DNCSystem;
 }
 
+/** D N C Transfer Result configuration/data structure.
+ */
 export interface DNCTransferResult {
   transfer_id: string;
   status: TransferStatus;
@@ -59,6 +71,8 @@ export interface DNCTransferResult {
   mismatches?: ParameterMismatch[];
 }
 
+/** Parameter Mismatch configuration/data structure.
+ */
 export interface ParameterMismatch {
   parameter: string;
   prism_value: number | string;
@@ -67,6 +81,8 @@ export interface ParameterMismatch {
   severity: "info" | "warning" | "critical";
 }
 
+/** Q R Code Data configuration/data structure.
+ */
 export interface QRCodeData {
   version: string;
   type: "prism_params";
@@ -251,6 +267,10 @@ const DNC_SYSTEMS = [
 
 // ─── Transfer History ────────────────────────────────────────────────────────
 
+/** Gets transfer history.
+ * @param machineFilter - machine filter string
+ * @returns d n c transfer result[]
+ */
 export function getTransferHistory(machineFilter?: string): DNCTransferResult[] {
   if (machineFilter) {
     return transferHistory.filter(t => t.machine === machineFilter);
@@ -258,6 +278,10 @@ export function getTransferHistory(machineFilter?: string): DNCTransferResult[] 
   return [...transferHistory];
 }
 
+/** Gets transfer by id.
+ * @param id - id string
+ * @returns d n c transfer result | null
+ */
 export function getTransferById(id: string): DNCTransferResult | null {
   return transferHistory.find(t => t.transfer_id === id) ?? null;
 }
@@ -375,6 +399,8 @@ export function dncTransfer(action: string, params: Record<string, any>): any {
 
 // ─── Source File Catalog (14 LOW-priority integration extractions) ───────────
 
+/** D N C_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const DNC_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

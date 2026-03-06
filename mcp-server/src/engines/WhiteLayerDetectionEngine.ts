@@ -28,8 +28,12 @@ export interface WhiteLayerInput {
   operation: "hard_turning" | "hard_milling" | "grinding";
 }
 
+/** White Layer Risk type definition.
+ */
 export type WhiteLayerRisk = "none" | "low" | "moderate" | "high" | "critical";
 
+/** White Layer Result configuration/data structure.
+ */
 export interface WhiteLayerResult {
   risk_level: WhiteLayerRisk;
   probability_pct: number;
@@ -64,6 +68,8 @@ const COOLANT_PREVENTION: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** White Layer Detection Engine engine/manager.
+ */
 export class WhiteLayerDetectionEngine {
   predict(input: WhiteLayerInput): WhiteLayerResult {
     // Base temperature model (simplified Loewen-Shaw for hard machining)
@@ -173,4 +179,6 @@ export class WhiteLayerDetectionEngine {
   }
 }
 
+/** White Layer Detection Engine constant.
+ */
 export const whiteLayerDetectionEngine = new WhiteLayerDetectionEngine();

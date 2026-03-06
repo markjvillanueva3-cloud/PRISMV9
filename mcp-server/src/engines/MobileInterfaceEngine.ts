@@ -20,9 +20,15 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type DisplaySize = "compact" | "standard" | "large" | "xlarge";
+/** Status Color type definition.
+ */
 export type StatusColor = "green" | "yellow" | "red" | "blue" | "gray";
+/** Timer State type definition.
+ */
 export type TimerState = "idle" | "running" | "warning" | "expired";
 
+/** Quick Lookup Result configuration/data structure.
+ */
 export interface QuickLookupResult {
   material: string;
   tool_diameter_mm: number;
@@ -36,6 +42,8 @@ export interface QuickLookupResult {
   display: MobileDisplay;
 }
 
+/** Mobile Display configuration/data structure.
+ */
 export interface MobileDisplay {
   primary: string;     // "3200 RPM"
   secondary: string;   // "19.2 IPM"
@@ -45,6 +53,8 @@ export interface MobileDisplay {
   safety_indicator: string;
 }
 
+/** Voice Query Result configuration/data structure.
+ */
 export interface VoiceQueryResult {
   interpreted: string;
   confidence: number;
@@ -52,6 +62,8 @@ export interface VoiceQueryResult {
   spoken_response: string;
 }
 
+/** Alarm Quick Decode configuration/data structure.
+ */
 export interface AlarmQuickDecode {
   code: string;
   plain_english: string;
@@ -61,6 +73,8 @@ export interface AlarmQuickDecode {
   color: StatusColor;
 }
 
+/** Tool Life Timer configuration/data structure.
+ */
 export interface ToolLifeTimer {
   timer_id: string;
   tool: string;
@@ -72,6 +86,8 @@ export interface ToolLifeTimer {
   warning_at_pct: number;
 }
 
+/** Offline Cache Bundle configuration/data structure.
+ */
 export interface OfflineCacheBundle {
   version: string;
   generated_at: string;
@@ -79,6 +95,8 @@ export interface OfflineCacheBundle {
   total_bytes: number;
 }
 
+/** Cache Entry configuration/data structure.
+ */
 export interface CacheEntry {
   material: string;
   tool_diameter_mm: number;
@@ -108,6 +126,10 @@ function getVc(material: string): number {
 
 // ─── Quick Lookup ────────────────────────────────────────────────────────────
 
+/** Quick Lookup.
+ * @param params - params for the operation
+ * @returns quick lookup result
+ */
 export function quickLookup(params: Record<string, any>): QuickLookupResult {
   const material = params.material ?? "steel";
   const diameter = params.tool_diameter_mm ?? params.diameter ?? 12;
@@ -238,6 +260,10 @@ const COMMON_ALARMS: Record<string, AlarmQuickDecode> = {
   "2000": { code: "2000", plain_english: "Door interlock open", severity: "info", fix_steps: ["Close machine door", "Check door switch", "Verify interlock sensor"], estimated_downtime_min: 1, color: "blue" },
 };
 
+/** Decode Alarm.
+ * @param code - code string
+ * @returns alarm quick decode
+ */
 export function decodeAlarm(code: string): AlarmQuickDecode {
   const alarm = COMMON_ALARMS[code];
   if (alarm) return alarm;
@@ -257,6 +283,10 @@ export function decodeAlarm(code: string): AlarmQuickDecode {
 const activeTimers: Map<string, ToolLifeTimer> = new Map();
 let timerCounter = 0;
 
+/** Start Tool Timer.
+ * @param params - params for the operation
+ * @returns tool life timer
+ */
 export function startToolTimer(params: Record<string, any>): ToolLifeTimer {
   timerCounter++;
   const id = `TLT-${String(timerCounter).padStart(3, "0")}`;
@@ -274,6 +304,10 @@ export function startToolTimer(params: Record<string, any>): ToolLifeTimer {
   return timer;
 }
 
+/** Checks tool timer.
+ * @param timerId - timer identifier
+ * @returns tool life timer | null
+ */
 export function checkToolTimer(timerId: string): ToolLifeTimer | null {
   const timer = activeTimers.get(timerId);
   if (!timer) return null;
@@ -292,6 +326,10 @@ export function checkToolTimer(timerId: string): ToolLifeTimer | null {
   return timer;
 }
 
+/** Reset Tool Timer.
+ * @param timerId - timer identifier
+ * @returns tool life timer | null
+ */
 export function resetToolTimer(timerId: string): ToolLifeTimer | null {
   const timer = activeTimers.get(timerId);
   if (!timer) return null;
@@ -302,6 +340,9 @@ export function resetToolTimer(timerId: string): ToolLifeTimer | null {
   return timer;
 }
 
+/** List Tool Timers.
+ * @returns tool life timer[]
+ */
 export function listToolTimers(): ToolLifeTimer[] {
   return Array.from(activeTimers.values()).map(t => {
     checkToolTimer(t.timer_id); // refresh state

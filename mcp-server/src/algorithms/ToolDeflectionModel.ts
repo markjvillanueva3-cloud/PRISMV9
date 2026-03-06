@@ -32,6 +32,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Tool Deflection Input configuration/data structure.
+ */
 export interface ToolDeflectionInput {
   /** Cutting force (radial component) [N]. */
   cutting_force: number;
@@ -49,6 +51,8 @@ export interface ToolDeflectionInput {
   shank_diameter?: number;
 }
 
+/** Tool Deflection Output configuration/data structure.
+ */
 export interface ToolDeflectionOutput extends WithWarnings {
   /** Static deflection at tool tip [mm]. */
   static_deflection: number;
@@ -92,6 +96,8 @@ const YIELD_STRENGTH: Record<string, number> = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Tool Deflection Model engine/manager.
+ */
 export class ToolDeflectionModel implements Algorithm<ToolDeflectionInput, ToolDeflectionOutput> {
 
   validate(input: ToolDeflectionInput): ValidationResult {

@@ -19,6 +19,8 @@
 
 export type InfeedMethod = "radial" | "flank" | "modified_flank" | "alternating_flank" | "constant_area";
 
+/** S P T Input configuration/data structure.
+ */
 export interface SPTInput {
   thread_form: "UN" | "metric" | "ACME" | "trapezoidal" | "buttress";
   pitch_mm: number;
@@ -35,6 +37,8 @@ export interface SPTInput {
   material_tensile_MPa: number;
 }
 
+/** S P T Pass Plan configuration/data structure.
+ */
 export interface SPTPassPlan {
   passes: SPTPass[];
   total_passes: number;
@@ -44,6 +48,8 @@ export interface SPTPassPlan {
   recommendations: string[];
 }
 
+/** S P T Pass configuration/data structure.
+ */
 export interface SPTPass {
   pass_number: number;
   depth_of_cut_mm: number;            // incremental DOC this pass
@@ -54,6 +60,8 @@ export interface SPTPass {
   is_spring_pass: boolean;
 }
 
+/** S P T Validation configuration/data structure.
+ */
 export interface SPTValidation {
   safe: boolean;
   clearance_ok: boolean;
@@ -89,6 +97,8 @@ const INFEED_ANGLE: Record<InfeedMethod, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Single Point Thread Engine engine/manager.
+ */
 export class SinglePointThreadEngine {
   calculatePassPlan(input: SPTInput): SPTPassPlan {
     const totalDepth = input.total_depth_mm || input.pitch_mm * (DEPTH_FACTOR[input.thread_form] || 0.6134);
@@ -235,4 +245,6 @@ export class SinglePointThreadEngine {
   }
 }
 
+/** Single Point Thread Engine constant.
+ */
 export const singlePointThreadEngine = new SinglePointThreadEngine();

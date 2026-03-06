@@ -20,6 +20,8 @@ export interface NestPart {
   priority?: number;                // 1–5
 }
 
+/** Stock Sheet configuration/data structure.
+ */
 export interface StockSheet {
   width_mm: number;
   height_mm: number;
@@ -28,6 +30,8 @@ export interface StockSheet {
   cost_per_sheet?: number;
 }
 
+/** Nest Placement configuration/data structure.
+ */
 export interface NestPlacement {
   part_id: string;
   instance: number;
@@ -38,6 +42,8 @@ export interface NestPlacement {
   height_mm: number;
 }
 
+/** Nest Result configuration/data structure.
+ */
 export interface NestResult {
   placements: NestPlacement[];
   sheets_used: number;
@@ -50,6 +56,8 @@ export interface NestResult {
   cost_estimate: number;
 }
 
+/** Nest Analysis configuration/data structure.
+ */
 export interface NestAnalysis {
   part_area_mm2: number;
   stock_area_mm2: number;
@@ -142,6 +150,8 @@ function nestOnSheet(parts: { id: string; w: number; h: number; qty: number; rot
 // ENGINE CLASS
 // ============================================================================
 
+/** Nesting Engine engine/manager.
+ */
 export class NestingEngine {
   nest(parts: NestPart[], stock: StockSheet, kerfMm: number = 3): NestResult {
     const totalRequested = parts.reduce((s, p) => s + p.quantity, 0);
@@ -217,4 +227,6 @@ export class NestingEngine {
   }
 }
 
+/** Nesting Engine constant.
+ */
 export const nestingEngine = new NestingEngine();

@@ -37,10 +37,18 @@ function getAnthropicClient(): Anthropic {
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Task Status type definition.
+ */
 export type TaskStatus = "pending" | "queued" | "running" | "completed" | "failed" | "cancelled" | "retrying";
+/** Task Priority type definition.
+ */
 export type TaskPriority = "critical" | "high" | "normal" | "low" | "background";
+/** Execution Mode type definition.
+ */
 export type ExecutionMode = "sequential" | "parallel" | "pipeline" | "swarm";
 
+/** Task Definition configuration/data structure.
+ */
 export interface TaskDefinition {
   id: string;
   name: string;
@@ -53,6 +61,8 @@ export interface TaskDefinition {
   metadata?: Record<string, unknown>;
 }
 
+/** Task Result configuration/data structure.
+ */
 export interface TaskResult {
   taskId: string;
   agentId: string;
@@ -66,6 +76,8 @@ export interface TaskResult {
   metadata?: Record<string, unknown>;
 }
 
+/** Execution Plan configuration/data structure.
+ */
 export interface ExecutionPlan {
   id: string;
   name: string;
@@ -79,6 +91,8 @@ export interface ExecutionPlan {
   aggregatedOutput?: unknown;
 }
 
+/** Agent Session configuration/data structure.
+ */
 export interface AgentSession {
   id: string;
   agentId: string;
@@ -92,6 +106,8 @@ export interface AgentSession {
   errors: number;
 }
 
+/** Queue Stats configuration/data structure.
+ */
 export interface QueueStats {
   pending: number;
   running: number;
@@ -102,6 +118,8 @@ export interface QueueStats {
   throughput_per_min: number;
 }
 
+/** Execution Config configuration/data structure.
+ */
 export interface ExecutionConfig {
   maxConcurrent: number;
   defaultTimeout_ms: number;
@@ -136,6 +154,8 @@ const PRIORITY_WEIGHTS: Record<TaskPriority, number> = {
 // AGENT EXECUTOR CLASS
 // ============================================================================
 
+/** Agent Executor engine/manager.
+ */
 export class AgentExecutor {
   private config: ExecutionConfig;
   private taskQueue: TaskDefinition[] = [];
@@ -786,6 +806,8 @@ export class AgentExecutor {
 // SINGLETON INSTANCE
 // ============================================================================
 
+/** Agent Executor constant.
+ */
 export const agentExecutor = new AgentExecutor();
 
 // ============================================================================

@@ -25,6 +25,8 @@ export interface CostInput {
   overhead_pct?: number;             // default 30%
 }
 
+/** Cost Breakdown configuration/data structure.
+ */
 export interface CostBreakdown {
   material_cost: number;
   machine_cost: number;
@@ -36,6 +38,8 @@ export interface CostBreakdown {
   cost_drivers: CostDriver[];
 }
 
+/** Cost Driver configuration/data structure.
+ */
 export interface CostDriver {
   category: string;
   amount: number;
@@ -43,6 +47,8 @@ export interface CostDriver {
   notes: string;
 }
 
+/** Material Cost Comparison configuration/data structure.
+ */
 export interface MaterialCostComparison {
   materials: {
     name: string;
@@ -84,6 +90,8 @@ const ISO_TOOL_LIFE_FACTOR: Record<string, number> = { P: 1.0, M: 1.5, K: 0.8, N
 // ENGINE CLASS
 // ============================================================================
 
+/** Cost Estimation Engine engine/manager.
+ */
 export class CostEstimationEngine {
   estimate(input: CostInput): CostBreakdown {
     const laborRate = input.labor_rate_per_hour || 55;
@@ -163,4 +171,6 @@ export class CostEstimationEngine {
   }
 }
 
+/** Cost Estimation Engine constant.
+ */
 export const costEstimationEngine = new CostEstimationEngine();

@@ -18,8 +18,12 @@
 
 export type DrillType = "hss_twist" | "carbide_twist" | "carbide_insert" | "gun_drill" | "spade";
 
+/** Peck Strategy type definition.
+ */
 export type PeckStrategy = "full_retract" | "chip_break" | "gun_drill_continuous";
 
+/** Peck Drilling Input configuration/data structure.
+ */
 export interface PeckDrillingInput {
   drill_diameter_mm: number;
   hole_depth_mm: number;
@@ -30,6 +34,8 @@ export interface PeckDrillingInput {
   coolant_through_spindle: boolean;
 }
 
+/** Peck Drilling Result configuration/data structure.
+ */
 export interface PeckDrillingResult {
   ld_ratio: number;
   peck_strategy: PeckStrategy;
@@ -66,6 +72,8 @@ const DRILL_TYPE_PECK: Record<DrillType, { base_ld: number; max_peck_factor: num
 // ENGINE CLASS
 // ============================================================================
 
+/** Peck Drilling Optimization Engine engine/manager.
+ */
 export class PeckDrillingOptimizationEngine {
   calculate(input: PeckDrillingInput): PeckDrillingResult {
     const { drill_diameter_mm: D, hole_depth_mm: L } = input;
@@ -180,4 +188,6 @@ export class PeckDrillingOptimizationEngine {
   }
 }
 
+/** Peck Drilling Optimization Engine constant.
+ */
 export const peckDrillingOptimizationEngine = new PeckDrillingOptimizationEngine();

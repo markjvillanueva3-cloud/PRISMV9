@@ -35,10 +35,14 @@ import { eventBus } from "./EventBus.js";
 // TYPES
 // ============================================================================
 
+/** Registry Type type definition.
+ */
 export type RegistryType = 
   | "materials" | "machines" | "tools" | "alarms" 
   | "formulas" | "skills" | "scripts" | "agents" | "hooks";
 
+/** Unified Search Result configuration/data structure.
+ */
 export interface UnifiedSearchResult {
   registry: RegistryType;
   id: string;
@@ -50,6 +54,8 @@ export interface UnifiedSearchResult {
   data: unknown;
 }
 
+/** Cross Registry Query configuration/data structure.
+ */
 export interface CrossRegistryQuery {
   task: string;
   required_registries?: RegistryType[];
@@ -60,6 +66,8 @@ export interface CrossRegistryQuery {
   };
 }
 
+/** Cross Registry Result configuration/data structure.
+ */
 export interface CrossRegistryResult {
   task: string;
   results: {
@@ -76,6 +84,8 @@ export interface CrossRegistryResult {
   suggested_workflow: string[];
 }
 
+/** Formula Query Result configuration/data structure.
+ */
 export interface FormulaQueryResult {
   formula: Formula;
   match_score: number;
@@ -85,6 +95,8 @@ export interface FormulaQueryResult {
   applicable_materials?: string[];
 }
 
+/** Knowledge Relation configuration/data structure.
+ */
 export interface KnowledgeRelation {
   source_registry: RegistryType;
   source_id: string;
@@ -94,18 +106,24 @@ export interface KnowledgeRelation {
   strength: number;  // 0-1
 }
 
+/** Query Plan configuration/data structure.
+ */
 export interface QueryPlan {
   steps: QueryStep[];
   estimated_results: number;
   registries_involved: RegistryType[];
 }
 
+/** Query Step configuration/data structure.
+ */
 export interface QueryStep {
   registry: RegistryType;
   operation: "search" | "filter" | "join" | "rank";
   params: Record<string, unknown>;
 }
 
+/** Knowledge Engine Config configuration/data structure.
+ */
 export interface KnowledgeEngineConfig {
   max_results_per_registry: number;
   min_relevance_score: number;
@@ -181,6 +199,8 @@ const FORMULA_DOMAINS: Record<string, FormulaCategory[]> = {
 // owns its own copy so there are no cross-engine import dependencies.
 // ============================================================================
 
+/** K N O W L E D G E_ Q U E R Y_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -291,6 +311,8 @@ export const KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG: Record<string, {
 // KNOWLEDGE QUERY ENGINE
 // ============================================================================
 
+/** Knowledge Query Engine engine/manager.
+ */
 export class KnowledgeQueryEngine {
   private config: KnowledgeEngineConfig;
   private cache: Map<string, { result: unknown; timestamp: number }>;
@@ -1193,4 +1215,6 @@ export class KnowledgeQueryEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Knowledge Engine constant.
+ */
 export const knowledgeEngine = new KnowledgeQueryEngine();

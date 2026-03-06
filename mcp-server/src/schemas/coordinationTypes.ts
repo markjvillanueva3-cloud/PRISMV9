@@ -11,6 +11,8 @@ import { z } from "zod";
 
 // ── Claim Record ─────────────────────────────────────────────────
 
+/** Claim Record constant.
+ */
 export const ClaimRecord = z.object({
   milestone_id: z.string().min(1),
   unit_id: z.string().min(1),
@@ -19,10 +21,14 @@ export const ClaimRecord = z.object({
   claimed_at: z.string(),
   heartbeat_at: z.string(),
 });
+/** Claim Record type definition.
+ */
 export type ClaimRecord = z.infer<typeof ClaimRecord>;
 
 // ── Instance Record ──────────────────────────────────────────────
 
+/** Instance Record constant.
+ */
 export const InstanceRecord = z.object({
   instance_id: z.string().min(1),
   worktree: z.string().min(1),
@@ -33,10 +39,14 @@ export const InstanceRecord = z.object({
   current_unit: z.string().optional(),
   status: z.enum(["idle", "working", "blocked", "offline"]).default("idle"),
 });
+/** Instance Record type definition.
+ */
 export type InstanceRecord = z.infer<typeof InstanceRecord>;
 
 // ── Coordination Message ─────────────────────────────────────────
 
+/** Coordination Message constant.
+ */
 export const CoordinationMessage = z.object({
   id: z.string().min(1),
   from_instance: z.string().min(1),
@@ -46,13 +56,21 @@ export const CoordinationMessage = z.object({
   content: z.string().min(1),
   timestamp: z.string(),
 });
+/** Coordination Message type definition.
+ */
 export type CoordinationMessage = z.infer<typeof CoordinationMessage>;
 
 // ── Roadmap Registry ─────────────────────────────────────────────
 
+/** Roadmap Category constant.
+ */
 export const RoadmapCategory = z.enum(["main", "secondary", "archived"]);
+/** Roadmap Category type definition.
+ */
 export type RoadmapCategory = z.infer<typeof RoadmapCategory>;
 
+/** Roadmap Registry Entry constant.
+ */
 export const RoadmapRegistryEntry = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
@@ -62,11 +80,17 @@ export const RoadmapRegistryEntry = z.object({
   created_at: z.string(),
   updated_at: z.string().optional(),
 });
+/** Roadmap Registry Entry type definition.
+ */
 export type RoadmapRegistryEntry = z.infer<typeof RoadmapRegistryEntry>;
 
+/** Roadmap Registry constant.
+ */
 export const RoadmapRegistry = z.object({
   version: z.string().default("1.0.0"),
   roadmaps: z.array(RoadmapRegistryEntry),
   updated_at: z.string(),
 });
+/** Roadmap Registry type definition.
+ */
 export type RoadmapRegistry = z.infer<typeof RoadmapRegistry>;

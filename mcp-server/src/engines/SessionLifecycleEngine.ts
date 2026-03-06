@@ -25,6 +25,8 @@ const METRICS_FILE = path.join(STATE_DIR, "session_metrics.json");
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
+/** Session Metrics configuration/data structure.
+ */
 export interface SessionMetrics {
   session_id: string;
   start_time: string;
@@ -47,6 +49,8 @@ export interface SessionMetrics {
   total_latency_ms: number;
 }
 
+/** Session Quality Score configuration/data structure.
+ */
 export interface SessionQualityScore {
   overall: number;           // 0-100
   dimensions: {
@@ -60,6 +64,8 @@ export interface SessionQualityScore {
   recommendation: string;
 }
 
+/** Incremental Prep configuration/data structure.
+ */
 export interface IncrementalPrep {
   session_id: string;
   timestamp: string;
@@ -75,6 +81,8 @@ export interface IncrementalPrep {
 
 // ─── Singleton Engine ──────────────────────────────────────────────────────────
 
+/** Session Lifecycle Engine engine/manager.
+ */
 export class SessionLifecycleEngine {
   private static instance: SessionLifecycleEngine;
   private metrics: SessionMetrics;
@@ -295,42 +303,74 @@ export class SessionLifecycleEngine {
 
 // ─── Convenience Functions (for cadence wiring) ──────────────────────────────
 
+/** Record Session Tool Call.
+ * @param success - whether success
+ * @param latencyMs - latency ms value
+ */
 export function recordSessionToolCall(success: boolean, latencyMs: number): void {
   try { SessionLifecycleEngine.getInstance().recordToolCall(success, latencyMs); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Hook.
+ * @param blocked - whether blocked
+ */
 export function recordSessionHook(blocked: boolean): void {
   try { SessionLifecycleEngine.getInstance().recordHookExecution(blocked); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Skill Injection.
+ */
 export function recordSessionSkillInjection(): void {
   try { SessionLifecycleEngine.getInstance().recordSkillInjection(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Template Match.
+ */
 export function recordSessionTemplateMatch(): void {
   try { SessionLifecycleEngine.getInstance().recordTemplateMatch(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Pressure.
+ * @param pct - pct value
+ */
 export function recordSessionPressure(pct: number): void {
   try { SessionLifecycleEngine.getInstance().recordPressure(pct); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Checkpoint.
+ */
 export function recordSessionCheckpoint(): void {
   try { SessionLifecycleEngine.getInstance().recordCheckpoint(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Compaction Recovery.
+ */
 export function recordSessionCompactionRecovery(): void {
   try { SessionLifecycleEngine.getInstance().recordCompactionRecovery(); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Record Session Error.
+ * @param resolved - whether resolved
+ */
 export function recordSessionError(resolved: boolean): void {
   try { SessionLifecycleEngine.getInstance().recordError(resolved); } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Gets session quality score.
+ * @returns session quality score | null
+ */
 export function getSessionQualityScore(): SessionQualityScore | null {
   try { return SessionLifecycleEngine.getInstance().computeQualityScore(); } catch { return null; }
 }
 
+/** Write Session Incremental Prep.
+ * @param callNumber - call number value
+ * @param phase - phase string
+ * @param quickResume - quick resume string
+ * @param pendingTasks - pending tasks
+ * @param keyFindings - key findings
+ * @param activeFiles - active files
+ */
 export function writeSessionIncrementalPrep(
   callNumber: number, phase: string, quickResume: string,
   pendingTasks: string[], keyFindings: string[], activeFiles: string[]
@@ -343,12 +383,22 @@ export function writeSessionIncrementalPrep(
   } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
 }
 
+/** Generates session handoff.
+ * @param phase - phase string
+ * @param quickResume - quick resume string
+ * @param pendingTasks - pending tasks
+ * @param keyFindings - key findings
+ * @returns record<string, any> | null
+ */
 export function generateSessionHandoff(
   phase: string, quickResume: string, pendingTasks: string[], keyFindings: string[]
 ): Record<string, any> | null {
   try { return SessionLifecycleEngine.getInstance().generateFinalHandoff(phase, quickResume, pendingTasks, keyFindings); } catch { return null; }
 }
 
+/** Gets session metrics.
+ * @returns session metrics | null
+ */
 export function getSessionMetrics(): SessionMetrics | null {
   try { return SessionLifecycleEngine.getInstance().getMetrics(); } catch { return null; }
 }

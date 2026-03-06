@@ -42,6 +42,9 @@ function loadAutoPilot() {
   }
 }
 
+/** Registers auto pilot dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerAutoPilotDispatcher(server: any): void {
   server.tool(
     "prism_autopilot_d",

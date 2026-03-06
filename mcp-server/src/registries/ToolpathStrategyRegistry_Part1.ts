@@ -37,13 +37,19 @@
 // ============================================================================
 
 export type AxisCapability = '2D' | '2.5D' | '3D' | '4D' | '5D';
+/** Operation Phase type definition.
+ */
 export type OperationPhase = 'ROUGHING' | 'SEMI_FINISHING' | 'FINISHING' | 'SUPER_FINISHING';
+/** Toolpath Pattern type definition.
+ */
 export type ToolpathPattern = 
   | 'zigzag' | 'spiral' | 'contour' | 'offset' | 'parallel' | 'radial'
   | 'scallop' | 'pencil' | 'waterline' | 'flowline' | 'geodesic' | 'isocurve'
   | 'steep_shallow' | 'trochoidal' | 'adaptive' | 'peck' | 'helical'
   | 'morphed' | 'drive_curve' | 'swarf' | 'project' | 'level_z';
 
+/** Toolpath Strategy configuration/data structure.
+ */
 export interface ToolpathStrategy {
   id: string;
   name: string;
@@ -90,6 +96,8 @@ export interface ToolpathStrategy {
 // 3D FINISHING STRATEGIES (24)
 // ============================================================================
 
+/** F I N I S H I N G_3 D_ S T R A T E G I E S constant.
+ */
 export const FINISHING_3D_STRATEGIES: Record<string, ToolpathStrategy> = {
   BLEND_FINISHING: {
     id: 'BLEND_FINISHING',
@@ -605,6 +613,8 @@ export const FINISHING_3D_STRATEGIES: Record<string, ToolpathStrategy> = {
 // 3D ROUGHING STRATEGIES (4)
 // ============================================================================
 
+/** R O U G H I N G_3 D_ S T R A T E G I E S constant.
+ */
 export const ROUGHING_3D_STRATEGIES: Record<string, ToolpathStrategy> = {
   CONTOUR_3D_ROUGHING: {
     id: 'CONTOUR_3D_ROUGHING',
@@ -695,6 +705,8 @@ export const ROUGHING_3D_STRATEGIES: Record<string, ToolpathStrategy> = {
 };
 
 // Export strategy count for verification
+/** S T R A T E G Y_ C O U N T S constant.
+ */
 export const STRATEGY_COUNTS = {
   finishing_3d: Object.keys(FINISHING_3D_STRATEGIES).length,
   roughing_3d: Object.keys(ROUGHING_3D_STRATEGIES).length,

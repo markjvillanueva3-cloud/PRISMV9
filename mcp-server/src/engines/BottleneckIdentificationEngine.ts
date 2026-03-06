@@ -25,12 +25,16 @@ export interface WorkCenter {
   downtime_pct: number;
 }
 
+/** Bottleneck Input configuration/data structure.
+ */
 export interface BottleneckInput {
   work_centers: WorkCenter[];
   demand_parts_per_hr: number;
   shift_hours: number;
 }
 
+/** Bottleneck Result configuration/data structure.
+ */
 export interface BottleneckResult {
   bottleneck_id: string;
   bottleneck_name: string;
@@ -46,6 +50,8 @@ export interface BottleneckResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Bottleneck Identification Engine engine/manager.
+ */
 export class BottleneckIdentificationEngine {
   identify(input: BottleneckInput): BottleneckResult {
     // Bottleneck = work center with highest utilization or lowest throughput ratio
@@ -123,4 +129,6 @@ export class BottleneckIdentificationEngine {
   }
 }
 
+/** Bottleneck Identification Engine constant.
+ */
 export const bottleneckIdentificationEngine = new BottleneckIdentificationEngine();

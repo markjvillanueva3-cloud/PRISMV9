@@ -16,8 +16,12 @@
 // ============================================================================
 
 export type SplineType = "involute" | "straight_sided" | "serration";
+/** Index Method type definition.
+ */
 export type IndexMethod = "rotary_table" | "c_axis" | "dividing_head" | "gear_shaper";
 
+/** Spline Milling Input configuration/data structure.
+ */
 export interface SplineMillingInput {
   spline_type: SplineType;
   num_teeth: number;
@@ -35,6 +39,8 @@ export interface SplineMillingInput {
   num_depth_passes: number;
 }
 
+/** Spline Milling Result configuration/data structure.
+ */
 export interface SplineMillingResult {
   index_angle_deg: number;
   tooth_space_width_mm: number;
@@ -48,6 +54,8 @@ export interface SplineMillingResult {
   recommendations: string[];
 }
 
+/** Spline Validation configuration/data structure.
+ */
 export interface SplineValidation {
   fit_class: string;
   backlash_mm: number;
@@ -60,6 +68,8 @@ export interface SplineValidation {
 // ENGINE CLASS
 // ============================================================================
 
+/** Spline Milling Engine engine/manager.
+ */
 export class SplineMillingEngine {
   calculate(input: SplineMillingInput): SplineMillingResult {
     const Z = input.num_teeth;
@@ -166,4 +176,6 @@ export class SplineMillingEngine {
   }
 }
 
+/** Spline Milling Engine constant.
+ */
 export const splineMillingEngine = new SplineMillingEngine();

@@ -21,9 +21,15 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type InverseProblemType = "surface_finish" | "tool_life" | "dimensional" | "chatter" | "general";
+/** Severity type definition.
+ */
 export type Severity = "low" | "medium" | "high" | "critical";
+/** Confidence type definition.
+ */
 export type Confidence = "low" | "medium" | "high" | "very_high";
 
+/** Inverse Problem Input configuration/data structure.
+ */
 export interface InverseProblemInput {
   problem_type: InverseProblemType;
   material?: string;
@@ -48,6 +54,8 @@ export interface InverseProblemInput {
   symptoms?: string[];
 }
 
+/** Root Cause configuration/data structure.
+ */
 export interface RootCause {
   cause: string;
   probability: number; // 0-1
@@ -57,6 +65,8 @@ export interface RootCause {
   fixes: Fix[];
 }
 
+/** Fix configuration/data structure.
+ */
 export interface Fix {
   action: string;
   effectiveness: number; // 0-1
@@ -65,6 +75,8 @@ export interface Fix {
   details: string;
 }
 
+/** Inverse Solution configuration/data structure.
+ */
 export interface InverseSolution {
   problem_id: string;
   problem_type: InverseProblemType;

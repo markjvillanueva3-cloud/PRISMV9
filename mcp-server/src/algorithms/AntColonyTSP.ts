@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Tool Change Time configuration/data structure.
+ */
 export interface ToolChangeTime {
   /** Source tool index. */
   from: number;
@@ -28,6 +30,8 @@ export interface ToolChangeTime {
   time: number;
 }
 
+/** Ant Colony T S P Input configuration/data structure.
+ */
 export interface AntColonyTSPInput {
   /** Number of tools in sequence. */
   n_tools: number;
@@ -51,6 +55,8 @@ export interface AntColonyTSPInput {
   tool_operations?: Array<{ tool_index: number; operation_order?: number }>;
 }
 
+/** Ant Colony T S P Output configuration/data structure.
+ */
 export interface AntColonyTSPOutput extends WithWarnings {
   /** Best tool sequence found (tool indices). */
   best_sequence: number[];
@@ -69,6 +75,8 @@ export interface AntColonyTSPOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Ant Colony T S P engine/manager.
+ */
 export class AntColonyTSP implements Algorithm<AntColonyTSPInput, AntColonyTSPOutput> {
 
   validate(input: AntColonyTSPInput): ValidationResult {

@@ -24,6 +24,8 @@ export const ALARM_DECODE_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+/** Alarm Decode Result configuration/data structure.
+ */
 export interface AlarmDecodeResult {
   controller: string;
   alarm_code: string;

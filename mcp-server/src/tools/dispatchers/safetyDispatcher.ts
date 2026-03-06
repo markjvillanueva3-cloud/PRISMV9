@@ -79,6 +79,9 @@ const ALL_ACTIONS = [
   ...BREAKAGE_ACTIONS, ...WORKHOLDING_ACTIONS
 ] as const;
 
+/** Registers safety dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerSafetyDispatcher(server: any): void {
   server.tool(
     "prism_safety",

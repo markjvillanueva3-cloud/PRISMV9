@@ -16,6 +16,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Particle Swarm Input configuration/data structure.
+ */
 export interface ParticleSwarmInput {
   /** Number of decision variables. */
   dimensions: number;
@@ -37,6 +39,8 @@ export interface ParticleSwarmInput {
   seed?: number;
 }
 
+/** Particle Swarm Output configuration/data structure.
+ */
 export interface ParticleSwarmOutput extends WithWarnings {
   best_position: number[];
   best_fitness: number;
@@ -51,6 +55,8 @@ function mulberry32(seed: number) {
   return () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
+/** Particle Swarm engine/manager.
+ */
 export class ParticleSwarm implements Algorithm<ParticleSwarmInput, ParticleSwarmOutput> {
 
   validate(input: ParticleSwarmInput): ValidationResult {

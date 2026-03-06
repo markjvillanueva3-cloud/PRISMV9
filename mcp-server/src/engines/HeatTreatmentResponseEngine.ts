@@ -19,8 +19,12 @@ export type HeatTreatProcess =
   | "through_harden" | "temper" | "anneal" | "normalize"
   | "case_harden" | "carburize" | "nitride" | "induction_harden";
 
+/** Quench Medium type definition.
+ */
 export type QuenchMedium = "water" | "oil" | "polymer" | "air" | "salt_bath" | "gas";
 
+/** Heat Treat Input configuration/data structure.
+ */
 export interface HeatTreatInput {
   process: HeatTreatProcess;
   material: string;                    // e.g., "4140", "D2", "316L"
@@ -35,6 +39,8 @@ export interface HeatTreatInput {
   prior_hardness_HRC?: number;
 }
 
+/** Heat Treat Result configuration/data structure.
+ */
 export interface HeatTreatResult {
   predicted_surface_hardness_HRC: number;
   predicted_core_hardness_HRC: number;
@@ -46,6 +52,8 @@ export interface HeatTreatResult {
   recommendations: string[];
 }
 
+/** Temper Curve Point configuration/data structure.
+ */
 export interface TemperCurvePoint {
   temp_C: number;
   hardness_HRC: number;
@@ -91,6 +99,8 @@ const TEMPER_REDUCTION = (tempC: number, timeMin: number): number => {
 // ENGINE CLASS
 // ============================================================================
 
+/** Heat Treatment Response Engine engine/manager.
+ */
 export class HeatTreatmentResponseEngine {
   predict(input: HeatTreatInput): HeatTreatResult {
     // Base carbon martensite hardness
@@ -214,4 +224,6 @@ export class HeatTreatmentResponseEngine {
   }
 }
 
+/** Heat Treatment Response Engine constant.
+ */
 export const heatTreatmentResponseEngine = new HeatTreatmentResponseEngine();

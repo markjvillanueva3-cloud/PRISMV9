@@ -10,8 +10,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type HoningStoneGrit = "coarse" | "medium" | "fine" | "superfinish";
+/** Honing Coolant type definition.
+ */
 export type HoningCoolant = "flood" | "honing_oil" | "kerosene" | "synthetic";
 
+/** Bore Finishing Input configuration/data structure.
+ */
 export interface BoreFinishingInput {
   bore_diameter_mm: number;
   bore_length_mm: number;
@@ -26,6 +30,8 @@ export interface BoreFinishingInput {
   coolant_type?: HoningCoolant;           // default honing_oil
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -34,6 +40,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Bore Finishing Result configuration/data structure.
+ */
 export interface BoreFinishingResult {
   estimated_passes: AtomicValue;
   material_removal_rate_um_per_pass: AtomicValue;
@@ -98,6 +106,8 @@ const hardnessRemovalFactor = (hrc: number): number => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Bore Finishing Engine engine/manager.
+ */
 export class BoreFinishingEngine {
   calculate(input: BoreFinishingInput): BoreFinishingResult {
     const {
@@ -254,4 +264,6 @@ export class BoreFinishingEngine {
   }
 }
 
+/** Bore Finishing Engine constant.
+ */
 export const boreFinishingEngine = new BoreFinishingEngine();

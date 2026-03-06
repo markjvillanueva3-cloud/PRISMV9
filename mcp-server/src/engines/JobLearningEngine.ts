@@ -21,6 +21,8 @@
 
 export type ToolFailureMode = 'none' | 'flank_wear' | 'crater_wear' | 'chipping' | 'breakage';
 
+/** Job Record Input configuration/data structure.
+ */
 export interface JobRecordInput {
   job_plan_id?: string;
   material: string;
@@ -45,6 +47,8 @@ export interface JobRecordInput {
   timestamp?: string;
 }
 
+/** Job Record Result configuration/data structure.
+ */
 export interface JobRecordResult {
   id: string;
   stored: boolean;
@@ -54,6 +58,8 @@ export interface JobRecordResult {
   safety: { score: number; flags: string[] };
 }
 
+/** Job Insights Input configuration/data structure.
+ */
 export interface JobInsightsInput {
   material?: string;
   operation?: string;
@@ -61,6 +67,8 @@ export interface JobInsightsInput {
   min_jobs?: number;
 }
 
+/** Pattern configuration/data structure.
+ */
 export interface Pattern {
   finding: string;
   confidence: number;
@@ -73,6 +81,8 @@ export interface Pattern {
   };
 }
 
+/** Parameter Adjustment configuration/data structure.
+ */
 export interface ParameterAdjustment {
   parameter: string;
   current_formula_value: number;
@@ -80,6 +90,8 @@ export interface ParameterAdjustment {
   basis: string;
 }
 
+/** Job Insights Result configuration/data structure.
+ */
 export interface JobInsightsResult {
   sample_size: number;
   patterns: Pattern[];
@@ -146,6 +158,10 @@ function predictedRa(fz: number): number {
 // JOB RECORD
 // ============================================================================
 
+/** Job Record.
+ * @param input - input input
+ * @returns job record result
+ */
 export function jobRecord(input: JobRecordInput): JobRecordResult {
   const id = `job_${++jobCounter}_${Date.now()}`;
   const key = makeKey(input.material, input.operation, input.machine);
@@ -189,6 +205,10 @@ export function jobRecord(input: JobRecordInput): JobRecordResult {
 // JOB INSIGHTS
 // ============================================================================
 
+/** Job Insights.
+ * @param input - input input
+ * @returns job insights result
+ */
 export function jobInsights(input: JobInsightsInput): JobInsightsResult {
   const minJobs = input.min_jobs ?? 5;
 
@@ -374,11 +394,16 @@ export function jobInsights(input: JobInsightsInput): JobInsightsResult {
 // UTILITY: CLEAR STORE (for testing)
 // ============================================================================
 
+/** Clear Job Store.
+ */
 export function clearJobStore(): void {
   jobStore.clear();
   jobCounter = 0;
 }
 
+/** Gets job store size.
+ * @returns number
+ */
 export function getJobStoreSize(): number {
   let total = 0;
   for (const jobs of jobStore.values()) total += jobs.length;
@@ -404,6 +429,11 @@ function stdDev(arr: number[]): number {
 // DISPATCHER FUNCTION
 // ============================================================================
 
+/** Job Learning.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns unknown
+ */
 export function jobLearning(action: string, params: Record<string, unknown>): unknown {
   switch (action) {
     case 'job_record':
@@ -419,6 +449,8 @@ export function jobLearning(action: string, params: Record<string, unknown>): un
 // AUTO-GENERATED from MASTER_EXTRACTION_INDEX_V2.json — 6 LOW-priority extracted JS modules
 // that feed into this engine. Used for traceability, safety auditing, and wiring verification.
 
+/** J O B_ L E A R N I N G_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const JOB_LEARNING_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

@@ -72,6 +72,11 @@ const ACTIONS = [
 // INDUSTRY 4.0 INLINE HANDLER
 // ============================================================================
 
+/** L3 Industry Action.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function l3IndustryAction(action: string, params: Record<string, any>): any {
   switch (action) {
     case "tool_crib_status": {
@@ -211,6 +216,9 @@ function machineLiveExtractKeyValues(action: string, result: any): Record<string
 // REGISTRATION
 // ============================================================================
 
+/** Registers machine live dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerMachineLiveDispatcher(server: any): void {
   server.tool(
     "prism_machine_live",

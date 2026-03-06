@@ -28,6 +28,8 @@ export interface SingularityInput {
   feed_rate_mm_per_min: number;
 }
 
+/** Singularity Result configuration/data structure.
+ */
 export interface SingularityResult {
   singular_points: SingularityPoint[];
   total_points_checked: number;
@@ -36,6 +38,8 @@ export interface SingularityResult {
   recommendations: string[];
 }
 
+/** Singularity Point configuration/data structure.
+ */
 export interface SingularityPoint {
   point_index: number;
   type: "gimbal_lock" | "pole" | "axis_reversal" | "high_velocity";
@@ -46,11 +50,15 @@ export interface SingularityPoint {
   description: string;
 }
 
+/** Singularity Map configuration/data structure.
+ */
 export interface SingularityMap {
   zones: SingularityZone[];
   safe_orientation_ranges: { axis1_min: number; axis1_max: number; axis2_min: number; axis2_max: number }[];
 }
 
+/** Singularity Zone configuration/data structure.
+ */
 export interface SingularityZone {
   axis1_center_deg: number;
   axis2_center_deg: number;
@@ -62,6 +70,8 @@ export interface SingularityZone {
 // ENGINE CLASS
 // ============================================================================
 
+/** Singularity Avoidance Engine engine/manager.
+ */
 export class SingularityAvoidanceEngine {
   detect(input: SingularityInput): SingularityResult {
     const singularPoints: SingularityPoint[] = [];
@@ -216,4 +226,6 @@ export class SingularityAvoidanceEngine {
   }
 }
 
+/** Singularity Avoidance Engine constant.
+ */
 export const singularityAvoidanceEngine = new SingularityAvoidanceEngine();

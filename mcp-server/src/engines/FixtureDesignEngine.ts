@@ -21,6 +21,8 @@ export interface PartGeometry {
   material_iso_group: string;
 }
 
+/** Cutting Loads configuration/data structure.
+ */
 export interface CuttingLoads {
   max_force_N: number;               // peak tangential cutting force
   max_torque_Nm?: number;
@@ -28,11 +30,15 @@ export interface CuttingLoads {
   spindle_rpm?: number;
 }
 
+/** Fixture Type type definition.
+ */
 export type FixtureType =
   | "vise" | "3_jaw_chuck" | "4_jaw_chuck" | "collet"
   | "vacuum" | "magnetic" | "fixture_plate" | "soft_jaws"
   | "hydraulic_clamp" | "tombstone";
 
+/** Fixture Recommendation configuration/data structure.
+ */
 export interface FixtureRecommendation {
   fixture_type: FixtureType;
   description: string;
@@ -46,6 +52,8 @@ export interface FixtureRecommendation {
   setup_time_min: number;
 }
 
+/** Clamp Force Result configuration/data structure.
+ */
 export interface ClampForceResult {
   /** Required total clamping force in Newtons (includes safety factor) */
   required_force_N: number;
@@ -65,6 +73,8 @@ export interface ClampForceResult {
   notes: string[];
 }
 
+/** Deflection Result configuration/data structure.
+ */
 export interface DeflectionResult {
   /** Maximum deflection under cutting load */
   max_deflection_mm: number;
@@ -77,6 +87,8 @@ export interface DeflectionResult {
   notes: string[];
 }
 
+/** Fixture Validation Result configuration/data structure.
+ */
 export interface FixtureValidationResult {
   valid: boolean;
   fixture_type: FixtureType;
@@ -160,6 +172,8 @@ function calculateClampForce(
 // ENGINE CLASS
 // ============================================================================
 
+/** Fixture Design Engine engine/manager.
+ */
 export class FixtureDesignEngine {
   /**
    * Recommend workholding for a given part and cutting scenario.
@@ -331,4 +345,6 @@ export class FixtureDesignEngine {
   }
 }
 
+/** Fixture Design Engine constant.
+ */
 export const fixtureDesignEngine = new FixtureDesignEngine();

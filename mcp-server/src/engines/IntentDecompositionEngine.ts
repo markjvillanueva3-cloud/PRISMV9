@@ -46,6 +46,8 @@ export interface ExtractedEntities {
   units?: 'metric' | 'imperial';
 }
 
+/** Execution Step configuration/data structure.
+ */
 export interface ExecutionStep {
   id: string;
   action: string;                  // "prism_data.material_get", etc.
@@ -61,8 +63,12 @@ export interface ExecutionStep {
   description: string;             // Human-readable step description
 }
 
+/** Persona type definition.
+ */
 export type Persona = 'machinist' | 'programmer' | 'manager' | 'unknown';
 
+/** Intent Decomposition configuration/data structure.
+ */
 export interface IntentDecomposition {
   entities: ExtractedEntities;
   plan: ExecutionStep[];
@@ -605,6 +611,10 @@ function generateAmbiguities(entities: ExtractedEntities): string[] {
 // MAIN EXPORT
 // ============================================================================
 
+/** Decompose Intent.
+ * @param query - query string
+ * @returns intent decomposition
+ */
 export function decomposeIntent(query: string): IntentDecomposition {
   const entities: ExtractedEntities = {};
 
@@ -683,6 +693,11 @@ const ACTIONS: Record<string, (params: Record<string, any>) => any> = {
   decompose_intent: (params) => decomposeIntent(params.query ?? ''),
 };
 
+/** Intent Engine.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function intentEngine(action: string, params: Record<string, any>): any {
   const fn = ACTIONS[action];
   if (!fn) {

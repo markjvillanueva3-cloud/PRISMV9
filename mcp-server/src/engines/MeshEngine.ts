@@ -17,10 +17,14 @@ export interface MeshVertex {
   normal?: { nx: number; ny: number; nz: number };
 }
 
+/** Mesh Triangle configuration/data structure.
+ */
 export interface MeshTriangle {
   v0: number; v1: number; v2: number;  // vertex indices
 }
 
+/** Mesh Data configuration/data structure.
+ */
 export interface MeshData {
   id: string;
   vertices: MeshVertex[];
@@ -28,6 +32,8 @@ export interface MeshData {
   name?: string;
 }
 
+/** Mesh Quality configuration/data structure.
+ */
 export interface MeshQuality {
   vertex_count: number;
   triangle_count: number;
@@ -45,6 +51,8 @@ export interface MeshQuality {
   bounding_box: { min: MeshVertex; max: MeshVertex; size: MeshVertex };
 }
 
+/** Simplify Result configuration/data structure.
+ */
 export interface SimplifyResult {
   original_triangles: number;
   simplified_triangles: number;
@@ -52,12 +60,16 @@ export interface SimplifyResult {
   max_deviation_mm: number;
 }
 
+/** Subdivide Result configuration/data structure.
+ */
 export interface SubdivideResult {
   original_triangles: number;
   subdivided_triangles: number;
   iterations: number;
 }
 
+/** Repair Result configuration/data structure.
+ */
 export interface RepairResult {
   holes_closed: number;
   normals_flipped: number;
@@ -66,6 +78,8 @@ export interface RepairResult {
   is_now_watertight: boolean;
 }
 
+/** Mesh Format type definition.
+ */
 export type MeshFormat = "stl_ascii" | "stl_binary" | "obj" | "ply";
 
 // ============================================================================
@@ -95,6 +109,8 @@ function triangleAngle(a: number, b: number, c: number): number {
 // ENGINE CLASS
 // ============================================================================
 
+/** Mesh Engine engine/manager.
+ */
 export class MeshEngine {
   generateBox(width: number, height: number, depth: number): MeshData {
     const hw = width / 2, hh = height / 2, hd = depth / 2;
@@ -283,4 +299,6 @@ export class MeshEngine {
   }
 }
 
+/** Mesh Engine constant.
+ */
 export const meshEngine = new MeshEngine();

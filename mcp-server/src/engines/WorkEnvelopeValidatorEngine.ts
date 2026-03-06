@@ -23,6 +23,8 @@ export interface AxisLimits {
   C_min_deg?: number; C_max_deg?: number;
 }
 
+/** Envelope Input configuration/data structure.
+ */
 export interface EnvelopeInput {
   axis_limits: AxisLimits;
   toolpath_points: {
@@ -36,6 +38,8 @@ export interface EnvelopeInput {
   safety_margin_mm: number;           // additional clearance from hard limits
 }
 
+/** Envelope Violation configuration/data structure.
+ */
 export interface EnvelopeViolation {
   point_index: number;
   axis: string;
@@ -46,6 +50,8 @@ export interface EnvelopeViolation {
   severity: "warning" | "critical";
 }
 
+/** Envelope Result configuration/data structure.
+ */
 export interface EnvelopeResult {
   is_valid: boolean;
   violations: EnvelopeViolation[];
@@ -65,6 +71,8 @@ export interface EnvelopeResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Work Envelope Validator Engine engine/manager.
+ */
 export class WorkEnvelopeValidatorEngine {
   validate(input: EnvelopeInput): EnvelopeResult {
     const violations: EnvelopeViolation[] = [];
@@ -198,4 +206,6 @@ export class WorkEnvelopeValidatorEngine {
   }
 }
 
+/** Work Envelope Validator Engine constant.
+ */
 export const workEnvelopeValidatorEngine = new WorkEnvelopeValidatorEngine();

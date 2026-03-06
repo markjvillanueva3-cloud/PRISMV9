@@ -694,6 +694,8 @@ export function getCache(key: string): unknown | undefined {
 // EXPORT ALL AUTOMATION HOOKS
 // ============================================================================
 
+/** Automation Hooks constant.
+ */
 export const automationHooks: HookDefinition[] = [
   // Index updates
   onMaterialIndexUpdate,

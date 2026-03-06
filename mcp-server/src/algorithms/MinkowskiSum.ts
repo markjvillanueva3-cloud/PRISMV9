@@ -22,11 +22,15 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Point2 D configuration/data structure.
+ */
 export interface Point2D {
   x: number;
   y: number;
 }
 
+/** Minkowski Sum Input configuration/data structure.
+ */
 export interface MinkowskiSumInput {
   /** First convex polygon vertices (CCW order). */
   polygon_a: Point2D[];
@@ -38,6 +42,8 @@ export interface MinkowskiSumInput {
   tolerance?: number;
 }
 
+/** Minkowski Sum Output configuration/data structure.
+ */
 export interface MinkowskiSumOutput extends WithWarnings {
   /** Resulting Minkowski sum polygon vertices (CCW). */
   sum_polygon: Point2D[];
@@ -60,6 +66,8 @@ export interface MinkowskiSumOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Minkowski Sum engine/manager.
+ */
 export class MinkowskiSum implements Algorithm<MinkowskiSumInput, MinkowskiSumOutput> {
 
   validate(input: MinkowskiSumInput): ValidationResult {

@@ -1086,6 +1086,8 @@ class ToolBreakageEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Tool Breakage Engine constant.
+ */
 export const toolBreakageEngine = new ToolBreakageEngine();
 
 export { ToolBreakageEngine };

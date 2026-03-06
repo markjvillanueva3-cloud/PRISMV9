@@ -45,6 +45,8 @@ import { log } from "../utils/Logger.js";
 // Total: 3 files, 1,350 lines of unit conversion source code
 // ============================================================================
 
+/** U N I T S_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const UNITS_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -100,6 +102,8 @@ export function getUnitSourceFileCatalog(): {
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Kienzle Coefficients configuration/data structure.
+ */
 export interface KienzleCoefficients {
   kc1_1: number;      // Specific cutting force at h=1mm, b=1mm [N/mm²]
   mc: number;         // Kienzle exponent (typically 0.15-0.35)
@@ -107,6 +111,8 @@ export interface KienzleCoefficients {
   source?: string;
 }
 
+/** Taylor Coefficients configuration/data structure.
+ */
 export interface TaylorCoefficients {
   C: number;          // Taylor constant (cutting speed at T=1 min)
   n: number;          // Taylor exponent (typically 0.1-0.5)
@@ -115,6 +121,8 @@ export interface TaylorCoefficients {
   source?: string;
 }
 
+/** Johnson Cook Params configuration/data structure.
+ */
 export interface JohnsonCookParams {
   A: number;          // Yield stress [MPa]
   B: number;          // Strain hardening coefficient [MPa]
@@ -127,6 +135,8 @@ export interface JohnsonCookParams {
   material_id?: string;
 }
 
+/** Cutting Conditions configuration/data structure.
+ */
 export interface CuttingConditions {
   cutting_speed: number;      // Vc [m/min]
   feed_per_tooth: number;     // fz [mm/tooth]
@@ -138,6 +148,8 @@ export interface CuttingConditions {
   tool_nose_radius?: number;  // r [mm]
 }
 
+/** Cutting Force Result configuration/data structure.
+ */
 export interface CuttingForceResult {
   Fc: number;           // Main cutting force [N]
   Ff: number;           // Feed force [N]
@@ -163,6 +175,8 @@ export interface CuttingForceResult {
   calculation_method: string;
 }
 
+/** Tool Life Result configuration/data structure.
+ */
 export interface ToolLifeResult {
   tool_life_minutes: number;
   tool_life_parts?: number;
@@ -172,6 +186,8 @@ export interface ToolLifeResult {
   calculation_method: string;
 }
 
+/** Surface Finish Result configuration/data structure.
+ */
 export interface SurfaceFinishResult {
   Ra: number;           // Arithmetic mean roughness [μm]
   Rz: number;           // Ten-point mean roughness [μm]
@@ -182,6 +198,8 @@ export interface SurfaceFinishResult {
   warnings: string[];
 }
 
+/** M R R Result configuration/data structure.
+ */
 export interface MRRResult {
   mrr: number;          // Material Removal Rate [cm³/min]
   mrr_mm3: number;      // MRR [mm³/min]
@@ -195,6 +213,8 @@ export interface MRRResult {
 // CONSTANTS & LIMITS
 // ============================================================================
 
+/** S A F E T Y_ L I M I T S constant.
+ */
 export const SAFETY_LIMITS = {
   MAX_CUTTING_SPEED: 2000,      // m/min (HSM aluminum)
   MIN_CUTTING_SPEED: 1,         // m/min
@@ -354,6 +374,8 @@ export function calculateKienzleCuttingForce(
 // mean cutting radius D/4, and chisel edge correction factor.
 // Ref: Sandvik Coromant Technical Guide, Shaw "Metal Cutting Principles"
 // ============================================================================
+/** Drilling Conditions configuration/data structure.
+ */
 export interface DrillingConditions {
   drill_diameter: number;      // mm
   feed_per_rev: number;        // mm/rev
@@ -362,6 +384,11 @@ export interface DrillingConditions {
   chisel_edge_factor?: number; // thrust multiplier for chisel edge (default 1.07)
 }
 
+/** Calculates drilling force.
+ * @param conditions - conditions
+ * @param coefficients - coefficients
+ * @returns cutting force result
+ */
 export function calculateDrillingForce(
   conditions: DrillingConditions,
   coefficients: KienzleCoefficients = DEFAULT_KIENZLE
@@ -647,6 +674,8 @@ export function calculateMRR(
 // SPEED & FEED CALCULATOR
 // ============================================================================
 
+/** Speed Feed Input configuration/data structure.
+ */
 export interface SpeedFeedInput {
   material_hardness?: number;
   tool_material: "HSS" | "Carbide" | "Ceramic" | "CBN" | "Diamond";
@@ -657,6 +686,8 @@ export interface SpeedFeedInput {
   taylor?: TaylorCoefficients;
 }
 
+/** Speed Feed Result configuration/data structure.
+ */
 export interface SpeedFeedResult {
   cutting_speed: number;
   spindle_speed: number;
@@ -795,6 +826,13 @@ export function getDefaultTaylor(material_group: string, tool_material: string =
 // SPINDLE POWER CALCULATION
 // P = Fc × Vc / (60000 × η)
 // ============================================================================
+/** Calculates spindle power.
+ * @param cutting_force - cutting_force value
+ * @param cutting_speed - cutting_speed value
+ * @param tool_diameter - tool_diameter value
+ * @param efficiency - efficiency value
+ * @returns any
+ */
 export function calculateSpindlePower(
   cutting_force: number,    // N - tangential cutting force
   cutting_speed: number,    // m/min
@@ -831,6 +869,14 @@ export function calculateSpindlePower(
 // CHIP LOAD CALCULATION
 // fz_actual = Vf / (n × z) adjusted for radial engagement
 // ============================================================================
+/** Calculates chip load.
+ * @param feed_rate - feed_rate value
+ * @param spindle_speed - spindle_speed value
+ * @param number_of_teeth - number_of_teeth value
+ * @param radial_depth - radial_depth value
+ * @param tool_diameter - tool_diameter value
+ * @returns any
+ */
 export function calculateChipLoad(
   feed_rate: number,        // mm/min - table feed rate
   spindle_speed: number,    // RPM
@@ -883,6 +929,12 @@ export function calculateChipLoad(
 // M = Fc × D / (2 × 1000) for milling
 // M = Fc × r for turning
 // ============================================================================
+/** Calculates torque.
+ * @param cutting_force - cutting_force value
+ * @param tool_diameter - tool_diameter value
+ * @param operation - operation string
+ * @returns any
+ */
 export function calculateTorque(
   cutting_force: number,    // N - tangential cutting force
   tool_diameter: number,    // mm
@@ -914,6 +966,19 @@ export function calculateTorque(
 // PRODUCTIVITY METRICS
 // Comprehensive: MRR, cost/part, tool changes/part, machine utilization
 // ============================================================================
+/** Calculates productivity metrics.
+ * @param cutting_speed - cutting_speed value
+ * @param feed_per_tooth - feed_per_tooth value
+ * @param axial_depth - axial_depth value
+ * @param radial_depth - radial_depth value
+ * @param tool_diameter - tool_diameter value
+ * @param number_of_teeth - number_of_teeth value
+ * @param taylor_C - taylor_ c value
+ * @param taylor_n - taylor_n value
+ * @param tool_cost - tool_cost value
+ * @param machine_rate - machine_rate value
+ * @returns any
+ */
 export function calculateProductivityMetrics(
   cutting_speed: number,    // m/min
   feed_per_tooth: number,   // mm/tooth
@@ -974,6 +1039,8 @@ export function calculateProductivityMetrics(
 }
 
 // Export singleton
+/** Manufacturing Calculations constant.
+ */
 export const manufacturingCalculations = {
   kienzle: calculateKienzleCuttingForce,
   taylor: calculateTaylorToolLife,

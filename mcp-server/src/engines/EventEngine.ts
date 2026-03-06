@@ -21,6 +21,8 @@ export interface EventMessage {
   correlation_id?: string;
 }
 
+/** Event Subscription configuration/data structure.
+ */
 export interface EventSubscription {
   id: string;
   topic_pattern: string;
@@ -29,6 +31,8 @@ export interface EventSubscription {
   events_received: number;
 }
 
+/** Event Stats configuration/data structure.
+ */
 export interface EventStats {
   total_emitted: number;
   total_subscriptions: number;
@@ -37,6 +41,8 @@ export interface EventStats {
   dead_letter_count: number;
 }
 
+/** Event Handler type definition.
+ */
 export type EventHandler = (event: EventMessage) => void;
 
 // ============================================================================
@@ -46,6 +52,8 @@ export type EventHandler = (event: EventMessage) => void;
 let eventIdCounter = 0;
 let subIdCounter = 0;
 
+/** Event Engine engine/manager.
+ */
 export class EventEngine {
   private subscriptions = new Map<string, { sub: EventSubscription; handler: EventHandler }>();
   private history: EventMessage[] = [];
@@ -176,4 +184,6 @@ export class EventEngine {
   }
 }
 
+/** Event Engine constant.
+ */
 export const eventEngine = new EventEngine();

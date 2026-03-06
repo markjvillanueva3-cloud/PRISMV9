@@ -21,6 +21,8 @@ export type FeatureType =
   | "face" | "step" | "groove" | "thread_external"
   | "contour_2d" | "contour_3d";
 
+/** Recognized Feature configuration/data structure.
+ */
 export interface RecognizedFeature {
   id: string;
   type: FeatureType;
@@ -33,6 +35,8 @@ export interface RecognizedFeature {
   notes: string[];
 }
 
+/** Feature Dimensions configuration/data structure.
+ */
 export interface FeatureDimensions {
   diameter_mm?: number;
   depth_mm?: number;
@@ -46,6 +50,8 @@ export interface FeatureDimensions {
   countersink_angle_deg?: number;
 }
 
+/** Feature Classification configuration/data structure.
+ */
 export interface FeatureClassification {
   feature_id: string;
   primary_type: FeatureType;
@@ -57,6 +63,8 @@ export interface FeatureClassification {
   accessibility: "open" | "semi_open" | "restricted" | "deep";
 }
 
+/** Feature Group configuration/data structure.
+ */
 export interface FeatureGroup {
   group_id: string;
   features: RecognizedFeature[];
@@ -65,6 +73,8 @@ export interface FeatureGroup {
   pattern_spacing_mm?: number;
 }
 
+/** Feature Recognition Result configuration/data structure.
+ */
 export interface FeatureRecognitionResult {
   total_features: number;
   features: RecognizedFeature[];
@@ -115,6 +125,8 @@ const FEATURE_RULES: Record<FeatureType, FeatureRule> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Feature Recognition Engine engine/manager.
+ */
 export class FeatureRecognitionEngine {
   recognize(features: Array<{ type: FeatureType; dimensions: FeatureDimensions; position: { x: number; y: number; z: number } }>): FeatureRecognitionResult {
     const recognized: RecognizedFeature[] = [];
@@ -244,4 +256,6 @@ export class FeatureRecognitionEngine {
   }
 }
 
+/** Feature Recognition Engine constant.
+ */
 export const featureRecognitionEngine = new FeatureRecognitionEngine();

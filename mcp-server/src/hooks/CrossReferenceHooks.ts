@@ -867,6 +867,8 @@ const postBatchRollbackTrigger: HookDefinition = {
 // EXPORT ALL CROSS-REFERENCE HOOKS
 // ============================================================================
 
+/** Cross Reference Hooks constant.
+ */
 export const crossReferenceHooks: HookDefinition[] = [
   // Foreign key validation
   preMaterialReferenceValidation,

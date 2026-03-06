@@ -30,6 +30,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** T W P Input configuration/data structure.
+ */
 export interface TWPInput {
   /** Cutting speed [m/min]. */
   cutting_speed: number;
@@ -49,6 +51,8 @@ export interface TWPInput {
   measured_vb?: number;
 }
 
+/** T W P Output configuration/data structure.
+ */
 export interface TWPOutput extends WithWarnings {
   /** Predicted flank wear VB [mm]. */
   flank_wear_vb: number;
@@ -89,6 +93,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Tool Wear Prediction engine/manager.
+ */
 export class ToolWearPrediction implements Algorithm<TWPInput, TWPOutput> {
 
   validate(input: TWPInput): ValidationResult {

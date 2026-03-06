@@ -14,6 +14,8 @@
 
 export type StackMethod = "worst_case" | "rss" | "monte_carlo";
 
+/** Stack Dimension configuration/data structure.
+ */
 export interface StackDimension {
   id: string;
   name: string;
@@ -25,6 +27,8 @@ export interface StackDimension {
   cpk?: number;
 }
 
+/** Stack Result configuration/data structure.
+ */
 export interface StackResult {
   method: StackMethod;
   nominal_gap_mm: number;
@@ -39,6 +43,8 @@ export interface StackResult {
   min_acceptable_gap_mm: number;
 }
 
+/** Stack Contributor configuration/data structure.
+ */
 export interface StackContributor {
   dimension_id: string;
   name: string;
@@ -47,6 +53,8 @@ export interface StackContributor {
   tolerance_mm: number;
 }
 
+/** Stack Optimization configuration/data structure.
+ */
 export interface StackOptimization {
   current_total_tolerance_mm: number;
   target_total_tolerance_mm: number;
@@ -59,6 +67,8 @@ export interface StackOptimization {
 // ENGINE CLASS
 // ============================================================================
 
+/** Tolerance Stack Engine engine/manager.
+ */
 export class ToleranceStackEngine {
   /**
    * Worst-case tolerance stack analysis.
@@ -228,4 +238,6 @@ export class ToleranceStackEngine {
   }
 }
 
+/** Tolerance Stack Engine constant.
+ */
 export const toleranceStackEngine = new ToleranceStackEngine();

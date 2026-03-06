@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Interpolation Engine Input configuration/data structure.
+ */
 export interface InterpolationEngineInput {
   /** Known x values (must be sorted ascending). */
   x_data: number[];
@@ -32,6 +34,8 @@ export interface InterpolationEngineInput {
   extrapolation?: "clamp" | "linear" | "error";
 }
 
+/** Interpolation Result configuration/data structure.
+ */
 export interface InterpolationResult {
   x: number;
   y: number;
@@ -39,6 +43,8 @@ export interface InterpolationResult {
   extrapolated: boolean;
 }
 
+/** Interpolation Engine Output configuration/data structure.
+ */
 export interface InterpolationEngineOutput extends WithWarnings {
   results: InterpolationResult[];
   method: string;
@@ -47,6 +53,8 @@ export interface InterpolationEngineOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Interpolation Engine engine/manager.
+ */
 export class InterpolationEngine implements Algorithm<InterpolationEngineInput, InterpolationEngineOutput> {
 
   validate(input: InterpolationEngineInput): ValidationResult {

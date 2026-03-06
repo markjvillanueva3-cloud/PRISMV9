@@ -27,6 +27,9 @@ const ACTIONS = [
   "bottleneck_find", "lead_time_estimate", "due_date_track", "resource_balance",
 ] as const;
 
+/** Registers scheduling dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerSchedulingDispatcher(server: any): void {
   server.tool(
     "prism_scheduling",

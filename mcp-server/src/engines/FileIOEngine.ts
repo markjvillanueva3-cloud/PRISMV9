@@ -15,12 +15,16 @@
 
 export type CADFormat = "step" | "iges" | "stl_ascii" | "stl_binary" | "dxf";
 
+/** Vec3 configuration/data structure.
+ */
 export interface Vec3 {
   x: number;
   y: number;
   z: number;
 }
 
+/** Triangle configuration/data structure.
+ */
 export interface Triangle {
   normal: Vec3;
   v1: Vec3;
@@ -28,6 +32,8 @@ export interface Triangle {
   v3: Vec3;
 }
 
+/** Bounding Box configuration/data structure.
+ */
 export interface BoundingBox {
   min: Vec3;
   max: Vec3;
@@ -35,6 +41,8 @@ export interface BoundingBox {
 
 // ── STEP Types ────────────────────────────────────────────────────────
 
+/** S T E P Entity Category type definition.
+ */
 export type STEPEntityCategory =
   | "geometry"
   | "surface"
@@ -44,6 +52,8 @@ export type STEPEntityCategory =
   | "representation"
   | "unknown";
 
+/** S T E P Entity configuration/data structure.
+ */
 export interface STEPEntity {
   id: number;
   type: string;
@@ -52,6 +62,8 @@ export interface STEPEntity {
   category: STEPEntityCategory;
 }
 
+/** S T E P Header configuration/data structure.
+ */
 export interface STEPHeader {
   file_name?: string;
   file_description?: string;
@@ -62,6 +74,8 @@ export interface STEPHeader {
   timestamp?: string;
 }
 
+/** S T E P Parse Result configuration/data structure.
+ */
 export interface STEPParseResult {
   format: "step";
   header: STEPHeader;
@@ -79,6 +93,8 @@ export interface STEPParseResult {
 
 // ── IGES Types ────────────────────────────────────────────────────────
 
+/** I G E S Entity Type type definition.
+ */
 export type IGESEntityType =
   | "circular_arc"
   | "composite_curve"
@@ -99,6 +115,8 @@ export type IGESEntityType =
   | "subfigure"
   | "unknown";
 
+/** I G E S Entity configuration/data structure.
+ */
 export interface IGESEntity {
   id: number;
   entity_type: number;
@@ -110,6 +128,8 @@ export interface IGESEntity {
   label: string;
 }
 
+/** I G E S Parse Result configuration/data structure.
+ */
 export interface IGESParseResult {
   format: "iges";
   start_section: string[];
@@ -137,6 +157,8 @@ export interface IGESParseResult {
 
 // ── STL Types ─────────────────────────────────────────────────────────
 
+/** S T L Parse Result configuration/data structure.
+ */
 export interface STLParseResult {
   format: "stl_ascii" | "stl_binary";
   name: string;
@@ -154,8 +176,12 @@ export interface STLParseResult {
 
 // ── DXF Types ─────────────────────────────────────────────────────────
 
+/** D X F Entity Type type definition.
+ */
 export type DXFEntityType = "LINE" | "CIRCLE" | "ARC" | "POLYLINE" | "LWPOLYLINE" | "SPLINE" | "POINT" | "TEXT" | "MTEXT" | "INSERT" | "DIMENSION" | "3DFACE" | "SOLID";
 
+/** D X F Entity configuration/data structure.
+ */
 export interface DXFEntity {
   type: DXFEntityType;
   layer: string;
@@ -163,6 +189,8 @@ export interface DXFEntity {
   data: Record<string, any>;
 }
 
+/** D X F Layer configuration/data structure.
+ */
 export interface DXFLayer {
   name: string;
   color: number;
@@ -172,6 +200,8 @@ export interface DXFLayer {
   entity_count: number;
 }
 
+/** D X F Parse Result configuration/data structure.
+ */
 export interface DXFParseResult {
   format: "dxf";
   header: Record<string, string | number>;
@@ -186,6 +216,8 @@ export interface DXFParseResult {
   };
 }
 
+/** Parse Result type definition.
+ */
 export type ParseResult = STEPParseResult | IGESParseResult | STLParseResult | DXFParseResult;
 
 // ── STEP Entity Categories ────────────────────────────────────────────
@@ -252,6 +284,8 @@ const IGES_TYPE_MAP: Record<number, IGESEntityType> = {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** File I O Engine engine/manager.
+ */
 export class FileIOEngine {
   /** Detect file format from content */
   detectFormat(content: string): CADFormat | null {
@@ -781,4 +815,6 @@ export class FileIOEngine {
   }
 }
 
+/** File I O Engine constant.
+ */
 export const fileIOEngine = new FileIOEngine();

@@ -14,6 +14,8 @@ import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils
 // ALARM TYPES
 // ============================================================================
 
+/** Alarm Fix configuration/data structure.
+ */
 export interface AlarmFix {
   step: number;
   action: string;
@@ -24,6 +26,8 @@ export interface AlarmFix {
   skill_level?: "operator" | "maintenance" | "engineer" | "factory";
 }
 
+/** Alarm configuration/data structure.
+ */
 export interface Alarm {
   // Identification
   alarm_id: string;
@@ -66,6 +70,8 @@ export interface Alarm {
 // ALARM REGISTRY CLASS
 // ============================================================================
 
+/** Alarm Registry engine/manager.
+ */
 export class AlarmRegistry extends BaseRegistry<Alarm> {
   private indexByController: Map<string, string[]> = new Map();
   private indexByCategory: Map<string, string[]> = new Map();
@@ -591,4 +597,6 @@ export class AlarmRegistry extends BaseRegistry<Alarm> {
 }
 
 // Export singleton instance
+/** Alarm Registry constant.
+ */
 export const alarmRegistry = new AlarmRegistry();

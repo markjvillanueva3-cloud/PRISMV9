@@ -14,6 +14,8 @@
 
 export type PluginStatus = "registered" | "enabled" | "disabled" | "error" | "incompatible";
 
+/** Plugin Manifest configuration/data structure.
+ */
 export interface PluginManifest {
   id: string;
   name: string;
@@ -26,6 +28,8 @@ export interface PluginManifest {
   permissions?: string[];
 }
 
+/** Plugin configuration/data structure.
+ */
 export interface Plugin {
   manifest: PluginManifest;
   status: PluginStatus;
@@ -36,6 +40,8 @@ export interface Plugin {
   hooks_registered: string[];
 }
 
+/** Plugin Hook configuration/data structure.
+ */
 export interface PluginHook {
   plugin_id: string;
   hook_name: string;
@@ -43,6 +49,8 @@ export interface PluginHook {
   handler: (context: Record<string, unknown>) => Record<string, unknown>;
 }
 
+/** Plugin Stats configuration/data structure.
+ */
 export interface PluginStats {
   total_plugins: number;
   enabled: number;
@@ -56,6 +64,8 @@ export interface PluginStats {
 // ENGINE CLASS
 // ============================================================================
 
+/** Plugin Engine engine/manager.
+ */
 export class PluginEngine {
   private plugins = new Map<string, Plugin>();
   private hooks = new Map<string, PluginHook[]>();
@@ -183,4 +193,6 @@ export class PluginEngine {
   clear(): void { this.plugins.clear(); this.hooks.clear(); }
 }
 
+/** Plugin Engine constant.
+ */
 export const pluginEngine = new PluginEngine();

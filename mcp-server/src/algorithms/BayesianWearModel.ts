@@ -27,6 +27,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Bayesian Wear Input configuration/data structure.
+ */
 export interface BayesianWearInput {
   /** Prior mean (expected tool life [min] or expected VB [mm]). */
   prior_mean: number;
@@ -40,6 +42,8 @@ export interface BayesianWearInput {
   vb_threshold?: number;
 }
 
+/** Bayesian Wear Output configuration/data structure.
+ */
 export interface BayesianWearOutput extends WithWarnings {
   /** Posterior mean (updated prediction). */
   posterior_mean: number;
@@ -69,6 +73,8 @@ export interface BayesianWearOutput extends WithWarnings {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Bayesian Wear Model engine/manager.
+ */
 export class BayesianWearModel implements Algorithm<BayesianWearInput, BayesianWearOutput> {
 
   validate(input: BayesianWearInput): ValidationResult {

@@ -18,6 +18,8 @@
 
 export type CenterType = "live" | "dead" | "half_center" | "pipe_center";
 
+/** Tailstock Input configuration/data structure.
+ */
 export interface TailstockInput {
   center_type: CenterType;
   center_point_angle_deg: number;     // typically 60°
@@ -33,6 +35,8 @@ export interface TailstockInput {
   material_thermal_expansion?: number;  // µm/m/°C (default steel: 12)
 }
 
+/** Tailstock Result configuration/data structure.
+ */
 export interface TailstockResult {
   required_force_N: number;
   recommended_force_N: number;
@@ -64,6 +68,8 @@ const MAX_CENTER_PRESSURE_MPA = 800; // hardened center in medium carbon steel
 // ENGINE CLASS
 // ============================================================================
 
+/** Tailstock Force Engine engine/manager.
+ */
 export class TailstockForceEngine {
   calculate(input: TailstockInput): TailstockResult {
     const L = input.chuck_to_tailstock_mm / 1000; // meters
@@ -162,4 +168,6 @@ export class TailstockForceEngine {
   }
 }
 
+/** Tailstock Force Engine constant.
+ */
 export const tailstockForceEngine = new TailstockForceEngine();

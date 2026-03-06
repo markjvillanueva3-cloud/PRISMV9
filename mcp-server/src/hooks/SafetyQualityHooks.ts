@@ -656,6 +656,8 @@ const contextOverflowGuard: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Safety Quality Hooks constant.
+ */
 export const safetyQualityHooks: HookDefinition[] = [
   // Safety (5 BLOCKING)
   preCalculateSafety,

@@ -26,6 +26,8 @@ export interface ClampPoint {
   friction_coefficient: number;
 }
 
+/** Cutting Force Profile configuration/data structure.
+ */
 export interface CuttingForceProfile {
   fx_N: number;  // feed direction
   fy_N: number;  // cross-feed
@@ -34,6 +36,8 @@ export interface CuttingForceProfile {
   max_resultant_N: number;
 }
 
+/** Clamp Sim Input configuration/data structure.
+ */
 export interface ClampSimInput {
   clamp_points: ClampPoint[];
   cutting_forces: CuttingForceProfile;
@@ -42,6 +46,8 @@ export interface ClampSimInput {
   part_dimensions: { width_mm: number; height_mm: number; depth_mm: number };
 }
 
+/** Contact Pressure configuration/data structure.
+ */
 export interface ContactPressure {
   clamp_id: string;
   pressure_MPa: number;
@@ -49,6 +55,8 @@ export interface ContactPressure {
   within_limit: boolean;
 }
 
+/** Clamp Sim Result configuration/data structure.
+ */
 export interface ClampSimResult {
   total_clamp_force_N: number;
   required_clamp_force_N: number;
@@ -62,6 +70,8 @@ export interface ClampSimResult {
   recommendations: string[];
 }
 
+/** Clamp Optimization configuration/data structure.
+ */
 export interface ClampOptimization {
   current_safety_factor: number;
   optimized_safety_factor: number;
@@ -106,6 +116,8 @@ function modulusForMaterial(mat: string): number {
 // ENGINE CLASS
 // ============================================================================
 
+/** Clamping Sim Engine engine/manager.
+ */
 export class ClampingSimEngine {
   /**
    * Full clamping simulation.
@@ -231,4 +243,6 @@ export class ClampingSimEngine {
   }
 }
 
+/** Clamping Sim Engine constant.
+ */
 export const clampingSimEngine = new ClampingSimEngine();

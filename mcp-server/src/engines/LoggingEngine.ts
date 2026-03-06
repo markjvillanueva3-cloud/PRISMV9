@@ -13,6 +13,8 @@
 
 export type LogLevel = "trace" | "debug" | "info" | "warn" | "error" | "fatal";
 
+/** Log Entry configuration/data structure.
+ */
 export interface LogEntry {
   id: number;
   timestamp: string;
@@ -25,6 +27,8 @@ export interface LogEntry {
   source?: string;
 }
 
+/** Log Query configuration/data structure.
+ */
 export interface LogQuery {
   level?: LogLevel;
   namespace?: string;
@@ -35,6 +39,8 @@ export interface LogQuery {
   limit?: number;
 }
 
+/** Log Stats configuration/data structure.
+ */
 export interface LogStats {
   total_entries: number;
   by_level: Record<LogLevel, number>;
@@ -44,6 +50,8 @@ export interface LogStats {
   newest_entry: string;
 }
 
+/** Log Config configuration/data structure.
+ */
 export interface LogConfig {
   min_level: LogLevel;
   max_entries: number;
@@ -63,6 +71,8 @@ const LEVEL_ORDER: Record<LogLevel, number> = { trace: 0, debug: 1, info: 2, war
 
 let logIdCounter = 0;
 
+/** Logging Engine engine/manager.
+ */
 export class LoggingEngine {
   private entries: LogEntry[] = [];
   private config: LogConfig = {
@@ -150,4 +160,6 @@ export class LoggingEngine {
   clear(): void { this.entries = []; logIdCounter = 0; }
 }
 
+/** Logging Engine constant.
+ */
 export const loggingEngine = new LoggingEngine();

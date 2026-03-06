@@ -368,6 +368,8 @@ const postAgentLearningExtract: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Agent Hooks constant.
+ */
 export const agentHooks: HookDefinition[] = [
   preAgentTierRecommend,
   preAgentCostEstimate,

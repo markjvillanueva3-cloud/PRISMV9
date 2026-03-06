@@ -13,9 +13,15 @@
 
 export interface Vec3 { x: number; y: number; z: number; }
 
+/** Simulation Mode type definition.
+ */
 export type SimulationMode = "rapid" | "normal" | "step_by_step";
+/** Move Type type definition.
+ */
 export type MoveType = "G0" | "G1" | "G2" | "G3" | "dwell" | "tool_change" | "probe";
 
+/** Tool Definition configuration/data structure.
+ */
 export interface ToolDefinition {
   id: string;
   type: "endmill" | "ballnose" | "drill" | "tap" | "chamfer" | "face_mill" | "insert" | "custom";
@@ -28,6 +34,8 @@ export interface ToolDefinition {
   holder_length?: number;
 }
 
+/** Machine Definition configuration/data structure.
+ */
 export interface MachineDefinition {
   name: string;
   controller: string;
@@ -39,6 +47,8 @@ export interface MachineDefinition {
   spindle_taper: string;
 }
 
+/** Stock Definition configuration/data structure.
+ */
 export interface StockDefinition {
   type: "block" | "cylinder" | "custom";
   material: string;
@@ -46,6 +56,8 @@ export interface StockDefinition {
   origin: Vec3;
 }
 
+/** Simulated Move configuration/data structure.
+ */
 export interface SimulatedMove {
   line_number: number;
   move_type: MoveType;
@@ -64,6 +76,8 @@ export interface SimulatedMove {
   radial_depth?: number;
 }
 
+/** Collision Event configuration/data structure.
+ */
 export interface CollisionEvent {
   line_number: number;
   type: "tool_stock" | "holder_stock" | "tool_fixture" | "rapid_plunge" | "gouge" | "overtravel";
@@ -73,6 +87,8 @@ export interface CollisionEvent {
   depth_mm?: number;
 }
 
+/** Simulation Result configuration/data structure.
+ */
 export interface SimulationResult {
   machine: string;
   tool_count: number;
@@ -147,6 +163,8 @@ const DEFAULT_RAPID_RATE = 30000; // mm/min
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** Simulation Engine engine/manager.
+ */
 export class SimulationEngine {
   /** Parse G-code program into structured lines */
   parseGCode(program: string): GCodeLine[] {
@@ -595,4 +613,6 @@ export class SimulationEngine {
   }
 }
 
+/** Simulation Engine constant.
+ */
 export const simulationEngine = new SimulationEngine();

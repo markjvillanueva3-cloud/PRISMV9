@@ -17,6 +17,8 @@ import * as path from "path";
 // TYPES
 // ============================================================================
 
+/** Delegated Unit configuration/data structure.
+ */
 export interface DelegatedUnit {
   unit_id: number;
   task_id: string;
@@ -32,6 +34,8 @@ export interface DelegatedUnit {
   duration_ms?: number;
 }
 
+/** Delegation Result configuration/data structure.
+ */
 export interface DelegationResult {
   success: boolean;
   delegated: number;
@@ -39,6 +43,8 @@ export interface DelegationResult {
   errors?: string[];
 }
 
+/** Poll Result configuration/data structure.
+ */
 export interface PollResult {
   success: boolean;
   completed: Array<{ unit_id: number; task_id: string; output: string; tokens?: any; duration_ms?: number }>;

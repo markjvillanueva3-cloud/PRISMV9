@@ -19,8 +19,12 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Membership Type type definition.
+ */
 export type MembershipType = "triangular" | "trapezoidal" | "gaussian";
 
+/** Fuzzy Set configuration/data structure.
+ */
 export interface FuzzySet {
   name: string;
   type: MembershipType;
@@ -28,12 +32,16 @@ export interface FuzzySet {
   params: number[];
 }
 
+/** Fuzzy Variable configuration/data structure.
+ */
 export interface FuzzyVariable {
   name: string;
   range: [number, number];
   sets: FuzzySet[];
 }
 
+/** Fuzzy Rule configuration/data structure.
+ */
 export interface FuzzyRule {
   /** Antecedent: list of (variable_name, set_name) pairs. */
   conditions: Array<{ variable: string; set: string }>;
@@ -43,6 +51,8 @@ export interface FuzzyRule {
   weight?: number;
 }
 
+/** Fuzzy Controller Input configuration/data structure.
+ */
 export interface FuzzyControllerInput {
   /** Input variables with membership functions. */
   inputs: FuzzyVariable[];
@@ -56,6 +66,8 @@ export interface FuzzyControllerInput {
   resolution?: number;
 }
 
+/** Fuzzy Controller Output configuration/data structure.
+ */
 export interface FuzzyControllerOutput extends WithWarnings {
   crisp_outputs: Record<string, number>;
   rule_activations: Array<{ rule_index: number; strength: number }>;
@@ -63,6 +75,8 @@ export interface FuzzyControllerOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Fuzzy Controller engine/manager.
+ */
 export class FuzzyController implements Algorithm<FuzzyControllerInput, FuzzyControllerOutput> {
 
   validate(input: FuzzyControllerInput): ValidationResult {

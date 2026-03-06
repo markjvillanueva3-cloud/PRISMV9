@@ -257,10 +257,18 @@ export const OPTIMIZATION_SOURCE_FILE_CATALOG: Record<string, {
 // TYPES
 // ============================================================================
 
+/** Feature Type type definition.
+ */
 export type FeatureType = 'pocket' | 'slot' | 'face' | 'contour' | 'hole' | 'thread';
+/** Objective Type type definition.
+ */
 export type ObjectiveType = 'min_cost' | 'min_time' | 'max_tool_life' | 'balanced';
+/** Sequence Objective type definition.
+ */
 export type SequenceObjective = 'min_tool_changes' | 'min_cycle_time' | 'min_setup_changes';
 
+/** Optimize Input configuration/data structure.
+ */
 export interface OptimizeInput {
   material: string;
   feature: FeatureType;
@@ -303,6 +311,8 @@ interface SustainabilityMetrics {
   eco_efficiency_score: number;
 }
 
+/** Optimize Result configuration/data structure.
+ */
 export interface OptimizeResult {
   optimal: OptimalSolution & { sustainability: SustainabilityMetrics };
   alternatives: (OptimalSolution & { sustainability: SustainabilityMetrics })[];
@@ -311,6 +321,8 @@ export interface OptimizeResult {
   safety: { score: number; flags: string[] };
 }
 
+/** Sequence Input configuration/data structure.
+ */
 export interface SequenceInput {
   operations: {
     id: string;
@@ -323,6 +335,8 @@ export interface SequenceInput {
   optimize_for: SequenceObjective;
 }
 
+/** Sequence Result configuration/data structure.
+ */
 export interface SequenceResult {
   optimal_order: string[];
   tool_changes: number;
@@ -331,6 +345,8 @@ export interface SequenceResult {
   safety: { score: number; flags: string[] };
 }
 
+/** Sustainability Input configuration/data structure.
+ */
 export interface SustainabilityInput {
   material: string;
   cutting_speed_mpm: number;
@@ -342,6 +358,8 @@ export interface SustainabilityInput {
   coolant_type?: 'flood' | 'mql' | 'dry' | 'cryogenic';
 }
 
+/** Sustainability Result configuration/data structure.
+ */
 export interface SustainabilityResult {
   energy: { cutting_kwh: number; spindle_kwh: number; auxiliary_kwh: number; total_kwh: number };
   carbon: { direct_co2_kg: number; indirect_co2_kg: number; total_co2_kg: number };
@@ -353,10 +371,14 @@ export interface SustainabilityResult {
   safety: { score: number; flags: string[] };
 }
 
+/** Eco Optimize Input configuration/data structure.
+ */
 export interface EcoOptimizeInput extends OptimizeInput {
   weight_eco: number; // 0.0–1.0
 }
 
+/** Eco Optimize Result configuration/data structure.
+ */
 export interface EcoOptimizeResult extends OptimizeResult {
   eco_weight_applied: number;
   sustainability_improvement_pct: number;
@@ -608,6 +630,10 @@ function selectTools(feature: FeatureType): { id: string; name: string }[] {
 // OPTIMIZE PARAMETERS
 // ============================================================================
 
+/** Optimizes parameters.
+ * @param input - input input
+ * @returns optimize result
+ */
 export function optimizeParameters(input: OptimizeInput): OptimizeResult {
   const mat = getMatOpt(input.material);
   const solutions = generateParetoFront(mat, input.feature, input.dimensions, input.constraints, 0);
@@ -750,6 +776,10 @@ function analyzeSensitivity(
 // OPTIMIZE SEQUENCE (ACO-inspired heuristic)
 // ============================================================================
 
+/** Optimizes sequence.
+ * @param input - input input
+ * @returns sequence result
+ */
 export function optimizeSequence(input: SequenceInput): SequenceResult {
   const ops = input.operations;
   const n = ops.length;
@@ -881,6 +911,10 @@ function satisfiesConstraints(order: string[], mustBeBefore: Map<string, Set<str
 // SUSTAINABILITY REPORT
 // ============================================================================
 
+/** Sustainability Report.
+ * @param input - input input
+ * @returns sustainability result
+ */
 export function sustainabilityReport(input: SustainabilityInput): SustainabilityResult {
   const mat = getMatOpt(input.material);
   const coolantType = input.coolant_type ?? 'flood';
@@ -962,6 +996,10 @@ export function sustainabilityReport(input: SustainabilityInput): Sustainability
 // ECO-OPTIMIZE (sustainability-weighted)
 // ============================================================================
 
+/** Eco Optimize.
+ * @param input - input input
+ * @returns eco optimize result
+ */
 export function ecoOptimize(input: EcoOptimizeInput): EcoOptimizeResult {
   const weight = Math.max(0, Math.min(1, input.weight_eco));
 
@@ -1088,6 +1126,11 @@ export function catalogSourceFiles(): {
 // DISPATCHER FUNCTION
 // ============================================================================
 
+/** Optimization.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns unknown
+ */
 export function optimization(action: string, params: Record<string, unknown>): unknown {
   switch (action) {
     case 'optimize_parameters':

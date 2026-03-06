@@ -19,30 +19,40 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** F E A Node configuration/data structure.
+ */
 export interface FEANode {
   id: number;
   x: number;
   y: number;
 }
 
+/** F E A Element configuration/data structure.
+ */
 export interface FEAElement {
   id: number;
   /** Node IDs (3 for triangle). */
   nodes: [number, number, number];
 }
 
+/** F E A Boundary Condition configuration/data structure.
+ */
 export interface FEABoundaryCondition {
   node_id: number;
   dof: "x" | "y" | "xy";
   value?: number;
 }
 
+/** F E A Load configuration/data structure.
+ */
 export interface FEALoad {
   node_id: number;
   fx: number;
   fy: number;
 }
 
+/** F E A Solver2 D Input configuration/data structure.
+ */
 export interface FEASolver2DInput {
   nodes: FEANode[];
   elements: FEAElement[];
@@ -60,6 +70,8 @@ export interface FEASolver2DInput {
   analysis_type?: "plane_stress" | "plane_strain";
 }
 
+/** Element Result configuration/data structure.
+ */
 export interface ElementResult {
   element_id: number;
   stress_xx: number;
@@ -71,6 +83,8 @@ export interface ElementResult {
   strain_xy: number;
 }
 
+/** F E A Solver2 D Output configuration/data structure.
+ */
 export interface FEASolver2DOutput extends WithWarnings {
   displacements: Array<{ node_id: number; dx: number; dy: number }>;
   element_results: ElementResult[];
@@ -82,6 +96,8 @@ export interface FEASolver2DOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** F E A Solver2 D engine/manager.
+ */
 export class FEASolver2D implements Algorithm<FEASolver2DInput, FEASolver2DOutput> {
 
   validate(input: FEASolver2DInput): ValidationResult {

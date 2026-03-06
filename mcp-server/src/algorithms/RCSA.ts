@@ -23,11 +23,15 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Complex Val configuration/data structure.
+ */
 export interface ComplexVal {
   re: number;
   im: number;
 }
 
+/** R C S A Substructure configuration/data structure.
+ */
 export interface RCSASubstructure {
   /** Frequency points [Hz]. */
   frequencies: number[];
@@ -41,6 +45,8 @@ export interface RCSASubstructure {
   H22?: ComplexVal[];
 }
 
+/** R C S A Input configuration/data structure.
+ */
 export interface RCSAInput {
   /** Substructure A (spindle-holder assembly). */
   substructure_a: RCSASubstructure;
@@ -54,6 +60,8 @@ export interface RCSAInput {
   include_rotation?: boolean;
 }
 
+/** R C S A Output configuration/data structure.
+ */
 export interface RCSAOutput extends WithWarnings {
   /** Coupled assembly FRF at tool tip. */
   coupled_frf: Array<{ frequency: number; compliance: ComplexVal }>;
@@ -77,6 +85,8 @@ export interface RCSAOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** R C S A engine/manager.
+ */
 export class RCSA implements Algorithm<RCSAInput, RCSAOutput> {
 
   validate(input: RCSAInput): ValidationResult {

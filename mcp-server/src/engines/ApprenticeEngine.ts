@@ -15,8 +15,12 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type SkillLevel = "beginner" | "intermediate" | "advanced";
+/** Lesson Track type definition.
+ */
 export type LessonTrack = "fundamentals" | "intermediate" | "advanced";
 
+/** Lesson configuration/data structure.
+ */
 export interface Lesson {
   id: number;
   track: LessonTrack;
@@ -29,6 +33,8 @@ export interface Lesson {
   diagnostic: string;
 }
 
+/** Skill Assessment configuration/data structure.
+ */
 export interface SkillAssessment {
   assessment_id: string;
   level: SkillLevel;
@@ -38,6 +44,8 @@ export interface SkillAssessment {
   total_score: number;
 }
 
+/** Knowledge Entry configuration/data structure.
+ */
 export interface KnowledgeEntry {
   knowledge_id: string;
   source: string;
@@ -51,6 +59,8 @@ export interface KnowledgeEntry {
   timestamp: string;
 }
 
+/** Explain Result configuration/data structure.
+ */
 export interface ExplainResult {
   parameter: string;
   value: string;
@@ -59,12 +69,16 @@ export interface ExplainResult {
   depth: "brief" | "standard" | "detailed";
 }
 
+/** Explain Factor configuration/data structure.
+ */
 export interface ExplainFactor {
   factor: string;
   impact: string;
   physics: string;
 }
 
+/** Challenge Exercise configuration/data structure.
+ */
 export interface ChallengeExercise {
   challenge_id: string;
   scenario: string;
@@ -598,6 +612,8 @@ export function apprenticeEngine(action: string, params: Record<string, any>): a
 // AUTO-GENERATED from MASTER_EXTRACTION_INDEX_V2.json — 6 LOW-priority extracted JS modules
 // that feed into this engine. Used for traceability, safety auditing, and wiring verification.
 
+/** A P P R E N T I C E_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const APPRENTICE_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

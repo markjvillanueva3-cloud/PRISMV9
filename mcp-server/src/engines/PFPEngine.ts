@@ -107,6 +107,8 @@ function validateConfig(cfg: Partial<PFPConfig>): PFPConfig {
 //   No single point of failure. PFP removal = zero safety impact.
 //
 
+/** P F P Engine engine/manager.
+ */
 export class PFPEngine {
   private config: PFPConfig;
   private history: ActionRecord[] = [];
@@ -794,4 +796,6 @@ export class PFPEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Pfp Engine constant.
+ */
 export const pfpEngine = new PFPEngine();

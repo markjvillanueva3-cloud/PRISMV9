@@ -19,8 +19,12 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Access Direction type definition.
+ */
 export type AccessDirection = "+X" | "-X" | "+Y" | "-Y" | "+Z" | "-Z";
 
+/** Feature Spec configuration/data structure.
+ */
 export interface FeatureSpec {
   id: string;
   /** Accessible from these directions. */
@@ -35,6 +39,8 @@ export interface FeatureSpec {
   tool_type?: string;
 }
 
+/** C S P Setup Plan Input configuration/data structure.
+ */
 export interface CSPSetupPlanInput {
   /** Features to machine. */
   features: FeatureSpec[];
@@ -50,6 +56,8 @@ export interface CSPSetupPlanInput {
   max_iterations?: number;
 }
 
+/** Setup Plan configuration/data structure.
+ */
 export interface SetupPlan {
   setup_number: number;
   orientation: AccessDirection;
@@ -58,6 +66,8 @@ export interface SetupPlan {
   n_tool_changes: number;
 }
 
+/** C S P Setup Plan Output configuration/data structure.
+ */
 export interface CSPSetupPlanOutput extends WithWarnings {
   /** Planned setups in execution order. */
   setups: SetupPlan[];
@@ -80,6 +90,8 @@ export interface CSPSetupPlanOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** C S P Setup Plan engine/manager.
+ */
 export class CSPSetupPlan implements Algorithm<CSPSetupPlanInput, CSPSetupPlanOutput> {
 
   validate(input: CSPSetupPlanInput): ValidationResult {

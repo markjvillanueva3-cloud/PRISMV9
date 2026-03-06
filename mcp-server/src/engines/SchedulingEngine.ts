@@ -24,6 +24,8 @@ export interface Job {
   predecessor_job_id?: string;       // must complete before this starts
 }
 
+/** Machine Slot configuration/data structure.
+ */
 export interface MachineSlot {
   machine_id: string;
   machine_name: string;
@@ -33,6 +35,8 @@ export interface MachineSlot {
   efficiency: number;                // 0.0–1.0
 }
 
+/** Schedule Result configuration/data structure.
+ */
 export interface ScheduleResult {
   assignments: JobAssignment[];
   total_makespan_days: number;
@@ -41,6 +45,8 @@ export interface ScheduleResult {
   schedule_score: number;            // 0–100
 }
 
+/** Job Assignment configuration/data structure.
+ */
 export interface JobAssignment {
   job_id: string;
   machine_id: string;
@@ -52,6 +58,8 @@ export interface JobAssignment {
   slack_days: number;
 }
 
+/** Capacity Report configuration/data structure.
+ */
 export interface CapacityReport {
   total_hours_needed: number;
   total_hours_available: number;
@@ -61,6 +69,8 @@ export interface CapacityReport {
   feasible: boolean;
 }
 
+/** Schedule Strategy type definition.
+ */
 export type ScheduleStrategy = "EDD" | "SPT" | "priority" | "balanced";
 
 // ============================================================================
@@ -105,6 +115,8 @@ function sortByStrategy(jobs: Job[], strategy: ScheduleStrategy): Job[] {
 // ENGINE CLASS
 // ============================================================================
 
+/** Scheduling Engine engine/manager.
+ */
 export class SchedulingEngine {
   schedule(jobs: Job[], machines: MachineSlot[], strategy: ScheduleStrategy = "balanced"): ScheduleResult {
     const sortedJobs = sortByStrategy(jobs, strategy);
@@ -230,4 +242,6 @@ export class SchedulingEngine {
   }
 }
 
+/** Scheduling Engine constant.
+ */
 export const schedulingEngine = new SchedulingEngine();

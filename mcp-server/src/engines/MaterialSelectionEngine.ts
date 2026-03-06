@@ -25,6 +25,8 @@ export interface MaterialRequirements {
   application?: string;              // aerospace, automotive, medical, general
 }
 
+/** Material Candidate configuration/data structure.
+ */
 export interface MaterialCandidate {
   material_id: string;
   name: string;
@@ -38,6 +40,8 @@ export interface MaterialCandidate {
   relative_cost: number;             // 1.0 = baseline (1018 steel)
 }
 
+/** Material Properties configuration/data structure.
+ */
 export interface MaterialProperties {
   tensile_strength_MPa: number;
   yield_strength_MPa: number;
@@ -48,6 +52,8 @@ export interface MaterialProperties {
   elongation_pct: number;
 }
 
+/** Machinability Report configuration/data structure.
+ */
 export interface MachinabilityReport {
   material_id: string;
   machinability_index: number;
@@ -59,6 +65,8 @@ export interface MachinabilityReport {
   notes: string[];
 }
 
+/** Material Comparison Result configuration/data structure.
+ */
 export interface MaterialComparisonResult {
   candidates: MaterialCandidate[];
   best_match: string;
@@ -155,6 +163,8 @@ function scoreMaterial(mat: MaterialData, req: MaterialRequirements): { score: n
 // ENGINE CLASS
 // ============================================================================
 
+/** Material Selection Engine engine/manager.
+ */
 export class MaterialSelectionEngine {
   recommend(req: MaterialRequirements): MaterialCandidate[] {
     const candidates: MaterialCandidate[] = [];
@@ -225,4 +235,6 @@ export class MaterialSelectionEngine {
   }
 }
 
+/** Material Selection Engine constant.
+ */
 export const materialSelectionEngine = new MaterialSelectionEngine();

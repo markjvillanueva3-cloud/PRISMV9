@@ -23,16 +23,22 @@ import { fileExists, readJsonFile } from "../utils/files.js";
 // POST PROCESSOR TYPES
 // ============================================================================
 
+/** Controller Family type definition.
+ */
 export type ControllerFamily =
   | "fanuc" | "siemens" | "haas" | "mazak" | "okuma"
   | "mitsubishi" | "heidenhain" | "fagor" | "hurco" | "doosan"
   | "brother" | "makino" | "dmg_mori" | "generic";
 
+/** Post Type type definition.
+ */
 export type PostType =
   | "mill_3axis" | "mill_4axis" | "mill_5axis"
   | "lathe_2axis" | "lathe_caxis" | "lathe_yaxis" | "multitask"
   | "wire_edm" | "sinker_edm" | "laser" | "waterjet";
 
+/** Post Capability type definition.
+ */
 export type PostCapability =
   | "rigid_tapping" | "high_speed_machining" | "probing"
   | "tool_measurement" | "canned_cycles" | "subprograms"
@@ -40,6 +46,8 @@ export type PostCapability =
   | "multi_spindle" | "multi_turret" | "live_tooling"
   | "coolant_through" | "chip_conveyor" | "work_coordinates";
 
+/** Post Processor configuration/data structure.
+ */
 export interface PostProcessor {
   // Identification
   post_id: string;
@@ -321,6 +329,8 @@ const SOURCE_FILE_CATALOG = [
 // POST PROCESSOR REGISTRY CLASS
 // ============================================================================
 
+/** Post Processor Registry engine/manager.
+ */
 export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
   private indexByController: Map<ControllerFamily, string[]> = new Map();
   private indexByType: Map<PostType, string[]> = new Map();
@@ -602,4 +612,6 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
 }
 
 // Singleton export
+/** Post Processor Registry constant.
+ */
 export const postProcessorRegistry = new PostProcessorRegistry();

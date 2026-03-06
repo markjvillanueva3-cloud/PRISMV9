@@ -23,7 +23,11 @@ import { fileExists, listDirectory } from "../utils/files.js";
 // TYPES
 // ============================================================================
 
+/** Script Language type definition.
+ */
 export type ScriptLanguage = "python" | "powershell" | "bash" | "javascript" | "typescript";
+/** Script Category type definition.
+ */
 export type ScriptCategory =
   | "session_management"
   | "skill_management"
@@ -37,6 +41,8 @@ export type ScriptCategory =
   | "deployment"
   | "dev_workflow";
 
+/** Script Parameter configuration/data structure.
+ */
 export interface ScriptParameter {
   name: string;
   type: string;
@@ -45,6 +51,8 @@ export interface ScriptParameter {
   description: string;
 }
 
+/** Script configuration/data structure.
+ */
 export interface Script {
   script_id: string;
   name: string;
@@ -1325,6 +1333,8 @@ const BUILT_IN_SCRIPTS: Partial<Script>[] = [
 // SCRIPT REGISTRY
 // ============================================================================
 
+/** Script Registry engine/manager.
+ */
 export class ScriptRegistry extends BaseRegistry<Script> {
   private indexByCategory: Map<ScriptCategory, Set<string>> = new Map();
   private indexByLanguage: Map<ScriptLanguage, Set<string>> = new Map();
@@ -1693,4 +1703,6 @@ export class ScriptRegistry extends BaseRegistry<Script> {
 }
 
 // Export singleton instance
+/** Script Registry constant.
+ */
 export const scriptRegistry = new ScriptRegistry();

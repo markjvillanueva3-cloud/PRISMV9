@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type MaskMethod = "tape" | "paint" | "plug" | "cap" | "fixture" | "wax";
+/** Mask Process type definition.
+ */
 export type MaskProcess = "plating" | "anodize" | "paint_coat" | "heat_treat" | "shot_peen" | "passivation";
 
+/** Masking Input configuration/data structure.
+ */
 export interface MaskingInput {
   process: MaskProcess;
   process_temp_C: number;
@@ -24,6 +28,8 @@ export interface MaskingInput {
   batch_size: number;
 }
 
+/** Masking Result configuration/data structure.
+ */
 export interface MaskingResult {
   mask_assignments: { area_id: string; method: MaskMethod; material: string; notes: string }[];
   total_mask_area_mm2: number;
@@ -39,6 +45,8 @@ export interface MaskingResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Masking Calculator Engine engine/manager.
+ */
 export class MaskingCalculatorEngine {
   calculate(input: MaskingInput): MaskingResult {
     const assignments: MaskingResult["mask_assignments"] = [];
@@ -131,4 +139,6 @@ export class MaskingCalculatorEngine {
   }
 }
 
+/** Masking Calculator Engine constant.
+ */
 export const maskingCalculatorEngine = new MaskingCalculatorEngine();

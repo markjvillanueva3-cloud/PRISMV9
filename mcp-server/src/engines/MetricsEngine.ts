@@ -14,6 +14,8 @@
 
 export type MetricType = "counter" | "gauge" | "histogram" | "timer";
 
+/** Metric Definition configuration/data structure.
+ */
 export interface MetricDefinition {
   name: string;
   type: MetricType;
@@ -22,6 +24,8 @@ export interface MetricDefinition {
   unit?: string;
 }
 
+/** Metric Value configuration/data structure.
+ */
 export interface MetricValue {
   name: string;
   type: MetricType;
@@ -30,11 +34,15 @@ export interface MetricValue {
   timestamp: string;
 }
 
+/** Histogram Bucket configuration/data structure.
+ */
 export interface HistogramBucket {
   le: number;   // less than or equal
   count: number;
 }
 
+/** Histogram Summary configuration/data structure.
+ */
 export interface HistogramSummary {
   name: string;
   count: number;
@@ -48,6 +56,8 @@ export interface HistogramSummary {
   buckets: HistogramBucket[];
 }
 
+/** Metrics Export configuration/data structure.
+ */
 export interface MetricsExport {
   timestamp: string;
   counters: MetricValue[];
@@ -62,6 +72,8 @@ export interface MetricsExport {
 
 const DEFAULT_BUCKETS = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10];
 
+/** Metrics Engine engine/manager.
+ */
 export class MetricsEngine {
   private counters = new Map<string, number>();
   private gauges = new Map<string, number>();
@@ -182,4 +194,6 @@ export class MetricsEngine {
   }
 }
 
+/** Metrics Engine constant.
+ */
 export const metricsEngine = new MetricsEngine();

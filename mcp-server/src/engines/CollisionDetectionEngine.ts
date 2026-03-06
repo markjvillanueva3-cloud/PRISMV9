@@ -23,6 +23,8 @@ export interface CollisionBody {
   is_moving: boolean;
 }
 
+/** Collision Move configuration/data structure.
+ */
 export interface CollisionMove {
   from: { x: number; y: number; z: number };
   to: { x: number; y: number; z: number };
@@ -30,8 +32,12 @@ export interface CollisionMove {
   feed_rate_mmmin?: number;
 }
 
+/** Collision Severity type definition.
+ */
 export type CollisionSeverity = "collision" | "near_miss" | "clearance_violation" | "safe";
 
+/** Collision Result configuration/data structure.
+ */
 export interface CollisionResult {
   has_collision: boolean;
   severity: CollisionSeverity;
@@ -43,6 +49,8 @@ export interface CollisionResult {
   recommendation: string;
 }
 
+/** Collision Detail configuration/data structure.
+ */
 export interface CollisionDetail {
   body_a: string;
   body_b: string;
@@ -53,6 +61,8 @@ export interface CollisionDetail {
   description: string;
 }
 
+/** Clearance Check configuration/data structure.
+ */
 export interface ClearanceCheck {
   clearance_plane_z: number;
   actual_min_z: number;
@@ -60,6 +70,8 @@ export interface ClearanceCheck {
   margin_mm: number;
 }
 
+/** Rapid Safety Check configuration/data structure.
+ */
 export interface RapidSafetyCheck {
   total_rapids: number;
   unsafe_rapids: number;
@@ -78,6 +90,8 @@ const NEAR_MISS_THRESHOLD_MM = 5.0; // Flag anything within 5mm
 // ENGINE CLASS
 // ============================================================================
 
+/** Collision Detection Engine engine/manager.
+ */
 export class CollisionDetectionEngine {
   /**
    * Full collision check between all bodies across all moves.
@@ -269,4 +283,6 @@ export class CollisionDetectionEngine {
   }
 }
 
+/** Collision Detection Engine constant.
+ */
 export const collisionDetectionEngine = new CollisionDetectionEngine();

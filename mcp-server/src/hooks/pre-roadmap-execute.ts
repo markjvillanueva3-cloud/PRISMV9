@@ -14,6 +14,8 @@ import { RoadmapUnit, RoadmapEnvelope } from '../schemas/roadmapSchema.js';
 type Unit = z.infer<typeof RoadmapUnit>;
 type Envelope = z.infer<typeof RoadmapEnvelope>;
 
+/** Position Tracker configuration/data structure.
+ */
 export interface PositionTracker {
   roadmap_id: string;
   current_unit: string;
@@ -25,6 +27,8 @@ export interface PositionTracker {
   history: Array<{ unit_id: string; completed_at: string; build_status: boolean }>;
 }
 
+/** Pre Execute Result configuration/data structure.
+ */
 export interface PreExecuteResult {
   proceed: boolean;
   blockers: string[];

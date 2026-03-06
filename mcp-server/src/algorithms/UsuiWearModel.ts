@@ -24,6 +24,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Usui Wear Model Input configuration/data structure.
+ */
 export interface UsuiWearModelInput {
   /** Normal contact stress [MPa]. */
   contact_stress: number;
@@ -47,12 +49,16 @@ export interface UsuiWearModelInput {
   wear_mode?: "flank" | "crater" | "both";
 }
 
+/** Wear Point configuration/data structure.
+ */
 export interface WearPoint {
   time: number;
   vb: number;
   wear_rate: number;
 }
 
+/** Usui Wear Model Output configuration/data structure.
+ */
 export interface UsuiWearModelOutput extends WithWarnings {
   /** Final flank wear VB [mm]. */
   final_vb: number;
@@ -73,6 +79,8 @@ export interface UsuiWearModelOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Usui Wear Model engine/manager.
+ */
 export class UsuiWearModel implements Algorithm<UsuiWearModelInput, UsuiWearModelOutput> {
 
   validate(input: UsuiWearModelInput): ValidationResult {

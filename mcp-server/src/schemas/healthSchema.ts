@@ -47,8 +47,12 @@ export const HEALTH_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+/** Registry Status type definition.
+ */
 export type RegistryStatus = 'ok' | 'degraded' | 'error' | 'empty';
 
+/** Health Response configuration/data structure.
+ */
 export interface HealthResponse {
   status: 'ok' | 'degraded' | 'error';
   dispatchers: number;

@@ -37,6 +37,9 @@ const ACTIONS = [
   "dfm_check", "face_mill_select", "deep_hole_technique",
 ] as const;
 
+/** Registers cad dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerCadDispatcher(server: any): void {
   server.tool(
     "prism_cad",

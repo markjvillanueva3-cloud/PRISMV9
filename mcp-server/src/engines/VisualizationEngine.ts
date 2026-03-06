@@ -18,13 +18,25 @@
 // ── Types ─────────────────────────────────────────────────────────────
 
 export interface Vec3 { x: number; y: number; z: number; }
+/** Vec4 configuration/data structure.
+ */
 export interface Vec4 { x: number; y: number; z: number; w: number; }
+/** Color configuration/data structure.
+ */
 export interface Color { r: number; g: number; b: number; a?: number; }
 
+/** View Preset type definition.
+ */
 export type ViewPreset = "front" | "back" | "top" | "bottom" | "left" | "right" | "iso" | "iso_rear";
+/** Color Mode type definition.
+ */
 export type ColorMode = "by_type" | "by_feed" | "by_speed" | "by_tool" | "by_mrr" | "by_operation" | "uniform";
+/** Render Mode type definition.
+ */
 export type RenderMode = "solid" | "wireframe" | "transparent" | "xray" | "hidden_line";
 
+/** Camera Config configuration/data structure.
+ */
 export interface CameraConfig {
   position: Vec3;
   target: Vec3;
@@ -36,6 +48,8 @@ export interface CameraConfig {
   ortho_size?: number;
 }
 
+/** Mesh Data configuration/data structure.
+ */
 export interface MeshData {
   id: string;
   name: string;
@@ -47,6 +61,8 @@ export interface MeshData {
   wireframe_indices?: number[];
 }
 
+/** Toolpath Line Data configuration/data structure.
+ */
 export interface ToolpathLineData {
   id: string;
   segments: Array<{
@@ -61,6 +77,8 @@ export interface ToolpathLineData {
   total_points: number;
 }
 
+/** Scene Node configuration/data structure.
+ */
 export interface SceneNode {
   id: string;
   name: string;
@@ -80,6 +98,8 @@ export interface SceneNode {
   opacity?: number;
 }
 
+/** Scene Graph configuration/data structure.
+ */
 export interface SceneGraph {
   id: string;
   name: string;
@@ -98,6 +118,8 @@ export interface SceneGraph {
   clipping_planes: Array<{ normal: Vec3; distance: number; enabled: boolean }>;
 }
 
+/** Heatmap Config configuration/data structure.
+ */
 export interface HeatmapConfig {
   type: "thermal" | "force" | "wear" | "stress" | "deflection" | "custom";
   min_value: number;
@@ -126,6 +148,8 @@ const COLORS = {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** Visualization Engine engine/manager.
+ */
 export class VisualizationEngine {
   /** Generate a camera configuration for a view preset */
   getCamera(preset: ViewPreset, target: Vec3 = { x: 0, y: 0, z: 0 }, distance: number = 500): CameraConfig {
@@ -473,4 +497,6 @@ export class VisualizationEngine {
   }
 }
 
+/** Visualization Engine constant.
+ */
 export const visualizationEngine = new VisualizationEngine();

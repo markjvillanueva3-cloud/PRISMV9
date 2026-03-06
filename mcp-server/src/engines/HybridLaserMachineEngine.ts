@@ -17,6 +17,8 @@
 
 export type HybridProcess = "laser_assisted_turning" | "laser_assisted_milling" | "laser_clad_mill" | "additive_subtractive";
 
+/** Hybrid Laser Input configuration/data structure.
+ */
 export interface HybridLaserInput {
   process: HybridProcess;
   laser_power_W: number;
@@ -34,6 +36,8 @@ export interface HybridLaserInput {
   track_width_mm?: number;
 }
 
+/** Hybrid Laser Result configuration/data structure.
+ */
 export interface HybridLaserResult {
   preheat_temperature_C: number;
   force_reduction_pct: number;
@@ -50,6 +54,8 @@ export interface HybridLaserResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Hybrid Laser Machine Engine engine/manager.
+ */
 export class HybridLaserMachineEngine {
   calculate(input: HybridLaserInput): HybridLaserResult {
     // Energy density
@@ -136,4 +142,6 @@ export class HybridLaserMachineEngine {
   }
 }
 
+/** Hybrid Laser Machine Engine constant.
+ */
 export const hybridLaserMachineEngine = new HybridLaserMachineEngine();

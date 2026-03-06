@@ -1125,6 +1125,8 @@ export const DOMAIN_TEMPLATES: Record<string, DomainTemplate> = {
 // HOOK GENERATOR CLASS
 // ============================================================================
 
+/** Hook Generator engine/manager.
+ */
 export class HookGenerator {
   private generatedCount = 0;
   private errors: string[] = [];
@@ -1533,6 +1535,10 @@ export default ${domain.toLowerCase()}GeneratedHooks;
 // CLI INTERFACE
 // ============================================================================
 
+/** Runs hook generator c l i.
+ * @param args - args for the operation
+ * @returns promise<void>
+ */
 export async function runHookGeneratorCLI(args: string[]): Promise<void> {
   const generator = new HookGenerator();
   
@@ -1591,4 +1597,6 @@ export async function runHookGeneratorCLI(args: string[]): Promise<void> {
 }
 
 // Export singleton instance
+/** Hook Generator constant.
+ */
 export const hookGenerator = new HookGenerator();

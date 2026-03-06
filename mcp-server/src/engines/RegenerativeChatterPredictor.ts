@@ -18,6 +18,8 @@
 
 export type CutType = "slotting" | "half_immersion_up" | "half_immersion_down" | "quarter_immersion" | "full_immersion" | "turning";
 
+/** Chatter Input configuration/data structure.
+ */
 export interface ChatterInput {
   cut_type: CutType;
   spindle_rpm: number;
@@ -31,12 +33,16 @@ export interface ChatterInput {
   radial_depth_mm?: number;           // for milling (default = tool_diameter)
 }
 
+/** Stability Lobe configuration/data structure.
+ */
 export interface StabilityLobe {
   lobe_number: number;
   rpm: number;
   critical_depth_mm: number;
 }
 
+/** Chatter Result configuration/data structure.
+ */
 export interface ChatterResult {
   is_stable: boolean;
   stability_margin_pct: number;       // positive = stable, negative = chatter
@@ -54,6 +60,8 @@ export interface ChatterResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Regenerative Chatter Predictor engine/manager.
+ */
 export class RegenerativeChatterPredictor {
   predict(input: ChatterInput): ChatterResult {
     const fn = input.natural_freq_Hz;
@@ -195,4 +203,6 @@ export class RegenerativeChatterPredictor {
   }
 }
 
+/** Regenerative Chatter Predictor constant.
+ */
 export const regenerativeChatterPredictor = new RegenerativeChatterPredictor();

@@ -14,8 +14,12 @@
 // ============================================================================
 
 export type MigrationStatus = "pending" | "applied" | "rolled_back" | "failed";
+/** Migration Direction type definition.
+ */
 export type MigrationDirection = "up" | "down";
 
+/** Migration configuration/data structure.
+ */
 export interface Migration {
   id: string;
   version: string;
@@ -25,6 +29,8 @@ export interface Migration {
   down: () => { success: boolean; changes: string[] };
 }
 
+/** Migration Record configuration/data structure.
+ */
 export interface MigrationRecord {
   id: string;
   version: string;
@@ -37,6 +43,8 @@ export interface MigrationRecord {
   error?: string;
 }
 
+/** Migration Plan configuration/data structure.
+ */
 export interface MigrationPlan {
   pending: string[];
   applied: string[];
@@ -49,6 +57,8 @@ export interface MigrationPlan {
 // ENGINE CLASS
 // ============================================================================
 
+/** Migration Engine engine/manager.
+ */
 export class MigrationEngine {
   private migrations: Migration[] = [];
   private records = new Map<string, MigrationRecord>();
@@ -185,4 +195,6 @@ export class MigrationEngine {
   clear(): void { this.migrations = []; this.records.clear(); }
 }
 
+/** Migration Engine constant.
+ */
 export const migrationEngine = new MigrationEngine();

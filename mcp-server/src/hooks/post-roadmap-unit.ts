@@ -313,6 +313,8 @@ export function processUnitCompletion(
 // Hook metadata
 // ---------------------------------------------------------------------------
 
+/** Hook Meta constant.
+ */
 export const hookMeta = {
   id: 'post-roadmap-unit',
   event: 'roadmap.unit.post_complete',

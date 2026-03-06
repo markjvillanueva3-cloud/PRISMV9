@@ -22,6 +22,8 @@ export interface CacheEntry<T = unknown> {
   size_bytes: number;
 }
 
+/** Cache Stats configuration/data structure.
+ */
 export interface CacheStats {
   total_entries: number;
   total_size_bytes: number;
@@ -33,6 +35,8 @@ export interface CacheStats {
   oldest_entry_age_sec: number;
 }
 
+/** Cache Config configuration/data structure.
+ */
 export interface CacheConfig {
   max_entries: number;
   max_size_bytes: number;
@@ -49,6 +53,8 @@ const DEFAULT_CONFIG: CacheConfig = {
   default_ttl_sec: 3600,             // 1 hour
 };
 
+/** Cache Engine engine/manager.
+ */
 export class CacheEngine {
   private entries = new Map<string, CacheEntry>();
   private accessOrder: string[] = [];
@@ -217,4 +223,6 @@ export class CacheEngine {
   }
 }
 
+/** Cache Engine constant.
+ */
 export const cacheEngine = new CacheEngine();

@@ -13,9 +13,15 @@
 // ============================================================================
 
 export type NotificationChannel = "in_app" | "email" | "webhook" | "sms" | "push";
+/** Notification Priority type definition.
+ */
 export type NotificationPriority = "critical" | "high" | "normal" | "low";
+/** Notification Status type definition.
+ */
 export type NotificationStatus = "pending" | "sent" | "delivered" | "read" | "failed";
 
+/** Notification configuration/data structure.
+ */
 export interface Notification {
   id: string;
   channel: NotificationChannel;
@@ -33,6 +39,8 @@ export interface Notification {
   retry_count: number;
 }
 
+/** Notification Template configuration/data structure.
+ */
 export interface NotificationTemplate {
   id: string;
   name: string;
@@ -41,6 +49,8 @@ export interface NotificationTemplate {
   body_template: string;
 }
 
+/** Notification Stats configuration/data structure.
+ */
 export interface NotificationStats {
   total_sent: number;
   total_delivered: number;
@@ -52,6 +62,8 @@ export interface NotificationStats {
   read_rate_pct: number;
 }
 
+/** Send Options configuration/data structure.
+ */
 export interface SendOptions {
   channel?: NotificationChannel;
   priority?: NotificationPriority;
@@ -65,6 +77,8 @@ export interface SendOptions {
 
 let notifIdCounter = 0;
 
+/** Notification Engine engine/manager.
+ */
 export class NotificationEngine {
   private notifications = new Map<string, Notification>();
   private templates = new Map<string, NotificationTemplate>();
@@ -169,4 +183,6 @@ export class NotificationEngine {
   }
 }
 
+/** Notification Engine constant.
+ */
 export const notificationEngine = new NotificationEngine();

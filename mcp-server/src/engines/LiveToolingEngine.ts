@@ -14,6 +14,8 @@
 
 export type LiveToolOp = "cross_drill" | "axial_drill" | "cross_mill" | "axial_mill" | "polygon_turn" | "keyway" | "flat_mill";
 
+/** Live Tool Input configuration/data structure.
+ */
 export interface LiveToolInput {
   operation: LiveToolOp;
   tool_diameter_mm: number;
@@ -32,6 +34,8 @@ export interface LiveToolInput {
   live_tool_power_kW: number;
 }
 
+/** Live Tool Result configuration/data structure.
+ */
 export interface LiveToolResult {
   feed_rate_mm_per_min: number;
   material_removal_rate_mm3_per_min: number;
@@ -48,6 +52,8 @@ export interface LiveToolResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Live Tooling Engine engine/manager.
+ */
 export class LiveToolingEngine {
   calculate(input: LiveToolInput): LiveToolResult {
     const d = input.tool_diameter_mm;
@@ -134,4 +140,6 @@ export class LiveToolingEngine {
   }
 }
 
+/** Live Tooling Engine constant.
+ */
 export const liveToolingEngine = new LiveToolingEngine();

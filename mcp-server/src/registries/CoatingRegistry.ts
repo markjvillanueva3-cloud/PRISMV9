@@ -19,9 +19,15 @@ import { log } from "../utils/Logger.js";
 // COATING TYPES
 // ============================================================================
 
+/** Coating Process type definition.
+ */
 export type CoatingProcess = "PVD" | "CVD" | "MT-CVD" | "PACVD" | "HIPIMS" | "sintered" | "brazed" | "none";
+/** Coating Category type definition.
+ */
 export type CoatingCategory = "nitride" | "carbide" | "oxide" | "carbonitride" | "diamond" | "dlc" | "multi_layer" | "composite" | "uncoated";
 
+/** Coating Entry configuration/data structure.
+ */
 export interface CoatingEntry {
   id: string;
   name: string;
@@ -371,6 +377,8 @@ const COATING_DATA: CoatingEntry[] = [
 // COATING REGISTRY CLASS
 // ============================================================================
 
+/** Coating Registry engine/manager.
+ */
 export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
   constructor() {
     super("coatings", "", "1.0.0");
@@ -501,4 +509,6 @@ export class CoatingRegistry extends BaseRegistry<CoatingEntry> {
 }
 
 // Singleton
+/** Coating Registry constant.
+ */
 export const coatingRegistry = new CoatingRegistry();

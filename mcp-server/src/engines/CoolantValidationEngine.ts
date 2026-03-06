@@ -768,6 +768,8 @@ class CoolantValidationEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Coolant Validation Engine constant.
+ */
 export const coolantValidationEngine = new CoolantValidationEngine();
 
 export { CoolantValidationEngine };

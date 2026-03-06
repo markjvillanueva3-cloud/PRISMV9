@@ -22,6 +22,8 @@ import { calculateITGrade, type ITGradeResult } from "./ToleranceEngine.js";
 
 // ─── Public Types ─────────────────────────────────────────────────────────────
 
+/** Report Type type definition.
+ */
 export type ReportType =
   | "setup_sheet"
   | "process_plan"
@@ -31,6 +33,8 @@ export type ReportType =
   | "alarm_report"
   | "speed_feed_card";
 
+/** Report Result configuration/data structure.
+ */
 export interface ReportResult {
   type: ReportType;
   markdown: string;
@@ -39,6 +43,8 @@ export interface ReportResult {
   warnings: string[];
 }
 
+/** R E P O R T_ T Y P E S constant.
+ */
 export const REPORT_TYPES: ReportType[] = [
   "setup_sheet",
   "process_plan",

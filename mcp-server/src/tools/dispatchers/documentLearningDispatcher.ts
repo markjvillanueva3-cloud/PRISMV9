@@ -280,6 +280,9 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
 // REGISTRATION
 // ---------------------------------------------------------------------------
 
+/** Registers document learning dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerDocumentLearningDispatcher(server: any): void {
   server.tool(
     "prism_doc_learn",

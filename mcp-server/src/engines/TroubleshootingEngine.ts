@@ -18,6 +18,8 @@ export type Symptom =
   | "thermal_damage" | "workpiece_movement" | "taper_error"
   | "roundness_error" | "thread_failure" | "drill_wandering";
 
+/** Diagnosis Input configuration/data structure.
+ */
 export interface DiagnosisInput {
   symptoms: Symptom[];
   operation_type: string;
@@ -30,6 +32,8 @@ export interface DiagnosisInput {
   tool_age_min?: number;
 }
 
+/** Diagnosis configuration/data structure.
+ */
 export interface Diagnosis {
   primary_cause: string;
   confidence: number;                // 0–100
@@ -38,6 +42,8 @@ export interface Diagnosis {
   related_symptoms: Symptom[];
 }
 
+/** Ranked Cause configuration/data structure.
+ */
 export interface RankedCause {
   cause: string;
   probability: number;               // 0–1.0
@@ -45,6 +51,8 @@ export interface RankedCause {
   evidence: string[];
 }
 
+/** Corrective Action configuration/data structure.
+ */
 export interface CorrectiveAction {
   action: string;
   priority: "immediate" | "short_term" | "long_term";
@@ -52,6 +60,8 @@ export interface CorrectiveAction {
   estimated_time_min: number;
 }
 
+/** Root Cause Analysis configuration/data structure.
+ */
 export interface RootCauseAnalysis {
   symptom_chain: string[];
   root_cause: string;
@@ -219,6 +229,8 @@ const FAULT_RULES: FaultRule[] = [
 // ENGINE CLASS
 // ============================================================================
 
+/** Troubleshooting Engine engine/manager.
+ */
 export class TroubleshootingEngine {
   diagnose(input: DiagnosisInput): Diagnosis {
     const matchingRules: { rule: FaultRule; score: number }[] = [];
@@ -312,4 +324,6 @@ export class TroubleshootingEngine {
   }
 }
 
+/** Troubleshooting Engine constant.
+ */
 export const troubleshootingEngine = new TroubleshootingEngine();

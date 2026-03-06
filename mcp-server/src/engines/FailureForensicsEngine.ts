@@ -18,18 +18,26 @@ export type ToolFailureMode =
   | "flank_wear" | "crater_wear" | "notch_wear" | "edge_chipping"
   | "thermal_cracking" | "plastic_deformation" | "fracture" | "bue_adhesion";
 
+/** Chip Type type definition.
+ */
 export type ChipType =
   | "blue_discolored" | "long_stringy" | "segmented" | "birds_nest"
   | "powder" | "normal_curled" | "thick_irregular";
 
+/** Surface Defect type definition.
+ */
 export type SurfaceDefect =
   | "chatter_marks" | "smeared_torn" | "feed_marks" | "scratches"
   | "discoloration" | "waviness" | "pitting" | "burrs";
 
+/** Crash Type type definition.
+ */
 export type CrashType =
   | "tool_into_fixture" | "tool_into_part" | "spindle_crash"
   | "axis_overtravel" | "tool_breakage_in_cut" | "collision_rapid";
 
+/** Forensic Diagnosis configuration/data structure.
+ */
 export interface ForensicDiagnosis {
   diagnosis_id: string;
   category: "tool_autopsy" | "chip_analysis" | "crash_investigation" | "surface_defect";
@@ -43,6 +51,8 @@ export interface ForensicDiagnosis {
   recurrence_risk: "low" | "medium" | "high";
 }
 
+/** Corr Action configuration/data structure.
+ */
 export interface CorrAction {
   action: string;
   effectiveness: "high" | "medium" | "low";

@@ -16,6 +16,8 @@ import { log } from "./Logger.js";
 import { PATHS } from "../constants.js";
 import { safeWriteSync } from "./atomicWrite.js";
 
+/** Slim Level type definition.
+ */
 export type SlimLevel = "NORMAL" | "MODERATE" | "AGGRESSIVE";
 
 interface SlimConfig {
@@ -91,6 +93,9 @@ export function getSlimLevel(pressurePct: number): SlimLevel {
 let _cachedPressurePct = 0;
 let _lastPressureRead = 0;
 
+/** Gets current pressure pct.
+ * @returns number
+ */
 export function getCurrentPressurePct(): number {
   const now = Date.now();
   // Cache for 10 seconds to avoid disk thrash
@@ -278,6 +283,11 @@ function getCadenceVerbosity(): string {
   return (process.env.CADENCE_VERBOSITY || "critical").toLowerCase();
 }
 
+/** Slim Cadence.
+ * @param cadence - cadence
+ * @param pressurePct - pressure pct value
+ * @returns record<string, any>
+ */
 export function slimCadence(cadence: Record<string, any>, pressurePct: number): Record<string, any> {
   const verbosity = getCadenceVerbosity();
 

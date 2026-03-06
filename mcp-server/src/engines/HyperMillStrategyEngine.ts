@@ -30,8 +30,12 @@ export type GeometryType =
   | "turning_groove"
   | "thread";
 
+/** Operation Goal type definition.
+ */
 export type OperationGoal = "roughing" | "finishing" | "rest_machining" | "semi_finishing";
 
+/** Strategy Input configuration/data structure.
+ */
 export interface StrategyInput {
   geometryType: GeometryType;
   operationGoal: OperationGoal;
@@ -43,6 +47,8 @@ export interface StrategyInput {
   partToleranceMm?: number;
 }
 
+/** Strategy Recommendation configuration/data structure.
+ */
 export interface StrategyRecommendation {
   strategyName: string;
   hyperMillCycle: string;
@@ -55,6 +61,8 @@ export interface StrategyRecommendation {
   source: string;
 }
 
+/** Strategy Engine Stats configuration/data structure.
+ */
 export interface StrategyEngineStats {
   calculations: number;
   lastInput: StrategyInput | null;
@@ -311,6 +319,8 @@ const STRATEGIES: StrategyEntry[] = [
 // ENGINE
 // ============================================================================
 
+/** Hyper Mill Strategy Engine engine/manager.
+ */
 export class HyperMillStrategyEngine {
   private calcCount = 0;
   private lastInput: StrategyInput | null = null;
@@ -439,4 +449,6 @@ export class HyperMillStrategyEngine {
   }
 }
 
+/** Hyper Mill Strategy Engine constant.
+ */
 export const hyperMillStrategyEngine = new HyperMillStrategyEngine();

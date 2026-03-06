@@ -16,6 +16,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Simulated Annealing Input configuration/data structure.
+ */
 export interface SimulatedAnnealingInput {
   /** Number of decision variables. */
   dimensions: number;
@@ -39,6 +41,8 @@ export interface SimulatedAnnealingInput {
   seed?: number;
 }
 
+/** Simulated Annealing Output configuration/data structure.
+ */
 export interface SimulatedAnnealingOutput extends WithWarnings {
   best_solution: number[];
   best_cost: number;
@@ -54,6 +58,8 @@ function mulberry32(seed: number) {
   return () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
+/** Simulated Annealing engine/manager.
+ */
 export class SimulatedAnnealing implements Algorithm<SimulatedAnnealingInput, SimulatedAnnealingOutput> {
 
   validate(input: SimulatedAnnealingInput): ValidationResult {

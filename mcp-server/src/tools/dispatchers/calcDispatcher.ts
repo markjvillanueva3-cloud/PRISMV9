@@ -328,6 +328,9 @@ const ACTIONS = [
   "geometry_select", "insert_grade_select", "coolant_recommend"
 ] as const;
 
+/** Registers calc dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerCalcDispatcher(server: any): void {
   server.tool(
     "prism_calc",

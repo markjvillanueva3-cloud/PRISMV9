@@ -618,6 +618,8 @@ const preControllerLimitValidation: HookDefinition = {
 // EXPORT ALL CONTROLLER HOOKS
 // ============================================================================
 
+/** Controller Hooks constant.
+ */
 export const controllerHooks: HookDefinition[] = [
   // Alarm validation
   preFanucAlarmValidation,

@@ -8,6 +8,8 @@
 import { Logger } from './Logger.js';
 import { Config } from './Config.js';
 
+/** Safety Result configuration/data structure.
+ */
 export interface SafetyResult {
   safe: boolean;
   score: number;
@@ -16,6 +18,8 @@ export interface SafetyResult {
   blocked: boolean;
 }
 
+/** Safety Rule configuration/data structure.
+ */
 export interface SafetyRule {
   id: string;
   name: string;
@@ -39,6 +43,8 @@ export function safeRegex(pattern: string, flags?: string, maxLen = 200): RegExp
   try { return new RegExp(pattern, flags); } catch { return null; }
 }
 
+/** Safety Validator engine/manager.
+ */
 export class SafetyValidator {
   private logger: Logger;
   private threshold: number;

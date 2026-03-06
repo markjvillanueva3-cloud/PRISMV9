@@ -14,6 +14,8 @@
 
 export type HealthStatus = "healthy" | "degraded" | "unhealthy" | "unknown";
 
+/** Health Component configuration/data structure.
+ */
 export interface HealthComponent {
   name: string;
   status: HealthStatus;
@@ -23,6 +25,8 @@ export interface HealthComponent {
   metadata?: Record<string, unknown>;
 }
 
+/** Health Check configuration/data structure.
+ */
 export interface HealthCheck {
   status: HealthStatus;
   timestamp: string;
@@ -34,6 +38,8 @@ export interface HealthCheck {
   score_pct: number;
 }
 
+/** Health History Entry configuration/data structure.
+ */
 export interface HealthHistoryEntry {
   timestamp: string;
   status: HealthStatus;
@@ -41,12 +47,16 @@ export interface HealthHistoryEntry {
   failed_components: string[];
 }
 
+/** Health Checker type definition.
+ */
 export type HealthChecker = () => { status: HealthStatus; message?: string; metadata?: Record<string, unknown> };
 
 // ============================================================================
 // ENGINE CLASS
 // ============================================================================
 
+/** Health Engine engine/manager.
+ */
 export class HealthEngine {
   private components = new Map<string, HealthChecker>();
   private history: HealthHistoryEntry[] = [];
@@ -153,4 +163,6 @@ export class HealthEngine {
   }
 }
 
+/** Health Engine constant.
+ */
 export const healthEngine = new HealthEngine();

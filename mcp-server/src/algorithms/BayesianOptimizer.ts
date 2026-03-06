@@ -17,6 +17,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Bayesian Optimizer Input configuration/data structure.
+ */
 export interface BayesianOptimizerInput {
   /** Observed input points (each row = one experiment). */
   X_observed: number[][];
@@ -44,6 +46,8 @@ export interface BayesianOptimizerInput {
   seed?: number;
 }
 
+/** Bayesian Optimizer Output configuration/data structure.
+ */
 export interface BayesianOptimizerOutput extends WithWarnings {
   next_point: number[];
   expected_improvement: number;
@@ -60,6 +64,8 @@ function mulberry32(seed: number) {
   return () => { s = (s + 0x6D2B79F5) | 0; let t = Math.imul(s ^ (s >>> 15), 1 | s); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
+/** Bayesian Optimizer engine/manager.
+ */
 export class BayesianOptimizer implements Algorithm<BayesianOptimizerInput, BayesianOptimizerOutput> {
 
   validate(input: BayesianOptimizerInput): ValidationResult {

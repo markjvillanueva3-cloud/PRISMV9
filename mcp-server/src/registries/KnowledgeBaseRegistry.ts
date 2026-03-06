@@ -23,6 +23,8 @@ import { fileExists, readJsonFile, listDirectory } from "../utils/files.js";
 // KNOWLEDGE BASE TYPES
 // ============================================================================
 
+/** Knowledge Base Topic type definition.
+ */
 export type KnowledgeBaseTopic =
   | "troubleshooting"
   | "best_practices"
@@ -30,12 +32,16 @@ export type KnowledgeBaseTopic =
   | "reference"
   | "academic";
 
+/** Knowledge Base Query Type type definition.
+ */
 export type KnowledgeBaseQueryType =
   | "lookup"
   | "search"
   | "related"
   | "diagnostic";
 
+/** Knowledge Base Entry configuration/data structure.
+ */
 export interface KnowledgeBaseEntry {
   // Identification
   id: string;
@@ -300,6 +306,8 @@ const BUILT_IN_KNOWLEDGE_BASES: Partial<KnowledgeBaseEntry>[] = [
 // KNOWLEDGE BASE REGISTRY CLASS
 // ============================================================================
 
+/** Knowledge Base Registry engine/manager.
+ */
 export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
   private indexByTopic: Map<KnowledgeBaseTopic, Set<string>> = new Map();
   private indexByKeyword: Map<string, Set<string>> = new Map();
@@ -782,4 +790,6 @@ export class KnowledgeBaseRegistry extends BaseRegistry<KnowledgeBaseEntry> {
 }
 
 // Export singleton instance
+/** Knowledge Base Registry constant.
+ */
 export const knowledgeBaseRegistry = new KnowledgeBaseRegistry();

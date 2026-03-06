@@ -155,6 +155,9 @@ function diagnosisExtractKeyValues(action: string, result: any): Record<string, 
 // REGISTRATION
 // ============================================================================
 
+/** Registers diagnosis dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerDiagnosisDispatcher(server: any): void {
   server.tool(
     "prism_diagnosis",

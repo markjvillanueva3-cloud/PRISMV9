@@ -709,6 +709,8 @@ export function resetMetrics() {
 // EXPORT ALL OBSERVABILITY HOOKS
 // ============================================================================
 
+/** Observability Hooks constant.
+ */
 export const observabilityHooks: HookDefinition[] = [
   // Performance
   onPerformanceTrack,

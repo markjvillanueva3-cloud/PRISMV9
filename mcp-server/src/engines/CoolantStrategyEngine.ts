@@ -25,6 +25,8 @@ export type CoolantMaterial =
   | "cfrp"
   | "plastic";
 
+/** Coolant Operation type definition.
+ */
 export type CoolantOperation =
   | "turning_rough"
   | "turning_finish"
@@ -39,6 +41,8 @@ export type CoolantOperation =
   | "broaching"
   | "thread_milling";
 
+/** Coolant Method type definition.
+ */
 export type CoolantMethod =
   | "flood"
   | "through_spindle"
@@ -49,6 +53,8 @@ export type CoolantMethod =
   | "cryogenic_ln2"
   | "dry";
 
+/** Coolant Fluid type definition.
+ */
 export type CoolantFluid =
   | "water_soluble_emulsion"
   | "semi_synthetic"
@@ -60,6 +66,8 @@ export type CoolantFluid =
   | "liquid_nitrogen"
   | "none";
 
+/** Coolant Strategy Input configuration/data structure.
+ */
 export interface CoolantStrategyInput {
   workpiece_material: CoolantMaterial;
   operation: CoolantOperation;
@@ -81,6 +89,8 @@ interface AtomicValue {
   warning?: string;
 }
 
+/** Coolant Strategy Result configuration/data structure.
+ */
 export interface CoolantStrategyResult {
   primary_method: CoolantMethod;
   fluid_type: CoolantFluid;
@@ -164,6 +174,8 @@ const CONCENTRATION: Record<CoolantOperation, [number, number]> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Coolant Strategy Engine engine/manager.
+ */
 export class CoolantStrategyEngine {
   calculate(input: CoolantStrategyInput): CoolantStrategyResult {
     const mat = input.workpiece_material;
@@ -386,4 +398,6 @@ export class CoolantStrategyEngine {
   }
 }
 
+/** Coolant Strategy Engine constant.
+ */
 export const coolantStrategyEngine = new CoolantStrategyEngine();

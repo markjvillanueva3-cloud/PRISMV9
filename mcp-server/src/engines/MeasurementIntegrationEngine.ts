@@ -16,8 +16,12 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type MeasurementSource = "cmm" | "surface_tester" | "in_machine_probe" | "manual" | "laser_scanner";
+/** Drift Direction type definition.
+ */
 export type DriftDirection = "positive" | "negative" | "stable" | "oscillating";
 
+/** Dimensional Measurement configuration/data structure.
+ */
 export interface DimensionalMeasurement {
   feature_id: string;
   feature_name: string;
@@ -31,6 +35,8 @@ export interface DimensionalMeasurement {
   deviation_pct: number;
 }
 
+/** C M M Report configuration/data structure.
+ */
 export interface CMMReport {
   report_id: string;
   source: MeasurementSource;
@@ -42,6 +48,8 @@ export interface CMMReport {
   summary: CMMSummary;
 }
 
+/** C M M Summary configuration/data structure.
+ */
 export interface CMMSummary {
   total_features: number;
   in_spec: number;
@@ -51,6 +59,8 @@ export interface CMMSummary {
   cpk_estimate: number;
 }
 
+/** Surface Finish Result configuration/data structure.
+ */
 export interface SurfaceFinishResult {
   measurement_id: string;
   predicted_ra_um: number;
@@ -63,6 +73,8 @@ export interface SurfaceFinishResult {
   correction_factor: number;
 }
 
+/** Probing Data configuration/data structure.
+ */
 export interface ProbingData {
   probe_id: string;
   machine: string;
@@ -74,6 +86,8 @@ export interface ProbingData {
   part_count: number;
 }
 
+/** Drift Analysis configuration/data structure.
+ */
 export interface DriftAnalysis {
   feature: string;
   machine: string;
@@ -85,6 +99,8 @@ export interface DriftAnalysis {
   action: "none" | "adjust_offset" | "inspect_tool" | "stop_machine";
 }
 
+/** Calibration Bias configuration/data structure.
+ */
 export interface CalibrationBias {
   machine: string;
   axis: string;
@@ -104,6 +120,10 @@ let surfaceCounter = 0;
 
 // ─── CMM Data Import ────────────────────────────────────────────────────────
 
+/** Import C M M Data.
+ * @param params - params for the operation
+ * @returns c m m report
+ */
 export function importCMMData(params: Record<string, any>): CMMReport {
   reportCounter++;
   const reportId = `CMM-${String(reportCounter).padStart(4, "0")}`;
@@ -165,6 +185,10 @@ export function importCMMData(params: Record<string, any>): CMMReport {
 
 // ─── Surface Finish Comparison ──────────────────────────────────────────────
 
+/** Compare Surface Finish.
+ * @param params - params for the operation
+ * @returns surface finish result
+ */
 export function compareSurfaceFinish(params: Record<string, any>): SurfaceFinishResult {
   surfaceCounter++;
   const id = `SF-${String(surfaceCounter).padStart(4, "0")}`;
@@ -201,6 +225,10 @@ export function compareSurfaceFinish(params: Record<string, any>): SurfaceFinish
 
 // ─── In-Machine Probing ─────────────────────────────────────────────────────
 
+/** Record Probe Data.
+ * @param params - params for the operation
+ * @returns probing data
+ */
 export function recordProbeData(params: Record<string, any>): ProbingData {
   const data: ProbingData = {
     probe_id: `PRB-${Date.now().toString(36)}`,
@@ -220,6 +248,10 @@ export function recordProbeData(params: Record<string, any>): ProbingData {
   return data;
 }
 
+/** Analyzes drift.
+ * @param params - params for the operation
+ * @returns drift analysis
+ */
 export function analyzeDrift(params: Record<string, any>): DriftAnalysis {
   const machine = params.machine ?? "Machine-01";
   const feature = params.feature ?? "Bore-1";
@@ -284,6 +316,10 @@ export function analyzeDrift(params: Record<string, any>): DriftAnalysis {
 
 // ─── Bias Detection ─────────────────────────────────────────────────────────
 
+/** Detects calibration bias.
+ * @param params - params for the operation
+ * @returns calibration bias[]
+ */
 export function detectCalibrationBias(params: Record<string, any>): CalibrationBias[] {
   const machine = params.machine;
   const biases: CalibrationBias[] = [];
@@ -419,6 +455,8 @@ export function measurementIntegration(action: string, params: Record<string, an
 
 // ─── Source File Catalog (14 LOW-priority integration extractions) ───────────
 
+/** M E A S U R E M E N T_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const MEASUREMENT_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

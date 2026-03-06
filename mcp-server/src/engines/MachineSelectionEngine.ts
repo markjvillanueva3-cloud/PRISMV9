@@ -27,6 +27,8 @@ export interface MachineRequirements {
   max_hourly_rate?: number;
 }
 
+/** Machine Candidate configuration/data structure.
+ */
 export interface MachineCandidate {
   machine_id: string;
   name: string;
@@ -41,12 +43,16 @@ export interface MachineCandidate {
   limitations: string[];
 }
 
+/** Machine Comparison Result configuration/data structure.
+ */
 export interface MachineComparisonResult {
   machines: MachineCandidate[];
   best_match: string;
   comparison_factors: string[];
 }
 
+/** Machine Validation Result configuration/data structure.
+ */
 export interface MachineValidationResult {
   suitable: boolean;
   machine_id: string;
@@ -150,6 +156,8 @@ function scoreMachine(m: MachineSpec, req: MachineRequirements): { score: number
 // ENGINE CLASS
 // ============================================================================
 
+/** Machine Selection Engine engine/manager.
+ */
 export class MachineSelectionEngine {
   recommend(req: MachineRequirements): MachineCandidate[] {
     const candidates: MachineCandidate[] = [];
@@ -212,4 +220,6 @@ export class MachineSelectionEngine {
   }
 }
 
+/** Machine Selection Engine constant.
+ */
 export const machineSelectionEngine = new MachineSelectionEngine();

@@ -17,6 +17,8 @@
 
 export type WaterjetQuality = "Q1_separation" | "Q2_rough" | "Q3_medium" | "Q4_fine" | "Q5_precision";
 
+/** Waterjet Taper Input configuration/data structure.
+ */
 export interface WaterjetTaperInput {
   material: string;
   thickness_mm: number;
@@ -30,6 +32,8 @@ export interface WaterjetTaperInput {
   has_tilt_head: boolean;
 }
 
+/** Waterjet Taper Result configuration/data structure.
+ */
 export interface WaterjetTaperResult {
   predicted_taper_deg: number;
   top_kerf_mm: number;
@@ -63,6 +67,8 @@ const MATERIAL_MACHINABILITY: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Waterjet Taper Engine engine/manager.
+ */
 export class WaterjetTaperEngine {
   calculate(input: WaterjetTaperInput): WaterjetTaperResult {
     const matKey = this._materialKey(input.material);
@@ -145,4 +151,6 @@ export class WaterjetTaperEngine {
   }
 }
 
+/** Waterjet Taper Engine constant.
+ */
 export const waterjetTaperEngine = new WaterjetTaperEngine();

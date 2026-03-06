@@ -23,6 +23,8 @@ export type KinematicType =
   | "mixed_BC"       // B on table, C on head
   | "head_table";    // B on head, C on table
 
+/** R T C P Input configuration/data structure.
+ */
 export interface RTCPInput {
   kinematic_type: KinematicType;
   // Machine-specific pivot point distances (mm)
@@ -41,6 +43,8 @@ export interface RTCPInput {
   tolerance_mm?: number;                // RTCP tolerance threshold (default 0.01mm)
 }
 
+/** R T C P Result configuration/data structure.
+ */
 export interface RTCPResult {
   compensated_X_mm: number;
   compensated_Y_mm: number;
@@ -52,6 +56,8 @@ export interface RTCPResult {
   recommendations: string[];
 }
 
+/** R T C P Validation configuration/data structure.
+ */
 export interface RTCPValidation {
   safe: boolean;
   max_error_mm: number;
@@ -64,6 +70,8 @@ export interface RTCPValidation {
 // ENGINE CLASS
 // ============================================================================
 
+/** R T C P_ Compensation Engine engine/manager.
+ */
 export class RTCP_CompensationEngine {
   compensate(input: RTCPInput): RTCPResult {
     const A = input.A_deg * Math.PI / 180;
@@ -210,4 +218,6 @@ export class RTCP_CompensationEngine {
   }
 }
 
+/** Rtcp Compensation Engine constant.
+ */
 export const rtcpCompensationEngine = new RTCP_CompensationEngine();

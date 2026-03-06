@@ -18,24 +18,40 @@
 
 export interface Vec2 { x: number; y: number; }
 
+/** Vec3 configuration/data structure.
+ */
 export interface Vec3 { x: number; y: number; z: number; }
 
+/** Vec4 configuration/data structure.
+ */
 export interface Vec4 { x: number; y: number; z: number; w: number; }
 
+/** Mat4 configuration/data structure.
+ */
 export interface Mat4 {
   elements: number[];  // 16 elements, column-major
 }
 
+/** Quaternion configuration/data structure.
+ */
 export interface Quaternion { x: number; y: number; z: number; w: number; }
 
+/** Ray configuration/data structure.
+ */
 export interface Ray { origin: Vec3; direction: Vec3; }
 
+/** Plane configuration/data structure.
+ */
 export interface Plane { normal: Vec3; distance: number; }
 
+/** A A B B configuration/data structure.
+ */
 export interface AABB { min: Vec3; max: Vec3; }
 
 // ── Curve/Surface Types ───────────────────────────────────────────────
 
+/** N U R B S Curve configuration/data structure.
+ */
 export interface NURBSCurve {
   degree: number;
   control_points: Vec4[];  // w component is weight
@@ -43,6 +59,8 @@ export interface NURBSCurve {
   is_periodic: boolean;
 }
 
+/** N U R B S Surface configuration/data structure.
+ */
 export interface NURBSSurface {
   degree_u: number;
   degree_v: number;
@@ -51,24 +69,32 @@ export interface NURBSSurface {
   knot_vector_v: number[];
 }
 
+/** B Spline Curve configuration/data structure.
+ */
 export interface BSplineCurve {
   degree: number;
   control_points: Vec3[];
   knot_vector: number[];
 }
 
+/** Bezier Curve configuration/data structure.
+ */
 export interface BezierCurve {
   control_points: Vec3[];
 }
 
 // ── B-Rep Topology Types ──────────────────────────────────────────────
 
+/** B Rep Vertex configuration/data structure.
+ */
 export interface BRepVertex {
   id: number;
   point: Vec3;
   edge_ids: number[];
 }
 
+/** B Rep Edge configuration/data structure.
+ */
 export interface BRepEdge {
   id: number;
   start_vertex_id: number;
@@ -78,6 +104,8 @@ export interface BRepEdge {
   face_ids: number[];
 }
 
+/** B Rep Face configuration/data structure.
+ */
 export interface BRepFace {
   id: number;
   surface_type: "plane" | "cylinder" | "cone" | "sphere" | "torus" | "bspline" | "nurbs";
@@ -87,12 +115,16 @@ export interface BRepFace {
   normal: Vec3;
 }
 
+/** B Rep Shell configuration/data structure.
+ */
 export interface BRepShell {
   id: number;
   face_ids: number[];
   is_closed: boolean;
 }
 
+/** B Rep Solid configuration/data structure.
+ */
 export interface BRepSolid {
   id: number;
   name: string;
@@ -106,6 +138,8 @@ export interface BRepSolid {
 
 // ── Mesh Types ────────────────────────────────────────────────────────
 
+/** Triangle configuration/data structure.
+ */
 export interface Triangle {
   v0: Vec3;
   v1: Vec3;
@@ -113,6 +147,8 @@ export interface Triangle {
   normal: Vec3;
 }
 
+/** Mesh configuration/data structure.
+ */
 export interface Mesh {
   vertices: Vec3[];
   normals: Vec3[];
@@ -122,8 +158,12 @@ export interface Mesh {
 
 // ── CSG Types ─────────────────────────────────────────────────────────
 
+/** C S G Operation type definition.
+ */
 export type CSGOperation = "union" | "subtract" | "intersect";
 
+/** C S G Result configuration/data structure.
+ */
 export interface CSGResult {
   operation: CSGOperation;
   mesh: Mesh;
@@ -135,6 +175,8 @@ export interface CSGResult {
 
 // ── Computational Geometry Types ──────────────────────────────────────
 
+/** Convex Hull Result configuration/data structure.
+ */
 export interface ConvexHullResult {
   vertices: Vec3[];
   faces: number[][];
@@ -142,6 +184,8 @@ export interface ConvexHullResult {
   surface_area: number;
 }
 
+/** Voronoi Result configuration/data structure.
+ */
 export interface VoronoiResult {
   cells: Array<{
     site: Vec2;
@@ -152,6 +196,8 @@ export interface VoronoiResult {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** C A D Kernel Engine engine/manager.
+ */
 export class CADKernelEngine {
   // ── Vec3 Operations ─────────────────────────────────────────────
 
@@ -755,4 +801,6 @@ export class CADKernelEngine {
   }
 }
 
+/** Cad Kernel Engine constant.
+ */
 export const cadKernelEngine = new CADKernelEngine();

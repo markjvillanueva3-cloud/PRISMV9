@@ -14,6 +14,8 @@
 
 export type PostController = "fanuc" | "haas" | "siemens" | "heidenhain" | "mazak" | "okuma";
 
+/** Post Config configuration/data structure.
+ */
 export interface PostConfig {
   controller: PostController;
   program_number?: number;
@@ -29,6 +31,8 @@ export interface PostConfig {
   five_axis_mode?: "tcpm" | "none";  // C-004: 5-axis TCPM/TCP support
 }
 
+/** Post Input configuration/data structure.
+ */
 export interface PostInput {
   moves: PostMove[];
   tool_number: number;
@@ -39,6 +43,8 @@ export interface PostInput {
   work_offset: string;            // "G54", "G55", etc.
 }
 
+/** Post Move configuration/data structure.
+ */
 export interface PostMove {
   type: "rapid" | "feed" | "arc_cw" | "arc_ccw" | "drill" | "tap" | "bore" | "comment";
   x?: number; y?: number; z?: number;
@@ -50,6 +56,8 @@ export interface PostMove {
   text?: string;                  // for comments
 }
 
+/** Post Result configuration/data structure.
+ */
 export interface PostResult {
   controller: PostController;
   gcode: string;
@@ -59,6 +67,8 @@ export interface PostResult {
   canned_cycles_used: string[];
 }
 
+/** Post Validation configuration/data structure.
+ */
 export interface PostValidation {
   valid: boolean;
   errors: string[];
@@ -207,6 +217,8 @@ const DIALECTS: Record<PostController, ControllerDialect> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Post Processor Engine engine/manager.
+ */
 export class PostProcessorEngine {
   process(input: PostInput, config: PostConfig): PostResult {
     const dialect = DIALECTS[config.controller] || DIALECTS.fanuc;
@@ -384,4 +396,6 @@ export class PostProcessorEngine {
   }
 }
 
+/** Post Processor Engine constant.
+ */
 export const postProcessorEngine = new PostProcessorEngine();

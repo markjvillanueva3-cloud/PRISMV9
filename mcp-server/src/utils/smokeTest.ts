@@ -16,6 +16,9 @@ interface SmokeResult {
   failures: Array<{ test: string; error: string }>;
 }
 
+/** Runs smoke tests.
+ * @returns promise< smoke result>
+ */
 export async function runSmokeTests(): Promise<SmokeResult> {
   const start = Date.now();
   const failures: Array<{ test: string; error: string }> = [];

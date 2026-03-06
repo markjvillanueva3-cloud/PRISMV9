@@ -26,10 +26,14 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Evac Material Type type definition.
+ */
 export type EvacMaterialType =
   | "steel" | "stainless" | "aluminum" | "titanium"
   | "superalloy" | "cast_iron" | "copper";
 
+/** Chip Evacuation Input configuration/data structure.
+ */
 export interface ChipEvacuationInput {
   /** Tool/drill diameter [mm]. */
   tool_diameter: number;
@@ -49,6 +53,8 @@ export interface ChipEvacuationInput {
   cutting_speed?: number;
 }
 
+/** Chip Evacuation Output configuration/data structure.
+ */
 export interface ChipEvacuationOutput extends WithWarnings {
   /** Length-to-diameter ratio. */
   ld_ratio: number;
@@ -104,6 +110,8 @@ const LD_TABLE: { maxLD: number; strategy: ChipEvacuationOutput["strategy"]; bas
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Chip Evacuation Model engine/manager.
+ */
 export class ChipEvacuationModel implements Algorithm<ChipEvacuationInput, ChipEvacuationOutput> {
 
   validate(input: ChipEvacuationInput): ValidationResult {

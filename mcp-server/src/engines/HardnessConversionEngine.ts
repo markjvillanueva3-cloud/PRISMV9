@@ -14,12 +14,16 @@
 
 export type HardnessScale = "HRC" | "HRB" | "HBW" | "HV" | "HK" | "HRA";
 
+/** Hardness Convert Input configuration/data structure.
+ */
 export interface HardnessConvertInput {
   value: number;
   from_scale: HardnessScale;
   to_scale: HardnessScale;
 }
 
+/** Hardness Convert Result configuration/data structure.
+ */
 export interface HardnessConvertResult {
   input_value: number;
   input_scale: HardnessScale;
@@ -53,6 +57,8 @@ const TABLE: { hrc: number; hv: number; hbw: number; tensile: number }[] = [
 // ENGINE CLASS
 // ============================================================================
 
+/** Hardness Conversion Engine engine/manager.
+ */
 export class HardnessConversionEngine {
   convert(input: HardnessConvertInput): HardnessConvertResult {
     // Normalize to HRC first, then convert to target
@@ -133,4 +139,6 @@ export class HardnessConversionEngine {
   }
 }
 
+/** Hardness Conversion Engine constant.
+ */
 export const hardnessConversionEngine = new HardnessConversionEngine();

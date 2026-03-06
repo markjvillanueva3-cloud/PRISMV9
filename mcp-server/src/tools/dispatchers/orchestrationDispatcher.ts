@@ -55,6 +55,9 @@ function ok(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
+/** Registers orchestration dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerOrchestrationDispatcher(server: any): void {
   server.tool(
     "prism_orchestrate",

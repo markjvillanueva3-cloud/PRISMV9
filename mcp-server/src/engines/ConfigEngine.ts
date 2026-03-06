@@ -14,6 +14,8 @@
 
 export type ConfigSource = "default" | "file" | "env" | "runtime" | "tenant";
 
+/** Config Entry configuration/data structure.
+ */
 export interface ConfigEntry {
   key: string;
   value: unknown;
@@ -25,6 +27,8 @@ export interface ConfigEntry {
   updated_at: string;
 }
 
+/** Config Validation configuration/data structure.
+ */
 export interface ConfigValidation {
   valid: boolean;
   errors: { key: string; message: string }[];
@@ -42,6 +46,8 @@ const SOURCE_PRIORITY: Record<ConfigSource, number> = { default: 0, file: 1, env
 // ENGINE CLASS
 // ============================================================================
 
+/** Config Engine engine/manager.
+ */
 export class ConfigEngine {
   private entries = new Map<string, ConfigEntry[]>(); // key → entries from all sources
 
@@ -159,4 +165,6 @@ export class ConfigEngine {
   clear(): void { this.entries.clear(); }
 }
 
+/** Config Engine constant.
+ */
 export const configEngine = new ConfigEngine();

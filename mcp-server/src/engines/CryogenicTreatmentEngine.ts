@@ -17,6 +17,8 @@
 
 export type CryoLevel = "shallow" | "deep" | "ultra_deep";
 
+/** Cryo Treatment Input configuration/data structure.
+ */
 export interface CryoTreatmentInput {
   material_type: "HSS" | "carbide" | "tool_steel" | "bearing_steel" | "stainless";
   material_grade?: string;             // e.g., "M2", "D2", "WC-6Co"
@@ -30,6 +32,8 @@ export interface CryoTreatmentInput {
   post_temper_temp_C?: number;         // optional post-cryo temper
 }
 
+/** Cryo Treatment Result configuration/data structure.
+ */
 export interface CryoTreatmentResult {
   predicted_hardness_HRC: number;
   hardness_gain_HRC: number;
@@ -42,6 +46,8 @@ export interface CryoTreatmentResult {
   recommendations: string[];
 }
 
+/** Cryo R O I configuration/data structure.
+ */
 export interface CryoROI {
   tool_life_multiplier: number;
   cost_per_treatment_usd: number;
@@ -87,6 +93,8 @@ const SOAK_EFFECTIVENESS = (hours: number): number => {
 // ENGINE CLASS
 // ============================================================================
 
+/** Cryogenic Treatment Engine engine/manager.
+ */
 export class CryogenicTreatmentEngine {
   predict(input: CryoTreatmentInput): CryoTreatmentResult {
     const cryoTemp = CRYO_TEMP[input.cryo_level];
@@ -204,4 +212,6 @@ export class CryogenicTreatmentEngine {
   }
 }
 
+/** Cryogenic Treatment Engine constant.
+ */
 export const cryogenicTreatmentEngine = new CryogenicTreatmentEngine();

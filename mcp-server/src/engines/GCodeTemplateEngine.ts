@@ -36,6 +36,8 @@ export type ControllerFamily =
   | "mazak"
   | "okuma";
 
+/** G Code Operation type definition.
+ */
 export type GCodeOperation =
   | "facing"
   | "drilling"
@@ -51,6 +53,8 @@ export type GCodeOperation =
   | "program_footer"
   | "subprogram_call";
 
+/** G Code Params configuration/data structure.
+ */
 export interface GCodeParams {
   // ---- Common ----
   tool_number?: number;
@@ -102,6 +106,8 @@ export interface GCodeParams {
   sub_repeats?: number;
 }
 
+/** G Code Result configuration/data structure.
+ */
 export interface GCodeResult {
   controller: string;
   controller_family: ControllerFamily;
@@ -551,6 +557,8 @@ export const SUPPORTED_OPERATIONS: GCodeOperation[] = [
 // produces or validates CNC machine instructions. Changes require review.
 // ============================================================================
 
+/** P O S T_ P R O C E S S O R_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const POST_PROCESSOR_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   category: string;

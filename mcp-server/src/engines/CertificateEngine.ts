@@ -122,6 +122,8 @@ function sha256(data: string): string {
 // CERTIFICATE ENGINE — SINGLETON
 // ============================================================================
 
+/** Certificate Engine engine/manager.
+ */
 export class CertificateEngine {
   private config: CertificateConfig;
   private keyPair: KeyPair | null = null;
@@ -639,4 +641,6 @@ export class CertificateEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Certificate Engine constant.
+ */
 export const certificateEngine = new CertificateEngine();

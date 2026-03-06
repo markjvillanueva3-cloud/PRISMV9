@@ -505,6 +505,8 @@ const validate_vacuum_fixture = z.object({
 // SCHEMA REGISTRY
 // ============================================================================
 
+/** A C T I O N_ S A F E T Y_ S C H E M A S constant.
+ */
 export const ACTION_SAFETY_SCHEMAS: ActionSchemaMap = {
   // Collision (8)
   check_toolpath_collision,

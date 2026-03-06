@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type AlmenStrip = "N" | "A" | "C";
+/** Shot Media type definition.
+ */
 export type ShotMedia = "steel_shot" | "steel_cut_wire" | "ceramic" | "glass_bead" | "conditioned_cut_wire";
 
+/** Shot Peening Input configuration/data structure.
+ */
 export interface ShotPeeningInput {
   almen_strip: AlmenStrip;
   target_intensity_mm: number;         // Almen arc height (e.g., 0.20mm A)
@@ -27,6 +31,8 @@ export interface ShotPeeningInput {
   is_fatigue_critical: boolean;
 }
 
+/** Shot Peening Result configuration/data structure.
+ */
 export interface ShotPeeningResult {
   residual_stress_depth_mm: number;
   max_compressive_stress_MPa: number;
@@ -58,6 +64,8 @@ const MAX_STRESS_FACTOR: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Shot Peening Engine engine/manager.
+ */
 export class ShotPeeningEngine {
   calculate(input: ShotPeeningInput): ShotPeeningResult {
     const matKey = this._materialKey(input.workpiece_material);
@@ -123,4 +131,6 @@ export class ShotPeeningEngine {
   }
 }
 
+/** Shot Peening Engine constant.
+ */
 export const shotPeeningEngine = new ShotPeeningEngine();

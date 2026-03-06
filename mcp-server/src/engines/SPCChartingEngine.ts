@@ -13,6 +13,8 @@
 
 export type ChartType = "ewma" | "cusum" | "moving_average" | "xbar_s";
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -21,6 +23,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** E W M A Input configuration/data structure.
+ */
 export interface EWMAInput {
   data: number[];
   lambda: number;        // smoothing parameter r (0 < λ ≤ 1)
@@ -30,6 +34,8 @@ export interface EWMAInput {
   L?: number;            // control limit width in σ (default: 3)
 }
 
+/** C U S U M Input configuration/data structure.
+ */
 export interface CUSUMInput {
   data: number[];
   target_mean?: number;  // μ₀
@@ -39,6 +45,8 @@ export interface CUSUMInput {
   subgroup_size?: number;
 }
 
+/** Moving Average Input configuration/data structure.
+ */
 export interface MovingAverageInput {
   data: number[];
   window_size: number;   // w (number of points)
@@ -47,6 +55,8 @@ export interface MovingAverageInput {
   L?: number;            // limit width (default: 3)
 }
 
+/** Xbar S Input configuration/data structure.
+ */
 export interface XbarSInput {
   subgroups: number[][]; // array of subgroup measurements
   target_mean?: number;
@@ -54,6 +64,8 @@ export interface XbarSInput {
   L?: number;
 }
 
+/** Chart Point configuration/data structure.
+ */
 export interface ChartPoint {
   index: number;
   value: number;
@@ -62,6 +74,8 @@ export interface ChartPoint {
   out_of_control: boolean;
 }
 
+/** S P C Chart Result configuration/data structure.
+ */
 export interface SPCChartResult {
   chart_type: ChartType;
   points: ChartPoint[];

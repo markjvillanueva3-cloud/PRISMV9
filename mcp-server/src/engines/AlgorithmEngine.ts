@@ -28,11 +28,15 @@ import type { AlgorithmMeta, ValidationResult } from "../algorithms/types.js";
 
 // ── Types ───────────────────────────────────────────────────────────
 
+/** Algorithm Calculate Input configuration/data structure.
+ */
 export interface AlgorithmCalculateInput {
   algorithm_id: string;
   params: Record<string, any>;
 }
 
+/** Algorithm Calculate Result configuration/data structure.
+ */
 export interface AlgorithmCalculateResult {
   algorithm_id: string;
   algorithm_name: string;
@@ -41,11 +45,15 @@ export interface AlgorithmCalculateResult {
   execution_time_ms: number;
 }
 
+/** Algorithm Validate Result configuration/data structure.
+ */
 export interface AlgorithmValidateResult {
   algorithm_id: string;
   validation: ValidationResult;
 }
 
+/** Algorithm List Result configuration/data structure.
+ */
 export interface AlgorithmListResult {
   algorithms: AlgorithmMeta[];
   total: number;
@@ -53,11 +61,15 @@ export interface AlgorithmListResult {
   safety_summary: { critical: number; standard: number; informational: number };
 }
 
+/** Algorithm Batch Input configuration/data structure.
+ */
 export interface AlgorithmBatchInput {
   calculations: AlgorithmCalculateInput[];
   stop_on_error?: boolean;
 }
 
+/** Algorithm Batch Result configuration/data structure.
+ */
 export interface AlgorithmBatchResult {
   results: Array<AlgorithmCalculateResult | { algorithm_id: string; error: string }>;
   total: number;
@@ -66,6 +78,8 @@ export interface AlgorithmBatchResult {
   total_time_ms: number;
 }
 
+/** Algorithm Benchmark Result configuration/data structure.
+ */
 export interface AlgorithmBenchmarkResult {
   algorithm_id: string;
   algorithm_name: string;
@@ -76,6 +90,8 @@ export interface AlgorithmBenchmarkResult {
 
 // ── Engine ──────────────────────────────────────────────────────────
 
+/** Algorithm Engine engine/manager.
+ */
 export class AlgorithmEngine {
 
   /**
@@ -254,4 +270,6 @@ export class AlgorithmEngine {
 }
 
 // Singleton
+/** Algorithm Engine constant.
+ */
 export const algorithmEngine = new AlgorithmEngine();

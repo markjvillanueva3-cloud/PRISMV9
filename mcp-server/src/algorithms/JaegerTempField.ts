@@ -24,6 +24,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Jaeger Temp Field Input configuration/data structure.
+ */
 export interface JaegerTempFieldInput {
   /** Total heat flux into workpiece [W/mm²]. */
   heat_flux: number;
@@ -45,12 +47,16 @@ export interface JaegerTempFieldInput {
   depth_range?: number;
 }
 
+/** Temp Field Point configuration/data structure.
+ */
 export interface TempFieldPoint {
   x: number;
   z: number;
   temperature: number;
 }
 
+/** Jaeger Temp Field Output configuration/data structure.
+ */
 export interface JaegerTempFieldOutput extends WithWarnings {
   /** Maximum surface temperature [°C]. */
   max_surface_temp: number;
@@ -73,6 +79,8 @@ export interface JaegerTempFieldOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Jaeger Temp Field engine/manager.
+ */
 export class JaegerTempField implements Algorithm<JaegerTempFieldInput, JaegerTempFieldOutput> {
 
   validate(input: JaegerTempFieldInput): ValidationResult {

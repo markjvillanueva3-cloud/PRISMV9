@@ -10,8 +10,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type TurningOperation = "longitudinal" | "facing" | "parting" | "boring" | "grooving";
+/** I S O Group type definition.
+ */
 export type ISOGroup = "P" | "M" | "K" | "N" | "S" | "H";
 
+/** Turning Force Input configuration/data structure.
+ */
 export interface TurningForceInput {
   cutting_speed_m_min: number;           // Vc
   feed_mm_rev: number;                   // f
@@ -27,6 +31,8 @@ export interface TurningForceInput {
   operation?: TurningOperation;         // default "longitudinal"
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -35,6 +41,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Turning Force Result configuration/data structure.
+ */
 export interface TurningForceResult {
   tangential_force_Fc_N: AtomicValue;
   feed_force_Ff_N: AtomicValue;
@@ -78,6 +86,8 @@ const rakeCorrection = (gamma_deg: number): number =>
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Turning Force Engine engine/manager.
+ */
 export class TurningForceEngine {
   calculate(input: TurningForceInput): TurningForceResult {
     const {
@@ -257,4 +267,6 @@ export class TurningForceEngine {
   }
 }
 
+/** Turning Force Engine constant.
+ */
 export const turningForceEngine = new TurningForceEngine();

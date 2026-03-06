@@ -118,6 +118,8 @@ export interface GateResult {
   omegaScore: number;
 }
 
+/** Gate Check configuration/data structure.
+ */
 export interface GateCheck {
   name: string;
   passed: boolean;
@@ -778,6 +780,8 @@ export function getNextBatch(
 // SINGLETON & CONVENIENCE
 // ============================================================================
 
+/** Roadmap Executor Engine engine/manager.
+ */
 export class RoadmapExecutorEngine {
   /** Build the full dependency DAG. */
   buildDAG(roadmap: RoadmapEnvelope): DependencyDAG {
@@ -846,4 +850,6 @@ export class RoadmapExecutorEngine {
   }
 }
 
+/** Roadmap Executor constant.
+ */
 export const roadmapExecutor = new RoadmapExecutorEngine();

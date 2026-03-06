@@ -291,6 +291,8 @@ const BUILTIN_TEMPLATES: ComplianceTemplate[] = [
 // COMPLIANCE ENGINE — SINGLETON
 // ============================================================================
 
+/** Compliance Engine engine/manager.
+ */
 export class ComplianceEngine {
   private config: ComplianceConfig;
   private templates: Map<string, ComplianceTemplate> = new Map();
@@ -821,4 +823,6 @@ export class ComplianceEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Compliance Engine constant.
+ */
 export const complianceEngine = new ComplianceEngine();

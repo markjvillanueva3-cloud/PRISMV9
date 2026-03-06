@@ -34,12 +34,16 @@ export interface SkillStep {
   depends_on?: string;
 }
 
+/** Persona Adaptation configuration/data structure.
+ */
 export interface PersonaAdaptation {
   machinist: { detail_level: "minimal" | "standard" | "detailed"; focus: string };
   programmer: { detail_level: "minimal" | "standard" | "detailed"; focus: string };
   manager: { detail_level: "minimal" | "standard" | "detailed"; focus: string };
 }
 
+/** Workflow Skill configuration/data structure.
+ */
 export interface WorkflowSkill {
   id: string;
   name: string;

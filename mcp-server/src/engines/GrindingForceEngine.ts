@@ -15,8 +15,12 @@ export type GrindingMode =
   | "creep_feed"
   | "centerless";
 
+/** Coolant Type type definition.
+ */
 export type CoolantType = "flood" | "mist" | "dry" | "cryogenic";
 
+/** Grinding Force Input configuration/data structure.
+ */
 export interface GrindingForceInput {
   wheel_diameter_mm: number;
   wheel_speed_m_s: number;          // typically 25–45 m/s
@@ -32,6 +36,8 @@ export interface GrindingForceInput {
   grain_radius_um?: number;         // r (mean grain tip radius), default 15
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -40,6 +46,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Grinding Force Result configuration/data structure.
+ */
 export interface GrindingForceResult {
   tangential_force_N: AtomicValue;
   normal_force_N: AtomicValue;
@@ -89,6 +97,8 @@ const BURN_THRESHOLD_C = 450;
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Grinding Force Engine engine/manager.
+ */
 export class GrindingForceEngine {
   calculate(input: GrindingForceInput): GrindingForceResult {
     const {
@@ -278,4 +288,6 @@ export class GrindingForceEngine {
   }
 }
 
+/** Grinding Force Engine constant.
+ */
 export const grindingForceEngine = new GrindingForceEngine();

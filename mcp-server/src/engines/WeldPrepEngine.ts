@@ -15,9 +15,15 @@
 // ============================================================================
 
 export type JointType = "butt" | "corner" | "tee" | "lap" | "edge";
+/** Groove Type type definition.
+ */
 export type GrooveType = "V" | "single_bevel" | "J" | "U" | "double_V" | "double_U" | "square";
+/** Weld Process type definition.
+ */
 export type WeldProcess = "GMAW" | "GTAW" | "SMAW" | "FCAW" | "SAW" | "laser" | "electron_beam";
 
+/** Weld Prep Input configuration/data structure.
+ */
 export interface WeldPrepInput {
   joint_type: JointType;
   groove_type: GrooveType;
@@ -30,6 +36,8 @@ export interface WeldPrepInput {
   groove_radius_mm?: number;          // for J and U grooves
 }
 
+/** Weld Prep Result configuration/data structure.
+ */
 export interface WeldPrepResult {
   bevel_angle_deg: number;
   included_angle_deg: number;          // total groove angle
@@ -69,6 +77,8 @@ const FILLER_DENSITY_KG_MM3 = 7.85e-6;
 // ENGINE CLASS
 // ============================================================================
 
+/** Weld Prep Engine engine/manager.
+ */
 export class WeldPrepEngine {
   calculate(input: WeldPrepInput): WeldPrepResult {
     const defaults = GROOVE_DEFAULTS[input.groove_type] || GROOVE_DEFAULTS.V;
@@ -165,4 +175,6 @@ export class WeldPrepEngine {
   }
 }
 
+/** Weld Prep Engine constant.
+ */
 export const weldPrepEngine = new WeldPrepEngine();

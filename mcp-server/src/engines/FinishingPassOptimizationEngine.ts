@@ -10,8 +10,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ToolType = "endmill" | "turning_insert" | "boring_bar" | "face_mill";
+/** Tool Material Finish type definition.
+ */
 export type ToolMaterialFinish = "carbide" | "hss" | "ceramic" | "cbn";
 
+/** Finishing Pass Input configuration/data structure.
+ */
 export interface FinishingPassInput {
   tool_diameter_mm: number;
   tool_overhang_mm: number;
@@ -28,6 +32,8 @@ export interface FinishingPassInput {
   shank_modulus_GPa?: number;           // override Young's modulus
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -36,6 +42,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Finishing Pass Result configuration/data structure.
+ */
 export interface FinishingPassResult {
   roughing_deflection_um: AtomicValue;
   spring_pass_depth_mm: AtomicValue;
@@ -69,6 +77,8 @@ const estimateKc = (hrc: number): { kc1_1: number; mc: number } => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Finishing Pass Optimization Engine engine/manager.
+ */
 export class FinishingPassOptimizationEngine {
   calculate(input: FinishingPassInput): FinishingPassResult {
     const {
@@ -249,4 +259,6 @@ export class FinishingPassOptimizationEngine {
   }
 }
 
+/** Finishing Pass Optimization Engine constant.
+ */
 export const finishingPassOptimizationEngine = new FinishingPassOptimizationEngine();

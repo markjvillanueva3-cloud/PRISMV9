@@ -18,6 +18,9 @@ import { log } from "../../utils/Logger.js";
 
 const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]);
 
+/** Registers toolpath dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",

@@ -16,6 +16,8 @@
 
 export type BendMethod = "air_bend" | "bottom_bend" | "coining" | "folding" | "roll_bend";
 
+/** Bend Allowance Input configuration/data structure.
+ */
 export interface BendAllowanceInput {
   material: string;
   thickness_mm: number;
@@ -28,6 +30,8 @@ export interface BendAllowanceInput {
   yield_strength_MPa?: number;
 }
 
+/** Bend Allowance Result configuration/data structure.
+ */
 export interface BendAllowanceResult {
   bend_allowance_mm: number;          // arc length along neutral axis
   bend_deduction_mm: number;          // OSSB - BA
@@ -77,6 +81,8 @@ const TONNAGE_FACTOR: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Bend Allowance Engine engine/manager.
+ */
 export class BendAllowanceEngine {
   calculate(input: BendAllowanceInput): BendAllowanceResult {
     const t = input.thickness_mm;
@@ -166,4 +172,6 @@ export class BendAllowanceEngine {
   }
 }
 
+/** Bend Allowance Engine constant.
+ */
 export const bendAllowanceEngine = new BendAllowanceEngine();

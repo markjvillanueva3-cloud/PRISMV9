@@ -16,6 +16,8 @@
 
 export type SteadyRestType = "fixed" | "traveling" | "follow" | "hydraulic";
 
+/** Steady Rest Input configuration/data structure.
+ */
 export interface SteadyRestInput {
   workpiece_length_mm: number;
   workpiece_diameter_mm: number;
@@ -30,6 +32,8 @@ export interface SteadyRestInput {
   steady_rest_type: SteadyRestType;
 }
 
+/** Steady Rest Result configuration/data structure.
+ */
 export interface SteadyRestResult {
   num_supports_needed: number;
   support_positions_mm: number[];      // from chuck face
@@ -45,6 +49,8 @@ export interface SteadyRestResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Steady Rest Placement Engine engine/manager.
+ */
 export class SteadyRestPlacementEngine {
   place(input: SteadyRestInput): SteadyRestResult {
     const L = input.chuck_to_tailstock_mm / 1000; // meters
@@ -130,4 +136,6 @@ export class SteadyRestPlacementEngine {
   }
 }
 
+/** Steady Rest Placement Engine constant.
+ */
 export const steadyRestPlacementEngine = new SteadyRestPlacementEngine();

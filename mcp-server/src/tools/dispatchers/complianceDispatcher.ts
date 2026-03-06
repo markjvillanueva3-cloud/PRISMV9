@@ -15,6 +15,9 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
+/** Registers compliance dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerComplianceDispatcher(server: McpServer): void {
   (server as any).tool(
     "prism_compliance",

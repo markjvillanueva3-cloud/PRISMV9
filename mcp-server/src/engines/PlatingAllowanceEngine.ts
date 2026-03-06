@@ -20,8 +20,12 @@ export type PlatingProcess =
   | "anodize_type2" | "anodize_type3" | "chrome_decorative"
   | "pvd" | "cvd" | "thermal_spray" | "phosphate";
 
+/** Dimension Type type definition.
+ */
 export type DimensionType = "od" | "id" | "flat" | "thread";
 
+/** Plating Allowance Input configuration/data structure.
+ */
 export interface PlatingAllowanceInput {
   process: PlatingProcess;
   target_thickness_um: number;           // desired coating thickness
@@ -34,6 +38,8 @@ export interface PlatingAllowanceInput {
   is_masking_required: boolean;
 }
 
+/** Plating Allowance Result configuration/data structure.
+ */
 export interface PlatingAllowanceResult {
   machine_to_mm: number;                 // dimension to machine before plating
   stock_allowance_per_side_mm: number;
@@ -48,6 +54,8 @@ export interface PlatingAllowanceResult {
   recommendations: string[];
 }
 
+/** Plating Tolerance Result configuration/data structure.
+ */
 export interface PlatingToleranceResult {
   achievable_tolerance_mm: number;
   thickness_uniformity_pct: number;
@@ -91,6 +99,8 @@ const HIGH_STRENGTH_KEYWORDS = ["4340", "4140", "300M", "D2", "H13", "A2", "S7",
 // ENGINE CLASS
 // ============================================================================
 
+/** Plating Allowance Engine engine/manager.
+ */
 export class PlatingAllowanceEngine {
   calculateAllowance(input: PlatingAllowanceInput): PlatingAllowanceResult {
     const pd = PROCESS_DATA[input.process];
@@ -224,4 +234,6 @@ export class PlatingAllowanceEngine {
   }
 }
 
+/** Plating Allowance Engine constant.
+ */
 export const platingAllowanceEngine = new PlatingAllowanceEngine();

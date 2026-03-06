@@ -10,6 +10,8 @@ import { log } from "../utils/Logger.js";
 // Lazy-loaded catalog map: engine_name → catalog entries
 let _aggregated: Record<string, Record<string, CatalogEntry>> | null = null;
 
+/** Catalog Entry configuration/data structure.
+ */
 export interface CatalogEntry {
   filename: string;
   source_dir: string;

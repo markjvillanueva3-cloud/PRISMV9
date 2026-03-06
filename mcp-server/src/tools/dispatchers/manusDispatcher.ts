@@ -47,6 +47,13 @@ function genTaskId(): string {
 // CLAUDE API CALLER (raw fetch, same pattern as ralphDispatcher)
 // ============================================================================
 
+/** Call Claude.
+ * @param systemPrompt - system prompt string
+ * @param userPrompt - user prompt string
+ * @param model - model string
+ * @param maxTokens - max tokens value
+ * @returns promise<{ text: string; tokens: { input: number; output: number }; duration_ms: number; model: string }>
+ */
 export async function callClaude(
   systemPrompt: string,
   userPrompt: string,
@@ -128,6 +135,9 @@ function loadHookRegistry(): any {
 // DISPATCHER REGISTRATION
 // ============================================================================
 
+/** Registers manus dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerManusDispatcher(server: any): void {
   server.tool(
     "prism_manus",

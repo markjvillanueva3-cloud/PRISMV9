@@ -10,8 +10,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ExitSupport = "none" | "backed" | "sacrificial";
+/** Burr Risk type definition.
+ */
 export type BurrRisk = "low" | "medium" | "high";
 
+/** Drill Breakthrough Input configuration/data structure.
+ */
 export interface DrillBreakthroughInput {
   drill_diameter_mm: number;
   point_angle_deg: number;            // typically 118° or 140°
@@ -28,6 +32,8 @@ export interface DrillBreakthroughInput {
   remaining_thickness_mm?: number;    // for in-progress monitoring
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -36,6 +42,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Drill Breakthrough Result configuration/data structure.
+ */
 export interface DrillBreakthroughResult {
   steady_state_thrust_N: AtomicValue;
   steady_state_torque_Nm: AtomicValue;
@@ -80,6 +88,8 @@ const BREAKTHROUGH_MULTIPLIER: Record<ExitSupport, number> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Drill Breakthrough Force Engine engine/manager.
+ */
 export class DrillBreakthroughForceEngine {
   calculate(input: DrillBreakthroughInput): DrillBreakthroughResult {
     const {
@@ -263,4 +273,6 @@ export class DrillBreakthroughForceEngine {
   }
 }
 
+/** Drill Breakthrough Force Engine constant.
+ */
 export const drillBreakthroughForceEngine = new DrillBreakthroughForceEngine();

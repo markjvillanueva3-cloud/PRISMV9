@@ -9,6 +9,8 @@ import { log } from "./Logger.js";
 // ERROR TYPES
 // ============================================================================
 
+/** Prism Error engine/manager.
+ */
 export class PrismError extends Error {
   constructor(
     message: string,
@@ -30,6 +32,8 @@ export class PrismError extends Error {
   }
 }
 
+/** Not Found Error engine/manager.
+ */
 export class NotFoundError extends PrismError {
   constructor(resource: string, identifier: string) {
     super(
@@ -41,6 +45,8 @@ export class NotFoundError extends PrismError {
   }
 }
 
+/** Validation Error engine/manager.
+ */
 export class ValidationError extends PrismError {
   constructor(message: string, details?: Record<string, unknown>) {
     super(message, "VALIDATION_ERROR", details);
@@ -48,6 +54,8 @@ export class ValidationError extends PrismError {
   }
 }
 
+/** Safety Error engine/manager.
+ */
 export class SafetyError extends PrismError {
   constructor(message: string, score: number) {
     super(
@@ -59,6 +67,8 @@ export class SafetyError extends PrismError {
   }
 }
 
+/** Timeout Error engine/manager.
+ */
 export class TimeoutError extends PrismError {
   constructor(operation: string, timeoutMs: number) {
     super(
@@ -70,6 +80,8 @@ export class TimeoutError extends PrismError {
   }
 }
 
+/** File System Error engine/manager.
+ */
 export class FileSystemError extends PrismError {
   constructor(operation: string, path: string, originalError?: Error) {
     super(
@@ -81,6 +93,8 @@ export class FileSystemError extends PrismError {
   }
 }
 
+/** Agent Error engine/manager.
+ */
 export class AgentError extends PrismError {
   constructor(agentId: string, message: string, details?: Record<string, unknown>) {
     super(

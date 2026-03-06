@@ -732,6 +732,8 @@ const preGcodeOutput: HookDefinition = {
 // EXPORT ALL MANUFACTURING HOOKS
 // ============================================================================
 
+/** Manufacturing Hooks constant.
+ */
 export const manufacturingHooks: HookDefinition[] = [
   onForceLimit,
   preCalculationForceBounds,

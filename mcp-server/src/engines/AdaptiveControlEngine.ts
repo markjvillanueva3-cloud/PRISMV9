@@ -559,6 +559,11 @@ function startSession(params: Record<string, unknown>): AdaptiveState {
 
 // ─── Dispatcher ──────────────────────────────────────────────────────────────
 
+/** Adaptive Control.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns record<string, unknown>
+ */
 export function adaptiveControl(action: string, params: Record<string, unknown> = {}): Record<string, unknown> {
   // Auto-start session if needed for control actions
   if (!activeSession && ["adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal", "adaptive_override"].includes(action)) {

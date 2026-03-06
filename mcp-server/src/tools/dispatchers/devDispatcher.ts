@@ -61,6 +61,9 @@ function searchFiles(dir: string, pattern: string, maxResults: number = 20): any
   return results;
 }
 
+/** Registers dev dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerDevDispatcher(server: any): void {
   server.tool(
     "prism_dev",

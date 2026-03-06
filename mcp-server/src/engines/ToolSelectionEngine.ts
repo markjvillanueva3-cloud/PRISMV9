@@ -26,6 +26,8 @@ export interface ToolRequirements {
   coolant_available?: boolean;
 }
 
+/** Tool Recommendation configuration/data structure.
+ */
 export interface ToolRecommendation {
   tool_id: string;
   tool_type: string;
@@ -42,6 +44,8 @@ export interface ToolRecommendation {
   cost_category: "economy" | "standard" | "premium";
 }
 
+/** Tool Comparison Result configuration/data structure.
+ */
 export interface ToolComparisonResult {
   tools: ToolRecommendation[];
   winner: string;
@@ -49,6 +53,8 @@ export interface ToolComparisonResult {
   decision_factors: string[];
 }
 
+/** Tool Validation Result configuration/data structure.
+ */
 export interface ToolValidationResult {
   valid: boolean;
   tool_id: string;
@@ -153,6 +159,8 @@ function scoreTool(
 // ENGINE CLASS
 // ============================================================================
 
+/** Tool Selection Engine engine/manager.
+ */
 export class ToolSelectionEngine {
   recommend(req: ToolRequirements): ToolRecommendation[] {
     const isoGroup = req.material_iso_group || "P";
@@ -274,4 +282,6 @@ export class ToolSelectionEngine {
   }
 }
 
+/** Tool Selection Engine constant.
+ */
 export const toolSelectionEngine = new ToolSelectionEngine();

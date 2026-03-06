@@ -195,6 +195,8 @@ const ALL_TEMPLATE_PATTERNS = [THRESHOLD_PATTERNS, RANGE_PATTERNS, ENUM_PATTERNS
 // NL HOOK ENGINE — Main class
 // ============================================================================
 
+/** N L Hook Engine engine/manager.
+ */
 export class NLHookEngine {
   private config: NLHookConfig;
   private registry: Map<string, NLHookRecord> = new Map();
@@ -949,4 +951,6 @@ export class NLHookEngine {
 // SINGLETON
 // ============================================================================
 
+/** Nl Hook Engine constant.
+ */
 export const nlHookEngine = new NLHookEngine();

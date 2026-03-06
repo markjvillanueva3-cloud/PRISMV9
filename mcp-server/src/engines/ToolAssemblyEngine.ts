@@ -14,6 +14,8 @@
 
 export type HolderType = "ER_collet" | "hydraulic" | "shrink_fit" | "milling_chuck" | "side_lock" | "weldon" | "HSK" | "CAT40" | "BT40";
 
+/** Holder Spec configuration/data structure.
+ */
 export interface HolderSpec {
   id: string;
   type: HolderType;
@@ -27,6 +29,8 @@ export interface HolderSpec {
   weight_kg: number;
 }
 
+/** Tool Spec configuration/data structure.
+ */
 export interface ToolSpec {
   id: string;
   type: string;                      // "end_mill", "drill", "tap", etc.
@@ -37,6 +41,8 @@ export interface ToolSpec {
   number_of_flutes: number;
 }
 
+/** Tool Assembly configuration/data structure.
+ */
 export interface ToolAssembly {
   id: string;
   holder: HolderSpec;
@@ -49,6 +55,8 @@ export interface ToolAssembly {
   overhang_ratio: number;            // stickout / tool diameter
 }
 
+/** Assembly Validation configuration/data structure.
+ */
 export interface AssemblyValidation {
   compatible: boolean;
   issues: string[];
@@ -57,6 +65,8 @@ export interface AssemblyValidation {
   deflection_at_tip_um: number;
 }
 
+/** Reach Analysis configuration/data structure.
+ */
 export interface ReachAnalysis {
   max_depth_mm: number;
   holder_clearance_mm: number;
@@ -81,6 +91,8 @@ const HOLDER_DB: HolderSpec[] = [
 // ENGINE CLASS
 // ============================================================================
 
+/** Tool Assembly Engine engine/manager.
+ */
 export class ToolAssemblyEngine {
   assemble(holder: HolderSpec, tool: ToolSpec, stickout_mm?: number): ToolAssembly {
     const stickout = stickout_mm || (tool.overall_length_mm - tool.flute_length_mm * 0.5);
@@ -179,4 +191,6 @@ export class ToolAssemblyEngine {
   }
 }
 
+/** Tool Assembly Engine constant.
+ */
 export const toolAssemblyEngine = new ToolAssemblyEngine();

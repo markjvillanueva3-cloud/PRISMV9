@@ -30,6 +30,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Chip Thinning Input configuration/data structure.
+ */
 export interface ChipThinningInput {
   /** Programmed feed per tooth [mm/tooth]. */
   feed_per_tooth: number;
@@ -43,6 +45,8 @@ export interface ChipThinningInput {
   spindle_speed?: number;
 }
 
+/** Chip Thinning Output configuration/data structure.
+ */
 export interface ChipThinningOutput extends WithWarnings {
   /** Actual mean chip thickness hex [mm]. */
   hex: number;
@@ -79,6 +83,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Chip Thinning Compensation engine/manager.
+ */
 export class ChipThinningCompensation implements Algorithm<ChipThinningInput, ChipThinningOutput> {
 
   validate(input: ChipThinningInput): ValidationResult {

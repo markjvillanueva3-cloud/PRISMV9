@@ -22,6 +22,8 @@ import { fileExists, readJsonFile, listDirectory } from "../utils/files.js";
 // TYPES
 // ============================================================================
 
+/** Agent Capability configuration/data structure.
+ */
 export interface AgentCapability {
   name: string;
   description: string;
@@ -30,12 +32,16 @@ export interface AgentCapability {
   confidence: number;  // 0-1 confidence in this capability
 }
 
+/** Agent Dependency configuration/data structure.
+ */
 export interface AgentDependency {
   agent_id: string;
   relationship: "requires" | "enhances" | "validates" | "coordinates";
   optional: boolean;
 }
 
+/** Agent Metrics configuration/data structure.
+ */
 export interface AgentMetrics {
   avg_response_time_ms: number;
   success_rate: number;
@@ -43,6 +49,8 @@ export interface AgentMetrics {
   last_invoked?: string;
 }
 
+/** Agent configuration/data structure.
+ */
 export interface Agent {
   agent_id: string;
   name: string;
@@ -90,6 +98,8 @@ export interface Agent {
   tags?: string[];
 }
 
+/** Agent Category type definition.
+ */
 export type AgentCategory = 
   | "domain_expert"
   | "task_agent"
@@ -104,6 +114,8 @@ export type AgentCategory =
 // AGENT REGISTRY
 // ============================================================================
 
+/** Agent Registry engine/manager.
+ */
 export class AgentRegistry extends BaseRegistry<Agent> {
   private indexByCategory: Map<AgentCategory, Set<string>> = new Map();
   private indexByDomain: Map<string, Set<string>> = new Map();
@@ -639,7 +651,11 @@ export class AgentRegistry extends BaseRegistry<Agent> {
 }
 
 // Export singleton instance
+/** Agent Registry constant.
+ */
 export const agentRegistry = new AgentRegistry();
 
 // Type alias for backward compat — AgentExecutor imports AgentDefinition
+/** Agent Definition type definition.
+ */
 export type AgentDefinition = Agent;

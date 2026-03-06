@@ -17,6 +17,8 @@
 
 export type IKKinematicType = "table_table_AC" | "table_table_BC" | "head_head_AC" | "head_head_BC" | "mixed";
 
+/** I K Input configuration/data structure.
+ */
 export interface IKInput {
   kinematic_type: IKKinematicType;
   // Desired tool tip position (workpiece coordinates)
@@ -36,6 +38,8 @@ export interface IKInput {
   prev_C_deg?: number;
 }
 
+/** I K Solution configuration/data structure.
+ */
 export interface IKSolution {
   X_mm: number;
   Y_mm: number;
@@ -47,6 +51,8 @@ export interface IKSolution {
   is_preferred: boolean;
 }
 
+/** I K Result configuration/data structure.
+ */
 export interface IKResult {
   solutions: IKSolution[];
   selected: IKSolution;
@@ -59,6 +65,8 @@ export interface IKResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Inverse Kinematics Solver Engine engine/manager.
+ */
 export class InverseKinematicsSolverEngine {
   solve(input: IKInput): IKResult {
     const { axis_i: i, axis_j: j, axis_k: k } = input;
@@ -195,4 +203,6 @@ export class InverseKinematicsSolverEngine {
   }
 }
 
+/** Inverse Kinematics Solver Engine constant.
+ */
 export const inverseKinematicsSolverEngine = new InverseKinematicsSolverEngine();

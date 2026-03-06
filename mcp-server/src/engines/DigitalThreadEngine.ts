@@ -14,6 +14,8 @@
 
 export type ThreadStage = "design" | "cam" | "setup" | "machining" | "inspection" | "assembly" | "service";
 
+/** Thread Node configuration/data structure.
+ */
 export interface ThreadNode {
   id: string;
   stage: ThreadStage;
@@ -26,6 +28,8 @@ export interface ThreadNode {
   parent_ids: string[];           // upstream dependencies
 }
 
+/** Thread Link configuration/data structure.
+ */
 export interface ThreadLink {
   from_id: string;
   to_id: string;
@@ -33,12 +37,16 @@ export interface ThreadLink {
   timestamp: string;
 }
 
+/** Digital Thread Input configuration/data structure.
+ */
 export interface DigitalThreadInput {
   part_number: string;
   nodes: ThreadNode[];
   links: ThreadLink[];
 }
 
+/** Digital Thread Result configuration/data structure.
+ */
 export interface DigitalThreadResult {
   is_complete: boolean;
   coverage_pct: number;               // stages covered
@@ -53,6 +61,8 @@ export interface DigitalThreadResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Digital Thread Engine engine/manager.
+ */
 export class DigitalThreadEngine {
   trace(input: DigitalThreadInput): DigitalThreadResult {
     const allStages: ThreadStage[] = ["design", "cam", "setup", "machining", "inspection"];
@@ -106,4 +116,6 @@ export class DigitalThreadEngine {
   }
 }
 
+/** Digital Thread Engine constant.
+ */
 export const digitalThreadEngine = new DigitalThreadEngine();

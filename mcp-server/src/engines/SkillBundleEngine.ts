@@ -25,6 +25,8 @@ const SKILLS_DIR = PATHS.SKILLS;
 // BUNDLE DEFINITIONS (9 bundles)
 // ============================================================================
 
+/** Skill Bundle configuration/data structure.
+ */
 export interface SkillBundle {
   id: string;
   name: string;

@@ -19,6 +19,8 @@ import { PATHS } from "../constants";
 // Interfaces
 // ---------------------------------------------------------------------------
 
+/** Cad Geometry Request configuration/data structure.
+ */
 export interface CadGeometryRequest {
   type: "box" | "cylinder" | "sphere" | "cone" | "sketch_extrude";
   width?: number;
@@ -44,6 +46,8 @@ export interface CadGeometryRequest {
   shell_faces?: string;
 }
 
+/** Cad Geometry Result configuration/data structure.
+ */
 export interface CadGeometryResult {
   solid_id: string;
   volume_mm3: number;
@@ -54,6 +58,8 @@ export interface CadGeometryResult {
   };
 }
 
+/** Cad Validation Result configuration/data structure.
+ */
 export interface CadValidationResult {
   is_valid: boolean;
   is_manifold: boolean;
@@ -75,6 +81,8 @@ export interface CadValidationResult {
   }>;
 }
 
+/** Cad Export Result configuration/data structure.
+ */
 export interface CadExportResult {
   output_path: string;
   format: string;
@@ -83,6 +91,8 @@ export interface CadExportResult {
   success: boolean;
 }
 
+/** Cad Analysis Result configuration/data structure.
+ */
 export interface CadAnalysisResult {
   volume_mm3: number;
   surface_area_mm2: number;
@@ -120,6 +130,8 @@ interface PendingRequest {
 // CadBridge
 // ---------------------------------------------------------------------------
 
+/** Cad Bridge engine/manager.
+ */
 export class CadBridge {
   private static instance: CadBridge | null = null;
 

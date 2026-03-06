@@ -16,8 +16,12 @@
 // ============================================================================
 
 export type LaserType = "CO2" | "fiber";
+/** Assist Gas type definition.
+ */
 export type AssistGas = "O2" | "N2" | "air" | "argon";
 
+/** Laser Cut Input configuration/data structure.
+ */
 export interface LaserCutInput {
   laser_type: LaserType;
   power_W: number;
@@ -30,6 +34,8 @@ export interface LaserCutInput {
   beam_quality_mm_mrad?: number;       // BPP (beam parameter product)
 }
 
+/** Laser Cut Result configuration/data structure.
+ */
 export interface LaserCutResult {
   max_cutting_speed_mm_per_min: number;
   recommended_speed_mm_per_min: number;
@@ -77,6 +83,8 @@ const O2_BOOST: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Laser Cut Interface Engine engine/manager.
+ */
 export class LaserCutInterfaceEngine {
   calculate(input: LaserCutInput): LaserCutResult {
     const matKey = this._materialKey(input.material);
@@ -181,4 +189,6 @@ export class LaserCutInterfaceEngine {
   }
 }
 
+/** Laser Cut Interface Engine constant.
+ */
 export const laserCutInterfaceEngine = new LaserCutInterfaceEngine();

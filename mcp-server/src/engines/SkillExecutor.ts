@@ -24,6 +24,8 @@ import { eventBus } from "./EventBus.js";
 // TYPES
 // ============================================================================
 
+/** Skill Load Result configuration/data structure.
+ */
 export interface SkillLoadResult {
   success: boolean;
   skill_id: string;
@@ -34,6 +36,8 @@ export interface SkillLoadResult {
   error?: string;
 }
 
+/** Skill Recommendation configuration/data structure.
+ */
 export interface SkillRecommendation {
   skill_id: string;
   name: string;
@@ -45,6 +49,8 @@ export interface SkillRecommendation {
   estimated_value: "HIGH" | "MEDIUM" | "LOW";
 }
 
+/** Skill Chain configuration/data structure.
+ */
 export interface SkillChain {
   chain_id: string;
   skills: string[];
@@ -54,6 +60,8 @@ export interface SkillChain {
   dependency_satisfied: boolean;
 }
 
+/** Skill Usage Record configuration/data structure.
+ */
 export interface SkillUsageRecord {
   skill_id: string;
   load_count: number;
@@ -63,6 +71,8 @@ export interface SkillUsageRecord {
   contexts: string[];
 }
 
+/** Task Analysis configuration/data structure.
+ */
 export interface TaskAnalysis {
   task: string;
   detected_domains: string[];
@@ -74,6 +84,8 @@ export interface TaskAnalysis {
   suggested_approach: string;
 }
 
+/** Skill Executor Config configuration/data structure.
+ */
 export interface SkillExecutorConfig {
   cache_enabled: boolean;
   cache_ttl_ms: number;
@@ -209,6 +221,8 @@ const ACTION_TO_SKILLS: Record<string, string[]> = {
 // SKILL EXECUTOR ENGINE
 // ============================================================================
 
+/** Skill Executor engine/manager.
+ */
 export class SkillExecutor {
   private config: SkillExecutorConfig;
   private cache: Map<string, { content: string; timestamp: number; lines: number }>;
@@ -856,6 +870,8 @@ export class SkillExecutor {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Skill Executor constant.
+ */
 export const skillExecutor = new SkillExecutor();
 
 // Types are already exported at their declarations above

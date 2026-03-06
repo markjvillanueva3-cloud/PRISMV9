@@ -25,8 +25,12 @@ export type ModelType =
   | "reinforcement"
   | "ensemble";
 
+/** Model Status type definition.
+ */
 export type ModelStatus = "ready" | "training" | "stale" | "error" | "uninitialized";
 
+/** Manufacturing Domain type definition.
+ */
 export type ManufacturingDomain =
   | "speed_feed"
   | "tool_life"
@@ -41,6 +45,8 @@ export type ManufacturingDomain =
   | "anomaly"
   | "intent";
 
+/** Model Metadata configuration/data structure.
+ */
 export interface ModelMetadata {
   id: string;
   name: string;
@@ -57,6 +63,8 @@ export interface ModelMetadata {
   parameters: Record<string, any>;
 }
 
+/** Prediction Input configuration/data structure.
+ */
 export interface PredictionInput {
   model_id: string;
   features: Record<string, number | string>;
@@ -68,6 +76,8 @@ export interface PredictionInput {
   };
 }
 
+/** Prediction Result configuration/data structure.
+ */
 export interface PredictionResult {
   model_id: string;
   prediction: number | string | number[];
@@ -78,6 +88,8 @@ export interface PredictionResult {
   computation_ms: number;
 }
 
+/** Training Input configuration/data structure.
+ */
 export interface TrainingInput {
   model_id: string;
   samples: Array<{
@@ -88,6 +100,8 @@ export interface TrainingInput {
   incremental?: boolean;
 }
 
+/** Training Result configuration/data structure.
+ */
 export interface TrainingResult {
   model_id: string;
   samples_used: number;
@@ -98,12 +112,16 @@ export interface TrainingResult {
   duration_ms: number;
 }
 
+/** Cluster Input configuration/data structure.
+ */
 export interface ClusterInput {
   features: Array<Record<string, number>>;
   k?: number;
   method?: "kmeans" | "dbscan" | "hierarchical";
 }
 
+/** Cluster Result configuration/data structure.
+ */
 export interface ClusterResult {
   clusters: Array<{
     id: number;
@@ -116,6 +134,8 @@ export interface ClusterResult {
   inertia: number;
 }
 
+/** Intent Result configuration/data structure.
+ */
 export interface IntentResult {
   intent: string;
   confidence: number;
@@ -124,6 +144,8 @@ export interface IntentResult {
   alternatives: Array<{ intent: string; confidence: number }>;
 }
 
+/** Anomaly Result configuration/data structure.
+ */
 export interface AnomalyResult {
   is_anomaly: boolean;
   score: number;
@@ -287,6 +309,8 @@ const INTENT_KEYWORDS: Record<string, string[]> = {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** A I M L Engine engine/manager.
+ */
 export class AIMLEngine {
   private models: Map<string, ModelMetadata> = new Map();
   private trainingData: Map<string, Array<{ features: Record<string, number>; target: number }>> = new Map();
@@ -691,4 +715,6 @@ export class AIMLEngine {
   }
 }
 
+/** Aiml Engine constant.
+ */
 export const aimlEngine = new AIMLEngine();

@@ -29,6 +29,8 @@ export interface ToolCribItem {
   last_ordered: string;
 }
 
+/** Checkout Record configuration/data structure.
+ */
 export interface CheckoutRecord {
   tool_id: string;
   operator_id: string;
@@ -41,6 +43,8 @@ export interface CheckoutRecord {
   condition_on_return?: "good" | "worn" | "broken" | "scrap";
 }
 
+/** Tool Crib Checkout configuration/data structure.
+ */
 export interface ToolCribCheckout {
   success: boolean;
   record: CheckoutRecord | null;
@@ -48,6 +52,8 @@ export interface ToolCribCheckout {
   remaining_available: number;
 }
 
+/** Tool Crib Checkin configuration/data structure.
+ */
 export interface ToolCribCheckin {
   success: boolean;
   record: CheckoutRecord | null;
@@ -55,6 +61,8 @@ export interface ToolCribCheckin {
   recommendation: "return_to_stock" | "regrind" | "scrap";
 }
 
+/** Inventory Report configuration/data structure.
+ */
 export interface InventoryReport {
   total_items: number;
   total_value: number;
@@ -65,6 +73,8 @@ export interface InventoryReport {
   categories: Record<string, { count: number; value: number }>;
 }
 
+/** Reorder Recommendation configuration/data structure.
+ */
 export interface ReorderRecommendation {
   tool_id: string;
   description: string;
@@ -80,6 +90,8 @@ export interface ReorderRecommendation {
 // ENGINE CLASS
 // ============================================================================
 
+/** Tool Crib Engine engine/manager.
+ */
 export class ToolCribEngine {
   private inventory: ToolCribItem[] = [
     { tool_id: "EM-10-4F-TiAlN", description: "10mm 4-flute end mill TiAlN", category: "end_mill", location: "A-1-3", total_quantity: 20, available_quantity: 14, checked_out: 6, reorder_point: 5, reorder_quantity: 20, unit_cost: 35, lead_time_days: 5, supplier: "Kennametal", avg_life_min: 120, total_usage_min: 4800, last_ordered: "2026-01-15" },
@@ -210,4 +222,6 @@ export class ToolCribEngine {
   }
 }
 
+/** Tool Crib Engine constant.
+ */
 export const toolCribEngine = new ToolCribEngine();

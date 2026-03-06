@@ -16,6 +16,9 @@ import {
 
 const ACTIONS = ["material", "kienzle", "taylor", "johnson_cook", "safety", "completeness", "anti_regression"] as const;
 
+/** Registers validation dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerValidationDispatcher(server: any): void {
   server.tool(
     "prism_validate",

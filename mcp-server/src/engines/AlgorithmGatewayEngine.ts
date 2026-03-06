@@ -25,14 +25,20 @@
 // ============================================================================
 
 export type ProblemType = 'optimize' | 'predict' | 'classify' | 'interpolate' | 'sequence' | 'filter';
+/** Domain Type type definition.
+ */
 export type DomainType = 'cutting_params' | 'toolpath' | 'scheduling' | 'quality' | 'maintenance';
 
+/** Algorithm Select Input configuration/data structure.
+ */
 export interface AlgorithmSelectInput {
   problem_type: ProblemType;
   domain: DomainType;
   data?: Record<string, any>;
 }
 
+/** Algorithm Select Result configuration/data structure.
+ */
 export interface AlgorithmSelectResult {
   selected_algorithm: string;
   source_course: string;
@@ -73,6 +79,8 @@ const ALGORITHM_DB: AlgorithmEntry[] = [
 // Total: 52 files, 35,257 lines of algorithm source code
 // ============================================================================
 
+/** Algorithm Domain type definition.
+ */
 export type AlgorithmDomain =
   | 'general'
   | 'toolpath'
@@ -92,6 +100,8 @@ export type AlgorithmDomain =
   | 'spatial-indexing'
   | 'design-for-manufacturing';
 
+/** Source File Catalog Entry configuration/data structure.
+ */
 export interface SourceFileCatalogEntry {
   filename: string;
   source_dir: string;
@@ -102,6 +112,8 @@ export interface SourceFileCatalogEntry {
   algorithm_domain: AlgorithmDomain;
 }
 
+/** A L G O R I T H M_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const ALGORITHM_SOURCE_FILE_CATALOG: Record<string, SourceFileCatalogEntry> = {
   'EXT-001': {
     filename: 'ALGORITHM_LIBRARY.js',
@@ -652,12 +664,16 @@ function selectAlgorithm(input: AlgorithmSelectInput): { best: AlgorithmEntry; a
 // FFT SPECTRAL ANALYSIS
 // ============================================================================
 
+/** F F T Input configuration/data structure.
+ */
 export interface FFTInput {
   signal: number[];         // Time-domain vibration signal
   sample_rate_hz: number;   // Sampling rate
   window?: 'hann' | 'hamming' | 'rectangular';
 }
 
+/** F F T Result configuration/data structure.
+ */
 export interface FFTResult {
   dominant_frequency_hz: number;
   magnitude: number;
@@ -719,6 +735,8 @@ function runFFT(data: Record<string, any>): FFTResult {
 // BAYESIAN INFERENCE
 // ============================================================================
 
+/** Bayesian Input configuration/data structure.
+ */
 export interface BayesianInput {
   prior_mean: number;
   prior_std: number;
@@ -726,6 +744,8 @@ export interface BayesianInput {
   likelihood_std?: number;   // Observation noise std dev
 }
 
+/** Bayesian Result configuration/data structure.
+ */
 export interface BayesianResult {
   posterior_mean: number;
   posterior_std: number;
@@ -777,6 +797,8 @@ function runBayesian(data: Record<string, any>): BayesianResult {
 // GRADIENT DESCENT
 // ============================================================================
 
+/** Gradient Descent Input configuration/data structure.
+ */
 export interface GradientDescentInput {
   objective: 'taylor_tool_life' | 'surface_finish' | 'mrr' | 'cost';
   initial_vc: number;
@@ -787,6 +809,8 @@ export interface GradientDescentInput {
   learning_rate?: number;
 }
 
+/** Gradient Descent Result configuration/data structure.
+ */
 export interface GradientDescentResult {
   optimal_vc: number;
   optimal_objective: number;
@@ -902,6 +926,8 @@ function runGradientDescent(data: Record<string, any>): GradientDescentResult {
 // INTERPOLATION
 // ============================================================================
 
+/** Interpolation Input configuration/data structure.
+ */
 export interface InterpolationInput {
   x_points: number[];
   y_points: number[];
@@ -909,6 +935,8 @@ export interface InterpolationInput {
   method?: 'linear' | 'cubic_spline';
 }
 
+/** Interpolation Result configuration/data structure.
+ */
 export interface InterpolationResult {
   x_query: number;
   y_interpolated: number;
@@ -1018,6 +1046,8 @@ function cubicSplineInterp(xs: number[], ys: number[], xq: number): number {
 // MONTE CARLO SIMULATION
 // ============================================================================
 
+/** Monte Carlo Input configuration/data structure.
+ */
 export interface MonteCarloInput {
   parameter_distributions: {
     name: string;
@@ -1028,6 +1058,8 @@ export interface MonteCarloInput {
   num_samples?: number;
 }
 
+/** Monte Carlo Result configuration/data structure.
+ */
 export interface MonteCarloResult {
   mean: number;
   std: number;
@@ -1125,11 +1157,15 @@ function runMonteCarlo(data: Record<string, any>): MonteCarloResult {
 // TOPOLOGICAL SORT (Operation Sequencing)
 // ============================================================================
 
+/** Topo Sort Input configuration/data structure.
+ */
 export interface TopoSortInput {
   operations: { id: string; name: string }[];
   dependencies: { from: string; to: string }[];  // from must come before to
 }
 
+/** Topo Sort Result configuration/data structure.
+ */
 export interface TopoSortResult {
   sequence: string[];
   is_valid: boolean;
@@ -1208,6 +1244,8 @@ function runTopoSort(data: Record<string, any>): TopoSortResult {
 // KALMAN FILTER (Tool Wear Estimation)
 // ============================================================================
 
+/** Kalman Input configuration/data structure.
+ */
 export interface KalmanInput {
   initial_state: number;          // e.g., initial tool wear = 0
   initial_uncertainty: number;    // e.g., 1.0
@@ -1217,6 +1255,8 @@ export interface KalmanInput {
   wear_rate?: number;             // Expected wear per step
 }
 
+/** Kalman Result configuration/data structure.
+ */
 export interface KalmanResult {
   final_state: number;
   final_uncertainty: number;
@@ -1270,11 +1310,15 @@ function runKalman(data: Record<string, any>): KalmanResult {
 // EIGENVALUE SOLVER (Modal Analysis)
 // ============================================================================
 
+/** Eigen Input configuration/data structure.
+ */
 export interface EigenInput {
   stiffness_matrix: number[][];    // K (2×2 or 3×3)
   mass_matrix: number[][];         // M
 }
 
+/** Eigen Result configuration/data structure.
+ */
 export interface EigenResult {
   natural_frequencies_hz: number[];
   mode_shapes: number[][];
@@ -1350,12 +1394,16 @@ function runEigen(data: Record<string, any>): EigenResult {
 // PID TUNING (Ziegler-Nichols)
 // ============================================================================
 
+/** P I D Input configuration/data structure.
+ */
 export interface PIDInput {
   ultimate_gain: number;       // Ku — gain at sustained oscillation
   ultimate_period_s: number;   // Tu — period at sustained oscillation
   controller_type?: 'P' | 'PI' | 'PID';
 }
 
+/** P I D Result configuration/data structure.
+ */
 export interface PIDResult {
   Kp: number;
   Ki: number;
@@ -1399,6 +1447,10 @@ function runPID(data: Record<string, any>): PIDResult {
 // MAIN DISPATCHER: algorithm_select
 // ============================================================================
 
+/** Algorithm Select.
+ * @param input - input input
+ * @returns algorithm select result
+ */
 export function algorithmSelect(input: AlgorithmSelectInput): AlgorithmSelectResult {
   const { best, alternatives } = selectAlgorithm(input);
   const data = input.data ?? {};
@@ -1594,6 +1646,11 @@ export function catalogSourceFiles(): {
 // DISPATCHER FUNCTION
 // ============================================================================
 
+/** Algorithm Gateway.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns unknown
+ */
 export function algorithmGateway(action: string, params: Record<string, unknown>): unknown {
   switch (action) {
     case 'algorithm_select':

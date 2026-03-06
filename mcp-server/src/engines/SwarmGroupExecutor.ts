@@ -24,6 +24,8 @@ function fireBatchHook(hookId: string, data: Record<string, unknown>): void {
 
 // ── Types ──────────────────────────────────────────────────────────────
 
+/** Task Group configuration/data structure.
+ */
 export interface TaskGroup {
   groupId: string;
   name: string;
@@ -37,6 +39,8 @@ export interface TaskGroup {
   wave?: number;
 }
 
+/** Group Result configuration/data structure.
+ */
 export interface GroupResult {
   groupId: string;
   name: string;
@@ -51,6 +55,8 @@ export interface GroupResult {
   error?: string;
 }
 
+/** Swarm Group Result configuration/data structure.
+ */
 export interface SwarmGroupResult {
   totalGroups: number;
   completedGroups: number;

@@ -24,6 +24,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** S T F T Chatter Input configuration/data structure.
+ */
 export interface STFTChatterInput {
   /** Vibration signal samples (acceleration or displacement). */
   signal: number[];
@@ -45,6 +47,8 @@ export interface STFTChatterInput {
   window_type?: "rectangular" | "hann" | "hamming";
 }
 
+/** Spectrogram Frame configuration/data structure.
+ */
 export interface SpectrogramFrame {
   time: number;
   frequencies: number[];
@@ -54,6 +58,8 @@ export interface SpectrogramFrame {
   chatter_magnitude?: number;
 }
 
+/** S T F T Chatter Output configuration/data structure.
+ */
 export interface STFTChatterOutput extends WithWarnings {
   /** Whether chatter was detected at any point. */
   chatter_detected: boolean;
@@ -78,6 +84,8 @@ export interface STFTChatterOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** S T F T Chatter Detection engine/manager.
+ */
 export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTChatterOutput> {
 
   validate(input: STFTChatterInput): ValidationResult {

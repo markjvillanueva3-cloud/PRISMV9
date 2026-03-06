@@ -19,9 +19,15 @@ import { log } from "./Logger.js";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Validation Severity type definition.
+ */
 export type ValidationSeverity = "error" | "warning" | "info";
+/** Validation Status type definition.
+ */
 export type ValidationStatus = "valid" | "invalid" | "warning";
 
+/** Validation Issue configuration/data structure.
+ */
 export interface ValidationIssue {
   field: string;
   message: string;
@@ -31,6 +37,8 @@ export interface ValidationIssue {
   code?: string;
 }
 
+/** Validation Result configuration/data structure.
+ */
 export interface ValidationResult {
   valid: boolean;
   status: ValidationStatus;
@@ -39,12 +47,16 @@ export interface ValidationResult {
   metadata?: Record<string, unknown>;
 }
 
+/** Range Spec configuration/data structure.
+ */
 export interface RangeSpec {
   min?: number;
   max?: number;
   inclusive?: boolean;
 }
 
+/** Field Spec configuration/data structure.
+ */
 export interface FieldSpec {
   type: "string" | "number" | "boolean" | "array" | "object";
   required?: boolean;
@@ -56,12 +68,16 @@ export interface FieldSpec {
   validator?: (value: unknown) => boolean;
 }
 
+/** Schema Spec configuration/data structure.
+ */
 export interface SchemaSpec {
   fields: Record<string, FieldSpec>;
   strict?: boolean;  // Reject unknown fields
 }
 
 // Safety score components
+/** Safety Components configuration/data structure.
+ */
 export interface SafetyComponents {
   physical_limits: { score: number; weight: number; pass: boolean; notes: string };
   force_safety: { score: number; weight: number; pass: boolean; notes: string };
@@ -71,6 +87,8 @@ export interface SafetyComponents {
   edge_cases: { score: number; weight: number; pass: boolean; notes: string };
 }
 
+/** Safety Result configuration/data structure.
+ */
 export interface SafetyResult {
   score: number;
   status: "APPROVED" | "BLOCKED" | "WARNING";
@@ -80,12 +98,16 @@ export interface SafetyResult {
 }
 
 // Anti-regression types
+/** Count Result configuration/data structure.
+ */
 export interface CountResult {
   count: number;
   type: "array" | "object" | "lines" | "sections" | "exports";
   details?: string;
 }
 
+/** Regression Check Result configuration/data structure.
+ */
 export interface RegressionCheckResult {
   safe: boolean;
   oldCount: number;
@@ -101,6 +123,8 @@ export interface RegressionCheckResult {
 // ============================================================================
 
 // ISO group ranges for Kienzle coefficients
+/** K I E N Z L E_ R A N G E S constant.
+ */
 export const KIENZLE_RANGES: Record<string, { kc1_1: [number, number]; mc: [number, number] }> = {
   P: { kc1_1: [1400, 2500], mc: [0.18, 0.30] },
   M: { kc1_1: [2000, 3200], mc: [0.22, 0.32] },
@@ -111,6 +135,8 @@ export const KIENZLE_RANGES: Record<string, { kc1_1: [number, number]; mc: [numb
 };
 
 // Taylor coefficient ranges
+/** T A Y L O R_ R A N G E S constant.
+ */
 export const TAYLOR_RANGES: Record<string, { C: [number, number]; n: [number, number] }> = {
   P: { C: [150, 400], n: [0.15, 0.35] },
   M: { C: [80, 250], n: [0.12, 0.28] },
@@ -121,6 +147,8 @@ export const TAYLOR_RANGES: Record<string, { C: [number, number]; n: [number, nu
 };
 
 // Physical property ranges
+/** P H Y S I C A L_ R A N G E S constant.
+ */
 export const PHYSICAL_RANGES = {
   density: { min: 1.0, max: 25.0 },  // g/cm³
   melting_point: { min: 100, max: 4000 },  // °C
@@ -134,8 +162,14 @@ export const PHYSICAL_RANGES = {
 };
 
 // Safety thresholds
+/** S A F E T Y_ T H R E S H O L D constant.
+ */
 export const SAFETY_THRESHOLD = 0.70;
+/** C O M P L E T E N E S S_ T H R E S H O L D constant.
+ */
 export const COMPLETENESS_THRESHOLD = 0.80;
+/** R E G R E S S I O N_ T H R E S H O L D constant.
+ */
 export const REGRESSION_THRESHOLD = 0.20;  // Max 20% reduction allowed
 
 // ============================================================================
@@ -860,42 +894,84 @@ export function checkAntiRegression(
 // TYPE GUARDS
 // ============================================================================
 
+/** Checks whether is string.
+ * @param value - value
+ * @returns value is string
+ */
 export function isString(value: unknown): value is string {
   return typeof value === "string";
 }
 
+/** Checks whether is number.
+ * @param value - value
+ * @returns value is number
+ */
 export function isNumber(value: unknown): value is number {
   return typeof value === "number" && !isNaN(value);
 }
 
+/** Checks whether is boolean.
+ * @param value - value
+ * @returns value is boolean
+ */
 export function isBoolean(value: unknown): value is boolean {
   return typeof value === "boolean";
 }
 
+/** Checks whether is array.
+ * @param value - value
+ * @returns value is  t[]
+ */
 export function isArray<T>(value: unknown): value is T[] {
   return Array.isArray(value);
 }
 
+/** Checks whether is object.
+ * @param value - value
+ * @returns value is  record<string, unknown>
+ */
 export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** Checks whether is non empty string.
+ * @param value - value
+ * @returns value is string
+ */
 export function isNonEmptyString(value: unknown): value is string {
   return isString(value) && value.trim().length > 0;
 }
 
+/** Checks whether is positive number.
+ * @param value - value
+ * @returns value is number
+ */
 export function isPositiveNumber(value: unknown): value is number {
   return isNumber(value) && value > 0;
 }
 
+/** Checks whether is in range.
+ * @param value - value
+ * @param min - min value
+ * @param max - max value
+ * @returns value is number
+ */
 export function isInRange(value: unknown, min: number, max: number): value is number {
   return isNumber(value) && value >= min && value <= max;
 }
 
+/** Checks whether is valid i s o group.
+ * @param value - value
+ * @returns value is string
+ */
 export function isValidISOGroup(value: unknown): value is string {
   return isString(value) && ["P", "M", "K", "N", "S", "H"].includes(value);
 }
 
+/** Checks whether is valid severity.
+ * @param value - value
+ * @returns value is string
+ */
 export function isValidSeverity(value: unknown): value is string {
   return isString(value) && ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"].includes(value);
 }

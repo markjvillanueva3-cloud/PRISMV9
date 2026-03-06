@@ -97,6 +97,8 @@ function hashTenantId(tenantId: string): string {
 // MULTI-TENANT ENGINE — SINGLETON
 // ============================================================================
 
+/** Multi Tenant Engine engine/manager.
+ */
 export class MultiTenantEngine {
   private config: MultiTenantConfig;
   private tenants: Map<string, Tenant> = new Map();
@@ -587,4 +589,6 @@ export class MultiTenantEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Multi Tenant Engine constant.
+ */
 export const multiTenantEngine = new MultiTenantEngine();

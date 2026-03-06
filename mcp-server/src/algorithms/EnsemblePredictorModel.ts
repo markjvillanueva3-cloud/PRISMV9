@@ -26,11 +26,15 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Ensemble Problem Type type definition.
+ */
 export type EnsembleProblemType =
   | "prediction" | "tool_life" | "speed_feed"
   | "classification" | "chatter"
   | "optimization" | "scheduling";
 
+/** Ensemble Member configuration/data structure.
+ */
 export interface EnsembleMember {
   /** Algorithm ID or name. */
   algorithm: string;
@@ -46,6 +50,8 @@ export interface EnsembleMember {
   feasible?: boolean;
 }
 
+/** Ensemble Predictor Input configuration/data structure.
+ */
 export interface EnsemblePredictorInput {
   /** Array of algorithm results to combine. */
   members: EnsembleMember[];
@@ -55,6 +61,8 @@ export interface EnsemblePredictorInput {
   consensus_threshold?: number;
 }
 
+/** Ensemble Predictor Output configuration/data structure.
+ */
 export interface EnsemblePredictorOutput extends WithWarnings {
   /** Combined prediction (numeric or string). */
   prediction: number | string;
@@ -78,6 +86,8 @@ export interface EnsemblePredictorOutput extends WithWarnings {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Ensemble Predictor Model engine/manager.
+ */
 export class EnsemblePredictorModel implements Algorithm<EnsemblePredictorInput, EnsemblePredictorOutput> {
 
   validate(input: EnsemblePredictorInput): ValidationResult {

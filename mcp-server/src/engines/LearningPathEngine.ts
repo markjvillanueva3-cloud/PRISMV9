@@ -12,8 +12,12 @@
 // ============================================================================
 
 export type SkillLevel = "novice" | "beginner" | "intermediate" | "advanced" | "expert";
+/** Operator Role type definition.
+ */
 export type OperatorRole = "setup" | "operator" | "programmer" | "lead" | "engineer";
 
+/** Skill Assessment configuration/data structure.
+ */
 export interface SkillAssessment {
   operator_id: string;
   role: OperatorRole;
@@ -23,6 +27,8 @@ export interface SkillAssessment {
   gaps: string[];
 }
 
+/** Learning Module configuration/data structure.
+ */
 export interface LearningModule {
   id: string;
   title: string;
@@ -34,6 +40,8 @@ export interface LearningModule {
   description: string;
 }
 
+/** Learning Plan configuration/data structure.
+ */
 export interface LearningPlan {
   operator_id: string;
   target_role: OperatorRole;
@@ -45,6 +53,8 @@ export interface LearningPlan {
   milestones: { week: number; skill: string; target: SkillLevel }[];
 }
 
+/** Progress Report configuration/data structure.
+ */
 export interface ProgressReport {
   operator_id: string;
   modules_completed: number;
@@ -110,6 +120,8 @@ const LEVEL_VALUES: Record<SkillLevel, number> = { novice: 0, beginner: 1, inter
 // ENGINE CLASS
 // ============================================================================
 
+/** Learning Path Engine engine/manager.
+ */
 export class LearningPathEngine {
   assess(operatorId: string, currentSkills: Record<string, SkillLevel>, targetRole: OperatorRole): SkillAssessment {
     const requirements = ROLE_SKILL_REQUIREMENTS[targetRole] || {};
@@ -215,4 +227,6 @@ export class LearningPathEngine {
   }
 }
 
+/** Learning Path Engine constant.
+ */
 export const learningPathEngine = new LearningPathEngine();

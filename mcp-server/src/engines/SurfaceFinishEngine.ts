@@ -15,6 +15,8 @@
 
 export type SurfaceProcess = "turning" | "milling" | "grinding" | "lapping" | "honing" | "polishing" | "edm" | "reaming";
 
+/** Surface Finish Input configuration/data structure.
+ */
 export interface SurfaceFinishInput {
   process: SurfaceProcess;
   feed_per_rev_mm?: number;         // turning, boring
@@ -29,6 +31,8 @@ export interface SurfaceFinishInput {
   depth_of_cut_mm?: number;
 }
 
+/** Surface Finish Result configuration/data structure.
+ */
 export interface SurfaceFinishResult {
   ra_um: number;                    // arithmetic mean roughness
   rz_um: number;                    // mean peak-to-valley
@@ -41,6 +45,8 @@ export interface SurfaceFinishResult {
   recommendations: string[];
 }
 
+/** Achievable Finish configuration/data structure.
+ */
 export interface AchievableFinish {
   process: SurfaceProcess;
   typical_ra_range_um: [number, number];
@@ -77,6 +83,8 @@ const MATERIAL_CORRECTION: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Surface Finish Engine engine/manager.
+ */
 export class SurfaceFinishEngine {
   predict(input: SurfaceFinishInput): SurfaceFinishResult {
     const corrections: { factor: string; multiplier: number }[] = [];
@@ -178,4 +186,6 @@ export class SurfaceFinishEngine {
   }
 }
 
+/** Surface Finish Engine constant.
+ */
 export const surfaceFinishEngine = new SurfaceFinishEngine();

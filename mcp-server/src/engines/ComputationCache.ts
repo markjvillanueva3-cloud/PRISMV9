@@ -28,8 +28,12 @@ import { sha256 as crc32 } from './TelemetryEngine.js';
 // TYPES
 // ============================================================================
 
+/** Cache Tier type definition.
+ */
 export type CacheTier = "SAFETY" | "STANDARD" | "STABLE";
 
+/** Cache Entry configuration/data structure.
+ */
 export interface CacheEntry {
   key: string;
   value: any;
@@ -45,6 +49,8 @@ export interface CacheEntry {
   safety_critical: boolean;    // if true, never served from cache
 }
 
+/** Cache Stats configuration/data structure.
+ */
 export interface CacheStats {
   total_entries: number;
   hits: number;
@@ -56,6 +62,8 @@ export interface CacheStats {
   entries_by_tier: Record<CacheTier, number>;
 }
 
+/** Invalidation Result configuration/data structure.
+ */
 export interface InvalidationResult {
   invalidated: number;
   cascade_invalidated: number;
@@ -403,4 +411,6 @@ class ComputationCache {
 }
 
 // Singleton export
+/** Computation Cache constant.
+ */
 export const computationCache = new ComputationCache();

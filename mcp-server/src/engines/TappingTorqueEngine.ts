@@ -10,8 +10,12 @@
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type TapType = "cut_straight" | "cut_spiral_point" | "cut_spiral_flute" | "form";
+/** Hole Type type definition.
+ */
 export type HoleType = "through" | "blind";
 
+/** Tapping Torque Input configuration/data structure.
+ */
 export interface TappingTorqueInput {
   thread_major_diameter_mm: number;      // nominal thread diameter (e.g., 10 for M10)
   pitch_mm: number;                      // thread pitch (e.g., 1.5 for M10×1.5)
@@ -27,6 +31,8 @@ export interface TappingTorqueInput {
   coolant_active?: boolean;             // default true
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -35,6 +41,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Tapping Torque Result configuration/data structure.
+ */
 export interface TappingTorqueResult {
   cutting_torque_Nm: AtomicValue;
   axial_thrust_N: AtomicValue;
@@ -74,6 +82,8 @@ const MAX_TAP_SPEED: Record<string, number> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Tapping Torque Engine engine/manager.
+ */
 export class TappingTorqueEngine {
   calculate(input: TappingTorqueInput): TappingTorqueResult {
     const {
@@ -268,4 +278,6 @@ export class TappingTorqueEngine {
   }
 }
 
+/** Tapping Torque Engine constant.
+ */
 export const tappingTorqueEngine = new TappingTorqueEngine();

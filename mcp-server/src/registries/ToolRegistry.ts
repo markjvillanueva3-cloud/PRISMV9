@@ -14,6 +14,8 @@ import { readJsonFile, fileExists, listDirectory } from "../utils/files.js";
 // TOOL TYPES
 // ============================================================================
 
+/** Tool Geometry configuration/data structure.
+ */
 export interface ToolGeometry {
   // Basic dimensions
   diameter: number;             // mm
@@ -43,6 +45,8 @@ export interface ToolGeometry {
   chip_breaker_depth?: number;
 }
 
+/** Tool Coating configuration/data structure.
+ */
 export interface ToolCoating {
   type: string;                 // TiN, TiAlN, AlTiN, DLC, etc.
   thickness: number;            // µm
@@ -54,6 +58,8 @@ export interface ToolCoating {
   layer_count?: number;
 }
 
+/** Tool Performance configuration/data structure.
+ */
 export interface ToolPerformance {
   // Recommended parameters by ISO material group
   recommendations: Record<string, {
@@ -79,6 +85,8 @@ export interface ToolPerformance {
   achievable_tolerance: string;       // e.g., "IT8"
 }
 
+/** Tool Holder configuration/data structure.
+ */
 export interface ToolHolder {
   interface: string;            // BT40, CAT50, HSK-A63, etc.
   gauge_length: number;         // mm from spindle face
@@ -88,6 +96,8 @@ export interface ToolHolder {
   pullout_force: number;        // N
 }
 
+/** Cutting Tool configuration/data structure.
+ */
 export interface CuttingTool {
   id: string;
   name: string;
@@ -142,6 +152,8 @@ export interface CuttingTool {
 // Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
 // ============================================================================
 
+/** T O O L_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -298,6 +310,8 @@ export const TOOL_SOURCE_FILE_CATALOG: Record<string, {
   },
 };
 
+/** Tool Registry engine/manager.
+ */
 export class ToolRegistry extends BaseRegistry<CuttingTool> {
   private indexByType: Map<string, Set<string>> = new Map();
   private indexByManufacturer: Map<string, Set<string>> = new Map();
@@ -1119,4 +1133,6 @@ export class ToolRegistry extends BaseRegistry<CuttingTool> {
 }
 
 // Singleton instance
+/** Tool Registry constant.
+ */
 export const toolRegistry = new ToolRegistry();

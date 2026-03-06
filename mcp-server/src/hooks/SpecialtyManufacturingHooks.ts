@@ -513,6 +513,8 @@ const materialCertUnverified: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Specialty Manufacturing Hooks constant.
+ */
 export const specialtyManufacturingHooks: HookDefinition[] = [
   // Blocking (6)
   singularityApproach,

@@ -1,7 +1,16 @@
+/**
+ * Generator Dispatcher — Hook and component code generation.
+ *
+ * Provides actions for generating hooks from domain templates, batch generation,
+ * validation of generated code, and template retrieval. Supports stats and
+ * domain listing for the hook generation subsystem.
+ *
+ * @module generatorDispatcher
+ */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
-import { 
-  hookGenerator, 
+import {
+  hookGenerator,
   DOMAIN_TEMPLATES,
   type BatchGenerationConfig,
   type GeneratedHook
@@ -16,6 +25,9 @@ function ok(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
+/** Registers generator dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerGeneratorDispatcher(server: any): void {
   server.tool(
     "prism_generator",

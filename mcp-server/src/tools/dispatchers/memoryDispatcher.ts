@@ -23,6 +23,9 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
+/** Registers memory dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerMemoryDispatcher(server: McpServer): void {
   (server as any).tool(
     "prism_memory",

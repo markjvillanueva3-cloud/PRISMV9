@@ -29,11 +29,15 @@ export interface HarmonicInput {
   threshold_um?: number;                  // amplitude threshold for flagging
 }
 
+/** Harmonic Source type definition.
+ */
 export type HarmonicSource =
   | "tooth_passing" | "spindle_imbalance" | "2x_spindle"
   | "bearing_outer" | "bearing_inner" | "bearing_ball" | "bearing_cage"
   | "structural_resonance" | "electrical" | "unknown";
 
+/** Harmonic Peak configuration/data structure.
+ */
 export interface HarmonicPeak {
   frequency_Hz: number;
   amplitude_um: number;
@@ -43,6 +47,8 @@ export interface HarmonicPeak {
   description: string;
 }
 
+/** Harmonic Result configuration/data structure.
+ */
 export interface HarmonicResult {
   dominant_frequency_Hz: number;
   dominant_source: HarmonicSource;
@@ -63,6 +69,8 @@ export interface HarmonicResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Harmonic Analysis Engine engine/manager.
+ */
 export class HarmonicAnalysisEngine {
   analyze(input: HarmonicInput): HarmonicResult {
     const spindleFreq = input.spindle_rpm / 60;
@@ -231,4 +239,6 @@ export class HarmonicAnalysisEngine {
   }
 }
 
+/** Harmonic Analysis Engine constant.
+ */
 export const harmonicAnalysisEngine = new HarmonicAnalysisEngine();

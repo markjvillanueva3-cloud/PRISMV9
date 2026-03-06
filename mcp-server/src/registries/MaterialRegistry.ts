@@ -16,6 +16,8 @@ import { fileExists, readJsonFile, writeJsonFile, listDirectory } from "../utils
 // MATERIAL REGISTRY
 // ============================================================================
 
+/** Material Registry engine/manager.
+ */
 export class MaterialRegistry extends BaseRegistry<Material> {
   private layerCaches: Map<string, Map<string, Material>> = new Map();
   private indexByName: Map<string, string[]> = new Map();
@@ -1532,4 +1534,6 @@ export const MATERIAL_SOURCE_FILE_CATALOG: Record<string, MaterialSourceFileEntr
 };
 
 // Export singleton instance
+/** Material Registry constant.
+ */
 export const materialRegistry = new MaterialRegistry();

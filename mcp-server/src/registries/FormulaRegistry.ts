@@ -14,6 +14,8 @@ import { fileExists, readJsonFile, listDirectory } from "../utils/files.js";
 // FORMULA TYPES
 // ============================================================================
 
+/** Formula Parameter configuration/data structure.
+ */
 export interface FormulaParameter {
   name: string;
   symbol: string;
@@ -24,6 +26,8 @@ export interface FormulaParameter {
   default?: number;
 }
 
+/** Formula Validation configuration/data structure.
+ */
 export interface FormulaValidation {
   required_inputs: string[];
   output_range?: { min: number; max: number };
@@ -31,6 +35,8 @@ export interface FormulaValidation {
   safety_checks?: string[];
 }
 
+/** Formula configuration/data structure.
+ */
 export interface Formula {
   // Identification
   formula_id: string;
@@ -76,6 +82,8 @@ export interface Formula {
 // SOURCE FILE CATALOG (P-MS2: 12 extracted formula modules, 2,112 lines)
 // ============================================================================
 
+/** F O R M U L A_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const FORMULA_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   category: string;
@@ -446,6 +454,8 @@ const BUILT_IN_FORMULAS: Formula[] = [
 // FORMULA REGISTRY CLASS
 // ============================================================================
 
+/** Formula Registry engine/manager.
+ */
 export class FormulaRegistry extends BaseRegistry<Formula> {
   private indexByDomain: Map<string, string[]> = new Map();
   private indexByCategory: Map<string, string[]> = new Map();
@@ -971,4 +981,6 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
 }
 
 // Export singleton instance
+/** Formula Registry constant.
+ */
 export const formulaRegistry = new FormulaRegistry();

@@ -27,6 +27,9 @@ const ACTIONS = [
   "tolerance_stack", "gdt_validate", "bias_correct", "gauge_rr",
 ] as const;
 
+/** Registers quality dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerQualityDispatcher(server: any): void {
   server.tool(
     "prism_quality",

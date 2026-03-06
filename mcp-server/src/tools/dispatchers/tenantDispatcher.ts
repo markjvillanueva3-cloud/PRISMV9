@@ -15,6 +15,9 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
+/** Registers tenant dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerTenantDispatcher(server: McpServer): void {
   (server as any).tool(
     "prism_tenant",

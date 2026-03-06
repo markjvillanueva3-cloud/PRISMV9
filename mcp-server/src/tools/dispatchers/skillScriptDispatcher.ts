@@ -1,3 +1,12 @@
+/**
+ * Skill & Script Dispatcher — Skill management and script execution.
+ *
+ * Provides CRUD and search for skills and scripts, task-based skill finding,
+ * skill loading/recommendation/chaining, script execution (sync and queued),
+ * bundle management, and v2 enhanced search/stats/execute actions.
+ *
+ * @module skillScriptDispatcher
+ */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
@@ -21,6 +30,9 @@ function ok(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(data)) }] };
 }
 
+/** Registers skill script dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerSkillScriptDispatcher(server: any): void {
   server.tool(
     "prism_skill_script",

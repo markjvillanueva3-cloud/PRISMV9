@@ -25,6 +25,8 @@ export interface QualityInput {
   tool_condition?: "new" | "normal" | "worn";
 }
 
+/** Quality Prediction configuration/data structure.
+ */
 export interface QualityPrediction {
   predicted_Ra_um: number;
   predicted_dimensional_error_mm: number;
@@ -37,6 +39,8 @@ export interface QualityPrediction {
   recommendations: string[];
 }
 
+/** Quality Factor configuration/data structure.
+ */
 export interface QualityFactor {
   name: string;
   impact: "positive" | "neutral" | "negative";
@@ -44,6 +48,8 @@ export interface QualityFactor {
   description: string;
 }
 
+/** Cpk Result configuration/data structure.
+ */
 export interface CpkResult {
   cpk: number;
   cp: number;
@@ -54,6 +60,8 @@ export interface CpkResult {
   interpretation: string;
 }
 
+/** Surface Roughness Result configuration/data structure.
+ */
 export interface SurfaceRoughnessResult {
   Ra_um: number;
   Rz_um: number;
@@ -61,6 +69,8 @@ export interface SurfaceRoughnessResult {
   factors: { name: string; contribution_pct: number }[];
 }
 
+/** Quality Risk Assessment configuration/data structure.
+ */
 export interface QualityRiskAssessment {
   overall_risk: "low" | "moderate" | "high" | "critical";
   risk_score: number;               // 0–100
@@ -186,6 +196,8 @@ function calculateCpk(tolerance_mm: number, processError_mm: number, machineAccu
 // ENGINE CLASS
 // ============================================================================
 
+/** Quality Prediction Engine engine/manager.
+ */
 export class QualityPredictionEngine {
   predict(input: QualityInput): QualityPrediction {
     const feedPerRev = input.spindle_rpm > 0 ? input.feed_rate_mmmin / input.spindle_rpm : 0;
@@ -276,4 +288,6 @@ export class QualityPredictionEngine {
   }
 }
 
+/** Quality Prediction Engine constant.
+ */
 export const qualityPredictionEngine = new QualityPredictionEngine();

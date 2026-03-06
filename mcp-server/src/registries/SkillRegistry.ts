@@ -25,6 +25,8 @@ import { fileExists, listDirectory } from "../utils/files.js";
 // TYPES
 // ============================================================================
 
+/** Skill Category type definition.
+ */
 export type SkillCategory =
   | "core_development"
   | "monolith_navigation"
@@ -41,18 +43,24 @@ export type SkillCategory =
   | "debugging"
   | "workflow";
 
+/** Skill Dependency configuration/data structure.
+ */
 export interface SkillDependency {
   skill_id: string;
   optional: boolean;
   purpose: string;
 }
 
+/** Skill Trigger configuration/data structure.
+ */
 export interface SkillTrigger {
   pattern: string;
   description: string;
   examples: string[];
 }
 
+/** Skill configuration/data structure.
+ */
 export interface Skill {
   skill_id: string;
   name: string;
@@ -1036,6 +1044,8 @@ const BUILT_IN_SKILLS: Partial<Skill>[] = [
 // SKILL REGISTRY
 // ============================================================================
 
+/** Skill Registry engine/manager.
+ */
 export class SkillRegistry extends BaseRegistry<Skill> {
   private indexByCategory: Map<SkillCategory, Set<string>> = new Map();
   private indexByTag: Map<string, Set<string>> = new Map();
@@ -1445,4 +1455,6 @@ export class SkillRegistry extends BaseRegistry<Skill> {
 }
 
 // Export singleton instance
+/** Skill Registry constant.
+ */
 export const skillRegistry = new SkillRegistry();

@@ -32,6 +32,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Thermal F E A Input configuration/data structure.
+ */
 export interface ThermalFEAInput {
   /** Cutting speed [m/min]. */
   cutting_speed: number;
@@ -57,6 +59,8 @@ export interface ThermalFEAInput {
   machine_type?: "VMC" | "HMC" | "lathe";
 }
 
+/** Thermal F E A Output configuration/data structure.
+ */
 export interface ThermalFEAOutput extends WithWarnings {
   /** Cutting zone temperature [C]. */
   cutting_temperature: number;
@@ -110,6 +114,8 @@ const TAU_SPINDLE = 25;
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Thermal F E A Model engine/manager.
+ */
 export class ThermalFEAModel implements Algorithm<ThermalFEAInput, ThermalFEAOutput> {
 
   validate(input: ThermalFEAInput): ValidationResult {

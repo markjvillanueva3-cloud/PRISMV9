@@ -10,6 +10,8 @@ import type { Material, Machine, Tool, Alarm, Formula } from "../types.js";
 // RESPONSE BUILDERS
 // ============================================================================
 
+/** Tool Response configuration/data structure.
+ */
 export interface ToolResponse {
   content: Array<{ type: "text"; text: string }>;
   structuredContent?: unknown;
@@ -81,6 +83,11 @@ export function truncateIfNeeded(text: string, limit: number = CHARACTER_LIMIT):
 // MATERIAL FORMATTERS
 // ============================================================================
 
+/** Formats material.
+ * @param material - material identifier or specification
+ * @param format - format
+ * @returns string
+ */
 export function formatMaterial(material: Material, format: "json" | "markdown"): string {
   if (format === "json") {
     return JSON.stringify(material, null, 2);
@@ -146,6 +153,10 @@ export function formatMaterial(material: Material, format: "json" | "markdown"):
   return lines.filter(Boolean).join("\n");
 }
 
+/** Formats material list.
+ * @param materials - materials
+ * @returns string
+ */
 export function formatMaterialList(materials: Material[]): string {
   const rows = materials.map(m => 
     `| ${m.id} | ${m.name} | ${m.iso_group} | ${m.category} | ${m.machining.machinability_rating}% |`
@@ -162,6 +173,11 @@ export function formatMaterialList(materials: Material[]): string {
 // MACHINE FORMATTERS
 // ============================================================================
 
+/** Formats machine.
+ * @param machine - machine identifier or specification
+ * @param format - format
+ * @returns string
+ */
 export function formatMachine(machine: Machine, format: "json" | "markdown"): string {
   if (format === "json") {
     return JSON.stringify(machine, null, 2);
@@ -194,6 +210,10 @@ export function formatMachine(machine: Machine, format: "json" | "markdown"): st
   ].filter(Boolean).join("\n");
 }
 
+/** Formats machine list.
+ * @param machines - machines
+ * @returns string
+ */
 export function formatMachineList(machines: Machine[]): string {
   const rows = machines.map(m => 
     `| ${m.id} | ${m.manufacturer} | ${m.model} | ${m.type} | ${m.spindle.max_rpm.toLocaleString()} |`
@@ -210,6 +230,11 @@ export function formatMachineList(machines: Machine[]): string {
 // ALARM FORMATTERS
 // ============================================================================
 
+/** Formats alarm.
+ * @param alarm - alarm
+ * @param format - format
+ * @returns string
+ */
 export function formatAlarm(alarm: Alarm, format: "json" | "markdown"): string {
   if (format === "json") {
     return JSON.stringify(alarm, null, 2);
@@ -249,6 +274,10 @@ export function formatAlarm(alarm: Alarm, format: "json" | "markdown"): string {
   return lines.filter(Boolean).join("\n");
 }
 
+/** Formats alarm list.
+ * @param alarms - alarms
+ * @returns string
+ */
 export function formatAlarmList(alarms: Alarm[]): string {
   const rows = alarms.map(a => 
     `| ${a.code} | ${a.name.slice(0, 40)} | ${a.controller_family} | ${a.severity} |`
@@ -265,6 +294,10 @@ export function formatAlarmList(alarms: Alarm[]): string {
 // CALCULATION FORMATTERS
 // ============================================================================
 
+/** Formats speed feed result.
+ * @param result - result
+ * @returns string
+ */
 export function formatSpeedFeedResult(result: {
   rpm: number;
   feed_rate: number;
@@ -298,6 +331,10 @@ export function formatSpeedFeedResult(result: {
   return lines.join("\n");
 }
 
+/** Formats cutting force result.
+ * @param result - result
+ * @returns string
+ */
 export function formatCuttingForceResult(result: {
   Fc: number;
   Ff: number;
@@ -320,6 +357,11 @@ export function formatCuttingForceResult(result: {
 // GENERIC FORMATTERS
 // ============================================================================
 
+/** Formats table.
+ * @param headers - headers
+ * @param rows - rows
+ * @returns string
+ */
 export function formatTable(
   headers: string[],
   rows: string[][]
@@ -332,6 +374,11 @@ export function formatTable(
   ].join("\n");
 }
 
+/** Formats key value.
+ * @param obj - obj
+ * @param indent - indent value
+ * @returns string
+ */
 export function formatKeyValue(obj: Record<string, unknown>, indent: number = 0): string {
   const prefix = "  ".repeat(indent);
   return Object.entries(obj)

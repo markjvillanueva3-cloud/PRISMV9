@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type AuditCategory = "auth" | "data" | "config" | "safety" | "machine" | "quality" | "export" | "admin" | "system";
+/** Audit Severity type definition.
+ */
 export type AuditSeverity = "info" | "warning" | "critical";
 
+/** Audit Entry configuration/data structure.
+ */
 export interface AuditEntry {
   id: number;
   timestamp: string;
@@ -32,6 +36,8 @@ export interface AuditEntry {
   sequence: number;
 }
 
+/** Audit Query configuration/data structure.
+ */
 export interface AuditQuery {
   category?: AuditCategory;
   severity?: AuditSeverity;
@@ -44,6 +50,8 @@ export interface AuditQuery {
   limit?: number;
 }
 
+/** Audit Report configuration/data structure.
+ */
 export interface AuditReport {
   period_start: string;
   period_end: string;
@@ -61,6 +69,8 @@ export interface AuditReport {
 
 let auditSequence = 0;
 
+/** Audit Engine engine/manager.
+ */
 export class AuditEngine {
   private entries: AuditEntry[] = [];
   private maxEntries = 50000;
@@ -166,4 +176,6 @@ export class AuditEngine {
   }
 }
 
+/** Audit Engine constant.
+ */
 export const auditEngine = new AuditEngine();

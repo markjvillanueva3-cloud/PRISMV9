@@ -122,6 +122,9 @@ function readSection(section: string): string {
 // DISPATCHER REGISTRATION
 // ============================================================================
 
+/** Registers gsd dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerGsdDispatcher(server: any): void {
   server.tool(
     "prism_gsd",

@@ -25,6 +25,8 @@ export interface QuoteInput {
   repeat_order?: boolean;
 }
 
+/** Quote configuration/data structure.
+ */
 export interface Quote {
   quote_number: string;
   customer: string;
@@ -41,6 +43,8 @@ export interface Quote {
   notes: string[];
 }
 
+/** Quote Line Item configuration/data structure.
+ */
 export interface QuoteLineItem {
   description: string;
   quantity: number;
@@ -48,6 +52,8 @@ export interface QuoteLineItem {
   total: number;
 }
 
+/** Quantity Break configuration/data structure.
+ */
 export interface QuantityBreak {
   quantity: number;
   unit_price: number;
@@ -56,6 +62,8 @@ export interface QuantityBreak {
   lead_time_days: number;
 }
 
+/** Margin Analysis configuration/data structure.
+ */
 export interface MarginAnalysis {
   cost_per_part: number;
   quoted_price: number;
@@ -115,6 +123,8 @@ function generateQuoteNumber(): string {
 // ENGINE CLASS
 // ============================================================================
 
+/** Quote Engine engine/manager.
+ */
 export class QuoteEngine {
   generate(input: QuoteInput): Quote {
     const complexityMark = COMPLEXITY_MARKUP[input.complexity] || 1.40;
@@ -194,4 +204,6 @@ export class QuoteEngine {
   }
 }
 
+/** Quote Engine constant.
+ */
 export const quoteEngine = new QuoteEngine();

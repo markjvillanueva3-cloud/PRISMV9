@@ -19,6 +19,8 @@
 
 export type SetupSheetFormat = "markdown" | "printable" | "json";
 
+/** Setup Sheet Header configuration/data structure.
+ */
 export interface SetupSheetHeader {
   job_id: string;
   part_description: string;
@@ -30,6 +32,8 @@ export interface SetupSheetHeader {
   program_number: string;
 }
 
+/** Setup Sheet Operation configuration/data structure.
+ */
 export interface SetupSheetOperation {
   sequence: number;
   name: string;
@@ -56,6 +60,8 @@ export interface SetupSheetOperation {
   notes: string[];
 }
 
+/** Setup Sheet Tool configuration/data structure.
+ */
 export interface SetupSheetTool {
   number: number;
   description: string;
@@ -67,6 +73,8 @@ export interface SetupSheetTool {
   material: string;
 }
 
+/** Setup Sheet Summary configuration/data structure.
+ */
 export interface SetupSheetSummary {
   total_cycle_time_min: number;
   estimated_setup_time_min: number;
@@ -76,6 +84,8 @@ export interface SetupSheetSummary {
   quality_score: number;
 }
 
+/** Setup Sheet configuration/data structure.
+ */
 export interface SetupSheet {
   header: SetupSheetHeader;
   operations: SetupSheetOperation[];

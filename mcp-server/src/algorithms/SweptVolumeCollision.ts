@@ -19,12 +19,16 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Point3 D configuration/data structure.
+ */
 export interface Point3D {
   x: number;
   y: number;
   z: number;
 }
 
+/** Tool Profile configuration/data structure.
+ */
 export interface ToolProfile {
   /** Tool diameter [mm]. */
   diameter: number;
@@ -36,11 +40,15 @@ export interface ToolProfile {
   total_length?: number;
 }
 
+/** A A B B configuration/data structure.
+ */
 export interface AABB {
   min: Point3D;
   max: Point3D;
 }
 
+/** Swept Volume Collision Input configuration/data structure.
+ */
 export interface SweptVolumeCollisionInput {
   /** Ordered toolpath points. */
   toolpath: Point3D[];
@@ -54,6 +62,8 @@ export interface SweptVolumeCollisionInput {
   samples_per_segment?: number;
 }
 
+/** Collision Result configuration/data structure.
+ */
 export interface CollisionResult {
   obstacle_index: number;
   segment_index: number;
@@ -62,6 +72,8 @@ export interface CollisionResult {
   penetration: number;
 }
 
+/** Swept Volume Collision Output configuration/data structure.
+ */
 export interface SweptVolumeCollisionOutput extends WithWarnings {
   /** True if no collisions detected. */
   collision_free: boolean;
@@ -80,6 +92,8 @@ export interface SweptVolumeCollisionOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Swept Volume Collision engine/manager.
+ */
 export class SweptVolumeCollision implements Algorithm<SweptVolumeCollisionInput, SweptVolumeCollisionOutput> {
 
   validate(input: SweptVolumeCollisionInput): ValidationResult {

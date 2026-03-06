@@ -18,9 +18,15 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type CAMSystem = "fusion360" | "mastercam" | "solidcam" | "nx" | "hypermill" | "generic";
+/** Operation Type type definition.
+ */
 export type OperationType = "roughing" | "finishing" | "drilling" | "tapping" | "turning" | "facing" | "profiling" | "pocketing" | "adaptive";
+/** Unit System type definition.
+ */
 export type UnitSystem = "metric" | "imperial";
 
+/** C A M Operation configuration/data structure.
+ */
 export interface CAMOperation {
   id: string;
   name: string;
@@ -47,6 +53,8 @@ export interface CAMOperation {
   };
 }
 
+/** C A M Recommendation configuration/data structure.
+ */
 export interface CAMRecommendation {
   operation_id: string;
   operation_name: string;
@@ -69,6 +77,8 @@ export interface CAMRecommendation {
   notes: string[];
 }
 
+/** C A M Parameter Export configuration/data structure.
+ */
 export interface CAMParameterExport {
   format: CAMSystem;
   unit_system: UnitSystem;
@@ -82,6 +92,8 @@ export interface CAMParameterExport {
   raw: string; // Formatted output string
 }
 
+/** Tool Library Entry configuration/data structure.
+ */
 export interface ToolLibraryEntry {
   id: string;
   description: string;
@@ -318,6 +330,8 @@ export type CamDomain =
   | "visualization"
   | "general-cam";
 
+/** C A M Source File Entry configuration/data structure.
+ */
 export interface CAMSourceFileEntry {
   filename: string;
   source_dir: string;
@@ -329,6 +343,8 @@ export interface CAMSourceFileEntry {
   cam_domain: CamDomain;
 }
 
+/** C A M_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const CAM_SOURCE_FILE_CATALOG: Record<string, CAMSourceFileEntry> = {
   "EXT-176": {
     filename: "PRISM_ADAPTIVE_CLEARING_ENGINE.js",
@@ -1031,6 +1047,11 @@ function opFromParams(params: Record<string, any>): CAMOperation {
   };
 }
 
+/** Cam Integration.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function camIntegration(action: string, params: Record<string, any>): any {
   switch (action) {
     case "cam_recommend": {

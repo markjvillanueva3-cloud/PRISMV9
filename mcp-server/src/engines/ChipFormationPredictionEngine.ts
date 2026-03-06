@@ -16,8 +16,12 @@ export type ChipType =
   | "discontinuous"
   | "built_up_edge";
 
+/** Material Ductility type definition.
+ */
 export type MaterialDuctility = "brittle" | "moderate" | "ductile" | "very_ductile";
 
+/** Chip Formation Input configuration/data structure.
+ */
 export interface ChipFormationInput {
   cutting_speed_m_min: number;
   feed_mm_rev: number;                // or feed_per_tooth for milling
@@ -32,6 +36,8 @@ export interface ChipFormationInput {
   coolant_active?: boolean;           // coolant reduces BUE tendency
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -40,6 +46,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Chip Formation Result configuration/data structure.
+ */
 export interface ChipFormationResult {
   shear_angle_deg: AtomicValue;
   chip_compression_ratio: AtomicValue;
@@ -86,6 +94,8 @@ const SEGMENTATION_THRESHOLD = (hrc: number): number => {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Chip Formation Prediction Engine engine/manager.
+ */
 export class ChipFormationPredictionEngine {
   calculate(input: ChipFormationInput): ChipFormationResult {
     const {
@@ -292,4 +302,6 @@ export class ChipFormationPredictionEngine {
   }
 }
 
+/** Chip Formation Prediction Engine constant.
+ */
 export const chipFormationPredictionEngine = new ChipFormationPredictionEngine();

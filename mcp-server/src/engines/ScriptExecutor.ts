@@ -24,10 +24,14 @@ import { eventBus } from "./EventBus.js";
 // TYPES
 // ============================================================================
 
+/** Execution Params configuration/data structure.
+ */
 export interface ExecutionParams {
   [key: string]: string | number | boolean | undefined;
 }
 
+/** Execution Options configuration/data structure.
+ */
 export interface ExecutionOptions {
   timeout_ms?: number;
   working_dir?: string;
@@ -37,6 +41,8 @@ export interface ExecutionOptions {
   on_stderr?: (data: string) => void;
 }
 
+/** Execution Result configuration/data structure.
+ */
 export interface ExecutionResult {
   success: boolean;
   script_id: string;
@@ -50,6 +56,8 @@ export interface ExecutionResult {
   error?: string;
 }
 
+/** Queued Execution configuration/data structure.
+ */
 export interface QueuedExecution {
   id: string;
   script_id: string;
@@ -61,6 +69,8 @@ export interface QueuedExecution {
   result?: ExecutionResult;
 }
 
+/** Script Recommendation configuration/data structure.
+ */
 export interface ScriptRecommendation {
   script_id: string;
   name: string;
@@ -70,6 +80,8 @@ export interface ScriptRecommendation {
   usage_example: string;
 }
 
+/** Executor Config configuration/data structure.
+ */
 export interface ExecutorConfig {
   max_concurrent: number;
   default_timeout_ms: number;
@@ -135,6 +147,8 @@ const DESTRUCTIVE_SCRIPTS = new Set([
 // SCRIPT EXECUTOR ENGINE
 // ============================================================================
 
+/** Script Executor engine/manager.
+ */
 export class ScriptExecutor {
   private config: ExecutorConfig;
   private queue: Map<string, QueuedExecution>;
@@ -742,6 +756,8 @@ export class ScriptExecutor {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Script Executor constant.
+ */
 export const scriptExecutor = new ScriptExecutor();
 
 // Types are already exported at their declarations above
@@ -750,6 +766,8 @@ export const scriptExecutor = new ScriptExecutor();
 // SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting ScriptExecutor
 // ============================================================================
 
+/** S C R I P T_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const SCRIPT_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

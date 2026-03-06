@@ -51,6 +51,8 @@ export interface CampaignMaterial {
   hardness_hb?: number;
 }
 
+/** Campaign Operation configuration/data structure.
+ */
 export interface CampaignOperation {
   /** Operation order — must be positive integer, no duplicates within a config */
   sequence: number;
@@ -69,6 +71,8 @@ export interface CampaignOperation {
   coolant?: string;
 }
 
+/** Campaign Config configuration/data structure.
+ */
 export interface CampaignConfig {
   name: string;
   materials: CampaignMaterial[];
@@ -94,6 +98,8 @@ export interface CampaignConfig {
 // === Campaign Result Types ===
 // ============================================================
 
+/** Operation Result configuration/data structure.
+ */
 export interface OperationResult {
   sequence: number;
   feature: string;
@@ -109,6 +115,8 @@ export interface OperationResult {
   warnings: string[];
 }
 
+/** Cumulative Safety configuration/data structure.
+ */
 export interface CumulativeSafety {
   /** Cumulative wear across all ops (0-100%) — may exceed 100 when tool changes occur */
   total_tool_wear_pct: number;
@@ -126,6 +134,8 @@ export interface CumulativeSafety {
   safety_score: number;
 }
 
+/** Material Campaign Result configuration/data structure.
+ */
 export interface MaterialCampaignResult {
   material: CampaignMaterial;
   operations: OperationResult[];
@@ -136,6 +146,8 @@ export interface MaterialCampaignResult {
   quarantine_reasons?: string[];
 }
 
+/** Campaign Result configuration/data structure.
+ */
 export interface CampaignResult {
   name: string;
   /** ISO timestamp */
@@ -158,6 +170,8 @@ export interface CampaignResult {
 // === Optimization Types ===
 // ============================================================
 
+/** Optimization Target configuration/data structure.
+ */
 export interface OptimizationTarget {
   objective: "productivity" | "cost" | "quality" | "tool_life" | "balanced";
   weights?: {
@@ -168,6 +182,8 @@ export interface OptimizationTarget {
   };
 }
 
+/** Optimized Campaign configuration/data structure.
+ */
 export interface OptimizedCampaign {
   original_order: number[];
   optimized_order: number[];
@@ -182,6 +198,8 @@ export interface OptimizedCampaign {
   warnings: string[];
 }
 
+/** Cycle Time Estimate configuration/data structure.
+ */
 export interface CycleTimeEstimate {
   materials_count: number;
   operations_per_material: number;
@@ -198,6 +216,8 @@ export interface CycleTimeEstimate {
 // === Constants ===
 // ============================================================
 
+/** C A M P A I G N_ A C T I O N S constant.
+ */
 export const CAMPAIGN_ACTIONS = [
   "campaign_create",
   "campaign_validate",
@@ -210,6 +230,8 @@ export const CAMPAIGN_ACTIONS = [
 // monolith that feed into CampaignEngine workflows. Used for traceability,
 // safety auditing, and wiring verification.
 
+/** C A M P A I G N_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const CAMPAIGN_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

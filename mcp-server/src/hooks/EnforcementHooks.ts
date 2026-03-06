@@ -1081,6 +1081,8 @@ const preSkillWriteQualityGate: HookDefinition = {
 // EXPORT ALL ENFORCEMENT HOOKS
 // ============================================================================
 
+/** Enforcement Hooks constant.
+ */
 export const enforcementHooks: HookDefinition[] = [
   preFileWriteAntiRegression,
   preFileReplaceStructure,

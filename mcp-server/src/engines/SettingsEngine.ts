@@ -9,10 +9,18 @@
 // ── Types ─────────────────────────────────────────────────────────────
 
 export type UnitSystem = "metric" | "imperial";
+/** Angle Unit type definition.
+ */
 export type AngleUnit = "degrees" | "radians";
+/** Pressure Unit type definition.
+ */
 export type PressureUnit = "bar" | "psi" | "MPa";
+/** Temperature Unit type definition.
+ */
 export type TemperatureUnit = "celsius" | "fahrenheit" | "kelvin";
 
+/** Unit Preferences configuration/data structure.
+ */
 export interface UnitPreferences {
   system: UnitSystem;
   length: "mm" | "in";
@@ -27,6 +35,8 @@ export interface UnitPreferences {
   torque: "Nm" | "ft-lbf";
 }
 
+/** Machine Defaults configuration/data structure.
+ */
 export interface MachineDefaults {
   max_spindle_rpm: number;
   max_feed_rate: number;
@@ -37,6 +47,8 @@ export interface MachineDefaults {
   controller: string;
 }
 
+/** Calculation Preset configuration/data structure.
+ */
 export interface CalculationPreset {
   id: string;
   name: string;
@@ -44,6 +56,8 @@ export interface CalculationPreset {
   settings: Record<string, any>;
 }
 
+/** Safety Settings configuration/data structure.
+ */
 export interface SafetySettings {
   max_spindle_rpm_override: number | null;
   max_feed_override: number | null;
@@ -54,6 +68,8 @@ export interface SafetySettings {
   require_safety_validation: boolean;
 }
 
+/** User Settings configuration/data structure.
+ */
 export interface UserSettings {
   user_id: string;
   units: UnitPreferences;
@@ -139,6 +155,8 @@ const DEFAULT_SETTINGS: UserSettings = {
 
 // ── Engine ────────────────────────────────────────────────────────────
 
+/** Settings Engine engine/manager.
+ */
 export class SettingsEngine {
   private settings: Map<string, UserSettings> = new Map();
 
@@ -300,4 +318,6 @@ export class SettingsEngine {
   }
 }
 
+/** Settings Engine constant.
+ */
 export const settingsEngine = new SettingsEngine();

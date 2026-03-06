@@ -28,8 +28,12 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Adaptive Mode type definition.
+ */
 export type AdaptiveMode = "chipload" | "chatter" | "wear" | "thermal";
 
+/** Adaptive Controller Input configuration/data structure.
+ */
 export interface AdaptiveControllerInput {
   /** Control mode to execute. */
   mode: AdaptiveMode;
@@ -81,11 +85,15 @@ export interface AdaptiveControllerInput {
   thermal_coeff?: number;
 }
 
+/** Adaptive Override configuration/data structure.
+ */
 export interface AdaptiveOverride {
   feed_override_pct: number;
   spindle_override_pct: number;
 }
 
+/** Adaptive Controller Output configuration/data structure.
+ */
 export interface AdaptiveControllerOutput extends WithWarnings {
   /** Active control mode. */
   mode: AdaptiveMode;
@@ -122,6 +130,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Adaptive Controller Model engine/manager.
+ */
 export class AdaptiveControllerModel implements Algorithm<AdaptiveControllerInput, AdaptiveControllerOutput> {
 
   validate(input: AdaptiveControllerInput): ValidationResult {

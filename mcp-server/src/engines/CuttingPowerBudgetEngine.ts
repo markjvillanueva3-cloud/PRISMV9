@@ -27,6 +27,8 @@ export interface PowerBudgetInput {
   iso_group?: "P" | "M" | "K" | "N" | "S" | "H";
 }
 
+/** Atomic Value configuration/data structure.
+ */
 export interface AtomicValue {
   value: number;
   unit: string;
@@ -35,6 +37,8 @@ export interface AtomicValue {
   warning?: string;
 }
 
+/** Power Budget Result configuration/data structure.
+ */
 export interface PowerBudgetResult {
   required_power_kW: AtomicValue;
   available_power_kW: AtomicValue;
@@ -63,6 +67,8 @@ const KC_ISO: Record<string, { kc1_1: number; mc: number }> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Cutting Power Budget Engine engine/manager.
+ */
 export class CuttingPowerBudgetEngine {
   calculate(input: PowerBudgetInput): PowerBudgetResult {
     const {
@@ -256,4 +262,6 @@ export class CuttingPowerBudgetEngine {
   }
 }
 
+/** Cutting Power Budget Engine constant.
+ */
 export const cuttingPowerBudgetEngine = new CuttingPowerBudgetEngine();

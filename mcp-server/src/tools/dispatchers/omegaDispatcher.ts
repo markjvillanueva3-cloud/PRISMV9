@@ -26,6 +26,14 @@ function clamp01(v: number): number { return Math.max(0, Math.min(1, v)); }
 
 /** Exported for cross-dispatcher use (SP, ATCS, RoadmapExecutor) */
 export { DEFAULT_WEIGHTS as OMEGA_WEIGHTS, THRESHOLDS as OMEGA_THRESHOLDS };
+/** Omega Quick.
+ * @param R - r value
+ * @param C - c value
+ * @param P - p value
+ * @param S - s value
+ * @param L - l value
+ * @returns number
+ */
 export function omegaQuick(R: number, C: number, P: number, S: number, L: number): number {
   return Math.round((0.25*clamp01(R) + 0.20*clamp01(C) + 0.15*clamp01(P) + 0.30*clamp01(S) + 0.10*clamp01(L)) * 10000) / 10000;
 }
@@ -70,6 +78,9 @@ function computeOmega(components: { R: number; C: number; P: number; S: number; 
 
 const ACTIONS = ["compute", "breakdown", "validate", "optimize", "history", "auto_score"] as const;
 
+/** Registers omega dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerOmegaDispatcher(server: any): void {
   server.tool(
     "prism_omega",

@@ -892,6 +892,8 @@ const preRapidTraverseSafety: HookDefinition = {
 // EXPORT ALL ADVANCED MANUFACTURING HOOKS
 // ============================================================================
 
+/** Advanced Manufacturing Hooks constant.
+ */
 export const advancedManufacturingHooks: HookDefinition[] = [
   // Chip control
   onChipBreakingValidation,

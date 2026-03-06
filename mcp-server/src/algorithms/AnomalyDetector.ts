@@ -20,6 +20,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Anomaly Detector Input configuration/data structure.
+ */
 export interface AnomalyDetectorInput {
   /** Process data points. */
   data: number[];
@@ -37,6 +39,8 @@ export interface AnomalyDetectorInput {
   nelson_rules?: boolean;
 }
 
+/** Anomaly Result configuration/data structure.
+ */
 export interface AnomalyResult {
   index: number;
   value: number;
@@ -45,6 +49,8 @@ export interface AnomalyResult {
   severity: "warning" | "alarm";
 }
 
+/** Anomaly Detector Output configuration/data structure.
+ */
 export interface AnomalyDetectorOutput extends WithWarnings {
   anomalies: AnomalyResult[];
   process_mean: number;
@@ -58,6 +64,8 @@ export interface AnomalyDetectorOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Anomaly Detector engine/manager.
+ */
 export class AnomalyDetector implements Algorithm<AnomalyDetectorInput, AnomalyDetectorOutput> {
 
   validate(input: AnomalyDetectorInput): ValidationResult {

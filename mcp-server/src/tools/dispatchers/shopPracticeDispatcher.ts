@@ -618,6 +618,9 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
 // Registration
 // ---------------------------------------------------------------------------
 
+/** Registers shop practice dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerShopPracticeDispatcher(server: any): void {
   server.tool(
     "prism_shop_practice",

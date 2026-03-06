@@ -27,6 +27,8 @@ export interface PartOffInput {
   material_hardness_HRC: number;
 }
 
+/** Part Off Result configuration/data structure.
+ */
 export interface PartOffResult {
   tangential_force_N: number;      // Fc — main cutting force
   feed_force_N: number;            // Ff — radial (into workpiece)
@@ -67,6 +69,8 @@ const KC_PARTING: Record<string, { kc11: number; mc: number }> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Part Off Force Engine engine/manager.
+ */
 export class PartOffForceEngine {
   calculate(input: PartOffInput): PartOffResult {
     const { bar_diameter_mm: OD, bore_diameter_mm: ID, blade_width_mm: w, feed_per_rev_mm: fn } = input;
@@ -186,4 +190,6 @@ export class PartOffForceEngine {
   }
 }
 
+/** Part Off Force Engine constant.
+ */
 export const partOffForceEngine = new PartOffForceEngine();

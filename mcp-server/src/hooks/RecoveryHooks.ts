@@ -665,6 +665,8 @@ export function clearDegradedFeatures(): void {
 // EXPORT ALL RECOVERY HOOKS
 // ============================================================================
 
+/** Recovery Hooks constant.
+ */
 export const recoveryHooks: HookDefinition[] = [
   // Circuit breaker
   preCircuitBreakerCheck,

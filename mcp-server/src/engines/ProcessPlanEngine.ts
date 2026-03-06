@@ -14,6 +14,8 @@
 
 export type FeatureCategory = "hole" | "pocket" | "slot" | "face" | "profile" | "thread" | "chamfer" | "bore" | "groove" | "freeform";
 
+/** Part Feature configuration/data structure.
+ */
 export interface PartFeature {
   id: string;
   type: FeatureCategory;
@@ -29,6 +31,8 @@ export interface PartFeature {
   count?: number;                  // e.g., 4× identical holes
 }
 
+/** Process Plan Input configuration/data structure.
+ */
 export interface ProcessPlanInput {
   part_name: string;
   material_iso_group: string;
@@ -38,6 +42,8 @@ export interface ProcessPlanInput {
   batch_size?: number;
 }
 
+/** Process Operation configuration/data structure.
+ */
 export interface ProcessOperation {
   seq: number;
   setup: number;                   // setup number (1, 2, etc.)
@@ -59,6 +65,8 @@ export interface ProcessOperation {
   notes: string[];
 }
 
+/** Process Plan configuration/data structure.
+ */
 export interface ProcessPlan {
   part_name: string;
   material: string;
@@ -70,6 +78,8 @@ export interface ProcessPlan {
   setup_summary: { setup: number; description: string; operations: number }[];
 }
 
+/** Plan Optimization configuration/data structure.
+ */
 export interface PlanOptimization {
   original_time_min: number;
   optimized_time_min: number;
@@ -77,6 +87,8 @@ export interface PlanOptimization {
   changes: string[];
 }
 
+/** Time Estimate configuration/data structure.
+ */
 export interface TimeEstimate {
   cutting_time_min: number;
   rapid_time_min: number;
@@ -177,6 +189,8 @@ function selectToolDiameter(feature: PartFeature, toolType: string): number {
 // ENGINE CLASS
 // ============================================================================
 
+/** Process Plan Engine engine/manager.
+ */
 export class ProcessPlanEngine {
   generate(input: ProcessPlanInput): ProcessPlan {
     const operations: ProcessOperation[] = [];
@@ -360,4 +374,6 @@ export class ProcessPlanEngine {
   }
 }
 
+/** Process Plan Engine constant.
+ */
 export const processPlanEngine = new ProcessPlanEngine();

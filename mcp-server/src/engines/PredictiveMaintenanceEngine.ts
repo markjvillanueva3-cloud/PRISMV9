@@ -27,13 +27,19 @@ export type MaintenanceCategory =
   | "coolant"
   | "tool_holder";
 
+/** Severity Level type definition.
+ */
 export type SeverityLevel = "normal" | "watch" | "warning" | "critical";
 
+/** Data Point configuration/data structure.
+ */
 export interface DataPoint {
   timestamp: string;
   value: number;
 }
 
+/** Trend Result configuration/data structure.
+ */
 export interface TrendResult {
   slope: number;
   intercept: number;
@@ -42,6 +48,8 @@ export interface TrendResult {
   rate_per_month: number;
 }
 
+/** Prediction Result configuration/data structure.
+ */
 export interface PredictionResult {
   prediction_id: string;
   category: MaintenanceCategory;
@@ -60,6 +68,8 @@ export interface PredictionResult {
   cost_of_delay: string;
 }
 
+/** Maintenance Alert configuration/data structure.
+ */
 export interface MaintenanceAlert {
   alert_id: string;
   prediction_id: string;
@@ -71,6 +81,8 @@ export interface MaintenanceAlert {
   acknowledged: boolean;
 }
 
+/** Maintenance Model configuration/data structure.
+ */
 export interface MaintenanceModel {
   category: MaintenanceCategory;
   component: string;
@@ -159,6 +171,8 @@ const MAINTENANCE_MODELS: MaintenanceModel[] = [
 // Allows plugging in real sensor data sources (OPC-UA, MTConnect, MQTT, etc.)
 // while keeping simulated data as fallback for demos and testing.
 
+/** Sensor Data Provider configuration/data structure.
+ */
 export interface SensorDataProvider {
   /** Return machine IDs available from this provider */
   listMachines(): Promise<string[]>;
@@ -643,6 +657,11 @@ function getMachineStatus(machineId: string): any {
 
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
+/** Predicts predictive maintenance.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function predictiveMaintenance(action: string, params: Record<string, any>): any {
   // M-023: Tag all responses with data source for transparency
   const dataSource = activeSensorProvider ? "real_sensor" : "simulation";

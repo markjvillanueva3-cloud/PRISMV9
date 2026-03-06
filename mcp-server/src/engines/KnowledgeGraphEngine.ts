@@ -24,12 +24,16 @@ export type NodeType =
   | "material" | "tool" | "machine" | "strategy" | "property"
   | "failure_mode" | "application" | "coating" | "manufacturer";
 
+/** Edge Type type definition.
+ */
 export type EdgeType =
   | "has_property" | "requires_strategy" | "fails_with" | "best_tool"
   | "machined_on" | "made_by" | "coated_with" | "used_for"
   | "causes" | "prevents" | "similar_to" | "exceeds_limit"
   | "optimal_for" | "alternative_to" | "learned_from";
 
+/** Graph Node configuration/data structure.
+ */
 export interface GraphNode {
   id: string;
   type: NodeType;
@@ -37,6 +41,8 @@ export interface GraphNode {
   properties: Record<string, unknown>;
 }
 
+/** Graph Edge configuration/data structure.
+ */
 export interface GraphEdge {
   source: string;
   target: string;
@@ -46,6 +52,8 @@ export interface GraphEdge {
   job_count?: number;   // Number of jobs supporting this edge
 }
 
+/** Query Result configuration/data structure.
+ */
 export interface QueryResult {
   query_id: string;
   query: string;
@@ -55,6 +63,8 @@ export interface QueryResult {
   created_at: string;
 }
 
+/** Inference Result configuration/data structure.
+ */
 export interface InferenceResult {
   query_id: string;
   entity: string;
@@ -65,6 +75,8 @@ export interface InferenceResult {
   confidence: number;
 }
 
+/** Discovery Result configuration/data structure.
+ */
 export interface DiscoveryResult {
   query_id: string;
   entity: string;
@@ -76,6 +88,8 @@ export interface DiscoveryResult {
   }>;
 }
 
+/** Prediction Result configuration/data structure.
+ */
 export interface PredictionResult {
   query_id: string;
   combination: { material: string; tool?: string; machine?: string; strategy?: string };
@@ -593,6 +607,11 @@ function predictSuccess(
 
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
+/** Knowledge Graph.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns record<string, unknown>
+ */
 export function knowledgeGraph(
   action: string,
   params: Record<string, unknown>,
@@ -805,6 +824,8 @@ export function knowledgeGraph(
 // Wired 2026-02-23 from MASTER_EXTRACTION_INDEX_V2 (27-file batch)
 // ============================================================================
 
+/** K N O W L E D G E_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const KNOWLEDGE_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

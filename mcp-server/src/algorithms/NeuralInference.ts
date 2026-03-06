@@ -19,8 +19,12 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Activation Fn type definition.
+ */
 export type ActivationFn = "relu" | "sigmoid" | "tanh" | "linear";
 
+/** Neural Inference Input configuration/data structure.
+ */
 export interface NeuralInferenceInput {
   /** Input feature vector. */
   features: number[];
@@ -36,6 +40,8 @@ export interface NeuralInferenceInput {
   output_activation?: ActivationFn;
 }
 
+/** Neural Inference Output configuration/data structure.
+ */
 export interface NeuralInferenceOutput extends WithWarnings {
   predictions: number[];
   layer_outputs: number[][];
@@ -43,6 +49,8 @@ export interface NeuralInferenceOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Neural Inference engine/manager.
+ */
 export class NeuralInference implements Algorithm<NeuralInferenceInput, NeuralInferenceOutput> {
 
   validate(input: NeuralInferenceInput): ValidationResult {

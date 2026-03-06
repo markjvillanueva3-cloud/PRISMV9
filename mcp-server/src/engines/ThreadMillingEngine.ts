@@ -16,9 +16,15 @@
 // ============================================================================
 
 export type ThreadForm = "UN" | "metric" | "BSPP" | "BSPT" | "NPT" | "ACME" | "trapezoidal";
+/** Thread Direction type definition.
+ */
 export type ThreadDirection = "right_hand" | "left_hand";
+/** Mill Approach type definition.
+ */
 export type MillApproach = "single_form" | "multi_form" | "full_profile";
 
+/** Thread Mill Input configuration/data structure.
+ */
 export interface ThreadMillInput {
   thread_form: ThreadForm;
   nominal_diameter_mm: number;
@@ -35,6 +41,8 @@ export interface ThreadMillInput {
   material_specific_force_N_mm2: number;
 }
 
+/** Thread Mill Result configuration/data structure.
+ */
 export interface ThreadMillResult {
   helical_diameter_mm: number;       // programmed toolpath diameter
   lead_per_revolution_mm: number;    // = pitch for single-start
@@ -48,6 +56,8 @@ export interface ThreadMillResult {
   recommendations: string[];
 }
 
+/** Thread G Code configuration/data structure.
+ */
 export interface ThreadGCode {
   lines: string[];
   controller: string;
@@ -58,6 +68,8 @@ export interface ThreadGCode {
 // ENGINE CLASS
 // ============================================================================
 
+/** Thread Milling Engine engine/manager.
+ */
 export class ThreadMillingEngine {
   calculate(input: ThreadMillInput): ThreadMillResult {
     const D = input.nominal_diameter_mm;
@@ -185,4 +197,6 @@ export class ThreadMillingEngine {
   }
 }
 
+/** Thread Milling Engine constant.
+ */
 export const threadMillingEngine = new ThreadMillingEngine();

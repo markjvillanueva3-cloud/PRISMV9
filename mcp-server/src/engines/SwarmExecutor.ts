@@ -25,6 +25,8 @@ import { eventBus, EventTypes } from "./EventBus.js";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Swarm Pattern type definition.
+ */
 export type SwarmPattern = 
   | "parallel" 
   | "pipeline" 
@@ -35,6 +37,8 @@ export type SwarmPattern =
   | "competition" 
   | "collaboration";
 
+/** Swarm Config configuration/data structure.
+ */
 export interface SwarmConfig {
   name: string;
   pattern: SwarmPattern;
@@ -44,6 +48,8 @@ export interface SwarmConfig {
   options?: SwarmOptions;
 }
 
+/** Swarm Options configuration/data structure.
+ */
 export interface SwarmOptions {
   // Map-Reduce options
   mapFunction?: string;                // How to partition work
@@ -70,6 +76,8 @@ export interface SwarmOptions {
   convergenceThreshold?: number;       // Stop when change < threshold
 }
 
+/** Reduce Function type definition.
+ */
 export type ReduceFunction = 
   | "concat"      // Concatenate arrays
   | "merge"       // Deep merge objects
@@ -82,6 +90,8 @@ export type ReduceFunction =
   | "vote"        // Most common value
   | "custom";     // Custom reducer (not implemented)
 
+/** Swarm Result configuration/data structure.
+ */
 export interface SwarmResult {
   swarmId: string;
   name: string;
@@ -109,6 +119,8 @@ export interface SwarmResult {
   metadata?: Record<string, unknown>;
 }
 
+/** Agent Swarm Result configuration/data structure.
+ */
 export interface AgentSwarmResult {
   agentId: string;
   agentName: string;
@@ -121,6 +133,8 @@ export interface AgentSwarmResult {
   iteration?: number;
 }
 
+/** Consensus Result configuration/data structure.
+ */
 export interface ConsensusResult {
   reached: boolean;
   threshold: number;
@@ -130,6 +144,8 @@ export interface ConsensusResult {
   dissenting: string[];
 }
 
+/** Competition Result configuration/data structure.
+ */
 export interface CompetitionResult {
   winner: string;
   winnerScore: number;
@@ -137,6 +153,8 @@ export interface CompetitionResult {
   scoreField: string;
 }
 
+/** Collaboration Result configuration/data structure.
+ */
 export interface CollaborationResult {
   iterations: number;
   converged: boolean;
@@ -161,6 +179,8 @@ const SWARM_CONSTANTS = {
 // SWARM EXECUTOR CLASS
 // ============================================================================
 
+/** Swarm Executor engine/manager.
+ */
 export class SwarmExecutor {
   private swarmCounter: number = 0;
   private activeSwarms: Map<string, SwarmResult> = new Map();
@@ -948,6 +968,8 @@ export class SwarmExecutor {
 // SINGLETON INSTANCE
 // ============================================================================
 
+/** Swarm Executor constant.
+ */
 export const swarmExecutor = new SwarmExecutor();
 
 // ============================================================================

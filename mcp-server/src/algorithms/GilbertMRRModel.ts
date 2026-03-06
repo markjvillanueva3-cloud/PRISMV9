@@ -27,6 +27,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Gilbert M R R Input configuration/data structure.
+ */
 export interface GilbertMRRInput {
   /** Cutting speed [m/min]. */
   cutting_speed: number;
@@ -54,6 +56,8 @@ export interface GilbertMRRInput {
   machine_rate?: number;
 }
 
+/** Gilbert M R R Output configuration/data structure.
+ */
 export interface GilbertMRROutput extends WithWarnings {
   /** Material removal rate [mm^3/min]. */
   mrr_mm3: number;
@@ -99,6 +103,8 @@ const SPECIFIC_POWER_KW: Record<string, number> = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Gilbert M R R Model engine/manager.
+ */
 export class GilbertMRRModel implements Algorithm<GilbertMRRInput, GilbertMRROutput> {
 
   validate(input: GilbertMRRInput): ValidationResult {

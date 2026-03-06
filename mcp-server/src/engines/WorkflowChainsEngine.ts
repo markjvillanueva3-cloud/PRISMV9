@@ -26,8 +26,12 @@ export type WorkflowId =
   | "diagnose_alarm"
   | "teach_me";
 
+/** Workflow Persona type definition.
+ */
 export type WorkflowPersona = "machinist" | "programmer" | "manager" | "all";
 
+/** Workflow Step configuration/data structure.
+ */
 export interface WorkflowStep {
   action: string;
   /** Which dispatcher this action lives in */
@@ -44,6 +48,8 @@ export interface WorkflowStep {
   condition?: string;
 }
 
+/** Workflow Definition configuration/data structure.
+ */
 export interface WorkflowDefinition {
   id: WorkflowId;
   name: string;
@@ -57,12 +63,16 @@ export interface WorkflowDefinition {
   estimated_time_sec: number;
 }
 
+/** Workflow Match configuration/data structure.
+ */
 export interface WorkflowMatch {
   workflow: WorkflowDefinition;
   confidence: number;
   matched_trigger: string;
 }
 
+/** Workflow List Item configuration/data structure.
+ */
 export interface WorkflowListItem {
   id: WorkflowId;
   name: string;

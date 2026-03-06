@@ -33,6 +33,9 @@ const ACTIONS = [
   "role_assign", "permission_check", "session_manage", "mfa_setup",
 ] as const;
 
+/** Registers auth dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerAuthDispatcher(server: any): void {
   server.tool(
     "prism_auth",

@@ -21,6 +21,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** D P Multi Pass Input configuration/data structure.
+ */
 export interface DPMultiPassInput {
   /** Total stock to remove (radial) [mm]. */
   total_stock: number;
@@ -48,6 +50,8 @@ export interface DPMultiPassInput {
   resolution?: number;
 }
 
+/** Pass Allocation configuration/data structure.
+ */
 export interface PassAllocation {
   pass_number: number;
   depth_of_cut: number;
@@ -56,6 +60,8 @@ export interface PassAllocation {
   power_required: number;
 }
 
+/** D P Multi Pass Output configuration/data structure.
+ */
 export interface DPMultiPassOutput extends WithWarnings {
   /** Optimal pass allocations. */
   passes: PassAllocation[];
@@ -76,6 +82,8 @@ export interface DPMultiPassOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** D P Multi Pass engine/manager.
+ */
 export class DPMultiPass implements Algorithm<DPMultiPassInput, DPMultiPassOutput> {
 
   validate(input: DPMultiPassInput): ValidationResult {

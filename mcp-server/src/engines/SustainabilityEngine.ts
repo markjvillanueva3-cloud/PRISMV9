@@ -23,9 +23,15 @@
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export type OptimizationMode = "standard" | "green" | "ultra_green";
+/** Coolant Strategy type definition.
+ */
 export type CoolantStrategy = "flood" | "mql" | "dry" | "cryogenic";
+/** Stock Type type definition.
+ */
 export type StockType = "bar" | "plate" | "forging" | "casting" | "additive" | "billet";
 
+/** Energy Breakdown configuration/data structure.
+ */
 export interface EnergyBreakdown {
   cutting_kwh: number;
   spindle_idle_kwh: number;
@@ -35,6 +41,8 @@ export interface EnergyBreakdown {
   total_kwh: number;
 }
 
+/** Carbon Breakdown configuration/data structure.
+ */
 export interface CarbonBreakdown {
   machining_kg_co2: number;
   coolant_kg_co2: number;
@@ -43,6 +51,8 @@ export interface CarbonBreakdown {
   total_kg_co2: number;
 }
 
+/** Sustainability Result configuration/data structure.
+ */
 export interface SustainabilityResult {
   optimization_id: string;
   mode: OptimizationMode;
@@ -54,6 +64,8 @@ export interface SustainabilityResult {
   recommendations: string[];
 }
 
+/** Operation Metrics configuration/data structure.
+ */
 export interface OperationMetrics {
   cost_per_part_usd: number;
   cycle_time_min: number;
@@ -66,6 +78,8 @@ export interface OperationMetrics {
   mrr_cm3_min: number;
 }
 
+/** Savings Metrics configuration/data structure.
+ */
 export interface SavingsMetrics {
   cost_delta_usd: number;
   cost_delta_pct: number;
@@ -80,6 +94,8 @@ export interface SavingsMetrics {
   tool_life_gained_pct: number;
 }
 
+/** Near Net Shape Result configuration/data structure.
+ */
 export interface NearNetShapeResult {
   analysis_id: string;
   material: string;
@@ -89,6 +105,8 @@ export interface NearNetShapeResult {
   best_option: string;
 }
 
+/** Stock Option configuration/data structure.
+ */
 export interface StockOption {
   stock_type: StockType;
   raw_weight_g: number;
@@ -102,6 +120,8 @@ export interface StockOption {
   feasibility: string;
 }
 
+/** Coolant Analysis configuration/data structure.
+ */
 export interface CoolantAnalysis {
   current_type: string;
   recommended_type: string;
@@ -622,6 +642,11 @@ const optimizationHistory: SustainabilityResult[] = [];
 
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
+/** Sustainability Engine.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns any
+ */
 export function sustainabilityEngine(action: string, params: Record<string, any>): any {
   switch (action) {
     // ── sustain_optimize: Compare standard vs green mode ──

@@ -15,10 +15,16 @@ import { cadKernelEngine } from "./CADKernelEngine.js";
 // TYPES
 // ============================================================================
 
+/** Geom Primitive Type type definition.
+ */
 export type GeomPrimitiveType = "point" | "line" | "arc" | "circle" | "rectangle" | "polygon" | "box" | "cylinder" | "sphere" | "cone";
 
+/** Geom Point configuration/data structure.
+ */
 export interface GeomPoint { x: number; y: number; z?: number; }
 
+/** Geom Primitive configuration/data structure.
+ */
 export interface GeomPrimitive {
   id: string;
   type: GeomPrimitiveType;
@@ -26,6 +32,8 @@ export interface GeomPrimitive {
   transform?: GeomTransform;
 }
 
+/** Geom Transform configuration/data structure.
+ */
 export interface GeomTransform {
   translate?: GeomPoint;
   rotate_deg?: GeomPoint;  // Euler angles in degrees
@@ -33,6 +41,8 @@ export interface GeomTransform {
   mirror?: "x" | "y" | "z" | "xy" | "xz" | "yz";
 }
 
+/** Bounding Box3 D configuration/data structure.
+ */
 export interface BoundingBox3D {
   min: GeomPoint;
   max: GeomPoint;
@@ -42,12 +52,16 @@ export interface BoundingBox3D {
   surface_area_mm2: number;
 }
 
+/** Distance Result configuration/data structure.
+ */
 export interface DistanceResult {
   distance_mm: number;
   closest_point_a: GeomPoint;
   closest_point_b: GeomPoint;
 }
 
+/** Offset Result configuration/data structure.
+ */
 export interface OffsetResult {
   success: boolean;
   offset_mm: number;
@@ -55,6 +69,8 @@ export interface OffsetResult {
   notes: string[];
 }
 
+/** Fillet Result configuration/data structure.
+ */
 export interface FilletResult {
   success: boolean;
   radius_mm: number;
@@ -62,6 +78,8 @@ export interface FilletResult {
   notes: string[];
 }
 
+/** Geom Analysis configuration/data structure.
+ */
 export interface GeomAnalysis {
   primitive_count: number;
   bounding_box: BoundingBox3D;
@@ -73,8 +91,12 @@ export interface GeomAnalysis {
   smallest_feature_mm: number;
 }
 
+/** Boolean Op type definition.
+ */
 export type BooleanOp = "union" | "subtract" | "intersect";
 
+/** Boolean Result configuration/data structure.
+ */
 export interface BooleanResult {
   operation: BooleanOp;
   success: boolean;
@@ -86,6 +108,8 @@ export interface BooleanResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Geometry Engine engine/manager.
+ */
 export class GeometryEngine {
   createPrimitive(type: GeomPrimitiveType, params: Record<string, number>): GeomPrimitive {
     const id = `geom-${type}-${Date.now().toString(36)}`;
@@ -221,4 +245,6 @@ export class GeometryEngine {
   }
 }
 
+/** Geometry Engine constant.
+ */
 export const geometryEngine = new GeometryEngine();

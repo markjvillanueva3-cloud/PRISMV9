@@ -481,6 +481,9 @@ function intelligenceExtractKeyValues(action: string, result: any): Record<strin
   }
 }
 
+/** Registers intelligence dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerIntelligenceDispatcher(server: any): void {
   server.tool(
     "prism_intelligence",

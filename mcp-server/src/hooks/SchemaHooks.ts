@@ -646,6 +646,8 @@ export function getDeprecationInfo(entityType: string) {
 // EXPORT ALL SCHEMA HOOKS
 // ============================================================================
 
+/** Schema Hooks constant.
+ */
 export const schemaHooks: HookDefinition[] = [
   // Version
   preSchemaVersionValidation,

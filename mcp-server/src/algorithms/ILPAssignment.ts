@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Job Spec configuration/data structure.
+ */
 export interface JobSpec {
   id: string;
   /** Processing time on each machine [min]. -1 = infeasible. */
@@ -29,6 +31,8 @@ export interface JobSpec {
   priority?: number;
 }
 
+/** Machine Spec configuration/data structure.
+ */
 export interface MachineSpec {
   id: string;
   /** Current load [min]. Default 0. */
@@ -39,6 +43,8 @@ export interface MachineSpec {
   setup_time?: number;
 }
 
+/** I L P Assignment Input configuration/data structure.
+ */
 export interface ILPAssignmentInput {
   /** Jobs to assign. */
   jobs: JobSpec[];
@@ -50,6 +56,8 @@ export interface ILPAssignmentInput {
   max_iterations?: number;
 }
 
+/** Assignment configuration/data structure.
+ */
 export interface Assignment {
   job_id: string;
   machine_id: string;
@@ -59,6 +67,8 @@ export interface Assignment {
   tardy: boolean;
 }
 
+/** I L P Assignment Output configuration/data structure.
+ */
 export interface ILPAssignmentOutput extends WithWarnings {
   /** Optimal assignments. */
   assignments: Assignment[];
@@ -79,6 +89,8 @@ export interface ILPAssignmentOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** I L P Assignment engine/manager.
+ */
 export class ILPAssignment implements Algorithm<ILPAssignmentInput, ILPAssignmentOutput> {
 
   validate(input: ILPAssignmentInput): ValidationResult {

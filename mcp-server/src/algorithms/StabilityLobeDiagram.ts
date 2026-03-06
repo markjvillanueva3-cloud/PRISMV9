@@ -38,6 +38,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Stability Lobe Input configuration/data structure.
+ */
 export interface StabilityLobeInput {
   /** Natural frequency of the dominant mode [Hz]. */
   natural_frequency: number;
@@ -59,6 +61,8 @@ export interface StabilityLobeInput {
   num_lobes?: number;
 }
 
+/** Stability Lobe configuration/data structure.
+ */
 export interface StabilityLobe {
   /** Lobe index (k=0 is rightmost). */
   lobe_number: number;
@@ -68,6 +72,8 @@ export interface StabilityLobe {
   depth_limit: number[];
 }
 
+/** Sweet Spot configuration/data structure.
+ */
 export interface SweetSpot {
   /** RPM at sweet spot. */
   rpm: number;
@@ -77,6 +83,8 @@ export interface SweetSpot {
   lobe_number: number;
 }
 
+/** Stability Lobe Output configuration/data structure.
+ */
 export interface StabilityLobeOutput extends WithWarnings {
   /** Array of stability lobes. */
   lobes: StabilityLobe[];
@@ -108,6 +116,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Stability Lobe Diagram engine/manager.
+ */
 export class StabilityLobeDiagram implements Algorithm<StabilityLobeInput, StabilityLobeOutput> {
 
   validate(input: StabilityLobeInput): ValidationResult {

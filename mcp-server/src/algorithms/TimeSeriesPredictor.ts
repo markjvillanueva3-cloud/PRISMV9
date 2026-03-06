@@ -18,6 +18,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Time Series Predictor Input configuration/data structure.
+ */
 export interface TimeSeriesPredictorInput {
   /** Historical time series data. */
   data: number[];
@@ -33,6 +35,8 @@ export interface TimeSeriesPredictorInput {
   confidence_level?: number;
 }
 
+/** Forecast configuration/data structure.
+ */
 export interface Forecast {
   step: number;
   value: number;
@@ -40,6 +44,8 @@ export interface Forecast {
   upper: number;
 }
 
+/** Time Series Predictor Output configuration/data structure.
+ */
 export interface TimeSeriesPredictorOutput extends WithWarnings {
   forecasts: Forecast[];
   level: number;
@@ -51,6 +57,8 @@ export interface TimeSeriesPredictorOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Time Series Predictor engine/manager.
+ */
 export class TimeSeriesPredictor implements Algorithm<TimeSeriesPredictorInput, TimeSeriesPredictorOutput> {
 
   validate(input: TimeSeriesPredictorInput): ValidationResult {

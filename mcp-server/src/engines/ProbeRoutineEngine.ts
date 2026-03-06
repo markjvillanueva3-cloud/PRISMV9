@@ -17,6 +17,8 @@ export type GDTCallout =
   | "total_runout" | "circular_runout" | "profile_surface"
   | "profile_line" | "concentricity" | "symmetry";
 
+/** G D T Spec configuration/data structure.
+ */
 export interface GDTSpec {
   id: string;
   callout: GDTCallout;
@@ -31,6 +33,8 @@ export interface GDTSpec {
   };
 }
 
+/** Probe Move configuration/data structure.
+ */
 export interface ProbeMove {
   type: "approach" | "measure" | "retract" | "move" | "datum_touch";
   x?: number; y?: number; z?: number;
@@ -38,6 +42,8 @@ export interface ProbeMove {
   description: string;
 }
 
+/** Probe Routine configuration/data structure.
+ */
 export interface ProbeRoutine {
   id: string;
   gdt_spec_id: string;
@@ -49,6 +55,8 @@ export interface ProbeRoutine {
   notes: string[];
 }
 
+/** G D T Interpretation configuration/data structure.
+ */
 export interface GDTInterpretation {
   callout: GDTCallout;
   zone_type: string;                 // "cylindrical", "planar", "annular", etc.
@@ -58,6 +66,8 @@ export interface GDTInterpretation {
   mmc_bonus?: string;
 }
 
+/** Probe Report configuration/data structure.
+ */
 export interface ProbeReport {
   feature_id: string;
   nominal: Record<string, number>;
@@ -158,6 +168,8 @@ function generateProbePoints(spec: GDTSpec, rule: typeof GDT_RULES[GDTCallout]):
 // ENGINE CLASS
 // ============================================================================
 
+/** Probe Routine Engine engine/manager.
+ */
 export class ProbeRoutineEngine {
   generate(spec: GDTSpec): ProbeRoutine {
     const rule = GDT_RULES[spec.callout] || GDT_RULES["position"];
@@ -226,4 +238,6 @@ export class ProbeRoutineEngine {
   }
 }
 
+/** Probe Routine Engine constant.
+ */
 export const probeRoutineEngine = new ProbeRoutineEngine();

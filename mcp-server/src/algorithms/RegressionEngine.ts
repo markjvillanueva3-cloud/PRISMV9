@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Regression Engine Input configuration/data structure.
+ */
 export interface RegressionEngineInput {
   /** Independent variables: rows = observations, cols = features. */
   X: number[][];
@@ -32,6 +34,8 @@ export interface RegressionEngineInput {
   confidence_level?: number;
 }
 
+/** Regression Prediction configuration/data structure.
+ */
 export interface RegressionPrediction {
   x: number[];
   y_hat: number;
@@ -39,6 +43,8 @@ export interface RegressionPrediction {
   upper: number;
 }
 
+/** Regression Engine Output configuration/data structure.
+ */
 export interface RegressionEngineOutput extends WithWarnings {
   coefficients: number[];
   intercept: number;
@@ -52,6 +58,8 @@ export interface RegressionEngineOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Regression Engine engine/manager.
+ */
 export class RegressionEngine implements Algorithm<RegressionEngineInput, RegressionEngineOutput> {
 
   validate(input: RegressionEngineInput): ValidationResult {

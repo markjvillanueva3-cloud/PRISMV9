@@ -25,6 +25,8 @@ export interface BatchJob {
   priority: number;                 // 1–5 (5 = highest)
 }
 
+/** Batch Group configuration/data structure.
+ */
 export interface BatchGroup {
   group_id: string;
   jobs: string[];                   // job IDs in this group
@@ -37,6 +39,8 @@ export interface BatchGroup {
   setup_saves_min: number;
 }
 
+/** Batch Sequence configuration/data structure.
+ */
 export interface BatchSequence {
   sequence: BatchGroup[];
   total_makespan_min: number;
@@ -45,12 +49,16 @@ export interface BatchSequence {
   setup_savings_pct: number;
 }
 
+/** Setup Matrix configuration/data structure.
+ */
 export interface SetupMatrix {
   /** Changeover time from group i to group j */
   matrix: Record<string, Record<string, number>>;
   groups: string[];
 }
 
+/** Batch Capacity configuration/data structure.
+ */
 export interface BatchCapacity {
   total_demand_hours: number;
   available_hours: number;
@@ -152,6 +160,8 @@ function changeover(from: BatchGroup, to: BatchGroup, jobs: BatchJob[]): number 
 // ENGINE CLASS
 // ============================================================================
 
+/** Batch Optimization Engine engine/manager.
+ */
 export class BatchOptimizationEngine {
   group(jobs: BatchJob[]): BatchGroup[] {
     return groupJobs(jobs);
@@ -238,4 +248,6 @@ export class BatchOptimizationEngine {
   }
 }
 
+/** Batch Optimization Engine constant.
+ */
 export const batchOptimizationEngine = new BatchOptimizationEngine();

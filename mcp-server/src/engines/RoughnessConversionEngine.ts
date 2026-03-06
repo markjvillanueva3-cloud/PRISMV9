@@ -18,12 +18,16 @@
 
 export type RoughnessScale = "Ra_um" | "Rz_um" | "Rq_um" | "Rt_um" | "Ra_uin" | "N_grade";
 
+/** Roughness Conversion Input configuration/data structure.
+ */
 export interface RoughnessConversionInput {
   value: number;
   from_scale: RoughnessScale;
   to_scale: RoughnessScale;
 }
 
+/** Roughness Conversion Result configuration/data structure.
+ */
 export interface RoughnessConversionResult {
   input_value: number;
   input_scale: RoughnessScale;
@@ -141,6 +145,8 @@ function typicalProcess(ra_um: number): string {
 // ENGINE CLASS
 // ============================================================================
 
+/** Roughness Conversion Engine engine/manager.
+ */
 export class RoughnessConversionEngine {
   convert(input: RoughnessConversionInput): RoughnessConversionResult {
     if (input.value < 0) {
@@ -190,4 +196,6 @@ function round4(v: number): number {
   return Math.round(v * 10000) / 10000;
 }
 
+/** Roughness Conversion Engine constant.
+ */
 export const roughnessConversionEngine = new RoughnessConversionEngine();

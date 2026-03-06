@@ -32,6 +32,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Taylor Input configuration/data structure.
+ */
 export interface TaylorInput {
   /** Cutting speed [m/min]. */
   cutting_speed: number;
@@ -55,6 +57,8 @@ export interface TaylorInput {
   temperature_factor?: number;
 }
 
+/** Taylor Output configuration/data structure.
+ */
 export interface TaylorOutput extends WithWarnings {
   /** Predicted tool life [min]. */
   tool_life_minutes: number;
@@ -83,6 +87,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Extended Taylor Model engine/manager.
+ */
 export class ExtendedTaylorModel implements Algorithm<TaylorInput, TaylorOutput> {
 
   validate(input: TaylorInput): ValidationResult {

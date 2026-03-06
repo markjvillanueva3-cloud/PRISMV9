@@ -136,6 +136,8 @@ const generate = z.object({
 // EXPORT: ACTION_TOOLPATH_SCHEMAS
 // ============================================================================
 
+/** A C T I O N_ T O O L P A T H_ S C H E M A S constant.
+ */
 export const ACTION_TOOLPATH_SCHEMAS: ActionSchemaMap = {
   // Strategy selection & params
   strategy_select,

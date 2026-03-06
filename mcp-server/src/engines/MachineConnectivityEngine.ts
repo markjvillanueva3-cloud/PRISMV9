@@ -19,10 +19,18 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type MachineState = "running" | "idle" | "setup" | "alarm" | "offline";
+/** Protocol Type type definition.
+ */
 export type ProtocolType = "mtconnect" | "opcua" | "focas" | "mock";
+/** Alert Severity type definition.
+ */
 export type AlertSeverity = "info" | "warning" | "critical";
+/** Alert Type type definition.
+ */
 export type AlertType = "chatter_detected" | "overload_trending" | "tool_wear_predicted" | "thermal_drift" | "alarm_active" | "feed_override_low";
 
+/** Machine Config configuration/data structure.
+ */
 export interface MachineConfig {
   id: string;
   name: string;
@@ -33,11 +41,15 @@ export interface MachineConfig {
   poll_interval_ms: number;
 }
 
+/** Machine Position configuration/data structure.
+ */
 export interface MachinePosition {
   x: number; y: number; z: number;
   a?: number; b?: number; c?: number;
 }
 
+/** Machine Live Data configuration/data structure.
+ */
 export interface MachineLiveData {
   timestamp: string;
   state: MachineState;
@@ -53,6 +65,8 @@ export interface MachineLiveData {
   feed_override_pct: number;
 }
 
+/** Machine Alert configuration/data structure.
+ */
 export interface MachineAlert {
   id: string;
   machine_id: string;
@@ -64,6 +78,8 @@ export interface MachineAlert {
   acknowledged: boolean;
 }
 
+/** Machine Live Status configuration/data structure.
+ */
 export interface MachineLiveStatus {
   machine: MachineConfig;
   connected: boolean;
@@ -72,6 +88,8 @@ export interface MachineLiveStatus {
   alerts: MachineAlert[];
 }
 
+/** Chatter Result configuration/data structure.
+ */
 export interface ChatterResult {
   chatter_detected: boolean;
   dominant_frequency_hz: number;
@@ -81,6 +99,8 @@ export interface ChatterResult {
   action: string;
 }
 
+/** Tool Wear Status configuration/data structure.
+ */
 export interface ToolWearStatus {
   tool_id: string;
   installed_at: string;
@@ -95,6 +115,8 @@ export interface ToolWearStatus {
   recommendation: string;
 }
 
+/** Thermal Drift Status configuration/data structure.
+ */
 export interface ThermalDriftStatus {
   machine_id: string;
   ambient_temp_C: number;
@@ -706,6 +728,8 @@ export function machineConnectivity(action: string, params: Record<string, any>)
 
 // ─── Source File Catalog (14 LOW-priority integration extractions) ───────────
 
+/** C O N N E C T I V I T Y_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const CONNECTIVITY_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

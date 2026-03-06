@@ -33,6 +33,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Kienzle Input configuration/data structure.
+ */
 export interface KienzleInput {
   /** Specific cutting force at h=1mm, b=1mm [N/mm²]. */
   kc1_1: number;
@@ -58,6 +60,8 @@ export interface KienzleInput {
   data_quality?: "verified" | "estimated";
 }
 
+/** Kienzle Output configuration/data structure.
+ */
 export interface KienzleOutput extends WithWarnings {
   /** Main cutting force [N]. */
   Fc: number;
@@ -108,6 +112,8 @@ const FORCE_RATIOS: Record<string, [number, number]> = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Kienzle Force Model engine/manager.
+ */
 export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput> {
 
   validate(input: KienzleInput): ValidationResult {

@@ -24,6 +24,8 @@ import { sha256 as crc32 } from './TelemetryEngine.js';
 // TYPES
 // ============================================================================
 
+/** Diff Result configuration/data structure.
+ */
 export interface DiffResult {
   changed: boolean;
   action: "written" | "skipped" | "created" | "error";
@@ -33,6 +35,8 @@ export interface DiffResult {
   bytes_saved?: number;
 }
 
+/** Diff Stats configuration/data structure.
+ */
 export interface DiffStats {
   total_writes: number;
   actual_writes: number;
@@ -172,4 +176,6 @@ class DiffEngine {
 }
 
 // Singleton export
+/** Diff Engine constant.
+ */
 export const diffEngine = new DiffEngine();

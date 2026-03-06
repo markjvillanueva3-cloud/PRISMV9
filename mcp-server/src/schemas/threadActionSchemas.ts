@@ -121,6 +121,8 @@ const generate_thread_gcode = z.object({
 // SCHEMA REGISTRY
 // ============================================================================
 
+/** A C T I O N_ T H R E A D_ S C H E M A S constant.
+ */
 export const ACTION_THREAD_SCHEMAS: ActionSchemaMap = {
   // Calculations
   calculate_tap_drill,

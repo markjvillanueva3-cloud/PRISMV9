@@ -1,3 +1,12 @@
+/**
+ * Guard Dispatcher — Safety guardrails, decision logging, and pre-write gates.
+ *
+ * Manages decision logs, failure library, error capture, pre-write validation
+ * gates (diff checks), pre-call validation, autohook status/testing, pattern
+ * scanning/history, learning queries, last-known-good status, and priority scoring.
+ *
+ * @module guardDispatcher
+ */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
@@ -372,6 +381,9 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
   }
 }
 
+/** Registers guard dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerGuardDispatcher(server: any): void {
   server.tool(
     "prism_guard",

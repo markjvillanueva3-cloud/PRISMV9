@@ -17,6 +17,8 @@ const consoleFormat = printf(({ level, message, timestamp, stack }) => {
 });
 
 // Create logger instance
+/** Logger constant.
+ */
 export const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || "info",
   defaultMeta: { service: SERVER_NAME },
@@ -72,6 +74,8 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // Convenience methods
+/** Log constant.
+ */
 export const log = {
   info: (message: string, meta?: Record<string, unknown>) => logger.info(message, meta),
   warn: (message: string, meta?: Record<string, unknown>) => logger.warn(message, meta),

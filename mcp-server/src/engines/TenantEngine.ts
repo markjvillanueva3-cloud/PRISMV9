@@ -13,8 +13,12 @@
 // ============================================================================
 
 export type TenantPlan = "free" | "starter" | "professional" | "enterprise";
+/** Tenant Status type definition.
+ */
 export type TenantStatus = "active" | "suspended" | "trial" | "deactivated";
 
+/** Tenant configuration/data structure.
+ */
 export interface Tenant {
   id: string;
   name: string;
@@ -29,6 +33,8 @@ export interface Tenant {
   updated_at: string;
 }
 
+/** Tenant Settings configuration/data structure.
+ */
 export interface TenantSettings {
   default_units: "metric" | "imperial";
   default_material_system: "ISO" | "AISI" | "DIN" | "JIS";
@@ -39,6 +45,8 @@ export interface TenantSettings {
   custom: Record<string, string | number | boolean>;
 }
 
+/** Tenant Quota configuration/data structure.
+ */
 export interface TenantQuota {
   max_users: number;
   max_machines: number;
@@ -47,6 +55,8 @@ export interface TenantQuota {
   max_api_calls_per_day: number;
 }
 
+/** Tenant Usage configuration/data structure.
+ */
 export interface TenantUsage {
   current_users: number;
   current_machines: number;
@@ -56,6 +66,8 @@ export interface TenantUsage {
   last_activity: string;
 }
 
+/** Tenant Create Input configuration/data structure.
+ */
 export interface TenantCreateInput {
   name: string;
   owner_user_id: string;
@@ -90,6 +102,8 @@ const DEFAULT_SETTINGS: TenantSettings = {
 
 let tenantIdCounter = 0;
 
+/** Tenant Engine engine/manager.
+ */
 export class TenantEngine {
   private tenants = new Map<string, Tenant>();
 
@@ -186,4 +200,6 @@ export class TenantEngine {
   clear(): void { this.tenants.clear(); tenantIdCounter = 0; }
 }
 
+/** Tenant Engine constant.
+ */
 export const tenantEngine = new TenantEngine();

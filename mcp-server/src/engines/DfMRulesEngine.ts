@@ -31,6 +31,8 @@ export interface DfMCheckInput {
   tolerance_mm?: number;
 }
 
+/** Df M Feature configuration/data structure.
+ */
 export interface DfMFeature {
   type: "wall" | "cavity" | "hole" | "thread" | "undercut" | "tall_feature" | "small_feature" | "fillet";
   /** mm */
@@ -55,6 +57,8 @@ export interface DfMFeature {
   standard_drill_size?: boolean;
 }
 
+/** Df M Violation configuration/data structure.
+ */
 export interface DfMViolation {
   feature_type: string;
   severity: "error" | "warning" | "info";
@@ -63,6 +67,8 @@ export interface DfMViolation {
   recommendation: string;
 }
 
+/** Df M Check Result configuration/data structure.
+ */
 export interface DfMCheckResult {
   pass: boolean;
   violations: DfMViolation[];
@@ -75,6 +81,8 @@ export interface DfMCheckResult {
   design_rules_applied: string[];
 }
 
+/** Face Mill Selection Input configuration/data structure.
+ */
 export interface FaceMillSelectionInput {
   workpiece_material?: string;
   wall_thickness_mm?: number;
@@ -82,6 +90,8 @@ export interface FaceMillSelectionInput {
   priority?: "mrr" | "finish" | "versatility";
 }
 
+/** Face Mill Recommendation configuration/data structure.
+ */
 export interface FaceMillRecommendation {
   recommended_angle: 45 | 90 | "button";
   reasoning: string[];
@@ -89,6 +99,8 @@ export interface FaceMillRecommendation {
   warnings: string[];
 }
 
+/** Deep Hole Input configuration/data structure.
+ */
 export interface DeepHoleInput {
   hole_diameter_mm: number;
   hole_depth_mm: number;
@@ -96,6 +108,8 @@ export interface DeepHoleInput {
   has_through_coolant?: boolean;
 }
 
+/** Deep Hole Technique configuration/data structure.
+ */
 export interface DeepHoleTechnique {
   ld_ratio: number;
   technique: string;
@@ -180,6 +194,10 @@ const DEEP_HOLE_THRESHOLDS: DeepHoleThreshold[] = [
 // MAIN CHECK FUNCTION
 // ============================================================================
 
+/** Checks df m rules.
+ * @param input - input input
+ * @returns df m check result
+ */
 export function checkDfMRules(input: DfMCheckInput): DfMCheckResult {
   const violations: DfMViolation[] = [];
   const rulesApplied: string[] = [];
@@ -482,6 +500,10 @@ function checkFillet(feat: DfMFeature, violations: DfMViolation[]): void {
 // FACE MILL SELECTION
 // ============================================================================
 
+/** Selects face mill geometry.
+ * @param input - input input
+ * @returns face mill recommendation
+ */
 export function selectFaceMillGeometry(input: FaceMillSelectionInput): FaceMillRecommendation {
   const warnings: string[] = [];
   const reasoning: string[] = [];
@@ -531,6 +553,10 @@ export function selectFaceMillGeometry(input: FaceMillSelectionInput): FaceMillR
 // DEEP HOLE TECHNIQUE SELECTION
 // ============================================================================
 
+/** Selects deep hole technique.
+ * @param input - input input
+ * @returns deep hole technique
+ */
 export function selectDeepHoleTechnique(input: DeepHoleInput): DeepHoleTechnique {
   const ldRatio = input.hole_depth_mm / input.hole_diameter_mm;
   const notes: string[] = [];
@@ -574,6 +600,8 @@ export function selectDeepHoleTechnique(input: DeepHoleInput): DeepHoleTechnique
 // CNC MACHINE COST ESTIMATION
 // ============================================================================
 
+/** Machine Cost Estimate configuration/data structure.
+ */
 export interface MachineCostEstimate {
   machine_type: string;
   cost_per_hour_usd: number;
@@ -588,6 +616,10 @@ const MACHINE_COSTS: Record<string, { usd: number; relative: string }> = {
   "mill_turn":           { usd: 95,  relative: "+25%" },
 };
 
+/** Estimates machine cost.
+ * @param machine_type - machine_type string
+ * @returns machine cost estimate
+ */
 export function estimateMachineCost(machine_type: string): MachineCostEstimate {
   const entry = MACHINE_COSTS[machine_type] ?? MACHINE_COSTS["3axis_mill"];
   return {

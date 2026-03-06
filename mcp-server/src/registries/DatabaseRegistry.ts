@@ -44,6 +44,8 @@ interface LoadedDatabase {
   data: any; // The loaded JSON contents (for file-backed only)
 }
 
+/** Database Registry engine/manager.
+ */
 export class DatabaseRegistry {
   private manifest: DatabaseManifest | null = null;
   private databases: Map<string, LoadedDatabase> = new Map();
@@ -227,4 +229,6 @@ export class DatabaseRegistry {
   }
 }
 
+/** Database Registry constant.
+ */
 export const databaseRegistry = new DatabaseRegistry();

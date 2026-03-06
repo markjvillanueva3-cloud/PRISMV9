@@ -735,6 +735,8 @@ export function addLesson(lesson: Lesson): void {
 // EXPORT ALL COGNITIVE HOOKS
 // ============================================================================
 
+/** Cognitive Hooks constant.
+ */
 export const cognitiveHooks: HookDefinition[] = [
   // Bayesian
   onBayesianPriorInit,

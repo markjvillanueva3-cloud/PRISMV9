@@ -19,6 +19,8 @@ export type DampingStrategy =
   | "mr_fluid" | "constrained_layer" | "variable_speed"
   | "variable_pitch" | "process_damping" | "none";
 
+/** Damping Input configuration/data structure.
+ */
 export interface DampingInput {
   target_freq_Hz: number;              // frequency to damp (chatter frequency)
   structure_mass_kg: number;           // effective modal mass
@@ -29,6 +31,8 @@ export interface DampingInput {
   strategies?: DampingStrategy[];      // strategies to evaluate (default: all)
 }
 
+/** Damping Result configuration/data structure.
+ */
 export interface DampingResult {
   strategy: DampingStrategy;
   damping_improvement_ratio: number;   // new_zeta / old_zeta
@@ -38,6 +42,8 @@ export interface DampingResult {
   cost_relative: number;               // 1 = cheap, 5 = expensive
 }
 
+/** Damping Comparison configuration/data structure.
+ */
 export interface DampingComparison {
   best_strategy: DampingStrategy;
   results: DampingResult[];
@@ -48,6 +54,8 @@ export interface DampingComparison {
 // ENGINE CLASS
 // ============================================================================
 
+/** Damping Optimization Engine engine/manager.
+ */
 export class DampingOptimizationEngine {
   optimize(input: DampingInput): DampingComparison {
     const strategies = input.strategies || [
@@ -231,4 +239,6 @@ export class DampingOptimizationEngine {
   }
 }
 
+/** Damping Optimization Engine constant.
+ */
 export const dampingOptimizationEngine = new DampingOptimizationEngine();

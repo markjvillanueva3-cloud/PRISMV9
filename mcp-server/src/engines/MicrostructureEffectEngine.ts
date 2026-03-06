@@ -20,15 +20,21 @@
 
 export type GrainSizeASTM = number; // ASTM E112 grain size number (1-14)
 
+/** Phase Type type definition.
+ */
 export type PhaseType =
   | "ferrite" | "pearlite" | "martensite" | "bainite" | "austenite"
   | "cementite" | "alpha" | "beta" | "gamma_prime";
 
+/** Phase Composition configuration/data structure.
+ */
 export interface PhaseComposition {
   phase: PhaseType;
   fraction_pct: number;   // volume fraction %
 }
 
+/** Microstructure Input configuration/data structure.
+ */
 export interface MicrostructureInput {
   material_class: "steel" | "stainless" | "aluminum" | "titanium" | "nickel_alloy" | "cast_iron";
   grain_size_ASTM: GrainSizeASTM;
@@ -38,6 +44,8 @@ export interface MicrostructureInput {
   inclusion_rating?: number;  // ASTM E45 inclusion rating (0=clean, higher=more inclusions)
 }
 
+/** Microstructure Result configuration/data structure.
+ */
 export interface MicrostructureResult {
   machinability_index: number;          // 0-100, higher = more machinable
   force_multiplier: number;             // 1.0 = baseline, >1 harder to cut
@@ -92,6 +100,8 @@ const PROCESSING_FACTOR: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Microstructure Effect Engine engine/manager.
+ */
 export class MicrostructureEffectEngine {
   analyze(input: MicrostructureInput): MicrostructureResult {
     // Grain size effects
@@ -215,4 +225,6 @@ export class MicrostructureEffectEngine {
   }
 }
 
+/** Microstructure Effect Engine constant.
+ */
 export const microstructureEffectEngine = new MicrostructureEffectEngine();

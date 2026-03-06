@@ -286,6 +286,8 @@ const autoNonConformanceTrend: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Specialty Cadences constant.
+ */
 export const specialtyCadences: HookDefinition[] = [
   autoFRFLibraryMatch,
   autoToleranceRiskScore,

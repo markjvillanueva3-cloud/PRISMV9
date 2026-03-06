@@ -18,6 +18,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Genetic Optimizer Input configuration/data structure.
+ */
 export interface GeneticOptimizerInput {
   /** Objective functions (minimize). Each takes a parameter vector → scalar. */
   objectives: number;
@@ -43,6 +45,8 @@ export interface GeneticOptimizerInput {
   fitness_fn?: (params: number[]) => number[];
 }
 
+/** Pareto Solution configuration/data structure.
+ */
 export interface ParetoSolution {
   parameters: number[];
   objectives: number[];
@@ -50,6 +54,8 @@ export interface ParetoSolution {
   rank: number;
 }
 
+/** Genetic Optimizer Output configuration/data structure.
+ */
 export interface GeneticOptimizerOutput extends WithWarnings {
   best_solution: number[];
   best_objectives: number[];
@@ -69,6 +75,8 @@ function mulberry32(seed: number) {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Genetic Optimizer engine/manager.
+ */
 export class GeneticOptimizer implements Algorithm<GeneticOptimizerInput, GeneticOptimizerOutput> {
 
   validate(input: GeneticOptimizerInput): ValidationResult {

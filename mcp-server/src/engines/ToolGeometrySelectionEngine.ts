@@ -23,6 +23,8 @@ export type EndMillMaterial =
   | "cfrp"
   | "plastic";
 
+/** Milling Operation type definition.
+ */
 export type MillingOperation =
   | "slotting"
   | "side_milling"
@@ -33,8 +35,12 @@ export type MillingOperation =
   | "ramping"
   | "high_feed";
 
+/** Corner Treatment type definition.
+ */
 export type CornerTreatment = "sharp" | "corner_radius" | "chamfer" | "ball_nose";
 
+/** Tool Geometry Input configuration/data structure.
+ */
 export interface ToolGeometryInput {
   workpiece_material: EndMillMaterial;
   operation: MillingOperation;
@@ -54,6 +60,8 @@ interface AtomicValue {
   warning?: string;
 }
 
+/** Tool Geometry Result configuration/data structure.
+ */
 export interface ToolGeometryResult {
   recommended_flutes: AtomicValue;
   helix_angle_deg: AtomicValue;
@@ -149,6 +157,8 @@ const CORE_DIAMETER_PCT: Record<EndMillMaterial, number> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Tool Geometry Selection Engine engine/manager.
+ */
 export class ToolGeometrySelectionEngine {
   calculate(input: ToolGeometryInput): ToolGeometryResult {
     const mat = input.workpiece_material;
@@ -314,4 +324,6 @@ export class ToolGeometrySelectionEngine {
   }
 }
 
+/** Tool Geometry Selection Engine constant.
+ */
 export const toolGeometrySelectionEngine = new ToolGeometrySelectionEngine();

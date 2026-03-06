@@ -2183,4 +2183,6 @@ export class CollisionEngine {
 }
 
 // Export singleton instance
+/** Collision Engine constant.
+ */
 export const collisionEngine = CollisionEngine.getInstance();

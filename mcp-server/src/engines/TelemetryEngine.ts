@@ -181,6 +181,8 @@ function aggregateMetrics(dispatcher: string, records: TelemetryRecord[], window
 // TELEMETRY ENGINE — MAIN CLASS
 // ============================================================================
 
+/** Telemetry Engine engine/manager.
+ */
 export class TelemetryEngine {
   private static instance: TelemetryEngine | null = null;
   private config: TelemetryConfig;
@@ -603,4 +605,6 @@ export class TelemetryEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Telemetry Engine constant.
+ */
 export const telemetryEngine = TelemetryEngine.getInstance();

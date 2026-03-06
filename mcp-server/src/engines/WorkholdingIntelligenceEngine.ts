@@ -20,8 +20,12 @@
 // ============================================================================
 
 export type PartShape = 'prismatic' | 'round' | 'plate' | 'irregular';
+/** Fixture Type type definition.
+ */
 export type FixtureType = 'vise' | 'chuck_3jaw' | 'chuck_4jaw' | 'collet' | 'fixture_plate' | 'vacuum' | 'magnetic' | 'soft_jaws' | 'custom';
 
+/** Fixture Input configuration/data structure.
+ */
 export interface FixtureInput {
   part: {
     material: string;
@@ -56,6 +60,8 @@ interface FixtureRecommendation {
   suitability_score: number;
 }
 
+/** Fixture Result configuration/data structure.
+ */
 export interface FixtureResult {
   primary_recommendation: FixtureRecommendation;
   analysis: {
@@ -216,6 +222,10 @@ function calcMaxDeflection(
 // FIXTURE RECOMMENDATION ENGINE
 // ============================================================================
 
+/** Fixture Recommend.
+ * @param input - input input
+ * @returns fixture result
+ */
 export function fixtureRecommend(input: FixtureInput): FixtureResult {
   const mat = getWhMat(input.part.material);
   const shape = classifyShape(input.part);
@@ -426,6 +436,8 @@ function generateClampPositions(type: FixtureType, L: number, W: number): ClampP
 // owns its own copy so there are no cross-engine import dependencies.
 // ============================================================================
 
+/** W O R K H O L D I N G_ I N T E L L I G E N C E_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;
@@ -471,6 +483,11 @@ export function getWorkholdingIntelligenceSourceFileCatalog(): typeof WORKHOLDIN
 // DISPATCHER FUNCTION
 // ============================================================================
 
+/** Workholding Intelligence.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns unknown
+ */
 export function workholdingIntelligence(action: string, params: Record<string, unknown>): unknown {
   switch (action) {
     case 'fixture_recommend':

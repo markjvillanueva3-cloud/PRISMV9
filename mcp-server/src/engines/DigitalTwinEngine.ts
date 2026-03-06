@@ -23,6 +23,8 @@ export interface MachineTwin {
   last_updated: string;
 }
 
+/** Machine State configuration/data structure.
+ */
 export interface MachineState {
   power: "off" | "standby" | "idle" | "running" | "alarm";
   spindle_rpm: number;
@@ -37,6 +39,8 @@ export interface MachineState {
   temperature_ambient_C: number;
 }
 
+/** Machine Health configuration/data structure.
+ */
 export interface MachineHealth {
   overall_score: number;             // 0–100
   spindle_health: number;            // 0–100
@@ -48,6 +52,8 @@ export interface MachineHealth {
   alerts: HealthAlert[];
 }
 
+/** Health Alert configuration/data structure.
+ */
 export interface HealthAlert {
   component: string;
   severity: "info" | "warning" | "critical";
@@ -55,6 +61,8 @@ export interface HealthAlert {
   recommended_action: string;
 }
 
+/** Machine Performance configuration/data structure.
+ */
 export interface MachinePerformance {
   oee_pct: number;                   // Overall Equipment Effectiveness
   availability_pct: number;
@@ -67,6 +75,8 @@ export interface MachinePerformance {
   utilization_7day_pct: number;
 }
 
+/** Twin Prediction configuration/data structure.
+ */
 export interface TwinPrediction {
   component: string;
   predicted_event: string;
@@ -76,6 +86,8 @@ export interface TwinPrediction {
   recommended_action: string;
 }
 
+/** Simulation Result configuration/data structure.
+ */
 export interface SimulationResult {
   scenario: string;
   original_value: number;
@@ -132,6 +144,8 @@ function calculateOEE(
 // ENGINE CLASS
 // ============================================================================
 
+/** Digital Twin Engine engine/manager.
+ */
 export class DigitalTwinEngine {
   private twins = new Map<string, MachineTwin>();
 
@@ -308,4 +322,6 @@ export class DigitalTwinEngine {
   }
 }
 
+/** Digital Twin Engine constant.
+ */
 export const digitalTwinEngine = new DigitalTwinEngine();

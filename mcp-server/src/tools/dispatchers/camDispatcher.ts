@@ -42,6 +42,9 @@ const ACTIONS = [
   "cam_strategy_recommend", "cam_safety_validate",
 ] as const;
 
+/** Registers cam dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerCamDispatcher(server: any): void {
   server.tool(
     "prism_cam",

@@ -25,6 +25,8 @@ export interface AgentRecommendation {
   tier: "opus" | "sonnet" | "haiku";
 }
 
+/** Swarm Recommendation configuration/data structure.
+ */
 export interface SwarmRecommendation {
   pattern: string;
   agents: string[];
@@ -33,6 +35,8 @@ export interface SwarmRecommendation {
   estimated_cost_tier: "low" | "medium" | "high";
 }
 
+/** Group Decomposition configuration/data structure.
+ */
 export interface GroupDecomposition {
   groups: Array<{
     groupId: string;
@@ -45,6 +49,8 @@ export interface GroupDecomposition {
   reason: string;
 }
 
+/** Task Classification configuration/data structure.
+ */
 export interface TaskClassification {
   complexity: "simple" | "moderate" | "complex" | "critical";
   domain: string;

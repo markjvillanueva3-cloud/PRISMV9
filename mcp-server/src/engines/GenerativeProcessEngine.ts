@@ -26,15 +26,23 @@ export type FeatureType =
   | "pocket" | "hole" | "slot" | "contour" | "face"
   | "thread" | "chamfer" | "fillet" | "boss" | "bore";
 
+/** Access Direction type definition.
+ */
 export type AccessDirection = "top" | "bottom" | "left" | "right" | "front" | "back";
 
+/** Operation Phase type definition.
+ */
 export type OperationPhase = "roughing" | "semi_finishing" | "finishing";
 
+/** Tool Type type definition.
+ */
 export type ToolType =
   | "endmill" | "face_mill" | "drill" | "tap" | "reamer"
   | "boring_bar" | "chamfer_mill" | "ball_endmill" | "thread_mill"
   | "center_drill" | "spot_drill";
 
+/** Feature Input configuration/data structure.
+ */
 export interface FeatureInput {
   id?: string;
   type: FeatureType;
@@ -47,6 +55,8 @@ export interface FeatureInput {
   count?: number;            // for hole patterns
 }
 
+/** Recognized Feature configuration/data structure.
+ */
 export interface RecognizedFeature {
   feature_id: string;
   type: FeatureType;
@@ -61,6 +71,8 @@ export interface RecognizedFeature {
   operations_needed: string[];
 }
 
+/** Setup configuration/data structure.
+ */
 export interface Setup {
   setup_number: number;
   access_direction: AccessDirection;
@@ -70,6 +82,8 @@ export interface Setup {
   estimated_time_min: number;
 }
 
+/** Planned Operation configuration/data structure.
+ */
 export interface PlannedOperation {
   operation_id: string;
   setup_number: number;
@@ -84,6 +98,8 @@ export interface PlannedOperation {
   risk_notes: string[];
 }
 
+/** Tool Selection configuration/data structure.
+ */
 export interface ToolSelection {
   tool_number: number;
   tool_type: ToolType;
@@ -95,6 +111,8 @@ export interface ToolSelection {
   coating: string;
 }
 
+/** Cutting Params configuration/data structure.
+ */
 export interface CuttingParams {
   vc_m_min: number;
   rpm: number;
@@ -105,6 +123,8 @@ export interface CuttingParams {
   strategy: string;
 }
 
+/** Process Plan configuration/data structure.
+ */
 export interface ProcessPlan {
   plan_id: string;
   material: string;
@@ -121,6 +141,8 @@ export interface ProcessPlan {
   created_at: string;
 }
 
+/** Cost Breakdown configuration/data structure.
+ */
 export interface CostBreakdown {
   machine_time_cost_usd: number;
   tool_cost_usd: number;
@@ -131,6 +153,8 @@ export interface CostBreakdown {
   total_batch_usd: number;
 }
 
+/** Risk Summary configuration/data structure.
+ */
 export interface RiskSummary {
   overall_risk: "low" | "medium" | "high";
   high_risk_operations: number;
@@ -897,6 +921,11 @@ function generatePlan(
 
 // ─── Dispatcher ─────────────────────────────────────────────────────────────
 
+/** Generative Process.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns record<string, unknown>
+ */
 export function generativeProcess(
   action: string,
   params: Record<string, unknown>,

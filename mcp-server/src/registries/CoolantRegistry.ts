@@ -20,10 +20,18 @@ import { log } from "../utils/Logger.js";
 // COOLANT TYPES
 // ============================================================================
 
+/** Coolant Delivery type definition.
+ */
 export type CoolantDelivery = "flood" | "mist" | "mql" | "through_tool" | "air" | "cryogenic" | "none";
+/** Coolant Base type definition.
+ */
 export type CoolantBase = "water_soluble" | "semi_synthetic" | "full_synthetic" | "neat_oil" | "vegetable" | "cryogenic" | "air" | "none";
+/** Coolant Category type definition.
+ */
 export type CoolantCategory = "emulsion" | "solution" | "straight_oil" | "mql_fluid" | "cryogenic" | "gas" | "dry";
 
+/** Coolant Entry configuration/data structure.
+ */
 export interface CoolantEntry {
   id: string;
   name: string;
@@ -454,6 +462,8 @@ const COOLANT_DATA: CoolantEntry[] = [
 // COOLANT REGISTRY CLASS
 // ============================================================================
 
+/** Coolant Registry engine/manager.
+ */
 export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
   constructor() {
     super("coolants", "", "1.0.0");
@@ -595,4 +605,6 @@ export class CoolantRegistry extends BaseRegistry<CoolantEntry> {
 }
 
 // Singleton
+/** Coolant Registry constant.
+ */
 export const coolantRegistry = new CoolantRegistry();

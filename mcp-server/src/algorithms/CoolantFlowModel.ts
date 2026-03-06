@@ -28,15 +28,21 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Coolant Operation type definition.
+ */
 export type CoolantOperation =
   | "milling" | "milling_hsm" | "drilling" | "drilling_deep"
   | "drilling_gun" | "tapping" | "reaming" | "boring"
   | "turning" | "grinding";
 
+/** Material Class type definition.
+ */
 export type MaterialClass =
   | "steel" | "stainless" | "aluminum" | "titanium"
   | "superalloy" | "cast_iron" | "copper" | "plastic";
 
+/** Coolant Flow Input configuration/data structure.
+ */
 export interface CoolantFlowInput {
   /** Machining operation type. */
   operation: CoolantOperation;
@@ -56,6 +62,8 @@ export interface CoolantFlowInput {
   hole_depth?: number;
 }
 
+/** Coolant Flow Output configuration/data structure.
+ */
 export interface CoolantFlowOutput extends WithWarnings {
   /** Required flow rate [L/min]. */
   required_flow: number;
@@ -122,6 +130,8 @@ const LD_STRATEGIES: { maxLD: number; strategy: string; pressure: number; flowMu
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Coolant Flow Model engine/manager.
+ */
 export class CoolantFlowModel implements Algorithm<CoolantFlowInput, CoolantFlowOutput> {
 
   validate(input: CoolantFlowInput): ValidationResult {

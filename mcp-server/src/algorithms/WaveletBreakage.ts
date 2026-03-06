@@ -23,6 +23,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Wavelet Breakage Input configuration/data structure.
+ */
 export interface WaveletBreakageInput {
   /** Force or vibration signal samples. */
   signal: number[];
@@ -44,6 +46,8 @@ export interface WaveletBreakageInput {
   min_event_duration?: number;
 }
 
+/** Breakage Event configuration/data structure.
+ */
 export interface BreakageEvent {
   /** Time of breakage onset [s]. */
   time: number;
@@ -61,6 +65,8 @@ export interface BreakageEvent {
   severity: "chipping" | "fracture" | "catastrophic";
 }
 
+/** Wavelet Breakage Output configuration/data structure.
+ */
 export interface WaveletBreakageOutput extends WithWarnings {
   /** Whether any breakage event was detected. */
   breakage_detected: boolean;
@@ -81,6 +87,8 @@ export interface WaveletBreakageOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Wavelet Tool Breakage engine/manager.
+ */
 export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, WaveletBreakageOutput> {
 
   validate(input: WaveletBreakageInput): ValidationResult {

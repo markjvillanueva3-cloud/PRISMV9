@@ -14,6 +14,8 @@
 
 export type StepType = "setup" | "operation" | "inspection" | "safety" | "tool_change" | "quality_check";
 
+/** Work Instruction Step configuration/data structure.
+ */
 export interface WorkInstructionStep {
   step_number: number;
   type: StepType;
@@ -27,6 +29,8 @@ export interface WorkInstructionStep {
   image_ref?: string;
 }
 
+/** Work Instruction Input configuration/data structure.
+ */
 export interface WorkInstructionInput {
   part_number: string;
   operation_number: string;
@@ -42,6 +46,8 @@ export interface WorkInstructionInput {
   }[];
 }
 
+/** Work Instruction Result configuration/data structure.
+ */
 export interface WorkInstructionResult {
   instruction_id: string;
   part_number: string;
@@ -58,6 +64,8 @@ export interface WorkInstructionResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Digital Work Instruction Engine engine/manager.
+ */
 export class DigitalWorkInstructionEngine {
   generate(input: WorkInstructionInput): WorkInstructionResult {
     const steps: WorkInstructionStep[] = [];
@@ -142,4 +150,6 @@ export class DigitalWorkInstructionEngine {
   }
 }
 
+/** Digital Work Instruction Engine constant.
+ */
 export const digitalWorkInstructionEngine = new DigitalWorkInstructionEngine();

@@ -21,6 +21,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** C W E Tool Position configuration/data structure.
+ */
 export interface CWEToolPosition {
   /** Tool center X [mm]. */
   x: number;
@@ -32,6 +34,8 @@ export interface CWEToolPosition {
   feed_angle?: number;
 }
 
+/** C W E Z Buffer Input configuration/data structure.
+ */
 export interface CWEZBufferInput {
   /** Tool diameter [mm]. */
   tool_diameter: number;
@@ -51,6 +55,8 @@ export interface CWEZBufferInput {
   workpiece_bounds?: { x_min: number; x_max: number; y_min: number; y_max: number };
 }
 
+/** Engagement Slice configuration/data structure.
+ */
 export interface EngagementSlice {
   /** Axial height from tool tip [mm]. */
   z_height: number;
@@ -64,6 +70,8 @@ export interface EngagementSlice {
   radial_depth: number;
 }
 
+/** C W E Z Buffer Output configuration/data structure.
+ */
 export interface CWEZBufferOutput extends WithWarnings {
   /** Engagement at each axial slice. */
   engagement_slices: EngagementSlice[];
@@ -84,6 +92,8 @@ export interface CWEZBufferOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** C W E Z Buffer engine/manager.
+ */
 export class CWEZBuffer implements Algorithm<CWEZBufferInput, CWEZBufferOutput> {
 
   validate(input: CWEZBufferInput): ValidationResult {

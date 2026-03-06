@@ -115,6 +115,8 @@ const batch_export = z.object({
 // EXPORT: ACTION_EXPORT_SCHEMAS
 // ============================================================================
 
+/** A C T I O N_ E X P O R T_ S C H E M A S constant.
+ */
 export const ACTION_EXPORT_SCHEMAS: ActionSchemaMap = {
   // Document renders
   render_pdf,

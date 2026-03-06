@@ -31,6 +31,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Surface Finish Input configuration/data structure.
+ */
 export interface SurfaceFinishInput {
   /** Feed per revolution or per tooth [mm]. */
   feed: number;
@@ -48,6 +50,8 @@ export interface SurfaceFinishInput {
   process_factor?: number;
 }
 
+/** Surface Finish Output configuration/data structure.
+ */
 export interface SurfaceFinishOutput extends WithWarnings {
   /** Actual predicted Ra [μm]. */
   Ra: number;
@@ -104,6 +108,8 @@ const ISO_GRADES: Array<{ grade: string; max_ra: number }> = [
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Surface Finish Predictor engine/manager.
+ */
 export class SurfaceFinishPredictor implements Algorithm<SurfaceFinishInput, SurfaceFinishOutput> {
 
   validate(input: SurfaceFinishInput): ValidationResult {

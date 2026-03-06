@@ -34,6 +34,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Johnson Cook Input configuration/data structure.
+ */
 export interface JohnsonCookInput {
   /** Plastic strain [-] (typically 0.001-5.0). */
   strain: number;
@@ -59,6 +61,8 @@ export interface JohnsonCookInput {
   strain_rate_ref?: number;
 }
 
+/** Johnson Cook Output configuration/data structure.
+ */
 export interface JohnsonCookOutput extends WithWarnings {
   /** Flow stress σ [MPa]. */
   stress: number;
@@ -91,6 +95,8 @@ const LIMITS = {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Johnson Cook Model engine/manager.
+ */
 export class JohnsonCookModel implements Algorithm<JohnsonCookInput, JohnsonCookOutput> {
 
   validate(input: JohnsonCookInput): ValidationResult {

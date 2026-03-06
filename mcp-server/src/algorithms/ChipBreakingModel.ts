@@ -32,6 +32,8 @@ import type {
 
 // ── Input / Output Types ────────────────────────────────────────────
 
+/** Chip Breaking Input configuration/data structure.
+ */
 export interface ChipBreakingInput {
   /** Feed per tooth [mm/tooth]. */
   feed_per_tooth: number;
@@ -51,6 +53,8 @@ export interface ChipBreakingInput {
   rake_angle?: number;
 }
 
+/** Chip Breaking Output configuration/data structure.
+ */
 export interface ChipBreakingOutput extends WithWarnings {
   /** Uncut chip thickness [mm]. */
   chip_thickness: number;
@@ -103,6 +107,8 @@ const ISO_CHIP_BEHAVIOR: Record<string, {
 
 // ── Algorithm Implementation ────────────────────────────────────────
 
+/** Chip Breaking Model engine/manager.
+ */
 export class ChipBreakingModel implements Algorithm<ChipBreakingInput, ChipBreakingOutput> {
 
   validate(input: ChipBreakingInput): ValidationResult {

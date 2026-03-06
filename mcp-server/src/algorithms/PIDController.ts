@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** P I D Controller Input configuration/data structure.
+ */
 export interface PIDControllerInput {
   /** Setpoint (desired value). */
   setpoint: number;
@@ -44,6 +46,8 @@ export interface PIDControllerInput {
   auto_tune?: { ultimate_gain: number; ultimate_period: number; controller_type?: "P" | "PI" | "PID" };
 }
 
+/** P I D Step configuration/data structure.
+ */
 export interface PIDStep {
   time: number;
   setpoint: number;
@@ -55,6 +59,8 @@ export interface PIDStep {
   output: number;
 }
 
+/** P I D Controller Output configuration/data structure.
+ */
 export interface PIDControllerOutput extends WithWarnings {
   steps: PIDStep[];
   current_output: number;
@@ -68,6 +74,8 @@ export interface PIDControllerOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** P I D Controller engine/manager.
+ */
 export class PIDController implements Algorithm<PIDControllerInput, PIDControllerOutput> {
 
   validate(input: PIDControllerInput): ValidationResult {

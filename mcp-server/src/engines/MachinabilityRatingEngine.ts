@@ -21,6 +21,8 @@ export interface MachinabilityInput {
   condition?: "annealed" | "normalized" | "quenched_tempered" | "cold_worked" | "solution_treated" | "aged";
 }
 
+/** Machinability Rating configuration/data structure.
+ */
 export interface MachinabilityRating {
   material: string;
   overall_rating: number;             // 0-100, AISI 1212 = 100
@@ -33,6 +35,8 @@ export interface MachinabilityRating {
   notes: string[];
 }
 
+/** Machinability Factor configuration/data structure.
+ */
 export interface MachinabilityFactor {
   name: string;
   score: number;                      // 0-100
@@ -40,6 +44,8 @@ export interface MachinabilityFactor {
   description: string;
 }
 
+/** Machinability Comparison configuration/data structure.
+ */
 export interface MachinabilityComparison {
   materials: MachinabilityRating[];
   best_index: number;
@@ -87,6 +93,8 @@ const MATERIAL_DB: Record<string, MaterialMachData> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Machinability Rating Engine engine/manager.
+ */
 export class MachinabilityRatingEngine {
   rate(input: MachinabilityInput): MachinabilityRating {
     // Look up material or estimate from properties
@@ -202,4 +210,6 @@ export class MachinabilityRatingEngine {
   }
 }
 
+/** Machinability Rating Engine constant.
+ */
 export const machinabilityRatingEngine = new MachinabilityRatingEngine();

@@ -45,6 +45,8 @@ import { log } from "../utils/Logger.js";
 // REGISTRY MANAGER
 // ============================================================================
 
+/** Registry Manager engine/manager.
+ */
 export class RegistryManager {
   private initialized = false;
   private initPromise: Promise<void> | null = null;
@@ -702,4 +704,6 @@ export class RegistryManager {
 }
 
 // Export singleton instance
+/** Registry Manager constant.
+ */
 export const registryManager = new RegistryManager();

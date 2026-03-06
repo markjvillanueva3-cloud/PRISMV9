@@ -13,6 +13,9 @@ const CALC_ACTIONS = new Set([
 ]);
 const CODE_ACTIONS = new Set(["generate_thread_gcode"]);
 
+/** Registers thread dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerThreadDispatcher(server: any): void {
   server.tool(
     "prism_thread",

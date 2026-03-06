@@ -15,6 +15,8 @@ import { readJsonFile, fileExists, listDirectory } from "../utils/files.js";
 // MACHINE TYPES
 // ============================================================================
 
+/** Spindle Specs configuration/data structure.
+ */
 export interface SpindleSpecs {
   max_rpm: number;
   min_rpm: number;
@@ -30,6 +32,8 @@ export interface SpindleSpecs {
   orientation_capability?: string[];  // ["horizontal", "vertical"]
 }
 
+/** Axis Specs configuration/data structure.
+ */
 export interface AxisSpecs {
   name: string;                 // X, Y, Z, A, B, C
   travel: number;               // mm
@@ -43,6 +47,8 @@ export interface AxisSpecs {
   linear_scale?: boolean;
 }
 
+/** Tool Changer Specs configuration/data structure.
+ */
 export interface ToolChangerSpecs {
   type: "side_mount" | "arm" | "umbrella" | "chain" | "disc" | "turret" | "none";
   capacity: number;
@@ -53,6 +59,8 @@ export interface ToolChangerSpecs {
   adjacent_empty?: boolean;     // For large tools
 }
 
+/** Table Specs configuration/data structure.
+ */
 export interface TableSpecs {
   type: string;                 // fixed, rotary, tilting, trunnion
   length: number;               // mm
@@ -63,6 +71,8 @@ export interface TableSpecs {
   rotation_range?: { min: number; max: number };  // degrees
 }
 
+/** Controller Specs configuration/data structure.
+ */
 export interface ControllerSpecs {
   manufacturer: string;         // FANUC, SIEMENS, HEIDENHAIN, etc.
   model: string;                // e.g., "0i-MF", "840D sl", "TNC 640"
@@ -76,6 +86,8 @@ export interface ControllerSpecs {
   conversational?: boolean;
 }
 
+/** Machine Envelope configuration/data structure.
+ */
 export interface MachineEnvelope {
   x_travel: number;
   y_travel: number;
@@ -85,6 +97,8 @@ export interface MachineEnvelope {
   spindle_nose_to_column?: number;
 }
 
+/** Machine configuration/data structure.
+ */
 export interface Machine {
   id: string;
   manufacturer: string;
@@ -131,8 +145,12 @@ export interface Machine {
 // Maps extraction IDs to source metadata for 24,643 lines across 4 tiers
 // ============================================================================
 
+/** Machine Tier type definition.
+ */
 export type MachineTier = "CORE" | "ENHANCED" | "LEVEL5" | "ENGINE";
 
+/** Machine Source File Entry configuration/data structure.
+ */
 export interface MachineSourceFileEntry {
   filename: string;
   source_dir: string;
@@ -144,6 +162,8 @@ export interface MachineSourceFileEntry {
   machine_tier: MachineTier;
 }
 
+/** M A C H I N E_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const MACHINE_SOURCE_FILE_CATALOG: Record<string, MachineSourceFileEntry> = {
   // ── ENGINE tier (4 files, 1,294 lines) ────────────────────────────────
   "EXT-242": {
@@ -756,6 +776,8 @@ export const MACHINE_SOURCE_FILE_CATALOG: Record<string, MachineSourceFileEntry>
 // MACHINE REGISTRY CLASS
 // ============================================================================
 
+/** Machine Registry engine/manager.
+ */
 export class MachineRegistry extends BaseRegistry<Machine> {
   private indexByManufacturer: Map<string, Set<string>> = new Map();
   private indexByType: Map<string, Set<string>> = new Map();
@@ -1231,4 +1253,6 @@ export class MachineRegistry extends BaseRegistry<Machine> {
 }
 
 // Singleton instance
+/** Machine Registry constant.
+ */
 export const machineRegistry = new MachineRegistry();

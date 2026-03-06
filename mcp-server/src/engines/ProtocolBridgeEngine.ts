@@ -102,6 +102,8 @@ class RateLimiter {
 /** Handler function type for routing bridge requests to actual dispatchers */
 export type DispatchHandler = (dispatcher: string, action: string, params: Record<string, unknown>) => Promise<Record<string, unknown>>;
 
+/** Protocol Bridge Engine engine/manager.
+ */
 export class ProtocolBridgeEngine {
   private config: ProtocolBridgeConfig;
   private endpoints: Map<string, ProtocolEndpoint> = new Map();
@@ -511,12 +513,16 @@ export class ProtocolBridgeEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Protocol Bridge Engine constant.
+ */
 export const protocolBridgeEngine = new ProtocolBridgeEngine();
 
 // ============================================================================
 // SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting ProtocolBridgeEngine
 // ============================================================================
 
+/** P R O T O C O L_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const PROTOCOL_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

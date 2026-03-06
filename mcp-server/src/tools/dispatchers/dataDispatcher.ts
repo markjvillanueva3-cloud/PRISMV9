@@ -35,6 +35,9 @@ function jsonResponse(data: any) {
   return { content: [{ type: "text" as const, text: JSON.stringify(data) }] };
 }
 
+/** Registers data dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerDataDispatcher(server: any): void {
   server.tool(
     "prism_data",

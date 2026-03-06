@@ -35,8 +35,12 @@ import * as path from "path";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+/** Template Size Level type definition.
+ */
 export type TemplateSizeLevel = "full" | "compact" | "minimal";
 
+/** Response Template configuration/data structure.
+ */
 export interface ResponseTemplate {
   template_id: string;
   dispatcher: string;
@@ -46,6 +50,8 @@ export interface ResponseTemplate {
   adaptive: boolean;
 }
 
+/** Template Section configuration/data structure.
+ */
 export interface TemplateSection {
   id: string;
   label: string;
@@ -59,6 +65,8 @@ export interface TemplateSection {
   critical: boolean;
 }
 
+/** Template Match configuration/data structure.
+ */
 export interface TemplateMatch {
   template_id: string;
   format: string;
@@ -69,6 +77,8 @@ export interface TemplateMatch {
   _note: string;
 }
 
+/** Template Section Output configuration/data structure.
+ */
 export interface TemplateSectionOutput {
   label: string;
   fields: string[];
@@ -432,6 +442,8 @@ const FORMAT_INSTRUCTIONS: Record<string, Record<TemplateSizeLevel, string>> = {
 
 // ─── Engine Class ────────────────────────────────────────────────────────────
 
+/** Response Template Engine engine/manager.
+ */
 export class ResponseTemplateEngine {
   private static instance: ResponseTemplateEngine | null = null;
   private executionCount = 0;

@@ -14,8 +14,12 @@
 // ============================================================================
 
 export type ExportFormat = "pdf" | "csv" | "excel" | "dxf" | "step" | "gcode" | "setup_sheet" | "json";
+/** Export Status type definition.
+ */
 export type ExportStatus = "pending" | "rendering" | "completed" | "failed";
 
+/** Export Job configuration/data structure.
+ */
 export interface ExportJob {
   id: string;
   format: ExportFormat;
@@ -32,6 +36,8 @@ export interface ExportJob {
   error?: string;
 }
 
+/** Export Options configuration/data structure.
+ */
 export interface ExportOptions {
   page_size?: "A4" | "A3" | "Letter" | "Legal";
   orientation?: "portrait" | "landscape";
@@ -43,6 +49,8 @@ export interface ExportOptions {
   encoding?: string;
 }
 
+/** Export Template configuration/data structure.
+ */
 export interface ExportTemplate {
   id: string;
   name: string;
@@ -53,6 +61,8 @@ export interface ExportTemplate {
   sections?: string[];
 }
 
+/** Export Stats configuration/data structure.
+ */
 export interface ExportStats {
   total_exports: number;
   by_format: Record<ExportFormat, number>;
@@ -78,6 +88,8 @@ const DEFAULT_TEMPLATES: ExportTemplate[] = [
 
 let exportIdCounter = 0;
 
+/** Export Engine engine/manager.
+ */
 export class ExportEngine {
   private jobs = new Map<string, ExportJob>();
   private templates = new Map<string, ExportTemplate>();
@@ -184,4 +196,6 @@ export class ExportEngine {
   }
 }
 
+/** Export Engine constant.
+ */
 export const exportEngine = new ExportEngine();

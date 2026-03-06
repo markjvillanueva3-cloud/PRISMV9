@@ -433,6 +433,8 @@ const preSwarmAtcsBridge: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Orchestration Hooks constant.
+ */
 export const orchestrationHooks: HookDefinition[] = [
   preSwarmPatternSelect,
   preSwarmAgentMix,

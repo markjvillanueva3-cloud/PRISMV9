@@ -237,6 +237,8 @@ const quarterlyCalibrationReminder: HookDefinition = {
 // EXPORT
 // ============================================================================
 
+/** Cadence Hooks constant.
+ */
 export const cadenceHooks: HookDefinition[] = [
   dailyToolWearCheck,
   weeklyMaintenanceForecast,

@@ -170,6 +170,9 @@ function knowledgeExtractKeyValues(action: string, result: any): Record<string, 
 // REGISTRATION
 // ============================================================================
 
+/** Registers knowledge ext dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerKnowledgeExtDispatcher(server: any): void {
   server.tool(
     "prism_knowledge_ext",

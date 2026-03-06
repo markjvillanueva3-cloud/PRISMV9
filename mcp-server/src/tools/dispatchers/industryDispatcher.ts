@@ -15,6 +15,9 @@ const ACTIONS = [
   "aerospace_check", "medical_check", "automotive_check", "oil_gas_check",
 ] as const;
 
+/** Registers industry dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerIndustryDispatcher(server: any): void {
   server.tool(
     "prism_industry",

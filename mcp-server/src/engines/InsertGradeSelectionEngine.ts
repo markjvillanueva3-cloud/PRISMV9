@@ -28,6 +28,8 @@ export type WorkpieceMaterial =
   | "hardened_steel"      // H01-H15
   | "cobalt_alloy";       // S15-S35
 
+/** Turning Op type definition.
+ */
 export type TurningOp =
   | "roughing"
   | "medium"
@@ -35,6 +37,8 @@ export type TurningOp =
   | "heavy_roughing"
   | "light_finishing";
 
+/** Insert Shape type definition.
+ */
 export type InsertShape =
   | "C_rhombic_80"   // CNMG — strong, versatile
   | "D_rhombic_55"   // DNMG — medium accessibility
@@ -44,6 +48,8 @@ export type InsertShape =
   | "W_trigon"       // WNMG — 6 edges, strong
   | "R_round";       // RCMT — strongest, profiling
 
+/** Insert Grade Input configuration/data structure.
+ */
 export interface InsertGradeInput {
   workpiece_material: WorkpieceMaterial;
   operation: TurningOp;
@@ -64,6 +70,8 @@ interface AtomicValue {
   warning?: string;
 }
 
+/** Insert Grade Result configuration/data structure.
+ */
 export interface InsertGradeResult {
   iso_application_group: string;         // "P", "M", "K", "N", "S", "H"
   iso_range: AtomicValue;                // numeric subclass e.g. 15 for P15
@@ -204,6 +212,8 @@ const EDGE_COUNT: Record<InsertShape, number> = {
 
 // ─── Engine ────────────────────────────────────────────────────────
 
+/** Insert Grade Selection Engine engine/manager.
+ */
 export class InsertGradeSelectionEngine {
   calculate(input: InsertGradeInput): InsertGradeResult {
     const mat = input.workpiece_material;
@@ -305,4 +315,6 @@ export class InsertGradeSelectionEngine {
   }
 }
 
+/** Insert Grade Selection Engine constant.
+ */
 export const insertGradeSelectionEngine = new InsertGradeSelectionEngine();

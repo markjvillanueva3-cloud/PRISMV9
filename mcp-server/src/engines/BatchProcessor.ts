@@ -40,11 +40,17 @@ function fireBatchProcessorHook(hookId: string, data: Record<string, unknown>): 
 // TYPES
 // ============================================================================
 
+/** Batch Priority type definition.
+ */
 export type BatchPriority = 0 | 1 | 2 | 3;
+/** P R I O R I T Y_ L A B E L S constant.
+ */
 export const PRIORITY_LABELS: Record<BatchPriority, string> = {
   0: "CRITICAL", 1: "HIGH", 2: "NORMAL", 3: "LOW",
 };
 
+/** Batch Item configuration/data structure.
+ */
 export interface BatchItem {
   id: string;
   priority: BatchPriority;
@@ -57,6 +63,8 @@ export interface BatchItem {
   max_retries: number;
 }
 
+/** Batch Result configuration/data structure.
+ */
 export interface BatchResult {
   id: string;
   status: "success" | "failed" | "expired" | "skipped";
@@ -65,6 +73,8 @@ export interface BatchResult {
   duration_ms: number;
 }
 
+/** Batch Stats configuration/data structure.
+ */
 export interface BatchStats {
   total_queued: number;
   total_processed: number;
@@ -299,4 +309,6 @@ class BatchProcessor {
 }
 
 // Singleton export
+/** Batch Processor constant.
+ */
 export const batchProcessor = new BatchProcessor();

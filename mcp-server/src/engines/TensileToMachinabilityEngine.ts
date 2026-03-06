@@ -23,6 +23,8 @@ export interface TensileData {
   condition?: string;                  // e.g., "annealed", "quenched & tempered"
 }
 
+/** Machinability Result configuration/data structure.
+ */
 export interface MachinabilityResult {
   machinability_rating_pct: number;    // AISI scale (1212 = 100%)
   recommended_speed_factor: number;    // multiply by base speed
@@ -39,6 +41,8 @@ export interface MachinabilityResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Tensile To Machinability Engine engine/manager.
+ */
 export class TensileToMachinabilityEngine {
   convert(input: TensileData): MachinabilityResult {
     // Base machinability rating (AISI 1212 free-machining = 100%)
@@ -133,4 +137,6 @@ export class TensileToMachinabilityEngine {
   }
 }
 
+/** Tensile To Machinability Engine constant.
+ */
 export const tensileToMachinabilityEngine = new TensileToMachinabilityEngine();

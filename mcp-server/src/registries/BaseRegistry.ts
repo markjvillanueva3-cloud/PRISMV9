@@ -11,14 +11,20 @@ import { PATHS } from '../constants.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
+/** Data Layer type definition.
+ */
 export type DataLayer = 'CORE' | 'ENHANCED' | 'USER' | 'LEARNED';
 
+/** Registry Item configuration/data structure.
+ */
 export interface RegistryItem {
   id: string;
   layer: DataLayer;
   [key: string]: any;
 }
 
+/** Search Options configuration/data structure.
+ */
 export interface SearchOptions {
   query?: string;
   filters?: Record<string, any>;
@@ -27,6 +33,8 @@ export interface SearchOptions {
   layer?: DataLayer;
 }
 
+/** Registry Stats configuration/data structure.
+ */
 export interface RegistryStats {
   total: number;
   byLayer: Record<DataLayer, number>;

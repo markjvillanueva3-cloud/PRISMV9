@@ -17,6 +17,8 @@
 
 export type HobbingMethod = "conventional" | "climb" | "diagonal";
 
+/** Gear Hobbing Input configuration/data structure.
+ */
 export interface GearHobbingInput {
   num_teeth: number;
   module_mm: number;                  // metric module
@@ -33,6 +35,8 @@ export interface GearHobbingInput {
   stock_allowance_mm?: number;        // for finish cut
 }
 
+/** Gear Hobbing Result configuration/data structure.
+ */
 export interface GearHobbingResult {
   workpiece_rpm: number;
   gear_ratio: number;                 // hob:workpiece speed ratio
@@ -48,6 +52,8 @@ export interface GearHobbingResult {
   recommendations: string[];
 }
 
+/** Hobbing Shift Plan configuration/data structure.
+ */
 export interface HobbingShiftPlan {
   total_shift_range_mm: number;
   shift_per_part: number;
@@ -59,6 +65,8 @@ export interface HobbingShiftPlan {
 // ENGINE CLASS
 // ============================================================================
 
+/** Gear Hobbing Engine engine/manager.
+ */
 export class GearHobbingEngine {
   calculate(input: GearHobbingInput): GearHobbingResult {
     // Gear ratio: hob starts / gear teeth
@@ -140,4 +148,6 @@ export class GearHobbingEngine {
   }
 }
 
+/** Gear Hobbing Engine constant.
+ */
 export const gearHobbingEngine = new GearHobbingEngine();

@@ -33,6 +33,8 @@ export interface TombstoneInput {
   spindle_reach_mm: number;          // max Z travel available
 }
 
+/** Tombstone Layout Result configuration/data structure.
+ */
 export interface TombstoneLayoutResult {
   parts_per_face: number;
   total_parts: number;
@@ -53,6 +55,8 @@ export interface TombstoneLayoutResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Tombstone Layout Engine engine/manager.
+ */
 export class TombstoneLayoutEngine {
   layout(input: TombstoneInput): TombstoneLayoutResult {
     // Parts per face (grid packing)
@@ -139,4 +143,6 @@ export class TombstoneLayoutEngine {
   }
 }
 
+/** Tombstone Layout Engine constant.
+ */
 export const tombstoneLayoutEngine = new TombstoneLayoutEngine();

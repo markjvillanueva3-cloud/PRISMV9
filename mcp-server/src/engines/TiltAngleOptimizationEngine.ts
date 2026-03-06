@@ -17,6 +17,8 @@
 
 export type TiltStrategy = "lead_only" | "tilt_only" | "lead_and_tilt" | "auto_optimal";
 
+/** Tilt Angle Input configuration/data structure.
+ */
 export interface TiltAngleInput {
   tool_type: "ball_nose" | "bull_nose" | "flat_end" | "barrel" | "lens";
   tool_diameter_mm: number;
@@ -30,6 +32,8 @@ export interface TiltAngleInput {
   max_tilt_deg?: number;              // machine limit
 }
 
+/** Tilt Angle Result configuration/data structure.
+ */
 export interface TiltAngleResult {
   lead_angle_deg: number;             // tilt in feed direction
   tilt_angle_deg: number;             // tilt perpendicular to feed
@@ -45,6 +49,8 @@ export interface TiltAngleResult {
 // ENGINE CLASS
 // ============================================================================
 
+/** Tilt Angle Optimization Engine engine/manager.
+ */
 export class TiltAngleOptimizationEngine {
   optimize(input: TiltAngleInput): TiltAngleResult {
     const R = input.tool_diameter_mm / 2;
@@ -180,4 +186,6 @@ export class TiltAngleOptimizationEngine {
   }
 }
 
+/** Tilt Angle Optimization Engine constant.
+ */
 export const tiltAngleOptimizationEngine = new TiltAngleOptimizationEngine();

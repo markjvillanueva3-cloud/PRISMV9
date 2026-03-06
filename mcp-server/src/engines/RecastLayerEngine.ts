@@ -18,6 +18,8 @@
 
 export type RecastProcess = "wire_edm" | "sinker_edm" | "laser_cut" | "laser_drill" | "micro_edm";
 
+/** Recast Layer Input configuration/data structure.
+ */
 export interface RecastLayerInput {
   process: RecastProcess;
   discharge_energy_mJ: number;       // per pulse energy
@@ -31,8 +33,12 @@ export interface RecastLayerInput {
   num_skim_passes: number;           // finish/skim cuts after roughing
 }
 
+/** Recast Risk type definition.
+ */
 export type RecastRisk = "none" | "low" | "moderate" | "high" | "critical";
 
+/** Recast Layer Result configuration/data structure.
+ */
 export interface RecastLayerResult {
   risk_level: RecastRisk;
   estimated_depth_um: number;        // recast layer depth in microns
@@ -77,6 +83,8 @@ const SKIM_REDUCTION = (passes: number): number =>
 // ENGINE CLASS
 // ============================================================================
 
+/** Recast Layer Engine engine/manager.
+ */
 export class RecastLayerEngine {
   predict(input: RecastLayerInput): RecastLayerResult {
     const pf = PROCESS_FACTOR[input.process];
@@ -177,4 +185,6 @@ export class RecastLayerEngine {
   }
 }
 
+/** Recast Layer Engine constant.
+ */
 export const recastLayerEngine = new RecastLayerEngine();

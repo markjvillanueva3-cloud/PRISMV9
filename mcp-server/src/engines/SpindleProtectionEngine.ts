@@ -1007,6 +1007,8 @@ class SpindleProtectionEngine {
 // SINGLETON EXPORT
 // ============================================================================
 
+/** Spindle Protection Engine constant.
+ */
 export const spindleProtectionEngine = new SpindleProtectionEngine();
 
 export { SpindleProtectionEngine };

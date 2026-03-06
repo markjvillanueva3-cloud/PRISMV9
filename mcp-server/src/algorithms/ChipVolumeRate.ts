@@ -19,8 +19,12 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Cutting Operation type definition.
+ */
 export type CuttingOperation = "milling_slot" | "milling_side" | "milling_face" | "turning" | "drilling" | "boring";
 
+/** Chip Volume Rate Input configuration/data structure.
+ */
 export interface ChipVolumeRateInput {
   /** Operation type. */
   operation: CuttingOperation;
@@ -46,6 +50,8 @@ export interface ChipVolumeRateInput {
   spindle_power?: number;
 }
 
+/** Chip Volume Rate Output configuration/data structure.
+ */
 export interface ChipVolumeRateOutput extends WithWarnings {
   /** Volumetric material removal rate [cm³/min]. */
   mrr_cm3_per_min: number;
@@ -74,6 +80,8 @@ export interface ChipVolumeRateOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Chip Volume Rate Predictor engine/manager.
+ */
 export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, ChipVolumeRateOutput> {
 
   validate(input: ChipVolumeRateInput): ValidationResult {

@@ -19,6 +19,8 @@ import type {
   Algorithm, AlgorithmMeta, ValidationResult, ValidationIssue, WithWarnings,
 } from "./types.js";
 
+/** Decision Tree Classifier Input configuration/data structure.
+ */
 export interface DecisionTreeClassifierInput {
   /** Training feature matrix (rows = samples). */
   X_train: number[][];
@@ -46,6 +48,8 @@ interface TreeNode {
   impurity: number;
 }
 
+/** Decision Tree Classifier Output configuration/data structure.
+ */
 export interface DecisionTreeClassifierOutput extends WithWarnings {
   predictions: number[];
   probabilities: number[][];
@@ -56,6 +60,8 @@ export interface DecisionTreeClassifierOutput extends WithWarnings {
   calculation_method: string;
 }
 
+/** Decision Tree Classifier engine/manager.
+ */
 export class DecisionTreeClassifier implements Algorithm<DecisionTreeClassifierInput, DecisionTreeClassifierOutput> {
 
   validate(input: DecisionTreeClassifierInput): ValidationResult {

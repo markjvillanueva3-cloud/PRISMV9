@@ -39,6 +39,8 @@ import { EventEmitter } from "events";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Hook Phase type definition.
+ */
 export type HookPhase = 
   | "before" 
   | "after" 
@@ -49,8 +51,12 @@ export type HookPhase =
   | "on_cancel"
   | "on_timeout";
 
+/** Hook Priority type definition.
+ */
 export type HookPriority = "critical" | "high" | "normal" | "low" | "background";
 
+/** Cognitive Pattern type definition.
+ */
 export type CognitivePattern = 
   | "BAYES"      // Bayesian reasoning
   | "OPT"        // Optimization
@@ -60,6 +66,8 @@ export type CognitivePattern =
   | "ENSEMBLE"   // Ensemble methods
   | "CAUSAL";    // Causal inference
 
+/** Hook Definition configuration/data structure.
+ */
 export interface HookDefinition {
   id: string;
   name: string;
@@ -76,9 +84,15 @@ export interface HookDefinition {
   metadata?: Record<string, unknown>;
 }
 
+/** Hook Handler type definition.
+ */
 export type HookHandler = (context: HookContext) => Promise<HookResult> | HookResult;
+/** Hook Filter type definition.
+ */
 export type HookFilter = (context: HookContext) => boolean;
 
+/** Hook Context configuration/data structure.
+ */
 export interface HookContext {
   event: string;
   phase: HookPhase;
@@ -90,6 +104,8 @@ export interface HookContext {
   metadata?: Record<string, unknown>;
 }
 
+/** Hook Result configuration/data structure.
+ */
 export interface HookResult {
   hookId: string;
   success: boolean;
@@ -101,6 +117,8 @@ export interface HookResult {
   metadata?: Record<string, unknown>;
 }
 
+/** Event Definition configuration/data structure.
+ */
 export interface EventDefinition {
   name: string;
   description: string;
@@ -109,6 +127,8 @@ export interface EventDefinition {
   hooks: string[];                     // Registered hook IDs
 }
 
+/** Hook Chain Result configuration/data structure.
+ */
 export interface HookChainResult {
   event: string;
   phase: HookPhase;
@@ -123,6 +143,8 @@ export interface HookChainResult {
   haltedBy?: string;
 }
 
+/** Event Bus Stats configuration/data structure.
+ */
 export interface EventBusStats {
   totalEvents: number;
   totalHooks: number;
@@ -192,6 +214,8 @@ const HOOK_CONSTANTS = {
 // EVENT BUS
 // ============================================================================
 
+/** Event Bus engine/manager.
+ */
 export class EventBus extends EventEmitter {
   private eventRegistry: Map<string, EventDefinition> = new Map();
   private emitHistory: Array<{ event: string; timestamp: Date; data: unknown }> = [];
@@ -284,6 +308,8 @@ export class EventBus extends EventEmitter {
 // HOOK ENGINE
 // ============================================================================
 
+/** Hook Engine engine/manager.
+ */
 export class HookEngine {
   private hooks: Map<string, HookDefinition> = new Map();
   private eventHooks: Map<string, Set<string>> = new Map();  // event -> hookIds
@@ -762,7 +788,11 @@ export class HookEngine {
 // SINGLETON INSTANCES
 // ============================================================================
 
+/** Event Bus constant.
+ */
 export const eventBus = new EventBus();
+/** Hook Engine constant.
+ */
 export const hookEngine = new HookEngine(eventBus);
 
 // ============================================================================

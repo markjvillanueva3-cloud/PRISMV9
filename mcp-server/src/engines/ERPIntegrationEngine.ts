@@ -19,9 +19,15 @@
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 export type ERPSystem = "jobboss" | "epicor" | "proshop" | "global_shop" | "sap" | "oracle" | "generic";
+/** Work Order Status type definition.
+ */
 export type WorkOrderStatus = "pending" | "planned" | "in_progress" | "complete" | "cancelled";
+/** Cost Category type definition.
+ */
 export type CostCategory = "machine_time" | "labor" | "tooling" | "material" | "overhead";
 
+/** Work Order configuration/data structure.
+ */
 export interface WorkOrder {
   wo_number: string;
   part_number: string;
@@ -35,6 +41,8 @@ export interface WorkOrder {
   notes?: string;
 }
 
+/** Routing Step configuration/data structure.
+ */
 export interface RoutingStep {
   step: number;
   operation: string;
@@ -45,6 +53,8 @@ export interface RoutingStep {
   tool_list?: string[];
 }
 
+/** P R I S M Plan configuration/data structure.
+ */
 export interface PRISMPlan {
   wo_number: string;
   part_number: string;
@@ -57,6 +67,8 @@ export interface PRISMPlan {
   recommendations: string[];
 }
 
+/** P R I S M Routing Step configuration/data structure.
+ */
 export interface PRISMRoutingStep {
   step: number;
   operation: string;
@@ -73,6 +85,8 @@ export interface PRISMRoutingStep {
   tool_recommendation: string;
 }
 
+/** Cost Breakdown configuration/data structure.
+ */
 export interface CostBreakdown {
   machine_time: number;
   labor: number;
@@ -83,6 +97,8 @@ export interface CostBreakdown {
   per_part: number;
 }
 
+/** Cost Feedback configuration/data structure.
+ */
 export interface CostFeedback {
   wo_number: string;
   estimated: CostBreakdown;
@@ -90,12 +106,16 @@ export interface CostFeedback {
   variance: CostVariance;
 }
 
+/** Cost Variance configuration/data structure.
+ */
 export interface CostVariance {
   total_pct: number;
   by_category: Record<CostCategory, number>;
   learning_applied: boolean;
 }
 
+/** Tool Inventory Item configuration/data structure.
+ */
 export interface ToolInventoryItem {
   tool_id: string;
   description: string;
@@ -107,6 +127,8 @@ export interface ToolInventoryItem {
   location: string;
 }
 
+/** Quality Record configuration/data structure.
+ */
 export interface QualityRecord {
   wo_number: string;
   part_number: string;
@@ -116,6 +138,8 @@ export interface QualityRecord {
   inspector: string;
 }
 
+/** Quality Measurement configuration/data structure.
+ */
 export interface QualityMeasurement {
   feature: string;
   nominal: number;
@@ -158,6 +182,10 @@ function getVc(material: string): number {
 
 // ─── Work Order Import ──────────────────────────────────────────────────────
 
+/** Import Work Order.
+ * @param wo - wo
+ * @returns p r i s m plan
+ */
 export function importWorkOrder(wo: WorkOrder): PRISMPlan {
   workOrders.set(wo.wo_number, wo);
 
@@ -231,6 +259,10 @@ export function importWorkOrder(wo: WorkOrder): PRISMPlan {
 
 // ─── Cost Feedback ──────────────────────────────────────────────────────────
 
+/** Record Cost Feedback.
+ * @param params - params for the operation
+ * @returns cost feedback
+ */
 export function recordCostFeedback(params: Record<string, any>): CostFeedback {
   const woNumber = params.wo_number;
   const plan = plans.get(woNumber);
@@ -276,6 +308,10 @@ export function recordCostFeedback(params: Record<string, any>): CostFeedback {
 
 // ─── Quality Import ─────────────────────────────────────────────────────────
 
+/** Import Quality Data.
+ * @param record - record
+ * @returns quality record & { analysis: any }
+ */
 export function importQualityData(record: QualityRecord): QualityRecord & { analysis: any } {
   // Compute in_spec for each measurement
   for (const m of record.measurements) {
@@ -449,6 +485,8 @@ export function erpIntegration(action: string, params: Record<string, any>): any
 
 // ─── Source File Catalog (14 LOW-priority integration extractions) ───────────
 
+/** I N T E G R A T I O N_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const INTEGRATION_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

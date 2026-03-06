@@ -21,7 +21,11 @@ import { log } from "../utils/Logger.js";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Event Priority type definition.
+ */
 export type EventPriority = "critical" | "high" | "normal" | "low";
+/** Event Category type definition.
+ */
 export type EventCategory =
   | "system"
   | "task"
@@ -34,6 +38,8 @@ export type EventCategory =
   | "quality"
   | "audit";
 
+/** Prism Event configuration/data structure.
+ */
 export interface PrismEvent<T = unknown> {
   id: string;
   type: string;
@@ -47,6 +53,8 @@ export interface PrismEvent<T = unknown> {
   parentEventId?: string;    // For event chains
 }
 
+/** Event Subscription configuration/data structure.
+ */
 export interface EventSubscription {
   id: string;
   pattern: string;           // Event type pattern (supports wildcards)
@@ -58,6 +66,8 @@ export interface EventSubscription {
   errors: number;
 }
 
+/** Subscription Options configuration/data structure.
+ */
 export interface SubscriptionOptions {
   priority?: EventPriority;  // Filter by priority
   category?: EventCategory;  // Filter by category
@@ -68,8 +78,12 @@ export interface SubscriptionOptions {
   filter?: (event: PrismEvent) => boolean;  // Custom filter
 }
 
+/** Event Handler type definition.
+ */
 export type EventHandler<T = unknown> = (event: PrismEvent<T>) => void | Promise<void>;
 
+/** Event Stats configuration/data structure.
+ */
 export interface EventStats {
   totalEvents: number;
   eventsByCategory: Record<EventCategory, number>;
@@ -80,6 +94,8 @@ export interface EventStats {
   avgHandlerTime_ms: number;
 }
 
+/** Event History Entry configuration/data structure.
+ */
 export interface EventHistoryEntry {
   event: PrismEvent;
   handlers: number;
@@ -147,6 +163,8 @@ const EVENT_CONSTANTS = {
 // STANDARD EVENT TYPES
 // ============================================================================
 
+/** Event Types constant.
+ */
 export const EventTypes = {
   // System events
   SYSTEM_STARTUP: "system.startup",
@@ -208,6 +226,8 @@ export const EventTypes = {
 // EVENT BUS CLASS
 // ============================================================================
 
+/** Event Bus engine/manager.
+ */
 export class EventBus {
   private subscriptions: Map<string, EventSubscription> = new Map();
   private history: EventHistoryEntry[] = [];
@@ -959,6 +979,8 @@ export class EventBus {
 // SINGLETON INSTANCE
 // ============================================================================
 
+/** Event Bus constant.
+ */
 export const eventBus = new EventBus();
 
 // ============================================================================
@@ -997,6 +1019,8 @@ export function off(subscriptionId: string): boolean {
 // SOURCE FILE CATALOG — LOW-priority extracted JS modules targeting EventBus
 // ============================================================================
 
+/** E V E N T B U S_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const EVENTBUS_SOURCE_FILE_CATALOG: Record<string, {
   filename: string;
   source_dir: string;

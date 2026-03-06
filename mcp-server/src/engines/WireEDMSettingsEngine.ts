@@ -16,6 +16,8 @@
 
 export type WireType = "brass_0.25" | "brass_0.20" | "coated_0.25" | "coated_0.20" | "moly_0.10" | "tungsten_0.05";
 
+/** Wire E D M Input configuration/data structure.
+ */
 export interface WireEDMInput {
   wire_type: WireType;
   workpiece_material: string;
@@ -27,6 +29,8 @@ export interface WireEDMInput {
   is_submerged: boolean;
 }
 
+/** Wire E D M Result configuration/data structure.
+ */
 export interface WireEDMResult {
   first_cut_speed_mm_per_min: number;
   num_skim_cuts: number;
@@ -62,6 +66,8 @@ const MATERIAL_SPEED_FACTOR: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Wire E D M Settings Engine engine/manager.
+ */
 export class WireEDMSettingsEngine {
   calculate(input: WireEDMInput): WireEDMResult {
     const wire = WIRE_DATA[input.wire_type];
@@ -163,4 +169,6 @@ export class WireEDMSettingsEngine {
   }
 }
 
+/** Wire E D M Settings Engine constant.
+ */
 export const wireEDMSettingsEngine = new WireEDMSettingsEngine();

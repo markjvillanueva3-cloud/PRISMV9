@@ -206,6 +206,8 @@ function getHoleDeviation(position: string, bandIdx: number): { EI: number; ES_f
 // EXPORTED FUNCTIONS
 // ============================================================================
 
+/** I T Grade Result configuration/data structure.
+ */
 export interface ITGradeResult {
   tolerance_um: number;
   tolerance_mm: number;
@@ -250,6 +252,8 @@ export function calculateITGrade(nominal_mm: number, it_grade: number): ITGradeR
   };
 }
 
+/** Fit Limit configuration/data structure.
+ */
 export interface FitLimit {
   nominal_mm: number;
   upper_mm: number;
@@ -260,6 +264,8 @@ export interface FitLimit {
   grade: number;
 }
 
+/** Fit Analysis Result configuration/data structure.
+ */
 export interface FitAnalysisResult {
   nominal_mm: number;
   fit_class: string;
@@ -402,12 +408,16 @@ export function analyzeShaftHoleFit(nominal_mm: number, fit_class: string): FitA
   };
 }
 
+/** Stack Dimension configuration/data structure.
+ */
 export interface StackDimension {
   nominal: number;
   tolerance: number;
   distribution?: "normal" | "uniform";
 }
 
+/** Stack Up Result configuration/data structure.
+ */
 export interface StackUpResult {
   dimensions_analyzed: number;
   mean_dimension: number;
@@ -450,6 +460,8 @@ export function toleranceStackUp(dimensions: StackDimension[]): StackUpResult {
   };
 }
 
+/** Cpk Result configuration/data structure.
+ */
 export interface CpkResult {
   cpk: number;
   cp: number;

@@ -21,6 +21,8 @@ import { log } from "../utils/Logger.js";
 // TYPES & INTERFACES
 // ============================================================================
 
+/** Engagement Result configuration/data structure.
+ */
 export interface EngagementResult {
   entry_angle: number;          // degrees
   exit_angle: number;           // degrees
@@ -33,6 +35,8 @@ export interface EngagementResult {
   warnings: string[];
 }
 
+/** Trochoidal Params configuration/data structure.
+ */
 export interface TrochoidalParams {
   trochoidal_width: number;     // mm (stepover in trochoidal)
   trochoidal_pitch: number;     // mm (forward step per loop)
@@ -46,6 +50,8 @@ export interface TrochoidalParams {
   warnings: string[];
 }
 
+/** H S M Params configuration/data structure.
+ */
 export interface HSMParams {
   corner_radius: number;        // mm (minimum corner radius)
   max_direction_change: number; // degrees
@@ -57,6 +63,8 @@ export interface HSMParams {
   warnings: string[];
 }
 
+/** Scallop Result configuration/data structure.
+ */
 export interface ScallopResult {
   scallop_height: number;       // mm (cusp height)
   stepover: number;             // mm
@@ -67,6 +75,8 @@ export interface ScallopResult {
   warnings: string[];
 }
 
+/** Cycle Time Result configuration/data structure.
+ */
 export interface CycleTimeResult {
   cutting_time: number;         // min
   rapid_time: number;           // min
@@ -78,6 +88,8 @@ export interface CycleTimeResult {
   warnings: string[];
 }
 
+/** Stepover Result configuration/data structure.
+ */
 export interface StepoverResult {
   optimal_stepover: number;     // mm
   stepover_percent: number;     // % of tool diameter
@@ -88,6 +100,8 @@ export interface StepoverResult {
   warnings: string[];
 }
 
+/** Arc Fit Result configuration/data structure.
+ */
 export interface ArcFitResult {
   arc_segments: number;
   chord_error: number;          // mm
@@ -130,6 +144,8 @@ const CAM_CONSTANTS = {
 // Categories: algorithms (52), engines/cad_cam (55), engines (2)
 // ============================================================================
 
+/** Toolpath Source File Entry configuration/data structure.
+ */
 export interface ToolpathSourceFileEntry {
   filename: string;
   source_dir: string;
@@ -140,6 +156,8 @@ export interface ToolpathSourceFileEntry {
   toolpath_role: string;
 }
 
+/** T O O L P A T H_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const TOOLPATH_SOURCE_FILE_CATALOG: Record<string, ToolpathSourceFileEntry> = {
   // --- Algorithms (52) ---
   "EXT-001": { filename: "ALGORITHM_LIBRARY.js", source_dir: "extracted/algorithms", category: "algorithms", lines: 2213, safety_class: "MEDIUM", description: "Core algorithm library for manufacturing computations", toolpath_role: "algorithm" },
@@ -832,6 +850,8 @@ export function calculateArcFitting(
 }
 
 // Export singleton
+/** Toolpath Calculations constant.
+ */
 export const toolpathCalculations = {
   engagementAngle: calculateEngagementAngle,
   trochoidalParams: calculateTrochoidalParams,

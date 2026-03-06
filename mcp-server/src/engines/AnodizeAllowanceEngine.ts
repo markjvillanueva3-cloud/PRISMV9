@@ -17,6 +17,8 @@
 
 export type AnodizeType = "type_I_chromic" | "type_II_sulfuric" | "type_IIB_thin" | "type_III_hard";
 
+/** Anodize Allowance Input configuration/data structure.
+ */
 export interface AnodizeAllowanceInput {
   anodize_type: AnodizeType;
   target_thickness_um: number;
@@ -28,6 +30,8 @@ export interface AnodizeAllowanceInput {
   seal_type: "hot_water" | "nickel_acetate" | "dichromate" | "none";
 }
 
+/** Anodize Allowance Result configuration/data structure.
+ */
 export interface AnodizeAllowanceResult {
   machine_to_mm: number;
   buildup_per_side_um: number;
@@ -66,6 +70,8 @@ const ALLOY_FACTOR: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Anodize Allowance Engine engine/manager.
+ */
 export class AnodizeAllowanceEngine {
   calculate(input: AnodizeAllowanceInput): AnodizeAllowanceResult {
     const data = ANODIZE_DATA[input.anodize_type];
@@ -136,4 +142,6 @@ export class AnodizeAllowanceEngine {
   }
 }
 
+/** Anodize Allowance Engine constant.
+ */
 export const anodizeAllowanceEngine = new AnodizeAllowanceEngine();

@@ -19,8 +19,12 @@ export type ToolholderType =
   | "collet_ER" | "shrink_fit" | "hydraulic" | "milling_chuck"
   | "weldon" | "whistle_notch" | "heat_shrink" | "press_fit";
 
+/** Toolholder Taper type definition.
+ */
 export type ToolholderTaper = "BT30" | "BT40" | "BT50" | "HSK-A63" | "HSK-A100" | "CAT40" | "CAT50";
 
+/** Toolholder Input configuration/data structure.
+ */
 export interface ToolholderInput {
   holder_type: ToolholderType;
   taper: ToolholderTaper;
@@ -33,6 +37,8 @@ export interface ToolholderInput {
   clamping_force_N?: number;
 }
 
+/** Toolholder F R F configuration/data structure.
+ */
 export interface ToolholderFRF {
   natural_freq_Hz: number;          // dominant mode
   static_stiffness_N_per_um: number;
@@ -43,6 +49,8 @@ export interface ToolholderFRF {
   recommendations: string[];
 }
 
+/** Toolholder Comparison configuration/data structure.
+ */
 export interface ToolholderComparison {
   holder_a: { type: ToolholderType; stiffness_N_per_um: number; natural_freq_Hz: number };
   holder_b: { type: ToolholderType; stiffness_N_per_um: number; natural_freq_Hz: number };
@@ -95,6 +103,8 @@ const TOOL_E: Record<string, number> = {
 // ENGINE CLASS
 // ============================================================================
 
+/** Toolholder Dynamics Engine engine/manager.
+ */
 export class ToolholderDynamicsEngine {
   analyzeFRF(input: ToolholderInput): ToolholderFRF {
     const holderStiff = HOLDER_STIFFNESS[input.holder_type] || 1.0;
@@ -186,4 +196,6 @@ export class ToolholderDynamicsEngine {
   }
 }
 
+/** Toolholder Dynamics Engine constant.
+ */
 export const toolholderDynamicsEngine = new ToolholderDynamicsEngine();

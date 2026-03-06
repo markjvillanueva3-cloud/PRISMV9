@@ -28,6 +28,9 @@ const WHEEL_GRADES: Record<string, { abrasive: string; bond: string; hardness: s
   diamond: { abrasive: "D", bond: "R", hardness: "N", structure: 4 },
 };
 
+/** Registers grinding dispatcher.
+ * @param server - MCP server instance
+ */
 export function registerGrindingDispatcher(server: any): void {
   server.tool(
     "prism_grinding",

@@ -14,6 +14,8 @@
 
 export type StockType = "billet" | "bar" | "plate" | "casting" | "forging" | "near_net";
 
+/** Stock Definition configuration/data structure.
+ */
 export interface StockDefinition {
   id: string;
   type: StockType;
@@ -28,6 +30,8 @@ export interface StockDefinition {
   cost_per_kg?: number;
 }
 
+/** Material Removal configuration/data structure.
+ */
 export interface MaterialRemoval {
   operation_id: string;
   operation_type: string;       // "roughing", "finishing", "drilling", etc.
@@ -36,6 +40,8 @@ export interface MaterialRemoval {
   time_sec: number;
 }
 
+/** Stock State configuration/data structure.
+ */
 export interface StockState {
   stock_id: string;
   original_volume_mm3: number;
@@ -47,6 +53,8 @@ export interface StockState {
   part_volume_mm3: number;
 }
 
+/** Stock Analysis configuration/data structure.
+ */
 export interface StockAnalysis {
   material_utilization_pct: number;   // part_vol / stock_vol
   buy_to_fly_ratio: number;          // stock_weight / part_weight
@@ -58,6 +66,8 @@ export interface StockAnalysis {
   recommendations: string[];
 }
 
+/** Stock Comparison configuration/data structure.
+ */
 export interface StockComparison {
   options: StockDefinition[];
   analyses: StockAnalysis[];
@@ -88,6 +98,8 @@ function densityFor(material: string): number {
 // ENGINE CLASS
 // ============================================================================
 
+/** Stock Model Engine engine/manager.
+ */
 export class StockModelEngine {
   private states = new Map<string, StockState>();
 
@@ -198,4 +210,6 @@ export class StockModelEngine {
   }
 }
 
+/** Stock Model Engine constant.
+ */
 export const stockModelEngine = new StockModelEngine();

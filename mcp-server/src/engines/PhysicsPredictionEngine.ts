@@ -24,6 +24,8 @@ import { log } from "../utils/Logger.js";
 // physics calculations can cause machine crash, operator injury, or death.
 // ============================================================================
 
+/** Physics Source File Entry configuration/data structure.
+ */
 export interface PhysicsSourceFileEntry {
   filename: string;
   category: string;
@@ -34,6 +36,8 @@ export interface PhysicsSourceFileEntry {
   consumers: string[];
 }
 
+/** P H Y S I C S_ S O U R C E_ F I L E_ C A T A L O G constant.
+ */
 export const PHYSICS_SOURCE_FILE_CATALOG: Record<string, PhysicsSourceFileEntry> = {
   "PRISM_AI_100_PHYSICS_GENERATOR": {
     filename: "PRISM_AI_100_PHYSICS_GENERATOR.js",
@@ -205,12 +209,20 @@ export const PHYSICS_SOURCE_FILE_CATALOG: Record<string, PhysicsSourceFileEntry>
 // TYPES
 // ============================================================================
 
+/** Operation Type type definition.
+ */
 export type OperationType = 'turning' | 'milling' | 'drilling' | 'grinding';
+/** Tool Material type definition.
+ */
 export type ToolMaterial = 'carbide' | 'ceramic' | 'cbn' | 'diamond' | 'hss';
+/** Coolant Type type definition.
+ */
 export type CoolantType = 'flood' | 'mql' | 'dry' | 'cryogenic';
 
 // --- Surface Integrity ---
 
+/** Surface Integrity Input configuration/data structure.
+ */
 export interface SurfaceIntegrityInput {
   material: string;
   operation: OperationType;
@@ -222,6 +234,8 @@ export interface SurfaceIntegrityInput {
   coolant: CoolantType;
 }
 
+/** Surface Integrity Result configuration/data structure.
+ */
 export interface SurfaceIntegrityResult {
   surface_roughness: {
     ra_predicted_um: number;
@@ -251,6 +265,8 @@ export interface SurfaceIntegrityResult {
 
 // --- Chatter Prediction ---
 
+/** Chatter Input configuration/data structure.
+ */
 export interface ChatterInput {
   machine: string;
   tool_diameter_mm: number;
@@ -264,6 +280,8 @@ export interface ChatterInput {
   material: string;
 }
 
+/** Chatter Result configuration/data structure.
+ */
 export interface ChatterResult {
   stable: boolean;
   stability_margin: number;
@@ -280,6 +298,8 @@ export interface ChatterResult {
 
 // --- Thermal Compensation ---
 
+/** Thermal Comp Input configuration/data structure.
+ */
 export interface ThermalCompInput {
   machine: string;
   spindle_rpm: number;
@@ -289,6 +309,8 @@ export interface ThermalCompInput {
   spindle_power_kw: number;
 }
 
+/** Thermal Comp Result configuration/data structure.
+ */
 export interface ThermalCompResult {
   offsets: { x_um: number; y_um: number; z_um: number };
   steady_state_minutes: number;
@@ -298,6 +320,8 @@ export interface ThermalCompResult {
 
 // --- Unified Machining Model (coupled) ---
 
+/** Unified Machining Input configuration/data structure.
+ */
 export interface UnifiedMachiningInput {
   material: string;
   operation: OperationType;
@@ -314,6 +338,8 @@ export interface UnifiedMachiningInput {
   machine?: string;
 }
 
+/** Unified Machining Result configuration/data structure.
+ */
 export interface UnifiedMachiningResult {
   force: { tangential_n: number; feed_n: number; radial_n: number; resultant_n: number };
   temperature: { tool_c: number; workpiece_c: number; chip_c: number };
@@ -327,12 +353,16 @@ export interface UnifiedMachiningResult {
 
 // --- Coupling Sensitivity ---
 
+/** Sensitivity Input configuration/data structure.
+ */
 export interface SensitivityInput {
   base_input: UnifiedMachiningInput;
   parameter: string;
   variation_pct?: number;
 }
 
+/** Sensitivity Result configuration/data structure.
+ */
 export interface SensitivityResult {
   parameter: string;
   variation_pct: number;
@@ -404,6 +434,10 @@ const COOLANT_FACTOR: Record<CoolantType, number> = {
 // SURFACE INTEGRITY PREDICTION
 // ============================================================================
 
+/** Predicts surface integrity.
+ * @param input - input input
+ * @returns surface integrity result
+ */
 export function predictSurfaceIntegrity(input: SurfaceIntegrityInput): SurfaceIntegrityResult {
   const mat = getMaterialProps(input.material);
   const rn = input.tool_nose_radius_mm ?? 0.8; // Default nose radius
@@ -519,6 +553,10 @@ export function predictSurfaceIntegrity(input: SurfaceIntegrityInput): SurfaceIn
 // CHATTER PREDICTION (Altintas Stability Lobe Method)
 // ============================================================================
 
+/** Predicts chatter.
+ * @param input - input input
+ * @returns chatter result
+ */
 export function predictChatter(input: ChatterInput): ChatterResult {
   const mat = getMaterialProps(input.material);
 
@@ -674,6 +712,10 @@ export function predictChatter(input: ChatterInput): ChatterResult {
 // THERMAL COMPENSATION
 // ============================================================================
 
+/** Predicts thermal compensation.
+ * @param input - input input
+ * @returns thermal comp result
+ */
 export function predictThermalCompensation(input: ThermalCompInput): ThermalCompResult {
   const { spindle_rpm, runtime_minutes, ambient_temp_c, spindle_power_kw } = input;
   const prior_hours = input.prior_runtime_hours ?? 0;
@@ -737,6 +779,10 @@ export function predictThermalCompensation(input: ThermalCompInput): ThermalComp
 // UNIFIED MACHINING MODEL (Coupled Physics — F-HYB-017)
 // ============================================================================
 
+/** Unified Machining Model.
+ * @param input - input input
+ * @returns unified machining result
+ */
 export function unifiedMachiningModel(input: UnifiedMachiningInput): UnifiedMachiningResult {
   const mat = getMaterialProps(input.material);
   const rn = input.tool_nose_radius_mm ?? 0.8;
@@ -866,6 +912,10 @@ export function unifiedMachiningModel(input: UnifiedMachiningInput): UnifiedMach
 // COUPLING SENSITIVITY ANALYSIS
 // ============================================================================
 
+/** Coupling Sensitivity.
+ * @param input - input input
+ * @returns sensitivity result
+ */
 export function couplingSensitivity(input: SensitivityInput): SensitivityResult {
   const { base_input, parameter, variation_pct = 5 } = input;
 
@@ -1002,6 +1052,11 @@ export function catalogSourceFiles(params: {
 // DISPATCHER FUNCTION
 // ============================================================================
 
+/** Physics Prediction.
+ * @param action - action string
+ * @param params - params for the operation
+ * @returns unknown
+ */
 export function physicsPrediction(action: string, params: Record<string, unknown>): unknown {
   log.info(`[PhysicsPrediction] action=${action}`);
 
