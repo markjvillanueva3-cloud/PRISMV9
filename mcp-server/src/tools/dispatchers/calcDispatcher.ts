@@ -396,7 +396,10 @@ const ACTIONS = [
   "feed_optimize", "corner_dynamics", "arc_feed_correction",
   "balance_grade", "aggressiveness_levels",
   "ode_solve", "ode_solve_system", "linear_solve", "least_squares",
-  "pid_simulate", "pid_step", "discretize_tf"
+  "pid_simulate", "pid_step", "discretize_tf",
+  "lp_solve", "lp_resource_allocation",
+  "material_interpolate", "material_similarity", "material_compare",
+  "ziegler_nichols", "step_response"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3410,6 +3413,114 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "monte_carlo_simulate": {
+            const { monteCarloEngine } = await import("../../engines/MonteCarloEngine.js");
+            if (params.mode === "tool_life") {
+              result = monteCarloEngine.predictToolLife(params);
+            } else if (params.mode === "tolerance") {
+              result = monteCarloEngine.toleranceStackUp(params);
+            } else {
+              result = monteCarloEngine.simulate(params.model, params.samples);
+            }
+            break;
+          }
+
+          case "sa_optimize": {
+            const { simulatedAnnealingEngine } = await import("../../engines/SimulatedAnnealingEngine.js");
+            const saFitFn = new Function("x", params.fitness_body) as (x: number[]) => number;
+            if (params.batch) {
+              result = simulatedAnnealingEngine.batchOptimize(saFitFn, params.bounds, params.num_runs, params.config);
+            } else {
+              result = simulatedAnnealingEngine.optimize(saFitFn, params.bounds, params.config);
+            }
+            break;
+          }
+
+          case "ga_optimize": {
+            const { geneticAlgorithmEngine } = await import("../../engines/GeneticAlgorithmEngine.js");
+            const gaFitFn = new Function("x", params.fitness_body) as (x: number[]) => number;
+            result = geneticAlgorithmEngine.optimize(gaFitFn, params.bounds, params.config);
+            break;
+          }
+
+          case "oee_calculate": {
+            const { oeeCalculatorEngine } = await import("../../engines/OEECalculatorEngine.js");
+            result = oeeCalculatorEngine.calculate(params);
+            break;
+          }
+
+          case "tolerance_stack": {
+            const { toleranceStackEngine } = await import("../../engines/ToleranceStackEngine.js");
+            if (params.mode === "optimize") {
+              result = toleranceStackEngine.optimize(params.dimensions, params.target_min_gap);
+            } else if (params.mode === "rss") {
+              result = toleranceStackEngine.rss(params.dimensions, params.min_gap);
+            } else {
+              result = toleranceStackEngine.worstCase(params.dimensions, params.min_gap);
+            }
+            break;
+          }
+
+          case "bottleneck_identify": {
+            const { bottleneckIdentificationEngine } = await import("../../engines/BottleneckIdentificationEngine.js");
+            result = bottleneckIdentificationEngine.identify(params);
+            break;
+          }
+
+          case "nesting_optimize": {
+            const { nestingEngine } = await import("../../engines/NestingEngine.js");
+            if (params.compare_stocks) {
+              result = nestingEngine.compareStock(params.parts, params.stocks);
+            } else {
+              result = nestingEngine.nest(params.parts, params.stock, params.kerf_mm);
+            }
+            break;
+          }
+
+          case "doe_analyze": {
+            const { analyzeFactorial } = await import("../../engines/DOEAnalysisEngine.js");
+            result = analyzeFactorial(params);
+            break;
+          }
+
+          case "waterjet_params": {
+            const { waterjetCuttingEngine } = await import("../../engines/WaterjetCuttingEngine.js");
+            if (params.list === "materials") {
+              result = waterjetCuttingEngine.listMaterials();
+            } else if (params.list === "abrasives") {
+              result = waterjetCuttingEngine.listAbrasives();
+            } else if (params.list === "quality") {
+              result = waterjetCuttingEngine.listQualityLevels();
+            } else {
+              result = waterjetCuttingEngine.calculateParams(params);
+            }
+            break;
+          }
+
+          case "shot_peening": {
+            const { shotPeeningEngine } = await import("../../engines/ShotPeeningEngine.js");
+            result = shotPeeningEngine.calculate(params);
+            break;
+          }
+
+          case "damping_optimize": {
+            const { dampingOptimizationEngine } = await import("../../engines/DampingOptimizationEngine.js");
+            result = dampingOptimizationEngine.optimize(params);
+            break;
+          }
+
+          case "troubleshoot": {
+            const { troubleshootingEngine } = await import("../../engines/TroubleshootingEngine.js");
+            if (params.mode === "root_cause") {
+              result = troubleshootingEngine.rootCause(params);
+            } else if (params.mode === "corrective") {
+              result = troubleshootingEngine.correctiveActions(params);
+            } else {
+              result = troubleshootingEngine.diagnose(params);
+            }
+            break;
+          }
+
           case "time_series_smooth": {
             const { timeSeriesEngine } = await import("../../engines/TimeSeriesEngine.js");
             const method = params.method ?? "ses";
@@ -3706,6 +3817,78 @@ export function registerCalcDispatcher(server: any): void {
             result = nme7.tustinDiscretize(
               params.gain ?? 1, params.time_constant ?? 1, params.sample_period ?? 0.01,
             );
+            break;
+          }
+
+          // ── Linear Programming (reverse-engineered from monolith MIT 15.083j) ──
+          case "lp_solve": {
+            const { linearProgrammingEngine: lpe } = await import("../../engines/LinearProgrammingEngine.js");
+            result = lpe.solve({
+              c: params.objective, A: params.constraints, b: params.rhs,
+              maximize: params.maximize ?? false, maxIter: params.max_iter,
+            });
+            break;
+          }
+          case "lp_resource_allocation": {
+            const { linearProgrammingEngine: lpe2 } = await import("../../engines/LinearProgrammingEngine.js");
+            result = lpe2.solveResourceAllocation({
+              productProfits: params.profits,
+              resourceUsage: params.usage,
+              resourceLimits: params.limits,
+              maxProduction: params.max_production,
+            });
+            break;
+          }
+
+          // ── Material Interpolation (reverse-engineered from monolith) ──
+          case "material_interpolate": {
+            const { materialInterpolationEngine: mie } = await import("../../engines/MaterialInterpolationEngine.js");
+            result = mie.interpolateParams(
+              params.material ?? "unknown",
+              params.properties, params.safety_factor,
+            );
+            break;
+          }
+          case "material_similarity": {
+            const { materialInterpolationEngine: mie2 } = await import("../../engines/MaterialInterpolationEngine.js");
+            result = mie2.findSimilar(
+              params.material ?? "unknown", params.properties, params.top_n,
+            );
+            break;
+          }
+          case "material_compare": {
+            const { materialInterpolationEngine: mie3 } = await import("../../engines/MaterialInterpolationEngine.js");
+            result = mie3.compareMaterials(
+              params.material1 ?? "steel_4140",
+              params.material2 ?? "steel_4340",
+            );
+            break;
+          }
+
+          // ── Control Systems (Ziegler-Nichols + Step Response) ──
+          case "ziegler_nichols": {
+            const { numericalMethodsEngine: nme8 } = await import("../../engines/NumericalMethodsEngine.js");
+            result = nme8.zieglerNicholsTuning(
+              params.ultimate_gain ?? 10,
+              params.ultimate_period ?? 0.5,
+              params.type ?? "PID",
+            );
+            break;
+          }
+          case "step_response": {
+            const { numericalMethodsEngine: nme9 } = await import("../../engines/NumericalMethodsEngine.js");
+            const order = params.order ?? 2;
+            const points: Array<{ t: number; y: number }> = [];
+            const duration = params.duration ?? 5;
+            const steps = params.steps ?? 100;
+            for (let i = 0; i <= steps; i++) {
+              const t = (i / steps) * duration;
+              const y = order === 1
+                ? nme9.firstOrderStep(params.gain ?? 1, params.time_constant ?? 1, t)
+                : nme9.secondOrderStep(params.gain ?? 1, params.natural_freq ?? 10, params.damping_ratio ?? 0.5, t);
+              points.push({ t: Math.round(t * 1000) / 1000, y: Math.round(y * 10000) / 10000 });
+            }
+            result = { order, points, params: { gain: params.gain ?? 1, duration } };
             break;
           }
 

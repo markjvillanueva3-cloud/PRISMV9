@@ -1223,6 +1223,134 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   toolpath_link_optimize,
   toolpath_link_time,
 
+  // ── Machine Selection ──
+  machine_recommend: z.object({
+    operation: z.string(),
+    envelope_mm: z.object({ x: z.number(), y: z.number(), z: z.number() }).optional(),
+    material_iso_group: z.string().optional(),
+    tolerance_mm: z.number().positive().optional(),
+    batch_size: z.number().int().positive().optional(),
+  }).passthrough(),
+
+  machine_compare: z.object({
+    machine_ids: z.array(z.string()).min(2),
+  }).passthrough(),
+
+  machine_validate: z.object({
+    machine_id: z.string(),
+    operation: z.string(),
+  }).passthrough(),
+
+  // ── Tool Selection ──
+  tool_select_recommend: z.object({
+    operation: z.string(),
+    material_iso_group: z.string(),
+    feature: z.string().optional(),
+    diameter_mm: z.number().positive().optional(),
+  }).passthrough(),
+
+  tool_select_compare: z.object({
+    tool_ids: z.array(z.string()).min(2),
+  }).passthrough(),
+
+  tool_select_alternatives: z.object({
+    tool_id: z.string(),
+  }).passthrough(),
+
+  // ── Tool Crib ──
+  tool_crib_checkout: z.object({
+    tool_id: z.string(),
+    operator_id: z.string(),
+    machine_id: z.string(),
+    job_id: z.string(),
+  }).passthrough(),
+
+  tool_crib_checkin: z.object({
+    tool_id: z.string(),
+    operator_id: z.string(),
+    usage_min: z.number().min(0),
+    condition: z.enum(["good", "worn", "damaged", "broken"]).default("good"),
+  }).passthrough(),
+
+  tool_crib_inventory: z.object({}).passthrough(),
+
+  tool_crib_reorder: z.object({}).passthrough(),
+
+  // ── Toolholder Dynamics ──
+  toolholder_frf: z.object({
+    holder_type: z.enum(["collet", "shrink_fit", "hydraulic", "milling_chuck", "side_lock", "press_fit"]),
+    taper: z.enum(["BT30", "BT40", "BT50", "HSK-A63", "HSK-A100", "CAT40", "CAT50"]),
+    gauge_length_mm: z.number().positive(),
+    tool_diameter_mm: z.number().positive(),
+    tool_stickout_mm: z.number().positive(),
+  }).passthrough(),
+
+  toolholder_compare: z.object({
+    holder_a: z.object({
+      holder_type: z.string(),
+      taper: z.string(),
+      gauge_length_mm: z.number().positive(),
+      tool_diameter_mm: z.number().positive(),
+      tool_stickout_mm: z.number().positive(),
+    }).passthrough(),
+    holder_b: z.object({
+      holder_type: z.string(),
+      taper: z.string(),
+      gauge_length_mm: z.number().positive(),
+      tool_diameter_mm: z.number().positive(),
+      tool_stickout_mm: z.number().positive(),
+    }).passthrough(),
+  }).passthrough(),
+
+  // ── Machinability Rating ──
+  machinability_rate: z.object({
+    material: z.string(),
+    hardness_HRC: z.number().optional(),
+    tensile_MPa: z.number().optional(),
+    condition: z.string().optional(),
+  }).passthrough(),
+
+  machinability_compare: z.object({
+    materials: z.array(z.object({ material: z.string() }).passthrough()).min(2),
+  }).passthrough(),
+
+  // ── Material Equivalence ──
+  material_equivalent: z.object({
+    designation: z.string(),
+    from_standard: z.enum(["AISI", "DIN", "EN", "JIS", "BS", "UNS", "GOST", "ISO"]),
+    to_standard: z.enum(["AISI", "DIN", "EN", "JIS", "BS", "UNS", "GOST", "ISO"]).optional(),
+  }).passthrough(),
+
+  material_equiv_compare: z.object({
+    material_a: z.string(),
+    material_b: z.string(),
+  }).passthrough(),
+
+  // ── Material Selection ──
+  material_select_recommend: z.object({
+    application: z.string(),
+    min_tensile_MPa: z.number().positive().optional(),
+    max_cost_relative: z.number().positive().optional(),
+    corrosion_resistance: z.boolean().optional(),
+  }).passthrough(),
+
+  material_select_compare: z.object({
+    material_ids: z.array(z.string()).min(2),
+  }).passthrough(),
+
+  material_machinability: z.object({
+    material_id: z.string(),
+  }).passthrough(),
+
+  // ── Tensile to Machinability ──
+  tensile_to_machinability: z.object({
+    tensile_strength_MPa: z.number().positive(),
+    yield_strength_MPa: z.number().positive().optional(),
+    elongation_pct: z.number().min(0).optional(),
+    hardness_HRC: z.number().optional(),
+    material_group: z.string().optional(),
+  }).passthrough(),
+
   // ── Heat Treatment Response ──
   heat_treat_predict: z.object({
     process: z.enum(["anneal", "normalize", "harden_quench", "temper", "carburize", "nitride", "induction", "case_harden"]),

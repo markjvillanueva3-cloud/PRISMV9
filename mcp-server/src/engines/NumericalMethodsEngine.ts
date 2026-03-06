@@ -495,6 +495,58 @@ class NumericalMethodsEngineImpl {
 
     return { time, output, error, control, settlingTime, overshoot, steadyStateError };
   }
+
+  // -------------------------------------------------------------------------
+  // Control Systems (from PRISM_CONTROL_SYSTEMS_MIT)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Ziegler-Nichols PID tuning from ultimate gain and period.
+   */
+  zieglerNicholsTuning(
+    Ku: number, Tu: number, type: "P" | "PI" | "PID" = "PID"
+  ): { Kp: number; Ki: number; Kd: number; method: string } {
+    if (Ku <= 0 || Tu <= 0) throw new Error("Ku and Tu must be positive");
+    switch (type) {
+      case "P":
+        return { Kp: 0.5 * Ku, Ki: 0, Kd: 0, method: "Ziegler-Nichols P" };
+      case "PI":
+        return { Kp: 0.45 * Ku, Ki: 1.2 * Ku / Tu, Kd: 0, method: "Ziegler-Nichols PI" };
+      case "PID":
+        return { Kp: 0.6 * Ku, Ki: 2 * Ku / Tu, Kd: Ku * Tu / 8, method: "Ziegler-Nichols PID" };
+    }
+  }
+
+  /**
+   * First-order system step response: y(t) = K * (1 - e^(-t/tau))
+   */
+  firstOrderStep(K: number, tau: number, t: number): number {
+    if (tau <= 0) return K;
+    return K * (1 - Math.exp(-t / tau));
+  }
+
+  /**
+   * Second-order system step response (underdamped/critically/overdamped).
+   */
+  secondOrderStep(K: number, wn: number, zeta: number, t: number): number {
+    if (t <= 0) return 0;
+    if (zeta < 1) {
+      // Underdamped
+      const wd = wn * Math.sqrt(1 - zeta * zeta);
+      const phi = Math.atan2(zeta, Math.sqrt(1 - zeta * zeta));
+      return K * (1 - (Math.exp(-zeta * wn * t) / Math.sqrt(1 - zeta * zeta))
+        * Math.sin(wd * t + phi + Math.PI / 2));
+    } else if (Math.abs(zeta - 1) < 1e-10) {
+      // Critically damped
+      return K * (1 - (1 + wn * t) * Math.exp(-wn * t));
+    } else {
+      // Overdamped
+      const s1 = -wn * (zeta - Math.sqrt(zeta * zeta - 1));
+      const s2 = -wn * (zeta + Math.sqrt(zeta * zeta - 1));
+      return K * (1 + (s2 * Math.exp(s1 * t) - s1 * Math.exp(s2 * t))
+        / (s1 - s2));
+    }
+  }
 }
 
 export const numericalMethodsEngine = new NumericalMethodsEngineImpl();
