@@ -1925,3 +1925,46 @@ export {
   type EngagementValidation,
   type OptimalStepoverResult,
 } from "./EngagementGeometryEngine.js";
+
+// Feed Rate Optimization (engagement-aware, corner, constant chip load)
+export {
+  feedRateOptimizationEngine,
+  FeedRateOptimizationEngine,
+  type FeedOptimizationInput,
+  type FeedOptimizationResult,
+  type CornerFeedInput,
+  type CornerFeedResult as FeedCornerResult,
+  type FeedProfileResult,
+  type ConstantChipLoadInput,
+  type ConstantChipLoadResult,
+} from "./FeedRateOptimizationEngine.js";
+
+// Entry/Exit Strategy (helix, ramp, arc, plunge selection)
+export {
+  entryExitStrategyEngine,
+  EntryExitStrategyEngine,
+  type EntryMethod,
+  type EntryStrategyInput,
+  type EntryStrategyResult,
+  type ExitStrategyResult,
+} from "./EntryExitStrategyEngine.js";
+
+// Z-Level Optimization (step-down, level transitions, rest machining)
+export {
+  zLevelOptimizationEngine,
+  ZLevelOptimizationEngine,
+  type ZLevelInput,
+  type ZLevelResult,
+  type RestMachiningInput,
+  type RestMachiningResult,
+  type LevelTransitionResult,
+} from "./ZLevelOptimizationEngine.js";
+
+// Toolpath Linking (path ordering, stay-down, rapid optimization)
+export {
+  toolpathLinkingEngine,
+  ToolpathLinkingEngine,
+  type PathSegment,
+  type LinkingConfig,
+  type LinkingResult,
+} from "./ToolpathLinkingEngine.js";

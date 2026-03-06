@@ -930,6 +930,150 @@ const optimal_stepover = z.object({
 }).passthrough();
 
 // ============================================================================
+// FEED RATE OPTIMIZATION (3 actions)
+// ============================================================================
+
+const feed_optimize = z.object({
+  feed_per_tooth: optPosNum,
+  fz: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  number_of_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  spindle_rpm: optPosNum,
+  rpm: optPosNum,
+  radial_depth: optPosNum,
+  ae: optPosNum,
+  axial_depth: optPosNum,
+  ap: optPosNum,
+  material: optStr,
+  operation: z.enum(["roughing", "finishing", "semi_finishing"]).optional(),
+  spindle_power_kw: optPosNum,
+  specific_cutting_force: optPosNum,
+  kc1_1: optPosNum,
+  max_acceleration: optPosNum,
+  target_chip_thickness: optPosNum,
+}).passthrough();
+
+const corner_feed = z.object({
+  straight_feed: optPosNum,
+  feed_rate: optPosNum,
+  arc_radius: z.number().positive(),
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  is_internal: optBool,
+}).passthrough();
+
+const constant_chip_load = z.object({
+  target_chip_mm: optPosNum,
+  target_chip: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  number_of_flutes: z.number().int().positive().optional(),
+  number_of_teeth: z.number().int().positive().optional(),
+  spindle_rpm: optPosNum,
+  rpm: optPosNum,
+  engagement_profile: z.array(z.object({ position: z.number(), engagement_deg: z.number() })).optional(),
+}).passthrough();
+
+// ============================================================================
+// ENTRY/EXIT STRATEGY (3 actions)
+// ============================================================================
+
+const entry_strategy = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  pocket_width: optPosNum,
+  pocket_depth: optPosNum,
+  depth: optPosNum,
+  material: optStr,
+  center_cutting: optBool,
+  has_pre_drill: optBool,
+  pre_drill_diameter: optPosNum,
+  max_helix_angle_deg: optPosNum,
+  max_ramp_angle_deg: optPosNum,
+}).passthrough();
+
+const exit_strategy = z.object({
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  operation: z.enum(["roughing", "finishing", "semi_finishing"]).optional(),
+}).passthrough();
+
+const validate_entry = z.object({
+  method: z.enum(["helix", "ramp", "arc", "plunge", "interpolated", "pre_drill"]),
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  pocket_width: z.number().positive(),
+  material: optStr,
+}).passthrough();
+
+// ============================================================================
+// Z-LEVEL OPTIMIZATION (2 actions)
+// ============================================================================
+
+const z_level_optimize = z.object({
+  total_depth: optPosNum,
+  depth: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  tool_flute_length: optPosNum,
+  flute_length: optPosNum,
+  material: optStr,
+  operation: z.enum(["roughing", "finishing", "semi_finishing"]).optional(),
+  stock_to_leave: optNum,
+  stability_limited_ap: optPosNum,
+  even_levels: optBool,
+}).passthrough();
+
+const rest_machining_levels = z.object({
+  previous_tool_diameter: optPosNum,
+  prev_Dc: optPosNum,
+  current_tool_diameter: optPosNum,
+  tool_diameter: optPosNum,
+  Dc: optPosNum,
+  total_depth: optPosNum,
+  depth: optPosNum,
+  corner_radius_prev: optNum,
+  material: optStr,
+}).passthrough();
+
+// ============================================================================
+// TOOLPATH LINKING (2 actions)
+// ============================================================================
+
+const toolpath_link_optimize = z.object({
+  segments: z.array(z.object({
+    id: z.string(),
+    start: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+    end: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+    z_level: z.number(),
+    length: z.number(),
+  })).optional(),
+  clearance_height: optNum,
+  retract_height: optNum,
+  stay_down_max_distance: optPosNum,
+  rapid_feed: optPosNum,
+  cutting_feed: optPosNum,
+  allow_stay_down: optBool,
+  link_method: z.enum(["nearest", "optimized", "sequential"]).optional(),
+}).passthrough();
+
+const toolpath_link_time = z.object({
+  segments: z.array(z.object({
+    id: z.string(),
+    start: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+    end: z.object({ x: z.number(), y: z.number(), z: z.number() }),
+    z_level: z.number(),
+    length: z.number(),
+  })).optional(),
+  clearance_height: optNum,
+  retract_height: optNum,
+  rapid_feed: optPosNum,
+  cutting_feed: optPosNum,
+}).passthrough();
+
+// ============================================================================
 // EXPORT: ACTION_CALC_SCHEMAS
 // ============================================================================
 
@@ -1060,4 +1204,22 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   moat_calculate,
   engagement_validate,
   optimal_stepover,
+
+  // Feed rate optimization
+  feed_optimize,
+  corner_feed,
+  constant_chip_load,
+
+  // Entry/exit strategy
+  entry_strategy,
+  exit_strategy,
+  validate_entry,
+
+  // Z-level optimization
+  z_level_optimize,
+  rest_machining_levels,
+
+  // Toolpath linking
+  toolpath_link_optimize,
+  toolpath_link_time,
 };
