@@ -173,3 +173,177 @@ export async function getToolUsage(params: {
 }): Promise<PrismResponse> {
   return request('POST', '/erp/tool-usage', params ?? {});
 }
+
+// === Purchase Orders ===
+
+export async function poCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/po-create', params);
+}
+
+export async function poApprove(params: { po_id: string; approved_by: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/po-approve', params);
+}
+
+export async function poReceive(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/po-receive', params);
+}
+
+export async function poList(params?: { status?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/po-list', params ?? {});
+}
+
+export async function poAPAging(): Promise<PrismResponse> {
+  return request('GET', '/erp/po-ap-aging');
+}
+
+// === General Ledger ===
+
+export async function glChartOfAccounts(): Promise<PrismResponse> {
+  return request('GET', '/erp/gl-accounts');
+}
+
+export async function glJournalEntry(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-journal', params);
+}
+
+export async function glTrialBalance(params?: { as_of?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-trial-balance', params ?? {});
+}
+
+export async function glIncomeStatement(params: { period_start: string; period_end: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-income-statement', params);
+}
+
+export async function glBalanceSheet(params?: { as_of?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-balance-sheet', params ?? {});
+}
+
+// === Capacity Planning ===
+
+export async function capacityMachines(): Promise<PrismResponse> {
+  return request('GET', '/erp/capacity-machines');
+}
+
+export async function capacityAllLoads(params?: { period_weeks?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/capacity-loads', params ?? {});
+}
+
+export async function capacityBottlenecks(params?: { period_weeks?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/capacity-bottlenecks', params ?? {});
+}
+
+export async function capacitySummary(): Promise<PrismResponse> {
+  return request('GET', '/erp/capacity-summary');
+}
+
+// === Quality Management ===
+
+export async function qualitySPCChart(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-spc', params);
+}
+
+export async function qualityCalibrationDashboard(): Promise<PrismResponse> {
+  return request('GET', '/erp/quality-calibration');
+}
+
+export async function qualityNCRList(): Promise<PrismResponse> {
+  return request('GET', '/erp/quality-ncr-dashboard');
+}
+
+export async function qualityNCRCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-ncr-create', params);
+}
+
+export async function qualityKPIs(): Promise<PrismResponse> {
+  return request('GET', '/erp/quality-kpis');
+}
+
+// === HR / Compliance ===
+
+export async function hrBenefitsList(): Promise<PrismResponse> {
+  return request('GET', '/erp/hr-benefits');
+}
+
+export async function hrPTOBalance(params: { employee_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-pto-balance', params);
+}
+
+export async function hrPTORequest(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-pto-request', params);
+}
+
+export async function hrTrainingHistory(params: { employee_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-training', params);
+}
+
+export async function hrTrainingExpiring(params?: { within_days?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-training-expiring', params ?? {});
+}
+
+export async function hrComplianceAlerts(): Promise<PrismResponse> {
+  return request('GET', '/erp/hr-compliance-alerts');
+}
+
+export async function hrDashboard(): Promise<PrismResponse> {
+  return request('GET', '/erp/hr-dashboard');
+}
+
+// === Customer / CRM ===
+
+export async function customerCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-create', params);
+}
+
+export async function customerSearch(params: { query: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-search', params);
+}
+
+export async function customerList(params?: { status?: string; tier?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-list', params ?? {});
+}
+
+export async function customerCreditCheck(params: { customer_id: string; order_amount: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-credit-check', params);
+}
+
+export async function customerPipeline(): Promise<PrismResponse> {
+  return request('GET', '/erp/customer-pipeline');
+}
+
+export async function customerAnalytics(params: { customer_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-analytics', params);
+}
+
+export async function customerTop(params?: { limit?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-top', params ?? {});
+}
+
+// === Integration / Export ===
+
+export async function integrationExportCSV(params: { transactions: Record<string, unknown>[] }): Promise<PrismResponse> {
+  return request('POST', '/erp/export-csv', params);
+}
+
+export async function integrationReconcileBank(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/reconcile-bank', params);
+}
+
+export async function integrationFormats(): Promise<PrismResponse> {
+  return request('GET', '/erp/export-formats');
+}
+
+// === Inventory ===
+
+export async function inventoryEOQ(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/inventory-eoq', params);
+}
+
+export async function inventoryABC(params: { items: Record<string, unknown>[] }): Promise<PrismResponse> {
+  return request('POST', '/erp/inventory-abc', params);
+}
+
+// === Scheduling ===
+
+export async function schedulingJobShop(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/scheduling-job-shop', params);
+}

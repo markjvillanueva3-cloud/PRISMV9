@@ -15,6 +15,15 @@ import { PayrollPage } from './pages/PayrollPage';
 import { InvoicesPage } from './pages/InvoicesPage';
 import { JobProfitabilityPage } from './pages/JobProfitabilityPage';
 import { ToolingCostPage } from './pages/ToolingCostPage';
+import { PurchaseOrdersPage } from './pages/PurchaseOrdersPage';
+import { GeneralLedgerPage } from './pages/GeneralLedgerPage';
+import { CapacityPlanningPage } from './pages/CapacityPlanningPage';
+import { QualityManagementPage } from './pages/QualityManagementPage';
+import { HRCompliancePage } from './pages/HRCompliancePage';
+import { CustomersPage } from './pages/CustomersPage';
+import { ExportsPage } from './pages/ExportsPage';
+import { InventoryPage } from './pages/InventoryPage';
+import { SchedulingPage } from './pages/SchedulingPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -47,6 +56,15 @@ export function App() {
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="profitability" element={<JobProfitabilityPage />} />
           <Route path="tooling-cost" element={<ToolingCostPage />} />
+          <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
+          <Route path="general-ledger" element={<GeneralLedgerPage />} />
+          <Route path="capacity" element={<CapacityPlanningPage />} />
+          <Route path="quality" element={<QualityManagementPage />} />
+          <Route path="hr" element={<HRCompliancePage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="exports" element={<ExportsPage />} />
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="scheduling" element={<SchedulingPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />

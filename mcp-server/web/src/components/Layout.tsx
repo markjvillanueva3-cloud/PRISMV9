@@ -17,6 +17,15 @@ const NAV_ITEMS = [
   { to: '/invoices', label: 'Invoices' },
   { to: '/profitability', label: 'Profit' },
   { to: '/tooling-cost', label: 'Tooling' },
+  { to: '/purchase-orders', label: 'POs' },
+  { to: '/general-ledger', label: 'GL' },
+  { to: '/capacity', label: 'Capacity' },
+  { to: '/quality', label: 'Quality' },
+  { to: '/hr', label: 'HR' },
+  { to: '/customers', label: 'CRM' },
+  { to: '/exports', label: 'Exports' },
+  { to: '/inventory', label: 'Inventory' },
+  { to: '/scheduling', label: 'Schedule' },
 ] as const;
 
 export function Layout() {
