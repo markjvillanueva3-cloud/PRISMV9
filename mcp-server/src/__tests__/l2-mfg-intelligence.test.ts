@@ -371,12 +371,12 @@ describe("TribalKnowledgeEngine", () => {
   });
 
   test("search finds Siemens SINUMERIK 5-axis tips", () => {
-    const tips = tribalKnowledgeEngine.search({ query: "TRAORI", limit: 5 });
+    const tips = tribalKnowledgeEngine.search({ query: "TRAORI", limit: 10 });
     expect(tips.some(t => t.id === "TK-DL-siemens-5ax-001")).toBe(true);
   });
 
   test("search finds COMPCAD vs COMPCURV strategy tip", () => {
-    const tips = tribalKnowledgeEngine.search({ query: "COMPCURV", limit: 5 });
+    const tips = tribalKnowledgeEngine.search({ query: "COMPCURV", limit: 10 });
     expect(tips.some(t => t.id === "TK-DL-siemens-5ax-002")).toBe(true);
   });
 

@@ -1,17 +1,19 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 17 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 21 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
  *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
- *   cam_cycle_catalog
+ *   cam_cycle_catalog, lathe_post_process, probe_generate,
+ *   subprogram_call, subprogram_pattern
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
  *   ToolAssemblyEngine, ModularFixtureLayoutEngine,
- *   HyperMillStrategyEngine, HyperMillSafetyHooks
+ *   HyperMillStrategyEngine, HyperMillSafetyHooks,
+ *   LathePostProcessorEngine, ProbingCycleEngine, SubprogramEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -19,7 +21,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _lathePost: any, _probing: any, _subprogram: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -34,6 +36,9 @@ async function getEngine(name: string): Promise<any> {
     case "hmMultiAxis": return _hmMultiAxis ??= (await import("../../engines/HyperMillMultiAxisEngine.js")).hyperMillMultiAxisEngine;
     case "hmMaterialMap": return _hmMaterialMap ??= (await import("../../engines/HyperMillMaterialMapEngine.js")).hyperMillMaterialMapEngine;
     case "hmCycleCatalog": return _hmCycleCatalog ??= (await import("../../engines/HyperMillCycleCatalogEngine.js")).hyperMillCycleCatalogEngine;
+    case "lathePost": return _lathePost ??= (await import("../../engines/LathePostProcessorEngine.js")).lathePostProcessorEngine;
+    case "probing": return _probing ??= (await import("../../engines/ProbingCycleEngine.js")).probingCycleEngine;
+    case "subprogram": return _subprogram ??= (await import("../../engines/SubprogramEngine.js")).subprogramEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -46,6 +51,8 @@ const ACTIONS = [
   "cam_strategy_recommend", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
+  "lathe_post_process", "probe_generate",
+  "subprogram_call", "subprogram_pattern",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -234,6 +241,44 @@ Params vary by action — pass relevant fields in params object.`,
               blocked_count: blocked.length,
               warning_count: validations.length - blocked.length,
             };
+            break;
+          }
+          case "lathe_post_process": {
+            const lp = await getEngine("lathePost");
+            result = lp.process(params.input ?? params, params.config ?? params);
+            break;
+          }
+          case "probe_generate": {
+            const pr = await getEngine("probing");
+            result = pr.generate(params, params.config ?? {
+              controller: params.controller ?? "renishaw_haas",
+              probe_tool_number: params.probe_tool_number ?? 99,
+              feed_rate: params.feed_rate ?? 500,
+              retract_distance: params.retract_distance ?? 2,
+              overtravel: params.overtravel ?? 10,
+              work_offset_to_set: params.work_offset_to_set,
+              print_result: params.print_result ?? true,
+            });
+            break;
+          }
+          case "subprogram_call": {
+            const sub = await getEngine("subprogram");
+            result = sub.generateCall(
+              { program_number: params.program_number ?? 1000,
+                repeat_count: params.repeat_count,
+                arguments: params.arguments },
+              params.controller ?? "fanuc"
+            );
+            break;
+          }
+          case "subprogram_pattern": {
+            const sub = await getEngine("subprogram");
+            result = sub.generatePatternRepeat(
+              { subprogram_number: params.subprogram_number ?? 1000,
+                positions: params.positions ?? [],
+                return_to_zero: params.return_to_zero ?? true },
+              params.controller ?? "fanuc"
+            );
             break;
           }
           default:
