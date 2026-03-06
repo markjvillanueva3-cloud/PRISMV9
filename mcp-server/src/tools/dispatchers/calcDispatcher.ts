@@ -361,6 +361,7 @@ const ACTIONS = [
   "isosurface_marching_cubes",
   "moo_nsga2", "moo_pareto_dominates", "moo_non_dominated_sort",
   "graph_mst_kruskal", "graph_bellman_ford", "graph_topo_sort", "graph_scc", "graph_cpm",
+  "surface_intersect", "mesh_offset", "mesh_shell",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection"
 ] as const;
@@ -2313,6 +2314,23 @@ export function registerCalcDispatcher(server: any): void {
           case "graph_cpm": {
             const { graphAlgorithmsEngine } = await import("../../engines/GraphAlgorithmsEngine.js");
             result = graphAlgorithmsEngine.criticalPathMethod(params.activities);
+            break;
+          }
+
+          // ── Surface Intersection & Offset ──
+          case "surface_intersect": {
+            const { surfaceIntersectionEngine } = await import("../../engines/SurfaceIntersectionEngine.js");
+            result = { curves: surfaceIntersectionEngine.intersect(params.surface1, params.surface2, params.options) };
+            break;
+          }
+          case "mesh_offset": {
+            const { offsetSurfaceEngine } = await import("../../engines/OffsetSurfaceEngine.js");
+            result = offsetSurfaceEngine.offsetMesh(params.mesh, params.distance, params.options);
+            break;
+          }
+          case "mesh_shell": {
+            const { offsetSurfaceEngine } = await import("../../engines/OffsetSurfaceEngine.js");
+            result = offsetSurfaceEngine.createShell(params.mesh, params.thickness, params.options);
             break;
           }
 

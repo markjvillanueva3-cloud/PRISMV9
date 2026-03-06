@@ -8,7 +8,7 @@
  *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
  *   cam_cycle_catalog, lathe_post_process, probe_generate,
  *   subprogram_call, subprogram_pattern, cam_controller_catalog,
- *   cam_cycle_defaults, cam_thread_lookup
+ *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -22,7 +22,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -45,6 +45,7 @@ async function getEngine(name: string): Promise<any> {
     case "hmController": return _hmController ??= (await import("../../engines/HyperMillControllerCatalogEngine.js")).hyperMillControllerCatalogEngine;
     case "hmCycleDefaults": return _hmCycleDefaults ??= (await import("../../engines/HyperMillCycleDefaultsEngine.js")).hyperMillCycleDefaultsEngine;
     case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
+    case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -62,6 +63,7 @@ const ACTIONS = [
   "cam_controller_catalog",
   "cam_cycle_defaults",
   "cam_thread_lookup",
+  "advanced_post_enhance",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -393,6 +395,20 @@ Params vary by action — pass relevant fields in params object.`,
             } else {
               result = hmCtrl.listFamilies();
             }
+            break;
+          }
+          case "advanced_post_enhance": {
+            const advPost = await getEngine("advPost");
+            result = advPost.enhance({
+              controller: params.controller ?? "fanuc",
+              gcode: params.gcode ?? "",
+              adaptive_clearing: params.adaptive_clearing,
+              hsm: params.hsm,
+              tool_management: params.tool_management,
+              in_process_measure: params.in_process_measure,
+              feed_optimization: params.feed_optimization,
+              multi_axis: params.multi_axis,
+            });
             break;
           }
           default:

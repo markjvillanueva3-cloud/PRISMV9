@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 
 // ---------------------------------------------------------------------------
 // Navigation items
@@ -20,13 +21,14 @@ const NAV_ITEMS = [
 // Component
 // ---------------------------------------------------------------------------
 
-interface ErpLayoutProps {
-  activeSection?: string;
-  children: React.ReactNode;
-}
-
-export default function ErpLayout({ activeSection, children }: ErpLayoutProps) {
+export default function ErpLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const location = useLocation();
+  const activeSection = NAV_ITEMS.find(
+    (n) => n.id === "dashboard"
+      ? location.pathname === "/erp"
+      : location.pathname.startsWith(n.href)
+  )?.id;
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -41,7 +43,7 @@ export default function ErpLayout({ activeSection, children }: ErpLayoutProps) {
             ERP
           </h2>
         </div>
-        <SidebarNav active={activeSection} />
+        <SidebarNav />
       </nav>
 
       {/* Mobile sidebar overlay */}
@@ -69,7 +71,7 @@ export default function ErpLayout({ activeSection, children }: ErpLayoutProps) {
                 &times;
               </button>
             </div>
-            <SidebarNav active={activeSection} onClick={() => setSidebarOpen(false)} />
+            <SidebarNav onClick={() => setSidebarOpen(false)} />
           </nav>
         </div>
       )}
@@ -92,7 +94,7 @@ export default function ErpLayout({ activeSection, children }: ErpLayoutProps) {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          {children}
+          <Outlet />
         </main>
       </div>
     </div>
@@ -103,21 +105,22 @@ export default function ErpLayout({ activeSection, children }: ErpLayoutProps) {
 // Sidebar Nav
 // ---------------------------------------------------------------------------
 
-function SidebarNav({ active, onClick }: { active?: string; onClick?: () => void }) {
+function SidebarNav({ onClick }: { onClick?: () => void }) {
   return (
     <ul className="space-y-0.5 px-2 pb-4">
       {NAV_ITEMS.map((item) => (
         <li key={item.id}>
-          <a
-            href={item.href}
+          <NavLink
+            to={item.href}
+            end={item.id === "dashboard"}
             onClick={onClick}
-            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium
+            className={({ isActive }) =>
+              `flex items-center gap-2 rounded-md px-3 py-2 text-xs font-medium
               transition-colors ${
-              active === item.id
+              isActive
                 ? "bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300"
                 : "text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700/50"
             }`}
-            aria-current={active === item.id ? "page" : undefined}
           >
             <span className="flex h-5 w-5 items-center justify-center rounded
               bg-slate-100 text-[10px] font-bold text-slate-500
@@ -125,7 +128,7 @@ function SidebarNav({ active, onClick }: { active?: string; onClick?: () => void
               {item.icon}
             </span>
             {item.label}
-          </a>
+          </NavLink>
         </li>
       ))}
     </ul>
@@ -141,9 +144,9 @@ function Breadcrumb({ section }: { section?: string }) {
 
   return (
     <nav className="flex items-center gap-1 text-xs text-slate-500" aria-label="Breadcrumb">
-      <a href="/erp" className="hover:text-slate-700 dark:hover:text-slate-300">
+      <NavLink to="/erp" className="hover:text-slate-700 dark:hover:text-slate-300">
         ERP
-      </a>
+      </NavLink>
       {item && item.id !== "dashboard" && (
         <>
           <span className="text-slate-300 dark:text-slate-600">/</span>

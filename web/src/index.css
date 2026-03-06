@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  /* Primary */
   --color-primary-50: #eff6ff;
   --color-primary-100: #dbeafe;
   --color-primary-200: #bfdbfe;
@@ -11,10 +12,28 @@
   --color-primary-700: #1d4ed8;
   --color-primary-800: #1e40af;
   --color-primary-900: #1e3a8a;
+
+  /* Semantic */
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-danger-500: #ef4444;
+  --color-danger-600: #dc2626;
+
+  /* Surfaces */
   --color-sidebar: #1e293b;
   --color-sidebar-hover: #334155;
   --color-surface: #f8fafc;
   --color-surface-dark: #0f172a;
+
+  /* Animation */
+  --animate-in: enter 0.2s ease-out;
+
+  @keyframes enter {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
 /* Reduce motion for users who prefer it */
