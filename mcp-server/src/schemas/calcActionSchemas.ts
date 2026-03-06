@@ -1223,6 +1223,231 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   toolpath_link_optimize,
   toolpath_link_time,
 
+  // ── Thread Calculation ──
+  thread_parse: z.object({
+    designation: z.string().min(1),
+  }).passthrough(),
+
+  thread_tap_drill: z.object({
+    designation: z.string().min(1),
+    engagement_pct: z.number().min(10).max(100).default(75),
+  }).passthrough(),
+
+  thread_mill_params: z.object({
+    designation: z.string().min(1),
+    tool_diameter: z.number().positive().default(6),
+    material: z.string().default("steel"),
+    single_point: z.boolean().default(true),
+  }).passthrough(),
+
+  thread_stripping: z.object({
+    designation: z.string().min(1),
+    engagement_length: z.number().positive().default(10),
+    tensile_strength_MPa: z.number().positive().default(400),
+  }).passthrough(),
+
+  // ── Tool Breakage Prediction ──
+  tool_breakage_predict: z.object({
+    tool: z.object({
+      diameter: z.number().positive(),
+      shankDiameter: z.number().positive(),
+      fluteLength: z.number().positive(),
+      overallLength: z.number().positive(),
+      stickout: z.number().positive(),
+      numberOfFlutes: z.number().int().positive(),
+      helixAngle: z.number().optional(),
+      coreRatio: z.number().min(0.3).max(0.9).optional(),
+    }),
+    forces: z.object({
+      Fc: z.number(), Ff: z.number(), Fp: z.number(),
+      torque: z.number().optional(),
+    }),
+    conditions: z.object({
+      cuttingSpeed: z.number().positive(),
+      feedPerTooth: z.number().positive(),
+      axialDepth: z.number().positive(),
+      radialDepth: z.number().positive(),
+      spindleSpeed: z.number().positive(),
+    }),
+    material: z.enum(["HSS", "COBALT_HSS", "CARBIDE", "CARBIDE_COATED", "CERMET", "CERAMIC", "CBN", "PCD"]).default("CARBIDE"),
+    options: z.object({
+      workpieceMaterial: z.enum(["STEEL", "STAINLESS", "ALUMINUM", "CAST_IRON", "SUPERALLOY"]).optional(),
+      operationType: z.enum(["ROUGHING", "SEMI_FINISH", "FINISHING", "PRECISION"]).optional(),
+      isInterrupted: z.boolean().optional(),
+      cyclesAccumulated: z.number().optional(),
+    }).optional(),
+  }).passthrough(),
+
+  tool_stress_analyze: z.object({
+    tool: z.object({
+      diameter: z.number().positive(),
+      shankDiameter: z.number().positive(),
+      fluteLength: z.number().positive(),
+      overallLength: z.number().positive(),
+      stickout: z.number().positive(),
+      numberOfFlutes: z.number().int().positive(),
+    }),
+    forces: z.object({
+      Fc: z.number(), Ff: z.number(), Fp: z.number(),
+      torque: z.number().optional(),
+    }),
+    material: z.enum(["HSS", "COBALT_HSS", "CARBIDE", "CARBIDE_COATED", "CERMET", "CERAMIC", "CBN", "PCD"]).default("CARBIDE"),
+    is_interrupted: z.boolean().default(false),
+  }).passthrough(),
+
+  tool_safe_limits: z.object({
+    tool: z.object({
+      diameter: z.number().positive(),
+      shankDiameter: z.number().positive(),
+      fluteLength: z.number().positive(),
+      overallLength: z.number().positive(),
+      stickout: z.number().positive(),
+      numberOfFlutes: z.number().int().positive(),
+    }),
+    material: z.enum(["HSS", "COBALT_HSS", "CARBIDE", "CARBIDE_COATED", "CERMET", "CERAMIC", "CBN", "PCD"]).default("CARBIDE"),
+    workpiece_material: z.enum(["STEEL", "STAINLESS", "ALUMINUM", "CAST_IRON", "SUPERALLOY"]).default("STEEL"),
+  }).passthrough(),
+
+  // ── Spindle Protection ──
+  spindle_torque_check: z.object({
+    spindle: z.object({
+      type: z.enum(["BELT_DRIVE", "GEAR_DRIVE", "DIRECT_DRIVE", "INTEGRAL_MOTOR", "HIGH_SPEED_ELECTRIC"]),
+      bearingType: z.enum(["ANGULAR_CONTACT", "ROLLER", "HYBRID_CERAMIC", "AIR_BEARING", "MAGNETIC"]),
+      coolingType: z.enum(["AIR_COOLED", "OIL_MIST", "OIL_JET", "WATER_COOLED", "CHILLER"]),
+      ratedPower: z.number().positive(),
+      peakPower: z.number().positive(),
+      ratedTorque: z.number().positive(),
+      peakTorque: z.number().positive(),
+      minSpeed: z.number().min(0),
+      maxSpeed: z.number().positive(),
+      ratedSpeed: z.number().positive(),
+      cornerSpeed: z.number().positive(),
+      maxTemperature: z.number().positive(),
+      warningTemperature: z.number().positive(),
+      maxRadialLoad: z.number().positive(),
+      maxAxialLoad: z.number().positive(),
+    }).passthrough(),
+    requirements: z.object({
+      requiredTorque: z.number().positive(),
+      requiredPower: z.number().positive(),
+      targetSpeed: z.number().positive(),
+      operationType: z.enum(["ROUGHING", "FINISHING", "DRILLING", "TAPPING", "HIGH_SPEED"]),
+    }).passthrough(),
+    state: z.object({
+      currentSpeed: z.number(), currentTorque: z.number(),
+      currentPower: z.number(), loadPercent: z.number(),
+      temperature: z.number(), runTime: z.number(),
+      commandedSpeed: z.number(),
+    }).passthrough().optional(),
+  }).passthrough(),
+
+  spindle_power_check: z.object({
+    spindle: z.object({
+      type: z.enum(["BELT_DRIVE", "GEAR_DRIVE", "DIRECT_DRIVE", "INTEGRAL_MOTOR", "HIGH_SPEED_ELECTRIC"]),
+      ratedPower: z.number().positive(),
+      peakPower: z.number().positive(),
+      ratedTorque: z.number().positive(),
+      peakTorque: z.number().positive(),
+      maxSpeed: z.number().positive(),
+      ratedSpeed: z.number().positive(),
+      cornerSpeed: z.number().positive(),
+    }).passthrough(),
+    requirements: z.object({
+      requiredTorque: z.number().positive(),
+      requiredPower: z.number().positive(),
+      targetSpeed: z.number().positive(),
+      operationType: z.enum(["ROUGHING", "FINISHING", "DRILLING", "TAPPING", "HIGH_SPEED"]),
+    }).passthrough(),
+    state: z.object({
+      currentSpeed: z.number(), currentTorque: z.number(),
+      currentPower: z.number(), loadPercent: z.number(),
+      temperature: z.number(), runTime: z.number(),
+      commandedSpeed: z.number(),
+    }).passthrough().optional(),
+  }).passthrough(),
+
+  spindle_safe_envelope: z.object({
+    spindle: z.object({
+      type: z.enum(["BELT_DRIVE", "GEAR_DRIVE", "DIRECT_DRIVE", "INTEGRAL_MOTOR", "HIGH_SPEED_ELECTRIC"]),
+      ratedPower: z.number().positive(),
+      peakPower: z.number().positive(),
+      ratedTorque: z.number().positive(),
+      peakTorque: z.number().positive(),
+      maxSpeed: z.number().positive(),
+      ratedSpeed: z.number().positive(),
+      cornerSpeed: z.number().positive(),
+      maxTemperature: z.number().positive(),
+      warningTemperature: z.number().positive(),
+      maxRadialLoad: z.number().positive(),
+      maxAxialLoad: z.number().positive(),
+    }).passthrough(),
+    requirements: z.object({
+      requiredTorque: z.number().positive(),
+      requiredPower: z.number().positive(),
+      targetSpeed: z.number().positive(),
+      operationType: z.enum(["ROUGHING", "FINISHING", "DRILLING", "TAPPING", "HIGH_SPEED"]),
+    }).passthrough(),
+    state: z.object({
+      currentSpeed: z.number(), currentTorque: z.number(),
+      currentPower: z.number(), loadPercent: z.number(),
+      temperature: z.number(), runTime: z.number(),
+      commandedSpeed: z.number(),
+    }).passthrough().optional(),
+  }).passthrough(),
+
+  // ── Coolant Validation ──
+  coolant_validate: z.object({
+    system: z.object({
+      delivery: z.enum(["FLOOD", "THROUGH_SPINDLE", "THROUGH_TOOL", "MQL", "AIR_BLAST", "CRYOGENIC", "DRY"]),
+      coolantType: z.enum(["WATER_SOLUBLE", "SEMI_SYNTHETIC", "FULL_SYNTHETIC", "STRAIGHT_OIL", "MQL_OIL", "COMPRESSED_AIR", "LIQUID_NITROGEN", "LIQUID_CO2"]),
+      flowRate: z.number().positive(),
+      pressure: z.number().positive(),
+    }).passthrough(),
+    operation_params: z.object({
+      operation: z.enum(["MILLING_GENERAL", "MILLING_HSM", "DRILLING_SHALLOW", "DRILLING_DEEP", "DRILLING_GUNDRILLING", "TAPPING", "REAMING", "BORING", "TURNING", "GRINDING"]),
+      toolDiameter: z.number().positive(),
+      cuttingSpeed: z.number().positive(),
+      feedRate: z.number().positive(),
+    }).passthrough(),
+    tool_spec: z.object({
+      hasThroughCoolant: z.boolean(),
+      coolantHoleDiameter: z.number().positive().optional(),
+      numberOfHoles: z.number().int().positive().optional(),
+      minPressure: z.number().positive().optional(),
+    }).optional(),
+  }).passthrough(),
+
+  coolant_flow_check: z.object({
+    system: z.object({
+      delivery: z.enum(["FLOOD", "THROUGH_SPINDLE", "THROUGH_TOOL", "MQL", "AIR_BLAST", "CRYOGENIC", "DRY"]),
+      coolantType: z.enum(["WATER_SOLUBLE", "SEMI_SYNTHETIC", "FULL_SYNTHETIC", "STRAIGHT_OIL", "MQL_OIL", "COMPRESSED_AIR", "LIQUID_NITROGEN", "LIQUID_CO2"]),
+      flowRate: z.number().positive(),
+      pressure: z.number().positive(),
+    }).passthrough(),
+    operation_params: z.object({
+      operation: z.enum(["MILLING_GENERAL", "MILLING_HSM", "DRILLING_SHALLOW", "DRILLING_DEEP", "DRILLING_GUNDRILLING", "TAPPING", "REAMING", "BORING", "TURNING", "GRINDING"]),
+      toolDiameter: z.number().positive(),
+      cuttingSpeed: z.number().positive(),
+      feedRate: z.number().positive(),
+    }).passthrough(),
+  }).passthrough(),
+
+  coolant_chip_evacuation: z.object({
+    system: z.object({
+      delivery: z.enum(["FLOOD", "THROUGH_SPINDLE", "THROUGH_TOOL", "MQL", "AIR_BLAST", "CRYOGENIC", "DRY"]),
+      coolantType: z.enum(["WATER_SOLUBLE", "SEMI_SYNTHETIC", "FULL_SYNTHETIC", "STRAIGHT_OIL", "MQL_OIL", "COMPRESSED_AIR", "LIQUID_NITROGEN", "LIQUID_CO2"]),
+      flowRate: z.number().positive(),
+      pressure: z.number().positive(),
+    }).passthrough(),
+    operation_params: z.object({
+      operation: z.enum(["MILLING_GENERAL", "MILLING_HSM", "DRILLING_SHALLOW", "DRILLING_DEEP", "DRILLING_GUNDRILLING", "TAPPING", "REAMING", "BORING", "TURNING", "GRINDING"]),
+      toolDiameter: z.number().positive(),
+      cuttingSpeed: z.number().positive(),
+      feedRate: z.number().positive(),
+      holeDepth: z.number().positive().optional(),
+    }).passthrough(),
+  }).passthrough(),
+
   // ── Gear Hobbing ──
   hobbing_calc: z.object({
     num_teeth: z.number().int().positive(),

@@ -365,6 +365,10 @@ const ACTIONS = [
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection",
   "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
+  "thread_parse", "thread_tap_drill", "thread_mill_params", "thread_stripping",
+  "tool_breakage_predict", "tool_stress_analyze", "tool_safe_limits",
+  "spindle_torque_check", "spindle_power_check", "spindle_safe_envelope",
+  "coolant_validate", "coolant_flow_check", "coolant_chip_evacuation",
   "hobbing_calc", "hobbing_shift",
   "cryo_predict", "cryo_recommend", "cryo_roi",
   "hardness_convert", "hardness_batch",
@@ -2522,6 +2526,89 @@ export function registerCalcDispatcher(server: any): void {
           case "cost_compare_materials": {
             const { costEstimationEngine } = await import("../../engines/CostEstimationEngine.js");
             result = costEstimationEngine.compareMaterials(params.materials, params as any);
+            break;
+          }
+
+          // ── Thread Calculation ──
+          case "thread_parse": {
+            const { threadEngine } = await import("../../engines/ThreadCalculationEngine.js");
+            result = threadEngine.parseThreadDesignation(params.designation ?? "");
+            break;
+          }
+          case "thread_tap_drill": {
+            const { threadEngine } = await import("../../engines/ThreadCalculationEngine.js");
+            result = threadEngine.calculateTapDrill(params.designation ?? "", params.engagement_pct ?? 75);
+            break;
+          }
+          case "thread_mill_params": {
+            const { threadEngine } = await import("../../engines/ThreadCalculationEngine.js");
+            result = threadEngine.calculateThreadMillParams(
+              params.designation ?? "", params.tool_diameter ?? 6, params.material ?? "steel", params.single_point ?? true
+            );
+            break;
+          }
+          case "thread_stripping": {
+            const { threadEngine } = await import("../../engines/ThreadCalculationEngine.js");
+            result = threadEngine.calculateStrippingStrength(
+              params.designation ?? "", params.engagement_length ?? 10, params.tensile_strength_MPa ?? 400
+            );
+            break;
+          }
+
+          // ── Tool Breakage Prediction ──
+          case "tool_breakage_predict": {
+            const { toolBreakageEngine } = await import("../../engines/ToolBreakageEngine.js");
+            result = toolBreakageEngine.predictBreakage(
+              params.tool, params.forces, params.conditions, params.material ?? "CARBIDE", params.options
+            );
+            break;
+          }
+          case "tool_stress_analyze": {
+            const { toolBreakageEngine } = await import("../../engines/ToolBreakageEngine.js");
+            result = toolBreakageEngine.calculateToolStress(
+              params.tool, params.forces, params.material ?? "CARBIDE", params.is_interrupted ?? false
+            );
+            break;
+          }
+          case "tool_safe_limits": {
+            const { toolBreakageEngine } = await import("../../engines/ToolBreakageEngine.js");
+            result = toolBreakageEngine.getSafeCuttingLimits(
+              params.tool, params.material ?? "CARBIDE", params.workpiece_material ?? "STEEL"
+            );
+            break;
+          }
+
+          // ── Spindle Protection ──
+          case "spindle_torque_check": {
+            const { spindleProtectionEngine } = await import("../../engines/SpindleProtectionEngine.js");
+            result = spindleProtectionEngine.checkSpindleTorque(params.spindle, params.requirements, params.state);
+            break;
+          }
+          case "spindle_power_check": {
+            const { spindleProtectionEngine } = await import("../../engines/SpindleProtectionEngine.js");
+            result = spindleProtectionEngine.checkSpindlePower(params.spindle, params.requirements, params.state);
+            break;
+          }
+          case "spindle_safe_envelope": {
+            const { spindleProtectionEngine } = await import("../../engines/SpindleProtectionEngine.js");
+            result = spindleProtectionEngine.getSpindleSafeEnvelope(params.spindle, params.requirements, params.state);
+            break;
+          }
+
+          // ── Coolant Validation ──
+          case "coolant_validate": {
+            const { coolantValidationEngine } = await import("../../engines/CoolantValidationEngine.js");
+            result = coolantValidationEngine.validateCoolant(params.system, params.operation_params, params.tool_spec);
+            break;
+          }
+          case "coolant_flow_check": {
+            const { coolantValidationEngine } = await import("../../engines/CoolantValidationEngine.js");
+            result = coolantValidationEngine.validateCoolantFlow(params.system, params.operation_params);
+            break;
+          }
+          case "coolant_chip_evacuation": {
+            const { coolantValidationEngine } = await import("../../engines/CoolantValidationEngine.js");
+            result = coolantValidationEngine.calculateChipEvacuation(params.operation_params, params.system);
             break;
           }
 
