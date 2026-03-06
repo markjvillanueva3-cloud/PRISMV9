@@ -11,6 +11,24 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+ocr = [
+    "pytesseract>=0.3.10",
+    "Pillow>=10.0.0",
+]
+pdf = [
+    "PyMuPDF>=1.23.0",
+    "pdfplumber>=0.10.0",
+    "pypdf>=3.10.0",
+]
+vision = [
+    "anthropic>=0.24.0",
+]
+video = [
+    "yt-dlp>=2024.1.0",
+]
+all = [
+    "prism-cad-engine[ocr,pdf,vision,video]",
+]
 dev = [
     "pytest==9.0.2",
     "pytest-cov==7.0.0",

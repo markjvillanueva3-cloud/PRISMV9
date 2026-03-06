@@ -1895,7 +1895,7 @@ export {
   CostEstimationEngine,
   costEstimationEngine,
   type CostInput,
-  type CostBreakdown,
+  type CostBreakdown as EstimationCostBreakdown,
   type CostDriver,
 } from "./CostEstimationEngine.js";
 
@@ -2058,3 +2058,23 @@ export {
   type LinkingConfig,
   type LinkingResult,
 } from "./ToolpathLinkingEngine.js";
+
+// ─── Blueprint OCR & Print Reading Engines (forge-triple) ────────────
+export {
+  blueprintOCREngine,
+  type DimensionType,
+  type GDTSymbol,
+  type ExtractedDimension,
+  type ExtractedGDT,
+  type TitleBlockData,
+  type ExtractedNote,
+  type BlueprintAnalysis,
+} from "./BlueprintOCREngine.js";
+
+export {
+  printReadingEngine,
+  type SetupSheetFromPrint,
+  type InspectionPlanFromPrint,
+  type RevisionComparison,
+  type DxfDimensionResult,
+} from "./PrintReadingEngine.js";

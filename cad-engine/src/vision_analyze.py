@@ -11,11 +11,14 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 _DEFAULT_MODEL = "claude-sonnet-4-20250514"
@@ -267,6 +270,7 @@ def _extract_json(text: str) -> dict:
         except json.JSONDecodeError:
             pass
 
+    logger.warning("Failed to extract JSON from Claude response (len=%d)", len(text))
     return {}
 
 
@@ -274,7 +278,7 @@ def _summarize_elements(elements: dict) -> str:
     """Create a short text summary from extracted elements."""
     parts = []
     for key, value in elements.items():
-        if value and value != "null":
+        if value is not None and value != "null":
             if isinstance(value, str):
                 parts.append(f"{key}: {value}")
             elif isinstance(value, list):
@@ -306,7 +310,13 @@ def analyze_frames(
     results: list[FrameAnalysis] = []
     selected = frames[::skip_interval][:max_frames]
 
-    for frame_info in selected:
+    if len(frames) > max_frames:
+        logger.info(
+            "Frame batch truncated: %d → %d (max_frames=%d, skip=%d)",
+            len(frames), len(selected), max_frames, skip_interval,
+        )
+
+    for idx, frame_info in enumerate(selected):
         try:
             result = analyze_frame(
                 frame_info["path"],
@@ -315,8 +325,11 @@ def analyze_frames(
                 model=model,
             )
             results.append(result)
-        except VisionAnalysisError:
-            # Skip frames that fail analysis
+        except VisionAnalysisError as err:
+            logger.warning(
+                "Vision analysis failed for frame %d/%d (%s): %s",
+                idx + 1, len(selected), frame_info.get("path", "?"), err,
+            )
             continue
 
     return results
@@ -344,7 +357,7 @@ def analyze_video_frames(
     for analysis in analyses:
         if analysis.elements:
             for key, value in analysis.elements.items():
-                if value and value != "null" and isinstance(value, str):
+                if value is not None and value != "null" and isinstance(value, str):
                     insight = f"[{analysis.timestamp_seconds:.0f}s] {key}: {value}"
                     if insight not in unique_insights:
                         unique_insights.append(insight)
@@ -358,7 +371,7 @@ def analyze_video_frames(
         software_found = set()
         for a in analyses:
             sw = a.elements.get("software") or a.elements.get("software_or_equipment")
-            if sw and sw != "null":
+            if sw is not None and sw != "null":
                 software_found.add(sw)
         if software_found:
             summary_parts.append(f"Software: {', '.join(software_found)}")

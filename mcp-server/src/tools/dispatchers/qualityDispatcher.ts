@@ -1,23 +1,27 @@
 /**
  * prism_quality — Quality & Metrology Dispatcher
  *
- * 8 actions: spc_calculate, cpk_predict, cmm_plan, measurement_analyze,
- *   tolerance_stack, gdt_validate, bias_correct, gauge_rr
+ * 13 actions: spc_calculate, cpk_predict, cmm_plan, measurement_analyze,
+ *   tolerance_stack, gdt_validate, bias_correct, gauge_rr,
+ *   blueprint_extract, blueprint_setup_sheet, blueprint_inspection_plan,
+ *   blueprint_compare_revisions, blueprint_dxf_dimensions
  *
  * Engine dependencies: QualityPredictionEngine, ToleranceStackEngine,
- *   DimensionalAnalysisEngine
+ *   DimensionalAnalysisEngine, BlueprintOCREngine, PrintReadingEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-let _quality: any, _tolerance: any, _dimensional: any;
+let _quality: any, _tolerance: any, _dimensional: any, _blueprint: any, _printReading: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "quality": return _quality ??= (await import("../../engines/QualityPredictionEngine.js")).qualityPredictionEngine;
     case "tolerance": return _tolerance ??= (await import("../../engines/ToleranceStackEngine.js")).toleranceStackEngine;
     case "dimensional": return _dimensional ??= (await import("../../engines/DimensionalAnalysisEngine.js")).dimensionalAnalysisEngine;
+    case "blueprint": return _blueprint ??= (await import("../../engines/BlueprintOCREngine.js")).blueprintOCREngine;
+    case "printReading": return _printReading ??= (await import("../../engines/PrintReadingEngine.js")).printReadingEngine;
     default: throw new Error(`Unknown quality engine: ${name}`);
   }
 }
@@ -25,6 +29,8 @@ async function getEngine(name: string): Promise<any> {
 const ACTIONS = [
   "spc_calculate", "cpk_predict", "cmm_plan", "measurement_analyze",
   "tolerance_stack", "gdt_validate", "bias_correct", "gauge_rr",
+  "blueprint_extract", "blueprint_setup_sheet", "blueprint_inspection_plan",
+  "blueprint_compare_revisions", "blueprint_dxf_dimensions",
 ] as const;
 
 /** Registers quality dispatcher.
@@ -34,7 +40,7 @@ const ACTIONS = [
 export function registerQualityDispatcher(server: any): void {
   server.tool(
     "prism_quality",
-    `Quality & Metrology dispatcher — SPC, Cpk prediction, CMM planning, tolerance stack analysis, GD&T validation, gauge R&R.
+    `Quality & Metrology dispatcher — SPC, Cpk prediction, CMM planning, tolerance stack analysis, GD&T validation, gauge R&R, blueprint reading & print analysis.
 Actions: ${ACTIONS.join(", ")}.
 Params vary by action — pass relevant fields in params object.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
@@ -144,6 +150,42 @@ Params vary by action — pass relevant fields in params object.`,
               acceptable: grr_pct < 10 ? "acceptable" : grr_pct < 30 ? "marginal" : "unacceptable",
               study: { parts, operators, trials },
             };
+            break;
+          }
+          case "blueprint_extract": {
+            const engine = await getEngine("blueprint");
+            const text = params.text ?? "";
+            const unit = params.unit ?? undefined;
+            result = engine.analyzeBlueprint(text, { unit });
+            break;
+          }
+          case "blueprint_setup_sheet": {
+            const bpEngine = await getEngine("blueprint");
+            const prEngine = await getEngine("printReading");
+            const text = params.text ?? "";
+            const analysis = bpEngine.analyzeBlueprint(text, { unit: params.unit });
+            result = prEngine.generateSetupSheet(analysis);
+            break;
+          }
+          case "blueprint_inspection_plan": {
+            const bpEngine = await getEngine("blueprint");
+            const prEngine = await getEngine("printReading");
+            const text = params.text ?? "";
+            const analysis = bpEngine.analyzeBlueprint(text, { unit: params.unit });
+            result = prEngine.generateInspectionPlan(analysis);
+            break;
+          }
+          case "blueprint_compare_revisions": {
+            const prEngine = await getEngine("printReading");
+            const oldText = params.old_text ?? params.text_a ?? "";
+            const newText = params.new_text ?? params.text_b ?? "";
+            result = prEngine.compareRevisions(oldText, newText, { unit: params.unit });
+            break;
+          }
+          case "blueprint_dxf_dimensions": {
+            const prEngine = await getEngine("printReading");
+            const dxfText = params.dxf_text ?? params.text ?? "";
+            result = prEngine.extractDxfDimensions(dxfText, { unit: params.unit });
             break;
           }
           default:

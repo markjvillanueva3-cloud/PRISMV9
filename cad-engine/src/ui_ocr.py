@@ -12,7 +12,10 @@ import os
 from dataclasses import dataclass, field
 from typing import Optional
 
+import logging
+import platform
 import re
+import shutil
 
 from PIL import Image, ImageFilter, ImageOps
 
@@ -20,6 +23,8 @@ try:
     import pytesseract
 except ImportError:
     pytesseract = None
+
+logger = logging.getLogger(__name__)
 
 
 class OCRError(Exception):
@@ -65,34 +70,56 @@ class OCRResult:
 # Tesseract configuration
 # ---------------------------------------------------------------------------
 
-# Common Windows Tesseract installation path
-_TESSERACT_PATHS = [
+# Platform-specific Tesseract installation paths
+_TESSERACT_PATHS_WIN = [
     r"C:\Program Files\Tesseract-OCR\tesseract.exe",
     r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
 ]
+_TESSERACT_PATHS_UNIX = [
+    "/usr/bin/tesseract",
+    "/usr/local/bin/tesseract",
+    "/opt/homebrew/bin/tesseract",
+]
+
+_TESSERACT_CONFIGURED = False
 
 
 def _configure_tesseract() -> None:
-    """Set Tesseract path if not on PATH."""
+    """Set Tesseract path if not on PATH. Cross-platform."""
+    global _TESSERACT_CONFIGURED
     if pytesseract is None:
         raise OCRError("pytesseract not installed. Run: pip install pytesseract")
 
-    # Check if already configured
+    if _TESSERACT_CONFIGURED:
+        return
+
+    # Check if already on PATH
     try:
         pytesseract.get_tesseract_version()
+        _TESSERACT_CONFIGURED = True
         return
     except pytesseract.TesseractNotFoundError:
         pass
 
-    # Try common paths
-    for path in _TESSERACT_PATHS:
+    # Check PATH via shutil.which
+    which_result = shutil.which("tesseract")
+    if which_result:
+        pytesseract.pytesseract.tesseract_cmd = which_result
+        _TESSERACT_CONFIGURED = True
+        return
+
+    # Try platform-specific paths
+    paths = _TESSERACT_PATHS_WIN if platform.system() == "Windows" else _TESSERACT_PATHS_UNIX
+    for path in paths:
         if os.path.exists(path):
             pytesseract.pytesseract.tesseract_cmd = path
+            _TESSERACT_CONFIGURED = True
             return
 
     raise OCRError(
         "Tesseract not found. Install from: "
-        "https://github.com/UB-Mannheim/tesseract/wiki"
+        "https://github.com/UB-Mannheim/tesseract/wiki (Windows) "
+        "or: apt install tesseract-ocr / brew install tesseract (Unix)"
     )
 
 
@@ -247,8 +274,8 @@ def extract_text_batch(
                 min_confidence=min_confidence,
             )
             results.append(result)
-        except OCRError:
-            # Skip frames that fail OCR
+        except OCRError as err:
+            logger.warning("OCR failed for frame %s: %s", path, err)
             results.append(OCRResult(
                 frame_path=path,
                 full_text="",

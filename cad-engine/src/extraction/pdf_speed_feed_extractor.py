@@ -7,10 +7,13 @@ Uses pypdf for text extraction, regex for data parsing.
 """
 
 import json
+import logging
 import re
 import os
 from datetime import datetime, timezone
 import pypdf
+
+logger = logging.getLogger(__name__)
 
 # ─── Material Classification ──────────────────────────────────────
 
@@ -190,7 +193,8 @@ def extract_catalog(pdf_path: str) -> list[dict]:
     for pg in range(0, total_pages):
         try:
             text = reader.pages[pg].extract_text()
-        except Exception:
+        except Exception as exc:
+            logger.warning("Failed to extract text from page %d: %s", pg, exc)
             continue
         if not text or len(text.strip()) < 100:
             continue
@@ -342,7 +346,8 @@ def extract_catalog_robust(pdf_path: str) -> list[dict]:
     for pg in range(total):
         try:
             text = reader.pages[pg].extract_text()
-        except Exception:
+        except Exception as exc:
+            logger.warning("Failed to extract text from page %d (speed/feed): %s", pg, exc)
             continue
         if not text or 'STANDARD CUTTING CONDITIONS' not in text.upper():
             continue

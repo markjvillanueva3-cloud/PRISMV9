@@ -672,8 +672,8 @@ class PDFIngestionPipeline:
                 pix = page.get_pixmap(matrix=mat)
                 img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-                # OCR the image
-                text = pytesseract.image_to_string(img)
+                # OCR the image with tuned config (OEM 3 = LSTM, PSM 6 = block)
+                text = pytesseract.image_to_string(img, config="--oem 3 --psm 6")
                 word_count = len(text.split())
                 regions = segment_page(text, page_num + 1)
 
