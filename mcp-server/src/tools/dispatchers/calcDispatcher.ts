@@ -365,6 +365,14 @@ const ACTIONS = [
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection",
   "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
+  "heat_treat_predict", "heat_treat_temper_curve", "heat_treat_recommend",
+  "passivation_calc",
+  "plating_allowance", "plating_tolerance", "plating_recommend",
+  "shot_peen_calc",
+  "recast_layer_predict", "recast_layer_validate",
+  "white_layer_predict", "white_layer_validate",
+  "masking_calc",
+  "process_plan_generate", "process_plan_optimize", "process_plan_estimate_time", "process_plan_validate",
   "thread_parse", "thread_tap_drill", "thread_mill_params", "thread_stripping",
   "tool_breakage_predict", "tool_stress_analyze", "tool_safe_limits",
   "spindle_torque_check", "spindle_power_check", "spindle_safe_envelope",
@@ -2440,6 +2448,107 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Heat Treatment Response ──
+          case "heat_treat_predict": {
+            const { heatTreatmentResponseEngine } = await import("../../engines/HeatTreatmentResponseEngine.js");
+            result = heatTreatmentResponseEngine.predict(params as any);
+            break;
+          }
+          case "heat_treat_temper_curve": {
+            const { heatTreatmentResponseEngine } = await import("../../engines/HeatTreatmentResponseEngine.js");
+            result = heatTreatmentResponseEngine.temperCurve(params.carbon_pct ?? 0.4, params.start_HRC ?? 60);
+            break;
+          }
+          case "heat_treat_recommend": {
+            const { heatTreatmentResponseEngine } = await import("../../engines/HeatTreatmentResponseEngine.js");
+            result = heatTreatmentResponseEngine.recommend(params.material ?? "", params.target_hardness_HRC ?? 50, params.section_mm ?? 25);
+            break;
+          }
+
+          // ── Passivation ──
+          case "passivation_calc": {
+            const { passivationEngine } = await import("../../engines/PassivationEngine.js");
+            result = passivationEngine.calculate(params as any);
+            break;
+          }
+
+          // ── Plating Allowance ──
+          case "plating_allowance": {
+            const { platingAllowanceEngine } = await import("../../engines/PlatingAllowanceEngine.js");
+            result = platingAllowanceEngine.calculateAllowance(params as any);
+            break;
+          }
+          case "plating_tolerance": {
+            const { platingAllowanceEngine } = await import("../../engines/PlatingAllowanceEngine.js");
+            result = platingAllowanceEngine.calculateTolerance(params as any);
+            break;
+          }
+          case "plating_recommend": {
+            const { platingAllowanceEngine } = await import("../../engines/PlatingAllowanceEngine.js");
+            result = platingAllowanceEngine.recommend(params.substrate ?? "", params.application ?? "wear");
+            break;
+          }
+
+          // ── Shot Peening ──
+          case "shot_peen_calc": {
+            const { shotPeeningEngine } = await import("../../engines/ShotPeeningEngine.js");
+            result = shotPeeningEngine.calculate(params as any);
+            break;
+          }
+
+          // ── Recast Layer ──
+          case "recast_layer_predict": {
+            const { recastLayerEngine } = await import("../../engines/RecastLayerEngine.js");
+            result = recastLayerEngine.predict(params as any);
+            break;
+          }
+          case "recast_layer_validate": {
+            const { recastLayerEngine } = await import("../../engines/RecastLayerEngine.js");
+            result = recastLayerEngine.validate(params as any);
+            break;
+          }
+
+          // ── White Layer Detection ──
+          case "white_layer_predict": {
+            const { whiteLayerDetectionEngine } = await import("../../engines/WhiteLayerDetectionEngine.js");
+            result = whiteLayerDetectionEngine.predict(params as any);
+            break;
+          }
+          case "white_layer_validate": {
+            const { whiteLayerDetectionEngine } = await import("../../engines/WhiteLayerDetectionEngine.js");
+            result = whiteLayerDetectionEngine.validate(params as any);
+            break;
+          }
+
+          // ── Masking Calculator ──
+          case "masking_calc": {
+            const { maskingCalculatorEngine } = await import("../../engines/MaskingCalculatorEngine.js");
+            result = maskingCalculatorEngine.calculate(params as any);
+            break;
+          }
+
+          // ── Process Plan ──
+          case "process_plan_generate": {
+            const { processPlanEngine } = await import("../../engines/ProcessPlanEngine.js");
+            result = processPlanEngine.generate(params as any);
+            break;
+          }
+          case "process_plan_optimize": {
+            const { processPlanEngine } = await import("../../engines/ProcessPlanEngine.js");
+            result = processPlanEngine.optimize(params.plan);
+            break;
+          }
+          case "process_plan_estimate_time": {
+            const { processPlanEngine } = await import("../../engines/ProcessPlanEngine.js");
+            result = processPlanEngine.estimateTime(params.plan, params.setup_time_min ?? 20);
+            break;
+          }
+          case "process_plan_validate": {
+            const { processPlanEngine } = await import("../../engines/ProcessPlanEngine.js");
+            result = processPlanEngine.validate(params.plan);
+            break;
+          }
+
           // ── Gear Hobbing ──
           case "hobbing_calc": {
             const { gearHobbingEngine } = await import("../../engines/GearHobbingEngine.js");
@@ -3144,6 +3253,36 @@ export function registerCalcDispatcher(server: any): void {
             else if (op === "mirror") result = sketchConstraintEngine.mirrorPoint(params.point, params.mirror_line);
             else if (op === "line_length") result = { length: sketchConstraintEngine.lineLength(params.line) };
             else result = { error: `Unknown geometry operation: ${op}` };
+            break;
+          }
+
+          case "bayesian_tool_life_predict": {
+            const { bayesianToolLifeEngine } = await import("../../engines/BayesianToolLifeEngine.js");
+            const predictor = bayesianToolLifeEngine.createPredictor(params.gp_config);
+            if (params.observations) {
+              for (const obs of params.observations) {
+                bayesianToolLifeEngine.addObservation(predictor, obs.speed, obs.feed, obs.doc, obs.tool_life);
+              }
+            }
+            result = bayesianToolLifeEngine.predict(predictor, params.speed, params.feed, params.doc);
+            break;
+          }
+
+          case "bayesian_tool_life_replacement": {
+            const { bayesianToolLifeEngine } = await import("../../engines/BayesianToolLifeEngine.js");
+            const pred = bayesianToolLifeEngine.createPredictor(params.gp_config);
+            if (params.observations) {
+              for (const obs of params.observations) {
+                bayesianToolLifeEngine.addObservation(pred, obs.speed, obs.feed, obs.doc, obs.tool_life);
+              }
+            }
+            result = bayesianToolLifeEngine.getReplacementTime(pred, params.speed, params.feed, params.doc, params.risk_tolerance);
+            break;
+          }
+
+          case "rl_create_agent": {
+            const { qLearningEngine } = await import("../../engines/QLearningEngine.js");
+            result = { agent: qLearningEngine.createAgent(params.config), created: true };
             break;
           }
 
