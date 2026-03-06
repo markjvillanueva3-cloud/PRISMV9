@@ -1,13 +1,14 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 22 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 24 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
  *   cam_safety_validate, cam_multiaxis_recommend, cam_material_map,
  *   cam_cycle_catalog, lathe_post_process, probe_generate,
- *   subprogram_call, subprogram_pattern, cam_controller_catalog
+ *   subprogram_call, subprogram_pattern, cam_controller_catalog,
+ *   cam_cycle_defaults, cam_thread_lookup
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -21,7 +22,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -42,6 +43,8 @@ async function getEngine(name: string): Promise<any> {
     case "nesting": return _nesting ??= (await import("../../engines/NestingEngine.js")).nestingEngine;
     case "tpSim": return _tpSim ??= (await import("../../engines/ToolpathSimulationEngine.js")).toolpathSimulationEngine;
     case "hmController": return _hmController ??= (await import("../../engines/HyperMillControllerCatalogEngine.js")).hyperMillControllerCatalogEngine;
+    case "hmCycleDefaults": return _hmCycleDefaults ??= (await import("../../engines/HyperMillCycleDefaultsEngine.js")).hyperMillCycleDefaultsEngine;
+    case "hmThread": return _hmThread ??= (await import("../../engines/HyperMillThreadStandardEngine.js")).hyperMillThreadStandardEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -57,6 +60,8 @@ const ACTIONS = [
   "lathe_post_process", "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
+  "cam_cycle_defaults",
+  "cam_thread_lookup",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -313,6 +318,60 @@ Params vary by action — pass relevant fields in params object.`,
                 return_to_zero: params.return_to_zero ?? true },
               params.controller ?? "fanuc"
             );
+            break;
+          }
+          case "cam_cycle_defaults": {
+            const hmCD = await getEngine("hmCycleDefaults");
+            if (params.code) {
+              if (params.resolve) {
+                result = hmCD.resolveDefaults(params.code, {
+                  toolDiameter: params.tool_diameter,
+                  toolRadius: params.tool_radius,
+                  toolCornerRadius: params.tool_corner_radius,
+                  machineTolerance: params.machine_tolerance,
+                  jobFeed: params.job_feed,
+                }) ?? { error: `No cycle found: ${params.code}` };
+              } else {
+                result = hmCD.getByCode(params.code)
+                  ?? { error: `No cycle found: ${params.code}` };
+              }
+            } else if (params.search) {
+              result = hmCD.search(params.search);
+            } else if (params.category) {
+              result = hmCD.byCategory(params.category);
+            } else if (params.formulas) {
+              result = hmCD.withFormulas();
+            } else if (params.stats) {
+              result = hmCD.stats();
+            } else {
+              result = hmCD.listAll();
+            }
+            break;
+          }
+          case "cam_thread_lookup": {
+            const hmTh = await getEngine("hmThread");
+            if (params.search) {
+              result = hmTh.search(params.search);
+            } else if (params.size) {
+              result = hmTh.findBySize(params.size, params.pitch);
+            } else if (params.tap_drill) {
+              const drill = hmTh.getTapDrill(params.tap_drill);
+              result = drill != null
+                ? { designation: params.tap_drill, tapDrill: drill }
+                : { error: `No thread found: ${params.tap_drill}` };
+            } else if (params.minor_dia) {
+              const dia = hmTh.getMinorDia(params.minor_dia);
+              result = dia != null
+                ? { designation: params.minor_dia, minorDia: dia }
+                : { error: `No thread found: ${params.minor_dia}` };
+            } else if (params.standard) {
+              result = hmTh.getStandard(params.standard)
+                ?? { error: `No standard found: ${params.standard}` };
+            } else if (params.stats) {
+              result = hmTh.stats();
+            } else {
+              result = hmTh.listStandards();
+            }
             break;
           }
           case "cam_controller_catalog": {

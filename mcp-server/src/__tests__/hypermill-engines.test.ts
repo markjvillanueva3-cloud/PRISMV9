@@ -793,3 +793,167 @@ describe("HyperMillControllerCatalogEngine", () => {
     expect(ctrlCatalog.getDialect("nonexistent")).toBeNull();
   });
 });
+
+// ============================================================================
+// HyperMillCycleDefaultsEngine
+// ============================================================================
+import { hyperMillCycleDefaultsEngine as cycleDefaults } from "../engines/HyperMillCycleDefaultsEngine.js";
+
+describe("HyperMillCycleDefaultsEngine", () => {
+  it("lists all cycle defaults", () => {
+    const all = cycleDefaults.listAll();
+    expect(all.length).toBeGreaterThanOrEqual(20);
+  });
+
+  it("stats returns valid counts", () => {
+    const s = cycleDefaults.stats();
+    expect(s.totalCycles).toBeGreaterThanOrEqual(20);
+    expect(s.paramCount).toBeGreaterThan(100);
+    expect(s.formulaCount).toBeGreaterThan(10);
+    expect(s.formulaVars).toContain("T:Dia");
+    expect(s.formulaVars).toContain("mtol");
+  });
+
+  it("getByCode returns 3D Z-Level Finishing", () => {
+    const c = cycleDefaults.getByCode("hmSlf3");
+    expect(c).toBeDefined();
+    expect(c!.displayName).toBe("3D Z-Level Finishing");
+    expect(c!.category).toBe("3d_milling");
+    expect(c!.collision.holderClearance).toBe(0.25);
+    expect(c!.collision.headClearance).toBe(1.5);
+  });
+
+  it("getByCode returns null for unknown", () => {
+    expect(cycleDefaults.getByCode("nonexistent")).toBeNull();
+  });
+
+  it("search finds turning cycles", () => {
+    const results = cycleDefaults.search("turning");
+    expect(results.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("byCategory returns 3d_milling cycles", () => {
+    const results = cycleDefaults.byCategory("3d_milling");
+    expect(results.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("withFormulas returns cycles with formula params", () => {
+    const results = cycleDefaults.withFormulas();
+    expect(results.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("resolveFormula computes T:Dia*0.35 correctly", () => {
+    const val = cycleDefaults.resolveFormula("T:Dia*0.35", { toolDiameter: 10 });
+    expect(val).toBeCloseTo(3.5);
+  });
+
+  it("resolveFormula computes mtol*0.9 correctly", () => {
+    const val = cycleDefaults.resolveFormula("mtol*0.9", { machineTolerance: 0.01 });
+    expect(val).toBeCloseTo(0.009);
+  });
+
+  it("resolveFormula handles pipe-separated APPROXRES", () => {
+    const val = cycleDefaults.resolveFormula(
+      "mtol*0.9|mtol*0.1|mtol*0.1",
+      { machineTolerance: 0.01 }
+    );
+    expect(val).toBeCloseTo(0.009);
+  });
+
+  it("resolveDefaults returns resolved values for hmSlf3", () => {
+    const r = cycleDefaults.resolveDefaults("hmSlf3", {
+      toolDiameter: 10, machineTolerance: 0.01,
+    });
+    expect(r).toBeDefined();
+    expect(r!.PRECISION).toBe(0.005);
+    expect(r!.SICHEBENE).toBe(100);
+  });
+
+  it("collisionDefaults returns standard clearances", () => {
+    const d = cycleDefaults.collisionDefaults();
+    expect(d.holderClearance).toBe(0.25);
+    expect(d.shankClearance).toBe(0.05);
+    expect(d.headClearance).toBe(1.5);
+  });
+
+  it("macroFormulas returns standard approach/retract formulas", () => {
+    const f = cycleDefaults.macroFormulas();
+    expect(f.approachLength).toBe("T:Dia*0.35");
+    expect(f.retractClearSide).toBe("T:Rad*0.25");
+  });
+
+  it("byCategory millturn_grooving has groove cycles", () => {
+    const results = cycleDefaults.byCategory("millturn_grooving");
+    expect(results.length).toBeGreaterThanOrEqual(5);
+    expect(results.some(c => c.displayName.includes("Face Groove"))).toBe(true);
+  });
+});
+
+// ============================================================================
+// HyperMillThreadStandardEngine
+// ============================================================================
+import { hyperMillThreadStandardEngine as threadEngine } from "../engines/HyperMillThreadStandardEngine.js";
+
+describe("HyperMillThreadStandardEngine", () => {
+  it("lists 11 thread standards", () => {
+    const stds = threadEngine.listStandards();
+    expect(stds.length).toBe(11);
+    expect(stds.map(s => s.id)).toContain("iso_metric");
+    expect(stds.map(s => s.id)).toContain("ansi_unified");
+  });
+
+  it("stats returns valid counts", () => {
+    const s = threadEngine.stats();
+    expect(s.standardCount).toBe(11);
+    expect(s.totalEntries).toBeGreaterThanOrEqual(70);
+    expect(s.populatedStandards).toBeGreaterThanOrEqual(2);
+  });
+
+  it("getStandard returns ISO Metric with entries", () => {
+    const std = threadEngine.getStandard("iso_metric");
+    expect(std).toBeDefined();
+    expect(std!.entries.length).toBeGreaterThanOrEqual(40);
+    expect(std!.unit).toBe("mm");
+  });
+
+  it("getStandard returns null for unknown", () => {
+    expect(threadEngine.getStandard("nonexistent")).toBeNull();
+  });
+
+  it("search finds M10 threads", () => {
+    const results = threadEngine.search("M10");
+    expect(results.length).toBeGreaterThanOrEqual(2);
+    expect(results.every(r => r.designation.includes("M10"))).toBe(true);
+  });
+
+  it("search finds 1/4-20 UNC", () => {
+    const results = threadEngine.search("1/4-20");
+    expect(results.length).toBeGreaterThanOrEqual(1);
+    expect(results[0].pitchUnit).toBe("tpi");
+  });
+
+  it("findBySize finds M8 threads", () => {
+    const results = threadEngine.findBySize(8);
+    expect(results.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("findBySize with pitch finds specific thread", () => {
+    const results = threadEngine.findBySize(10, 1.5);
+    expect(results.length).toBe(1);
+    expect(results[0].designation).toBe("M10x1.5");
+  });
+
+  it("getTapDrill returns correct drill for M8x1.25", () => {
+    const drill = threadEngine.getTapDrill("M8x1.25");
+    expect(drill).toBe(6.8);
+  });
+
+  it("getTapDrill returns null for unknown", () => {
+    expect(threadEngine.getTapDrill("M999x99")).toBeNull();
+  });
+
+  it("getMinorDia returns correct value for M10x1.5", () => {
+    const dia = threadEngine.getMinorDia("M10x1.5");
+    expect(dia).toBeCloseTo(8.376, 2);
+  });
+});

@@ -1792,6 +1792,23 @@ export {
   type ControllerMatch,
 } from "./HyperMillControllerCatalogEngine.js";
 
+export {
+  hyperMillCycleDefaultsEngine,
+  HyperMillCycleDefaultsEngine,
+  type CycleDefaults,
+  type CycleParam,
+  type CycleCategory as HyperMillCycleCategory,
+  FORMULA_VARIABLES,
+  FRTYP_MAP,
+} from "./HyperMillCycleDefaultsEngine.js";
+
+export {
+  hyperMillThreadStandardEngine,
+  HyperMillThreadStandardEngine,
+  type ThreadEntry,
+  type ThreadStandard,
+} from "./HyperMillThreadStandardEngine.js";
+
 // ─── MIT 2.830J Process Control Engines (pdf-learn forge-triple) ─────
 
 // Cycle-to-Cycle Feedback Control (Hardt/Siu)
