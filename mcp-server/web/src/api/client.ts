@@ -86,3 +86,90 @@ export async function decodeAlarm(params: {
 }): Promise<PrismResponse> {
   return request('POST', '/alarm-decode', params);
 }
+
+// === ERP Endpoints ===
+
+export async function shiftClockIn(params: {
+  employee_id: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/shift-clock-in', params);
+}
+
+export async function shiftClockOut(params: {
+  employee_id: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/shift-clock-out', params);
+}
+
+export async function jobTimeStart(params: {
+  employee_id: string;
+  job_id: string;
+  operation?: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/job-time-start', params);
+}
+
+export async function jobTimePause(params: {
+  employee_id: string;
+  job_id: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/job-time-pause', params);
+}
+
+export async function jobTimeStop(params: {
+  employee_id: string;
+  job_id: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/job-time-stop', params);
+}
+
+export async function getTimecard(params: {
+  employee_id: string;
+  period_start: string;
+  period_end: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/timecard', params);
+}
+
+export async function getAttendance(params: {
+  department?: string;
+  date?: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/attendance', params);
+}
+
+export async function listEmployees(): Promise<PrismResponse> {
+  return request('GET', '/erp/employees');
+}
+
+export async function runPayroll(params: {
+  period_start: string;
+  period_end: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/payroll-run', params);
+}
+
+export async function createInvoice(params: {
+  job_id: string;
+  markup_percent?: number;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/invoice-create', params);
+}
+
+export async function listInvoices(params?: {
+  status?: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/invoices', params ?? {});
+}
+
+export async function getJobProfitability(params: {
+  job_id: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/job-profitability', params);
+}
+
+export async function getToolUsage(params: {
+  job_id?: string;
+}): Promise<PrismResponse> {
+  return request('POST', '/erp/tool-usage', params ?? {});
+}

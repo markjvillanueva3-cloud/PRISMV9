@@ -9,6 +9,12 @@ import { WhatIfPage } from './pages/WhatIfPage';
 import { AlarmPage } from './pages/AlarmPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { ViewerPage } from './pages/ViewerPage';
+import { ShopFloorClockPage } from './pages/ShopFloorClockPage';
+import { TimecardPage } from './pages/TimecardPage';
+import { PayrollPage } from './pages/PayrollPage';
+import { InvoicesPage } from './pages/InvoicesPage';
+import { JobProfitabilityPage } from './pages/JobProfitabilityPage';
+import { ToolingCostPage } from './pages/ToolingCostPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -35,6 +41,12 @@ export function App() {
           <Route path="alarms" element={<AlarmPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="viewer" element={<ViewerPage />} />
+          <Route path="shop-clock" element={<ShopFloorClockPage />} />
+          <Route path="timecards" element={<TimecardPage />} />
+          <Route path="payroll" element={<PayrollPage />} />
+          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="profitability" element={<JobProfitabilityPage />} />
+          <Route path="tooling-cost" element={<ToolingCostPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />

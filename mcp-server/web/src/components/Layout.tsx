@@ -11,6 +11,12 @@ const NAV_ITEMS = [
   { to: '/reports', label: 'Reports' },
   { to: '/viewer', label: '3D Viewer' },
   { to: '/learning', label: 'Learning' },
+  { to: '/shop-clock', label: 'Clock' },
+  { to: '/timecards', label: 'Timecards' },
+  { to: '/payroll', label: 'Payroll' },
+  { to: '/invoices', label: 'Invoices' },
+  { to: '/profitability', label: 'Profit' },
+  { to: '/tooling-cost', label: 'Tooling' },
 ] as const;
 
 export function Layout() {
