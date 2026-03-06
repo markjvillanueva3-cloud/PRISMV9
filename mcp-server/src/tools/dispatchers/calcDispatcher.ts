@@ -364,7 +364,15 @@ const ACTIONS = [
   "surface_intersect", "mesh_offset", "mesh_shell",
   "spindle_harmonic_analysis", "spindle_optimal_rpm", "spindle_quality_map",
   "archard_wear", "wear_force_correction", "thermal_deflection",
-  "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list"
+  "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
+  "hobbing_calc", "hobbing_shift",
+  "cryo_predict", "cryo_recommend", "cryo_roi",
+  "hardness_convert", "hardness_batch",
+  "bend_allowance_calc",
+  "anodize_allowance",
+  "clamp_simulate", "clamp_validate", "clamp_optimize",
+  "damping_optimize",
+  "cost_estimate", "cost_compare_materials"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -2398,6 +2406,122 @@ export function registerCalcDispatcher(server: any): void {
           case "construction_point_3planes": {
             const { constructionGeometryEngine } = await import("../../engines/ConstructionGeometryEngine.js");
             result = constructionGeometryEngine.createPointThroughThreePlanes(params.plane1, params.plane2, params.plane3);
+            break;
+          }
+
+          // ── Genetic Algorithm ──
+          case "ga_optimize": {
+            const { geneticAlgorithmEngine } = await import("../../engines/GeneticAlgorithmEngine.js");
+            result = geneticAlgorithmEngine.optimize(
+              new Function("genes", params.fitnessBody) as (g: number[]) => number,
+              params.bounds, params.config,
+            );
+            break;
+          }
+
+          // ── Simulated Annealing ──
+          case "sa_optimize": {
+            const { simulatedAnnealingEngine } = await import("../../engines/SimulatedAnnealingEngine.js");
+            result = simulatedAnnealingEngine.optimize(
+              new Function("solution", params.fitnessBody) as (s: number[]) => number,
+              params.bounds, params.config,
+            );
+            break;
+          }
+          case "sa_optimize_sequence": {
+            const { simulatedAnnealingEngine } = await import("../../engines/SimulatedAnnealingEngine.js");
+            result = simulatedAnnealingEngine.optimizeSequence(params.positions, params.config);
+            break;
+          }
+
+          // ── Gear Hobbing ──
+          case "hobbing_calc": {
+            const { gearHobbingEngine } = await import("../../engines/GearHobbingEngine.js");
+            result = gearHobbingEngine.calculate(params as any);
+            break;
+          }
+          case "hobbing_shift": {
+            const { gearHobbingEngine } = await import("../../engines/GearHobbingEngine.js");
+            result = gearHobbingEngine.shiftPlan(params as any, params.parts_per_shift ?? 100);
+            break;
+          }
+
+          // ── Cryogenic Treatment ──
+          case "cryo_predict": {
+            const { cryogenicTreatmentEngine } = await import("../../engines/CryogenicTreatmentEngine.js");
+            result = cryogenicTreatmentEngine.predict(params as any);
+            break;
+          }
+          case "cryo_recommend": {
+            const { cryogenicTreatmentEngine } = await import("../../engines/CryogenicTreatmentEngine.js");
+            result = cryogenicTreatmentEngine.recommend(params.material_type, params.retained_austenite_pct ?? 10);
+            break;
+          }
+          case "cryo_roi": {
+            const { cryogenicTreatmentEngine } = await import("../../engines/CryogenicTreatmentEngine.js");
+            result = cryogenicTreatmentEngine.calculateROI(params as any, params.tool_cost_usd ?? 50, params.tools_per_year ?? 100);
+            break;
+          }
+
+          // ── Hardness Conversion (ASTM E140) ──
+          case "hardness_convert": {
+            const { hardnessConversionEngine } = await import("../../engines/HardnessConversionEngine.js");
+            result = hardnessConversionEngine.convert({ value: params.value, from_scale: params.from_scale, to_scale: params.to_scale });
+            break;
+          }
+          case "hardness_batch": {
+            const { hardnessConversionEngine } = await import("../../engines/HardnessConversionEngine.js");
+            result = hardnessConversionEngine.batchConvert(params.values, params.from_scale, params.to_scale);
+            break;
+          }
+
+          // ── Bend Allowance (Sheet Metal) ──
+          case "bend_allowance_calc": {
+            const { bendAllowanceEngine } = await import("../../engines/BendAllowanceEngine.js");
+            result = bendAllowanceEngine.calculate(params as any);
+            break;
+          }
+
+          // ── Anodize Allowance ──
+          case "anodize_allowance": {
+            const { anodizeAllowanceEngine } = await import("../../engines/AnodizeAllowanceEngine.js");
+            result = anodizeAllowanceEngine.calculate(params as any);
+            break;
+          }
+
+          // ── Clamping Simulation (SAFETY CRITICAL) ──
+          case "clamp_simulate": {
+            const { clampingSimEngine } = await import("../../engines/ClampingSimEngine.js");
+            result = clampingSimEngine.simulate(params as any);
+            break;
+          }
+          case "clamp_validate": {
+            const { clampingSimEngine } = await import("../../engines/ClampingSimEngine.js");
+            result = clampingSimEngine.validate(params as any);
+            break;
+          }
+          case "clamp_optimize": {
+            const { clampingSimEngine } = await import("../../engines/ClampingSimEngine.js");
+            result = clampingSimEngine.optimize(params as any);
+            break;
+          }
+
+          // ── Damping Optimization ──
+          case "damping_optimize": {
+            const { dampingOptimizationEngine } = await import("../../engines/DampingOptimizationEngine.js");
+            result = dampingOptimizationEngine.optimize(params as any);
+            break;
+          }
+
+          // ── Cost Estimation ──
+          case "cost_estimate": {
+            const { costEstimationEngine } = await import("../../engines/CostEstimationEngine.js");
+            result = costEstimationEngine.estimate(params as any);
+            break;
+          }
+          case "cost_compare_materials": {
+            const { costEstimationEngine } = await import("../../engines/CostEstimationEngine.js");
+            result = costEstimationEngine.compareMaterials(params.materials, params as any);
             break;
           }
 
