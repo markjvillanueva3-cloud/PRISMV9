@@ -402,6 +402,7 @@ const ACTIONS = [
   "ziegler_nichols", "step_response",
   "fft_analyze", "dominant_frequency", "design_fir_filter", "spectrogram",
   "gradient_optimize", "bfgs_optimize", "golden_section",
+  "simulated_annealing", "two_opt_tsp", "spectral_partition", "mesh_analyze",
   // Batch 13: Workholding & Fixture
   "fixture_design_recommend", "fixture_design_validate", "fixture_clamp_force", "fixture_deflection_calc",
   "soft_jaw_design", "magnetic_chuck_calc", "tombstone_layout",
@@ -4000,6 +4001,58 @@ export function registerCalcDispatcher(server: any): void {
               params.lower ?? -10,
               params.upper ?? 10,
             );
+            break;
+          }
+
+          // --- Round 8-9: Local Search & Spectral Graph ---
+
+          case "simulated_annealing": {
+            const { localSearchEngine: lse } = await import("../../engines/LocalSearchEngine.js");
+            // Minimize quadratic: sum(c_i * (x_i - t_i)^2) via SA with integer neighbors
+            const saCoeffs: number[] = params.coefficients ?? [1];
+            const saTargets: number[] = params.targets ?? saCoeffs.map(() => 0);
+            const saX0: number[] = params.x0 ?? saCoeffs.map(() => 10);
+            const saResult = lse.simulatedAnnealing({
+              problem: {
+                initial: saX0,
+                evaluate: (x: number[]) => saCoeffs.reduce((s, c, i) => s + c * ((x[i] ?? 0) - saTargets[i]) ** 2, 0),
+                getNeighbors: (x: number[]) => {
+                  const neighbors: number[][] = [];
+                  for (let i = 0; i < x.length; i++) {
+                    const up = [...x]; up[i] += 1; neighbors.push(up);
+                    const dn = [...x]; dn[i] -= 1; neighbors.push(dn);
+                  }
+                  return neighbors;
+                },
+              },
+              initialTemp: params.initial_temp ?? 1000,
+              coolingRate: params.cooling_rate ?? 0.995,
+              maxIterations: params.max_iter ?? 50000,
+            });
+            result = { solution: saResult.solution, energy: saResult.energy, iterations: saResult.iterations, finalTemp: saResult.finalTemp };
+            break;
+          }
+
+          case "two_opt_tsp": {
+            const { localSearchEngine: lse2 } = await import("../../engines/LocalSearchEngine.js");
+            const tspTour: number[] = params.tour ?? [];
+            const tspDist: number[][] = params.distance_matrix ?? [];
+            result = lse2.twoOpt(tspTour, tspDist);
+            break;
+          }
+
+          case "spectral_partition": {
+            const { spectralGraphEngine: sge } = await import("../../engines/SpectralGraphEngine.js");
+            const spFaces: number[][] = params.faces ?? [];
+            const partResult = sge.spectralPartition(spFaces);
+            result = { partition: partResult.partition, clusters: partResult.clusters, algebraicConnectivity: partResult.algebraicConnectivity };
+            break;
+          }
+
+          case "mesh_analyze": {
+            const { spectralGraphEngine: sge2 } = await import("../../engines/SpectralGraphEngine.js");
+            const maIndices: number[] = params.indices ?? [];
+            result = sge2.analyzeMesh(maIndices);
             break;
           }
 
