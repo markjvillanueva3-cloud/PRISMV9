@@ -126,7 +126,7 @@ Actions (38): aiml_predict, aiml_classify, aiml_anomaly, aiml_cluster, aiml_mode
 Actions (13): geometry_create, geometry_transform, geometry_analyze, mesh_generate, mesh_import, mesh_export, feature_recognize, feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select, deep_hole_technique
 
 ### prism_cam (camDispatcher.ts)
-Actions (16): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map
+Actions (17): toolpath_generate, toolpath_simulate, toolpath_optimize, post_process, collision_check_full, stock_update, tool_assembly, fixture_setup, nesting_optimize, clearance_plane, sequence_operations, linking_move, cam_strategy_recommend, cam_safety_validate, cam_multiaxis_recommend, cam_material_map, cam_cycle_catalog
 
 ### prism_quality (qualityDispatcher.ts)
 Actions (8): spc_calculate, cpk_predict, cmm_plan, measurement_analyze, tolerance_stack, gdt_validate, bias_correct, gauge_rr
@@ -212,7 +212,7 @@ Forensics/inverse/genplan/sustain → prism_diagnosis (38)
 Product SFC/PPG/Shop/ACNC → prism_product (40)
 L2 engine access (AI/CAD/CAM/sim/viz) → prism_l2 (38)
 CAD geometry/mesh/DfM → prism_cad (13)
-CAM toolpath/post/strategy → prism_cam (16)
+CAM toolpath/post/strategy → prism_cam (17)
 Quality/SPC/GD&T → prism_quality (8)
 Export (PDF/CSV/Excel/DXF/STEP) → prism_export (8)
 Job scheduling → prism_scheduling (8)
@@ -406,6 +406,7 @@ Health: prism_bridge→health
 - HyperMillStrategyEngine.ts (441L) — hyperMILL CAM strategy selector: 25 strategies (2D/3D/turning), slope-dependent selection, material warnings
 - HyperMillMultiAxisEngine.ts (340L) — hyperMILL 5-axis strategy selector: 22 strategies (blade/impeller/tube/dental/cavity/surface), material-aware, geometry-specific intelligence, cfg-based defaults
 - HyperMillMaterialMapEngine.ts (410L) — hyperMILL material taxonomy: 10 groups, 57 subgroups, 133 quality grades, ISO P/M/K/N/S/H mapping, cutter material recommendations, safety warnings
+- HyperMillCycleCatalogEngine.ts (250L) — Complete hyperMILL cycle catalog: 125+ cycle types, 9 categories (drilling/2D/tapping/3D/5axis/millturn/APT/probing/grinding), alias lookup, search
 - CycleToControlEngine.ts — Discrete cycle-to-cycle (CtC) feedback control: P/I controllers, variance ratio, Cpk improvement, optimal gain search, autocorrelation analysis. Source: MIT 2.830J Lectures 20-21 (Hardt/Siu)
 - SPCChartingEngine.ts — Advanced SPC charts: EWMA, CUSUM, Moving Average, Xbar-S with ARL estimation, time-varying limits, out-of-control detection. Source: MIT 2.830J Lecture 9
 - DOEAnalysisEngine.ts — Design of Experiments: full factorial 2^k, fractional factorial 2^{k-p}, ANOVA with F-tests, effect estimation, residual normality, R² reporting. Source: MIT 2.830J Lectures 13-14
