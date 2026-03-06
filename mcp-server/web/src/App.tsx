@@ -24,6 +24,15 @@ import { CustomersPage } from './pages/CustomersPage';
 import { ExportsPage } from './pages/ExportsPage';
 import { InventoryPage } from './pages/InventoryPage';
 import { SchedulingPage } from './pages/SchedulingPage';
+import { QuoteBuilderPage } from './pages/QuoteBuilderPage';
+import { SecondaryOpsPage } from './pages/SecondaryOpsPage';
+import { QuoteAnalyticsPage } from './pages/QuoteAnalyticsPage';
+import { BlueprintQuotePage } from './pages/BlueprintQuotePage';
+import { SheetMetalQuotePage } from './pages/SheetMetalQuotePage';
+import { AdditiveQuotePage } from './pages/AdditiveQuotePage';
+import { InjectionMoldPage } from './pages/InjectionMoldPage';
+import { StockOptimizerPage } from './pages/StockOptimizerPage';
+import { MaterialPricingPage } from './pages/MaterialPricingPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -65,6 +74,15 @@ export function App() {
           <Route path="exports" element={<ExportsPage />} />
           <Route path="inventory" element={<InventoryPage />} />
           <Route path="scheduling" element={<SchedulingPage />} />
+          <Route path="quote-builder" element={<QuoteBuilderPage />} />
+          <Route path="secondary-ops" element={<SecondaryOpsPage />} />
+          <Route path="quote-analytics" element={<QuoteAnalyticsPage />} />
+          <Route path="blueprint-quote" element={<BlueprintQuotePage />} />
+          <Route path="sheet-metal" element={<SheetMetalQuotePage />} />
+          <Route path="additive" element={<AdditiveQuotePage />} />
+          <Route path="injection-mold" element={<InjectionMoldPage />} />
+          <Route path="stock-optimizer" element={<StockOptimizerPage />} />
+          <Route path="material-pricing" element={<MaterialPricingPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />

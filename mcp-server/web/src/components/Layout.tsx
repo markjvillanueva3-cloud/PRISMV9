@@ -26,6 +26,15 @@ const NAV_ITEMS = [
   { to: '/exports', label: 'Exports' },
   { to: '/inventory', label: 'Inventory' },
   { to: '/scheduling', label: 'Schedule' },
+  { to: '/quote-builder', label: 'Quote' },
+  { to: '/secondary-ops', label: 'Sec Ops' },
+  { to: '/quote-analytics', label: 'Analytics' },
+  { to: '/blueprint-quote', label: 'Blueprint' },
+  { to: '/sheet-metal', label: 'Sheet Metal' },
+  { to: '/additive', label: 'Additive' },
+  { to: '/injection-mold', label: 'Mold' },
+  { to: '/stock-optimizer', label: 'Stock' },
+  { to: '/material-pricing', label: 'Pricing' },
 ] as const;
 
 export function Layout() {

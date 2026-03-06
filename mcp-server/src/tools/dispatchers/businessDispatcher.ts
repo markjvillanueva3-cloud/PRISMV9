@@ -1788,6 +1788,125 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          // ── Injection Mold Quoting ──
+          case "injection_mold_quote": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.quote({
+              material: params.material ?? "abs",
+              part_volume_cm3: params.part_volume_cm3 ?? 10,
+              projected_area_cm2: params.projected_area_cm2 ?? 20,
+              wall_thickness_mm: params.wall_thickness_mm,
+              quantity: params.quantity ?? 1000,
+              annual_volume: params.annual_volume,
+              num_cavities: params.num_cavities,
+              mold_class: params.mold_class,
+              num_side_actions: params.num_side_actions,
+              num_unscrewing: params.num_unscrewing,
+              surface_finish: params.surface_finish,
+              hot_runner: params.hot_runner,
+              insert_molding: params.insert_molding,
+              overmolding: params.overmolding,
+              secondary_ops: params.secondary_ops,
+              tight_tolerance: params.tight_tolerance,
+              undercuts: params.undercuts,
+              markup_pct: params.markup_pct,
+            });
+            break;
+          }
+          case "injection_mold_materials": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.listMaterials();
+            break;
+          }
+          case "injection_mold_dfm": {
+            const engine = await getEngine("injectionMoldQuote");
+            result = engine.analyzeDfm({
+              material: params.material ?? "abs",
+              wall_thickness_mm: params.wall_thickness_mm ?? 2.0,
+              draft_angle_deg: params.draft_angle_deg,
+              rib_thickness_ratio: params.rib_thickness_ratio,
+              boss_wall_ratio: params.boss_wall_ratio,
+              undercuts: params.undercuts,
+              max_depth_mm: params.max_depth_mm,
+              gate_type: params.gate_type,
+              living_hinge: params.living_hinge,
+              snap_fit: params.snap_fit,
+            });
+            break;
+          }
+
+          // ── Stock Size Optimizer ──
+          case "stock_size_optimize": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.optimize({
+              part_dims_mm: params.part_dims_mm ?? { length: 100, width: 50, height: 25 },
+              material: params.material ?? "aluminum_6061",
+              quantity: params.quantity ?? 1,
+              machining_allowance_mm: params.machining_allowance_mm,
+              saw_kerf_mm: params.saw_kerf_mm,
+              chuck_grip_mm: params.chuck_grip_mm,
+              is_turning: params.is_turning,
+            });
+            break;
+          }
+          case "stock_size_catalog": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.catalog(params.material ?? "aluminum_6061");
+            break;
+          }
+          case "stock_size_nesting": {
+            const engine = await getEngine("stockSizeOptimizer");
+            result = engine.nesting({
+              stock_form: params.stock_form ?? "round_bar",
+              stock_dims_mm: params.stock_dims_mm ?? [25.4],
+              stock_length_mm: params.stock_length_mm ?? 3048,
+              part_dims_mm: params.part_dims_mm ?? { length: 50, width: 20, height: 20 },
+              machining_allowance_mm: params.machining_allowance_mm,
+              saw_kerf_mm: params.saw_kerf_mm,
+            });
+            break;
+          }
+
+          // ── Market Material Pricing ──
+          case "material_price_lookup": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.lookup({
+              material: params.material ?? "aluminum_6061",
+              form: params.form,
+              region: params.region,
+              weight_kg: params.weight_kg,
+            });
+            break;
+          }
+          case "material_price_adjust": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.adjustIndex(
+              params.index ?? "LME_AL",
+              params.multiplier ?? 1.0,
+              params.as_of ?? new Date().toISOString().slice(0, 10),
+              params.trend ?? "stable",
+            );
+            break;
+          }
+          case "material_price_compare": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.compare(
+              params.materials ?? ["aluminum_6061", "steel_1018"],
+              params.form,
+              params.region,
+            );
+            break;
+          }
+          case "material_surcharge": {
+            const engine = await getEngine("marketMaterialPricing");
+            result = engine.surcharge({
+              material: params.material ?? "stainless_304",
+              weight_kg: params.weight_kg ?? 100,
+              base_price_locked_at: params.base_price_locked_at,
+            });
+            break;
+          }
+
           default:
             result = { error: `Unknown business action: ${action}` };
         }
