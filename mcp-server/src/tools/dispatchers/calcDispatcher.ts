@@ -327,7 +327,10 @@ const ACTIONS = [
   "drill_cycle_optimize", "coating_select",
   "geometry_select", "insert_grade_select", "coolant_recommend",
   "monte_carlo_simulate", "monte_carlo_tool_life", "monte_carlo_tolerance", "monte_carlo_histogram",
-  "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze"
+  "gcode_validate", "gcode_envelope", "gcode_optimize", "gcode_compress", "gcode_analyze",
+  "backplot_parse", "backplot_statistics",
+  "jc_flow_stress", "jc_params", "jc_search", "jc_list",
+  "rl_post_create", "rl_post_generate", "rl_post_learn"
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1824,6 +1827,85 @@ export function registerCalcDispatcher(server: any): void {
           case "gcode_analyze": {
             const { gcodeValidationEngine } = await import("../../engines/GCodeValidationEngine.js");
             result = gcodeValidationEngine.analyzeProgram(params.gcode ?? "");
+            break;
+          }
+
+          // ── Backplot ──
+          case "backplot_parse": {
+            const { backplotEngine } = await import("../../engines/BackplotEngine.js");
+            result = backplotEngine.parse(params.gcode ?? "");
+            break;
+          }
+          case "backplot_statistics": {
+            const { backplotEngine } = await import("../../engines/BackplotEngine.js");
+            result = backplotEngine.statistics(params.gcode ?? "");
+            break;
+          }
+
+          // ── Johnson-Cook ──
+          case "jc_flow_stress": {
+            const { johnsonCookEngine } = await import("../../engines/JohnsonCookEngine.js");
+            result = johnsonCookEngine.calculateFlowStress(
+              params.material_id ?? params.materialId ?? "",
+              params.strain ?? 0.1,
+              params.strain_rate ?? params.strainRate ?? 1,
+              params.temperature ?? 293,
+            );
+            break;
+          }
+          case "jc_params": {
+            const { johnsonCookEngine } = await import("../../engines/JohnsonCookEngine.js");
+            result = johnsonCookEngine.getParams(
+              params.material_id ?? params.materialId ?? "",
+            );
+            break;
+          }
+          case "jc_search": {
+            const { johnsonCookEngine } = await import("../../engines/JohnsonCookEngine.js");
+            result = johnsonCookEngine.search(params.query ?? "");
+            break;
+          }
+          case "jc_list": {
+            const { johnsonCookEngine } = await import("../../engines/JohnsonCookEngine.js");
+            result = {
+              materials: params.category
+                ? johnsonCookEngine.listCategory(params.category)
+                : johnsonCookEngine.listAll(),
+              count: johnsonCookEngine.count(),
+            };
+            break;
+          }
+
+          // ── RL Post Processor ──
+          case "rl_post_create": {
+            const { rlPostProcessorEngine } = await import("../../engines/RLPostProcessorEngine.js");
+            result = rlPostProcessorEngine.createProcessor(
+              params.controller_type ?? params.controllerType ?? "FANUC",
+              {
+                epsilon: params.epsilon,
+                learningRate: params.learning_rate ?? params.learningRate,
+                gamma: params.gamma,
+              },
+            );
+            break;
+          }
+          case "rl_post_generate": {
+            const { rlPostProcessorEngine } = await import("../../engines/RLPostProcessorEngine.js");
+            const proc = params.processor ?? rlPostProcessorEngine.createProcessor(
+              params.controller_type ?? params.controllerType ?? "FANUC",
+            );
+            result = rlPostProcessorEngine.generateCode(
+              proc,
+              params.toolpath ?? [],
+              { programNumber: params.program_number ?? params.programNumber, deterministic: params.deterministic },
+            );
+            break;
+          }
+          case "rl_post_learn": {
+            const { rlPostProcessorEngine } = await import("../../engines/RLPostProcessorEngine.js");
+            const proc = params.processor;
+            if (!proc) { result = { error: "processor required" }; break; }
+            result = rlPostProcessorEngine.learn(proc, params.feedback ?? params);
             break;
           }
 
