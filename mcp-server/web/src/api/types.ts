@@ -462,6 +462,218 @@ export interface ScheduleResult {
   utilization: number;
 }
 
+// === Job Lifecycle Types ===
+
+export interface Job {
+  id: string;
+  customer: string;
+  part_number: string;
+  description: string;
+  status: 'quoted' | 'planned' | 'in_progress' | 'complete' | 'shipped' | 'invoiced';
+  quantity: number;
+  due_date: string;
+  priority: 'low' | 'normal' | 'high' | 'rush';
+  material: string;
+  estimated_hours: number;
+  actual_hours: number;
+  created_at: string;
+}
+
+export interface JobDashboard {
+  total_active: number;
+  on_schedule: number;
+  at_risk: number;
+  overdue: number;
+  revenue_pipeline: number;
+  jobs: Job[];
+}
+
+// === Order Manager Types ===
+
+export interface WorkOrder {
+  id: string;
+  job_id: string;
+  status: 'pending' | 'in_progress' | 'complete';
+  operations: { op: string; machine: string; est_hours: number; actual_hours: number }[];
+  created_at: string;
+}
+
+export interface OrderMetrics {
+  total_orders: number;
+  on_time_pct: number;
+  avg_lead_days: number;
+  queue_depth: number;
+  active_work_orders: number;
+}
+
+// === Purchasing Types ===
+
+export interface SupplierResult {
+  id: string;
+  name: string;
+  materials: string[];
+  rating: number;
+  lead_time_days: number;
+  min_order: number;
+  location: string;
+}
+
+export interface PurchasingRecommendation {
+  supplier_id: string;
+  supplier_name: string;
+  material: string;
+  unit_price: number;
+  lead_time_days: number;
+  score: number;
+  reason: string;
+}
+
+// === Machine Rate Types ===
+
+export interface MachineRate {
+  machine_id: string;
+  machine_name: string;
+  type: string;
+  hourly_rate: number;
+  setup_rate: number;
+  overhead_rate: number;
+  effective_rate: number;
+}
+
+// === Batch Optimization Types ===
+
+export interface BatchGroup {
+  group_id: string;
+  jobs: string[];
+  material: string;
+  setup_savings_min: number;
+  total_time_min: number;
+}
+
+export interface BatchSequence {
+  sequence: { job_id: string; setup_min: number; run_min: number }[];
+  total_setup_min: number;
+  savings_vs_naive_pct: number;
+}
+
+// === Financial Analysis Types ===
+
+export interface FinancialNPV {
+  npv: number;
+  irr: number;
+  payback_years: number;
+  cash_flows: { year: number; net: number; cumulative: number }[];
+}
+
+export interface BreakevenResult {
+  breakeven_units: number;
+  breakeven_revenue: number;
+  margin_of_safety_pct: number;
+  contribution_margin: number;
+}
+
+// === Actual Cost Types ===
+
+export interface ActualCostResult {
+  job_id: string;
+  material_cost: number;
+  labor_cost: number;
+  overhead_cost: number;
+  total_cost: number;
+  estimated_cost: number;
+  variance_pct: number;
+}
+
+export interface CostForecast {
+  period: string;
+  projected_cost: number;
+  projected_revenue: number;
+  projected_margin_pct: number;
+  trend: 'improving' | 'stable' | 'declining';
+}
+
+export interface MarginAlert {
+  job_id: string;
+  customer: string;
+  current_margin_pct: number;
+  threshold_pct: number;
+  alert_type: 'below_target' | 'negative' | 'trending_down';
+  recommendation: string;
+}
+
+// === Tool Usage Types ===
+
+export interface ToolInventoryItem {
+  id: string;
+  name: string;
+  category: string;
+  quantity: number;
+  min_stock: number;
+  cost_per_unit: number;
+  regrind_count: number;
+  max_regrinds: number;
+  status: 'available' | 'in_use' | 'regrind' | 'scrapped';
+}
+
+export interface ReorderAlert {
+  tool_id: string;
+  tool_name: string;
+  current_qty: number;
+  min_stock: number;
+  reorder_qty: number;
+  estimated_cost: number;
+  urgency: 'low' | 'medium' | 'high';
+}
+
+// === Reporting Types ===
+
+export interface ParetoResult {
+  items: { category: string; count: number; cost: number; cumulative_pct: number }[];
+  total_cost: number;
+  top_20_pct_value: number;
+}
+
+export interface ProductionReport {
+  period: string;
+  jobs_completed: number;
+  parts_produced: number;
+  scrap_count: number;
+  utilization_pct: number;
+  on_time_delivery_pct: number;
+  revenue: number;
+}
+
+// === Quality Extended Types ===
+
+export interface MaterialCert {
+  heat_lot: string;
+  material: string;
+  supplier: string;
+  certifications: string[];
+  properties: Record<string, number>;
+  verified: boolean;
+}
+
+export interface FAI {
+  id: string;
+  part_number: string;
+  job_id: string;
+  characteristics: { name: string; nominal: number; actual: number; tolerance: number; pass: boolean }[];
+  overall_pass: boolean;
+  inspector: string;
+  date: string;
+}
+
+// === Safety Stock Types ===
+
+export interface SafetyStockResult {
+  safety_stock: number;
+  reorder_point: number;
+  service_level_pct: number;
+  avg_demand: number;
+  demand_std_dev: number;
+}
+
 // === Quoting Types ===
 
 export interface QuoteResult {

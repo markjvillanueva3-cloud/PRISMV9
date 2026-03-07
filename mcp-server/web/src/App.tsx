@@ -33,6 +33,12 @@ import { AdditiveQuotePage } from './pages/AdditiveQuotePage';
 import { InjectionMoldPage } from './pages/InjectionMoldPage';
 import { StockOptimizerPage } from './pages/StockOptimizerPage';
 import { MaterialPricingPage } from './pages/MaterialPricingPage';
+import { JobsPage } from './pages/JobsPage';
+import { OrderTrackingPage } from './pages/OrderTrackingPage';
+import { EmployeeDirectoryPage } from './pages/EmployeeDirectoryPage';
+import { PurchasingPage } from './pages/PurchasingPage';
+import { MachineRatesPage } from './pages/MachineRatesPage';
+import { BatchPlanningPage } from './pages/BatchPlanningPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -83,6 +89,12 @@ export function App() {
           <Route path="injection-mold" element={<InjectionMoldPage />} />
           <Route path="stock-optimizer" element={<StockOptimizerPage />} />
           <Route path="material-pricing" element={<MaterialPricingPage />} />
+          <Route path="jobs" element={<JobsPage />} />
+          <Route path="orders" element={<OrderTrackingPage />} />
+          <Route path="employees" element={<EmployeeDirectoryPage />} />
+          <Route path="purchasing" element={<PurchasingPage />} />
+          <Route path="machine-rates" element={<MachineRatesPage />} />
+          <Route path="batch-planning" element={<BatchPlanningPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />

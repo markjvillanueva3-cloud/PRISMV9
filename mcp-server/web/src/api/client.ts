@@ -348,6 +348,396 @@ export async function schedulingJobShop(params: Record<string, unknown>): Promis
   return request('POST', '/erp/scheduling-job-shop', params);
 }
 
+// === Job Lifecycle ===
+
+export async function jobCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/job-create', params);
+}
+
+export async function jobUpdateStatus(params: { job_id: string; status: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/job-update-status', params);
+}
+
+export async function jobSummary(params: { job_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/job-summary', params);
+}
+
+export async function jobDashboard(): Promise<PrismResponse> {
+  return request('GET', '/erp/job-dashboard');
+}
+
+// === Order Manager ===
+
+export async function orderCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/order-create', params);
+}
+
+export async function orderUpdateStatus(params: { order_id: string; status: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/order-update-status', params);
+}
+
+export async function orderList(params?: { status?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/order-list', params ?? {});
+}
+
+export async function orderWorkOrderCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/work-order-create', params);
+}
+
+export async function orderLogTime(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/order-log-time', params);
+}
+
+export async function orderLogProduction(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/order-log-production', params);
+}
+
+export async function orderMachineQueue(params?: { machine_id?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/machine-queue', params ?? {});
+}
+
+export async function orderMetrics(): Promise<PrismResponse> {
+  return request('GET', '/erp/order-metrics');
+}
+
+// === Purchasing Directory ===
+
+export async function purchasingSearch(params: { material?: string; query?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/purchasing-search', params);
+}
+
+export async function purchasingRecommend(params: { material: string; quantity?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/purchasing-recommend', params);
+}
+
+export async function purchasingManufacturers(params?: { material?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/purchasing-manufacturers', params ?? {});
+}
+
+export async function purchasingSummary(): Promise<PrismResponse> {
+  return request('GET', '/erp/purchasing-summary');
+}
+
+// === Employee Management ===
+
+export async function employeeCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/employee-create', params);
+}
+
+export async function employeeSearch(params: { query: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/employee-search', params);
+}
+
+export async function employeeAddSkill(params: { employee_id: string; skill: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/employee-add-skill', params);
+}
+
+export async function employeeUtilization(params: { employee_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/employee-utilization', params);
+}
+
+export async function employeeDeptSummary(params?: { department?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/employee-dept-summary', params ?? {});
+}
+
+// === Machine Rates ===
+
+export async function machineRateLookup(params: { machine_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/machine-rate-lookup', params);
+}
+
+export async function machineRateList(): Promise<PrismResponse> {
+  return request('GET', '/erp/machine-rate-list');
+}
+
+export async function machineRateCompare(params: { machine_ids: string[] }): Promise<PrismResponse> {
+  return request('POST', '/erp/machine-rate-compare', params);
+}
+
+export async function machineRateEffective(params: { machine_id: string; job_id?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/machine-rate-effective', params);
+}
+
+// === Batch Optimization ===
+
+export async function batchGroup(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/batch-group', params);
+}
+
+export async function batchSequence(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/batch-sequence', params);
+}
+
+export async function batchSetupMatrix(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/batch-setup-matrix', params);
+}
+
+export async function batchCapacity(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/batch-capacity', params);
+}
+
+// === Reporting ===
+
+export async function reportingDashboard(): Promise<PrismResponse> {
+  return request('GET', '/erp/reporting-dashboard');
+}
+
+export async function reportingPareto(params: { type: string; period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/reporting-pareto', params);
+}
+
+export async function reportingProduction(params?: { period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/reporting-production', params ?? {});
+}
+
+export async function reportingQuality(params?: { period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/reporting-quality', params ?? {});
+}
+
+export async function reportingFinancial(params?: { period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/reporting-financial', params ?? {});
+}
+
+export async function reportingTrend(params: { metric: string; periods?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/reporting-trend', params);
+}
+
+// === Financial Analysis ===
+
+export async function financialNPV(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/financial-npv', params);
+}
+
+export async function financialIRR(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/financial-irr', params);
+}
+
+export async function financialBreakeven(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/financial-breakeven', params);
+}
+
+export async function financialMachineInvestment(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/financial-machine-investment', params);
+}
+
+// === Actual Cost Tracking ===
+
+export async function actualCostCalculate(params: { job_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-calculate', params);
+}
+
+export async function actualCostVariance(params: { job_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-variance', params);
+}
+
+export async function actualCostProfitability(params?: { period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-profitability', params ?? {});
+}
+
+export async function actualCostForecast(params?: { periods?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-forecast', params ?? {});
+}
+
+export async function actualCostMarginAlerts(params?: { threshold_pct?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-margin-alerts', params ?? {});
+}
+
+export async function actualCostTrend(params?: { periods?: number }): Promise<PrismResponse> {
+  return request('POST', '/erp/actual-cost-trend', params ?? {});
+}
+
+// === Tool Usage (extended) ===
+
+export async function toolInventoryAdd(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/tool-inventory-add', params);
+}
+
+export async function toolRegrind(params: { tool_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/tool-regrind', params);
+}
+
+export async function toolReorderAlerts(): Promise<PrismResponse> {
+  return request('GET', '/erp/tool-reorder-alerts');
+}
+
+// === Quality (extended) ===
+
+export async function qualityCalibrationAdd(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-calibration-add', params);
+}
+
+export async function qualityMaterialCert(params: { heat_lot: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-material-cert', params);
+}
+
+export async function qualityTraceHeatLot(params: { heat_lot: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-trace-heat-lot', params);
+}
+
+export async function qualityTraceJob(params: { job_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-trace-job', params);
+}
+
+export async function qualityNCRUpdate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-ncr-update', params);
+}
+
+export async function qualityFAICreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-fai-create', params);
+}
+
+export async function qualityFAIList(params?: { part_number?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/quality-fai-list', params ?? {});
+}
+
+// === HR (extended) ===
+
+export async function hrEnroll(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-enroll', params);
+}
+
+export async function hrPTOApprove(params: { request_id: string; approved_by: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-pto-approve', params);
+}
+
+export async function hrReviewCreate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-review-create', params);
+}
+
+export async function hrReviews(params?: { employee_id?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-reviews', params ?? {});
+}
+
+export async function hrCompensationHistory(params: { employee_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/hr-compensation-history', params);
+}
+
+// === Customer (extended) ===
+
+export async function customerGet(params: { customer_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-get', params);
+}
+
+export async function customerUpdate(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-update', params);
+}
+
+export async function customerLogComm(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-log-comm', params);
+}
+
+export async function customerCommHistory(params: { customer_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-comm-history', params);
+}
+
+export async function customerFollowUps(): Promise<PrismResponse> {
+  return request('GET', '/erp/customer-follow-ups');
+}
+
+export async function customerCreateOpportunity(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-create-opportunity', params);
+}
+
+export async function customerUpdateOpportunity(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/customer-update-opportunity', params);
+}
+
+// === Integration (extended) ===
+
+export async function integrationExportQB(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/export-quickbooks', params);
+}
+
+export async function integrationExportPayrollTax(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/export-payroll-tax', params);
+}
+
+export async function integrationExportARAging(): Promise<PrismResponse> {
+  return request('GET', '/erp/export-ar-aging');
+}
+
+// === Inventory (extended) ===
+
+export async function inventorySafetyStock(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/inventory-safety-stock', params);
+}
+
+export async function inventoryToolOptimize(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/inventory-tool-optimize', params);
+}
+
+// === Scheduling (extended) ===
+
+export async function schedulingSingleMachine(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/scheduling-single-machine', params);
+}
+
+export async function schedulingJohnsons(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/scheduling-johnsons', params);
+}
+
+export async function schedulingCPM(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/scheduling-cpm', params);
+}
+
+// === Capacity (extended) ===
+
+export async function capacityScheduleJob(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/capacity-schedule-job', params);
+}
+
+export async function capacityWhatIf(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/capacity-what-if', params);
+}
+
+// === GL (extended) ===
+
+export async function glRecordInvoice(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-record-invoice', params);
+}
+
+export async function glRecordPayment(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-record-payment', params);
+}
+
+export async function glRecordPurchase(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-record-purchase', params);
+}
+
+export async function glRecordPayroll(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/erp/gl-record-payroll', params);
+}
+
+// === PO (extended) ===
+
+export async function poThreeWayMatch(params: { po_id: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/po-three-way-match', params);
+}
+
+export async function poSpendByCategory(params?: { period?: string }): Promise<PrismResponse> {
+  return request('POST', '/erp/po-spend-by-category', params ?? {});
+}
+
+// === Quote Analytics (extended) ===
+
+export async function analyticsRecord(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/analytics-record', params);
+}
+
+export async function analyticsUpdateOutcome(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/analytics-update-outcome', params);
+}
+
+export async function analyticsRecordActuals(params: Record<string, unknown>): Promise<PrismResponse> {
+  return request('POST', '/quote/analytics-record-actuals', params);
+}
+
+// === Blueprint (extended) ===
+
+export async function blueprintResolveMaterial(params: { description: string }): Promise<PrismResponse> {
+  return request('POST', '/quote/blueprint-resolve-material', params);
+}
+
 // === Quoting ===
 
 export async function quotingGenerate(params: Record<string, unknown>): Promise<PrismResponse> {

@@ -35,6 +35,12 @@ const NAV_ITEMS = [
   { to: '/injection-mold', label: 'Mold' },
   { to: '/stock-optimizer', label: 'Stock' },
   { to: '/material-pricing', label: 'Pricing' },
+  { to: '/jobs', label: 'Jobs' },
+  { to: '/orders', label: 'Orders' },
+  { to: '/employees', label: 'People' },
+  { to: '/purchasing', label: 'Purchasing' },
+  { to: '/machine-rates', label: 'Rates' },
+  { to: '/batch-planning', label: 'Batch' },
 ] as const;
 
 export function Layout() {
