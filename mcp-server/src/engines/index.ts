@@ -2310,6 +2310,9 @@ export { threadTurningEngine, ThreadTurningEngine } from "./ThreadTurningEngine.
 export { boringBarEngine, BoringBarEngine } from "./BoringBarEngine.js";
 export { gunDrillingEngine, GunDrillingEngine } from "./GunDrillingEngine.js";
 export { grindingWheelEngine, GrindingWheelEngine } from "./GrindingWheelEngine.js";
+export { edmEngine, EDMEngine } from "./EDMEngine.js";
+export { workholdingForceEngine, WorkholdingForceEngine } from "./WorkholdingForceEngine.js";
+export { spindlePowerCheckEngine, SpindlePowerCheckEngine } from "./SpindlePowerCheckEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
