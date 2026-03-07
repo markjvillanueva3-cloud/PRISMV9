@@ -91,9 +91,9 @@
 - Trouble Trees: `trouble_trees/{chatter,surface_finish,tool_wear,dimensional_accuracy,chip_evacuation}.json`
 - Material Tips: `material_tips/{aluminum,steel,stainless_steel,titanium,cast_iron}.json`
 
-## Key Counts (verified 2026-03-06)
-- 53 dispatchers, 1317 actions, 249 engines (181 exported), 52 algorithms
-- 220 hooks, 103 cadences, 499 formulas, 23 registries
-- 60 slash commands, 93 hookify rules
-- 4642 backend tests (148 files), 80 web tests, 11 E2E, 2085 cad-engine tests
-- 95/95 milestones complete
+## Key Counts (verified 2026-03-07)
+- 54 dispatchers, 1536+ actions, 345 engines, 52 algorithms
+- 223 hooks, 103 cadences, 499 formulas, 23 registries
+- 70 slash commands, 98 hookify rules
+- 5169 backend tests (156 files), 85 web tests (5 files), 11 E2E, 2085 cad-engine tests
+- 41 web pages, 95/95 milestones complete
