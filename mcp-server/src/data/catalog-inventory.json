@@ -40,9 +40,10 @@
       "type": ["milling"],
       "units": "metric",
       "priority": 1,
-      "pages_est": 300,
-      "extracted": false,
-      "notes": "Global/metric edition"
+      "pages_est": 404,
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-endmill-catalog.ts",
+      "notes": "EXTRACTED. 803 endmills (657 end_mill + 146 ball_mill). 824 lines"
     },
     {
       "filename": "GC_2023-2024_US_Drilling.pdf",
@@ -61,8 +62,9 @@
       "units": "metric",
       "priority": 1,
       "pages_est": 200,
-      "extracted": false,
-      "notes": "Global/metric edition"
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-drill-catalog.ts",
+      "notes": "EXTRACTED. 490 drills (0.1-75mm). 506 lines"
     },
     {
       "filename": "GC_2023-2024_US_Tooling.pdf",
@@ -71,8 +73,9 @@
       "units": "inch",
       "priority": 1,
       "pages_est": 196,
-      "extracted": false,
-      "notes": "TungCap quick-change, HSK, CAT holders, physical dimensions for collision"
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-holder-catalog.ts",
+      "notes": "EXTRACTED. 494 holders (ER/shrink_fit/hydraulic/end_mill/side_lock). 522 lines"
     },
     {
       "filename": "GC_2023-2024_G_Tooling.pdf",
@@ -170,9 +173,10 @@
       "type": ["drilling", "threading", "end_mills"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 400,
-      "extracted": false,
-      "notes": "Precision drills, taps, end mills"
+      "pages_est": 1708,
+      "extracted": true,
+      "extracted_to": "src/data/osg-tool-catalog.ts",
+      "notes": "EXTRACTED. 11,550 tools (7952 drills + 2798 end mills + 800 ball mills). 11,570 lines"
     },
     {
       "filename": "korloy turning.pdf",
@@ -210,9 +214,10 @@
       "type": ["drilling", "threading", "milling"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 500,
-      "extracted": false,
-      "notes": "German precision drills, taps, end mills"
+      "pages_est": 1608,
+      "extracted": true,
+      "extracted_to": "src/data/guhring-tool-catalog.ts",
+      "notes": "EXTRACTED. 3,421 tools (2585 drills + 688 end mills + 148 reamers). 3,437 lines"
     },
     {
       "filename": "guhring tool holders.pdf",
@@ -459,13 +464,15 @@
     }
   ],
   "extraction_status": {
-    "extracted": 3,
-    "pending": 42,
+    "extracted": 8,
+    "pending": 37,
     "total_estimated_pages": 12000,
     "priority_1_pdfs": 8,
     "priority_2_pdfs": 12,
     "priority_3_pdfs": 10,
     "priority_4_pdfs": 10,
-    "priority_5_pdfs": 3
+    "priority_5_pdfs": 3,
+    "total_tools_extracted": 17805,
+    "total_holders_extracted": 652
   }
 }
