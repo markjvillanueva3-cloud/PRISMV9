@@ -2296,6 +2296,7 @@ export { dataValidationEngine, DataValidationEngine } from "./DataValidationEngi
 export { reamingEngine, ReamingEngine } from "./ReamingEngine.js";
 export { broachingEngine, BroachingEngine } from "./BroachingEngine.js";
 export { honingEngine, HoningEngine } from "./HoningEngine.js";
+export { toolBalancingEngine, ToolBalancingEngine } from "./ToolBalancingEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2334,3 +2335,6 @@ export { quickCalcEngine, QuickCalcEngine } from "./QuickCalcEngine.js";
 
 // Dispatcher Map — complete dispatcher action catalog with search
 export { dispatcherMapEngine, DispatcherMapEngine } from "./DispatcherMapEngine.js";
+
+// Tool Router — intent-based routing for token efficiency
+export { toolRouterEngine, ToolRouterEngine } from "./ToolRouterEngine.js";

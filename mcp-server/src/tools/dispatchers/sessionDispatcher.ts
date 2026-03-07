@@ -75,7 +75,9 @@ const ACTIONS = [
   "dispatcher_map",
   "dispatcher_map_compact",
   "action_search",
-  "action_find"
+  "action_find",
+  "tool_route",
+  "tool_route_best"
 ] as const;
 
 function ok(data: any) {
@@ -1131,6 +1133,22 @@ export function registerSessionDispatcher(server: any): void {
             const action_name = params.action || params.name || "";
             const result = dme3.findAction(action_name);
             return ok(result || { error: `Action '${action_name}' not found` });
+          }
+
+          // ================================================================
+          // tool_route — Intent-based routing for token efficiency
+          // ================================================================
+          case "tool_route": {
+            const { toolRouterEngine } = await import("../../engines/ToolRouterEngine.js");
+            const intent = params.intent || params.query || params.q || "";
+            return ok(toolRouterEngine.route(intent));
+          }
+
+          case "tool_route_best": {
+            const { toolRouterEngine: tr } = await import("../../engines/ToolRouterEngine.js");
+            const intent = params.intent || params.query || params.q || "";
+            const best = tr.bestRoute(intent);
+            return ok(best || { error: "No route found for intent" });
           }
 
           default:
