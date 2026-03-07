@@ -3721,7 +3721,7 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "dp_cutting_stock": {
             const { dynamicProgrammingEngine } = await import("../../engines/DynamicProgrammingEngine.js");
-            result = dynamicProgrammingEngine.cuttingStock(params);
+            result = dynamicProgrammingEngine.cuttingStock(params as Parameters<typeof dynamicProgrammingEngine.cuttingStock>[0]);
             break;
           }
           case "dp_edit_distance": {
@@ -3756,17 +3756,17 @@ export function registerCalcDispatcher(server: any): void {
           // ── Finite Element ──
           case "fem_bar_solve": {
             const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
-            result = finiteElementEngine.solveBar(params);
+            result = finiteElementEngine.solveBar(params as Parameters<typeof finiteElementEngine.solveBar>[0]);
             break;
           }
           case "fem_truss_solve": {
             const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
-            result = finiteElementEngine.solveTruss(params);
+            result = finiteElementEngine.solveTruss(params as Parameters<typeof finiteElementEngine.solveTruss>[0]);
             break;
           }
           case "fem_thermal_solve": {
             const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
-            result = finiteElementEngine.solveThermal(params);
+            result = finiteElementEngine.solveThermal(params as Parameters<typeof finiteElementEngine.solveThermal>[0]);
             break;
           }
 

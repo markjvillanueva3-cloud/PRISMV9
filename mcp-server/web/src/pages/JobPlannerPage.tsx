@@ -27,9 +27,9 @@ const MACHINES = [
 ] as const;
 
 export function JobPlannerPage() {
-  const [material, setMaterial] = useState(MATERIALS[0]);
-  const [operation, setOperation] = useState(OPERATIONS[0]);
-  const [machine, setMachine] = useState(MACHINES[0]);
+  const [material, setMaterial] = useState<string>(MATERIALS[0]);
+  const [operation, setOperation] = useState<string>(OPERATIONS[0]);
+  const [machine, setMachine] = useState<string>(MACHINES[0]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<JobPlanResult | null>(null);
