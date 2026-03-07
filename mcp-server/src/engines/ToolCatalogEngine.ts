@@ -22,6 +22,7 @@ import { OSG_TOOLS } from "../data/osg-tool-catalog.js";
 import { GUHRING_TOOLS } from "../data/guhring-tool-catalog.js";
 import { SANDVIK_TOOLS } from "../data/sandvik-tool-catalog.js";
 import { HAIMER_HOLDERS } from "../data/haimer-holder-catalog.js";
+import { GUHRING_HOLDERS } from "../data/guhring-holder-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -436,7 +437,7 @@ export class ToolCatalogEngine {
       by_type: byType,
       by_manufacturer: byMfg,
       diameter_range_mm: [minDia, maxDia],
-      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length + BIG_DAISHOWA_HOLDERS.length + HAIMER_HOLDERS.length,
+      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length + BIG_DAISHOWA_HOLDERS.length + HAIMER_HOLDERS.length + GUHRING_HOLDERS.length,
       speed_feed_entries: SPEED_FEED_BASE.length,
     };
   }
@@ -541,7 +542,27 @@ export class ToolCatalogEngine {
       };
     }
 
-    // 3. Try BIG DAISHOWA (has RPM/runout but no body_diameter — estimate from bore)
+    // 3. Try Guhring hydraulic holders (real body_diameter + gauge_length)
+    const guhringMatch = GUHRING_HOLDERS.find(h => {
+      if (!h.taper.includes(taper) && !taper.includes(h.taper)) return false;
+      if (Math.abs(h.bore_diameter_mm - shank_mm) > 0.5) return false;
+      if (holderType && !h.holder_type.toLowerCase().includes(holderType.toLowerCase())) return false;
+      return true;
+    });
+    if (guhringMatch) {
+      return {
+        type: `hydraulic_${guhringMatch.series}_${guhringMatch.bore_diameter_mm}`,
+        taper: guhringMatch.taper,
+        bore_min: guhringMatch.bore_diameter_mm,
+        bore_max: guhringMatch.bore_diameter_mm,
+        gauge_length: guhringMatch.gauge_length_mm ?? 50,
+        body_diameter: guhringMatch.body_diameter_mm,
+        max_rpm: 50000,
+        runout_um: 3,
+      };
+    }
+
+    // 4. Try BIG DAISHOWA (has RPM/runout but no body_diameter — estimate from bore)
     const bigMatch = BIG_DAISHOWA_HOLDERS.find(h => {
       const normTaper = h.taper.replace("BBT", "BT");
       return (normTaper === taper || h.taper === taper) &&
@@ -563,7 +584,7 @@ export class ToolCatalogEngine {
       };
     }
 
-    // 4. Fall back to generic HOLDER_DIMS
+    // 5. Fall back to generic HOLDER_DIMS
     return HOLDER_DIMS.find(h =>
       h.taper === taper && shank_mm >= h.bore_min && shank_mm <= h.bore_max &&
       (holderType ? h.type.toLowerCase().includes(holderType.toLowerCase()) : true)

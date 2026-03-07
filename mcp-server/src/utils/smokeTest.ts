@@ -4,7 +4,7 @@
  * Runs 5 canary tests at startup to detect broken subsystems.
  * Calls engine functions directly (not dispatchers) to avoid cadence side effects.
  *
- * @version 1.1.0 — H1-MS3
+ * @version 1.2.0 — H1-MS3
  */
 
 import { log } from "./Logger.js";
@@ -27,15 +27,9 @@ export async function runSmokeTests(): Promise<SmokeResult> {
   // Test 1: Material registry
   try {
     const { materialRegistry } = await import("../registries/MaterialRegistry.js");
-    await materialRegistry.ensureLoaded();
-    const mat = materialRegistry.get("AS-4140-ANNEALED");
+    const mat = await materialRegistry.get("AS-4140-ANNEALED");
     if (mat && Object.keys(mat).length >= 10) { passed++; }
-    else {
-      // Try any material as fallback
-      const all = materialRegistry.getAll?.() ?? [];
-      if (Array.isArray(all) && all.length > 0) { passed++; }
-      else { failures.push({ test: "material_get", error: `Got ${Object.keys(mat || {}).length} params, expected ≥10` }); }
-    }
+    else { failures.push({ test: "material_get", error: `Got ${Object.keys(mat || {}).length} params, expected ≥10` }); }
   } catch (e: any) {
     failures.push({ test: "material_get", error: e.message?.slice(0, 100) || "unknown" });
   }
@@ -44,13 +38,12 @@ export async function runSmokeTests(): Promise<SmokeResult> {
   try {
     const { calculateSpeedFeed } = await import("../engines/ManufacturingCalculations.js");
     const result = calculateSpeedFeed({
-      material: "4140",
-      operation: "milling",
+      tool_material: "Carbide",
+      operation: "roughing",
       tool_diameter: 12,
-      tool_type: "endmill",
-      num_flutes: 4
+      number_of_teeth: 4
     });
-    if (result && ((result as any).cutting_speed > 0 || (result as any).Vc > 0 || (result as any).rpm > 0)) { passed++; }
+    if (result && result.cutting_speed > 0) { passed++; }
     else { failures.push({ test: "speed_feed", error: "No valid speed/feed result" }); }
   } catch (e: any) {
     failures.push({ test: "speed_feed", error: e.message?.slice(0, 100) || "unknown" });
@@ -61,8 +54,8 @@ export async function runSmokeTests(): Promise<SmokeResult> {
     const { ThreadCalculationEngine } = await import("../engines/ThreadCalculationEngine.js");
     const engine = new ThreadCalculationEngine();
     const result = engine.calculateTapDrill("M10x1.5");
-    if (result && result.tap_drill_diameter > 0) { passed++; }
-    else { failures.push({ test: "thread_calc", error: "tap_drill ≤ 0 or missing" }); }
+    if (result && result.tapDrillMM > 0) { passed++; }
+    else { failures.push({ test: "thread_calc", error: "tapDrillMM ≤ 0 or missing" }); }
   } catch (e: any) {
     failures.push({ test: "thread_calc", error: e.message?.slice(0, 100) || "unknown" });
   }
