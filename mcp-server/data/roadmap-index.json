@@ -2,8 +2,8 @@
   "version": "5.3.0",
   "title": "PRISM App — Comprehensive Layered Roadmap",
   "updated_at": "2026-03-03T00:00:00Z",
-  "total_milestones": 98,
-  "completed_milestones": 98,
+  "total_milestones": 100,
+  "completed_milestones": 99,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -1356,6 +1356,33 @@
       "envelope_path": "milestones/RT-MS0.json",
       "dependencies": ["PROD-MS0"],
       "description": "WebSocket server alongside HTTP, JWT auth connections, heartbeat/reconnect, room-based subscriptions, typed message schema, client-side useWebSocket React hook."
+    },
+    {
+      "id": "RT-MS1",
+      "title": "Real-Time Dispatcher & WebSocket Cleanup",
+      "track": "RT",
+      "priority": "P1",
+      "status": "complete",
+      "total_units": 3,
+      "completed_units": 3,
+      "completed_at": "2026-03-07",
+      "sessions": "1",
+      "envelope_path": "milestones/RT-MS1.json",
+      "dependencies": ["RT-MS0"],
+      "description": "Create realtimeDispatcher (ws_broadcast, ws_room_send, ws_unicast, ws_stats), remove dead websocket/handler.ts, add 11 dispatcher tests."
+    },
+    {
+      "id": "VL-MS0",
+      "title": "Direct Video Learning Engine — Audio + Vision Pipeline",
+      "track": "VL",
+      "priority": "P2",
+      "status": "in_progress",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/VL-MS0.json",
+      "dependencies": ["CC-EXT-MS0"],
+      "description": "VideoLearningEngine: FFmpeg audio/frame extraction, Whisper speech-to-text, Claude Vision keyframe analysis, knowledge fusion, component generation. Enables learning from local video files (MP4/MKV/MOV)."
     }
   ]
 }

@@ -113,6 +113,9 @@ import { registerDocumentLearningDispatcher } from "./tools/dispatchers/document
 // CC-MS6: Shop Practice Dispatcher — practice KB, trouble trees, material tips (Dispatcher #52)
 import { registerShopPracticeDispatcher } from "./tools/dispatchers/shopPracticeDispatcher.js";
 
+// VL-MS0: Video Learning Engine — direct video file learning (audio + vision)
+import { videoLearningEngine } from "./engines/VideoLearningEngine.js";
+
 // L2: Monolith Engine Ports — 8 engines, 34 actions (Dispatcher #33)
 import { registerL2EngineDispatcher } from "./tools/dispatchers/l2EngineDispatcher.js";
 
