@@ -2298,6 +2298,9 @@ export { broachingEngine, BroachingEngine } from "./BroachingEngine.js";
 export { honingEngine, HoningEngine } from "./HoningEngine.js";
 export { toolBalancingEngine, ToolBalancingEngine } from "./ToolBalancingEngine.js";
 export { helicalInterpolationEngine, HelicalInterpolationEngine } from "./HelicalInterpolationEngine.js";
+export { centerDrillEngine, CenterDrillEngine } from "./CenterDrillEngine.js";
+export { deburringEngine, DeburringEngine } from "./DeburringEngine.js";
+export { chamferMillingEngine, ChamferMillingEngine } from "./ChamferMillingEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2351,3 +2354,6 @@ export { actionSchemaCacheEngine, ActionSchemaCacheEngine } from "./ActionSchema
 
 // Session Replay — context reconstruction from git history
 export { sessionReplayEngine, SessionReplayEngine } from "./SessionReplayEngine.js";
+
+// Prompt Template — pre-built parameterized templates
+export { promptTemplateEngine, PromptTemplateEngine } from "./PromptTemplateEngine.js";
