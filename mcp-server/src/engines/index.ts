@@ -2387,3 +2387,6 @@ export { errorContextEngine, ErrorContextEngine } from "./ErrorContextEngine.js"
 
 // Import Cost — import chain analysis for bundle optimization
 export { importCostEngine, ImportCostEngine } from "./ImportCostEngine.js";
+
+// G-Code Snippet — common G-code snippet library
+export { gCodeSnippetEngine, GCodeSnippetEngine } from "./GCodeSnippetEngine.js";
