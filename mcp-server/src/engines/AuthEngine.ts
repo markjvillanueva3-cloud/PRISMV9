@@ -369,6 +369,29 @@ export class AuthEngine {
     return this.users.size;
   }
 
+  /** Validate an access token and return user info.
+   * @param token - access token string
+   * @returns validation result with user info if valid
+   */
+  validateToken(token: string): { valid: boolean; user_id?: string; roles?: string[]; permissions?: string[]; reason?: string } {
+    const tokenData = this.tokens.get(token);
+    if (!tokenData) {
+      return { valid: false, reason: "Token not found" };
+    }
+    if (tokenData.type !== "access") {
+      return { valid: false, reason: "Not an access token" };
+    }
+    if (tokenData.expires_at < Date.now()) {
+      this.tokens.delete(token);
+      return { valid: false, reason: "Token expired" };
+    }
+    const user = this.users.get(tokenData.user_id);
+    if (!user) {
+      return { valid: false, reason: "User not found" };
+    }
+    return { valid: true, user_id: user.id, roles: user.roles, permissions: user.permissions };
+  }
+
   // ---- PRIVATE ----
 
   private findByUsername(username: string): AuthUser | undefined {

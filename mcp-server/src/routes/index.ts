@@ -16,6 +16,10 @@
  */
 import type { Express } from "express";
 import { corsMiddleware } from "../middleware/cors.js";
+import { securityHeaders } from "../middleware/securityHeaders.js";
+import { rateLimitMiddleware } from "../middleware/rateLimit.js";
+import { optionalToken } from "../middleware/auth.js";
+import { auditLog } from "../middleware/auditLog.js";
 import { errorHandler } from "../middleware/errorHandler.js";
 import { createSfcRouter } from "./sfc.js";
 import { createCadRouter } from "./cad.js";
@@ -58,8 +62,21 @@ export type CallToolFn = (toolName: string, action: string, params?: Record<stri
  * Register all API routes on the Express app
  */
 export function registerRoutes(app: Express, callTool: CallToolFn): void {
-  // Apply CORS middleware to all API routes
-  app.use("/api", corsMiddleware);
+  // Health check endpoints (no auth, no rate limit)
+  const startTime = new Date().toISOString();
+  app.get("/health", (_req, res) => {
+    res.json({ status: "ok", uptime_sec: Math.floor(process.uptime()), started_at: startTime });
+  });
+  app.get("/ready", (_req, res) => {
+    res.json({ status: "ready", routes: 32, timestamp: new Date().toISOString() });
+  });
+
+  // Global middleware stack (order matters)
+  app.use("/api", securityHeaders);          // Security headers on all responses
+  app.use("/api", corsMiddleware);           // CORS for browser clients
+  app.use("/api", rateLimitMiddleware("RL-API-GLOBAL", "global")); // Global rate limit
+  app.use("/api", optionalToken);            // Extract user from token if present
+  app.use("/api", auditLog);                 // Audit log all write operations
 
   // Mount route modules under /api/v1/
   app.use("/api/v1/sfc", createSfcRouter(callTool));
