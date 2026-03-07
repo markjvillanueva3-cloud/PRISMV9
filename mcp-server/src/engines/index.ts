@@ -2429,3 +2429,6 @@ export { contextSnapshotEngine, ContextSnapshotEngine } from "./ContextSnapshotE
 
 // Read Optimizer — optimal file reading strategy advisor
 export { readOptimizerEngine, ReadOptimizerEngine } from "./ReadOptimizerEngine.js";
+
+// Call Chain — tool call chain analysis and anti-pattern detection
+export { callChainEngine, CallChainEngine } from "./CallChainEngine.js";
