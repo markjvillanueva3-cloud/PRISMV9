@@ -2652,6 +2652,9 @@ export { shaftAlignmentEngine, ShaftAlignmentEngine } from "./ShaftAlignmentEngi
 // Keyway Stress Engine — key shear/bearing stress, ANSI B17.1 sizing
 export { keywayStressEngine, KeywayStressEngine } from "./KeywayStressEngine.js";
 
+// Bash Command Classifier — classifies bash commands, suggests token-efficient alternatives
+export { bashCommandClassifierEngine, BashCommandClassifierEngine } from "./BashCommandClassifierEngine.js";
+
 // Belt Drive Engine � V-belt & timing belt selection, tension, life
 export { beltDriveEngine, BeltDriveEngine } from "./BeltDriveEngine.js";
 
@@ -2711,3 +2714,6 @@ export { contextWindowMapEngine, ContextWindowMapEngine } from "./ContextWindowM
 
 // Tool Call Throttle — rate-limits tool calls with burst detection and cooldowns
 export { toolCallThrottleEngine, ToolCallThrottleEngine } from "./ToolCallThrottleEngine.js";
+
+// Edit Planner — minimizes edit context for token savings, batch planning
+export { editPlannerEngine, EditPlannerEngine } from "./EditPlannerEngine.js";
