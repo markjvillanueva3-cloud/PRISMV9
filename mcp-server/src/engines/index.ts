@@ -2348,3 +2348,6 @@ export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.
 
 // Action Schema Cache — cached action parameter schemas
 export { actionSchemaCacheEngine, ActionSchemaCacheEngine } from "./ActionSchemaCacheEngine.js";
+
+// Session Replay — context reconstruction from git history
+export { sessionReplayEngine, SessionReplayEngine } from "./SessionReplayEngine.js";
