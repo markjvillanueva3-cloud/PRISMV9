@@ -2717,3 +2717,12 @@ export { toolCallThrottleEngine, ToolCallThrottleEngine } from "./ToolCallThrott
 
 // Edit Planner â€” minimizes edit context for token savings, batch planning
 export { editPlannerEngine, EditPlannerEngine } from "./EditPlannerEngine.js";
+
+// Bearing Selection Engine — ISO 281 L10 life, ndm, lubrication
+export { bearingSelectionEngine, BearingSelectionEngine } from "./BearingSelectionEngine.js";
+
+// Shrink Fit Engine — interference fit, Lame pressure, assembly temp
+export { shrinkFitEngine, ShrinkFitEngine } from "./ShrinkFitEngine.js";
+
+// Spline Stress Engine — involute spline shear/bearing, fretting risk
+export { splineStressEngine, SplineStressEngine } from "./SplineStressEngine.js";
