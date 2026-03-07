@@ -2621,3 +2621,12 @@ export { cncMaintenanceEngine, CNCMaintenanceEngine } from "./CNCMaintenanceEngi
 
 // Setup Reduction — SMED analysis, internal/external split, ROI
 export { setupReductionEngine, SetupReductionEngine } from "./SetupReductionEngine.js";
+
+// Linear Guide — rail sizing, L10 life, preload, friction
+export { linearGuideEngine, LinearGuideEngine } from "./LinearGuideEngine.js";
+
+// Spindle Runout — TIR stack-up, finish degradation, tool life impact
+export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.js";
+
+// Machine Leveling — tilt limits, foundation sizing, vibration isolation
+export { machineLevelingEngine, MachineLevelingEngine } from "./MachineLevelingEngine.js";
