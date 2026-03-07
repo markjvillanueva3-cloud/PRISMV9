@@ -2588,3 +2588,12 @@ export { partDeflectionEngine, PartDeflectionEngine } from "./PartDeflectionEngi
 
 // Machine Warmup — spindle/axis warmup schedule, thermal stability, first-part risk
 export { machineWarmupEngine, MachineWarmupEngine } from "./MachineWarmupEngine.js";
+
+// Gauging — R&R analysis, go/no-go sizing, gauge selection, SPC sample size
+export { gaugingEngine, GaugingEngine } from "./GaugingEngine.js";
+
+// Tool Cost Per Part — tooling economics, regrind breakeven, annual budget
+export { toolCostPerPartEngine, ToolCostPerPartEngine } from "./ToolCostPerPartEngine.js";
+
+// Spindle Load Monitor — alarm thresholds, breakage detection, wear trend
+export { spindleLoadMonitorEngine, SpindleLoadMonitorEngine } from "./SpindleLoadMonitorEngine.js";
