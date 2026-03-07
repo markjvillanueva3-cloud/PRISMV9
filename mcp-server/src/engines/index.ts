@@ -2360,3 +2360,6 @@ export { promptTemplateEngine, PromptTemplateEngine } from "./PromptTemplateEngi
 
 // Frequent Path — access frequency tracking for predictive optimization
 export { frequentPathEngine, FrequentPathEngine } from "./FrequentPathEngine.js";
+
+// Cost Estimator — quick manufacturing cost estimation
+export { costEstimatorEngine, CostEstimatorEngine } from "./CostEstimatorEngine.js";
