@@ -2293,3 +2293,16 @@ export { webSocketEngine, WebSocketEngine } from "./WebSocketEngine.js";
 export { llmEngine, LLMEngine } from "./LLMEngine.js";
 export { alarmEscalationEngine, AlarmEscalationEngine } from "./AlarmEscalationEngine.js";
 export { dataValidationEngine, DataValidationEngine } from "./DataValidationEngine.js";
+
+// Optimization Engines — numerical optimization primitives
+export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
+export { localSearchEngine } from "./LocalSearchEngine.js";
+
+// Signal Processing — FFT, filtering, spectral analysis
+export { signalProcessingEngine } from "./SignalProcessingEngine.js";
+
+// Spatial Indexing — KD-Tree, Octree for 3D queries
+export { kdTree, octree } from "./SpatialIndexEngine.js";
+
+// Spectral Graph — mesh analysis via spectral graph theory
+export { spectralGraphEngine } from "./SpectralGraphEngine.js";
