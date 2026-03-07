@@ -256,6 +256,98 @@ describe("ToolCatalogEngine", () => {
     expect(asm.collision_envelope.profile.length).toBeGreaterThanOrEqual(4);
   });
 
+  // ── Multi-Manufacturer Integration ──
+  it("loads ISCAR insert families into catalog", () => {
+    const iscar = engine.search({ manufacturer: "ISCAR", max_results: 50 });
+    expect(iscar.length).toBeGreaterThan(0);
+    const sumo = iscar.filter(t => t.series === "SUMO-TEC");
+    expect(sumo.length).toBeGreaterThan(0);
+    expect(sumo[0].manufacturer).toBe("ISCAR");
+  });
+
+  it("loads ISCAR DOVE-IQ face mills", () => {
+    const dove = engine.search({ manufacturer: "ISCAR", type: "face_mill", max_results: 10 });
+    expect(dove.length).toBeGreaterThan(0);
+    expect(dove.some(t => t.series === "DOVE-IQ-MILL")).toBe(true);
+  });
+
+  it("loads ISCAR MULTI-MASTER modular end mills", () => {
+    const mm = engine.search({ manufacturer: "ISCAR", operation: "pocket", max_results: 20 });
+    const multiMaster = mm.filter(t => t.series === "MULTI-MASTER");
+    expect(multiMaster.length).toBeGreaterThan(0);
+  });
+
+  it("loads Korloy grade inserts from multi-manufacturer data", () => {
+    const korloy = engine.search({ manufacturer: "Korloy", max_results: 50 });
+    expect(korloy.length).toBeGreaterThan(0);
+    expect(korloy.some(t => t.series === "NC3200")).toBe(true);
+  });
+
+  it("loads Mitsubishi grade inserts from multi-manufacturer data", () => {
+    const mitsu = engine.search({ manufacturer: "Mitsubishi", max_results: 50 });
+    expect(mitsu.length).toBeGreaterThan(0);
+    expect(mitsu.some(t => t.series === "MC7025")).toBe(true);
+  });
+
+  it("recommend() boosts first-choice grades for ISO group P", () => {
+    const recs = engine.recommend({ operation: "turn", iso_group: "P", max_results: 20 });
+    expect(recs.length).toBeGreaterThan(0);
+    const firstChoice = recs.filter(r => r.reasoning.includes("first-choice grade"));
+    expect(firstChoice.length).toBeGreaterThan(0);
+    // First-choice should score higher
+    const best = firstChoice[0];
+    expect(best.score).toBeGreaterThanOrEqual(70);
+  });
+
+  it("recommend() returns ISCAR tools for milling operations", () => {
+    const recs = engine.recommend({ operation: "pocket", iso_group: "P", max_results: 20 });
+    const iscarRecs = recs.filter(r => r.manufacturer === "ISCAR");
+    expect(iscarRecs.length).toBeGreaterThan(0);
+  });
+
+  it("ISCAR CHAM-IQ-DRILL appears in drill recommendations", () => {
+    const recs = engine.recommend({ operation: "drill", iso_group: "P", max_results: 20 });
+    const chamIq = recs.filter(r => r.series === "CHAM-IQ-DRILL");
+    expect(chamIq.length).toBeGreaterThan(0);
+  });
+
+  it("multi-manufacturer grades have correct ISO suitability", async () => {
+    const { ALL_MANUFACTURER_GRADES } = await import("../data/multi-manufacturer-grades.js");
+    expect(ALL_MANUFACTURER_GRADES.length).toBeGreaterThan(40);
+    const iscar8150 = ALL_MANUFACTURER_GRADES.find((g: any) => g.code === "IC8150");
+    expect(iscar8150).toBeDefined();
+    expect(iscar8150.iso_suitability.P).toBe("first_choice");
+    expect(iscar8150.manufacturer).toBe("ISCAR");
+  });
+
+  // ── OSG & Guhring Integration ──
+  it("loads OSG tools into catalog", () => {
+    const osg = engine.search({ manufacturer: "OSG", max_results: 50 });
+    expect(osg.length).toBeGreaterThan(0);
+  });
+
+  it("loads OSG drills searchable by type", () => {
+    const osgDrills = engine.search({ manufacturer: "OSG", type: "drill", max_results: 10 });
+    expect(osgDrills.length).toBeGreaterThan(0);
+    expect(osgDrills[0].type).toBe("drill");
+  });
+
+  it("loads Guhring tools into catalog", () => {
+    const guh = engine.search({ manufacturer: "Guhring", max_results: 50 });
+    expect(guh.length).toBeGreaterThan(0);
+  });
+
+  it("loads Guhring drills searchable by type", () => {
+    const guhDrills = engine.search({ manufacturer: "Guhring", type: "drill", max_results: 10 });
+    expect(guhDrills.length).toBeGreaterThan(0);
+  });
+
+  it("catalog stats reflect all manufacturers", () => {
+    const stats = engine.stats();
+    expect(stats.total_tools).toBeGreaterThan(1000);
+    expect(stats.by_manufacturer).toBeDefined();
+  });
+
   // ── Dispatcher Wiring ──
   it("dispatcher module loads with tool_catalog actions", async () => {
     const mod = await import("../tools/dispatchers/calcDispatcher.js");
