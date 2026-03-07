@@ -2,16 +2,21 @@
  * Exports & Integration Page — QuickBooks/CSV export, bank reconciliation, format listing.
  */
 import { useState, useEffect } from 'react';
-import { integrationFormats, integrationReconcileBank, ApiError } from '../api/client';
+import {
+  integrationFormats, integrationReconcileBank,
+  integrationExportQB, integrationExportPayrollTax, integrationExportARAging,
+  ApiError,
+} from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { ExportFormat, BankReconciliation } from '../api/types';
 
-type Tab = 'formats' | 'reconcile';
+type Tab = 'formats' | 'reconcile' | 'quickbooks' | 'payroll' | 'araging';
 
 export function ExportsPage() {
   const [tab, setTab] = useState<Tab>('formats');
   const [formats, setFormats] = useState<ExportFormat[]>([]);
   const [recon, setRecon] = useState<BankReconciliation | null>(null);
+  const [exportResult, setExportResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [reconForm, setReconForm] = useState({
@@ -69,8 +74,36 @@ export function ExportsPage() {
           Export Formats
         </button>
         <button onClick={() => setTab('reconcile')}
-          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'reconcile' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'reconcile'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
           Bank Reconciliation
+        </button>
+        <button onClick={() => setTab('quickbooks')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'quickbooks'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+          QuickBooks
+        </button>
+        <button onClick={() => setTab('payroll')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'payroll'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+          Payroll/Tax
+        </button>
+        <button onClick={() => setTab('araging')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'araging'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+          AR Aging
         </button>
       </div>
 
@@ -151,6 +184,110 @@ export function ExportsPage() {
                 </div>
               </div>
             </div>
+          )}
+        </div>
+      )}
+      {/* QuickBooks Export */}
+      {tab === 'quickbooks' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">QuickBooks Export</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Export transactions in QuickBooks-compatible IIF format.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await integrationExportQB({
+                  period_start: new Date(
+                    Date.now() - 30 * 86400000
+                  ).toISOString().slice(0, 10),
+                  period_end: new Date().toISOString().slice(0, 10),
+                });
+                setExportResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'Export failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Generate QB Export
+            </button>
+          </div>
+          {exportResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(exportResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* Payroll/Tax Export */}
+      {tab === 'payroll' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">
+              Payroll & Tax Export
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Generate payroll tax filings and W-2 summaries.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await integrationExportPayrollTax({
+                  year: new Date().getFullYear(),
+                  quarter: Math.ceil((new Date().getMonth() + 1) / 3),
+                });
+                setExportResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'Export failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Generate Payroll Report
+            </button>
+          </div>
+          {exportResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(exportResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* AR Aging */}
+      {tab === 'araging' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">
+              Accounts Receivable Aging
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              View outstanding customer invoices by age bucket.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await integrationExportARAging();
+                setExportResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'Export failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Load AR Aging
+            </button>
+          </div>
+          {exportResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(exportResult, null, 2)}
+            </pre>
           )}
         </div>
       )}

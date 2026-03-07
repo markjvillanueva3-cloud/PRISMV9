@@ -2,7 +2,7 @@
  * Purchase Orders Page — Create, approve, receive POs. AP aging view.
  */
 import { useState, useEffect } from 'react';
-import { poList, poCreate, poApprove, poAPAging, ApiError } from '../api/client';
+import { poList, poCreate, poApprove, poAPAging, poThreeWayMatch, poSpendByCategory, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { PurchaseOrder, APAging } from '../api/types';
 
@@ -10,9 +10,12 @@ export function PurchaseOrdersPage() {
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [aging, setAging] = useState<APAging | null>(null);
   const [filter, setFilter] = useState('all');
+  const [matchResult, setMatchResult] = useState<any>(null);
+  const [matchPoId, setMatchPoId] = useState('');
+  const [spendData, setSpendData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<'orders' | 'aging'>('orders');
+  const [tab, setTab] = useState<'orders' | 'aging' | 'match' | 'spend'>('orders');
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState({ supplier_name: '', description: '', quantity: '1', unit_price: '' });
 
@@ -42,9 +45,22 @@ export function PurchaseOrdersPage() {
     }
   }
 
+  async function loadSpend() {
+    setLoading(true); setError(null);
+    try {
+      const r = await poSpendByCategory();
+      setSpendData(
+        (r.result as any)?.categories ?? (r.result as any) ?? []
+      );
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Failed to load spend');
+    } finally { setLoading(false); }
+  }
+
   useEffect(() => {
     if (tab === 'orders') loadOrders();
-    else loadAging();
+    else if (tab === 'aging') loadAging();
+    else if (tab === 'spend') loadSpend();
   }, [filter, tab]);
 
   async function handleCreate() {
@@ -96,8 +112,22 @@ export function PurchaseOrdersPage() {
             Orders
           </button>
           <button onClick={() => setTab('aging')}
-            className={`px-3 py-1.5 rounded text-sm font-medium ${tab === 'aging' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+            className={`px-3 py-1.5 rounded text-sm font-medium ${
+              tab === 'aging' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'
+            }`}>
             AP Aging
+          </button>
+          <button onClick={() => setTab('match')}
+            className={`px-3 py-1.5 rounded text-sm font-medium ${
+              tab === 'match' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'
+            }`}>
+            3-Way Match
+          </button>
+          <button onClick={() => setTab('spend')}
+            className={`px-3 py-1.5 rounded text-sm font-medium ${
+              tab === 'spend' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'
+            }`}>
+            Spend Analysis
           </button>
           <button onClick={() => setShowCreate(!showCreate)}
             className="bg-prism-600 text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-prism-700">
@@ -213,6 +243,93 @@ export function PurchaseOrdersPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {/* Three-Way Match */}
+      {tab === 'match' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Three-Way Match</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Verify PO, receiving report, and invoice match.
+            </p>
+            <div className="flex gap-4 items-end">
+              <div className="flex-1 max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  PO ID
+                </label>
+                <input type="text" value={matchPoId}
+                  onChange={(e) => setMatchPoId(e.target.value)}
+                  placeholder="PO-001"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                if (!matchPoId) return;
+                setLoading(true); setError(null);
+                try {
+                  const r = await poThreeWayMatch({ po_id: matchPoId });
+                  setMatchResult(r.result);
+                } catch (e) {
+                  setError(
+                    e instanceof ApiError ? e.message : 'Match failed'
+                  );
+                } finally { setLoading(false); }
+              }}
+                className="bg-prism-600 text-white px-4 py-2 rounded text-sm">
+                Verify Match
+              </button>
+            </div>
+          </div>
+          {matchResult && (
+            <div className={`rounded-lg border p-4 shadow-sm ${
+              matchResult.matched
+                ? 'bg-green-50 border-green-200'
+                : 'bg-red-50 border-red-200'
+            }`}>
+              <h3 className={`font-semibold ${
+                matchResult.matched ? 'text-green-800' : 'text-red-800'
+              }`}>
+                {matchResult.matched ? 'Match Verified' : 'Discrepancy Found'}
+              </h3>
+              <pre className="text-xs font-mono mt-2 overflow-auto">
+                {JSON.stringify(matchResult, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Spend by Category */}
+      {tab === 'spend' && spendData.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-4 py-3">Category</th>
+                <th className="px-4 py-3 text-right">Total Spend</th>
+                <th className="px-4 py-3 text-right">PO Count</th>
+                <th className="px-4 py-3 text-right">% of Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {spendData.map((s: any, i: number) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium capitalize">
+                    {s.category ?? '-'}
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono">
+                    ${(s.total_spend ?? 0).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    {s.po_count ?? 0}
+                  </td>
+                  <td className="px-4 py-2 text-right font-mono">
+                    {(s.pct ?? 0).toFixed(1)}%
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

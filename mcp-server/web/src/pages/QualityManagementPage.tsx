@@ -2,17 +2,23 @@
  * Quality Management Page — SPC charts, calibration, NCR tracking, KPIs.
  */
 import { useState, useEffect } from 'react';
-import { qualityCalibrationDashboard, qualityNCRList, qualityKPIs, ApiError } from '../api/client';
+import {
+  qualityCalibrationDashboard, qualityNCRList, qualityKPIs,
+  qualityTraceJob, qualityFAIList, ApiError,
+} from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
-import type { CalibrationRecord, NCR, QualityKPI } from '../api/types';
+import type { CalibrationRecord, NCR, QualityKPI, FAI } from '../api/types';
 
-type Tab = 'kpis' | 'calibration' | 'ncr';
+type Tab = 'kpis' | 'calibration' | 'ncr' | 'trace' | 'fai';
 
 export function QualityManagementPage() {
   const [tab, setTab] = useState<Tab>('kpis');
   const [kpis, setKpis] = useState<QualityKPI | null>(null);
   const [calibrations, setCalibrations] = useState<CalibrationRecord[]>([]);
   const [ncrs, setNcrs] = useState<NCR[]>([]);
+  const [traceResult, setTraceResult] = useState<any>(null);
+  const [fais, setFais] = useState<FAI[]>([]);
+  const [traceJobId, setTraceJobId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +42,11 @@ export function QualityManagementPage() {
           setNcrs((r.result as any)?.ncrs ?? []);
           break;
         }
+        case 'fai': {
+          const r = await qualityFAIList();
+          setFais((r.result as any)?.fais ?? (r.result as any) ?? []);
+          break;
+        }
       }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to load quality data');
@@ -50,6 +61,8 @@ export function QualityManagementPage() {
     { key: 'kpis', label: 'Quality KPIs' },
     { key: 'calibration', label: 'Calibration' },
     { key: 'ncr', label: 'NCRs' },
+    { key: 'trace', label: 'Traceability' },
+    { key: 'fai', label: 'FAI' },
   ];
 
   const calStatusColors: Record<string, string> = {
@@ -162,6 +175,77 @@ export function QualityManagementPage() {
                   </td>
                   <td className="px-4 py-2 capitalize">{n.disposition}</td>
                   <td className="px-4 py-2 font-mono text-red-600">${n.cost_impact.toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {/* Traceability */}
+      {tab === 'trace' && !loading && (
+        <div className="space-y-4">
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Job ID
+              </label>
+              <input type="text" value={traceJobId}
+                onChange={e => setTraceJobId(e.target.value)}
+                placeholder="JOB-2026-001"
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await qualityTraceJob({ job_id: traceJobId });
+                setTraceResult(r.result);
+              } catch (e) {
+                setError(e instanceof ApiError ? e.message : 'Trace failed');
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-4 py-2 rounded text-sm">
+              Trace
+            </button>
+          </div>
+          {traceResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(traceResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* FAI */}
+      {tab === 'fai' && fais.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-4 py-3">FAI ID</th>
+                <th className="px-4 py-3">Part</th>
+                <th className="px-4 py-3">Job</th>
+                <th className="px-4 py-3">Inspector</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3">Result</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {fais.map(f => (
+                <tr key={f.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-mono text-xs">{f.id}</td>
+                  <td className="px-4 py-2 font-medium">{f.part_number}</td>
+                  <td className="px-4 py-2">{f.job_id}</td>
+                  <td className="px-4 py-2">{f.inspector}</td>
+                  <td className="px-4 py-2 text-xs">{f.date}</td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      f.overall_pass
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {f.overall_pass ? 'PASS' : 'FAIL'}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

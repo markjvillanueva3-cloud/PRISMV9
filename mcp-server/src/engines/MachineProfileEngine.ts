@@ -1,0 +1,339 @@
+/**
+ * MachineProfileEngine — Shop Machine Specifications Database
+ *
+ * Stores actual machine tool specifications from the user's shop floor.
+ * Used to validate S&F parameters against real machine limits before posting.
+ * Includes spindle torque curves, axis travel, tool changer capacity.
+ *
+ * Ships with 12 common machine profiles as defaults; users add their own.
+ *
+ * @engine MachineProfileEngine
+ * @dispatcher calcDispatcher
+ * @actions machine_profile_get, machine_profile_list, machine_profile_validate, machine_profile_add
+ */
+
+export interface SpindleCurve {
+  base_rpm: number;           // transition from constant torque to constant power
+  max_rpm: number;
+  rated_power_kw: number;     // at base RPM
+  max_torque_nm: number;      // at low RPM (constant torque region)
+  taper: "BT30" | "BT40" | "BT50" | "CAT40" | "CAT50" | "HSK-A63" | "HSK-A100" | "HSK-E40" | "HSK-F63" | "R8" | "MT3" | "MT4" | "MT5";
+}
+
+export interface MachineProfile {
+  id: string;
+  name: string;
+  type: "vmc" | "hmc" | "lathe" | "mill_turn" | "5axis" | "router" | "grinder" | "swiss" | "edm_wire" | "edm_sinker";
+  manufacturer: string;
+  model: string;
+  controller: string;
+  spindle: SpindleCurve;
+  axes: {
+    x_mm: number;
+    y_mm: number;
+    z_mm: number;
+    a_deg?: number;
+    b_deg?: number;
+    c_deg?: number;
+  };
+  rapid_rate_mmmin: number;     // max rapid traverse
+  max_feed_mmmin: number;       // max cutting feed rate
+  tool_changer_capacity: number;
+  max_tool_diameter_mm: number;
+  max_tool_length_mm: number;
+  max_part_weight_kg: number;
+  coolant: {
+    through_spindle: boolean;
+    through_spindle_pressure_bar?: number;
+    flood: boolean;
+    mist: boolean;
+    air_blast: boolean;
+  };
+  year?: number;
+  notes?: string;
+}
+
+// ── Default machine profiles (common shop machines) ──
+const DEFAULT_MACHINES: MachineProfile[] = [
+  {
+    id: "haas_vf2", name: "Haas VF-2", type: "vmc",
+    manufacturer: "Haas", model: "VF-2", controller: "Haas NGC",
+    spindle: { base_rpm: 2000, max_rpm: 8100, rated_power_kw: 22.4, max_torque_nm: 122, taper: "CAT40" },
+    axes: { x_mm: 762, y_mm: 406, z_mm: 508 },
+    rapid_rate_mmmin: 25400, max_feed_mmmin: 16510,
+    tool_changer_capacity: 20, max_tool_diameter_mm: 89, max_tool_length_mm: 254,
+    max_part_weight_kg: 1361, coolant: { through_spindle: false, flood: true, mist: false, air_blast: true },
+  },
+  {
+    id: "haas_vf2ss", name: "Haas VF-2SS", type: "vmc",
+    manufacturer: "Haas", model: "VF-2SS", controller: "Haas NGC",
+    spindle: { base_rpm: 3400, max_rpm: 12000, rated_power_kw: 22.4, max_torque_nm: 122, taper: "CAT40" },
+    axes: { x_mm: 762, y_mm: 406, z_mm: 508 },
+    rapid_rate_mmmin: 35600, max_feed_mmmin: 21200,
+    tool_changer_capacity: 24, max_tool_diameter_mm: 89, max_tool_length_mm: 254,
+    max_part_weight_kg: 1361, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: false, air_blast: true },
+  },
+  {
+    id: "haas_ums5", name: "Haas UMC-500", type: "5axis",
+    manufacturer: "Haas", model: "UMC-500", controller: "Haas NGC",
+    spindle: { base_rpm: 3400, max_rpm: 12000, rated_power_kw: 22.4, max_torque_nm: 122, taper: "CAT40" },
+    axes: { x_mm: 508, y_mm: 406, z_mm: 394, a_deg: 120, b_deg: 360 },
+    rapid_rate_mmmin: 30500, max_feed_mmmin: 16500,
+    tool_changer_capacity: 40, max_tool_diameter_mm: 76, max_tool_length_mm: 250,
+    max_part_weight_kg: 136, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: false, air_blast: true },
+  },
+  {
+    id: "dmg_dmv70", name: "DMG MORI DMC 635 V", type: "vmc",
+    manufacturer: "DMG MORI", model: "DMC 635 V", controller: "Siemens 840D",
+    spindle: { base_rpm: 4000, max_rpm: 14000, rated_power_kw: 25, max_torque_nm: 120, taper: "HSK-A63" },
+    axes: { x_mm: 635, y_mm: 510, z_mm: 460 },
+    rapid_rate_mmmin: 36000, max_feed_mmmin: 20000,
+    tool_changer_capacity: 30, max_tool_diameter_mm: 80, max_tool_length_mm: 300,
+    max_part_weight_kg: 600, coolant: { through_spindle: true, through_spindle_pressure_bar: 40, flood: true, mist: true, air_blast: true },
+  },
+  {
+    id: "mazak_vcs430", name: "Mazak VCS-430A", type: "vmc",
+    manufacturer: "Mazak", model: "VCS-430A", controller: "Mazatrol SmoothG",
+    spindle: { base_rpm: 3000, max_rpm: 18000, rated_power_kw: 30, max_torque_nm: 95.5, taper: "HSK-A63" },
+    axes: { x_mm: 560, y_mm: 430, z_mm: 510 },
+    rapid_rate_mmmin: 42000, max_feed_mmmin: 20000,
+    tool_changer_capacity: 30, max_tool_diameter_mm: 80, max_tool_length_mm: 300,
+    max_part_weight_kg: 500, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true },
+  },
+  {
+    id: "okuma_genos_m560v", name: "Okuma GENOS M560-V", type: "vmc",
+    manufacturer: "Okuma", model: "GENOS M560-V", controller: "OSP-P300MA",
+    spindle: { base_rpm: 2500, max_rpm: 15000, rated_power_kw: 22, max_torque_nm: 88, taper: "BT40" },
+    axes: { x_mm: 1050, y_mm: 560, z_mm: 460 },
+    rapid_rate_mmmin: 40000, max_feed_mmmin: 15000,
+    tool_changer_capacity: 32, max_tool_diameter_mm: 90, max_tool_length_mm: 300,
+    max_part_weight_kg: 900, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: false, air_blast: true },
+  },
+  {
+    id: "haas_st20", name: "Haas ST-20", type: "lathe",
+    manufacturer: "Haas", model: "ST-20", controller: "Haas NGC",
+    spindle: { base_rpm: 600, max_rpm: 4000, rated_power_kw: 22.4, max_torque_nm: 340, taper: "MT4" },
+    axes: { x_mm: 207, y_mm: 0, z_mm: 533 },
+    rapid_rate_mmmin: 30500, max_feed_mmmin: 10000,
+    tool_changer_capacity: 12, max_tool_diameter_mm: 50, max_tool_length_mm: 150,
+    max_part_weight_kg: 227, coolant: { through_spindle: false, flood: true, mist: false, air_blast: true },
+    notes: "Max bar capacity 51mm, chuck 210mm",
+  },
+  {
+    id: "mazak_qt200", name: "Mazak QT-200", type: "lathe",
+    manufacturer: "Mazak", model: "QT-200", controller: "Mazatrol SmoothG",
+    spindle: { base_rpm: 500, max_rpm: 5000, rated_power_kw: 18.5, max_torque_nm: 318, taper: "MT4" },
+    axes: { x_mm: 200, y_mm: 0, z_mm: 500 },
+    rapid_rate_mmmin: 30000, max_feed_mmmin: 10000,
+    tool_changer_capacity: 12, max_tool_diameter_mm: 40, max_tool_length_mm: 150,
+    max_part_weight_kg: 300, coolant: { through_spindle: false, flood: true, mist: true, air_blast: true },
+  },
+  {
+    id: "citizen_l20", name: "Citizen L20 Type VIII", type: "swiss",
+    manufacturer: "Citizen", model: "L20 Type VIII", controller: "Cincom",
+    spindle: { base_rpm: 2000, max_rpm: 10000, rated_power_kw: 3.7, max_torque_nm: 14.4, taper: "R8" },
+    axes: { x_mm: 170, y_mm: 0, z_mm: 205, b_deg: 135, c_deg: 360 },
+    rapid_rate_mmmin: 32000, max_feed_mmmin: 5000,
+    tool_changer_capacity: 27, max_tool_diameter_mm: 20, max_tool_length_mm: 80,
+    max_part_weight_kg: 5, coolant: { through_spindle: false, flood: true, mist: true, air_blast: true },
+    notes: "Max bar dia 20mm, guide bushing",
+  },
+  {
+    id: "dmg_dmu50", name: "DMG MORI DMU 50 3rd Gen", type: "5axis",
+    manufacturer: "DMG MORI", model: "DMU 50 3rd Gen", controller: "CELOS Siemens",
+    spindle: { base_rpm: 4500, max_rpm: 20000, rated_power_kw: 35, max_torque_nm: 130, taper: "HSK-A63" },
+    axes: { x_mm: 650, y_mm: 520, z_mm: 475, b_deg: 180, c_deg: 360 },
+    rapid_rate_mmmin: 42000, max_feed_mmmin: 24000,
+    tool_changer_capacity: 60, max_tool_diameter_mm: 80, max_tool_length_mm: 300,
+    max_part_weight_kg: 300, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true },
+  },
+  {
+    id: "tormach_1100mx", name: "Tormach 1100MX", type: "vmc",
+    manufacturer: "Tormach", model: "1100MX", controller: "PathPilot",
+    spindle: { base_rpm: 1500, max_rpm: 10000, rated_power_kw: 3.7, max_torque_nm: 16, taper: "BT30" },
+    axes: { x_mm: 584, y_mm: 406, z_mm: 419 },
+    rapid_rate_mmmin: 10160, max_feed_mmmin: 8500,
+    tool_changer_capacity: 12, max_tool_diameter_mm: 63, max_tool_length_mm: 200,
+    max_part_weight_kg: 113, coolant: { through_spindle: false, flood: true, mist: true, air_blast: true },
+    notes: "Entry-level CNC mill for prototyping and small production",
+  },
+  {
+    id: "datron_neo", name: "Datron neo", type: "vmc",
+    manufacturer: "DATRON", model: "neo", controller: "DATRON next",
+    spindle: { base_rpm: 10000, max_rpm: 60000, rated_power_kw: 2.0, max_torque_nm: 0.6, taper: "HSK-E40" },
+    axes: { x_mm: 500, y_mm: 500, z_mm: 210 },
+    rapid_rate_mmmin: 30000, max_feed_mmmin: 15000,
+    tool_changer_capacity: 24, max_tool_diameter_mm: 16, max_tool_length_mm: 100,
+    max_part_weight_kg: 50, coolant: { through_spindle: false, flood: false, mist: true, air_blast: true },
+    notes: "High-speed aluminum/plastics machining, micro-milling",
+  },
+];
+
+// ── Runtime storage (defaults + user-added) ──
+const machines = new Map<string, MachineProfile>();
+for (const m of DEFAULT_MACHINES) machines.set(m.id, m);
+
+export interface ValidationResult {
+  valid: boolean;
+  machine: string;
+  checks: Array<{
+    parameter: string;
+    value: number;
+    limit: number;
+    unit: string;
+    status: "OK" | "WARNING" | "EXCEEDED";
+    message: string;
+  }>;
+  torque_at_rpm?: { rpm: number; available_nm: number; required_nm: number; utilization_pct: number };
+  power_at_rpm?: { rpm: number; available_kw: number; required_kw: number; utilization_pct: number };
+}
+
+export class MachineProfileEngine {
+  /** Get a machine profile by ID. */
+  get(id: string): MachineProfile | null {
+    return machines.get(id) ?? null;
+  }
+
+  /** List all machines, optionally filtered by type. */
+  list(type?: string): Array<{ id: string; name: string; type: string; manufacturer: string; max_rpm: number; power_kw: number }> {
+    const all = [...machines.values()];
+    const filtered = type ? all.filter(m => m.type === type) : all;
+    return filtered.map(m => ({
+      id: m.id, name: m.name, type: m.type, manufacturer: m.manufacturer,
+      max_rpm: m.spindle.max_rpm, power_kw: m.spindle.rated_power_kw,
+    }));
+  }
+
+  /**
+   * Validate machining parameters against a specific machine's limits.
+   * Returns pass/fail for each parameter with utilization %.
+   */
+  validate(input: {
+    machine_id: string;
+    rpm?: number;
+    feed_rate_mmmin?: number;
+    power_kw?: number;
+    torque_nm?: number;
+    tool_diameter_mm?: number;
+    tool_length_mm?: number;
+    part_weight_kg?: number;
+    x_travel_mm?: number;
+    y_travel_mm?: number;
+    z_travel_mm?: number;
+    requires_through_spindle_coolant?: boolean;
+  }): ValidationResult {
+    const m = machines.get(input.machine_id);
+    if (!m) throw new Error(`Unknown machine: ${input.machine_id}. Use list() for options.`);
+
+    const checks: ValidationResult["checks"] = [];
+
+    const check = (param: string, val: number | undefined, limit: number, unit: string, isMax = true) => {
+      if (val === undefined) return;
+      const exceeded = isMax ? val > limit : val < limit;
+      const pct = (val / limit) * 100;
+      const warn = isMax ? pct > 90 : pct < 110;
+      checks.push({
+        parameter: param, value: Math.round(val * 100) / 100, limit, unit,
+        status: exceeded ? "EXCEEDED" : warn ? "WARNING" : "OK",
+        message: exceeded
+          ? `${param} ${val} ${unit} exceeds machine limit ${limit} ${unit}`
+          : warn
+            ? `${param} at ${pct.toFixed(0)}% of limit`
+            : `${param} OK (${pct.toFixed(0)}% of limit)`,
+      });
+    };
+
+    check("RPM", input.rpm, m.spindle.max_rpm, "RPM");
+    check("Feed Rate", input.feed_rate_mmmin, m.max_feed_mmmin, "mm/min");
+    check("Tool Diameter", input.tool_diameter_mm, m.max_tool_diameter_mm, "mm");
+    check("Tool Length", input.tool_length_mm, m.max_tool_length_mm, "mm");
+    check("Part Weight", input.part_weight_kg, m.max_part_weight_kg, "kg");
+    check("X Travel", input.x_travel_mm, m.axes.x_mm, "mm");
+    check("Y Travel", input.y_travel_mm, m.axes.y_mm, "mm");
+    check("Z Travel", input.z_travel_mm, m.axes.z_mm, "mm");
+
+    // ── Spindle torque/power at requested RPM ──
+    let torqueCheck: ValidationResult["torque_at_rpm"];
+    let powerCheck: ValidationResult["power_at_rpm"];
+
+    if (input.rpm) {
+      const sp = m.spindle;
+      // Constant torque region: 0 → base_rpm → max_torque available
+      // Constant power region: base_rpm → max_rpm → torque falls off as 1/RPM
+      const availTorque = input.rpm <= sp.base_rpm
+        ? sp.max_torque_nm
+        : sp.max_torque_nm * (sp.base_rpm / input.rpm);
+      const availPower = input.rpm <= sp.base_rpm
+        ? sp.rated_power_kw * (input.rpm / sp.base_rpm)
+        : sp.rated_power_kw;
+
+      if (input.torque_nm) {
+        const util = (input.torque_nm / availTorque) * 100;
+        torqueCheck = { rpm: input.rpm, available_nm: Math.round(availTorque * 10) / 10, required_nm: input.torque_nm, utilization_pct: Math.round(util) };
+        checks.push({
+          parameter: "Torque", value: input.torque_nm, limit: Math.round(availTorque * 10) / 10, unit: "N·m",
+          status: input.torque_nm > availTorque ? "EXCEEDED" : util > 90 ? "WARNING" : "OK",
+          message: input.torque_nm > availTorque
+            ? `Torque ${input.torque_nm} N·m exceeds available ${availTorque.toFixed(1)} N·m at ${input.rpm} RPM`
+            : `Torque ${util.toFixed(0)}% utilized at ${input.rpm} RPM`,
+        });
+      }
+
+      if (input.power_kw) {
+        const util = (input.power_kw / availPower) * 100;
+        powerCheck = { rpm: input.rpm, available_kw: Math.round(availPower * 10) / 10, required_kw: input.power_kw, utilization_pct: Math.round(util) };
+        checks.push({
+          parameter: "Power", value: input.power_kw, limit: Math.round(availPower * 10) / 10, unit: "kW",
+          status: input.power_kw > availPower ? "EXCEEDED" : util > 90 ? "WARNING" : "OK",
+          message: input.power_kw > availPower
+            ? `Power ${input.power_kw} kW exceeds available ${availPower.toFixed(1)} kW at ${input.rpm} RPM`
+            : `Power ${util.toFixed(0)}% utilized at ${input.rpm} RPM`,
+        });
+      }
+    }
+
+    if (input.requires_through_spindle_coolant && !m.coolant.through_spindle) {
+      checks.push({
+        parameter: "TSC", value: 1, limit: 0, unit: "boolean",
+        status: "EXCEEDED", message: `${m.name} does not have through-spindle coolant`,
+      });
+    }
+
+    return {
+      valid: checks.every(c => c.status !== "EXCEEDED"),
+      machine: m.name,
+      checks,
+      torque_at_rpm: torqueCheck,
+      power_at_rpm: powerCheck,
+    };
+  }
+
+  /** Add a custom machine profile. */
+  add(profile: MachineProfile): { added: boolean; id: string } {
+    if (machines.has(profile.id)) {
+      machines.set(profile.id, profile); // overwrite
+      return { added: true, id: profile.id };
+    }
+    machines.set(profile.id, profile);
+    return { added: true, id: profile.id };
+  }
+
+  /** Get spindle torque curve data points for a machine (for plotting). */
+  spindleCurve(machine_id: string, points?: number): Array<{ rpm: number; torque_nm: number; power_kw: number }> {
+    const m = machines.get(machine_id);
+    if (!m) throw new Error(`Unknown machine: ${machine_id}`);
+    const sp = m.spindle;
+    const n = points ?? 20;
+    const step = sp.max_rpm / n;
+    const data: Array<{ rpm: number; torque_nm: number; power_kw: number }> = [];
+
+    for (let rpm = step; rpm <= sp.max_rpm; rpm += step) {
+      const torque = rpm <= sp.base_rpm ? sp.max_torque_nm : sp.max_torque_nm * (sp.base_rpm / rpm);
+      const power = rpm <= sp.base_rpm ? sp.rated_power_kw * (rpm / sp.base_rpm) : sp.rated_power_kw;
+      data.push({ rpm: Math.round(rpm), torque_nm: Math.round(torque * 10) / 10, power_kw: Math.round(power * 10) / 10 });
+    }
+    return data;
+  }
+}
+
+export const machineProfileEngine = new MachineProfileEngine();

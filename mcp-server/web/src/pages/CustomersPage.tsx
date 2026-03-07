@@ -2,17 +2,18 @@
  * Customers / CRM Page — Customer list, search, credit checks, sales pipeline, analytics.
  */
 import { useState, useEffect } from 'react';
-import { customerList, customerSearch, customerPipeline, customerTop, ApiError } from '../api/client';
+import { customerList, customerSearch, customerPipeline, customerTop, customerFollowUps, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { Customer, SalesPipeline, CustomerAnalytics } from '../api/types';
 
-type Tab = 'list' | 'pipeline' | 'top';
+type Tab = 'list' | 'pipeline' | 'top' | 'followups';
 
 export function CustomersPage() {
   const [tab, setTab] = useState<Tab>('list');
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [pipeline, setPipeline] = useState<SalesPipeline | null>(null);
   const [topCustomers, setTopCustomers] = useState<CustomerAnalytics[]>([]);
+  const [followUps, setFollowUps] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
@@ -38,6 +39,11 @@ export function CustomersPage() {
         case 'top': {
           const r = await customerTop({ limit: 10 });
           setTopCustomers((r.result as any)?.customers ?? (r.result as any) ?? []);
+          break;
+        }
+        case 'followups': {
+          const r = await customerFollowUps();
+          setFollowUps((r.result as any)?.follow_ups ?? (r.result as any) ?? []);
           break;
         }
       }
@@ -83,6 +89,7 @@ export function CustomersPage() {
           { key: 'list', label: 'Customer List' },
           { key: 'pipeline', label: 'Sales Pipeline' },
           { key: 'top', label: 'Top Customers' },
+          { key: 'followups', label: 'Follow-ups' },
         ] as { key: Tab; label: string }[]).map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded text-sm font-medium ${tab === t.key ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
@@ -213,6 +220,47 @@ export function CustomersPage() {
                   <td className="px-4 py-2 text-right">{c.on_time_delivery_pct}%</td>
                   <td className="px-4 py-2 text-right">{c.avg_margin_pct}%</td>
                   <td className="px-4 py-2 text-right">{c.quote_win_rate}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {/* Follow-ups */}
+      {tab === 'followups' && followUps.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-4 py-3">Customer</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Due Date</th>
+                <th className="px-4 py-3">Notes</th>
+                <th className="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {followUps.map((f: any, i: number) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium">
+                    {f.customer_name ?? f.customer_id ?? '-'}
+                  </td>
+                  <td className="px-4 py-2 capitalize">
+                    {f.type ?? f.follow_up_type ?? '-'}
+                  </td>
+                  <td className="px-4 py-2 text-xs font-mono">
+                    {f.due_date ?? '-'}
+                  </td>
+                  <td className="px-4 py-2 text-xs max-w-xs truncate">
+                    {f.notes ?? '-'}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      f.status === 'completed'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-yellow-100 text-yellow-700'
+                    }`}>{f.status ?? 'pending'}</span>
+                  </td>
                 </tr>
               ))}
             </tbody>

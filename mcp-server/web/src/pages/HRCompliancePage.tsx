@@ -2,11 +2,11 @@
  * HR & Compliance Page — Benefits, PTO, training, compliance alerts, dashboard.
  */
 import { useState, useEffect } from 'react';
-import { hrBenefitsList, hrComplianceAlerts, hrDashboard, hrTrainingExpiring, listEmployees, ApiError } from '../api/client';
+import { hrBenefitsList, hrComplianceAlerts, hrDashboard, hrTrainingExpiring, hrReviews, listEmployees, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { BenefitPlan, ComplianceAlert, HRDashboard, TrainingRecord } from '../api/types';
 
-type Tab = 'dashboard' | 'benefits' | 'training' | 'alerts';
+type Tab = 'dashboard' | 'benefits' | 'training' | 'alerts' | 'reviews';
 
 export function HRCompliancePage() {
   const [tab, setTab] = useState<Tab>('dashboard');
@@ -14,6 +14,7 @@ export function HRCompliancePage() {
   const [plans, setPlans] = useState<BenefitPlan[]>([]);
   const [expiring, setExpiring] = useState<TrainingRecord[]>([]);
   const [alerts, setAlerts] = useState<ComplianceAlert[]>([]);
+  const [reviews, setReviews] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +43,11 @@ export function HRCompliancePage() {
           setAlerts((r.result as any)?.alerts ?? (r.result as any) ?? []);
           break;
         }
+        case 'reviews': {
+          const r = await hrReviews();
+          setReviews((r.result as any)?.reviews ?? (r.result as any) ?? []);
+          break;
+        }
       }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to load HR data');
@@ -57,6 +63,7 @@ export function HRCompliancePage() {
     { key: 'benefits', label: 'Benefits' },
     { key: 'training', label: 'Training' },
     { key: 'alerts', label: 'Compliance Alerts' },
+    { key: 'reviews', label: 'Reviews' },
   ];
 
   const sevColors: Record<string, string> = {
@@ -195,6 +202,37 @@ export function HRCompliancePage() {
               No compliance alerts. All clear.
             </div>
           )}
+        </div>
+      )}
+      {/* Reviews */}
+      {tab === 'reviews' && reviews.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-4 py-3">Employee</th>
+                <th className="px-4 py-3">Type</th>
+                <th className="px-4 py-3">Date</th>
+                <th className="px-4 py-3 text-right">Rating</th>
+                <th className="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {reviews.map((r: any, i: number) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium">{r.employee_id ?? r.employee_name ?? '-'}</td>
+                  <td className="px-4 py-2 capitalize">{r.type ?? r.review_type ?? '-'}</td>
+                  <td className="px-4 py-2 text-xs">{r.date ?? r.review_date ?? '-'}</td>
+                  <td className="px-4 py-2 text-right font-mono font-bold">{r.rating ?? '-'}</td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      r.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                    }`}>{r.status ?? 'pending'}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

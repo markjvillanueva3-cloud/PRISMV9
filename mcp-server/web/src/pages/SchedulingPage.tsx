@@ -2,12 +2,18 @@
  * Scheduling Page — Job shop scheduling visualization with Gantt-style display.
  */
 import { useState } from 'react';
-import { schedulingJobShop, ApiError } from '../api/client';
+import { schedulingJobShop, schedulingSingleMachine, schedulingJohnsons, schedulingCPM, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { ScheduleResult } from '../api/types';
 
+type Tab = 'jobshop' | 'single' | 'johnsons' | 'cpm';
+
 export function SchedulingPage() {
+  const [tab, setTab] = useState<Tab>('jobshop');
   const [result, setResult] = useState<ScheduleResult | null>(null);
+  const [singleResult, setSingleResult] = useState<any>(null);
+  const [johnsonsResult, setJohnsonsResult] = useState<any>(null);
+  const [cpmResult, setCpmResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,21 +42,48 @@ export function SchedulingPage() {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Job Shop Scheduling</h1>
-          <p className="text-sm text-gray-500 mt-1">Optimize job sequencing across machines. Gantt-style visualization.</p>
-        </div>
-        <button onClick={runSchedule}
-          className="bg-prism-600 text-white px-4 py-2 rounded text-sm font-medium hover:bg-prism-700">
-          Run Schedule
-        </button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Scheduling</h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Job shop, single machine, Johnson's algorithm, and CPM scheduling.
+        </p>
+      </div>
+
+      <div className="flex gap-2 mb-6">
+        {([
+          { key: 'jobshop', label: 'Job Shop' },
+          { key: 'single', label: 'Single Machine' },
+          { key: 'johnsons', label: "Johnson's Rule" },
+          { key: 'cpm', label: 'CPM Network' },
+        ] as { key: Tab; label: string }[]).map((t) => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`px-4 py-2 rounded text-sm font-medium ${
+              tab === t.key
+                ? 'bg-prism-600 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}>
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {loading && <LoadingState label="Optimizing schedule..." />}
       {error && <ErrorState message={error} onRetry={runSchedule} />}
 
-      {result && !loading && (
+      {/* Job Shop Tab */}
+      {tab === 'jobshop' && !result && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm text-center">
+          <p className="text-gray-500 mb-4">
+            Run sample 3-job schedule across CNC machines.
+          </p>
+          <button onClick={runSchedule}
+            className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-prism-700">
+            Run Job Shop Schedule
+          </button>
+        </div>
+      )}
+
+      {tab === 'jobshop' && result && !loading && (
         <div className="space-y-6">
           {/* Summary */}
           <div className="grid grid-cols-3 gap-4">
@@ -139,6 +172,127 @@ export function SchedulingPage() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+      {/* Single Machine */}
+      {tab === 'single' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">
+              Single Machine Scheduling
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Optimize job sequence on a single machine (SPT/EDD/WSPT).
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await schedulingSingleMachine({
+                  jobs: [
+                    { id: 'J1', processing_time: 10, due_date: 25, weight: 1 },
+                    { id: 'J2', processing_time: 5, due_date: 15, weight: 2 },
+                    { id: 'J3', processing_time: 8, due_date: 20, weight: 1 },
+                    { id: 'J4', processing_time: 3, due_date: 10, weight: 3 },
+                  ],
+                  rule: 'wspt',
+                });
+                setSingleResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'Scheduling failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Run WSPT Schedule
+            </button>
+          </div>
+          {singleResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(singleResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* Johnson's Rule */}
+      {tab === 'johnsons' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">
+              Johnson's Rule (2-Machine Flow Shop)
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Optimal sequencing for 2-machine flow shop to minimize makespan.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await schedulingJohnsons({
+                  jobs: [
+                    { id: 'J1', machine1_time: 5, machine2_time: 8 },
+                    { id: 'J2', machine1_time: 9, machine2_time: 3 },
+                    { id: 'J3', machine1_time: 4, machine2_time: 7 },
+                    { id: 'J4', machine1_time: 7, machine2_time: 2 },
+                  ],
+                });
+                setJohnsonsResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'Scheduling failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Run Johnson's Algorithm
+            </button>
+          </div>
+          {johnsonsResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(johnsonsResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* CPM */}
+      {tab === 'cpm' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-2">
+              Critical Path Method (CPM)
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Identify critical path and project duration.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await schedulingCPM({
+                  activities: [
+                    { id: 'A', duration: 3, dependencies: [] },
+                    { id: 'B', duration: 5, dependencies: ['A'] },
+                    { id: 'C', duration: 2, dependencies: ['A'] },
+                    { id: 'D', duration: 4, dependencies: ['B', 'C'] },
+                    { id: 'E', duration: 1, dependencies: ['D'] },
+                  ],
+                });
+                setCpmResult(r.result);
+              } catch (e) {
+                setError(
+                  e instanceof ApiError ? e.message : 'CPM failed'
+                );
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Run CPM Analysis
+            </button>
+          </div>
+          {cpmResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(cpmResult, null, 2)}
+            </pre>
+          )}
         </div>
       )}
     </div>

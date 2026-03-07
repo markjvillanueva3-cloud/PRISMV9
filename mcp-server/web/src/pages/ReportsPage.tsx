@@ -7,8 +7,11 @@
  * Data sources: prism_ralph.assess, prism_omega.compute, prism_doc.read
  */
 import { useState } from 'react';
-import { SafetyBadge } from '../components/SafetyBadge';
-import { safetyLevel } from '../api/types';
+import {
+  reportingDashboard, reportingPareto, reportingProduction,
+  reportingQuality, reportingFinancial, reportingTrend, ApiError,
+} from '../api/client';
+import { LoadingState, ErrorState } from '../components/LoadingState';
 
 // ============================================================================
 // REPORT TYPES
@@ -86,11 +89,18 @@ function generateReport(type: ReportType, material: string, operation: string): 
 // PAGE
 // ============================================================================
 
+type PageTab = 'generate' | 'business';
+
 export function ReportsPage() {
+  const [pageTab, setPageTab] = useState<PageTab>('generate');
   const [reportType, setReportType] = useState<ReportType>('safety_audit');
   const [material, setMaterial] = useState('AISI 4140');
   const [operation, setOperation] = useState('bracket');
   const [report, setReport] = useState<ReportSection[] | null>(null);
+  const [bizReport, setBizReport] = useState<any>(null);
+  const [bizLoading, setBizLoading] = useState(false);
+  const [bizError, setBizError] = useState<string | null>(null);
+  const [bizType, setBizType] = useState<string>('dashboard');
 
   function handleGenerate() {
     setReport(generateReport(reportType, material, operation));
@@ -117,6 +127,92 @@ export function ReportsPage() {
         </p>
       </div>
 
+      <div className="flex gap-2 mb-6">
+        <button onClick={() => setPageTab('generate')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            pageTab === 'generate'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}>
+          Report Generator
+        </button>
+        <button onClick={() => setPageTab('business')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            pageTab === 'business'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}>
+          Business Reports
+        </button>
+      </div>
+
+      {/* Business Reports */}
+      {pageTab === 'business' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Business Reports</h2>
+            <div className="flex gap-2 mb-4">
+              {[
+                { key: 'dashboard', label: 'Dashboard' },
+                { key: 'pareto', label: 'Pareto' },
+                { key: 'production', label: 'Production' },
+                { key: 'quality', label: 'Quality' },
+                { key: 'financial', label: 'Financial' },
+                { key: 'trend', label: 'Trend' },
+              ].map((t) => (
+                <button key={t.key} onClick={() => setBizType(t.key)}
+                  className={`px-3 py-1.5 rounded text-xs font-medium ${
+                    bizType === t.key
+                      ? 'bg-prism-600 text-white'
+                      : 'bg-gray-100 text-gray-700'
+                  }`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <button onClick={async () => {
+              setBizLoading(true); setBizError(null);
+              try {
+                let r;
+                switch (bizType) {
+                  case 'dashboard':
+                    r = await reportingDashboard(); break;
+                  case 'pareto':
+                    r = await reportingPareto({ type: 'defects' }); break;
+                  case 'production':
+                    r = await reportingProduction(); break;
+                  case 'quality':
+                    r = await reportingQuality(); break;
+                  case 'financial':
+                    r = await reportingFinancial(); break;
+                  case 'trend':
+                    r = await reportingTrend({
+                      metric: 'revenue', periods: 6,
+                    }); break;
+                }
+                setBizReport(r?.result);
+              } catch (e) {
+                setBizError(
+                  e instanceof ApiError ? e.message : 'Report failed'
+                );
+              } finally { setBizLoading(false); }
+            }}
+              className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Generate
+            </button>
+          </div>
+          {bizLoading && <LoadingState label="Generating report..." />}
+          {bizError && <ErrorState message={bizError} />}
+          {bizReport && !bizLoading && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(bizReport, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {pageTab !== 'generate' ? null : (
+      <>
       {/* Config */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -189,6 +285,8 @@ export function ReportsPage() {
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

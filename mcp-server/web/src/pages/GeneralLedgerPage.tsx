@@ -2,11 +2,11 @@
  * General Ledger Page — Chart of accounts, trial balance, P&L, balance sheet.
  */
 import { useState, useEffect } from 'react';
-import { glChartOfAccounts, glTrialBalance, glIncomeStatement, glBalanceSheet, ApiError } from '../api/client';
+import { glChartOfAccounts, glTrialBalance, glIncomeStatement, glBalanceSheet, glRecordInvoice, glRecordPayment, glRecordPurchase, glRecordPayroll, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { GLAccount, TrialBalance, IncomeStatement, BalanceSheet } from '../api/types';
 
-type Tab = 'accounts' | 'trial' | 'pnl' | 'balance';
+type Tab = 'accounts' | 'trial' | 'pnl' | 'balance' | 'record';
 
 export function GeneralLedgerPage() {
   const [tab, setTab] = useState<Tab>('accounts');
@@ -14,8 +14,14 @@ export function GeneralLedgerPage() {
   const [trial, setTrial] = useState<TrialBalance | null>(null);
   const [income, setIncome] = useState<IncomeStatement | null>(null);
   const [balance, setBalance] = useState<BalanceSheet | null>(null);
+  const [recordResult, setRecordResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recordType, setRecordType] = useState<'invoice' | 'payment' | 'purchase' | 'payroll'>('invoice');
+  const [recordForm, setRecordForm] = useState({
+    customer_id: '', amount: '', description: '', invoice_number: '',
+    vendor_id: '', employee_count: '', period: '',
+  });
 
   async function loadData() {
     setLoading(true);
@@ -60,6 +66,7 @@ export function GeneralLedgerPage() {
     { key: 'trial', label: 'Trial Balance' },
     { key: 'pnl', label: 'Income Statement' },
     { key: 'balance', label: 'Balance Sheet' },
+    { key: 'record', label: 'Record Transaction' },
   ];
 
   return (
@@ -233,6 +240,128 @@ export function GeneralLedgerPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+      {/* Record Transaction */}
+      {tab === 'record' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Record Transaction</h2>
+            <div className="flex gap-2 mb-4">
+              {(['invoice', 'payment', 'purchase', 'payroll'] as const).map((rt) => (
+                <button key={rt} onClick={() => setRecordType(rt)}
+                  className={`px-3 py-1.5 rounded text-xs font-medium capitalize ${recordType === rt ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+                  {rt}
+                </button>
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recordType === 'invoice' && <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                  <input type="text" value={recordForm.customer_id}
+                    onChange={(e) => setRecordForm({ ...recordForm, customer_id: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <input type="number" value={recordForm.amount}
+                    onChange={(e) => setRecordForm({ ...recordForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Invoice #</label>
+                  <input type="text" value={recordForm.invoice_number}
+                    onChange={(e) => setRecordForm({ ...recordForm, invoice_number: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+              </>}
+              {recordType === 'payment' && <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                  <input type="text" value={recordForm.customer_id}
+                    onChange={(e) => setRecordForm({ ...recordForm, customer_id: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <input type="number" value={recordForm.amount}
+                    onChange={(e) => setRecordForm({ ...recordForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Invoice #</label>
+                  <input type="text" value={recordForm.invoice_number}
+                    onChange={(e) => setRecordForm({ ...recordForm, invoice_number: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+              </>}
+              {recordType === 'purchase' && <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Vendor ID</label>
+                  <input type="text" value={recordForm.vendor_id}
+                    onChange={(e) => setRecordForm({ ...recordForm, vendor_id: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <input type="number" value={recordForm.amount}
+                    onChange={(e) => setRecordForm({ ...recordForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <input type="text" value={recordForm.description}
+                    onChange={(e) => setRecordForm({ ...recordForm, description: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+              </>}
+              {recordType === 'payroll' && <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Total Amount</label>
+                  <input type="number" value={recordForm.amount}
+                    onChange={(e) => setRecordForm({ ...recordForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Employee Count</label>
+                  <input type="number" value={recordForm.employee_count}
+                    onChange={(e) => setRecordForm({ ...recordForm, employee_count: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
+                  <input type="text" value={recordForm.period}
+                    onChange={(e) => setRecordForm({ ...recordForm, period: e.target.value })}
+                    placeholder="2026-W10"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+              </>}
+            </div>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const amt = parseFloat(recordForm.amount) || 0;
+                let r;
+                switch (recordType) {
+                  case 'invoice': r = await glRecordInvoice({ customer_id: recordForm.customer_id, amount: amt, invoice_number: recordForm.invoice_number }); break;
+                  case 'payment': r = await glRecordPayment({ customer_id: recordForm.customer_id, amount: amt, invoice_number: recordForm.invoice_number }); break;
+                  case 'purchase': r = await glRecordPurchase({ vendor_id: recordForm.vendor_id, amount: amt, description: recordForm.description }); break;
+                  case 'payroll': r = await glRecordPayroll({ total_amount: amt, employee_count: parseInt(recordForm.employee_count) || 1, period: recordForm.period }); break;
+                }
+                setRecordResult(r.result);
+              } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to record'); }
+              finally { setLoading(false); }
+            }} className="mt-4 bg-green-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-green-700">
+              Record
+            </button>
+          </div>
+          {recordResult && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h3 className="text-sm font-bold text-green-800 mb-2">Transaction Recorded</h3>
+              <pre className="text-xs font-mono overflow-auto">{JSON.stringify(recordResult, null, 2)}</pre>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -422,7 +422,11 @@ const ACTIONS = [
   "hybrid_laser_calc", "laser_cut_calc", "laser_mark_calc",
   "waterjet_taper_calc",
   "microstructure_analyze", "microstructure_recommend",
-  "energy_analyze", "energy_optimize", "energy_compare"
+  "energy_analyze", "energy_optimize", "energy_compare",
+  // ── Unit Conversion ──
+  "unit_convert", "unit_convert_batch", "unit_system_toggle", "unit_list_conversions", "unit_rpm_calc",
+  // ── Machine Profile ──
+  "machine_profile_get", "machine_profile_list", "machine_profile_validate", "machine_profile_spindle_curve", "machine_profile_add",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3352,6 +3356,60 @@ export function registerCalcDispatcher(server: any): void {
           case "energy_compare": {
             const { energyOptimizationEngine: eoe3 } = await import("../../engines/EnergyOptimizationEngine.js");
             result = eoe3.compare(params.scenarios ?? []);
+            break;
+          }
+
+          // ── Unit Conversion ──
+          case "unit_convert": {
+            const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
+            result = unitConversionEngine.convert({ value: params.value, conversion: params.conversion, direction: params.direction ?? "to_metric" });
+            break;
+          }
+          case "unit_convert_batch": {
+            const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
+            result = unitConversionEngine.convertBatch(params.conversions ?? []);
+            break;
+          }
+          case "unit_system_toggle": {
+            const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
+            result = unitConversionEngine.toggleSystem({ params: params.machining_params ?? {}, from_system: params.from_system ?? "imperial" });
+            break;
+          }
+          case "unit_list_conversions": {
+            const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
+            result = unitConversionEngine.listConversions();
+            break;
+          }
+          case "unit_rpm_calc": {
+            const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
+            result = unitConversionEngine.rpmCalc({ cutting_speed: params.cutting_speed, diameter: params.diameter, system: params.system ?? "metric" });
+            break;
+          }
+
+          // ── Machine Profile ──
+          case "machine_profile_get": {
+            const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
+            result = machineProfileEngine.get(params.machine_id);
+            break;
+          }
+          case "machine_profile_list": {
+            const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
+            result = machineProfileEngine.list(params.type);
+            break;
+          }
+          case "machine_profile_validate": {
+            const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
+            result = machineProfileEngine.validate({ machine_id: params.machine_id, rpm: params.rpm, feed_rate_mmmin: params.feed_rate_mmmin, power_kw: params.power_kw, torque_nm: params.torque_nm, tool_diameter_mm: params.tool_diameter_mm });
+            break;
+          }
+          case "machine_profile_spindle_curve": {
+            const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
+            result = machineProfileEngine.spindleCurve(params.machine_id, params.points ?? 20);
+            break;
+          }
+          case "machine_profile_add": {
+            const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
+            result = machineProfileEngine.add(params.profile);
             break;
           }
 

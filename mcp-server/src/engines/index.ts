@@ -2140,6 +2140,8 @@ export { cuttingThermalEngine } from "./CuttingThermalEngine.js";
 export { differentialEvolutionEngine } from "./DifferentialEvolutionEngine.js";
 export { digitalTwinEngine, DigitalTwinEngine } from "./DigitalTwinEngine.js";
 export { energyOptimizationEngine, EnergyOptimizationEngine } from "./EnergyOptimizationEngine.js";
+export { unitConversionEngine, UnitConversionEngine } from "./UnitConversionEngine.js";
+export { machineProfileEngine, MachineProfileEngine } from "./MachineProfileEngine.js";
 export { eventEngine, EventEngine } from "./EventEngine.js";
 export { featureInteractionEngine } from "./FeatureInteractionEngine.js";
 export { feedOptimizationEngine } from "./FeedOptimizationEngine.js";

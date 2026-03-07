@@ -2,12 +2,16 @@
  * Tooling Cost Page — Tool usage tracking, cost per job, wear analysis, reorder alerts.
  */
 import { useState, useEffect } from 'react';
-import { getToolUsage, ApiError } from '../api/client';
+import { getToolUsage, toolReorderAlerts, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
-import type { ToolUsageRecord } from '../api/types';
+import type { ToolUsageRecord, ReorderAlert } from '../api/types';
+
+type Tab = 'usage' | 'reorders';
 
 export function ToolingCostPage() {
+  const [tab, setTab] = useState<Tab>('usage');
   const [records, setRecords] = useState<ToolUsageRecord[]>([]);
+  const [reorders, setReorders] = useState<ReorderAlert[]>([]);
   const [jobFilter, setJobFilter] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +29,20 @@ export function ToolingCostPage() {
     }
   }
 
-  useEffect(() => { loadUsage(); }, []);
+  async function loadReorders() {
+    setLoading(true); setError(null);
+    try {
+      const r = await toolReorderAlerts();
+      setReorders((r.result as any)?.alerts ?? (r.result as any) ?? []);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'Failed to load reorder alerts');
+    } finally { setLoading(false); }
+  }
+
+  useEffect(() => {
+    if (tab === 'usage') loadUsage();
+    if (tab === 'reorders') loadReorders();
+  }, [tab]);
 
   const totalCost = records.reduce((s, r) => s + r.cost, 0);
   const avgWear = records.length > 0 ? records.reduce((s, r) => s + r.wear_percent, 0) / records.length : 0;
@@ -44,6 +61,19 @@ export function ToolingCostPage() {
         <p className="text-sm text-gray-500 mt-1">Track tool usage, wear, and cost per job.</p>
       </div>
 
+      <div className="flex gap-2 mb-6">
+        <button onClick={() => setTab('usage')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'usage' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Tool Usage
+        </button>
+        <button onClick={() => setTab('reorders')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'reorders' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Reorder Alerts
+        </button>
+      </div>
+
+      {tab === 'usage' && (
+      <>
       {/* Filter */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm mb-6">
         <div className="flex gap-4 items-end">
@@ -140,6 +170,45 @@ export function ToolingCostPage() {
               </table>
             </div>
           )}
+        </div>
+      )}
+      </>
+      )}
+
+      {tab === 'reorders' && reorders.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                <th className="px-4 py-3">Tool</th>
+                <th className="px-4 py-3 text-right">Current Qty</th>
+                <th className="px-4 py-3 text-right">Min Stock</th>
+                <th className="px-4 py-3 text-right">Reorder Qty</th>
+                <th className="px-4 py-3 text-right">Est Cost</th>
+                <th className="px-4 py-3">Urgency</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {reorders.map(r => (
+                <tr key={r.tool_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium">{r.tool_name}</td>
+                  <td className="px-4 py-2 text-right font-mono">{r.current_qty}</td>
+                  <td className="px-4 py-2 text-right font-mono">{r.min_stock}</td>
+                  <td className="px-4 py-2 text-right font-mono">{r.reorder_qty}</td>
+                  <td className="px-4 py-2 text-right font-mono">
+                    ${r.estimated_cost?.toFixed(2)}
+                  </td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      r.urgency === 'high' ? 'bg-red-100 text-red-700' :
+                      r.urgency === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                      'bg-green-100 text-green-700'
+                    }`}>{r.urgency}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

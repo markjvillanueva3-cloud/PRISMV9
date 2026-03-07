@@ -2,20 +2,30 @@
  * Inventory Page — EOQ calculator, ABC classification, safety stock.
  */
 import { useState } from 'react';
-import { inventoryEOQ, inventoryABC, ApiError } from '../api/client';
+import { inventoryEOQ, inventoryABC, inventorySafetyStock, inventoryToolOptimize, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { EOQResult, ABCClassification } from '../api/types';
 
-type Tab = 'eoq' | 'abc';
+type Tab = 'eoq' | 'abc' | 'safety' | 'toolopt';
 
 export function InventoryPage() {
   const [tab, setTab] = useState<Tab>('eoq');
   const [eoqResult, setEoqResult] = useState<EOQResult | null>(null);
   const [abcResult, setAbcResult] = useState<ABCClassification | null>(null);
+  const [safetyResult, setSafetyResult] = useState<any>(null);
+  const [toolOptResult, setToolOptResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [eoqForm, setEoqForm] = useState({ annual_demand: '1000', order_cost: '50', holding_cost: '2' });
+  const [safetyForm, setSafetyForm] = useState({
+    avg_demand: '100', demand_std: '20', lead_time_days: '5',
+    lead_time_std: '1', service_level: '0.95',
+  });
+  const [toolOptForm, setToolOptForm] = useState({
+    tool_id: '', current_life_min: '45', cost_per_tool: '25',
+    regrind_cost: '8', max_regrinds: '3',
+  });
 
   async function calcEOQ() {
     setLoading(true);
@@ -73,8 +83,28 @@ export function InventoryPage() {
           EOQ Calculator
         </button>
         <button onClick={() => setTab('abc')}
-          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'abc' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'abc'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
           ABC Classification
+        </button>
+        <button onClick={() => setTab('safety')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'safety'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+          Safety Stock
+        </button>
+        <button onClick={() => setTab('toolopt')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            tab === 'toolopt'
+              ? 'bg-prism-600 text-white'
+              : 'bg-gray-100 text-gray-700'
+          }`}>
+          Tool Optimize
         </button>
       </div>
 
@@ -180,6 +210,148 @@ export function InventoryPage() {
                 </table>
               </div>
             </>
+          )}
+        </div>
+      )}
+      {/* Safety Stock */}
+      {tab === 'safety' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Safety Stock Calculator</h2>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Avg Demand/Day
+                </label>
+                <input type="number" value={safetyForm.avg_demand}
+                  onChange={(e) => setSafetyForm({ ...safetyForm, avg_demand: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Demand Std Dev
+                </label>
+                <input type="number" value={safetyForm.demand_std}
+                  onChange={(e) => setSafetyForm({ ...safetyForm, demand_std: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Lead Time (days)
+                </label>
+                <input type="number" value={safetyForm.lead_time_days}
+                  onChange={(e) => setSafetyForm({ ...safetyForm, lead_time_days: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Lead Time Std Dev
+                </label>
+                <input type="number" value={safetyForm.lead_time_std}
+                  onChange={(e) => setSafetyForm({ ...safetyForm, lead_time_std: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div className="flex items-end">
+                <button onClick={async () => {
+                  setLoading(true); setError(null);
+                  try {
+                    const r = await inventorySafetyStock({
+                      avg_demand: parseFloat(safetyForm.avg_demand) || 0,
+                      demand_std_dev: parseFloat(safetyForm.demand_std) || 0,
+                      lead_time_days: parseFloat(safetyForm.lead_time_days) || 0,
+                      lead_time_std_dev: parseFloat(safetyForm.lead_time_std) || 0,
+                      service_level: parseFloat(safetyForm.service_level) || 0.95,
+                    });
+                    setSafetyResult(r.result);
+                  } catch (e) {
+                    setError(
+                      e instanceof ApiError ? e.message : 'Calculation failed'
+                    );
+                  } finally { setLoading(false); }
+                }}
+                  className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium w-full">
+                  Calculate
+                </button>
+              </div>
+            </div>
+          </div>
+          {safetyResult && (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Safety Stock', value: safetyResult.safety_stock?.toFixed(0) ?? '-' },
+                { label: 'Reorder Point', value: safetyResult.reorder_point?.toFixed(0) ?? '-' },
+                { label: 'Service Level', value: `${((safetyResult.service_level ?? 0) * 100).toFixed(0)}%` },
+                { label: 'Avg Inventory', value: safetyResult.avg_inventory?.toFixed(0) ?? '-' },
+              ].map((c) => (
+                <div key={c.label} className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm text-center">
+                  <span className="text-xs text-gray-500 block">{c.label}</span>
+                  <span className="text-xl font-bold text-gray-900">{c.value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Tool Optimize */}
+      {tab === 'toolopt' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Tool Cost Optimization</h2>
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tool ID</label>
+                <input type="text" value={toolOptForm.tool_id}
+                  onChange={(e) => setToolOptForm({ ...toolOptForm, tool_id: e.target.value })}
+                  placeholder="TOOL-001"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Life (min)</label>
+                <input type="number" value={toolOptForm.current_life_min}
+                  onChange={(e) => setToolOptForm({ ...toolOptForm, current_life_min: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cost/Tool ($)</label>
+                <input type="number" value={toolOptForm.cost_per_tool}
+                  onChange={(e) => setToolOptForm({ ...toolOptForm, cost_per_tool: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Regrind Cost ($)</label>
+                <input type="number" value={toolOptForm.regrind_cost}
+                  onChange={(e) => setToolOptForm({ ...toolOptForm, regrind_cost: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div className="flex items-end">
+                <button onClick={async () => {
+                  setLoading(true); setError(null);
+                  try {
+                    const r = await inventoryToolOptimize({
+                      tool_id: toolOptForm.tool_id,
+                      current_life_min: parseFloat(toolOptForm.current_life_min) || 0,
+                      cost_per_tool: parseFloat(toolOptForm.cost_per_tool) || 0,
+                      regrind_cost: parseFloat(toolOptForm.regrind_cost) || 0,
+                      max_regrinds: parseInt(toolOptForm.max_regrinds) || 3,
+                    });
+                    setToolOptResult(r.result);
+                  } catch (e) {
+                    setError(
+                      e instanceof ApiError ? e.message : 'Optimization failed'
+                    );
+                  } finally { setLoading(false); }
+                }}
+                  className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium w-full">
+                  Optimize
+                </button>
+              </div>
+            </div>
+          </div>
+          {toolOptResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(toolOptResult, null, 2)}
+            </pre>
           )}
         </div>
       )}

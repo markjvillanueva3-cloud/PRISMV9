@@ -2,17 +2,24 @@
  * Capacity Planning Page — Machine loads, utilization, bottleneck detection.
  */
 import { useState, useEffect } from 'react';
-import { capacityAllLoads, capacityBottlenecks, capacitySummary, ApiError } from '../api/client';
+import { capacityAllLoads, capacityBottlenecks, capacitySummary, capacityScheduleJob, capacityWhatIf, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { MachineLoad, Bottleneck } from '../api/types';
 
+type Tab = 'overview' | 'schedule' | 'whatif';
+
 export function CapacityPlanningPage() {
+  const [tab, setTab] = useState<Tab>('overview');
   const [loads, setLoads] = useState<MachineLoad[]>([]);
   const [bottlenecks, setBottlenecks] = useState<Bottleneck[]>([]);
   const [summary, setSummary] = useState<Record<string, any> | null>(null);
+  const [scheduleResult, setScheduleResult] = useState<any>(null);
+  const [whatIfResult, setWhatIfResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [weeks, setWeeks] = useState(2);
+  const [scheduleForm, setScheduleForm] = useState({ job_id: '', machine_id: '', hours: '8' });
+  const [whatIfForm, setWhatIfForm] = useState({ machine_id: '', added_hours: '40', removed_machine: '' });
 
   async function loadAll() {
     setLoading(true);
@@ -41,6 +48,33 @@ export function CapacityPlanningPage() {
     return 'bg-green-500';
   }
 
+  async function handleScheduleJob() {
+    if (!scheduleForm.job_id || !scheduleForm.machine_id) return;
+    setLoading(true); setError(null);
+    try {
+      const r = await capacityScheduleJob({
+        job_id: scheduleForm.job_id,
+        machine_id: scheduleForm.machine_id,
+        estimated_hours: parseFloat(scheduleForm.hours) || 8,
+      });
+      setScheduleResult(r.result);
+    } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to schedule job'); }
+    finally { setLoading(false); }
+  }
+
+  async function handleWhatIf() {
+    setLoading(true); setError(null);
+    try {
+      const r = await capacityWhatIf({
+        machine_id: whatIfForm.machine_id || undefined,
+        added_hours: parseFloat(whatIfForm.added_hours) || 0,
+        removed_machine: whatIfForm.removed_machine || undefined,
+      });
+      setWhatIfResult(r.result);
+    } catch (e) { setError(e instanceof ApiError ? e.message : 'What-if analysis failed'); }
+    finally { setLoading(false); }
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -59,11 +93,24 @@ export function CapacityPlanningPage() {
         </div>
       </div>
 
+      <div className="flex gap-2 mb-6">
+        {([
+          { key: 'overview', label: 'Overview' },
+          { key: 'schedule', label: 'Schedule Job' },
+          { key: 'whatif', label: 'What-If Analysis' },
+        ] as { key: Tab; label: string }[]).map((t) => (
+          <button key={t.key} onClick={() => setTab(t.key)}
+            className={`px-4 py-2 rounded text-sm font-medium ${tab === t.key ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {loading && <LoadingState label="Loading capacity data..." />}
       {error && <ErrorState message={error} onRetry={loadAll} />}
 
       {/* Summary Cards */}
-      {summary && !loading && (
+      {tab === 'overview' && summary && !loading && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {[
             { label: 'Total Machines', value: summary.total_machines ?? 0 },
@@ -80,7 +127,7 @@ export function CapacityPlanningPage() {
       )}
 
       {/* Machine Load Bars */}
-      {loads.length > 0 && !loading && (
+      {tab === 'overview' && loads.length > 0 && !loading && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Machine Utilization</h2>
           <div className="space-y-3">
@@ -101,7 +148,7 @@ export function CapacityPlanningPage() {
       )}
 
       {/* Bottlenecks */}
-      {bottlenecks.length > 0 && !loading && (
+      {tab === 'overview' && bottlenecks.length > 0 && !loading && (
         <div className="bg-red-50 rounded-lg border border-red-200 p-6">
           <h2 className="text-lg font-semibold text-red-800 mb-3">Bottlenecks Detected</h2>
           <div className="space-y-3">
@@ -117,6 +164,89 @@ export function CapacityPlanningPage() {
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {/* Schedule Job */}
+      {tab === 'schedule' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Schedule Job to Machine</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job ID</label>
+                <input type="text" value={scheduleForm.job_id}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, job_id: e.target.value })}
+                  placeholder="JOB-2026-001"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Machine ID</label>
+                <input type="text" value={scheduleForm.machine_id}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, machine_id: e.target.value })}
+                  placeholder="CNC-1"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Est. Hours</label>
+                <input type="number" value={scheduleForm.hours}
+                  onChange={(e) => setScheduleForm({ ...scheduleForm, hours: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div className="flex items-end">
+                <button onClick={handleScheduleJob}
+                  className="bg-green-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-green-700 w-full">
+                  Schedule
+                </button>
+              </div>
+            </div>
+          </div>
+          {scheduleResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(scheduleResult, null, 2)}
+            </pre>
+          )}
+        </div>
+      )}
+
+      {/* What-If Analysis */}
+      {tab === 'whatif' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">What-If Scenario</h2>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Machine (add hours)</label>
+                <input type="text" value={whatIfForm.machine_id}
+                  onChange={(e) => setWhatIfForm({ ...whatIfForm, machine_id: e.target.value })}
+                  placeholder="CNC-1"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Added Hours</label>
+                <input type="number" value={whatIfForm.added_hours}
+                  onChange={(e) => setWhatIfForm({ ...whatIfForm, added_hours: e.target.value })}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Remove Machine</label>
+                <input type="text" value={whatIfForm.removed_machine}
+                  onChange={(e) => setWhatIfForm({ ...whatIfForm, removed_machine: e.target.value })}
+                  placeholder="optional"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div className="flex items-end">
+                <button onClick={handleWhatIf}
+                  className="bg-blue-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-blue-700 w-full">
+                  Analyze
+                </button>
+              </div>
+            </div>
+          </div>
+          {whatIfResult && (
+            <pre className="bg-white rounded-lg border p-4 text-xs font-mono overflow-auto max-h-96">
+              {JSON.stringify(whatIfResult, null, 2)}
+            </pre>
+          )}
         </div>
       )}
     </div>
