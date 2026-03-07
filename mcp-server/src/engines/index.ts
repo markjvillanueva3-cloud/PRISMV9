@@ -2293,6 +2293,9 @@ export { webSocketEngine, WebSocketEngine } from "./WebSocketEngine.js";
 export { llmEngine, LLMEngine } from "./LLMEngine.js";
 export { alarmEscalationEngine, AlarmEscalationEngine } from "./AlarmEscalationEngine.js";
 export { dataValidationEngine, DataValidationEngine } from "./DataValidationEngine.js";
+export { reamingEngine, ReamingEngine } from "./ReamingEngine.js";
+export { broachingEngine, BroachingEngine } from "./BroachingEngine.js";
+export { honingEngine, HoningEngine } from "./HoningEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2328,3 +2331,6 @@ export { responseCacheEngine, ResponseCacheEngine } from "./ResponseCacheEngine.
 
 // Quick Calc — instant manufacturing calculations (no dispatcher overhead)
 export { quickCalcEngine, QuickCalcEngine } from "./QuickCalcEngine.js";
+
+// Dispatcher Map — complete dispatcher action catalog with search
+export { dispatcherMapEngine, DispatcherMapEngine } from "./DispatcherMapEngine.js";
