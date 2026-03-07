@@ -448,6 +448,12 @@ const ACTIONS = [
   // ── Parametric Surface ──
   "parametric_surface_evaluate", "parametric_surface_tessellate",
   "parametric_surface_curvature", "parametric_surface_area",
+  // ── Convex Optimization ──
+  "convex_qp_solve", "convex_minimize",
+  // ── Numerical Integration ──
+  "numerical_integrate", "numerical_integrate_2d", "numerical_integrate_sampled",
+  // ── Differential Equations ──
+  "ode_rk45_solve", "ode_second_order", "ode_stability",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3612,6 +3618,80 @@ export function registerCalcDispatcher(server: any): void {
           case "parametric_surface_area": {
             const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
             result = ps.area(params.surface, params.u_steps, params.v_steps);
+            break;
+          }
+
+          // ── Convex Optimization ──
+          case "convex_qp_solve": {
+            const { convexOptimizationEngine } = await import("../../engines/ConvexOptimizationEngine.js");
+            result = convexOptimizationEngine.solveQP({
+              Q: params.Q, c: params.c,
+              A: params.A, b: params.b,
+              Aeq: params.Aeq, beq: params.beq,
+              bounds: params.bounds, x0: params.x0,
+              maxIterations: params.max_iterations, tolerance: params.tolerance,
+            });
+            break;
+          }
+          case "convex_minimize": {
+            const { convexOptimizationEngine } = await import("../../engines/ConvexOptimizationEngine.js");
+            const objFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            result = convexOptimizationEngine.minimizeConvex(objFn, {
+              dimensions: params.dimensions ?? 2,
+              x0: params.x0, bounds: params.bounds,
+              maxIterations: params.max_iterations, tolerance: params.tolerance,
+              stepSize: params.step_size,
+            });
+            break;
+          }
+          // ── Numerical Integration ──
+          case "numerical_integrate": {
+            const { numericalIntegrationEngine } = await import("../../engines/NumericalIntegrationEngine.js");
+            const intFn = new Function("x", params.function_body ?? "return x*x") as (x: number) => number;
+            const method = params.method ?? "simpson";
+            if (method === "adaptive") {
+              result = numericalIntegrationEngine.adaptiveSimpson(intFn, params.a ?? 0, params.b ?? 1, params.tolerance);
+            } else if (method === "romberg") {
+              result = numericalIntegrationEngine.romberg(intFn, params.a ?? 0, params.b ?? 1, params.max_order);
+            } else if (method === "gauss") {
+              result = numericalIntegrationEngine.compositeGaussLegendre(intFn, params.a ?? 0, params.b ?? 1, params.panels ?? 10, params.points ?? 5);
+            } else {
+              result = numericalIntegrationEngine.simpson(intFn, params.a ?? 0, params.b ?? 1, params.n ?? 100);
+            }
+            break;
+          }
+          case "numerical_integrate_2d": {
+            const { numericalIntegrationEngine } = await import("../../engines/NumericalIntegrationEngine.js");
+            const fn2d = new Function("x", "y", params.function_body ?? "return x*y") as (x: number, y: number) => number;
+            result = numericalIntegrationEngine.integrate2D(fn2d, params.xa ?? 0, params.xb ?? 1, params.ya ?? 0, params.yb ?? 1, params.nx, params.ny);
+            break;
+          }
+          case "numerical_integrate_sampled": {
+            const { numericalIntegrationEngine } = await import("../../engines/NumericalIntegrationEngine.js");
+            result = numericalIntegrationEngine.integrateSampled(params.x, params.y);
+            break;
+          }
+
+          // ── Differential Equations ──
+          case "ode_rk45_solve": {
+            const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
+            const odeFn = new Function("t", "y", params.function_body ?? "return [y[0]]") as (t: number, y: number[]) => number[];
+            result = differentialEquationEngine.rk45({
+              f: odeFn, y0: params.y0, tSpan: params.t_span,
+              adaptive: params.adaptive,
+            });
+            break;
+          }
+          case "ode_second_order": {
+            const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
+            const f2 = new Function("t", "y", "v", params.function_body ?? "return -y") as (t: number, y: number, v: number) => number;
+            result = differentialEquationEngine.solveSecondOrder({ f: f2, y0: params.y0 ?? 1, v0: params.v0 ?? 0, tSpan: params.t_span, dt: params.dt, numPoints: params.num_points });
+            break;
+          }
+          case "ode_stability": {
+            const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
+            const stabFn = new Function("t", "y", params.function_body ?? "return [-y[0]]") as (t: number, y: number[]) => number[];
+            result = differentialEquationEngine.stabilityAnalysis(stabFn, params.y0 ?? [1]);
             break;
           }
 

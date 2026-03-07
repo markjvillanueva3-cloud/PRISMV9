@@ -2277,3 +2277,6 @@ export {
   surfaceFinishDatabaseEngine, SurfaceFinishDatabaseEngine,
   type RaEntry, type ApplicationGuide, type CalloutResult,
 } from "./SurfaceFinishDatabaseEngine.js";
+export { convexOptimizationEngine } from "./ConvexOptimizationEngine.js";
+export { numericalIntegrationEngine } from "./NumericalIntegrationEngine.js";
+export { differentialEquationEngine } from "./DifferentialEquationEngine.js";
