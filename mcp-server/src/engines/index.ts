@@ -2783,3 +2783,8 @@ export { FanSelectionEngine, fanSelectionEngine } from './FanSelectionEngine.js'
 export { WeldDistortionEngine, weldDistortionEngine } from './WeldDistortionEngine.js';
 export { BroachDesignEngine, broachDesignEngine } from './BroachDesignEngine.js';
 export { PressBrakeEngine, pressBrakeEngine } from './PressBrakeEngine.js';
+
+// Batch 42 — RollingContact, ElectroPlating, CastingDefect
+export { RollingContactEngine, rollingContactEngine } from './RollingContactEngine.js';
+export { ElectroPlatingEngine, electroPlatingEngine } from './ElectroPlatingEngine.js';
+export { CastingDefectEngine, castingDefectEngine } from './CastingDefectEngine.js';
