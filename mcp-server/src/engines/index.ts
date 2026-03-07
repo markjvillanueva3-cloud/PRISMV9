@@ -2257,3 +2257,17 @@ export { webhookEngine, WebhookEngine } from "./WebhookEngine.js";
 export { weldPrepEngine, WeldPrepEngine } from "./WeldPrepEngine.js";
 export { whiteLayerDetectionEngine, WhiteLayerDetectionEngine } from "./WhiteLayerDetectionEngine.js";
 export { xaiEngine } from "./XAIEngine.js";
+
+// Data Asset Merge — Monolith Database Engines
+export {
+  toolHolderDatabaseEngine, ToolHolderDatabaseEngine,
+  type ToolHolderSpec,
+} from "./ToolHolderDatabaseEngine.js";
+export {
+  machineConfigDatabaseEngine, MachineConfigDatabaseEngine,
+  type MachineRoughingConfig, type SmoothingConfig,
+} from "./MachineConfigDatabaseEngine.js";
+export {
+  surfaceFinishDatabaseEngine, SurfaceFinishDatabaseEngine,
+  type RaEntry, type ApplicationGuide, type CalloutResult,
+} from "./SurfaceFinishDatabaseEngine.js";

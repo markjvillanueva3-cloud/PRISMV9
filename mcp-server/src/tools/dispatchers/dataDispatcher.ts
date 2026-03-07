@@ -13,6 +13,9 @@ import { validateMaterialSanity } from "../../validation/materialSanity.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_DATA_SCHEMAS } from "../../schemas/dataActionSchemas.js";
+import { toolHolderDatabaseEngine } from "../../engines/ToolHolderDatabaseEngine.js";
+import { machineConfigDatabaseEngine } from "../../engines/MachineConfigDatabaseEngine.js";
+import { surfaceFinishDatabaseEngine } from "../../engines/SurfaceFinishDatabaseEngine.js";
 
 const DataDispatcherSchema = z.object({
   action: z.enum([
@@ -21,12 +24,17 @@ const DataDispatcherSchema = z.object({
     "tool_get", "tool_search", "tool_recommend", "tool_facets",
     "alarm_decode", "alarm_search", "alarm_fix",
     "formula_get", "formula_calculate",
-    "cross_query", "machine_toolholder_match", "alarm_diagnose", "speed_feed_calc", "tool_compare",
-    "material_substitute",
+    "cross_query", "machine_toolholder_match", "alarm_diagnose",
+    "speed_feed_calc", "tool_compare", "material_substitute",
     "coolant_search", "coolant_recommend", "coolant_get",
     "coating_search", "coating_recommend", "coating_get",
     "cross_lookup", "dsl_lookup", "database_list", "database_search",
-    "workholding_get", "workholding_search", "insert_get", "insert_search"
+    "workholding_get", "workholding_search", "insert_get", "insert_search",
+    "holder_get", "holder_search", "holder_recommend", "holder_types",
+    "machine_config_get", "machine_config_search",
+    "machine_config_smoothing", "machine_config_list",
+    "surface_finish_grade", "surface_finish_parse",
+    "surface_finish_convert", "surface_finish_recommend",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -802,6 +810,112 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // ── Tool Holder Database ──
+          case "holder_get": {
+            const hId = params.id || params.identifier || params.holder_id;
+            if (!hId) return jsonResponse({ error: "holder_get requires 'id'" });
+            const holder = toolHolderDatabaseEngine.get(hId);
+            result = holder ?? { error: `Holder not found: ${hId}` };
+            break;
+          }
+          case "holder_search": {
+            const hq = params.query || params.q || params.type;
+            if (!hq) return jsonResponse({ error: "holder_search requires 'query'" });
+            result = toolHolderDatabaseEngine.search(hq, params.limit ?? 20);
+            break;
+          }
+          case "holder_recommend": {
+            result = toolHolderDatabaseEngine.recommend({
+              machine_type: params.machine_type,
+              rpm: params.rpm,
+              application: params.application,
+              torque_nm: params.torque_nm,
+            });
+            break;
+          }
+          case "holder_types": {
+            const htStats = toolHolderDatabaseEngine.stats();
+            result = {
+              type_names: toolHolderDatabaseEngine.getTypes(),
+              standard_names: toolHolderDatabaseEngine.getStandards(),
+              total: htStats.total,
+              type_count: htStats.types,
+              standard_count: htStats.standards,
+              max_rpm: htStats.max_rpm,
+            };
+            break;
+          }
+
+          // ── Machine Config Database ──
+          case "machine_config_get": {
+            const mcId = params.id || params.machine_id || params.machine;
+            if (!mcId) return jsonResponse({ error: "machine_config_get requires 'id'" });
+            const mc = machineConfigDatabaseEngine.get(mcId);
+            result = mc ?? { error: `Machine config not found: ${mcId}` };
+            break;
+          }
+          case "machine_config_search": {
+            const mcq = params.query || params.q || params.controller;
+            if (!mcq) return jsonResponse({ error: "machine_config_search requires 'query'" });
+            result = machineConfigDatabaseEngine.search(mcq);
+            break;
+          }
+          case "machine_config_smoothing": {
+            const smId = params.machine_id || params.machine || params.id;
+            const smOp = params.operation || 'roughing';
+            if (!smId) return jsonResponse({ error: "machine_config_smoothing requires 'machine_id'" });
+            const code = machineConfigDatabaseEngine.getSmoothingCode(smId, smOp);
+            result = code != null
+              ? { machine: smId, operation: smOp, smoothing_code: code }
+              : { error: `Machine not found: ${smId}` };
+            break;
+          }
+          case "machine_config_list": {
+            result = {
+              configs: machineConfigDatabaseEngine.list(),
+              ...machineConfigDatabaseEngine.stats(),
+            };
+            break;
+          }
+
+          // ── Surface Finish Database ──
+          case "surface_finish_grade": {
+            const sfGrade = params.grade || params.n_grade;
+            if (sfGrade) {
+              result = surfaceFinishDatabaseEngine.getGrade(sfGrade)
+                ?? { error: `Grade not found: ${sfGrade}` };
+            } else {
+              result = surfaceFinishDatabaseEngine.getAllGrades();
+            }
+            break;
+          }
+          case "surface_finish_parse": {
+            const sfCallout = params.callout || params.text || params.input;
+            if (!sfCallout) return jsonResponse({ error: "surface_finish_parse requires 'callout'" });
+            result = surfaceFinishDatabaseEngine.parseCallout(sfCallout);
+            break;
+          }
+          case "surface_finish_convert": {
+            const sfVal = params.value;
+            const sfFrom = params.from || params.from_unit;
+            const sfTo = params.to || params.to_unit;
+            if (sfVal == null || !sfFrom || !sfTo) {
+              return jsonResponse({ error: "surface_finish_convert requires 'value', 'from', 'to'" });
+            }
+            result = {
+              input: { value: sfVal, unit: sfFrom },
+              output: { value: surfaceFinishDatabaseEngine.convert(sfVal, sfFrom, sfTo), unit: sfTo },
+            };
+            break;
+          }
+          case "surface_finish_recommend": {
+            const sfTarget = params.target_ra_um ?? params.target_ra ?? params.ra;
+            if (sfTarget == null) return jsonResponse({ error: "surface_finish_recommend requires 'target_ra_um'" });
+            const rec = surfaceFinishDatabaseEngine.getRecommendedProcess(sfTarget);
+            result = rec ?? { error: "No process found for target Ra" };
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -813,5 +927,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (35 actions)");
+  log.info("[dataDispatcher] Registered prism_data (47 actions)");
 }
