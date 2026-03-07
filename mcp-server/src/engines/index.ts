@@ -2694,11 +2694,14 @@ export { toolCallPipelineEngine, ToolCallPipelineEngine } from "./ToolCallPipeli
 // Compaction Strategy â€” intelligent keep/compress/drop decisions for context
 export { compactionStrategyEngine, CompactionStrategyEngine } from "./CompactionStrategyEngine.js";
 
-// Cam Profile Engine — disc cam mechanism, pressure angle, contact stress
+// Cam Profile Engine ï¿½ disc cam mechanism, pressure angle, contact stress
 export { camProfileEngine, CamProfileEngine } from "./CamProfileEngine.js";
 
-// Surface Treatment Engine — anodize, plate, nitride, shot peen
+// Surface Treatment Engine ï¿½ anodize, plate, nitride, shot peen
 export { surfaceTreatmentEngine, SurfaceTreatmentEngine } from "./SurfaceTreatmentEngine.js";
 
-// Electric Motor Engine — motor sizing, efficiency, VFD, energy cost
+// Electric Motor Engine ï¿½ motor sizing, efficiency, VFD, energy cost
 export { electricMotorEngine, ElectricMotorEngine } from "./ElectricMotorEngine.js";
+
+// Tool Output Fingerprinter â€” detects recurring duplicate outputs via hashing
+export { toolOutputFingerprinterEngine, ToolOutputFingerprinterEngine } from "./ToolOutputFingerprinterEngine.js";
