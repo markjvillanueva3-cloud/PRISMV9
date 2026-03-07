@@ -328,6 +328,68 @@ export class ToolCatalogEngine {
     return this.assembly(input).collision_envelope;
   }
 
+  /** Get collision data for all tools (batch) — physical dimensions needed for gouge checking */
+  collisionDataBatch(input?: {
+    manufacturer?: string;
+    type?: string;
+    min_diameter_mm?: number;
+    max_diameter_mm?: number;
+  }): Array<{
+    id: string;
+    manufacturer: string;
+    type: string;
+    cutting_diameter_mm: number;
+    shank_diameter_mm: number;
+    flute_length_mm: number;
+    overall_length_mm: number;
+    neck_diameter_mm?: number;
+    neck_length_mm?: number;
+    corner_radius_mm?: number;
+    flute_count: number;
+    max_radial_depth_mm: number;
+    collision_zones: Array<{ zone: string; z_start_mm: number; z_end_mm: number; diameter_mm: number }>;
+  }> {
+    let tools = [...this.tools.values()];
+    if (input?.manufacturer) tools = tools.filter(t => t.manufacturer === input.manufacturer);
+    if (input?.type) tools = tools.filter(t => t.type === input.type);
+    if (input?.min_diameter_mm) tools = tools.filter(t => t.physical.cutting_diameter_mm >= input.min_diameter_mm!);
+    if (input?.max_diameter_mm) tools = tools.filter(t => t.physical.cutting_diameter_mm <= input.max_diameter_mm!);
+
+    return tools.map(t => {
+      const p = t.physical;
+      const zones: Array<{ zone: string; z_start_mm: number; z_end_mm: number; diameter_mm: number }> = [];
+
+      // Zone 1: Cutting (tip to end of flutes)
+      zones.push({ zone: "cutting", z_start_mm: 0, z_end_mm: p.flute_length_mm, diameter_mm: p.cutting_diameter_mm });
+
+      // Zone 2: Neck (if exists)
+      if (p.neck_length_mm && p.neck_diameter_mm) {
+        const neckStart = p.flute_length_mm;
+        zones.push({ zone: "neck", z_start_mm: neckStart, z_end_mm: neckStart + p.neck_length_mm, diameter_mm: p.neck_diameter_mm });
+      }
+
+      // Zone 3: Shank (from end of neck/flutes to OAL)
+      const shankStart = p.neck_length_mm ? p.flute_length_mm + p.neck_length_mm : p.flute_length_mm;
+      zones.push({ zone: "shank", z_start_mm: shankStart, z_end_mm: p.overall_length_mm, diameter_mm: p.shank_diameter_mm });
+
+      return {
+        id: t.id,
+        manufacturer: t.manufacturer,
+        type: t.type,
+        cutting_diameter_mm: p.cutting_diameter_mm,
+        shank_diameter_mm: p.shank_diameter_mm,
+        flute_length_mm: p.flute_length_mm,
+        overall_length_mm: p.overall_length_mm,
+        ...(p.neck_diameter_mm != null ? { neck_diameter_mm: p.neck_diameter_mm } : {}),
+        ...(p.neck_length_mm != null ? { neck_length_mm: p.neck_length_mm } : {}),
+        ...(p.corner_radius_mm != null ? { corner_radius_mm: p.corner_radius_mm } : {}),
+        flute_count: t.flute_count ?? (t.type === "drill" ? 2 : 4),
+        max_radial_depth_mm: p.cutting_diameter_mm / 2,
+        collision_zones: zones,
+      };
+    });
+  }
+
   /** Recommend tools for an operation */
   recommend(input: {
     operation: string;        // e.g., "pocket", "drill", "face", "slot", "profile"
