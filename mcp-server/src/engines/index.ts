@@ -2325,3 +2325,6 @@ export { batchQueryEngine, BatchQueryEngine } from "./BatchQueryEngine.js";
 
 // Response Cache — TTL-based result caching with LRU eviction
 export { responseCacheEngine, ResponseCacheEngine } from "./ResponseCacheEngine.js";
+
+// Quick Calc — instant manufacturing calculations (no dispatcher overhead)
+export { quickCalcEngine, QuickCalcEngine } from "./QuickCalcEngine.js";
