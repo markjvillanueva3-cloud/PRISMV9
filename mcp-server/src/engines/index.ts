@@ -2301,6 +2301,9 @@ export { helicalInterpolationEngine, HelicalInterpolationEngine } from "./Helica
 export { centerDrillEngine, CenterDrillEngine } from "./CenterDrillEngine.js";
 export { deburringEngine, DeburringEngine } from "./DeburringEngine.js";
 export { chamferMillingEngine, ChamferMillingEngine } from "./ChamferMillingEngine.js";
+export { counterboreSinkEngine, CounterboreSinkEngine } from "./CounterboreSinkEngine.js";
+export { keyseatCutterEngine, KeyseatCutterEngine } from "./KeyseatCutterEngine.js";
+export { circularInterpolationEngine, CircularInterpolationEngine } from "./CircularInterpolationEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
