@@ -2304,6 +2304,9 @@ export { chamferMillingEngine, ChamferMillingEngine } from "./ChamferMillingEngi
 export { counterboreSinkEngine, CounterboreSinkEngine } from "./CounterboreSinkEngine.js";
 export { keyseatCutterEngine, KeyseatCutterEngine } from "./KeyseatCutterEngine.js";
 export { circularInterpolationEngine, CircularInterpolationEngine } from "./CircularInterpolationEngine.js";
+export { trochoidalMillingEngine, TrochoidalMillingEngine } from "./TrochoidalMillingEngine.js";
+export { plungeMillingEngine, PlungeMillingEngine } from "./PlungeMillingEngine.js";
+export { threadTurningEngine, ThreadTurningEngine } from "./ThreadTurningEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2372,3 +2375,6 @@ export { diffTokenEstimatorEngine, DiffTokenEstimatorEngine } from "./DiffTokenE
 
 // Engine Registry — lightweight engine capability registry
 export { engineRegistryEngine, EngineRegistryEngine } from "./EngineRegistryEngine.js";
+
+// Smart Defaults — context-aware default parameter selection
+export { smartDefaultsEngine, SmartDefaultsEngine } from "./SmartDefaultsEngine.js";
