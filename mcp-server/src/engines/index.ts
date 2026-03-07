@@ -2447,3 +2447,12 @@ export { peckDrillingEngine, PeckDrillingEngine } from "./PeckDrillingEngine.js"
 
 // Chamfer — chamfer machining parameter calculator
 export { chamferEngine, ChamferEngine } from "./ChamferEngine.js";
+
+// Spot Drilling — spot/center drill parameter calculator
+export { spotDrillingEngine, SpotDrillingEngine } from "./SpotDrillingEngine.js";
+
+// Keyway — keyway/keyseat machining calculator (DIN 6885)
+export { keywayEngine, KeywayEngine } from "./KeywayEngine.js";
+
+// Countersink — countersink depth and parameter calculator
+export { countersinkEngine, CountersinkEngine } from "./CountersinkEngine.js";
