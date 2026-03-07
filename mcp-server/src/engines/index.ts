@@ -2788,3 +2788,8 @@ export { PressBrakeEngine, pressBrakeEngine } from './PressBrakeEngine.js';
 export { RollingContactEngine, rollingContactEngine } from './RollingContactEngine.js';
 export { ElectroPlatingEngine, electroPlatingEngine } from './ElectroPlatingEngine.js';
 export { CastingDefectEngine, castingDefectEngine } from './CastingDefectEngine.js';
+
+// Batch 43 — TorsionBar, ColumnBuckling, FlatPattern
+export { TorsionBarEngine, torsionBarEngine } from './TorsionBarEngine.js';
+export { ColumnBucklingEngine, columnBucklingEngine } from './ColumnBucklingEngine.js';
+export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
