@@ -2280,3 +2280,6 @@ export {
 export { convexOptimizationEngine } from "./ConvexOptimizationEngine.js";
 export { numericalIntegrationEngine } from "./NumericalIntegrationEngine.js";
 export { differentialEquationEngine } from "./DifferentialEquationEngine.js";
+export { finiteElementEngine } from "./FiniteElementEngine.js";
+export { waveletEngine } from "./WaveletEngine.js";
+export { markovChainEngine } from "./MarkovChainEngine.js";

@@ -454,6 +454,12 @@ const ACTIONS = [
   "numerical_integrate", "numerical_integrate_2d", "numerical_integrate_sampled",
   // ── Differential Equations ──
   "ode_rk45_solve", "ode_second_order", "ode_stability",
+  // ── Finite Element ──
+  "fem_bar_solve", "fem_truss_solve", "fem_thermal_solve",
+  // ── Wavelet ──
+  "wavelet_dwt", "wavelet_denoise", "wavelet_energy",
+  // ── Markov Chain ──
+  "markov_steady_state", "markov_absorbing", "markov_reliability",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3618,6 +3624,63 @@ export function registerCalcDispatcher(server: any): void {
           case "parametric_surface_area": {
             const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
             result = ps.area(params.surface, params.u_steps, params.v_steps);
+            break;
+          }
+
+          // ── Finite Element ──
+          case "fem_bar_solve": {
+            const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
+            result = finiteElementEngine.solveBar(params);
+            break;
+          }
+          case "fem_truss_solve": {
+            const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
+            result = finiteElementEngine.solveTruss(params);
+            break;
+          }
+          case "fem_thermal_solve": {
+            const { finiteElementEngine } = await import("../../engines/FiniteElementEngine.js");
+            result = finiteElementEngine.solveThermal(params);
+            break;
+          }
+
+          // ── Wavelet ──
+          case "wavelet_dwt": {
+            const { waveletEngine } = await import("../../engines/WaveletEngine.js");
+            const wType = params.wavelet ?? "haar";
+            result = wType === "db4"
+              ? waveletEngine.db4DWT(params.signal, params.levels)
+              : waveletEngine.haarDWT(params.signal, params.levels);
+            break;
+          }
+          case "wavelet_denoise": {
+            const { waveletEngine } = await import("../../engines/WaveletEngine.js");
+            result = waveletEngine.denoise(params.signal, params.wavelet, params.threshold);
+            break;
+          }
+          case "wavelet_energy": {
+            const { waveletEngine } = await import("../../engines/WaveletEngine.js");
+            result = waveletEngine.energyAnalysis(params.signal, params.wavelet);
+            break;
+          }
+
+          // ── Markov Chain ──
+          case "markov_steady_state": {
+            const { markovChainEngine } = await import("../../engines/MarkovChainEngine.js");
+            result = markovChainEngine.steadyState(params.transition_matrix);
+            break;
+          }
+          case "markov_absorbing": {
+            const { markovChainEngine } = await import("../../engines/MarkovChainEngine.js");
+            result = markovChainEngine.absorbingAnalysis(params.transition_matrix);
+            break;
+          }
+          case "markov_reliability": {
+            const { markovChainEngine } = await import("../../engines/MarkovChainEngine.js");
+            result = markovChainEngine.reliabilityModel(
+              params.fail_rate, params.degrade_rate,
+              params.degraded_fail_rate, params.repair_rate
+            );
             break;
           }
 
