@@ -24,6 +24,7 @@ import { SANDVIK_TOOLS } from "../data/sandvik-tool-catalog.js";
 import { HAIMER_HOLDERS } from "../data/haimer-holder-catalog.js";
 import { GUHRING_HOLDERS } from "../data/guhring-holder-catalog.js";
 import { ADDITIONAL_TOOLS } from "../data/additional-tool-catalog.js";
+import { SECO_TOOLS } from "../data/seco-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -854,6 +855,7 @@ export class ToolCatalogEngine {
     this._loadSandvikTools();
     this._loadHaimerHolders();
     this._loadAdditionalTools();
+    this._loadSecoTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -1316,6 +1318,54 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: at.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
         source: `${at.manufacturer}_catalog`,
+      });
+    }
+  }
+
+  private _loadSecoTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const st of SECO_TOOLS) {
+      const id = `SEC-${st.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = st.type as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType);
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfForType) {
+        const scale = st.cutting_diameter_mm > 0 ? Math.sqrt(st.cutting_diameter_mm / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = st.shank_diameter_mm ?? st.cutting_diameter_mm;
+      const oal = st.overall_length_mm ?? st.cutting_diameter_mm * 6;
+      const loc = st.flute_length_mm ?? st.cutting_diameter_mm * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Seco",
+        series: "Jabro-Solid2",
+        designation: st.designation,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: st.cutting_diameter_mm,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+          ...(st.corner_radius_mm ? { corner_radius_mm: st.corner_radius_mm } : {}),
+        },
+        flute_count: st.flute_count ?? (toolType === "drill" ? 2 : 4),
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "ball_mill" ? ["3d_finishing", "contour", "pencil"] :
+                    ["pocket", "slot", "contour", "face"],
+        cutting_data: cuttingData,
+        coolant: st.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: "Seco_Jabro_Solid_End_Mills",
       });
     }
   }

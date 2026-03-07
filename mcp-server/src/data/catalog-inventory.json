@@ -364,8 +364,9 @@
       "units": "inch",
       "priority": 4,
       "pages_est": 100,
-      "extracted": false,
-      "notes": "Budget drills and end mills"
+      "extracted": true,
+      "extracted_to": "src/data/additional-tool-catalog.ts",
+      "notes": "EXTRACTED. 352 tools (end mills + drills), inch converted to mm"
     },
     {
       "filename": "Accupro 2013.pdf",
@@ -379,13 +380,14 @@
     },
     {
       "filename": "Solid End Mills.pdf",
-      "manufacturer": "Unknown",
+      "manufacturer": "Seco",
       "type": ["milling"],
-      "units": "both",
-      "priority": 4,
-      "pages_est": 100,
-      "extracted": false,
-      "notes": "Needs identification"
+      "units": "metric",
+      "priority": 2,
+      "pages_est": 407,
+      "extracted": true,
+      "extracted_to": "src/data/seco-tool-catalog.ts",
+      "notes": "EXTRACTED. Seco/Jabro-Solid2. 1,224 tools (1220 end mills + 4 ball mills), 0.062-50mm. 172 speed/feed tables with 2,002 entries across ISO groups P/M/K/N/S/H"
     },
     {
       "filename": "Threading 2018.1.pdf",
@@ -469,16 +471,16 @@
     }
   ],
   "extraction_status": {
-    "extracted": 13,
-    "pending": 30,
+    "extracted": 15,
+    "pending": 28,
     "total_estimated_pages": 12000,
     "priority_1_pdfs": 8,
     "priority_2_pdfs": 12,
     "priority_3_pdfs": 10,
     "priority_4_pdfs": 10,
     "priority_5_pdfs": 3,
-    "total_tools_extracted": 23583,
+    "total_tools_extracted": 24807,
     "total_holders_extracted": 1164,
-    "collision_data_tools": 20486
+    "collision_data_tools": 22062
   }
 }
