@@ -14,6 +14,8 @@
 import { TUNGALOY_HOLDERS, type TungaloyHolder } from "../data/tungaloy-holder-catalog.js";
 import { TUNGALOY_ENDMILLS } from "../data/tungaloy-endmill-catalog.js";
 import { TUNGALOY_DRILLS } from "../data/tungaloy-drill-catalog.js";
+import { SGS_ENDMILL_PARTS_ZR, SGS_ENDMILL_PARTS_ZRM, SGS_QUICK_SPEED_FEED } from "../data/sgs-tool-catalog.js";
+import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
 
 // ── Unified Tool Types ──
 
@@ -419,7 +421,7 @@ export class ToolCatalogEngine {
       by_type: byType,
       by_manufacturer: byMfg,
       diameter_range_mm: [minDia, maxDia],
-      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length,
+      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length + BIG_DAISHOWA_HOLDERS.length,
       speed_feed_entries: SPEED_FEED_BASE.length,
     };
   }
@@ -483,6 +485,13 @@ export class ToolCatalogEngine {
     });
 
     if (tungaloyMatch) {
+      // Check BIG DAISHOWA for RPM/runout data for same taper+bore
+      const bigMatch = BIG_DAISHOWA_HOLDERS.find(h => {
+        const normBigTaper = h.taper.replace("BBT", "BT");
+        return (normBigTaper === taper || h.taper === taper) &&
+          shank_mm >= h.bore_range_mm[0] && shank_mm <= h.bore_range_mm[1];
+      });
+
       return {
         type: `${tungaloyMatch.holder_type}_${tungaloyMatch.collet ?? tungaloyMatch.bore_diameter_mm ?? ""}`,
         taper: tungaloyMatch.taper,
@@ -490,12 +499,34 @@ export class ToolCatalogEngine {
         bore_max: tungaloyMatch.bore_max_mm ?? tungaloyMatch.bore_diameter_mm ?? shank_mm,
         gauge_length: tungaloyMatch.gauge_length_mm,
         body_diameter: tungaloyMatch.body_diameter_mm,
-        max_rpm: 25000, // conservative default for Tungaloy
-        runout_um: 5,
+        max_rpm: bigMatch?.max_rpm ?? 25000,
+        runout_um: bigMatch?.runout_um ?? 5,
       };
     }
 
-    // 2. Fall back to generic HOLDER_DIMS
+    // 2. Try BIG DAISHOWA (has RPM/runout but no body_diameter — estimate from bore)
+    const bigMatch = BIG_DAISHOWA_HOLDERS.find(h => {
+      const normTaper = h.taper.replace("BBT", "BT");
+      return (normTaper === taper || h.taper === taper) &&
+        shank_mm >= h.bore_range_mm[0] && shank_mm <= h.bore_range_mm[1] &&
+        (holderType ? h.type.toLowerCase().includes(holderType.toLowerCase()) : true);
+    });
+    if (bigMatch) {
+      // Estimate body diameter from bore range (typ. 2-3x max bore)
+      const estBodyDia = Math.max(bigMatch.bore_range_mm[1] * 2.5, 28);
+      return {
+        type: `${bigMatch.type}_${bigMatch.model}`,
+        taper: bigMatch.taper,
+        bore_min: bigMatch.bore_range_mm[0],
+        bore_max: bigMatch.bore_range_mm[1],
+        gauge_length: bigMatch.gauge_length_mm,
+        body_diameter: estBodyDia,
+        max_rpm: bigMatch.max_rpm,
+        runout_um: bigMatch.runout_um,
+      };
+    }
+
+    // 3. Fall back to generic HOLDER_DIMS
     return HOLDER_DIMS.find(h =>
       h.taper === taper && shank_mm >= h.bore_min && shank_mm <= h.bore_max &&
       (holderType ? h.type.toLowerCase().includes(holderType.toLowerCase()) : true)
@@ -691,9 +722,10 @@ export class ToolCatalogEngine {
       });
     }
 
-    // Load Tungaloy catalog tools
+    // Load manufacturer catalog tools
     this._loadTungaloyEndmills();
     this._loadTungaloyDrills();
+    this._loadSGSEndmills();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -740,6 +772,61 @@ export class ToolCatalogEngine {
       });
     }
   }
+  private _loadSGSEndmills(): void {
+    const allParts = [...SGS_ENDMILL_PARTS_ZR, ...SGS_ENDMILL_PARTS_ZRM];
+    for (const part of allParts) {
+      const id = `SGS-${part.edp_number}`;
+      if (this.tools.has(id)) continue;
+
+      const dia_mm = Math.round(part.diameter_in * 25.4 * 100) / 100;
+      const shank_mm = Math.round(part.shank_dia_in * 25.4 * 100) / 100;
+      const loc_mm = Math.round(part.loc_in * 25.4 * 100) / 100;
+      const oal_mm = Math.round(part.oal_in * 25.4 * 100) / 100;
+      const cr_mm = part.corner_radius_in ? Math.round(part.corner_radius_in * 25.4 * 100) / 100 : undefined;
+
+      // Build speed/feed from SGS_QUICK_SPEED_FEED for this series
+      const seriesSF = SGS_QUICK_SPEED_FEED.filter(s => s.series === part.series);
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of seriesSF) {
+        const vc_profile = Math.round(s.profile_sfm * 0.3048);  // SFM → m/min
+        const vc_slot = Math.round(s.slot_sfm * 0.3048);
+        // Scale IPT from 1/2" reference to actual diameter
+        const scale = dia_mm / 12.7;
+        const fz = Math.round(s.ipt_half_inch_profile * 25.4 * Math.sqrt(scale) * 1000) / 1000;
+        cuttingData[s.iso_group] = {
+          vc_min: vc_slot, vc_max: vc_profile,
+          fz_min: fz * 0.7, fz_max: fz * 1.3,
+          ap_max: loc_mm, ae_max: dia_mm * 0.5,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "SGS",
+        series: part.series,
+        designation: `SGS ${part.series} EDP ${part.edp_number}`,
+        type: "end_mill",
+        material: "carbide",
+        coating: part.coating,
+        physical: {
+          cutting_diameter_mm: dia_mm,
+          shank_diameter_mm: shank_mm,
+          overall_length_mm: oal_mm,
+          flute_length_mm: loc_mm,
+          corner_radius_mm: cr_mm,
+        },
+        flute_count: part.flute_count,
+        helix_angle_deg: 36,
+        center_cutting: true,
+        iso_groups: part.application,
+        operations: ["pocket", "slot", "profile", "face", "ramp"],
+        cutting_data: cuttingData,
+        coolant: "flood",
+        source: "SGS_Global_Catalog_v26.1",
+      });
+    }
+  }
+
   private _loadTungaloyDrills(): void {
     const sf = SPEED_FEED_BASE.filter(s => s.tool_type === "drill");
     for (const td of TUNGALOY_DRILLS) {
