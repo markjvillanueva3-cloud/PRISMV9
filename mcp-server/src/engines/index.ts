@@ -2357,3 +2357,6 @@ export { sessionReplayEngine, SessionReplayEngine } from "./SessionReplayEngine.
 
 // Prompt Template — pre-built parameterized templates
 export { promptTemplateEngine, PromptTemplateEngine } from "./PromptTemplateEngine.js";
+
+// Frequent Path — access frequency tracking for predictive optimization
+export { frequentPathEngine, FrequentPathEngine } from "./FrequentPathEngine.js";
