@@ -41,6 +41,7 @@ const NAV_ITEMS = [
   { to: '/purchasing', label: 'Purchasing' },
   { to: '/machine-rates', label: 'Rates' },
   { to: '/batch-planning', label: 'Batch' },
+  { to: '/documents', label: 'Docs' },
 ] as const;
 
 export function Layout() {

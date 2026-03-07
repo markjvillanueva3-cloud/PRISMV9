@@ -39,6 +39,7 @@ import { EmployeeDirectoryPage } from './pages/EmployeeDirectoryPage';
 import { PurchasingPage } from './pages/PurchasingPage';
 import { MachineRatesPage } from './pages/MachineRatesPage';
 import { BatchPlanningPage } from './pages/BatchPlanningPage';
+import { DocumentLearningPage } from './pages/DocumentLearningPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -95,6 +96,7 @@ export function App() {
           <Route path="purchasing" element={<PurchasingPage />} />
           <Route path="machine-rates" element={<MachineRatesPage />} />
           <Route path="batch-planning" element={<BatchPlanningPage />} />
+          <Route path="documents" element={<DocumentLearningPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />

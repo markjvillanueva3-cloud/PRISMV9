@@ -492,19 +492,19 @@ export function analyzeAutocorrelation(
     .map((v, i) => (i > 0 && Math.abs(v) > threshold ? i : -1))
     .filter((i) => i > 0);
 
-  // Estimate correlation parameter p from lag-1
-  const pEstimate = acf.length > 1 ? Math.max(0, acf[1]) : 0;
+  // Estimate correlation parameter p from lag-1 (absolute value captures negative correlation too)
+  const pEstimate = acf.length > 1 ? Math.abs(acf[1]) : 0;
 
   let disturbanceType: DisturbanceType;
   let recommendation: string;
 
-  if (significantLags.length === 0) {
+  if (pEstimate > 0.3) {
+    disturbanceType = "correlated";
+    recommendation = `Data shows significant correlation (p≈${pEstimate.toFixed(2)}). CtC feedback can reduce both mean error and variance. Use I-control with K≈1.0.`;
+  } else if (pEstimate <= 0.3 && significantLags.length <= 1) {
     disturbanceType = "uncorrelated";
     recommendation =
       "Data appears uncorrelated (NIDI). CtC feedback will increase variance but can center process on target. Use I-control with low gain.";
-  } else if (pEstimate > 0.3) {
-    disturbanceType = "correlated";
-    recommendation = `Data shows significant correlation (p≈${pEstimate.toFixed(2)}). CtC feedback can reduce both mean error and variance. Use I-control with K≈1.0.`;
   } else {
     disturbanceType = "unknown";
     recommendation =

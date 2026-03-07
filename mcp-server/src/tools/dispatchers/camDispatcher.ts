@@ -1,7 +1,7 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 32 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 34 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
@@ -11,13 +11,14 @@
  *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance,
  *   cam_translate, cam_compare_controllers, cam_material_recommend,
  *   cam_multicam_recommend, cam_multicam_list, cam_multicam_compare,
- *   cam_multicam_flagship
+ *   cam_multicam_flagship, post_feed_optimize, post_feed_analyze
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
  *   ToolAssemblyEngine, ModularFixtureLayoutEngine,
  *   HyperMillStrategyEngine, HyperMillSafetyHooks,
- *   LathePostProcessorEngine, ProbingCycleEngine, SubprogramEngine
+ *   LathePostProcessorEngine, ProbingCycleEngine, SubprogramEngine,
+ *   PostProcessorFeedOptimizerEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -25,7 +26,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -51,6 +52,7 @@ async function getEngine(name: string): Promise<any> {
     case "advPost": return _advPost ??= new (await import("../../engines/AdvancedPostProcessorEngine.js")).AdvancedPostProcessorEngine();
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
+    case "feedOpt": return _feedOpt ??= (await import("../../engines/PostProcessorFeedOptimizerEngine.js")).postProcessorFeedOptimizer;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -76,6 +78,8 @@ const ACTIONS = [
   "cam_multicam_list",
   "cam_multicam_compare",
   "cam_multicam_flagship",
+  "post_feed_optimize",
+  "post_feed_analyze",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -509,6 +513,52 @@ Params vary by action — pass relevant fields in params object.`,
               for (const s of mc.listSystems()) { all[s] = mc.getFlagship(s); }
               result = all;
             }
+            break;
+          }
+          case "post_feed_optimize": {
+            const fo = await getEngine("feedOpt");
+            result = fo.optimize(params.gcode, {
+              toolDiameter_mm: params.tool_diameter_mm ?? params.toolDiameter_mm,
+              toolFlutes: params.tool_flutes ?? params.toolFlutes,
+              radialDepth_mm: params.radial_depth_mm ?? params.radialDepth_mm,
+              axialDepth_mm: params.axial_depth_mm ?? params.axialDepth_mm,
+              material: params.material,
+              spindleRPM: params.spindle_rpm ?? params.spindleRPM,
+              nominalFeed_mmmin: params.nominal_feed_mmmin ?? params.nominalFeed_mmmin,
+              cornerSlowdownFactor: params.corner_slowdown_factor,
+              plungeRateFactor: params.plunge_rate_factor,
+              arcMinRadius_mm: params.arc_min_radius_mm,
+              maxFeedIncrease: params.max_feed_increase,
+              enableChipThinning: params.enable_chip_thinning,
+              enableCornerDecel: params.enable_corner_decel,
+              enableArcLimiting: params.enable_arc_limiting,
+              enablePlungeLimiting: params.enable_plunge_limiting,
+              enableStabilityCheck: params.enable_stability_check,
+              stabilityMaxDoc_mm: params.stability_max_doc_mm,
+            });
+            break;
+          }
+          case "post_feed_analyze": {
+            const fo = await getEngine("feedOpt");
+            result = fo.analyze(params.gcode, {
+              toolDiameter_mm: params.tool_diameter_mm ?? params.toolDiameter_mm,
+              toolFlutes: params.tool_flutes ?? params.toolFlutes,
+              radialDepth_mm: params.radial_depth_mm ?? params.radialDepth_mm,
+              axialDepth_mm: params.axial_depth_mm ?? params.axialDepth_mm,
+              material: params.material,
+              spindleRPM: params.spindle_rpm ?? params.spindleRPM,
+              nominalFeed_mmmin: params.nominal_feed_mmmin ?? params.nominalFeed_mmmin,
+              cornerSlowdownFactor: params.corner_slowdown_factor,
+              plungeRateFactor: params.plunge_rate_factor,
+              arcMinRadius_mm: params.arc_min_radius_mm,
+              maxFeedIncrease: params.max_feed_increase,
+              enableChipThinning: params.enable_chip_thinning,
+              enableCornerDecel: params.enable_corner_decel,
+              enableArcLimiting: params.enable_arc_limiting,
+              enablePlungeLimiting: params.enable_plunge_limiting,
+              enableStabilityCheck: params.enable_stability_check,
+              stabilityMaxDoc_mm: params.stability_max_doc_mm,
+            });
             break;
           }
           default:

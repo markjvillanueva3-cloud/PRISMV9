@@ -865,3 +865,25 @@ export async function materialPriceCompare(params: { materials: string[]; form?:
 export async function materialSurcharge(params: Record<string, unknown>): Promise<PrismResponse> {
   return request('POST', '/quote/material-surcharge', params);
 }
+
+// === Document Learning ===
+
+export async function docUpload(params: { file_path: string; title?: string }): Promise<PrismResponse> {
+  return request('POST', '/doc/upload', params);
+}
+
+export async function docExtract(params: { doc_id: string }): Promise<PrismResponse> {
+  return request('POST', '/doc/extract', params);
+}
+
+export async function docList(): Promise<PrismResponse> {
+  return request('GET', '/doc/list');
+}
+
+export async function docGet(params: { doc_id: string }): Promise<PrismResponse> {
+  return request('POST', '/doc/get', params);
+}
+
+export async function docDelete(params: { doc_id: string }): Promise<PrismResponse> {
+  return request('POST', '/doc/delete', params);
+}
