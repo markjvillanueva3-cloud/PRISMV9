@@ -2568,6 +2568,12 @@ export { toolOutputSummarizerEngine, ToolOutputSummarizerEngine } from "./ToolOu
 // Cost Aware Router — routes queries to cheapest satisfying tool
 export { costAwareRouterEngine, CostAwareRouterEngine } from "./CostAwareRouterEngine.js";
 
+// Conversation Trimmer — identifies trimmable conversation segments
+export { conversationTrimmerEngine, ConversationTrimmerEngine } from "./ConversationTrimmerEngine.js";
+
+// Context Inventory — inventories what's currently in context
+export { contextInventoryEngine, ContextInventoryEngine } from "./ContextInventoryEngine.js";
+
 // Spindle Bearing Load — L10 life, DN value, preload, lubrication
 export { spindleBearingLoadEngine, SpindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
 
