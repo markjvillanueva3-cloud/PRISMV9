@@ -81,6 +81,9 @@ let _stockSizeOptimizer: any;
 let _marketMaterialPricing: any;
 let _batchOptimization: any;
 let _learningPath: any;
+let _castingQuote: any;
+let _weldFabQuote: any;
+let _multiProcessQuote: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -220,6 +223,18 @@ async function getEngine(name: string): Promise<any> {
       return _learningPath ??= (
         await import("../../engines/LearningPathEngine.js")
       ).learningPathEngine;
+    case "castingQuote":
+      return _castingQuote ??= (
+        await import("../../engines/CastingQuoteEngine.js")
+      ).castingQuoteEngine;
+    case "weldFabQuote":
+      return _weldFabQuote ??= (
+        await import("../../engines/WeldFabricationQuoteEngine.js")
+      ).weldFabricationQuoteEngine;
+    case "multiProcessQuote":
+      return _multiProcessQuote ??= (
+        await import("../../engines/MultiProcessQuoteEngine.js")
+      ).multiProcessQuoteEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -436,6 +451,18 @@ const ACTIONS = [
   "learning_plan",
   "learning_progress",
   "learning_recommend",
+  // ── Casting Quoting ──
+  "casting_quote",
+  "casting_materials",
+  "casting_compare_processes",
+  "casting_dfm",
+  // ── Weld/Fabrication Quoting ──
+  "weld_fab_quote",
+  "weld_fab_joint_cost",
+  "weld_fab_consumables",
+  // ── Multi-Process Quoting ──
+  "multi_process_quote",
+  "multi_process_estimate",
 ] as const;
 
 /** Registers business dispatcher.
@@ -1868,6 +1895,121 @@ Params vary by action — pass relevant fields in params object.`,
           case "learning_recommend": {
             const engine = await getEngine("learningPath");
             result = engine.recommend(params.current_skills ?? {});
+            break;
+          }
+
+          // ── Casting Quoting ──
+          case "casting_quote": {
+            const engine = await getEngine("castingQuote");
+            result = engine.quote({
+              process: params.process ?? "die_cast",
+              material: params.material ?? "aluminum_a380",
+              part_volume_cm3: params.part_volume_cm3 ?? 50,
+              bounding_box_cm3: params.bounding_box_cm3,
+              quantity: params.quantity ?? 1000,
+              annual_volume: params.annual_volume,
+              num_cores: params.num_cores,
+              num_slides: params.num_slides,
+              surface_finish: params.surface_finish,
+              secondary_machining: params.secondary_machining,
+              xray_inspection: params.xray_inspection,
+              heat_treat: params.heat_treat,
+              tight_tolerance: params.tight_tolerance,
+              markup_pct: params.markup_pct,
+            });
+            break;
+          }
+          case "casting_materials": {
+            const engine = await getEngine("castingQuote");
+            result = engine.listMaterials();
+            break;
+          }
+          case "casting_compare_processes": {
+            const engine = await getEngine("castingQuote");
+            result = engine.compareProcesses({
+              material: params.material ?? "aluminum_a356",
+              part_volume_cm3: params.part_volume_cm3 ?? 50,
+              quantity: params.quantity ?? 1000,
+            });
+            break;
+          }
+          case "casting_dfm": {
+            const engine = await getEngine("castingQuote");
+            result = engine.analyzeDfm({
+              process: params.process ?? "die_cast",
+              material: params.material ?? "aluminum_a380",
+              wall_thickness_mm: params.wall_thickness_mm ?? 2.0,
+              draft_angle_deg: params.draft_angle_deg,
+              undercuts: params.undercuts,
+              max_section_mm: params.max_section_mm,
+              cores: params.cores,
+            });
+            break;
+          }
+
+          // ── Weld/Fabrication Quoting ──
+          case "weld_fab_quote": {
+            const engine = await getEngine("weldFabQuote");
+            result = engine.quote({
+              joints: params.joints ?? [{ type: "fillet", length_mm: 200, thickness_mm: 6 }],
+              process: params.process,
+              material: params.material ?? "steel",
+              filler_density_kg_m3: params.filler_density_kg_m3,
+              nde_method: params.nde_method,
+              nde_coverage_pct: params.nde_coverage_pct,
+              stress_relief: params.stress_relief,
+              hot_dip_galvanize: params.hot_dip_galvanize,
+              blast_and_paint: params.blast_and_paint,
+              quantity: params.quantity,
+              fit_up_hours: params.fit_up_hours,
+              markup_pct: params.markup_pct,
+            });
+            break;
+          }
+          case "weld_fab_joint_cost": {
+            const engine = await getEngine("weldFabQuote");
+            result = engine.jointCost({
+              type: params.type ?? "fillet",
+              length_mm: params.length_mm ?? 200,
+              thickness_mm: params.thickness_mm ?? 6,
+              process: params.process,
+              position: params.position,
+            });
+            break;
+          }
+          case "weld_fab_consumables": {
+            const engine = await getEngine("weldFabQuote");
+            result = engine.consumables({
+              joints: params.joints ?? [{ type: "fillet", length_mm: 200, thickness_mm: 6 }],
+              process: params.process,
+            });
+            break;
+          }
+
+          // ── Multi-Process Quoting ──
+          case "multi_process_quote": {
+            const engine = await getEngine("multiProcessQuote");
+            result = engine.quote({
+              project_name: params.project_name,
+              part_name: params.part_name,
+              steps: params.steps ?? [],
+              quantity: params.quantity ?? 1,
+              markup_pct: params.markup_pct,
+              rush: params.rush,
+              shipping_cost: params.shipping_cost,
+              packaging_cost_per_unit: params.packaging_cost_per_unit,
+              engineering_hours: params.engineering_hours,
+              engineering_rate_hr: params.engineering_rate_hr,
+            });
+            break;
+          }
+          case "multi_process_estimate": {
+            const engine = await getEngine("multiProcessQuote");
+            result = engine.estimate({
+              steps: params.steps ?? [],
+              quantity: params.quantity ?? 1,
+              markup_pct: params.markup_pct,
+            });
             break;
           }
 

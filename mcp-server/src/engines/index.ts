@@ -2115,6 +2115,9 @@ export { additiveQuoteEngine, AdditiveQuoteEngine } from "./AdditiveQuoteEngine.
 export { injectionMoldQuoteEngine, InjectionMoldQuoteEngine } from "./InjectionMoldQuoteEngine.js";
 export { stockSizeOptimizerEngine, StockSizeOptimizerEngine } from "./StockSizeOptimizerEngine.js";
 export { marketMaterialPricingEngine, MarketMaterialPricingEngine } from "./MarketMaterialPricingEngine.js";
+export { castingQuoteEngine, CastingQuoteEngine } from "./CastingQuoteEngine.js";
+export { weldFabricationQuoteEngine, WeldFabricationQuoteEngine } from "./WeldFabricationQuoteEngine.js";
+export { multiProcessQuoteEngine, MultiProcessQuoteEngine } from "./MultiProcessQuoteEngine.js";
 // Batch 31-34: 132 previously unexported engines
 export { acoSequencerEngine } from "./AcoSequencerEngine.js";
 export { adaptiveClearingEngine } from "./AdaptiveClearingEngine.js";
