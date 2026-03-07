@@ -2,8 +2,8 @@
   "version": "5.3.0",
   "title": "PRISM App — Comprehensive Layered Roadmap",
   "updated_at": "2026-03-03T00:00:00Z",
-  "total_milestones": 97,
-  "completed_milestones": 97,
+  "total_milestones": 98,
+  "completed_milestones": 98,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -1342,6 +1342,20 @@
       "envelope_path": "milestones/PROD-MS0.json",
       "dependencies": [],
       "description": "Wire AuthEngine + RateLimitEngine as Express middleware. Auth middleware (verifyToken, requireRole, requirePermission), rate limit middleware, audit logging, security headers, health endpoints."
+    },
+    {
+      "id": "RT-MS0",
+      "title": "WebSocket Infrastructure",
+      "track": "RT",
+      "priority": "P1",
+      "status": "complete",
+      "total_units": 5,
+      "completed_units": 5,
+      "completed_at": "2026-03-07",
+      "sessions": "1",
+      "envelope_path": "milestones/RT-MS0.json",
+      "dependencies": ["PROD-MS0"],
+      "description": "WebSocket server alongside HTTP, JWT auth connections, heartbeat/reconnect, room-based subscriptions, typed message schema, client-side useWebSocket React hook."
     }
   ]
 }

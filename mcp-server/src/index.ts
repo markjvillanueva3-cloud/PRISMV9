@@ -134,6 +134,9 @@ import { registerGrindingDispatcher } from "./tools/dispatchers/grindingDispatch
 import { registerIndustryDispatcher } from "./tools/dispatchers/industryDispatcher.js";
 import { registerAutomationDispatcher } from "./tools/dispatchers/automationDispatcher.js";
 
+// RT-MS1: Real-Time WebSocket Dispatcher (Dispatcher #55)
+import { registerRealtimeDispatcher } from "./tools/dispatchers/realtimeDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -530,6 +533,9 @@ async function registerTools(): Promise<void> {
 
   // CC-MS6: Shop Practice KB — 12 actions (practice_ingest/search/get/list/audit/recommend, tree_build/navigate/search, tips_add/get/conflicts)
   registerShopPracticeDispatcher(server);
+
+  // RT-MS1: Real-Time WebSocket
+  registerRealtimeDispatcher(server);
 
   log.info(`All PRISM tools registered: 52 dispatchers (1277 actions)`);
 
