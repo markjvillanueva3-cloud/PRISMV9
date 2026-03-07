@@ -2552,3 +2552,12 @@ export { toolCallHistogramEngine, ToolCallHistogramEngine } from "./ToolCallHist
 
 // Waste Detector — detects token waste patterns in real-time
 export { wasteDetectorEngine, WasteDetectorEngine } from "./WasteDetectorEngine.js";
+
+// Spindle Bearing Load — L10 life, DN value, preload, lubrication
+export { spindleBearingLoadEngine, SpindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
+
+// Bar Feeder — parts per bar, remnant, production rate, whip limits
+export { barFeederEngine, BarFeederEngine } from "./BarFeederEngine.js";
+
+// Chip Breaking — chip form prediction, chipbreaker selection, bird's nest risk
+export { chipBreakingEngine, ChipBreakingEngine } from "./ChipBreakingEngine.js";
