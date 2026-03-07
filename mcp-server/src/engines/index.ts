@@ -2729,3 +2729,6 @@ export { splineStressEngine, SplineStressEngine } from "./SplineStressEngine.js"
 
 // Tool Selection Advisor — intent-based tool recommendation for cheapest option
 export { toolSelectionAdvisorEngine, ToolSelectionAdvisorEngine } from "./ToolSelectionAdvisorEngine.js";
+
+// Grep Optimizer — optimizes Grep params for minimal token cost
+export { grepOptimizerEngine, GrepOptimizerEngine } from "./GrepOptimizerEngine.js";
