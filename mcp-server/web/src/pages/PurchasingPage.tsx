@@ -6,7 +6,7 @@ import { purchasingSearch, purchasingRecommend, purchasingSummary, ApiError } fr
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { SupplierResult, PurchasingRecommendation } from '../api/types';
 
-type Tab = 'search' | 'recommend';
+type Tab = 'search' | 'recommend' | 'summary';
 
 export function PurchasingPage() {
   const [tab, setTab] = useState<Tab>('search');
@@ -16,6 +16,7 @@ export function PurchasingPage() {
   const [error, setError] = useState<string | null>(null);
   const [material, setMaterial] = useState('6061-T6');
   const [query, setQuery] = useState('');
+  const [summaryData, setSummaryData] = useState<any>(null);
 
   async function handleSearch() {
     setLoading(true);
@@ -58,6 +59,10 @@ export function PurchasingPage() {
         <button onClick={() => setTab('recommend')}
           className={`px-4 py-2 rounded text-sm font-medium ${tab === 'recommend' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
           Recommendations
+        </button>
+        <button onClick={() => setTab('summary')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'summary' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Summary
         </button>
       </div>
 
@@ -150,6 +155,32 @@ export function PurchasingPage() {
             </div>
           )}
         </>
+      )}
+      {tab === 'summary' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Purchasing Summary</h2>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await purchasingSummary();
+                setSummaryData(r.result);
+              } catch (e) {
+                setError(e instanceof ApiError ? e.message : 'Failed');
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Load Summary
+            </button>
+          </div>
+          {summaryData && !loading && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <pre className="text-xs font-mono overflow-auto max-h-96">
+                {JSON.stringify(summaryData, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

@@ -10,6 +10,8 @@ export function MachineRatesPage() {
   const [rates, setRates] = useState<MachineRate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compareIds, setCompareIds] = useState('');
+  const [compareResult, setCompareResult] = useState<any>(null);
 
   async function loadRates() {
     setLoading(true);
@@ -35,6 +37,39 @@ export function MachineRatesPage() {
 
       {loading && <LoadingState label="Loading rates..." />}
       {error && <ErrorState message={error} />}
+
+      {/* Compare */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-6">
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Compare Machines (comma-separated IDs)
+            </label>
+            <input type="text" value={compareIds}
+              onChange={e => setCompareIds(e.target.value)}
+              placeholder="CNC-1, CNC-2, CNC-3"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+          </div>
+          <button onClick={async () => {
+            setLoading(true); setError(null);
+            try {
+              const ids = compareIds.split(',').map(s => s.trim()).filter(Boolean);
+              const r = await machineRateCompare({ machine_ids: ids });
+              setCompareResult(r.result);
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : 'Compare failed');
+            } finally { setLoading(false); }
+          }} disabled={!compareIds}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50">
+            Compare
+          </button>
+        </div>
+        {compareResult && (
+          <pre className="mt-3 text-xs font-mono overflow-auto max-h-48 bg-gray-50 rounded p-3">
+            {JSON.stringify(compareResult, null, 2)}
+          </pre>
+        )}
+      </div>
 
       {rates.length > 0 && !loading && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">

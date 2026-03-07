@@ -10,7 +10,7 @@ import {
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { BenefitPlan, ComplianceAlert, HRDashboard, TrainingRecord } from '../api/types';
 
-type Tab = 'dashboard' | 'benefits' | 'training' | 'alerts' | 'reviews' | 'pto' | 'enroll';
+type Tab = 'dashboard' | 'benefits' | 'training' | 'alerts' | 'reviews' | 'pto' | 'enroll' | 'employees' | 'history';
 
 export function HRCompliancePage() {
   const [tab, setTab] = useState<Tab>('dashboard');
@@ -52,6 +52,11 @@ export function HRCompliancePage() {
           setReviews((r.result as any)?.reviews ?? (r.result as any) ?? []);
           break;
         }
+        case 'employees': {
+          const r = await listEmployees();
+          setEmployees((r.result as any)?.employees ?? (r.result as any) ?? []);
+          break;
+        }
       }
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Failed to load HR data');
@@ -64,6 +69,10 @@ export function HRCompliancePage() {
 
   const [ptoResult, setPtoResult] = useState<any>(null);
   const [enrollResult, setEnrollResult] = useState<any>(null);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [trainingHist, setTrainingHist] = useState<any[]>([]);
+  const [compHist, setCompHist] = useState<any[]>([]);
+  const [histEmpId, setHistEmpId] = useState('EMP-001');
 
   const tabs: { key: Tab; label: string }[] = [
     { key: 'dashboard', label: 'HR Dashboard' },
@@ -73,6 +82,8 @@ export function HRCompliancePage() {
     { key: 'reviews', label: 'Reviews' },
     { key: 'pto', label: 'PTO' },
     { key: 'enroll', label: 'Enroll' },
+    { key: 'employees', label: 'Employees' },
+    { key: 'history', label: 'History' },
   ];
 
   const sevColors: Record<string, string> = {
@@ -436,6 +447,130 @@ export function HRCompliancePage() {
               <button type="submit" className="mt-4 bg-green-600 text-white px-6 py-2 rounded text-sm font-medium">Create Review</button>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Employees Tab */}
+      {tab === 'employees' && employees.length > 0 && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 py-3">ID</th>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Department</th>
+                <th className="px-4 py-3">Role</th>
+                <th className="px-4 py-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {employees.map((e: any) => (
+                <tr key={e.id ?? e.employee_id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2 font-mono text-xs">{e.id ?? e.employee_id}</td>
+                  <td className="px-4 py-2 font-medium">{e.name ?? `${e.first_name ?? ''} ${e.last_name ?? ''}`}</td>
+                  <td className="px-4 py-2">{e.department ?? '-'}</td>
+                  <td className="px-4 py-2">{e.role ?? e.title ?? '-'}</td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      e.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                    }`}>{e.status ?? 'active'}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* History Tab — Training & Compensation */}
+      {tab === 'history' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Employee History Lookup</h2>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Employee ID</label>
+                <input type="text" value={histEmpId} onChange={e => setHistEmpId(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const [tr, comp] = await Promise.all([
+                    hrTrainingHistory({ employee_id: histEmpId }),
+                    hrCompensationHistory({ employee_id: histEmpId }),
+                  ]);
+                  setTrainingHist((tr.result as any)?.records ?? (tr.result as any) ?? []);
+                  setCompHist((comp.result as any)?.records ?? (comp.result as any) ?? []);
+                } catch (e) {
+                  setError(e instanceof ApiError ? e.message : 'Failed to load history');
+                } finally { setLoading(false); }
+              }}
+                className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+                Load History
+              </button>
+            </div>
+          </div>
+
+          {trainingHist.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <h3 className="px-4 py-3 bg-gray-50 text-sm font-semibold text-gray-700">Training History</h3>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2">Course</th>
+                    <th className="px-4 py-2">Category</th>
+                    <th className="px-4 py-2">Completed</th>
+                    <th className="px-4 py-2">Expires</th>
+                    <th className="px-4 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {trainingHist.map((t: any, i: number) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 font-medium">{t.course_name ?? t.course ?? '-'}</td>
+                      <td className="px-4 py-2 capitalize">{t.category ?? '-'}</td>
+                      <td className="px-4 py-2 text-xs">{t.completion_date ?? t.completed ?? '-'}</td>
+                      <td className="px-4 py-2 text-xs">{t.expiration_date ?? t.expires ?? '-'}</td>
+                      <td className="px-4 py-2">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                          t.status === 'current' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                        }`}>{t.status ?? 'unknown'}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {compHist.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <h3 className="px-4 py-3 bg-gray-50 text-sm font-semibold text-gray-700">Compensation History</h3>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="px-4 py-2">Effective Date</th>
+                    <th className="px-4 py-2">Type</th>
+                    <th className="px-4 py-2 text-right">Amount</th>
+                    <th className="px-4 py-2">Reason</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {compHist.map((c: any, i: number) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 text-xs">{c.effective_date ?? c.date ?? '-'}</td>
+                      <td className="px-4 py-2 capitalize">{c.type ?? c.change_type ?? '-'}</td>
+                      <td className="px-4 py-2 text-right font-mono font-bold">
+                        {typeof c.amount === 'number' ? `$${c.amount.toLocaleString()}` : (c.salary ? `$${c.salary.toLocaleString()}` : '-')}
+                      </td>
+                      <td className="px-4 py-2 text-gray-600">{c.reason ?? c.notes ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
     </div>

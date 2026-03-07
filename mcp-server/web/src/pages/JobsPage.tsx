@@ -4,9 +4,9 @@
 import { useState, useEffect } from 'react';
 import { jobDashboard, jobCreate, jobUpdateStatus, jobSummary, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
-import type { Job, JobDashboard } from '../api/types';
+import type { JobDashboard } from '../api/types';
 
-type Tab = 'dashboard' | 'create';
+type Tab = 'dashboard' | 'create' | 'summary';
 
 export function JobsPage() {
   const [tab, setTab] = useState<Tab>('dashboard');
@@ -14,6 +14,8 @@ export function JobsPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [summaryJobId, setSummaryJobId] = useState('');
+  const [summaryData, setSummaryData] = useState<any>(null);
 
   const [form, setForm] = useState({
     customer: '', part_number: '', description: '', quantity: '100',
@@ -78,6 +80,10 @@ export function JobsPage() {
         <button onClick={() => setTab('create')}
           className={`px-4 py-2 rounded text-sm font-medium ${tab === 'create' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
           New Job
+        </button>
+        <button onClick={() => setTab('summary')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'summary' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Job Summary
         </button>
       </div>
 
@@ -153,6 +159,42 @@ export function JobsPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === 'summary' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Job Summary Lookup</h2>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Job ID</label>
+                <input type="text" value={summaryJobId}
+                  onChange={e => setSummaryJobId(e.target.value)}
+                  placeholder="JOB-2026-001"
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await jobSummary({ job_id: summaryJobId });
+                  setSummaryData(r.result);
+                } catch (e) {
+                  setError(e instanceof ApiError ? e.message : 'Failed');
+                } finally { setLoading(false); }
+              }} disabled={!summaryJobId}
+                className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium disabled:opacity-50">
+                Get Summary
+              </button>
+            </div>
+          </div>
+          {summaryData && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <pre className="text-xs font-mono overflow-auto max-h-96">
+                {JSON.stringify(summaryData, null, 2)}
+              </pre>
             </div>
           )}
         </div>

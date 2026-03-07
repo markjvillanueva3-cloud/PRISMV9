@@ -466,6 +466,12 @@ const ACTIONS = [
   "dp_knapsack", "dp_cutting_stock", "dp_edit_distance",
   // ── Robust Statistics ──
   "robust_location", "robust_outliers", "robust_bootstrap", "robust_theil_sen",
+  // ── Game Theory ──
+  "game_zero_sum", "game_nash", "game_decision",
+  // ── Survival Analysis ──
+  "survival_kaplan_meier", "survival_weibull_fit", "survival_mtbf",
+  // ── Queueing Theory ──
+  "queue_mm1", "queue_mmc", "queue_littles_law", "queue_production_line",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3630,6 +3636,63 @@ export function registerCalcDispatcher(server: any): void {
           case "parametric_surface_area": {
             const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
             result = ps.area(params.surface, params.u_steps, params.v_steps);
+            break;
+          }
+
+          // ── Game Theory ──
+          case "game_zero_sum": {
+            const { gameTheoryEngine } = await import("../../engines/GameTheoryEngine.js");
+            result = gameTheoryEngine.solveZeroSum(params.payoff_matrix);
+            break;
+          }
+          case "game_nash": {
+            const { gameTheoryEngine } = await import("../../engines/GameTheoryEngine.js");
+            result = gameTheoryEngine.nashEquilibrium(params.A, params.B);
+            break;
+          }
+          case "game_decision": {
+            const { gameTheoryEngine } = await import("../../engines/GameTheoryEngine.js");
+            result = gameTheoryEngine.decisionUnderUncertainty(params.payoffs, params.alpha);
+            break;
+          }
+
+          // ── Survival Analysis ──
+          case "survival_kaplan_meier": {
+            const { survivalAnalysisEngine } = await import("../../engines/SurvivalAnalysisEngine.js");
+            result = survivalAnalysisEngine.kaplanMeier(params.data, params.confidence);
+            break;
+          }
+          case "survival_weibull_fit": {
+            const { survivalAnalysisEngine } = await import("../../engines/SurvivalAnalysisEngine.js");
+            const fit = survivalAnalysisEngine.weibullFit(params.failure_times);
+            result = { shape: fit.shape, scale: fit.scale, mttf: fit.mttf, b10Life: fit.b10Life, rSquared: fit.rSquared };
+            break;
+          }
+          case "survival_mtbf": {
+            const { survivalAnalysisEngine } = await import("../../engines/SurvivalAnalysisEngine.js");
+            result = survivalAnalysisEngine.mtbf(params.failure_times);
+            break;
+          }
+
+          // ── Queueing Theory ──
+          case "queue_mm1": {
+            const { queueingTheoryEngine } = await import("../../engines/QueueingTheoryEngine.js");
+            result = queueingTheoryEngine.mm1(params.arrival_rate, params.service_rate);
+            break;
+          }
+          case "queue_mmc": {
+            const { queueingTheoryEngine } = await import("../../engines/QueueingTheoryEngine.js");
+            result = queueingTheoryEngine.mmc(params.arrival_rate, params.service_rate, params.servers);
+            break;
+          }
+          case "queue_littles_law": {
+            const { queueingTheoryEngine } = await import("../../engines/QueueingTheoryEngine.js");
+            result = queueingTheoryEngine.littlesLaw(params);
+            break;
+          }
+          case "queue_production_line": {
+            const { queueingTheoryEngine } = await import("../../engines/QueueingTheoryEngine.js");
+            result = queueingTheoryEngine.productionLine(params.stations, params.arrival_rate);
             break;
           }
 

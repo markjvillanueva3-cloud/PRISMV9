@@ -50,12 +50,9 @@ function computeImpacts(values: Record<string, number>): Impact[] {
   // MRR = ap * ae * Vf; Vf = n * fz * z; simplified: MRR ~ Vc * fz * ap * ae
   const mrrBase = base.Vc * base.fz * base.ap * base.ae;
   const mrrCur = values.Vc * values.fz * values.ap * values.ae;
-  const mrrRatio = mrrCur / mrrBase;
-
   // Tool life ~ (C/V)^(1/n) * feed_factor * depth_factor
   const tlBase = Math.pow(300 / base.Vc, 4) * (1 / base.fz) * (1 / Math.sqrt(base.ap));
   const tlCur = Math.pow(300 / values.Vc, 4) * (1 / values.fz) * (1 / Math.sqrt(values.ap));
-  const tlRatio = tlCur / tlBase;
 
   // Power ~ Fc * Vc / 60000; Fc ~ kc * fz * ap
   const powerBase = base.Vc * base.fz * base.ap * 1800 / 60000;

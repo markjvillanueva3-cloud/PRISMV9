@@ -6,7 +6,7 @@ import { materialPriceLookup, materialPriceCompare, materialSurcharge, ApiError 
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { PriceLookupResult, PriceComparison } from '../api/types';
 
-type Tab = 'lookup' | 'compare';
+type Tab = 'lookup' | 'compare' | 'surcharge';
 
 export function MaterialPricingPage() {
   const [tab, setTab] = useState<Tab>('lookup');
@@ -14,6 +14,8 @@ export function MaterialPricingPage() {
   const [comparisons, setComparisons] = useState<PriceComparison[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [surchargeResult, setSurchargeResult] = useState<any>(null);
+  const [surchargeMat, setSurchargeMat] = useState('6061-T6');
 
   const [lookupForm, setLookupForm] = useState({ material: '6061-T6', form: 'bar', region: 'us_midwest' });
   const [compareForm, setCompareForm] = useState({ materials: '6061-T6, 7075-T6, 304 Stainless, 4140 Steel', form: 'bar' });
@@ -64,6 +66,10 @@ export function MaterialPricingPage() {
         <button onClick={() => setTab('compare')}
           className={`px-4 py-2 rounded text-sm font-medium ${tab === 'compare' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
           Compare Materials
+        </button>
+        <button onClick={() => setTab('surcharge')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'surcharge' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Surcharges
         </button>
       </div>
 
@@ -208,6 +214,40 @@ export function MaterialPricingPage() {
             </div>
           )}
         </>
+      )}
+      {tab === 'surcharge' && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Material Surcharge Lookup</h2>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Material</label>
+                <input type="text" value={surchargeMat}
+                  onChange={e => setSurchargeMat(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await materialSurcharge({ material: surchargeMat });
+                  setSurchargeResult(r.result);
+                } catch (e) {
+                  setError(e instanceof ApiError ? e.message : 'Failed');
+                } finally { setLoading(false); }
+              }}
+                className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+                Lookup
+              </button>
+            </div>
+          </div>
+          {surchargeResult && !loading && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <pre className="text-xs font-mono overflow-auto max-h-64">
+                {JSON.stringify(surchargeResult, null, 2)}
+              </pre>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

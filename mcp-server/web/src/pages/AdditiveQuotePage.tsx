@@ -6,7 +6,7 @@ import { additiveQuote, additiveListMaterials, additiveCompareTech, ApiError } f
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { AdditiveQuoteResult, AdditiveMaterial } from '../api/types';
 
-type Tab = 'quote' | 'materials';
+type Tab = 'quote' | 'materials' | 'compare';
 
 export function AdditiveQuotePage() {
   const [tab, setTab] = useState<Tab>('quote');
@@ -14,6 +14,7 @@ export function AdditiveQuotePage() {
   const [materials, setMaterials] = useState<AdditiveMaterial[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [compareResult, setCompareResult] = useState<any>(null);
 
   const [form, setForm] = useState({
     technology: 'SLS', material: 'PA12_Nylon', quantity: '10',
@@ -71,6 +72,10 @@ export function AdditiveQuotePage() {
         <button onClick={() => setTab('materials')}
           className={`px-4 py-2 rounded text-sm font-medium ${tab === 'materials' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
           Materials
+        </button>
+        <button onClick={() => setTab('compare')}
+          className={`px-4 py-2 rounded text-sm font-medium ${tab === 'compare' ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
+          Compare Tech
         </button>
       </div>
 
@@ -169,6 +174,40 @@ export function AdditiveQuotePage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* Compare Technologies */}
+      {tab === 'compare' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Compare AM Technologies</h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Compare cost, speed, and quality across additive technologies for your part.
+            </p>
+            <button onClick={async () => {
+              setLoading(true); setError(null);
+              try {
+                const r = await additiveCompareTech({
+                  volume_cm3: parseFloat(form.volume_cm3) || 50,
+                  surface_area_cm2: parseFloat(form.surface_area_cm2) || 200,
+                  quantity: parseInt(form.quantity) || 10,
+                });
+                setCompareResult(r.result);
+              } catch (e) {
+                setError(e instanceof ApiError ? e.message : 'Compare failed');
+              } finally { setLoading(false); }
+            }}
+              className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium">
+              Compare All Technologies
+            </button>
+          </div>
+          {compareResult && (
+            <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+              <pre className="text-xs font-mono overflow-auto max-h-96">
+                {JSON.stringify(compareResult, null, 2)}
+              </pre>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -14,6 +14,8 @@ export function SecondaryOpsPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedOp, setSelectedOp] = useState('');
   const [quantity, setQuantity] = useState('100');
+  const [recMaterial, setRecMaterial] = useState('6061-T6');
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   async function loadOps() {
     setLoading(true);
@@ -67,6 +69,44 @@ export function SecondaryOpsPage() {
 
       {loading && <LoadingState label="Loading..." />}
       {error && <ErrorState message={error} onRetry={loadOps} />}
+
+      {/* Recommend */}
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-6">
+        <div className="flex gap-3 items-end">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Get Recommended Sec Ops for Material
+            </label>
+            <input type="text" value={recMaterial}
+              onChange={e => setRecMaterial(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+          </div>
+          <button onClick={async () => {
+            setLoading(true); setError(null);
+            try {
+              const r = await secOpsRecommend({ material: recMaterial, application: 'general' });
+              setRecommendations(
+                (r.result as any)?.recommendations ?? (r.result as any) ?? []
+              );
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : 'Failed');
+            } finally { setLoading(false); }
+          }}
+            className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium">
+            Recommend
+          </button>
+        </div>
+        {recommendations.length > 0 && (
+          <div className="mt-3 space-y-1">
+            {recommendations.map((r: any, i: number) => (
+              <div key={i} className="text-sm bg-blue-50 rounded p-2">
+                <span className="font-medium">{r.operation ?? r.name}</span>
+                {r.reason && <span className="text-gray-500 ml-2">— {r.reason}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Quick Quote */}
       <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm mb-6 flex gap-4 items-end">

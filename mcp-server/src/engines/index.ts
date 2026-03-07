@@ -2286,3 +2286,6 @@ export { markovChainEngine } from "./MarkovChainEngine.js";
 export { fuzzyLogicEngine } from "./FuzzyLogicEngine.js";
 export { dynamicProgrammingEngine } from "./DynamicProgrammingEngine.js";
 export { robustStatisticsEngine } from "./RobustStatisticsEngine.js";
+export { gameTheoryEngine } from "./GameTheoryEngine.js";
+export { survivalAnalysisEngine } from "./SurvivalAnalysisEngine.js";
+export { queueingTheoryEngine } from "./QueueingTheoryEngine.js";

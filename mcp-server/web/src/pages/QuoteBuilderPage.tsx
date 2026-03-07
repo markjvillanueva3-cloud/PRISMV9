@@ -6,7 +6,7 @@ import { quoteEstimate, quoteCompareMaterials, quotingGenerate, ApiError } from 
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { QuoteEstimate, MaterialComparison } from '../api/types';
 
-type Tab = 'estimate' | 'compare';
+type Tab = 'estimate' | 'compare' | 'generate';
 
 export function QuoteBuilderPage() {
   const [tab, setTab] = useState<Tab>('estimate');
@@ -14,6 +14,7 @@ export function QuoteBuilderPage() {
   const [comparisons, setComparisons] = useState<MaterialComparison[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quoteDoc, setQuoteDoc] = useState<any>(null);
 
   const [form, setForm] = useState({
     material: '6061-T6', operation: 'milling', quantity: '100',
@@ -116,6 +117,24 @@ export function QuoteBuilderPage() {
             className="bg-blue-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
             Compare Materials
           </button>
+          <button onClick={async () => {
+            setLoading(true); setError(null);
+            try {
+              const r = await quotingGenerate({
+                material: form.material, operation: form.operation,
+                quantity: parseInt(form.quantity) || 1,
+                complexity: form.complexity,
+                tolerance_mm: parseFloat(form.tolerance_mm) || 0.05,
+              });
+              setQuoteDoc(r.result);
+              setTab('generate');
+            } catch (e) {
+              setError(e instanceof ApiError ? e.message : 'Failed');
+            } finally { setLoading(false); }
+          }} disabled={loading}
+            className="bg-purple-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-purple-700 disabled:opacity-50">
+            Generate Quote Doc
+          </button>
         </div>
       </div>
 
@@ -210,6 +229,15 @@ export function QuoteBuilderPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+      {/* Generated Quote Doc */}
+      {tab === 'generate' && quoteDoc && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">Generated Quote Document</h2>
+          <pre className="text-xs font-mono overflow-auto max-h-96">
+            {JSON.stringify(quoteDoc, null, 2)}
+          </pre>
         </div>
       )}
     </div>
