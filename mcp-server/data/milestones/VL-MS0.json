@@ -12,7 +12,7 @@
         {
           "id": "U01",
           "title": "Verify/install FFmpeg, create VideoLearningEngine skeleton with extractAudio + extractKeyframes methods",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Check if ffmpeg is available on PATH, install if needed (winget install ffmpeg)",
             "Create src/engines/VideoLearningEngine.ts with class structure",
@@ -31,7 +31,7 @@
         {
           "id": "U02",
           "title": "Implement Whisper API speech-to-text integration with timestamped transcript output",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Add transcribeAudio method using OpenAI Whisper API (or local whisper.cpp fallback)",
             "Handle audio chunking for files >25MB (Whisper API limit)",
@@ -55,7 +55,7 @@
         {
           "id": "U03",
           "title": "Implement Claude Vision keyframe analysis with batched frame processing",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Add analyzeKeyframes method that sends batches of 4-6 frames to Claude Vision",
             "Craft manufacturing-specific vision prompts: extract parameter values, UI elements, toolpath patterns, machine movements",
@@ -73,7 +73,7 @@
         {
           "id": "U04",
           "title": "Build knowledge fusion pipeline: transcript + vision → structured knowledge items",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Create fuseKnowledge method that merges transcript segments with frame analysis",
             "Group by topic/timestamp to produce unified KnowledgeItem objects",
@@ -98,7 +98,7 @@
         {
           "id": "U05",
           "title": "Create prism_video_learn dispatcher action + update /video-learn skill for local files",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Add video_learn_local action to appropriate dispatcher (or create videoLearnDispatcher)",
             "Accept params: video_path (single file or directory), options (interval, max_frames, domain_override)",
@@ -116,7 +116,7 @@
         {
           "id": "U06",
           "title": "Tests + process hyperMILL E-Learning videos as validation",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Write unit tests for VideoLearningEngine (mock ffmpeg, mock APIs)",
             "Test extractAudio, extractKeyframes, transcribeAudio, analyzeKeyframes, fuseKnowledge",
