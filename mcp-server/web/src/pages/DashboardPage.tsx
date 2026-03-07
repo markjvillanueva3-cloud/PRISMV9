@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SafetyBadge } from '../components/SafetyBadge';
 import { useWebSocket, type WSMessage } from '../hooks/useWebSocket';
+import { NotificationBell, NotificationPanel, ToastContainer, useNotifications } from '../components/NotificationCenter';
 
 // ── Types ──────────────────────────────────────────────────────────
 
@@ -180,6 +181,10 @@ export function DashboardPage() {
   const [oee, setOee] = useState(MOCK_OEE);
   const [safetyScore, setSafetyScore] = useState(0.88);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const {
+    notifications, toasts, panelOpen, unreadCount,
+    setPanelOpen, addNotification, dismissToast, markRead, clearAll,
+  } = useNotifications();
 
   const onMessage = useCallback((msg: WSMessage) => {
     setLastUpdate(new Date());
@@ -187,20 +192,39 @@ export function DashboardPage() {
       case 'machine:status':
         setMachines(prev => prev.map(m =>
           m.id === msg.payload.id ? { ...m, ...msg.payload } as MachineStatus : m));
+        if (msg.payload.status === 'alarm') {
+          addNotification('critical', 'Machine Alarm',
+            `${msg.payload.name || msg.payload.id} entered alarm state`,
+            msg.payload.id);
+        }
         break;
       case 'job:progress':
         setJobs(prev => prev.map(j =>
           j.id === msg.payload.id ? { ...j, ...msg.payload } as JobProgress : j));
+        if (msg.payload.progress_pct >= 100) {
+          addNotification('success', 'Job Complete',
+            `${msg.payload.job_number} finished on ${msg.payload.machine}`,
+            msg.payload.id);
+        }
         break;
       case 'tool:wear':
         setTools(prev => prev.map(t =>
           t.id === msg.payload.id ? { ...t, ...msg.payload } as ToolLife : t));
+        if (msg.payload.life_remaining_pct <= 10) {
+          addNotification('warn', 'Tool Life Critical',
+            `${msg.payload.tool_name} at ${msg.payload.life_remaining_pct}% on ${msg.payload.machine}`,
+            msg.payload.id);
+        }
         break;
       case 'safety:alert':
         if (typeof msg.payload.score === 'number') setSafetyScore(msg.payload.score as number);
+        if (msg.payload.score < 0.7) {
+          addNotification('emergency', 'Safety Score Low',
+            `Safety score dropped to ${(msg.payload.score * 100).toFixed(0)}%`);
+        }
         break;
     }
-  }, []);
+  }, [addNotification]);
 
   const { isConnected } = useWebSocket({
     rooms: ['machine:all', 'job:all', 'tool:all', 'safety:all'],
@@ -241,8 +265,19 @@ export function DashboardPage() {
             display: 'inline-block',
           }} />
           {isConnected ? 'Live' : 'Demo'} — Updated {lastUpdate.toLocaleTimeString()}
+          <NotificationBell count={unreadCount} onClick={() => setPanelOpen(!panelOpen)} />
         </div>
       </div>
+
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      {panelOpen && (
+        <NotificationPanel
+          notifications={notifications}
+          onMarkRead={markRead}
+          onClearAll={clearAll}
+          onClose={() => setPanelOpen(false)}
+        />
+      )}
 
       {/* KPI Row */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16, marginBottom: 24 }}>
