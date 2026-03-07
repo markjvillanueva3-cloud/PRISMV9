@@ -2,11 +2,15 @@
  * Customers / CRM Page — Customer list, search, credit checks, sales pipeline, analytics.
  */
 import { useState, useEffect } from 'react';
-import { customerList, customerSearch, customerPipeline, customerTop, customerFollowUps, ApiError } from '../api/client';
+import {
+  customerList, customerSearch, customerPipeline, customerTop, customerFollowUps,
+  customerCreate, customerCreditCheck, customerAnalytics,
+  customerLogComm, customerCommHistory, ApiError,
+} from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { Customer, SalesPipeline, CustomerAnalytics } from '../api/types';
 
-type Tab = 'list' | 'pipeline' | 'top' | 'followups';
+type Tab = 'list' | 'pipeline' | 'top' | 'followups' | 'credit' | 'create' | 'comms';
 
 export function CustomersPage() {
   const [tab, setTab] = useState<Tab>('list');
@@ -18,6 +22,22 @@ export function CustomersPage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Credit check
+  const [creditCustId, setCreditCustId] = useState('');
+  const [creditAmount, setCreditAmount] = useState('');
+  const [creditResult, setCreditResult] = useState<any>(null);
+  // Create customer
+  const [newCust, setNewCust] = useState({ company: '', contact_name: '', email: '', phone: '', pricing_tier: 'standard', credit_limit: '' });
+  const [createResult, setCreateResult] = useState<any>(null);
+  // Comms
+  const [commCustId, setCommCustId] = useState('');
+  const [commType, setCommType] = useState('email');
+  const [commNotes, setCommNotes] = useState('');
+  const [commHistory, setCommHistory] = useState<any[]>([]);
+  const [commResult, setCommResult] = useState<any>(null);
+  // Analytics
+  const [analyticsCustId, setAnalyticsCustId] = useState('');
+  const [analyticsData, setAnalyticsData] = useState<any>(null);
 
   async function loadData() {
     setLoading(true);
@@ -84,12 +104,15 @@ export function CustomersPage() {
         <p className="text-sm text-gray-500 mt-1">Customer management, credit checks, sales pipeline, and analytics.</p>
       </div>
 
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-4 flex-wrap">
         {([
           { key: 'list', label: 'Customer List' },
           { key: 'pipeline', label: 'Sales Pipeline' },
           { key: 'top', label: 'Top Customers' },
           { key: 'followups', label: 'Follow-ups' },
+          { key: 'credit', label: 'Credit Check' },
+          { key: 'create', label: 'New Customer' },
+          { key: 'comms', label: 'Communications' },
         ] as { key: Tab; label: string }[]).map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2 rounded text-sm font-medium ${tab === t.key ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}>
@@ -226,6 +249,235 @@ export function CustomersPage() {
           </table>
         </div>
       )}
+      {/* Credit Check */}
+      {tab === 'credit' && !loading && (
+        <div className="space-y-4">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Credit Check</h2>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                <input type="text" value={creditCustId} onChange={(e) => setCreditCustId(e.target.value)}
+                  placeholder="CUST-001" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Order Amount ($)</label>
+                <input type="number" value={creditAmount} onChange={(e) => setCreditAmount(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await customerCreditCheck({ customer_id: creditCustId, order_amount: parseFloat(creditAmount) || 0 });
+                  setCreditResult(r.result);
+                } catch (e) { setError(e instanceof ApiError ? e.message : 'Credit check failed'); }
+                finally { setLoading(false); }
+              }} disabled={!creditCustId || !creditAmount}
+                className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium disabled:opacity-50">
+                Check
+              </button>
+            </div>
+          </div>
+          {creditResult && (
+            <div className={`rounded-lg border p-4 shadow-sm ${creditResult.approved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+              <h3 className={`text-sm font-bold mb-2 ${creditResult.approved ? 'text-green-800' : 'text-red-800'}`}>
+                {creditResult.approved ? 'APPROVED' : 'DECLINED'}
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div><span className="text-xs text-gray-500 block">Credit Limit</span><span className="font-mono font-bold">${creditResult.credit_limit?.toLocaleString() ?? '-'}</span></div>
+                <div><span className="text-xs text-gray-500 block">Current Balance</span><span className="font-mono font-bold">${creditResult.current_balance?.toLocaleString() ?? '-'}</span></div>
+                <div><span className="text-xs text-gray-500 block">Available</span><span className="font-mono font-bold">${creditResult.available_credit?.toLocaleString() ?? '-'}</span></div>
+                <div><span className="text-xs text-gray-500 block">Risk Score</span><span className="font-bold">{creditResult.risk_score ?? '-'}</span></div>
+              </div>
+              {creditResult.reason && <p className="mt-2 text-xs text-gray-600">{creditResult.reason}</p>}
+            </div>
+          )}
+          {/* Customer Analytics */}
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Customer Analytics</h2>
+            <div className="flex gap-3 items-end">
+              <div className="flex-1 max-w-md">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                <input type="text" value={analyticsCustId} onChange={(e) => setAnalyticsCustId(e.target.value)}
+                  placeholder="CUST-001" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await customerAnalytics({ customer_id: analyticsCustId });
+                  setAnalyticsData(r.result);
+                } catch (e) { setError(e instanceof ApiError ? e.message : 'Analytics failed'); }
+                finally { setLoading(false); }
+              }} disabled={!analyticsCustId}
+                className="bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium disabled:opacity-50">
+                Get Analytics
+              </button>
+            </div>
+            {analyticsData && (
+              <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: 'Total Revenue', value: `$${analyticsData.total_revenue?.toLocaleString() ?? '-'}` },
+                  { label: 'Total Jobs', value: analyticsData.total_jobs ?? '-' },
+                  { label: 'Avg Job Value', value: `$${analyticsData.avg_job_value?.toLocaleString() ?? '-'}` },
+                  { label: 'On-Time %', value: `${analyticsData.on_time_delivery_pct ?? '-'}%` },
+                  { label: 'Avg Margin', value: `${analyticsData.avg_margin_pct ?? '-'}%` },
+                  { label: 'Win Rate', value: `${analyticsData.quote_win_rate ?? '-'}%` },
+                  { label: 'Last Order', value: analyticsData.last_order_date ?? '-' },
+                  { label: 'Risk Level', value: analyticsData.risk_level ?? '-' },
+                ].map(c => (
+                  <div key={c.label} className="bg-gray-50 rounded-lg p-3 text-center">
+                    <span className="text-xs text-gray-500 block">{c.label}</span>
+                    <span className="text-lg font-bold text-gray-900">{c.value}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Create Customer */}
+      {tab === 'create' && !loading && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-4">New Customer</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Company Name</label>
+              <input type="text" value={newCust.company} onChange={(e) => setNewCust({ ...newCust, company: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contact Name</label>
+              <input type="text" value={newCust.contact_name} onChange={(e) => setNewCust({ ...newCust, contact_name: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" value={newCust.email} onChange={(e) => setNewCust({ ...newCust, email: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input type="text" value={newCust.phone} onChange={(e) => setNewCust({ ...newCust, phone: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Pricing Tier</label>
+              <select value={newCust.pricing_tier} onChange={(e) => setNewCust({ ...newCust, pricing_tier: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                <option value="standard">Standard</option>
+                <option value="preferred">Preferred</option>
+                <option value="contract">Contract</option>
+                <option value="wholesale">Wholesale</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Credit Limit ($)</label>
+              <input type="number" value={newCust.credit_limit} onChange={(e) => setNewCust({ ...newCust, credit_limit: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+            </div>
+          </div>
+          <button onClick={async () => {
+            setLoading(true); setError(null);
+            try {
+              const r = await customerCreate({ ...newCust, credit_limit: parseFloat(newCust.credit_limit) || 0 });
+              setCreateResult(r.result);
+            } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to create customer'); }
+            finally { setLoading(false); }
+          }} disabled={!newCust.company}
+            className="mt-4 bg-prism-600 text-white px-6 py-2 rounded text-sm font-medium hover:bg-prism-700 disabled:opacity-50">
+            Create Customer
+          </button>
+          {createResult && (
+            <div className="mt-3 bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">
+              Customer created: {JSON.stringify(createResult)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Communications */}
+      {tab === 'comms' && !loading && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+            <h2 className="text-lg font-semibold mb-4">Log Communication</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                <input type="text" value={commCustId} onChange={(e) => setCommCustId(e.target.value)}
+                  placeholder="CUST-001" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                <select value={commType} onChange={(e) => setCommType(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm">
+                  <option value="email">Email</option>
+                  <option value="phone">Phone</option>
+                  <option value="meeting">Meeting</option>
+                  <option value="site_visit">Site Visit</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <input type="text" value={commNotes} onChange={(e) => setCommNotes(e.target.value)}
+                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await customerLogComm({ customer_id: commCustId, type: commType, notes: commNotes });
+                  setCommResult(r.result);
+                } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to log'); }
+                finally { setLoading(false); }
+              }} disabled={!commCustId}
+                className="bg-green-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50">
+                Log
+              </button>
+              <button onClick={async () => {
+                setLoading(true); setError(null);
+                try {
+                  const r = await customerCommHistory({ customer_id: commCustId });
+                  setCommHistory((r.result as any)?.communications ?? (r.result as any) ?? []);
+                } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to load history'); }
+                finally { setLoading(false); }
+              }} disabled={!commCustId}
+                className="bg-prism-600 text-white px-4 py-2 rounded text-sm font-medium disabled:opacity-50">
+                View History
+              </button>
+            </div>
+            {commResult && (
+              <div className="mt-3 bg-green-50 border border-green-200 rounded p-3 text-sm text-green-800">Communication logged.</div>
+            )}
+          </div>
+          {commHistory.length > 0 && (
+            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase">
+                    <th className="px-4 py-3">Date</th>
+                    <th className="px-4 py-3">Type</th>
+                    <th className="px-4 py-3">Notes</th>
+                    <th className="px-4 py-3">By</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {commHistory.map((c: any, i: number) => (
+                    <tr key={i} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 text-xs font-mono">{c.date ?? c.timestamp ?? '-'}</td>
+                      <td className="px-4 py-2 capitalize">{c.type ?? '-'}</td>
+                      <td className="px-4 py-2 max-w-xs truncate">{c.notes ?? '-'}</td>
+                      <td className="px-4 py-2">{c.logged_by ?? c.user ?? '-'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Follow-ups */}
       {tab === 'followups' && followUps.length > 0 && !loading && (
         <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">

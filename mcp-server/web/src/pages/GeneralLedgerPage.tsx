@@ -2,7 +2,7 @@
  * General Ledger Page — Chart of accounts, trial balance, P&L, balance sheet.
  */
 import { useState, useEffect } from 'react';
-import { glChartOfAccounts, glTrialBalance, glIncomeStatement, glBalanceSheet, glRecordInvoice, glRecordPayment, glRecordPurchase, glRecordPayroll, ApiError } from '../api/client';
+import { glChartOfAccounts, glTrialBalance, glIncomeStatement, glBalanceSheet, glRecordInvoice, glRecordPayment, glRecordPurchase, glRecordPayroll, glJournalEntry, ApiError } from '../api/client';
 import { LoadingState, ErrorState } from '../components/LoadingState';
 import type { GLAccount, TrialBalance, IncomeStatement, BalanceSheet } from '../api/types';
 
@@ -17,10 +17,11 @@ export function GeneralLedgerPage() {
   const [recordResult, setRecordResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [recordType, setRecordType] = useState<'invoice' | 'payment' | 'purchase' | 'payroll'>('invoice');
+  const [recordType, setRecordType] = useState<'invoice' | 'payment' | 'purchase' | 'payroll' | 'journal'>('invoice');
   const [recordForm, setRecordForm] = useState({
     customer_id: '', amount: '', description: '', invoice_number: '',
     vendor_id: '', employee_count: '', period: '',
+    debit_account: '', credit_account: '', reference: '',
   });
 
   async function loadData() {
@@ -248,7 +249,7 @@ export function GeneralLedgerPage() {
           <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
             <h2 className="text-lg font-semibold mb-4">Record Transaction</h2>
             <div className="flex gap-2 mb-4">
-              {(['invoice', 'payment', 'purchase', 'payroll'] as const).map((rt) => (
+              {(['invoice', 'payment', 'purchase', 'payroll', 'journal'] as const).map((rt) => (
                 <button key={rt} onClick={() => setRecordType(rt)}
                   className={`px-3 py-1.5 rounded text-xs font-medium capitalize ${recordType === rt ? 'bg-prism-600 text-white' : 'bg-gray-100 text-gray-700'}`}>
                   {rt}
@@ -337,6 +338,38 @@ export function GeneralLedgerPage() {
                     className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
                 </div>
               </>}
+              {recordType === 'journal' && <>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Debit Account</label>
+                  <input type="text" value={recordForm.debit_account}
+                    onChange={(e) => setRecordForm({ ...recordForm, debit_account: e.target.value })}
+                    placeholder="1000" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Credit Account</label>
+                  <input type="text" value={recordForm.credit_account}
+                    onChange={(e) => setRecordForm({ ...recordForm, credit_account: e.target.value })}
+                    placeholder="2000" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                  <input type="number" value={recordForm.amount}
+                    onChange={(e) => setRecordForm({ ...recordForm, amount: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                  <input type="text" value={recordForm.description}
+                    onChange={(e) => setRecordForm({ ...recordForm, description: e.target.value })}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                  <input type="text" value={recordForm.reference}
+                    onChange={(e) => setRecordForm({ ...recordForm, reference: e.target.value })}
+                    placeholder="JE-001" className="w-full border border-gray-300 rounded px-3 py-2 text-sm" />
+                </div>
+              </>}
             </div>
             <button onClick={async () => {
               setLoading(true); setError(null);
@@ -348,6 +381,7 @@ export function GeneralLedgerPage() {
                   case 'payment': r = await glRecordPayment({ customer_id: recordForm.customer_id, amount: amt, invoice_number: recordForm.invoice_number }); break;
                   case 'purchase': r = await glRecordPurchase({ vendor_id: recordForm.vendor_id, amount: amt, description: recordForm.description }); break;
                   case 'payroll': r = await glRecordPayroll({ total_amount: amt, employee_count: parseInt(recordForm.employee_count) || 1, period: recordForm.period }); break;
+                  case 'journal': r = await glJournalEntry({ debit_account: recordForm.debit_account, credit_account: recordForm.credit_account, amount: amt, description: recordForm.description, reference: recordForm.reference }); break;
                 }
                 setRecordResult(r.result);
               } catch (e) { setError(e instanceof ApiError ? e.message : 'Failed to record'); }

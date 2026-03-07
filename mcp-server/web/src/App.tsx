@@ -40,6 +40,7 @@ import { PurchasingPage } from './pages/PurchasingPage';
 import { MachineRatesPage } from './pages/MachineRatesPage';
 import { BatchPlanningPage } from './pages/BatchPlanningPage';
 import { DocumentLearningPage } from './pages/DocumentLearningPage';
+import { FinancialAnalysisPage } from './pages/FinancialAnalysisPage';
 import { LearningProvider } from './contexts/LearningContext';
 import { LearningLayout } from './components/learning/LearningLayout';
 import { LearningDashboard } from './pages/LearningDashboard';
@@ -97,6 +98,7 @@ export function App() {
           <Route path="machine-rates" element={<MachineRatesPage />} />
           <Route path="batch-planning" element={<BatchPlanningPage />} />
           <Route path="documents" element={<DocumentLearningPage />} />
+          <Route path="financial-analysis" element={<FinancialAnalysisPage />} />
           <Route path="learning" element={<LearningLayout />}>
             <Route index element={<LearningDashboard />} />
             <Route path="assessment" element={<Assessment />} />
