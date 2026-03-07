@@ -8,7 +8,8 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 
-const ACTIONS = ["search", "cross_query", "formula", "relations", "stats"] as const;
+const ACTIONS = ["search", "cross_query", "formula", "relations", "stats",
+  "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats"] as const;
 
 let knowledgeEngine: any = null;
 
@@ -87,6 +88,46 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "stats": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
             result = await engine.getStats();
+            break;
+          }
+          // ── Tribal Knowledge ──
+          case "tribal_capture": {
+            const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
+            result = tribalKnowledgeEngine.capture({
+              title: params.title ?? "Untitled Tip",
+              body: params.body ?? params.content ?? "",
+              category: params.category ?? "general",
+              source: params.source ?? "operator",
+              material_groups: params.material_groups ?? (params.material_iso ? [params.material_iso] : undefined),
+              operation_types: params.operation_types ?? (params.operation_type ? [params.operation_type] : undefined),
+              confidence: params.confidence ?? 70,
+              tags: params.tags ?? [],
+            });
+            break;
+          }
+          case "tribal_search": {
+            const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
+            result = tribalKnowledgeEngine.search({
+              query: params.query ?? "",
+              category: params.category,
+              material_iso_group: params.material_iso_group ?? params.material_iso,
+              operation_type: params.operation_type,
+              min_confidence: params.min_confidence,
+              limit: params.limit ?? 10,
+            });
+            break;
+          }
+          case "tribal_suggest": {
+            const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
+            result = tribalKnowledgeEngine.suggest(
+              params.material_iso_group ?? params.material_iso ?? "P",
+              params.operation_type ?? "milling",
+            );
+            break;
+          }
+          case "tribal_stats": {
+            const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
+            result = tribalKnowledgeEngine.stats();
             break;
           }
         }
