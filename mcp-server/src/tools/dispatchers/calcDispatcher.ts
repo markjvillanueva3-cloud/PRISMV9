@@ -434,6 +434,12 @@ const ACTIONS = [
   "trust_region_minimize",
   // ── Geometry (BVH) ──
   "bvh_build_stats", "bvh_raycast",
+  // ── Interior Point ──
+  "interior_point_solve", "interior_point_qp",
+  // ── Rigid Body Dynamics ──
+  "rigid_body_inertia", "rigid_body_force_analysis", "rigid_body_impact",
+  // ── Voronoi ──
+  "voronoi_delaunay", "voronoi_diagram", "voronoi_nearest", "voronoi_relax",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3460,6 +3466,61 @@ export function registerCalcDispatcher(server: any): void {
             const { trustRegionEngine: tr } = await import("../../engines/TrustRegionEngine.js");
             const trFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
             result = tr.minimize(trFn, { dimensions: params.dimensions ?? 1, x0: params.x0, bounds: params.bounds, maxIterations: params.max_iterations });
+            break;
+          }
+
+          // ── Interior Point ──
+          case "interior_point_solve": {
+            const { interiorPointEngine: ip } = await import("../../engines/InteriorPointEngine.js");
+            result = ip.solve({ c: params.c, A: params.A, b: params.b, bounds: params.bounds, maxIterations: params.max_iterations });
+            break;
+          }
+          case "interior_point_qp": {
+            const { interiorPointEngine: ip } = await import("../../engines/InteriorPointEngine.js");
+            result = ip.solveQP(params.Q, params.c, params.A, params.b, params.bounds);
+            break;
+          }
+
+          // ── Rigid Body Dynamics ──
+          case "rigid_body_inertia": {
+            const { rigidBodyDynamicsEngine: rb } = await import("../../engines/RigidBodyDynamicsEngine.js");
+            const shape = params.shape ?? "box";
+            result = shape === "cylinder"
+              ? rb.cylinderInertia(params.radius, params.height, params.density, params.offset)
+              : rb.boxInertia(params.width, params.height, params.depth, params.density, params.offset);
+            break;
+          }
+          case "rigid_body_force_analysis": {
+            const { rigidBodyDynamicsEngine: rb } = await import("../../engines/RigidBodyDynamicsEngine.js");
+            const inertia = rb.boxInertia(params.width ?? 1, params.height ?? 1, params.depth ?? 1, params.density ?? 7850);
+            result = rb.forceAnalysis(params.forces, inertia, params.pivot);
+            break;
+          }
+          case "rigid_body_impact": {
+            const { rigidBodyDynamicsEngine: rb } = await import("../../engines/RigidBodyDynamicsEngine.js");
+            result = rb.impact(params.mass_a, params.velocity_a, params.mass_b, params.velocity_b, params.cor ?? 0.5, params.normal ?? { x: 1, y: 0, z: 0 });
+            break;
+          }
+
+          // ── Voronoi ──
+          case "voronoi_delaunay": {
+            const { voronoiEngine: vor } = await import("../../engines/VoronoiEngine.js");
+            result = vor.delaunay(params.points);
+            break;
+          }
+          case "voronoi_diagram": {
+            const { voronoiEngine: vor } = await import("../../engines/VoronoiEngine.js");
+            result = vor.voronoi(params.points, params.clip_bounds);
+            break;
+          }
+          case "voronoi_nearest": {
+            const { voronoiEngine: vor } = await import("../../engines/VoronoiEngine.js");
+            result = vor.nearestSite(params.points, params.query);
+            break;
+          }
+          case "voronoi_relax": {
+            const { voronoiEngine: vor } = await import("../../engines/VoronoiEngine.js");
+            result = vor.lloydRelax(params.points, params.iterations ?? 3, params.clip_bounds);
             break;
           }
 
