@@ -19,6 +19,7 @@ import { SGS_ENDMILL_PARTS_ZR, SGS_ENDMILL_PARTS_ZRM, SGS_QUICK_SPEED_FEED } fro
 import { ALL_MANUFACTURER_GRADES, type ManufacturerGrade } from "../data/multi-manufacturer-grades.js";
 import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
 import { OSG_TOOLS } from "../data/osg-tool-catalog.js";
+import { GUHRING_TOOLS } from "../data/guhring-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -741,6 +742,7 @@ export class ToolCatalogEngine {
     this._loadSGSEndmills();
     this._loadMultiManufacturerInserts();
     this._loadOSGTools();
+    this._loadGuhringTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -951,49 +953,6 @@ export class ToolCatalogEngine {
       }
     }
   }
-  private _loadOSGTools(): void {
-    for (const tool of OSG_TOOLS) {
-      const id = `OSG-${tool.edp}`;
-      if (this.tools.has(id)) continue;
-
-      const sf = SPEED_FEED_BASE.filter(s =>
-        (tool.type === "drill" && s.tool_type === "drill") ||
-        (tool.type !== "drill" && s.tool_type === "end_mill"));
-      const cuttingData: CatalogTool["cutting_data"] = {};
-      for (const s of sf) {
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min, fz_max: s.fz_max,
-        };
-      }
-
-      this.tools.set(id, {
-        id,
-        manufacturer: "OSG",
-        series: tool.type === "drill" ? "A-Brand" : "AE-VMS",
-        designation: `OSG ${tool.edp}`,
-        type: tool.type === "drill" ? "drill" : tool.type === "ball_mill" ? "ball_mill" : "end_mill",
-        material: tool.material === "carbide" ? "carbide" : "HSS",
-        coating: tool.material === "carbide" ? "TiAlN" : "TiN",
-        physical: {
-          cutting_diameter_mm: tool.cutting_diameter_mm,
-          shank_diameter_mm: tool.shank_diameter_mm ?? tool.cutting_diameter_mm,
-          overall_length_mm: tool.overall_length_mm ?? tool.cutting_diameter_mm * 6,
-          flute_length_mm: tool.flute_length_mm ?? tool.cutting_diameter_mm * 3,
-          corner_radius_mm: tool.type === "ball_mill" ? tool.cutting_diameter_mm / 2 : undefined,
-        },
-        flute_count: tool.flute_count ?? (tool.type === "drill" ? 2 : 4),
-        iso_groups: ["P", "M", "K", "N", "S"],
-        operations: tool.type === "drill" ? ["drill"] :
-          tool.type === "ball_mill" ? ["finish_3d", "profile"] :
-          ["pocket", "slot", "profile", "face"],
-        cutting_data: cuttingData,
-        coolant: tool.cutting_diameter_mm >= 5 ? "through_tool" : "flood",
-        source: "OSG_Global_Catalog",
-      });
-    }
-  }
-
   private _loadMultiManufacturerInserts(): void {
     // ISCAR insert families — proprietary systems with representative geometries
     const iscarFamilies: Array<{
@@ -1146,6 +1105,53 @@ export class ToolCatalogEngine {
         coolant: osg.material === "carbide" ? "through_tool" : "flood",
         source: "OSG_catalog",
         catalog_page: (osg as any).page,
+      });
+    }
+  }
+
+  private _loadGuhringTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const g of GUHRING_TOOLS) {
+      const id = `GUH-${g.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = g.type as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === (toolType === "reamer" ? "drill" : toolType));
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfForType) {
+        const scale = g.cutting_diameter_mm > 0 ? Math.sqrt(g.cutting_diameter_mm / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = g.shank_diameter_mm ?? g.cutting_diameter_mm;
+      const oal = g.overall_length_mm ?? g.cutting_diameter_mm * 6;
+      const loc = g.flute_length_mm ?? g.cutting_diameter_mm * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Guhring",
+        series: g.article,
+        designation: g.designation,
+        type: toolType === "reamer" ? "drill" : toolType,
+        subtype: toolType === "reamer" ? "reamer" : undefined,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: g.cutting_diameter_mm,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+        },
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "reamer" ? ["ream"] :
+                    ["pocket", "slot", "contour", "face"],
+        cutting_data: cuttingData,
+        coolant: g.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: "Guhring_catalog",
       });
     }
   }
