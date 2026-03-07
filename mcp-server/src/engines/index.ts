@@ -2793,3 +2793,11 @@ export { CastingDefectEngine, castingDefectEngine } from './CastingDefectEngine.
 export { TorsionBarEngine, torsionBarEngine } from './TorsionBarEngine.js';
 export { ColumnBucklingEngine, columnBucklingEngine } from './ColumnBucklingEngine.js';
 export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
+
+export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPostProcessorEngine.js";
+export { postProcessorGeneratorEngine, PostProcessorGeneratorEngine } from "./PostProcessorGeneratorEngine.js";
+
+// Batch 44 — ThreadGage, SurfaceIntegrity, MachineVibration
+export { ThreadGageEngine, threadGageEngine } from './ThreadGageEngine.js';
+export { SurfaceIntegrityEngine, surfaceIntegrityEngine } from './SurfaceIntegrityEngine.js';
+export { MachineVibrationEngine, machineVibrationEngine } from './MachineVibrationEngine.js';
