@@ -2732,3 +2732,12 @@ export { toolSelectionAdvisorEngine, ToolSelectionAdvisorEngine } from "./ToolSe
 
 // Grep Optimizer â€” optimizes Grep params for minimal token cost
 export { grepOptimizerEngine, GrepOptimizerEngine } from "./GrepOptimizerEngine.js";
+
+// Crane Load Engine — sling tension, wire rope SF, dynamic factors
+export { craneLoadEngine, CraneLoadEngine } from "./CraneLoadEngine.js";
+
+// Conveyor Design Engine — belt conveyor capacity, power, tension
+export { conveyorDesignEngine, ConveyorDesignEngine } from "./ConveyorDesignEngine.js";
+
+// Piping Pressure Engine — Darcy-Weisbach, Reynolds, minor losses
+export { pipingPressureEngine, PipingPressureEngine } from "./PipingPressureEngine.js";
