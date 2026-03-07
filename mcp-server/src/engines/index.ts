@@ -2490,6 +2490,15 @@ export { surfaceRoughnessEngine, SurfaceRoughnessEngine } from "./SurfaceRoughne
 // Centerless Grinding — centerless grinding setup parameters
 export { centerlessGrindingEngine, CenterlessGrindingEngine } from "./CenterlessGrindingEngine.js";
 
+// Tool Overhang — tool stickout optimization and deflection
+export { toolOverhangEngine, ToolOverhangEngine } from "./ToolOverhangEngine.js";
+
+// Cutting Force — Kienzle cutting force estimation (Fc, Fp, Ff)
+export { cuttingForceEngine, CuttingForceEngine } from "./CuttingForceEngine.js";
+
+// Chip Load — chip load optimization with thinning compensation
+export { chipLoadEngine, ChipLoadEngine } from "./ChipLoadEngine.js";
+
 // Repetition Detector — detects repeated content in tool outputs
 export { repetitionDetectorEngine, RepetitionDetectorEngine } from "./RepetitionDetectorEngine.js";
 
