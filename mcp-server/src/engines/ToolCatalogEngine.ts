@@ -21,6 +21,7 @@ import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
 import { OSG_TOOLS } from "../data/osg-tool-catalog.js";
 import { GUHRING_TOOLS } from "../data/guhring-tool-catalog.js";
 import { SANDVIK_TOOLS } from "../data/sandvik-tool-catalog.js";
+import { HAIMER_HOLDERS } from "../data/haimer-holder-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -435,7 +436,7 @@ export class ToolCatalogEngine {
       by_type: byType,
       by_manufacturer: byMfg,
       diameter_range_mm: [minDia, maxDia],
-      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length + BIG_DAISHOWA_HOLDERS.length,
+      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length + BIG_DAISHOWA_HOLDERS.length + HAIMER_HOLDERS.length,
       speed_feed_entries: SPEED_FEED_BASE.length,
     };
   }
@@ -518,7 +519,29 @@ export class ToolCatalogEngine {
       };
     }
 
-    // 2. Try BIG DAISHOWA (has RPM/runout but no body_diameter — estimate from bore)
+    // 2. Try Haimer catalog (real body_diameter + gauge_length for collision)
+    const haimerMatch = HAIMER_HOLDERS.find(h => {
+      const normTaper = taper.replace(/-/g, "");
+      const normHTaper = h.taper.replace(/-/g, "");
+      if (normHTaper !== normTaper && !normHTaper.includes(normTaper) && !normTaper.includes(normHTaper)) return false;
+      if (Math.abs(h.bore_diameter_mm - shank_mm) > 0.5) return false;
+      if (holderType && !h.holder_type.toLowerCase().includes(holderType.toLowerCase())) return false;
+      return true;
+    });
+    if (haimerMatch) {
+      return {
+        type: `${haimerMatch.holder_type}_${haimerMatch.bore_diameter_mm}`,
+        taper: haimerMatch.taper,
+        bore_min: haimerMatch.bore_diameter_mm,
+        bore_max: haimerMatch.bore_diameter_mm,
+        gauge_length: haimerMatch.gauge_length_mm ?? 50,
+        body_diameter: haimerMatch.body_diameter_mm ?? haimerMatch.bore_diameter_mm * 2.5,
+        max_rpm: 42000,
+        runout_um: 3,
+      };
+    }
+
+    // 3. Try BIG DAISHOWA (has RPM/runout but no body_diameter — estimate from bore)
     const bigMatch = BIG_DAISHOWA_HOLDERS.find(h => {
       const normTaper = h.taper.replace("BBT", "BT");
       return (normTaper === taper || h.taper === taper) &&
@@ -540,7 +563,7 @@ export class ToolCatalogEngine {
       };
     }
 
-    // 3. Fall back to generic HOLDER_DIMS
+    // 4. Fall back to generic HOLDER_DIMS
     return HOLDER_DIMS.find(h =>
       h.taper === taper && shank_mm >= h.bore_min && shank_mm <= h.bore_max &&
       (holderType ? h.type.toLowerCase().includes(holderType.toLowerCase()) : true)
@@ -745,6 +768,7 @@ export class ToolCatalogEngine {
     this._loadOSGTools();
     this._loadGuhringTools();
     this._loadSandvikTools();
+    this._loadHaimerHolders();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -1156,6 +1180,11 @@ export class ToolCatalogEngine {
         source: "Guhring_catalog",
       });
     }
+  }
+
+  private _loadHaimerHolders(): void {
+    // Haimer holders used directly in _findHolder() from HAIMER_HOLDERS import.
+    // No tool entries needed — holders aren't cutting tools.
   }
 
   private _loadSandvikTools(): void {
