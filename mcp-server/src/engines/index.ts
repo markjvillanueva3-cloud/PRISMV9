@@ -2708,3 +2708,6 @@ export { toolOutputFingerprinterEngine, ToolOutputFingerprinterEngine } from "./
 
 // Context Window Map — live inventory of context consumers with stale detection
 export { contextWindowMapEngine, ContextWindowMapEngine } from "./ContextWindowMapEngine.js";
+
+// Tool Call Throttle — rate-limits tool calls with burst detection and cooldowns
+export { toolCallThrottleEngine, ToolCallThrottleEngine } from "./ToolCallThrottleEngine.js";
