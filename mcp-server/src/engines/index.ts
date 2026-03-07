@@ -2322,6 +2322,9 @@ export { rampingEngine, RampingEngine } from "./RampingEngine.js";
 export { microMachiningEngine, MicroMachiningEngine } from "./MicroMachiningEngine.js";
 export { spindleSpeedVariationEngine, SpindleSpeedVariationEngine } from "./SpindleSpeedVariationEngine.js";
 export { coolantPressureEngine, CoolantPressureEngine } from "./CoolantPressureEngine.js";
+export { tapDrillEngine, TapDrillEngine } from "./TapDrillEngine.js";
+export { powerSkivingEngine, PowerSkivingEngine } from "./PowerSkivingEngine.js";
+export { waterjetEngine, WaterjetEngine } from "./WaterjetEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
