@@ -11,7 +11,7 @@
 
 | Category | Count | Location |
 |----------|-------|----------|
-| **Engines** | 375 files (366 exported, 9 unwired) | `src/engines/` |
+| **Engines** | 375 files (374 exported, 1 bootstrap) | `src/engines/` |
 | **Algorithms** | 52 (18 physics, 18 ML/optimization, 14 mfg-specific, 2 support) | `src/algorithms/` |
 | **Dispatchers** | 54 files | `src/tools/dispatchers/` |
 | **Actions** | 1670 total across all dispatchers | dispatchers |
@@ -20,7 +20,7 @@
 | **Cadences** | 12 (6 core + 6 specialty) | `src/hooks/CadenceDefinitions.ts` |
 | **Formulas** | 499 (109 built-in + 390 JSON) across 20 domains | `FormulaRegistry` |
 | **Registries** | 23 TypeScript files | `src/registries/` |
-| **Tests (Backend)** | 5831 passing, 178 files | `src/__tests__/` |
+| **Tests (Backend)** | 5848 passing, 179 files | `src/__tests__/` |
 | **Tests (Web)** | 85 tests, 7 files | `web/src/__tests__/` |
 | **Tests (CAD-Engine)** | 2085 tests, 87 files | `cad-engine/tests/` |
 | **Tests (E2E)** | 11 E2E test files | `cad-engine/tests/e2e/` |
@@ -52,7 +52,7 @@
 - **Multi-Axis** (6): FiveAxisKinematics, RTCP, +4 more
 - **Specialty** (4): EDM, SheetMetal, Additive, InjectionMold
 
-### Unwired (9) — on disk but not exported
+### Unwired (1) — on disk but not exported
 Reserved for future wiring. Includes experimental, specialty, and recently-created engines awaiting dispatcher integration.
 
 ---
