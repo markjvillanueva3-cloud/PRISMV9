@@ -2369,3 +2369,6 @@ export { costEstimatorEngine, CostEstimatorEngine } from "./CostEstimatorEngine.
 
 // Diff Token Estimator — estimates token cost of code changes
 export { diffTokenEstimatorEngine, DiffTokenEstimatorEngine } from "./DiffTokenEstimatorEngine.js";
+
+// Engine Registry — lightweight engine capability registry
+export { engineRegistryEngine, EngineRegistryEngine } from "./EngineRegistryEngine.js";
