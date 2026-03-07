@@ -2307,6 +2307,9 @@ export { circularInterpolationEngine, CircularInterpolationEngine } from "./Circ
 export { trochoidalMillingEngine, TrochoidalMillingEngine } from "./TrochoidalMillingEngine.js";
 export { plungeMillingEngine, PlungeMillingEngine } from "./PlungeMillingEngine.js";
 export { threadTurningEngine, ThreadTurningEngine } from "./ThreadTurningEngine.js";
+export { boringBarEngine, BoringBarEngine } from "./BoringBarEngine.js";
+export { gunDrillingEngine, GunDrillingEngine } from "./GunDrillingEngine.js";
+export { grindingWheelEngine, GrindingWheelEngine } from "./GrindingWheelEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2381,3 +2384,6 @@ export { smartDefaultsEngine, SmartDefaultsEngine } from "./SmartDefaultsEngine.
 
 // Error Context — minimal diagnostic context for errors
 export { errorContextEngine, ErrorContextEngine } from "./ErrorContextEngine.js";
+
+// Import Cost — import chain analysis for bundle optimization
+export { importCostEngine, ImportCostEngine } from "./ImportCostEngine.js";
