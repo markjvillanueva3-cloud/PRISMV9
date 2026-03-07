@@ -2345,3 +2345,6 @@ export { outputBudgetEngine, OutputBudgetEngine } from "./OutputBudgetEngine.js"
 
 // Context Digest — ultra-compact file/directory structural summaries
 export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.js";
+
+// Action Schema Cache — cached action parameter schemas
+export { actionSchemaCacheEngine, ActionSchemaCacheEngine } from "./ActionSchemaCacheEngine.js";
