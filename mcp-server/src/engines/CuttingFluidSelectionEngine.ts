@@ -109,6 +109,9 @@ export class CuttingFluidSelectionEngine {
     } else if (iso === "S" || iso === "H") {
       fluidType = vc > 80 ? "cryogenic" : "soluble_oil";
       alternatives.push("semi_synthetic");
+    } else if (iso === "K" && !deepHole) {
+      fluidType = "dry";
+      alternatives.push("mql", "full_synthetic");
     } else if (iso === "N" && !deepHole) {
       fluidType = "mql";
       alternatives.push("full_synthetic", "dry");

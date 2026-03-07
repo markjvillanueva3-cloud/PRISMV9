@@ -99,15 +99,12 @@ describe("CuttingFluidSelectionEngine", () => {
     expect(r.recommended_type).toBe("cryogenic");
   });
 
-  it("warns on cast iron with coolant", () => {
+  it("recommends dry for cast iron milling", () => {
     const r = engine.calculate({
       operation: "milling",
       material_iso_group: "K",
     });
-    expect(
-      r.warnings.some(w => w.includes("dry") ||
-        w.includes("thermal shock"))
-    ).toBe(true);
+    expect(r.recommended_type).toBe("dry");
   });
 
   it("warns on deep hole with MQL", () => {
