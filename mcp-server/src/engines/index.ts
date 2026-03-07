@@ -2411,3 +2411,9 @@ export { gCodeSnippetEngine, GCodeSnippetEngine } from "./GCodeSnippetEngine.js"
 
 // Conversation Budget — conversation-level token budget management
 export { conversationBudgetEngine, ConversationBudgetEngine } from "./ConversationBudgetEngine.js";
+
+// Tool Call Batch — tool call batching advisor for parallel opportunities
+export { toolCallBatchEngine, ToolCallBatchEngine } from "./ToolCallBatchEngine.js";
+
+// Stop Condition — tool call stop/skip decision engine
+export { stopConditionEngine, StopConditionEngine } from "./StopConditionEngine.js";
