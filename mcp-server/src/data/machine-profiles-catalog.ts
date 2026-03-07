@@ -14,6 +14,7 @@
  */
 
 import type { MachineProfile } from "../engines/MachineProfileEngine.js";
+import { EXTENDED_MACHINE_CATALOG_EXT } from "./machine-profiles-catalog-ext.js";
 
 // ════════════════════════════════════════════════════════════════════════════════
 // Extended interfaces for richer machine data from archive
@@ -862,6 +863,7 @@ export const EXTENDED_MACHINE_CATALOG: ExtendedMachineProfile[] = [
   ...OKUMA_PROFILES,
   ...HERMLE_PROFILES,
   ...DOOSAN_PROFILES,
+  ...EXTENDED_MACHINE_CATALOG_EXT,
 ];
 
 /** Map archive "type" strings to MachineProfile.type */

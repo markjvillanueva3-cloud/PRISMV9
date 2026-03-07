@@ -169,9 +169,15 @@ const DEFAULT_MACHINES: MachineProfile[] = [
   },
 ];
 
-// ── Runtime storage (defaults + user-added) ──
+// ── Runtime storage (defaults + catalog + user-added) ──
 const machines = new Map<string, MachineProfile>();
 for (const m of DEFAULT_MACHINES) machines.set(m.id, m);
+
+// Load extended catalog profiles (239 machines from monolith extraction)
+import { toCatalogProfiles } from "../data/machine-profiles-catalog.js";
+for (const p of toCatalogProfiles()) {
+  if (!machines.has(p.id)) machines.set(p.id, p);
+}
 
 export interface ValidationResult {
   valid: boolean;
