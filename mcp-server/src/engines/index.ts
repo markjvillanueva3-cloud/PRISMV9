@@ -2553,6 +2553,15 @@ export { toolCallHistogramEngine, ToolCallHistogramEngine } from "./ToolCallHist
 // Waste Detector — detects token waste patterns in real-time
 export { wasteDetectorEngine, WasteDetectorEngine } from "./WasteDetectorEngine.js";
 
+// Hook Rule Matcher — matches tool calls against hookify rules
+export { hookRuleMatcherEngine, HookRuleMatcherEngine } from "./HookRuleMatcherEngine.js";
+
+// Schema Compact — compacts JSON schemas for token efficiency
+export { schemaCompactEngine, SchemaCompactEngine } from "./SchemaCompactEngine.js";
+
+// Token Budget Allocator — allocates token budget across task phases
+export { tokenBudgetAllocatorEngine, TokenBudgetAllocatorEngine } from "./TokenBudgetAllocatorEngine.js";
+
 // Spindle Bearing Load — L10 life, DN value, preload, lubrication
 export { spindleBearingLoadEngine, SpindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
 
@@ -2597,3 +2606,12 @@ export { toolCostPerPartEngine, ToolCostPerPartEngine } from "./ToolCostPerPartE
 
 // Spindle Load Monitor — alarm thresholds, breakage detection, wear trend
 export { spindleLoadMonitorEngine, SpindleLoadMonitorEngine } from "./SpindleLoadMonitorEngine.js";
+
+// Ball Screw Selection — shaft sizing, critical speed, buckling, L10 life
+export { ballScrewSelectionEngine, BallScrewSelectionEngine } from "./BallScrewSelectionEngine.js";
+
+// CNC Maintenance — PM schedules, lube intervals, risk scoring, cost
+export { cncMaintenanceEngine, CNCMaintenanceEngine } from "./CNCMaintenanceEngine.js";
+
+// Setup Reduction — SMED analysis, internal/external split, ROI
+export { setupReductionEngine, SetupReductionEngine } from "./SetupReductionEngine.js";
