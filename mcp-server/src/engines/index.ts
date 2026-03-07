@@ -2705,3 +2705,6 @@ export { electricMotorEngine, ElectricMotorEngine } from "./ElectricMotorEngine.
 
 // Tool Output Fingerprinter — detects recurring duplicate outputs via hashing
 export { toolOutputFingerprinterEngine, ToolOutputFingerprinterEngine } from "./ToolOutputFingerprinterEngine.js";
+
+// Context Window Map — live inventory of context consumers with stale detection
+export { contextWindowMapEngine, ContextWindowMapEngine } from "./ContextWindowMapEngine.js";
