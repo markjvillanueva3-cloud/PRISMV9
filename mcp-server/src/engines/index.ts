@@ -2366,3 +2366,6 @@ export { frequentPathEngine, FrequentPathEngine } from "./FrequentPathEngine.js"
 
 // Cost Estimator — quick manufacturing cost estimation
 export { costEstimatorEngine, CostEstimatorEngine } from "./CostEstimatorEngine.js";
+
+// Diff Token Estimator — estimates token cost of code changes
+export { diffTokenEstimatorEngine, DiffTokenEstimatorEngine } from "./DiffTokenEstimatorEngine.js";
