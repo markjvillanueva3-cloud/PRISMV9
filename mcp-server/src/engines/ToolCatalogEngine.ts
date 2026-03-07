@@ -14,6 +14,7 @@
 import { TUNGALOY_HOLDERS, type TungaloyHolder } from "../data/tungaloy-holder-catalog.js";
 import { TUNGALOY_ENDMILLS } from "../data/tungaloy-endmill-catalog.js";
 import { TUNGALOY_DRILLS } from "../data/tungaloy-drill-catalog.js";
+import { TUNGALOY_INSERT_SHAPES, TUNGALOY_TURNING_GRADES, TUNGALOY_CHIPBREAKERS, TUNGALOY_GROOVING_INSERTS } from "../data/tungaloy-turning-catalog.js";
 import { SGS_ENDMILL_PARTS_ZR, SGS_ENDMILL_PARTS_ZRM, SGS_QUICK_SPEED_FEED } from "../data/sgs-tool-catalog.js";
 import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
 
@@ -725,6 +726,7 @@ export class ToolCatalogEngine {
     // Load manufacturer catalog tools
     this._loadTungaloyEndmills();
     this._loadTungaloyDrills();
+    this._loadTungaloyTurning();
     this._loadSGSEndmills();
   }
 
@@ -863,6 +865,77 @@ export class ToolCatalogEngine {
         coolant: td.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
         source: "Tungaloy_GC_2023-2024",
       });
+    }
+  }
+
+  /** Load Tungaloy turning inserts from GC_2023-2024 catalog */
+  private _loadTungaloyTurning(): void {
+    // Create catalog entries for each insert shape + grade combination
+    for (const shape of TUNGALOY_INSERT_SHAPES) {
+      for (const grade of TUNGALOY_TURNING_GRADES) {
+        // Only create entries where grade is first_choice or second_choice for at least one group
+        const suitableGroups = (Object.entries(grade.iso_suitability) as [string, string][])
+          .filter(([, v]) => v === 'first_choice' || v === 'second_choice')
+          .map(([k]) => k);
+        if (suitableGroups.length === 0) continue;
+
+        const ic = shape.inscribed_circle_mm[0]; // Use smallest IC
+        const id = `TNG-T-${shape.code}-${grade.code}`;
+        if (this.tools.has(id)) continue;
+
+        this.tools.set(id, {
+          id,
+          manufacturer: "Tungaloy",
+          series: "GC_2023-2024",
+          designation: `${shape.code} ${grade.code}`,
+          type: shape.code.endsWith('A') ? "insert" : "turning_tool",
+          subtype: grade.application,
+          material: grade.substrate === 'carbide' ? 'carbide' :
+                    grade.substrate === 'cermet' ? 'cermet' :
+                    grade.substrate === 'cbn' ? 'cbn' :
+                    grade.substrate === 'pcd' ? 'pcd' : 'ceramic',
+          coating: grade.coating === 'uncoated' ? undefined : grade.coating,
+          physical: {
+            cutting_diameter_mm: ic,
+            shank_diameter_mm: ic,
+            overall_length_mm: ic * 1.2,
+            flute_length_mm: ic * 0.5,
+            nose_radius_mm: 0.8, // common default
+          },
+          iso_groups: suitableGroups,
+          operations: grade.application.includes('grooving') ? ["grooving", "parting"] :
+                      grade.application.includes('threading') ? ["threading"] :
+                      ["turning", "facing", "boring"],
+          source: "Tungaloy_GC_2023-2024_Turning",
+        });
+      }
+    }
+
+    // Also load grooving insert series
+    for (const series of TUNGALOY_GROOVING_INSERTS) {
+      for (const cw of series.cut_width_mm) {
+        const id = `TNG-G-${series.series}-${cw}`;
+        if (this.tools.has(id)) continue;
+
+        this.tools.set(id, {
+          id,
+          manufacturer: "Tungaloy",
+          series: series.series,
+          designation: `${series.series}${cw}`,
+          type: "grooving_tool",
+          subtype: series.application,
+          material: "carbide",
+          physical: {
+            cutting_diameter_mm: cw,
+            shank_diameter_mm: cw,
+            overall_length_mm: 20,
+            flute_length_mm: series.max_doc_mm,
+          },
+          iso_groups: series.iso_groups,
+          operations: ["grooving", "parting", "turning"],
+          source: "Tungaloy_GC_2023-2024_Turning",
+        });
+      }
     }
   }
 }
