@@ -2442,6 +2442,12 @@ export { sessionBudgetAdvisorEngine, SessionBudgetAdvisorEngine } from "./Sessio
 // Helical Milling — helical interpolation bore milling parameters
 export { helicalMillingEngine, HelicalMillingEngine } from "./HelicalMillingEngine.js";
 
+// Tool Cost Predictor — pre-execution token cost prediction
+export { toolCostPredictorEngine, ToolCostPredictorEngine } from "./ToolCostPredictorEngine.js";
+
+// Output Truncator — smart output truncation preserving structure
+export { outputTruncatorEngine, OutputTruncatorEngine } from "./OutputTruncatorEngine.js";
+
 // Peck Drilling — deep hole peck drilling parameter calculator
 export { peckDrillingEngine, PeckDrillingEngine } from "./PeckDrillingEngine.js";
 
@@ -2456,3 +2462,12 @@ export { keywayEngine, KeywayEngine } from "./KeywayEngine.js";
 
 // Countersink — countersink depth and parameter calculator
 export { countersinkEngine, CountersinkEngine } from "./CountersinkEngine.js";
+
+// Slotting — slot milling parameter calculator
+export { slottingEngine, SlottingEngine } from "./SlottingEngine.js";
+
+// Profiling — 2D/3D profile milling with wall deflection
+export { profilingEngine, ProfilingEngine } from "./ProfilingEngine.js";
+
+// Counterboring — counterbore dimensions for SHCS fasteners
+export { counterboringEngine, CounterboringEngine } from "./CounterboringEngine.js";
