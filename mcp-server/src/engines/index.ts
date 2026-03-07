@@ -2325,6 +2325,9 @@ export { coolantPressureEngine, CoolantPressureEngine } from "./CoolantPressureE
 export { tapDrillEngine, TapDrillEngine } from "./TapDrillEngine.js";
 export { powerSkivingEngine, PowerSkivingEngine } from "./PowerSkivingEngine.js";
 export { waterjetEngine, WaterjetEngine } from "./WaterjetEngine.js";
+export { springPassEngine, SpringPassEngine } from "./SpringPassEngine.js";
+export { toolPathStepoverEngine, ToolPathStepoverEngine } from "./ToolPathStepoverEngine.js";
+export { surfaceGrindingEngine, SurfaceGrindingEngine } from "./SurfaceGrindingEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
