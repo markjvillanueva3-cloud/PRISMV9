@@ -2610,6 +2610,9 @@ export { partDeflectionEngine, PartDeflectionEngine } from "./PartDeflectionEngi
 // Tool Call Deduplicator — detects exact and near-duplicate tool calls
 export { toolCallDeduplicatorEngine, ToolCallDeduplicatorEngine } from "./ToolCallDeduplicatorEngine.js";
 
+// Response Cache — caches tool responses with TTL for deduplication
+export { responseCacheEngine, ResponseCacheEngine } from "./ResponseCacheEngine.js";
+
 // Machine Warmup — spindle/axis warmup schedule, thermal stability, first-part risk
 export { machineWarmupEngine, MachineWarmupEngine } from "./MachineWarmupEngine.js";
 

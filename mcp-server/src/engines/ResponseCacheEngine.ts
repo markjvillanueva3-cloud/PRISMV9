@@ -1,194 +1,168 @@
 /**
- * ResponseCacheEngine — In-memory result caching for expensive dispatcher calls
+ * ResponseCacheEngine � Caches recent tool responses for deduplication
  *
- * Caches dispatcher results with TTL-based expiration.
- * Saves tokens by avoiding redundant tool calls for the same query.
+ * Stores tool call results keyed by tool+params hash. When an identical
+ * call is made within the TTL window, returns cached result instead of
+ * re-executing. Configurable per-tool TTLs and max cache size.
  *
- * Features:
- * - TTL-based expiration (configurable per entry)
- * - LRU eviction when cache is full
- * - Cache key generation from action + params
- * - Hit/miss statistics
- * - Manual invalidation
+ * Token savings: 200-5000 tokens per cache hit.
  *
  * @version 1.0.0
  */
 
-import { log } from "../utils/Logger.js";
-
-interface CacheEntry {
-  key: string;
-  data: any;
-  expiresAt: number;
-  createdAt: number;
+export interface CacheEntry {
+  tool: string;
+  params: string;
+  result: string;
+  tokens: number;
+  timestamp: number;
   hits: number;
-  lastAccess: number;
+}
+
+export interface CacheLookupResult {
+  hit: boolean;
+  entry?: CacheEntry;
+  savedTokens?: number;
 }
 
 export interface CacheStats {
-  size: number;
-  maxSize: number;
-  hits: number;
-  misses: number;
-  hitRate: string;
-  evictions: number;
-  oldestEntry: string | null;
-  newestEntry: string | null;
+  entries: number;
+  totalHits: number;
+  totalSavedTokens: number;
+  hitRate: number;
+  topTools: Array<{ tool: string; hits: number; savedTokens: number }>;
 }
 
+const DEFAULT_TTLS: Record<string, number> = {
+  Read: 60,
+  Glob: 120,
+  Grep: 90,
+  WebFetch: 300,
+  WebSearch: 300,
+  "context7-query": 600,
+};
+
 export class ResponseCacheEngine {
-  private cache: Map<string, CacheEntry> = new Map();
-  private maxSize: number;
-  private defaultTTL: number;
+  private cache = new Map<string, CacheEntry>();
+  private defaultTtlMs: number;
+  private toolTtls: Record<string, number>;
+  private maxEntries: number;
   private totalHits = 0;
-  private totalMisses = 0;
-  private totalEvictions = 0;
+  private totalSavedTokens = 0;
 
-  /**
-   * @param maxSize Maximum cache entries (default: 200)
-   * @param defaultTTL Default TTL in milliseconds (default: 5 min)
-   */
-  constructor(maxSize = 200, defaultTTL = 5 * 60 * 1000) {
-    this.maxSize = maxSize;
-    this.defaultTTL = defaultTTL;
+  constructor(defaultTtlSeconds = 120, maxEntries = 100) {
+    this.defaultTtlMs = defaultTtlSeconds * 1000;
+    this.maxEntries = maxEntries;
+    this.toolTtls = {};
+    for (const [tool, secs] of Object.entries(DEFAULT_TTLS)) {
+      this.toolTtls[tool] = secs * 1000;
+    }
   }
 
-  /**
-   * Generate a deterministic cache key from action + params.
-   */
-  makeKey(action: string, params: Record<string, any> = {}): string {
-    const sortedParams = Object.keys(params)
-      .filter(k => k !== "action" && params[k] !== undefined)
-      .sort()
-      .map(k => `${k}=${JSON.stringify(params[k])}`)
-      .join("&");
-    return `${action}|${sortedParams}`;
-  }
-
-  /**
-   * Get a cached result, or undefined if not found/expired.
-   */
-  get(key: string): any | undefined {
+  lookup(tool: string, params: Record<string, unknown>): CacheLookupResult {
+    this.evictExpired();
+    const key = this.makeKey(tool, params);
     const entry = this.cache.get(key);
-    if (!entry) {
-      this.totalMisses++;
-      return undefined;
-    }
-
-    if (Date.now() > entry.expiresAt) {
+    if (!entry) return { hit: false };
+    const ttl = this.toolTtls[tool] ?? this.defaultTtlMs;
+    if (Date.now() - entry.timestamp > ttl) {
       this.cache.delete(key);
-      this.totalMisses++;
-      return undefined;
+      return { hit: false };
     }
-
     entry.hits++;
-    entry.lastAccess = Date.now();
     this.totalHits++;
-    return entry.data;
+    this.totalSavedTokens += entry.tokens;
+    return { hit: true, entry, savedTokens: entry.tokens };
   }
 
-  /**
-   * Store a result in the cache.
-   */
-  set(key: string, data: any, ttl?: number): void {
-    // Evict if at capacity
-    if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
-      this.evictLRU();
-    }
-
+  store(tool: string, params: Record<string, unknown>, result: string): void {
+    const key = this.makeKey(tool, params);
+    const tokens = Math.ceil(result.length / 4);
     this.cache.set(key, {
-      key,
-      data,
-      expiresAt: Date.now() + (ttl || this.defaultTTL),
-      createdAt: Date.now(),
+      tool,
+      params: JSON.stringify(params),
+      result,
+      tokens,
+      timestamp: Date.now(),
       hits: 0,
-      lastAccess: Date.now()
     });
+    if (this.cache.size > this.maxEntries) {
+      const oldest = this.cache.keys().next().value;
+      if (oldest) this.cache.delete(oldest);
+    }
   }
 
-  /**
-   * Get or compute: returns cached value or calls compute function and caches result.
-   */
-  async getOrCompute<T>(key: string, compute: () => Promise<T>, ttl?: number): Promise<T> {
-    const cached = this.get(key);
-    if (cached !== undefined) return cached as T;
-
-    const result = await compute();
-    this.set(key, result, ttl);
-    return result;
-  }
-
-  /**
-   * Invalidate a specific key.
-   */
-  invalidate(key: string): boolean {
-    return this.cache.delete(key);
-  }
-
-  /**
-   * Invalidate all keys matching a prefix (e.g., all "speed_feed_calc|" entries).
-   */
-  invalidatePrefix(prefix: string): number {
-    let count = 0;
-    for (const key of this.cache.keys()) {
-      if (key.startsWith(prefix)) {
+  invalidate(filePath: string): number {
+    let removed = 0;
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.params.includes(filePath)) {
         this.cache.delete(key);
-        count++;
+        removed++;
       }
     }
-    if (count > 0) log.info(`[ResponseCache] Invalidated ${count} entries matching "${prefix}"`);
-    return count;
+    return removed;
   }
 
-  /**
-   * Clear all cached entries.
-   */
-  clear(): void {
-    this.cache.clear();
-    log.info("[ResponseCache] Cache cleared");
-  }
-
-  /**
-   * Get cache statistics.
-   */
-  getStats(): CacheStats {
-    const total = this.totalHits + this.totalMisses;
-    let oldest: CacheEntry | null = null;
-    let newest: CacheEntry | null = null;
-
-    for (const entry of this.cache.values()) {
-      if (!oldest || entry.createdAt < oldest.createdAt) oldest = entry;
-      if (!newest || entry.createdAt > newest.createdAt) newest = entry;
+  invalidateTool(tool: string): number {
+    let removed = 0;
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.tool === tool) {
+        this.cache.delete(key);
+        removed++;
+      }
     }
+    return removed;
+  }
 
+  setTtl(tool: string, seconds: number): void {
+    this.toolTtls[tool] = seconds * 1000;
+  }
+
+  stats(): CacheStats {
+    const toolMap = new Map<string, { hits: number; savedTokens: number }>();
+    let totalLookups = this.totalHits;
+    for (const entry of this.cache.values()) {
+      const existing = toolMap.get(entry.tool) ?? { hits: 0, savedTokens: 0 };
+      existing.hits += entry.hits;
+      existing.savedTokens += entry.hits * entry.tokens;
+      toolMap.set(entry.tool, existing);
+      totalLookups++;
+    }
+    const topTools = Array.from(toolMap.entries())
+      .map(([tool, data]) => ({ tool, ...data }))
+      .sort((a, b) => b.savedTokens - a.savedTokens)
+      .slice(0, 5);
     return {
-      size: this.cache.size,
-      maxSize: this.maxSize,
-      hits: this.totalHits,
-      misses: this.totalMisses,
-      hitRate: total > 0 ? `${((this.totalHits / total) * 100).toFixed(1)}%` : "N/A",
-      evictions: this.totalEvictions,
-      oldestEntry: oldest ? oldest.key : null,
-      newestEntry: newest ? newest.key : null
+      entries: this.cache.size,
+      totalHits: this.totalHits,
+      totalSavedTokens: this.totalSavedTokens,
+      hitRate: totalLookups > 0 ? this.totalHits / totalLookups : 0,
+      topTools,
     };
   }
 
-  // ── Private ──────────────────────────────────────────────────
+  oneLiner(): string {
+    const s = this.stats();
+    return `Cache: ${s.entries} entries, ${s.totalHits} hits, ~${s.totalSavedTokens} tokens saved`;
+  }
 
-  private evictLRU(): void {
-    let lruKey: string | null = null;
-    let lruTime = Infinity;
+  reset(): void {
+    this.cache.clear();
+    this.totalHits = 0;
+    this.totalSavedTokens = 0;
+  }
 
-    for (const [key, entry] of this.cache) {
-      if (entry.lastAccess < lruTime) {
-        lruTime = entry.lastAccess;
-        lruKey = key;
+  private makeKey(tool: string, params: Record<string, unknown>): string {
+    return `${tool}:${JSON.stringify(params, Object.keys(params).sort())}`;
+  }
+
+  private evictExpired(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.cache.entries()) {
+      const ttl = this.toolTtls[entry.tool] ?? this.defaultTtlMs;
+      if (now - entry.timestamp > ttl) {
+        this.cache.delete(key);
       }
-    }
-
-    if (lruKey) {
-      this.cache.delete(lruKey);
-      this.totalEvictions++;
     }
   }
 }
