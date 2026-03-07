@@ -11,7 +11,9 @@
  *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance,
  *   cam_translate, cam_compare_controllers, cam_material_recommend,
  *   cam_multicam_recommend, cam_multicam_list, cam_multicam_compare,
- *   cam_multicam_flagship, post_feed_optimize, post_feed_analyze
+ *   cam_multicam_flagship, post_feed_optimize, post_feed_analyze,
+ *   gcode_transpile, gcode_transpile_dialects, gcode_transpile_cycles,
+ *   stability_rpm_rewrite, stability_rpm_analyze
  *
  * Engine dependencies: CAMKernelEngine, ToolpathGenerationEngine,
  *   PostProcessorEngine, CollisionDetectionEngine, StockModelEngine,
@@ -26,7 +28,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -53,6 +55,8 @@ async function getEngine(name: string): Promise<any> {
     case "portability": return _portability ??= (await import("../../engines/CamKnowledgePortabilityEngine.js")).camKnowledgePortabilityEngine;
     case "multiCam": return _multiCam ??= (await import("../../engines/MultiCamStrategyEngine.js")).multiCamStrategyEngine;
     case "feedOpt": return _feedOpt ??= (await import("../../engines/PostProcessorFeedOptimizerEngine.js")).postProcessorFeedOptimizer;
+    case "transpiler": return _transpiler ??= (await import("../../engines/GCodeTranspilerEngine.js")).gcodeTranspiler;
+    case "stabilityRPM": return _stabilityRPM ??= (await import("../../engines/StabilityRPMRewriterEngine.js")).stabilityRPMRewriter;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -80,6 +84,11 @@ const ACTIONS = [
   "cam_multicam_flagship",
   "post_feed_optimize",
   "post_feed_analyze",
+  "gcode_transpile",
+  "gcode_transpile_dialects",
+  "gcode_transpile_cycles",
+  "stability_rpm_rewrite",
+  "stability_rpm_analyze",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -558,6 +567,57 @@ Params vary by action — pass relevant fields in params object.`,
               enablePlungeLimiting: params.enable_plunge_limiting,
               enableStabilityCheck: params.enable_stability_check,
               stabilityMaxDoc_mm: params.stability_max_doc_mm,
+            });
+            break;
+          }
+          case "gcode_transpile": {
+            const tr = await getEngine("transpiler");
+            result = tr.transpile(params.gcode, {
+              source: params.source ?? params.source_dialect,
+              target: params.target ?? params.target_dialect,
+              preserveComments: params.preserve_comments,
+              addTranslationNotes: params.add_translation_notes,
+              safeStartBlock: params.safe_start_block,
+              convertCycles: params.convert_cycles,
+              convertWorkOffsets: params.convert_work_offsets,
+            });
+            break;
+          }
+          case "gcode_transpile_dialects": {
+            const tr = await getEngine("transpiler");
+            result = tr.listDialects();
+            break;
+          }
+          case "gcode_transpile_cycles": {
+            const tr = await getEngine("transpiler");
+            result = tr.listCycleTranslations();
+            break;
+          }
+          case "stability_rpm_rewrite": {
+            const sr = await getEngine("stabilityRPM");
+            result = sr.rewrite(params.gcode, {
+              lobes: params.lobes ?? params.sld_lobes,
+              toolFlutes: params.tool_flutes ?? params.toolFlutes,
+              currentDoc_mm: params.current_doc_mm ?? params.axial_depth_mm,
+              rpmSearchRange: params.rpm_search_range,
+              preferHigherRPM: params.prefer_higher_rpm,
+              minRPM: params.min_rpm,
+              maxRPM: params.max_rpm,
+              feedPerTooth_mm: params.feed_per_tooth_mm,
+            });
+            break;
+          }
+          case "stability_rpm_analyze": {
+            const sr = await getEngine("stabilityRPM");
+            result = sr.analyzeChatterRisk(params.gcode, {
+              lobes: params.lobes ?? params.sld_lobes,
+              toolFlutes: params.tool_flutes ?? params.toolFlutes,
+              currentDoc_mm: params.current_doc_mm ?? params.axial_depth_mm,
+              rpmSearchRange: params.rpm_search_range,
+              preferHigherRPM: params.prefer_higher_rpm,
+              minRPM: params.min_rpm,
+              maxRPM: params.max_rpm,
+              feedPerTooth_mm: params.feed_per_tooth_mm,
             });
             break;
           }
