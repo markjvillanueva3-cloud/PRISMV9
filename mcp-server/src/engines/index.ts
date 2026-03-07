@@ -2570,3 +2570,12 @@ export { spindleTorqueCurveEngine, SpindleTorqueCurveEngine } from "./SpindleTor
 
 // Fixture Plate — grid layout, clamping force, plate deflection
 export { fixturePlateEngine, FixturePlateEngine } from "./FixturePlateEngine.js";
+
+// Coolant Flow — flow rate, nozzle velocity, chip evacuation, concentration
+export { coolantFlowEngine, CoolantFlowEngine } from "./CoolantFlowEngine.js";
+
+// Tool Presetting — length/diameter offsets, thermal correction, uncertainty
+export { toolPresettingEngine, ToolPresettingEngine } from "./ToolPresettingEngine.js";
+
+// Vibration Dampening — L/D limits, tuned mass, stiffness improvement
+export { vibrationDampeningEngine, VibrationDampeningEngine } from "./VibrationDampeningEngine.js";
