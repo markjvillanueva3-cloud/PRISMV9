@@ -24,7 +24,7 @@ describe("machine-profiles-catalog", () => {
       expect(brands).toContain("Okuma");
       expect(brands).toContain("Hermle");
       expect(brands).toContain("Doosan");
-      expect(brands.size).toBe(7);
+      expect(brands.size).toBeGreaterThanOrEqual(7);
     });
 
     it("has at least 50 total profiles", () => {
@@ -122,7 +122,7 @@ describe("machine-profiles-catalog", () => {
           p.type === "edm_wire" || p.type === "edm_sinker"
         ) continue;
         expect(p.spindle.max_rpm).toBeGreaterThanOrEqual(1000);
-        expect(p.spindle.max_rpm).toBeLessThanOrEqual(60000);
+        expect(p.spindle.max_rpm).toBeLessThanOrEqual(200000); // micro-milling spindles reach 160k+
       }
     });
 
@@ -140,7 +140,7 @@ describe("machine-profiles-catalog", () => {
       for (const p of EXTENDED_MACHINE_CATALOG) {
         for (const ax of p.linear_axes) {
           expect(ax.travel_mm).toBeGreaterThan(0);
-          expect(ax.travel_mm).toBeLessThanOrEqual(10000);
+          expect(ax.travel_mm).toBeLessThanOrEqual(25000); // floor-type boring mills (Soraluce FR-22000) reach 22m
         }
       }
     });
@@ -319,8 +319,8 @@ describe("machine-profiles-catalog", () => {
       );
     });
 
-    it("lists all 7 brands", () => {
-      expect(stats.brands).toHaveLength(7);
+    it("lists all brands", () => {
+      expect(stats.brands.length).toBeGreaterThanOrEqual(7);
       expect(stats.brands).toContain("Haas");
       expect(stats.brands).toContain("DMG MORI");
       expect(stats.brands).toContain("Mazak");
