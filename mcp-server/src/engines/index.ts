@@ -2290,3 +2290,4 @@ export { gameTheoryEngine } from "./GameTheoryEngine.js";
 export { survivalAnalysisEngine } from "./SurvivalAnalysisEngine.js";
 export { queueingTheoryEngine } from "./QueueingTheoryEngine.js";
 export { webSocketEngine, WebSocketEngine } from "./WebSocketEngine.js";
+export { llmEngine, LLMEngine } from "./LLMEngine.js";
