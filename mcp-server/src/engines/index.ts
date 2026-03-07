@@ -2819,3 +2819,9 @@ export { KeywayDesignEngine, keywayDesignEngine } from "./KeywayDesignEngine.js"
 export type { KeywayDesignInput, KeywayDesignResult } from "./KeywayDesignEngine.js";
 export { ConveyorBeltEngine, conveyorBeltEngine } from "./ConveyorBeltEngine.js";
 export type { ConveyorBeltInput, ConveyorBeltResult } from "./ConveyorBeltEngine.js";
+export { DiskBrakeEngine, diskBrakeEngine } from "./DiskBrakeEngine.js";
+export type { DiskBrakeInput, DiskBrakeResult } from "./DiskBrakeEngine.js";
+export { CriticalSpeedEngine, criticalSpeedEngine } from "./CriticalSpeedEngine.js";
+export type { CriticalSpeedInput, CriticalSpeedResult } from "./CriticalSpeedEngine.js";
+export { WormGearEngine, wormGearEngine } from "./WormGearEngine.js";
+export type { WormGearInput, WormGearResult } from "./WormGearEngine.js";
