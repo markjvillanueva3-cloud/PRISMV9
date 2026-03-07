@@ -15,7 +15,7 @@ import { readdirSync, existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { log } from "../utils/Logger.js";
 
-const MCP_ROOT = join(import.meta.dirname, "../..");
+const MCP_ROOT = join(__dirname, "../..");
 
 interface PreloadContext {
   /** One-line compact summary (< 100 chars) */

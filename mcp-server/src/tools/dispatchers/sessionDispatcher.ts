@@ -71,7 +71,11 @@ const ACTIONS = [
   "session_compare_bookmark",
   "system_snapshot",
   "system_snapshot_layered",
-  "system_drift_report"
+  "system_drift_report",
+  "dispatcher_map",
+  "dispatcher_map_compact",
+  "action_search",
+  "action_find"
 ] as const;
 
 function ok(data: any) {
@@ -1099,6 +1103,34 @@ export function registerSessionDispatcher(server: any): void {
           case "system_drift_report": {
             const report = systemSnapshotEngine.getDriftReport();
             return ok(report);
+          }
+
+          // ================================================================
+          // dispatcher_map — Full dispatcher action catalog
+          // ================================================================
+          case "dispatcher_map": {
+            const { dispatcherMapEngine } = await import("../../engines/DispatcherMapEngine.js");
+            return ok(dispatcherMapEngine.getCounts());
+          }
+
+          case "dispatcher_map_compact": {
+            const { dispatcherMapEngine: dme } = await import("../../engines/DispatcherMapEngine.js");
+            const max = params.max_per_dispatcher ? Number(params.max_per_dispatcher) : 5;
+            return ok({ map: dme.getCompactMap(max) });
+          }
+
+          case "action_search": {
+            const { dispatcherMapEngine: dme2 } = await import("../../engines/DispatcherMapEngine.js");
+            const q = params.query || params.q || "";
+            const max = params.max_results ? Number(params.max_results) : 20;
+            return ok(dme2.searchActions(q, max));
+          }
+
+          case "action_find": {
+            const { dispatcherMapEngine: dme3 } = await import("../../engines/DispatcherMapEngine.js");
+            const action_name = params.action || params.name || "";
+            const result = dme3.findAction(action_name);
+            return ok(result || { error: `Action '${action_name}' not found` });
           }
 
           default:
