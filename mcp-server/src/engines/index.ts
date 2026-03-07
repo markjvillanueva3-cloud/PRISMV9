@@ -2508,6 +2508,15 @@ export { runoutCompensationEngine, RunoutCompensationEngine } from "./RunoutComp
 // Cutting Temperature — tool/chip interface temperature prediction
 export { cuttingTemperatureEngine, CuttingTemperatureEngine } from "./CuttingTemperatureEngine.js";
 
+// Tool Wear Rate — Taylor tool life and wear prediction
+export { toolWearRateEngine, ToolWearRateEngine } from "./ToolWearRateEngine.js";
+
+// Axis Compensation — thermal/backlash/pitch error compensation
+export { axisCompensationEngine, AxisCompensationEngine } from "./AxisCompensationEngine.js";
+
+// Cycle Time — complete cycle time breakdown
+export { cycleTimeEngine, CycleTimeEngine } from "./CycleTimeEngine.js";
+
 // Repetition Detector — detects repeated content in tool outputs
 export { repetitionDetectorEngine, RepetitionDetectorEngine } from "./RepetitionDetectorEngine.js";
 
