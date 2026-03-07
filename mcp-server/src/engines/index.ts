@@ -2768,3 +2768,8 @@ export { FractureToughnessEngine, fractureToughnessEngine } from './FractureToug
 export { DynamicBalanceEngine, dynamicBalanceEngine } from './DynamicBalanceEngine.js';
 export { NoiseLevelEngine, noiseLevelEngine } from './NoiseLevelEngine.js';
 export { SealSelectionEngine, sealSelectionEngine } from './SealSelectionEngine.js';
+
+// Batch 39 — ChainDrive, LinearMotion, ValveSizing
+export { ChainDriveEngine, chainDriveEngine } from './ChainDriveEngine.js';
+export { LinearMotionEngine, linearMotionEngine } from './LinearMotionEngine.js';
+export { ValveSizingEngine, valveSizingEngine } from './ValveSizingEngine.js';
