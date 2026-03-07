@@ -2306,3 +2306,16 @@ export { kdTree, octree } from "./SpatialIndexEngine.js";
 
 // Spectral Graph — mesh analysis via spectral graph theory
 export { spectralGraphEngine } from "./SpectralGraphEngine.js";
+
+// Session Delta — cross-session change tracking
+export { sessionDeltaEngine, SessionDeltaEngine } from "./SessionDeltaEngine.js";
+export type { SessionBookmark, SessionDelta, ChangeReport } from "./SessionDeltaEngine.js";
+
+// System Snapshot — ultra-compact system snapshots for token savings
+export { systemSnapshotEngine, SystemSnapshotEngine } from "./SystemSnapshotEngine.js";
+
+// Context Preloader — token-efficient session bootstrap
+export { contextPreloaderEngine, ContextPreloaderEngine } from "./ContextPreloaderEngine.js";
+
+// Compact Formatter — token-efficient output formatting
+export { compactFormatterEngine, CompactFormatterEngine } from "./CompactFormatterEngine.js";

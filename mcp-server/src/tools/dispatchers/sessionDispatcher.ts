@@ -9,6 +9,9 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
 import { PATHS } from "../../constants.js";
+import { sessionDeltaEngine } from "../../engines/SessionDeltaEngine.js";
+import { systemSnapshotEngine } from "../../engines/SystemSnapshotEngine.js";
+import type { SnapshotDepth } from "../../engines/SystemSnapshotEngine.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 import * as TaskClaimService from "../../services/TaskClaimService.js";
 
@@ -58,7 +61,17 @@ const ACTIONS = [
   "workflow_status",
   "workflow_complete",
   "health_check",
-  "dsl_mode"
+  "dsl_mode",
+  "context_preload",
+  "context_boot",
+  "context_delta_boot",
+  "quick_ref_regenerate",
+  "session_delta",
+  "session_bookmark",
+  "session_compare_bookmark",
+  "system_snapshot",
+  "system_snapshot_layered",
+  "system_drift_report"
 ] as const;
 
 function ok(data: any) {
@@ -1020,6 +1033,72 @@ export function registerSessionDispatcher(server: any): void {
               const dslState = state[DSL_STATE_KEY] || { enabled: false };
               return ok({ dsl_mode: dslState.enabled ? "enabled" : "disabled", state: dslState });
             }
+          }
+
+          case "context_preload": {
+            const { contextPreloaderEngine } = await import("../../engines/ContextPreloaderEngine.js");
+            const ctx = contextPreloaderEngine.getPreloadContext();
+            return ok(ctx);
+          }
+          case "context_boot": {
+            const { contextPreloaderEngine: cpe } = await import("../../engines/ContextPreloaderEngine.js");
+            const boot = cpe.getBootBlock();
+            return ok(boot);
+          }
+          case "context_delta_boot": {
+            const { contextPreloaderEngine: cpe2 } = await import("../../engines/ContextPreloaderEngine.js");
+            const sinceCommit = params.since_commit || params.commit || "HEAD~10";
+            const delta = cpe2.getDeltaBoot(sinceCommit);
+            return ok(delta);
+          }
+          case "quick_ref_regenerate": {
+            const { contextPreloaderEngine: cpe3 } = await import("../../engines/ContextPreloaderEngine.js");
+            const result = cpe3.regenerateQuickRef();
+            return ok(result);
+          }
+          case "session_delta": {
+            const hours = params.hours ? Number(params.hours) : 24;
+            const report = sessionDeltaEngine.getRecentActivity(hours);
+            return ok(report);
+          }
+
+          case "session_bookmark": {
+            const bookmark = sessionDeltaEngine.getSessionBookmark();
+            return ok(bookmark);
+          }
+
+          case "session_compare_bookmark": {
+            const bookmark = params.bookmark;
+            if (!bookmark || !bookmark.commitHash || !bookmark.timestamp) {
+              return ok({ error: "bookmark param required with commitHash, timestamp, engineCount, dispatcherCount, testCount, actionCount" });
+            }
+            const delta = sessionDeltaEngine.compareBookmark(bookmark);
+            return ok(delta);
+          }
+
+          // ================================================================
+          // system_snapshot — Ultra-compact single-line system summary
+          // ================================================================
+          case "system_snapshot": {
+            const snapshot = systemSnapshotEngine.getCompactSnapshot();
+            return ok({ snapshot });
+          }
+
+          // ================================================================
+          // system_snapshot_layered — Depth-controlled snapshot
+          // ================================================================
+          case "system_snapshot_layered": {
+            const depth = (params.depth || 'standard') as SnapshotDepth;
+            const snapshot = systemSnapshotEngine.getLayeredSnapshot(depth);
+            return ok({ depth, snapshot });
+          }
+
+          // ================================================================
+          // system_drift_report — Live vs documented count comparison
+          // ================================================================
+          case "system_drift_report": {
+            const report = systemSnapshotEngine.getDriftReport();
+            return ok(report);
           }
 
           default:
