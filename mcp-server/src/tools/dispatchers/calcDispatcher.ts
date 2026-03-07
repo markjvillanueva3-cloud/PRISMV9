@@ -460,6 +460,12 @@ const ACTIONS = [
   "wavelet_dwt", "wavelet_denoise", "wavelet_energy",
   // ── Markov Chain ──
   "markov_steady_state", "markov_absorbing", "markov_reliability",
+  // ── Fuzzy Logic ──
+  "fuzzy_evaluate", "fuzzy_process_controller",
+  // ── Dynamic Programming ──
+  "dp_knapsack", "dp_cutting_stock", "dp_edit_distance",
+  // ── Robust Statistics ──
+  "robust_location", "robust_outliers", "robust_bootstrap", "robust_theil_sen",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3624,6 +3630,63 @@ export function registerCalcDispatcher(server: any): void {
           case "parametric_surface_area": {
             const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
             result = ps.area(params.surface, params.u_steps, params.v_steps);
+            break;
+          }
+
+          // ── Fuzzy Logic ──
+          case "fuzzy_evaluate": {
+            const { fuzzyLogicEngine } = await import("../../engines/FuzzyLogicEngine.js");
+            result = fuzzyLogicEngine.evaluate(params.system, params.inputs, params.method);
+            break;
+          }
+          case "fuzzy_process_controller": {
+            const { fuzzyLogicEngine } = await import("../../engines/FuzzyLogicEngine.js");
+            const sys = fuzzyLogicEngine.createProcessController(
+              params.error_range ?? [-10, 10], params.output_range ?? [-5, 5]
+            );
+            result = fuzzyLogicEngine.evaluate(sys, params.inputs, params.method);
+            break;
+          }
+
+          // ── Dynamic Programming ──
+          case "dp_knapsack": {
+            const { dynamicProgrammingEngine } = await import("../../engines/DynamicProgrammingEngine.js");
+            result = params.unbounded
+              ? dynamicProgrammingEngine.knapsackUnbounded(params.items, params.capacity)
+              : dynamicProgrammingEngine.knapsack01(params.items, params.capacity);
+            break;
+          }
+          case "dp_cutting_stock": {
+            const { dynamicProgrammingEngine } = await import("../../engines/DynamicProgrammingEngine.js");
+            result = dynamicProgrammingEngine.cuttingStock(params);
+            break;
+          }
+          case "dp_edit_distance": {
+            const { dynamicProgrammingEngine } = await import("../../engines/DynamicProgrammingEngine.js");
+            result = dynamicProgrammingEngine.editDistance(params.a, params.b);
+            break;
+          }
+
+          // ── Robust Statistics ──
+          case "robust_location": {
+            const { robustStatisticsEngine } = await import("../../engines/RobustStatisticsEngine.js");
+            result = robustStatisticsEngine.robustLocation(params.data, params.trim_percent);
+            break;
+          }
+          case "robust_outliers": {
+            const { robustStatisticsEngine } = await import("../../engines/RobustStatisticsEngine.js");
+            result = robustStatisticsEngine.detectOutliers(params.data, params.method, params.threshold);
+            break;
+          }
+          case "robust_bootstrap": {
+            const { robustStatisticsEngine } = await import("../../engines/RobustStatisticsEngine.js");
+            const statFn = new Function("d", params.statistic_body ?? "return d.reduce((s,v)=>s+v,0)/d.length") as (d: number[]) => number;
+            result = robustStatisticsEngine.bootstrap(params.data, statFn, params);
+            break;
+          }
+          case "robust_theil_sen": {
+            const { robustStatisticsEngine } = await import("../../engines/RobustStatisticsEngine.js");
+            result = robustStatisticsEngine.theilSen(params.x, params.y);
             break;
           }
 

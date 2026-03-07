@@ -2283,3 +2283,6 @@ export { differentialEquationEngine } from "./DifferentialEquationEngine.js";
 export { finiteElementEngine } from "./FiniteElementEngine.js";
 export { waveletEngine } from "./WaveletEngine.js";
 export { markovChainEngine } from "./MarkovChainEngine.js";
+export { fuzzyLogicEngine } from "./FuzzyLogicEngine.js";
+export { dynamicProgrammingEngine } from "./DynamicProgrammingEngine.js";
+export { robustStatisticsEngine } from "./RobustStatisticsEngine.js";
