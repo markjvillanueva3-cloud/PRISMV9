@@ -2778,3 +2778,8 @@ export { ValveSizingEngine, valveSizingEngine } from './ValveSizingEngine.js';
 export { HeatExchangerEngine, heatExchangerEngine } from './HeatExchangerEngine.js';
 export { PumpSelectionEngine, pumpSelectionEngine } from './PumpSelectionEngine.js';
 export { FanSelectionEngine, fanSelectionEngine } from './FanSelectionEngine.js';
+
+// Batch 41 — WeldDistortion, BroachDesign, PressBrake
+export { WeldDistortionEngine, weldDistortionEngine } from './WeldDistortionEngine.js';
+export { BroachDesignEngine, broachDesignEngine } from './BroachDesignEngine.js';
+export { PressBrakeEngine, pressBrakeEngine } from './PressBrakeEngine.js';
