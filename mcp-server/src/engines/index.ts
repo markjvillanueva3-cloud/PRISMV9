@@ -2480,3 +2480,12 @@ export { boringBarDeflectionEngine, BoringBarDeflectionEngine } from "./BoringBa
 
 // Circular Pocket — circular pocket milling strategy and cycle time
 export { circularPocketEngine, CircularPocketEngine } from "./CircularPocketEngine.js";
+
+// Repetition Detector — detects repeated content in tool outputs
+export { repetitionDetectorEngine, RepetitionDetectorEngine } from "./RepetitionDetectorEngine.js";
+
+// Context Window Pressure — models context pressure and predicts compaction
+export { contextWindowPressureEngine, ContextWindowPressureEngine } from "./ContextWindowPressureEngine.js";
+
+// Tool Redirect — suggests more efficient tool alternatives
+export { toolRedirectEngine, ToolRedirectEngine } from "./ToolRedirectEngine.js";
