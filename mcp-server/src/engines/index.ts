@@ -2642,3 +2642,12 @@ export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.
 
 // Machine Leveling — tilt limits, foundation sizing, vibration isolation
 export { machineLevelingEngine, MachineLevelingEngine } from "./MachineLevelingEngine.js";
+
+// Tolerance Stack-Up Engine — worst-case & RSS stack-up analysis
+export { toleranceStackUpEngine, ToleranceStackUpEngine } from "./ToleranceStackUpEngine.js";
+
+// Shaft Alignment Engine — laser/dial alignment corrections, thermal growth
+export { shaftAlignmentEngine, ShaftAlignmentEngine } from "./ShaftAlignmentEngine.js";
+
+// Keyway Stress Engine — key shear/bearing stress, ANSI B17.1 sizing
+export { keywayStressEngine, KeywayStressEngine } from "./KeywayStressEngine.js";
