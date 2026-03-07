@@ -2562,6 +2562,12 @@ export { schemaCompactEngine, SchemaCompactEngine } from "./SchemaCompactEngine.
 // Token Budget Allocator — allocates token budget across task phases
 export { tokenBudgetAllocatorEngine, TokenBudgetAllocatorEngine } from "./TokenBudgetAllocatorEngine.js";
 
+// Tool Output Summarizer — summarizes verbose tool outputs
+export { toolOutputSummarizerEngine, ToolOutputSummarizerEngine } from "./ToolOutputSummarizerEngine.js";
+
+// Cost Aware Router — routes queries to cheapest satisfying tool
+export { costAwareRouterEngine, CostAwareRouterEngine } from "./CostAwareRouterEngine.js";
+
 // Spindle Bearing Load — L10 life, DN value, preload, lubrication
 export { spindleBearingLoadEngine, SpindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
 
