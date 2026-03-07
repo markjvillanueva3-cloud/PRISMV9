@@ -2537,3 +2537,9 @@ export { parallelCallPlannerEngine, ParallelCallPlannerEngine } from "./Parallel
 
 // Incremental Read — tracks file read coverage for incremental reads
 export { incrementalReadEngine, IncrementalReadEngine } from "./IncrementalReadEngine.js";
+
+// Tool Call Histogram — visualizes tool usage distribution
+export { toolCallHistogramEngine, ToolCallHistogramEngine } from "./ToolCallHistogramEngine.js";
+
+// Waste Detector — detects token waste patterns in real-time
+export { wasteDetectorEngine, WasteDetectorEngine } from "./WasteDetectorEngine.js";
