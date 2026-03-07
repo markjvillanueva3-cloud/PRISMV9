@@ -2471,3 +2471,12 @@ export { profilingEngine, ProfilingEngine } from "./ProfilingEngine.js";
 
 // Counterboring — counterbore dimensions for SHCS fasteners
 export { counterboringEngine, CounterboringEngine } from "./CounterboringEngine.js";
+
+// Taper Turning — taper angle, compound rest, tailstock offset
+export { taperTurningEngine, TaperTurningEngine } from "./TaperTurningEngine.js";
+
+// Boring Bar Deflection — deflection, L/D limits, bar selection
+export { boringBarDeflectionEngine, BoringBarDeflectionEngine } from "./BoringBarDeflectionEngine.js";
+
+// Circular Pocket — circular pocket milling strategy and cycle time
+export { circularPocketEngine, CircularPocketEngine } from "./CircularPocketEngine.js";
