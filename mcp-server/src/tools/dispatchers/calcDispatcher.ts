@@ -423,6 +423,9 @@ const ACTIONS = [
   "waterjet_taper_calc",
   "microstructure_analyze", "microstructure_recommend",
   "energy_analyze", "energy_optimize", "energy_compare",
+  // ── Tool Catalog ──
+  "tool_catalog_search", "tool_catalog_lookup", "tool_catalog_assembly",
+  "tool_catalog_collision_envelope", "tool_catalog_recommend", "tool_catalog_stats",
   // ── Unit Conversion ──
   "unit_convert", "unit_convert_batch", "unit_system_toggle", "unit_list_conversions", "unit_rpm_calc",
   // ── Machine Profile ──
@@ -440,6 +443,11 @@ const ACTIONS = [
   "rigid_body_inertia", "rigid_body_force_analysis", "rigid_body_impact",
   // ── Voronoi ──
   "voronoi_delaunay", "voronoi_diagram", "voronoi_nearest", "voronoi_relax",
+  // ── SQP ──
+  "sqp_minimize",
+  // ── Parametric Surface ──
+  "parametric_surface_evaluate", "parametric_surface_tessellate",
+  "parametric_surface_curvature", "parametric_surface_area",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3372,6 +3380,38 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Tool Catalog ──
+          case "tool_catalog_search": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.search({ type: params.type, diameter_mm: params.diameter_mm, diameter_range: params.diameter_range, iso_group: params.iso_group, manufacturer: params.manufacturer, operation: params.operation, coating: params.coating, flute_count: params.flute_count, max_results: params.max_results });
+            break;
+          }
+          case "tool_catalog_lookup": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.lookup(params.tool_id);
+            break;
+          }
+          case "tool_catalog_assembly": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.assembly({ tool_id: params.tool_id, holder_type: params.holder_type, holder_taper: params.holder_taper ?? "BT40", stickout_mm: params.stickout_mm });
+            break;
+          }
+          case "tool_catalog_collision_envelope": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.collisionEnvelope({ tool_id: params.tool_id, holder_type: params.holder_type, holder_taper: params.holder_taper ?? "BT40", stickout_mm: params.stickout_mm });
+            break;
+          }
+          case "tool_catalog_recommend": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.recommend({ operation: params.operation ?? "pocket", iso_group: params.iso_group ?? "P", diameter_mm: params.diameter_mm, depth_mm: params.depth_mm, finish_required: params.finish_required, max_results: params.max_results });
+            break;
+          }
+          case "tool_catalog_stats": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            result = toolCatalogEngine.stats();
+            break;
+          }
+
           // ── Unit Conversion ──
           case "unit_convert": {
             const { unitConversionEngine } = await import("../../engines/UnitConversionEngine.js");
@@ -3535,6 +3575,43 @@ export function registerCalcDispatcher(server: any): void {
             const { bvhEngine } = await import("../../engines/BVHEngine.js");
             const root = bvhEngine.build(params.triangles, params.max_leaf_size);
             result = bvhEngine.raycast(root, params.triangles, params.origin, params.direction);
+            break;
+          }
+
+          // ── SQP ──
+          case "sqp_minimize": {
+            const { sqpEngine } = await import("../../engines/SQPEngine.js");
+            const sqpObj = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const sqpConstraints = (params.constraint_bodies ?? []).map(
+              (b: string) => new Function("x", b) as (x: number[]) => number
+            );
+            result = sqpEngine.minimize(sqpObj, {
+              dimensions: params.dimensions ?? 1, x0: params.x0,
+              constraints: sqpConstraints, bounds: params.bounds,
+              maxIterations: params.max_iterations,
+            });
+            break;
+          }
+
+          // ── Parametric Surface ──
+          case "parametric_surface_evaluate": {
+            const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
+            result = ps.evaluate(params.surface, params.u ?? 0.5, params.v ?? 0.5);
+            break;
+          }
+          case "parametric_surface_tessellate": {
+            const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
+            result = ps.tessellate(params.surface, params.u_steps, params.v_steps);
+            break;
+          }
+          case "parametric_surface_curvature": {
+            const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
+            result = ps.curvature(params.surface, params.u ?? 0.5, params.v ?? 0.5);
+            break;
+          }
+          case "parametric_surface_area": {
+            const { parametricSurfaceEngine: ps } = await import("../../engines/ParametricSurfaceEngine.js");
+            result = ps.area(params.surface, params.u_steps, params.v_steps);
             break;
           }
 
