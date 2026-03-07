@@ -2657,3 +2657,12 @@ export { shaftAlignmentEngine, ShaftAlignmentEngine } from "./ShaftAlignmentEngi
 
 // Keyway Stress Engine â€” key shear/bearing stress, ANSI B17.1 sizing
 export { keywayStressEngine, KeywayStressEngine } from "./KeywayStressEngine.js";
+
+// Belt Drive Engine — V-belt & timing belt selection, tension, life
+export { beltDriveEngine, BeltDriveEngine } from "./BeltDriveEngine.js";
+
+// Spring Calc Engine — helical compression spring rate, stress, fatigue
+export { springCalcEngine, SpringCalcEngine } from "./SpringCalcEngine.js";
+
+// Weld Strength Engine — fillet/butt weld stress, AWS D1.1 allowables
+export { weldStrengthEngine, WeldStrengthEngine } from "./WeldStrengthEngine.js";
