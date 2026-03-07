@@ -3,7 +3,7 @@
 # Source: C:\PRISM\mcp-server\src
 # TRUTH SOURCE — Counts verified by QA-MS0 static code analysis
 
-## 1. DISPATCHERS (53 dispatchers, 1292 verified actions)
+## 1. DISPATCHERS (53 dispatchers, 1317 verified actions)
 ## NOTE: Previous count of 684 was undercounted. QA-MS0 audit found 376 undocumented actions.
 ## Largest delta: prism_intelligence (27→489), prism_calc (21→56), prism_orchestrate (14→27)
 
@@ -16,8 +16,8 @@ Actions (7): autopilot, autopilot_quick, brainstorm_lenses, formula_optimize, au
 ### prism_autonomous (autonomousDispatcher.ts, 1070L)
 Actions (8): auto_configure, auto_plan, auto_execute, auto_status, auto_validate, auto_dry_run, auto_pause, auto_resume
 
-### prism_calc (calcDispatcher.ts, 1520L)
-Actions (72): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy, roughness_convert, peck_drill_optimize, drill_cycle_optimize, coating_select
+### prism_calc (calcDispatcher.ts, ~4700L)
+Actions (97): cutting_force, tool_life, speed_feed, flow_stress, surface_finish, mrr, power, torque, chip_load, stability, deflection, thermal, cost_optimize, multi_optimize, productivity, engagement, trochoidal, hsm, scallop, stepover, cycle_time, arc_fit, chip_thinning, multi_pass, coolant_strategy, gcode_snippet, tolerance_analysis, fit_analysis, gcode_generate, decision_tree, render_report, campaign_create, campaign_validate, campaign_optimize, campaign_cycle_time, inference_chain, wear_prediction, process_cost_calc, uncertainty_chain, controller_optimize, surface_integrity_predict, chatter_predict, thermal_compensate, unified_machining_model, coupling_sensitivity, optimize_parameters, optimize_sequence, sustainability_report, eco_optimize, fixture_recommend, drilling_force, algorithm_calculate, algorithm_validate, algorithm_list, algorithm_info, algorithm_batch, algorithm_benchmark, wear_progression, drill_breakthrough, thermal_growth, bore_finishing, finishing_pass, turning_force, tapping_torque, power_budget, tool_deflection_predict, chip_formation, specific_cutting_energy, roughness_convert, peck_drill_optimize, drill_cycle_optimize, coating_select, lp_solve, lp_resource_allocation, material_interpolate, material_similarity, material_compare, ziegler_nichols, step_response, fft_analyze, dominant_frequency, design_fir_filter, spectrogram, gradient_optimize, bfgs_optimize, golden_section, simulated_annealing, two_opt_tsp, spectral_partition, mesh_analyze, jacobian_5axis, singularity_detect, config_singularity_check, kdtree_nearest, kdtree_radius, octree_radius, voxelize_mesh
 
 ### prism_context (contextDispatcher.ts, 726L)
 Actions (18): kv_sort_json, kv_check_stability, tool_mask_state, memory_externalize, memory_restore, todo_update, todo_read, error_preserve, error_patterns, vary_response, team_spawn, team_broadcast, team_create_task, team_heartbeat, attention_score, focus_optimize, relevance_filter, context_monitor_check
@@ -329,10 +329,10 @@ Health: prism_bridge→health
 
 ---
 
-## 4. ENGINES (330 exported + 5 infra = 335 total .ts files, 100% tested)
+## 4. ENGINES (336 exported + 5 infra = 341 total .ts files, 100% tested)
 ## Regenerated: SYS-MS5 audit (2026-02-28) — updated FORGE B31-35 (2026-03-06)
 
-### 4a. Calculation Engines (25 exported)
+### 4a. Calculation Engines (33 exported)
 - ManufacturingCalculations.ts (991L) — Kienzle cutting force, Taylor tool life, J-C flow stress, speed/feed, MRR, surface finish
 - AdvancedCalculations.ts (639L) — Stability lobes, tool deflection, cutting temperature, cost optimization
 - ToolpathCalculations.ts (1304L) — Engagement angles, trochoidal, HSM, scallop height, stepover
@@ -358,6 +358,14 @@ Health: prism_bridge→health
 - GrindingSurfaceFinishEngine.ts (200L) — Malkin kinematic roughness (Ra/Rz), dressing/spark-out/coolant/material correction factors
 - DrillCycleOptimizationEngine.ts (230L) — Drill cycle selection (standard/peck/chip_break/gun_drill/BTA), peck depth optimization
 - ToolCoatingSelectionEngine.ts (260L) — 10 coatings × 16 materials scoring, operation/coolant/interruption/substrate factors
+- SignalProcessingEngine.ts (~300L) — FFT (Cooley-Tukey), IFFT, PSD, FIR/IIR filter design, convolution, cross-correlation, spectrogram, Hilbert transform
+- GradientOptimizationEngine.ts (~310L) — Gradient descent (vanilla/momentum/Nesterov/Adam), Newton's method, BFGS quasi-Newton, golden section 1D search
+- LocalSearchEngine.ts (~280L) — Hill climbing, random restarts, simulated annealing, local beam search, 2-opt/3-opt TSP improvement
+- SpectralGraphEngine.ts (~180L) — Face adjacency graph, graph Laplacian, power iteration eigenvector, Fiedler vector spectral partitioning, mesh analysis
+- SpatialIndexEngine.ts (~320L) — KD-Tree (nearest neighbor, k-NN, radius, range query), Octree (spatial subdivision, radius search, mesh voxelization)
+- NumericalMethodsEngine.ts (~350L) — ODE solvers (Euler/RK4/system), LU decomposition, QR least squares, LP solver (revised simplex), Ziegler-Nichols PID tuning, step response
+- MaterialInterpolationEngine.ts (~250L) — Feature-scaled cosine similarity, material matching, parameter interpolation from 11-material database
+- GraphAlgorithmsEngine.ts (~500L) — Kruskal/Prim MST, Floyd-Warshall, topo sort, CPM, Dijkstra, A*, Christofides 1.5-approx TSP, nearest-neighbor TSP
 
 ### 4b. Safety Engines (7 exported)
 - CoolantValidationEngine.ts (767L) — Coolant flow, MQL validation, dry machining safety
@@ -508,12 +516,13 @@ Health: prism_bridge→health
 - ShiftHandoffEngine.ts (110L) — Shift handoff management
 - DigitalThreadEngine.ts (109L) — Digital thread traceability
 
-### 4m. Multi-Axis & Geometry Engines (5 exported)
+### 4m. Multi-Axis & Geometry Engines (6 exported)
 - SingularityAvoidanceEngine.ts (219L) — 5-axis singularity avoidance
 - TiltAngleOptimizationEngine.ts (183L) — 5-axis tilt angle optimization
 - InverseKinematicsSolverEngine.ts (198L) — Inverse kinematics solver
 - ToleranceStackEngine.ts (231L) — Tolerance stack analysis
 - GenerativeProcessEngine.ts (1147L) — Generative process planning
+- KinematicsEngine.ts (+JacobianEngine, ~480L) — DH FK, 5-axis IK, analytical 6×5 Jacobian (BC/AC), singularity detection (condition number), gimbal lock check
 
 ### 4n. Specialty Engines (4 exported)
 - CampaignEngine.ts (1421L) — Campaign management engine
