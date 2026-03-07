@@ -2328,6 +2328,9 @@ export { waterjetEngine, WaterjetEngine } from "./WaterjetEngine.js";
 export { springPassEngine, SpringPassEngine } from "./SpringPassEngine.js";
 export { toolPathStepoverEngine, ToolPathStepoverEngine } from "./ToolPathStepoverEngine.js";
 export { surfaceGrindingEngine, SurfaceGrindingEngine } from "./SurfaceGrindingEngine.js";
+export { stockAllowanceEngine, StockAllowanceEngine } from "./StockAllowanceEngine.js";
+export { toolRunoutEngine, ToolRunoutEngine } from "./ToolRunoutEngine.js";
+export { cuttingFluidSelectionEngine, CuttingFluidSelectionEngine } from "./CuttingFluidSelectionEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
