@@ -2297,6 +2297,7 @@ export { reamingEngine, ReamingEngine } from "./ReamingEngine.js";
 export { broachingEngine, BroachingEngine } from "./BroachingEngine.js";
 export { honingEngine, HoningEngine } from "./HoningEngine.js";
 export { toolBalancingEngine, ToolBalancingEngine } from "./ToolBalancingEngine.js";
+export { helicalInterpolationEngine, HelicalInterpolationEngine } from "./HelicalInterpolationEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
@@ -2341,3 +2342,6 @@ export { toolRouterEngine, ToolRouterEngine } from "./ToolRouterEngine.js";
 
 // Output Budget — token budget enforcement for tool outputs
 export { outputBudgetEngine, OutputBudgetEngine } from "./OutputBudgetEngine.js";
+
+// Context Digest — ultra-compact file/directory structural summaries
+export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.js";
