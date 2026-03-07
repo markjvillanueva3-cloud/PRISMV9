@@ -2801,3 +2801,9 @@ export { postProcessorGeneratorEngine, PostProcessorGeneratorEngine } from "./Po
 export { ThreadGageEngine, threadGageEngine } from './ThreadGageEngine.js';
 export { SurfaceIntegrityEngine, surfaceIntegrityEngine } from './SurfaceIntegrityEngine.js';
 export { MachineVibrationEngine, machineVibrationEngine } from './MachineVibrationEngine.js';
+export { GasketDesignEngine, gasketDesignEngine } from "./GasketDesignEngine.js";
+export type { GasketDesignInput, GasketDesignResult } from "./GasketDesignEngine.js";
+export { RivetJointEngine, rivetJointEngine } from "./RivetJointEngine.js";
+export type { RivetJointInput, RivetJointResult } from "./RivetJointEngine.js";
+export { AdhesiveBondEngine, adhesiveBondEngine } from "./AdhesiveBondEngine.js";
+export type { AdhesiveBondInput, AdhesiveBondResult } from "./AdhesiveBondEngine.js";
