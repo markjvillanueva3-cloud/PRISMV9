@@ -1,88 +1,111 @@
 import { describe, it, expect } from "vitest";
 import { ContextDigestEngine } from "../engines/ContextDigestEngine.js";
-import { join } from "path";
 
 describe("ContextDigestEngine", () => {
-  const digest = new ContextDigestEngine();
-  const enginesDir = join(__dirname, "../engines");
+  const engine = new ContextDigestEngine();
 
   describe("digestFile", () => {
-    it("digests a TypeScript file", () => {
-      const result = digest.digestFile(join(enginesDir, "QuickCalcEngine.ts"));
-      expect(result).not.toBeNull();
-      expect(result!.lines).toBeGreaterThan(50);
-      expect(result!.type).toBe(".ts");
-      expect(result!.classes).toContain("QuickCalcEngine");
-      expect(result!.exports.length).toBeGreaterThan(0);
+    it("digests TypeScript files with symbols", () => {
+      const content = [
+        'import { foo } from "./bar.js";',
+        "",
+        "export class MyEngine {",
+        "  run(): void {}",
+        "}",
+        "",
+        "export interface Config {",
+        "  name: string;",
+        "}",
+        "",
+        "export const instance = new MyEngine();",
+      ].join("\n");
+      const result = engine.digestFile("src/engines/MyEngine.ts", content);
+      expect(result.type).toBe("typescript");
+      expect(result.symbols).toBeDefined();
+      expect(result.symbols!.length).toBeGreaterThan(0);
+      expect(result.symbols).toContain("MyEngine");
+      expect(result.digest).toContain("MyEngine");
     });
 
-    it("returns null for nonexistent file", () => {
-      expect(digest.digestFile("/nonexistent/file.ts")).toBeNull();
+    it("digests JSON files with top keys", () => {
+      const content = JSON.stringify({ name: "test", version: "1.0", deps: {} });
+      const result = engine.digestFile("package.json", content);
+      expect(result.type).toBe("json");
+      expect(result.digest).toContain("JSON");
+      expect(result.digest).toContain("name");
     });
 
-    it("captures import count", () => {
-      const result = digest.digestFile(join(enginesDir, "QuickCalcEngine.ts"));
-      expect(result!.imports).toBeGreaterThanOrEqual(0);
+    it("digests Markdown files with headings", () => {
+      const content = "# Title\n\nSome text\n\n## Section\n\nMore text";
+      const result = engine.digestFile("README.md", content);
+      expect(result.type).toBe("markdown");
+      expect(result.digest).toContain("MD");
+      expect(result.digest).toContain("2 headings");
     });
 
-    it("captures interfaces", () => {
-      const result = digest.digestFile(join(enginesDir, "QuickCalcEngine.ts"));
-      expect(result!.interfaces.length).toBeGreaterThan(0);
+    it("digests generic text files", () => {
+      const content = "line 1\nline 2\nline 3";
+      const result = engine.digestFile("data.txt", content);
+      expect(result.type).toBe("text");
+      expect(result.digest).toContain("3 lines");
+    });
+
+    it("handles JavaScript files", () => {
+      const content = "export function hello() { return 1; }";
+      const result = engine.digestFile("util.js", content);
+      expect(result.type).toBe("javascript");
+      expect(result.symbols).toContain("hello");
+    });
+
+    it("handles invalid JSON gracefully", () => {
+      const result = engine.digestFile("bad.json", "{invalid json");
+      expect(result.digest).toContain("invalid");
     });
   });
 
   describe("digestDirectory", () => {
-    it("digests the engines directory", () => {
-      const result = digest.digestDirectory(enginesDir, 0);
-      expect(result).not.toBeNull();
-      expect(result!.totalFiles).toBeGreaterThan(100);
-      expect(result!.totalLines).toBeGreaterThan(10000);
-      expect(result!.byExtension[".ts"]).toBeGreaterThan(100);
+    it("produces directory summary", () => {
+      const files = [
+        { name: "a.ts", content: "export const a = 1;" },
+        { name: "b.ts", content: "export const b = 2;" },
+        { name: "c.json", content: '{"key": "value"}' },
+      ];
+      const result = engine.digestDirectory("src/", files);
+      expect(result.fileCount).toBe(3);
+      expect(result.totalTokens).toBeGreaterThan(0);
+      expect(result.digest).toContain("3 files");
+      expect(result.files.length).toBe(3);
+    });
+  });
+
+  describe("savings", () => {
+    it("calculates token savings", () => {
+      const result = engine.savings(1000, "short digest text");
+      expect(result.saved).toBeGreaterThan(0);
+      expect(result.percent).toBeGreaterThan(90);
     });
 
-    it("returns null for nonexistent directory", () => {
-      expect(digest.digestDirectory("/nonexistent/dir")).toBeNull();
-    });
-
-    it("includes largest files", () => {
-      const result = digest.digestDirectory(enginesDir, 0);
-      expect(result!.largestFiles.length).toBeGreaterThan(0);
-      expect(result!.largestFiles[0].lines).toBeGreaterThan(
-        result!.largestFiles[result!.largestFiles.length - 1].lines
-      );
-    });
-
-    it("generates a summary string", () => {
-      const result = digest.digestDirectory(enginesDir, 0);
-      expect(result!.summary).toContain("files");
-      expect(result!.summary).toContain("lines");
+    it("handles zero full tokens", () => {
+      const result = engine.savings(0, "digest");
+      expect(result.saved).toBe(0);
+      expect(result.percent).toBe(0);
     });
   });
 
   describe("oneLiner", () => {
-    it("generates compact one-line digest", () => {
-      const line = digest.oneLiner(join(enginesDir, "QuickCalcEngine.ts"));
-      expect(line).toContain("QuickCalcEngine.ts");
-      expect(line).toContain("L");
+    it("produces one-line summary with symbols", () => {
+      const result = engine.digestFile("src/foo.ts", "export class Foo {}");
+      const line = engine.oneLiner(result);
+      expect(line).toContain("foo.ts");
+      expect(line).toContain("typescript");
+      expect(line).toContain("symbols");
     });
 
-    it("handles missing files gracefully", () => {
-      const line = digest.oneLiner("/missing/file.ts");
-      expect(line).toContain("not found");
-    });
-  });
-
-  describe("batchDigest", () => {
-    it("digests multiple files into compact block", () => {
-      const files = [
-        join(enginesDir, "QuickCalcEngine.ts"),
-        join(enginesDir, "ToolRouterEngine.ts"),
-        join(enginesDir, "OutputBudgetEngine.ts"),
-      ];
-      const block = digest.batchDigest(files);
-      const lines = block.split("\n");
-      expect(lines.length).toBe(3);
-      lines.forEach(line => expect(line).toContain("|"));
+    it("produces one-line summary without symbols", () => {
+      const result = engine.digestFile("data.txt", "hello world");
+      const line = engine.oneLiner(result);
+      expect(line).toContain("data.txt");
+      expect(line).not.toContain("symbols");
     });
   });
 });

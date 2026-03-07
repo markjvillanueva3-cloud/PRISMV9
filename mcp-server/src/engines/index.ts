@@ -2637,6 +2637,9 @@ export { setupReductionEngine, SetupReductionEngine } from "./SetupReductionEngi
 // Linear Guide — rail sizing, L10 life, preload, friction
 export { linearGuideEngine, LinearGuideEngine } from "./LinearGuideEngine.js";
 
+// Context Digest — ultra-compact file/directory summaries
+export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.js";
+
 // Spindle Runout — TIR stack-up, finish degradation, tool life impact
 export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.js";
 

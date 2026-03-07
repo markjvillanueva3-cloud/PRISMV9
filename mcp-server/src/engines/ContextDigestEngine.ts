@@ -1,217 +1,213 @@
 /**
- * ContextDigestEngine — Ultra-compact file/directory digests
+ * ContextDigestEngine - Ultra-compact file/directory digests
  *
- * Generates structural summaries of files and directories that capture
- * the essential information in 10-20% of the original token cost.
- * Useful for context injection when you need awareness without detail.
- *
- * Token savings: 80-90% reduction vs reading full files.
+ * Produces minimal-token summaries of files, directories, and symbol trees.
+ * Used to pre-load understanding without reading full file contents.
  *
  * @version 1.0.0
  */
 
-import { readdirSync, readFileSync, statSync, existsSync } from "fs";
-import { join, extname, basename } from "path";
-import { log } from "../utils/Logger.js";
-
-export interface FileDigest {
+export interface DigestResult {
   path: string;
-  lines: number;
-  size: number;
   type: string;
-  exports: string[];
-  imports: number;
-  classes: string[];
-  functions: string[];
-  interfaces: string[];
+  lines: number;
+  tokens: number;
+  digest: string;
+  symbols?: string[];
 }
 
 export interface DirectoryDigest {
   path: string;
-  totalFiles: number;
-  totalLines: number;
-  byExtension: Record<string, number>;
-  largestFiles: Array<{ name: string; lines: number }>;
-  summary: string;
+  fileCount: number;
+  totalTokens: number;
+  digest: string;
+  files: Array<{ name: string; type: string; lines: number }>;
 }
 
 export class ContextDigestEngine {
+  digestFile(path: string, content: string): DigestResult {
+    const lines = content.split("\n");
+    const tokens = Math.ceil(content.length / 4);
+    const ext = path.split(".").pop()?.toLowerCase() ?? "";
+    const type = this.classifyExt(ext);
 
-  /**
-   * Digest a TypeScript/JavaScript file into a compact summary.
-   */
-  digestFile(filePath: string): FileDigest | null {
-    if (!existsSync(filePath)) return null;
+    let digest: string;
+    let symbols: string[] | undefined;
 
-    try {
-      const content = readFileSync(filePath, "utf-8");
-      const lines = content.split("\n");
-      const ext = extname(filePath);
+    switch (type) {
+      case "typescript":
+      case "javascript":
+        symbols = this.extractTsSymbols(content);
+        digest = this.digestTs(path, lines, symbols);
+        break;
+      case "json":
+        digest = this.digestJson(path, content);
+        break;
+      case "markdown":
+        digest = this.digestMarkdown(path, lines);
+        break;
+      default:
+        digest = this.digestGeneric(path, lines);
+    }
 
-      const exports: string[] = [];
-      const classes: string[] = [];
-      const functions: string[] = [];
-      const interfaces: string[] = [];
-      let imports = 0;
+    return { path, type, lines: lines.length, tokens, digest, symbols };
+  }
 
-      for (const line of lines) {
-        const trimmed = line.trim();
+  digestDirectory(
+    dirPath: string,
+    files: Array<{ name: string; content: string }>,
+  ): DirectoryDigest {
+    const fileInfos = files.map((f) => {
+      const lines = f.content.split("\n").length;
+      const ext = f.name.split(".").pop()?.toLowerCase() ?? "";
+      return { name: f.name, type: this.classifyExt(ext), lines };
+    });
 
-        if (trimmed.startsWith("import ")) imports++;
-        if (trimmed.startsWith("export ")) {
-          // Extract export names
-          const classMatch = trimmed.match(/export\s+class\s+(\w+)/);
-          const funcMatch = trimmed.match(/export\s+(?:function|const|let)\s+(\w+)/);
-          const ifaceMatch = trimmed.match(/export\s+interface\s+(\w+)/);
-          const typeMatch = trimmed.match(/export\s+type\s+(\w+)/);
+    const totalTokens = files.reduce(
+      (sum, f) => sum + Math.ceil(f.content.length / 4),
+      0,
+    );
+    const byType = new Map<string, number>();
+    for (const fi of fileInfos) {
+      byType.set(fi.type, (byType.get(fi.type) ?? 0) + 1);
+    }
 
-          if (classMatch) {
-            classes.push(classMatch[1]);
-            exports.push(classMatch[1]);
-          } else if (funcMatch) {
-            functions.push(funcMatch[1]);
-            exports.push(funcMatch[1]);
-          } else if (ifaceMatch) {
-            interfaces.push(ifaceMatch[1]);
-          } else if (typeMatch) {
-            // skip type-only exports from summary
-          } else {
-            // Named export block like export { a, b }
-            const namedMatch = trimmed.match(/export\s*\{([^}]+)\}/);
-            if (namedMatch) {
-              const names = namedMatch[1].split(",").map(n =>
-                n.trim().split(/\s+as\s+/).pop()!.trim()
-              );
-              exports.push(...names);
-            }
-          }
-        }
+    const typeSummary = Array.from(byType.entries())
+      .map(([t, c]) => t + ":" + c)
+      .join(" ");
 
-        // Non-exported classes/functions
-        if (!trimmed.startsWith("export")) {
-          const classMatch = trimmed.match(/^class\s+(\w+)/);
-          const funcMatch = trimmed.match(/^(?:function|const|let)\s+(\w+)/);
-          if (classMatch) classes.push(classMatch[1]);
-          if (funcMatch && trimmed.includes("=") && trimmed.includes("=>")) {
-            functions.push(funcMatch[1]);
-          }
+    const digest =
+      dirPath +
+      " | " +
+      files.length +
+      " files | ~" +
+      totalTokens +
+      " tok | " +
+      typeSummary;
+
+    return {
+      path: dirPath,
+      fileCount: files.length,
+      totalTokens,
+      digest,
+      files: fileInfos,
+    };
+  }
+
+  savings(
+    fullTokens: number,
+    digestText: string,
+  ): { saved: number; percent: number } {
+    const digestTokens = Math.ceil(digestText.length / 4);
+    const saved = fullTokens - digestTokens;
+    const percent =
+      fullTokens > 0 ? Math.round((saved / fullTokens) * 100) : 0;
+    return { saved: Math.max(0, saved), percent: Math.max(0, percent) };
+  }
+
+  oneLiner(result: DigestResult): string {
+    const sc = result.symbols?.length ?? 0;
+    return (
+      result.path +
+      " | " +
+      result.type +
+      " | " +
+      result.lines +
+      "L ~" +
+      result.tokens +
+      "tok" +
+      (sc > 0 ? " | " + sc + " symbols" : "")
+    );
+  }
+
+  private classifyExt(ext: string): string {
+    if (["ts", "tsx", "mts", "cts"].includes(ext)) return "typescript";
+    if (["js", "jsx", "mjs", "cjs"].includes(ext)) return "javascript";
+    if (ext === "json") return "json";
+    if (["md", "mdx"].includes(ext)) return "markdown";
+    if (["yaml", "yml"].includes(ext)) return "yaml";
+    if (["sh", "bash"].includes(ext)) return "shell";
+    return "text";
+  }
+
+  private extractTsSymbols(content: string): string[] {
+    const symbols: string[] = [];
+    const patterns = [
+      /export\s+(?:default\s+)?(?:class|interface|type|enum|function|const|let)\s+(\w+)/g,
+      /(?:class|interface|type|enum)\s+(\w+)/g,
+    ];
+    const seen = new Set<string>();
+    for (const pat of patterns) {
+      let m: RegExpExecArray | null;
+      while ((m = pat.exec(content)) !== null) {
+        if (!seen.has(m[1])) {
+          seen.add(m[1]);
+          symbols.push(m[1]);
         }
       }
-
-      return {
-        path: filePath,
-        lines: lines.length,
-        size: content.length,
-        type: ext,
-        exports: exports.slice(0, 15),
-        imports,
-        classes,
-        functions: functions.slice(0, 15),
-        interfaces: interfaces.slice(0, 10),
-      };
-    } catch (e: any) {
-      log.warn(`[ContextDigest] Failed to digest ${filePath}: ${e.message}`);
-      return null;
     }
+    return symbols;
   }
 
-  /**
-   * Digest a directory into a compact summary.
-   */
-  digestDirectory(dirPath: string, maxDepth = 1): DirectoryDigest | null {
-    if (!existsSync(dirPath)) return null;
-
-    try {
-      const byExtension: Record<string, number> = {};
-      const fileInfos: Array<{ name: string; lines: number }> = [];
-      let totalFiles = 0;
-      let totalLines = 0;
-
-      this.walkDir(dirPath, maxDepth, 0, (filePath) => {
-        const ext = extname(filePath) || "no-ext";
-        byExtension[ext] = (byExtension[ext] || 0) + 1;
-        totalFiles++;
-
-        try {
-          const content = readFileSync(filePath, "utf-8");
-          const lineCount = content.split("\n").length;
-          totalLines += lineCount;
-          fileInfos.push({ name: basename(filePath), lines: lineCount });
-        } catch {
-          // Skip unreadable files
-        }
-      });
-
-      fileInfos.sort((a, b) => b.lines - a.lines);
-
-      const topExt = Object.entries(byExtension)
-        .sort(([, a], [, b]) => b - a)
-        .slice(0, 3)
-        .map(([ext, count]) => `${count}${ext}`)
-        .join(", ");
-
-      return {
-        path: dirPath,
-        totalFiles,
-        totalLines,
-        byExtension,
-        largestFiles: fileInfos.slice(0, 5),
-        summary: `${totalFiles} files (${topExt}), ${totalLines} lines`,
-      };
-    } catch (e: any) {
-      log.warn(`[ContextDigest] Failed to digest dir ${dirPath}: ${e.message}`);
-      return null;
-    }
-  }
-
-  /**
-   * Generate a one-line digest of a file (for context headers).
-   */
-  oneLiner(filePath: string): string {
-    const digest = this.digestFile(filePath);
-    if (!digest) return `${basename(filePath)}: [not found]`;
-
-    const parts = [
-      `${basename(filePath)}`,
-      `${digest.lines}L`,
-    ];
-    if (digest.classes.length) parts.push(`cls:${digest.classes.join(",")}`);
-    if (digest.exports.length) parts.push(`exp:${digest.exports.length}`);
+  private digestTs(
+    path: string,
+    lines: string[],
+    symbols: string[],
+  ): string {
+    const imports = lines.filter((l) => l.trim().startsWith("import ")).length;
+    const exports = lines.filter((l) => l.includes("export ")).length;
+    const parts = [path, lines.length + "L"];
+    if (imports > 0) parts.push(imports + " imports");
+    if (exports > 0) parts.push(exports + " exports");
+    if (symbols.length > 0)
+      parts.push("symbols: " + symbols.slice(0, 10).join(", "));
     return parts.join(" | ");
   }
 
-  /**
-   * Batch digest multiple files into a compact block.
-   */
-  batchDigest(filePaths: string[]): string {
-    return filePaths
-      .map(fp => this.oneLiner(fp))
-      .join("\n");
+  private digestJson(path: string, content: string): string {
+    try {
+      const obj = JSON.parse(content);
+      const keys = Object.keys(obj);
+      return (
+        path +
+        " | JSON | " +
+        keys.length +
+        " top keys: " +
+        keys.slice(0, 8).join(", ")
+      );
+    } catch {
+      return path + " | JSON (invalid)";
+    }
   }
 
-  // ── Private ──────────────────────────────────────────────────
+  private digestMarkdown(path: string, lines: string[]): string {
+    const headings = lines.filter((l) => l.startsWith("#"));
+    return (
+      path +
+      " | MD | " +
+      lines.length +
+      "L | " +
+      headings.length +
+      " headings" +
+      (headings.length > 0
+        ? ": " +
+          headings
+            .slice(0, 5)
+            .map((h) => h.replace(/^#+\s*/, ""))
+            .join(", ")
+        : "")
+    );
+  }
 
-  private walkDir(
-    dir: string,
-    maxDepth: number,
-    currentDepth: number,
-    callback: (filePath: string) => void
-  ): void {
-    if (currentDepth > maxDepth) return;
-
-    try {
-      const entries = readdirSync(dir, { withFileTypes: true });
-      for (const entry of entries) {
-        const fullPath = join(dir, entry.name);
-        if (entry.isFile()) {
-          callback(fullPath);
-        } else if (entry.isDirectory() && !entry.name.startsWith(".") && entry.name !== "node_modules") {
-          this.walkDir(fullPath, maxDepth, currentDepth + 1, callback);
-        }
-      }
-    } catch {
-      // Skip inaccessible directories
-    }
+  private digestGeneric(path: string, lines: string[]): string {
+    return (
+      path +
+      " | " +
+      lines.length +
+      " lines | ~" +
+      Math.ceil(lines.join("\n").length / 4) +
+      " tokens"
+    );
   }
 }
 
