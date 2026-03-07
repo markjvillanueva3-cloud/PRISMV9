@@ -16,7 +16,9 @@ import { TUNGALOY_ENDMILLS } from "../data/tungaloy-endmill-catalog.js";
 import { TUNGALOY_DRILLS } from "../data/tungaloy-drill-catalog.js";
 import { TUNGALOY_INSERT_SHAPES, TUNGALOY_TURNING_GRADES, TUNGALOY_CHIPBREAKERS, TUNGALOY_GROOVING_INSERTS } from "../data/tungaloy-turning-catalog.js";
 import { SGS_ENDMILL_PARTS_ZR, SGS_ENDMILL_PARTS_ZRM, SGS_QUICK_SPEED_FEED } from "../data/sgs-tool-catalog.js";
+import { ALL_MANUFACTURER_GRADES, type ManufacturerGrade } from "../data/multi-manufacturer-grades.js";
 import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
+import { OSG_TOOLS } from "../data/osg-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -385,9 +387,18 @@ export class ToolCatalogEngine {
       }
 
       // Premium manufacturer bonus
-      if (["SGS", "Sandvik", "Kennametal", "ISCAR"].includes(t.manufacturer)) {
+      if (["SGS", "Sandvik", "Kennametal", "ISCAR", "Korloy", "Mitsubishi"].includes(t.manufacturer)) {
         score += 5;
         reasons.push("premium manufacturer");
+      }
+
+      // Multi-manufacturer grade suitability bonus
+      const gradeMatch = ALL_MANUFACTURER_GRADES.find(g =>
+        g.code === t.series && g.manufacturer === t.manufacturer);
+      if (gradeMatch) {
+        const suit = gradeMatch.iso_suitability[input.iso_group as keyof typeof gradeMatch.iso_suitability];
+        if (suit === "first_choice") { score += 15; reasons.push(`${t.manufacturer} first-choice grade for ${input.iso_group}`); }
+        else if (suit === "second_choice") { score += 8; reasons.push(`${t.manufacturer} second-choice grade`); }
       }
 
       return { ...t, score: Math.max(0, Math.min(100, score)), reasoning: reasons.join("; ") };
@@ -728,6 +739,8 @@ export class ToolCatalogEngine {
     this._loadTungaloyDrills();
     this._loadTungaloyTurning();
     this._loadSGSEndmills();
+    this._loadMultiManufacturerInserts();
+    this._loadOSGTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -936,6 +949,204 @@ export class ToolCatalogEngine {
           source: "Tungaloy_GC_2023-2024_Turning",
         });
       }
+    }
+  }
+  private _loadOSGTools(): void {
+    for (const tool of OSG_TOOLS) {
+      const id = `OSG-${tool.edp}`;
+      if (this.tools.has(id)) continue;
+
+      const sf = SPEED_FEED_BASE.filter(s =>
+        (tool.type === "drill" && s.tool_type === "drill") ||
+        (tool.type !== "drill" && s.tool_type === "end_mill"));
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sf) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min, fz_max: s.fz_max,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "OSG",
+        series: tool.type === "drill" ? "A-Brand" : "AE-VMS",
+        designation: `OSG ${tool.edp}`,
+        type: tool.type === "drill" ? "drill" : tool.type === "ball_mill" ? "ball_mill" : "end_mill",
+        material: tool.material === "carbide" ? "carbide" : "HSS",
+        coating: tool.material === "carbide" ? "TiAlN" : "TiN",
+        physical: {
+          cutting_diameter_mm: tool.cutting_diameter_mm,
+          shank_diameter_mm: tool.shank_diameter_mm ?? tool.cutting_diameter_mm,
+          overall_length_mm: tool.overall_length_mm ?? tool.cutting_diameter_mm * 6,
+          flute_length_mm: tool.flute_length_mm ?? tool.cutting_diameter_mm * 3,
+          corner_radius_mm: tool.type === "ball_mill" ? tool.cutting_diameter_mm / 2 : undefined,
+        },
+        flute_count: tool.flute_count ?? (tool.type === "drill" ? 2 : 4),
+        iso_groups: ["P", "M", "K", "N", "S"],
+        operations: tool.type === "drill" ? ["drill"] :
+          tool.type === "ball_mill" ? ["finish_3d", "profile"] :
+          ["pocket", "slot", "profile", "face"],
+        cutting_data: cuttingData,
+        coolant: tool.cutting_diameter_mm >= 5 ? "through_tool" : "flood",
+        source: "OSG_Global_Catalog",
+      });
+    }
+  }
+
+  private _loadMultiManufacturerInserts(): void {
+    // ISCAR insert families — proprietary systems with representative geometries
+    const iscarFamilies: Array<{
+      family: string; type: CatalogTool["type"]; subtype: string;
+      diameters: number[]; operations: string[]; iso_groups: string[];
+      description: string;
+    }> = [
+      { family: "SUMO-TEC", type: "turning_tool", subtype: "turning",
+        diameters: [12.7, 16, 20, 25], operations: ["turn", "face"],
+        iso_groups: ["P", "M", "K"], description: "SUMO TEC CVD-coated turning inserts" },
+      { family: "DOVE-IQ-MILL", type: "face_mill", subtype: "face",
+        diameters: [50, 63, 80, 100], operations: ["face", "shoulder"],
+        iso_groups: ["P", "M", "K", "S"], description: "DOVE-IQ 45° face milling system" },
+      { family: "HELI-IQ-MILL", type: "end_mill", subtype: "shoulder",
+        diameters: [25, 32, 40, 50], operations: ["shoulder", "profile", "pocket"],
+        iso_groups: ["P", "M", "K"], description: "HELI-IQ-MILL 90° shoulder milling" },
+      { family: "TANG-GRIP", type: "grooving_tool", subtype: "grooving",
+        diameters: [2, 3, 4, 5, 6], operations: ["groove", "parting"],
+        iso_groups: ["P", "M", "K", "S"], description: "TANG-GRIP tangential grooving/parting" },
+      { family: "CHAM-IQ-DRILL", type: "drill", subtype: "indexable_drill",
+        diameters: [14, 17, 20, 25, 30, 33, 40], operations: ["drill"],
+        iso_groups: ["P", "M", "K"], description: "CHAM-IQ-DRILL indexable drill" },
+      { family: "MULTI-MASTER", type: "end_mill", subtype: "modular",
+        diameters: [8, 10, 12, 16, 20, 25], operations: ["pocket", "profile", "face", "slot"],
+        iso_groups: ["P", "M", "K", "N", "S"], description: "MULTI-MASTER modular end mill system" },
+    ];
+
+    const sf = SPEED_FEED_BASE.filter(s => s.tool_type === "end_mill");
+    for (const fam of iscarFamilies) {
+      for (const dia of fam.diameters) {
+        const id = `ISCAR-${fam.family}-${dia}`;
+        if (this.tools.has(id)) continue;
+
+        const cuttingData: CatalogTool["cutting_data"] = {};
+        for (const s of sf) {
+          if (fam.iso_groups.includes(s.iso_group)) {
+            cuttingData[s.iso_group] = {
+              vc_min: s.vc_min, vc_max: s.vc_max,
+              fz_min: s.fz_min, fz_max: s.fz_max,
+              ap_max: (s.ap_max_xD ?? 1) * dia,
+              ae_max: (s.ae_max_xD ?? 0.5) * dia,
+            };
+          }
+        }
+
+        this.tools.set(id, {
+          id,
+          manufacturer: "ISCAR",
+          series: fam.family,
+          designation: `${fam.family} ${dia}mm`,
+          type: fam.type,
+          subtype: fam.subtype,
+          material: "carbide",
+          coating: "SUMO TEC",
+          physical: {
+            cutting_diameter_mm: dia,
+            shank_diameter_mm: dia <= 20 ? dia : Math.round(dia * 0.8),
+            overall_length_mm: dia * 5,
+            flute_length_mm: dia * 2,
+          },
+          iso_groups: fam.iso_groups,
+          operations: fam.operations,
+          cutting_data: cuttingData,
+          coolant: dia >= 14 ? "through_tool" : "flood",
+          source: "ISCAR_PART_1",
+        });
+      }
+    }
+
+    // Load multi-manufacturer grade data as insert entries (turning inserts per grade)
+    for (const grade of ALL_MANUFACTURER_GRADES) {
+      if (!grade.application.startsWith("turning")) continue;
+      const id = `${grade.manufacturer.toUpperCase()}-${grade.code}`;
+      if (this.tools.has(id)) continue;
+
+      const isoGroups = (Object.entries(grade.iso_suitability) as Array<[string, string]>)
+        .filter(([, v]) => v !== "not_recommended")
+        .map(([k]) => k);
+
+      this.tools.set(id, {
+        id,
+        manufacturer: grade.manufacturer,
+        series: grade.code,
+        designation: `${grade.manufacturer} ${grade.code} Insert`,
+        type: "turning_tool",
+        subtype: "insert",
+        material: grade.substrate,
+        coating: grade.coating === "uncoated" ? undefined : grade.coating,
+        physical: {
+          cutting_diameter_mm: 12.7, // standard IC
+          shank_diameter_mm: 12.7,
+          overall_length_mm: 12.7,
+          flute_length_mm: 4,
+        },
+        iso_groups: isoGroups,
+        operations: ["turn", "face", "bore"],
+        source: `${grade.manufacturer}_catalog`,
+      });
+    }
+  }
+
+  private _loadOSGTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const osg of OSG_TOOLS) {
+      const id = `OSG-${osg.edp}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = osg.type as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === (toolType === "ball_mill" ? "end_mill" : toolType));
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfForType) {
+        const scale = osg.cutting_diameter_mm > 0 ? Math.sqrt(osg.cutting_diameter_mm / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+          ...(toolType !== "drill" ? {
+            ap_max: osg.flute_length_mm ?? osg.cutting_diameter_mm * 1.5,
+            ae_max: osg.cutting_diameter_mm,
+          } : {}),
+        };
+      }
+
+      const shank = osg.shank_diameter_mm ?? osg.cutting_diameter_mm;
+      const oal = osg.overall_length_mm ?? (toolType === "drill" ? osg.cutting_diameter_mm * 8 : osg.cutting_diameter_mm * 5);
+      const loc = osg.flute_length_mm ?? osg.cutting_diameter_mm * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "OSG",
+        series: toolType === "drill" ? "A Brand" : "EXOMILL",
+        designation: osg.edp,
+        type: toolType,
+        material: osg.material === "hss" ? "hss" : "carbide",
+        physical: {
+          cutting_diameter_mm: osg.cutting_diameter_mm,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+          ...(osg.neck_length_mm ? { neck_length_mm: osg.neck_length_mm } : {}),
+          ...(osg.neck_diameter_mm ? { neck_diameter_mm: osg.neck_diameter_mm } : {}),
+          ...(toolType === "ball_mill" ? { corner_radius_mm: osg.cutting_diameter_mm / 2 } : {}),
+        },
+        flute_count: osg.flute_count,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "ball_mill" ? ["contour", "finish", "3d_finish"] :
+                    ["pocket", "slot", "contour", "face"],
+        cutting_data: cuttingData,
+        coolant: osg.material === "carbide" ? "through_tool" : "flood",
+        source: "OSG_catalog",
+        catalog_page: (osg as any).page,
+      });
     }
   }
 }
