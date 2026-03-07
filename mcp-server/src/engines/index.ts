@@ -2753,3 +2753,8 @@ export { plasmaArcEngine, PlasmaArcEngine } from "./PlasmaArcEngine.js";
 
 // Electrochemical Engine — ECM/ECD Faraday MRR, current density
 export { electrochemicalEngine, ElectrochemicalEngine } from "./ElectrochemicalEngine.js";
+
+// Batch 36 — Flywheel, Clutch/Brake, Coupling
+export { FlywheelEnergyEngine, flywheelEnergyEngine } from './FlywheelEnergyEngine.js';
+export { ClutchBrakeEngine, clutchBrakeEngine } from './ClutchBrakeEngine.js';
+export { CouplingSelectionEngine, couplingSelectionEngine } from './CouplingSelectionEngine.js';
