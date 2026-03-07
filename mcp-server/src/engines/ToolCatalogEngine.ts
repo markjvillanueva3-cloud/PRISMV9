@@ -20,6 +20,7 @@ import { ALL_MANUFACTURER_GRADES, type ManufacturerGrade } from "../data/multi-m
 import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
 import { OSG_TOOLS } from "../data/osg-tool-catalog.js";
 import { GUHRING_TOOLS } from "../data/guhring-tool-catalog.js";
+import { SANDVIK_TOOLS } from "../data/sandvik-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -743,6 +744,7 @@ export class ToolCatalogEngine {
     this._loadMultiManufacturerInserts();
     this._loadOSGTools();
     this._loadGuhringTools();
+    this._loadSandvikTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -1152,6 +1154,53 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: g.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
         source: "Guhring_catalog",
+      });
+    }
+  }
+
+  private _loadSandvikTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const svk of SANDVIK_TOOLS) {
+      const id = `SVK-${svk.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = svk.type as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType);
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfForType) {
+        const scale = svk.cutting_diameter_mm > 0 ? Math.sqrt(svk.cutting_diameter_mm / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = svk.shank_diameter_mm ?? svk.cutting_diameter_mm;
+      const oal = svk.overall_length_mm ?? svk.cutting_diameter_mm * 6;
+      const loc = svk.flute_length_mm ?? svk.cutting_diameter_mm * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Sandvik",
+        series: toolType === "drill" ? "VariDrill" : "WCE/GP",
+        designation: svk.designation,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: svk.cutting_diameter_mm,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+          ...(svk.corner_radius_mm ? { corner_radius_mm: svk.corner_radius_mm } : {}),
+        },
+        flute_count: svk.flute_count ?? (toolType === "drill" ? 2 : 4),
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    ["pocket", "slot", "contour", "face"],
+        cutting_data: cuttingData,
+        coolant: svk.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: "Sandvik_Master_2022",
       });
     }
   }
