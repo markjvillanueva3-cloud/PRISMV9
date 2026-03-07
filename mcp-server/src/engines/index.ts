@@ -2432,3 +2432,6 @@ export { readOptimizerEngine, ReadOptimizerEngine } from "./ReadOptimizerEngine.
 
 // Call Chain — tool call chain analysis and anti-pattern detection
 export { callChainEngine, CallChainEngine } from "./CallChainEngine.js";
+
+// Token Accounting — centralized token cost accounting and efficiency scoring
+export { tokenAccountingEngine, TokenAccountingEngine } from "./TokenAccountingEngine.js";
