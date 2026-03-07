@@ -32,6 +32,7 @@ tool_sources = {
     "MA Ford": ("ma-ford-tools-extracted.json", "additional-tool-catalog.ts"),
     "Korloy": ("korloy-tools-extracted.json", "additional-tool-catalog.ts"),
     "Generic": ("unknown_solid-tools-extracted.json", "additional-tool-catalog.ts"),
+    "Rapidkut": ("rapidkut-tools-extracted.json", "additional-tool-catalog.ts"),
 }
 
 all_tools = []
