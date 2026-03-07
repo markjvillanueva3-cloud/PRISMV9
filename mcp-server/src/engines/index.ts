@@ -2481,6 +2481,15 @@ export { boringBarDeflectionEngine, BoringBarDeflectionEngine } from "./BoringBa
 // Circular Pocket — circular pocket milling strategy and cycle time
 export { circularPocketEngine, CircularPocketEngine } from "./CircularPocketEngine.js";
 
+// Press Fit — interference fit, press force, thermal assembly
+export { pressFitEngine, PressFitEngine } from "./PressFitEngine.js";
+
+// Surface Roughness — Ra/Rz prediction from cutting parameters
+export { surfaceRoughnessEngine, SurfaceRoughnessEngine } from "./SurfaceRoughnessEngine.js";
+
+// Centerless Grinding — centerless grinding setup parameters
+export { centerlessGrindingEngine, CenterlessGrindingEngine } from "./CenterlessGrindingEngine.js";
+
 // Repetition Detector — detects repeated content in tool outputs
 export { repetitionDetectorEngine, RepetitionDetectorEngine } from "./RepetitionDetectorEngine.js";
 
@@ -2489,3 +2498,12 @@ export { contextWindowPressureEngine, ContextWindowPressureEngine } from "./Cont
 
 // Tool Redirect — suggests more efficient tool alternatives
 export { toolRedirectEngine, ToolRedirectEngine } from "./ToolRedirectEngine.js";
+
+// Diff Minimizer — minimizes edit diffs for token efficiency
+export { diffMinimizerEngine, DiffMinimizerEngine } from "./DiffMinimizerEngine.js";
+
+// File Access Pattern — tracks access patterns to predict needs
+export { fileAccessPatternEngine, FileAccessPatternEngine } from "./FileAccessPatternEngine.js";
+
+// Compact Planner — plans optimal content preservation during compaction
+export { compactPlannerEngine, CompactPlannerEngine } from "./CompactPlannerEngine.js";
