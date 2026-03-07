@@ -2426,3 +2426,6 @@ export { hookEfficiencyEngine, HookEfficiencyEngine } from "./HookEfficiencyEngi
 
 // Context Snapshot — minimal session state snapshots for handoffs
 export { contextSnapshotEngine, ContextSnapshotEngine } from "./ContextSnapshotEngine.js";
+
+// Read Optimizer — optimal file reading strategy advisor
+export { readOptimizerEngine, ReadOptimizerEngine } from "./ReadOptimizerEngine.js";
