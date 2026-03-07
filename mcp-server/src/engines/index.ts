@@ -2561,3 +2561,12 @@ export { barFeederEngine, BarFeederEngine } from "./BarFeederEngine.js";
 
 // Chip Breaking — chip form prediction, chipbreaker selection, bird's nest risk
 export { chipBreakingEngine, ChipBreakingEngine } from "./ChipBreakingEngine.js";
+
+// Work Envelope — travel verification, reach check, utilization
+export { workEnvelopeEngine, WorkEnvelopeEngine } from "./WorkEnvelopeEngine.js";
+
+// Spindle Torque Curve — torque/power regions, base speed, margins
+export { spindleTorqueCurveEngine, SpindleTorqueCurveEngine } from "./SpindleTorqueCurveEngine.js";
+
+// Fixture Plate — grid layout, clamping force, plate deflection
+export { fixturePlateEngine, FixturePlateEngine } from "./FixturePlateEngine.js";
