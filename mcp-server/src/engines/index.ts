@@ -2516,3 +2516,9 @@ export { fileAccessPatternEngine, FileAccessPatternEngine } from "./FileAccessPa
 
 // Compact Planner — plans optimal content preservation during compaction
 export { compactPlannerEngine, CompactPlannerEngine } from "./CompactPlannerEngine.js";
+
+// Session Event Log — tracks session events for compact replay
+export { sessionEventLogEngine, SessionEventLogEngine } from "./SessionEventLogEngine.js";
+
+// Prompt Compression — compresses prompts for sub-agents
+export { promptCompressionEngine, PromptCompressionEngine } from "./PromptCompressionEngine.js";
