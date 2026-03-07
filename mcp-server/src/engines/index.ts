@@ -2579,3 +2579,12 @@ export { toolPresettingEngine, ToolPresettingEngine } from "./ToolPresettingEngi
 
 // Vibration Dampening — L/D limits, tuned mass, stiffness improvement
 export { vibrationDampeningEngine, VibrationDampeningEngine } from "./VibrationDampeningEngine.js";
+
+// Chip Conveyor — chip volume, conveyor sizing, bin fill time, scrap value
+export { chipConveyorEngine, ChipConveyorEngine } from "./ChipConveyorEngine.js";
+
+// Part Deflection — thin wall/floor deflection, spring passes, allowable force
+export { partDeflectionEngine, PartDeflectionEngine } from "./PartDeflectionEngine.js";
+
+// Machine Warmup — spindle/axis warmup schedule, thermal stability, first-part risk
+export { machineWarmupEngine, MachineWarmupEngine } from "./MachineWarmupEngine.js";
