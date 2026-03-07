@@ -2675,3 +2675,6 @@ export { pneumaticCylinderEngine, PneumaticCylinderEngine } from "./PneumaticCyl
 
 // Session Token Ledger — real-time token cost accounting per tool call
 export { sessionTokenLedgerEngine, SessionTokenLedgerEngine } from "./SessionTokenLedgerEngine.js";
+
+// Smart Prefetch — predicts needed files from imports and co-access patterns
+export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.js";
