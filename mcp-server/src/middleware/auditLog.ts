@@ -38,10 +38,9 @@ export function auditLog(req: Request, res: Response, next: NextFunction): void 
   }
 
   const start = Date.now();
-  const originalEnd = res.end.bind(res);
 
-  // Intercept response end to capture status code and duration
-  (res as any).end = function (...args: any[]) {
+  // Use 'finish' event — fires when response is written, no monkey-patching needed
+  res.on("finish", () => {
     const entry: AuditEntry = {
       timestamp: new Date().toISOString(),
       method: req.method,
@@ -55,15 +54,12 @@ export function auditLog(req: Request, res: Response, next: NextFunction): void 
       body_keys: req.body ? Object.keys(req.body) : [],
     };
 
-    log.info(`[Audit] ${entry.method} ${entry.path} by=${entry.user_id ?? "anon"} status=${entry.status_code} ${entry.duration_ms}ms`);
-
-    // Emit structured audit event for downstream consumers
-    if ((log as any).audit) {
-      (log as any).audit(entry);
-    }
-
-    return originalEnd(...args);
-  };
+    log.info(
+      `[Audit] ${entry.method} ${entry.path} ` +
+      `by=${entry.user_id ?? "anon"} ` +
+      `status=${entry.status_code} ${entry.duration_ms}ms`
+    );
+  });
 
   next();
 }
