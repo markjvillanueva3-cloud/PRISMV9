@@ -4,6 +4,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 import { log } from "../../utils/Logger.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_THREAD_SCHEMAS } from "../../schemas/threadActionSchemas.js";
+import type { HookPhase as ExecutorHookPhase } from "../../engines/HookExecutor.js";
 
 // Actions that perform calculations (vs lookups)
 const CALC_ACTIONS = new Set([
@@ -62,14 +63,14 @@ export function registerThreadDispatcher(server: any): void {
         const isCode = CODE_ACTIONS.has(action);
         const hookCtx = {
           operation: action,
-          target: { type: (isCode ? "code" : "calculation") as any, id: action, data: params },
+          target: { type: (isCode ? "code" : "calculation") as "code" | "calculation", id: action, data: params },
           metadata: { dispatcher: "threadDispatcher", action, params }
         };
         
         // Fire pre-hooks for calculations and code generation (blocking)
         if (isCalc || isCode) {
           const phase = isCode ? "pre-code-generate" : "pre-calculation";
-          const preResult = await hookExecutor.execute(phase as any, hookCtx);
+          const preResult = await hookExecutor.execute(phase as ExecutorHookPhase, hookCtx);
           if (preResult.blocked) {
             return { content: [{ type: "text", text: JSON.stringify({ blocked: true, blocker: preResult.blockedBy, reason: preResult.summary, action }) }] };
           }
@@ -80,7 +81,7 @@ export function registerThreadDispatcher(server: any): void {
         // Fire post-hooks (non-blocking)
         if (isCalc || isCode) {
           const phase = isCode ? "post-code-generate" : "post-calculation";
-          try { await hookExecutor.execute(phase as any, { ...hookCtx, metadata: { ...hookCtx.metadata, result } }); }
+          try { await hookExecutor.execute(phase as ExecutorHookPhase, { ...hookCtx, metadata: { ...hookCtx.metadata, result } }); }
           catch (e) { log.warn(`[threadDispatcher] Post-hook error: ${e}`); }
         }
         
