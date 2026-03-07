@@ -2773,3 +2773,8 @@ export { SealSelectionEngine, sealSelectionEngine } from './SealSelectionEngine.
 export { ChainDriveEngine, chainDriveEngine } from './ChainDriveEngine.js';
 export { LinearMotionEngine, linearMotionEngine } from './LinearMotionEngine.js';
 export { ValveSizingEngine, valveSizingEngine } from './ValveSizingEngine.js';
+
+// Batch 40 — HeatExchanger, PumpSelection, FanSelection
+export { HeatExchangerEngine, heatExchangerEngine } from './HeatExchangerEngine.js';
+export { PumpSelectionEngine, pumpSelectionEngine } from './PumpSelectionEngine.js';
+export { FanSelectionEngine, fanSelectionEngine } from './FanSelectionEngine.js';
