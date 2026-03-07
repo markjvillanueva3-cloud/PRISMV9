@@ -2640,6 +2640,9 @@ export { linearGuideEngine, LinearGuideEngine } from "./LinearGuideEngine.js";
 // Context Digest — ultra-compact file/directory summaries
 export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.js";
 
+// Tool Call Batch Optimizer — parallelization and redundancy detection
+export { toolCallBatchOptimizerEngine, ToolCallBatchOptimizerEngine } from "./ToolCallBatchOptimizerEngine.js";
+
 // Spindle Runout — TIR stack-up, finish degradation, tool life impact
 export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.js";
 
