@@ -2313,6 +2313,9 @@ export { grindingWheelEngine, GrindingWheelEngine } from "./GrindingWheelEngine.
 export { edmEngine, EDMEngine } from "./EDMEngine.js";
 export { workholdingForceEngine, WorkholdingForceEngine } from "./WorkholdingForceEngine.js";
 export { spindlePowerCheckEngine, SpindlePowerCheckEngine } from "./SpindlePowerCheckEngine.js";
+export { partingGroovingEngine, PartingGroovingEngine } from "./PartingGroovingEngine.js";
+export { facingEngine, FacingEngine } from "./FacingEngine.js";
+export { knurlingEngine, KnurlingEngine } from "./KnurlingEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
