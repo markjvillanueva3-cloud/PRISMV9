@@ -23,6 +23,7 @@ import { GUHRING_TOOLS } from "../data/guhring-tool-catalog.js";
 import { SANDVIK_TOOLS } from "../data/sandvik-tool-catalog.js";
 import { HAIMER_HOLDERS } from "../data/haimer-holder-catalog.js";
 import { GUHRING_HOLDERS } from "../data/guhring-holder-catalog.js";
+import { ADDITIONAL_TOOLS } from "../data/additional-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -790,6 +791,7 @@ export class ToolCatalogEngine {
     this._loadGuhringTools();
     this._loadSandvikTools();
     this._loadHaimerHolders();
+    this._loadAdditionalTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -1206,6 +1208,54 @@ export class ToolCatalogEngine {
   private _loadHaimerHolders(): void {
     // Haimer holders used directly in _findHolder() from HAIMER_HOLDERS import.
     // No tool entries needed — holders aren't cutting tools.
+  }
+
+  private _loadAdditionalTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const at of ADDITIONAL_TOOLS) {
+      const id = `ADD-${at.manufacturer.replace(/\s/g, "")}-${at.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = at.type as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType);
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfForType) {
+        const scale = at.cutting_diameter_mm > 0 ? Math.sqrt(at.cutting_diameter_mm / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = at.shank_diameter_mm ?? at.cutting_diameter_mm;
+      const oal = at.overall_length_mm ?? at.cutting_diameter_mm * 6;
+      const loc = at.flute_length_mm ?? at.cutting_diameter_mm * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: at.manufacturer,
+        series: toolType,
+        designation: at.designation,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: at.cutting_diameter_mm,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+          ...(at.corner_radius_mm ? { corner_radius_mm: at.corner_radius_mm } : {}),
+        },
+        flute_count: at.flute_count ?? (toolType === "drill" ? 2 : 4),
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "ball_mill" ? ["contour", "finishing"] :
+                    ["pocket", "slot", "contour", "face"],
+        cutting_data: cuttingData,
+        coolant: at.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: `${at.manufacturer}_catalog`,
+      });
+    }
   }
 
   private _loadSandvikTools(): void {
