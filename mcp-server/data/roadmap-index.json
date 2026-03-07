@@ -2,8 +2,8 @@
   "version": "5.3.0",
   "title": "PRISM App — Comprehensive Layered Roadmap",
   "updated_at": "2026-03-03T00:00:00Z",
-  "total_milestones": 96,
-  "completed_milestones": 95,
+  "total_milestones": 98,
+  "completed_milestones": 98,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -1320,13 +1320,28 @@
       "title": "Tool Catalog PDF Integration — Manufacturer Data Extraction",
       "track": "TC",
       "priority": "P2",
-      "status": "pending",
+      "status": "complete",
       "total_units": 14,
-      "completed_units": 0,
+      "completed_units": 14,
+      "completed_at": "2026-03-07",
       "sessions": "5-8",
       "envelope_path": "milestones/TC-MS0.json",
       "dependencies": ["CC-EXT-MS1"],
       "description": "Extract structured cutting tool data from 45 manufacturer PDF catalogs (Tungaloy, Sandvik, Kennametal, ISCAR, OSG, Guhring, etc.) into PRISM's tool registry. 5 phases: inventory/schema, Tungaloy/Sandvik, multi-manufacturer, tooling systems, registry population."
+    },
+    {
+      "id": "PROD-MS0",
+      "title": "API Authentication & Authorization Middleware",
+      "track": "PROD",
+      "priority": "P0",
+      "status": "complete",
+      "total_units": 6,
+      "completed_units": 6,
+      "completed_at": "2026-03-07",
+      "sessions": "1",
+      "envelope_path": "milestones/PROD-MS0.json",
+      "dependencies": [],
+      "description": "Wire AuthEngine + RateLimitEngine as Express middleware. Auth middleware (verifyToken, requireRole, requirePermission), rate limit middleware, audit logging, security headers, health endpoints."
     }
   ]
 }

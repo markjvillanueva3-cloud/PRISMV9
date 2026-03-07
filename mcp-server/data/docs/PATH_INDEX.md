@@ -96,4 +96,4 @@
 - 223 hooks, 103 cadences, 499 formulas, 23 registries
 - 70 slash commands, 98 hookify rules
 - 5169 backend tests (156 files), 85 web tests (5 files), 11 E2E, 2085 cad-engine tests
-- 41 web pages, 95/95 milestones complete
+- 41 web pages, 98/98 milestones complete (v5.3 + TC-MS0 + PROD-MS0)
