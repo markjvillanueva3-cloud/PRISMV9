@@ -2758,3 +2758,8 @@ export { electrochemicalEngine, ElectrochemicalEngine } from "./ElectrochemicalE
 export { FlywheelEnergyEngine, flywheelEnergyEngine } from './FlywheelEnergyEngine.js';
 export { ClutchBrakeEngine, clutchBrakeEngine } from './ClutchBrakeEngine.js';
 export { CouplingSelectionEngine, couplingSelectionEngine } from './CouplingSelectionEngine.js';
+
+// Batch 37 — Corrosion, Creep, Fracture
+export { CorrosionRateEngine, corrosionRateEngine } from './CorrosionRateEngine.js';
+export { CreepLifeEngine, creepLifeEngine } from './CreepLifeEngine.js';
+export { FractureToughnessEngine, fractureToughnessEngine } from './FractureToughnessEngine.js';
