@@ -2690,3 +2690,6 @@ export { heatTreatmentEngine, HeatTreatmentEngine } from "./HeatTreatmentEngine.
 
 // Tool Call Pipeline — declarative tool call chains with dry-run costing
 export { toolCallPipelineEngine, ToolCallPipelineEngine } from "./ToolCallPipelineEngine.js";
+
+// Compaction Strategy — intelligent keep/compress/drop decisions for context
+export { compactionStrategyEngine, CompactionStrategyEngine } from "./CompactionStrategyEngine.js";
