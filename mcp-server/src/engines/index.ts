@@ -2499,6 +2499,15 @@ export { cuttingForceEngine, CuttingForceEngine } from "./CuttingForceEngine.js"
 // Chip Load — chip load optimization with thinning compensation
 export { chipLoadEngine, ChipLoadEngine } from "./ChipLoadEngine.js";
 
+// Parallelism — parallelism/flatness tolerance measurement
+export { parallelismEngine, ParallelismEngine } from "./ParallelismEngine.js";
+
+// Runout Compensation — TIR measurement and compensation strategy
+export { runoutCompensationEngine, RunoutCompensationEngine } from "./RunoutCompensationEngine.js";
+
+// Cutting Temperature — tool/chip interface temperature prediction
+export { cuttingTemperatureEngine, CuttingTemperatureEngine } from "./CuttingTemperatureEngine.js";
+
 // Repetition Detector — detects repeated content in tool outputs
 export { repetitionDetectorEngine, RepetitionDetectorEngine } from "./RepetitionDetectorEngine.js";
 
@@ -2522,3 +2531,9 @@ export { sessionEventLogEngine, SessionEventLogEngine } from "./SessionEventLogE
 
 // Prompt Compression — compresses prompts for sub-agents
 export { promptCompressionEngine, PromptCompressionEngine } from "./PromptCompressionEngine.js";
+
+// Parallel Call Planner — plans parallel tool call batches
+export { parallelCallPlannerEngine, ParallelCallPlannerEngine } from "./ParallelCallPlannerEngine.js";
+
+// Incremental Read — tracks file read coverage for incremental reads
+export { incrementalReadEngine, IncrementalReadEngine } from "./IncrementalReadEngine.js";
