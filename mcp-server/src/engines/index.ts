@@ -2607,6 +2607,9 @@ export { chipConveyorEngine, ChipConveyorEngine } from "./ChipConveyorEngine.js"
 // Part Deflection — thin wall/floor deflection, spring passes, allowable force
 export { partDeflectionEngine, PartDeflectionEngine } from "./PartDeflectionEngine.js";
 
+// Tool Call Deduplicator — detects exact and near-duplicate tool calls
+export { toolCallDeduplicatorEngine, ToolCallDeduplicatorEngine } from "./ToolCallDeduplicatorEngine.js";
+
 // Machine Warmup — spindle/axis warmup schedule, thermal stability, first-part risk
 export { machineWarmupEngine, MachineWarmupEngine } from "./MachineWarmupEngine.js";
 
