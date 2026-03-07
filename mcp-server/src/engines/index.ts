@@ -2319,3 +2319,9 @@ export { contextPreloaderEngine, ContextPreloaderEngine } from "./ContextPreload
 
 // Compact Formatter — token-efficient output formatting
 export { compactFormatterEngine, CompactFormatterEngine } from "./CompactFormatterEngine.js";
+
+// Batch Query — multi-action dispatcher batching
+export { batchQueryEngine, BatchQueryEngine } from "./BatchQueryEngine.js";
+
+// Response Cache — TTL-based result caching with LRU eviction
+export { responseCacheEngine, ResponseCacheEngine } from "./ResponseCacheEngine.js";
