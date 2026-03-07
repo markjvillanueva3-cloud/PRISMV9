@@ -729,8 +729,20 @@ async function runHTTP(): Promise<void> {
   const port = parseInt(process.env.PORT || "3000", 10);
   // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
   const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
-  app.listen(port, host, () => {
+  const httpServer = app.listen(port, host, () => {
     log.info(`MCP server running on http://${host}:${port}/mcp`);
+  });
+
+  // RT-MS0: Attach WebSocket server alongside HTTP
+  const { webSocketEngine } = await import("./engines/WebSocketEngine.js");
+  webSocketEngine.attach(httpServer);
+  log.info(`WebSocket server running on ws://${host}:${port}/ws`);
+
+  // Graceful shutdown
+  process.on("SIGTERM", () => {
+    log.info("SIGTERM received, shutting down...");
+    webSocketEngine.shutdown();
+    httpServer.close();
   });
 }
 

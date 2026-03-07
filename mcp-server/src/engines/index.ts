@@ -2289,3 +2289,4 @@ export { robustStatisticsEngine } from "./RobustStatisticsEngine.js";
 export { gameTheoryEngine } from "./GameTheoryEngine.js";
 export { survivalAnalysisEngine } from "./SurvivalAnalysisEngine.js";
 export { queueingTheoryEngine } from "./QueueingTheoryEngine.js";
+export { webSocketEngine, WebSocketEngine } from "./WebSocketEngine.js";
