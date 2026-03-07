@@ -9,13 +9,21 @@
  * - STEP export + import round-trip with volume comparison
  * - Error handling (invalid params, unknown methods)
  */
-import { describe, it, expect, afterAll } from "vitest";
+import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
 import { CadBridge } from "../engines/CadBridge.js";
+import { execSync } from "child_process";
+
+// Check if CadQuery Python is available
+let hasCadQuery = false;
+try {
+  execSync('python -c "import cadquery"', { timeout: 5000, stdio: "pipe" });
+  hasCadQuery = true;
+} catch { /* CadQuery not available */ }
 
 // Use a fresh instance for tests (not the singleton)
-const bridge = CadBridge.getInstance({ timeout: 15_000 });
+const bridge = hasCadQuery ? CadBridge.getInstance({ timeout: 15_000 }) : null as any;
 
 const EXPORTS_DIR = path.resolve("C:\\PRISM\\cad-engine\\exports\\integration");
 
@@ -30,7 +38,7 @@ afterAll(async () => {
 // ============================================================================
 // Process lifecycle
 // ============================================================================
-describe("CadBridge process lifecycle", () => {
+describe.skipIf(!hasCadQuery)("CadBridge process lifecycle", () => {
   it("responds to ping with status ok", async () => {
     const result = await bridge.ping();
     expect(result.status).toBe("ok");
@@ -42,7 +50,7 @@ describe("CadBridge process lifecycle", () => {
 // ============================================================================
 // Geometry creation
 // ============================================================================
-describe("CadBridge geometry creation", () => {
+describe.skipIf(!hasCadQuery)("CadBridge geometry creation", () => {
   it("creates a box with correct volume", async () => {
     const result = await bridge.createGeometry({
       type: "box",
@@ -94,7 +102,7 @@ describe("CadBridge geometry creation", () => {
 // ============================================================================
 // Boolean operations
 // ============================================================================
-describe("CadBridge boolean operations", () => {
+describe.skipIf(!hasCadQuery)("CadBridge boolean operations", () => {
   it("subtracts cylinder from box", async () => {
     const box = await bridge.createGeometry({
       type: "box",
@@ -121,7 +129,7 @@ describe("CadBridge boolean operations", () => {
 // ============================================================================
 // Geometry validation
 // ============================================================================
-describe("CadBridge geometry validation", () => {
+describe.skipIf(!hasCadQuery)("CadBridge geometry validation", () => {
   it("validates a box as manifold and watertight", async () => {
     const box = await bridge.createGeometry({
       type: "box",
@@ -144,7 +152,7 @@ describe("CadBridge geometry validation", () => {
 // ============================================================================
 // Export + import round-trip
 // ============================================================================
-describe("CadBridge STEP round-trip", () => {
+describe.skipIf(!hasCadQuery)("CadBridge STEP round-trip", () => {
   it("exports and re-imports with volume within 0.1%", async () => {
     fs.mkdirSync(EXPORTS_DIR, { recursive: true });
     const stepPath = path.join(EXPORTS_DIR, "roundtrip_box.step");
@@ -178,7 +186,7 @@ describe("CadBridge STEP round-trip", () => {
 // ============================================================================
 // Error handling
 // ============================================================================
-describe("CadBridge error handling", () => {
+describe.skipIf(!hasCadQuery)("CadBridge error handling", () => {
   it("rejects invalid solid_id", async () => {
     await expect(
       bridge.validateGeometry({ solid_id: "nonexistent_999" })
@@ -195,7 +203,7 @@ describe("CadBridge error handling", () => {
 // ============================================================================
 // Memory management
 // ============================================================================
-describe("CadBridge memory management", () => {
+describe.skipIf(!hasCadQuery)("CadBridge memory management", () => {
   it("clears all stored solids", async () => {
     // Create a few solids
     await bridge.createGeometry({ type: "box", width: 5, height: 5, depth: 5 });

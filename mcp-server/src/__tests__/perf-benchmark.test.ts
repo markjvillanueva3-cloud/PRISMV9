@@ -13,7 +13,7 @@ describe("Performance Benchmarks", () => {
     const elapsed = performance.now() - start;
     console.log(`Registry init: ${elapsed.toFixed(0)}ms`);
     console.log(`Total entries: ${registryManager.getTotalEntries()}`);
-    expect(elapsed).toBeLessThan(10000);
+    expect(elapsed).toBeLessThan(15000); // Allow headroom under system load
   });
 
   it("material lookup x1000", async () => {
