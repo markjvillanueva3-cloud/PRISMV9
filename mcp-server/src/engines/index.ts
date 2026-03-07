@@ -2610,9 +2610,6 @@ export { partDeflectionEngine, PartDeflectionEngine } from "./PartDeflectionEngi
 // Tool Call Deduplicator — detects exact and near-duplicate tool calls
 export { toolCallDeduplicatorEngine, ToolCallDeduplicatorEngine } from "./ToolCallDeduplicatorEngine.js";
 
-// Response Cache — caches tool responses with TTL for deduplication
-export { responseCacheEngine, ResponseCacheEngine } from "./ResponseCacheEngine.js";
-
 // Machine Warmup — spindle/axis warmup schedule, thermal stability, first-part risk
 export { machineWarmupEngine, MachineWarmupEngine } from "./MachineWarmupEngine.js";
 
@@ -2637,9 +2634,6 @@ export { setupReductionEngine, SetupReductionEngine } from "./SetupReductionEngi
 // Linear Guide — rail sizing, L10 life, preload, friction
 export { linearGuideEngine, LinearGuideEngine } from "./LinearGuideEngine.js";
 
-// Context Digest — ultra-compact file/directory summaries
-export { contextDigestEngine, ContextDigestEngine } from "./ContextDigestEngine.js";
-
 // Tool Call Batch Optimizer — parallelization and redundancy detection
 export { toolCallBatchOptimizerEngine, ToolCallBatchOptimizerEngine } from "./ToolCallBatchOptimizerEngine.js";
 
@@ -2658,11 +2652,14 @@ export { shaftAlignmentEngine, ShaftAlignmentEngine } from "./ShaftAlignmentEngi
 // Keyway Stress Engine — key shear/bearing stress, ANSI B17.1 sizing
 export { keywayStressEngine, KeywayStressEngine } from "./KeywayStressEngine.js";
 
-// Belt Drive Engine � V-belt & timing belt selection, tension, life
+// Belt Drive Engine � V-belt & timing belt selection, tension, life
 export { beltDriveEngine, BeltDriveEngine } from "./BeltDriveEngine.js";
 
-// Spring Calc Engine � helical compression spring rate, stress, fatigue
+// Spring Calc Engine � helical compression spring rate, stress, fatigue
 export { springCalcEngine, SpringCalcEngine } from "./SpringCalcEngine.js";
 
-// Weld Strength Engine � fillet/butt weld stress, AWS D1.1 allowables
+// Weld Strength Engine � fillet/butt weld stress, AWS D1.1 allowables
 export { weldStrengthEngine, WeldStrengthEngine } from "./WeldStrengthEngine.js";
+
+// Output Budget Enforcer — per-tool output token budgets with truncation
+export { outputBudgetEnforcerEngine, OutputBudgetEnforcerEngine } from "./OutputBudgetEnforcerEngine.js";
