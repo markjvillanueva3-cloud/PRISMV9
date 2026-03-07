@@ -2338,3 +2338,6 @@ export { dispatcherMapEngine, DispatcherMapEngine } from "./DispatcherMapEngine.
 
 // Tool Router — intent-based routing for token efficiency
 export { toolRouterEngine, ToolRouterEngine } from "./ToolRouterEngine.js";
+
+// Output Budget — token budget enforcement for tool outputs
+export { outputBudgetEngine, OutputBudgetEngine } from "./OutputBudgetEngine.js";
