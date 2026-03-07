@@ -1,8 +1,10 @@
 /**
- * Data Access Dispatcher - Consolidates data tools → 1 dispatcher (27 actions)
+ * Data Access Dispatcher - Consolidates data tools → 1 dispatcher (54 actions)
  * Actions: material_get/search/compare, machine_get/search/capabilities,
  *          tool_get/search/recommend, alarm_decode/search/fix, formula_get/calculate,
- *          coolant_get/search/recommend, coating_get/search/recommend
+ *          coolant_get/search/recommend, coating_get/search/recommend,
+ *          catalog_machine_lookup/stats, catalog_tool_lookup,
+ *          catalog_holder_lookup/recommend, catalog_workholding_lookup/stats
  */
 
 import { z } from "zod";
@@ -16,6 +18,10 @@ import { ACTION_DATA_SCHEMAS } from "../../schemas/dataActionSchemas.js";
 import { toolHolderDatabaseEngine } from "../../engines/ToolHolderDatabaseEngine.js";
 import { machineConfigDatabaseEngine } from "../../engines/MachineConfigDatabaseEngine.js";
 import { surfaceFinishDatabaseEngine } from "../../engines/SurfaceFinishDatabaseEngine.js";
+import { EXTENDED_MACHINE_CATALOG, toCatalogProfiles, getCatalogStats } from "../../data/machine-profiles-catalog.js";
+import { SGS_COATINGS, SGS_END_MILL_SERIES, SGS_SPEED_FEED_ZR, SGS_QUICK_SPEED_FEED, SGS_CATALOG_META } from "../../data/sgs-tool-catalog.js";
+import { BIG_DAISHOWA_HOLDERS, findHolders as findDaishowaHolders, recommendHolder as recommendDaishowaHolder, getAvailableTapers } from "../../data/big-daishowa-holders.js";
+import { ORANGE_VISE_SPECS, findVise, findVisesByJawWidth, findVisesByOpening, findSoftJaws, getCatalogSummary as getWorkholdingSummary } from "../../data/workholding-catalog.js";
 
 const DataDispatcherSchema = z.object({
   action: z.enum([
@@ -35,6 +41,10 @@ const DataDispatcherSchema = z.object({
     "machine_config_smoothing", "machine_config_list",
     "surface_finish_grade", "surface_finish_parse",
     "surface_finish_convert", "surface_finish_recommend",
+    "catalog_machine_lookup", "catalog_machine_stats",
+    "catalog_tool_lookup",
+    "catalog_holder_lookup", "catalog_holder_recommend",
+    "catalog_workholding_lookup", "catalog_workholding_stats",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -916,6 +926,111 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          // === CATALOG: MACHINES ===
+          case "catalog_machine_lookup": {
+            const brand = params.brand?.toLowerCase();
+            const type = params.type?.toLowerCase();
+            const minRpm = params.min_rpm;
+            const minPower = params.min_power_kw;
+            const taper = params.taper?.toLowerCase();
+            let matches = EXTENDED_MACHINE_CATALOG;
+            if (brand) matches = matches.filter((m) => m.brand.toLowerCase().includes(brand));
+            if (type) matches = matches.filter((m) => m.type.toLowerCase() === type);
+            if (minRpm) matches = matches.filter((m) => m.spindle.max_rpm >= minRpm);
+            if (minPower) matches = matches.filter((m) => m.spindle.power_kw >= minPower);
+            if (taper) matches = matches.filter((m) => m.spindle.taper.toLowerCase().includes(taper));
+            result = { count: matches.length, machines: matches.slice(0, params.limit ?? 20) };
+            break;
+          }
+          case "catalog_machine_stats": {
+            result = getCatalogStats();
+            break;
+          }
+
+          // === CATALOG: SGS TOOLS ===
+          case "catalog_tool_lookup": {
+            const series = params.series?.toLowerCase();
+            const coating = params.coating?.toLowerCase();
+            const material = params.material?.toLowerCase();
+            const isoGroup = params.iso_group?.toUpperCase();
+            let seriesMatches = SGS_END_MILL_SERIES;
+            if (series) seriesMatches = seriesMatches.filter((s) => s.series.toLowerCase().includes(series) || s.name.toLowerCase().includes(series));
+            if (coating) seriesMatches = seriesMatches.filter((s) => s.coating.toLowerCase().includes(coating));
+            let sfZr = SGS_SPEED_FEED_ZR.slice();
+            if (series) sfZr = sfZr.filter((r) => r.tool_series.toLowerCase().includes(series));
+            if (isoGroup) sfZr = sfZr.filter((r) => r.iso_group === isoGroup);
+            if (material) sfZr = sfZr.filter((r) => r.material_group.toLowerCase().includes(material));
+            let sfQuick = SGS_QUICK_SPEED_FEED.slice();
+            if (series) sfQuick = sfQuick.filter((r) => r.series.toLowerCase().includes(series));
+            if (isoGroup) sfQuick = sfQuick.filter((r) => r.iso_group === isoGroup);
+            if (material) sfQuick = sfQuick.filter((r) => r.material_group.toLowerCase().includes(material));
+            let coatingMatches = SGS_COATINGS;
+            if (coating) coatingMatches = coatingMatches.filter((c) => c.name.toLowerCase().includes(coating) || c.designation.toLowerCase().includes(coating));
+            result = {
+              series: seriesMatches.slice(0, params.limit ?? 10),
+              speed_feed_zr: sfZr.slice(0, params.limit ?? 20),
+              speed_feed_quick: sfQuick.slice(0, params.limit ?? 20),
+              coatings: coatingMatches,
+              catalog: SGS_CATALOG_META,
+            };
+            break;
+          }
+
+          // === CATALOG: BIG DAISHOWA HOLDERS ===
+          case "catalog_holder_lookup": {
+            const hdTaper = params.taper;
+            const hdDia = params.tool_diameter_mm;
+            const hdType = params.type;
+            if (hdTaper && hdDia != null) {
+              result = { holders: findDaishowaHolders(hdTaper, hdDia, hdType), tapers: getAvailableTapers() };
+            } else {
+              let matches = BIG_DAISHOWA_HOLDERS;
+              if (hdTaper) matches = matches.filter((h) => h.taper === hdTaper);
+              if (hdType) matches = matches.filter((h) => h.type === hdType);
+              if (hdDia != null) matches = matches.filter((h) => hdDia >= h.bore_range_mm[0] && hdDia <= h.bore_range_mm[1]);
+              result = { count: matches.length, holders: matches.slice(0, params.limit ?? 20), tapers: getAvailableTapers() };
+            }
+            break;
+          }
+          case "catalog_holder_recommend": {
+            const recTaper = params.taper;
+            const recDia = params.tool_diameter_mm;
+            const recRpm = params.required_rpm;
+            const recType = params.type;
+            if (!recTaper || recDia == null || recRpm == null) {
+              return jsonResponse({ error: "catalog_holder_recommend requires 'taper', 'tool_diameter_mm', 'required_rpm'" });
+            }
+            const best = recommendDaishowaHolder(recTaper, recDia, recRpm, recType);
+            result = best ? { recommendation: best } : { error: "No holder found matching criteria", tapers: getAvailableTapers() };
+            break;
+          }
+
+          // === CATALOG: WORKHOLDING ===
+          case "catalog_workholding_lookup": {
+            const whModel = params.model || params.query;
+            const whMinWidth = params.min_jaw_width_mm;
+            const whPartWidth = params.part_width_mm;
+            const whJawViseWidth = params.vise_width_mm;
+            const whJawMaterial = params.jaw_material;
+            if (whModel) {
+              const vise = findVise(whModel);
+              result = vise ? { vise } : { error: `No vise found matching '${whModel}'` };
+            } else if (whJawViseWidth != null) {
+              result = { soft_jaws: findSoftJaws(whJawViseWidth, whJawMaterial) };
+            } else if (whMinWidth != null) {
+              result = { vises: findVisesByJawWidth(whMinWidth) };
+            } else if (whPartWidth != null) {
+              result = { vises: findVisesByOpening(whPartWidth) };
+            } else {
+              result = { vises: ORANGE_VISE_SPECS };
+            }
+            break;
+          }
+          case "catalog_workholding_stats": {
+            result = getWorkholdingSummary();
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -927,5 +1042,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (47 actions)");
+  log.info("[dataDispatcher] Registered prism_data (54 actions)");
 }
