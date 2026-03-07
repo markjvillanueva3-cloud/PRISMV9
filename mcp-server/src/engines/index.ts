@@ -2435,3 +2435,6 @@ export { callChainEngine, CallChainEngine } from "./CallChainEngine.js";
 
 // Token Accounting — centralized token cost accounting and efficiency scoring
 export { tokenAccountingEngine, TokenAccountingEngine } from "./TokenAccountingEngine.js";
+
+// Session Budget Advisor — unified session budget advisory
+export { sessionBudgetAdvisorEngine, SessionBudgetAdvisorEngine } from "./SessionBudgetAdvisorEngine.js";
