@@ -427,6 +427,13 @@ const ACTIONS = [
   "unit_convert", "unit_convert_batch", "unit_system_toggle", "unit_list_conversions", "unit_rpm_calc",
   // ── Machine Profile ──
   "machine_profile_get", "machine_profile_list", "machine_profile_validate", "machine_profile_spindle_curve", "machine_profile_add",
+  // ── Optimization (PSO/ACO/BO/TR) ──
+  "pso_minimize", "pso_maximize",
+  "aco_solve_tsp", "aco_solve_assignment",
+  "bayesian_optimize", "bayesian_suggest",
+  "trust_region_minimize",
+  // ── Geometry (BVH) ──
+  "bvh_build_stats", "bvh_raycast",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3410,6 +3417,63 @@ export function registerCalcDispatcher(server: any): void {
           case "machine_profile_add": {
             const { machineProfileEngine } = await import("../../engines/MachineProfileEngine.js");
             result = machineProfileEngine.add(params.profile);
+            break;
+          }
+
+          // ── Optimization: PSO ──
+          case "pso_minimize":
+          case "pso_maximize": {
+            const { particleSwarmOptimizationEngine: pso } = await import("../../engines/ParticleSwarmOptimizationEngine.js");
+            const objFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const psoConfig = { dimensions: params.dimensions ?? 2, bounds: params.bounds, swarmSize: params.swarm_size, maxIterations: params.max_iterations, seed: params.seed };
+            result = action === "pso_maximize" ? pso.maximize(objFn, psoConfig) : pso.minimize(objFn, psoConfig);
+            break;
+          }
+
+          // ── Optimization: ACO ──
+          case "aco_solve_tsp": {
+            const { antColonyOptimizationEngine: aco } = await import("../../engines/AntColonyOptimizationEngine.js");
+            result = aco.solve({ nodeCount: params.node_count, distanceMatrix: params.distance_matrix, maxIterations: params.max_iterations, variant: params.variant, seed: params.seed });
+            break;
+          }
+          case "aco_solve_assignment": {
+            const { antColonyOptimizationEngine: aco } = await import("../../engines/AntColonyOptimizationEngine.js");
+            result = aco.solveAssignment(params.cost_matrix, { maxIterations: params.max_iterations, seed: params.seed });
+            break;
+          }
+
+          // ── Optimization: Bayesian ──
+          case "bayesian_optimize": {
+            const { bayesianOptimizationEngine: bo } = await import("../../engines/BayesianOptimizationEngine.js");
+            const boFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            result = bo.minimize(boFn, { dimensions: params.dimensions ?? 1, bounds: params.bounds, acquisitionFunction: params.acquisition_function, maxIterations: params.max_iterations, seed: params.seed });
+            break;
+          }
+          case "bayesian_suggest": {
+            const { bayesianOptimizationEngine: bo } = await import("../../engines/BayesianOptimizationEngine.js");
+            result = bo.suggestNext(params.observations, { dimensions: params.dimensions ?? 1, bounds: params.bounds, acquisitionFunction: params.acquisition_function, seed: params.seed });
+            break;
+          }
+
+          // ── Optimization: Trust Region ──
+          case "trust_region_minimize": {
+            const { trustRegionEngine: tr } = await import("../../engines/TrustRegionEngine.js");
+            const trFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            result = tr.minimize(trFn, { dimensions: params.dimensions ?? 1, x0: params.x0, bounds: params.bounds, maxIterations: params.max_iterations });
+            break;
+          }
+
+          // ── Geometry: BVH ──
+          case "bvh_build_stats": {
+            const { bvhEngine } = await import("../../engines/BVHEngine.js");
+            const root = bvhEngine.build(params.triangles, params.max_leaf_size);
+            result = { aabb: root.aabb, stats: bvhEngine.stats(root) };
+            break;
+          }
+          case "bvh_raycast": {
+            const { bvhEngine } = await import("../../engines/BVHEngine.js");
+            const root = bvhEngine.build(params.triangles, params.max_leaf_size);
+            result = bvhEngine.raycast(root, params.triangles, params.origin, params.direction);
             break;
           }
 
