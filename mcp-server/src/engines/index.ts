@@ -2664,11 +2664,14 @@ export { weldStrengthEngine, WeldStrengthEngine } from "./WeldStrengthEngine.js"
 // Output Budget Enforcer â€” per-tool output token budgets with truncation
 export { outputBudgetEnforcerEngine, OutputBudgetEnforcerEngine } from "./OutputBudgetEnforcerEngine.js";
 
-// Gear Train Engine — spur/helical gear pair, Lewis bending, AGMA contact stress
+// Gear Train Engine ï¿½ spur/helical gear pair, Lewis bending, AGMA contact stress
 export { gearTrainEngine, GearTrainEngine } from "./GearTrainEngine.js";
 
-// Hydraulic Cylinder Engine — force, flow, buckling, cycle time
+// Hydraulic Cylinder Engine ï¿½ force, flow, buckling, cycle time
 export { hydraulicCylinderEngine, HydraulicCylinderEngine } from "./HydraulicCylinderEngine.js";
 
-// Pneumatic Cylinder Engine — air cylinder sizing, consumption, cushioning
+// Pneumatic Cylinder Engine ï¿½ air cylinder sizing, consumption, cushioning
 export { pneumaticCylinderEngine, PneumaticCylinderEngine } from "./PneumaticCylinderEngine.js";
+
+// Session Token Ledger â€” real-time token cost accounting per tool call
+export { sessionTokenLedgerEngine, SessionTokenLedgerEngine } from "./SessionTokenLedgerEngine.js";
