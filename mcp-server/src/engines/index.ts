@@ -2291,3 +2291,4 @@ export { survivalAnalysisEngine } from "./SurvivalAnalysisEngine.js";
 export { queueingTheoryEngine } from "./QueueingTheoryEngine.js";
 export { webSocketEngine, WebSocketEngine } from "./WebSocketEngine.js";
 export { llmEngine, LLMEngine } from "./LLMEngine.js";
+export { alarmEscalationEngine, AlarmEscalationEngine } from "./AlarmEscalationEngine.js";
