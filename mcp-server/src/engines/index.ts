@@ -2316,6 +2316,9 @@ export { spindlePowerCheckEngine, SpindlePowerCheckEngine } from "./SpindlePower
 export { partingGroovingEngine, PartingGroovingEngine } from "./PartingGroovingEngine.js";
 export { facingEngine, FacingEngine } from "./FacingEngine.js";
 export { knurlingEngine, KnurlingEngine } from "./KnurlingEngine.js";
+export { ballEndMillEngine, BallEndMillEngine } from "./BallEndMillEngine.js";
+export { highFeedMillingEngine, HighFeedMillingEngine } from "./HighFeedMillingEngine.js";
+export { rampingEngine, RampingEngine } from "./RampingEngine.js";
 
 // Optimization Engines — numerical optimization primitives
 export { gradientOptimizationEngine } from "./GradientOptimizationEngine.js";
