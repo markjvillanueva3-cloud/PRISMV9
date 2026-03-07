@@ -2438,3 +2438,12 @@ export { tokenAccountingEngine, TokenAccountingEngine } from "./TokenAccountingE
 
 // Session Budget Advisor — unified session budget advisory
 export { sessionBudgetAdvisorEngine, SessionBudgetAdvisorEngine } from "./SessionBudgetAdvisorEngine.js";
+
+// Helical Milling — helical interpolation bore milling parameters
+export { helicalMillingEngine, HelicalMillingEngine } from "./HelicalMillingEngine.js";
+
+// Peck Drilling — deep hole peck drilling parameter calculator
+export { peckDrillingEngine, PeckDrillingEngine } from "./PeckDrillingEngine.js";
+
+// Chamfer — chamfer machining parameter calculator
+export { chamferEngine, ChamferEngine } from "./ChamferEngine.js";
