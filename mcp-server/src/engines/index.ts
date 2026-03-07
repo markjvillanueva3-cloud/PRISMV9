@@ -2763,3 +2763,8 @@ export { CouplingSelectionEngine, couplingSelectionEngine } from './CouplingSele
 export { CorrosionRateEngine, corrosionRateEngine } from './CorrosionRateEngine.js';
 export { CreepLifeEngine, creepLifeEngine } from './CreepLifeEngine.js';
 export { FractureToughnessEngine, fractureToughnessEngine } from './FractureToughnessEngine.js';
+
+// Batch 38 — DynamicBalance, NoiseLevel, SealSelection
+export { DynamicBalanceEngine, dynamicBalanceEngine } from './DynamicBalanceEngine.js';
+export { NoiseLevelEngine, noiseLevelEngine } from './NoiseLevelEngine.js';
+export { SealSelectionEngine, sealSelectionEngine } from './SealSelectionEngine.js';
