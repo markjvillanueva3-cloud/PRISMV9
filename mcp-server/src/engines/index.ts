@@ -2390,3 +2390,6 @@ export { importCostEngine, ImportCostEngine } from "./ImportCostEngine.js";
 
 // G-Code Snippet — common G-code snippet library
 export { gCodeSnippetEngine, GCodeSnippetEngine } from "./GCodeSnippetEngine.js";
+
+// Conversation Budget — conversation-level token budget management
+export { conversationBudgetEngine, ConversationBudgetEngine } from "./ConversationBudgetEngine.js";
