@@ -2679,11 +2679,14 @@ export { sessionTokenLedgerEngine, SessionTokenLedgerEngine } from "./SessionTok
 // Smart Prefetch â€” predicts needed files from imports and co-access patterns
 export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.js";
 
-// Bolt Torque Engine — torque-tension, clamp load, VDI 2230
+// Bolt Torque Engine ï¿½ torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
-// Fatigue Life Engine — S-N curve, Goodman/Gerber, Miner damage
+// Fatigue Life Engine ï¿½ S-N curve, Goodman/Gerber, Miner damage
 export { fatigueLifeEngine, FatigueLifeEngine } from "./FatigueLifeEngine.js";
 
-// Heat Treatment Engine — hardening, tempering, carburizing, annealing
+// Heat Treatment Engine ï¿½ hardening, tempering, carburizing, annealing
 export { heatTreatmentEngine, HeatTreatmentEngine } from "./HeatTreatmentEngine.js";
+
+// Tool Call Pipeline â€” declarative tool call chains with dry-run costing
+export { toolCallPipelineEngine, ToolCallPipelineEngine } from "./ToolCallPipelineEngine.js";
