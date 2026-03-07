@@ -426,7 +426,7 @@ Health: prism_bridge→health
 - DfMRulesEngine.ts — Design for Manufacturability rules checker: 8 feature type checks (wall/cavity/hole/thread/undercut/tall/small/fillet), tolerance feasibility, face mill geometry selection (45°/90°/button), deep hole technique by L/D ratio, CNC machine cost estimation. Source: CNC Complete Engineering Guide, CNCCookbook guides
 - SketchEngine.ts — 2D sketch primitives (line/arc/circle/rect/polygon/slot/ellipse/spline), 14 constraint types, profile analysis (area/perimeter/centroid/bbox), 13 3D feature types (extrude/revolve/hole/fillet/chamfer/shell/pattern/mirror), 4 part templates (box/cylinder/flange/bracket), volume estimation, CadQuery Python codegen, SVG export. Wired to cadDispatcher (12 actions)
 
-### 4f. Intelligence & Knowledge Engines (14 exported)
+### 4f. Intelligence & Knowledge Engines (15 exported)
 - IntelligenceEngine.ts (2564L) — Intelligence mega-engine (250 actions)
 - KnowledgeGraphEngine.ts (919L) — Knowledge graph operations
 - KnowledgeQueryEngine.ts (1196L) — Knowledge query with TF-IDF search
@@ -441,6 +441,7 @@ Health: prism_bridge→health
 - AIMLEngine.ts (694L) — AI/ML inference engine
 - DecisionTreeEngine.ts (1467L) — Decision tree engine (CART)
 - SourceCatalogAggregator.ts (174L) — Source catalog aggregation
+- VideoLearningEngine.ts (450L) — Direct video file learning: FFmpeg audio extraction, Whisper transcription, Claude Vision keyframe analysis, knowledge fusion with timestamp correlation. 17 tests
 
 ### 4g. Product Engines (2 exported)
 - ProductEngine.ts (2590L) — SFC/PPG/Shop/ACNC product calculations
