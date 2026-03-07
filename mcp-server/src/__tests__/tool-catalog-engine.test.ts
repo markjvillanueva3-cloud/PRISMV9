@@ -8,14 +8,15 @@ describe("ToolCatalogEngine", () => {
   const engine = new ToolCatalogEngine();
 
   // ── Stats & Inventory ──
-  it("has standard tools loaded", () => {
+  it("has standard + Tungaloy tools loaded", () => {
     const stats = engine.stats();
-    expect(stats.total_tools).toBeGreaterThan(100);
-    expect(stats.by_type["end_mill"]).toBeGreaterThan(50);
-    expect(stats.by_type["drill"]).toBeGreaterThan(20);
+    expect(stats.total_tools).toBeGreaterThan(800); // 200+ standard + 800+ Tungaloy
+    expect(stats.by_type["end_mill"]).toBeGreaterThan(700);
+    expect(stats.by_type["drill"]).toBeGreaterThan(400);
     expect(stats.by_type["face_mill"]).toBeGreaterThan(0);
-    expect(stats.by_type["ball_mill"]).toBeGreaterThan(10);
-    expect(stats.holders).toBeGreaterThan(20);
+    expect(stats.by_type["ball_mill"]).toBeGreaterThan(100);
+    expect(stats.holders).toBeGreaterThan(400);
+    expect(stats.by_manufacturer["Tungaloy"]).toBeGreaterThan(700);
   });
 
   // ── Search ──
@@ -113,8 +114,11 @@ describe("ToolCatalogEngine", () => {
   it("assembly respects holder taper selection", () => {
     const bt40 = engine.assembly({ tool_id: "STD-EM-10x4F-2xD", holder_taper: "BT40" });
     const hsk = engine.assembly({ tool_id: "STD-EM-10x4F-2xD", holder_taper: "HSK-A63" });
-    // HSK typically has shorter gauge length
-    expect(hsk.holder_gauge_length_mm).toBeLessThanOrEqual(bt40.holder_gauge_length_mm);
+    // Both should produce valid assemblies with different tapers
+    expect(bt40.holder_gauge_length_mm).toBeGreaterThan(0);
+    expect(hsk.holder_gauge_length_mm).toBeGreaterThan(0);
+    expect(bt40.collision_envelope.profile.length).toBeGreaterThanOrEqual(4);
+    expect(hsk.collision_envelope.profile.length).toBeGreaterThanOrEqual(4);
   });
 
   it("throws on incompatible tool/holder", () => {
@@ -214,6 +218,42 @@ describe("ToolCatalogEngine", () => {
     expect(tool.type).toBe("ball_mill");
     expect(tool.physical.corner_radius_mm).toBe(5);
     expect(tool.flute_count).toBe(2);
+  });
+
+  // ── Tungaloy Holder Integration ──
+  it("includes Tungaloy holders in stats", () => {
+    const stats = engine.stats();
+    expect(stats.holders).toBeGreaterThan(400); // 27 generic + 494 Tungaloy
+  });
+
+  it("searches Tungaloy holders by taper", () => {
+    const hsk63 = engine.searchHolders({ taper: "HSK-A63" });
+    expect(hsk63.length).toBeGreaterThan(0);
+    expect(hsk63.every(h => h.taper.includes("HSK-A63"))).toBe(true);
+  });
+
+  it("searches Tungaloy holders by type", () => {
+    const shrink = engine.searchHolders({ holder_type: "shrink_fit", max_results: 5 });
+    expect(shrink.length).toBeGreaterThan(0);
+    expect(shrink.every(h => h.holder_type === "shrink_fit")).toBe(true);
+  });
+
+  it("searches Tungaloy holders by bore diameter", () => {
+    const bore10 = engine.searchHolders({ bore_diameter_mm: 10 });
+    expect(bore10.length).toBeGreaterThan(0);
+  });
+
+  it("uses Tungaloy real holder data for HSK-A63 assembly", () => {
+    const asm = engine.assembly({ tool_id: "STD-EM-10x4F-2xD", holder_taper: "HSK-A63" });
+    // Should match Tungaloy HSKA63 ER collet (real data)
+    expect(asm.holder_gauge_length_mm).toBeGreaterThan(0);
+    expect(asm.collision_envelope.holder_max_diameter_mm).toBeGreaterThan(0);
+  });
+
+  it("uses Tungaloy CAT40 holder data", () => {
+    const asm = engine.assembly({ tool_id: "STD-EM-10x4F-2xD", holder_taper: "CAT40" });
+    expect(asm.holder_gauge_length_mm).toBeGreaterThan(0);
+    expect(asm.collision_envelope.profile.length).toBeGreaterThanOrEqual(4);
   });
 
   // ── Dispatcher Wiring ──

@@ -11,6 +11,10 @@
  *          tool_catalog_collision_envelope, tool_catalog_recommend, tool_catalog_stats
  */
 
+import { TUNGALOY_HOLDERS, type TungaloyHolder } from "../data/tungaloy-holder-catalog.js";
+import { TUNGALOY_ENDMILLS } from "../data/tungaloy-endmill-catalog.js";
+import { TUNGALOY_DRILLS } from "../data/tungaloy-drill-catalog.js";
+
 // ── Unified Tool Types ──
 
 export interface ToolPhysicalDimensions {
@@ -281,13 +285,10 @@ export class ToolCatalogEngine {
     const tool = this.tools.get(input.tool_id);
     if (!tool) throw new Error(`Tool not found: ${input.tool_id}`);
 
-    // Find compatible holder
+    // Find compatible holder — check Tungaloy real data first, then fall back to generic
     const taper = input.holder_taper ?? "BT40";
     const shank = tool.physical.shank_diameter_mm;
-    const holder = HOLDER_DIMS.find(h =>
-      h.taper === taper && shank >= h.bore_min && shank <= h.bore_max &&
-      (input.holder_type ? h.type.toLowerCase().includes(input.holder_type.toLowerCase()) : true)
-    ) ?? HOLDER_DIMS.find(h => h.taper === taper && shank >= h.bore_min && shank <= h.bore_max);
+    const holder = this._findHolder(taper, shank, input.holder_type);
 
     if (!holder) throw new Error(`No compatible holder for ${shank}mm shank in ${taper}`);
 
@@ -418,7 +419,7 @@ export class ToolCatalogEngine {
       by_type: byType,
       by_manufacturer: byMfg,
       diameter_range_mm: [minDia, maxDia],
-      holders: HOLDER_DIMS.length,
+      holders: HOLDER_DIMS.length + TUNGALOY_HOLDERS.length,
       speed_feed_entries: SPEED_FEED_BASE.length,
     };
   }
@@ -432,6 +433,73 @@ export class ToolCatalogEngine {
       added++;
     }
     return { added, duplicates };
+  }
+
+  /** Search Tungaloy holder catalog */
+  searchHolders(query: {
+    taper?: string;
+    holder_type?: string;
+    bore_diameter_mm?: number;
+    max_results?: number;
+  }): TungaloyHolder[] {
+    let results = [...TUNGALOY_HOLDERS];
+    if (query.taper) results = results.filter(h => h.taper.includes(query.taper!));
+    if (query.holder_type) results = results.filter(h => h.holder_type === query.holder_type);
+    if (query.bore_diameter_mm) {
+      const bore = query.bore_diameter_mm;
+      results = results.filter(h => {
+        if (h.bore_min_mm != null && h.bore_max_mm != null) {
+          return bore >= h.bore_min_mm && bore <= h.bore_max_mm;
+        }
+        if (h.bore_diameter_mm != null) {
+          return Math.abs(h.bore_diameter_mm - bore) < 0.5;
+        }
+        return false;
+      });
+    }
+    return results.slice(0, query.max_results ?? 20);
+  }
+
+  // ── Private: Find compatible holder ──
+  private _findHolder(taper: string, shank_mm: number, holderType?: string): HolderPhysical | null {
+    // 1. Try Tungaloy real catalog data
+    const tungaloyMatch = TUNGALOY_HOLDERS.find(h => {
+      if (!h.taper.includes(taper.replace("HSK-", "HSK-"))) {
+        // Normalize taper comparison: "HSK-A63" matches "HSK-A63"
+        const normTaper = taper.replace(/-/g, "");
+        const normHTaper = h.taper.replace(/-/g, "");
+        if (!normHTaper.includes(normTaper) && !normTaper.includes(normHTaper)) return false;
+      }
+      // Check bore compatibility
+      if (h.bore_min_mm != null && h.bore_max_mm != null) {
+        if (shank_mm < h.bore_min_mm || shank_mm > h.bore_max_mm) return false;
+      } else if (h.bore_diameter_mm != null) {
+        if (Math.abs(h.bore_diameter_mm - shank_mm) > 0.5) return false;
+      } else {
+        return false;
+      }
+      if (holderType && !h.holder_type.toLowerCase().includes(holderType.toLowerCase())) return false;
+      return true;
+    });
+
+    if (tungaloyMatch) {
+      return {
+        type: `${tungaloyMatch.holder_type}_${tungaloyMatch.collet ?? tungaloyMatch.bore_diameter_mm ?? ""}`,
+        taper: tungaloyMatch.taper,
+        bore_min: tungaloyMatch.bore_min_mm ?? tungaloyMatch.bore_diameter_mm ?? shank_mm,
+        bore_max: tungaloyMatch.bore_max_mm ?? tungaloyMatch.bore_diameter_mm ?? shank_mm,
+        gauge_length: tungaloyMatch.gauge_length_mm,
+        body_diameter: tungaloyMatch.body_diameter_mm,
+        max_rpm: 25000, // conservative default for Tungaloy
+        runout_um: 5,
+      };
+    }
+
+    // 2. Fall back to generic HOLDER_DIMS
+    return HOLDER_DIMS.find(h =>
+      h.taper === taper && shank_mm >= h.bore_min && shank_mm <= h.bore_max &&
+      (holderType ? h.type.toLowerCase().includes(holderType.toLowerCase()) : true)
+    ) ?? HOLDER_DIMS.find(h => h.taper === taper && shank_mm >= h.bore_min && shank_mm <= h.bore_max) ?? null;
   }
 
   // ── Private: Build collision envelope ──
@@ -620,6 +688,93 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         holder_interface: dia <= 63 ? "Shell_22" : "Shell_27",
         source: "industry_standard",
+      });
+    }
+
+    // Load Tungaloy catalog tools
+    this._loadTungaloyEndmills();
+    this._loadTungaloyDrills();
+  }
+
+  private _loadTungaloyEndmills(): void {
+    const sf = SPEED_FEED_BASE.filter(s => s.tool_type === "end_mill");
+    for (const te of TUNGALOY_ENDMILLS) {
+      const id = `TNG-${te.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sf) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min, fz_max: s.fz_max,
+          ap_max: (s.ap_max_xD ?? 1) * te.cutting_diameter_mm,
+          ae_max: (s.ae_max_xD ?? 0.5) * te.cutting_diameter_mm,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Tungaloy",
+        series: "SolidMeister",
+        designation: te.designation,
+        type: te.type as CatalogTool["type"],
+        material: "carbide",
+        coating: "AH725",
+        physical: {
+          cutting_diameter_mm: te.cutting_diameter_mm,
+          shank_diameter_mm: te.shank_diameter_mm,
+          overall_length_mm: te.overall_length_mm,
+          flute_length_mm: te.flute_length_mm,
+          corner_radius_mm: te.corner_radius_mm ?? (te.type === "ball_mill" ? te.cutting_diameter_mm / 2 : undefined),
+        },
+        flute_count: te.flute_count,
+        helix_angle_deg: 35,
+        center_cutting: true,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: te.type === "ball_mill"
+          ? ["finish_3d", "profile", "pocket"]
+          : ["pocket", "slot", "profile", "face", "ramp"],
+        cutting_data: cuttingData,
+        coolant: "flood",
+        source: "Tungaloy_GC_2023-2024",
+      });
+    }
+  }
+  private _loadTungaloyDrills(): void {
+    const sf = SPEED_FEED_BASE.filter(s => s.tool_type === "drill");
+    for (const td of TUNGALOY_DRILLS) {
+      const id = `TNG-${td.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sf) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min, fz_max: s.fz_max,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Tungaloy",
+        series: "DrillMeister",
+        designation: td.designation,
+        type: "drill",
+        material: "carbide",
+        coating: "AH725",
+        physical: {
+          cutting_diameter_mm: td.cutting_diameter_mm,
+          shank_diameter_mm: td.shank_diameter_mm,
+          overall_length_mm: td.overall_length_mm,
+          flute_length_mm: td.flute_length_mm ?? td.cutting_diameter_mm * 3,
+          point_angle_deg: td.point_angle_deg ?? 140,
+        },
+        flute_count: 2,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: ["drill"],
+        cutting_data: cuttingData,
+        coolant: td.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: "Tungaloy_GC_2023-2024",
       });
     }
   }
