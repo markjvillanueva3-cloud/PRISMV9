@@ -2378,3 +2378,6 @@ export { engineRegistryEngine, EngineRegistryEngine } from "./EngineRegistryEngi
 
 // Smart Defaults — context-aware default parameter selection
 export { smartDefaultsEngine, SmartDefaultsEngine } from "./SmartDefaultsEngine.js";
+
+// Error Context — minimal diagnostic context for errors
+export { errorContextEngine, ErrorContextEngine } from "./ErrorContextEngine.js";
