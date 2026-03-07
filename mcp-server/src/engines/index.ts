@@ -2655,6 +2655,9 @@ export { keywayStressEngine, KeywayStressEngine } from "./KeywayStressEngine.js"
 // Bash Command Classifier â€” classifies bash commands, suggests token-efficient alternatives
 export { bashCommandClassifierEngine, BashCommandClassifierEngine } from "./BashCommandClassifierEngine.js";
 
+// Context Integrity â€” guards against quality degradation from token optimization
+export { contextIntegrityEngine, ContextIntegrityEngine } from "./ContextIntegrityEngine.js";
+
 // Belt Drive Engine ï¿½ V-belt & timing belt selection, tension, life
 export { beltDriveEngine, BeltDriveEngine } from "./BeltDriveEngine.js";
 
@@ -2733,11 +2736,20 @@ export { toolSelectionAdvisorEngine, ToolSelectionAdvisorEngine } from "./ToolSe
 // Grep Optimizer â€” optimizes Grep params for minimal token cost
 export { grepOptimizerEngine, GrepOptimizerEngine } from "./GrepOptimizerEngine.js";
 
-// Crane Load Engine — sling tension, wire rope SF, dynamic factors
+// Crane Load Engine ï¿½ sling tension, wire rope SF, dynamic factors
 export { craneLoadEngine, CraneLoadEngine } from "./CraneLoadEngine.js";
 
-// Conveyor Design Engine — belt conveyor capacity, power, tension
+// Conveyor Design Engine ï¿½ belt conveyor capacity, power, tension
 export { conveyorDesignEngine, ConveyorDesignEngine } from "./ConveyorDesignEngine.js";
 
-// Piping Pressure Engine — Darcy-Weisbach, Reynolds, minor losses
+// Piping Pressure Engine ï¿½ Darcy-Weisbach, Reynolds, minor losses
 export { pipingPressureEngine, PipingPressureEngine } from "./PipingPressureEngine.js";
+
+// EDM Parameter Engine — wire/sinker EDM pulse settings, MRR, wear
+export { edmParameterEngine, EDMParameterEngine } from "./EDMParameterEngine.js";
+
+// Plasma Arc Engine — plasma cutting current, speed, gas, cost
+export { plasmaArcEngine, PlasmaArcEngine } from "./PlasmaArcEngine.js";
+
+// Electrochemical Engine — ECM/ECD Faraday MRR, current density
+export { electrochemicalEngine, ElectrochemicalEngine } from "./ElectrochemicalEngine.js";
