@@ -34,7 +34,8 @@
           "source_files": ["SGS_Global_Catalog_v26.1.pdf", "MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf", "OSG.pdf", "Solid End Mills.pdf"],
           "extract": ["end mill geometries (flute count, helix angle, LOC)", "speed/feed by material", "coating types", "application notes"],
           "target": ["ToolRegistry", "SpeedFeedEngine", "ToolCoatingSelectionEngine"],
-          "status": "NOT_STARTED"
+          "status": "PARTIAL",
+          "notes": "SGS extracted: 18 series, 9 coatings, 36 speed/feed records, 16 part numbers → sgs-tool-catalog.ts + 42 tests. MA Ford, OSG, Solid End Mills still pending."
         },
         {
           "unit_id": "RX-P1-U04",
@@ -67,7 +68,7 @@
       "title": "Toolholder + Workholding Catalogs → Holder Registry + Collision Data",
       "priority": "HIGH",
       "estimated_sessions": 2,
-      "notes": "DEFERRED — being handled by separate parallel chat session (tooling catalog extraction)",
+      "notes": "COMPLETE — BIG DAISHOWA + Orange Vise extracted. REGO-FIX image-only (needs OCR). Metalmorphosis/CAMFIX misclassified (not workholding).",
       "units": [
         {
           "unit_id": "RX-P2-U01",
@@ -75,7 +76,8 @@
           "source_files": ["BIG DAISHOWA High Performance Tooling Solutions Vol 5.pdf", "REGO-FIX Catalogue 2026 ENGLISH.pdf", "Tooling Systems.pdf", "Tooling Systems News 2018 English MetricInch.pdf", "CAMFIX_Catalog.pdf"],
           "extract": ["holder types (shrink-fit, hydraulic, collet, milling chuck)", "taper specs (BT/CAT/HSK/Capto)", "runout specs", "gauge lengths", "max RPM ratings", "pull stud specs"],
           "target": ["ToolholderDynamicsEngine", "CollisionEngine", "MachineProfileEngine"],
-          "status": "NOT_STARTED"
+          "status": "COMPLETE",
+          "notes": "BIG DAISHOWA extracted: 120+ holder specs across 10 families, 14 taper types → big-daishowa-holders.ts + 44 tests. REGO-FIX: image-based PDF, no text extraction possible without OCR. CAMFIX: actually ISCAR turning tooling (misclassified), excluded."
         },
         {
           "unit_id": "RX-P2-U02",
@@ -83,7 +85,8 @@
           "source_files": ["543f80b8_2016_orange_vise_catalog.pdf", "Metalmorphosis-2021-FINAL-reduced-for-Web.pdf", "TURNING_CATALOG_PART 1.pdf"],
           "extract": ["vise jaw dimensions", "clamping force specs", "modular fixturing systems", "chuck specs", "soft jaw profiles"],
           "target": ["WorkholdingEngine", "FixtureDesignEngine", "SoftJawProfileEngine", "ChuckJawForceEngine"],
-          "status": "NOT_STARTED"
+          "status": "COMPLETE",
+          "notes": "Orange Vise extracted: 44 entries (7 vises, zero-point, tombstones, soft jaws, subplates, jaw plates, fixture plates) → workholding-catalog.ts + 64 tests. Metalmorphosis: actually IMCO end mill catalog (misclassified), excluded."
         }
       ]
     },
@@ -92,7 +95,7 @@
       "title": "Machine Simulation Models → MachineProfileEngine Enrichment",
       "priority": "HIGH",
       "estimated_sessions": 2,
-      "notes": "DEFERRED — being handled by separate parallel chat session (tool/machine database consolidation)",
+      "notes": "P3-U01 COMPLETE (52 machines from archive). P3-U02 still NOT_STARTED (CAD files need separate processing).",
       "units": [
         {
           "unit_id": "RX-P3-U01",
@@ -100,7 +103,8 @@
           "source_dir": "MACHINE_SIMULATION_MODELS/",
           "extract": ["axis travel limits", "spindle specs (RPM, HP, torque curves)", "rapid traverse rates", "tool changer capacity", "table load limits", "accuracy specs"],
           "target": ["MachineProfileEngine (expand from 12 to 50+ profiles)", "MachineRegistry"],
-          "status": "NOT_STARTED"
+          "status": "COMPLETE",
+          "notes": "52 machine profiles from 7 brands (Haas 12, DMG MORI 3, Mazak 11, Makino 10, Okuma 11, Hermle 1, Doosan 4) → machine-profiles-catalog.ts + 79 tests. Source: PRISM_ARCHIVE EXTRACTED/machines/ENHANCED/ JS files."
         },
         {
           "unit_id": "RX-P3-U02",
