@@ -2859,6 +2859,12 @@ export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCPro
 export type { SPCInput, SPCResult } from "./SPCProcessCapabilityEngine.js";
 export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";
 export type { ParetoInput, ParetoResult, ParetoSolution } from "./MultiObjectiveParetoEngine.js";
+export { ChatterStabilityLobeEngine, chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
+export type { ChatterInput, ChatterResult } from "./ChatterStabilityLobeEngine.js";
+export { SurfaceIntegrityPredictorEngine, surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
+export type { SurfaceIntegrityInput, SurfaceIntegrityResult } from "./SurfaceIntegrityPredictorEngine.js";
+export { MachiningEnergyModelEngine, machiningEnergyModelEngine } from "./MachiningEnergyModelEngine.js";
+export type { MachiningEnergyInput, MachiningEnergyResult } from "./MachiningEnergyModelEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2890,3 +2896,6 @@ export { BucketElevatorEngine, bucketElevatorEngine } from "./BucketElevatorEngi
 export { DamperDesignEngine, damperDesignEngine } from "./DamperDesignEngine.js";
 export { FilterPressEngine, filterPressEngine } from "./FilterPressEngine.js";
 export { MixerAgitatorEngine, mixerAgitatorEngine } from "./MixerAgitatorEngine.js";
+export { BoilerTubeEngine, boilerTubeEngine } from "./BoilerTubeEngine.js";
+export { TransformerEngine, transformerEngine } from "./TransformerEngine.js";
+export { InductionHeatingEngine, inductionHeatingEngine } from "./InductionHeatingEngine.js";
