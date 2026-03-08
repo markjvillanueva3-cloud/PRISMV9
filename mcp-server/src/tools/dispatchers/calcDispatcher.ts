@@ -334,23 +334,23 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "process_robustness":
       return { robustness: result.value.robustness_index, grade: result.value.robustness_grade, sensitivities: result.value.sensitivities.length, worst_force_inc_pct: result.value.worst_case_scenario.force_increase_pct };
     case "kalman_filter":
-      return `Kalman ${result.mode}: ${result.filtered_states.length} steps, final=[${result.state_summary.final_state.map((v:number)=>v.toFixed(2)).join(',')}], converged=${result.state_summary.convergence_steps}`;
+      return { result: `Kalman ${result.mode}: ${result.filtered_states.length} steps, final=[${result.state_summary.final_state.map((v:number)=>v.toFixed(2)).join(',')}], converged=${result.state_summary.convergence_steps}` };
     case "amsaa_reliability_growth":
-      return `AMSAA β=${result.value.beta.value.toFixed(3)} (${result.value.growth_trend}), MTBF inst=${result.value.instantaneous_mtbf.value.toFixed(1)}hr, cum=${result.value.cumulative_mtbf.value.toFixed(1)}hr`;
+      return { result: `AMSAA β=${result.value.beta.value.toFixed(3)} (${result.value.growth_trend}), MTBF inst=${result.value.instantaneous_mtbf.value.toFixed(1)}hr, cum=${result.value.cumulative_mtbf.value.toFixed(1)}hr` };
     case "chance_constrained_optimize":
-      return `CC-Opt obj=${result.value.objective_value.toFixed(3)}, constraints=${result.value.constraint_satisfaction.filter((c:any)=>c.satisfied).length}/${result.value.constraint_satisfaction.length} met, margin=${result.value.robust_margin.toFixed(1)}`;
+      return { result: `CC-Opt obj=${result.value.objective_value.toFixed(3)}, constraints=${result.value.constraint_satisfaction.filter((c:any)=>c.satisfied).length}/${result.value.constraint_satisfaction.length} met, margin=${result.value.robust_margin.toFixed(1)}` };
     case "acoustic_emission_monitor":
-      return `AE Monitor: ${result.value.features.length} segments, condition=${result.value.tool_condition.state} (${(result.value.tool_condition.confidence*100).toFixed(0)}%), trend=${result.value.trend.trend_direction}`;
+      return { result: `AE Monitor: ${result.value.features.length} segments, condition=${result.value.tool_condition.state} (${(result.value.tool_condition.confidence*100).toFixed(0)}%), trend=${result.value.trend.trend_direction}` };
     case "sensor_validate":
-      return `Sensor: ${result.value.valid ? "VALID" : "INVALID"}, ${result.value.validated_count} samples, ${result.value.errors.length} errors`;
+      return { result: `Sensor: ${result.value.valid ? "VALID" : "INVALID"}, ${result.value.validated_count} samples, ${result.value.errors.length} errors` };
     case "sensor_simulate":
-      return `Sim: ${result.value.samples.length} samples, mean=${result.value.statistics.mean.toFixed(2)}, σ=${result.value.statistics.std_dev.toFixed(2)}`;
+      return { result: `Sim: ${result.value.samples.length} samples, mean=${result.value.statistics.mean.toFixed(2)}, σ=${result.value.statistics.std_dev.toFixed(2)}` };
     case "sensor_fuse":
-      return `EKF Fusion: ${result.value.fused_states.length} states, wear=${(result.value.estimated_wear*100).toFixed(1)}%, trend=${result.value.force_trend}`;
+      return { result: `EKF Fusion: ${result.value.fused_states.length} states, wear=${(result.value.estimated_wear*100).toFixed(1)}%, trend=${result.value.force_trend}` };
     case "sensor_anomaly_detect":
-      return `Anomaly: ${result.value.overall_status}, ${result.value.anomalies.length} events, ${result.value.method_summaries.filter((m:any)=>m.triggered).length}/${result.value.method_summaries.length} triggered`;
+      return { result: `Anomaly: ${result.value.overall_status}, ${result.value.anomalies.length} events, ${result.value.method_summaries.filter((m:any)=>m.triggered).length}/${result.value.method_summaries.length} triggered` };
     case "sensor_status":
-      return `Status: ${result.value.sensor_count} sensors, ${result.value.total_samples} total samples`;
+      return { result: `Status: ${result.value.sensor_count} sensors, ${result.value.total_samples} total samples` };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -3358,28 +3358,57 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "probe_routine_generate": {
             const { probeRoutineEngine } = await import("../../engines/ProbeRoutineEngine.js");
-            result = probeRoutineEngine.generate({
-              id: params.id ?? "F1",
-              callout: params.callout ?? "position",
-              tolerance_mm: params.tolerance_mm ?? 0.05,
-              datum_refs: params.datum_refs,
-              mmc: params.mmc,
-              feature_type: params.feature_type ?? "hole",
-              nominal: params.nominal ?? { diameter_mm: 10, x_mm: 50, y_mm: 50 },
+            const tolMm = params.tolerance_mm ?? 0.05;
+            const nom = params.nominal ?? { diameter_mm: 10, x_mm: 50, y_mm: 50 };
+            result = probeRoutineEngine.generatePartInspection({
+              controller: params.controller ?? "fanuc",
+              action_on_fail: params.action_on_fail ?? "alarm",
+              features: [{
+                type: (params.feature_type as any) ?? "bore",
+                nominal: nom.diameter_mm ?? 10,
+                tolerance_plus: tolMm,
+                tolerance_minus: tolMm,
+                position: { x: nom.x_mm ?? 50, y: nom.y_mm ?? 50, z: 0 },
+                diameter: nom.diameter_mm,
+                label: params.id ?? "F1",
+              }],
             });
             break;
           }
           case "probe_gdt_interpret": {
             const { probeRoutineEngine: pre2 } = await import("../../engines/ProbeRoutineEngine.js");
-            result = pre2.interpretGDT(params.callout ?? "position", params.tolerance_mm ?? 0.05, params.datum_refs);
+            const gdtTol = params.tolerance_mm ?? 0.05;
+            result = pre2.generatePartInspection({
+              controller: params.controller ?? "fanuc",
+              action_on_fail: "alarm",
+              features: [{
+                type: "bore",
+                nominal: 10,
+                tolerance_plus: gdtTol,
+                tolerance_minus: gdtTol,
+                position: { x: 0, y: 0, z: 0 },
+                label: `GDT-${params.callout ?? "position"}`,
+              }],
+            });
             break;
           }
           case "probe_report": {
             const { probeRoutineEngine: pre3 } = await import("../../engines/ProbeRoutineEngine.js");
-            result = pre3.report(
-              { id: params.id ?? "F1", callout: params.callout ?? "position", tolerance_mm: params.tolerance_mm ?? 0.05, feature_type: params.feature_type ?? "hole", nominal: params.nominal ?? { diameter_mm: 10 } },
-              params.measured ?? {}
-            );
+            const repTol = params.tolerance_mm ?? 0.05;
+            const repNom = params.nominal ?? { diameter_mm: 10 };
+            result = pre3.generateFirstArticle({
+              controller: params.controller ?? "fanuc",
+              report_format: params.report_format ?? "custom",
+              datum_features: [],
+              features: [{
+                type: (params.feature_type as any) ?? "bore",
+                nominal: repNom.diameter_mm ?? 10,
+                tolerance_plus: repTol,
+                tolerance_minus: repTol,
+                position: { x: 0, y: 0, z: 0 },
+                label: params.id ?? "F1",
+              }],
+            });
             break;
           }
           case "thermal_sim_predict": {

@@ -99,7 +99,7 @@ export class SteamTurbineEngine {
     }
 
     // Steam rate
-    const steamRate = steamFlow / Math.max(power, 1);
+    const steamRate = (steamFlow ?? 0) / Math.max(power ?? 1, 1);
 
     // Overall efficiency
     const etaOverall = etaIs * etaGen * 100;
