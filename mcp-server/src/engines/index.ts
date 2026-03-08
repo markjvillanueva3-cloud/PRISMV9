@@ -2925,3 +2925,6 @@ export { InventoryEOQEngine, inventoryEOQEngine } from "./InventoryEOQEngine.js"
 export { LinearRegressionEngine, linearRegressionEngine } from "./LinearRegressionEngine.js";
 export { PIDControllerEngine, pidControllerEngine } from "./PIDControllerEngine.js";
 export { FourierAnalysisEngine, fourierAnalysisEngine } from "./FourierAnalysisEngine.js";
+export { BevelGearEngine, bevelGearEngine } from "./BevelGearEngine.js";
+export { HarmonicDriveEngine, harmonicDriveEngine } from "./HarmonicDriveEngine.js";
+export { CouplingEngine, couplingEngine } from "./CouplingEngine.js";
