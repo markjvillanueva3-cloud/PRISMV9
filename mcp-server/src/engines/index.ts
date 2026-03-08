@@ -2844,6 +2844,14 @@ export { ConstraintSatisfactionEngine, constraintSatisfactionEngine } from "./Co
 export type { MachiningConstraints, MachiningParameters, MachineCapability, ConstraintSatisfactionResult } from "./ConstraintSatisfactionEngine.js";
 export { PostSelectionEngine, postSelectionEngine } from "./PostSelectionEngine.js";
 export type { JobContext as PostJobContext, PostFeature, PostSelectionResult } from "./PostSelectionEngine.js";
+export { ToolpathSegmentOptimizerEngine, toolpathSegmentOptimizerEngine } from "./ToolpathSegmentOptimizerEngine.js";
+export type { ToolpathSegment, SegmentOptInput, SegmentOptResult } from "./ToolpathSegmentOptimizerEngine.js";
+export { ToolAssemblyDeflectionEngine, toolAssemblyDeflectionEngine } from "./ToolAssemblyDeflectionEngine.js";
+export type { AssemblyInput, AssemblySection, AssemblyDeflectionResult } from "./ToolAssemblyDeflectionEngine.js";
+export { AdaptiveEngagementEngine, adaptiveEngagementEngine } from "./AdaptiveEngagementEngine.js";
+export type { CornerGeometry, EngagementInput, EngagementResult } from "./AdaptiveEngagementEngine.js";
+export { HybridPostMergeEngine, hybridPostMergeEngine } from "./HybridPostMergeEngine.js";
+export type { PostSegment, MergeInput, MergeResult } from "./HybridPostMergeEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2866,3 +2874,6 @@ export { thermalExpansionJointEngine, ThermalExpansionJointEngine } from "./Ther
 export { coolingTowerEngine, CoolingTowerEngine } from "./CoolingTowerEngine.js";
 export { steamTurbineEngine, SteamTurbineEngine } from "./SteamTurbineEngine.js";
 export { valveDesignEngine, ValveDesignEngine } from "./ValveDesignEngine.js";
+export { pipeSizingEngine, PipeSizingEngine } from "./PipeSizingEngine.js";
+export { flangeBoltEngine, FlangeBoltEngine } from "./FlangeBoltEngine.js";
+export { tankDesignEngine, TankDesignEngine } from "./TankDesignEngine.js";
