@@ -2691,6 +2691,9 @@ export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.
 // Bolt Torque Engine � torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
+// Feature To Zone Engine — geometric feature → machining zone mapper [CAMK-MS0/U01]
+export { featureToZoneEngine, type FeatureInput, type MachiningZone, type FeatureToZoneResult } from "./FeatureToZoneEngine.js";
+
 // Fatigue Life Engine � S-N curve, Goodman/Gerber, Miner damage
 export { fatigueLifeEngine, FatigueLifeEngine } from "./FatigueLifeEngine.js";
 
@@ -2987,3 +2990,7 @@ export { ClusterAnalysisEngine, clusterAnalysisEngine } from './ClusterAnalysisE
 export { TOPSISEngine, topsisEngine } from './TOPSISEngine.js';
 export { AHPEngine, ahpEngine } from './AHPEngine.js';
 export { ProjectSchedulingEngine, projectSchedulingEngine } from './ProjectSchedulingEngine.js';
+
+export { NetworkFlowEngine, networkFlowEngine } from './NetworkFlowEngine.js';
+export { OptimizationSimplexEngine, optimizationSimplexEngine } from './OptimizationSimplexEngine.js';
+export { ThermocoupleEngine, thermocoupleEngine } from './ThermocoupleEngine.js';
