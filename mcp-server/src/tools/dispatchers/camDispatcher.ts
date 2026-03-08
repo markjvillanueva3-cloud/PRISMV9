@@ -31,7 +31,7 @@ import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorEx
 const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -67,6 +67,12 @@ async function getEngine(name: string): Promise<any> {
     case "energy": return _energy ??= (await import("../../engines/GCodeEnergyOptimizerEngine.js")).gcodeEnergyOptimizerEngine;
     case "kinematic": return _kinematic ??= (await import("../../engines/MultiAxisKinematicEngine.js")).multiAxisKinematicEngine;
     case "setupSheet": return _setupSheet ??= (await import("../../engines/SetupSheetFromGCodeEngine.js")).setupSheetFromGCodeEngine;
+    case "autoSF": return _autoSF ??= (await import("../../engines/AutoSpeedFeedEngine.js")).autoSpeedFeedEngine;
+    case "pipeline": return (await import("../../engines/GCodeIntelligencePipelineEngine.js")).gcodeIntelligencePipeline;
+    case "machineMatcher": return (await import("../../engines/MachineMatcherEngine.js")).machineMatcherEngine;
+    case "wearComp": return (await import("../../engines/ToolWearCompensationEngine.js")).toolWearCompensationEngine;
+    case "mfgStats": return (await import("../../engines/ManufacturingStatisticsEngine.js")).manufacturingStatisticsEngine;
+    case "cuttingMath": return (await import("../../engines/AdvancedCuttingMathEngine.js")).advancedCuttingMathEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -99,6 +105,15 @@ const ACTIONS = [
   "gcode_transpile_cycles",
   "stability_rpm_rewrite",
   "stability_rpm_analyze",
+  "auto_speed_feed_optimize", "auto_speed_feed_analyze", "auto_speed_feed_batch",
+  "gcode_intelligence_pipeline", "machine_match", "machine_quick_match",
+  "wear_compensate", "wear_analyze",
+  "stats_process_capability", "stats_spc_chart", "stats_weibull",
+  "stats_monte_carlo_tolerance", "stats_anova", "stats_regression",
+  "stats_oee", "stats_gage_rr",
+  "math_chip_mechanics", "math_thermal_models", "math_wear_models",
+  "math_surface_integrity", "math_timoshenko_deflection",
+  "math_taguchi", "math_topsis", "math_desirability",
   "cross_cam_recommend",
   "cross_cam_synthesize",
   // Post-processor innovations (7 engines, 21 actions)
@@ -890,6 +905,118 @@ Params vary by action — pass relevant fields in params object.`,
           }
 
           
+          case "auto_speed_feed_optimize": {
+            const eng = await getEngine("autoSF");
+            result = await eng.optimize(params);
+            break;
+          }
+          case "auto_speed_feed_analyze": {
+            const eng = await getEngine("autoSF");
+            result = await eng.analyze(params);
+            break;
+          }
+          case "auto_speed_feed_batch": {
+            const eng = await getEngine("autoSF");
+            result = await eng.batchCalculate(
+              params.material, params.iso_group, params.tools,
+              params.machine_power_kw, params.machine_max_rpm, params.optimize_for,
+            );
+            break;
+          }
+          case "gcode_intelligence_pipeline": {
+            const eng = await getEngine("pipeline");
+            result = await eng.run(params);
+            break;
+          }
+          case "machine_match": {
+            const eng = await getEngine("machineMatcher");
+            result = eng.match(params);
+            break;
+          }
+          case "machine_quick_match": {
+            const eng = await getEngine("machineMatcher");
+            result = eng.quickMatch(params.gcode, params.material);
+            break;
+          }
+          case "wear_compensate": {
+            const eng = await getEngine("wearComp");
+            result = eng.compensate(params);
+            break;
+          }
+          case "wear_analyze": {
+            const eng = await getEngine("wearComp");
+            result = eng.analyze(params);
+            break;
+          }
+
+          // Manufacturing Statistics (8 actions)
+          case "stats_process_capability": {
+            result = (await getEngine("mfgStats")).processCapability(params);
+            break;
+          }
+          case "stats_spc_chart": {
+            result = (await getEngine("mfgStats")).spcChart(params);
+            break;
+          }
+          case "stats_weibull": {
+            result = (await getEngine("mfgStats")).weibullAnalysis(params);
+            break;
+          }
+          case "stats_monte_carlo_tolerance": {
+            result = (await getEngine("mfgStats")).monteCarloTolerance(params);
+            break;
+          }
+          case "stats_anova": {
+            result = (await getEngine("mfgStats")).anova(params);
+            break;
+          }
+          case "stats_regression": {
+            result = (await getEngine("mfgStats")).regression(params);
+            break;
+          }
+          case "stats_oee": {
+            result = (await getEngine("mfgStats")).oee(params);
+            break;
+          }
+          case "stats_gage_rr": {
+            result = (await getEngine("mfgStats")).gageRR(params);
+            break;
+          }
+
+          // Advanced Cutting Math (8 actions)
+          case "math_chip_mechanics": {
+            result = (await getEngine("cuttingMath")).chipMechanics(params);
+            break;
+          }
+          case "math_thermal_models": {
+            result = (await getEngine("cuttingMath")).thermalModels(params);
+            break;
+          }
+          case "math_wear_models": {
+            result = (await getEngine("cuttingMath")).wearModels(params);
+            break;
+          }
+          case "math_surface_integrity": {
+            result = (await getEngine("cuttingMath")).surfaceIntegrity(params);
+            break;
+          }
+          case "math_timoshenko_deflection": {
+            result = (await getEngine("cuttingMath")).timoshenkoDeflection(params);
+            break;
+          }
+          case "math_taguchi": {
+            result = (await getEngine("cuttingMath")).taguchiDOE(params.factors, params.responses);
+            break;
+          }
+          case "math_topsis": {
+            result = (await getEngine("cuttingMath")).topsis(params);
+            break;
+          }
+          case "math_desirability": {
+            result = (await getEngine("cuttingMath")).desirability(params.responses);
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

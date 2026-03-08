@@ -894,24 +894,78 @@ const preRapidTraverseSafety: HookDefinition = {
 
 /** Advanced Manufacturing Hooks constant.
  */
+// ============================================================================
+// AUTO SPEED/FEED SUGGESTION HOOK
+// ============================================================================
+
+/**
+ * Post-action hook: after G-code generation (post_process, gcode_transpile),
+ * suggests running auto_speed_feed_optimize for physics-backed S/F per line.
+ */
+const autoSFHookMeta = {
+  id: "M-ADV-009",
+  name: "Auto Speed/Feed Suggestion",
+  phase: "post-toolpath" as const,
+  category: "manufacturing" as const,
+  mode: "warning" as const,
+};
+
+const onAutoSpeedFeedSuggestion: HookDefinition = {
+  ...autoSFHookMeta,
+  description: "After G-code generation, suggests auto_speed_feed_optimize for physics-backed line-by-line speed/feed optimization using Kienzle force, Taylor tool life, and chip thinning models",
+  event: "cam.post_process",
+  priority: "normal",
+  enabled: true,
+  tags: ["speed-feed", "optimization", "post-process", "physics", "auto-sf"],
+  handler: async (context: HookContext): Promise<HookResult> => {
+    const gcode = (context.target?.data as any)?.gcode ?? "";
+
+    if (typeof gcode !== "string" || gcode.length < 50) {
+      return hookSuccess(autoSFHookMeta, "No G-code output to optimize");
+    }
+
+    // Count cutting moves (G1/G2/G3)
+    const cuttingLines = (gcode.match(/G[0]?[123]\s/gi) || []).length;
+    if (cuttingLines < 5) {
+      return hookSuccess(autoSFHookMeta, "Too few cutting moves for optimization");
+    }
+
+    // Check if speed/feed data is already rich (many F values)
+    const feedCount = (gcode.match(/F\d+/gi) || []).length;
+    const feedRatio = feedCount / cuttingLines;
+
+    const message = feedRatio < 0.5
+      ? `G-code has ${cuttingLines} cutting moves but only ${feedCount} feed commands (${(feedRatio * 100).toFixed(0)}% coverage). ` +
+        `Run auto_speed_feed_optimize to add physics-calculated S/F to every cutting line.`
+      : `G-code has ${cuttingLines} cutting moves with ${feedCount} feed commands. ` +
+        `Run auto_speed_feed_optimize to verify and optimize all speeds/feeds using Kienzle force and chip thinning models.`;
+
+    log.info(`[AutoSF-Hook] ${message}`);
+    return hookWarning(autoSFHookMeta, message);
+  }
+};
+
 export const advancedManufacturingHooks: HookDefinition[] = [
   // Chip control
   onChipBreakingValidation,
-  
+
   // Stability
   onStabilityCheck,
-  
+
   // Power & Torque
   onPowerConsumptionValidation,
   onTorqueValidation,
-  
+
   // Coolant
   onCoolantRequirementValidation,
-  
+
   // G-Code Safety
   preWorkOffsetValidation,
   preToolChangeSafety,
-  preRapidTraverseSafety
+  preRapidTraverseSafety,
+
+  // Auto Speed/Feed
+  onAutoSpeedFeedSuggestion
 ];
 
 export {
@@ -923,6 +977,7 @@ export {
   preWorkOffsetValidation,
   preToolChangeSafety,
   preRapidTraverseSafety,
+  onAutoSpeedFeedSuggestion,
   CHIP_THICKNESS_RATIO,
   MIN_STABLE_SPEED,
   POWER_FACTOR,
