@@ -2914,3 +2914,6 @@ export { VibrationIsolatorEngine, vibrationIsolatorEngine } from "./VibrationIso
 export { GearPumpEngine, gearPumpEngine } from "./GearPumpEngine.js";
 export { VacuumPumpEngine, vacuumPumpEngine } from "./VacuumPumpEngine.js";
 export { AirCompressorEngine, airCompressorEngine } from "./AirCompressorEngine.js";
+export { HertzContactEngine, hertzContactEngine } from "./HertzContactEngine.js";
+export { JournalBearingEngine, journalBearingEngine } from "./JournalBearingEngine.js";
+export { BallScrewEngine, ballScrewEngine } from "./BallScrewEngine.js";
