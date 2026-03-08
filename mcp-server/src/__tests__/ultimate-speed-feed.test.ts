@@ -167,7 +167,7 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(r.tool_life.life_minutes.value).toBeGreaterThan(0);
     expect(r.tool_life.life_minutes.value).toBeLessThan(600);
     expect(r.tool_life.wear_mechanism).toBeDefined();
-    expect(r.formulas_used.some(f => f.includes("C/Vc"))).toBe(true);
+    expect(r.formulas_used.some(f => f.includes("Extended Taylor") || f.includes("f^m"))).toBe(true);
   });
 
   it("predicts surface finish", () => {
@@ -343,8 +343,9 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(s.iso_groups).toBe(6);
     expect(s.operations).toBe(7);
     expect(s.strategies).toBe(7);
-    expect(s.physics_models).toBe(5);
-    expect(s.output_parameters).toBe(28);
+    expect(s.grade_specific_thermal_alloys).toBeGreaterThanOrEqual(40);
+    expect(s.physics_models).toBe(10);
+    expect(s.output_parameters).toBe(42);
   });
 
   // ── Formulas shown ──
@@ -358,8 +359,115 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(r.formulas_used.length).toBeGreaterThan(5);
     expect(r.formulas_used.some(f => f.includes("Vc"))).toBe(true);
     expect(r.formulas_used.some(f => f.includes("Kc"))).toBe(true);
-    expect(r.formulas_used.some(f => f.includes("C/Vc"))).toBe(true);
+    expect(r.formulas_used.some(f => f.includes("f^m") || f.includes("Extended Taylor"))).toBe(true);
     expect(r.formulas_used.some(f => f.includes("CTF"))).toBe(true);
+  });
+
+  // ── Enhanced physics: Stability Lobe ──
+  it("performs stability lobe analysis", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+      axial_depth_mm: 5,
+      system_stiffness_n_m: 2e7,
+      natural_frequency_hz: 800,
+      damping_ratio: 0.03,
+    });
+    expect(r.stability.critical_depth_mm.value).toBeGreaterThan(0);
+    expect(r.stability.is_stable).toBeDefined();
+    expect(r.stability.stability_margin_pct.value).toBeDefined();
+    expect(r.stability.chatter_frequency_hz).toBeDefined();
+  });
+
+  it("stability analysis uses user-provided dynamics", () => {
+    const withDynamics = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+      axial_depth_mm: 5,
+      system_stiffness_n_m: 2e7,
+      natural_frequency_hz: 800,
+      damping_ratio: 0.03,
+    });
+    const withoutDynamics = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+      axial_depth_mm: 5,
+    });
+    // User-provided dynamics should have higher confidence
+    expect(withDynamics.stability.critical_depth_mm.confidence).toBeGreaterThan(
+      withoutDynamics.stability.critical_depth_mm.confidence,
+    );
+    expect(withDynamics.stability.chatter_frequency_hz).toBeDefined();
+  });
+
+  // ── Enhanced physics: Wear models ──
+  it("calculates Usui + Archard wear rates", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "inconel",
+      tool_diameter_mm: 10,
+    });
+    expect(r.wear.usui_crater_rate!.value).toBeGreaterThanOrEqual(0);
+    expect(r.wear.archard_flank_rate!.value).toBeGreaterThan(0);
+    expect(r.wear.flank_wear_15min_mm.value).toBeGreaterThan(0);
+    expect(r.wear.time_to_vb_03mm.value).toBeGreaterThan(0);
+    expect(r.wear.time_to_vb_06mm.value).toBeGreaterThanOrEqual(r.wear.time_to_vb_03mm.value);
+  });
+
+  // ── Enhanced physics: Taylor sensitivity ──
+  it("provides Taylor sensitivity analysis", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+    });
+    expect(r.tool_life.sensitivity.speed).toBeLessThan(0);
+    expect(r.tool_life.sensitivity.dominant_factor).toBe("speed");
+    expect(Math.abs(r.tool_life.sensitivity.speed)).toBeGreaterThan(
+      Math.abs(r.tool_life.sensitivity.feed),
+    );
+  });
+
+  // ── Enhanced physics: Flank wear progression ──
+  it("predicts flank wear at 15 minutes", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "titanium",
+      tool_diameter_mm: 10,
+    });
+    expect(r.tool_life.flank_wear_at_15min!.value).toBeGreaterThan(0);
+    expect(r.tool_life.flank_wear_at_15min!.unit).toBe("mm");
+  });
+
+  // ── Economics ──
+  it("calculates cost per part when economics provided", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+      tool_cost_usd: 45,
+      cutting_time_per_part_min: 3,
+    });
+    expect(r.tool_life.cost_per_part).toBeDefined();
+    expect(r.tool_life.cost_per_part!.value).toBeGreaterThan(0);
+    expect(r.tool_life.cost_per_part!.unit).toBe("USD");
+  });
+
+  it("accounts for regrinds in cost calculation", () => {
+    const noRegrind = ultimateSpeedFeedEngine.calculate({
+      material: "steel", tool_diameter_mm: 12,
+      tool_cost_usd: 45, cutting_time_per_part_min: 3,
+    });
+    const withRegrind = ultimateSpeedFeedEngine.calculate({
+      material: "steel", tool_diameter_mm: 12,
+      tool_cost_usd: 45, cutting_time_per_part_min: 3,
+      regrindable: true, regrinds_available: 3, regrind_cost_usd: 12,
+    });
+    expect(withRegrind.tool_life.cost_per_part!.value).toBeLessThan(
+      noRegrind.tool_life.cost_per_part!.value,
+    );
+  });
+
+  // ── Grade-specific thermal ──
+  it("uses grade-specific thermal data when available", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "4140" });
+    expect(r.formulas_used.some(f => f.includes("grade-specific"))).toBe(true);
   });
 
   // ── Edge cases ──

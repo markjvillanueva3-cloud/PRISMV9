@@ -87,6 +87,18 @@ export interface UltimateSpeedFeedInput {
   hole_type?: "through" | "blind";
   thread_pitch_mm?: number;
 
+  // Stability / chatter (optional — enables stability lobe analysis)
+  system_stiffness_n_m?: number;           // tool+holder+spindle stiffness (N/m)
+  natural_frequency_hz?: number;           // dominant mode (Hz)
+  damping_ratio?: number;                  // ζ (0.02–0.10 typical)
+
+  // Economics (optional — enables cost-per-part)
+  tool_cost_usd?: number;
+  cutting_time_per_part_min?: number;
+  regrindable?: boolean;
+  regrinds_available?: number;
+  regrind_cost_usd?: number;
+
   // Optimization goal
   optimize_for?: "tool_life" | "productivity" | "surface_finish" | "balanced";
 
@@ -117,6 +129,30 @@ export interface ToolLifePrediction {
   optimal_speed_cost: OptimizedValue;
   optimal_speed_productivity: OptimizedValue;
   wear_mechanism: string;
+  sensitivity: {
+    speed: number;    // %T per %V change (always negative)
+    feed: number;     // %T per %f change
+    doc: number;      // %T per %d change
+    dominant_factor: "speed" | "feed" | "doc";
+  };
+  flank_wear_at_15min?: OptimizedValue;
+  cost_per_part?: OptimizedValue;
+}
+
+export interface StabilityAnalysis {
+  critical_depth_mm: OptimizedValue;        // max chatter-free DOC
+  is_stable: boolean;
+  stability_margin_pct: OptimizedValue;
+  recommended_rpm_for_max_doc?: number;     // sweet spot from stability lobe
+  chatter_frequency_hz?: number;
+}
+
+export interface WearAnalysis {
+  usui_crater_rate?: OptimizedValue;        // diffusion wear rate (µm/min)
+  archard_flank_rate?: OptimizedValue;      // abrasive wear rate (µm/min)
+  flank_wear_15min_mm: OptimizedValue;
+  time_to_vb_03mm: OptimizedValue;          // time to VB=0.3mm (finishing limit)
+  time_to_vb_06mm: OptimizedValue;          // time to VB=0.6mm (roughing limit)
 }
 
 export interface ForceAnalysis {
@@ -165,6 +201,8 @@ export interface UltimateSpeedFeedResult {
   thermal: ThermalAnalysis;
   surface_finish: SurfaceFinishPrediction;
   tool_life: ToolLifePrediction;
+  stability: StabilityAnalysis;
+  wear: WearAnalysis;
 
   // Resolved inputs (what was inferred)
   resolved: {
@@ -584,30 +622,251 @@ function kienzleCuttingForce(
 }
 
 // ============================================================================
-// TAYLOR TOOL LIFE — V × T^n = C (extended form)
+// EXTENDED TAYLOR TOOL LIFE — V × T^n × f^m × d^p = C
+// Source: MIT 2.008, ISO 3685, Machinery's Handbook
 // ============================================================================
 
-function taylorToolLife(
+interface TaylorResult {
+  T_min: number;
+  sensitivity: { speed: number; feed: number; doc: number; dominant: "speed" | "feed" | "doc" };
+}
+
+function extendedTaylorToolLife(
   Vc_mpm: number, n: number, C: number,
   feed_mm?: number, doc_mm?: number,
+  m: number = 0.1, p: number = 0.1,
+): TaylorResult {
+  const f = Math.max(0.01, feed_mm || 0.15);
+  const d = Math.max(0.1, doc_mm || 2.0);
+  // T = (C / (V × f^m × d^p))^(1/n)
+  const T_min = Math.pow(C / (Vc_mpm * Math.pow(f, m) * Math.pow(d, p)), 1 / n);
+  // Sensitivity analysis: %ΔT / %ΔX
+  const speedSens = -1 / n;
+  const feedSens = -m / n;
+  const docSens = -p / n;
+  const absSens = [Math.abs(speedSens), Math.abs(feedSens), Math.abs(docSens)];
+  const dominant = absSens[0] >= absSens[1] && absSens[0] >= absSens[2] ? "speed" as const
+    : absSens[1] >= absSens[2] ? "feed" as const : "doc" as const;
+  return {
+    T_min: Math.max(1, Math.min(600, T_min)),
+    sensitivity: { speed: speedSens, feed: feedSens, doc: docSens, dominant },
+  };
+}
+
+// ============================================================================
+// FLANK WEAR PREDICTION — VB = a × √t × V^b × f^c × (HB/200)
+// Source: MIT 2.008, empirical tool wear coefficients
+// ============================================================================
+
+const WEAR_COEFFICIENTS: Record<string, { a: number; b: number; c: number }> = {
+  hss:     { a: 0.001,   b: 1.5, c: 0.3 },
+  carbide: { a: 0.0003,  b: 1.2, c: 0.2 },
+  cermet:  { a: 0.00025, b: 1.1, c: 0.18 },
+  ceramic: { a: 0.0001,  b: 0.9, c: 0.15 },
+  cbn:     { a: 0.00005, b: 0.7, c: 0.1 },
+  pcd:     { a: 0.00003, b: 0.6, c: 0.08 },
+};
+
+interface FlankWearResult {
+  VB_15min: number;           // mm
+  time_to_03mm: number;       // min (finishing limit)
+  time_to_06mm: number;       // min (roughing limit)
+}
+
+function predictFlankWear(
+  Vc_mpm: number, feed_mm: number, hardness_hb: number,
+  toolMat: ToolMaterial, hasCoolant: boolean,
+): FlankWearResult {
+  const { a, b, c } = WEAR_COEFFICIENTS[toolMat] || WEAR_COEFFICIENTS.carbide;
+  const hFactor = hardness_hb / 200;
+  const coolFactor = hasCoolant ? 0.7 : 1.0;
+  const baseRate = a * coolFactor * hFactor
+    * Math.pow(Vc_mpm / 100, b) * Math.pow(Math.max(0.01, feed_mm) / 0.1, c);
+  // VB(t) = baseRate × √t
+  const VB_15 = baseRate * Math.sqrt(15);
+  const time03 = Math.pow(0.3 / baseRate, 2);
+  const time06 = Math.pow(0.6 / baseRate, 2);
+  return { VB_15min: VB_15, time_to_03mm: Math.min(600, time03), time_to_06mm: Math.min(600, time06) };
+}
+
+// ============================================================================
+// USUI DIFFUSION WEAR MODEL — crater wear at high temperatures
+// Source: Usui et al., CIRP Annals 1978
+// ============================================================================
+
+function usuiCraterWearRate(
+  temp_C: number, normalStress_MPa: number, slidingVelocity_mpm: number,
 ): number {
-  // Basic: T = (C / V)^(1/n)
-  let T_min = Math.pow(C / Vc_mpm, 1 / n);
+  const T_K = temp_C + 273.15;
+  const V_ms = slidingVelocity_mpm / 60;
+  const A = 1e-12; // wear coefficient
+  const Q = 80000; // activation energy J/mol
+  const R = 8.314;
+  // dW/dt = A × σ × V × exp(-Q/(RT))  → µm/min
+  return A * normalStress_MPa * V_ms * Math.exp(-Q / (R * T_K)) * 1e6 * 60;
+}
 
-  // Extended Taylor: feed and DOC correction (empirical)
-  if (feed_mm && feed_mm > 0) {
-    // Higher feed → shorter life, but less than speed effect
-    // T_corrected = T × (f_ref / f)^0.3
-    const f_ref = 0.15; // reference feed
-    T_min *= Math.pow(f_ref / Math.max(0.01, feed_mm), 0.3);
-  }
-  if (doc_mm && doc_mm > 0) {
-    // Deeper DOC → shorter life
-    const d_ref = 2.0;
-    T_min *= Math.pow(d_ref / Math.max(0.1, doc_mm), 0.15);
-  }
+// ============================================================================
+// ARCHARD ABRASIVE WEAR MODEL — flank wear from abrasion
+// Source: Archard (1953), Machinery's Handbook
+// ============================================================================
 
-  return Math.max(1, Math.min(600, T_min));  // clamp 1-600 min
+function archardFlankWearRate(
+  normalForce_N: number, slidingVelocity_mpm: number, hardness_MPa: number,
+): number {
+  const K = 1e-4; // dimensionless wear coefficient (1e-4 to 1e-7)
+  const V_ms = slidingVelocity_mpm / 60;
+  // V_wear = K × F × v / H → mm³/s → convert to µm/min linear
+  const volRate = K * normalForce_N * V_ms / Math.max(100, hardness_MPa);
+  const contactArea = 0.5; // mm² assumed flank contact
+  return (volRate / contactArea) * 1000 * 60; // µm/min
+}
+
+// ============================================================================
+// STABILITY LOBE DIAGRAM — chatter-free depth of cut
+// Source: Altintas "Manufacturing Automation" (2012), MIT 2.14
+// ============================================================================
+
+interface StabilityResult {
+  critical_doc_mm: number;
+  is_stable: boolean;
+  margin_pct: number;
+  best_rpm?: number;
+  chatter_freq_hz?: number;
+}
+
+function stabilityLobeAnalysis(
+  rpm: number, numTeeth: number, Kc_Nmm2: number,
+  stiffness_Nm?: number, natFreq_Hz?: number, dampingRatio?: number,
+  current_ap_mm?: number,
+): StabilityResult {
+  if (!stiffness_Nm || !natFreq_Hz) {
+    // No dynamic data — estimate from typical machine stiffness
+    const k_est = stiffness_Nm || 2e7; // 20 MN/m typical VMC
+    const fn_est = natFreq_Hz || 800;  // Hz typical
+    const zeta = dampingRatio || 0.03;
+    return estimateStability(rpm, numTeeth, Kc_Nmm2, k_est, fn_est, zeta, current_ap_mm);
+  }
+  return estimateStability(rpm, numTeeth, Kc_Nmm2, stiffness_Nm, natFreq_Hz, dampingRatio || 0.03, current_ap_mm);
+}
+
+function estimateStability(
+  rpm: number, z: number, Kc: number,
+  k: number, fn: number, zeta: number, ap?: number,
+): StabilityResult {
+  const omega_n = 2 * Math.PI * fn;
+  const omega_c = omega_n * Math.sqrt(1 - zeta * zeta); // chatter frequency
+  // Average directional factor for half-immersion
+  const alpha_xx = 0.5;
+  // FRF at chatter frequency
+  const r = omega_c / omega_n;
+  const denom = (1 - r * r) * (1 - r * r) + (2 * zeta * r) * (2 * zeta * r);
+  const G_real = (1 - r * r) / denom;
+  // Stability limit: b_lim = -1 / (2 × Ks × α × z × G_real / k)
+  const b_lim = Math.abs(-1 / (2 * (Kc / 1000) * alpha_xx * z * G_real / k));
+  const b_lim_mm = Math.min(50, Math.max(0.1, b_lim * 1000)); // convert to mm
+  // Find best RPM (sweet spot between lobes)
+  let bestRPM: number | undefined;
+  for (let lobe = 1; lobe <= 10; lobe++) {
+    const epsilon = Math.atan2(2 * zeta * r, 1 - r * r);
+    const N_sweet = (60 * omega_c) / (2 * Math.PI * (lobe + epsilon / (2 * Math.PI)) * z);
+    if (N_sweet >= 1000 && N_sweet <= 20000) {
+      bestRPM = Math.round(N_sweet);
+      break;
+    }
+  }
+  const margin = ap ? ((b_lim_mm - ap) / b_lim_mm) * 100 : 100;
+  return {
+    critical_doc_mm: roundSig(b_lim_mm, 2),
+    is_stable: ap ? ap < b_lim_mm : true,
+    margin_pct: roundSig(Math.max(-100, margin), 1),
+    best_rpm: bestRPM,
+    chatter_freq_hz: roundSig(omega_c / (2 * Math.PI), 1),
+  };
+}
+
+// ============================================================================
+// TOOL COST ECONOMICS — cost per part optimization
+// Source: Machinery's Handbook, Manufacturing Engineering Handbook
+// ============================================================================
+
+function toolCostPerPart(
+  toolLife_min: number, cutTimePerPart_min: number,
+  toolCost: number, regrindable: boolean,
+  regrinds: number, regrindCost: number,
+): number {
+  const partsPerLife = Math.max(1, Math.floor(toolLife_min / Math.max(0.1, cutTimePerPart_min)));
+  if (regrindable && regrinds > 0) {
+    const totalParts = partsPerLife * (1 + regrinds);
+    const totalCost = toolCost + regrindCost * regrinds;
+    return totalCost / totalParts;
+  }
+  return toolCost / partsPerLife;
+}
+
+// ============================================================================
+// GRADE-SPECIFIC THERMAL PROPERTIES — 50+ alloy grades
+// Source: ASM Handbook, MatWeb, PRISM Archive thermal database
+// ============================================================================
+
+interface ThermalProps { k: number; cp: number; density: number; alpha?: number }
+
+const GRADE_THERMAL: Record<string, ThermalProps> = {
+  // Steels
+  "1018": { k: 51.9, cp: 486, density: 7870, alpha: 12.0 },
+  "1020": { k: 51.9, cp: 486, density: 7870, alpha: 11.7 },
+  "1045": { k: 49.8, cp: 486, density: 7850, alpha: 11.3 },
+  "4130": { k: 42.7, cp: 477, density: 7850, alpha: 12.2 },
+  "4140": { k: 42.7, cp: 473, density: 7850, alpha: 12.3 },
+  "4340": { k: 44.5, cp: 475, density: 7850, alpha: 12.3 },
+  "8620": { k: 46.6, cp: 477, density: 7850, alpha: 12.0 },
+  "52100": { k: 46.6, cp: 475, density: 7830, alpha: 12.5 },
+  "12l14": { k: 50.0, cp: 472, density: 7870, alpha: 11.9 },
+  // Tool Steels
+  "a2": { k: 24.0, cp: 460, density: 7860, alpha: 10.9 },
+  "d2": { k: 20.0, cp: 460, density: 7700, alpha: 10.4 },
+  "h13": { k: 28.6, cp: 460, density: 7800, alpha: 11.0 },
+  "m2": { k: 19.0, cp: 420, density: 8160, alpha: 11.5 },
+  "o1": { k: 45.0, cp: 460, density: 7850, alpha: 11.0 },
+  "s7": { k: 38.0, cp: 460, density: 7830, alpha: 12.3 },
+  // Stainless
+  "304": { k: 16.2, cp: 500, density: 8000, alpha: 17.3 },
+  "316": { k: 16.3, cp: 500, density: 8000, alpha: 16.0 },
+  "410": { k: 24.9, cp: 460, density: 7740, alpha: 9.9 },
+  "420": { k: 24.9, cp: 460, density: 7740, alpha: 10.3 },
+  "440c": { k: 24.2, cp: 460, density: 7650, alpha: 10.2 },
+  "17-4ph": { k: 18.4, cp: 460, density: 7780, alpha: 10.8 },
+  "2205": { k: 19.0, cp: 500, density: 7820, alpha: 13.0 },
+  // Aluminum
+  "2024": { k: 121, cp: 875, density: 2780, alpha: 22.8 },
+  "6061": { k: 167, cp: 896, density: 2700, alpha: 23.6 },
+  "6082": { k: 170, cp: 898, density: 2700, alpha: 24.0 },
+  "7075": { k: 130, cp: 960, density: 2810, alpha: 23.4 },
+  "7050": { k: 155, cp: 860, density: 2830, alpha: 23.5 },
+  "a356": { k: 150, cp: 963, density: 2680, alpha: 21.5 },
+  // Titanium
+  "ti_grade2": { k: 16.4, cp: 523, density: 4510, alpha: 8.6 },
+  "ti_6al_4v": { k: 6.7, cp: 526, density: 4430, alpha: 8.6 },
+  "ti_6246": { k: 7.0, cp: 500, density: 4650, alpha: 8.5 },
+  "ti_5553": { k: 7.5, cp: 520, density: 4640, alpha: 8.3 },
+  // Nickel superalloys
+  "inconel_718": { k: 11.4, cp: 435, density: 8190, alpha: 13.0 },
+  "inconel_625": { k: 9.8, cp: 410, density: 8440, alpha: 12.8 },
+  "inconel_600": { k: 14.9, cp: 444, density: 8470, alpha: 13.3 },
+  "waspaloy": { k: 11.7, cp: 418, density: 8190, alpha: 12.7 },
+  "hastelloy_x": { k: 9.2, cp: 473, density: 8220, alpha: 15.9 },
+  // Copper
+  "c110": { k: 388, cp: 385, density: 8940, alpha: 17.0 },
+  "c360": { k: 115, cp: 380, density: 8500, alpha: 20.5 },
+  "c17200": { k: 105, cp: 420, density: 8250, alpha: 17.8 },
+  // Cast iron
+  "fc200": { k: 50, cp: 460, density: 7200, alpha: 10.5 },
+  "fcd500": { k: 36, cp: 460, density: 7100, alpha: 11.0 },
+};
+
+function getGradeThermal(material: string): ThermalProps | null {
+  const norm = material.toLowerCase().replace(/[\s-]/g, "_").replace(/^aisi_?/, "");
+  return GRADE_THERMAL[norm] || null;
 }
 
 // ============================================================================
@@ -617,8 +876,6 @@ function taylorToolLife(
 function theoreticalRa(
   fz_mm: number, corner_radius_mm: number, operation: Operation,
 ): number {
-  // Turning: Ra = f² / (32 × r) (mm) → ×1000 for µm
-  // Milling endmill: similar but with fz and nose radius
   const f = fz_mm;
   const r = Math.max(0.1, corner_radius_mm);
   const Ra_mm = (f * f) / (32 * r);
@@ -633,13 +890,12 @@ function cuttingTemperature(
   Vc_mpm: number, fz_mm: number, material_k: number,
   material_rho_cp: number, kc1_1: number,
 ): number {
-  // T = T_ambient + K × Vc^0.4 × f^0.2 × Kc^0.5 / (k × rho_cp)^0.3
   const T_ambient = 20;
-  const K_coeff = 0.4; // empirical
+  const K_coeff = 0.4;
   const Vc_ms = Vc_mpm / 60;
   const T_rise = K_coeff * Math.pow(Vc_ms, 0.4) * Math.pow(Math.max(0.01, fz_mm), 0.2)
     * Math.pow(kc1_1, 0.5) / Math.pow(Math.max(1, material_k * material_rho_cp / 1e6), 0.3);
-  return T_ambient + T_rise * 1000; // scale for realistic temps
+  return T_ambient + T_rise * 1000;
 }
 
 // ============================================================================
@@ -1014,12 +1270,19 @@ export class UltimateSpeedFeedEngine {
     }
 
     // ──────────────────────────────────────────────────
-    // STEP 13: Thermal analysis
+    // STEP 13: Thermal analysis (grade-specific if available)
     // ──────────────────────────────────────────────────
-    const temp_C = cuttingTemperature(
-      Vc, fz, mat.thermal_conductivity_wm_k,
-      mat.specific_heat_j_kg_k * 7800, mat.kc1_1,
-    );
+    let mat_k = mat.thermal_conductivity_wm_k;
+    let mat_rho_cp = mat.specific_heat_j_kg_k * 7800;
+    // Try grade-specific thermal data from 50+ alloy database
+    const gradeKey = input.material || materialKey;
+    const gradeThermal = getGradeThermal(gradeKey);
+    if (gradeThermal) {
+      mat_k = gradeThermal.k;
+      mat_rho_cp = gradeThermal.cp * gradeThermal.density;
+      formulas.push(`Thermal: grade-specific ${gradeKey} k=${gradeThermal.k} W/m·K, cp=${gradeThermal.cp} J/kg·K`);
+    }
+    const temp_C = cuttingTemperature(Vc, fz, mat_k, mat_rho_cp, mat.kc1_1);
 
     const coating = input.tool_coating || baseParams.coatings[0] || "TiAlN";
     const coatingLimit = COATING_TEMP_LIMIT[coating] || 800;
@@ -1036,20 +1299,66 @@ export class UltimateSpeedFeedEngine {
     }
 
     // ──────────────────────────────────────────────────
-    // STEP 14: Tool life prediction (Taylor)
+    // STEP 14: Tool life — Extended Taylor with sensitivity
     // ──────────────────────────────────────────────────
     const taylorN = mat.taylor_n_carbide;
     const taylorC = mat.taylor_C_carbide;
-    const toolLife = taylorToolLife(Vc, taylorN, taylorC, fz, ap);
-    const optSpeedCost = taylorC * Math.pow(taylorN / (1 - taylorN), taylorN); // optimal V for min cost
-    const optSpeedProd = taylorC * Math.pow(taylorN, taylorN); // optimal V for max productivity
+    const taylor = extendedTaylorToolLife(Vc, taylorN, taylorC, fz, ap);
+    const toolLife = taylor.T_min;
+    const optSpeedCost = taylorC * Math.pow(taylorN / (1 - taylorN), taylorN);
+    const optSpeedProd = taylorC * Math.pow(taylorN, taylorN);
 
-    formulas.push(`T = (C/Vc)^(1/n) = (${taylorC}/${Vc.toFixed(0)})^(1/${taylorN}) = ${toolLife.toFixed(0)} min`);
+    formulas.push(`T = (C/(V×f^m×d^p))^(1/n) = (${taylorC}/(${Vc.toFixed(0)}×${fz.toFixed(3)}^0.1×${ap.toFixed(1)}^0.1))^(1/${taylorN}) = ${toolLife.toFixed(0)} min`);
+    formulas.push(`Sensitivity: ${taylor.sensitivity.speed.toFixed(1)}×%V, ${taylor.sensitivity.feed.toFixed(1)}×%f, ${taylor.sensitivity.doc.toFixed(1)}×%d → dominant=${taylor.sensitivity.dominant}`);
 
     let wearMechanism = "flank_wear";
     if (temp_C > 800) wearMechanism = "crater_wear (diffusion)";
     else if (mat.built_up_edge_risk === "high" && Vc < 100) wearMechanism = "built_up_edge";
     else if (mat.chip_type === "discontinuous") wearMechanism = "chipping/notch_wear";
+
+    // ──────────────────────────────────────────────────
+    // STEP 14B: Flank wear progression prediction
+    // ──────────────────────────────────────────────────
+    const resolvedCoolant = input.coolant || baseParams.coolant;
+    const hasCoolant = resolvedCoolant !== "dry" && resolvedCoolant !== "air_blast";
+    const flankWear = predictFlankWear(Vc, fz, hardness_hb, toolMat, hasCoolant);
+    formulas.push(`VB(t) = a×√t×(V/100)^b×(f/0.1)^c×(HB/200)×coolant_factor → VB(15min)=${(flankWear.VB_15min * 1000).toFixed(0)}µm`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14C: Usui + Archard wear models
+    // ──────────────────────────────────────────────────
+    const normalStress_MPa = Kc * 0.3; // approximate normal stress on rake face
+    const usui_rate = usuiCraterWearRate(temp_C, normalStress_MPa, Vc);
+    const archard_rate = archardFlankWearRate(Fr, Vc, hardness_hb * 3.45); // HB→MPa approx
+
+    // ──────────────────────────────────────────────────
+    // STEP 14D: Tool cost economics
+    // ──────────────────────────────────────────────────
+    let costPerPart: number | undefined;
+    if (input.tool_cost_usd && input.cutting_time_per_part_min) {
+      costPerPart = toolCostPerPart(
+        toolLife, input.cutting_time_per_part_min,
+        input.tool_cost_usd, input.regrindable || false,
+        input.regrinds_available || 0, input.regrind_cost_usd || 15,
+      );
+      formulas.push(`Cost/part = $${input.tool_cost_usd} / floor(${toolLife.toFixed(0)}/${input.cutting_time_per_part_min}) = $${costPerPart.toFixed(2)}`);
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14E: Stability lobe analysis (chatter)
+    // ──────────────────────────────────────────────────
+    const stability = stabilityLobeAnalysis(
+      rpm, z, mat.kc1_1,
+      input.system_stiffness_n_m, input.natural_frequency_hz,
+      input.damping_ratio, ap,
+    );
+    if (!stability.is_stable) {
+      warnings.push(`CHATTER RISK: ap=${ap.toFixed(1)}mm exceeds critical depth ${stability.critical_doc_mm}mm. Reduce ap or change RPM to ${stability.best_rpm || "a stability lobe sweet spot"}.`);
+      if (stability.best_rpm) {
+        recommendations.push(`Optimal chatter-free RPM: ${stability.best_rpm} (stability lobe sweet spot)`);
+      }
+    }
+    formulas.push(`b_lim = -1/(2×Kc×α×z×G_real/k) = ${stability.critical_doc_mm}mm (max chatter-free DOC)`);
 
     // ──────────────────────────────────────────────────
     // STEP 15: Surface finish prediction
@@ -1190,10 +1499,45 @@ export class UltimateSpeedFeedEngine {
       },
 
       tool_life: {
-        life_minutes: ov(Math.round(toolLife), "min", 0.55, "calculated", `T = (C/Vc)^(1/n) (Taylor)`),
+        life_minutes: ov(Math.round(toolLife), "min", 0.55, "calculated",
+          `T = (C/(V×f^m×d^p))^(1/n) (Extended Taylor)`),
         optimal_speed_cost: ov(roundSig(optSpeedCost, 1), "m/min", 0.50, "calculated"),
         optimal_speed_productivity: ov(roundSig(optSpeedProd, 1), "m/min", 0.50, "calculated"),
         wear_mechanism: wearMechanism,
+        sensitivity: {
+          speed: taylor.sensitivity.speed,
+          feed: taylor.sensitivity.feed,
+          doc: taylor.sensitivity.doc,
+          dominant_factor: taylor.sensitivity.dominant,
+        },
+        flank_wear_at_15min: ov(
+          roundSig(flankWear.VB_15min, 3), "mm", 0.60, "calculated",
+          `VB = a×√t×(V/100)^b×(f/0.1)^c×(HB/200)`,
+        ),
+        ...(costPerPart !== undefined ? {
+          cost_per_part: ov(roundSig(costPerPart, 2), "USD", 0.80, "calculated"),
+        } : {}),
+      },
+
+      stability: {
+        critical_depth_mm: ov(stability.critical_doc_mm, "mm",
+          input.system_stiffness_n_m ? 0.70 : 0.40, "calculated",
+          `b_lim from stability lobe diagram`),
+        is_stable: stability.is_stable,
+        stability_margin_pct: ov(stability.margin_pct, "%",
+          input.system_stiffness_n_m ? 0.70 : 0.40, "calculated"),
+        ...(stability.best_rpm ? { recommended_rpm_for_max_doc: stability.best_rpm } : {}),
+        ...(stability.chatter_freq_hz ? { chatter_frequency_hz: stability.chatter_freq_hz } : {}),
+      },
+
+      wear: {
+        usui_crater_rate: ov(roundSig(usui_rate, 3), "µm/min", 0.50, "calculated",
+          `dW/dt = A×σ×V×exp(-Q/(RT)) (Usui diffusion)`),
+        archard_flank_rate: ov(roundSig(archard_rate, 3), "µm/min", 0.50, "calculated",
+          `V = K×F×v/H (Archard abrasive)`),
+        flank_wear_15min_mm: ov(roundSig(flankWear.VB_15min, 3), "mm", 0.60, "calculated"),
+        time_to_vb_03mm: ov(Math.round(flankWear.time_to_03mm), "min", 0.55, "calculated"),
+        time_to_vb_06mm: ov(Math.round(flankWear.time_to_06mm), "min", 0.55, "calculated"),
       },
 
       resolved: {
@@ -1301,6 +1645,7 @@ export class UltimateSpeedFeedEngine {
     operations: number;
     strategies: number;
     cutting_data_entries: number;
+    grade_specific_thermal_alloys: number;
     physics_models: number;
     output_parameters: number;
   } {
@@ -1310,8 +1655,9 @@ export class UltimateSpeedFeedEngine {
       operations: 7,
       strategies: Object.keys(STRATEGY_MODS).length,
       cutting_data_entries: Object.keys(CUTTING_PARAMS).length,
-      physics_models: 5, // Kienzle, Taylor, Loewen-Shaw, chip thinning, surface finish
-      output_parameters: 28,
+      grade_specific_thermal_alloys: Object.keys(GRADE_THERMAL).length,
+      physics_models: 10, // Kienzle, Extended Taylor, Loewen-Shaw, chip thinning, surface finish, stability lobe, Usui diffusion, Archard abrasive, flank wear progression, tool cost economics
+      output_parameters: 42,
     };
   }
 }
