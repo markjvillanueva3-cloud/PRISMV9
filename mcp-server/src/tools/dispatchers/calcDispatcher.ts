@@ -333,6 +333,14 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { force_n: result.value.force.tangential_n, deflection_mm: result.value.deflection.total_mm, tool_life_min: result.value.tool_life.minutes, ra_um: result.value.surface.ra_um, cost_per_part: result.value.cost.total_cost_per_part, bottleneck: result.value.bottleneck };
     case "process_robustness":
       return { robustness: result.value.robustness_index, grade: result.value.robustness_grade, sensitivities: result.value.sensitivities.length, worst_force_inc_pct: result.value.worst_case_scenario.force_increase_pct };
+    case "kalman_filter":
+      return `Kalman ${result.mode}: ${result.filtered_states.length} steps, final=[${result.state_summary.final_state.map((v:number)=>v.toFixed(2)).join(',')}], converged=${result.state_summary.convergence_steps}`;
+    case "amsaa_reliability_growth":
+      return `AMSAA β=${result.value.beta.value.toFixed(3)} (${result.value.growth_trend}), MTBF inst=${result.value.instantaneous_mtbf.value.toFixed(1)}hr, cum=${result.value.cumulative_mtbf.value.toFixed(1)}hr`;
+    case "chance_constrained_optimize":
+      return `CC-Opt obj=${result.value.objective_value.toFixed(3)}, constraints=${result.value.constraint_satisfaction.filter((c:any)=>c.satisfied).length}/${result.value.constraint_satisfaction.length} met, margin=${result.value.robust_margin.toFixed(1)}`;
+    case "acoustic_emission_monitor":
+      return `AE Monitor: ${result.value.features.length} segments, condition=${result.value.tool_condition.state} (${(result.value.tool_condition.confidence*100).toFixed(0)}%), trend=${result.value.trend.trend_direction}`;
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -528,6 +536,10 @@ const ACTIONS = [
   "runout_effect",
   "process_digital_twin",
   "process_robustness",
+  "kalman_filter",
+  "amsaa_reliability_growth",
+  "chance_constrained_optimize",
+  "acoustic_emission_monitor",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4063,6 +4075,29 @@ export function registerCalcDispatcher(server: any): void {
           case "process_robustness": {
             const { processRobustnessEngine } = await import("../../engines/ProcessRobustnessEngine.js");
             result = processRobustnessEngine.compute({ nominal: params.nominal, material: params.material, noise_factors: params.noise_factors, weights: params.weights, tolerance_mm: params.tolerance_mm });
+            break;
+          }
+          case "kalman_filter": {
+            const { kalmanFilterEngine } = await import("../../engines/KalmanFilterEngine.js");
+            result = kalmanFilterEngine.compute(params);
+            break;
+          }
+          case "amsaa_reliability_growth": {
+            const { amsaaReliabilityGrowthEngine } = await import("../../engines/AMSAAReliabilityGrowthEngine.js");
+            const amsaaResult = amsaaReliabilityGrowthEngine.compute(params);
+            result = { value: amsaaResult, unit: "reliability_growth" };
+            break;
+          }
+          case "chance_constrained_optimize": {
+            const { chanceConstrainedOptimizationEngine } = await import("../../engines/ChanceConstrainedOptimizationEngine.js");
+            const ccResult = chanceConstrainedOptimizationEngine.optimize(params);
+            result = { value: ccResult, unit: "chance_constrained_optimization" };
+            break;
+          }
+          case "acoustic_emission_monitor": {
+            const { acousticEmissionMonitoringEngine } = await import("../../engines/AcousticEmissionMonitoringEngine.js");
+            const aeResult = acousticEmissionMonitoringEngine.analyze(params);
+            result = { value: aeResult, unit: "acoustic_emission" };
             break;
           }
           default:
