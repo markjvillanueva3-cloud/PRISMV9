@@ -204,6 +204,18 @@ export interface UltimateSpeedFeedResult {
   stability: StabilityAnalysis;
   wear: WearAnalysis;
 
+  // Additional science
+  merchant_analysis: {
+    shear_angle_deg: OptimizedValue;
+    chip_compression_ratio: OptimizedValue;
+    force_merchant_N: OptimizedValue;
+  };
+  chip_prediction: {
+    type: string;
+    confidence: number;
+  };
+  specific_cutting_energy: OptimizedValue;  // J/mm³
+
   // Resolved inputs (what was inferred)
   resolved: {
     material: string;
@@ -687,6 +699,111 @@ function predictFlankWear(
   const time03 = Math.pow(0.3 / baseRate, 2);
   const time06 = Math.pow(0.6 / baseRate, 2);
   return { VB_15min: VB_15, time_to_03mm: Math.min(600, time03), time_to_06mm: Math.min(600, time06) };
+}
+
+// ============================================================================
+// MERCHANT SHEAR ANGLE MODEL — first-principles force alternative
+// Source: Merchant (1945), Ernst-Merchant cutting theory
+// ============================================================================
+
+function merchantShearAngle(rakeAngle_deg: number, frictionCoeff: number): number {
+  const beta = Math.atan(frictionCoeff); // friction angle
+  const gamma = rakeAngle_deg * Math.PI / 180;
+  // Merchant: φ = π/4 - β/2 + γ/2
+  const phi = Math.PI / 4 - beta / 2 + gamma / 2;
+  return Math.max(5, Math.min(45, phi * 180 / Math.PI));
+}
+
+function merchantForce(
+  shearStrength_MPa: number, ap_mm: number, feed_mm: number,
+  rakeAngle_deg: number, frictionCoeff: number,
+): { Fc: number; Ft: number; shearAngle: number; chipRatio: number } {
+  const phi_deg = merchantShearAngle(rakeAngle_deg, frictionCoeff);
+  const phi = phi_deg * Math.PI / 180;
+  const gamma = rakeAngle_deg * Math.PI / 180;
+  const beta = Math.atan(frictionCoeff);
+  // Shear plane area
+  const As = (ap_mm * feed_mm) / Math.sin(phi);
+  // Shear force
+  const Fs = shearStrength_MPa * As;
+  // Cutting force: Fc = Fs × cos(β - γ) / cos(φ + β - γ)
+  const Fc = Fs * Math.cos(beta - gamma) / Math.cos(phi + beta - gamma);
+  // Thrust force: Ft = Fs × sin(β - γ) / cos(φ + β - γ)
+  const Ft = Fs * Math.sin(beta - gamma) / Math.cos(phi + beta - gamma);
+  const chipRatio = Math.sin(phi) / Math.cos(phi - gamma);
+  return { Fc, Ft, shearAngle: phi_deg, chipRatio };
+}
+
+// ============================================================================
+// CHIP TYPE PREDICTION — Ernst-Merchant classification
+// Source: Recht (1964), Komanduri (1982), ChipFormationPredictionEngine
+// ============================================================================
+
+type ChipType = "continuous" | "lamellar" | "segmented" | "discontinuous" | "built_up_edge";
+
+const BUE_SPEED_THRESHOLDS: Record<string, number> = {
+  aluminum: 200, brass: 150, copper: 120,
+  steel: 50, alloy_steel: 40, stainless_steel: 30,
+  cast_iron: 999, // no BUE (discontinuous chips)
+  titanium: 25, inconel: 15, hardened_steel: 10,
+};
+
+function predictChipType(
+  Vc_mpm: number, hardness_hb: number, mat: MaterialProfile,
+): { type: ChipType; confidence: number; risk_notes: string[] } {
+  const notes: string[] = [];
+  const bueThreshold = BUE_SPEED_THRESHOLDS[
+    Object.keys(BUE_SPEED_THRESHOLDS).find(k =>
+      mat.aliases.some(a => a.includes(k)) || k === mat.iso_group
+    ) || "steel"
+  ] || 50;
+
+  // Discontinuous for brittle materials (check first — overrides all)
+  if (mat.chip_type === "discontinuous") {
+    return { type: "discontinuous", confidence: 0.85, risk_notes: notes };
+  }
+  // Segmented at high hardness or superalloys (check before BUE)
+  if (hardness_hb > 350 || mat.iso_group === "S") {
+    notes.push("Segmented chips — intermittent cutting forces, potential tool fracture");
+    return { type: "segmented", confidence: 0.70, risk_notes: notes };
+  }
+  // BUE at low speeds for ductile materials
+  if (mat.built_up_edge_risk !== "none" && Vc_mpm < bueThreshold) {
+    notes.push(`BUE risk below ${bueThreshold} m/min — increase speed or use DLC/polished coating`);
+    return { type: "built_up_edge", confidence: 0.75, risk_notes: notes };
+  }
+  // Lamellar at medium-high speeds for medium hardness
+  if (Vc_mpm > 150 && hardness_hb > 250) {
+    return { type: "lamellar", confidence: 0.60, risk_notes: notes };
+  }
+  // Continuous for ductile materials at normal speeds
+  if (mat.chip_type === "continuous") {
+    if (Vc_mpm > 100 && mat.iso_group === "N") {
+      notes.push("Long continuous chips — spindle wrapping risk, use chipbreaker");
+    }
+    return { type: "continuous", confidence: 0.80, risk_notes: notes };
+  }
+  return { type: mat.chip_type as ChipType, confidence: 0.60, risk_notes: notes };
+}
+
+// ============================================================================
+// SPECIFIC CUTTING ENERGY — sustainability metric
+// Source: Gutowski (2006), IEA 2023 emission factors
+// ============================================================================
+
+const REFERENCE_SCE: Record<string, [number, number]> = {
+  // [low, high] J/mm³ by ISO group
+  P: [1.5, 3.5], M: [2.0, 4.5], K: [1.0, 2.5],
+  N: [0.4, 1.2], S: [3.0, 6.0], H: [3.5, 7.0],
+};
+
+function specificCuttingEnergy(
+  Fc_N: number, Vc_mpm: number, mrr_cm3min: number,
+): { sce_j_mm3: number; power_kw: number } {
+  const power_w = Fc_N * Vc_mpm / 60; // W
+  const mrr_mm3s = mrr_cm3min * 1000 / 60; // mm³/s
+  const sce = mrr_mm3s > 0 ? power_w / mrr_mm3s : 0; // J/mm³
+  return { sce_j_mm3: sce, power_kw: power_w / 1000 };
 }
 
 // ============================================================================
@@ -1361,6 +1478,35 @@ export class UltimateSpeedFeedEngine {
     formulas.push(`b_lim = -1/(2×Kc×α×z×G_real/k) = ${stability.critical_doc_mm}mm (max chatter-free DOC)`);
 
     // ──────────────────────────────────────────────────
+    // STEP 14F: Merchant shear angle (first-principles)
+    // ──────────────────────────────────────────────────
+    const rakeAngle = input.helix_angle_deg ? input.helix_angle_deg * 0.7 : 6; // approximate
+    const frictionCoeff = 0.35 + (mat.kc1_1 - 700) / 5000; // friction scales with Kc
+    const merchant = merchantForce(
+      mat.tensile_strength_mpa * 0.6, ap, Math.max(0.01, hex_mm),
+      rakeAngle, Math.min(0.8, frictionCoeff),
+    );
+    formulas.push(`Merchant: φ=${merchant.shearAngle.toFixed(1)}°, Fc_merchant=${merchant.Fc.toFixed(0)}N, chip_ratio=${merchant.chipRatio.toFixed(2)}`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14G: Chip type prediction
+    // ──────────────────────────────────────────────────
+    const chipPrediction = predictChipType(Vc, hardness_hb, mat);
+    if (chipPrediction.risk_notes.length > 0) {
+      for (const note of chipPrediction.risk_notes) recommendations.push(note);
+    }
+    if (chipPrediction.type === "built_up_edge") {
+      warnings.push("Built-up edge predicted — surface finish and tool life degraded");
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14H: Specific cutting energy (sustainability)
+    // ──────────────────────────────────────────────────
+    const sce = specificCuttingEnergy(Fc, Vc, mrr_cm3);
+    const sceRef = REFERENCE_SCE[effectiveIso] || REFERENCE_SCE.P;
+    formulas.push(`SCE = Fc×Vc/(60×MRR) = ${sce.sce_j_mm3.toFixed(2)} J/mm³ (ref: ${sceRef[0]}-${sceRef[1]})`);
+
+    // ──────────────────────────────────────────────────
     // STEP 15: Surface finish prediction
     // ──────────────────────────────────────────────────
     const Ra_theoretical = theoreticalRa(isTurning ? fn : fz, cornerRadius, operation);
@@ -1540,6 +1686,22 @@ export class UltimateSpeedFeedEngine {
         time_to_vb_06mm: ov(Math.round(flankWear.time_to_06mm), "min", 0.55, "calculated"),
       },
 
+      merchant_analysis: {
+        shear_angle_deg: ov(roundSig(merchant.shearAngle, 2), "°", 0.65, "calculated",
+          `φ = π/4 - β/2 + γ/2 (Merchant)`),
+        chip_compression_ratio: ov(roundSig(merchant.chipRatio, 3), "×", 0.65, "calculated"),
+        force_merchant_N: ov(Math.round(merchant.Fc), "N", 0.60, "calculated",
+          `Fc = Fs×cos(β-γ)/cos(φ+β-γ)`),
+      },
+
+      chip_prediction: {
+        type: chipPrediction.type,
+        confidence: chipPrediction.confidence,
+      },
+
+      specific_cutting_energy: ov(roundSig(sce.sce_j_mm3, 3), "J/mm³", 0.70, "calculated",
+        `SCE = P/MRR (ref ${sceRef[0]}-${sceRef[1]} for ISO ${effectiveIso})`),
+
       resolved: {
         material: materialKey,
         iso_group: effectiveIso,
@@ -1656,8 +1818,8 @@ export class UltimateSpeedFeedEngine {
       strategies: Object.keys(STRATEGY_MODS).length,
       cutting_data_entries: Object.keys(CUTTING_PARAMS).length,
       grade_specific_thermal_alloys: Object.keys(GRADE_THERMAL).length,
-      physics_models: 10, // Kienzle, Extended Taylor, Loewen-Shaw, chip thinning, surface finish, stability lobe, Usui diffusion, Archard abrasive, flank wear progression, tool cost economics
-      output_parameters: 42,
+      physics_models: 14, // Kienzle, Extended Taylor, Loewen-Shaw, chip thinning, surface finish, stability lobe, Usui diffusion, Archard abrasive, flank wear, tool cost, Merchant shear, chip type prediction, specific cutting energy, BUE threshold
+      output_parameters: 48,
     };
   }
 }

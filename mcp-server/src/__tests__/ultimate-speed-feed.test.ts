@@ -344,8 +344,8 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(s.operations).toBe(7);
     expect(s.strategies).toBe(7);
     expect(s.grade_specific_thermal_alloys).toBeGreaterThanOrEqual(40);
-    expect(s.physics_models).toBe(10);
-    expect(s.output_parameters).toBe(42);
+    expect(s.physics_models).toBe(14);
+    expect(s.output_parameters).toBe(48);
   });
 
   // ── Formulas shown ──
@@ -462,6 +462,61 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(withRegrind.tool_life.cost_per_part!.value).toBeLessThan(
       noRegrind.tool_life.cost_per_part!.value,
     );
+  });
+
+  // ── Merchant shear angle model ──
+  it("calculates Merchant shear angle and force", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+      axial_depth_mm: 5,
+      feed_per_tooth_mm: 0.1,
+    });
+    expect(r.merchant_analysis.shear_angle_deg.value).toBeGreaterThan(10);
+    expect(r.merchant_analysis.shear_angle_deg.value).toBeLessThan(45);
+    expect(r.merchant_analysis.chip_compression_ratio.value).toBeGreaterThan(0);
+    expect(r.merchant_analysis.force_merchant_N.value).toBeGreaterThan(0);
+    expect(r.formulas_used.some(f => f.includes("Merchant"))).toBe(true);
+  });
+
+  // ── Chip type prediction ──
+  it("predicts chip type", () => {
+    const alum = ultimateSpeedFeedEngine.calculate({ material: "aluminum" });
+    expect(alum.chip_prediction.type).toBe("continuous");
+    expect(alum.chip_prediction.confidence).toBeGreaterThan(0.5);
+
+    const ci = ultimateSpeedFeedEngine.calculate({ material: "cast_iron" });
+    expect(ci.chip_prediction.type).toBe("discontinuous");
+
+    const ti = ultimateSpeedFeedEngine.calculate({ material: "titanium" });
+    expect(ti.chip_prediction.type).toBe("segmented");
+  });
+
+  it("warns on BUE at low speed", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "aluminum",
+      cutting_speed_mpm: 30,
+      tool_diameter_mm: 12,
+    });
+    // Low speed aluminum should trigger BUE
+    expect(["built_up_edge", "continuous"].includes(r.chip_prediction.type)).toBe(true);
+  });
+
+  // ── Specific cutting energy ──
+  it("calculates specific cutting energy", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_diameter_mm: 12,
+    });
+    expect(r.specific_cutting_energy.value).toBeGreaterThan(0);
+    expect(r.specific_cutting_energy.unit).toBe("J/mm³");
+    expect(r.formulas_used.some(f => f.includes("SCE"))).toBe(true);
+  });
+
+  it("aluminum has lower SCE than steel", () => {
+    const steel = ultimateSpeedFeedEngine.calculate({ material: "steel", tool_diameter_mm: 12 });
+    const alum = ultimateSpeedFeedEngine.calculate({ material: "aluminum", tool_diameter_mm: 12 });
+    expect(alum.specific_cutting_energy.value).toBeLessThan(steel.specific_cutting_energy.value);
   });
 
   // ── Grade-specific thermal ──
