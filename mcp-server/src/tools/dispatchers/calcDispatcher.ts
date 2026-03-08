@@ -317,6 +317,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { ra_um: result.roughness.ra_um, rz_um: result.roughness.rz_um, stress_type: result.residual_stress.type, stress_mpa: result.residual_stress.surface_mpa, white_layer: result.subsurface.white_layer_risk, grade: result.quality_grade };
     case "machining_energy_model":
       return { total_kwh: result.total_kwh, sec_j_mm3: result.sec_j_mm3, co2_kg: result.co2_kg, efficiency_pct: result.efficiency_pct };
+    case "monte_carlo_process":
+      return { trials: result.value.trials, force_mean: result.value.force_distribution.mean, ra_mean: result.value.roughness_distribution.mean, scrap_pct: result.value.risk_summary.scrap_rate_pct, converged: result.value.convergence.converged };
+    case "doe_taguchi":
+      return { design: result.value.design_name, runs: result.value.total_runs, optimum: result.value.predicted_optimum, top_factor: result.value.factor_rankings[0]?.factor };
+    case "fixture_clamping":
+      return { total_force_n: result.value.required_clamping_force_n, per_clamp_n: result.value.per_clamp_force_n, deformation_risk: result.value.deformation_risk.risk_level };
+    case "springback_predict":
+      return { deflection_mm: result.value.max_deflection_mm, springback_mm: result.value.springback_mm, within_tol: result.value.within_tolerance, overcut_mm: result.value.compensation.overcut_mm };
+    case "gdt_stackup":
+      return { nominal_mm: result.value.nominal_gap_mm, wc_feasible: result.value.worst_case.feasible, rss_feasible: result.value.rss.feasible, mc_reject_pct: result.value.monte_carlo.reject_pct };
+    case "runout_effect":
+      return { imbalance_pct: result.value.chipload_imbalance_pct, life_reduction_pct: result.value.tool_life_reduction_pct, waviness_um: result.value.surface_waviness_um, critical_tir_um: result.value.critical_tir_um };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -504,6 +516,12 @@ const ACTIONS = [
   "hybrid_post_merge", "thermal_compensation_model", "spc_capability_analyze",
   "pareto_optimize", "chatter_stability_sld", "surface_integrity_full",
   "machining_energy_model",
+  "monte_carlo_process",
+  "doe_taguchi",
+  "fixture_clamping",
+  "springback_predict",
+  "gdt_stackup",
+  "runout_effect",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3999,6 +4017,36 @@ export function registerCalcDispatcher(server: any): void {
           case "machining_energy_model": {
             const { machiningEnergyModelEngine } = await import("../../engines/MachiningEnergyModelEngine.js");
             result = machiningEnergyModelEngine.compute({ cutting: params.cutting, tool: params.tool, material: params.material, machine: params.machine, coolant_type: params.coolant_type });
+            break;
+          }
+          case "monte_carlo_process": {
+            const { monteCarloProcessEngine } = await import("../../engines/MonteCarloProcessEngine.js");
+            result = monteCarloProcessEngine.compute({ nominal: params.nominal, material: params.material, variations: params.variations, tolerances: params.tolerances, trials: params.trials, seed: params.seed });
+            break;
+          }
+          case "doe_taguchi": {
+            const { doeTaguchEngine } = await import("../../engines/DOETaguchEngine.js");
+            result = doeTaguchEngine.compute({ factors: params.factors, response: params.response, objective: params.objective, design: params.design ?? "taguchi", material: params.material, tool: params.tool, replications: params.replications });
+            break;
+          }
+          case "fixture_clamping": {
+            const { fixtureClampingEngine } = await import("../../engines/FixtureClampingEngine.js");
+            result = fixtureClampingEngine.compute({ cutting_forces: params.cutting_forces, workpiece: params.workpiece, fixture: params.fixture, safety_factor: params.safety_factor, operation: params.operation });
+            break;
+          }
+          case "springback_predict": {
+            const { springbackPredictionEngine } = await import("../../engines/SpringbackPredictionEngine.js");
+            result = springbackPredictionEngine.compute({ feature: params.feature, material: params.material, cutting: params.cutting, tolerance_mm: params.tolerance_mm });
+            break;
+          }
+          case "gdt_stackup": {
+            const { gdtStackupEngine } = await import("../../engines/GDTStackupEngine.js");
+            result = gdtStackupEngine.compute({ dimensions: params.dimensions, gap_name: params.gap_name, gap_requirement: params.gap_requirement, temperature_delta_c: params.temperature_delta_c, monte_carlo_trials: params.monte_carlo_trials });
+            break;
+          }
+          case "runout_effect": {
+            const { runoutEffectEngine } = await import("../../engines/RunoutEffectEngine.js");
+            result = runoutEffectEngine.compute({ tool: params.tool, runout: params.runout, cutting: params.cutting, material: params.material });
             break;
           }
           default:

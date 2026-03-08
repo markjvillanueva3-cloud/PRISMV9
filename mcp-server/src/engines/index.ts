@@ -2870,9 +2870,9 @@ export type { MachiningEnergyInput, MachiningEnergyResult } from "./MachiningEne
 export { MonteCarloProcessEngine, monteCarloProcessEngine } from "./MonteCarloProcessEngine.js";
 export type { MCProcessInput, MCProcessResult } from "./MonteCarloProcessEngine.js";
 export { DOETaguchEngine, doeTaguchEngine } from "./DOETaguchEngine.js";
-export type { DOEInput, DOEResult } from "./DOETaguchEngine.js";
+export type { DOEInput as TaguchDOEInput, DOEResult as TaguchDOEResult } from "./DOETaguchEngine.js";
 export { FixtureClampingEngine, fixtureClampingEngine } from "./FixtureClampingEngine.js";
-export type { FixtureInput, ClampForceResult } from "./FixtureClampingEngine.js";
+export type { FixtureInput as FixtureClampInput, ClampForceResult as FixtureClampResult } from "./FixtureClampingEngine.js";
 export { SpringbackPredictionEngine, springbackPredictionEngine } from "./SpringbackPredictionEngine.js";
 export type { SpringbackInput, SpringbackResult } from "./SpringbackPredictionEngine.js";
 export { GDTStackupEngine, gdtStackupEngine } from "./GDTStackupEngine.js";
