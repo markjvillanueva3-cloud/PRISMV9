@@ -3121,3 +3121,7 @@ export { plasmaCuttingEngine, PlasmaCuttingEngine } from "./PlasmaCuttingEngine.
 export { LaserWeldingEngine, laserWeldingEngine } from "./LaserWeldingEngine.js";
 export { FrictionStirWeldingEngine, frictionStirWeldingEngine } from "./FrictionStirWeldingEngine.js";
 export { EBWeldingEngine, ebWeldingEngine } from "./EBWeldingEngine.js";
+
+export { VacuumCastingEngine, vacuumCastingEngine } from "./VacuumCastingEngine.js";
+export { CentrifugalCastingEngine, centrifugalCastingEngine } from "./CentrifugalCastingEngine.js";
+export { ThinFilmDepositionEngine, thinFilmDepositionEngine } from "./ThinFilmDepositionEngine.js";
