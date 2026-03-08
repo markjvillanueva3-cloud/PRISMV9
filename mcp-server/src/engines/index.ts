@@ -2967,3 +2967,7 @@ export { PropellerEngine, propellerEngine } from './PropellerEngine.js';
 export { NozzleEngine, nozzleEngine } from './NozzleEngine.js';
 export { EjectorEngine, ejectorEngine } from './EjectorEngine.js';
 export { DiffuserEngine, diffuserEngine } from './DiffuserEngine.js';
+
+export { BayesianInferenceEngine, bayesianInferenceEngine } from './BayesianInferenceEngine.js';
+export { WaveletAnalysisEngine, waveletAnalysisEngine } from './WaveletAnalysisEngine.js';
+export { TimeSeriesARIMAEngine, timeSeriesARIMAEngine } from './TimeSeriesARIMAEngine.js';
