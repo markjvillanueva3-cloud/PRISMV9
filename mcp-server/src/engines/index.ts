@@ -3132,3 +3132,7 @@ export { ThinFilmDepositionEngine, thinFilmDepositionEngine } from "./ThinFilmDe
 export { ChemicalVaporDepositionEngine, chemicalVaporDepositionEngine } from "./ChemicalVaporDepositionEngine.js";
 export { IonImplantationEngine, ionImplantationEngine } from "./IonImplantationEngine.js";
 export { SputteringProcessEngine, sputteringProcessEngine } from "./SputteringProcessEngine.js";
+
+export { EvaporatorProcessEngine, evaporatorProcessEngine } from "./EvaporatorProcessEngine.js";
+export { SprayDryingEngine, sprayDryingEngine } from "./SprayDryingEngine.js";
+export { GranulationProcessEngine, granulationProcessEngine } from "./GranulationProcessEngine.js";
