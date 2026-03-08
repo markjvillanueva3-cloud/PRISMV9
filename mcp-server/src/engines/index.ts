@@ -3111,3 +3111,7 @@ export { thickenerEngine, ThickenerEngine } from "./ThickenerEngine.js";
 export { balancingMachineEngine, BalancingMachineEngine } from "./BalancingMachineEngine.js";
 export { rocketNozzleEngine, RocketNozzleEngine } from "./RocketNozzleEngine.js";
 export { thermoelectricEngine, ThermoelectricEngine } from "./ThermoelectricEngine.js";
+
+export { electrospinningEngine, ElectrospinningEngine } from "./ElectrospinningEngine.js";
+export { freezeDryingEngine, FreezeDryingEngine } from "./FreezeDryingEngine.js";
+export { plasmaCuttingEngine, PlasmaCuttingEngine } from "./PlasmaCuttingEngine.js";
