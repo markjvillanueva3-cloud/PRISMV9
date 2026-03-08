@@ -1,4 +1,4 @@
-# PRISM Slash Commands — Complete Reference (117 Commands)
+# PRISM Slash Commands — Complete Reference (126 Commands)
 
 Quick lookup for every `/command` — what it does, when to use it, and what it combines.
 
@@ -87,10 +87,11 @@ Quick lookup for every `/command` — what it does, when to use it, and what it 
 | `/forge-video-watchlist` | Machining video learning pipeline | Processing machining tutorial videos |
 | `/forge-wiring` | Architecture wiring validator | Checking engine-to-dispatcher connections |
 
-## ROADMAP & TASKS (7 commands)
+## ROADMAP & TASKS (8 commands)
 
 | Command | What It Does | When To Use |
 |---------|-------------|-------------|
+| `/autopilot-full` | **MAXIMUM** autonomous pipeline: assess → plan → learn → forge → execute → test → register → ship | When you want EVERYTHING done in one command — the ultimate GSD pipeline |
 | `/autopilot` | Full development cycle: pick task, execute, commit, scrutinize, fix, register, verify | Autonomous task execution from roadmap |
 | `/autopilot-camk` | CAM Kernel + Scientific Validation pipeline | CAMK/SCI milestone work specifically |
 | `/pick-task` | Pick and claim a task from the roadmap | Selecting next work item |
@@ -197,6 +198,12 @@ Quick lookup for every `/command` — what it does, when to use it, and what it 
 
 These commands combine every necessary feature to fully complete a specific task end-to-end:
 
+### `/autopilot-full` — Maximum Autonomous Development Pipeline
+**Combines**: ALL development capabilities — /health + /forge-drift + /forge-wiring + /forge-audit + /forge-tests + /forge-safety + /rgs + /pdf-learn + /video-learn + /tool-enrich + /machine-enrich + /controller-enrich + /forge-engines + /forge-hooks + /forge-skills + /autopilot + /autopilot-camk + /test + /test-speed-feed + /scrutinize + /addtomatrix + /update-all-docs + /release-ready
+**When**: You want EVERYTHING done — assess the system, identify all gaps, learn from every source, forge new components, execute roadmap, test exhaustively, register everything, and verify release-readiness. The ultimate GSD command.
+**Flow**: Bootstrap → System Assessment → Gap Analysis → Strategic Planning → Knowledge Acquisition → Component Forging → Roadmap Execution → Exhaustive Testing → Registration & Docs → Quality Gate
+**10 phases, 25+ skills chained, cross-phase feedback loops, build/test gates between every code phase**
+
 ### `/full-job` — Complete Manufacturing Job Pipeline
 **Combines**: material-lookup + auto-speed-feed + program-gen + setup-sheet-generate + quote-job + quality-check
 **When**: You have a part drawing and need EVERYTHING to make it — from material selection through quality plan.
@@ -271,5 +278,5 @@ These commands combine every necessary feature to fully complete a specific task
 
 ---
 
-*117 commands. 31 physics models. 46,590 tools. 2,957 materials. 910 machines. 499 formulas. 660+ engines.*
+*126 commands. 31 physics models. 46,590 tools. 2,957 materials. 910 machines. 499 formulas. 660+ engines.*
 *Built to make no competitor scientifically better — only equal.*
