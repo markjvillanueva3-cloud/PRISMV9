@@ -2257,6 +2257,8 @@ export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
 export { voronoiEngine } from "./VoronoiEngine.js";
 export { voxelStockEngine } from "./VoxelStockEngine.js";
 export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_ALGORITHM_INFO, type NovelToolpathResult, type NovelAlgorithm } from "./NovelToolpathEngine.js";
+export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
+export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
@@ -2917,3 +2919,6 @@ export { AirCompressorEngine, airCompressorEngine } from "./AirCompressorEngine.
 export { HertzContactEngine, hertzContactEngine } from "./HertzContactEngine.js";
 export { JournalBearingEngine, journalBearingEngine } from "./JournalBearingEngine.js";
 export { BallScrewEngine, ballScrewEngine } from "./BallScrewEngine.js";
+export { ReliabilityWeibullEngine, reliabilityWeibullEngine } from "./ReliabilityWeibullEngine.js";
+export { StatisticalProcessEngine, statisticalProcessEngine } from "./StatisticalProcessEngine.js";
+export { InventoryEOQEngine, inventoryEOQEngine } from "./InventoryEOQEngine.js";
