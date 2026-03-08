@@ -13,7 +13,12 @@ import {
   toolpath_prism_novel
 } from "../toolpathTools";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+
+/** Engine params are validated by Zod but engine functions have narrow signatures — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ValidatedParams = any;
 import { toolpathGenerationEngine } from "../../engines/ToolpathGenerationEngine.js";
+import { novelToolpathEngine } from "../../engines/NovelToolpathEngine.js";
 import { log } from "../../utils/Logger.js";
 
 const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]);
@@ -25,7 +30,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection for features, parameter calculation, strategy search/list/info, statistics, material-specific strategies, PRISM novel strategies. Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list",
     {
       action: z.enum([
         "strategy_select",
@@ -36,7 +41,9 @@ export function registerToolpathDispatcher(server: any): void {
         "stats",
         "material_strategies",
         "prism_novel",
-        "generate"
+        "generate",
+        "novel_compute",
+        "novel_list"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -77,23 +84,23 @@ export function registerToolpathDispatcher(server: any): void {
 
         switch (action) {
           case "strategy_select":
-            result = await toolpath_strategy_select(params as any);
+            result = await toolpath_strategy_select(params as ValidatedParams);
             break;
 
           case "params_calculate":
-            result = await toolpath_params_calculate(params as any);
+            result = await toolpath_params_calculate(params as ValidatedParams);
             break;
 
           case "strategy_search":
-            result = await toolpath_strategy_search(params as any);
+            result = await toolpath_strategy_search(params as ValidatedParams);
             break;
 
           case "strategy_list":
-            result = await toolpath_strategy_list(params as any);
+            result = await toolpath_strategy_list(params as ValidatedParams);
             break;
 
           case "strategy_info":
-            result = await toolpath_strategy_info(params as any);
+            result = await toolpath_strategy_info(params as ValidatedParams);
             break;
 
           case "stats":
@@ -101,11 +108,26 @@ export function registerToolpathDispatcher(server: any): void {
             break;
 
           case "material_strategies":
-            result = await toolpath_material_strategies(params as any);
+            result = await toolpath_material_strategies(params as ValidatedParams);
             break;
 
           case "prism_novel":
             result = await toolpath_prism_novel(params);
+            break;
+
+          case "novel_compute": {
+            const algorithm = params.algorithm;
+            if (!algorithm) throw new Error("algorithm is required (TGAR|HRAF|MTHZD|CFSF|PTDC|VCER)");
+            result = novelToolpathEngine.compute({ algorithm, params: params as any });
+            break;
+          }
+
+          case "novel_list":
+            result = {
+              algorithms: novelToolpathEngine.listAlgorithms(),
+              materials: novelToolpathEngine.getAvailableMaterials(),
+              count: 6
+            };
             break;
 
           case "generate": {
