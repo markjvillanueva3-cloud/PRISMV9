@@ -2,7 +2,7 @@
   "version": "5.3.0",
   "title": "PRISM App \u00e2\u20ac\u201d Comprehensive Layered Roadmap",
   "updated_at": "2026-03-03T00:00:00Z",
-  "total_milestones": 100,
+  "total_milestones": 108,
   "completed_milestones": 100,
   "milestones": [
     {
@@ -1393,6 +1393,110 @@
         "CC-EXT-MS0"
       ],
       "description": "VideoLearningEngine: FFmpeg audio/frame extraction, Whisper speech-to-text, Claude Vision keyframe analysis, knowledge fusion, component generation. Enables learning from local video files (MP4/MKV/MOV)."
+    },
+    {
+      "id": "CAMK-MS0",
+      "title": "Feature-to-Toolpath Bridge -- Geometry Pipeline Foundation",
+      "track": "CAMK",
+      "priority": "P0",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CAMK-MS0.json",
+      "dependencies": [],
+      "description": "Feature recognition, zone decomposition, algorithm selection, cutter-contact computation, tool axis optimization. Bridges geometry gap."
+    },
+    {
+      "id": "CAMK-MS1",
+      "title": "Novel Algorithm to G-Code Pipeline",
+      "track": "CAMK",
+      "priority": "P0",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CAMK-MS1.json",
+      "dependencies": ["CAMK-MS0"],
+      "description": "Segment interpolation, controller-specific post-processing (Fanuc/Siemens/Heidenhain/Mazak/Haas), program assembly, G-code verification, end-to-end pipeline."
+    },
+    {
+      "id": "CAMK-MS2",
+      "title": "Simulation and Volumetric Verification",
+      "track": "CAMK",
+      "priority": "P1",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/CAMK-MS2.json",
+      "dependencies": ["CAMK-MS1"],
+      "description": "Force/temp/deflection simulation along path, voxel stock integration, collision detection with novel paths, surface finish prediction, precise cycle time."
+    },
+    {
+      "id": "CAMK-MS3",
+      "title": "Advanced Geometry and Multi-Operation Orchestration",
+      "track": "CAMK",
+      "priority": "P1",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/CAMK-MS3.json",
+      "dependencies": ["CAMK-MS2"],
+      "description": "Rest machining, operation sequencing (TSP/Bellman), linking moves, adaptive refinement, multi-setup planning."
+    },
+    {
+      "id": "SCI-MS0",
+      "title": "Sensor Integration and Real-Time Data Framework",
+      "track": "SCI",
+      "priority": "P1",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/SCI-MS0.json",
+      "dependencies": [],
+      "description": "Sensor data schemas, synthetic data simulator, Kalman sensor fusion, anomaly detection (CUSUM/EWMA/FFT/Wavelet), dispatcher actions."
+    },
+    {
+      "id": "SCI-MS1",
+      "title": "Adaptive Control Engines -- Real-Time Parameter Adaptation",
+      "track": "SCI",
+      "priority": "P1",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/SCI-MS1.json",
+      "dependencies": ["SCI-MS0"],
+      "description": "PID feed control, spindle RPM adaptation (SSV), Bayesian online kc11/mc calibration, Weibull tool life adaptation, digital twin synchronization."
+    },
+    {
+      "id": "SCI-MS2",
+      "title": "Validation Framework -- Predicted vs Measured",
+      "track": "SCI",
+      "priority": "P1",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/SCI-MS2.json",
+      "dependencies": ["SCI-MS1"],
+      "description": "Statistical validation (MAE/MAPE/R2/Bland-Altman), Levenberg-Marquardt calibration, benchmark suite, uncertainty quantification (Sobol), continuous improvement."
+    },
+    {
+      "id": "SCI-MS3",
+      "title": "Advanced Scientific Domains -- Exhaustive Mathematical Coverage",
+      "track": "SCI",
+      "priority": "P2",
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/SCI-MS3.json",
+      "dependencies": ["SCI-MS2"],
+      "description": "Stochastic processes (Markov/Wiener/Poisson/HMM), information theory (Shannon/KL/transfer entropy), optimal control (Pontryagin/HJB/MPC/LQR), graph theory (DAG/TSP/max-flow), neuro-fuzzy (ANFIS/Type-2)."
     }
   ]
 }
