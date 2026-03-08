@@ -2884,7 +2884,7 @@ export type { DigitalTwinInput, CoupledPrediction } from "./ProcessDigitalTwinEn
 export { ProcessRobustnessEngine, processRobustnessEngine } from "./ProcessRobustnessEngine.js";
 export type { RobustnessInput, RobustnessResult } from "./ProcessRobustnessEngine.js";
 export { KalmanFilterEngine, kalmanFilterEngine } from "./KalmanFilterEngine.js";
-export type { KalmanInput, KalmanResult } from "./KalmanFilterEngine.js";
+export type { KalmanInput as KalmanFilterInput, KalmanResult as KalmanFilterResult } from "./KalmanFilterEngine.js";
 export { AMSAAReliabilityGrowthEngine, amsaaReliabilityGrowthEngine } from "./AMSAAReliabilityGrowthEngine.js";
 export type { AMSAAInput, AMSAAResult } from "./AMSAAReliabilityGrowthEngine.js";
 export { ChanceConstrainedOptimizationEngine, chanceConstrainedOptimizationEngine } from "./ChanceConstrainedOptimizationEngine.js";
@@ -2983,3 +2983,7 @@ export { TimeSeriesARIMAEngine, timeSeriesARIMAEngine } from './TimeSeriesARIMAE
 export { ExponentialSmoothingEngine, exponentialSmoothingEngine } from './ExponentialSmoothingEngine.js';
 export { PrincipalComponentEngine, principalComponentEngine } from './PrincipalComponentEngine.js';
 export { ClusterAnalysisEngine, clusterAnalysisEngine } from './ClusterAnalysisEngine.js';
+
+export { TOPSISEngine, topsisEngine } from './TOPSISEngine.js';
+export { AHPEngine, ahpEngine } from './AHPEngine.js';
+export { ProjectSchedulingEngine, projectSchedulingEngine } from './ProjectSchedulingEngine.js';
