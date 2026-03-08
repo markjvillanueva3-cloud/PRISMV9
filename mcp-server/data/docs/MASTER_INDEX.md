@@ -62,7 +62,7 @@ Actions (14): agent_execute, agent_parallel, agent_pipeline, plan_create, plan_e
 Actions (6): get_dashboard, assess_risk, get_patterns, get_history, force_extract, update_config
 
 ### prism_product (productDispatcher.ts, 250L) — SYS-MS1-U00
-Actions (40): sfc_calculate, sfc_compare, sfc_optimize, sfc_quick, sfc_materials, sfc_tools, sfc_formulas, sfc_safety, sfc_history, sfc_get, ppg_validate, ppg_translate, ppg_templates, ppg_generate, ppg_controllers, ppg_compare, ppg_syntax, ppg_batch, ppg_history, ppg_get, shop_job, shop_cost, shop_quote, shop_schedule, shop_dashboard, shop_report, shop_compare, shop_materials, shop_history, shop_get, acnc_program, acnc_feature, acnc_simulate, acnc_output, acnc_tools, acnc_strategy, acnc_validate, acnc_batch, acnc_history, acnc_get
+Actions (41): sfc_calculate, sfc_compare, sfc_optimize, sfc_quick, sfc_materials, sfc_tools, sfc_formulas, sfc_safety, sfc_history, sfc_get, ppg_validate, ppg_translate, ppg_templates, ppg_generate, ppg_controllers, ppg_compare, ppg_syntax, ppg_batch, ppg_history, ppg_get, ppg_feature_select, shop_job, shop_cost, shop_quote, shop_schedule, shop_dashboard, shop_report, shop_compare, shop_materials, shop_history, shop_get, acnc_program, acnc_feature, acnc_simulate, acnc_output, acnc_tools, acnc_strategy, acnc_validate, acnc_batch, acnc_history, acnc_get
 
 ### prism_ralph (ralphDispatcher.ts, 131L)
 Actions (3): loop, scrutinize, assess
@@ -540,6 +540,15 @@ Reserved for future wiring. Top 10 by size:
 Total unwired: 49 files (132 newly exported in FORGE B31-34)
 
 ### index.ts (1720L) — Barrel export file re-exporting 140 engines
+
+### CrossCamRecommenderEngine.ts (~560L) — Cross-CAM toolpath synthesis
+22 strategy profiles across 8 CAM systems, Kienzle+Taylor physics, zone decomposition, hybrid recommendations
+
+### ConstraintSatisfactionEngine.ts (~280L) — Multi-objective constraint solver
+10 constraint checks (cycle time, Ra, tool life, power, force, deflection, utilization, MRR, tolerance, RPM), trade-off frontier, conflict analysis
+
+### PostSelectionEngine.ts (~600L) — Post-processor feature selection
+17 features across 8 categories, rule-based scoring, feature interaction validation (synergy/conflict/redundant), controller-specific config
 
 ## 5. REGISTRIES (19 files)
 

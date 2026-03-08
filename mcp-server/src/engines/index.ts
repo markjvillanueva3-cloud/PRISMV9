@@ -2857,3 +2857,6 @@ export { extrusionForceEngine, ExtrusionForceEngine } from "./ExtrusionForceEngi
 export { stampingDieEngine, StampingDieEngine } from "./StampingDieEngine.js";
 export { wireDrawingEngine, WireDrawingEngine } from "./WireDrawingEngine.js";
 export { rollingMillEngine, RollingMillEngine } from "./RollingMillEngine.js";
+export { crankshaftDesignEngine, CrankshaftDesignEngine } from "./CrankshaftDesignEngine.js";
+export { pistonDesignEngine, PistonDesignEngine } from "./PistonDesignEngine.js";
+export { connectingRodEngine, ConnectingRodEngine } from "./ConnectingRodEngine.js";
