@@ -3136,3 +3136,7 @@ export { SputteringProcessEngine, sputteringProcessEngine } from "./SputteringPr
 export { EvaporatorProcessEngine, evaporatorProcessEngine } from "./EvaporatorProcessEngine.js";
 export { SprayDryingEngine, sprayDryingEngine } from "./SprayDryingEngine.js";
 export { GranulationProcessEngine, granulationProcessEngine } from "./GranulationProcessEngine.js";
+
+export { RotationalMoldingEngine, rotationalMoldingEngine } from "./RotationalMoldingEngine.js";
+export { ScrewExtrusionEngine, screwExtrusionEngine } from "./ScrewExtrusionEngine.js";
+export { CompressionMoldingEngine, compressionMoldingEngine } from "./CompressionMoldingEngine.js";
