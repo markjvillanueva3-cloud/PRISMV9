@@ -2031,6 +2031,136 @@ export const PRISM_NOVEL_STRATEGIES: Record<string, ToolpathStrategy> = {
     bestFor: ['deep_pockets', 'chip_packing', 'dry_machining', 'hard_materials', 'slot_milling'], materials: ['all'],
     params: { algorithm: 'VCER', engine: 'NovelToolpathEngine' },
     prismNovel: true
+  },
+
+  // EXTENDED SCIENTIFIC ALGORITHMS (12) - NovelToolpathAlgorithmsExt implementations
+  NOVEL_MEGM: {
+    id: 'novel_megm', name: 'Minimum Entropy Generation Machining (MEGM)', category: 'prism_novel', subcategory: 'thermodynamics',
+    description: 'Gouy-Stodola entropy minimization for optimal energy partition. Minimizes irreversible losses in cutting zone.',
+    bestFor: ['energy_efficiency', 'hard_materials', 'dry_machining', 'sustainable_mfg'], materials: ['all'],
+    params: { algorithm: 'MEGM', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_RSMP: {
+    id: 'novel_rsmp', name: 'Residual Stress Managed Profiling (RSMP)', category: 'prism_novel', subcategory: 'material_science',
+    description: 'Controls residual stress via Kienzle force + thermal gradient management. Ensures compressive surface stress.',
+    bestFor: ['fatigue_critical', 'aerospace', 'medical_implants', 'turbine_blades'], materials: ['all'],
+    params: { algorithm: 'RSMP', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_WHAP: {
+    id: 'novel_whap', name: 'Work-Hardening Aware Profiling (WHAP)', category: 'prism_novel', subcategory: 'material_science',
+    description: 'Hollomon power-law work-hardening model adapts feed/speed as material hardens. Prevents tool overload in stainless/inconel.',
+    bestFor: ['stainless_steel', 'inconel', 'hardening_alloys', 'finishing_hardened'], materials: ['stainless_304', 'inconel_718', 'titanium_6al4v'],
+    params: { algorithm: 'WHAP', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_BOPA: {
+    id: 'novel_bopa', name: 'Bayesian Online Parameter Adaptation (BOPA)', category: 'prism_novel', subcategory: 'statistics',
+    description: 'Conjugate normal-normal Bayesian posterior updates cutting force model in real-time. Self-calibrates to actual material/tool.',
+    bestFor: ['unknown_material', 'worn_tools', 'variable_stock', 'production_runs'], materials: ['all'],
+    params: { algorithm: 'BOPA', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_MCTP: {
+    id: 'novel_mctp', name: 'Monte Carlo Tolerance Prediction (MCTP)', category: 'prism_novel', subcategory: 'statistics',
+    description: 'Monte Carlo simulation of 5 error sources for Cpk prediction. Identifies dominant error contributor for targeted improvement.',
+    bestFor: ['tight_tolerance', 'process_capability', 'SPC', 'production_validation'], materials: ['all'],
+    params: { algorithm: 'MCTP', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_SFCR: {
+    id: 'novel_sfcr', name: 'Space-Filling Curve Roughing (SFCR)', category: 'prism_novel', subcategory: 'geometry',
+    description: 'Hilbert L-system space-filling curve for continuous roughing with no retracts. 15-25% fewer air moves vs zigzag.',
+    bestFor: ['large_pockets', 'roughing', 'constant_engagement', 'HSM'], materials: ['all'],
+    params: { algorithm: 'SFCR', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_KALP: {
+    id: 'novel_kalp', name: 'Kalman-Filtered Adaptive Profiling (KALP)', category: 'prism_novel', subcategory: 'control_theory',
+    description: 'Kalman filter state estimation for force prediction. Smooths feed rate transitions for vibration-free finishing.',
+    bestFor: ['finishing', 'variable_engagement', 'thin_walls', 'smooth_surfaces'], materials: ['all'],
+    params: { algorithm: 'KALP', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_PTAP: {
+    id: 'novel_ptap', name: 'Phase-Transform Aware Profiling (PTAP)', category: 'prism_novel', subcategory: 'material_science',
+    description: 'TTT diagram + Jaeger heat source model prevents white layer formation. Controls surface temperature below Ac1.',
+    bestFor: ['hardened_steel', 'case_hardened', 'bearing_surfaces', 'gear_teeth'], materials: ['steel_1045', 'cast_iron_gray'],
+    params: { algorithm: 'PTAP', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_PARETO: {
+    id: 'novel_pareto', name: 'Pareto Multi-Objective Optimization (PARETO)', category: 'prism_novel', subcategory: 'optimization',
+    description: 'Pareto dominance frontier for simultaneous MRR/force/Ra/temperature optimization. Returns full Pareto front.',
+    bestFor: ['multi_objective', 'production_optimization', 'process_design', 'trade_off_analysis'], materials: ['all'],
+    params: { algorithm: 'PARETO', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_CFCM: {
+    id: 'novel_cfcm', name: 'Centrifugal Force Compensated Machining (CFCM)', category: 'prism_novel', subcategory: 'physics',
+    description: 'Compensates for centrifugal tool expansion at high RPM (δr = ρω²r²/E). Critical for HSM above 20,000 RPM.',
+    bestFor: ['HSM', 'high_rpm', 'micro_machining', 'tight_tolerance_finishing'], materials: ['all'],
+    params: { algorithm: 'CFCM', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_WBRL: {
+    id: 'novel_wbrl', name: 'Weibull Reliability-Based Tool Life (WBRL)', category: 'prism_novel', subcategory: 'statistics',
+    description: 'Weibull R(t) = exp(-(t/η)^β) reliability model for proactive tool changes. Prevents catastrophic failure.',
+    bestFor: ['production', 'lights_out', 'tool_management', 'reliability_critical'], materials: ['all'],
+    params: { algorithm: 'WBRL', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+  NOVEL_DPLS: {
+    id: 'novel_dpls', name: 'Dynamic Programming Layer Sequencing (DPLS)', category: 'prism_novel', subcategory: 'optimization',
+    description: 'Bellman equation optimal layer sequencing. Minimizes total cost across all Z-levels considering tool changes + transitions.',
+    bestFor: ['multi_level_pockets', 'complex_roughing', 'production', 'process_planning'], materials: ['all'],
+    params: { algorithm: 'DPLS', engine: 'NovelToolpathAlgorithmsExt' },
+    prismNovel: true
+  },
+
+  // CROSS-CAM SYNERGY ALGORITHMS (6) - CrossCamNovelAlgorithms implementations
+  NOVEL_AMEF: {
+    id: 'novel_amef', name: 'Adaptive Morphed Engagement Finishing (AMEF)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'SolidCAM iMachining morphed spiral + hyperMILL Global Fitting. Constant engagement finishing with surface-optimal paths.',
+    bestFor: ['freeform_finishing', 'molds', 'dies', 'complex_surfaces'], materials: ['all'],
+    params: { algorithm: 'AMEF', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
+  },
+  NOVEL_VCMR: {
+    id: 'novel_vcmr', name: 'Volumetric Constant-MRR Roughing (VCMR)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'Fusion360 Adaptive + GibbsCAM VoluMill + Mastercam Dynamic Motion triple-layer engagement. Constant MRR throughout.',
+    bestFor: ['roughing', 'production', 'hard_materials', 'deep_pockets'], materials: ['all'],
+    params: { algorithm: 'VCMR', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
+  },
+  NOVEL_SNWF: {
+    id: 'novel_snwf', name: 'Streamline-Normalized Waveform Finishing (SNWF)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'NX Streamline iso-parametric + ESPRIT knowledge feeds + SurfCAM TrueMill chip control. Uniform scallop on freeform.',
+    bestFor: ['aerospace_surfaces', 'turbine_blades', 'impellers', 'optical'], materials: ['all'],
+    params: { algorithm: 'SNWF', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
+  },
+  NOVEL_EAPR: {
+    id: 'novel_eapr', name: 'Engagement-Aware Plunge Roughing (EAPR)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'Mastercam OptiRough + hyperMILL plunge milling + SolidCAM feed adaptation. Axial-force-dominant deep roughing.',
+    bestFor: ['deep_cavities', 'titanium', 'long_reach', 'unstable_setups'], materials: ['titanium_6al4v', 'inconel_718', 'steel_1045'],
+    params: { algorithm: 'EAPR', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
+  },
+  NOVEL_HBCF: {
+    id: 'novel_hbcf', name: 'Hybrid Barrel-Conical Finishing (HBCF)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'hyperMILL barrel cutter (25x over ball) + NX conical tool + Mastercam flowline. Auto-selects cutter by wall angle.',
+    bestFor: ['walls', 'near_vertical', 'mold_sidewalls', 'large_surfaces'], materials: ['all'],
+    params: { algorithm: 'HBCF', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
+  },
+  NOVEL_MACS: {
+    id: 'novel_macs', name: 'Multi-Axis Coordinated Swarf (MACS)', category: 'prism_novel', subcategory: 'crosscam',
+    description: 'hyperMILL 5X swarf + NX multi-axis contouring + Fusion360 steep/shallow. Full-flute engagement on ruled surfaces.',
+    bestFor: ['ruled_surfaces', '5axis', 'blisk', 'impeller', 'turbine'], materials: ['all'],
+    params: { algorithm: 'MACS', engine: 'CrossCamNovelAlgorithms' },
+    prismNovel: true
   }
 };
 

@@ -2867,6 +2867,18 @@ export { SurfaceIntegrityPredictorEngine, surfaceIntegrityPredictorEngine } from
 export type { SurfaceIntegrityInput as SIPredictorInput, SurfaceIntegrityResult as SIPredictorResult } from "./SurfaceIntegrityPredictorEngine.js";
 export { MachiningEnergyModelEngine, machiningEnergyModelEngine } from "./MachiningEnergyModelEngine.js";
 export type { MachiningEnergyInput, MachiningEnergyResult } from "./MachiningEnergyModelEngine.js";
+export { MonteCarloProcessEngine, monteCarloProcessEngine } from "./MonteCarloProcessEngine.js";
+export type { MCProcessInput, MCProcessResult } from "./MonteCarloProcessEngine.js";
+export { DOETaguchEngine, doeTaguchEngine } from "./DOETaguchEngine.js";
+export type { DOEInput, DOEResult } from "./DOETaguchEngine.js";
+export { FixtureClampingEngine, fixtureClampingEngine } from "./FixtureClampingEngine.js";
+export type { FixtureInput, ClampForceResult } from "./FixtureClampingEngine.js";
+export { SpringbackPredictionEngine, springbackPredictionEngine } from "./SpringbackPredictionEngine.js";
+export type { SpringbackInput, SpringbackResult } from "./SpringbackPredictionEngine.js";
+export { GDTStackupEngine, gdtStackupEngine } from "./GDTStackupEngine.js";
+export type { StackupInput, StackupResult } from "./GDTStackupEngine.js";
+export { RunoutEffectEngine, runoutEffectEngine } from "./RunoutEffectEngine.js";
+export type { RunoutInput, RunoutResult } from "./RunoutEffectEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";

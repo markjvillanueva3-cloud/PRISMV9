@@ -19,6 +19,8 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 type ValidatedParams = any;
 import { toolpathGenerationEngine } from "../../engines/ToolpathGenerationEngine.js";
 import { novelToolpathEngine } from "../../engines/NovelToolpathEngine.js";
+import { extendedNovelToolpathEngine } from "../../engines/NovelToolpathAlgorithmsExt.js";
+import { crossCamNovelEngine } from "../../engines/CrossCamNovelAlgorithms.js";
 import { log } from "../../utils/Logger.js";
 
 const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]);
@@ -30,7 +32,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list",
     {
       action: z.enum([
         "strategy_select",
@@ -43,7 +45,11 @@ export function registerToolpathDispatcher(server: any): void {
         "prism_novel",
         "generate",
         "novel_compute",
-        "novel_list"
+        "novel_list",
+        "extended_compute",
+        "extended_list",
+        "crosscam_compute",
+        "crosscam_list"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -126,6 +132,36 @@ export function registerToolpathDispatcher(server: any): void {
             result = {
               algorithms: novelToolpathEngine.listAlgorithms(),
               materials: novelToolpathEngine.getAvailableMaterials(),
+              count: 6
+            };
+            break;
+
+          case "extended_compute": {
+            const extAlgo = params.algorithm;
+            if (!extAlgo) throw new Error("algorithm is required (MEGM|RSMP|WHAP|BOPA|MCTP|SFCR|KALP|PTAP|PARETO|CFCM|WBRL|DPLS)");
+            result = extendedNovelToolpathEngine.compute(extAlgo, params as any);
+            break;
+          }
+
+          case "extended_list":
+            result = {
+              algorithms: extendedNovelToolpathEngine.listAlgorithms(),
+              materials: extendedNovelToolpathEngine.getAvailableMaterials(),
+              count: 12
+            };
+            break;
+
+          case "crosscam_compute": {
+            const ccAlgo = params.algorithm;
+            if (!ccAlgo) throw new Error("algorithm is required (AMEF|VCMR|SNWF|EAPR|HBCF|MACS)");
+            result = crossCamNovelEngine.compute(ccAlgo, params as any);
+            break;
+          }
+
+          case "crosscam_list":
+            result = {
+              algorithms: crossCamNovelEngine.listAlgorithms(),
+              materials: crossCamNovelEngine.getAvailableMaterials(),
               count: 6
             };
             break;
