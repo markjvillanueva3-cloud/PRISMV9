@@ -3087,3 +3087,7 @@ export { realTimeAnomalyDetectionEngine } from "./RealTimeAnomalyDetectionEngine
 export { magneticBearingEngine, MagneticBearingEngine } from "./MagneticBearingEngine.js";
 export { flotationCellEngine, FlotationCellEngine } from "./FlotationCellEngine.js";
 export { crystallizationEngine, CrystallizationEngine } from "./CrystallizationEngine.js";
+
+export { membraneFiltrationEngine, MembraneFiltrationEngine } from "./MembraneFiltrationEngine.js";
+export { absorptionChillerEngine, AbsorptionChillerEngine } from "./AbsorptionChillerEngine.js";
+export { furnaceHeatingEngine, FurnaceHeatingEngine } from "./FurnaceHeatingEngine.js";

@@ -34,7 +34,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program, simulate (Kienzle force/Jaeger temp/deflection/Brammertz roughness along path)",
     {
       action: z.enum([
         "strategy_select",
@@ -59,7 +59,8 @@ export function registerToolpathDispatcher(server: any): void {
         "novel_post_process",
         "program_assemble",
         "gcode_verify",
-        "novel_generate_program"
+        "novel_generate_program",
+        "simulate"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -221,7 +222,7 @@ export function registerToolpathDispatcher(server: any): void {
 
           case "tool_axis_optimize": {
             const { toolAxisOptimizationEngine } = await import("../../engines/ToolAxisOptimizationEngine.js");
-            result = toolAxisOptimizationEngine.optimize(params);
+            result = toolAxisOptimizationEngine.optimize(params as ValidatedParams);
             break;
           }
 
@@ -243,31 +244,37 @@ export function registerToolpathDispatcher(server: any): void {
           // ── CAMK-MS1: Novel Algorithm → G-Code pipeline ──
           case "segment_interpolate": {
             const { segmentInterpolatorEngine } = await import("../../engines/SegmentInterpolatorEngine.js");
-            result = segmentInterpolatorEngine.interpolate(params);
+            result = segmentInterpolatorEngine.interpolate(params as ValidatedParams);
             break;
           }
 
           case "novel_post_process": {
             const { novelPostProcessorBridgeEngine } = await import("../../engines/NovelPostProcessorBridgeEngine.js");
-            result = novelPostProcessorBridgeEngine.postProcess(params);
+            result = novelPostProcessorBridgeEngine.postProcess(params as ValidatedParams);
             break;
           }
 
           case "program_assemble": {
             const { programStructureEngine } = await import("../../engines/ProgramStructureEngine.js");
-            result = programStructureEngine.assemble(params);
+            result = programStructureEngine.assemble(params as ValidatedParams);
             break;
           }
 
           case "gcode_verify": {
             const { gCodeVerificationEngine } = await import("../../engines/GCodeVerificationEngine.js");
-            result = gCodeVerificationEngine.verify(params);
+            result = gCodeVerificationEngine.verify(params as ValidatedParams);
             break;
           }
 
           case "novel_generate_program": {
             const { endToEndPipelineEngine } = await import("../../engines/EndToEndPipelineEngine.js");
-            result = endToEndPipelineEngine.generate(params);
+            result = endToEndPipelineEngine.generate(params as ValidatedParams);
+            break;
+          }
+
+          case "simulate": {
+            const { novelToolpathSimulatorEngine } = await import("../../engines/NovelToolpathSimulatorEngine.js");
+            result = novelToolpathSimulatorEngine.simulate(params as ValidatedParams);
             break;
           }
 
