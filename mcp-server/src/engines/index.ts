@@ -3036,3 +3036,9 @@ export { CycloidDriveEngine, cycloidDriveEngine } from './CycloidDriveEngine.js'
 export type { CycloidDriveInput, CycloidDriveResult, CycloidType } from './CycloidDriveEngine.js';
 export { HeatExchangerPlateEngine, heatExchangerPlateEngine } from './HeatExchangerPlateEngine.js';
 export type { HeatExchangerPlateInput, HeatExchangerPlateResult, PlatePattern, FluidPair } from './HeatExchangerPlateEngine.js';
+export { BrazingSolderingEngine, brazingSolderingEngine } from './BrazingSolderingEngine.js';
+export type { BrazingSolderingInput, BrazingSolderingResult, JoiningProcess, FillerType } from './BrazingSolderingEngine.js';
+export { RivetedJointEngine, rivetedJointEngine } from './RivetedJointEngine.js';
+export type { RivetedJointInput, RivetedJointResult, RivetPattern } from './RivetedJointEngine.js';
+export { UltrasonicWeldingEngine, ultrasonicWeldingEngine } from './UltrasonicWeldingEngine.js';
+export type { UltrasonicWeldingInput, UltrasonicWeldingResult, USWMaterial, JointDesign } from './UltrasonicWeldingEngine.js';
