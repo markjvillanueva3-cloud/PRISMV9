@@ -2257,6 +2257,7 @@ export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
 export { voronoiEngine } from "./VoronoiEngine.js";
 export { voxelStockEngine } from "./VoxelStockEngine.js";
 export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_ALGORITHM_INFO, type NovelToolpathResult, type NovelAlgorithm } from "./NovelToolpathEngine.js";
+export { novelToolpathSimulatorEngine } from "./NovelToolpathSimulatorEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
@@ -3071,3 +3072,7 @@ export { SinteringProcessEngine, sinteringProcessEngine } from './SinteringProce
 export type { SinteringProcessInput, SinteringProcessResult, SinterAtmosphere, SinterMaterial } from './SinteringProcessEngine.js';
 export { SprayDryerEngine, sprayDryerEngine } from './SprayDryerEngine.js';
 export type { SprayDryerInput, SprayDryerResult, AtomizerType, FlowConfig } from './SprayDryerEngine.js';
+
+export { calenderingEngine, CalenderingEngine } from "./CalenderingEngine.js";
+export { filamentWindingEngine, FilamentWindingEngine } from "./FilamentWindingEngine.js";
+export { resinTransferEngine, ResinTransferEngine } from "./ResinTransferEngine.js";
