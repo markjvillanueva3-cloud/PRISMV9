@@ -1,9 +1,9 @@
 {
   "version": "5.3.0",
-  "title": "PRISM App \u00e2\u20ac\u201d Comprehensive Layered Roadmap",
+  "title": "PRISM App â€” Comprehensive Layered Roadmap",
   "updated_at": "2026-03-03T00:00:00Z",
-  "total_milestones": 108,
-  "completed_milestones": 100,
+  "total_milestones": 109,
+  "completed_milestones": 103,
   "milestones": [
     {
       "id": "S0-MS1",
@@ -1302,7 +1302,7 @@
       "sessions": "3-4",
       "envelope_path": "milestones/SYS-MS6.json",
       "dependencies": [],
-      "description": "Add per-action Zod schema validation to dispatchers. All 45 use z.record(z.any()) \u00e2\u20ac\u201d zero type enforcement at tool boundary."
+      "description": "Add per-action Zod schema validation to dispatchers. All 45 use z.record(z.any()) â€” zero type enforcement at tool boundary."
     },
     {
       "id": "SYS-MS7",
@@ -1319,7 +1319,7 @@
     },
     {
       "id": "TC-MS0",
-      "title": "Tool Catalog PDF Integration \u00e2\u20ac\u201d Manufacturer Data Extraction",
+      "title": "Tool Catalog PDF Integration â€” Manufacturer Data Extraction",
       "track": "TC",
       "priority": "P2",
       "status": "complete",
@@ -1381,7 +1381,7 @@
     },
     {
       "id": "VL-MS0",
-      "title": "Direct Video Learning Engine \u00e2\u20ac\u201d Audio + Vision Pipeline",
+      "title": "Direct Video Learning Engine â€” Audio + Vision Pipeline",
       "track": "VL",
       "priority": "P2",
       "status": "complete",
@@ -1417,7 +1417,9 @@
       "completed_units": 0,
       "sessions": "3-4",
       "envelope_path": "milestones/CAMK-MS1.json",
-      "dependencies": ["CAMK-MS0"],
+      "dependencies": [
+        "CAMK-MS0"
+      ],
       "description": "Segment interpolation, controller-specific post-processing (Fanuc/Siemens/Heidenhain/Mazak/Haas), program assembly, G-code verification, end-to-end pipeline."
     },
     {
@@ -1430,7 +1432,9 @@
       "completed_units": 0,
       "sessions": "2-3",
       "envelope_path": "milestones/CAMK-MS2.json",
-      "dependencies": ["CAMK-MS1"],
+      "dependencies": [
+        "CAMK-MS1"
+      ],
       "description": "Force/temp/deflection simulation along path, voxel stock integration, collision detection with novel paths, surface finish prediction, precise cycle time."
     },
     {
@@ -1443,7 +1447,9 @@
       "completed_units": 0,
       "sessions": "3-4",
       "envelope_path": "milestones/CAMK-MS3.json",
-      "dependencies": ["CAMK-MS2"],
+      "dependencies": [
+        "CAMK-MS2"
+      ],
       "description": "Rest machining, operation sequencing (TSP/Bellman), linking moves, adaptive refinement, multi-setup planning."
     },
     {
@@ -1469,7 +1475,9 @@
       "completed_units": 0,
       "sessions": "3-4",
       "envelope_path": "milestones/SCI-MS1.json",
-      "dependencies": ["SCI-MS0"],
+      "dependencies": [
+        "SCI-MS0"
+      ],
       "description": "PID feed control, spindle RPM adaptation (SSV), Bayesian online kc11/mc calibration, Weibull tool life adaptation, digital twin synchronization."
     },
     {
@@ -1482,7 +1490,9 @@
       "completed_units": 0,
       "sessions": "2-3",
       "envelope_path": "milestones/SCI-MS2.json",
-      "dependencies": ["SCI-MS1"],
+      "dependencies": [
+        "SCI-MS1"
+      ],
       "description": "Statistical validation (MAE/MAPE/R2/Bland-Altman), Levenberg-Marquardt calibration, benchmark suite, uncertainty quantification (Sobol), continuous improvement."
     },
     {
@@ -1495,8 +1505,21 @@
       "completed_units": 0,
       "sessions": "3-4",
       "envelope_path": "milestones/SCI-MS3.json",
-      "dependencies": ["SCI-MS2"],
+      "dependencies": [
+        "SCI-MS2"
+      ],
       "description": "Stochastic processes (Markov/Wiener/Poisson/HMM), information theory (Shannon/KL/transfer entropy), optimal control (Pontryagin/HJB/MPC/LQR), graph theory (DAG/TSP/max-flow), neuro-fuzzy (ANFIS/Type-2)."
+    },
+    {
+      "id": "PB-MS0",
+      "title": "Machining Playbook Orchestration & Auto-Pipeline Integration",
+      "track": "PB",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 6,
+      "completed_units": 6,
+      "sessions": "1-2",
+      "envelope_path": "milestones/PB-MS0.json"
     }
   ]
 }

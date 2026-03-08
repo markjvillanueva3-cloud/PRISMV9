@@ -20,6 +20,13 @@
  *     - tips_add:           Add a material tip with source provenance
  *     - tips_get:           Get ranked tips for a material
  *     - tips_conflicts:     Detect contradictory tips for a material
+ *   Machining Playbook:
+ *     - playbook_advise:    Get applicable rules for a machining scenario
+ *     - playbook_sequence:  Get operation sequencing advice for features
+ *     - playbook_setup:     Get setup strategy advice
+ *     - playbook_antipatterns: Look up anti-patterns for conditions
+ *     - playbook_lookup:    Get all rules by category
+ *     - playbook_add_rule:  Add a new rule (from video learning)
  */
 
 import { z } from "zod";
@@ -27,6 +34,7 @@ import { log } from "../../utils/Logger.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_SHOP_PRACTICE_SCHEMAS } from "../../schemas/shopPracticeActionSchemas.js";
 import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
+import { machiningPlaybookEngine, type RuleCategory } from "../../engines/MachiningPlaybookEngine.js";
 import { PATHS } from "../../constants.js";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -47,6 +55,12 @@ const ACTIONS = [
   "tips_add",
   "tips_get",
   "tips_conflicts",
+  "playbook_advise",
+  "playbook_sequence",
+  "playbook_setup",
+  "playbook_antipatterns",
+  "playbook_lookup",
+  "playbook_add_rule",
 ] as const;
 
 // Python & cad-engine paths — uses centralized PATHS.PYTHON
@@ -598,6 +612,78 @@ print(json.dumps({"material": ${JSON.stringify(material)}, "conflict_count": len
 }
 
 // ---------------------------------------------------------------------------
+// Machining Playbook actions (TypeScript — no Python needed)
+// ---------------------------------------------------------------------------
+
+async function handlePlaybookAdvise(params: Record<string, any>): Promise<any> {
+  const result = machiningPlaybookEngine.advise({
+    material_iso: params.material_iso,
+    features: params.features,
+    tolerance_mm: params.tolerance_mm,
+    wall_thickness_mm: params.wall_thickness_mm,
+    surface_finish_Ra: params.surface_finish_Ra,
+    batch_size: params.batch_size,
+    machine_axes: params.machine_axes,
+    categories: params.categories as RuleCategory[],
+    severity_min: params.severity_min,
+  });
+  return { count: result.rules.length, summary: result.summary, critical_warnings: result.critical_warnings, rules: result.rules };
+}
+
+async function handlePlaybookSequence(params: Record<string, any>): Promise<any> {
+  if (!params.features || !Array.isArray(params.features)) {
+    return { error: "features (array of strings) is required" };
+  }
+  return machiningPlaybookEngine.sequenceAdvice(params.features, params.material_iso);
+}
+
+async function handlePlaybookSetup(params: Record<string, any>): Promise<any> {
+  if (!params.features || !Array.isArray(params.features)) {
+    return { error: "features (array of strings) is required" };
+  }
+  return machiningPlaybookEngine.setupAdvice(params.features, params.material_iso, params.tolerance_mm);
+}
+
+async function handlePlaybookAntipatterns(params: Record<string, any>): Promise<any> {
+  const rules = machiningPlaybookEngine.antiPatterns({
+    material_iso: params.material_iso,
+    features: params.features,
+    wall_thickness_mm: params.wall_thickness_mm,
+  });
+  return { count: rules.length, anti_patterns: rules };
+}
+
+async function handlePlaybookLookup(params: Record<string, any>): Promise<any> {
+  if (!params.category) {
+    return { error: "category is required", available_categories: ["sequencing", "setup_strategy", "tool_selection", "toolpath_strategy", "anti_pattern", "material_tip", "thin_wall", "hole_making", "finishing", "roughing", "5axis", "workholding", "thermal", "chip_control", "tool_life", "datum", "deburring", "safety"] };
+  }
+  const rules = machiningPlaybookEngine.byCategory(params.category as RuleCategory);
+  return { category: params.category, count: rules.length, rules };
+}
+
+async function handlePlaybookAddRule(params: Record<string, any>): Promise<any> {
+  try {
+    machiningPlaybookEngine.addRule({
+      id: params.id,
+      category: params.category as RuleCategory,
+      severity: params.severity,
+      title: params.title,
+      rule: params.rule,
+      reasoning: params.reasoning,
+      conditions: params.conditions || [{ type: "always" }],
+      exceptions: params.exceptions || [],
+      source: params.source,
+      examples: params.examples,
+      related_rules: params.related_rules,
+    });
+    const stats = machiningPlaybookEngine.stats();
+    return { success: true, rule_id: params.id, total_rules: stats.total, stats };
+  } catch (err: any) {
+    return { error: err.message };
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Action routing
 // ---------------------------------------------------------------------------
 
@@ -614,6 +700,12 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
   tips_add: handleTipsAdd,
   tips_get: handleTipsGet,
   tips_conflicts: handleTipsConflicts,
+  playbook_advise: handlePlaybookAdvise,
+  playbook_sequence: handlePlaybookSequence,
+  playbook_setup: handlePlaybookSetup,
+  playbook_antipatterns: handlePlaybookAntipatterns,
+  playbook_lookup: handlePlaybookLookup,
+  playbook_add_rule: handlePlaybookAddRule,
 };
 
 // ---------------------------------------------------------------------------
@@ -627,7 +719,7 @@ const ACTION_HANDLERS: Record<string, (p: Record<string, any>) => Promise<any>> 
 export function registerShopPracticeDispatcher(server: any): void {
   server.tool(
     "prism_shop_practice",
-    "Shop practice knowledge base: ingest/search/audit machining practices from video tutorials, build/navigate troubleshooting trees, manage per-material tips with conflict resolution. Use 'action' param.",
+    "Shop practice knowledge base: ingest/search/audit machining practices, build/navigate troubleshooting trees, manage per-material tips, and query the machining playbook for sequencing advice, anti-patterns, and best practices. Use 'action' param.",
     {
       action: z.enum(ACTIONS),
       params: z.record(z.string(), z.any()).optional(),

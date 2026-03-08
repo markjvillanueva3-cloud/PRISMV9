@@ -77,6 +77,9 @@ export interface SetupPlan {
   totalSetups: number;
   featureCount: number;
   efficiency: number;
+  workholding_suggestions?: string[];
+  datum_strategy?: string;
+  playbook_applied_rules?: string[];
 }
 
 // ============================================================================
@@ -254,11 +257,27 @@ class FeatureInteractionEngineImpl {
       processed.add(dir);
     }
 
+    // Playbook workholding & datum advice
+    let workholdingSuggestions: string[] | undefined;
+    let datumStrategy: string | undefined;
+    let playbookRules: string[] | undefined;
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const featureTypes = features.map(f => f.type?.toLowerCase() ?? "unknown");
+      const setupResult = machiningPlaybookEngine.setupAdvice(featureTypes);
+      workholdingSuggestions = setupResult.workholding_suggestions;
+      datumStrategy = setupResult.datum_strategy;
+      playbookRules = setupResult.applied_rules;
+    } catch { /* playbook not available */ }
+
     return {
       setups,
       totalSetups: setups.length,
       featureCount: features.length,
       efficiency: setups.length > 0 ? features.length / setups.length : 0,
+      workholding_suggestions: workholdingSuggestions,
+      datum_strategy: datumStrategy,
+      playbook_applied_rules: playbookRules,
     };
   }
 

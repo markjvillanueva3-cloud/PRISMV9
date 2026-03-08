@@ -53,6 +53,7 @@ export interface PipelineInput {
 
   // Pipeline control — select which stages to run
   stages?: {
+    playbook?: boolean;     // default true — machining best-practice pre-check
     safety?: boolean;       // default true
     speed_feed?: boolean;   // default true (requires tools)
     thermal?: boolean;      // default false (requires workpiece_dimensions)
@@ -60,6 +61,11 @@ export interface PipelineInput {
     cycle_time?: boolean;   // default true
     setup_sheet?: boolean;  // default true
   };
+
+  // Playbook context (for Stage 0 pre-check)
+  features?: string[];
+  wall_thickness_mm?: number;
+  tolerance_mm?: number;
 
   // Output control
   optimize_for?: "tool_life" | "productivity" | "surface_finish" | "balanced";
@@ -89,6 +95,7 @@ export interface PipelineResult {
     energy_kwh: number;
     thermal_risk: string;
     tools_used: number;
+    playbook_warnings: number;
   };
   warnings: string[];
 }
@@ -105,6 +112,7 @@ class GCodeIntelligencePipelineEngineImpl {
     const warnings: string[] = [];
     let gcode = input.gcode;
     const stageFlags = {
+      playbook: input.stages?.playbook !== false,
       safety: input.stages?.safety !== false,
       speed_feed: input.stages?.speed_feed !== false && (input.tools?.length ?? 0) > 0,
       thermal: input.stages?.thermal === true && input.workpiece_dimensions != null,
@@ -119,6 +127,63 @@ class GCodeIntelligencePipelineEngineImpl {
     let cycleTimeSec = 0, energyKwh = 0;
     let thermalRisk = "none";
     let toolsUsed = 0;
+    let playbookWarnings = 0;
+
+    // ------------------------------------------------------------------
+    // Stage 0: Playbook Pre-Check (Machining Best Practices)
+    // ------------------------------------------------------------------
+    if (stageFlags.playbook) {
+      const t0 = Date.now();
+      try {
+        const { machiningPlaybookEngine } = await import("./MachiningPlaybookEngine.js");
+        const features = input.features ?? [];
+        const material = (input as any).material_iso ?? input.material;
+
+        // Extract features from G-code comments if not provided
+        const detectedFeatures = features.length > 0 ? features : this.detectFeaturesFromGcode(gcode);
+
+        if (detectedFeatures.length > 0) {
+          const advice = machiningPlaybookEngine.sequenceAdvice(detectedFeatures, material);
+          const antiPatterns = machiningPlaybookEngine.antiPatterns({
+            features: detectedFeatures,
+            material_iso: material,
+            wall_thickness_mm: input.wall_thickness_mm,
+            tolerance_mm: input.tolerance_mm,
+          });
+
+          const criticals = antiPatterns.filter(r => r.severity === "critical");
+          playbookWarnings = advice.warnings.length + criticals.length;
+
+          if (criticals.length > 0) {
+            for (const r of criticals) {
+              warnings.push(`[PLAYBOOK ${r.id}] ${r.title}: ${r.rule}`);
+            }
+          }
+
+          const status = criticals.length > 0 ? "warn" : "pass";
+          stages.push({
+            stage: "playbook",
+            status,
+            duration_ms: Date.now() - t0,
+            summary: playbookWarnings > 0
+              ? `${playbookWarnings} playbook warnings (${criticals.length} critical). Order: ${advice.recommended_order.join(" → ")}`
+              : `Sequence validated: ${advice.recommended_order.join(" → ")}`,
+            data: {
+              recommended_order: advice.recommended_order,
+              warnings: advice.warnings,
+              anti_patterns: criticals.map(r => ({ id: r.id, title: r.title, rule: r.rule })),
+              applied_rules: advice.applied_rules,
+            },
+          });
+        } else {
+          stages.push({ stage: "playbook", status: "skipped", duration_ms: Date.now() - t0, summary: "No features detected for playbook analysis", data: null });
+        }
+      } catch (err: any) {
+        stages.push({ stage: "playbook", status: "pass", duration_ms: Date.now() - t0, summary: `Playbook skipped: ${err.message}`, data: null });
+      }
+    } else {
+      stages.push({ stage: "playbook", status: "skipped", duration_ms: 0, summary: "Skipped", data: null });
+    }
 
     // ------------------------------------------------------------------
     // Stage 1: Safety Analysis
@@ -341,6 +406,7 @@ class GCodeIntelligencePipelineEngineImpl {
         energy_kwh: energyKwh,
         thermal_risk: thermalRisk,
         tools_used: toolsUsed,
+        playbook_warnings: playbookWarnings,
       },
       warnings,
     };
@@ -350,6 +416,22 @@ class GCodeIntelligencePipelineEngineImpl {
     const m = Math.floor(seconds / 60);
     const s = Math.round(seconds % 60);
     return m > 0 ? `${m}m ${s}s` : `${s}s`;
+  }
+
+  private detectFeaturesFromGcode(gcode: string): string[] {
+    const features: string[] = [];
+    const lower = gcode.toLowerCase();
+    if (/g81|g83|g73|drilling/i.test(gcode)) features.push("hole");
+    if (/g84|g76|tapping|thread/i.test(gcode)) features.push("thread");
+    if (/pocket|cavity/i.test(lower)) features.push("pocket");
+    if (/profile|contour/i.test(lower)) features.push("profile");
+    if (/face\s*mill|facing/i.test(lower)) features.push("face");
+    if (/chamfer|g01.*z.*[cr]/i.test(lower)) features.push("chamfer");
+    if (/slot/i.test(lower)) features.push("slot");
+    if (/g85|g86|g89|ream/i.test(lower)) features.push("hole");
+    if (/g76|bore|boring/i.test(lower)) features.push("bore");
+    if (/3d|freeform|scallop|ball.*nose/i.test(lower)) features.push("freeform");
+    return [...new Set(features)];
   }
 }
 

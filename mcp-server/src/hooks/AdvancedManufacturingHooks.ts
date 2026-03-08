@@ -26,6 +26,7 @@ import {
   hookWarning
 } from "../engines/HookExecutor.js";
 import { log } from "../utils/Logger.js";
+import { machiningPlaybookEngine } from "../engines/MachiningPlaybookEngine.js";
 
 // ============================================================================
 // PHYSICS CONSTANTS
@@ -965,8 +966,142 @@ export const advancedManufacturingHooks: HookDefinition[] = [
   preRapidTraverseSafety,
 
   // Auto Speed/Feed
-  onAutoSpeedFeedSuggestion
+  onAutoSpeedFeedSuggestion,
 ];
+
+// ============================================================================
+// M-PB-001: Post-Process-Plan Playbook Sequence Validation
+// ============================================================================
+
+const pbSeqHookMeta = {
+  id: "M-PB-001",
+  name: "Playbook Sequence Validation",
+  phase: "post-calculation" as const,
+  category: "manufacturing" as const,
+  mode: "warning" as const,
+};
+
+const onPlaybookSequenceValidation: HookDefinition = {
+  ...pbSeqHookMeta,
+  description: "After process plan generation, validates operation sequence against machining playbook rules. Warns on anti-pattern violations and suggests best-practice ordering.",
+  event: "calc.process_plan",
+  priority: "normal",
+  enabled: true,
+  tags: ["playbook", "sequencing", "anti-pattern", "process-plan", "best-practice"],
+  handler: async (context: HookContext): Promise<HookResult> => {
+    const data = context.target?.data as any;
+    const features: string[] = data?.features ?? data?.operations ?? [];
+    const material: string | undefined = data?.material_iso ?? data?.material;
+
+    if (!features.length) {
+      return hookSuccess(pbSeqHookMeta, "No features to validate");
+    }
+
+    try {
+      const advice = machiningPlaybookEngine.sequenceAdvice(features, material);
+      const antiPatterns = machiningPlaybookEngine.antiPatterns({
+        features,
+        material_iso: material,
+        wall_thickness_mm: data?.wall_thickness_mm,
+      });
+
+      if (antiPatterns.some(r => r.severity === "critical")) {
+        const criticals = antiPatterns.filter(r => r.severity === "critical");
+        return hookWarning(pbSeqHookMeta,
+          `CRITICAL anti-patterns detected: ${criticals.map(r => `${r.id}: ${r.title}`).join("; ")}`,
+          {
+            playbook_warnings: criticals.map(r => ({ id: r.id, title: r.title, rule: r.rule, reasoning: r.reasoning })),
+            recommended_order: advice.recommended_order,
+            applied_rules: advice.applied_rules,
+          }
+        );
+      }
+
+      if (advice.warnings.length > 0) {
+        return hookWarning(pbSeqHookMeta,
+          `Playbook advice: ${advice.warnings.length} warnings. Recommended order: ${advice.recommended_order.join(" → ")}`,
+          {
+            warnings: advice.warnings,
+            recommended_order: advice.recommended_order,
+            reasoning: advice.reasoning,
+            applied_rules: advice.applied_rules,
+          }
+        );
+      }
+
+      return hookSuccess(pbSeqHookMeta, `Sequence validated: ${advice.recommended_order.join(" → ")}`, {
+        recommended_order: advice.recommended_order,
+        applied_rules: advice.applied_rules,
+      });
+    } catch (err: any) {
+      log.warn(`[M-PB-001] Playbook validation error: ${err.message}`);
+      return hookSuccess(pbSeqHookMeta, "Playbook validation skipped due to error");
+    }
+  },
+};
+
+// ============================================================================
+// M-PB-002: Pre-CAM Toolpath Playbook Strategy Advice
+// ============================================================================
+
+const pbStratHookMeta = {
+  id: "M-PB-002",
+  name: "Playbook Toolpath Strategy Advice",
+  phase: "pre-calculation" as const,
+  category: "manufacturing" as const,
+  mode: "warning" as const,
+};
+
+const onPlaybookToolpathAdvice: HookDefinition = {
+  ...pbStratHookMeta,
+  description: "Before CAM toolpath generation, surfaces relevant playbook rules for toolpath strategy, material tips, and setup advice based on the operation context.",
+  event: "cam.toolpath",
+  priority: "normal",
+  enabled: true,
+  tags: ["playbook", "toolpath", "strategy", "material-tip", "cam"],
+  handler: async (context: HookContext): Promise<HookResult> => {
+    const data = context.target?.data as any;
+    const material: string | undefined = data?.material_iso ?? data?.material;
+    const features: string[] = data?.features ?? [];
+    const wallThickness: number | undefined = data?.wall_thickness_mm;
+    const tolerance: number | undefined = data?.tolerance_mm;
+
+    const query = {
+      material_iso: material,
+      features,
+      wall_thickness_mm: wallThickness,
+      tolerance_mm: tolerance,
+      categories: ["toolpath_strategy" as const, "material_tip" as const, "thin_wall" as const, "roughing" as const, "finishing" as const],
+    };
+
+    try {
+      const result = machiningPlaybookEngine.advise(query);
+
+      if (result.rules.length === 0) {
+        return hookSuccess(pbStratHookMeta, "No specific playbook advice for this context");
+      }
+
+      const tips = result.rules.slice(0, 5).map(r => `[${r.severity.toUpperCase()}] ${r.id}: ${r.title}`);
+      return hookSuccess(pbStratHookMeta,
+        `${result.rules.length} playbook rules apply: ${tips.join("; ")}`,
+        {
+          rule_count: result.rules.length,
+          critical_warnings: result.critical_warnings,
+          rules: result.rules.slice(0, 8).map(r => ({
+            id: r.id, title: r.title, severity: r.severity,
+            rule: r.rule, reasoning: r.reasoning.substring(0, 200),
+          })),
+        }
+      );
+    } catch (err: any) {
+      log.warn(`[M-PB-002] Playbook advice error: ${err.message}`);
+      return hookSuccess(pbStratHookMeta, "Playbook advice skipped due to error");
+    }
+  },
+};
+
+// Add playbook hooks to the main array (defined after the array was created)
+advancedManufacturingHooks.push(onPlaybookSequenceValidation, onPlaybookToolpathAdvice);
 
 export {
   onChipBreakingValidation,
@@ -978,6 +1113,8 @@ export {
   preToolChangeSafety,
   preRapidTraverseSafety,
   onAutoSpeedFeedSuggestion,
+  onPlaybookSequenceValidation,
+  onPlaybookToolpathAdvice,
   CHIP_THICKNESS_RATIO,
   MIN_STABLE_SPEED,
   POWER_FACTOR,

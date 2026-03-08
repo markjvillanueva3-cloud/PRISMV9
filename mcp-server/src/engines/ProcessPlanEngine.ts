@@ -76,6 +76,9 @@ export interface ProcessPlan {
   operations: ProcessOperation[];
   tool_list: string[];
   setup_summary: { setup: number; description: string; operations: number }[];
+  playbook_warnings?: string[];
+  playbook_suggestions?: string[];
+  recommended_order?: string[];
 }
 
 /** Plan Optimization configuration/data structure.
@@ -240,6 +243,25 @@ export class ProcessPlanEngine {
 
     const totalTime = operations.reduce((s, op) => s + op.estimated_time_min, 0);
 
+    // Playbook validation — inject sequencing wisdom
+    const featureTypes = input.features.map(f => f.type);
+    let playbookWarnings: string[] = [];
+    let playbookSuggestions: string[] = [];
+    let recommendedOrder: string[] = [];
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const advice = machiningPlaybookEngine.sequenceAdvice(featureTypes, input.material_iso_group);
+      recommendedOrder = advice.recommended_order;
+      playbookWarnings = advice.warnings;
+      const antiPatterns = machiningPlaybookEngine.antiPatterns({
+        features: featureTypes,
+        material_iso: input.material_iso_group,
+      });
+      for (const r of antiPatterns) {
+        playbookSuggestions.push(`${r.id}: ${r.title} — ${r.rule}`);
+      }
+    } catch { /* playbook not available */ }
+
     return {
       part_name: input.part_name,
       material: `${input.material_name || input.material_iso_group}`,
@@ -249,6 +271,9 @@ export class ProcessPlanEngine {
       operations,
       tool_list: Array.from(toolSet),
       setup_summary: [{ setup: 1, description: "Main setup — top face access", operations: operations.length }],
+      playbook_warnings: playbookWarnings.length > 0 ? playbookWarnings : undefined,
+      playbook_suggestions: playbookSuggestions.length > 0 ? playbookSuggestions : undefined,
+      recommended_order: recommendedOrder.length > 0 ? recommendedOrder : undefined,
     };
   }
 
