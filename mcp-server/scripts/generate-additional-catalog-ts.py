@@ -12,30 +12,34 @@ sources = [
     ("korloy-tools-extracted.json", "Korloy"),
     ("unknown_solid-tools-extracted.json", "Generic"),
     ("rapidkut-tools-extracted.json", "Rapidkut"),
+    ("yg1-tools-extracted.json", "YG-1"),
+    ("accupro-tools-extracted.json", "Accupro"),
 ]
 
 all_tools = []
+seen = set()
 for fn, mfg in sources:
     fp = os.path.join(data_path, fn)
-    if os.path.exists(fp):
-        with open(fp) as f:
-            tools = json.load(f)
-        if tools:
-            for t in tools:
-                t["manufacturer"] = mfg
-            all_tools.extend(tools)
-            print(f"{mfg}: {len(tools)} tools")
-
-# Check YG-1 if available
-yg_path = os.path.join(data_path, "yg-1-tools-extracted.json")
-if os.path.exists(yg_path):
-    with open(yg_path) as f:
-        yg_tools = json.load(f)
-    if yg_tools:
-        for t in yg_tools:
-            t["manufacturer"] = "YG-1"
-        all_tools.extend(yg_tools)
-        print(f"YG-1: {len(yg_tools)} tools")
+    if not os.path.exists(fp):
+        continue
+    with open(fp) as f:
+        tools = json.load(f)
+    count = 0
+    for t in tools:
+        t["manufacturer"] = mfg
+        # Ensure required fields exist
+        if "cutting_diameter_mm" not in t or not t["cutting_diameter_mm"]:
+            continue
+        if "shank_diameter_mm" not in t:
+            t["shank_diameter_mm"] = t["cutting_diameter_mm"]
+        desig = t.get("designation", "")
+        key = f"{mfg}-{desig}"
+        if key in seen:
+            continue
+        seen.add(key)
+        all_tools.append(t)
+        count += 1
+    print(f"{mfg}: {count} tools")
 
 print(f"\nTotal: {len(all_tools)} tools")
 

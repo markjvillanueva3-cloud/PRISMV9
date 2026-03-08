@@ -1330,7 +1330,8 @@ export class ToolCatalogEngine {
       const prefix = it.manufacturer === "ISCAR" ? "ISC" :
                      it.manufacturer === "Kennametal" ? "KEN" :
                      it.manufacturer === "Korloy" ? "KOR" :
-                     it.manufacturer === "Allied" ? "ALD" : "IDX";
+                     it.manufacturer === "Allied" ? "ALD" :
+                     it.manufacturer === "CAMFIX" ? "CFX" : "IDX";
       const id = `${prefix}-${it.designation}`;
       if (this.tools.has(id)) continue;
 

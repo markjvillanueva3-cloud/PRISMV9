@@ -39,6 +39,10 @@ tool_sources = {
     "ISCAR": ("iscar-tools-extracted.json", "indexable-tool-catalog.ts"),
     "Korloy_Rotating": ("korloy-rotating-extracted.json", "indexable-tool-catalog.ts"),
     "Allied": ("ampc-tools-extracted.json", "indexable-tool-catalog.ts"),
+    "CAMFIX": ("camfix-tools-extracted.json", "indexable-tool-catalog.ts"),
+    "ISCAR_Turning": ("iscar-turning-extracted.json", "indexable-tool-catalog.ts"),
+    "YG1": ("yg1-tools-extracted.json", "additional-tool-catalog.ts"),
+    "Accupro": ("accupro-tools-extracted.json", "additional-tool-catalog.ts"),
 }
 
 all_tools = []

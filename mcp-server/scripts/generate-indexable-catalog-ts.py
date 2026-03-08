@@ -16,9 +16,11 @@ sources = [
     ("kennametal-turning-extracted.json", "Kennametal"),
     ("kennametal-threading-extracted.json", "Kennametal"),
     ("iscar-tools-extracted.json", "ISCAR"),
+    ("iscar-turning-extracted.json", "ISCAR"),
     ("korloy-rotating-extracted.json", "Korloy"),
     ("korloy-turning-extracted.json", "Korloy"),
     ("ampc-tools-extracted.json", "Allied"),
+    ("camfix-tools-extracted.json", "CAMFIX"),
 ]
 
 all_tools = []
@@ -74,6 +76,7 @@ lines.append("  height_mm?: number;")
 lines.append("  width_mm?: number;")
 lines.append("  wf_mm?: number;")
 lines.append("  effective_cutting_depth_mm?: number;")
+lines.append("  capto_size?: number;")
 lines.append("}")
 lines.append("")
 lines.append("export const INDEXABLE_TOOLS: IndexableTool[] = [")
@@ -89,7 +92,8 @@ for t in all_tools:
                  "max_depth_of_cut_mm", "flute_length_mm", "insert_count",
                  "approach_angle_deg", "corner_radius_mm", "inscribed_circle_mm",
                  "thickness_mm", "bore_diameter_mm", "projection_length_mm",
-                 "height_mm", "width_mm", "wf_mm", "effective_cutting_depth_mm"]:
+                 "height_mm", "width_mm", "wf_mm", "effective_cutting_depth_mm",
+                 "capto_size"]:
         if t.get(key) is not None:
             parts.append(f'{key}:{t[key]}')
     if t.get("insert_designation"):
