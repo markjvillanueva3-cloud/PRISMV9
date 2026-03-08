@@ -2947,3 +2947,7 @@ export { WaterHammerEngine, waterHammerEngine } from "./WaterHammerEngine.js";
 export { WeldingEngine, weldingEngine } from './WeldingEngine.js';
 export { ScrollCompressorEngine, scrollCompressorEngine } from './ScrollCompressorEngine.js';
 export { CoriolisFlowMeterEngine, coriolisFlowMeterEngine } from './CoriolisFlowMeterEngine.js';
+
+export { DrumBrakeEngine, drumBrakeEngine } from './DrumBrakeEngine.js';
+export { ShockAbsorberEngine, shockAbsorberEngine } from './ShockAbsorberEngine.js';
+export { UltrasonicFlowMeterEngine, ultrasonicFlowMeterEngine } from './UltrasonicFlowMeterEngine.js';
