@@ -2959,3 +2959,7 @@ export { UltrasonicFlowMeterEngine, ultrasonicFlowMeterEngine } from './Ultrason
 export { BoltedJointEngine, boltedJointEngine } from './BoltedJointEngine.js';
 export { AdhesiveBondingEngine, adhesiveBondingEngine } from './AdhesiveBondingEngine.js';
 export { CathodicProtectionEngine, cathodicProtectionEngine } from './CathodicProtectionEngine.js';
+
+export { RackPinionEngine, rackPinionEngine } from './RackPinionEngine.js';
+export { LeadScrewEngine, leadScrewEngine } from './LeadScrewEngine.js';
+export { PropellerEngine, propellerEngine } from './PropellerEngine.js';
