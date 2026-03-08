@@ -2691,6 +2691,9 @@ export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.
 // Bolt Torque Engine � torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
+// Cutter Contact Engine — analytical CC point computation [CAMK-MS0/U03]
+export { cutterContactEngine, type CCPoint, type CCResult, type CCInput } from "./CutterContactEngine.js";
+
 // Algorithm Selector Engine — auto-select best novel algorithm per zone [CAMK-MS0/U02]
 export { algorithmSelectorEngine, type NovelAlgorithmId, type AlgorithmSelectionInput, type AlgorithmSelectionResult, type AlgorithmRecommendation } from "./AlgorithmSelectorEngine.js";
 
