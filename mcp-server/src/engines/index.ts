@@ -2879,6 +2879,10 @@ export { GDTStackupEngine, gdtStackupEngine } from "./GDTStackupEngine.js";
 export type { StackupInput, StackupResult } from "./GDTStackupEngine.js";
 export { RunoutEffectEngine, runoutEffectEngine } from "./RunoutEffectEngine.js";
 export type { RunoutInput, RunoutResult } from "./RunoutEffectEngine.js";
+export { ProcessDigitalTwinEngine, processDigitalTwinEngine } from "./ProcessDigitalTwinEngine.js";
+export type { DigitalTwinInput, CoupledPrediction } from "./ProcessDigitalTwinEngine.js";
+export { ProcessRobustnessEngine, processRobustnessEngine } from "./ProcessRobustnessEngine.js";
+export type { RobustnessInput, RobustnessResult } from "./ProcessRobustnessEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2951,3 +2955,7 @@ export { CoriolisFlowMeterEngine, coriolisFlowMeterEngine } from './CoriolisFlow
 export { DrumBrakeEngine, drumBrakeEngine } from './DrumBrakeEngine.js';
 export { ShockAbsorberEngine, shockAbsorberEngine } from './ShockAbsorberEngine.js';
 export { UltrasonicFlowMeterEngine, ultrasonicFlowMeterEngine } from './UltrasonicFlowMeterEngine.js';
+
+export { BoltedJointEngine, boltedJointEngine } from './BoltedJointEngine.js';
+export { AdhesiveBondingEngine, adhesiveBondingEngine } from './AdhesiveBondingEngine.js';
+export { CathodicProtectionEngine, cathodicProtectionEngine } from './CathodicProtectionEngine.js';
