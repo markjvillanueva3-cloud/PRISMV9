@@ -66,7 +66,8 @@ export function registerToolpathDispatcher(server: any): void {
         "surface_finish_predict",
         "cycle_time_estimate",
         "rest_machining",
-        "operation_sequence"
+        "operation_sequence",
+        "transition_path"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -317,6 +318,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "operation_sequence": {
             const { operationSequencerEngine } = await import("../../engines/OperationSequencerEngine.js");
             result = operationSequencerEngine.sequence(params as ValidatedParams);
+            break;
+          }
+
+          case "transition_path": {
+            const { transitionPathEngine } = await import("../../engines/TransitionPathEngine.js");
+            result = transitionPathEngine.plan(params as ValidatedParams);
             break;
           }
 

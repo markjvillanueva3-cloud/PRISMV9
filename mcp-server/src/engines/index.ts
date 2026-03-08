@@ -2264,6 +2264,7 @@ export { surfaceFinishPredictorEngine, SurfaceFinishPredictorEngine } from "./Su
 export { cycleTimeAccuracyEngine, CycleTimeAccuracyEngine } from "./CycleTimeAccuracyEngine.js";
 export { restMachiningEngine, RestMachiningEngine } from "./RestMachiningEngine.js";
 export { operationSequencerEngine, OperationSequencerEngine } from "./OperationSequencerEngine.js";
+export { transitionPathEngine, TransitionPathEngine } from "./TransitionPathEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
