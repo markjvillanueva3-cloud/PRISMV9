@@ -3116,3 +3116,7 @@ export { thermoelectricEngine, ThermoelectricEngine } from "./ThermoelectricEngi
 export { electrospinningEngine, ElectrospinningEngine } from "./ElectrospinningEngine.js";
 export { freezeDryingEngine, FreezeDryingEngine } from "./FreezeDryingEngine.js";
 export { plasmaCuttingEngine, PlasmaCuttingEngine } from "./PlasmaCuttingEngine.js";
+
+export { LaserWeldingEngine, laserWeldingEngine } from "./LaserWeldingEngine.js";
+export { FrictionStirWeldingEngine, frictionStirWeldingEngine } from "./FrictionStirWeldingEngine.js";
+export { EBWeldingEngine, ebWeldingEngine } from "./EBWeldingEngine.js";
