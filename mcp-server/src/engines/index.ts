@@ -3140,3 +3140,7 @@ export { GranulationProcessEngine, granulationProcessEngine } from "./Granulatio
 export { RotationalMoldingEngine, rotationalMoldingEngine } from "./RotationalMoldingEngine.js";
 export { ScrewExtrusionEngine, screwExtrusionEngine } from "./ScrewExtrusionEngine.js";
 export { CompressionMoldingEngine, compressionMoldingEngine } from "./CompressionMoldingEngine.js";
+
+export { VibratoryFeederEngine, vibratoryFeederEngine } from "./VibratoryFeederEngine.js";
+export { PneumaticConveyingEngine, pneumaticConveyingEngine } from "./PneumaticConveyingEngine.js";
+export { ElectrostaticPrecipitatorEngine, electrostaticPrecipitatorEngine } from "./ElectrostaticPrecipitatorEngine.js";
