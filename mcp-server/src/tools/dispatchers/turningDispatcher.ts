@@ -33,7 +33,7 @@ async function getEngine(name: string): Promise<any> {
 const ACTIONS = [
   "chuck_force", "tailstock", "steady_rest",
   "live_tool", "bar_pull", "thread_single_point",
-  "part_off_force",
+  "part_off_force", "thread_turning_calc",
 ] as const;
 
 /** Registers turning dispatcher.

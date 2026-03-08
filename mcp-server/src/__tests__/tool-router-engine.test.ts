@@ -135,5 +135,35 @@ describe("ToolRouterEngine", () => {
       const r = router.route("batch multiple actions");
       expect(r.some(x => x.target === "BatchQueryEngine")).toBe(true);
     });
+
+    it("routes boring bar to calcDispatcher", () => {
+      const r = router.route("boring bar deflection L/D ratio");
+      expect(r.some(x => x.target === "calcDispatcher" && x.action === "boring_bar_calc")).toBe(true);
+    });
+
+    it("routes chatter prediction to calcDispatcher", () => {
+      const r = router.route("stability lobe chatter prediction");
+      expect(r.some(x => x.target === "calcDispatcher" && x.action === "machine_vibration_calc")).toBe(true);
+    });
+
+    it("routes broaching to calcDispatcher", () => {
+      const r = router.route("broaching keyway broach force");
+      expect(r.some(x => x.target === "calcDispatcher" && x.action === "broaching_calc")).toBe(true);
+    });
+
+    it("routes fatigue life to calcDispatcher", () => {
+      const r = router.route("fatigue life s-n curve goodman diagram");
+      expect(r.some(x => x.target === "calcDispatcher" && x.action === "fatigue_life_calc")).toBe(true);
+    });
+
+    it("routes spindle load monitor to safetyDispatcher", () => {
+      const r = router.route("spindle load monitor breakage detection");
+      expect(r.some(x => x.target === "safetyDispatcher" && x.action === "spindle_load_monitor")).toBe(true);
+    });
+
+    it("routes master post processor to camDispatcher", () => {
+      const r = router.route("master post processor multi cam gcode");
+      expect(r.some(x => x.target === "camDispatcher" && x.action === "master_post_process")).toBe(true);
+    });
   });
 });

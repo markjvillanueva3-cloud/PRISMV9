@@ -171,7 +171,7 @@ const ACTIONS = [
   "motion_trapezoidal", "motion_scurve", "motion_corner_velocity", "motion_look_ahead",
   "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
-  "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition",
+  "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1191,6 +1191,14 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          case "master_post_process": {
+            const { masterPostProcessorEngine } = await import("../../engines/MasterPostProcessorEngine.js");
+            result = masterPostProcessorEngine.process(
+              (params as any).segments || [],
+              params as any
+            );
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }

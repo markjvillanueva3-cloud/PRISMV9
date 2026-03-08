@@ -62,7 +62,7 @@ const COOLANT_ACTIONS = new Set([
 
 const SPINDLE_ACTIONS = new Set([
   "check_spindle_torque", "check_spindle_power", "validate_spindle_speed",
-  "monitor_spindle_thermal", "get_spindle_safe_envelope"
+  "monitor_spindle_thermal", "get_spindle_safe_envelope", "spindle_load_monitor"
 ]);
 
 const BREAKAGE_ACTIONS = new Set([

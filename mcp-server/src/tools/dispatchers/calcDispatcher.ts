@@ -427,7 +427,7 @@ const ACTIONS = [
   "archard_wear", "wear_force_correction", "thermal_deflection",
   "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
   "machine_recommend", "machine_compare", "machine_validate",
-  "tool_select_recommend", "tool_select_compare", "tool_select_alternatives",
+  "tool_select_recommend", "tool_select_compare", "tool_select_alternatives", "tool_unified_search",
   "tool_crib_checkout", "tool_crib_checkin", "tool_crib_inventory", "tool_crib_reorder",
   "toolholder_frf", "toolholder_compare",
   "machinability_rate", "machinability_compare",
@@ -621,6 +621,20 @@ const ACTIONS = [
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
   "cutting_fluid_select", "spindle_bearing_load", "micro_machining_calc",
+  // ── Batch 98-105: Manufacturing Process Engines ──
+  "laser_welding_calc", "friction_stir_welding_calc", "eb_welding_calc",
+  "vacuum_casting_calc", "centrifugal_casting_calc", "thin_film_deposition_calc",
+  "cvd_calc", "ion_implantation_calc", "sputtering_calc",
+  "evaporator_process_calc", "spray_drying_calc", "granulation_calc",
+  "rotational_molding_calc", "screw_extrusion_calc", "compression_molding_calc",
+  "vibratory_feeder_calc", "pneumatic_conveying_calc", "electrostatic_precipitator_calc",
+  "resistance_welding_calc", "soldering_calc", "brazing_calc",
+  "electroplating_calc", "thermal_spray_calc", "photochemical_etching_calc",
+  // ── Batch 106: CNC Core Engines ──
+  "boring_bar_calc", "part_deflection_calc", "setup_reduction_calc",
+  "machine_vibration_calc", "runout_compensation_calc", "axis_compensation_calc",
+  "tool_presetting_calc", "broaching_calc", "fatigue_life_calc",
+  "injection_molding_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1557,6 +1571,29 @@ export function registerCalcDispatcher(server: any): void {
           case "tool_select_alternatives": {
             const { toolSelectionEngine } = await import("../../engines/ToolSelectionEngine.js");
             result = toolSelectionEngine.alternatives(params.tool_id ?? "", params as ValidatedParams);
+            break;
+          }
+          case "tool_unified_search": {
+            const { toolCatalogEngine } = await import("../../engines/ToolCatalogEngine.js");
+            const catalogResults = toolCatalogEngine.search({
+              type: params.type,
+              diameter_mm: params.diameter_mm,
+              diameter_range: params.diameter_range,
+              iso_group: params.iso_group,
+              manufacturer: params.manufacturer,
+              operation: params.operation,
+              coating: params.coating,
+              flute_count: params.flute_count,
+              max_results: params.max_results ?? 10,
+            });
+            result = {
+              tools: catalogResults,
+              total: catalogResults.length,
+              query: {
+                type: params.type, diameter_mm: params.diameter_mm,
+                iso_group: params.iso_group, manufacturer: params.manufacturer,
+              },
+            };
             break;
           }
 
@@ -4388,6 +4425,187 @@ export function registerCalcDispatcher(server: any): void {
           case "micro_machining_calc": {
             const { microMachiningEngine } = await import("../../engines/MicroMachiningEngine.js");
             result = microMachiningEngine.microMill(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 98: Welding Processes ──
+          case "laser_welding_calc": {
+            const { laserWeldingEngine } = await import("../../engines/LaserWeldingEngine.js");
+            result = laserWeldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "friction_stir_welding_calc": {
+            const { frictionStirWeldingEngine } = await import("../../engines/FrictionStirWeldingEngine.js");
+            result = frictionStirWeldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "eb_welding_calc": {
+            const { ebWeldingEngine } = await import("../../engines/EBWeldingEngine.js");
+            result = ebWeldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 99: Casting & Deposition ──
+          case "vacuum_casting_calc": {
+            const { vacuumCastingEngine } = await import("../../engines/VacuumCastingEngine.js");
+            result = vacuumCastingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "centrifugal_casting_calc": {
+            const { centrifugalCastingEngine } = await import("../../engines/CentrifugalCastingEngine.js");
+            result = centrifugalCastingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "thin_film_deposition_calc": {
+            const { thinFilmDepositionEngine } = await import("../../engines/ThinFilmDepositionEngine.js");
+            result = thinFilmDepositionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 100: Vapor Deposition & Ion Processes ──
+          case "cvd_calc": {
+            const { chemicalVaporDepositionEngine } = await import("../../engines/ChemicalVaporDepositionEngine.js");
+            result = chemicalVaporDepositionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "ion_implantation_calc": {
+            const { ionImplantationEngine } = await import("../../engines/IonImplantationEngine.js");
+            result = ionImplantationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "sputtering_calc": {
+            const { sputteringProcessEngine } = await import("../../engines/SputteringProcessEngine.js");
+            result = sputteringProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 101: Evaporation & Granulation ──
+          case "evaporator_process_calc": {
+            const { evaporatorProcessEngine } = await import("../../engines/EvaporatorProcessEngine.js");
+            result = evaporatorProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spray_drying_calc": {
+            const { sprayDryingEngine } = await import("../../engines/SprayDryingEngine.js");
+            result = sprayDryingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "granulation_calc": {
+            const { granulationProcessEngine } = await import("../../engines/GranulationProcessEngine.js");
+            result = granulationProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 102: Polymer Processing ──
+          case "rotational_molding_calc": {
+            const { rotationalMoldingEngine } = await import("../../engines/RotationalMoldingEngine.js");
+            result = rotationalMoldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "screw_extrusion_calc": {
+            const { screwExtrusionEngine } = await import("../../engines/ScrewExtrusionEngine.js");
+            result = screwExtrusionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "compression_molding_calc": {
+            const { compressionMoldingEngine } = await import("../../engines/CompressionMoldingEngine.js");
+            result = compressionMoldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 103: Material Handling ──
+          case "vibratory_feeder_calc": {
+            const { vibratoryFeederEngine } = await import("../../engines/VibratoryFeederEngine.js");
+            result = vibratoryFeederEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pneumatic_conveying_calc": {
+            const { pneumaticConveyingEngine } = await import("../../engines/PneumaticConveyingEngine.js");
+            result = pneumaticConveyingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "electrostatic_precipitator_calc": {
+            const { electrostaticPrecipitatorEngine } = await import("../../engines/ElectrostaticPrecipitatorEngine.js");
+            result = electrostaticPrecipitatorEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 104: Joining Processes ──
+          case "resistance_welding_calc": {
+            const { resistanceWeldingEngine } = await import("../../engines/ResistanceWeldingEngine.js");
+            result = resistanceWeldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "soldering_calc": {
+            const { solderingProcessEngine } = await import("../../engines/SolderingProcessEngine.js");
+            result = solderingProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "brazing_calc": {
+            const { brazingProcessEngine } = await import("../../engines/BrazingProcessEngine.js");
+            result = brazingProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 105: Surface Treatment ──
+          case "electroplating_calc": {
+            const { electroplatingEngine } = await import("../../engines/ElectroPlatingEngine.js");
+            result = electroplatingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "thermal_spray_calc": {
+            const { thermalSprayEngine } = await import("../../engines/ThermalSprayEngine.js");
+            result = thermalSprayEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "photochemical_etching_calc": {
+            const { photochemicalEtchingEngine } = await import("../../engines/PhotochemicalEtchingEngine.js");
+            result = photochemicalEtchingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 106: CNC Core Engines ──
+          case "boring_bar_calc": {
+            const { boringBarEngine } = await import("../../engines/BoringBarEngine.js");
+            result = boringBarEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "part_deflection_calc": {
+            const { partDeflectionEngine } = await import("../../engines/PartDeflectionEngine.js");
+            result = partDeflectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "setup_reduction_calc": {
+            const { setupReductionEngine } = await import("../../engines/SetupReductionEngine.js");
+            result = setupReductionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "machine_vibration_calc": {
+            const { machineVibrationEngine } = await import("../../engines/MachineVibrationEngine.js");
+            result = machineVibrationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "runout_compensation_calc": {
+            const { runoutCompensationEngine } = await import("../../engines/RunoutCompensationEngine.js");
+            result = runoutCompensationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "axis_compensation_calc": {
+            const { axisCompensationEngine } = await import("../../engines/AxisCompensationEngine.js");
+            result = axisCompensationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_presetting_calc": {
+            const { toolPresettingEngine } = await import("../../engines/ToolPresettingEngine.js");
+            result = toolPresettingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "broaching_calc": {
+            const { broachingEngine } = await import("../../engines/BroachingEngine.js");
+            result = broachingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "fatigue_life_calc": {
+            const { fatigueLifeEngine } = await import("../../engines/FatigueLifeEngine.js");
+            result = fatigueLifeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "injection_molding_calc": {
+            const { injectionMoldingEngine } = await import("../../engines/InjectionMoldingEngine.js");
+            result = injectionMoldingEngine.calculate(params as ValidatedParams);
             break;
           }
 

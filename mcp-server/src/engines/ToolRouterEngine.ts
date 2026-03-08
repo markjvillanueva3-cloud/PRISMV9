@@ -194,6 +194,21 @@ const ROUTE_PATTERNS: RoutePattern[] = [
 
   // Orchestration / workflow
   { keywords: ["workflow orchestrate", "pipeline run", "chain actions", "orchestrate"], route: "dispatcher", target: "orchestrationDispatcher", action: "orchestrate", reason: "Multi-step workflow orchestration", estimatedTokens: 400 },
+
+  // ── Batch 106: CNC Core Engine Routes ──
+  { keywords: ["boring bar", "boring deflection", "boring operation", "line boring"], route: "dispatcher", target: "calcDispatcher", action: "boring_bar_calc", reason: "Boring bar selection & deflection (L/D, δ=FL³/3EI)", estimatedTokens: 200 },
+  { keywords: ["part deflection", "workpiece deflection", "thin wall", "cantilever deflection"], route: "dispatcher", target: "calcDispatcher", action: "part_deflection_calc", reason: "Workpiece deflection under cutting loads", estimatedTokens: 200 },
+  { keywords: ["setup reduction", "smed", "setup time", "quick change", "changeover"], route: "dispatcher", target: "calcDispatcher", action: "setup_reduction_calc", reason: "SMED setup time reduction analysis", estimatedTokens: 200 },
+  { keywords: ["machine vibration", "chatter prediction", "stability lobe", "regenerative chatter"], route: "dispatcher", target: "calcDispatcher", action: "machine_vibration_calc", reason: "Stability lobe & chatter prediction", estimatedTokens: 250 },
+  { keywords: ["runout compensation", "tir", "total indicator reading", "runout effect"], route: "dispatcher", target: "calcDispatcher", action: "runout_compensation_calc", reason: "TIR stack-up & compensation", estimatedTokens: 200 },
+  { keywords: ["axis compensation", "thermal growth", "backlash compensation", "leadscrew error", "pitch error"], route: "dispatcher", target: "calcDispatcher", action: "axis_compensation_calc", reason: "Machine axis error compensation", estimatedTokens: 200 },
+  { keywords: ["tool presetting", "tool offset", "tool measurement", "presetter"], route: "dispatcher", target: "calcDispatcher", action: "tool_presetting_calc", reason: "Tool presetting with thermal correction", estimatedTokens: 200 },
+  { keywords: ["broaching", "broach force", "keyway broach", "pull broach", "push broach"], route: "dispatcher", target: "calcDispatcher", action: "broaching_calc", reason: "Broaching force & cycle time", estimatedTokens: 200 },
+  { keywords: ["fatigue life", "s-n curve", "goodman diagram", "endurance limit", "fatigue analysis"], route: "dispatcher", target: "calcDispatcher", action: "fatigue_life_calc", reason: "S-N fatigue life (Goodman/Gerber/Miner)", estimatedTokens: 250 },
+  { keywords: ["injection molding", "injection mold", "clamp force", "shot volume", "cooling time"], route: "dispatcher", target: "calcDispatcher", action: "injection_molding_calc", reason: "Injection molding process calc", estimatedTokens: 250 },
+  { keywords: ["spindle load monitor", "load threshold", "breakage detection", "spindle overload"], route: "dispatcher", target: "safetyDispatcher", action: "spindle_load_monitor", reason: "Spindle load monitoring thresholds", estimatedTokens: 200 },
+  { keywords: ["thread turning", "lathe threading", "thread pass schedule", "thread infeed"], route: "dispatcher", target: "turningDispatcher", action: "thread_turning_calc", reason: "Thread turning pass schedule", estimatedTokens: 200 },
+  { keywords: ["master post processor", "multi cam post", "unified post", "cross cam gcode"], route: "dispatcher", target: "camDispatcher", action: "master_post_process", reason: "Mixed-CAM unified G-code synthesis", estimatedTokens: 500 },
 ];
 
 export class ToolRouterEngine {
