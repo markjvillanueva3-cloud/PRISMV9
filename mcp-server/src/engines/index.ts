@@ -2261,6 +2261,7 @@ export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_A
 export { novelToolpathSimulatorEngine } from "./NovelToolpathSimulatorEngine.js";
 export { collisionIntegrationEngine } from "./CollisionIntegrationEngine.js";
 export { surfaceFinishPredictorEngine, SurfaceFinishPredictorEngine } from "./SurfaceFinishPredictorEngine.js";
+export { cycleTimeAccuracyEngine, CycleTimeAccuracyEngine } from "./CycleTimeAccuracyEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
@@ -3106,3 +3107,7 @@ export { peristalticPumpEngine, PeristalticPumpEngine } from "./PeristalticPumpE
 export { progressiveCavityPumpEngine, ProgressiveCavityPumpEngine } from "./ProgressiveCavityPumpEngine.js";
 export { axialPistonPumpEngine, AxialPistonPumpEngine } from "./AxialPistonPumpEngine.js";
 export { thickenerEngine, ThickenerEngine } from "./ThickenerEngine.js";
+
+export { balancingMachineEngine, BalancingMachineEngine } from "./BalancingMachineEngine.js";
+export { rocketNozzleEngine, RocketNozzleEngine } from "./RocketNozzleEngine.js";
+export { thermoelectricEngine, ThermoelectricEngine } from "./ThermoelectricEngine.js";
