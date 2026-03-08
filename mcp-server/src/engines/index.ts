@@ -3101,3 +3101,7 @@ export { nitridingProcessEngine, NitridingProcessEngine } from "./NitridingProce
 export { pultrusionProcessEngine, PultrusionProcessEngine } from "./PultrusionProcessEngine.js";
 export { autoclaveProcessEngine, AutoclaveProcessEngine } from "./AutoclaveProcessEngine.js";
 export { peristalticPumpEngine, PeristalticPumpEngine } from "./PeristalticPumpEngine.js";
+
+export { progressiveCavityPumpEngine, ProgressiveCavityPumpEngine } from "./ProgressiveCavityPumpEngine.js";
+export { axialPistonPumpEngine, AxialPistonPumpEngine } from "./AxialPistonPumpEngine.js";
+export { thickenerEngine, ThickenerEngine } from "./ThickenerEngine.js";
