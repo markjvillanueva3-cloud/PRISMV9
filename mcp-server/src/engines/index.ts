@@ -2852,6 +2852,12 @@ export { AdaptiveEngagementEngine, adaptiveEngagementEngine } from "./AdaptiveEn
 export type { CornerGeometry, EngagementInput, EngagementResult } from "./AdaptiveEngagementEngine.js";
 export { HybridPostMergeEngine, hybridPostMergeEngine } from "./HybridPostMergeEngine.js";
 export type { PostSegment, MergeInput, MergeResult } from "./HybridPostMergeEngine.js";
+export { ThermalCompensationModelEngine, thermalCompensationModelEngine } from "./ThermalCompensationModelEngine.js";
+export type { ThermalInput, ThermalResult } from "./ThermalCompensationModelEngine.js";
+export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCProcessCapabilityEngine.js";
+export type { SPCInput, SPCResult } from "./SPCProcessCapabilityEngine.js";
+export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";
+export type { ParetoInput, ParetoResult, ParetoSolution } from "./MultiObjectiveParetoEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2877,3 +2883,6 @@ export { valveDesignEngine, ValveDesignEngine } from "./ValveDesignEngine.js";
 export { pipeSizingEngine, PipeSizingEngine } from "./PipeSizingEngine.js";
 export { flangeBoltEngine, FlangeBoltEngine } from "./FlangeBoltEngine.js";
 export { tankDesignEngine, TankDesignEngine } from "./TankDesignEngine.js";
+export { CycloneSeparatorEngine, cycloneSeparatorEngine } from "./CycloneSeparatorEngine.js";
+export { ScrewConveyorEngine, screwConveyorEngine } from "./ScrewConveyorEngine.js";
+export { BucketElevatorEngine, bucketElevatorEngine } from "./BucketElevatorEngine.js";
