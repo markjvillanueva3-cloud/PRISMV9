@@ -17,8 +17,16 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_PRODUCT_SCHEMAS } from "../../schemas/productActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
+
+/** Action string is validated by Zod enum but `.includes()` needs wider type */
+type ActionString = string;
 
 // Lazy engine cache
 let _productSFC: any, _productPPG: any, _productShop: any, _productACNC: any;
@@ -46,7 +54,7 @@ const SFC_ACTIONS = [
 const PPG_ACTIONS = [
   "ppg_validate", "ppg_translate", "ppg_templates", "ppg_generate",
   "ppg_controllers", "ppg_compare", "ppg_syntax", "ppg_batch",
-  "ppg_history", "ppg_get",
+  "ppg_history", "ppg_get", "ppg_feature_select",
 ] as const;
 
 const SHOP_ACTIONS = [
@@ -117,6 +125,8 @@ function productExtractKeyValues(action: string, result: any): Record<string, an
       return { entries: result.history?.length };
     case "ppg_get":
       return { product: result.product, version: result.version };
+    case "ppg_feature_select":
+      return { features: result.selected_features?.length, confidence: result.confidence, cycle_time_pct: result.estimated_improvement?.cycle_time_pct, safety: result.estimated_improvement?.safety_score };
     // Shop Manager
     case "shop_job":
       return { material: result.material, operations: result.operations?.length, cycle_time_min: result.total_cycle_time_min };
@@ -198,7 +208,7 @@ export function registerProductDispatcher(server: any): void {
           target: { type: "product" as const, id: action, data: params },
           metadata: { dispatcher: "productDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
@@ -207,20 +217,66 @@ export function registerProductDispatcher(server: any): void {
           };
         }
 
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_PRODUCT_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_product"
+          );
+        }
+
         // Route to engine
-        const result = SFC_ACTIONS.includes(action as any)
+        let result;
+        if (action === "ppg_feature_select") {
+          const { postSelectionEngine } = await import("../../engines/PostSelectionEngine.js");
+          result = postSelectionEngine.compute({
+            machine: {
+              controller: params.controller || "fanuc",
+              max_rpm: params.max_rpm || 12000,
+              spindle_power_kw: params.spindle_power_kw || 15,
+              axis_count: params.axis_count || 3,
+              has_tsc: params.has_tsc ?? false,
+              has_probing: params.has_probing ?? false,
+              has_rigid_tapping: params.has_rigid_tapping ?? true,
+              taper: params.taper || "BT40",
+            },
+            part: {
+              complexity: params.complexity || "moderate",
+              tolerance_mm: params.tolerance_mm || 0.05,
+              surface_finish_target_um: params.surface_finish_target_um || 3.2,
+              has_deep_pockets: params.has_deep_pockets ?? false,
+              has_thin_walls: params.has_thin_walls ?? false,
+              has_tight_corners: params.has_tight_corners ?? false,
+              max_depth_mm: params.max_depth_mm || 20,
+              estimated_cycle_time_min: params.estimated_cycle_time_min || 30,
+            },
+            material: {
+              iso_group: params.iso_group || params.material_iso_group || "P",
+              hardness_hrc: params.hardness_hrc,
+              thermal_sensitivity: params.thermal_sensitivity || "medium",
+            },
+            cam_source: params.cam_source || "generic",
+            operation_type: params.operation_type || "roughing",
+            tool_count: params.tool_count || 6,
+            production_volume: params.production_volume || "medium",
+          });
+        } else {
+          result = SFC_ACTIONS.includes(action as ActionString as typeof SFC_ACTIONS[number])
           ? await (await getProductEngine("productSFC"))(action, params)
-          : PPG_ACTIONS.includes(action as any)
+          : PPG_ACTIONS.includes(action as ActionString as typeof PPG_ACTIONS[number])
           ? await (await getProductEngine("productPPG"))(action, params)
-          : SHOP_ACTIONS.includes(action as any)
+          : SHOP_ACTIONS.includes(action as ActionString as typeof SHOP_ACTIONS[number])
           ? await (await getProductEngine("productShop"))(action, params)
           : await (await getProductEngine("productACNC"))(action, params);
+        }
 
         // Post-hooks
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // Response formatting
         if (params.response_level) {

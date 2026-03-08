@@ -2843,7 +2843,7 @@ export type { CrossCamInput, CrossCamRecommendation, StrategyCandidate, CamSyste
 export { ConstraintSatisfactionEngine, constraintSatisfactionEngine } from "./ConstraintSatisfactionEngine.js";
 export type { MachiningConstraints, MachiningParameters, MachineCapability, ConstraintSatisfactionResult } from "./ConstraintSatisfactionEngine.js";
 export { PostSelectionEngine, postSelectionEngine } from "./PostSelectionEngine.js";
-export type { JobContext, PostFeature, PostSelectionResult } from "./PostSelectionEngine.js";
+export type { JobContext as PostJobContext, PostFeature, PostSelectionResult } from "./PostSelectionEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
