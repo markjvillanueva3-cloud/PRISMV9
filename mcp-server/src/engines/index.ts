@@ -3065,3 +3065,9 @@ export { AssignmentProblemEngine, assignmentProblemEngine } from './AssignmentPr
 export type { AssignmentProblemInput, AssignmentProblemResult } from './AssignmentProblemEngine.js';
 export { MarkovDecisionEngine, markovDecisionEngine } from './MarkovDecisionEngine.js';
 export type { MarkovDecisionInput, MarkovDecisionResult } from './MarkovDecisionEngine.js';
+export { PowderCompactionEngine, powderCompactionEngine } from './PowderCompactionEngine.js';
+export type { PowderCompactionInput, PowderCompactionResult, PowderMaterial, CompactionType } from './PowderCompactionEngine.js';
+export { SinteringProcessEngine, sinteringProcessEngine } from './SinteringProcessEngine.js';
+export type { SinteringProcessInput, SinteringProcessResult, SinterAtmosphere, SinterMaterial } from './SinteringProcessEngine.js';
+export { SprayDryerEngine, sprayDryerEngine } from './SprayDryerEngine.js';
+export type { SprayDryerInput, SprayDryerResult, AtomizerType, FlowConfig } from './SprayDryerEngine.js';
