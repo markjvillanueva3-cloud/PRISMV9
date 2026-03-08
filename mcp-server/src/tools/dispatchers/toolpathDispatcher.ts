@@ -64,7 +64,8 @@ export function registerToolpathDispatcher(server: any): void {
         "stock_simulate",
         "collision_check",
         "surface_finish_predict",
-        "cycle_time_estimate"
+        "cycle_time_estimate",
+        "rest_machining"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -303,6 +304,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "cycle_time_estimate": {
             const { cycleTimeAccuracyEngine } = await import("../../engines/CycleTimeAccuracyEngine.js");
             result = cycleTimeAccuracyEngine.estimate(params as ValidatedParams);
+            break;
+          }
+
+          case "rest_machining": {
+            const { restMachiningEngine } = await import("../../engines/RestMachiningEngine.js");
+            result = restMachiningEngine.analyze(params as ValidatedParams);
             break;
           }
 
