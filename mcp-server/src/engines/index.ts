@@ -3149,6 +3149,27 @@ export { ResistanceWeldingEngine, resistanceWeldingEngine } from "./ResistanceWe
 export { SolderingProcessEngine, solderingProcessEngine } from "./SolderingProcessEngine.js";
 export { BrazingProcessEngine, brazingProcessEngine } from "./BrazingProcessEngine.js";
 
-export { ElectroplatingEngine, electroplatingEngine } from "./ElectroplatingEngine.js";
 export { ThermalSprayEngine, thermalSprayEngine } from "./ThermalSprayEngine.js";
 export { PhotochemicalEtchingEngine, photochemicalEtchingEngine } from "./PhotochemicalEtchingEngine.js";
+
+// SCI-MS1 — Adaptive Control
+export { AdaptiveFeedControlEngine, adaptiveFeedControlEngine } from "./AdaptiveFeedControlEngine.js";
+export { AdaptiveSpindleControlEngine, adaptiveSpindleControlEngine } from "./AdaptiveSpindleControlEngine.js";
+export { BayesianAdaptiveEngine, bayesianAdaptiveEngine } from "./BayesianAdaptiveEngine.js";
+export { ToolLifeAdaptiveEngine, toolLifeAdaptiveEngine } from "./ToolLifeAdaptiveEngine.js";
+export { DigitalTwinSyncEngine, digitalTwinSyncEngine } from "./DigitalTwinSyncEngine.js";
+
+// SCI-MS2 — Validation Framework
+export { PredictionValidationEngine, predictionValidationEngine } from "./PredictionValidationEngine.js";
+export { BenchmarkSuiteEngine, benchmarkSuiteEngine } from "./BenchmarkSuiteEngine.js";
+export { UncertaintyQuantificationEngine, uncertaintyQuantificationEngine } from "./UncertaintyQuantificationEngine.js";
+export { ContinuousImprovementEngine, continuousImprovementEngine } from "./ContinuousImprovementEngine.js";
+
+// SCI-MS3 — Advanced Scientific Domains
+export { StochasticProcessEngine, stochasticProcessEngine } from "./StochasticProcessEngine.js";
+export { InformationTheoryEngine, informationTheoryEngine } from "./InformationTheoryEngine.js";
+export { OptimalControlEngine, optimalControlEngine } from "./OptimalControlEngine.js";
+export { GraphTheoryEngine, graphTheoryEngine } from "./GraphTheoryEngine.js";
+export { FuzzyNeuralHybridEngine, fuzzyNeuralHybridEngine } from "./FuzzyNeuralHybridEngine.js";
+
+export { CodeSystemIndexEngine, codeSystemIndexEngine } from "./CodeSystemIndexEngine.js";
