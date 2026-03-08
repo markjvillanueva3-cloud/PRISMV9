@@ -3076,3 +3076,14 @@ export type { SprayDryerInput, SprayDryerResult, AtomizerType, FlowConfig } from
 export { calenderingEngine, CalenderingEngine } from "./CalenderingEngine.js";
 export { filamentWindingEngine, FilamentWindingEngine } from "./FilamentWindingEngine.js";
 export { resinTransferEngine, ResinTransferEngine } from "./ResinTransferEngine.js";
+
+// SCI-MS0: Sensor Integration & Real-Time Data Framework
+export { sensorDataSchemaEngine } from "./SensorDataSchemaEngine.js";
+export { sensorSimulatorEngine } from "./SensorSimulatorEngine.js";
+export { sensorFusionEngine } from "./SensorFusionEngine.js";
+export type { SensorFusionInput, SensorFusionResult } from "./SensorFusionEngine.js";
+export { realTimeAnomalyDetectionEngine } from "./RealTimeAnomalyDetectionEngine.js";
+
+export { magneticBearingEngine, MagneticBearingEngine } from "./MagneticBearingEngine.js";
+export { flotationCellEngine, FlotationCellEngine } from "./FlotationCellEngine.js";
+export { crystallizationEngine, CrystallizationEngine } from "./CrystallizationEngine.js";
