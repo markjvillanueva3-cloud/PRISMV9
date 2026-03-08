@@ -2831,3 +2831,9 @@ export { ThermalFatigueEngine, thermalFatigueEngine } from "./ThermalFatigueEngi
 export type { ThermalFatigueInput, ThermalFatigueResult } from "./ThermalFatigueEngine.js";
 export { ScrewJackEngine, screwJackEngine } from "./ScrewJackEngine.js";
 export type { ScrewJackInput, ScrewJackResult } from "./ScrewJackEngine.js";
+export { VibrationIsolationEngine, vibrationIsolationEngine } from "./VibrationIsolationEngine.js";
+export type { VibrationIsolationInput, VibrationIsolationResult } from "./VibrationIsolationEngine.js";
+export { BallMillEngine, ballMillEngine } from "./BallMillEngine.js";
+export type { BallMillInput, BallMillResult } from "./BallMillEngine.js";
+export { FluidCouplingEngine, fluidCouplingEngine } from "./FluidCouplingEngine.js";
+export type { FluidCouplingInput, FluidCouplingResult } from "./FluidCouplingEngine.js";
