@@ -2905,3 +2905,6 @@ export { DistillationColumnEngine, distillationColumnEngine } from "./Distillati
 export { FluidizedBedEngine, fluidizedBedEngine } from "./FluidizedBedEngine.js";
 export { RotaryKilnEngine, rotaryKilnEngine } from "./RotaryKilnEngine.js";
 export { CentrifugeEngine, centrifugeEngine } from "./CentrifugeEngine.js";
+export { InjectionMoldingEngine, injectionMoldingEngine } from "./InjectionMoldingEngine.js";
+export { BlowMoldingEngine, blowMoldingEngine } from "./BlowMoldingEngine.js";
+export { ThermoformingEngine, thermoformingEngine } from "./ThermoformingEngine.js";
