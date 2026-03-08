@@ -2899,3 +2899,6 @@ export { MixerAgitatorEngine, mixerAgitatorEngine } from "./MixerAgitatorEngine.
 export { BoilerTubeEngine, boilerTubeEngine } from "./BoilerTubeEngine.js";
 export { TransformerEngine, transformerEngine } from "./TransformerEngine.js";
 export { InductionHeatingEngine, inductionHeatingEngine } from "./InductionHeatingEngine.js";
+export { EvaporatorDesignEngine, evaporatorDesignEngine } from "./EvaporatorDesignEngine.js";
+export { CondenserDesignEngine, condenserDesignEngine } from "./CondenserDesignEngine.js";
+export { DistillationColumnEngine, distillationColumnEngine } from "./DistillationColumnEngine.js";
