@@ -28,7 +28,8 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
 import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorExtActionSchemas.js";
-const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS };
+import { ACTION_ADVANCED_SCIENCE_SCHEMAS } from "../../schemas/advancedScienceActionSchemas.js";
+const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any;
@@ -73,6 +74,14 @@ async function getEngine(name: string): Promise<any> {
     case "wearComp": return (await import("../../engines/ToolWearCompensationEngine.js")).toolWearCompensationEngine;
     case "mfgStats": return (await import("../../engines/ManufacturingStatisticsEngine.js")).manufacturingStatisticsEngine;
     case "cuttingMath": return (await import("../../engines/AdvancedCuttingMathEngine.js")).advancedCuttingMathEngine;
+    case "cuttingPhysics": return (await import("../../engines/AdvancedCuttingPhysicsEngine.js")).advancedCuttingPhysicsEngine;
+    case "reliability": return (await import("../../engines/ReliabilityEngineeringEngine.js")).reliabilityEngineeringEngine;
+    case "machineAccuracy": return (await import("../../engines/MachineGeometricAccuracyEngine.js")).machineGeometricAccuracyEngine;
+    case "spm": return (await import("../../engines/StatisticalProcessMonitoringEngine.js")).statisticalProcessMonitoringEngine;
+    case "constitutive": return (await import("../../engines/ConstitutiveModelEngine.js")).constitutiveModelEngine;
+    case "wearPhysics": return (await import("../../engines/AdvancedWearPhysicsEngine.js")).advancedWearPhysicsEngine;
+    case "susLCA": return (await import("../../engines/SustainabilityLCAEngine.js")).sustainabilityLCAEngine;
+    case "coolant": return (await import("../../engines/CoolantDynamicsEngine.js")).coolantDynamicsEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -1016,6 +1025,80 @@ Params vary by action — pass relevant fields in params object.`,
             result = (await getEngine("cuttingMath")).desirability(params.responses);
             break;
           }
+
+          // ── Advanced Cutting Physics (6) ─────────────────────────
+          case "sci_oxley": { result = (await getEngine("cuttingPhysics")).oxleyPredictive(params); break; }
+          case "sci_oblique": { result = (await getEngine("cuttingPhysics")).obliqueCutting(params); break; }
+          case "sci_size_effect": { result = (await getEngine("cuttingPhysics")).sizeEffect(params); break; }
+          case "sci_recht_shear": { result = (await getEngine("cuttingPhysics")).rechtShearInstability(params); break; }
+          case "sci_chip_breaking": { result = (await getEngine("cuttingPhysics")).chipBreakingCriterion(params); break; }
+          case "sci_process_damping": { result = (await getEngine("cuttingPhysics")).processDamping(params); break; }
+
+          // ── Reliability Engineering (8) ──────────────────────────
+          case "rel_cox_hazards": { result = (await getEngine("reliability")).coxProportionalHazards(params); break; }
+          case "rel_competing_risks": { result = (await getEngine("reliability")).competingRisks(params); break; }
+          case "rel_wiener_rul": { result = (await getEngine("reliability")).wienerDegradation(params); break; }
+          case "rel_gamma_degradation": { result = (await getEngine("reliability")).gammaDegradation(params); break; }
+          case "rel_bayesian_rul": { result = (await getEngine("reliability")).bayesianRUL(params); break; }
+          case "rel_optimal_replacement": { result = (await getEngine("reliability")).optimalReplacement(params); break; }
+          case "rel_delay_time": { result = (await getEngine("reliability")).delayTimeModel(params); break; }
+          case "rel_renewal_theory": { result = (await getEngine("reliability")).renewalTheory(params); break; }
+
+          // ── Machine Geometric Accuracy (5) ──────────────────────
+          case "acc_21_error_model": { result = (await getEngine("machineAccuracy")).twentyOneErrorModel(params); break; }
+          case "acc_abbe_offset": { result = (await getEngine("machineAccuracy")).abbeOffset(params); break; }
+          case "acc_volumetric": { result = (await getEngine("machineAccuracy")).volumetricAccuracy(params); break; }
+          case "acc_ball_bar": { result = (await getEngine("machineAccuracy")).ballBarAnalysis(params); break; }
+          case "acc_thermal_error": { result = (await getEngine("machineAccuracy")).thermalErrorModel(params); break; }
+
+          // ── Statistical Process Monitoring (9) ──────────────────
+          case "spm_hotelling_t2": { result = (await getEngine("spm")).hotellingT2(params); break; }
+          case "spm_pca_monitoring": { result = (await getEngine("spm")).pcaProcessMonitoring(params); break; }
+          case "spm_hmm_condition": { result = (await getEngine("spm")).hiddenMarkovModel(params); break; }
+          case "spm_bootstrap_ci": { result = (await getEngine("spm")).bootstrapCI(params); break; }
+          case "spm_sprt": { result = (await getEngine("spm")).sprt(params); break; }
+          case "spm_combined_spc": { result = (await getEngine("spm")).combinedSPCScheme(params); break; }
+          case "spm_doe_generate": { result = (await getEngine("spm")).doeGenerator(params); break; }
+          case "spm_rsm": { result = (await getEngine("spm")).responseSurfaceMethodology(params); break; }
+          case "spm_nbi_optimization": { result = (await getEngine("spm")).nbiOptimization(params); break; }
+
+          // ── Constitutive Models (9) ─────────────────────────────
+          case "const_zerilli_armstrong": { result = (await getEngine("constitutive")).zerilliArmstrong(params); break; }
+          case "const_mts": { result = (await getEngine("constitutive")).mechanicalThresholdStress(params); break; }
+          case "const_voce": { result = (await getEngine("constitutive")).voceHardening(params); break; }
+          case "const_ptw": { result = (await getEngine("constitutive")).prestonTonksWallace(params); break; }
+          case "const_paris_law": { result = (await getEngine("constitutive")).parisLaw(params); break; }
+          case "const_norton_creep": { result = (await getEngine("constitutive")).nortonCreep(params); break; }
+          case "const_larson_miller": { result = (await getEngine("constitutive")).larsonMiller(params); break; }
+          case "const_hollomon": { result = (await getEngine("constitutive")).hollomonHardening(params); break; }
+          case "const_machinability": { result = (await getEngine("constitutive")).machinabilityIndex(params); break; }
+
+          // ── Advanced Wear Physics (7) ───────────────────────────
+          case "wear_stochastic": { result = (await getEngine("wearPhysics")).kannateyAsibuStochastic(params); break; }
+          case "wear_fick_crater": { result = (await getEngine("wearPhysics")).fickCraterWear(params); break; }
+          case "wear_notch": { result = (await getEngine("wearPhysics")).notchWear(params); break; }
+          case "wear_lognormal_life": { result = (await getEngine("wearPhysics")).logNormalToolLife(params); break; }
+          case "wear_rabinowicz": { result = (await getEngine("wearPhysics")).rabinowiczAbrasiveWear(params); break; }
+          case "wear_flank_ode": { result = (await getEngine("wearPhysics")).flankWearODE(params); break; }
+          case "wear_combined_mechanisms": { result = (await getEngine("wearPhysics")).combinedWearMechanisms(params); break; }
+
+          // ── Sustainability & LCA (7) ────────────────────────────
+          case "sus_lifecycle_assessment": { result = (await getEngine("susLCA")).lifecycleAssessment(params); break; }
+          case "sus_eco_efficiency": { result = (await getEngine("susLCA")).ecoEfficiencyFrontier(params); break; }
+          case "sus_exergy": { result = (await getEngine("susLCA")).exergyAnalysis(params); break; }
+          case "sus_gutowski_energy": { result = (await getEngine("susLCA")).gutowskiEnergyModel(params); break; }
+          case "sus_coolant_lifecycle": { result = (await getEngine("susLCA")).coolantLifecycleEnergy(params); break; }
+          case "sus_stochastic_economics": { result = (await getEngine("susLCA")).stochasticToolLifeEconomics(params); break; }
+          case "sus_total_cost_ownership": { result = (await getEngine("susLCA")).totalCostOfOwnership(params); break; }
+
+          // ── Coolant Dynamics (7) ────────────────────────────────
+          case "cool_reynolds_flow": { result = (await getEngine("coolant")).reynoldsChannelFlow(params); break; }
+          case "cool_tsc_pressure": { result = (await getEngine("coolant")).throughSpindlePressureDrop(params); break; }
+          case "cool_mql_spray": { result = (await getEngine("coolant")).mqlSprayModel(params); break; }
+          case "cool_jet_coherence": { result = (await getEngine("coolant")).jetCoherence(params); break; }
+          case "cool_chip_transport": { result = (await getEngine("coolant")).chipTransportDrag(params); break; }
+          case "cool_komanduri_thermal": { result = (await getEngine("coolant")).komanduriHouThermal(params); break; }
+          case "cool_cryogenic": { result = (await getEngine("coolant")).cryogenicMachiningThermal(params); break; }
 
           default:
             result = { error: `Unknown action: ${action}` };
