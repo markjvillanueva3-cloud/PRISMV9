@@ -22,6 +22,7 @@ import { novelToolpathEngine } from "../../engines/NovelToolpathEngine.js";
 import { extendedNovelToolpathEngine } from "../../engines/NovelToolpathAlgorithmsExt.js";
 import { crossCamNovelEngine } from "../../engines/CrossCamNovelAlgorithms.js";
 import { featureToZoneEngine } from "../../engines/FeatureToZoneEngine.js";
+import { algorithmSelectorEngine } from "../../engines/AlgorithmSelectorEngine.js";
 import { log } from "../../utils/Logger.js";
 
 const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]);
@@ -33,7 +34,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select",
     {
       action: z.enum([
         "strategy_select",
@@ -51,7 +52,8 @@ export function registerToolpathDispatcher(server: any): void {
         "extended_list",
         "crosscam_compute",
         "crosscam_list",
-        "feature_to_zone"
+        "feature_to_zone",
+        "algorithm_select"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -192,6 +194,22 @@ export function registerToolpathDispatcher(server: any): void {
                 entry_strategy: params.entry_strategy ?? "ramp",
               }
             );
+            break;
+          }
+
+          case "algorithm_select": {
+            const zone_type = params.zone_type;
+            if (!zone_type) throw new Error("zone_type is required");
+            if (!params.material) throw new Error("material is required");
+            result = algorithmSelectorEngine.select({
+              zone_type,
+              material: params.material,
+              machine: params.machine,
+              priority: params.priority,
+              depth_ratio: params.depth_ratio,
+              wall_thickness_mm: params.wall_thickness_mm,
+              target_ra_um: params.target_ra_um,
+            });
             break;
           }
 

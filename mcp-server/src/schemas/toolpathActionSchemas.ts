@@ -133,6 +133,34 @@ const generate = z.object({
 }).passthrough();
 
 // ============================================================================
+// ALGORITHM SELECT (1) — AlgorithmSelectorEngine [CAMK-MS0/U02]
+// ============================================================================
+
+const algorithm_select = z.object({
+  zone_type: z.enum([
+    "flat", "steep_wall", "freeform", "pocket", "corner",
+    "rib", "undercut", "boss", "shallow", "hole",
+  ]),
+  material: z.string().min(1),
+  priority: z.enum([
+    "speed", "quality", "tool_life", "balanced",
+    "cost", "reliability", "surface_finish",
+  ]).optional(),
+  machine: z.object({
+    axes: z.enum(["3", "4", "5"]).transform(Number),
+    max_rpm: z.number().positive(),
+    max_feed_mmmin: z.number().positive(),
+    has_through_spindle_coolant: z.boolean().optional(),
+    has_high_pressure_coolant: z.boolean().optional(),
+    spindle_power_kw: z.number().positive().optional(),
+    rigidity: z.enum(["low", "medium", "high"]).optional(),
+  }).optional(),
+  depth_ratio: z.number().positive().optional(),
+  wall_thickness_mm: z.number().positive().optional(),
+  target_ra_um: z.number().positive().optional(),
+}).passthrough();
+
+// ============================================================================
 // FEATURE TO ZONE (1) — FeatureToZoneEngine [CAMK-MS0/U01]
 // ============================================================================
 
@@ -191,4 +219,6 @@ export const ACTION_TOOLPATH_SCHEMAS: ActionSchemaMap = {
   generate,
   // Feature-to-zone decomposition [CAMK-MS0/U01]
   feature_to_zone,
+  // Algorithm selection [CAMK-MS0/U02]
+  algorithm_select,
 };
