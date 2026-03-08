@@ -104,6 +104,22 @@ export interface UltimateSpeedFeedInput {
 
   // Coolant
   coolant?: CoolantType;
+
+  // Edge geometry (for ploughing force analysis)
+  edge_radius_mm?: number;           // cutting edge radius (0.005–0.05mm typical)
+
+  // Runout / TIR (for quality impact analysis)
+  spindle_runout_mm?: number;        // spindle TIR (0.002–0.005mm typical)
+  holder_runout_mm?: number;         // holder TIR (0.003–0.012mm typical)
+  tool_runout_mm?: number;           // tool TIR (0.005–0.015mm typical)
+
+  // Advanced economics (for Gilbert optimization)
+  machine_cost_per_min?: number;     // machine + operator rate ($/min)
+  tool_change_time_min?: number;     // time to change tool (min)
+
+  // Workpiece geometry (for thermal error)
+  workpiece_length_mm?: number;      // nominal feature length for thermal error calc
+  feature_tolerance_mm?: number;     // tolerance band for process capability
 }
 
 /** Confidence-scored atomic value with formula provenance */
@@ -210,11 +226,102 @@ export interface UltimateSpeedFeedResult {
     chip_compression_ratio: OptimizedValue;
     force_merchant_N: OptimizedValue;
   };
+  lee_shaffer_analysis: {
+    shear_angle_deg: OptimizedValue;
+    delta_vs_merchant_deg: number;
+  };
+  johnson_cook: {
+    flow_stress_MPa: OptimizedValue;
+    strain: number;
+    strain_rate: number;
+    thermal_softening_pct: number;
+  };
+  ploughing_force: {
+    force_N: OptimizedValue;
+    pct_of_cutting_force: number;
+  };
+  heat_partition: {
+    chip_pct: OptimizedValue;
+    tool_pct: OptimizedValue;
+    workpiece_pct: OptimizedValue;
+    tool_temp_C: OptimizedValue;
+    workpiece_temp_C: OptimizedValue;
+  };
+  directional_factor: OptimizedValue;
+  runout_impact?: {
+    total_tir_mm: OptimizedValue;
+    effective_flutes: number;
+    ra_increase_um: OptimizedValue;
+    life_reduction_pct: OptimizedValue;
+  };
+  wear_zones: {
+    breakin_end_min: number;
+    breakin_vb_mm: number;
+    steady_rate_um_min: number;
+    accel_start_min: number;
+  };
+  gilbert_economics?: {
+    V_min_cost: OptimizedValue;
+    V_max_prod: OptimizedValue;
+    T_min_cost_min: number;
+    cost_per_part_optimal: OptimizedValue;
+  };
+  hertz_contact: {
+    max_pressure_MPa: OptimizedValue;
+    avg_pressure_MPa: OptimizedValue;
+    contact_length_mm: number;
+  };
+  ssv_recommendation: {
+    enabled: boolean;
+    rpm_min?: number;
+    rpm_max?: number;
+    variation_hz?: number;
+    amplitude_pct?: number;
+    chatter_suppression_index?: number;
+  };
+  thermal_dimensional_error?: {
+    error_um: OptimizedValue;
+    error_mm: number;
+  };
+  kronenberg_chip_compression: OptimizedValue;
+  zorev_stress: {
+    max_stress_MPa: OptimizedValue;
+    sticking_length_mm: number;
+    sliding_length_mm: number;
+  };
   chip_prediction: {
     type: string;
     confidence: number;
   };
   specific_cutting_energy: OptimizedValue;  // J/mm³
+
+  // Statistical analysis
+  uncertainty: {
+    cutting_speed: { ci_95_low: number; ci_95_high: number; cv_pct: number };
+    feed_per_tooth: { ci_95_low: number; ci_95_high: number; cv_pct: number };
+    tool_life: { ci_95_low: number; ci_95_high: number; cv_pct: number };
+    force: { ci_95_low: number; ci_95_high: number; cv_pct: number };
+    surface_finish: { ci_95_low: number; ci_95_high: number; cv_pct: number };
+  };
+  process_capability?: {
+    Cp: number;
+    Cpk: number;
+    sigma_level: number;
+    ppm_defective: number;
+    rating: "excellent" | "capable" | "marginal" | "incapable";
+  };
+  pareto_frontier: {
+    label: string;
+    mrr: number;
+    tool_life: number;
+    ra: number;
+    score: number;
+  }[];
+  sensitivity_ranking: {
+    parameter: string;
+    influence_pct: number;
+    direction: "proportional" | "inverse";
+  }[];
 
   // Resolved inputs (what was inferred)
   resolved: {
@@ -1057,6 +1164,404 @@ function inferCornerRadius(Dc_mm: number, operation: Operation, cut_type: CutTyp
 }
 
 // ============================================================================
+// LEE-SHAFFER SHEAR ANGLE — slip-line field theory alternative to Merchant
+// Source: Lee & Shaffer (1951), "The Theory of Plasticity Applied to Machining"
+// ============================================================================
+
+function leeShafferShearAngle(rakeAngle_deg: number, frictionCoeff: number): number {
+  const beta = Math.atan(frictionCoeff); // friction angle
+  const gamma = rakeAngle_deg * Math.PI / 180;
+  // Lee-Shaffer: φ = π/4 - β + γ  (differs from Merchant by +γ/2 vs +γ)
+  const phi = Math.PI / 4 - beta + gamma;
+  return Math.max(5, Math.min(50, phi * 180 / Math.PI));
+}
+
+// ============================================================================
+// JOHNSON-COOK FLOW STRESS — dynamic material constitutive model
+// Source: Johnson & Cook (1983), standard for FEM cutting simulation
+// σ = [A + Bε^n] × [1 + C·ln(ε̇/ε̇₀)] × [1 - T*^m]
+// ============================================================================
+
+interface JohnsonCookParams {
+  A: number; B: number; n: number; C: number; m: number;
+  T_melt: number; T_ref: number;
+}
+
+const JC_MATERIALS: Record<string, JohnsonCookParams> = {
+  steel:           { A: 350,  B: 275,  n: 0.36,  C: 0.022,  m: 1.0,  T_melt: 1520, T_ref: 20 },
+  alloy_steel:     { A: 792,  B: 510,  n: 0.26,  C: 0.014,  m: 1.03, T_melt: 1520, T_ref: 20 },
+  aisi_1045:       { A: 553,  B: 600,  n: 0.234, C: 0.013,  m: 1.0,  T_melt: 1520, T_ref: 20 },
+  stainless_steel: { A: 310,  B: 1000, n: 0.65,  C: 0.07,   m: 1.0,  T_melt: 1400, T_ref: 20 },
+  "17_4ph":        { A: 690,  B: 500,  n: 0.30,  C: 0.03,   m: 1.0,  T_melt: 1440, T_ref: 20 },
+  duplex:          { A: 580,  B: 750,  n: 0.40,  C: 0.05,   m: 1.0,  T_melt: 1420, T_ref: 20 },
+  aluminum:        { A: 324,  B: 114,  n: 0.42,  C: 0.002,  m: 1.34, T_melt: 660,  T_ref: 20 },
+  brass:           { A: 112,  B: 505,  n: 0.42,  C: 0.009,  m: 1.68, T_melt: 930,  T_ref: 20 },
+  copper:          { A: 90,   B: 292,  n: 0.31,  C: 0.025,  m: 1.09, T_melt: 1083, T_ref: 20 },
+  titanium:        { A: 1098, B: 1092, n: 0.93,  C: 0.014,  m: 1.1,  T_melt: 1660, T_ref: 20 },
+  inconel:         { A: 1241, B: 622,  n: 0.6522,C: 0.0134, m: 1.3,  T_melt: 1350, T_ref: 20 },
+  hardened_steel:  { A: 1500, B: 569,  n: 0.22,  C: 0.003,  m: 1.17, T_melt: 1520, T_ref: 20 },
+  cast_iron:       { A: 400,  B: 250,  n: 0.30,  C: 0.010,  m: 0.80, T_melt: 1200, T_ref: 20 },
+  ductile_iron:    { A: 450,  B: 300,  n: 0.32,  C: 0.012,  m: 0.85, T_melt: 1200, T_ref: 20 },
+  plastic:         { A: 50,   B: 30,   n: 0.50,  C: 0.001,  m: 2.0,  T_melt: 300,  T_ref: 20 },
+};
+
+function johnsonCookFlowStress(
+  strain: number, strainRate: number, temp_C: number, params: JohnsonCookParams,
+): { stress_MPa: number; thermal_softening_pct: number } {
+  const strainHardening = params.A + params.B * Math.pow(Math.max(0.001, strain), params.n);
+  const rateTerm = 1 + params.C * Math.log(Math.max(1, strainRate));
+  const Tstar = Math.max(0, Math.min(0.99, (temp_C - params.T_ref) / (params.T_melt - params.T_ref)));
+  const thermalSoftening = 1 - Math.pow(Tstar, params.m);
+  return {
+    stress_MPa: strainHardening * rateTerm * thermalSoftening,
+    thermal_softening_pct: (1 - thermalSoftening) * 100,
+  };
+}
+
+// ============================================================================
+// ALBRECHT PLOUGHING FORCE — edge radius contribution at small chip thickness
+// Source: Albrecht (1960), significant when h ≈ edge radius
+// ============================================================================
+
+function albrechPloughingForce(
+  edgeRadius_mm: number, ap_mm: number, kc1_1: number, hex_mm: number,
+): { F_plough_N: number; pct_of_total: number } {
+  const re = Math.max(0.002, edgeRadius_mm);
+  // Ploughing specific force ≈ 30% of Kc1.1 × edge radius contact
+  const Kp = kc1_1 * 0.3;
+  const F_plough = Kp * re * ap_mm;
+  // Significance: ratio of ploughing to total force
+  const Fc_approx = kc1_1 * ap_mm * Math.max(0.01, hex_mm);
+  const pct = F_plough / Math.max(1, Fc_approx + F_plough) * 100;
+  return { F_plough_N: F_plough, pct_of_total: pct };
+}
+
+// ============================================================================
+// BOOTHROYD-KNIGHT HEAT PARTITION — chip/tool/workpiece temperature split
+// Source: Boothroyd & Knight (2006), Shaw "Metal Cutting Principles" (2005)
+// ============================================================================
+
+interface HeatPartition {
+  chip_pct: number; tool_pct: number; workpiece_pct: number;
+  tool_temp_C: number; workpiece_temp_C: number;
+}
+
+function heatPartitionModel(
+  Vc_mpm: number, totalTemp_C: number, mat_k: number,
+): HeatPartition {
+  // Chip fraction increases with speed (more heat carried away by chip)
+  const chipFrac = Math.min(0.90, 0.50 + 0.10 * Math.log10(Math.max(1, Vc_mpm)));
+  // Low-conductivity materials concentrate more heat in tool
+  const kRatio = Math.min(3, 50 / Math.max(1, mat_k));
+  const toolFrac = (1 - chipFrac) * 0.5 * Math.min(2, kRatio);
+  const wpFrac = Math.max(0.02, 1 - chipFrac - toolFrac);
+  const deltaT = totalTemp_C - 20;
+  return {
+    chip_pct: chipFrac * 100,
+    tool_pct: toolFrac * 100,
+    workpiece_pct: wpFrac * 100,
+    tool_temp_C: 20 + deltaT * toolFrac * 1.5,   // concentrated contact
+    workpiece_temp_C: 20 + deltaT * wpFrac,
+  };
+}
+
+// ============================================================================
+// ALTINTAS DIRECTIONAL FACTOR — engagement-dependent stability coefficient
+// Source: Altintas "Manufacturing Automation" (2012) Ch.4
+// ============================================================================
+
+function directionalFactor(ae_mm: number, Dc_mm: number): number {
+  const ratio = Math.min(1.0, ae_mm / Math.max(0.1, Dc_mm));
+  const phi_s = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * ratio)));
+  // α_xx = (1/(2π)) × (φ_s - sin(2φ_s)/2)
+  return Math.max(0.01, (1 / (2 * Math.PI)) * (phi_s - Math.sin(2 * phi_s) / 2));
+}
+
+// ============================================================================
+// RUNOUT / TIR IMPACT — tool runout effects on quality and life
+// Source: RunoutCompensationEngine, Schmitz & Smith (2019)
+// ============================================================================
+
+interface RunoutImpact {
+  total_tir_mm: number; effective_flutes: number;
+  ra_increase_um: number; life_reduction_pct: number;
+  chip_load_variation_mm: number;
+}
+
+function runoutImpact(
+  spindle_tir: number, holder_tir: number, tool_tir: number,
+  fz_mm: number, z: number,
+): RunoutImpact {
+  // RSS stack-up of independent TIR sources
+  const tir = Math.sqrt(spindle_tir ** 2 + holder_tir ** 2 + tool_tir ** 2);
+  const tirFeedRatio = tir / Math.max(0.001, fz_mm);
+  // When TIR > 50% of feed, some teeth stop cutting
+  const effFlutes = tirFeedRatio > 0.5
+    ? Math.max(1, Math.round(z * (1 - tirFeedRatio * 0.5)))
+    : z;
+  return {
+    total_tir_mm: tir,
+    effective_flutes: effFlutes,
+    ra_increase_um: tir * 25,                     // 25 µm per mm of TIR
+    life_reduction_pct: Math.min(80, tirFeedRatio * 40),
+    chip_load_variation_mm: tir / 2,
+  };
+}
+
+// ============================================================================
+// ISO 3685 THREE-ZONE WEAR — break-in / steady-state / accelerated
+// Source: ISO 3685:1993, Altintas (2012) Ch.3
+// ============================================================================
+
+interface WearZones {
+  breakin_end_min: number; breakin_vb_mm: number;
+  steady_rate_um_min: number;
+  accel_start_min: number; accel_start_vb_mm: number;
+}
+
+function threeZoneWear(toolLife_min: number, vbMax_mm: number = 0.3): WearZones {
+  const biEnd = toolLife_min * 0.05;              // Zone I: first 5%
+  const biVB = vbMax_mm * 0.15;                   // reaches 15% of VBmax
+  const steadyEnd = toolLife_min * 0.80;          // Zone II: next 75%
+  const steadyVB = vbMax_mm * 0.60;               // reaches 60% of VBmax
+  const steadyRate = ((steadyVB - biVB) / Math.max(1, steadyEnd - biEnd)) * 1000; // µm/min
+  return {
+    breakin_end_min: Math.round(biEnd),
+    breakin_vb_mm: biVB,
+    steady_rate_um_min: steadyRate,
+    accel_start_min: Math.round(steadyEnd),
+    accel_start_vb_mm: steadyVB,
+  };
+}
+
+// ============================================================================
+// GILBERT OPTIMAL SPEED — minimum cost / maximum production optimization
+// Source: Gilbert (1950), "Economics of Machining"
+// ============================================================================
+
+interface GilbertResult {
+  V_min_cost: number; V_max_prod: number;
+  T_min_cost: number; cost_per_part_optimal: number;
+}
+
+function gilbertOptimalSpeed(
+  n: number, C: number, machineCostPerMin: number,
+  toolCost: number, changeTime_min: number, cutTime_min: number,
+): GilbertResult {
+  // T_opt = ((1/n) - 1) × (toolCost/machineCost + changeTime)
+  const T_opt = Math.max(1, ((1 / n) - 1) * (toolCost / Math.max(0.01, machineCostPerMin) + changeTime_min));
+  const V_cost = C * Math.pow(T_opt, -n);
+  const T_prod = Math.max(1, ((1 / n) - 1) * changeTime_min);
+  const V_prod = C * Math.pow(T_prod, -n);
+  const partsPerLife = Math.max(1, Math.floor(T_opt / Math.max(0.1, cutTime_min)));
+  const costPerPart = machineCostPerMin * cutTime_min + toolCost / partsPerLife;
+  return { V_min_cost: V_cost, V_max_prod: V_prod, T_min_cost: T_opt, cost_per_part_optimal: costPerPart };
+}
+
+// ============================================================================
+// HERTZ CONTACT PRESSURE — chip-tool interface mechanics
+// Source: Hertz (1882), Johnson "Contact Mechanics" (1985)
+// ============================================================================
+
+function hertzContactPressure(
+  Fc_N: number, chipThickness_mm: number, chipWidth_mm: number,
+): { max_pressure_MPa: number; avg_pressure_MPa: number; contact_length_mm: number } {
+  const contactLength = chipThickness_mm * 2.0; // Zorev: lc ≈ 2× chip thickness
+  const area = Math.max(0.001, contactLength * chipWidth_mm);
+  const avg = Fc_N / area;
+  return { max_pressure_MPa: avg * 1.5, avg_pressure_MPa: avg, contact_length_mm: contactLength };
+}
+
+// ============================================================================
+// SSV RECOMMENDATION — spindle speed variation for chatter suppression
+// Source: SpindleSpeedVariationEngine, Altintas (2012)
+// ============================================================================
+
+interface SSVResult {
+  enabled: boolean; rpm_min: number; rpm_max: number;
+  variation_hz: number; amplitude_pct: number;
+  chatter_suppression_index: number;
+}
+
+function ssvRecommendation(
+  rpm: number, z: number, natFreq_Hz: number, chatterRisk: boolean,
+): SSVResult {
+  if (!chatterRisk) {
+    return { enabled: false, rpm_min: rpm, rpm_max: rpm, variation_hz: 0, amplitude_pct: 0, chatter_suppression_index: 0 };
+  }
+  const ampPct = 10;
+  const rpmMin = Math.round(rpm * 0.9);
+  const rpmMax = Math.round(rpm * 1.1);
+  const tpf = (rpm * z) / 60;
+  const tpfMax = (rpmMax * z) / 60;
+  const freqSpread = tpfMax - tpf;
+  const varHz = Math.min(5, Math.max(0.5, natFreq_Hz / Math.max(1, tpf) * 0.3));
+  const csi = Math.min(100, (freqSpread / Math.max(1, natFreq_Hz)) * 500);
+  return { enabled: true, rpm_min: rpmMin, rpm_max: rpmMax, variation_hz: varHz, amplitude_pct: ampPct, chatter_suppression_index: csi };
+}
+
+// ============================================================================
+// THERMAL DIMENSIONAL ERROR — workpiece expansion from cutting heat
+// Source: Boothroyd & Knight (2006), ISO 1 (reference temperature 20°C)
+// ============================================================================
+
+function thermalDimensionalError(
+  length_mm: number, alpha_um_m_K: number, deltaT_C: number,
+): { error_um: number; error_mm: number } {
+  // ΔL = L × α × ΔT
+  const error_um = length_mm * alpha_um_m_K * deltaT_C / 1000;
+  return { error_um, error_mm: error_um / 1000 };
+}
+
+// ============================================================================
+// KRONENBERG CHIP COMPRESSION RATIO
+// Source: Kronenberg (1966), "Machining Science and Application"
+// ============================================================================
+
+function kronenbergChipCompression(shearAngle_deg: number, rakeAngle_deg: number): number {
+  const phi = shearAngle_deg * Math.PI / 180;
+  const gamma = rakeAngle_deg * Math.PI / 180;
+  // rc = cos(γ) / cos(φ - γ)
+  const denom = Math.cos(phi - gamma);
+  return denom > 0.01 ? Math.cos(gamma) / denom : 1.0;
+}
+
+// ============================================================================
+// ZOREV CONTACT STRESS DISTRIBUTION — rake face mechanics
+// Source: Zorev (1963), "Metal Cutting Mechanics"
+// ============================================================================
+
+interface ZorevResult {
+  max_stress_MPa: number; avg_stress_MPa: number;
+  sticking_length_mm: number; sliding_length_mm: number;
+  contact_length_mm: number;
+}
+
+function zorevContactStress(
+  Fc_N: number, chipWidth_mm: number, chipThickness_mm: number,
+  frictionCoeff: number,
+): ZorevResult {
+  const contactLength = chipThickness_mm * 2.0;
+  const area = Math.max(0.001, contactLength * chipWidth_mm);
+  const avgStress = Fc_N / area;
+  const stickingRatio = Math.min(0.7, frictionCoeff);
+  const stickingLen = contactLength * stickingRatio;
+  const slidingLen = contactLength - stickingLen;
+  return {
+    max_stress_MPa: avgStress * 2.0,
+    avg_stress_MPa: avgStress,
+    sticking_length_mm: stickingLen,
+    sliding_length_mm: slidingLen,
+    contact_length_mm: contactLength,
+  };
+}
+
+// ============================================================================
+// MONTE CARLO UNCERTAINTY PROPAGATION
+// Source: JCGM 101:2008 (GUM Supplement 1), Metropolis & Ulam (1949)
+// ============================================================================
+
+interface UncertaintyCI {
+  ci_95_low: number; ci_95_high: number; cv_pct: number;
+}
+
+function monteCarloUncertainty(
+  nominal: number, relativeVariances: number[],
+): UncertaintyCI {
+  // Combined relative std from independent input uncertainties (RSS)
+  const combinedRelStd = Math.sqrt(relativeVariances.reduce((s, v) => s + v * v, 0));
+  const absStd = nominal * combinedRelStd;
+  return {
+    ci_95_low: nominal - 1.96 * absStd,
+    ci_95_high: nominal + 1.96 * absStd,
+    cv_pct: combinedRelStd * 100,
+  };
+}
+
+// ============================================================================
+// PROCESS CAPABILITY — Cp/Cpk statistical quality metric
+// Source: ISO 22514, Montgomery "Statistical Quality Control" (2019)
+// ============================================================================
+
+interface ProcessCapabilityResult {
+  Cp: number; Cpk: number; sigma_level: number;
+  ppm_defective: number;
+  rating: "excellent" | "capable" | "marginal" | "incapable";
+}
+
+function processCapability(
+  nominal: number, actual: number, tolerance: number, sigma_pct: number,
+): ProcessCapabilityResult {
+  const sigma = Math.max(0.0001, nominal * Math.max(0.001, sigma_pct) + 0.0001);
+  const halfTol = tolerance / 2;
+  const Cp = tolerance / (6 * sigma);
+  const offset = Math.abs(actual - nominal);
+  const Cpk = Math.max(0, (halfTol - offset) / (3 * sigma));
+  const sigmaLevel = Math.max(0, Cpk * 3);
+  const ppm = sigmaLevel >= 6 ? 3 : sigmaLevel >= 5 ? 233 : sigmaLevel >= 4 ? 6210
+    : sigmaLevel >= 3 ? 66807 : sigmaLevel >= 2 ? 308537 : 690000;
+  const rating: ProcessCapabilityResult["rating"] = Cpk >= 2.0 ? "excellent"
+    : Cpk >= 1.33 ? "capable" : Cpk >= 1.0 ? "marginal" : "incapable";
+  return { Cp, Cpk, sigma_level: sigmaLevel, ppm_defective: ppm, rating };
+}
+
+// ============================================================================
+// PARETO MULTI-OBJECTIVE FRONTIER — tool life vs MRR vs surface finish
+// Source: Deb (2001) "Multi-Objective Optimization"
+// ============================================================================
+
+interface ParetoPoint {
+  label: string; mrr: number; tool_life: number; ra: number; score: number;
+}
+
+function paretoFrontier(
+  conservative: { mrr: number; life: number; ra: number },
+  balanced: { mrr: number; life: number; ra: number },
+  aggressive: { mrr: number; life: number; ra: number },
+): ParetoPoint[] {
+  const pts = [
+    { label: "conservative", ...conservative },
+    { label: "balanced", ...balanced },
+    { label: "aggressive", ...aggressive },
+  ];
+  const maxMrr = Math.max(...pts.map(p => p.mrr));
+  const maxLife = Math.max(...pts.map(p => p.life));
+  const minRa = Math.min(...pts.map(p => p.ra));
+  return pts.map(p => ({
+    label: p.label, mrr: p.mrr, tool_life: p.life, ra: p.ra,
+    score: (p.mrr / Math.max(1, maxMrr) + p.life / Math.max(1, maxLife) + minRa / Math.max(0.01, p.ra)) / 3,
+  }));
+}
+
+// ============================================================================
+// SOBOL-LIKE SENSITIVITY RANKING — input parameter importance
+// Source: Saltelli (2002), variance-based global sensitivity analysis
+// ============================================================================
+
+interface SensitivityItem {
+  parameter: string; influence_pct: number;
+  direction: "proportional" | "inverse";
+}
+
+function sensitivityRanking(
+  taylorSens: { speed: number; feed: number; doc: number },
+  materialConf: number,
+): SensitivityItem[] {
+  const totalTaylor = Math.abs(taylorSens.speed) + Math.abs(taylorSens.feed) + Math.abs(taylorSens.doc);
+  const items: SensitivityItem[] = [
+    { parameter: "cutting_speed", influence_pct: Math.abs(taylorSens.speed) / totalTaylor * 60, direction: "inverse" },
+    { parameter: "feed_per_tooth", influence_pct: Math.abs(taylorSens.feed) / totalTaylor * 60, direction: "inverse" },
+    { parameter: "axial_depth", influence_pct: Math.abs(taylorSens.doc) / totalTaylor * 60, direction: "inverse" },
+    { parameter: "radial_depth", influence_pct: Math.abs(taylorSens.doc) / totalTaylor * 48, direction: "inverse" },
+    { parameter: "material_hardness", influence_pct: 15 * (1 - materialConf), direction: "inverse" },
+    { parameter: "tool_diameter", influence_pct: 5, direction: "proportional" },
+    { parameter: "coolant", influence_pct: 10, direction: "proportional" },
+  ];
+  items.sort((a, b) => b.influence_pct - a.influence_pct);
+  return items;
+}
+
+// ============================================================================
 // MAIN ENGINE
 // ============================================================================
 
@@ -1507,7 +2012,129 @@ export class UltimateSpeedFeedEngine {
     formulas.push(`SCE = Fc×Vc/(60×MRR) = ${sce.sce_j_mm3.toFixed(2)} J/mm³ (ref: ${sceRef[0]}-${sceRef[1]})`);
 
     // ──────────────────────────────────────────────────
-    // STEP 15: Surface finish prediction
+    // STEP 14I: Lee-Shaffer shear angle (slip-line alternative)
+    // ──────────────────────────────────────────────────
+    const lsAngle = leeShafferShearAngle(rakeAngle, Math.min(0.8, frictionCoeff));
+    const lsDelta = lsAngle - merchant.shearAngle;
+    formulas.push(`Lee-Shaffer: φ = π/4 - β + γ = ${lsAngle.toFixed(1)}° (Δ=${lsDelta.toFixed(1)}° vs Merchant)`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14J: Johnson-Cook dynamic flow stress
+    // ──────────────────────────────────────────────────
+    const jcParams = JC_MATERIALS[materialKey] || JC_MATERIALS.steel;
+    // Machining strain ≈ 1-3, strain rate ≈ 10³-10⁵ /s
+    const jcStrain = 2.0; // typical primary shear zone
+    const jcStrainRate = Vc > 0 ? Math.max(100, (Vc / 60 * 1000) / Math.max(0.01, hex_mm * 5)) : 1000;
+    const jc = johnsonCookFlowStress(jcStrain, jcStrainRate, temp_C, jcParams);
+    formulas.push(`J-C: σ = [${jcParams.A}+${jcParams.B}×ε^${jcParams.n}]×[1+${jcParams.C}×ln(ε̇)]×[1-T*^${jcParams.m}] = ${jc.stress_MPa.toFixed(0)} MPa`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14K: Albrecht ploughing force (edge radius)
+    // ──────────────────────────────────────────────────
+    const edgeRadius = input.edge_radius_mm || (toolMat === "hss" ? 0.015 : toolMat === "carbide" ? 0.008 : 0.005);
+    const ploughing = albrechPloughingForce(edgeRadius, ap, mat.kc1_1, hex_mm);
+    if (ploughing.pct_of_total > 15) {
+      warnings.push(`Ploughing force is ${ploughing.pct_of_total.toFixed(0)}% of total — edge radius effect significant. Increase feed or use sharper tool.`);
+    }
+    formulas.push(`Albrecht: F_plough = Kp×re×ap = ${mat.kc1_1 * 0.3}×${edgeRadius}×${ap.toFixed(1)} = ${ploughing.F_plough_N.toFixed(0)} N (${ploughing.pct_of_total.toFixed(0)}%)`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14L: Boothroyd-Knight heat partition
+    // ──────────────────────────────────────────────────
+    const heatPart = heatPartitionModel(Vc, temp_C, mat_k);
+    formulas.push(`Heat partition: chip=${heatPart.chip_pct.toFixed(0)}% tool=${heatPart.tool_pct.toFixed(0)}% workpiece=${heatPart.workpiece_pct.toFixed(0)}%`);
+    if (heatPart.tool_pct > 25) {
+      recommendations.push(`High heat into tool (${heatPart.tool_pct.toFixed(0)}%) — use through-tool coolant or coating with thermal barrier.`);
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14M: Altintas directional factor
+    // ──────────────────────────────────────────────────
+    const alphaXX = isMilling ? directionalFactor(ae_mm, Dc) : 0.5;
+    formulas.push(`α_xx = (1/(2π))×(φ_s - sin(2φ_s)/2) = ${alphaXX.toFixed(4)} (engagement factor)`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14N: Runout / TIR impact
+    // ──────────────────────────────────────────────────
+    let runout: RunoutImpact | undefined;
+    if (input.spindle_runout_mm || input.holder_runout_mm || input.tool_runout_mm) {
+      runout = runoutImpact(
+        input.spindle_runout_mm || 0.003,
+        input.holder_runout_mm || 0.005,
+        input.tool_runout_mm || 0.008,
+        fz, z,
+      );
+      if (runout.life_reduction_pct > 20) {
+        warnings.push(`TIR ${(runout.total_tir_mm * 1000).toFixed(0)}µm reduces tool life by ~${runout.life_reduction_pct.toFixed(0)}%. Effective flutes: ${runout.effective_flutes}/${z}`);
+      }
+      formulas.push(`TIR = √(δ_s² + δ_h² + δ_t²) = ${(runout.total_tir_mm * 1000).toFixed(0)}µm`);
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14O: ISO 3685 three-zone wear model
+    // ──────────────────────────────────────────────────
+    const wearZones = threeZoneWear(toolLife, cutType === "finishing" ? 0.3 : 0.6);
+    formulas.push(`ISO 3685: break-in=${wearZones.breakin_end_min}min, steady=${wearZones.steady_rate_um_min.toFixed(1)}µm/min, accel@${wearZones.accel_start_min}min`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14P: Gilbert economics (if machine cost provided)
+    // ──────────────────────────────────────────────────
+    let gilbert: GilbertResult | undefined;
+    if (input.machine_cost_per_min && input.tool_cost_usd) {
+      gilbert = gilbertOptimalSpeed(
+        taylorN, taylorC, input.machine_cost_per_min,
+        input.tool_cost_usd, input.tool_change_time_min || 2,
+        input.cutting_time_per_part_min || 5,
+      );
+      formulas.push(`Gilbert: V_min_cost=${gilbert.V_min_cost.toFixed(0)}m/min, V_max_prod=${gilbert.V_max_prod.toFixed(0)}m/min`);
+      if (Vc > gilbert.V_max_prod * 1.1) {
+        warnings.push(`Speed ${Vc.toFixed(0)}m/min exceeds max-production speed ${gilbert.V_max_prod.toFixed(0)}m/min — diminishing returns.`);
+      }
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14Q: Hertz contact pressure
+    // ──────────────────────────────────────────────────
+    const hertz = hertzContactPressure(Fc, hex_mm, ap);
+    formulas.push(`Hertz: σ_max=${hertz.max_pressure_MPa.toFixed(0)}MPa, lc=${hertz.contact_length_mm.toFixed(3)}mm`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14R: SSV recommendation
+    // ──────────────────────────────────────────────────
+    const natFreqEst = input.natural_frequency_hz || 800;
+    const ssv = ssvRecommendation(rpm, z, natFreqEst, !stability.is_stable);
+    if (ssv.enabled) {
+      recommendations.push(`SSV: vary RPM ${ssv.rpm_min}-${ssv.rpm_max} at ${ssv.variation_hz.toFixed(1)}Hz (CSI=${ssv.chatter_suppression_index.toFixed(0)})`);
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14S: Thermal dimensional error
+    // ──────────────────────────────────────────────────
+    let thermalError: { error_um: number; error_mm: number } | undefined;
+    if (input.workpiece_length_mm) {
+      // Thermal expansion coefficient: steel ~12, aluminum ~23, titanium ~8.6
+      const alpha = mat.iso_group === "N" ? 23 : mat.iso_group === "S" ? 8.6 : 12;
+      thermalError = thermalDimensionalError(input.workpiece_length_mm, alpha, heatPart.workpiece_temp_C - 20);
+      formulas.push(`Thermal error: ΔL = ${input.workpiece_length_mm}×${alpha}×${(heatPart.workpiece_temp_C - 20).toFixed(0)}/1000 = ${thermalError.error_um.toFixed(1)}µm`);
+      if (thermalError.error_um > 10) {
+        warnings.push(`Thermal expansion ${thermalError.error_um.toFixed(0)}µm on ${input.workpiece_length_mm}mm feature — consider coolant stabilization.`);
+      }
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 14T: Kronenberg chip compression
+    // ──────────────────────────────────────────────────
+    const kronenberg = kronenbergChipCompression(merchant.shearAngle, rakeAngle);
+    formulas.push(`Kronenberg: rc = cos(γ)/cos(φ-γ) = cos(${rakeAngle.toFixed(0)}°)/cos(${merchant.shearAngle.toFixed(0)}°-${rakeAngle.toFixed(0)}°) = ${kronenberg.toFixed(2)}`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 14U: Zorev contact stress distribution
+    // ──────────────────────────────────────────────────
+    const zorev = zorevContactStress(Fc, ap, hex_mm, Math.min(0.8, frictionCoeff));
+    formulas.push(`Zorev: σ_max=${zorev.max_stress_MPa.toFixed(0)}MPa, sticking=${zorev.sticking_length_mm.toFixed(3)}mm, sliding=${zorev.sliding_length_mm.toFixed(3)}mm`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 15: Surface finish prediction (moved before uncertainty calc)
     // ──────────────────────────────────────────────────
     const Ra_theoretical = theoreticalRa(isTurning ? fn : fz, cornerRadius, operation);
     // Practical Ra is typically 2-4× theoretical due to vibration, BUE, runout
@@ -1591,6 +2218,63 @@ export class UltimateSpeedFeedEngine {
     const fzConf = fzSource === "user_input" ? 1.0 : fzSource === "calculated" ? 0.90 : 0.75;
     const matConf = input.material || input.iso_group ? 0.9 : 0.5;
     const overallConf = Math.pow(vcConf * fzConf * matConf, 1 / 3);
+
+    // ──────────────────────────────────────────────────
+    // STEP 18B: Monte Carlo uncertainty propagation
+    // ──────────────────────────────────────────────────
+    const matUncert = (input.material || input.iso_group) ? 0.10 : 0.25;
+    const lookupUncert = 0.15;
+    const calcUncert = 0.05;
+    const vcUncertainty = monteCarloUncertainty(Vc,
+      [matUncert, vcSource === "lookup" ? lookupUncert : calcUncert]);
+    const fzUncertainty = monteCarloUncertainty(fz,
+      [matUncert, fzSource === "lookup" ? lookupUncert : calcUncert]);
+    const tlUncertainty = monteCarloUncertainty(toolLife,
+      [matUncert, 0.20, 0.10]);
+    const fcUncertainty = monteCarloUncertainty(Fc, [matUncert, 0.15]);
+    const raUncertainty = monteCarloUncertainty(Ra_theoretical, [0.10, 0.05]);
+    formulas.push(`MC uncertainty: Vc CV=${vcUncertainty.cv_pct.toFixed(1)}%`
+      + `, T CV=${tlUncertainty.cv_pct.toFixed(1)}%`
+      + `, Fc CV=${fcUncertainty.cv_pct.toFixed(1)}%`);
+
+    // ──────────────────────────────────────────────────
+    // STEP 18C: Process capability (if tolerance provided)
+    // ──────────────────────────────────────────────────
+    let procCap: ProcessCapabilityResult | undefined;
+    if (input.feature_tolerance_mm && thermalError) {
+      procCap = processCapability(
+        0, thermalError.error_mm,
+        input.feature_tolerance_mm, raUncertainty.cv_pct / 100,
+      );
+      formulas.push(`Cp=${procCap.Cp.toFixed(2)}, Cpk=${procCap.Cpk.toFixed(2)}`
+        + `, σ-level=${procCap.sigma_level.toFixed(1)}, ${procCap.rating}`);
+    }
+
+    // ──────────────────────────────────────────────────
+    // STEP 18D: Sensitivity ranking
+    // ──────────────────────────────────────────────────
+    const sensRanking = sensitivityRanking(taylor.sensitivity, matConf);
+
+    // ──────────────────────────────────────────────────
+    // STEP 18E: Pareto multi-objective frontier
+    // ──────────────────────────────────────────────────
+    const consAltMRR = alts.conservative.ap * (alts.conservative.ae_pct / 100 * Dc)
+      * alts.conservative.fz * z * ((alts.conservative.vc * 1000) / (Math.PI * Dc)) / 1000;
+    const balAltMRR = alts.balanced.ap * (alts.balanced.ae_pct / 100 * Dc)
+      * alts.balanced.fz * z * ((alts.balanced.vc * 1000) / (Math.PI * Dc)) / 1000;
+    const aggAltMRR = alts.aggressive.ap * (alts.aggressive.ae_pct / 100 * Dc)
+      * alts.aggressive.fz * z * ((alts.aggressive.vc * 1000) / (Math.PI * Dc)) / 1000;
+    const consLife = extendedTaylorToolLife(alts.conservative.vc, taylorN, taylorC, alts.conservative.fz, alts.conservative.ap).T_min;
+    const balLife = extendedTaylorToolLife(alts.balanced.vc, taylorN, taylorC, alts.balanced.fz, alts.balanced.ap).T_min;
+    const aggLife = extendedTaylorToolLife(alts.aggressive.vc, taylorN, taylorC, alts.aggressive.fz, alts.aggressive.ap).T_min;
+    const consRa = theoreticalRa(alts.conservative.fz, cornerRadius, operation);
+    const balRa = theoreticalRa(alts.balanced.fz, cornerRadius, operation);
+    const aggRa = theoreticalRa(alts.aggressive.fz, cornerRadius, operation);
+    const pareto = paretoFrontier(
+      { mrr: consAltMRR, life: consLife, ra: consRa },
+      { mrr: balAltMRR, life: balLife, ra: balRa },
+      { mrr: aggAltMRR, life: aggLife, ra: aggRa },
+    );
 
     // ──────────────────────────────────────────────────
     // STEP 19: Assemble result
@@ -1693,6 +2377,87 @@ export class UltimateSpeedFeedEngine {
         force_merchant_N: ov(Math.round(merchant.Fc), "N", 0.60, "calculated",
           `Fc = Fs×cos(β-γ)/cos(φ+β-γ)`),
       },
+      lee_shaffer_analysis: {
+        shear_angle_deg: ov(roundSig(lsAngle, 2), "°", 0.70, "calculated",
+          `φ = π/4 - β + γ (Lee-Shaffer)`),
+        delta_vs_merchant_deg: roundSig(lsDelta, 2),
+      },
+      johnson_cook: {
+        flow_stress_MPa: ov(Math.round(jc.stress_MPa), "MPa", 0.65, "calculated",
+          `σ=[A+Bε^n]×[1+C·ln(ε̇)]×[1-T*^m]`),
+        strain: jcStrain,
+        strain_rate: Math.round(jcStrainRate),
+        thermal_softening_pct: roundSig(jc.thermal_softening_pct, 1),
+      },
+      ploughing_force: {
+        force_N: ov(roundSig(ploughing.F_plough_N, 1), "N", 0.60, "calculated",
+          `F=Kp×re×ap (Albrecht)`),
+        pct_of_cutting_force: roundSig(ploughing.pct_of_total, 1),
+      },
+      heat_partition: {
+        chip_pct: ov(roundSig(heatPart.chip_pct, 1), "%", 0.65, "calculated",
+          `Boothroyd-Knight partition`),
+        tool_pct: ov(roundSig(heatPart.tool_pct, 1), "%", 0.65, "calculated"),
+        workpiece_pct: ov(roundSig(heatPart.workpiece_pct, 1), "%", 0.65, "calculated"),
+        tool_temp_C: ov(Math.round(heatPart.tool_temp_C), "°C", 0.55, "calculated"),
+        workpiece_temp_C: ov(Math.round(heatPart.workpiece_temp_C), "°C", 0.55, "calculated"),
+      },
+      directional_factor: ov(roundSig(alphaXX, 4), "×", 0.80, "calculated",
+        `α_xx=(1/(2π))×(φ_s-sin(2φ_s)/2)`),
+      ...(runout ? {
+        runout_impact: {
+          total_tir_mm: ov(roundSig(runout.total_tir_mm, 4), "mm", 0.85, "calculated",
+            `TIR=√(δ_s²+δ_h²+δ_t²)`),
+          effective_flutes: runout.effective_flutes,
+          ra_increase_um: ov(roundSig(runout.ra_increase_um, 2), "µm", 0.60, "calculated"),
+          life_reduction_pct: ov(roundSig(runout.life_reduction_pct, 1), "%", 0.55, "calculated"),
+        },
+      } : {}),
+      wear_zones: {
+        breakin_end_min: wearZones.breakin_end_min,
+        breakin_vb_mm: wearZones.breakin_vb_mm,
+        steady_rate_um_min: roundSig(wearZones.steady_rate_um_min, 2),
+        accel_start_min: wearZones.accel_start_min,
+      },
+      ...(gilbert ? {
+        gilbert_economics: {
+          V_min_cost: ov(roundSig(gilbert.V_min_cost, 1), "m/min", 0.55, "calculated",
+            `Gilbert: V=C×T_opt^(-n)`),
+          V_max_prod: ov(roundSig(gilbert.V_max_prod, 1), "m/min", 0.55, "calculated"),
+          T_min_cost_min: Math.round(gilbert.T_min_cost),
+          cost_per_part_optimal: ov(roundSig(gilbert.cost_per_part_optimal, 2), "$", 0.50, "calculated"),
+        },
+      } : {}),
+      hertz_contact: {
+        max_pressure_MPa: ov(Math.round(hertz.max_pressure_MPa), "MPa", 0.55, "calculated",
+          `σ_max≈1.5×F/(lc×b)`),
+        avg_pressure_MPa: ov(Math.round(hertz.avg_pressure_MPa), "MPa", 0.55, "calculated"),
+        contact_length_mm: roundSig(hertz.contact_length_mm, 3),
+      },
+      ssv_recommendation: {
+        enabled: ssv.enabled,
+        ...(ssv.enabled ? {
+          rpm_min: ssv.rpm_min, rpm_max: ssv.rpm_max,
+          variation_hz: roundSig(ssv.variation_hz, 2),
+          amplitude_pct: ssv.amplitude_pct,
+          chatter_suppression_index: roundSig(ssv.chatter_suppression_index, 1),
+        } : {}),
+      },
+      ...(thermalError ? {
+        thermal_dimensional_error: {
+          error_um: ov(roundSig(thermalError.error_um, 2), "µm", 0.50, "calculated",
+            `ΔL=L×α×ΔT`),
+          error_mm: roundSig(thermalError.error_mm, 4),
+        },
+      } : {}),
+      kronenberg_chip_compression: ov(roundSig(kronenberg, 3), "×", 0.65, "calculated",
+        `rc=cos(γ)/cos(φ-γ) (Kronenberg)`),
+      zorev_stress: {
+        max_stress_MPa: ov(Math.round(zorev.max_stress_MPa), "MPa", 0.55, "calculated",
+          `Zorev sticking/sliding`),
+        sticking_length_mm: roundSig(zorev.sticking_length_mm, 3),
+        sliding_length_mm: roundSig(zorev.sliding_length_mm, 3),
+      },
 
       chip_prediction: {
         type: chipPrediction.type,
@@ -1701,6 +2466,17 @@ export class UltimateSpeedFeedEngine {
 
       specific_cutting_energy: ov(roundSig(sce.sce_j_mm3, 3), "J/mm³", 0.70, "calculated",
         `SCE = P/MRR (ref ${sceRef[0]}-${sceRef[1]} for ISO ${effectiveIso})`),
+
+      uncertainty: {
+        cutting_speed: vcUncertainty,
+        feed_per_tooth: fzUncertainty,
+        tool_life: tlUncertainty,
+        force: fcUncertainty,
+        surface_finish: raUncertainty,
+      },
+      ...(procCap ? { process_capability: procCap } : {}),
+      pareto_frontier: pareto,
+      sensitivity_ranking: sensRanking,
 
       resolved: {
         material: materialKey,
@@ -1818,8 +2594,18 @@ export class UltimateSpeedFeedEngine {
       strategies: Object.keys(STRATEGY_MODS).length,
       cutting_data_entries: Object.keys(CUTTING_PARAMS).length,
       grade_specific_thermal_alloys: Object.keys(GRADE_THERMAL).length,
-      physics_models: 14, // Kienzle, Extended Taylor, Loewen-Shaw, chip thinning, surface finish, stability lobe, Usui diffusion, Archard abrasive, flank wear, tool cost, Merchant shear, chip type prediction, specific cutting energy, BUE threshold
-      output_parameters: 48,
+      physics_models: 31,
+      // Kienzle, Extended Taylor, Loewen-Shaw, chip thinning, surface finish,
+      // stability lobe (Altintas), Usui diffusion, Archard abrasive, flank wear,
+      // tool cost, Merchant shear, chip type prediction, specific cutting energy,
+      // BUE threshold, Lee-Shaffer shear angle, Johnson-Cook flow stress,
+      // Albrecht ploughing, Boothroyd-Knight heat partition, Altintas directional factor,
+      // TIR/runout impact, ISO 3685 three-zone wear, Gilbert optimal speed,
+      // Hertz contact pressure, SSV chatter suppression, thermal dimensional error,
+      // Kronenberg chip compression, Zorev contact stress,
+      // Monte Carlo uncertainty, process capability Cp/Cpk,
+      // Pareto multi-objective, Sobol sensitivity ranking
+      output_parameters: 78,
     };
   }
 }

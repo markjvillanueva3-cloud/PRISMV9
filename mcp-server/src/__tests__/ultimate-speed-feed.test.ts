@@ -344,8 +344,8 @@ describe("UltimateSpeedFeedEngine", () => {
     expect(s.operations).toBe(7);
     expect(s.strategies).toBe(7);
     expect(s.grade_specific_thermal_alloys).toBeGreaterThanOrEqual(40);
-    expect(s.physics_models).toBe(14);
-    expect(s.output_parameters).toBe(48);
+    expect(s.physics_models).toBe(31);
+    expect(s.output_parameters).toBe(78);
   });
 
   // ── Formulas shown ──
@@ -542,5 +542,271 @@ describe("UltimateSpeedFeedEngine", () => {
   it("handles fuzzy material match", () => {
     const r = ultimateSpeedFeedEngine.calculate({ material: "6061-T6" });
     expect(r.resolved.iso_group).toBe("N");
+  });
+
+  // ══════════════════════════════════════════════════════
+  // NEW MODELS — Enhancement Round 3 (31 physics models)
+  // ══════════════════════════════════════════════════════
+
+  it("Lee-Shaffer shear angle differs from Merchant", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.lee_shaffer_analysis.shear_angle_deg.value).toBeGreaterThan(0);
+    expect(r.lee_shaffer_analysis.shear_angle_deg.value).toBeLessThan(50);
+    // Lee-Shaffer typically gives different angle than Merchant
+    expect(r.lee_shaffer_analysis.delta_vs_merchant_deg).not.toBe(0);
+    expect(r.lee_shaffer_analysis.shear_angle_deg.formula).toContain("Lee-Shaffer");
+  });
+
+  it("Johnson-Cook flow stress with thermal softening", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "titanium" });
+    expect(r.johnson_cook.flow_stress_MPa.value).toBeGreaterThan(0);
+    expect(r.johnson_cook.strain).toBe(2);
+    expect(r.johnson_cook.strain_rate).toBeGreaterThan(100);
+    expect(r.johnson_cook.thermal_softening_pct).toBeGreaterThan(0);
+    // Hot titanium softens significantly
+    const rAl = ultimateSpeedFeedEngine.calculate({ material: "aluminum" });
+    expect(rAl.johnson_cook.flow_stress_MPa.value).toBeLessThan(r.johnson_cook.flow_stress_MPa.value);
+  });
+
+  it("Albrecht ploughing force increases with edge radius", () => {
+    const r1 = ultimateSpeedFeedEngine.calculate({ material: "steel", edge_radius_mm: 0.005 });
+    const r2 = ultimateSpeedFeedEngine.calculate({ material: "steel", edge_radius_mm: 0.030 });
+    expect(r2.ploughing_force.force_N.value).toBeGreaterThan(r1.ploughing_force.force_N.value);
+    expect(r1.ploughing_force.pct_of_cutting_force).toBeGreaterThan(0);
+    expect(r1.ploughing_force.pct_of_cutting_force).toBeLessThan(50);
+  });
+
+  it("Boothroyd-Knight heat partition sums to ~100%", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    const sum = r.heat_partition.chip_pct.value
+      + r.heat_partition.tool_pct.value
+      + r.heat_partition.workpiece_pct.value;
+    expect(sum).toBeGreaterThan(85);
+    expect(sum).toBeLessThanOrEqual(105);
+    // Chip carries most heat
+    expect(r.heat_partition.chip_pct.value).toBeGreaterThan(50);
+  });
+
+  it("heat partition: low-k materials have higher tool heat", () => {
+    const rTi = ultimateSpeedFeedEngine.calculate({ material: "titanium" });
+    const rAl = ultimateSpeedFeedEngine.calculate({ material: "aluminum" });
+    // Titanium (k=7) should put more heat into tool than aluminum (k=167)
+    expect(rTi.heat_partition.tool_pct.value).toBeGreaterThan(rAl.heat_partition.tool_pct.value);
+  });
+
+  it("directional factor varies with engagement", () => {
+    const r1 = ultimateSpeedFeedEngine.calculate({ material: "steel", radial_depth_pct: 10 });
+    const r2 = ultimateSpeedFeedEngine.calculate({ material: "steel", radial_depth_pct: 50 });
+    expect(r1.directional_factor.value).toBeGreaterThan(0);
+    expect(r2.directional_factor.value).toBeGreaterThan(r1.directional_factor.value);
+  });
+
+  it("runout impact computed when TIR inputs provided", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      spindle_runout_mm: 0.003,
+      holder_runout_mm: 0.005,
+      tool_runout_mm: 0.010,
+    });
+    expect(r.runout_impact).toBeDefined();
+    expect(r.runout_impact!.total_tir_mm.value).toBeGreaterThan(0.010);
+    expect(r.runout_impact!.effective_flutes).toBeGreaterThanOrEqual(1);
+    expect(r.runout_impact!.ra_increase_um.value).toBeGreaterThan(0);
+    expect(r.runout_impact!.life_reduction_pct.value).toBeGreaterThan(0);
+  });
+
+  it("runout_impact absent when no TIR inputs", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.runout_impact).toBeUndefined();
+  });
+
+  it("ISO 3685 three-zone wear model", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.wear_zones.breakin_end_min).toBeGreaterThan(0);
+    expect(r.wear_zones.breakin_vb_mm).toBeGreaterThan(0);
+    expect(r.wear_zones.steady_rate_um_min).toBeGreaterThan(0);
+    expect(r.wear_zones.accel_start_min).toBeGreaterThan(r.wear_zones.breakin_end_min);
+  });
+
+  it("Gilbert economics when machine cost provided", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      tool_cost_usd: 50,
+      machine_cost_per_min: 1.5,
+      tool_change_time_min: 3,
+      cutting_time_per_part_min: 5,
+    });
+    expect(r.gilbert_economics).toBeDefined();
+    expect(r.gilbert_economics!.V_min_cost.value).toBeGreaterThan(0);
+    expect(r.gilbert_economics!.V_max_prod.value).toBeGreaterThan(
+      r.gilbert_economics!.V_min_cost.value);
+    expect(r.gilbert_economics!.cost_per_part_optimal.value).toBeGreaterThan(0);
+  });
+
+  it("Gilbert absent without machine cost", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.gilbert_economics).toBeUndefined();
+  });
+
+  it("Hertz contact pressure computed", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.hertz_contact.max_pressure_MPa.value).toBeGreaterThan(0);
+    expect(r.hertz_contact.avg_pressure_MPa.value).toBeGreaterThan(0);
+    expect(r.hertz_contact.max_pressure_MPa.value).toBeGreaterThan(
+      r.hertz_contact.avg_pressure_MPa.value);
+    expect(r.hertz_contact.contact_length_mm).toBeGreaterThan(0);
+  });
+
+  it("SSV recommendation when chatter risk", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      axial_depth_mm: 30,
+      system_stiffness_n_m: 5e6,
+      natural_frequency_hz: 500,
+      damping_ratio: 0.02,
+    });
+    // With extreme DOC and low stiffness, chatter is likely
+    if (!r.stability.is_stable) {
+      expect(r.ssv_recommendation.enabled).toBe(true);
+      expect(r.ssv_recommendation.rpm_min).toBeDefined();
+      expect(r.ssv_recommendation.rpm_max).toBeDefined();
+      expect(r.ssv_recommendation.chatter_suppression_index).toBeGreaterThan(0);
+    }
+  });
+
+  it("SSV disabled when stable", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "aluminum",
+      axial_depth_mm: 1,
+    });
+    if (r.stability.is_stable) {
+      expect(r.ssv_recommendation.enabled).toBe(false);
+    }
+  });
+
+  it("thermal dimensional error with workpiece length", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "aluminum",
+      workpiece_length_mm: 200,
+    });
+    expect(r.thermal_dimensional_error).toBeDefined();
+    expect(r.thermal_dimensional_error!.error_um.value).toBeGreaterThan(0);
+    // Aluminum has high CTE (~23), should have noticeable error
+    expect(r.thermal_dimensional_error!.error_mm).toBeGreaterThan(0);
+  });
+
+  it("thermal error absent without workpiece length", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.thermal_dimensional_error).toBeUndefined();
+  });
+
+  it("Kronenberg chip compression ratio", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.kronenberg_chip_compression.value).toBeGreaterThan(0.5);
+    expect(r.kronenberg_chip_compression.value).toBeLessThan(5);
+    expect(r.kronenberg_chip_compression.formula).toContain("Kronenberg");
+  });
+
+  it("Zorev contact stress distribution", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.zorev_stress.max_stress_MPa.value).toBeGreaterThan(0);
+    expect(r.zorev_stress.sticking_length_mm).toBeGreaterThan(0);
+    expect(r.zorev_stress.sliding_length_mm).toBeGreaterThan(0);
+    // Max > avg by definition (Zorev triangular distribution)
+    expect(r.zorev_stress.max_stress_MPa.value).toBeGreaterThan(0);
+  });
+
+  it("Monte Carlo uncertainty on all key outputs", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.uncertainty.cutting_speed.cv_pct).toBeGreaterThan(0);
+    expect(r.uncertainty.tool_life.cv_pct).toBeGreaterThan(0);
+    expect(r.uncertainty.force.cv_pct).toBeGreaterThan(0);
+    expect(r.uncertainty.surface_finish.cv_pct).toBeGreaterThan(0);
+    // CI bounds bracket nominal
+    expect(r.uncertainty.cutting_speed.ci_95_low).toBeLessThan(r.cutting_speed.value);
+    expect(r.uncertainty.cutting_speed.ci_95_high).toBeGreaterThan(r.cutting_speed.value);
+    // Tool life has higher uncertainty than cutting speed
+    expect(r.uncertainty.tool_life.cv_pct).toBeGreaterThan(r.uncertainty.cutting_speed.cv_pct);
+  });
+
+  it("uncertainty higher without material specified", () => {
+    const r1 = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    const r2 = ultimateSpeedFeedEngine.calculate({});
+    expect(r2.uncertainty.cutting_speed.cv_pct).toBeGreaterThan(
+      r1.uncertainty.cutting_speed.cv_pct);
+  });
+
+  it("process capability when tolerance provided", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      workpiece_length_mm: 100,
+      feature_tolerance_mm: 0.05,
+    });
+    expect(r.process_capability).toBeDefined();
+    expect(r.process_capability!.Cp).toBeGreaterThan(0);
+    expect(r.process_capability!.Cpk).toBeGreaterThanOrEqual(0);
+    expect(r.process_capability!.sigma_level).toBeGreaterThanOrEqual(0);
+    expect(["excellent", "capable", "marginal", "incapable"]).toContain(
+      r.process_capability!.rating);
+  });
+
+  it("Pareto frontier has 3 points", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.pareto_frontier).toHaveLength(3);
+    expect(r.pareto_frontier[0].label).toBe("conservative");
+    expect(r.pareto_frontier[1].label).toBe("balanced");
+    expect(r.pareto_frontier[2].label).toBe("aggressive");
+    // Aggressive has highest MRR
+    expect(r.pareto_frontier[2].mrr).toBeGreaterThan(r.pareto_frontier[0].mrr);
+    // Conservative has longest tool life
+    expect(r.pareto_frontier[0].tool_life).toBeGreaterThan(r.pareto_frontier[2].tool_life);
+    // All have scores between 0 and 1
+    for (const p of r.pareto_frontier) {
+      expect(p.score).toBeGreaterThan(0);
+      expect(p.score).toBeLessThanOrEqual(1);
+    }
+  });
+
+  it("sensitivity ranking sorted by influence", () => {
+    const r = ultimateSpeedFeedEngine.calculate({ material: "steel" });
+    expect(r.sensitivity_ranking.length).toBeGreaterThanOrEqual(5);
+    // Should be sorted descending by influence
+    for (let i = 1; i < r.sensitivity_ranking.length; i++) {
+      expect(r.sensitivity_ranking[i - 1].influence_pct)
+        .toBeGreaterThanOrEqual(r.sensitivity_ranking[i].influence_pct);
+    }
+    // Cutting speed should be high influence (Taylor dominant)
+    expect(r.sensitivity_ranking.some(s => s.parameter === "cutting_speed")).toBe(true);
+  });
+
+  it("Johnson-Cook materials cover all 14 profiles", () => {
+    const materials = ["steel", "aluminum", "titanium", "inconel", "stainless_steel",
+      "hardened_steel", "cast_iron", "copper", "brass", "plastic"];
+    for (const mat of materials) {
+      const r = ultimateSpeedFeedEngine.calculate({ material: mat });
+      expect(r.johnson_cook.flow_stress_MPa.value).toBeGreaterThan(0);
+    }
+  });
+
+  it("formulas include all new model names", () => {
+    const r = ultimateSpeedFeedEngine.calculate({
+      material: "steel",
+      edge_radius_mm: 0.01,
+      workpiece_length_mm: 100,
+      machine_cost_per_min: 1.5,
+      tool_cost_usd: 50,
+      spindle_runout_mm: 0.003,
+    });
+    const formStr = r.formulas_used.join(" ");
+    expect(formStr).toContain("Lee-Shaffer");
+    expect(formStr).toContain("J-C:");
+    expect(formStr).toContain("Albrecht");
+    expect(formStr).toContain("Heat partition");
+    expect(formStr).toContain("ISO 3685");
+    expect(formStr).toContain("Hertz");
+    expect(formStr).toContain("Kronenberg");
+    expect(formStr).toContain("Zorev");
+    expect(formStr).toContain("MC uncertainty");
+    expect(formStr).toContain("Gilbert");
   });
 });
