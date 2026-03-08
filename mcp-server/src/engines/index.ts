@@ -2814,7 +2814,7 @@ export { PressBrakeEngine, pressBrakeEngine } from './PressBrakeEngine.js';
 
 // Batch 42 � RollingContact, ElectroPlating, CastingDefect
 export { RollingContactEngine, rollingContactEngine } from './RollingContactEngine.js';
-export { ElectroPlatingEngine, electroPlatingEngine } from './ElectroPlatingEngine.js';
+export { ElectroplatingEngine, electroplatingEngine } from './ElectroPlatingEngine.js';
 export { CastingDefectEngine, castingDefectEngine } from './CastingDefectEngine.js';
 
 // Batch 43 � TorsionBar, ColumnBuckling, FlatPattern
@@ -3148,3 +3148,7 @@ export { ElectrostaticPrecipitatorEngine, electrostaticPrecipitatorEngine } from
 export { ResistanceWeldingEngine, resistanceWeldingEngine } from "./ResistanceWeldingEngine.js";
 export { SolderingProcessEngine, solderingProcessEngine } from "./SolderingProcessEngine.js";
 export { BrazingProcessEngine, brazingProcessEngine } from "./BrazingProcessEngine.js";
+
+export { ElectroplatingEngine, electroplatingEngine } from "./ElectroplatingEngine.js";
+export { ThermalSprayEngine, thermalSprayEngine } from "./ThermalSprayEngine.js";
+export { PhotochemicalEtchingEngine, photochemicalEtchingEngine } from "./PhotochemicalEtchingEngine.js";
