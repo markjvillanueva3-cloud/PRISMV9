@@ -3003,3 +3003,9 @@ export { CoatingThicknessEngine, coatingThicknessEngine } from './CoatingThickne
 export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType, SubstrateType } from './CoatingThicknessEngine.js';
 export { TribologyEngine, tribologyEngine } from './TribologyEngine.js';
 export type { TribologyInput, TribologyResult, LubricationRegime, WearMechanism } from './TribologyEngine.js';
+export { RollingBearingEngine, rollingBearingEngine } from './RollingBearingEngine.js';
+export type { RollingBearingInput, RollingBearingResult, BearingType } from './RollingBearingEngine.js';
+export { ScrewCompressorEngine, screwCompressorEngine } from './ScrewCompressorEngine.js';
+export type { ScrewCompressorInput, ScrewCompressorResult, CompressorCooling, CapacityControl } from './ScrewCompressorEngine.js';
+export { ReciprocatingCompressorEngine, reciprocatingCompressorEngine } from './ReciprocatingCompressorEngine.js';
+export type { ReciprocatingCompressorInput, ReciprocatingCompressorResult, CompressorAction, ValveType } from './ReciprocatingCompressorEngine.js';
