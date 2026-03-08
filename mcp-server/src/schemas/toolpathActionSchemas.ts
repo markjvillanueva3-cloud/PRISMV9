@@ -133,6 +133,41 @@ const generate = z.object({
 }).passthrough();
 
 // ============================================================================
+// FEATURE TO ZONE (1) — FeatureToZoneEngine [CAMK-MS0/U01]
+// ============================================================================
+
+const feature_to_zone = z.object({
+  features: z.array(z.object({
+    id: z.string().min(1),
+    type: z.enum([
+      "pocket", "slot", "boss", "hole", "freeform_surface",
+      "planar_face", "chamfer", "fillet", "rib", "thin_wall",
+      "stepped_pocket", "contour",
+    ]),
+    dims: z.object({
+      length_mm: z.number().positive().optional(),
+      width_mm: z.number().positive().optional(),
+      depth_mm: z.number().positive().optional(),
+      diameter_mm: z.number().positive().optional(),
+      height_mm: z.number().positive().optional(),
+    }),
+    wall_angles_deg: z.array(z.number()).optional(),
+    corner_radii_mm: z.array(z.number().positive()).optional(),
+    curvature: z.object({
+      min_radius_mm: z.number().positive().optional(),
+      max_radius_mm: z.number().positive().optional(),
+      avg_radius_mm: z.number().positive().optional(),
+      type: z.enum(["convex", "concave", "saddle", "flat"]).optional(),
+    }).optional(),
+    floor: z.enum(["flat", "curved", "stepped"]).optional(),
+    accessible_from: z.array(z.enum(["+Z", "-Z", "+X", "-X", "+Y", "-Y"])).optional(),
+    tolerance_mm: z.number().positive().optional(),
+    target_ra_um: z.number().positive().optional(),
+  })).min(1),
+  output_format: z.enum(["unified", "mthzd", "macs"]).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT: ACTION_TOOLPATH_SCHEMAS
 // ============================================================================
 
@@ -154,4 +189,6 @@ export const ACTION_TOOLPATH_SCHEMAS: ActionSchemaMap = {
   prism_novel,
   // Generation engine
   generate,
+  // Feature-to-zone decomposition [CAMK-MS0/U01]
+  feature_to_zone,
 };
