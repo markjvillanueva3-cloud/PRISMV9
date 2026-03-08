@@ -2854,15 +2854,15 @@ export type { CornerGeometry, EngagementInput, EngagementResult as AdaptiveEngag
 export { HybridPostMergeEngine, hybridPostMergeEngine } from "./HybridPostMergeEngine.js";
 export type { PostSegment, MergeInput, MergeResult } from "./HybridPostMergeEngine.js";
 export { ThermalCompensationModelEngine, thermalCompensationModelEngine } from "./ThermalCompensationModelEngine.js";
-export type { ThermalInput, ThermalResult } from "./ThermalCompensationModelEngine.js";
+export type { ThermalInput as ThermalCompInput, ThermalResult as ThermalCompResult } from "./ThermalCompensationModelEngine.js";
 export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCProcessCapabilityEngine.js";
 export type { SPCInput, SPCResult } from "./SPCProcessCapabilityEngine.js";
 export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";
 export type { ParetoInput, ParetoResult, ParetoSolution } from "./MultiObjectiveParetoEngine.js";
 export { ChatterStabilityLobeEngine, chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
-export type { ChatterInput, ChatterResult } from "./ChatterStabilityLobeEngine.js";
+export type { ChatterInput as ChatterLobeInput, ChatterResult as ChatterLobeResult } from "./ChatterStabilityLobeEngine.js";
 export { SurfaceIntegrityPredictorEngine, surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
-export type { SurfaceIntegrityInput, SurfaceIntegrityResult } from "./SurfaceIntegrityPredictorEngine.js";
+export type { SurfaceIntegrityInput as SIPredictorInput, SurfaceIntegrityResult as SIPredictorResult } from "./SurfaceIntegrityPredictorEngine.js";
 export { MachiningEnergyModelEngine, machiningEnergyModelEngine } from "./MachiningEnergyModelEngine.js";
 export type { MachiningEnergyInput, MachiningEnergyResult } from "./MachiningEnergyModelEngine.js";
 
@@ -2911,3 +2911,6 @@ export { ThermoformingEngine, thermoformingEngine } from "./ThermoformingEngine.
 export { SpringDesignEngine, springDesignEngine } from "./SpringDesignEngine.js";
 export { FlywheelEngine, flywheelEngine } from "./FlywheelEngine.js";
 export { VibrationIsolatorEngine, vibrationIsolatorEngine } from "./VibrationIsolatorEngine.js";
+export { GearPumpEngine, gearPumpEngine } from "./GearPumpEngine.js";
+export { VacuumPumpEngine, vacuumPumpEngine } from "./VacuumPumpEngine.js";
+export { AirCompressorEngine, airCompressorEngine } from "./AirCompressorEngine.js";
