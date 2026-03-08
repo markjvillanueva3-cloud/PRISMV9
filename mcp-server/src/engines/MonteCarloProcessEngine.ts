@@ -181,7 +181,7 @@ export class MonteCarloProcessEngine {
       roughs.push(Ra);
 
       // Taylor tool life
-      const T = taylorC / Math.pow(Math.max(1, vc), 1 / taylorN);
+      const T = Math.pow(taylorC / Math.max(1, vc), 1 / taylorN);
       // Weibull scatter: multiply by lognormal factor
       const lifeScatter = Math.exp(0.3 * boxMuller(rng));
       const adjustedLife = T * lifeScatter * Math.pow(0.3 / Math.max(0.01, vb), 0.5);

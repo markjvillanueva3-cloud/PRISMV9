@@ -329,6 +329,10 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { nominal_mm: result.value.nominal_gap_mm, wc_feasible: result.value.worst_case.feasible, rss_feasible: result.value.rss.feasible, mc_reject_pct: result.value.monte_carlo.reject_pct };
     case "runout_effect":
       return { imbalance_pct: result.value.chipload_imbalance_pct, life_reduction_pct: result.value.tool_life_reduction_pct, waviness_um: result.value.surface_waviness_um, critical_tir_um: result.value.critical_tir_um };
+    case "process_digital_twin":
+      return { force_n: result.value.force.tangential_n, deflection_mm: result.value.deflection.total_mm, tool_life_min: result.value.tool_life.minutes, ra_um: result.value.surface.ra_um, cost_per_part: result.value.cost.total_cost_per_part, bottleneck: result.value.bottleneck };
+    case "process_robustness":
+      return { robustness: result.value.robustness_index, grade: result.value.robustness_grade, sensitivities: result.value.sensitivities.length, worst_force_inc_pct: result.value.worst_case_scenario.force_increase_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -522,6 +526,8 @@ const ACTIONS = [
   "springback_predict",
   "gdt_stackup",
   "runout_effect",
+  "process_digital_twin",
+  "process_robustness",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4047,6 +4053,16 @@ export function registerCalcDispatcher(server: any): void {
           case "runout_effect": {
             const { runoutEffectEngine } = await import("../../engines/RunoutEffectEngine.js");
             result = runoutEffectEngine.compute({ tool: params.tool, runout: params.runout, cutting: params.cutting, material: params.material });
+            break;
+          }
+          case "process_digital_twin": {
+            const { processDigitalTwinEngine } = await import("../../engines/ProcessDigitalTwinEngine.js");
+            result = processDigitalTwinEngine.compute({ tool: params.tool, cutting: params.cutting, material: params.material, workpiece: params.workpiece, machine: params.machine });
+            break;
+          }
+          case "process_robustness": {
+            const { processRobustnessEngine } = await import("../../engines/ProcessRobustnessEngine.js");
+            result = processRobustnessEngine.compute({ nominal: params.nominal, material: params.material, noise_factors: params.noise_factors, weights: params.weights, tolerance_mm: params.tolerance_mm });
             break;
           }
           default:

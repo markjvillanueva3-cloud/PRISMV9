@@ -104,7 +104,7 @@ function computeResponse(
     case "tool_life": {
       const n = TAYLOR_N[material.iso_group] || 0.25;
       const C = TAYLOR_C[material.iso_group] || 350;
-      return C / Math.pow(Math.max(1, vc), 1 / n);
+      return Math.pow(C / Math.max(1, vc), 1 / n);
     }
     case "mrr": return (ap * ae * fz * tool.flute_count * (vc * 1000 / (Math.PI * tool.diameter_mm))) / 1000; // cm³/min
     case "cycle_time": {
