@@ -610,6 +610,17 @@ const ACTIONS = [
   "waterjet_params", "shot_peening",
   // Troubleshoot
   "troubleshoot",
+  // ── CNC/Machining calculators (30 engines) ──
+  "cutting_force_calc", "spindle_power_verify", "trochoidal_milling_calc",
+  "tool_wear_rate", "cutting_temperature_calc", "surface_roughness_calc",
+  "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
+  "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
+  "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
+  "chip_load_calc", "chip_breaking_calc", "spindle_torque_curve",
+  "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
+  "tool_cost_per_part", "stock_allowance", "workholding_force",
+  "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
+  "cutting_fluid_select", "spindle_bearing_load", "micro_machining_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4228,6 +4239,158 @@ export function registerCalcDispatcher(server: any): void {
             };
             break;
           }
+          // ── CNC/Machining calculators (30 engines) ──
+          case "cutting_force_calc": {
+            const { cuttingForceEngine } = await import("../../engines/CuttingForceEngine.js");
+            result = cuttingForceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spindle_power_verify": {
+            const { spindlePowerCheckEngine } = await import("../../engines/SpindlePowerCheckEngine.js");
+            result = spindlePowerCheckEngine.powerCheck(params as ValidatedParams);
+            break;
+          }
+          case "trochoidal_milling_calc": {
+            const { trochoidalMillingEngine } = await import("../../engines/TrochoidalMillingEngine.js");
+            result = trochoidalMillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_wear_rate": {
+            const { toolWearRateEngine } = await import("../../engines/ToolWearRateEngine.js");
+            result = toolWearRateEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cutting_temperature_calc": {
+            const { cuttingTemperatureEngine } = await import("../../engines/CuttingTemperatureEngine.js");
+            result = cuttingTemperatureEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "surface_roughness_calc": {
+            const { surfaceRoughnessEngine } = await import("../../engines/SurfaceRoughnessEngine.js");
+            result = surfaceRoughnessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "boring_bar_deflection": {
+            const { boringBarDeflectionEngine } = await import("../../engines/BoringBarDeflectionEngine.js");
+            result = boringBarDeflectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "helical_milling_calc": {
+            const { helicalMillingEngine } = await import("../../engines/HelicalMillingEngine.js");
+            result = helicalMillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "plunge_milling_calc": {
+            const { plungeMillingEngine } = await import("../../engines/PlungeMillingEngine.js");
+            result = plungeMillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "high_feed_milling_calc": {
+            const { highFeedMillingEngine } = await import("../../engines/HighFeedMillingEngine.js");
+            result = highFeedMillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "gun_drilling_calc": {
+            const { gunDrillingEngine } = await import("../../engines/GunDrillingEngine.js");
+            result = gunDrillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "peck_drilling_calc": {
+            const { peckDrillingEngine } = await import("../../engines/PeckDrillingEngine.js");
+            result = peckDrillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "reaming_calc": {
+            const { reamingEngine } = await import("../../engines/ReamingEngine.js");
+            result = reamingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "coolant_flow_calc": {
+            const { coolantFlowEngine } = await import("../../engines/CoolantFlowEngine.js");
+            result = coolantFlowEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "coolant_pressure_calc": {
+            const { coolantPressureEngine } = await import("../../engines/CoolantPressureEngine.js");
+            result = coolantPressureEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chip_load_calc": {
+            const { chipLoadEngine } = await import("../../engines/ChipLoadEngine.js");
+            result = chipLoadEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chip_breaking_calc": {
+            const { chipBreakingEngine } = await import("../../engines/ChipBreakingEngine.js");
+            result = chipBreakingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spindle_torque_curve": {
+            const { spindleTorqueCurveEngine } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = spindleTorqueCurveEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_overhang_calc": {
+            const { toolOverhangEngine } = await import("../../engines/ToolOverhangEngine.js");
+            result = toolOverhangEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_runout_calc": {
+            const { toolRunoutEngine } = await import("../../engines/ToolRunoutEngine.js");
+            result = toolRunoutEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cycle_time_calc": {
+            const { cycleTimeEngine } = await import("../../engines/CycleTimeEngine.js");
+            result = cycleTimeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_cost_per_part": {
+            const { toolCostPerPartEngine } = await import("../../engines/ToolCostPerPartEngine.js");
+            result = toolCostPerPartEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "stock_allowance": {
+            const { stockAllowanceEngine } = await import("../../engines/StockAllowanceEngine.js");
+            result = stockAllowanceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "workholding_force": {
+            const { workholdingForceEngine } = await import("../../engines/WorkholdingForceEngine.js");
+            result = workholdingForceEngine.clampForce(params as ValidatedParams);
+            break;
+          }
+          case "stepover_calc": {
+            const { toolPathStepoverEngine } = await import("../../engines/ToolPathStepoverEngine.js");
+            result = toolPathStepoverEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "ultimate_speed_feed": {
+            const { ultimateSpeedFeedEngine } = await import("../../engines/UltimateSpeedFeedEngine.js");
+            result = ultimateSpeedFeedEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tool_selection_advice": {
+            const { toolSelectionAdvisorEngine } = await import("../../engines/ToolSelectionAdvisorEngine.js");
+            result = toolSelectionAdvisorEngine.advise(params as ValidatedParams);
+            break;
+          }
+          case "cutting_fluid_select": {
+            const { cuttingFluidSelectionEngine } = await import("../../engines/CuttingFluidSelectionEngine.js");
+            result = cuttingFluidSelectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spindle_bearing_load": {
+            const { spindleBearingLoadEngine } = await import("../../engines/SpindleBearingLoadEngine.js");
+            result = spindleBearingLoadEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "micro_machining_calc": {
+            const { microMachiningEngine } = await import("../../engines/MicroMachiningEngine.js");
+            result = microMachiningEngine.microMill(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
