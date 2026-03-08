@@ -34,7 +34,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program, simulate (Kienzle force/Jaeger temp/deflection/Brammertz roughness along path), collision_check (tool assembly collision detection)",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program, simulate (Kienzle force/Jaeger temp/deflection/Brammertz roughness along path), collision_check (tool assembly collision detection), surface_finish_predict (Brammertz/scallop/waviness along path)",
     {
       action: z.enum([
         "strategy_select",
@@ -62,7 +62,8 @@ export function registerToolpathDispatcher(server: any): void {
         "novel_generate_program",
         "simulate",
         "stock_simulate",
-        "collision_check"
+        "collision_check",
+        "surface_finish_predict"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -289,6 +290,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "collision_check": {
             const { collisionIntegrationEngine } = await import("../../engines/CollisionIntegrationEngine.js");
             result = collisionIntegrationEngine.check(params as ValidatedParams);
+            break;
+          }
+
+          case "surface_finish_predict": {
+            const { surfaceFinishPredictorEngine } = await import("../../engines/SurfaceFinishPredictorEngine.js");
+            result = surfaceFinishPredictorEngine.predict(params as ValidatedParams);
             break;
           }
 
