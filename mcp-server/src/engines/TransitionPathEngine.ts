@@ -68,7 +68,7 @@ interface BatchTransitionResult {
 
 // ── Engine ──────────────────────────────────────────────────────────────────
 
-class TransitionPathEngine {
+export class TransitionPathEngine {
   private dist3D(a: Point3D, b: Point3D): number {
     return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2 + (b.z - a.z) ** 2);
   }
