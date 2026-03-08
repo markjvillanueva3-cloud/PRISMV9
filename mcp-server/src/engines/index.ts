@@ -2691,6 +2691,9 @@ export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.
 // Bolt Torque Engine � torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
+// Tool Axis Optimization Engine — 5-axis orientation optimization [CAMK-MS0/U05]
+export { toolAxisOptimizationEngine, type ToolAxisInput, type ToolAxisResult, type OptimizedAxis } from "./ToolAxisOptimizationEngine.js";
+
 // Stepover Optimization Engine — curvature-adaptive stepover [CAMK-MS0/U04]
 export { stepoverOptimizationEngine, type StepoverResult, type StepoverInput } from "./StepoverOptimizationEngine.js";
 
