@@ -2691,6 +2691,9 @@ export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.
 // Bolt Torque Engine � torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
+// Stepover Optimization Engine — curvature-adaptive stepover [CAMK-MS0/U04]
+export { stepoverOptimizationEngine, type StepoverResult, type StepoverInput } from "./StepoverOptimizationEngine.js";
+
 // Cutter Contact Engine — analytical CC point computation [CAMK-MS0/U03]
 export { cutterContactEngine, type CCPoint, type CCResult, type CCInput } from "./CutterContactEngine.js";
 
