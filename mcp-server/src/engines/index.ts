@@ -2883,6 +2883,14 @@ export { ProcessDigitalTwinEngine, processDigitalTwinEngine } from "./ProcessDig
 export type { DigitalTwinInput, CoupledPrediction } from "./ProcessDigitalTwinEngine.js";
 export { ProcessRobustnessEngine, processRobustnessEngine } from "./ProcessRobustnessEngine.js";
 export type { RobustnessInput, RobustnessResult } from "./ProcessRobustnessEngine.js";
+export { KalmanFilterEngine, kalmanFilterEngine } from "./KalmanFilterEngine.js";
+export type { KalmanInput, KalmanResult } from "./KalmanFilterEngine.js";
+export { AMSAAReliabilityGrowthEngine, amsaaReliabilityGrowthEngine } from "./AMSAAReliabilityGrowthEngine.js";
+export type { AMSAAInput, AMSAAResult } from "./AMSAAReliabilityGrowthEngine.js";
+export { ChanceConstrainedOptimizationEngine, chanceConstrainedOptimizationEngine } from "./ChanceConstrainedOptimizationEngine.js";
+export type { ChanceConstrainedInput, ChanceConstrainedResult } from "./ChanceConstrainedOptimizationEngine.js";
+export { AcousticEmissionMonitoringEngine, acousticEmissionMonitoringEngine } from "./AcousticEmissionMonitoringEngine.js";
+export type { AEMonitoringInput, AEMonitoringResult } from "./AcousticEmissionMonitoringEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2971,3 +2979,7 @@ export { DiffuserEngine, diffuserEngine } from './DiffuserEngine.js';
 export { BayesianInferenceEngine, bayesianInferenceEngine } from './BayesianInferenceEngine.js';
 export { WaveletAnalysisEngine, waveletAnalysisEngine } from './WaveletAnalysisEngine.js';
 export { TimeSeriesARIMAEngine, timeSeriesARIMAEngine } from './TimeSeriesARIMAEngine.js';
+
+export { ExponentialSmoothingEngine, exponentialSmoothingEngine } from './ExponentialSmoothingEngine.js';
+export { PrincipalComponentEngine, principalComponentEngine } from './PrincipalComponentEngine.js';
+export { ClusterAnalysisEngine, clusterAnalysisEngine } from './ClusterAnalysisEngine.js';
