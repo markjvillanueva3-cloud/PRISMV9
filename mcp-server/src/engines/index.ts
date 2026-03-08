@@ -2691,6 +2691,9 @@ export { smartPrefetchEngine, SmartPrefetchEngine } from "./SmartPrefetchEngine.
 // Bolt Torque Engine � torque-tension, clamp load, VDI 2230
 export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 
+// Algorithm Selector Engine — auto-select best novel algorithm per zone [CAMK-MS0/U02]
+export { algorithmSelectorEngine, type NovelAlgorithmId, type AlgorithmSelectionInput, type AlgorithmSelectionResult, type AlgorithmRecommendation } from "./AlgorithmSelectorEngine.js";
+
 // Feature To Zone Engine — geometric feature → machining zone mapper [CAMK-MS0/U01]
 export { featureToZoneEngine, type FeatureInput, type MachiningZone, type FeatureToZoneResult } from "./FeatureToZoneEngine.js";
 
@@ -2994,3 +2997,9 @@ export { ProjectSchedulingEngine, projectSchedulingEngine } from './ProjectSched
 export { NetworkFlowEngine, networkFlowEngine } from './NetworkFlowEngine.js';
 export { OptimizationSimplexEngine, optimizationSimplexEngine } from './OptimizationSimplexEngine.js';
 export { ThermocoupleEngine, thermocoupleEngine } from './ThermocoupleEngine.js';
+export { RTDEngine, rtdEngine } from './RTDEngine.js';
+export type { RTDInput, RTDResult, RTDElement, WireConfig } from './RTDEngine.js';
+export { CoatingThicknessEngine, coatingThicknessEngine } from './CoatingThicknessEngine.js';
+export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType, SubstrateType } from './CoatingThicknessEngine.js';
+export { TribologyEngine, tribologyEngine } from './TribologyEngine.js';
+export type { TribologyInput, TribologyResult, LubricationRegime, WearMechanism } from './TribologyEngine.js';
