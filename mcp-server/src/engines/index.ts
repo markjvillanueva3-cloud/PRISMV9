@@ -2928,3 +2928,6 @@ export { FourierAnalysisEngine, fourierAnalysisEngine } from "./FourierAnalysisE
 export { BevelGearEngine, bevelGearEngine } from "./BevelGearEngine.js";
 export { HarmonicDriveEngine, harmonicDriveEngine } from "./HarmonicDriveEngine.js";
 export { CouplingEngine, couplingEngine } from "./CouplingEngine.js";
+export { VenturiEngine, venturiEngine } from "./VenturiEngine.js";
+export { OrificeFlowMeterEngine, orificeFlowMeterEngine } from "./OrificeFlowMeterEngine.js";
+export { WaterHammerEngine, waterHammerEngine } from "./WaterHammerEngine.js";
