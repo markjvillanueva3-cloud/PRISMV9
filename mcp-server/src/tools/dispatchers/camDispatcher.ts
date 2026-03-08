@@ -1,7 +1,7 @@
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *
- * 34 actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
+ * 55+ actions: toolpath_generate, toolpath_simulate, toolpath_optimize,
  *   post_process, collision_check_full, stock_update, tool_assembly,
  *   fixture_setup, nesting_optimize, clearance_plane,
  *   sequence_operations, linking_move, cam_strategy_recommend,
@@ -25,10 +25,13 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
+import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorExtActionSchemas.js";
+const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -57,6 +60,13 @@ async function getEngine(name: string): Promise<any> {
     case "feedOpt": return _feedOpt ??= (await import("../../engines/PostProcessorFeedOptimizerEngine.js")).postProcessorFeedOptimizer;
     case "transpiler": return _transpiler ??= (await import("../../engines/GCodeTranspilerEngine.js")).gcodeTranspiler;
     case "stabilityRPM": return _stabilityRPM ??= (await import("../../engines/StabilityRPMRewriterEngine.js")).stabilityRPMRewriter;
+    case "probeGen": return _probeGen ??= (await import("../../engines/ProbeRoutineGeneratorEngine.js")).probeRoutineGeneratorEngine;
+    case "cycleTimeEst": return _cycleTimeEst ??= (await import("../../engines/CycleTimeEstimatorEngine.js")).cycleTimeEstimatorEngine;
+    case "gcodeSafety": return _gcodeSafety ??= (await import("../../engines/GCodeSafetyAnalyzerEngine.js")).gcSafetyAnalyzer;
+    case "thermal": return _thermal ??= (await import("../../engines/ToolpathThermalEngine.js")).toolpathThermalEngine;
+    case "energy": return _energy ??= (await import("../../engines/GCodeEnergyOptimizerEngine.js")).gcodeEnergyOptimizerEngine;
+    case "kinematic": return _kinematic ??= (await import("../../engines/MultiAxisKinematicEngine.js")).multiAxisKinematicEngine;
+    case "setupSheet": return _setupSheet ??= (await import("../../engines/SetupSheetFromGCodeEngine.js")).setupSheetFromGCodeEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -89,6 +99,28 @@ const ACTIONS = [
   "gcode_transpile_cycles",
   "stability_rpm_rewrite",
   "stability_rpm_analyze",
+  // Post-processor innovations (7 engines, 21 actions)
+  "probe_wcs_setup",
+  "probe_inspection",
+  "probe_tool_measure",
+  "probe_first_article",
+  "cycle_time_estimate",
+  "cycle_time_compare",
+  "cycle_time_bottlenecks",
+  "gcode_safety_analyze",
+  "gcode_safety_fix",
+  "thermal_analyze",
+  "thermal_distortion",
+  "thermal_optimize",
+  "energy_analyze",
+  "energy_optimize",
+  "kinematic_singularity",
+  "kinematic_transform",
+  "kinematic_optimize",
+  "kinematic_reachability",
+  "setup_sheet_generate",
+  "setup_sheet_tools",
+  "setup_sheet_operations",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -112,6 +144,16 @@ Params vary by action — pass relevant fields in params object.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation
+        const validation = validateActionParams(action, params, MERGED_CAM_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_cam",
+          );
+        }
 
         // PRE-TOOLPATH SAFETY HOOKS — collision detection, G-code safety, toolpath safety
         const hookCtx = {
@@ -620,6 +662,267 @@ Params vary by action — pass relevant fields in params object.`,
               feedPerTooth_mm: params.feed_per_tooth_mm,
             });
             break;
+          }
+          // ================================================================
+          // POST-PROCESSOR INNOVATIONS (7 engines, 21 actions)
+          // ================================================================
+
+          // --- Probe Routine Generator (4 actions) ---
+          case "probe_wcs_setup": {
+            const eng = await getEngine("probeGen");
+            result = eng.generateWCSSetup(params);
+            break;
+          }
+          case "probe_inspection": {
+            const eng = await getEngine("probeGen");
+            result = eng.generatePartInspection(params);
+            break;
+          }
+          case "probe_tool_measure": {
+            const eng = await getEngine("probeGen");
+            result = eng.generateToolMeasurement(params);
+            break;
+          }
+          case "probe_first_article": {
+            const eng = await getEngine("probeGen");
+            result = eng.generateFirstArticle(params);
+            break;
+          }
+
+          // --- Cycle Time Estimator (3 actions) ---
+          case "cycle_time_estimate": {
+            const eng = await getEngine("cycleTimeEst");
+            result = eng.estimateFromGCode(params.gcode, {
+              controller: params.controller,
+              machine_profile: params.machine_profile,
+              machine_name: params.machine_name,
+              include_breakdown: params.include_breakdown,
+            });
+            break;
+          }
+          case "cycle_time_compare": {
+            const eng = await getEngine("cycleTimeEst");
+            result = eng.compareEstimates(params.gcode, params.machines);
+            break;
+          }
+          case "cycle_time_bottlenecks": {
+            const eng = await getEngine("cycleTimeEst");
+            result = eng.identifyBottlenecks(params.gcode, {
+              controller: params.controller,
+              machine_profile: params.machine_profile,
+              top_n: params.top_n,
+            });
+            break;
+          }
+
+          // --- G-Code Safety Analyzer (2 actions) ---
+          case "gcode_safety_analyze": {
+            const eng = await getEngine("gcodeSafety");
+            result = eng.analyze(params.gcode, {
+              controller: params.controller,
+              tool_data: params.tool_data,
+              machine_envelope: params.machine_envelope,
+              strictness: params.strictness,
+            });
+            break;
+          }
+          case "gcode_safety_fix": {
+            const eng = await getEngine("gcodeSafety");
+            result = eng.autoFix(params.gcode, {
+              controller: params.controller,
+              fix_level: params.fix_level,
+            });
+            break;
+          }
+
+          // --- Toolpath Thermal Analysis (3 actions) ---
+          case "thermal_analyze": {
+            const eng = await getEngine("thermal");
+            result = eng.analyzeHeatAccumulation({
+              gcode: params.gcode,
+              material: params.material,
+              tool_diameter: params.tool_diameter,
+              workpiece_dimensions: params.workpiece_dimensions,
+              coolant_type: params.coolant_type,
+              ambient_temp: params.ambient_temp,
+            });
+            break;
+          }
+          case "thermal_distortion": {
+            const eng = await getEngine("thermal");
+            result = eng.predictDistortion({
+              gcode: params.gcode,
+              material: params.material,
+              workpiece_dimensions: params.workpiece_dimensions,
+              critical_dimensions: params.critical_dimensions,
+              coolant_type: params.coolant_type,
+            });
+            break;
+          }
+          case "thermal_optimize": {
+            const eng = await getEngine("thermal");
+            result = eng.optimizeCuttingSequence({
+              gcode: params.gcode,
+              material: params.material,
+              critical_features: params.critical_features,
+            });
+            break;
+          }
+
+          // --- Energy Optimizer (2 actions) ---
+          case "energy_analyze": {
+            const eng = await getEngine("energy");
+            result = eng.analyzeEnergyConsumption(params.gcode, {
+              machine_power_kw: params.machine_power_kw,
+              spindle_efficiency: params.spindle_efficiency,
+              coolant_pump_kw: params.coolant_pump_kw,
+              electricity_rate: params.electricity_rate,
+            });
+            break;
+          }
+          case "energy_optimize": {
+            const eng = await getEngine("energy");
+            result = eng.optimizeForEnergy(params.gcode, {
+              machine_power_kw: params.machine_power_kw,
+              strategies: params.strategies,
+            });
+            break;
+          }
+
+          // --- Multi-Axis Kinematics (4 actions) ---
+          case "kinematic_singularity": {
+            const eng = await getEngine("kinematic");
+            result = eng.detectSingularities(params.gcode, params.kinematics, {
+              tolerance_deg: params.tolerance_deg,
+            });
+            break;
+          }
+          case "kinematic_transform": {
+            const eng = await getEngine("kinematic");
+            result = eng.transformCoordinates(params.gcode, params.from_kinematics, params.to_kinematics);
+            break;
+          }
+          case "kinematic_optimize": {
+            const eng = await getEngine("kinematic");
+            result = eng.optimizeRotaryMotion(params.gcode, params.kinematics);
+            break;
+          }
+          case "kinematic_reachability": {
+            const eng = await getEngine("kinematic");
+            result = eng.analyzeReachability(params.gcode, params.kinematics);
+            break;
+          }
+
+          // --- Setup Sheet from G-Code (3 actions) ---
+          case "setup_sheet_generate": {
+            const eng = await getEngine("setupSheet");
+            result = eng.generateSetupSheet(params.gcode, {
+              controller: params.controller,
+              part_number: params.part_number,
+              operation_name: params.operation_name,
+              include_tool_list: params.include_tool_list,
+              include_offsets: params.include_offsets,
+              include_safety: params.include_safety,
+            });
+            break;
+          }
+          case "setup_sheet_tools": {
+            const eng = await getEngine("setupSheet");
+            result = eng.generateToolList(params.gcode, params.controller);
+            break;
+          }
+          case "setup_sheet_operations": {
+            const eng = await getEngine("setupSheet");
+            result = eng.generateOperationSequence(params.gcode, params.controller);
+            break;
+          }
+
+          
+          case "cross_cam_recommend": {
+            const { crossCamRecommenderEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
+            const result = crossCamRecommenderEngine.compute({
+              geometry: {
+                type: params.geometry_type || "pocket_2d",
+                dimensions_mm: params.dimensions_mm || { length: 100, width: 80, depth: 30 },
+                corner_radius_mm: params.corner_radius_mm,
+                wall_angle_deg: params.wall_angle_deg,
+                island_count: params.island_count,
+                undercut_count: params.undercut_count,
+                thin_wall_min_mm: params.thin_wall_min_mm,
+                surface_area_mm2: params.surface_area_mm2,
+                pocket_count: params.pocket_count,
+              },
+              material: {
+                class: params.material_class || "steel_4140",
+                iso_group: params.iso_group || "P",
+                hardness_hrc: params.hardness_hrc,
+                thermal_conductivity: params.thermal_conductivity,
+              },
+              machine: {
+                id: params.machine_id,
+                spindle_power_kw: params.spindle_power_kw || 15,
+                max_rpm: params.max_rpm || 10000,
+                axis_count: params.axis_count || 3,
+                rapid_accel_g: params.rapid_accel_g,
+                controller: params.controller,
+              },
+              tool: {
+                diameter_mm: params.tool_diameter_mm || 10,
+                flute_count: params.flute_count || 4,
+                material: params.tool_material || "carbide",
+                overhang_mm: params.overhang_mm || 40,
+                helix_angle_deg: params.helix_angle_deg,
+                corner_radius_mm: params.tool_corner_radius_mm,
+              },
+              constraints: {
+                max_cycle_time_min: params.max_cycle_time_min,
+                max_surface_roughness_um: params.max_surface_roughness_um,
+                min_tool_life_parts: params.min_tool_life_parts,
+                max_spindle_utilization_pct: params.max_spindle_utilization_pct,
+                tolerance_mm: params.tolerance_mm,
+                priority: params.priority || "balanced",
+              },
+              available_cam_systems: params.cam_systems,
+            });
+            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+          }
+          case "cross_cam_synthesize": {
+            const { crossCamRecommenderEngine: synthEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
+            const recommendation = synthEngine.compute({
+              geometry: {
+                type: params.geometry_type || "pocket_3d",
+                dimensions_mm: params.dimensions_mm || { length: 150, width: 100, depth: 50 },
+                corner_radius_mm: params.corner_radius_mm || 3,
+              },
+              material: {
+                class: params.material_class || "aluminum_6061",
+                iso_group: params.iso_group || "N",
+              },
+              machine: {
+                spindle_power_kw: params.spindle_power_kw || 15,
+                max_rpm: params.max_rpm || 12000,
+                axis_count: params.axis_count || 3,
+              },
+              tool: {
+                diameter_mm: params.tool_diameter_mm || 12,
+                flute_count: params.flute_count || 3,
+                material: params.tool_material || "carbide",
+                overhang_mm: params.overhang_mm || 45,
+              },
+              constraints: {
+                priority: params.priority || "balanced",
+                max_cycle_time_min: params.max_cycle_time_min,
+                max_surface_roughness_um: params.max_surface_roughness_um,
+              },
+            });
+            const hybrid = recommendation.value.hybrid_recommendation;
+            return { content: [{ type: "text", text: JSON.stringify({
+              hybrid_plan: hybrid,
+              best_overall: recommendation.value.best_overall,
+              trade_off_analysis: recommendation.value.trade_off_analysis,
+              physics_summary: recommendation.value.physics_summary,
+              all_strategies: recommendation.value.ranked_strategies.length,
+            }, null, 2) }] };
           }
           default:
             result = { error: `Unknown action: ${action}` };
