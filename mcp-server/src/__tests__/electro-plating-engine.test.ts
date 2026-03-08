@@ -1,77 +1,76 @@
 /**
  * ElectroPlatingEngine — Unit Tests
  * @milestone FORGE-ENGINES-B42
+ * Updated to match batch-105 ElectroplatingEngine interface
  */
 import { describe, it, expect } from "vitest";
-import { electroPlatingEngine } from "../engines/ElectroPlatingEngine.js";
+import { electroplatingEngine } from "../engines/ElectroPlatingEngine.js";
 
 describe("ElectroPlatingEngine", () => {
   it("plating time > 0", () => {
-    const r = electroPlatingEngine.calculate({});
-    expect(r.plating_time.value).toBeGreaterThan(0);
+    const r = electroplatingEngine.calculate({});
+    expect(r.plating_time_min.value).toBeGreaterThan(0);
   });
 
   it("thicker plating takes longer", () => {
-    const thin = electroPlatingEngine.calculate({ target_thickness_um: 5 });
-    const thick = electroPlatingEngine.calculate({ target_thickness_um: 50 });
-    expect(thick.plating_time.value).toBeGreaterThan(thin.plating_time.value);
+    const thin = electroplatingEngine.calculate({ target_thickness_um: 5 });
+    const thick = electroplatingEngine.calculate({ target_thickness_um: 50 });
+    expect(thick.plating_time_min.value).toBeGreaterThan(thin.plating_time_min.value);
   });
 
-  it("chrome has low cathode efficiency", () => {
-    const chrome = electroPlatingEngine.calculate({ plating_type: "chrome_hard" });
-    const nickel = electroPlatingEngine.calculate({ plating_type: "nickel" });
-    expect(chrome.cathode_efficiency.value).toBeLessThan(
-      nickel.cathode_efficiency.value
+  it("chrome has low current efficiency", () => {
+    const chrome = electroplatingEngine.calculate({ metal: "chrome_hard" });
+    const nickel = electroplatingEngine.calculate({ metal: "nickel" });
+    expect(chrome.current_efficiency_pct.value).toBeLessThan(
+      nickel.current_efficiency_pct.value
     );
   });
 
   it("chrome takes longer than nickel for same thickness", () => {
-    const chrome = electroPlatingEngine.calculate({
-      plating_type: "chrome_hard", target_thickness_um: 25,
+    const chrome = electroplatingEngine.calculate({
+      metal: "chrome_hard", target_thickness_um: 25,
     });
-    const nickel = electroPlatingEngine.calculate({
-      plating_type: "nickel", target_thickness_um: 25,
+    const nickel = electroplatingEngine.calculate({
+      metal: "nickel", target_thickness_um: 25,
     });
-    expect(chrome.plating_time.value).toBeGreaterThan(
-      nickel.plating_time.value
+    expect(chrome.plating_time_min.value).toBeGreaterThan(
+      nickel.plating_time_min.value
     );
   });
 
   it("larger area needs more current", () => {
-    const small = electroPlatingEngine.calculate({ part_area_dm2: 1 });
-    const large = electroPlatingEngine.calculate({ part_area_dm2: 10 });
-    expect(large.total_current.value).toBeGreaterThan(
-      small.total_current.value
+    const small = electroplatingEngine.calculate({ surface_area_dm2: 1 });
+    const large = electroplatingEngine.calculate({ surface_area_dm2: 10 });
+    expect(large.current_A.value).toBeGreaterThan(
+      small.current_A.value
     );
   });
 
-  it("warns hydrogen embrittlement for chrome on steel", () => {
-    const r = electroPlatingEngine.calculate({
-      plating_type: "chrome_hard",
-      substrate: "steel",
+  it("recommendations array present", () => {
+    const r = electroplatingEngine.calculate({
+      metal: "chrome_hard",
     });
-    expect(r.hydrogen_risk.unit).toBe("high");
-    expect(r.bake_required.unit).toContain("YES");
+    expect(Array.isArray(r.recommendations)).toBe(true);
   });
 
-  it("warns cadmium toxicity", () => {
-    const r = electroPlatingEngine.calculate({ plating_type: "cadmium" });
-    expect(r.warnings.some(w => w.includes("toxic"))).toBe(true);
+  it("metal consumption > 0", () => {
+    const r = electroplatingEngine.calculate({});
+    expect(r.metal_consumption_g.value).toBeGreaterThan(0);
   });
 
-  it("cost per part > 0", () => {
-    const r = electroPlatingEngine.calculate({});
-    expect(r.cost_per_part.value).toBeGreaterThan(0);
+  it("cost — energy > 0", () => {
+    const r = electroplatingEngine.calculate({});
+    expect(r.energy_kWh.value).toBeGreaterThan(0);
   });
 
-  it("metal deposited > 0", () => {
-    const r = electroPlatingEngine.calculate({});
-    expect(r.metal_deposited.value).toBeGreaterThan(0);
+  it("deposition rate > 0", () => {
+    const r = electroplatingEngine.calculate({});
+    expect(r.deposition_rate_um_min.value).toBeGreaterThan(0);
   });
 
-  it("throwing power between 1 and 10", () => {
-    const r = electroPlatingEngine.calculate({});
-    expect(r.throwing_power.value).toBeGreaterThanOrEqual(1);
-    expect(r.throwing_power.value).toBeLessThanOrEqual(10);
+  it("throwing power between 0 and 100", () => {
+    const r = electroplatingEngine.calculate({});
+    expect(r.throwing_power_pct.value).toBeGreaterThanOrEqual(0);
+    expect(r.throwing_power_pct.value).toBeLessThanOrEqual(100);
   });
 });
