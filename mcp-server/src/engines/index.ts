@@ -3144,3 +3144,7 @@ export { CompressionMoldingEngine, compressionMoldingEngine } from "./Compressio
 export { VibratoryFeederEngine, vibratoryFeederEngine } from "./VibratoryFeederEngine.js";
 export { PneumaticConveyingEngine, pneumaticConveyingEngine } from "./PneumaticConveyingEngine.js";
 export { ElectrostaticPrecipitatorEngine, electrostaticPrecipitatorEngine } from "./ElectrostaticPrecipitatorEngine.js";
+
+export { ResistanceWeldingEngine, resistanceWeldingEngine } from "./ResistanceWeldingEngine.js";
+export { SolderingProcessEngine, solderingProcessEngine } from "./SolderingProcessEngine.js";
+export { BrazingProcessEngine, brazingProcessEngine } from "./BrazingProcessEngine.js";
