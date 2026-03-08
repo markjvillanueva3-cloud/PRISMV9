@@ -219,8 +219,8 @@ function classifyMaterial(material: string): MaterialClass {
   if (/tool.?steel|p20|4340|4140|o1/.test(m)) return "tool_steel";
   if (/cast.?iron|ductile|gray|grey|sgr|fcd/.test(m)) return "cast_iron";
   if (/copper|brass|bronze|cu/.test(m)) return "copper";
+  if (/composite|cfrp|gfrp|carbon.?fiber|fiberglass/.test(m)) return "composite";
   if (/1018|1045|4130|mild|carbon|low.?alloy|structural/.test(m)) return "mild_steel";
-  if (/composite|cfrp|gfrp|carbon.?fiber/.test(m)) return "composite";
   if (/plastic|nylon|peek|delrin|acetal|pom|abs|pvc/.test(m)) return "plastic";
   // Default: check for generic "steel"
   if (/steel/.test(m)) return "mild_steel";
