@@ -34,7 +34,7 @@ const CALC_ACTIONS = new Set(["params_calculate", "strategy_select", "generate"]
 export function registerToolpathDispatcher(server: any): void {
   server.tool(
     "prism_toolpath",
-    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program, simulate (Kienzle force/Jaeger temp/deflection/Brammertz roughness along path)",
+    "Toolpath strategy engine: strategy selection, parameter calculation, search/list/info, statistics, material strategies, PRISM novel strategies, novel physics-backed algorithms (TGAR/HRAF/MTHZD/CFSF/PTDC/VCER), extended scientific algorithms (MEGM/RSMP/WHAP/BOPA/MCTP/SFCR/KALP/PTAP/PARETO/CFCM/WBRL/DPLS), cross-CAM synergy algorithms (AMEF/VCMR/SNWF/EAPR/HBCF/MACS). Actions: strategy_select, params_calculate, strategy_search, strategy_list, strategy_info, stats, material_strategies, prism_novel, generate, novel_compute, novel_list, extended_compute, extended_list, crosscam_compute, crosscam_list, feature_to_zone, algorithm_select, tool_axis_optimize, segment_interpolate, novel_post_process, program_assemble, gcode_verify, novel_generate_program, simulate (Kienzle force/Jaeger temp/deflection/Brammertz roughness along path), collision_check (tool assembly collision detection)",
     {
       action: z.enum([
         "strategy_select",
@@ -61,7 +61,8 @@ export function registerToolpathDispatcher(server: any): void {
         "gcode_verify",
         "novel_generate_program",
         "simulate",
-        "stock_simulate"
+        "stock_simulate",
+        "collision_check"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -282,6 +283,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "stock_simulate": {
             const { voxelStockIntegrationEngine } = await import("../../engines/VoxelStockIntegrationEngine.js");
             result = voxelStockIntegrationEngine.simulate(params as ValidatedParams);
+            break;
+          }
+
+          case "collision_check": {
+            const { collisionIntegrationEngine } = await import("../../engines/CollisionIntegrationEngine.js");
+            result = collisionIntegrationEngine.check(params as ValidatedParams);
             break;
           }
 

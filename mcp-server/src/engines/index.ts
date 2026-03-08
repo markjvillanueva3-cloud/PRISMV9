@@ -2259,6 +2259,7 @@ export { voxelStockEngine } from "./VoxelStockEngine.js";
 export { voxelStockIntegrationEngine } from "./VoxelStockIntegrationEngine.js";
 export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_ALGORITHM_INFO, type NovelToolpathResult, type NovelAlgorithm } from "./NovelToolpathEngine.js";
 export { novelToolpathSimulatorEngine } from "./NovelToolpathSimulatorEngine.js";
+export { collisionIntegrationEngine } from "./CollisionIntegrationEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
