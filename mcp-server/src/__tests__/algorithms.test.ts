@@ -502,7 +502,7 @@ describe("Algorithm Registry", () => {
       const algo = createAlgorithm(id);
       expect(algo).not.toBeNull();
       // Validate should never throw
-      const result = algo!.validate({} as any);
+      const result = algo!.validate({} as Record<string, unknown>);
       expect(result).toHaveProperty("valid");
       expect(result).toHaveProperty("issues");
     }

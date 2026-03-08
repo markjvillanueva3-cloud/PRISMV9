@@ -543,6 +543,87 @@ const MATERIAL_DB: Record<string, MaterialProfile> = {
   },
 };
 
+// ============================================================================
+// ISO SUBGROUP Kc1 TABLE — Sandvik Coromant CMC Material Classification
+// Source: sandvik.coromant.com/en-us/knowledge/materials/workpiece-materials
+// Provides fine-grained Kc1 values per ISO subgroup (50+ entries)
+// ============================================================================
+
+interface ISOSubgroupData {
+  kc1: number;           // Specific cutting force Kc1.1 (N/mm²)
+  hardness_hb: number;   // Typical hardness (HB)
+  description: string;
+}
+
+const ISO_SUBGROUP_KC1: Record<string, ISOSubgroupData> = {
+  // P: Steel
+  "P1.1": { kc1: 1500, hardness_hb: 125, description: "Unalloyed steel ≤0.25%C" },
+  "P1.2": { kc1: 1760, hardness_hb: 190, description: "Unalloyed steel 0.25-0.55%C" },
+  "P1.3": { kc1: 1875, hardness_hb: 245, description: "Unalloyed steel >0.55%C" },
+  "P1.4": { kc1: 1180, hardness_hb: 220, description: "Free-cutting steel" },
+  "P1.5": { kc1: 2140, hardness_hb: 225, description: "Cast steel (unalloyed)" },
+  "P2.1": { kc1: 1700, hardness_hb: 175, description: "Low-alloyed steel ≤0.25%C" },
+  "P2.2": { kc1: 1950, hardness_hb: 240, description: "Low-alloyed steel 0.25-0.55%C" },
+  "P2.3": { kc1: 2020, hardness_hb: 260, description: "Low-alloyed steel >0.55%C" },
+  "P2.5": { kc1: 2000, hardness_hb: 330, description: "Low-alloyed hardened/tempered" },
+  "P2.6": { kc1: 2400, hardness_hb: 290, description: "Low-alloyed cast steel" },
+  "P3.0": { kc1: 2525, hardness_hb: 290, description: "High-alloyed steel >5% alloy" },
+  "P3.1": { kc1: 2360, hardness_hb: 250, description: "HSS steel" },
+  "P3.2": { kc1: 3000, hardness_hb: 300, description: "Manganese steel" },
+  // M: Stainless Steel
+  "M1.0": { kc1: 2000, hardness_hb: 200, description: "Austenitic stainless (304/316)" },
+  "M1.1": { kc1: 2000, hardness_hb: 200, description: "Machinability-improved austenitic" },
+  "M1.2": { kc1: 1800, hardness_hb: 200, description: "Free-cutting austenitic" },
+  "M1.3": { kc1: 1800, hardness_hb: 200, description: "Ti-stabilized austenitic" },
+  "M2.0": { kc1: 2225, hardness_hb: 200, description: "Super-austenitic (≥20% Ni)" },
+  "M3.1": { kc1: 2000, hardness_hb: 230, description: "Duplex >60% ferrite" },
+  "M3.2": { kc1: 2400, hardness_hb: 260, description: "Duplex <60% ferrite" },
+  "P5.0": { kc1: 2200, hardness_hb: 265, description: "Ferritic/martensitic stainless" },
+  "P5.1": { kc1: 1650, hardness_hb: 200, description: "Free-cutting ferritic stainless" },
+  // K: Cast Iron
+  "K1.1": { kc1: 780, hardness_hb: 200, description: "Malleable CI low tensile" },
+  "K1.2": { kc1: 1020, hardness_hb: 260, description: "Malleable CI high tensile" },
+  "K2.1": { kc1: 900, hardness_hb: 180, description: "Gray CI low tensile" },
+  "K2.2": { kc1: 1100, hardness_hb: 245, description: "Gray CI high tensile" },
+  "K2.3": { kc1: 1300, hardness_hb: 175, description: "Gray CI austenitic" },
+  "K3.1": { kc1: 870, hardness_hb: 155, description: "Nodular CI ferritic" },
+  "K3.2": { kc1: 1200, hardness_hb: 215, description: "Nodular CI ferritic/perlitic" },
+  "K3.3": { kc1: 1440, hardness_hb: 265, description: "Nodular CI perlitic" },
+  "K3.4": { kc1: 1650, hardness_hb: 330, description: "Nodular CI martensitic" },
+  "K4.1": { kc1: 680, hardness_hb: 160, description: "CGI low tensile (<90% perlite)" },
+  "K4.2": { kc1: 750, hardness_hb: 230, description: "CGI high tensile (≥90% perlite)" },
+  // N: Non-Ferrous
+  "N1.1": { kc1: 350, hardness_hb: 30, description: "Commercially pure aluminum" },
+  "N1.2": { kc1: 525, hardness_hb: 80, description: "AlSi alloys Si≤1%" },
+  "N1.3": { kc1: 650, hardness_hb: 82, description: "AlSi cast Si 1-13%" },
+  "N1.4": { kc1: 700, hardness_hb: 130, description: "AlSi cast Si≥13% (abrasive)" },
+  "N3.1": { kc1: 1350, hardness_hb: 100, description: "Non-leaded copper" },
+  "N3.2": { kc1: 550, hardness_hb: 90, description: "Leaded brass/bronze" },
+  "N3.3": { kc1: 550, hardness_hb: 110, description: "Free-cutting copper alloys" },
+  // S: HRSA & Titanium
+  "S1.0": { kc1: 2450, hardness_hb: 240, description: "Iron-based superalloys" },
+  "S2.0": { kc1: 2825, hardness_hb: 300, description: "Nickel-based superalloys (Inconel)" },
+  "S3.0": { kc1: 2900, hardness_hb: 260, description: "Cobalt-based superalloys" },
+  "S4.1": { kc1: 1300, hardness_hb: 200, description: "Commercially pure titanium" },
+  "S4.2": { kc1: 1400, hardness_hb: 320, description: "Alpha/near-alpha Ti alloys" },
+  "S4.3": { kc1: 1400, hardness_hb: 352, description: "Alpha-beta Ti (Ti-6Al-4V)" },
+  "S4.4": { kc1: 1400, hardness_hb: 370, description: "Beta Ti alloys" },
+  // H: Hardened Steel
+  "H1.1": { kc1: 3090, hardness_hb: 480, description: "Hardened steel ~50 HRC" },
+  "H1.2": { kc1: 3690, hardness_hb: 530, description: "Hardened steel ~55 HRC" },
+  "H1.3": { kc1: 4330, hardness_hb: 580, description: "Hardened steel ~60 HRC" },
+  "H1.4": { kc1: 4750, hardness_hb: 615, description: "Hardened steel ~63 HRC" },
+  "H2.0": { kc1: 3450, hardness_hb: 530, description: "Chilled cast iron ~55 HRC" },
+};
+
+/**
+ * Look up Kc1 for a specific ISO subgroup (e.g., "P1.2", "M3.1", "K3.3")
+ * Falls back to main MATERIAL_DB if no subgroup match
+ */
+function getSubgroupKc1(subgroup: string): ISOSubgroupData | undefined {
+  return ISO_SUBGROUP_KC1[subgroup];
+}
+
 // Alias → canonical material name lookup
 const MATERIAL_ALIASES: Record<string, string> = {};
 for (const [key, profile] of Object.entries(MATERIAL_DB)) {
@@ -731,13 +812,68 @@ const COATING_TEMP_LIMIT: Record<string, number> = {
 function kienzleCuttingForce(
   kc1_1: number, mc: number, ap_mm: number, hex_mm: number,
   ae_mm?: number, Dc_mm?: number,
-): { Fc: number; Kc: number } {
+  rakeAngleDeg?: number,
+): { Fc: number; Kc: number; Kc_uncorrected: number } {
   const h = Math.max(0.001, hex_mm);
-  const Kc = kc1_1 * Math.pow(h, -mc);  // Kc = Kc1.1 × h^(-mc)
+  const Kc_uncorrected = kc1_1 * Math.pow(h, -mc);  // Kc = Kc1.1 × h^(-mc)
+  // Rake angle correction (Sandvik): Kc1 is defined at γ0=0°.
+  // Positive rake reduces Kc by ~1% per degree. Source: Sandvik Coromant
+  const gamma0 = rakeAngleDeg ?? 0;
+  const rakeCorrection = 1 - 0.01 * gamma0;  // e.g., +6° rake → 0.94 multiplier
+  const Kc = Kc_uncorrected * Math.max(0.7, Math.min(1.3, rakeCorrection));
   // For milling: b ≈ ap (axial DOC), effective width handled by engagement
   const b = ap_mm;
   const Fc = Kc * b * h;  // N
-  return { Fc, Kc };
+  return { Fc, Kc, Kc_uncorrected };
+}
+
+// ============================================================================
+// SANDVIK TURNING FORCE MODEL — Ft = kc0.4 × ap × fn / fn^mc
+// Source: Sandvik Coromant General Turning Formulas
+// Uses kc at 0.4 mm/rev reference feed (turning-specific, not Kc1.1)
+// ============================================================================
+
+/** ISO 3685 flank wear limits (mm) */
+const WEAR_LIMITS = {
+  VB_uniform: 0.3,    // Uniform flank wear limit
+  VB_max: 0.6,        // Maximum localized flank wear
+  KT_ratio: 0.06,     // KT = 0.06 + 0.3×fn (crater depth limit formula coefficient)
+} as const;
+
+function sandvikTurningForce(
+  kc0_4: number, mc: number, ap_mm: number, fn_mm: number,
+  kapr_deg: number = 90,
+): { Ft: number; safetyPct: number } {
+  // Ft = kc0.4 × ap × fn / fn^mc
+  // kc0.4 = specific cutting force at 0.4 mm/rev reference feed
+  const Ft = kc0_4 * ap_mm * fn_mm / Math.pow(Math.max(0.01, fn_mm), mc);
+  // KAPR correction: for entering angles < 75°, sin(KAPR) < 1 reduces force
+  const kaprRad = (kapr_deg * Math.PI) / 180;
+  const Ft_corrected = Ft * Math.sin(kaprRad);
+  // Design rule: Ft should not exceed 90% of tool bar max load
+  const safetyPct = 90;  // Sandvik recommendation
+  return { Ft: Ft_corrected, safetyPct };
+}
+
+/**
+ * Max chip thickness for milling (hex) accounting for radial engagement
+ * hex = fz × sin(kr) × sqrt(ae/Dc) for ae < Dc/2
+ * hex = fz × sin(kr) for ae >= Dc/2 (no thinning)
+ * Source: Sandvik Coromant Milling Formulas
+ */
+function millingMaxChipThickness(
+  fz_mm: number, kr_deg: number, ae_mm: number, Dc_mm: number,
+): number {
+  const krRad = (kr_deg * Math.PI) / 180;
+  // For straight-edge cutters (kr = 90°, sin=1), hex depends on ae/Dc ratio
+  if (ae_mm >= Dc_mm / 2) {
+    return fz_mm * Math.sin(krRad);
+  }
+  // Chip thinning: when ae < Dc/2, effective chip is thinner
+  // hex = fz × (ae/Dc) adjusted by approach angle
+  const engagementRatio = ae_mm / Dc_mm;
+  return fz_mm * Math.sin(krRad) * 2 * engagementRatio /
+    (1 + Math.sqrt(1 - Math.pow(2 * engagementRatio - 1, 2)));
 }
 
 // ============================================================================

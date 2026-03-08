@@ -297,7 +297,7 @@ class ToolWearCompensationEngineImpl {
       }
     }
 
-    return {
+    const result: WearCompResult = {
       gcode: lines.join("\n"),
       tool_sections: toolSections,
       stats: {
@@ -310,6 +310,21 @@ class ToolWearCompensationEngineImpl {
       },
       warnings,
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["tool_life", "material_tip"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /**

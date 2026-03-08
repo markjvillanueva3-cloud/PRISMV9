@@ -258,6 +258,23 @@ export class GrindingForceEngine {
       );
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["grinding", "coolant_strategy"],
+        operation_type: "grinding",
+        material_hardness_hrc: hrc,
+        depth_of_cut_mm: ae,
+        coolant_type: coolant,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       tangential_force_N: {
         value: Math.round(Ft * 100) / 100,

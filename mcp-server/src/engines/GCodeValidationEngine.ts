@@ -148,7 +148,7 @@ function parseLine(line: string, lineNum: number): ParsedLine {
 
   for (const c of ["X","Y","Z","A","B","C","I","J","K","R","F","S","T","H"] as const) {
     const m = clean.match(new RegExp(c + "([+-]?\\d*\\.?\\d+)"));
-    if (m) (result as any)[c] = parseFloat(m[1]);
+    if (m) result[c] = parseFloat(m[1]);
   }
   return result;
 }

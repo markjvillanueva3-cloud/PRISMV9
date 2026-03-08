@@ -6,7 +6,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
 
 const ACTIONS = ["search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats"] as const;
@@ -49,6 +50,14 @@ export function registerKnowledgeDispatcher(server: any): void {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_KNOWLEDGE_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action, "prism_knowledge"
+          );
+        }
         switch (action) {
           case "search": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }

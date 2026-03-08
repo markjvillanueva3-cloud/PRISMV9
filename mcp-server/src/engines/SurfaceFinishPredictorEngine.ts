@@ -345,7 +345,7 @@ class SurfaceFinishPredictorEngine {
       recommendations.push("Flat endmill scallop is high — consider ball or barrel cutter for better surface conformity");
     }
 
-    return {
+    const result: SurfaceFinishResult = {
       points,
       summary: {
         mean_ra_um: mean_ra,
@@ -361,6 +361,21 @@ class SurfaceFinishPredictorEngine {
       recommendations,
       target_ra_um,
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["finishing", "material_tip", "toolpath_strategy"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /**

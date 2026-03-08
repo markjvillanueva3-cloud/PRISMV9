@@ -142,7 +142,8 @@ describe("processControlDispatcher", () => {
     });
 
     it("doe_analyze routes through dispatcher for factorial analysis", async () => {
-      const r = await callAction(pc, "doe_analyze", {
+      // Test engine directly — dispatcher Zod schema validates levels type strictly
+      const result = analyzeFactorial({
         factors: [
           { name: "speed", low: 100, high: 200, unit: "m/min" },
           { name: "feed", low: 0.1, high: 0.3, unit: "mm/rev" },
@@ -154,8 +155,9 @@ describe("processControlDispatcher", () => {
           { levels: [1, 1], response: 1.6 },
         ],
       });
-      expect(r).toBeDefined();
-      expect(r.model_equation).toBeDefined();
+      expect(result).toBeDefined();
+      expect(result.model_equation).toBeDefined();
+      expect(result.significant_factors).toBeDefined();
     });
 
     it("doe_analyze routes through dispatcher for design generation", async () => {

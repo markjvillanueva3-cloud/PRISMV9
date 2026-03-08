@@ -323,6 +323,23 @@ export class DrillCycleOptimizationEngine {
       recommendations.push("Consider through-tool coolant to reduce pecks and cycle time by ~40%.");
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["deep_hole", "hole_making"],
+        operation_type: "drilling",
+        depth_to_diameter_ratio: LD,
+        coolant_delivery: coolant,
+        chip_behavior: chipBehavior,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     // ── Uncertainty ──
     const peckUncertainty = peckDepth * 0.15;
     const dwellUncertainty = dwellBase * 0.25;

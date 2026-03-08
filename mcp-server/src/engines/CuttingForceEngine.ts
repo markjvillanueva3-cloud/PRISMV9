@@ -175,6 +175,19 @@ export class CuttingForceEngine {
       );
     }
 
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["material_tip", "tool_selection"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       tangential_force: av(r1(Fc), "N", 10,
         `Kc=${r0(Kc)}×b=${r2(b)}×h=${r3(h)}`),

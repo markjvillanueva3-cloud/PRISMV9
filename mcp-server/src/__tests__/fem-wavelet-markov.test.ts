@@ -62,7 +62,7 @@ describe("FiniteElement — Truss Analysis", () => {
         { nodes: [0, 1], E: 200e9, A: 0.001, coords: [[0, 0], [1, 0]] },
         { nodes: [0, 2], E: 200e9, A: 0.001, coords: [[0, 0], [0.5, 0.866]] },
         { nodes: [1, 2], E: 200e9, A: 0.001, coords: [[1, 0], [0.5, 0.866]] },
-      ] as any,
+      ] as unknown as Parameters<typeof finiteElementEngine.solveTruss>[0]["elements"],
       numNodes: 3,
       fixedDofs: [0, 1, 2, 3], // Fix nodes 0 and 1 fully
       loads: [{ dof: 5, value: -10000 }], // Downward force on node 2

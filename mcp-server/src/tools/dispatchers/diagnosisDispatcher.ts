@@ -17,8 +17,16 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { DIAGNOSIS_ACTION_SCHEMAS } from "../../schemas/diagnosisActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
+
+/** Action string is validated by Zod enum but `.includes()` needs wider type */
+type ActionString = string;
 
 // Lazy engine cache
 let _failureForensics: any, _inverseSolver: any,
@@ -179,13 +187,23 @@ export function registerDiagnosisDispatcher(server: any): void {
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
 
+        // Zod schema validation
+        const validation = validateActionParams(action, params, DIAGNOSIS_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_diagnosis"
+          );
+        }
+
         // Pre-hooks
         const hookCtx = {
           operation: action,
           target: { type: "diagnosis" as const, id: action, data: params },
           metadata: { dispatcher: "diagnosisDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
@@ -195,11 +213,11 @@ export function registerDiagnosisDispatcher(server: any): void {
         }
 
         // Route to engine
-        const result = FORENSIC_ACTIONS.includes(action as any)
+        const result = FORENSIC_ACTIONS.includes(action as ActionString as typeof FORENSIC_ACTIONS[number])
           ? await (await getDiagnosisEngine("failureForensics"))(action, params)
-          : INVERSE_ACTIONS.includes(action as any)
+          : INVERSE_ACTIONS.includes(action as ActionString as typeof INVERSE_ACTIONS[number])
           ? await (await getDiagnosisEngine("inverseSolver"))(action, params)
-          : GENPLAN_ACTIONS.includes(action as any)
+          : GENPLAN_ACTIONS.includes(action as ActionString as typeof GENPLAN_ACTIONS[number])
           ? await (await getDiagnosisEngine("generativeProcess"))(action, params)
           : await (await getDiagnosisEngine("sustainabilityEngine"))(action, params);
 
@@ -207,7 +225,7 @@ export function registerDiagnosisDispatcher(server: any): void {
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // Response formatting
         if (params.response_level) {

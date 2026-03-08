@@ -193,7 +193,7 @@ describe("EnsemblePredictorModel", () => {
   it("validates invalid problem_type", () => {
     const res = algo.validate({
       members: [{ algorithm: "a", prediction: 1 }],
-      problem_type: "invalid" as any,
+      problem_type: "invalid" as unknown as string,
     });
     expect(res.valid).toBe(false);
   });
@@ -626,7 +626,7 @@ describe("ILPAssignment", () => {
   });
 
   it("validates empty jobs", () => {
-    const res = algo.validate({ jobs: [], machines: [{ id: "M1" }] } as any);
+    const res = algo.validate({ jobs: [], machines: [{ id: "M1" }] } as Record<string, unknown>);
     expect(res.valid).toBe(false);
   });
 

@@ -55,6 +55,8 @@ export interface SheetMetalInput {
   first_article?: boolean;
   rush?: boolean;
   customer_tier?: "A" | "B" | "C" | "new";
+  /** @internal Used to prevent recursive price-break calculation */
+  _skipBreaks?: boolean;
 }
 
 export interface SheetMetalQuoteResult {
@@ -209,10 +211,10 @@ class SheetMetalQuoteEngine {
 
     // ── 14. Price Breaks ──
     const priceBreaks: SheetMetalQuoteResult["price_breaks"] = [];
-    if (!(input as any)._skipBreaks) {
+    if (!input._skipBreaks) {
       const breakQtys = [1, 5, 10, 25, 50, 100, 250, 500].filter(q => q !== qty);
       for (const q of breakQtys) {
-        const bResult = this.quote({ ...input, quantity: q, _skipBreaks: true } as any);
+        const bResult = this.quote({ ...input, quantity: q, _skipBreaks: true });
         priceBreaks.push({ qty: q, unit_price: bResult.pricing.unit_price, total: round2(bResult.pricing.unit_price * q) });
       }
     }

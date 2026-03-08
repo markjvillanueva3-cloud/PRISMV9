@@ -16,24 +16,33 @@ import { registerDiagnosisDispatcher } from "../tools/dispatchers/diagnosisDispa
 // ============================================================================
 // HELPER: Mock MCP server
 // ============================================================================
+interface ZodEnumLike {
+  options?: string[];
+  _def?: { values?: string[] };
+}
+
 interface CapturedTool {
   name: string;
   description: string;
-  schema: any;
-  handler: (args: any) => Promise<any>;
+  schema: Record<string, ZodEnumLike>;
+  handler: (args: Record<string, unknown>) => Promise<{ content?: Array<{ text: string }> }>;
 }
 
-function createMockServer(): { server: any; tools: CapturedTool[] } {
+interface MockServer {
+  tool(name: string, description: string, schema: Record<string, ZodEnumLike>, handler: CapturedTool['handler']): void;
+}
+
+function createMockServer(): { server: MockServer; tools: CapturedTool[] } {
   const tools: CapturedTool[] = [];
-  const server = {
-    tool(name: string, description: string, schema: any, handler: any) {
+  const server: MockServer = {
+    tool(name: string, description: string, schema: Record<string, ZodEnumLike>, handler: CapturedTool['handler']) {
       tools.push({ name, description, schema, handler });
     },
   };
   return { server, tools };
 }
 
-async function callAction(tool: CapturedTool, action: string, params: Record<string, any> = {}): Promise<any> {
+async function callAction(tool: CapturedTool, action: string, params: Record<string, unknown> = {}): Promise<Record<string, unknown>> {
   const result = await tool.handler({ action, params });
   const text = result?.content?.[0]?.text;
   return text ? JSON.parse(text) : result;
@@ -51,10 +60,10 @@ describe("prism_product dispatcher", () => {
     expect(product.name).toBe("prism_product");
   });
 
-  it("has 40 actions in schema", () => {
-    const actionEnum = product.schema.action.options ?? (schema.action as any)._def?.values;
+  it("has 41 actions in schema", () => {
+    const actionEnum = product.schema.action.options ?? product.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
-    expect(actionEnum.length).toBe(40);
+    expect(actionEnum.length).toBe(41);
   });
 
   it("sfc_calculate returns result", async () => {
@@ -95,7 +104,7 @@ describe("prism_machine_live dispatcher", () => {
   });
 
   it("has 40 actions in schema", () => {
-    const actionEnum = ml.schema.action.options ?? (schema.action as any)._def?.values;
+    const actionEnum = ml.schema.action.options ?? ml.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(40);
   });
@@ -138,7 +147,7 @@ describe("prism_integration dispatcher", () => {
   });
 
   it("has 42 actions in schema", () => {
-    const actionEnum = integ.schema.action.options ?? (schema.action as any)._def?.values;
+    const actionEnum = integ.schema.action.options ?? integ.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(42);
   });
@@ -187,7 +196,7 @@ describe("prism_knowledge_ext dispatcher", () => {
   });
 
   it("has 40 actions in schema", () => {
-    const actionEnum = know.schema.action.options ?? (schema.action as any)._def?.values;
+    const actionEnum = know.schema.action.options ?? know.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(40);
   });
@@ -230,7 +239,7 @@ describe("prism_diagnosis dispatcher", () => {
   });
 
   it("has 38 actions in schema", () => {
-    const actionEnum = diag.schema.action.options ?? (schema.action as any)._def?.values;
+    const actionEnum = diag.schema.action.options ?? diag.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
     expect(actionEnum.length).toBe(38);
   });
@@ -377,11 +386,11 @@ describe("SYS-MS1 action count verification", () => {
     const knowCount = t4[0].schema.action.options?.length ?? t4[0].schema.action._def?.values?.length ?? 0;
     const diagCount = t5[0].schema.action.options?.length ?? t5[0].schema.action._def?.values?.length ?? 0;
 
-    expect(productCount).toBe(40);
+    expect(productCount).toBe(41);
     expect(machineCount).toBe(40);
     expect(integCount).toBe(42);
     expect(knowCount).toBe(40);
     expect(diagCount).toBe(38);
-    expect(productCount + machineCount + integCount + knowCount + diagCount).toBe(200);
+    expect(productCount + machineCount + integCount + knowCount + diagCount).toBe(201);
   });
 });

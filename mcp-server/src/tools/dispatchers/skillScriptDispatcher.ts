@@ -10,7 +10,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_SKILL_SCRIPT_SCHEMAS } from "../../schemas/skillScriptActionSchemas.js";
 import { registryManager } from "../../registries/index.js";
 import { skillExecutor, SkillLoadResult, SkillRecommendation, SkillChain, TaskAnalysis } from "../../engines/SkillExecutor.js";
 import { scriptExecutor, ExecutionResult, QueuedExecution, ScriptRecommendation, ExecutionParams } from "../../engines/ScriptExecutor.js";
@@ -47,6 +48,15 @@ export function registerSkillScriptDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_SKILL_SCRIPT_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_skill_script"
+        );
+      }
       try {
         switch (action) {
           case "skill_list": {
@@ -345,11 +355,11 @@ export function registerSkillScriptDispatcher(server: any): void {
             };
 
             if (params.include_cache !== false) {
-              stats.cache = (executorStats as any).cache;
+              stats.cache = (executorStats as Record<string, unknown>).cache;
             }
 
             if (params.include_usage !== false) {
-              stats.usage = (executorStats as any).usage;
+              stats.usage = (executorStats as Record<string, unknown>).usage;
 
               const topN = params.top_n || 10;
               const topUsed = skillExecutor.getMostUsed(topN);

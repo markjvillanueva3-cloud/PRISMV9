@@ -110,7 +110,7 @@ describe("CadenceDefinitions — monthlyCostAnalysis", () => {
   it("returns success when costs within budget", () => {
     const result = monthlyCost!.handler({
       operation: "test",
-      phase: "on-session-checkpoint" as any,
+      phase: "on-session-checkpoint",
       timestamp: new Date(),
       target: { type: "test", data: { toolingSpend: 5000, toolingBudget: 10000, scrapRate: 1 } },
       data: {},
@@ -122,7 +122,7 @@ describe("CadenceDefinitions — monthlyCostAnalysis", () => {
   it("warns when tooling spend exceeds 90% of budget", () => {
     const result = monthlyCost!.handler({
       operation: "test",
-      phase: "on-session-checkpoint" as any,
+      phase: "on-session-checkpoint",
       timestamp: new Date(),
       target: { type: "test", data: { toolingSpend: 9500, toolingBudget: 10000, scrapRate: 1 } },
       data: {},
@@ -133,7 +133,7 @@ describe("CadenceDefinitions — monthlyCostAnalysis", () => {
   it("warns when scrap rate exceeds 3%", () => {
     const result = monthlyCost!.handler({
       operation: "test",
-      phase: "on-session-checkpoint" as any,
+      phase: "on-session-checkpoint",
       timestamp: new Date(),
       target: { type: "test", data: { toolingSpend: 1000, toolingBudget: 10000, scrapRate: 5 } },
       data: {},

@@ -35,6 +35,8 @@ export interface AdditiveInput {
   // Pricing
   rush?: boolean;
   customer_tier?: "A" | "B" | "C" | "new";
+  /** @internal Used to prevent recursive price-break calculation */
+  _skipBreaks?: boolean;
 }
 
 export interface AdditiveQuoteResult {
@@ -254,10 +256,10 @@ class AdditiveQuoteEngine {
 
     // ── 11. Price Breaks ──
     const priceBreaks: AdditiveQuoteResult["price_breaks"] = [];
-    if (!(input as any)._skipBreaks) {
+    if (!input._skipBreaks) {
       const breakQtys = [1, 5, 10, 25, 50, 100].filter(q => q !== qty);
       for (const q of breakQtys) {
-        const bResult = this.quote({ ...input, quantity: q, _skipBreaks: true } as any);
+        const bResult = this.quote({ ...input, quantity: q, _skipBreaks: true });
         priceBreaks.push({
           qty: q,
           unit_price: bResult.pricing.unit_price,

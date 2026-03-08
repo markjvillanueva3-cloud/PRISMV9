@@ -38,16 +38,16 @@ describe("P5-QD-001: engine method existence verification", () => {
     const fakeEngine = { validate: () => "ok", predict: () => "ok" };
     expect(fakeEngine.validate).toBeDefined();
     expect(fakeEngine.predict).toBeDefined();
-    expect((fakeEngine as any).analyze).toBeUndefined();
-    expect((fakeEngine as any).compute).toBeUndefined();
+    expect((fakeEngine as Record<string, unknown>).analyze).toBeUndefined();
+    expect((fakeEngine as Record<string, unknown>).compute).toBeUndefined();
   });
 
   it("ToleranceStackEngine should have worstCase/rss, not analyze/compute", () => {
     const fakeEngine = { worstCase: () => "ok", rss: () => "ok", optimize: () => "ok" };
     expect(fakeEngine.worstCase).toBeDefined();
     expect(fakeEngine.rss).toBeDefined();
-    expect((fakeEngine as any).analyze).toBeUndefined();
-    expect((fakeEngine as any).compute).toBeUndefined();
+    expect((fakeEngine as Record<string, unknown>).analyze).toBeUndefined();
+    expect((fakeEngine as Record<string, unknown>).compute).toBeUndefined();
   });
 });
 

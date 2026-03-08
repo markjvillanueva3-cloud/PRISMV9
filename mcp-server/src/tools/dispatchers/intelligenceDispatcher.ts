@@ -13,10 +13,15 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_INTELLIGENCE_SCHEMAS } from "../../schemas/intelligenceActionSchemas.js";
 import { registryManager } from "../../registries/manager.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
 import type { IntelligenceAction } from "../../engines/IntelligenceEngine.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
 
 // Core engine cache (lazy-loaded — only engines for core 49 actions)
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
@@ -515,6 +520,16 @@ export function registerIntelligenceDispatcher(server: any): void {
           Object.assign(params, normalizeParams(params));
         } catch { /* normalizer not available */ }
 
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_INTELLIGENCE_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_intelligence"
+          );
+        }
+
         // === PRE-INTELLIGENCE HOOKS ===
         const hookCtx = {
           operation: action,
@@ -522,7 +537,7 @@ export function registerIntelligenceDispatcher(server: any): void {
           metadata: { dispatcher: "intelligenceDispatcher", action, params },
         };
 
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{
@@ -544,7 +559,7 @@ export function registerIntelligenceDispatcher(server: any): void {
           await hookExecutor.execute("post-calculation", {
             ...hookCtx,
             target: { ...hookCtx.target, data: { ...params, result: forwarded.result } },
-          } as any);
+          } as HookContext);
           return {
             content: [{
               type: "text" as const,
@@ -586,7 +601,7 @@ export function registerIntelligenceDispatcher(server: any): void {
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // === RESPONSE FORMATTING ===
         // Support response_level parameter

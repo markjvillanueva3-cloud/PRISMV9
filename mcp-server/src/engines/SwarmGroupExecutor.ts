@@ -87,9 +87,10 @@ function extractKeyFindings(result: SwarmResult, max = 3, maxLen = 150): string[
       }
     } else if (typeof agg === "object" && agg !== null) {
       // Pull summary/result/output fields
+      const aggRecord = agg as Record<string, unknown>;
       for (const key of ["summary", "result", "output", "finding", "recommendation"]) {
-        if ((agg as any)[key]) {
-          findings.push(String((agg as any)[key]).slice(0, maxLen));
+        if (aggRecord[key]) {
+          findings.push(String(aggRecord[key]).slice(0, maxLen));
           if (findings.length >= max) break;
         }
       }
@@ -102,7 +103,8 @@ function extractKeyFindings(result: SwarmResult, max = 3, maxLen = 150): string[
       ? Array.from(result.agentResults.values())
       : Object.values(result.agentResults);
     for (const agentResult of entries.slice(0, max)) {
-      const out = (agentResult as any)?.output ?? (agentResult as any)?.result;
+      const agentRec = agentResult as Record<string, unknown>;
+      const out = agentRec?.output ?? agentRec?.result;
       if (out) findings.push(String(out).slice(0, maxLen));
     }
   }

@@ -291,6 +291,23 @@ export class GrindingSurfaceFinishEngine {
       }
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["grinding", "finishing"],
+        operation_type: "grinding",
+        material_hardness_hrc: input.workpiece_hardness_hrc,
+        depth_of_cut_mm: ae,
+        coolant_type: coolantType,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       predicted_Ra_um: {
         value: Math.round(Ra_um * 1000) / 1000,

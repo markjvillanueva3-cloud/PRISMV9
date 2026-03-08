@@ -119,6 +119,8 @@ export interface AutoSpeedFeedResult {
     arc_limits: number;
   };
   warnings: string[];
+  /** Warnings from MachiningPlaybookEngine material/anti-pattern rules */
+  playbook_warnings?: string[];
 }
 
 export interface AutoSpeedFeedAnalysis {
@@ -516,6 +518,11 @@ class AutoSpeedFeedEngineImpl {
     const avgChange = feedChangeCount > 0 ? (totalFeedChange / feedChangeCount) * 100 : 0;
     const timeSavings = avgChange > 0 ? Math.min(avgChange * 0.8, 30) : 0;
 
+    // Playbook integration — consult material rules and add warnings
+    const playbookWarnings = this._collectPlaybookWarnings(
+      isoGroup, input.gcode, input.coolant, toolSections, input.tools,
+    );
+
     return {
       gcode: optimizedLines.join("\n"),
       tool_sections: toolSections,
@@ -534,6 +541,7 @@ class AutoSpeedFeedEngineImpl {
         arc_limits: arcCount,
       },
       warnings,
+      ...(playbookWarnings.length > 0 ? { playbook_warnings: playbookWarnings } : {}),
     };
   }
 
@@ -650,6 +658,7 @@ class AutoSpeedFeedEngineImpl {
 
   private _usfe: any = null;
   private _ppfo: any = null;
+  private _playbook: any = null;
 
   private async _getUltimateEngine(): Promise<any> {
     if (!this._usfe) {
@@ -667,9 +676,115 @@ class AutoSpeedFeedEngineImpl {
     return this._ppfo;
   }
 
+  private _getPlaybookEngine(): any {
+    if (!this._playbook) {
+      try {
+        const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+        this._playbook = machiningPlaybookEngine;
+      } catch {
+        this._playbook = null;
+      }
+    }
+    return this._playbook;
+  }
+
   // ==========================================================================
   // PRIVATE — Helpers
   // ==========================================================================
+
+  /**
+   * Consult MachiningPlaybookEngine for material/anti-pattern warnings
+   * relevant to the optimized G-code output.
+   *
+   * Key rules surfaced:
+   *   MAT-001: stainless never dwell (G04 + ISO M)
+   *   MAT-002: titanium low speed (Vc > 60 m/min + ISO S)
+   *   MAT-004: hardened steel air blast (flood coolant + ISO H)
+   *   ANTI-004: no flood for interrupted carbide cuts
+   */
+  private _collectPlaybookWarnings(
+    isoGroup: ISOGroup,
+    gcode: string,
+    coolant: string | undefined,
+    toolSections: ToolSectionSummary[],
+    tools: ToolDefinition[],
+  ): string[] {
+    const pbWarnings: string[] = [];
+
+    try {
+      const playbook = this._getPlaybookEngine();
+      if (!playbook) return pbWarnings;
+
+      // Query playbook for material-relevant rules
+      const advice = playbook.advise({
+        material_iso: isoGroup,
+        categories: ["material_tip", "anti_pattern", "chip_control"],
+      });
+
+      // Collect generic critical/important warnings from playbook
+      for (const rule of advice.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          pbWarnings.push(`[${rule.id}] ${rule.title}: ${rule.rule.substring(0, 200)}`);
+        }
+      }
+
+      // MAT-001: Stainless never dwell — warn if G04 found for ISO M
+      if (isoGroup === "M" && /G0?4\b/i.test(gcode)) {
+        const hasMat001 = pbWarnings.some(w => w.includes("MAT-001"));
+        if (!hasMat001) {
+          pbWarnings.push(
+            "[MAT-001] Stainless dwell detected: G04 dwell found in G-code for stainless steel (ISO M). " +
+            "Dwelling causes work hardening — remove G04 from stainless programs."
+          );
+        }
+      }
+
+      // MAT-002: Titanium low speed — warn if any tool section Vc > 60 m/min for ISO S
+      if (isoGroup === "S") {
+        for (const ts of toolSections) {
+          if (ts.optimal_vc_mmin > 60) {
+            pbWarnings.push(
+              `[MAT-002] Titanium speed limit: T${ts.tool_number} Vc=${ts.optimal_vc_mmin} m/min exceeds ` +
+              `60 m/min limit for ISO S (titanium/superalloys). Risk of rapid tool wear and thermal damage.`
+            );
+          }
+        }
+      }
+
+      // MAT-004: Hardened steel air blast — warn if flood coolant for ISO H
+      if (isoGroup === "H" && coolant === "flood") {
+        const hasMat004 = pbWarnings.some(w => w.includes("MAT-004"));
+        if (!hasMat004) {
+          pbWarnings.push(
+            "[MAT-004] Hardened steel coolant: Flood coolant detected for hardened steel (ISO H). " +
+            "Use air blast or dry cutting — thermal shock from flood causes carbide insert micro-fracture."
+          );
+        }
+      }
+
+      // ANTI-004: No flood for interrupted carbide cuts
+      if (coolant === "flood") {
+        const toolMap = new Map(tools.map(t => [t.tool_number, t]));
+        const hasCarbideInterrupted = toolSections.some(ts => {
+          const tool = toolMap.get(ts.tool_number);
+          return tool && (tool.material === "carbide" || !tool.material); // default is carbide
+        });
+        if (hasCarbideInterrupted) {
+          const hasAnti004 = pbWarnings.some(w => w.includes("ANTI-004"));
+          if (!hasAnti004) {
+            pbWarnings.push(
+              "[ANTI-004] Flood coolant with carbide: Flood coolant on carbide inserts in interrupted cuts " +
+              "causes thermal cycling and edge chipping. Use MQL or air blast for interrupted operations."
+            );
+          }
+        }
+      }
+    } catch (err: any) {
+      log.warn(`AutoSpeedFeed playbook integration: ${err.message}`);
+    }
+
+    return pbWarnings;
+  }
 
   private _resolveISO(material: string, explicit?: ISOGroup): ISOGroup {
     if (explicit) return explicit;

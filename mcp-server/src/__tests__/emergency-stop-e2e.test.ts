@@ -18,9 +18,11 @@ import { describe, it, expect } from "vitest";
 import { validateCrossFieldPhysics } from "../validation/crossFieldPhysics.js";
 import { SafetyBlockError } from "../errors/PrismError.js";
 import { safetyQualityHooks } from "../hooks/SafetyQualityHooks.js";
+import type { SafetyCalcResult } from "../schemas/safetyCalcSchema.js";
+import type { HookContext } from "../engines/HookExecutor.js";
 
 /** Helper: build a minimal SafetyCalcResult */
-function makeCalcResult(overrides: Record<string, any>) {
+function makeCalcResult(overrides: Partial<SafetyCalcResult>): SafetyCalcResult {
   return {
     Vc: 200,
     fz: 0.15,
@@ -51,9 +53,9 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       Vc: 100,
       Fc: 500,  // Impossibly low for superalloy at this speed
     });
-    expect(() => validateCrossFieldPhysics(result as any)).toThrow(SafetyBlockError);
+    expect(() => validateCrossFieldPhysics(result)).toThrow(SafetyBlockError);
     try {
-      validateCrossFieldPhysics(result as any);
+      validateCrossFieldPhysics(result);
     } catch (e) {
       expect(e).toBeInstanceOf(SafetyBlockError);
       expect((e as SafetyBlockError).safetyScore).toBe(0.0);
@@ -67,7 +69,7 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       Vc: 100,
       Fc: 500,
     });
-    expect(() => validateCrossFieldPhysics(result as any)).toThrow(SafetyBlockError);
+    expect(() => validateCrossFieldPhysics(result)).toThrow(SafetyBlockError);
   });
 
   // ── T29 (P1): Soft material with Fc > 3000N at Vc > 200 → violation
@@ -77,7 +79,7 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       Vc: 300,
       Fc: 5000,
     });
-    expect(() => validateCrossFieldPhysics(result as any)).toThrow(SafetyBlockError);
+    expect(() => validateCrossFieldPhysics(result)).toThrow(SafetyBlockError);
   });
 
   // ── T30 (P2): RPM/Vc implies diameter > 1000mm → violation ────────
@@ -87,7 +89,7 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       n_rpm: 100,
       // Implied D = (1000 × 1000) / (π × 100) = 3183mm — impossible
     });
-    expect(() => validateCrossFieldPhysics(result as any)).toThrow(SafetyBlockError);
+    expect(() => validateCrossFieldPhysics(result)).toThrow(SafetyBlockError);
   });
 
   // ── T31 (P2): Valid physics data → no throw ───────────────────────
@@ -98,7 +100,7 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       Fc: 2000,
       fz: 0.15,
     });
-    expect(() => validateCrossFieldPhysics(result as any)).not.toThrow();
+    expect(() => validateCrossFieldPhysics(result)).not.toThrow();
   });
 
   // ── Additional: multiple violations in single check ───────────────
@@ -109,7 +111,7 @@ describe("Cross-Field Physics Validation [QA-MS1 P0]", () => {
       Fc: 500,       // Force too low for superalloy
       fz: 0.8,       // Feed too high for superalloy (> 0.5)
     });
-    expect(() => validateCrossFieldPhysics(result as any)).toThrow(SafetyBlockError);
+    expect(() => validateCrossFieldPhysics(result)).toThrow(SafetyBlockError);
   });
 });
 
@@ -131,7 +133,7 @@ describe("SafetyQualityHooks pre-calculate-safety [QA-MS1 P0]", () => {
         data: { spindleRpm: 65000 },
       },
     };
-    const result = preCalcSafety!.handler(ctx as any);
+    const result = preCalcSafety!.handler(ctx as unknown as HookContext);
     expect(result).toHaveProperty("blocked", true);
     expect(result.message).toContain("SAFETY BLOCK");
   });
@@ -147,7 +149,7 @@ describe("SafetyQualityHooks pre-calculate-safety [QA-MS1 P0]", () => {
         data: { spindleRpm: 60000 },
       },
     };
-    const result = preCalcSafety!.handler(ctx as any);
+    const result = preCalcSafety!.handler(ctx as unknown as HookContext);
     expect(result).toHaveProperty("blocked", false);
   });
 
@@ -162,7 +164,7 @@ describe("SafetyQualityHooks pre-calculate-safety [QA-MS1 P0]", () => {
         data: { feedRate: 55000 },
       },
     };
-    const result = preCalcSafety!.handler(ctx as any);
+    const result = preCalcSafety!.handler(ctx as unknown as HookContext);
     expect(result).toHaveProperty("blocked", true);
   });
 
@@ -177,7 +179,7 @@ describe("SafetyQualityHooks pre-calculate-safety [QA-MS1 P0]", () => {
         data: { depthOfCut: 55 },
       },
     };
-    const result = preCalcSafety!.handler(ctx as any);
+    const result = preCalcSafety!.handler(ctx as unknown as HookContext);
     expect(result).toHaveProperty("blocked", true);
   });
 
@@ -198,7 +200,7 @@ describe("SafetyQualityHooks pre-calculate-safety [QA-MS1 P0]", () => {
         },
       },
     };
-    const result = preCalcSafety!.handler(ctx as any);
+    const result = preCalcSafety!.handler(ctx as unknown as HookContext);
     expect(result).toHaveProperty("blocked", false);
     expect(result).toHaveProperty("success", true);
   });

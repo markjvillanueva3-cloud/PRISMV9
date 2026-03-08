@@ -584,11 +584,20 @@ class WorkholdingEngine {
       return {
         requiredClampForce: 0,
         appliedClampForce: device.currentClampForce || device.maxClampForce || 0,
-        achievedSafetyFactor: 0,
+        safetyFactor: 0,
+        minimumSafetyFactor: safetyFactor,
         isSafe: false,
+        frictionCoefficient: mu,
+        dynamicFactor,
         warnings,
         recommendations: [...recommendations, "Use vacuum/magnetic holding force calculation instead of friction-based model"],
-      } as any;
+        calculation: {
+          cuttingForceUsed: F_cutting,
+          frictionUsed: mu,
+          safetyFactorUsed: safetyFactor,
+          formula: "N/A — zero friction (vacuum/magnetic)",
+        },
+      };
     }
     const requiredClampForce = (F_cutting * safetyFactor * dynamicFactor) / mu;
 

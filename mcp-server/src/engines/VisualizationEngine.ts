@@ -361,7 +361,7 @@ export class VisualizationEngine {
       }
 
       segments.push({
-        type: type as any,
+        type: type as "rapid" | "feed" | "arc_cw" | "arc_ccw" | "plunge",
         points: [move.start.x, move.start.y, move.start.z, move.end.x, move.end.y, move.end.z],
         color,
         line_width: type === "rapid" ? 1 : 2,

@@ -175,11 +175,11 @@ describe("dataDispatcher: tool_compare ISO key lookup", () => {
 
     // Old (buggy): only uses tool_1 keys
     const isoKeyOld = Object.keys(cp1src).find(k => k.startsWith(tcIsoGroup + '_'));
-    const t2cpOld = isoKeyOld ? (cp2src as any)[isoKeyOld] : null;
+    const t2cpOld = isoKeyOld ? (cp2src as Record<string, unknown>)[isoKeyOld] : null;
 
     // New (fixed): independent lookup
     const isoKey2 = Object.keys(cp2src).find(k => k.startsWith(tcIsoGroup + '_'));
-    const t2cpNew = isoKey2 ? (cp2src as any)[isoKey2] : null;
+    const t2cpNew = isoKey2 ? (cp2src as Record<string, unknown>)[isoKey2] : null;
 
     expect(t2cpOld).toBeUndefined(); // old code misses tool_2 data (key not in cp2src)
     expect(t2cpNew).toEqual({ speed: 180 }); // fixed code finds it
@@ -189,18 +189,18 @@ describe("dataDispatcher: tool_compare ISO key lookup", () => {
 // === MachineRegistry — optional chaining fixes ===
 describe("MachineRegistry: null safety", () => {
   it("search filter should not crash on machines without envelope", () => {
-    const m = { name: "TestMill", model: "T1" } as any;
+    const m: Record<string, unknown> = { name: "TestMill", model: "T1" };
     // New code uses optional chaining
-    const xTravel = m.envelope?.x_travel ?? 0;
-    const rpm = m.spindle?.max_rpm ?? 0;
-    const capacity = m.tool_changer?.capacity ?? 0;
+    const xTravel = (m.envelope as Record<string, unknown> | undefined)?.x_travel ?? 0;
+    const rpm = (m.spindle as Record<string, unknown> | undefined)?.max_rpm ?? 0;
+    const capacity = (m.tool_changer as Record<string, unknown> | undefined)?.capacity ?? 0;
     expect(xTravel).toBe(0);
     expect(rpm).toBe(0);
     expect(capacity).toBe(0);
   });
 
   it("getByModel should not crash when model is undefined", () => {
-    const machine = { id: "test", name: "Test" } as any;
+    const machine = { id: "test", name: "Test" } as Record<string, unknown>;
     // New code uses optional chaining
     const result = machine?.model?.toLowerCase();
     expect(result).toBeUndefined();
@@ -232,7 +232,7 @@ describe("MaterialRegistry: hardness filter logic", () => {
   });
 
   it("materials without hardness data should be excluded", () => {
-    const m = { mechanical: {} } as any;
+    const m = { mechanical: {} } as Record<string, unknown>;
     const hrc = m.mechanical?.hardness?.rockwell_c;
     const hb = m.mechanical?.hardness?.brinell;
     const passes = hb != null ? hb >= 100 : (hrc != null ? hrc >= 100 : false);
@@ -253,8 +253,8 @@ describe("MaterialRegistry: coefficient presence checks", () => {
   it("Johnson-Cook should check A, B, and n", () => {
     const complete = { johnson_cook: { A: 500, B: 300, n: 0.3, C: 0.01, m: 1.0 } };
     const incomplete = { johnson_cook: { A: 500 } };
-    const checkComplete = complete.johnson_cook?.A != null && complete.johnson_cook?.B != null && (complete.johnson_cook as any)?.n != null;
-    const checkIncomplete = incomplete.johnson_cook?.A != null && (incomplete.johnson_cook as any)?.B != null;
+    const checkComplete = complete.johnson_cook?.A != null && complete.johnson_cook?.B != null && (complete.johnson_cook as Record<string, unknown>)?.n != null;
+    const checkIncomplete = incomplete.johnson_cook?.A != null && (incomplete.johnson_cook as Record<string, unknown>)?.B != null;
     expect(checkComplete).toBe(true);
     expect(checkIncomplete).toBe(false);
   });

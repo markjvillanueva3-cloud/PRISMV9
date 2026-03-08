@@ -176,6 +176,20 @@ export class ChatterStabilityLobeEngine {
       recs.push(`L/D = ${(tool.overhang_mm / tool.diameter_mm).toFixed(1)} — high chatter risk, reduce overhang`);
     }
 
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["toolpath_strategy", "anti_pattern"],
+        material_iso: workpiece.iso_group,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     const result: ChatterResult = {
       lobes,
       optimal_rpm: optimalRPM,

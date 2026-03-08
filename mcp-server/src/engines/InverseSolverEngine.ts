@@ -684,48 +684,49 @@ const solutionHistory: InverseSolution[] = [];
   * @param params - configuration options
   * @returns result object
  */
-export function inverseSolver(action: string, params: Record<string, any>): any {
+export function inverseSolver(action: string, params: Record<string, unknown>): unknown {
+  const input = params as unknown as InverseProblemInput;
   switch (action) {
     case "inverse_solve": {
       const type = params.problem_type as InverseProblemType ?? "general";
       let solution: InverseSolution;
       switch (type) {
-        case "surface_finish": solution = solveSurfaceFinish(params as any); break;
-        case "tool_life": solution = solveToolLife(params as any); break;
-        case "dimensional": solution = solveDimensional(params as any); break;
-        case "chatter": solution = solveChatter(params as any); break;
-        default: solution = solveGeneral(params as any); break;
+        case "surface_finish": solution = solveSurfaceFinish(input); break;
+        case "tool_life": solution = solveToolLife(input); break;
+        case "dimensional": solution = solveDimensional(input); break;
+        case "chatter": solution = solveChatter(input); break;
+        default: solution = solveGeneral(input); break;
       }
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_surface": {
-      const solution = solveSurfaceFinish(params as any);
+      const solution = solveSurfaceFinish(input);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_tool_life": {
-      const solution = solveToolLife(params as any);
+      const solution = solveToolLife(input);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_dimensional": {
-      const solution = solveDimensional(params as any);
+      const solution = solveDimensional(input);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_chatter": {
-      const solution = solveChatter(params as any);
+      const solution = solveChatter(input);
       solutionHistory.push(solution);
       return solution;
     }
 
     case "inverse_troubleshoot": {
-      const solution = solveGeneral(params as any);
+      const solution = solveGeneral(input);
       solutionHistory.push(solution);
       return solution;
     }

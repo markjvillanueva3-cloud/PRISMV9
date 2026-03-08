@@ -1,184 +1,126 @@
 /**
- * ElectroPlatingEngine — Electroplating Process Calculator
+ * ElectroplatingEngine � Electroplating/electrodeposition process analysis
  *
- * Models: Electroplating thickness, time, and cost.
- * - Faraday's law: m = ItM/(nF)
- * - Plating time from target thickness
- * - Current density and throwing power
- * - Bath chemistry maintenance
- * - Hydrogen embrittlement risk
- * - Cost per part (energy + chemistry + labor)
- *
- * Key physics: thickness = (I×t×M)/(n×F×ρ×A).
- * Cathode efficiency η. Current distribution uniformity.
- *
- * Reference: ASM Handbook Vol.5 — Surface Engineering,
- *            Lowenheim — Modern Electroplating,
- *            MIL-STD-1501 / ASTM B633/B488
- *
- * Actions: plating_calc
+ * Models: Faraday's law deposition, throwing power, current efficiency,
+ *         bath chemistry, deposit stress, Hull cell prediction
+ * References: Schlesinger & Paunovic, ASTM B488, MIL-STD-1501
  */
 
-// ── Types ──────────────────────────────────────────────────────────
+export type PlatingType = "rack" | "barrel" | "brush" | "pulse" | "jet" | "continuous";
+export type PlatingMetal = "nickel" | "chrome_hard" | "chrome_deco" | "zinc" | "copper" | "gold" | "silver" | "tin" | "cadmium";
+
+export interface ElectroplatingInput {
+  type?: PlatingType;
+  metal?: PlatingMetal;
+  surface_area_dm2?: number;
+  target_thickness_um?: number;
+  current_density_A_dm2?: number;
+  bath_temp_C?: number;
+  agitation?: "none" | "air" | "mechanical" | "ultrasonic";
+}
 
 export interface AtomicValue {
-  value: number;
-  unit: string;
-  uncertainty: number;
-  source: string;
+  value: number; unit: string; uncertainty: number;
+  source: string; warning?: string;
 }
 
-export interface ElectroPlatingInput {
-  plating_type?: "chrome_hard" | "chrome_decorative" | "nickel" | "zinc" |
-    "cadmium" | "gold" | "silver" | "copper" | "tin";
-  target_thickness_um?: number;
-  part_area_dm2?: number;
-  current_density_A_dm2?: number;
-  bath_temperature_c?: number;
-  substrate?: "steel" | "aluminum" | "copper" | "brass";
-  num_parts?: number;
-  electricity_cost_kwh?: number;
+export interface ElectroplatingResult {
+  plating_time_min: AtomicValue;
+  current_A: AtomicValue;
+  current_efficiency_pct: AtomicValue;
+  deposition_rate_um_min: AtomicValue;
+  throwing_power_pct: AtomicValue;
+  deposit_stress_MPa: AtomicValue;
+  metal_consumption_g: AtomicValue;
+  energy_kWh: AtomicValue;
+  is_safe: boolean;
+  recommendations: string[];
 }
 
-export interface ElectroPlatingResult {
-  plating_time: AtomicValue;
-  total_current: AtomicValue;
-  metal_deposited: AtomicValue;
-  cathode_efficiency: AtomicValue;
-  throwing_power: AtomicValue;
-  bath_voltage: AtomicValue;
-  energy_per_part: AtomicValue;
-  cost_per_part: AtomicValue;
-  hydrogen_risk: AtomicValue;
-  bake_required: AtomicValue;
-  warnings: string[];
-}
-
-// ── Reference Data ────────────────────────────────────────────────
-
-/** [atomic_mass, valence, density_g_cm3, cathode_eff, bath_V, throwing_power_1_10] */
-const PLATING_DATA: Record<string, [number, number, number, number, number, number]> = {
-  chrome_hard:       [52.0,  6, 7.19, 0.15, 6.0, 2],
-  chrome_decorative: [52.0,  6, 7.19, 0.15, 6.0, 2],
-  nickel:            [58.69, 2, 8.90, 0.95, 4.0, 8],
-  zinc:              [65.38, 2, 7.13, 0.95, 3.0, 7],
-  cadmium:           [112.4, 2, 8.65, 0.95, 2.5, 9],
-  gold:              [197.0, 1, 19.3, 0.80, 4.0, 5],
-  silver:            [107.9, 1, 10.5, 0.98, 2.0, 6],
-  copper:            [63.55, 2, 8.96, 0.98, 3.0, 7],
-  tin:               [118.7, 2, 7.31, 0.90, 3.0, 6],
+// Metal: [equiv_weight_g, density_g/cm3, efficiency_pct, default_cd_A/dm2, default_temp_C, stress_MPa]
+const PLATE_DATA: Record<PlatingMetal, [number, number, number, number, number, number]> = {
+  nickel:      [29.35, 8.9,  95, 4,   55, 200],
+  chrome_hard: [17.33, 7.2,  15, 30,  55, 300],
+  chrome_deco: [17.33, 7.2,  12, 15,  45, 250],
+  zinc:        [32.69, 7.1,  95, 3,   25, 50],
+  copper:      [31.77, 8.9,  98, 3,   30, 100],
+  gold:        [65.68, 19.3, 80, 0.5, 60, 80],
+  silver:      [107.9, 10.5, 98, 1,   25, 70],
+  tin:         [59.35, 7.3,  90, 2,   25, 30],
+  cadmium:     [56.20, 8.7,  95, 1.5, 25, 40],
 };
 
-const F_CONST = 96485; // C/mol
+function mkAv(v: number, u: string, unc: number, s: string, w?: string): AtomicValue {
+  return { value: v, unit: u, uncertainty: unc, source: s, warning: w };
+}
 
-// ── Engine ─────────────────────────────────────────────────────────
+export class ElectroplatingEngine {
+  calculate(input: ElectroplatingInput): ElectroplatingResult {
+    const {
+      type = "rack",
+      metal = "nickel",
+      surface_area_dm2: area = 10,
+      target_thickness_um: thickness = 25,
+      agitation = "air",
+    } = input;
 
-export class ElectroPlatingEngine {
-  calculate(input: ElectroPlatingInput): ElectroPlatingResult {
-    const warnings: string[] = [];
-    const pType = input.plating_type ?? "nickel";
-    const tTarget = input.target_thickness_um ?? 25;
-    const area = input.part_area_dm2 ?? 5;
-    const substrate = input.substrate ?? "steel";
-    const nParts = input.num_parts ?? 1;
-    const elecCost = input.electricity_cost_kwh ?? 0.10;
+    const recs: string[] = [];
+    const [eqWt, rhoMetal, effBase, defaultCD, defaultTemp, stress] = PLATE_DATA[metal];
 
-    const [M, n, rho, eta, bathV, throwPower] =
-      PLATING_DATA[pType] ?? PLATING_DATA.nickel;
+    const CD = input.current_density_A_dm2 ?? defaultCD;
+    const temp = input.bath_temp_C ?? defaultTemp;
 
-    // Current density
-    const J = input.current_density_A_dm2 ??
-      (pType.includes("chrome") ? 30 : 3);
+    // Current efficiency (affected by agitation)
+    const agitMod = agitation === "ultrasonic" ? 1.05 :
+      agitation === "mechanical" ? 1.02 : agitation === "air" ? 1.0 : 0.95;
+    const efficiency = Math.min(100, effBase * agitMod);
+
+    // Deposition rate from Faraday's law
+    const depRate = CD * eqWt * (efficiency / 100) / (rhoMetal * 96485) * 600000;
+
+    // Plating time
+    const platingTime = thickness / depRate;
 
     // Total current
-    const I = J * area * nParts;
+    const current = CD * area;
 
-    // Plating time (seconds)
-    // thickness = η×I×t×M / (n×F×ρ×A)
-    // t = thickness×n×F×ρ×A / (η×I×M)
-    const thickM = tTarget * 1e-6; // µm → m
-    const areaM2 = area * 1e-2; // dm² → m²
-    const rhoKg = rho * 1000; // g/cm³ → kg/m³
-    const tSec = thickM * n * F_CONST * rhoKg * areaM2 /
-      (eta * I * (M / 1000));
-    const tMin = tSec / 60;
+    // Metal consumption
+    const metalMass = current * platingTime * 60 * eqWt * (efficiency / 100) / 96485;
 
-    // Metal deposited per part (grams)
-    const metalG = eta * I * tSec * M / (n * F_CONST * nParts);
+    // Throwing power
+    const throwingPower = metal === "copper" ? 40 : metal === "nickel" ? 30 :
+      metal === "zinc" ? 35 : metal === "chrome_hard" ? 10 :
+      metal === "chrome_deco" ? 12 : metal === "gold" ? 50 : 25;
 
-    // Energy per part
-    const energyWh = bathV * I * tSec / 3600; // Wh
-    const energyKwh = energyWh / 1000;
+    // Deposit stress
+    const depositStress = stress * (CD / defaultCD);
 
-    // Cost per part (simplified: energy + chemistry @ 2× energy)
-    const energyCostPart = energyKwh * elecCost / nParts;
-    const chemCost = energyCostPart * 2;
-    const laborCost = (tMin / 60) * 30 / nParts; // $30/hr
-    const costPerPart = energyCostPart + chemCost + laborCost;
+    // Energy consumption
+    const cellVoltage = metal === "chrome_hard" || metal === "chrome_deco" ? 6 : 4;
+    const energy = current * cellVoltage * platingTime / 60 / 1000;
 
-    // Hydrogen embrittlement risk
-    let hRisk: string;
-    if (pType.includes("chrome") || pType === "cadmium" || pType === "zinc") {
-      hRisk = substrate === "steel" ? "high" : "low";
-    } else {
-      hRisk = "low";
-    }
+    const isSafe = platingTime > 0.5 && CD < 100 && efficiency > 5;
 
-    // Bake required (for H2 relief)
-    const bakeReq = hRisk === "high";
-
-    // Warnings
-    if (hRisk === "high") {
-      warnings.push(`Hydrogen embrittlement risk — bake at 190°C for 4-24h within 4h of plating`);
-    }
-    if (pType === "cadmium") {
-      warnings.push("Cadmium is toxic — restricted by REACH/RoHS, consider zinc-nickel alternative");
-    }
-    if (substrate === "aluminum" && !["zinc", "copper"].includes(pType)) {
-      warnings.push("Aluminum substrate — requires zincate pre-treatment before plating");
-    }
-    if (pType.includes("chrome") && tTarget > 250) {
-      warnings.push(`Chrome ${tTarget}µm — multiple passes may be needed, check cracking`);
-    }
-    if (J > 50 && pType.includes("chrome")) {
-      warnings.push(`High current density ${J}A/dm² — burning risk at edges`);
-    }
-    if (throwPower < 4 && area > 10) {
-      warnings.push("Low throwing power — thickness variation on complex geometry");
-    }
-
-    const src = "ElectroPlatingEngine (ASM/Lowenheim)";
+    if (metal === "cadmium") recs.push("Cadmium plating � REACH restricted, toxic, use zinc-nickel alternative");
+    if (metal === "chrome_hard" && efficiency < 20) recs.push("Cr hard � low efficiency " + efficiency.toFixed(0) + "%, high hydrogen evolution");
+    if (CD > defaultCD * 2) recs.push("High CD " + CD + "A/dm2 � burning/rough deposit risk");
+    if (type === "barrel" && area > 50) recs.push("Large barrel load � ensure adequate tumbling");
+    if (thickness > 100 && metal !== "chrome_hard") recs.push("Thick deposit " + thickness + "um � internal stress cracking risk");
+    if (recs.length === 0) recs.push("Plating nominal � " + platingTime.toFixed(0) + "min, " + depRate.toFixed(2) + "um/min, eta=" + efficiency.toFixed(0) + "%");
 
     return {
-      plating_time: mkAv(r1(tMin), "min", tMin * 0.05,
-        `${tTarget}µm at ${J}A/dm² η=${eta}`),
-      total_current: mkAv(r1(I), "A", I * 0.02,
-        `${J}A/dm² × ${area}dm²`),
-      metal_deposited: mkAv(r2(metalG), "g/part", metalG * 0.05,
-        "Faraday's law"),
-      cathode_efficiency: mkAv(r0(eta * 100), "%", 2, pType),
-      throwing_power: mkAv(throwPower, "/10", 0, pType),
-      bath_voltage: mkAv(bathV, "V", 0.5, pType),
-      energy_per_part: mkAv(r2(energyKwh / nParts), "kWh", energyKwh / nParts * 0.1,
-        `${bathV}V × ${r1(I)}A × ${r1(tMin)}min`),
-      cost_per_part: mkAv(r2(costPerPart), "$/part", costPerPart * 0.2,
-        "Energy + chem + labor"),
-      hydrogen_risk: mkAv(hRisk === "high" ? 3 : hRisk === "moderate" ? 2 : 1,
-        hRisk, 0, `${pType} on ${substrate}`),
-      bake_required: mkAv(bakeReq ? 1 : 0,
-        bakeReq ? "YES — 190°C 4-24h" : "NO", 0, src),
-      warnings,
+      plating_time_min: mkAv(Math.round(platingTime * 10) / 10, "min", platingTime * 0.10, "Faraday"),
+      current_A: mkAv(Math.round(current * 10) / 10, "A", current * 0.05, "CD_area"),
+      current_efficiency_pct: mkAv(Math.round(efficiency * 10) / 10, "%", efficiency * 0.05, "metal_agit"),
+      deposition_rate_um_min: mkAv(Math.round(depRate * 1000) / 1000, "um/min", depRate * 0.10, "Faraday"),
+      throwing_power_pct: mkAv(throwingPower, "%", throwingPower * 0.15, "bath_geometry"),
+      deposit_stress_MPa: mkAv(Math.round(depositStress * 10) / 10, "MPa", depositStress * 0.20, "CD_metal"),
+      metal_consumption_g: mkAv(Math.round(metalMass * 100) / 100, "g", metalMass * 0.05, "Faraday"),
+      energy_kWh: mkAv(Math.round(energy * 1000) / 1000, "kWh", energy * 0.10, "IV_time"),
+      is_safe: isSafe,
+      recommendations: recs,
     };
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────
-
-function mkAv(value: number, unit: string, uncertainty: number, source: string): AtomicValue {
-  return { value, unit, uncertainty, source };
-}
-function r0(n: number): number { return Math.round(n); }
-function r1(n: number): number { return Math.round(n * 10) / 10; }
-function r2(n: number): number { return Math.round(n * 100) / 100; }
-
-export const electroPlatingEngine = new ElectroPlatingEngine();
+export const electroplatingEngine = new ElectroplatingEngine();

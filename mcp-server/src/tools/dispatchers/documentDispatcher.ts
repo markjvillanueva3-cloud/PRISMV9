@@ -5,7 +5,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_DOCUMENT_SCHEMAS } from "../../schemas/documentActionSchemas.js";
 import * as fs from "fs";
 import * as path from "path";
 import { hookExecutor } from "../../engines/HookExecutor.js";
@@ -114,6 +115,14 @@ Params: read/write/append need 'name'. write needs 'content'. read accepts 'deta
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        const validation = validateActionParams(action, params, ACTION_DOCUMENT_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_doc"
+          );
+        }
         switch (action) {
           case "list": {
             const docs = listDocs();

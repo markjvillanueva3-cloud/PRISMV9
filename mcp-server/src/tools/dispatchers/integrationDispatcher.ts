@@ -18,8 +18,16 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_INTEGRATION_SCHEMAS } from "../../schemas/integrationActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
+
+/** Action string is validated by Zod enum but `.includes()` needs wider type */
+type ActionString = string;
 
 // Lazy engine cache
 let _camIntegration: any, _dncTransfer: any, _erpIntegration: any,
@@ -208,7 +216,7 @@ export function registerIntegrationDispatcher(server: any): void {
           target: { type: "integration" as const, id: action, data: params },
           metadata: { dispatcher: "integrationDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
@@ -217,14 +225,24 @@ export function registerIntegrationDispatcher(server: any): void {
           };
         }
 
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_INTEGRATION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_integration"
+          );
+        }
+
         // Route to engine
-        const result = CAM_ACTIONS.includes(action as any)
+        const result = CAM_ACTIONS.includes(action as ActionString as typeof CAM_ACTIONS[number])
           ? await (await getIntegrationEngine("camIntegration"))(action, params)
-          : DNC_ACTIONS.includes(action as any)
+          : DNC_ACTIONS.includes(action as ActionString as typeof DNC_ACTIONS[number])
           ? await (await getIntegrationEngine("dncTransfer"))(action, params)
-          : ERP_ACTIONS.includes(action as any)
+          : ERP_ACTIONS.includes(action as ActionString as typeof ERP_ACTIONS[number])
           ? await (await getIntegrationEngine("erpIntegration"))(action, params)
-          : MOBILE_ACTIONS.includes(action as any)
+          : MOBILE_ACTIONS.includes(action as ActionString as typeof MOBILE_ACTIONS[number])
           ? await (await getIntegrationEngine("mobileInterface"))(action, params)
           : await (await getIntegrationEngine("measurementIntegration"))(action, params);
 
@@ -232,7 +250,7 @@ export function registerIntegrationDispatcher(server: any): void {
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // Response formatting
         if (params.response_level) {

@@ -1,12 +1,17 @@
 /**
- * Validation Dispatcher - Consolidates 7 validation tools → 1
- * Actions: material, kienzle, taylor, johnson_cook, safety, completeness, anti_regression
+ * Validation Dispatcher - Consolidates 13 validation tools → 1
+ * Actions: material, kienzle, taylor, johnson_cook, safety, completeness, anti_regression,
+ *   prediction_validate, calibration_run, benchmark_run, benchmark_list,
+ *   uncertainty_quantify, improvement_run
  * Safety threshold: S(x) ≥ 0.70, Completeness: ≥ 80%
+ * SCI-MS2: Scientific validation engines added
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_VALIDATION_SCHEMAS } from "../../schemas/validationActionSchemas.js";
+import { SCI_VALIDATION_ACTION_SCHEMAS } from "../../schemas/sciValidationActionSchemas.js";
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
 import {
   validateKienzle, validateTaylor, validateJohnsonCook,
@@ -14,7 +19,25 @@ import {
   KIENZLE_RANGES, TAYLOR_RANGES, SAFETY_THRESHOLD, COMPLETENESS_THRESHOLD
 } from "../../utils/validators.js";
 
-const ACTIONS = ["material", "kienzle", "taylor", "johnson_cook", "safety", "completeness", "anti_regression"] as const;
+let _predVal: any, _calib: any, _bench: any, _uq: any, _ci: any;
+async function getSciEngine(name: string): Promise<any> {
+  switch (name) {
+    case "predVal": return _predVal ??= (await import("../../engines/PredictionValidationEngine.js")).predictionValidationEngine;
+    case "calib": return _calib ??= (await import("../../engines/CalibrationEngine.js")).calibrationEngine;
+    case "bench": return _bench ??= (await import("../../engines/BenchmarkSuiteEngine.js")).benchmarkSuiteEngine;
+    case "uq": return _uq ??= (await import("../../engines/UncertaintyQuantificationEngine.js")).uncertaintyQuantificationEngine;
+    case "ci": return _ci ??= (await import("../../engines/ContinuousImprovementEngine.js")).continuousImprovementEngine;
+    default: throw new Error(`Unknown sci validation engine: ${name}`);
+  }
+}
+
+const MERGED_SCHEMAS: Record<string, any> = { ...ACTION_VALIDATION_SCHEMAS, ...SCI_VALIDATION_ACTION_SCHEMAS };
+
+const ACTIONS = [
+  "material", "kienzle", "taylor", "johnson_cook", "safety", "completeness", "anti_regression",
+  "prediction_validate", "calibration_run", "benchmark_run", "benchmark_list",
+  "uncertainty_quantify", "improvement_run",
+] as const;
 
 /** Registers validation dispatcher.
  * @param server - MCP server instance
@@ -23,8 +46,8 @@ const ACTIONS = ["material", "kienzle", "taylor", "johnson_cook", "safety", "com
 export function registerValidationDispatcher(server: any): void {
   server.tool(
     "prism_validate",
-    `Validation dispatcher. Actions: material, kienzle, taylor, johnson_cook, safety, completeness, anti_regression.
-Safety threshold S(x)≥0.70. Completeness≥80%. Anti-regression: new_count≥old_count.
+    `Validation dispatcher. Actions: material, kienzle, taylor, johnson_cook, safety, completeness, anti_regression, prediction_validate, calibration_run, benchmark_run, benchmark_list, uncertainty_quantify, improvement_run.
+Safety threshold S(x)≥0.70. Completeness≥80%. Anti-regression: new_count≥old_count. SCI-MS2: prediction validation, calibration, benchmarking, uncertainty quantification, continuous improvement.
 Params vary by action - see individual action docs.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
@@ -37,6 +60,14 @@ Params vary by action - see individual action docs.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        const validation = validateActionParams(action, params, MERGED_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_validate"
+          );
+        }
         switch (action) {
           case "material": {
             const mat = params.material || {};
@@ -79,6 +110,36 @@ Params vary by action - see individual action docs.`,
             result = r;
             break;
           }
+          case "prediction_validate": {
+            const eng = await getSciEngine("predVal");
+            result = eng.validate(params);
+            break;
+          }
+          case "calibration_run": {
+            const eng = await getSciEngine("calib");
+            result = eng.calibrate(params);
+            break;
+          }
+          case "benchmark_run": {
+            const eng = await getSciEngine("bench");
+            result = eng.run(params);
+            break;
+          }
+          case "benchmark_list": {
+            const eng = await getSciEngine("bench");
+            result = eng.getScenarios(params.category);
+            break;
+          }
+          case "uncertainty_quantify": {
+            const eng = await getSciEngine("uq");
+            result = eng.quantify(params);
+            break;
+          }
+          case "improvement_run": {
+            const eng = await getSciEngine("ci");
+            result = eng.improve(params);
+            break;
+          }
           default: result = { error: `Unknown action: ${action}`, available: ACTIONS };
         }
         return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
@@ -94,5 +155,5 @@ Params vary by action - see individual action docs.`,
       }
     }
   );
-  log.info("✅ Registered: prism_validate dispatcher (7 actions)");
+  log.info("Registered: prism_validate dispatcher (13 actions)");
 }

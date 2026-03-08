@@ -196,9 +196,10 @@ describe("MachiningPlaybookEngine", () => {
       expect(rules.every(r => r.category === "sequencing")).toBe(true);
     });
 
-    it("should return empty array for unused category", () => {
-      const rules = engine.byCategory("chip_control" as RuleCategory);
-      expect(Array.isArray(rules)).toBe(true);
+    it("should return chip_control rules", () => {
+      const rules = engine.byCategory("chip_control");
+      expect(rules.length).toBeGreaterThanOrEqual(5);
+      expect(rules.every(r => r.category === "chip_control")).toBe(true);
     });
 
     it("should return material tips", () => {
@@ -288,7 +289,8 @@ describe("MachiningPlaybookEngine", () => {
       const cats: RuleCategory[] = [
         "sequencing", "anti_pattern", "thin_wall", "setup_strategy",
         "toolpath_strategy", "material_tip", "hole_making", "datum",
-        "thermal", "workholding", "safety",
+        "thermal", "workholding", "safety", "tool_selection", "finishing",
+        "roughing", "5axis", "chip_control", "tool_life", "deburring",
       ];
       for (const cat of cats) {
         allRules.push(...engine.byCategory(cat));
@@ -296,6 +298,307 @@ describe("MachiningPlaybookEngine", () => {
       const ids = allRules.map(r => r.id);
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
+    });
+
+    it("should have 210 total rules", () => {
+      const stats = engine.stats();
+      expect(stats.total).toBe(210);
+    });
+  });
+
+  // ── New category coverage ────────────────────────────────────────────
+
+  describe("new categories (previously empty)", () => {
+    it("tool_selection should have 6 rules", () => {
+      const rules = engine.byCategory("tool_selection");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "TOOL-001")).toBe(true);
+    });
+
+    it("finishing should have 5 rules", () => {
+      const rules = engine.byCategory("finishing");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "FIN-001")).toBe(true);
+    });
+
+    it("roughing should have 5 rules", () => {
+      const rules = engine.byCategory("roughing");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "ROUGH-001")).toBe(true);
+    });
+
+    it("5axis should have 4 rules", () => {
+      const rules = engine.byCategory("5axis");
+      expect(rules.length).toBe(4);
+      expect(rules.some(r => r.id === "5AX-001")).toBe(true);
+    });
+
+    it("tool_life should have 4 rules", () => {
+      const rules = engine.byCategory("tool_life");
+      expect(rules.length).toBe(4);
+      expect(rules.some(r => r.id === "LIFE-001")).toBe(true);
+    });
+
+    it("deburring should have 4 rules", () => {
+      const rules = engine.byCategory("deburring");
+      expect(rules.length).toBe(4);
+      expect(rules.some(r => r.id === "DEBUR-001")).toBe(true);
+    });
+  });
+
+  // ── Expanded category coverage ───────────────────────────────────────
+
+  describe("expanded categories", () => {
+    it("sequencing should have 15 rules (10 original + 5 new)", () => {
+      const rules = engine.byCategory("sequencing");
+      expect(rules.length).toBe(15);
+    });
+
+    it("anti_pattern should have 13 rules (5 original + 8 new)", () => {
+      const rules = engine.byCategory("anti_pattern");
+      expect(rules.length).toBe(13);
+    });
+
+    it("material_tip should have 11 rules (4 original + 7 new)", () => {
+      const rules = engine.byCategory("material_tip");
+      expect(rules.length).toBe(11);
+    });
+
+    it("hole_making should have 8 rules (2 original + 6 new)", () => {
+      const rules = engine.byCategory("hole_making");
+      expect(rules.length).toBe(8);
+    });
+
+    it("thin_wall should have 6 rules (2 original + 4 new)", () => {
+      const rules = engine.byCategory("thin_wall");
+      expect(rules.length).toBe(6);
+    });
+
+    it("setup_strategy should have 8 rules (3 original + 5 new)", () => {
+      const rules = engine.byCategory("setup_strategy");
+      expect(rules.length).toBe(8);
+    });
+
+    it("workholding should have 6 rules (2 original + 4 new)", () => {
+      const rules = engine.byCategory("workholding");
+      expect(rules.length).toBe(6);
+    });
+
+    it("thermal should have 4 rules (1 original + 3 new)", () => {
+      const rules = engine.byCategory("thermal");
+      expect(rules.length).toBe(4);
+    });
+
+    it("datum should have 3 rules (1 original + 2 new)", () => {
+      const rules = engine.byCategory("datum");
+      expect(rules.length).toBe(3);
+    });
+
+    it("safety should have 5 rules (1 original + 4 new)", () => {
+      const rules = engine.byCategory("safety");
+      expect(rules.length).toBe(5);
+    });
+
+    it("toolpath_strategy should have 8 rules (3 original + 5 new)", () => {
+      const rules = engine.byCategory("toolpath_strategy");
+      expect(rules.length).toBe(8);
+    });
+  });
+
+  // ── New condition types ──────────────────────────────────────────────
+
+  describe("new condition type matching", () => {
+    it("should match surface_finish_below conditions", () => {
+      const result = engine.advise({ surface_finish_Ra: 1.0 });
+      expect(result.rules.some(r => r.id === "STRAT-006")).toBe(true);
+      expect(result.rules.some(r => r.id === "FIN-003")).toBe(true);
+    });
+
+    it("should match machine_axes conditions for 5-axis", () => {
+      const result = engine.advise({ machine_axes: 5 });
+      expect(result.rules.some(r => r.id === "5AX-001")).toBe(true);
+      expect(result.rules.some(r => r.id === "5AX-002")).toBe(true);
+    });
+
+    it("should match batch_size_above conditions", () => {
+      const result = engine.advise({ batch_size: 50 });
+      expect(result.rules.some(r => r.id === "DEBUR-004")).toBe(true);
+    });
+
+    it("should match cast iron material rules", () => {
+      const result = engine.advise({ material_iso: "K" });
+      expect(result.rules.some(r => r.id === "MAT-011")).toBe(true);
+      expect(result.rules.some(r => r.id === "ANTI-013")).toBe(true);
+    });
+
+    it("should match hardened steel material rules", () => {
+      const result = engine.advise({ material_iso: "H" });
+      expect(result.rules.some(r => r.id === "MAT-009")).toBe(true);
+      expect(result.rules.some(r => r.id === "MAT-004")).toBe(true);
+    });
+  });
+
+  // ── Cross-references ─────────────────────────────────────────────────
+
+  describe("cross-references", () => {
+    it("all related_rules references should point to existing rules", () => {
+      const allRules: PlaybookRule[] = [];
+      const cats: RuleCategory[] = [
+        "sequencing", "anti_pattern", "thin_wall", "setup_strategy",
+        "toolpath_strategy", "material_tip", "hole_making", "datum",
+        "thermal", "workholding", "safety", "tool_selection", "finishing",
+        "roughing", "5axis", "chip_control", "tool_life", "deburring",
+        "grinding", "turning", "threading", "edm", "quality_inspection",
+        "coolant_strategy", "adaptive", "deep_hole", "surface_treatment",
+        "post_processing", "hard_turning", "hsm", "micro_machining",
+        "hybrid_additive",
+      ];
+      for (const cat of cats) {
+        allRules.push(...engine.byCategory(cat));
+      }
+      const allIds = new Set(allRules.map(r => r.id));
+      for (const rule of allRules) {
+        if (rule.related_rules) {
+          for (const ref of rule.related_rules) {
+            expect(allIds.has(ref)).toBe(true);
+          }
+        }
+      }
+    });
+  });
+
+  // ── Phase 2 new categories (14 domains) ──────────────────────────────
+
+  describe("phase 2 domain expansion categories", () => {
+    it("grinding should have 8 rules", () => {
+      const rules = engine.byCategory("grinding");
+      expect(rules.length).toBe(8);
+      expect(rules.some(r => r.id === "GRIND-001")).toBe(true);
+    });
+
+    it("turning should have 10 rules", () => {
+      const rules = engine.byCategory("turning");
+      expect(rules.length).toBe(10);
+      expect(rules.some(r => r.id === "TURN-001")).toBe(true);
+    });
+
+    it("threading should have 6 rules", () => {
+      const rules = engine.byCategory("threading");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "THR-001")).toBe(true);
+    });
+
+    it("edm should have 6 rules", () => {
+      const rules = engine.byCategory("edm");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "EDM-001")).toBe(true);
+    });
+
+    it("quality_inspection should have 8 rules", () => {
+      const rules = engine.byCategory("quality_inspection");
+      expect(rules.length).toBe(8);
+      expect(rules.some(r => r.id === "QI-001")).toBe(true);
+    });
+
+    it("coolant_strategy should have 8 rules", () => {
+      const rules = engine.byCategory("coolant_strategy");
+      expect(rules.length).toBe(8);
+      expect(rules.some(r => r.id === "COOL-001")).toBe(true);
+    });
+
+    it("adaptive should have 6 rules", () => {
+      const rules = engine.byCategory("adaptive");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "ADAPT-001")).toBe(true);
+    });
+
+    it("deep_hole should have 6 rules", () => {
+      const rules = engine.byCategory("deep_hole");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "DH-001")).toBe(true);
+    });
+
+    it("surface_treatment should have 6 rules", () => {
+      const rules = engine.byCategory("surface_treatment");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "ST-001")).toBe(true);
+    });
+
+    it("post_processing should have 6 rules", () => {
+      const rules = engine.byCategory("post_processing");
+      expect(rules.length).toBe(6);
+      expect(rules.some(r => r.id === "PP-001")).toBe(true);
+    });
+
+    it("hard_turning should have 5 rules", () => {
+      const rules = engine.byCategory("hard_turning");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "HT-001")).toBe(true);
+    });
+
+    it("hsm should have 5 rules", () => {
+      const rules = engine.byCategory("hsm");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "HSM-001")).toBe(true);
+    });
+
+    it("micro_machining should have 5 rules", () => {
+      const rules = engine.byCategory("micro_machining");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "MICRO-001")).toBe(true);
+    });
+
+    it("hybrid_additive should have 5 rules", () => {
+      const rules = engine.byCategory("hybrid_additive");
+      expect(rules.length).toBe(5);
+      expect(rules.some(r => r.id === "HA-001")).toBe(true);
+    });
+  });
+
+  // ── New condition types (operation_type, hardness, aspect_ratio, spindle_speed) ──
+
+  describe("expanded condition type matching", () => {
+    it("should match operation_type conditions for grinding", () => {
+      const result = engine.advise({ operation_type: "grinding", categories: ["grinding"] });
+      expect(result.rules.some(r => r.id === "GRIND-001")).toBe(true);
+    });
+
+    it("should match operation_type conditions for edm", () => {
+      const result = engine.advise({ operation_type: "edm", categories: ["edm"] });
+      expect(result.rules.some(r => r.id === "EDM-001")).toBe(true);
+    });
+
+    it("should match hardness_above conditions for hard turning", () => {
+      const result = engine.advise({ hardness_hrc: 50 });
+      expect(result.rules.some(r => r.id === "HT-001")).toBe(true);
+    });
+
+    it("should match aspect_ratio_above conditions for deep holes", () => {
+      const result = engine.advise({ aspect_ratio: 6 });
+      expect(result.rules.some(r => r.id === "DH-001")).toBe(true);
+    });
+
+    it("should match spindle_speed_above conditions for HSM", () => {
+      const result = engine.advise({ spindle_rpm: 16000 });
+      expect(result.rules.some(r => r.id === "HSM-001")).toBe(true);
+    });
+
+    it("should match combined conditions (hardness + material)", () => {
+      const result = engine.advise({ hardness_hrc: 60, material_iso: "H" });
+      // Should get both hard_turning rules AND hardened steel material tips
+      expect(result.rules.some(r => r.category === "hard_turning")).toBe(true);
+      expect(result.rules.some(r => r.category === "material_tip")).toBe(true);
+    });
+
+    it("should match coolant rules for titanium", () => {
+      const result = engine.advise({ material_iso: "S", categories: ["coolant_strategy"] });
+      expect(result.rules.some(r => r.id === "COOL-004")).toBe(true);
+    });
+
+    it("should match quality_inspection rules for tight tolerance batches", () => {
+      const result = engine.advise({ tolerance_mm: 0.01, batch_size: 200, categories: ["quality_inspection"] });
+      expect(result.rules.some(r => r.id === "QI-001")).toBe(true);
+      expect(result.rules.some(r => r.id === "QI-002")).toBe(true);
     });
   });
 });

@@ -19,7 +19,7 @@ describe("AdaptiveControllerModel", () => {
 
   describe("validate", () => {
     it("rejects invalid mode", () => {
-      const r = model.validate({ mode: "bogus" as any });
+      const r = model.validate({ mode: "bogus" as unknown as "chipload" });
       expect(r.valid).toBe(false);
     });
 
@@ -582,7 +582,7 @@ describe("ChipEvacuationModel", () => {
 
     it("rejects invalid material", () => {
       const r = evac.validate({
-        tool_diameter: 10, hole_depth: 30, material_type: "unobtainium" as any,
+        tool_diameter: 10, hole_depth: 30, material_type: "unobtainium" as unknown as "steel",
         system_pressure: 20, system_flow: 5,
       });
       expect(r.valid).toBe(false);
@@ -769,7 +769,7 @@ describe("CoolantFlowModel", () => {
   describe("validate", () => {
     it("rejects invalid operation", () => {
       const r = coolant.validate({
-        operation: "laser" as any, tool_diameter: 10, cutting_speed: 200,
+        operation: "laser" as unknown as "milling", tool_diameter: 10, cutting_speed: 200,
         material_class: "steel", system_flow_rate: 10, system_pressure: 20,
       });
       expect(r.valid).toBe(false);

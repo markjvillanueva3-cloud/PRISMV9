@@ -124,7 +124,7 @@ describe("C-003: Tap and bore G-code output", () => {
   it("warns on unknown move type instead of silently dropping", () => {
     const r = postProcessorEngine.process(
       { ...baseInput, moves: [
-        { type: "unknown_type" as any, x: 10, y: 20, z: -5 },
+        { type: "unknown_type" as unknown as string, x: 10, y: 20, z: -5 },
       ]},
       { controller: "fanuc", use_canned_cycles: true, decimal_places: 3,
         line_numbers: false, line_number_increment: 10, coolant_code: "M08",

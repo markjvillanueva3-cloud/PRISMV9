@@ -10,10 +10,10 @@ vi.mock("child_process", () => ({
   execFile: mockExecFile,
 }));
 vi.mock("util", async (importOriginal) => {
-  const mod = await importOriginal() as any;
+  const mod = await importOriginal() as Record<string, unknown>;
   return {
     ...mod,
-    promisify: (fn: any) => {
+    promisify: (fn: unknown) => {
       if (fn === mockExecFile) {
         return (...args: any[]) => new Promise((resolve, reject) => {
           const result = mockExecFile(...args);
@@ -29,7 +29,7 @@ vi.mock("util", async (importOriginal) => {
 // Mock fs
 const mockFs: Record<string, any> = {};
 vi.mock("fs", async (importOriginal) => {
-  const real = await importOriginal() as any;
+  const real = await importOriginal() as Record<string, unknown>;
   return {
     ...real,
     existsSync: (p: string) => mockFs.existsSync?.(p) ?? true,

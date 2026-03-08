@@ -147,7 +147,7 @@ export const STEEL_4140: MaterialFixture = {
   name: '4140_annealed',
   iso_group: 'P',
   hardness_hb: 197,
-  kienzle: { kc1_1: 1496, mc: 0.22, iso_group: 'P', data_quality: 'verified' } as any,
+  kienzle: { kc1_1: 1496, mc: 0.22 },
   taylor: { C: 238, n: 0.20, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 
@@ -159,7 +159,7 @@ export const STEEL_1045: MaterialFixture = {
   name: '1045_annealed',
   iso_group: 'P',
   hardness_hb: 170,
-  kienzle: { kc1_1: 1390, mc: 0.22, iso_group: 'P', data_quality: 'verified' } as any,
+  kienzle: { kc1_1: 1390, mc: 0.22 },
   taylor: { C: 255, n: 0.20, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 
@@ -171,7 +171,7 @@ export const ALUMINUM_6061: MaterialFixture = {
   name: '6061_aluminum',
   iso_group: 'N',
   hardness_hb: 95,
-  kienzle: { kc1_1: 398, mc: 0.20, iso_group: 'N', data_quality: 'verified' } as any,
+  kienzle: { kc1_1: 398, mc: 0.20 },
   taylor: { C: 1749, n: 0.273, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 
@@ -183,7 +183,7 @@ export const TITANIUM_6AL4V: MaterialFixture = {
   name: 'ti6al4v',
   iso_group: 'S',
   hardness_hrc: 36,
-  kienzle: { kc1_1: 1458, mc: 0.21, iso_group: 'S', data_quality: 'verified' } as any,
+  kienzle: { kc1_1: 1458, mc: 0.21 },
   taylor: { C: 60, n: 0.15, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 
@@ -195,7 +195,7 @@ export const STAINLESS_316: MaterialFixture = {
   name: '316_stainless',
   iso_group: 'M',
   hardness_hb: 217,
-  kienzle: { kc1_1: 1980, mc: 0.235, iso_group: 'M', data_quality: 'verified' } as any,
+  kienzle: { kc1_1: 1980, mc: 0.235 },
   taylor: { C: 136, n: 0.16, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 
@@ -206,7 +206,7 @@ export const CAST_IRON_GRAY: MaterialFixture = {
   name: 'gray_cast_iron',
   iso_group: 'K',
   hardness_hb: 220,
-  kienzle: { kc1_1: 1020, mc: 0.24, iso_group: 'K', data_quality: 'estimated' } as any,
+  kienzle: { kc1_1: 1020, mc: 0.24 },
   taylor: { C: 305, n: 0.25, tool_material: 'Carbide' } as TaylorCoefficients,
 };
 

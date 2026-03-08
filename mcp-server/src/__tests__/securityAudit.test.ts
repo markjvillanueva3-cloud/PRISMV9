@@ -86,7 +86,7 @@ describe('R6 Security Audit', () => {
       for (const payload of payloads) {
         const parsed = JSON.parse(payload);
         // Object.create(null) or hasOwnProperty checks prevent pollution
-        expect(({} as any).isAdmin).toBeUndefined();
+        expect(({} as Record<string, unknown>).isAdmin).toBeUndefined();
       }
     });
   });

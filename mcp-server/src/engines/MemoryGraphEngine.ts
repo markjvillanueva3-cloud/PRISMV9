@@ -219,7 +219,7 @@ export class MemoryGraphEngine {
 
       const id = randomUUID();
       const timestamp = Date.now();
-      const partial = { ...node, id, timestamp, checksum: '' } as any;
+      const partial = { ...node, id, timestamp, checksum: '' } as Omit<GraphNode, 'checksum'> & { checksum: string };
       partial.checksum = computeNodeChecksum(partial);
       const fullNode = partial as GraphNode;
 
@@ -1038,19 +1038,30 @@ export class MemoryGraphEngine {
         dispatcher,
         action,
         params_summary: paramsSummary.slice(0, 200),
-      } as any);
+      } as Omit<DecisionNode, 'id' | 'timestamp' | 'checksum'>);
 
-      const outcomeId = this.addNode({
-        type: (success ? 'OUTCOME' : 'ERROR') as any,
-        sessionId,
-        tags: [dispatcher, action, success ? 'success' : 'failure'],
-        dispatcher,
-        action,
-        ...(success
-          ? { success: true, latencyMs, result_summary: resultSummary.slice(0, 200) }
-          : { errorClass: errorClass || 'UnknownError', message: resultSummary.slice(0, 300) }
-        ),
-      } as any);
+      const outcomeId = this.addNode(
+        success
+          ? {
+              type: 'OUTCOME' as const,
+              sessionId,
+              tags: [dispatcher, action, 'success'],
+              dispatcher,
+              action,
+              success: true,
+              latencyMs,
+              result_summary: resultSummary.slice(0, 200),
+            } as Omit<OutcomeNode, 'id' | 'timestamp' | 'checksum'>
+          : {
+              type: 'ERROR' as const,
+              sessionId,
+              tags: [dispatcher, action, 'failure'],
+              dispatcher,
+              action,
+              errorClass: errorClass || 'UnknownError',
+              message: resultSummary.slice(0, 300),
+            } as Omit<ErrorNode, 'id' | 'timestamp' | 'checksum'>
+      );
 
       // Link decision → outcome
       /** If.
@@ -1084,7 +1095,7 @@ export class MemoryGraphEngine {
           if (cid === decisionId) continue;
           const cnode = this.nodes.get(cid);
           if (!cnode || cnode.type !== 'DECISION') continue;
-          if ((cnode as any).action !== action) continue;
+          if ((cnode as DecisionNode).action !== action) continue;
           this.addEdge(decisionId, cid, 'SIMILAR_TO');
           linked++;
         }
@@ -1100,8 +1111,10 @@ export class MemoryGraphEngine {
           type: 'CONTEXT' as const,
           sessionId,
           tags: [dispatcher, action, 'auto-context'],
-          values: paramsSummary.slice(0, 500),
-        } as any);
+          key: action,
+          value: paramsSummary.slice(0, 500),
+          source: dispatcher,
+        } as Omit<ContextNode, 'id' | 'timestamp' | 'checksum'>);
         /** If.
          * @param contextId - context id
          * @returns void
@@ -1142,7 +1155,7 @@ export class MemoryGraphEngine {
         description: description.slice(0, 300),
         confidence: Math.max(0, Math.min(1, confidence)),
         occurrences,
-      } as any);
+      } as Omit<PatternNode, 'id' | 'timestamp' | 'checksum'>);
 
       if (patternId && errorNodeId && this.nodes.has(errorNodeId)) {
         this.addEdge(errorNodeId, patternId, 'TRIGGERED', confidence);
@@ -1185,11 +1198,12 @@ export class MemoryGraphEngine {
       const node = this.nodes.get(patternId);
       if (!node || node.type !== 'PATTERN') return false;
       const pNode = node as PatternNode;
-      const updated = {
+      const updated: Omit<PatternNode, 'checksum'> & { checksum: string } = {
         ...pNode,
         confidence: Math.max(0, Math.min(1, newConfidence)),
         occurrences: incrementOccurrences ? pNode.occurrences + 1 : pNode.occurrences,
-      } as any;
+        checksum: '',
+      };
       updated.checksum = computeNodeChecksum(updated);
       this.enqueueWrite(() => {
         this.nodes.set(patternId, updated);

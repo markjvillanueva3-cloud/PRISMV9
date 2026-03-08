@@ -13,14 +13,15 @@ import { z } from "zod";
 import { complianceEngine } from "../../engines/ComplianceEngine.js";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_COMPLIANCE_SCHEMAS } from "../../schemas/complianceActionSchemas.js";
 
 /** Registers compliance dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerComplianceDispatcher(server: McpServer): void {
-  (server as any).tool(
+  server.tool(
     "prism_compliance",
     "Compliance-as-Code regulatory templates. 6 frameworks (ISO 13485, AS9100, ITAR, SOC2, HIPAA, FDA 21 CFR Part 11). Auto-provisions hooks via F6, strictness lattice conflict resolution, append-only audit logs. Actions: apply_template, remove_template, list_templates, audit_status, check_compliance, resolve_conflicts, gap_analysis, config",
     {
@@ -39,6 +40,14 @@ export function registerComplianceDispatcher(server: McpServer): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      const validation = validateActionParams(action, params, ACTION_COMPLIANCE_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_compliance"
+        );
+      }
       try {
         let result: unknown;
         switch (action) {

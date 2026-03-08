@@ -143,6 +143,8 @@ export interface ProgramAssemblyResult {
   total_tools: number;
   estimated_cycle_time_sec: number;
   warnings: string[];
+  /** Playbook-validated warnings from MachiningPlaybookEngine (anti-patterns, sequencing, material tips). */
+  playbook_warnings?: string[];
   stats: {
     lines_total: number;
     lines_with_sf: number;
@@ -297,6 +299,7 @@ class CNCProgramAssemblerEngineImpl {
   private _autoSF: any = null;
   private _gcodeTemplate: any = null;
   private _camKernel: any = null;
+  private _playbook: any = null;
 
   /**
    * Lazy-load an orchestrated engine by name.
@@ -305,7 +308,7 @@ class CNCProgramAssemblerEngineImpl {
    * @param name - Engine module identifier
    * @returns The engine singleton or function
    */
-  private async _getEngine(name: "ultimateSF" | "autoSF" | "gcodeTemplate" | "camKernel"): Promise<any> {
+  private async _getEngine(name: "ultimateSF" | "autoSF" | "gcodeTemplate" | "camKernel" | "playbook"): Promise<any> {
     switch (name) {
       case "ultimateSF":
         return (this._ultimateSF ??= (await import("./UltimateSpeedFeedEngine.js")).ultimateSpeedFeedEngine);
@@ -315,6 +318,8 @@ class CNCProgramAssemblerEngineImpl {
         return (this._gcodeTemplate ??= (await import("./GCodeTemplateEngine.js")));
       case "camKernel":
         return (this._camKernel ??= (await import("./CAMKernelEngine.js")).camKernelEngine);
+      case "playbook":
+        return (this._playbook ??= (await import("./MachiningPlaybookEngine.js")).machiningPlaybookEngine);
     }
   }
 
@@ -704,6 +709,35 @@ class CNCProgramAssemblerEngineImpl {
     // Count lines containing S or F
     const linesWithSF = gcode.split("\n").filter(l => /[SF]\d/.test(l)).length;
 
+    // ── Playbook validation (anti-patterns, sequencing, material tips) ──
+    let playbookWarnings: string[] | undefined;
+    try {
+      const playbookEngine = await this._getEngine("playbook");
+      // Derive feature list from operations for playbook matching
+      const features = input.operations.map(op => op.operation);
+      const advice = playbookEngine.advise({
+        material_iso: isoGroup,
+        features,
+        categories: ["anti_pattern", "sequencing", "material_tip"] as any[],
+      });
+
+      if (advice && advice.rules && advice.rules.length > 0) {
+        // Surface critical and important warnings — skip lower-severity tips
+        const significantRules = advice.rules.filter(
+          (r: any) => r.severity === "critical" || r.severity === "important"
+        );
+        if (significantRules.length > 0) {
+          playbookWarnings = significantRules.map(
+            (r: any) => `[${r.id}] (${r.severity}) ${r.title}: ${r.rule}`
+          );
+          log.info(`[CNCProgramAssembler] Playbook flagged ${significantRules.length} warning(s)`);
+        }
+      }
+    } catch (err: any) {
+      // Non-fatal — playbook validation is advisory, never block program assembly
+      log.warn(`[CNCProgramAssembler] Playbook validation skipped: ${err.message}`);
+    }
+
     log.info(`[CNCProgramAssembler] Assembled O${programNumber}: ${lineCount} lines, ${operationsSF.length} ops, ${autoCalcCount} auto-calc`);
 
     return {
@@ -716,6 +750,7 @@ class CNCProgramAssemblerEngineImpl {
       total_tools: toolNumbers.size,
       estimated_cycle_time_sec: Math.round(estimatedCycleTimeSec),
       warnings,
+      ...(playbookWarnings && playbookWarnings.length > 0 && { playbook_warnings: playbookWarnings }),
       stats: {
         lines_total: lineCount,
         lines_with_sf: linesWithSF,

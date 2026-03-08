@@ -288,8 +288,8 @@ export async function generate(): Promise<MasterIndex> {
           sum + (entry.triggers?.length || 0), 0);
       } else if (typeof triggerMap === "object") {
         skillCount = Object.keys(triggerMap).length;
-        triggerCount = (Object.values(triggerMap) as any[]).reduce((sum: number, entry: any) =>
-          sum + (Array.isArray(entry) ? entry.length : entry?.triggers?.length || 0), 0);
+        triggerCount = (Object.values(triggerMap) as Array<Record<string, unknown>>).reduce((sum: number, entry: Record<string, unknown>) =>
+          sum + (Array.isArray(entry) ? entry.length : (entry?.triggers as unknown[] | undefined)?.length || 0), 0);
       }
     }
   } catch { /* non-fatal */ }

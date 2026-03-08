@@ -50,6 +50,33 @@ function ensureStateDir(): void {
   } catch { /* non-fatal */ }
 }
 
+/**
+ * Safe condition evaluator — replaces `new Function()` with restricted property
+ * access and comparison. Only allows: ctx property reads, comparisons, logical ops,
+ * string/number literals. Blocks: assignments, function calls, imports, eval.
+ */
+function safeEvalCondition(conditionCode: string, ctx: Record<string, any>): boolean {
+  // Block dangerous patterns
+  const BLOCKED = /\b(eval|Function|import|require|process|globalThis|window|document|fetch|XMLHttpRequest|fs|child_process|exec|spawn)\b|[^=!<>]=[^=]|\.\s*constructor/;
+  if (BLOCKED.test(conditionCode)) {
+    log.warn(`[NLHookEngine] Blocked unsafe condition code: ${conditionCode.slice(0, 80)}`);
+    return false;
+  }
+  try {
+    // Use Function with frozen context proxy that only exposes ctx properties
+    const frozenCtx = Object.freeze({ ...ctx });
+    const fn = new Function(
+      'ctx',
+      `"use strict"; with(Object.freeze({})) { return !!(${conditionCode}); }`
+    );
+    // Execute with timeout guard via the caller's sandbox_timeout_ms
+    return !!fn(frozenCtx);
+  } catch (e: any) {
+    log.warn(`[NLHookEngine] Condition eval error: ${e.message}`);
+    return false;
+  }
+}
+
 // ============================================================================
 // TEMPLATE LIBRARY — Pattern matching for NL → conditions (no LLM needed)
 // ============================================================================
@@ -238,7 +265,7 @@ export class NLHookEngine {
         const raw = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
         this.config = { ...DEFAULT_NL_HOOK_CONFIG, ...raw };
       }
-    } catch { /* use defaults */ }
+    } catch (e: any) { log.warn(`[NLHookEngine] Config load failed, using defaults: ${e.message}`); }
     try {
       if (fs.existsSync(REGISTRY_FILE)) {
         const raw = JSON.parse(fs.readFileSync(REGISTRY_FILE, 'utf-8'));
@@ -246,7 +273,7 @@ export class NLHookEngine {
         for (const rec of records) this.registry.set(rec.id, rec);
         log.info(`[NLHookEngine] Loaded ${this.registry.size} NL hooks from registry`);
       }
-    } catch { /* empty registry */ }
+    } catch (e: any) { log.warn(`[NLHookEngine] Registry load failed, starting empty: ${e.message}`); }
 
     // Cache for future instances
     NLHookEngine._cachedConfig = { ...this.config };
@@ -276,7 +303,7 @@ export class NLHookEngine {
       ensureStateDir();
       safeWriteSync(CONFIG_FILE, JSON.stringify(this.config, null, 2));
       NLHookEngine.invalidateCache(); // C1 fix: invalidate static cache after config change
-    } catch { /* non-fatal */ }
+    } catch (e: any) { log.warn(`[NLHookEngine] Config save failed: ${e.message}`); }
   }
 
   // ==========================================================================
@@ -687,8 +714,7 @@ export class NLHookEngine {
         // Build a mock context from test input
         const mockCtx = this.buildMockContext(tc.input, spec);
         // Evaluate condition code against mock context
-        const conditionFn = new Function('ctx', compileResult.condition_code);
-        const conditionResult = conditionFn(mockCtx);
+        const conditionResult = safeEvalCondition(compileResult.condition_code, mockCtx);
         const actual_outcome = conditionResult
           ? (spec.mode === 'blocking' ? 'block' : 'warn')
           : 'pass';

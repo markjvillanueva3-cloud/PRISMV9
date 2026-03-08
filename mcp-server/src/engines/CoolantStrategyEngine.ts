@@ -331,6 +331,22 @@ export class CoolantStrategyEngine {
       recs.push("Standard coolant strategy — monitor coolant condition (pH, concentration, contamination) per manufacturer schedule");
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["coolant_strategy", "material_tip"],
+        operation_type: op,
+        workpiece_material: mat,
+        coolant_method: method,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     const src = "CoolantStrategyEngine (Machinery's Handbook/Sandvik/Blaser reference)";
 
     return {

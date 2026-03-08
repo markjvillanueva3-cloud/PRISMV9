@@ -22,7 +22,8 @@ import { z } from 'zod';
 import { log } from '../../utils/Logger.js';
 import { nlHookEngine } from '../../engines/NLHookEngine.js';
 import { slimResponse } from '../../utils/responseSlimmer.js';
-import { dispatcherError } from '../../utils/dispatcherMiddleware.js';
+import { dispatcherError, validateActionParams } from '../../utils/dispatcherMiddleware.js';
+import { ACTION_NL_HOOK_SCHEMAS } from '../../schemas/nlHookActionSchemas.js';
 
 const ACTIONS = ['create', 'parse', 'approve', 'remove', 'list', 'get', 'stats', 'config'] as const;
 
@@ -47,6 +48,11 @@ export function registerNLHookDispatcher(server: any): void {
         const { normalizeParams } = await import('../../utils/paramNormalizer.js');
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_NL_HOOK_SCHEMAS);
+      if (!validation.valid) {
+        return ok({ error: `Invalid params for ${action}`, details: validation.errors });
+      }
       try {
         switch (action) {
           case 'create': {

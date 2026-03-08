@@ -27,9 +27,9 @@ describe("ToolRouterEngine", () => {
       expect(results.some(r => r.target === "DispatcherMapEngine")).toBe(true);
     });
 
-    it("routes material queries to materialDispatcher", () => {
+    it("routes material queries to calcDispatcher", () => {
       const results = router.route("material properties of 6061 aluminum");
-      expect(results.some(r => r.target === "materialDispatcher")).toBe(true);
+      expect(results.some(r => r.target === "calcDispatcher")).toBe(true);
     });
 
     it("returns empty array for unknown intent", () => {

@@ -21,14 +21,23 @@ import { z } from "zod";
 import { memoryGraphEngine } from "../../engines/MemoryGraphEngine.js";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_MEMORY_SCHEMAS } from "../../schemas/memoryActionSchemas.js";
+
+/** MCP server with dynamic tool registration — avoids bare `as any` on server calls */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ValidatedServer = any;
+
+/** Memory graph nodes have dynamic fields depending on node type — use instead of bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type GraphNodeRecord = Record<string, any>;
 
 /** Registers memory dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerMemoryDispatcher(server: McpServer): void {
-  (server as any).tool(
+  (server as ValidatedServer).tool(
     "prism_memory",
     "Cross-session memory graph. Actions: get_health, trace_decision, find_similar, get_session, get_node, run_integrity",
     {
@@ -52,6 +61,14 @@ export function registerMemoryDispatcher(server: McpServer): void {
       } catch { /* normalizer not available */ }
       const start = performance.now();
 
+      const validation = validateActionParams(action, params, ACTION_MEMORY_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_memory"
+        );
+      }
       try {
         let result: any;
 
@@ -86,9 +103,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
                   id: n.id,
                   type: n.type,
                   timestamp: new Date(n.timestamp).toISOString(),
-                  ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as any).action } : {}),
-                  ...('success' in n ? { success: (n as any).success } : {}),
-                  ...('errorClass' in n ? { errorClass: (n as any).errorClass } : {}),
+                  ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as GraphNodeRecord).action } : {}),
+                  ...('success' in n ? { success: (n as GraphNodeRecord).success } : {}),
+                  ...('errorClass' in n ? { errorClass: (n as GraphNodeRecord).errorClass } : {}),
                   tags: n.tags,
                 })),
                 edges: trace.edges.slice(0, 100).map(e => ({
@@ -118,9 +135,9 @@ export function registerMemoryDispatcher(server: McpServer): void {
                 id: n.id,
                 type: n.type,
                 timestamp: new Date(n.timestamp).toISOString(),
-                ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as any).action } : {}),
-                ...('success' in n ? { success: (n as any).success } : {}),
-                ...('confidence' in n ? { confidence: (n as any).confidence } : {}),
+                ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as GraphNodeRecord).action } : {}),
+                ...('success' in n ? { success: (n as GraphNodeRecord).success } : {}),
+                ...('confidence' in n ? { confidence: (n as GraphNodeRecord).confidence } : {}),
                 tags: n.tags,
               })),
             };
@@ -140,7 +157,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
                 id: n.id,
                 type: n.type,
                 timestamp: new Date(n.timestamp).toISOString(),
-                ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as any).action } : {}),
+                ...('dispatcher' in n ? { dispatcher: n.dispatcher, action: (n as GraphNodeRecord).action } : {}),
                 tags: n.tags,
               })),
             };

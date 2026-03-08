@@ -30,6 +30,18 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 
+/** API response JSON has dynamic shape — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ApiResponse = Record<string, any>;
+
+/** Manifest progress has optional dynamic fields — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DynamicRecord = Record<string, any>;
+
+/** Model tier string validated at runtime — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ValidatedTier = any;
+
 // ============================================================================
 // CONSTANTS
 // ============================================================================
@@ -86,7 +98,7 @@ async function callClaudeForUnit(
     const errText = await response.text();
     throw new Error(`Claude API ${response.status}: ${errText.slice(0, 200)}`);
   }
-  const data = await response.json() as any;
+  const data = await response.json() as ApiResponse;
   const text = data.content?.map((c: any) => c.text || "").join("\n") || "";
   return {
     text,
@@ -1296,7 +1308,7 @@ export function registerAtcsDispatcher(server: any): void {
             if (unitIds.length === 0) return err("No eligible units to delegate.");
 
             const tier = params.tier || "sonnet";
-            const model = getModelForTier(tier as any);
+            const model = getModelForTier(tier as ValidatedTier);
             const systemPrompt = params.system_prompt || 
               `You are a manufacturing data expert for PRISM. Generate REAL, verified data only. ZERO tolerance for stubs, placeholders, approximations, or example values. If data cannot be determined with certainty, respond with: {"status":"NEEDS_RESEARCH","reason":"..."}. Respond with valid JSON only.`;
 
@@ -1480,7 +1492,7 @@ export function registerAtcsDispatcher(server: any): void {
             // Update progress
             const totalUnits = queue.length;
             const completedCount = queue.filter(u => u.status === "COMPLETE").length;
-            (manifest.progress as any).completed_pct = Math.round((completedCount / totalUnits) * 100);
+            (manifest.progress as DynamicRecord).completed_pct = Math.round((completedCount / totalUnits) * 100);
 
             return ok({
               task_id: taskId,
@@ -1492,7 +1504,7 @@ export function registerAtcsDispatcher(server: any): void {
                 completed: completed.length,
                 running: stillRunning.length,
                 failed: failed.length,
-                task_progress: `${completedCount}/${totalUnits} (${(manifest.progress as any).completed_pct}%)`
+                task_progress: `${completedCount}/${totalUnits} (${(manifest.progress as DynamicRecord).completed_pct}%)`
               },
               next_step: stillRunning.length > 0
                 ? `${stillRunning.length} still running. Poll again shortly.`

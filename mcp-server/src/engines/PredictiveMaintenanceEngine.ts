@@ -210,7 +210,7 @@ async function getMachineData(machineId: string): Promise<SimulatedMachine | nul
         const categories: MaintenanceCategory[] = [
           "spindle_bearing", "ballscrew", "way_lube", "coolant", "tool_holder"
         ];
-        const data: Record<MaintenanceCategory, DataPoint[]> = {} as any;
+        const data = {} as Record<MaintenanceCategory, DataPoint[]>;
         for (const cat of categories) {
           data[cat] = await activeSensorProvider.getSensorData(machineId, cat);
         }

@@ -28,14 +28,14 @@ describe("IntelligenceEngine: DeflectionResult field names", () => {
     // DeflectionResult returns: static_deflection, dynamic_deflection, surface_error
     const result = { static_deflection: 0.025, dynamic_deflection: 0.0375, surface_error: 0.0425 };
     expect(result.static_deflection).toBeDefined();
-    expect((result as any).max_deflection).toBeUndefined(); // old code accessed this
+    expect((result as Record<string, unknown>).max_deflection).toBeUndefined(); // old code accessed this
   });
 
   it("should use cutting_temperature not max_temperature", () => {
     // ThermalResult returns: cutting_temperature, chip_temperature, tool_temperature
     const result = { cutting_temperature: 450, chip_temperature: 382, tool_temperature: 450 };
     expect(result.cutting_temperature).toBeDefined();
-    expect((result as any).max_temperature).toBeUndefined(); // old code accessed this
+    expect((result as Record<string, unknown>).max_temperature).toBeUndefined(); // old code accessed this
   });
 });
 

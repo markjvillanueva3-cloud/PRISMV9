@@ -183,6 +183,23 @@ export class ThreadTurningEngine {
       );
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["threading", "turning"],
+        operation_type: "turning",
+        pitch_mm: pitch,
+        infeed_method: infeed,
+        material_iso_group: iso,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       thread_depth: av(r3(totalDepth), "mm", 0.05,
         `P × ${hFactor} × 0.625`),

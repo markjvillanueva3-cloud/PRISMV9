@@ -483,7 +483,7 @@ describe("HyperMillMultiAxisEngine", () => {
   });
 
   it("getDefaults returns turning defaults from hmTrnr.cfg", () => {
-    const d = engine.getDefaults("turning") as any;
+    const d = engine.getDefaults("turning") as Record<string, unknown>;
     expect(d).toHaveProperty("cuttingSpeed", 200);
     expect(d).toHaveProperty("feedRate", 0.3);
     expect(d).toHaveProperty("finishFeedRate", 0.1);
@@ -493,7 +493,7 @@ describe("HyperMillMultiAxisEngine", () => {
   });
 
   it("getDefaults returns impeller defaults from hmIrX5.cfg", () => {
-    const d = engine.getDefaults("impeller") as any;
+    const d = engine.getDefaults("impeller") as Record<string, unknown>;
     expect(d.bladeCount).toBe(6);
     expect(d.hubAllowance).toBe(0.5);
     expect(d.horizontalInfeed).toBe(1.5);
@@ -503,7 +503,7 @@ describe("HyperMillMultiAxisEngine", () => {
   });
 
   it("getDefaults returns blade defaults from hmBrX5.cfg", () => {
-    const d = engine.getDefaults("blade") as any;
+    const d = engine.getDefaults("blade") as Record<string, unknown>;
     expect(d.allowance).toBe(0.5);
     expect(d.horizontalInfeed).toBe(5);
     expect(d.tiltAngle).toBe(10);
@@ -513,7 +513,7 @@ describe("HyperMillMultiAxisEngine", () => {
   });
 
   it("getDefaults returns 5X drilling defaults from hmDdaX5.cfg", () => {
-    const d = engine.getDefaults("drilling_5x") as any;
+    const d = engine.getDefaults("drilling_5x") as Record<string, unknown>;
     expect(d.guideSleeveLength).toBe(5.2);
     expect(d.infeedSpindleSpeed).toBe(600);
     expect(d.clearanceSideFormula).toBe("10 * T:Dia");

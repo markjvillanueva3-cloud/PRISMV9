@@ -328,4 +328,3 @@ export class TransitionPathEngine {
 }
 
 export const transitionPathEngine = new TransitionPathEngine();
-export { TransitionPathEngine };

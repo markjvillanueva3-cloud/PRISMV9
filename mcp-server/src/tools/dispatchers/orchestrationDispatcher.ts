@@ -10,7 +10,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_ORCHESTRATION_SCHEMAS } from "../../schemas/orchestrationActionSchemas.js";
 import {
   agentExecutor, executeAgent, executeAgentsParallel, executeAgentPipeline,
   type TaskPriority, type ExecutionMode
@@ -72,6 +73,17 @@ export function registerOrchestrationDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_ORCHESTRATION_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_orchestrate"
+        );
+      }
+
       try {
         switch (action) {
           // === AGENT TOOLS ===
@@ -578,7 +590,7 @@ export function registerOrchestrationDispatcher(server: any): void {
                 for (const unit of phase.units) {
                   const contextFiles = buildContextFilesForUnit(unit, allUnits);
                   if (contextFiles.length > 0) {
-                    (unit as any).context_files = contextFiles;
+                    (unit as Record<string, unknown>).context_files = contextFiles;
                     populated++;
                   }
                 }
@@ -595,7 +607,7 @@ export function registerOrchestrationDispatcher(server: any): void {
                 sample: allUnits.slice(0, 3).map(u => ({
                   id: u.id,
                   title: u.title,
-                  context_files: (u as any).context_files || [],
+                  context_files: (u as Record<string, unknown>).context_files || [],
                 })),
               });
             } catch (err: any) {

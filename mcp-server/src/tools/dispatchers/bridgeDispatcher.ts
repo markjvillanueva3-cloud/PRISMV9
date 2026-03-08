@@ -13,14 +13,15 @@ import { z } from "zod";
 import { protocolBridgeEngine } from "../../engines/ProtocolBridgeEngine.js";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_BRIDGE_SCHEMAS } from "../../schemas/bridgeActionSchemas.js";
 
 /** Registers bridge dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerBridgeDispatcher(server: McpServer): void {
-  (server as any).tool(
+  server.tool(
     "prism_bridge",
     "Multi-protocol API gateway for external system integration. REST/gRPC/GraphQL/WebSocket routing to PRISM dispatchers with auth (API key, bearer, mTLS), 3-tier rate limiting (burst/minute/hour), scope-based authorization. Actions: register_endpoint, remove_endpoint, set_status, list_endpoints, create_key, revoke_key, validate_key, list_keys, route, route_map, health, stats, config",
     {
@@ -39,6 +40,14 @@ export function registerBridgeDispatcher(server: McpServer): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_BRIDGE_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action, "prism_bridge"
+        );
+      }
       try {
         let result: unknown;
         switch (action) {

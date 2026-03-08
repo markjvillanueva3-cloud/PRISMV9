@@ -533,7 +533,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     }
 
     // Propagate force confidence
-    const forceConfidence = (forceResult as any).uncertainty?.confidence ?? 0.80;
+    const forceConfidence = forceResult.uncertainty?.confidence ?? 0.80;
     confidence *= forceConfidence;
 
     // -- 6. Tool life --
@@ -682,8 +682,9 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
     try {
       const machine = registryManager.machines.getByIdOrModel(params.machine_id);
       if (machine) {
-        const maxSpindlePower = (machine as any).spindle?.max_power_kw
-          ?? (machine as any).spindle?.power
+        const spindleRec = machine.spindle as unknown as Record<string, unknown>;
+        const maxSpindlePower = (spindleRec?.max_power_kw as number)
+          ?? (spindleRec?.power as number)
           ?? undefined;
         if (maxSpindlePower) {
           for (const op of operations) {
@@ -818,7 +819,7 @@ async function jobPlan(params: JobPlanInput): Promise<JobPlanResult> {
       cycle_time_min: r.cycle_time.total_min,
       confidence: r.confidence,
       safety_passed: r.safety.all_checks_passed,
-    })).data as any;
+    })).data as unknown as JobPlanResult;
   }
 
   return result;
@@ -1206,7 +1207,7 @@ async function materialRecommend(params: Record<string, any>): Promise<any> {
     return {
       id: m.material_id || m.id,
       name: m.name,
-      iso_group: m.classification?.iso_group || (m as any).iso_group || "?",
+      iso_group: m.classification?.iso_group || ((m as unknown as Record<string, unknown>).iso_group as string) || "?",
       hardness_hb: m.mechanical?.hardness_hb ?? m.mechanical?.hardness?.brinell,
       machinability_rating: machinability,
       has_kienzle: !!hasKienzle,
@@ -1263,7 +1264,7 @@ async function toolRecommend(params: Record<string, any>): Promise<any> {
   if (!isoGroup) {
     try {
       const mat = await registryManager.materials.getByIdOrName(params.material);
-      isoGroup = mat?.classification?.iso_group || (mat as any)?.iso_group || "P";
+      isoGroup = mat?.classification?.iso_group || ((mat as unknown as Record<string, unknown>)?.iso_group as string) || "P";
     } catch {
       isoGroup = "P";
     }

@@ -304,9 +304,9 @@ describe("JobLifecycleEngine", () => {
       hours: 2.5,
       machine: "DMG-1",
     });
-    const updated = engine.getJob(job.id) as any;
-    expect(updated.time_tracking.actual_hours).toBe(2.5);
-    expect(updated.time_tracking.entries).toHaveLength(1);
+    const updated = engine.getJob(job.id) as Record<string, unknown>;
+    expect((updated.time_tracking as Record<string, unknown>).actual_hours).toBe(2.5);
+    expect((updated.time_tracking as Record<string, unknown>).entries).toHaveLength(1);
   });
 
   it("tracks progress percentage", () => {
@@ -332,8 +332,8 @@ describe("JobLifecycleEngine", () => {
       passed: true,
     });
     expect(r.success).toBe(true);
-    const updated = engine.getJob(job.id) as any;
-    expect(updated.quality.first_article_passed).toBe(true);
+    const updated = engine.getJob(job.id) as Record<string, unknown>;
+    expect((updated.quality as Record<string, unknown>).first_article_passed).toBe(true);
   });
 
   it("generates job summary with financials", () => {
@@ -344,10 +344,11 @@ describe("JobLifecycleEngine", () => {
       estimated_costs: { material: 500, machining: 1500 },
     });
     engine.updateCosts(job.id, { material: 520, machining: 1400 });
-    const summary = engine.getJobSummary(job.id) as any;
-    expect(summary.financials.estimated_total).toBe(2000);
-    expect(summary.financials.actual_total).toBe(1920);
-    expect(summary.financials.cost_variance).toBe(-80);
+    const summary = engine.getJobSummary(job.id) as Record<string, unknown>;
+    const financials = summary.financials as Record<string, unknown>;
+    expect(financials.estimated_total).toBe(2000);
+    expect(financials.actual_total).toBe(1920);
+    expect(financials.cost_variance).toBe(-80);
   });
 
   it("returns dashboard with status breakdown", () => {

@@ -24,6 +24,7 @@ import {
   getDefaultTaylor,
   SAFETY_LIMITS,
   type SpeedFeedResult,
+  type SpeedFeedInput,
   type CuttingForceResult,
   type ToolLifeResult,
   type SurfaceFinishResult,
@@ -596,7 +597,7 @@ function sfcCalculate(params: SFCInput): { result: SFCResult } | { error: string
   // 1. Speed & Feed
   const sfResult: SpeedFeedResult = calculateSpeedFeed({
     material_hardness: mat.hardness,
-    tool_material: toolMat as any,
+    tool_material: toolMat as SpeedFeedInput["tool_material"],
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
@@ -753,7 +754,7 @@ function sfcCompare(params: SFCInput): { result: SFCCompareResult } | { error: s
   for (const tool of toolMaterials) {
     const sf = calculateSpeedFeed({
       material_hardness: mat.hardness,
-      tool_material: tool as any,
+      tool_material: tool as SpeedFeedInput["tool_material"],
       operation: mapOperation(params.operation ?? "milling"),
       tool_diameter: toolDiam,
       number_of_teeth: numTeeth,
@@ -837,7 +838,7 @@ function sfcOptimize(params: SFCInput & { objective?: string }): { result: SFCOp
   // Get baseline
   const sf = calculateSpeedFeed({
     material_hardness: mat.hardness,
-    tool_material: (params.tool_material ?? "Carbide") as any,
+    tool_material: (params.tool_material ?? "Carbide") as SpeedFeedInput["tool_material"],
     operation: mapOperation(params.operation ?? "milling"),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
@@ -1008,7 +1009,7 @@ function sfcSafety(params: SFCInput): any {
   const mat = resolveMaterial(params.material, params.material_hardness);
   const sf = calculateSpeedFeed({
     material_hardness: mat.hardness,
-    tool_material: (params.tool_material ?? "Carbide") as any,
+    tool_material: (params.tool_material ?? "Carbide") as SpeedFeedInput["tool_material"],
     operation: mapOperation(params.operation ?? "milling"),
     tool_diameter: params.tool_diameter ?? 12,
     number_of_teeth: params.number_of_teeth ?? 4,
@@ -1599,7 +1600,7 @@ function shopEstimateOpCycleTime(
   // Get speed/feed from physics engine
   const sfResult = calculateSpeedFeed({
     material_hardness: mat.hardness,
-    tool_material: "Carbide" as any,
+    tool_material: "Carbide" as SpeedFeedInput["tool_material"],
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
@@ -2175,7 +2176,7 @@ function acncParameterCalc(
 
   const sfResult = calculateSpeedFeed({
     material_hardness: matPhysics.hardness,
-    tool_material: "Carbide" as any,
+    tool_material: "Carbide" as SpeedFeedInput["tool_material"],
     operation: mapOperation(operation),
     tool_diameter: toolDiam,
     number_of_teeth: numTeeth,
@@ -2254,7 +2255,7 @@ function acncGenerateGCode(
     resolved.family,
     gcodeOps.map(o => ({
       operation: o.operation,
-      params: o.params as any,
+      params: o.params as GCodeParams,
     })),
   );
 
@@ -2514,7 +2515,7 @@ export function productACNC(action: string, params: Record<string, any>): any {
 
       const sfResult = calculateSpeedFeed({
         material_hardness: matPhysics.hardness,
-        tool_material: "Carbide" as any,
+        tool_material: "Carbide" as SpeedFeedInput["tool_material"],
         operation: mapOperation(featureDef.operations[0]),
         tool_diameter: featureDef.default_tool_diam,
         number_of_teeth: featureDef.default_teeth,

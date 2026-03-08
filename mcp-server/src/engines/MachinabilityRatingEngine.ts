@@ -148,7 +148,7 @@ export class MachinabilityRatingEngine {
     if (ratingAdj < 30) notes.push("Difficult to machine — use rigid setup, sharp tools, appropriate coolant");
     if (input.iso_group === "S") notes.push("Superalloy — ceramic or CBN tooling recommended at appropriate speeds");
 
-    return {
+    const result: MachinabilityRating = {
       material: input.material_name,
       overall_rating: ratingAdj,
       category,
@@ -159,6 +159,21 @@ export class MachinabilityRatingEngine {
       chip_formation: data.chipType,
       notes,
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["material_tip", "tool_selection"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.notes.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /** Compare.

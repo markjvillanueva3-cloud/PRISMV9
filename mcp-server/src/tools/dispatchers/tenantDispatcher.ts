@@ -13,14 +13,15 @@ import { z } from "zod";
 import { multiTenantEngine } from "../../engines/MultiTenantEngine.js";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { TENANT_ACTION_SCHEMAS } from "../../schemas/tenantActionSchemas.js";
 
 /** Registers tenant dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerTenantDispatcher(server: McpServer): void {
-  (server as any).tool(
+  server.tool(
     "prism_tenant",
     "Multi-tenant isolation with Shared Learning Bus. Tenant namespace isolation (state/{tenant_id}/), per-tenant resource limits, anonymized cross-tenant pattern sharing (0.5x external weight), 2-phase deletion. Actions: create, get, list, suspend, reactivate, delete, get_context, check_limit, publish_pattern, consume_patterns, promote_pattern, quarantine_pattern, slb_stats, stats, config",
     {
@@ -39,6 +40,16 @@ export function registerTenantDispatcher(server: McpServer): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // Zod schema validation
+      const validation = validateActionParams(action, params, TENANT_ACTION_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_tenant"
+        );
+      }
+
       try {
         let result: unknown;
         switch (action) {

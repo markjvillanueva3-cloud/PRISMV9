@@ -103,7 +103,7 @@ describe("AlgorithmGatewayEngine", () => {
     const result = algorithmGateway("algorithm_select", {
       problem_type: "predict",
       domain: "quality",
-    }) as any;
+    }) as Record<string, unknown>;
     expect(result).toBeDefined();
     expect(result.selected_algorithm).toBeTruthy();
   });
@@ -311,7 +311,7 @@ describe("ERPIntegrationEngine", () => {
       routing: [
         { step: 10, operation: "Turning", work_center: "CNC-L1" },
       ],
-    }) as any;
+    }) as Record<string, unknown>;
     expect(result).toBeDefined();
     expect(result.wo_number).toBe("WO-2002");
   });

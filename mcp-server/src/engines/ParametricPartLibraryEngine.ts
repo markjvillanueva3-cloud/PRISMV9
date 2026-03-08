@@ -26,7 +26,7 @@ export interface PartSpec {
   id: string;
   type: string;
   name: string;
-  params: Record<string, any>;
+  params: Record<string, number | string | boolean | undefined | null | Record<string, number>>;
   material?: string;
   estimated_volume_mm3: number;
   estimated_mass_g?: number;
@@ -888,19 +888,19 @@ cq.exporters.export(result, "coupling_${b1}_${b2}.step")
 
   // ── Universal create method ──
 
-  createPart(type: string, params: Record<string, any>): PartSpec {
+  createPart(type: string, params: Record<string, unknown>): PartSpec {
     switch (type) {
-      case "spur_gear": return this.createSpurGear(params as any);
-      case "shaft": return this.createShaft(params as any);
-      case "hex_bolt": return this.createHexBolt(params as any);
-      case "hex_nut": return this.createHexNut(params as any);
-      case "washer": return this.createWasher(params as any);
-      case "bearing_housing": return this.createBearingHousing(params as any);
-      case "enclosure": return this.createEnclosure(params as any);
-      case "motor_mount_plate": return this.createMotorMountPlate(params as any);
-      case "standoff": return this.createStandoff(params as any);
-      case "pulley": return this.createPulley(params as any);
-      case "coupling": return this.createCoupling(params as any);
+      case "spur_gear": return this.createSpurGear(params as Parameters<ParametricPartLibraryEngine["createSpurGear"]>[0]);
+      case "shaft": return this.createShaft(params as Parameters<ParametricPartLibraryEngine["createShaft"]>[0]);
+      case "hex_bolt": return this.createHexBolt(params as Parameters<ParametricPartLibraryEngine["createHexBolt"]>[0]);
+      case "hex_nut": return this.createHexNut(params as Parameters<ParametricPartLibraryEngine["createHexNut"]>[0]);
+      case "washer": return this.createWasher(params as Parameters<ParametricPartLibraryEngine["createWasher"]>[0]);
+      case "bearing_housing": return this.createBearingHousing(params as Parameters<ParametricPartLibraryEngine["createBearingHousing"]>[0]);
+      case "enclosure": return this.createEnclosure(params as Parameters<ParametricPartLibraryEngine["createEnclosure"]>[0]);
+      case "motor_mount_plate": return this.createMotorMountPlate(params as Parameters<ParametricPartLibraryEngine["createMotorMountPlate"]>[0]);
+      case "standoff": return this.createStandoff(params as Parameters<ParametricPartLibraryEngine["createStandoff"]>[0]);
+      case "pulley": return this.createPulley(params as Parameters<ParametricPartLibraryEngine["createPulley"]>[0]);
+      case "coupling": return this.createCoupling(params as Parameters<ParametricPartLibraryEngine["createCoupling"]>[0]);
       default: throw new Error(`Unknown part type: ${type}. Available: ${this.listPartTypes().map(p => p.type).join(", ")}`);
     }
   }

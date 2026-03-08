@@ -81,6 +81,113 @@ const workholdingType = z.enum([
   "FIXTURE", "CLAMP", "TOMBSTONE",
 ]);
 
+// ============================================================================
+// TYPED SUB-SCHEMAS (replacing z.any() for safety-critical validation)
+// ============================================================================
+
+/** Toolpath move — position + move type + optional feed/speed */
+const toolpathMove = z.object({
+  type: z.enum(["RAPID", "LINEAR", "ARC_CW", "ARC_CCW", "DWELL"]).optional(),
+  x: optNum, y: optNum, z: optNum,
+  a: optNum, b: optNum, c: optNum,
+  feed: optNum,
+  speed: optNum,
+}).passthrough();
+
+/** Axis travel limits (min/max range) */
+const axisLimits = z.object({
+  min: z.number(),
+  max: z.number(),
+}).passthrough();
+
+/** Fixture geometry — bounding box + position + type */
+const fixtureGeom = z.object({
+  fixtureId: optStr,
+  type: optStr,
+  position: point3d.optional(),
+  boundingBox: z.object({
+    min: point3d, max: point3d,
+  }).passthrough().optional(),
+  height: optNum,
+  width: optNum,
+  length: optNum,
+}).passthrough();
+
+/** Workpiece geometry — material + bounding box + stock */
+const workpieceGeom = z.object({
+  workpieceId: optStr,
+  material: optStr,
+  position: point3d.optional(),
+  boundingBox: z.object({
+    min: point3d, max: point3d,
+  }).passthrough().optional(),
+  stockDiameter: optNum,
+  stockLength: optNum,
+  stockWidth: optNum,
+  stockHeight: optNum,
+}).passthrough();
+
+/** Obstacle geometry (fixture or workpiece reference) */
+const obstacleGeom = z.object({
+  position: point3d.optional(),
+  boundingBox: z.object({
+    min: point3d, max: point3d,
+  }).passthrough().optional(),
+  radius: optNum,
+  height: optNum,
+  type: optStr,
+}).passthrough();
+
+/** Full toolpath reference (for report/near-miss actions) */
+const toolpathRef = z.object({
+  toolpathId: optStr,
+  tool: toolGeom.optional(),
+  moves: z.array(toolpathMove).optional(),
+  workOffset: optStr,
+}).passthrough();
+
+/** Machine config reference (for report actions) */
+const machineRef = z.object({
+  machineId: optStr,
+  xLimits: axisLimits.optional(),
+  yLimits: axisLimits.optional(),
+  zLimits: axisLimits.optional(),
+}).passthrough();
+
+/** Spindle head geometry */
+const spindleHeadGeom = z.object({
+  diameter: optNum,
+  length: optNum,
+  type: optStr,
+}).passthrough();
+
+/** Vacuum spec for workholding */
+const vacuumSpecSchema = z.object({
+  suctionArea: optNum,
+  pressure: optNum,
+  sealType: optStr,
+}).passthrough();
+
+/** Magnetic spec for workholding */
+const magneticSpecSchema = z.object({
+  holdingForce: optNum,
+  polePitch: optNum,
+  type: optStr,
+}).passthrough();
+
+/** Force direction vector */
+const forceDirectionSchema = z.object({
+  x: z.number(), y: z.number(), z: z.number(),
+}).passthrough();
+
+/** Support location */
+const supportLocation = z.object({
+  position: point3d.optional(),
+  x: optNum, y: optNum, z: optNum,
+  type: optStr,
+  force: optNum,
+}).passthrough();
+
 /** Surface condition enum */
 const surfaceCondition = z.enum([
   "DRY", "OILY", "COOLANT_WET", "CLEAN", "ROUGH",
@@ -94,26 +201,26 @@ const check_toolpath_collision = z.object({
   toolpath: z.object({
     toolpathId: optStr,
     tool: toolGeom,
-    moves: z.array(z.any()).min(1),
+    moves: z.array(toolpathMove).min(1),
     workOffset: optStr,
   }).passthrough(),
   machine: z.object({
     machineId: optStr,
-    xLimits: z.any().optional(),
-    yLimits: z.any().optional(),
-    zLimits: z.any().optional(),
+    xLimits: axisLimits.optional(),
+    yLimits: axisLimits.optional(),
+    zLimits: axisLimits.optional(),
   }).passthrough(),
-  fixtures: z.array(z.any()),
-  workpiece: z.any().optional(),
+  fixtures: z.array(fixtureGeom),
+  workpiece: workpieceGeom.optional(),
 }).passthrough();
 
 const validate_rapid_moves = z.object({
   toolpath: z.object({
     tool: z.object({ diameter: posNum }).passthrough(),
-    moves: z.array(z.any()).min(1),
+    moves: z.array(toolpathMove).min(1),
   }).passthrough(),
-  machine: z.object({}).passthrough(),
-  fixtures: z.array(z.any()),
+  machine: machineRef,
+  fixtures: z.array(fixtureGeom),
   safeZ: optNum,
 }).passthrough();
 
@@ -125,7 +232,7 @@ const check_fixture_clearance = z.object({
     overallLength: posNum,
     shankDiameter: optPosNum,
   }).passthrough(),
-  fixtures: z.array(z.any()).min(1),
+  fixtures: z.array(fixtureGeom).min(1),
   toolAxis,
   minClearance: z.number().nonnegative().default(2.0),
 }).passthrough();
@@ -133,23 +240,23 @@ const check_fixture_clearance = z.object({
 const calculate_safe_approach = z.object({
   target: point3d,
   toolRadius: posNum,
-  obstacles: z.array(z.any()),
+  obstacles: z.array(obstacleGeom),
   clearance: z.number().nonnegative().default(2.0),
   preferredDirection: z.string().default("Z_PLUS"),
 }).passthrough();
 
 const detect_near_miss = z.object({
-  toolpath: z.any(),
-  obstacles: z.array(z.any()),
+  toolpath: toolpathRef,
+  obstacles: z.array(obstacleGeom),
   threshold: z.number().positive().default(5.0),
   reportAll: z.boolean().default(false),
 }).passthrough();
 
 const generate_collision_report = z.object({
-  toolpath: z.any(),
-  machine: z.any(),
-  fixtures: z.array(z.any()),
-  workpiece: z.any().optional(),
+  toolpath: toolpathRef,
+  machine: machineRef,
+  fixtures: z.array(fixtureGeom),
+  workpiece: workpieceGeom.optional(),
   includeNearMisses: z.boolean().default(true),
   nearMissThreshold: z.number().positive().default(5.0),
 }).passthrough();
@@ -158,7 +265,7 @@ const validate_tool_clearance = z.object({
   tool: toolGeom,
   position: point3d,
   toolAxis,
-  obstacles: z.array(z.any()),
+  obstacles: z.array(obstacleGeom),
 }).passthrough();
 
 const check_5axis_head_clearance = z.object({
@@ -166,10 +273,10 @@ const check_5axis_head_clearance = z.object({
   toolAxis: point3d,
   machine: z.object({
     machineId: optStr,
-    spindleHead: z.any().optional(),
+    spindleHead: spindleHeadGeom.optional(),
   }).passthrough(),
-  fixtures: z.array(z.any()).optional(),
-  workpiece: z.any().optional(),
+  fixtures: z.array(fixtureGeom).optional(),
+  workpiece: workpieceGeom.optional(),
   aAngle: optNum,
   bAngle: optNum,
   cAngle: optNum,
@@ -436,15 +543,15 @@ const validate_workholding_setup = z.object({
     clampLocations: z.array(z.object({
       id: optStr,
       x: z.number(), y: z.number(), z: z.number(),
-      forceDirection: z.any(),
+      forceDirection: forceDirectionSchema,
       clampForce: posNum,
     }).passthrough()).min(1),
-    supportLocations: z.array(z.any()).optional(),
+    supportLocations: z.array(supportLocation).optional(),
     partOrientation: z.string().min(1),
   }).passthrough(),
   tolerance: optNum,
-  vacuumSpec: z.any().optional(),
-  magneticSpec: z.any().optional(),
+  vacuumSpec: vacuumSpecSchema.optional(),
+  magneticSpec: magneticSpecSchema.optional(),
 }).passthrough();
 
 const check_pullout_resistance = z.object({
@@ -464,7 +571,7 @@ const analyze_liftoff_moment = z.object({
     clampForce: posNum,
     id: optStr,
   }).passthrough()).min(1),
-  supportLocations: z.array(z.any()).optional(),
+  supportLocations: z.array(supportLocation).optional(),
   partWeight: optPosNum,
   partLength: optPosNum,
   safetyFactor: z.number().positive().default(2.0),

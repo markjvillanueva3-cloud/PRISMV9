@@ -74,8 +74,8 @@ describe("AdaptiveTessellationEngine", () => {
   describe("estimateTargetTriangles", () => {
     it("more triangles for tighter tolerance", () => {
       const mesh = { vertices: [], normals: [], indices: [], boundingBox: { dx: 100, dy: 100, dz: 50 } };
-      const low = adaptiveTessellationEngine.estimateTargetTriangles(mesh as any, adaptiveTessellationEngine.presets.draft);
-      const high = adaptiveTessellationEngine.estimateTargetTriangles(mesh as any, adaptiveTessellationEngine.presets.ultra);
+      const low = adaptiveTessellationEngine.estimateTargetTriangles(mesh as unknown as Parameters<typeof adaptiveTessellationEngine.estimateTargetTriangles>[0], adaptiveTessellationEngine.presets.draft);
+      const high = adaptiveTessellationEngine.estimateTargetTriangles(mesh as unknown as Parameters<typeof adaptiveTessellationEngine.estimateTargetTriangles>[0], adaptiveTessellationEngine.presets.ultra);
       expect(high).toBeGreaterThan(low);
     });
   });

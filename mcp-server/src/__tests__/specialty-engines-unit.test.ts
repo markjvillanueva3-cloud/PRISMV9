@@ -14,7 +14,7 @@ import { describe, it, expect } from "vitest";
 import { threadEngine } from "../engines/ThreadCalculationEngine.js";
 import { wireEDMSettingsEngine } from "../engines/WireEDMSettingsEngine.js";
 import { postProcessorEngine } from "../engines/PostProcessorEngine.js";
-import { regenerativeChatterPredictor } from "../engines/RegenerativeChatterPredictor.js";
+import { regenerativeChatterPredictor, type ChatterInput } from "../engines/RegenerativeChatterPredictor.js";
 import { expectShape, expectPhysicalValue } from "./helpers/engineTestHarness.js";
 
 // ============================================================================
@@ -407,7 +407,7 @@ describe("RegenerativeChatterPredictor", () => {
       const input = makeChatterInput();
       const { spindle_rpm, depth_of_cut_mm, ...lobeInput } = input;
       const lobes = regenerativeChatterPredictor.stabilityLobes(
-        lobeInput as any,
+        lobeInput as Omit<ChatterInput, "spindle_rpm" | "depth_of_cut_mm">,
         [3000, 15000]
       );
       expect(Array.isArray(lobes)).toBe(true);
@@ -418,7 +418,7 @@ describe("RegenerativeChatterPredictor", () => {
       const input = makeChatterInput();
       const { spindle_rpm, depth_of_cut_mm, ...lobeInput } = input;
       const lobes = regenerativeChatterPredictor.stabilityLobes(
-        lobeInput as any,
+        lobeInput as Omit<ChatterInput, "spindle_rpm" | "depth_of_cut_mm">,
         [5000, 12000]
       );
       for (const lobe of lobes) {

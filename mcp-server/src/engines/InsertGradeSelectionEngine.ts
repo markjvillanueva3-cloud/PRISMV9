@@ -300,7 +300,7 @@ export class InsertGradeSelectionEngine {
 
     const src = "InsertGradeSelectionEngine (ISO 513:2012, Sandvik/Kennametal reference)";
 
-    return {
+    const result: InsertGradeResult = {
       iso_application_group: group,
       iso_range: {
         value: subNum,
@@ -332,6 +332,21 @@ export class InsertGradeSelectionEngine {
       },
       recommendations: recs,
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["tool_selection", "material_tip"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 }
 

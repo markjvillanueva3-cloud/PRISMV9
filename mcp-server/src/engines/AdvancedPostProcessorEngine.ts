@@ -302,12 +302,27 @@ export class AdvancedPostProcessorEngine {
       warnings.push(...result.warnings);
     }
 
-    return {
+    const result: AdvancedPostResult = {
       gcode,
       enhancements_applied: enhancements,
       warnings,
       estimated_time_savings_pct: Math.min(timeSavings, 50),
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["safety", "anti_pattern"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   // -------------------------------------------------------------------------

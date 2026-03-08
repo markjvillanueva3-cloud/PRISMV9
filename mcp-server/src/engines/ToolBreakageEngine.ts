@@ -411,7 +411,7 @@ class ToolBreakageEngine {
 
     // Bending stress: σ = 32 × F × L / (π × d³)
     if (criticalDiameter <= 0) {
-      return { bendingStress: Infinity, torsionalStress: Infinity, vonMisesStress: Infinity, stressRatio: Infinity, safetyFactor: 0, isSafe: false, criticalLocation, criticalDiameter: 0, warnings: ['Critical diameter is 0 — tool geometry invalid'] } as any;
+      return { bendingStress: Infinity, torsionalStress: Infinity, vonMisesStress: Infinity, maxPrincipalStress: Infinity, stressRatio: Infinity, safetyFactor: 0, isSafe: false, criticalLocation, warnings: ['Critical diameter is 0 — tool geometry invalid'] };
     }
     const d3 = Math.pow(criticalDiameter, 3);
     const bendingStress = (32 * F_radial * L) / (Math.PI * d3);
@@ -508,7 +508,7 @@ class ToolBreakageEngine {
     if (d <= 0 || L <= 0) {
       return { maxDeflection: Infinity, deflectionAtTip: Infinity, deflectionRatio: Infinity,
         allowableDeflection: 0, isSafe: false, safetyFactor: 0, surfaceFinishImpact: 'Invalid',
-        warnings: ['Shank diameter or stickout is 0 — tool geometry invalid'] } as any;
+        warnings: ['Shank diameter or stickout is 0 — tool geometry invalid'] };
     }
     const E = props.elasticModulus * 1000; // Convert GPa to MPa
 
@@ -813,7 +813,7 @@ class ToolBreakageEngine {
     // Guard against invalid tool geometry
     if (tool.diameter <= 0 || tool.stickout <= 0) {
       return { maxAxialDepth: 0, maxRadialDepth: 0, maxFeedPerTooth: 0,
-        maxCuttingSpeed: 0, maxSpindleSpeed: 0, maxTorque: 0, maxForce: 0, derateFactor: 0 } as any;
+        maxCuttingSpeed: 0, maxSpindleSpeed: 0, maxTorque: 0, maxForce: 0, derateFactor: 0 };
     }
 
     // L/D derating

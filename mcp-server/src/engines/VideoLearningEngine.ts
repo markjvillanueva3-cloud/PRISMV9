@@ -276,19 +276,20 @@ class VideoLearningEngineImpl {
       throw new Error(`Whisper API error: ${response.status} ${await response.text()}`);
     }
 
-    const data = await response.json() as any;
+    const data = await response.json() as Record<string, unknown>;
+    const rawSegments = (data.segments ?? []) as Array<Record<string, unknown>>;
 
-    const segments: TranscriptSegment[] = (data.segments ?? []).map((s: any) => ({
-      start: s.start,
-      end: s.end,
-      text: s.text.trim(),
+    const segments: TranscriptSegment[] = rawSegments.map((s) => ({
+      start: s.start as number,
+      end: s.end as number,
+      text: (s.text as string).trim(),
     }));
 
     return {
-      full_text: data.text ?? segments.map(s => s.text).join(" "),
+      full_text: (data.text as string) ?? segments.map(s => s.text).join(" "),
       segments,
-      language: data.language ?? "en",
-      duration_seconds: data.duration ?? 0,
+      language: (data.language as string) ?? "en",
+      duration_seconds: (data.duration as number) ?? 0,
     };
   }
 
@@ -343,17 +344,17 @@ class VideoLearningEngineImpl {
       });
 
       if (response.ok) {
-        const data = await response.json() as any;
-        language = data.language ?? language;
-        fullText += (fullText ? " " : "") + (data.text ?? "");
-        for (const s of (data.segments ?? [])) {
+        const data = await response.json() as Record<string, unknown>;
+        language = (data.language as string) ?? language;
+        fullText += (fullText ? " " : "") + ((data.text as string) ?? "");
+        for (const s of ((data.segments ?? []) as Array<Record<string, unknown>>)) {
           allSegments.push({
-            start: s.start + offset,
-            end: s.end + offset,
-            text: s.text.trim(),
+            start: (s.start as number) + offset,
+            end: (s.end as number) + offset,
+            text: (s.text as string).trim(),
           });
         }
-        offset += data.duration ?? chunkDuration;
+        offset += (data.duration as number) ?? chunkDuration;
       }
 
       // Cleanup chunk file
@@ -364,28 +365,65 @@ class VideoLearningEngineImpl {
   }
 
   /**
-   * Local transcription fallback using ffmpeg's built-in whisper.
+   * Local transcription fallback using ffmpeg's built-in whisper filter.
+   * Requires ffmpeg compiled with --enable-whisper and a ggml model file.
+   * Outputs JSONL with {start, end, text} per segment.
    */
   private async transcribeLocal(audioPath: string): Promise<TranscriptResult> {
     log.warn("[VideoLearning] No OPENAI_API_KEY — attempting local whisper via ffmpeg");
 
-    // ffmpeg with whisper filter (if compiled with --enable-whisper)
-    try {
-      const { stdout } = await execFileAsync(this.ffmpegPath, [
-        "-i", audioPath,
-        "-af", "whisper=model=base",
-        "-f", "null", "-",
-      ], { timeout: 600000 });
+    const modelPath = process.env.WHISPER_MODEL_PATH ?? "C:/PRISM/models/ggml-base.bin";
+    // Escape colons in Windows paths for ffmpeg filter syntax
+    const escapedModel = modelPath.replace(/:/g, "\\:");
+    const outputFile = audioPath.replace(/\.\w+$/, "_whisper.json");
+    const escapedOutput = outputFile.replace(/:/g, "\\:");
 
-      // Parse whisper output (format varies)
+    try {
+      await execFileAsync(this.ffmpegPath, [
+        "-i", audioPath,
+        "-af", `whisper=model=${escapedModel}:format=json:destination=${escapedOutput}`,
+        "-f", "null", "-",
+      ], { timeout: 600000, env: { ...process.env, MSYS_NO_PATHCONV: "1" } });
+
+      // Parse JSONL output: one {start, end, text} per line
+      const raw = fs.readFileSync(outputFile, "utf-8").trim();
+      const lines = raw.split("\n").filter(l => l.trim());
+      const segments: TranscriptSegment[] = [];
+
+      for (const line of lines) {
+        try {
+          const obj = JSON.parse(line) as { start: number; end: number; text: string };
+          // Timestamps are in milliseconds, convert to seconds
+          segments.push({
+            start: obj.start / 1000,
+            end: obj.end / 1000,
+            text: obj.text.trim(),
+          });
+        } catch { /* skip malformed lines */ }
+      }
+
+      // Filter out music/noise markers like [MUSIC], (upbeat music), etc.
+      const speechSegments = segments.filter(
+        s => !/^\[.*\]$|^\(.*\)$/.test(s.text)
+      );
+
+      const fullText = speechSegments.map(s => s.text).join(" ");
+      const duration = segments.length > 0 ? segments[segments.length - 1].end : 0;
+
+      // Cleanup temp file
+      try { fs.unlinkSync(outputFile); } catch { /* ok */ }
+
+      log.info(`[VideoLearning] Local whisper: ${speechSegments.length} speech segments, ${fullText.length} chars`);
+
       return {
-        full_text: stdout,
-        segments: [],
+        full_text: fullText,
+        segments: speechSegments,
         language: "en",
-        duration_seconds: 0,
+        duration_seconds: duration,
       };
-    } catch {
-      throw new Error("No OPENAI_API_KEY and local whisper failed. Install whisper.cpp or set OPENAI_API_KEY.");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`Local whisper failed: ${msg}. Ensure ffmpeg has --enable-whisper and model exists at ${modelPath}`);
     }
   }
 
@@ -463,8 +501,9 @@ Respond as JSON array:
           continue;
         }
 
-        const data = await response.json() as any;
-        const text = data.content?.[0]?.text ?? "";
+        const data = await response.json() as Record<string, unknown>;
+        const content = data.content as Array<Record<string, unknown>> | undefined;
+        const text = (content?.[0]?.text as string) ?? "";
 
         // Parse JSON from response
         const jsonMatch = text.match(/\[[\s\S]*\]/);

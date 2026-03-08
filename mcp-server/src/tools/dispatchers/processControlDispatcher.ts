@@ -109,7 +109,7 @@ Params vary by action — pass relevant fields in params object.`,
             if (params.factors && params.runs) {
               result = mod.analyzeFactorial(params);
             } else if (params.factors || params.factor_names) {
-              const names = params.factor_names || (params.factors as any[]).map((f: any) => f.name);
+              const names = params.factor_names || (params.factors as Array<{ name: string }>).map((f) => f.name);
               const fractional = params.fractional ?? false;
               result = fractional
                 ? mod.generateFractionalFactorial(names)

@@ -449,7 +449,7 @@ describe("safety: check_toolpath_collision", () => {
 
 describe("safety: error handling", () => {
   it("returns structured error for unknown action", async () => {
-    const r = await callAction(safety, "nonexistent_action" as any, {});
+    const r = await callAction(safety, "nonexistent_action" as unknown as string, {});
     expect(r).toBeDefined();
     expect(r.error).toBeDefined();
   });

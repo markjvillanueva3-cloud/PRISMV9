@@ -12,7 +12,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_OMEGA_SCHEMAS } from "../../schemas/omegaActionSchemas.js";
 import type { OmegaHistoryEntry } from "../../types/prism-schema.js";
 import { computeSafetyScore } from "../../utils/validators.js";
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
@@ -100,6 +101,14 @@ Thresholds: RELEASE≥0.70, ACCEPTABLE≥0.65, WARNING≥0.50`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        const validation = validateActionParams(action, params, ACTION_OMEGA_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_omega"
+          );
+        }
         const R = params.R ?? 0.0, C = params.C ?? 0.0, P = params.P ?? 0.0, S = params.S ?? 0.0, L = params.L ?? 0.0;
         switch (action) {
           case "compute": { result = computeOmega({ R, C, P, S, L }); break; }

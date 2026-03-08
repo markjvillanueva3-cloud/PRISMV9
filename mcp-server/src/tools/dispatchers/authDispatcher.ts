@@ -17,7 +17,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_AUTH_SCHEMAS } from "../../schemas/authActionSchemas.js";
 
 let _auth: any, _tenant: any;
 async function getEngine(name: string): Promise<any> {
@@ -54,6 +55,14 @@ Params vary by action — pass relevant fields in params object. NEVER include r
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_AUTH_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action, "prism_auth"
+          );
+        }
         const engine = await getEngine("auth");
 
         switch (action) {

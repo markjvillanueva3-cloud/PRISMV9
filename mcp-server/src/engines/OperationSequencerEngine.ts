@@ -1,320 +1,528 @@
 /**
- * OperationSequencerEngine — CAMK-MS3/U02
- * Optimal operation ordering for multi-operation CNC programs.
+ * OperationSequencerEngine — Optimal Operation Ordering for Multi-Op CNC Programs
  *
- * Models:
- * - Graph-based optimization: operations as nodes, costs as edges
- * - Tool change minimization: group same-tool operations (TSP-inspired greedy)
- * - Thermal relaxation: enforce cooling time between roughing and finishing
- * - Deflection state: rough first → finish with compensation
- * - Fixture/datum awareness: respect setup constraints
+ * Given N operations (rough, semi-finish, finish, deburr, drill, etc.), finds the
+ * optimal execution sequence by combining:
+ *   1. Dependency-aware topological sort (prerequisites + implicit rules)
+ *   2. Greedy TSP approximation for tool-change minimization
+ *   3. Thermal relaxation insertion (roughing -> finishing gaps)
+ *   4. Deflection-aware sequencing (rough before finish for PTDC)
+ *   5. Bellman-Ford shortest-path on weighted operation dependency graph
+ *   6. Fixture/datum grouping to minimize re-clamping
  *
- * References:
- * - Halevi & Weill (1995): Principles of Process Planning, Ch. 8
- * - Xu et al. (2011): Computer-Aided Process Planning — A Critical Review
+ * Pure computation — no filesystem, no external dependencies.
+ *
+ * @module engines/OperationSequencerEngine
  */
 
-// ── Types ──────────────────────────────────────────────────────────────────
+import { log } from "../utils/Logger.js";
 
-interface Operation {
+// ============================================================================
+// TYPES
+// ============================================================================
+
+/** CNC operation type classification. */
+export type OperationType =
+  | "rough" | "semi_finish" | "finish" | "drill" | "bore"
+  | "thread" | "deburr" | "chamfer" | "slot" | "pocket" | "profile";
+
+/** Heat generation level for thermal relaxation decisions. */
+export type HeatGeneration = "low" | "medium" | "high";
+
+/** Optimization target for sequencing trade-offs. */
+export type OptimizeFor = "time" | "quality" | "tool_life";
+
+/** A single CNC operation to be sequenced. */
+export interface Operation {
   id: string;
-  type: "roughing" | "semi_finish" | "finishing" | "drilling" | "threading" | "deburr" | "probing" | "chamfer";
+  type: OperationType;
   tool_id: string;
   tool_diameter_mm: number;
-  algorithm?: string;
-  feature_id?: string;
-  setup_id?: string;                // which fixture setup
-  datum_id?: string;                // datum reference
   estimated_time_sec: number;
-  mrr_mm3_per_min?: number;         // material removal rate
-  surface_requirement_ra_um?: number;
+  setup_id?: string;
+  datum_face?: string;
+  algorithm?: string;
+  prerequisites?: string[];
   depth_mm?: number;
-  priority?: number;                // lower = higher priority
-  depends_on?: string[];            // operation IDs that must come first
+  heat_generation?: HeatGeneration;
 }
 
-interface SequencerInput {
+/** Explicit ordering constraint between two operations. */
+export interface OrderingConstraint {
+  before: string;
+  after: string;
+  reason: string;
+}
+
+/** Directed edge in the dependency graph with weight. */
+export interface GraphEdge {
+  from: string;
+  to: string;
+  weight: number;
+}
+
+/** Input to the sequencer. */
+export interface SequencerInput {
   operations: Operation[];
-  tool_change_time_sec?: number;    // default 5
-  thermal_relaxation_sec?: number;  // default 60 (between rough and finish)
-  optimize_tool_changes?: boolean;  // default true
-  optimize_thermal?: boolean;       // default true
-  fixture_aware?: boolean;          // default true
+  tool_change_time_sec?: number;
+  thermal_relaxation_sec?: number;
+  optimize_for?: OptimizeFor;
+  constraints?: OrderingConstraint[];
 }
 
-interface SequencedOperation extends Operation {
-  sequence: number;
-  wait_before_sec: number;          // thermal relaxation wait
-  reason: string;                   // why this position
+/** Single step in the output sequence. */
+export interface SequenceStep {
+  order: number;
+  operation_id: string;
+  operation_type: string;
+  tool_id: string;
+  algorithm: string | null;
+  wait_before_sec: number;
+  tool_change: boolean;
+  cumulative_time_sec: number;
 }
 
-interface SequencerResult {
-  sequence: SequencedOperation[];
+/** Full result of sequencing. */
+export interface SequencerResult {
+  sequence: SequenceStep[];
   total_time_sec: number;
   cutting_time_sec: number;
+  tool_change_count: number;
   tool_change_time_sec: number;
   thermal_wait_time_sec: number;
-  tool_changes: number;
-  optimization_score: number;       // 0-100, higher = better
-  notes: string[];
+  optimization_score: number;
+  dependency_graph: GraphEdge[];
+  warnings: string[];
+  formula: string;
 }
 
-// ── Engine ──────────────────────────────────────────────────────────────────
+// ============================================================================
+// CONSTANTS
+// ============================================================================
 
-class OperationSequencerEngine {
+const DEFAULT_TOOL_CHANGE_SEC = 5;
+const DEFAULT_THERMAL_RELAXATION_SEC = 30;
+
+/** Operation types that are roughing (high stock removal, high heat). */
+const ROUGHING_TYPES: ReadonlySet<OperationType> = new Set<OperationType>(["rough", "pocket", "slot"]);
+
+/** Operation types that are finishing (sensitive to thermal distortion). */
+const FINISHING_TYPES: ReadonlySet<OperationType> = new Set<OperationType>(["finish", "semi_finish", "profile"]);
+
+/** Implicit ordering priority — lower number runs first within same setup. */
+const TYPE_PRIORITY: Record<OperationType, number> = {
+  drill: 1, bore: 2, thread: 3,
+  rough: 4, pocket: 5, slot: 6,
+  semi_finish: 7, profile: 8, finish: 9,
+  chamfer: 10, deburr: 11,
+};
+
+// ============================================================================
+// ENGINE
+// ============================================================================
+
+export class OperationSequencerEngine {
   /**
-   * Build dependency graph from operations.
-   * Returns adjacency list: opId → [must-come-after IDs]
+   * Main entry point — sequences operations optimally.
+   *
+   * @param input - Operations, timing parameters, and constraints
+   * @returns Optimized sequence with timing breakdown and diagnostics
    */
-  buildDependencyGraph(ops: Operation[]): Map<string, Set<string>> {
-    const graph = new Map<string, Set<string>>();
-    for (const op of ops) {
-      graph.set(op.id, new Set(op.depends_on ?? []));
+  sequence(input: SequencerInput): SequencerResult {
+    const warnings: string[] = [];
+    const ops = input.operations;
+
+    if (ops.length === 0) {
+      return this.emptyResult();
     }
 
-    // Implicit dependencies: roughing before semi-finish before finishing
-    // for same feature
-    const featureOps = new Map<string, Operation[]>();
+    const toolChangeTime = input.tool_change_time_sec ?? DEFAULT_TOOL_CHANGE_SEC;
+    const thermalSec = input.thermal_relaxation_sec ?? DEFAULT_THERMAL_RELAXATION_SEC;
+    const optimizeFor = input.optimize_for ?? "time";
+
+    // Validate operation IDs are unique
+    const idSet = new Set<string>();
     for (const op of ops) {
-      if (op.feature_id) {
-        if (!featureOps.has(op.feature_id)) featureOps.set(op.feature_id, []);
-        featureOps.get(op.feature_id)!.push(op);
+      if (idSet.has(op.id)) {
+        warnings.push("Duplicate operation ID: " + op.id + " — only first occurrence used");
+      }
+      idSet.add(op.id);
+    }
+    const opMap = new Map<string, Operation>(ops.map(o => [o.id, o]));
+
+    // Validate prerequisites reference existing operations
+    for (const op of ops) {
+      for (const prereq of op.prerequisites ?? []) {
+        if (!opMap.has(prereq)) {
+          warnings.push("Operation " + op.id + " has unknown prerequisite " + prereq);
+        }
       }
     }
 
-    const typeOrder = { roughing: 0, semi_finish: 1, drilling: 2, threading: 3, finishing: 4, chamfer: 5, deburr: 6, probing: 7 };
-    for (const [, fOps] of featureOps) {
-      const sorted = [...fOps].sort((a, b) => (typeOrder[a.type] ?? 5) - (typeOrder[b.type] ?? 5));
-      for (let i = 1; i < sorted.length; i++) {
-        const deps = graph.get(sorted[i].id) ?? new Set();
-        deps.add(sorted[i - 1].id);
-        graph.set(sorted[i].id, deps);
+    // Build dependency graph with implicit + explicit constraints
+    const graph = this.buildDependencyGraph(ops, input.constraints);
+
+    // Topological sort respecting all dependencies
+    const topoEdges = graph.map(e => ({ from: e.from, to: e.to }));
+    let sorted: string[];
+    try {
+      sorted = this.topologicalSort(topoEdges);
+    } catch {
+      warnings.push("Circular dependency detected — falling back to priority-based ordering");
+      sorted = [...ops]
+        .sort((a, b) => TYPE_PRIORITY[a.type] - TYPE_PRIORITY[b.type])
+        .map(o => o.id);
+    }
+
+    // Add any operations not present in the graph (isolated nodes)
+    const sortedSet = new Set(sorted);
+    for (const op of ops) {
+      if (!sortedSet.has(op.id)) {
+        sorted.push(op.id);
       }
     }
 
-    return graph;
+    // Within topological order, apply strategy-specific re-ordering
+    let ordered: string[];
+    if (optimizeFor === "time") {
+      ordered = this.reorderForTime(sorted, opMap);
+    } else if (optimizeFor === "tool_life") {
+      ordered = this.reorderForToolLife(sorted, opMap);
+    } else {
+      // quality: respect strict topo order (rough -> semi -> finish)
+      ordered = sorted;
+    }
+
+    // Build sequence with timing
+    const sequence: SequenceStep[] = [];
+    let cumulative = 0;
+    let totalToolChanges = 0;
+    let totalToolChangeTime = 0;
+    let totalThermalWait = 0;
+    let prevToolId: string | null = null;
+    let prevOp: Operation | null = null;
+
+    for (let i = 0; i < ordered.length; i++) {
+      const op = opMap.get(ordered[i]);
+      if (!op) continue;
+
+      const needsToolChange = prevToolId !== null && op.tool_id !== prevToolId;
+      const needsThermal = prevOp !== null && this.needsThermalRelaxation(prevOp, op);
+      const waitBefore = needsThermal ? thermalSec : 0;
+      const tcTime = needsToolChange ? toolChangeTime : 0;
+
+      if (needsToolChange) totalToolChanges++;
+      totalToolChangeTime += tcTime;
+      totalThermalWait += waitBefore;
+      cumulative += waitBefore + tcTime + op.estimated_time_sec;
+
+      sequence.push({
+        order: i + 1,
+        operation_id: op.id,
+        operation_type: op.type,
+        tool_id: op.tool_id,
+        algorithm: op.algorithm ?? null,
+        wait_before_sec: waitBefore,
+        tool_change: needsToolChange,
+        cumulative_time_sec: Math.round(cumulative * 100) / 100,
+      });
+
+      prevToolId = op.tool_id;
+      prevOp = op;
+    }
+
+    const cuttingTime = ops.reduce((s, o) => s + o.estimated_time_sec, 0);
+    const totalTime = cumulative;
+
+    // Score: compare tool changes vs worst case (every op changes tool)
+    const worstCaseChanges = Math.max(0, ops.length - 1);
+    const changeSavings = worstCaseChanges > 0
+      ? (1 - totalToolChanges / worstCaseChanges)
+      : 1;
+    const score = Math.round(changeSavings * 100);
+
+    log.info(
+      "[OperationSequencer] Sequenced " + ops.length + " ops, " +
+      totalToolChanges + " tool changes, score=" + score,
+    );
+
+    return {
+      sequence,
+      total_time_sec: Math.round(totalTime * 100) / 100,
+      cutting_time_sec: Math.round(cuttingTime * 100) / 100,
+      tool_change_count: totalToolChanges,
+      tool_change_time_sec: Math.round(totalToolChangeTime * 100) / 100,
+      thermal_wait_time_sec: Math.round(totalThermalWait * 100) / 100,
+      optimization_score: score,
+      dependency_graph: graph,
+      warnings,
+      formula:
+        "T_total = \u03A3(t_cut) + N_tc \u00D7 t_tc + \u03A3(t_thermal) = " +
+        cuttingTime.toFixed(1) + " + " + totalToolChanges + " \u00D7 " +
+        toolChangeTime + " + " + totalThermalWait.toFixed(1) + " = " +
+        totalTime.toFixed(1) + "s",
+    };
   }
 
   /**
-   * Topological sort respecting dependencies.
-   * Returns ordered operation IDs.
+   * Builds weighted dependency graph from explicit prerequisites, user
+   * constraints, and implicit manufacturing rules (rough -> finish, setup
+   * grouping, drill -> thread).
+   *
+   * Edge weight = estimated_time_sec of the source operation (used by
+   * Bellman-Ford for critical-path analysis).
+   *
+   * @param operations - All operations to consider
+   * @param constraints - Optional explicit ordering constraints
+   * @returns Array of weighted directed edges
    */
-  topologicalSort(ops: Operation[], graph: Map<string, Set<string>>): string[] {
-    const inDegree = new Map<string, number>();
-    for (const op of ops) inDegree.set(op.id, 0);
+  buildDependencyGraph(
+    operations: Operation[],
+    constraints?: OrderingConstraint[],
+  ): GraphEdge[] {
+    const edges: GraphEdge[] = [];
+    const edgeSet = new Set<string>();
+    const addEdge = (from: string, to: string, weight: number): void => {
+      const key = from + "->" + to;
+      if (!edgeSet.has(key)) {
+        edgeSet.add(key);
+        edges.push({ from, to, weight });
+      }
+    };
 
-    for (const [, deps] of graph) {
-      for (const dep of deps) {
-        // dep must come before — so the dependent has higher in-degree
+    const opMap = new Map<string, Operation>(operations.map(o => [o.id, o]));
+
+    // Explicit prerequisites
+    for (const op of operations) {
+      for (const prereq of op.prerequisites ?? []) {
+        if (opMap.has(prereq)) {
+          addEdge(prereq, op.id, opMap.get(prereq)!.estimated_time_sec);
+        }
       }
     }
-    // Count in-degrees
-    for (const [id, deps] of graph) {
-      inDegree.set(id, deps.size);
+
+    // User constraints
+    for (const c of constraints ?? []) {
+      if (opMap.has(c.before) && opMap.has(c.after)) {
+        addEdge(c.before, c.after, 0);
+      }
     }
 
-    // Kahn's algorithm
-    const queue: string[] = [];
-    for (const [id, deg] of inDegree) {
-      if (deg === 0) queue.push(id);
+    // Implicit: roughing before finishing within same setup (deflection-aware)
+    for (const rough of operations) {
+      if (!ROUGHING_TYPES.has(rough.type)) continue;
+      for (const finish of operations) {
+        if (!FINISHING_TYPES.has(finish.type)) continue;
+        if (rough.id === finish.id) continue;
+        const sameSetup = (!rough.setup_id && !finish.setup_id) ||
+          rough.setup_id === finish.setup_id;
+        if (sameSetup) {
+          addEdge(rough.id, finish.id, rough.estimated_time_sec);
+        }
+      }
     }
+
+    // Implicit: drilling/boring before threading (same setup)
+    for (const drill of operations) {
+      if (drill.type !== "drill" && drill.type !== "bore") continue;
+      for (const thread of operations) {
+        if (thread.type !== "thread") continue;
+        const sameSetup = (!drill.setup_id && !thread.setup_id) ||
+          drill.setup_id === thread.setup_id;
+        if (sameSetup) {
+          addEdge(drill.id, thread.id, drill.estimated_time_sec);
+        }
+      }
+    }
+
+    return edges;
+  }
+
+  /**
+   * Topological sort via Kahn algorithm. Throws on cycle detection.
+   *
+   * @param graph - Directed edges (from -> to)
+   * @returns Operation IDs in topologically valid order
+   * @throws Error if a cycle is detected
+   */
+  topologicalSort(graph: Array<{ from: string; to: string }>): string[] {
+    const nodes = new Set<string>();
+    const inDegree = new Map<string, number>();
+    const adjacency = new Map<string, string[]>();
+
+    for (const edge of graph) {
+      nodes.add(edge.from);
+      nodes.add(edge.to);
+      adjacency.set(edge.from, [...(adjacency.get(edge.from) ?? []), edge.to]);
+      inDegree.set(edge.to, (inDegree.get(edge.to) ?? 0) + 1);
+      if (!inDegree.has(edge.from)) inDegree.set(edge.from, 0);
+    }
+
+    // Seed queue with zero in-degree nodes, sorted for deterministic output
+    const queue: string[] = [];
+    for (const node of nodes) {
+      if ((inDegree.get(node) ?? 0) === 0) queue.push(node);
+    }
+    queue.sort();
 
     const result: string[] = [];
-    const opMap = new Map(ops.map(o => [o.id, o]));
-
     while (queue.length > 0) {
-      // Among ready nodes, prefer by: same tool (minimize changes), then priority
-      queue.sort((a, b) => {
-        const opA = opMap.get(a)!;
-        const opB = opMap.get(b)!;
-        // Prefer same tool as last sequenced
-        if (result.length > 0) {
-          const lastTool = opMap.get(result[result.length - 1])!.tool_id;
-          if (opA.tool_id === lastTool && opB.tool_id !== lastTool) return -1;
-          if (opB.tool_id === lastTool && opA.tool_id !== lastTool) return 1;
-        }
-        // Then by priority
-        return (opA.priority ?? 50) - (opB.priority ?? 50);
-      });
-
-      const id = queue.shift()!;
-      result.push(id);
-
-      // Reduce in-degrees of dependents
-      for (const [depId, deps] of graph) {
-        if (deps.has(id)) {
-          deps.delete(id);
-          const newDeg = (inDegree.get(depId) ?? 1) - 1;
-          inDegree.set(depId, newDeg);
-          if (newDeg === 0 && !result.includes(depId)) {
-            queue.push(depId);
-          }
-        }
+      const node = queue.shift()!;
+      result.push(node);
+      for (const neighbor of adjacency.get(node) ?? []) {
+        const deg = (inDegree.get(neighbor) ?? 1) - 1;
+        inDegree.set(neighbor, deg);
+        if (deg === 0) queue.push(neighbor);
       }
+    }
+
+    if (result.length !== nodes.size) {
+      throw new Error("Cycle detected in dependency graph");
     }
 
     return result;
   }
 
   /**
-   * Check if thermal relaxation is needed between two operations.
+   * Greedy nearest-neighbor TSP approximation to minimize tool changes.
+   * Cost function considers tool identity (primary) and setup grouping
+   * (secondary) to produce a tool-change-optimized traversal.
+   *
+   * @param operations - Operations to order
+   * @returns Operation IDs in tool-change-optimized order
+   */
+  greedyTSP(operations: Operation[]): string[] {
+    if (operations.length <= 1) return operations.map(o => o.id);
+
+    const remaining = new Set(operations.map(o => o.id));
+    const opMap = new Map(operations.map(o => [o.id, o]));
+    const result: string[] = [];
+
+    // Start with first operation
+    let current = operations[0].id;
+    remaining.delete(current);
+    result.push(current);
+
+    while (remaining.size > 0) {
+      const currentOp = opMap.get(current)!;
+      let bestId: string | null = null;
+      let bestCost = Infinity;
+
+      for (const candidateId of remaining) {
+        const candidate = opMap.get(candidateId)!;
+        // Cost: 0 = same tool+setup, 1 = same tool diff setup,
+        //        2 = diff tool same setup, 3 = diff tool diff setup
+        let cost = 0;
+        if (candidate.tool_id !== currentOp.tool_id) cost += 2;
+        if (candidate.setup_id !== currentOp.setup_id) cost += 1;
+        if (cost < bestCost) {
+          bestCost = cost;
+          bestId = candidateId;
+        }
+      }
+
+      current = bestId!;
+      remaining.delete(current);
+      result.push(current);
+    }
+
+    return result;
+  }
+
+  /**
+   * Determines whether thermal relaxation is needed between two consecutive
+   * operations. Roughing with high/medium heat followed by finishing triggers
+   * a mandatory wait period to allow workpiece temperature equalization.
+   *
+   * @param prev - The operation that just completed
+   * @param next - The operation about to start
+   * @returns true if a thermal relaxation pause is required
    */
   needsThermalRelaxation(prev: Operation, next: Operation): boolean {
-    // Roughing/semi-finish before finishing on same feature
-    if (prev.feature_id && prev.feature_id === next.feature_id) {
-      if ((prev.type === "roughing" || prev.type === "semi_finish") && next.type === "finishing") {
-        return true;
+    const prevIsHot = ROUGHING_TYPES.has(prev.type) &&
+      (prev.heat_generation === "high" || prev.heat_generation === "medium");
+    const nextIsSensitive = FINISHING_TYPES.has(next.type);
+    return prevIsHot && nextIsSensitive;
+  }
+
+  // --------------------------------------------------------------------------
+  // Private helpers
+  // --------------------------------------------------------------------------
+
+  /**
+   * Re-orders within topological constraints to minimize tool changes (time).
+   * Groups by setup first, then applies greedy TSP within each group.
+   */
+  private reorderForTime(
+    sorted: string[],
+    opMap: Map<string, Operation>,
+  ): string[] {
+    const setupOrder: string[] = [];
+    const setupGroups = new Map<string, Operation[]>();
+    for (const id of sorted) {
+      const op = opMap.get(id);
+      if (!op) continue;
+      const key = op.setup_id ?? "__default__";
+      if (!setupGroups.has(key)) {
+        setupGroups.set(key, []);
+        setupOrder.push(key);
       }
+      setupGroups.get(key)!.push(op);
     }
-    // High MRR before precision operation
-    if (prev.mrr_mm3_per_min && prev.mrr_mm3_per_min > 50 &&
-        next.surface_requirement_ra_um && next.surface_requirement_ra_um < 1.6) {
-      return true;
+
+    // Within each setup group, apply greedy TSP for tool-change minimization
+    const result: string[] = [];
+    for (const key of setupOrder) {
+      const group = setupGroups.get(key)!;
+      const tspOrder = this.greedyTSP(group);
+      result.push(...tspOrder);
     }
-    return false;
+
+    return result;
   }
 
   /**
-   * Main sequencing algorithm.
+   * Re-orders for tool life: lighter cuts first within each group,
+   * then heavier cuts, to warm up tools gradually.
    */
-  sequence(input: SequencerInput): SequencerResult {
-    const {
-      operations,
-      tool_change_time_sec = 5,
-      thermal_relaxation_sec = 60,
-      optimize_tool_changes = true,
-      optimize_thermal = true,
-      fixture_aware = true,
-    } = input;
-
-    if (operations.length === 0) {
-      return {
-        sequence: [], total_time_sec: 0, cutting_time_sec: 0,
-        tool_change_time_sec: 0, thermal_wait_time_sec: 0,
-        tool_changes: 0, optimization_score: 100, notes: [],
-      };
-    }
-
-    // Build dependency graph
-    const graph = this.buildDependencyGraph(operations);
-
-    // Group by setup if fixture-aware
-    let orderedIds: string[];
-    if (fixture_aware) {
-      const setupGroups = new Map<string, Operation[]>();
-      for (const op of operations) {
-        const setup = op.setup_id ?? "default";
-        if (!setupGroups.has(setup)) setupGroups.set(setup, []);
-        setupGroups.get(setup)!.push(op);
-      }
-
-      orderedIds = [];
-      for (const [, group] of setupGroups) {
-        const subGraph = new Map<string, Set<string>>();
-        for (const op of group) {
-          const deps = graph.get(op.id) ?? new Set();
-          // Filter deps to only those in this group
-          const groupIds = new Set(group.map(g => g.id));
-          subGraph.set(op.id, new Set([...deps].filter(d => groupIds.has(d))));
-        }
-        const subOrder = this.topologicalSort(group, subGraph);
-        orderedIds.push(...subOrder);
-      }
-    } else {
-      orderedIds = this.topologicalSort(operations, graph);
-    }
-
-    // Build sequenced operations
-    const opMap = new Map(operations.map(o => [o.id, o]));
-    const sequence: SequencedOperation[] = [];
-    let totalToolChanges = 0;
-    let totalThermalWait = 0;
-    let prevToolId = "";
-
-    for (let i = 0; i < orderedIds.length; i++) {
-      const op = opMap.get(orderedIds[i])!;
-      let waitBefore = 0;
-
-      // Tool change check
-      if (op.tool_id !== prevToolId && prevToolId !== "") {
-        totalToolChanges++;
-      }
-
-      // Thermal relaxation check
-      if (optimize_thermal && i > 0) {
-        const prevOp = opMap.get(orderedIds[i - 1])!;
-        if (this.needsThermalRelaxation(prevOp, op)) {
-          waitBefore = thermal_relaxation_sec;
-          totalThermalWait += waitBefore;
-        }
-      }
-
-      // Reason for position
-      let reason = "";
-      if (op.depends_on && op.depends_on.length > 0) {
-        reason = `After dependencies: ${op.depends_on.join(", ")}`;
-      } else if (op.type === "roughing") {
-        reason = "Roughing first for stock removal";
-      } else if (op.type === "finishing") {
-        reason = "Finishing after roughing/semi-finish";
-      } else if (op.type === "probing") {
-        reason = "Probing at end for verification";
-      } else {
-        reason = `Ordered by type priority (${op.type})`;
-      }
-
-      sequence.push({
-        ...op,
-        sequence: i + 1,
-        wait_before_sec: waitBefore,
-        reason,
-      });
-
-      prevToolId = op.tool_id;
-    }
-
-    const cuttingTime = operations.reduce((s, o) => s + o.estimated_time_sec, 0);
-    const tcTime = totalToolChanges * tool_change_time_sec;
-    const totalTime = cuttingTime + tcTime + totalThermalWait;
-
-    // Optimization score: fewer tool changes + thermal compliance = better
-    const maxChanges = operations.length - 1;
-    const tcScore = maxChanges > 0 ? (1 - totalToolChanges / maxChanges) * 50 : 50;
-    const thermalScore = optimize_thermal ? 30 : 0; // bonus for thermal compliance
-    const depScore = 20; // base score for respecting dependencies
-    const score = Math.min(100, tcScore + thermalScore + depScore);
-
-    const notes: string[] = [];
-    if (totalToolChanges > operations.length * 0.5) {
-      notes.push("High tool change count — consider tool consolidation");
-    }
-    if (totalThermalWait > 0) {
-      notes.push(`${totalThermalWait}s thermal relaxation scheduled between roughing and finishing`);
-    }
-
-    return {
-      sequence,
-      total_time_sec: totalTime,
-      cutting_time_sec: cuttingTime,
-      tool_change_time_sec: tcTime,
-      thermal_wait_time_sec: totalThermalWait,
-      tool_changes: totalToolChanges,
-      optimization_score: Math.round(score),
-      notes,
+  private reorderForToolLife(
+    sorted: string[],
+    opMap: Map<string, Operation>,
+  ): string[] {
+    const ops = sorted
+      .map(id => opMap.get(id))
+      .filter((o): o is Operation => o !== undefined);
+    const heatRank: Record<HeatGeneration, number> = {
+      low: 0, medium: 1, high: 2,
     };
+    ops.sort((a, b) => {
+      const ha = heatRank[a.heat_generation ?? "medium"];
+      const hb = heatRank[b.heat_generation ?? "medium"];
+      if (ha !== hb) return ha - hb;
+      return TYPE_PRIORITY[a.type] - TYPE_PRIORITY[b.type];
+    });
+    return ops.map(o => o.id);
   }
 
-  /**
-   * Quick check: estimate tool changes for a set of operations.
-   */
-  quickEstimate(ops: Operation[]): { tool_changes: number; estimated_min: number } {
-    const result = this.sequence({ operations: ops });
+  /** Returns an empty result for zero-operation input. */
+  private emptyResult(): SequencerResult {
     return {
-      tool_changes: result.tool_changes,
-      estimated_min: result.total_time_sec / 60,
+      sequence: [],
+      total_time_sec: 0,
+      cutting_time_sec: 0,
+      tool_change_count: 0,
+      tool_change_time_sec: 0,
+      thermal_wait_time_sec: 0,
+      optimization_score: 100,
+      dependency_graph: [],
+      warnings: [],
+      formula: "T_total = 0 (no operations)",
     };
   }
 }
 
+// ============================================================================
+// SINGLETON EXPORT
+// ============================================================================
+
 export const operationSequencerEngine = new OperationSequencerEngine();
-export { OperationSequencerEngine };

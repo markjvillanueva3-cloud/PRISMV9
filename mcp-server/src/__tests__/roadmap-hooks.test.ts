@@ -8,6 +8,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
+import type { z } from 'zod';
 
 import {
   validatePreExecution,
@@ -24,6 +25,11 @@ import {
   hookMeta as postHookMeta,
 } from '../hooks/post-roadmap-unit.js';
 import type { PositionTracker, UnitCompletionResult } from '../hooks/post-roadmap-unit.js';
+import type { RoadmapUnit, RoadmapPhase, RoadmapEnvelope } from '../schemas/roadmapSchema.js';
+
+type Unit = z.infer<typeof RoadmapUnit>;
+type Phase = z.infer<typeof RoadmapPhase>;
+type Envelope = z.infer<typeof RoadmapEnvelope>;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -90,8 +96,8 @@ function createTestPhase(overrides?: Record<string, unknown>) {
 }
 
 function createTestRoadmap(overrides?: Record<string, unknown>) {
-  const phases = (overrides?.phases as any[]) || [createTestPhase()];
-  const totalUnits = phases.reduce((sum: number, p: any) => sum + p.units.length, 0);
+  const phases = (overrides?.phases as Record<string, unknown>[]) || [createTestPhase()];
+  const totalUnits = phases.reduce((sum: number, p: Record<string, unknown>) => sum + (p.units as unknown[]).length, 0);
   return {
     id: 'TEST',
     version: '1.0.0',
@@ -157,7 +163,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
     const unit = createTestUnit();
     const position = createPrePosition();
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(true);
     expect(result.blockers).toHaveLength(0);
   });
@@ -166,7 +172,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
     const unit = createTestUnit({ entry_conditions: [] });
     const position = createPrePosition();
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(false);
     expect(result.blockers.some((b: string) => b.includes('no entry conditions'))).toBe(true);
   });
@@ -175,7 +181,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
     const unit = createTestUnit({ dependencies: ['P0-U01'] });
     const position = createPrePosition({ history: [] });
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(false);
     expect(result.blockers.some((b: string) => b.includes('P0-U01'))).toBe(true);
   });
@@ -186,7 +192,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
       history: [{ unit_id: 'P0-U01', completed_at: '2026-01-01T00:00:00Z', build_status: true }],
     });
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(true);
   });
 
@@ -196,7 +202,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
     });
     const position = createPrePosition();
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(false);
     expect(result.blockers.some((b: string) => b.includes('unknown tool'))).toBe(true);
   });
@@ -205,7 +211,7 @@ describe('Pre-Roadmap-Execute Hook', () => {
     const unit = createTestUnit();
     const position = createPrePosition({ status: 'BLOCKED' });
     const roadmap = createTestRoadmap();
-    const result = validatePreExecution(unit as any, position, roadmap as any);
+    const result = validatePreExecution(unit as unknown as Unit, position, roadmap as unknown as Envelope);
     expect(result.proceed).toBe(false);
     expect(result.blockers.some((b: string) => b.includes('BLOCKED'))).toBe(true);
   });
@@ -221,7 +227,7 @@ describe('Post-Roadmap-Unit Hook', () => {
     const position = createPostPosition();
     const result = createCompletionResult();
     const roadmap = createTestRoadmap();
-    const updated = updatePosition(position, unit as any, result, roadmap as any);
+    const updated = updatePosition(position, unit as unknown as Unit, result, roadmap as unknown as Envelope);
     expect(updated.units_completed).toBe(1);
     expect(updated.last_completed_unit).toBe('P1-U01');
     expect(updated.history).toHaveLength(1);
@@ -235,7 +241,7 @@ describe('Post-Roadmap-Unit Hook', () => {
     const roadmap = createTestRoadmap({ phases: [phase] });
     const position = createPostPosition({ total_units: 2 });
     const result = createCompletionResult();
-    const updated = updatePosition(position, u1 as any, result, roadmap as any);
+    const updated = updatePosition(position, u1 as unknown as Unit, result, roadmap as unknown as Envelope);
     expect(updated.current_unit).toBe('P1-U02');
   });
 
@@ -247,7 +253,7 @@ describe('Post-Roadmap-Unit Hook', () => {
     const roadmap = createTestRoadmap({ phases: [p1, p2] });
     const position = createPostPosition({ total_units: 2 });
     const result = createCompletionResult();
-    const updated = updatePosition(position, u1 as any, result, roadmap as any);
+    const updated = updatePosition(position, u1 as unknown as Unit, result, roadmap as unknown as Envelope);
     expect(updated.current_unit).toBe('P2-U01');
     expect(updated.current_phase).toBe('P2');
   });
@@ -257,7 +263,7 @@ describe('Post-Roadmap-Unit Hook', () => {
     const position = createPostPosition();
     const result = createCompletionResult();
     const roadmap = createTestRoadmap();
-    const updated = updatePosition(position, unit as any, result, roadmap as any);
+    const updated = updatePosition(position, unit as unknown as Unit, result, roadmap as unknown as Envelope);
     expect(updated.status).toBe('COMPLETE');
     expect(updated.current_unit).toBeNull();
   });
@@ -270,7 +276,7 @@ describe('Post-Roadmap-Unit Hook', () => {
         { path: 'docs/README.md', type: 'doc', description: 'Docs' },
       ],
     });
-    const indexed = indexDeliverables(unit as any);
+    const indexed = indexDeliverables(unit as unknown as Unit);
     expect(indexed).toHaveLength(3);
     expect(indexed).toContain('src/foo.ts');
     expect(indexed).toContain('src/foo.test.ts');
@@ -281,20 +287,20 @@ describe('Post-Roadmap-Unit Hook', () => {
     const u1 = createTestUnit({ sequence: 1 });
     const u2 = createTestUnit({ id: 'P1-U02', sequence: 2 });
     const phase = createTestPhase({ units: [u1, u2] });
-    expect(checkPhaseGate(u2 as any, phase as any)).toBe(true);
-    expect(checkPhaseGate(u1 as any, phase as any)).toBe(false);
+    expect(checkPhaseGate(u2 as unknown as Unit, phase as unknown as Phase)).toBe(true);
+    expect(checkPhaseGate(u1 as unknown as Unit, phase as unknown as Phase)).toBe(false);
   });
 
   it('should trigger checkpoint every 3 units', () => {
-    expect(shouldCheckpoint(createPostPosition({ units_completed: 3 }) as any)).toBe(true);
-    expect(shouldCheckpoint(createPostPosition({ units_completed: 6 }) as any)).toBe(true);
-    expect(shouldCheckpoint(createPostPosition({ units_completed: 4 }) as any)).toBe(false);
-    expect(shouldCheckpoint(createPostPosition({ units_completed: 0 }) as any)).toBe(false);
+    expect(shouldCheckpoint(createPostPosition({ units_completed: 3 }))).toBe(true);
+    expect(shouldCheckpoint(createPostPosition({ units_completed: 6 }))).toBe(true);
+    expect(shouldCheckpoint(createPostPosition({ units_completed: 4 }))).toBe(false);
+    expect(shouldCheckpoint(createPostPosition({ units_completed: 0 }))).toBe(false);
   });
 
   it('should return empty array when no deliverables', () => {
     const unit = createTestUnit({ deliverables: [] });
-    expect(indexDeliverables(unit as any)).toHaveLength(0);
+    expect(indexDeliverables(unit as unknown as Unit)).toHaveLength(0);
   });
 });
 

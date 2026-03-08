@@ -13,6 +13,7 @@
 import type { ExtendedMachineProfile } from "../data/machine-profiles-catalog.js";
 import type { CadEnrichment } from "../data/machine-enrichment-catalog.js";
 import { CAD_ENRICHMENTS } from "../data/machine-enrichment-catalog.js";
+import { MACHINE_KINEMATICS_CATALOG } from "../data/machine-kinematics-catalog.js";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -353,6 +354,46 @@ export function getKinematicModel(profile: ExtendedMachineProfile): KinematicMod
     };
   }
 
+  // Check ENHANCED v2 archive data (250 machines from 33 manufacturers)
+  const archiveMatch = MACHINE_KINEMATICS_CATALOG.find(
+    e => e.model === profile.model ||
+         e.model.toLowerCase() === profile.model.toLowerCase() ||
+         e.id?.toUpperCase().includes(profile.model.replace(/[- ]/g, "_").toUpperCase()),
+  );
+
+  if (archiveMatch?.kinematic_chain) {
+    const kinType = inferKinematicType(profile);
+    const archiveCollisions = archiveMatch.collision_zones
+      ? Object.entries(archiveMatch.collision_zones).map(([name, z]: [string, any]) => ({
+          name,
+          type: (z.type || "box") as "box" | "cylinder" | "composite",
+          dimensions: z.dimensions
+            ? { x: z.dimensions.x, y: z.dimensions.y, z: z.dimensions.z }
+            : z.diameter_mm
+              ? { diameter: z.diameter_mm, height: z.length_mm }
+              : {},
+          offset: z.offset
+            ? (Array.isArray(z.offset) ? z.offset : [z.offset.x || 0, z.offset.y || 0, z.offset.z || 0])
+            : [0, 0, 0] as [number, number, number],
+          critical: true,
+        }))
+      : generateCollisionZones(profile, kinType);
+
+    return {
+      machine_id: archiveMatch.id,
+      model: profile.model,
+      kinematic_type: (archiveMatch.kinematic_chain.type || kinType) as KinematicType,
+      five_axis_topology: inferFiveAxisTopology(kinType, profile),
+      structure: archiveMatch.kinematic_chain.structure || inferStructure(profile, kinType),
+      chain: archiveMatch.kinematic_chain.chain || buildChain(kinType, profile),
+      transformations: buildTransformations(kinType, profile),
+      collision_zones: archiveCollisions,
+      work_envelope: buildWorkEnvelope(profile),
+      tcpc_supported: profile.type === "5axis",
+      source: "level5" as const,
+    };
+  }
+
   // Fully inferred model
   const kinType = inferKinematicType(profile);
   const id = `${profile.brand}_${profile.model}`.replace(/[- /]/g, "_").toUpperCase();
@@ -461,7 +502,7 @@ export function getKinematicCoverage(): {
   ).length;
 
   return {
-    level5_models: CAD_ENRICHMENTS.length,
+    level5_models: CAD_ENRICHMENTS.length + MACHINE_KINEMATICS_CATALOG.length,
     with_collision_data: withCol,
     with_kinematic_chain: withKin,
     inferrable_types: [

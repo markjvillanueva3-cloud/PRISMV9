@@ -57,7 +57,7 @@ describe("IncrementalReadEngine", () => {
       const engine = new IncrementalReadEngine();
       engine.setFileSize("partial.ts", 500);
       // Simulate a read that happened a while ago
-      const ranges = (engine as any).reads;
+      const ranges = (engine as unknown as { reads: Map<string, Array<{ offset: number; limit: number; timestamp: number }>> }).reads;
       ranges.set("partial.ts", [{ offset: 0, limit: 100, timestamp: Date.now() - 60000 }]);
       const advice = engine.advise("partial.ts");
       expect(advice.action).toBe("incremental");

@@ -265,10 +265,10 @@ describe("Param Normalizer", () => {
   });
 
   it("handles edge cases gracefully", () => {
-    expect(normalizeParams(null as any)).toBeNull();
-    expect(normalizeParams(undefined as any)).toBeUndefined();
-    expect(normalizeParams({} as any)).toEqual({});
-    expect(normalizeParams("string" as any)).toBe("string");
+    expect(normalizeParams(null as unknown as Record<string, unknown>)).toBeNull();
+    expect(normalizeParams(undefined as unknown as Record<string, unknown>)).toBeUndefined();
+    expect(normalizeParams({})).toEqual({});
+    expect(normalizeParams("string" as unknown as Record<string, unknown>)).toBe("string");
   });
 
   it("no _param_remaps when no remapping occurs", () => {

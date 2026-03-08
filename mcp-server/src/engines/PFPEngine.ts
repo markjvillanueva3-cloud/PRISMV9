@@ -279,10 +279,11 @@ export class PFPEngine {
              */
             if (existing) {
               // Update in place (TS readonly bypass for internal mutation)
-              (existing as any).occurrences = errRecords.length;
-              (existing as any).lastSeen = now;
-              (existing as any).confidence = confidence;
-              (existing as any).decayWeight = decay;
+              const mutable = existing as { -readonly [K in keyof typeof existing]: (typeof existing)[K] };
+              mutable.occurrences = errRecords.length;
+              mutable.lastSeen = now;
+              mutable.confidence = confidence;
+              mutable.decayWeight = decay;
             } else {
               newPatterns.push({
                 id: randomUUID(),

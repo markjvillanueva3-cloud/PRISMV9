@@ -44,7 +44,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_BUSINESS_SCHEMAS } from "../../schemas/businessActionSchemas.js";
 
 // Lazy engine cache
 let _financial: any;
@@ -496,6 +497,16 @@ Params vary by action — pass relevant fields in params object.`,
           );
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation
+        const validation = validateActionParams(action, params, ACTION_BUSINESS_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_business",
+          );
+        }
 
         switch (action) {
           // ── Financial ──

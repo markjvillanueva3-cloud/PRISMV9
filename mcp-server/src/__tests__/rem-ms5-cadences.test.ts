@@ -34,7 +34,7 @@ describe("Cadence executor export completeness", () => {
 
   it("exports all 38 cadence functions", () => {
     for (const name of expectedExports) {
-      expect(typeof (cadence as any)[name]).toBe("function");
+      expect(typeof (cadence as Record<string, unknown>)[name]).toBe("function");
     }
   });
 });
@@ -165,7 +165,7 @@ describe("autoPatternMatch", () => {
   it("returns structured result with matched field", () => {
     const result = cadence.autoPatternMatch(5, "prism_calc", "force_power", "", 100);
     expect(result).toHaveProperty("matched");
-    expect(typeof (result as any).matched).toBe("boolean");
+    expect(typeof (result as Record<string, unknown>).matched).toBe("boolean");
   });
 });
 

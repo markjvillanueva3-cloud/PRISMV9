@@ -9,7 +9,8 @@ import { log } from "../../utils/Logger.js";
 import { hookEngine } from "../../orchestration/HookEngine.js";
 import { eventBus } from "../../engines/EventBus.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { HOOK_ACTION_SCHEMAS } from "../../schemas/hookActionSchemas.js";
 
 const ACTIONS = [
   "list", "get", "execute", "chain", "toggle",
@@ -40,6 +41,16 @@ export function registerHookDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // Zod schema validation
+      const validation = validateActionParams(action, params, HOOK_ACTION_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_hook"
+        );
+      }
+
       try {
         switch (action) {
           // === V2 Hook Tools ===
@@ -60,7 +71,7 @@ export function registerHookDispatcher(server: any): void {
             return ok(result);
           }
           case "chain": {
-            const results = await (hookEngine as any).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: params.stop_on_error || false, stopOnHalt: params.stop_on_halt ?? true })
+            const results = await (hookEngine as unknown as Record<string, ((...args: unknown[]) => Promise<unknown>) | undefined>).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: params.stop_on_error || false, stopOnHalt: params.stop_on_halt ?? true })
               ?? await hookEngine.executeChain([params.event], params.data || {});
             return ok(results);
           }
@@ -92,7 +103,7 @@ export function registerHookDispatcher(server: any): void {
             return ok(result);
           }
           case "chain_v2": {
-            const results = await (hookEngine as any).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: true, parallel: params.parallel || false, enableRollback: params.enable_rollback ?? true })
+            const results = await (hookEngine as unknown as Record<string, ((...args: unknown[]) => Promise<unknown>) | undefined>).executeHookChain?.(params.event, params.phase || "before", params.data || {}, { stopOnError: true, parallel: params.parallel || false, enableRollback: params.enable_rollback ?? true })
               ?? await hookEngine.executeChain([params.event], params.data || {});
             return ok(results);
           }

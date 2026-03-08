@@ -129,6 +129,8 @@ export interface CrossCamRecommendation {
     thermal_risk: "low" | "medium" | "high";
     chatter_risk: "low" | "medium" | "high";
   };
+  /** Playbook strategy advice — toolpath rules and anti-patterns (if available) */
+  playbook_strategy_advice?: string[];
 }
 
 // ── CAM Strategy Knowledge Base ──
@@ -462,6 +464,9 @@ export class CrossCamRecommenderEngine {
     // Phase 6: Physics summary
     const physicsSummary = this.buildPhysicsSummary(rankedStrategies, input);
 
+    // Phase 7: Playbook strategy advice (toolpath rules + anti-patterns)
+    const playbookAdvice = this.getPlaybookStrategyAdvice(input);
+
     const recommendation: CrossCamRecommendation = {
       ranked_strategies: rankedStrategies.slice(0, 10),
       best_overall: bestOverall,
@@ -478,6 +483,7 @@ export class CrossCamRecommenderEngine {
         recommendation_confidence: bestOverall.confidence,
       },
       physics_summary: physicsSummary,
+      ...(playbookAdvice.length > 0 ? { playbook_strategy_advice: playbookAdvice } : {}),
     };
 
     return {
@@ -759,6 +765,66 @@ export class CrossCamRecommenderEngine {
       thermal_risk: thermalRisk,
       chatter_risk: chatterRisk,
     };
+  }
+
+  /**
+   * Query MachiningPlaybookEngine for toolpath strategy rules and anti-patterns
+   * relevant to the current geometry/material. Surfaces rules like STRAT-001
+   * (adaptive preferred), STRAT-002 (steep/shallow), ANTI-005 (no full-slot).
+   * Returns empty array if playbook is unavailable.
+   */
+  private getPlaybookStrategyAdvice(input: CrossCamInput): string[] {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine");
+
+      // Build feature list from input geometry
+      const features: string[] = [input.geometry.type];
+      if (input.geometry.thin_wall_min_mm && input.geometry.thin_wall_min_mm < 2) {
+        features.push("thin_wall");
+      }
+      if (input.geometry.dimensions_mm.depth > input.tool.diameter_mm * 4) {
+        features.push("deep_feature");
+      }
+      if (input.geometry.type === "slot") {
+        features.push("slot");
+      }
+      if (input.geometry.undercut_count && input.geometry.undercut_count > 0) {
+        features.push("undercut");
+      }
+      if (input.geometry.pocket_count && input.geometry.pocket_count > 1) {
+        features.push("multi_pocket");
+      }
+
+      const result = machiningPlaybookEngine.advise({
+        features,
+        material_iso: input.material.iso_group,
+        categories: ["toolpath_strategy", "anti_pattern"],
+        machine_axes: input.machine.axis_count,
+        tolerance_mm: input.constraints.tolerance_mm,
+        surface_finish_Ra: input.constraints.max_surface_roughness_um,
+      });
+
+      // Combine rule summaries and critical warnings
+      const advice: string[] = [];
+      for (const rule of result.rules) {
+        const prefix = rule.severity === "critical" || rule.severity === "error"
+          ? "WARNING" : "ADVICE";
+        advice.push(`[${prefix}] ${rule.id}: ${rule.rule}`);
+      }
+
+      // Add critical warnings that aren't already covered
+      for (const warning of result.critical_warnings) {
+        if (!advice.some(a => a.includes(warning))) {
+          advice.push(`[WARNING] ${warning}`);
+        }
+      }
+
+      return advice;
+    } catch {
+      // MachiningPlaybookEngine not available — graceful degradation
+      return [];
+    }
   }
 
   /** Get supported CAM systems list */

@@ -23,6 +23,10 @@ import { SGS_COATINGS, SGS_END_MILL_SERIES, SGS_SPEED_FEED_ZR, SGS_QUICK_SPEED_F
 import { BIG_DAISHOWA_HOLDERS, findHolders as findDaishowaHolders, recommendHolder as recommendDaishowaHolder, getAvailableTapers } from "../../data/big-daishowa-holders.js";
 import { ORANGE_VISE_SPECS, findVise, findVisesByJawWidth, findVisesByOpening, findSoftJaws, getCatalogSummary as getWorkholdingSummary } from "../../data/workholding-catalog.js";
 
+/** Registry results have dynamic fields — use this instead of bare `as any` for property access */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RegistryRecord = Record<string, any>;
+
 const DataDispatcherSchema = z.object({
   action: z.enum([
     "material_get", "material_search", "material_compare",
@@ -105,7 +109,7 @@ export function registerDataDispatcher(server: any): void {
             let out: any = mat;
             if (params.fields?.length) {
               out = { id: mat.id, name: mat.name };
-              for (const f of params.fields) { if (f in mat) out[f] = (mat as any)[f]; }
+              for (const f of params.fields) { if (f in mat) out[f] = (mat as RegistryRecord)[f]; }
             }
             result = out;
             // Pressure-aware: strip deep properties
@@ -138,7 +142,7 @@ export function registerDataDispatcher(server: any): void {
             result = machine;
             // Pressure-aware: strip deep properties
             if (getCurrentPressurePct() > 50 && result) {
-              const { specifications, extended_data, maintenance_history, ...essential } = result as any;
+              const { specifications, extended_data, maintenance_history, ...essential } = result as RegistryRecord;
               result = { ...essential, _slimmed: true };
             }
             break;
@@ -172,7 +176,7 @@ export function registerDataDispatcher(server: any): void {
             result = tool;
             // Pressure-aware: strip deep properties
             if (getCurrentPressurePct() > 50 && result) {
-              const { extended_data, coating_details, application_notes, ...essential } = result as any;
+              const { extended_data, coating_details, application_notes, ...essential } = result as RegistryRecord;
               result = { ...essential, _slimmed: true };
             }
             break;
@@ -207,7 +211,7 @@ export function registerDataDispatcher(server: any): void {
               return {
                 ...t,
                 material_cutting_params: materialParams,
-                matched_material: { id: (mat as any).material_id || (mat as any).id, name: mat.name, iso_group: mat.iso_group }
+                matched_material: { id: (mat as RegistryRecord).material_id || (mat as RegistryRecord).id, name: mat.name, iso_group: mat.iso_group }
               };
             });
             break;
@@ -329,12 +333,12 @@ export function registerDataDispatcher(server: any): void {
             
             // 4. Get cutting parameters from material
             const isoGroup = (cqMat.iso_group || '').toUpperCase();
-            const matCutRec = (cqMat as any).cutting_recommendations;
+            const matCutRec = (cqMat as RegistryRecord).cutting_recommendations;
             const opRec = matCutRec?.[cqOperation] || matCutRec?.milling || {};
             
             // 5. Build Kienzle/Taylor params
-            const kienzle = (cqMat as any).kienzle;
-            const taylor = (cqMat as any).taylor;
+            const kienzle = (cqMat as RegistryRecord).kienzle;
+            const taylor = (cqMat as RegistryRecord).taylor;
             
             // 6. Safety check: if machine has max_power, flag if cutting might exceed
             let safetyWarnings: string[] = [];
@@ -355,7 +359,7 @@ export function registerDataDispatcher(server: any): void {
                 query: machineConstraints.spindle_interface,
                 limit: 5
               });
-              compatibleHolders = holderResult?.tools || (holderResult as any)?.results || [];
+              compatibleHolders = holderResult?.tools || (holderResult as RegistryRecord)?.results || [];
             }
             
             result = {
@@ -363,16 +367,16 @@ export function registerDataDispatcher(server: any): void {
                 id: cqMat.material_id || cqMat.id,
                 name: cqMat.name,
                 iso_group: cqMat.iso_group,
-                hardness: (cqMat as any).mechanical?.hardness,
-                machinability: (cqMat as any).machinability
+                hardness: (cqMat as RegistryRecord).mechanical?.hardness,
+                machinability: (cqMat as RegistryRecord).machinability
               },
               operation: cqOperation,
               cutting_parameters: {
                 kienzle: kienzle ? { kc1_1: kienzle.kc1_1, mc: kienzle.mc } : null,
                 taylor: taylor ? { C: taylor.C, n: taylor.n } : null,
                 recommendations: opRec,
-                composition: (cqMat as any).composition ? "available" : "not_available",
-                tribology: (cqMat as any).tribology ? "available" : "not_available"
+                composition: (cqMat as RegistryRecord).composition ? "available" : "not_available",
+                tribology: (cqMat as RegistryRecord).tribology ? "available" : "not_available"
               },
               recommended_tools: cqTools,
               machine: cqMachine ? {
@@ -397,9 +401,9 @@ export function registerDataDispatcher(server: any): void {
             const mthMachine = getMach(mthMachineId);
             if (!mthMachine) return jsonResponse({ error: `Machine not found: ${mthMachineId}` });
             
-            const spindleInterface = mthMachine.spindle?.spindle_nose || (mthMachine.spindle as any)?.interface || (mthMachine as any).spindle_interface;
-            const turretType = (mthMachine as any).turret?.type || (mthMachine as any).turret_type;
-            const machineType = (mthMachine.type || (mthMachine as any).machine_type || '').toLowerCase();
+            const spindleInterface = mthMachine.spindle?.spindle_nose || (mthMachine.spindle as RegistryRecord)?.interface || (mthMachine as RegistryRecord).spindle_interface;
+            const turretType = (mthMachine as RegistryRecord).turret?.type || (mthMachine as RegistryRecord).turret_type;
+            const machineType = (mthMachine.type || (mthMachine as RegistryRecord).machine_type || '').toLowerCase();
             const isLathe = machineType.includes('lathe') || machineType.includes('turn');
             
             let holders: any[] = [];
@@ -410,7 +414,7 @@ export function registerDataDispatcher(server: any): void {
                 query: turretType,
                 limit: params.limit ?? 20
               });
-              holders = turretResult?.tools || (turretResult as any)?.results || [];
+              holders = turretResult?.tools || (turretResult as RegistryRecord)?.results || [];
             }
             
             if (spindleInterface) {
@@ -419,7 +423,7 @@ export function registerDataDispatcher(server: any): void {
                 query: spindleInterface,
                 limit: params.limit ?? 20
               });
-              const spindleHolders = spindleResult?.tools || (spindleResult as any)?.results || [];
+              const spindleHolders = spindleResult?.tools || (spindleResult as RegistryRecord)?.results || [];
               holders = holders.concat(spindleHolders);
             }
             
@@ -434,7 +438,7 @@ export function registerDataDispatcher(server: any): void {
             
             result = {
               machine: {
-                id: mthMachine.id || (mthMachine as any).machine_id,
+                id: mthMachine.id || (mthMachine as RegistryRecord).machine_id,
                 model: mthMachine.model || mthMachine.name,
                 type: machineType,
                 spindle_interface: spindleInterface,
@@ -467,9 +471,9 @@ export function registerDataDispatcher(server: any): void {
             if (adMachineId) {
               const adMachine = getMach(adMachineId);
               if (adMachine) {
-                controller = controller || (adMachine.controller as any)?.brand || adMachine.controller?.manufacturer;
+                controller = controller || (adMachine.controller as RegistryRecord)?.brand || adMachine.controller?.manufacturer;
                 machineInfo = {
-                  id: adMachine.id || (adMachine as any).machine_id,
+                  id: adMachine.id || (adMachine as RegistryRecord).machine_id,
                   model: adMachine.model || adMachine.name,
                   controller_brand: controller,
                   controller_model: adMachine.controller?.model
@@ -487,7 +491,7 @@ export function registerDataDispatcher(server: any): void {
               const searchResult = await registryManager.alarms.search({
                 query: String(adCode), controller: String(controller), limit: 5
               });
-              const searchAlarms = searchResult?.alarms || (searchResult as any)?.results || [];
+              const searchAlarms = searchResult?.alarms || (searchResult as RegistryRecord)?.results || [];
               if (searchAlarms.length > 0) {
                 result = {
                   exact_match: false,
@@ -513,13 +517,13 @@ export function registerDataDispatcher(server: any): void {
                   description: adAlarm.description,
                   causes: adAlarm.causes,
                   requires_power_cycle: adAlarm.requires_power_cycle,
-                  requires_service: (adAlarm as any).requires_service
+                  requires_service: (adAlarm as RegistryRecord).requires_service
                 },
                 fix: {
                   quick_fix: adAlarm.quick_fix,
                   procedures: adAlarm.fix_procedures || [],
-                  common_parts: (adAlarm as any).common_parts || [],
-                  related_parameters: (adAlarm as any).related_parameters || []
+                  common_parts: (adAlarm as RegistryRecord).common_parts || [],
+                  related_parameters: (adAlarm as RegistryRecord).related_parameters || []
                 },
                 machine: machineInfo,
                 related_alarms: adAlarm.related_alarms || [],
@@ -537,9 +541,9 @@ export function registerDataDispatcher(server: any): void {
             const sfOp = (params.operation || "milling").toLowerCase();
             const sfAp = params.depth_of_cut || params.ap;
             const sfAe = params.width_of_cut || params.ae;
-            const kienzle = (sfMat as any).kienzle;
-            const taylor = (sfMat as any).taylor;
-            const cutRec = (sfMat as any).cutting_recommendations;
+            const kienzle = (sfMat as RegistryRecord).kienzle;
+            const taylor = (sfMat as RegistryRecord).taylor;
+            const cutRec = (sfMat as RegistryRecord).cutting_recommendations;
             const isRoughing = sfOp.includes("rough");
             const recSection = cutRec?.[sfOp === 'turning' ? 'turning' : 'milling'] || {};
             // Handle both nested (roughing: {speed, fz}) and flat (speed_roughing, speed_finishing) schemas
@@ -549,8 +553,8 @@ export function registerDataDispatcher(server: any): void {
             if (params.machine) {
               const sfMach = getMach(params.machine);
               if (sfMach) {
-                maxRPM = sfMach.spindle?.max_rpm || (sfMach as any).spindle_rpm_max || maxRPM;
-                maxPower = (sfMach.spindle as any)?.power_kw || sfMach.spindle?.power_continuous || maxPower;
+                maxRPM = sfMach.spindle?.max_rpm || (sfMach as RegistryRecord).spindle_rpm_max || maxRPM;
+                maxPower = (sfMach.spindle as RegistryRecord)?.power_kw || sfMach.spindle?.power_continuous || maxPower;
               }
             }
             const vcRec = recBlock.speed || (isRoughing ? recSection.speed_roughing : recSection.speed_finishing) || (isRoughing ? 150 : 200);
@@ -583,7 +587,7 @@ export function registerDataDispatcher(server: any): void {
             if (powerPct && powerPct > 90) warnings.push(`Power usage ${powerPct}% — approaching machine limit`);
             if (toolLife && toolLife < 5) warnings.push(`Very short tool life (${toolLife} min) — reduce speed`);
             result = {
-              input: { material: { name: sfMat.name, iso_group: sfMat.iso_group, hardness_bhn: (sfMat as any).mechanical?.hardness?.brinell }, tool: { diameter_mm: sfToolDiam, flutes: sfFlutes }, operation: sfOp, machine_limits: { max_rpm: maxRPM, max_power_kw: maxPower } },
+              input: { material: { name: sfMat.name, iso_group: sfMat.iso_group, hardness_bhn: (sfMat as RegistryRecord).mechanical?.hardness?.brinell }, tool: { diameter_mm: sfToolDiam, flutes: sfFlutes }, operation: sfOp, machine_limits: { max_rpm: maxRPM, max_power_kw: maxPower } },
               parameters: { cutting_speed_vc: actualVc, unit_vc: "m/min", rpm, feed_per_tooth_fz: fzRec, unit_fz: "mm", feed_rate_vf: feedRate, unit_vf: "mm/min", depth_of_cut_ap: ap, unit_ap: "mm", width_of_cut_ae: ae, unit_ae: "mm" },
               performance: { mrr_cm3_min: mrr, cutting_force_N: Fc, cutting_power_kW: Pc, power_utilization_pct: powerPct, estimated_tool_life_min: toolLife, tool_grade_used: toolGrade },
               safety: warnings.length > 0 ? warnings : ["All parameters within safe limits"],
@@ -602,8 +606,8 @@ export function registerDataDispatcher(server: any): void {
             if (!tool2) return jsonResponse({ error: `Tool not found: ${tc2}` });
             const tcMat = params.material ? await registryManager.materials.getByIdOrName(params.material) : null;
             const tcIsoGroup = tcMat?.iso_group || params.iso_group || 'P';
-            const cp1 = (tool1 as any).cutting_params || {};
-            const cp2 = (tool2 as any).cutting_params || {};
+            const cp1 = (tool1 as RegistryRecord).cutting_params || {};
+            const cp2 = (tool2 as RegistryRecord).cutting_params || {};
             // Handle both nested (.materials.P_STEELS) and flat (.P_STEELS) schemas
             const cp1src = cp1.materials || cp1;
             const cp2src = cp2.materials || cp2;
@@ -612,9 +616,9 @@ export function registerDataDispatcher(server: any): void {
             const t1cp = isoKey1 ? cp1src[isoKey1] : null;
             const t2cp = isoKey2 ? cp2src[isoKey2] : null;
             result = {
-              tool_1: { id: (tool1 as any).id, name: tool1.name, vendor: (tool1 as any).vendor, diameter: (tool1 as any).cutting_diameter_mm, flutes: (tool1 as any).flute_count, coating: (tool1 as any).coating || (tool1 as any).coating_type, coolant_through: (tool1 as any).coolant_through, price: (tool1 as any).price_usd, taylor_C: (tool1 as any).taylor_C, cutting_params: t1cp },
-              tool_2: { id: (tool2 as any).id, name: tool2.name, vendor: (tool2 as any).vendor, diameter: (tool2 as any).cutting_diameter_mm, flutes: (tool2 as any).flute_count, coating: (tool2 as any).coating || (tool2 as any).coating_type, coolant_through: (tool2 as any).coolant_through, price: (tool2 as any).price_usd, taylor_C: (tool2 as any).taylor_C, cutting_params: t2cp },
-              comparison: { for_material: tcMat ? { name: tcMat.name, iso_group: tcIsoGroup } : { iso_group: tcIsoGroup }, diameter_match: (tool1 as any).cutting_diameter_mm === (tool2 as any).cutting_diameter_mm, price_diff_pct: (tool1 as any).price_usd && (tool2 as any).price_usd ? Math.round(((tool2 as any).price_usd - (tool1 as any).price_usd) / (tool1 as any).price_usd * 100) : null, tool_life_ratio: (tool1 as any).taylor_C && (tool2 as any).taylor_C ? Math.round((tool2 as any).taylor_C / (tool1 as any).taylor_C * 100) / 100 : null }
+              tool_1: { id: (tool1 as RegistryRecord).id, name: tool1.name, vendor: (tool1 as RegistryRecord).vendor, diameter: (tool1 as RegistryRecord).cutting_diameter_mm, flutes: (tool1 as RegistryRecord).flute_count, coating: (tool1 as RegistryRecord).coating || (tool1 as RegistryRecord).coating_type, coolant_through: (tool1 as RegistryRecord).coolant_through, price: (tool1 as RegistryRecord).price_usd, taylor_C: (tool1 as RegistryRecord).taylor_C, cutting_params: t1cp },
+              tool_2: { id: (tool2 as RegistryRecord).id, name: tool2.name, vendor: (tool2 as RegistryRecord).vendor, diameter: (tool2 as RegistryRecord).cutting_diameter_mm, flutes: (tool2 as RegistryRecord).flute_count, coating: (tool2 as RegistryRecord).coating || (tool2 as RegistryRecord).coating_type, coolant_through: (tool2 as RegistryRecord).coolant_through, price: (tool2 as RegistryRecord).price_usd, taylor_C: (tool2 as RegistryRecord).taylor_C, cutting_params: t2cp },
+              comparison: { for_material: tcMat ? { name: tcMat.name, iso_group: tcIsoGroup } : { iso_group: tcIsoGroup }, diameter_match: (tool1 as RegistryRecord).cutting_diameter_mm === (tool2 as RegistryRecord).cutting_diameter_mm, price_diff_pct: (tool1 as RegistryRecord).price_usd && (tool2 as RegistryRecord).price_usd ? Math.round(((tool2 as RegistryRecord).price_usd - (tool1 as RegistryRecord).price_usd) / (tool1 as RegistryRecord).price_usd * 100) : null, tool_life_ratio: (tool1 as RegistryRecord).taylor_C && (tool2 as RegistryRecord).taylor_C ? Math.round((tool2 as RegistryRecord).taylor_C / (tool1 as RegistryRecord).taylor_C * 100) / 100 : null }
             };
             break;
           }
@@ -630,20 +634,20 @@ export function registerDataDispatcher(server: any): void {
             // 1. Get source material
             const source = await registryManager.materials.getByIdOrName(subMat);
             if (!source) return jsonResponse({ error: `Source material not found: ${subMat}` });
-            const srcGroup = (source as any).iso_group || "P";
-            const srcHardness = (source as any).hardness_hb ?? (source as any).hardness ?? 200;
-            const srcTensile = (source as any).tensile_strength_mpa ?? (source as any).tensile_strength ?? 500;
-            const srcMachinability = (source as any).machinability_rating ?? (source as any).machinability ?? 50;
+            const srcGroup = (source as RegistryRecord).iso_group || "P";
+            const srcHardness = (source as RegistryRecord).hardness_hb ?? (source as RegistryRecord).hardness ?? 200;
+            const srcTensile = (source as RegistryRecord).tensile_strength_mpa ?? (source as RegistryRecord).tensile_strength ?? 500;
+            const srcMachinability = (source as RegistryRecord).machinability_rating ?? (source as RegistryRecord).machinability ?? 50;
 
             // 2. Find candidates in same ISO group
             const candidates = await registryManager.materials.search({
               iso_group: srcGroup, limit: 50, offset: 0
             });
-            const candidateList = Array.isArray(candidates) ? candidates : (candidates as any)?.materials || (candidates as any)?.results || [];
+            const candidateList = Array.isArray(candidates) ? candidates : (candidates as RegistryRecord)?.materials || (candidates as RegistryRecord)?.results || [];
 
             // 3. Score and rank based on reason
             const scored = candidateList
-              .filter((c: any) => c.name !== source.name && c.id !== (source as any).id)
+              .filter((c: any) => c.name !== source.name && c.id !== (source as RegistryRecord).id)
               .map((c: any) => {
                 const cHardness = c.hardness_hb ?? c.hardness ?? 200;
                 const cTensile = c.tensile_strength_mpa ?? c.tensile_strength ?? 500;

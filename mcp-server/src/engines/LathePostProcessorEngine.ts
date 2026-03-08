@@ -470,8 +470,8 @@ export class LathePostProcessorEngine {
           break;
 
         default:
-          warnings.push(`Unknown lathe move type "${(move as any).type}"`);
-          addLine(dialect.comment(`UNSUPPORTED: ${(move as any).type}`));
+          warnings.push(`Unknown lathe move type "${(move as unknown as Record<string, unknown>).type}"`);
+          addLine(dialect.comment(`UNSUPPORTED: ${(move as unknown as Record<string, unknown>).type}`));
           break;
       }
     }
@@ -506,6 +506,20 @@ export class LathePostProcessorEngine {
     const estimatedTime = feedRate > 0
       ? totalFeedDist / feedRate * 60 + lines.length * 0.05
       : lines.length * 0.1;
+
+    // Consult MachiningPlaybookEngine for turning / post-processing rules
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["turning", "post_processing"],
+        operation_type: "turning",
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
 
     return {
       controller: config.controller,

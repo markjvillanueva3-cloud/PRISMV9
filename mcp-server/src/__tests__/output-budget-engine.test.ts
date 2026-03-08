@@ -19,7 +19,7 @@ describe("OutputBudgetEngine", () => {
 
     it("limits object depth", () => {
       const data = { a: { b: { c: { d: { e: "deep" } } } } };
-      const result = budget.enforce(data, { maxDepth: 2 }) as any;
+      const result = budget.enforce(data, { maxDepth: 2 }) as Record<string, Record<string, unknown>>;
       expect(result.a.b).toContain("[Object(");
     });
 

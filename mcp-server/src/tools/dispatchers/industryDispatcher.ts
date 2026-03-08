@@ -9,7 +9,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_INDUSTRY_SCHEMAS } from "../../schemas/industryActionSchemas.js";
 
 const ACTIONS = [
   "aerospace_check", "medical_check", "automotive_check", "oil_gas_check",
@@ -35,6 +36,11 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_INDUSTRY_SCHEMAS);
+        if (!validation.valid) {
+          return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+        }
         switch (action) {
           case "aerospace_check": {
             const checks: Array<{ item: string; status: string; note: string }> = [];

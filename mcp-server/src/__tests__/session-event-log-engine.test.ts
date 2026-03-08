@@ -75,7 +75,7 @@ describe("SessionEventLogEngine", () => {
       // Use a future timestamp to guarantee "new" is after it
       const mark = Date.now() + 100;
       // Manually push an event with timestamp after mark
-      (engine as any).events.push({ type: "file-edit", summary: "new", timestamp: mark + 1 });
+      (engine as unknown as { events: Array<{ type: string; summary: string; timestamp: number }> }).events.push({ type: "file-edit", summary: "new", timestamp: mark + 1 });
       expect(engine.since(mark).length).toBe(1);
     });
   });

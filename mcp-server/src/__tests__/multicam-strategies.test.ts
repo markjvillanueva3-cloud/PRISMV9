@@ -490,7 +490,7 @@ describe("MultiCamStrategyEngine — Portability", () => {
   });
 
   it("should return empty for unknown system", () => {
-    const intents = engine.getPortabilityIntents("unknown" as any, "anything");
+    const intents = engine.getPortabilityIntents("unknown" as unknown as string, "anything");
     expect(intents).toHaveLength(0);
   });
 
@@ -569,7 +569,7 @@ describe("MultiCamStrategyEngine — Warnings", () => {
 describe("MultiCamStrategyEngine — Edge Cases", () => {
   it("should handle unknown CAM system gracefully", () => {
     const result = engine.recommend({
-      camSystem: "unknown" as any,
+      camSystem: "unknown" as unknown as string,
       geometryType: "pocket_2d",
       operationGoal: "roughing",
     });

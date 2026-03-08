@@ -384,8 +384,8 @@ export class PostProcessorEngine {
           if (move.text) addLine(dialect.comment(move.text));
           break;
         default:
-          warnings.push(`Unknown move type "${(move as any).type}" at move index — output as comment`);
-          addLine(dialect.comment(`UNSUPPORTED: ${(move as any).type}`));
+          warnings.push(`Unknown move type "${(move as unknown as Record<string, unknown>).type}" at move index — output as comment`);
+          addLine(dialect.comment(`UNSUPPORTED: ${(move as unknown as Record<string, unknown>).type}`));
           break;
       }
     }

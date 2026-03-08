@@ -453,7 +453,7 @@ describe("couplingSensitivity", () => {
         variation_pct: 0,
       });
       for (const val of Object.values(result.impacts)) {
-        expect((val as any).change_pct).toBe(0);
+        expect((val as Record<string, unknown>).change_pct).toBe(0);
       }
     });
   });

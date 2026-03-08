@@ -111,10 +111,10 @@ describe("P7-EX-001: export sheets/bodies ?? vs ||", () => {
 describe("P7-TH-001: threadTools engagement_percent resolved value for warning", () => {
   it("warning should fire when defaulted engagement (75) exceeds 65 for titanium", () => {
     const args = { material: "titanium" }; // no engagement_percent passed
-    const engPct = (args as any).engagement_percent ?? 75;
+    const engPct = (args as Record<string, unknown>).engagement_percent ?? 75;
 
     // OLD: args.engagement_percent > 65 → undefined > 65 = false (warning never fires)
-    expect((args as any).engagement_percent > 65).toBe(false); // BUG
+    expect((args as Record<string, unknown>).engagement_percent > 65).toBe(false); // BUG
 
     // NEW: use resolved engPct
     expect(engPct > 65).toBe(true); // FIX: warning fires for 75% > 65%
@@ -147,11 +147,11 @@ describe("P7-TD-001: turning cross-field validation reachable", () => {
     const physicsActions = new Set(["chuck_force", "tailstock", "part_off_force"]);
 
     // OLD: gate on result.Vc !== undefined — never true for force results
-    const oldGate = physicsActions.has(action) && result && !(result as any).error && (result as any).Vc !== undefined;
+    const oldGate = physicsActions.has(action) && result && !(result as Record<string, unknown>).error && (result as Record<string, unknown>).Vc !== undefined;
     expect(oldGate).toBe(false); // BUG: validation never fires
 
     // NEW: remove Vc gate
-    const newGate = physicsActions.has(action) && result && !(result as any).error;
+    const newGate = physicsActions.has(action) && result && !(result as Record<string, unknown>).error;
     expect(newGate).toBe(true); // FIX: validation fires for force results
   });
 });

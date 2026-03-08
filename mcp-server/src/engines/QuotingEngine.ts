@@ -117,8 +117,8 @@ class QuotingEngineImpl {
       validUntil: this._futureDate(options.validDays ?? 30),
       customer: options.customer ?? {},
       jobSummary: {
-        partName: (jobSpec as any).partName ?? "Custom Part",
-        partNumber: (jobSpec as any).partNumber ?? "N/A",
+        partName: ((jobSpec as unknown as Record<string, unknown>).partName as string) ?? "Custom Part",
+        partNumber: ((jobSpec as unknown as Record<string, unknown>).partNumber as string) ?? "N/A",
         quantity,
         material: jobSpec.material?.type ?? "Unknown",
         complexity: jobSpec.complexity ?? "medium",
@@ -178,7 +178,7 @@ class QuotingEngineImpl {
   }
 
   private _calculateMultipliers(jobSpec: JobSpec, options: QuoteOptions) {
-    const rush = (options.rush || (jobSpec as any).rush) ? PRICING.rushMultiplier : 1.0;
+    const rush = (options.rush || (jobSpec as unknown as Record<string, unknown>).rush) ? PRICING.rushMultiplier : 1.0;
     const proto = ((jobSpec.quantity ?? 1) === 1 || options.prototype)
       ? PRICING.prototypeMultiplier : 1.0;
     const repeat = options.repeatOrder
@@ -228,8 +228,9 @@ class QuotingEngineImpl {
     const notes: string[] = [];
     if (jobSpec.material?.customerSupplied) notes.push("Material to be supplied by customer");
     if (jobSpec.firstArticleRequired) notes.push("First article inspection included");
-    if ((jobSpec as any).certifications?.length) {
-      notes.push(`Certifications required: ${(jobSpec as any).certifications.join(", ")}`);
+    const jobRec = jobSpec as unknown as Record<string, unknown>;
+    if ((jobRec.certifications as string[])?.length) {
+      notes.push(`Certifications required: ${(jobRec.certifications as string[]).join(", ")}`);
     }
     if (options.notes) notes.push(options.notes);
     return notes;

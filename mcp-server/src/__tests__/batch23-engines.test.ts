@@ -6,7 +6,7 @@
 import { describe, it, expect } from "vitest";
 import { sketchConstraintEngine } from "../engines/SketchConstraintEngine.js";
 import { featureInteractionEngine } from "../engines/FeatureInteractionEngine.js";
-import type { Line, Circle } from "../engines/SketchConstraintEngine.js";
+import type { Line, Circle, SketchEntity } from "../engines/SketchConstraintEngine.js";
 import type { MfgFeature } from "../engines/FeatureInteractionEngine.js";
 
 // ============================================================================
@@ -34,7 +34,7 @@ describe("SketchConstraintEngine", () => {
   describe("applyCoincident", () => {
     it("snaps point to point", () => {
       const p = { x: 1, y: 2 };
-      const r = sketchConstraintEngine.applyCoincident(p, { type: "point", x: 5, y: 7 } as any);
+      const r = sketchConstraintEngine.applyCoincident(p, { type: "point", x: 5, y: 7 } as SketchEntity);
       expect(r.type).toBe("coincident_point");
       expect(p.x).toBe(5);
       expect(p.y).toBe(7);
@@ -43,7 +43,7 @@ describe("SketchConstraintEngine", () => {
     it("projects point onto line", () => {
       const p = { x: 5, y: 5 };
       const line: Line = { type: "line", start: { x: 0, y: 0 }, end: { x: 10, y: 0 } };
-      const r = sketchConstraintEngine.applyCoincident(p, line as any);
+      const r = sketchConstraintEngine.applyCoincident(p, line as unknown as SketchEntity);
       expect(r.type).toBe("coincident_line");
       expect(p.y).toBe(0);
       expect(p.x).toBe(5);
@@ -52,7 +52,7 @@ describe("SketchConstraintEngine", () => {
     it("projects point onto circle", () => {
       const p = { x: 10, y: 0 };
       const c: Circle = { type: "circle", center: { x: 0, y: 0 }, radius: 5 };
-      const r = sketchConstraintEngine.applyCoincident(p, c as any);
+      const r = sketchConstraintEngine.applyCoincident(p, c as unknown as SketchEntity);
       expect(r.type).toBe("coincident_circle");
       expect(p.x).toBeCloseTo(5);
       expect(p.y).toBeCloseTo(0);

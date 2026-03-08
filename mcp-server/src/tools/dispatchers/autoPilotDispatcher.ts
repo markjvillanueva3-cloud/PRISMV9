@@ -6,7 +6,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_AUTOPILOT_SCHEMAS } from "../../schemas/autoPilotActionSchemas.js";
 
 const ACTIONS = ["autopilot", "autopilot_quick", "brainstorm_lenses", "formula_optimize", "autopilot_v2", "registry_status", "working_tools"] as const;
 
@@ -63,6 +64,17 @@ export function registerAutoPilotDispatcher(server: any): void {
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
       loadAutoPilot();
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_AUTOPILOT_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_autopilot_d"
+        );
+      }
+
       let result: any;
       try {
         switch (action) {
@@ -85,7 +97,7 @@ export function registerAutoPilotDispatcher(server: any): void {
           case "brainstorm_lenses": {
             if (!AutoPilotClass) { result = { error: "AutoPilot module not loaded" }; break; }
             const ap = new AutoPilotClass();
-            const r = await (ap as any).brainstorm(params.problem || "", params.context || {});
+            const r = await (ap as unknown as { brainstorm: (problem: string, context: Record<string, unknown>) => Promise<Record<string, unknown>> }).brainstorm(params.problem || "", params.context || {});
             result = { problem: params.problem, assumptions: r.assumptions, alternatives: r.alternatives,
               inversions: r.inversions, fusions: r.fusions, tenX: r.tenX, simplifications: r.simplifications,
               futureProof: r.futureProof, approach: r.optimizedApproach, formula: r.formulaUsed };

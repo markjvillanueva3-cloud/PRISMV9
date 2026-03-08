@@ -50,7 +50,7 @@ facet normal 0 0 -1
   endloop
 endfacet
 endsolid test`;
-    const result = fileIOEngine.parse(stl, "stl_ascii") as any;
+    const result = fileIOEngine.parse(stl, "stl_ascii") as Record<string, unknown> & { statistics: Record<string, unknown>; bounding_box: unknown };
     expect(result.name).toBe("test");
     expect(result.statistics.triangle_count).toBe(2);
     expect(result.statistics.surface_area).toBeGreaterThan(0);

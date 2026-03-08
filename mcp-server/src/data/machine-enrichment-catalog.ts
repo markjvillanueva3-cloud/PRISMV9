@@ -24,17 +24,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 305,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 254,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -58,17 +58,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 508,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 356,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -92,17 +92,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 254,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 305,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 305,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -126,17 +126,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 305,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 254,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 305,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1487,17 +1487,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 762,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 305,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1522,17 +1522,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 762,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 305,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1557,17 +1557,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1016,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1592,17 +1592,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1016,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 406,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1627,17 +1627,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1016,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 660,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.508
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -1662,17 +1662,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1016,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 660,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 406,
-        rapid_m_min: 0.635
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -3092,17 +3092,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1200,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 900,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 700,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -3164,6 +3164,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 40,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 400
   },
   {
@@ -3199,6 +3207,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 60,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 500
   },
   {
@@ -3210,17 +3226,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 900,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 800,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 880,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -3234,6 +3250,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 80,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 630
   },
   {
@@ -3245,17 +3269,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 3050,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1600,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 1000,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -3917,6 +3941,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 24,
       change_time_sec: 0.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: -120,
+        max_deg: 120,
+        continuous: false
+      }
+    ],
     lathe_specs: {
       max_swing_mm: 380,
       bar_capacity_mm: 80,
@@ -4403,6 +4435,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 40,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 400
   },
   {
@@ -4438,6 +4478,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 60,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 500
   },
   {
@@ -4449,17 +4497,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 900,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 800,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 980,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -4473,6 +4521,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 80,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 630
   },
   {
@@ -4484,17 +4540,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1050,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 920,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 1020,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -4508,6 +4564,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 120,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 800
   },
   {
@@ -4519,17 +4583,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 2540,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1016,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 762,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -4553,17 +4617,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 3556,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1270,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 914,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -5604,17 +5668,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1000,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 800,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 650,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -5652,17 +5716,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1250,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1000,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 750,
-        rapid_m_min: 0.6
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -5700,17 +5764,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1600,
-        rapid_m_min: 0.5
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1250,
-        rapid_m_min: 0.5
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 900,
-        rapid_m_min: 0.5
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -5748,17 +5812,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 2000,
-        rapid_m_min: 0.4
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1400,
-        rapid_m_min: 0.4
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 1100,
-        rapid_m_min: 0.4
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -6066,6 +6130,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 60,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 400
   },
   {
@@ -6101,6 +6173,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 90,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 500
   },
   {
@@ -6136,6 +6216,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 120,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 630
   },
   {
@@ -7206,6 +7294,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 60,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 400
   },
   {
@@ -7241,6 +7337,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 80,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 500
   },
   {
@@ -7276,6 +7380,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 120,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 630
   },
   {
@@ -7287,17 +7399,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 1050,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 1050,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 1100,
-        rapid_m_min: 0.8
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -7311,6 +7423,14 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       capacity: 160,
       change_time_sec: 3.5
     },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ],
     pallet_size_mm: 800
   },
   {
@@ -7322,17 +7442,17 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       {
         name: "X",
         travel_mm: 457,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Y",
         travel_mm: 356,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       },
       {
         name: "Z",
         travel_mm: 356,
-        rapid_m_min: 0.762
+        rapid_m_min: 1
       }
     ],
     spindle: {
@@ -7815,7 +7935,15 @@ export const POST_DB_PROFILES: (ExtendedMachineProfile & { lathe_specs?: any; hi
       type: "side_mount",
       capacity: 40,
       change_time_sec: 3.5
-    }
+    },
+    rotary_axes: [
+      {
+        name: "B",
+        min_deg: 0,
+        max_deg: 360,
+        continuous: true
+      }
+    ]
   },
   {
     brand: "FANUC",

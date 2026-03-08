@@ -599,25 +599,32 @@ describe("ProbeRoutineEngine", () => {
     expect(probeRoutineEngine).toBeDefined();
   });
 
-  test("generate creates probe moves for position callout", () => {
-    const routine = probeRoutineEngine.generate({
-      id: "F1",
-      callout: "position",
-      tolerance_mm: 0.05,
-      datum_refs: ["A", "B", "C"],
-      feature_type: "hole",
-      nominal: { x_mm: 50, y_mm: 30, diameter_mm: 10, z_mm: 0 },
+  test("generatePartInspection creates probe gcode", () => {
+    const result = probeRoutineEngine.generatePartInspection({
+      controller: "fanuc",
+      features: [
+        { type: "bore", nominal: 10, tolerance_plus: 0.05, tolerance_minus: -0.05, position: { x: 50, y: 30, z: -10 }, diameter: 10 },
+      ],
+      action_on_fail: "alarm",
     });
-    expect(routine.moves.length).toBeGreaterThan(0);
-    expect(routine.points_measured).toBeGreaterThanOrEqual(4);
-    expect(routine.datum_alignment).toEqual(["A", "B", "C"]);
+    expect(result.gcode.length).toBeGreaterThan(0);
+    expect(result.features_measured).toBeGreaterThanOrEqual(1);
+    expect(result.estimated_time_sec).toBeGreaterThan(0);
   });
 
-  test("interpretGDT explains tolerance zone", () => {
-    const interp = probeRoutineEngine.interpretGDT("flatness", 0.02);
-    expect(interp.zone_type).toBe("planar");
-    expect(interp.tolerance_zone_description).toContain("0.02");
-    expect(interp.min_measurement_points).toBe(9);
+  test("generateFirstArticle creates FAI routine", () => {
+    const result = probeRoutineEngine.generateFirstArticle({
+      controller: "fanuc",
+      features: [
+        { type: "bore", nominal: 10, tolerance_plus: 0.02, tolerance_minus: -0.02, position: { x: 50, y: 30, z: -10 }, diameter: 10 },
+      ],
+      datum_features: [
+        { type: "surface", nominal: 0, tolerance_plus: 0.01, tolerance_minus: -0.01, position: { x: 0, y: 0, z: 0 } },
+      ],
+      report_format: "AS9102",
+    });
+    expect(result.gcode.length).toBeGreaterThan(0);
+    expect(result.features_measured).toBeGreaterThanOrEqual(1);
   });
 });
 

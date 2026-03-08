@@ -36,7 +36,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       quality: {},
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     // F02 fix: must return hookBlock (blocked=true), NOT hookWarning
     expect(result).toHaveProperty("blocked", true);
     expect(result).toHaveProperty("success", false);
@@ -50,7 +50,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       // no quality property at all
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     expect(result).toHaveProperty("blocked", true);
     expect(result).toHaveProperty("success", false);
   });
@@ -63,7 +63,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       quality: { safety: 0.699 },
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     expect(result).toHaveProperty("blocked", true);
     expect(result.message).toContain("SAFETY");
   });
@@ -76,7 +76,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       quality: { safety: 0.700 },
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     expect(result).toHaveProperty("blocked", false);
     expect(result).toHaveProperty("success", true);
   });
@@ -89,7 +89,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       quality: { safety: 0.0 },
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     expect(result).toHaveProperty("blocked", true);
   });
 
@@ -101,7 +101,7 @@ describe("EnforcementHooks preOutputSafetyHardGate [QA-MS1 P0]", () => {
       timestamp: new Date(),
       quality: { safety: 1.0 },
     };
-    const result = safetyHardGate!.handler(ctx as any);
+    const result = safetyHardGate!.handler(ctx as Record<string, unknown>);
     expect(result).toHaveProperty("blocked", false);
     expect(result).toHaveProperty("success", true);
   });

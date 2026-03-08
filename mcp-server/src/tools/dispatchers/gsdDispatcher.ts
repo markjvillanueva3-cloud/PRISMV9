@@ -15,7 +15,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { PATHS } from "../../constants.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_GSD_SCHEMAS } from "../../schemas/gsdActionSchemas.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -142,6 +143,14 @@ export function registerGsdDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      const validation = validateActionParams(action, params, ACTION_GSD_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_gsd"
+        );
+      }
       let result: any;
       try {
         switch (action) {

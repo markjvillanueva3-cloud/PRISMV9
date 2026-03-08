@@ -313,7 +313,7 @@ export function calculateKienzleCuttingForce(
   // M-009 fix: Merchant's circle trigonometric force decomposition
   // Replaces fixed ISO-group ratios with physics-based calculation
   // Friction coefficient μ varies by ISO group (empirical, Shaw 2005)
-  const isoGroup = (coefficients as any).iso_group || "P";
+  const isoGroup = (coefficients as unknown as Record<string, unknown>).iso_group as string || "P";
   const frictionCoeffs: Record<string, number> = {
     "N": 0.35, "P": 0.50, "M": 0.55, "K": 0.45, "S": 0.60, "H": 0.45, "X": 0.50
   };
@@ -356,7 +356,7 @@ export function calculateKienzleCuttingForce(
   }
   
   // W5: Uncertainty bounds — Kienzle model ±15% for verified data, ±25% for estimated
-  const dataQuality = (coefficients as any).data_quality || "estimated";
+  const dataQuality = (coefficients as unknown as Record<string, unknown>).data_quality as string || "estimated";
   const uncertaintyPct = dataQuality === "verified" ? 0.15 : 0.25;
   
   return {

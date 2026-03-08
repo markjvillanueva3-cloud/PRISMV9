@@ -7,7 +7,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_RALPH_SCHEMAS } from "../../schemas/ralphActionSchemas.js";
 import { apiConfig } from "../../config/api-config.js";
 import * as fs from "fs";
 import * as path from "path";
@@ -86,6 +87,11 @@ export function registerRalphDispatcher(server: any): void {
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_RALPH_SCHEMAS);
+        if (!validation.valid) {
+          return { content: [{ type: "text", text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+        }
         switch (action) {
           case "loop": {
             const target = params.content || params.target || "";

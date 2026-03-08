@@ -19,72 +19,38 @@ export interface PCAMonitoringResult {
   n_components: number; explained_variance: number[]; loadings: number[][];
   t2_values: number[]; spe_values: number[]; t2_limit: number; spe_limit: number; anomalies: number[];
 }
-export interface HMMInput {
-  observations: number[]; n_states: number; n_emissions: number;
-  initial_A?: number[][]; initial_B?: number[][];
-}
+export interface HMMInput { observations: number[]; n_states: number; n_emissions: number; initial_A?: number[][]; initial_B?: number[][]; }
 export interface HMMResult {
-  transition_matrix: number[][]; emission_matrix: number[][];
-  state_sequence: number[]; current_state_probabilities: number[];
-  log_likelihood: number;
+  transition_matrix: number[][]; emission_matrix: number[][]; state_sequence: number[];
+  current_state_probabilities: number[]; log_likelihood: number;
 }
-export interface BootstrapCIInput {
-  data: number[]; statistic: "mean" | "median" | "std" | "cpk";
-  n_bootstrap?: number; confidence?: number;
-}
+export interface BootstrapCIInput { data: number[]; statistic: "mean"|"median"|"std"|"cpk"; n_bootstrap?: number; confidence?: number; }
 export interface BootstrapCIResult {
-  point_estimate: number; ci_lower: number; ci_upper: number;
-  bootstrap_se: number; bias: number; distribution: number[];
+  point_estimate: number; ci_lower: number; ci_upper: number; bootstrap_se: number; bias: number; distribution: number[];
 }
-export interface SPRTInput {
-  observations: number[]; h0_mean: number; h1_mean: number;
-  sigma: number; alpha?: number; beta?: number;
-}
+export interface SPRTInput { observations: number[]; h0_mean: number; h1_mean: number; sigma: number; alpha?: number; beta?: number; }
 export interface SPRTResult {
-  decision: "accept_H0" | "accept_H1" | "continue";
-  log_likelihood_ratio: number; samples_used: number;
-  upper_bound: number; lower_bound: number; asn: number;
+  decision: "accept_H0"|"accept_H1"|"continue"; log_likelihood_ratio: number;
+  samples_used: number; upper_bound: number; lower_bound: number; asn: number;
 }
-export interface CombinedSPCInput {
-  data: number[]; target: number; sigma: number;
-  cusum_k?: number; cusum_h?: number; ewma_lambda?: number;
-}
+export interface CombinedSPCInput { data: number[]; target: number; sigma: number; cusum_k?: number; cusum_h?: number; ewma_lambda?: number; }
 export interface CombinedSPCResult {
-  shewhart_signals: number[]; cusum_signals: number[];
-  ewma_signals: number[]; combined_signals: number[];
-  first_signal_index: number; detection_chart: string;
-  arl_estimate: number;
+  shewhart_signals: number[]; cusum_signals: number[]; ewma_signals: number[];
+  combined_signals: number[]; first_signal_index: number; detection_chart: string; arl_estimate: number;
 }
 export interface DOEFactor { name: string; levels: number[]; }
-export interface DOEInput {
-  factors: DOEFactor[];
-  design_type: "full_factorial" | "taguchi" | "box_behnken"
-    | "ccd" | "fractional";
-}
-export interface DOEResult {
-  design_matrix: number[][]; run_table: Array<Record<string, number>>;
-  n_runs: number; resolution: string; aliasing?: string[];
-}
-export interface RSMInput {
-  factors: string[];
-  data: Array<{ factors: number[]; response: number }>;
-}
+export interface DOEInput { factors: DOEFactor[]; design_type: "full_factorial"|"taguchi"|"box_behnken"|"ccd"|"fractional"; }
+export interface DOEResult { design_matrix: number[][]; run_table: Array<Record<string, number>>; n_runs: number; resolution: string; aliasing?: string[]; }
+export interface RSMInput { factors: string[]; data: Array<{ factors: number[]; response: number }>; }
 export interface RSMResult {
-  coefficients: Record<string, number>; r_squared: number;
-  adjusted_r_squared: number; stationary_point: number[];
-  stationary_type: "minimum" | "maximum" | "saddle";
-  predicted_optimum: number;
-  contour_data: Array<{ x1: number; x2: number; response: number }>;
+  coefficients: Record<string, number>; r_squared: number; adjusted_r_squared: number;
+  stationary_point: number[]; stationary_type: "minimum"|"maximum"|"saddle";
+  predicted_optimum: number; contour_data: Array<{ x1: number; x2: number; response: number }>;
 }
-export interface NBIObjective {
-  name: string; values: number[];
-  direction: "minimize" | "maximize";
-}
+export interface NBIObjective { name: string; values: number[]; direction: "minimize"|"maximize"; }
 export interface NBIInput { objectives: NBIObjective[]; n_points?: number; }
 export interface NBIResult {
-  pareto_front: Array<Record<string, number>>;
-  utopia_point: number[]; nadir_point: number[];
-  spread: number; hypervolume: number;
+  pareto_front: Array<Record<string, number>>; utopia_point: number[]; nadir_point: number[]; spread: number; hypervolume: number;
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────

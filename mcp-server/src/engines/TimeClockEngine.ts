@@ -6,7 +6,7 @@
  * the labor data that PayrollEngine and ActualCostEngine consume.
  */
 
-import { employeeEngine } from "./EmployeeEngine.js";
+import { employeeEngine, type Department } from "./EmployeeEngine.js";
 
 export interface ShiftEntry {
   id: string;
@@ -376,7 +376,7 @@ class TimeClockEngine {
     departmentFilter?: string,
   ): AttendanceRecord[] {
     const employees = departmentFilter
-      ? employeeEngine.search({ department: departmentFilter as any, status: "active" })
+      ? employeeEngine.search({ department: departmentFilter as Department, status: "active" })
       : employeeEngine.list("active");
 
     const start = new Date(startDate);

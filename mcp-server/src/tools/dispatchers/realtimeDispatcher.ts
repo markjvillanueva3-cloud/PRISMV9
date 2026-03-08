@@ -9,7 +9,8 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { webSocketEngine } from "../../engines/WebSocketEngine.js";
 import type { WSEventType } from "../../engines/WebSocketEngine.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_REALTIME_SCHEMAS } from "../../schemas/realtimeActionSchemas.js";
 
 const ACTIONS = ["ws_broadcast", "ws_room_send", "ws_unicast", "ws_stats"] as const;
 
@@ -31,6 +32,12 @@ export function registerRealtimeDispatcher(server: any): void {
     },
     async ({ action, params = {} }: { action: string; params: Record<string, any> }) => {
       log.info(`[prism_realtime] Action: ${action}`);
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_REALTIME_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(`Invalid params for ${action}: ${validation.errors?.join(", ")}`, action, "prism_realtime");
+      }
 
       try {
         switch (action) {

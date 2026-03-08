@@ -13,7 +13,8 @@ import * as fs from "fs";
 import { hasValidApiKey, getApiKey, getModelForTier } from "../../config/api-config.js";
 import { PATHS } from "../../constants.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_MANUS_SCHEMAS } from "../../schemas/manusActionSchemas.js";
 
 const ACTIONS = ["create_task", "task_status", "task_result", "cancel_task", "list_tasks",
   "knowledge_lookup", "code_reasoning", "hook_trigger", "hook_list", "hook_chain", "hook_stats"] as const;
@@ -155,6 +156,11 @@ export function registerManusDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_MANUS_SCHEMAS);
+      if (!validation.valid) {
+        return ok({ error: `Invalid params for '${action}': ${validation.errorMessage}` });
+      }
       let result: any;
       try {
         switch (action) {

@@ -567,7 +567,7 @@ function manageOptControl(shopId: string, action: string, categories?: Operation
       if (contributions[i].shop_id === shopId) contributions.splice(i, 1);
     }
     optControls.delete(shopId);
-    transparencyLogs.push({ timestamp: new Date().toISOString(), action: "deleted" as any, data_summary: `Shop ${shopId} deleted ${shopContribs.length} contributions` });
+    transparencyLogs.push({ timestamp: new Date().toISOString(), action: "deleted", data_summary: `Shop ${shopId} deleted ${shopContribs.length} contributions` });
     return { shop_id: shopId, status: "deleted", contributions_removed: shopContribs.length };
   }
 

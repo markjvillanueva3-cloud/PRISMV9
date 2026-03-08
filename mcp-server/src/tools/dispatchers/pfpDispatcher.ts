@@ -22,14 +22,15 @@ import { pfpEngine } from "../../engines/PFPEngine.js";
 import { log } from "../../utils/Logger.js";
 import type { PatternType } from "../../types/pfp-types.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_PFP_SCHEMAS } from "../../schemas/pfpActionSchemas.js";
 
 /** Registers p f p dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerPFPDispatcher(server: McpServer): void {
-  (server as any).tool(
+  server.tool(
     "prism_pfp",
     "Predictive Failure Prevention. Actions: get_dashboard, assess_risk, get_patterns, get_history, force_extract, update_config",
     {
@@ -53,6 +54,14 @@ export function registerPFPDispatcher(server: McpServer): void {
       } catch { /* normalizer not available */ }
       const start = performance.now();
 
+      const validation = validateActionParams(action, params, ACTION_PFP_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_pfp"
+        );
+      }
       try {
         let result: any;
 

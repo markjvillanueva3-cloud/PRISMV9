@@ -157,7 +157,7 @@ describe("ComplianceEngine", () => {
     it("has 6 built-in regulatory frameworks", () => {
       const list = complianceEngine.listTemplates();
       expect(list.available.length).toBeGreaterThanOrEqual(6);
-      const frameworks = list.available.map((t: any) => t.framework);
+      const frameworks = list.available.map((t: { framework: string }) => t.framework);
       expect(frameworks).toContain("ISO_13485");
       expect(frameworks).toContain("AS9100");
       expect(frameworks).toContain("ITAR");
@@ -483,7 +483,7 @@ describe("HookExecutor (Phase Chain System)", () => {
         priority: "normal",
         enabled: true,
         handler: () => hookSuccess(
-          { id: "TEST-EXEC-001", name: "Executor Test", phase: "pre-calculation", category: "validation", mode: "warning" } as any,
+          { id: "TEST-EXEC-001", name: "Executor Test", phase: "pre-calculation" as const, category: "validation" as const, mode: "warning" as const },
           "Test passed"
         ),
       });
@@ -527,7 +527,7 @@ describe("HookExecutor (Phase Chain System)", () => {
         priority: "normal",
         enabled: true,
         handler: () => hookSuccess(
-          { id: "TEST-PHASE-001", name: "Phase Test", phase: "post-calculation", category: "observability", mode: "logging" } as any,
+          { id: "TEST-PHASE-001", name: "Phase Test", phase: "post-calculation" as const, category: "observability" as const, mode: "logging" as const },
           "Logged"
         ),
       });
@@ -555,7 +555,7 @@ describe("HookExecutor (Phase Chain System)", () => {
         priority: "critical",
         enabled: true,
         handler: (ctx) => hookBlock(
-          { id: "TEST-BLOCK-001", name: "Blocker", phase: "pre-output", category: "enforcement", mode: "blocking" } as any,
+          { id: "TEST-BLOCK-001", name: "Blocker", phase: "pre-output" as const, category: "enforcement" as const, mode: "blocking" as const },
           "Blocked by test"
         ),
       });
@@ -573,7 +573,7 @@ describe("HookExecutor (Phase Chain System)", () => {
   describe("helper functions", () => {
     it("hookSuccess creates success result", () => {
       const r = hookSuccess(
-        { id: "H1", name: "H1", phase: "on-audit", category: "observability", mode: "logging" } as any,
+        { id: "H1", name: "H1", phase: "on-audit" as const, category: "observability" as const, mode: "logging" as const },
         "All good"
       );
       expect(r.success).toBe(true);
@@ -583,7 +583,7 @@ describe("HookExecutor (Phase Chain System)", () => {
 
     it("hookBlock creates blocking result", () => {
       const r = hookBlock(
-        { id: "H2", name: "H2", phase: "pre-output", category: "enforcement", mode: "blocking" } as any,
+        { id: "H2", name: "H2", phase: "pre-output" as const, category: "enforcement" as const, mode: "blocking" as const },
         "Denied"
       );
       expect(r.success).toBe(false);
@@ -593,7 +593,7 @@ describe("HookExecutor (Phase Chain System)", () => {
 
     it("hookWarning creates warning result", () => {
       const r = hookWarning(
-        { id: "H3", name: "H3", phase: "post-output", category: "validation", mode: "warning" } as any,
+        { id: "H3", name: "H3", phase: "post-output" as const, category: "validation" as const, mode: "warning" as const },
         "Watch out"
       );
       expect(r.success).toBe(true);

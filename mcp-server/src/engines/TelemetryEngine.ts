@@ -141,21 +141,21 @@ function aggregateMetrics(dispatcher: string, records: TelemetryRecord[], window
     if (r.errorClass) errorsByClass[r.errorClass] = (errorsByClass[r.errorClass] || 0) + 1;
   }
 
-  const actionBreakdown: Record<string, ActionMetrics> = {};
+  interface MutableActionAccum { count: number; avgMs: number; errorRate: number; isSafetyCritical: boolean; _totalMs: number; _errors: number }
+  const actionAccum: Record<string, MutableActionAccum> = {};
   for (const r of records) {
-    if (!actionBreakdown[r.action]) {
-      actionBreakdown[r.action] = { count: 0, avgMs: 0, errorRate: 0, isSafetyCritical: SAFETY_CRITICAL_ACTIONS.has(r.action) };
+    if (!actionAccum[r.action]) {
+      actionAccum[r.action] = { count: 0, avgMs: 0, errorRate: 0, isSafetyCritical: SAFETY_CRITICAL_ACTIONS.has(r.action), _totalMs: 0, _errors: 0 };
     }
-    const ab = actionBreakdown[r.action] as any;
-    ab._totalMs = (ab._totalMs || 0) + r.latencyMs;
-    ab._errors = (ab._errors || 0) + (r.outcome === 'failure' ? 1 : 0);
+    const ab = actionAccum[r.action];
+    ab._totalMs += r.latencyMs;
+    ab._errors += (r.outcome === 'failure' ? 1 : 0);
     ab.count++;
   }
-  for (const key of Object.keys(actionBreakdown)) {
-    const ab = actionBreakdown[key] as any;
-    ab.avgMs = ab.count > 0 ? ab._totalMs / ab.count : 0;
-    ab.errorRate = ab.count > 0 ? ab._errors / ab.count : 0;
-    delete ab._totalMs; delete ab._errors;
+  const actionBreakdown: Record<string, ActionMetrics> = {};
+  for (const key of Object.keys(actionAccum)) {
+    const ab = actionAccum[key];
+    actionBreakdown[key] = { count: ab.count, avgMs: ab.count > 0 ? ab._totalMs / ab.count : 0, errorRate: ab.count > 0 ? ab._errors / ab.count : 0, isSafetyCritical: ab.isSafetyCritical };
   }
 
   const checksumFailures = records.filter(r => {
@@ -322,7 +322,7 @@ export class TelemetryEngine {
     const buf = this.buffers.get(name);
     if (!buf) return null;
 
-    const metrics: Record<MetricsWindow, DispatcherMetrics> = {} as any;
+    const metrics = {} as Record<MetricsWindow, DispatcherMetrics>;
     for (const window of ['1m', '5m', '1h', '24h'] as MetricsWindow[]) {
       const records = getRecords(buf, WINDOW_MS[window]);
       metrics[window] = aggregateMetrics(name, records, window);
@@ -566,12 +566,12 @@ export class TelemetryEngine {
       const raw = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
       if (raw.baselines && typeof raw.baselines === 'object') {
         for (const [k, v] of Object.entries(raw.baselines)) {
-          this.baselines.set(k, v as any);
+          this.baselines.set(k, v as { avgLatency: number; errorRate: number; callRate: number });
         }
       }
       if (raw.routeWeights && typeof raw.routeWeights === 'object') {
         for (const [k, v] of Object.entries(raw.routeWeights)) {
-          this.routeWeights.set(k, v as any);
+          this.routeWeights.set(k, v as RouteWeight);
         }
       }
     } catch { /* fresh start if corrupt */ }

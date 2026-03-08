@@ -15,6 +15,8 @@
 
 import type { MachineProfile } from "../engines/MachineProfileEngine.js";
 import { EXTENDED_MACHINE_CATALOG_EXT } from "./machine-profiles-catalog-ext.js";
+import { EXTENDED_MACHINE_CATALOG_EXT2 } from "./machine-profiles-catalog-ext2.js";
+import { POST_DB_PROFILES } from "./machine-enrichment-catalog.js";
 
 // ════════════════════════════════════════════════════════════════════════════════
 // Extended interfaces for richer machine data from archive
@@ -855,7 +857,8 @@ const DOOSAN_PROFILES: ExtendedMachineProfile[] = [
 // Aggregate catalog + conversion to MachineProfileEngine format
 // ════════════════════════════════════════════════════════════════════════════════
 
-export const EXTENDED_MACHINE_CATALOG: ExtendedMachineProfile[] = [
+// Base catalog: main (7 brands) + ext (26 brands from ENHANCED)
+const _BASE_CATALOG: ExtendedMachineProfile[] = [
   ...HAAS_PROFILES,
   ...DMG_MORI_PROFILES,
   ...MAZAK_PROFILES,
@@ -864,6 +867,28 @@ export const EXTENDED_MACHINE_CATALOG: ExtendedMachineProfile[] = [
   ...HERMLE_PROFILES,
   ...DOOSAN_PROFILES,
   ...EXTENDED_MACHINE_CATALOG_EXT,
+  ...EXTENDED_MACHINE_CATALOG_EXT2,
+];
+
+// Merge POST_DB_PROFILES (CORE database) — add only models not already in base
+const _baseModelKeys = new Set(
+  _BASE_CATALOG.map(p => `${p.brand}::${p.model}`.toLowerCase()),
+);
+const _postNewProfiles: ExtendedMachineProfile[] = (() => {
+  const seen = new Set<string>();
+  return POST_DB_PROFILES
+    .filter(p => {
+      const key = `${p.brand}::${p.model}`.toLowerCase();
+      if (_baseModelKeys.has(key) || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map(({ lathe_specs, high_speed, trunnion, pallet_size_mm, toolroom, ...rest }) => rest as ExtendedMachineProfile);
+})();
+
+export const EXTENDED_MACHINE_CATALOG: ExtendedMachineProfile[] = [
+  ..._BASE_CATALOG,
+  ..._postNewProfiles,
 ];
 
 /** Map archive "type" strings to MachineProfile.type */
@@ -891,6 +916,7 @@ function makeId(brand: string, model: string): string {
  * Merges linear/rotary axis data into the flattened axes format the engine expects.
  */
 export function toCatalogProfiles(): MachineProfile[] {
+  const usedIds = new Set<string>();
   return EXTENDED_MACHINE_CATALOG.map((ep) => {
     const xAxis = ep.linear_axes.find((a) => a.name === "X");
     const yAxis = ep.linear_axes.find((a) => a.name === "Y");
@@ -907,8 +933,12 @@ export function toCatalogProfiles(): MachineProfile[] {
       ? false
       : ep.spindle.taper.startsWith("HSK");
 
+    let id = makeId(ep.brand, ep.model);
+    if (usedIds.has(id)) { let i = 2; while (usedIds.has(`${id}_${i}`)) i++; id = `${id}_${i}`; }
+    usedIds.add(id);
+
     return {
-      id: makeId(ep.brand, ep.model),
+      id,
       name: `${ep.brand} ${ep.model}`,
       type: mapType(ep.type),
       manufacturer: ep.brand,

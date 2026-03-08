@@ -18,11 +18,11 @@ describe("P6-CD-001: tool_mask_state unknown state reachable", () => {
     // OLD: TOOL_STATES[current_state || "EXECUTION"]
     // When current_state is undefined/null, || "EXECUTION" kicks in → always resolves
     const undefinedState: string | undefined = undefined;
-    const oldResult = TOOL_STATES[(undefinedState as any) || "EXECUTION"];
+    const oldResult = TOOL_STATES[(undefinedState as unknown as string) || "EXECUTION"];
     expect(oldResult).toBeDefined(); // BUG: silently falls back to EXECUTION
 
     // NEW: TOOL_STATES[current_state] — undefined triggers error branch
-    const newResult = TOOL_STATES[undefinedState as any];
+    const newResult = TOOL_STATES[undefinedState as unknown as string];
     expect(newResult).toBeUndefined(); // FIX: unknown state is detectable
   });
 
@@ -39,7 +39,7 @@ describe("P6-CD-002: memory_externalize undefined memory_type guard", () => {
   it("undefined memory_type should not crash on .toUpperCase()", () => {
     const memory_type: string | undefined = undefined;
     // OLD: generateEventId(memory_type.toUpperCase().slice(0, 3)) → TypeError
-    expect(() => (memory_type as any).toUpperCase()).toThrow();
+    expect(() => (memory_type as unknown as string).toUpperCase()).toThrow();
     // FIX: guard check before calling .toUpperCase()
   });
 });
@@ -84,7 +84,7 @@ describe("P6-CD-005: vary_response undefined content guard", () => {
   it("undefined content would crash on .length access", () => {
     const content: string | undefined = undefined;
     // Accessing .length on undefined throws TypeError — guard needed
-    expect(() => (content as any).length).toThrow();
+    expect(() => (content as unknown as string).length).toThrow();
     // FIX: early return with error when content is missing
   });
 });

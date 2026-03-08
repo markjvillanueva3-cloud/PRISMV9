@@ -137,12 +137,24 @@ export interface SetupSheet {
   controller: ControllerType;
 }
 
+/** Playbook-sourced advice for setup sheets. */
+export interface PlaybookSetupAdvice {
+  /** Workholding suggestions from playbook rules */
+  workholding: string[];
+  /** Datum strategy recommendation */
+  datum_strategy: string;
+  /** Setup warnings and anti-patterns to avoid */
+  setup_warnings: string[];
+}
+
 /** Setup sheet generation result. */
 export interface SetupSheetResult {
   /** Structured setup sheet data */
   setup_sheet: SetupSheet;
   /** Formatted Markdown output */
   markdown: string;
+  /** Playbook advice for workholding, datum, and setup (if available) */
+  playbook_advice?: PlaybookSetupAdvice;
 }
 
 /** Tool list result. */
@@ -256,7 +268,14 @@ export class SetupSheetFromGCodeEngine {
 
     const markdown = this.formatSetupSheetMarkdown(setupSheet, config);
 
-    return { setup_sheet: setupSheet, markdown };
+    // Enrich with MachiningPlaybookEngine advice (lazy, non-breaking)
+    const playbookAdvice = this.getPlaybookAdvice(tools, operations);
+
+    const result: SetupSheetResult = { setup_sheet: setupSheet, markdown };
+    if (playbookAdvice) {
+      result.playbook_advice = playbookAdvice;
+    }
+    return result;
   }
 
   /**
@@ -1011,6 +1030,110 @@ export class SetupSheetFromGCodeEngine {
     }
 
     return lines.join("\n");
+  }
+
+  // --------------------------------------------------------------------------
+  // Playbook Integration
+  // --------------------------------------------------------------------------
+
+  /**
+   * Lazily import MachiningPlaybookEngine and return workholding/datum/setup
+   * advice based on detected features. Returns null if playbook unavailable.
+   */
+  private getPlaybookAdvice(
+    tools: ExtractedTool[],
+    operations: ExtractedOperation[],
+  ): PlaybookSetupAdvice | null {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine");
+
+      // Build detected feature list from extracted operations
+      const detectedFeatures = this.extractDetectedFeatures(tools, operations);
+
+      // Get setup-specific advice (workholding, datum, setup strategy)
+      const setup = machiningPlaybookEngine.setupAdvice(detectedFeatures);
+
+      // Get broader advice for workholding + datum + setup_strategy categories
+      const broader = machiningPlaybookEngine.advise({
+        features: detectedFeatures,
+        categories: ["workholding", "datum", "setup_strategy"],
+      });
+
+      // Merge workholding suggestions
+      const workholding = [
+        ...setup.workholding_suggestions,
+        ...broader.summary.filter((s: string) =>
+          !setup.workholding_suggestions.includes(s),
+        ),
+      ];
+
+      // Collect setup warnings from critical warnings + anti-patterns
+      const setupWarnings = [
+        ...broader.critical_warnings,
+        ...setup.reasoning.filter((r: string) =>
+          r.toLowerCase().includes("warn")
+          || r.toLowerCase().includes("risk")
+          || r.toLowerCase().includes("avoid"),
+        ),
+      ];
+
+      return {
+        workholding,
+        datum_strategy: setup.datum_strategy,
+        setup_warnings: setupWarnings,
+      };
+    } catch {
+      // MachiningPlaybookEngine not available — graceful degradation
+      return null;
+    }
+  }
+
+  /**
+   * Derive feature descriptors from extracted tools and operations
+   * for playbook rule matching.
+   */
+  private extractDetectedFeatures(
+    tools: ExtractedTool[],
+    operations: ExtractedOperation[],
+  ): string[] {
+    const features: string[] = [];
+
+    for (const op of operations) {
+      if (!features.includes(op.type_guess)) {
+        features.push(op.type_guess);
+      }
+    }
+
+    // Infer features from tool usage patterns
+    const hasDrilling = operations.some((o) => o.type_guess === "drilling");
+    const hasTapping = operations.some((o) => o.type_guess === "tapping");
+    const hasBoring = operations.some((o) =>
+      o.type_guess === "boring" || o.type_guess === "fine_boring",
+    );
+    const hasPocketing = operations.some((o) => o.type_guess === "pocketing");
+    const hasContouring = operations.some(
+      (o) => o.type_guess === "contour_milling",
+    );
+
+    if (hasDrilling) features.push("holes");
+    if (hasTapping) features.push("threaded_holes");
+    if (hasBoring) features.push("precision_bore");
+    if (hasPocketing) features.push("pocket");
+    if (hasContouring) features.push("contour");
+
+    // Deep Z operations
+    const allZDepths = operations.flatMap((o) => o.z_depths);
+    if (allZDepths.length > 0) {
+      const minZ = Math.min(...allZDepths);
+      if (minZ < -50) features.push("deep_feature");
+    }
+
+    // Multiple work offsets suggest multi-setup
+    const toolCount = tools.length;
+    if (toolCount > 6) features.push("complex_multi_tool");
+
+    return features;
   }
 
   /** Format seconds as M:SS or H:MM:SS. */

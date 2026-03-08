@@ -9,7 +9,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_AUTOMATION_SCHEMAS } from "../../schemas/automationActionSchemas.js";
 
 let _oee: any, _bottleneck: any, _thread: any, _instructions: any, _handoff: any;
 async function getEngine(name: string): Promise<any> {
@@ -47,6 +48,14 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_AUTOMATION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action, "prism_automation"
+          );
+        }
         switch (action) {
           case "oee_calc": {
             const engine = await getEngine("oee");

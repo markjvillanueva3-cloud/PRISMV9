@@ -9,7 +9,8 @@ import * as path from "path";
 import { execSync } from "child_process";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { safeRegex } from "../../utils/SafetyValidator.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_DEV_SCHEMAS } from "../../schemas/devActionSchemas.js";
 import { autoWarmStartData, markHandoffResumed } from "../cadenceExecutor.js";
 import { resetReconFlag } from "../autoHookWrapper.js";
 import { SMOKE_TESTS, runSmokeTests, generateATCSWorkQueue, type SmokeReport } from "../../tests/smokeTests.js";
@@ -81,6 +82,11 @@ export function registerDevDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_DEV_SCHEMAS);
+      if (!validation.valid) {
+        return { content: [{ type: "text" as const, text: JSON.stringify({ error: `Invalid params for ${action}`, details: validation.errors }) }] };
+      }
       let result: any;
       try {
         switch (action) {

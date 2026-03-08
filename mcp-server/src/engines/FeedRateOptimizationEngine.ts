@@ -217,7 +217,7 @@ export class FeedRateOptimizationEngine {
 
     log.debug(`[FeedOpt] Dc=${Dc}, ae=${ae}, fz=${fz}→${adjustedFz.toFixed(4)}, thin=${chipThinFactor.toFixed(2)}, Vf=${optimizedVf.toFixed(0)}`);
 
-    return {
+    const result: FeedOptimizationResult = {
       nominal_feed_rate: Math.round(nominalVf),
       optimized_feed_rate: Math.round(optimizedVf),
       feed_per_tooth_adjusted: Math.round(adjustedFz * 10000) / 10000,
@@ -229,6 +229,21 @@ export class FeedRateOptimizationEngine {
       material_factor: Math.round(matFactor * 1000) / 1000,
       warnings,
     };
+
+    // Playbook: enrich with domain advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["material_tip", "toolpath_strategy", "roughing"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /**

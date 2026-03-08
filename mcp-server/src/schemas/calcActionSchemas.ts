@@ -29,6 +29,39 @@ const optStr = z.string().optional();
 const optBool = z.boolean().optional();
 const materialRef = z.string().min(1).optional();
 
+/** Dynamic config object — typed as unknown (safer than any, prevents method access) */
+const dynamicRecord = z.record(z.string(), z.unknown());
+const optDynamicRecord = z.record(z.string(), z.unknown()).optional();
+
+/** G-code operation step */
+const gcodeOp = z.object({
+  type: z.string().optional(),
+  tool: z.string().optional(),
+  x: z.number().optional(), y: z.number().optional(), z: z.number().optional(),
+  feed: z.number().optional(), speed: z.number().optional(),
+}).passthrough();
+
+/** Campaign operation result row */
+const campaignResultRow = z.array(z.union([z.string(), z.number(), z.boolean(), z.null()]));
+
+/** Plan operation entry */
+const planOperation = z.object({
+  type: z.string().optional(),
+  operation: z.string().optional(),
+  tool_diameter: z.number().optional(),
+  depth: z.number().optional(),
+  passes: z.number().optional(),
+}).passthrough();
+
+/** Algorithm parameter set */
+const algorithmParams = z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null(), z.array(z.number())])).optional();
+
+/** Batch calculation entry */
+const batchCalcEntry = z.object({
+  name: z.string(),
+  input: z.record(z.string(), z.unknown()),
+}).passthrough();
+
 // Common cutting condition fields (post-alias-resolution names)
 const cuttingBase = {
   cutting_speed: optPosNum,
@@ -331,7 +364,7 @@ const gcode_snippet = z.object({
 }).passthrough();
 
 const gcode_generate = z.object({
-  operations: z.array(z.record(z.string(), z.any())).optional(),
+  operations: z.array(gcodeOp).optional(),
   controller: optStr,
   list_controllers: optBool,
   list_operations: optBool,
@@ -358,7 +391,7 @@ const gcode_generate = z.object({
   pocket_diameter: optPosNum,
   pocket_depth: optPosNum,
   stepover_percent: optPosNum,
-  profile_points: z.array(z.record(z.string(), z.any())).optional(),
+  profile_points: z.array(z.object({ x: z.number(), y: z.number(), z: z.number().optional() }).passthrough()).optional(),
   comp_side: optStr,
   approach_type: optStr,
   program_number: z.number().int().optional(),
@@ -377,7 +410,7 @@ const gcode_generate = z.object({
 
 const tolerance_analysis = z.object({
   analysis_type: optStr,
-  stack_dimensions: z.array(z.record(z.string(), z.any())).optional(),
+  stack_dimensions: z.array(z.object({ material: z.string().optional(), thickness: z.number().optional() }).passthrough()).optional(),
   nominal_mm: optNum,
   tolerance_mm: optPosNum,
   process_sigma_mm: optPosNum,
@@ -394,22 +427,22 @@ const fit_analysis = z.object({
 // ============================================================================
 
 const campaign_create = z.object({
-  config: z.record(z.string(), z.any()),
-  operation_results: z.array(z.array(z.any())),
+  config: dynamicRecord,
+  operation_results: z.array(campaignResultRow),
   list_actions: optBool,
 }).passthrough();
 
 const campaign_validate = z.object({
-  config: z.record(z.string(), z.any()),
+  config: dynamicRecord,
 }).passthrough();
 
 const campaign_optimize = z.object({
-  config: z.record(z.string(), z.any()),
-  target: z.record(z.string(), z.any()).optional(),
+  config: dynamicRecord,
+  target: optDynamicRecord,
 }).passthrough();
 
 const campaign_cycle_time = z.object({
-  config: z.record(z.string(), z.any()),
+  config: dynamicRecord,
 }).passthrough();
 
 // ============================================================================
@@ -429,15 +462,15 @@ const render_report = z.object({
 
 const inference_chain = z.object({
   mode: optStr,
-  chain_config: z.record(z.string(), z.any()).optional(),
-  scenario: z.record(z.string(), z.any()).optional(),
+  chain_config: optDynamicRecord,
+  scenario: optDynamicRecord,
   material: optStr,
   machine: optStr,
-  constraints: z.record(z.string(), z.any()).optional(),
+  constraints: optDynamicRecord,
   response_level: optStr,
   symptoms: z.array(z.string()).optional(),
   alarm_code: optStr,
-  machine_state: z.record(z.string(), z.any()).optional(),
+  machine_state: optDynamicRecord,
   operation: optStr,
 }).passthrough();
 
@@ -497,7 +530,7 @@ const uncertainty_chain = z.object({
 const controller_optimize = z.object({
   controller: z.string().min(1),
   operation: optStr,
-  params: z.record(z.string(), z.any()).optional(),
+  params: optDynamicRecord,
 }).passthrough();
 
 // ============================================================================
@@ -778,12 +811,12 @@ const fixture_recommend = z.object({}).passthrough();
 
 const algorithm_calculate = z.object({
   algorithm_id: z.string().min(1),
-  algorithm_params: z.record(z.string(), z.any()).optional(),
+  algorithm_params: algorithmParams,
 }).passthrough();
 
 const algorithm_validate = z.object({
   algorithm_id: z.string().min(1),
-  algorithm_params: z.record(z.string(), z.any()).optional(),
+  algorithm_params: algorithmParams,
 }).passthrough();
 
 const algorithm_list = z.object({
@@ -796,13 +829,13 @@ const algorithm_info = z.object({
 }).passthrough();
 
 const algorithm_batch = z.object({
-  calculations: z.array(z.record(z.string(), z.any())),
+  calculations: z.array(z.object({ algorithm_id: z.string(), params: dynamicRecord }).passthrough()),
   stop_on_error: optBool,
 }).passthrough();
 
 const algorithm_benchmark = z.object({
   algorithm_id: z.string().min(1),
-  algorithm_params: z.record(z.string(), z.any()).optional(),
+  algorithm_params: algorithmParams,
 }).passthrough();
 
 // ============================================================================
@@ -1483,20 +1516,20 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
 
   process_plan_optimize: z.object({
     plan: z.object({
-      operations: z.array(z.any()).min(1),
+      operations: z.array(planOperation).min(1),
     }).passthrough(),
   }).passthrough(),
 
   process_plan_estimate_time: z.object({
     plan: z.object({
-      operations: z.array(z.any()).min(1),
+      operations: z.array(planOperation).min(1),
     }).passthrough(),
     setup_time_min: z.number().min(0).default(20),
   }).passthrough(),
 
   process_plan_validate: z.object({
     plan: z.object({
-      operations: z.array(z.any()).min(1),
+      operations: z.array(planOperation).min(1),
     }).passthrough(),
   }).passthrough(),
 
@@ -2169,7 +2202,7 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     callout: z.string().optional(),
     tolerance_mm: z.number().positive().optional(),
     feature_type: z.string().optional(),
-    nominal: z.record(z.string(), z.any()).optional(),
+    nominal: optDynamicRecord,
   }).passthrough(),
   probe_gdt_interpret: z.object({
     callout: z.string().optional(),
@@ -2301,7 +2334,7 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   energy_compare: z.object({
     scenarios: z.array(z.object({
       name: z.string(),
-      input: z.any(),
+      input: z.record(z.string(), z.unknown()),
     })).optional(),
   }).passthrough(),
   kdtree_nearest: z.object({

@@ -17,8 +17,16 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { MACHINE_LIVE_ACTION_SCHEMAS } from "../../schemas/machineLiveActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
+
+/** Action string is validated by Zod enum but `.includes()` needs wider type */
+type ActionString = string;
 
 // Lazy engine cache
 let _machineConnectivity: any, _adaptiveControl: any, _predictiveMaintenance: any;
@@ -232,13 +240,23 @@ export function registerMachineLiveDispatcher(server: any): void {
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
 
+        // Zod schema validation
+        const validation = validateActionParams(action, params, MACHINE_LIVE_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_machine_live"
+          );
+        }
+
         // Pre-hooks
         const hookCtx = {
           operation: action,
           target: { type: "machine_live" as const, id: action, data: params },
           metadata: { dispatcher: "machineLiveDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
@@ -249,11 +267,11 @@ export function registerMachineLiveDispatcher(server: any): void {
 
         // Route to engine
         let result: any;
-        if (L3_INDUSTRY_ACTIONS.includes(action as any)) {
+        if (L3_INDUSTRY_ACTIONS.includes(action as ActionString as typeof L3_INDUSTRY_ACTIONS[number])) {
           result = l3IndustryAction(action, params);
-        } else if (MACHINE_ACTIONS.includes(action as any)) {
+        } else if (MACHINE_ACTIONS.includes(action as ActionString as typeof MACHINE_ACTIONS[number])) {
           result = await (await getMachineLiveEngine("machineConnectivity"))(action, params);
-        } else if (ADAPTIVE_ACTIONS.includes(action as any)) {
+        } else if (ADAPTIVE_ACTIONS.includes(action as ActionString as typeof ADAPTIVE_ACTIONS[number])) {
           result = await (await getMachineLiveEngine("adaptiveControl"))(action, params);
         } else {
           result = await (await getMachineLiveEngine("predictiveMaintenance"))(action, params);
@@ -263,7 +281,7 @@ export function registerMachineLiveDispatcher(server: any): void {
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // Response formatting
         if (params.response_level) {

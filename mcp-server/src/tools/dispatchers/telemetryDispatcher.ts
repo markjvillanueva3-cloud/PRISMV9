@@ -23,14 +23,15 @@ import { telemetryEngine } from "../../engines/TelemetryEngine.js";
 import { log } from "../../utils/Logger.js";
 import type { AnomalySeverity } from "../../types/telemetry-types.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_TELEMETRY_SCHEMAS } from "../../schemas/telemetryActionSchemas.js";
 
 /** Registers telemetry dispatcher.
  * @param server - MCP server instance
   * @returns void
  */
 export function registerTelemetryDispatcher(server: McpServer): void {
-  (server as any).tool(
+  server.tool(
     "prism_telemetry",
     "Dispatcher telemetry & self-optimization. Actions: get_dashboard, get_detail, get_anomalies, get_optimization, acknowledge, freeze_weights, unfreeze_weights",
     {
@@ -55,6 +56,14 @@ export function registerTelemetryDispatcher(server: McpServer): void {
       } catch { /* normalizer not available */ }
       const start = performance.now();
 
+      const validation = validateActionParams(action, params, ACTION_TELEMETRY_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_telemetry"
+        );
+      }
       try {
         let result: any;
 

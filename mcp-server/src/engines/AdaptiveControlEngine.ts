@@ -517,7 +517,7 @@ function updateConfig(params: Record<string, unknown>): Record<string, unknown> 
 
   for (const [key, val] of Object.entries(params)) {
     if (validKeys.includes(key) && val !== undefined) {
-      (defaultConfig as any)[key] = val;
+      (defaultConfig as unknown as Record<string, unknown>)[key] = val;
       updated.push(key);
     }
   }

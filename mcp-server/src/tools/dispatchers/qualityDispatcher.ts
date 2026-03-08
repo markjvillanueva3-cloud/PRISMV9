@@ -12,7 +12,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { QUALITY_ACTION_SCHEMAS } from "../../schemas/qualityActionSchemas.js";
 
 let _quality: any, _tolerance: any, _dimensional: any, _blueprint: any, _printReading: any;
 async function getEngine(name: string): Promise<any> {
@@ -54,6 +55,17 @@ Params vary by action — pass relevant fields in params object.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation
+        const validation = validateActionParams(action, params, QUALITY_ACTION_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_quality"
+          );
+        }
+
         switch (action) {
           case "spc_calculate": {
             const engine = await getEngine("quality");

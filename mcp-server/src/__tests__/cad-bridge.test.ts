@@ -23,7 +23,7 @@ try {
 } catch { /* CadQuery not available */ }
 
 // Use a fresh instance for tests (not the singleton)
-const bridge = hasCadQuery ? CadBridge.getInstance({ timeout: 15_000 }) : null as any;
+const bridge = hasCadQuery ? CadBridge.getInstance({ timeout: 15_000 }) : (null as unknown as ReturnType<typeof CadBridge.getInstance>);
 
 const EXPORTS_DIR = path.resolve("C:\\PRISM\\cad-engine\\exports\\integration");
 

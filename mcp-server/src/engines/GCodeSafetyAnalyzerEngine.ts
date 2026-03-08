@@ -61,6 +61,15 @@ export interface SafetyIssue {
   severity: Severity;
 }
 
+/** A playbook-sourced safety rule surfaced during analysis */
+export interface PlaybookSafetyRule {
+  rule_id: string;
+  title: string;
+  rule: string;
+  severity: string;
+  category: string;
+}
+
 /** Full analysis result */
 export interface SafetyAnalysisResult {
   safe: boolean;
@@ -69,6 +78,8 @@ export interface SafetyAnalysisResult {
   medium: SafetyIssue[];
   score: number;
   summary: string;
+  /** Additional safety/anti-pattern rules from MachiningPlaybookEngine */
+  playbook_safety_rules?: PlaybookSafetyRule[];
 }
 
 /** Auto-fix result */
@@ -1439,6 +1450,50 @@ export class GCodeSafetyAnalyzerEngine {
       }
     }
 
+    // ── Playbook safety layer ─────────────────────────────────────
+    // Lazily import MachiningPlaybookEngine and surface relevant
+    // safety / anti-pattern rules as an advisory overlay.
+    let playbookSafetyRules: PlaybookSafetyRule[] | undefined;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { machiningPlaybookEngine } = require('./MachiningPlaybookEngine.js') as
+        { machiningPlaybookEngine: { advise: (q: any) => { rules: any[]; critical_warnings: string[] } } };
+
+      const advice = machiningPlaybookEngine.advise({
+        categories: ['safety', 'anti_pattern'],
+      });
+
+      if (advice.rules.length > 0) {
+        // Surface the key safety-relevant playbook rules
+        const KEY_RULE_IDS = new Set([
+          'SAFE-001', // prove out at 25% feed
+          'SAFE-002', // never exceed tool max RPM
+          'SAFE-005', // CAM simulation collision check
+          'ANTI-002', // never plunge flat-bottom endmill
+          'ANTI-006', // never deep-drill without peck in steel >3×D
+        ]);
+
+        const matched = advice.rules.filter(
+          (r: any) =>
+            KEY_RULE_IDS.has(r.id) ||
+            r.severity === 'critical' ||
+            r.severity === 'important',
+        );
+
+        if (matched.length > 0) {
+          playbookSafetyRules = matched.map((r: any) => ({
+            rule_id: r.id as string,
+            title: r.title as string,
+            rule: r.rule as string,
+            severity: r.severity as string,
+            category: r.category as string,
+          }));
+        }
+      }
+    } catch {
+      // Non-fatal — playbook integration is advisory only
+    }
+
     return {
       safe: config.strictness === 'aerospace'
         ? strictSafe : safe,
@@ -1447,6 +1502,9 @@ export class GCodeSafetyAnalyzerEngine {
       medium,
       score,
       summary,
+      ...(playbookSafetyRules && playbookSafetyRules.length > 0 && {
+        playbook_safety_rules: playbookSafetyRules,
+      }),
     };
   }
 

@@ -121,13 +121,13 @@ describe("KnowledgeGraphEngine", () => {
     expect(result).toBeDefined();
     expect(result).toHaveProperty("total_nodes");
     expect(result).toHaveProperty("total_edges");
-    expect((result as any).total_nodes).toBeGreaterThan(0);
+    expect((result as Record<string, unknown>).total_nodes).toBeGreaterThan(0);
   });
 
   it("graph_query returns connections for a known entity", () => {
     // First search to find a valid node name
     const search = knowledgeGraph("graph_search", { query: "steel" });
-    const nodes = (search as any).results ?? (search as any).nodes ?? [];
+    const nodes = (search as Record<string, unknown>).results ?? (search as Record<string, unknown>).nodes ?? [];
     if (nodes.length > 0) {
       const nodeName = nodes[0].name ?? nodes[0].id;
       const result = knowledgeGraph("graph_query", { entity: nodeName });

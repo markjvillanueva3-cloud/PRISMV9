@@ -17,7 +17,8 @@ import {
 } from "../../generators/index.js";
 import * as path from "path";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_GENERATOR_SCHEMAS } from "../../schemas/generatorActionSchemas.js";
 
 const ACTIONS = ["stats", "list_domains", "generate", "generate_batch", "validate", "get_template"] as const;
 
@@ -42,6 +43,11 @@ export function registerGeneratorDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_GENERATOR_SCHEMAS);
+      if (!validation.valid) {
+        return ok({ error: `Invalid params for ${action}`, details: validation.errors });
+      }
       try {
         switch (action) {
           case "stats": {

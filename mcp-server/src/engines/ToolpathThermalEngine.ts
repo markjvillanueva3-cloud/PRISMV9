@@ -794,7 +794,7 @@ export class ToolpathThermalEngine {
       peakTempRise, maxDistortion_um, config.coolant_type, mat, heatEvents, dims
     );
 
-    return {
+    const result: HeatAccumulationResult = {
       peak_temperature_rise: Math.round(peakTempRise * 100) / 100,
       peak_location: peakLocation,
       thermal_map: thermalMap,
@@ -802,6 +802,24 @@ export class ToolpathThermalEngine {
       max_distortion_um: Math.round(maxDistortion_um * 100) / 100,
       cooling_recommendations: recommendations,
     };
+
+    // Playbook: enrich with thermal management advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["thermal", "toolpath_strategy", "material_tip"],
+        material_iso: config.material,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.cooling_recommendations.push(
+            `[Playbook] ${rule.description || rule.text}`
+          );
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /**
@@ -908,11 +926,29 @@ export class ToolpathThermalEngine {
       );
     }
 
-    return {
+    const result: DistortionResult = {
       distortion_per_dimension: distortions,
       overall_risk: overallRisk,
       recommendations,
     };
+
+    // Playbook: enrich with thermal management advice
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["thermal", "toolpath_strategy", "material_tip"],
+        material_iso: config.material,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          result.recommendations.push(
+            `[Playbook] ${rule.description || rule.text}`
+          );
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return result;
   }
 
   /**

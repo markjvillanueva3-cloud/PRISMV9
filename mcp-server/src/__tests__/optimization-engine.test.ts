@@ -893,26 +893,26 @@ describe("optimization dispatcher", () => {
   });
 
   it("routes 'optimize_parameters' correctly", () => {
-    const result = optimization("optimize_parameters", makeOptimizeInput() as any) as OptimizeResult;
+    const result = optimization("optimize_parameters", makeOptimizeInput() as unknown as Record<string, unknown>) as OptimizeResult;
     expectOptimizeResultShape(result);
   });
 
   it("routes 'optimize_sequence' correctly", () => {
-    const result = optimization("optimize_sequence", makeSequenceInput() as any) as SequenceResult;
+    const result = optimization("optimize_sequence", makeSequenceInput() as unknown as Record<string, unknown>) as SequenceResult;
     expect(result.optimal_order).toBeDefined();
     expect(Array.isArray(result.optimal_order)).toBe(true);
   });
 
   it("routes 'sustainability_report' correctly", () => {
     const result = optimization(
-      "sustainability_report", makeSustainabilityInput() as any
+      "sustainability_report", makeSustainabilityInput() as unknown as Record<string, unknown>
     ) as SustainabilityResult;
     expect(result.energy).toBeDefined();
     expect(result.carbon).toBeDefined();
   });
 
   it("routes 'eco_optimize' correctly", () => {
-    const result = optimization("eco_optimize", makeEcoOptimizeInput() as any) as EcoOptimizeResult;
+    const result = optimization("eco_optimize", makeEcoOptimizeInput() as unknown as Record<string, unknown>) as EcoOptimizeResult;
     expect(typeof result.eco_weight_applied).toBe("number");
     expect(typeof result.sustainability_improvement_pct).toBe("number");
   });

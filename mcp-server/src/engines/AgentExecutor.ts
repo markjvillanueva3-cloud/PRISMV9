@@ -397,12 +397,12 @@ export class AgentExecutor {
     const client = getAnthropicClient();
     
     // Determine model based on agent tier
-    const tier = (agent as any).tier?.toLowerCase() || 'sonnet';
+    const tier = ((agent as unknown as Record<string, unknown>).tier as string)?.toLowerCase() || 'sonnet';
     const model = getModelForTier(tier as 'opus' | 'sonnet' | 'haiku');
 
     // Build system prompt from agent definition
     const systemPrompt = this.buildAgentSystemPrompt(agent);
-    
+
     // Build user message from task input
     const userMessage = this.buildTaskMessage(task);
 
@@ -412,8 +412,8 @@ export class AgentExecutor {
     try {
       const response = await client.messages.create({
         model,
-        max_tokens: (agent.config as any)?.max_tokens || 4096,
-        temperature: (agent.config as any)?.temperature || 0.3,
+        max_tokens: agent.config?.max_tokens || 4096,
+        temperature: agent.config?.temperature || 0.3,
         system: systemPrompt,
         messages: [{ role: 'user', content: userMessage }]
       });
@@ -421,7 +421,7 @@ export class AgentExecutor {
       const duration = Date.now() - startTime;
       const textContent = response.content
         .filter(block => block.type === 'text')
-        .map(block => (block as any).text)
+        .map(block => (block as { type: 'text'; text: string }).text)
         .join('\n');
 
       log.info(`[AgentExecutor] Claude API response received in ${duration}ms`);
@@ -449,7 +449,7 @@ export class AgentExecutor {
    * Build system prompt from agent definition
    */
   private buildAgentSystemPrompt(agent: AgentDefinition): string {
-    const behaviorSpec = (agent as any).behavior_spec || {};
+    const behaviorSpec = (agent.behavior_spec || {}) as { role?: string; goals?: string[]; constraints?: string[]; output_format?: string };
     let prompt = `You are ${agent.name}, a PRISM Manufacturing Intelligence agent.\n\n`;
     
     prompt += `Role: ${behaviorSpec.role || agent.description || agent.name}\n\n`;

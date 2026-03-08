@@ -83,9 +83,9 @@ const spc_cusum = z.object({
 // ============================================================================
 
 const doe_analyze = z.object({
-  factors: z.array(z.any()).min(1).optional(),
+  factors: z.array(z.object({ name: z.string().optional(), levels: z.array(z.union([z.string(), z.number()])).optional() }).passthrough()).min(1).optional(),
   factor_names: z.array(z.string()).min(1).optional(),
-  runs: z.array(z.any()).optional(),
+  runs: z.array(z.object({ levels: z.array(z.number()), response: z.number(), replicate: z.number().optional() }).passthrough()).optional(),
   fractional: z.boolean().optional(),
   alpha: z.number().min(0.001).max(0.5).optional(),
   include_interactions: z.boolean().optional(),

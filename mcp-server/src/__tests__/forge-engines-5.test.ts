@@ -13,9 +13,9 @@ function expectAtomicValue(v: unknown) {
   expect(v).toHaveProperty("unit");
   expect(v).toHaveProperty("uncertainty");
   expect(v).toHaveProperty("source");
-  expect(typeof (v as any).value).toBe("number");
-  expect(typeof (v as any).unit).toBe("string");
-  expect(typeof (v as any).uncertainty).toBe("number");
+  expect(typeof (v as Record<string, unknown>).value).toBe("number");
+  expect(typeof (v as Record<string, unknown>).unit).toBe("string");
+  expect(typeof (v as Record<string, unknown>).uncertainty).toBe("number");
 }
 
 describe("ToolGeometrySelectionEngine", () => {

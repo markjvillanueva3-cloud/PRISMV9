@@ -10,11 +10,12 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_GUARD_SCHEMAS } from "../../schemas/guardActionSchemas.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execFileSync } from "child_process";
-import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
+import { hookExecutor, type HookContext, type HookPhase } from "../../engines/HookExecutor.js";
 import { getHookHistory, getDispatchCount } from "../autoHookWrapper.js";
 import { PATHS } from "../../constants.js";
 import type { HookExecution } from "../../types/prism-schema.js";
@@ -344,13 +345,13 @@ async function fireHook(hookId: string, data: Record<string, any>): Promise<any>
   try {
     const hookContext: Partial<HookContext> = {
       operation: data.tool_name || 'unknown',
-      phase: 'before' as any,
+      phase: 'pre-calculation' as HookPhase,
       timestamp: new Date(),
       target: { type: 'calculation', data: data },
       metadata: { hookId, ...data },
     };
     
-    const executorResult = await hookExecutor.execute('before' as any, hookContext).catch(() => null);
+    const executorResult = await hookExecutor.execute('pre-calculation' as HookPhase, hookContext).catch(() => null);
     
     const result = {
       hook_id: hookId,
@@ -398,6 +399,14 @@ export function registerGuardDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+      const validation = validateActionParams(action, params, ACTION_GUARD_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_guard"
+        );
+      }
       try {
         switch (action) {
           case "decision_log": {

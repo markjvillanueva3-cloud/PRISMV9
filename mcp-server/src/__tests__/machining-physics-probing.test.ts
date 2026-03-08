@@ -186,31 +186,42 @@ describe("GCodeOptimizationEngine", () => {
 
 // ── Probe Routine ───────────────────────────────────────────────
 describe("ProbeRoutineEngine", () => {
-  it("generates probe routine from GD&T spec", () => {
-    const r = probeRoutineEngine.generate({
-      id: "H1", callout: "position", tolerance_mm: 0.05,
-      datum_refs: ["A", "B", "C"], feature_type: "hole",
-      nominal: { diameter_mm: 10, x_mm: 50, y_mm: 30 },
+  it("generates part inspection routine", () => {
+    const r = probeRoutineEngine.generatePartInspection({
+      controller: "fanuc",
+      features: [
+        { type: "bore", nominal: 10, tolerance_plus: 0.05, tolerance_minus: -0.05, position: { x: 50, y: 30, z: -10 }, diameter: 10 },
+      ],
+      action_on_fail: "alarm",
     });
-    expect(r.moves.length).toBeGreaterThan(0);
-    expect(r.points_measured).toBeGreaterThan(0);
+    expect(r.gcode.length).toBeGreaterThan(0);
+    expect(r.features_measured).toBeGreaterThan(0);
     expect(r.estimated_time_sec).toBeGreaterThan(0);
   });
 
-  it("interprets GD&T callout", () => {
-    const r = probeRoutineEngine.interpretGDT("flatness", 0.02);
-    expect(r.zone_type).toBeDefined();
-    expect(r.min_measurement_points).toBeGreaterThan(0);
-    expect(r.tolerance_zone_description).toBeDefined();
+  it("generates first article inspection", () => {
+    const r = probeRoutineEngine.generateFirstArticle({
+      controller: "fanuc",
+      features: [
+        { type: "bore", nominal: 10, tolerance_plus: 0.02, tolerance_minus: -0.02, position: { x: 50, y: 30, z: -10 }, diameter: 10 },
+      ],
+      datum_features: [
+        { type: "surface", nominal: 0, tolerance_plus: 0.01, tolerance_minus: -0.01, position: { x: 0, y: 0, z: 0 } },
+      ],
+      report_format: "AS9102",
+    });
+    expect(r.gcode.length).toBeGreaterThan(0);
+    expect(r.features_measured).toBeGreaterThan(0);
   });
 
-  it("generates probe report", () => {
-    const r = probeRoutineEngine.report(
-      { id: "S1", callout: "flatness", tolerance_mm: 0.02, feature_type: "surface", nominal: { z_mm: 0 } },
-      { z_mm: 0.008 }
-    );
-    expect(r.within_spec).toBeDefined();
-    expect(r.deviation_mm).toBeGreaterThanOrEqual(0);
+  it("returns warnings for empty features", () => {
+    const r = probeRoutineEngine.generatePartInspection({
+      controller: "fanuc",
+      features: [],
+      action_on_fail: "alarm",
+    });
+    expect(r.warnings.length).toBeGreaterThan(0);
+    expect(r.features_measured).toBe(0);
   });
 });
 

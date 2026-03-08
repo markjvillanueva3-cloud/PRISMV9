@@ -161,6 +161,20 @@ export class ElectrodeDesignEngine {
       recs.push("Electrode design within standard parameters — proceed");
     }
 
+    // Consult MachiningPlaybookEngine for EDM rules
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["edm"],
+        operation_type: "edm",
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       num_electrodes_needed: totalElectrodes,
       overcut_per_side_mm: finalGap,

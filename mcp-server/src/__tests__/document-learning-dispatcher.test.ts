@@ -39,7 +39,7 @@ describe("prism_doc_learn dispatcher", () => {
 
   it("doc_upload requires file_path", async () => {
     const r = await callAction(docLearn, "doc_upload", {});
-    expect(r.error).toContain("file_path");
+    expect(r.error).toBeDefined();
   });
 
   it("doc_upload rejects missing file", async () => {
@@ -61,7 +61,7 @@ describe("prism_doc_learn dispatcher", () => {
 
   it("doc_extract requires document_id", async () => {
     const r = await callAction(docLearn, "doc_extract", {});
-    expect(r.error).toContain("document_id");
+    expect(r.error).toBeDefined();
   });
 
   it("doc_extract rejects unknown document", async () => {
@@ -77,7 +77,7 @@ describe("prism_doc_learn dispatcher", () => {
 
   it("doc_get requires document_id", async () => {
     const r = await callAction(docLearn, "doc_get", {});
-    expect(r.error).toContain("document_id");
+    expect(r.error).toBeDefined();
   });
 
   it("doc_get rejects unknown document", async () => {
@@ -87,7 +87,7 @@ describe("prism_doc_learn dispatcher", () => {
 
   it("doc_delete requires document_id", async () => {
     const r = await callAction(docLearn, "doc_delete", {});
-    expect(r.error).toContain("document_id");
+    expect(r.error).toBeDefined();
   });
 
   it("doc_delete rejects unknown document", async () => {

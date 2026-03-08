@@ -93,11 +93,13 @@ async function callClaude(
     throw new Error(`Claude API ${response.status}: ${errText.slice(0, 200)}`);
   }
 
-  const data = await response.json() as any;
-  const text = data.content?.map((c: any) => c.text || "").join("") || "";
+  const data = await response.json() as Record<string, unknown>;
+  const content = data.content as Array<Record<string, unknown>> | undefined;
+  const usage = data.usage as Record<string, number> | undefined;
+  const text = content?.map((c) => (c.text as string) || "").join("") || "";
   return {
     text,
-    tokens: { input: data.usage?.input_tokens || 0, output: data.usage?.output_tokens || 0 },
+    tokens: { input: usage?.input_tokens || 0, output: usage?.output_tokens || 0 },
     duration_ms: Date.now() - startTime,
     model: useModel
   };

@@ -161,8 +161,8 @@ describe("CuttingForceEngine (Kienzle)", () => {
     });
 
     it("verified data has tighter uncertainty than estimated", () => {
-      const verified = { ...steelKienzle, data_quality: "verified" } as any;
-      const estimated = { ...steelKienzle, data_quality: "estimated" } as any;
+      const verified = { ...steelKienzle, data_quality: "verified" } as unknown as KienzleCoefficients;
+      const estimated = { ...steelKienzle, data_quality: "estimated" } as unknown as KienzleCoefficients;
       const vResult = calculateKienzleCuttingForce(steelConditions, verified);
       const eResult = calculateKienzleCuttingForce(steelConditions, estimated);
       const vSpread = vResult.uncertainty!.Fc_range[1] - vResult.uncertainty!.Fc_range[0];

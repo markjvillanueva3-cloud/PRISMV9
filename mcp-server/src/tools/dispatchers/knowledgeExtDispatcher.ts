@@ -17,8 +17,16 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_KNOWLEDGE_EXT_SCHEMAS } from "../../schemas/knowledgeExtActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
+
+/** Hook context shape varies by dispatcher — named alias avoids bare `as any` */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type HookContext = any;
+
+/** Action string is validated by Zod enum but `.includes()` needs wider type */
+type ActionString = string;
 
 // Lazy engine cache
 let _apprenticeEngine: any, _manufacturingGenome: any,
@@ -200,7 +208,7 @@ export function registerKnowledgeExtDispatcher(server: any): void {
           target: { type: "knowledge" as const, id: action, data: params },
           metadata: { dispatcher: "knowledgeExtDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as HookContext);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
@@ -209,12 +217,22 @@ export function registerKnowledgeExtDispatcher(server: any): void {
           };
         }
 
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_KNOWLEDGE_EXT_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_knowledge_ext"
+          );
+        }
+
         // Route to engine
-        const result = APPRENTICE_ACTIONS.includes(action as any)
+        const result = APPRENTICE_ACTIONS.includes(action as ActionString as typeof APPRENTICE_ACTIONS[number])
           ? await (await getKnowledgeEngine("apprenticeEngine"))(action, params)
-          : GENOME_ACTIONS.includes(action as any)
+          : GENOME_ACTIONS.includes(action as ActionString as typeof GENOME_ACTIONS[number])
           ? await (await getKnowledgeEngine("manufacturingGenome"))(action, params)
-          : GRAPH_ACTIONS.includes(action as any)
+          : GRAPH_ACTIONS.includes(action as ActionString as typeof GRAPH_ACTIONS[number])
           ? await (await getKnowledgeEngine("knowledgeGraph"))(action, params)
           : await (await getKnowledgeEngine("federatedLearning"))(action, params);
 
@@ -222,7 +240,7 @@ export function registerKnowledgeExtDispatcher(server: any): void {
         await hookExecutor.execute("post-calculation", {
           ...hookCtx,
           target: { ...hookCtx.target, data: { ...params, result } },
-        } as any);
+        } as HookContext);
 
         // Response formatting
         if (params.response_level) {

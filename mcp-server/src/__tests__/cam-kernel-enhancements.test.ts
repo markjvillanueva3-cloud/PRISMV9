@@ -17,10 +17,13 @@ import {
 import {
   CollisionEngine,
   Vector3,
+  Quaternion,
   type ToolAssembly,
   type MachineEnvelope,
   type Fixture,
   type Workpiece,
+  type Toolpath,
+  type AABB,
 } from "../engines/CollisionEngine";
 
 // ── Shared helpers ──────────────────────────────────────────────────
@@ -471,15 +474,15 @@ describe("Enhancement 7: Rapid Move vs Stock Validation", () => {
     const workpiece: Workpiece = {
       workpieceId: "W1",
       stockGeometry: {
-        type: "aabb",
+        type: "AABB",
         min: new Vector3(-50, -50, -30),
         max: new Vector3(50, 50, 0),
-      } as any,
+      } as AABB,
       workOffset: new Vector3(0, 0, 0),
-      orientation: { w: 1, x: 0, y: 0, z: 0 } as any,
+      orientation: new Quaternion(0, 0, 0, 1),
     };
     const result = collisionEngine.validateRapidMoves(
-      tp as any, machine, [], workpiece
+      tp as unknown as Toolpath, machine, [], workpiece
     );
     expect(result.safe).toBe(false);
     expect(result.issues.some(i => i.startsWith("CRITICAL"))).toBe(true);
@@ -492,15 +495,15 @@ describe("Enhancement 7: Rapid Move vs Stock Validation", () => {
     const workpiece: Workpiece = {
       workpieceId: "W1",
       stockGeometry: {
-        type: "aabb",
+        type: "AABB",
         min: new Vector3(-50, -50, -30),
         max: new Vector3(50, 50, 0),
-      } as any,
+      } as AABB,
       workOffset: new Vector3(0, 0, 0),
-      orientation: { w: 1, x: 0, y: 0, z: 0 } as any,
+      orientation: new Quaternion(0, 0, 0, 1),
     };
     const result = collisionEngine.validateRapidMoves(
-      tp as any, machine, [], workpiece
+      tp as unknown as Toolpath, machine, [], workpiece
     );
     const criticals = result.issues.filter(i => i.startsWith("CRITICAL"));
     expect(criticals.length).toBe(0);
@@ -514,15 +517,16 @@ describe("Enhancement 7: Rapid Move vs Stock Validation", () => {
       fixtureId: "FX1",
       type: "vise",
       position: new Vector3(0, 0, 0),
-      orientation: { w: 1, x: 0, y: 0, z: 0 } as any,
+      orientation: new Quaternion(0, 0, 0, 1),
       geometry: [],
       clearanceZone: {
+        type: "AABB",
         min: new Vector3(-60, -60, -10),
         max: new Vector3(60, 60, 10),
-      } as any,
+      } as AABB,
     };
     const result = collisionEngine.validateRapidMoves(
-      tp as any, machine, [fixture], undefined, 5
+      tp as unknown as Toolpath, machine, [fixture], undefined, 5
     );
     // rapid Z=12, fixture top Z=10, margin=5 → 12 < 15 → flagged
     expect(result.issues.some(i => i.includes("fixture FX1"))).toBe(true);

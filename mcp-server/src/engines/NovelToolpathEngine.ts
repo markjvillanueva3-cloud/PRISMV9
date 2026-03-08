@@ -1227,16 +1227,35 @@ export const NOVEL_ALGORITHM_INFO: Record<NovelAlgorithm, { name: string; descri
  * Dispatches to the appropriate algorithm based on input.
  */
 export function computeNovelToolpath(request: NovelToolpathRequest): NovelToolpathResult {
+  let result: NovelToolpathResult;
   switch (request.algorithm) {
-    case 'TGAR': return computeTGAR(request.params as TGARInput);
-    case 'HRAF': return computeHRAF(request.params as HRAFInput);
-    case 'MTHZD': return computeMTHZD(request.params as MTHZDInput);
-    case 'CFSF': return computeCFSF(request.params as CFSFInput);
-    case 'PTDC': return computePTDC(request.params as PTDCInput);
-    case 'VCER': return computeVCER(request.params as VCERInput);
+    case 'TGAR': result = computeTGAR(request.params as TGARInput); break;
+    case 'HRAF': result = computeHRAF(request.params as HRAFInput); break;
+    case 'MTHZD': result = computeMTHZD(request.params as MTHZDInput); break;
+    case 'CFSF': result = computeCFSF(request.params as CFSFInput); break;
+    case 'PTDC': result = computePTDC(request.params as PTDCInput); break;
+    case 'VCER': result = computeVCER(request.params as VCERInput); break;
     default:
       throw new Error(`Unknown novel algorithm: ${request.algorithm}`);
   }
+
+  // Playbook: surface relevant anti-patterns and strategy advice
+  try {
+    const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+    const params = request.params as unknown as Record<string, unknown>;
+    const materialIso = (params.material_iso as string)
+      || (params.material as string)?.charAt(0)?.toUpperCase();
+    const pbResult = machiningPlaybookEngine.advise({
+      material_iso: materialIso,
+      categories: ["toolpath_strategy", "anti_pattern", "thin_wall", "roughing", "finishing"],
+      severity_min: "important",
+    });
+    for (const rule of pbResult.rules) {
+      result.recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+    }
+  } catch { /* playbook not available */ }
+
+  return result;
 }
 
 /**

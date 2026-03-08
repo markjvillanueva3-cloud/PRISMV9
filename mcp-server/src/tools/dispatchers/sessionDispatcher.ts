@@ -1,11 +1,12 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_SESSION_SCHEMAS } from "../../schemas/sessionActionSchemas.js";
 import * as fs from "fs";
 import * as path from "path";
 import { execSync } from "child_process";
-import { hookExecutor } from "../../engines/HookExecutor.js";
+import { hookExecutor, type HookPhase } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
 import { PATHS } from "../../constants.js";
@@ -18,7 +19,7 @@ import * as TaskClaimService from "../../services/TaskClaimService.js";
 // Fire lifecycle hooks (non-blocking, errors logged but don't break session ops)
 async function fireLifecycleHook(phase: string, metadata: Record<string, any>): Promise<void> {
   try {
-    await hookExecutor.execute(phase as any, {
+    await hookExecutor.execute(phase as HookPhase, {
       operation: phase,
       target: { type: "calculation" as const, id: phase, data: metadata },
       session: metadata.session,
@@ -259,6 +260,17 @@ export function registerSessionDispatcher(server: any): void {
         const { normalizeParams } = await import("../../utils/paramNormalizer.js");
         params = normalizeParams(rawParams);
       } catch { /* normalizer not available */ }
+
+      // SYS-MS6: Validate params against per-action Zod schema
+      const validation = validateActionParams(action, params, ACTION_SESSION_SCHEMAS);
+      if (!validation.valid) {
+        return dispatcherError(
+          `Invalid params for '${action}': ${validation.errorMessage}`,
+          action,
+          "prism_session"
+        );
+      }
+
       try {
         switch (action) {
           case "state_load": {

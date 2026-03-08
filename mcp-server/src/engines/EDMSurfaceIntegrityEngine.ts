@@ -161,6 +161,23 @@ export class EDMSurfaceIntegrityEngine {
       recs.push("EDM surface integrity within specification — proceed with post-processing if required");
     }
 
+    // ── Playbook consultation ──
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["edm"],
+        operation_type: "edm",
+        edm_type: input.edm_type,
+        application: input.application,
+        is_fatigue_critical: input.is_fatigue_critical,
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       recast_layer_depth_um: Math.round(finalRecast * 10) / 10,
       heat_affected_zone_depth_um: Math.round(haz * 10) / 10,

@@ -9,7 +9,8 @@
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
-import { dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_L2_ENGINE_SCHEMAS } from "../../schemas/l2EngineActionSchemas.js";
 
 // Lazy-load engines to avoid circular deps and startup cost
 let _aiml: any, _cad: any, _cam: any, _fileIO: any, _sim: any, _viz: any, _report: any, _settings: any;
@@ -69,6 +70,17 @@ Params vary by action — pass relevant fields in params object.`,
           const { normalizeParams } = await import("../../utils/paramNormalizer.js");
           params = normalizeParams(rawParams);
         } catch { /* normalizer not available */ }
+
+        // Zod schema validation
+        const validation = validateActionParams(action, params, ACTION_L2_ENGINE_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_l2",
+          );
+        }
+
         switch (action) {
 
           // ================================================================

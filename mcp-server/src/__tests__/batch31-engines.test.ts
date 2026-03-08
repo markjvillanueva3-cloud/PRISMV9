@@ -122,7 +122,7 @@ describe("PredictiveFailureEngine", () => {
     engine.recordAction({
       dispatcher: "calcDispatcher",
       action: "calc_speed",
-      outcome: "success" as any,
+      outcome: "success",
       latencyMs: 5,
       paramSignature: "rpm=5000",
       contextDepthPercent: 50,
@@ -208,7 +208,7 @@ describe("ShopSchedulerEngine", () => {
       machines: ["LATHE-1"],
     });
     expect(result).toBeDefined();
-    expect((result as any).error).toBeUndefined();
+    expect((result as Record<string, unknown>).error).toBeUndefined();
   });
 
   it("handles empty jobs gracefully", () => {
@@ -379,7 +379,7 @@ describe("ManufacturingGenomeEngine", () => {
   it("genome_lookup finds a material genome", () => {
     // First get list to find a valid material
     const list = manufacturingGenome("genome_list", {});
-    const firstGenome = (list.genomes as any[])[0];
+    const firstGenome = (list.genomes as Array<Record<string, unknown>>)[0];
     const result = manufacturingGenome("genome_lookup", {
       material: firstGenome.material,
     });
@@ -434,7 +434,7 @@ describe("WorkholdingIntelligenceEngine", () => {
       operation: "drilling",
       max_cutting_force_n: 1500,
       tolerance_mm: 0.1,
-    }) as any;
+    }) as Record<string, unknown>;
     expect(result).toBeDefined();
     expect(result.error).toBeUndefined();
     expect(result.primary_recommendation).toBeDefined();

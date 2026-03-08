@@ -168,7 +168,29 @@ export class ToolSelectionEngine {
 
     const candidates = this.generateCandidates(req, isoGroup, opMap);
     candidates.sort((a, b) => b.score - a.score);
-    return candidates.slice(0, 5);
+    const top = candidates.slice(0, 5);
+
+    // Playbook: enrich recommendations with material/tool selection wisdom
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const features = [req.operation_type];
+      const pbResult = machiningPlaybookEngine.advise({
+        material_iso: isoGroup,
+        features,
+        tolerance_mm: req.tolerance_mm,
+        surface_finish_Ra: req.surface_finish_Ra,
+        categories: ["tool_selection", "material_tip"],
+      });
+      for (const rec of top) {
+        for (const rule of pbResult.rules) {
+          if (rule.severity === "critical" || rule.severity === "important") {
+            rec.warnings.push(`[${rule.id}] ${rule.title}: ${rule.rule.substring(0, 200)}`);
+          }
+        }
+      }
+    } catch { /* playbook not available */ }
+
+    return top;
   }
 
   /** Compare.

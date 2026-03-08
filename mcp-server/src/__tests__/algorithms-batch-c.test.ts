@@ -22,7 +22,7 @@ describe("PIDController", () => {
   });
 
   it("rejects missing setpoint", () => {
-    const result = pid.validate({ setpoint: undefined as any, process_values: [1] });
+    const result = pid.validate({ setpoint: undefined as unknown as number, process_values: [1] });
     expect(result.valid).toBe(false);
   });
 

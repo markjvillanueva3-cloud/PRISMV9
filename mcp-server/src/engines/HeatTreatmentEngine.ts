@@ -201,6 +201,19 @@ export class HeatTreatmentEngine {
 
     const src = "HeatTreatmentEngine (ASM/Krauss/ISO 683)";
 
+    // Consult MachiningPlaybookEngine for surface treatment / material tips
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["surface_treatment", "material_tip"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          warnings.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       austenitize_temp: mkAv(r0(austTemp), "°C", 15, `${carbon}%C, ${alloy}`),
       soak_time_min: mkAv(soakTime, "min", 5, `~1 min/mm × ${section}mm`),
