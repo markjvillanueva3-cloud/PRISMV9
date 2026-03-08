@@ -2825,3 +2825,9 @@ export { CriticalSpeedEngine, criticalSpeedEngine } from "./CriticalSpeedEngine.
 export type { CriticalSpeedInput, CriticalSpeedResult } from "./CriticalSpeedEngine.js";
 export { WormGearEngine, wormGearEngine } from "./WormGearEngine.js";
 export type { WormGearInput, WormGearResult } from "./WormGearEngine.js";
+export { PipeStressEngine, pipeStressEngine } from "./PipeStressEngine.js";
+export type { PipeStressInput, PipeStressResult } from "./PipeStressEngine.js";
+export { ThermalFatigueEngine, thermalFatigueEngine } from "./ThermalFatigueEngine.js";
+export type { ThermalFatigueInput, ThermalFatigueResult } from "./ThermalFatigueEngine.js";
+export { ScrewJackEngine, screwJackEngine } from "./ScrewJackEngine.js";
+export type { ScrewJackInput, ScrewJackResult } from "./ScrewJackEngine.js";
