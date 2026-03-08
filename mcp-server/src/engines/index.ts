@@ -2709,7 +2709,7 @@ export { cutterContactEngine, type CCPoint, type CCResult, type CCInput } from "
 export { algorithmSelectorEngine, type NovelAlgorithmId, type AlgorithmSelectionInput, type AlgorithmSelectionResult, type AlgorithmRecommendation } from "./AlgorithmSelectorEngine.js";
 
 // Feature To Zone Engine — geometric feature → machining zone mapper [CAMK-MS0/U01]
-export { featureToZoneEngine, type FeatureInput, type MachiningZone, type FeatureToZoneResult } from "./FeatureToZoneEngine.js";
+export { featureToZoneEngine, type FeatureInput as ZoneFeatureInput, type MachiningZone, type FeatureToZoneResult } from "./FeatureToZoneEngine.js";
 
 // Fatigue Life Engine � S-N curve, Goodman/Gerber, Miner damage
 export { fatigueLifeEngine, FatigueLifeEngine } from "./FatigueLifeEngine.js";
@@ -3014,7 +3014,7 @@ export { ThermocoupleEngine, thermocoupleEngine } from './ThermocoupleEngine.js'
 export { RTDEngine, rtdEngine } from './RTDEngine.js';
 export type { RTDInput, RTDResult, RTDElement, WireConfig } from './RTDEngine.js';
 export { CoatingThicknessEngine, coatingThicknessEngine } from './CoatingThicknessEngine.js';
-export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType, SubstrateType } from './CoatingThicknessEngine.js';
+export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType as CoatingThicknessCoatingType, SubstrateType } from './CoatingThicknessEngine.js';
 export { TribologyEngine, tribologyEngine } from './TribologyEngine.js';
 export type { TribologyInput, TribologyResult, LubricationRegime, WearMechanism } from './TribologyEngine.js';
 export { RollingBearingEngine, rollingBearingEngine } from './RollingBearingEngine.js';
@@ -3055,15 +3055,15 @@ export { programStructureEngine } from "./ProgramStructureEngine.js";
 export { gCodeVerificationEngine } from "./GCodeVerificationEngine.js";
 export { endToEndPipelineEngine } from "./EndToEndPipelineEngine.js";
 export { EDMWireEngine, edmWireEngine } from './EDMWireEngine.js';
-export type { EDMWireInput, EDMWireResult, WireType, CuttingMode } from './EDMWireEngine.js';
+export type { EDMWireInput, EDMWireResult, WireType as EDMWireType, CuttingMode } from './EDMWireEngine.js';
 export { AnodizingProcessEngine, anodizingProcessEngine } from './AnodizingProcessEngine.js';
-export type { AnodizingProcessInput, AnodizingProcessResult, AnodizeType } from './AnodizingProcessEngine.js';
+export type { AnodizingProcessInput, AnodizingProcessResult, AnodizeType as AnodizingProcessAnodizeType } from './AnodizingProcessEngine.js';
 export { AccumulatorEngine, accumulatorEngine } from './AccumulatorEngine.js';
 export type { AccumulatorInput, AccumulatorResult, AccumulatorType, GasProcess } from './AccumulatorEngine.js';
 
 // Machining Playbook — experiential knowledge (sequencing, anti-patterns, best practices)
 export { machiningPlaybookEngine, MachiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
-export type { PlaybookRule, PlaybookQuery, SequencingAdvice, SetupAdvice, RuleCategory, Severity } from "./MachiningPlaybookEngine.js";
+export type { PlaybookRule, PlaybookQuery, SequencingAdvice, SetupAdvice, RuleCategory, Severity as PlaybookSeverity } from "./MachiningPlaybookEngine.js";
 export { TransportationProblemEngine, transportationProblemEngine } from './TransportationProblemEngine.js';
 export type { TransportationProblemInput, TransportationProblemResult } from './TransportationProblemEngine.js';
 export { AssignmentProblemEngine, assignmentProblemEngine } from './AssignmentProblemEngine.js';
