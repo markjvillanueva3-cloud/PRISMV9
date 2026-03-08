@@ -2863,3 +2863,6 @@ export { connectingRodEngine, ConnectingRodEngine } from "./ConnectingRodEngine.
 export { tubeFormingEngine, TubeFormingEngine } from "./TubeFormingEngine.js";
 export { flyingShearEngine, FlyingShearEngine } from "./FlyingShearEngine.js";
 export { thermalExpansionJointEngine, ThermalExpansionJointEngine } from "./ThermalExpansionJointEngine.js";
+export { coolingTowerEngine, CoolingTowerEngine } from "./CoolingTowerEngine.js";
+export { steamTurbineEngine, SteamTurbineEngine } from "./SteamTurbineEngine.js";
+export { valveDesignEngine, ValveDesignEngine } from "./ValveDesignEngine.js";
