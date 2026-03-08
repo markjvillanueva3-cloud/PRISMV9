@@ -68,7 +68,8 @@ export function registerToolpathDispatcher(server: any): void {
         "rest_machining",
         "operation_sequence",
         "transition_path",
-        "adaptive_refine"
+        "adaptive_refine",
+        "multi_setup_plan"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -331,6 +332,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "adaptive_refine": {
             const { adaptiveRefinementEngine } = await import("../../engines/AdaptiveRefinementEngine.js");
             result = adaptiveRefinementEngine.refine(params as ValidatedParams);
+            break;
+          }
+
+          case "multi_setup_plan": {
+            const { multiSetupPlannerEngine } = await import("../../engines/MultiSetupPlannerEngine.js");
+            result = multiSetupPlannerEngine.plan(params as ValidatedParams);
             break;
           }
 

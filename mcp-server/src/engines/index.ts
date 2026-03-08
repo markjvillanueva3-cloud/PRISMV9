@@ -2266,6 +2266,7 @@ export { restMachiningEngine, RestMachiningEngine } from "./RestMachiningEngine.
 export { operationSequencerEngine, OperationSequencerEngine } from "./OperationSequencerEngine.js";
 export { transitionPathEngine, TransitionPathEngine } from "./TransitionPathEngine.js";
 export { adaptiveRefinementEngine, AdaptiveRefinementEngine } from "./AdaptiveRefinementEngine.js";
+export { multiSetupPlannerEngine, MultiSetupPlannerEngine } from "./MultiSetupPlannerEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
