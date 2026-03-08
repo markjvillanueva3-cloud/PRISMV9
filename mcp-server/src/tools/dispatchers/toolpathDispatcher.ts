@@ -60,7 +60,8 @@ export function registerToolpathDispatcher(server: any): void {
         "program_assemble",
         "gcode_verify",
         "novel_generate_program",
-        "simulate"
+        "simulate",
+        "stock_simulate"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -275,6 +276,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "simulate": {
             const { novelToolpathSimulatorEngine } = await import("../../engines/NovelToolpathSimulatorEngine.js");
             result = novelToolpathSimulatorEngine.simulate(params as ValidatedParams);
+            break;
+          }
+
+          case "stock_simulate": {
+            const { voxelStockIntegrationEngine } = await import("../../engines/VoxelStockIntegrationEngine.js");
+            result = voxelStockIntegrationEngine.simulate(params as ValidatedParams);
             break;
           }
 

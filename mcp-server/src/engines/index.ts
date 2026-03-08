@@ -2256,6 +2256,7 @@ export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingE
 export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
 export { voronoiEngine } from "./VoronoiEngine.js";
 export { voxelStockEngine } from "./VoxelStockEngine.js";
+export { voxelStockIntegrationEngine } from "./VoxelStockIntegrationEngine.js";
 export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_ALGORITHM_INFO, type NovelToolpathResult, type NovelAlgorithm } from "./NovelToolpathEngine.js";
 export { novelToolpathSimulatorEngine } from "./NovelToolpathSimulatorEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
@@ -2696,7 +2697,7 @@ export { boltTorqueEngine, BoltTorqueEngine } from "./BoltTorqueEngine.js";
 export { toolAxisOptimizationEngine, type ToolAxisInput, type ToolAxisResult, type OptimizedAxis } from "./ToolAxisOptimizationEngine.js";
 
 // Stepover Optimization Engine — curvature-adaptive stepover [CAMK-MS0/U04]
-export { stepoverOptimizationEngine, type StepoverResult, type StepoverInput } from "./StepoverOptimizationEngine.js";
+export { stepoverOptimizationEngine, type StepoverInput } from "./StepoverOptimizationEngine.js";
 
 // Cutter Contact Engine — analytical CC point computation [CAMK-MS0/U03]
 export { cutterContactEngine, type CCPoint, type CCResult, type CCInput } from "./CutterContactEngine.js";
@@ -3014,7 +3015,7 @@ export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType, Substr
 export { TribologyEngine, tribologyEngine } from './TribologyEngine.js';
 export type { TribologyInput, TribologyResult, LubricationRegime, WearMechanism } from './TribologyEngine.js';
 export { RollingBearingEngine, rollingBearingEngine } from './RollingBearingEngine.js';
-export type { RollingBearingInput, RollingBearingResult, BearingType } from './RollingBearingEngine.js';
+export type { RollingBearingInput, RollingBearingResult } from './RollingBearingEngine.js';
 export { ScrewCompressorEngine, screwCompressorEngine } from './ScrewCompressorEngine.js';
 export type { ScrewCompressorInput, ScrewCompressorResult, CompressorCooling, CapacityControl } from './ScrewCompressorEngine.js';
 export { ReciprocatingCompressorEngine, reciprocatingCompressorEngine } from './ReciprocatingCompressorEngine.js';
@@ -3091,3 +3092,7 @@ export { crystallizationEngine, CrystallizationEngine } from "./CrystallizationE
 export { membraneFiltrationEngine, MembraneFiltrationEngine } from "./MembraneFiltrationEngine.js";
 export { absorptionChillerEngine, AbsorptionChillerEngine } from "./AbsorptionChillerEngine.js";
 export { furnaceHeatingEngine, FurnaceHeatingEngine } from "./FurnaceHeatingEngine.js";
+
+export { quenchingProcessEngine, QuenchingProcessEngine } from "./QuenchingProcessEngine.js";
+export { carburizingEngine, CarburizingEngine } from "./CarburizingEngine.js";
+export { nitridingProcessEngine, NitridingProcessEngine } from "./NitridingProcessEngine.js";
