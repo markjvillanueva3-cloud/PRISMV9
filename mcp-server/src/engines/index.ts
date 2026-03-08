@@ -3012,3 +3012,9 @@ export { ScrewCompressorEngine, screwCompressorEngine } from './ScrewCompressorE
 export type { ScrewCompressorInput, ScrewCompressorResult, CompressorCooling, CapacityControl } from './ScrewCompressorEngine.js';
 export { ReciprocatingCompressorEngine, reciprocatingCompressorEngine } from './ReciprocatingCompressorEngine.js';
 export type { ReciprocatingCompressorInput, ReciprocatingCompressorResult, CompressorAction, ValveType } from './ReciprocatingCompressorEngine.js';
+export { CapacitorBankEngine, capacitorBankEngine } from './CapacitorBankEngine.js';
+export type { CapacitorBankInput, CapacitorBankResult, CapacitorType, ConnectionType } from './CapacitorBankEngine.js';
+export { ImpellerEngine, impellerEngine } from './ImpellerEngine.js';
+export type { ImpellerInput, ImpellerResult, ImpellerType, FluidType } from './ImpellerEngine.js';
+export { HydraulicMotorEngine, hydraulicMotorEngine } from './HydraulicMotorEngine.js';
+export type { HydraulicMotorInput, HydraulicMotorResult, MotorType } from './HydraulicMotorEngine.js';
