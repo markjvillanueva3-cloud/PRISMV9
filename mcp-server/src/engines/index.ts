@@ -2854,7 +2854,7 @@ export type { CornerGeometry, EngagementInput, EngagementResult as AdaptiveEngag
 export { HybridPostMergeEngine, hybridPostMergeEngine } from "./HybridPostMergeEngine.js";
 export type { PostSegment, MergeInput, MergeResult } from "./HybridPostMergeEngine.js";
 export { ThermalCompensationModelEngine, thermalCompensationModelEngine } from "./ThermalCompensationModelEngine.js";
-export type { ThermalInput as ThermalCompInput, ThermalResult as ThermalCompResult } from "./ThermalCompensationModelEngine.js";
+export type { ThermalInput as ThermalCompModelInput, ThermalResult as ThermalCompModelResult } from "./ThermalCompensationModelEngine.js";
 export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCProcessCapabilityEngine.js";
 export type { SPCInput, SPCResult } from "./SPCProcessCapabilityEngine.js";
 export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";

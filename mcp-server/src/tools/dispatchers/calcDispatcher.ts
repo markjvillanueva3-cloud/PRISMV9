@@ -297,6 +297,26 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { group: result.iso_application_group, grade: result.iso_range?.unit, substrate: result.substrate_class, chipbreaker: result.chipbreaker, shape: result.insert_shape, nose_r: result.nose_radius_mm?.value };
     case "coolant_recommend":
       return { method: result.primary_method, fluid: result.fluid_type, conc_pct: result.concentration_pct?.value, pressure_bar: result.pressure_bar?.value, flow_lpm: result.flow_rate_l_min?.value, alt: result.alternative_method };
+    case "toolpath_segment_optimize":
+      return { bottleneck: result.bottleneck_segment, avg_force_N: result.avg_force_n, cycle_time_s: result.total_time_s };
+    case "tool_assembly_deflection":
+      return { tip_deflection_mm: result.tip_deflection_mm, natural_freq_hz: result.natural_frequency_hz, stiffness: result.total_stiffness_n_mm };
+    case "adaptive_engagement_calc":
+      return { peak_ae_mm: result.peak_engagement_mm, spike_ratio: result.engagement_spike_ratio, adjusted_feed: result.adjusted_feed_mmmin };
+    case "hybrid_post_merge":
+      return { total_lines: result.merged_gcode.length, conflicts: result.conflicts.length, tools_used: result.tool_map.size };
+    case "thermal_compensation_model":
+      return { peak_drift_um: result.peak_drift_um, peak_axis: result.peak_drift_axis, z_offset_um: result.compensation_offsets.z_um, warmup_min: result.warmup_time_min, risk: result.risk_level };
+    case "spc_capability_analyze":
+      return { cp: result.capability.cp, cpk: result.capability.cpk, sigma: result.capability.sigma_level, yield_pct: result.predicted_defects.yield_pct, assessment: result.process_assessment };
+    case "pareto_optimize":
+      return { frontier_size: result.frontier.length, total_evaluated: result.total_evaluated, best_compromise: result.best_compromise?.objectives };
+    case "chatter_stability_sld":
+      return { optimal_rpm: result.optimal_rpm, max_stable_ap_mm: result.max_stable_ap_mm, lobes: result.lobes.length, stable_pockets: result.stable_pockets.length };
+    case "surface_integrity_full":
+      return { ra_um: result.roughness.ra_um, rz_um: result.roughness.rz_um, stress_type: result.residual_stress.type, stress_mpa: result.residual_stress.surface_mpa, white_layer: result.subsurface.white_layer_risk, grade: result.quality_grade };
+    case "machining_energy_model":
+      return { total_kwh: result.total_kwh, sec_j_mm3: result.sec_j_mm3, co2_kg: result.co2_kg, efficiency_pct: result.efficiency_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -480,6 +500,10 @@ const ACTIONS = [
   // ── Queueing Theory ──
   "queue_mm1", "queue_mmc", "queue_littles_law", "queue_production_line",
   "constraint_satisfaction",
+  "toolpath_segment_optimize", "tool_assembly_deflection", "adaptive_engagement_calc",
+  "hybrid_post_merge", "thermal_compensation_model", "spc_capability_analyze",
+  "pareto_optimize", "chatter_stability_sld", "surface_integrity_full",
+  "machining_energy_model",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -3925,6 +3949,56 @@ export function registerCalcDispatcher(server: any): void {
                 max_feed_mmmin: params.machine_max_feed || 15000,
               }
             );
+            break;
+          }
+          case "toolpath_segment_optimize": {
+            const { toolpathSegmentOptimizerEngine } = await import("../../engines/ToolpathSegmentOptimizerEngine.js");
+            result = toolpathSegmentOptimizerEngine.compute({ segments: params.segments, tool: params.tool, material: params.material, machine: params.machine, constraints: params.constraints });
+            break;
+          }
+          case "tool_assembly_deflection": {
+            const { toolAssemblyDeflectionEngine } = await import("../../engines/ToolAssemblyDeflectionEngine.js");
+            result = toolAssemblyDeflectionEngine.compute({ sections: params.sections, cutting_force_n: params.cutting_force_n, taper: params.taper ?? params.spindle_taper ?? "CAT40" });
+            break;
+          }
+          case "adaptive_engagement_calc": {
+            const { adaptiveEngagementEngine } = await import("../../engines/AdaptiveEngagementEngine.js");
+            result = adaptiveEngagementEngine.compute({ corners: params.corners ?? (params.corner ? [params.corner] : []), tool: params.tool, cutting: params.cutting, material: params.material, machine: params.machine, strategy: params.strategy });
+            break;
+          }
+          case "hybrid_post_merge": {
+            const { hybridPostMergeEngine } = await import("../../engines/HybridPostMergeEngine.js");
+            result = hybridPostMergeEngine.compute({ segments: params.segments, machine: params.machine ?? { controller: params.controller ?? "fanuc", has_atc: true, max_tools: params.atc_capacity ?? 20, has_probing: false }, options: params.options });
+            break;
+          }
+          case "thermal_compensation_model": {
+            const { thermalCompensationModelEngine } = await import("../../engines/ThermalCompensationModelEngine.js");
+            result = thermalCompensationModelEngine.compute({ machine: params.machine, cutting: params.cutting, part: params.part });
+            break;
+          }
+          case "spc_capability_analyze": {
+            const { spcProcessCapabilityEngine } = await import("../../engines/SPCProcessCapabilityEngine.js");
+            result = spcProcessCapabilityEngine.compute({ measurements: params.measurements, nominal: params.nominal, upper_tolerance: params.upper_tolerance, lower_tolerance: params.lower_tolerance });
+            break;
+          }
+          case "pareto_optimize": {
+            const { multiObjectiveParetoEngine } = await import("../../engines/MultiObjectiveParetoEngine.js");
+            result = multiObjectiveParetoEngine.compute({ objectives: params.objectives, parameter_bounds: params.parameter_bounds, fixed: params.fixed, machine: params.machine, grid_resolution: params.grid_resolution });
+            break;
+          }
+          case "chatter_stability_sld": {
+            const { chatterStabilityLobeEngine } = await import("../../engines/ChatterStabilityLobeEngine.js");
+            result = chatterStabilityLobeEngine.compute({ tool: params.tool, workpiece: params.workpiece, machine: params.machine, cutting: params.cutting });
+            break;
+          }
+          case "surface_integrity_full": {
+            const { surfaceIntegrityPredictorEngine } = await import("../../engines/SurfaceIntegrityPredictorEngine.js");
+            result = surfaceIntegrityPredictorEngine.compute({ tool: params.tool, cutting: params.cutting, material: params.material, process: params.process, coolant: params.coolant });
+            break;
+          }
+          case "machining_energy_model": {
+            const { machiningEnergyModelEngine } = await import("../../engines/MachiningEnergyModelEngine.js");
+            result = machiningEnergyModelEngine.compute({ cutting: params.cutting, tool: params.tool, material: params.material, machine: params.machine, coolant_type: params.coolant_type });
             break;
           }
           default:
