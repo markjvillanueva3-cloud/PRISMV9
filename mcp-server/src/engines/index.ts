@@ -2745,59 +2745,60 @@ export { conveyorDesignEngine, ConveyorDesignEngine } from "./ConveyorDesignEngi
 // Piping Pressure Engine ï¿½ Darcy-Weisbach, Reynolds, minor losses
 export { pipingPressureEngine, PipingPressureEngine } from "./PipingPressureEngine.js";
 
-// EDM Parameter Engine — wire/sinker EDM pulse settings, MRR, wear
+// EDM Parameter Engine ï¿½ wire/sinker EDM pulse settings, MRR, wear
 export { edmParameterEngine, EDMParameterEngine } from "./EDMParameterEngine.js";
 
-// Plasma Arc Engine — plasma cutting current, speed, gas, cost
+// Plasma Arc Engine ï¿½ plasma cutting current, speed, gas, cost
 export { plasmaArcEngine, PlasmaArcEngine } from "./PlasmaArcEngine.js";
 
-// Electrochemical Engine — ECM/ECD Faraday MRR, current density
+// Electrochemical Engine ï¿½ ECM/ECD Faraday MRR, current density
 export { electrochemicalEngine, ElectrochemicalEngine } from "./ElectrochemicalEngine.js";
 
-// Batch 36 — Flywheel, Clutch/Brake, Coupling
+// Batch 36 ï¿½ Flywheel, Clutch/Brake, Coupling
 export { FlywheelEnergyEngine, flywheelEnergyEngine } from './FlywheelEnergyEngine.js';
 export { ClutchBrakeEngine, clutchBrakeEngine } from './ClutchBrakeEngine.js';
 export { CouplingSelectionEngine, couplingSelectionEngine } from './CouplingSelectionEngine.js';
 
-// Batch 37 — Corrosion, Creep, Fracture
+// Batch 37 ï¿½ Corrosion, Creep, Fracture
 export { CorrosionRateEngine, corrosionRateEngine } from './CorrosionRateEngine.js';
 export { CreepLifeEngine, creepLifeEngine } from './CreepLifeEngine.js';
 export { FractureToughnessEngine, fractureToughnessEngine } from './FractureToughnessEngine.js';
 
-// Batch 38 — DynamicBalance, NoiseLevel, SealSelection
+// Batch 38 ï¿½ DynamicBalance, NoiseLevel, SealSelection
 export { DynamicBalanceEngine, dynamicBalanceEngine } from './DynamicBalanceEngine.js';
 export { NoiseLevelEngine, noiseLevelEngine } from './NoiseLevelEngine.js';
 export { SealSelectionEngine, sealSelectionEngine } from './SealSelectionEngine.js';
 
-// Batch 39 — ChainDrive, LinearMotion, ValveSizing
+// Batch 39 ï¿½ ChainDrive, LinearMotion, ValveSizing
 export { ChainDriveEngine, chainDriveEngine } from './ChainDriveEngine.js';
 export { LinearMotionEngine, linearMotionEngine } from './LinearMotionEngine.js';
 export { ValveSizingEngine, valveSizingEngine } from './ValveSizingEngine.js';
 
-// Batch 40 — HeatExchanger, PumpSelection, FanSelection
+// Batch 40 ï¿½ HeatExchanger, PumpSelection, FanSelection
 export { HeatExchangerEngine, heatExchangerEngine } from './HeatExchangerEngine.js';
 export { PumpSelectionEngine, pumpSelectionEngine } from './PumpSelectionEngine.js';
 export { FanSelectionEngine, fanSelectionEngine } from './FanSelectionEngine.js';
 
-// Batch 41 — WeldDistortion, BroachDesign, PressBrake
+// Batch 41 ï¿½ WeldDistortion, BroachDesign, PressBrake
 export { WeldDistortionEngine, weldDistortionEngine } from './WeldDistortionEngine.js';
 export { BroachDesignEngine, broachDesignEngine } from './BroachDesignEngine.js';
 export { PressBrakeEngine, pressBrakeEngine } from './PressBrakeEngine.js';
 
-// Batch 42 — RollingContact, ElectroPlating, CastingDefect
+// Batch 42 ï¿½ RollingContact, ElectroPlating, CastingDefect
 export { RollingContactEngine, rollingContactEngine } from './RollingContactEngine.js';
 export { ElectroPlatingEngine, electroPlatingEngine } from './ElectroPlatingEngine.js';
 export { CastingDefectEngine, castingDefectEngine } from './CastingDefectEngine.js';
 
-// Batch 43 — TorsionBar, ColumnBuckling, FlatPattern
+// Batch 43 ï¿½ TorsionBar, ColumnBuckling, FlatPattern
 export { TorsionBarEngine, torsionBarEngine } from './TorsionBarEngine.js';
 export { ColumnBucklingEngine, columnBucklingEngine } from './ColumnBucklingEngine.js';
 export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
 
 export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPostProcessorEngine.js";
+export { ultimateSpeedFeedEngine, UltimateSpeedFeedEngine } from "./UltimateSpeedFeedEngine.js";
 export { postProcessorGeneratorEngine, PostProcessorGeneratorEngine } from "./PostProcessorGeneratorEngine.js";
 
-// Batch 44 — ThreadGage, SurfaceIntegrity, MachineVibration
+// Batch 44 ï¿½ ThreadGage, SurfaceIntegrity, MachineVibration
 export { ThreadGageEngine, threadGageEngine } from './ThreadGageEngine.js';
 export { SurfaceIntegrityEngine, surfaceIntegrityEngine } from './SurfaceIntegrityEngine.js';
 export { MachineVibrationEngine, machineVibrationEngine } from './MachineVibrationEngine.js';
@@ -2837,3 +2838,5 @@ export { BallMillEngine, ballMillEngine } from "./BallMillEngine.js";
 export type { BallMillInput, BallMillResult } from "./BallMillEngine.js";
 export { FluidCouplingEngine, fluidCouplingEngine } from "./FluidCouplingEngine.js";
 export type { FluidCouplingInput, FluidCouplingResult } from "./FluidCouplingEngine.js";
+export { CrossCamRecommenderEngine, crossCamRecommenderEngine } from "./CrossCamRecommenderEngine.js";
+export type { CrossCamInput, CrossCamRecommendation, StrategyCandidate, CamSystem } from "./CrossCamRecommenderEngine.js";
