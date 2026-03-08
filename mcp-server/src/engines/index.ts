@@ -2902,3 +2902,6 @@ export { InductionHeatingEngine, inductionHeatingEngine } from "./InductionHeati
 export { EvaporatorDesignEngine, evaporatorDesignEngine } from "./EvaporatorDesignEngine.js";
 export { CondenserDesignEngine, condenserDesignEngine } from "./CondenserDesignEngine.js";
 export { DistillationColumnEngine, distillationColumnEngine } from "./DistillationColumnEngine.js";
+export { FluidizedBedEngine, fluidizedBedEngine } from "./FluidizedBedEngine.js";
+export { RotaryKilnEngine, rotaryKilnEngine } from "./RotaryKilnEngine.js";
+export { CentrifugeEngine, centrifugeEngine } from "./CentrifugeEngine.js";
