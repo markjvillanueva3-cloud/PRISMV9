@@ -2943,3 +2943,7 @@ export { CouplingEngine, couplingEngine } from "./CouplingEngine.js";
 export { VenturiEngine, venturiEngine } from "./VenturiEngine.js";
 export { OrificeFlowMeterEngine, orificeFlowMeterEngine } from "./OrificeFlowMeterEngine.js";
 export { WaterHammerEngine, waterHammerEngine } from "./WaterHammerEngine.js";
+
+export { WeldingEngine, weldingEngine } from './WeldingEngine.js';
+export { ScrollCompressorEngine, scrollCompressorEngine } from './ScrollCompressorEngine.js';
+export { CoriolisFlowMeterEngine, coriolisFlowMeterEngine } from './CoriolisFlowMeterEngine.js';
