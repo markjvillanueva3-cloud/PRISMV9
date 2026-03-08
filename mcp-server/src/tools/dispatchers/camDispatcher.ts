@@ -29,7 +29,8 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
 import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorExtActionSchemas.js";
 import { ACTION_ADVANCED_SCIENCE_SCHEMAS } from "../../schemas/advancedScienceActionSchemas.js";
-const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS };
+import { ACTION_CNC_PROGRAMMING_SCHEMAS } from "../../schemas/cncProgrammingActionSchemas.js";
+const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any;
@@ -82,6 +83,9 @@ async function getEngine(name: string): Promise<any> {
     case "wearPhysics": return (await import("../../engines/AdvancedWearPhysicsEngine.js")).advancedWearPhysicsEngine;
     case "susLCA": return (await import("../../engines/SustainabilityLCAEngine.js")).sustainabilityLCAEngine;
     case "coolant": return (await import("../../engines/CoolantDynamicsEngine.js")).coolantDynamicsEngine;
+    case "assembler": return (await import("../../engines/CNCProgramAssemblerEngine.js")).cncProgramAssemblerEngine;
+    case "motionDyn": return (await import("../../engines/MotionDynamicsProfileEngine.js")).motionDynamicsProfileEngine;
+    case "engageAdapt": return (await import("../../engines/EngagementAdaptiveFeedEngine.js")).engagementAdaptiveFeedEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -147,6 +151,27 @@ const ACTIONS = [
   "setup_sheet_generate",
   "setup_sheet_tools",
   "setup_sheet_operations",
+  // Advanced Science (58 actions — 8 engines)
+  "sci_oxley", "sci_oblique", "sci_size_effect", "sci_recht_shear", "sci_chip_breaking", "sci_process_damping",
+  "rel_cox_hazards", "rel_competing_risks", "rel_wiener_rul", "rel_gamma_degradation",
+  "rel_bayesian_rul", "rel_optimal_replacement", "rel_delay_time", "rel_renewal_theory",
+  "acc_21_error_model", "acc_abbe_offset", "acc_volumetric", "acc_ball_bar", "acc_thermal_error",
+  "spm_hotelling_t2", "spm_pca_monitoring", "spm_hmm_condition", "spm_bootstrap_ci", "spm_sprt",
+  "spm_combined_spc", "spm_doe_generate", "spm_rsm", "spm_nbi_optimization",
+  "const_zerilli_armstrong", "const_mts", "const_voce", "const_ptw",
+  "const_paris_law", "const_norton_creep", "const_larson_miller", "const_hollomon", "const_machinability",
+  "wear_stochastic", "wear_fick_crater", "wear_notch", "wear_lognormal_life",
+  "wear_rabinowicz", "wear_flank_ode", "wear_combined_mechanisms",
+  "sus_lifecycle_assessment", "sus_eco_efficiency", "sus_exergy", "sus_gutowski_energy",
+  "sus_coolant_lifecycle", "sus_stochastic_economics", "sus_total_cost_ownership",
+  "cool_reynolds_flow", "cool_tsc_pressure", "cool_mql_spray", "cool_jet_coherence",
+  "cool_chip_transport", "cool_komanduri_thermal", "cool_cryogenic",
+  // CNC Programming (17 actions — 3 engines)
+  "program_assemble", "program_batch_sf", "program_cycle_time",
+  "motion_trapezoidal", "motion_scurve", "motion_corner_velocity", "motion_look_ahead",
+  "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
+  "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
+  "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1099,6 +1124,72 @@ Params vary by action — pass relevant fields in params object.`,
           case "cool_chip_transport": { result = (await getEngine("coolant")).chipTransportDrag(params); break; }
           case "cool_komanduri_thermal": { result = (await getEngine("coolant")).komanduriHouThermal(params); break; }
           case "cool_cryogenic": { result = (await getEngine("coolant")).cryogenicMachiningThermal(params); break; }
+
+          // ── CNC Program Assembler ──────────────────────────────────────
+          case "program_assemble": { result = await (await getEngine("assembler")).assembleProgram(params as any); break; }
+          case "program_batch_sf": { result = await (await getEngine("assembler")).calculateBatchSpeedFeed(params as any); break; }
+          case "program_cycle_time": { result = await (await getEngine("assembler")).estimateCycleTime(params as any); break; }
+
+          // ── Motion Dynamics Profile ────────────────────────────────────
+          case "motion_trapezoidal": { const p = params as any; result = (await getEngine("motionDyn")).trapezoidalProfile(p.distance_mm, p.v_commanded_mmmin, p.v_entry_mmmin ?? 0, p.v_exit_mmmin ?? 0, p.max_accel_mm_s2); break; }
+          case "motion_scurve": { const p = params as any; result = (await getEngine("motionDyn")).sCurveProfile(p.distance_mm, p.v_commanded_mmmin, p.v_entry_mmmin ?? 0, p.v_exit_mmmin ?? 0, p.max_accel_mm_s2, p.max_jerk_mm_s3); break; }
+          case "motion_corner_velocity": { const p = params as any; result = (await getEngine("motionDyn")).cornerVelocity(p.v1_direction, p.v2_direction, p.max_accel_mm_s2, p.corner_tolerance_mm); break; }
+          case "motion_look_ahead": { const p = params as any; result = (await getEngine("motionDyn")).simulateLookAhead(p.segments, p.kinematics); break; }
+          case "motion_axis_decompose": { const p = params as any; result = (await getEngine("motionDyn")).axisDecomposition(p.feed_mmmin, p.direction, p.axis_limits); break; }
+          case "motion_feed_effectiveness": { const p = params as any; result = (await getEngine("motionDyn")).feedEffectiveness(p.segments, p.kinematics); break; }
+          case "motion_optimize_feed": { const p = params as any; result = (await getEngine("motionDyn")).optimizeFeedProfile(p.segments, p.kinematics); break; }
+
+          // ── Engagement Adaptive Feed ───────────────────────────────────
+          case "engage_adapt_feed": {
+            result = (await getEngine("engageAdapt")).adaptFeed(params as any);
+            break;
+          }
+          case "engage_calc_engagement": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).calculateEngagement(
+              p.tool_diameter_mm, p.radial_depth_mm, p.move_type
+            );
+            break;
+          }
+          case "engage_chip_thinning": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).chipThinningFactor(
+              p.engagement_deg, p.tool_diameter_mm, p.radial_depth_mm, p.model
+            );
+            break;
+          }
+          case "engage_constant_force": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).constantForceFeed(
+              p.nominal_fz_mm, p.nominal_engagement_deg, p.new_engagement_deg,
+              p.kc1_1, p.mc
+            );
+            break;
+          }
+          case "engage_constant_mrr": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).constantMRRFeed(
+              p.nominal_fz_mm, p.nominal_ae_mm, p.new_ae_mm
+            );
+            break;
+          }
+          case "engage_thermal_balance": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).thermalBalanceFeed(
+              p.nominal_fz_mm, p.nominal_ae_mm, p.new_ae_mm,
+              p.cutting_speed_mmin, p.axial_depth_mm, p.kc1_1,
+              { conductivity_w_mk: p.conductivity_w_mk, rho_c_jm3k: p.rho_c_jm3k }
+            );
+            break;
+          }
+          case "engage_ramp_transition": {
+            const p = params as any;
+            result = (await getEngine("engageAdapt")).rampFeedTransition(
+              p.feed_before_mmmin, p.feed_after_mmmin,
+              p.ramp_distance_mm, p.num_points
+            );
+            break;
+          }
 
           default:
             result = { error: `Unknown action: ${action}` };

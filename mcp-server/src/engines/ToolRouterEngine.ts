@@ -59,15 +59,99 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { keywords: ["find action", "which dispatcher", "action search", "what actions"], route: "direct", target: "DispatcherMapEngine", action: "searchActions(query) or findAction(name)", reason: "Cached action index", estimatedTokens: 100 },
   { keywords: ["dispatcher list", "all dispatchers", "dispatcher map"], route: "direct", target: "DispatcherMapEngine", action: "getCompactMap()", reason: "Cached map", estimatedTokens: 200 },
 
-  // Material lookup — use materialDispatcher
-  { keywords: ["material properties", "material lookup", "hardness", "tensile strength"], route: "dispatcher", target: "materialDispatcher", action: "material_lookup", reason: "Full material DB query", estimatedTokens: 300 },
-  { keywords: ["material strategy", "speed and feed for", "cutting parameters for"], route: "dispatcher", target: "strategyDispatcher", action: "strategy_recommend", reason: "Strategy DB with 66 material-op combos", estimatedTokens: 400 },
+  // Material lookup — use calcDispatcher
+  { keywords: ["material properties", "material lookup", "hardness", "tensile strength"], route: "dispatcher", target: "calcDispatcher", action: "material_lookup", reason: "Full material DB query", estimatedTokens: 300 },
+  { keywords: ["material strategy", "speed and feed for", "cutting parameters for"], route: "dispatcher", target: "camDispatcher", action: "strategy_recommend", reason: "Strategy DB with 66 material-op combos", estimatedTokens: 400 },
 
   // Tool selection
-  { keywords: ["tool selection", "which end mill", "tool recommend", "cutter for"], route: "dispatcher", target: "toolDispatcher", action: "tool_recommend", reason: "Tool catalog search", estimatedTokens: 400 },
+  { keywords: ["tool selection", "which end mill", "tool recommend", "cutter for"], route: "dispatcher", target: "dataDispatcher", action: "tool_recommend", reason: "Tool catalog search", estimatedTokens: 400 },
 
   // Batch operations
   { keywords: ["batch", "multiple actions", "bulk query"], route: "direct", target: "BatchQueryEngine", action: "executeBatch(actions[])", reason: "N actions in 1 call", estimatedTokens: 100 },
+
+  // CNC Program generation with auto S/F
+  { keywords: ["generate program", "cnc program", "g-code program", "auto speed feed", "program with speeds"], route: "dispatcher", target: "camDispatcher", action: "program_assemble", reason: "Full CNC program with physics-optimized S/F", estimatedTokens: 500 },
+  { keywords: ["batch speed feed", "speeds for all tools", "tool table speeds"], route: "dispatcher", target: "camDispatcher", action: "program_batch_sf", reason: "Batch S/F calculation", estimatedTokens: 300 },
+  { keywords: ["optimize g-code", "optimize gcode feeds", "line by line feed"], route: "dispatcher", target: "camDispatcher", action: "auto_speed_feed_optimize", reason: "Line-by-line G-code S/F optimization", estimatedTokens: 500 },
+
+  // Motion dynamics
+  { keywords: ["acceleration profile", "velocity profile", "trapezoidal motion"], route: "dispatcher", target: "camDispatcher", action: "motion_trapezoidal", reason: "Machine motion dynamics", estimatedTokens: 200 },
+  { keywords: ["s-curve", "jerk limit", "smooth motion"], route: "dispatcher", target: "camDispatcher", action: "motion_scurve", reason: "Jerk-limited S-curve profile", estimatedTokens: 200 },
+  { keywords: ["corner speed", "cornering velocity", "direction change"], route: "dispatcher", target: "camDispatcher", action: "motion_corner_velocity", reason: "Corner velocity from chord error", estimatedTokens: 150 },
+  { keywords: ["look ahead", "lookahead", "feed effectiveness"], route: "dispatcher", target: "camDispatcher", action: "motion_look_ahead", reason: "Controller look-ahead simulation", estimatedTokens: 300 },
+
+  // Engagement & chip thinning
+  { keywords: ["chip thinning", "engagement angle", "wrap angle"], route: "dispatcher", target: "camDispatcher", action: "engage_chip_thinning", reason: "Chip thinning compensation", estimatedTokens: 150 },
+  { keywords: ["constant force feed", "adaptive feed", "engagement adaptive"], route: "dispatcher", target: "camDispatcher", action: "engage_adapt_feed", reason: "Engagement-adaptive feed control", estimatedTokens: 300 },
+  { keywords: ["constant mrr", "maintain removal rate"], route: "dispatcher", target: "camDispatcher", action: "engage_constant_mrr", reason: "Constant MRR feed scaling", estimatedTokens: 150 },
+
+  // Science & physics
+  { keywords: ["oxley", "oblique cutting", "cutting physics", "size effect"], route: "dispatcher", target: "camDispatcher", action: "sci_oxley", reason: "Advanced cutting physics models", estimatedTokens: 300 },
+  { keywords: ["reliability", "rul", "remaining useful life", "weibull"], route: "dispatcher", target: "camDispatcher", action: "rel_bayesian_rul", reason: "Reliability engineering", estimatedTokens: 300 },
+  { keywords: ["volumetric accuracy", "geometric accuracy", "ball bar", "21 error"], route: "dispatcher", target: "camDispatcher", action: "acc_volumetric", reason: "Machine geometric accuracy", estimatedTokens: 300 },
+  { keywords: ["spc", "process monitoring", "hotelling", "pca monitoring"], route: "dispatcher", target: "camDispatcher", action: "spm_hotelling_t2", reason: "Statistical process monitoring", estimatedTokens: 300 },
+  { keywords: ["constitutive", "zerilli", "johnson cook", "flow stress"], route: "dispatcher", target: "camDispatcher", action: "const_zerilli_armstrong", reason: "Constitutive material models", estimatedTokens: 200 },
+  { keywords: ["crater wear", "flank wear", "stochastic wear", "wear physics"], route: "dispatcher", target: "camDispatcher", action: "wear_combined_mechanisms", reason: "Advanced wear physics", estimatedTokens: 300 },
+  { keywords: ["sustainability", "lca", "lifecycle", "eco efficiency", "carbon footprint"], route: "dispatcher", target: "camDispatcher", action: "sus_lifecycle_assessment", reason: "Sustainability LCA analysis", estimatedTokens: 300 },
+  { keywords: ["coolant", "mql", "cryogenic", "through spindle"], route: "dispatcher", target: "camDispatcher", action: "cool_reynolds_flow", reason: "Coolant dynamics modeling", estimatedTokens: 200 },
+
+  // Cross-domain
+  { keywords: ["monte carlo process", "process simulation", "stochastic"], route: "dispatcher", target: "calcDispatcher", action: "monte_carlo_process", reason: "Monte Carlo process simulation", estimatedTokens: 300 },
+  { keywords: ["doe", "taguchi", "design of experiments"], route: "dispatcher", target: "calcDispatcher", action: "doe_taguchi", reason: "DOE/Taguchi optimization", estimatedTokens: 300 },
+  { keywords: ["fixture", "clamping", "workholding force"], route: "dispatcher", target: "calcDispatcher", action: "fixture_clamping", reason: "Fixture clamping analysis", estimatedTokens: 200 },
+  { keywords: ["springback", "bending compensation"], route: "dispatcher", target: "calcDispatcher", action: "springback_predict", reason: "Springback prediction", estimatedTokens: 200 },
+  { keywords: ["gd&t", "tolerance stackup", "gdt"], route: "dispatcher", target: "calcDispatcher", action: "gdt_stackup", reason: "GD&T tolerance stackup", estimatedTokens: 300 },
+  { keywords: ["digital twin", "process twin"], route: "dispatcher", target: "calcDispatcher", action: "process_digital_twin", reason: "Process digital twin", estimatedTokens: 400 },
+
+  // Turning & lathe
+  { keywords: ["turning", "lathe", "boring bar", "facing", "parting", "grooving", "taper turning"], route: "dispatcher", target: "turningDispatcher", action: "chuck_force", reason: "Lathe operations (7 actions)", estimatedTokens: 300 },
+  { keywords: ["thread turning", "single point thread", "thread mill"], route: "dispatcher", target: "camDispatcher", action: "cam_thread_lookup", reason: "Threading operations", estimatedTokens: 300 },
+
+  // Grinding
+  { keywords: ["grinding", "surface grind", "creep feed", "centerless", "cylindrical grind"], route: "dispatcher", target: "grindingDispatcher", action: "wheel_select", reason: "Grinding operations (6 actions)", estimatedTokens: 300 },
+
+  // EDM
+  { keywords: ["edm", "wire edm", "sinker edm", "electrical discharge", "spark erosion"], route: "dispatcher", target: "edmDispatcher", action: "electrode_design", reason: "EDM operations (16 actions)", estimatedTokens: 300 },
+
+  // 5-axis
+  { keywords: ["5 axis", "five axis", "5-axis", "rtcp", "tool vector", "simultaneous milling"], route: "dispatcher", target: "fiveAxisDispatcher", action: "rtcp_calc", reason: "5-axis operations (5 actions)", estimatedTokens: 400 },
+
+  // Quality & inspection
+  { keywords: ["inspection", "cmm", "measurement", "first article", "quality check"], route: "dispatcher", target: "qualityDispatcher", action: "inspection_plan", reason: "Quality/inspection", estimatedTokens: 300 },
+  { keywords: ["compliance", "as9100", "iso 9001", "medical device", "itar"], route: "dispatcher", target: "complianceDispatcher", action: "compliance_check", reason: "Standards compliance", estimatedTokens: 300 },
+
+  // CAD & feature recognition
+  { keywords: ["feature recognition", "geometry analysis", "cad import", "step file", "feature extract"], route: "dispatcher", target: "cadDispatcher", action: "geometry_analyze", reason: "CAD feature analysis (33 actions)", estimatedTokens: 400 },
+
+  // Knowledge & tribal knowledge
+  { keywords: ["tribal knowledge", "shop tip", "machinist tip", "best practice", "lessons learned"], route: "dispatcher", target: "knowledgeDispatcher", action: "search", reason: "Tribal knowledge DB (9 actions)", estimatedTokens: 200 },
+  { keywords: ["hypermill tip", "mastercam tip", "fusion 360 tip", "cam tip", "solidcam tip"], route: "dispatcher", target: "knowledgeExtDispatcher", action: "search", reason: "CAM-specific knowledge", estimatedTokens: 200 },
+
+  // Business & scheduling
+  { keywords: ["quote", "costing", "price estimate", "job cost", "cycle cost"], route: "dispatcher", target: "businessDispatcher", action: "quote_estimate", reason: "Job costing/quoting", estimatedTokens: 300 },
+  { keywords: ["schedule", "capacity", "job scheduling", "production plan", "due date"], route: "dispatcher", target: "schedulingDispatcher", action: "job_schedule", reason: "Production scheduling (8 actions)", estimatedTokens: 300 },
+
+  // Safety
+  { keywords: ["safety check", "collision check", "spindle limit", "rapid override", "safety validate"], route: "dispatcher", target: "guardDispatcher", action: "safety_validate", reason: "Safety validation", estimatedTokens: 200 },
+
+  // Process control & telemetry
+  { keywords: ["process control", "adaptive control", "in-process", "feedback loop"], route: "dispatcher", target: "processControlDispatcher", action: "ctc_analyze", reason: "Adaptive process control (6 actions)", estimatedTokens: 300 },
+  { keywords: ["machine monitoring", "telemetry", "opc ua", "mtconnect", "machine data"], route: "dispatcher", target: "telemetryDispatcher", action: "telemetry_query", reason: "Machine telemetry", estimatedTokens: 300 },
+
+  // Diagnosis & troubleshooting
+  { keywords: ["troubleshoot", "diagnose", "root cause", "chatter", "vibration problem", "surface finish problem"], route: "dispatcher", target: "diagnosisDispatcher", action: "diagnose_issue", reason: "Problem diagnosis", estimatedTokens: 400 },
+
+  // Tool change & ATC
+  { keywords: ["tool change", "atc", "automatic tool changer", "tool magazine", "tool pot"], route: "dispatcher", target: "atcsDispatcher", action: "task_init", reason: "ATC task management (12 actions)", estimatedTokens: 200 },
+
+  // Novel toolpath algorithms
+  { keywords: ["novel toolpath", "tgar", "hraf", "vortex chip", "adaptive roughing algorithm"], route: "dispatcher", target: "toolpathDispatcher", action: "novel_compute", reason: "Novel toolpath algorithms", estimatedTokens: 400 },
+
+  // Process fingerprint
+  { keywords: ["process fingerprint", "signature", "process dna", "fingerprint match"], route: "dispatcher", target: "pfpDispatcher", action: "fingerprint_match", reason: "Process fingerprint matching", estimatedTokens: 300 },
+
+  // Shop practice
+  { keywords: ["shop practice", "shop floor", "operator guide", "setup procedure"], route: "dispatcher", target: "shopPracticeDispatcher", action: "practice_search", reason: "Shop floor practices (18 actions)", estimatedTokens: 200 },
 ];
 
 export class ToolRouterEngine {

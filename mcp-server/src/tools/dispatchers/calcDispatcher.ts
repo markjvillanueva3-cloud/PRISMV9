@@ -341,6 +341,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return `CC-Opt obj=${result.value.objective_value.toFixed(3)}, constraints=${result.value.constraint_satisfaction.filter((c:any)=>c.satisfied).length}/${result.value.constraint_satisfaction.length} met, margin=${result.value.robust_margin.toFixed(1)}`;
     case "acoustic_emission_monitor":
       return `AE Monitor: ${result.value.features.length} segments, condition=${result.value.tool_condition.state} (${(result.value.tool_condition.confidence*100).toFixed(0)}%), trend=${result.value.trend.trend_direction}`;
+    case "sensor_validate":
+      return `Sensor: ${result.value.valid ? "VALID" : "INVALID"}, ${result.value.validated_count} samples, ${result.value.errors.length} errors`;
+    case "sensor_simulate":
+      return `Sim: ${result.value.samples.length} samples, mean=${result.value.statistics.mean.toFixed(2)}, σ=${result.value.statistics.std_dev.toFixed(2)}`;
+    case "sensor_fuse":
+      return `EKF Fusion: ${result.value.fused_states.length} states, wear=${(result.value.estimated_wear*100).toFixed(1)}%, trend=${result.value.force_trend}`;
+    case "sensor_anomaly_detect":
+      return `Anomaly: ${result.value.overall_status}, ${result.value.anomalies.length} events, ${result.value.method_summaries.filter((m:any)=>m.triggered).length}/${result.value.method_summaries.length} triggered`;
+    case "sensor_status":
+      return `Status: ${result.value.sensor_count} sensors, ${result.value.total_samples} total samples`;
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -540,6 +550,66 @@ const ACTIONS = [
   "amsaa_reliability_growth",
   "chance_constrained_optimize",
   "acoustic_emission_monitor",
+  "sensor_validate", "sensor_simulate", "sensor_fuse", "sensor_anomaly_detect", "sensor_status",
+  // ── Blocked-action fix: 101 actions with switch-case handlers but missing from ACTIONS array ──
+  // Optimization (ACO/GA/DE/SA/PSO/RL/Swarm)
+  "aco_optimize", "aco_sequence_features", "aco_sequence_holes", "aco_sequence_with_tools",
+  "de_optimize", "ga_optimize", "pso_optimize", "sa_optimize", "sa_optimize_sequence",
+  "swarm_neural_optimize", "rl_create_agent",
+  // Adaptive & Trochoidal Machining
+  "adaptive_feedrate", "adaptive_optimize_trochoidal", "adaptive_trochoidal",
+  "trochoidal_engagement_profile", "trochoidal_feed_adjust",
+  "constant_chip_load", "optimal_stepover",
+  // Chip & Cutting Analysis
+  "ball_nose_chip", "chip_thickness_analyze", "chip_thinning_lookup", "round_insert_chip",
+  "corner_engagement_analyze", "corner_feed", "corner_feed_adjust", "curved_boundary_engagement",
+  "engagement_validate", "validate_entry",
+  // Bayesian Tool Life
+  "bayesian_tool_life_predict", "bayesian_tool_life_replacement",
+  // Thermal Cutting
+  "cutting_thermal_interface", "cutting_thermal_partition", "cutting_thermal_shear",
+  "thermal_expansion", "thermal_machine_error",
+  // SPC & DOE
+  "spc_cpk", "spc_imr_chart", "spc_xbar_r_chart", "doe_analyze",
+  // Time Series
+  "time_series_decompose", "time_series_forecast", "time_series_seasonality", "time_series_smooth",
+  // Topology & Mesh
+  "topology_homology", "topology_persistence", "topology_validate_features",
+  "mesh_decimate", "voxel_init", "voxel_remove_path", "voxelize_mesh",
+  // B-Spline & Surface
+  "bspline_curve_evaluate", "bspline_surface_evaluate", "bspline_surface_normal",
+  "surface_reconstruct",
+  // Spatial Data Structures
+  "kdtree_nearest", "kdtree_radius", "octree_radius",
+  // Tessellation
+  "tessellation_calculate_segments", "tessellation_subdivide",
+  // CAD Construction & Sketch
+  "construction_axis_2pt", "construction_offset_plane", "construction_plane_3pt", "construction_point_3planes",
+  "sketch_apply_constraint", "sketch_geometry",
+  // Solid Operations
+  "solid_move", "solid_press_pull", "solid_scale",
+  "chamfer_edges", "fillet_edges", "fillet_preview", "fillet_variable",
+  // Feature Recognition
+  "feature_detect_interactions", "feature_minimize_setups", "feature_precedence_graph",
+  // Toolpath & Machining Strategy
+  "entry_strategy", "exit_strategy", "island_approach", "moat_calculate",
+  "rest_machining_levels", "z_level_optimize",
+  "toolpath_link_optimize", "toolpath_link_time",
+  // Multi-Axis
+  "jacobian_5axis", "multiaxis_gouge_check", "multiaxis_tool_axis",
+  "config_singularity_check", "singularity_detect",
+  // Bottleneck & OEE
+  "bottleneck_identify", "oee_calculate",
+  // Nesting & Tolerance
+  "nesting_optimize", "tolerance_stack",
+  // XAI / Explainability
+  "xai_lime", "xai_permutation_importance", "xai_shap",
+  // Clustering
+  "cluster_kmedoids", "cluster_meanshift", "cluster_silhouette",
+  // Waterjet & Shot Peening
+  "waterjet_params", "shot_peening",
+  // Troubleshoot
+  "troubleshoot",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4079,25 +4149,54 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "kalman_filter": {
             const { kalmanFilterEngine } = await import("../../engines/KalmanFilterEngine.js");
-            result = kalmanFilterEngine.compute(params);
+            result = kalmanFilterEngine.compute(params as ValidatedParams);
             break;
           }
           case "amsaa_reliability_growth": {
             const { amsaaReliabilityGrowthEngine } = await import("../../engines/AMSAAReliabilityGrowthEngine.js");
-            const amsaaResult = amsaaReliabilityGrowthEngine.compute(params);
+            const amsaaResult = amsaaReliabilityGrowthEngine.compute(params as ValidatedParams);
             result = { value: amsaaResult, unit: "reliability_growth" };
             break;
           }
           case "chance_constrained_optimize": {
             const { chanceConstrainedOptimizationEngine } = await import("../../engines/ChanceConstrainedOptimizationEngine.js");
-            const ccResult = chanceConstrainedOptimizationEngine.optimize(params);
+            const ccResult = chanceConstrainedOptimizationEngine.optimize(params as ValidatedParams);
             result = { value: ccResult, unit: "chance_constrained_optimization" };
             break;
           }
           case "acoustic_emission_monitor": {
             const { acousticEmissionMonitoringEngine } = await import("../../engines/AcousticEmissionMonitoringEngine.js");
-            const aeResult = acousticEmissionMonitoringEngine.analyze(params);
+            const aeResult = acousticEmissionMonitoringEngine.analyze(params as ValidatedParams);
             result = { value: aeResult, unit: "acoustic_emission" };
+            break;
+          }
+
+          // ── SCI-MS0: Sensor Integration ──
+          case "sensor_validate": {
+            const { sensorDataSchemaEngine } = await import("../../engines/SensorDataSchemaEngine.js");
+            result = sensorDataSchemaEngine.validate(params as ValidatedParams);
+            break;
+          }
+          case "sensor_simulate": {
+            const { sensorSimulatorEngine } = await import("../../engines/SensorSimulatorEngine.js");
+            result = sensorSimulatorEngine.simulate(params as ValidatedParams);
+            break;
+          }
+          case "sensor_fuse": {
+            const { sensorFusionEngine } = await import("../../engines/SensorFusionEngine.js");
+            result = sensorFusionEngine.fuse(params as ValidatedParams);
+            break;
+          }
+          case "sensor_anomaly_detect": {
+            const { realTimeAnomalyDetectionEngine } = await import("../../engines/RealTimeAnomalyDetectionEngine.js");
+            result = realTimeAnomalyDetectionEngine.detect(params as ValidatedParams);
+            break;
+          }
+          case "sensor_status": {
+            result = {
+              value: { sensor_count: 4, types: ["force", "spindle", "vibration", "temperature"], message: "Sensor framework ready" },
+              unit: "sensor_status"
+            };
             break;
           }
           default:
