@@ -3048,9 +3048,20 @@ export { segmentInterpolatorEngine } from "./SegmentInterpolatorEngine.js";
 export { novelPostProcessorBridgeEngine } from "./NovelPostProcessorBridgeEngine.js";
 export { programStructureEngine } from "./ProgramStructureEngine.js";
 export { gCodeVerificationEngine } from "./GCodeVerificationEngine.js";
+export { endToEndPipelineEngine } from "./EndToEndPipelineEngine.js";
 export { EDMWireEngine, edmWireEngine } from './EDMWireEngine.js';
 export type { EDMWireInput, EDMWireResult, WireType, CuttingMode } from './EDMWireEngine.js';
 export { AnodizingProcessEngine, anodizingProcessEngine } from './AnodizingProcessEngine.js';
 export type { AnodizingProcessInput, AnodizingProcessResult, AnodizeType } from './AnodizingProcessEngine.js';
 export { AccumulatorEngine, accumulatorEngine } from './AccumulatorEngine.js';
 export type { AccumulatorInput, AccumulatorResult, AccumulatorType, GasProcess } from './AccumulatorEngine.js';
+
+// Machining Playbook — experiential knowledge (sequencing, anti-patterns, best practices)
+export { machiningPlaybookEngine, MachiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
+export type { PlaybookRule, PlaybookQuery, SequencingAdvice, SetupAdvice, RuleCategory, Severity } from "./MachiningPlaybookEngine.js";
+export { TransportationProblemEngine, transportationProblemEngine } from './TransportationProblemEngine.js';
+export type { TransportationProblemInput, TransportationProblemResult } from './TransportationProblemEngine.js';
+export { AssignmentProblemEngine, assignmentProblemEngine } from './AssignmentProblemEngine.js';
+export type { AssignmentProblemInput, AssignmentProblemResult } from './AssignmentProblemEngine.js';
+export { MarkovDecisionEngine, markovDecisionEngine } from './MarkovDecisionEngine.js';
+export type { MarkovDecisionInput, MarkovDecisionResult } from './MarkovDecisionEngine.js';
