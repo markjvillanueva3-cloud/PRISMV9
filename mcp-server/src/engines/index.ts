@@ -2256,6 +2256,7 @@ export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingE
 export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
 export { voronoiEngine } from "./VoronoiEngine.js";
 export { voxelStockEngine } from "./VoxelStockEngine.js";
+export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_ALGORITHM_INFO, type NovelToolpathResult, type NovelAlgorithm } from "./NovelToolpathEngine.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
@@ -2886,3 +2887,6 @@ export { tankDesignEngine, TankDesignEngine } from "./TankDesignEngine.js";
 export { CycloneSeparatorEngine, cycloneSeparatorEngine } from "./CycloneSeparatorEngine.js";
 export { ScrewConveyorEngine, screwConveyorEngine } from "./ScrewConveyorEngine.js";
 export { BucketElevatorEngine, bucketElevatorEngine } from "./BucketElevatorEngine.js";
+export { DamperDesignEngine, damperDesignEngine } from "./DamperDesignEngine.js";
+export { FilterPressEngine, filterPressEngine } from "./FilterPressEngine.js";
+export { MixerAgitatorEngine, mixerAgitatorEngine } from "./MixerAgitatorEngine.js";
