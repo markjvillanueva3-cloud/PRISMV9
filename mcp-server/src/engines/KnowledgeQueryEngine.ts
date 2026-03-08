@@ -416,16 +416,16 @@ export class KnowledgeQueryEngine {
          * @returns void
          */
         for (const m of materials.materials) {
-          const mAny = m as any;
-          const extraContext = [mAny.material_type, m.iso_group, mAny.material_id ?? m.id, m.category].filter(Boolean).join(" ");
+          const mRec = m as unknown as Record<string, unknown>;
+          const extraContext = [mRec.material_type, m.iso_group, (mRec.material_id as string) ?? m.id, m.category].filter(Boolean).join(" ");
           results.push({
             registry: "materials",
-            id: mAny.material_id ?? m.id,
+            id: (mRec.material_id as string) ?? m.id,
             name: m.name,
             relevance_score: this.calculateRelevance(query, m.name, extraContext),
             match_type: this.getMatchType(queryLower, m.name.toLowerCase()),
             match_field: "name",
-            summary: `${m.iso_group} | ${m.category} | Hardness: ${mAny.hardness_min ?? "?"}-${mAny.hardness_max ?? "?"} HB`,
+            summary: `${m.iso_group} | ${m.category} | Hardness: ${(mRec.hardness_min as number) ?? "?"}-${(mRec.hardness_max as number) ?? "?"} HB`,
             data: m
           });
         }
@@ -439,14 +439,14 @@ export class KnowledgeQueryEngine {
          * @returns void
          */
         for (const m of machineResult.machines) {
-          const mAnyMach = m as any;
-          const extraContext = [m.manufacturer, m.model, m.type, mAnyMach.machine_id ?? m.id].filter(Boolean).map(String).join(" ");
+          const mMachRec = m as unknown as Record<string, unknown>;
+          const extraContext = [m.manufacturer, m.model, m.type, (mMachRec.machine_id as string) ?? m.id].filter(Boolean).map(String).join(" ");
           results.push({
             registry: "machines",
-            id: mAnyMach.machine_id ?? m.id,
-            name: mAnyMach.name ?? `${m.manufacturer} ${m.model}`,
-            relevance_score: this.calculateRelevance(query, mAnyMach.name || `${m.manufacturer} ${m.model}`, extraContext),
-            match_type: this.getMatchType(queryLower, (mAnyMach.name || `${m.manufacturer} ${m.model}`).toLowerCase()),
+            id: (mMachRec.machine_id as string) ?? m.id,
+            name: m.name ?? `${m.manufacturer} ${m.model}`,
+            relevance_score: this.calculateRelevance(query, m.name || `${m.manufacturer} ${m.model}`, extraContext),
+            match_type: this.getMatchType(queryLower, (m.name || `${m.manufacturer} ${m.model}`).toLowerCase()),
             match_field: "name",
             summary: `${m.manufacturer || "?"} | ${m.type || "?"} | ${m.controller || "?"}`,
             data: m
@@ -462,16 +462,16 @@ export class KnowledgeQueryEngine {
          * @returns void
          */
         for (const t of toolResult.tools) {
-          const tAny = t as any;
-          const extraContext = [t.type, t.manufacturer, t.substrate, t.catalog_number, tAny.tool_id ?? t.id].filter(Boolean).map(String).join(" ");
+          const tRec = t as unknown as Record<string, unknown>;
+          const extraContext = [t.type, t.manufacturer, t.substrate, t.catalog_number, (tRec.tool_id as string) ?? t.id].filter(Boolean).map(String).join(" ");
           results.push({
             registry: "tools",
-            id: tAny.tool_id ?? t.id,
+            id: (tRec.tool_id as string) ?? t.id,
             name: t.name,
             relevance_score: this.calculateRelevance(query, t.name || "", extraContext),
             match_type: this.getMatchType(queryLower, (t.name || "").toLowerCase()),
             match_field: "name",
-            summary: `${t.type || "?"} | ${tAny.material ?? t.substrate ?? "?"} | D${tAny.diameter ?? t.geometry?.diameter ?? "?"}mm`,
+            summary: `${t.type || "?"} | ${(tRec.material as string) ?? t.substrate ?? "?"} | D${(tRec.diameter as number) ?? t.geometry?.diameter ?? "?"}mm`,
             data: t
           });
         }
@@ -522,7 +522,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, f.name, f.description),
             match_type: this.getMatchType(queryLower, f.name.toLowerCase()),
             match_field: "name",
-            summary: `${f.category} | ${(f.equation || (f as any).latex_formula || "").slice(0, 50)}...`,
+            summary: `${f.category} | ${(f.equation || ((f as unknown as Record<string, unknown>).latex_formula as string) || "").slice(0, 50)}...`,
             data: f
           });
         }
@@ -585,7 +585,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, a.name, a.description),
             match_type: this.getMatchType(queryLower, a.name.toLowerCase()),
             match_field: "name",
-            summary: `${a.category} | ${(a as any).type ?? a.category} | ${a.capabilities?.length || 0} capabilities`,
+            summary: `${a.category} | ${((a as unknown as Record<string, unknown>).type as string) ?? a.category} | ${a.capabilities?.length || 0} capabilities`,
             data: a
           });
         }
@@ -606,7 +606,7 @@ export class KnowledgeQueryEngine {
             relevance_score: this.calculateRelevance(query, h.name, h.description),
             match_type: this.getMatchType(queryLower, h.name.toLowerCase()),
             match_field: "name",
-            summary: `${(h as any).phase ?? h.timing} | ${h.priority} priority`,
+            summary: `${((h as unknown as Record<string, unknown>).phase as string) ?? h.timing} | ${h.priority} priority`,
             data: h
           });
         }
@@ -795,7 +795,7 @@ export class KnowledgeQueryEngine {
           if (a.controller_family?.toLowerCase().includes(String(m.controller || "").toLowerCase())) {
             relations.push({
               source_registry: "machines",
-              source_id: (m as any).machine_id ?? m.id,
+              source_id: ((m as unknown as Record<string, unknown>).machine_id as string) ?? m.id,
               target_registry: "alarms",
               target_id: a.alarm_id,
               relation_type: "related",
@@ -987,7 +987,8 @@ export class KnowledgeQueryEngine {
       }
 
       // Check input parameters
-      const requiredInputs = ((formula as any).inputs ?? formula.parameters ?? []).filter((i: any) => i.required ?? i.type === "input").map((i: any) => i.name);
+      const rec = formula as unknown as Record<string, unknown>;
+      const requiredInputs = (((formula as any).inputs as Array<Record<string, unknown>>) ?? formula.parameters ?? []).filter((i: Record<string, unknown>) => i.required ?? i.type === "input").map((i: Record<string, unknown>) => i.name as string);
 
       // Find related formulas
       let relatedFormulas: string[] = [];
@@ -1041,7 +1042,7 @@ export class KnowledgeQueryEngine {
 
     // Find formulas that use similar inputs
     const allFormulas = formulaRegistry.all();
-    const inputNames = new Set(((formula as any).inputs ?? formula.parameters ?? []).map((i: any) => i.name.toLowerCase()));
+    const inputNames = new Set((((formula as any).inputs as Array<Record<string, unknown>>) ?? formula.parameters ?? []).map((i: Record<string, unknown>) => (i.name as string).toLowerCase()));
 
     /** For.
      * @param const - const
@@ -1049,7 +1050,7 @@ export class KnowledgeQueryEngine {
      */
     for (const f of allFormulas) {
       if (f.formula_id === formula.formula_id) continue;
-      const fInputs = new Set(((f as any).inputs ?? f.parameters ?? []).map((i: any) => i.name.toLowerCase()));
+      const fInputs = new Set((((f as unknown as Record<string, unknown>).inputs as Array<Record<string, unknown>>) ?? f.parameters ?? []).map((i: Record<string, unknown>) => (i.name as string).toLowerCase()));
       const overlap = [...inputNames].filter(i => fInputs.has(i)).length;
       if (overlap >= 2 && !related.includes(f.formula_id)) {
         related.push(f.formula_id);
@@ -1218,56 +1219,56 @@ export class KnowledgeQueryEngine {
     // Materials
     try {
       const mats = await materialRegistry.list();
-      for (const m of mats) collectDoc(`${(m as any).name || ""} ${(m as any).category || ""} ${(m as any).iso_group || ""}`);
+      for (const m of mats) collectDoc(`${m.name || ""} ${m.category || ""} ${m.iso_group || ""}`);
     } catch { /* registry may not be initialized */ }
 
     // Machines
     try {
       const machines = await machineRegistry.list();
-      for (const m of machines) collectDoc(`${(m as any).name || ""} ${(m as any).manufacturer || ""} ${(m as any).type || ""}`);
+      for (const m of machines) collectDoc(`${m.name || ""} ${m.manufacturer || ""} ${m.type || ""}`);
     } catch { /* */ }
 
     // Tools
     try {
       const tools = await toolRegistry.list();
-      for (const t of tools) collectDoc(`${(t as any).name || ""} ${(t as any).type || ""} ${(t as any).substrate || ""}`);
+      for (const t of tools) collectDoc(`${t.name || ""} ${t.type || ""} ${t.substrate || ""}`);
     } catch { /* */ }
 
     // Alarms
     try {
       const alarms = await alarmRegistry.list();
-      for (const a of alarms) collectDoc(`${(a as any).name || ""} ${(a as any).code || ""} ${(a as any).description || ""}`);
+      for (const a of alarms) collectDoc(`${a.name || ""} ${a.code || ""} ${a.description || ""}`);
     } catch { /* */ }
 
     // Formulas (list() returns { formulas, total })
     try {
       const fResult = await formulaRegistry.list();
-      const formulas = Array.isArray(fResult) ? fResult : (fResult as any).formulas || [];
-      for (const f of formulas) collectDoc(`${(f as any).name || ""} ${(f as any).category || ""} ${(f as any).description || ""}`);
+      const formulas = Array.isArray(fResult) ? fResult : ((fResult as unknown as Record<string, unknown>).formulas as Formula[]) || [];
+      for (const f of formulas) collectDoc(`${f.name || ""} ${f.category || ""} ${f.description || ""}`);
     } catch { /* */ }
 
     // Skills
     try {
       const skills = await skillRegistry.list();
-      for (const s of skills) collectDoc(`${(s as any).name || ""} ${(s as any).category || ""} ${(s as any).description || ""}`);
+      for (const s of skills) collectDoc(`${s.name || ""} ${s.category || ""} ${s.description || ""}`);
     } catch { /* */ }
 
     // Scripts
     try {
       const scripts = await scriptRegistry.list();
-      for (const s of scripts) collectDoc(`${(s as any).name || ""} ${(s as any).category || ""} ${(s as any).description || ""}`);
+      for (const s of scripts) collectDoc(`${s.name || ""} ${s.category || ""} ${s.description || ""}`);
     } catch { /* */ }
 
     // Agents
     try {
       const agents = await agentRegistry.list();
-      for (const a of agents) collectDoc(`${(a as any).name || ""} ${(a as any).category || ""} ${(a as any).description || ""}`);
+      for (const a of agents) collectDoc(`${a.name || ""} ${a.category || ""} ${a.description || ""}`);
     } catch { /* */ }
 
     // Hooks
     try {
       const hooks = await hookRegistry.list();
-      for (const h of hooks) collectDoc(`${(h as any).name || ""} ${(h as any).phase || ""} ${(h as any).description || ""}`);
+      for (const h of hooks) collectDoc(`${h.name || ""} ${((h as unknown as Record<string, unknown>).phase as string) || ""} ${h.description || ""}`);
     } catch { /* */ }
 
     // Fallback: if no registries loaded, set reasonable defaults

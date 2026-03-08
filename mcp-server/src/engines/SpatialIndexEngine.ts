@@ -67,18 +67,18 @@ class KDTreeImpl {
 
   nearestNeighbor(tree: KDNode | null, query: Point3D): NearestResult | null {
     if (!tree) return null;
-    const best = { point: null as any, distance: Infinity };
+    const best: { point: (Point3D & { index: number }) | null; distance: number } = { point: null, distance: Infinity };
     this._nnSearch(tree, query, best);
     return {
-      point: { x: best.point.x, y: best.point.y, z: best.point.z },
+      point: { x: best.point!.x, y: best.point!.y, z: best.point!.z },
       distance: Math.sqrt(best.distance),
-      index: best.point.index,
+      index: best.point!.index,
     };
   }
 
   kNearestNeighbors(tree: KDNode | null, query: Point3D, k: number): NearestResult[] {
     if (!tree || k <= 0) return [];
-    const heap: Array<{ point: any; distance: number }> = [];
+    const heap: Array<{ point: Point3D & { index: number }; distance: number }> = [];
     this._knnSearch(tree, query, k, heap);
     return heap
       .sort((a, b) => a.distance - b.distance)
@@ -131,10 +131,10 @@ class KDTreeImpl {
     };
   }
 
-  private _nnSearch(node: KDNode | null, query: Point3D, best: { point: any; distance: number }): void {
+  private _nnSearch(node: KDNode | null, query: Point3D, best: { point: (Point3D & { index: number }) | null; distance: number }): void {
     if (!node) return;
     const dist = this._squaredDistance(query, node.point);
-    if (dist < best.distance) { best.distance = dist; best.point = node.point; }
+    if (dist < best.distance) { best.distance = dist; best.point! = node.point; }
 
     const axisKey = (["x", "y", "z"] as const)[node.axis];
     const diff = query[axisKey] - node.point[axisKey];
@@ -144,7 +144,7 @@ class KDTreeImpl {
     }
   }
 
-  private _knnSearch(node: KDNode | null, query: Point3D, k: number, heap: Array<{ point: any; distance: number }>): void {
+  private _knnSearch(node: KDNode | null, query: Point3D, k: number, heap: Array<{ point: Point3D & { index: number }; distance: number }>): void {
     if (!node) return;
     const dist = this._squaredDistance(query, node.point);
 
@@ -177,7 +177,7 @@ class KDTreeImpl {
     }
   }
 
-  private _radiusSearchRecursive(node: KDNode | null, center: Point3D, radiusSq: number, results: Array<{ point: any; distance: number }>): void {
+  private _radiusSearchRecursive(node: KDNode | null, center: Point3D, radiusSq: number, results: Array<{ point: Point3D & { index: number }; distance: number }>): void {
     if (!node) return;
     const dist = this._squaredDistance(center, node.point);
     if (dist <= radiusSq) results.push({ point: node.point, distance: dist });

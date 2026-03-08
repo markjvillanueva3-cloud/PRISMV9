@@ -3,8 +3,8 @@
  * Manufacturing Intelligence MCP Server
  * 
  * Provides access to:
- * - 32 dispatchers, 382+ verified actions
- * - 73 engines, 9 registries
+ * - 55 dispatchers, 1670+ verified actions
+ * - 554 engine files (561 exported), 23 registries
  * - Materials Database (6,372+ materials x 127 parameters)
  * - Machines Database (1,015+ machines x 4 layers)
  * - Controller Alarms (10,033+ alarms x 12 families)
@@ -313,6 +313,12 @@ const server = new McpServer({
   version: SERVER_VERSION
 });
 
+/** Internal access to McpServer internals for proxy/routing */
+type McpServerInternal = McpServer & {
+  tool: (...args: unknown[]) => unknown;
+  _registeredTools?: Map<string, { callback: (args: Record<string, unknown>) => Promise<{ content?: Array<{ text?: string }> }> }>;
+};
+
 // ============================================================================
 // TOOL REGISTRATION
 // ============================================================================
@@ -540,7 +546,7 @@ async function registerTools(): Promise<void> {
   // RT-MS1: Real-Time WebSocket
   registerRealtimeDispatcher(server);
 
-  log.info(`All PRISM tools registered: 52 dispatchers (1277 actions)`);
+  log.info(`All PRISM tools registered: 55 dispatchers (1670+ actions)`);
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {

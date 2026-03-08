@@ -452,7 +452,7 @@ async function executeBatch(
   let failureCount = 0;
 
   // Check if parallel execution is enabled (via batch state or config)
-  const parallelEnabled = (config as any).parallel_enabled ||
+  const parallelEnabled = (config as unknown as Record<string, unknown>).parallel_enabled ||
     (() => { try {
       const bs = path.join(PATHS.STATE_DIR, "atcs_batch_state.json");
       if (fs.existsSync(bs)) { const s = JSON.parse(fs.readFileSync(bs, "utf-8")); return s.parallel_enabled === true; }
@@ -683,7 +683,7 @@ Actions: ${ACTIONS.join(", ")}`,
               "enable_audit_log", "dry_run"
             ];
             for (const key of configKeys) {
-              if (params[key] !== undefined) (updated as any)[key] = params[key];
+              if (params[key] !== undefined) (updated as Record<string, unknown>)[key] = params[key];
             }
             const newConfig = { ...config, ...updated };
             saveConfig(newConfig);

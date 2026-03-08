@@ -432,7 +432,7 @@ Example: ["insight 1", "insight 2", "insight 3"]`,
           const cleaned = resp.text.trim().replace(/^```json?\s*/, '').replace(/\s*```$/, '');
           const parsed = JSON.parse(cleaned);
           if (Array.isArray(parsed)) {
-            (result as any)[lensMap[i]] = parsed.map(String);
+            (result as unknown as Record<string, unknown>)[lensMap[i]] = parsed.map(String);
           }
         } catch {
           // Extract bullet points or lines as fallback
@@ -440,7 +440,7 @@ Example: ["insight 1", "insight 2", "insight 3"]`,
             .map(l => l.replace(/^[-*•\d.)\s]+/, '').trim())
             .filter(l => l.length > 5 && l.length < 300);
           if (lines.length > 0) {
-            (result as any)[lensMap[i]] = lines.slice(0, 4);
+            (result as unknown as Record<string, unknown>)[lensMap[i]] = lines.slice(0, 4);
           }
         }
       });
@@ -514,18 +514,19 @@ Example: ["insight 1", "insight 2", "insight 3"]`,
         
         swarmResult.agentResults.forEach((agentResult, agentId) => {
           if (agentResult.status === "success") {
-            const output = agentResult.output as any;
+            const output = agentResult.output as Record<string, unknown> | string | undefined;
+            const outputObj = typeof output === "object" && output !== null ? output : undefined;
             result.liveResponses.push({
               agentId,
-              model: output?.model || "unknown",
+              model: String(outputObj?.model || "unknown"),
               response: typeof output === "string" ? output : JSON.stringify(output).slice(0, 500),
               duration_ms: agentResult.duration_ms,
-              tokens: output?.usage
+              tokens: outputObj?.usage as { input: number; output: number } | undefined
             });
             this.apiCallCount++;
-            if (output?.usage) {
-              this.tokenTotals.input += output.usage.inputTokens || 0;
-              this.tokenTotals.output += output.usage.outputTokens || 0;
+            if ((output as any)?.usage) {
+              this.tokenTotals.input += (output as any).usage.inputTokens || 0;
+              this.tokenTotals.output += (output as any).usage.outputTokens || 0;
             }
           }
         });

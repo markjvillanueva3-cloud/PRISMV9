@@ -145,17 +145,17 @@ const preSwarmAgentMix: HookDefinition = {
   tags: ["orchestration", "swarm", "cost-optimization"],
   handler: (context: HookContext): HookResult => {
     const hook = preSwarmAgentMix;
-    const meta = context.metadata as Record<string, any> | undefined;
-    const agents = (meta?.agents || []) as any[];
+    const meta = context.metadata as Record<string, unknown> | undefined;
+    const agents = (meta?.agents || []) as Array<Record<string, unknown>>;
     const pattern = (meta?.pattern || "") as string;
-    
+
     if (!Array.isArray(agents) || agents.length === 0) {
       return hookSuccess(hook, "No agent list to validate");
     }
 
     const tierCounts: Record<string, number> = { opus: 0, sonnet: 0, haiku: 0 };
     for (const agent of agents) {
-      const tier = (agent.tier || agent.model || "sonnet").toLowerCase();
+      const tier = String(agent.tier || agent.model || "sonnet").toLowerCase();
       const key = tier.includes("opus") ? "opus" : tier.includes("haiku") ? "haiku" : "sonnet";
       tierCounts[key]++;
     }
@@ -195,14 +195,14 @@ const postSwarmResultMerge: HookDefinition = {
   tags: ["orchestration", "swarm", "quality"],
   handler: (context: HookContext): HookResult => {
     const hook = postSwarmResultMerge;
-    const meta = context.metadata as Record<string, any> | undefined;
-    const results = (meta?.results || []) as any[];
+    const meta = context.metadata as Record<string, unknown> | undefined;
+    const results = (meta?.results || []) as Array<Record<string, unknown>>;
     const pattern = (meta?.pattern || "") as string;
     const agentCount = (meta?.agent_count || results.length) as number;
 
     const warnings: string[] = [];
-    const emptyResults = results.filter((r: any) => !r || !r.result || r.result === "").length;
-    const errorResults = results.filter((r: any) => r.error || r.status === "error").length;
+    const emptyResults = results.filter((r: Record<string, unknown>) => !r || !r.result || r.result === "").length;
+    const errorResults = results.filter((r: Record<string, unknown>) => r.error || r.status === "error").length;
 
     if (emptyResults > 0) {
       warnings.push(`${emptyResults}/${agentCount} agents returned empty results`);
@@ -240,7 +240,7 @@ const onSwarmConsensusVote: HookDefinition = {
   handler: (context: HookContext): HookResult => {
     const hook = onSwarmConsensusVote;
     const meta = context.metadata as Record<string, any> | undefined;
-    const votes = (meta?.votes || []) as any[];
+    const votes = (meta?.votes || []) as Array<Record<string, unknown>>;
     const totalVoters = (meta?.total_voters || votes.length) as number;
 
     if (totalVoters < 3) {
@@ -297,14 +297,14 @@ const prePipelineStageGate: HookDefinition = {
     const pattern = (meta?.pattern || "") as string;
     if (pattern !== "pipeline") return hookSuccess(hook, "Not a pipeline");
 
-    const prevStageResult = meta?.previous_stage_result as any;
+    const prevStageResult = meta?.previous_stage_result as Record<string, unknown> | undefined;
     const currentStage = (meta?.pipeline_stage || 0) as number;
     const pipelineId = (meta?.pipeline_id || "default") as string;
 
     if (prevStageResult) {
       const hasError = prevStageResult.error || prevStageResult.status === "error";
       const isEmpty = !prevStageResult.result || prevStageResult.result === "";
-      const safetyFailed = prevStageResult.safety_score !== undefined && prevStageResult.safety_score < 0.70;
+      const safetyFailed = (prevStageResult.safety_score as number) !== undefined && (prevStageResult.safety_score as number) < 0.70;
 
       if (hasError) {
         return hookBlock(hook,
@@ -320,8 +320,8 @@ const prePipelineStageGate: HookDefinition = {
       }
       if (safetyFailed) {
         return hookBlock(hook,
-          `🚫 PIPELINE BLOCKED: Stage ${currentStage - 1} safety score ${prevStageResult.safety_score} < 0.70. Cannot propagate unsafe data.`, {
-          pipeline_id: pipelineId, failed_stage: currentStage - 1, safety_score: prevStageResult.safety_score
+          `🚫 PIPELINE BLOCKED: Stage ${currentStage - 1} safety score ${(prevStageResult.safety_score as number)} < 0.70. Cannot propagate unsafe data.`, {
+          pipeline_id: pipelineId, failed_stage: currentStage - 1, safety_score: (prevStageResult.safety_score as number)
         });
       }
     }

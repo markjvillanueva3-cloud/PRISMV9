@@ -11,7 +11,7 @@
  */
 
 import { log } from "../utils/Logger.js";
-import { hookEngine, type HookDefinition } from "../engines/HookEngine.js";
+import { hookEngine, type HookDefinition, type HookContext } from "../engines/HookEngine.js";
 
 // NOTE: PHASE0_HOOKS imported dynamically to avoid circular dependency
 let PHASE0_HOOKS: HookDefinition[] = [];
@@ -372,7 +372,7 @@ async function fireTypescriptHook(hookId: string, data: Record<string, unknown>)
     }
     
     // Execute the hook handler
-    const result = hook.handler ? await hook.handler(data as any) : { executed: true };
+    const result = hook.handler ? await hook.handler(data as unknown as HookContext) : { executed: true };
     
     return {
       success: true,

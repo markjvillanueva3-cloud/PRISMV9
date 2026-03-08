@@ -144,7 +144,7 @@ export class KeywayEngine {
     // End mill parameters
     const emDia = W; // end mill = keyway width
     const Vc = mat === "aluminum" ? 150
-      : mat === "titanium" ? 30
+      : mat === ("titanium" as string) ? 30
       : mat === "stainless" ? 50 : 80;
     const emRpm = r0((Vc * 1000) / (Math.PI * emDia));
     const emFz = mat === "aluminum" ? 0.04

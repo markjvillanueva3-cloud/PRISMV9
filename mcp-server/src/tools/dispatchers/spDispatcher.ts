@@ -104,8 +104,8 @@ async function runBrainstorm(config: BrainstormConfig): Promise<BrainstormResult
   try {
     // Find relevant skills
     const skillResults = skillRegistry.search(problem);
-    const skillList = (skillResults as any)?.skills || (Array.isArray(skillResults) ? skillResults : []);
-    result.domain_context.relevant_skills = skillList.slice(0, 5).map((s: any) => ({
+    const skillList = (skillResults as unknown as Record<string, unknown>)?.skills || (Array.isArray(skillResults) ? skillResults : []);
+    result.domain_context.relevant_skills = (skillList as any[]).slice(0, 5).map((s: any) => ({
       id: s.id || s.skill_id || "unknown",
       name: s.name || s.title || "unknown",
       relevance: s.relevance_score || s.score || 0.5
@@ -127,11 +127,11 @@ async function runBrainstorm(config: BrainstormConfig): Promise<BrainstormResult
     // Cross-query knowledge
     try {
       await knowledgeEngine.initialize();
-      const kq = await (knowledgeEngine as any).crossQuery({ task: problem, context: { operation: domain } });
+      const kq = await (knowledgeEngine as unknown as { crossQuery: (opts: Record<string, unknown>) => Promise<Record<string, unknown>> }).crossQuery({ task: problem, context: { operation: domain } });
       result.domain_context.knowledge_enrichments = 
-        (kq.results?.materials?.length || 0) + (kq.results?.formulas?.length || 0) + 
-        (kq.results?.machines?.length || 0) + (kq.results?.skills?.length || 0);
-      result.domain_context.cross_references = kq.suggested_workflow || [];
+        ((kq.results as any)?.materials?.length || 0) + ((kq.results as any)?.formulas?.length || 0) + 
+        ((kq.results as any)?.machines?.length || 0) + ((kq.results as any)?.skills?.length || 0);
+      result.domain_context.cross_references = Array.isArray(kq.suggested_workflow) ? kq.suggested_workflow as string[] : [];
     } catch { /* knowledge engine may not be initialized */ }
   } catch (e) { log.warn(`[brainstorm] Knowledge grounding partial: ${e}`); }
 

@@ -148,13 +148,13 @@ interface SetupSheetData {
   notes?: string;
 }
 
-function renderSetupSheet(data: Record<string, any>): string {
+function renderSetupSheet(data: Record<string, unknown>): string {
   if (!data.part_name) fail("setup_sheet requires 'part_name'");
   if (!data.material) fail("setup_sheet requires 'material'");
   if (!Array.isArray(data.tools)) fail("setup_sheet requires 'tools' array");
   if (!Array.isArray(data.operations)) fail("setup_sheet requires 'operations' array");
 
-  const d = data as SetupSheetData;
+  const d = data as unknown as SetupSheetData;
   const lines: string[] = [];
 
   // Header block
@@ -308,12 +308,12 @@ interface ProcessPlanData {
   approved_by?: string;
 }
 
-function renderProcessPlan(data: Record<string, any>): string {
+function renderProcessPlan(data: Record<string, unknown>): string {
   if (!data.part_name) fail("process_plan requires 'part_name'");
   if (!data.material) fail("process_plan requires 'material'");
   if (!Array.isArray(data.operations)) fail("process_plan requires 'operations' array");
 
-  const d = data as ProcessPlanData;
+  const d = data as unknown as ProcessPlanData;
   const lines: string[] = [];
 
   lines.push("# MANUFACTURING PROCESS PLAN");
@@ -418,12 +418,12 @@ interface CostEstimateData {
   breakdown?: CostBreakdownItem[];
 }
 
-function renderCostEstimate(data: Record<string, any>): string {
+function renderCostEstimate(data: Record<string, unknown>): string {
   if (!data.part_name) fail("cost_estimate requires 'part_name'");
   if (data.quantity === undefined || data.quantity === null)
     fail("cost_estimate requires 'quantity'");
 
-  const d = data as CostEstimateData;
+  const d = data as unknown as CostEstimateData;
   const warnings: string[] = [];
 
   if (d.quantity <= 0) warnings.push("Quantity is zero or negative — totals may be invalid.");
@@ -644,10 +644,10 @@ interface ToolListData {
   tools: ToolListEntry[];
 }
 
-function renderToolList(data: Record<string, any>): string {
+function renderToolList(data: Record<string, unknown>): string {
   if (!Array.isArray(data.tools)) fail("tool_list requires 'tools' array");
 
-  const d = data as ToolListData;
+  const d = data as unknown as ToolListData;
   const lines: string[] = [];
 
   lines.push("# TOOL LIST");
@@ -705,11 +705,11 @@ interface InspectionPlanData {
   notes?: string[];
 }
 
-function renderInspectionPlan(data: Record<string, any>): string {
+function renderInspectionPlan(data: Record<string, unknown>): string {
   if (!data.part_name) fail("inspection_plan requires 'part_name'");
   if (!Array.isArray(data.features)) fail("inspection_plan requires 'features' array");
 
-  const d = data as InspectionPlanData;
+  const d = data as unknown as InspectionPlanData;
   const warnings: string[] = [];
 
   if (d.features.length === 0) warnings.push("Inspection plan has no features defined.");
@@ -833,10 +833,10 @@ interface AlarmReportData {
   mttr_minutes?: number; // mean time to repair
 }
 
-function renderAlarmReport(data: Record<string, any>): string {
+function renderAlarmReport(data: Record<string, unknown>): string {
   if (!data.alarm_code) fail("alarm_report requires 'alarm_code'");
 
-  const d = data as AlarmReportData;
+  const d = data as unknown as AlarmReportData;
   const lines: string[] = [];
 
   // Severity badge
@@ -948,11 +948,11 @@ interface SpeedFeedCardData {
   operations: SpeedFeedOperation[];
 }
 
-function renderSpeedFeedCard(data: Record<string, any>): string {
+function renderSpeedFeedCard(data: Record<string, unknown>): string {
   if (!data.material) fail("speed_feed_card requires 'material'");
   if (!Array.isArray(data.operations)) fail("speed_feed_card requires 'operations' array");
 
-  const d = data as SpeedFeedCardData;
+  const d = data as unknown as SpeedFeedCardData;
   const lines: string[] = [];
 
   lines.push("# SPEED / FEED REFERENCE CARD");
@@ -1015,7 +1015,7 @@ function renderSpeedFeedCard(data: Record<string, any>): string {
 
 // ─── Dispatcher Map ───────────────────────────────────────────────────────────
 
-type RendererFn = (data: Record<string, any>) => string;
+type RendererFn = (data: Record<string, unknown>) => string;
 
 const RENDERERS: Record<ReportType, RendererFn> = {
   setup_sheet: renderSetupSheet,
@@ -1033,7 +1033,7 @@ const RENDERERS: Record<ReportType, RendererFn> = {
  * Post-render warning analysis. Checks for suspicious data patterns
  * and returns any warning strings.
  */
-function collectWarnings(type: ReportType, data: Record<string, any>): string[] {
+function collectWarnings(type: ReportType, data: Record<string, unknown>): string[] {
   const w: string[] = [];
 
   if (type === "cost_estimate") {
@@ -1047,32 +1047,32 @@ function collectWarnings(type: ReportType, data: Record<string, any>): string[] 
       "labor_cost_per_hour",
     ];
     const anyDefined = allCostFields.some((f) => data[f] !== undefined);
-    if (!anyDefined && (!data.breakdown || data.breakdown.length === 0)) {
+    if (!anyDefined && (!data.breakdown || (data.breakdown as any[])?.length === 0)) {
       w.push("No cost data fields provided — estimate will show $0.");
     }
     // 8A: Outlier detection in collectWarnings
     if (data.material_cost !== undefined && data.material_cost === 0) {
       w.push("Material cost is $0.00 — verify this is intentional.");
     }
-    if (data.cycle_time_min !== undefined && data.cycle_time_min > 1000) {
-      w.push(`Cycle time ${data.cycle_time_min} min is unusually long.`);
+    if ((data as any).cycle_time_min !== undefined && (data as any).cycle_time_min > 1000) {
+      w.push(`Cycle time ${(data as any).cycle_time_min} min is unusually long.`);
     }
   }
 
   if (type === "inspection_plan") {
-    const features = data.features as any[];
+    const features = data.features as unknown[];
     if (!features || features.length === 0) w.push("No inspection features defined.");
   }
 
   if (type === "setup_sheet") {
-    const tools = data.tools as any[];
-    const ops = data.operations as any[];
+    const tools = data.tools as unknown[];
+    const ops = data.operations as unknown[];
     if (tools && tools.length === 0) w.push("Tool list is empty.");
     if (ops && ops.length === 0) w.push("No operations defined.");
   }
 
   if (type === "speed_feed_card") {
-    const ops = data.operations as any[];
+    const ops = data.operations as unknown[];
     if (!ops || ops.length === 0) w.push("No operations in speed/feed card.");
   }
 
@@ -1097,7 +1097,7 @@ function collectWarnings(type: ReportType, data: Record<string, any>): string[] 
  * });
  * console.log(result.markdown);
  */
-export function renderReport(type: string, data: Record<string, any>): ReportResult {
+export function renderReport(type: string, data: Record<string, unknown>): ReportResult {
   if (!RENDERERS[type as ReportType]) {
     fail(
       `Unknown report type "${type}". Valid types: ${REPORT_TYPES.join(", ")}`

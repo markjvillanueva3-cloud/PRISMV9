@@ -14,7 +14,9 @@
 
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
-import { hookExecutor } from "../../engines/HookExecutor.js";
+import { validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_DOCUMENT_LEARNING_SCHEMAS } from "../../schemas/documentLearningActionSchemas.js";
+import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
 import { PATHS } from "../../constants.js";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -304,13 +306,23 @@ export function registerDocumentLearningDispatcher(server: any): void {
           Object.assign(params, normalizeParams(rawParams));
         } catch { /* normalizer not available */ }
 
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_DOCUMENT_LEARNING_SCHEMAS);
+        if (!validation.valid) {
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({
+              error: `Invalid params for ${action}`, details: validation.errors, action,
+            }) }],
+          };
+        }
+
         // Pre-hooks
         const hookCtx = {
           operation: action,
           target: { type: "knowledge" as const, id: action, data: params },
           metadata: { dispatcher: "documentLearningDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as unknown as Partial<HookContext>);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({

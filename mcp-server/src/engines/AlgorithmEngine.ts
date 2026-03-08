@@ -133,7 +133,7 @@ export class AlgorithmEngine {
       result,
       warnings: [
         ...validation.issues.filter(i => i.severity === "warning").map(i => `${i.field}: ${i.message}`),
-        ...((result as any)?.warnings ?? []),
+        ...((result as unknown as Record<string, unknown>)?.warnings as string[] ?? []),
       ],
       execution_time_ms: Math.round(elapsed * 100) / 100,
     };

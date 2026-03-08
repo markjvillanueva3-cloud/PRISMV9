@@ -24,7 +24,9 @@
 
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
-import { hookExecutor } from "../../engines/HookExecutor.js";
+import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_SHOP_PRACTICE_SCHEMAS } from "../../schemas/shopPracticeActionSchemas.js";
+import { hookExecutor, type HookContext } from "../../engines/HookExecutor.js";
 import { PATHS } from "../../constants.js";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
@@ -648,13 +650,18 @@ export function registerShopPracticeDispatcher(server: any): void {
           target: { type: "knowledge" as const, id: action, data: params },
           metadata: { dispatcher: "shopPracticeDispatcher", action, params },
         };
-        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as any);
+        const preResult = await hookExecutor.execute("pre-calculation", hookCtx as unknown as Partial<HookContext>);
         if (preResult.blocked) {
           return {
             content: [{ type: "text" as const, text: JSON.stringify({
               blocked: true, blocker: preResult.blockedBy, reason: preResult.summary, action,
             }) }],
           };
+        }
+
+        const validation = validateActionParams(action, params, ACTION_SHOP_PRACTICE_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError("prism_shop_practice", action, Array.isArray(validation.errors) ? validation.errors.map((e: any) => e.message).join("; ") : "Invalid parameters");
         }
 
         const handler = ACTION_HANDLERS[action];

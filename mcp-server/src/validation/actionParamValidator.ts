@@ -78,13 +78,14 @@ export function validateActionParams(
 
   for (const issue of result.error.issues) {
     const field = issue.path.join(".");
-    const received = (issue as any).received ?? (issue as any).input;
+    const issueRec = issue as unknown as Record<string, unknown>;
+    const received = issueRec.received ?? issueRec.input;
     if (issue.code === "invalid_type" && received === "undefined") {
       missing.push(field);
     } else {
       invalid.push({
         field,
-        expected: issue.code === "invalid_type" ? (issue as any).expected ?? issue.message : issue.message,
+        expected: issue.code === "invalid_type" ? (issueRec.expected as string) ?? issue.message : issue.message,
         got: issue.code === "invalid_type" ? String(received) : typeof coerced[field],
         value: coerced[field],
       });
@@ -153,10 +154,11 @@ function coerceValue(value: string, schema: ZodType): any {
  * Unwrap ZodOptional, ZodNullable, ZodDefault to get the inner type.
  */
 function unwrapSchema(schema: ZodType): ZodType {
-  const s = schema as any;
-  if (s._zod?.def?.type === "optional" || s instanceof (z as any).ZodOptional) return unwrapSchema(s.unwrap());
-  if (s._zod?.def?.type === "nullable" || s instanceof (z as any).ZodNullable) return unwrapSchema(s.unwrap());
-  if (s._zod?.def?.type === "default" || s instanceof (z as any).ZodDefault) return unwrapSchema(s.removeDefault());
+  const s = schema as ZodType & { _zod?: { def?: { type?: string } }; unwrap?: () => ZodType; removeDefault?: () => ZodType };
+  const zNs = z as unknown as Record<string, new (...args: unknown[]) => ZodType>;
+  if (s._zod?.def?.type === "optional" || (zNs.ZodOptional && s instanceof zNs.ZodOptional)) return unwrapSchema(s.unwrap!());
+  if (s._zod?.def?.type === "nullable" || (zNs.ZodNullable && s instanceof zNs.ZodNullable)) return unwrapSchema(s.unwrap!());
+  if (s._zod?.def?.type === "default" || (zNs.ZodDefault && s instanceof zNs.ZodDefault)) return unwrapSchema(s.removeDefault!());
   return schema;
 }
 
@@ -175,7 +177,7 @@ function buildHint(schema: ZodType): string {
       : inner instanceof z.ZodString ? "string"
       : inner instanceof z.ZodBoolean ? "boolean"
       : inner instanceof z.ZodArray ? "array"
-      : inner instanceof z.ZodEnum ? `enum(${(inner as any)._def.values.join("|")})`
+      : inner instanceof z.ZodEnum ? `enum(${(inner as unknown as { _def: { values: string[] } })._def.values.join("|")})`
       : "any";
 
     const isOptional = fieldSchema instanceof z.ZodOptional

@@ -299,7 +299,7 @@ export function autoContextPressure(callNumber: number, accumulatedBytes: number
       pressure_pct: pressurePct,
       zone,
       timestamp: new Date().toISOString(),
-      history: [] as any[],
+      history: [] as unknown[],
     };
 
     // Load previous history
@@ -1261,7 +1261,7 @@ export function autoWarmStartData(): WarmStartResult {
       const lines = fs.readFileSync(ERROR_LOG_PATH, "utf-8").trim().split("\n").filter(Boolean);
       result.recent_errors = lines.slice(-3).map(l => {
         try { const e = JSON.parse(l); return { tool: e.tool_name || "?", type: e.error_type || "?", when: e.timestamp || "?" }; } catch { return null; }
-      }).filter(Boolean) as any[];
+      }).filter(Boolean) as Array<{ tool: string; type: string; when: string }>;
     }
 
     // 3. Top failure patterns
@@ -1526,12 +1526,12 @@ function getTriggersByNamespace(namespace: string): Array<{ trigger: string; ski
       const triggers = raw.triggers || [];
       // Index triggers by namespace/domain/category for O(1) lookup
       for (const entry of (Array.isArray(triggers) ? triggers : Object.values(triggers))) {
-        const e = entry as any;
+        const e = entry as Record<string, unknown>;
         const ns = e.namespace || e.domain || e.category || "general";
         const trigger = e.trigger || e.name || e.id || "";
         const skills = e.skills || e.auto_load_skills || [];
-        if (!_triggerNamespaceIndex[ns]) _triggerNamespaceIndex[ns] = [];
-        _triggerNamespaceIndex[ns].push({ trigger, skills, namespace: ns });
+        if (!((_triggerNamespaceIndex as any)[ns as string])) ((_triggerNamespaceIndex as any)[ns as string]) = [];
+        ((_triggerNamespaceIndex as any)[ns as string]).push({ trigger, skills, namespace: ns });
       }
       // Also index by trigger_map keys if present (flat format)
       const map: Record<string, string[]> = raw.trigger_map || {};
@@ -2635,9 +2635,9 @@ export function autoScriptRecommend(
       recommendations: recommendations.slice(0, 3),
       domain,
       scripts_scanned: scriptsScanned,
-    } as any;
+    } as unknown as ScriptRecommendResult;
   } catch (err: any) {
-    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 } as any;
+    return { success: false, call_number: callNumber, recommendations: [], domain: action, scripts_scanned: 0 } as unknown as ScriptRecommendResult;
   }
 }
 
@@ -4676,7 +4676,7 @@ export function autoSessionQualityTrack(callNumber: number, recentActions: strin
       writeSessionIncrementalPrep(callNumber, "active", quickResume, pending, findings, []);
       prepWritten = true;
     } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
-    if (score) appendEventLine("session_quality_tracked", { call: callNumber, score: (score as any).score });
+    if (score) appendEventLine("session_quality_tracked", { call: callNumber, score: score.overall });
     return { success: true, call_number: callNumber, quality_score: score, prep_written: prepWritten };
   } catch (err: any) { log.debug(`[cadence] call ${callNumber} failed: ${err?.message?.slice(0, 100)}`); return { success: false, call_number: callNumber, quality_score: null, prep_written: false }; }
 }
@@ -4832,7 +4832,7 @@ export function autoLearningQuery(callNumber: number, toolName: string, action: 
 
 export function autoTelemetryAnomalyCheck(callNumber: number): { success: boolean; call_number: number; critical_count: number; anomalies: string[] } {
   try {
-    const all = telemetryEngine.getAnomalies("CRITICAL" as any, false);
+    const all = telemetryEngine.getAnomalies("CRITICAL", false);
     const summaries = all.slice(0, 5).map((a: any) => `${a.dispatcher || "?"}:${a.action || "?"} — ${(a.message || "").slice(0, 80)}`);
     if (all.length > 0) appendEventLine("telemetry_critical_anomalies", { call: callNumber, count: all.length });
     return { success: true, call_number: callNumber, critical_count: all.length, anomalies: summaries };
@@ -5384,7 +5384,7 @@ export async function autoGroupedSwarmDispatch(
     } catch { /* non-fatal */ }
 
     // Set deferred injection for next 3 calls
-    (globalThis as any).__prism_swarm_pending = {
+    (globalThis as Record<string, unknown>).__prism_swarm_pending = {
       result: {
         synthesis: result.synthesis,
         groups: result.completedGroups,
@@ -6143,11 +6143,11 @@ export function autoConversationalMemorySave(callNumber: number, recentCalls: st
 export function autoTelemetryResolve(callNumber: number, toolName: string, action: string): { success: boolean; call_number: number; resolved: number } {
   try {
     if (!telemetryEngine) return { success: true, call_number: callNumber, resolved: 0 };
-    const anomalies = (telemetryEngine as any).getAnomalies?.() || [];
+    const anomalies = telemetryEngine.getAnomalies() || [];
     let resolved = 0;
     for (const anomaly of anomalies) {
-      if (anomaly.dispatcher === toolName && anomaly.action === action && !anomaly.acknowledged) {
-        try { (telemetryEngine as any).acknowledge?.(anomaly.id || anomaly.key); resolved++; } catch (e: any) { log.debug(`[cadence] ${e?.message?.slice(0, 80)}`); }
+      if (anomaly.dispatcher === toolName && (anomaly as any)?.action === action && !(anomaly as any).acknowledged) {
+        try { telemetryEngine.acknowledgeAnomaly(anomaly.id || (anomaly as unknown as Record<string, string>).key, "auto"); resolved++; } catch (e: unknown) { log.debug(`[cadence] ${(e as Error)?.message?.slice(0, 80)}`); }
       }
     }
     if (resolved > 0) appendEventLine("telemetry_resolve", { tool: toolName, action, resolved, call: callNumber });

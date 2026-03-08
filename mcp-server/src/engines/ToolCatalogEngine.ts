@@ -1219,7 +1219,7 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: osg.material === "carbide" ? "through_tool" : "flood",
         source: "OSG_catalog",
-        catalog_page: (osg as Record<string, unknown>).page as string | undefined,
+        catalog_page: Number((osg as unknown as Record<string, unknown>).page) || undefined,
       });
     }
   }
@@ -1363,7 +1363,7 @@ export class ToolCatalogEngine {
         designation: it.designation,
         type: toolType,
         subtype: it.subtype,
-        material: it.subtype === "indexable" ? "indexable_carbide" : "carbide",
+        material: it.subtype === "indexable" ? "indexable" : "carbide",
         physical: {
           cutting_diameter_mm: dc,
           shank_diameter_mm: shank,
@@ -1375,7 +1375,7 @@ export class ToolCatalogEngine {
         iso_groups: ["P", "M", "K", "N", "S", "H"],
         operations: toolType === "drill" ? ["drill"] :
                     toolType === "face_mill" ? ["face"] :
-                    toolType === "thread_mill" ? ["thread_mill"] :
+                    toolType === ("thread_mill" as string) ? ["thread_mill"] :
                     ["pocket", "slot", "contour", "face", "shoulder"],
         cutting_data: cuttingData,
         coolant: dc >= 10 ? "through_tool" : "flood",

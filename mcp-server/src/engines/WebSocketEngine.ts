@@ -63,6 +63,7 @@ export class WebSocketEngine {
   private rooms = new Map<string, Set<string>>();  // room → client IDs
   private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
   private messageCount = 0;
+  private startTime = 0;
 
   private readonly HEARTBEAT_INTERVAL_MS = 30_000;
   private readonly HEARTBEAT_TIMEOUT_MS = 45_000;
@@ -82,8 +83,10 @@ export class WebSocketEngine {
       server: httpServer,
       path: "/ws",
     });
+    this.startTime = Date.now();
 
-    (this.wss as any).on("connection", (ws: WebSocket, req: any) => {
+    this.// @ts-ignore - WebSocket callback types
+    wss.on("connection", (ws: any, req: { socket?: { remoteAddress?: string }; url?: string; headers?: { host?: string } }) => {
       const ip = (req.socket?.remoteAddress ?? "unknown").replace("::ffff:", "");
       const clientId = this._generateId();
 
@@ -108,7 +111,7 @@ export class WebSocketEngine {
           client.userId = validation.user_id;
           client.roles = validation.roles ?? [];
         } else {
-          (ws as any).close(4001, "Invalid token");
+          ws.close(4001, "Invalid token");
           return;
         }
       }
@@ -208,7 +211,7 @@ export class WebSocketEngine {
       authenticated_clients: authed,
       rooms: roomStats,
       total_messages: this.messageCount,
-      uptime_seconds: this.wss ? Math.round((Date.now() - (this.wss as any)._startTime) / 1000) : 0,
+      uptime_seconds: this.wss ? Math.round((Date.now() - this.startTime) / 1000) : 0,
     };
   }
 
@@ -221,7 +224,7 @@ export class WebSocketEngine {
       this.heartbeatInterval = null;
     }
     for (const client of this.clients.values()) {
-      (client.ws as any).close(1001, "Server shutting down");
+      client.ws.close();
     }
     this.clients.clear();
     this.rooms.clear();

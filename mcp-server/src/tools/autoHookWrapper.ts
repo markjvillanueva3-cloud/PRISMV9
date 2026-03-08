@@ -24,7 +24,7 @@ import { execSync } from "child_process";
 import { log } from "../utils/Logger.js";
 // prism-schema types available via prism-schema.js if needed
 // ProofValidation and FactVerify do not exist as exports — functionality is inline
-import { hookExecutor } from "../engines/HookExecutor.js";
+import { hookExecutor, type HookPhase } from "../engines/HookExecutor.js";
 import { hookEngine } from "../orchestration/HookEngine.js";
 import { eventBus, EventTypes } from "../engines/EventBus.js";
 import {
@@ -76,6 +76,7 @@ import { autoResponseTemplate } from "../engines/ResponseTemplateEngine.js";
 // TelemetryEngine singleton accessed via cadenceExecutor
 import { MemoryGraphEngine } from "../engines/MemoryGraphEngine.js";
 import { pfpEngine } from "../engines/PredictiveFailureEngine.js";
+import type { ActionOutcome } from "../types/pfp-types.js";
 import { computationCache } from "../engines/ComputationCache.js";
 import {
   recordSessionToolCall, recordSessionHook, recordSessionSkillInjection,
@@ -328,7 +329,7 @@ async function fireHook(hookId: string, data: any) {
       },
       metadata: { hookId, ...data }
     };
-    const executorResult = await hookExecutor.execute("before" as any, hookContext).catch(() => null);
+    const executorResult = await hookExecutor.execute("pre-calculation" as HookPhase, hookContext).catch(() => null);
     const result = {
       hook_id: hookId,
       success: true,
@@ -799,7 +800,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
             try {
               void autoGroupedSwarmDispatch(callNum, agentRec.classification, toolName, action2, args[0]?.params || {}).then(pd => {
                 if (pd.dispatched) {
-                  (globalThis as any).__prism_swarm_pending = {
+                  (globalThis as Record<string, unknown>).__prism_swarm_pending = {
                     result: { synthesis: pd.synthesis, groups: pd.groupCount, timedOut: pd.timedOut, mode: pd.mode },
                     injected_at: callNum,
                     remaining: 3
@@ -920,9 +921,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
       try {
         const domainPhase = mapping.category === "ORCH" ? "pre-swarm-execute" : "pre-agent-execute";
-        await hookExecutor.execute(domainPhase as any, {
+        await hookExecutor.execute(domainPhase as HookPhase, {
           operation: action2,
-          target: { type: "dispatcher" as any, id: `${toolName}:${action2}` },
+          target: { type: "agent" as const, id: `${toolName}:${action2}` },
           metadata: {
             dispatcher: toolName,
             action: action2,
@@ -1056,7 +1057,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               try {
                 const { memoryGraphEngine: mge } = await import("../engines/MemoryGraphEngine.js");
                 // Find recent ERROR node for this dispatcher
-                const errorNodes = (mge as any).index?.nodesByType?.ERROR || [];
+                const errorNodes = (mge as unknown as Record<string, Record<string, Record<string, string[]>>>).index?.nodesByType?.ERROR || [];
                 const recentErrorId = errorNodes.length > 0 ? errorNodes[errorNodes.length - 1] : undefined;
                 mge.createPatternFromError(
                   process.env.SESSION_ID || "unknown",
@@ -1090,7 +1091,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           try {
             await hookExecutor.execute("on-error", {
               operation: action2,
-              target: { type: "tool" as any, id: `${toolName}:${action2}` },
+              target: { type: "agent" as const, id: `${toolName}:${action2}` },
               metadata: { dispatcher: toolName, action: action2, call_number: callNum, error_message: err3.message, duration_ms: Date.now() - startTime }
             });
           } catch {
@@ -1103,7 +1104,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     // === PFP OUTCOME RECORDING (B1) ===
     try {
       const pfpOutcome = error ? 'failure' : 'success';
-      pfpEngine.recordAction(toolName, action2, pfpOutcome as any, durationMs, (error as any)?.constructor?.name, args[0]?.params || {});
+      pfpEngine.recordAction(toolName, action2, pfpOutcome as ActionOutcome, durationMs, (error as unknown as Error | undefined)?.constructor?.name, args[0]?.params || {});
     } catch { /* PFP recording failure is non-fatal */ }
     await fireHook("DISPATCH-PERF-TRACK-001", {
       tool_name: toolName,
@@ -1117,7 +1118,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       const telemetryStartMs = startTime;
       const telemetryEndMs = startTime + durationMs;
       const outcome = error ? "failure" : result?.content?.[0]?.text?.includes('"blocked":true') ? "blocked" : "success";
-      const errorClass = error ? (error as any)?.constructor?.name || "UnknownError" : undefined;
+      const errorClass = error ? (error as Error)?.constructor?.name || "UnknownError" : undefined;
       const payloadSize = result?.content?.[0]?.text?.length || 0;
       const pressurePct = cadence.pressure?.pressure_pct ?? 0;
       // Telemetry recording handled by autoTelemetrySnapshot cadence function
@@ -1142,17 +1143,18 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         call_number: callNum,
       }, { category: "hook", priority: "normal", source: "autoHookWrapper" });
       // Bridge: route phase event to HookExecutor so phase-based cadences fire
-      await hookExecutor.execute(phase as any, {
-        phase: phase as any,
+      await hookExecutor.execute(phase as HookPhase, {
+        phase: phase as HookPhase,
         operation: `${toolName}:${action2}`,
         target: { type: "calculation", data: { tool: toolName, action: action2, duration_ms: durationMs, call_number: callNum } },
       }).catch(() => { /* phase hooks are best-effort — must not block dispatchers */ });
     } catch { /* phase event emission is best-effort */ }
     try {
       const { memoryGraphEngine: memoryGraphEngine2 } = await import("../engines/MemoryGraphEngine.js");
-      const paramsSummary = typeof (args as any).params === "object" ? JSON.stringify((args as any).params).slice(0, 200) : String((args as any).params || "").slice(0, 200);
+      const argsRec = args as unknown as Record<string, unknown>;
+      const paramsSummary = typeof argsRec.params === "object" ? JSON.stringify(argsRec.params).slice(0, 200) : String(argsRec.params || "").slice(0, 200);
       const resultSummary = result?.content?.[0]?.text?.slice(0, 200) || "";
-      const errorClass = error ? (error as any)?.constructor?.name || "UnknownError" : undefined;
+      const errorClass = error ? (error as Error)?.constructor?.name || "UnknownError" : undefined;
       memoryGraphEngine2.captureDispatch(
         process.env.SESSION_ID || "unknown",
         toolName,
@@ -1173,7 +1175,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     } catch { /* non-fatal */ }
     // Trajectory recording — SONA-style dispatch learning
     try {
-      const resultSnippet = result?.content?.[0]?.text?.slice(0, 100) || (error ? String((error as any)?.message || error).slice(0, 100) : "ok");
+      const resultSnippet = result?.content?.[0]?.text?.slice(0, 100) || (error ? String((error as Error)?.message || error).slice(0, 100) : "ok");
       autoTrajectoryRecord(callNum, toolName, action2, !error, durationMs, resultSnippet);
     } catch { /* non-fatal */ }
     // H1-MS4: Auto-capture decisions for high-value actions
@@ -1200,7 +1202,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         safetyScore,
         undefined,
         // omegaScore computed separately
-        { params_summary: (typeof (args as any).params === "object" ? JSON.stringify((args as any).params) : "").slice(0, 100) }
+        { params_summary: (typeof (args as unknown as Record<string, unknown>).params === "object" ? JSON.stringify((args as unknown as Record<string, unknown>).params) : "").slice(0, 100) }
       );
     } catch {
     }
@@ -1345,7 +1347,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         await hookExecutor.execute("on-outcome", {
           operation: action2,
-          target: { type: "tool" as any, id: `${toolName}:${action2}` },
+          target: { type: "agent" as const, id: `${toolName}:${action2}` },
           metadata: { dispatcher: toolName, action: action2, call_number: callNum, duration_ms: durationMs, success: true }
         });
       } catch {
@@ -1353,9 +1355,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       if (mapping?.category === "AGENT" || mapping?.category === "ORCH") {
         try {
           const domainPhase = mapping.category === "ORCH" ? "post-swarm-complete" : "post-agent-execute";
-          await hookExecutor.execute(domainPhase as any, {
+          await hookExecutor.execute(domainPhase as HookPhase, {
             operation: action2,
-            target: { type: "dispatcher" as any, id: `${toolName}:${action2}` },
+            target: { type: "agent" as const, id: `${toolName}:${action2}` },
             metadata: {
               dispatcher: toolName,
               action: action2,
@@ -1466,7 +1468,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       if (typeof editedFile === "string" && editedFile.length > 0) {
         const { isStale } = await import("../engines/MasterIndexGenerator.js");
         if (isStale(editedFile)) {
-          (globalThis as any).__prism_index_stale = true;
+          (globalThis as Record<string, unknown>).__prism_index_stale = true;
         }
       }
     } catch { /* non-fatal */ }
@@ -1685,7 +1687,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       // Session quality track — every 10 calls (resurrect dead SessionLifecycleEngine)
       try {
         const sqt = autoSessionQualityTrack(callNum, cadence.actions);
-        if (sqt.quality_score) cadence.actions.push(`QUALITY:${(sqt.quality_score as any).grade || "?"}`);
+        if (sqt.quality_score) cadence.actions.push(`QUALITY:${(sqt.quality_score as { grade?: string }).grade || "?"}`);
         cadence.session_quality = sqt;
       } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
       // Budget report — every 10 calls
@@ -1959,8 +1961,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
               // GAP B: Create RESOLVED_BY edge in memory graph
               try {
                 const { memoryGraphEngine: mgeResolve } = await import("../engines/MemoryGraphEngine.js");
-                const errorNodes = (mgeResolve as any).index?.nodesByType?.ERROR || [];
-                const decisionNodes = (mgeResolve as any).index?.nodesByType?.DECISION || [];
+                const mgeIndex = mgeResolve as unknown as Record<string, Record<string, Record<string, string[]>>>;
+                const errorNodes = mgeIndex.index?.nodesByType?.ERROR || [];
+                const decisionNodes = mgeIndex.index?.nodesByType?.DECISION || [];
                 // Link most recent ERROR to most recent DECISION (the one that resolved it)
                 if (errorNodes.length > 0 && decisionNodes.length > 0) {
                   const recentErrorId = errorNodes[errorNodes.length - 1];
@@ -2156,37 +2159,37 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         import("../engines/MasterIndexGenerator.js").then(async (mig) => {
           const idx = await mig.generate();
-          (globalThis as any).__prism_master_index = idx;
+          (globalThis as Record<string, unknown>).__prism_master_index = idx;
           cadence.actions?.push(`\u{1F4CB} INDEX_REFRESHED: ${idx.totals.dispatchers} dispatchers, ${idx.totals.actions} actions, ${idx.totals.engines} engines`);
         }).catch(() => {});
       } catch { /* non-fatal */ }
     }
     // Index staleness detection — if a tracked file was edited, mark stale
     try {
-      if ((globalThis as any).__prism_index_stale) {
-        (globalThis as any).__prism_index_stale = false;
+      if ((globalThis as Record<string, unknown>).__prism_index_stale) {
+        (globalThis as Record<string, unknown>).__prism_index_stale = false;
         import("../engines/MasterIndexGenerator.js").then(async (mig) => {
           const idx = await mig.generate();
-          (globalThis as any).__prism_master_index = idx;
+          (globalThis as Record<string, unknown>).__prism_master_index = idx;
         }).catch(() => {});
         cadence.actions.push(`\u{1F4CB} INDEX_STALE: reindexing`);
       }
     } catch { /* non-fatal */ }
     // Master index reader — expose index totals for cadence consumers
     try {
-      const masterIdx = (globalThis as any).__prism_master_index;
+      const masterIdx = (globalThis as Record<string, unknown>).__prism_master_index as Record<string, unknown> | undefined;
       if (masterIdx?.totals) {
-        cadence.master_index_totals = masterIdx.totals;
+        cadence.master_index_totals = masterIdx.totals as Record<string, unknown>;
       }
     } catch { /* non-fatal */ }
     // Deferred swarm result injection — surfaces pending results for 3 calls after dispatch
     try {
-      const swarmPending = (globalThis as any).__prism_swarm_pending;
-      if (swarmPending && swarmPending.remaining > 0) {
+      const swarmPending = (globalThis as Record<string, unknown>).__prism_swarm_pending as Record<string, unknown> | undefined;
+      if (swarmPending && (swarmPending.remaining as number) > 0) {
         cadence.swarm_results = swarmPending.result;
-        swarmPending.remaining--;
-        if (swarmPending.remaining <= 0) {
-          delete (globalThis as any).__prism_swarm_pending;
+        (swarmPending as Record<string, unknown>).remaining = ((swarmPending.remaining as number) - 1);
+        if ((swarmPending.remaining as number) <= 0) {
+          delete (globalThis as Record<string, unknown>).__prism_swarm_pending;
         }
       }
     } catch { /* non-fatal */ }
@@ -2591,9 +2594,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       try {
         const preOutputResult: any = await hookExecutor.execute("pre-output", {
           operation: action2,
-          target: { type: "output" as any, id: `${toolName}:${action2}` },
+          target: { type: "code" as const, id: `${toolName}:${action2}` },
           metadata: { dispatcher: toolName, action: action2, call_number: callNum, content_preview: result.content[0].text.slice(0, 2e3) }
-        } as any);
+        });
         if (preOutputResult.blocked) {
           result = {
             content: [{
@@ -2610,7 +2613,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       } catch {
       }
     }
-    recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, (error as any)?.message);
+    recordFlightAction(callNum, toolName, action2, args[0], !error, durationMs, result, (error as unknown as Error | undefined)?.message);
     // CRITICAL: Write survival data on EVERY call so compaction recovery always has current state
     try {
       const survivalData = {
@@ -2624,7 +2627,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         todo_snapshot: cadence.todo?.raw?.slice?.(0, 500) || "",
         quick_resume: `Phase: ${cadence.todo?.taskName || "unknown"}, Call: ${callNum}, Last: ${toolName}:${action2}`,
         next_action: cadence.todo?.nextStep || null,
-        error_summary: error ? (error as any).message?.slice(0, 200) : null,
+        error_summary: error ? (error as Error).message?.slice(0, 200) : null,
       };
       safeWriteSync(path.join(STATE_DIR12, "COMPACTION_SURVIVAL.json"), JSON.stringify(survivalData, null, 2));
       // HOT_RESUME: lean, recent calls only

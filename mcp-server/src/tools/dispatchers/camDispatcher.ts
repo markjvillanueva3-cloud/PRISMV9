@@ -99,6 +99,8 @@ const ACTIONS = [
   "gcode_transpile_cycles",
   "stability_rpm_rewrite",
   "stability_rpm_analyze",
+  "cross_cam_recommend",
+  "cross_cam_synthesize",
   // Post-processor innovations (7 engines, 21 actions)
   "probe_wcs_setup",
   "probe_inspection",
@@ -663,6 +665,56 @@ Params vary by action — pass relevant fields in params object.`,
             });
             break;
           }
+          case "cross_cam_recommend": {
+            const { crossCamRecommenderEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
+            const ccResult = crossCamRecommenderEngine.compute({
+              geometry: { type: params.geometry_type || "pocket_2d",
+                dimensions_mm: params.dimensions_mm || { length: 100, width: 80, depth: 30 },
+                corner_radius_mm: params.corner_radius_mm },
+              material: { class: params.material_class || "steel_4140",
+                iso_group: params.iso_group || "P", hardness_hrc: params.hardness_hrc },
+              machine: { spindle_power_kw: params.spindle_power_kw || 15,
+                max_rpm: params.max_rpm || 10000, axis_count: params.axis_count || 3,
+                controller: params.controller },
+              tool: { diameter_mm: params.tool_diameter_mm || 10,
+                flute_count: params.flute_count || 4,
+                material: params.tool_material || "carbide",
+                overhang_mm: params.overhang_mm || 40 },
+              constraints: { priority: params.priority || "balanced",
+                max_cycle_time_min: params.max_cycle_time_min,
+                max_surface_roughness_um: params.max_surface_roughness_um },
+              available_cam_systems: params.cam_systems,
+            });
+            result = ccResult;
+            break;
+          }
+          case "cross_cam_synthesize": {
+            const { crossCamRecommenderEngine: sEng } = await import("../../engines/CrossCamRecommenderEngine.js");
+            const sr = sEng.compute({
+              geometry: { type: params.geometry_type || "pocket_3d",
+                dimensions_mm: params.dimensions_mm || { length: 150, width: 100, depth: 50 },
+                corner_radius_mm: params.corner_radius_mm || 3 },
+              material: { class: params.material_class || "aluminum_6061",
+                iso_group: params.iso_group || "N" },
+              machine: { spindle_power_kw: params.spindle_power_kw || 15,
+                max_rpm: params.max_rpm || 12000, axis_count: params.axis_count || 3 },
+              tool: { diameter_mm: params.tool_diameter_mm || 12,
+                flute_count: params.flute_count || 3,
+                material: params.tool_material || "carbide",
+                overhang_mm: params.overhang_mm || 45 },
+              constraints: { priority: params.priority || "balanced",
+                max_cycle_time_min: params.max_cycle_time_min,
+                max_surface_roughness_um: params.max_surface_roughness_um },
+            });
+            result = {
+              hybrid_plan: sr.value.hybrid_recommendation,
+              best_overall: sr.value.best_overall,
+              trade_offs: sr.value.trade_off_analysis,
+              physics: sr.value.physics_summary,
+              strategy_count: sr.value.ranked_strategies.length,
+            };
+            break;
+          }
           // ================================================================
           // POST-PROCESSOR INNOVATIONS (7 engines, 21 actions)
           // ================================================================
@@ -838,92 +890,6 @@ Params vary by action — pass relevant fields in params object.`,
           }
 
           
-          case "cross_cam_recommend": {
-            const { crossCamRecommenderEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
-            const result = crossCamRecommenderEngine.compute({
-              geometry: {
-                type: params.geometry_type || "pocket_2d",
-                dimensions_mm: params.dimensions_mm || { length: 100, width: 80, depth: 30 },
-                corner_radius_mm: params.corner_radius_mm,
-                wall_angle_deg: params.wall_angle_deg,
-                island_count: params.island_count,
-                undercut_count: params.undercut_count,
-                thin_wall_min_mm: params.thin_wall_min_mm,
-                surface_area_mm2: params.surface_area_mm2,
-                pocket_count: params.pocket_count,
-              },
-              material: {
-                class: params.material_class || "steel_4140",
-                iso_group: params.iso_group || "P",
-                hardness_hrc: params.hardness_hrc,
-                thermal_conductivity: params.thermal_conductivity,
-              },
-              machine: {
-                id: params.machine_id,
-                spindle_power_kw: params.spindle_power_kw || 15,
-                max_rpm: params.max_rpm || 10000,
-                axis_count: params.axis_count || 3,
-                rapid_accel_g: params.rapid_accel_g,
-                controller: params.controller,
-              },
-              tool: {
-                diameter_mm: params.tool_diameter_mm || 10,
-                flute_count: params.flute_count || 4,
-                material: params.tool_material || "carbide",
-                overhang_mm: params.overhang_mm || 40,
-                helix_angle_deg: params.helix_angle_deg,
-                corner_radius_mm: params.tool_corner_radius_mm,
-              },
-              constraints: {
-                max_cycle_time_min: params.max_cycle_time_min,
-                max_surface_roughness_um: params.max_surface_roughness_um,
-                min_tool_life_parts: params.min_tool_life_parts,
-                max_spindle_utilization_pct: params.max_spindle_utilization_pct,
-                tolerance_mm: params.tolerance_mm,
-                priority: params.priority || "balanced",
-              },
-              available_cam_systems: params.cam_systems,
-            });
-            return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
-          }
-          case "cross_cam_synthesize": {
-            const { crossCamRecommenderEngine: synthEngine } = await import("../../engines/CrossCamRecommenderEngine.js");
-            const recommendation = synthEngine.compute({
-              geometry: {
-                type: params.geometry_type || "pocket_3d",
-                dimensions_mm: params.dimensions_mm || { length: 150, width: 100, depth: 50 },
-                corner_radius_mm: params.corner_radius_mm || 3,
-              },
-              material: {
-                class: params.material_class || "aluminum_6061",
-                iso_group: params.iso_group || "N",
-              },
-              machine: {
-                spindle_power_kw: params.spindle_power_kw || 15,
-                max_rpm: params.max_rpm || 12000,
-                axis_count: params.axis_count || 3,
-              },
-              tool: {
-                diameter_mm: params.tool_diameter_mm || 12,
-                flute_count: params.flute_count || 3,
-                material: params.tool_material || "carbide",
-                overhang_mm: params.overhang_mm || 45,
-              },
-              constraints: {
-                priority: params.priority || "balanced",
-                max_cycle_time_min: params.max_cycle_time_min,
-                max_surface_roughness_um: params.max_surface_roughness_um,
-              },
-            });
-            const hybrid = recommendation.value.hybrid_recommendation;
-            return { content: [{ type: "text", text: JSON.stringify({
-              hybrid_plan: hybrid,
-              best_overall: recommendation.value.best_overall,
-              trade_off_analysis: recommendation.value.trade_off_analysis,
-              physics_summary: recommendation.value.physics_summary,
-              all_strategies: recommendation.value.ranked_strategies.length,
-            }, null, 2) }] };
-          }
           default:
             result = { error: `Unknown action: ${action}` };
         }

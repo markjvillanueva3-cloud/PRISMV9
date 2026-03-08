@@ -44,7 +44,7 @@ function validateActionChecksum(r: ActionRecord): boolean {
 // ============================================================================
 
 function validateConfig(cfg: Partial<PFPConfig>): PFPConfig {
-  const base = { ...DEFAULT_PFP_CONFIG } as any;
+  const base: PFPConfig = { ...DEFAULT_PFP_CONFIG };
   const clamp = (val: number | undefined, min: number, max: number, fb: number): number => {
     if (val === undefined || val === null || isNaN(val)) return fb;
     return val < min || val > max ? fb : val;
@@ -296,7 +296,7 @@ export class PredictiveFailureEngine {
         let matched = false;
         let contribution = 0;
 
-        const det = pattern.details as any;
+        const det = pattern.details as Record<string, unknown> | undefined;
         /** Switch.
          * @param pattern.type - pattern.type
          * @returns void
@@ -323,9 +323,9 @@ export class PredictiveFailureEngine {
              * @param det - det
              * @returns void
              */
-            if (det && det.type === 'CONTEXT_DEPTH_FAILURE' && contextDepthPercent > det.thresholdPercent) {
+            if (det && det.type === 'CONTEXT_DEPTH_FAILURE' && contextDepthPercent > (det as any).thresholdPercent) {
               matched = true;
-              contribution = det.failureRateAbove * effectiveConfidence;
+              contribution = (det as any).failureRateAbove * effectiveConfidence;
             }
             break;
 
@@ -343,7 +343,7 @@ export class PredictiveFailureEngine {
                */
               if (lastRecord && `${lastRecord.dispatcher}:${lastRecord.action}` === det.precedingAction) {
                 matched = true;
-                contribution = det.failureRateAfter * effectiveConfidence;
+                contribution = (det as any).failureRateAfter * effectiveConfidence;
               }
             }
             break;
@@ -353,9 +353,9 @@ export class PredictiveFailureEngine {
              * @param det - det
              * @returns void
              */
-            if (det && det.type === 'TEMPORAL_FAILURE' && callNumber > det.callCountThreshold) {
+            if (det && det.type === 'TEMPORAL_FAILURE' && callNumber > (det as any).callCountThreshold) {
               matched = true;
-              contribution = det.failureRateAbove * effectiveConfidence;
+              contribution = (det as any).failureRateAbove * effectiveConfidence;
             }
             break;
         }
@@ -721,7 +721,7 @@ export class PredictiveFailureEngine {
 
           // Check if this sequence pattern already exists
           const hasSequence = existing.some(p =>
-            p.type === 'SEQUENCE_FAILURE' && (p.details as any)?.type === 'SEQUENCE_FAILURE' && (p.details as any)?.precedingAction === precedingKey
+            p.type === 'SEQUENCE_FAILURE' && (p.details as Record<string, unknown> | undefined)?.type === 'SEQUENCE_FAILURE' && (p.details as Record<string, unknown> | undefined)?.precedingAction === precedingKey
           );
 
           /** If.

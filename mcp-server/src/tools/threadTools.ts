@@ -636,10 +636,10 @@ export function registerThreadTools(server: any): void {
       tool.description,
       tool.inputSchema,
       async (params: any) => {
-        const result = await (tool as any).handler(params);
+        const result = await (tool as unknown as { handler: (p: unknown) => Promise<unknown> }).handler(params);
         return {
           content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-          metadata: { safety_critical: true, ...result }
+          metadata: { safety_critical: true, ...(typeof result === "object" && result !== null ? result as Record<string, unknown> : {}) }
         };
       }
     );
