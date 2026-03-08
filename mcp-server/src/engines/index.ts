@@ -2860,3 +2860,6 @@ export { rollingMillEngine, RollingMillEngine } from "./RollingMillEngine.js";
 export { crankshaftDesignEngine, CrankshaftDesignEngine } from "./CrankshaftDesignEngine.js";
 export { pistonDesignEngine, PistonDesignEngine } from "./PistonDesignEngine.js";
 export { connectingRodEngine, ConnectingRodEngine } from "./ConnectingRodEngine.js";
+export { tubeFormingEngine, TubeFormingEngine } from "./TubeFormingEngine.js";
+export { flyingShearEngine, FlyingShearEngine } from "./FlyingShearEngine.js";
+export { thermalExpansionJointEngine, ThermalExpansionJointEngine } from "./ThermalExpansionJointEngine.js";
