@@ -2846,3 +2846,6 @@ export type { MachiningConstraints, MachiningParameters, MachineCapability, Cons
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
 export { centrifugalPumpEngine, CentrifugalPumpEngine } from "./CentrifugalPumpEngine.js";
+export { turbineBladeEngine, TurbineBladeEngine } from "./TurbineBladeEngine.js";
+export { compressorDesignEngine, CompressorDesignEngine } from "./CompressorDesignEngine.js";
+export { airDuctEngine, AirDuctEngine } from "./AirDuctEngine.js";
