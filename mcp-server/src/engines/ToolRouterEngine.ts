@@ -152,6 +152,48 @@ const ROUTE_PATTERNS: RoutePattern[] = [
 
   // Shop practice
   { keywords: ["shop practice", "shop floor", "operator guide", "setup procedure"], route: "dispatcher", target: "shopPracticeDispatcher", action: "practice_search", reason: "Shop floor practices (18 actions)", estimatedTokens: 200 },
+
+  // Adaptive control
+  { keywords: ["adaptive control", "pid tuning", "real-time compensation", "feedback control"], route: "dispatcher", target: "adaptiveControlDispatcher", action: "pid_tune", reason: "Adaptive process control", estimatedTokens: 300 },
+
+  // Multi-operation orchestration
+  { keywords: ["multi operation", "multi-op", "operation sequence", "setup planning", "multi setup"], route: "dispatcher", target: "multiOpDispatcher", action: "plan_sequence", reason: "Multi-op orchestration", estimatedTokens: 400 },
+
+  // Industry-specific
+  { keywords: ["aerospace", "medical device", "automotive", "oil gas", "defense", "industry specific"], route: "dispatcher", target: "industryDispatcher", action: "industry_guide", reason: "Industry-specific requirements", estimatedTokens: 300 },
+
+  // Scientific math
+  { keywords: ["scientific calculation", "advanced math", "numerical method", "fea", "finite element"], route: "dispatcher", target: "scientificMathDispatcher", action: "compute", reason: "Scientific/mathematical computing", estimatedTokens: 300 },
+
+  // Validation
+  { keywords: ["validate program", "verify gcode", "program check", "dry run", "simulation verify"], route: "dispatcher", target: "validationDispatcher", action: "validate_program", reason: "Program verification", estimatedTokens: 300 },
+
+  // Intelligence / AI recommendations
+  { keywords: ["ai recommend", "intelligent suggest", "smart optimize", "what if analysis", "parameter optimize"], route: "dispatcher", target: "intelligenceDispatcher", action: "parameter_optimize", reason: "AI-powered recommendations", estimatedTokens: 400 },
+
+  // Real-time monitoring
+  { keywords: ["real time", "live monitoring", "streaming data", "sensor data", "real-time"], route: "dispatcher", target: "realtimeDispatcher", action: "stream_start", reason: "Real-time data streaming", estimatedTokens: 200 },
+
+  // Thread operations
+  { keywords: ["thread mill", "single point thread", "thread pitch", "thread class", "thread gage"], route: "dispatcher", target: "threadDispatcher", action: "thread_calc", reason: "Threading operations", estimatedTokens: 200 },
+
+  // Document learning
+  { keywords: ["learn pdf", "extract document", "ingest catalog", "document learn"], route: "dispatcher", target: "documentLearningDispatcher", action: "doc_upload", reason: "Document knowledge extraction", estimatedTokens: 300 },
+
+  // Automation / scripting
+  { keywords: ["automate", "script", "macro", "batch process", "workflow automate"], route: "dispatcher", target: "automationDispatcher", action: "script_run", reason: "Task automation", estimatedTokens: 200 },
+
+  // Bridge / external integration
+  { keywords: ["api bridge", "external system", "erp connect", "mes integration", "data bridge"], route: "dispatcher", target: "bridgeDispatcher", action: "bridge_query", reason: "External system integration", estimatedTokens: 300 },
+
+  // Export / reporting
+  { keywords: ["export report", "generate pdf", "export csv", "data export", "report generate"], route: "dispatcher", target: "exportDispatcher", action: "export_report", reason: "Report generation/export", estimatedTokens: 200 },
+
+  // Safety guard
+  { keywords: ["machine limit", "spindle limit check", "rapid limit", "safety guard"], route: "dispatcher", target: "guardDispatcher", action: "machine_limit_check", reason: "Machine safety limits", estimatedTokens: 150 },
+
+  // Orchestration / workflow
+  { keywords: ["workflow orchestrate", "pipeline run", "chain actions", "orchestrate"], route: "dispatcher", target: "orchestrationDispatcher", action: "orchestrate", reason: "Multi-step workflow orchestration", estimatedTokens: 400 },
 ];
 
 export class ToolRouterEngine {

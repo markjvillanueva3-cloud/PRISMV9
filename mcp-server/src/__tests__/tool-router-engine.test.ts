@@ -79,9 +79,61 @@ describe("ToolRouterEngine", () => {
   describe("getStats", () => {
     it("returns pattern and target counts", () => {
       const stats = router.getStats();
-      expect(stats.patterns).toBeGreaterThan(10);
-      expect(stats.targets).toBeGreaterThan(3);
+      expect(stats.patterns).toBeGreaterThan(50);
+      expect(stats.targets).toBeGreaterThan(15);
       expect(stats.avgTokens).toBeGreaterThan(0);
+    });
+  });
+
+  describe("dispatcher coverage", () => {
+    it("routes turning queries to turningDispatcher", () => {
+      const r = router.route("turning lathe boring bar");
+      expect(r.some(x => x.target === "turningDispatcher")).toBe(true);
+    });
+
+    it("routes grinding to grindingDispatcher", () => {
+      const r = router.route("surface grind centerless");
+      expect(r.some(x => x.target === "grindingDispatcher")).toBe(true);
+    });
+
+    it("routes EDM to edmDispatcher", () => {
+      const r = router.route("wire edm sinker edm");
+      expect(r.some(x => x.target === "edmDispatcher")).toBe(true);
+    });
+
+    it("routes 5-axis to fiveAxisDispatcher", () => {
+      const r = router.route("5 axis rtcp tool vector");
+      expect(r.some(x => x.target === "fiveAxisDispatcher")).toBe(true);
+    });
+
+    it("routes quality to qualityDispatcher", () => {
+      const r = router.route("inspection cmm measurement");
+      expect(r.some(x => x.target === "qualityDispatcher")).toBe(true);
+    });
+
+    it("routes scheduling to schedulingDispatcher", () => {
+      const r = router.route("job scheduling production plan");
+      expect(r.some(x => x.target === "schedulingDispatcher")).toBe(true);
+    });
+
+    it("routes adaptive control to adaptiveControlDispatcher", () => {
+      const r = router.route("adaptive control pid tuning");
+      expect(r.some(x => x.target === "adaptiveControlDispatcher")).toBe(true);
+    });
+
+    it("routes threading to threadDispatcher", () => {
+      const r = router.route("thread mill single point thread");
+      expect(r.some(x => x.target === "threadDispatcher" || x.target === "camDispatcher")).toBe(true);
+    });
+
+    it("routes intelligence to intelligenceDispatcher", () => {
+      const r = router.route("ai recommend parameter optimize");
+      expect(r.some(x => x.target === "intelligenceDispatcher")).toBe(true);
+    });
+
+    it("routes batch operations to BatchQueryEngine", () => {
+      const r = router.route("batch multiple actions");
+      expect(r.some(x => x.target === "BatchQueryEngine")).toBe(true);
     });
   });
 });
