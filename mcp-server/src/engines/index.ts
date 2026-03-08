@@ -3097,3 +3097,7 @@ export { furnaceHeatingEngine, FurnaceHeatingEngine } from "./FurnaceHeatingEngi
 export { quenchingProcessEngine, QuenchingProcessEngine } from "./QuenchingProcessEngine.js";
 export { carburizingEngine, CarburizingEngine } from "./CarburizingEngine.js";
 export { nitridingProcessEngine, NitridingProcessEngine } from "./NitridingProcessEngine.js";
+
+export { pultrusionProcessEngine, PultrusionProcessEngine } from "./PultrusionProcessEngine.js";
+export { autoclaveProcessEngine, AutoclaveProcessEngine } from "./AutoclaveProcessEngine.js";
+export { peristalticPumpEngine, PeristalticPumpEngine } from "./PeristalticPumpEngine.js";
