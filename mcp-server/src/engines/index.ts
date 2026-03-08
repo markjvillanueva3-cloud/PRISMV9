@@ -2263,6 +2263,7 @@ export { collisionIntegrationEngine } from "./CollisionIntegrationEngine.js";
 export { surfaceFinishPredictorEngine, SurfaceFinishPredictorEngine } from "./SurfaceFinishPredictorEngine.js";
 export { cycleTimeAccuracyEngine, CycleTimeAccuracyEngine } from "./CycleTimeAccuracyEngine.js";
 export { restMachiningEngine, RestMachiningEngine } from "./RestMachiningEngine.js";
+export { operationSequencerEngine, OperationSequencerEngine } from "./OperationSequencerEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
