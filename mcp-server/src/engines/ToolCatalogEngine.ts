@@ -25,6 +25,7 @@ import { HAIMER_HOLDERS } from "../data/haimer-holder-catalog.js";
 import { GUHRING_HOLDERS } from "../data/guhring-holder-catalog.js";
 import { ADDITIONAL_TOOLS } from "../data/additional-tool-catalog.js";
 import { SECO_TOOLS } from "../data/seco-tool-catalog.js";
+import { INDEXABLE_TOOLS } from "../data/indexable-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -856,6 +857,7 @@ export class ToolCatalogEngine {
     this._loadHaimerHolders();
     this._loadAdditionalTools();
     this._loadSecoTools();
+    this._loadIndexableTools();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -1217,7 +1219,7 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: osg.material === "carbide" ? "through_tool" : "flood",
         source: "OSG_catalog",
-        catalog_page: (osg as any).page,
+        catalog_page: (osg as Record<string, unknown>).page as string | undefined,
       });
     }
   }
@@ -1318,6 +1320,66 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: at.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
         source: `${at.manufacturer}_catalog`,
+      });
+    }
+  }
+
+  private _loadIndexableTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const it of INDEXABLE_TOOLS) {
+      const prefix = it.manufacturer === "ISCAR" ? "ISC" :
+                     it.manufacturer === "Kennametal" ? "KEN" :
+                     it.manufacturer === "Korloy" ? "KOR" :
+                     it.manufacturer === "Allied" ? "ALD" : "IDX";
+      const id = `${prefix}-${it.designation}`;
+      if (this.tools.has(id)) continue;
+
+      // Skip inserts without cutting diameter (they're tracked separately)
+      if (it.type === "insert" && !it.cutting_diameter_mm) continue;
+
+      const toolType = (it.type === "milling" ? "end_mill" :
+                        it.type === "turning" ? "end_mill" :
+                        it.type) as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const dc = it.cutting_diameter_mm ?? 10;
+      for (const s of sfForType) {
+        const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = it.shank_diameter_mm ?? it.cutting_diameter_mm ?? 0;
+      const oal = it.overall_length_mm ?? (dc * 4);
+      const loc = it.flute_length_mm ?? it.max_depth_of_cut_mm ?? (dc * 1.5);
+
+      this.tools.set(id, {
+        id,
+        manufacturer: it.manufacturer,
+        series: it.subtype ?? "indexable",
+        designation: it.designation,
+        type: toolType,
+        subtype: it.subtype,
+        material: it.subtype === "indexable" ? "indexable_carbide" : "carbide",
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: loc,
+          ...(it.corner_radius_mm ? { corner_radius_mm: it.corner_radius_mm } : {}),
+        },
+        flute_count: it.insert_count ?? (toolType === "drill" ? 2 : 4),
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "face_mill" ? ["face"] :
+                    toolType === "thread_mill" ? ["thread_mill"] :
+                    ["pocket", "slot", "contour", "face", "shoulder"],
+        cutting_data: cuttingData,
+        coolant: dc >= 10 ? "through_tool" : "flood",
+        source: `${it.manufacturer}_Catalog`,
       });
     }
   }

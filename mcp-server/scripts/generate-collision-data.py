@@ -34,6 +34,11 @@ tool_sources = {
     "Generic": ("unknown_solid-tools-extracted.json", "additional-tool-catalog.ts"),
     "Rapidkut": ("rapidkut-tools-extracted.json", "additional-tool-catalog.ts"),
     "Seco": ("seco-tools-extracted.json", "seco-tool-catalog.ts"),
+    "Kennametal_Milling": ("kennametal-milling-extracted.json", "indexable-tool-catalog.ts"),
+    "Kennametal_Holemaking": ("kennametal-holemaking-extracted.json", "indexable-tool-catalog.ts"),
+    "ISCAR": ("iscar-tools-extracted.json", "indexable-tool-catalog.ts"),
+    "Korloy_Rotating": ("korloy-rotating-extracted.json", "indexable-tool-catalog.ts"),
+    "Allied": ("ampc-tools-extracted.json", "indexable-tool-catalog.ts"),
 }
 
 all_tools = []

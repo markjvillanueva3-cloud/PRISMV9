@@ -133,9 +133,10 @@
       "type": ["turning"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 300,
-      "extracted": false,
-      "notes": "Kennametal turning inserts, grades, speed/feed"
+      "pages_est": 768,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 1,630 Capto turning toolholders with DCSFMS/WF/LF dimensions"
     },
     {
       "filename": "Milling 2018.1.pdf",
@@ -143,9 +144,10 @@
       "type": ["milling"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 300,
-      "extracted": false,
-      "notes": "Indexable and solid milling cutters"
+      "pages_est": 752,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 206 indexable milling tools (68 end mills + 138 face mills), 5-315mm"
     },
     {
       "filename": "Holemaking.pdf",
@@ -153,19 +155,21 @@
       "type": ["drilling"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 200,
-      "extracted": false,
-      "notes": "Drills, reamers, boring tools"
+      "pages_est": 517,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 682 drills (+ 3 boring bars), 3.3-59mm. ISO 13399 DC/LU/OAL format"
     },
     {
       "filename": "ISCAR PART 1.pdf",
       "manufacturer": "ISCAR",
       "type": ["turning", "milling", "drilling", "grooving"],
-      "units": "metric",
+      "units": "inch",
       "priority": 2,
-      "pages_est": 800,
-      "extracted": false,
-      "notes": "ISCAR SUMO/DOVE-IQ/IC grades"
+      "pages_est": 538,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 5,449 indexable tools (5,212 end mills + 237 face mills), 0.7-496mm. DC/OAL/DCONMS/APMX columns"
     },
     {
       "filename": "OSG.pdf",
@@ -184,9 +188,10 @@
       "type": ["turning"],
       "units": "metric",
       "priority": 3,
-      "pages_est": 300,
-      "extracted": false,
-      "notes": "Korean turning inserts"
+      "pages_est": 466,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 313 items (297 turning inserts + 16 holders)"
     },
     {
       "filename": "korloy rotating.pdf",
@@ -194,9 +199,10 @@
       "type": ["drilling", "milling"],
       "units": "metric",
       "priority": 3,
-      "pages_est": 200,
-      "extracted": false,
-      "notes": "Rotating tools"
+      "pages_est": 789,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 1,385 items (612 milling + 517 drills + 256 inserts)"
     },
     {
       "filename": "korloy solid.pdf",
@@ -309,11 +315,11 @@
       "filename": "INGERSOLL CUTTING TOOLS.pdf",
       "manufacturer": "Ingersoll",
       "type": ["turning", "milling"],
-      "units": "metric",
+      "units": "both",
       "priority": 3,
-      "pages_est": 400,
+      "pages_est": 1440,
       "extracted": false,
-      "notes": "Indexable cutting tools"
+      "notes": "1440p image-heavy catalog. Non-standard table format (hardware lists, grade tables). Would need custom per-section parsers"
     },
     {
       "filename": "MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf",
@@ -395,9 +401,10 @@
       "type": ["threading"],
       "units": "metric",
       "priority": 2,
-      "pages_est": 150,
-      "extracted": false,
-      "notes": "Thread turning, thread milling, taps"
+      "pages_est": 280,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. 70 thread mills with DC/DMM/OAL dimensions"
     },
     {
       "filename": "Tooling Systems News 2018 English MetricInch.pdf",
@@ -441,13 +448,14 @@
     },
     {
       "filename": "AMPC_US-EN.pdf",
-      "manufacturer": "Unknown",
-      "type": ["general"],
-      "units": "both",
-      "priority": 5,
-      "pages_est": 100,
-      "extracted": false,
-      "notes": "Needs identification"
+      "manufacturer": "Allied Machine",
+      "type": ["drilling", "boring"],
+      "units": "inch",
+      "priority": 3,
+      "pages_est": 942,
+      "extracted": true,
+      "extracted_to": "src/data/indexable-tool-catalog.ts",
+      "notes": "EXTRACTED. Allied Machine EN3SYS. 555 tools (548 drills + 7 boring bars)"
     },
     {
       "filename": "Metalmorphosis-2021-FINAL-reduced-for-Web.pdf",
@@ -471,16 +479,16 @@
     }
   ],
   "extraction_status": {
-    "extracted": 15,
-    "pending": 28,
+    "extracted": 24,
+    "pending": 19,
     "total_estimated_pages": 12000,
     "priority_1_pdfs": 8,
     "priority_2_pdfs": 12,
     "priority_3_pdfs": 10,
     "priority_4_pdfs": 10,
-    "priority_5_pdfs": 3,
-    "total_tools_extracted": 24807,
+    "priority_5_pdfs": 5,
+    "total_tools_extracted": 35097,
     "total_holders_extracted": 1164,
-    "collision_data_tools": 22062
+    "collision_data_tools": 30066
   }
 }
