@@ -2849,3 +2849,6 @@ export { centrifugalPumpEngine, CentrifugalPumpEngine } from "./CentrifugalPumpE
 export { turbineBladeEngine, TurbineBladeEngine } from "./TurbineBladeEngine.js";
 export { compressorDesignEngine, CompressorDesignEngine } from "./CompressorDesignEngine.js";
 export { airDuctEngine, AirDuctEngine } from "./AirDuctEngine.js";
+export { planetaryGearEngine, PlanetaryGearEngine } from "./PlanetaryGearEngine.js";
+export { clutchDesignEngine, ClutchDesignEngine } from "./ClutchDesignEngine.js";
+export { extrusionForceEngine, ExtrusionForceEngine } from "./ExtrusionForceEngine.js";
