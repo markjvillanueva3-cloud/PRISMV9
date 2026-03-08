@@ -3042,3 +3042,15 @@ export { RivetedJointEngine, rivetedJointEngine } from './RivetedJointEngine.js'
 export type { RivetedJointInput, RivetedJointResult, RivetPattern } from './RivetedJointEngine.js';
 export { UltrasonicWeldingEngine, ultrasonicWeldingEngine } from './UltrasonicWeldingEngine.js';
 export type { UltrasonicWeldingInput, UltrasonicWeldingResult, USWMaterial, JointDesign } from './UltrasonicWeldingEngine.js';
+
+// CAMK-MS1: Novel Algorithm → G-Code Pipeline
+export { segmentInterpolatorEngine } from "./SegmentInterpolatorEngine.js";
+export { novelPostProcessorBridgeEngine } from "./NovelPostProcessorBridgeEngine.js";
+export { programStructureEngine } from "./ProgramStructureEngine.js";
+export { gCodeVerificationEngine } from "./GCodeVerificationEngine.js";
+export { EDMWireEngine, edmWireEngine } from './EDMWireEngine.js';
+export type { EDMWireInput, EDMWireResult, WireType, CuttingMode } from './EDMWireEngine.js';
+export { AnodizingProcessEngine, anodizingProcessEngine } from './AnodizingProcessEngine.js';
+export type { AnodizingProcessInput, AnodizingProcessResult, AnodizeType } from './AnodizingProcessEngine.js';
+export { AccumulatorEngine, accumulatorEngine } from './AccumulatorEngine.js';
+export type { AccumulatorInput, AccumulatorResult, AccumulatorType, GasProcess } from './AccumulatorEngine.js';
