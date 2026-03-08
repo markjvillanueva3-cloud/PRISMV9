@@ -2963,3 +2963,7 @@ export { CathodicProtectionEngine, cathodicProtectionEngine } from './CathodicPr
 export { RackPinionEngine, rackPinionEngine } from './RackPinionEngine.js';
 export { LeadScrewEngine, leadScrewEngine } from './LeadScrewEngine.js';
 export { PropellerEngine, propellerEngine } from './PropellerEngine.js';
+
+export { NozzleEngine, nozzleEngine } from './NozzleEngine.js';
+export { EjectorEngine, ejectorEngine } from './EjectorEngine.js';
+export { DiffuserEngine, diffuserEngine } from './DiffuserEngine.js';
