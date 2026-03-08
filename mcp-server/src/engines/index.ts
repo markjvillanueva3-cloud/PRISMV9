@@ -2265,6 +2265,7 @@ export { cycleTimeAccuracyEngine, CycleTimeAccuracyEngine } from "./CycleTimeAcc
 export { restMachiningEngine, RestMachiningEngine } from "./RestMachiningEngine.js";
 export { operationSequencerEngine, OperationSequencerEngine } from "./OperationSequencerEngine.js";
 export { transitionPathEngine, TransitionPathEngine } from "./TransitionPathEngine.js";
+export { adaptiveRefinementEngine, AdaptiveRefinementEngine } from "./AdaptiveRefinementEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
@@ -3126,3 +3127,7 @@ export { EBWeldingEngine, ebWeldingEngine } from "./EBWeldingEngine.js";
 export { VacuumCastingEngine, vacuumCastingEngine } from "./VacuumCastingEngine.js";
 export { CentrifugalCastingEngine, centrifugalCastingEngine } from "./CentrifugalCastingEngine.js";
 export { ThinFilmDepositionEngine, thinFilmDepositionEngine } from "./ThinFilmDepositionEngine.js";
+
+export { ChemicalVaporDepositionEngine, chemicalVaporDepositionEngine } from "./ChemicalVaporDepositionEngine.js";
+export { IonImplantationEngine, ionImplantationEngine } from "./IonImplantationEngine.js";
+export { SputteringProcessEngine, sputteringProcessEngine } from "./SputteringProcessEngine.js";

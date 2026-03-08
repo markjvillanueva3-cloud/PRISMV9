@@ -67,7 +67,8 @@ export function registerToolpathDispatcher(server: any): void {
         "cycle_time_estimate",
         "rest_machining",
         "operation_sequence",
-        "transition_path"
+        "transition_path",
+        "adaptive_refine"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -324,6 +325,12 @@ export function registerToolpathDispatcher(server: any): void {
           case "transition_path": {
             const { transitionPathEngine } = await import("../../engines/TransitionPathEngine.js");
             result = transitionPathEngine.plan(params as ValidatedParams);
+            break;
+          }
+
+          case "adaptive_refine": {
+            const { adaptiveRefinementEngine } = await import("../../engines/AdaptiveRefinementEngine.js");
+            result = adaptiveRefinementEngine.refine(params as ValidatedParams);
             break;
           }
 
