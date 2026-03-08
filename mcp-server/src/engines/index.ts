@@ -2840,3 +2840,7 @@ export { FluidCouplingEngine, fluidCouplingEngine } from "./FluidCouplingEngine.
 export type { FluidCouplingInput, FluidCouplingResult } from "./FluidCouplingEngine.js";
 export { CrossCamRecommenderEngine, crossCamRecommenderEngine } from "./CrossCamRecommenderEngine.js";
 export type { CrossCamInput, CrossCamRecommendation, StrategyCandidate, CamSystem } from "./CrossCamRecommenderEngine.js";
+
+export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
+export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
+export { centrifugalPumpEngine, CentrifugalPumpEngine } from "./CentrifugalPumpEngine.js";
