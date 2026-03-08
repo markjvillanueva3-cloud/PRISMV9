@@ -53,7 +53,8 @@ export function registerToolpathDispatcher(server: any): void {
         "crosscam_compute",
         "crosscam_list",
         "feature_to_zone",
-        "algorithm_select"
+        "algorithm_select",
+        "tool_axis_optimize"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -210,6 +211,12 @@ export function registerToolpathDispatcher(server: any): void {
               wall_thickness_mm: params.wall_thickness_mm,
               target_ra_um: params.target_ra_um,
             });
+            break;
+          }
+
+          case "tool_axis_optimize": {
+            const { toolAxisOptimizationEngine } = await import("../../engines/ToolAxisOptimizationEngine.js");
+            result = toolAxisOptimizationEngine.optimize(params);
             break;
           }
 
