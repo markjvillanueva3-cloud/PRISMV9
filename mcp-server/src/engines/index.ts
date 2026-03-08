@@ -2922,3 +2922,6 @@ export { BallScrewEngine, ballScrewEngine } from "./BallScrewEngine.js";
 export { ReliabilityWeibullEngine, reliabilityWeibullEngine } from "./ReliabilityWeibullEngine.js";
 export { StatisticalProcessEngine, statisticalProcessEngine } from "./StatisticalProcessEngine.js";
 export { InventoryEOQEngine, inventoryEOQEngine } from "./InventoryEOQEngine.js";
+export { LinearRegressionEngine, linearRegressionEngine } from "./LinearRegressionEngine.js";
+export { PIDControllerEngine, pidControllerEngine } from "./PIDControllerEngine.js";
+export { FourierAnalysisEngine, fourierAnalysisEngine } from "./FourierAnalysisEngine.js";
