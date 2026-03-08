@@ -2842,6 +2842,8 @@ export { CrossCamRecommenderEngine, crossCamRecommenderEngine } from "./CrossCam
 export type { CrossCamInput, CrossCamRecommendation, StrategyCandidate, CamSystem } from "./CrossCamRecommenderEngine.js";
 export { ConstraintSatisfactionEngine, constraintSatisfactionEngine } from "./ConstraintSatisfactionEngine.js";
 export type { MachiningConstraints, MachiningParameters, MachineCapability, ConstraintSatisfactionResult } from "./ConstraintSatisfactionEngine.js";
+export { PostSelectionEngine, postSelectionEngine } from "./PostSelectionEngine.js";
+export type { JobContext, PostFeature, PostSelectionResult } from "./PostSelectionEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -2852,3 +2854,6 @@ export { airDuctEngine, AirDuctEngine } from "./AirDuctEngine.js";
 export { planetaryGearEngine, PlanetaryGearEngine } from "./PlanetaryGearEngine.js";
 export { clutchDesignEngine, ClutchDesignEngine } from "./ClutchDesignEngine.js";
 export { extrusionForceEngine, ExtrusionForceEngine } from "./ExtrusionForceEngine.js";
+export { stampingDieEngine, StampingDieEngine } from "./StampingDieEngine.js";
+export { wireDrawingEngine, WireDrawingEngine } from "./WireDrawingEngine.js";
+export { rollingMillEngine, RollingMillEngine } from "./RollingMillEngine.js";
