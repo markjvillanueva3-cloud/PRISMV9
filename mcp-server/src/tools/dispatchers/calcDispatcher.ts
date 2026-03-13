@@ -4656,6 +4656,213 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "deburring_recommend": {
+            const { deburringEngine } = await import("../../engines/DeburringEngine.js");
+            result = deburringEngine.recommend(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 107-108: CNC Core + Math/Stats + Mechanical ──
+          case "ball_end_mill_calc": {
+            const { ballEndMillEngine } = await import("../../engines/BallEndMillEngine.js");
+            result = ballEndMillEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chamfer_milling_calc": {
+            const { chamferMillingEngine } = await import("../../engines/ChamferMillingEngine.js");
+            result = chamferMillingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "waterjet_calc": {
+            const { waterjetEngine } = await import("../../engines/WaterjetEngine.js");
+            result = waterjetEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "press_brake_calc": {
+            const { pressBrakeEngine } = await import("../../engines/PressBrakeEngine.js");
+            result = pressBrakeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cnc_maintenance_calc": {
+            const { cncMaintenanceEngine } = await import("../../engines/CNCMaintenanceEngine.js");
+            result = cncMaintenanceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "grinding_wheel_calc": {
+            const { grindingWheelEngine } = await import("../../engines/GrindingWheelEngine.js");
+            result = grindingWheelEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "sheet_metal_nesting_calc": {
+            const { sheetMetalNestingEngine } = await import("../../engines/SheetMetalNestingEngine.js");
+            result = sheetMetalNestingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "corrosion_rate_calc": {
+            const { corrosionRateEngine } = await import("../../engines/CorrosionRateEngine.js");
+            result = corrosionRateEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "countersink_calc": {
+            const { countersinkEngine } = await import("../../engines/CountersinkEngine.js");
+            result = countersinkEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "keyway_calc": {
+            const { keywayEngine } = await import("../../engines/KeywayEngine.js");
+            result = keywayEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bar_feeder_calc": {
+            const { barFeederEngine } = await import("../../engines/BarFeederEngine.js");
+            result = barFeederEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chip_conveyor_calc": {
+            const { chipConveyorEngine } = await import("../../engines/ChipConveyorEngine.js");
+            result = chipConveyorEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "circular_pocket_calc": {
+            const { circularPocketEngine } = await import("../../engines/CircularPocketEngine.js");
+            result = circularPocketEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "riveted_joint_calc": {
+            const { rivetedJointEngine } = await import("../../engines/RivetedJointEngine.js");
+            result = rivetedJointEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "vibration_isolator_calc": {
+            const { vibrationIsolatorEngine } = await import("../../engines/VibrationIsolatorEngine.js");
+            result = vibrationIsolatorEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "adhesive_bonding_calc": {
+            const { adhesiveBondingEngine } = await import("../../engines/AdhesiveBondingEngine.js");
+            result = adhesiveBondingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "coating_thickness_calc": {
+            const { coatingThicknessEngine } = await import("../../engines/CoatingThicknessEngine.js");
+            result = coatingThicknessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "anodizing_calc": {
+            const { anodizingProcessEngine } = await import("../../engines/AnodizingProcessEngine.js");
+            result = anodizingProcessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "carburizing_calc": {
+            const { carburizingEngine } = await import("../../engines/CarburizingEngine.js");
+            result = carburizingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "casting_defect_calc": {
+            const { castingDefectEngine } = await import("../../engines/CastingDefectEngine.js");
+            result = castingDefectEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bayesian_inference_calc": {
+            const { bayesianInferenceEngine } = await import("../../engines/BayesianInferenceEngine.js");
+            result = bayesianInferenceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cluster_analysis_calc": {
+            const { clusterAnalysisEngine } = await import("../../engines/ClusterAnalysisEngine.js");
+            result = clusterAnalysisEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "principal_component_calc": {
+            const { principalComponentEngine } = await import("../../engines/PrincipalComponentEngine.js");
+            result = principalComponentEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "exponential_smoothing_calc": {
+            const { exponentialSmoothingEngine } = await import("../../engines/ExponentialSmoothingEngine.js");
+            result = exponentialSmoothingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "time_series_arima_calc": {
+            const { timeSeriesARIMAEngine } = await import("../../engines/TimeSeriesARIMAEngine.js");
+            result = timeSeriesARIMAEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "optimization_simplex_calc": {
+            const { optimizationSimplexEngine } = await import("../../engines/OptimizationSimplexEngine.js");
+            result = optimizationSimplexEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "assignment_problem_calc": {
+            const { assignmentProblemEngine } = await import("../../engines/AssignmentProblemEngine.js");
+            result = assignmentProblemEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "transportation_problem_calc": {
+            const { transportationProblemEngine } = await import("../../engines/TransportationProblemEngine.js");
+            result = transportationProblemEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "network_flow_calc": {
+            const { networkFlowEngine } = await import("../../engines/NetworkFlowEngine.js");
+            result = networkFlowEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "topsis_calc": {
+            const { topsisEngine } = await import("../../engines/TOPSISEngine.js");
+            result = topsisEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "ahp_calc": {
+            const { ahpEngine } = await import("../../engines/AHPEngine.js");
+            result = ahpEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "inventory_eoq_calc": {
+            const { inventoryEOQEngine } = await import("../../engines/InventoryEOQEngine.js");
+            result = inventoryEOQEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "project_scheduling_calc": {
+            const { projectSchedulingEngine } = await import("../../engines/ProjectSchedulingEngine.js");
+            result = projectSchedulingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pid_controller_calc": {
+            const { pidControllerEngine } = await import("../../engines/PIDControllerEngine.js");
+            result = pidControllerEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bolt_torque_calc": {
+            const { boltTorqueEngine } = await import("../../engines/BoltTorqueEngine.js");
+            result = boltTorqueEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bearing_selection_calc": {
+            const { bearingSelectionEngine } = await import("../../engines/BearingSelectionEngine.js");
+            result = bearingSelectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "belt_drive_calc": {
+            const { beltDriveEngine } = await import("../../engines/BeltDriveEngine.js");
+            result = beltDriveEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chain_drive_calc": {
+            const { chainDriveEngine } = await import("../../engines/ChainDriveEngine.js");
+            result = chainDriveEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "electric_motor_calc": {
+            const { electricMotorEngine } = await import("../../engines/ElectricMotorEngine.js");
+            result = electricMotorEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "flywheel_energy_calc": {
+            const { flywheelEnergyEngine } = await import("../../engines/FlywheelEnergyEngine.js");
+            result = flywheelEnergyEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
