@@ -223,6 +223,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { mean_min: result.taylor_life?.mean_min, std_min: result.taylor_life?.std_min, p90_replace: result.replacement_interval_p90, weibull_b: result.taylor_life?.weibull_beta, driver: result.top_uncertainty_driver };
     case "stochastic_dimension":
       return { cpk: result.overall_cpk, sigma_um: result.overall_sigma_um, pct_spec: result.pct_in_spec, first_oos: result.first_oos_part, corr_interval: result.recommended_correction_interval };
+    case "stochastic_deflection":
+      return { mean_um: result.deflection?.mean_um, std_um: result.deflection?.std_um, p_exceed: result.probability_exceed_limit, stiffness: result.effective_stiffness_N_per_um };
     case "specific_cutting_energy":
       return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
@@ -375,6 +377,30 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { result: `StochChatter: safe=${result.value.summary.max_safe_depth_mm.toFixed(2)}mm` };
     case "uncertainty_pipeline":
       return { result: `UQ: ${result.value.stages.length} stages, bottleneck=${result.value.bottleneck_stage}` };
+    case "am_melt_pool":
+      return { result: `MeltPool: w=${result.value.width_mm.toFixed(3)}mm d=${result.value.depth_mm.toFixed(3)}mm` };
+    case "am_bead_overlap": case "am_solidification": case "am_thermal_stress": case "am_scan_strategy": case "am_process_window":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "rbd_analyze_system":
+      return { result: `RBD: R_sys=${result.value.system_reliability.toFixed(4)}` };
+    case "rbd_fault_tree": case "rbd_importance": case "rbd_monte_carlo": case "rbd_redundancy": case "rbd_availability":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "cryo_heat_transfer":
+      return { result: `CryoHT: h=${result.value.heat_transfer_coeff_W_m2K.toFixed(0)} W/m²K` };
+    case "cryo_tool_life":
+      return { result: `CryoLife: ${result.value.cryo_tool_life_min.toFixed(1)}min (${result.value.improvement_factor.toFixed(1)}×)` };
+    case "cryo_forces": case "cryo_surface_integrity": case "cryo_delivery_optimize": case "cryo_mql":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "acoustics_cutting_noise":
+      return { result: `Noise: ${result.value.Lp_dBA.toFixed(1)} dB(A)` };
+    case "acoustics_hearing_protection":
+      return { result: `TWA=${result.value.twa_dBA.toFixed(1)}dBA, NRR=${result.value.required_NRR}` };
+    case "acoustics_machine_noise": case "acoustics_shop_floor": case "acoustics_noise_control": case "acoustics_chatter_noise":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "laser_ablation_depth":
+      return { result: `Ablation: ${result.value.depth_per_pulse_um.toFixed(2)}µm/pulse, ${result.value.regime}` };
+    case "laser_removal_rate": case "laser_haz": case "laser_drilling": case "laser_pulse_overlap": case "laser_plasma_shielding":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -641,7 +667,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -663,6 +689,24 @@ const ACTIONS = [
   // ── Advanced Mathematical Methods ──
   "pce_compute", "emd_decompose", "garch_fit", "lhs_sample",
   "cmaes_optimize", "svm_train", "alt_analyze",
+  // ── Phase 5 Forge: Novel Physics ──
+  "am_melt_pool", "am_bead_overlap", "am_solidification", "am_thermal_stress", "am_scan_strategy", "am_process_window",
+  "rbd_analyze_system", "rbd_fault_tree", "rbd_importance", "rbd_monte_carlo", "rbd_redundancy", "rbd_availability",
+  "cryo_heat_transfer", "cryo_tool_life", "cryo_forces", "cryo_surface_integrity", "cryo_delivery_optimize", "cryo_mql",
+  "acoustics_cutting_noise", "acoustics_machine_noise", "acoustics_shop_floor", "acoustics_hearing_protection", "acoustics_noise_control", "acoustics_chatter_noise",
+  "laser_ablation_depth", "laser_removal_rate", "laser_haz", "laser_drilling", "laser_pulse_overlap", "laser_plasma_shielding",
+  // -- Batch 109: Mechanical Design (15 engines) --
+  "ball_screw_calc", "bevel_gear_calc", "bolted_joint_calc",
+  "column_buckling_calc", "connecting_rod_calc", "coupling_selection_calc",
+  "crankshaft_design_calc", "disk_brake_calc", "flange_bolt_calc",
+  "flywheel_calc", "gear_train_calc", "hertz_contact_calc",
+  "keyway_design_calc", "leaf_spring_calc", "planetary_gear_calc",
+  // -- Batch 109: Fluid/Thermal/Process (15 engines) --
+  "centrifugal_pump_calc", "compressor_design_calc", "condenser_design_calc",
+  "cooling_tower_calc", "heat_exchanger_calc", "hydraulic_cylinder_calc",
+  "pipe_sizing_calc", "pipe_stress_calc", "pump_selection_calc",
+  "valve_design_calc", "valve_sizing_calc", "nozzle_calc",
+  "seal_selection_calc", "spring_design_calc", "tank_design_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4950,6 +4994,238 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+
+          // ── Metaheuristic Optimization (GA, DE, PSO, SA, BayesOpt) ──
+          case "ga_optimize": {
+            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const mho = new MHO();
+            result = mho.geneticAlgorithm(params as ValidatedParams);
+            break;
+          }
+          case "de_optimize": {
+            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const mho = new MHO();
+            result = mho.differentialEvolution(params as ValidatedParams);
+            break;
+          }
+          case "pso_optimize": {
+            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const mho = new MHO();
+            result = mho.particleSwarmOptimization(params as ValidatedParams);
+            break;
+          }
+          case "sa_optimize": {
+            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const mho = new MHO();
+            result = mho.simulatedAnnealing(params as ValidatedParams);
+            break;
+          }
+          case "bayesopt_optimize": {
+            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const mho = new MHO();
+            result = mho.bayesianOptimization(params as ValidatedParams);
+            break;
+          }
+
+          // ── Statistical ML (MCMC, Bootstrap, PCA, K-Means, LogReg, Wavelet, CUSUM/EWMA) ──
+          case "mcmc_sample": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.mcmc(params as ValidatedParams);
+            break;
+          }
+          case "bootstrap_resample": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.bootstrap(params as ValidatedParams);
+            break;
+          }
+          case "pca_analyze": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.pca(params as ValidatedParams);
+            break;
+          }
+          case "kmeans_cluster": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.kMeans(params as ValidatedParams);
+            break;
+          }
+          case "logistic_regression": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.logisticRegression(params as ValidatedParams);
+            break;
+          }
+          case "wavelet_transform": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.waveletTransform(params as ValidatedParams);
+            break;
+          }
+          case "control_chart": {
+            const { StatisticalMLEngine: SML } = await import("../../engines/StatisticalMLEngine.js");
+            const sml = new SML();
+            result = sml.controlChart(params as ValidatedParams);
+            break;
+          }
+
+
+          // -- Batch 109: Mechanical Design (15 engines) --
+          case "ball_screw_calc": {
+            const { ballScrewEngine } = await import("../../engines/BallScrewEngine.js");
+            result = ballScrewEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bevel_gear_calc": {
+            const { bevelGearEngine } = await import("../../engines/BevelGearEngine.js");
+            result = bevelGearEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bolted_joint_calc": {
+            const { boltedJointEngine } = await import("../../engines/BoltedJointEngine.js");
+            result = boltedJointEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "column_buckling_calc": {
+            const { columnBucklingEngine } = await import("../../engines/ColumnBucklingEngine.js");
+            result = columnBucklingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "connecting_rod_calc": {
+            const { connectingRodEngine } = await import("../../engines/ConnectingRodEngine.js");
+            result = connectingRodEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "coupling_selection_calc": {
+            const { couplingSelectionEngine } = await import("../../engines/CouplingSelectionEngine.js");
+            result = couplingSelectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "crankshaft_design_calc": {
+            const { crankshaftDesignEngine } = await import("../../engines/CrankshaftDesignEngine.js");
+            result = crankshaftDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "disk_brake_calc": {
+            const { diskBrakeEngine } = await import("../../engines/DiskBrakeEngine.js");
+            result = diskBrakeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "flange_bolt_calc": {
+            const { flangeBoltEngine } = await import("../../engines/FlangeBoltEngine.js");
+            result = flangeBoltEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "flywheel_calc": {
+            const { flywheelEngine } = await import("../../engines/FlywheelEngine.js");
+            result = flywheelEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "gear_train_calc": {
+            const { gearTrainEngine } = await import("../../engines/GearTrainEngine.js");
+            result = gearTrainEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "hertz_contact_calc": {
+            const { hertzContactEngine } = await import("../../engines/HertzContactEngine.js");
+            result = hertzContactEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "keyway_design_calc": {
+            const { keywayDesignEngine } = await import("../../engines/KeywayDesignEngine.js");
+            result = keywayDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "leaf_spring_calc": {
+            const { leafSpringEngine } = await import("../../engines/LeafSpringEngine.js");
+            result = leafSpringEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "planetary_gear_calc": {
+            const { planetaryGearEngine } = await import("../../engines/PlanetaryGearEngine.js");
+            result = planetaryGearEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // -- Batch 109: Fluid/Thermal/Process (15 engines) --
+          case "centrifugal_pump_calc": {
+            const { centrifugalPumpEngine } = await import("../../engines/CentrifugalPumpEngine.js");
+            result = centrifugalPumpEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "compressor_design_calc": {
+            const { compressorDesignEngine } = await import("../../engines/CompressorDesignEngine.js");
+            result = compressorDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "condenser_design_calc": {
+            const { condenserDesignEngine } = await import("../../engines/CondenserDesignEngine.js");
+            result = condenserDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cooling_tower_calc": {
+            const { coolingTowerEngine } = await import("../../engines/CoolingTowerEngine.js");
+            result = coolingTowerEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "heat_exchanger_calc": {
+            const { heatExchangerEngine } = await import("../../engines/HeatExchangerEngine.js");
+            result = heatExchangerEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "hydraulic_cylinder_calc": {
+            const { hydraulicCylinderEngine } = await import("../../engines/HydraulicCylinderEngine.js");
+            result = hydraulicCylinderEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pipe_sizing_calc": {
+            const { pipeSizingEngine } = await import("../../engines/PipeSizingEngine.js");
+            result = pipeSizingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pipe_stress_calc": {
+            const { pipeStressEngine } = await import("../../engines/PipeStressEngine.js");
+            result = pipeStressEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pump_selection_calc": {
+            const { pumpSelectionEngine } = await import("../../engines/PumpSelectionEngine.js");
+            result = pumpSelectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "valve_design_calc": {
+            const { valveDesignEngine } = await import("../../engines/ValveDesignEngine.js");
+            result = valveDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "valve_sizing_calc": {
+            const { valveSizingEngine } = await import("../../engines/ValveSizingEngine.js");
+            result = valveSizingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "nozzle_calc": {
+            const { nozzleEngine } = await import("../../engines/NozzleEngine.js");
+            result = nozzleEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "seal_selection_calc": {
+            const { sealSelectionEngine } = await import("../../engines/SealSelectionEngine.js");
+            result = sealSelectionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spring_design_calc": {
+            const { springDesignEngine } = await import("../../engines/SpringDesignEngine.js");
+            result = springDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tank_design_calc": {
+            const { tankDesignEngine } = await import("../../engines/TankDesignEngine.js");
+            result = tankDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
@@ -5029,4 +5305,5 @@ export function registerCalcDispatcher(server: any): void {
       }
     }
   );
+
 }
