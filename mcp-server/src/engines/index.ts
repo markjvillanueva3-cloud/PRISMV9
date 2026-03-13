@@ -2270,6 +2270,7 @@ export { multiSetupPlannerEngine, MultiSetupPlannerEngine } from "./MultiSetupPl
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
+export { toolpathSmoothingEngine, ToolpathSmoothingEngine } from "./ToolpathSmoothingEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
 export { webhookEngine, WebhookEngine } from "./WebhookEngine.js";
