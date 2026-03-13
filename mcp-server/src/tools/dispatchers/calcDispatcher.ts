@@ -733,13 +733,13 @@ const ACTIONS = [
   "wire_rope_calc",
   // -- Batch 111: Math/Stats + Fatigue/Fracture + EDM + Industrial (20 engines) --
   "statistical_ml_calc", "metaheuristic_optimization_calc", "markov_decision_calc",
-  "morris_screening_calc", "linear_regression_calc", "nelson_spc_rules_calc",
-  "predictive_failure_calc", "reliability_weibull_calc", "kienzle_force_model_calc",
-  "miner_cumulative_damage_calc",
+  "linear_regression_calc",
+  "predictive_failure_calc", "reliability_weibull_calc",
   "fracture_toughness_calc", "creep_life_calc", "thermal_fatigue_calc",
   "thermal_expansion_joint_calc",
   "edm_calc", "edm_parameter_calc", "edm_wire_calc",
   "ergonomic_workstation_calc", "noise_level_calc", "propeller_calc",
+  "shock_absorber_calc", "damper_design_calc", "torsion_bar_calc", "screw_jack_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5729,19 +5729,9 @@ export function registerCalcDispatcher(server: any): void {
             result = markovDecisionEngine.calculate(params as ValidatedParams);
             break;
           }
-          case "morris_screening_calc": {
-            const { morrisScreeningEngine } = await import("../../engines/MorrisScreeningEngine.js");
-            result = morrisScreeningEngine.calculateElementaryEffects(params as ValidatedParams);
-            break;
-          }
           case "linear_regression_calc": {
             const { linearRegressionEngine } = await import("../../engines/LinearRegressionEngine.js");
             result = linearRegressionEngine.calculate(params as ValidatedParams);
-            break;
-          }
-          case "nelson_spc_rules_calc": {
-            const { nelsonSPCRulesEngine } = await import("../../engines/NelsonSPCRulesEngine.js");
-            result = nelsonSPCRulesEngine.evaluateAllRules(params.data ?? [], params.mean, params.sigma);
             break;
           }
           case "predictive_failure_calc": {
@@ -5752,16 +5742,6 @@ export function registerCalcDispatcher(server: any): void {
           case "reliability_weibull_calc": {
             const { reliabilityWeibullEngine } = await import("../../engines/ReliabilityWeibullEngine.js");
             result = reliabilityWeibullEngine.calculate(params as ValidatedParams);
-            break;
-          }
-          case "kienzle_force_model_calc": {
-            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
-            result = kienzleForceModelEngine.calculateSpecificCuttingForce(params as ValidatedParams);
-            break;
-          }
-          case "miner_cumulative_damage_calc": {
-            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
-            result = minerCumulativeDamageEngine.calculateCumulativeDamage(params as ValidatedParams);
             break;
           }
 
