@@ -1,5 +1,5 @@
 # PRISM SYSTEM INVENTORY
-## Last Updated: 2026-03-08T17:40 | Updated by /autopilot-full
+## Last Updated: 2026-03-13T17:40 | Updated by /autopilot
 
 > **Purpose**: Single source of truth for what exists in the PRISM system.
 > All chats should read this file FIRST to avoid duplicating work.
@@ -11,32 +11,33 @@
 
 | Category | Count | Location |
 |----------|-------|----------|
-| **Engines** | 858 files (875+ exported, 1 bootstrap) | `src/engines/` |
-| **Algorithms** | 52 (18 physics, 18 ML/optimization, 14 mfg-specific, 2 support) | `src/algorithms/` |
-| **Dispatchers** | 55 files | `src/tools/dispatchers/` |
-| **Actions** | 1688 total across all dispatchers | dispatchers |
+| **Engines** | 857 files | `src/engines/` |
+| **Algorithms** | 51 (18 physics, 18 ML/optimization, 14 mfg-specific, 1 index) | `src/algorithms/` |
+| **Dispatchers** | 58 files | `src/tools/dispatchers/` |
+| **Actions** | 2005+ total across all dispatchers | dispatchers |
 | **MCP Tools** | 53 registered (47 explicit + 6 F-feature) | `src/tools/` |
-| **Hooks** | 220 domain hooks + 22 hook files | `src/hooks/` |
+| **Hooks** | 213 hookify rules + 21 hook files | `src/hooks/` |
 | **Cadences** | 12 (6 core + 6 specialty) | `src/hooks/CadenceDefinitions.ts` |
 | **Formulas** | 499 (109 built-in + 390 JSON) across 20 domains | `FormulaRegistry` |
-| **Registries** | 23 TypeScript files | `src/registries/` |
-| **Tests (Backend)** | 12654 passing, 543 files | `src/__tests__/` |
+| **Registries** | 22 TypeScript files | `src/registries/` |
+| **Tests (Backend)** | 12653+ passing, 530 files | `src/__tests__/` |
 | **Tests (Web)** | 85 tests, 7 files | `web/src/__tests__/` |
 | **Tests (CAD-Engine)** | 2085 tests, 87 files | `cad-engine/tests/` |
 | **Tests (E2E)** | 11 E2E test files | `cad-engine/tests/e2e/` |
 | **Web Components** | 53 .tsx files, 11 pages | `web/src/` |
 | **Python Modules** | 93 source files, 308 classes | `cad-engine/src/` |
-| **Slash Commands** | 70+ commands | `~/.claude/commands/` |
+| **Slash Commands** | 134 commands | `~/.claude/commands/` |
 | **Skills** | 257 indexed, 14 superpowers | `TRIGGER_MAP.json` |
-| **Tribal Knowledge** | 184 tips (TK-DL-*, TK-RX-*, TK-VL-*) | `TribalKnowledgeEngine` |
-| **Data Modules** | 10 files (8 .ts + 2 .json) | `src/data/` |
+| **Tribal Knowledge** | 867+ tips | `TribalKnowledgeEngine` |
+| **Data/Catalogs** | 67 files | `src/data/` |
+| **Code System Index** | 1,850 file mappings | `data/docs/CODE_SYSTEM_INDEX.json` |
 | **Milestones** | 109/109 COMPLETE | `data/milestones/` |
 
 ---
 
-## ENGINES BY CATEGORY (562 total)
+## ENGINES BY CATEGORY (857 total)
 
-### Exported (569) — in `src/engines/index.ts`
+### All engines in `src/engines/` — exported via `index.ts`
 - **Calculation** (33): ManufacturingCalculations, AdvancedCalculations, ToolpathCalculations, CuttingPowerBudget, BoreFinishing, ChipFormationPrediction, CoolantStrategy, CycleToControl, DOEAnalysis, DrillBreakthrough, DrillCycleOptimization, FinishingPassOptimization, GrindingForce, GrindingSurfaceFinish, SpecificCuttingEnergy, TappingTorque, ThermalGrowthCompensation, ToolCoatingSelection, ToolDeflectionPrediction, ToolWearProgression, TurningForce, PhysicsPrediction, ChipThinningCompensation, EngagementGeometry, CollisionEngine, WorkholdingEngine, ToolBreakageEngine, SpindleProtection, CoolantValidation, +4 more
 - **Safety** (7): SafetyEngine, SafetyQualityHooks, EnforcementHooks, HyperMillSafetyHooks, SafetyValidator, +2 more
 - **Manufacturing Process** (16): ThreadCalculation, GCodeTemplate, PostProcessor, ToolpathGeneration, CAMKernel, +11 more

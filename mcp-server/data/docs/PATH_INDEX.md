@@ -1,99 +1,55 @@
-# PRISM Path Index — Quick Reference for All Slash Commands
-# Single source of truth for file locations. Read this instead of running Glob/Grep.
-# Updated: 2026-03-01 | ~400 tokens when loaded
+# PRISM PATH_INDEX
 
-## Root Paths
-- MCP: `C:/PRISM/mcp-server`
-- CAD: `C:/PRISM/cad-engine`
-- WEB: `C:/PRISM/web` or `C:/PRISM/mcp-server/web`
-- STATE: `C:/PRISM/state`
-- MEMORY: `C:/Users/Admin.DIGITALSTORM-PC/.claude/projects/C--Windows-System32/memory`
-- COMMANDS: `C:/Users/Admin.DIGITALSTORM-PC/.claude/commands`
-- HOOKS: `C:/Users/Admin.DIGITALSTORM-PC/.claude/hooks`
-- HOOKIFY: `C:/Users/Admin.DIGITALSTORM-PC/.claude/hookify.*.local.md`
-- PYTHON: `C:/Users/Admin.DIGITALSTORM-PC/AppData/Local/Programs/Python/Python312/python.exe`
+Quick reference for all file locations. Use Code System Index (DSL) shortcodes for compact refs.
 
-## MCP Server Source
-- Dispatchers: `mcp/src/tools/dispatchers/*Dispatcher.ts` (53 files)
-- Engines: `mcp/src/engines/*.ts` (218 total, index at `engines/index.ts`)
-- Algorithms: `mcp/src/algorithms/*.ts` (51 files)
-- Hooks: `mcp/src/hooks/*.ts` (220 hooks)
-- Schemas: `mcp/src/schemas/*.ts`
-- Utils: `mcp/src/utils/*.ts`
-- Validation: `mcp/src/validation/*.ts`
-- Tests: `mcp/src/__tests__/*.test.ts`
-- Config: `mcp/tsconfig.json`, `mcp/vitest.config.ts`, `mcp/package.json`
+## Directory Structure
 
-## MCP Server Data
-- MASTER_INDEX: `mcp/data/docs/MASTER_INDEX.md`
-- PATH_INDEX: `mcp/data/docs/PATH_INDEX.md` (this file)
-- Formulas: `C:/PRISM/data/FORMULA_REGISTRY.json` (499 formulas, external)
-- Materials DB: `mcp/data/materials/` (15 registries)
-- Roadmap: `mcp/data/roadmap-index.json`
-- Milestones: `mcp/data/milestones/*.json`
-- Claims: `mcp/data/claims/`
-- Video Learned: `mcp/data/video-learned/learning-registry.json`
+```
+mcp-server/
+  src/
+    engines/          # 857 engines (E0001-E0857)
+    tools/dispatchers/ # 58 dispatchers (D01-D58)
+    tools/schemas/     # Action schemas
+    algorithms/        # 51 algorithms (A01-A51)
+    registries/        # 22 registries (RG01-RG22)
+    hooks/             # 21 hooks (H01-H21)
+    utils/             # 16 utils (U01-U16)
+    services/          # 3 services (SV01-SV03)
+    data/              # 67 catalogs/data (C01-C67)
+    __tests__/         # 530 test files (T0001-T0530)
+  data/
+    milestones/        # 110 milestone envelopes
+    docs/              # 36 documentation files
+    *.json             # Config data (roadmap, strategies, tips, etc.)
+  web/                 # Web frontend
+```
 
-## CAD Engine Source (Python)
-- Core: `cad/src/cad_kernel.py`, `cad_export.py`, `geo_validator.py`, `bridge.py`
-- Video Pipeline: `cad/src/video_ingest.py`, `frame_extract.py`, `vision_analyze.py`, `ui_ocr.py`
-- Classification: `cad/src/domain_classify.py`, `platform_detect.py`
-- Knowledge: `cad/src/knowledge_extract.py`, `knowledge_extract_offline.py`, `knowledge_bridge.py`
-- Components: `cad/src/component_generator.py`, `component_writer.py`
-- CAM Learning: `cad/src/strategy_aggregate.py`, `strategy_recommend.py`, `tool_select_kb.py`, `op_sequence.py`
-- Practice KB: `cad/src/practice_aggregate.py`, `trouble_tree.py`, `material_tips.py`
-- Document: `cad/src/document_ingest.py`, `document_classify.py`, `document_extract.py`
-- Code Gen: `cad/src/code_gen.py`, `code_validator.py`, `primitive_gen.py`
-- Prompts: `cad/src/prompts/{cad,cam,shop,document}_prompts.py`
-- Validators: `cad/src/validators/{cad,cam,shop}_validator.py`
-- Registry: `cad/src/learning_registry.py`
-- Tests: `cad/tests/test_*.py`
+## Key Files
 
-## CAD Engine Data
-- Strategy DB: `cad/data/cam_strategies/strategy_db.json`
-- Tool Rationale: `cad/data/cam_strategies/tool_rationale_kb.json`
-- Op Sequences: `cad/data/cam_strategies/operation_sequences.json`
-- CAD Standards: `cad/data/cad_drawing_ref/cad_drawing_standards_and_practices.md`
-- Knowledge Store: `cad/knowledge_store/`
-- Primitives: `cad/primitives/library.py`, `primitives/index.json`
-- Video Output: `cad/output/<video_id>/`
-- Test Fixtures: `cad/test_data/video_fixtures.json`
+| Purpose | Path |
+|---------|------|
+| Engine index | `src/engines/index.ts` |
+| Dispatcher index | `src/tools/dispatchers/index.ts` |
+| Algorithm index | `src/algorithms/index.ts` |
+| Registry index | `src/registries/index.ts` |
+| MCP server entry | `src/index.ts` |
+| Roadmap | `data/roadmap-index.json` |
+| Master Index | `data/docs/MASTER_INDEX.md` |
+| System Inventory | `data/docs/SYSTEM_INVENTORY.md` |
+| Code System Index | `data/docs/CODE_SYSTEM_INDEX.json` |
+| Compact DSL ref | `data/docs/DSL_COMPACT.md` |
+| Build config | `tsconfig.json` / `vitest.config.ts` |
 
-## State Files
-- Current: `state/CURRENT_STATE.json`, `state/QUICK_RESUME.json`
-- Learning: `state/LEARNING_LOG.jsonl`, `state/LEARNING_STORE.json`
-- Handoff: `state/HANDOFF_PACKAGE.json`, `state/RECOVERY_MANIFEST.json`
-- Forge-Learn: `state/forge-learn/gap_analysis.json`, `state/forge-learn/learning_queue.json`
-- Errors: `state/ERROR_LOG.jsonl`, `state/failure_patterns.jsonl`
-- Sessions: `state/SESSION_JOURNAL.jsonl`, `state/session_events.jsonl`
+## Totals
 
-## Web Frontend
-- Components: `web/src/components/`
-- Pages: `web/src/pages/`
-- API: `web/src/api/`
-- Hooks: `web/src/hooks/`
-- Tests: `web/src/__tests__/`
+- **1,850** indexed files (Code System Index)
+- **857** engines | **58** dispatchers | **51** algorithms
+- **530** test files | **22** registries | **67** data/catalog files
+- **134** slash commands | **110** milestones | **36** docs
 
-## PDF Catalogs (46 files in C:/PRISM/CATALOGS/)
-- Turning: `TURNING_CATALOG_PART 1.pdf`, `GC_2023-2024_US_Turning-Grooving.pdf`, `Turning 2018.1.pdf`, `Master Catalog 2018 Vol. 1 Turning Tools English Inch.pdf`
-- Milling: `GC_2023-2024_US_Milling.pdf`, `Milling 2018.1.pdf`, `Solid End Mills.pdf`, `Flash_Solid_catalog_INCH.pdf`
-- Drilling: `GC_2023-2024_US_Drilling.pdf`, `Holemaking.pdf`, `OSG.pdf`
-- Threading: `Threading 2018.1.pdf`, `ZK12023_DEGB RevA EMUGE Katalog 160.pdf`
-- General: `Cutting Tools Master 2022 English Inch.pdf`, `Cutting Tools Master 2022 English Metric.pdf`
-- Toolholders: `BIG DAISHOWA High Performance Tooling Solutions Vol 5.pdf`, `Haimer USA Master Catalog.pdf`, `REGO-FIX Catalogue 2026 ENGLISH.pdf`, `guhring tool holders.pdf`
-- Specialty: `INGERSOLL CUTTING TOOLS.pdf`, `ISCAR PART 1.pdf`, `korloy solid.pdf`, `korloy rotating.pdf`, `korloy turning.pdf`, `guhring full catalog.pdf`, `SGS_Global_Catalog_v26.1.pdf`, `MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf`
-- Workholding: `CAMFIX_Catalog.pdf`, `543f80b8_2016_orange_vise_catalog.pdf`
-- Reference: `Metalmorphosis-2021-FINAL-reduced-for-Web.pdf`, `01-Global-CNC-Full-Catalog-2023.pdf`
-- Mirror: `C:/PRISM/MANUFACTURER_CATALOGS/uploaded/` (same files)
+## DSL Shortcode Format
 
-## Shop Practice Knowledge (C:/PRISM/cad-engine/data/shop_practices/)
-- Practice DB: `practice_db.json` (30 practices, 6 categories)
-- Trouble Trees: `trouble_trees/{chatter,surface_finish,tool_wear,dimensional_accuracy,chip_evacuation}.json`
-- Material Tips: `material_tips/{aluminum,steel,stainless_steel,titanium,cast_iron}.json`
+E=Engine, D=Dispatcher, A=Algorithm, S=Schema, H=Hook, U=Util,
+RG=Registry, T=Test, C=Catalog, M=Milestone, DOC=Doc, SV=Service, R=Root
 
-## Key Counts (verified 2026-03-07)
-- 54 dispatchers, 1536+ actions, 345 engines, 52 algorithms
-- 223 hooks, 103 cadences, 499 formulas, 23 registries
-- 70 slash commands, 98 hookify rules
-- 5169 backend tests (156 files), 85 web tests (5 files), 11 E2E, 2085 cad-engine tests
-- 41 web pages, 98/98 milestones complete (v5.3 + TC-MS0 + PROD-MS0)
+Resolve: `CodeSystemIndexEngine.resolve('E0001')` or `/code-index E0001`
