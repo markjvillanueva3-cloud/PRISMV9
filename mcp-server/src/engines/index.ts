@@ -3188,6 +3188,7 @@ export { advancedWearPhysicsEngine } from "./AdvancedWearPhysicsEngine.js";
 export { AdvancedMathematicalMethodsEngine } from "./AdvancedMathematicalMethodsEngine.js";
 export { MetaheuristicOptimizationEngine } from "./MetaheuristicOptimizationEngine.js";
 export { StatisticalMLEngine } from "./StatisticalMLEngine.js";
+export { MathIntegrationPipelineEngine } from "./MathIntegrationPipelineEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";

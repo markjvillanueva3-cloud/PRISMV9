@@ -5822,6 +5822,51 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+
+          // ── Math Integration Pipelines ──
+          case "robust_optimization": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.robustOptimization(params as ValidatedParams);
+            break;
+          }
+          case "multivariate_spc": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.multivariateSPC(params as ValidatedParams);
+            break;
+          }
+          case "smart_doe": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.smartDOE(params as ValidatedParams);
+            break;
+          }
+          case "predictive_maintenance": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.predictiveMaintenance(params as ValidatedParams);
+            break;
+          }
+          case "probabilistic_costing": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.probabilisticCosting(params as ValidatedParams);
+            break;
+          }
+          case "capability_with_ci": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.capabilityWithCI(params as ValidatedParams);
+            break;
+          }
+          case "process_fingerprint": {
+            const { MathIntegrationPipelineEngine: MIP } = await import("../../engines/MathIntegrationPipelineEngine.js");
+            const mip = new MIP();
+            result = mip.processFingerprint(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
