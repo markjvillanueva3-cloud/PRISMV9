@@ -225,6 +225,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { cpk: result.overall_cpk, sigma_um: result.overall_sigma_um, pct_spec: result.pct_in_spec, first_oos: result.first_oos_part, corr_interval: result.recommended_correction_interval };
     case "stochastic_deflection":
       return { mean_um: result.deflection?.mean_um, std_um: result.deflection?.std_um, p_exceed: result.probability_exceed_limit, stiffness: result.effective_stiffness_N_per_um };
+    case "variability_pipeline":
+      return { cpk: result.cpk, risk: result.risk_level, sigma_um: result.sigma_total_um, ppm: result.ppm_defect, dominant: result.dominant_source };
     case "specific_cutting_energy":
       return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
@@ -667,7 +669,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -707,6 +709,13 @@ const ACTIONS = [
   "pipe_sizing_calc", "pipe_stress_calc", "pump_selection_calc",
   "valve_design_calc", "valve_sizing_calc", "nozzle_calc",
   "seal_selection_calc", "spring_design_calc", "tank_design_calc",
+  // ── Science Coverage: 6 new engines (22 actions) ──
+  "kienzle_force", "kienzle_coefficients", "kienzle_milling", "kienzle_size_effect",
+  "nelson_spc_evaluate", "nelson_spc_chart", "nelson_spc_diagnose",
+  "miner_cumulative_damage", "miner_sn_curve", "miner_tool_fatigue", "miner_rainflow",
+  "stochastic_wrap_mc", "stochastic_wrap_fosm", "stochastic_wrap_pce", "stochastic_sensitivity", "stochastic_chain",
+  "morris_screening", "morris_classify",
+  "multiple_regression_fit", "multiple_regression_predict", "multiple_regression_diagnostics", "ridge_regression",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5229,6 +5238,292 @@ export function registerCalcDispatcher(server: any): void {
           case "stochastic_deflection": {
             const { stochasticDeflectionEngine } = await import("../../engines/StochasticDeflectionEngine.js");
             result = stochasticDeflectionEngine.analyze(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge: Additive Manufacturing Physics ──
+          case "am_melt_pool": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.meltPool(params as ValidatedParams);
+            break;
+          }
+          case "am_bead_overlap": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.beadOverlap(params as ValidatedParams);
+            break;
+          }
+          case "am_solidification": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.solidification(params as ValidatedParams);
+            break;
+          }
+          case "am_thermal_stress": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.thermalStress(params as ValidatedParams);
+            break;
+          }
+          case "am_scan_strategy": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.scanStrategy(params as ValidatedParams);
+            break;
+          }
+          case "am_process_window": {
+            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
+            result = additiveManufacturingPhysicsEngine.processWindow(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge: Reliability Block Diagrams ──
+          case "rbd_analyze_system": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.analyzeSystem(params as ValidatedParams);
+            break;
+          }
+          case "rbd_fault_tree": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.faultTree(params as ValidatedParams);
+            break;
+          }
+          case "rbd_importance": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.importanceMeasures(params as ValidatedParams);
+            break;
+          }
+          case "rbd_monte_carlo": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.monteCarloReliability(params as ValidatedParams);
+            break;
+          }
+          case "rbd_redundancy": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.optimizeRedundancy(params as ValidatedParams);
+            break;
+          }
+          case "rbd_availability": {
+            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
+            result = reliabilityBlockDiagramEngine.availability(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge: Cryogenic Cutting ──
+          case "cryo_heat_transfer": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.cryoHeatTransfer(params as ValidatedParams);
+            break;
+          }
+          case "cryo_tool_life": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.cryoToolLife(params as ValidatedParams);
+            break;
+          }
+          case "cryo_forces": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.cryoForces(params as ValidatedParams);
+            break;
+          }
+          case "cryo_surface_integrity": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.cryoSurfaceIntegrity(params as ValidatedParams);
+            break;
+          }
+          case "cryo_delivery_optimize": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.deliveryOptimization(params as ValidatedParams);
+            break;
+          }
+          case "cryo_mql": {
+            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
+            result = cryogenicCuttingEngine.cryoMQL(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge: Machining Acoustics ──
+          case "acoustics_cutting_noise": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.cuttingNoise(params as ValidatedParams);
+            break;
+          }
+          case "acoustics_machine_noise": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.machineNoise(params as ValidatedParams);
+            break;
+          }
+          case "acoustics_shop_floor": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.shopFloorNoise(params as ValidatedParams);
+            break;
+          }
+          case "acoustics_hearing_protection": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.hearingProtection(params as ValidatedParams);
+            break;
+          }
+          case "acoustics_noise_control": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.noiseControl(params as ValidatedParams);
+            break;
+          }
+          case "acoustics_chatter_noise": {
+            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
+            result = machiningAcousticsEngine.chatterNoise(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge: Laser Ablation Physics ──
+          case "laser_ablation_depth": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.ablationDepth(params as ValidatedParams);
+            break;
+          }
+          case "laser_removal_rate": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.removalRate(params as ValidatedParams);
+            break;
+          }
+          case "laser_haz": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.heatAffectedZone(params as ValidatedParams);
+            break;
+          }
+          case "laser_drilling": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.laserDrilling(params as ValidatedParams);
+            break;
+          }
+          case "laser_pulse_overlap": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.pulseOverlap(params as ValidatedParams);
+            break;
+          }
+          case "laser_plasma_shielding": {
+            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
+            result = laserAblationPhysicsEngine.plasmaShielding(params as ValidatedParams);
+            break;
+          }
+
+          // ── Science Coverage: Kienzle Force Model ──
+          case "kienzle_force": {
+            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
+            result = kienzleForceModelEngine.calculateSpecificCuttingForce(params as ValidatedParams);
+            break;
+          }
+          case "kienzle_coefficients": {
+            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
+            result = kienzleForceModelEngine.getKienzleCoefficientTable();
+            break;
+          }
+          case "kienzle_milling": {
+            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
+            result = kienzleForceModelEngine.calculateMillingForces(params as ValidatedParams);
+            break;
+          }
+          case "kienzle_size_effect": {
+            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
+            result = kienzleForceModelEngine.calculateSizeEffect(params as ValidatedParams);
+            break;
+          }
+          // ── Science Coverage: Nelson SPC Rules ──
+          case "nelson_spc_evaluate": {
+            const { nelsonSPCRulesEngine } = await import("../../engines/NelsonSPCRulesEngine.js");
+            result = nelsonSPCRulesEngine.evaluateAllRules(params.data || [], params.mean, params.sigma);
+            break;
+          }
+          case "nelson_spc_chart": {
+            const { nelsonSPCRulesEngine } = await import("../../engines/NelsonSPCRulesEngine.js");
+            result = nelsonSPCRulesEngine.generateControlChart(params.data || [], params.mean, params.sigma);
+            break;
+          }
+          case "nelson_spc_diagnose": {
+            const { nelsonSPCRulesEngine } = await import("../../engines/NelsonSPCRulesEngine.js");
+            const evalResult = nelsonSPCRulesEngine.evaluateAllRules(params.data || [], params.mean, params.sigma);
+            result = nelsonSPCRulesEngine.diagnosePattern(evalResult.violations || []);
+            break;
+          }
+          // ── Science Coverage: Miner Cumulative Damage ──
+          case "miner_cumulative_damage": {
+            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
+            result = minerCumulativeDamageEngine.calculateCumulativeDamage(params as ValidatedParams);
+            break;
+          }
+          case "miner_sn_curve": {
+            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
+            result = minerCumulativeDamageEngine.buildSNcurve(params as ValidatedParams);
+            break;
+          }
+          case "miner_tool_fatigue": {
+            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
+            result = minerCumulativeDamageEngine.calculateToolFatigueDamage(params as ValidatedParams);
+            break;
+          }
+          case "miner_rainflow": {
+            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
+            result = minerCumulativeDamageEngine.calculateRainflowDamage(params as ValidatedParams);
+            break;
+          }
+          // ── Science Coverage: Stochastic Wrapper ──
+          case "stochastic_wrap_mc": {
+            const { stochasticWrapperEngine } = await import("../../engines/StochasticWrapperEngine.js");
+            result = stochasticWrapperEngine.wrapWithMonteCarlo(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_wrap_fosm": {
+            const { stochasticWrapperEngine } = await import("../../engines/StochasticWrapperEngine.js");
+            result = stochasticWrapperEngine.wrapWithFOSM(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_wrap_pce": {
+            const { stochasticWrapperEngine } = await import("../../engines/StochasticWrapperEngine.js");
+            result = stochasticWrapperEngine.wrapWithPCE(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_sensitivity": {
+            const { stochasticWrapperEngine } = await import("../../engines/StochasticWrapperEngine.js");
+            result = stochasticWrapperEngine.sensitivityAnalysis(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_chain": {
+            const { stochasticWrapperEngine } = await import("../../engines/StochasticWrapperEngine.js");
+            result = stochasticWrapperEngine.propagateChain(params as ValidatedParams);
+            break;
+          }
+          // ── Science Coverage: Morris Screening ──
+          case "morris_screening": {
+            const { morrisScreeningEngine } = await import("../../engines/MorrisScreeningEngine.js");
+            result = morrisScreeningEngine.calculateElementaryEffects(params as ValidatedParams);
+            break;
+          }
+          case "morris_classify": {
+            const { morrisScreeningEngine } = await import("../../engines/MorrisScreeningEngine.js");
+            const eeResult = morrisScreeningEngine.calculateElementaryEffects(params as ValidatedParams);
+            result = morrisScreeningEngine.classifyParameters(eeResult);
+            break;
+          }
+          // ── Science Coverage: Multiple Regression ──
+          case "multiple_regression_fit": {
+            const { multipleRegressionEngine } = await import("../../engines/MultipleRegressionEngine.js");
+            result = multipleRegressionEngine.fit(params as ValidatedParams);
+            break;
+          }
+          case "multiple_regression_predict": {
+            const { multipleRegressionEngine } = await import("../../engines/MultipleRegressionEngine.js");
+            result = multipleRegressionEngine.predict(params.X_new || params.X, params.model || params);
+            break;
+          }
+          case "multiple_regression_diagnostics": {
+            const { multipleRegressionEngine } = await import("../../engines/MultipleRegressionEngine.js");
+            const fitResult = multipleRegressionEngine.fit(params as ValidatedParams);
+            result = multipleRegressionEngine.diagnostics(fitResult);
+            break;
+          }
+          case "ridge_regression": {
+            const { multipleRegressionEngine } = await import("../../engines/MultipleRegressionEngine.js");
+            result = multipleRegressionEngine.ridgeRegression(params as ValidatedParams);
+            break;
+          }
+
+          case "variability_pipeline": {
+            const { processVariabilityIntegrationEngine } = await import("../../engines/ProcessVariabilityIntegrationEngine.js");
+            result = processVariabilityIntegrationEngine.analyze(params as ValidatedParams);
             break;
           }
           default:
