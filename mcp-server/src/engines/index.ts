@@ -3186,6 +3186,8 @@ export { advancedCuttingPhysicsEngine } from "./AdvancedCuttingPhysicsEngine.js"
 export { advancedCuttingMathEngine } from "./AdvancedCuttingMathEngine.js";
 export { advancedWearPhysicsEngine } from "./AdvancedWearPhysicsEngine.js";
 export { AdvancedMathematicalMethodsEngine } from "./AdvancedMathematicalMethodsEngine.js";
+export { MetaheuristicOptimizationEngine } from "./MetaheuristicOptimizationEngine.js";
+export { StatisticalMLEngine } from "./StatisticalMLEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";
@@ -3235,3 +3237,5 @@ export { stochasticThermalEngine } from "./StochasticThermalEngine.js";
 export { stochasticSurfaceFinishEngine } from "./StochasticSurfaceFinishEngine.js";
 export { stochasticChatterEngine } from "./StochasticChatterEngine.js";
 export { uncertaintyPropagationPipelineEngine } from "./UncertaintyPropagationPipelineEngine.js";
+
+export { fileSystemNavigatorEngine, FileSystemNavigatorEngine } from './FileSystemNavigatorEngine.js';
