@@ -27,4 +27,8 @@ export const FORMING_CASTING_ACTION_SCHEMAS: ActionSchemaMap = {
   wire_drawing_calculate: z.object({ initial_diameter_mm: optPosNum, final_diameter_mm: optPosNum, material: optStr }).passthrough(),
   flat_pattern_calculate: z.object({ bend_radius_mm: optPosNum, material_thickness_mm: optPosNum, bend_angle_deg: optNum, k_factor: optNum }).passthrough(),
   calendering_calculate: simpleCalc,
+  compression_molding_calc: z.object({ material: optStr, cavity_pressure_mpa: optPosNum, charge_weight_kg: optPosNum, temperature_c: optPosNum }).passthrough(),
+  rotational_molding_calc: z.object({ material: optStr, wall_thickness_mm: optPosNum, mold_diameter_mm: optPosNum, rotation_speed_rpm: optPosNum }).passthrough(),
+  vacuum_casting_calc: z.object({ material: optStr, mold_type: optStr, vacuum_pressure_mbar: optPosNum, pour_temperature_c: optPosNum }).passthrough(),
+  centrifugal_casting_calc: z.object({ material: optStr, inner_diameter_mm: optPosNum, outer_diameter_mm: optPosNum, rotation_speed_rpm: optPosNum }).passthrough(),
 };

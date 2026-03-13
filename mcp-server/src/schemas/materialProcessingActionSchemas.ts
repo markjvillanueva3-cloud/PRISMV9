@@ -27,4 +27,9 @@ export const MATERIAL_PROCESSING_ACTION_SCHEMAS: ActionSchemaMap = {
   surface_treatment_calculate: z.object({ process: optStr, ...matBaseParams }).passthrough(),
   autoclave_calculate: z.object({ temperature_c: optPosNum, pressure_bar: optPosNum, time_min: optPosNum, ...matBaseParams }).passthrough(),
   electrochemical_calculate: z.object({ process: optStr, current_density: optPosNum, ...matBaseParams }).passthrough(),
+  cryogenic_treatment_calc: z.object({ temperature_c: optNum, hold_time_hours: optPosNum, cooling_rate: optStr, ...matBaseParams }).passthrough(),
+  heat_treatment_response_calc: z.object({ process: optStr, temperature_c: optPosNum, time_hours: optPosNum, target_hardness_hrc: optPosNum, ...matBaseParams }).passthrough(),
+  shot_peening_calc: z.object({ intensity_mm_a: optPosNum, coverage_pct: optPosNum, media_type: optStr, ...matBaseParams }).passthrough(),
+  electroplating_calc: z.object({ metal: optStr, current_density_a_dm2: optPosNum, time_min: optPosNum, thickness_um: optPosNum, ...matBaseParams }).passthrough(),
+  passivation_calc: z.object({ acid_type: z.enum(["citric", "nitric"]).optional(), concentration_pct: optPosNum, temperature_c: optPosNum, time_min: optPosNum, ...matBaseParams }).passthrough(),
 };
