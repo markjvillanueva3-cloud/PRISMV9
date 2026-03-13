@@ -12,9 +12,77 @@
     "UQ": "Universal Uncertainty Quantification",
     "CMD": "Slash Command Modernization",
     "WIRE": "Remaining Engine Wiring & Tests",
-    "KNOW": "Knowledge Graph & Cross-Engine Reasoning"
+    "KNOW": "Knowledge Graph & Cross-Engine Reasoning",
+    "MCP": "MCP Server Protocol & Infrastructure",
+    "WEB": "Web Application & UI Integration",
+    "PERF": "Performance, Caching & Scalability"
   },
   "milestones": [
+    {
+      "id": "MCP-MS0",
+      "title": "MCP Resources — Browsable Materials, Machines, Tools & Catalogs",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "description": "Implement MCP Resources protocol. Expose: (1) materials://prism/ — 2,957 materials browsable by family/grade, (2) machines://prism/ — 910 machine profiles browsable by manufacturer/type, (3) tools://prism/ — 46,590 cutting tools browsable by manufacturer/type/diameter, (4) catalogs://prism/ — holders, workholding, grades. Each resource returns structured data with URI templates. Enables LLM clients to discover and browse PRISM's data without action calls.",
+      "science": "URI template design (RFC 6570), pagination for large collections, content negotiation, ETag caching"
+    },
+    {
+      "id": "MCP-MS1",
+      "title": "MCP Prompts — 20 Manufacturing Workflow Templates",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "Implement MCP Prompts protocol with 20 ready-to-use templates: (1) speed-feed-optimize, (2) tool-selection, (3) machine-selection, (4) quote-job, (5) diagnose-chatter, (6) diagnose-tool-wear, (7) setup-sheet, (8) first-article-plan, (9) material-substitute, (10) cost-reduce, (11) cycle-time-optimize, (12) surface-finish-achieve, (13) deep-hole-strategy, (14) 5-axis-setup, (15) thread-strategy, (16) grinding-wheel-select, (17) coolant-optimize, (18) fixture-design, (19) tolerance-stack, (20) tool-life-maximize. Each prompt includes required/optional arguments and returns pre-structured system messages that chain appropriate dispatchers."
+    },
+    {
+      "id": "MCP-MS2",
+      "title": "Tool Granularity Refactor — Focused Tools for Discoverability",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 8,
+      "description": "Current: 65 mega-tools with opaque 'action' parameter. Clients can't discover what PRISM does. Refactor to expose ~200 focused MCP tools grouped by domain: prism_material_get, prism_speed_feed, prism_tool_select, prism_stability_lobe, etc. Keep backward-compatible mega-dispatchers for power users. Add rich tool descriptions with input/output examples. Use MCP tool annotations (readOnlyHint, destructiveHint, openWorldHint) for client-side filtering.",
+      "science": "API design principles, progressive disclosure, schema composition, backward compatibility patterns"
+    },
+    {
+      "id": "MCP-MS3",
+      "title": "Streaming Progress & Sampling for Long Calculations",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "Long calculations (Monte Carlo with 10K iterations, pipeline DAG chains, DOE analysis) should stream progress via MCP notifications. Implement: (1) Progress notifications with percentage and ETA, (2) Partial result streaming for iterative algorithms, (3) MCP Sampling — server can ask the LLM client for help during complex reasoning (e.g., 'interpret these chatter symptoms' or 'suggest alternative strategies'). Requires SDK 1.27+ sampling support."
+    },
+    {
+      "id": "MCP-MS4",
+      "title": "MCP SDK Upgrade & Protocol Compliance Audit",
+      "track": "MCP",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 3,
+      "description": "Upgrade @modelcontextprotocol/sdk to latest. Audit compliance with MCP spec: (1) Proper capability negotiation, (2) Tool annotations (readOnlyHint, destructiveHint), (3) Resource subscriptions for live data (machine status, tool wear), (4) Roots support for workspace-aware calculations, (5) Proper error codes per spec, (6) Logging protocol support (window/logMessage). Fix any spec violations."
+    },
+    {
+      "id": "WEB-MS0",
+      "title": "Web Application Integration & Deployment",
+      "track": "WEB",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 6,
+      "description": "Merge web/ with mcp-server for unified deployment. Connect 50+ React pages to live MCP server via HTTP transport. Implement: (1) Real-time dashboard (machine status, active jobs, tool wear), (2) 3D workpiece/toolpath viewer connected to CAM engines, (3) Interactive speed/feed calculator with live physics visualization, (4) Quote builder with cost breakdown charts, (5) Setup sheet generator with printable output, (6) Job scheduler Gantt chart. PWA support for shop floor tablets."
+    },
+    {
+      "id": "PERF-MS0",
+      "title": "Performance Optimization — Sub-50ms Response for All Calculations",
+      "track": "PERF",
+      "status": "not_started",
+      "priority": "P2",
+      "units": 4,
+      "description": "Profile all 2312+ actions. Target: P95 < 50ms for single calculations, < 2s for batch operations. Optimize: (1) Lazy engine loading (already done, verify no regressions), (2) Worker thread pool for CPU-intensive calculations (Monte Carlo, FEM, DOE), (3) Response compression for large result sets, (4) Connection pooling for HTTP transport, (5) Bundle size optimization (currently 25MB — target 15MB via tree-shaking dead engines)."
+    },
     {
       "id": "PIPE-MS0",
       "title": "PipelineDAGEngine — Auto-chaining Force→Thermal→Wear→Deflection→Surface→Capability",
@@ -159,9 +227,9 @@
     }
   ],
   "summary": {
-    "total_milestones": 13,
-    "tracks": 9,
-    "estimated_sessions": "40-60",
+    "total_milestones": 20,
+    "tracks": 12,
+    "estimated_sessions": "60-90",
     "key_outcomes": [
       "Every calculation returns confidence intervals",
       "Models improve from shop floor data",
@@ -169,7 +237,13 @@
       "Physics-backed profit optimization",
       "Validated against real cutting data",
       "Auto-chaining of multi-physics pipelines",
-      "All 891 engines wired and tested"
+      "All 891 engines wired and tested",
+      "MCP Resources: browsable materials/machines/tools",
+      "MCP Prompts: 20 manufacturing workflow templates",
+      "200 focused MCP tools for discoverability",
+      "Streaming progress for long calculations",
+      "Web app integrated with live MCP server",
+      "Sub-50ms P95 response time"
     ]
   }
 }
