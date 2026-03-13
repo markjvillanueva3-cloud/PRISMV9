@@ -669,7 +669,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -5801,7 +5801,26 @@ export function registerCalcDispatcher(server: any): void {
             result = propellerEngine.calculate(params as ValidatedParams);
             break;
           }
-
+          case "shock_absorber_calc": {
+            const { shockAbsorberEngine } = await import("../../engines/ShockAbsorberEngine.js");
+            result = shockAbsorberEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "damper_design_calc": {
+            const { damperDesignEngine } = await import("../../engines/DamperDesignEngine.js");
+            result = damperDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "torsion_bar_calc": {
+            const { torsionBarEngine } = await import("../../engines/TorsionBarEngine.js");
+            result = torsionBarEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "screw_jack_calc": {
+            const { screwJackEngine } = await import("../../engines/ScrewJackEngine.js");
+            result = screwJackEngine.calculate(params as ValidatedParams);
+            break;
+          }
 
           // ── Math Integration Pipelines ──
           case "robust_optimization": {
@@ -5847,6 +5866,11 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "material_variability": {
+            const { materialBatchVariabilityEngine } = await import("../../engines/MaterialBatchVariabilityEngine.js");
+            result = materialBatchVariabilityEngine.analyze(params as ValidatedParams);
+            break;
+          }
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
