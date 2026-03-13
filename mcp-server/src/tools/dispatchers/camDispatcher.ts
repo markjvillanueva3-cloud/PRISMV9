@@ -11,7 +11,8 @@
  *   cam_cycle_defaults, cam_thread_lookup, advanced_post_enhance,
  *   cam_translate, cam_compare_controllers, cam_material_recommend,
  *   cam_multicam_recommend, cam_multicam_list, cam_multicam_compare,
- *   cam_multicam_flagship, post_feed_optimize, post_feed_analyze,
+ *   cam_multicam_flagship, cam_ext_recommend, cam_ext_list, cam_ext_compare,
+ *   cam_ext_flagship, cam_ext_search, post_feed_optimize, post_feed_analyze,
  *   gcode_transpile, gcode_transpile_dialects, gcode_transpile_cycles,
  *   stability_rpm_rewrite, stability_rpm_analyze
  *
@@ -111,6 +112,11 @@ const ACTIONS = [
   "cam_multicam_list",
   "cam_multicam_compare",
   "cam_multicam_flagship",
+  "cam_ext_recommend",
+  "cam_ext_list",
+  "cam_ext_compare",
+  "cam_ext_flagship",
+  "cam_ext_search",
   "post_feed_optimize",
   "post_feed_analyze",
   "gcode_transpile",
@@ -615,6 +621,55 @@ Params vary by action — pass relevant fields in params object.`,
               for (const s of mc.listSystems()) { all[s] = mc.getFlagship(s); }
               result = all;
             }
+            break;
+          }
+          // ── Extended Multi-CAM (13 additional CAM systems) ──────────
+          case "cam_ext_recommend": {
+            const { multiCamStrategyEngineExt: mce } = await import("../../engines/MultiCamStrategyEngineExt.js");
+            result = mce.recommend({
+              camSystem: params.cam_system ?? params.camSystem,
+              geometryType: params.geometry_type ?? params.geometryType,
+              operationGoal: params.operation_goal ?? params.operationGoal,
+              materialGroup: params.material_group ?? params.materialGroup,
+              toolDiameterMm: params.tool_diameter_mm ?? params.toolDiameterMm,
+              wallAngleDeg: params.wall_angle_deg ?? params.wallAngleDeg,
+              hasPreviousRoughing: params.has_previous_roughing ?? params.hasPreviousRoughing,
+              axisCount: params.axis_count ?? params.axisCount,
+            });
+            break;
+          }
+          case "cam_ext_list": {
+            const { multiCamStrategyEngineExt: mce } = await import("../../engines/MultiCamStrategyEngineExt.js");
+            if (params.cam_system ?? params.camSystem) {
+              result = mce.listStrategies(params.cam_system ?? params.camSystem);
+            } else {
+              result = { systems: mce.listSystems(), stats: mce.stats() };
+            }
+            break;
+          }
+          case "cam_ext_compare": {
+            const { multiCamStrategyEngineExt: mce } = await import("../../engines/MultiCamStrategyEngineExt.js");
+            result = mce.compareAcrossSystems(
+              params.geometry_type ?? params.geometryType,
+              params.operation_goal ?? params.operationGoal
+            );
+            break;
+          }
+          case "cam_ext_flagship": {
+            const { multiCamStrategyEngineExt: mce } = await import("../../engines/MultiCamStrategyEngineExt.js");
+            const sys = params.cam_system ?? params.camSystem;
+            if (sys) {
+              result = mce.getFlagship(sys);
+            } else {
+              const all: Record<string, any> = {};
+              for (const s of mce.listSystems()) { all[s] = mce.getFlagship(s); }
+              result = all;
+            }
+            break;
+          }
+          case "cam_ext_search": {
+            const { multiCamStrategyEngineExt: mce } = await import("../../engines/MultiCamStrategyEngineExt.js");
+            result = mce.search(params.query ?? params.q ?? "", params.limit ?? 20);
             break;
           }
           case "post_feed_optimize": {
