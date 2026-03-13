@@ -406,7 +406,7 @@ describe("TribalKnowledgeEngine", () => {
   });
 
   test("search finds Okuma named variables and LAP tip", () => {
-    const tips = tribalKnowledgeEngine.search({ query: "LAP", limit: 10 });
+    const tips = tribalKnowledgeEngine.search({ query: "LAP auto-programming", limit: 10 });
     expect(tips.some(t => t.id === "TK-DL-okuma-002")).toBe(true);
   });
 
