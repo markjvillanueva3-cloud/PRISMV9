@@ -669,7 +669,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "environmental_variation", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -5990,6 +5990,11 @@ export function registerCalcDispatcher(server: any): void {
           case "stochastic_edm": {
             const { stochasticEDMEngine } = await import("../../engines/StochasticEDMEngine.js");
             result = stochasticEDMEngine.analyze(params as ValidatedParams);
+            break;
+          }
+          case "environmental_variation": {
+            const { environmentalVariationEngine } = await import("../../engines/EnvironmentalVariationEngine.js");
+            result = environmentalVariationEngine.analyze(params as ValidatedParams);
             break;
           }
           default:
