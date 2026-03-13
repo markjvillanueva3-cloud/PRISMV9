@@ -3173,3 +3173,47 @@ export { GraphTheoryEngine, graphTheoryEngine } from "./GraphTheoryEngine.js";
 export { FuzzyNeuralHybridEngine, fuzzyNeuralHybridEngine } from "./FuzzyNeuralHybridEngine.js";
 
 export { CodeSystemIndexEngine, codeSystemIndexEngine } from "./CodeSystemIndexEngine.js";
+
+// ── Missing Barrel Exports (29 engines) ──
+
+// Exhaustive Science (singleton-only exports)
+export { advancedCuttingPhysicsEngine } from "./AdvancedCuttingPhysicsEngine.js";
+export { advancedCuttingMathEngine } from "./AdvancedCuttingMathEngine.js";
+export { advancedWearPhysicsEngine } from "./AdvancedWearPhysicsEngine.js";
+export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
+export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
+export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";
+export { statisticalProcessMonitoringEngine } from "./StatisticalProcessMonitoringEngine.js";
+export { sustainabilityLCAEngine } from "./SustainabilityLCAEngine.js";
+export { machineGeometricAccuracyEngine } from "./MachineGeometricAccuracyEngine.js";
+
+// Post-Processor / G-Code
+export { GCodeSafetyAnalyzerEngine } from "./GCodeSafetyAnalyzerEngine.js";
+export { CycleTimeEstimatorEngine, cycleTimeEstimatorEngine } from "./CycleTimeEstimatorEngine.js";
+export { SetupSheetFromGCodeEngine, setupSheetFromGCodeEngine } from "./SetupSheetFromGCodeEngine.js";
+export { GCodeEnergyOptimizerEngine, gcodeEnergyOptimizerEngine } from "./GCodeEnergyOptimizerEngine.js";
+export { ProbeRoutineGeneratorEngine, probeRoutineGeneratorEngine } from "./ProbeRoutineGeneratorEngine.js";
+
+// Auto Speed/Feed + Math/Stats
+export { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
+export { manufacturingStatisticsEngine } from "./ManufacturingStatisticsEngine.js";
+export { toolWearCompensationEngine } from "./ToolWearCompensationEngine.js";
+export { machineMatcherEngine } from "./MachineMatcherEngine.js";
+
+// CAM / Toolpath
+export { ToolpathThermalEngine, toolpathThermalEngine } from "./ToolpathThermalEngine.js";
+export { MultiAxisKinematicEngine, multiAxisKinematicEngine } from "./MultiAxisKinematicEngine.js";
+export { MultiCamStrategyEngineExt, multiCamStrategyEngineExt } from "./MultiCamStrategyEngineExt.js";
+
+// CNC Programming
+export { cncProgramAssemblerEngine } from "./CNCProgramAssemblerEngine.js";
+export { motionDynamicsProfileEngine } from "./MotionDynamicsProfileEngine.js";
+export { engagementAdaptiveFeedEngine } from "./EngagementAdaptiveFeedEngine.js";
+export { gcodeIntelligencePipeline } from "./GCodeIntelligencePipelineEngine.js";
+
+// Calibration
+export { CalibrationEngine, calibrationEngine } from "./CalibrationEngine.js";
+
+// Misc
+export { BurrFormationEngine, burrFormationEngine } from "./BurrFormationEngine.js";
+export { videoLearningEngine } from "./VideoLearningEngine.js";
