@@ -5226,6 +5226,11 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "stochastic_deflection": {
+            const { stochasticDeflectionEngine } = await import("../../engines/StochasticDeflectionEngine.js");
+            result = stochasticDeflectionEngine.analyze(params as ValidatedParams);
+            break;
+          }
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

@@ -3239,3 +3239,10 @@ export { stochasticChatterEngine } from "./StochasticChatterEngine.js";
 export { uncertaintyPropagationPipelineEngine } from "./UncertaintyPropagationPipelineEngine.js";
 
 export { fileSystemNavigatorEngine, FileSystemNavigatorEngine } from './FileSystemNavigatorEngine.js';
+
+// Phase 5 Forge: 5 Novel Physics Engines
+export { additiveManufacturingPhysicsEngine, AdditiveManufacturingPhysicsEngine } from './AdditiveManufacturingPhysicsEngine.js';
+export { reliabilityBlockDiagramEngine, ReliabilityBlockDiagramEngine } from './ReliabilityBlockDiagramEngine.js';
+export { cryogenicCuttingEngine, CryogenicCuttingEngine } from './CryogenicCuttingEngine.js';
+export { machiningAcousticsEngine, MachiningAcousticsEngine } from './MachiningAcousticsEngine.js';
+export { laserAblationPhysicsEngine, LaserAblationPhysicsEngine } from './LaserAblationPhysicsEngine.js';
