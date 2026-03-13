@@ -669,7 +669,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -740,6 +740,15 @@ const ACTIONS = [
   "edm_calc", "edm_parameter_calc", "edm_wire_calc",
   "ergonomic_workstation_calc", "noise_level_calc", "propeller_calc",
   "shock_absorber_calc", "damper_design_calc", "torsion_bar_calc", "screw_jack_calc",
+  // -- Batch 112A: Milling Operations (4 new engines) --
+  "circular_interpolation_calc", "helical_interpolation_calc", "ramping_calc", "slotting_calc",
+  // -- Batch 112B: Grinding/Finishing (6 new engines) --
+  "grinding_force_calc", "grinding_surface_finish_calc", "centerless_grinding_calc",
+  "bore_finishing_calc", "honing_calc", "surface_finish_predictor_calc",
+  "surface_integrity_predictor_calc",
+  // -- Batch 112C: Welding/Forming (6 new engines) --
+  "weld_distortion_calc", "stamping_die_calc", "extrusion_force_calc",
+  "rolling_mill_calc", "wire_drawing_calc", "tube_forming_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5869,6 +5878,108 @@ export function registerCalcDispatcher(server: any): void {
           case "material_variability": {
             const { materialBatchVariabilityEngine } = await import("../../engines/MaterialBatchVariabilityEngine.js");
             result = materialBatchVariabilityEngine.analyze(params as ValidatedParams);
+            break;
+          }
+          // ── Batch 112A: Milling Operations (4 engines) ──
+          case "circular_interpolation_calc": {
+            const { circularInterpolationEngine } = await import("../../engines/CircularInterpolationEngine.js");
+            const method = params.method ?? "bore";
+            const fn = (circularInterpolationEngine as any)[method];
+            result = typeof fn === "function" ? fn.call(circularInterpolationEngine, params) : { error: `Unknown method: ${method}. Available: bore, boss, arcFeedComp` };
+            break;
+          }
+          case "helical_interpolation_calc": {
+            const { helicalInterpolationEngine } = await import("../../engines/HelicalInterpolationEngine.js");
+            const method = params.method ?? "threadMill";
+            const fn = (helicalInterpolationEngine as any)[method];
+            result = typeof fn === "function" ? fn.call(helicalInterpolationEngine, params) : { error: `Unknown method: ${method}. Available: threadMill, boreMill, ramp` };
+            break;
+          }
+          case "ramping_calc": {
+            const { rampingEngine } = await import("../../engines/RampingEngine.js");
+            const method = params.method ?? "linearRamp";
+            const fn = (rampingEngine as any)[method];
+            result = typeof fn === "function" ? fn.call(rampingEngine, params) : { error: `Unknown method: ${method}. Available: linearRamp, helicalRamp` };
+            break;
+          }
+          case "slotting_calc": {
+            const { slottingEngine } = await import("../../engines/SlottingEngine.js");
+            result = slottingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 112B: Grinding/Finishing (7 engines) ──
+          case "grinding_force_calc": {
+            const { grindingForceEngine } = await import("../../engines/GrindingForceEngine.js");
+            result = grindingForceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "grinding_surface_finish_calc": {
+            const { grindingSurfaceFinishEngine } = await import("../../engines/GrindingSurfaceFinishEngine.js");
+            result = grindingSurfaceFinishEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "centerless_grinding_calc": {
+            const { centerlessGrindingEngine } = await import("../../engines/CenterlessGrindingEngine.js");
+            result = centerlessGrindingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "bore_finishing_calc": {
+            const { boreFinishingEngine: boreFinEng } = await import("../../engines/BoreFinishingEngine.js");
+            result = boreFinEng.calculate(params as ValidatedParams);
+            break;
+          }
+          case "honing_calc": {
+            const { honingEngine } = await import("../../engines/HoningEngine.js");
+            result = honingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "surface_finish_predictor_calc": {
+            const { surfaceFinishPredictorEngine } = await import("../../engines/SurfaceFinishPredictorEngine.js");
+            result = surfaceFinishPredictorEngine.predict(params as ValidatedParams);
+            break;
+          }
+          case "surface_integrity_predictor_calc": {
+            const { surfaceIntegrityPredictorEngine } = await import("../../engines/SurfaceIntegrityPredictorEngine.js");
+            result = surfaceIntegrityPredictorEngine.compute(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 112C: Welding/Forming (6 engines) ──
+          case "weld_distortion_calc": {
+            const { weldDistortionEngine } = await import("../../engines/WeldDistortionEngine.js");
+            result = weldDistortionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "stamping_die_calc": {
+            const { stampingDieEngine } = await import("../../engines/StampingDieEngine.js");
+            result = stampingDieEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "extrusion_force_calc": {
+            const { extrusionForceEngine } = await import("../../engines/ExtrusionForceEngine.js");
+            result = extrusionForceEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rolling_mill_calc": {
+            const { rollingMillEngine } = await import("../../engines/RollingMillEngine.js");
+            result = rollingMillEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "wire_drawing_calc": {
+            const { wireDrawingEngine } = await import("../../engines/WireDrawingEngine.js");
+            result = wireDrawingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "tube_forming_calc": {
+            const { tubeFormingEngine } = await import("../../engines/TubeFormingEngine.js");
+            result = tubeFormingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          case "stochastic_grinding": {
+            const { stochasticGrindingEngine } = await import("../../engines/StochasticGrindingEngine.js");
+            result = stochasticGrindingEngine.analyze(params as ValidatedParams);
             break;
           }
           default:
