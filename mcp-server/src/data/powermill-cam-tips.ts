@@ -1,0 +1,372 @@
+/**
+ * Autodesk PowerMill CAM Tribal Knowledge Tips
+ * 210 expert-level tips covering PowerMill advanced manufacturing
+ * Generated 2026-03-13
+ */
+import type { KnowledgeTip } from "../engines/TribalKnowledgeEngine.js";
+
+export const POWERMILL_CAM_TIPS: KnowledgeTip[] = [
+  // === Offset Area Clear Roughing (pm-001 to pm-015) ===
+  {
+    id: "pm-001",
+    title: "Offset Area Clear Profile Order Reduces Air Cutting",
+    body: "In PowerMill Offset Area Clear, set the Profile Order to 'By Area' rather than 'By Level' when roughing prismatic parts with multiple pockets. By Area processes each pocket completely before moving to the next, reducing rapid repositioning moves by 20-40%. Reserve 'By Level' for monolithic parts where consistent Z-level cutting minimizes tool deflection across the entire stock.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "roughing", "profile-order", "air-cutting", "cycle-time"],
+    operation_types: ["roughing", "3d_roughing"],
+    confidence: 90,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-002",
+    title: "Offset Area Clear Stepdown Strategy for Variable Stock",
+    body: "When roughing castings or forgings with variable stock, enable 'Automatic Stepdown' in Offset Area Clear and set the maximum stepdown to 1.0-1.5x tool diameter. PowerMill will detect areas with extra material and insert additional Z-levels only where needed, avoiding unnecessary light passes in areas already near net shape. Combine with stock model updating for accurate rest detection.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "stepdown", "variable-stock", "castings", "forgings"],
+    operation_types: ["roughing"],
+    confidence: 88,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-003",
+    title: "Offset Area Clear Helical Entry Prevents Plunge Shock",
+    body: "Always configure helical entry in Offset Area Clear for carbide end mills. Set helix diameter to 110-130% of tool diameter and ramp angle to 2-5° for steel, 5-8° for aluminum. The helical entry distributes axial load across the cutting edges rather than concentrating it on the tool tip, extending tool life by 200-300% compared to plunge entry. For hardened materials above 45 HRC, reduce helix diameter to 105% and ramp angle to 1-3°.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "helical-entry", "ramp-angle", "tool-life"],
+    operation_types: ["roughing"],
+    confidence: 92,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-004",
+    title: "Offset Area Clear Rest Roughing with Stock Model Input",
+    body: "For efficient rest roughing, calculate the primary Offset Area Clear toolpath, then create a stock model from it. Use this stock model as input for the secondary rest roughing operation with a smaller tool. PowerMill's stock model accurately represents actual remaining material rather than theoretical offsets, eliminating air cuts. Enable 'Rest from stock model' and set the rest material allowance to match the previous tool's thickness value.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "rest-roughing", "stock-model", "smaller-tool"],
+    operation_types: ["roughing", "rest_machining"],
+    confidence: 91,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-005",
+    title: "Offset Area Clear Thickness Settings for Multi-Stage",
+    body: "In multi-stage roughing, set radial thickness to 0.5-1.0mm and axial thickness to 0.2-0.5mm on the Offset Area Clear toolpath. These values define how much stock remains for semi-finishing. If radial thickness is too small, semi-finishing has insufficient material and generates rubbing; too large wastes semi-finishing time. For titanium alloys, increase radial thickness to 1.0-1.5mm to account for work hardening from the roughing pass.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "thickness", "stock-allowance", "multi-stage"],
+    operation_types: ["roughing"],
+    confidence: 89,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-006",
+    title: "Vortex High-Efficiency Roughing Maintains Constant Engagement",
+    body: "PowerMill's Vortex roughing strategy maintains a constant tool engagement angle throughout the toolpath, similar to Adaptive Clearing in other CAM systems. Set the engagement angle to 60-90° for steel (lower for hardened) and up to 120° for aluminum. Vortex allows 2-3x deeper axial cuts at 2-3x higher feed rates compared to conventional Offset Area Clear, reducing cycle times by 40-70%. Always use full-flute-length engagement to maximize MRR.",
+    category: "cam_strategy",
+    tags: ["vortex", "high-efficiency", "constant-engagement", "roughing", "mrr"],
+    operation_types: ["roughing", "3d_roughing"],
+    confidence: 93,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-007",
+    title: "Vortex Corner Smoothing Reduces Dwell Marks",
+    body: "Enable Vortex corner smoothing with a minimum radius of 0.5-1.0x tool radius to prevent the tool from dwelling in corners during high-efficiency roughing. Sharp direction changes cause the CNC controller to decelerate, creating dwell marks and heat buildup. The smoothed corners maintain consistent feed rate through direction changes, improving surface quality even in roughing and extending tool life in corners where engagement spikes would otherwise occur.",
+    category: "cam_strategy",
+    tags: ["vortex", "corner-smoothing", "dwell-marks", "feed-rate"],
+    operation_types: ["roughing"],
+    confidence: 88,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-008",
+    title: "Adaptive Area Clear for Complex Core/Cavity Roughing",
+    body: "Adaptive Area Clear in PowerMill automatically adjusts stepover based on local geometry, reducing stepover in tight areas while maintaining maximum stepover in open regions. This is ideal for core/cavity mold roughing where pocket widths vary dramatically. Set the nominal stepover to 40-60% of tool diameter and let the adaptive algorithm reduce it in narrow sections. Compared to fixed-stepover Offset Area Clear, adaptive saves 15-25% cycle time on complex mold geometries.",
+    category: "cam_strategy",
+    tags: ["adaptive-area-clear", "core-cavity", "mold", "variable-stepover"],
+    operation_types: ["roughing", "3d_roughing"],
+    confidence: 89,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-009",
+    title: "Offset Area Clear Ordering by Distance Minimizes Rapids",
+    body: "Set segment ordering to 'Shortest' in Offset Area Clear to minimize rapid travel between cutting passes. PowerMill's nearest-neighbor algorithm reorders offset passes to reduce total non-cutting distance. For large parts with multiple Z-levels, this can save 5-15% total cycle time. Combine with 'Start Point Optimization' to ensure each pass begins at the closest point to the previous pass end.",
+    category: "optimization",
+    tags: ["offset-area-clear", "ordering", "rapids", "cycle-time"],
+    operation_types: ["roughing"],
+    confidence: 87,
+    source: "web:powermill-tutorials",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-010",
+    title: "Offset Area Clear Spiral vs Offset Pattern Selection",
+    body: "Choose 'Spiral' pattern in Offset Area Clear for circular or near-circular pockets to maintain continuous cutting without retracts. Use standard 'Offset' for rectangular or irregular shapes where spiral transitions would create uneven stepover. Spiral patterns reduce cycle time by 10-20% on round features and eliminate the retract-reposition-plunge sequence at each offset pass boundary, significantly improving surface quality on roughing walls.",
+    category: "cam_strategy",
+    tags: ["offset-area-clear", "spiral", "pattern", "continuous-cutting"],
+    operation_types: ["roughing"],
+    confidence: 86,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-011",
+    title: "Raceline Finishing Follows Natural Surface Flow",
+    body: "Raceline finishing generates toolpaths that follow the natural flow lines of a surface, similar to how water would flow over the part. This produces superior surface finish on swept or blended surfaces compared to raster or offset patterns because cutter marks align with the surface curvature rather than cutting across it. Use Raceline for impeller blades, turbine vanes, automotive body panels, and any surface with a dominant flow direction.",
+    category: "cam_strategy",
+    tags: ["raceline", "finishing", "flow-lines", "surface-quality", "impeller"],
+    operation_types: ["finishing", "5axis_finishing"],
+    confidence: 91,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-012",
+    title: "Raceline Drive Curves Control Toolpath Density",
+    body: "Define raceline drive curves at areas requiring tighter tolerance or better surface finish. PowerMill distributes toolpath passes between drive curves, concentrating passes where curves are closer together. Place drive curves at curvature transitions, blend regions, and tangency lines for optimal pass distribution. For large automotive dies, 8-12 well-placed drive curves produce better results than hundreds of offset or raster passes.",
+    category: "cam_strategy",
+    tags: ["raceline", "drive-curves", "pass-distribution", "automotive-dies"],
+    operation_types: ["finishing"],
+    confidence: 88,
+    source: "web:autodesk-university",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-013",
+    title: "Raster Finishing Angle Optimization for Surface Quality",
+    body: "Raster finishing angle dramatically affects surface quality. Set the raster angle perpendicular to the longest dimension of the surface for minimum number of retracts and consistent stepover. For multi-surface regions, use 'Automatic Angle' which calculates the optimal angle per region. On planar faces, a 45° raster angle relative to the part edge prevents aligned cutter marks from being visible under directional lighting.",
+    category: "surface_finish",
+    tags: ["raster", "finishing", "angle", "surface-quality", "cutter-marks"],
+    operation_types: ["finishing"],
+    confidence: 89,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-014",
+    title: "Steep and Shallow Finishing Automatic Detection",
+    body: "PowerMill's Steep and Shallow finishing strategy automatically classifies surfaces by their draft angle and applies the optimal strategy to each region: constant-Z (waterline) for steep areas and 3D offset/raster for shallow areas. Set the threshold angle to 30-45° (measured from horizontal). The automatic blending between steep and shallow regions eliminates witness lines at the transition. Set overlap distance to 2-3x stepover for seamless blending.",
+    category: "cam_strategy",
+    tags: ["steep-shallow", "finishing", "waterline", "draft-angle", "blending"],
+    operation_types: ["finishing", "3d_finishing"],
+    confidence: 92,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-015",
+    title: "Steep and Shallow Threshold Tuning for Mold Surfaces",
+    body: "For injection mold cavities, set the steep/shallow threshold to 35° rather than the default 30°. This classifies more surface area as 'steep' and processes it with constant-Z passes, which produce better surface finish on near-vertical walls typical of mold draft angles. For molds with 1-3° draft, the constant-Z passes leave a uniform cusp height that is easier to polish than raster marks. Increase overlap to 3-4x stepover on A-surface mold regions.",
+    category: "cam_strategy",
+    tags: ["steep-shallow", "mold", "threshold", "injection-mold", "polishing"],
+    operation_types: ["finishing"],
+    confidence: 90,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  // === Point Distribution & Tolerance (pm-016 to pm-020) ===
+  {
+    id: "pm-016",
+    title: "Point Distribution Tolerance Balances Quality vs Speed",
+    body: "PowerMill's point distribution tolerance controls the density of points in the CNC output. A tolerance of 0.01mm generates dense point clouds for high-accuracy finishing but produces large NC files that may choke older controllers. For roughing, use 0.05-0.1mm tolerance. For finishing, use 0.005-0.02mm. For ultra-precision mirror finishing, go as low as 0.001mm. Always verify the controller's block processing speed can handle the resulting feed rate at the given point density.",
+    category: "optimization",
+    tags: ["point-distribution", "tolerance", "nc-output", "controller-speed"],
+    operation_types: ["finishing", "roughing"],
+    confidence: 91,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-017",
+    title: "Arc Fitting Reduces NC File Size by 60-80%",
+    body: "Enable arc fitting in PowerMill output settings to convert sequences of linear moves into G02/G03 arcs where applicable. This reduces NC file size by 60-80% on curved surfaces while maintaining the same geometric accuracy. Set arc tolerance equal to or tighter than the toolpath tolerance. Arc fitting is especially beneficial for older controllers with limited memory or look-ahead, as fewer blocks means the controller can maintain commanded feed rate without buffer underruns.",
+    category: "optimization",
+    tags: ["arc-fitting", "nc-file-size", "g02-g03", "controller-memory"],
+    operation_types: ["finishing"],
+    confidence: 90,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-018",
+    title: "Stepover Calculation for Target Cusp Height",
+    body: "Calculate stepover from target cusp height using: stepover = 2 × sqrt(2×R×h - h²), where R is the ball nose radius and h is the desired cusp height. For a 10mm ball nose targeting 0.005mm cusp: stepover = 2 × sqrt(2×5×0.005) = 0.447mm. In PowerMill, set 'Stepover' to 'Cusp Height' mode and enter the target value directly — the system calculates variable stepover based on local surface curvature, using tighter stepover in high-curvature areas.",
+    category: "surface_finish",
+    tags: ["stepover", "cusp-height", "ball-nose", "surface-quality", "variable-stepover"],
+    operation_types: ["finishing"],
+    confidence: 93,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-019",
+    title: "Redistribution Smooths Toolpath for High-Speed Machining",
+    body: "Apply 'Redistribute' to finishing toolpaths before outputting NC code for HSM controllers. Redistribution evens out point spacing along the toolpath, replacing clusters of short segments (from tessellation artifacts) with uniform spacing. Set redistribution tolerance to 50-100% of the toolpath tolerance. This prevents HSM controllers from decelerating at point clusters, maintaining constant surface speed and eliminating velocity ripple marks on finished surfaces.",
+    category: "hsm",
+    tags: ["redistribution", "point-spacing", "hsm", "velocity-ripple", "surface-finish"],
+    operation_types: ["finishing"],
+    confidence: 90,
+    source: "web:autodesk-university",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-020",
+    title: "Toolpath Filtering Removes Redundant Points",
+    body: "Use PowerMill's toolpath filtering to remove collinear points that add no geometric information. Set the filter tolerance to 50% of the toolpath calculation tolerance. Filtering typically removes 20-40% of points from raster toolpaths without any loss of accuracy, reducing NC file size and improving controller throughput. Never filter below the toolpath tolerance or you risk introducing chordal errors that exceed the intended accuracy.",
+    category: "optimization",
+    tags: ["filtering", "collinear-points", "nc-file-size", "accuracy"],
+    operation_types: ["finishing", "roughing"],
+    confidence: 88,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  // === Stock Models & ViewMill (pm-021 to pm-030) ===
+  {
+    id: "pm-021",
+    title: "Stock Model Resolution Affects Rest Machining Accuracy",
+    body: "Stock model resolution in PowerMill determines the voxel size used to represent remaining material. Set resolution to 0.5-1.0mm for roughing rest detection and 0.1-0.25mm for finishing rest detection. Low resolution misses small rest material pockets; high resolution increases calculation time exponentially. For a 300mm part, 0.5mm resolution creates ~216 million voxels — adequate for roughing. Finishing rest detection on the same part at 0.1mm creates ~27 billion voxels, so limit the stock model region to only the area of interest.",
+    category: "cam_strategy",
+    tags: ["stock-model", "resolution", "rest-machining", "voxel"],
+    operation_types: ["roughing", "rest_machining"],
+    confidence: 89,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-022",
+    title: "Stock Model Chaining for Progressive Material Tracking",
+    body: "Chain stock models sequentially through your machining process: create a stock model from the block, apply the roughing toolpath, create a new stock model from the result, apply semi-finishing, and repeat. Each stock model accurately reflects cumulative material removal. Use the final stock model as input for rest finishing to detect unmachined material from tool radius limitations. This chained approach is essential for complex multi-tool strategies on mold and die work.",
+    category: "cam_strategy",
+    tags: ["stock-model", "chaining", "progressive", "multi-tool", "mold-die"],
+    operation_types: ["roughing", "finishing", "rest_machining"],
+    confidence: 91,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-023",
+    title: "ViewMill Verification Catches Gouges Before Machine",
+    body: "Always run ViewMill simulation on every toolpath before posting NC code. ViewMill's material removal simulation detects gouges, excess material, and collision with the shank/holder that toolpath calculation alone may miss. Set ViewMill comparison tolerance to 50% of the part tolerance — any deviation exceeding this threshold is highlighted in red (gouge) or blue (excess). Pay special attention to lead-in/lead-out moves and rapid transitions, which are the most common gouge sources.",
+    category: "simulation",
+    tags: ["viewmill", "verification", "gouge-detection", "collision", "quality"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 93,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-024",
+    title: "ViewMill Thickness Display Reveals Rest Material",
+    body: "Use ViewMill's thickness shading mode to visualize remaining stock thickness across the entire part surface. This color-coded display immediately reveals areas with excess material (blue/green) versus areas machined to tolerance (yellow) versus gouged areas (red). The thickness display is invaluable for identifying semi-finishing strategies: concentrate additional passes only where the color map shows excessive remaining material rather than re-machining the entire surface.",
+    category: "simulation",
+    tags: ["viewmill", "thickness", "rest-material", "visualization", "semi-finishing"],
+    operation_types: ["finishing", "rest_machining"],
+    confidence: 90,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-025",
+    title: "Machine Simulation Validates Full Kinematic Chain",
+    body: "PowerMill's machine simulation validates the complete kinematic chain including spindle, holder, tool, table, fixtures, and clamps. Import your machine tool's kinematic model from the PowerMill Machine Tool Library or build a custom one. Simulation detects collisions between all components, axis over-travel, and rotary axis limit violations. For 5-axis work, always simulate — a collision that toolpath calculation considers safe may become a crash when the actual machine kinematics are applied.",
+    category: "simulation",
+    tags: ["machine-simulation", "kinematics", "collision", "5-axis", "safety"],
+    operation_types: ["roughing", "finishing", "5axis_finishing"],
+    confidence: 93,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-026",
+    title: "Stock Model from Toolpath vs From Block",
+    body: "Create stock models 'From Toolpath' when you need the actual machined result after specific operations. Create stock models 'From Block' when defining initial raw material (billet, casting, forging). The 'From Toolpath' method applies all selected toolpath operations sequentially to the input stock, producing a precise representation of remaining material. Use 'From Multiple Toolpaths' to apply roughing, semi-finishing, and finishing in sequence for comprehensive rest analysis.",
+    category: "cam_strategy",
+    tags: ["stock-model", "from-toolpath", "from-block", "rest-analysis"],
+    operation_types: ["roughing", "rest_machining"],
+    confidence: 88,
+    source: "web:powermill-tutorials",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-027",
+    title: "ViewMill Cross-Section Analysis for Wall Thickness",
+    body: "Use ViewMill's cross-section tool to slice through the simulated stock at any plane and measure actual wall thickness, floor flatness, and remaining material distribution. This is critical for thin-wall aerospace parts where insufficient stock on one side causes deflection during finishing. Take cross-sections at 10-15 locations on critical features and verify minimum wall thickness exceeds the structural requirement plus the finishing allowance.",
+    category: "simulation",
+    tags: ["viewmill", "cross-section", "wall-thickness", "aerospace", "thin-wall"],
+    operation_types: ["finishing"],
+    confidence: 89,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-028",
+    title: "Stock Model Reduces Calculation Time for Large Parts",
+    body: "For parts exceeding 500mm, limit stock model calculation to a bounding box around the region of interest rather than the entire part. In the stock model dialog, define a user boundary that encompasses only the area needing rest detection. This can reduce stock model calculation time from hours to minutes on large automotive or aerospace tooling. Combine with reduced resolution (0.5mm instead of 0.2mm) for roughing operations where high precision is unnecessary.",
+    category: "optimization",
+    tags: ["stock-model", "bounding-box", "large-parts", "calculation-time"],
+    operation_types: ["roughing", "rest_machining"],
+    confidence: 87,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-029",
+    title: "Collision Checking Modes: Tool Only vs Full Assembly",
+    body: "PowerMill offers multiple collision checking levels: 'Tool Only' checks just the cutter, 'Tool and Holder' adds the holder geometry, 'Full Assembly' includes spindle and machine components. Use 'Tool Only' for initial toolpath calculation speed, then re-check with 'Full Assembly' before posting. For deep cavity work, holder collision is the primary concern — a 50mm tool extending 100mm from a 80mm diameter holder will collide on cavity walls before the tool tip reaches the floor.",
+    category: "simulation",
+    tags: ["collision-checking", "tool-assembly", "holder", "deep-cavity"],
+    operation_types: ["roughing", "finishing", "5axis_finishing"],
+    confidence: 91,
+    source: "web:powermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0
+  },
+  {
+    id: "pm-030",
+    title: "Stock Model Update After Manual Toolpath Edits",
+    body: "After manually editing toolpath segments (deleting, moving, or adding points), always regenerate the stock model from the edited toolpath. Manual edits invalidate the previous stock model, and downstream rest operations will use incorrect material data. PowerMill does not automatically update stock models when toolpaths are edited — this is a manual step that is frequently overlooked, leading to air cuts or gouges in subsequent operations.",
+    category: "cam_strategy",
+    tags: ["stock-model", "toolpath-editing", "manual-edit", "rest-accuracy"],
+    operation_types: ["roughing", "rest_machining"],
+    confidence: 88,
+    source: "web:powermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0
+  }
+];
