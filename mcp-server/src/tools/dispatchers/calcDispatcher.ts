@@ -219,6 +219,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { rss_um: result.rss_total_um, worst_um: result.worst_case_total_um, meets_tol: result.meets_tolerance, utilization_pct: result.budget_utilization_pct, thermal_um: result.thermal_contribution_um };
     case "capability_predict":
       return { cp: result.cp, cpk: result.cpk, sigma_um: result.sigma_total_um, meets: result.meets_target, ppm: result.parts_per_million_defect, top: result.top_contributor };
+    case "stochastic_wear":
+      return { mean_min: result.taylor_life?.mean_min, std_min: result.taylor_life?.std_min, p90_replace: result.replacement_interval_p90, weibull_b: result.taylor_life?.weibull_beta, driver: result.top_uncertainty_driver };
     case "specific_cutting_energy":
       return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
@@ -637,7 +639,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -4933,6 +4935,11 @@ export function registerCalcDispatcher(server: any): void {
           case "capability_predict": {
             const { processCapabilityPredictionEngine } = await import("../../engines/ProcessCapabilityPredictionEngine.js");
             result = processCapabilityPredictionEngine.predict(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_wear": {
+            const { stochasticToolWearEngine } = await import("../../engines/StochasticToolWearEngine.js");
+            result = stochasticToolWearEngine.analyze(params as ValidatedParams);
             break;
           }
 
