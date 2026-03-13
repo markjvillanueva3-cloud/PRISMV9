@@ -2274,6 +2274,7 @@ export { toolpathSmoothingEngine, ToolpathSmoothingEngine } from "./ToolpathSmoo
 export { chipMorphologyDiagnosticEngine, ChipMorphologyDiagnosticEngine } from "./ChipMorphologyDiagnosticEngine.js";
 export { cuttingFluidLifecycleEngine, CuttingFluidLifecycleEngine } from "./CuttingFluidLifecycleEngine.js";
 export { machineToolErrorBudgetEngine, MachineToolErrorBudgetEngine } from "./MachineToolErrorBudgetEngine.js";
+export { processCapabilityPredictionEngine, ProcessCapabilityPredictionEngine } from "./ProcessCapabilityPredictionEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
 export { webhookEngine, WebhookEngine } from "./WebhookEngine.js";
