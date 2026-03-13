@@ -1,9 +1,10 @@
 /**
  * prism_material_processing — Material Processing Dispatcher
  *
- * 11 actions: anodizing, carburizing, coating thickness, heat treatment,
+ * 16 actions: anodizing, carburizing, coating thickness, heat treatment,
  *   induction heating, nitriding, quenching, sintering, surface treatment,
- *   autoclave, electrochemical
+ *   autoclave, electrochemical, cryogenic treatment, heat treatment response,
+ *   shot peening, electroplating, passivation
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -15,6 +16,7 @@ import { hookExecutor } from "../../engines/HookExecutor.js";
 let _anodizing: any, _carburizing: any, _coatingThickness: any, _heatTreat: any;
 let _induction: any, _nitriding: any, _quenching: any, _sintering: any;
 let _surfTreat: any, _autoclave: any, _electrochem: any;
+let _cryoTreat: any, _heatTreatResp: any, _shotPeen: any, _electroplating: any, _passivation: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -29,6 +31,11 @@ async function getEngine(name: string): Promise<any> {
     case "surfTreat": return _surfTreat ??= (await import("../../engines/SurfaceTreatmentEngine.js")).surfaceTreatmentEngine;
     case "autoclave": return _autoclave ??= (await import("../../engines/AutoclaveProcessEngine.js")).autoclaveProcessEngine;
     case "electrochem": return _electrochem ??= (await import("../../engines/ElectrochemicalEngine.js")).electrochemicalEngine;
+    case "cryoTreat": return _cryoTreat ??= (await import("../../engines/CryogenicTreatmentEngine.js")).cryogenicTreatmentEngine;
+    case "heatTreatResp": return _heatTreatResp ??= (await import("../../engines/HeatTreatmentResponseEngine.js")).heatTreatmentResponseEngine;
+    case "shotPeen": return _shotPeen ??= (await import("../../engines/ShotPeeningEngine.js")).shotPeeningEngine;
+    case "electroplating": return _electroplating ??= (await import("../../engines/ElectroPlatingEngine.js")).electroplatingEngine;
+    case "passivation": return _passivation ??= (await import("../../engines/PassivationEngine.js")).passivationEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -38,16 +45,18 @@ const ACTIONS = [
   "heat_treatment_calculate", "induction_heating_calculate", "nitriding_calculate",
   "quenching_calculate", "sintering_calculate", "surface_treatment_calculate",
   "autoclave_calculate", "electrochemical_calculate",
+  "cryogenic_treatment_calc", "heat_treatment_response_calc", "shot_peening_calc",
+  "electroplating_calc", "passivation_calc",
 ] as const;
 
 export function registerMaterialProcessingDispatcher(server: any): void {
   server.tool(
     "prism_material_processing",
-    `Material processing: anodizing (Type I/II/III), carburizing, coating thickness, heat treatment (anneal/normalize/quench/temper/case harden/age/stress relief), induction heating, nitriding (gas/plasma/salt bath), quenching, sintering, surface treatment, autoclave, electrochemical.
+    `Material processing: anodizing (Type I/II/III), carburizing, coating thickness, heat treatment (anneal/normalize/quench/temper/case harden/age/stress relief), induction heating, nitriding (gas/plasma/salt bath), quenching, sintering, surface treatment, autoclave, electrochemical, cryogenic treatment (deep cryo/shallow cryo), heat treatment response (predict hardness/microstructure), shot peening (Almen intensity/coverage), electroplating (Faraday deposition), passivation (citric/nitric acid).
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_material_processing] Action: ${action} (11 actions wired)`);
+      log.info(`[prism_material_processing] Action: ${action} (16 actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -83,11 +92,16 @@ Actions: ${ACTIONS.join(", ")}.`,
           surface_treatment_calculate: "surfTreat",
           autoclave_calculate: "autoclave",
           electrochemical_calculate: "electrochem",
+          cryogenic_treatment_calc: "cryoTreat",
+          heat_treatment_response_calc: "heatTreatResp",
+          shot_peening_calc: "shotPeen",
+          electroplating_calc: "electroplating",
+          passivation_calc: "passivation",
         };
 
         const engineKey = engineMap[action];
         const eng = await getEngine(engineKey);
-        result = eng.calculate?.(params) ?? eng.compute?.(params) ?? { error: `${engineKey} method not found` };
+        result = eng.calculate?.(params) ?? eng.predict?.(params) ?? eng.compute?.(params) ?? { error: `${engineKey} method not found` };
 
         try {
           await hookExecutor.execute("post-calculation", { ...hookCtx, metadata: { ...hookCtx.metadata, result } });

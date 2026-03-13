@@ -1,10 +1,11 @@
 /**
  * prism_forming — Forming & Casting Dispatcher
  *
- * 16 actions: blow molding, casting defect, extrusion, filament winding,
+ * 20 actions: blow molding, casting defect, extrusion, filament winding,
  *   powder compaction, press brake, pultrusion, resin transfer, rolling mill,
  *   sheet metal nesting, stamping die, thermoforming, tube forming,
- *   wire drawing, flat pattern, calendering
+ *   wire drawing, flat pattern, calendering, compression molding,
+ *   rotational molding, vacuum casting, centrifugal casting
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -17,6 +18,7 @@ let _blowMold: any, _castingDefect: any, _extrusion: any, _filamentWind: any;
 let _powderCompact: any, _pressBrake: any, _pultrusion: any, _resinTransfer: any;
 let _rollingMill: any, _sheetNesting: any, _stampingDie: any, _thermoform: any;
 let _tubeForm: any, _wireDraw: any, _flatPattern: any, _calender: any;
+let _compressionMold: any, _rotationalMold: any, _vacuumCast: any, _centrifugalCast: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -36,6 +38,10 @@ async function getEngine(name: string): Promise<any> {
     case "wireDraw": return _wireDraw ??= (await import("../../engines/WireDrawingEngine.js")).wireDrawingEngine;
     case "flatPattern": return _flatPattern ??= (await import("../../engines/FlatPatternEngine.js")).flatPatternEngine;
     case "calender": return _calender ??= (await import("../../engines/CalenderingEngine.js")).calenderingEngine;
+    case "compressionMold": return _compressionMold ??= (await import("../../engines/CompressionMoldingEngine.js")).compressionMoldingEngine;
+    case "rotationalMold": return _rotationalMold ??= (await import("../../engines/RotationalMoldingEngine.js")).rotationalMoldingEngine;
+    case "vacuumCast": return _vacuumCast ??= (await import("../../engines/VacuumCastingEngine.js")).vacuumCastingEngine;
+    case "centrifugalCast": return _centrifugalCast ??= (await import("../../engines/CentrifugalCastingEngine.js")).centrifugalCastingEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -47,16 +53,18 @@ const ACTIONS = [
   "sheet_metal_nesting_optimize", "stamping_die_calculate", "thermoforming_calculate",
   "tube_forming_calculate", "wire_drawing_calculate", "flat_pattern_calculate",
   "calendering_calculate",
+  "compression_molding_calc", "rotational_molding_calc", "vacuum_casting_calc",
+  "centrifugal_casting_calc",
 ] as const;
 
 export function registerFormingCastingDispatcher(server: any): void {
   server.tool(
     "prism_forming",
-    `Forming & casting: blow molding, casting defect analysis, extrusion force, filament winding, powder compaction, press brake (bend force/tonnage), pultrusion, resin transfer, rolling mill, sheet metal nesting, stamping die, thermoforming, tube forming/bending, wire drawing, flat pattern (K-factor), calendering.
+    `Forming & casting: blow molding, casting defect analysis, extrusion force, filament winding, powder compaction, press brake (bend force/tonnage), pultrusion, resin transfer, rolling mill, sheet metal nesting, stamping die, thermoforming, tube forming/bending, wire drawing, flat pattern (K-factor), calendering, compression molding, rotational molding, vacuum casting, centrifugal casting.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_forming] Action: ${action} (16 actions wired)`);
+      log.info(`[prism_forming] Action: ${action} (20 actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -89,6 +97,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           stamping_die_calculate: "stampingDie", thermoforming_calculate: "thermoform",
           tube_forming_calculate: "tubeForm", wire_drawing_calculate: "wireDraw",
           flat_pattern_calculate: "flatPattern", calendering_calculate: "calender",
+          compression_molding_calc: "compressionMold", rotational_molding_calc: "rotationalMold",
+          vacuum_casting_calc: "vacuumCast", centrifugal_casting_calc: "centrifugalCast",
         };
 
         const engineKey = engineMap[action];
