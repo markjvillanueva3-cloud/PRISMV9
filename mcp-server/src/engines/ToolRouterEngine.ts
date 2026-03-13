@@ -209,6 +209,22 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { keywords: ["spindle load monitor", "load threshold", "breakage detection", "spindle overload"], route: "dispatcher", target: "safetyDispatcher", action: "spindle_load_monitor", reason: "Spindle load monitoring thresholds", estimatedTokens: 200 },
   { keywords: ["thread turning", "lathe threading", "thread pass schedule", "thread infeed"], route: "dispatcher", target: "turningDispatcher", action: "thread_turning_calc", reason: "Thread turning pass schedule", estimatedTokens: 200 },
   { keywords: ["master post processor", "multi cam post", "unified post", "cross cam gcode"], route: "dispatcher", target: "camDispatcher", action: "master_post_process", reason: "Mixed-CAM unified G-code synthesis", estimatedTokens: 500 },
+  // --- Batch 109: Mechanical + Fluid/Thermal routing ---
+  { keywords: ["ball screw", "ballscrew", "lead accuracy", "screw preload"], route: "dispatcher", target: "calcDispatcher", action: "ball_screw_calc", reason: "Ball screw selection & preload calc", estimatedTokens: 200 },
+  { keywords: ["bevel gear", "spiral bevel", "gear tooth bending", "bevel mesh"], route: "dispatcher", target: "calcDispatcher", action: "bevel_gear_calc", reason: "Bevel gear geometry & load rating", estimatedTokens: 200 },
+  { keywords: ["bolted joint", "bolt preload", "bolt fatigue", "joint separation"], route: "dispatcher", target: "calcDispatcher", action: "bolted_joint_calc", reason: "VDI 2230 bolted joint analysis", estimatedTokens: 200 },
+  { keywords: ["column buckling", "euler buckling", "slenderness ratio", "critical load"], route: "dispatcher", target: "calcDispatcher", action: "column_buckling_calc", reason: "Column buckling (Euler/Johnson)", estimatedTokens: 200 },
+  { keywords: ["flywheel", "rotational inertia", "energy storage flywheel", "flywheel sizing"], route: "dispatcher", target: "calcDispatcher", action: "flywheel_calc", reason: "Flywheel energy & inertia sizing", estimatedTokens: 200 },
+  { keywords: ["gear train", "gear ratio", "gear mesh", "spur gear", "helical gear"], route: "dispatcher", target: "calcDispatcher", action: "gear_train_calc", reason: "Gear train ratio & load analysis", estimatedTokens: 200 },
+  { keywords: ["hertz contact", "contact stress", "bearing contact", "contact pressure"], route: "dispatcher", target: "calcDispatcher", action: "hertz_contact_calc", reason: "Hertzian contact stress (sphere/cylinder)", estimatedTokens: 200 },
+  { keywords: ["planetary gear", "epicyclic", "sun gear", "ring gear", "planet carrier"], route: "dispatcher", target: "calcDispatcher", action: "planetary_gear_calc", reason: "Planetary gear ratio & torque split", estimatedTokens: 200 },
+  { keywords: ["centrifugal pump", "pump curve", "pump head", "npsh", "pump efficiency"], route: "dispatcher", target: "calcDispatcher", action: "centrifugal_pump_calc", reason: "Centrifugal pump sizing & NPSH", estimatedTokens: 200 },
+  { keywords: ["heat exchanger", "lmtd", "shell tube", "heat transfer area", "ntu"], route: "dispatcher", target: "calcDispatcher", action: "heat_exchanger_calc", reason: "Heat exchanger LMTD/NTU sizing", estimatedTokens: 250 },
+  { keywords: ["hydraulic cylinder", "hydraulic force", "bore size", "rod buckling"], route: "dispatcher", target: "calcDispatcher", action: "hydraulic_cylinder_calc", reason: "Hydraulic cylinder force & bore sizing", estimatedTokens: 200 },
+  { keywords: ["pipe sizing", "pipe diameter", "flow velocity pipe", "pipe schedule"], route: "dispatcher", target: "calcDispatcher", action: "pipe_sizing_calc", reason: "Pipe sizing by velocity/pressure drop", estimatedTokens: 200 },
+  { keywords: ["pipe stress", "pipe thermal expansion", "pipe support", "pipe flexibility"], route: "dispatcher", target: "calcDispatcher", action: "pipe_stress_calc", reason: "Pipe stress & thermal expansion analysis", estimatedTokens: 200 },
+  { keywords: ["valve sizing", "cv coefficient", "valve flow", "control valve"], route: "dispatcher", target: "calcDispatcher", action: "valve_sizing_calc", reason: "Control valve Cv sizing", estimatedTokens: 200 },
+  { keywords: ["spring design", "coil spring", "spring rate", "spring fatigue", "compression spring"], route: "dispatcher", target: "calcDispatcher", action: "spring_design_calc", reason: "Helical spring stress & fatigue", estimatedTokens: 200 },
 ];
 
 export class ToolRouterEngine {
