@@ -215,6 +215,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
     case "coolant_lifecycle":
       return { interval_days: result.optimal_change_interval_days, cost_per_day: result.total_cost_per_day, health: result.health_at_horizon, makeup_L_day: result.makeup_volume_L_per_day, warnings: result.warnings?.length || 0 };
+    case "error_budget":
+      return { rss_um: result.rss_total_um, worst_um: result.worst_case_total_um, meets_tol: result.meets_tolerance, utilization_pct: result.budget_utilization_pct, thermal_um: result.thermal_contribution_um };
     case "specific_cutting_energy":
       return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
@@ -633,7 +635,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -4919,6 +4921,11 @@ export function registerCalcDispatcher(server: any): void {
           case "coolant_lifecycle": {
             const { cuttingFluidLifecycleEngine } = await import("../../engines/CuttingFluidLifecycleEngine.js");
             result = cuttingFluidLifecycleEngine.simulate(params as ValidatedParams);
+            break;
+          }
+          case "error_budget": {
+            const { machineToolErrorBudgetEngine } = await import("../../engines/MachineToolErrorBudgetEngine.js");
+            result = machineToolErrorBudgetEngine.analyze(params as ValidatedParams);
             break;
           }
 

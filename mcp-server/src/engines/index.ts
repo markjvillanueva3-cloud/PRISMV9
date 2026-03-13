@@ -2273,6 +2273,7 @@ export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
 export { toolpathSmoothingEngine, ToolpathSmoothingEngine } from "./ToolpathSmoothingEngine.js";
 export { chipMorphologyDiagnosticEngine, ChipMorphologyDiagnosticEngine } from "./ChipMorphologyDiagnosticEngine.js";
 export { cuttingFluidLifecycleEngine, CuttingFluidLifecycleEngine } from "./CuttingFluidLifecycleEngine.js";
+export { machineToolErrorBudgetEngine, MachineToolErrorBudgetEngine } from "./MachineToolErrorBudgetEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
 export { webhookEngine, WebhookEngine } from "./WebhookEngine.js";
