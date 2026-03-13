@@ -3180,6 +3180,7 @@ export { CodeSystemIndexEngine, codeSystemIndexEngine } from "./CodeSystemIndexE
 export { advancedCuttingPhysicsEngine } from "./AdvancedCuttingPhysicsEngine.js";
 export { advancedCuttingMathEngine } from "./AdvancedCuttingMathEngine.js";
 export { advancedWearPhysicsEngine } from "./AdvancedWearPhysicsEngine.js";
+export { AdvancedMathematicalMethodsEngine } from "./AdvancedMathematicalMethodsEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";

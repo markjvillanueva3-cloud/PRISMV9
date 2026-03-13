@@ -427,7 +427,7 @@ const ACTIONS = [
   "archard_wear", "wear_force_correction", "thermal_deflection",
   "cutting_data_recommend", "cutting_data_list_groups", "cutting_data_list",
   "machine_recommend", "machine_compare", "machine_validate",
-  "tool_select_recommend", "tool_select_compare", "tool_select_alternatives", "tool_unified_search",
+  "tool_select_recommend", "tool_select_compare", "tool_select_alternatives", "tool_unified_search", "tool_collision_query", "tool_find_optimal",
   "tool_crib_checkout", "tool_crib_checkin", "tool_crib_inventory", "tool_crib_reorder",
   "toolholder_frf", "toolholder_compare",
   "machinability_rate", "machinability_compare",
@@ -635,6 +635,9 @@ const ACTIONS = [
   "machine_vibration_calc", "runout_compensation_calc", "axis_compensation_calc",
   "tool_presetting_calc", "broaching_calc", "fatigue_life_calc",
   "injection_molding_calc",
+  // ── Advanced Mathematical Methods ──
+  "pce_compute", "emd_decompose", "garch_fit", "lhs_sample",
+  "cmaes_optimize", "svm_train", "alt_analyze",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4606,6 +4609,50 @@ export function registerCalcDispatcher(server: any): void {
           case "injection_molding_calc": {
             const { injectionMoldingEngine } = await import("../../engines/InjectionMoldingEngine.js");
             result = injectionMoldingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Mathematical Methods (PCE, EMD, GARCH, LHS, CMA-ES, SVM, ALT) ──
+          case "pce_compute": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.polynomialChaosExpansion(params as ValidatedParams);
+            break;
+          }
+          case "emd_decompose": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.empiricalModeDecomposition(params as ValidatedParams);
+            break;
+          }
+          case "garch_fit": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.garch(params as ValidatedParams);
+            break;
+          }
+          case "lhs_sample": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.latinHypercubeSampling(params as ValidatedParams);
+            break;
+          }
+          case "cmaes_optimize": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.cmaes(params as ValidatedParams);
+            break;
+          }
+          case "svm_train": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.svm(params as ValidatedParams);
+            break;
+          }
+          case "alt_analyze": {
+            const { AdvancedMathematicalMethodsEngine: AMM } = await import("../../engines/AdvancedMathematicalMethodsEngine.js");
+            const amm = new AMM();
+            result = amm.acceleratedLifeTest(params as ValidatedParams);
             break;
           }
 

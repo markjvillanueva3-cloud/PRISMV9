@@ -140,6 +140,23 @@ import { registerAutomationDispatcher } from "./tools/dispatchers/automationDisp
 // RT-MS1: Real-Time WebSocket Dispatcher (Dispatcher #55)
 import { registerRealtimeDispatcher } from "./tools/dispatchers/realtimeDispatcher.js";
 
+// SCI-MS1: Adaptive Control — 12 actions (Dispatcher #56)
+import { registerAdaptiveControlDispatcher } from "./tools/dispatchers/adaptiveControlDispatcher.js";
+// CAMK-MS3: Multi-Operation Orchestration — 7 actions (Dispatcher #57)
+import { registerMultiOpDispatcher } from "./tools/dispatchers/multiOpDispatcher.js";
+// SCI-MS3: Scientific Mathematics — 5 actions (Dispatcher #58)
+import { registerScientificMathDispatcher } from "./tools/dispatchers/scientificMathDispatcher.js";
+
+// WIRING-AUDIT: 8 new dispatchers — 192 actions wiring 190 previously-unwired engines
+import { registerCncOpsDispatcher } from "./tools/dispatchers/cncOpsDispatcher.js";
+import { registerMachineSetupDispatcher } from "./tools/dispatchers/machineSetupDispatcher.js";
+import { registerVibrationPhysicsDispatcher } from "./tools/dispatchers/vibrationPhysicsDispatcher.js";
+import { registerMaterialProcessingDispatcher } from "./tools/dispatchers/materialProcessingDispatcher.js";
+import { registerWeldingJoiningDispatcher } from "./tools/dispatchers/weldingJoiningDispatcher.js";
+import { registerFormingCastingDispatcher } from "./tools/dispatchers/formingCastingDispatcher.js";
+import { registerMechanicalDesignDispatcher } from "./tools/dispatchers/mechanicalDesignDispatcher.js";
+import { registerFluidThermalDispatcher } from "./tools/dispatchers/fluidThermalDispatcher.js";
+
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
 
@@ -419,9 +436,18 @@ async function registerTools(): Promise<void> {
   // Generator (6 actions)
   registerGeneratorDispatcher(server);
   
-  // Validation (7 actions)
+  // Validation (13 actions)
   registerValidationDispatcher(server);
-  
+
+  // Adaptive Control (12 actions — SCI-MS1)
+  registerAdaptiveControlDispatcher(server);
+
+  // Multi-Op Orchestration (7 actions — CAMK-MS3)
+  registerMultiOpDispatcher(server);
+
+  // Scientific Math (5 actions — SCI-MS3)
+  registerScientificMathDispatcher(server);
+
   // Omega Quality (5 actions)
   registerOmegaDispatcher(server);
   
@@ -545,6 +571,16 @@ async function registerTools(): Promise<void> {
 
   // RT-MS1: Real-Time WebSocket
   registerRealtimeDispatcher(server);
+
+  // WIRING-AUDIT: 8 new dispatchers — 190 previously-unwired engines now accessible
+  registerCncOpsDispatcher(server);         // 32 actions: ball endmill, chamfer, facing, slotting, threading, waterjet, plasma...
+  registerMachineSetupDispatcher(server);   // 25 actions: spindle analysis, RTCP, warmup, fixture, press/shrink fit, gauging...
+  registerVibrationPhysicsDispatcher(server); // 16 actions: VAM, chatter, Fourier, tribology, grinding, surface finish...
+  registerMaterialProcessingDispatcher(server); // 11 actions: heat treat, anodizing, carburizing, nitriding, coating...
+  registerWeldingJoiningDispatcher(server); // 6 actions: welding, brazing, adhesive bonding, ultrasonic, weld strength/distortion
+  registerFormingCastingDispatcher(server); // 16 actions: press brake, stamping, extrusion, sheet nesting, tube forming...
+  registerMechanicalDesignDispatcher(server); // 51 actions: gears, bearings, springs, bolts, shafts, cams, clutches...
+  registerFluidThermalDispatcher(server);   // 35 actions: pumps, piping, hydraulics, heat exchangers, valves, compressors...
 
   log.info(`All PRISM tools registered: 55 dispatchers (1670+ actions)`);
 
