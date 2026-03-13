@@ -716,6 +716,30 @@ const ACTIONS = [
   "stochastic_wrap_mc", "stochastic_wrap_fosm", "stochastic_wrap_pce", "stochastic_sensitivity", "stochastic_chain",
   "morris_screening", "morris_classify",
   "multiple_regression_fit", "multiple_regression_predict", "multiple_regression_diagnostics", "ridge_regression",
+  // -- Batch 110A: Rotating Machinery & Power Transmission (10 engines) --
+  "worm_gear_calc", "harmonic_drive_calc", "cycloid_drive_calc",
+  "hypoid_gear_calc", "rack_pinion_calc", "gear_pump_calc",
+  "fluid_coupling_calc", "clutch_design_calc", "clutch_brake_calc",
+  "coupling_calc",
+  // -- Batch 110B: Bearings, Joints & Shafts (10 engines) --
+  "journal_bearing_calc", "rolling_bearing_calc", "rolling_contact_calc",
+  "spline_joint_calc", "spline_stress_calc", "keyway_stress_calc",
+  "rivet_joint_calc", "shaft_alignment_calc", "linear_guide_calc",
+  "linear_motion_calc",
+  // -- Batch 110C: Industrial/Process/Thermal (10 engines) --
+  "hydraulic_motor_calc", "hydraulic_press_calc", "pneumatic_cylinder_calc",
+  "steam_turbine_calc", "turbine_blade_calc", "furnace_heating_calc",
+  "rotary_kiln_calc", "heat_exchanger_plate_calc", "crane_load_calc",
+  "wire_rope_calc",
+  // -- Batch 111: Math/Stats + Fatigue/Fracture + EDM + Industrial (20 engines) --
+  "statistical_ml_calc", "metaheuristic_optimization_calc", "markov_decision_calc",
+  "morris_screening_calc", "linear_regression_calc", "nelson_spc_rules_calc",
+  "predictive_failure_calc", "reliability_weibull_calc", "kienzle_force_model_calc",
+  "miner_cumulative_damage_calc",
+  "fracture_toughness_calc", "creep_life_calc", "thermal_fatigue_calc",
+  "thermal_expansion_joint_calc",
+  "edm_calc", "edm_parameter_calc", "edm_wire_calc",
+  "ergonomic_workstation_calc", "noise_level_calc", "propeller_calc",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5526,6 +5550,278 @@ export function registerCalcDispatcher(server: any): void {
             result = processVariabilityIntegrationEngine.analyze(params as ValidatedParams);
             break;
           }
+
+          // --- Batch 110A: Rotating Machinery & Power Transmission (10 engines) ---
+          case "worm_gear_calc": {
+            const { wormGearEngine } = await import("../../engines/WormGearEngine.js");
+            result = wormGearEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "harmonic_drive_calc": {
+            const { harmonicDriveEngine } = await import("../../engines/HarmonicDriveEngine.js");
+            result = harmonicDriveEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "cycloid_drive_calc": {
+            const { cycloidDriveEngine } = await import("../../engines/CycloidDriveEngine.js");
+            result = cycloidDriveEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "hypoid_gear_calc": {
+            const { hypoidGearEngine } = await import("../../engines/HypoidGearEngine.js");
+            result = hypoidGearEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rack_pinion_calc": {
+            const { rackPinionEngine } = await import("../../engines/RackPinionEngine.js");
+            result = rackPinionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "gear_pump_calc": {
+            const { gearPumpEngine } = await import("../../engines/GearPumpEngine.js");
+            result = gearPumpEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "fluid_coupling_calc": {
+            const { fluidCouplingEngine } = await import("../../engines/FluidCouplingEngine.js");
+            result = fluidCouplingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "clutch_design_calc": {
+            const { clutchDesignEngine } = await import("../../engines/ClutchDesignEngine.js");
+            result = clutchDesignEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "clutch_brake_calc": {
+            const { clutchBrakeEngine } = await import("../../engines/ClutchBrakeEngine.js");
+            result = clutchBrakeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "coupling_calc": {
+            const { couplingEngine } = await import("../../engines/CouplingEngine.js");
+            result = couplingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // --- Batch 110B: Bearings, Joints & Shafts (10 engines) ---
+          case "journal_bearing_calc": {
+            const { journalBearingEngine } = await import("../../engines/JournalBearingEngine.js");
+            result = journalBearingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rolling_bearing_calc": {
+            const { rollingBearingEngine } = await import("../../engines/RollingBearingEngine.js");
+            result = rollingBearingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rolling_contact_calc": {
+            const { rollingContactEngine } = await import("../../engines/RollingContactEngine.js");
+            result = rollingContactEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spline_joint_calc": {
+            const { splineJointEngine } = await import("../../engines/SplineJointEngine.js");
+            result = splineJointEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "spline_stress_calc": {
+            const { splineStressEngine } = await import("../../engines/SplineStressEngine.js");
+            result = splineStressEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "keyway_stress_calc": {
+            const { keywayStressEngine } = await import("../../engines/KeywayStressEngine.js");
+            result = keywayStressEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rivet_joint_calc": {
+            const { rivetJointEngine } = await import("../../engines/RivetJointEngine.js");
+            result = rivetJointEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "shaft_alignment_calc": {
+            const { shaftAlignmentEngine } = await import("../../engines/ShaftAlignmentEngine.js");
+            result = shaftAlignmentEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "linear_guide_calc": {
+            const { linearGuideEngine } = await import("../../engines/LinearGuideEngine.js");
+            result = linearGuideEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "linear_motion_calc": {
+            const { linearMotionEngine } = await import("../../engines/LinearMotionEngine.js");
+            result = linearMotionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // --- Batch 110C: Industrial/Process/Thermal (10 engines) ---
+          case "hydraulic_motor_calc": {
+            const { hydraulicMotorEngine } = await import("../../engines/HydraulicMotorEngine.js");
+            result = hydraulicMotorEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "hydraulic_press_calc": {
+            const { hydraulicPressEngine } = await import("../../engines/HydraulicPressEngine.js");
+            result = hydraulicPressEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "pneumatic_cylinder_calc": {
+            const { pneumaticCylinderEngine } = await import("../../engines/PneumaticCylinderEngine.js");
+            result = pneumaticCylinderEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "steam_turbine_calc": {
+            const { steamTurbineEngine } = await import("../../engines/SteamTurbineEngine.js");
+            result = steamTurbineEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "turbine_blade_calc": {
+            const { turbineBladeEngine } = await import("../../engines/TurbineBladeEngine.js");
+            result = turbineBladeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "furnace_heating_calc": {
+            const { furnaceHeatingEngine } = await import("../../engines/FurnaceHeatingEngine.js");
+            result = furnaceHeatingEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "rotary_kiln_calc": {
+            const { rotaryKilnEngine } = await import("../../engines/RotaryKilnEngine.js");
+            result = rotaryKilnEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "heat_exchanger_plate_calc": {
+            const { heatExchangerPlateEngine } = await import("../../engines/HeatExchangerPlateEngine.js");
+            result = heatExchangerPlateEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "crane_load_calc": {
+            const { craneLoadEngine } = await import("../../engines/CraneLoadEngine.js");
+            result = craneLoadEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "wire_rope_calc": {
+            const { wireRopeEngine } = await import("../../engines/WireRopeEngine.js");
+            result = wireRopeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 111: Math/Stats (10 engines) ──
+          case "statistical_ml_calc": {
+            const { StatisticalMLEngine } = await import("../../engines/StatisticalMLEngine.js");
+            const eng = new StatisticalMLEngine();
+            const method = params.method ?? "mcmc";
+            const fn = (eng as any)[method];
+            result = typeof fn === "function" ? fn.call(eng, params) : { error: `Unknown method: ${method}. Available: mcmc, bootstrap, pca, kMeans, logisticRegression, waveletTransform, controlChart` };
+            break;
+          }
+          case "metaheuristic_optimization_calc": {
+            const { MetaheuristicOptimizationEngine } = await import("../../engines/MetaheuristicOptimizationEngine.js");
+            const eng = new MetaheuristicOptimizationEngine();
+            const method = params.method ?? "geneticAlgorithm";
+            const fn = (eng as any)[method];
+            result = typeof fn === "function" ? fn.call(eng, params) : { error: `Unknown method: ${method}. Available: geneticAlgorithm, differentialEvolution, particleSwarmOptimization, simulatedAnnealing, bayesianOptimization` };
+            break;
+          }
+          case "markov_decision_calc": {
+            const { markovDecisionEngine } = await import("../../engines/MarkovDecisionEngine.js");
+            result = markovDecisionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "morris_screening_calc": {
+            const { morrisScreeningEngine } = await import("../../engines/MorrisScreeningEngine.js");
+            result = morrisScreeningEngine.calculateElementaryEffects(params as ValidatedParams);
+            break;
+          }
+          case "linear_regression_calc": {
+            const { linearRegressionEngine } = await import("../../engines/LinearRegressionEngine.js");
+            result = linearRegressionEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "nelson_spc_rules_calc": {
+            const { nelsonSPCRulesEngine } = await import("../../engines/NelsonSPCRulesEngine.js");
+            result = nelsonSPCRulesEngine.evaluateAllRules(params.data ?? [], params.mean, params.sigma);
+            break;
+          }
+          case "predictive_failure_calc": {
+            const { pfpEngine } = await import("../../engines/PredictiveFailureEngine.js");
+            result = pfpEngine.assessRisk(params.dispatcher ?? "calcDispatcher", params.action ?? "unknown", params);
+            break;
+          }
+          case "reliability_weibull_calc": {
+            const { reliabilityWeibullEngine } = await import("../../engines/ReliabilityWeibullEngine.js");
+            result = reliabilityWeibullEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "kienzle_force_model_calc": {
+            const { kienzleForceModelEngine } = await import("../../engines/KienzleForceModelEngine.js");
+            result = kienzleForceModelEngine.calculateSpecificCuttingForce(params as ValidatedParams);
+            break;
+          }
+          case "miner_cumulative_damage_calc": {
+            const { minerCumulativeDamageEngine } = await import("../../engines/MinerCumulativeDamageEngine.js");
+            result = minerCumulativeDamageEngine.calculateCumulativeDamage(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 111: Fatigue/Fracture (4 engines) ──
+          case "fracture_toughness_calc": {
+            const { fractureToughnessEngine } = await import("../../engines/FractureToughnessEngine.js");
+            result = fractureToughnessEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "creep_life_calc": {
+            const { creepLifeEngine } = await import("../../engines/CreepLifeEngine.js");
+            result = creepLifeEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "thermal_fatigue_calc": {
+            const { thermalFatigueEngine } = await import("../../engines/ThermalFatigueEngine.js");
+            result = thermalFatigueEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "thermal_expansion_joint_calc": {
+            const { thermalExpansionJointEngine } = await import("../../engines/ThermalExpansionJointEngine.js");
+            result = thermalExpansionJointEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 111: EDM (3 engines) ──
+          case "edm_calc": {
+            const { edmEngine } = await import("../../engines/EDMEngine.js");
+            const edmMethod = params.edm_type === "sinker" ? "sinkerEDM" : "wireEDM";
+            result = edmEngine[edmMethod](params as ValidatedParams);
+            break;
+          }
+          case "edm_parameter_calc": {
+            const { edmParameterEngine } = await import("../../engines/EDMParameterEngine.js");
+            result = edmParameterEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "edm_wire_calc": {
+            const { edmWireEngine } = await import("../../engines/EDMWireEngine.js");
+            result = edmWireEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
+          // ── Batch 111: Industrial (3 engines) ──
+          case "ergonomic_workstation_calc": {
+            const { ergonomicWorkstationEngine } = await import("../../engines/ErgonomicWorkstationEngine.js");
+            result = ergonomicWorkstationEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "noise_level_calc": {
+            const { noiseLevelEngine } = await import("../../engines/NoiseLevelEngine.js");
+            result = noiseLevelEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "propeller_calc": {
+            const { propellerEngine } = await import("../../engines/PropellerEngine.js");
+            result = propellerEngine.calculate(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
