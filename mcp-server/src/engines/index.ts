@@ -2271,6 +2271,7 @@ export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORIT
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
 export { toolpathSmoothingEngine, ToolpathSmoothingEngine } from "./ToolpathSmoothingEngine.js";
+export { chipMorphologyDiagnosticEngine, ChipMorphologyDiagnosticEngine } from "./ChipMorphologyDiagnosticEngine.js";
 export { waterjetTaperEngine, WaterjetTaperEngine } from "./WaterjetTaperEngine.js";
 export { wearForceCompensationEngine, WearForceCompensationEngine } from "./WearForceCompensationEngine.js";
 export { webhookEngine, WebhookEngine } from "./WebhookEngine.js";
@@ -3223,3 +3224,11 @@ export { videoLearningEngine } from "./VideoLearningEngine.js";
 export { toolMagazineOptimizationEngine, ToolMagazineOptimizationEngine } from './ToolMagazineOptimizationEngine.js';
 export { vibrationAssistedMachiningEngine, VibrationAssistedMachiningEngine } from './VibrationAssistedMachiningEngine.js';
 export { ergonomicWorkstationEngine, ErgonomicWorkstationEngine } from './ErgonomicWorkstationEngine.js';
+
+// VAR-MS0: Stochastic Physics Extensions
+export { stochasticCuttingForceEngine } from "./StochasticCuttingForceEngine.js";
+export { stochasticToolLifeEngine } from "./StochasticToolLifeEngine.js";
+export { stochasticThermalEngine } from "./StochasticThermalEngine.js";
+export { stochasticSurfaceFinishEngine } from "./StochasticSurfaceFinishEngine.js";
+export { stochasticChatterEngine } from "./StochasticChatterEngine.js";
+export { uncertaintyPropagationPipelineEngine } from "./UncertaintyPropagationPipelineEngine.js";

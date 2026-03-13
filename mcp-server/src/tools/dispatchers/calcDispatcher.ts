@@ -211,6 +211,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { deflection_um: result.static_deflection_um?.value, error_um: result.dimensional_error_um?.value, stress_MPa: result.max_bending_stress_MPa?.value, safety_factor: result.safety_factor?.value, max_overhang_mm: result.max_recommended_overhang_mm?.value, within_tol: result.within_tolerance, safe: result.is_safe };
     case "chip_formation":
       return { shear_angle_deg: result.shear_angle_deg?.value, compression_ratio: result.chip_compression_ratio?.value, chip_type: result.chip_type, bue_risk: result.bue_risk, breakability: result.chip_breakability, safe: result.is_safe };
+    case "chip_diagnose":
+      return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
     case "specific_cutting_energy":
       return { u_J_mm3: result.specific_energy_J_mm3?.value, power_kW: result.cutting_power_kW?.value, energy_Wh: result.energy_per_part_Wh?.value, co2_g: result.co2_per_part_g?.value, efficiency: result.energy_efficiency_ratio?.value, class: result.specific_energy_class, safe: result.is_safe };
     case "cost_optimize":
@@ -351,6 +353,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { result: `Anomaly: ${result.value.overall_status}, ${result.value.anomalies.length} events, ${result.value.method_summaries.filter((m:any)=>m.triggered).length}/${result.value.method_summaries.length} triggered` };
     case "sensor_status":
       return { result: `Status: ${result.value.sensor_count} sensors, ${result.value.total_samples} total samples` };
+    case "stochastic_force":
+      return { result: `StochForce: μ=${result.value.mean_force_n.toFixed(1)}N σ=${result.value.std_dev_n.toFixed(1)}N CV=${result.value.cv_percent.toFixed(1)}%` };
+    case "stochastic_tool_life":
+      return { result: `StochLife: Taylor=${result.value.taylor_life_min.toFixed(1)}min` };
+    case "stochastic_thermal":
+      return { result: `StochTherm: μ=${result.value.mean_temp_c.toFixed(0)}°C σ=${result.value.std_dev_c.toFixed(0)}°C` };
+    case "stochastic_finish":
+      return { result: `StochRa: theory=${result.value.theoretical_ra_um.toFixed(2)}μm actual=${result.value.mean_ra_um.toFixed(2)}μm` };
+    case "stochastic_chatter":
+      return { result: `StochChatter: safe=${result.value.summary.max_safe_depth_mm.toFixed(2)}mm` };
+    case "uncertainty_pipeline":
+      return { result: `UQ: ${result.value.stages.length} stages, bottleneck=${result.value.bottleneck_stage}` };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -551,6 +565,7 @@ const ACTIONS = [
   "chance_constrained_optimize",
   "acoustic_emission_monitor",
   "sensor_validate", "sensor_simulate", "sensor_fuse", "sensor_anomaly_detect", "sensor_status",
+  "stochastic_force", "stochastic_tool_life", "stochastic_thermal", "stochastic_finish", "stochastic_chatter", "uncertainty_pipeline",
   // ── Blocked-action fix: 101 actions with switch-case handlers but missing from ACTIONS array ──
   // Optimization (ACO/GA/DE/SA/PSO/RL/Swarm)
   "aco_optimize", "aco_sequence_features", "aco_sequence_holes", "aco_sequence_with_tools",
@@ -616,7 +631,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "spindle_torque_curve",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -4279,6 +4294,38 @@ export function registerCalcDispatcher(server: any): void {
             };
             break;
           }
+
+          // ── VAR-MS0: Stochastic Physics Extensions ──
+          case "stochastic_force": {
+            const { stochasticCuttingForceEngine } = await import("../../engines/StochasticCuttingForceEngine.js");
+            result = stochasticCuttingForceEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_tool_life": {
+            const { stochasticToolLifeEngine } = await import("../../engines/StochasticToolLifeEngine.js");
+            result = stochasticToolLifeEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_thermal": {
+            const { stochasticThermalEngine } = await import("../../engines/StochasticThermalEngine.js");
+            result = stochasticThermalEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_finish": {
+            const { stochasticSurfaceFinishEngine } = await import("../../engines/StochasticSurfaceFinishEngine.js");
+            result = stochasticSurfaceFinishEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_chatter": {
+            const { stochasticChatterEngine } = await import("../../engines/StochasticChatterEngine.js");
+            result = stochasticChatterEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "uncertainty_pipeline": {
+            const { uncertaintyPropagationPipelineEngine } = await import("../../engines/UncertaintyPropagationPipelineEngine.js");
+            result = uncertaintyPropagationPipelineEngine.propagate(params as ValidatedParams);
+            break;
+          }
           // ── CNC/Machining calculators (30 engines) ──
           case "cutting_force_calc": {
             const { cuttingForceEngine } = await import("../../engines/CuttingForceEngine.js");
@@ -4860,6 +4907,11 @@ export function registerCalcDispatcher(server: any): void {
           case "flywheel_energy_calc": {
             const { flywheelEnergyEngine } = await import("../../engines/FlywheelEnergyEngine.js");
             result = flywheelEnergyEngine.calculate(params as ValidatedParams);
+            break;
+          }
+          case "chip_diagnose": {
+            const { chipMorphologyDiagnosticEngine } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
+            result = chipMorphologyDiagnosticEngine.diagnose(params as ValidatedParams);
             break;
           }
 
