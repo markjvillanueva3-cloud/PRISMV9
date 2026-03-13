@@ -180,6 +180,7 @@ export class CuttingForceEngine {
       const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["material_tip", "tool_selection"],
+        operation_type: op,
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

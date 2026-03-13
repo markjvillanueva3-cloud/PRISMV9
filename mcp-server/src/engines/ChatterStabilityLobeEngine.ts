@@ -182,6 +182,8 @@ export class ChatterStabilityLobeEngine {
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["toolpath_strategy", "anti_pattern"],
         material_iso: workpiece.iso_group,
+        operation_type: "milling",
+        spindle_rpm: optimalRPM,
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

@@ -316,6 +316,7 @@ class ToolWearCompensationEngineImpl {
       const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["tool_life", "material_tip"],
+        ...(iso ? { material_iso: iso } : {}),
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

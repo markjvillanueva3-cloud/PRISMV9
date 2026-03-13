@@ -1249,6 +1249,7 @@ export function computeNovelToolpath(request: NovelToolpathRequest): NovelToolpa
       material_iso: materialIso,
       categories: ["toolpath_strategy", "anti_pattern", "thin_wall", "roughing", "finishing"],
       severity_min: "important",
+      ...((params.rpm as number) && { spindle_rpm: params.rpm as number }),
     });
     for (const rule of pbResult.rules) {
       result.recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);

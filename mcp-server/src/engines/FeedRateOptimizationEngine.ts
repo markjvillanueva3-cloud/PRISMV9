@@ -235,6 +235,8 @@ export class FeedRateOptimizationEngine {
       const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["material_tip", "toolpath_strategy", "roughing"],
+        spindle_rpm: n,
+        operation_type: operation === "finishing" ? "finishing" : "roughing",
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

@@ -601,4 +601,78 @@ describe("MachiningPlaybookEngine", () => {
       expect(result.rules.some(r => r.id === "QI-002")).toBe(true);
     });
   });
+
+  // ── Expanded sequencing (opRelatesTo + CANONICAL_ORDER) ───────────────
+
+  describe("expanded sequencing for new domains", () => {
+    it("should sequence turning operations correctly", () => {
+      const advice = engine.sequenceAdvice(["turn", "groove", "thread", "cutoff"]);
+      const order = advice.recommended_order;
+      // turn_rough before turn_groove before turn_thread before turn_cutoff
+      const turnIdx = order.indexOf("turn_rough");
+      const grooveIdx = order.indexOf("turn_groove");
+      const threadIdx = order.indexOf("turn_thread");
+      const cutoffIdx = order.indexOf("turn_cutoff");
+      if (turnIdx >= 0 && grooveIdx >= 0) expect(turnIdx).toBeLessThan(grooveIdx);
+      if (grooveIdx >= 0 && threadIdx >= 0) expect(grooveIdx).toBeLessThan(threadIdx);
+      if (threadIdx >= 0 && cutoffIdx >= 0) expect(threadIdx).toBeLessThan(cutoffIdx);
+    });
+
+    it("should include grinding operations in sequence", () => {
+      const advice = engine.sequenceAdvice(["grind", "surface"]);
+      expect(advice.recommended_order.some(op => op.startsWith("grind"))).toBe(true);
+    });
+
+    it("should include EDM operations in sequence", () => {
+      const advice = engine.sequenceAdvice(["edm", "cavity"]);
+      expect(advice.recommended_order.some(op => op.startsWith("edm"))).toBe(true);
+    });
+
+    it("should include deep hole operations in sequence", () => {
+      const advice = engine.sequenceAdvice(["deep_hole", "hole"]);
+      expect(advice.recommended_order.some(op => op.includes("drill"))).toBe(true);
+    });
+
+    it("should place surface treatment after machining in sequence", () => {
+      const advice = engine.sequenceAdvice(["face", "hole", "pocket", "anodize"]);
+      const order = advice.recommended_order;
+      const faceIdx = order.indexOf("face");
+      const anodizeIdx = order.indexOf("anodize");
+      if (faceIdx >= 0 && anodizeIdx >= 0) expect(faceIdx).toBeLessThan(anodizeIdx);
+    });
+
+    it("should place inspection after machining in sequence", () => {
+      const advice = engine.sequenceAdvice(["face", "hole", "inspect"]);
+      const order = advice.recommended_order;
+      const faceIdx = order.indexOf("face");
+      const inspectIdx = order.indexOf("inspect");
+      if (faceIdx >= 0 && inspectIdx >= 0) expect(faceIdx).toBeLessThan(inspectIdx);
+    });
+  });
+
+  // ── Stats verification ────────────────────────────────────────────────
+
+  describe("stats covers all 32 categories", () => {
+    it("total rules should be 210", () => {
+      const stats = engine.stats();
+      expect(stats.total).toBe(210);
+    });
+
+    it("all 32 categories should have rules", () => {
+      const allCats: RuleCategory[] = [
+        "sequencing", "anti_pattern", "thin_wall", "setup_strategy",
+        "toolpath_strategy", "material_tip", "hole_making", "datum",
+        "thermal", "workholding", "safety", "tool_selection", "finishing",
+        "roughing", "5axis", "chip_control", "tool_life", "deburring",
+        "grinding", "turning", "threading", "edm", "quality_inspection",
+        "coolant_strategy", "adaptive", "deep_hole", "surface_treatment",
+        "post_processing", "hard_turning", "hsm", "micro_machining",
+        "hybrid_additive",
+      ];
+      for (const cat of allCats) {
+        expect(engine.byCategory(cat).length).toBeGreaterThan(0);
+      }
+      expect(allCats.length).toBe(32);
+    });
+  });
 });

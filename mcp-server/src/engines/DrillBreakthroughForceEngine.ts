@@ -250,6 +250,21 @@ export class DrillBreakthroughForceEngine {
       );
     }
 
+    // Playbook consultation for deep hole / hole making rules
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const aspectRatio = d > 0 ? thickness / d : undefined;
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["deep_hole", "hole_making"],
+        ...(aspectRatio !== undefined && { aspect_ratio: aspectRatio }),
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     // ── 11. Uncertainty ──
     const thrustUncertainty = Ft_total * 0.15;
     const btUncertainty = Ft_breakthrough * 0.25;  // higher for breakthrough

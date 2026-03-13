@@ -2,10 +2,12 @@
  * ToolSelectionEngine — Manufacturing Intelligence Layer
  *
  * Recommends optimal cutting tools for given operations, materials, and features.
- * Composes ToolRegistry + MaterialRegistry + domain knowledge for intelligent selection.
+ * Bridges ToolCatalogEngine (46K+ real tools) with scoring/physics for intelligent selection.
  *
  * Actions: tool_recommend, tool_compare, tool_validate, tool_alternatives
  */
+
+import type { CatalogTool } from "./ToolCatalogEngine.js";
 
 // ============================================================================
 // TYPES
@@ -180,6 +182,8 @@ export class ToolSelectionEngine {
         tolerance_mm: req.tolerance_mm,
         surface_finish_Ra: req.surface_finish_Ra,
         categories: ["tool_selection", "material_tip"],
+        operation_type: req.operation_type,
+        ...(req.max_rpm != null ? { spindle_rpm: req.max_rpm } : {}),
       });
       for (const rec of top) {
         for (const rule of pbResult.rules) {
@@ -285,6 +289,62 @@ export class ToolSelectionEngine {
   }
 
   private generateCandidates(req: ToolRequirements, isoGroup: string, opMap: { types: string[]; min_flutes: number; preferred_coating: string }): ToolRecommendation[] {
+    // Try real catalog tools first via ToolCatalogEngine
+    const catalogResults = this.queryCatalog(req, isoGroup, opMap);
+    if (catalogResults.length >= 3) return catalogResults;
+
+    // Fall back to synthetic candidates if catalog has too few matches
+    const synthetic = this.generateSyntheticCandidates(req, isoGroup, opMap);
+    return [...catalogResults, ...synthetic];
+  }
+
+  private queryCatalog(req: ToolRequirements, isoGroup: string, opMap: { types: string[]; min_flutes: number; preferred_coating: string }): ToolRecommendation[] {
+    try {
+      const { toolCatalogEngine } = require("./ToolCatalogEngine.js");
+      const catalogTools: CatalogTool[] = toolCatalogEngine.search({
+        type: opMap.types[0],
+        diameter_mm: req.feature_diameter_mm,
+        diameter_range: req.feature_diameter_mm
+          ? [req.feature_diameter_mm * 0.4, req.feature_diameter_mm * 1.2] as [number, number]
+          : undefined,
+        iso_group: isoGroup,
+        operation: req.operation_type,
+        max_results: 20,
+      });
+
+      return catalogTools.map(ct => {
+        const d = ct.physical.cutting_diameter_mm;
+        const flutes = ct.flute_count || opMap.min_flutes;
+        const coating = ct.coating || opMap.preferred_coating;
+        const { score, rationale, warnings } = scoreTool(d, flutes, coating, req, isoGroup);
+
+        // Use catalog cutting data if available
+        const cutData = ct.cutting_data?.[isoGroup];
+        const baseSpeed = cutData ? (cutData.vc_min + cutData.vc_max) / 2 : (ISO_BASE_SPEEDS[isoGroup] || 200);
+        const baseFeed = cutData ? (cutData.fz_min + cutData.fz_max) / 2 : ((isoGroup === "S" || isoGroup === "H") ? 0.05 : 0.12);
+
+        // Boost score for real catalog tools with cutting data
+        let adjustedScore = score;
+        if (cutData) { adjustedScore += 10; rationale.push("Manufacturer-verified cutting data"); }
+        rationale.push(`Real tool: ${ct.manufacturer} ${ct.designation}`);
+
+        return {
+          tool_id: ct.id, tool_type: ct.type, diameter_mm: d,
+          description: `${ct.manufacturer} ${ct.designation} — ${d}mm ${ct.type} ${flutes}F ${coating}`,
+          score: Math.min(100, adjustedScore), rationale, warnings,
+          estimated_tool_life_min: estimateToolLife(isoGroup, baseSpeed, baseFeed),
+          recommended_speed_mpm: Math.round(baseSpeed),
+          recommended_feed_mmpt: Math.round(baseFeed * 1000) / 1000,
+          coating, substrate: ct.material || "carbide",
+          cost_category: ct.price_usd ? (ct.price_usd > 100 ? "premium" : ct.price_usd > 30 ? "standard" : "economy") : (d > 20 ? "premium" : d > 10 ? "standard" : "economy"),
+        } as ToolRecommendation;
+      });
+    } catch {
+      return []; // ToolCatalogEngine not available
+    }
+  }
+
+  private generateSyntheticCandidates(req: ToolRequirements, isoGroup: string, opMap: { types: string[]; min_flutes: number; preferred_coating: string }): ToolRecommendation[] {
     const diameters = req.feature_diameter_mm
       ? [req.feature_diameter_mm * 0.5, req.feature_diameter_mm * 0.65, req.feature_diameter_mm * 0.8, req.feature_diameter_mm, req.feature_diameter_mm * 1.2]
       : [6, 8, 10, 12, 16, 20, 25];
@@ -292,10 +352,6 @@ export class ToolSelectionEngine {
     const coatings = [opMap.preferred_coating, "TiAlN", "AlCrN", "TiN", "DLC"];
     const results: ToolRecommendation[] = [];
 
-    /** For.
-     * @param const - const
-     * @returns void
-     */
     for (const d of diameters) {
       for (const f of fluteCounts.slice(0, 2)) {
         for (const c of coatings.slice(0, 2)) {

@@ -803,6 +803,8 @@ export class CrossCamRecommenderEngine {
         machine_axes: input.machine.axis_count,
         tolerance_mm: input.constraints.tolerance_mm,
         surface_finish_Ra: input.constraints.max_surface_roughness_um,
+        operation_type: input.geometry.type,
+        ...(input.material.hardness_hrc != null && { hardness_hrc: input.material.hardness_hrc }),
       });
 
       // Combine rule summaries and critical warnings

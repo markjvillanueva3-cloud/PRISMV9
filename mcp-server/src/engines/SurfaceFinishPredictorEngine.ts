@@ -367,6 +367,7 @@ class SurfaceFinishPredictorEngine {
       const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["finishing", "material_tip", "toolpath_strategy"],
+        ...(segments.length > 0 ? { spindle_rpm: segments[0].rpm } : {}),
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

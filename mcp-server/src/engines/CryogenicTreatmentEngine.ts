@@ -183,6 +183,19 @@ export class CryogenicTreatmentEngine {
       recs.push("Cryogenic treatment parameters are optimal — proceed");
     }
 
+    // Playbook consultation for coolant/material rules
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({
+        categories: ["coolant_strategy", "material_tip"],
+      });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       predicted_hardness_HRC: Math.round(predictedHRC * 10) / 10,
       hardness_gain_HRC: hardnessGain,

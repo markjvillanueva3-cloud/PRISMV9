@@ -268,6 +268,76 @@ M30
     });
   });
 
+  // ── New Domain Integration (operation_type, hardness_hrc, spindle_rpm, aspect_ratio) ──
+
+  describe("New domain rule triggering via advise()", () => {
+    const engine = new MachiningPlaybookEngine();
+
+    it("operation_type 'grinding' triggers grinding-domain rules", () => {
+      const result = engine.advise({
+        operation_type: "grinding",
+        categories: ["grinding"],
+      });
+      expect(result.rules.length).toBeGreaterThan(0);
+      const ruleIds = result.rules.map(r => r.id);
+      // GRIND-001 has condition { type: "operation_type", operations: ["grinding"] }
+      expect(ruleIds.some(id => id.startsWith("GRIND-"))).toBe(true);
+      expect(result.rules.every(r => r.category === "grinding")).toBe(true);
+    });
+
+    it("hardness_hrc: 55 triggers hard_turning rules (HT-001/HT-002)", () => {
+      const result = engine.advise({
+        hardness_hrc: 55,
+        categories: ["hard_turning"],
+      });
+      expect(result.rules.length).toBeGreaterThan(0);
+      const ruleIds = result.rules.map(r => r.id);
+      // HT-001 and HT-002 have condition { type: "hardness_above", hrc: 45 or similar }
+      expect(ruleIds.some(id => id === "HT-001" || id === "HT-002")).toBe(true);
+    });
+
+    it("spindle_rpm: 16000 triggers HSM rules (HSM-001)", () => {
+      const result = engine.advise({
+        spindle_rpm: 16000,
+        categories: ["hsm"],
+      });
+      expect(result.rules.length).toBeGreaterThan(0);
+      const ruleIds = result.rules.map(r => r.id);
+      expect(ruleIds.some(id => id === "HSM-001")).toBe(true);
+    });
+
+    it("aspect_ratio: 10 triggers deep_hole rules (DH-001/DH-002)", () => {
+      const result = engine.advise({
+        aspect_ratio: 10,
+        categories: ["deep_hole"],
+      });
+      expect(result.rules.length).toBeGreaterThan(0);
+      const ruleIds = result.rules.map(r => r.id);
+      expect(ruleIds.some(id => id === "DH-001" || id === "DH-002")).toBe(true);
+    });
+
+    it("combined new fields trigger rules from multiple domains", () => {
+      const result = engine.advise({
+        hardness_hrc: 50,
+        spindle_rpm: 12000,
+        operation_type: "grinding",
+      });
+      expect(result.rules.length).toBeGreaterThan(0);
+      const ruleIds = result.rules.map(r => r.id);
+      const categories = new Set(result.rules.map(r => r.category));
+      // Should match rules from at least 2 different new-domain categories
+      const newDomains = ["grinding", "hard_turning", "hsm"] as const;
+      const matchedDomains = newDomains.filter(d => categories.has(d));
+      expect(matchedDomains.length).toBeGreaterThanOrEqual(2);
+      // Verify specific rule IDs from different domains
+      expect(ruleIds.some(id => id.startsWith("GRIND-"))).toBe(true);
+      // hard_turning or hsm rules should also fire
+      expect(
+        ruleIds.some(id => id.startsWith("HT-")) || ruleIds.some(id => id.startsWith("HSM-"))
+      ).toBe(true);
+    });
+  });
+
   // ── Standalone MachiningPlaybookEngine dispatcher actions ───────────
 
   describe("shopPracticeDispatcher playbook actions", () => {

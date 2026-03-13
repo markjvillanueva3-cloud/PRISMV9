@@ -338,6 +338,8 @@ export class InsertGradeSelectionEngine {
       const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
       const pbResult = machiningPlaybookEngine.advise({
         categories: ["tool_selection", "material_tip"],
+        operation_type: "turning",
+        ...(input.workpiece_hardness_hrc != null ? { hardness_hrc: input.workpiece_hardness_hrc } : {}),
       });
       for (const rule of pbResult.rules) {
         if (rule.severity === "critical" || rule.severity === "important") {

@@ -715,10 +715,12 @@ class CNCProgramAssemblerEngineImpl {
       const playbookEngine = await this._getEngine("playbook");
       // Derive feature list from operations for playbook matching
       const features = input.operations.map(op => op.operation);
+      const primaryOp = input.operations[0]?.operation;
       const advice = playbookEngine.advise({
         material_iso: isoGroup,
         features,
         categories: ["anti_pattern", "sequencing", "material_tip"] as any[],
+        ...(primaryOp && { operation_type: primaryOp }),
       });
 
       if (advice && advice.rules && advice.rules.length > 0) {

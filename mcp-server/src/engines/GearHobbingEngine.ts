@@ -128,6 +128,17 @@ export class GearHobbingEngine {
     }
     if (recs.length === 0) recs.push("Hobbing parameters acceptable — proceed");
 
+    // Playbook integration — turning + tool_selection rules
+    try {
+      const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+      const pbResult = machiningPlaybookEngine.advise({ categories: ["turning", "tool_selection"] });
+      for (const rule of pbResult.rules) {
+        if (rule.severity === "critical" || rule.severity === "important") {
+          recs.push(`[Playbook ${rule.id}] ${rule.title}`);
+        }
+      }
+    } catch { /* playbook not available */ }
+
     return {
       workpiece_rpm: Math.round(workpieceRpm * 100) / 100,
       gear_ratio: Math.round(gearRatio * 10000) / 10000,

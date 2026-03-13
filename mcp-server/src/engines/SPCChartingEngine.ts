@@ -202,6 +202,19 @@ export function computeEWMA(input: EWMAInput): SPCChartResult {
     );
   }
 
+  // Playbook consultation for quality inspection rules
+  try {
+    const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+    const pbResult = machiningPlaybookEngine.advise({
+      categories: ["quality_inspection"],
+    });
+    for (const rule of pbResult.rules) {
+      if (rule.severity === "critical" || rule.severity === "important") {
+        recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+      }
+    }
+  } catch { /* playbook not available */ }
+
   return {
     chart_type: "ewma",
     points,
@@ -280,6 +293,19 @@ export function computeCUSUM(input: CUSUMInput): SPCChartResult {
     `CUSUM is optimal for detecting sustained shifts of ~${kNorm.toFixed(1)}σ.`
   );
 
+  // Playbook consultation for quality inspection rules
+  try {
+    const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+    const pbResult = machiningPlaybookEngine.advise({
+      categories: ["quality_inspection"],
+    });
+    for (const rule of pbResult.rules) {
+      if (rule.severity === "critical" || rule.severity === "important") {
+        recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+      }
+    }
+  } catch { /* playbook not available */ }
+
   return {
     chart_type: "cusum",
     points,
@@ -348,6 +374,19 @@ export function computeMovingAverage(
       "smooths short-term variation."
     );
   }
+
+  // Playbook consultation for quality inspection rules
+  try {
+    const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+    const pbResult = machiningPlaybookEngine.advise({
+      categories: ["quality_inspection"],
+    });
+    for (const rule of pbResult.rules) {
+      if (rule.severity === "critical" || rule.severity === "important") {
+        recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+      }
+    }
+  } catch { /* playbook not available */ }
 
   return {
     chart_type: "moving_average",
@@ -426,6 +465,19 @@ export function computeXbarS(input: XbarSInput): SPCChartResult {
       "Process variance is unstable — address before interpreting Xbar."
     );
   }
+
+  // Playbook consultation for quality inspection rules
+  try {
+    const { machiningPlaybookEngine } = require("./MachiningPlaybookEngine.js");
+    const pbResult = machiningPlaybookEngine.advise({
+      categories: ["quality_inspection"],
+    });
+    for (const rule of pbResult.rules) {
+      if (rule.severity === "critical" || rule.severity === "important") {
+        recommendations.push(`[Playbook ${rule.id}] ${rule.title}`);
+      }
+    }
+  } catch { /* playbook not available */ }
 
   return {
     chart_type: "xbar_s",
