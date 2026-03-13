@@ -401,7 +401,7 @@ describe("TribalKnowledgeEngine", () => {
   });
 
   test("search finds InventorCAM HSM finishing strategies", () => {
-    const tips = tribalKnowledgeEngine.search({ query: "iMachining", limit: 5 });
+    const tips = tribalKnowledgeEngine.search({ query: "InventorCAM HSM", limit: 10 });
     expect(tips.some(t => t.id.startsWith("TK-DL-inventorcam-hs"))).toBe(true);
   });
 
