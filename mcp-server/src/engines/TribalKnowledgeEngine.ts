@@ -11,6 +11,10 @@
 import { FUSION360_CAM_TIPS } from "../data/fusion360-cam-tips.js";
 import { NX_CAM_TIPS } from "../data/nx-cam-tips.js";
 import { CONTROLLER_KNOWLEDGE_TIPS } from "../data/controller-knowledge-tips.js";
+import { MASTERCAM_CAM_TIPS } from "../data/mastercam-cam-tips.js";
+import { SOLIDCAM_CAM_TIPS } from "../data/solidcam-cam-tips.js";
+import { FUSION360_CAM_TIPS_EXT } from "../data/fusion360-cam-tips-ext.js";
+import { NX_CAM_TIPS_EXT } from "../data/nx-cam-tips-ext.js";
 
 // ============================================================================
 // TYPES
@@ -548,7 +552,7 @@ const KNOWLEDGE_BASE: KnowledgeTip[] = [
 /** Tribal Knowledge Engine engine/manager.
  */
 export class TribalKnowledgeEngine {
-  private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE, ...FUSION360_CAM_TIPS as KnowledgeTip[], ...NX_CAM_TIPS as KnowledgeTip[], ...CONTROLLER_KNOWLEDGE_TIPS as KnowledgeTip[]];
+  private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE, ...FUSION360_CAM_TIPS as KnowledgeTip[], ...FUSION360_CAM_TIPS_EXT as KnowledgeTip[], ...NX_CAM_TIPS as KnowledgeTip[], ...NX_CAM_TIPS_EXT as KnowledgeTip[], ...CONTROLLER_KNOWLEDGE_TIPS as KnowledgeTip[], ...MASTERCAM_CAM_TIPS as KnowledgeTip[], ...SOLIDCAM_CAM_TIPS as KnowledgeTip[]];
 
   /** Capture.
    * @param tip - tip
