@@ -3217,3 +3217,7 @@ export { CalibrationEngine, calibrationEngine } from "./CalibrationEngine.js";
 // Misc
 export { BurrFormationEngine, burrFormationEngine } from "./BurrFormationEngine.js";
 export { videoLearningEngine } from "./VideoLearningEngine.js";
+
+export { toolMagazineOptimizationEngine, ToolMagazineOptimizationEngine } from './ToolMagazineOptimizationEngine.js';
+export { vibrationAssistedMachiningEngine, VibrationAssistedMachiningEngine } from './VibrationAssistedMachiningEngine.js';
+export { ergonomicWorkstationEngine, ErgonomicWorkstationEngine } from './ErgonomicWorkstationEngine.js';
