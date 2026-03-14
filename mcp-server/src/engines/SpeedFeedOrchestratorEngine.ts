@@ -669,6 +669,92 @@ const MACHINE_CATALOG_QUICK: Record<string, { power_kw: number; max_rpm: number;
   'mori seiki sv-500':      { power_kw: 22,  max_rpm: 10000, torque_Nm: 150, taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
   'grob g350':              { power_kw: 25,  max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
   'kern micro hd':          { power_kw: 9,   max_rpm: 50000, torque_Nm: 4,   taper: 'HSK-E25', rigidity: 'high',   type: '5axis',           guideway: 'hydrostatic', nat_freq_hz: 2000, accel_m_s2: 15.0,  jerk_m_s3: 100 },
+  // ── Haas (extended) ──
+  'haas umc-500':            { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: '5axis',           guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'haas umc-750':            { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: '5axis',           guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 3.5,   jerk_m_s3: 9 },
+  'haas vf-1':               { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 3.5,   jerk_m_s3: 8 },
+  'haas vf-3':               { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 3.5,   jerk_m_s3: 8 },
+  'haas vf-5':               { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 550,  accel_m_s2: 3.0,   jerk_m_s3: 7 },
+  'haas st-15':              { power_kw: 14.9, max_rpm: 4800,  torque_Nm: 203, taper: 'A2-5',    rigidity: 'medium', type: 'lathe',           guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'haas st-25':              { power_kw: 22.4, max_rpm: 3400,  torque_Nm: 407, taper: 'A2-6',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 480,  accel_m_s2: 4.5,   jerk_m_s3: 10 },
+  'haas st-35':              { power_kw: 22.4, max_rpm: 2400,  torque_Nm: 610, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 400,  accel_m_s2: 4.0,   jerk_m_s3: 9 },
+  'haas tm-1':               { power_kw: 5.6,  max_rpm: 6000,  torque_Nm: 53,  taper: 'BT40',    rigidity: 'low',    type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 2.5,   jerk_m_s3: 6 },
+  'haas tm-2':               { power_kw: 5.6,  max_rpm: 6000,  torque_Nm: 53,  taper: 'BT40',    rigidity: 'low',    type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 2.5,   jerk_m_s3: 6 },
+  'haas tm-3':               { power_kw: 5.6,  max_rpm: 6000,  torque_Nm: 53,  taper: 'BT40',    rigidity: 'low',    type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 580,  accel_m_s2: 2.5,   jerk_m_s3: 6 },
+  'haas super mini mill':    { power_kw: 11.2, max_rpm: 10000, torque_Nm: 60,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 900,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'haas dt-2':               { power_kw: 11.2, max_rpm: 15000, torque_Nm: 34,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 10.0,  jerk_m_s3: 25 },
+  'haas ec-400':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'box',         nat_freq_hz: 700,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  // ── DMG Mori (extended) ──
+  'dmg mori clx 450':        { power_kw: 18,   max_rpm: 4000,  torque_Nm: 360, taper: 'A2-6',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'dmg mori ctx beta 800':   { power_kw: 22,   max_rpm: 5000,  torque_Nm: 400, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 480,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'dmg mori ctx gamma 2000': { power_kw: 37,   max_rpm: 3200,  torque_Nm: 1290,taper: 'A2-11',   rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 380,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'dmg mori nhx 4000':       { power_kw: 22,   max_rpm: 12000, torque_Nm: 200, taper: 'BT40',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 10.0,  jerk_m_s3: 25 },
+  'dmg mori nhx 5000':       { power_kw: 30,   max_rpm: 12000, torque_Nm: 200, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 780,  accel_m_s2: 10.0,  jerk_m_s3: 25 },
+  'dmg mori nhx 6300':       { power_kw: 37,   max_rpm: 10000, torque_Nm: 303, taper: 'BT50',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 7.0,   jerk_m_s3: 18 },
+  'dmg mori dmc 1035 v':     { power_kw: 25,   max_rpm: 12000, torque_Nm: 130, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 680,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'dmg mori cmx 600 v':      { power_kw: 18,   max_rpm: 12000, torque_Nm: 108, taper: 'SK40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 700,  accel_m_s2: 7.0,   jerk_m_s3: 18 },
+  'dmg mori cmx 800 v':      { power_kw: 18,   max_rpm: 12000, torque_Nm: 108, taper: 'SK40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 680,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'dmg mori cmx 1100 v':     { power_kw: 22,   max_rpm: 12000, torque_Nm: 130, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 650,  accel_m_s2: 5.5,   jerk_m_s3: 14 },
+  // ── Mazak (extended) ──
+  'mazak vcn 430a':           { power_kw: 18.5, max_rpm: 12000, torque_Nm: 119, taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 780,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  'mazak integrex i-300':     { power_kw: 30,   max_rpm: 3300,  torque_Nm: 580, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 480,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'mazak integrex i-400':     { power_kw: 30,   max_rpm: 2500,  torque_Nm: 900, taper: 'A2-11',   rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 400,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'mazak hcn 5000':           { power_kw: 30,   max_rpm: 10000, torque_Nm: 250, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 10.0,  jerk_m_s3: 25 },
+  'mazak hcn 6000':           { power_kw: 30,   max_rpm: 10000, torque_Nm: 250, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 720,  accel_m_s2: 9.0,   jerk_m_s3: 22 },
+  'mazak hcn 8800':           { power_kw: 37,   max_rpm: 8000,  torque_Nm: 450, taper: 'BT50',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'mazak qtn 200':            { power_kw: 18.5, max_rpm: 4000,  torque_Nm: 350, taper: 'A2-6',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'mazak qtn 350':            { power_kw: 26,   max_rpm: 2500,  torque_Nm: 700, taper: 'A2-11',   rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 400,  accel_m_s2: 4.5,   jerk_m_s3: 10 },
+  // ── Okuma (extended) ──
+  'okuma genos m460-ve':      { power_kw: 18.5, max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 720,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'okuma mb-46vae':           { power_kw: 22,   max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 700,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'okuma mb-56va':            { power_kw: 22,   max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 680,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'okuma multus b250':        { power_kw: 22,   max_rpm: 4000,  torque_Nm: 410, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'okuma multus b300':        { power_kw: 22,   max_rpm: 3800,  torque_Nm: 450, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 480,  accel_m_s2: 5.5,   jerk_m_s3: 14 },
+  // ── Makino (extended) ──
+  'makino a61nx':              { power_kw: 30,   max_rpm: 14000, torque_Nm: 150, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 880,  accel_m_s2: 12.0,  jerk_m_s3: 35 },
+  'makino a81nx':              { power_kw: 37,   max_rpm: 10000, torque_Nm: 303, taper: 'HSK-A100',rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 700,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  'makino ps95':               { power_kw: 22,   max_rpm: 14000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  'makino ps105':              { power_kw: 22,   max_rpm: 14000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 780,  accel_m_s2: 7.0,   jerk_m_s3: 18 },
+  'makino f5':                 { power_kw: 22,   max_rpm: 20000, torque_Nm: 80,  taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 14.0,  jerk_m_s3: 45 },
+  'makino f8':                 { power_kw: 30,   max_rpm: 14000, torque_Nm: 160, taper: 'HSK-A63', rigidity: 'high',   type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 850,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  'makino f9':                 { power_kw: 30,   max_rpm: 14000, torque_Nm: 160, taper: 'HSK-A63', rigidity: 'high',   type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 820,  accel_m_s2: 9.0,   jerk_m_s3: 28 },
+  // ── Citizen (extended) ──
+  'citizen l32':               { power_kw: 3.7,  max_rpm: 10000, torque_Nm: 12,  taper: 'ER25',    rigidity: 'medium', type: 'swiss',           guideway: 'linear',      nat_freq_hz: 1400, accel_m_s2: 14.0,  jerk_m_s3: 55 },
+  'citizen a20':               { power_kw: 5.5,  max_rpm: 10000, torque_Nm: 22,  taper: 'ER25',    rigidity: 'medium', type: 'swiss',           guideway: 'linear',      nat_freq_hz: 1300, accel_m_s2: 12.0,  jerk_m_s3: 50 },
+  'citizen m32':               { power_kw: 5.5,  max_rpm: 10000, torque_Nm: 22,  taper: 'ER32',    rigidity: 'medium', type: 'swiss',           guideway: 'linear',      nat_freq_hz: 1300, accel_m_s2: 12.0,  jerk_m_s3: 50 },
+  // ── Brother (extended) ──
+  'brother speedio m140x2':    { power_kw: 11,   max_rpm: 16000, torque_Nm: 40,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 15.0,  jerk_m_s3: 60 },
+  'brother speedio s700x2':    { power_kw: 11,   max_rpm: 27000, torque_Nm: 13,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 1100, accel_m_s2: 18.0,  jerk_m_s3: 80 },
+  'brother speedio w1000xd2':  { power_kw: 15,   max_rpm: 16000, torque_Nm: 55,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 14.0,  jerk_m_s3: 55 },
+  // ── Doosan (extended) ──
+  'doosan dvf 5000':           { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'BT40',    rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  'doosan puma 2100':          { power_kw: 18.5, max_rpm: 4500,  torque_Nm: 305, taper: 'A2-6',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 5.5,   jerk_m_s3: 13 },
+  'doosan puma 3100':          { power_kw: 22,   max_rpm: 2500,  torque_Nm: 600, taper: 'A2-11',   rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 400,  accel_m_s2: 4.5,   jerk_m_s3: 10 },
+  'doosan lynx 2100':          { power_kw: 15,   max_rpm: 6000,  torque_Nm: 170, taper: 'A2-5',    rigidity: 'medium', type: 'lathe',           guideway: 'linear',      nat_freq_hz: 650,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  // ── Hurco (extended) ──
+  'hurco vm10i':               { power_kw: 11,   max_rpm: 12000, torque_Nm: 64,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'hurco vmx30i':              { power_kw: 18,   max_rpm: 12000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'hurco vmx60i':              { power_kw: 22,   max_rpm: 10000, torque_Nm: 150, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 650,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  // ── Hermle (extended) ──
+  'hermle c 12':               { power_kw: 10,   max_rpm: 18000, torque_Nm: 50,  taper: 'HSK-A40', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1100, accel_m_s2: 15.0,  jerk_m_s3: 50 },
+  'hermle c 22':               { power_kw: 15,   max_rpm: 18000, torque_Nm: 90,  taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 14.0,  jerk_m_s3: 45 },
+  'hermle c 32':               { power_kw: 18,   max_rpm: 18000, torque_Nm: 130, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 980,  accel_m_s2: 13.0,  jerk_m_s3: 42 },
+  'hermle c 42':               { power_kw: 25,   max_rpm: 18000, torque_Nm: 160, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 920,  accel_m_s2: 12.0,  jerk_m_s3: 38 },
+  'hermle c 52':               { power_kw: 30,   max_rpm: 15000, torque_Nm: 200, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 850,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  'hermle c 250':              { power_kw: 15,   max_rpm: 18000, torque_Nm: 90,  taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 14.0,  jerk_m_s3: 45 },
+  // ── GROB ──
+  'grob g150':                 { power_kw: 18,   max_rpm: 18000, torque_Nm: 105, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
+  'grob g350':                 { power_kw: 25,   max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
+  'grob g550':                 { power_kw: 37,   max_rpm: 16000, torque_Nm: 230, taper: 'HSK-A100',rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  // ── Kern ──
+  'kern pyramid nano':         { power_kw: 9,    max_rpm: 50000, torque_Nm: 4,   taper: 'HSK-E25', rigidity: 'high',   type: '5axis',           guideway: 'hydrostatic', nat_freq_hz: 2000, accel_m_s2: 15.0,  jerk_m_s3: 100 },
+  // ── Hardinge (extended) ──
+  'hardinge bridgeport v480':  { power_kw: 7.5,  max_rpm: 10000, torque_Nm: 50,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 700,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'hardinge talent 8/52':      { power_kw: 11,   max_rpm: 5000,  torque_Nm: 110, taper: 'A2-5',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'hardinge quest 6/42':       { power_kw: 7.5,  max_rpm: 6000,  torque_Nm: 75,  taper: 'A2-5',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  // ── Kitamura (extended) ──
+  'kitamura mycenter hx300':   { power_kw: 18,   max_rpm: 15000, torque_Nm: 70,  taper: 'BT40',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 35 },
+  'kitamura mycenter hx500':   { power_kw: 30,   max_rpm: 12000, torque_Nm: 180, taper: 'BT50',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
 };
 
 // ============================================================================
@@ -877,7 +963,7 @@ export class SpeedFeedOrchestratorEngine {
     const catalogConf = 0.85;
     const defaultConf = 0.4;
 
-    // ── Catalog lookup: fuzzy-match machine_name against 15 popular machines ──
+    // ── Catalog lookup: fuzzy-match machine_name against ~100 popular machines ──
     let catalogMatch: (typeof MACHINE_CATALOG_QUICK)[string] | undefined;
     if (input.machine_name) {
       const key = input.machine_name.toLowerCase().trim();
