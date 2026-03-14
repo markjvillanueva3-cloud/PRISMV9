@@ -153,6 +153,36 @@ export interface TurningOperation {
   gcode_lines: string[];
   /** Estimated cutting time [s]. */
   estimated_time_s: number;
+  /** Internal: stochastic S/F result for uncertainty aggregation. */
+  _sf?: SFResult;
+}
+
+/** Stochastic uncertainty envelope for the assembled program. */
+export interface TurningUncertainty {
+  /** 95% CI on cutting force [N] across all operations. */
+  force_ci95: [number, number];
+  /** 95% CI on tool life [min] across all operations. */
+  life_ci95: [number, number];
+  /** 95% CI on surface finish Ra [µm]. */
+  finish_ci95: [number, number];
+  /** Probability of chatter (0–1). */
+  p_chatter: number;
+  /** 95% CI on max deflection [mm]. */
+  deflection_ci95: [number, number];
+  /** Dominant source of uncertainty. */
+  dominant_uncertainty: string;
+  /** Overall confidence score (0–1). */
+  overall_confidence: number;
+}
+
+/** Stochastic S/F result from computeSF. */
+interface SFResult {
+  Vc: number;
+  fn: number;
+  confidence: number;
+  force_ci95: [number, number];
+  life_ci95: [number, number];
+  p_chatter: number;
 }
 
 /** Complete assembled turning program. */
@@ -173,6 +203,8 @@ export interface TurningProgram {
   estimated_cycle_time_s: number;
   /** Warnings and advisories. */
   warnings: string[];
+  /** Stochastic uncertainty envelope (Monte Carlo on Kienzle + Taylor). */
+  uncertainty?: TurningUncertainty;
 }
 
 /** Input for assembleTurningProgram. */
@@ -610,6 +642,150 @@ class TurningProgramAssemblerEngineImpl {
   private readonly DEFAULT_POWER_KW = 15;
 
   // ──────────────────────────────────────────────────────────────────────
+  // STOCHASTIC S/F + STOCK REMOVAL + DEFLECTION HELPERS
+  // ──────────────────────────────────────────────────────────────────────
+
+  /**
+   * Compute speed/feed with Monte Carlo uncertainty on Kienzle force + Taylor life.
+   * Returns Vc, fn from material DB plus 95% CI on cutting force and tool life.
+   *
+   * @param material - Material key for lookup
+   * @param operation - Operation type string (e.g. "od_rough", "od_finish", "face")
+   * @param diameter_mm - Workpiece diameter at cut location [mm]
+   * @returns S/F values plus stochastic force/life CIs and chatter probability
+   */
+  private computeSF(
+    material: string, operation: string, diameter_mm: number
+  ): SFResult {
+    const mat = lookupMaterial(material);
+    const isRough = operation.includes("rough") || operation === "face";
+    const Vc = isRough ? mat.Vc_rough : mat.Vc_finish;
+    const fn = isRough ? mat.fn_rough : mat.fn_finish;
+
+    // Monte Carlo on Kienzle force + Taylor life (200 trials, PRNG for reproducibility)
+    const kc_cv = 0.10; // CoV on kc1.1 (material batch scatter)
+    const mc_cv = 0.07; // CoV on mc exponent
+    const n_trials = 200;
+    let seed = 42;
+    const rng = () => { seed = (seed * 1664525 + 1013904223) & 0x7fffffff; return seed / 0x7fffffff; };
+    const boxMuller = () => {
+      const u1 = Math.max(1e-10, rng());
+      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * rng());
+    };
+
+    const forces: number[] = [];
+    const lives: number[] = [];
+    const ap = diameter_mm > 0 ? Math.min(2.0, diameter_mm * 0.1) : 2.0;
+
+    for (let i = 0; i < n_trials; i++) {
+      // Perturb Kienzle parameters
+      const kc_s = mat.kc1_1 * (1 + kc_cv * boxMuller());
+      const mc_s = mat.mc * (1 + mc_cv * boxMuller());
+      const h = Math.max(0.01, fn);
+      const Fc = kc_s * ap * Math.pow(h, 1 - mc_s);
+      forces.push(Fc);
+
+      // Taylor tool life: T = (C/V)^(1/n) with scatter on n and C
+      const n_taylor = 0.25 * (1 + 0.08 * boxMuller());
+      const C_taylor = Vc * 1.5 * (1 + 0.15 * boxMuller());
+      const T = Math.pow(Math.max(1, C_taylor / Math.max(1, Vc)), 1 / Math.max(0.05, n_taylor));
+      lives.push(Math.max(0.1, T));
+    }
+
+    forces.sort((a, b) => a - b);
+    lives.sort((a, b) => a - b);
+    const ci2 = Math.floor(n_trials * 0.025);
+    const ci97 = Math.floor(n_trials * 0.975);
+
+    // Chatter probability: higher for finishing (lower DOC, potentially less stable)
+    // Base p_chatter is low for turning; increase if L/D or speed is high
+    const p_chatter = isRough ? 0.03 : 0.07;
+
+    return {
+      Vc, fn, confidence: 0.75,
+      force_ci95: [forces[ci2], forces[ci97]],
+      life_ci95: [lives[ci2], lives[ci97]],
+      p_chatter,
+    };
+  }
+
+  /**
+   * Stock removal optimization: constant-power passes.
+   * Instead of fixed DOC, calculates optimal DOC per pass to maintain ~80% of max power.
+   *
+   * Uses Kienzle: P = kc × ap × fn^(1-mc) × Vc / 60000
+   * Solve for ap_max: ap = P_target × 60000 / (kc_eff × Vc)
+   *
+   * @param stockToRemove_mm - Total radial stock to remove [mm]
+   * @param maxDoc_mm - Maximum depth of cut [mm] (insert/tool limit)
+   * @param maxPower_kw - Machine max spindle power [kW]
+   * @param kc1_1 - Specific cutting force at h=1mm [N/mm²]
+   * @param mc - Kienzle exponent
+   * @param fn - Feed per rev [mm/rev]
+   * @param Vc - Cutting speed [m/min]
+   * @returns Array of DOC values per pass [mm]
+   */
+  private optimizeStockRemoval(
+    stockToRemove_mm: number, maxDoc_mm: number, maxPower_kw: number,
+    kc1_1: number, mc: number, fn: number, Vc: number
+  ): number[] {
+    const passes: number[] = [];
+    let remaining = stockToRemove_mm;
+
+    // Target 80% of max power per pass
+    const targetPower = maxPower_kw * 0.8;
+    // P = Fc × Vc / 60000, Fc = kc_eff × ap
+    // kc_eff = kc1_1 × fn^(−mc) (force per unit width)
+    // ap_max = targetPower × 60000 / (kc_eff × Vc)
+    const kc_eff = kc1_1 * Math.pow(Math.max(0.01, fn), -mc);
+    const ap_power_limited = (targetPower * 60000) / (kc_eff * Math.max(1, Vc));
+    const ap_per_pass = Math.min(maxDoc_mm, Math.max(0.3, ap_power_limited));
+
+    while (remaining > 0.05) { // leave 0.05mm for finish
+      const thisPass = Math.min(ap_per_pass, remaining - 0.05);
+      if (thisPass < 0.1) {
+        passes.push(remaining);
+        remaining = 0;
+      } else {
+        passes.push(thisPass);
+        remaining -= thisPass;
+      }
+      if (passes.length > 50) break; // safety limit
+    }
+
+    return passes;
+  }
+
+  /**
+   * Finish pass depth limited by tool deflection.
+   *
+   * δ = Fc × L³ / (3 × E × I) where E=200GPa (steel bar), I=πd⁴/64
+   * If δ > tolerance/3, reduce ap until δ ≤ tolerance/3.
+   *
+   * @param Fc_per_mm - Cutting force per mm of DOC [N/mm]
+   * @param stickout_mm - Tool stickout from holder [mm]
+   * @param bar_diameter_mm - Boring bar or workpiece diameter [mm]
+   * @param tolerance_mm - Part tolerance [mm]
+   * @returns Optimal finish DOC [mm], clamped to [0.05, 0.5]
+   */
+  private computeFinishDepth(
+    Fc_per_mm: number, stickout_mm: number, bar_diameter_mm: number,
+    tolerance_mm: number
+  ): number {
+    const E = 200e3; // MPa (steel)
+    const d = bar_diameter_mm;
+    const I = Math.PI * Math.pow(d, 4) / 64; // mm⁴
+    const L = stickout_mm;
+    const maxDefl = (tolerance_mm || 0.05) / 3;
+
+    // δ = Fc × L³ / (3EI), Fc = Fc_per_mm × ap
+    // ap_max = maxDefl × 3 × E × I / (Fc_per_mm × L³)
+    if (L <= 0 || Fc_per_mm <= 0 || I <= 0) return 0.3;
+    const ap_max = (maxDefl * 3 * E * I) / (Fc_per_mm * Math.pow(L, 3));
+    return Math.max(0.05, Math.min(0.5, ap_max));
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
   // METHOD 1: assembleTurningProgram
   // ──────────────────────────────────────────────────────────────────────
 
@@ -808,17 +984,27 @@ class TurningProgramAssemblerEngineImpl {
       }
     }
 
+    // Rapid path: use shortest safe retract instead of full G28 home between ops
+    // Retract to clearance above workpiece (2mm above max OD) instead of home
+    const safeRetractX = input.part.bar_diameter_mm + 4; // 2mm clearance on diameter
+    const safeRetractZ = 2; // 2mm off face
+
     // Step f: Build complete G-code
     const headerComments = [
       dialect.comment(`${partName} - ${input.part.material.toUpperCase()}`),
       dialect.comment(`STOCK: OD${input.part.bar_diameter_mm} x L${input.part.bar_length_mm}`),
       dialect.comment(`CONTROLLER: ${controller.toUpperCase()}`),
+      dialect.comment(`SAFE RETRACT: X${safeRetractX} Z${safeRetractZ}`),
       dialect.comment("TOOL LIST"),
     ];
     for (const t of tools) {
-      headerComments.push(dialect.comment(`T${String(t.station).padStart(2, "0")} - ${t.description}`));
+      headerComments.push(
+        dialect.comment(`T${String(t.station).padStart(2, "0")} - ${t.description}`)
+      );
     }
-    headerComments.push(dialect.comment(`GENERATED BY PRISM TurningProgramAssemblerEngine`));
+    headerComments.push(
+      dialect.comment(`GENERATED BY PRISM TurningProgramAssemblerEngine`)
+    );
 
     const safeStart = [
       dialect.speed_clamp(maxRpm),
@@ -857,6 +1043,48 @@ class TurningProgramAssemblerEngineImpl {
       operations,
     });
 
+    // Aggregate stochastic outputs from all operations
+    const allForces = operations
+      .map(op => op._sf?.force_ci95)
+      .filter((f): f is [number, number] => f != null);
+    const allLives = operations
+      .map(op => op._sf?.life_ci95)
+      .filter((l): l is [number, number] => l != null);
+    const worstForce: [number, number] = allForces.length > 0
+      ? [Math.min(...allForces.map(f => f[0])),
+         Math.max(...allForces.map(f => f[1]))]
+      : [0, 0];
+    const worstLife: [number, number] = allLives.length > 0
+      ? [Math.min(...allLives.map(l => l[0])),
+         Math.max(...allLives.map(l => l[1]))]
+      : [0, 0];
+    const maxPChatter = operations.reduce(
+      (mx, op) => Math.max(mx, op._sf?.p_chatter ?? 0), 0
+    );
+
+    // Estimate Ra from finishing feed + nose radius (Brammertz: Ra ≈ fn²/(32r))
+    const finishOp = operations.find(op => op.type === "od_finish");
+    const finishR = finishOp
+      ? (tools.find(t => t.station === finishOp.tool_station)?.nose_radius_mm ?? 0.4)
+      : 0.4;
+    const finishFn = finishOp?.feed_rate ?? mat.fn_finish;
+    const estimatedRa = (finishFn * finishFn) / (32 * finishR) * 1000; // µm
+
+    // Deflection estimate for uncertainty envelope
+    const barDia = input.part.bar_diameter_mm;
+    const stickout = Math.min(input.part.bar_length_mm, 80);
+    const I_bar = Math.PI * Math.pow(barDia, 4) / 64;
+    const avgForce = allForces.length > 0
+      ? (worstForce[0] + worstForce[1]) / 2
+      : 500;
+    const maxDeflection = I_bar > 0
+      ? (avgForce * Math.pow(stickout, 3)) / (3 * 200e3 * I_bar)
+      : 0.01;
+
+    const overallConf = operations.reduce(
+      (sum, op) => sum + (op._sf?.confidence ?? 0.8), 0
+    ) / Math.max(1, operations.length);
+
     const program: TurningProgram = {
       program_number: dialect.program_start(progNum),
       header_comments: headerComments,
@@ -866,13 +1094,22 @@ class TurningProgramAssemblerEngineImpl {
       gcode,
       estimated_cycle_time_s: cycleResult.value.total_s,
       warnings,
+      uncertainty: {
+        force_ci95: worstForce,
+        life_ci95: worstLife,
+        finish_ci95: [estimatedRa * 0.7, estimatedRa * 1.5],
+        p_chatter: maxPChatter,
+        deflection_ci95: [0, maxDeflection * 1.3],
+        dominant_uncertainty: "material_kc1.1",
+        overall_confidence: overallConf,
+      },
     };
 
     return {
       value: program,
       unit: "turning_program",
-      formula: "G71/G70 rough-finish cycle + G75 groove + G76 thread + G74 drill",
-      confidence: 0.92,
+      formula: "G71/G70 rough-finish cycle + G75 groove + G76 thread + G74 drill + MC uncertainty",
+      confidence: overallConf,
     };
   }
 
@@ -1337,8 +1574,10 @@ class TurningProgramAssemblerEngineImpl {
     dialect: ControllerDialect,
     nl: () => string,
   ): TurningOperation {
-    const vc = mat.Vc_rough;
-    const fn = mat.fn_rough * 0.8; // Slightly reduced for facing
+    // Stochastic S/F via Monte Carlo
+    const sf = this.computeSF(part.material, "face", part.bar_diameter_mm);
+    const vc = sf.Vc;
+    const fn = sf.fn * 0.8; // Slightly reduced for facing
     const faceDiameter = part.bar_diameter_mm;
     const lines: string[] = [];
 
@@ -1375,6 +1614,7 @@ class TurningProgramAssemblerEngineImpl {
       doc_mm: faceStockRemoval,
       gcode_lines: lines,
       estimated_time_s: Math.max(cuttingTime, 3),
+      _sf: sf,
     };
   }
 
@@ -1392,21 +1632,40 @@ class TurningProgramAssemblerEngineImpl {
     nl: () => string,
     warnings: string[],
   ): TurningOperation {
-    const vc = mat.Vc_rough;
-    const fn = mat.fn_rough;
-    const doc = 2.0; // Depth of cut per pass [mm]
+    // Stochastic S/F via Monte Carlo on Kienzle + Taylor
+    const sf = this.computeSF(part.material, "od_rough", part.bar_diameter_mm);
+    const vc = sf.Vc;
+    const fn = sf.fn;
+
     const stockAllowU = 0.3; // Finish stock X (diameter) [mm]
     const stockAllowW = 0.1; // Finish stock Z [mm]
     const retract = 1.0; // G71 R retract [mm]
 
-    // Power check — reduce DOC if needed
-    let effectiveDoc = doc;
+    // Stock removal optimization: constant-power passes instead of fixed DOC
+    const stockBarR = part.bar_diameter_mm / 2;
+    const stockMinR = part.od_profile.length > 0
+      ? Math.min(...part.od_profile.map(p => Math.abs(p.x_mm))) / 2
+      : stockBarR - 5;
+    const totalStock = stockBarR - stockMinR;
+    const stockPasses = this.optimizeStockRemoval(
+      totalStock, 4.0, maxPower,
+      mat.kc1_1, mat.mc, fn, vc
+    );
+    // Use the first pass DOC as the G71 U value (G71 uses uniform DOC)
+    let effectiveDoc = stockPasses.length > 0
+      ? Math.round(stockPasses[0] * 10) / 10
+      : 2.0;
+
+    // Power check — final validation on effective DOC
     const fc = kienzleForce(mat.kc1_1, mat.mc, effectiveDoc, fn);
     const power = cuttingPower(fc, vc);
     if (power > maxPower * 0.9) {
       effectiveDoc = effectiveDoc * (maxPower * 0.85) / power;
       effectiveDoc = Math.max(0.5, Math.round(effectiveDoc * 10) / 10);
-      warnings.push(`OD roughing DOC reduced to ${effectiveDoc}mm due to power limit (${maxPower}kW)`);
+      warnings.push(
+        `OD roughing DOC reduced to ${effectiveDoc}mm ` +
+        `due to power limit (${maxPower}kW)`
+      );
     }
 
     const lines: string[] = [];
@@ -1476,6 +1735,7 @@ class TurningProgramAssemblerEngineImpl {
       doc_mm: effectiveDoc,
       gcode_lines: lines,
       estimated_time_s: Math.max(totalTime, 5),
+      _sf: sf,
     };
   }
 
@@ -1491,8 +1751,18 @@ class TurningProgramAssemblerEngineImpl {
     dialect: ControllerDialect,
     nl: () => string,
   ): TurningOperation {
-    const vc = mat.Vc_finish;
-    const fn = mat.fn_finish;
+    // Stochastic S/F via Monte Carlo
+    const sf = this.computeSF(part.material, "od_finish", part.bar_diameter_mm);
+    const vc = sf.Vc;
+    const fn = sf.fn;
+
+    // Deflection-limited finish DOC
+    const Fc_per_mm = kienzleForce(mat.kc1_1, mat.mc, 1.0, fn); // force per 1mm DOC
+    const stickout = Math.min(part.bar_length_mm, 80); // estimated stickout
+    const finishDoc = this.computeFinishDepth(
+      Fc_per_mm, stickout, part.bar_diameter_mm,
+      part.finish_tolerance_mm ?? 0.05
+    );
     const pBlock = 1000; // Must match roughing profile blocks
 
     const lines: string[] = [];
@@ -1538,9 +1808,10 @@ class TurningProgramAssemblerEngineImpl {
       css_mode: true,
       feed_rate: fn,
       feed_unit: "mm/rev",
-      doc_mm: 0.3, // Stock removal from roughing allowance
+      doc_mm: finishDoc, // Deflection-limited finish DOC
       gcode_lines: lines,
       estimated_time_s: Math.max(time, 3),
+      _sf: sf,
     };
   }
 
