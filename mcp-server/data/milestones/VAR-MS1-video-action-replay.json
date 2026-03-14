@@ -2,13 +2,15 @@
   "id": "VAR-MS1",
   "title": "Video Action Replay — Watch & Do CAD/CAM from Videos",
   "track": "VAR",
-  "status": "not_started",
+  "status": "complete",
   "created_at": "2026-03-14T00:00:00Z",
   "brief": "Build a complete pipeline that watches CAD/CAM tutorial videos, extracts action sequences, maps them to executable CAD operations, and replays those actions via CadQuery (programmatic) or Playwright (GUI automation). The system should be able to 'learn by watching' — not just extract knowledge, but reproduce the demonstrated work.",
-  "dependencies": ["VL-MS0"],
+  "dependencies": [
+    "VL-MS0"
+  ],
   "estimated_sessions": 4,
   "total_units": 15,
-  "completed_units": 0,
+  "completed_units": 15,
   "phases": [
     {
       "id": "P1",
@@ -18,7 +20,7 @@
         {
           "id": "P1-U01",
           "title": "VideoActionExtractorEngine — Frame-to-Action Recognition",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create src/engines/VideoActionExtractorEngine.ts",
             "Method: extractActions(videoPath, options) — extends VideoLearningEngine pipeline",
@@ -35,13 +37,15 @@
             "Correctly identifies at least 5 action types from test frames",
             "15+ tests passing"
           ],
-          "entry_conditions": ["VideoLearningEngine exists and works"],
+          "entry_conditions": [
+            "VideoLearningEngine exists and works"
+          ],
           "estimated_tokens": 50000
         },
         {
           "id": "P1-U02",
           "title": "ActionSequenceValidator — Verify and Clean Action Sequences",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create validation/cleaning layer for extracted action sequences",
             "Method: validateSequence(actions) — check logical consistency (can't fillet before creating a solid, can't extrude without a sketch)",
@@ -56,13 +60,15 @@
             "Catches impossible operation ordering",
             "10+ tests passing"
           ],
-          "entry_conditions": ["P1-U01 complete"],
+          "entry_conditions": [
+            "P1-U01 complete"
+          ],
           "estimated_tokens": 30000
         },
         {
           "id": "P1-U03",
           "title": "CADOperationTaxonomy — Standardized Operation Catalog",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create a comprehensive taxonomy mapping video-observed operations to standardized CAD API calls",
             "Cover all major CAD operations: 2D sketching (line, arc, circle, rectangle, spline, trim, offset, mirror, pattern), 3D modeling (extrude, revolve, sweep, loft, shell, fillet, chamfer, boolean, draft, rib, hole), assembly (mate, constrain, pattern), CAM (toolpath, operation, setup)",
@@ -88,7 +94,7 @@
         {
           "id": "P2-U01",
           "title": "CadQueryCodeGenerator — Actions to CadQuery Python",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create src/engines/CadQueryCodeGeneratorEngine.ts",
             "Method: generateScript(actions: ActionSequence[]) → string (Python CadQuery code)",
@@ -106,13 +112,15 @@
             "Generated code executes without error in CadQuery",
             "12+ tests passing"
           ],
-          "entry_conditions": ["P1-U03 complete"],
+          "entry_conditions": [
+            "P1-U03 complete"
+          ],
           "estimated_tokens": 45000
         },
         {
           "id": "P2-U02",
           "title": "PlaywrightAutomationGenerator — Actions to GUI Script",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create src/engines/PlaywrightAutomationEngine.ts",
             "Method: generateGUIScript(actions, target_software) → PlaywrightAction[]",
@@ -129,13 +137,15 @@
             "Handles async waits and verification",
             "10+ tests passing"
           ],
-          "entry_conditions": ["P1-U03 complete"],
+          "entry_conditions": [
+            "P1-U03 complete"
+          ],
           "estimated_tokens": 40000
         },
         {
           "id": "P2-U03",
           "title": "HybridExecutionEngine — Route to Best Execution Path",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create routing engine that decides: CadQuery (fast, scriptable) vs Playwright (GUI, any software)",
             "Decision logic: if all operations are supported by CadQuery → use CadQuery; if target is specific CAM software → use Playwright; if mixed → use CadQuery for modeling + Playwright for CAM",
@@ -148,7 +158,10 @@
             "Handles hybrid CadQuery+Playwright workflows",
             "8+ tests passing"
           ],
-          "entry_conditions": ["P2-U01 complete", "P2-U02 complete"],
+          "entry_conditions": [
+            "P2-U01 complete",
+            "P2-U02 complete"
+          ],
           "estimated_tokens": 30000
         }
       ]
@@ -161,7 +174,7 @@
         {
           "id": "P3-U01",
           "title": "ExecutionVerificationEngine — Run and Compare",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create src/engines/ExecutionVerificationEngine.ts",
             "Method: executeAndVerify(code, expected_keyframe) — run CadQuery code, capture result, compare to video keyframe",
@@ -177,13 +190,15 @@
             "Failure diagnosis identifies specific mismatches",
             "10+ tests passing"
           ],
-          "entry_conditions": ["P2-U01 complete"],
+          "entry_conditions": [
+            "P2-U01 complete"
+          ],
           "estimated_tokens": 40000
         },
         {
           "id": "P3-U02",
           "title": "AdaptiveRetryEngine — Self-Correcting Execution",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create intelligent retry logic when execution doesn't match expected result",
             "Method: retryWithCorrection(failedStep, diagnosis, context) — modify code based on diagnosis",
@@ -198,13 +213,15 @@
             "Stores correction patterns for reuse",
             "8+ tests passing"
           ],
-          "entry_conditions": ["P3-U01 complete"],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
           "estimated_tokens": 35000
         },
         {
           "id": "P3-U03",
           "title": "ProgressTrackerEngine — Step-by-Step Execution Display",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create progress tracking that shows: which video step we're on, what action is being performed, current result vs expected",
             "Method: trackProgress(plan, currentStep) → ProgressReport with visual indicators",
@@ -217,7 +234,9 @@
             "Supports pause/resume",
             "6+ tests passing"
           ],
-          "entry_conditions": ["P3-U01 complete"],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
           "estimated_tokens": 20000
         }
       ]
@@ -230,7 +249,7 @@
         {
           "id": "P4-U01",
           "title": "InteractiveLearningSessionEngine — Guided Video Following",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create src/engines/InteractiveLearningSessionEngine.ts",
             "Method: startSession(videoPath, options) — begin interactive learning from a video",
@@ -245,13 +264,15 @@
             "User corrections modify the action sequence",
             "8+ tests passing"
           ],
-          "entry_conditions": ["P3-U01 complete"],
+          "entry_conditions": [
+            "P3-U01 complete"
+          ],
           "estimated_tokens": 35000
         },
         {
           "id": "P4-U02",
           "title": "KnowledgeTransferEngine — Learn Patterns Across Videos",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create engine that accumulates learning across multiple video sessions",
             "Method: recordPattern(videoId, actions, corrections) — store what worked and what needed correction",
@@ -265,7 +286,9 @@
             "Confidence improves with more videos processed",
             "8+ tests passing"
           ],
-          "entry_conditions": ["P4-U01 complete"],
+          "entry_conditions": [
+            "P4-U01 complete"
+          ],
           "estimated_tokens": 30000
         }
       ]
@@ -278,7 +301,7 @@
         {
           "id": "P5-U01",
           "title": "Dispatcher Wiring + Action Schemas",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create action schemas for all new engines",
             "Wire to cadDispatcher or create new videoActionDispatcher",
@@ -291,13 +314,15 @@
             "Build passes",
             "5+ tests passing"
           ],
-          "entry_conditions": ["P4-U02 complete"],
+          "entry_conditions": [
+            "P4-U02 complete"
+          ],
           "estimated_tokens": 25000
         },
         {
           "id": "P5-U02",
           "title": "Slash Commands: /video-replay and /video-follow",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create ~/.claude/commands/video-replay.md — fully autonomous: give video path, get CAD model",
             "Create ~/.claude/commands/video-follow.md — interactive: step through video with user, learning as you go",
@@ -308,13 +333,15 @@
             "Both slash commands created and documented",
             "SLASH_COMMANDS.md updated"
           ],
-          "entry_conditions": ["P5-U01 complete"],
+          "entry_conditions": [
+            "P5-U01 complete"
+          ],
           "estimated_tokens": 15000
         },
         {
           "id": "P5-U03",
           "title": "End-to-End Test: Simple Box Tutorial",
-          "status": "not_started",
+          "status": "complete",
           "steps": [
             "Create a test video (screen recording) of making a simple box with fillet in FreeCAD or CadQuery",
             "Run the full pipeline: video → actions → CadQuery code → execute → verify",
@@ -327,10 +354,13 @@
             "Output geometry matches expected within 10% tolerance",
             "E2E test documented"
           ],
-          "entry_conditions": ["P5-U01 complete"],
+          "entry_conditions": [
+            "P5-U01 complete"
+          ],
           "estimated_tokens": 30000
         }
       ]
     }
-  ]
+  ],
+  "completed_at": "2026-03-14T00:00:00Z"
 }
