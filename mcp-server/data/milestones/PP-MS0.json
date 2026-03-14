@@ -12,7 +12,7 @@
         {
           "id": "U01",
           "title": "Create PostProcessorPipelineEngine skeleton with stage registry, phase ordering, and configurable stage enable/disable",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Define PipelineStage interface: { id, phase, order, name, engine, enabled, run(context) → context }",
             "Define PipelineContext type: carries all state between stages (blocks, tools, machine, material, metrics, warnings)",
@@ -34,7 +34,7 @@
         {
           "id": "U02",
           "title": "Create PipelineContext type system — the universal data contract between all stages",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Define ToolpathBlock: { id, type (rapid/linear/arc/drill/tap/probe), x/y/z/a/b/c, i/j/k/r, feed, speed, tool_number, engagement?: { ae, ap, theta, d_eff }, forces?: { Fc, Ff, Fp }, thermal?: { T_tool, T_chip, cumulative_heat }, wear?: { VB, VB_rate }, confidence?: { feed_ci, force_ci } }",
             "Define MachineContext: resolved from catalog — spindle curve, axis limits, rapid rates, accel/jerk, controller type, controller version, kinematics, work volume, tool changer type/time",
@@ -59,7 +59,7 @@
         {
           "id": "U03",
           "title": "Stage 0.1 — Input parser: G-code → ToolpathBlock[], CL data → ToolpathBlock[], toolpath JSON → ToolpathBlock[]",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "G-code parser: handle G0/G1/G2/G3, canned cycles (G81-G89), tool changes (T/M6), spindle (S/M3/M4/M5), coolant (M7/M8/M9), work offsets (G54-G59), sub-programs (M98/M99)",
             "CL data parser: parse APT/CL format — GOTO, CIRCLE, FEDRAT, SPINDL, COOLNT, TURRET, TLDATA",
@@ -79,7 +79,7 @@
         {
           "id": "U04",
           "title": "Stage 0.2-0.5 — Context resolution: Machine + Tool + Holder + Material from catalogs",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Machine resolver: match user input (name/model/brand) → MachineContext from 910-machine catalog. Fuzzy match. Extract spindle curve, axis limits, rapid rates, controller type",
             "Tool resolver: match user input (description/catalog_id/dimensions) → ToolContext from 46,590-tool catalog. Exact match by ID or fuzzy by geometry",
@@ -99,7 +99,7 @@
         {
           "id": "U05",
           "title": "Stage 0.6-0.7 — Smart defaults + Transfer learning for missing inputs",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Smart defaults engine: fill ALL gaps when user provides minimal input",
             "Missing material → infer from operation context or use generic '4140 steel' with warning",
@@ -129,7 +129,7 @@
         {
           "id": "U06",
           "title": "Wire PostProcessorPipelineEngine to camDispatcher with pipeline actions",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Create postProcessorPipelineActionSchemas.ts with Zod schemas for pipeline actions",
             "Action: pp_run_full — run complete pipeline (all stages)",
