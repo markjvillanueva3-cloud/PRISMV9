@@ -3,7 +3,7 @@
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-14T00:00:00Z",
   "total_milestones": 130,
-  "completed_milestones": 123,
+  "completed_milestones": 124,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
     {
@@ -1721,6 +1721,20 @@
       "description": "Wire 285 unwired dispatcher actions across 13 dispatchers through full pipeline: route → API → types → hook → page. 16 units creating 13 new pages + settings sync + nav wiring + verification. Completes all UI wiring prior to design phase."
     },
     {
+      "id": "PIPE-MS0",
+      "title": "Print-to-Program Pipeline — Upload Print → Get CNC Program",
+      "track": "PIPE",
+      "dependencies": [
+        "WIRE-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 12,
+      "completed_units": 0,
+      "sessions": "3-5",
+      "envelope_path": "milestones/PIPE-MS0.json",
+      "description": "Crown jewel pipeline: Upload print/photo/CAD → extract features → select tools FROM USER INVENTORY → generate operation sequence → physics-backed S/F → assemble CNC program → post-process for user's machine → setup sheet + quote + ROI upgrade suggestions. 12 units: 3 core engines + 1 orchestrator + 2 import bridges + 1 UI wizard + 4 support units."
+    },
+    {
       "id": "CK-MS3",
       "title": "Multi-Process Unified Pipeline (Turning+EDM+Grinding+Laser+Waterjet)",
       "track": "CK",
@@ -1739,9 +1753,9 @@
       "dependencies": [
         "CK-MS2"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 5,
-      "completed_units": 0,
+      "completed_units": 5,
       "sessions": "2"
     },
     {
