@@ -6215,6 +6215,71 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+
+          // ── Time Series & Survival ──
+          case "arima_forecast": {
+            const { TimeSeriesForecastEngine: TSF } = await import("../../engines/TimeSeriesForecastEngine.js");
+            const tsf = new TSF();
+            result = tsf.arima(params as ValidatedParams);
+            break;
+          }
+          case "exp_smoothing": {
+            const { TimeSeriesForecastEngine: TSF } = await import("../../engines/TimeSeriesForecastEngine.js");
+            const tsf = new TSF();
+            result = tsf.exponentialSmoothing(params as ValidatedParams);
+            break;
+          }
+          case "kaplan_meier": {
+            const { TimeSeriesForecastEngine: TSF } = await import("../../engines/TimeSeriesForecastEngine.js");
+            const tsf = new TSF();
+            result = tsf.kaplanMeier(params as ValidatedParams);
+            break;
+          }
+          case "nonparametric_test": {
+            const { TimeSeriesForecastEngine: TSF } = await import("../../engines/TimeSeriesForecastEngine.js");
+            const tsf = new TSF();
+            result = tsf.nonparametricTest(params as ValidatedParams);
+            break;
+          }
+          case "rank_correlation": {
+            const { TimeSeriesForecastEngine: TSF } = await import("../../engines/TimeSeriesForecastEngine.js");
+            const tsf = new TSF();
+            result = tsf.rankCorrelation(params as ValidatedParams);
+            break;
+          }
+
+          // ── Ensemble ML & Numerical ──
+          case "random_forest": {
+            const { EnsembleMLEngine: EML } = await import("../../engines/EnsembleMLEngine.js");
+            const eml = new EML();
+            result = eml.randomForest(params as ValidatedParams);
+            break;
+          }
+          case "gradient_boosting": {
+            const { EnsembleMLEngine: EML } = await import("../../engines/EnsembleMLEngine.js");
+            const eml = new EML();
+            result = eml.gradientBoosting(params as ValidatedParams);
+            break;
+          }
+          case "gaussian_mixture": {
+            const { EnsembleMLEngine: EML } = await import("../../engines/EnsembleMLEngine.js");
+            const eml = new EML();
+            result = eml.gaussianMixture(params as ValidatedParams);
+            break;
+          }
+          case "numerical_integration": {
+            const { EnsembleMLEngine: EML } = await import("../../engines/EnsembleMLEngine.js");
+            const eml = new EML();
+            result = eml.numericalIntegration(params as ValidatedParams);
+            break;
+          }
+          case "root_finding": {
+            const { EnsembleMLEngine: EML } = await import("../../engines/EnsembleMLEngine.js");
+            const eml = new EML();
+            result = eml.rootFinding(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

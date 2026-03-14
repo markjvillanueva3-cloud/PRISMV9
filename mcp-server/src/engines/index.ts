@@ -3189,6 +3189,8 @@ export { AdvancedMathematicalMethodsEngine } from "./AdvancedMathematicalMethods
 export { MetaheuristicOptimizationEngine } from "./MetaheuristicOptimizationEngine.js";
 export { StatisticalMLEngine } from "./StatisticalMLEngine.js";
 export { MathIntegrationPipelineEngine } from "./MathIntegrationPipelineEngine.js";
+export { TimeSeriesForecastEngine } from "./TimeSeriesForecastEngine.js";
+export { EnsembleMLEngine } from "./EnsembleMLEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";
