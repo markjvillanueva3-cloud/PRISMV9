@@ -3274,3 +3274,5 @@ export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCS
 
 export { simulationReportEngine, SimulationReportEngine } from './SimulationReportEngine.js';
 export { physicsAwareSimulationEngine, PhysicsAwareSimulationEngine } from './PhysicsAwareSimulationEngine.js';
+
+export { predictiveSimulationEngine, PredictiveSimulationEngine } from './PredictiveSimulationEngine.js';
