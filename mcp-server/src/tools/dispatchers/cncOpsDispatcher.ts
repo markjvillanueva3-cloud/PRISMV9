@@ -34,6 +34,7 @@ let _keyway: any, _knurling: any, _partingGrooving: any, _powerSkiving: any;
 let _profiling: any, _ramping: any, _slotting: any, _spotDrilling: any;
 let _springPass: any, _taperTurning: any, _threadTurning: any;
 let _waterjet: any, _plasmaCutting: any, _plasmaArc: any;
+let _deepHoleDrilling: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -67,6 +68,7 @@ async function getEngine(name: string): Promise<any> {
     case "waterjet": return _waterjet ??= (await import("../../engines/WaterjetEngine.js")).waterjetEngine;
     case "plasmaCutting": return _plasmaCutting ??= (await import("../../engines/PlasmaCuttingEngine.js")).plasmaCuttingEngine;
     case "plasmaArc": return _plasmaArc ??= (await import("../../engines/PlasmaArcEngine.js")).plasmaArcEngine;
+    case "deepHoleDrilling": return _deepHoleDrilling ??= (await import("../../engines/DeepHoleDrillingPhysicsEngine.js")).deepHoleDrillingPhysicsEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -95,6 +97,11 @@ const ACTIONS = [
   "thread_turning_calculate",
   "waterjet_calculate",
   "plasma_cutting_calculate", "plasma_arc_calculate",
+  "deep_hole_thrust_force", "deep_hole_chip_evacuation",
+  "deep_hole_whirl_vibration", "deep_hole_deviation",
+  "deep_hole_surface_finish", "deep_hole_tool_life",
+  "deep_hole_pecking_optimize", "deep_hole_power_energy",
+  "deep_hole_compare_processes",
 ] as const;
 
 export function registerCncOpsDispatcher(server: any): void {
@@ -296,6 +303,51 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "plasma_arc_calculate": {
             const eng = await getEngine("plasmaArc");
             result = eng.calculate(params);
+            break;
+          }
+          case "deep_hole_thrust_force": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.thrustForceAndTorque(params);
+            break;
+          }
+          case "deep_hole_chip_evacuation": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.chipEvacuation(params);
+            break;
+          }
+          case "deep_hole_whirl_vibration": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.whirlVibration(params);
+            break;
+          }
+          case "deep_hole_deviation": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.holeDeviation(params);
+            break;
+          }
+          case "deep_hole_surface_finish": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.surfaceFinish(params);
+            break;
+          }
+          case "deep_hole_tool_life": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.toolLife(params);
+            break;
+          }
+          case "deep_hole_pecking_optimize": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.peckingOptimization(params);
+            break;
+          }
+          case "deep_hole_power_energy": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.powerAndEnergy(params);
+            break;
+          }
+          case "deep_hole_compare_processes": {
+            const eng = await getEngine("deepHoleDrilling");
+            result = eng.compareDrillProcesses(params);
             break;
           }
           default:

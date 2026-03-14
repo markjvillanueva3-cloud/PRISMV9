@@ -1,9 +1,11 @@
 /**
  * prism_fluid_thermal — Fluid, Thermal & Material Science Dispatcher
  *
- * 35 actions covering: heat exchangers, pumps, piping, hydraulic/pneumatic cylinders,
+ * 48 actions covering: heat exchangers, pumps, piping, hydraulic/pneumatic cylinders,
  *   valves, compressors, fans, nozzles, cooling towers, ventilation, tank design,
- *   water hammer, furnace heating, thermal expansion/fatigue, corrosion, creep, fracture
+ *   water hammer, furnace heating, thermal expansion/fatigue, corrosion, creep, fracture,
+ *   Coriolis/ultrasonic flowmeters, diaphragm/vane pumps, diffusers, ejectors, impellers,
+ *   reciprocating/screw/scroll compressors, spray dryers, RTDs, thermocouples
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -58,6 +60,19 @@ const ACTION_MAP: Record<string, [string, string, string]> = {
   corrosion_rate_calculate: ["CorrosionRateEngine", "corrosionRateEngine", "calculate"],
   creep_life_calculate: ["CreepLifeEngine", "creepLifeEngine", "calculate"],
   fracture_toughness_calculate: ["FractureToughnessEngine", "fractureToughnessEngine", "calculate"],
+  coriolis_flowmeter_calculate: ["CoriolisFlowMeterEngine", "coriolisFlowMeterEngine", "calculate"],
+  diaphragm_pump_calculate: ["DiaphragmPumpEngine", "diaphragmPumpEngine", "calculate"],
+  diffuser_calculate: ["DiffuserEngine", "diffuserEngine", "calculate"],
+  ejector_calculate: ["EjectorEngine", "ejectorEngine", "calculate"],
+  impeller_calculate: ["ImpellerEngine", "impellerEngine", "calculate"],
+  reciprocating_compressor_calculate: ["ReciprocatingCompressorEngine", "reciprocatingCompressorEngine", "calculate"],
+  rtd_calculate: ["RTDEngine", "rtdEngine", "calculate"],
+  screw_compressor_calculate: ["ScrewCompressorEngine", "screwCompressorEngine", "calculate"],
+  scroll_compressor_calculate: ["ScrollCompressorEngine", "scrollCompressorEngine", "calculate"],
+  spray_dryer_calculate: ["SprayDryerEngine", "sprayDryerEngine", "calculate"],
+  thermocouple_calculate: ["ThermocoupleEngine", "thermocoupleEngine", "calculate"],
+  ultrasonic_flowmeter_calculate: ["UltrasonicFlowMeterEngine", "ultrasonicFlowMeterEngine", "calculate"],
+  vane_pump_calculate: ["VanePumpEngine", "vanePumpEngine", "calculate"],
 };
 
 const ACTIONS = Object.keys(ACTION_MAP);
@@ -65,11 +80,11 @@ const ACTIONS = Object.keys(ACTION_MAP);
 export function registerFluidThermalDispatcher(server: any): void {
   server.tool(
     "prism_fluid_thermal",
-    `Fluid, thermal & material science: heat exchangers (shell-tube/plate), pumps (centrifugal/selection), piping (sizing/stress/pressure drop), hydraulic cylinders/motors/presses, pneumatic cylinders, valves (design/sizing), compressors, fans, nozzles, cooling towers, condensers, evaporators, Venturi/orifice flowmeters, air compressors/ducts, tank design, water hammer, furnace heating, thermal expansion/fatigue, corrosion rate, creep life, fracture toughness. 35 actions.
+    `Fluid, thermal & material science: heat exchangers (shell-tube/plate), pumps (centrifugal/diaphragm/vane/selection), piping (sizing/stress/pressure drop), hydraulic cylinders/motors/presses, pneumatic cylinders, valves (design/sizing), compressors (reciprocating/screw/scroll/air), fans, nozzles, cooling towers, condensers, evaporators, flowmeters (Venturi/orifice/Coriolis/ultrasonic), air ducts, diffusers, ejectors, impellers, spray dryers, tank design, water hammer, furnace heating, thermal expansion/fatigue, temperature sensors (RTD/thermocouple), corrosion rate, creep life, fracture toughness. 48 actions.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.string(), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
-      log.info(`[prism_fluid_thermal] Action: ${action} (35 actions wired)`);
+      log.info(`[prism_fluid_thermal] Action: ${action} (48 actions wired)`);
       let result: any;
       try {
         let params = rawParams;

@@ -6442,6 +6442,397 @@ export function registerCalcDispatcher(server: any): void {
           }
 
 
+          // ── Advanced Cutting Phenomena (BUE, Usui, Brammertz, Colding, Coffin-Manson) ──
+          case "cutting_phenomena_bue": case "cutting_phenomena_bue_effect":
+          case "cutting_phenomena_usui_crater": case "cutting_phenomena_combined_wear":
+          case "cutting_phenomena_brammertz": case "cutting_phenomena_colding":
+          case "cutting_phenomena_coffinmanson": {
+            const { advancedCuttingPhenomenaEngine } = await import("../../engines/AdvancedCuttingPhenomenaEngine.js");
+            const acpMap: Record<string, string> = {
+              cutting_phenomena_bue: "predictBUEFormation",
+              cutting_phenomena_bue_effect: "predictBUEEffect",
+              cutting_phenomena_usui_crater: "calculateUsuiCraterWear",
+              cutting_phenomena_combined_wear: "predictCombinedWear",
+              cutting_phenomena_brammertz: "calculateBrammertzRoughness",
+              cutting_phenomena_colding: "calculateColdingToolLife",
+              cutting_phenomena_coffinmanson: "calculateCoffinManson",
+            };
+            result = (advancedCuttingPhenomenaEngine as any)[acpMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Cutting Physics Ext (BUE, Usui, Brammertz, Colding extended) ──
+          case "cutting_physics_ext_bue": case "cutting_physics_ext_bue_speed_map":
+          case "cutting_physics_ext_usui": case "cutting_physics_ext_combined_wear":
+          case "cutting_physics_ext_brammertz": case "cutting_physics_ext_roughness_decomp":
+          case "cutting_physics_ext_colding": case "cutting_physics_ext_taylor_colding": {
+            const { advancedCuttingPhysicsExtEngine } = await import("../../engines/AdvancedCuttingPhysicsExtEngine.js");
+            const cpxMap: Record<string, string> = {
+              cutting_physics_ext_bue: "predictBUE",
+              cutting_physics_ext_bue_speed_map: "bueSpeedMap",
+              cutting_physics_ext_usui: "usaiCraterWear",
+              cutting_physics_ext_combined_wear: "combinedWear",
+              cutting_physics_ext_brammertz: "brammertzRoughness",
+              cutting_physics_ext_roughness_decomp: "surfaceRoughnessDecomposition",
+              cutting_physics_ext_colding: "coldingToolLife",
+              cutting_physics_ext_taylor_colding: "compareTaylorColding",
+            };
+            result = (advancedCuttingPhysicsExtEngine as any)[cpxMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced ML Statistics (MCMC, RF, Logistic, Tool Breakage) ──
+          case "ml_stats_metropolis_hastings": case "ml_stats_gibbs":
+          case "ml_stats_bayesian_tool_life": case "ml_stats_rf_classify":
+          case "ml_stats_rf_regress": case "ml_stats_feature_importance":
+          case "ml_stats_logistic_fit": case "ml_stats_logistic_predict":
+          case "ml_stats_tool_breakage": {
+            const { advancedMLStatisticsEngine } = await import("../../engines/AdvancedMLStatisticsEngine.js");
+            const mlsMap: Record<string, string> = {
+              ml_stats_metropolis_hastings: "metropolisHastings",
+              ml_stats_gibbs: "gibbsSampler",
+              ml_stats_bayesian_tool_life: "bayesianToolLife",
+              ml_stats_rf_classify: "randomForestClassify",
+              ml_stats_rf_regress: "randomForestRegress",
+              ml_stats_feature_importance: "featureImportanceAnalysis",
+              ml_stats_logistic_fit: "logisticRegressionFit",
+              ml_stats_logistic_predict: "logisticPredict",
+              ml_stats_tool_breakage: "toolBreakagePrediction",
+            };
+            result = (advancedMLStatisticsEngine as any)[mlsMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Regression (Kernel Ridge, GMM, Quantile, Isotonic, Huber, Stacking, AdaBoost, Boosting) ──
+          case "regression_kernel_ridge": case "regression_gmm_em":
+          case "regression_gmm_optimal": case "regression_quantile":
+          case "regression_isotonic": case "regression_huber":
+          case "regression_stacking": case "regression_adaboost":
+          case "regression_regularized_boosting": {
+            const { advancedRegressionEngine } = await import("../../engines/AdvancedRegressionEngine.js");
+            const arMap: Record<string, string> = {
+              regression_kernel_ridge: "kernelRidgeRegression",
+              regression_gmm_em: "gaussianMixtureEM",
+              regression_gmm_optimal: "gmmOptimalComponents",
+              regression_quantile: "quantileRegression",
+              regression_isotonic: "isotonicRegression",
+              regression_huber: "huberRegression",
+              regression_stacking: "stackingEnsemble",
+              regression_adaboost: "adaBoostRegress",
+              regression_regularized_boosting: "regularizedBoosting",
+            };
+            result = (advancedRegressionEngine as any)[arMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Statistical Learning (MCMC, Bayesian LinReg, RF, Logistic, Permutation) ──
+          case "stat_learning_mcmc": case "stat_learning_gibbs":
+          case "stat_learning_bayesian_linreg": case "stat_learning_rf_classify":
+          case "stat_learning_rf_regress": case "stat_learning_rf_tool_condition":
+          case "stat_learning_logistic_fit": case "stat_learning_logistic_predict":
+          case "stat_learning_logistic_breakage": case "stat_learning_permutation": {
+            const { advancedStatisticalLearningEngine } = await import("../../engines/AdvancedStatisticalLearningEngine.js");
+            const aslMap: Record<string, string> = {
+              stat_learning_mcmc: "mcmcSample",
+              stat_learning_gibbs: "gibbsSampler",
+              stat_learning_bayesian_linreg: "bayesianLinearRegression",
+              stat_learning_rf_classify: "randomForestClassify",
+              stat_learning_rf_regress: "randomForestRegress",
+              stat_learning_rf_tool_condition: "randomForestToolCondition",
+              stat_learning_logistic_fit: "logisticRegressionFit",
+              stat_learning_logistic_predict: "logisticRegressionPredict",
+              stat_learning_logistic_breakage: "logisticToolBreakage",
+              stat_learning_permutation: "permutationTest",
+            };
+            result = (advancedStatisticalLearningEngine as any)[aslMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Uncertainty (Kriging, Sobol, QMC, Halton, Copula) ──
+          case "uncertainty_kriging_fit": case "uncertainty_kriging_predict":
+          case "uncertainty_surrogate_optimize": case "uncertainty_kriging_manufacturing":
+          case "uncertainty_sobol_sequence": case "uncertainty_qmc_integrate":
+          case "uncertainty_qmc_uq": case "uncertainty_halton_sequence":
+          case "uncertainty_gaussian_copula": case "uncertainty_correlated_uq":
+          case "uncertainty_correlation_from_data": {
+            const { advancedUncertaintyEngine } = await import("../../engines/AdvancedUncertaintyEngine.js");
+            const aueMap: Record<string, string> = {
+              uncertainty_kriging_fit: "krigingFit",
+              uncertainty_kriging_predict: "krigingPredict",
+              uncertainty_surrogate_optimize: "surrogateOptimize",
+              uncertainty_kriging_manufacturing: "krigingManufacturing",
+              uncertainty_sobol_sequence: "sobolSequence",
+              uncertainty_qmc_integrate: "quasiMonteCarloIntegrate",
+              uncertainty_qmc_uq: "quasiMonteCarloUQ",
+              uncertainty_halton_sequence: "haltonSequence",
+              uncertainty_gaussian_copula: "gaussianCopula",
+              uncertainty_correlated_uq: "correlatedUQ",
+              uncertainty_correlation_from_data: "correlationFromData",
+            };
+            result = (advancedUncertaintyEngine as any)[aueMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Uncertainty Methods (QMC, Copula, Kriging, Adaptive Design) ──
+          case "uq_methods_qmc": case "uq_methods_gaussian_copula":
+          case "uq_methods_t_copula": case "uq_methods_fit_copula":
+          case "uq_methods_kriging_fit": case "uq_methods_kriging_predict":
+          case "uq_methods_kriging_uq": case "uq_methods_adaptive_design": {
+            const { advancedUncertaintyMethodsEngine } = await import("../../engines/AdvancedUncertaintyMethodsEngine.js");
+            const aumMap: Record<string, string> = {
+              uq_methods_qmc: "quasiMonteCarlo",
+              uq_methods_gaussian_copula: "gaussianCopula",
+              uq_methods_t_copula: "tCopula",
+              uq_methods_fit_copula: "fitCopula",
+              uq_methods_kriging_fit: "krigingFit",
+              uq_methods_kriging_predict: "krigingPredict",
+              uq_methods_kriging_uq: "krigingBasedUQ",
+              uq_methods_adaptive_design: "adaptiveDesign",
+            };
+            result = (advancedUncertaintyMethodsEngine as any)[aumMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Coffin-Manson Fatigue (strain life, S-N curve, cyclic, thermal, multiaxial) ──
+          case "fatigue_strain_life": case "fatigue_sn_curve":
+          case "fatigue_cyclic_stress_strain": case "fatigue_thermal":
+          case "fatigue_multiaxial": {
+            const { coffinMansonFatigueEngine } = await import("../../engines/CoffinMansonFatigueEngine.js");
+            const cmfMap: Record<string, string> = {
+              fatigue_strain_life: "strainLifeAnalysis",
+              fatigue_sn_curve: "snCurveGenerate",
+              fatigue_cyclic_stress_strain: "cyclicStressStrain",
+              fatigue_thermal: "thermalFatigue",
+              fatigue_multiaxial: "multiaxialFatigue",
+            };
+            result = (coffinMansonFatigueEngine as any)[cmfMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Composite Machining Physics (delamination, fiber forces, thermal, wear, roughness, chip, energy) ──
+          case "composite_delamination": case "composite_fiber_force":
+          case "composite_delamination_factor": case "composite_thermal_damage":
+          case "composite_tool_wear": case "composite_surface_roughness":
+          case "composite_chip_formation": case "composite_cutting_energy": {
+            const { CompositeMachiningPhysicsEngine } = await import("../../engines/CompositeMachiningPhysicsEngine.js");
+            const cmpe = new CompositeMachiningPhysicsEngine();
+            const cmpMap: Record<string, string> = {
+              composite_delamination: "hochengDharanDelamination",
+              composite_fiber_force: "fiberOrientationForce",
+              composite_delamination_factor: "delaminationFactor",
+              composite_thermal_damage: "thermalDamage",
+              composite_tool_wear: "compositeToolWear",
+              composite_surface_roughness: "compositeSurfaceRoughness",
+              composite_chip_formation: "chipFormation",
+              composite_cutting_energy: "specificCuttingEnergy",
+            };
+            result = (cmpe as any)[cmpMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Dimensional Analysis & Cross Validation (Buckingham Pi, k-fold, LOO, nested CV, model compare) ──
+          case "dim_analysis_buckingham_pi": case "dim_analysis_machining":
+          case "dim_analysis_consistency": case "cv_kfold":
+          case "cv_leave_one_out": case "cv_repeated_kfold":
+          case "cv_nested": case "cv_compare_models":
+          case "cv_learning_curve": {
+            const { dimensionalAnalysisCrossValidationEngine } = await import("../../engines/DimensionalAnalysisCrossValidationEngine.js");
+            const dacvMap: Record<string, string> = {
+              dim_analysis_buckingham_pi: "buckinghamPi",
+              dim_analysis_machining: "machiningDimensionalAnalysis",
+              dim_analysis_consistency: "dimensionalConsistencyCheck",
+              cv_kfold: "kFoldCrossValidation",
+              cv_leave_one_out: "leaveOneOutCV",
+              cv_repeated_kfold: "repeatedKFoldCV",
+              cv_nested: "nestedCrossValidation",
+              cv_compare_models: "compareModels",
+              cv_learning_curve: "learningCurve",
+            };
+            result = (dimensionalAnalysisCrossValidationEngine as any)[dacvMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Empirical Correlation (hardness, mechanical, thermal, cutting, surface, tool life, cost) ──
+          case "empirical_hardness_convert": case "empirical_mechanical_from_hardness":
+          case "empirical_thermal_properties": case "empirical_cutting_speed":
+          case "empirical_feed_from_finish": case "empirical_depth_of_cut":
+          case "empirical_surface_integrity": case "empirical_tool_life_multipliers":
+          case "empirical_chip_breakability": case "empirical_cost_per_part":
+          case "empirical_productivity": {
+            const { empiricalCorrelationEngine } = await import("../../engines/EmpiricalCorrelationEngine.js");
+            const ecMap: Record<string, string> = {
+              empirical_hardness_convert: "hardnessConversions",
+              empirical_mechanical_from_hardness: "mechanicalFromHardness",
+              empirical_thermal_properties: "thermalPropertiesEstimate",
+              empirical_cutting_speed: "cuttingSpeedFromHardness",
+              empirical_feed_from_finish: "feedFromSurfaceFinish",
+              empirical_depth_of_cut: "depthOfCutLimits",
+              empirical_surface_integrity: "surfaceIntegrityCorrelations",
+              empirical_tool_life_multipliers: "toolLifeMultipliers",
+              empirical_chip_breakability: "chipBreakabilityIndex",
+              empirical_cost_per_part: "costPerPartCorrelation",
+              empirical_productivity: "productivityCorrelations",
+            };
+            result = (empiricalCorrelationEngine as any)[ecMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Fundamental Physics Completion (Archard, Merchant, Grinding, Hertz) ──
+          case "physics_archard_wear": case "physics_archard_tool_wear":
+          case "physics_merchant_shear": case "physics_merchant_force":
+          case "physics_single_grit": case "physics_grinding_thermal":
+          case "physics_hertz_contact": {
+            const { fundamentalPhysicsCompletionEngine } = await import("../../engines/FundamentalPhysicsCompletionEngine.js");
+            const fpcMap: Record<string, string> = {
+              physics_archard_wear: "archardWear",
+              physics_archard_tool_wear: "archardToolWear",
+              physics_merchant_shear: "merchantShearAngle",
+              physics_merchant_force: "merchantForceCircle",
+              physics_single_grit: "singleGritMechanics",
+              physics_grinding_thermal: "grindingThermalModel",
+              physics_hertz_contact: "hertzContact",
+            };
+            result = (fundamentalPhysicsCompletionEngine as any)[fpcMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── KDE & Gradient Boost (density estimation, anomaly, regression, classification, defect) ──
+          case "kde_estimate": case "kde_2d":
+          case "kde_density_anomaly": case "gradient_boost_regress":
+          case "gradient_boost_classify": case "kde_manufacturing_defect": {
+            const { kdeGradientBoostEngine } = await import("../../engines/KDEGradientBoostEngine.js");
+            const kgbMap: Record<string, string> = {
+              kde_estimate: "kernelDensityEstimate",
+              kde_2d: "kde2d",
+              kde_density_anomaly: "densityBasedAnomaly",
+              gradient_boost_regress: "gradientBoostRegress",
+              gradient_boost_classify: "gradientBoostClassify",
+              kde_manufacturing_defect: "manufacturingDefectPrediction",
+            };
+            result = (kdeGradientBoostEngine as any)[kgbMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Permutation Test (two-sample, paired, correlation, ANOVA, bootstrap CI) ──
+          case "permutation_two_sample": case "permutation_paired":
+          case "permutation_correlation": case "permutation_anova":
+          case "permutation_bootstrap_ci": {
+            const { permutationTestEngine } = await import("../../engines/PermutationTestEngine.js");
+            const ptMap: Record<string, string> = {
+              permutation_two_sample: "twoSampleTest",
+              permutation_paired: "pairedTest",
+              permutation_correlation: "correlationTest",
+              permutation_anova: "anovaPermutation",
+              permutation_bootstrap_ci: "bootstrapConfidenceInterval",
+            };
+            result = (permutationTestEngine as any)[ptMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Process Fingerprint (capture, compare, drift, cluster, root cause, model) ──
+          case "fingerprint_capture": case "fingerprint_compare":
+          case "fingerprint_drift": case "fingerprint_cluster":
+          case "fingerprint_root_cause": case "fingerprint_build_model": {
+            const { processFingerprintEngine } = await import("../../engines/ProcessFingerprintEngine.js");
+            const pfMap: Record<string, string> = {
+              fingerprint_capture: "captureFingerprint",
+              fingerprint_compare: "compareFingerprints",
+              fingerprint_drift: "monitorDrift",
+              fingerprint_cluster: "clusterProcessStates",
+              fingerprint_root_cause: "rootCauseFromFingerprint",
+              fingerprint_build_model: "buildProcessModel",
+            };
+            result = (processFingerprintEngine as any)[pfMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Reliability Optimization (RBDO, interval, PCE, robust design, system reliability, tolerance) ──
+          case "reliability_rbdo": case "reliability_interval_arithmetic":
+          case "reliability_sparse_pce": case "reliability_robust_design":
+          case "reliability_system": case "reliability_tolerance_opt": {
+            const { reliabilityOptimizationEngine } = await import("../../engines/ReliabilityOptimizationEngine.js");
+            const roMap: Record<string, string> = {
+              reliability_rbdo: "rbdoFirstOrder",
+              reliability_interval_arithmetic: "intervalArithmetic",
+              reliability_sparse_pce: "sparsePCE",
+              reliability_robust_design: "robustDesignOptimization",
+              reliability_system: "systemReliability",
+              reliability_tolerance_opt: "manufacturingToleranceOptimization",
+            };
+            result = (reliabilityOptimizationEngine as any)[roMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Residual Stress Prediction (Hertzian, thermal, combined, burnishing, phase, fatigue, process) ──
+          case "residual_stress_hertzian": case "residual_stress_thermal":
+          case "residual_stress_combined": case "residual_stress_burnishing":
+          case "residual_stress_phase_transform": case "residual_stress_fatigue":
+          case "residual_stress_process_param": {
+            const { residualStressPredictionEngine } = await import("../../engines/ResidualStressPredictionEngine.js");
+            const rspMap: Record<string, string> = {
+              residual_stress_hertzian: "calcHertzianStress",
+              residual_stress_thermal: "calcThermalStress",
+              residual_stress_combined: "calcCombinedProfile",
+              residual_stress_burnishing: "calcBurnishingStress",
+              residual_stress_phase_transform: "calcPhaseTransformStress",
+              residual_stress_fatigue: "calcFatigueImpact",
+              residual_stress_process_param: "calcProcessParamEffect",
+            };
+            result = (residualStressPredictionEngine as any)[rspMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Signal Processing Toolkit (filter, spectral, envelope, cepstral, order, quality) ──
+          case "signal_digital_filter": case "signal_spectral_analysis":
+          case "signal_envelope_analysis": case "signal_cepstral_analysis":
+          case "signal_order_analysis": case "signal_quality_metrics": {
+            const { signalProcessingToolkitEngine } = await import("../../engines/SignalProcessingToolkitEngine.js");
+            const sptMap: Record<string, string> = {
+              signal_digital_filter: "digitalFilter",
+              signal_spectral_analysis: "spectralAnalysis",
+              signal_envelope_analysis: "envelopeAnalysis",
+              signal_cepstral_analysis: "cepstralAnalysis",
+              signal_order_analysis: "orderAnalysis",
+              signal_quality_metrics: "signalQualityMetrics",
+            };
+            result = (signalProcessingToolkitEngine as any)[sptMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Time Series Completion (Holt-Winters, ARIMAX, change point, regime, ES, STL) ──
+          case "ts_holt_winters": case "ts_arimax":
+          case "ts_change_point": case "ts_regime_switching":
+          case "ts_exponential_smoothing": case "ts_seasonal_decomposition": {
+            const { timeSeriesCompletionEngine } = await import("../../engines/TimeSeriesCompletionEngine.js");
+            const tscMap: Record<string, string> = {
+              ts_holt_winters: "holtWinters",
+              ts_arimax: "arimaxForecast",
+              ts_change_point: "changePointDetection",
+              ts_regime_switching: "regimeSwitching",
+              ts_exponential_smoothing: "exponentialSmoothing",
+              ts_seasonal_decomposition: "seasonalDecomposition",
+            };
+            result = (timeSeriesCompletionEngine as any)[tscMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Variance Reduction (antithetic, control, importance, stratified, adaptive MC) ──
+          case "variance_reduction_antithetic": case "variance_reduction_control":
+          case "variance_reduction_importance": case "variance_reduction_stratified":
+          case "variance_reduction_adaptive_mc": {
+            const { varianceReductionEngine } = await import("../../engines/VarianceReductionEngine.js");
+            const vrMap: Record<string, string> = {
+              variance_reduction_antithetic: "antitheticVariates",
+              variance_reduction_control: "controlVariates",
+              variance_reduction_importance: "importanceSampling",
+              variance_reduction_stratified: "stratifiedSampling",
+              variance_reduction_adaptive_mc: "adaptiveMonteCarloUQ",
+            };
+            result = (varianceReductionEngine as any)[vrMap[action]](params as ValidatedParams);
+            break;
+          }
+
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

@@ -21,7 +21,11 @@
  *   ToolAssemblyEngine, ModularFixtureLayoutEngine,
  *   HyperMillStrategyEngine, HyperMillSafetyHooks,
  *   LathePostProcessorEngine, ProbingCycleEngine, SubprogramEngine,
- *   PostProcessorFeedOptimizerEngine
+ *   PostProcessorFeedOptimizerEngine, InstantaneousEngagementEngine,
+ *   MultiCAMPostEngine, ProductionToolpathEngine, PostProcessorAPIEngine,
+ *   ScalableCAMOrchestratorEngine, UnifiedCAMPipelineEngine,
+ *   SmartToolSelectorEngine, AdaptiveToolpathRouterEngine,
+ *   CumulativeStockChainEngine, FeatureClusteringEngine, ProductionPackageEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -34,7 +38,7 @@ import { ACTION_CNC_PROGRAMMING_SCHEMAS } from "../../schemas/cncProgrammingActi
 const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -91,6 +95,17 @@ async function getEngine(name: string): Promise<any> {
     case "controllerDialect": return (await import("../../engines/ControllerDialectEngine.js")).controllerDialectEngine;
     case "fiveAxis": return (await import("../../engines/FiveAxisPostEngine.js")).fiveAxisPostEngine;
     case "ppVerify": return (await import("../../engines/PostProcessorVerificationEngine.js")).postProcessorVerificationEngine;
+    case "instEngage": return _instEngage ??= (await import("../../engines/InstantaneousEngagementEngine.js")).instantaneousEngagementEngine;
+    case "multiCamPost": return _multiCamPost ??= (await import("../../engines/MultiCAMPostEngine.js")).multiCAMPostEngine;
+    case "prodToolpath": return _prodToolpath ??= (await import("../../engines/ProductionToolpathEngine.js")).productionToolpathEngine;
+    case "ppAPI": return _ppAPI ??= (await import("../../engines/PostProcessorAPIEngine.js")).postProcessorAPIEngine;
+    case "scalableOrch": return _scalableOrch ??= (await import("../../engines/ScalableCAMOrchestratorEngine.js")).scalableCAMOrchestratorEngine;
+    case "unifiedPipe": return _unifiedPipe ??= (await import("../../engines/UnifiedCAMPipelineEngine.js")).unifiedCAMPipelineEngine;
+    case "smartTool": return _smartTool ??= (await import("../../engines/SmartToolSelectorEngine.js")).smartToolSelectorEngine;
+    case "adaptRouter": return _adaptRouter ??= (await import("../../engines/AdaptiveToolpathRouterEngine.js")).adaptiveToolpathRouterEngine;
+    case "cumStock": return _cumStock ??= (await import("../../engines/CumulativeStockChainEngine.js")).cumulativeStockChainEngine;
+    case "featCluster": return _featCluster ??= (await import("../../engines/FeatureClusteringEngine.js")).featureClusteringEngine;
+    case "prodPackage": return _prodPackage ??= (await import("../../engines/ProductionPackageEngine.js")).productionPackageEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -188,6 +203,18 @@ const ACTIONS = [
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
   "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
+  // Orphan CAM engines (11 engines, 30 actions)
+  "instantaneous_engagement_analyze", "instantaneous_engagement_optimal_sf",
+  "multi_cam_post_list", "multi_cam_post_scaffold", "multi_cam_post_sequence", "multi_cam_post_millturn", "multi_cam_post_phase_b",
+  "production_toolpath_generate", "production_toolpath_gcode", "production_toolpath_cost", "production_toolpath_chatter_rpm",
+  "pp_api_start", "pp_api_stop", "pp_api_status",
+  "scalable_cam_orchestrate",
+  "unified_cam_pipeline",
+  "smart_tool_select",
+  "adaptive_toolpath_route", "adaptive_toolpath_list_algorithms",
+  "cumulative_stock_chain",
+  "feature_clustering_cluster",
+  "production_package_assemble",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1373,6 +1400,127 @@ Params vary by action — pass relevant fields in params object.`,
               blocks: params.blocks as any ?? [],
               workpiece_material: params.workpiece_material as string ?? "steel",
             });
+            break;
+          }
+          // ── InstantaneousEngagementEngine (2 actions) ──
+          case "instantaneous_engagement_analyze": {
+            const eng = await getEngine("instEngage");
+            result = eng.analyzeToolpath(params as any);
+            break;
+          }
+          case "instantaneous_engagement_optimal_sf": {
+            const eng = await getEngine("instEngage");
+            result = eng.computeOptimalSF(params as any);
+            break;
+          }
+          // ── MultiCAMPostEngine (5 actions) ──
+          case "multi_cam_post_list": {
+            const eng = await getEngine("multiCamPost");
+            result = eng.listCAMSystems();
+            break;
+          }
+          case "multi_cam_post_scaffold": {
+            const eng = await getEngine("multiCamPost");
+            result = eng.getPostScaffold(params.system as any, params.controller as string);
+            break;
+          }
+          case "multi_cam_post_sequence": {
+            const eng = await getEngine("multiCamPost");
+            result = eng.getMachineSequence(params as any);
+            break;
+          }
+          case "multi_cam_post_millturn": {
+            const eng = await getEngine("multiCamPost");
+            result = eng.getMillTurnChannels(params.controller as string);
+            break;
+          }
+          case "multi_cam_post_phase_b": {
+            const eng = await getEngine("multiCamPost");
+            result = eng.getPhaseBCommand(params as any);
+            break;
+          }
+          // ── ProductionToolpathEngine (4 actions) ──
+          case "production_toolpath_generate": {
+            const eng = await getEngine("prodToolpath");
+            result = eng.generateProduction(params as any);
+            break;
+          }
+          case "production_toolpath_gcode": {
+            const eng = await getEngine("prodToolpath");
+            result = eng.toGcode(params as any);
+            break;
+          }
+          case "production_toolpath_cost": {
+            const eng = await getEngine("prodToolpath");
+            result = eng.costPerFeature(params as any);
+            break;
+          }
+          case "production_toolpath_chatter_rpm": {
+            const eng = await getEngine("prodToolpath");
+            result = eng.selectChatterSafeRPM(params as any);
+            break;
+          }
+          // ── PostProcessorAPIEngine (3 actions) ──
+          case "pp_api_start": {
+            const eng = await getEngine("ppAPI");
+            result = await eng.start(params as any);
+            break;
+          }
+          case "pp_api_stop": {
+            const eng = await getEngine("ppAPI");
+            result = await eng.stop();
+            break;
+          }
+          case "pp_api_status": {
+            const eng = await getEngine("ppAPI");
+            result = eng.status();
+            break;
+          }
+          // ── ScalableCAMOrchestratorEngine (1 action) ──
+          case "scalable_cam_orchestrate": {
+            const eng = await getEngine("scalableOrch");
+            result = eng.process(params as any);
+            break;
+          }
+          // ── UnifiedCAMPipelineEngine (1 action) ──
+          case "unified_cam_pipeline": {
+            const eng = await getEngine("unifiedPipe");
+            result = eng.generate(params as any);
+            break;
+          }
+          // ── SmartToolSelectorEngine (1 action) ──
+          case "smart_tool_select": {
+            const eng = await getEngine("smartTool");
+            result = eng.select(params as any);
+            break;
+          }
+          // ── AdaptiveToolpathRouterEngine (2 actions) ──
+          case "adaptive_toolpath_route": {
+            const eng = await getEngine("adaptRouter");
+            result = eng.route(params as any);
+            break;
+          }
+          case "adaptive_toolpath_list_algorithms": {
+            const eng = await getEngine("adaptRouter");
+            result = eng.listAlgorithms();
+            break;
+          }
+          // ── CumulativeStockChainEngine (1 action) ──
+          case "cumulative_stock_chain": {
+            const eng = await getEngine("cumStock");
+            result = eng.chain(params as any);
+            break;
+          }
+          // ── FeatureClusteringEngine (1 action) ──
+          case "feature_clustering_cluster": {
+            const eng = await getEngine("featCluster");
+            result = eng.cluster(params.features as any);
+            break;
+          }
+          // ── ProductionPackageEngine (1 action) ──
+          case "production_package_assemble": {
+            const eng = await getEngine("prodPackage");
+            result = eng.assemble(params as any);
             break;
           }
           default:

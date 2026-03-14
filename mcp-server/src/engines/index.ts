@@ -2365,7 +2365,6 @@ export { spectralGraphEngine } from "./SpectralGraphEngine.js";
 
 // Session Delta — cross-session change tracking
 export { sessionDeltaEngine, SessionDeltaEngine } from "./SessionDeltaEngine.js";
-export type { SessionBookmark, SessionDelta, ChangeReport } from "./SessionDeltaEngine.js";
 
 // System Snapshot — ultra-compact system snapshots for token savings
 export { systemSnapshotEngine, SystemSnapshotEngine } from "./SystemSnapshotEngine.js";
@@ -2836,91 +2835,48 @@ export { ThreadGageEngine, threadGageEngine } from './ThreadGageEngine.js';
 export { SurfaceIntegrityEngine, surfaceIntegrityEngine } from './SurfaceIntegrityEngine.js';
 export { MachineVibrationEngine, machineVibrationEngine } from './MachineVibrationEngine.js';
 export { GasketDesignEngine, gasketDesignEngine } from "./GasketDesignEngine.js";
-export type { GasketDesignInput, GasketDesignResult } from "./GasketDesignEngine.js";
 export { RivetJointEngine, rivetJointEngine } from "./RivetJointEngine.js";
-export type { RivetJointInput, RivetJointResult } from "./RivetJointEngine.js";
 export { AdhesiveBondEngine, adhesiveBondEngine } from "./AdhesiveBondEngine.js";
-export type { AdhesiveBondInput, AdhesiveBondResult } from "./AdhesiveBondEngine.js";
 export { WireRopeEngine, wireRopeEngine } from "./WireRopeEngine.js";
-export type { WireRopeInput, WireRopeResult } from "./WireRopeEngine.js";
 export { CamDesignEngine, camDesignEngine } from "./CamDesignEngine.js";
-export type { CamDesignInput, CamDesignResult } from "./CamDesignEngine.js";
 export { LeafSpringEngine, leafSpringEngine } from "./LeafSpringEngine.js";
-export type { LeafSpringInput, LeafSpringResult } from "./LeafSpringEngine.js";
 export { SplineJointEngine, splineJointEngine } from "./SplineJointEngine.js";
-export type { SplineJointInput, SplineJointResult } from "./SplineJointEngine.js";
 export { KeywayDesignEngine, keywayDesignEngine } from "./KeywayDesignEngine.js";
-export type { KeywayDesignInput, KeywayDesignResult } from "./KeywayDesignEngine.js";
 export { ConveyorBeltEngine, conveyorBeltEngine } from "./ConveyorBeltEngine.js";
-export type { ConveyorBeltInput, ConveyorBeltResult } from "./ConveyorBeltEngine.js";
 export { DiskBrakeEngine, diskBrakeEngine } from "./DiskBrakeEngine.js";
-export type { DiskBrakeInput, DiskBrakeResult } from "./DiskBrakeEngine.js";
 export { CriticalSpeedEngine, criticalSpeedEngine } from "./CriticalSpeedEngine.js";
-export type { CriticalSpeedInput, CriticalSpeedResult } from "./CriticalSpeedEngine.js";
 export { WormGearEngine, wormGearEngine } from "./WormGearEngine.js";
-export type { WormGearInput, WormGearResult } from "./WormGearEngine.js";
 export { PipeStressEngine, pipeStressEngine } from "./PipeStressEngine.js";
-export type { PipeStressInput, PipeStressResult } from "./PipeStressEngine.js";
 export { ThermalFatigueEngine, thermalFatigueEngine } from "./ThermalFatigueEngine.js";
-export type { ThermalFatigueInput, ThermalFatigueResult } from "./ThermalFatigueEngine.js";
 export { ScrewJackEngine, screwJackEngine } from "./ScrewJackEngine.js";
-export type { ScrewJackInput, ScrewJackResult } from "./ScrewJackEngine.js";
 export { VibrationIsolationEngine, vibrationIsolationEngine } from "./VibrationIsolationEngine.js";
-export type { VibrationIsolationInput, VibrationIsolationResult } from "./VibrationIsolationEngine.js";
 export { BallMillEngine, ballMillEngine } from "./BallMillEngine.js";
-export type { BallMillInput, BallMillResult } from "./BallMillEngine.js";
 export { FluidCouplingEngine, fluidCouplingEngine } from "./FluidCouplingEngine.js";
-export type { FluidCouplingInput, FluidCouplingResult } from "./FluidCouplingEngine.js";
 export { CrossCamRecommenderEngine, crossCamRecommenderEngine } from "./CrossCamRecommenderEngine.js";
-export type { CrossCamInput, CrossCamRecommendation, StrategyCandidate, CamSystem } from "./CrossCamRecommenderEngine.js";
 export { ConstraintSatisfactionEngine, constraintSatisfactionEngine } from "./ConstraintSatisfactionEngine.js";
-export type { MachiningConstraints, MachiningParameters, MachineCapability, ConstraintSatisfactionResult } from "./ConstraintSatisfactionEngine.js";
 export { PostSelectionEngine, postSelectionEngine } from "./PostSelectionEngine.js";
-export type { JobContext as PostJobContext, PostFeature, PostSelectionResult } from "./PostSelectionEngine.js";
 export { ToolpathSegmentOptimizerEngine, toolpathSegmentOptimizerEngine } from "./ToolpathSegmentOptimizerEngine.js";
-export type { ToolpathSegment as OptToolpathSegment, SegmentOptInput, SegmentOptResult } from "./ToolpathSegmentOptimizerEngine.js";
 export { ToolAssemblyDeflectionEngine, toolAssemblyDeflectionEngine } from "./ToolAssemblyDeflectionEngine.js";
-export type { AssemblyInput, AssemblySection, AssemblyDeflectionResult } from "./ToolAssemblyDeflectionEngine.js";
 export { AdaptiveEngagementEngine, adaptiveEngagementEngine } from "./AdaptiveEngagementEngine.js";
-export type { CornerGeometry, EngagementInput, EngagementResult as AdaptiveEngagementResult } from "./AdaptiveEngagementEngine.js";
 export { HybridPostMergeEngine, hybridPostMergeEngine } from "./HybridPostMergeEngine.js";
-export type { PostSegment, MergeInput, MergeResult } from "./HybridPostMergeEngine.js";
 export { ThermalCompensationModelEngine, thermalCompensationModelEngine } from "./ThermalCompensationModelEngine.js";
-export type { ThermalInput as ThermalCompModelInput, ThermalResult as ThermalCompModelResult } from "./ThermalCompensationModelEngine.js";
 export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCProcessCapabilityEngine.js";
-export type { SPCInput, SPCResult } from "./SPCProcessCapabilityEngine.js";
 export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";
-export type { ParetoInput, ParetoResult, ParetoSolution } from "./MultiObjectiveParetoEngine.js";
 export { ChatterStabilityLobeEngine, chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
-export type { ChatterInput as ChatterLobeInput, ChatterResult as ChatterLobeResult } from "./ChatterStabilityLobeEngine.js";
 export { SurfaceIntegrityPredictorEngine, surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
-export type { SurfaceIntegrityInput as SIPredictorInput, SurfaceIntegrityResult as SIPredictorResult } from "./SurfaceIntegrityPredictorEngine.js";
 export { MachiningEnergyModelEngine, machiningEnergyModelEngine } from "./MachiningEnergyModelEngine.js";
-export type { MachiningEnergyInput, MachiningEnergyResult } from "./MachiningEnergyModelEngine.js";
 export { MonteCarloProcessEngine, monteCarloProcessEngine } from "./MonteCarloProcessEngine.js";
-export type { MCProcessInput, MCProcessResult } from "./MonteCarloProcessEngine.js";
 export { DOETaguchEngine, doeTaguchEngine } from "./DOETaguchEngine.js";
-export type { DOEInput as TaguchDOEInput, DOEResult as TaguchDOEResult } from "./DOETaguchEngine.js";
 export { FixtureClampingEngine, fixtureClampingEngine } from "./FixtureClampingEngine.js";
-export type { FixtureInput as FixtureClampInput, ClampForceResult as FixtureClampResult } from "./FixtureClampingEngine.js";
 export { SpringbackPredictionEngine, springbackPredictionEngine } from "./SpringbackPredictionEngine.js";
-export type { SpringbackInput, SpringbackResult } from "./SpringbackPredictionEngine.js";
 export { GDTStackupEngine, gdtStackupEngine } from "./GDTStackupEngine.js";
-export type { StackupInput, StackupResult } from "./GDTStackupEngine.js";
 export { RunoutEffectEngine, runoutEffectEngine } from "./RunoutEffectEngine.js";
-export type { RunoutInput, RunoutResult } from "./RunoutEffectEngine.js";
 export { ProcessDigitalTwinEngine, processDigitalTwinEngine } from "./ProcessDigitalTwinEngine.js";
-export type { DigitalTwinInput, CoupledPrediction } from "./ProcessDigitalTwinEngine.js";
 export { ProcessRobustnessEngine, processRobustnessEngine } from "./ProcessRobustnessEngine.js";
-export type { RobustnessInput, RobustnessResult } from "./ProcessRobustnessEngine.js";
 export { KalmanFilterEngine, kalmanFilterEngine } from "./KalmanFilterEngine.js";
-export type { KalmanInput as KalmanFilterInput, KalmanResult as KalmanFilterResult } from "./KalmanFilterEngine.js";
 export { AMSAAReliabilityGrowthEngine, amsaaReliabilityGrowthEngine } from "./AMSAAReliabilityGrowthEngine.js";
-export type { AMSAAInput, AMSAAResult } from "./AMSAAReliabilityGrowthEngine.js";
 export { ChanceConstrainedOptimizationEngine, chanceConstrainedOptimizationEngine } from "./ChanceConstrainedOptimizationEngine.js";
-export type { ChanceConstrainedInput, ChanceConstrainedResult } from "./ChanceConstrainedOptimizationEngine.js";
 export { AcousticEmissionMonitoringEngine, acousticEmissionMonitoringEngine } from "./AcousticEmissionMonitoringEngine.js";
-export type { AEMonitoringInput, AEMonitoringResult } from "./AcousticEmissionMonitoringEngine.js";
 
 export { sheetMetalNestingEngine, SheetMetalNestingEngine } from "./SheetMetalNestingEngine.js";
 export { hydraulicPressEngine, HydraulicPressEngine } from "./HydraulicPressEngine.js";
@@ -3022,41 +2978,23 @@ export { NetworkFlowEngine, networkFlowEngine } from './NetworkFlowEngine.js';
 export { OptimizationSimplexEngine, optimizationSimplexEngine } from './OptimizationSimplexEngine.js';
 export { ThermocoupleEngine, thermocoupleEngine } from './ThermocoupleEngine.js';
 export { RTDEngine, rtdEngine } from './RTDEngine.js';
-export type { RTDInput, RTDResult, RTDElement, WireConfig } from './RTDEngine.js';
 export { CoatingThicknessEngine, coatingThicknessEngine } from './CoatingThicknessEngine.js';
-export type { CoatingThicknessInput, CoatingThicknessResult, CoatingType as CoatingThicknessCoatingType, SubstrateType } from './CoatingThicknessEngine.js';
 export { TribologyEngine, tribologyEngine } from './TribologyEngine.js';
-export type { TribologyInput, TribologyResult, LubricationRegime, WearMechanism } from './TribologyEngine.js';
 export { RollingBearingEngine, rollingBearingEngine } from './RollingBearingEngine.js';
-export type { RollingBearingInput, RollingBearingResult } from './RollingBearingEngine.js';
 export { ScrewCompressorEngine, screwCompressorEngine } from './ScrewCompressorEngine.js';
-export type { ScrewCompressorInput, ScrewCompressorResult, CompressorCooling, CapacityControl } from './ScrewCompressorEngine.js';
 export { ReciprocatingCompressorEngine, reciprocatingCompressorEngine } from './ReciprocatingCompressorEngine.js';
-export type { ReciprocatingCompressorInput, ReciprocatingCompressorResult, CompressorAction, ValveType } from './ReciprocatingCompressorEngine.js';
 export { CapacitorBankEngine, capacitorBankEngine } from './CapacitorBankEngine.js';
-export type { CapacitorBankInput, CapacitorBankResult, CapacitorType, ConnectionType } from './CapacitorBankEngine.js';
 export { ImpellerEngine, impellerEngine } from './ImpellerEngine.js';
-export type { ImpellerInput, ImpellerResult, ImpellerType, FluidType } from './ImpellerEngine.js';
 export { HydraulicMotorEngine, hydraulicMotorEngine } from './HydraulicMotorEngine.js';
-export type { HydraulicMotorInput, HydraulicMotorResult, MotorType } from './HydraulicMotorEngine.js';
 export { BlowerEngine, blowerEngine } from './BlowerEngine.js';
-export type { BlowerInput, BlowerResult, BlowerType } from './BlowerEngine.js';
 export { VanePumpEngine, vanePumpEngine } from './VanePumpEngine.js';
-export type { VanePumpInput, VanePumpResult, VanePumpType } from './VanePumpEngine.js';
 export { DiaphragmPumpEngine, diaphragmPumpEngine } from './DiaphragmPumpEngine.js';
-export type { DiaphragmPumpInput, DiaphragmPumpResult, DiaphragmType, DiaphragmMaterial } from './DiaphragmPumpEngine.js';
 export { HypoidGearEngine, hypoidGearEngine } from './HypoidGearEngine.js';
-export type { HypoidGearInput, HypoidGearResult, HypoidType } from './HypoidGearEngine.js';
 export { CycloidDriveEngine, cycloidDriveEngine } from './CycloidDriveEngine.js';
-export type { CycloidDriveInput, CycloidDriveResult, CycloidType } from './CycloidDriveEngine.js';
 export { HeatExchangerPlateEngine, heatExchangerPlateEngine } from './HeatExchangerPlateEngine.js';
-export type { HeatExchangerPlateInput, HeatExchangerPlateResult, PlatePattern, FluidPair } from './HeatExchangerPlateEngine.js';
 export { BrazingSolderingEngine, brazingSolderingEngine } from './BrazingSolderingEngine.js';
-export type { BrazingSolderingInput, BrazingSolderingResult, JoiningProcess, FillerType } from './BrazingSolderingEngine.js';
 export { RivetedJointEngine, rivetedJointEngine } from './RivetedJointEngine.js';
-export type { RivetedJointInput, RivetedJointResult, RivetPattern } from './RivetedJointEngine.js';
 export { UltrasonicWeldingEngine, ultrasonicWeldingEngine } from './UltrasonicWeldingEngine.js';
-export type { UltrasonicWeldingInput, UltrasonicWeldingResult, USWMaterial, JointDesign } from './UltrasonicWeldingEngine.js';
 
 // CAMK-MS1: Novel Algorithm → G-Code Pipeline
 export { segmentInterpolatorEngine } from "./SegmentInterpolatorEngine.js";
@@ -3065,27 +3003,17 @@ export { programStructureEngine } from "./ProgramStructureEngine.js";
 export { gCodeVerificationEngine } from "./GCodeVerificationEngine.js";
 export { endToEndPipelineEngine } from "./EndToEndPipelineEngine.js";
 export { EDMWireEngine, edmWireEngine } from './EDMWireEngine.js';
-export type { EDMWireInput, EDMWireResult, WireType as EDMWireType, CuttingMode } from './EDMWireEngine.js';
 export { AnodizingProcessEngine, anodizingProcessEngine } from './AnodizingProcessEngine.js';
-export type { AnodizingProcessInput, AnodizingProcessResult, AnodizeType as AnodizingProcessAnodizeType } from './AnodizingProcessEngine.js';
 export { AccumulatorEngine, accumulatorEngine } from './AccumulatorEngine.js';
-export type { AccumulatorInput, AccumulatorResult, AccumulatorType, GasProcess } from './AccumulatorEngine.js';
 
 // Machining Playbook — experiential knowledge (sequencing, anti-patterns, best practices)
 export { machiningPlaybookEngine, MachiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
-export type { PlaybookRule, PlaybookQuery, SequencingAdvice, SetupAdvice, RuleCategory, Severity as PlaybookSeverity } from "./MachiningPlaybookEngine.js";
 export { TransportationProblemEngine, transportationProblemEngine } from './TransportationProblemEngine.js';
-export type { TransportationProblemInput, TransportationProblemResult } from './TransportationProblemEngine.js';
 export { AssignmentProblemEngine, assignmentProblemEngine } from './AssignmentProblemEngine.js';
-export type { AssignmentProblemInput, AssignmentProblemResult } from './AssignmentProblemEngine.js';
 export { MarkovDecisionEngine, markovDecisionEngine } from './MarkovDecisionEngine.js';
-export type { MarkovDecisionInput, MarkovDecisionResult } from './MarkovDecisionEngine.js';
 export { PowderCompactionEngine, powderCompactionEngine } from './PowderCompactionEngine.js';
-export type { PowderCompactionInput, PowderCompactionResult, PowderMaterial, CompactionType } from './PowderCompactionEngine.js';
 export { SinteringProcessEngine, sinteringProcessEngine } from './SinteringProcessEngine.js';
-export type { SinteringProcessInput, SinteringProcessResult, SinterAtmosphere, SinterMaterial } from './SinteringProcessEngine.js';
 export { SprayDryerEngine, sprayDryerEngine } from './SprayDryerEngine.js';
-export type { SprayDryerInput, SprayDryerResult, AtomizerType, FlowConfig } from './SprayDryerEngine.js';
 
 export { calenderingEngine, CalenderingEngine } from "./CalenderingEngine.js";
 export { filamentWindingEngine, FilamentWindingEngine } from "./FilamentWindingEngine.js";
@@ -3095,7 +3023,6 @@ export { resinTransferEngine, ResinTransferEngine } from "./ResinTransferEngine.
 export { sensorDataSchemaEngine } from "./SensorDataSchemaEngine.js";
 export { sensorSimulatorEngine } from "./SensorSimulatorEngine.js";
 export { sensorFusionEngine } from "./SensorFusionEngine.js";
-export type { SensorFusionInput, SensorFusionResult } from "./SensorFusionEngine.js";
 export { realTimeAnomalyDetectionEngine } from "./RealTimeAnomalyDetectionEngine.js";
 
 export { magneticBearingEngine, MagneticBearingEngine } from "./MagneticBearingEngine.js";
@@ -3286,3 +3213,90 @@ export { predictiveSimulationEngine, PredictiveSimulationEngine } from './Predic
 export { simulationVisualizationBridgeEngine, SimulationVisualizationBridgeEngine } from './SimulationVisualizationBridgeEngine.js';
 
 export { calibratedSimulationEngine, CalibratedSimulationEngine } from './CalibratedSimulationEngine.js';
+
+// Wired-but-unexported batch (2026-03-14)
+export { controllerDialectEngine, ControllerDialectEngineImpl } from './ControllerDialectEngine.js';
+export { environmentalVariationEngine, EnvironmentalVariationEngine } from './EnvironmentalVariationEngine.js';
+
+// Batch 3 — missing dispatcher-wired engines
+export { processVariabilityIntegrationEngine, ProcessVariabilityIntegrationEngine } from './ProcessVariabilityIntegrationEngine.js';
+export { stochasticDeflectionEngine, StochasticDeflectionEngine } from './StochasticDeflectionEngine.js';
+export { stochasticDimensionalEngine, StochasticDimensionalEngine } from './StochasticDimensionalEngine.js';
+export { stochasticEDMEngine, StochasticEDMEngine } from './StochasticEDMEngine.js';
+export { stochasticGrindingEngine, StochasticGrindingEngine } from './StochasticGrindingEngine.js';
+export { stochasticToolWearEngine, StochasticToolWearEngine } from './StochasticToolWearEngine.js';
+export { stochasticWrapperEngine } from './StochasticWrapperEngine.js';
+export { surfaceFinishEngine, SurfaceFinishEngine } from './SurfaceFinishEngine.js';
+export { thermalWearCouplingEngine, ThermalWearCouplingEngine } from './ThermalWearCouplingEngine.js';
+
+// Batch 4 — dispatcher-wired engines missing from index (2026-03-14)
+export { fiveAxisPostEngine, FiveAxisPostEngineImpl } from './FiveAxisPostEngine.js';
+export { kienzleForceModelEngine, KienzleForceModelEngine } from './KienzleForceModelEngine.js';
+export { getKinematicModel, checkCollision, getKinematicCoverage, type FiveAxisTopology, type TransformationMatrix, type CollisionZone, type KinematicModel } from './MachineKinematicsEngine.js';
+export { materialBatchVariabilityEngine, MaterialBatchVariabilityEngine } from './MaterialBatchVariabilityEngine.js';
+export { minerCumulativeDamageEngine, MinerCumulativeDamageEngine } from './MinerCumulativeDamageEngine.js';
+export { morrisScreeningEngine, MorrisScreeningEngine } from './MorrisScreeningEngine.js';
+export { multipleRegressionEngine, MultipleRegressionEngine } from './MultipleRegressionEngine.js';
+export { nelsonSPCRulesEngine } from './NelsonSPCRulesEngine.js';
+export { postProcessorPipelineEngine, PostProcessorPipelineEngineImpl } from './PostProcessorPipelineEngine.js';
+export { postProcessorVerificationEngine, PostProcessorVerificationEngineImpl } from './PostProcessorVerificationEngine.js';
+
+// Batch 5 — orphaned engines wired to dispatchers (2026-03-14)
+export { ThreadMillingPhysicsEngine } from './ThreadMillingPhysicsEngine.js';
+export { deepHoleDrillingPhysicsEngine, DeepHoleDrillingPhysicsEngine } from './DeepHoleDrillingPhysicsEngine.js';
+export { cadOperationTaxonomyEngine, CADOperationTaxonomyEngine } from './CADOperationTaxonomyEngine.js';
+export { cadQueryCodeGeneratorEngine, CadQueryCodeGeneratorEngine } from './CadQueryCodeGeneratorEngine.js';
+export { fusion360CodeGeneratorEngine, Fusion360CodeGeneratorEngine } from './Fusion360CodeGeneratorEngine.js';
+export { fusion360LiveBridgeEngine, Fusion360LiveBridgeEngine } from './Fusion360LiveBridgeEngine.js';
+export { metrologyUncertaintyEngine, MetrologyUncertaintyEngine } from './MetrologyUncertaintyEngine.js';
+export { integratedVerificationEngine, IntegratedVerificationEngine } from './IntegratedVerificationEngine.js';
+
+// Batch 6 — fluidThermalDispatcher wiring (2026-03-14)
+
+// Batch 7 — Video/VAR pipeline + infrastructure exports (2026-03-14)
+export { videoActionExtractorEngine, VideoActionExtractorEngine } from './VideoActionExtractorEngine.js';
+export { videoReplayOrchestratorEngine, VideoReplayOrchestratorEngine } from './VideoReplayOrchestratorEngine.js';
+export { videoReplayPipelineEngine, VideoReplayPipelineEngine } from './VideoReplayPipelineEngine.js';
+export { visionActionAnalyzerEngine, VisionActionAnalyzerEngine } from './VisionActionAnalyzerEngine.js';
+export { interactiveLearningSessionEngine, InteractiveLearningSessionEngine } from './InteractiveLearningSessionEngine.js';
+export { executionVerificationEngine, ExecutionVerificationEngine } from './ExecutionVerificationEngine.js';
+export { playwrightAutomationEngine, PlaywrightAutomationEngine } from './PlaywrightAutomationEngine.js';
+
+// Batch 8 — Orphan CAM engines wired to camDispatcher (2026-03-14)
+export { instantaneousEngagementEngine } from './InstantaneousEngagementEngine.js';
+export { multiCAMPostEngine } from './MultiCAMPostEngine.js';
+export { productionToolpathEngine, ProductionToolpathEngine } from './ProductionToolpathEngine.js';
+export { postProcessorAPIEngine } from './PostProcessorAPIEngine.js';
+export { scalableCAMOrchestratorEngine, ScalableCAMOrchestratorEngine } from './ScalableCAMOrchestratorEngine.js';
+export { unifiedCAMPipelineEngine, UnifiedCAMPipelineEngine } from './UnifiedCAMPipelineEngine.js';
+export { smartToolSelectorEngine, SmartToolSelectorEngine } from './SmartToolSelectorEngine.js';
+export { adaptiveToolpathRouterEngine, AdaptiveToolpathRouterEngine } from './AdaptiveToolpathRouterEngine.js';
+export { cumulativeStockChainEngine, CumulativeStockChainEngine } from './CumulativeStockChainEngine.js';
+export { featureClusteringEngine, FeatureClusteringEngine } from './FeatureClusteringEngine.js';
+export { productionPackageEngine, ProductionPackageEngine } from './ProductionPackageEngine.js';
+
+// Batch 8 — Science/Stats orphaned engine wiring (2026-03-14)
+export { advancedCuttingPhenomenaEngine } from './AdvancedCuttingPhenomenaEngine.js';
+export { advancedCuttingPhysicsExtEngine } from './AdvancedCuttingPhysicsExtEngine.js';
+export { advancedMLStatisticsEngine } from './AdvancedMLStatisticsEngine.js';
+export { advancedRegressionEngine } from './AdvancedRegressionEngine.js';
+export { advancedStatisticalLearningEngine } from './AdvancedStatisticalLearningEngine.js';
+export { advancedUncertaintyEngine } from './AdvancedUncertaintyEngine.js';
+export { advancedUncertaintyMethodsEngine } from './AdvancedUncertaintyMethodsEngine.js';
+export { coffinMansonFatigueEngine } from './CoffinMansonFatigueEngine.js';
+export { CompositeMachiningPhysicsEngine } from './CompositeMachiningPhysicsEngine.js';
+export { dimensionalAnalysisCrossValidationEngine } from './DimensionalAnalysisCrossValidationEngine.js';
+export { empiricalCorrelationEngine } from './EmpiricalCorrelationEngine.js';
+export { fundamentalPhysicsCompletionEngine } from './FundamentalPhysicsCompletionEngine.js';
+export { kdeGradientBoostEngine } from './KDEGradientBoostEngine.js';
+export { permutationTestEngine } from './PermutationTestEngine.js';
+export { processFingerprintEngine } from './ProcessFingerprintEngine.js';
+export { reliabilityOptimizationEngine } from './ReliabilityOptimizationEngine.js';
+export { residualStressPredictionEngine } from './ResidualStressPredictionEngine.js';
+export { signalProcessingToolkitEngine } from './SignalProcessingToolkitEngine.js';
+export { timeSeriesCompletionEngine } from './TimeSeriesCompletionEngine.js';
+export { varianceReductionEngine } from './VarianceReductionEngine.js';
+
+// Batch 9 � final unexported engines (2026-03-14)
+export { assemblyEngine } from './AssemblyEngine.js';
+export { multiProcessCAMBridgeEngine, MultiProcessCAMBridgeEngine } from './MultiProcessCAMBridgeEngine.js';

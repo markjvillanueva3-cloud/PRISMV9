@@ -17,6 +17,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _sketch: any, _partLib: any, _assembly: any;
+let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -29,6 +30,10 @@ async function getEngine(name: string): Promise<any> {
     case "sketch": return _sketch ??= (await import("../../engines/SketchEngine.js")).sketchEngine;
     case "partLib": return _partLib ??= (await import("../../engines/ParametricPartLibraryEngine.js")).parametricPartLibraryEngine;
     case "assembly": return _assembly ??= (await import("../../engines/AssemblyEngine.js")).assemblyEngine;
+    case "cadTaxonomy": return _cadTaxonomy ??= (await import("../../engines/CADOperationTaxonomyEngine.js")).cadOperationTaxonomyEngine;
+    case "cadQueryGen": return _cadQueryGen ??= (await import("../../engines/CadQueryCodeGeneratorEngine.js")).cadQueryCodeGeneratorEngine;
+    case "f360Gen": return _f360Gen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
+    case "f360Bridge": return _f360Bridge ??= (await import("../../engines/Fusion360LiveBridgeEngine.js")).fusion360LiveBridgeEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }

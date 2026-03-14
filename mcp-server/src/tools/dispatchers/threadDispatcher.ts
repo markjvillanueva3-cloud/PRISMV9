@@ -10,7 +10,11 @@ import type { HookPhase as ExecutorHookPhase } from "../../engines/HookExecutor.
 const CALC_ACTIONS = new Set([
   "calculate_tap_drill", "calculate_thread_mill_params", "calculate_thread_depth",
   "calculate_engagement_percent", "calculate_pitch_diameter", "calculate_minor_major_diameter",
-  "calculate_thread_cutting_params", "calculate_thread_stripping"
+  "calculate_thread_cutting_params", "calculate_thread_stripping",
+  "thread_mill_helical_kinematics", "thread_mill_cutting_forces",
+  "thread_mill_quality_predict", "thread_mill_multipass_strategy",
+  "thread_mill_cycle_time", "thread_mill_recommend_tool",
+  "thread_mill_lookup_standard", "thread_mill_chip_thinning"
 ]);
 const CODE_ACTIONS = new Set(["generate_thread_gcode"]);
 
@@ -25,7 +29,7 @@ export function registerThreadDispatcher(server: any): void {
     {
       action: z.enum([
         "calculate_tap_drill",
-        "calculate_thread_mill_params", 
+        "calculate_thread_mill_params",
         "calculate_thread_depth",
         "calculate_engagement_percent",
         "get_thread_specifications",
@@ -36,7 +40,15 @@ export function registerThreadDispatcher(server: any): void {
         "calculate_thread_cutting_params",
         "validate_thread_fit_class",
         "generate_thread_gcode",
-        "calculate_thread_stripping"
+        "calculate_thread_stripping",
+        "thread_mill_helical_kinematics",
+        "thread_mill_cutting_forces",
+        "thread_mill_quality_predict",
+        "thread_mill_multipass_strategy",
+        "thread_mill_cycle_time",
+        "thread_mill_recommend_tool",
+        "thread_mill_lookup_standard",
+        "thread_mill_chip_thinning"
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
@@ -76,6 +88,24 @@ export function registerThreadDispatcher(server: any): void {
           }
         }
         
+        // ThreadMillingPhysicsEngine actions (static methods)
+        const THREAD_MILL_ACTIONS: Record<string, string> = {
+          thread_mill_helical_kinematics: "computeHelicalKinematics",
+          thread_mill_cutting_forces: "computeCuttingForces",
+          thread_mill_quality_predict: "predictThreadQuality",
+          thread_mill_multipass_strategy: "computeMultiPassStrategy",
+          thread_mill_cycle_time: "computeCycleTime",
+          thread_mill_recommend_tool: "recommendTool",
+          thread_mill_lookup_standard: "lookupThreadStandard",
+          thread_mill_chip_thinning: "computeChipThinning",
+        };
+        if (THREAD_MILL_ACTIONS[action]) {
+          const { ThreadMillingPhysicsEngine } = await import("../../engines/ThreadMillingPhysicsEngine.js");
+          const method = THREAD_MILL_ACTIONS[action];
+          const tmResult = (ThreadMillingPhysicsEngine as any)[method](params);
+          return { content: [{ type: "text", text: JSON.stringify(tmResult) }] };
+        }
+
         const result = await handleThreadTool(action, params);
         
         // Fire post-hooks (non-blocking)

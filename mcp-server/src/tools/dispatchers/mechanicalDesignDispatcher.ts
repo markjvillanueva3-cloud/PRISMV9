@@ -75,6 +75,8 @@ const ACTION_MAP: Record<string, [string, string, string]> = {
   clutch_brake_calculate: ["ClutchBrakeEngine", "clutchBrakeEngine", "calculate"],
   hertz_contact_calculate: ["HertzContactEngine", "hertzContactEngine", "calculate"],
   column_buckling_calculate: ["ColumnBucklingEngine", "columnBucklingEngine", "calculate"],
+  capacitor_bank_calculate: ["CapacitorBankEngine", "capacitorBankEngine", "calculate"],
+  cathodic_protection_calculate: ["CathodicProtectionEngine", "cathodicProtectionEngine", "calculate"],
 };
 
 const ACTIONS = Object.keys(ACTION_MAP) as unknown as readonly string[];
