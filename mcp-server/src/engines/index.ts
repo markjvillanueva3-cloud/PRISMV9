@@ -3195,6 +3195,7 @@ export { CrossPhysicsCouplingEngine } from "./CrossPhysicsCouplingEngine.js";
 export { AdaptiveCalibrationEngine } from "./AdaptiveCalibrationEngine.js";
 export { DimensionlessNumbersEngine } from "./DimensionlessNumbersEngine.js";
 export { ProcessSynthesisEngine } from "./ProcessSynthesisEngine.js";
+export { MachineLearningFeedbackEngine } from "./MachineLearningFeedbackEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";

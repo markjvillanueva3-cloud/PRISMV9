@@ -6284,6 +6284,28 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+
+          // ── Machine Learning Feedback ──
+          case "record_measurement": case "machine_profile": case "auto_calibrate":
+          case "learned_predict": case "accuracy_report": case "compare_machines":
+          case "export_learning": case "import_learning": {
+            const { MachineLearningFeedbackEngine: MLF } = await import("../../engines/MachineLearningFeedbackEngine.js");
+            const mlf = new MLF();
+            const mlfMap: Record<string,string> = {
+              record_measurement: "recordMeasurement",
+              machine_profile: "getMachineProfile",
+              auto_calibrate: "autoCalibrate",
+              learned_predict: "predict",
+              accuracy_report: "getAccuracyReport",
+              compare_machines: "compareMachines",
+              export_learning: "exportLearningData",
+              import_learning: "importLearningData",
+            };
+            result = (mlf as any)[mlfMap[action]](params as ValidatedParams);
+            break;
+          }
+
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
