@@ -3247,3 +3247,10 @@ export { reliabilityBlockDiagramEngine, ReliabilityBlockDiagramEngine } from './
 export { cryogenicCuttingEngine, CryogenicCuttingEngine } from './CryogenicCuttingEngine.js';
 export { machiningAcousticsEngine, MachiningAcousticsEngine } from './MachiningAcousticsEngine.js';
 export { laserAblationPhysicsEngine, LaserAblationPhysicsEngine } from './LaserAblationPhysicsEngine.js';
+
+// Phase 5 Forge C: Gap-Closing Engines
+export { assemblyOptimizationEngine, AssemblyOptimizationEngine } from './AssemblyOptimizationEngine.js';
+export { energyHarvestingEngine, EnergyHarvestingEngine } from './EnergyHarvestingEngine.js';
+export { transferLearningEngine, TransferLearningEngine } from './TransferLearningEngine.js';
+export { cmmPathPlanningEngine, CMMPathPlanningEngine } from './CMMPathPlanningEngine.js';
+export { lamThermalSofteningEngine, LAMThermalSofteningEngine } from './LAMThermalSofteningEngine.js';
