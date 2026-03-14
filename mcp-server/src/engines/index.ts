@@ -3258,3 +3258,6 @@ export { energyHarvestingEngine, EnergyHarvestingEngine } from './EnergyHarvesti
 export { transferLearningEngine, TransferLearningEngine } from './TransferLearningEngine.js';
 export { cmmPathPlanningEngine, CMMPathPlanningEngine } from './CMMPathPlanningEngine.js';
 export { lamThermalSofteningEngine, LAMThermalSofteningEngine } from './LAMThermalSofteningEngine.js';
+
+export { sweptVolumeEngine, SweptVolumeEngine } from './SweptVolumeEngine.js';
+export { toolAssemblyModelEngine, ToolAssemblyModelEngine } from './ToolAssemblyModelEngine.js';
