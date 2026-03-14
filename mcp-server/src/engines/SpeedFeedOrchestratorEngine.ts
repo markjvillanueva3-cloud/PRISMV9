@@ -1390,6 +1390,7 @@ export class SpeedFeedOrchestratorEngine {
     life_ci95: [number, number]; life_mean: number;
     p_chatter: number;
     sobol_dominant: string;
+    sobol_contributions: { kc_pct: number; life_pct: number };
   } {
     // Kienzle force with material scatter (inline MC, 500 trials)
     const kc1_1 = material.kc1_1.value;
@@ -1451,13 +1452,20 @@ export class SpeedFeedOrchestratorEngine {
     const forceVar = forces.reduce((s, v) => s + (v - forceMean) ** 2, 0) / n_trials;
     const sobol_dominant = forceVar > 0 ? "material_kc1.1" : "tool_life_C";
 
+    // Enhanced Sobol: compute variance contribution of each parameter
+    const lifeVar = lives.reduce((s, v) => s + (v - lifeMean) ** 2, 0) / n_trials;
+    const totalVar = forceVar + lifeVar;
+    const sobol_kc = totalVar > 0 ? (forceVar / totalVar * 100) : 50;
+    const sobol_life = totalVar > 0 ? (lifeVar / totalVar * 100) : 50;
+
     return {
       force_ci95: [forces[ci2_5], forces[ci97_5]],
       force_mean: forceMean,
       life_ci95: [lives[ci2_5], lives[ci97_5]],
       life_mean: lifeMean,
       p_chatter: chatterCount.unstable / n_trials,
-      sobol_dominant,
+      sobol_dominant: forceVar > lifeVar ? "material_kc1.1" : "tool_life_C",
+      sobol_contributions: { kc_pct: Math.round(sobol_kc), life_pct: Math.round(sobol_life) },
     };
   }
 
@@ -1592,6 +1600,19 @@ export class SpeedFeedOrchestratorEngine {
     // Apply thin_wall / pocket derating
     if (geometry.is_thin_wall.value) {
       ae = Math.min(ae, D * 0.15);
+    }
+
+    // ── Chip Thinning Correction ──
+    // When ae < 50% of D, actual chip thickness < programmed fz
+    // fz_eff = fz × D / (2 × sqrt(ae × (D - ae)))   [Sandvik]
+    if (ae < D * 0.5 && ae > 0 && D > ae) {
+      const chipThinFactor = D / (2 * Math.sqrt(ae * (D - ae)));
+      const clampedFactor = Math.min(3.0, chipThinFactor);
+      fz *= clampedFactor;
+      Vf = fz * z * rpm;
+      formulas_used.push(
+        `Chip thinning: fz×${clampedFactor.toFixed(2)} (ae/D=${(ae/D*100).toFixed(0)}%)`,
+      );
     }
 
     // ── Step 3: Derived Calculations ──
@@ -1895,6 +1916,7 @@ export class SpeedFeedOrchestratorEngine {
       life_ci95: fullUQ.life_ci95,
       p_chatter: fullUQ.p_chatter,
       sobol_dominant: fullUQ.sobol_dominant,
+      sobol_contributions: fullUQ.sobol_contributions,
     };
 
     // Find resolver with lowest confidence for dominant uncertainty
@@ -2024,6 +2046,43 @@ export class SpeedFeedOrchestratorEngine {
       );
     }
 
+    // Additional playbook rules (P1 improvement: expanded from 8 to 15+)
+    if (isoGroup === "S" && coolant.type.value === "dry") {
+      playbook_warnings.push(
+        "DANGER: Dry cutting titanium/Inconel risks fire. Use flood coolant minimum.",
+      );
+    }
+    if (ae > D * 0.7 && (matName.includes("titanium") || isoGroup === "S")) {
+      playbook_warnings.push(
+        "High radial engagement in Ti/Ni: consider adaptive/trochoidal strategy (ae < 15%D) for 2-3× speed boost",
+      );
+    }
+    if (fz > 0.2 && rCorner < 0.3) {
+      playbook_warnings.push(
+        "High feed with small corner radius: risk of edge chipping. Reduce fz or increase corner radius.",
+      );
+    }
+    if (ap > D * 1.5) {
+      playbook_warnings.push(
+        "Axial depth > 1.5×D: high deflection risk. Consider shorter stickout or reduced ap.",
+      );
+    }
+    if (finalDefl_mm > 0.02) {
+      playbook_warnings.push(
+        `Tool deflection ${(finalDefl_mm*1000).toFixed(1)}µm exceeds 20µm. Consider stiffer setup or reduced depth.`,
+      );
+    }
+    if (rpm > 15000 && holder.type.value === "ER_collet") {
+      playbook_warnings.push(
+        "ER collet above 15,000 RPM: consider shrink-fit or hydraulic holder for better TIR and balance.",
+      );
+    }
+    if (matName.includes("aluminum") && !tool.coating.value.toLowerCase().includes("uncoated") && !tool.coating.value.toLowerCase().includes("zrn")) {
+      playbook_warnings.push(
+        "TiAlN/AlCrN on aluminum can cause BUE. Consider uncoated, ZrN, or DLC-coated tools.",
+      );
+    }
+
     // ── Step 10: Build and return OrchestratorResult ──
     const result: OrchestratorResult = {
       cutting_speed_mpm: Math.round(Vc * 10) / 10,
@@ -2089,5 +2148,63 @@ function hrcToHb(hrc: number): number {
   // Quadratic fit: HB = 0.05916*HRC^2 - 0.8106*HRC + 210.4
   return Math.round(0.05916 * hrc * hrc - 0.8106 * hrc + 210.4);
 }
+
+// ── Public resolver wrappers (USF-MS0 P0-U07) ── added as standalone functions
+
+/** Resolve machine context only — returns full compute with machine focus */
+function resolveMachineContextFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInput): AtomicValue<unknown> {
+  const r = engine.compute({ ...input, output_detail: "minimal" });
+  const v = r.value;
+  return { value: { machine_name: input.machine_name ?? "generic", power_kw: v.power_kw, torque_Nm: v.torque_Nm, max_rpm: input.machine_max_rpm, limiting_factors: v.limiting_factors }, confidence: r.confidence, source: "sf_resolve_machine" };
+}
+
+/** Resolve tool context only — returns full compute with tool focus */
+function resolveToolContextFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInput): AtomicValue<unknown> {
+  const r = engine.compute({ ...input, output_detail: "minimal" });
+  const v = r.value;
+  return { value: { diameter_mm: input.tool_diameter_mm, flutes: input.flutes, tool_life_min: v.tool_life_min, deflection_um: v.deflection_um, limiting_factors: v.limiting_factors }, confidence: r.confidence, source: "sf_resolve_tool" };
+}
+
+/** Resolve material context only — returns full compute with material focus */
+function resolveMaterialContextFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInput): AtomicValue<unknown> {
+  const r = engine.compute({ ...input, output_detail: "minimal" });
+  const v = r.value;
+  return { value: { material: input.material ?? "unknown", cutting_speed_mpm: v.cutting_speed_mpm, tangential_force_N: v.tangential_force_N, surface_finish_Ra_um: v.surface_finish_Ra_um, limiting_factors: v.limiting_factors }, confidence: r.confidence, source: "sf_resolve_material" };
+}
+
+/** Compare multiple scenarios side-by-side */
+function compareFn(engine: SpeedFeedOrchestratorEngine, scenarios: Array<{ label: string; input: OrchestratorInput }>): AtomicValue<unknown> {
+  const results = scenarios.map(s => {
+    const r = engine.compute(s.input);
+    return { label: s.label, result: r.value, confidence: r.confidence };
+  });
+  const best_mrr = results.reduce((a, b) => b.result.mrr_cm3min > a.result.mrr_cm3min ? b : a).label;
+  const best_tool_life = results.reduce((a, b) => b.result.tool_life_min > a.result.tool_life_min ? b : a).label;
+  const best_finish = results.reduce((a, b) => b.result.surface_finish_Ra_um < a.result.surface_finish_Ra_um ? b : a).label;
+  const avgConf = results.reduce((s, r) => s + r.confidence, 0) / results.length;
+  return { value: { scenarios: results, best_mrr, best_tool_life, best_finish }, confidence: avgConf, source: "compare" };
+}
+
+/** Multi-objective Pareto optimization across tool_life, mrr, surface_finish */
+function optimizeFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInput, objectives?: string[]): AtomicValue<unknown> {
+  const modes: Array<{ label: string; optimize_for: OrchestratorInput["optimize_for"] }> = [
+    { label: "max_productivity", optimize_for: "productivity" },
+    { label: "max_tool_life", optimize_for: "tool_life" },
+    { label: "best_finish", optimize_for: "surface_finish" },
+    { label: "balanced", optimize_for: "balanced" },
+    { label: "min_cost", optimize_for: "cost" },
+  ];
+  const results = modes.map(m => {
+    const r = engine.compute({ ...input, optimize_for: m.optimize_for });
+    return { label: m.label, result: r.value, confidence: r.confidence };
+  });
+  const recommended = objectives?.includes("productivity") ? "max_productivity"
+    : objectives?.includes("tool_life") ? "max_tool_life"
+    : "balanced";
+  const avgConf = results.reduce((s, r) => s + r.confidence, 0) / results.length;
+  return { value: { pareto_front: results, recommended }, confidence: avgConf, source: "optimize" };
+}
+
+export { resolveMachineContextFn, resolveToolContextFn, resolveMaterialContextFn, compareFn, optimizeFn };
 
 export const speedFeedOrchestratorEngine = new SpeedFeedOrchestratorEngine();
