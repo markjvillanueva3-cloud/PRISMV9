@@ -751,4 +751,652 @@ export const HYPERMILL_CAM_TIPS_EXT: KnowledgeTip[] = [
     created_at: "2026-03-13",
     usage_count: 0,
   },
+  // === Final Expansion (hm-161 to hm-200) ===
+  {
+    id: "hm-161",
+    title: "Wiener Process for Stochastic Wear",
+    body:
+      "dVB = μdt + σdW. Predict RUL distribution. Update from " +
+      "measurements. For hyperMILL multi-operation programs. MAXX " +
+      "barrel cutters have different Wiener parameters than ball-end — " +
+      "wider contact zone distributes wear differently. Calibrate " +
+      "separately per cutter type.",
+    category: "cam_strategy",
+    tags: ["wiener", "stochastic", "barrel-wear", "calibration"],
+    operation_types: ["optimization"],
+    confidence: 77,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-162",
+    title: "Gamma Process for Monotonic Degradation",
+    body:
+      "Monotonic wear — prevents negative wear. RUL = first passage. " +
+      "For unattended hyperMILL mold finishing where in-cut failure " +
+      "scraps expensive components. Gamma is physically more realistic " +
+      "for wear than Wiener. Use for tool change interval planning.",
+    category: "cam_strategy",
+    tags: ["gamma-process", "monotonic", "unattended", "mold"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-163",
+    title: "Copula for Dependent Failure Modes",
+    body:
+      "Flank/crater/chipping correlated. Gaussian copula models joint " +
+      "distribution. Ignoring dependence underestimates 15-25%. For " +
+      "MAXX barrel cutters: tilt-induced wear pattern creates unique " +
+      "failure mode correlations not seen in ball-end mills.",
+    category: "cam_strategy",
+    tags: ["copula", "dependent", "barrel-failures", "joint"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-164",
+    title: "BMA for Robust Life Prediction",
+    body:
+      "Weight Taylor/Archard/empirical by posterior. For hyperMILL " +
+      "shops with diverse materials. BMA adapts weights per material " +
+      "class. MAXX barrel cutters need separate BMA from ball-end — " +
+      "different wear physics means different model weights.",
+    category: "cam_strategy",
+    tags: ["bma", "multi-model", "barrel-separate", "robust"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-165",
+    title: "Mutual Information for SPC Feature Selection",
+    body:
+      "I(X;Y) selects top features with highest quality dependence. " +
+      "3-5 features capture 90% of information. For hyperMILL mold " +
+      "production: Ra, profile accuracy, concentricity typically highest " +
+      "MI. Reduces false alarms from monitoring irrelevant features.",
+    category: "cam_strategy",
+    tags: ["mutual-information", "spc", "feature-selection", "mold"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-166",
+    title: "Renewal Theory Optimal Replacement",
+    body:
+      "Minimize C(T) = (Cp + Cf×F(T)) / (T×R(T) + M×F(T)). For mold " +
+      "work: Cf >> Cp (scrapped mold component). Replace early. MAXX " +
+      "barrel cutters: higher tool cost (Cp) but even higher Cf means " +
+      "optimal replacement is still early. Track economics per job type.",
+    category: "cam_strategy",
+    tags: ["renewal-theory", "replacement", "barrel-cost", "mold-economics"],
+    operation_types: ["optimization"],
+    confidence: 77,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-167",
+    title: "Chance-Constrained Process Design",
+    body:
+      "P(Ra ≤ spec) ≥ 95% while minimizing cycle. For MAXX: tilt " +
+      "angle uncertainty has large Ra impact. Convert: μ + z×σ ≤ spec " +
+      "with tilt contribution to σ. Ensures reliability. hyperMILL " +
+      "VIRTUAL Machining validates tilt consistency.",
+    category: "cam_strategy",
+    tags: ["chance-constrained", "tilt-uncertainty", "reliability", "virtual"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-168",
+    title: "Exergy Analysis for Sustainable Machining",
+    body:
+      "Exergy destruction = T₀×S_gen. Cutting 70%, friction 15%, " +
+      "deformation 10%, coolant 5%. MAXX barrel cutters: wider cut " +
+      "= more material per pass = better exergy efficiency per unit " +
+      "removed. Compare barrel vs ball-end exergy to quantify " +
+      "sustainability benefit of MAXX Machining.",
+    category: "cam_strategy",
+    tags: ["exergy", "sustainability", "barrel-efficiency", "comparison"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-169",
+    title: "Gutowski Energy Benchmarking",
+    body:
+      "P = P₀ + k×MRR. e = P₀/MRR + k. Maximize MRR within limits. " +
+      "MAXX finishing at wider step-over covers more area per pass — " +
+      "effectively higher MRR for same scallop height. More energy-" +
+      "efficient than ball-end finishing. Quantify savings for green " +
+      "manufacturing certification.",
+    category: "cam_strategy",
+    tags: ["gutowski", "energy", "maxx-mrr", "green-manufacturing"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-170",
+    title: "Flat Area Detection for MAXX Strategy",
+    body:
+      "hyperMILL detects flat areas (5-10° threshold). MAXX Finishing " +
+      "barrel cutters are most effective on flat and gently curved " +
+      "regions. Use flat detection to automatically assign MAXX to " +
+      "suitable regions and ball-end to highly curved regions. " +
+      "Hybrid strategy maximizes cycle time reduction.",
+    category: "cam_strategy",
+    tags: ["flat-detection", "maxx-assignment", "hybrid-strategy", "auto"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-171",
+    title: "Rotary Axis Wrapping for 4-Axis Parts",
+    body:
+      "Wrap 2D patterns onto cylinders via rotary substitution. " +
+      "Verify diameter matches. For engraving on round mold components. " +
+      "hyperMILL generates rotary G-code automatically. Circumferential " +
+      "scale distortion if diameter wrong by even 0.1mm.",
+    category: "cam_strategy",
+    tags: ["rotary-wrap", "4-axis", "engraving", "cylindrical"],
+    operation_types: ["multi_axis"],
+    confidence: 84,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-172",
+    title: "Trochoidal Milling for Hard Material Slots",
+    body:
+      "8-15% radial, full depth, 3-5× feed. Constant engagement. " +
+      "Slot width independent of tool. For >45 HRC. hyperMILL HSC " +
+      "roughing handles trochoidal. Work-free chips improve tool life " +
+      "by preventing re-cutting of work-hardened material.",
+    category: "cam_strategy",
+    tags: ["trochoidal", "hard-materials", "hsc", "work-free-chips"],
+    operation_types: ["roughing"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-173",
+    title: "Helical Milling for Precision Holes",
+    body:
+      "Circular + Z-feed. One tool for multiple sizes. No burr, lower " +
+      "forces. Flat-end 60-70% of hole. Pitch 0.3-0.5mm. Superior " +
+      "for hardened steel. hyperMILL helical milling operation handles " +
+      "geometry and feeds automatically.",
+    category: "cam_strategy",
+    tags: ["helical", "precision-holes", "burr-free", "multi-size"],
+    operation_types: ["drilling"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-174",
+    title: "Plunge Roughing for Deep Narrow Features",
+    body:
+      "Vertical motions, 60-70% step-over. Axial forces (strongest). " +
+      "For L/D>4, >45 HRC, weak spindles. hyperMILL generates efficient " +
+      "patterns. Use when lateral roughing vibrates on deep thin ribs. " +
+      "Follow with light finishing passes.",
+    category: "cam_strategy",
+    tags: ["plunge", "deep-ribs", "axial", "vibration"],
+    operation_types: ["roughing"],
+    confidence: 84,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-175",
+    title: "Disc Cutter for Slots",
+    body:
+      "Define disc geometry precisely. 3+2 per slot. Speed on outer " +
+      "diameter. High tooth count = low fpt. Flood for evacuation. " +
+      "More consistent width than end mills. hyperMILL VIRTUAL " +
+      "Machining simulates disc operations with full machine model.",
+    category: "cam_strategy",
+    tags: ["disc-cutter", "slot", "consistent-width", "virtual"],
+    operation_types: ["roughing"],
+    confidence: 82,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-176",
+    title: "Spiral Finishing for Flat Surfaces",
+    body:
+      "Continuous spiral eliminates witness marks. Step-over per " +
+      "scallop. Climb milling. Auto center-start. Best for shutoff " +
+      "faces and flat mold surfaces. Combine with MAXX Finishing on " +
+      "larger flat regions for maximum cycle reduction.",
+    category: "cam_strategy",
+    tags: ["spiral", "flat", "witness-marks", "maxx-combine"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-177",
+    title: "Facing with Wiper Inserts",
+    body:
+      "65-75% step-over, one-way, wiper for mirror finish. Interrupted: " +
+      "-20% feed. Parting surface flatness ±0.01mm. hyperMILL facing " +
+      "handles irregular stock and avoids clamps. Critical for mold " +
+      "shut-off quality and sealing performance.",
+    category: "cam_strategy",
+    tags: ["facing", "wiper", "parting-surface", "flatness"],
+    operation_types: ["roughing"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-178",
+    title: "Pocket with Progressive Island Detection",
+    body:
+      "Auto-detect islands. Progressive level cutting. 15-25% savings. " +
+      "Review detection — thin ribs occasionally missed. Set min " +
+      "material filter. hyperMILL IPW tracks stock accurately between " +
+      "progressive operations. Validate island list before generating.",
+    category: "cam_strategy",
+    tags: ["pocket", "islands", "progressive", "ipw-tracking"],
+    operation_types: ["roughing"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-179",
+    title: "Rapid Height Optimization",
+    body:
+      "Incremental (10mm above stock) vs absolute. Safe-area rapids " +
+      "when crossing obstacles only. 5-15% savings. Per-operation. " +
+      "Verify in VIRTUAL Machining. Critical for complex mold cavities " +
+      "with varying pocket depths.",
+    category: "cam_strategy",
+    tags: ["rapid-height", "incremental", "virtual-verify", "savings"],
+    operation_types: ["optimization"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-180",
+    title: "Tolerance Settings Best Practices",
+    body:
+      "Roughing 0.1mm, semi 0.02mm, finishing 0.005-0.01mm. For " +
+      "hardened finishing: 0.005mm + constant scallop = polishing-" +
+      "ready. Don't over-relax. MAXX barrel: may need tighter tolerance " +
+      "due to curvature sensitivity of barrel contact zone.",
+    category: "cam_strategy",
+    tags: ["tolerance", "chord-error", "barrel-sensitivity", "best-practice"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-181",
+    title: "Workplane Naming Convention",
+    body:
+      "OP10-Top, OP20-FrontFace, OP30-SlideAccess. Active per " +
+      "operation. Probe at setup start. Standard naming enables any " +
+      "operator. hyperMILL setup documentation auto-includes WCS, " +
+      "fixture diagrams, critical dimension callouts.",
+    category: "cam_strategy",
+    tags: ["workplane", "naming", "standardization", "documentation"],
+    operation_types: ["setup"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-182",
+    title: "Boundary Boolean for Selective Machining",
+    body:
+      "Create from edges, silhouettes, sketches, steep/shallow. " +
+      "Boolean union/intersection/subtraction. 0.5mm extension. Named " +
+      "sets. 20-40% cycle reduction on rework. hyperMILL supports " +
+      "complex boundary chains for targeted finishing of specific zones.",
+    category: "cam_strategy",
+    tags: ["boundary", "boolean", "selective", "rework"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-183",
+    title: "CAD Surface Repair for Imported Models",
+    body:
+      "Close gaps to 0.1mm, extend surfaces, rebuild degenerate. " +
+      "Fix before programming. UV continuity affects toolpath. " +
+      "Parting surfaces need G2 minimum. hyperMILL surface analysis " +
+      "identifies issues. Global Fitting improves surface quality " +
+      "post-import.",
+    category: "cam_strategy",
+    tags: ["cad-repair", "global-fitting", "uv-direction", "g2"],
+    operation_types: ["setup"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-184",
+    title: "Chamfering with Edge Detection",
+    body:
+      "hyperMILL edge detection automates chamfer paths. 45/60/90° " +
+      "mills, ball-end, spot drills. 3D chamfers: 5-axis normal. " +
+      "Verify width. Standard 0.3-0.5mm on all edges for flash " +
+      "prevention and operator safety. Mold longevity depends on " +
+      "proper edge treatment.",
+    category: "cam_strategy",
+    tags: ["chamfering", "edge-detection", "flash", "longevity"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-185",
+    title: "Thickness Allowance for Progressive Machining",
+    body:
+      "Roughing 0.5mm, semi 0.15mm, finish 0.0mm. Hardened: " +
+      "0.3→0.15→0.05→0.0mm. 40-60% longer tool life. hyperMILL " +
+      "IPW tracks remaining material accurately. MAXX barrel finish " +
+      "operates on the final pass with zero allowance.",
+    category: "cam_strategy",
+    tags: ["thickness", "progressive", "tool-life", "barrel-finish"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-186",
+    title: "Multi-Setup Alignment Verification",
+    body:
+      "Master coordinate across setups. Probe at start. Precision " +
+      "dowels or 3-2-1. Alignment accuracy determines feature " +
+      "relationships. hyperMILL VIRTUAL Machining verifies alignment " +
+      "impact on final accuracy before committing to physical setup.",
+    category: "cam_strategy",
+    tags: ["multi-setup", "alignment", "virtual-verify", "probing"],
+    operation_types: ["setup"],
+    confidence: 87,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-187",
+    title: "Probing for In-Process Quality",
+    body:
+      "Probe stock, WCS, dims between operations. Renishaw/Heidenhain/" +
+      "Blum output. Store for SPC. Verify rough allowance before semi-" +
+      "finish to prevent overload. hyperMILL post generates probe " +
+      "macros in machine-specific format automatically.",
+    category: "cam_strategy",
+    tags: ["probing", "in-process", "spc", "overload-prevention"],
+    operation_types: ["setup"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-188",
+    title: "Tool Library with Presetter Sync",
+    body:
+      "Geometry, holders, parameters per material. Sync Zoller/Haimer. " +
+      "Actual vs nominal 0.01mm matters. Update after presetting. " +
+      "Shared library across programmers. Export to setup sheets. " +
+      "Track life per serial for Weibull calibration.",
+    category: "cam_strategy",
+    tags: ["tool-library", "presetter", "sync", "serial-tracking"],
+    operation_types: ["setup"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-189",
+    title: "Collision with Full Assembly in VIRTUAL Machining",
+    body:
+      "Include shank, holder, taper, spindle + 0.5mm margin. Gouge " +
+      "check every finish. VIRTUAL Machining catches machine-level " +
+      "interference. Shrink-fit for min profile. Extended: 50% feed " +
+      "at 7:1 L/D. Mandatory for 5-axis first-article.",
+    category: "cam_strategy",
+    tags: ["collision", "virtual-machining", "full-assembly", "mandatory"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 88,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-190",
+    title: "Multi-Machine Post Flexibility",
+    body:
+      "Post same hyperMILL toolpath for different machines. Program " +
+      "once, post for DMG/Hermle/Makino. VIRTUAL Machining Center " +
+      "handles machine-specific RTCP, axis naming, retracts. Enables " +
+      "flexible scheduling across shop floor.",
+    category: "cam_strategy",
+    tags: ["multi-machine", "virtual-machining-center", "flexibility", "rtcp"],
+    operation_types: ["post_processing"],
+    confidence: 85,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-191",
+    title: "ERP Integration via hyperMILL API",
+    body:
+      "Automate: job import, project creation, template application, " +
+      "post, export. Batch overnight. Sync tool libraries. hyperMILL " +
+      "CONNECTED Machining enables direct communication with machine " +
+      "controllers for setup data transfer.",
+    category: "cam_strategy",
+    tags: ["api", "erp", "connected-machining", "batch"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-192",
+    title: "Feature Recognition for Hole Automation",
+    body:
+      "Recognize through/blind/countersink/counterbore/tapped. Batch " +
+      "assign canned cycles. Sort by diameter. Tolerance 0.01mm. " +
+      "hyperMILL feature technology automates the entire hole-making " +
+      "process from feature recognition to NC output.",
+    category: "cam_strategy",
+    tags: ["feature-recognition", "holes", "feature-technology", "batch"],
+    operation_types: ["drilling"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-193",
+    title: "Additive DED for Mold Repair",
+    body:
+      "hyperMILL Additive: DED contour+fill, 30-50% overlap, 60-80% " +
+      "layer. Interleave machining every 3-5 layers. For worn mold " +
+      "surfaces, damaged edges, conformal cooling additions. Reduces " +
+      "lead time vs new mold from 8 to 2 weeks.",
+    category: "cam_strategy",
+    tags: ["additive", "ded", "mold-repair", "lead-time"],
+    operation_types: ["additive"],
+    confidence: 81,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-194",
+    title: "Wire EDM Hybrid for Thin Slots",
+    body:
+      "Export hyperMILL geometry to wire EDM for thin slots, sharp " +
+      "corners, hardened inserts. Define start holes, drill during " +
+      "milling. Coordinate WCS. Each process where it excels. Hybrid " +
+      "reduces lead time 20-30% on complex molds.",
+    category: "cam_strategy",
+    tags: ["wire-edm", "hybrid", "thin-slots", "coordination"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-195",
+    title: "Surface Extension for Clean Exit",
+    body:
+      "Extend 2-5mm for clean exit. hyperMILL creates extensions " +
+      "automatically. Global Fitting improves extension quality. " +
+      "Prevents deceleration marks and corner deviation. Mandatory " +
+      "on visible surfaces and Class-A automotive die faces.",
+    category: "cam_strategy",
+    tags: ["extension", "global-fitting", "class-a", "mandatory"],
+    operation_types: ["finishing"],
+    confidence: 86,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-196",
+    title: "Cloud Tool Library for Multi-Site",
+    body:
+      "Multi-site tool library sharing. When one site optimizes, " +
+      "improvement propagates. Approved parameters with review. " +
+      "Track tool life/Ra/Cpk per site. Prevents re-learning optimal " +
+      "parameters. hyperMILL Connected supports tool data exchange.",
+    category: "cam_strategy",
+    tags: ["cloud", "multi-site", "connected", "propagation"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-197",
+    title: "Volumetric Accuracy Compensation",
+    body:
+      "Import machine 21-error map, hyperMILL adjusts coordinates. " +
+      "For large dies (1m+) where errors compound. ±0.03mm → ±0.01mm. " +
+      "Requires calibration. VIRTUAL Machining stores compensation " +
+      "data in the virtual machine model for accurate simulation.",
+    category: "cam_strategy",
+    tags: ["volumetric", "compensation", "virtual-machine", "calibration"],
+    operation_types: ["optimization"],
+    confidence: 82,
+    source: "web:hypermill-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-198",
+    title: "MTConnect Data Integration",
+    body:
+      "Stream spindle load, positions, feed override. Compare actual " +
+      "vs hyperMILL programmed feeds. Find deceleration zones. Data-" +
+      "driven refinement 3-5× faster. Use to optimize MAXX Finishing " +
+      "tilt angle from actual vs predicted contact pattern data.",
+    category: "cam_strategy",
+    tags: ["mtconnect", "data-driven", "tilt-optimization", "monitoring"],
+    operation_types: ["optimization"],
+    confidence: 81,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-199",
+    title: "Digital Twin Feedback with VIRTUAL Machining",
+    body:
+      "hyperMILL toolpath → VIRTUAL Machining simulation → machine " +
+      "execution → collect data → compare → update. 10 iterations " +
+      "→ ±3% force, ±5% finish. Focus on barrel tilt calibration. " +
+      "Small tilt errors have large finish impact with MAXX cutters.",
+    category: "cam_strategy",
+    tags: ["digital-twin", "virtual-machining", "tilt-calibration", "convergence"],
+    operation_types: ["optimization"],
+    confidence: 78,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "hm-200",
+    title: "Sensitivity Ranking: MAXX vs Ball-End Differences",
+    body:
+      "Ball-end: step-over 35%, feed 25%, speed 20%, DOC 15%. MAXX " +
+      "barrel: tilt angle 30%, step-over 25%, feed 20%, speed 15%. " +
+      "Tilt angle replaces step-over as #1 for MAXX. Different " +
+      "optimization strategies for different cutter types. Apply " +
+      "correct ranking per hyperMILL strategy selection.",
+    category: "cam_strategy",
+    tags: ["sensitivity", "maxx-vs-ball", "tilt-primary", "ranking"],
+    operation_types: ["optimization"],
+    confidence: 79,
+    source: "web:hypermill-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
 ];
