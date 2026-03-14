@@ -2,7 +2,7 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-13T00:00:00Z",
-  "total_milestones": 140,
+  "total_milestones": 141,
   "completed_milestones": 111,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
@@ -1549,7 +1549,9 @@
       "id": "PP-MS1",
       "title": "Physics Optimization Stages — Speed/Feed + Engagement + Stability + Deflection",
       "track": "PP",
-      "dependencies": ["PP-MS0"],
+      "dependencies": [
+        "PP-MS0"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
@@ -1561,7 +1563,9 @@
       "id": "PP-MS2",
       "title": "Block-by-Block Optimization — Variable S/F + Wear + Thermal Tracking",
       "track": "PP",
-      "dependencies": ["PP-MS1"],
+      "dependencies": [
+        "PP-MS1"
+      ],
       "status": "pending",
       "total_units": 3,
       "completed_units": 0,
@@ -1573,7 +1577,9 @@
       "id": "PP-MS3",
       "title": "Motion Optimization + Controller Dialect Engine",
       "track": "PP",
-      "dependencies": ["PP-MS2"],
+      "dependencies": [
+        "PP-MS2"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
@@ -1585,7 +1591,9 @@
       "id": "PP-MS4",
       "title": "Stochastic Verification + Safety + Knowledge Stages",
       "track": "PP",
-      "dependencies": ["PP-MS3"],
+      "dependencies": [
+        "PP-MS3"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
@@ -1597,7 +1605,10 @@
       "id": "PP-MS5",
       "title": "5-Axis Post Processing + Output Generation + Verification",
       "track": "PP",
-      "dependencies": ["PP-MS3", "PP-MS4"],
+      "dependencies": [
+        "PP-MS3",
+        "PP-MS4"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
@@ -1609,7 +1620,9 @@
       "id": "PP-MS6",
       "title": "Fusion 360 .cps Post Processor + HTTP API Bridge",
       "track": "PP",
-      "dependencies": ["PP-MS5"],
+      "dependencies": [
+        "PP-MS5"
+      ],
       "status": "pending",
       "total_units": 3,
       "completed_units": 0,
@@ -1621,7 +1634,9 @@
       "id": "PP-MS7",
       "title": "Multi-CAM Post Processor Generation + Machine Safety + Mill-Turn",
       "track": "PP",
-      "dependencies": ["PP-MS6"],
+      "dependencies": [
+        "PP-MS6"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
@@ -1633,13 +1648,27 @@
       "id": "PP-MS8",
       "title": "Integration Testing + Benchmarking + Skills + Hooks",
       "track": "PP",
-      "dependencies": ["PP-MS7"],
+      "dependencies": [
+        "PP-MS7"
+      ],
       "status": "pending",
       "total_units": 5,
       "completed_units": 0,
       "sessions": "10-12",
       "envelope_path": "milestones/PP-MS8.json",
       "position_path": "state/PP-MS8/position.json"
+    },
+    {
+      "id": "VAR-MS1",
+      "title": "Video Action Replay — Watch & Do CAD/CAM from Videos",
+      "track": "VAR",
+      "dependencies": [
+        "VL-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 15,
+      "completed_units": 0,
+      "envelope": "milestones/VAR-MS1-video-action-replay.json"
     }
   ]
 }
