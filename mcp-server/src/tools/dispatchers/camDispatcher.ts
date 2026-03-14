@@ -181,6 +181,7 @@ const ACTIONS = [
   "motion_axis_decompose", "motion_feed_effectiveness", "motion_optimize_feed",
   "engage_adapt_feed", "engage_calc_engagement", "engage_chip_thinning",
   "engage_constant_force", "engage_constant_mrr", "engage_thermal_balance", "engage_ramp_transition", "master_post_process",
+  "cnc_simulate", "cnc_simulate_report", "cnc_simulate_physics", "cnc_simulate_predictive",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1281,6 +1282,51 @@ Params vary by action — pass relevant fields in params object.`,
               (params as any).segments || [],
               params as any
             );
+            break;
+          }
+          case "cnc_simulate": {
+            const { cncSimulationPipelineEngine } = await import("../../engines/CNCSimulationPipelineEngine.js");
+            result = cncSimulationPipelineEngine.simulate({
+              gcode_blocks: (params.gcode as string ?? "").split("\n"),
+              machine_brand: params.machine_brand as string,
+              machine_model: params.machine_model as string,
+              tool_diameter_mm: params.tool_diameter_mm as number,
+              tool_length_mm: params.tool_length_mm as number,
+              material: params.material as string,
+            });
+            break;
+          }
+          case "cnc_simulate_report": {
+            const { cncSimulationPipelineEngine: simPipe } = await import("../../engines/CNCSimulationPipelineEngine.js");
+            const { simulationReportEngine } = await import("../../engines/SimulationReportEngine.js");
+            const simRes = simPipe.simulate({
+              gcode_blocks: (params.gcode as string ?? "").split("\n"),
+              material: params.material as string,
+            });
+            result = simulationReportEngine.generateReport(simRes);
+            break;
+          }
+          case "cnc_simulate_physics": {
+            const { physicsAwareSimulationEngine } = await import("../../engines/PhysicsAwareSimulationEngine.js");
+            result = physicsAwareSimulationEngine.computeBlockPhysics({
+              cutting_speed_m_min: params.cutting_speed_m_min as number ?? 150,
+              feed_mm_rev: params.feed_mm_rev as number ?? 0.2,
+              depth_of_cut_mm: params.depth_of_cut_mm as number ?? 3,
+              width_of_cut_mm: params.width_of_cut_mm as number ?? 6,
+              tool_diameter_mm: params.tool_diameter_mm as number ?? 12,
+              tool_length_mm: params.tool_length_mm as number ?? 50,
+              tool_flutes: params.tool_flutes as number ?? 4,
+              material: params.material as string ?? "steel",
+            });
+            break;
+          }
+          case "cnc_simulate_predictive": {
+            const { predictiveSimulationEngine } = await import("../../engines/PredictiveSimulationEngine.js");
+            result = predictiveSimulationEngine.predict({
+              tools: params.tools as any ?? [],
+              blocks: params.blocks as any ?? [],
+              workpiece_material: params.workpiece_material as string ?? "steel",
+            });
             break;
           }
           default:
