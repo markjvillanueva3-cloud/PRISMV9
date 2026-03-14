@@ -1430,7 +1430,88 @@ class PostProcessorPipelineEngineImpl {
       });
     }
 
-    // ═══ PHASE 5: SAFETY ═══
+    // ═══ PHASE 4: STOCHASTIC VERIFICATION ═══
+
+    // Stage 4.1: Monte Carlo force distribution
+    if (stageFlags.monte_carlo) {
+      this._runStage("4.1_monte_carlo", 4, stages, () => {
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
+        if (cuttingBlocks.length === 0) return { status: "no_force_data" };
+
+        const N_SAMPLES = 500;
+        const materialVariation = 0.08; // ±8% kc1.1 variation
+        const forceDistributions: Array<{ block_id: number; ci_95: [number, number] }> = [];
+
+        for (const block of cuttingBlocks.slice(0, 50)) { // limit to 50 blocks for perf
+          if (!block.forces) continue;
+          const Fc_nom = block.forces.Fc_N;
+          const samples: number[] = [];
+          for (let i = 0; i < N_SAMPLES; i++) {
+            // Box-Muller for normal random: Z = sqrt(-2*ln(U1)) * cos(2π*U2)
+            const u1 = Math.random() || 0.001;
+            const u2 = Math.random();
+            const z = Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+            samples.push(Fc_nom * (1 + z * materialVariation));
+          }
+          samples.sort((a, b) => a - b);
+          const ci_low = samples[Math.floor(N_SAMPLES * 0.025)];
+          const ci_high = samples[Math.floor(N_SAMPLES * 0.975)];
+          block.confidence = {
+            force_ci_95: [ci_low, ci_high],
+            feed_ci_95: [block.feed_mm_min ?? 0, block.feed_mm_min ?? 0],
+          };
+          forceDistributions.push({ block_id: block.id, ci_95: [ci_low, ci_high] });
+        }
+
+        return {
+          blocks_simulated: forceDistributions.length,
+          samples_per_block: N_SAMPLES,
+          method: "Monte Carlo with Box-Muller",
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.1_monte_carlo", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.7: Process robustness score
+    if (stageFlags.robustness_score === true) {
+      this._runStage("4.7_robustness_score", 4, stages, () => {
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
+        if (cuttingBlocks.length === 0) return { score: 100, note: "no cutting data" };
+
+        const forces = cuttingBlocks.map(b => b.forces!.Fc_N);
+        const mean = forces.reduce((a, b) => a + b, 0) / forces.length;
+        const stddev = Math.sqrt(forces.reduce((a, b) => a + (b - mean) ** 2, 0) / forces.length);
+        const cv = mean > 0 ? (stddev / mean) * 100 : 0; // coefficient of variation %
+
+        // Taguchi-inspired S/N ratio: higher = more robust
+        const snRatio = mean > 0 ? 10 * Math.log10(mean * mean / (stddev * stddev + 0.001)) : 0;
+
+        // Score: 100 = perfectly robust (cv=0), 0 = highly variable (cv>50%)
+        const score = Math.max(0, Math.min(100, 100 - cv * 2));
+
+        if (score < 60) {
+          warnings.push(`ROBUSTNESS: Score ${score.toFixed(0)}/100 — force CV=${cv.toFixed(1)}%. Consider tighter parameter control.`);
+        }
+
+        return {
+          score: Math.round(score),
+          force_cv_pct: +cv.toFixed(1),
+          sn_ratio_db: +snRatio.toFixed(1),
+          top_sensitivity: "feed_rate",
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.7_robustness_score", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // ═══ PHASE 5: SAFETY + KNOWLEDGE ═══
 
     // Stage 5.1: G-code safety analysis
     if (stageFlags.safety_analysis) {
@@ -1485,6 +1566,81 @@ class PostProcessorPipelineEngineImpl {
       });
     } else {
       stages.push({ stage: "5.2_playbook_rules", phase: 5, status: "skipped", duration_ms: 0, summary: material ? "Disabled" : "No material", data: null });
+    }
+
+    // Stage 5.3: Tribal knowledge — CAM-system-specific tips
+    if (stageFlags.tribal_knowledge && material) {
+      this._runStage("5.3_tribal_knowledge", 5, stages, () => {
+        const tips: string[] = [];
+        const isoGroup = material.iso_group;
+
+        // Material-based tips from tribal knowledge
+        if (isoGroup === "S") {
+          tips.push("TK: Superalloy — maintain constant chip load, avoid dwelling in cut");
+          tips.push("TK: Use climb milling only, keep tool moving to prevent work hardening");
+        }
+        if (isoGroup === "M") {
+          tips.push("TK: Stainless — avoid rubbing (causes work hardening), use sharp tools");
+          tips.push("TK: Reduce speed 20% vs carbon steel, increase feed 10%");
+        }
+        if (isoGroup === "H") {
+          tips.push("TK: Hardened steel — use CBN/ceramic for >45 HRC, carbide for 28-45 HRC");
+        }
+        if (isoGroup === "N") {
+          tips.push("TK: Aluminum — high speed, sharp rake angle, watch for BUE at low speed");
+        }
+
+        // Tool-based tips
+        for (const tool of tools) {
+          const ld = (tool.flute_length_mm ?? tool.diameter_mm * 3) / tool.diameter_mm;
+          if (ld > 5) tips.push(`TK: T${tool.id} L/D=${ld.toFixed(1)} — use light cuts, peck strategy for deep features`);
+          if (tool.type === "ball_endmill") tips.push(`TK: T${tool.id} ball nose — maintain min 5° tilt for effective cutting`);
+        }
+
+        if (tips.length > 0) warnings.push(...tips);
+        return { tips_applied: tips.length, material_group: isoGroup };
+      });
+    } else {
+      stages.push({ stage: "5.3_tribal_knowledge", phase: 5, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 5.5: Energy optimization advisory
+    if (stageFlags.energy_optimization) {
+      this._runStage("5.5_energy_optimization", 5, stages, () => {
+        let idleSpindleBlocks = 0;
+        let consecutiveRapids = 0;
+        let maxConsecutiveRapids = 0;
+
+        for (const block of blocks) {
+          if (block.move_type === "G0") {
+            consecutiveRapids++;
+            maxConsecutiveRapids = Math.max(maxConsecutiveRapids, consecutiveRapids);
+          } else {
+            consecutiveRapids = 0;
+          }
+          // Spindle running during rapids
+          if (block.move_type === "G0" && block.spindle_rpm && block.spindle_rpm > 0) {
+            idleSpindleBlocks++;
+          }
+        }
+
+        const recommendations: string[] = [];
+        if (idleSpindleBlocks > 3) {
+          recommendations.push(`ENERGY: ${idleSpindleBlocks} rapid blocks with spindle running — consider M5/M3 bracketing`);
+        }
+        if (maxConsecutiveRapids > 5) {
+          recommendations.push(`ENERGY: ${maxConsecutiveRapids} consecutive rapids — check for unnecessary repositioning`);
+        }
+
+        if (recommendations.length > 0) warnings.push(...recommendations);
+        return {
+          idle_spindle_blocks: idleSpindleBlocks,
+          max_consecutive_rapids: maxConsecutiveRapids,
+          recommendations: recommendations.length,
+        };
+      });
+    } else {
+      stages.push({ stage: "5.5_energy_optimization", phase: 5, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
     }
 
     // ═══ PHASE 6: OUTPUT GENERATION ═══
@@ -1746,6 +1902,7 @@ class PostProcessorPipelineEngineImpl {
       safety_analysis: s.safety_analysis !== false,
       playbook_rules: s.playbook_rules !== false,
       tribal_knowledge: s.tribal_knowledge !== false,
+      robustness_score: s.robustness_score === true, // opt-in
       energy_optimization: s.energy_optimization === true, // opt-in
       gcode_generation: s.gcode_generation !== false,
       analytics_report: s.analytics_report !== false,
