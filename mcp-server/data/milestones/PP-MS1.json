@@ -12,7 +12,7 @@
         {
           "id": "U01",
           "title": "Stage 1.1 — UltimateSpeedFeed base calculation per operation",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Wire UltimateSpeedFeedEngine.calculate() as pipeline stage",
             "Input: MaterialContext + ToolContext + operation type + aggressiveness",
@@ -30,7 +30,7 @@
         {
           "id": "U02",
           "title": "Stage 1.2 — Constitutive model refinement (flow stress at cutting temperature)",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Wire ConstitutiveModelEngine for material behavior at actual cutting temperature",
             "Calculate cutting temperature from Loewen-Shaw model (already in UltimateSpeedFeed)",
@@ -48,7 +48,7 @@
         {
           "id": "U03",
           "title": "Stage 1.3-1.4 — Stability lobes + Spindle harmonics → chatter-free RPM selection",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Wire StochasticChatterEngine: compute stability lobe diagram for tool+holder+machine assembly",
             "Input: tool geometry, holder stiffness, machine modal params (if available, else estimate from catalog)",
@@ -68,7 +68,7 @@
         {
           "id": "U04",
           "title": "Stage 1.5-1.6 — Tool deflection limits + Chip morphology prediction",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Wire StochasticDeflectionEngine: δ = FL³/3EI with runout (TIR from holder)",
             "Calculate max allowable force for target deflection (user tolerance or default 0.01mm for finishing, 0.05mm for roughing)",
@@ -87,7 +87,7 @@
         {
           "id": "U05",
           "title": "Stage 1.7-1.9 — Coolant strategy + Fixture force check + Process capability forecast",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Wire CoolantDynamicsEngine: select coolant type based on material + operation + playbook rules",
             "TSC (through-spindle coolant): calculate required pressure from Reynolds number model",
