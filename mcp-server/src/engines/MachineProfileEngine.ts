@@ -48,6 +48,10 @@ export interface MachineProfile {
     flood: boolean;
     mist: boolean;
     air_blast: boolean;
+    mql?: boolean;           // minimum quantity lubrication available
+    cryogenic?: boolean;     // LN2 or CO2 cryogenic coolant system
+    high_pressure_bar?: number;  // external high-pressure coolant (if different from TSC)
+    coolant_tank_liters?: number;
   };
   year?: number;
   notes?: string;
@@ -71,7 +75,7 @@ const DEFAULT_MACHINES: MachineProfile[] = [
     axes: { x_mm: 762, y_mm: 406, z_mm: 508 },
     rapid_rate_mmmin: 35600, max_feed_mmmin: 21200,
     tool_changer_capacity: 24, max_tool_diameter_mm: 89, max_tool_length_mm: 254,
-    max_part_weight_kg: 1361, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: false, air_blast: true },
+    max_part_weight_kg: 1361, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: false, air_blast: true, mql: false, cryogenic: false, coolant_tank_liters: 208 },
   },
   {
     id: "haas_ums5", name: "Haas UMC-500", type: "5axis",
@@ -98,7 +102,7 @@ const DEFAULT_MACHINES: MachineProfile[] = [
     axes: { x_mm: 560, y_mm: 430, z_mm: 510 },
     rapid_rate_mmmin: 42000, max_feed_mmmin: 20000,
     tool_changer_capacity: 30, max_tool_diameter_mm: 80, max_tool_length_mm: 300,
-    max_part_weight_kg: 500, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true },
+    max_part_weight_kg: 500, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true, mql: true, cryogenic: false },
   },
   {
     id: "okuma_genos_m560v", name: "Okuma GENOS M560-V", type: "vmc",
@@ -145,7 +149,7 @@ const DEFAULT_MACHINES: MachineProfile[] = [
     axes: { x_mm: 650, y_mm: 520, z_mm: 475, b_deg: 180, c_deg: 360 },
     rapid_rate_mmmin: 42000, max_feed_mmmin: 24000,
     tool_changer_capacity: 60, max_tool_diameter_mm: 80, max_tool_length_mm: 300,
-    max_part_weight_kg: 300, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true },
+    max_part_weight_kg: 300, coolant: { through_spindle: true, through_spindle_pressure_bar: 70, flood: true, mist: true, air_blast: true, mql: true, cryogenic: false },
   },
   {
     id: "tormach_1100mx", name: "Tormach 1100MX", type: "vmc",

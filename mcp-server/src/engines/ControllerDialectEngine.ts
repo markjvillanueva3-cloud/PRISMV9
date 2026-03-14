@@ -17,8 +17,8 @@
 // ─── Types ───────────────────────────────────────────────────────────
 
 export type ControllerFamily =
-  | "fanuc_0i" | "fanuc_30i" | "fanuc_31i"
-  | "siemens_840d" | "siemens_one"
+  | "fanuc_0i" | "fanuc_16i" | "fanuc_18i" | "fanuc_30i" | "fanuc_31i"
+  | "siemens_828d" | "siemens_840d" | "siemens_one"
   | "heidenhain_tnc640" | "heidenhain_tnc7"
   | "haas_ngc"
   | "mazak_smooth_ai" | "mazak_smooth_g"
@@ -233,6 +233,72 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
   },
 
+  fanuc_16i: {
+    id: "fanuc_16i",
+    display_name: "Fanuc 16i-MB",
+    manufacturer: "Fanuc",
+    base_family: "fanuc",
+    program_start: ["%", "O0001"],
+    program_end: ["M30", "%"],
+    safe_start: "G90 G21 G17 G40 G80 G49",
+    comment_style: "parentheses",
+    comment_open: "(",
+    comment_close: ")",
+    line_numbers: "n10",
+    decimal_style: "mandatory_point",
+    arc_format: "ijk_incremental",
+    rapid_code: "G0", linear_code: "G1", cw_arc_code: "G2", ccw_arc_code: "G3",
+    absolute_mode: "G90", incremental_mode: "G91",
+    tool_change_sequence: ["G91 G28 Z0", "T{tool} M6", "G90"],
+    spindle_cw: "M3", spindle_ccw: "M4", spindle_stop: "M5",
+    coolant_flood: "M8", coolant_mist: "M7", coolant_off: "M9",
+    work_offsets: { base: "G54", extended: "G54.1 P{n}", format: "G5{4+n}" },
+    canned_cycles: {
+      drill: "G81", peck_drill: "G83", deep_hole: "G73", tap: "G84",
+      bore: "G85", ream: "G85", back_bore: "G87", cancel: "G80",
+    },
+    sub_program_call: "M98 P{num}",
+    sub_program_return: "M99",
+    features: {
+      hsc_mode: { on: "G05 P10000", off: "G05 P0" },
+      look_ahead_blocks: 20, block_processing_rate: 500, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 128,
+    },
+  },
+
+  fanuc_18i: {
+    id: "fanuc_18i",
+    display_name: "Fanuc 18i-MB",
+    manufacturer: "Fanuc",
+    base_family: "fanuc",
+    program_start: ["%", "O0001"],
+    program_end: ["M30", "%"],
+    safe_start: "G90 G21 G17 G40 G80 G49",
+    comment_style: "parentheses",
+    comment_open: "(",
+    comment_close: ")",
+    line_numbers: "n10",
+    decimal_style: "mandatory_point",
+    arc_format: "ijk_incremental",
+    rapid_code: "G0", linear_code: "G1", cw_arc_code: "G2", ccw_arc_code: "G3",
+    absolute_mode: "G90", incremental_mode: "G91",
+    tool_change_sequence: ["G91 G28 Z0", "T{tool} M6", "G90"],
+    spindle_cw: "M3", spindle_ccw: "M4", spindle_stop: "M5",
+    coolant_flood: "M8", coolant_mist: "M7", coolant_off: "M9",
+    work_offsets: { base: "G54", extended: "G54.1 P{n}", format: "G5{4+n}" },
+    canned_cycles: {
+      drill: "G81", peck_drill: "G83", deep_hole: "G73", tap: "G84",
+      bore: "G85", ream: "G85", back_bore: "G87", cancel: "G80",
+    },
+    sub_program_call: "M98 P{num}",
+    sub_program_return: "M99",
+    features: {
+      hsc_mode: { on: "G05 P10000", off: "G05 P0" },
+      look_ahead_blocks: 30, block_processing_rate: 800, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 256,
+    },
+  },
+
   // ════════════════════════════════════════════════════════════════════
   // SIEMENS FAMILY
   // ════════════════════════════════════════════════════════════════════
@@ -314,6 +380,44 @@ const DIALECTS: Record<string, ControllerDialect> = {
       nano_smooth: "COMPCURV",
       look_ahead_blocks: 200, block_processing_rate: 10000, nurbs_interpolation: true,
       max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 8192,
+    },
+  },
+
+  siemens_828d: {
+    id: "siemens_828d",
+    display_name: "Siemens 828D",
+    manufacturer: "Siemens",
+    base_family: "siemens",
+    program_start: ["; PRISM OPTIMIZED PROGRAM"],
+    program_end: ["M30"],
+    safe_start: "G90 G17 G21 G40 G60 G80",
+    comment_style: "semicolon",
+    comment_open: "; ",
+    comment_close: "",
+    line_numbers: "n10",
+    decimal_style: "optional_point",
+    arc_format: "both",
+    rapid_code: "G0", linear_code: "G1", cw_arc_code: "G2", ccw_arc_code: "G3",
+    absolute_mode: "G90", incremental_mode: "G91",
+    tool_change_sequence: ["T{tool}", "M6", "D1"],
+    spindle_cw: "M3", spindle_ccw: "M4", spindle_stop: "M5",
+    coolant_flood: "M8", coolant_mist: "M7", coolant_off: "M9",
+    work_offsets: { base: "G54", extended: "$P_UIFR[{n},X,C]", format: "G5{4+n}" },
+    canned_cycles: {
+      drill: "CYCLE81", peck_drill: "CYCLE83", deep_hole: "CYCLE83",
+      tap: "CYCLE84", bore: "CYCLE85", ream: "CYCLE85",
+      back_bore: "CYCLE86", cancel: "MCALL",
+    },
+    cycle_call_prefix: "MCALL ",
+    sub_program_call: "CALL \"{name}\"",
+    sub_program_return: "RET",
+    features: {
+      hsc_mode: { on: "CYCLE832({tol},1)", off: "CYCLE832()", tolerance_param: "CYCLE832({tol},{mode})" },
+      smoothing: { rough: "CYCLE832(0.05,1)", medium: "CYCLE832(0.02,1)", finish: "CYCLE832(0.005,1)" },
+      coord_rotation: "CYCLE800(0,\"\",0,0,0,{a},{b},{c},0,0,0,0,1)",
+      look_ahead: { set: "COMPCAD" },
+      look_ahead_blocks: 100, block_processing_rate: 3000, nurbs_interpolation: false,
+      max_simultaneous_axes: 3, work_offset_count: 99, macro_b_support: false, program_memory_kb: 1024,
     },
   },
 
@@ -609,6 +713,7 @@ const DIALECTS: Record<string, ControllerDialect> = {
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
     features: {
+      hsc_mode: { on: "G05.1 Q1", off: "G05.1 Q0" },
       look_ahead_blocks: 100, block_processing_rate: 5000, nurbs_interpolation: false,
       max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 256,
     },
@@ -640,7 +745,7 @@ const DIALECTS: Record<string, ControllerDialect> = {
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
     features: {
-      hsc_mode: { on: "G05.1 Q1", off: "G05.1 Q0" },
+      hsc_mode: { on: "G05.1 Q1", off: "G05.1 Q0", tolerance_param: "G05.1 Q1 R{tol}" },
       smoothing: { rough: "G61.1 P1", medium: "G61.1 P2", finish: "G61.1 P3" },
       look_ahead_blocks: 200, block_processing_rate: 5400, nurbs_interpolation: true,
       max_simultaneous_axes: 5, work_offset_count: 48, macro_b_support: true, program_memory_kb: 1024,
@@ -674,6 +779,7 @@ const DIALECTS: Record<string, ControllerDialect> = {
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
     features: {
+      hsc_mode: { on: "G134", off: "G133" },
       look_ahead_blocks: 150, block_processing_rate: 4000, nurbs_interpolation: true,
       max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 2048,
     },
@@ -746,8 +852,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
 // ─── Alias map: simple names → dialect IDs ───────────────────────────
 
 const ALIAS_MAP: Record<string, string> = {
-  fanuc: "generic_fanuc", "fanuc_0i": "fanuc_0i", "fanuc_30i": "fanuc_30i", "fanuc_31i": "fanuc_31i",
-  siemens: "siemens_840d", "siemens_840d": "siemens_840d", "siemens_one": "siemens_one", "840d": "siemens_840d",
+  fanuc: "generic_fanuc", "fanuc_0i": "fanuc_0i", "fanuc_16i": "fanuc_16i", "fanuc_18i": "fanuc_18i", "fanuc_30i": "fanuc_30i", "fanuc_31i": "fanuc_31i",
+  siemens: "siemens_840d", "siemens_828d": "siemens_828d", "828d": "siemens_828d", "siemens_840d": "siemens_840d", "siemens_one": "siemens_one", "840d": "siemens_840d",
   heidenhain: "heidenhain_tnc640", "tnc640": "heidenhain_tnc640", "tnc7": "heidenhain_tnc7",
   haas: "haas_ngc", "haas_ngc": "haas_ngc",
   mazak: "mazak_smooth_ai", "smooth_ai": "mazak_smooth_ai", "smooth_g": "mazak_smooth_g",

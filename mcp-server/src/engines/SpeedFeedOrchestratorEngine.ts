@@ -174,6 +174,15 @@ export interface OrchestratorResult {
   resolved_cam_strategy: ResolvedCAMStrategy;
   resolved_geometry: ResolvedGeometry;
 
+  // ── Stability assessment ──
+  stability_assessment: {
+    zone: "stable" | "marginal" | "unstable";
+    p_chatter: number;
+    suggested_rpm_pocket?: number;
+    lobe_index?: number;
+    message: string;
+  };
+
   // ── Advisory outputs ──
   playbook_warnings: string[];
   recommendations: string[];
@@ -223,6 +232,8 @@ export interface ResolvedMachine {
   type: AtomicValue<string>;
   taper: AtomicValue<string>;
   age_factor: AtomicValue<number>;      // 1.0 = new, degrades with age
+  guideway: AtomicValue<"box" | "linear" | "hydrostatic">;
+  nat_freq_hz: AtomicValue<number>;    // spindle natural frequency from catalog/kinematic data
 }
 
 export interface ResolvedTool {
@@ -613,22 +624,51 @@ const DEFAULT_MACHINE_PROFILES: Record<string, DefaultMachineProfile> = {
 // MACHINE CATALOG QUICK-LOOKUP (15 popular machines from 910-machine catalog)
 // ============================================================================
 
-const MACHINE_CATALOG_QUICK: Record<string, { power_kw: number; max_rpm: number; torque_Nm: number; taper: string; rigidity: 'low'|'medium'|'high'; type: string }> = {
-  'dmg mori dmu 50':       { power_kw: 25,   max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
-  'dmg mori dmc 850 v':    { power_kw: 25,   max_rpm: 14000, torque_Nm: 130, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill' },
-  'haas vf-2':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
-  'haas vf-4':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
-  'haas st-10':            { power_kw: 11.2, max_rpm: 6000,  torque_Nm: 102, taper: 'A2-5',    rigidity: 'medium', type: 'lathe' },
-  'haas st-20':            { power_kw: 22.4, max_rpm: 4000,  torque_Nm: 340, taper: 'A2-6',    rigidity: 'high',   type: 'lathe' },
-  'mazak variaxis i-300':  { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
-  'mazak quick turn 250':  { power_kw: 18.5, max_rpm: 3300,  torque_Nm: 478, taper: 'A2-8',    rigidity: 'high',   type: 'lathe' },
-  'okuma genos m560-v':    { power_kw: 22,   max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill' },
-  'fanuc robodrill':       { power_kw: 11,   max_rpm: 24000, torque_Nm: 25,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill' },
-  'makino a51nx':          { power_kw: 22,   max_rpm: 14000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill' },
-  'brother speedio r650x2': { power_kw: 7.5, max_rpm: 27000, torque_Nm: 13,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill' },
-  'hurco vmx42i':          { power_kw: 18,   max_rpm: 12000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
-  'hermle c 400':          { power_kw: 18,   max_rpm: 18000, torque_Nm: 130, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
-  'doosan dnm 500':        { power_kw: 18.5, max_rpm: 8000,  torque_Nm: 118, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
+const MACHINE_CATALOG_QUICK: Record<string, { power_kw: number; max_rpm: number; torque_Nm: number; taper: string; rigidity: 'low'|'medium'|'high'; type: string; guideway: 'box'|'linear'|'hydrostatic'; nat_freq_hz: number; accel_m_s2?: number; jerk_m_s3?: number }> = {
+  // ── DMG Mori ──  (high-performance 5-axis: accel 1.0-1.5G, jerk 20-50 m/s³)
+  'dmg mori dmu 50':       { power_kw: 25,   max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 900,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
+  'dmg mori dmc 850 v':    { power_kw: 25,   max_rpm: 14000, torque_Nm: 130, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 700,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'dmg mori dmf 260':      { power_kw: 28,   max_rpm: 12000, torque_Nm: 200, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'dmg mori nlx 2500':     { power_kw: 26,   max_rpm: 3500,  torque_Nm: 576, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 7.0,   jerk_m_s3: 20 },
+  // ── Haas ──  (standard VMC: accel 0.3-0.5G, jerk 5-15 m/s³)
+  'haas vf-2':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 3.5,   jerk_m_s3: 8 },
+  'haas vf-4':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 3.5,   jerk_m_s3: 8 },
+  'haas vf-6':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 550,  accel_m_s2: 3.0,   jerk_m_s3: 7 },
+  'haas uo-1':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'high',   type: '5axis',           guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'haas st-10':            { power_kw: 11.2, max_rpm: 6000,  torque_Nm: 102, taper: 'A2-5',    rigidity: 'medium', type: 'lathe',           guideway: 'linear',      nat_freq_hz: 700,  accel_m_s2: 5.0,   jerk_m_s3: 15 },
+  'haas st-20':            { power_kw: 22.4, max_rpm: 4000,  torque_Nm: 340, taper: 'A2-6',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'haas st-30':            { power_kw: 22.4, max_rpm: 3400,  torque_Nm: 407, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 450,  accel_m_s2: 4.5,   jerk_m_s3: 10 },
+  'haas minimill':         { power_kw: 11.2, max_rpm: 8100,  torque_Nm: 75,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'haas dm-2':             { power_kw: 11.2, max_rpm: 15000, torque_Nm: 34,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 900,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  // ── Mazak ──  (high-performance: accel 0.8-1.2G, jerk 15-30 m/s³)
+  'mazak variaxis i-300':  { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 850,  accel_m_s2: 10.0,  jerk_m_s3: 25 },
+  'mazak variaxis i-700':  { power_kw: 30,   max_rpm: 12000, torque_Nm: 179, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  'mazak quick turn 250':  { power_kw: 18.5, max_rpm: 3300,  torque_Nm: 478, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 450,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'mazak integrex i-200':  { power_kw: 22,   max_rpm: 4000,  torque_Nm: 427, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 7.0,   jerk_m_s3: 18 },
+  'mazak vcn 530c':        { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 8.0,   jerk_m_s3: 20 },
+  // ── Okuma ──  (robust box-way: accel 0.5-0.8G, jerk 10-20 m/s³)
+  'okuma genos m560-v':    { power_kw: 22,   max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 700,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'okuma mu-5000v':        { power_kw: 22,   max_rpm: 8000,  torque_Nm: 179, taper: 'BT50',    rigidity: 'high',   type: '5axis',           guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'okuma lb3000 ex':       { power_kw: 22,   max_rpm: 3800,  torque_Nm: 411, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 500,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  // ── Others ──  (high-speed: accel 1.5-2.0G, jerk 30-100 m/s³)
+  'fanuc robodrill':       { power_kw: 11,   max_rpm: 24000, torque_Nm: 25,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 1200, accel_m_s2: 15.0,  jerk_m_s3: 50 },
+  'makino a51nx':          { power_kw: 22,   max_rpm: 14000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 900,  accel_m_s2: 12.0,  jerk_m_s3: 35 },
+  'makino d500':           { power_kw: 22,   max_rpm: 20000, torque_Nm: 80,  taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 14.0,  jerk_m_s3: 45 },
+  'brother speedio r650x2':{ power_kw: 7.5,  max_rpm: 27000, torque_Nm: 13,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 1100, accel_m_s2: 18.0,  jerk_m_s3: 80 },
+  'hurco vmx42i':          { power_kw: 18,   max_rpm: 12000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 750,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'hermle c 400':          { power_kw: 18,   max_rpm: 18000, torque_Nm: 130, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
+  'hermle c 650':          { power_kw: 28,   max_rpm: 18000, torque_Nm: 200, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 850,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  'doosan dnm 500':        { power_kw: 18.5, max_rpm: 8000,  torque_Nm: 118, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill',   guideway: 'linear',      nat_freq_hz: 650,  accel_m_s2: 4.0,   jerk_m_s3: 10 },
+  'doosan puma 2600':      { power_kw: 18.5, max_rpm: 3500,  torque_Nm: 418, taper: 'A2-8',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 450,  accel_m_s2: 5.0,   jerk_m_s3: 12 },
+  'matsuura mx-520':       { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 850,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  'kitamura mycenter hx400':{ power_kw: 22,  max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'linear',      nat_freq_hz: 900,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
+  'hardinge conquest t42':  { power_kw: 11,  max_rpm: 6000,  torque_Nm: 102, taper: 'A2-5',    rigidity: 'high',   type: 'lathe',           guideway: 'box',         nat_freq_hz: 600,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'citizen cincom l20':     { power_kw: 3.7, max_rpm: 10000, torque_Nm: 10,  taper: 'ER20',    rigidity: 'medium', type: 'swiss',           guideway: 'linear',      nat_freq_hz: 1500, accel_m_s2: 15.0,  jerk_m_s3: 60 },
+  'star sr-20':             { power_kw: 3.7, max_rpm: 10000, torque_Nm: 12,  taper: 'ER20',    rigidity: 'medium', type: 'swiss',           guideway: 'linear',      nat_freq_hz: 1400, accel_m_s2: 14.0,  jerk_m_s3: 55 },
+  'toyoda fh630sx':         { power_kw: 30,  max_rpm: 10000, torque_Nm: 250, taper: 'BT50',    rigidity: 'high',   type: 'horizontal_mill', guideway: 'box',         nat_freq_hz: 550,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'mori seiki sv-500':      { power_kw: 22,  max_rpm: 10000, torque_Nm: 150, taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill',   guideway: 'box',         nat_freq_hz: 650,  accel_m_s2: 6.0,   jerk_m_s3: 15 },
+  'grob g350':              { power_kw: 25,  max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
+  'kern micro hd':          { power_kw: 9,   max_rpm: 50000, torque_Nm: 4,   taper: 'HSK-E25', rigidity: 'high',   type: '5axis',           guideway: 'hydrostatic', nat_freq_hz: 2000, accel_m_s2: 15.0,  jerk_m_s3: 100 },
 };
 
 // ============================================================================
@@ -919,6 +959,16 @@ export class SpeedFeedOrchestratorEngine {
         ageFactor,
         input.machine_age_years !== undefined ? 0.8 : 0.3,
         input.machine_age_years !== undefined ? `age_${ageYears}_years` : "assumed_new"
+      ),
+      guideway: av(
+        (catalogMatch?.guideway ?? "linear") as "box" | "linear" | "hydrostatic",
+        catalogMatch ? catalogConf : 0.3,
+        catalogMatch ? `catalog_${input.machine_name}` : "default_linear"
+      ),
+      nat_freq_hz: av(
+        catalogMatch?.nat_freq_hz ?? (input.natural_frequency_hz ?? 800),
+        catalogMatch ? catalogConf : (input.natural_frequency_hz ? userConf : 0.3),
+        catalogMatch ? `catalog_kinematic_${input.machine_name}` : (input.natural_frequency_hz ? "user_input" : "default_800hz")
       ),
     };
   }
@@ -1430,11 +1480,16 @@ export class SpeedFeedOrchestratorEngine {
   ): {
     force_ci95: [number, number]; force_mean: number;
     life_ci95: [number, number]; life_mean: number;
+    ra_ci95: [number, number]; ra_mean: number;
+    ra_cpk: number | null;
+    weibull: { beta: number; eta_min: number; p_survive_30min: number } | null;
     p_chatter: number;
     sobol_dominant: string;
-    sobol_contributions: { kc_pct: number; life_pct: number };
+    sobol_contributions: { kc_pct: number; life_pct: number; ra_pct: number };
+    dominant_uncertainty_source: string;
+    suggested_measurement: string;
   } {
-    // Kienzle force with material scatter (inline MC, 500 trials)
+    // Kienzle force + Taylor life + stability + surface finish MC (500 trials)
     const kc1_1 = material.kc1_1.value;
     const mc = material.mc.value;
     const kc_cv = 0.10; // 8-12% typical
@@ -1450,28 +1505,34 @@ export class SpeedFeedOrchestratorEngine {
 
     const forces: number[] = [];
     const lives: number[] = [];
+    const ras: number[] = [];
     const chatterCount = { stable: 0, unstable: 0 };
+    const noseR = tool.corner_radius_mm?.value ?? 0.4;
 
     for (let i = 0; i < n_trials; i++) {
       const kc_s = kc1_1 * (1 + kc_cv * boxMuller());
       const mc_s = mc * (1 + mc_cv * boxMuller());
-      const h = Math.max(0.001, fz); // chip thickness ≈ fz for straight milling
+      const h = Math.max(0.001, fz);
       const Fc_s = kc_s * ap * Math.pow(h, 1 - mc_s);
       forces.push(Fc_s);
 
       // Taylor life with scatter
       const n_taylor = 0.25 * (1 + 0.08 * boxMuller());
-      const C_taylor = (Vc * 1.5) * (1 + 0.15 * boxMuller()); // C ≈ 1.5× base Vc
+      const C_taylor = (Vc * 1.5) * (1 + 0.15 * boxMuller());
       const T_s = Math.pow(Math.max(1, C_taylor / Math.max(1, Vc)), 1 / Math.max(0.05, n_taylor));
       lives.push(Math.max(0.1, T_s));
 
-      // Stability check (simplified): a_lim = -1/(2*Ks*Re[G])
-      // Approximate: stable if ap < a_lim
-      const k_s = stiffness_n_per_um * 1e6; // N/m
+      // Surface finish: Ra ≈ fz²/(32·r) with scatter on fz, nose radius, BUE
+      const fz_s = fz * (1 + 0.05 * boxMuller()); // ±5% feed scatter
+      const r_s = noseR * (1 + 0.03 * boxMuller()); // ±3% nose radius scatter
+      const bue_factor = 1 + Math.max(0, 0.1 * boxMuller()); // BUE adds roughness
+      const Ra_s = ((fz_s * fz_s) / (32 * Math.max(0.01, r_s))) * 1000 * bue_factor; // mm→µm
+      ras.push(Math.max(0.01, Ra_s));
+
+      // Stability check
+      const k_s = stiffness_n_per_um * 1e6;
       const zeta = damping;
-      const omega_n = natural_freq_hz * 2 * Math.PI;
-      const Ks = kc_s * ae / 1000; // specific force × width
-      // Worst-case Re[G] ≈ -1/(2*k_s*zeta) at natural frequency
+      const Ks = kc_s * ae / 1000;
       const re_G_worst = -1 / (2 * k_s * Math.max(0.001, zeta));
       const a_lim = -1 / (2 * Math.max(1, Ks) * re_G_worst);
       if (ap > a_lim * (1 + 0.1 * boxMuller())) {
@@ -1483,31 +1544,64 @@ export class SpeedFeedOrchestratorEngine {
 
     forces.sort((a, b) => a - b);
     lives.sort((a, b) => a - b);
+    ras.sort((a, b) => a - b);
 
     const forceMean = forces.reduce((s, v) => s + v, 0) / n_trials;
     const lifeMean = lives.reduce((s, v) => s + v, 0) / n_trials;
+    const raMean = ras.reduce((s, v) => s + v, 0) / n_trials;
     const ci2_5 = Math.floor(n_trials * 0.025);
     const ci97_5 = Math.floor(n_trials * 0.975);
 
-    // Sobol-like: which parameter contributes most variance?
-    // Simple: kc scatter vs mc scatter vs Taylor scatter
-    const forceVar = forces.reduce((s, v) => s + (v - forceMean) ** 2, 0) / n_trials;
-    const sobol_dominant = forceVar > 0 ? "material_kc1.1" : "tool_life_C";
+    // Weibull fit for tool life (method of moments: β≈1.2·(mean/stddev), η from mean)
+    const lifeStd = Math.sqrt(lives.reduce((s, v) => s + (v - lifeMean) ** 2, 0) / n_trials);
+    const lifeCv = lifeStd / Math.max(0.01, lifeMean);
+    const weibullBeta = Math.max(0.5, 1.2 / Math.max(0.01, lifeCv)); // shape
+    // η from Γ function approximation: mean = η·Γ(1+1/β) ≈ η for β>2
+    const gammaApprox = 1 - 0.5772 / weibullBeta + 0.9890 / (weibullBeta * weibullBeta);
+    const weibullEta = lifeMean / Math.max(0.1, gammaApprox); // scale (characteristic life)
+    // P(survive 30min) = exp(-(30/η)^β)
+    const pSurvive30 = Math.exp(-Math.pow(30 / Math.max(0.1, weibullEta), weibullBeta));
 
-    // Enhanced Sobol: compute variance contribution of each parameter
+    // Surface finish Cpk (if target Ra implied from cut_type)
+    const raStd = Math.sqrt(ras.reduce((s, v) => s + (v - raMean) ** 2, 0) / n_trials);
+    // Assume USL = 2×mean (no formal target), LSL = 0
+    const raUSL = raMean * 2;
+    const raCpk = raStd > 0 ? Math.min((raUSL - raMean) / (3 * raStd), raMean / (3 * raStd)) : null;
+
+    // Variance decomposition: force, life, surface finish
+    const forceVar = forces.reduce((s, v) => s + (v - forceMean) ** 2, 0) / n_trials;
     const lifeVar = lives.reduce((s, v) => s + (v - lifeMean) ** 2, 0) / n_trials;
-    const totalVar = forceVar + lifeVar;
-    const sobol_kc = totalVar > 0 ? (forceVar / totalVar * 100) : 50;
-    const sobol_life = totalVar > 0 ? (lifeVar / totalVar * 100) : 50;
+    const raVar = ras.reduce((s, v) => s + (v - raMean) ** 2, 0) / n_trials;
+    const totalVar = forceVar + lifeVar + raVar;
+    const sobol_kc = totalVar > 0 ? (forceVar / totalVar * 100) : 33;
+    const sobol_life = totalVar > 0 ? (lifeVar / totalVar * 100) : 33;
+    const sobol_ra = totalVar > 0 ? (raVar / totalVar * 100) : 34;
+
+    // Determine dominant uncertainty source and suggested measurement
+    let dominant_uncertainty_source = "material_kc1.1";
+    let suggested_measurement = "Perform cutting force dynamometer test to calibrate kc1.1";
+    if (sobol_life > sobol_kc && sobol_life > sobol_ra) {
+      dominant_uncertainty_source = "tool_life_C";
+      suggested_measurement = "Run tool wear test at reference speed to calibrate Taylor C/n";
+    } else if (sobol_ra > sobol_kc) {
+      dominant_uncertainty_source = "surface_finish_nose_radius";
+      suggested_measurement = "Measure actual nose radius with optical microscope";
+    }
 
     return {
       force_ci95: [forces[ci2_5], forces[ci97_5]],
       force_mean: forceMean,
       life_ci95: [lives[ci2_5], lives[ci97_5]],
       life_mean: lifeMean,
+      ra_ci95: [ras[ci2_5], ras[ci97_5]],
+      ra_mean: raMean,
+      ra_cpk: raCpk,
+      weibull: { beta: Math.round(weibullBeta * 100) / 100, eta_min: Math.round(weibullEta * 10) / 10, p_survive_30min: Math.round(pSurvive30 * 1000) / 1000 },
       p_chatter: chatterCount.unstable / n_trials,
-      sobol_dominant: forceVar > lifeVar ? "material_kc1.1" : "tool_life_C",
-      sobol_contributions: { kc_pct: Math.round(sobol_kc), life_pct: Math.round(sobol_life) },
+      sobol_dominant: dominant_uncertainty_source,
+      sobol_contributions: { kc_pct: Math.round(sobol_kc), life_pct: Math.round(sobol_life), ra_pct: Math.round(sobol_ra) },
+      dominant_uncertainty_source,
+      suggested_measurement,
     };
   }
 
@@ -1957,12 +2051,12 @@ export class SpeedFeedOrchestratorEngine {
     const confScale = Math.max(0.5, overallConfidence);
     // Derive stiffness/freq/damping from rigidity category
     const rigMap = { low: 20, medium: 50, high: 100 } as const;
-    const dampMap = { low: 0.02, medium: 0.04, high: 0.06 } as const;
-    const freqMap = { low: 500, medium: 800, high: 1200 } as const;
+    const gwDampMap = { box: 0.05, linear: 0.02, hydrostatic: 0.08 } as const;
     const rig = machine.rigidity.value as "low" | "medium" | "high";
+    const gw = machine.guideway.value;
     const stiffness = rigMap[rig] ?? 50;
-    const natFreq = freqMap[rig] ?? 800;
-    const dampingR = dampMap[rig] ?? 0.03;
+    const natFreq = machine.nat_freq_hz.value;
+    const dampingR = gwDampMap[gw] ?? 0.03;
     const fullUQ = this.computeFullUncertainty(
       material, tool, Vc, fz, ap, ae, stiffness, natFreq, dampingR,
     );
@@ -1974,9 +2068,14 @@ export class SpeedFeedOrchestratorEngine {
       ra_cv_pct: (30 / confScale),
       force_ci95: fullUQ.force_ci95,
       life_ci95: fullUQ.life_ci95,
+      ra_ci95: fullUQ.ra_ci95,
+      ra_cpk: fullUQ.ra_cpk,
+      weibull: fullUQ.weibull,
       p_chatter: fullUQ.p_chatter,
       sobol_dominant: fullUQ.sobol_dominant,
       sobol_contributions: fullUQ.sobol_contributions,
+      dominant_uncertainty_source: fullUQ.dominant_uncertainty_source,
+      suggested_measurement: fullUQ.suggested_measurement,
     };
 
     // Find resolver with lowest confidence for dominant uncertainty
@@ -2175,6 +2274,31 @@ export class SpeedFeedOrchestratorEngine {
       resolved_cam_strategy: camStrat,
       resolved_geometry: geometry,
 
+      stability_assessment: (() => {
+        const pChat = fullUQ.p_chatter;
+        const zone = pChat < 0.1 ? "stable" as const : pChat < 0.4 ? "marginal" as const : "unstable" as const;
+        // Stable pocket RPM suggestion using lobe theory: n_pocket = 60·fn/(k·z)
+        // where k = lobe index (1,2,3...), z = flutes, fn = natural frequency
+        let suggested_rpm_pocket: number | undefined;
+        let lobe_index: number | undefined;
+        if (zone !== "stable" && natFreq > 0 && z > 0) {
+          // Find nearest stable pocket: n = 60·fn / (k·z) for k=1,2,3...
+          for (let k = 1; k <= 10; k++) {
+            const pocketRpm = Math.round(60 * natFreq / (k * z));
+            if (pocketRpm <= maxRPM && pocketRpm >= 500) {
+              suggested_rpm_pocket = pocketRpm;
+              lobe_index = k;
+              break;
+            }
+          }
+        }
+        const message = zone === "stable"
+          ? `Stable cutting zone (P(chatter)=${(pChat*100).toFixed(1)}%)`
+          : zone === "marginal"
+          ? `Marginal stability (P(chatter)=${(pChat*100).toFixed(1)}%). ${suggested_rpm_pocket ? `Try RPM=${suggested_rpm_pocket} (lobe ${lobe_index})` : "Reduce depth of cut"}`
+          : `Unstable — high chatter risk (P(chatter)=${(pChat*100).toFixed(1)}%). ${suggested_rpm_pocket ? `Switch to RPM=${suggested_rpm_pocket} (stable pocket, lobe ${lobe_index})` : "Reduce ap and ae significantly"}`;
+        return { zone, p_chatter: Math.round(pChat * 1000) / 1000, suggested_rpm_pocket, lobe_index, message };
+      })(),
       playbook_warnings,
       recommendations,
       alternatives,
@@ -2245,24 +2369,183 @@ function compareFn(engine: SpeedFeedOrchestratorEngine, scenarios: Array<{ label
   return { value: { scenarios: results, best_mrr, best_tool_life, best_finish }, confidence: avgConf, source: "compare" };
 }
 
-/** Multi-objective Pareto optimization across tool_life, mrr, surface_finish */
+/**
+ * MOPSO — Multi-Objective Particle Swarm Optimization for S/F.
+ * Ported from archive PRISM_PSO_OPTIMIZER.js (v8.89).
+ * Optimizes Vc, fz, ap simultaneously across MRR, tool life, Ra.
+ * Returns true Pareto front with crowding-distance diversity.
+ *
+ * PSO params: 20 particles × 40 iterations, adaptive inertia 0.9→0.4,
+ * c1=c2=1.49445 (constriction coefficients).
+ */
 function optimizeFn(engine: SpeedFeedOrchestratorEngine, input: OrchestratorInput, objectives?: string[]): AtomicValue<unknown> {
-  const modes: Array<{ label: string; optimize_for: OrchestratorInput["optimize_for"] }> = [
-    { label: "max_productivity", optimize_for: "productivity" },
-    { label: "max_tool_life", optimize_for: "tool_life" },
-    { label: "best_finish", optimize_for: "surface_finish" },
-    { label: "balanced", optimize_for: "balanced" },
-    { label: "min_cost", optimize_for: "cost" },
+  const N = 20;   // particles (kept small for real-time)
+  const ITER = 40;
+  const c1 = 1.49445, c2 = 1.49445;
+  const wMax = 0.9, wMin = 0.4;
+
+  // Dimension bounds: [Vc m/min, fz mm/tooth, ap mm]
+  const D = input.tool_diameter_mm ?? 12;
+  const bounds: [number, number][] = [
+    [20, 500],       // Vc
+    [0.01, 0.3],     // fz
+    [0.2, D * 1.5],  // ap
   ];
-  const results = modes.map(m => {
-    const r = engine.compute({ ...input, optimize_for: m.optimize_for });
-    return { label: m.label, result: r.value, confidence: r.confidence };
+  const vMax = bounds.map(([lo, hi]) => 0.2 * (hi - lo));
+
+  // Seed RNG for reproducibility
+  let seed = 12345;
+  const rng = (): number => { seed = (seed * 1664525 + 1013904223) & 0x7fffffff; return seed / 0x7fffffff; };
+
+  // Evaluate objectives: [MRR (maximize), tool_life (maximize), -Ra (maximize = better finish)]
+  const evaluate = (pos: number[]): number[] => {
+    const Vc = pos[0], fz = pos[1], ap = pos[2];
+    const ae = input.radial_depth_mm ?? D * 0.5;
+    const z = input.flutes ?? 4;
+    const rpm = Math.min(1000 * Vc / (Math.PI * D), input.machine_max_rpm ?? 15000);
+    const Vf = fz * z * rpm;
+    const mrr = (ap * ae * Vf) / 1000; // cm³/min
+
+    // Taylor tool life: T = (C/Vc)^(1/n)
+    const n_t = 0.25, C_t = Vc * 1.5;
+    const toolLife = Math.pow(Math.max(1, C_t / Math.max(1, Vc)), 1 / n_t);
+
+    // Surface finish: Ra = fz²/(32·r) × 1000 µm
+    const noseR = input.corner_radius_mm ?? 0.4;
+    const Ra = (fz * fz) / (32 * noseR) * 1000;
+
+    return [mrr, Math.min(toolLife, 999), -Ra]; // all maximize
+  };
+
+  // Dominance: a dominates b if a[i] >= b[i] for all i, strictly > for at least one
+  const dominates = (a: number[], b: number[]): boolean => {
+    let dominated = false;
+    for (let i = 0; i < a.length; i++) {
+      if (a[i] < b[i]) return false;
+      if (a[i] > b[i]) dominated = true;
+    }
+    return dominated;
+  };
+
+  // Initialize particles
+  const particles = Array.from({ length: N }, () => {
+    const pos = bounds.map(([lo, hi]) => lo + rng() * (hi - lo));
+    const vel = bounds.map((_, i) => (rng() - 0.5) * 2 * vMax[i]);
+    const fit = evaluate(pos);
+    return { pos: [...pos], vel, fit, bestPos: [...pos], bestFit: [...fit] };
   });
-  const recommended = objectives?.includes("productivity") ? "max_productivity"
-    : objectives?.includes("tool_life") ? "max_tool_life"
-    : "balanced";
-  const avgConf = results.reduce((s, r) => s + r.confidence, 0) / results.length;
-  return { value: { pareto_front: results, recommended }, confidence: avgConf, source: "optimize" };
+
+  // Pareto archive
+  let archive: Array<{ pos: number[]; fit: number[] }> = [];
+
+  const updateArchive = (candidates: Array<{ pos: number[]; fit: number[] }>) => {
+    const all = [...archive, ...candidates];
+    // Remove dominated solutions
+    const nonDom = all.filter((a, i) => !all.some((b, j) => i !== j && dominates(b.fit, a.fit)));
+    // Crowding distance trim to 50
+    if (nonDom.length > 50) {
+      // Sort by each objective and assign distances
+      const dists = new Array(nonDom.length).fill(0);
+      for (let obj = 0; obj < 3; obj++) {
+        const idx = nonDom.map((_, i) => i).sort((a, b) => nonDom[a].fit[obj] - nonDom[b].fit[obj]);
+        dists[idx[0]] = Infinity;
+        dists[idx[idx.length - 1]] = Infinity;
+        const range = Math.max(1e-10, nonDom[idx[idx.length - 1]].fit[obj] - nonDom[idx[0]].fit[obj]);
+        for (let k = 1; k < idx.length - 1; k++) {
+          dists[idx[k]] += (nonDom[idx[k + 1]].fit[obj] - nonDom[idx[k - 1]].fit[obj]) / range;
+        }
+      }
+      const sorted = nonDom.map((s, i) => ({ s, d: dists[i] })).sort((a, b) => b.d - a.d);
+      archive = sorted.slice(0, 50).map(x => x.s);
+    } else {
+      archive = nonDom;
+    }
+  };
+
+  // PSO main loop
+  for (let iter = 0; iter < ITER; iter++) {
+    const w = wMax - (wMax - wMin) * iter / ITER; // adaptive inertia
+
+    updateArchive(particles.map(p => ({ pos: [...p.pos], fit: [...p.fit] })));
+
+    for (const p of particles) {
+      // Select leader from archive (random)
+      const leader = archive[Math.floor(rng() * archive.length)];
+
+      // Velocity update
+      for (let d = 0; d < 3; d++) {
+        p.vel[d] = w * p.vel[d]
+          + c1 * rng() * (p.bestPos[d] - p.pos[d])
+          + c2 * rng() * (leader.pos[d] - p.pos[d]);
+        p.vel[d] = Math.max(-vMax[d], Math.min(vMax[d], p.vel[d]));
+      }
+
+      // Position update with reflection boundary
+      for (let d = 0; d < 3; d++) {
+        p.pos[d] += p.vel[d];
+        if (p.pos[d] < bounds[d][0]) { p.pos[d] = bounds[d][0] + 0.5 * (bounds[d][0] - p.pos[d]); p.vel[d] *= -0.5; }
+        if (p.pos[d] > bounds[d][1]) { p.pos[d] = bounds[d][1] - 0.5 * (p.pos[d] - bounds[d][1]); p.vel[d] *= -0.5; }
+        p.pos[d] = Math.max(bounds[d][0], Math.min(bounds[d][1], p.pos[d]));
+      }
+
+      // Evaluate
+      p.fit = evaluate(p.pos);
+
+      // Update personal best (non-dominated)
+      if (dominates(p.fit, p.bestFit)) {
+        p.bestPos = [...p.pos];
+        p.bestFit = [...p.fit];
+      }
+    }
+  }
+
+  // Final archive update
+  updateArchive(particles.map(p => ({ pos: [...p.pos], fit: [...p.fit] })));
+
+  // Convert archive to OrchestratorResults
+  const paretoResults = archive.slice(0, 10).map((sol, i) => {
+    const r = engine.compute({ ...input, axial_depth_mm: sol.pos[2] });
+    return {
+      label: `pareto_${i + 1}`,
+      vc_mpm: Math.round(sol.pos[0] * 10) / 10,
+      fz_mm: Math.round(sol.pos[1] * 10000) / 10000,
+      ap_mm: Math.round(sol.pos[2] * 100) / 100,
+      mrr_cm3min: Math.round(sol.fit[0] * 100) / 100,
+      tool_life_min: Math.round(sol.fit[1] * 10) / 10,
+      ra_um: Math.round(-sol.fit[2] * 100) / 100,
+      result: r.value,
+      confidence: r.confidence,
+    };
+  });
+
+  // Sort by MRR descending, pick extremes
+  paretoResults.sort((a, b) => b.mrr_cm3min - a.mrr_cm3min);
+  const bestMrr = paretoResults[0]?.label ?? "pareto_1";
+  const bestLife = [...paretoResults].sort((a, b) => b.tool_life_min - a.tool_life_min)[0]?.label ?? "pareto_1";
+  const bestFinish = [...paretoResults].sort((a, b) => a.ra_um - b.ra_um)[0]?.label ?? "pareto_1";
+
+  // Recommend based on user preference
+  const recommended = objectives?.includes("productivity") ? bestMrr
+    : objectives?.includes("tool_life") ? bestLife
+    : objectives?.includes("surface_finish") ? bestFinish
+    : paretoResults[Math.floor(paretoResults.length / 2)]?.label ?? "pareto_1";
+
+  const avgConf = paretoResults.reduce((s, r) => s + r.confidence, 0) / Math.max(1, paretoResults.length);
+  return {
+    value: {
+      method: "MOPSO",
+      particles: N,
+      iterations: ITER,
+      archive_size: archive.length,
+      pareto_front: paretoResults,
+      best_mrr: bestMrr,
+      best_tool_life: bestLife,
+      best_finish: bestFinish,
+      recommended,
+    },
+    confidence: avgConf,
+    source: "mopso_pareto_optimization",
+  };
 }
 
 export { resolveMachineContextFn, resolveToolContextFn, resolveMaterialContextFn, compareFn, optimizeFn };
