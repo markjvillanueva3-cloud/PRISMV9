@@ -6216,6 +6216,57 @@ export function registerCalcDispatcher(server: any): void {
           }
 
 
+
+          // ── Dimensionless Numbers ──
+          case "cutting_number": case "thermal_peclet": case "chip_formation_number":
+          case "stability_number": case "wear_intensity": case "capability_number":
+          case "machinability_index": case "thermal_damage_number":
+          case "all_dimensionless": case "interpret_numbers": {
+            const { DimensionlessNumbersEngine: DNE } = await import("../../engines/DimensionlessNumbersEngine.js");
+            const dne = new DNE();
+            const methodMap: Record<string,string> = {
+              cutting_number: "cuttingNumber", thermal_peclet: "thermalPeclet",
+              chip_formation_number: "chipFormationNumber", stability_number: "stabilityNumber",
+              wear_intensity: "wearIntensity", capability_number: "processCapabilityNumber",
+              machinability_index: "machinabilityIndex", thermal_damage_number: "thermalDamageNumber",
+              all_dimensionless: "allNumbers", interpret_numbers: "interpret",
+            };
+            result = (dne as any)[methodMap[action]](params as ValidatedParams);
+            break;
+          }
+
+          // ── Process Synthesis ──
+          case "multi_physics_simulate": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().multiPhysicsProcessSimulator(params as ValidatedParams);
+            break;
+          }
+          case "pareto_optimize": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().paretoOptimalParameters(params as ValidatedParams);
+            break;
+          }
+          case "auto_model_select": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().automaticModelSelector(params as ValidatedParams);
+            break;
+          }
+          case "physics_transfer": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().physicsTransferLearning(params as ValidatedParams);
+            break;
+          }
+          case "anomaly_classify": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().processAnomalyClassifier(params as ValidatedParams);
+            break;
+          }
+          case "experiment_sequence": {
+            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
+            result = new PSE().intelligentExperimentSequencer(params as ValidatedParams);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
@@ -6295,5 +6346,4 @@ export function registerCalcDispatcher(server: any): void {
       }
     }
   );
-
 }
