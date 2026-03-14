@@ -403,6 +403,31 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { result: `Ablation: ${result.value.depth_per_pulse_um.toFixed(2)}µm/pulse, ${result.value.regime}` };
     case "laser_removal_rate": case "laser_haz": case "laser_drilling": case "laser_pulse_overlap": case "laser_plasma_shielding":
       return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "assembly_sequence":
+      return { result: `Assembly: ${(result.value?.optimal_sequence ?? []).join('→')}` };
+    case "assembly_tolerance_stack": case "assembly_line_balance": case "assembly_peg_in_hole":
+    case "assembly_time_estimate": case "assembly_dfa_score":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "harvest_piezo":
+      return { result: `Piezo: ${result.value?.power_mW?.toFixed(2) ?? '?'}mW` };
+    case "harvest_thermo": case "harvest_em": case "harvest_process_budget":
+    case "harvest_hybrid": case "harvest_roi":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "transfer_machine_similarity":
+      return { result: `Similarity: ${(result.value?.similarity_score * 100)?.toFixed(1)}%` };
+    case "transfer_scale_params": case "transfer_gp": case "transfer_material":
+    case "transfer_bayesian_update": case "transfer_validate":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "cmm_uncertainty_budget":
+      return { result: `U=${result.value?.expanded_uncertainty_mm?.toFixed(4)}mm (k=${result.value?.coverage_factor_k})` };
+    case "cmm_plan_path": case "cmm_sampling_strategy": case "cmm_datum_alignment":
+    case "cmm_acceptance_test": case "cmm_feature_uncertainty":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "lam_force_reduction":
+      return { result: `LAM: ${result.value?.force_reduction_pct?.toFixed(1)}% force reduction` };
+    case "lam_preheat_profile": case "lam_tool_life": case "lam_optimal_spacing":
+    case "lam_process_window": case "lam_economics":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -749,6 +774,18 @@ const ACTIONS = [
   // -- Batch 112C: Welding/Forming (6 new engines) --
   "weld_distortion_calc", "stamping_die_calc", "extrusion_force_calc",
   "rolling_mill_calc", "wire_drawing_calc", "tube_forming_calc",
+  // -- Phase 5 Forge C: Gap-Closing Engines --
+  "assembly_sequence", "assembly_tolerance_stack", "assembly_line_balance",
+  "assembly_peg_in_hole", "assembly_time_estimate", "assembly_dfa_score",
+  "harvest_piezo", "harvest_thermo", "harvest_em",
+  "harvest_process_budget", "harvest_hybrid", "harvest_roi",
+  "transfer_machine_similarity", "transfer_scale_params", "transfer_gp",
+  "transfer_material", "transfer_bayesian_update", "transfer_validate",
+  "cmm_plan_path", "cmm_uncertainty_budget", "cmm_sampling_strategy",
+  "cmm_datum_alignment", "cmm_acceptance_test", "cmm_feature_uncertainty",
+  "lam_preheat_profile", "lam_force_reduction", "lam_tool_life",
+  "lam_optimal_spacing", "lam_process_window", "lam_economics",
+  "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5997,6 +6034,187 @@ export function registerCalcDispatcher(server: any): void {
             result = environmentalVariationEngine.analyze(params as ValidatedParams);
             break;
           }
+
+          // ── Phase 5 Forge C: Assembly Optimization ──
+          case "assembly_sequence": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.sequencePlan(params as ValidatedParams);
+            break;
+          }
+          case "assembly_tolerance_stack": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.toleranceStack(params as ValidatedParams);
+            break;
+          }
+          case "assembly_line_balance": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.lineBalance(params as ValidatedParams);
+            break;
+          }
+          case "assembly_peg_in_hole": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.pegInHole(params as ValidatedParams);
+            break;
+          }
+          case "assembly_time_estimate": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.assemblyTime(params as ValidatedParams);
+            break;
+          }
+          case "assembly_dfa_score": {
+            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
+            result = assemblyOptimizationEngine.dfaScore(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge C: Energy Harvesting ──
+          case "harvest_piezo": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.piezoHarvest(params as ValidatedParams);
+            break;
+          }
+          case "harvest_thermo": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.thermoHarvest(params as ValidatedParams);
+            break;
+          }
+          case "harvest_em": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.emHarvest(params as ValidatedParams);
+            break;
+          }
+          case "harvest_process_budget": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.processBudget(params as ValidatedParams);
+            break;
+          }
+          case "harvest_hybrid": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.hybridHarvest(params as ValidatedParams);
+            break;
+          }
+          case "harvest_roi": {
+            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
+            result = energyHarvestingEngine.harvestROI(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge C: Transfer Learning ──
+          case "transfer_machine_similarity": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.machineSimilarity(params as ValidatedParams);
+            break;
+          }
+          case "transfer_scale_params": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.scaleParameters(params as ValidatedParams);
+            break;
+          }
+          case "transfer_gp": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.gpTransfer(params as ValidatedParams);
+            break;
+          }
+          case "transfer_material": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.materialTransfer(params as ValidatedParams);
+            break;
+          }
+          case "transfer_bayesian_update": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.bayesianUpdate(params as ValidatedParams);
+            break;
+          }
+          case "transfer_validate": {
+            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
+            result = transferLearningEngine.validateTransfer(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge C: CMM Path Planning ──
+          case "cmm_plan_path": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.planPath(params as ValidatedParams);
+            break;
+          }
+          case "cmm_uncertainty_budget": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.uncertaintyBudget(params as ValidatedParams);
+            break;
+          }
+          case "cmm_sampling_strategy": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.samplingStrategy(params as ValidatedParams);
+            break;
+          }
+          case "cmm_datum_alignment": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.datumAlignment(params as ValidatedParams);
+            break;
+          }
+          case "cmm_acceptance_test": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.acceptanceTest(params as ValidatedParams);
+            break;
+          }
+          case "cmm_feature_uncertainty": {
+            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmmPathPlanningEngine.featureUncertainty(params as ValidatedParams);
+            break;
+          }
+
+          // ── Phase 5 Forge C: LAM Thermal Softening ──
+          case "lam_preheat_profile": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.preheatProfile(params as ValidatedParams);
+            break;
+          }
+          case "lam_force_reduction": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.forceReduction(params as ValidatedParams);
+            break;
+          }
+          case "lam_tool_life": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.lamToolLife(params as ValidatedParams);
+            break;
+          }
+          case "lam_optimal_spacing": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.optimalSpacing(params as ValidatedParams);
+            break;
+          }
+          case "lam_process_window": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.processWindow(params as ValidatedParams);
+            break;
+          }
+          case "lam_economics": {
+            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
+            result = lamThermalSofteningEngine.lamEconomics(params as ValidatedParams);
+            break;
+          }
+          case "fs_navigate": {
+            const { fileSystemNavigatorEngine } = await import("../../engines/FileSystemNavigatorEngine.js");
+            result = fileSystemNavigatorEngine.navigate({ topic: params.topic as string ?? "", type: params.type as any });
+            break;
+          }
+          case "fs_navigate_find": {
+            const { fileSystemNavigatorEngine } = await import("../../engines/FileSystemNavigatorEngine.js");
+            result = fileSystemNavigatorEngine.find(params.topic as string ?? "");
+            break;
+          }
+          case "dsl_resolve": {
+            const { codeSystemIndexEngine } = await import("../../engines/CodeSystemIndexEngine.js");
+            result = codeSystemIndexEngine.resolve(params.code as string ?? "");
+            break;
+          }
+          case "dsl_search": {
+            const { codeSystemIndexEngine } = await import("../../engines/CodeSystemIndexEngine.js");
+            result = codeSystemIndexEngine.search(params.pattern as string ?? "", params.limit as number ?? 20);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
