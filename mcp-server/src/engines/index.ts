@@ -3271,3 +3271,6 @@ export { userToolLibraryEngine, UserToolLibraryEngine } from './UserToolLibraryE
 export { partGeometryPipelineEngine, PartGeometryPipelineEngine } from './PartGeometryPipelineEngine.js';
 
 export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCSimulationPipelineEngine.js';
+
+export { simulationReportEngine, SimulationReportEngine } from './SimulationReportEngine.js';
+export { physicsAwareSimulationEngine, PhysicsAwareSimulationEngine } from './PhysicsAwareSimulationEngine.js';
