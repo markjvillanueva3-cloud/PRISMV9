@@ -2950,4 +2950,688 @@ export const TEBIS_CAM_TIPS: KnowledgeTip[] = [
     created_at: "2026-03-13",
     usage_count: 0,
   },
+  // === Final Expansion (teb-161 to teb-200) ===
+  {
+    id: "teb-161",
+    title: "Polishing-Ready Surface from Machining",
+    body:
+      "Achieve Ra 0.4-0.8μm directly: (1) scallop formula for step-over, " +
+      "(2) constant scallop mode, (3) sharp tools <50% life, (4) lead/lean " +
+      "for ball-end, (5) air blast for hardened steel. Reduces polishing " +
+      "50-70% on mold surfaces. Tebis 3D offset with constant scallop is " +
+      "the preferred strategy for polishing-ready results.",
+    category: "finishing",
+    tags: ["polishing-ready", "ra", "labor-savings", "surface-quality"],
+    operation_types: ["finishing"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-162",
+    title: "Trochoidal Milling for Hard Material Slots",
+    body:
+      "8-15% radial engagement, full depth, 3-5× feed vs conventional. " +
+      "Constant engagement prevents impact loading. Slot width independent " +
+      "of tool diameter. For >45 HRC: trochoidal is preferred roughing. " +
+      "Tebis adaptive roughing handles trochoidal paths automatically " +
+      "with engagement angle control.",
+    category: "roughing",
+    tags: ["trochoidal", "hard-materials", "constant-engagement", "slots"],
+    operation_types: ["roughing"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-163",
+    title: "Flat Area Detection for Face Milling",
+    body:
+      "Tebis detects flat/near-flat areas (threshold 5-10°) on freeform " +
+      "models for face milling instead of ball-end. 3-5× faster, better " +
+      "Ra. Boundary auto-separates flat from curved regions. Use flat-end " +
+      "for detected areas, ball-end for remaining. Saves significant " +
+      "cycle time on parts with mixed flat and curved surfaces.",
+    category: "finishing",
+    tags: ["flat-area", "detection", "face-milling", "hybrid-strategy"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-164",
+    title: "Rotary Axis Wrapping for 4-Axis Engraving",
+    body:
+      "Wrap 2D patterns onto cylinders via rotary substitution. Verify " +
+      "diameter matches actual part — errors cause circumferential scale " +
+      "distortion. For text, logos, patterns on round mold components. " +
+      "Tebis generates rotary-substituted G-code automatically. X-axis " +
+      "motion converts to A/B-axis rotation.",
+    category: "multi_axis",
+    tags: ["rotary-wrap", "4-axis", "engraving", "cylindrical"],
+    operation_types: ["multi_axis"],
+    confidence: 84,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-165",
+    title: "Helical Milling for Hardened Steel Holes",
+    body:
+      "Circular interpolation + Z-feed. One tool for multiple sizes. " +
+      "Lower forces (no chisel edge), no burr, better evacuation. " +
+      "Flat-end 60-70% of hole diameter, pitch 0.3-0.5mm. Superior " +
+      "to drilling in hardened steel where drills wander. Tebis helical " +
+      "operation handles geometry automatically.",
+    category: "cam_strategy",
+    tags: ["helical-milling", "hardened-steel", "burr-free", "precision"],
+    operation_types: ["drilling"],
+    confidence: 86,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-166",
+    title: "Bayesian Optimization for Efficient Parameter Search",
+    body:
+      "GP surrogate + Expected Improvement acquisition. Converges in " +
+      "15-25 trials vs 100+ grid search. Start with 5-point LHS. Best " +
+      "for expensive mold machining trials. After convergence, parameters " +
+      "are optimal for specific machine-tool-material. Tebis NCJob " +
+      "templates generate trial variants efficiently.",
+    category: "optimization",
+    tags: ["bayesian-optimization", "gaussian-process", "efficient", "trials"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-167",
+    title: "Volumetric Accuracy Compensation",
+    body:
+      "Import machine 21-error map, Tebis adjusts coordinates to pre-" +
+      "compensate. Valuable for large die parts (1m+). Improves from " +
+      "±0.03mm to ±0.01mm. Requires periodic calibration (laser " +
+      "interferometer or ball-bar). Tebis virtual machine stores the " +
+      "compensation data alongside kinematic model.",
+    category: "optimization",
+    tags: ["volumetric", "compensation", "21-error", "calibration"],
+    operation_types: ["optimization"],
+    confidence: 82,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-168",
+    title: "MTConnect Data Integration for Process Monitoring",
+    body:
+      "Stream spindle load, axis positions, feed override, alarms. " +
+      "Compare actual vs Tebis programmed feeds to find deceleration " +
+      "zones (corners, direction changes). Data-driven parameter " +
+      "refinement converges 3-5× faster than trial-and-error. Use " +
+      "to optimize Tebis corner feed limits and smoothness settings.",
+    category: "optimization",
+    tags: ["mtconnect", "monitoring", "feed-profile", "data-driven"],
+    operation_types: ["optimization"],
+    confidence: 81,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-169",
+    title: "OEE Calculation from Tebis Data",
+    body:
+      "OEE = Availability × Performance × Quality. Availability: " +
+      "uptime/scheduled. Performance: estimated vs actual feeds. " +
+      "Quality: CMM pass/fail per program version. Typical: 75-85%. " +
+      "Gap analysis: slow rapids (Performance), excess tool changes " +
+      "(Availability), parameter drift (Quality). Target 85%+.",
+    category: "optimization",
+    tags: ["oee", "availability", "performance", "quality-metric"],
+    operation_types: ["optimization"],
+    confidence: 80,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-170",
+    title: "Disc Cutter for Slot and Groove Machining",
+    body:
+      "Define disc geometry: diameter, thickness, bore, teeth. 3+2 per " +
+      "slot. Speed on outer diameter. Feed accounts for high tooth count " +
+      "(20-60). Flood coolant for evacuation. More consistent slot width " +
+      "than end mills. Tebis supports full disc cutter simulation and " +
+      "collision detection with machine model.",
+    category: "roughing",
+    tags: ["disc-cutter", "slot", "groove", "consistent-width"],
+    operation_types: ["roughing"],
+    confidence: 82,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-171",
+    title: "PEEK Medical Device Machining",
+    body:
+      "PEEK implants: 1-2 flute uncoated, high positive rake, 200-500 " +
+      "m/min, 0.1-0.2mm fz. Compressed air only for biocompatibility. " +
+      "Diamond-coated prevents metal contamination. Down-cut prevents " +
+      "lifting. FDA traceability: link Tebis program version to every " +
+      "produced implant. Validate with CMM per 21 CFR 820.",
+    category: "cam_strategy",
+    tags: ["peek", "medical", "fda", "biocompatibility"],
+    operation_types: ["finishing"],
+    confidence: 82,
+    source: "web:tebis-tutorials",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-172",
+    title: "Multi-Machine Post Flexibility",
+    body:
+      "Post same Tebis toolpath for different machines by switching " +
+      "virtual machine configs. Program once, post for DMG, Hermle, " +
+      "Makino. Each applies machine-specific axis naming, RTCP format, " +
+      "retract strategy. Enables flexible scheduling — if one machine " +
+      "is busy, quickly re-post for available machine.",
+    category: "setup",
+    tags: ["multi-machine", "post-processing", "flexibility", "scheduling"],
+    operation_types: ["post_processing"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-173",
+    title: "ERP/MES Integration via Tebis API",
+    body:
+      "Automate: job import, project creation, template application, " +
+      "post-processing, DNC upload. Batch overnight after design changes. " +
+      "API syncs tool libraries with crib systems. Common flow: ERP " +
+      "pulls job → Tebis project → NCJob template → post → DNC.",
+    category: "setup",
+    tags: ["api", "erp", "mes", "batch-automation"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-174",
+    title: "Feature Recognition for Hole Automation",
+    body:
+      "Recognize through/blind/countersink/counterbore/tapped holes. " +
+      "Batch assign canned cycles: G81 through, G83 peck, G84 tap. " +
+      "Sort by diameter for tool changes. Tolerance 0.01mm. Review — " +
+      "filleted pockets occasionally misidentified. Tebis batch hole " +
+      "processing saves significant time on fixture plates.",
+    category: "cam_strategy",
+    tags: ["feature-recognition", "holes", "batch", "canned-cycles"],
+    operation_types: ["drilling"],
+    confidence: 86,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-175",
+    title: "Macro Automation for Standard Sequences",
+    body:
+      "Tebis NCJob templates and macros record standard sequences. " +
+      "Parameterize tool sizes, depths. Replay for similar parts. " +
+      "Reduce programming 50-70% on repeat geometry. Store in shared " +
+      "project folders. Version-control for process improvement. " +
+      "Templates enforce shop standards across all programmers.",
+    category: "setup",
+    tags: ["macro", "automation", "template", "standardization"],
+    operation_types: ["setup"],
+    confidence: 86,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-176",
+    title: "Wire EDM Integration for Hybrid Workflows",
+    body:
+      "Export Tebis geometry to wire EDM for features better suited to " +
+      "wire: thin slots, sharp corners, hardened inserts. Define start " +
+      "holes in Tebis, drill during milling setup. Coordinate WCS " +
+      "between programs. Wire for thin/sharp, milling for 3D surfaces. " +
+      "This hybrid approach uses each process optimally.",
+    category: "setup",
+    tags: ["wire-edm", "hybrid", "thin-slots", "integration"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-177",
+    title: "Additive DED Path Planning for Repair",
+    body:
+      "Tebis DED: contour+fill patterns, 30-50% bead overlap, 60-80% " +
+      "layer height. Interleave subtractive every 3-5 layers. For mold " +
+      "repair, feature addition, near-net-shape. Reduces machining on " +
+      "expensive materials 60-80%. Define deposition speed based on " +
+      "wire/powder feed rate.",
+    category: "cam_strategy",
+    tags: ["additive", "ded", "repair", "near-net-shape"],
+    operation_types: ["additive"],
+    confidence: 81,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-178",
+    title: "Cloud Tool Library Sharing for Multi-Site",
+    body:
+      "Tebis cloud integration enables multi-site tool library sharing. " +
+      "When one site optimizes a tool-material combination, improvement " +
+      "propagates. Approved parameter sets with review. Track tool life, " +
+      "Ra, Cpk per site. Prevents each site from independently " +
+      "re-learning optimal parameters.",
+    category: "setup",
+    tags: ["cloud", "multi-site", "tool-library", "sharing"],
+    operation_types: ["setup"],
+    confidence: 82,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-179",
+    title: "Collision Avoidance with Safety Margin",
+    body:
+      "Set collision detection to include full tool assembly plus 0.5mm " +
+      "safety margin. Shrink-fit holders for minimum profile. Extended " +
+      "tools: 50% feed at 7:1 L/D. Tebis gouge check after every " +
+      "finish operation. Machine simulation catches holder/machine " +
+      "interference that toolpath-only checking misses.",
+    category: "setup",
+    tags: ["collision", "safety-margin", "gouge-check", "holder"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 88,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-180",
+    title: "Tool Library with Presetter Synchronization",
+    body:
+      "Store geometry, holders, parameters per material. Sync with " +
+      "presetter (Zoller/Haimer). Actual vs nominal diameter differences " +
+      "of 0.01mm affect finish. Update after presetting. Shared " +
+      "libraries ensure consistency across shifts. Export tool data " +
+      "to setup sheets automatically.",
+    category: "setup",
+    tags: ["tool-library", "presetter", "sync", "accuracy"],
+    operation_types: ["setup"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-181",
+    title: "Impeller 5-Axis Roughing Strategy",
+    body:
+      "Plunge roughing between impeller blades removes bulk safely. " +
+      "Axial forces into hub (strongest direction). Step-over 50-60% " +
+      "of diameter. Then 5-axis contour roughing for passages. Tebis " +
+      "blade module manages plunge-to-contour transition automatically. " +
+      "Verify collision-free access between adjacent blades.",
+    category: "specialty",
+    tags: ["impeller", "plunge-roughing", "blade-passage", "5-axis"],
+    operation_types: ["specialty"],
+    confidence: 84,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-182",
+    title: "Electrode Set Management for Complex Cavities",
+    body:
+      "Complex cavities need 20-50 electrodes. Organize by burn area, " +
+      "then roughing/finishing. Name: PART-AREA-TYPE-SEQ. Generate " +
+      "setup sheets with burn positions, spark gaps, depth targets. " +
+      "Track status (new/used/worn). Tebis electrode module manages " +
+      "the complete set with automatic undersizing per designation.",
+    category: "specialty",
+    tags: ["electrode-set", "management", "complex-cavity", "organization"],
+    operation_types: ["specialty"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-183",
+    title: "Thickness Allowance Progressive Strategy",
+    body:
+      "Roughing 0.5mm, semi 0.15mm, finish 0.0mm. Hardened: " +
+      "0.3→0.15→0.05→0.0mm. Each removes only its layer. Extends " +
+      "tool life 40-60% vs 2-pass. Tebis stock model tracks actual " +
+      "remaining material accurately between operations in the " +
+      "progressive sequence.",
+    category: "cam_strategy",
+    tags: ["thickness", "progressive", "stock-removal", "tool-life"],
+    operation_types: ["roughing", "finishing"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-184",
+    title: "Multi-Setup Alignment with Precision Datums",
+    body:
+      "Master coordinate system across setups. Probe at each start. " +
+      "Precision dowels or 3-2-1 for alignment. Include datum locations " +
+      "in setup sheets. Alignment accuracy between setups determines " +
+      "parting line quality on mold tools. Tebis setup sheets " +
+      "auto-include WCS data and fixture photos.",
+    category: "setup",
+    tags: ["multi-setup", "alignment", "datum", "probing"],
+    operation_types: ["setup"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-185",
+    title: "Pocket Machining with Progressive Level Cutting",
+    body:
+      "Tebis auto-detects islands in pockets. Progressive level cutting " +
+      "machines all pockets per Z-level before stepping down. Prevents " +
+      "excessive rapids between disconnected regions. Saves 15-25%. " +
+      "Set island offset = finish stock. Review detection — thin ribs " +
+      "occasionally missed by automatic detection.",
+    category: "roughing",
+    tags: ["pocket", "islands", "progressive-level", "efficiency"],
+    operation_types: ["roughing"],
+    confidence: 87,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-186",
+    title: "Rapid Move Height Optimization",
+    body:
+      "Incremental safe heights (10mm above stock) vs absolute fixed Z. " +
+      "Safe-area rapids only when crossing obstacles. 5-15% cycle time " +
+      "savings on complex parts. Configure per-operation. Verify in " +
+      "simulation that rapids clear fixturing. Critical for multi-" +
+      "pocket mold cavities with varying pocket depths.",
+    category: "optimization",
+    tags: ["rapid-moves", "safe-z", "cycle-time", "multi-pocket"],
+    operation_types: ["optimization"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-187",
+    title: "Spiral Finishing for Flat Pocket Floors",
+    body:
+      "Continuous spiral eliminates direction-change witness marks on " +
+      "flat surfaces. Set step-over for target scallop. Climb milling. " +
+      "Tebis auto-computes center start and expands to boundary. Best " +
+      "for visible flat surfaces on consumer product molds and shutoff " +
+      "faces where quality directly affects appearance.",
+    category: "finishing",
+    tags: ["spiral", "flat-pocket", "witness-marks", "continuous"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-188",
+    title: "Facing with Wiper Inserts for Mirror Finish",
+    body:
+      "Face mill 65-75% step-over. One-way cutting. Wiper inserts give " +
+      "single-pass mirror finish. Interrupted faces: reduce feed 20% " +
+      "at entry. Critical for mold parting surface flatness ±0.01mm " +
+      "across entire plate. Tebis facing handles irregular stock and " +
+      "avoids clamping regions automatically.",
+    category: "roughing",
+    tags: ["facing", "wiper", "flatness", "parting-surface"],
+    operation_types: ["roughing"],
+    confidence: 86,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-189",
+    title: "Plunge Roughing for Deep Narrow Pockets",
+    body:
+      "Vertical drilling motions, 60-70% step-over. For L/D>4, >45 HRC, " +
+      "weak spindles. Axial forces (strongest direction). Slower MRR " +
+      "but dramatically safer. Tebis generates efficient plunge " +
+      "patterns with minimized repositioning. Use when lateral roughing " +
+      "produces unacceptable vibration.",
+    category: "roughing",
+    tags: ["plunge", "deep-pockets", "axial-forces", "vibration"],
+    operation_types: ["roughing"],
+    confidence: 84,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-190",
+    title: "Chamfering with Angle-Specific Tools",
+    body:
+      "Chamfer mills (45/60/90°), ball-end tracing edges, spot drills " +
+      "for holes. Define angle and engagement depth. 3D chamfers on " +
+      "freeform: 5-axis tool normal. Verify width in simulation. " +
+      "Standard: 0.3-0.5mm on all sharp edges. Tebis edge detection " +
+      "automates chamfer path generation.",
+    category: "finishing",
+    tags: ["chamfering", "edge-detection", "angle-specific", "automated"],
+    operation_types: ["finishing"],
+    confidence: 85,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-191",
+    title: "CAD Surface Repair Best Practices",
+    body:
+      "Imported STEP/IGES: close gaps to 0.1mm, extend surfaces, " +
+      "rebuild degenerate faces. Tebis surface analysis identifies " +
+      "problems. Fix before programming — machining amplifies defects. " +
+      "Clean geometry prerequisite for 5-axis. Pay special attention to " +
+      "UV direction continuity — affects toolpath direction.",
+    category: "setup",
+    tags: ["cad-repair", "import", "surface-analysis", "prerequisites"],
+    operation_types: ["setup"],
+    confidence: 86,
+    source: "web:tebis-docs",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-192",
+    title: "Stochastic Tool Wear Tracking with Wiener Process",
+    body:
+      "Model flank wear as Wiener process: dVB = μdt + σdW where μ = " +
+      "drift (wear rate), σ = diffusion (variability). Predict " +
+      "remaining useful life distribution P(VB > threshold at time t). " +
+      "Update μ and σ from in-process measurements. More accurate than " +
+      "deterministic Taylor for variable cutting conditions in Tebis " +
+      "multi-operation programs.",
+    category: "optimization",
+    tags: ["wiener-process", "tool-wear", "rul", "stochastic"],
+    operation_types: ["optimization"],
+    confidence: 77,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-193",
+    title: "Bayesian Model Averaging for Robust Prediction",
+    body:
+      "Instead of selecting one model (Taylor, Archard, empirical), " +
+      "use BMA to weight multiple models by their posterior probability. " +
+      "P(y|data) = ΣP(y|M_k)P(M_k|data). BMA predictions are more " +
+      "robust to model misspecification. Use for Tebis tool life " +
+      "prediction when no single model fits all conditions well.",
+    category: "optimization",
+    tags: ["bma", "model-averaging", "robust-prediction", "multi-model"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-194",
+    title: "Copula Functions for Dependent Failure Modes",
+    body:
+      "Tool failure modes (flank wear, crater wear, chipping) are " +
+      "correlated. Gaussian copula models the joint failure distribution " +
+      "from marginals. P(tool_fail) = C(P(flank), P(crater), P(chip); ρ). " +
+      "Ignoring dependence underestimates combined failure probability " +
+      "by 15-25%. Use for Tebis tool change interval optimization.",
+    category: "optimization",
+    tags: ["copula", "dependent-failures", "joint-probability", "tool-change"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-195",
+    title: "Gamma Process for Monotonic Degradation Modeling",
+    body:
+      "Tool wear is monotonically increasing — Gamma process is more " +
+      "appropriate than Wiener for this constraint. Increments are " +
+      "non-negative with Gamma distribution. RUL = first passage time " +
+      "to threshold. Gamma process prevents the physically impossible " +
+      "'negative wear' that Wiener can produce. Better for Tebis " +
+      "tool life management on unattended operations.",
+    category: "optimization",
+    tags: ["gamma-process", "degradation", "monotonic", "rul"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-196",
+    title: "Information-Theoretic Feature Selection for SPC",
+    body:
+      "Mutual information I(X;Y) quantifies the statistical dependence " +
+      "between a process feature X and quality outcome Y. Select top-k " +
+      "features with highest MI for SPC monitoring. Reduces false alarms " +
+      "from monitoring irrelevant features. For Tebis mold production: " +
+      "typically 3-5 features capture 90% of quality-relevant information.",
+    category: "optimization",
+    tags: ["mutual-information", "feature-selection", "spc", "information-theory"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-197",
+    title: "Optimal Replacement via Renewal Theory",
+    body:
+      "Renewal theory: minimize long-run cost rate C(T) = (Cp + Cf×F(T)) " +
+      "/ (T×R(T) + M×F(T)) where Cp = preventive cost, Cf = failure " +
+      "cost, F(T) = failure CDF, R(T) = reliability, M = mean repair " +
+      "time. For Tebis tool management: balance preventive replacement " +
+      "cost against catastrophic failure cost (scrapped mold component).",
+    category: "optimization",
+    tags: ["renewal-theory", "optimal-replacement", "cost-rate", "reliability"],
+    operation_types: ["optimization"],
+    confidence: 77,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-198",
+    title: "Chance-Constrained Optimization for Process Design",
+    body:
+      "P(g(x,ξ) ≤ 0) ≥ 1-α where g = constraint function, ξ = random " +
+      "parameters, α = acceptable violation probability. For Tebis: " +
+      "P(Ra ≤ spec) ≥ 95% while minimizing cycle time. Convert to " +
+      "deterministic equivalent using inverse CDF: μ + z_α×σ ≤ spec. " +
+      "This ensures reliability without excessive conservatism.",
+    category: "optimization",
+    tags: ["chance-constrained", "reliability", "optimization", "probabilistic"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-199",
+    title: "Exergy Analysis for Process Sustainability",
+    body:
+      "Exergy = maximum useful work extractable. Exergy destruction " +
+      "measures irreversibility: Ex_dest = T₀×S_gen. For machining: " +
+      "cutting (70%), friction (15%), chip deformation (10%), coolant " +
+      "(5%). Minimize exergy destruction by optimizing cutting parameters. " +
+      "Tebis parameter selection should consider sustainability alongside " +
+      "productivity and quality.",
+    category: "optimization",
+    tags: ["exergy", "sustainability", "irreversibility", "thermodynamics"],
+    operation_types: ["optimization"],
+    confidence: 75,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
+  {
+    id: "teb-200",
+    title: "Gutowski Energy Model for Specific Energy Benchmarking",
+    body:
+      "Gutowski: P = P₀ + k×MRR where P₀ = idle power, k = specific " +
+      "cutting energy. Specific energy e = P/MRR = P₀/MRR + k. At low " +
+      "MRR, P₀/MRR dominates — energy efficiency drops. Maximize MRR " +
+      "within machine limits for best energy efficiency. Use to benchmark " +
+      "Tebis programs: compare e across different strategies to identify " +
+      "the most energy-efficient approach.",
+    category: "optimization",
+    tags: ["gutowski", "specific-energy", "benchmarking", "energy-efficiency"],
+    operation_types: ["optimization"],
+    confidence: 76,
+    source: "web:tebis-forum",
+    created_at: "2026-03-13",
+    usage_count: 0,
+  },
 ];
