@@ -1105,6 +1105,143 @@ class PostProcessorPipelineEngineImpl {
       stages.push({ stage: "2.1_engagement_chip_thinning", phase: 2, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
     }
 
+    // Stage 2.3: Adaptive feed — constant chip load / force / MRR modes
+    if (stageFlags.adaptive_feed) {
+      await this._runStageAsync("2.3_adaptive_feed", 2, stages, async () => {
+        try {
+          const eng = await this._getEngine("engagementAdaptive");
+          const toolGroups = this._groupBlocksByTool(blocks);
+          let blocksAdapted = 0;
+
+          for (const [toolNum, toolBlocks] of toolGroups) {
+            const tool = tools.find(t => t.id === String(toolNum))
+              ?? tools.find(t => parseInt(t.id) === toolNum) ?? tools[0];
+            if (!tool) continue;
+
+            const cuttingBlocks = toolBlocks.filter(b => b.move_type !== "G0" && b.engagement);
+            if (cuttingBlocks.length === 0) continue;
+
+            // Use constant chip load mode by default
+            const nominalFz = (cuttingBlocks[0].feed_mm_min ?? 500) / ((cuttingBlocks[0].spindle_rpm ?? 3000) * tool.flute_count);
+
+            for (const block of cuttingBlocks) {
+              if (!block.engagement || !block.optimization) continue;
+              const ae = block.engagement.ae_mm;
+              const D = tool.diameter_mm;
+
+              // Constant chip load: adjust feed to maintain actual fz regardless of engagement
+              if (ae > 0 && ae < D) {
+                const engagementRatio = ae / D;
+                // For light engagement, chip is thinner → need higher feed to maintain fz
+                // For heavy engagement, chip is thicker → reduce feed
+                const adaptFactor = engagementRatio < 0.5
+                  ? 1 / Math.max(0.3, Math.sqrt(engagementRatio * 2))
+                  : Math.sqrt(2 * (1 - engagementRatio) + engagementRatio);
+
+                if (Math.abs(adaptFactor - 1.0) > 0.05) {
+                  const newFeed = Math.round(block.feed_mm_min! * adaptFactor);
+                  block.optimization.optimized_feed = newFeed;
+                  block.optimization.reasons.push(`Adaptive feed: ae/D=${engagementRatio.toFixed(2)} → ×${adaptFactor.toFixed(2)} → F=${newFeed}`);
+                  block.feed_mm_min = newFeed;
+                  blocksAdapted++;
+                }
+              }
+            }
+          }
+          return { blocks_adapted: blocksAdapted };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "2.3_adaptive_feed", phase: 2, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 2.4: Corner detection — refined engagement spike feed reduction
+    if (stageFlags.corner_detection) {
+      this._runStage("2.4_corner_detection", 2, stages, () => {
+        let cornersDetected = 0;
+        for (let i = 2; i < blocks.length; i++) {
+          const prev = blocks[i - 1];
+          const curr = blocks[i];
+          if (curr.move_type === "G0" || prev.move_type === "G0") continue;
+          if (!curr.optimization) continue;
+
+          // Detect direction change angle
+          const prevPrev = blocks[i - 2];
+          if (!prevPrev || prevPrev.move_type === "G0") continue;
+
+          const dx1 = (prev.x ?? 0) - (prevPrev.x ?? 0);
+          const dy1 = (prev.y ?? 0) - (prevPrev.y ?? 0);
+          const dx2 = (curr.x ?? 0) - (prev.x ?? 0);
+          const dy2 = (curr.y ?? 0) - (prev.y ?? 0);
+
+          const len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+          const len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+          if (len1 < 0.001 || len2 < 0.001) continue;
+
+          const cosAngle = (dx1 * dx2 + dy1 * dy2) / (len1 * len2);
+          const angleDeg = Math.acos(Math.max(-1, Math.min(1, cosAngle))) * 180 / Math.PI;
+
+          // Sharp corners (>60° direction change) need feed reduction
+          if (angleDeg > 60) {
+            const cornerDerating = Math.max(0.3, 1 - (angleDeg - 60) / 180);
+            const newFeed = Math.round(curr.feed_mm_min! * cornerDerating);
+            curr.optimization.optimized_feed = newFeed;
+            curr.optimization.reasons.push(`Corner ${angleDeg.toFixed(0)}° → ×${cornerDerating.toFixed(2)} → F=${newFeed}`);
+            curr.feed_mm_min = newFeed;
+            cornersDetected++;
+          }
+        }
+        return { corners_detected: cornersDetected };
+      });
+    } else {
+      stages.push({ stage: "2.4_corner_detection", phase: 2, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 2.5: Plunge/ramp detection — axial feed limiting
+    if (stageFlags.plunge_detection) {
+      this._runStage("2.5_plunge_ramp", 2, stages, () => {
+        let plungesDetected = 0;
+        let rampsDetected = 0;
+        for (let i = 1; i < blocks.length; i++) {
+          const prev = blocks[i - 1];
+          const curr = blocks[i];
+          if (curr.move_type === "G0" || !curr.optimization) continue;
+
+          const dz = Math.abs((curr.z ?? 0) - (prev.z ?? 0));
+          const dxy = Math.sqrt(
+            ((curr.x ?? 0) - (prev.x ?? 0)) ** 2 +
+            ((curr.y ?? 0) - (prev.y ?? 0)) ** 2
+          );
+
+          if (dz < 0.01) continue; // no Z motion
+
+          const zRatio = dz / (dxy + dz); // 1.0 = pure plunge, 0.0 = pure XY
+
+          if (zRatio > 0.9) {
+            // Pure plunge — 50% feed reduction
+            const newFeed = Math.round(curr.feed_mm_min! * 0.5);
+            curr.optimization.optimized_feed = newFeed;
+            curr.optimization.reasons.push(`Plunge detected (Z-ratio=${zRatio.toFixed(2)}) → F=${newFeed}`);
+            curr.feed_mm_min = newFeed;
+            plungesDetected++;
+          } else if (zRatio > 0.3) {
+            // Ramp entry — graduated reduction (70-90%)
+            const rampDerating = 0.7 + (1 - zRatio) * 0.3;
+            const newFeed = Math.round(curr.feed_mm_min! * rampDerating);
+            curr.optimization.optimized_feed = newFeed;
+            curr.optimization.reasons.push(`Ramp entry (Z-ratio=${zRatio.toFixed(2)}) → ×${rampDerating.toFixed(2)} → F=${newFeed}`);
+            curr.feed_mm_min = newFeed;
+            rampsDetected++;
+          }
+        }
+        return { plunges: plungesDetected, ramps: rampsDetected };
+      });
+    } else {
+      stages.push({ stage: "2.5_plunge_ramp", phase: 2, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
     // Stage 2.6: Wear progression tracking
     if (stageFlags.wear_progression) {
       this._runStage("2.6_wear_progression", 2, stages, () => {
