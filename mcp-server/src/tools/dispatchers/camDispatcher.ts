@@ -35,10 +35,11 @@ import { ACTION_CAM_SCHEMAS } from "../../schemas/camActionSchemas.js";
 import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorExtActionSchemas.js";
 import { ACTION_ADVANCED_SCIENCE_SCHEMAS } from "../../schemas/advancedScienceActionSchemas.js";
 import { ACTION_CNC_PROGRAMMING_SCHEMAS } from "../../schemas/cncProgrammingActionSchemas.js";
-const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS };
+import { ACTION_CK_PIPELINE_SCHEMAS } from "../../schemas/ckPipelineActionSchemas.js";
+const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS, ...ACTION_CK_PIPELINE_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -107,6 +108,14 @@ async function getEngine(name: string): Promise<any> {
     case "featCluster": return _featCluster ??= (await import("../../engines/FeatureClusteringEngine.js")).featureClusteringEngine;
     case "prodPackage": return _prodPackage ??= (await import("../../engines/ProductionPackageEngine.js")).productionPackageEngine;
     case "fiveAxisInteg": return (await import("../../engines/FiveAxisToolpathIntegrationEngine.js")).fiveAxisToolpathIntegrationEngine;
+    case "camOrch": return (await import("../../engines/CAMKernelOrchestratorEngine.js")).camKernelOrchestratorEngine;
+    case "edmAsm": return _edmAsm ??= new (await import("../../engines/EDMProgramAssemblerEngine.js")).EDMProgramAssemblerEngine();
+    case "grindAsm": return _grindAsm ??= new (await import("../../engines/GrindingProgramAssemblerEngine.js")).GrindingProgramAssemblerEngine();
+    case "laserAsm": return _laserAsm ??= new (await import("../../engines/LaserProgramAssemblerEngine.js")).LaserProgramAssemblerEngine();
+    case "wjAsm": return _wjAsm ??= new (await import("../../engines/WaterjetProgramAssemblerEngine.js")).WaterjetProgramAssemblerEngine();
+    case "multiProc": return _multiProc ??= new (await import("../../engines/MultiProcessCAMRouterEngine.js")).MultiProcessCAMRouterEngine();
+    case "millTurn": return _millTurn ??= (await import("../../engines/MillTurnSwissPipelineEngine.js")).millTurnSwissPipelineEngine;
+    case "selfLearn": return _selfLearn ??= (await import("../../engines/SelfLearningCAMEngine.js")).selfLearningCAMEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -218,6 +227,26 @@ const ACTIONS = [
   "production_package_assemble",
   "five_axis_contour", "five_axis_port", "five_axis_singularity_manage",
   "five_axis_collision_avoid", "five_axis_roughing",
+  // CK-MS7 — CAM Kernel Orchestrator (3 actions)
+  "cam_generate", "cam_turn", "cam_simulate",
+  // PIPE-MS0 — Print-to-Program Pipeline (3 actions)
+  "print_to_program_full", "print_to_program_plan", "print_to_program_validate",
+  // CK Pipeline (7 engines, 36 actions)
+  // EDM
+  "edm_wire_program", "edm_sinker_program", "edm_micro_program", "edm_cycle_time", "edm_uncertainty",
+  // Grinding
+  "grind_surface_program", "grind_cylindrical_program", "grind_centerless_program", "grind_creepfeed_program", "grind_uncertainty",
+  // Laser
+  "laser_cut_program", "laser_mark_program", "laser_weld_program", "laser_drill_program", "laser_uncertainty",
+  // Waterjet
+  "waterjet_abrasive_program", "waterjet_pure_program", "waterjet_taper_program", "waterjet_depth_program", "waterjet_uncertainty",
+  // Multi-process
+  "multi_process_route", "multi_process_analyze", "multi_process_sequence",
+  "multi_process_cost", "multi_process_alternatives", "multi_process_consolidate",
+  // Mill-turn / Swiss
+  "mill_turn_live_tooling", "mill_turn_sub_spindle", "mill_turn_multi_channel", "mill_turn_bar_feeder", "mill_turn_swiss",
+  // Self-learning
+  "self_learn_record", "self_learn_twin_sync", "self_learn_rank_strategy", "self_learn_anomaly", "self_learn_fleet",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1549,6 +1578,225 @@ Params vary by action — pass relevant fields in params object.`,
           case "five_axis_roughing": {
             const eng = await getEngine("fiveAxisInteg");
             result = eng.calculate("five_axis_roughing", params);
+            break;
+          }
+          // ── CK-MS7: CAMKernelOrchestratorEngine (3 actions) ──
+          case "cam_generate": {
+            const eng = await getEngine("camOrch");
+            result = eng.calculate("cam_generate", params);
+            break;
+          }
+          case "cam_turn": {
+            const eng = await getEngine("camOrch");
+            result = eng.calculate("cam_turn", params);
+            break;
+          }
+          case "cam_simulate": {
+            const eng = await getEngine("camOrch");
+            result = eng.calculate("cam_simulate", params);
+            break;
+          }
+          // PIPE-MS0 — Print-to-Program Pipeline
+          case "print_to_program_full": {
+            const { printToProgramPipelineEngine } = await import("../../engines/PrintToProgramPipelineEngine.js");
+            result = printToProgramPipelineEngine.calculate("print_to_program_full", params);
+            break;
+          }
+          case "print_to_program_plan": {
+            const { printToProgramPipelineEngine: ptpPlan } = await import("../../engines/PrintToProgramPipelineEngine.js");
+            result = ptpPlan.calculate("print_to_program_plan", params);
+            break;
+          }
+          case "print_to_program_validate": {
+            const { printToProgramPipelineEngine: ptpVal } = await import("../../engines/PrintToProgramPipelineEngine.js");
+            result = ptpVal.calculate("print_to_program_validate", params);
+            break;
+          }
+          // ── CK-MS7: EDMProgramAssemblerEngine (5 actions) ──
+          case "edm_wire_program": {
+            const eng = await getEngine("edmAsm");
+            result = eng.assembleWireEDM(params);
+            break;
+          }
+          case "edm_sinker_program": {
+            const eng = await getEngine("edmAsm");
+            result = eng.assembleSinkerEDM(params);
+            break;
+          }
+          case "edm_micro_program": {
+            const eng = await getEngine("edmAsm");
+            result = eng.assembleMicroEDM(params);
+            break;
+          }
+          case "edm_cycle_time": {
+            const eng = await getEngine("edmAsm");
+            result = eng.estimateCycleTime(params);
+            break;
+          }
+          case "edm_uncertainty": {
+            const eng = await getEngine("edmAsm");
+            result = eng.computeUncertainty(params);
+            break;
+          }
+          // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──
+          case "grind_surface_program": {
+            const eng = await getEngine("grindAsm");
+            result = eng.assembleSurfaceGrind(params);
+            break;
+          }
+          case "grind_cylindrical_program": {
+            const eng = await getEngine("grindAsm");
+            result = eng.assembleCylindricalGrind(params);
+            break;
+          }
+          case "grind_centerless_program": {
+            const eng = await getEngine("grindAsm");
+            result = eng.assembleCenterlessGrind(params);
+            break;
+          }
+          case "grind_creepfeed_program": {
+            const eng = await getEngine("grindAsm");
+            result = eng.assembleCreepFeedGrind(params);
+            break;
+          }
+          case "grind_uncertainty": {
+            const eng = await getEngine("grindAsm");
+            result = eng.computeUncertainty(params);
+            break;
+          }
+          // ── CK-MS7: LaserProgramAssemblerEngine (5 actions) ──
+          case "laser_cut_program": {
+            const eng = await getEngine("laserAsm");
+            result = eng.assembleLaserCut(params);
+            break;
+          }
+          case "laser_mark_program": {
+            const eng = await getEngine("laserAsm");
+            result = eng.assembleLaserMark(params);
+            break;
+          }
+          case "laser_weld_program": {
+            const eng = await getEngine("laserAsm");
+            result = eng.assembleLaserWeld(params);
+            break;
+          }
+          case "laser_drill_program": {
+            const eng = await getEngine("laserAsm");
+            result = eng.assembleLaserDrill(params);
+            break;
+          }
+          case "laser_uncertainty": {
+            const eng = await getEngine("laserAsm");
+            result = eng.computeUncertainty(params);
+            break;
+          }
+          // ── CK-MS7: WaterjetProgramAssemblerEngine (5 actions) ──
+          case "waterjet_abrasive_program": {
+            const eng = await getEngine("wjAsm");
+            result = eng.assembleAbrasiveWJ(params);
+            break;
+          }
+          case "waterjet_pure_program": {
+            const eng = await getEngine("wjAsm");
+            result = eng.assemblePureWJ(params);
+            break;
+          }
+          case "waterjet_taper_program": {
+            const eng = await getEngine("wjAsm");
+            result = eng.assembleTaperCompensated(params);
+            break;
+          }
+          case "waterjet_depth_program": {
+            const eng = await getEngine("wjAsm");
+            result = eng.assembleControlledDepth(params);
+            break;
+          }
+          case "waterjet_uncertainty": {
+            const eng = await getEngine("wjAsm");
+            result = eng.computeUncertainty(params);
+            break;
+          }
+          // ── CK-MS7: MultiProcessCAMRouterEngine (6 actions) ──
+          case "multi_process_route": {
+            const eng = await getEngine("multiProc");
+            result = eng.routePart(params);
+            break;
+          }
+          case "multi_process_analyze": {
+            const eng = await getEngine("multiProc");
+            result = eng.analyzeFeatures(params.features, params);
+            break;
+          }
+          case "multi_process_sequence": {
+            const eng = await getEngine("multiProc");
+            result = eng.sequenceProcesses(params.analyses, params);
+            break;
+          }
+          case "multi_process_cost": {
+            const eng = await getEngine("multiProc");
+            result = eng.estimateCost(params.route, params.batch_size ?? 1);
+            break;
+          }
+          case "multi_process_alternatives": {
+            const eng = await getEngine("multiProc");
+            result = eng.compareProcessAlternatives(params.feature, params);
+            break;
+          }
+          case "multi_process_consolidate": {
+            const eng = await getEngine("multiProc");
+            result = eng.suggestConsolidation(params.route);
+            break;
+          }
+          // ── CK-MS7: MillTurnSwissPipelineEngine (5 actions) ──
+          case "mill_turn_live_tooling": {
+            const eng = await getEngine("millTurn");
+            result = eng.calculateLiveTool(params);
+            break;
+          }
+          case "mill_turn_sub_spindle": {
+            const eng = await getEngine("millTurn");
+            result = eng.calculateSubSpindleTransfer(params);
+            break;
+          }
+          case "mill_turn_multi_channel": {
+            const eng = await getEngine("millTurn");
+            result = eng.calculateMultiChannel(params);
+            break;
+          }
+          case "mill_turn_bar_feeder": {
+            const eng = await getEngine("millTurn");
+            result = eng.calculateBarFeeder(params);
+            break;
+          }
+          case "mill_turn_swiss": {
+            const eng = await getEngine("millTurn");
+            result = eng.calculateSwissMachining(params);
+            break;
+          }
+          // ── CK-MS7: SelfLearningCAMEngine (5 actions) ──
+          case "self_learn_record": {
+            const eng = await getEngine("selfLearn");
+            result = eng.cutToLearn(params);
+            break;
+          }
+          case "self_learn_twin_sync": {
+            const eng = await getEngine("selfLearn");
+            result = eng.digitalTwinSync(params);
+            break;
+          }
+          case "self_learn_rank_strategy": {
+            const eng = await getEngine("selfLearn");
+            result = eng.strategyRanking(params);
+            break;
+          }
+          case "self_learn_anomaly": {
+            const eng = await getEngine("selfLearn");
+            result = eng.anomalyRelearn(params);
+            break;
+          }
+          case "self_learn_fleet": {
+            const eng = await getEngine("selfLearn");
+            result = eng.fleetLearn(params);
             break;
           }
           default:

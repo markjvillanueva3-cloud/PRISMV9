@@ -6860,6 +6860,69 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── Resource Optimization: hyperMILL database extraction (2026-03-14) ──
+
+          case "hypermill_material_lookup": {
+            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
+            const hmBridge = new HyperMillMaterialBridgeEngine();
+            result = hmBridge.lookupMaterial(params.query || params.material);
+            break;
+          }
+          case "hypermill_machinability": {
+            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
+            const hmBridge2 = new HyperMillMaterialBridgeEngine();
+            result = hmBridge2.getMachinabilityFactors(params.material, params.operation || "milling");
+            break;
+          }
+          case "hypermill_diameter_sf": {
+            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
+            const hmBridge3 = new HyperMillMaterialBridgeEngine();
+            result = hmBridge3.lookupDiameterSpeedFeed(params.material, params.cutting_material || "vhm", params.diameter_mm);
+            break;
+          }
+          case "hypermill_material_search": {
+            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
+            const hmBridge4 = new HyperMillMaterialBridgeEngine();
+            result = hmBridge4.searchMaterials(params);
+            break;
+          }
+          case "hypermill_material_stats": {
+            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
+            const hmBridge5 = new HyperMillMaterialBridgeEngine();
+            result = hmBridge5.getStats();
+            break;
+          }
+          case "iso286_extended_it": {
+            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
+            const iso = new ISO286ExtendedEngine();
+            result = iso.calculateITGrade(params.nominal_mm, params.it_grade);
+            break;
+          }
+          case "iso286_extended_fit": {
+            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
+            const iso2 = new ISO286ExtendedEngine();
+            result = iso2.analyzeFit(params.nominal_mm, params.fit_class);
+            break;
+          }
+          case "iso286_stochastic_fit": {
+            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
+            const iso3 = new ISO286ExtendedEngine();
+            result = iso3.stochasticFitAnalysis(params.nominal_mm, params.fit_class, params.process_sigma_um, params.samples || 10000);
+            break;
+          }
+          case "iso286_recommend_fit": {
+            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
+            const iso4 = new ISO286ExtendedEngine();
+            result = iso4.recommendFit(params.application);
+            break;
+          }
+          case "iso286_variability_stack": {
+            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
+            const iso5 = new ISO286ExtendedEngine();
+            result = iso5.variabilityStackUp(params.dimensions, params.samples || 10000, params.correlation || 0);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

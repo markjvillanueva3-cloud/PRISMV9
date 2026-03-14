@@ -2273,6 +2273,7 @@ export { multiSetupPlannerEngine, MultiSetupPlannerEngine } from "./MultiSetupPl
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
+export { WaterjetProgramAssemblerEngine, waterjetProgramAssemblerEngine } from "./WaterjetProgramAssemblerEngine.js";
 export { toolpathSmoothingEngine, ToolpathSmoothingEngine } from "./ToolpathSmoothingEngine.js";
 export { chipMorphologyDiagnosticEngine, ChipMorphologyDiagnosticEngine } from "./ChipMorphologyDiagnosticEngine.js";
 export { cuttingFluidLifecycleEngine, CuttingFluidLifecycleEngine } from "./CuttingFluidLifecycleEngine.js";
@@ -3312,3 +3313,14 @@ export { selfLearningCAMEngine, SelfLearningCAMEngine } from './SelfLearningCAME
 
 // Laser Program Assembler
 export { LaserProgramAssemblerEngine } from './LaserProgramAssemblerEngine.js';
+
+// Resource Optimization — hyperMILL database extraction (2026-03-14)
+export { HyperMillMaterialBridgeEngine } from './HyperMillMaterialBridgeEngine.js';
+export { ISO286ExtendedEngine } from './ISO286ExtendedEngine.js';
+export { MultiProcessCAMRouterEngine } from "./MultiProcessCAMRouterEngine.js";
+
+// CK-MS7 — CAM Kernel Orchestrator (cam_generate, cam_turn, cam_simulate)
+export { camKernelOrchestratorEngine, CAMKernelOrchestratorEngine } from './CAMKernelOrchestratorEngine.js';
+
+// PIPE-MS0 — Print-to-Program Pipeline (print_to_program_full, print_to_program_plan, print_to_program_validate)
+export { printToProgramPipelineEngine, PrintToProgramPipelineEngine } from "./PrintToProgramPipelineEngine.js";
