@@ -6401,10 +6401,7 @@ export function registerCalcDispatcher(server: any): void {
 
 
 
-          // ── Prediction Feedback Orchestrator (Closed Loop) ──
-  "submit_measurement", "learned_prediction", "batch_import_measurements",
-  "machine_intelligence", "compare_and_learn", "system_learning_status",
-  // ── Stratified Calibration ──
+          // ── Stratified Calibration ──
           case "record_stratified": case "stratified_bias": case "calibrate_stratified":
           case "context_tree": case "environmental_adjust": case "tool_wear_bias_model":
           case "interaction_analysis": case "predict_full_context": {
