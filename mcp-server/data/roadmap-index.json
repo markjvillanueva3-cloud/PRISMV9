@@ -2,7 +2,7 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-13T00:00:00Z",
-  "total_milestones": 130,
+  "total_milestones": 140,
   "completed_milestones": 110,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
@@ -1521,6 +1521,125 @@
       "completed_units": 6,
       "sessions": "1-2",
       "envelope_path": "milestones/PB-MS0.json"
+    },
+    {
+      "id": "USF-MS0",
+      "title": "Ultimate Speed/Feed Orchestrator — Full System Integration",
+      "track": "USF",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "1-3",
+      "envelope_path": "milestones/USF-MS0.json"
+    },
+    {
+      "id": "PP-MS0",
+      "title": "Post Processor Foundation — Pipeline Orchestrator + Input Normalization",
+      "track": "PP",
+      "dependencies": [],
+      "status": "pending",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/PP-MS0.json",
+      "position_path": "state/PP-MS0/position.json"
+    },
+    {
+      "id": "PP-MS1",
+      "title": "Physics Optimization Stages — Speed/Feed + Engagement + Stability + Deflection",
+      "track": "PP",
+      "dependencies": ["PP-MS0"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/PP-MS1.json",
+      "position_path": "state/PP-MS1/position.json"
+    },
+    {
+      "id": "PP-MS2",
+      "title": "Block-by-Block Optimization — Variable S/F + Wear + Thermal Tracking",
+      "track": "PP",
+      "dependencies": ["PP-MS1"],
+      "status": "pending",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "3-4",
+      "envelope_path": "milestones/PP-MS2.json",
+      "position_path": "state/PP-MS2/position.json"
+    },
+    {
+      "id": "PP-MS3",
+      "title": "Motion Optimization + Controller Dialect Engine",
+      "track": "PP",
+      "dependencies": ["PP-MS2"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "4-5",
+      "envelope_path": "milestones/PP-MS3.json",
+      "position_path": "state/PP-MS3/position.json"
+    },
+    {
+      "id": "PP-MS4",
+      "title": "Stochastic Verification + Safety + Knowledge Stages",
+      "track": "PP",
+      "dependencies": ["PP-MS3"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "5-6",
+      "envelope_path": "milestones/PP-MS4.json",
+      "position_path": "state/PP-MS4/position.json"
+    },
+    {
+      "id": "PP-MS5",
+      "title": "5-Axis Post Processing + Output Generation + Verification",
+      "track": "PP",
+      "dependencies": ["PP-MS3", "PP-MS4"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "6-7",
+      "envelope_path": "milestones/PP-MS5.json",
+      "position_path": "state/PP-MS5/position.json"
+    },
+    {
+      "id": "PP-MS6",
+      "title": "Fusion 360 .cps Post Processor + HTTP API Bridge",
+      "track": "PP",
+      "dependencies": ["PP-MS5"],
+      "status": "pending",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "7-8",
+      "envelope_path": "milestones/PP-MS6.json",
+      "position_path": "state/PP-MS6/position.json"
+    },
+    {
+      "id": "PP-MS7",
+      "title": "Multi-CAM Post Processor Generation + Machine Safety + Mill-Turn",
+      "track": "PP",
+      "dependencies": ["PP-MS6"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "8-10",
+      "envelope_path": "milestones/PP-MS7.json",
+      "position_path": "state/PP-MS7/position.json"
+    },
+    {
+      "id": "PP-MS8",
+      "title": "Integration Testing + Benchmarking + Skills + Hooks",
+      "track": "PP",
+      "dependencies": ["PP-MS7"],
+      "status": "pending",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "10-12",
+      "envelope_path": "milestones/PP-MS8.json",
+      "position_path": "state/PP-MS8/position.json"
     }
   ]
 }
