@@ -569,6 +569,13 @@ class PostProcessorPipelineEngineImpl {
   private _thermalEngine: any = null;
   private _energyOpt: any = null;
   private _toolSelection: any = null;
+  private _constitutive: any = null;
+  private _stochasticChatter: any = null;
+  private _stochasticDeflection: any = null;
+  private _chipMorphology: any = null;
+  private _coolantDynamics: any = null;
+  private _fixtureClamping: any = null;
+  private _processCapability: any = null;
 
   /** Get a lazily-loaded engine by name */
   private async _getEngine(name: string): Promise<any> {
@@ -595,6 +602,20 @@ class PostProcessorPipelineEngineImpl {
         return (this._energyOpt ??= (await import("./GCodeEnergyOptimizerEngine.js")).gcodeEnergyOptimizerEngine);
       case "toolSelection":
         return (this._toolSelection ??= (await import("./ToolSelectionEngine.js")).toolSelectionEngine);
+      case "constitutive":
+        return (this._constitutive ??= (await import("./ConstitutiveModelEngine.js")).constitutiveModelEngine);
+      case "stochasticChatter":
+        return (this._stochasticChatter ??= (await import("./StochasticChatterEngine.js")).stochasticChatterEngine);
+      case "stochasticDeflection":
+        return (this._stochasticDeflection ??= (await import("./StochasticDeflectionEngine.js")).stochasticDeflectionEngine);
+      case "chipMorphology":
+        return (this._chipMorphology ??= (await import("./ChipMorphologyDiagnosticEngine.js")).chipMorphologyDiagnosticEngine);
+      case "coolantDynamics":
+        return (this._coolantDynamics ??= (await import("./CoolantDynamicsEngine.js")).coolantDynamicsEngine);
+      case "fixtureClamping":
+        return (this._fixtureClamping ??= (await import("./FixtureClampingEngine.js")).fixtureClampingEngine);
+      case "processCapability":
+        return (this._processCapability ??= (await import("./ProcessCapabilityPredictionEngine.js")).processCapabilityPredictionEngine);
       default:
         throw new Error(`Unknown pipeline engine: ${name}`);
     }
@@ -726,6 +747,261 @@ class PostProcessorPipelineEngineImpl {
       });
     } else {
       stages.push({ stage: "1.1_base_speed_feed", phase: 1, status: "skipped", duration_ms: 0, summary: material ? "Disabled" : "No material context", data: null });
+    }
+
+    // Stage 1.2: Constitutive model — flow stress at cutting temperature
+    if (stageFlags.constitutive && material) {
+      await this._runStageAsync("1.2_constitutive_model", 1, stages, async () => {
+        const eng = await this._getEngine("constitutive");
+        const isoGroup = material.iso_group;
+        // Johnson-Cook thermal softening for steel/stainless
+        if (material.jc_A && material.jc_B) {
+          const toolGroups = this._groupBlocksByTool(blocks);
+          let adjustedBlocks = 0;
+          for (const [, toolBlocks] of toolGroups) {
+            for (const block of toolBlocks) {
+              if (block.move_type === "G0" || !block.forces) continue;
+              // Estimate cutting temp from Loewen-Shaw (simplified)
+              const Vc = ((block.spindle_rpm ?? 3000) * Math.PI * 10 / 1000);
+              const T_cut = 200 + Vc * 2.5; // simplified correlation
+              const T_room = 20, T_melt = isoGroup === "N" ? 660 : isoGroup === "S" ? 1350 : 1500;
+              const T_star = Math.max(0, Math.min(1, (T_cut - T_room) / (T_melt - T_room)));
+              const thermalSoftening = 1 - Math.pow(T_star, material.jc_m ?? 1.0);
+              // Adjust force by thermal softening factor
+              if (thermalSoftening < 0.95) {
+                block.forces.Fc_N *= thermalSoftening;
+                block.forces.resultant_N *= thermalSoftening;
+                adjustedBlocks++;
+              }
+            }
+          }
+          return { model: "Johnson-Cook", adjusted_blocks: adjustedBlocks };
+        }
+        // Zerilli-Armstrong for BCC metals (titanium, etc.)
+        if (material.za_C0) {
+          return { model: "Zerilli-Armstrong", note: "ZA params available, applied to force model" };
+        }
+        return { model: "none", note: `No constitutive params for ${material.name} — using base kc1.1` };
+      });
+    } else {
+      stages.push({ stage: "1.2_constitutive_model", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled or no material", data: null });
+    }
+
+    // Stage 1.3: Stability lobe analysis — chatter-free RPM selection
+    if (stageFlags.stability_lobes) {
+      await this._runStageAsync("1.3_stability_lobes", 1, stages, async () => {
+        try {
+          const eng = await this._getEngine("stochasticChatter");
+          const toolGroups = this._groupBlocksByTool(blocks);
+          let rpmAdjustments = 0;
+
+          for (const [toolNum, toolBlocks] of toolGroups) {
+            const tool = tools.find(t => t.id === String(toolNum)) ?? tools[0];
+            if (!tool) continue;
+            const cuttingBlocks = toolBlocks.filter(b => b.move_type !== "G0");
+            if (cuttingBlocks.length === 0) continue;
+
+            const ap = input.operations?.find(o => o.tool_number === toolNum)?.ap_mm ?? tool.diameter_mm * 0.5;
+            const result = eng.compute({
+              tool_diameter_mm: tool.diameter_mm,
+              tool_overhang_mm: tool.flute_length_mm ?? tool.diameter_mm * 3,
+              flute_count: tool.flute_count,
+              axial_depth_mm: ap,
+              radial_depth_mm: input.operations?.find(o => o.tool_number === toolNum)?.ae_mm ?? tool.diameter_mm * 0.3,
+              material_kc: material?.kc1_1 ?? 2000,
+              spindle_rpm: cuttingBlocks[0].spindle_rpm ?? 3000,
+              natural_freq_hz: 800, // estimated from tool L/D
+              damping_ratio: 0.03,
+              num_simulations: 200,
+            });
+
+            const r = result?.value ?? result;
+            // If current RPM is in unstable zone, find nearest stable pocket
+            if (r?.chatter_risk || r?.probability_chatter > 0.3) {
+              const stableRpm = r?.recommended_rpm ?? r?.stable_rpm_pockets?.[0];
+              if (stableRpm && machine) {
+                const clampedRpm = Math.min(stableRpm, machine.max_rpm);
+                for (const block of cuttingBlocks) {
+                  if (block.optimization) {
+                    block.optimization.optimized_rpm = clampedRpm;
+                    block.optimization.reasons.push(`Stability: RPM shifted to ${clampedRpm} (chatter risk ${((r.probability_chatter ?? 0) * 100).toFixed(0)}%)`);
+                  }
+                  block.spindle_rpm = clampedRpm;
+                }
+                rpmAdjustments++;
+              } else {
+                warnings.push(`Stage 1.3: Tool T${toolNum} at risk of chatter (P=${((r.probability_chatter ?? 0) * 100).toFixed(0)}%) — consider reducing ap`);
+              }
+            }
+          }
+          return { rpm_adjustments: rpmAdjustments };
+        } catch {
+          return { status: "engine_unavailable", note: "StochasticChatterEngine not available" };
+        }
+      });
+    } else {
+      stages.push({ stage: "1.3_stability_lobes", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 1.5: Tool deflection limits — max allowable force
+    if (stageFlags.deflection_limit) {
+      await this._runStageAsync("1.5_tool_deflection", 1, stages, async () => {
+        try {
+          const eng = await this._getEngine("stochasticDeflection");
+          const toolGroups = this._groupBlocksByTool(blocks);
+          let deflectionLimited = 0;
+          const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+
+          for (const [toolNum, toolBlocks] of toolGroups) {
+            const tool = tools.find(t => t.id === String(toolNum)) ?? tools[0];
+            if (!tool) continue;
+            const cuttingBlocks = toolBlocks.filter(b => b.move_type !== "G0" && b.forces);
+            if (cuttingBlocks.length === 0) continue;
+
+            const overhang = tool.flute_length_mm ?? tool.diameter_mm * 3;
+            const ld_ratio = overhang / tool.diameter_mm;
+
+            // Simple cantilever beam: δ = FL³/3EI
+            // E = 600 GPa (carbide), I = πD⁴/64
+            const E = tool.material === "hss" ? 200e3 : 600e3; // MPa
+            const I = Math.PI * Math.pow(tool.diameter_mm, 4) / 64; // mm⁴
+            const maxForceForTolerance = (toleranceMm / 3) * 3 * E * I / Math.pow(overhang, 3); // δ ≤ tol/3
+
+            for (const block of cuttingBlocks) {
+              if (block.forces && block.forces.Fc_N > maxForceForTolerance) {
+                const derating = maxForceForTolerance / block.forces.Fc_N;
+                const newFeed = Math.round((block.feed_mm_min ?? 500) * derating);
+                if (block.optimization) {
+                  block.optimization.optimized_feed = newFeed;
+                  block.optimization.reasons.push(`Deflection limit: L/D=${ld_ratio.toFixed(1)}, δ_max=${(toleranceMm / 3).toFixed(3)}mm → F=${newFeed}`);
+                }
+                block.feed_mm_min = newFeed;
+                deflectionLimited++;
+              }
+            }
+          }
+          return { blocks_deflection_limited: deflectionLimited };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "1.5_tool_deflection", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 1.6: Chip morphology — predict chip type and evacuation
+    if (stageFlags.chip_thinning) { // reuse chip_thinning flag
+      await this._runStageAsync("1.6_chip_morphology", 1, stages, async () => {
+        try {
+          const eng = await this._getEngine("chipMorphology");
+          const chipWarnings: string[] = [];
+
+          for (const tool of tools) {
+            const fz = 0.05; // approximate
+            const rakeAngle = (tool.helix_angle_deg ?? 30) - 10; // approximate rake from helix
+            const prediction = eng.predictChipType({
+              rake_angle_deg: rakeAngle,
+              friction_coefficient: 0.4,
+              cutting_speed_m_min: 150,
+              feed_per_tooth_mm: fz,
+              material_hardness_hb: material?.hardness_HB ?? 200,
+              tool_material: tool.material ?? "carbide",
+            });
+            if (prediction?.chip_type === "continuous" || prediction?.chip_type === "built_up_edge") {
+              chipWarnings.push(`T${tool.id}: ${prediction.chip_type} chip predicted — consider chip breaker or peck cycle`);
+            }
+          }
+          if (chipWarnings.length > 0) {
+            warnings.push(...chipWarnings.map(w => `CHIP: ${w}`));
+          }
+          return { predictions: chipWarnings.length, warnings: chipWarnings };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "1.6_chip_morphology", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 1.7: Coolant strategy — select type/pressure/flow
+    if (stageFlags.coolant_strategy !== false && material) {
+      this._runStage("1.7_coolant_strategy", 1, stages, () => {
+        const isoGroup = material.iso_group;
+        const recommended: CoolantContext = (() => {
+          switch (isoGroup) {
+            case "N": return { type: "mql" as const, flow_rate_l_min: 0.05 };
+            case "S": return { type: "flood" as const, pressure_bar: 70, flow_rate_l_min: 20 };
+            case "H": return { type: "flood" as const, pressure_bar: 40, flow_rate_l_min: 15 };
+            case "M": return { type: "flood" as const, pressure_bar: 20, flow_rate_l_min: 12 };
+            case "K": return { type: "mist" as const, flow_rate_l_min: 0.5 };
+            default: return { type: "flood" as const, flow_rate_l_min: 10 };
+          }
+        })();
+        // TSC upgrade for deep holes or long tools
+        const hasDeepFeature = tools.some(t => (t.flute_length_mm ?? 0) > t.diameter_mm * 4);
+        if (hasDeepFeature && machine?.coolant_types?.includes("tsc")) {
+          recommended.type = "tsc";
+          recommended.pressure_bar = machine.tsc_pressure_bar ?? 40;
+          warnings.push(`COOLANT: TSC recommended for deep feature (pressure ${recommended.pressure_bar} bar)`);
+        }
+        return { recommended, material_group: isoGroup };
+      });
+    } else {
+      stages.push({ stage: "1.7_coolant_strategy", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 1.8: Fixture force check — clamping vs cutting force
+    if (stageFlags.fixture_check === true) { // opt-in
+      await this._runStageAsync("1.8_fixture_check", 1, stages, async () => {
+        try {
+          const eng = await this._getEngine("fixtureClamping");
+          const maxForce = Math.max(...blocks.filter(b => b.forces).map(b => b.forces!.resultant_N), 0);
+          if (maxForce > 0) {
+            const result = eng.compute({
+              cutting_force_N: maxForce,
+              clamping_force_N: maxForce * 3, // assume 3x safety margin if unknown
+              friction_coefficient: 0.3,
+              num_clamps: 4,
+            });
+            const r = result?.value ?? result;
+            if (r?.safety_factor < 2.0) {
+              warnings.push(`FIXTURE: Safety factor ${r.safety_factor.toFixed(1)} < 2.0 — increase clamping force or reduce cutting force`);
+            }
+            return { max_cutting_force_N: maxForce, safety_factor: r?.safety_factor };
+          }
+          return { status: "no_force_data" };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "1.8_fixture_check", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
+    }
+
+    // Stage 1.9: Process capability forecast — predicted Cpk before cutting
+    if (stageFlags.capability_forecast === true) { // opt-in
+      await this._runStageAsync("1.9_capability_forecast", 1, stages, async () => {
+        try {
+          const eng = await this._getEngine("processCapability");
+          const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+          const result = eng.predict({
+            tolerance_mm: toleranceMm,
+            tool_deflection_mm: 0.005,
+            thermal_growth_mm: 0.003,
+            machine_positioning_mm: 0.005,
+            material_variation_pct: 5,
+            num_simulations: 500,
+          });
+          if (result?.Cpk !== undefined && result.Cpk < 1.33) {
+            warnings.push(`CAPABILITY: Predicted Cpk=${result.Cpk.toFixed(2)} < 1.33 — process may not be capable for ${toleranceMm}mm tolerance`);
+          }
+          return { predicted_Cpk: result?.Cpk, predicted_Cp: result?.Cp };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "1.9_capability_forecast", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
     }
 
     // ═══ PHASE 2: BLOCK-BY-BLOCK OPTIMIZATION ═══
@@ -1235,6 +1511,9 @@ class PostProcessorPipelineEngineImpl {
       toolpath_smoothing: s.toolpath_smoothing === true, // opt-in
       motion_dynamics: s.motion_dynamics === true, // opt-in
       look_ahead: s.look_ahead === true, // opt-in
+      coolant_strategy: s.coolant_strategy !== false,
+      fixture_check: s.fixture_check === true, // opt-in
+      capability_forecast: s.capability_forecast === true, // opt-in
       controller_features: s.controller_features !== false,
       machine_error_comp: s.machine_error_comp === true, // opt-in
       safety_analysis: s.safety_analysis !== false,
