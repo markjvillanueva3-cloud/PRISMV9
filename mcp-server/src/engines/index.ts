@@ -3263,3 +3263,8 @@ export { lamThermalSofteningEngine, LAMThermalSofteningEngine } from './LAMTherm
 
 export { sweptVolumeEngine, SweptVolumeEngine } from './SweptVolumeEngine.js';
 export { toolAssemblyModelEngine, ToolAssemblyModelEngine } from './ToolAssemblyModelEngine.js';
+
+// USF-MS0: Speed/Feed Orchestrator
+export { speedFeedOrchestratorEngine, SpeedFeedOrchestratorEngine } from './SpeedFeedOrchestratorEngine.js';
+
+export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCSimulationPipelineEngine.js';

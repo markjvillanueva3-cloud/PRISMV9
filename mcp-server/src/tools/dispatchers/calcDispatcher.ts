@@ -428,6 +428,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "lam_preheat_profile": case "lam_tool_life": case "lam_optimal_spacing":
     case "lam_process_window": case "lam_economics":
       return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "sf_orchestrate": case "sf_quick":
+      return { result: `S/F: Vc=${result.value?.cutting_speed_m_min?.toFixed(0)}m/min fz=${result.value?.feed_per_tooth_mm?.toFixed(3)}mm conf=${(result.value?.overall_confidence * 100)?.toFixed(0)}%` };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -785,6 +787,8 @@ const ACTIONS = [
   "cmm_datum_alignment", "cmm_acceptance_test", "cmm_feature_uncertainty",
   "lam_preheat_profile", "lam_force_reduction", "lam_tool_life",
   "lam_optimal_spacing", "lam_process_window", "lam_economics",
+  // -- USF-MS0: Speed/Feed Orchestrator --
+  "sf_orchestrate", "sf_quick",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
 ] as const;
 
@@ -6194,6 +6198,19 @@ export function registerCalcDispatcher(server: any): void {
             result = lamThermalSofteningEngine.lamEconomics(params as ValidatedParams);
             break;
           }
+
+          // ── USF-MS0: Speed/Feed Orchestrator ──
+          case "sf_orchestrate": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.compute(params as ValidatedParams);
+            break;
+          }
+          case "sf_quick": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.compute({ ...params, uncertainty_mode: "quick" } as ValidatedParams);
+            break;
+          }
+
           case "fs_navigate": {
             const { fileSystemNavigatorEngine } = await import("../../engines/FileSystemNavigatorEngine.js");
             result = fileSystemNavigatorEngine.navigate({ topic: params.topic as string ?? "", type: params.type as any });
