@@ -28,6 +28,7 @@ import { POWERMILL_CAM_TIPS } from "../data/powermill-cam-tips.js";
 import { TEBIS_CAM_TIPS } from "../data/tebis-cam-tips.js";
 import { CIMATRON_CAM_TIPS } from "../data/cimatron-cam-tips.js";
 import { SPRUTCAM_CAM_TIPS } from "../data/sprutcam-cam-tips.js";
+import { HYPERMILL_CAM_TIPS_EXT } from "../data/hypermill-cam-tips-ext.js";
 
 // ============================================================================
 // TYPES
@@ -565,7 +566,7 @@ const KNOWLEDGE_BASE: KnowledgeTip[] = [
 /** Tribal Knowledge Engine engine/manager.
  */
 export class TribalKnowledgeEngine {
-  private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE, ...FUSION360_CAM_TIPS as KnowledgeTip[], ...FUSION360_CAM_TIPS_EXT as KnowledgeTip[], ...NX_CAM_TIPS as KnowledgeTip[], ...NX_CAM_TIPS_EXT as KnowledgeTip[], ...CONTROLLER_KNOWLEDGE_TIPS as KnowledgeTip[], ...MASTERCAM_CAM_TIPS as KnowledgeTip[], ...SOLIDCAM_CAM_TIPS as KnowledgeTip[], ...ESPRIT_CAM_TIPS as KnowledgeTip[], ...EDGECAM_CAM_TIPS as KnowledgeTip[], ...CAMWORKS_CAM_TIPS as KnowledgeTip[], ...TOPSOLID_CAM_TIPS as KnowledgeTip[], ...WORKNC_CAM_TIPS as KnowledgeTip[], ...GIBBSCAM_CAM_TIPS as KnowledgeTip[], ...CATIA_CAM_TIPS as KnowledgeTip[], ...SURFCAM_CAM_TIPS as KnowledgeTip[], ...BOBCAD_CAM_TIPS as KnowledgeTip[], ...POWERMILL_CAM_TIPS as KnowledgeTip[], ...TEBIS_CAM_TIPS as KnowledgeTip[], ...CIMATRON_CAM_TIPS as KnowledgeTip[], ...SPRUTCAM_CAM_TIPS as KnowledgeTip[]];
+  private tips: KnowledgeTip[] = [...KNOWLEDGE_BASE, ...FUSION360_CAM_TIPS as KnowledgeTip[], ...FUSION360_CAM_TIPS_EXT as KnowledgeTip[], ...NX_CAM_TIPS as KnowledgeTip[], ...NX_CAM_TIPS_EXT as KnowledgeTip[], ...CONTROLLER_KNOWLEDGE_TIPS as KnowledgeTip[], ...MASTERCAM_CAM_TIPS as KnowledgeTip[], ...SOLIDCAM_CAM_TIPS as KnowledgeTip[], ...ESPRIT_CAM_TIPS as KnowledgeTip[], ...EDGECAM_CAM_TIPS as KnowledgeTip[], ...CAMWORKS_CAM_TIPS as KnowledgeTip[], ...TOPSOLID_CAM_TIPS as KnowledgeTip[], ...WORKNC_CAM_TIPS as KnowledgeTip[], ...GIBBSCAM_CAM_TIPS as KnowledgeTip[], ...CATIA_CAM_TIPS as KnowledgeTip[], ...SURFCAM_CAM_TIPS as KnowledgeTip[], ...BOBCAD_CAM_TIPS as KnowledgeTip[], ...POWERMILL_CAM_TIPS as KnowledgeTip[], ...TEBIS_CAM_TIPS as KnowledgeTip[], ...CIMATRON_CAM_TIPS as KnowledgeTip[], ...SPRUTCAM_CAM_TIPS as KnowledgeTip[], ...HYPERMILL_CAM_TIPS_EXT as KnowledgeTip[]];
 
   /** Capture.
    * @param tip - tip
