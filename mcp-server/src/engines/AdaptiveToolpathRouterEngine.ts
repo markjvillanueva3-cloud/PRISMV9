@@ -61,6 +61,23 @@ const ALGORITHM_REGISTRY: AlgorithmMeta[] = [
   { id: "MEGM", name: "Multi-Zone Efficient Generator", category: "roughing", strengths: ["zone-based", "efficient"], best_for: ["pocket_rectangular", "multi_level"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
   { id: "KALP", name: "Kalman Adaptive Learning Path", category: "finishing", strengths: ["adaptive", "learning"], best_for: ["freeform", "variable_stock"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
   { id: "PARETO", name: "Pareto Multi-Objective Path", category: "finishing", strengths: ["quality-speed trade-off"], best_for: ["finishing", "optimization"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  // Extended novel (remaining 9)
+  { id: "RSMP", name: "Residual Stress Minimization Path", category: "finishing", strengths: ["stress control", "fatigue life"], best_for: ["aerospace_structural", "fatigue_critical"], iso_groups: ["S", "P"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "WHAP", name: "Wavelet Harmonic Avoidance Path", category: "finishing", strengths: ["frequency-domain chatter avoidance"], best_for: ["thin_wall", "long_reach", "chatter_prone"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "BOPA", name: "Bayesian Optimization Path Adapter", category: "finishing", strengths: ["adaptive optimization", "few-shot"], best_for: ["new_material", "prototype", "optimization"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "MCTP", name: "Multi-Criteria Toolpath Planner", category: "roughing", strengths: ["multi-objective", "balanced"], best_for: ["balanced_quality_speed", "production"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "SFCR", name: "Surface Finish Controlled Roughing", category: "roughing", strengths: ["direct-to-finish rough", "reduced passes"], best_for: ["semi_finish", "one_pass"], iso_groups: ["N", "P"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "PTAP", name: "Physics-Thermal Adaptive Path", category: "roughing", strengths: ["real-time thermal", "adaptive"], best_for: ["long_cycle", "thermal_sensitive"], iso_groups: ["S", "H", "M"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "CFCM", name: "Chip Flow Control Milling", category: "roughing", strengths: ["chip direction control", "evacuation"], best_for: ["horizontal_mill", "chip_problem"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "WBRL", name: "Wear-Balanced Roughing Layout", category: "roughing", strengths: ["uniform wear", "extended life"], best_for: ["production_run", "tool_life_critical"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  { id: "DPLS", name: "Dynamic Process Learning Strategy", category: "finishing", strengths: ["online learning", "improving"], best_for: ["batch_production", "repeat_parts"], iso_groups: ["*"], min_axes: 3, engine_source: "NovelToolpathAlgorithmsExt" },
+  // Cross-CAM novel (6)
+  { id: "AMEF", name: "Adaptive Multi-Engine Fusion", category: "roughing", strengths: ["best-of-breed", "cross-system"], best_for: ["complex_cavity", "multi_strategy"], iso_groups: ["*"], min_axes: 3, engine_source: "CrossCamNovelAlgorithms" },
+  { id: "VCMR", name: "Virtual Cross-Machine Router", category: "roughing", strengths: ["machine-optimal", "flexibility"], best_for: ["multi_machine", "scheduling"], iso_groups: ["*"], min_axes: 3, engine_source: "CrossCamNovelAlgorithms" },
+  { id: "SNWF", name: "Smart Nested Workflow", category: "roughing", strengths: ["nesting", "sheet optimization"], best_for: ["sheet_metal", "plate_work"], iso_groups: ["*"], min_axes: 3, engine_source: "CrossCamNovelAlgorithms" },
+  { id: "EAPR", name: "Engagement-Aware Path Refinement", category: "finishing", strengths: ["engagement control", "constant load"], best_for: ["variable_engagement", "corners"], iso_groups: ["*"], min_axes: 3, engine_source: "CrossCamNovelAlgorithms" },
+  { id: "HBCF", name: "Hybrid Boundary-Contour Fusion", category: "finishing", strengths: ["boundary+contour", "hybrid"], best_for: ["mixed_geometry", "steep_shallow_blend"], iso_groups: ["*"], min_axes: 3, engine_source: "CrossCamNovelAlgorithms" },
+  { id: "MACS", name: "Multi-Algorithm Composition Strategy", category: "roughing", strengths: ["composition", "zone-aware"], best_for: ["complex_part", "multi_zone"], iso_groups: ["*"], min_axes: 5, engine_source: "CrossCamNovelAlgorithms" },
   // Special operations
   { id: "helical_drill", name: "Helical Milling", category: "drilling", strengths: ["precision", "no burr", "multi-size"], best_for: ["through_hole", "blind_hole"], iso_groups: ["P", "M", "S", "H"], min_axes: 3, engine_source: "HelicalInterpolationEngine" },
   { id: "rest_machining", name: "Rest Material Clearing", category: "rest", strengths: ["remaining stock", "multi-tool ref"], best_for: ["rest", "cleanup", "residual"], iso_groups: ["*"], min_axes: 3, engine_source: "RestMachiningEngine" },
@@ -135,6 +152,34 @@ const ROUTING_RULES: RoutingRule[] = [
   { condition: (c) => c.operation === "drilling" && (c.diameter_mm || 0) > 20, algorithm: "helical_drill", priority: 85, reason: "Helical milling for large diameter holes" },
   // Standard drilling
   { condition: (c) => c.operation === "drilling", algorithm: "cam_drill", priority: 50, reason: "Standard canned drilling cycle" },
+
+  // ── Extended novel routing ──────────────────────────────────
+  // Aerospace structural with residual stress concern → RSMP
+  { condition: (c) => c.operation === "finishing" && /aerospace|structural|fatigue/.test(c.feature_type), algorithm: "RSMP", priority: 88, reason: "Residual stress minimization for fatigue-critical" },
+  // Wavelet chatter avoidance for very long tools → WHAP
+  { condition: (c) => c.operation === "finishing" && (c.tool_ld_ratio || 0) > 6, algorithm: "WHAP", priority: 87, reason: "Wavelet harmonic avoidance for extreme L/D" },
+  // Bayesian adaptive for new/unknown materials → BOPA
+  { condition: (c) => c.operation === "finishing" && /new_material|prototype|unknown/.test(c.feature_type), algorithm: "BOPA", priority: 86, reason: "Bayesian optimization for unknown cutting conditions" },
+  // Production balanced quality/speed → MCTP
+  { condition: (c) => c.operation === "roughing" && /production|balanced/.test(c.feature_type), algorithm: "MCTP", priority: 75, reason: "Multi-criteria balanced for production" },
+  // Surface-finish controlled roughing (skip semi-finish) → SFCR
+  { condition: (c) => c.operation === "roughing" && /one_pass|semi_finish/.test(c.feature_type) && ["N", "P"].includes(c.iso_group), algorithm: "SFCR", priority: 82, reason: "Direct-to-finish roughing in soft materials" },
+  // Long thermal cycle → PTAP
+  { condition: (c) => c.operation === "roughing" && c.has_thermal_concern && /long_cycle|thermal/.test(c.feature_type), algorithm: "PTAP", priority: 84, reason: "Physics-thermal adaptive for long operations" },
+  // Chip flow control for horizontal mills → CFCM
+  { condition: (c) => c.operation === "roughing" && /horizontal|chip_flow/.test(c.feature_type), algorithm: "CFCM", priority: 78, reason: "Chip flow control for horizontal machining" },
+  // Production run tool life optimization → WBRL
+  { condition: (c) => c.operation === "roughing" && /production_run|tool_life/.test(c.feature_type), algorithm: "WBRL", priority: 76, reason: "Wear-balanced layout for max tool life" },
+  // Repeat batch learning → DPLS
+  { condition: (c) => c.operation === "finishing" && /batch|repeat/.test(c.feature_type), algorithm: "DPLS", priority: 74, reason: "Dynamic learning for batch production" },
+  // Cross-CAM fusion for complex multi-zone → AMEF/MACS
+  { condition: (c) => c.operation === "roughing" && /complex_part|multi_zone/.test(c.feature_type), algorithm: "AMEF", priority: 72, reason: "Multi-engine fusion for complex zones" },
+  // Engagement-aware corner refinement → EAPR
+  { condition: (c) => c.operation === "finishing" && /corner|variable_engagement/.test(c.feature_type), algorithm: "EAPR", priority: 80, reason: "Engagement-aware refinement at corners" },
+  // Steep/shallow blend → HBCF
+  { condition: (c) => c.operation === "finishing" && /steep_shallow|mixed|blend/.test(c.feature_type), algorithm: "HBCF", priority: 79, reason: "Hybrid boundary-contour for steep/shallow blend" },
+  // Sheet nesting → SNWF
+  { condition: (c) => /sheet_metal|plate|nesting/.test(c.feature_type), algorithm: "SNWF", priority: 85, reason: "Smart nested workflow for sheet/plate" },
 
   // ── Rest machining ────────────────────────────────────────
   { condition: (c) => c.operation === "rest", algorithm: "rest_machining", priority: 90, reason: "Rest material clearing from previous operations" },

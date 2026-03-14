@@ -243,6 +243,26 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { tolerance_um: result.tolerance_um, grade: result.grade_label, nominal_mm: result.nominal_mm };
     case "fit_analysis":
       return { fit_type: result.fit_type, min_clearance_mm: result.min_clearance_mm, max_clearance_mm: result.max_clearance_mm };
+    case "hypermill_material_lookup":
+      return { found: result.found, iso_group: result.iso_group, match_field: result.match_field, confidence: result.confidence };
+    case "hypermill_machinability":
+      return { operation: result.operation, factor_vc: result.factor_vc, factor_fz: result.factor_fz, chipping_class_name: result.chipping_class_name };
+    case "hypermill_diameter_sf":
+      return { vc_m_min: result.vc_m_min, fz_mm: result.fz_mm, material: result.material, interpolated: result.interpolated };
+    case "hypermill_material_search":
+      return { total: result.total, materials: result.materials?.length };
+    case "hypermill_material_stats":
+      return { total: result.total_materials, with_factors: result.with_correction_factors, chipping_classes: result.chipping_classes };
+    case "iso286_extended_it":
+      return { tolerance_um: result.tolerance_um, grade_label: result.grade_label, extended: result.extended };
+    case "iso286_extended_fit":
+      return { fit_type: result.fit_type, min_clearance_um: result.min_clearance_um, max_clearance_um: result.max_clearance_um, overlap_um: result.overlap_um };
+    case "iso286_stochastic_fit":
+      return { fit_type: result.fit_type, p_clearance: result.p_clearance, p_interference: result.p_interference, clearance_mean_um: result.clearance_mean_um };
+    case "iso286_recommend_fit":
+      return { recommended_fit: result.recommended_fit, fit_type: result.fit_type, application: result.application };
+    case "iso286_variability_stack":
+      return { mean_mm: result.mean_mm, wc_tolerance_mm: result.wc_tolerance_mm, mc_tolerance_mm: result.mc_tolerance_mm, cpk_at_wc: result.cpk_at_wc };
     case "gcode_generate":
       return { controller: result.controller, operation: result.operation, line_count: result.line_count, warnings: result.warnings?.length || 0 };
     case "decision_tree":
@@ -799,6 +819,11 @@ const ACTIONS = [
   "tool_library_add", "tool_library_import_csv", "tool_library_filter",
   "tool_library_stats", "geometry_analyze", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
+  // Resource Optimization: hyperMILL + ISO 286 extended (2026-03-14)
+  "hypermill_material_lookup", "hypermill_machinability", "hypermill_diameter_sf",
+  "hypermill_material_search", "hypermill_material_stats",
+  "iso286_extended_it", "iso286_extended_fit", "iso286_stochastic_fit",
+  "iso286_recommend_fit", "iso286_variability_stack",
 ] as const;
 
 /** Registers calc dispatcher.

@@ -184,12 +184,50 @@ describe("AdaptiveToolpathRouterEngine", () => {
     expect(result.warnings.some((w) => /L\/D/i.test(w))).toBe(true);
   });
 
-  it("lists all available algorithms", () => {
+  it("lists all 34 available algorithms (6 novel + 12 ext + 6 cross-CAM + 10 standard)", () => {
     const algos = engine.listAlgorithms();
-    expect(algos.length).toBeGreaterThanOrEqual(15);
+    expect(algos.length).toBeGreaterThanOrEqual(34);
+    // Novel 6
     expect(algos.some((a) => a.id === "TGAR")).toBe(true);
     expect(algos.some((a) => a.id === "HRAF")).toBe(true);
+    expect(algos.some((a) => a.id === "VCER")).toBe(true);
+    // Extended 12
+    expect(algos.some((a) => a.id === "RSMP")).toBe(true);
+    expect(algos.some((a) => a.id === "WHAP")).toBe(true);
+    expect(algos.some((a) => a.id === "BOPA")).toBe(true);
+    expect(algos.some((a) => a.id === "DPLS")).toBe(true);
+    // Cross-CAM 6
+    expect(algos.some((a) => a.id === "AMEF")).toBe(true);
+    expect(algos.some((a) => a.id === "MACS")).toBe(true);
+    expect(algos.some((a) => a.id === "EAPR")).toBe(true);
+    // Standard
     expect(algos.some((a) => a.id === "cam_adaptive")).toBe(true);
+    expect(algos.some((a) => a.id === "helical_drill")).toBe(true);
+  });
+
+  it("routes aerospace structural finishing to RSMP or vibration-aware", () => {
+    const result = engine.route({
+      feature_type: "aerospace_structural",
+      operation: "finishing",
+      material_iso_group: "S",
+      feature_depth_mm: 20,
+      tool_diameter_mm: 10,
+      tool_length_mm: 30, // short tool = no vibration concern
+      wall_thickness_mm: 20, // thick wall
+    });
+    // RSMP for stress or HRAF if vibration detected
+    expect(["RSMP", "HRAF", "PTDC"]).toContain(result.selected_algorithm);
+  });
+
+  it("routes sheet nesting to SNWF", () => {
+    const result = engine.route({
+      feature_type: "sheet_metal",
+      operation: "roughing",
+      material_iso_group: "P",
+      feature_depth_mm: 3,
+      tool_diameter_mm: 10,
+    });
+    expect(result.selected_algorithm).toBe("SNWF");
   });
 
   it("routes face milling correctly", () => {
