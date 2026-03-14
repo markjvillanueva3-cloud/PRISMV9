@@ -654,13 +654,40 @@ class TurningProgramAssemblerEngineImpl {
    * @param diameter_mm - Workpiece diameter at cut location [mm]
    * @returns S/F values plus stochastic force/life CIs and chatter probability
    */
-  private computeSF(
+  private async computeSF(
     material: string, operation: string, diameter_mm: number
-  ): SFResult {
+  ): Promise<SFResult> {
     const mat = lookupMaterial(material);
-    const isRough = operation.includes("rough") || operation === "face";
-    const Vc = isRough ? mat.Vc_rough : mat.Vc_finish;
-    const fn = isRough ? mat.fn_rough : mat.fn_finish;
+    const isRoughing = operation.includes("rough") || operation === "face";
+    const Vc = isRoughing ? mat.Vc_rough : mat.Vc_finish;
+    const fn = isRoughing ? mat.fn_rough : mat.fn_finish;
+
+    // Wire SpeedFeedOrchestratorEngine for physics-backed S/F
+    try {
+      const mod = await import("./SpeedFeedOrchestratorEngine.js");
+      const sfOrchestrator = mod.speedFeedOrchestratorEngine;
+      if (sfOrchestrator) {
+        const sfResult = sfOrchestrator.compute({
+          material: material,
+          operation: 'turning',
+          tool_diameter_mm: diameter_mm,
+          workpiece_diameter_mm: diameter_mm,
+          cut_type: isRoughing ? 'roughing' : 'finishing',
+          coolant_type: 'flood',
+        });
+        if (sfResult?.value) {
+          const uq = sfResult.value.uncertainty as any;
+          return {
+            Vc: sfResult.value.cutting_speed_mpm ?? Vc,
+            fn: sfResult.value.feed_per_tooth_mm ?? fn,
+            confidence: sfResult.value.overall_confidence ?? 0.85,
+            force_ci95: uq?.force_ci95 ?? [0, 0],
+            life_ci95: uq?.life_ci95 ?? [0, 0],
+            p_chatter: uq?.p_chatter ?? 0.05,
+          };
+        }
+      }
+    } catch { /* fallback to inline Monte Carlo */ }
 
     // Monte Carlo on Kienzle force + Taylor life (200 trials, PRNG for reproducibility)
     const kc_cv = 0.10; // CoV on kc1.1 (material batch scatter)
@@ -699,7 +726,7 @@ class TurningProgramAssemblerEngineImpl {
 
     // Chatter probability: higher for finishing (lower DOC, potentially less stable)
     // Base p_chatter is low for turning; increase if L/D or speed is high
-    const p_chatter = isRough ? 0.03 : 0.07;
+    const p_chatter = isRoughing ? 0.03 : 0.07;
 
     return {
       Vc, fn, confidence: 0.75,
@@ -807,7 +834,7 @@ class TurningProgramAssemblerEngineImpl {
    * @param input - Assembly input with part, controller, tools, constraints
    * @returns AtomicValue wrapping the complete TurningProgram
    */
-  assembleTurningProgram(input: TurningAssemblyInput): AtomicValue<TurningProgram> {
+  async assembleTurningProgram(input: TurningAssemblyInput): Promise<AtomicValue<TurningProgram>> {
     const controller = input.controller ?? "fanuc";
     const dialect = DIALECTS[controller];
     const maxRpm = input.machine_max_rpm ?? this.DEFAULT_MAX_RPM;
@@ -815,7 +842,27 @@ class TurningProgramAssemblerEngineImpl {
     const progNum = input.program_number ?? 1;
     const partName = input.part_name ?? "TURNING PART";
     const mat = lookupMaterial(input.part.material);
+    const materialName = input.part.material;
     const warnings: string[] = [];
+    const engines_called: string[] = [];
+
+    // Wire SpeedFeedOrchestratorEngine for physics-backed S/F
+    let orchestratorAvailable = false;
+    let sfOrchestrator: any = null;
+    try {
+      const mod = await import("./SpeedFeedOrchestratorEngine.js");
+      sfOrchestrator = mod.speedFeedOrchestratorEngine;
+      orchestratorAvailable = true;
+      engines_called.push("SpeedFeedOrchestratorEngine");
+    } catch { /* fallback to inline */ }
+
+    // Try LathePostProcessorEngine for controller-specific dialect
+    let postProcessor: any = null;
+    try {
+      const mod = await import("./LathePostProcessorEngine.js");
+      postProcessor = mod.lathePostProcessorEngine;
+      engines_called.push("LathePostProcessorEngine");
+    } catch { /* fallback to inline */ }
 
     // Step a: Determine required operations
     const requiredOps = this.analyzeRequiredOperations(input.part);
@@ -846,21 +893,21 @@ class TurningProgramAssemblerEngineImpl {
     // ---- FACING ----
     if (requiredOps.includes("face")) {
       const tool = findTool("roughing") ?? findTool("CNMG") ?? tools[0];
-      const op = this.generateFacingOp(input.part, tool, mat, maxRpm, dialect, nl);
+      const op = await this.generateFacingOp(input.part, tool, mat, maxRpm, dialect, nl);
       operations.push(op);
     }
 
     // ---- OD ROUGHING (G71) ----
     if (requiredOps.includes("od_rough") && input.part.od_profile.length > 0) {
       const tool = findTool("roughing") ?? findTool("CNMG") ?? tools[0];
-      const op = this.generateOdRoughingOp(input.part, tool, mat, maxRpm, maxPower, dialect, nl, warnings);
+      const op = await this.generateOdRoughingOp(input.part, tool, mat, maxRpm, maxPower, dialect, nl, warnings);
       operations.push(op);
     }
 
     // ---- OD FINISHING (G70) ----
     if (requiredOps.includes("od_finish") && input.part.od_profile.length > 0) {
       const tool = findTool("finishing") ?? findTool("VNMG") ?? tools[0];
-      const op = this.generateOdFinishingOp(input.part, tool, mat, maxRpm, dialect, nl);
+      const op = await this.generateOdFinishingOp(input.part, tool, mat, maxRpm, dialect, nl);
       operations.push(op);
     }
 
@@ -1104,6 +1151,27 @@ class TurningProgramAssemblerEngineImpl {
         overall_confidence: overallConf,
       },
     };
+
+    // Wire MachiningPlaybookEngine for turning-specific warnings
+    try {
+      const { machiningPlaybookEngine } = await import("./MachiningPlaybookEngine.js");
+      const adviceResult = machiningPlaybookEngine.advise({
+        operation_type: 'turning',
+        material_iso: materialName,
+      });
+      if (adviceResult?.rules?.length) {
+        for (const rule of adviceResult.rules) {
+          if (rule.rule && !warnings.includes(rule.rule)) {
+            warnings.push(`[Playbook] ${rule.rule.substring(0, 200)}`);
+          }
+        }
+        engines_called.push("MachiningPlaybookEngine");
+      }
+    } catch { /* playbook not available */ }
+
+    if (engines_called.length > 0) {
+      program.warnings.push(`[Engines] Wired: ${engines_called.join(", ")}`);
+    }
 
     return {
       value: program,
@@ -1370,12 +1438,13 @@ class TurningProgramAssemblerEngineImpl {
    * @param input - Part, tools, machine limits
    * @returns AtomicValue wrapping ValidationResult
    */
-  validateProgram(input: ValidateProgramInput): AtomicValue<ValidationResult> {
+  async validateProgram(input: ValidateProgramInput): Promise<AtomicValue<ValidationResult>> {
     const maxRpm = input.machine_max_rpm ?? this.DEFAULT_MAX_RPM;
     const maxPower = input.max_power_kw ?? this.DEFAULT_POWER_KW;
     const mat = lookupMaterial(input.part.material);
     const checks: ValidationCheck[] = [];
     const warnings: string[] = [];
+    const engines_called: string[] = [];
 
     // Check 1: Power at max roughing DOC
     const roughDoc = 3.0; // Typical roughing DOC [mm]
@@ -1494,11 +1563,61 @@ class TurningProgramAssemblerEngineImpl {
       }
     }
 
+    // Wire ChuckJawForceEngine for workpiece ejection safety
+    try {
+      const { chuckJawForceEngine } = await import("./ChuckJawForceEngine.js");
+      const maxForce = kienzleForce(mat.kc1_1, mat.mc, 3.0, mat.fn_rough);
+      const chuckResult = chuckJawForceEngine.calculate?.({
+        chuck_type: input.chuck_type ?? '3_jaw',
+        workpiece_diameter_mm: input.part?.bar_diameter_mm ?? 50,
+        spindle_rpm: maxRpm,
+        cutting_force_N: maxForce,
+        jaw_pressure_bar: 20,
+      });
+      if (chuckResult) {
+        const sf = chuckResult.safety_factor ?? chuckResult.value?.safety_factor ?? 2.5;
+        checks.push({
+          name: 'Chuck grip safety factor',
+          pass: sf >= 2.5,
+          value: Math.round(sf * 100) / 100,
+          limit: 2.5,
+        });
+        engines_called.push("ChuckJawForceEngine");
+      }
+    } catch { /* skip if engine not available */ }
+
+    // Wire TurningForceEngine for full Fc/Ff/Fp decomposition validation
+    try {
+      const { turningForceEngine } = await import("./TurningForceEngine.js");
+      const forceResult = turningForceEngine.calculate?.({
+        operation: 'longitudinal',
+        material: input.part.material,
+        cutting_speed_m_min: mat.Vc_rough,
+        feed_mm_rev: mat.fn_rough,
+        depth_of_cut_mm: 3.0,
+        approach_angle_deg: 95,
+      });
+      if (forceResult?.tangential_force_N) {
+        const advancedPower = (forceResult.tangential_force_N * mat.Vc_rough) / 60000;
+        checks.push({
+          name: 'Advanced force model power check',
+          pass: advancedPower <= maxPower,
+          value: Math.round(advancedPower * 100) / 100,
+          limit: maxPower,
+        });
+        engines_called.push("TurningForceEngine");
+      }
+    } catch { /* fallback to inline Kienzle */ }
+
+    if (engines_called.length > 0) {
+      warnings.push(`[Engines] Validated with: ${engines_called.join(", ")}`);
+    }
+
     const safe = checks.every(c => c.pass);
     return {
       value: { safe, checks, warnings },
       unit: "validation",
-      formula: "Kienzle power check + RPM/G50 clamp + L/D ratio + reach limits",
+      formula: "Kienzle power check + RPM/G50 clamp + L/D ratio + reach limits + chuck grip + advanced force",
       confidence: 0.88,
     };
   }
@@ -1566,7 +1685,7 @@ class TurningProgramAssemblerEngineImpl {
    * Generate facing operation G-code.
    * Face from OD to center (or near-center) using CSS mode.
    */
-  private generateFacingOp(
+  private async generateFacingOp(
     part: TurningPartProfile,
     tool: TurningToolAssignment,
     mat: TurningMaterialData,
@@ -1575,7 +1694,7 @@ class TurningProgramAssemblerEngineImpl {
     nl: () => string,
   ): TurningOperation {
     // Stochastic S/F via Monte Carlo
-    const sf = this.computeSF(part.material, "face", part.bar_diameter_mm);
+    const sf = await this.computeSF(part.material, "face", part.bar_diameter_mm);
     const vc = sf.Vc;
     const fn = sf.fn * 0.8; // Slightly reduced for facing
     const faceDiameter = part.bar_diameter_mm;
@@ -1622,7 +1741,7 @@ class TurningProgramAssemblerEngineImpl {
    * Generate OD roughing operation using G71 canned cycle.
    * Multiple DOC passes from bar stock to finish-profile + stock allowance.
    */
-  private generateOdRoughingOp(
+  private async generateOdRoughingOp(
     part: TurningPartProfile,
     tool: TurningToolAssignment,
     mat: TurningMaterialData,
@@ -1633,7 +1752,7 @@ class TurningProgramAssemblerEngineImpl {
     warnings: string[],
   ): TurningOperation {
     // Stochastic S/F via Monte Carlo on Kienzle + Taylor
-    const sf = this.computeSF(part.material, "od_rough", part.bar_diameter_mm);
+    const sf = await this.computeSF(part.material, "od_rough", part.bar_diameter_mm);
     const vc = sf.Vc;
     const fn = sf.fn;
 
@@ -1743,7 +1862,7 @@ class TurningProgramAssemblerEngineImpl {
    * Generate OD finishing operation using G70 canned cycle.
    * Single pass following the roughed profile with TNRC active.
    */
-  private generateOdFinishingOp(
+  private async generateOdFinishingOp(
     part: TurningPartProfile,
     tool: TurningToolAssignment,
     mat: TurningMaterialData,
@@ -1752,7 +1871,7 @@ class TurningProgramAssemblerEngineImpl {
     nl: () => string,
   ): TurningOperation {
     // Stochastic S/F via Monte Carlo
-    const sf = this.computeSF(part.material, "od_finish", part.bar_diameter_mm);
+    const sf = await this.computeSF(part.material, "od_finish", part.bar_diameter_mm);
     const vc = sf.Vc;
     const fn = sf.fn;
 

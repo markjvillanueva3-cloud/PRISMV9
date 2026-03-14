@@ -127,7 +127,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "turning_assemble_program": {
             const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
-            result = turningProgramAssemblerEngine.assembleTurningProgram(params as any);
+            result = await turningProgramAssemblerEngine.assembleTurningProgram(params as any);
             break;
           }
           case "turning_auto_tools": {
@@ -142,7 +142,7 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "turning_validate": {
             const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
-            result = turningProgramAssemblerEngine.validateProgram(params as any);
+            result = await turningProgramAssemblerEngine.validateProgram(params as any);
             break;
           }
           default:
