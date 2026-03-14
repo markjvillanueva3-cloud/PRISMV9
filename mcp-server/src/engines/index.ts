@@ -3191,6 +3191,8 @@ export { StatisticalMLEngine } from "./StatisticalMLEngine.js";
 export { MathIntegrationPipelineEngine } from "./MathIntegrationPipelineEngine.js";
 export { TimeSeriesForecastEngine } from "./TimeSeriesForecastEngine.js";
 export { EnsembleMLEngine } from "./EnsembleMLEngine.js";
+export { CrossPhysicsCouplingEngine } from "./CrossPhysicsCouplingEngine.js";
+export { AdaptiveCalibrationEngine } from "./AdaptiveCalibrationEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";
