@@ -87,6 +87,7 @@ async function getEngine(name: string): Promise<any> {
     case "assembler": return (await import("../../engines/CNCProgramAssemblerEngine.js")).cncProgramAssemblerEngine;
     case "motionDyn": return (await import("../../engines/MotionDynamicsProfileEngine.js")).motionDynamicsProfileEngine;
     case "engageAdapt": return (await import("../../engines/EngagementAdaptiveFeedEngine.js")).engagementAdaptiveFeedEngine;
+    case "postPipeline": return (await import("../../engines/PostProcessorPipelineEngine.js")).postProcessorPipelineEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -125,7 +126,9 @@ const ACTIONS = [
   "stability_rpm_rewrite",
   "stability_rpm_analyze",
   "auto_speed_feed_optimize", "auto_speed_feed_analyze", "auto_speed_feed_batch",
-  "gcode_intelligence_pipeline", "machine_match", "machine_quick_match",
+  "gcode_intelligence_pipeline",
+  "pp_run_full", "pp_run_partial", "pp_analyze", "pp_reoptimize", "pp_resolve_context",
+  "machine_match", "machine_quick_match",
   "wear_compensate", "wear_analyze",
   "stats_process_capability", "stats_spc_chart", "stats_weibull",
   "stats_monte_carlo_tolerance", "stats_anova", "stats_regression",
@@ -1015,6 +1018,32 @@ Params vary by action — pass relevant fields in params object.`,
           case "gcode_intelligence_pipeline": {
             const eng = await getEngine("pipeline");
             result = await eng.run(params);
+            break;
+          }
+          case "pp_run_full": {
+            const eng = await getEngine("postPipeline");
+            result = await eng.process(params);
+            break;
+          }
+          case "pp_run_partial": {
+            const eng = await getEngine("postPipeline");
+            result = await eng.process(params);
+            break;
+          }
+          case "pp_analyze": {
+            const eng = await getEngine("postPipeline");
+            result = await eng.analyze(params);
+            break;
+          }
+          case "pp_reoptimize": {
+            const eng = await getEngine("postPipeline");
+            result = await eng.reoptimize(params);
+            break;
+          }
+          case "pp_resolve_context": {
+            const eng = await getEngine("postPipeline");
+            result = await eng.process({ ...params, stages: { speed_feed: false, engagement_analysis: false, safety_analysis: false, playbook_rules: false, wear_progression: false, thermal_tracking: false, gcode_generation: false } });
+            result = { machine: result.resolved?.machine, material: result.resolved?.material, tools: result.resolved?.tools, holders: result.resolved?.holders, coolant: result.resolved?.coolant };
             break;
           }
           case "machine_match": {
