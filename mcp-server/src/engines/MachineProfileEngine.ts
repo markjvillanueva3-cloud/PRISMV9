@@ -369,6 +369,99 @@ export class MachineProfileEngine {
     return { added: true, id: profile.id };
   }
 
+  /**
+   * Enhanced spindle curve with S1/S6 duty ratings and DN bearing limit.
+   * S1 = continuous duty power, S6 = 40% duty cycle (intermittent) power.
+   * DN limit = bore_diameter_mm x max_rpm — bearing thermal/speed limit.
+   *
+   * @reference ISO 3031 (electric motors), SKF bearing catalogs
+   */
+  spindleCurveEnhanced(input: {
+    max_rpm: number;
+    base_rpm: number;
+    rated_power_kw: number;
+    max_torque_nm: number;
+    taper?: string;
+    bearing_type?: 'angular_contact' | 'ceramic_hybrid' | 'hydrostatic';
+  }): {
+    curve: { rpm: number; torque_nm: number; power_kw: number; s1_power_kw: number }[];
+    s1_continuous_kw: number;
+    s6_40pct_kw: number;
+    dn_limit: number;
+    max_safe_rpm: number;
+    bearing_bore_mm: number;
+    thermal_derating: { rpm: number; factor: number }[];
+  } {
+    const { max_rpm, base_rpm, rated_power_kw, max_torque_nm, taper, bearing_type } = input;
+
+    // S1 continuous = 75% of rated (industry standard for continuous duty)
+    const s1_continuous_kw = rated_power_kw * 0.75;
+    // S6 40% duty = rated power (rated IS the S6 value for most spindles)
+    const s6_40pct_kw = rated_power_kw * 1.0;
+
+    // Bearing bore inferred from taper
+    const taperBoreMap: Record<string, number> = {
+      'BT30': 25, 'BT40': 40, 'BT50': 69,
+      'CAT40': 44, 'CAT50': 69,
+      'HSK-A63': 45, 'HSK-A100': 70, 'HSK-F63': 45, 'HSK-E40': 30, 'HSK-E25': 20,
+      'R8': 20, 'MT3': 18, 'MT4': 22, 'MT5': 30,
+      'A2-5': 80, 'A2-6': 105, 'A2-8': 140,
+    };
+    const bearing_bore_mm = taperBoreMap[taper ?? ''] ?? 40;
+
+    // DN limit by bearing type
+    const dnLimitMap: Record<string, number> = {
+      'angular_contact': 1500000,
+      'ceramic_hybrid': 2500000,
+      'hydrostatic': 3000000,
+    };
+    const dn_limit = dnLimitMap[bearing_type ?? 'angular_contact'] ?? 1500000;
+    const max_safe_rpm = Math.floor(dn_limit / bearing_bore_mm);
+
+    // Thermal derating: above 80% of max_rpm, linearly derate up to 15%
+    const thermal_derating: { rpm: number; factor: number }[] = [];
+    for (let pct = 0.8; pct <= 1.0; pct += 0.04) {
+      const rpmPoint = Math.round(max_rpm * pct);
+      const factor = 1 - 0.15 * (pct - 0.8) / 0.2;
+      thermal_derating.push({ rpm: rpmPoint, factor: Math.round(factor * 1000) / 1000 });
+    }
+
+    // Generate 20-point curve with S1 power at each RPM
+    const n = 20;
+    const step = max_rpm / n;
+    const curve: { rpm: number; torque_nm: number; power_kw: number; s1_power_kw: number }[] = [];
+
+    for (let i = 1; i <= n; i++) {
+      const rpm = Math.round(step * i);
+      const torque = rpm <= base_rpm ? max_torque_nm : max_torque_nm * (base_rpm / rpm);
+      const power = rpm <= base_rpm ? rated_power_kw * (rpm / base_rpm) : rated_power_kw;
+
+      // Apply thermal derating to S1 power at high RPM
+      const rpmRatio = rpm / max_rpm;
+      const derateFactor = rpmRatio > 0.8
+        ? 1 - 0.15 * (rpmRatio - 0.8) / 0.2
+        : 1.0;
+      const s1_power_kw = Math.round(s1_continuous_kw * derateFactor * 100) / 100;
+
+      curve.push({
+        rpm,
+        torque_nm: Math.round(torque * 10) / 10,
+        power_kw: Math.round(power * 10) / 10,
+        s1_power_kw,
+      });
+    }
+
+    return {
+      curve,
+      s1_continuous_kw: Math.round(s1_continuous_kw * 100) / 100,
+      s6_40pct_kw: Math.round(s6_40pct_kw * 100) / 100,
+      dn_limit,
+      max_safe_rpm,
+      bearing_bore_mm,
+      thermal_derating,
+    };
+  }
+
   /** Get spindle torque curve data points for a machine (for plotting). */
   spindleCurve(machine_id: string, points?: number): Array<{ rpm: number; torque_nm: number; power_kw: number }> {
     const m = machines.get(machine_id);

@@ -1628,6 +1628,7 @@ export class SpeedFeedOrchestratorEngine {
     const geometry  = this.resolveGeometry(input);
 
     const formulas_used: string[] = [];
+    const dn_warnings: string[] = [];  // DN bearing speed limit warnings (merged into playbook_warnings later)
     const engines_called: string[] = ["SpeedFeedOrchestratorEngine"];
 
     // ── Step 2: Core Speed/Feed Physics ──
@@ -1699,6 +1700,23 @@ export class SpeedFeedOrchestratorEngine {
     }
     rpm = Math.round(rpm);
     formulas_used.push("RPM = 1000 × Vc / (π × D)");
+
+    // DN bearing speed limit check
+    const taperBoreMap: Record<string, number> = {
+      'BT30': 25, 'BT40': 40, 'BT50': 69, 'CAT40': 44, 'CAT50': 69,
+      'HSK-A63': 45, 'HSK-A100': 70, 'HSK-F63': 45, 'HSK-E40': 30,
+      'A2-5': 80, 'A2-6': 105, 'A2-8': 140,
+    };
+    const dnTaper = machine.taper?.value ?? '';
+    const dnBore = taperBoreMap[dnTaper] ?? 40;
+    const dnLimit = 2000000; // conservative default for angular contact bearings
+    const maxDnRpm = Math.floor(dnLimit / dnBore);
+    if (rpm > maxDnRpm) {
+      dn_warnings.push(
+        `RPM ${rpm} exceeds DN bearing limit (${dnBore}mm bore × ${rpm}rpm = ${dnBore * rpm} > ${dnLimit}). ` +
+        `Verify ceramic hybrid bearings are installed for sustained high-speed operation.`
+      );
+    }
 
     // Feed per tooth
     // Infer base fz from diameter if not available from material
@@ -2049,12 +2067,25 @@ export class SpeedFeedOrchestratorEngine {
 
     // ── Step 7: Uncertainty (enhanced with stochastic engines) ──
     const confScale = Math.max(0.5, overallConfidence);
-    // Derive stiffness/freq/damping from rigidity category
+    // Derive stiffness/freq/damping from rigidity category + machine type
+    // Typical structural stiffness (N/um): VMC 20-80, HMC 40-120, 5-axis 30-60,
+    // Gantry 100-200, Lathe 50-150, Swiss 15-40
     const rigMap = { low: 20, medium: 50, high: 100 } as const;
     const gwDampMap = { box: 0.05, linear: 0.02, hydrostatic: 0.08 } as const;
     const rig = machine.rigidity.value as "low" | "medium" | "high";
     const gw = machine.guideway.value;
-    const stiffness = rigMap[rig] ?? 50;
+    const machTypeForStiffness = (machine.type.value ?? '').toLowerCase();
+    const stiffnessByType: Record<string, Record<string, number>> = {
+      'vertical_mill':   { high: 60,  medium: 40,  low: 20 },
+      'horizontal_mill': { high: 100, medium: 70,  low: 40 },
+      '5axis':           { high: 50,  medium: 35,  low: 20 },
+      'gantry':          { high: 180, medium: 130, low: 80 },
+      'lathe':           { high: 120, medium: 80,  low: 50 },
+      'swiss':           { high: 40,  medium: 25,  low: 15 },
+      'router':          { high: 30,  medium: 20,  low: 10 },
+    };
+    const typeEntry = stiffnessByType[machTypeForStiffness];
+    const stiffness = typeEntry ? (typeEntry[rig] ?? rigMap[rig] ?? 50) : (rigMap[rig] ?? 50);
     const natFreq = machine.nat_freq_hz.value;
     const dampingR = gwDampMap[gw] ?? 0.03;
     const fullUQ = this.computeFullUncertainty(
@@ -2159,7 +2190,7 @@ export class SpeedFeedOrchestratorEngine {
     ];
 
     // ── Step 9: Playbook Warnings ──
-    const playbook_warnings: string[] = [];
+    const playbook_warnings: string[] = [...dn_warnings];
     const matName = material.name.value.toLowerCase();
     const isoGroup = material.iso_group.value;
 
