@@ -3273,6 +3273,9 @@ export { speedFeedOrchestratorEngine, SpeedFeedOrchestratorEngine } from './Spee
 export { userToolLibraryEngine, UserToolLibraryEngine } from './UserToolLibraryEngine.js';
 export { partGeometryPipelineEngine, PartGeometryPipelineEngine } from './PartGeometryPipelineEngine.js';
 
+// Lathe: Turning Program Assembler (print → G-code pipeline)
+export { turningProgramAssemblerEngine } from './TurningProgramAssemblerEngine.js';
+
 export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCSimulationPipelineEngine.js';
 
 export { simulationReportEngine, SimulationReportEngine } from './SimulationReportEngine.js';

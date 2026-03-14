@@ -34,6 +34,7 @@ const ACTIONS = [
   "chuck_force", "tailstock", "steady_rest",
   "live_tool", "bar_pull", "thread_single_point",
   "part_off_force", "thread_turning_calc",
+  "turning_assemble_program", "turning_auto_tools", "turning_cycle_time", "turning_validate",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -122,6 +123,26 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "thread_turning_calc": {
             const { threadTurningEngine } = await import("../../engines/ThreadTurningEngine.js");
             result = threadTurningEngine.calculate(params as any);
+            break;
+          }
+          case "turning_assemble_program": {
+            const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
+            result = turningProgramAssemblerEngine.assembleTurningProgram(params as any);
+            break;
+          }
+          case "turning_auto_tools": {
+            const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
+            result = turningProgramAssemblerEngine.autoSelectTools(params as any);
+            break;
+          }
+          case "turning_cycle_time": {
+            const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
+            result = turningProgramAssemblerEngine.estimateCycleTime(params as any);
+            break;
+          }
+          case "turning_validate": {
+            const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
+            result = turningProgramAssemblerEngine.validateProgram(params as any);
             break;
           }
           default:
