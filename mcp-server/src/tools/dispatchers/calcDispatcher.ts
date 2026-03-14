@@ -6220,33 +6220,33 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
           case "sf_resolve_machine": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.resolveMachineContext(params as ValidatedParams);
+            const sfo1 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfo1.resolveMachineContextFn(sfo1.speedFeedOrchestratorEngine, params as ValidatedParams);
             break;
           }
           case "sf_resolve_tool": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.resolveToolContext(params as ValidatedParams);
+            const sfo2 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfo2.resolveToolContextFn(sfo2.speedFeedOrchestratorEngine, params as ValidatedParams);
             break;
           }
           case "sf_resolve_material": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.resolveMaterialContext(params as ValidatedParams);
+            const sfo3 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfo3.resolveMaterialContextFn(sfo3.speedFeedOrchestratorEngine, params as ValidatedParams);
             break;
           }
           case "sf_stochastic": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.compute({ ...params, output_detail: "full" } as ValidatedParams);
+            const { speedFeedOrchestratorEngine: sfoStoch } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfoStoch.compute({ ...params, output_detail: "full" } as ValidatedParams);
             break;
           }
           case "sf_compare": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.compare(params.scenarios as any);
+            const sfo4 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfo4.compareFn(sfo4.speedFeedOrchestratorEngine, params.scenarios as any);
             break;
           }
           case "sf_optimize": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.optimize(params as ValidatedParams, params.objectives as string[]);
+            const sfo5 = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = sfo5.optimizeFn(sfo5.speedFeedOrchestratorEngine, params as ValidatedParams, params.objectives as string[]);
             break;
           }
 
@@ -6396,6 +6396,28 @@ export function registerCalcDispatcher(server: any): void {
               parse_cmm_export: "parseCMMExport",
             };
             result = (fpe as any)[fpeMap[action]](params as ValidatedParams);
+            break;
+          }
+
+
+
+          // ── Stratified Calibration ──
+          case "record_stratified": case "stratified_bias": case "calibrate_stratified":
+          case "context_tree": case "environmental_adjust": case "tool_wear_bias_model":
+          case "interaction_analysis": case "predict_full_context": {
+            const { StratifiedCalibrationEngine: SCE } = await import("../../engines/StratifiedCalibrationEngine.js");
+            const sce = new SCE();
+            const sceMap: Record<string,string> = {
+              record_stratified: "recordStratified",
+              stratified_bias: "getStratifiedBias",
+              calibrate_stratified: "calibrateStratified",
+              context_tree: "getContextTree",
+              environmental_adjust: "environmentalAdjust",
+              tool_wear_bias_model: "toolWearBiasModel",
+              interaction_analysis: "interactionAnalysis",
+              predict_full_context: "predictionWithFullContext",
+            };
+            result = (sce as any)[sceMap[action]](params as ValidatedParams);
             break;
           }
 
