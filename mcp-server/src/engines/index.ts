@@ -3197,6 +3197,7 @@ export { DimensionlessNumbersEngine } from "./DimensionlessNumbersEngine.js";
 export { ProcessSynthesisEngine } from "./ProcessSynthesisEngine.js";
 export { MachineLearningFeedbackEngine } from "./MachineLearningFeedbackEngine.js";
 export { FeedbackPersistenceEngine } from "./FeedbackPersistenceEngine.js";
+export { PredictionFeedbackOrchestratorEngine } from "./PredictionFeedbackOrchestratorEngine.js";
 export { StratifiedCalibrationEngine } from "./StratifiedCalibrationEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";

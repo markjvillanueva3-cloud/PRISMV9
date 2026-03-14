@@ -6401,7 +6401,10 @@ export function registerCalcDispatcher(server: any): void {
 
 
 
-          // ── Stratified Calibration ──
+          // ── Prediction Feedback Orchestrator (Closed Loop) ──
+  "submit_measurement", "learned_prediction", "batch_import_measurements",
+  "machine_intelligence", "compare_and_learn", "system_learning_status",
+  // ── Stratified Calibration ──
           case "record_stratified": case "stratified_bias": case "calibrate_stratified":
           case "context_tree": case "environmental_adjust": case "tool_wear_bias_model":
           case "interaction_analysis": case "predict_full_context": {
@@ -6418,6 +6421,26 @@ export function registerCalcDispatcher(server: any): void {
               predict_full_context: "predictionWithFullContext",
             };
             result = (sce as any)[sceMap[action]](params as ValidatedParams);
+            break;
+          }
+
+
+
+          // ── Prediction Feedback Orchestrator ──
+          case "submit_measurement": case "learned_prediction":
+          case "batch_import_measurements": case "machine_intelligence":
+          case "compare_and_learn": case "system_learning_status": {
+            const { PredictionFeedbackOrchestratorEngine: PFO } = await import("../../engines/PredictionFeedbackOrchestratorEngine.js");
+            const pfo = new PFO();
+            const pfoMap: Record<string,string> = {
+              submit_measurement: "submitMeasurement",
+              learned_prediction: "getLearnedPrediction",
+              batch_import_measurements: "batchImportMeasurements",
+              machine_intelligence: "getMachineIntelligence",
+              compare_and_learn: "compareAndLearn",
+              system_learning_status: "systemLearningStatus",
+            };
+            result = (pfo as any)[pfoMap[action]](params as ValidatedParams);
             break;
           }
 
