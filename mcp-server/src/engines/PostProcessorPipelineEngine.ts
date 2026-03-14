@@ -576,6 +576,7 @@ class PostProcessorPipelineEngineImpl {
   private _coolantDynamics: any = null;
   private _fixtureClamping: any = null;
   private _processCapability: any = null;
+  private _controllerDialect: any = null;
 
   /** Get a lazily-loaded engine by name */
   private async _getEngine(name: string): Promise<any> {
@@ -616,6 +617,8 @@ class PostProcessorPipelineEngineImpl {
         return (this._fixtureClamping ??= (await import("./FixtureClampingEngine.js")).fixtureClampingEngine);
       case "processCapability":
         return (this._processCapability ??= (await import("./ProcessCapabilityPredictionEngine.js")).processCapabilityPredictionEngine);
+      case "controllerDialect":
+        return (this._controllerDialect ??= (await import("./ControllerDialectEngine.js")).controllerDialectEngine);
       default:
         throw new Error(`Unknown pipeline engine: ${name}`);
     }
@@ -1338,6 +1341,93 @@ class PostProcessorPipelineEngineImpl {
       });
     } else {
       stages.push({ stage: "2.7_thermal_tracking", phase: 2, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // ═══ PHASE 3: MOTION OPTIMIZATION ═══
+
+    // Stage 3.2: Motion dynamics — achievable feed (accel/jerk/corner/servo)
+    if (stageFlags.motion_dynamics) {
+      await this._runStageAsync("3.2_motion_dynamics", 3, stages, async () => {
+        try {
+          const eng = await this._getEngine("motionDynamics");
+          let feedsClamped = 0;
+          const machineAccel = machine?.accel_mm_s2?.x ?? 2000; // mm/s²
+
+          for (let i = 1; i < blocks.length; i++) {
+            const prev = blocks[i - 1];
+            const curr = blocks[i];
+            if (curr.move_type === "G0" || !curr.feed_mm_min) continue;
+
+            const dist = Math.sqrt(
+              ((curr.x ?? 0) - (prev.x ?? 0)) ** 2 +
+              ((curr.y ?? 0) - (prev.y ?? 0)) ** 2 +
+              ((curr.z ?? 0) - (prev.z ?? 0)) ** 2
+            );
+
+            if (dist < 0.001) continue;
+
+            // Trapezoidal profile: max achievable feed for this distance
+            // v_max = √(2 × a × d) when distance is too short to reach commanded feed
+            const commandedFeed_mm_s = curr.feed_mm_min / 60;
+            const maxAchievable_mm_s = Math.sqrt(2 * machineAccel * dist);
+            const maxAchievable_mm_min = maxAchievable_mm_s * 60;
+
+            if (maxAchievable_mm_min < curr.feed_mm_min * 0.95) {
+              if (curr.optimization) {
+                curr.optimization.optimized_feed = Math.round(maxAchievable_mm_min);
+                curr.optimization.reasons.push(
+                  `Motion: seg ${dist.toFixed(1)}mm too short for F${curr.feed_mm_min} → F${Math.round(maxAchievable_mm_min)}`
+                );
+              }
+              curr.feed_mm_min = Math.round(maxAchievable_mm_min);
+              feedsClamped++;
+            }
+          }
+          return { feeds_clamped: feedsClamped };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "3.2_motion_dynamics", phase: 3, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 3.5: Controller feature injection
+    if (stageFlags.controller_features && (machine?.controller || input.controller)) {
+      await this._runStageAsync("3.5_controller_features", 3, stages, async () => {
+        try {
+          const eng = await this._getEngine("controllerDialect");
+          const ctrl = machine?.controller ?? input.controller ?? "fanuc";
+          const dialect = eng.getDialect(ctrl);
+          const injectedCodes: string[] = [];
+
+          // Determine operation type for feature selection
+          const opType = input.operations?.[0]?.type ?? "general";
+          const isFinishing = /finish|fine|polish/i.test(opType);
+          const isRoughing = /rough|hog|mrr/i.test(opType);
+
+          const featureType = isFinishing ? "finishing"
+            : isRoughing ? "roughing" : "semi_finishing";
+          const codes = eng.getFeatureCodes(ctrl, featureType);
+          injectedCodes.push(...codes);
+
+          return {
+            controller: dialect.display_name,
+            features_injected: injectedCodes,
+            operation_mode: featureType,
+          };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "3.5_controller_features", phase: 3, status: "skipped",
+        duration_ms: 0, summary: "Disabled or no controller", data: null,
+      });
     }
 
     // ═══ PHASE 5: SAFETY ═══

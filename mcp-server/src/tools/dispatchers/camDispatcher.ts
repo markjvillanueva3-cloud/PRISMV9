@@ -88,6 +88,7 @@ async function getEngine(name: string): Promise<any> {
     case "motionDyn": return (await import("../../engines/MotionDynamicsProfileEngine.js")).motionDynamicsProfileEngine;
     case "engageAdapt": return (await import("../../engines/EngagementAdaptiveFeedEngine.js")).engagementAdaptiveFeedEngine;
     case "postPipeline": return (await import("../../engines/PostProcessorPipelineEngine.js")).postProcessorPipelineEngine;
+    case "controllerDialect": return (await import("../../engines/ControllerDialectEngine.js")).controllerDialectEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -128,6 +129,7 @@ const ACTIONS = [
   "auto_speed_feed_optimize", "auto_speed_feed_analyze", "auto_speed_feed_batch",
   "gcode_intelligence_pipeline",
   "pp_run_full", "pp_run_partial", "pp_analyze", "pp_reoptimize", "pp_resolve_context",
+  "dialect_list", "dialect_translate", "dialect_features",
   "machine_match", "machine_quick_match",
   "wear_compensate", "wear_analyze",
   "stats_process_capability", "stats_spc_chart", "stats_weibull",
@@ -1039,6 +1041,21 @@ Params vary by action — pass relevant fields in params object.`,
           case "pp_reoptimize": {
             const eng = await getEngine("postPipeline");
             result = await eng.reoptimize(params);
+            break;
+          }
+          case "dialect_list": {
+            const eng = await getEngine("controllerDialect");
+            result = eng.listDialects();
+            break;
+          }
+          case "dialect_translate": {
+            const eng = await getEngine("controllerDialect");
+            result = eng.translateCannedCycle(params.cycle, params.from, params.to);
+            break;
+          }
+          case "dialect_features": {
+            const eng = await getEngine("controllerDialect");
+            result = eng.getFeatureCodes(params.controller, params.operation_type ?? "balanced");
             break;
           }
           case "pp_resolve_context": {
