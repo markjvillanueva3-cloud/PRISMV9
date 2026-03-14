@@ -2,7 +2,7 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-14T00:00:00Z",
-  "total_milestones": 123,
+  "total_milestones": 130,
   "completed_milestones": 122,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
@@ -1707,6 +1707,90 @@
       "completed_units": 1,
       "sessions": "1",
       "envelope_path": "milestones/CK-MS2.json"
+    },
+    {
+      "id": "WIRE-MS0",
+      "title": "Full App Pipeline Wiring — All Dispatcher Actions to UI",
+      "track": "WIRE",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 16,
+      "completed_units": 0,
+      "sessions": "4-8",
+      "envelope_path": "milestones/WIRE-MS0.json",
+      "description": "Wire 285 unwired dispatcher actions across 13 dispatchers through full pipeline: route → API → types → hook → page. 16 units creating 13 new pages + settings sync + nav wiring + verification. Completes all UI wiring prior to design phase."
+    },
+    {
+      "id": "CK-MS3",
+      "title": "Multi-Process Unified Pipeline (Turning+EDM+Grinding+Laser+Waterjet)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS2"
+      ],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3"
+    },
+    {
+      "id": "CK-MS4",
+      "title": "Advanced Milling Strategies (Flowline+Geodesic+Scallop+Swarf+Thread)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS2"
+      ],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2"
+    },
+    {
+      "id": "CK-MS5",
+      "title": "5-Axis Toolpath Integration (Contour+Port+Singularity+Collision)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS2"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "CK-MS6",
+      "title": "Mill-Turn & Swiss Pipeline (LiveTool+SubSpindle+MultiChannel+Bar)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS3"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "CK-MS7",
+      "title": "Dispatcher Wiring & Skills (cam_generate+cam_turn+cam_simulate)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS3"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1"
+    },
+    {
+      "id": "CK-MS8",
+      "title": "Self-Learning & Digital Twin (Bayesian+Kalman+Feedback Loop)",
+      "track": "CK",
+      "dependencies": [
+        "CK-MS2"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
     }
   ]
 }
