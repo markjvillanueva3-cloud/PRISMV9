@@ -12,7 +12,7 @@
         {
           "id": "U01",
           "title": "End-to-end pipeline tests: 20+ material × machine × operation combinations",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Test matrix — materials: 4140 Steel, 316L Stainless, Ti-6Al-4V, 7075-T6 Aluminum, Inconel 718, PEEK, Cast Iron",
             "Test matrix — machines: Haas VF-2 (3-axis), DMG DMU 50 (5-axis), Mazak QTN (lathe), Okuma LB3000 (mill-turn)",
@@ -40,7 +40,7 @@
         {
           "id": "U02",
           "title": "Optimization benchmarking: PRISM vs constant S/F baseline",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "For each integration test case, generate TWO outputs:",
             "  A) Constant S/F: single S and F per tool (traditional post processor behavior)",
@@ -71,7 +71,7 @@
         {
           "id": "U03",
           "title": "Slash commands: /post-process, /post-optimize, /post-configure, /post-benchmark",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Create /post-process skill: interactive full pipeline via MCP chat",
             "  Prompts for: material, machine, operation type, tool(s), tolerances",
@@ -97,7 +97,7 @@
         {
           "id": "U04",
           "title": "Hooks: auto-optimize on G-code generation, warn on manual S/F, post-validation guard",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Hookify rule: autofire-post-optimize — when /program-gen or /gcode generates output, auto-run optimization",
             "Hookify rule: warn-constant-sf — warn when G-code has same S/F for entire tool section",
@@ -116,7 +116,7 @@
         {
           "id": "U05",
           "title": "Final dispatcher wiring + action schema + documentation",
-          "status": "pending",
+          "status": "complete",
           "steps": [
             "Create postProcessorPipelineActionSchemas.ts with Zod schemas for all PP actions",
             "Wire ALL new engines to appropriate dispatchers:",
