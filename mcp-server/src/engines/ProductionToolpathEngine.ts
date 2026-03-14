@@ -165,6 +165,8 @@ export class ProductionToolpathEngine {
             feed_adjustment_reason: feedAdj.reason,
             engagement_angle_deg: engAngle * (180 / Math.PI),
             chip_thickness_mm: chipH,
+            cutting_force_N: feedAdj.force_N,
+            spindle_power_kW: feedAdj.power_kW,
           });
         }
         // Close the contour
@@ -388,16 +390,43 @@ export class ProductionToolpathEngine {
     baseFeed: number, config: ProductionConfig,
     engAngle: number, chipH: number,
     segIndex: number, totalSegs: number,
-  ): { feed: number; reason: string } {
+  ): { feed: number; reason: string; force_N: number; power_kW: number; torque_Nm: number; deflection_mm: number; temperature_C: number } {
     let feed = baseFeed;
     let reason = "nominal";
+
+    // ── Physics computation per segment ───────────────────────
+    const iso = config.material_iso_group;
+    const kz = KC[iso] || KC.P;
+    const ap = config.doc_mm;
+    const vc = config.cutting_speed_mpm;
+    const d = config.tool_diameter_mm;
+
+    // Kienzle cutting force: Fc = kc1.1 × h^(-mc) × ap × h
+    const Fc = kz.kc1_1 * Math.pow(Math.max(0.01, chipH), -kz.mc) * ap * chipH;
+    // Cutting power: P = Fc × Vc / 60000
+    const power = (Fc * vc) / 60000;
+    // Torque: T = Fc × D / 2000
+    const torque = (Fc * d) / 2000;
+    // Tool deflection: δ = FL³/(3EI), E=580GPa carbide
+    const overhang = (config.tool_overall_length_mm || d * 6) * 0.6;
+    const E = 580e3;
+    const I_val = (Math.PI * Math.pow(d, 4)) / 64;
+    const deflection = (Fc * Math.pow(overhang, 3)) / (3 * E * I_val);
+    // Temperature estimate (simplified Loewen-Shaw partition)
+    const eta = 0.85;
+    const rho_c = 3.5e6;
+    const chipArea = chipH * ap * 1e-6; // m²
+    const tempRise = chipArea > 1e-12
+      ? (eta * Fc * vc / 60) / (rho_c * chipArea * vc / 60 * 1000) * 0.01
+      : 0;
+    const temperature = 20 + Math.min(800, Math.abs(tempRise));
 
     // Chip thinning compensation: maintain target chip thickness
     if (config.enable_chip_thinning !== false) {
       const nominalH = config.feed_per_tooth_mm;
       if (chipH > 0.001 && chipH < nominalH * 0.98) {
         const thinningFactor = nominalH / chipH;
-        const clampedFactor = Math.min(thinningFactor, 1.5); // max 50% increase
+        const clampedFactor = Math.min(thinningFactor, 1.5);
         feed *= clampedFactor;
         reason = `chip_thinning×${clampedFactor.toFixed(2)}`;
       }
@@ -405,31 +434,43 @@ export class ProductionToolpathEngine {
 
     // Corner deceleration: slow down near direction changes
     if (config.enable_corner_decel !== false && totalSegs > 4) {
-      // Detect corners at first/last 10% of contour pass
       const pct = segIndex / totalSegs;
-      const cornerZone = 0.02; // 2% at each corner
+      const cornerZone = 0.02;
       const isNearCorner = (pct % 0.25) < cornerZone || (pct % 0.25) > (0.25 - cornerZone);
       if (isNearCorner) {
-        feed *= 0.7; // 30% reduction at corners
+        feed *= 0.7;
         reason = "corner_decel";
       }
     }
 
     // Spindle power limit check
-    if (config.machine?.rated_power_kw) {
-      const iso = config.material_iso_group;
-      const kz = KC[iso] || KC.P;
-      const Fc = kz.kc1_1 * Math.pow(Math.max(0.01, chipH), -kz.mc) * (config.doc_mm) * chipH;
-      const vc = config.cutting_speed_mpm;
-      const power = (Fc * vc) / 60000;
-      if (power > config.machine.rated_power_kw * 0.9) {
-        const reduction = (config.machine.rated_power_kw * 0.85) / power;
+    if (config.machine?.rated_power_kw && power > config.machine.rated_power_kw * 0.9) {
+      const reduction = (config.machine.rated_power_kw * 0.85) / power;
+      feed *= Math.max(0.5, reduction);
+      reason = "power_limited";
+    }
+
+    // Spindle torque check at operating RPM
+    if (config.machine?.max_torque_nm && config.machine?.base_rpm) {
+      // Constant torque below base_rpm, constant power above
+      const availTorque = config.rpm <= config.machine.base_rpm
+        ? config.machine.max_torque_nm
+        : config.machine.max_torque_nm * (config.machine.base_rpm / config.rpm);
+      if (torque > availTorque * 0.9) {
+        const reduction = (availTorque * 0.85) / torque;
         feed *= Math.max(0.5, reduction);
-        reason = "power_limited";
+        reason = "torque_limited";
       }
     }
 
-    return { feed: Math.round(feed), reason };
+    return {
+      feed: Math.round(feed), reason,
+      force_N: Math.round(Fc),
+      power_kW: Math.round(power * 100) / 100,
+      torque_Nm: Math.round(torque * 100) / 100,
+      deflection_mm: Math.round(deflection * 10000) / 10000,
+      temperature_C: Math.round(temperature),
+    };
   }
 
   // ═══════════════════════════════════════════════════════════
@@ -607,6 +648,155 @@ export class ProductionToolpathEngine {
           engAngles.length > 0 ? Math.round(Math.max(...engAngles)) : 0,
         ],
         estimated_cycle_time_s: totalDist / (avgFeed / 60),
+      },
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 9. STOCHASTIC CHATTER-SAFE RPM SELECTION
+  // ═══════════════════════════════════════════════════════════
+  /**
+   * Monte Carlo stability lobe sampling to find RPM with P(chatter)<5%.
+   * Accounts for uncertainty in damping (±15%), hardness (±5%), overhang (±0.5mm).
+   */
+  selectChatterSafeRPM(config: {
+    tool_diameter_mm: number;
+    tool_flute_count: number;
+    tool_overhang_mm: number;
+    material_iso_group: string;
+    doc_mm: number;
+    target_rpm: number;
+    machine_max_rpm: number;
+  }): { safe_rpm: number; p_chatter_pct: number; method: string } {
+    const { tool_diameter_mm: d, tool_flute_count: z, tool_overhang_mm: L,
+      material_iso_group: iso, doc_mm: ap, target_rpm, machine_max_rpm } = config;
+
+    // Natural frequency estimate: fn ≈ (1/2π) × √(3EI/(ρAL³))
+    const E = 580e3; // N/mm² carbide
+    const I = (Math.PI * Math.pow(d, 4)) / 64;
+    const rho = 14.5e-6; // kg/mm³ carbide
+    const A = (Math.PI * d * d) / 4;
+    const fn = (1 / (2 * Math.PI)) * Math.sqrt((3 * E * I) / (rho * A * Math.pow(L, 3)));
+
+    // Stability limit: a_lim = -1/(2×Ks×Re[G(jω)])
+    // Simplified: a_lim ≈ fn × ζ × k_t / kc  (proportional to damping)
+    const kc = (KC[iso] || KC.P).kc1_1;
+    const nominalDamping = 0.03; // 3% critical damping
+
+    // Monte Carlo: sample 500 realizations
+    const N = 500;
+    const rpmCandidates = [
+      target_rpm,
+      target_rpm * 0.9,
+      target_rpm * 0.85,
+      target_rpm * 1.1,
+      Math.round(fn * 60 / z), // tooth passing = natural freq
+      Math.round(fn * 60 / z * 0.9),
+    ].filter(r => r > 0 && r <= machine_max_rpm);
+
+    let bestRpm = target_rpm;
+    let bestPchatter = 100;
+
+    for (const rpmCandidate of rpmCandidates) {
+      let chatterCount = 0;
+      const toothPassFreq = (rpmCandidate * z) / 60;
+
+      for (let i = 0; i < N; i++) {
+        // Sample uncertain parameters
+        const dampingVar = nominalDamping * (1 + (Math.random() - 0.5) * 0.30);
+        const kcVar = kc * (1 + (Math.random() - 0.5) * 0.10);
+        const LVar = L + (Math.random() - 0.5) * 1.0;
+
+        // Recompute natural frequency with varied overhang
+        const fnVar = (1 / (2 * Math.PI)) * Math.sqrt(
+          (3 * E * I) / (rho * A * Math.pow(Math.max(10, LVar), 3))
+        );
+
+        // Stability limit (simplified Altintas model)
+        const freqRatio = toothPassFreq / fnVar;
+        const G_real = (1 - freqRatio * freqRatio) /
+          (Math.pow(1 - freqRatio * freqRatio, 2) + Math.pow(2 * dampingVar * freqRatio, 2));
+        const a_lim = -1 / (2 * kcVar * 0.001 * z * G_real);
+
+        if (ap > Math.abs(a_lim)) chatterCount++;
+      }
+
+      const pChatter = (chatterCount / N) * 100;
+      if (pChatter < bestPchatter) {
+        bestPchatter = pChatter;
+        bestRpm = rpmCandidate;
+      }
+    }
+
+    return {
+      safe_rpm: bestRpm,
+      p_chatter_pct: Math.round(bestPchatter * 10) / 10,
+      method: bestPchatter < 5
+        ? "stable_zone"
+        : bestPchatter < 20
+          ? "marginal_reduce_doc"
+          : "unstable_reduce_doc_and_rpm",
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 10. COST PER FEATURE BREAKDOWN
+  // ═══════════════════════════════════════════════════════════
+  costPerFeature(
+    segments: ProductionSegment[],
+    config: ProductionConfig & {
+      tool_price_usd?: number;
+      tool_life_min?: number;
+      machine_rate_per_hour?: number;
+    },
+  ): {
+    tool_cost: number; machine_cost: number; energy_cost: number;
+    total_cost: number; cutting_time_min: number; breakdown_pct: {
+      tooling: number; machine: number; energy: number;
+    };
+  } {
+    const feedSegs = segments.filter(
+      s => s.type === "feed" || s.type === "arc_cw" || s.type === "arc_ccw" || s.type === "plunge"
+    );
+
+    // Cutting time from segment distances
+    let cuttingDist = 0;
+    for (let i = 1; i < segments.length; i++) {
+      if (segments[i].type === "feed" || segments[i].type === "arc_cw" || segments[i].type === "plunge") {
+        const dx = segments[i].x - segments[i - 1].x;
+        const dy = segments[i].y - segments[i - 1].y;
+        const dz = segments[i].z - segments[i - 1].z;
+        cuttingDist += Math.sqrt(dx * dx + dy * dy + dz * dz);
+      }
+    }
+
+    const avgFeed = feedSegs.length > 0
+      ? feedSegs.reduce((s, seg) => s + seg.feed_mmmin, 0) / feedSegs.length
+      : 1000;
+    const cuttingTimeMin = cuttingDist / avgFeed;
+
+    const toolPrice = config.tool_price_usd || 45;
+    const toolLife = config.tool_life_min || 60;
+    const machineRate = config.machine_rate_per_hour || 85;
+
+    const toolCost = (cuttingTimeMin / toolLife) * toolPrice;
+    const machineCost = (cuttingTimeMin / 60) * machineRate;
+    const avgPower = feedSegs.length > 0
+      ? feedSegs.reduce((s, seg) => s + (seg.spindle_power_kW || 2), 0) / feedSegs.length
+      : 2;
+    const energyCost = (cuttingTimeMin / 60) * avgPower * 0.12;
+    const total = toolCost + machineCost + energyCost;
+
+    return {
+      tool_cost: Math.round(toolCost * 100) / 100,
+      machine_cost: Math.round(machineCost * 100) / 100,
+      energy_cost: Math.round(energyCost * 100) / 100,
+      total_cost: Math.round(total * 100) / 100,
+      cutting_time_min: Math.round(cuttingTimeMin * 100) / 100,
+      breakdown_pct: {
+        tooling: total > 0 ? Math.round((toolCost / total) * 100) : 0,
+        machine: total > 0 ? Math.round((machineCost / total) * 100) : 0,
+        energy: total > 0 ? Math.round((energyCost / total) * 100) : 0,
       },
     };
   }

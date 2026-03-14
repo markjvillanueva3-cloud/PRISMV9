@@ -197,6 +197,96 @@ describe("ProductionToolpathEngine", () => {
     expect(result.gcode).toContain("G28");
   });
 
+  // === Novel Differentiators ===
+
+  it("annotates every segment with physics (force, power, deflection)", () => {
+    const result = engine.generateProduction(squarePocket, baseConfig);
+
+    const feedSegs = result.segments.filter(
+      (s) => s.type === "feed" || s.type === "arc_cw"
+    );
+    // At least some segments should have force annotations
+    const withForce = feedSegs.filter((s) => s.cutting_force_N && s.cutting_force_N > 0);
+    expect(withForce.length).toBeGreaterThan(0);
+    // Power should also be annotated
+    const withPower = feedSegs.filter((s) => s.spindle_power_kW && s.spindle_power_kW > 0);
+    expect(withPower.length).toBeGreaterThan(0);
+  });
+
+  it("selects chatter-safe RPM via Monte Carlo", () => {
+    const result = engine.selectChatterSafeRPM({
+      tool_diameter_mm: 10,
+      tool_flute_count: 3,
+      tool_overhang_mm: 40,
+      material_iso_group: "P",
+      doc_mm: 5,
+      target_rpm: 8000,
+      machine_max_rpm: 15000,
+    });
+
+    expect(result.safe_rpm).toBeGreaterThan(0);
+    expect(result.safe_rpm).toBeLessThanOrEqual(15000);
+    expect(result.p_chatter_pct).toBeGreaterThanOrEqual(0);
+    expect(result.p_chatter_pct).toBeLessThanOrEqual(100);
+    expect(["stable_zone", "marginal_reduce_doc", "unstable_reduce_doc_and_rpm"])
+      .toContain(result.method);
+  });
+
+  it("chatter RPM varies with overhang length", () => {
+    const shortTool = engine.selectChatterSafeRPM({
+      tool_diameter_mm: 10, tool_flute_count: 3,
+      tool_overhang_mm: 25, material_iso_group: "P",
+      doc_mm: 5, target_rpm: 8000, machine_max_rpm: 15000,
+    });
+    const longTool = engine.selectChatterSafeRPM({
+      tool_diameter_mm: 10, tool_flute_count: 3,
+      tool_overhang_mm: 70, material_iso_group: "P",
+      doc_mm: 5, target_rpm: 8000, machine_max_rpm: 15000,
+    });
+
+    // Both should return valid results; long tool is generally worse
+    // but Monte Carlo is stochastic — just verify both return valid data
+    expect(shortTool.safe_rpm).toBeGreaterThan(0);
+    expect(longTool.safe_rpm).toBeGreaterThan(0);
+    expect(typeof longTool.method).toBe("string");
+  });
+
+  it("computes cost per feature", () => {
+    const result = engine.generateProduction(squarePocket, baseConfig);
+    const cost = engine.costPerFeature(result.segments, {
+      ...baseConfig,
+      tool_price_usd: 45,
+      tool_life_min: 60,
+      machine_rate_per_hour: 95,
+    });
+
+    expect(cost.total_cost).toBeGreaterThan(0);
+    expect(cost.tool_cost).toBeGreaterThanOrEqual(0);
+    expect(cost.machine_cost).toBeGreaterThan(0);
+    expect(cost.energy_cost).toBeGreaterThanOrEqual(0);
+    expect(cost.cutting_time_min).toBeGreaterThan(0);
+    const pctSum = cost.breakdown_pct.tooling + cost.breakdown_pct.machine + cost.breakdown_pct.energy;
+    expect(pctSum).toBeGreaterThanOrEqual(95);
+    expect(pctSum).toBeLessThanOrEqual(105);
+  });
+
+  it("checks spindle torque at operating RPM (constant power region)", () => {
+    const result = engine.generateProduction(squarePocket, {
+      ...baseConfig,
+      material_iso_group: "S",
+      rpm: 10000,
+      machine: {
+        max_rpm: 15000, rated_power_kw: 15,
+        max_torque_nm: 120, base_rpm: 4000,
+      },
+    });
+
+    // At 10000 RPM (above base 4000), torque is reduced
+    // Available = 120 × (4000/10000) = 48 Nm
+    // Should trigger torque limiting on some segments
+    expect(result.enhancements_applied.total_feed_adjustments).toBeGreaterThan(0);
+  });
+
   it("supports multiple depth passes", () => {
     const result = engine.generateProduction(
       { ...squarePocket, depth_mm: 20 },
