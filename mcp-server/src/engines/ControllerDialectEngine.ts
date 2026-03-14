@@ -57,6 +57,15 @@ export interface ControllerFeatureSet {
   look_ahead?: { set: string; param?: string };
   /** Nano smoothing / NURBS */
   nano_smooth?: string;
+
+  // Machine capability awareness (P0 gap fix)
+  look_ahead_blocks?: number;       // e.g., 200 for Fanuc 31i-B5, 40 for 0i-MF
+  block_processing_rate?: number;   // blocks/sec, e.g., 7000 for 31i, 1000 for 0i
+  nurbs_interpolation?: boolean;    // true if controller supports NURBS G-code
+  max_simultaneous_axes?: number;   // 3, 4, or 5
+  work_offset_count?: number;       // 48, 99, 300 etc.
+  macro_b_support?: boolean;        // G65/G66 custom macro capability
+  program_memory_kb?: number;       // program storage capacity
 }
 
 export interface ControllerDialect {
@@ -147,7 +156,10 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
-    features: {},
+    features: {
+      look_ahead_blocks: 40, block_processing_rate: 1000, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 256,
+    },
   },
 
   fanuc_30i: {
@@ -179,6 +191,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
     features: {
       hsc_mode: { on: "G05 P10000", off: "G05 P0" },
       nano_smooth: "G05.1 Q1",
+      look_ahead_blocks: 200, block_processing_rate: 5000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 300, macro_b_support: true, program_memory_kb: 1024,
     },
   },
 
@@ -214,6 +228,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       tcpc: { on: "G43.4 H{offset}", off: "G49" },
       coord_rotation: "G68.2 X{x} Y{y} Z{z} I{a} J{b} K{c}",
       nano_smooth: "G05.1 Q1",
+      look_ahead_blocks: 200, block_processing_rate: 7000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 300, macro_b_support: true, program_memory_kb: 2048,
     },
   },
 
@@ -256,6 +272,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       tcpc: { on: "TRAORI", off: "TRAFOOF", type: "TRAORI(1)" },
       coord_rotation: "CYCLE800(0,\"\",0,0,0,{a},{b},{c},0,0,0,0,1)",
       look_ahead: { set: "COMPCAD", param: "COMPCURV" },
+      look_ahead_blocks: 150, block_processing_rate: 6000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 4096,
     },
   },
 
@@ -294,6 +312,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       coord_rotation: "CYCLE800(0,\"\",0,0,0,{a},{b},{c},0,0,0,0,1)",
       look_ahead: { set: "COMPCAD" },
       nano_smooth: "COMPCURV",
+      look_ahead_blocks: 200, block_processing_rate: 10000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 8192,
     },
   },
 
@@ -335,6 +355,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       smoothing: { rough: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.05", medium: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.02", finish: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.005" },
       tcpc: { on: "FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS", off: "FUNCTION RESET TCPM" },
       coord_rotation: "PLANE SPATIAL SPA{a} SPB{b} SPC{c} STAY",
+      look_ahead_blocks: 512, block_processing_rate: 10000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 4096,
     },
   },
 
@@ -370,6 +392,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       smoothing: { rough: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.05", medium: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.02", finish: "CYCL DEF 32.0 TOLERANCE\nCYCL DEF 32.1 T0.005" },
       tcpc: { on: "FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS", off: "FUNCTION RESET TCPM" },
       coord_rotation: "PLANE SPATIAL SPA{a} SPB{b} SPC{c} STAY",
+      look_ahead_blocks: 1024, block_processing_rate: 15000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 8192,
     },
   },
 
@@ -406,6 +430,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
     features: {
       smoothing: { rough: "G187 P1 (ROUGH)", medium: "G187 P2 (MEDIUM)", finish: "G187 P3 (FINISH)" },
       tcpc: { on: "G234", off: "G49" },
+      look_ahead_blocks: 80, block_processing_rate: 1000, nurbs_interpolation: false,
+      max_simultaneous_axes: 5, work_offset_count: 200, macro_b_support: true, program_memory_kb: 1024,
     },
   },
 
@@ -444,6 +470,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       smoothing: { rough: "G61.1 P1", medium: "G61.1 P2", finish: "G61.1 P3" },
       tcpc: { on: "G43.4 H{offset}", off: "G49" },
       coord_rotation: "G68 X{x} Y{y} R{angle}",
+      look_ahead_blocks: 200, block_processing_rate: 5000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 48, macro_b_support: true, program_memory_kb: 2048,
     },
   },
 
@@ -475,6 +503,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
     features: {
       smoothing: { rough: "G61.1 P1", medium: "G61.1 P2", finish: "G61.1 P3" },
       tcpc: { on: "G43.4 H{offset}", off: "G49" },
+      look_ahead_blocks: 100, block_processing_rate: 3000, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 1024,
     },
   },
 
@@ -510,6 +540,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
     features: {
       nano_smooth: "G05.1 Q1",
       tcpc: { on: "G43.4", off: "G49" },
+      look_ahead_blocks: 100, block_processing_rate: 3000, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 512,
     },
   },
 
@@ -542,6 +574,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
       hsc_mode: { on: "G05.1 Q1", off: "G05.1 Q0" },
       nano_smooth: "Super-NURBS ON",
       tcpc: { on: "G43.5 H{offset}", off: "G49" },
+      look_ahead_blocks: 200, block_processing_rate: 6000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: true, program_memory_kb: 2048,
     },
   },
 
@@ -574,7 +608,10 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
-    features: {},
+    features: {
+      look_ahead_blocks: 100, block_processing_rate: 5000, nurbs_interpolation: false,
+      max_simultaneous_axes: 4, work_offset_count: 48, macro_b_support: true, program_memory_kb: 256,
+    },
   },
 
   mitsubishi_m80: {
@@ -605,6 +642,8 @@ const DIALECTS: Record<string, ControllerDialect> = {
     features: {
       hsc_mode: { on: "G05.1 Q1", off: "G05.1 Q0" },
       smoothing: { rough: "G61.1 P1", medium: "G61.1 P2", finish: "G61.1 P3" },
+      look_ahead_blocks: 200, block_processing_rate: 5400, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 48, macro_b_support: true, program_memory_kb: 1024,
     },
   },
 
@@ -634,7 +673,10 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
-    features: {},
+    features: {
+      look_ahead_blocks: 150, block_processing_rate: 4000, nurbs_interpolation: true,
+      max_simultaneous_axes: 5, work_offset_count: 99, macro_b_support: false, program_memory_kb: 2048,
+    },
   },
 
   // Generic fallbacks
@@ -663,7 +705,10 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
-    features: {},
+    features: {
+      look_ahead_blocks: 40, block_processing_rate: 1000, nurbs_interpolation: false,
+      max_simultaneous_axes: 3, work_offset_count: 48, macro_b_support: false, program_memory_kb: 256,
+    },
   },
 
   generic_iso: {
@@ -691,7 +736,10 @@ const DIALECTS: Record<string, ControllerDialect> = {
     },
     sub_program_call: "M98 P{num}",
     sub_program_return: "M99",
-    features: {},
+    features: {
+      look_ahead_blocks: 40, block_processing_rate: 1000, nurbs_interpolation: false,
+      max_simultaneous_axes: 3, work_offset_count: 48, macro_b_support: false, program_memory_kb: 256,
+    },
   },
 };
 

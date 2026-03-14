@@ -1420,10 +1420,38 @@ class PostProcessorPipelineEngineImpl {
           const codes = eng.getFeatureCodes(ctrl, featureType);
           injectedCodes.push(...codes);
 
+          // HSM auto-injection: if operation is finishing or HSM strategy and controller supports it
+          // Inject G05.1 Q1 (Fanuc AICC), CYCLE832 (Siemens), G187 P3 (Haas) etc.
+          // Use the dialect's hsc_mode codes when tolerance < 0.05mm or strategy is 'hsm'/'finishing'
+          const isHSM = /hsm|high.?speed/i.test(opType);
+          const tightTolerance = (input.tolerance_mm ?? 1) < 0.05;
+          let hsmInjected = false;
+          if ((isFinishing || isHSM || tightTolerance) && dialect.features.hsc_mode) {
+            const hsc = dialect.features.hsc_mode;
+            // Inject HSM on-code (added to program start region)
+            let hsmOnCode = hsc.on;
+            // If controller supports tolerance parameter, embed the actual tolerance
+            if (hsc.tolerance_param && input.tolerance_mm) {
+              hsmOnCode = hsc.tolerance_param
+                .replace("{tol}", String(input.tolerance_mm))
+                .replace("{mode}", "1");
+            }
+            injectedCodes.unshift(hsmOnCode);
+            // HSM off-code goes at program end
+            if (hsc.off) {
+              injectedCodes.push(`(HSM_OFF) ${hsc.off}`);
+            }
+            hsmInjected = true;
+          }
+
           return {
             controller: dialect.display_name,
             features_injected: injectedCodes,
             operation_mode: featureType,
+            hsm_auto_injected: hsmInjected,
+            hsm_trigger: hsmInjected
+              ? (isHSM ? "hsm_strategy" : tightTolerance ? "tight_tolerance" : "finishing_op")
+              : null,
           };
         } catch {
           return { status: "engine_unavailable" };

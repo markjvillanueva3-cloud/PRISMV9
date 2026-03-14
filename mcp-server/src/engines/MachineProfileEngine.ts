@@ -227,6 +227,8 @@ export class MachineProfileEngine {
     y_travel_mm?: number;
     z_travel_mm?: number;
     requires_through_spindle_coolant?: boolean;
+    rapid_rate_mmmin?: number;
+    tool_weight_kg?: number;
   }): ValidationResult {
     const m = machines.get(input.machine_id);
     if (!m) throw new Error(`Unknown machine: ${input.machine_id}. Use list() for options.`);
@@ -303,6 +305,45 @@ export class MachineProfileEngine {
         parameter: "TSC", value: 1, limit: 0, unit: "boolean",
         status: "EXCEEDED", message: `${m.name} does not have through-spindle coolant`,
       });
+    }
+
+    // Rapid traverse rate check (P0 gap fix)
+    if (input.rapid_rate_mmmin && m.rapid_rate_mmmin) {
+      const maxRapid = m.rapid_rate_mmmin;
+      if (input.rapid_rate_mmmin > maxRapid) {
+        const pct = (input.rapid_rate_mmmin / maxRapid) * 100;
+        checks.push({
+          parameter: "Rapid Rate", value: input.rapid_rate_mmmin, limit: maxRapid, unit: "mm/min",
+          status: "EXCEEDED",
+          message: `Rapid rate ${input.rapid_rate_mmmin} mm/min exceeds machine max ${maxRapid} mm/min`,
+        });
+      } else {
+        const pct = (input.rapid_rate_mmmin / maxRapid) * 100;
+        checks.push({
+          parameter: "Rapid Rate", value: input.rapid_rate_mmmin, limit: maxRapid, unit: "mm/min",
+          status: pct > 90 ? "WARNING" : "OK",
+          message: `Rapid rate ${pct.toFixed(0)}% of machine max`,
+        });
+      }
+    }
+
+    // ATC tool weight check (P0 gap fix)
+    if (input.tool_weight_kg && (m as Record<string, unknown>).tool_changer_max_weight_kg) {
+      const maxWeight = (m as Record<string, unknown>).tool_changer_max_weight_kg as number;
+      if (input.tool_weight_kg > maxWeight) {
+        checks.push({
+          parameter: "Tool Weight", value: input.tool_weight_kg, limit: maxWeight, unit: "kg",
+          status: "EXCEEDED",
+          message: `Tool weight ${input.tool_weight_kg}kg exceeds ATC max ${maxWeight}kg`,
+        });
+      } else {
+        const pct = (input.tool_weight_kg / maxWeight) * 100;
+        checks.push({
+          parameter: "Tool Weight", value: input.tool_weight_kg, limit: maxWeight, unit: "kg",
+          status: pct > 90 ? "WARNING" : "OK",
+          message: `Tool weight ${pct.toFixed(0)}% of ATC max`,
+        });
+      }
     }
 
     return {
