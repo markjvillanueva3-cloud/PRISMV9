@@ -700,9 +700,9 @@ class PostProcessorPipelineEngineImpl {
               radial_depth_mm: input.operations?.[0]?.ae_mm ?? tool.diameter_mm * 0.3,
             });
 
-            // UltimateSpeedFeedEngine returns OptimizedValue objects with .value
-            const baseRpm = sfResult.spindle_rpm?.value ?? sfResult.rpm ?? 0;
-            const baseFeed = sfResult.feed_rate?.value ?? sfResult.feed_rate_mm_min ?? sfResult.table_feed_mm_min ?? 0;
+            // UltimateSpeedFeedEngine returns OptimizedValue { value, unit, confidence }
+            const baseRpm = sfResult.spindle_rpm?.value ?? 0;
+            const baseFeed = sfResult.feed_rate?.value ?? 0;
 
             // Apply aggressiveness scaling
             const scaledRpm = Math.round(baseRpm * this._aggressivenessScale(aggressiveness));
@@ -718,9 +718,11 @@ class PostProcessorPipelineEngineImpl {
               if (block.move_type !== "G0") {
                 const Vc_val = sfResult.cutting_speed?.value ?? 0;
                 const fz_val = sfResult.feed_per_tooth?.value ?? 0;
-                const Fc_val = sfResult.cutting_force?.value ?? sfResult.force?.value ?? 0;
-                const Pw_val = sfResult.power?.value ?? sfResult.net_power?.value ?? 0;
-                const Tq_val = sfResult.torque?.value ?? 0;
+                // Forces are nested: sfResult.forces.tangential_force_N.value
+                const Fc_val = sfResult.forces?.tangential_force_N?.value ?? 0;
+                const Fr_val = sfResult.forces?.radial_force_N?.value ?? 0;
+                const Pw_val = sfResult.power?.required_power_kw?.value ?? 0;
+                const Tq_val = 0; // Torque derived from force × radius
 
                 block.optimization = {
                   original_feed: block.feed_mm_min ?? 0,
@@ -732,15 +734,15 @@ class PostProcessorPipelineEngineImpl {
                 block.feed_mm_min = clampedFeed;
                 block.spindle_rpm = clampedRpm;
 
-                // Attach force data — compute from Kienzle if engine didn't return force
-                const forceN = Fc_val > 0 ? Fc_val : kc1_1 * (tool.diameter_mm * 0.3) * Math.pow(Math.max(0.01, fz_val), 1 - mc);
+                // Attach force data from USF result or compute from Kienzle
+                const forceN = Fc_val > 0 ? Fc_val : kc1_1 * (tool.diameter_mm * 0.3) * Math.pow(Math.max(0.01, fz_val || 0.05), 1 - mc);
                 block.forces = {
                   Fc_N: forceN,
-                  Ff_N: forceN * 0.4,
+                  Ff_N: Fr_val > 0 ? Fr_val : forceN * 0.4,
                   Fp_N: forceN * 0.3,
-                  resultant_N: forceN * 1.17,
+                  resultant_N: Math.sqrt(forceN ** 2 + (Fr_val > 0 ? Fr_val : forceN * 0.4) ** 2),
                   power_kW: Pw_val > 0 ? Pw_val : (forceN * Vc_val) / 60000,
-                  torque_Nm: Tq_val > 0 ? Tq_val : (forceN * tool.diameter_mm / 2) / 1000,
+                  torque_Nm: (forceN * tool.diameter_mm / 2) / 1000,
                 };
               }
             }
@@ -1717,6 +1719,38 @@ class PostProcessorPipelineEngineImpl {
       this._runStage("6.6_cycle_time", 6, stages, () => {
         return this._estimateCycleTime(blocks, machine);
       });
+    }
+
+    // Stage 6.8: Output verification — validate generated G-code
+    if (outputGcode.length > 10) {
+      await this._runStageAsync("6.8_output_verification", 6, stages, async () => {
+        try {
+          const eng = await this._getEngine("ppVerify");
+          const result = eng.verify({
+            gcode: outputGcode,
+            controller: machine?.controller ?? input.controller,
+            machine_limits: machine ? {
+              max_rpm: machine.max_rpm,
+              max_feed_mm_min: Math.min(machine.rapid_rate_mm_min.x, machine.rapid_rate_mm_min.y),
+              work_volume: machine.work_volume,
+            } : undefined,
+          });
+          const criticals = result.issues.filter((i: any) => i.severity === "critical");
+          if (criticals.length > 0) {
+            warnings.push(`VERIFY: ${criticals.length} critical issue(s) — ${criticals.map((c: any) => c.message).join("; ")}`);
+          }
+          return {
+            valid: result.valid,
+            issues: result.issues.length,
+            criticals: criticals.length,
+            summary: result.summary,
+          };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "6.8_output_verification", phase: 6, status: "skipped", duration_ms: 0, summary: "No output to verify", data: null });
     }
 
     // ═══ BUILD RESULT ═══
