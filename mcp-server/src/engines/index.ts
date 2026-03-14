@@ -3278,3 +3278,5 @@ export { simulationReportEngine, SimulationReportEngine } from './SimulationRepo
 export { physicsAwareSimulationEngine, PhysicsAwareSimulationEngine } from './PhysicsAwareSimulationEngine.js';
 
 export { predictiveSimulationEngine, PredictiveSimulationEngine } from './PredictiveSimulationEngine.js';
+
+export { simulationVisualizationBridgeEngine, SimulationVisualizationBridgeEngine } from './SimulationVisualizationBridgeEngine.js';
