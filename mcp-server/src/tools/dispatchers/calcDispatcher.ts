@@ -429,7 +429,13 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
     case "lam_process_window": case "lam_economics":
       return { result: JSON.stringify(result.value).slice(0, 200) };
     case "sf_orchestrate": case "sf_quick":
-      return { result: `S/F: Vc=${result.value?.cutting_speed_m_min?.toFixed(0)}m/min fz=${result.value?.feed_per_tooth_mm?.toFixed(3)}mm conf=${(result.value?.overall_confidence * 100)?.toFixed(0)}%` };
+      return { result: `S/F: Vc=${result.value?.cutting_speed_mpm?.toFixed(0)}m/min fz=${result.value?.feed_per_tooth_mm?.toFixed(3)}mm` };
+    case "tool_library_add": case "tool_library_import_csv": case "tool_library_filter": case "tool_library_stats":
+      return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "geometry_analyze":
+      return { result: `Features: ${result.value?.features?.length ?? '?'}, ops: ${result.value?.total_operations ?? '?'}` };
+    case "geometry_job_plan":
+      return { result: `Job: ${result.value?.operations?.length ?? '?'} ops, ${result.value?.total_time_min?.toFixed(1) ?? '?'}min` };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -787,8 +793,10 @@ const ACTIONS = [
   "cmm_datum_alignment", "cmm_acceptance_test", "cmm_feature_uncertainty",
   "lam_preheat_profile", "lam_force_reduction", "lam_tool_life",
   "lam_optimal_spacing", "lam_process_window", "lam_economics",
-  // -- USF-MS0: Speed/Feed Orchestrator --
+  // -- USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline --
   "sf_orchestrate", "sf_quick",
+  "tool_library_add", "tool_library_import_csv", "tool_library_filter",
+  "tool_library_stats", "geometry_analyze", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
 ] as const;
 
@@ -6208,6 +6216,40 @@ export function registerCalcDispatcher(server: any): void {
           case "sf_quick": {
             const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
             result = speedFeedOrchestratorEngine.compute({ ...params, uncertainty_mode: "quick" } as ValidatedParams);
+            break;
+          }
+
+          // ── USF-MS0: User Tool Library ──
+          case "tool_library_add": {
+            const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
+            result = userToolLibraryEngine.addTool(params as ValidatedParams);
+            break;
+          }
+          case "tool_library_import_csv": {
+            const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
+            result = userToolLibraryEngine.importCSV(params as ValidatedParams);
+            break;
+          }
+          case "tool_library_filter": {
+            const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
+            result = userToolLibraryEngine.filterForFeature(params as ValidatedParams);
+            break;
+          }
+          case "tool_library_stats": {
+            const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
+            result = userToolLibraryEngine.getLibraryStats(params as ValidatedParams);
+            break;
+          }
+
+          // ── USF-MS0: Part Geometry Pipeline ──
+          case "geometry_analyze": {
+            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
+            result = partGeometryPipelineEngine.analyzeFeatures(params as ValidatedParams);
+            break;
+          }
+          case "geometry_job_plan": {
+            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
+            result = partGeometryPipelineEngine.generateJobPlan(params as ValidatedParams);
             break;
           }
 

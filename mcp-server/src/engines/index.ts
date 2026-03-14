@@ -3265,7 +3265,9 @@ export { lamThermalSofteningEngine, LAMThermalSofteningEngine } from './LAMTherm
 export { sweptVolumeEngine, SweptVolumeEngine } from './SweptVolumeEngine.js';
 export { toolAssemblyModelEngine, ToolAssemblyModelEngine } from './ToolAssemblyModelEngine.js';
 
-// USF-MS0: Speed/Feed Orchestrator
+// USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline
 export { speedFeedOrchestratorEngine, SpeedFeedOrchestratorEngine } from './SpeedFeedOrchestratorEngine.js';
+export { userToolLibraryEngine, UserToolLibraryEngine } from './UserToolLibraryEngine.js';
+export { partGeometryPipelineEngine, PartGeometryPipelineEngine } from './PartGeometryPipelineEngine.js';
 
 export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCSimulationPipelineEngine.js';
