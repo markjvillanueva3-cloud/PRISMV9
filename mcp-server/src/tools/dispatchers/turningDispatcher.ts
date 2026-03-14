@@ -119,6 +119,11 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.calculate?.(params) ?? { error: "PartOffForceEngine method not found" };
             break;
           }
+          case "thread_turning_calc": {
+            const { threadTurningEngine } = await import("../../engines/ThreadTurningEngine.js");
+            result = threadTurningEngine.calculate(params as any);
+            break;
+          }
           default:
             result = { error: `Unknown action: ${action}` };
         }
