@@ -69,6 +69,7 @@ export interface OrchestratorInput {
   tool_stickout_mm?: number;
   edge_radius_mm?: number;
   tool_grade?: string;                  // manufacturer grade (e.g. "IC928")
+  insert_grade?: string;                // insert grade override (e.g. "GC4325", "IC928")
   tool_series?: string;                 // manufacturer series (e.g. "CoroMill 390")
 
   // ── Holder (4) ──
@@ -609,6 +610,28 @@ const DEFAULT_MACHINE_PROFILES: Record<string, DefaultMachineProfile> = {
 };
 
 // ============================================================================
+// MACHINE CATALOG QUICK-LOOKUP (15 popular machines from 910-machine catalog)
+// ============================================================================
+
+const MACHINE_CATALOG_QUICK: Record<string, { power_kw: number; max_rpm: number; torque_Nm: number; taper: string; rigidity: 'low'|'medium'|'high'; type: string }> = {
+  'dmg mori dmu 50':       { power_kw: 25,   max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
+  'dmg mori dmc 850 v':    { power_kw: 25,   max_rpm: 14000, torque_Nm: 130, taper: 'SK40',    rigidity: 'high',   type: 'vertical_mill' },
+  'haas vf-2':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
+  'haas vf-4':             { power_kw: 22.4, max_rpm: 8100,  torque_Nm: 122, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
+  'haas st-10':            { power_kw: 11.2, max_rpm: 6000,  torque_Nm: 102, taper: 'A2-5',    rigidity: 'medium', type: 'lathe' },
+  'haas st-20':            { power_kw: 22.4, max_rpm: 4000,  torque_Nm: 340, taper: 'A2-6',    rigidity: 'high',   type: 'lathe' },
+  'mazak variaxis i-300':  { power_kw: 22,   max_rpm: 12000, torque_Nm: 119, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
+  'mazak quick turn 250':  { power_kw: 18.5, max_rpm: 3300,  torque_Nm: 478, taper: 'A2-8',    rigidity: 'high',   type: 'lathe' },
+  'okuma genos m560-v':    { power_kw: 22,   max_rpm: 15000, torque_Nm: 88,  taper: 'BT40',    rigidity: 'high',   type: 'vertical_mill' },
+  'fanuc robodrill':       { power_kw: 11,   max_rpm: 24000, torque_Nm: 25,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill' },
+  'makino a51nx':          { power_kw: 22,   max_rpm: 14000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: 'horizontal_mill' },
+  'brother speedio r650x2': { power_kw: 7.5, max_rpm: 27000, torque_Nm: 13,  taper: 'BT30',    rigidity: 'medium', type: 'vertical_mill' },
+  'hurco vmx42i':          { power_kw: 18,   max_rpm: 12000, torque_Nm: 95,  taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
+  'hermle c 400':          { power_kw: 18,   max_rpm: 18000, torque_Nm: 130, taper: 'HSK-A63', rigidity: 'high',   type: '5axis' },
+  'doosan dnm 500':        { power_kw: 18.5, max_rpm: 8000,  torque_Nm: 118, taper: 'BT40',    rigidity: 'medium', type: 'vertical_mill' },
+};
+
+// ============================================================================
 // COATING DATABASE (speed/life multipliers)
 // ============================================================================
 
@@ -811,19 +834,46 @@ export class SpeedFeedOrchestratorEngine {
 
   private resolveMachine(input: OrchestratorInput): ResolvedMachine {
     const userConf = 0.9;
+    const catalogConf = 0.85;
     const defaultConf = 0.4;
 
-    // Determine machine type
-    const machineType = input.machine_type ?? (input.operation === "turning" ? "lathe" : "vertical_mill");
+    // ── Catalog lookup: fuzzy-match machine_name against 15 popular machines ──
+    let catalogMatch: (typeof MACHINE_CATALOG_QUICK)[string] | undefined;
+    if (input.machine_name) {
+      const key = input.machine_name.toLowerCase().trim();
+      catalogMatch = MACHINE_CATALOG_QUICK[key]
+        ?? Object.entries(MACHINE_CATALOG_QUICK).find(
+          ([k]) => key.includes(k) || k.includes(key),
+        )?.[1];
+    }
+
+    // Determine machine type (catalog > user > inferred)
+    const machineType = catalogMatch?.type as string
+      ?? input.machine_type
+      ?? (input.operation === "turning" ? "lathe" : "vertical_mill");
     const profile = DEFAULT_MACHINE_PROFILES[machineType] ?? DEFAULT_MACHINE_PROFILES["vertical_mill"];
 
     // Age degradation: 0.5% per year for power and rigidity
     const ageYears = input.machine_age_years ?? 0;
     const ageFactor = Math.max(0.7, 1.0 - 0.005 * ageYears);
 
-    const powerKw = input.machine_power_kw ?? profile.power_kw;
-    const maxRpm = input.machine_max_rpm ?? profile.max_rpm;
-    const maxTorque = input.machine_max_torque_nm ?? profile.max_torque_Nm;
+    // Priority: user input > catalog match > default profile
+    const powerKw = input.machine_power_kw ?? catalogMatch?.power_kw ?? profile.power_kw;
+    const maxRpm = input.machine_max_rpm ?? catalogMatch?.max_rpm ?? profile.max_rpm;
+    const maxTorque = input.machine_max_torque_nm ?? catalogMatch?.torque_Nm ?? profile.max_torque_Nm;
+
+    const powerSource = input.machine_power_kw !== undefined ? "user_input"
+      : catalogMatch ? `catalog_${input.machine_name}` : `default_for_${machineType}`;
+    const powerConf = input.machine_power_kw !== undefined ? userConf
+      : catalogMatch ? catalogConf : defaultConf;
+    const rpmSource = input.machine_max_rpm !== undefined ? "user_input"
+      : catalogMatch ? `catalog_${input.machine_name}` : `default_for_${machineType}`;
+    const rpmConf = input.machine_max_rpm !== undefined ? userConf
+      : catalogMatch ? catalogConf : defaultConf;
+    const torqueSource = input.machine_max_torque_nm !== undefined ? "user_input"
+      : catalogMatch ? `catalog_${input.machine_name}` : `default_for_${machineType}`;
+    const torqueConf = input.machine_max_torque_nm !== undefined ? userConf
+      : catalogMatch ? catalogConf : defaultConf;
 
     // Rigidity resolution
     let rigidity: "low" | "medium" | "high";
@@ -833,13 +883,21 @@ export class SpeedFeedOrchestratorEngine {
       rigidity = input.machine_rigidity;
       rigidityConf = userConf;
       rigiditySource = "user_input";
+    } else if (catalogMatch) {
+      rigidity = catalogMatch.rigidity;
+      rigidityConf = catalogConf;
+      rigiditySource = `catalog_${input.machine_name}`;
     } else {
       rigidity = profile.rigidity;
       rigidityConf = defaultConf;
       rigiditySource = `default_for_${machineType}`;
     }
 
-    const taper = input.spindle_taper ?? profile.taper;
+    const taper = input.spindle_taper ?? catalogMatch?.taper ?? profile.taper;
+    const taperSource = input.spindle_taper !== undefined ? "user_input"
+      : catalogMatch ? `catalog_${input.machine_name}` : `default_for_${machineType}`;
+    const taperConf = input.spindle_taper !== undefined ? userConf
+      : catalogMatch ? catalogConf : defaultConf;
 
     return {
       name: av(
@@ -847,32 +905,16 @@ export class SpeedFeedOrchestratorEngine {
         input.machine_name !== undefined ? userConf : defaultConf,
         input.machine_name !== undefined ? "user_input" : `default_type_${machineType}`
       ),
-      power_kw: av(
-        powerKw * ageFactor,
-        input.machine_power_kw !== undefined ? userConf : defaultConf,
-        input.machine_power_kw !== undefined ? "user_input" : `default_for_${machineType}`
-      ),
-      max_rpm: av(
-        maxRpm,
-        input.machine_max_rpm !== undefined ? userConf : defaultConf,
-        input.machine_max_rpm !== undefined ? "user_input" : `default_for_${machineType}`
-      ),
-      max_torque_Nm: av(
-        maxTorque * ageFactor,
-        input.machine_max_torque_nm !== undefined ? userConf : defaultConf,
-        input.machine_max_torque_nm !== undefined ? "user_input" : `default_for_${machineType}`
-      ),
+      power_kw: av(powerKw * ageFactor, powerConf, powerSource),
+      max_rpm: av(maxRpm, rpmConf, rpmSource),
+      max_torque_Nm: av(maxTorque * ageFactor, torqueConf, torqueSource),
       rigidity: av(rigidity, rigidityConf, rigiditySource),
       type: av(
         machineType,
-        input.machine_type !== undefined ? userConf : 0.5,
-        input.machine_type !== undefined ? "user_input" : "inferred_from_operation"
+        input.machine_type !== undefined ? userConf : catalogMatch ? catalogConf : 0.5,
+        input.machine_type !== undefined ? "user_input" : catalogMatch ? `catalog_${input.machine_name}` : "inferred_from_operation"
       ),
-      taper: av(
-        taper,
-        input.spindle_taper !== undefined ? userConf : defaultConf,
-        input.spindle_taper !== undefined ? "user_input" : `default_for_${machineType}`
-      ),
+      taper: av(taper, taperConf, taperSource),
       age_factor: av(
         ageFactor,
         input.machine_age_years !== undefined ? 0.8 : 0.3,
@@ -1510,6 +1552,21 @@ export class SpeedFeedOrchestratorEngine {
     const coatingRec = COATING_DB[coatingKey] ?? COATING_DB["TiAlN"];
     const coatingSpeedFactor = coatingRec.speed_multiplier;
 
+    // Insert grade speed factor
+    const GRADE_SPEED_FACTORS: Record<string, number> = {
+      'GC4325': 1.10, 'GC4315': 1.15, 'GC4335': 1.05,  // Sandvik
+      'IC928': 1.08, 'IC830': 1.12, 'IC808': 1.05,      // Iscar
+      'KC5010': 1.10, 'KC5025': 1.05, 'KCPK30': 1.00,   // Kennametal
+      'AC820P': 1.12, 'AC830P': 1.08,                     // Sumitomo
+      'MP9015': 1.10, 'MP9025': 1.05,                     // Mitsubishi
+    };
+    let insertGradeFactor = 1.0;
+    if (input.insert_grade) {
+      insertGradeFactor = GRADE_SPEED_FACTORS[input.insert_grade.toUpperCase()] ?? 1.0;
+    } else if (input.tool_grade) {
+      insertGradeFactor = GRADE_SPEED_FACTORS[input.tool_grade.toUpperCase()] ?? 1.0;
+    }
+
     // Coolant speed factor
     const coolantSpeedFactor = coolant.speed_factor.value;
 
@@ -1529,9 +1586,12 @@ export class SpeedFeedOrchestratorEngine {
     const gradeFactor = tool.grade.value !== "unknown" ? 1.0 : 0.95;
 
     // Effective cutting speed
-    let Vc = vcBase * coatingSpeedFactor * coolantSpeedFactor * camSpeedMult
+    let Vc = vcBase * coatingSpeedFactor * insertGradeFactor * coolantSpeedFactor * camSpeedMult
            * geomDerating * gradeFactor;
-    formulas_used.push("Vc = Vc_base × coating_factor × coolant_factor × cam_multiplier × geom_derating × grade_factor");
+    formulas_used.push("Vc = Vc_base × coating_factor × insert_grade_factor × coolant_factor × cam_multiplier × geom_derating × grade_factor");
+    if (insertGradeFactor !== 1.0) {
+      formulas_used.push(`Insert grade ${input.insert_grade ?? input.tool_grade}: Vc × ${insertGradeFactor}`);
+    }
 
     // RPM = 1000 * Vc / (π * D) — clamp to machine max
     const maxRPM = Math.min(machine.max_rpm.value, holder.max_rpm.value);
