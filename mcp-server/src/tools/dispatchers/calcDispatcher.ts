@@ -794,7 +794,8 @@ const ACTIONS = [
   "lam_preheat_profile", "lam_force_reduction", "lam_tool_life",
   "lam_optimal_spacing", "lam_process_window", "lam_economics",
   // -- USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline --
-  "sf_orchestrate", "sf_quick",
+  "sf_orchestrate", "sf_quick", "sf_resolve_machine", "sf_resolve_tool",
+  "sf_resolve_material", "sf_stochastic", "sf_compare", "sf_optimize",
   "tool_library_add", "tool_library_import_csv", "tool_library_filter",
   "tool_library_stats", "geometry_analyze", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
@@ -6218,6 +6219,36 @@ export function registerCalcDispatcher(server: any): void {
             result = speedFeedOrchestratorEngine.compute({ ...params, uncertainty_mode: "quick" } as ValidatedParams);
             break;
           }
+          case "sf_resolve_machine": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.resolveMachineContext(params as ValidatedParams);
+            break;
+          }
+          case "sf_resolve_tool": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.resolveToolContext(params as ValidatedParams);
+            break;
+          }
+          case "sf_resolve_material": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.resolveMaterialContext(params as ValidatedParams);
+            break;
+          }
+          case "sf_stochastic": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.compute({ ...params, output_detail: "full" } as ValidatedParams);
+            break;
+          }
+          case "sf_compare": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.compare(params.scenarios as any);
+            break;
+          }
+          case "sf_optimize": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.optimize(params as ValidatedParams, params.objectives as string[]);
+            break;
+          }
 
           // ── USF-MS0: User Tool Library ──
           case "tool_library_add": {
@@ -6344,6 +6375,27 @@ export function registerCalcDispatcher(server: any): void {
               import_learning: "importLearningData",
             };
             result = (mlf as any)[mlfMap[action]](params as ValidatedParams);
+            break;
+          }
+
+
+
+          // ── Feedback Persistence ──
+          case "persist_learning": case "restore_learning": case "auto_match_prediction":
+          case "fleet_learning": case "anomaly_guard": case "time_weighted_calibrate":
+          case "parse_cmm_export": {
+            const { FeedbackPersistenceEngine: FPE } = await import("../../engines/FeedbackPersistenceEngine.js");
+            const fpe = new FPE();
+            const fpeMap: Record<string,string> = {
+              persist_learning: "persistToFile",
+              restore_learning: "restoreFromFile",
+              auto_match_prediction: "autoMatchPrediction",
+              fleet_learning: "fleetLearning",
+              anomaly_guard: "anomalyGuard",
+              time_weighted_calibrate: "timeWeightedCalibrate",
+              parse_cmm_export: "parseCMMExport",
+            };
+            result = (fpe as any)[fpeMap[action]](params as ValidatedParams);
             break;
           }
 
