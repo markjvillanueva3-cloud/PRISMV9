@@ -247,6 +247,12 @@ const ACTIONS = [
   "mill_turn_live_tooling", "mill_turn_sub_spindle", "mill_turn_multi_channel", "mill_turn_bar_feeder", "mill_turn_swiss",
   // Self-learning
   "self_learn_record", "self_learn_twin_sync", "self_learn_rank_strategy", "self_learn_anomaly", "self_learn_fleet",
+  // CAM Kernel Unified (CK Track)
+  "cam_unified_generate", "cam_complex_generate", "cam_production_toolpath",
+  "cam_multi_process", "cam_mill_turn", "cam_5axis_convert",
+  "cam_advanced_strategy", "cam_smart_tool", "cam_verify",
+  "cam_chatter_rpm", "cam_cost_feature",
+  "cam_intelligent_sequence", "cam_list_actions",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1797,6 +1803,32 @@ Params vary by action — pass relevant fields in params object.`,
           case "self_learn_fleet": {
             const eng = await getEngine("selfLearn");
             result = eng.fleetLearn(params);
+            break;
+          }
+          // ── CAM Kernel Unified Actions (CK Track) ──────────
+          case "cam_unified_generate":
+          case "cam_complex_generate":
+          case "cam_production_toolpath":
+          case "cam_multi_process":
+          case "cam_mill_turn":
+          case "cam_5axis_convert":
+          case "cam_advanced_strategy":
+          case "cam_smart_tool":
+          case "cam_verify":
+          case "cam_chatter_rpm":
+          case "cam_cost_feature": {
+            const { dispatchCAMAction } = await import("../../engines/CAMKernelDispatcherBridge.js");
+            result = dispatchCAMAction(action as any, params);
+            break;
+          }
+          case "cam_intelligent_sequence": {
+            const { intelligentSequencingEngine } = await import("../../engines/IntelligentSequencingEngine.js");
+            result = intelligentSequencingEngine.sequence(params.operations ?? []);
+            break;
+          }
+          case "cam_list_actions": {
+            const { listCAMActions } = await import("../../engines/CAMKernelDispatcherBridge.js");
+            result = listCAMActions();
             break;
           }
           default:
