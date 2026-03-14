@@ -19,6 +19,7 @@ import { SmartToolSelectorEngine } from "./SmartToolSelectorEngine.js";
 import { AdaptiveToolpathRouterEngine } from "./AdaptiveToolpathRouterEngine.js";
 import { IntegratedVerificationEngine } from "./IntegratedVerificationEngine.js";
 import { ProductionPackageEngine } from "./ProductionPackageEngine.js";
+import { IntelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
 
 const _clustering = new FeatureClusteringEngine();
 const _stockChain = new CumulativeStockChainEngine();
@@ -26,6 +27,7 @@ const _toolSelector = new SmartToolSelectorEngine();
 const _router = new AdaptiveToolpathRouterEngine();
 const _verifier = new IntegratedVerificationEngine();
 const _packager = new ProductionPackageEngine();
+const _sequencer = new IntelligentSequencingEngine();
 
 // ── Interfaces ────────────────────────────────────────────────
 export interface ComplexPartFeature {
@@ -164,6 +166,27 @@ export class ScalableCAMOrchestratorEngine {
     const perSetupPhysics: ComplexPartResult["physics_report"]["per_setup"] = [];
 
     for (const cluster of clustering.clusters) {
+      // ── Intelligent sequencing within cluster ───────────────
+      const seqResult = _sequencer.sequence(
+        cluster.features.map((f: any) => ({
+          id: f.id, type: f.type, operation: f.operation,
+          tool_diameter_mm: f.dimensions?.diameter_mm,
+          depth_mm: f.dimensions?.depth_mm,
+          position: f.position,
+          is_datum: f.operation === "facing",
+          requires_ops: f.requires_feature_ids,
+        }))
+      );
+      // Replace cluster features with sequenced order
+      const sequencedIds = seqResult.operations.map((o: any) => o.id);
+      const featureMap = new Map(cluster.features.map((f: any) => [f.id, f]));
+      const sequencedFeatures = sequencedIds
+        .map((id: string) => featureMap.get(id))
+        .filter(Boolean);
+      // Use sequenced features if available, otherwise original
+      const orderedFeatures = sequencedFeatures.length > 0
+        ? sequencedFeatures : cluster.features;
+
       const setupId = cluster.cluster_id;
       let setupGcode = "";
       const setupTools: SetupProgram["tools_used"] = [];
@@ -172,7 +195,7 @@ export class ScalableCAMOrchestratorEngine {
       let setupCpk = 2.0;
       let setupSegments: any[] = [];
 
-      for (const feature of cluster.features) {
+      for (const feature of orderedFeatures) {
         totalOps++;
 
         // 2a. Smart tool selection
