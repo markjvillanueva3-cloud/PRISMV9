@@ -619,6 +619,10 @@ class PostProcessorPipelineEngineImpl {
         return (this._processCapability ??= (await import("./ProcessCapabilityPredictionEngine.js")).processCapabilityPredictionEngine);
       case "controllerDialect":
         return (this._controllerDialect ??= (await import("./ControllerDialectEngine.js")).controllerDialectEngine);
+      case "fiveAxisPost":
+        return (await import("./FiveAxisPostEngine.js")).fiveAxisPostEngine;
+      case "ppVerify":
+        return (await import("./PostProcessorVerificationEngine.js")).postProcessorVerificationEngine;
       default:
         throw new Error(`Unknown pipeline engine: ${name}`);
     }
@@ -1643,15 +1647,55 @@ class PostProcessorPipelineEngineImpl {
       stages.push({ stage: "5.5_energy_optimization", phase: 5, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
     }
 
+    // ═══ PHASE 5.9: VERIFICATION (pre-output) ═══
+
+    // Stage 5.9: 5-axis post processing (singularity + TCPC)
+    if (machine?.axes === 5 || blocks.some(b => b.a !== undefined || b.b !== undefined || b.c !== undefined)) {
+      await this._runStageAsync("5.9_five_axis_post", 5, stages, async () => {
+        try {
+          const eng = await this._getEngine("fiveAxisPost");
+          const fiveAxisBlocks = blocks.filter(b =>
+            b.a !== undefined || b.b !== undefined || b.c !== undefined
+          ).map(b => ({
+            x: b.x ?? 0, y: b.y ?? 0, z: b.z ?? 0,
+            a: b.a, b: b.b, c: b.c, feed_mm_min: b.feed_mm_min,
+          }));
+
+          if (fiveAxisBlocks.length > 0) {
+            const singularity = eng.detectSingularities(fiveAxisBlocks, {
+              controller: machine?.controller ?? input.controller ?? "fanuc",
+              kinematics: (machine?.kinematics as any) ?? "table_table",
+              rotary_axis_1: "A", rotary_axis_2: "C",
+            });
+            if (singularity.has_singularity) {
+              warnings.push(...singularity.recommendations);
+            }
+            return { five_axis_blocks: fiveAxisBlocks.length, singularities: singularity.singularity_blocks.length };
+          }
+          return { five_axis_blocks: 0 };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({ stage: "5.9_five_axis_post", phase: 5, status: "skipped", duration_ms: 0, summary: "No 5-axis moves", data: null });
+    }
+
     // ═══ PHASE 6: OUTPUT GENERATION ═══
 
-    // Stage 6.1: G-code generation
+    // Stage 6.1: G-code generation using ControllerDialectEngine
     let outputGcode = "";
     if (stageFlags.gcode_generation) {
-      this._runStage("6.1_gcode_generation", 6, stages, () => {
-        const controller = machine?.controller ?? input.controller ?? "fanuc";
-        outputGcode = this._blocksToGCode(blocks, controller);
-        return { lines: outputGcode.split("\n").length, controller };
+      await this._runStageAsync("6.1_gcode_generation", 6, stages, async () => {
+        const controllerKey = machine?.controller ?? input.controller ?? "fanuc";
+        try {
+          const dialectEng = await this._getEngine("controllerDialect");
+          outputGcode = this._blocksToGCodeWithDialect(blocks, dialectEng, controllerKey);
+        } catch {
+          // Fallback to basic codegen if dialect engine unavailable
+          outputGcode = this._blocksToGCode(blocks, controllerKey);
+        }
+        return { lines: outputGcode.split("\n").length, controller: controllerKey, dialect_used: true };
       });
     } else {
       // If no codegen, return original or empty
@@ -2062,6 +2106,101 @@ class PostProcessorPipelineEngineImpl {
       lines.push("%");
     }
 
+    return lines.join("\n");
+  }
+
+  /**
+   * Dialect-aware G-code generation using ControllerDialectEngine
+   * Uses controller-specific program headers, tool changes, comments, and arc formats
+   */
+  private _blocksToGCodeWithDialect(blocks: ToolpathBlock[], dialectEng: any, controllerKey: string): string {
+    const dialect = dialectEng.getDialect(controllerKey);
+    const lines: string[] = [];
+    const isHeidenhain = dialect.base_family === "heidenhain";
+
+    // Program header from dialect
+    lines.push(...dialectEng.getProgramHeader(controllerKey));
+    if (dialect.safe_start) lines.push(dialect.safe_start);
+
+    let lastTool = -1;
+    let lastRpm = -1;
+    let lastFeed = -1;
+
+    for (const block of blocks) {
+      // Tool change using dialect-specific sequence
+      if (block.tool_number !== undefined && block.tool_number !== lastTool) {
+        lastTool = block.tool_number;
+        const tcLines = dialectEng.generateToolChange(controllerKey, lastTool, block.spindle_rpm);
+        lines.push(...tcLines);
+        if (block.spindle_rpm) lastRpm = block.spindle_rpm;
+      }
+
+      const parts: string[] = [];
+
+      if (isHeidenhain) {
+        if (block.move_type === "G0") {
+          parts.push("L");
+          if (block.x !== undefined) parts.push(`X${this._fmt(block.x)}`);
+          if (block.y !== undefined) parts.push(`Y${this._fmt(block.y)}`);
+          if (block.z !== undefined) parts.push(`Z${this._fmt(block.z)}`);
+          parts.push("FMAX");
+        } else if (block.move_type === "G1") {
+          parts.push("L");
+          if (block.x !== undefined) parts.push(`X${this._fmt(block.x)}`);
+          if (block.y !== undefined) parts.push(`Y${this._fmt(block.y)}`);
+          if (block.z !== undefined) parts.push(`Z${this._fmt(block.z)}`);
+          if (block.feed_mm_min) parts.push(`F${block.feed_mm_min}`);
+        } else if (block.move_type === "G2" || block.move_type === "G3") {
+          // Heidenhain: CC (center point) then C (arc to endpoint)
+          if (block.i !== undefined && block.j !== undefined) {
+            const cx = (block.x ?? 0) - (block.i ?? 0); // approximate center
+            const cy = (block.y ?? 0) - (block.j ?? 0);
+            lines.push(`CC X${this._fmt(cx)} Y${this._fmt(cy)}`);
+          }
+          const dr = block.move_type === "G2" ? "DR+" : "DR-";
+          parts.push("C");
+          if (block.x !== undefined) parts.push(`X${this._fmt(block.x)}`);
+          if (block.y !== undefined) parts.push(`Y${this._fmt(block.y)}`);
+          parts.push(dr);
+          if (block.feed_mm_min) parts.push(`F${block.feed_mm_min}`);
+        }
+      } else {
+        // ISO format — uses dialect for arc format
+        parts.push(dialect.rapid_code === "G0" && block.move_type === "G0" ? "G0"
+          : block.move_type === "G1" ? "G1"
+          : block.move_type === "G2" ? dialect.cw_arc_code
+          : block.move_type === "G3" ? dialect.ccw_arc_code
+          : block.move_type);
+        if (block.x !== undefined) parts.push(`X${this._fmt(block.x)}`);
+        if (block.y !== undefined) parts.push(`Y${this._fmt(block.y)}`);
+        if (block.z !== undefined) parts.push(`Z${this._fmt(block.z)}`);
+        if (block.a !== undefined) parts.push(`A${this._fmt(block.a)}`);
+        if (block.b !== undefined) parts.push(`B${this._fmt(block.b)}`);
+        if (block.c !== undefined) parts.push(`C${this._fmt(block.c)}`);
+        if (block.move_type === "G2" || block.move_type === "G3") {
+          if (dialect.arc_format === "r_word" && block.r !== undefined) {
+            parts.push(`R${this._fmt(block.r)}`);
+          } else {
+            if (block.i !== undefined) parts.push(`I${this._fmt(block.i)}`);
+            if (block.j !== undefined) parts.push(`J${this._fmt(block.j)}`);
+            if (block.k !== undefined) parts.push(`K${this._fmt(block.k)}`);
+          }
+        }
+        if (block.spindle_rpm && block.spindle_rpm !== lastRpm) {
+          parts.push(`S${block.spindle_rpm}`);
+          lastRpm = block.spindle_rpm;
+        }
+        if (block.move_type !== "G0" && block.feed_mm_min && block.feed_mm_min !== lastFeed) {
+          parts.push(`F${block.feed_mm_min}`);
+          lastFeed = block.feed_mm_min;
+        }
+      }
+
+      if (parts.length > 0) lines.push(parts.join(" "));
+    }
+
+    // Program footer from dialect
+    lines.push(...dialectEng.getProgramFooter(controllerKey));
     return lines.join("\n");
   }
 
