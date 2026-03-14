@@ -2119,6 +2119,9 @@ export { castingQuoteEngine, CastingQuoteEngine } from "./CastingQuoteEngine.js"
 export { weldFabricationQuoteEngine, WeldFabricationQuoteEngine } from "./WeldFabricationQuoteEngine.js";
 export { multiProcessQuoteEngine, MultiProcessQuoteEngine } from "./MultiProcessQuoteEngine.js";
 // Batch 31-34: 132 previously unexported engines
+// CK-MS5 — 5-Axis Toolpath Integration
+export { fiveAxisToolpathIntegrationEngine, FiveAxisToolpathIntegrationEngine } from "./FiveAxisToolpathIntegrationEngine.js";
+
 export { acoSequencerEngine } from "./AcoSequencerEngine.js";
 export { adaptiveClearingEngine } from "./AdaptiveClearingEngine.js";
 export { antColonyOptimizationEngine } from "./AntColonyOptimizationEngine.js";
@@ -2329,6 +2332,7 @@ export { boringBarEngine, BoringBarEngine } from "./BoringBarEngine.js";
 export { gunDrillingEngine, GunDrillingEngine } from "./GunDrillingEngine.js";
 export { grindingWheelEngine, GrindingWheelEngine } from "./GrindingWheelEngine.js";
 export { edmEngine, EDMEngine } from "./EDMEngine.js";
+export { EDMProgramAssemblerEngine } from "./EDMProgramAssemblerEngine.js";
 export { workholdingForceEngine, WorkholdingForceEngine } from "./WorkholdingForceEngine.js";
 export { spindlePowerCheckEngine, SpindlePowerCheckEngine } from "./SpindlePowerCheckEngine.js";
 export { partingGroovingEngine, PartingGroovingEngine } from "./PartingGroovingEngine.js";
@@ -3202,6 +3206,7 @@ export { partGeometryPipelineEngine, PartGeometryPipelineEngine } from './PartGe
 
 // Lathe: Turning Program Assembler (print → G-code pipeline)
 export { turningProgramAssemblerEngine } from './TurningProgramAssemblerEngine.js';
+export { GrindingProgramAssemblerEngine } from './GrindingProgramAssemblerEngine.js';
 
 export { cncSimulationPipelineEngine, CNCSimulationPipelineEngine } from './CNCSimulationPipelineEngine.js';
 
@@ -3297,6 +3302,13 @@ export { signalProcessingToolkitEngine } from './SignalProcessingToolkitEngine.j
 export { timeSeriesCompletionEngine } from './TimeSeriesCompletionEngine.js';
 export { varianceReductionEngine } from './VarianceReductionEngine.js';
 
-// Batch 9 � final unexported engines (2026-03-14)
+// Batch 9 � final unexported engines (2026-03-14)
 export { assemblyEngine } from './AssemblyEngine.js';
 export { multiProcessCAMBridgeEngine, MultiProcessCAMBridgeEngine } from './MultiProcessCAMBridgeEngine.js';
+
+// CK-MS6 — Mill-Turn & Swiss Pipeline
+export { millTurnSwissPipelineEngine, MillTurnSwissPipelineEngine } from './MillTurnSwissPipelineEngine.js';
+export { selfLearningCAMEngine, SelfLearningCAMEngine } from './SelfLearningCAMEngine.js';
+
+// Laser Program Assembler
+export { LaserProgramAssemblerEngine } from './LaserProgramAssemblerEngine.js';

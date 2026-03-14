@@ -35,6 +35,8 @@ const ACTIONS = [
   "live_tool", "bar_pull", "thread_single_point",
   "part_off_force", "thread_turning_calc",
   "turning_assemble_program", "turning_auto_tools", "turning_cycle_time", "turning_validate",
+  "mill_turn_live_tool", "mill_turn_sub_spindle", "mill_turn_multi_channel",
+  "mill_turn_bar_feeder", "mill_turn_swiss",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -143,6 +145,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_validate": {
             const { turningProgramAssemblerEngine } = await import("../../engines/TurningProgramAssemblerEngine.js");
             result = await turningProgramAssemblerEngine.validateProgram(params as any);
+            break;
+          }
+          case "mill_turn_live_tool": {
+            const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
+            result = mte.calculate({ action: "live_tool_calc", params: params as any });
+            break;
+          }
+          case "mill_turn_sub_spindle": {
+            const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
+            result = mte.calculate({ action: "sub_spindle_transfer", params: params as any });
+            break;
+          }
+          case "mill_turn_multi_channel": {
+            const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
+            result = mte.calculate({ action: "multi_channel_program", params: params as any });
+            break;
+          }
+          case "mill_turn_bar_feeder": {
+            const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
+            result = mte.calculate({ action: "bar_feeder_calc", params: params as any });
+            break;
+          }
+          case "mill_turn_swiss": {
+            const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
+            result = mte.calculate({ action: "swiss_machining", params: params as any });
             break;
           }
           default:

@@ -106,6 +106,7 @@ async function getEngine(name: string): Promise<any> {
     case "cumStock": return _cumStock ??= (await import("../../engines/CumulativeStockChainEngine.js")).cumulativeStockChainEngine;
     case "featCluster": return _featCluster ??= (await import("../../engines/FeatureClusteringEngine.js")).featureClusteringEngine;
     case "prodPackage": return _prodPackage ??= (await import("../../engines/ProductionPackageEngine.js")).productionPackageEngine;
+    case "fiveAxisInteg": return (await import("../../engines/FiveAxisToolpathIntegrationEngine.js")).fiveAxisToolpathIntegrationEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -215,6 +216,8 @@ const ACTIONS = [
   "cumulative_stock_chain",
   "feature_clustering_cluster",
   "production_package_assemble",
+  "five_axis_contour", "five_axis_port", "five_axis_singularity_manage",
+  "five_axis_collision_avoid", "five_axis_roughing",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -1521,6 +1524,31 @@ Params vary by action — pass relevant fields in params object.`,
           case "production_package_assemble": {
             const eng = await getEngine("prodPackage");
             result = eng.assemble(params as any);
+            break;
+          }
+          case "five_axis_contour": {
+            const eng = await getEngine("fiveAxisInteg");
+            result = eng.calculate("five_axis_contour", params);
+            break;
+          }
+          case "five_axis_port": {
+            const eng = await getEngine("fiveAxisInteg");
+            result = eng.calculate("five_axis_port", params);
+            break;
+          }
+          case "five_axis_singularity_manage": {
+            const eng = await getEngine("fiveAxisInteg");
+            result = eng.calculate("five_axis_singularity_manage", params);
+            break;
+          }
+          case "five_axis_collision_avoid": {
+            const eng = await getEngine("fiveAxisInteg");
+            result = eng.calculate("five_axis_collision_avoid", params);
+            break;
+          }
+          case "five_axis_roughing": {
+            const eng = await getEngine("fiveAxisInteg");
+            result = eng.calculate("five_axis_roughing", params);
             break;
           }
           default:

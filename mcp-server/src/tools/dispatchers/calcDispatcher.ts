@@ -6833,6 +6833,33 @@ export function registerCalcDispatcher(server: any): void {
           }
 
 
+          // ── Self-Learning CAM (CK-MS8: Bayesian+Kalman+Fleet) ──
+          case "cut_to_learn": {
+            const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+            result = selfLearningCAMEngine.calculate("cut_to_learn", params as any);
+            break;
+          }
+          case "digital_twin_sync": {
+            const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+            result = selfLearningCAMEngine.calculate("digital_twin_sync", params as any);
+            break;
+          }
+          case "strategy_ranking": {
+            const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+            result = selfLearningCAMEngine.calculate("strategy_ranking", params as any);
+            break;
+          }
+          case "anomaly_relearn": {
+            const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+            result = selfLearningCAMEngine.calculate("anomaly_relearn", params as any);
+            break;
+          }
+          case "fleet_learn": {
+            const { selfLearningCAMEngine } = await import("../../engines/SelfLearningCAMEngine.js");
+            result = selfLearningCAMEngine.calculate("fleet_learn", params as any);
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
