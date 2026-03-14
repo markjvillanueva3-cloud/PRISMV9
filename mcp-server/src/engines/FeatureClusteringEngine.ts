@@ -15,6 +15,7 @@ export interface ClusterableFeature {
   tolerance_mm?: number;
   surface_finish_Ra?: number;
   wall_thickness_mm?: number;
+  corner_radius_mm?: number;
   priority?: number;
   requires_feature_ids?: string[];
 }
