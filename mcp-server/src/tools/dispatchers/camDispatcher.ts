@@ -89,6 +89,8 @@ async function getEngine(name: string): Promise<any> {
     case "engageAdapt": return (await import("../../engines/EngagementAdaptiveFeedEngine.js")).engagementAdaptiveFeedEngine;
     case "postPipeline": return (await import("../../engines/PostProcessorPipelineEngine.js")).postProcessorPipelineEngine;
     case "controllerDialect": return (await import("../../engines/ControllerDialectEngine.js")).controllerDialectEngine;
+    case "fiveAxis": return (await import("../../engines/FiveAxisPostEngine.js")).fiveAxisPostEngine;
+    case "ppVerify": return (await import("../../engines/PostProcessorVerificationEngine.js")).postProcessorVerificationEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -130,6 +132,8 @@ const ACTIONS = [
   "gcode_intelligence_pipeline",
   "pp_run_full", "pp_run_partial", "pp_analyze", "pp_reoptimize", "pp_resolve_context",
   "dialect_list", "dialect_translate", "dialect_features",
+  "five_axis_tcpc", "five_axis_singularity", "five_axis_linearize",
+  "pp_verify", "pp_backplot",
   "machine_match", "machine_quick_match",
   "wear_compensate", "wear_analyze",
   "stats_process_capability", "stats_spc_chart", "stats_weibull",
@@ -1041,6 +1045,31 @@ Params vary by action — pass relevant fields in params object.`,
           case "pp_reoptimize": {
             const eng = await getEngine("postPipeline");
             result = await eng.reoptimize(params);
+            break;
+          }
+          case "five_axis_tcpc": {
+            const eng = await getEngine("fiveAxis");
+            result = eng.getTCPCCodes(params.controller, params.tool_offset);
+            break;
+          }
+          case "five_axis_singularity": {
+            const eng = await getEngine("fiveAxis");
+            result = eng.detectSingularities(params.blocks, params.config);
+            break;
+          }
+          case "five_axis_linearize": {
+            const eng = await getEngine("fiveAxis");
+            result = eng.linearize(params.blocks, params.tolerance_mm);
+            break;
+          }
+          case "pp_verify": {
+            const eng = await getEngine("ppVerify");
+            result = eng.verify(params);
+            break;
+          }
+          case "pp_backplot": {
+            const eng = await getEngine("ppVerify");
+            result = eng.backplotVerify(params.gcode, params.original_points, params.tolerance_mm);
             break;
           }
           case "dialect_list": {
