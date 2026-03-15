@@ -244,8 +244,48 @@ export class UnifiedCAMPipelineEngine {
         }
       } catch { /* router fallback below */ }
 
-      // Production toolpath available via cam_production_toolpath dispatcher action
-      // for real polygon offsets, chip thinning, arc corners, variable feed.
+      // CK-MS9: production_mode — use ProductionToolpathEngine for pocket/profile
+      // features when real HSM-quality toolpaths are needed.
+      if ((req as any).production_mode === true) {
+        const isPocket = /pocket|profile|contour|slot/i.test(feature.type);
+        const isRoughing = !feature.operation || feature.operation === "roughing";
+        if (isPocket && isRoughing && feature.dimensions) {
+          try {
+            const dims = feature.dimensions;
+            const toolD = bestTool.diameter_mm || 10;
+            // Build a rectangular boundary from feature dimensions
+            const w = dims.width_mm || dims.diameter_mm || 50;
+            const l = dims.length_mm || w;
+            const boundary = [
+              { x: 0, y: 0, z: 0 },
+              { x: l, y: 0, z: 0 },
+              { x: l, y: w, z: 0 },
+              { x: 0, y: w, z: 0 },
+            ];
+            const prodConfig = {
+              tool_diameter_mm: toolD,
+              depth_mm: dims.depth_mm || 10,
+              stepover_pct: 40,
+              stepdown_mm: toolD * 0.5,
+              finishing_passes: feature.surface_finish_Ra ? 1 : 0,
+              lead_in_radius_mm: toolD * 0.3,
+              spindle_rpm: bestTool.recommended_params?.rpm || 5000,
+              feed_mm_min: bestTool.recommended_params?.feed_mmmin || 1500,
+              climb_milling: true,
+            };
+            const prodResult = _prodToolpath.generateProduction(
+              boundary, prodConfig, String(req.options?.program_number || 1000), controller,
+            );
+            if (prodResult?.segments?.length) {
+              allSegments.push(...prodResult.segments);
+              algorithmsUsed.push("ProductionToolpath:PolygonOffset");
+              if (prodResult.warnings?.length) warnings.push(...prodResult.warnings);
+              // Skip the router result for this feature — production path takes precedence
+              continue;
+            }
+          } catch { /* fall through to router result */ }
+        }
+      }
 
       if (routeResult) {
         algorithmsUsed.push(routeResult.selected_algorithm);

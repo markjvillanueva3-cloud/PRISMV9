@@ -28,7 +28,9 @@ export type AlgorithmId =
   | "MEGM" | "RSMP" | "WHAP" | "BOPA" | "MCTP" | "SFCR"
   | "KALP" | "PTAP" | "PARETO" | "CFCM" | "WBRL" | "DPLS"
   | "AMEF" | "VCMR" | "SNWF" | "EAPR" | "HBCF" | "MACS"
-  | "helical_drill" | "rest_machining" | "pencil_trace";
+  | "helical_drill" | "rest_machining" | "pencil_trace"
+  | "flowline" | "geodesic" | "constant_scallop" | "swarf" | "thread_mill" | "chamfer"
+  | "production_polygon_offset";
 
 interface AlgorithmMeta {
   id: AlgorithmId;
