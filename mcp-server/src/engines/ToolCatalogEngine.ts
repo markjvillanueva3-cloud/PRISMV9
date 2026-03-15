@@ -36,6 +36,7 @@ import { TUNGALOY_US_TOOLS, TUNGALOY_US_CUTTING_CONDITIONS } from "../data/tunga
 import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catalog.js";
 import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
+import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -878,6 +879,7 @@ export class ToolCatalogEngine {
     this._loadKennametalRotating();
     this._loadKennametalTurning();
     this._loadWidia2022();
+    this._loadWidia2022Inch();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -2029,6 +2031,62 @@ export class ToolCatalogEngine {
                     ["pocket", "slot", "profile", "face"],
         cutting_data: cuttingData,
         source: "WIDIA_Hanita_Master_2022",
+      });
+    }
+  }
+
+  private _loadWidia2022Inch(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const wt of WIDIA_2022_INCH_TOOLS) {
+      const id = `WIDIA-I-${wt.orderCode}`;
+      if (this.tools.has(id)) continue;
+      const dc = wt.DC;
+      if (dc <= 0) continue;
+
+      const toolType = (wt.type === "ball_end_mill" ? "ball_mill" :
+                        wt.type === "indexable_mill" ? "face_mill" :
+                        wt.type === "drill" || wt.type === "indexable_drill" ? "drill" :
+                        wt.type === "turning_holder" ? "turning_tool" :
+                        wt.type === "grooving_holder" ? "grooving_tool" :
+                        wt.type === "threading_holder" ? "threading_tool" :
+                        "end_mill") as CatalogTool["type"];
+
+      const sfType = toolType === "drill" ? "drill" : toolType === "turning_tool" || toolType === "grooving_tool" || toolType === "threading_tool" ? "turning_tool" : "end_mill";
+      const sfForType = sf.filter(s => s.tool_type === sfType || s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "WIDIA",
+        series: wt.series || "WIDIA",
+        designation: wt.orderCode,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: wt.DCONMS ?? dc,
+          overall_length_mm: wt.OAL || dc * 6,
+          flute_length_mm: wt.LU ?? dc * 2,
+          corner_radius_mm: wt.RE ?? undefined,
+        },
+        flute_count: wt.NOF ?? undefined,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "ball_mill" ? ["finish_3d", "profile"] :
+                    toolType === "face_mill" ? ["face"] :
+                    toolType === "turning_tool" ? ["turning"] :
+                    toolType === "grooving_tool" ? ["groove", "cut_off"] :
+                    toolType === "threading_tool" ? ["thread"] :
+                    ["pocket", "slot", "profile", "face"],
+        cutting_data: cuttingData,
+        source: "WIDIA_Hanita_Inch_2022",
       });
     }
   }
