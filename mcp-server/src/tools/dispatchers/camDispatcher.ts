@@ -252,6 +252,8 @@ const ACTIONS = [
   "five_axis_collision_avoid", "five_axis_roughing",
   // CK-MS7 — CAM Kernel Orchestrator (3 actions)
   "cam_generate", "cam_turn", "cam_simulate",
+  // F360-TOOL — Fusion 360 Tool Library (1 action)
+  "fusion_export_tool_library",
   // PIPE-MS0+MS1 — Print-to-Program Pipeline (4 actions)
   "print_to_program_full", "print_to_program_enhanced", "print_to_program_plan", "print_to_program_validate",
   // CK Pipeline (7 engines, 36 actions)
@@ -1637,6 +1639,19 @@ Params vary by action — pass relevant fields in params object.`,
           case "cam_simulate": {
             const eng = await getEngine("camOrch");
             result = eng.calculate("cam_simulate", params);
+            break;
+          }
+          // F360-TOOL — Fusion 360 Tool Library Export
+          case "fusion_export_tool_library": {
+            const { toolCatalogEngine: tce } = await import("../../engines/ToolCatalogEngine.js");
+            const { fusionToolExportEngine: fte } = await import("../../engines/FusionToolExportEngine.js");
+            const mfr = (params as any).manufacturer as string | undefined;
+            const toolType = (params as any).type as string | undefined;
+            const limit = (params as any).limit as number | undefined;
+            const tools = tce.search({ manufacturer: mfr, type: toolType as any });
+            const subset = limit ? tools.slice(0, limit) : tools;
+            const library = fte.exportLibrary(subset);
+            result = { success: true, tool_count: subset.length, library };
             break;
           }
           // PIPE-MS0 — Print-to-Program Pipeline
