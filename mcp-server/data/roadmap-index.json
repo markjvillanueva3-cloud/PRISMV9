@@ -2,8 +2,8 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-14T21:30:00Z",
-  "total_milestones": 151,
-  "completed_milestones": 142,
+  "total_milestones": 158,
+  "completed_milestones": 151,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
     {
@@ -1713,9 +1713,9 @@
       "title": "Full App Pipeline Wiring â€” All Dispatcher Actions to UI",
       "track": "WIRE",
       "dependencies": [],
-      "status": "in_progress",
+      "status": "complete",
       "total_units": 16,
-      "completed_units": 13,
+      "completed_units": 16,
       "sessions": "1",
       "envelope_path": "milestones/WIRE-MS0.json",
       "description": "Wire 285 unwired dispatcher actions across 13 dispatchers through full pipeline: route â†’ API â†’ types â†’ hook â†’ page. 16 units creating 13 new pages + settings sync + nav wiring + verification. Completes all UI wiring prior to design phase."
@@ -1912,9 +1912,9 @@
       "title": "CLI Layer — Direct Engine Access from Command Line",
       "track": "CLI",
       "dependencies": [],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 24,
-      "completed_units": 0,
+      "completed_units": 24,
       "sessions": "3-4",
       "envelope_path": "milestones/CLI-MS0.json",
       "position_path": "state/CLI-MS0/position.json"
@@ -1989,9 +1989,9 @@
       "title": "Canonical Physics Constants Module",
       "track": "QS",
       "dependencies": [],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 3,
-      "completed_units": 0,
+      "completed_units": 3,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS0.json",
       "position_path": "state/QS-MS0/position.json"
@@ -2003,9 +2003,9 @@
       "dependencies": [
         "QS-MS0"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 9,
-      "completed_units": 0,
+      "completed_units": 9,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS1.json",
       "position_path": "state/QS-MS1/position.json"
@@ -2017,9 +2017,9 @@
       "dependencies": [
         "QS-MS1"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 7,
-      "completed_units": 0,
+      "completed_units": 7,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS2.json",
       "position_path": "state/QS-MS2/position.json"
@@ -2031,9 +2031,9 @@
       "dependencies": [
         "QS-MS2"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 7,
-      "completed_units": 0,
+      "completed_units": 7,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS3.json",
       "position_path": "state/QS-MS3/position.json"
@@ -2045,9 +2045,9 @@
       "dependencies": [
         "QS-MS3"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 5,
-      "completed_units": 0,
+      "completed_units": 5,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS4.json",
       "position_path": "state/QS-MS4/position.json"
@@ -2059,9 +2059,9 @@
       "dependencies": [
         "QS-MS4"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 4,
-      "completed_units": 0,
+      "completed_units": 4,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS5.json",
       "position_path": "state/QS-MS5/position.json"
@@ -2073,12 +2073,94 @@
       "dependencies": [
         "QS-MS5"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 11,
-      "completed_units": 0,
+      "completed_units": 11,
       "sessions": "2-3",
       "envelope_path": "milestones/QS-MS6.json",
       "position_path": "state/QS-MS6/position.json"
+    },
+    {
+      "id": "F360-MS0",
+      "title": "Fusion 360 PRISM Panel Add-In (Python UI)",
+      "track": "F360",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3"
+    },
+    {
+      "id": "F360-MS1",
+      "title": "Fusion 360 Tool Library Generator + Auto-Import",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "F360-MS2",
+      "title": "Fusion 360 PRISM.cps Post Processor (Machine-Specific)",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "F360-MS3",
+      "title": "Fusion 360 Auto-Fill CAM Parameters (S/F/DOC/Strategy)",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "F360-MS4",
+      "title": "Fusion 360 Physics Dashboard + DFM Feedback Panel",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "1"
+    },
+    {
+      "id": "F360-MS5",
+      "title": "Fusion 360 Machine+Fixture+Holder Auto-Selection",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS1"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "1-2"
+    },
+    {
+      "id": "F360-MS6",
+      "title": "Fusion 360 Self-Learning + Production Data Feedback",
+      "track": "F360",
+      "dependencies": [
+        "F360-MS3"
+      ],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "1"
     }
   ]
 }
