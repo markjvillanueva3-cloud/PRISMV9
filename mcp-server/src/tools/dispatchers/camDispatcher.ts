@@ -37,10 +37,21 @@ import { ACTION_ADVANCED_SCIENCE_SCHEMAS } from "../../schemas/advancedScienceAc
 import { ACTION_CNC_PROGRAMMING_SCHEMAS } from "../../schemas/cncProgrammingActionSchemas.js";
 import { ACTION_CK_PIPELINE_SCHEMAS } from "../../schemas/ckPipelineActionSchemas.js";
 import { ACTION_CAM_KERNEL_SCHEMAS } from "../../schemas/camKernelActionSchemas.js";
-const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS, ...ACTION_CK_PIPELINE_SCHEMAS, ...ACTION_CAM_KERNEL_SCHEMAS };
+import { ACTION_CK_MS10_SCHEMAS } from "../../schemas/ckMs10ActionSchemas.js";
+import { ACTION_CK_MS11_SCHEMAS } from "../../schemas/ckMs11ActionSchemas.js";
+import { ACTION_CK_MS12_SCHEMAS } from "../../schemas/ckMs12ActionSchemas.js";
+const MERGED_CAM_SCHEMAS = {
+  ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
+  ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
+  ...ACTION_CK_PIPELINE_SCHEMAS, ...ACTION_CAM_KERNEL_SCHEMAS,
+  ...ACTION_CK_MS10_SCHEMAS, ...ACTION_CK_MS11_SCHEMAS,
+  ...ACTION_CK_MS12_SCHEMAS,
+};
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any;
+let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
+// CK-MS12 singletons
+let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -117,6 +128,17 @@ async function getEngine(name: string): Promise<any> {
     case "multiProc": return _multiProc ??= new (await import("../../engines/MultiProcessCAMRouterEngine.js")).MultiProcessCAMRouterEngine();
     case "millTurn": return _millTurn ??= (await import("../../engines/MillTurnSwissPipelineEngine.js")).millTurnSwissPipelineEngine;
     case "selfLearn": return _selfLearn ??= (await import("../../engines/SelfLearningCAMEngine.js")).selfLearningCAMEngine;
+    case "turningProfile": return _turningProfile ??= (await import("../../engines/TurningProfileEngine.js")).turningProfileEngine;
+    case "sheetNesting": return _sheetNesting ??= (await import("../../engines/SheetNestingEngine.js")).sheetNestingEngine;
+    case "dxfParser": return _dxfParser ??= (await import("../../engines/DXFParserEngine.js")).dxfParserEngine;
+    case "stochRouter": return _stochRouter ??= (await import("../../engines/StochasticRoutingEngine.js")).stochasticRoutingEngine;
+    case "probingProg": return _probingProg ??= (await import("../../engines/ProbingProgramEngine.js")).probingProgramEngine;
+    case "dfmFeedback": return _dfmFeedback ??= (await import("../../engines/DFMFeedbackEngine.js")).dfmFeedbackEngine;
+    // CK-MS12
+    case "nlpCAMParser":  return _nlpCAMParser  ??= (await import("../../engines/NLPCAMParserEngine.js")).nlpCAMParserEngine;
+    case "programCompare": return _programCompare ??= (await import("../../engines/ProgramCompareEngine.js")).programCompareEngine;
+    case "camCache":      return _camCache      ??= (await import("../../engines/CAMResultCacheEngine.js")).camResultCacheEngine;
+    case "batchCAM":      return _batchCAM      ??= (await import("../../engines/BatchCAMEngine.js")).batchCAMEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -248,6 +270,20 @@ const ACTIONS = [
   "mill_turn_live_tooling", "mill_turn_sub_spindle", "mill_turn_multi_channel", "mill_turn_bar_feeder", "mill_turn_swiss",
   // Self-learning
   "self_learn_record", "self_learn_twin_sync", "self_learn_rank_strategy", "self_learn_anomaly", "self_learn_fleet",
+  // CK-MS10: Turning profiles, sheet nesting, DXF/SVG parsing
+  "turning_profile_od", "turning_profile_id", "turning_profile_thread", "turning_profile_gcode",
+  "sheet_nest", "sheet_nest_optimize", "sheet_cut_order",
+  "dxf_parse",
+  // CK-MS11: Stochastic routing, probing programs, DFM feedback
+  "stochastic_route", "stochastic_compare", "stochastic_sensitivity",
+  "probe_wcs_setup_gen", "probe_first_article_gen", "probe_in_process_gen",
+  "probe_tool_measure_gen", "probe_auto_comp_gen",
+  "dfm_analyze", "dfm_suggest", "dfm_report",
+  // CK-MS12
+  "nlp_cam_parse", "nlp_cam_parse_context", "nlp_cam_extract_dims",
+  "program_compare", "program_diff", "program_compare_physics",
+  "cam_cache_stats", "cam_cache_clear",
+  "batch_cam_generate", "batch_cam_optimize",
   // CAM Kernel Unified (CK Track)
   "cam_unified_generate", "cam_complex_generate", "cam_production_toolpath",
   "cam_multi_process", "cam_mill_turn", "cam_5axis_convert",
@@ -1811,6 +1847,87 @@ Params vary by action — pass relevant fields in params object.`,
             result = eng.fleetLearn(params);
             break;
           }
+          // ── CK-MS10: Turning Profiles ─────────────────────────────────
+          case "turning_profile_od": {
+            const e = await getEngine("turningProfile");
+            result = e.generateODProfile(
+              params.features, params.stock_diameter_mm,
+              params.material, params.nose_radius_mm, params.num_passes
+            );
+            break;
+          }
+          case "turning_profile_id": {
+            const e = await getEngine("turningProfile");
+            result = e.generateIDProfile(
+              params.features, params.bore_diameter_mm, params.stock_bore_diameter_mm,
+              params.material, params.nose_radius_mm, params.num_passes
+            );
+            break;
+          }
+          case "turning_profile_thread": {
+            const e = await getEngine("turningProfile");
+            result = e.generateThreadProfile({
+              type: params.type ?? "external",
+              nominal_diameter_mm: params.nominal_diameter_mm,
+              pitch_mm: params.pitch_mm,
+              length_mm: params.length_mm,
+              z_start_mm: params.z_start_mm ?? 0,
+              thread_depth_mm: params.thread_depth_mm,
+              infeed_method: params.infeed_method,
+              spring_passes: params.spring_passes,
+              first_pass_doc_mm: params.first_pass_doc_mm,
+              controller: params.controller,
+            });
+            break;
+          }
+          case "turning_profile_gcode": {
+            const e = await getEngine("turningProfile");
+            const lines = e.profileToGCode(params.profile, {
+              controller: params.controller,
+              program_number: params.program_number,
+              sequence_start: params.sequence_start,
+              sequence_increment: params.sequence_increment,
+              g71_p_label: params.g71_p_label,
+              g71_q_label: params.g71_q_label,
+              include_g70: params.include_g70,
+              rpm_css: params.rpm_css,
+              max_rpm: params.max_rpm,
+            });
+            result = { gcode_lines: lines, line_count: lines.length };
+            break;
+          }
+          // ── CK-MS10: Sheet Nesting ────────────────────────────────────
+          case "sheet_nest": {
+            const e = await getEngine("sheetNesting");
+            result = e.nestParts(params.parts, params.sheet, params.options ?? {});
+            break;
+          }
+          case "sheet_nest_optimize": {
+            const e = await getEngine("sheetNesting");
+            result = e.optimizeNesting(params.parts, params.sheet, params.options ?? {});
+            break;
+          }
+          case "sheet_cut_order": {
+            const e = await getEngine("sheetNesting");
+            const order = e.generateCutOrder(params.nesting);
+            result = { cut_order: order, total_parts: order.length };
+            break;
+          }
+          // ── CK-MS10: DXF/SVG Parsing ──────────────────────────────────
+          case "dxf_parse": {
+            const e = await getEngine("dxfParser");
+            const fmt = params.format ?? (params.content.trimStart().startsWith("<") ? "svg" : "dxf");
+            const polygons = fmt === "svg" ? e.parseSVG(params.content) : e.parseDXF(params.content);
+            const classified = (params.classify_contours ?? true) ? e.classifyContours(polygons) : polygons;
+            result = {
+              polygons: classified,
+              count: classified.length,
+              format: fmt,
+              outer_count: classified.filter((pg: any) => !pg.is_hole).length,
+              hole_count: classified.filter((pg: any) => pg.is_hole).length,
+            };
+            break;
+          }
           // ── CAM Kernel Unified Actions (CK Track) ──────────
           case "cam_unified_generate":
           case "cam_complex_generate":
@@ -1827,6 +1944,69 @@ Params vary by action — pass relevant fields in params object.`,
             result = dispatchCAMAction(action as any, params);
             break;
           }
+          // ── CK-MS11: StochasticRoutingEngine ──────────────────────────
+          case "stochastic_route": {
+            const eng = await getEngine("stochRouter");
+            const { feature, material, machine, algorithms, n_samples } = params as any;
+            return slimResponse(eng.selectAlgorithm(feature, material, machine ?? {}, { algorithms, n_samples }));
+          }
+          case "stochastic_compare": {
+            const eng = await getEngine("stochRouter");
+            const { algorithms, feature, material, machine } = params as any;
+            return slimResponse(eng.compareAlgorithms(algorithms, feature, material, machine ?? {}));
+          }
+          case "stochastic_sensitivity": {
+            const eng = await getEngine("stochRouter");
+            const { algorithm, feature, material, machine } = params as any;
+            return slimResponse(eng.sensitivityAnalysis(algorithm, feature, material, machine ?? {}));
+          }
+          // ── CK-MS11: ProbingProgramEngine ────────────────────────────
+          case "probe_wcs_setup_gen": {
+            const eng = await getEngine("probingProg");
+            const { datums, config } = params as any;
+            return slimResponse(eng.generateWCSSetup(datums, config));
+          }
+          case "probe_first_article_gen": {
+            const eng = await getEngine("probingProg");
+            const { features, config } = params as any;
+            return slimResponse(eng.generateFirstArticle(features, config));
+          }
+          case "probe_in_process_gen": {
+            const eng = await getEngine("probingProg");
+            const { feature, config } = params as any;
+            return slimResponse(eng.generateInProcessCheck(feature, config));
+          }
+          case "probe_tool_measure_gen": {
+            const eng = await getEngine("probingProg");
+            const { tool, config } = params as any;
+            return slimResponse(eng.generateToolMeasure(tool, config));
+          }
+          case "probe_auto_comp_gen": {
+            const eng = await getEngine("probingProg");
+            const { feature, offset_register, axis, max_comp_mm, config } = params as any;
+            return slimResponse(eng.generateAutoComp({ feature, offset_register, axis, max_comp_mm }, config));
+          }
+          // ── CK-MS11: DFMFeedbackEngine ───────────────────────────────
+          case "dfm_analyze": {
+            const eng = await getEngine("dfmFeedback");
+            const { features, material, tolerances } = params as any;
+            return slimResponse(eng.analyze(features, material, tolerances ?? []));
+          }
+          case "dfm_suggest": {
+            const eng = await getEngine("dfmFeedback");
+            const { features, material, tolerances } = params as any;
+            const analysis = eng.analyze(features, material, tolerances ?? []);
+            return slimResponse(eng.suggestImprovements(analysis));
+          }
+          case "dfm_report": {
+            const eng = await getEngine("dfmFeedback");
+            const { features, material, tolerances, include_improvements } = params as any;
+            const analysis = eng.analyze(features, material, tolerances ?? []);
+            const improvements = (include_improvements !== false)
+              ? eng.suggestImprovements(analysis)
+              : [];
+            return slimResponse(eng.generateReport(analysis, improvements));
+          }
           case "cam_intelligent_sequence": {
             const { intelligentSequencingEngine } = await import("../../engines/IntelligentSequencingEngine.js");
             result = intelligentSequencingEngine.sequence(params.operations ?? []);
@@ -1837,6 +2017,74 @@ Params vary by action — pass relevant fields in params object.`,
             result = listCAMActions();
             break;
           }
+
+          // ── CK-MS12: NLPCAMParserEngine ───────────────────────────────────
+          case "nlp_cam_parse": {
+            const eng = await getEngine("nlpCAMParser");
+            return slimResponse(eng.parse(params.text));
+          }
+          case "nlp_cam_parse_context": {
+            const eng = await getEngine("nlpCAMParser");
+            return slimResponse(eng.parseWithContext(
+              params.text, params.material, params.machine
+            ));
+          }
+          case "nlp_cam_extract_dims": {
+            const eng = await getEngine("nlpCAMParser");
+            return slimResponse(eng.extractDimensions(params.text));
+          }
+
+          // ── CK-MS12: ProgramCompareEngine ─────────────────────────────────
+          case "program_compare": {
+            const eng = await getEngine("programCompare");
+            const cmp = eng.compare(params.program_a, params.program_b);
+            if (params.format === "report")   return slimResponse({ report: eng.generateReport(cmp) });
+            if (params.format === "summary")  return slimResponse(cmp.summary);
+            return slimResponse(cmp);
+          }
+          case "program_diff": {
+            const eng  = await getEngine("programCompare");
+            const diff = eng.diffGCode(params.program_a, params.program_b);
+            const ctx  = (params.context_lines as number) ?? 3;
+            // Filter to changes + ctx surrounding lines of equal
+            const filtered = diff.filter((d, i) => {
+              if (d.type !== "equal") return true;
+              return diff.slice(Math.max(0, i - ctx), i + ctx + 1)
+                .some(n => n.type !== "equal");
+            });
+            return slimResponse({ diff: filtered, total: diff.length, changes: diff.filter(d => d.type !== "equal").length });
+          }
+          case "program_compare_physics": {
+            const eng = await getEngine("programCompare");
+            return slimResponse(eng.comparePhysics(params.program_a, params.program_b));
+          }
+
+          // ── CK-MS12: CAMResultCacheEngine ─────────────────────────────────
+          case "cam_cache_stats": {
+            const eng = await getEngine("camCache");
+            return slimResponse(eng.stats());
+          }
+          case "cam_cache_clear": {
+            const eng = await getEngine("camCache");
+            eng.clear(params.namespace);
+            return slimResponse({ cleared: true, namespace: params.namespace ?? "all" });
+          }
+
+          // ── CK-MS12: BatchCAMEngine ────────────────────────────────────────
+          case "batch_cam_generate": {
+            const eng   = await getEngine("batchCAM");
+            let parts   = params.parts as any[];
+            if (params.optimize_order) parts = eng.optimizeBatchOrder(parts);
+            const results = await eng.parallelGenerate(parts, params.concurrency ?? 4);
+            const summary = eng.summarizeBatch(results);
+            return slimResponse({ results, summary });
+          }
+          case "batch_cam_optimize": {
+            const eng    = await getEngine("batchCAM");
+            const sorted = eng.optimizeBatchOrder(params.parts as any[]);
+            return slimResponse({ parts: sorted, count: sorted.length });
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }

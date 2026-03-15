@@ -1,14 +1,15 @@
 /**
  * prism_cad — CAD/Geometry Dispatcher
  *
- * 13 actions: geometry_create, geometry_transform, geometry_analyze,
- *   mesh_generate, mesh_import, mesh_export, feature_recognize,
- *   feature_edit, stock_model, wcs_setup, dfm_check, face_mill_select,
- *   deep_hole_technique
+ * 57 actions: geometry (3), mesh (3), feature (2), stock/wcs/dfm (5),
+ *   sketch (5), part (8), part_library (2), assembly (6),
+ *   cad_taxonomy (3), cadquery (3), f360_codegen (4), f360_live (14)
  *
  * Engine dependencies: CADKernelEngine, GeometryEngine, MeshEngine,
  *   FeatureRecognitionEngine, StockModelEngine, WorkCoordinateEngine,
- *   DfMRulesEngine
+ *   DfMRulesEngine, SketchEngine, ParametricPartLibraryEngine,
+ *   AssemblyEngine, CADOperationTaxonomyEngine, CadQueryCodeGeneratorEngine,
+ *   Fusion360CodeGeneratorEngine, Fusion360LiveBridgeEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -52,6 +53,17 @@ const ACTIONS = [
   "part_library_create", "part_library_list_types",
   "assembly_create", "assembly_add_component", "assembly_add_mate",
   "assembly_position", "assembly_bom", "assembly_to_cadquery",
+  // CAD Operation Taxonomy
+  "cad_taxonomy_lookup", "cad_taxonomy_list", "cad_taxonomy_generate",
+  // CadQuery Code Generator
+  "cadquery_generate_script", "cadquery_step_by_step", "cadquery_validate_syntax",
+  // Fusion 360 Code Generator
+  "f360_generate_script", "f360_from_description", "f360_parametric_script", "f360_convert_cadquery",
+  // Fusion 360 Live Bridge
+  "f360_live_sketch", "f360_live_extrude", "f360_live_fillet", "f360_live_chamfer",
+  "f360_live_revolve", "f360_live_hole", "f360_live_pattern", "f360_live_combine",
+  "f360_live_shell", "f360_live_export", "f360_live_geometry", "f360_live_undo",
+  "f360_live_new_doc", "f360_live_execute_raw",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -305,6 +317,132 @@ Params vary by action — pass relevant fields in params object.`,
             const ae = await getEngine("assembly");
             if (!params.assembly) { result = { error: "assembly object required" }; break; }
             result = { python_code: ae.toCadQueryPython(params.assembly) };
+            break;
+          }
+          // ── CAD Operation Taxonomy ──
+          case "cad_taxonomy_lookup": {
+            const tx = await getEngine("cadTaxonomy");
+            result = tx.getOperation(params.action_type) ?? { error: `No operation found for: ${params.action_type}` };
+            break;
+          }
+          case "cad_taxonomy_list": {
+            const tx = await getEngine("cadTaxonomy");
+            result = params.category
+              ? tx.getOperationsByCategory(params.category)
+              : tx.getAllOperations();
+            break;
+          }
+          case "cad_taxonomy_generate": {
+            const tx = await getEngine("cadTaxonomy");
+            result = { code: tx.generateCadQueryCode(params.action ?? params) };
+            break;
+          }
+          // ── CadQuery Code Generator ──
+          case "cadquery_generate_script": {
+            const cq = await getEngine("cadQueryGen");
+            result = cq.generateScript(params.actions ?? []);
+            break;
+          }
+          case "cadquery_step_by_step": {
+            const cq = await getEngine("cadQueryGen");
+            result = cq.generateStepByStep(params.actions ?? []);
+            break;
+          }
+          case "cadquery_validate_syntax": {
+            const cq = await getEngine("cadQueryGen");
+            result = cq.validateSyntax(params.script ?? "");
+            break;
+          }
+          // ── Fusion 360 Code Generator ──
+          case "f360_generate_script": {
+            const fg = await getEngine("f360Gen");
+            result = fg.generateScript(params.actions ?? [], { parametric: params.parametric, component_name: params.component_name });
+            break;
+          }
+          case "f360_from_description": {
+            const fg = await getEngine("f360Gen");
+            result = fg.generateFromDescription(params.description ?? "", params.options);
+            break;
+          }
+          case "f360_parametric_script": {
+            const fg = await getEngine("f360Gen");
+            result = fg.generateParametricScript(params.actions ?? []);
+            break;
+          }
+          case "f360_convert_cadquery": {
+            const fg = await getEngine("f360Gen");
+            result = fg.convertCadQueryToFusion360(params.cadquery_script ?? params.script ?? "");
+            break;
+          }
+          // ── Fusion 360 Live Bridge ──
+          case "f360_live_sketch": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.createSketch({ plane: params.plane, shapes: params.shapes ?? [] });
+            break;
+          }
+          case "f360_live_extrude": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.extrude(params);
+            break;
+          }
+          case "f360_live_fillet": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.fillet(params);
+            break;
+          }
+          case "f360_live_chamfer": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.chamfer(params);
+            break;
+          }
+          case "f360_live_revolve": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.revolve(params);
+            break;
+          }
+          case "f360_live_hole": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.createHole(params);
+            break;
+          }
+          case "f360_live_pattern": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.pattern(params);
+            break;
+          }
+          case "f360_live_combine": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.combine(params);
+            break;
+          }
+          case "f360_live_shell": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.shell(params);
+            break;
+          }
+          case "f360_live_export": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.exportModel(params);
+            break;
+          }
+          case "f360_live_geometry": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.getGeometry();
+            break;
+          }
+          case "f360_live_undo": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.undo();
+            break;
+          }
+          case "f360_live_new_doc": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.newDocument(params.name);
+            break;
+          }
+          case "f360_live_execute_raw": {
+            const fb = await getEngine("f360Bridge");
+            result = await fb.executeRaw(params.code ?? "");
             break;
           }
           default:

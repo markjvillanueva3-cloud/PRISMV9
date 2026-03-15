@@ -828,6 +828,42 @@ const ACTIONS = [
   "feasibility_accessibility", "feasibility_workholding", "feasibility_rigidity",
   "coolant_fluid_delivery", "coolant_mql_physics", "coolant_hpc_design",
   "coolant_health_monitor", "coolant_optimize_flow",
+  // ── Auto-added: case handlers missing from ACTIONS ──
+  "adhesive_bonding_calc", "ahp_calc", "all_dimensionless", "anodizing_calc", "anomaly_classify",
+  "anomaly_relearn", "assignment_problem_calc", "auto_model_select", "ball_end_mill_calc", "bar_feeder_calc",
+  "batch_import_measurements", "bayesian_inference_calc", "bayesopt_optimize", "bearing_selection_calc", "belt_drive_calc",
+  "bolt_torque_calc", "bootstrap_resample", "capability_with_ci", "carburizing_calc", "casting_defect_calc",
+  "chain_drive_calc", "chamfer_milling_calc", "chip_conveyor_calc", "circular_pocket_calc", "cluster_analysis_calc",
+  "cnc_maintenance_calc", "coating_thickness_calc", "compare_and_learn", "composite_chip_formation", "composite_delamination",
+  "composite_delamination_factor", "composite_tool_wear", "context_tree", "control_chart", "corrosion_rate_calc",
+  "countersink_calc", "cut_to_learn", "cutting_number", "cutting_phenomena_brammertz", "cutting_phenomena_bue",
+  "cutting_phenomena_coffinmanson", "cutting_phenomena_usui_crater", "cutting_physics_ext_brammertz", "cutting_physics_ext_bue", "cutting_physics_ext_colding",
+  "cutting_physics_ext_usui", "cv_learning_curve", "cv_leave_one_out", "cv_nested", "deburring_recommend",
+  "digital_twin_sync", "dim_analysis_buckingham_pi", "dim_analysis_consistency", "electric_motor_calc", "empirical_chip_breakability",
+  "empirical_feed_from_finish", "empirical_hardness_convert", "empirical_productivity", "empirical_surface_integrity", "empirical_thermal_properties",
+  "experiment_sequence", "exponential_smoothing_calc", "export_learning", "fatigue_cyclic_stress_strain", "fatigue_multiaxial",
+  "fatigue_strain_life", "fingerprint_capture", "fingerprint_drift", "fingerprint_root_cause", "fleet_learn",
+  "fleet_learning", "flywheel_energy_calc", "force_capability_analyze", "gradient_boost_classify", "grinding_wheel_calc",
+  "hybrid_coupled_physics", "hybrid_ml_physics", "hybrid_online_learning", "hybrid_optimization", "hybrid_system_level",
+  "interaction_analysis", "inventory_eoq_calc", "kde_density_anomaly", "kde_estimate", "keyway_calc",
+  "kmeans_cluster", "learned_predict", "logistic_regression", "machinability_index", "mcmc_sample",
+  "ml_stats_bayesian_tool_life", "ml_stats_logistic_fit", "ml_stats_metropolis_hastings", "ml_stats_rf_regress", "ml_stats_tool_breakage",
+  "multi_physics_simulate", "multivariate_spc", "network_flow_calc", "optimization_simplex_calc", "parse_cmm_export",
+  "pca_analyze", "permutation_bootstrap_ci", "permutation_correlation", "permutation_two_sample", "persist_learning",
+  "physics_archard_wear", "physics_hertz_contact", "physics_merchant_shear", "physics_single_grit", "physics_transfer",
+  "pid_controller_calc", "predictive_failure_mc", "predictive_maintenance", "press_brake_calc", "principal_component_calc",
+  "probabilistic_costing", "process_fingerprint", "project_scheduling_calc", "record_measurement", "record_stratified",
+  "regression_gmm_optimal", "regression_isotonic", "regression_kernel_ridge", "regression_regularized_boosting", "regression_stacking",
+  "reliability_rbdo", "reliability_sparse_pce", "reliability_system", "residual_stress_combined", "residual_stress_hertzian",
+  "residual_stress_phase_transform", "residual_stress_process_param", "riveted_joint_calc", "robust_optimization", "sequence_constraint_graph",
+  "sequence_detect_deadends", "sequence_resequence", "sequence_simulate", "setup_transition_analyze", "sheet_metal_nesting_calc",
+  "signal_digital_filter", "signal_envelope_analysis", "signal_order_analysis", "smart_doe", "stability_number",
+  "stat_learning_bayesian_linreg", "stat_learning_logistic_breakage", "stat_learning_logistic_fit", "stat_learning_mcmc", "stat_learning_rf_regress",
+  "strategy_ranking", "submit_measurement", "time_series_arima_calc", "topsis_calc", "transportation_problem_calc",
+  "ts_change_point", "ts_exponential_smoothing", "ts_holt_winters", "uncertainty_correlation_from_data", "uncertainty_gaussian_copula",
+  "uncertainty_kriging_fit", "uncertainty_qmc_uq", "uncertainty_sobol_sequence", "uncertainty_surrogate_optimize", "uq_methods_kriging_fit",
+  "uq_methods_kriging_uq", "uq_methods_qmc", "uq_methods_t_copula", "variance_reduction_adaptive_mc", "variance_reduction_antithetic",
+  "variance_reduction_importance", "vibration_isolator_calc", "waterjet_calc", "wavelet_transform",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4327,180 +4363,10 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          case "toolpath_segment_optimize": {
-            const { toolpathSegmentOptimizerEngine } = await import("../../engines/ToolpathSegmentOptimizerEngine.js");
-            result = toolpathSegmentOptimizerEngine.compute({ segments: params.segments, tool: params.tool, material: params.material, machine: params.machine, constraints: params.constraints });
-            break;
-          }
-          case "tool_assembly_deflection": {
-            const { toolAssemblyDeflectionEngine } = await import("../../engines/ToolAssemblyDeflectionEngine.js");
-            result = toolAssemblyDeflectionEngine.compute({ sections: params.sections, cutting_force_n: params.cutting_force_n, taper: params.taper ?? params.spindle_taper ?? "CAT40" });
-            break;
-          }
-          case "adaptive_engagement_calc": {
-            const { adaptiveEngagementEngine } = await import("../../engines/AdaptiveEngagementEngine.js");
-            result = adaptiveEngagementEngine.compute({ corners: params.corners ?? (params.corner ? [params.corner] : []), tool: params.tool, cutting: params.cutting, material: params.material, machine: params.machine, strategy: params.strategy });
-            break;
-          }
-          case "hybrid_post_merge": {
-            const { hybridPostMergeEngine } = await import("../../engines/HybridPostMergeEngine.js");
-            result = hybridPostMergeEngine.compute({ segments: params.segments, machine: params.machine ?? { controller: params.controller ?? "fanuc", has_atc: true, max_tools: params.atc_capacity ?? 20, has_probing: false }, options: params.options });
-            break;
-          }
-          case "thermal_compensation_model": {
-            const { thermalCompensationModelEngine } = await import("../../engines/ThermalCompensationModelEngine.js");
-            result = thermalCompensationModelEngine.compute({ machine: params.machine, cutting: params.cutting, part: params.part });
-            break;
-          }
-          case "spc_capability_analyze": {
-            const { spcProcessCapabilityEngine } = await import("../../engines/SPCProcessCapabilityEngine.js");
-            result = spcProcessCapabilityEngine.compute({ measurements: params.measurements, nominal: params.nominal, upper_tolerance: params.upper_tolerance, lower_tolerance: params.lower_tolerance });
-            break;
-          }
-          case "pareto_optimize": {
-            const { multiObjectiveParetoEngine } = await import("../../engines/MultiObjectiveParetoEngine.js");
-            result = multiObjectiveParetoEngine.compute({ objectives: params.objectives, parameter_bounds: params.parameter_bounds, fixed: params.fixed, machine: params.machine, grid_resolution: params.grid_resolution });
-            break;
-          }
-          case "chatter_stability_sld": {
-            const { chatterStabilityLobeEngine } = await import("../../engines/ChatterStabilityLobeEngine.js");
-            result = chatterStabilityLobeEngine.compute({ tool: params.tool, workpiece: params.workpiece, machine: params.machine, cutting: params.cutting });
-            break;
-          }
-          case "surface_integrity_full": {
-            const { surfaceIntegrityPredictorEngine } = await import("../../engines/SurfaceIntegrityPredictorEngine.js");
-            result = surfaceIntegrityPredictorEngine.compute({ tool: params.tool, cutting: params.cutting, material: params.material, process: params.process, coolant: params.coolant });
-            break;
-          }
-          case "machining_energy_model": {
-            const { machiningEnergyModelEngine } = await import("../../engines/MachiningEnergyModelEngine.js");
-            result = machiningEnergyModelEngine.compute({ cutting: params.cutting, tool: params.tool, material: params.material, machine: params.machine, coolant_type: params.coolant_type });
-            break;
-          }
-          case "monte_carlo_process": {
-            const { monteCarloProcessEngine } = await import("../../engines/MonteCarloProcessEngine.js");
-            result = monteCarloProcessEngine.compute({ nominal: params.nominal, material: params.material, variations: params.variations, tolerances: params.tolerances, trials: params.trials, seed: params.seed });
-            break;
-          }
-          case "doe_taguchi": {
-            const { doeTaguchEngine } = await import("../../engines/DOETaguchEngine.js");
-            result = doeTaguchEngine.compute({ factors: params.factors, response: params.response, objective: params.objective, design: params.design ?? "taguchi", material: params.material, tool: params.tool, replications: params.replications });
-            break;
-          }
-          case "fixture_clamping": {
-            const { fixtureClampingEngine } = await import("../../engines/FixtureClampingEngine.js");
-            result = fixtureClampingEngine.compute({ cutting_forces: params.cutting_forces, workpiece: params.workpiece, fixture: params.fixture, safety_factor: params.safety_factor, operation: params.operation });
-            break;
-          }
-          case "springback_predict": {
-            const { springbackPredictionEngine } = await import("../../engines/SpringbackPredictionEngine.js");
-            result = springbackPredictionEngine.compute({ feature: params.feature, material: params.material, cutting: params.cutting, tolerance_mm: params.tolerance_mm });
-            break;
-          }
-          case "gdt_stackup": {
-            const { gdtStackupEngine } = await import("../../engines/GDTStackupEngine.js");
-            result = gdtStackupEngine.compute({ dimensions: params.dimensions, gap_name: params.gap_name, gap_requirement: params.gap_requirement, temperature_delta_c: params.temperature_delta_c, monte_carlo_trials: params.monte_carlo_trials });
-            break;
-          }
-          case "runout_effect": {
-            const { runoutEffectEngine } = await import("../../engines/RunoutEffectEngine.js");
-            result = runoutEffectEngine.compute({ tool: params.tool, runout: params.runout, cutting: params.cutting, material: params.material });
-            break;
-          }
-          case "process_digital_twin": {
-            const { processDigitalTwinEngine } = await import("../../engines/ProcessDigitalTwinEngine.js");
-            result = processDigitalTwinEngine.compute({ tool: params.tool, cutting: params.cutting, material: params.material, workpiece: params.workpiece, machine: params.machine });
-            break;
-          }
-          case "process_robustness": {
-            const { processRobustnessEngine } = await import("../../engines/ProcessRobustnessEngine.js");
-            result = processRobustnessEngine.compute({ nominal: params.nominal, material: params.material, noise_factors: params.noise_factors, weights: params.weights, tolerance_mm: params.tolerance_mm });
-            break;
-          }
-          case "kalman_filter": {
-            const { kalmanFilterEngine } = await import("../../engines/KalmanFilterEngine.js");
-            result = kalmanFilterEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "amsaa_reliability_growth": {
-            const { amsaaReliabilityGrowthEngine } = await import("../../engines/AMSAAReliabilityGrowthEngine.js");
-            const amsaaResult = amsaaReliabilityGrowthEngine.compute(params as ValidatedParams);
-            result = { value: amsaaResult, unit: "reliability_growth" };
-            break;
-          }
-          case "chance_constrained_optimize": {
-            const { chanceConstrainedOptimizationEngine } = await import("../../engines/ChanceConstrainedOptimizationEngine.js");
-            const ccResult = chanceConstrainedOptimizationEngine.optimize(params as ValidatedParams);
-            result = { value: ccResult, unit: "chance_constrained_optimization" };
-            break;
-          }
-          case "acoustic_emission_monitor": {
-            const { acousticEmissionMonitoringEngine } = await import("../../engines/AcousticEmissionMonitoringEngine.js");
-            const aeResult = acousticEmissionMonitoringEngine.analyze(params as ValidatedParams);
-            result = { value: aeResult, unit: "acoustic_emission" };
-            break;
-          }
 
           // ── SCI-MS0: Sensor Integration ──
-          case "sensor_validate": {
-            const { sensorDataSchemaEngine } = await import("../../engines/SensorDataSchemaEngine.js");
-            result = sensorDataSchemaEngine.validate(params as ValidatedParams);
-            break;
-          }
-          case "sensor_simulate": {
-            const { sensorSimulatorEngine } = await import("../../engines/SensorSimulatorEngine.js");
-            result = sensorSimulatorEngine.simulate(params as ValidatedParams);
-            break;
-          }
-          case "sensor_fuse": {
-            const { sensorFusionEngine } = await import("../../engines/SensorFusionEngine.js");
-            result = sensorFusionEngine.fuse(params as ValidatedParams);
-            break;
-          }
-          case "sensor_anomaly_detect": {
-            const { realTimeAnomalyDetectionEngine } = await import("../../engines/RealTimeAnomalyDetectionEngine.js");
-            result = realTimeAnomalyDetectionEngine.detect(params as ValidatedParams);
-            break;
-          }
-          case "sensor_status": {
-            result = {
-              value: { sensor_count: 4, types: ["force", "spindle", "vibration", "temperature"], message: "Sensor framework ready" },
-              unit: "sensor_status"
-            };
-            break;
-          }
 
           // ── VAR-MS0: Stochastic Physics Extensions ──
-          case "stochastic_force": {
-            const { stochasticCuttingForceEngine } = await import("../../engines/StochasticCuttingForceEngine.js");
-            result = stochasticCuttingForceEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_tool_life": {
-            const { stochasticToolLifeEngine } = await import("../../engines/StochasticToolLifeEngine.js");
-            result = stochasticToolLifeEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_thermal": {
-            const { stochasticThermalEngine } = await import("../../engines/StochasticThermalEngine.js");
-            result = stochasticThermalEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_finish": {
-            const { stochasticSurfaceFinishEngine } = await import("../../engines/StochasticSurfaceFinishEngine.js");
-            result = stochasticSurfaceFinishEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_chatter": {
-            const { stochasticChatterEngine } = await import("../../engines/StochasticChatterEngine.js");
-            result = stochasticChatterEngine.compute(params as ValidatedParams);
-            break;
-          }
-          case "uncertainty_pipeline": {
-            const { uncertaintyPropagationPipelineEngine } = await import("../../engines/UncertaintyPropagationPipelineEngine.js");
-            result = uncertaintyPropagationPipelineEngine.propagate(params as ValidatedParams);
-            break;
-          }
           // ── CNC/Machining calculators (30 engines) ──
           case "cutting_force_calc": {
             const { cuttingForceEngine } = await import("../../engines/CuttingForceEngine.js");
@@ -5084,63 +4950,9 @@ export function registerCalcDispatcher(server: any): void {
             result = flywheelEnergyEngine.calculate(params as ValidatedParams);
             break;
           }
-          case "chip_diagnose": {
-            const { chipMorphologyDiagnosticEngine } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
-            result = chipMorphologyDiagnosticEngine.diagnose(params as ValidatedParams);
-            break;
-          }
-          case "coolant_lifecycle": {
-            const { cuttingFluidLifecycleEngine } = await import("../../engines/CuttingFluidLifecycleEngine.js");
-            result = cuttingFluidLifecycleEngine.simulate(params as ValidatedParams);
-            break;
-          }
-          case "error_budget": {
-            const { machineToolErrorBudgetEngine } = await import("../../engines/MachineToolErrorBudgetEngine.js");
-            result = machineToolErrorBudgetEngine.analyze(params as ValidatedParams);
-            break;
-          }
-          case "capability_predict": {
-            const { processCapabilityPredictionEngine } = await import("../../engines/ProcessCapabilityPredictionEngine.js");
-            result = processCapabilityPredictionEngine.predict(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_wear": {
-            const { stochasticToolWearEngine } = await import("../../engines/StochasticToolWearEngine.js");
-            result = stochasticToolWearEngine.analyze(params as ValidatedParams);
-            break;
-          }
-          case "stochastic_dimension": {
-            const { stochasticDimensionalEngine } = await import("../../engines/StochasticDimensionalEngine.js");
-            result = stochasticDimensionalEngine.simulate(params as ValidatedParams);
-            break;
-          }
 
 
           // ── Metaheuristic Optimization (GA, DE, PSO, SA, BayesOpt) ──
-          case "ga_optimize": {
-            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
-            const mho = new MHO();
-            result = mho.geneticAlgorithm(params as ValidatedParams);
-            break;
-          }
-          case "de_optimize": {
-            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
-            const mho = new MHO();
-            result = mho.differentialEvolution(params as ValidatedParams);
-            break;
-          }
-          case "pso_optimize": {
-            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
-            const mho = new MHO();
-            result = mho.particleSwarmOptimization(params as ValidatedParams);
-            break;
-          }
-          case "sa_optimize": {
-            const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
-            const mho = new MHO();
-            result = mho.simulatedAnnealing(params as ValidatedParams);
-            break;
-          }
           case "bayesopt_optimize": {
             const { MetaheuristicOptimizationEngine: MHO } = await import("../../engines/MetaheuristicOptimizationEngine.js");
             const mho = new MHO();
@@ -5347,23 +5159,8 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
-          case "stochastic_deflection": {
-            const { stochasticDeflectionEngine } = await import("../../engines/StochasticDeflectionEngine.js");
-            result = stochasticDeflectionEngine.analyze(params as ValidatedParams);
-            break;
-          }
 
           // ── Phase 5 Forge: Additive Manufacturing Physics ──
-          case "am_melt_pool": {
-            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
-            result = additiveManufacturingPhysicsEngine.meltPool(params as ValidatedParams);
-            break;
-          }
-          case "am_bead_overlap": {
-            const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
-            result = additiveManufacturingPhysicsEngine.beadOverlap(params as ValidatedParams);
-            break;
-          }
           case "am_solidification": {
             const { additiveManufacturingPhysicsEngine } = await import("../../engines/AdditiveManufacturingPhysicsEngine.js");
             result = additiveManufacturingPhysicsEngine.solidification(params as ValidatedParams);
@@ -5386,16 +5183,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge: Reliability Block Diagrams ──
-          case "rbd_analyze_system": {
-            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
-            result = reliabilityBlockDiagramEngine.analyzeSystem(params as ValidatedParams);
-            break;
-          }
-          case "rbd_fault_tree": {
-            const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
-            result = reliabilityBlockDiagramEngine.faultTree(params as ValidatedParams);
-            break;
-          }
           case "rbd_importance": {
             const { reliabilityBlockDiagramEngine } = await import("../../engines/ReliabilityBlockDiagramEngine.js");
             result = reliabilityBlockDiagramEngine.importanceMeasures(params as ValidatedParams);
@@ -5418,21 +5205,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge: Cryogenic Cutting ──
-          case "cryo_heat_transfer": {
-            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
-            result = cryogenicCuttingEngine.cryoHeatTransfer(params as ValidatedParams);
-            break;
-          }
-          case "cryo_tool_life": {
-            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
-            result = cryogenicCuttingEngine.cryoToolLife(params as ValidatedParams);
-            break;
-          }
-          case "cryo_forces": {
-            const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
-            result = cryogenicCuttingEngine.cryoForces(params as ValidatedParams);
-            break;
-          }
           case "cryo_surface_integrity": {
             const { cryogenicCuttingEngine } = await import("../../engines/CryogenicCuttingEngine.js");
             result = cryogenicCuttingEngine.cryoSurfaceIntegrity(params as ValidatedParams);
@@ -5450,24 +5222,9 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge: Machining Acoustics ──
-          case "acoustics_cutting_noise": {
-            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
-            result = machiningAcousticsEngine.cuttingNoise(params as ValidatedParams);
-            break;
-          }
-          case "acoustics_machine_noise": {
-            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
-            result = machiningAcousticsEngine.machineNoise(params as ValidatedParams);
-            break;
-          }
           case "acoustics_shop_floor": {
             const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
             result = machiningAcousticsEngine.shopFloorNoise(params as ValidatedParams);
-            break;
-          }
-          case "acoustics_hearing_protection": {
-            const { machiningAcousticsEngine } = await import("../../engines/MachiningAcousticsEngine.js");
-            result = machiningAcousticsEngine.hearingProtection(params as ValidatedParams);
             break;
           }
           case "acoustics_noise_control": {
@@ -5482,16 +5239,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge: Laser Ablation Physics ──
-          case "laser_ablation_depth": {
-            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
-            result = laserAblationPhysicsEngine.ablationDepth(params as ValidatedParams);
-            break;
-          }
-          case "laser_removal_rate": {
-            const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
-            result = laserAblationPhysicsEngine.removalRate(params as ValidatedParams);
-            break;
-          }
           case "laser_haz": {
             const { laserAblationPhysicsEngine } = await import("../../engines/LaserAblationPhysicsEngine.js");
             result = laserAblationPhysicsEngine.heatAffectedZone(params as ValidatedParams);
@@ -5633,11 +5380,6 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
-          case "variability_pipeline": {
-            const { processVariabilityIntegrationEngine } = await import("../../engines/ProcessVariabilityIntegrationEngine.js");
-            result = processVariabilityIntegrationEngine.analyze(params as ValidatedParams);
-            break;
-          }
 
           // --- Batch 110A: Rotating Machinery & Power Transmission (10 engines) ---
           case "worm_gear_calc": {
@@ -6078,16 +5820,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge C: Assembly Optimization ──
-          case "assembly_sequence": {
-            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
-            result = assemblyOptimizationEngine.sequencePlan(params as ValidatedParams);
-            break;
-          }
-          case "assembly_tolerance_stack": {
-            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
-            result = assemblyOptimizationEngine.toleranceStack(params as ValidatedParams);
-            break;
-          }
           case "assembly_line_balance": {
             const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
             result = assemblyOptimizationEngine.lineBalance(params as ValidatedParams);
@@ -6098,11 +5830,6 @@ export function registerCalcDispatcher(server: any): void {
             result = assemblyOptimizationEngine.pegInHole(params as ValidatedParams);
             break;
           }
-          case "assembly_time_estimate": {
-            const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
-            result = assemblyOptimizationEngine.assemblyTime(params as ValidatedParams);
-            break;
-          }
           case "assembly_dfa_score": {
             const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
             result = assemblyOptimizationEngine.dfaScore(params as ValidatedParams);
@@ -6110,16 +5837,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge C: Energy Harvesting ──
-          case "harvest_piezo": {
-            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
-            result = energyHarvestingEngine.piezoHarvest(params as ValidatedParams);
-            break;
-          }
-          case "harvest_thermo": {
-            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
-            result = energyHarvestingEngine.thermoHarvest(params as ValidatedParams);
-            break;
-          }
           case "harvest_em": {
             const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
             result = energyHarvestingEngine.emHarvest(params as ValidatedParams);
@@ -6130,11 +5847,6 @@ export function registerCalcDispatcher(server: any): void {
             result = energyHarvestingEngine.processBudget(params as ValidatedParams);
             break;
           }
-          case "harvest_hybrid": {
-            const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
-            result = energyHarvestingEngine.hybridHarvest(params as ValidatedParams);
-            break;
-          }
           case "harvest_roi": {
             const { energyHarvestingEngine } = await import("../../engines/EnergyHarvestingEngine.js");
             result = energyHarvestingEngine.harvestROI(params as ValidatedParams);
@@ -6142,16 +5854,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge C: Transfer Learning ──
-          case "transfer_machine_similarity": {
-            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
-            result = transferLearningEngine.machineSimilarity(params as ValidatedParams);
-            break;
-          }
-          case "transfer_scale_params": {
-            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
-            result = transferLearningEngine.scaleParameters(params as ValidatedParams);
-            break;
-          }
           case "transfer_gp": {
             const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
             result = transferLearningEngine.gpTransfer(params as ValidatedParams);
@@ -6162,11 +5864,6 @@ export function registerCalcDispatcher(server: any): void {
             result = transferLearningEngine.materialTransfer(params as ValidatedParams);
             break;
           }
-          case "transfer_bayesian_update": {
-            const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
-            result = transferLearningEngine.bayesianUpdate(params as ValidatedParams);
-            break;
-          }
           case "transfer_validate": {
             const { transferLearningEngine } = await import("../../engines/TransferLearningEngine.js");
             result = transferLearningEngine.validateTransfer(params as ValidatedParams);
@@ -6174,16 +5871,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge C: CMM Path Planning ──
-          case "cmm_plan_path": {
-            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
-            result = cmmPathPlanningEngine.planPath(params as ValidatedParams);
-            break;
-          }
-          case "cmm_uncertainty_budget": {
-            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
-            result = cmmPathPlanningEngine.uncertaintyBudget(params as ValidatedParams);
-            break;
-          }
           case "cmm_sampling_strategy": {
             const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
             result = cmmPathPlanningEngine.samplingStrategy(params as ValidatedParams);
@@ -6194,11 +5881,6 @@ export function registerCalcDispatcher(server: any): void {
             result = cmmPathPlanningEngine.datumAlignment(params as ValidatedParams);
             break;
           }
-          case "cmm_acceptance_test": {
-            const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
-            result = cmmPathPlanningEngine.acceptanceTest(params as ValidatedParams);
-            break;
-          }
           case "cmm_feature_uncertainty": {
             const { cmmPathPlanningEngine } = await import("../../engines/CMMPathPlanningEngine.js");
             result = cmmPathPlanningEngine.featureUncertainty(params as ValidatedParams);
@@ -6206,16 +5888,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── Phase 5 Forge C: LAM Thermal Softening ──
-          case "lam_preheat_profile": {
-            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
-            result = lamThermalSofteningEngine.preheatProfile(params as ValidatedParams);
-            break;
-          }
-          case "lam_force_reduction": {
-            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
-            result = lamThermalSofteningEngine.forceReduction(params as ValidatedParams);
-            break;
-          }
           case "lam_tool_life": {
             const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
             result = lamThermalSofteningEngine.lamToolLife(params as ValidatedParams);
@@ -6226,11 +5898,6 @@ export function registerCalcDispatcher(server: any): void {
             result = lamThermalSofteningEngine.optimalSpacing(params as ValidatedParams);
             break;
           }
-          case "lam_process_window": {
-            const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
-            result = lamThermalSofteningEngine.processWindow(params as ValidatedParams);
-            break;
-          }
           case "lam_economics": {
             const { lamThermalSofteningEngine } = await import("../../engines/LAMThermalSofteningEngine.js");
             result = lamThermalSofteningEngine.lamEconomics(params as ValidatedParams);
@@ -6238,11 +5905,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── USF-MS0: Speed/Feed Orchestrator ──
-          case "sf_orchestrate": {
-            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
-            result = speedFeedOrchestratorEngine.compute(params as ValidatedParams);
-            break;
-          }
           case "sf_quick": {
             const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
             result = speedFeedOrchestratorEngine.compute({ ...params, uncertainty_mode: "quick" } as ValidatedParams);
@@ -6280,11 +5942,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── USF-MS0: User Tool Library ──
-          case "tool_library_add": {
-            const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
-            result = userToolLibraryEngine.addTool(params as ValidatedParams);
-            break;
-          }
           case "tool_library_import_csv": {
             const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
             result = userToolLibraryEngine.importCSV(params as ValidatedParams);
@@ -6302,16 +5959,6 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── USF-MS0: Part Geometry Pipeline ──
-          case "geometry_analyze": {
-            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
-            result = partGeometryPipelineEngine.analyzeFeatures(params as ValidatedParams);
-            break;
-          }
-          case "geometry_job_plan": {
-            const { partGeometryPipelineEngine } = await import("../../engines/PartGeometryPipelineEngine.js");
-            result = partGeometryPipelineEngine.generateJobPlan(params as ValidatedParams);
-            break;
-          }
 
           case "fs_navigate": {
             const { fileSystemNavigatorEngine } = await import("../../engines/FileSystemNavigatorEngine.js");
@@ -6358,11 +6005,6 @@ export function registerCalcDispatcher(server: any): void {
           case "multi_physics_simulate": {
             const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
             result = new PSE().multiPhysicsProcessSimulator(params as ValidatedParams);
-            break;
-          }
-          case "pareto_optimize": {
-            const { ProcessSynthesisEngine: PSE } = await import("../../engines/ProcessSynthesisEngine.js");
-            result = new PSE().paretoOptimalParameters(params as ValidatedParams);
             break;
           }
           case "auto_model_select": {
@@ -6891,66 +6533,6 @@ export function registerCalcDispatcher(server: any): void {
 
           // ── Resource Optimization: hyperMILL database extraction (2026-03-14) ──
 
-          case "hypermill_material_lookup": {
-            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
-            const hmBridge = new HyperMillMaterialBridgeEngine();
-            result = hmBridge.lookupMaterial(params.query || params.material);
-            break;
-          }
-          case "hypermill_machinability": {
-            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
-            const hmBridge2 = new HyperMillMaterialBridgeEngine();
-            result = hmBridge2.getMachinabilityFactors(params.material, params.operation || "milling");
-            break;
-          }
-          case "hypermill_diameter_sf": {
-            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
-            const hmBridge3 = new HyperMillMaterialBridgeEngine();
-            result = hmBridge3.lookupDiameterSpeedFeed(params.material, params.cutting_material || "vhm", params.diameter_mm);
-            break;
-          }
-          case "hypermill_material_search": {
-            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
-            const hmBridge4 = new HyperMillMaterialBridgeEngine();
-            result = hmBridge4.searchMaterials(params);
-            break;
-          }
-          case "hypermill_material_stats": {
-            const { HyperMillMaterialBridgeEngine } = await import("../../engines/HyperMillMaterialBridgeEngine.js");
-            const hmBridge5 = new HyperMillMaterialBridgeEngine();
-            result = hmBridge5.getStats();
-            break;
-          }
-          case "iso286_extended_it": {
-            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
-            const iso = new ISO286ExtendedEngine();
-            result = iso.calculateITGrade(params.nominal_mm, params.it_grade);
-            break;
-          }
-          case "iso286_extended_fit": {
-            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
-            const iso2 = new ISO286ExtendedEngine();
-            result = iso2.analyzeFit(params.nominal_mm, params.fit_class);
-            break;
-          }
-          case "iso286_stochastic_fit": {
-            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
-            const iso3 = new ISO286ExtendedEngine();
-            result = iso3.stochasticFitAnalysis(params.nominal_mm, params.fit_class, params.process_sigma_um, params.samples || 10000);
-            break;
-          }
-          case "iso286_recommend_fit": {
-            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
-            const iso4 = new ISO286ExtendedEngine();
-            result = iso4.recommendFit(params.application);
-            break;
-          }
-          case "iso286_variability_stack": {
-            const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
-            const iso5 = new ISO286ExtendedEngine();
-            result = iso5.variabilityStackUp(params.dimensions, params.samples || 10000, params.correlation || 0);
-            break;
-          }
 
           // ── MF-MS1: Feasibility Analysis ──────────────────────────
           case "feasibility_accessibility": {
@@ -7100,6 +6682,98 @@ export function registerCalcDispatcher(server: any): void {
             result = e5.calculate({ action: "optimize_flow", params });
             break;
           }
+          // ── Scheduling Physics (5 actions) ──────────────────────
+          case "calc_queue_theory":
+          case "calc_batch_economics":
+          case "calc_capacity_analysis":
+          case "calc_schedule_metrics":
+          case "calc_dynamic_priority": {
+            const { schedulingPhysicsEngine: spe } = await import(
+              "../../engines/SchedulingPhysicsEngine.js"
+            );
+            result = spe.calculate({ action, params });
+            break;
+          }
+
+          // ── Optimization Formulas (5 actions) ─────────────────────
+          case "calc_constrained_optimize":
+          case "calc_pareto_front":
+          case "calc_convergence_metrics":
+          case "calc_sensitivity_analysis":
+          case "calc_robust_design": {
+            const { optimizationFormulasEngine: ofe } = await import(
+              "../../engines/OptimizationFormulasEngine.js"
+            );
+            result = ofe.calculate({ action, params });
+            break;
+          }
+
+          // ── Quality Formulas (5 actions) ──────────────────────────
+          case "calc_gage_rr":
+          case "calc_sampling_plan":
+          case "calc_process_capability_advanced":
+          case "calc_measurement_uncertainty":
+          case "calc_conformance_decision": {
+            const { qualityFormulasEngine: qfe } = await import(
+              "../../engines/QualityFormulasEngine.js"
+            );
+            result = qfe.calculate({ action, params });
+            break;
+          }
+
+          // ── AI/ML Formulas (5 actions) ────────────────────────────
+          case "calc_feature_importance":
+          case "calc_model_selection":
+          case "calc_anomaly_detection":
+          case "calc_time_series_ml":
+          case "calc_reinforcement_learning": {
+            const { aimlFormulasEngine: afe } = await import(
+              "../../engines/AIMLFormulasEngine.js"
+            );
+            result = afe.calculate({ action, params });
+            break;
+          }
+
+          // ── Fixture Dynamics (4 actions) ──
+          case "fixture_vacuum_hold":
+          case "fixture_chuck_speed":
+          case "fixture_adaptive_clamp":
+          case "fixture_layout_321": {
+            const { fixtureDynamicsEngine: fde } = await import("../../engines/FixtureDynamicsEngine.js");
+            result = fde.calculate({ action, params });
+            break;
+          }
+
+          // ── Digital Twin Formulas (4 actions) ──
+          case "digital_twin_ekf_predict":
+          case "digital_twin_ekf_update":
+          case "digital_twin_drift_detect":
+          case "digital_twin_divergence": {
+            const { digitalTwinFormulasEngine: dtfe } = await import("../../engines/DigitalTwinFormulasEngine.js");
+            result = dtfe.calculate({ action, params });
+            break;
+          }
+
+          // ── Metrology Budget (4 actions) ──
+          case "metrology_expanded_uncertainty":
+          case "metrology_thermal_compensation":
+          case "metrology_conformance_probability":
+          case "metrology_guard_band": {
+            const { metrologyBudgetEngine: mbe } = await import("../../engines/MetrologyBudgetEngine.js");
+            result = mbe.calculate({ action, params });
+            break;
+          }
+
+          // ── Sustainability Formulas (4 actions) ──
+          case "sustainability_carbon_footprint":
+          case "sustainability_specific_energy":
+          case "sustainability_coolant_lifecycle":
+          case "sustainability_material_utilization": {
+            const { sustainabilityFormulasEngine: sfe } = await import("../../engines/SustainabilityFormulasEngine.js");
+            result = sfe.calculate({ action, params });
+            break;
+          }
+
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }

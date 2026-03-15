@@ -2098,6 +2098,24 @@ export { payrollEngine, PayrollEngine } from "./PayrollEngine.js";
 export { invoicingEngine, InvoicingEngine } from "./InvoicingEngine.js";
 export { toolUsageEngine, ToolUsageEngine } from "./ToolUsageEngine.js";
 export { actualCostEngine, ActualCostEngine } from "./ActualCostEngine.js";
+
+// Quality Formulas (Gage R&R, sampling, capability, conformance)
+export { qualityFormulasEngine, QualityFormulasEngine } from "./QualityFormulasEngine.js";
+
+// AI/ML Formulas (feature importance, model selection, anomaly, reinforcement)
+export { aimlFormulasEngine, AIMLFormulasEngine } from "./AIMLFormulasEngine.js";
+
+// Fixture Dynamics (vacuum hold, chuck speed, adaptive clamping, 3-2-1)
+export { fixtureDynamicsEngine, FixtureDynamicsEngine } from "./FixtureDynamicsEngine.js";
+
+// Digital Twin Formulas (EKF predict/update, CUSUM drift, model divergence)
+export { digitalTwinFormulasEngine, DigitalTwinFormulasEngine } from "./DigitalTwinFormulasEngine.js";
+
+// Metrology Budget (expanded uncertainty, thermal compensation, conformance probability, guard band)
+export { metrologyBudgetEngine, MetrologyBudgetEngine } from "./MetrologyBudgetEngine.js";
+
+// Sustainability Formulas (carbon footprint, specific energy, coolant lifecycle, material utilization)
+export { sustainabilityFormulasEngine, SustainabilityFormulasEngine } from "./SustainabilityFormulasEngine.js";
 export { quoteEstimatorEngine, QuoteEstimatorEngine } from "./QuoteEstimatorEngine.js";
 export { secondaryOpsEngine, SecondaryOpsEngine } from "./SecondaryOpsEngine.js";
 export { quoteAnalyticsEngine, QuoteAnalyticsEngine } from "./QuoteAnalyticsEngine.js";
@@ -3365,6 +3383,30 @@ export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from "./Sequence
 
 // PhysicsMLHybridEngine — 20 HYBRID formulas (coupled physics, ML-physics, optimization, online learning, system-level)
 export { physicsMLHybridEngine, PhysicsMLHybridEngine } from "./PhysicsMLHybridEngine.js";
+
+// CK-MS12 — NLP CAM Parser, Program Compare, Result Cache, Batch CAM
+export {
+  NLPCAMParserEngine, nlpCAMParserEngine,
+  type CAMFeature, type CAMFeatureType, type ParsedDimension,
+  type CAMTolerance, type SurfaceFinish as CAMSurfaceFinish,
+  type OperationSuggestion, type ValidationResult as CAMValidationResult,
+  type MaterialInfo, type MachineInfo, type ParsedCAMRequest,
+} from "./NLPCAMParserEngine.js";
+export {
+  ProgramCompareEngine, programCompareEngine,
+  type DiffLine, type DiffLineType, type ToolEntry as CompareToolEntry,
+  type PhysicsComparison, type PhysicsSnapshot, type CycleTimeComparison,
+  type ToolUsageComparison, type SafetyDiff, type FullComparison,
+} from "./ProgramCompareEngine.js";
+export {
+  CAMResultCacheEngine, camResultCacheEngine,
+  type CacheEntry, type CacheStats, type CacheOptions,
+} from "./CAMResultCacheEngine.js";
+export {
+  BatchCAMEngine, batchCAMEngine,
+  type BatchPart, type PartFeature, type SharedConfig, type BatchOptions,
+  type PartResult, type ToolUsed, type BatchSummary,
+} from "./BatchCAMEngine.js";
 
 // ThreadStrengthFatigueEngine — Thread shear/pullout, Goodman fatigue, bolt preload, Junker loosening, joint analysis
 export { threadStrengthFatigueEngine, ThreadStrengthFatigueEngine } from "./ThreadStrengthFatigueEngine.js";
