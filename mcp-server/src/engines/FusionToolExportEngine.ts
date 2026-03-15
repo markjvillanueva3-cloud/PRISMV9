@@ -19,6 +19,18 @@ function getToolCatalog() {
   return _toolCatalog;
 }
 
+// Lazy-load MachiningPlaybookEngine for playbook tips in comments
+let _playbookEngine: any = null;
+function getPlaybookEngine() {
+  if (_playbookEngine === null) {
+    try {
+      const m = require("./MachiningPlaybookEngine.js");
+      _playbookEngine = m.machiningPlaybookEngine ?? m.default ?? false;
+    } catch { _playbookEngine = false; }
+  }
+  return _playbookEngine || null;
+}
+
 // Kienzle-based default speeds per ISO group
 const DEFAULT_VC: Record<string, number> = {
   P: 150, M: 100, K: 200, N: 400, S: 50, H: 120,
@@ -331,7 +343,7 @@ export class FusionToolExportEngine {
       description: `PRISM: ${vendor} ${designation} ${coating}`,
       vendor,
       "product-id": productId,
-      comment: `Physics-backed S/F from PRISM (Kienzle/Taylor). Holder: ${taperType}`,
+      comment: `Physics-backed S/F from PRISM (Kienzle/Taylor). Holder: ${taperType}${this._enrichComment(tType, d)}`,
     };
   }
 
@@ -389,12 +401,15 @@ export class FusionToolExportEngine {
       // Coolant strategy based on tool type
       const coolant = this._coolantForPreset(g.iso, toolType || "end_mill", d);
 
+      // Ramp parameters: tool-type-aware angle, RPM, and feed scaling
+      const ramp = this._rampParams(toolType || "end_mill");
+
       return {
         name: g.name,
         f_n: scaledFz,
         n: rpm,
-        n_ramp: Math.round(rpm * 0.6),
-        f_ramp: Math.round(feedMmMin * 0.3),
+        n_ramp: Math.round(rpm * ramp.rpmScale),
+        f_ramp: Math.round(feedMmMin * ramp.feedScale),
         stepdown,
         stepover,
         tool_coolant: coolant,
@@ -443,6 +458,45 @@ export class FusionToolExportEngine {
     if (/bore/i.test(type)) return "boring bar";
     if (/thread.*mill/i.test(type)) return "thread mill";
     return "flat end mill";
+  }
+
+  /**
+   * Enrich tool comment with MachiningPlaybook tips (sync).
+   * Returns playbook snippet or empty string if unavailable.
+   */
+  private _enrichComment(toolType: string, diameter: number): string {
+    try {
+      const pb = getPlaybookEngine();
+      if (!pb?.advise) return "";
+      const op = /drill/i.test(toolType) ? "drilling"
+        : /tap/i.test(toolType) ? "tapping"
+        : /ball/i.test(toolType) ? "finishing"
+        : "milling";
+      const result = pb.advise({
+        operation_type: op,
+        material_iso: "P",
+        features: [`diameter_${diameter}`],
+      });
+      if (result?.rules?.length) {
+        const topTips = result.rules
+          .slice(0, 2)
+          .map((r: any) => r.title || r.id)
+          .join("; ");
+        return ` | Playbook: ${topTips}`;
+      }
+    } catch { /* playbook not available */ }
+    return "";
+  }
+
+  /**
+   * Get ramp angle (degrees) and feed/RPM scaling factors by tool type.
+   * Ball nose can plunge steeper; drills do full plunge.
+   */
+  private _rampParams(toolType: string): { angleDeg: number; rpmScale: number; feedScale: number } {
+    if (/drill/i.test(toolType)) return { angleDeg: 90, rpmScale: 1.0, feedScale: 1.0 };
+    if (/ball/i.test(toolType)) return { angleDeg: 5, rpmScale: 0.7, feedScale: 0.4 };
+    // End mills, face mills, etc.: conservative 2-3 deg ramp
+    return { angleDeg: 2.5, rpmScale: 0.6, feedScale: 0.3 };
   }
 
   /**
