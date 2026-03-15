@@ -251,3 +251,81 @@ class PRISMClient:
             "segments": segments,
             "config": config,
         })
+
+    # ── Remaining 15% — Full PRISM system access ─────────────
+
+    def multi_process(
+        self,
+        features: List[Dict],
+        material: Dict,
+        machine: Optional[Dict] = None,
+    ) -> Dict[str, Any]:
+        """Multi-process: turning + EDM + grinding + laser + waterjet."""
+        return self.call_action("cam_multi_process", {
+            "features": features,
+            "material": material,
+            "machine": machine,
+        })
+
+    def mill_turn(
+        self,
+        operations: List[Dict],
+        config: Dict,
+    ) -> Dict[str, Any]:
+        """Mill-turn / Swiss program with live tools and sub-spindle."""
+        return self.call_action("cam_mill_turn", {
+            "operations": operations,
+            "config": config,
+        })
+
+    def five_axis_convert(
+        self,
+        segments: List[Dict],
+        config: Dict,
+    ) -> Dict[str, Any]:
+        """Convert 3-axis toolpath to 5-axis with lead/lean and RTCP."""
+        return self.call_action("cam_5axis_convert", {
+            "segments": segments,
+            "config": config,
+        })
+
+    def advanced_strategy(
+        self,
+        strategy: str,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Run advanced strategy: flowline, geodesic, scallop, swarf, thread, chamfer."""
+        return self.call_action("cam_advanced_strategy", {
+            "strategy": strategy,
+            **kwargs,
+        })
+
+    def complex_generate(
+        self,
+        features: List[Dict],
+        material: str,
+        machine_name: str,
+        stock_dims: Dict,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Generate multi-setup G-code for 200+ feature complex parts."""
+        return self.call_action("cam_complex_generate", {
+            "features": features,
+            "material": material,
+            "machine_name": machine_name,
+            "stock_dims": stock_dims,
+            **kwargs,
+        })
+
+    def intelligent_sequence(
+        self,
+        operations: List[Dict],
+    ) -> Dict[str, Any]:
+        """33-rule production ordering for operation sequence."""
+        return self.call_action("cam_intelligent_sequence", {
+            "operations": operations,
+        })
+
+    def list_actions(self) -> Dict[str, Any]:
+        """List all available PRISM CAM actions."""
+        return self.call_action("cam_list_actions", {})
