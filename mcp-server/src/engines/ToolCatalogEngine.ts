@@ -1623,10 +1623,10 @@ export class ToolCatalogEngine {
         type: "insert",
         material: "carbide",
         physical: {
-          cutting_diameter_mm: ins.ic_mm ?? 0,
-          shank_diameter_mm: 0,
-          overall_length_mm: ins.thickness_mm ?? 0,
-          flute_length_mm: ins.ic_mm ?? 0,
+          cutting_diameter_mm: ins.ic_mm ?? 10,
+          shank_diameter_mm: ins.ic_mm ?? 10,
+          overall_length_mm: ins.thickness_mm ?? (ins.ic_mm ?? 10) * 0.3,
+          flute_length_mm: ins.thickness_mm ?? (ins.ic_mm ?? 10) * 0.3,
           nose_radius_mm: ins.nose_radius_mm,
         },
         iso_groups: ["P", "M", "K"],
@@ -1642,6 +1642,7 @@ export class ToolCatalogEngine {
     for (const et of EMUGE_TOOLS) {
       const id = `EMG-${et.designation}`;
       if (this.tools.has(id)) continue;
+      if (!et.diameter_mm || et.diameter_mm <= 0) continue;
 
       const toolType = (et.type === "twist_drill" || et.type === "chamfer_drill" ? "drill" :
                         et.type === "tap" || et.type === "cold_forming_tap" ? "tap" :
