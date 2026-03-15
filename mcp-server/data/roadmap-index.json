@@ -2,8 +2,8 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-14T21:30:00Z",
-  "total_milestones": 144,
-  "completed_milestones": 137,
+  "total_milestones": 151,
+  "completed_milestones": 138,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
     {
@@ -1926,9 +1926,9 @@
       "dependencies": [
         "CK-MS8"
       ],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 4,
-      "completed_units": 0,
+      "completed_units": 4,
       "sessions": "1",
       "envelope_path": "milestones/CK-MS9.json"
     },
@@ -1983,6 +1983,102 @@
       "completed_units": 0,
       "sessions": "1",
       "envelope_path": "milestones/CK-MS13.json"
+    },
+    {
+      "id": "QS-MS0",
+      "title": "Canonical Physics Constants Module",
+      "track": "QS",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS0.json",
+      "position_path": "state/QS-MS0/position.json"
+    },
+    {
+      "id": "QS-MS1",
+      "title": "Correctness Fixes",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS0"
+      ],
+      "status": "not_started",
+      "total_units": 9,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS1.json",
+      "position_path": "state/QS-MS1/position.json"
+    },
+    {
+      "id": "QS-MS2",
+      "title": "Pipeline Synergy — Simulation + PartGeometry + CAMKernel",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS1"
+      ],
+      "status": "not_started",
+      "total_units": 7,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS2.json",
+      "position_path": "state/QS-MS2/position.json"
+    },
+    {
+      "id": "QS-MS3",
+      "title": "Pipeline Synergy — SFO + ProcessVariability + Assemblers",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS2"
+      ],
+      "status": "not_started",
+      "total_units": 7,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS3.json",
+      "position_path": "state/QS-MS3/position.json"
+    },
+    {
+      "id": "QS-MS4",
+      "title": "Dispatcher Cleanup",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS3"
+      ],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS4.json",
+      "position_path": "state/QS-MS4/position.json"
+    },
+    {
+      "id": "QS-MS5",
+      "title": "Type Safety + Error Observability",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS4"
+      ],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS5.json",
+      "position_path": "state/QS-MS5/position.json"
+    },
+    {
+      "id": "QS-MS6",
+      "title": "Cross-Pipeline Innovation",
+      "track": "QS",
+      "dependencies": [
+        "QS-MS5"
+      ],
+      "status": "not_started",
+      "total_units": 11,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/QS-MS6.json",
+      "position_path": "state/QS-MS6/position.json"
     }
   ]
 }
