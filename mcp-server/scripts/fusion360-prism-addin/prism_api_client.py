@@ -329,3 +329,124 @@ class PRISMClient:
     def list_actions(self) -> Dict[str, Any]:
         """List all available PRISM CAM actions."""
         return self.call_action("cam_list_actions", {})
+
+    # ── Underutilized systems now exposed ─────────────────────
+
+    def browse_tools(
+        self,
+        tool_type: Optional[str] = None,
+        diameter_range: Optional[List[float]] = None,
+        manufacturer: Optional[str] = None,
+        iso_group: Optional[str] = None,
+        max_results: int = 20,
+    ) -> Dict[str, Any]:
+        """Browse the 73,827-tool catalog with filters.
+        Hover tooltip: 'Search real manufacturer tools — OSG, Kennametal,
+        Sandvik, etc. Each tool has full geometry, coatings, and
+        physics-backed cutting parameters for 6 material groups.'
+        """
+        params: Dict[str, Any] = {"max_results": max_results}
+        if tool_type: params["type"] = tool_type
+        if diameter_range: params["diameter_range"] = diameter_range
+        if manufacturer: params["manufacturer"] = manufacturer
+        if iso_group: params["iso_group"] = iso_group
+        return self.call_action("tool_catalog_search", params)
+
+    def get_machine_specs(self, machine_name: str) -> Dict[str, Any]:
+        """Get full machine specs: spindle curve, axis limits, controller.
+        Hover tooltip: 'PRISM profiles 910 CNC machines from 48 manufacturers
+        with spindle power curves, axis travel, rapid rates, and controller type.'
+        """
+        return self.call_action("machine_lookup", {"name": machine_name})
+
+    def get_material_properties(self, material: str) -> Dict[str, Any]:
+        """Get material physics: kc1.1, mc, thermal conductivity, constitutive model.
+        Hover tooltip: 'PRISM has 2,957 materials with Kienzle coefficients,
+        Johnson-Cook constitutive parameters, and thermal properties.
+        Better material data = more accurate speeds and feeds.'
+        """
+        return self.call_action("material_lookup", {"query": material})
+
+    def compare_programs(
+        self, gcode_a: str, gcode_b: str,
+    ) -> Dict[str, Any]:
+        """Compare two G-code programs with physics analysis.
+        Hover tooltip: 'See exactly what PRISM changed: cycle time difference,
+        feed variation range, tool change count, and which is better.'
+        """
+        return self.call_action("cam_compare_programs", {
+            "gcode_a": gcode_a, "gcode_b": gcode_b,
+        })
+
+    def generate_probe_program(
+        self,
+        probe_points: List[Dict],
+        controller: str = "renishaw_fanuc",
+        probe_tool_number: int = 50,
+    ) -> Dict[str, Any]:
+        """Generate probing G-code for WCS setup or in-process inspection.
+        Hover tooltip: 'Auto-generates probe routines for Renishaw, Heidenhain,
+        Blum, or Siemens probes. Includes WCS setup, first article inspection,
+        and in-process dimensional checks with auto-compensation.'
+        """
+        return self.call_action("probe_generate", {
+            "features": probe_points,
+            "config": {
+                "controller": controller,
+                "probe_tool_number": probe_tool_number,
+            },
+        })
+
+    def optimize_magazine(
+        self,
+        tool_sequence: List[Dict],
+        magazine_type: str = "disc",
+        magazine_slots: int = 24,
+    ) -> Dict[str, Any]:
+        """Optimize tool magazine layout for minimum change time.
+        Hover tooltip: 'Arranges tools in the magazine to minimize
+        tool change time using nearest-neighbor adjacency optimization.
+        Saves 5-15% cycle time on multi-tool programs.'
+        """
+        return self.call_action("magazine_optimize", {
+            "tools": tool_sequence,
+            "magazine_type": magazine_type,
+            "magazine_slots": magazine_slots,
+        })
+
+    def feasibility_check(
+        self,
+        stock: Dict,
+        operations: List[Dict],
+        material: str,
+    ) -> Dict[str, Any]:
+        """Full manufacturability feasibility analysis.
+        Hover tooltip: 'Checks if your part can actually be machined:
+        tool reach, holder clearance, clamping force, wall rigidity,
+        dead-end detection, and setup transition feasibility.
+        Returns FEASIBLE / MARGINAL / INFEASIBLE with specific issues.'
+        """
+        return self.call_action("feasibility_check", {
+            "stock": stock,
+            "operations": operations,
+            "material": material,
+        })
+
+    def generate_quote(
+        self,
+        features: List[Dict],
+        material: str,
+        quantity: int = 1,
+        machine_rate_per_hour: float = 95.0,
+    ) -> Dict[str, Any]:
+        """Generate physics-backed manufacturing quote.
+        Hover tooltip: 'Estimates cost per part using physics-based cycle time,
+        actual tool costs from catalog, machine rates, and material waste.
+        Includes setup time, secondary operations, and quantity price breaks.'
+        """
+        return self.call_action("quote_estimate", {
+            "features": features,
+            "material": material,
+            "quantity": quantity,
+            "machine_rate_per_hour": machine_rate_per_hour,
+        })

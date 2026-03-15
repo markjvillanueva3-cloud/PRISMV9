@@ -1,0 +1,41 @@
+{
+  "id": "F360-MS0",
+  "title": "Fusion 360 PRISM Panel Add-In — Complete UX with Tooltips + Onboarding",
+  "track": "F360",
+  "status": "not_started",
+  "total_units": 5,
+  "completed_units": 0,
+  "description": "Build the Fusion 360 sidebar panel add-in with: Setup panel (material+machine+stock), Optimize button (one-click auto-fill), Results panel (per-operation physics with traffic lights), Hover tooltips on every field (physics explanation + what-if), Onboarding overlay for first-time users, instruction links.",
+  "units": [
+    {
+      "id": "F360-MS0/U01",
+      "title": "Add-in skeleton: toolbar registration, HTML palette sidebar, PRISM server connection manager",
+      "status": "not_started",
+      "description": "Python entry point (prism_addin.py) that registers in Fusion CAM workspace toolbar. Creates HTML palette for sidebar panel. Connection manager checks PRISM server health on startup and shows green/red status. Settings persistence for machine selection, defaults, and user preferences in JSON file."
+    },
+    {
+      "id": "F360-MS0/U02",
+      "title": "Setup Panel: material dropdown, machine selector, stock auto-detect",
+      "status": "not_started",
+      "description": "Material dropdown grouped by ISO class (P/M/K/N/S/H) with common names. Machine selector from PRISM 910-machine catalog with search. Stock auto-detected from Fusion model bounding box. Each field has hover tooltip explaining WHY this data matters (e.g., 'PRISM uses material to calculate Kienzle cutting forces')."
+    },
+    {
+      "id": "F360-MS0/U03",
+      "title": "Optimize Button + Results Panel: one-click auto-fill with traffic light status",
+      "status": "not_started",
+      "description": "Big green 'Optimize All' button + aggressiveness slider (1-10). Results panel shows per-operation: tool (with score), S/F (with chip thinning note), DOC/WOC, strategy, cycle time (P50/P95), cost breakdown. Traffic lights: green=safe, yellow=check, red=problem. Expandable physics dashboard: force, deflection, chatter risk, Cpk, tool life, DFM score."
+    },
+    {
+      "id": "F360-MS0/U04",
+      "title": "Hover tooltip system: physics explanation + 'why this value' + 'what if I change it'",
+      "status": "not_started",
+      "description": "Every auto-filled field shows tooltip on hover with 4 sections: (1) What this parameter does (plain English), (2) How PRISM calculated it (formula name from FormulaRegistry), (3) Why this specific value (reasoning for THIS part/material/machine), (4) Consequence of changing it (increase → more force → check deflection). Tooltips pull from FormulaRegistry, PlaybookEngine, and TribalKnowledgeEngine."
+    },
+    {
+      "id": "F360-MS0/U05",
+      "title": "Onboarding overlay + instruction panel + tutorial links",
+      "status": "not_started",
+      "description": "First-launch dismissable overlay: 3-step guide (Select material → Click Optimize → Review & Generate). Instruction panel accessible from '?' button: explains each section, links to video tutorials. 'Show me why' links on every recommendation that open detailed physics explanation. Error messages with actionable fix suggestions, not cryptic codes."
+    }
+  ]
+}
