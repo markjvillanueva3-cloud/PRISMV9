@@ -113,17 +113,47 @@ class FeasibilityOrchestratorEngineImpl {
     let seqResult: any;
     try {
       const mod = await import("./SequenceFeasibilityEngine.js");
-      seqResult = mod.sequenceFeasibilityEngine.simulate(
-        job.operations as any,
-        job.stock,
-        {
-          material_E_GPa: job.material?.E_GPa,
-          friction_coeff: job.material?.friction_coeff,
-          safety_factor: job.options?.safety_factor,
-          clamp_area_mm2: job.stock.length_mm * job.stock.width_mm,
-          auto_reorder: job.options?.auto_reorder,
-        }
-      );
+      seqResult = mod.sequenceFeasibilityEngine.simulateSequence({
+        operations: (job.operations as any[]).map((op: any, idx: number) => ({
+          id: op.id || `op_${idx}`,
+          type: op.type || "pocket",
+          position: op.position || { x: 0, y: 0, z: job.stock.height_mm || 50 },
+          dimensions: {
+            width: op.width_mm || op.diameter_mm || 20,
+            height: op.length_mm || op.diameter_mm || 20,
+            depth: op.depth_mm || 10,
+          },
+          tool: {
+            id: op.tool_id || `T${idx + 1}`,
+            diameter_mm: op.tool_diameter_mm || 10,
+            length_mm: op.tool_length_mm || 50,
+          },
+          forces: op.cutting_force_N ? { cutting_force_N: op.cutting_force_N } : undefined,
+          requires_datum: op.requires_datum,
+          removes_surface: op.removes_surface,
+          creates_surface: op.creates_surface,
+          requires_surface: op.requires_surface,
+          setup_id: op.setup_id,
+        })),
+        stock: {
+          bounds: {
+            min_x: 0, max_x: job.stock.length_mm || 200,
+            min_y: 0, max_y: job.stock.width_mm || 200,
+            min_z: 0, max_z: job.stock.height_mm || 50,
+          },
+          material: job.material?.name || "unknown",
+        },
+        workholding: {
+          clamping_method: "vise" as const,
+          clamp_positions: [{
+            face: "bottom",
+            area_mm2: (job.stock.length_mm || 200) * (job.stock.width_mm || 200),
+            position: { x: 0, y: 0, z: 0 },
+          }],
+          friction_coefficient: job.material?.friction_coeff,
+        },
+        safety_factor: job.options?.safety_factor,
+      });
       layers.push("sequence_feasibility");
     } catch {
       seqResult = {
