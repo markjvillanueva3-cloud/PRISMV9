@@ -672,6 +672,58 @@ result = {"success": True, "feature_name": mirrors.add(mi).name}
       throw err;
     }
   }
+
+  // ── Tool Library Management ─────────────────────────────────────
+
+  /**
+   * Push tools to Fusion 360 tool library via live bridge.
+   * Tools must be in Fusion 360 .tools format (from FusionToolExportEngine).
+   */
+  async pushToolLibrary(tools: unknown[], libraryName: string = "PRISM"): Promise<{ success: boolean; imported: number; library: string; path?: string }> {
+    return this._post<{ success: boolean; imported: number; library: string; path?: string }>("/tool-import", {
+      tools,
+      library_name: libraryName,
+    });
+  }
+
+  /**
+   * List all tool libraries available in Fusion 360.
+   */
+  async getToolLibraries(): Promise<{ libraries: Array<{ name: string; tool_count: number; path: string }> }> {
+    return this._get<{ libraries: Array<{ name: string; tool_count: number; path: string }> }>("/tool-library");
+  }
+
+  /**
+   * Search tools across Fusion 360 libraries.
+   */
+  async searchTools(query: string, type?: string): Promise<{ results: unknown[] }> {
+    const params = new URLSearchParams({ q: query });
+    if (type) params.set("type", type);
+    return this._get<{ results: unknown[] }>(`/tool-library/search?${params.toString()}`);
+  }
+
+  /**
+   * Delete a tool library by name.
+   */
+  async deleteToolLibrary(name: string): Promise<{ success: boolean }> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+    try {
+      const res = await fetch(`${this.baseUrl}/tool-library/${encodeURIComponent(name)}`, {
+        method: "DELETE",
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`HTTP ${res.status}: ${text}`);
+      }
+      return (await res.json()) as { success: boolean };
+    } catch (err) {
+      clearTimeout(timeout);
+      throw err;
+    }
+  }
 }
 
 // ── Singleton Export ────────────────────────────────────────────────
