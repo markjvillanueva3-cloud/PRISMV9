@@ -26,16 +26,22 @@ API Endpoints:
   POST /undo       -- Undo last operation
   POST /new        -- Create new document
   POST /parameter  -- Set/get user parameters
+  POST /tool-import -- Import tools into a Fusion 360 tool library
+  GET  /tool-library -- List all tool libraries
+  GET  /tool-library/search -- Search tools across libraries
+  DELETE /tool-library/<name> -- Remove a tool library
 """
 import adsk.core
 import adsk.fusion
 import adsk.cam
 import threading
 import json
+import os
+import glob as globmod
 import traceback
 import math
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 
 PORT = 18360
 _app = None
@@ -56,7 +62,9 @@ class FusionAPIHandler(BaseHTTPRequestHandler):
     # ── GET ──────────────────────────────────────────────────────────
 
     def do_GET(self):
-        path = urlparse(self.path).path
+        parsed = urlparse(self.path)
+        path = parsed.path
+        query = parse_qs(parsed.query)
         try:
             if path == "/status":
                 self._respond(self._get_status())
@@ -64,6 +72,12 @@ class FusionAPIHandler(BaseHTTPRequestHandler):
                 self._respond(self._get_geometry())
             elif path == "/health":
                 self._respond({"status": "ok", "port": PORT})
+            elif path == "/tool-library":
+                self._respond(self._list_tool_libraries())
+            elif path == "/tool-library/search":
+                q = query.get("q", [""])[0]
+                tool_type = query.get("type", [""])[0]
+                self._respond(self._search_tool_libraries(q, tool_type))
             else:
                 self._respond({"error": f"Unknown endpoint: {path}"}, 404)
         except Exception as e:
@@ -91,6 +105,7 @@ class FusionAPIHandler(BaseHTTPRequestHandler):
             "/undo": lambda b: self._undo(),
             "/new": self._new_document,
             "/parameter": self._handle_parameter,
+            "/tool-import": self._import_tools,
         }
 
         try:
@@ -736,6 +751,312 @@ class FusionAPIHandler(BaseHTTPRequestHandler):
             }
 
         return {"success": False, "error": f"Unknown action: {action}"}
+
+    # ── DELETE ─────────────────────────────────────────────────────────
+
+    def do_DELETE(self):
+        path = urlparse(self.path).path
+        try:
+            if path.startswith("/tool-library/"):
+                lib_name = path[len("/tool-library/"):]
+                if not lib_name:
+                    self._respond({"error": "Missing library name in URL"}, 400)
+                    return
+                self._respond(self._delete_tool_library(lib_name))
+            else:
+                self._respond({"error": f"Unknown endpoint: {path}"}, 404)
+        except Exception as e:
+            self._respond({"error": str(e), "traceback": traceback.format_exc()}, 500)
+
+    # ── Tool library directory helper ─────────────────────────────────
+
+    def _get_tool_library_dir(self):
+        """Return the standard Fusion 360 local tool library directory."""
+        appdata = os.environ.get("APPDATA", "")
+        lib_dir = os.path.join(appdata, "Autodesk", "Autodesk Fusion 360",
+                               "CAM", "Libraries", "Local")
+        os.makedirs(lib_dir, exist_ok=True)
+        return lib_dir
+
+    # ── POST /tool-import ─────────────────────────────────────────────
+
+    def _import_tools(self, body):
+        tools = body.get("tools", [])
+        library_name = body.get("library_name", "PRISM")
+        if not tools:
+            return {"error": "Missing or empty 'tools' array", "success": False}
+
+        # Try adsk.cam API first
+        try:
+            app = adsk.core.Application.get()
+            cam_product = adsk.cam.CAM.cast(app.activeProduct)
+            if cam_product is None:
+                raise RuntimeError("CAM workspace not active")
+
+            # Access tool libraries through CAM
+            tool_libs = cam_product.toolLibraries
+            # Find or create library by URL
+            lib_url = None
+            local_libs = tool_libs.toolLibraryUrls
+            for i in range(local_libs.count):
+                url = local_libs.item(i)
+                if url.toString().endswith(library_name) or url.leafName == library_name:
+                    lib_url = url
+                    break
+
+            if lib_url is None:
+                # Create new library in local folder
+                local_folder = tool_libs.urlByLocation(adsk.cam.LibraryLocations.LocalLibraryLocation)
+                lib_url = local_folder.clone()
+                lib_url.appendPath(library_name)
+
+            imported = 0
+            for tool_data in tools:
+                try:
+                    tool_lib = tool_libs.toolLibraryAtUrl(lib_url)
+                    new_tool = adsk.cam.Tool.createFromJson(json.dumps(tool_data))
+                    tool_lib.add(new_tool)
+                    imported += 1
+                except Exception:
+                    # Individual tool import failure — skip and continue
+                    continue
+
+            return {
+                "success": True,
+                "imported": imported,
+                "total": len(tools),
+                "library": library_name,
+                "method": "cam_api",
+            }
+
+        except Exception:
+            # Fallback: write .tools JSON file to the standard library directory
+            lib_dir = self._get_tool_library_dir()
+            file_path = os.path.join(lib_dir, f"{library_name}.tools")
+
+            # Load existing library file if present
+            existing_tools = []
+            if os.path.isfile(file_path):
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        existing_data = json.load(f)
+                    existing_tools = existing_data.get("data", [])
+                except Exception:
+                    existing_tools = []
+
+            # Build a set of existing tool descriptions for dedup
+            existing_descs = set()
+            for t in existing_tools:
+                desc = t.get("description", t.get("product-id", ""))
+                if desc:
+                    existing_descs.add(desc)
+
+            imported = 0
+            for tool_data in tools:
+                desc = tool_data.get("description", tool_data.get("product-id", ""))
+                if desc and desc in existing_descs:
+                    # Update existing tool in-place
+                    for i, t in enumerate(existing_tools):
+                        if t.get("description", t.get("product-id", "")) == desc:
+                            existing_tools[i] = tool_data
+                            break
+                else:
+                    existing_tools.append(tool_data)
+                imported += 1
+
+            library_data = {
+                "version": 2,
+                "data": existing_tools,
+            }
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(library_data, f, indent=2)
+
+            return {
+                "success": True,
+                "imported": imported,
+                "total": len(tools),
+                "library": library_name,
+                "path": file_path,
+                "method": "file_fallback",
+            }
+
+    # ── GET /tool-library ─────────────────────────────────────────────
+
+    def _list_tool_libraries(self):
+        libraries = []
+
+        # Try adsk.cam API first
+        try:
+            app = adsk.core.Application.get()
+            cam_product = adsk.cam.CAM.cast(app.activeProduct)
+            if cam_product is None:
+                raise RuntimeError("CAM workspace not active")
+
+            tool_libs = cam_product.toolLibraries
+            lib_urls = tool_libs.toolLibraryUrls
+            for i in range(lib_urls.count):
+                url = lib_urls.item(i)
+                try:
+                    lib = tool_libs.toolLibraryAtUrl(url)
+                    tool_count = lib.count if lib else 0
+                except Exception:
+                    tool_count = 0
+                libraries.append({
+                    "name": url.leafName if hasattr(url, "leafName") else url.toString().split("/")[-1],
+                    "tool_count": tool_count,
+                    "path": url.toString(),
+                    "source": "cam_api",
+                })
+
+            return {"libraries": libraries, "method": "cam_api"}
+
+        except Exception:
+            # Fallback: list .tools files in the library directory
+            lib_dir = self._get_tool_library_dir()
+            tools_files = globmod.glob(os.path.join(lib_dir, "*.tools"))
+
+            for file_path in sorted(tools_files):
+                name = os.path.splitext(os.path.basename(file_path))[0]
+                tool_count = 0
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                    tool_count = len(data.get("data", []))
+                except Exception:
+                    pass
+                libraries.append({
+                    "name": name,
+                    "tool_count": tool_count,
+                    "path": file_path,
+                    "source": "file_fallback",
+                })
+
+            return {"libraries": libraries, "method": "file_fallback"}
+
+    # ── GET /tool-library/search ──────────────────────────────────────
+
+    def _search_tool_libraries(self, query, tool_type):
+        if not query and not tool_type:
+            return {"error": "Provide at least 'q' or 'type' query parameter", "matches": []}
+
+        query_lower = query.lower() if query else ""
+        type_lower = tool_type.lower() if tool_type else ""
+        matches = []
+
+        # Try adsk.cam API first
+        try:
+            app = adsk.core.Application.get()
+            cam_product = adsk.cam.CAM.cast(app.activeProduct)
+            if cam_product is None:
+                raise RuntimeError("CAM workspace not active")
+
+            tool_libs = cam_product.toolLibraries
+            lib_urls = tool_libs.toolLibraryUrls
+            for i in range(lib_urls.count):
+                url = lib_urls.item(i)
+                try:
+                    lib = tool_libs.toolLibraryAtUrl(url)
+                    if not lib:
+                        continue
+                    lib_name = url.leafName if hasattr(url, "leafName") else url.toString().split("/")[-1]
+                    for j in range(lib.count):
+                        tool = lib.item(j)
+                        try:
+                            tool_json = json.loads(tool.toJson())
+                        except Exception:
+                            tool_json = {}
+                        tool_desc = tool_json.get("description", "").lower()
+                        tool_pid = tool_json.get("product-id", "").lower()
+                        tool_tp = tool_json.get("type", "").lower()
+
+                        if query_lower and query_lower not in tool_desc and query_lower not in tool_pid:
+                            continue
+                        if type_lower and type_lower != tool_tp:
+                            continue
+
+                        matches.append({
+                            "library": lib_name,
+                            "tool": tool_json,
+                            "source": "cam_api",
+                        })
+                except Exception:
+                    continue
+
+            return {"matches": matches, "count": len(matches), "method": "cam_api"}
+
+        except Exception:
+            # Fallback: search .tools files
+            lib_dir = self._get_tool_library_dir()
+            tools_files = globmod.glob(os.path.join(lib_dir, "*.tools"))
+
+            for file_path in tools_files:
+                lib_name = os.path.splitext(os.path.basename(file_path))[0]
+                try:
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                except Exception:
+                    continue
+
+                for tool_data in data.get("data", []):
+                    tool_desc = str(tool_data.get("description", "")).lower()
+                    tool_pid = str(tool_data.get("product-id", "")).lower()
+                    tool_tp = str(tool_data.get("type", "")).lower()
+
+                    if query_lower and query_lower not in tool_desc and query_lower not in tool_pid:
+                        continue
+                    if type_lower and type_lower != tool_tp:
+                        continue
+
+                    matches.append({
+                        "library": lib_name,
+                        "tool": tool_data,
+                        "source": "file_fallback",
+                    })
+
+            return {"matches": matches, "count": len(matches), "method": "file_fallback"}
+
+    # ── DELETE /tool-library/<name> ───────────────────────────────────
+
+    def _delete_tool_library(self, name):
+        # Try adsk.cam API first
+        try:
+            app = adsk.core.Application.get()
+            cam_product = adsk.cam.CAM.cast(app.activeProduct)
+            if cam_product is None:
+                raise RuntimeError("CAM workspace not active")
+
+            tool_libs = cam_product.toolLibraries
+            lib_urls = tool_libs.toolLibraryUrls
+            for i in range(lib_urls.count):
+                url = lib_urls.item(i)
+                leaf = url.leafName if hasattr(url, "leafName") else url.toString().split("/")[-1]
+                if leaf == name:
+                    tool_libs.removeToolLibrary(url)
+                    return {
+                        "success": True,
+                        "deleted": name,
+                        "method": "cam_api",
+                    }
+
+            # Not found via API — try file fallback
+            raise RuntimeError("Library not found via CAM API, trying file fallback")
+
+        except Exception:
+            # Fallback: delete .tools file
+            lib_dir = self._get_tool_library_dir()
+            file_path = os.path.join(lib_dir, f"{name}.tools")
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+                return {
+                    "success": True,
+                    "deleted": name,
+                    "path": file_path,
+                    "method": "file_fallback",
+                }
+            return {
+                "success": False,
+                "error": f"Tool library '{name}' not found",
+            }
 
     # ── Edge selection helper ────────────────────────────────────────
 
