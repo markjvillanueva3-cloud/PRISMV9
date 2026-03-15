@@ -35,6 +35,7 @@ import { GLOBAL_CNC_TOOLS } from "../data/global-cnc-tool-catalog.js";
 import { TUNGALOY_US_TOOLS, TUNGALOY_US_CUTTING_CONDITIONS } from "../data/tungaloy-us-tool-catalog.js";
 import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catalog.js";
 import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
+import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -875,6 +876,7 @@ export class ToolCatalogEngine {
     this._loadAMPCTools();
     this._loadGlobalCNCTools();
     this._loadKennametalRotating();
+    this._loadKennametalTurning();
     this._loadWidia2022();
   }
 
@@ -1927,6 +1929,56 @@ export class ToolCatalogEngine {
                     ["pocket", "slot", "profile", "face"],
         cutting_data: cuttingData,
         source: "Kennametal_2018_Vol2_Rotating",
+      });
+    }
+  }
+
+  private _loadKennametalTurning(): void {
+    const sf = SPEED_FEED_BASE.filter(s => s.tool_type === "turning_tool");
+    for (const kt of KENNAMETAL_TURNING_TOOLS) {
+      const id = `KMT-T-${(kt as any).catalogNumber ?? (kt as any).orderCode}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (kt.type === "turning_insert" ? "insert" :
+                        kt.type === "turning_holder" ? "turning_tool" :
+                        kt.type === "boring_bar" ? "boring_bar" :
+                        kt.type === "grooving_tool" ? "grooving_tool" :
+                        kt.type === "threading_tool" ? "threading_tool" :
+                        "turning_tool") as CatalogTool["type"];
+
+      const ic = (kt as any).ic_mm ?? (kt as any).boreDia_mm ?? (kt as any).d_mm ?? 12.7;
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(ic / 10);
+      for (const s of sf) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Kennametal",
+        series: kt.series ?? "Turning",
+        designation: (kt as any).catalogNumber ?? (kt as any).orderCode,
+        type: toolType,
+        material: "carbide",
+        coating: (kt as any).grade,
+        physical: {
+          cutting_diameter_mm: ic,
+          shank_diameter_mm: (kt as any).shankDia_mm ?? ic,
+          overall_length_mm: (kt as any).oal_mm ?? (kt as any).length_mm ?? ic * 4,
+          flute_length_mm: (kt as any).thickness_mm ?? (kt as any).funcLength_mm ?? ic * 0.5,
+          nose_radius_mm: (kt as any).cornerRadius_mm,
+        },
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "insert" ? ["turning"] :
+                    toolType === "boring_bar" ? ["bore"] :
+                    toolType === "grooving_tool" ? ["groove", "cut_off"] :
+                    toolType === "threading_tool" ? ["thread"] :
+                    ["turning"],
+        cutting_data: cuttingData,
+        source: "Kennametal_2018_Vol1_Turning",
       });
     }
   }
