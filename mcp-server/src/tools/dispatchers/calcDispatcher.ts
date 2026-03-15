@@ -824,6 +824,8 @@ const ACTIONS = [
   "hypermill_material_search", "hypermill_material_stats",
   "iso286_extended_it", "iso286_extended_fit", "iso286_stochastic_fit",
   "iso286_recommend_fit", "iso286_variability_stack",
+  // MF-MS1: Feasibility Analysis (accessibility, workholding, rigidity)
+  "feasibility_accessibility", "feasibility_workholding", "feasibility_rigidity",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -6945,6 +6947,43 @@ export function registerCalcDispatcher(server: any): void {
             const { ISO286ExtendedEngine } = await import("../../engines/ISO286ExtendedEngine.js");
             const iso5 = new ISO286ExtendedEngine();
             result = iso5.variabilityStackUp(params.dimensions, params.samples || 10000, params.correlation || 0);
+            break;
+          }
+
+          // ── MF-MS1: Feasibility Analysis ──────────────────────────
+          case "feasibility_accessibility": {
+            const { feasibilityAnalysisEngine } = await import(
+              "../../engines/FeasibilityAnalysisEngine.js"
+            );
+            result = feasibilityAnalysisEngine.analyzeAccessibility(
+              params.feature, params.tool,
+              params.approach_direction || "top",
+              params.cutting_force_N
+            );
+            break;
+          }
+          case "feasibility_workholding": {
+            const { feasibilityAnalysisEngine } = await import(
+              "../../engines/FeasibilityAnalysisEngine.js"
+            );
+            result = feasibilityAnalysisEngine.analyzeWorkholding(
+              params.workpiece_state, params.clamping,
+              params.operation_forces
+            );
+            break;
+          }
+          case "feasibility_rigidity": {
+            const { feasibilityAnalysisEngine } = await import(
+              "../../engines/FeasibilityAnalysisEngine.js"
+            );
+            result = feasibilityAnalysisEngine.analyzeRigidity(
+              params.workpiece_state,
+              params.wall_thickness_mm, params.wall_height_mm,
+              params.material, params.wall_length_mm,
+              params.floor_thickness_mm,
+              params.floor_length_mm, params.floor_width_mm,
+              params.spindle_speed_rpm, params.number_of_flutes
+            );
             break;
           }
 

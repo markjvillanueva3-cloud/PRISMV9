@@ -3240,9 +3240,9 @@ export { fiveAxisPostEngine, FiveAxisPostEngineImpl } from './FiveAxisPostEngine
 export { kienzleForceModelEngine, KienzleForceModelEngine } from './KienzleForceModelEngine.js';
 export { getKinematicModel, checkCollision, getKinematicCoverage, type FiveAxisTopology, type TransformationMatrix, type CollisionZone, type KinematicModel } from './MachineKinematicsEngine.js';
 export { materialBatchVariabilityEngine, MaterialBatchVariabilityEngine } from './MaterialBatchVariabilityEngine.js';
-export { minerCumulativeDamageEngine, MinerCumulativeDamageEngine } from './MinerCumulativeDamageEngine.js';
-export { morrisScreeningEngine, MorrisScreeningEngine } from './MorrisScreeningEngine.js';
-export { multipleRegressionEngine, MultipleRegressionEngine } from './MultipleRegressionEngine.js';
+export { minerCumulativeDamageEngine } from './MinerCumulativeDamageEngine.js';
+export { morrisScreeningEngine } from './MorrisScreeningEngine.js';
+export { multipleRegressionEngine } from './MultipleRegressionEngine.js';
 export { nelsonSPCRulesEngine } from './NelsonSPCRulesEngine.js';
 export { postProcessorPipelineEngine, PostProcessorPipelineEngineImpl } from './PostProcessorPipelineEngine.js';
 export { postProcessorVerificationEngine, PostProcessorVerificationEngineImpl } from './PostProcessorVerificationEngine.js';
@@ -3310,6 +3310,12 @@ export { multiProcessCAMBridgeEngine, MultiProcessCAMBridgeEngine } from './Mult
 // CK-MS6 — Mill-Turn & Swiss Pipeline
 export { millTurnSwissPipelineEngine, MillTurnSwissPipelineEngine } from './MillTurnSwissPipelineEngine.js';
 export { selfLearningCAMEngine, SelfLearningCAMEngine } from './SelfLearningCAMEngine.js';
+
+// MF Track — Machining Feasibility Intelligence
+export { workpieceStateEngine, WorkpieceStateEngine } from './WorkpieceStateEngine.js';
+export { accessibilityAnalysisEngine, AccessibilityAnalysisEngine } from './AccessibilityAnalysisEngine.js';
+export { workholdingViabilityEngine, WorkholdingViabilityEngine } from './WorkholdingViabilityEngine.js';
+export { rigidityDegradationEngine, RigidityDegradationEngine } from './RigidityDegradationEngine.js';
 
 // Laser Program Assembler
 export { LaserProgramAssemblerEngine } from './LaserProgramAssemblerEngine.js';
