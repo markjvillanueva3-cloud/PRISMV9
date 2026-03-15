@@ -661,3 +661,72 @@ Each category maps to specific `/forge-triple` + `/autopilot` actions:
 - [ ] Fusion 360 — "5-Axis Swarf Cutting — Complete Workflow" (surface selection, tool axis control)
 - [ ] SolidCAM — "iMachining 2D/3D — Getting Started" (patented toolpath, parameter wizard)
 - [ ] SolidCAM — "Swiss-Type Programming — Complete Guide" (multi-channel, gang vs turret)
+
+## CATEGORY 12: Workholding, Fixturing & Setup (Practical How-To)
+
+### 12A: Workholding Systems — Setup & Application
+- [ ] "5-Axis Workholding Demystified" (zero-point, dovetail, 5th Axis RockLock, Lang Quick-Point)
+- [ ] "Dovetail Workholding — Complete How-To" (Raptor, machining dovetail profile, jaw grip force)
+- [ ] "Zero-Point Clamping — Setup & Benefits" (Schunk VERO-S, Jergens Drop & Lock, Lang Makro-Grip)
+- [ ] "Soft Jaw Design & Machining" (how to design, machine, and use custom soft jaws for vise)
+- [ ] "Tombstone/Pallet Fixturing — Multi-Part Setup" (layout planning, crash avoidance, datum transfer)
+- [ ] "Vacuum Workholding — When & How to Use" (thin parts, gaskets, surface requirements, pump selection)
+- [ ] "Magnetic Workholding — Applications & Limits" (grinding, surface milling, clamping force calc)
+- [ ] "Hydraulic Clamping — High-Volume Setup" (Jergens hydraulic vise, automated clamping, cycle time)
+
+### 12B: Fixture Design Principles
+- [ ] "CNC Fixture Design Principles" (rigidity, repeatability, access, clamp near cut, 3-point contact)
+- [ ] "Op1/Op2 Planning — Flip Strategy" (datum transfer, soft jaw profiles, how to plan multi-op parts)
+- [ ] "Custom Fixture Plates — How to Design & Machine" (modular grid plates, threaded holes, dowel pins)
+
+## CATEGORY 13: Quality, Inspection & GD&T (Practical How-To)
+
+### 13A: On-Machine Probing
+- [ ] Renishaw — "How-To Videos for Machine Tool Probes" series (installation, calibration, probe cycles)
+- [ ] Renishaw — "Inspection Plus — Probing Macro Programming" (G65 calls, WCS setup, automated inspection)
+- [ ] "Mastercam Probing Video Library" (WCS setup with Renishaw Inspection Plus, in-process checks)
+- [ ] Blum-Novotest — "Laser Tool Measurement Setup" (non-contact tool setting, breakage detection)
+
+### 13B: CMM & First Article
+- [ ] "CMM Programming for Machinists — Beginner Guide" (datum setup, probe qualification, GD&T features)
+- [ ] "First Article Inspection (FAI) — Complete Workflow" (AS9102, balloon drawing, CMM report, FAIR form)
+- [ ] "GD&T for CNC Machinists — Practical Interpretation" (datums, position, profile, how it affects machining)
+- [ ] "SPC for CNC — Setting Up Control Charts" (Xbar-R, Cpk monitoring, when to adjust process)
+
+## CATEGORY 14: Community Machinist Channels (Practical How-To)
+
+### 14A: Professional CNC Channels
+- [ ] NYC CNC / Saunders Machine Works — "Fusion 360 to CNC — Complete Workflow" series (CAD→CAM→setup→cut)
+- [ ] NYC CNC — "Mod Vise Workholding — How It Works" (custom fixture system, setup repeatability)
+- [ ] Edge Precision — "5-Axis Machining Projects" (real-world 5-axis jobs with full walkthrough)
+- [ ] Abom79 — "Manual Machining Fundamentals" (lathe turning, boring, threading — tradesman skills)
+- [ ] Joe Pieczynski — "Precision Grinding & Fitting" (scraping, fitting, hand finishing techniques)
+- [ ] Stefan Gotteswinter — "Swiss-Style Precision" (micro-machining, watchmaking-level precision work)
+- [ ] This Old Tony — "CNC & Manual Machining Explained" (entertaining, explains concepts for beginners)
+- [ ] Keith Rucker — "Vintage Machine Restoration & Use" (manual machining, machine care, toolroom basics)
+
+### 14B: Production & Job Shop Channels
+- [ ] "Making Chips" podcast/video — interviews with manufacturing leaders (business + technical)
+- [ ] CNCCookbook — "G-Wizard Speeds & Feeds Tutorial" (calculator walkthrough, optimization tips)
+- [ ] CNCCookbook — "Feeds & Speeds Masterclass" (chip thinning, HSM, radial engagement, tool deflection)
+- [ ] "Saunders Machine Works — Job Shop Tips" (quoting, scheduling, multi-op planning, customer management)
+
+## CATEGORY 15: Advanced/Specialty Machining (Practical How-To)
+
+### 15A: Specialty Processes
+- [ ] "EDM Wire Cutting — Complete How-To" (threading, skim cuts, wire selection, flush pressure)
+- [ ] "EDM Sinker/Ram — Electrode Design & Setup" (graphite vs copper, orbiting, undercut strategy)
+- [ ] "Surface Grinding — Setup & Technique" (wheel dressing, spark-out, surface finish targets)
+- [ ] "Cylindrical Grinding — OD/ID Setup" (center grinding, chucking, grinding wheel selection)
+- [ ] "Hard Turning vs Grinding — When to Use Each" (CBN insert selection, surface finish comparison)
+- [ ] "Micro-Machining — Small Tool Techniques" (runout control, HSM, 0.1mm endmill application)
+- [ ] "Deep Hole Drilling — Gun Drill & BTA" (coolant pressure, chip transport, straightness control)
+- [ ] "Broaching — How It Works & When to Use" (keyway, spline, internal form cutting)
+
+### 15B: Exotic Materials
+- [ ] "Machining Titanium — Complete Guide" (speeds/feeds, coolant, chip control, tool selection)
+- [ ] "Machining Inconel/Hastelloy — Superalloy Tips" (ceramic inserts, avoid work hardening)
+- [ ] "Machining PEEK/Ultem/Engineering Plastics" (sharp tools, no coolant, chip control, burr prevention)
+- [ ] "Machining Copper & Brass — Tips for Non-Ferrous" (BUE prevention, high rake, flood coolant)
+- [ ] "Machining Cast Iron — Grey vs Ductile" (dry cutting, insert selection, graphite dust management)
+- [ ] "Machining Hardened Steel (>50 HRC)" (CBN, ceramic, hard milling strategies, spring passes)
