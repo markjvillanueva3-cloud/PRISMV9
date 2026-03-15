@@ -16,8 +16,9 @@
       "units": "inch",
       "priority": 1,
       "pages_est": 400,
-      "extracted": false,
-      "notes": "US edition. Insert geometries, grade tables, speed/feed by ISO group"
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-us-tool-catalog.ts",
+      "notes": "EXTRACTED. 49 US cutting conditions (SFM/IPR) + 622 ANSI-to-ISO designation mappings. Turning inserts share ISO designations with metric edition"
     },
     {
       "filename": "GC_2023-2024_G_Turning-Grooving.pdf",
@@ -44,8 +45,9 @@
       "units": "inch",
       "priority": 1,
       "pages_est": 300,
-      "extracted": false,
-      "notes": "End mills, face mills, indexable cutters"
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-us-tool-catalog.ts",
+      "notes": "EXTRACTED. Milling inserts/endmills share ISO designations with metric edition. ANSI cross-refs in tungaloy-us-tool-catalog.ts"
     },
     {
       "filename": "GC_2023-2024_G_Milling.pdf",
@@ -69,8 +71,9 @@
       "units": "inch",
       "priority": 1,
       "pages_est": 200,
-      "extracted": false,
-      "notes": "Solid and indexable drills, center drills"
+      "extracted": true,
+      "extracted_to": "src/data/tungaloy-us-tool-catalog.ts",
+      "notes": "EXTRACTED. 345 inch-specific drills (TIDU/TDXU/DSXU/DMXU/FDCU series) with full dimensions in mm"
     },
     {
       "filename": "GC_2023-2024_G_Drilling.pdf",
@@ -130,18 +133,17 @@
     },
     {
       "filename": "Cutting Tools Master 2022 English Metric.pdf",
-      "manufacturer": "Sandvik",
+      "manufacturer": "WIDIA/Hanita",
       "type": [
-        "turning",
         "milling",
-        "drilling",
-        "threading"
+        "drilling"
       ],
       "units": "metric",
       "priority": 2,
-      "pages_est": 2000,
-      "extracted": false,
-      "notes": "Metric master catalog"
+      "pages_est": 1252,
+      "extracted": true,
+      "extracted_to": "src/data/sandvik-2022-tool-catalog.ts",
+      "notes": "EXTRACTED. Actually WIDIA/Hanita (not Sandvik). 1,424 unique tools (322 end mills, 560 drills, 428 indexable mills, 64 ball mills, 50 roughing end mills). ISO 13399 DC/DCONMS/OAL/LU/RE/NOF"
     },
     {
       "filename": "Master Catalog 2018 Vol. 1 Turning Tools English Inch.pdf",
@@ -157,16 +159,19 @@
     },
     {
       "filename": "Master Catalog 2018 Vol. 2 Rotating Tools English Inch.pdf",
-      "manufacturer": "Sandvik",
+      "manufacturer": "Kennametal",
       "type": [
         "drilling",
-        "milling"
+        "milling",
+        "tapping",
+        "reaming"
       ],
       "units": "inch",
       "priority": 3,
-      "pages_est": 500,
-      "extracted": false,
-      "notes": "Older edition"
+      "pages_est": 2032,
+      "extracted": true,
+      "extracted_to": "src/data/sandvik-2018-rotating-catalog.ts",
+      "notes": "EXTRACTED. Actually Kennametal (not Sandvik). 10,685 rotating tools (4188 drills, 2388 modular drills, 1019 taps, 995 end mills, 746 indexable drills, 266 reamers, more)"
     },
     {
       "filename": "Turning 2018.1.pdf",
@@ -347,8 +352,9 @@
       "units": "metric",
       "priority": 2,
       "pages_est": 200,
-      "extracted": false,
-      "notes": "IMAGE-BASED PDF \u00e2\u20ac\u201d 0 extractable tables in 448 pages. Would need OCR."
+      "extracted": true,
+      "extracted_to": "src/data/regofix-holder-catalog.ts",
+      "notes": "EXTRACTED. 168 holders (ER collet chucks, powRgrip, secuRgrip). OCR-based extraction from image PDF"
     },
     {
       "filename": "CAMFIX_Catalog.pdf",
@@ -413,8 +419,9 @@
       "units": "both",
       "priority": 3,
       "pages_est": 1440,
-      "extracted": false,
-      "notes": "1440p image-heavy catalog. Non-standard table format (hardware lists, grade tables). Would need custom per-section parsers"
+      "extracted": true,
+      "extracted_to": "src/data/ingersoll-tool-catalog.ts",
+      "notes": "EXTRACTED. 3,169 entries (2,117 tools + 1,052 inserts). Milling cutters, turning tools, indexable inserts with grades"
     },
     {
       "filename": "MA_Ford_US_Product_Catalog_vol105interactiveweb.pdf",
@@ -462,13 +469,16 @@
       "filename": "ZK12023_DEGB RevA EMUGE Katalog 160.pdf",
       "manufacturer": "Emuge",
       "type": [
-        "threading"
+        "threading",
+        "drilling",
+        "thread_milling"
       ],
       "units": "metric",
       "priority": 3,
       "pages_est": 808,
-      "extracted": false,
-      "notes": "German/English tap selection matrix format. Dimensions embedded in cell headers (d1/d2/l1-l3), not columnar. Would need DIN 371 table cross-reference to extract dimensions"
+      "extracted": true,
+      "extracted_to": "src/data/emuge-tool-catalog.ts",
+      "notes": "EXTRACTED. 13,715 entries (taps, drills, thread mills). DIN 371/376 cross-referenced dimensions"
     },
     {
       "filename": "2018 Rapidkut Catalog.pdf",
@@ -567,13 +577,14 @@
       "type": [
         "tooling_systems",
         "holders",
-        "accessories"
+        "lathe_toolholders"
       ],
       "units": "inch",
       "priority": 5,
       "pages_est": 565,
-      "extracted": false,
-      "notes": "Toolholding accessories catalog (end mill extensions, collets, arbors). No solid carbide cutting tools"
+      "extracted": true,
+      "extracted_to": "src/data/global-cnc-tool-catalog.ts",
+      "notes": "EXTRACTED. 3,680 lathe toolholders (OD turning, boring bars, parting, threading, collet chucks, extensions, arbors)"
     },
     {
       "filename": "AMPC_US-EN.pdf",
@@ -586,8 +597,8 @@
       "priority": 3,
       "pages_est": 942,
       "extracted": true,
-      "extracted_to": "src/data/indexable-tool-catalog.ts",
-      "notes": "EXTRACTED. Allied Machine EN3SYS. 555 tools (548 drills + 7 boring bars)"
+      "extracted_to": "src/data/ampc-tool-catalog.ts",
+      "notes": "EXTRACTED. 6,474 tools + 180 cutting data entries. Full Allied Machine product line (T-A drills, GEN3SYS, AccuPort, boring)"
     },
     {
       "filename": "Metalmorphosis-2021-FINAL-reduced-for-Web.pdf",
@@ -611,14 +622,17 @@
       "units": "metric",
       "priority": 4,
       "pages_est": 150,
-      "extracted": false,
-      "notes": "General purpose"
+      "extracted": true,
+      "extracted_to": "src/data/zenit-tool-catalog.ts",
+      "notes": "EXTRACTED. 199 tools (end mills, drills). Metric dimensions"
     }
   ],
   "extraction_status": {
-    "extracted": 27,
-    "pending": 18,
-    "total_tools_extracted": 46590,
-    "collision_data_tools": 41085
+    "extracted": 38,
+    "pending": 7,
+    "total_tools_extracted": 86281,
+    "total_holders_extracted": 1332,
+    "total_manufacturers": 27,
+    "collision_data_tools": 59921
   }
 }

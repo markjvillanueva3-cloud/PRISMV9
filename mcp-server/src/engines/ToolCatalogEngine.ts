@@ -14,7 +14,7 @@
 import { TUNGALOY_HOLDERS, type TungaloyHolder } from "../data/tungaloy-holder-catalog.js";
 import { TUNGALOY_ENDMILLS } from "../data/tungaloy-endmill-catalog.js";
 import { TUNGALOY_DRILLS } from "../data/tungaloy-drill-catalog.js";
-import { TUNGALOY_INSERT_SHAPES, TUNGALOY_TURNING_GRADES, TUNGALOY_CHIPBREAKERS, TUNGALOY_GROOVING_INSERTS } from "../data/tungaloy-turning-catalog.js";
+import { TUNGALOY_TURNING_INSERTS, TUNGALOY_TURNING_GRADES, TUNGALOY_GROOVING_INSERTS } from "../data/tungaloy-turning-catalog.js";
 import { SGS_ENDMILL_PARTS_ZR, SGS_ENDMILL_PARTS_ZRM, SGS_QUICK_SPEED_FEED } from "../data/sgs-tool-catalog.js";
 import { ALL_MANUFACTURER_GRADES, type ManufacturerGrade } from "../data/multi-manufacturer-grades.js";
 import { BIG_DAISHOWA_HOLDERS } from "../data/big-daishowa-holders.js";
@@ -26,6 +26,15 @@ import { GUHRING_HOLDERS } from "../data/guhring-holder-catalog.js";
 import { ADDITIONAL_TOOLS } from "../data/additional-tool-catalog.js";
 import { SECO_TOOLS } from "../data/seco-tool-catalog.js";
 import { INDEXABLE_TOOLS } from "../data/indexable-tool-catalog.js";
+import { INGERSOLL_TOOLS, INGERSOLL_INSERTS } from "../data/ingersoll-tool-catalog.js";
+import { EMUGE_TOOLS } from "../data/emuge-tool-catalog.js";
+import { REGOFIX_HOLDERS } from "../data/regofix-holder-catalog.js";
+import { ZENIT_TOOLS } from "../data/zenit-tool-catalog.js";
+import { AMPC_TOOLS, AMPC_CUTTING_DATA } from "../data/ampc-tool-catalog.js";
+import { GLOBAL_CNC_TOOLS } from "../data/global-cnc-tool-catalog.js";
+import { TUNGALOY_US_TOOLS, TUNGALOY_US_CUTTING_CONDITIONS } from "../data/tungaloy-us-tool-catalog.js";
+import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catalog.js";
+import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 
 // ── Unified Tool Types ──
 
@@ -849,6 +858,7 @@ export class ToolCatalogEngine {
     this._loadTungaloyEndmills();
     this._loadTungaloyDrills();
     this._loadTungaloyTurning();
+    this._loadTungaloyUSDrills();
     this._loadSGSEndmills();
     this._loadMultiManufacturerInserts();
     this._loadOSGTools();
@@ -858,6 +868,14 @@ export class ToolCatalogEngine {
     this._loadAdditionalTools();
     this._loadSecoTools();
     this._loadIndexableTools();
+    this._loadIngersollTools();
+    this._loadEmugeTools();
+    this._loadRegofixHolders();
+    this._loadZenitTools();
+    this._loadAMPCTools();
+    this._loadGlobalCNCTools();
+    this._loadKennametalRotating();
+    this._loadWidia2022();
   }
 
   private _loadTungaloyEndmills(): void {
@@ -998,74 +1016,125 @@ export class ToolCatalogEngine {
     }
   }
 
+  /** Load Tungaloy US (inch-specific) drills from GC_2023-2024_US editions */
+  private _loadTungaloyUSDrills(): void {
+    // Convert US cutting conditions: SFM→m/min, IPR→mm/rev (approximate fz for 2-flute drills)
+    const cuttingData: CatalogTool["cutting_data"] = {};
+    for (const cc of TUNGALOY_US_CUTTING_CONDITIONS) {
+      // SFM * 0.3048 = m/min; IPR * 25.4 = mm/rev; mm/rev / 2 flutes = fz
+      const vc_min = Math.round(cc.vc_min_sfm * 0.3048 * 10) / 10;
+      const vc_max = Math.round(cc.vc_max_sfm * 0.3048 * 10) / 10;
+      const fz_min = Math.round(cc.feed_min_ipr * 25.4 / 2 * 1000) / 1000;
+      const fz_max = Math.round(cc.feed_max_ipr * 25.4 / 2 * 1000) / 1000;
+      // Use first entry per ISO group P (most conditions are for P-group turning inserts)
+      if (!cuttingData["P"]) {
+        cuttingData["P"] = { vc_min, vc_max, fz_min, fz_max };
+      }
+    }
+    // Fallback: apply P data to all groups
+    const fallback = cuttingData["P"] ?? { vc_min: 150, vc_max: 400, fz_min: 0.03, fz_max: 0.2 };
+    for (const g of ["M", "K", "N", "S", "H"] as const) {
+      if (!cuttingData[g]) cuttingData[g] = { ...fallback };
+    }
+
+    for (const td of TUNGALOY_US_TOOLS) {
+      const id = `TNG-US-${td.designation}`;
+      if (this.tools.has(id)) continue;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Tungaloy",
+        series: "US-Edition",
+        designation: td.designation,
+        type: "drill",
+        subtype: td.type.replace(/_/g, " "),
+        material: td.type === "solid_drill" ? "carbide" : "indexable",
+        coating: "AH725",
+        physical: {
+          cutting_diameter_mm: td.cutting_diameter_mm,
+          shank_diameter_mm: td.shank_diameter_mm,
+          overall_length_mm: td.overall_length_mm,
+          flute_length_mm: td.flute_length_mm ?? td.cutting_diameter_mm * td.ld_ratio,
+        },
+        flute_count: 2,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: ["drill"],
+        cutting_data: cuttingData,
+        coolant: td.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
+        source: "Tungaloy_GC_2023-2024_US",
+      });
+    }
+  }
+
   /** Load Tungaloy turning inserts from GC_2023-2024 catalog */
   private _loadTungaloyTurning(): void {
-    // Create catalog entries for each insert shape + grade combination
-    for (const shape of TUNGALOY_INSERT_SHAPES) {
-      for (const grade of TUNGALOY_TURNING_GRADES) {
-        // Only create entries where grade is first_choice or second_choice for at least one group
-        const suitableGroups = (Object.entries(grade.iso_suitability) as [string, string][])
-          .filter(([, v]) => v === 'first_choice' || v === 'second_choice')
-          .map(([k]) => k);
+    // Create catalog entries for each insert + grade combination
+    for (const insert of TUNGALOY_TURNING_INSERTS) {
+      const grades = insert.available_grades ?? TUNGALOY_TURNING_GRADES.map(g => g.grade);
+      for (const gradeCode of grades) {
+        const gradeInfo = TUNGALOY_TURNING_GRADES.find(g => g.grade === gradeCode);
+        const suitableGroups = gradeInfo?.iso_groups ?? ["P"];
         if (suitableGroups.length === 0) continue;
 
-        const ic = shape.inscribed_circle_mm[0]; // Use smallest IC
-        const id = `TNG-T-${shape.code}-${grade.code}`;
+        const ic = insert.ic_mm;
+        const id = `TNG-T-${insert.shape_code}-${gradeCode}`;
         if (this.tools.has(id)) continue;
+
+        // Infer substrate from grade description
+        const desc = gradeInfo?.description?.toLowerCase() ?? '';
+        const substrate = desc.includes('cermet') ? 'cermet' :
+                          desc.includes('cbn') ? 'cbn' :
+                          desc.includes('pcd') ? 'pcd' :
+                          desc.includes('ceramic') ? 'ceramic' : 'carbide';
+        const coated = desc.includes('coated') && !desc.includes('uncoated');
 
         this.tools.set(id, {
           id,
           manufacturer: "Tungaloy",
           series: "GC_2023-2024",
-          designation: `${shape.code} ${grade.code}`,
-          type: shape.code.endsWith('A') ? "insert" : "turning_tool",
-          subtype: grade.application,
-          material: grade.substrate === 'carbide' ? 'carbide' :
-                    grade.substrate === 'cermet' ? 'cermet' :
-                    grade.substrate === 'cbn' ? 'cbn' :
-                    grade.substrate === 'pcd' ? 'pcd' : 'ceramic',
-          coating: grade.coating === 'uncoated' ? undefined : grade.coating,
+          designation: `${insert.designation} ${gradeCode}`,
+          type: insert.shape_code.endsWith('A') ? "insert" : "turning_tool",
+          subtype: insert.insert_shape,
+          material: substrate,
+          coating: coated ? 'PVD' : undefined,
           physical: {
             cutting_diameter_mm: ic,
             shank_diameter_mm: ic,
             overall_length_mm: ic * 1.2,
             flute_length_mm: ic * 0.5,
-            nose_radius_mm: 0.8, // common default
+            nose_radius_mm: insert.nose_radius_mm ?? 0.8,
           },
           iso_groups: suitableGroups,
-          operations: grade.application.includes('grooving') ? ["grooving", "parting"] :
-                      grade.application.includes('threading') ? ["threading"] :
-                      ["turning", "facing", "boring"],
+          operations: ["turning", "facing", "boring"],
           source: "Tungaloy_GC_2023-2024_Turning",
         });
       }
     }
 
-    // Also load grooving insert series
-    for (const series of TUNGALOY_GROOVING_INSERTS) {
-      for (const cw of series.cut_width_mm) {
-        const id = `TNG-G-${series.series}-${cw}`;
-        if (this.tools.has(id)) continue;
+    // Also load grooving inserts
+    for (const gi of TUNGALOY_GROOVING_INSERTS) {
+      const cw = gi.width_mm ?? gi.cutting_width_mm ?? 3.0;
+      const id = `TNG-G-${gi.family}-${gi.designation}`;
+      if (this.tools.has(id)) continue;
 
-        this.tools.set(id, {
-          id,
-          manufacturer: "Tungaloy",
-          series: series.series,
-          designation: `${series.series}${cw}`,
-          type: "grooving_tool",
-          subtype: series.application,
-          material: "carbide",
-          physical: {
-            cutting_diameter_mm: cw,
-            shank_diameter_mm: cw,
-            overall_length_mm: 20,
-            flute_length_mm: series.max_doc_mm,
-          },
-          iso_groups: series.iso_groups,
-          operations: ["grooving", "parting", "turning"],
-          source: "Tungaloy_GC_2023-2024_Turning",
-        });
-      }
+      this.tools.set(id, {
+        id,
+        manufacturer: "Tungaloy",
+        series: gi.family,
+        designation: gi.designation,
+        type: "grooving_tool",
+        subtype: "grooving",
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: cw,
+          shank_diameter_mm: cw,
+          overall_length_mm: 20,
+          flute_length_mm: gi.max_grooving_depth_mm ?? 10,
+        },
+        iso_groups: gi.available_grades ?? [],
+        operations: ["grooving", "parting", "turning"],
+        source: "Tungaloy_GC_2023-2024_Turning",
+      });
     }
   }
   private _loadMultiManufacturerInserts(): void {
@@ -1476,6 +1545,437 @@ export class ToolCatalogEngine {
         cutting_data: cuttingData,
         coolant: svk.cutting_diameter_mm >= 3 ? "through_tool" : "flood",
         source: "Sandvik_Master_2022",
+      });
+    }
+  }
+  private _loadIngersollTools(): void {
+    const sf = SPEED_FEED_BASE;
+    // Load cutter bodies / tools
+    for (const it of INGERSOLL_TOOLS) {
+      const id = `ING-${it.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (it.type === "indexable_end_mill" || it.type === "solid_carbide_end_mill" ? "end_mill" :
+                        it.type === "face_mill" ? "face_mill" :
+                        it.type === "turning_holder" ? "turning_tool" :
+                        it.type) as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const dc = it.diameter_mm ?? 10;
+      for (const s of sfForType) {
+        const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      const shank = it.shank_diameter_mm ?? it.diameter_mm ?? 0;
+      const oal = it.overall_length_mm ?? (dc * 4);
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Ingersoll",
+        series: it.series ?? toolType,
+        designation: it.designation,
+        type: toolType,
+        material: (it.material as CatalogTool["material"]) ?? "indexable",
+        coating: it.coating,
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: shank,
+          overall_length_mm: oal,
+          flute_length_mm: it.cutting_length_mm ?? dc * 1.5,
+        },
+        flute_count: it.flutes ?? it.num_inserts,
+        helix_angle_deg: it.helix_angle,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "face_mill" ? ["face"] :
+                    toolType === "turning_tool" ? ["turning"] :
+                    ["pocket", "slot", "contour"],
+        cutting_data: cuttingData,
+        source: "Ingersoll_Cutting_Tools",
+      });
+    }
+
+    // Load inserts
+    for (const ins of INGERSOLL_INSERTS) {
+      const id = `ING-INS-${ins.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const sfIns = sf.filter(s => s.tool_type === "turning_tool");
+      const insCuttingData: CatalogTool["cutting_data"] = {};
+      const ic = ins.ic_mm ?? 10;
+      for (const s of sfIns) {
+        const scale = ic > 0 ? Math.sqrt(ic / 10) : 1;
+        insCuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Ingersoll",
+        series: ins.type ?? "insert",
+        designation: ins.designation,
+        type: "insert",
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: ins.ic_mm ?? 0,
+          shank_diameter_mm: 0,
+          overall_length_mm: ins.thickness_mm ?? 0,
+          flute_length_mm: ins.ic_mm ?? 0,
+          nose_radius_mm: ins.nose_radius_mm,
+        },
+        iso_groups: ["P", "M", "K"],
+        operations: ["turning", "milling"],
+        cutting_data: insCuttingData,
+        source: "Ingersoll_Cutting_Tools",
+      });
+    }
+  }
+
+  private _loadEmugeTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const et of EMUGE_TOOLS) {
+      const id = `EMG-${et.designation}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (et.type === "twist_drill" || et.type === "chamfer_drill" ? "drill" :
+                        et.type === "tap" || et.type === "cold_forming_tap" ? "tap" :
+                        et.type === "thread_mill" ? "end_mill" :
+                        et.type) as CatalogTool["type"];
+
+      // Build cutting_data per tool type
+      const emgCuttingData: CatalogTool["cutting_data"] = {};
+      const dc = et.diameter_mm ?? 6;
+      if (toolType === "tap") {
+        // Taps: lower speeds, feed = pitch (approximated as fz range)
+        const pitch = et.pitch_mm ?? (dc > 12 ? 1.75 : dc > 8 ? 1.25 : dc > 5 ? 0.8 : 0.5);
+        emgCuttingData["P"] = { vc_min: 15, vc_max: 40, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+        emgCuttingData["M"] = { vc_min: 8, vc_max: 25, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+        emgCuttingData["K"] = { vc_min: 12, vc_max: 35, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+        emgCuttingData["N"] = { vc_min: 20, vc_max: 60, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+        emgCuttingData["S"] = { vc_min: 5, vc_max: 15, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+        emgCuttingData["H"] = { vc_min: 6, vc_max: 18, fz_min: pitch * 0.95, fz_max: pitch * 1.0 };
+      } else if (toolType === "drill") {
+        const sfDrill = sf.filter(s => s.tool_type === "drill");
+        for (const s of sfDrill) {
+          const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+          emgCuttingData[s.iso_group] = {
+            vc_min: s.vc_min, vc_max: s.vc_max,
+            fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+          };
+        }
+      } else {
+        // Thread mills: moderate speeds, low feeds
+        const sfMill = sf.filter(s => s.tool_type === "end_mill");
+        for (const s of sfMill) {
+          const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+          emgCuttingData[s.iso_group] = {
+            vc_min: s.vc_min * 0.6, vc_max: s.vc_max * 0.7,
+            fz_min: s.fz_min * scale * 0.5, fz_max: s.fz_max * scale * 0.6,
+          };
+        }
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Emuge",
+        series: et.product_line ?? et.type,
+        designation: et.designation,
+        type: toolType,
+        subtype: et.sub_type ?? et.type,
+        material: (et.material as CatalogTool["material"]) ?? "hss_cobalt",
+        coating: et.coating,
+        physical: {
+          cutting_diameter_mm: et.diameter_mm ?? 0,
+          shank_diameter_mm: et.diameter_mm ?? 0,
+          overall_length_mm: (et.diameter_mm ?? 0) * 6,
+          flute_length_mm: (et.diameter_mm ?? 0) * 2,
+        },
+        flute_count: et.flutes,
+        iso_groups: et.iso_groups ?? ["P", "M", "K"],
+        operations: toolType === "tap" ? ["tap", "thread"] :
+                    toolType === "drill" ? ["drill"] :
+                    ["thread_mill"],
+        cutting_data: emgCuttingData,
+        source: "Emuge_Catalog_160",
+      });
+    }
+  }
+
+  private _loadRegofixHolders(): void {
+    // REGO-FIX holders used directly in _findHolder() from REGOFIX_HOLDERS import.
+    // No tool entries needed — holders aren't cutting tools.
+  }
+
+  private _loadZenitTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const zt of ZENIT_TOOLS) {
+      const id = `ZEN-${zt.code}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (zt.tool_type === "cut_off_blade" ? "grooving_tool" :
+                        zt.tool_type === "boring_bar" ? "boring_bar" :
+                        zt.tool_type === "solid_carbide_end_mill" ? "end_mill" :
+                        zt.tool_type === "drill" ? "drill" :
+                        zt.tool_type === "tap" ? "tap" :
+                        zt.tool_type === "turning_holder" ? "turning_tool" :
+                        zt.tool_type === "face_mill" ? "face_mill" :
+                        zt.tool_type === "insert" ? "insert" :
+                        "end_mill") as CatalogTool["type"];
+      const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
+
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      // Zenit uses inches — convert key dimensions
+      const dInch = (zt.dimensions_inch?.D as number) ?? (zt.dimensions_inch?.d as number) ?? 0;
+      const dc = dInch * 25.4;
+      for (const s of sfForType) {
+        const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Zenit",
+        series: zt.category,
+        designation: zt.code,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: dc,
+          overall_length_mm: ((zt.dimensions_inch?.C as number) ?? (zt.dimensions_inch?.L as number) ?? dInch * 4) * 25.4,
+          flute_length_mm: ((zt.dimensions_inch?.B as number) ?? dInch * 1.5) * 25.4,
+        },
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "grooving_tool" ? ["groove", "cut_off"] :
+                    toolType === "boring_bar" ? ["bore"] :
+                    toolType === "turning_tool" ? ["turning"] :
+                    toolType === "drill" ? ["drill"] :
+                    toolType === "tap" ? ["tap", "thread"] :
+                    toolType === "face_mill" ? ["face"] :
+                    ["pocket", "slot", "contour"],
+        cutting_data: cuttingData,
+        source: "Zenit_2020_Catalog",
+      });
+    }
+  }
+
+  private _loadAMPCTools(): void {
+    // Build cutting data lookup from AMPC_CUTTING_DATA: isoGroup → array of recommendations
+    const cuttingByIso = new Map<string, typeof AMPC_CUTTING_DATA>();
+    for (const cd of AMPC_CUTTING_DATA) {
+      const arr = cuttingByIso.get(cd.isoGroup) ?? [];
+      arr.push(cd);
+      cuttingByIso.set(cd.isoGroup, arr);
+    }
+
+    for (const at of AMPC_TOOLS) {
+      const id = `AMPC-${at.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (at.type === "drill_insert" ? "insert" :
+                        at.type === "drill_holder" ? "drill" :
+                        at.type === "drill" ? "drill" :
+                        at.type === "reamer" ? "reamer" :
+                        at.type === "countersink" ? "drill" :
+                        "drill") as CatalogTool["type"];
+
+      const dc = at.diameterMm ?? ((at.diameterInch ?? 0) * 25.4);
+      const fluteCount = toolType === "drill" || toolType === "insert" ? 2 : 4;
+
+      // Enrich cutting_data from AMPC_CUTTING_DATA: convert SFM→m/min, IPR→mm/tooth
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const [isoGroup, entries] of cuttingByIso) {
+        // Average across hardness ranges for this ISO group
+        let vcSum = 0, fzMinSum = 0, fzMaxSum = 0;
+        for (const e of entries) {
+          vcSum += e.speedSFM * 0.3048;                          // SFM → m/min
+          fzMinSum += e.feedsIPR[0] * 25.4 / fluteCount;         // IPR → mm/tooth
+          fzMaxSum += e.feedsIPR[e.feedsIPR.length - 1] * 25.4 / fluteCount;
+        }
+        const n = entries.length;
+        const vc = vcSum / n;
+        cuttingData[isoGroup] = {
+          vc_min: Math.round(vc * 0.8 * 10) / 10,
+          vc_max: Math.round(vc * 1.2 * 10) / 10,
+          fz_min: Math.round(fzMinSum / n * 1000) / 1000,
+          fz_max: Math.round(fzMaxSum / n * 1000) / 1000,
+        };
+      }
+
+      // Enrich physical dimensions by tool type
+      const overallLength = at.type === "drill_holder" ? dc * 5 :
+                            at.type === "drill_insert" ? dc * 0.3 :
+                            dc * 4;
+      const fluteLength = at.type === "drill_holder" ? dc * 3 :
+                          at.type === "drill_insert" ? 0 :
+                          dc * 2;
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Allied Machine",
+        series: at.productLine,
+        designation: at.partNumber,
+        type: toolType,
+        material: "carbide",
+        coating: at.coating,
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: dc,
+          overall_length_mm: overallLength,
+          flute_length_mm: fluteLength,
+        },
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "insert" ? ["drill"] :
+                    toolType === "reamer" ? ["ream"] :
+                    ["drill"],
+        cutting_data: cuttingData,
+        source: "AMPC_US-EN_Catalog",
+      });
+    }
+  }
+
+  private _loadGlobalCNCTools(): void {
+    for (const gt of GLOBAL_CNC_TOOLS) {
+      const id = `GCNC-${gt.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = (gt.type === "driven_tool" ? "end_mill" :
+                        gt.type === "boring_bar_holder" ? "boring_bar" :
+                        "turning_tool") as CatalogTool["type"];
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Global CNC",
+        series: gt.productLine,
+        designation: gt.partNumber,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: 0,
+          shank_diameter_mm: 0,
+          overall_length_mm: 0,
+          flute_length_mm: 0,
+        },
+        iso_groups: ["P", "M", "K"],
+        operations: toolType === "boring_bar" ? ["bore"] :
+                    toolType === "end_mill" ? ["pocket", "slot"] :
+                    ["turning"],
+        cutting_data: {},
+        source: "Global_CNC_2023_Catalog",
+      });
+    }
+  }
+
+  private _loadKennametalRotating(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const kt of SANDVIK_2018_ROTATING_TOOLS) {
+      const id = `KMT-${kt.partNumber}`;
+      if (this.tools.has(id)) continue;
+      const dc = kt.dc_mm ?? 0;
+      if (dc <= 0) continue;
+
+      const toolType = (kt.type === "drill" || kt.type === "modular_drill" || kt.type === "indexable_drill" ? "drill" :
+                        kt.type === "ball_end_mill" ? "ball_mill" :
+                        kt.type === "reamer" ? "reamer" :
+                        kt.type === "roughing_end_mill" || kt.type === "ceramic_end_mill" || kt.type === "end_mill" ? "end_mill" :
+                        kt.type.includes("tap") ? "tap" :
+                        "end_mill") as CatalogTool["type"];
+
+      const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Kennametal",
+        series: kt.series ?? kt.partNumber.substring(0, 4),
+        designation: kt.partNumber,
+        type: toolType,
+        material: "carbide",
+        coating: kt.grade,
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: kt.dconms_mm ?? dc,
+          overall_length_mm: kt.oal_mm ?? dc * 6,
+          flute_length_mm: kt.loc_mm ?? dc * 2,
+          corner_radius_mm: kt.cornerRadius_mm,
+          point_angle_deg: kt.pointAngle,
+        },
+        flute_count: kt.nof,
+        helix_angle_deg: kt.helixAngle,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "reamer" ? ["ream"] :
+                    toolType === "tap" ? ["tap", "thread"] :
+                    toolType === "ball_mill" ? ["finish_3d", "profile"] :
+                    ["pocket", "slot", "profile", "face"],
+        cutting_data: cuttingData,
+        source: "Kennametal_2018_Vol2_Rotating",
+      });
+    }
+  }
+
+  private _loadWidia2022(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const wt of SANDVIK_2022_TOOLS) {
+      const id = `WIDIA-${wt.orderCode}`;
+      if (this.tools.has(id)) continue;
+      const dc = wt.DC;
+      if (dc <= 0) continue;
+
+      const toolType = (wt.type === "ball_end_mill" ? "ball_mill" :
+                        wt.type === "roughing_end_mill" ? "end_mill" :
+                        wt.type === "indexable_mill" ? "face_mill" :
+                        wt.type === "drill" ? "drill" :
+                        "end_mill") as CatalogTool["type"];
+
+      const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "WIDIA",
+        series: wt.series.split("•")[0]?.trim() ?? wt.series,
+        designation: wt.orderCode,
+        type: toolType,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: dc,
+          shank_diameter_mm: wt.DCONMS ?? dc,
+          overall_length_mm: wt.OAL,
+          flute_length_mm: wt.LU ?? dc * 2,
+          corner_radius_mm: wt.RE ?? undefined,
+        },
+        flute_count: wt.NOF ?? undefined,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "drill" ? ["drill"] :
+                    toolType === "ball_mill" ? ["finish_3d", "profile"] :
+                    toolType === "face_mill" ? ["face"] :
+                    ["pocket", "slot", "profile", "face"],
+        cutting_data: cuttingData,
+        source: "WIDIA_Hanita_Master_2022",
       });
     }
   }
