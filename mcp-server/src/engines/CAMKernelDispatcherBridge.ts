@@ -271,7 +271,7 @@ export async function dispatchCAMAction(
       const baseResult = _scalable.process(params);
 
       // CK-MS9: optional post-processing enhancements
-      if ((params.post_process || params.optimize_sf) && baseResult?.gcode) {
+      if ((params.post_process || params.optimize_sf) && baseResult?.combined_gcode) {
         const tools = (params.features ?? []).slice(0, 1).map((_: any, i: number) => ({
           tool_number: i + 1,
           diameter_mm: 12,
@@ -279,11 +279,11 @@ export async function dispatchCAMAction(
         }));
         const controller = params.controller ?? "fanuc";
         const { gcode, enhancements } = await enhanceGCode(
-          baseResult.gcode,
+          baseResult.combined_gcode,
           params,
           { controller, material: params.material ?? "steel", tools },
         );
-        return { ...baseResult, gcode, ck_ms9_enhancements: enhancements };
+        return { ...baseResult, combined_gcode: gcode, ck_ms9_enhancements: enhancements };
       }
       return baseResult;
     }

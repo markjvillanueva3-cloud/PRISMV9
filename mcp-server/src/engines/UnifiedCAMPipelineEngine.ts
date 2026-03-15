@@ -253,34 +253,37 @@ export class UnifiedCAMPipelineEngine {
           try {
             const dims = feature.dimensions;
             const toolD = bestTool.diameter_mm || 10;
-            // Build a rectangular boundary from feature dimensions
             const w = dims.width_mm || dims.diameter_mm || 50;
             const l = dims.length_mm || w;
-            const boundary = [
-              { x: 0, y: 0, z: 0 },
-              { x: l, y: 0, z: 0 },
-              { x: l, y: w, z: 0 },
-              { x: 0, y: w, z: 0 },
-            ];
-            const prodConfig = {
-              tool_diameter_mm: toolD,
-              depth_mm: dims.depth_mm || 10,
-              stepover_pct: 40,
-              stepdown_mm: toolD * 0.5,
-              finishing_passes: feature.surface_finish_Ra ? 1 : 0,
-              lead_in_radius_mm: toolD * 0.3,
-              spindle_rpm: bestTool.recommended_params?.rpm || 5000,
-              feed_mm_min: bestTool.recommended_params?.feed_mmmin || 1500,
-              climb_milling: true,
-            };
+            const params = bestTool.recommended_params || {};
             const prodResult = _prodToolpath.generateProduction(
-              boundary, prodConfig, String(req.options?.program_number || 1000), controller,
+              {
+                points: [
+                  { x: 0, y: 0 }, { x: l, y: 0 },
+                  { x: l, y: w }, { x: 0, y: w },
+                ],
+                depth_mm: dims.depth_mm || 10,
+              },
+              {
+                material_iso_group: iso as any,
+                tool_diameter_mm: toolD,
+                tool_flute_count: bestTool.flute_count || 3,
+                feed_per_tooth_mm: params.feed_mmpt || 0.1,
+                cutting_speed_mpm: params.speed_mpm || 150,
+                rpm: params.rpm || 5000,
+                stepover_mm: params.ae_mm || toolD * 0.3,
+                doc_mm: params.ap_mm || toolD * 0.5,
+                enable_chip_thinning: true,
+                enable_corner_decel: true,
+                enable_arc_corners: true,
+              },
             );
             if (prodResult?.segments?.length) {
-              allSegments.push(...prodResult.segments);
+              allSegments.push(...prodResult.segments.map((s: any) => ({
+                x: s.x, y: s.y, z: s.z,
+                feed_mmmin: s.feed_mmmin, rpm: s.rpm, type: s.type,
+              })));
               algorithmsUsed.push("ProductionToolpath:PolygonOffset");
-              if (prodResult.warnings?.length) warnings.push(...prodResult.warnings);
-              // Skip the router result for this feature — production path takes precedence
               continue;
             }
           } catch { /* fall through to router result */ }
