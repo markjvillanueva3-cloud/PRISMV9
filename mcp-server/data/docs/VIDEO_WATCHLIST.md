@@ -730,3 +730,98 @@ Each category maps to specific `/forge-triple` + `/autopilot` actions:
 - [ ] "Machining Copper & Brass — Tips for Non-Ferrous" (BUE prevention, high rake, flood coolant)
 - [ ] "Machining Cast Iron — Grey vs Ductile" (dry cutting, insert selection, graphite dust management)
 - [ ] "Machining Hardened Steel (>50 HRC)" (CBN, ceramic, hard milling strategies, spring passes)
+
+## CATEGORY 16: Wire EDM — Programming, Setup & Technique
+
+### 16A: Wire EDM Fundamentals
+- [ ] "Wire EDM for Beginners — How It Works" (spark erosion, dielectric, wire types, surface finish)
+- [ ] "Wire EDM Programming — DXF to G-Code Workflow" (CAD→CAM→post, geometry prep, lead-in/out)
+- [ ] Makino — "Programming Techniques for Wire EDM" (webinar by Brian Coward, best practices)
+- [ ] Makino — "Wire EDM Programming Techniques — Advanced" (skim cuts, multi-pass, taper cutting)
+- [ ] "Sodick Wire EDM — Setup & Operation Training" (threading, codeless alignment, edge find, tilt offset)
+- [ ] "Mitsubishi Wire EDM — Operator Guide" (control panel, parameter selection, wire path setup)
+- [ ] "Wire EDM Skim Cuts — Achieving Mirror Finish" (multi-pass strategy, power settings per pass)
+- [ ] "Wire EDM Taper Cutting — How to Set Up" (UV axis programming, draft angles, die clearance)
+
+### 16B: Wire EDM Advanced Topics
+- [ ] "Wire EDM Submerged vs Flush Cutting" (dielectric level, flushing pressure, surface quality effects)
+- [ ] "Wire EDM Wire Selection — Brass vs Coated vs Molybdenum" (wire diameter, speed, finish, cost)
+- [ ] "Wire EDM for Tool & Die — Punch & Die Cutting" (slug control, die clearance, core drop strategy)
+- [ ] "Wire EDM Fixturing & Workholding" (magnetic chucks, precision vises, datum setup for EDM)
+- [ ] "Esprit vs Mastercam for Wire EDM Programming" (comparison, feature differences, workflow)
+
+## CATEGORY 17: Sinker/Ram EDM — Electrode Design & Setup
+
+### 17A: Sinker EDM Fundamentals
+- [ ] "Sinker EDM for Beginners — How It Works" (electrode, dielectric, spark gap, orbiting)
+- [ ] "Sinker EDM Electrode Design — Graphite vs Copper" (when to use each, oversize calc, wear rates)
+- [ ] "Sinker EDM Electrode Machining — Graphite on CNC" (dust management, speeds/feeds, sharp edges)
+- [ ] "Sinker EDM Electrode Machining — Copper on CNC" (surface finish, polishing, handling)
+- [ ] "Sinker EDM Programming — Orbiting & Z-axis Strategies" (vector, planetary, linear orbiting)
+- [ ] "Sinker EDM Surface Finish — VDI Scale Explained" (VDI 3400, Ra conversion, parameter selection)
+
+### 17B: Sinker EDM Advanced Topics
+- [ ] "Sinker EDM for Mold Making — Cavity & Core" (multi-electrode strategy, electrode wear compensation)
+- [ ] "Sinker EDM Ribs & Thin Features" (narrow slots, high aspect ratio, flushing challenges)
+- [ ] "Micro EDM — Small Hole Drilling & Micro Features" (electrode fabrication, sub-mm features)
+- [ ] "EDM Drill / Hole Popper — How to Use" (fast hole drilling, broken tap removal, start holes for wire)
+
+## CATEGORY 18: Waterjet Cutting — Setup, Programming & Technique
+
+### 18A: Waterjet Fundamentals
+- [ ] "Abrasive Waterjet Cutting — How It Works" (pressure, abrasive types, garnet mesh, mixing tube)
+- [ ] "OMAX Waterjet — Complete Setup & First Cut" (OMAX Layout software, fixturing, piercing, cutting)
+- [ ] "OMAX IntelliMAX Software — Programming Tutorial" (import DXF, toolpath, cut quality, traverse)
+- [ ] "Flow Waterjet — Mach 4 Setup & Programming" (FlowPath software, nesting, Dynamic Waterjet)
+- [ ] "Waterjet Taper Compensation — Tilt-A-Jet & A-Jet" (OMAX automatic taper removal, single-click setup)
+- [ ] "Waterjet Kerf & Offset — How to Set Correctly" (kerf width vs speed, quality numbers, tolerances)
+
+### 18B: Waterjet Advanced Topics
+- [ ] "Waterjet Stack Cutting — Thin Materials" (stacking technique, holding, taper reduction in thin stock)
+- [ ] "Waterjet Nesting for Material Optimization" (OMAX Layout nesting, remnant tracking, sheet utilization)
+- [ ] "Waterjet Piercing Techniques — Brittle Materials" (low-pressure pierce, oscillating pierce, pre-drill)
+- [ ] "Waterjet vs Laser vs Plasma — When to Use Each" (material thickness, tolerance, heat-affected zone)
+- [ ] "Waterjet Maintenance — Pump, Nozzle, Abrasive System" (intensifier vs direct drive, orifice life)
+- [ ] "Waterjet Cutting Glass, Stone & Composites" (special materials, reduced pressure, speed settings)
+- [ ] "Pure Waterjet — Cutting Foam, Rubber, Gaskets" (no abrasive, clean cut, food-safe applications)
+
+## CATEGORY 19: CAD Drawing & Part Design for Manufacturing (Fusion 360 Priority)
+
+### 19A: Fusion 360 CAD — Beginner (HIGHEST PRIORITY)
+- [ ] Product Design Online (Kevin Kennedy) — "Learn Fusion 360 in 30 Days" 2026 Edition (complete beginner curriculum, new UI)
+- [ ] Product Design Online — Day 1-10: Sketch Fundamentals (constraints, dimensions, fully constrained sketches)
+- [ ] Product Design Online — Day 11-20: 3D Modeling (extrude, revolve, sweep, loft, shell, pattern)
+- [ ] Product Design Online — Day 21-30: Assemblies & Drawings (joints, motion, 2D drawing creation)
+- [ ] Lars Christensen — "Fusion 360 for Absolute Beginners" (Autodesk employee, deep workflow knowledge)
+- [ ] Lars Christensen — "Fusion 360 Tips & Tricks" series (intermediate techniques, shortcuts, productivity)
+- [ ] Lars Christensen — "Fusion 360 Q&A Livestreams" (real-world questions answered live)
+- [ ] "Fusion 360 Sketch Constraints — Complete Guide" (fully constrained sketches, parametric design intent)
+- [ ] "Fusion 360 Parameters — Driving Dimensions from a Table" (parametric families, user parameters)
+
+### 19B: Fusion 360 CAD — For Machinists
+- [ ] GCode Tutor — "Fusion 360 for Milling Machines" (taught by time-served machinist, CAD→G-code workflow)
+- [ ] "Fusion 360 for CNC Machinists" (Udemy — sketching with constraints, manufacturing-oriented modeling)
+- [ ] NYC CNC — "Fusion 360 CAD for CNC — Complete Workflow" (model→CAM→setup→cut real parts)
+- [ ] "Fusion 360 — Drawing a CNC Part from a Blueprint" (reading prints, modeling to dimensions, tolerances)
+- [ ] "Fusion 360 — Sheet Metal Design for Laser/Waterjet" (bend allowance, flat pattern, K-factor)
+- [ ] "Fusion 360 — Creating Manufacturing Drawings" (title block, dimensions, GD&T symbols, section views)
+- [ ] "Fusion 360 GD&T in Drawings" (LinkedIn Learning — applying geometric tolerances to drawings)
+- [ ] "Fusion 360 — Parametric Modeling for Manufacturing" (design intent, change-friendly models, configurations)
+
+### 19C: Fusion 360 CAD — Intermediate/Advanced
+- [ ] "Fusion 360 — Surface Modeling for Complex Shapes" (T-splines, patch, loft between complex curves)
+- [ ] "Fusion 360 — Multi-Body Part Design" (splitting bodies, combining, manufacturing from multi-body)
+- [ ] "Fusion 360 — Form Tool (T-Spline) Modeling" (organic shapes, A-class surfaces, push/pull sculpting)
+- [ ] "Fusion 360 — Thread Modeling & Cosmetic Threads" (modeled vs cosmetic, when to use each)
+- [ ] "Fusion 360 — Design for Manufacturability (DfM)" (draft angles, undercuts, wall thickness, cost)
+- [ ] "Fusion 360 — Simulation & FEA for Machinists" (stress analysis, modal analysis, verify part before cutting)
+
+### 19D: General CAD Skills (Transferable)
+- [ ] "SolidWorks Tutorial — 8-Hour Beginner Course" (sketching, part modeling, assemblies, drawings, sheet metal)
+- [ ] "SolidWorks — Sheet Metal Design Complete Guide" (base flange, edge flange, hem, flat pattern)
+- [ ] "SolidWorks — Assembly Design & Mates" (standard mates, smart mates, interference detection)
+- [ ] "Engineering Drawing Reading — For Machinists" (title blocks, views, dimensions, tolerances, symbols)
+- [ ] "GD&T Crash Course — The 14 Symbols Explained" (datum, position, profile, runout, flatness, etc.)
+- [ ] "Blueprint Reading for CNC Operators" (3-view drawings, section views, detail views, notes)
+- [ ] "FreeCAD — Open Source CAD for Manufacturing" (parametric modeling, drawing workbench, export)
+- [ ] "OnShape — Browser-Based CAD Tutorial" (cloud CAD, real-time collaboration, parametric modeling)
