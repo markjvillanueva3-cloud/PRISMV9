@@ -84,10 +84,25 @@ class PRISMClient:
         material: str,
         machine_name: str = "generic",
         production_mode: bool = True,
-        post_process: bool = False,
-        optimize_sf: bool = False,
+        post_process: bool = True,
+        optimize_sf: bool = True,
     ) -> Dict[str, Any]:
-        """Generate complete G-code program from features."""
+        """Generate complete G-code program from features.
+
+        With post_process=True and optimize_sf=True (defaults), this chains:
+        1. SmartToolSelector → pick best tool from 73K catalog
+        2. AdaptiveToolpathRouter → best algorithm from 34
+        3. ProductionToolpath → polygon offset with chip thinning
+        4. AutoSpeedFeedEngine → line-by-line variable S/F
+        5. PostProcessorPipeline → 35-stage 7-phase optimization:
+           P0: Parse + resolve (material/machine/tool from catalogs)
+           P1: Physics (Kienzle S/F, stability lobes, deflection, coolant)
+           P2: Per-block (engagement, chip thinning, corner decel, wear)
+           P3: Motion (S-curve velocity, look-ahead, controller features)
+           P4: Stochastic (Monte Carlo force CI, Taguchi robustness)
+           P5: Safety (24 rules, playbook 296 rules, tribal tips)
+           P6: Output (controller dialect, probe routines, setup sheet)
+        """
         return self.call_action("cam_unified_generate", {
             "features": features,
             "material": material,
@@ -95,6 +110,72 @@ class PRISMClient:
             "production_mode": production_mode,
             "post_process": post_process,
             "optimize_sf": optimize_sf,
+        })
+
+    def generate_full_pipeline(
+        self,
+        gcode: str,
+        material: str,
+        machine_name: str,
+        controller: str = "fanuc",
+        tools: Optional[List[Dict]] = None,
+        aggressiveness: float = 0.5,
+    ) -> Dict[str, Any]:
+        """Run existing G-code through the full 35-stage PP pipeline.
+
+        Use this when Fusion/other CAM already generated the toolpath,
+        and you want PRISM to optimize the S/F, inject controller
+        features, validate safety, and produce setup documentation.
+
+        This is the "Phase B re-optimizer" — takes ANY G-code from
+        ANY source and makes it better using PRISM's physics engines.
+        """
+        return self.call_action("pp_run_full", {
+            "gcode": gcode,
+            "material": {"name": material},
+            "machine": {"name": machine_name, "controller": controller},
+            "tools": tools or [],
+            "aggressiveness": aggressiveness,
+            "stages": {
+                "speed_feed": True,
+                "stability_lobes": True,
+                "engagement_analysis": True,
+                "chip_thinning": True,
+                "adaptive_feed": True,
+                "corner_detection": True,
+                "plunge_detection": True,
+                "wear_progression": True,
+                "thermal_tracking": True,
+                "motion_dynamics": True,
+                "controller_features": True,
+                "safety_analysis": True,
+                "playbook_rules": True,
+                "tribal_knowledge": True,
+                "energy_optimization": True,
+                "gcode_generation": True,
+                "cycle_time": True,
+                "verification": True,
+            },
+        })
+
+    def optimize_existing_gcode(
+        self,
+        gcode: str,
+        material: str,
+        controller: str = "fanuc",
+        tools: Optional[List[Dict]] = None,
+    ) -> Dict[str, Any]:
+        """Quick S/F optimization of existing G-code.
+
+        Lighter than generate_full_pipeline — just runs AutoSpeedFeed
+        for line-by-line physics optimization without full PP stages.
+        """
+        return self.call_action("cam_unified_generate", {
+            "features": [],
+            "material": material,
+            "machine_name": "generic",
+            "optimize_sf": True,
+            "existing_gcode": gcode,
         })
 
     def verify_toolpath(
