@@ -3311,6 +3311,14 @@ export { multiProcessCAMBridgeEngine, MultiProcessCAMBridgeEngine } from './Mult
 // CK-MS6 — Mill-Turn & Swiss Pipeline
 export { millTurnSwissPipelineEngine, MillTurnSwissPipelineEngine } from './MillTurnSwissPipelineEngine.js';
 export { selfLearningCAMEngine, SelfLearningCAMEngine } from './SelfLearningCAMEngine.js';
+export { turningProfileEngine, TurningProfileEngine } from './TurningProfileEngine.js';
+export { sheetNestingEngine, SheetNestingEngine } from './SheetNestingEngine.js';
+export { dxfParserEngine, DXFParserEngine } from './DXFParserEngine.js';
+
+// CK-MS11 — Stochastic Routing, Probing Programs, DFM Feedback
+export { stochasticRoutingEngine, StochasticRoutingEngine } from './StochasticRoutingEngine.js';
+export { probingProgramEngine, ProbingProgramEngine } from './ProbingProgramEngine.js';
+export { dfmFeedbackEngine, DFMFeedbackEngine } from './DFMFeedbackEngine.js';
 
 // MF Track — Machining Feasibility Intelligence
 export { workpieceStateEngine, WorkpieceStateEngine } from './WorkpieceStateEngine.js';
@@ -3357,3 +3365,6 @@ export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from "./Sequence
 
 // PhysicsMLHybridEngine — 20 HYBRID formulas (coupled physics, ML-physics, optimization, online learning, system-level)
 export { physicsMLHybridEngine, PhysicsMLHybridEngine } from "./PhysicsMLHybridEngine.js";
+
+// ThreadStrengthFatigueEngine — Thread shear/pullout, Goodman fatigue, bolt preload, Junker loosening, joint analysis
+export { threadStrengthFatigueEngine, ThreadStrengthFatigueEngine } from "./ThreadStrengthFatigueEngine.js";
