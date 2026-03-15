@@ -780,7 +780,7 @@ export {
   generateOfflineCache,
   type DisplaySize, type StatusColor, type TimerState,
   type QuickLookupResult, type MobileDisplay, type VoiceQueryResult,
-  type AlarmQuickDecode, type ToolLifeTimer, type OfflineCacheBundle, type CacheEntry,
+  type AlarmQuickDecode, type ToolLifeTimer, type OfflineCacheBundle, type CacheEntry as MobileCacheEntry,
 } from "./MobileInterfaceEngine.js";
 
 // ERP Integration (R9-MS4)
@@ -3048,6 +3048,9 @@ export { sensorSimulatorEngine } from "./SensorSimulatorEngine.js";
 export { sensorFusionEngine } from "./SensorFusionEngine.js";
 export { realTimeAnomalyDetectionEngine } from "./RealTimeAnomalyDetectionEngine.js";
 
+// Physics Auto-Calibration Engine — Bayesian calibration of physics constants from real cutting data [QS-MS6 P2]
+export { physicsAutoCalibrationEngine, PhysicsAutoCalibrationEngine, type CalibrationMeasurement, type CalibrationResult, type CalibrationPrediction, type CalibrationState, type MaterialCalibrationState, type BayesianPosterior } from "./PhysicsAutoCalibrationEngine.js";
+
 export { magneticBearingEngine, MagneticBearingEngine } from "./MagneticBearingEngine.js";
 export { flotationCellEngine, FlotationCellEngine } from "./FlotationCellEngine.js";
 export { crystallizationEngine, CrystallizationEngine } from "./CrystallizationEngine.js";
@@ -3221,6 +3224,7 @@ export { toolAssemblyModelEngine, ToolAssemblyModelEngine } from './ToolAssembly
 
 // USF-MS0: Speed/Feed Orchestrator + Tool Library + Geometry Pipeline
 export { speedFeedOrchestratorEngine, SpeedFeedOrchestratorEngine } from './SpeedFeedOrchestratorEngine.js';
+export { crossPipelineWhatIfEngine, CrossPipelineWhatIfEngine } from './CrossPipelineWhatIfEngine.js';
 export { userToolLibraryEngine, UserToolLibraryEngine } from './UserToolLibraryEngine.js';
 export { partGeometryPipelineEngine, PartGeometryPipelineEngine } from './PartGeometryPipelineEngine.js';
 
@@ -3273,6 +3277,7 @@ export { cadOperationTaxonomyEngine, CADOperationTaxonomyEngine } from './CADOpe
 export { cadQueryCodeGeneratorEngine, CadQueryCodeGeneratorEngine } from './CadQueryCodeGeneratorEngine.js';
 export { fusion360CodeGeneratorEngine, Fusion360CodeGeneratorEngine } from './Fusion360CodeGeneratorEngine.js';
 export { fusion360LiveBridgeEngine, Fusion360LiveBridgeEngine } from './Fusion360LiveBridgeEngine.js';
+export { fusionToolSyncEngine, FusionToolSyncEngine } from './FusionToolSyncEngine.js';
 export { metrologyUncertaintyEngine, MetrologyUncertaintyEngine } from './MetrologyUncertaintyEngine.js';
 export { integratedVerificationEngine, IntegratedVerificationEngine } from './IntegratedVerificationEngine.js';
 
@@ -3410,3 +3415,15 @@ export {
 
 // ThreadStrengthFatigueEngine — Thread shear/pullout, Goodman fatigue, bolt preload, Junker loosening, joint analysis
 export { threadStrengthFatigueEngine, ThreadStrengthFatigueEngine } from "./ThreadStrengthFatigueEngine.js";
+
+// UnifiedPhysicsVerifierEngine — Cross-pipeline consistency checker (QS-MS6)
+export { unifiedPhysicsVerifierEngine, UnifiedPhysicsVerifierEngine } from "./UnifiedPhysicsVerifierEngine.js";
+
+// PipelineConsistencyHookEngine — Post-pipeline canonical divergence hook (QS-MS6 P3)
+export { pipelineConsistencyHookEngine, PipelineConsistencyHookEngine, type ConsistencyCheckInput, type ConsistencyCheckResult, type MetricComparison } from "./PipelineConsistencyHookEngine.js";
+
+// ToolInventoryOrchestratorEngine — Inventory-aware tool intelligence
+export { toolInventoryOrchestratorEngine, ToolInventoryOrchestratorEngine } from "./ToolInventoryOrchestratorEngine.js";
+
+// OperatorDashboardOrchestratorEngine — Unified real-time shop floor monitoring dashboard
+export { operatorDashboardOrchestratorEngine, OperatorDashboardOrchestratorEngine } from "./OperatorDashboardOrchestratorEngine.js";

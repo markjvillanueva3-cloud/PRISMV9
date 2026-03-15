@@ -253,7 +253,7 @@ const ACTIONS = [
   // CK-MS7 — CAM Kernel Orchestrator (3 actions)
   "cam_generate", "cam_turn", "cam_simulate",
   // F360-TOOL — Fusion 360 Tool Library (1 action)
-  "fusion_export_tool_library",
+  "fusion_export_tool_library", "fusion_sync_tools",
   // PIPE-MS0+MS1 — Print-to-Program Pipeline (4 actions)
   "print_to_program_full", "print_to_program_enhanced", "print_to_program_plan", "print_to_program_validate",
   // CK Pipeline (7 engines, 36 actions)
@@ -1652,6 +1652,50 @@ Params vary by action — pass relevant fields in params object.`,
             const subset = limit ? tools.slice(0, limit) : tools;
             const library = fte.exportLibrary(subset);
             result = { success: true, tool_count: subset.length, library };
+            break;
+          }
+          case "fusion_sync_tools": {
+            const { toolCatalogEngine: tce2 } = await import("../../engines/ToolCatalogEngine.js");
+            const { fusionToolSyncEngine: fts } = await import("../../engines/FusionToolSyncEngine.js");
+            const { fusionToolExportEngine: fte2 } = await import("../../engines/FusionToolExportEngine.js");
+            const mode = (params as any).mode as string ?? "partition";
+            if (mode === "partition") {
+              const mfr = (params as any).manufacturer as string | undefined;
+              const toolType = (params as any).type as string | undefined;
+              const maxPer = (params as any).max_per_library as number | undefined;
+              const tools = tce2.search({ manufacturer: mfr, type: toolType as any });
+              const partitions = fts.partitionForExport(tools, maxPer);
+              const libs: Record<string, number> = {};
+              Array.from(partitions.entries()).forEach(([name, arr]) => { libs[name] = arr.length; });
+              result = { success: true, library_count: partitions.size, libraries: libs };
+            } else if (mode === "status") {
+              result = { success: true, ...fts.getSyncSummary() };
+            } else if (mode === "unsynced") {
+              const tools = tce2.search({});
+              const unsynced = fts.getUnsyncedTools(tools);
+              result = { success: true, unsynced_count: unsynced.length };
+            } else if (mode === "job") {
+              const toolIds = (params as any).tool_ids as string[];
+              const tools = tce2.search({});
+              const job = fts.exportJobTools(toolIds ?? [], tools);
+              const library = fte2.exportLibrary(job.tools);
+              result = {
+                success: true,
+                library_name: job.libraryName,
+                tool_count: job.tools.length,
+                library,
+              };
+            } else if (mode === "crib") {
+              const cribTools = (params as any).tools as { id: string }[];
+              if (!cribTools?.length) {
+                result = { error: "crib mode requires 'tools' array with {id} objects" };
+              } else {
+                const diff = fts.syncUserCrib(cribTools);
+                result = { success: true, ...diff };
+              }
+            } else {
+              result = { error: `Unknown fusion_sync_tools mode: ${mode}` };
+            }
             break;
           }
           // PIPE-MS0 — Print-to-Program Pipeline
