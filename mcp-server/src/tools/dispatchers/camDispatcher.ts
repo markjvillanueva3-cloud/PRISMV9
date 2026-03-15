@@ -36,7 +36,8 @@ import { ACTION_POST_PROCESSOR_EXT_SCHEMAS } from "../../schemas/postProcessorEx
 import { ACTION_ADVANCED_SCIENCE_SCHEMAS } from "../../schemas/advancedScienceActionSchemas.js";
 import { ACTION_CNC_PROGRAMMING_SCHEMAS } from "../../schemas/cncProgrammingActionSchemas.js";
 import { ACTION_CK_PIPELINE_SCHEMAS } from "../../schemas/ckPipelineActionSchemas.js";
-const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS, ...ACTION_CK_PIPELINE_SCHEMAS };
+import { ACTION_CAM_KERNEL_SCHEMAS } from "../../schemas/camKernelActionSchemas.js";
+const MERGED_CAM_SCHEMAS = { ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS, ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS, ...ACTION_CK_PIPELINE_SCHEMAS, ...ACTION_CAM_KERNEL_SCHEMAS };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any;
@@ -229,8 +230,8 @@ const ACTIONS = [
   "five_axis_collision_avoid", "five_axis_roughing",
   // CK-MS7 — CAM Kernel Orchestrator (3 actions)
   "cam_generate", "cam_turn", "cam_simulate",
-  // PIPE-MS0 — Print-to-Program Pipeline (3 actions)
-  "print_to_program_full", "print_to_program_plan", "print_to_program_validate",
+  // PIPE-MS0+MS1 — Print-to-Program Pipeline (4 actions)
+  "print_to_program_full", "print_to_program_enhanced", "print_to_program_plan", "print_to_program_validate",
   // CK Pipeline (7 engines, 36 actions)
   // EDM
   "edm_wire_program", "edm_sinker_program", "edm_micro_program", "edm_cycle_time", "edm_uncertainty",
@@ -1606,6 +1607,11 @@ Params vary by action — pass relevant fields in params object.`,
           case "print_to_program_full": {
             const { printToProgramPipelineEngine } = await import("../../engines/PrintToProgramPipelineEngine.js");
             result = printToProgramPipelineEngine.calculate("print_to_program_full", params);
+            break;
+          }
+          case "print_to_program_enhanced": {
+            const { printToProgramPipelineEngine: ptpEnhanced } = await import("../../engines/PrintToProgramPipelineEngine.js");
+            result = await ptpEnhanced.calculate("print_to_program_enhanced", params);
             break;
           }
           case "print_to_program_plan": {

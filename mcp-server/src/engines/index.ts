@@ -3133,6 +3133,7 @@ export { PredictionFeedbackOrchestratorEngine } from "./PredictionFeedbackOrches
 export { StratifiedCalibrationEngine } from "./StratifiedCalibrationEngine.js";
 export { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
 export { coolantDynamicsEngine } from "./CoolantDynamicsEngine.js";
+export { coolantOptimizationPhysicsEngine, CoolantOptimizationPhysicsEngine } from "./CoolantOptimizationPhysicsEngine.js";
 export { reliabilityEngineeringEngine } from "./ReliabilityEngineeringEngine.js";
 export { statisticalProcessMonitoringEngine } from "./StatisticalProcessMonitoringEngine.js";
 export { sustainabilityLCAEngine } from "./SustainabilityLCAEngine.js";
@@ -3316,7 +3317,7 @@ export { workpieceStateEngine, WorkpieceStateEngine } from './WorkpieceStateEngi
 export { accessibilityAnalysisEngine, AccessibilityAnalysisEngine } from './AccessibilityAnalysisEngine.js';
 export { workholdingViabilityEngine, WorkholdingViabilityEngine } from './WorkholdingViabilityEngine.js';
 export { rigidityDegradationEngine, RigidityDegradationEngine } from './RigidityDegradationEngine.js';
-export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from './SequenceFeasibilityEngine.js';
+
 
 // Laser Program Assembler
 export { LaserProgramAssemblerEngine } from './LaserProgramAssemblerEngine.js';
@@ -3353,3 +3354,6 @@ export { inventoryAwareToolSelectorEngine, InventoryAwareToolSelectorEngine } fr
 export { printToGeometryEngine, PrintToGeometryEngine } from "./PrintToGeometryEngine.js";
 export { roiAdvisorEngine, ROIAdvisorEngine } from "./ROIAdvisorEngine.js";
 export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from "./SequenceFeasibilityEngine.js";
+
+// PhysicsMLHybridEngine — 20 HYBRID formulas (coupled physics, ML-physics, optimization, online learning, system-level)
+export { physicsMLHybridEngine, PhysicsMLHybridEngine } from "./PhysicsMLHybridEngine.js";

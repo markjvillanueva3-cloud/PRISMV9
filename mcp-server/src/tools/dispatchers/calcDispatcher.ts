@@ -826,6 +826,8 @@ const ACTIONS = [
   "iso286_recommend_fit", "iso286_variability_stack",
   // MF-MS1: Feasibility Analysis (accessibility, workholding, rigidity)
   "feasibility_accessibility", "feasibility_workholding", "feasibility_rigidity",
+  "coolant_fluid_delivery", "coolant_mql_physics", "coolant_hpc_design",
+  "coolant_health_monitor", "coolant_optimize_flow",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -6987,6 +6989,117 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── MF-MS2: Sequence Feasibility Engine ──────────────────
+          case "sequence_simulate": {
+            const { sequenceFeasibilityEngine } = await import(
+              "../../engines/SequenceFeasibilityEngine.js"
+            );
+            result = sequenceFeasibilityEngine.calculate("sequence_simulate", params as any);
+            break;
+          }
+          case "sequence_detect_deadends": {
+            const { sequenceFeasibilityEngine } = await import(
+              "../../engines/SequenceFeasibilityEngine.js"
+            );
+            result = sequenceFeasibilityEngine.calculate("sequence_detect_deadends", params as any);
+            break;
+          }
+          case "sequence_resequence": {
+            const { sequenceFeasibilityEngine } = await import(
+              "../../engines/SequenceFeasibilityEngine.js"
+            );
+            result = sequenceFeasibilityEngine.calculate("sequence_resequence", params as any);
+            break;
+          }
+          case "sequence_constraint_graph": {
+            const { sequenceFeasibilityEngine } = await import(
+              "../../engines/SequenceFeasibilityEngine.js"
+            );
+            result = sequenceFeasibilityEngine.calculate("sequence_constraint_graph", params as any);
+            break;
+          }
+
+          // ── MF-MS3: Setup Transition Engine ──────────────────
+          case "setup_transition_analyze": {
+            const { setupTransitionEngine: ste } =
+              await import("../../engines/SetupTransitionEngine.js");
+            result = ste.analyzeSetupTransition(params as any);
+            break;
+          }
+          case "predictive_failure_mc": {
+            const { setupTransitionEngine: ste } =
+              await import("../../engines/SetupTransitionEngine.js");
+            result = ste.predictFailureProbability(params as any);
+            break;
+          }
+          case "force_capability_analyze": {
+            const { setupTransitionEngine: ste } =
+              await import("../../engines/SetupTransitionEngine.js");
+            result = ste.analyzeForceCapability(params as any);
+            break;
+          }
+
+          case "hybrid_coupled_physics": {
+            const { physicsMLHybridEngine } = await import("../../engines/PhysicsMLHybridEngine.js");
+            result = physicsMLHybridEngine.calculate("hybrid_coupled_physics", params.sub_action, params);
+            break;
+          }
+          case "hybrid_ml_physics": {
+            const { physicsMLHybridEngine } = await import("../../engines/PhysicsMLHybridEngine.js");
+            result = physicsMLHybridEngine.calculate("hybrid_ml_physics", params.sub_action, params);
+            break;
+          }
+          case "hybrid_optimization": {
+            const { physicsMLHybridEngine } = await import("../../engines/PhysicsMLHybridEngine.js");
+            result = physicsMLHybridEngine.calculate("hybrid_optimization", params.sub_action, params);
+            break;
+          }
+          case "hybrid_online_learning": {
+            const { physicsMLHybridEngine } = await import("../../engines/PhysicsMLHybridEngine.js");
+            result = physicsMLHybridEngine.calculate("hybrid_online_learning", params.sub_action, params);
+            break;
+          }
+          case "hybrid_system_level": {
+            const { physicsMLHybridEngine } = await import("../../engines/PhysicsMLHybridEngine.js");
+            result = physicsMLHybridEngine.calculate("hybrid_system_level", params.sub_action, params);
+            break;
+          }
+
+          case "coolant_fluid_delivery": {
+            const { coolantOptimizationPhysicsEngine: e1 } = await import(
+              "../../engines/CoolantOptimizationPhysicsEngine.js"
+            );
+            result = e1.calculate({ action: "fluid_delivery", params });
+            break;
+          }
+          case "coolant_mql_physics": {
+            const { coolantOptimizationPhysicsEngine: e2 } = await import(
+              "../../engines/CoolantOptimizationPhysicsEngine.js"
+            );
+            result = e2.calculate({ action: "mql_physics", params });
+            break;
+          }
+          case "coolant_hpc_design": {
+            const { coolantOptimizationPhysicsEngine: e3 } = await import(
+              "../../engines/CoolantOptimizationPhysicsEngine.js"
+            );
+            result = e3.calculate({ action: "hpc_design", params });
+            break;
+          }
+          case "coolant_health_monitor": {
+            const { coolantOptimizationPhysicsEngine: e4 } = await import(
+              "../../engines/CoolantOptimizationPhysicsEngine.js"
+            );
+            result = e4.calculate({ action: "coolant_health", params });
+            break;
+          }
+          case "coolant_optimize_flow": {
+            const { coolantOptimizationPhysicsEngine: e5 } = await import(
+              "../../engines/CoolantOptimizationPhysicsEngine.js"
+            );
+            result = e5.calculate({ action: "optimize_flow", params });
+            break;
+          }
           default:
             throw new Error(`Unknown calculation action: ${action}`);
         }
