@@ -571,3 +571,93 @@ Each category maps to specific `/forge-triple` + `/autopilot` actions:
 | 10A-10B | `/forge-engines` | AdvancedCuttingMathEngine (new physics models) |
 | All | `/forge-skills` | domain-specific query skills |
 | All | `/forge-hooks` | safety rules, autofire triggers |
+
+---
+
+## CATEGORY 11: Tool Vendor How-To & Application Videos (2025-2026)
+
+### 11A: Haas Automation — Setup & Programming Tutorials
+- [ ] Haas — "Mark's Greatest Setup Tips" (complete part start-to-finish setup walkthrough)
+- [ ] Haas — "Haas Program Optimizer — How To" (capture program changes on the fly)
+- [ ] Haas — "Haas Setup and Run Modes" (safety features, mode switching)
+- [ ] Haas — "Visual Programming System for Lathes" (VPS — write programs at control)
+- [ ] Haas — "Haas Control — GUI Setup, Run, and Edit" (control interface walkthrough)
+- [ ] Haas — "Programming Tips & Tricks" series (shortcuts, time-saving keystrokes)
+- [ ] Haas — "G187 Smoothing Mode Explained" (P1/P2/P3 modes, when to use each)
+- [ ] Haas — "Probing on a Haas Mill" (WCS setup, tool measurement, part inspection)
+- [ ] Haas — "5-Axis Setup on UMC-750" (TCPC, DWO G234, rotary axis homing)
+- [ ] Haas — "Haas Mill Operator Training" series (fundamentals for new operators)
+
+### 11B: Sandvik Coromant — Metal Cutting E-Learning
+- [ ] Sandvik — "Metal Cutting Technology" e-learning series (75 courses, 9 chapters — turning/milling/drilling/boring/threading/parting/toolholding)
+- [ ] Sandvik — "CoroMill Plura 2P350 — Composite Machining Application" (CFRP/GFRP strategies)
+- [ ] Sandvik — "CoroDrill DE10 — Short Hole Drilling Application" (feed/speed selection, chip control)
+- [ ] Sandvik — "CoroTurn Plus — Turning Application Guide" (insert selection, cutting data)
+- [ ] Sandvik — "Digital Live Machining" webinar series (live demos from Sandvik Centers)
+- [ ] Sandvik — "PrimeTurning — How to Apply" (all-direction turning, CoroTurn Prime inserts)
+- [ ] Sandvik — "High-Feed Milling with CoroMill 745" (application setup, feeds/speeds)
+
+### 11C: Kennametal — Application Videos
+- [ ] Kennametal — "KOR5 Solid Carbide End Mills — Application Demo" (3+ min cycle time savings)
+- [ ] Kennametal — "Indexable Milling Lead Angle & Cutting Forces" (tech tips, force vectors)
+- [ ] Kennametal — "New Products Fall 2025" (latest innovations, application data)
+- [ ] Kennametal — "Beyond Blast Coolant-Through Technology" (through-tool coolant setup)
+- [ ] Kennametal — "HARVI Ultra 8X End Mill — Titanium Roughing" (aerospace application)
+
+### 11D: Harvey Performance / Helical Solutions — Application Guides
+- [ ] Harvey Performance — "In The Loupe" video series (100+ machining how-to posts)
+- [ ] Harvey Performance — "HEM Guidebook" video companion (50+ pages of milling strategies)
+- [ ] Harvey Performance — "Machining Advisor Pro (MAP) — How to Use" (S/F parameter generation)
+- [ ] Helical Solutions — "Chipbreaker End Mills — When and How to Use" (chip control in deep pockets)
+- [ ] Harvey Tool — "Miniature End Mills — Application Tips" (micro-machining, thin walls, small features)
+- [ ] Harvey Tool — "Thread Milling — Complete How-To" (single-point vs multi-form, speeds/feeds)
+
+### 11E: Machine Builder Training Channels
+- [ ] Mazak — "Mazatrol SmoothAi Training" (interactive programming, AI features)
+- [ ] Mazak — "MPower Training Series" (setup, programming, maintenance courses)
+- [ ] Mazak — "INTEGREX Mill-Turn Setup Guide" (multi-tasking, sub-spindle, live tooling)
+- [ ] DMG MORI — "CELOS Control Training" (interface, job management, process monitoring)
+- [ ] DMG MORI — "DMU 50 5-Axis Setup & Programming" (swivel rotary table, TCPC)
+- [ ] Okuma — "OSP Suite — Programming Tutorials" (OSP-P300/P500, conversational programming)
+- [ ] Okuma — "Super-NURBS & Machining Navi" (surface quality optimization, anti-chatter)
+- [ ] Okuma — "MULTUS Mill-Turn Setup" (B-axis milling, turning mode switching)
+- [ ] Brother — "Speedio Setup & High-Speed Tapping" (M300X3, rapid tool changes, tapping cycles)
+
+### 11F: Titans of CNC Academy — Practical Machining
+- [ ] Titans of CNC — "Building Blocks" series (10-step program: design→program→cut on 3-axis mill)
+- [ ] Titans of CNC — "CNC Mill Fundamentals" series (workholding, tool selection, speeds/feeds)
+- [ ] Titans of CNC — "CNC Tooling Masterclass" (insert selection, holder types, tool life)
+- [ ] Titans of CNC — "Titan Tutorials — Learn to Set Up CNC" (vise setup, WCS, tool offsets)
+- [ ] Titans of CNC — "Tormach Tutorials" series (hobbyist-to-production workflow)
+- [ ] Titans of CNC — "5-Axis Machining Challenge Parts" (real 5-axis projects with full walkthrough)
+
+### 11G: Seco Tools — Material-Specific Application Videos
+- [ ] Seco Tools — "Material Specific Machining" playlist (ISO P/M/K/N/S/H strategies with chip control)
+- [ ] Seco Tools — "Edge Preparation & Cutting Geometry" (hone, chamfer, land effects on forces)
+- [ ] Seco Tools — "Jabro Solid² — High-Performance Milling" (solid carbide application data)
+- [ ] Seco Tools — "Steadyline Vibration Damping" (anti-vibration boring bars — how to select & apply)
+
+### 11H: Other Vendor How-To Videos
+- [ ] OSG — "A-Tap Series — Application Guide" (high-performance tapping, speeds/feeds by material)
+- [ ] OSG — "AE-VMS End Mills — Stainless Steel Application" (variable helix, chip thinning demo)
+- [ ] Guhring — "Pionex Taps — Application Demo" (March 2026 CTE feature — threading how-to)
+- [ ] Guhring — "Coolant-Through Drilling — MQL vs Flood Setup" (coolant system configuration)
+- [ ] Mitsubishi Materials — "Technical Guidance — Speeds & Feeds by Insert Grade" (grade selection)
+- [ ] Walter Tools — "Tiger-tec Gold — Cutting Speed vs Tool Life Demo" (Taylor curve demonstration)
+- [ ] Walter Tools — "Best Practice 2025" (success stories, machining tips, cutting data)
+- [ ] ISCAR — "Machining Aluminum Wheels — Productivity Application" (high-speed aluminum)
+- [ ] ISCAR — "E-Learning: Lightweight Engineering Materials" (CFRP, aluminum, magnesium)
+- [ ] Renishaw — "On-Machine Probing — Complete Setup Guide" (tool setting, workpiece probing, automated inspection)
+- [ ] Renishaw — "Ballbar Testing — How to Run & Interpret" (machine accuracy verification)
+- [ ] Blum-Novotest — "Tool Breakage Detection — Setup & Programming" (laser tool measurement)
+
+### 11I: CAM Software Practical Tutorials
+- [ ] OPEN MIND — "hyperMILL 2025 — New Deburring Strategies" (automatic deburring on machine)
+- [ ] OPEN MIND — "hyperMILL 5-Axis Auto Tool Orientation" (pre-analysis algorithm, indexed+simultaneous)
+- [ ] OPEN MIND — "hyperMILL Virtual Machine — Collision Avoidance" (machine model in toolpath calc)
+- [ ] Mastercam — "Dynamic Motion — Complete How-To" (adaptive clearing, constant chip load)
+- [ ] Mastercam — "OptiRough — Application Guide" (2025 toolpath strategies)
+- [ ] Fusion 360 — "Adaptive Clearing — Setup & Parameters" (engagement control, chip thinning)
+- [ ] Fusion 360 — "5-Axis Swarf Cutting — Complete Workflow" (surface selection, tool axis control)
+- [ ] SolidCAM — "iMachining 2D/3D — Getting Started" (patented toolpath, parameter wizard)
+- [ ] SolidCAM — "Swiss-Type Programming — Complete Guide" (multi-channel, gang vs turret)
