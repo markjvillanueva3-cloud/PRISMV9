@@ -203,14 +203,16 @@ export class FusionToolExportEngine {
       || tool.corner_radius_mm || 0;
     const helix = tool.helix_angle_deg || 30;
     const coating = tool.coating || "TiAlN";
+    const tType = tool.type || "end_mill";
 
     // Determine Fusion tool type
-    const toolType = this._fusionToolType(
-      tool.type || "end_mill", cr, d
-    );
+    const toolType = this._fusionToolType(tType, cr, d);
 
     // Generate cutting parameter presets for all ISO groups
-    const presets = this._generatePresets(d, flutes, loc);
+    // Use catalog cutting_data when available, fall back to Kienzle defaults
+    const presets = this._generatePresets(
+      d, flutes, loc, tool.cutting_data, tType,
+    );
 
     const vendor = tool.manufacturer || "Generic";
     const designation = tool.designation || tool.series
@@ -219,7 +221,7 @@ export class FusionToolExportEngine {
       .toLowerCase().replace(/\s+/g, "-");
 
     // Build shaft geometry (neck between cutting edge and holder)
-    const shaftSegments = [];
+    const shaftSegments: Array<{ "upper-diameter": number; "lower-diameter": number; height: number }> = [];
     if (shankD !== d) {
       // Neck transition from cutting diameter to shank
       shaftSegments.push({
@@ -234,14 +236,24 @@ export class FusionToolExportEngine {
       height: oal - loc - 2,
     });
 
-    // Build holder geometry (collet chuck or shrink-fit)
-    const holderBodyDiam = Math.max(shankD * 2.5, 32);
-    const holderLength = 50;
+    // Build holder geometry — 17 taper types supported
+    const HP: Record<string, [number, number, string]> = {
+      "ER16": [26, 35, "ER16 Collet Chuck"], "ER20": [34, 40, "ER20 Collet Chuck"],
+      "ER25": [42, 40, "ER25 Collet Chuck"], "ER32": [50, 46, "ER32 Collet Chuck"],
+      "ER40": [63, 55, "ER40 Collet Chuck"], "HSK-A63": [63, 80, "HSK-A63"],
+      "HSK-A100": [80, 100, "HSK-A100"], "CAT40": [63, 85, "CAT40 V-Flange"],
+      "CAT50": [80, 105, "CAT50 V-Flange"], "BT30": [46, 50, "BT30"],
+      "BT40": [63, 65, "BT40"], "BT50": [80, 85, "BT50"],
+      "Capto-C4": [40, 55, "Capto C4"], "Capto-C6": [63, 80, "Capto C6"],
+      "Capto-C8": [80, 100, "Capto C8"], "Shrink-Fit": [0, 60, "Shrink Fit"],
+      "Hydraulic": [0, 70, "Hydraulic Chuck"],
+    };
+    const hi = (tool as any).holder_interface;
+    const taperType = hi && HP[hi] ? hi : (shankD <= 6 ? "ER16" : shankD <= 13 ? "ER20" : shankD <= 16 ? "ER25" : shankD <= 20 ? "ER32" : shankD <= 25 ? "ER40" : "CAT40");
+    const [hpBody, hpGauge] = HP[taperType] ?? HP["ER32"];
+    const holderBodyDiam = hpBody > 0 ? hpBody : Math.max(shankD + 8, 26);
+    const holderLength = hpGauge;
     const holderGaugeLen = holderLength + oal - loc;
-    const taperType = shankD <= 6 ? "ER16"
-      : shankD <= 13 ? "ER20"
-        : shankD <= 20 ? "ER32"
-          : "ER40";
 
     const holderSegments = [
       { "upper-diameter": holderBodyDiam, "lower-diameter": holderBodyDiam, height: holderLength * 0.7 },
@@ -265,7 +277,7 @@ export class FusionToolExportEngine {
       },
       shaft: { segments: shaftSegments },
       holder: {
-        description: `${taperType} Collet Chuck`,
+        description: (HP[taperType] ?? HP["ER32"])[2],
         vendor: "Generic",
         geometry: {
           DC: holderBodyDiam,
@@ -285,9 +297,16 @@ export class FusionToolExportEngine {
 
   /**
    * Generate cutting parameter presets for all 6 ISO material groups.
+   * Uses catalog cutting_data when available, falls back to Kienzle defaults.
    */
   private _generatePresets(
     d: number, flutes: number, loc: number,
+    cuttingData?: Record<string, {
+      vc_min: number; vc_max: number;
+      fz_min: number; fz_max: number;
+      ap_max?: number; ae_max?: number;
+    }>,
+    toolType?: string,
   ) {
     const groups: Array<{ iso: string; name: string }> = [
       { iso: "P", name: "Steel (P)" },
@@ -298,35 +317,37 @@ export class FusionToolExportEngine {
       { iso: "H", name: "Hardened (H)" },
     ];
 
+    // Roughing-oriented ap/ae from actual tool geometry
+    const roughAp = Math.round(loc * 0.5 * 100) / 100;
+    const roughAe = Math.round(d * 0.5 * 100) / 100;
+
     return groups.map(g => {
-      const vc = DEFAULT_VC[g.iso] || 150;
-      const fz = DEFAULT_FZ[g.iso] || 0.1;
+      const cd = cuttingData?.[g.iso];
+      // Use catalog averages when available, else Kienzle defaults
+      const vc = cd
+        ? (cd.vc_min + cd.vc_max) / 2
+        : (DEFAULT_VC[g.iso] || 150);
+      const fz = cd
+        ? (cd.fz_min + cd.fz_max) / 2
+        : (DEFAULT_FZ[g.iso] || 0.1);
+
       // Scale fz with tool diameter (larger tool = higher fz)
-      const scaledFz = Math.round(
-        fz * Math.sqrt(d / 10) * 1000
-      ) / 1000;
+      const scaledFz = cd
+        ? Math.round(fz * 1000) / 1000          // catalog already diameter-specific
+        : Math.round(fz * Math.sqrt(d / 10) * 1000) / 1000;
       const rpm = Math.round((vc * 1000) / (Math.PI * d));
       const feedMmMin = Math.round(scaledFz * flutes * rpm);
 
-      // DOC/WOC based on material aggressiveness
-      const docFactor: Record<string, number> = {
-        P: 0.5, M: 0.3, K: 0.6, N: 1.0, S: 0.2, H: 0.15,
-      };
-      const wocFactor: Record<string, number> = {
-        P: 0.3, M: 0.2, K: 0.4, N: 0.5, S: 0.1, H: 0.08,
-      };
-      const stepdown = Math.round(
-        d * (docFactor[g.iso] || 0.5) * 100
-      ) / 100;
-      const stepover = Math.round(
-        d * (wocFactor[g.iso] || 0.3) * 100
-      ) / 100;
+      // Stepdown/stepover: prefer catalog ap_max/ae_max, else geometry-based roughing
+      const stepdown = cd?.ap_max
+        ? Math.round(Math.min(cd.ap_max, loc) * 100) / 100
+        : roughAp;
+      const stepover = cd?.ae_max
+        ? Math.round(Math.min(cd.ae_max, d) * 100) / 100
+        : roughAe;
 
-      // Coolant recommendation
-      const coolant: Record<string, string> = {
-        P: "flood", M: "flood", K: "disabled",
-        N: "flood", S: "through tool", H: "disabled",
-      };
+      // Coolant strategy based on tool type
+      const coolant = this._coolantForPreset(g.iso, toolType || "end_mill", d);
 
       return {
         name: g.name,
@@ -336,9 +357,30 @@ export class FusionToolExportEngine {
         f_ramp: Math.round(feedMmMin * 0.3),
         stepdown,
         stepover,
-        tool_coolant: coolant[g.iso] || "flood",
+        tool_coolant: coolant,
       };
     });
+  }
+
+  /**
+   * Determine coolant strategy based on tool type and ISO group.
+   */
+  private _coolantForPreset(
+    iso: string, toolType: string, d: number,
+  ): string {
+    if (/drill/i.test(toolType)) {
+      return d >= 3 ? "through tool" : "flood";
+    }
+    if (/tap/i.test(toolType)) return "flood";
+    if (/ball/i.test(toolType)) return "mist";
+    // end_mill / face_mill default
+    if (/face/i.test(toolType)) return "flood";
+    // General ISO-based defaults for end mills
+    const isoDefault: Record<string, string> = {
+      P: "flood", M: "flood", K: "disabled",
+      N: "flood", S: "through tool", H: "disabled",
+    };
+    return isoDefault[iso] || "flood";
   }
 
   /**
