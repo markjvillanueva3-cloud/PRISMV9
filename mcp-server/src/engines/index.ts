@@ -3316,6 +3316,7 @@ export { workpieceStateEngine, WorkpieceStateEngine } from './WorkpieceStateEngi
 export { accessibilityAnalysisEngine, AccessibilityAnalysisEngine } from './AccessibilityAnalysisEngine.js';
 export { workholdingViabilityEngine, WorkholdingViabilityEngine } from './WorkholdingViabilityEngine.js';
 export { rigidityDegradationEngine, RigidityDegradationEngine } from './RigidityDegradationEngine.js';
+export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from './SequenceFeasibilityEngine.js';
 
 // Laser Program Assembler
 export { LaserProgramAssemblerEngine } from './LaserProgramAssemblerEngine.js';
@@ -3342,3 +3343,13 @@ export { MillTurnCAMEngine, millTurnCAMEngine } from "./MillTurnCAMEngine.js";
 export { dispatchCAMAction, listCAMActions, camKernelDispatcherBridge } from "./CAMKernelDispatcherBridge.js";
 // Intelligent Sequencing (33-rule production ordering)
 export { IntelligentSequencingEngine, intelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
+// MF-MS3: Setup Transition + Predictive Failure + Force Capability
+export { SetupTransitionEngine, setupTransitionEngine } from "./SetupTransitionEngine.js";
+// MF track — remaining unexported engines
+export { feasibilityAnalysisEngine, FeasibilityAnalysisEngine } from "./FeasibilityAnalysisEngine.js";
+export { feasibilityOrchestratorEngine } from "./FeasibilityOrchestratorEngine.js";
+export { forceCapabilityEngine, ForceCapabilityEngine } from "./ForceCapabilityEngine.js";
+export { inventoryAwareToolSelectorEngine, InventoryAwareToolSelectorEngine } from "./InventoryAwareToolSelectorEngine.js";
+export { printToGeometryEngine, PrintToGeometryEngine } from "./PrintToGeometryEngine.js";
+export { roiAdvisorEngine, ROIAdvisorEngine } from "./ROIAdvisorEngine.js";
+export { sequenceFeasibilityEngine, SequenceFeasibilityEngine } from "./SequenceFeasibilityEngine.js";
