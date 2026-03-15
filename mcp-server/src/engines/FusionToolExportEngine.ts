@@ -166,6 +166,46 @@ export class FusionToolExportEngine {
   }
 
   /**
+   * Export an array of CatalogTool objects as a Fusion 360 library.
+   * Used by /fusion-export-tools and fusion_export_tool_library action.
+   */
+  exportLibrary(tools: any[]): FusionToolLibrary {
+    const fusionTools = tools.map(t => this._convertTool(t, "P"));
+    return {
+      version: 2,
+      tools: fusionTools,
+      metadata: {
+        generated_by: "PRISM CAM Kernel v9",
+        generated_at: new Date().toISOString(),
+        tool_count: fusionTools.length,
+        material_presets: ["Steel", "Stainless", "Cast Iron", "Aluminum", "Superalloy", "Hardened"],
+      },
+    };
+  }
+
+  /**
+   * Validate F360 export coverage for a set of tools.
+   * Returns quality grades: A (full), B (dims+basic S/F), C (dims only), D (incomplete).
+   */
+  validateCoverage(tools: any[]): { total: number; gradeA: number; gradeB: number; gradeC: number; gradeD: number; pctBOrAbove: number } {
+    let gradeA = 0, gradeB = 0, gradeC = 0, gradeD = 0;
+    for (const t of tools) {
+      const dc = t.physical?.cutting_diameter_mm ?? t.cutting_diameter_mm ?? 0;
+      const oal = t.physical?.overall_length_mm ?? t.overall_length_mm ?? 0;
+      const loc = t.physical?.flute_length_mm ?? t.flute_length_mm ?? 0;
+      const hasCutData = t.cutting_data && Object.keys(t.cutting_data).length > 0;
+      const hasFlutes = !!(t.flute_count || t.physical?.flute_count);
+      if (dc <= 0) { gradeD++; continue; }
+      if (oal > 0 && loc > 0 && hasCutData && hasFlutes) gradeA++;
+      else if (dc > 0 && hasCutData) gradeB++;
+      else if (dc > 0) gradeC++;
+      else gradeD++;
+    }
+    const total = tools.length;
+    return { total, gradeA, gradeB, gradeC, gradeD, pctBOrAbove: total > 0 ? Math.round((gradeA + gradeB) / total * 100) : 0 };
+  }
+
+  /**
    * Export a single tool with multi-material presets.
    */
   exportSingleTool(
