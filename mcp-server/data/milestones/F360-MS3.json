@@ -1,0 +1,47 @@
+{
+  "id": "F360-MS3",
+  "title": "Autonomous CAM Programming — STEP to G-Code in One Click",
+  "track": "F360",
+  "status": "not_started",
+  "total_units": 6,
+  "completed_units": 0,
+  "description": "Full autonomous CAM: user imports STEP, selects material, clicks one button. PRISM creates setups, selects tools from 73K catalog, generates toolpaths with 34 algorithms, sequences with 33 rules, posts with 35-stage pipeline, verifies with physics. 100% optimized, not 80% like CloudNC CAMAssist. Leverages Fusion's built-in feature recognition + PRISM's physics engine.",
+  "units": [
+    {
+      "id": "F360-MS3/U01",
+      "title": "Read Fusion model: extract features, stock, WCS via CAM API",
+      "status": "not_started",
+      "description": "Use adsk.cam API to read: part bounding box, detected features (pockets, holes, bosses, slots, faces), stock definition, WCS origin. Convert to PRISM CAMFeature[] interface. Auto-detect feature dimensions, depths, tolerances from Fusion model attributes."
+    },
+    {
+      "id": "F360-MS3/U02",
+      "title": "Auto-create setups: FeatureClustering → Fusion Setup objects",
+      "status": "not_started",
+      "description": "Send features to PRISM FeatureClusteringEngine (direction-based grouping + Kahn topo sort). For each cluster: create Fusion Setup object with correct orientation, stock, WCS. Multi-setup parts get automatic flip/reposition with datum references."
+    },
+    {
+      "id": "F360-MS3/U03",
+      "title": "Auto-select tools: SmartToolSelector → Fusion Tool Library",
+      "status": "not_started",
+      "description": "For each operation in each setup: call SmartToolSelector with feature dims + material + machine. Get best tool from 73K catalog. Create/import tool in Fusion tool library with full geometry (diameter, flutes, LOC, OAL, corner R, helix), holder (ER auto-selected), and 6 material presets."
+    },
+    {
+      "id": "F360-MS3/U04",
+      "title": "Auto-fill parameters: S/F/DOC/WOC from Kienzle/Taylor physics",
+      "status": "not_started",
+      "description": "For each Fusion operation: set spindle speed (from cutting speed ÷ π÷D, clamped to machine max), feed rate (Kienzle-backed fz × flutes × RPM), axial DOC (stability-lobe limited), radial WOC (chip-thinning compensated). Set strategy (from AdaptiveToolpathRouter 34 algorithms). Set lead-in/lead-out (material-specific entry angle). All physics-backed, not lookup tables."
+    },
+    {
+      "id": "F360-MS3/U05",
+      "title": "Auto-sequence + auto-generate: IntelligentSequencing → GenerateToolpath → PostProcess",
+      "status": "not_started",
+      "description": "Reorder Fusion operations using IntelligentSequencing (33 rules: datum first, tool grouping, thermal gaps, Z-level ordering). Trigger Fusion's GenerateToolpath for each operation. Then post-process through PRISM's 35-stage PP pipeline with controller-specific dialect."
+    },
+    {
+      "id": "F360-MS3/U06",
+      "title": "Auto-verify + auto-document: physics dashboard + setup sheet + DFM",
+      "status": "not_started",
+      "description": "Run IntegratedVerification on the generated toolpath: collision check, force/power/deflection per segment, Cpk prediction, chatter probability. Run DFMFeedback on the features. Generate setup sheet with tool list, WCS, fixture notes, tribal tips. Show results in PRISM panel with traffic lights and hover tooltips."
+    }
+  ]
+}
