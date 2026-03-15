@@ -3330,3 +3330,15 @@ export { camKernelOrchestratorEngine, CAMKernelOrchestratorEngine } from './CAMK
 
 // PIPE-MS0 — Print-to-Program Pipeline (print_to_program_full, print_to_program_plan, print_to_program_validate)
 export { printToProgramPipelineEngine, PrintToProgramPipelineEngine } from "./PrintToProgramPipelineEngine.js";
+
+// ── CK Track — CAM Kernel (CK-MS0 through CK-MS8) ──────────────
+// CK-MS4: Advanced Milling Strategies
+export { AdvancedMillingStrategiesEngine, advancedMillingStrategiesEngine } from "./AdvancedMillingStrategiesEngine.js";
+// CK-MS5: 5-Axis Integration
+export { FiveAxisCAMIntegrationEngine, fiveAxisCAMIntegrationEngine } from "./FiveAxisCAMIntegrationEngine.js";
+// CK-MS6: Mill-Turn & Swiss
+export { MillTurnCAMEngine, millTurnCAMEngine } from "./MillTurnCAMEngine.js";
+// CK-MS7: Dispatcher Bridge
+export { dispatchCAMAction, listCAMActions, camKernelDispatcherBridge } from "./CAMKernelDispatcherBridge.js";
+// Intelligent Sequencing (33-rule production ordering)
+export { IntelligentSequencingEngine, intelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
