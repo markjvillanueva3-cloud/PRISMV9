@@ -368,6 +368,59 @@ export class AdaptiveToolpathRouterEngine {
     const safeZ = 5;
     const depthPasses = Math.max(1, Math.ceil(depth / ap));
 
+    // Delegate to AdvancedMillingStrategiesEngine for specialized algorithms
+    if (/helical_drill/.test(algo) && req.feature_diameter_mm) {
+      // Already handled below in drill section
+    } else if (/^(flowline|geodesic|constant_scallop|swarf|thread_mill|chamfer)$/.test(algo)) {
+      try {
+        const { advancedMillingStrategiesEngine: adv } = require("./AdvancedMillingStrategiesEngine.js");
+        const config = {
+          tool_diameter_mm: toolD, tool_flute_count: req.tool_flute_count || 3,
+          tool_corner_radius_mm: toolD / 2, tool_flute_length_mm: toolD * 3,
+          feed_per_tooth_mm: req.feed_mmpt || 0.1, cutting_speed_mpm: 150,
+          rpm, stepover_mm: ae, doc_mm: ap, scallop_height_mm: 0.005,
+        };
+        let result: any;
+        if (algo === "flowline" || algo === "geodesic" || algo === "constant_scallop") {
+          // Generate surface points from pocket dims
+          const pts: any[] = [];
+          for (let iy = 0; iy < 8; iy++) {
+            for (let ix = 0; ix < 8; ix++) {
+              pts.push({
+                x: ix * length / 7, y: iy * pocketW / 7,
+                z: -depth * 0.5 * Math.sin(ix / 7 * Math.PI),
+                nx: 0, ny: 0, nz: 1, curvature: 0.01 * Math.sin(ix / 7),
+              });
+            }
+          }
+          if (algo === "geodesic") result = adv.geodesicFinishing(pts, config);
+          else if (algo === "constant_scallop") result = adv.constantScallopFinishing(pts, config);
+          else {
+            const startC = [{ x: 0, y: 0, z: -depth / 2 }, { x: length, y: 0, z: -depth / 2 }];
+            const endC = [{ x: 0, y: pocketW, z: -depth / 2 }, { x: length, y: pocketW, z: -depth / 2 }];
+            result = adv.flowlineFinishing(startC, endC, config);
+          }
+        } else if (algo === "swarf") {
+          const top = [{ x: 0, y: 0, z: 0 }, { x: length, y: 0, z: 0 }];
+          const bot = [{ x: 0, y: 0, z: -depth }, { x: length, y: 0, z: -depth }];
+          result = adv.swarfCutting(top, bot, config);
+        } else if (algo === "thread_mill") {
+          result = adv.threadMilling({ x: length / 2, y: pocketW / 2 }, {
+            thread_diameter_mm: req.feature_diameter_mm || 20,
+            pitch_mm: 1.5, depth_mm: depth, internal: true,
+            tool_diameter_mm: toolD, rpm, feed_per_tooth_mm: 0.05,
+            flute_count: 3,
+          });
+        } else if (algo === "chamfer") {
+          result = adv.chamferPath(
+            [[{ x: 0, y: 0, z: 0 }, { x: length, y: 0, z: 0 }, { x: length, y: pocketW, z: 0 }]],
+            { chamfer_width_mm: 0.5, chamfer_angle_deg: 45, tool_diameter_mm: toolD, rpm, feed_mmmin: feed },
+          );
+        }
+        if (result?.segments?.length > 3) return result.segments;
+      } catch { /* fall through to default generation */ }
+    }
+
     // Approach move
     segments.push({ x: 0, y: 0, z: safeZ, feed_mmmin: 10000, rpm, type: "rapid" });
 
