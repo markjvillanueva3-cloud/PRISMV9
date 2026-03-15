@@ -14,9 +14,13 @@ import { SmartToolSelectorEngine } from "./SmartToolSelectorEngine.js";
 import { AdaptiveToolpathRouterEngine } from "./AdaptiveToolpathRouterEngine.js";
 import { IntegratedVerificationEngine } from "./IntegratedVerificationEngine.js";
 import { ProductionPackageEngine } from "./ProductionPackageEngine.js";
+import { ProductionToolpathEngine } from "./ProductionToolpathEngine.js";
+import { IntelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
 
 const _smartTool = new SmartToolSelectorEngine();
 const _router = new AdaptiveToolpathRouterEngine();
+const _prodToolpath = new ProductionToolpathEngine();
+const _sequencer = new IntelligentSequencingEngine();
 const _verifier = new IntegratedVerificationEngine();
 const _packager = new ProductionPackageEngine();
 
@@ -239,6 +243,9 @@ export class UnifiedCAMPipelineEngine {
           });
         }
       } catch { /* router fallback below */ }
+
+      // Production toolpath available via cam_production_toolpath dispatcher action
+      // for real polygon offsets, chip thinning, arc corners, variable feed.
 
       if (routeResult) {
         algorithmsUsed.push(routeResult.selected_algorithm);

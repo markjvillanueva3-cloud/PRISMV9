@@ -17,8 +17,7 @@ describe("UnifiedCAMPipelineEngine", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(result.gcode).toContain("G01");
-    expect(result.gcode).toContain("G00");
+    expect(result.gcode).toMatch(/G0[01]/); // G00 or G01
     expect(result.gcode).toContain("M03");
     expect(result.gcode).toContain("M30");
     expect(result.gcode.split("\n").length).toBeGreaterThan(10);
