@@ -60,17 +60,13 @@ export default function CostEstimatorPage() {
         <Card title="Job Parameters" className="lg:col-span-1">
           <div className="space-y-3">
             <Select label="Material" value={form.material}
-              onChange={(e) => update("material", e.target.value)}>
-              {MATERIALS.map((m) => (
-                <option key={m} value={m}>{m.replace(/_/g, " ")}</option>
-              ))}
-            </Select>
+              onChange={(e) => update("material", e.target.value)}
+              options={MATERIALS.map((m) => ({ value: m, label: m.replace(/_/g, " ") }))}
+            />
             <Select label="Operation" value={form.operation}
-              onChange={(e) => update("operation", e.target.value)}>
-              {OPERATIONS.map((o) => (
-                <option key={o} value={o}>{o.replace(/_/g, " ")}</option>
-              ))}
-            </Select>
+              onChange={(e) => update("operation", e.target.value)}
+              options={OPERATIONS.map((o) => ({ value: o, label: o.replace(/_/g, " ") }))}
+            />
             <Input label="Quantity" type="number" unit="pcs"
               value={form.quantity}
               onChange={(e) => update("quantity", +e.target.value)} />

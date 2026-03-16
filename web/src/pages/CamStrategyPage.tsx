@@ -63,20 +63,14 @@ export default function CamStrategyPage() {
                   label="Material"
                   value={form.material}
                   onChange={(e) => setForm((f) => ({ ...f, material: e.target.value }))}
-                >
-                  {MATERIALS.map((m) => (
-                    <option key={m} value={m}>{m.replace(/_/g, " ")}</option>
-                  ))}
-                </Select>
+                  options={MATERIALS.map((m) => ({ value: m, label: m.replace(/_/g, " ") }))}
+                />
                 <Select
                   label="Operation"
                   value={form.operation}
                   onChange={(e) => setForm((f) => ({ ...f, operation: e.target.value }))}
-                >
-                  {OPERATIONS.map((o) => (
-                    <option key={o} value={o}>{o.replace(/_/g, " ")}</option>
-                  ))}
-                </Select>
+                  options={OPERATIONS.map((o) => ({ value: o, label: o.replace(/_/g, " ") }))}
+                />
                 <Input
                   label="Tool Diameter"
                   type="number"

@@ -10,7 +10,7 @@ export interface TungaloyToolholder {
   clamping?: string;
   insert_shape?: string;
   cutting_edge_angle_deg?: number;
-  hand?: "R" | "L";
+  hand?: "R" | "L" | "N";
   shank_height_mm?: number;
   shank_width_mm?: number;
   dconms_mm?: number;

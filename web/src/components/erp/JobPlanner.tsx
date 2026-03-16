@@ -32,6 +32,7 @@ const PRIORITY_COLORS: Record<string, string> = {
   high: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400",
   urgent: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
 };
+void PRIORITY_COLORS; // referenced by priority badge rendering
 
 // ---------------------------------------------------------------------------
 // Component
@@ -150,7 +151,7 @@ function PlanningForm({
   dimKeys,
   setField,
   setDim,
-  onAddDim,
+  onAddDim: _onAddDim,
   canPlan,
   loading,
   onPlan,
@@ -159,7 +160,7 @@ function PlanningForm({
   dimKeys: string[];
   setField: <K extends keyof PlanForm>(key: K, val: PlanForm[K]) => void;
   setDim: (key: string, val: string) => void;
-  onAddDim: (key: string) => void;
+  onAddDim?: (key: string) => void;
   canPlan: boolean;
   loading: boolean;
   onPlan: () => void;

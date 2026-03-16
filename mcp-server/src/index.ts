@@ -24,6 +24,14 @@ import dotenv from "dotenv";
 import { SERVER_NAME, SERVER_VERSION, SERVER_DESCRIPTION } from "./constants.js";
 import { log } from "./utils/Logger.js";
 
+// MCP Primitives — Resources, Prompts, Logging, Tasks
+import {
+  registerResources,
+  registerPrompts,
+  registerTaskTools,
+  initMcpLogging,
+} from "./mcp/index.js";
+
 // Import tool registrations
 import { registerDataDispatcher } from "./tools/dispatchers/dataDispatcher.js";
 
@@ -583,6 +591,17 @@ async function registerTools(): Promise<void> {
   registerFluidThermalDispatcher(server);   // 35 actions: pumps, piping, hydraulics, heat exchangers, valves, compressors...
 
   log.info(`All PRISM tools registered: 55 dispatchers (1670+ actions)`);
+
+  // MCP PRIMITIVES: Resources, Prompts, Logging, Tasks
+  try {
+    registerResources(server);
+    registerPrompts(server);
+    registerTaskTools(server);
+    initMcpLogging((server as any).server);
+    log.info("[MCP] Resources, Prompts, Tasks, and Logging initialized");
+  } catch (mcpErr: any) {
+    log.warn(`[MCP] Primitives init failed (non-fatal): ${mcpErr.message}`);
+  }
 
   // F1-F8 SYNERGY: Wire cross-feature integrations
   try {

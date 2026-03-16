@@ -97,11 +97,8 @@ export default function SafetyDashboardPage() {
               label="Coolant"
               value={form.coolant ?? "flood"}
               onChange={(e) => setForm((f) => ({ ...f, coolant: e.target.value }))}
-            >
-              {COOLANT_OPTIONS.map((c) => (
-                <option key={c} value={c}>{c.replace(/_/g, " ")}</option>
-              ))}
-            </Select>
+              options={COOLANT_OPTIONS.map((c) => ({ value: c, label: c.replace(/_/g, " ") }))}
+            />
             <Button onClick={handleValidate} disabled={loading} className="w-full">
               {loading ? <Spinner size="sm" /> : "Validate Safety"}
             </Button>
