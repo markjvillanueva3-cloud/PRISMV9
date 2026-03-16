@@ -38,6 +38,7 @@ import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catal
 import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
 import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
+import { MITSUBISHI_TURNING_INSERTS, MITSUBISHI_END_MILLS, MITSUBISHI_DRILLS } from "../data/mitsubishi-tool-catalog.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
@@ -930,6 +931,7 @@ export class ToolCatalogEngine {
     this._loadKennametalTurning();
     this._loadWidia2022();
     this._loadWidia2022Inch();
+    this._loadMitsubishiTools();
 
     // Apply statistical dimension imputation to upgrade estimated dimensions
     this.applyDimensionImputation();
@@ -2171,6 +2173,59 @@ export class ToolCatalogEngine {
                     ["pocket", "slot", "profile", "face"],
         cutting_data: cuttingData,
         source: "WIDIA_Hanita_Inch_2022",
+      });
+    }
+  }
+
+  private _loadMitsubishiTools(): void {
+    const sf = SPEED_FEED_BASE;
+    // Turning inserts
+    for (const ins of MITSUBISHI_TURNING_INSERTS) {
+      const id = `MIT-${ins.designation}`;
+      if (this.tools.has(id)) continue;
+      const ic = ins.ic_mm ?? 10;
+      const sfTurn = sf.filter(s => s.tool_type === "turning_tool");
+      const cd: CatalogTool["cutting_data"] = {};
+      for (const s of sfTurn) { cd[s.iso_group] = { vc_min: s.vc_min, vc_max: s.vc_max, fz_min: s.fz_min, fz_max: s.fz_max }; }
+      this.tools.set(id, {
+        id, manufacturer: "Mitsubishi", series: ins.shape ?? "insert", designation: ins.designation,
+        type: "insert", material: "carbide",
+        physical: { cutting_diameter_mm: ic, shank_diameter_mm: ic, overall_length_mm: ins.thickness_mm ?? ic * 0.3, flute_length_mm: ins.thickness_mm ?? ic * 0.3, nose_radius_mm: ins.cornerRadius_mm },
+        iso_groups: ["P", "M", "K", "N", "S", "H"], operations: ["turning"], cutting_data: cd, source: "Mitsubishi_C010B",
+      });
+    }
+    // End mills
+    for (const em of MITSUBISHI_END_MILLS) {
+      const id = `MIT-${em.designation}`;
+      if (this.tools.has(id)) continue;
+      const dc = em.dc_mm ?? 10;
+      const sfMill = sf.filter(s => s.tool_type === "end_mill");
+      const cd: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfMill) { cd[s.iso_group] = { vc_min: s.vc_min, vc_max: s.vc_max, fz_min: s.fz_min * scale, fz_max: s.fz_max * scale }; }
+      this.tools.set(id, {
+        id, manufacturer: "Mitsubishi", series: em.series ?? "VQ", designation: em.designation,
+        type: "end_mill", material: "carbide",
+        physical: { cutting_diameter_mm: dc, shank_diameter_mm: em.shank_mm ?? dc, overall_length_mm: em.oal_mm ?? dc * 6, flute_length_mm: em.loc_mm ?? dc * 2 },
+        flute_count: em.flutes, iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: ["pocket", "slot", "profile", "face"], cutting_data: cd, source: "Mitsubishi_C010B",
+      });
+    }
+    // Drills
+    for (const dr of MITSUBISHI_DRILLS) {
+      const id = `MIT-${dr.designation}`;
+      if (this.tools.has(id)) continue;
+      const dc = dr.dc_mm ?? 10;
+      const sfDrill = sf.filter(s => s.tool_type === "drill");
+      const cd: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfDrill) { cd[s.iso_group] = { vc_min: s.vc_min, vc_max: s.vc_max, fz_min: s.fz_min * scale, fz_max: s.fz_max * scale }; }
+      this.tools.set(id, {
+        id, manufacturer: "Mitsubishi", series: dr.series ?? "MVS", designation: dr.designation,
+        type: "drill", material: "carbide",
+        physical: { cutting_diameter_mm: dc, shank_diameter_mm: dc, overall_length_mm: dc * (dr.ldRatio ?? 5), flute_length_mm: dc * (dr.ldRatio ?? 3) },
+        flute_count: 2, iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: ["drill"], cutting_data: cd, source: "Mitsubishi_C010B",
       });
     }
   }
