@@ -3460,6 +3460,9 @@ export { abrasiveJetMachiningEngine, AbrasiveJetMachiningEngine } from './Abrasi
 // ShiftScheduleOptimizerEngine — Greedy job-to-machine scheduling with Gantt, load balancing, what-if
 export { shiftScheduleOptimizerEngine, type ScheduleResult as ShiftScheduleResult, type ScheduleInput as ShiftScheduleInput, type LoadBalanceInput, type LoadBalanceResult, type WhatIfInput, type WhatIfResult } from "./ShiftScheduleOptimizerEngine.js";
 
+// GrafanaBridgeEngine — Bidirectional Grafana/Prometheus integration for shop floor monitoring
+export { grafanaBridgeEngine, GrafanaBridgeEngine, type GrafanaConfig, type MetricSample, type PushMetricsInput, type PushMetricsResult, type PrometheusQueryInput, type PrometheusRangeQueryInput, type PrometheusQueryResult, type DashboardPanel, type CreateDashboardInput, type CreateDashboardResult, type AlertRule, type ConfigureAlertsInput, type ConfigureAlertsResult, type SimulationMetricsInput, type SPCMetricsInput, type ToolLifeMetricsInput, type ExportMetricsResult } from "./GrafanaBridgeEngine.js";
+
 // BottleneckAnalysisEngine — Theory of Constraints, Drum-Buffer-Rope, sensitivity analysis
 export { bottleneckAnalysisEngine, type ResourceInput, type BottleneckResult as BottleneckAnalysisResult, type DBRInput, type DBRResult, type SensitivityInput as BottleneckSensitivityInput, type SensitivityResult as BottleneckSensitivityResult } from "./BottleneckAnalysisEngine.js";
 
@@ -3471,3 +3474,18 @@ export { stochasticCompositesEngine, StochasticCompositesEngine } from "./Stocha
 
 // StochasticGrindingDressingEngine — Wheel life MC + dressing interval optimization under uncertainty
 export { stochasticGrindingDressingEngine, StochasticGrindingDressingEngine } from "./StochasticGrindingDressingEngine.js";
+
+// StepImportEngine — STEP/AP203/AP214 import via occt-import-js WASM (RX-MS0 P3-U02)
+export { stepImportEngine, StepImportEngine } from "./StepImportEngine.js";
+
+// AdvancedReportRendererEngine — Tool life forecast, capability study, stability map, cost sensitivity, cycle time variance, scrap reports
+export { advancedReportRendererEngine, AdvancedReportRendererEngine } from "./AdvancedReportRendererEngine.js";
+
+// ChartDataGeneratorEngine — Pareto, waterfall, control, stability lobe, histogram chart data
+export { chartDataGeneratorEngine, ChartDataGeneratorEngine } from "./ChartDataGeneratorEngine.js";
+
+// CrossCatalogValidationEngine — ENRICH-MS4: Cross-manufacturer tool data quality validation (stats, outliers, duplicates)
+export { crossCatalogValidationEngine, CrossCatalogValidationEngine } from "./CrossCatalogValidationEngine.js";
+
+// OpcUaConnectorEngine — Live CNC machine connectivity via OPC-UA (node-opcua wrapper)
+export { opcUaConnectorEngine, OpcUaConnectorEngine } from "./OpcUaConnectorEngine.js";

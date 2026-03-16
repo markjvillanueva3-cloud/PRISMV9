@@ -766,6 +766,10 @@ const ACTIONS = [
   // -- Production Optimization (Bottleneck + Predictive Maintenance) --
   "bottleneck_identify", "bottleneck_dbr", "bottleneck_sensitivity",
   "maintenance_assess_health", "maintenance_plan", "maintenance_failure_history",
+  // -- STEP Import (RX-MS0 P3-U02) --
+  "step_import", "step_analyze", "step_features", "step_wall_thickness", "step_brep_summary",
+  // -- ENRICH-MS4: Cross-Catalog Validation --
+  "cross_catalog_validate", "cross_catalog_completeness",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -6966,6 +6970,47 @@ export function registerCalcDispatcher(server: any): void {
           case "maintenance_failure_history": {
             const { predictiveMaintenanceOrchestratorEngine: pmHist } = await import("../../engines/PredictiveMaintenanceOrchestratorEngine.js");
             result = pmHist.analyzeFailureHistory(params as any);
+            break;
+          }
+
+          // ── STEP Import (RX-MS0 P3-U02) ──────────────────────────────
+          case "step_import": {
+            const { stepImportEngine } = await import("../../engines/StepImportEngine.js");
+            result = await stepImportEngine.importStep(params as any);
+            break;
+          }
+          case "step_analyze": {
+            const { stepImportEngine: sia } = await import("../../engines/StepImportEngine.js");
+            result = await sia.analyzeStep(params as any);
+            break;
+          }
+          case "step_features": {
+            const { stepImportEngine: sif } = await import("../../engines/StepImportEngine.js");
+            result = await sif.extractFeatures(params as any);
+            break;
+          }
+          case "step_wall_thickness": {
+            const { stepImportEngine: siw } = await import("../../engines/StepImportEngine.js");
+            result = await siw.getWallThickness(params as any);
+            break;
+          }
+          case "step_brep_summary": {
+            const { stepImportEngine: sib } = await import("../../engines/StepImportEngine.js");
+            result = await sib.toBRepSummary(params as any);
+            break;
+          }
+
+          // ── ENRICH-MS4: Cross-Catalog Validation ──────────────────────
+          case "cross_catalog_validate": {
+            const { crossCatalogValidationEngine: ccv } = await import("../../engines/CrossCatalogValidationEngine.js");
+            if (params.tools) ccv.loadTools(params.tools as any);
+            result = ccv.runAll(params.tools as any);
+            break;
+          }
+          case "cross_catalog_completeness": {
+            const { crossCatalogValidationEngine: ccvC } = await import("../../engines/CrossCatalogValidationEngine.js");
+            if (params.tools) ccvC.loadTools(params.tools as any);
+            result = ccvC.scoreCompleteness(params.tools as any);
             break;
           }
 
