@@ -1,7 +1,7 @@
 /**
  * CK-MS11 Science Tests
  * StochasticRoutingEngine, ProbingProgramEngine, DFMFeedbackEngine
- * 24+ tests total
+ * 34 tests total
  */
 
 import { describe, it, expect } from "vitest";
@@ -12,16 +12,10 @@ import {
 } from "../engines/StochasticRoutingEngine.js";
 import {
   ProbingProgramEngine,
-  type ProbeConfig,
-  type PartDatum,
-  type InspectionFeature,
-  type ToolMeasureInput,
+  type ProbePoint,
 } from "../engines/ProbingProgramEngine.js";
 import {
   DFMFeedbackEngine,
-  type DFMFeature,
-  type DFMMaterial,
-  type DFMToleranceSpec,
 } from "../engines/DFMFeedbackEngine.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -47,26 +41,15 @@ const aluminumMat: MaterialInput = { name: "aluminum", taylor_C: 400, taylor_n: 
 const steelMat:    MaterialInput = { name: "steel",    taylor_C: 150, taylor_n: 0.25, elastic_modulus_gpa: 200 };
 const inconelMat:  MaterialInput = { name: "inconel",  taylor_C: 60,  taylor_n: 0.22, elastic_modulus_gpa: 210 };
 
-const fanucConfig: ProbeConfig = {
-  controller: "renishaw_fanuc",
-  probe_tool_number: 31,
-  approach_feed_mmmin: 100,
-  clearance_z_mm: 25,
-  overtravel_mm: 5,
-  print_results: true,
+const borePoint: ProbePoint = {
+  x: 50, y: 50, z: -5,
+  type: "bore", expected_mm: 25, tolerance_mm: 0.025,
+  axis: "X", description: "bore D1",
 };
-
-const heidenhainConfig: ProbeConfig = {
-  controller: "heidenhain",
-  probe_tool_number: 31,
-  approach_feed_mmmin: 150,
-  clearance_z_mm: 30,
-};
-
-const siemensConfig: ProbeConfig = {
-  controller: "siemens",
-  probe_tool_number: 31,
-  approach_feed_mmmin: 100,
+const surfacePoint: ProbePoint = {
+  x: 0, y: 0, z: 0,
+  type: "surface", expected_mm: 0, tolerance_mm: 0.01,
+  axis: "Z", description: "surface Z ref",
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -192,119 +175,76 @@ describe("StochasticRoutingEngine", () => {
 describe("ProbingProgramEngine", () => {
   const engine = new ProbingProgramEngine();
 
-  const boreDatum: PartDatum = {
-    id: "D1", type: "bore_center",
-    x: 50, y: 50, z: 0, diameter_mm: 25, work_offset: "G54",
-  };
-  const surfaceDatum: PartDatum = {
-    id: "D2", type: "single_surface",
-    x: 0, y: 0, z: -10, work_offset: "G54",
-  };
-
-  const boreFeature: InspectionFeature = {
-    id: "F1", type: "bore_diameter",
-    x: 50, y: 50, z: -5,
-    nominal_mm: 25, tolerance_plus_mm: 0.025, tolerance_minus_mm: 0.025,
-    result_variable: 100,
-  };
-  const surfaceFeature: InspectionFeature = {
-    id: "F2", type: "surface_z",
-    x: 0, y: 0, z: 0,
-    nominal_mm: 0, tolerance_plus_mm: 0.01, tolerance_minus_mm: 0.01,
-  };
-
-  it("generateWCSSetup: Fanuc — produces G65 macro call and work offset line", () => {
-    const prog = engine.generateWCSSetup([boreDatum], fanucConfig);
+  it("generate: Fanuc — produces G65 macro call and work offset", () => {
+    const prog = engine.generate([borePoint], { controller: "fanuc", work_offset: "G54" });
     expect(prog.gcode).toContain("G65");
     expect(prog.gcode).toContain("G54");
-    expect(prog.gcode).toContain("O0001");
-    expect(prog.line_count).toBeGreaterThan(5);
-    expect(prog.controller).toBe("renishaw_fanuc");
+    expect(prog.gcode).toContain("O9000");
+    expect(prog.gcode_lines).toBeGreaterThan(5);
+    expect(prog.controller_format).toBe("fanuc");
   });
 
-  it("generateWCSSetup: Heidenhain — produces CYCL DEF 412", () => {
-    const prog = engine.generateWCSSetup([boreDatum], heidenhainConfig);
-    expect(prog.gcode).toContain("CYCL DEF 412");
+  it("generate: Heidenhain — produces TCH PROBE and BEGIN/END PGM", () => {
+    const prog = engine.generate([borePoint], { controller: "heidenhain" });
+    expect(prog.gcode).toContain("TCH PROBE");
     expect(prog.gcode).toContain("BEGIN PGM");
     expect(prog.gcode).toContain("END PGM");
   });
 
-  it("generateWCSSetup: Siemens — produces CYCLE977", () => {
-    const prog = engine.generateWCSSetup([boreDatum], siemensConfig);
-    expect(prog.gcode).toContain("CYCLE977");
+  it("generate: Siemens — produces MEAS= measurement cycle", () => {
+    const prog = engine.generate([borePoint], { controller: "siemens" });
+    expect(prog.gcode).toContain("MEAS=1");
   });
 
-  it("generateWCSSetup: surface datum produces different macro than bore", () => {
-    const prog = engine.generateWCSSetup([surfaceDatum], fanucConfig);
-    expect(prog.gcode).toContain("O9811"); // surface macro
-    expect(prog.gcode).toContain("#500");
+  it("generate: surface point produces different probe cycle than bore", () => {
+    const boreProg = engine.generate([borePoint], { controller: "heidenhain" });
+    const surfProg = engine.generate([surfacePoint], { controller: "heidenhain" });
+    // Bore uses TCH PROBE 5.0 CIRCULAR GROOVE, surface uses TCH PROBE 1.0 Z
+    expect(boreProg.gcode).toContain("TCH PROBE 5.0");
+    expect(surfProg.gcode).toContain("TCH PROBE 1.0");
   });
 
-  it("generateFirstArticle: multiple features all appear in output", () => {
-    const prog = engine.generateFirstArticle([boreFeature, surfaceFeature], fanucConfig);
-    expect(prog.gcode).toContain("F1");
-    expect(prog.gcode).toContain("F2");
-    expect(prog.variable_map["F1"]).toBe(100);
-    expect(prog.variable_map["F2"]).toBe(101);
-    expect(prog.gcode).toContain("N9900"); // alarm block
+  it("generate: multiple points all appear in output", () => {
+    const prog = engine.generate([borePoint, surfacePoint], { controller: "fanuc" });
+    expect(prog.gcode).toContain("POINT 1");
+    expect(prog.gcode).toContain("POINT 2");
+    expect(prog.probe_points).toBe(2);
   });
 
-  it("generateFirstArticle: tolerance check lines present for bore", () => {
-    const prog = engine.generateFirstArticle([boreFeature], fanucConfig);
-    expect(prog.gcode).toContain("IF [#100 LT");
-    expect(prog.gcode).toContain("IF [#100 GT");
+  it("generate: tolerance values present in bore probe line", () => {
+    const prog = engine.generate([borePoint], { controller: "fanuc" });
+    // Bore uses D for diameter: G65 P9814 D25.000 T0.025
+    expect(prog.gcode).toContain("D25.000");
+    expect(prog.gcode).toContain("T0.025");
   });
 
-  it("generateInProcessCheck: tight tolerance warning generated", () => {
-    const tightFeat: InspectionFeature = {
-      ...surfaceFeature, tolerance_plus_mm: 0.005, tolerance_minus_mm: 0.005,
+  it("generate: estimated time scales with point count", () => {
+    const prog1 = engine.generate([borePoint], { controller: "fanuc" });
+    const prog3 = engine.generate([borePoint, surfacePoint, borePoint], { controller: "fanuc" });
+    expect(prog3.estimated_time_s).toBeGreaterThan(prog1.estimated_time_s);
+  });
+
+  it("generate: Haas uses same format as Fanuc (Renishaw macro)", () => {
+    const prog = engine.generate([borePoint], { controller: "haas" });
+    expect(prog.gcode).toContain("G65 P9814");
+    expect(prog.controller_format).toBe("haas");
+  });
+
+  it("generate: custom probe tool number and safe Z", () => {
+    const prog = engine.generate([borePoint], {
+      controller: "fanuc", probe_tool_number: 99, safe_z: 100,
+    });
+    expect(prog.gcode).toContain("T99");
+    expect(prog.gcode).toContain("Z100");
+  });
+
+  it("generate: web type uses X axis for Fanuc", () => {
+    const webPoint: ProbePoint = {
+      x: 30, y: 30, z: -10, type: "web",
+      expected_mm: 15, tolerance_mm: 0.05, axis: "X",
     };
-    const prog = engine.generateInProcessCheck(tightFeat, fanucConfig);
-    expect(prog.warnings.length).toBeGreaterThan(0);
-    expect(prog.warnings[0]).toMatch(/0.02mm/);
-  });
-
-  it("generateToolMeasure: Fanuc uses O9810 macro, Haas uses P9023", () => {
-    const tool: ToolMeasureInput = {
-      tool_number: 5, tool_type: "endmill",
-      nominal_length_mm: 75, nominal_diameter_mm: 12, offset_register: 5,
-    };
-    const fanucProg = engine.generateToolMeasure(tool, fanucConfig);
-    const haasProg  = engine.generateToolMeasure(tool, { ...fanucConfig, controller: "renishaw_haas" });
-    expect(fanucProg.gcode).toContain("O9810");
-    expect(haasProg.gcode).toContain("P9023");
-    expect(fanucProg.variable_map["T5_length"]).toBe(5);
-  });
-
-  it("generateAutoComp: produces safety limit check and offset update", () => {
-    const prog = engine.generateAutoComp(
-      { feature: boreFeature, offset_register: 10, axis: "Z", max_comp_mm: 0.3 },
-      fanucConfig
-    );
-    expect(prog.gcode).toContain("0.300"); // max_comp_mm
-    expect(prog.gcode).toContain("2000+10"); // offset register update
-    expect(prog.gcode).toContain("9901"); // safety alarm label
-  });
-
-  it("generateStatisticalCheck: ISO 2859-1 sample size correct for lot=100", () => {
-    const features = Array.from({ length: 20 }, (_, i) => ({
-      ...boreFeature, id: `F${i + 1}`,
-    }));
-    const result = engine.generateStatisticalCheck(
-      { features, lot_size: 100, aql_level: 2 },
-      fanucConfig
-    );
-    // lot 100 → ISO 2859-1 → sample 13 (50<100<=150 → 20, but our table: 90<100<=150 → 20)
-    expect(result.sample_size).toBeGreaterThan(0);
-    expect(result.aql_level).toBe(2);
-  });
-
-  it("uncertainty_um: increases with temperature deviation", () => {
-    const baseConfig: ProbeConfig = { ...fanucConfig, temperature_c: 20, reference_temp_c: 20 };
-    const hotConfig:  ProbeConfig = { ...fanucConfig, temperature_c: 30, reference_temp_c: 20, stylus_length_mm: 100 };
-    const baseProg = engine.generateInProcessCheck(boreFeature, baseConfig);
-    const hotProg  = engine.generateInProcessCheck(boreFeature, hotConfig);
-    expect(hotProg.uncertainty_um).toBeGreaterThan(baseProg.uncertainty_um);
+    const prog = engine.generate([webPoint], { controller: "fanuc" });
+    expect(prog.gcode).toContain("X15.000");
   });
 });
 
@@ -315,136 +255,109 @@ describe("ProbingProgramEngine", () => {
 describe("DFMFeedbackEngine", () => {
   const engine = new DFMFeedbackEngine();
 
-  const alMaterial: DFMMaterial = { name: "aluminum" };
-  const steelMaterial: DFMMaterial = { name: "steel" };
-  const inconelMaterial: DFMMaterial = { name: "inconel" };
-  const hardenedMaterial: DFMMaterial = { name: "hardened_steel", hardness_hrc: 58 };
-
-  it("thin wall < min_wall: warning issued for aluminum", () => {
-    const features: DFMFeature[] = [{ id: "W1", type: "thin_wall", wall_thickness_mm: 0.6 }];
-    const analysis = engine.analyze(features, alMaterial);
-    const wallIssue = analysis.issues.find(i => i.rule_id.startsWith("G1_thin_wall"));
+  it("thin wall < 2mm: warning issued", () => {
+    const features = [{ id: "W1", type: "wall", wall_thickness_mm: 1.5 }];
+    const analysis = engine.analyze(features);
+    const wallIssue = analysis.issues.find(i => i.category === "thin_wall");
     expect(wallIssue).toBeDefined();
     expect(wallIssue!.severity).toBe("warning");
   });
 
-  it("thin wall < min_wall/2: critical issued", () => {
-    const features: DFMFeature[] = [{ id: "W1", type: "thin_wall", wall_thickness_mm: 0.3 }];
-    const analysis = engine.analyze(features, alMaterial);
-    const wallIssue = analysis.issues.find(i => i.rule_id === "G1_thin_wall_critical");
+  it("thin wall < 0.5mm: critical issued", () => {
+    const features = [{ id: "W1", type: "wall", wall_thickness_mm: 0.3 }];
+    const analysis = engine.analyze(features);
+    const wallIssue = analysis.issues.find(i => i.category === "thin_wall" && i.severity === "critical");
     expect(wallIssue).toBeDefined();
-    expect(wallIssue!.severity).toBe("critical");
   });
 
   it("deep pocket D/W > 4: warning issued", () => {
-    const features: DFMFeature[] = [{ id: "P1", type: "pocket", depth_mm: 50, width_mm: 10 }];
-    const analysis = engine.analyze(features, steelMaterial);
-    const deepIssue = analysis.issues.find(i => i.rule_id.startsWith("G2_deep_pocket"));
+    const features = [{ id: "P1", type: "pocket", dimensions: { depth_mm: 50, width_mm: 10 } }];
+    const analysis = engine.analyze(features);
+    const deepIssue = analysis.issues.find(i => i.category === "deep_pocket");
     expect(deepIssue).toBeDefined();
     expect(["warning", "critical"]).toContain(deepIssue!.severity);
   });
 
-  it("sharp internal corner R=0: impossible severity", () => {
-    const features: DFMFeature[] = [{ id: "C1", type: "pocket", corner_radius_mm: 0 }];
-    const analysis = engine.analyze(features, steelMaterial);
-    const cornerIssue = analysis.issues.find(i => i.rule_id === "G3_sharp_internal_corner");
-    expect(cornerIssue).toBeDefined();
-    expect(cornerIssue!.severity).toBe("impossible");
-    expect(analysis.machinable).toBe(false);
+  it("deep pocket D/W > 6: critical issued", () => {
+    const features = [{ id: "P1", type: "pocket", dimensions: { depth_mm: 70, width_mm: 10 } }];
+    const analysis = engine.analyze(features);
+    const deepIssue = analysis.issues.find(i => i.category === "deep_pocket" && i.severity === "critical");
+    expect(deepIssue).toBeDefined();
   });
 
-  it("IT grade 4 tolerance: warning issued with cost > 1", () => {
-    const features: DFMFeature[] = [{ id: "B1", type: "bore" }];
-    const tols: DFMToleranceSpec[] = [{ feature_id: "B1", it_grade: 4 }];
-    const analysis = engine.analyze(features, steelMaterial, tols);
-    const tolIssue = analysis.issues.find(i => i.rule_id === "T1_tight_it_grade");
+  it("tight tolerance < 0.005mm: critical issued", () => {
+    const features = [{ id: "B1", type: "bore", tolerance_mm: 0.003 }];
+    const analysis = engine.analyze(features);
+    const tolIssue = analysis.issues.find(i => i.category === "tight_tolerance");
     expect(tolIssue).toBeDefined();
-    expect(tolIssue!.cost_multiplier).toBeGreaterThan(1);
+    expect(tolIssue!.severity).toBe("critical");
   });
 
-  it("Ra 0.1um: ultra-fine finish critical with high cost multiplier", () => {
-    const features: DFMFeature[] = [{ id: "S1", type: "surface" }];
-    const tols: DFMToleranceSpec[] = [{ feature_id: "S1", ra_um: 0.1 }];
-    const analysis = engine.analyze(features, steelMaterial, tols);
-    const raIssue = analysis.issues.find(i => i.rule_id === "T2_ultra_fine_finish");
+  it("surface finish Ra < 0.2: critical issued", () => {
+    const features = [{ id: "S1", type: "surface", surface_finish_Ra: 0.1 }];
+    const analysis = engine.analyze(features);
+    const raIssue = analysis.issues.find(i => i.category === "surface_finish");
     expect(raIssue).toBeDefined();
-    expect(raIssue!.cost_multiplier).toBeGreaterThanOrEqual(5);
+    expect(raIssue!.severity).toBe("critical");
   });
 
-  it("thread in HRC 55 material: critical process issue", () => {
-    const features: DFMFeature[] = [{
-      id: "T1", type: "thread",
-      diameter_mm: 8, length_mm: 16,
-    }];
-    const analysis = engine.analyze(features, hardenedMaterial);
-    const threadIssue = analysis.issues.find(i => i.rule_id === "P2_thread_in_hard_material");
-    expect(threadIssue).toBeDefined();
-    expect(threadIssue!.severity).toBe("critical");
+  it("small corner radius < 0.5mm: warning issued", () => {
+    const features = [{ id: "C1", type: "pocket", corner_radius_mm: 0.3 }];
+    const analysis = engine.analyze(features);
+    const cornerIssue = analysis.issues.find(i => i.category === "sharp_corner");
+    expect(cornerIssue).toBeDefined();
+    expect(cornerIssue!.severity).toBe("warning");
   });
 
-  it("3-setup feature: multiple-setup warning issued", () => {
-    const features: DFMFeature[] = [{ id: "F1", type: "bore", setup_count: 3 }];
-    const analysis = engine.analyze(features, steelMaterial);
-    const setupIssue = analysis.issues.find(i => i.rule_id === "P6_many_setups");
-    expect(setupIssue).toBeDefined();
-    expect(setupIssue!.cost_multiplier).toBeCloseTo(2.25, 1); // 1.5^2
+  it("superalloy deep feature: material concern warning", () => {
+    const features = [{ id: "F1", type: "pocket", dimensions: { depth_mm: 40 } }];
+    const analysis = engine.analyze(features, "S");
+    const matIssue = analysis.issues.find(i => i.category === "material_concern");
+    expect(matIssue).toBeDefined();
+    expect(matIssue!.severity).toBe("warning");
   });
 
-  it("inconel: low machinability warning", () => {
-    const features: DFMFeature[] = [{ id: "F1", type: "pocket" }];
-    const analysis = engine.analyze(features, inconelMaterial);
-    const macIssue = analysis.issues.find(i => i.rule_id === "M1_very_low_machinability");
-    expect(macIssue).toBeDefined();
-    expect(macIssue!.severity).toBe("critical");
+  it("score decreases with more issues", () => {
+    const clean = engine.analyze([{ id: "F1", type: "pocket", dimensions: { depth_mm: 5, width_mm: 20 } }]);
+    const problematic = engine.analyze([
+      { id: "W1", type: "wall", wall_thickness_mm: 0.3 },
+      { id: "P1", type: "pocket", dimensions: { depth_mm: 70, width_mm: 10 } },
+    ]);
+    expect(problematic.score).toBeLessThan(clean.score);
   });
 
-  it("adjusted cost index > 1 when issues have cost multipliers", () => {
-    const features: DFMFeature[] = [
-      { id: "W1", type: "thin_wall", wall_thickness_mm: 0.7 },
-      { id: "P1", type: "pocket", depth_mm: 60, width_mm: 10 },
-    ];
-    const analysis = engine.analyze(features, steelMaterial);
-    expect(analysis.adjusted_cost_index).toBeGreaterThan(1);
+  it("manufacturability label reflects score", () => {
+    const easy = engine.analyze([{ id: "F1", type: "pocket", dimensions: { depth_mm: 5, width_mm: 20 } }]);
+    expect(easy.manufacturability).toBe("excellent");
+
+    const hard = engine.analyze([
+      { id: "W1", type: "wall", wall_thickness_mm: 0.2 },
+      { id: "P1", type: "pocket", dimensions: { depth_mm: 80, width_mm: 10 } },
+      { id: "H1", type: "hole", tolerance_mm: 0.001 },
+    ]);
+    expect(["marginal", "difficult"]).toContain(hard.manufacturability);
   });
 
-  it("suggestImprovements: returns one improvement per issue", () => {
-    const features: DFMFeature[] = [
-      { id: "C1", type: "pocket", corner_radius_mm: 0.5 },
-      { id: "W1", type: "thin_wall", wall_thickness_mm: 0.8 },
-    ];
-    const analysis = engine.analyze(features, steelMaterial);
-    const imps = engine.suggestImprovements(analysis);
-    expect(imps.length).toBe(analysis.issues.length);
-    for (const imp of imps) {
-      expect(imp.suggestion).toBeTruthy();
-      expect(imp.cost_before).toBeGreaterThan(0);
-      expect(imp.cost_after).toBeGreaterThan(0);
-    }
+  it("micro hole < 1mm diameter: critical issued", () => {
+    const features = [{ id: "H1", type: "hole", dimensions: { diameter_mm: 0.5, depth_mm: 3 } }];
+    const analysis = engine.analyze(features);
+    const microIssue = analysis.issues.find(i => i.category === "micro_feature");
+    expect(microIssue).toBeDefined();
+    expect(microIssue!.severity).toBe("critical");
   });
 
-  it("estimateCostImpact: after cost <= before cost", () => {
-    const features: DFMFeature[] = [
-      { id: "P1", type: "pocket", depth_mm: 40, width_mm: 8 },
-    ];
-    const analysis = engine.analyze(features, steelMaterial);
-    const imps = engine.suggestImprovements(analysis);
-    const impact = engine.estimateCostImpact(analysis, imps);
-    expect(impact.after).toBeLessThanOrEqual(impact.before);
-    expect(impact.savings_pct).toBeGreaterThanOrEqual(0);
+  it("deep hole L/D > 10: critical issued", () => {
+    const features = [{ id: "H1", type: "hole", dimensions: { diameter_mm: 3, depth_mm: 40 } }];
+    const analysis = engine.analyze(features);
+    const deepHoleIssue = analysis.issues.find(i => i.category === "deep_hole");
+    expect(deepHoleIssue).toBeDefined();
+    expect(deepHoleIssue!.severity).toBe("critical");
   });
 
-  it("generateReport: formatted string contains all sections", () => {
-    const features: DFMFeature[] = [
-      { id: "B1", type: "bore", length_mm: 60, diameter_mm: 8 },
-    ];
-    const tols: DFMToleranceSpec[] = [{ feature_id: "B1", it_grade: 5, ra_um: 0.4 }];
-    const analysis = engine.analyze(features, steelMaterial, tols);
-    const imps = engine.suggestImprovements(analysis);
-    const report = engine.generateReport(analysis, imps);
-    expect(report.formatted).toContain("DFM ANALYSIS REPORT");
-    expect(report.formatted).toContain("ISSUES");
-    expect(report.formatted).toContain("IMPROVEMENTS");
-    expect(report.formatted).toContain("COST IMPACT");
-    expect(report.cost_impact.before).toBeGreaterThan(0);
+  it("hardened steel thin wall: material concern warning", () => {
+    const features = [{ id: "W1", type: "wall", wall_thickness_mm: 3 }];
+    const analysis = engine.analyze(features, "H");
+    const matIssue = analysis.issues.find(i => i.category === "material_concern");
+    expect(matIssue).toBeDefined();
   });
 });

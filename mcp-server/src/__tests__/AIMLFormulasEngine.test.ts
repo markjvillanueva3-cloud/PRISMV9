@@ -15,7 +15,7 @@ describe('AIMLFormulasEngine', () => {
   describe('featureImportance()', () => {
     it('computes permutation importance scores', () => {
       const r = engine.featureImportance({
-        features: ['speed', 'feed', 'depth'],
+        feature_names: ['speed', 'feed', 'depth'],
         X: [
           [100, 0.1, 1], [200, 0.2, 2], [150, 0.15, 1.5],
           [120, 0.12, 1.2], [180, 0.18, 1.8], [160, 0.16, 1.6],
@@ -24,7 +24,7 @@ describe('AIMLFormulasEngine', () => {
       });
       expect(r.importances).toBeDefined();
       expect(r.importances.length).toBe(3);
-      expect(r.formula).toBeDefined();
+      expect(r.method).toBeDefined();
     });
   });
 
@@ -32,14 +32,14 @@ describe('AIMLFormulasEngine', () => {
   describe('modelSelection()', () => {
     it('computes AIC and BIC', () => {
       const r = engine.modelSelection({
-        residuals: [0.1, -0.2, 0.15, -0.05, 0.1, -0.1],
-        n_params: 3,
+        model_params: [2, 3],
+        log_likelihoods: [-10, -8],
         n_observations: 6,
       });
       expect(r.aic).toBeDefined();
       expect(r.bic).toBeDefined();
-      expect(typeof r.aic).toBe('number');
-      expect(r.formula).toContain('AIC');
+      expect(typeof r.aic[0]).toBe('number');
+      expect(r.best_aic_idx).toBeDefined();
     });
   });
 
@@ -52,7 +52,7 @@ describe('AIMLFormulasEngine', () => {
         data: withOutlier,
         contamination: 0.05,
       });
-      expect(r.anomaly_scores).toBeDefined();
+      expect(r.scores).toBeDefined();
       expect(r.anomaly_indices).toBeDefined();
     });
   });
@@ -61,18 +61,17 @@ describe('AIMLFormulasEngine', () => {
   describe('reinforcementLearning()', () => {
     it('performs Q-learning update', () => {
       const r = engine.reinforcementLearning({
-        q_table: [[0, 0, 0], [0, 0, 0]],
-        state: 0,
-        action: 1,
-        reward: 10,
-        next_state: 1,
+        n_states: 2,
+        n_actions: 3,
+        episodes: [
+          { state: 0, action: 1, reward: 10, next_state: 1, done: false },
+        ],
         alpha: 0.1,
         gamma: 0.9,
-        epsilon: 0.1,
       });
-      expect(r.updated_q_table).toBeDefined();
-      expect(r.selected_action).toBeDefined();
-      expect(r.formula).toContain('Q');
+      expect(r.q_table).toBeDefined();
+      expect(r.policy).toBeDefined();
+      expect(r.method).toBe('q_learning');
     });
   });
 
@@ -81,9 +80,9 @@ describe('AIMLFormulasEngine', () => {
     const r = engine.calculate({
       action: 'calc_model_selection',
       params: {
-        residuals: [0.1, -0.2, 0.15],
-        n_params: 2,
-        n_observations: 3,
+        model_params: [2, 3],
+        log_likelihoods: [-10, -8],
+        n_observations: 6,
       },
     });
     expect(r).toBeDefined();

@@ -229,7 +229,7 @@ class FeasibilityOrchestratorEngineImpl {
     // Build per-operation report merging sequence + force results
     const perOp = job.operations.map((op, idx) => {
       const seqOp = seqResult.per_operation[idx];
-      const risk = seqResult.risk_scores[idx];
+      const risk = seqResult.risk_scores?.[idx];
       return {
         id: op.id,
         accessible: seqOp?.accessible ?? true,
