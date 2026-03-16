@@ -12,150 +12,11 @@ import { computationCache } from "../../engines/ComputationCache.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
 
-// Import original handlers
-import {
-  calculateKienzleCuttingForce,
-  calculateTaylorToolLife,
-  calculateJohnsonCookStress,
-  calculateSurfaceFinish,
-  calculateMRR,
-  calculateSpeedFeed,
-  calculateSpindlePower,
-  calculateChipLoad,
-  calculateTorque,
-  calculateProductivityMetrics,
-  getDefaultKienzle,
-  getDefaultTaylor,
-  type CuttingConditions,
-  type KienzleCoefficients,
-  type TaylorCoefficients,
-  type JohnsonCookParams,
-  calculateDrillingForce,
-  type DrillingConditions
-} from "../../engines/ManufacturingCalculations.js";
-
-import { toolWearProgressionEngine } from "../../engines/ToolWearProgressionEngine.js";
-import type { ToolGrade } from "../../engines/ToolWearProgressionEngine.js";
-import { spindleHarmonicsQualityEngine } from "../../engines/SpindleHarmonicsQualityEngine.js";
-import { wearForceCompensationEngine } from "../../engines/WearForceCompensationEngine.js";
-import { drillBreakthroughForceEngine } from "../../engines/DrillBreakthroughForceEngine.js";
-import type { ExitSupport } from "../../engines/DrillBreakthroughForceEngine.js";
-import { thermalGrowthCompensationEngine } from "../../engines/ThermalGrowthCompensationEngine.js";
-import type { SpindleBearingType } from "../../engines/ThermalGrowthCompensationEngine.js";
-import { boreFinishingEngine } from "../../engines/BoreFinishingEngine.js";
-import type { HoningStoneGrit } from "../../engines/BoreFinishingEngine.js";
-import { finishingPassOptimizationEngine } from "../../engines/FinishingPassOptimizationEngine.js";
-import { turningForceEngine } from "../../engines/TurningForceEngine.js";
-import type { TurningOperation } from "../../engines/TurningForceEngine.js";
-import { tappingTorqueEngine } from "../../engines/TappingTorqueEngine.js";
-import type { TapType, HoleType } from "../../engines/TappingTorqueEngine.js";
-import { cuttingPowerBudgetEngine } from "../../engines/CuttingPowerBudgetEngine.js";
-import { toolDeflectionPredictionEngine } from "../../engines/ToolDeflectionPredictionEngine.js";
-import type { ToolMaterialType } from "../../engines/ToolDeflectionPredictionEngine.js";
-import { chipFormationPredictionEngine } from "../../engines/ChipFormationPredictionEngine.js";
-import type { MaterialDuctility } from "../../engines/ChipFormationPredictionEngine.js";
-import { specificCuttingEnergyEngine } from "../../engines/SpecificCuttingEnergyEngine.js";
-import { roughnessConversionEngine } from "../../engines/RoughnessConversionEngine.js";
-import type { RoughnessScale } from "../../engines/RoughnessConversionEngine.js";
-import { peckDrillingOptimizationEngine } from "../../engines/PeckDrillingOptimizationEngine.js";
-import type { DrillType } from "../../engines/PeckDrillingOptimizationEngine.js";
-import type { EnergySource } from "../../engines/SpecificCuttingEnergyEngine.js";
-
-/** Zod-validated params cast — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls */
+/** Zod-validated params — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls.
+ *  Type is `any` because Zod runtime validation guarantees shape correctness; static types
+ *  for 1100+ action variants would be impractical and duplicate the schema definitions. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ValidatedParams = any;
-import { drillCycleOptimizationEngine } from "../../engines/DrillCycleOptimizationEngine.js";
-import type { MaterialChipBehavior, CoolantDelivery } from "../../engines/DrillCycleOptimizationEngine.js";
-import { toolCoatingSelectionEngine } from "../../engines/ToolCoatingSelectionEngine.js";
-import type { MaterialClass, OperationType, CoolantStrategy } from "../../engines/ToolCoatingSelectionEngine.js";
-import { toolGeometrySelectionEngine } from "../../engines/ToolGeometrySelectionEngine.js";
-import type { EndMillMaterial, MillingOperation } from "../../engines/ToolGeometrySelectionEngine.js";
-import { insertGradeSelectionEngine } from "../../engines/InsertGradeSelectionEngine.js";
-import type { WorkpieceMaterial, TurningOp } from "../../engines/InsertGradeSelectionEngine.js";
-import { coolantStrategyEngine } from "../../engines/CoolantStrategyEngine.js";
-import type { CoolantMaterial, CoolantOperation as CoolantStrategyOp } from "../../engines/CoolantStrategyEngine.js";
-
-import {
-  calculateStabilityLobes,
-  calculateToolDeflection,
-  calculateCuttingTemperature,
-  calculateMinimumCostSpeed,
-  optimizeCuttingParameters,
-  type ModalParameters,
-  type OptimizationConstraints,
-  type OptimizationWeights,
-  type CostParameters
-} from "../../engines/AdvancedCalculations.js";
-
-import {
-  calculateITGrade,
-  analyzeShaftHoleFit,
-  toleranceStackUp,
-  calculateCpk,
-} from "../../engines/ToleranceEngine.js";
-
-import {
-  generateGCode,
-  generateProgram,
-  listControllers as listGCodeControllers,
-  listOperations as listGCodeOperations,
-} from "../../engines/GCodeTemplateEngine.js";
-
-import {
-  decide,
-  listDecisionTrees,
-} from "../../engines/DecisionTreeEngine.js";
-
-import {
-  renderReport,
-  listReportTypes,
-} from "../../engines/ReportRenderer.js";
-
-import {
-  createCampaign,
-  validateCampaign,
-  optimizeCampaign,
-  estimateCycleTime as estimateCampaignTime,
-  listCampaignActions,
-} from "../../engines/CampaignEngine.js";
-
-import {
-  runInferenceChain,
-  analyzeAndRecommend,
-  deepDiagnose,
-  listChainTypes,
-  type InferenceChainConfig,
-} from "../../engines/InferenceChainEngine.js";
-
-import {
-  calculateEngagementAngle,
-  calculateTrochoidalParams,
-  calculateHSMParams,
-  calculateScallopHeight,
-  calculateOptimalStepover,
-  estimateCycleTime,
-  calculateArcFitting,
-  calculateChipThinning,
-  calculateMultiPassStrategy,
-  recommendCoolantStrategy,
-  generateGCodeSnippet
-} from "../../engines/ToolpathCalculations.js";
-
-import {
-  physicsPrediction,
-} from "../../engines/PhysicsPredictionEngine.js";
-
-import {
-  optimization,
-} from "../../engines/OptimizationEngine.js";
-
-import {
-  workholdingIntelligence,
-} from "../../engines/WorkholdingIntelligenceEngine.js";
-
-import {
-  algorithmEngine,
-} from "../../engines/AlgorithmEngine.js";
 
 /**
  * Extract domain-specific key values per calc type for summary-level responses.
@@ -452,10 +313,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { result: `S/F: Vc=${result.value?.cutting_speed_mpm?.toFixed(0)}m/min fz=${result.value?.feed_per_tooth_mm?.toFixed(3)}mm` };
     case "tool_library_add": case "tool_library_import_csv": case "tool_library_filter": case "tool_library_stats":
       return { result: JSON.stringify(result.value).slice(0, 200) };
-    case "geometry_analyze":
-      return { result: `Features: ${result.value?.features?.length ?? '?'}, ops: ${result.value?.total_operations ?? '?'}` };
     case "geometry_job_plan":
       return { result: `Job: ${result.value?.operations?.length ?? '?'} ops, ${result.value?.total_time_min?.toFixed(1) ?? '?'}min` };
+    case "physics_verify":
+      return { verdict: result.verdict, divergence_pct: result.divergence?.overall_pct, worst_path: result.divergence?.worst_path, worst_metric: result.divergence?.worst_metric, paths_ok: result.paths?.filter((p: any) => p.status === "ok").length };
+    case "what_if_analyze":
+      return { result: result.value?.impact_summary ?? JSON.stringify(result.value).slice(0, 200) };
+    case "consistency_check":
+      return { verdict: result.verdict, max_divergence_pct: result.max_divergence_pct, warnings_count: result.warnings?.length ?? 0, auto_action: result.auto_action };
+    case "consistency_summary":
+      return { total: result.total_checks, consistent: result.consistent, minor: result.minor_divergences, major: result.major_divergences, avg_div: result.avg_max_divergence_pct };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -588,7 +455,7 @@ const ACTIONS = [
   "hybrid_laser_calc", "laser_cut_calc", "laser_mark_calc",
   "waterjet_taper_calc",
   "microstructure_analyze", "microstructure_recommend",
-  "energy_analyze", "energy_optimize", "energy_compare",
+  "calc_energy_analyze", "calc_energy_optimize", "energy_compare",
   // ── Tool Catalog ──
   "tool_catalog_search", "tool_catalog_lookup", "tool_catalog_assembly",
   "tool_catalog_collision_envelope", "tool_catalog_recommend", "tool_catalog_stats",
@@ -707,7 +574,7 @@ const ACTIONS = [
   // Bottleneck & OEE
   "bottleneck_identify", "oee_calculate",
   // Nesting & Tolerance
-  "nesting_optimize", "tolerance_stack",
+  "tolerance_stack",
   // XAI / Explainability
   "xai_lime", "xai_permutation_importance", "xai_shap",
   // Clustering
@@ -716,6 +583,7 @@ const ACTIONS = [
   "waterjet_params", "shot_peening",
   // Troubleshoot
   "troubleshoot",
+  "troubleshoot_start", "troubleshoot_answer", "troubleshoot_quick", "troubleshoot_common",
   // ── CNC/Machining calculators (30 engines) ──
   "cutting_force_calc", "spindle_power_verify", "trochoidal_milling_calc",
   "tool_wear_rate", "cutting_temperature_calc", "surface_roughness_calc",
@@ -817,7 +685,7 @@ const ACTIONS = [
   "sf_orchestrate", "sf_quick", "sf_resolve_machine", "sf_resolve_tool",
   "sf_resolve_material", "sf_stochastic", "sf_compare", "sf_optimize",
   "tool_library_add", "tool_library_import_csv", "tool_library_filter",
-  "tool_library_stats", "geometry_analyze", "geometry_job_plan",
+  "tool_library_stats", "geometry_job_plan",
   "fs_navigate", "fs_navigate_find", "dsl_resolve", "dsl_search",
   // Resource Optimization: hyperMILL + ISO 286 extended (2026-03-14)
   "hypermill_material_lookup", "hypermill_machinability", "hypermill_diameter_sf",
@@ -864,6 +732,13 @@ const ACTIONS = [
   "uncertainty_kriging_fit", "uncertainty_qmc_uq", "uncertainty_sobol_sequence", "uncertainty_surrogate_optimize", "uq_methods_kriging_fit",
   "uq_methods_kriging_uq", "uq_methods_qmc", "uq_methods_t_copula", "variance_reduction_adaptive_mc", "variance_reduction_antithetic",
   "variance_reduction_importance", "vibration_isolator_calc", "waterjet_calc", "wavelet_transform",
+  "physics_verify",
+  // -- QS-MS6: Cross-Pipeline What-If --
+  "what_if_analyze",
+  // -- QS-MS6 P2: Physics Auto-Calibration --
+  "physics_calibrate_submit", "physics_calibrate_predict", "physics_calibrate_state", "physics_calibrate_reset",
+  // -- QS-MS6 P3: Pipeline Consistency Hook --
+  "consistency_check", "consistency_history", "consistency_summary", "consistency_clear",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1007,6 +882,7 @@ export function registerCalcDispatcher(server: any): void {
 
         switch (action) {
           case "productivity": {
+            const { calculateProductivityMetrics } = await import("../../engines/ManufacturingCalculations.js");
             result = calculateProductivityMetrics(
               params.cutting_speed,
               params.feed_per_tooth,
@@ -1021,8 +897,9 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
           case "engagement": {
+            const { calculateEngagementAngle } = await import("../../engines/ToolpathCalculations.js");
             result = calculateEngagementAngle(
               params.tool_diameter,
               params.radial_depth,
@@ -1032,8 +909,9 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
           case "scallop": {
+            const { calculateScallopHeight } = await import("../../engines/ToolpathCalculations.js");
             result = calculateScallopHeight(
               params.tool_radius,
               params.stepover,
@@ -1043,8 +921,9 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
           case "stepover": {
+            const { calculateOptimalStepover } = await import("../../engines/ToolpathCalculations.js");
             result = calculateOptimalStepover(
               params.tool_diameter,
               params.tool_corner_radius,
@@ -1053,8 +932,9 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
           case "cycle_time": {
+            const { estimateCycleTime } = await import("../../engines/ToolpathCalculations.js");
             result = estimateCycleTime(
               params.cutting_distance,
               params.cutting_feedrate,
@@ -1065,8 +945,9 @@ export function registerCalcDispatcher(server: any): void {
             );
             break;
           }
-          
+
           case "arc_fit": {
+            const { calculateArcFitting } = await import("../../engines/ToolpathCalculations.js");
             result = calculateArcFitting(
               params.chord_tolerance,
               params.arc_radius,
@@ -1077,11 +958,13 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           case "chip_thinning": {
+            const { calculateChipThinning } = await import("../../engines/ToolpathCalculations.js");
             result = calculateChipThinning(params.tool_diameter, params.radial_depth, params.feed_per_tooth, params.number_of_teeth || 4, params.cutting_speed || 150);
             break;
           }
 
           case "multi_pass": {
+            const { calculateMultiPassStrategy } = await import("../../engines/ToolpathCalculations.js");
             const mpMat = (params.material_id || params.material) ? await getMat(params.material_id || params.material) : null;
             const mpKc = params.kc1_1 || mpMat?.kienzle?.kc1_1 || 1800;
             const mpCr = (mpMat as unknown as Record<string, Record<string, Record<string, unknown>>>)?.cutting_recommendations?.milling || {};
@@ -1090,12 +973,14 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           case "gcode_snippet": {
+            const { generateGCodeSnippet } = await import("../../engines/ToolpathCalculations.js");
             const gcRpm = params.rpm || Math.round(((params.cutting_speed || 150) * 1000) / (Math.PI * (params.tool_diameter || 12)));
             result = generateGCodeSnippet(params.controller || "fanuc", params.operation || "milling", { rpm: gcRpm, feed_rate: params.feed_rate || params.vf || 1000, tool_number: params.tool_number || 1, depth_of_cut: params.axial_depth || 3, x_start: params.x_start, y_start: params.y_start, z_safe: params.z_safe || 5, z_depth: params.z_depth, coolant: params.coolant });
             break;
           }
 
           case "algorithm_calculate": {
+            const { algorithmEngine } = await import("../../engines/AlgorithmEngine.js");
             result = algorithmEngine.calculate({
               algorithm_id: params.algorithm_id,
               params: params.algorithm_params ?? params.params ?? params,
@@ -1103,6 +988,7 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
           case "algorithm_validate": {
+            const { algorithmEngine } = await import("../../engines/AlgorithmEngine.js");
             result = algorithmEngine.validate({
               algorithm_id: params.algorithm_id,
               params: params.algorithm_params ?? params.params ?? params,
@@ -1110,6 +996,7 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
           case "algorithm_list": {
+            const { algorithmEngine } = await import("../../engines/AlgorithmEngine.js");
             result = algorithmEngine.list({
               domain: params.domain,
               safety_class: params.safety_class,
@@ -1117,11 +1004,13 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
           case "algorithm_info": {
+            const { algorithmEngine } = await import("../../engines/AlgorithmEngine.js");
             result = algorithmEngine.info(params.algorithm_id);
             if (!result) throw new Error(`Unknown algorithm: "${params.algorithm_id}"`);
             break;
           }
           case "algorithm_batch": {
+            const { algorithmEngine } = await import("../../engines/AlgorithmEngine.js");
             result = algorithmEngine.batch({
               calculations: params.calculations,
               stop_on_error: params.stop_on_error,
@@ -1129,7 +1018,8 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
           case "algorithm_benchmark": {
-            result = algorithmEngine.benchmark({
+            const { algorithmEngine: algBench } = await import("../../engines/AlgorithmEngine.js");
+            result = algBench.benchmark({
               algorithm_id: params.algorithm_id,
               params: params.algorithm_params ?? params.params ?? params,
             });
@@ -2690,16 +2580,6 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
-          case "nesting_optimize": {
-            const { nestingEngine } = await import("../../engines/NestingEngine.js");
-            if (params.compare_stocks) {
-              result = nestingEngine.compareStock(params.parts, params.stocks);
-            } else {
-              result = nestingEngine.nest(params.parts, params.stock, params.kerf_mm);
-            }
-            break;
-          }
-
           case "doe_analyze": {
             const { analyzeFactorial } = await import("../../engines/DOEAnalysisEngine.js");
             result = analyzeFactorial(params as ValidatedParams);
@@ -2735,6 +2615,30 @@ export function registerCalcDispatcher(server: any): void {
             } else {
               result = troubleshootingEngine.diagnose(params as ValidatedParams);
             }
+            break;
+          }
+
+          case "troubleshoot_start": {
+            const { troubleshootingAssistantEngine } = await import("../../engines/TroubleshootingAssistantEngine.js");
+            result = troubleshootingAssistantEngine.startDiagnosis(params as any);
+            break;
+          }
+
+          case "troubleshoot_answer": {
+            const { troubleshootingAssistantEngine } = await import("../../engines/TroubleshootingAssistantEngine.js");
+            result = troubleshootingAssistantEngine.answerQuestion(params as any);
+            break;
+          }
+
+          case "troubleshoot_quick": {
+            const { troubleshootingAssistantEngine } = await import("../../engines/TroubleshootingAssistantEngine.js");
+            result = troubleshootingAssistantEngine.quickDiagnose(params as any);
+            break;
+          }
+
+          case "troubleshoot_common": {
+            const { troubleshootingAssistantEngine } = await import("../../engines/TroubleshootingAssistantEngine.js");
+            result = troubleshootingAssistantEngine.getCommonProblems(params as any);
             break;
           }
 
@@ -3821,7 +3725,7 @@ export function registerCalcDispatcher(server: any): void {
             });
             break;
           }
-          case "energy_analyze": {
+          case "calc_energy_analyze": {
             const { energyOptimizationEngine } = await import("../../engines/EnergyOptimizationEngine.js");
             result = energyOptimizationEngine.analyze({
               operations: params.operations ?? [{ operation_name: "roughing", cutting_time_min: 10, spindle_rpm: 3000, feed_rate_mmmin: 500, depth_of_cut_mm: 3, radial_depth_mm: 10, tool_diameter_mm: 20, material_iso_group: "P", coolant_active: true }],
@@ -3832,7 +3736,7 @@ export function registerCalcDispatcher(server: any): void {
             });
             break;
           }
-          case "energy_optimize": {
+          case "calc_energy_optimize": {
             const { energyOptimizationEngine: eoe2 } = await import("../../engines/EnergyOptimizationEngine.js");
             result = eoe2.optimize({
               operations: params.operations ?? [{ operation_name: "roughing", cutting_time_min: 10, spindle_rpm: 3000, feed_rate_mmmin: 500, depth_of_cut_mm: 3, radial_depth_mm: 10, tool_diameter_mm: 20, material_iso_group: "P", coolant_active: true }],
@@ -5941,6 +5845,13 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── QS-MS6: Cross-Pipeline What-If ──
+          case "what_if_analyze": {
+            const { crossPipelineWhatIfEngine } = await import("../../engines/CrossPipelineWhatIfEngine.js");
+            result = crossPipelineWhatIfEngine.analyze(params as any);
+            break;
+          }
+
           // ── USF-MS0: User Tool Library ──
           case "tool_library_import_csv": {
             const { userToolLibraryEngine } = await import("../../engines/UserToolLibraryEngine.js");
@@ -6771,6 +6682,105 @@ export function registerCalcDispatcher(server: any): void {
           case "sustainability_material_utilization": {
             const { sustainabilityFormulasEngine: sfe } = await import("../../engines/SustainabilityFormulasEngine.js");
             result = sfe.calculate({ action, params });
+            break;
+          }
+
+          case "physics_verify": {
+            const { unifiedPhysicsVerifierEngine } = await import("../../engines/UnifiedPhysicsVerifierEngine.js");
+            result = unifiedPhysicsVerifierEngine.verify(params as any);
+            break;
+          }
+
+          case "calibrate_physics": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = pace.submit(params as any);
+            break;
+          }
+
+          case "get_calibrated_constants": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = pace.predict(params as any);
+            break;
+          }
+
+          case "calibration_status": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            const state = pace.getState();
+            result = {
+              total_measurements: state.total_measurements,
+              materials_calibrated: Object.keys(state.materials).length,
+              materials: Object.fromEntries(
+                Object.entries(state.materials).map(([k, v]) => [k, {
+                  kc1_1: v.kc1_1.mean,
+                  mc: v.mc.mean,
+                  taylor_C: v.taylor_C.mean,
+                  taylor_n: v.taylor_n.mean,
+                  n_observations: Math.max(v.kc1_1.n_observations, v.taylor_C.n_observations),
+                }])
+              ),
+              last_updated: state.last_updated,
+            };
+            break;
+          }
+
+          case "calibration_reset": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = pace.reset(params as any);
+            break;
+          }
+
+          case "calibration_export": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = pace.exportCalibration();
+            break;
+          }
+
+          case "calibration_import": {
+            const { physicsAutoCalibrationEngine: pace } = await import("../../engines/PhysicsAutoCalibrationEngine.js");
+            result = pace.importCalibration(params as any);
+            break;
+          }
+
+          // ── QS-MS6 P3: Pipeline Consistency Hook ──
+          case "consistency_check":
+          case "consistency_history":
+          case "consistency_summary":
+          case "consistency_clear": {
+            const { pipelineConsistencyHookEngine: pche } = await import("../../engines/PipelineConsistencyHookEngine.js");
+            result = pche.calculate(action, params as any);
+            break;
+          }
+
+          case "dimension_impute_build": {
+            const { dimensionImputationEngine: dimImpEngine } = await import("../../engines/DimensionImputationEngine.js");
+            const buildResult = dimImpEngine.buildModels(params.tools ?? []);
+            result = buildResult;
+            break;
+          }
+
+          case "dimension_impute_apply": {
+            const { dimensionImputationEngine: dimImpApply } = await import("../../engines/DimensionImputationEngine.js");
+            if (params.tools_train) {
+              dimImpApply.buildModels(params.tools_train);
+            }
+            const imputed = dimImpApply.imputeDimensions(params.tools ?? []);
+            result = { toolsImputed: imputed.length, results: imputed };
+            break;
+          }
+
+          case "dimension_impute_stats": {
+            const { dimensionImputationEngine: dimImpStats } = await import("../../engines/DimensionImputationEngine.js");
+            result = dimImpStats.getStats(params.tools ?? []);
+            break;
+          }
+
+          case "dimension_impute_outliers": {
+            const { dimensionImputationEngine: dimImpOut } = await import("../../engines/DimensionImputationEngine.js");
+            const outliers = dimImpOut.detectOutliers(
+              params.tools ?? [],
+              params.z_threshold ?? 3,
+            );
+            result = { count: outliers.length, outliers };
             break;
           }
 

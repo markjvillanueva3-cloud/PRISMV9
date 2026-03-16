@@ -2274,6 +2274,7 @@ export { trustRegionEngine } from "./TrustRegionEngine.js";
 export { topologyEngine } from "./TopologyEngine.js";
 export { CORE_CATEGORIES, tribalKnowledgeEngine, TribalKnowledgeEngine } from "./TribalKnowledgeEngine.js";
 export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingEngine.js";
+export { troubleshootingAssistantEngine, TroubleshootingAssistantEngine } from "./TroubleshootingAssistantEngine.js";
 export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
 export { voronoiEngine } from "./VoronoiEngine.js";
 export { voxelStockEngine } from "./VoxelStockEngine.js";
@@ -2288,6 +2289,7 @@ export { operationSequencerEngine, OperationSequencerEngine } from "./OperationS
 export { transitionPathEngine, TransitionPathEngine } from "./TransitionPathEngine.js";
 export { adaptiveRefinementEngine, AdaptiveRefinementEngine } from "./AdaptiveRefinementEngine.js";
 export { multiSetupPlannerEngine, MultiSetupPlannerEngine } from "./MultiSetupPlannerEngine.js";
+export { multiSetupFeasibilityChainEngine, MultiSetupFeasibilityChainEngine } from "./MultiSetupFeasibilityChainEngine.js";
 export { extendedNovelToolpathEngine, computeExtendedAlgorithm, EXTENDED_ALGORITHM_INFO, type ExtendedAlgorithm } from "./NovelToolpathAlgorithmsExt.js";
 export { crossCamNovelEngine, computeCrossCamNovel, CROSS_CAM_NOVEL_INFO, type CrossCamNovelAlgorithm } from "./CrossCamNovelAlgorithms.js";
 export { waterjetCuttingEngine } from "./WaterjetCuttingEngine.js";
@@ -3347,6 +3349,7 @@ export { dfmFeedbackEngine, DFMFeedbackEngine } from './DFMFeedbackEngine.js';
 export { workpieceStateEngine, WorkpieceStateEngine } from './WorkpieceStateEngine.js';
 export { accessibilityAnalysisEngine, AccessibilityAnalysisEngine } from './AccessibilityAnalysisEngine.js';
 export { workholdingViabilityEngine, WorkholdingViabilityEngine } from './WorkholdingViabilityEngine.js';
+export { workholdingRetrofitAdvisorEngine, WorkholdingRetrofitAdvisorEngine } from './WorkholdingRetrofitAdvisorEngine.js';
 export { rigidityDegradationEngine, RigidityDegradationEngine } from './RigidityDegradationEngine.js';
 
 
@@ -3427,3 +3430,12 @@ export { toolInventoryOrchestratorEngine, ToolInventoryOrchestratorEngine } from
 
 // OperatorDashboardOrchestratorEngine — Unified real-time shop floor monitoring dashboard
 export { operatorDashboardOrchestratorEngine, OperatorDashboardOrchestratorEngine } from "./OperatorDashboardOrchestratorEngine.js";
+
+// Part Family Economics — EOQ, tool rotation, ABC cost drivers, batch purchasing
+export { partFamilyEconomicsEngine, PartFamilyEconomicsEngine } from "./PartFamilyEconomicsEngine.js";
+
+// DesignToFloorPipelineEngine — Closed-loop manufacturing pipeline (Design->Simulate->Execute->Measure->Calibrate->Improve)
+export { designToFloorPipelineEngine, DesignToFloorPipelineEngine } from "./DesignToFloorPipelineEngine.js";
+
+// DimensionImputationEngine — Statistical dimension imputation for cutting tools (OLS/KNN)
+export { dimensionImputationEngine, DimensionImputationEngine, type ImputationModel, type ImputationResult, type DimensionStats, type DimensionOutlier } from "./DimensionImputationEngine.js";
