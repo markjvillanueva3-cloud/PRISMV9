@@ -49,7 +49,7 @@ describe("hashPassword / verifyPassword", () => {
     expect(ok).toBe(false);
   });
 
-  it("hashPassword produces different hashes for same input (bcrypt salting)", async () => {
+  it("hashPassword produces different hashes for same input (scrypt salting)", async () => {
     const h1 = await engine.hashPassword("samepassword");
     const h2 = await engine.hashPassword("samepassword");
     expect(h1).not.toBe(h2);
@@ -190,6 +190,6 @@ describe("stats", () => {
     const s = engine.stats();
     expect(s.engineName).toBe("AuthEngineV7");
     expect(s.algorithm).toBe("HS256");
-    expect(s.bcryptRounds).toBe(12);
+    expect(s.hashAlgo).toBe("scrypt");
   });
 });
