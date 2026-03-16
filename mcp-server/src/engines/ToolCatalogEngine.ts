@@ -37,6 +37,7 @@ import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catal
 import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
 import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
+import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 
 // ── Unified Tool Types ──
 
@@ -1467,13 +1468,20 @@ export class ToolCatalogEngine {
       const toolType = st.type as CatalogTool["type"];
       const sfForType = sf.filter(s => s.tool_type === toolType);
 
+      // Try manufacturer-specific S/F first, fall back to SPEED_FEED_BASE
       const cuttingData: CatalogTool["cutting_data"] = {};
-      for (const s of sfForType) {
-        const scale = st.cutting_diameter_mm > 0 ? Math.sqrt(st.cutting_diameter_mm / 10) : 1;
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-        };
+      const seriesMatch = findSpeedFeedByPartialSeries(st.designation?.substring(0, 5) ?? "");
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = seriesMatch.find(s => s.isoGroup === iso) ?? lookupSpeedFeed(st.designation ?? "", iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) {
+            const scale = st.cutting_diameter_mm > 0 ? Math.sqrt(st.cutting_diameter_mm / 10) : 1;
+            cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale };
+          }
+        }
       }
 
       const shank = st.shank_diameter_mm ?? st.cutting_diameter_mm;
@@ -1898,11 +1906,16 @@ export class ToolCatalogEngine {
       const sfForType = sf.filter(s => s.tool_type === toolType || s.tool_type === "end_mill");
       const cuttingData: CatalogTool["cutting_data"] = {};
       const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
-      for (const s of sfForType) {
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-        };
+      const kSeries = kt.series ?? kt.partNumber?.substring(0, 4) ?? "";
+      const kSeriesMatch = findSpeedFeedByPartialSeries(kSeries);
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = kSeriesMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale };
+        }
       }
 
       this.tools.set(id, {
