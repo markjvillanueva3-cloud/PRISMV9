@@ -32,6 +32,7 @@ import { REGOFIX_HOLDERS } from "../data/regofix-holder-catalog.js";
 import { ZENIT_TOOLS } from "../data/zenit-tool-catalog.js";
 import { AMPC_TOOLS, AMPC_CUTTING_DATA } from "../data/ampc-tool-catalog.js";
 import { GLOBAL_CNC_TOOLS } from "../data/global-cnc-tool-catalog.js";
+import { getGlobalCNCDimension } from "../data/global-cnc-dimensions.js";
 import { TUNGALOY_US_TOOLS, TUNGALOY_US_CUTTING_CONDITIONS } from "../data/tungaloy-us-tool-catalog.js";
 import { SANDVIK_2018_ROTATING_TOOLS } from "../data/sandvik-2018-rotating-catalog.js";
 import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
@@ -1872,24 +1873,11 @@ export class ToolCatalogEngine {
                         gt.type === "boring_bar_holder" ? "boring_bar" :
                         "turning_tool") as CatalogTool["type"];
 
-      // Parse bore diameter from part number (e.g., ".250" = 6.35mm, "8MM" = 8mm)
-      let boreDia = 0;
-      const pn = gt.partNumber;
-      const mmMatch = pn.match(/(\d+)MM/i);
-      const inchMatch = pn.match(/\.(\d{3,4})(?:\s|$)/);
-      const fracMatch = pn.match(/(\d+)\/(\d+)/);
-      if (mmMatch) {
-        boreDia = parseFloat(mmMatch[1]);
-      } else if (inchMatch) {
-        boreDia = parseFloat(`0.${inchMatch[1]}`) * 25.4;
-      } else if (fracMatch) {
-        boreDia = (parseFloat(fracMatch[1]) / parseFloat(fracMatch[2])) * 25.4;
-      }
-      boreDia = Math.round(boreDia * 100) / 100;
-
-      // Estimate body OD and OAL from bushing style
-      const bodyOD = boreDia > 0 ? Math.max(boreDia * 2, 20) : 0;
-      const oal = boreDia > 0 ? Math.max(boreDia * 3, 30) : 0;
+      // Look up real dimensions from PDF-extracted data (565-page catalog)
+      const dim = getGlobalCNCDimension(gt.partNumber);
+      const boreDia = dim?.boreDia_mm ?? 0;
+      const bodyOD = dim?.bodyOD_mm ?? 0;
+      const oal = dim?.oal_mm ?? 0;
 
       this.tools.set(id, {
         id,
