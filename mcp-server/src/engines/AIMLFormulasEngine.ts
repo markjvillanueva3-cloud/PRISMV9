@@ -990,7 +990,7 @@ export class AIMLFormulasEngine {
     const eigVecs: number[][] = [];
     const covCopy = cov.map((r) => [...r]);
     for (let e = 0; e < encDim; e++) {
-      let vec = new Array(d).fill(0).map((_, i) => (i === e ? 1 : 0.01));
+      let vec: number[] = new Array(d).fill(0).map((_, i) => (i === e ? 1 : 0.01));
       for (let iter = 0; iter < 100; iter++) {
         const newVec = new Array(d).fill(0);
         for (let j = 0; j < d; j++) {

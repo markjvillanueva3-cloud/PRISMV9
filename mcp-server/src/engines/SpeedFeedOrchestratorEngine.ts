@@ -744,7 +744,6 @@ const MACHINE_CATALOG_QUICK: Record<string, { power_kw: number; max_rpm: number;
   'hermle c 250':              { power_kw: 15,   max_rpm: 18000, torque_Nm: 90,  taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 1000, accel_m_s2: 14.0,  jerk_m_s3: 45 },
   // ── GROB ──
   'grob g150':                 { power_kw: 18,   max_rpm: 18000, torque_Nm: 105, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
-  'grob g350':                 { power_kw: 25,   max_rpm: 18000, torque_Nm: 120, taper: 'HSK-A63', rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 950,  accel_m_s2: 12.0,  jerk_m_s3: 40 },
   'grob g550':                 { power_kw: 37,   max_rpm: 16000, torque_Nm: 230, taper: 'HSK-A100',rigidity: 'high',   type: '5axis',           guideway: 'linear',      nat_freq_hz: 800,  accel_m_s2: 10.0,  jerk_m_s3: 30 },
   // ── Kern ──
   'kern pyramid nano':         { power_kw: 9,    max_rpm: 50000, torque_Nm: 4,   taper: 'HSK-E25', rigidity: 'high',   type: '5axis',           guideway: 'hydrostatic', nat_freq_hz: 2000, accel_m_s2: 15.0,  jerk_m_s3: 100 },

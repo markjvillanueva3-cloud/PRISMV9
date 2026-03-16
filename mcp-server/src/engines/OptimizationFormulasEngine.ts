@@ -127,7 +127,7 @@ export interface SensitivityAnalysisInput {
 }
 
 export interface SensitivityAnalysisResult {
-  /** Shadow prices (∂f*/∂bi) for each constraint */
+  /** Shadow prices (df/dbi) for each constraint */
   shadow_prices: number[];
   /** Reduced costs for each variable */
   reduced_costs: number[];
@@ -423,7 +423,7 @@ export class OptimizationFormulasEngine {
     let convRate: number | null = null;
     let convOrder: number | null = null;
     if (p.optimal_value != null && n >= 3) {
-      const errors = hist.map((f) => Math.abs(f - p.optimal_value));
+      const errors = hist.map((f) => Math.abs(f - p.optimal_value!));
       const validErrors = errors.filter((e) => e > 1e-15);
       if (validErrors.length >= 3) {
         const e1 = validErrors[validErrors.length - 3];

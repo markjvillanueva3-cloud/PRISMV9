@@ -3395,10 +3395,7 @@ export { physicsMLHybridEngine, PhysicsMLHybridEngine } from "./PhysicsMLHybridE
 // CK-MS12 — NLP CAM Parser, Program Compare, Result Cache, Batch CAM
 export {
   NLPCAMParserEngine, nlpCAMParserEngine,
-  type CAMFeature, type CAMFeatureType, type ParsedDimension,
-  type CAMTolerance, type SurfaceFinish as CAMSurfaceFinish,
-  type OperationSuggestion, type ValidationResult as CAMValidationResult,
-  type MaterialInfo, type MachineInfo, type ParsedCAMRequest,
+  type ParsedCAMRequest,
 } from "./NLPCAMParserEngine.js";
 export {
   ProgramCompareEngine, programCompareEngine,
@@ -3439,3 +3436,38 @@ export { designToFloorPipelineEngine, DesignToFloorPipelineEngine } from "./Desi
 
 // DimensionImputationEngine — Statistical dimension imputation for cutting tools (OLS/KNN)
 export { dimensionImputationEngine, DimensionImputationEngine, type ImputationModel, type ImputationResult, type DimensionStats, type DimensionOutlier } from "./DimensionImputationEngine.js";
+
+// IndustryStandardsComplianceEngine — ISO 2768/1302/AS9100/ISO 13485/IATF 16949/DIN 65151/ISO 14644
+export { industryStandardsComplianceEngine, IndustryStandardsComplianceEngine } from "./IndustryStandardsComplianceEngine.js";
+
+// TestingProtocolEngine — ISO 3685 tool life / ISO 4287-4288 surface / ISO 14253-1 dimensional
+export { testingProtocolEngine, TestingProtocolEngine } from "./TestingProtocolEngine.js";
+
+// CertificationTrackingEngine — Material cert / tool cert / machine calibration / audit reports
+export { certificationTrackingEngine, CertificationTrackingEngine } from "./CertificationTrackingEngine.js";
+
+// HobbyCNCProfileEngine — Hobby/desktop CNC machine database (GRBL/LinuxCNC/Mach3/4/PathPilot/Marlin/FluidNC)
+export { hobbyCNCProfileEngine, HobbyCNCProfileEngine } from "./HobbyCNCProfileEngine.js";
+
+// CobotMachiningEngine — Collaborative robot machining safety (ISO 10218/15066) & task planning
+export { cobotMachiningEngine, CobotMachiningEngine } from "./CobotMachiningEngine.js";
+
+// Non-Traditional Machining: USM, ECM, AJM
+export { ultrasonicMachiningPhysicsEngine, UltrasonicMachiningPhysicsEngine } from './UltrasonicMachiningPhysicsEngine.js';
+export { electrochemicalMachiningEngine, ElectrochemicalMachiningEngine } from './ElectrochemicalMachiningEngine.js';
+export { abrasiveJetMachiningEngine, AbrasiveJetMachiningEngine } from './AbrasiveJetMachiningEngine.js';
+
+// ShiftScheduleOptimizerEngine — Greedy job-to-machine scheduling with Gantt, load balancing, what-if
+export { shiftScheduleOptimizerEngine, type ScheduleResult as ShiftScheduleResult, type ScheduleInput as ShiftScheduleInput, type LoadBalanceInput, type LoadBalanceResult, type WhatIfInput, type WhatIfResult } from "./ShiftScheduleOptimizerEngine.js";
+
+// BottleneckAnalysisEngine — Theory of Constraints, Drum-Buffer-Rope, sensitivity analysis
+export { bottleneckAnalysisEngine, type ResourceInput, type BottleneckResult as BottleneckAnalysisResult, type DBRInput, type DBRResult, type SensitivityInput as BottleneckSensitivityInput, type SensitivityResult as BottleneckSensitivityResult } from "./BottleneckAnalysisEngine.js";
+
+// PredictiveMaintenanceOrchestratorEngine — Multi-signal health scoring (ISO 10816), maintenance planning, failure history
+export { predictiveMaintenanceOrchestratorEngine, type HealthInput, type HealthResult, type MaintenancePlanInput, type MaintenancePlanResult, type FailureHistoryInput, type FailureHistoryResult } from "./PredictiveMaintenanceOrchestratorEngine.js";
+
+// StochasticCompositesEngine — MC delamination risk + Sobol sensitivity for composite machining
+export { stochasticCompositesEngine, StochasticCompositesEngine } from "./StochasticCompositesEngine.js";
+
+// StochasticGrindingDressingEngine — Wheel life MC + dressing interval optimization under uncertainty
+export { stochasticGrindingDressingEngine, StochasticGrindingDressingEngine } from "./StochasticGrindingDressingEngine.js";

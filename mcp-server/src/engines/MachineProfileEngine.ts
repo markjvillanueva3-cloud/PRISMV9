@@ -332,8 +332,8 @@ export class MachineProfileEngine {
     }
 
     // ATC tool weight check (P0 gap fix)
-    if (input.tool_weight_kg && (m as Record<string, unknown>).tool_changer_max_weight_kg) {
-      const maxWeight = (m as Record<string, unknown>).tool_changer_max_weight_kg as number;
+    if (input.tool_weight_kg && (m as unknown as Record<string, unknown>).tool_changer_max_weight_kg) {
+      const maxWeight = (m as unknown as Record<string, unknown>).tool_changer_max_weight_kg as number;
       if (input.tool_weight_kg > maxWeight) {
         checks.push({
           parameter: "Tool Weight", value: input.tool_weight_kg, limit: maxWeight, unit: "kg",

@@ -298,7 +298,7 @@ export class MultiProcessCAMBridgeEngine {
       feature_id: feature.id,
       gcode: lines.join("\n"),
       gcode_lines: lines.length,
-      parameters: { vc_mpm: vc, f_mmrev: f, doc_mm: doc, rpm, css: true },
+      parameters: { vc_mpm: vc, f_mmrev: f, doc_mm: doc, rpm, css: "true" as string },
       physics: {
         force_N: Math.round(Fc),
         power_kW: Math.round(power * 100) / 100,
@@ -309,7 +309,7 @@ export class MultiProcessCAMBridgeEngine {
       tool_recommendation: /thread/.test(feature.type) ? "60° threading insert" :
         /groove|part/.test(feature.type) ? `${t.groove_width_mm || 3}mm grooving insert` :
           `CNMG 120408 ${iso === "S" ? "KC5010" : iso === "H" ? "KBN525" : "KC9110"} insert`,
-      warnings: power > (machine?.max_power_kw || 15) * 0.9
+      warnings: power > ((machine as any)?.max_power_kw || 15) * 0.9
         ? [`Power ${power.toFixed(1)}kW near machine limit`] : [],
     };
   }

@@ -225,6 +225,24 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { keywords: ["pipe stress", "pipe thermal expansion", "pipe support", "pipe flexibility"], route: "dispatcher", target: "calcDispatcher", action: "pipe_stress_calc", reason: "Pipe stress & thermal expansion analysis", estimatedTokens: 200 },
   { keywords: ["valve sizing", "cv coefficient", "valve flow", "control valve"], route: "dispatcher", target: "calcDispatcher", action: "valve_sizing_calc", reason: "Control valve Cv sizing", estimatedTokens: 200 },
   { keywords: ["spring design", "coil spring", "spring rate", "spring fatigue", "compression spring"], route: "dispatcher", target: "calcDispatcher", action: "spring_design_calc", reason: "Helical spring stress & fatigue", estimatedTokens: 200 },
+
+  // --- Week 2: Non-Traditional, Specialty, Business, Maintenance routes ---
+  { keywords: ["ultrasonic machining", "usm", "abrasive slurry"], route: "dispatcher", target: "calcDispatcher", action: "usm_mrr", reason: "Ultrasonic machining MRR prediction", estimatedTokens: 200 },
+  { keywords: ["electrochemical machining", "ecm", "faraday"], route: "dispatcher", target: "calcDispatcher", action: "ecm_mrr", reason: "ECM material removal via Faraday law", estimatedTokens: 200 },
+  { keywords: ["abrasive jet", "ajm", "garnet cutting"], route: "dispatcher", target: "calcDispatcher", action: "ajm_cutting", reason: "Abrasive jet cutting prediction", estimatedTokens: 200 },
+  { keywords: ["iso compliance", "as9100", "industry standard", "iatf 16949"], route: "dispatcher", target: "calcDispatcher", action: "standards_check_compliance", reason: "Industry standards compliance check", estimatedTokens: 250 },
+  { keywords: ["material cert", "calibration tracking", "tool certification"], route: "dispatcher", target: "calcDispatcher", action: "cert_track_material", reason: "Certification & calibration tracking", estimatedTokens: 200 },
+  { keywords: ["hobby cnc", "grbl", "linuxcnc", "tormach", "shapeoko"], route: "dispatcher", target: "machineSetupDispatcher", action: "hobby_cnc_search", reason: "Hobby/desktop CNC machine profiles", estimatedTokens: 200 },
+  { keywords: ["cobot", "collaborative robot", "ur5", "ur10"], route: "dispatcher", target: "machineSetupDispatcher", action: "cobot_assess_safety", reason: "Cobot machining safety assessment", estimatedTokens: 250 },
+  { keywords: ["shift schedule", "job assignment", "machine allocation", "gantt"], route: "dispatcher", target: "businessDispatcher", action: "schedule_optimize", reason: "Shift/job schedule optimization", estimatedTokens: 300 },
+  { keywords: ["bottleneck", "theory of constraints", "drum buffer rope"], route: "dispatcher", target: "calcDispatcher", action: "bottleneck_identify", reason: "TOC bottleneck identification & DBR", estimatedTokens: 250 },
+  { keywords: ["predictive maintenance", "machine health", "mtbf", "mttr"], route: "dispatcher", target: "calcDispatcher", action: "maintenance_assess_health", reason: "Predictive maintenance & health assessment", estimatedTokens: 250 },
+  { keywords: ["wheel dressing", "grinding wheel life", "creep feed grinding"], route: "dispatcher", target: "calcDispatcher", action: "grinding_wheel_life", reason: "Grinding wheel dressing optimization", estimatedTokens: 200 },
+  { keywords: ["burnishing", "lapping", "polishing process"], route: "dispatcher", target: "calcDispatcher", action: "burnish_predict", reason: "Burnishing/lapping/polishing prediction", estimatedTokens: 200 },
+  { keywords: ["honing", "bore honing", "plateau honing"], route: "dispatcher", target: "calcDispatcher", action: "honing_design", reason: "Bore honing process design", estimatedTokens: 200 },
+  { keywords: ["post am finishing", "additive finishing", "am machining"], route: "dispatcher", target: "calcDispatcher", action: "post_am_finishing_plan", reason: "Post-AM finishing plan generation", estimatedTokens: 250 },
+  { keywords: ["job profitability", "profit waterfall", "cost breakdown"], route: "dispatcher", target: "businessDispatcher", action: "job_profitability_analyze", reason: "Job profitability waterfall analysis", estimatedTokens: 300 },
+  { keywords: ["scrap analysis", "scrap root cause", "defect analysis"], route: "dispatcher", target: "calcDispatcher", action: "scrap_root_cause", reason: "Scrap root cause Ishikawa/Pareto analysis", estimatedTokens: 250 },
 ];
 
 export class ToolRouterEngine {

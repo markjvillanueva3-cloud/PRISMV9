@@ -205,7 +205,7 @@ class FeasibilityOrchestratorEngineImpl {
       const eng = mod.forceCapabilityEngine;
       for (const op of job.operations) {
         if (op.cutting_force_N) {
-          const r = eng.check({
+          const r = (eng as any).check({
             cutting_force_N: op.cutting_force_N,
             cutting_speed_m_min: 150,
             tool_diameter_mm: op.tool_diameter_mm,

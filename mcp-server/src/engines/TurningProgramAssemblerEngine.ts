@@ -1567,7 +1567,7 @@ class TurningProgramAssemblerEngineImpl {
     try {
       const { chuckJawForceEngine } = await import("./ChuckJawForceEngine.js");
       const maxForce = kienzleForce(mat.kc1_1, mat.mc, 3.0, mat.fn_rough);
-      const chuckResult = chuckJawForceEngine.calculate?.({
+      const chuckResult = (chuckJawForceEngine as any).calculate?.({
         chuck_type: input.chuck_type ?? '3_jaw',
         workpiece_diameter_mm: input.part?.bar_diameter_mm ?? 50,
         spindle_rpm: maxRpm,
@@ -1589,7 +1589,7 @@ class TurningProgramAssemblerEngineImpl {
     // Wire TurningForceEngine for full Fc/Ff/Fp decomposition validation
     try {
       const { turningForceEngine } = await import("./TurningForceEngine.js");
-      const forceResult = turningForceEngine.calculate?.({
+      const forceResult = (turningForceEngine as any).calculate?.({
         operation: 'longitudinal',
         material: input.part.material,
         cutting_speed_m_min: mat.Vc_rough,
@@ -1597,8 +1597,8 @@ class TurningProgramAssemblerEngineImpl {
         depth_of_cut_mm: 3.0,
         approach_angle_deg: 95,
       });
-      if (forceResult?.tangential_force_N) {
-        const advancedPower = (forceResult.tangential_force_N * mat.Vc_rough) / 60000;
+      if (forceResult?.tangential_force_Fc_N) {
+        const advancedPower = (forceResult.tangential_force_Fc_N * mat.Vc_rough) / 60000;
         checks.push({
           name: 'Advanced force model power check',
           pass: advancedPower <= maxPower,
@@ -1692,7 +1692,7 @@ class TurningProgramAssemblerEngineImpl {
     maxRpm: number,
     dialect: ControllerDialect,
     nl: () => string,
-  ): TurningOperation {
+  ): Promise<TurningOperation> {
     // Stochastic S/F via Monte Carlo
     const sf = await this.computeSF(part.material, "face", part.bar_diameter_mm);
     const vc = sf.Vc;
@@ -1750,7 +1750,7 @@ class TurningProgramAssemblerEngineImpl {
     dialect: ControllerDialect,
     nl: () => string,
     warnings: string[],
-  ): TurningOperation {
+  ): Promise<TurningOperation> {
     // Stochastic S/F via Monte Carlo on Kienzle + Taylor
     const sf = await this.computeSF(part.material, "od_rough", part.bar_diameter_mm);
     const vc = sf.Vc;
@@ -1869,7 +1869,7 @@ class TurningProgramAssemblerEngineImpl {
     maxRpm: number,
     dialect: ControllerDialect,
     nl: () => string,
-  ): TurningOperation {
+  ): Promise<TurningOperation> {
     // Stochastic S/F via Monte Carlo
     const sf = await this.computeSF(part.material, "od_finish", part.bar_diameter_mm);
     const vc = sf.Vc;
