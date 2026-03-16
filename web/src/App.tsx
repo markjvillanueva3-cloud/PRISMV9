@@ -19,6 +19,9 @@ const ToolWizard = lazy(() => import("./components/learning/ToolWizard"));
 const MachineWizard = lazy(() => import("./components/learning/MachineWizard"));
 const DigitalTwin = lazy(() => import("./components/learning/DigitalTwin"));
 
+// Billing pages
+const PostProcessorStorePage = lazy(() => import("./pages/PostProcessorStorePage"));
+
 // Standalone pages
 const CamStrategyPage = lazy(() => import("./pages/CamStrategyPage"));
 const DataManagementPage = lazy(() => import("./pages/DataManagementPage"));
@@ -26,6 +29,7 @@ const SafetyDashboardPage = lazy(() => import("./pages/SafetyDashboardPage"));
 const QualityPage = lazy(() => import("./pages/QualityPage"));
 const CostEstimatorPage = lazy(() => import("./pages/CostEstimatorPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 
 // ERP module
@@ -139,11 +143,23 @@ export default function App() {
           <Route path="inventory" element={<Suspense fallback={<PageLoader />}><Inventory /></Suspense>} />
           <Route path="reports" element={<Suspense fallback={<PageLoader />}><ReportBuilder /></Suspense>} />
         </Route>
+        <Route
+          path="/post-processors"
+          element={
+            <Suspense fallback={<PageLoader />}>
+              <PostProcessorStorePage />
+            </Suspense>
+          }
+        />
         <Route path="*" element={<Navigate to="/sfc" replace />} />
       </Route>
       <Route
         path="/login"
         element={<Suspense fallback={<PageLoader />}><LoginPage /></Suspense>}
+      />
+      <Route
+        path="/landing"
+        element={<Suspense fallback={<PageLoader />}><LandingPage /></Suspense>}
       />
     </Routes>
   );
