@@ -1419,12 +1419,19 @@ export class ToolCatalogEngine {
 
       const cuttingData: CatalogTool["cutting_data"] = {};
       const dc = it.cutting_diameter_mm ?? 10;
-      for (const s of sfForType) {
-        const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-        };
+      const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+      // For Kennametal tools, try manufacturer-specific S/F first
+      const seriesMatch = it.manufacturer === "Kennametal" ? findSpeedFeedByPartialSeries(it.designation?.substring(0, 5) ?? "") : [];
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = seriesMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) {
+            cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale };
+          }
+        }
       }
 
       const shank = it.shank_diameter_mm ?? it.cutting_diameter_mm ?? 0;
@@ -1964,11 +1971,17 @@ export class ToolCatalogEngine {
       const ic = (kt as any).ic_mm ?? (kt as any).boreDia_mm ?? (kt as any).d_mm ?? 12.7;
       const cuttingData: CatalogTool["cutting_data"] = {};
       const scale = Math.sqrt(ic / 10);
-      for (const s of sf) {
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-        };
+      const seriesMatch = findSpeedFeedByPartialSeries(kt.series ?? "");
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = seriesMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sf.find(s => s.iso_group === iso);
+          if (base) {
+            cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale };
+          }
+        }
       }
 
       this.tools.set(id, {
