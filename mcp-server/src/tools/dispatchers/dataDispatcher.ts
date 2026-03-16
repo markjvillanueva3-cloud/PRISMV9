@@ -49,6 +49,8 @@ const DataDispatcherSchema = z.object({
     "catalog_tool_lookup",
     "catalog_holder_lookup", "catalog_holder_recommend",
     "catalog_workholding_lookup", "catalog_workholding_stats",
+    "chart_pareto", "chart_waterfall", "chart_control",
+    "chart_stability_lobe", "chart_histogram",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -1032,6 +1034,33 @@ export function registerDataDispatcher(server: any): void {
           }
           case "catalog_workholding_stats": {
             result = getWorkholdingSummary();
+            break;
+          }
+
+          // ── Chart Data Generator ──
+          case "chart_pareto": {
+            const { chartDataGeneratorEngine: cge } = await import("../../engines/ChartDataGeneratorEngine.js");
+            result = cge.paretoChart(params as any);
+            break;
+          }
+          case "chart_waterfall": {
+            const { chartDataGeneratorEngine: cge } = await import("../../engines/ChartDataGeneratorEngine.js");
+            result = cge.waterfallChart(params as any);
+            break;
+          }
+          case "chart_control": {
+            const { chartDataGeneratorEngine: cge } = await import("../../engines/ChartDataGeneratorEngine.js");
+            result = cge.controlChart(params as any);
+            break;
+          }
+          case "chart_stability_lobe": {
+            const { chartDataGeneratorEngine: cge } = await import("../../engines/ChartDataGeneratorEngine.js");
+            result = cge.stabilityLobeChart(params as any);
+            break;
+          }
+          case "chart_histogram": {
+            const { chartDataGeneratorEngine: cge } = await import("../../engines/ChartDataGeneratorEngine.js");
+            result = cge.histogramChart(params as any);
             break;
           }
 

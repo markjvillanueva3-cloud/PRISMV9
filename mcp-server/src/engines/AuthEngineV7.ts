@@ -11,7 +11,7 @@
  *   - constructor throws immediately if secret is too short (fail fast)
  */
 import * as jose from "jose";
-import bcrypt from "bcrypt";
+import { scrypt, randomBytes, timingSafeEqual } from "node:crypto";
 
 // ============================================================================
 // Types
@@ -107,7 +107,8 @@ const LIMITS: Record<Plan, TierLimits> = {
   },
 };
 
-const BCRYPT_ROUNDS = 12;
+const SCRYPT_KEYLEN = 64;
+const SALT_BYTES = 16;
 
 // ============================================================================
 // AuthEngineV7
@@ -138,22 +139,33 @@ export class AuthEngineV7 {
   // --------------------------------------------------------------------------
 
   /**
-   * Hash a plaintext password with bcrypt (salt rounds 12).
+   * Hash a plaintext password with scrypt (Node.js built-in crypto).
    * @param plain - plaintext password
-   * @returns bcrypt hash string
+   * @returns hash string in format "salt:derivedKey" (hex encoded)
    */
   async hashPassword(plain: string): Promise<string> {
-    return bcrypt.hash(plain, BCRYPT_ROUNDS);
+    const salt = randomBytes(SALT_BYTES);
+    const derived = await new Promise<Buffer>((resolve, reject) =>
+      scrypt(plain, salt, SCRYPT_KEYLEN, (err, key) => (err ? reject(err) : resolve(key)))
+    );
+    return `${salt.toString("hex")}:${derived.toString("hex")}`;
   }
 
   /**
-   * Verify a plaintext password against a bcrypt hash.
+   * Verify a plaintext password against a stored scrypt hash.
    * @param plain - plaintext password to verify
-   * @param hash  - stored bcrypt hash
+   * @param hash  - stored hash in "salt:derivedKey" format
    * @returns true if password matches
    */
   async verifyPassword(plain: string, hash: string): Promise<boolean> {
-    return bcrypt.compare(plain, hash);
+    const [saltHex, keyHex] = hash.split(":");
+    if (!saltHex || !keyHex) return false;
+    const salt = Buffer.from(saltHex, "hex");
+    const storedKey = Buffer.from(keyHex, "hex");
+    const derived = await new Promise<Buffer>((resolve, reject) =>
+      scrypt(plain, salt, storedKey.length, (err, key) => (err ? reject(err) : resolve(key)))
+    );
+    return timingSafeEqual(storedKey, derived);
   }
 
   // --------------------------------------------------------------------------
@@ -238,7 +250,7 @@ export class AuthEngineV7 {
       engineName: this.engineName,
       version: this.version,
       plans: Object.keys(LIMITS) as Plan[],
-      bcryptRounds: BCRYPT_ROUNDS,
+      hashAlgo: "scrypt",
       algorithm: "HS256",
     };
   }
