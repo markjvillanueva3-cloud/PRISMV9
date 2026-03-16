@@ -1872,6 +1872,25 @@ export class ToolCatalogEngine {
                         gt.type === "boring_bar_holder" ? "boring_bar" :
                         "turning_tool") as CatalogTool["type"];
 
+      // Parse bore diameter from part number (e.g., ".250" = 6.35mm, "8MM" = 8mm)
+      let boreDia = 0;
+      const pn = gt.partNumber;
+      const mmMatch = pn.match(/(\d+)MM/i);
+      const inchMatch = pn.match(/\.(\d{3,4})(?:\s|$)/);
+      const fracMatch = pn.match(/(\d+)\/(\d+)/);
+      if (mmMatch) {
+        boreDia = parseFloat(mmMatch[1]);
+      } else if (inchMatch) {
+        boreDia = parseFloat(`0.${inchMatch[1]}`) * 25.4;
+      } else if (fracMatch) {
+        boreDia = (parseFloat(fracMatch[1]) / parseFloat(fracMatch[2])) * 25.4;
+      }
+      boreDia = Math.round(boreDia * 100) / 100;
+
+      // Estimate body OD and OAL from bushing style
+      const bodyOD = boreDia > 0 ? Math.max(boreDia * 2, 20) : 0;
+      const oal = boreDia > 0 ? Math.max(boreDia * 3, 30) : 0;
+
       this.tools.set(id, {
         id,
         manufacturer: "Global CNC",
@@ -1880,10 +1899,10 @@ export class ToolCatalogEngine {
         type: toolType,
         material: "carbide",
         physical: {
-          cutting_diameter_mm: 0,
-          shank_diameter_mm: 0,
-          overall_length_mm: 0,
-          flute_length_mm: 0,
+          cutting_diameter_mm: boreDia,
+          shank_diameter_mm: bodyOD,
+          overall_length_mm: oal,
+          flute_length_mm: boreDia > 0 ? boreDia : 0,
         },
         iso_groups: ["P", "M", "K"],
         operations: toolType === "boring_bar" ? ["bore"] :
