@@ -1,8 +1,8 @@
 # PRISM Compact Index
 
-E=1068 D=67 A=51 T=725+ RG=22 H=21 U=16 C=80 S=72 M=113 DOC=39
+E=1078 D=68 A=51 T=756+ RG=22 H=21 U=16 C=80 S=72 M=113 DOC=39
 DSL: 1814 shortcodes. Resolve: /code-index E0001 or codeSystemIndexEngine.resolve('E0001')
-Actions: 2625+ | CLI: 21 commands | ToolRouter: 123/46
+Actions: 2650+ | CLI: 21 commands | ToolRouter: 123/46
 
 ## Paths
 E: src/engines/ | D: src/tools/dispatchers/ | A: src/algorithms/ | T: src/__tests__/
