@@ -94,7 +94,7 @@ describe("WorkpieceStateEngine", () => {
     it("should subtract volume", () => {
       const state = engine.initialize(STOCK).value;
       const op = makePocketOp("op1", 30, 80, 60);
-      const result = engine.applyOperationLegacy(state, op);
+      const result = engine.applyOperation(state, op);
       const after = result.value;
 
       expect(after.volume_remaining_mm3).toBeLessThan(state.volume_stock_mm3);
@@ -104,7 +104,7 @@ describe("WorkpieceStateEngine", () => {
     it("should record operation", () => {
       const state = engine.initialize(STOCK).value;
       const op = makePocketOp("op1", 20);
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
 
       expect(after.operations_applied).toHaveLength(1);
       expect(after.operations_applied[0].id).toBe("op1");
@@ -113,7 +113,7 @@ describe("WorkpieceStateEngine", () => {
     it("should create new surfaces", () => {
       const state = engine.initialize(STOCK).value;
       const op = makePocketOp("op1", 20);
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
 
       expect(after.surfaces.length).toBeGreaterThan(6);
       const machined = after.surfaces.filter(s => s.created_by_op === "op1");
@@ -133,7 +133,7 @@ describe("WorkpieceStateEngine", () => {
         length_mm: 60,
         position: { x: 85, y: 0, z: 50 },
       };
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
 
       // Should detect thin wall sections (< 20mm to edges)
       expect(after.wall_sections.length).toBeGreaterThan(0);
@@ -145,7 +145,7 @@ describe("WorkpieceStateEngine", () => {
     it("should update clamping zones", () => {
       const state = engine.initialize(STOCK).value;
       const op = makePocketOp("op1", 20);
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
 
       const topBefore = state.clamping_zones.find(z => z.face === "top")!;
       const topAfter = after.clamping_zones.find(z => z.face === "top")!;
@@ -155,7 +155,7 @@ describe("WorkpieceStateEngine", () => {
     it("should handle cylindrical volume for holes", () => {
       const state = engine.initialize(STOCK).value;
       const op = makeHoleOp("h1", 50, 10);
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
 
       const expected = Math.PI * 25 * 50; // π × r² × d
       const removed = state.volume_stock_mm3 - after.volume_remaining_mm3;
@@ -237,7 +237,7 @@ describe("WorkpieceStateEngine", () => {
         tool_diameter_mm: 50,
         depth_mm: 45,
       };
-      const after = engine.applyOperationLegacy(state, op).value;
+      const after = engine.applyOperation(state, op).value;
       expect(after.volume_removed_pct).toBeGreaterThan(80);
     });
   });
@@ -375,7 +375,7 @@ describe("WorkholdingViabilityEngine", () => {
   it("should track surface degradation after ops", () => {
     const state = wse.initialize(STOCK).value;
     const op = makePocketOp("p1", 20, 180, 140);
-    const after = wse.applyOperationLegacy(state, op).value;
+    const after = wse.applyOperation(state, op).value;
 
     const tracking = engine.trackSurfaces(after);
     // Top clamping area should be reduced
@@ -485,7 +485,7 @@ describe("RigidityDegradationEngine", () => {
         length_mm: 60,
         position: { x: 0, y: 0, z: 50 },
       };
-      const after = wse.applyOperationLegacy(state, op).value;
+      const after = wse.applyOperation(state, op).value;
 
       // Now check rigidity for a finish pass
       const finishOp = makePocketOp("finish", 1);
@@ -505,7 +505,7 @@ describe("RigidityDegradationEngine", () => {
         depth_mm: 40, width_mm: 197, length_mm: 60,
         position: { x: 0, y: 0, z: 50 },
       };
-      const after = wse.applyOperationLegacy(state, op).value;
+      const after = wse.applyOperation(state, op).value;
 
       if (after.wall_sections.length > 0) {
         const finishOp = makePocketOp("finish", 1);
@@ -526,7 +526,7 @@ describe("RigidityDegradationEngine", () => {
         depth_mm: 30, width_mm: 80, length_mm: 60,
         position: { x: -40, y: 0, z: 50 },
       };
-      const after1 = wse.applyOperationLegacy(state, op1).value;
+      const after1 = wse.applyOperation(state, op1).value;
 
       if (after1.wall_sections.length >= 2) {
         const critical = engine.findCriticalFeatures(after1, AL6061);
