@@ -1,5 +1,5 @@
 # PRISM SYSTEM INVENTORY
-## Last Updated: 2026-03-13T17:40 | Updated by /autopilot
+## Last Updated: 2026-03-15T23:00 | Updated by wiring audit
 
 > **Purpose**: Single source of truth for what exists in the PRISM system.
 > All chats should read this file FIRST to avoid duplicating work.
@@ -11,16 +11,16 @@
 
 | Category | Count | Location |
 |----------|-------|----------|
-| **Engines** | 857 files | `src/engines/` |
+| **Engines** | 1068 files | `src/engines/` |
 | **Algorithms** | 51 (18 physics, 18 ML/optimization, 14 mfg-specific, 1 index) | `src/algorithms/` |
-| **Dispatchers** | 58 files | `src/tools/dispatchers/` |
-| **Actions** | 2005+ total across all dispatchers | dispatchers |
+| **Dispatchers** | 67 files | `src/tools/dispatchers/` |
+| **Actions** | 2625+ total across all dispatchers | dispatchers |
 | **MCP Tools** | 53 registered (47 explicit + 6 F-feature) | `src/tools/` |
-| **Hooks** | 213 hookify rules + 21 hook files | `src/hooks/` |
+| **Hooks** | 213 hookify rules + 22 hook files | `src/hooks/` |
 | **Cadences** | 12 (6 core + 6 specialty) | `src/hooks/CadenceDefinitions.ts` |
 | **Formulas** | 499 (109 built-in + 390 JSON) across 20 domains | `FormulaRegistry` |
-| **Registries** | 22 TypeScript files | `src/registries/` |
-| **Tests (Backend)** | 12653+ passing, 530 files | `src/__tests__/` |
+| **Registries** | 23 TypeScript files | `src/registries/` |
+| **Tests (Backend)** | 15700+ passing, 734 files | `src/__tests__/` |
 | **Tests (Web)** | 85 tests, 7 files | `web/src/__tests__/` |
 | **Tests (CAD-Engine)** | 2085 tests, 87 files | `cad-engine/tests/` |
 | **Tests (E2E)** | 11 E2E test files | `cad-engine/tests/e2e/` |
@@ -28,14 +28,17 @@
 | **Python Modules** | 93 source files, 308 classes | `cad-engine/src/` |
 | **Slash Commands** | 134 commands | `~/.claude/commands/` |
 | **Skills** | 257 indexed, 14 superpowers | `TRIGGER_MAP.json` |
-| **Tribal Knowledge** | 867+ tips | `TribalKnowledgeEngine` |
-| **Data/Catalogs** | 67 files | `src/data/` |
+| **Tribal Knowledge** | 3700+ tips | `TribalKnowledgeEngine` |
+| **Data/Catalogs** | 68 files | `src/data/` |
+| **Schemas** | 80 files | `src/schemas/` |
 | **Code System Index** | 1,850 file mappings | `data/docs/CODE_SYSTEM_INDEX.json` |
-| **Milestones** | 109/109 COMPLETE | `data/milestones/` |
+| **CLI Commands** | 21 | `src/cli/` |
+| **ToolRouter** | 123 patterns / 46 targets | `ToolRouterEngine.ts` |
+| **Milestones** | 144/151 COMPLETE | `data/milestones/` |
 
 ---
 
-## ENGINES BY CATEGORY (857 total)
+## ENGINES BY CATEGORY (1068 total)
 
 ### All engines in `src/engines/` — exported via `index.ts`
 - **Calculation** (33): ManufacturingCalculations, AdvancedCalculations, ToolpathCalculations, CuttingPowerBudget, BoreFinishing, ChipFormationPrediction, CoolantStrategy, CycleToControl, DOEAnalysis, DrillBreakthrough, DrillCycleOptimization, FinishingPassOptimization, GrindingForce, GrindingSurfaceFinish, SpecificCuttingEnergy, TappingTorque, ThermalGrowthCompensation, ToolCoatingSelection, ToolDeflectionPrediction, ToolWearProgression, TurningForce, PhysicsPrediction, ChipThinningCompensation, EngagementGeometry, CollisionEngine, WorkholdingEngine, ToolBreakageEngine, SpindleProtection, CoolantValidation, +4 more
@@ -62,7 +65,7 @@ Reserved for future wiring. Includes experimental, specialty, and recently-creat
 
 | # | Dispatcher | Actions | Domain |
 |---|-----------|---------|--------|
-| 1 | calcDispatcher | 450 | Physics, math, optimization, manufacturing calculations |
+| 1 | calcDispatcher | 1130+ | Physics, math, optimization, manufacturing calculations |
 | 2 | businessDispatcher | 230 | ERP, quoting, scheduling, inventory, HR |
 | 3 | l2EngineDispatcher | 73 | AI/ML, CAD geometry, simulation |
 | 4 | camDispatcher | 65 | Toolpath, post-processing, collision, hyperMILL |
@@ -199,7 +202,7 @@ Formula: 100 - (CRITICAL×10 + MAJOR×3 + MINOR×1) scaled
 
 ---
 
-## MILESTONES (95/95 COMPLETE)
+## MILESTONES (144/151 COMPLETE)
 
 | Track | Count | Status |
 |-------|-------|--------|
@@ -209,7 +212,18 @@ Formula: 100 - (CRITICAL×10 + MAJOR×3 + MINOR×1) scaled
 | L8 (Web UI) | PPG+Learning+WebGL+ERP | COMPLETE |
 | QA (Quality) | 15/15 | COMPLETE |
 | REM (Remediation) | 6/6 | COMPLETE |
-| RX-MS0 (Resource Extraction) | IN_PROGRESS | P2+P4 done, P1/P3/P5 partial |
+| RX-MS0 (Resource Extraction) | COMPLETE | All phases done (P3-U02 deferred) |
+| PP (Post-Processor) | 9/9 | COMPLETE (PP-MS0 to PP-MS8) |
+| MF (Machining Feasibility) | 6/6 | COMPLETE (MF-MS0 to MF-MS5) |
+| USF (Ultimate Speed/Feed) | 1/1 | COMPLETE (USF-MS0) |
+| VAR (Stochastic Physics) | 2/2 | COMPLETE (VAR-MS0, VAR-MS1) |
+| SIM (CNC Simulation) | 1/1 | COMPLETE (SIM-MS0) |
+| CK (CAM Kernel) | 7/8 | MS0-MS6, MS8 done; MS7 remaining |
+| PIPE (Pipeline) | 1/1 | COMPLETE (PIPE-MS1) |
+| QS (Quality-Synergy) | 7/7 | COMPLETE (QS-MS0 to QS-MS6) |
+| CLI | 1/1 | COMPLETE (CLI-MS0 P0+P1) |
+| SCI (Scientific Validation) | 4/4 | COMPLETE (SCI-MS0 to SCI-MS3) |
+| Remaining | 7 | CK-MS7, CK-MS9 to MS13, WIRE-MS0 |
 
 ---
 
@@ -218,15 +232,15 @@ Formula: 100 - (CRITICAL×10 + MAJOR×3 + MINOR×1) scaled
 ```
 C:\PRISM\                        [~11 GB active + 8 GB resources]
 ├── mcp-server/                  [~1.2 GB] TypeScript MCP server
-│   ├── src/engines/             [218 files] Core engines
+│   ├── src/engines/             [1068 files] Core engines
 │   ├── src/algorithms/          [52 files] Physics/math algorithms
-│   ├── src/tools/dispatchers/   [53 files] Action dispatchers
-│   ├── src/hooks/               [22 files] 220 domain hooks
+│   ├── src/tools/dispatchers/   [67 files] Action dispatchers
+│   ├── src/hooks/               [22 files] 213 hookify rules
 │   ├── src/registries/          [23 files] Data registries
-│   ├── src/data/                [10 files] Thread/catalog data
-│   ├── src/__tests__/           [170 files] 5617 tests
+│   ├── src/data/                [68 files] Thread/catalog data
+│   ├── src/__tests__/           [734 files] 15700+ tests
 │   ├── data/registries/         Registry JSON data
-│   ├── data/milestones/         [95 files] All milestones
+│   ├── data/milestones/         [144 files] Milestones
 │   ├── data/docs/               Documentation + this file
 │   └── web/                     React frontend (53 components)
 ├── cad-engine/                  [~600 MB] Python CAD/ML pipeline

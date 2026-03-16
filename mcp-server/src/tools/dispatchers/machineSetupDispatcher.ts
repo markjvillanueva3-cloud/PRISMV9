@@ -21,6 +21,7 @@ let _workEnvelope: any, _toolMag: any, _toolBalance: any;
 let _fixture: any, _magBearing: any, _pressFit: any, _shrinkFit: any;
 let _gauging: any, _parallelism: any, _surfIntegrity: any, _threadGage: any;
 let _tolStackup: any, _stepover: any, _statProcess: any;
+let _hobbyCNC: any, _cobotMachining: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -49,6 +50,8 @@ async function getEngine(name: string): Promise<any> {
     case "tolStackup": return _tolStackup ??= (await import("../../engines/ToleranceStackUpEngine.js")).toleranceStackUpEngine;
     case "stepover": return _stepover ??= (await import("../../engines/StepoverOptimizationEngine.js")).stepoverOptimizationEngine;
     case "statProcess": return _statProcess ??= (await import("../../engines/StatisticalProcessEngine.js")).statisticalProcessEngine;
+    case "hobbyCNC": return _hobbyCNC ??= (await import("../../engines/HobbyCNCProfileEngine.js")).hobbyCNCProfileEngine;
+    case "cobotMachining": return _cobotMachining ??= (await import("../../engines/CobotMachiningEngine.js")).cobotMachiningEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -65,16 +68,19 @@ const ACTIONS = [
   "gauging_calculate", "parallelism_calculate", "surface_integrity_assess",
   "thread_gage_calculate", "tolerance_stackup_calculate",
   "stepover_optimize", "statistical_process_calculate",
+  "hobby_cnc_get", "hobby_cnc_search", "hobby_cnc_controller",
+  "hobby_cnc_compatibility", "hobby_cnc_recommend",
+  "cobot_assess_safety", "cobot_plan_task", "cobot_select",
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
   server.tool(
     "prism_machine_setup",
-    `Machine setup & quality: spindle analysis (load/runout/speed variation/critical speed), dynamic balancing, RTCP compensation, machine warmup/leveling/kinematics, work envelope, tool magazine optimization, fixture plate, press/shrink fit, gauging, parallelism, surface integrity, thread gages, tolerance stackup, stepover optimization, SPC.
+    `Machine setup & quality: spindle analysis (load/runout/speed variation/critical speed), dynamic balancing, RTCP compensation, machine warmup/leveling/kinematics, work envelope, tool magazine optimization, fixture plate, press/shrink fit, gauging, parallelism, surface integrity, thread gages, tolerance stackup, stepover optimization, SPC, hobby CNC profiles (GRBL/LinuxCNC/Mach3/Mach4/PathPilot/Marlin/FluidNC), cobot machining safety (ISO 10218/15066).
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_machine_setup] Action: ${action} (25 actions wired)`);
+      log.info(`[prism_machine_setup] Action: ${action} (33 actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -126,8 +132,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           thread_gage_calculate: "threadGage",
         };
 
+        // Hobby CNC actions
+        if (action === "hobby_cnc_get") {
+          const eng = await getEngine("hobbyCNC");
+          result = eng.getMachine(params);
+        } else if (action === "hobby_cnc_search") {
+          const eng = await getEngine("hobbyCNC");
+          result = eng.searchMachines(params);
+        } else if (action === "hobby_cnc_controller") {
+          const eng = await getEngine("hobbyCNC");
+          result = eng.getControllerProfile(params);
+        } else if (action === "hobby_cnc_compatibility") {
+          const eng = await getEngine("hobbyCNC");
+          result = eng.checkCompatibility(params);
+        } else if (action === "hobby_cnc_recommend") {
+          const eng = await getEngine("hobbyCNC");
+          result = eng.recommendMachine(params);
+        // Cobot machining actions
+        } else if (action === "cobot_assess_safety") {
+          const eng = await getEngine("cobotMachining");
+          result = eng.assessSafety(params);
+        } else if (action === "cobot_plan_task") {
+          const eng = await getEngine("cobotMachining");
+          result = eng.planMachiningTask(params);
+        } else if (action === "cobot_select") {
+          const eng = await getEngine("cobotMachining");
+          result = eng.selectCobot(params);
         // Special cases
-        if (action === "surface_integrity_assess") {
+        } else if (action === "surface_integrity_assess") {
           const eng = await getEngine("surfIntegrity");
           result = eng.assess?.(params) ?? eng.calculate?.(params) ?? { error: "SurfaceIntegrity method not found" };
         } else if (action === "tool_magazine_optimize") {

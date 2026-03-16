@@ -1,9 +1,9 @@
 # PRISM Engine Digest
 
-**879 engines** across 23 domains. 1-line purpose for each.
+**1068 engines** across 23 domains. 1-line purpose for each.
 Use `/code-index E####` to resolve shortcode to full path.
 
-## CAD & Geometry (32)
+## CAD & Geometry (34)
 
 - **BSplineEngine**: PRISM MCP Server -- B-Spline Engine
 - **BVHEngine**: BVHEngine — Bounding Volume Hierarchy for spatial queries
@@ -19,6 +19,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **GDTStackupEngine**: GDTStackupEngine — GD&T tolerance stack-up analysis.
 - **GeometryAlgorithmsEngine**: PRISM MCP Server — Geometry Algorithms Engine
 - **GeometryEngine**: GeometryEngine — L2-P2-MS1 CAD/CAM Layer
+- **IGESImportEngine**: IGESImportEngine — IGES 5.3 file format import and entity parsing
 - **IsosurfaceEngine**: PRISM MCP Server — Isosurface Engine
 - **MeshDecimationEngine**: PRISM MCP Server -- Mesh Decimation Engine
 - **MeshEngine**: MeshEngine — L2-P2-MS1 CAD/CAM Layer
@@ -29,6 +30,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **SurfaceIntegrityEngine**: SurfaceIntegrityEngine — Machined Surface Quality Assessment
 - **SurfaceIntegrityPredictorEngine**: SurfaceIntegrityPredictorEngine — Predict surface integrity from cutting para...
 - **SurfaceIntersectionEngine**: PRISM MCP Server — Surface Intersection Engine
+- **STLToVoxelGridEngine**: STLToVoxelGridEngine — STL parsing and voxelization for volumetric analysis
 - **SurfaceReconstructionEngine**: PRISM MCP Server -- Surface Reconstruction Engine
 - **SurfaceTreatmentEngine**: SurfaceTreatmentEngine — Surface Finishing & Coating Calculator
 - **ToleranceEngine**: PRISM MCP Server - Tolerance Engine (R3-P2)
@@ -38,7 +40,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **ToolRunoutEngine**: ToolRunoutEngine — TIR Measurement & Impact Analysis
 - **TopologyEngine**: PRISM MCP Server -- Topology Engine
 
-## CAM & G-Code (48)
+## CAM & G-Code (49)
 
 - **AdaptiveRefinementEngine**: AdaptiveRefinementEngine — Error-driven toolpath densification.
 - **AdvancedPostProcessorEngine**: AdvancedPostProcessorEngine
@@ -77,6 +79,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **RestMachiningEngine**: RestMachiningEngine
 - **SetupSheetEngine**: SetupSheetEngine.ts — R8-MS4 Professional Setup Sheet Generation
 - **SetupSheetFromGCodeEngine**: PRISM Manufacturing Intelligence - Setup Sheet From G-Code Engine
+- **SetupSheetLibraryEngine**: SetupSheetLibraryEngine — Setup sheet template library with search and version management
 - **ToolPathStepoverEngine**: ToolPathStepoverEngine — Optimal Step-Over by Strategy
 - **ToolpathCalculations**: PRISM MCP Server - Toolpath & CAM Calculations
 - **ToolpathGenerationEngine**: ToolpathGenerationEngine — L2-P2-MS1 CAD/CAM Layer
@@ -105,7 +108,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **ThermoformingEngine**: ThermoformingEngine — Thermoforming process parameters
 - **VacuumCastingEngine**: VacuumCastingEngine — Vacuum investment/gravity casting process analysis
 
-## Cutting & Machining (76)
+## Cutting & Machining (83)
 
 - **AdvancedCuttingMathEngine**: AdvancedCuttingMathEngine — Exhaustive Cutting Physics Models
 - **AdvancedCuttingPhysicsEngine**: AdvancedCuttingPhysicsEngine — Six cutting mechanics models
@@ -139,11 +142,13 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **FeedRateOptimizationEngine**: Feed Rate Optimization Engine
 - **GrindingForceEngine**: GrindingForceEngine — Physics-based grinding force, power & thermal analysis
 - **GrindingSurfaceFinishEngine**: GrindingSurfaceFinishEngine — Surface roughness prediction for grinding opera...
+- **GrindingWheelDressingOptimizationEngine**: GrindingWheelDressingOptimizationEngine — Wheel life, dressing optimization, and creep-feed grinding
 - **GrindingWheelEngine**: GrindingWheelEngine — Grinding Wheel Selection & Parameters
 - **GunDrillingEngine**: GunDrillingEngine — Deep Hole (Gun) Drilling Calculations
 - **HelicalMillingEngine**: HelicalMillingEngine — Helical Interpolation Parameter Calculator
 - **HighFeedMillingEngine**: HighFeedMillingEngine — High Feed Milling (HFM) Calculations
 - **HoningEngine**: HoningEngine — Precision Bore Honing Calculations
+- **HoningProcessEngine**: HoningProcessEngine — Bore honing process design, stone selection, plateau honing
 - **InsertGradeSelectionEngine**: InsertGradeSelectionEngine — ISO turning insert grade selection
 - **LaserCuttingEngine**: LaserCuttingEngine — Reverse-engineered from PRISM v8.89 monolith
 - **MachinabilityRatingEngine**: MachinabilityRatingEngine — L2-P2-MS1 CAD/CAM Layer
@@ -173,18 +178,21 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **TensileToMachinabilityEngine**: TensileToMachinabilityEngine — L2-P4-MS1 PASS2 Specialty
 - **ThreadMillingEngine**: ThreadMillingEngine — L2-P4-MS1 PASS2 Specialty
 - **ThreadTurningEngine**: ThreadTurningEngine — Single-Point Thread Turning Calculations
+- **MagnesiumMachiningEngine**: MagnesiumMachiningEngine — Magnesium alloy machining with fire risk and chip management
+- **SuperalloyMachiningEngine**: SuperalloyMachiningEngine — Nickel/cobalt superalloy machining with heat management
 - **ToolLifeAdaptiveEngine**: PRISM MCP Server -- Tool Life Adaptive Engine
 - **ToolSelectionAdvisorEngine**: ToolSelectionAdvisorEngine - Recommends cheapest tool for intent
 - **ToolSelectionEngine**: ToolSelectionEngine — Manufacturing Intelligence Layer
 - **ToolWearCompensationEngine**: ToolWearCompensationEngine — Progressive Speed/Feed Wear Compensation
 - **ToolWearProgressionEngine**: ToolWearProgressionEngine — Step-by-step flank wear (VB) simulation
+- **ToolSubstitutionRiskEngine**: ToolSubstitutionRiskEngine — Tool substitution risk assessment and alternative ranking
 - **ToolWearRateEngine**: ToolWearRateEngine — Tool Wear & Life Prediction
 - **TrochoidalMillingEngine**: TrochoidalMillingEngine — Trochoidal (Dynamic) Milling Calculations
 - **TurningForceEngine**: TurningForceEngine — Single-point turning force, power & torque prediction
 - **UltimateSpeedFeedEngine**: UltimateSpeedFeedEngine — AI-Powered Unified Speed & Feed Optimization
 - **WaterjetCuttingEngine**: WaterjetCuttingEngine — Reverse-engineered from PRISM v8.89 monolith
 
-## Economics & Costing (18)
+## Economics & Costing (20)
 
 - **ActualCostEngine**: ActualCostEngine — Roll up actual costs (labor + material + tooling + machine...
 - **AdditiveQuoteEngine**: AdditiveQuoteEngine — 3D printing / additive manufacturing quoting.
@@ -195,6 +203,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **CostEstimatorEngine**: CostEstimatorEngine — Quick manufacturing cost estimation
 - **ImportCostEngine**: ImportCostEngine — Import chain analysis for bundle optimization
 - **JobCostingEngine**: PRISM MCP Server — Job Costing Engine
+- **JobProfitabilityWaterfallEngine**: JobProfitabilityWaterfallEngine — Job profit waterfall analysis with cost breakdown
 - **MultiProcessQuoteEngine**: MultiProcessQuoteEngine — Unified Multi-Process Quote Combiner
 - **QuoteAnalyticsEngine**: QuoteAnalyticsEngine — Quote accuracy tracking, win/loss analytics,
 - **QuoteEngine**: QuoteEngine — Manufacturing Intelligence Layer
@@ -225,7 +234,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **StampingDieEngine**: StampingDieEngine — Sheet metal stamping force and die design
 - **TubeFormingEngine**: TubeFormingEngine — Tube bending force, springback, and wall thinning
 
-## General / Other (364)
+## General / Other (366)
 
 - **AHPEngine**: AHPEngine — Analytic Hierarchy Process
 - **AIMLEngine**: AIMLEngine — Manufacturing AI/ML Intelligence
@@ -249,7 +258,10 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **BoltTorqueEngine**: BoltTorqueEngine — Bolted Joint Torque-Tension Calculator
 - **BoltedJointEngine**: BoltedJointEngine — Bolted joint analysis per VDI 2230
 - **BoreFinishingEngine**: BoreFinishingEngine — Honing & bore finishing prediction
+- **BurnishingPolishingEngine**: BurnishingPolishingEngine — Burnishing, lapping, and polishing surface finish prediction
 - **BurrFormationEngine**: BurrFormationEngine — Predict exit burr formation in milling/drilling.
+- **CeramicsMachiningEngine**: CeramicsMachiningEngine — Advanced ceramics machining physics and tool selection
+- **CompositesMachiningPhysicsEngine**: CompositesMachiningPhysicsEngine — Composite layup machining with delamination prediction
 - **CAMIntegrationEngine**: CAMIntegrationEngine.ts — R9-MS1 CAM System Integration
 - **CAMKernelEngine**: CAMKernelEngine — Computer-Aided Manufacturing Kernel
 - **CNCMaintenanceEngine**: CNCMaintenanceEngine — Preventive Maintenance Schedule Calculator
@@ -280,6 +292,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **ContextBudgetEngine**: PRISM R15-MS4 — Context Budget Engine
 - **ContextInventoryEngine**: ContextInventoryEngine — Inventories what's currently in context
 - **ContextWindowMapEngine**: ContextWindowMapEngine - Maps context window contents
+- **CertificationTrackingEngine**: CertificationTrackingEngine — Material cert, calibration, and tool certification tracking
 - **ContinuousImprovementEngine**: ContinuousImprovementEngine — Learns from validation results to improve
 - **ConversationTrimmerEngine**: ConversationTrimmerEngine — Identifies trimmable conversation segments
 - **ConversationalMemoryEngine**: ConversationalMemoryEngine.ts — R8-MS5 Conversational Memory & Context
@@ -458,6 +471,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **PowerSkivingEngine**: PowerSkivingEngine — Gear & Spline Power Skiving
 - **PredictiveFailureEngine**: PRISM F1: Predictive Failure Prevention Engine
 - **PredictiveMaintenanceEngine**: PredictiveMaintenanceEngine.ts — R10-Rev6
+- **PredictiveMaintenanceOrchestratorEngine**: PredictiveMaintenanceOrchestratorEngine — Multi-signal machine health and maintenance planning
 - **PrincipalComponentEngine**: PrincipalComponentEngine — Principal Component Analysis
 - **PrintReadingEngine**: PrintReadingEngine — Engineering Print Intelligence Pipeline
 - **ProbingCycleEngine**: ProbingCycleEngine — Touch probe G-code generation for CNC machines
@@ -497,6 +511,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **SchedulingEngine**: SchedulingEngine — Manufacturing Intelligence Layer
 - **SchemaCompactEngine**: SchemaCompactEngine — Compacts JSON schemas for token efficiency
 - **ScrewJackEngine**: ScrewJackEngine — Power Screw / Screw Jack Calculator
+- **ScrapRootCauseEngine**: ScrapRootCauseEngine — Scrap root cause analysis with Ishikawa and Pareto
 - **ScriptExecutor**: PRISM MCP Server - Script Executor Engine
 - **SealSelectionEngine**: SealSelectionEngine — Shaft & Static Seal Sizing Calculator
 - **SecondaryOpsEngine**: SecondaryOpsEngine — Comprehensive secondary/outside processing operations ca...
@@ -506,6 +521,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **SetupReductionEngine**: SetupReductionEngine — Setup Time Analysis & SMED Calculator
 - **ShaftAlignmentEngine**: ShaftAlignmentEngine — Rotating Machinery Shaft Alignment Calculator
 - **ShiftHandoffEngine**: ShiftHandoffEngine — L2-P4-MS1 PASS2 Specialty
+- **ShiftScheduleOptimizerEngine**: ShiftScheduleOptimizerEngine — Production shift and job schedule optimization
 - **ShopSchedulerEngine**: PRISM MCP Server — Shop Scheduler Engine (R7-MS5)
 - **ShotPeeningEngine**: ShotPeeningEngine — L2-P4-MS1 PASS2 Specialty
 - **ShrinkFitEngine**: ShrinkFitEngine — Interference Fit Assembly Calculator
@@ -592,12 +608,13 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **XAIEngine**: PRISM MCP Server -- Explainable AI Engine
 - **ZLevelOptimizationEngine**: Z-Level Optimization Engine
 
-## Knowledge & Learning (12)
+## Knowledge & Learning (13)
 
 - **BlueprintOCREngine**: BlueprintOCREngine — Engineering Print & Blueprint Reading
 - **CamKnowledgePortabilityEngine**: CamKnowledgePortabilityEngine — Cross-CAM Knowledge Bridge
 - **FederatedLearningEngine**: R10-Rev4 — Anonymous Learning Network (Federated Learning Engine)
 - **JobLearningEngine**: R7-MS3: Job Learning Engine
+- **PDFBlueprintDimensionExtractorEngine**: PDFBlueprintDimensionExtractorEngine — Blueprint dimension extraction from PDF drawings
 - **KnowledgeGraphEngine**: KnowledgeGraphEngine.ts — R10-Rev10
 - **KnowledgeQueryEngine**: PRISM MCP Server - Knowledge Query Engine
 - **LearningPathEngine**: LearningPathEngine — Manufacturing Intelligence Layer
@@ -607,7 +624,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **TribalKnowledgeEngine**: TribalKnowledgeEngine — Manufacturing Intelligence Layer
 - **VideoLearningEngine**: VideoLearningEngine — Direct Video Learning Pipeline
 
-## Machine & CNC (35)
+## Machine & CNC (37)
 
 - **AdaptiveSpindleControlEngine**: AdaptiveSpindleControlEngine — Real-Time Spindle Speed Adaptation
 - **AlarmEscalationEngine**: AlarmEscalationEngine — RT-MS2 Real-Time Notifications
@@ -615,6 +632,8 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **BalancingMachineEngine**: BalancingMachineEngine — Rotor balancing analysis
 - **BarFeederEngine**: BarFeederEngine — Bar Feeder Optimization Calculator
 - **BarPullerTimingEngine**: BarPullerTimingEngine — L2-P4-MS1 PASS2 Specialty
+- **CobotMachiningEngine**: CobotMachiningEngine — Collaborative robot machining safety and planning
+- **HobbyCNCProfileEngine**: HobbyCNCProfileEngine — Hobby/desktop CNC machine database and GRBL/LinuxCNC profiles
 - **HybridLaserMachineEngine**: HybridLaserMachineEngine — L2-P4-MS1 PASS2 Specialty
 - **HyperMillControllerCatalogEngine**: HyperMillControllerCatalogEngine — CNC Controller Family Reference
 - **HyperMillMultiAxisEngine**: HyperMillMultiAxisEngine — 5-Axis and Specialty Cycle Selector for hyperMILL
@@ -691,10 +710,12 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **VanePumpEngine**: VanePumpEngine — Rotary vane pump performance analysis
 - **VibratoryFeederEngine**: VibratoryFeederEngine — Vibratory bowl/linear feeder process analysis
 
-## Non-Traditional (14)
+## Non-Traditional (17)
 
+- **AbrasiveJetMachiningEngine**: AbrasiveJetMachiningEngine — Physics-based abrasive waterjet/garnet cutting prediction
 - **AdvancedMathematicalMethodsEngine**: AdvancedMathematicalMethodsEngine — Exhaustive Mathematical/Statistical Gap Fill
 - **EDMEngine**: EDMEngine — Electrical Discharge Machining Calculations
+- **ElectrochemicalMachiningEngine**: ElectrochemicalMachiningEngine — Physics-based ECM process prediction with Faraday law
 - **EDMParameterEngine**: EDMParameterEngine — Electrical Discharge Machining Calculator
 - **EDMWireEngine**: EDMWireEngine — Wire EDM process analysis
 - **ElectrochemicalEngine**: ElectrochemicalEngine — ECM/ECD Process Calculator
@@ -704,6 +725,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **PlasmaArcEngine**: PlasmaArcEngine — Plasma Arc Cutting Parameter Calculator
 - **SinkerEDMCalculatorEngine**: SinkerEDMCalculatorEngine — Reverse-engineered from PRISM v8.89 monolith
 - **UltrasonicFlowMeterEngine**: UltrasonicFlowMeterEngine — Transit-time & Doppler ultrasonic flow measurement
+- **UltrasonicMachiningPhysicsEngine**: UltrasonicMachiningPhysicsEngine — Physics-based USM process prediction with abrasive slurry
 - **WaterjetEngine**: WaterjetEngine — Abrasive Waterjet Cutting Calculations
 - **WaterjetTaperEngine**: WaterjetTaperEngine — L2-P4-MS1 PASS2 Specialty
 - **WireEDMSettingsEngine**: WireEDMSettingsEngine — L2-P4-MS1 PASS2 Specialty
@@ -712,8 +734,9 @@ Use `/code-index E####` to resolve shortcode to full path.
 
 - **ConstitutiveModelEngine**: ConstitutiveModelEngine — 9 material constitutive and failure models
 
-## Powder & Additive (2)
+## Powder & Additive (3)
 
+- **PostAMFinishingPlanEngine**: PostAMFinishingPlanEngine — Bridge additive manufacturing to conventional finishing plans
 - **PowderCompactionEngine**: PowderCompactionEngine — Powder metallurgy compaction analysis
 - **SinteringProcessEngine**: SinteringProcessEngine — Powder metallurgy sintering analysis
 
@@ -722,7 +745,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **ErgonomicWorkstationEngine**: ErgonomicWorkstationEngine — CNC workstation ergonomic analysis
 - **HyperMillSafetyHooks**: HyperMillSafetyHooks — CAM Safety Validations from hyperMILL Best Practices
 
-## Sensing & Monitoring (21)
+## Sensing & Monitoring (22)
 
 - **AcousticEmissionMonitoringEngine**: AcousticEmissionMonitoringEngine — AE signal analysis for tool condition moni...
 - **AdaptiveClearingEngine**: PRISM MCP Server -- Adaptive Clearing Engine
@@ -746,7 +769,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **VibrationIsolationEngine**: VibrationIsolationEngine — Vibration Isolator Design Calculator
 - **VibrationIsolatorEngine**: VibrationIsolatorEngine — Vibration isolation mount design
 
-## Statistics & Quality (40)
+## Statistics & Quality (43)
 
 - **AMSAAReliabilityGrowthEngine**: PRISM MCP Server — AMSAA/Crow Reliability Growth Engine
 - **BayesianAdaptiveEngine**: PRISM MCP Server — Bayesian Adaptive Calibration Engine
@@ -758,6 +781,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **DOETaguchEngine**: DOETaguchEngine — Statistical Design of Experiments for machining optimization.
 - **FuzzyNeuralHybridEngine**: FuzzyNeuralHybridEngine — Neuro-fuzzy parameter optimization for CNC machining
 - **GraphTheoryEngine**: PRISM MCP Server — Graph Theory Engine
+- **IndustryStandardsComplianceEngine**: IndustryStandardsComplianceEngine — ISO/AS9100/IATF 16949 compliance checking and audit
 - **InformationTheoryEngine**: InformationTheoryEngine — Entropy-based process monitoring for CNC machining.
 - **ManufacturingStatisticsEngine**: ManufacturingStatisticsEngine — Complete Statistical Methods for CNC
 - **MonteCarloEngine**: PRISM MCP Server — Monte Carlo Simulation Engine
@@ -786,6 +810,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **SurvivalAnalysisEngine**: SurvivalAnalysisEngine — Reliability & Time-to-Event Analysis
 - **ToolDeflectionPredictionEngine**: ToolDeflectionPredictionEngine — Euler-Bernoulli cantilever beam deflection
 - **UncertaintyPropagationPipelineEngine**: UncertaintyPropagationPipelineEngine — Cross-engine uncertainty chaining
+- **TestingProtocolEngine**: TestingProtocolEngine — Test protocol generation and compliance verification
 - **UncertaintyQuantificationEngine**: UncertaintyQuantificationEngine
 - **reactiveChainBootstrap**: reactiveChainBootstrap.ts - Register reactive chains at module load time
 
@@ -839,6 +864,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **BallMillEngine**: BallMillEngine — Ball Mill Sizing & Power Calculator
 - **BatchOptimizationEngine**: BatchOptimizationEngine — Manufacturing Intelligence Layer
 - **BatchProcessor**: PRISM D4 — Batch Processor
+- **BottleneckAnalysisEngine**: BottleneckAnalysisEngine — Theory of Constraints and DBR scheduling analysis
 - **BottleneckIdentificationEngine**: BottleneckIdentificationEngine — L2-P4-MS1 PASS2 Specialty
 - **CacheEngine**: CacheEngine — L2-P3-MS1 Infrastructure Layer
 - **CampaignEngine**: PRISM MCP Server - Campaign Engine (R3-MS3)

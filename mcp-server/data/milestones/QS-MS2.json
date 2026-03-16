@@ -1,0 +1,113 @@
+{
+  "id": "QS-MS2",
+  "version": "6.3.0",
+  "title": "Pipeline Synergy — Simulation + PartGeometry + CAMKernel",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 7,
+  "completed_units": 7,
+  "description": "Transform CNCSimulationPipeline, PartGeometryPipeline, and CAMKernelOrchestrator from self-contained engines into proper orchestrators that delegate to production engines. Target quality scores: CNCSimulation 75→95, PartGeometry 80→95, CAMKernel 80→95.",
+  "dependencies": [
+    "QS-MS1"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CNCSimulationPipelineEngine → Real Engine Chain",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Wire 7 advertised engines into CNCSimulationPipeline",
+          "description": "Wire GCodeSafetyAnalyzerEngine, SweptVolumeEngine, ToolAssemblyModelEngine, CollisionDetectionEngine (via AABB), and MachineKinematicsEngine into CNCSimulationPipelineEngine as real delegated calls instead of inline stubs.",
+          "acceptance": [
+            "All 5 engines are imported and called during simulation pipeline execution",
+            "Pipeline results include real engine outputs, not inline approximations",
+            "Fallback to inline (from constants.ts) if engine import fails"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Replace inline force/thermal/wear with engine delegation",
+          "description": "Replace inline force/thermal/wear calculations with calls to KienzleForceModelEngine, AdvancedWearPhysicsEngine, and ConstitutiveModelEngine (Johnson-Cook thermal). Wire collision checking using SweptVolume AABB data.",
+          "acceptance": [
+            "Force calculation delegates to KienzleForceModelEngine",
+            "Wear calculation delegates to AdvancedWearPhysicsEngine",
+            "Thermal calculation delegates to ConstitutiveModelEngine",
+            "Collision checking uses SweptVolume AABB data"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U03",
+          "title": "CNCSimulation engine delegation tests",
+          "description": "Add 15+ tests covering each engine delegation path in CNCSimulationPipelineEngine, including fallback behavior when engines are unavailable.",
+          "acceptance": [
+            "15+ tests pass covering all delegation paths",
+            "Fallback paths tested for each engine",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "PartGeometryPipelineEngine → SpeedFeedOrchestrator delegation",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Replace inline S/F with SpeedFeedOrchestrator delegation",
+          "description": "Replace inline 6-material speed/feed calculations with SpeedFeedOrchestratorEngine.compute() call. Replace inline chip thinning with InstantaneousEngagementEngine. Preserve fallback chain.",
+          "acceptance": [
+            "S/F calculation delegates to SpeedFeedOrchestratorEngine.compute()",
+            "Chip thinning delegates to InstantaneousEngagementEngine",
+            "Fallback chain preserved for when engines are unavailable"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U02",
+          "title": "PartGeometry delegation tests",
+          "description": "Add 5+ tests verifying PartGeometryPipelineEngine correctly delegates to SpeedFeedOrchestrator and InstantaneousEngagementEngine, including fallback behavior.",
+          "acceptance": [
+            "5+ tests pass",
+            "Delegation and fallback paths both covered",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "CAMKernelOrchestratorEngine → SpeedFeedOrchestrator delegation",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Replace inline Kienzle/Taylor with SFO and ChipMorphology delegation",
+          "description": "Replace inline Kienzle/Taylor in CAMKernelOrchestratorEngine with SpeedFeedOrchestratorEngine.compute() call. Replace inline Merchant shear model with ChipMorphologyDiagnosticEngine.",
+          "acceptance": [
+            "S/F calculation delegates to SpeedFeedOrchestratorEngine",
+            "Merchant shear model delegates to ChipMorphologyDiagnosticEngine",
+            "Fallback chain preserved"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P2-U02",
+          "title": "CAMKernel delegation tests",
+          "description": "Add 5+ tests verifying CAMKernelOrchestratorEngine correctly delegates to SpeedFeedOrchestrator and ChipMorphologyDiagnosticEngine.",
+          "acceptance": [
+            "5+ tests pass",
+            "Both delegation and fallback paths covered",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

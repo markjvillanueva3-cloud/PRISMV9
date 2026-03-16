@@ -105,4 +105,52 @@ export const MACHINE_SETUP_ACTION_SCHEMAS: ActionSchemaMap = {
     ...machineBaseParams,
   }).passthrough(),
   statistical_process_calculate: simpleCalc,
+  // Hobby CNC
+  hobby_cnc_get: z.object({ machine_id: z.string() }).passthrough(),
+  hobby_cnc_search: z.object({
+    controller: optStr,
+    min_travel_x: optPosNum,
+    min_travel_y: optPosNum,
+    min_travel_z: optPosNum,
+    max_price: optPosNum,
+    min_price: optPosNum,
+    spindle_power_min: optPosNum,
+    material: optStr,
+    manufacturer: optStr,
+    min_axes: z.number().int().positive().optional(),
+  }).passthrough(),
+  hobby_cnc_controller: z.object({ controller: z.string() }).passthrough(),
+  hobby_cnc_compatibility: z.object({
+    machine_id: z.string(),
+    gcode: z.string(),
+  }).passthrough(),
+  hobby_cnc_recommend: z.object({
+    budget: optPosNum,
+    material: optStr,
+    work_area_needed: z.object({
+      x: z.number(), y: z.number(), z: z.number(),
+    }).optional(),
+    features_needed: z.array(z.string()).optional(),
+  }).passthrough(),
+  // Cobot Machining
+  cobot_assess_safety: z.object({
+    cobot_model: z.string(),
+    operation: z.string(),
+    tool_rpm: z.number(),
+    cutting_force_N: z.number(),
+    operator_distance_m: z.number(),
+  }).passthrough(),
+  cobot_plan_task: z.object({
+    cobot_payload_kg: z.number().positive(),
+    spindle_weight_kg: z.number().positive(),
+    part_material: z.string(),
+    operation: z.string(),
+    reach_mm: z.number().positive(),
+  }).passthrough(),
+  cobot_select: z.object({
+    application: z.string(),
+    payload_needed_kg: z.number().positive(),
+    reach_needed_mm: z.number().positive(),
+    budget: optPosNum,
+  }).passthrough(),
 };

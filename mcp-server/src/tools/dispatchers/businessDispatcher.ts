@@ -85,6 +85,7 @@ let _learningPath: any;
 let _castingQuote: any;
 let _weldFabQuote: any;
 let _multiProcessQuote: any;
+let _shiftScheduleOptimizer: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -236,6 +237,10 @@ async function getEngine(name: string): Promise<any> {
       return _multiProcessQuote ??= (
         await import("../../engines/MultiProcessQuoteEngine.js")
       ).multiProcessQuoteEngine;
+    case "shiftScheduleOptimizer":
+      return _shiftScheduleOptimizer ??= (
+        await import("../../engines/ShiftScheduleOptimizerEngine.js")
+      ).shiftScheduleOptimizerEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -464,6 +469,10 @@ const ACTIONS = [
   // ── Multi-Process Quoting ──
   "multi_process_quote",
   "multi_process_estimate",
+  // ── Shift Schedule Optimizer ──
+  "schedule_optimize",
+  "schedule_balance",
+  "schedule_what_if",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2021,6 +2030,23 @@ Params vary by action — pass relevant fields in params object.`,
               quantity: params.quantity ?? 1,
               markup_pct: params.markup_pct,
             });
+            break;
+          }
+
+          // ── Shift Schedule Optimizer ──
+          case "schedule_optimize": {
+            const engine = await getEngine("shiftScheduleOptimizer");
+            result = engine.optimizeSchedule(params);
+            break;
+          }
+          case "schedule_balance": {
+            const engine = await getEngine("shiftScheduleOptimizer");
+            result = engine.balanceLoad(params);
+            break;
+          }
+          case "schedule_what_if": {
+            const engine = await getEngine("shiftScheduleOptimizer");
+            result = engine.whatIfAddMachine(params);
             break;
           }
 

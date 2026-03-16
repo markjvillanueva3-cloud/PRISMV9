@@ -76,6 +76,26 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
     case "coolant_lifecycle":
       return { interval_days: result.optimal_change_interval_days, cost_per_day: result.total_cost_per_day, health: result.health_at_horizon, makeup_L_day: result.makeup_volume_L_per_day, warnings: result.warnings?.length || 0 };
+    case "standards_check_compliance":
+      return { compliant: result.compliant, checks: result.standard_checks?.length || 0, non_conformances: result.non_conformances?.length || 0, docs: result.required_documentation?.length || 0 };
+    case "standards_get_requirements":
+      return { industry: result.industry, process: result.process_type, requirements: result.requirements?.length || 0 };
+    case "standards_suggest":
+      return { standards: result.standards?.length || 0, top: result.standards?.[0]?.standard };
+    case "test_protocol_tool_life":
+      return { speeds: result.protocol?.speeds_mpm?.length || 0, tools_needed: result.total_tools_needed, hours: result.estimated_time_hours };
+    case "test_protocol_surface":
+      return { cutoff_mm: result.measurement_params?.cutoff_mm, samples: result.sample_size, max_Ra: result.acceptance_criteria?.max_Ra_um };
+    case "test_protocol_dimensional":
+      return { conformance: result.conformance_zone_mm, gauge_rr: result.gauge_R_R_required };
+    case "cert_track_material":
+      return { compliant: result.compliant, cert_valid: result.cert_valid, deviations: result.deviations?.length || 0 };
+    case "cert_track_tool":
+      return { status: result.cert_status, days: result.days_remaining, recert: result.recertification_needed };
+    case "cert_track_machine":
+      return { status: result.cal_status, days_due: result.days_until_due, in_spec: result.in_spec, worst: result.worst_axis };
+    case "cert_audit_report":
+      return { tracked: result.items_tracked, compliant: result.items_compliant, nc: result.items_non_conformant, actions: result.action_items?.length || 0 };
     case "error_budget":
       return { rss_um: result.rss_total_um, worst_um: result.worst_case_total_um, meets_tol: result.meets_tolerance, utilization_pct: result.budget_utilization_pct, thermal_um: result.thermal_contribution_um };
     case "capability_predict":
@@ -590,7 +610,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "environmental_variation", "spindle_torque_curve",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "environmental_variation", "spindle_torque_curve", "stochastic_composite_mc", "stochastic_composite_sensitivity", "stochastic_grinding_mc", "stochastic_grinding_optimize",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -739,6 +759,13 @@ const ACTIONS = [
   "physics_calibrate_submit", "physics_calibrate_predict", "physics_calibrate_state", "physics_calibrate_reset",
   // -- QS-MS6 P3: Pipeline Consistency Hook --
   "consistency_check", "consistency_history", "consistency_summary", "consistency_clear",
+  // -- Non-Traditional Machining (USM, ECM, AJM) --
+  "usm_mrr", "usm_abrasive_select", "usm_feasibility",
+  "ecm_mrr", "ecm_electrode_design", "ecm_surface_quality",
+  "ajm_cutting", "ajm_optimize", "ajm_nozzle_wear",
+  // -- Production Optimization (Bottleneck + Predictive Maintenance) --
+  "bottleneck_identify", "bottleneck_dbr", "bottleneck_sensitivity",
+  "maintenance_assess_health", "maintenance_plan", "maintenance_failure_history",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -5723,6 +5750,28 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── PHYS-MS4: Stochastic Extensions ──
+          case "stochastic_composite_mc": {
+            const { stochasticCompositesEngine } = await import("../../engines/StochasticCompositesEngine.js");
+            result = stochasticCompositesEngine.monteCarloDelamination(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_composite_sensitivity": {
+            const { stochasticCompositesEngine: scEngine } = await import("../../engines/StochasticCompositesEngine.js");
+            result = scEngine.sensitivityAnalysis(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_grinding_mc": {
+            const { stochasticGrindingDressingEngine } = await import("../../engines/StochasticGrindingDressingEngine.js");
+            result = stochasticGrindingDressingEngine.monteCarloWheelLife(params as ValidatedParams);
+            break;
+          }
+          case "stochastic_grinding_optimize": {
+            const { stochasticGrindingDressingEngine: sgdEngine } = await import("../../engines/StochasticGrindingDressingEngine.js");
+            result = sgdEngine.optimizeDressingUnderUncertainty(params as ValidatedParams);
+            break;
+          }
+
           // ── Phase 5 Forge C: Assembly Optimization ──
           case "assembly_line_balance": {
             const { assemblyOptimizationEngine } = await import("../../engines/AssemblyOptimizationEngine.js");
@@ -6750,6 +6799,52 @@ export function registerCalcDispatcher(server: any): void {
             result = pche.calculate(action, params as any);
             break;
           }
+          // ── Non-Traditional Machining: USM, ECM, AJM ──
+          case "usm_mrr": {
+            const { ultrasonicMachiningPhysicsEngine } = await import("../../engines/UltrasonicMachiningPhysicsEngine.js");
+            result = ultrasonicMachiningPhysicsEngine.predictMRR(params as any);
+            break;
+          }
+          case "usm_abrasive_select": {
+            const { ultrasonicMachiningPhysicsEngine } = await import("../../engines/UltrasonicMachiningPhysicsEngine.js");
+            result = ultrasonicMachiningPhysicsEngine.selectAbrasive(params as any);
+            break;
+          }
+          case "usm_feasibility": {
+            const { ultrasonicMachiningPhysicsEngine } = await import("../../engines/UltrasonicMachiningPhysicsEngine.js");
+            result = ultrasonicMachiningPhysicsEngine.assessFeasibility(params as any);
+            break;
+          }
+          case "ecm_mrr": {
+            const { electrochemicalMachiningEngine } = await import("../../engines/ElectrochemicalMachiningEngine.js");
+            result = electrochemicalMachiningEngine.predictMRR(params as any);
+            break;
+          }
+          case "ecm_electrode_design": {
+            const { electrochemicalMachiningEngine } = await import("../../engines/ElectrochemicalMachiningEngine.js");
+            result = electrochemicalMachiningEngine.designToolElectrode(params as any);
+            break;
+          }
+          case "ecm_surface_quality": {
+            const { electrochemicalMachiningEngine } = await import("../../engines/ElectrochemicalMachiningEngine.js");
+            result = electrochemicalMachiningEngine.predictSurfaceQuality(params as any);
+            break;
+          }
+          case "ajm_cutting": {
+            const { abrasiveJetMachiningEngine } = await import("../../engines/AbrasiveJetMachiningEngine.js");
+            result = abrasiveJetMachiningEngine.predictCutting(params as any);
+            break;
+          }
+          case "ajm_optimize": {
+            const { abrasiveJetMachiningEngine } = await import("../../engines/AbrasiveJetMachiningEngine.js");
+            result = abrasiveJetMachiningEngine.optimizeParameters(params as any);
+            break;
+          }
+          case "ajm_nozzle_wear": {
+            const { abrasiveJetMachiningEngine } = await import("../../engines/AbrasiveJetMachiningEngine.js");
+            result = abrasiveJetMachiningEngine.predictNozzleWear(params as any);
+            break;
+          }
 
           case "dimension_impute_build": {
             const { dimensionImputationEngine: dimImpEngine } = await import("../../engines/DimensionImputationEngine.js");
@@ -6781,6 +6876,96 @@ export function registerCalcDispatcher(server: any): void {
               params.z_threshold ?? 3,
             );
             result = { count: outliers.length, outliers };
+            break;
+          }
+
+          // --- Industry Standards Compliance ---
+          case "standards_check_compliance": {
+            const { industryStandardsComplianceEngine: isce } = await import("../../engines/IndustryStandardsComplianceEngine.js");
+            result = isce.checkCompliance(params as any);
+            break;
+          }
+          case "standards_get_requirements": {
+            const { industryStandardsComplianceEngine: isge } = await import("../../engines/IndustryStandardsComplianceEngine.js");
+            result = isge.getRequirements(params as any);
+            break;
+          }
+          case "standards_suggest": {
+            const { industryStandardsComplianceEngine: isse } = await import("../../engines/IndustryStandardsComplianceEngine.js");
+            result = isse.suggestStandards(params as any);
+            break;
+          }
+
+          // --- Testing Protocols ---
+          case "test_protocol_tool_life": {
+            const { testingProtocolEngine: tpTL } = await import("../../engines/TestingProtocolEngine.js");
+            result = tpTL.generateToolLifeTest(params as any);
+            break;
+          }
+          case "test_protocol_surface": {
+            const { testingProtocolEngine: tpSF } = await import("../../engines/TestingProtocolEngine.js");
+            result = tpSF.generateSurfaceFinishTest(params as any);
+            break;
+          }
+          case "test_protocol_dimensional": {
+            const { testingProtocolEngine: tpDim } = await import("../../engines/TestingProtocolEngine.js");
+            result = tpDim.generateDimensionalTest(params as any);
+            break;
+          }
+
+          // --- Certification Tracking ---
+          case "cert_track_material": {
+            const { certificationTrackingEngine: ctMat } = await import("../../engines/CertificationTrackingEngine.js");
+            result = ctMat.trackMaterialCert(params as any);
+            break;
+          }
+          case "cert_track_tool": {
+            const { certificationTrackingEngine: ctTool } = await import("../../engines/CertificationTrackingEngine.js");
+            result = ctTool.trackToolCert(params as any);
+            break;
+          }
+          case "cert_track_machine": {
+            const { certificationTrackingEngine: ctMach } = await import("../../engines/CertificationTrackingEngine.js");
+            result = ctMach.trackMachineCal(params as any);
+            break;
+          }
+          case "cert_audit_report": {
+            const { certificationTrackingEngine: ctAudit } = await import("../../engines/CertificationTrackingEngine.js");
+            result = ctAudit.generateAuditReport(params as any);
+            break;
+          }
+
+          // ── Production Optimization: Bottleneck Analysis ──
+          case "bottleneck_identify": {
+            const { bottleneckAnalysisEngine } = await import("../../engines/BottleneckAnalysisEngine.js");
+            result = bottleneckAnalysisEngine.identifyBottlenecks(params as any);
+            break;
+          }
+          case "bottleneck_dbr": {
+            const { bottleneckAnalysisEngine: bnkDbr } = await import("../../engines/BottleneckAnalysisEngine.js");
+            result = bnkDbr.drumBufferRope(params as any);
+            break;
+          }
+          case "bottleneck_sensitivity": {
+            const { bottleneckAnalysisEngine: bnkSens } = await import("../../engines/BottleneckAnalysisEngine.js");
+            result = bnkSens.sensitivityAnalysis(params as any);
+            break;
+          }
+
+          // ── Production Optimization: Predictive Maintenance ──
+          case "maintenance_assess_health": {
+            const { predictiveMaintenanceOrchestratorEngine: pmHealth } = await import("../../engines/PredictiveMaintenanceOrchestratorEngine.js");
+            result = pmHealth.assessMachineHealth(params as any);
+            break;
+          }
+          case "maintenance_plan": {
+            const { predictiveMaintenanceOrchestratorEngine: pmPlan } = await import("../../engines/PredictiveMaintenanceOrchestratorEngine.js");
+            result = pmPlan.planMaintenance(params as any);
+            break;
+          }
+          case "maintenance_failure_history": {
+            const { predictiveMaintenanceOrchestratorEngine: pmHist } = await import("../../engines/PredictiveMaintenanceOrchestratorEngine.js");
+            result = pmHist.analyzeFailureHistory(params as any);
             break;
           }
 

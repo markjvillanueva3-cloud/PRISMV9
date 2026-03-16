@@ -2393,4 +2393,78 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
     b: z.number().optional(),
     c: z.number().optional(),
   }).passthrough(),
+
+  // --- Industry Standards Compliance ---
+  standards_check_compliance: z.object({
+    industry: z.enum(["aerospace", "automotive", "medical", "general"]),
+    standards: z.array(z.string()).optional(),
+    part: z.object({
+      material: z.string(),
+      surface_finish_Ra_um: optPosNum,
+      tolerances_mm: z.array(z.number().positive()).optional(),
+      hardness_HRC: optPosNum,
+      process: optStr,
+    }).passthrough(),
+  }).passthrough(),
+  standards_get_requirements: z.object({
+    industry: z.enum(["aerospace", "automotive", "medical", "general"]),
+    process_type: z.string(),
+  }).passthrough(),
+  standards_suggest: z.object({
+    material: z.string(),
+    process: z.string(),
+    application: optStr,
+  }).passthrough(),
+
+  // --- Testing Protocols ---
+  test_protocol_tool_life: z.object({
+    tool_type: z.enum(["HSS", "carbide", "ceramic", "CBN", "diamond"]),
+    workpiece_material: z.string(),
+    cutting_speed_range_mpm: z.tuple([z.number().positive(), z.number().positive()]),
+    num_speed_points: z.number().int().positive().optional(),
+  }).passthrough(),
+  test_protocol_surface: z.object({
+    process: z.string(),
+    target_Ra_um: z.number().positive(),
+    measurement_method: z.enum(["contact", "optical"]),
+  }).passthrough(),
+  test_protocol_dimensional: z.object({
+    nominal_mm: z.number(),
+    tolerance_mm: z.number().positive(),
+    measurement_uncertainty_mm: z.number().positive(),
+  }).passthrough(),
+
+  // --- Certification Tracking ---
+  cert_track_material: z.object({
+    material: z.string(),
+    heat_lot: z.string(),
+    mill_cert_data: z.object({
+      tensile_MPa: optPosNum,
+      yield_MPa: optPosNum,
+      elongation_pct: optPosNum,
+      hardness: optNum,
+    }).passthrough(),
+    spec: z.string(),
+  }).passthrough(),
+  cert_track_tool: z.object({
+    tool_id: z.string(),
+    manufacturer: z.string(),
+    grade: z.string(),
+    coating: z.string(),
+    batch: z.string(),
+    inspection_date: z.string(),
+  }).passthrough(),
+  cert_track_machine: z.object({
+    machine_id: z.string(),
+    last_calibration: z.string(),
+    calibration_interval_days: z.number().int().positive(),
+    measurements: z.array(z.object({
+      axis: z.string(),
+      error_um: z.number(),
+      spec_um: z.number().positive(),
+    })).optional(),
+  }).passthrough(),
+  cert_audit_report: z.object({
+    scope: z.enum(["material", "tool", "machine", "all"]),
+  }).passthrough(),
 };

@@ -1,0 +1,233 @@
+{
+  "id": "WIRE-MS0",
+  "title": "Full App Pipeline Wiring — All Dispatcher Actions to UI",
+  "track": "WIRE",
+  "version": "1.0.0",
+  "created_at": "2026-03-14T00:00:00Z",
+  "status": "not_started",
+  "total_units": 16,
+  "completed_units": 0,
+  "description": "Wire every unwired dispatcher (285 actions across 13 dispatchers) through the full pipeline: backend route → API client → TypeScript types → React hook → page component → App.tsx route. Each unit creates one complete feature page with all layers. Culminates in a fully-pipelined system ready for UI design polish.",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "Mechanical Design Calculator Page",
+      "status": "not_started",
+      "description": "Create /mechanical route with calculator page for 51 mechanical engineering engines (gears, bearings, springs, brakes, couplings, shafts, fasteners). Tab layout by category. Each tab: input form → calculate → results card.",
+      "acceptance_criteria": [
+        "Route: POST /api/v1/mechanical/* (8+ endpoints covering gear, bearing, spring, shaft, fastener, coupling, brake, cam categories)",
+        "API client: mechanical.ts with typed functions per category",
+        "Types: mechanical.ts with request/response interfaces per calculation type",
+        "Hook: useMechanical.ts with exports per category",
+        "Page: MechanicalDesignPage.tsx with 8 tabs (Gears, Bearings, Springs, Shafts, Fasteners, Couplings, Brakes, Cams)",
+        "Route wired in App.tsx at /mechanical",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "Machine Live Dashboard Page",
+      "status": "not_started",
+      "description": "Create /machine-live route with real-time machine monitoring dashboard. Shows connected machines, live status, adaptive control overrides, predictive maintenance alerts. Uses machineLiveDispatcher (40 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/machine-live/* (10+ endpoints: register, status, connect, adaptive, maintenance, alerts)",
+        "API client: machineLive.ts",
+        "Types: machineLive.ts (MachineStatus, AdaptiveControl, MaintenanceAlert, DigitalTwinState)",
+        "Hook: useMachineLive.ts",
+        "Page: MachineLivePage.tsx with tabs: Overview | Adaptive Control | Predictive Maintenance | Digital Twin",
+        "Route wired in App.tsx at /machine-live",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "Diagnosis & Troubleshooting Page",
+      "status": "not_started",
+      "description": "Create /diagnosis route with failure forensics, inverse solver, and generative process planning. Uses diagnosisDispatcher (38 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/diagnosis/* (8+ endpoints: forensic, inverse, genplan, sustainability)",
+        "API client: diagnosis.ts",
+        "Types: diagnosis.ts (ForensicResult, InverseSolution, GenerativePlan, SustainabilityReport)",
+        "Hook: useDiagnosis.ts",
+        "Page: DiagnosisPage.tsx with tabs: Tool Forensics | Inverse Solver | Process Generator | Sustainability",
+        "Route wired in App.tsx at /diagnosis",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U01",
+      "title": "CNC Operations & Programming Page",
+      "status": "not_started",
+      "description": "Create /cnc-ops route with G-code tools, program assembly, motion dynamics. Uses cncOpsDispatcher (32 actions). May enhance existing PPG page or create standalone.",
+      "acceptance_criteria": [
+        "Route: /api/v1/cnc-ops/* (8+ endpoints)",
+        "API client: cncOps.ts",
+        "Types: cncOps.ts",
+        "Hook: useCncOps.ts",
+        "Page: CncOpsPage.tsx with tabs: Program Assembly | Motion Profile | Tool Magazine | Setup Sheet",
+        "Route wired in App.tsx at /cnc-ops",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U02",
+      "title": "Knowledge Extension & Apprentice Page",
+      "status": "not_started",
+      "description": "Create /knowledge route (or extend Learning page) with apprentice mode, manufacturing genome, knowledge graph, federated learning. Uses knowledgeExtDispatcher (40 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/knowledge-ext/* (10+ endpoints: apprentice, genome, graph, federated)",
+        "API client: knowledgeExt.ts",
+        "Types: knowledgeExt.ts",
+        "Hook: useKnowledgeExt.ts",
+        "Page: KnowledgeExtPage.tsx with tabs: Apprentice | Genome | Knowledge Graph | Federated Learning",
+        "Route wired in App.tsx at /knowledge",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U03",
+      "title": "Vibration & Modal Analysis Page",
+      "status": "not_started",
+      "description": "Create /vibration route with chatter detection, stability lobes, modal analysis, process damping. Uses vibrationPhysicsDispatcher (16 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/vibration/* (6+ endpoints)",
+        "API client: vibration.ts",
+        "Types: vibration.ts (StabilityLobe, ModalResult, ChatterDetection)",
+        "Hook: useVibration.ts",
+        "Page: VibrationPage.tsx with tabs: Stability Lobes | Modal Analysis | Chatter Detection | Process Damping",
+        "Route wired in App.tsx at /vibration",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U04",
+      "title": "Fluid & Thermal Calculator Page",
+      "status": "not_started",
+      "description": "Create /thermal route with heat exchanger, pump, pipe, hydraulic, compressor, fan, nozzle calculations. Uses fluidThermalDispatcher (35 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/thermal/* (10+ endpoints by category)",
+        "API client: thermal.ts",
+        "Types: thermal.ts",
+        "Hook: useThermal.ts",
+        "Page: ThermalPage.tsx with tabs: Heat Exchangers | Pumps | Piping | Hydraulics | Compressors | Cooling",
+        "Route wired in App.tsx at /thermal",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U05",
+      "title": "Integration Hub Page",
+      "status": "not_started",
+      "description": "Create /integrations route with CAM integration, DNC transfer, ERP integration, mobile interface, measurement integration. Uses integrationDispatcher (42 actions).",
+      "acceptance_criteria": [
+        "Route: /api/v1/integrations/* (10+ endpoints)",
+        "API client: integrations.ts",
+        "Types: integrations.ts",
+        "Hook: useIntegrations.ts",
+        "Page: IntegrationsPage.tsx with tabs: CAM | DNC | ERP | Mobile | Measurement",
+        "Route wired in App.tsx at /integrations",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U01",
+      "title": "EDM & Non-Traditional Machining Page",
+      "status": "not_started",
+      "description": "Create /edm route for wire EDM, sinker EDM, laser ablation parameters. Uses edmDispatcher (16 actions).",
+      "acceptance_criteria": [
+        "Route + API + Types + Hook + Page for EDM",
+        "Page: EdmPage.tsx with tabs: Wire EDM | Sinker EDM | Laser | Parameters",
+        "Route wired in App.tsx at /edm",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U02",
+      "title": "Turning Operations Page",
+      "status": "not_started",
+      "description": "Create /turning route for turning-specific calculations. Uses turningDispatcher (8 actions).",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: TurningPage.tsx",
+        "Route wired at /turning",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U03",
+      "title": "Grinding Operations Page",
+      "status": "not_started",
+      "description": "Create /grinding route for grinding process parameters. Uses grindingDispatcher (6 actions).",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: GrindingPage.tsx",
+        "Route wired at /grinding",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U04",
+      "title": "Forming & Casting Page",
+      "status": "not_started",
+      "description": "Create /forming route for sheet metal forming, casting, molding. Uses formingCastingDispatcher (16 actions).",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: FormingPage.tsx with tabs: Sheet Metal | Casting | Molding",
+        "Route wired at /forming",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U05",
+      "title": "Welding & Joining Page",
+      "status": "not_started",
+      "description": "Create /welding route for welding, brazing, adhesive bonding. Uses weldingJoiningDispatcher (6 actions).",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: WeldingPage.tsx",
+        "Route wired at /welding",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U01",
+      "title": "Settings Backend Sync",
+      "status": "not_started",
+      "description": "Add backend persistence for user settings (default CAM, machine, material, units). Create /api/v1/settings route, wire to existing SettingsPage.",
+      "acceptance_criteria": [
+        "Route: /api/v1/settings (GET/PUT)",
+        "API client: settings.ts",
+        "Types: settings.ts",
+        "Hook: useSettings.ts with localStorage fallback",
+        "SettingsPage updated to sync with backend",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U02",
+      "title": "Navigation & Sidebar Wiring",
+      "status": "not_started",
+      "description": "Update AppShell sidebar/navigation to include ALL feature pages. Group by category: Machining, Engineering, Business, Monitoring, Admin.",
+      "acceptance_criteria": [
+        "Sidebar shows all 22+ pages grouped logically",
+        "Active route highlighted",
+        "Collapsible category sections",
+        "Badge counts for alerts (telemetry anomalies, maintenance alerts)",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U03",
+      "title": "Final Pipeline Verification & Schema Update",
+      "status": "not_started",
+      "description": "Re-run full pipeline audit. Verify every dispatcher action has a UI path. Update APP_PIPELINE_SCHEMA.md. Zero unwired actions.",
+      "acceptance_criteria": [
+        "APP_PIPELINE_SCHEMA.md updated with all new pages",
+        "0 unwired user-facing dispatcher actions",
+        "All routes verified in App.tsx",
+        "Build: 0 TS errors across web + mcp-server",
+        "Full test suite passes"
+      ]
+    }
+  ]
+}
