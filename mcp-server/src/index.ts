@@ -134,6 +134,7 @@ import { registerQualityDispatcher } from "./tools/dispatchers/qualityDispatcher
 import { registerProcessControlDispatcher } from "./tools/dispatchers/processControlDispatcher.js";
 import { registerSchedulingDispatcher } from "./tools/dispatchers/schedulingDispatcher.js";
 import { registerBusinessDispatcher } from "./tools/dispatchers/businessDispatcher.js";
+import { registerMonitoringDispatcher } from "./tools/dispatchers/monitoringDispatcher.js";
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
@@ -560,6 +561,7 @@ async function registerTools(): Promise<void> {
   registerProcessControlDispatcher(server);
   registerSchedulingDispatcher(server);
   registerBusinessDispatcher(server);
+  registerMonitoringDispatcher(server);
   registerAuthDispatcher(server);
   registerExportDispatcher(server);
 
@@ -762,7 +764,26 @@ async function runHTTP(): Promise<void> {
     res.send(lines.join('\n') + '\n');
   });
   
-  // MCP endpoint
+  // .well-known/mcp.json — MCP Registry Discovery (RFC 9110 §4.1)
+  app.get("/.well-known/mcp.json", (_, res) => {
+    res.json({
+      name: SERVER_NAME,
+      version: SERVER_VERSION,
+      description: "PRISM Manufacturing Intelligence — CNC machining, physics-backed speed/feed, simulation, quoting, tribal knowledge",
+      url: `http://${host}:${port}/mcp`,
+      transport: { type: "streamable-http" },
+      capabilities: {
+        tools: true,
+        resources: true,
+        prompts: true,
+        completions: true,
+        logging: true,
+      },
+      authentication: { type: "oauth2", authorizationUrl: "/oauth/authorize", tokenUrl: "/oauth/token" },
+    });
+  });
+
+  // MCP Streamable HTTP — POST (JSON-RPC requests)
   app.post("/mcp", async (req, res) => {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
@@ -773,6 +794,24 @@ async function runHTTP(): Promise<void> {
     
     await server.connect(transport);
     await transport.handleRequest(req, res, req.body);
+  });
+
+  // MCP Streamable HTTP — GET (SSE stream for server-initiated messages)
+  app.get("/mcp", async (req, res) => {
+    res.writeHead(405, { Allow: "POST" }).end(JSON.stringify({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "SSE not supported in stateless mode. Use POST." },
+      id: null,
+    }));
+  });
+
+  // MCP Streamable HTTP — DELETE (session cleanup)
+  app.delete("/mcp", async (req, res) => {
+    res.writeHead(405, { Allow: "POST" }).end(JSON.stringify({
+      jsonrpc: "2.0",
+      error: { code: -32000, message: "Session management not enabled in stateless mode." },
+      id: null,
+    }));
   });
 
   // ========================================================================
