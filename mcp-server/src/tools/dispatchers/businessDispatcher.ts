@@ -86,6 +86,7 @@ let _castingQuote: any;
 let _weldFabQuote: any;
 let _multiProcessQuote: any;
 let _shiftScheduleOptimizer: any;
+let _advancedReportRenderer: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -241,6 +242,10 @@ async function getEngine(name: string): Promise<any> {
       return _shiftScheduleOptimizer ??= (
         await import("../../engines/ShiftScheduleOptimizerEngine.js")
       ).shiftScheduleOptimizerEngine;
+    case "advancedReportRenderer":
+      return _advancedReportRenderer ??= (
+        await import("../../engines/AdvancedReportRendererEngine.js")
+      ).advancedReportRendererEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -473,6 +478,13 @@ const ACTIONS = [
   "schedule_optimize",
   "schedule_balance",
   "schedule_what_if",
+  // ── Advanced Report Renderer ──
+  "report_tool_life_forecast",
+  "report_capability_study",
+  "report_stability_map",
+  "report_cost_sensitivity",
+  "report_cycle_time_variance",
+  "report_scrap",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2047,6 +2059,38 @@ Params vary by action — pass relevant fields in params object.`,
           case "schedule_what_if": {
             const engine = await getEngine("shiftScheduleOptimizer");
             result = engine.whatIfAddMachine(params);
+            break;
+          }
+
+          // ── Advanced Report Renderer ──
+          case "report_tool_life_forecast": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateToolLifeForecast(params);
+            break;
+          }
+          case "report_capability_study": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateCapabilityStudy(params);
+            break;
+          }
+          case "report_stability_map": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateStabilityMap(params);
+            break;
+          }
+          case "report_cost_sensitivity": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateCostSensitivity(params);
+            break;
+          }
+          case "report_cycle_time_variance": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateCycleTimeVariance(params);
+            break;
+          }
+          case "report_scrap": {
+            const engine = await getEngine("advancedReportRenderer");
+            result = engine.generateScrapReport(params);
             break;
           }
 

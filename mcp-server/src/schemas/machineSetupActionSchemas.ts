@@ -153,4 +153,28 @@ export const MACHINE_SETUP_ACTION_SCHEMAS: ActionSchemaMap = {
     reach_needed_mm: z.number().positive(),
     budget: optPosNum,
   }).passthrough(),
+  // OPC-UA Connector
+  opcua_connect: z.object({
+    endpoint: z.string(),
+    securityMode: z.enum(["None", "Sign", "SignAndEncrypt"]).optional(),
+    credentials: z.object({ username: z.string(), password: z.string() }).optional(),
+    controllerFamily: optStr,
+    applicationName: optStr,
+    reconnectIntervalMs: z.number().positive().optional(),
+    heartbeatIntervalMs: z.number().positive().optional(),
+  }).passthrough(),
+  opcua_disconnect: z.object({ sessionId: z.string() }).passthrough(),
+  opcua_read: z.object({ sessionId: z.string(), nodeId: z.string() }).passthrough(),
+  opcua_read_batch: z.object({ sessionId: z.string(), nodeIds: z.array(z.string()) }).passthrough(),
+  opcua_subscribe: z.object({
+    sessionId: z.string(),
+    nodeIds: z.array(z.string()),
+    interval: z.number().positive().optional(),
+    queueSize: z.number().positive().optional(),
+  }).passthrough(),
+  opcua_unsubscribe: z.object({ sessionId: z.string(), subscriptionId: z.string() }).passthrough(),
+  opcua_browse: z.object({ sessionId: z.string(), parentNodeId: optStr }).passthrough(),
+  opcua_controller_profile: z.object({ controllerFamily: z.string() }).passthrough(),
+  opcua_machine_status: z.object({ sessionId: z.string(), controllerFamily: optStr }).passthrough(),
+  opcua_monitor_alarms: z.object({ sessionId: z.string(), interval: z.number().positive().optional() }).passthrough(),
 };

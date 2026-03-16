@@ -243,6 +243,9 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { keywords: ["post am finishing", "additive finishing", "am machining"], route: "dispatcher", target: "calcDispatcher", action: "post_am_finishing_plan", reason: "Post-AM finishing plan generation", estimatedTokens: 250 },
   { keywords: ["job profitability", "profit waterfall", "cost breakdown"], route: "dispatcher", target: "businessDispatcher", action: "job_profitability_analyze", reason: "Job profitability waterfall analysis", estimatedTokens: 300 },
   { keywords: ["scrap analysis", "scrap root cause", "defect analysis"], route: "dispatcher", target: "calcDispatcher", action: "scrap_root_cause", reason: "Scrap root cause Ishikawa/Pareto analysis", estimatedTokens: 250 },
+  { keywords: ["capability study", "cpk report", "process capability"], route: "dispatcher", target: "businessDispatcher", action: "report_capability_study", reason: "Cp/Cpk/Pp/Ppk process capability study", estimatedTokens: 300 },
+  { keywords: ["profitability report", "cost report", "scrap report"], route: "dispatcher", target: "businessDispatcher", action: "report_scrap", reason: "Scrap/defect Pareto reporting", estimatedTokens: 300 },
+  { keywords: ["pareto chart", "waterfall chart", "control chart", "histogram"], route: "dispatcher", target: "dataDispatcher", action: "chart_pareto", reason: "Manufacturing chart data generation", estimatedTokens: 250 },
 ];
 
 export class ToolRouterEngine {

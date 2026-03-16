@@ -22,6 +22,7 @@ let _fixture: any, _magBearing: any, _pressFit: any, _shrinkFit: any;
 let _gauging: any, _parallelism: any, _surfIntegrity: any, _threadGage: any;
 let _tolStackup: any, _stepover: any, _statProcess: any;
 let _hobbyCNC: any, _cobotMachining: any;
+let _opcua: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -52,6 +53,7 @@ async function getEngine(name: string): Promise<any> {
     case "statProcess": return _statProcess ??= (await import("../../engines/StatisticalProcessEngine.js")).statisticalProcessEngine;
     case "hobbyCNC": return _hobbyCNC ??= (await import("../../engines/HobbyCNCProfileEngine.js")).hobbyCNCProfileEngine;
     case "cobotMachining": return _cobotMachining ??= (await import("../../engines/CobotMachiningEngine.js")).cobotMachiningEngine;
+    case "opcua": return _opcua ??= (await import("../../engines/OpcUaConnectorEngine.js")).OpcUaConnectorEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -71,6 +73,9 @@ const ACTIONS = [
   "hobby_cnc_get", "hobby_cnc_search", "hobby_cnc_controller",
   "hobby_cnc_compatibility", "hobby_cnc_recommend",
   "cobot_assess_safety", "cobot_plan_task", "cobot_select",
+  "opcua_connect", "opcua_disconnect", "opcua_read", "opcua_read_batch",
+  "opcua_subscribe", "opcua_unsubscribe", "opcua_browse",
+  "opcua_controller_profile", "opcua_machine_status", "opcua_monitor_alarms",
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -80,7 +85,7 @@ export function registerMachineSetupDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_machine_setup] Action: ${action} (33 actions wired)`);
+      log.info(`[prism_machine_setup] Action: ${action} (43 actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -158,6 +163,37 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "cobot_select") {
           const eng = await getEngine("cobotMachining");
           result = eng.selectCobot(params);
+        // OPC-UA Connector actions
+        } else if (action === "opcua_connect") {
+          const eng = await getEngine("opcua");
+          result = await eng.connect(params);
+        } else if (action === "opcua_disconnect") {
+          const eng = await getEngine("opcua");
+          result = await eng.disconnect(params);
+        } else if (action === "opcua_read") {
+          const eng = await getEngine("opcua");
+          result = await eng.readVariable(params);
+        } else if (action === "opcua_read_batch") {
+          const eng = await getEngine("opcua");
+          result = await eng.readMultiple(params);
+        } else if (action === "opcua_subscribe") {
+          const eng = await getEngine("opcua");
+          result = await eng.subscribe(params);
+        } else if (action === "opcua_unsubscribe") {
+          const eng = await getEngine("opcua");
+          result = await eng.unsubscribe(params);
+        } else if (action === "opcua_browse") {
+          const eng = await getEngine("opcua");
+          result = await eng.browseNodes(params);
+        } else if (action === "opcua_controller_profile") {
+          const eng = await getEngine("opcua");
+          result = eng.getControllerProfile(params);
+        } else if (action === "opcua_machine_status") {
+          const eng = await getEngine("opcua");
+          result = await eng.getMachineStatus(params);
+        } else if (action === "opcua_monitor_alarms") {
+          const eng = await getEngine("opcua");
+          result = await eng.monitorAlarms(params);
         // Special cases
         } else if (action === "surface_integrity_assess") {
           const eng = await getEngine("surfIntegrity");

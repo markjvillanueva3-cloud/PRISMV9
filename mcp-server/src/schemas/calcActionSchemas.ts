@@ -2467,4 +2467,22 @@ export const ACTION_CALC_SCHEMAS: ActionSchemaMap = {
   cert_audit_report: z.object({
     scope: z.enum(["material", "tool", "machine", "all"]),
   }).passthrough(),
+
+  // ── STEP Import (RX-MS0 P3-U02) ──────────────────────────────────────────
+  step_import: z.object({
+    file_path: z.string().describe("Path to .step or .stp file"),
+  }).passthrough(),
+  step_analyze: z.object({
+    file_path: z.string().describe("Path to .step or .stp file"),
+  }).passthrough(),
+  step_features: z.object({
+    file_path: z.string().describe("Path to .step or .stp file"),
+  }).passthrough(),
+  step_wall_thickness: z.object({
+    file_path: z.string().describe("Path to .step or .stp file"),
+    ray_count: z.number().int().positive().optional().describe("Number of rays for thickness sampling (default 500)"),
+  }).passthrough(),
+  step_brep_summary: z.object({
+    file_path: z.string().describe("Path to .step or .stp file"),
+  }).passthrough(),
 };
