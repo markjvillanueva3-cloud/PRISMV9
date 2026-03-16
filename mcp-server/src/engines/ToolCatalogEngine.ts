@@ -39,6 +39,7 @@ import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
 import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
+import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
 // ── Unified Tool Types ──
 
@@ -706,6 +707,53 @@ export class ToolCatalogEngine {
   }
 
   // ── Private: Load standard tools ──
+  /**
+   * Apply statistical dimension imputation to upgrade tools with estimated
+   * dimensions (OAL=DC*6, LOC=DC*2) to data-driven predictions.
+   * Only updates tools where imputation confidence > 0.7.
+   */
+  applyDimensionImputation(): { modelsBuilt: number; toolsImputed: number; avgConfidence: number } {
+    const allTools = Array.from(this.tools.values());
+
+    // Build regression models from tools with real dimensions
+    const { modelsBuilt } = dimensionImputationEngine.buildModels(allTools);
+
+    // Impute dimensions for tools with estimated values
+    const results = dimensionImputationEngine.imputeDimensions(allTools);
+
+    let toolsImputed = 0;
+    let totalConfidence = 0;
+
+    for (const result of results) {
+      // Average confidence across all three dimensions
+      const avgConf = (result.confidence.oal + result.confidence.loc + result.confidence.shank) / 3;
+      if (avgConf <= 0.7) continue;
+
+      // Find the tool in the catalog and update in-place
+      const tool = this.tools.get(result.toolId);
+      if (!tool) continue;
+
+      // Skip standard reference tools — their dimensions are intentional
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((tool as any).source === "industry_standard") continue;
+
+      tool.physical.overall_length_mm = result.imputed.oal;
+      tool.physical.flute_length_mm = result.imputed.loc;
+      tool.physical.shank_diameter_mm = result.imputed.shank;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (tool as any).dimensionSource = "imputed";
+
+      toolsImputed++;
+      totalConfidence += avgConf;
+    }
+
+    return {
+      modelsBuilt,
+      toolsImputed,
+      avgConfidence: toolsImputed > 0 ? Math.round((totalConfidence / toolsImputed) * 1000) / 1000 : 0,
+    };
+  }
+
   private _loadStandardTools(): void {
     // Generate standard end mills for each diameter
     for (const [diaStr, dims] of Object.entries(END_MILL_STANDARD_DIMS)) {
@@ -882,6 +930,9 @@ export class ToolCatalogEngine {
     this._loadKennametalTurning();
     this._loadWidia2022();
     this._loadWidia2022Inch();
+
+    // Apply statistical dimension imputation to upgrade estimated dimensions
+    this.applyDimensionImputation();
   }
 
   private _loadTungaloyEndmills(): void {
