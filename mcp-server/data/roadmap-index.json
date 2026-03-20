@@ -2,7 +2,7 @@
   "version": "6.0.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
   "updated_at": "2026-03-14T21:30:00Z",
-  "total_milestones": 159,
+  "total_milestones": 165,
   "completed_milestones": 158,
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
@@ -2172,6 +2172,72 @@
       "completed_units": 0,
       "sessions": "3-5",
       "envelope_path": "milestones/APP-MS0.json"
+    },
+    {
+      "id": "GAP-MS0",
+      "title": "Minor Gap Engines — Diamond Turning, Laser Interferometer, STEP Parser",
+      "track": "GAP",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "1",
+      "envelope_path": "milestones/GAP-MS0.json"
+    },
+    {
+      "id": "BENCH-MS0",
+      "title": "Benchmark Suite Core — 15 Parts + Formula Proofs (8,640 S/F + 1,728 deflection + 1,200 Ra tests)",
+      "track": "BENCH",
+      "dependencies": [],
+      "status": "not_started",
+      "total_units": 8,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/BENCH-MS0.json"
+    },
+    {
+      "id": "BENCH-MS1",
+      "title": "Benchmark Parametric Sweeps — 8,640 S/F combos across 6 ISO groups × 8 ops × 12 tools × 5 machines × 3 DOC",
+      "track": "BENCH",
+      "dependencies": ["BENCH-MS0"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/BENCH-MS1.json"
+    },
+    {
+      "id": "BENCH-MS2",
+      "title": "Benchmark Cross-Engine + E2E Pipelines — 1,500 pipeline tests × 20 dialects + 75 consistency checks",
+      "track": "BENCH",
+      "dependencies": ["BENCH-MS0"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/BENCH-MS2.json"
+    },
+    {
+      "id": "BENCH-MS3",
+      "title": "Benchmark Machine Coverage — 205 machines × 3 operations + 2,730 machine-specific tests",
+      "track": "BENCH",
+      "dependencies": ["BENCH-MS1"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2-3",
+      "envelope_path": "milestones/BENCH-MS3.json"
+    },
+    {
+      "id": "BENCH-MS4",
+      "title": "Benchmark Real-World — 10 industry parts, beat CAM defaults + report generator",
+      "track": "BENCH",
+      "dependencies": ["BENCH-MS2"],
+      "status": "not_started",
+      "total_units": 5,
+      "completed_units": 0,
+      "sessions": "1-2",
+      "envelope_path": "milestones/BENCH-MS4.json"
     }
   ]
 }

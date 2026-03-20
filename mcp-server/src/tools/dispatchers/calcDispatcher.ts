@@ -304,6 +304,22 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { result: `Ablation: ${result.value.depth_per_pulse_um.toFixed(2)}µm/pulse, ${result.value.regime}` };
     case "laser_removal_rate": case "laser_haz": case "laser_drilling": case "laser_pulse_overlap": case "laser_plasma_shielding":
       return { result: JSON.stringify(result.value).slice(0, 200) };
+    case "diamond_turning_surface":
+      return { result: `SPDT Ra=${result.value.Ra_nm.toFixed(1)}nm, dominant: ${result.value.dominant_contributor}` };
+    case "diamond_turning_forces":
+      return { result: `Fc=${result.value.Fc_mN.toFixed(3)}mN, Ft=${result.value.Ft_mN.toFixed(3)}mN, ductile=${result.value.ductile_regime}` };
+    case "diamond_turning_wear":
+      return { result: `Wear: ${result.value.edge_recession_um.toFixed(4)}µm, type=${result.value.wear_type}, life=${result.value.remaining_life_km.toFixed(1)}km` };
+    case "diamond_turning_machine_config":
+      return { result: `Config: ${result.value.spindle_type}, ${result.value.feedback}, ±${result.value.temperature_control_C}°C` };
+    case "laser_interferometer_wavelength":
+      return { result: `n=${result.value.refractive_index.toFixed(10)}, correction=${result.value.correction_ppm.toFixed(3)}ppm` };
+    case "laser_interferometer_comp_table":
+      return { result: `CompTable: ${result.value.compensation_table.length} pts, backlash=${result.value.backlash_um.toFixed(3)}µm, acc=${result.value.accuracy_um.toFixed(3)}µm` };
+    case "laser_interferometer_plan":
+      return { result: `Plan: ${result.value.num_points} pts @ ${result.value.spacing_mm}mm, ~${result.value.total_time_min}min` };
+    case "laser_interferometer_deadpath":
+      return { result: `Deadpath: ${result.value.deadpath_error_um.toFixed(4)}µm, correction=${result.value.correction_needed}` };
     case "assembly_sequence":
       return { result: `Assembly: ${(result.value?.optimal_sequence ?? []).join('→')}` };
     case "assembly_tolerance_stack": case "assembly_line_balance": case "assembly_peg_in_hole":
@@ -770,6 +786,11 @@ const ACTIONS = [
   "step_import", "step_analyze", "step_features", "step_wall_thickness", "step_brep_summary",
   // -- ENRICH-MS4: Cross-Catalog Validation --
   "cross_catalog_validate", "cross_catalog_completeness",
+  // -- Diamond Turning & Laser Interferometer Compensation --
+  "diamond_turning_surface", "diamond_turning_forces",
+  "diamond_turning_wear", "diamond_turning_machine_config",
+  "laser_interferometer_wavelength", "laser_interferometer_comp_table",
+  "laser_interferometer_plan", "laser_interferometer_deadpath",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -7011,6 +7032,48 @@ export function registerCalcDispatcher(server: any): void {
             const { crossCatalogValidationEngine: ccvC } = await import("../../engines/CrossCatalogValidationEngine.js");
             if (params.tools) ccvC.loadTools(params.tools as any);
             result = ccvC.scoreCompleteness(params.tools as any);
+            break;
+          }
+
+          // ── Diamond Turning & Laser Interferometer ──
+          case "diamond_turning_surface": {
+            const { diamondTurningEngine } = await import("../../engines/DiamondTurningEngine.js");
+            result = diamondTurningEngine.predictSurfaceFinish(params as any);
+            break;
+          }
+          case "diamond_turning_forces": {
+            const { diamondTurningEngine: dtf } = await import("../../engines/DiamondTurningEngine.js");
+            result = dtf.calculateCuttingForces(params as any);
+            break;
+          }
+          case "diamond_turning_wear": {
+            const { diamondTurningEngine: dtw } = await import("../../engines/DiamondTurningEngine.js");
+            result = dtw.assessToolWear(params as any);
+            break;
+          }
+          case "diamond_turning_machine_config": {
+            const { diamondTurningEngine: dtm } = await import("../../engines/DiamondTurningEngine.js");
+            result = dtm.selectMachineConfig(params as any);
+            break;
+          }
+          case "laser_interferometer_wavelength": {
+            const { laserInterferometerCompensationEngine: lic } = await import("../../engines/LaserInterferometerCompensationEngine.js");
+            result = lic.compensateWavelength(params as any);
+            break;
+          }
+          case "laser_interferometer_comp_table": {
+            const { laserInterferometerCompensationEngine: lict } = await import("../../engines/LaserInterferometerCompensationEngine.js");
+            result = lict.generateCompensationTable(params as any);
+            break;
+          }
+          case "laser_interferometer_plan": {
+            const { laserInterferometerCompensationEngine: licp } = await import("../../engines/LaserInterferometerCompensationEngine.js");
+            result = licp.planMeasurementCycle(params as any);
+            break;
+          }
+          case "laser_interferometer_deadpath": {
+            const { laserInterferometerCompensationEngine: licd } = await import("../../engines/LaserInterferometerCompensationEngine.js");
+            result = licd.calculateDeadpathError(params as any);
             break;
           }
 

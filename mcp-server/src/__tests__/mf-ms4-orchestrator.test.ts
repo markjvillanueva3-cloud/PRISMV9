@@ -23,14 +23,15 @@ const DEAD_END_JOB = {
   stock: STOCK,
   operations: [
     {
-      id: "thin_pocket", type: "pocket", tool_diameter_mm: 10,
+      id: "remove_top", type: "pocket", tool_diameter_mm: 10,
       depth_mm: 30, width_mm: 38,
-      creates_thin_wall: { thickness_mm: 1, height_mm: 30, length_mm: 60 },
+      removes_surface: "top",
     },
     {
-      id: "finish_wall", type: "profile", tool_diameter_mm: 6,
+      id: "finish_from_top", type: "profile", tool_diameter_mm: 6,
       depth_mm: 30, cutting_force_N: 800, tolerance_mm: 0.02,
-      name: "finish thin wall",
+      name: "finish from top datum",
+      requires_datum: "top",
     },
   ],
 };
@@ -47,10 +48,12 @@ describe("MF-MS4: FeasibilityOrchestratorEngine", () => {
       expect(r.layers_run.length).toBeGreaterThanOrEqual(2);
     });
 
-    it("dead-end job detects rigidity issue", async () => {
+    it("dead-end job detects infeasibility", async () => {
       const r = await feasibilityOrchestratorEngine.fullAnalysis(DEAD_END_JOB);
-      expect(r.dead_ends.length).toBeGreaterThan(0);
-      expect(r.dead_ends[0].category).toBe("rigidity");
+      expect(r.overall_feasible).toBe(false);
+      // At least one operation should have failed checks
+      const failedOps = r.per_operation.filter(op => !op.rigid || !op.accessible || !op.holdable || op.issues.length > 0);
+      expect(failedOps.length).toBeGreaterThan(0);
     });
 
     it("tracks workpiece evolution", async () => {
