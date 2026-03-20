@@ -43,6 +43,7 @@ import { OSG_SPEED_FEED } from "../data/osg-speed-feed-data.js";
 import { GUHRING_SPEED_FEED, ISCAR_SPEED_FEED } from "../data/guhring-iscar-speed-feed-data.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 import { helicalToolCatalog } from "../data/helical-tool-catalog.js";
+import { HELICAL_SPEED_FEED } from "../data/helical-speed-feed-data.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
 // ── Unified Tool Types ──
@@ -2356,15 +2357,22 @@ export class ToolCatalogEngine {
       };
       const primaryISOs = appToISO[ht.application] ?? ["P", "M", "K", "N", "S", "H"];
 
+      // Try Helical manufacturer S/F first, fall back to SPEED_FEED_BASE
       const sfForType = sf.filter(s => s.tool_type === "end_mill");
       const cuttingData: CatalogTool["cutting_data"] = {};
       const scale = Math.sqrt(dc / 10);
-      for (const s of sfForType) {
-        const boost = primaryISOs.includes(s.iso_group) ? 1.15 : 0.85;
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min * boost, vc_max: s.vc_max * boost,
-          fz_min: s.fz_min * scale * boost, fz_max: s.fz_max * scale * boost,
-        };
+      const hMatch = HELICAL_SPEED_FEED.filter(s => ht.productId?.includes(s.series) || (ht.description ?? "").includes(s.series));
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = hMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) {
+            const boost = primaryISOs.includes(iso) ? 1.15 : 0.85;
+            cuttingData[iso] = { vc_min: base.vc_min * boost, vc_max: base.vc_max * boost, fz_min: base.fz_min * scale * boost, fz_max: base.fz_max * scale * boost };
+          }
+        }
       }
 
       this.tools.set(id, {
