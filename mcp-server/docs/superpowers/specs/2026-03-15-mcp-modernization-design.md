@@ -1,8 +1,8 @@
 # PRISM MCP Modernization — Design Spec
 
-**Date**: 2026-03-15
-**Status**: COMPLETE (All 4 waves delivered)
-**Approach**: Hybrid Sprint (4 waves)
+**Date**: 2026-03-15 (updated 2026-03-20)
+**Status**: COMPLETE (9 waves delivered)
+**Approach**: Hybrid Sprint (9 waves)
 
 ## Problem
 
@@ -133,9 +133,50 @@ registerPrompts(server);
 initMcpLogging((server as any).server);
 ```
 
+## Wave 8b: MTConnect + MQTT + Bundle + Resource Links (COMPLETE)
+
+### MTConnectAdapterEngine (~1043L)
+- HTTP/XML adapter for MTConnect-enabled CNC machines
+- 9 actions: probe, current, sample, assets, spindle_load,
+  feed_override, machine_status, alarms
+- Lightweight XML parsing (no external dependency)
+- Spindle load trend analysis with Kienzle comparison
+- Wired to machineLiveDispatcher (8 mtconnect_* actions)
+
+### MqttBridgeEngine (~850L)
+- MQTT IoT bridge for shop-floor sensor integration
+- 9 actions: connect, subscribe, latest, history,
+  set_alert, check_alerts, aggregate, vibration, temperature
+- Vibration analysis with simple DFT (chatter detection)
+- Thermal compensation (α × ΔT × L expansion calculation)
+- Wired to machineLiveDispatcher (9 mqtt_* actions)
+
+### MCP Bundle (manifest.json)
+- .mcpb manifest for one-click Claude Desktop install
+- Declares all tools, resources, prompts, capabilities
+- Node.js 18+ runtime requirement
+
+### Resource Links (resourceLinks.ts)
+- materialLink(), machineLink(), toolLink(), alarmLink()
+- extractResourceLinks() scans dispatcher results for linkable IDs
+- Exported from src/mcp/index.ts barrel
+
+## Wave 9: Sampling + Discovery (COMPLETE)
+
+### Sampling with Tools (sampling.ts)
+- Server requests LLM completions with PRISM tools available
+- Pre-built tool sets: materialResolve, speedFeedValidate, machineSelect
+- High-level helpers: resolveMaterial(), selectMachine()
+- Model preferences: cost/speed/intelligence priority
+- Enables autonomous multi-step manufacturing analysis
+
+### PostCompact Restore
+- Already handled by session-start-unified.sh
+- Reads precompact-save output, re-injects PRISM state
+
 ## Build Verification
 
-- TypeScript: 0 new errors (3 pre-existing in cli/tungaloy)
-- esbuild: 38.4MB bundle
+- TypeScript: 0 new errors
+- esbuild: 50.8MB bundle
 - All existing tests unaffected
-- 8 new files in src/mcp/
+- 19 files in src/mcp/ + manifest.json

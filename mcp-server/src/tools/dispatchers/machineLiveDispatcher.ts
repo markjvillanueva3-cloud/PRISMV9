@@ -69,11 +69,28 @@ const L3_INDUSTRY_ACTIONS = [
   "predictive_maintenance_alert", "energy_report",
 ] as const;
 
+const MTCONNECT_ACTIONS = [
+  "mtconnect_probe", "mtconnect_current",
+  "mtconnect_sample", "mtconnect_assets",
+  "mtconnect_spindle_load", "mtconnect_feed_override",
+  "mtconnect_machine_status", "mtconnect_alarms",
+] as const;
+
+const MQTT_ACTIONS = [
+  "mqtt_connect", "mqtt_subscribe",
+  "mqtt_latest", "mqtt_history",
+  "mqtt_set_alert", "mqtt_check_alerts",
+  "mqtt_aggregate", "mqtt_vibration",
+  "mqtt_temperature",
+] as const;
+
 const ACTIONS = [
   ...MACHINE_ACTIONS,
   ...ADAPTIVE_ACTIONS,
   ...MAINT_ACTIONS,
   ...L3_INDUSTRY_ACTIONS,
+  ...MTCONNECT_ACTIONS,
+  ...MQTT_ACTIONS,
 ] as const;
 
 // ============================================================================
@@ -269,6 +286,42 @@ export function registerMachineLiveDispatcher(server: any): void {
         let result: any;
         if (L3_INDUSTRY_ACTIONS.includes(action as ActionString as typeof L3_INDUSTRY_ACTIONS[number])) {
           result = l3IndustryAction(action, params);
+        } else if ((MTCONNECT_ACTIONS as readonly string[]).includes(action)) {
+          const { MTConnectAdapterEngine } = await import("../../engines/MTConnectAdapterEngine.js");
+          const mtc = new MTConnectAdapterEngine({
+            agentUrl: params.agent_url || params.url || "http://localhost:5000",
+            deviceName: params.device,
+            pollIntervalMs: params.poll_interval_ms,
+          });
+          switch (action) {
+            case "mtconnect_probe": result = await mtc.probe(); break;
+            case "mtconnect_current": result = await mtc.current(); break;
+            case "mtconnect_sample": result = await mtc.sample(params.from, params.count); break;
+            case "mtconnect_assets": result = await mtc.assets(); break;
+            case "mtconnect_spindle_load": result = await mtc.getSpindleLoad(params.kienzle_pct); break;
+            case "mtconnect_feed_override": result = await mtc.getFeedOverride(); break;
+            case "mtconnect_machine_status": result = await mtc.getMachineStatus(); break;
+            case "mtconnect_alarms": { const snap = await mtc.current(); result = mtc.parseAlarms(snap); break; }
+            default: result = { error: `Unknown MTConnect action: ${action}` };
+          }
+        } else if ((MQTT_ACTIONS as readonly string[]).includes(action)) {
+          const { MqttBridgeEngine } = await import("../../engines/MqttBridgeEngine.js");
+          const mqtt = new MqttBridgeEngine({
+            brokerUrl: params.broker_url || params.url || "mqtt://localhost:1883",
+            topicPrefix: params.topic_prefix,
+          });
+          switch (action) {
+            case "mqtt_connect": result = await mqtt.connect(); break;
+            case "mqtt_subscribe": result = mqtt.subscribe(params.topics || []); break;
+            case "mqtt_latest": result = mqtt.getLatest(); break;
+            case "mqtt_history": result = mqtt.getHistory(params.topic, params.last_n); break;
+            case "mqtt_set_alert": mqtt.setAlert(params as any); result = { ok: true }; break;
+            case "mqtt_check_alerts": result = mqtt.checkAlerts(); break;
+            case "mqtt_aggregate": result = mqtt.aggregate(params.topic, params.window_ms); break;
+            case "mqtt_vibration": result = mqtt.getVibration(params.topic, params.sample_rate_hz); break;
+            case "mqtt_temperature": result = mqtt.getTemperature(params.topic, params.ambient_topic, params.length_mm, params.cte); break;
+            default: result = { error: `Unknown MQTT action: ${action}` };
+          }
         } else if (MACHINE_ACTIONS.includes(action as ActionString as typeof MACHINE_ACTIONS[number])) {
           result = await (await getMachineLiveEngine("machineConnectivity"))(action, params);
         } else if (ADAPTIVE_ACTIONS.includes(action as ActionString as typeof ADAPTIVE_ACTIONS[number])) {

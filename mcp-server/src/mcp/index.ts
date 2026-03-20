@@ -145,3 +145,23 @@ export {
   type EnsuredInput,
   type EnsureInputOptions,
 } from "./elicitationIntegration.js";
+
+// Resource Links (MCP Modernization Wave 8)
+export {
+  materialLink,
+  machineLink,
+  toolLink,
+  alarmLink,
+  extractResourceLinks,
+  type ResourceLink,
+} from "./resourceLinks.js";
+
+// Sampling with Tools (MCP Modernization Wave 9)
+export {
+  initSampling,
+  requestSampling,
+  resolveMaterial,
+  selectMachine,
+  SAMPLING_TOOL_SETS,
+  type SamplingTool,
+} from "./sampling.js";
