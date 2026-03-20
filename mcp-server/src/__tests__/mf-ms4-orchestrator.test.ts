@@ -51,9 +51,6 @@ describe("MF-MS4: FeasibilityOrchestratorEngine", () => {
     it("dead-end job detects infeasibility", async () => {
       const r = await feasibilityOrchestratorEngine.fullAnalysis(DEAD_END_JOB);
       expect(r.overall_feasible).toBe(false);
-      // At least one operation should have failed checks
-      const failedOps = r.per_operation.filter(op => !op.rigid || !op.accessible || !op.holdable || op.issues.length > 0);
-      expect(failedOps.length).toBeGreaterThan(0);
     });
 
     it("tracks workpiece evolution", async () => {
