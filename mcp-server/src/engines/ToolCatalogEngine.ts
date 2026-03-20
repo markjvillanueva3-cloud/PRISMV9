@@ -40,6 +40,7 @@ import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js"
 import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
 import { MITSUBISHI_TURNING_INSERTS, MITSUBISHI_END_MILLS, MITSUBISHI_DRILLS } from "../data/mitsubishi-tool-catalog.js";
 import { OSG_SPEED_FEED } from "../data/osg-speed-feed-data.js";
+import { GUHRING_SPEED_FEED, ISCAR_SPEED_FEED } from "../data/guhring-iscar-speed-feed-data.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
@@ -1370,13 +1371,21 @@ export class ToolCatalogEngine {
       const toolType = g.type as CatalogTool["type"];
       const sfForType = sf.filter(s => s.tool_type === (toolType === "reamer" ? "drill" : toolType));
 
+      // Try Guhring manufacturer S/F first
       const cuttingData: CatalogTool["cutting_data"] = {};
-      for (const s of sfForType) {
-        const scale = g.cutting_diameter_mm > 0 ? Math.sqrt(g.cutting_diameter_mm / 10) : 1;
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-        };
+      const gSeries = g.article ?? "";
+      const gMatch = GUHRING_SPEED_FEED.filter(s => gSeries.includes(s.series) || s.series === gSeries);
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = gMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) {
+            const scale = g.cutting_diameter_mm > 0 ? Math.sqrt(g.cutting_diameter_mm / 10) : 1;
+            cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale };
+          }
+        }
       }
 
       const shank = g.shank_diameter_mm ?? g.cutting_diameter_mm;
@@ -1483,8 +1492,10 @@ export class ToolCatalogEngine {
       const cuttingData: CatalogTool["cutting_data"] = {};
       const dc = it.cutting_diameter_mm ?? 10;
       const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
-      // For Kennametal tools, try manufacturer-specific S/F first
-      const seriesMatch = it.manufacturer === "Kennametal" ? findSpeedFeedByPartialSeries(it.designation?.substring(0, 5) ?? "") : [];
+      // For Kennametal/ISCAR tools, try manufacturer-specific S/F first
+      const seriesMatch = it.manufacturer === "Kennametal" ? findSpeedFeedByPartialSeries(it.designation?.substring(0, 5) ?? "")
+        : it.manufacturer === "ISCAR" ? ISCAR_SPEED_FEED.filter(s => (it.designation ?? "").includes(s.series) || (it.subtype ?? "").includes(s.series))
+        : [];
       for (const iso of ["P", "M", "K", "N", "S", "H"]) {
         const mfr = seriesMatch.find(s => s.isoGroup === iso);
         if (mfr) {
