@@ -42,6 +42,7 @@ import { MITSUBISHI_TURNING_INSERTS, MITSUBISHI_END_MILLS, MITSUBISHI_DRILLS } f
 import { OSG_SPEED_FEED } from "../data/osg-speed-feed-data.js";
 import { GUHRING_SPEED_FEED, ISCAR_SPEED_FEED } from "../data/guhring-iscar-speed-feed-data.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
+import { helicalToolCatalog } from "../data/helical-tool-catalog.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
 // ── Unified Tool Types ──
@@ -1013,6 +1014,7 @@ export class ToolCatalogEngine {
     this._loadWidia2022();
     this._loadWidia2022Inch();
     this._loadMitsubishiTools();
+    this._loadHelicalTools();
 
     // Apply statistical dimension imputation to upgrade estimated dimensions
     this.applyDimensionImputation();
@@ -2328,6 +2330,65 @@ export class ToolCatalogEngine {
         physical: { cutting_diameter_mm: dc, shank_diameter_mm: dc, overall_length_mm: dc * (dr.ld_ratio ?? 5), flute_length_mm: dc * (dr.ld_ratio ?? 3) },
         flute_count: 2, iso_groups: ["P", "M", "K", "N", "S", "H"],
         operations: ["drill"], cutting_data: cd, source: "Mitsubishi_C010B",
+      });
+    }
+  }
+
+  private _loadHelicalTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const ht of helicalToolCatalog) {
+      const id = `HEL-${ht.productId}`;
+      if (this.tools.has(id)) continue;
+      // Convert inches to mm if needed
+      const toMM = ht.unit === "inches" ? 25.4 : 1;
+      const dc = ht.diameter * toMM;
+      if (dc <= 0) continue;
+
+      const toolType = (ht.type === "ball_end_mill" ? "ball_mill" :
+                        ht.type === "bull_nose_end_mill" ? "end_mill" :
+                        "end_mill") as CatalogTool["type"];
+
+      // Map Helical application to ISO group S/F
+      const appToISO: Record<string, string[]> = {
+        aluminum: ["N"], steel: ["P"], stainless_steel: ["M"],
+        titanium: ["S"], hardened_steel: ["H"], copper: ["N"],
+        high_temp_alloys: ["S"], medium_alloy: ["P", "M"],
+      };
+      const primaryISOs = appToISO[ht.application] ?? ["P", "M", "K", "N", "S", "H"];
+
+      const sfForType = sf.filter(s => s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfForType) {
+        const boost = primaryISOs.includes(s.iso_group) ? 1.15 : 0.85;
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min * boost, vc_max: s.vc_max * boost,
+          fz_min: s.fz_min * scale * boost, fz_max: s.fz_max * scale * boost,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Helical Solutions",
+        series: ht.application || "Helical",
+        designation: ht.productId,
+        type: toolType,
+        material: "carbide",
+        coating: ht.coating || "AlTiN",
+        physical: {
+          cutting_diameter_mm: Math.round(dc * 1000) / 1000,
+          shank_diameter_mm: Math.round(ht.shaftDiameter * toMM * 1000) / 1000,
+          overall_length_mm: Math.round(ht.overallLength * toMM * 100) / 100,
+          flute_length_mm: Math.round(ht.fluteLength * toMM * 100) / 100,
+          corner_radius_mm: ht.cornerRadius > 0 ? Math.round(ht.cornerRadius * toMM * 1000) / 1000 : undefined,
+        },
+        flute_count: ht.numberOfFlutes,
+        helix_angle_deg: ht.helixAngle > 0 ? ht.helixAngle : 35,
+        center_cutting: true,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "ball_mill" ? ["finish_3d", "profile", "pencil"] : ["pocket", "slot", "profile", "face", "ramp"],
+        cutting_data: cuttingData,
+        source: "Helical_Solutions_HSMLib",
       });
     }
   }
