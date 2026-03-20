@@ -3489,3 +3489,9 @@ export { crossCatalogValidationEngine, CrossCatalogValidationEngine } from "./Cr
 
 // OpcUaConnectorEngine — Live CNC machine connectivity via OPC-UA (node-opcua wrapper)
 export { opcUaConnectorEngine, OpcUaConnectorEngine } from "./OpcUaConnectorEngine.js";
+
+// DiamondTurningEngine — SPDT ultra-precision optics: surface finish, micro-cutting forces, tool wear, machine config
+export { diamondTurningEngine, DiamondTurningEngine } from "./DiamondTurningEngine.js";
+
+// LaserInterferometerCompensationEngine — Edlen wavelength compensation, axis comp tables, measurement planning, deadpath
+export { laserInterferometerCompensationEngine, LaserInterferometerCompensationEngine } from "./LaserInterferometerCompensationEngine.js";

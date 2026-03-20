@@ -39,6 +39,7 @@ import { SANDVIK_2022_TOOLS } from "../data/sandvik-2022-tool-catalog.js";
 import { KENNAMETAL_TURNING_TOOLS } from "../data/kennametal-turning-catalog.js";
 import { WIDIA_2022_INCH_TOOLS } from "../data/widia-2022-inch-catalog.js";
 import { MITSUBISHI_TURNING_INSERTS, MITSUBISHI_END_MILLS, MITSUBISHI_DRILLS } from "../data/mitsubishi-tool-catalog.js";
+import { OSG_SPEED_FEED } from "../data/osg-speed-feed-data.js";
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
@@ -1306,17 +1307,25 @@ export class ToolCatalogEngine {
       const toolType = osg.type as CatalogTool["type"];
       const sfForType = sf.filter(s => s.tool_type === (toolType === "ball_mill" ? "end_mill" : toolType));
 
+      // Try OSG manufacturer S/F first, fall back to SPEED_FEED_BASE
       const cuttingData: CatalogTool["cutting_data"] = {};
-      for (const s of sfForType) {
-        const scale = osg.cutting_diameter_mm > 0 ? Math.sqrt(osg.cutting_diameter_mm / 10) : 1;
-        cuttingData[s.iso_group] = {
-          vc_min: s.vc_min, vc_max: s.vc_max,
-          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
-          ...(toolType !== "drill" ? {
-            ap_max: osg.flute_length_mm ?? osg.cutting_diameter_mm * 1.5,
-            ae_max: osg.cutting_diameter_mm,
-          } : {}),
-        };
+      const seriesGuess = osg.edp?.substring(0, 3) ?? "";
+      const osgMatch = OSG_SPEED_FEED.filter(s => osg.edp?.includes(s.series) || seriesGuess.includes(s.series.substring(0, 3)));
+      for (const iso of ["P", "M", "K", "N", "S", "H"]) {
+        const mfr = osgMatch.find(s => s.isoGroup === iso);
+        if (mfr) {
+          cuttingData[iso] = { vc_min: mfr.vc_min, vc_max: mfr.vc_max, fz_min: mfr.fz_min, fz_max: mfr.fz_max,
+            ...(toolType !== "drill" ? { ap_max: osg.flute_length_mm ?? osg.cutting_diameter_mm * 1.5, ae_max: osg.cutting_diameter_mm } : {}),
+          };
+        } else {
+          const base = sfForType.find(s => s.iso_group === iso);
+          if (base) {
+            const scale = osg.cutting_diameter_mm > 0 ? Math.sqrt(osg.cutting_diameter_mm / 10) : 1;
+            cuttingData[iso] = { vc_min: base.vc_min, vc_max: base.vc_max, fz_min: base.fz_min * scale, fz_max: base.fz_max * scale,
+              ...(toolType !== "drill" ? { ap_max: osg.flute_length_mm ?? osg.cutting_diameter_mm * 1.5, ae_max: osg.cutting_diameter_mm } : {}),
+            };
+          }
+        }
       }
 
       const shank = osg.shank_diameter_mm ?? osg.cutting_diameter_mm;
@@ -2190,7 +2199,7 @@ export class ToolCatalogEngine {
       this.tools.set(id, {
         id, manufacturer: "Mitsubishi", series: ins.shape ?? "insert", designation: ins.designation,
         type: "insert", material: "carbide",
-        physical: { cutting_diameter_mm: ic, shank_diameter_mm: ic, overall_length_mm: ins.thickness_mm ?? ic * 0.3, flute_length_mm: ins.thickness_mm ?? ic * 0.3, nose_radius_mm: ins.cornerRadius_mm },
+        physical: { cutting_diameter_mm: ic, shank_diameter_mm: ic, overall_length_mm: ins.thickness_mm ?? ic * 0.3, flute_length_mm: ins.thickness_mm ?? ic * 0.3, nose_radius_mm: ins.corner_radius_mm ?? undefined },
         iso_groups: ["P", "M", "K", "N", "S", "H"], operations: ["turning"], cutting_data: cd, source: "Mitsubishi_C010B",
       });
     }
@@ -2198,16 +2207,16 @@ export class ToolCatalogEngine {
     for (const em of MITSUBISHI_END_MILLS) {
       const id = `MIT-${em.designation}`;
       if (this.tools.has(id)) continue;
-      const dc = em.dc_mm ?? 10;
+      const dc = em.cutting_diameter_mm ?? 10;
       const sfMill = sf.filter(s => s.tool_type === "end_mill");
       const cd: CatalogTool["cutting_data"] = {};
       const scale = Math.sqrt(dc / 10);
       for (const s of sfMill) { cd[s.iso_group] = { vc_min: s.vc_min, vc_max: s.vc_max, fz_min: s.fz_min * scale, fz_max: s.fz_max * scale }; }
       this.tools.set(id, {
-        id, manufacturer: "Mitsubishi", series: em.series ?? "VQ", designation: em.designation,
+        id, manufacturer: "Mitsubishi", series: em.type ?? "VQ", designation: em.designation,
         type: "end_mill", material: "carbide",
-        physical: { cutting_diameter_mm: dc, shank_diameter_mm: em.shank_mm ?? dc, overall_length_mm: em.oal_mm ?? dc * 6, flute_length_mm: em.loc_mm ?? dc * 2 },
-        flute_count: em.flutes, iso_groups: ["P", "M", "K", "N", "S", "H"],
+        physical: { cutting_diameter_mm: dc, shank_diameter_mm: em.shank_diameter_mm ?? dc, overall_length_mm: em.overall_length_mm ?? dc * 6, flute_length_mm: em.flute_length_mm ?? dc * 2 },
+        flute_count: em.flute_count ?? 4, iso_groups: ["P", "M", "K", "N", "S", "H"],
         operations: ["pocket", "slot", "profile", "face"], cutting_data: cd, source: "Mitsubishi_C010B",
       });
     }
@@ -2215,7 +2224,7 @@ export class ToolCatalogEngine {
     for (const dr of MITSUBISHI_DRILLS) {
       const id = `MIT-${dr.designation}`;
       if (this.tools.has(id)) continue;
-      const dc = dr.dc_mm ?? 10;
+      const dc = dr.cutting_diameter_mm ?? 10;
       const sfDrill = sf.filter(s => s.tool_type === "drill");
       const cd: CatalogTool["cutting_data"] = {};
       const scale = Math.sqrt(dc / 10);
@@ -2223,7 +2232,7 @@ export class ToolCatalogEngine {
       this.tools.set(id, {
         id, manufacturer: "Mitsubishi", series: dr.series ?? "MVS", designation: dr.designation,
         type: "drill", material: "carbide",
-        physical: { cutting_diameter_mm: dc, shank_diameter_mm: dc, overall_length_mm: dc * (dr.ldRatio ?? 5), flute_length_mm: dc * (dr.ldRatio ?? 3) },
+        physical: { cutting_diameter_mm: dc, shank_diameter_mm: dc, overall_length_mm: dc * (dr.ld_ratio ?? 5), flute_length_mm: dc * (dr.ld_ratio ?? 3) },
         flute_count: 2, iso_groups: ["P", "M", "K", "N", "S", "H"],
         operations: ["drill"], cutting_data: cd, source: "Mitsubishi_C010B",
       });
