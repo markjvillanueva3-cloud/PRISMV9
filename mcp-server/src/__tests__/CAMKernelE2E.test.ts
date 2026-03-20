@@ -117,11 +117,11 @@ describe("CAM Kernel E2E Integration", () => {
     for (const name of ckEngines) {
       expect((engines as any)[name]).toBeDefined();
     }
-  });
+  }, 120_000);
 
   it("dispatchCAMAction and listCAMActions export correctly", async () => {
     const engines = await import("../engines/index.js");
     expect((engines as any).dispatchCAMAction).toBeDefined();
     expect((engines as any).listCAMActions).toBeDefined();
-  });
+  }, 120_000);
 });

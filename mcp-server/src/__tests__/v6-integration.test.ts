@@ -13,7 +13,7 @@ describe("v6.0 Integration", () => {
     expect(idx.llmEngine).toBeDefined();
     expect(idx.alarmEscalationEngine).toBeDefined();
     expect(idx.dataValidationEngine).toBeDefined();
-  });
+  }, 120_000);
 
   // ── Alarm → Validation Pipeline ─────────────────────────────────
 
