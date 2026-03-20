@@ -26,7 +26,7 @@ describe('QualityFormulasEngine', () => {
       });
       expect(r.gage_rr).toBeGreaterThan(0);
       expect(r.ndc).toBeGreaterThanOrEqual(0);
-      expect(r.formula).toBeDefined();
+      expect(r.assessment).toBeDefined();
     });
   });
 
@@ -41,7 +41,7 @@ describe('QualityFormulasEngine', () => {
       expect(r.sample_size).toBeGreaterThan(0);
       expect(r.accept_number).toBeGreaterThanOrEqual(0);
       expect(r.oc_curve).toBeDefined();
-      expect(r.formula).toBeDefined();
+      expect(r.aoq_at_aql).toBeDefined();
     });
   });
 
@@ -60,7 +60,7 @@ describe('QualityFormulasEngine', () => {
       });
       expect(r.cpm).toBeGreaterThan(0);
       expect(r.cpk).toBeGreaterThan(0);
-      expect(r.formula).toBeDefined();
+      expect(r.method).toBeDefined();
     });
   });
 
