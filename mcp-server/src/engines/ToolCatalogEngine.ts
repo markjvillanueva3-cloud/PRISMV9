@@ -44,6 +44,9 @@ import { GUHRING_SPEED_FEED, ISCAR_SPEED_FEED } from "../data/guhring-iscar-spee
 import { lookupSpeedFeed, findSpeedFeedByPartialSeries } from "../data/manufacturer-speed-feed-data.js";
 import { helicalToolCatalog } from "../data/helical-tool-catalog.js";
 import { HELICAL_SPEED_FEED } from "../data/helical-speed-feed-data.js";
+import { HORN_TOOLS } from "../data/horn-tool-catalog.js";
+import { NIAGARA_TOOLS } from "../data/niagara-tool-catalog.js";
+import { DORMER_TOOLS } from "../data/dormer-pramet-tool-catalog.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
 // ── Unified Tool Types ──
@@ -1016,6 +1019,9 @@ export class ToolCatalogEngine {
     this._loadWidia2022Inch();
     this._loadMitsubishiTools();
     this._loadHelicalTools();
+    this._loadHornTools();
+    this._loadNiagaraTools();
+    this._loadDormerPrametTools();
 
     // Apply statistical dimension imputation to upgrade estimated dimensions
     this.applyDimensionImputation();
@@ -2331,6 +2337,168 @@ export class ToolCatalogEngine {
         physical: { cutting_diameter_mm: dc, shank_diameter_mm: dc, overall_length_mm: dc * (dr.ld_ratio ?? 5), flute_length_mm: dc * (dr.ld_ratio ?? 3) },
         flute_count: 2, iso_groups: ["P", "M", "K", "N", "S", "H"],
         operations: ["drill"], cutting_data: cd, source: "Mitsubishi_C010B",
+      });
+    }
+  }
+
+  private _loadHornTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const ht of HORN_TOOLS) {
+      const id = `HORN-${ht.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      // Horn tools: grooving inserts and milling shanks
+      const toolType: CatalogTool["type"] = ht.type === "insert" ? "grooving_tool" : "end_mill";
+
+      // Dimensions: prefer mm fields, fall back to inch conversion
+      const dc = ht.cuttingEdgeDia_in ? ht.cuttingEdgeDia_in * 25.4 :
+                 ht.d1_mm ? ht.d1_mm :
+                 ht.width_in ? ht.width_in * 25.4 : 6;
+      const shankD = ht.shankDia_in ? ht.shankDia_in * 25.4 :
+                     ht.d_mm ? ht.d_mm :
+                     ht.d_in ? ht.d_in * 25.4 : dc;
+      const oal = ht.l1_mm ? ht.l1_mm :
+                  ht.l1_in ? ht.l1_in * 25.4 : dc * 5;
+      const loc = ht.l2_mm ? ht.l2_mm :
+                  ht.l2_in ? ht.l2_in * 25.4 :
+                  ht.depth_in ? ht.depth_in * 25.4 : dc * 1.5;
+
+      const sfForType = sf.filter(s => s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Horn",
+        series: ht.system || "Horn",
+        designation: ht.partNumber,
+        type: toolType,
+        subtype: ht.subType || ht.form,
+        material: "carbide",
+        physical: {
+          cutting_diameter_mm: Math.round(dc * 1000) / 1000,
+          shank_diameter_mm: Math.round(shankD * 1000) / 1000,
+          overall_length_mm: Math.round(oal * 100) / 100,
+          flute_length_mm: Math.round(loc * 100) / 100,
+        },
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "grooving_tool" ? ["groove", "cut_off"] : ["groove_mill", "slot", "contour"],
+        cutting_data: cuttingData,
+        source: "Horn_Rotating_Tools_2020",
+      });
+    }
+  }
+
+  private _loadNiagaraTools(): void {
+    const sf = SPEED_FEED_BASE;
+    // Helper to parse fractional inch strings like "1/8", "1-1/2" to mm
+    const fracToMM = (s: string): number => {
+      if (!s) return 0;
+      const parts = s.split("-");
+      let total = 0;
+      for (const p of parts) {
+        if (p.includes("/")) {
+          const [num, den] = p.split("/");
+          total += parseFloat(num) / parseFloat(den);
+        } else {
+          total += parseFloat(p);
+        }
+      }
+      return total * 25.4;
+    };
+
+    for (const nt of NIAGARA_TOOLS) {
+      const id = `NIA-${nt.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      const dc = fracToMM(nt.fluteDia);
+      if (dc <= 0) continue;
+      const shankD = fracToMM(nt.shankDia);
+      const oal = fracToMM(nt.oal);
+      const loc = fracToMM(nt.loc);
+
+      const toolType: CatalogTool["type"] = nt.type === "ball_mill" ? "ball_mill" : "end_mill";
+
+      const sfForType = sf.filter(s => s.tool_type === "end_mill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = Math.sqrt(dc / 10);
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Niagara",
+        series: nt.series,
+        designation: nt.partNumber,
+        type: toolType,
+        material: "carbide",
+        coating: nt.coating || "AlTiN",
+        physical: {
+          cutting_diameter_mm: Math.round(dc * 1000) / 1000,
+          shank_diameter_mm: Math.round(shankD * 1000) / 1000,
+          overall_length_mm: Math.round(oal * 100) / 100,
+          flute_length_mm: Math.round(loc * 100) / 100,
+          corner_radius_mm: nt.cornerRadius ? fracToMM(nt.cornerRadius) : undefined,
+          neck_diameter_mm: nt.neckDia ? fracToMM(nt.neckDia) : undefined,
+        },
+        flute_count: nt.flutes,
+        center_cutting: true,
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: toolType === "ball_mill" ? ["finish_3d", "profile", "pencil"] : ["pocket", "slot", "profile", "face", "ramp"],
+        cutting_data: cuttingData,
+        source: "Niagara_Cutter_Catalog",
+      });
+    }
+  }
+
+  private _loadDormerPrametTools(): void {
+    const sf = SPEED_FEED_BASE;
+    for (const dt of DORMER_TOOLS) {
+      const id = `DOR-${dt.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      const dc = dt.diameter_mm;
+      if (dc <= 0) continue;
+
+      const sfForType = sf.filter(s => s.tool_type === "drill");
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      const scale = dc > 0 ? Math.sqrt(dc / 10) : 1;
+      for (const s of sfForType) {
+        cuttingData[s.iso_group] = {
+          vc_min: s.vc_min, vc_max: s.vc_max,
+          fz_min: s.fz_min * scale, fz_max: s.fz_max * scale,
+        };
+      }
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Dormer Pramet",
+        series: dt.series,
+        designation: dt.partNumber,
+        type: "drill",
+        material: "hss",
+        physical: {
+          cutting_diameter_mm: dt.diameter_mm,
+          shank_diameter_mm: dt.diameter_mm,
+          overall_length_mm: dt.overallLength_mm,
+          flute_length_mm: dt.fluteLength_mm,
+          point_angle_deg: 118,
+        },
+        flute_count: 2,
+        iso_groups: ["P", "M", "K", "N"],
+        operations: ["drill"],
+        cutting_data: cuttingData,
+        source: "Dormer_Pramet_A100_Catalog",
       });
     }
   }
