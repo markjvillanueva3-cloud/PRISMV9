@@ -138,8 +138,11 @@ describe("PartGeometryPipelineEngine", () => {
       });
       expect(r.value.matches.length).toBeGreaterThan(0);
       for (const m of r.value.matches) {
-        expect(m.fit_score).toBeGreaterThan(0);
-        expect(m.fit_score).toBeLessThanOrEqual(1);
+        expect(m.candidates.length).toBeGreaterThan(0);
+        for (const c of m.candidates) {
+          expect(c.fit_score).toBeGreaterThan(0);
+          expect(c.fit_score).toBeLessThanOrEqual(1);
+        }
       }
     });
 

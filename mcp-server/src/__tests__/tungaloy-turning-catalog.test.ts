@@ -1,180 +1,188 @@
 import { describe, it, expect } from 'vitest';
 import {
-  TUNGALOY_INSERT_SHAPES,
-  TUNGALOY_CHIPBREAKERS,
+  TUNGALOY_TURNING_INSERTS,
   TUNGALOY_TURNING_GRADES,
   TUNGALOY_GROOVING_INSERTS,
-  TUNGALOY_TURNING_CATALOG_SUMMARY,
-  type IsoGroup,
+  TUNGALOY_THREADING_INSERTS,
+  TUNGALOY_TURNING_CONDITIONS,
+  TUNGALOY_GROOVING_CONDITIONS,
 } from '../data/tungaloy-turning-catalog';
 
 describe('Tungaloy Turning Catalog Data', () => {
-  describe('Insert Shapes', () => {
-    it('has 23 insert shapes', () => {
-      expect(TUNGALOY_INSERT_SHAPES).toHaveLength(23);
+  describe('Turning Inserts', () => {
+    it('has 2561 turning inserts', () => {
+      expect(TUNGALOY_TURNING_INSERTS).toHaveLength(2561);
     });
 
-    it('each shape has valid ISO code (4 chars)', () => {
-      for (const shape of TUNGALOY_INSERT_SHAPES) {
-        expect(shape.code).toMatch(/^[A-Z]{4}$/);
-        expect(shape.included_angle_deg).toBeGreaterThan(0);
-        expect(shape.inscribed_circle_mm.length).toBeGreaterThan(0);
+    it('each insert has required fields', () => {
+      for (const ins of TUNGALOY_TURNING_INSERTS) {
+        expect(ins.designation).toBeTruthy();
+        expect(ins.type).toBe('turning_insert');
+        expect(ins.shape_code).toMatch(/^[A-Z]$/);
+        expect(ins.ic_mm).toBeGreaterThan(0);
+        expect(ins.nose_radius_mm).toBeGreaterThanOrEqual(0);
       }
     });
 
-    it('covers all standard negative shapes', () => {
-      const codes = TUNGALOY_INSERT_SHAPES.map(s => s.code);
-      expect(codes).toContain('CNMG');
-      expect(codes).toContain('DNMG');
-      expect(codes).toContain('SNMG');
-      expect(codes).toContain('TNMG');
-      expect(codes).toContain('WNMG');
-      expect(codes).toContain('RNMG');
-    });
-
-    it('has CBN/PCD variants', () => {
-      const cbn = TUNGALOY_INSERT_SHAPES.filter(s => s.code.endsWith('A'));
-      expect(cbn.length).toBeGreaterThanOrEqual(5);
-    });
-  });
-
-  describe('Chipbreakers', () => {
-    it('has 15 chipbreakers', () => {
-      expect(TUNGALOY_CHIPBREAKERS).toHaveLength(15);
-    });
-
-    it('covers finishing/medium/roughing applications', () => {
-      const apps = new Set(TUNGALOY_CHIPBREAKERS.map(c => c.application));
-      expect(apps).toContain('finishing');
-      expect(apps).toContain('medium');
-      expect(apps).toContain('roughing');
-    });
-
-    it('feed ranges are valid (min < max)', () => {
-      for (const cb of TUNGALOY_CHIPBREAKERS) {
-        expect(cb.feed_range_ipr[0]).toBeLessThan(cb.feed_range_ipr[1]);
-        expect(cb.doc_range_in[0]).toBeLessThan(cb.doc_range_in[1]);
+    it('covers all 10 standard shape codes', () => {
+      const codes = new Set(TUNGALOY_TURNING_INSERTS.map(s => s.shape_code));
+      for (const c of ['C', 'D', 'E', 'F', 'K', 'R', 'S', 'T', 'V', 'W']) {
+        expect(codes).toContain(c);
       }
     });
 
-    it('TF is a finishing chipbreaker', () => {
-      const tf = TUNGALOY_CHIPBREAKERS.find(c => c.code === 'TF');
-      expect(tf).toBeDefined();
-      expect(tf!.application).toBe('finishing');
+    it('covers standard negative shapes (CNMG, DNMG, etc.)', () => {
+      const desigs = TUNGALOY_TURNING_INSERTS.map(i => i.designation);
+      expect(desigs.some(d => d.startsWith('CNMG'))).toBe(true);
+      expect(desigs.some(d => d.startsWith('DNMG'))).toBe(true);
+      expect(desigs.some(d => d.startsWith('SNMG'))).toBe(true);
+      expect(desigs.some(d => d.startsWith('TNMG'))).toBe(true);
+      expect(desigs.some(d => d.startsWith('WNMG'))).toBe(true);
+      expect(desigs.some(d => d.startsWith('RNMG'))).toBe(true);
+    });
+
+    it('has 74+ unique chipbreaker codes', () => {
+      const cbs = new Set(TUNGALOY_TURNING_INSERTS.map(i => i.chipbreaker));
+      expect(cbs.size).toBeGreaterThanOrEqual(74);
     });
   });
 
   describe('Grades', () => {
-    it('has 50+ grades', () => {
-      expect(TUNGALOY_TURNING_GRADES.length).toBeGreaterThanOrEqual(50);
+    it('has 31 grades', () => {
+      expect(TUNGALOY_TURNING_GRADES).toHaveLength(31);
     });
 
-    it('each grade has valid ISO suitability for all 6 groups', () => {
-      const isoGroups: IsoGroup[] = ['P', 'M', 'K', 'N', 'S', 'H'];
-      const validRatings = ['first_choice', 'second_choice', 'usable', 'not_recommended'];
+    it('each grade has valid fields', () => {
       for (const grade of TUNGALOY_TURNING_GRADES) {
-        for (const group of isoGroups) {
-          expect(validRatings).toContain(grade.iso_suitability[group]);
-        }
+        expect(grade.grade).toBeTruthy();
+        expect(grade.description).toBeTruthy();
+        expect(grade.iso_groups.length).toBeGreaterThan(0);
       }
     });
 
-    it('has first-choice grades for every ISO group', () => {
-      const isoGroups: IsoGroup[] = ['P', 'M', 'K', 'N', 'S', 'H'];
-      for (const group of isoGroups) {
-        const firstChoice = TUNGALOY_TURNING_GRADES.filter(
-          g => g.iso_suitability[group] === 'first_choice'
-        );
-        expect(firstChoice.length).toBeGreaterThan(0);
+    it('has grades for every ISO group (P, M, K, N, S, H)', () => {
+      const allIsos = new Set(TUNGALOY_TURNING_GRADES.flatMap(g => g.iso_groups));
+      for (const group of ['P', 'M', 'K', 'N', 'S', 'H']) {
+        expect(allIsos).toContain(group);
       }
     });
 
-    it('covers all substrate types', () => {
-      const substrates = new Set(TUNGALOY_TURNING_GRADES.map(g => g.substrate));
-      expect(substrates).toContain('carbide');
-      expect(substrates).toContain('cermet');
-      expect(substrates).toContain('cbn');
-      expect(substrates).toContain('pcd');
-      expect(substrates).toContain('ceramic');
-    });
-
-    it('T9225 is first choice for P (steel)', () => {
-      const t9225 = TUNGALOY_TURNING_GRADES.find(g => g.code === 'T9225');
+    it('T9225 covers P/M/K (general purpose CVD)', () => {
+      const t9225 = TUNGALOY_TURNING_GRADES.find(g => g.grade === 'T9225');
       expect(t9225).toBeDefined();
-      expect(t9225!.iso_suitability.P).toBe('first_choice');
-      expect(t9225!.substrate).toBe('carbide');
-      expect(t9225!.coating).toBe('CVD');
+      expect(t9225!.iso_groups).toContain('P');
+      expect(t9225!.iso_groups).toContain('M');
+      expect(t9225!.iso_groups).toContain('K');
     });
 
-    it('AH8005 is first choice for S (superalloys)', () => {
-      const ah8005 = TUNGALOY_TURNING_GRADES.find(g => g.code === 'AH8005');
+    it('AH8005 covers S (superalloys)', () => {
+      const ah8005 = TUNGALOY_TURNING_GRADES.find(g => g.grade === 'AH8005');
       expect(ah8005).toBeDefined();
-      expect(ah8005!.iso_suitability.S).toBe('first_choice');
+      expect(ah8005!.iso_groups).toContain('S');
     });
 
-    it('BXA10 is first choice for H (hardened)', () => {
-      const bxa10 = TUNGALOY_TURNING_GRADES.find(g => g.code === 'BXA10');
-      expect(bxa10).toBeDefined();
-      expect(bxa10!.iso_suitability.H).toBe('first_choice');
-      expect(bxa10!.substrate).toBe('cbn');
-    });
-
-    it('GH130 is first choice for K (cast iron)', () => {
-      const gh130 = TUNGALOY_TURNING_GRADES.find(g => g.code === 'GH130');
+    it('GH130 covers H (hardened)', () => {
+      const gh130 = TUNGALOY_TURNING_GRADES.find(g => g.grade === 'GH130');
       expect(gh130).toBeDefined();
-      expect(gh130!.iso_suitability.K).toBe('first_choice');
+      expect(gh130!.iso_groups).toContain('H');
     });
 
-    it('KS05F is first choice for N (non-ferrous)', () => {
-      const ks05f = TUNGALOY_TURNING_GRADES.find(g => g.code === 'KS05F');
+    it('KS05F covers N (non-ferrous)', () => {
+      const ks05f = TUNGALOY_TURNING_GRADES.find(g => g.grade === 'KS05F');
       expect(ks05f).toBeDefined();
-      expect(ks05f!.iso_suitability.N).toBe('first_choice');
-      expect(ks05f!.coating).toBe('uncoated');
+      expect(ks05f!.iso_groups).toContain('N');
     });
 
-    it('no grade is first_choice for all 6 groups (physically impossible)', () => {
-      for (const grade of TUNGALOY_TURNING_GRADES) {
-        const firstChoiceCount = Object.values(grade.iso_suitability)
-          .filter(v => v === 'first_choice').length;
-        expect(firstChoiceCount).toBeLessThanOrEqual(4);
-      }
+    it('has CBN grades (BX/GH prefix)', () => {
+      const cbn = TUNGALOY_TURNING_GRADES.filter(
+        g => g.grade.startsWith('BX') || g.grade.startsWith('GH')
+      );
+      expect(cbn.length).toBeGreaterThanOrEqual(5);
+    });
+
+    it('has ceramic grades (TH/TS prefix)', () => {
+      const ceramic = TUNGALOY_TURNING_GRADES.filter(
+        g => g.grade.startsWith('TH') || g.grade.startsWith('TS')
+      );
+      expect(ceramic.length).toBeGreaterThanOrEqual(2);
     });
   });
 
   describe('Grooving Inserts', () => {
-    it('has 9 grooving series', () => {
-      expect(TUNGALOY_GROOVING_INSERTS).toHaveLength(9);
+    it('has 89 grooving inserts', () => {
+      expect(TUNGALOY_GROOVING_INSERTS).toHaveLength(89);
     });
 
-    it('DGM is the primary external grooving series', () => {
-      const dgm = TUNGALOY_GROOVING_INSERTS.find(g => g.series === 'DGM');
-      expect(dgm).toBeDefined();
-      expect(dgm!.cut_width_mm).toContain(3);
-      expect(dgm!.iso_groups).toContain('P');
+    it('has 8 grooving families', () => {
+      const families = new Set(TUNGALOY_GROOVING_INSERTS.map(g => g.family));
+      expect(families.size).toBe(8);
     });
 
-    it('each series has valid grades that exist in grade table', () => {
-      const gradeSet = new Set(TUNGALOY_TURNING_GRADES.map(g => g.code));
-      for (const series of TUNGALOY_GROOVING_INSERTS) {
-        for (const grade of series.grades) {
-          expect(gradeSet.has(grade)).toBe(true);
+    it('DGM is a primary grooving family with multiple widths', () => {
+      const dgm = TUNGALOY_GROOVING_INSERTS.filter(g => g.family === 'DGM');
+      expect(dgm.length).toBeGreaterThan(5);
+      const widths = new Set(dgm.map(g => g.width_mm));
+      expect(widths.size).toBeGreaterThan(3);
+    });
+
+    it('each grooving insert has required fields', () => {
+      for (const ins of TUNGALOY_GROOVING_INSERTS) {
+        expect(ins.designation).toBeTruthy();
+        expect(ins.type).toBe('grooving_insert');
+        expect(ins.family).toBeTruthy();
+        expect(ins.width_mm).toBeGreaterThan(0);
+      }
+    });
+
+    it('each insert has valid grades that exist in grade table', () => {
+      const gradeSet = new Set(TUNGALOY_TURNING_GRADES.map(g => g.grade));
+      for (const ins of TUNGALOY_GROOVING_INSERTS) {
+        if (ins.available_grades) {
+          for (const grade of ins.available_grades) {
+            expect(gradeSet.has(grade)).toBe(true);
+          }
         }
       }
     });
   });
 
-  describe('Catalog Summary', () => {
-    it('summary counts match actual data', () => {
-      expect(TUNGALOY_TURNING_CATALOG_SUMMARY.insert_shapes).toBe(TUNGALOY_INSERT_SHAPES.length);
-      expect(TUNGALOY_TURNING_CATALOG_SUMMARY.chipbreakers).toBe(TUNGALOY_CHIPBREAKERS.length);
-      expect(TUNGALOY_TURNING_CATALOG_SUMMARY.grades).toBe(TUNGALOY_TURNING_GRADES.length);
-      expect(TUNGALOY_TURNING_CATALOG_SUMMARY.grooving_series).toBe(TUNGALOY_GROOVING_INSERTS.length);
+  describe('Threading Inserts', () => {
+    it('has 323 threading inserts', () => {
+      expect(TUNGALOY_THREADING_INSERTS).toHaveLength(323);
     });
 
-    it('substrate breakdown sums to total grades', () => {
-      const subs = TUNGALOY_TURNING_CATALOG_SUMMARY.grade_substrates;
-      const total = subs.carbide + subs.cermet + subs.cbn + subs.pcd + subs.ceramic;
-      expect(total).toBe(TUNGALOY_TURNING_GRADES.length);
+    it('covers external and internal threading', () => {
+      const dirs = new Set(TUNGALOY_THREADING_INSERTS.map(t => t.direction));
+      expect(dirs).toContain('external');
+      expect(dirs).toContain('internal');
+    });
+  });
+
+  describe('Cutting Conditions', () => {
+    it('has 56 turning conditions', () => {
+      expect(TUNGALOY_TURNING_CONDITIONS).toHaveLength(56);
+    });
+
+    it('has 16 grooving conditions', () => {
+      expect(TUNGALOY_GROOVING_CONDITIONS).toHaveLength(16);
+    });
+
+    it('each turning condition has valid feed/ap ranges', () => {
+      for (const cond of TUNGALOY_TURNING_CONDITIONS) {
+        expect(cond.ap_min_mm).toBeLessThan(cond.ap_max_mm);
+        expect(cond.feed_min_mm_rev).toBeLessThan(cond.feed_max_mm_rev);
+        expect(cond.iso_groups.length).toBeGreaterThan(0);
+        expect(cond.vc_ranges.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('TF chipbreaker has finishing conditions', () => {
+      const tf = TUNGALOY_TURNING_CONDITIONS.filter(c => c.chipbreaker === 'TF');
+      expect(tf.length).toBeGreaterThan(0);
+      // TF = finishing, should have small ap range
+      for (const cond of tf) {
+        expect(cond.ap_max_mm).toBeLessThanOrEqual(2);
+      }
     });
   });
 });
