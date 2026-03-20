@@ -239,14 +239,14 @@ export const DISPATCHER_ANNOTATIONS: Record<string, ToolAnnotationConfig> = {
   // ═══════════════════════════════════════════════════════════════
   prism_cam: {
     readOnlyHint: true,
-    idempotentHint: true,
+    idempotentHint: false,
     openWorldHint: false,
     title: "CAM Operations (22 actions)",
   },
   prism_cad: {
     readOnlyHint: false,
     destructiveHint: false,
-    idempotentHint: true,
+    idempotentHint: false,
     openWorldHint: false,
     title: "CAD Operations",
   },

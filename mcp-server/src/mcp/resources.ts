@@ -103,7 +103,8 @@ export function registerResources(server: McpServer): void {
             ),
           }],
         };
-      } catch {
+      } catch (err) {
+        log.warn(`[MCP Resource] Machine lookup failed: ${id}`, err);
         return {
           contents: [{
             uri: uri.href,
@@ -139,7 +140,8 @@ export function registerResources(server: McpServer): void {
             ),
           }],
         };
-      } catch {
+      } catch (err) {
+        log.warn(`[MCP Resource] Material lookup failed: ${id}`, err);
         return {
           contents: [{
             uri: uri.href,
@@ -175,7 +177,8 @@ export function registerResources(server: McpServer): void {
             ),
           }],
         };
-      } catch {
+      } catch (err) {
+        log.warn(`[MCP Resource] Tool lookup failed: ${id}`, err);
         return {
           contents: [{
             uri: uri.href,
@@ -224,7 +227,8 @@ export function registerResources(server: McpServer): void {
             text: safeJson({ error: `Alarm not found: ${code}` }),
           }],
         };
-      } catch {
+      } catch (err) {
+        log.warn(`[MCP Resource] Alarm decode failed: ${code}`, err);
         return {
           contents: [{
             uri: uri.href,
