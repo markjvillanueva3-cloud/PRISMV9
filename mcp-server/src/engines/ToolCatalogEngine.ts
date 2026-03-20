@@ -458,7 +458,7 @@ export class ToolCatalogEngine {
       if (input.finish_required && (t.flute_count ?? 0) >= 4) {
         score += 10;
         reasons.push("high flute count for finish");
-      } else if (!input.finish_required && (t.flute_count ?? 0) <= 3) {
+      } else if (input.finish_required === false && (t.flute_count ?? 0) <= 3) {
         score += 5;
         reasons.push("low flute count for chip evacuation");
       }
@@ -757,6 +757,85 @@ export class ToolCatalogEngine {
     };
   }
 
+  applyFieldInference(): { flutesFilled: number; helixFilled: number; coatingFilled: number; centerCuttingFilled: number } {
+    let flutesFilled = 0;
+    let helixFilled = 0;
+    let coatingFilled = 0;
+    let centerCuttingFilled = 0;
+
+    for (const tool of this.tools.values()) {
+      // 1. Flute count inference
+      if (!tool.flute_count) {
+        const isSpiralPoint = tool.subtype?.includes("spiral_point");
+        const fluteMap: Record<string, number> = {
+          drill: 2, reamer: 6, end_mill: 4, ball_mill: 2, boring_bar: 1,
+          insert: 1, turning_tool: 1, grooving_tool: 1, threading_tool: 1,
+          chamfer_mill: 4, slot_drill: 2,
+        };
+        if (tool.type === "tap") {
+          tool.flute_count = isSpiralPoint ? 2 : 3;
+          flutesFilled++;
+        } else if (tool.type === "face_mill") {
+          tool.flute_count = Math.round((tool.physical?.cutting_diameter_mm ?? 50) / 12);
+          flutesFilled++;
+        } else if (fluteMap[tool.type] !== undefined) {
+          tool.flute_count = fluteMap[tool.type];
+          flutesFilled++;
+        }
+      }
+
+      // 2. Helix angle inference
+      if (tool.helix_angle_deg == null) {
+        const isSpiralPoint = tool.subtype?.includes("spiral_point");
+        const helixMap: Record<string, number> = {
+          drill: 30, end_mill: 35, ball_mill: 30,
+          chamfer_mill: 35, reamer: 8,
+        };
+        if (tool.type === "tap") {
+          tool.helix_angle_deg = isSpiralPoint ? 15 : 35;
+          helixFilled++;
+        } else if (tool.subtype === "roughing" && tool.type === "end_mill") {
+          tool.helix_angle_deg = 38;
+          helixFilled++;
+        } else if (helixMap[tool.type] !== undefined) {
+          tool.helix_angle_deg = helixMap[tool.type];
+          helixFilled++;
+        }
+      }
+
+      // 3. Coating inference
+      if (tool.coating == null) {
+        const mat = tool.material;
+        const tp = tool.type;
+        if (mat === "cbn" || mat === "pcd") {
+          tool.coating = "uncoated";
+        } else if (mat === "hss" || mat === "hss_cobalt") {
+          tool.coating = "TiN";
+        } else if (mat === "carbide" && tp === "tap") {
+          tool.coating = "TiCN";
+        } else if (mat === "carbide" && (tp.includes("mill") || tp === "drill")) {
+          tool.coating = "TiAlN";
+        } else {
+          tool.coating = "TiAlN";
+        }
+        coatingFilled++;
+      }
+
+      // 4. Center cutting inference
+      if (tool.center_cutting == null) {
+        if (tool.type === "end_mill" && (tool.flute_count ?? 5) <= 4) {
+          tool.center_cutting = true;
+          centerCuttingFilled++;
+        } else if (tool.type === "ball_mill" || tool.type === "drill" || tool.type === "chamfer_mill") {
+          tool.center_cutting = true;
+          centerCuttingFilled++;
+        }
+      }
+    }
+
+    return { flutesFilled, helixFilled, coatingFilled, centerCuttingFilled };
+  }
+
   private _loadStandardTools(): void {
     // Generate standard end mills for each diameter
     for (const [diaStr, dims] of Object.entries(END_MILL_STANDARD_DIMS)) {
@@ -937,6 +1016,9 @@ export class ToolCatalogEngine {
 
     // Apply statistical dimension imputation to upgrade estimated dimensions
     this.applyDimensionImputation();
+
+    // Apply field inference for flute count, helix angle, coating, center cutting
+    this.applyFieldInference();
   }
 
   private _loadTungaloyEndmills(): void {

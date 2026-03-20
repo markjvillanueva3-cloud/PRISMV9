@@ -457,6 +457,7 @@ const ACTIONS = [
   "hobbing_calc", "hobbing_shift",
   "cryo_predict", "cryo_recommend", "cryo_roi",
   "hardness_convert", "hardness_batch",
+  "standard_dimension_lookup", "standard_dimension_apply",
   "bend_allowance_calc",
   "anodize_allowance",
   "clamp_simulate", "clamp_validate", "clamp_optimize",
@@ -7074,6 +7075,22 @@ export function registerCalcDispatcher(server: any): void {
           case "laser_interferometer_deadpath": {
             const { laserInterferometerCompensationEngine: licd } = await import("../../engines/LaserInterferometerCompensationEngine.js");
             result = licd.calculateDeadpathError(params as any);
+            break;
+          }
+
+          // ── Standard Dimension Lookup (ISO 1832 / DIN 371/376 / ISO 13399) ──
+          case "standard_dimension_lookup": {
+            const { standardDimensionLookupEngine: sdl } = await import(
+              "../../engines/StandardDimensionLookupEngine.js"
+            );
+            result = sdl.lookup(params as any);
+            break;
+          }
+          case "standard_dimension_apply": {
+            const { standardDimensionLookupEngine: sda } = await import(
+              "../../engines/StandardDimensionLookupEngine.js"
+            );
+            result = sda.applyStandardDimensions(params.tools ?? []);
             break;
           }
 

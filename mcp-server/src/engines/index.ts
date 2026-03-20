@@ -3495,3 +3495,18 @@ export { diamondTurningEngine, DiamondTurningEngine } from "./DiamondTurningEngi
 
 // LaserInterferometerCompensationEngine — Edlen wavelength compensation, axis comp tables, measurement planning, deadpath
 export { laserInterferometerCompensationEngine, LaserInterferometerCompensationEngine } from "./LaserInterferometerCompensationEngine.js";
+
+// ProvenPartRecipeEngine — Proven manufacturing recipe storage (FAI-passed parts), ~/.prism/proven-recipes/ persistence
+export { provenPartRecipeEngine, ProvenPartRecipeEngine } from "./ProvenPartRecipeEngine.js";
+
+// PartSimilarityEngine � Multi-dimensional part similarity scoring with weighted normalized distance
+export { partSimilarityEngine, PartSimilarityEngine } from "./PartSimilarityEngine.js";
+
+// AdaptivePipelineGeneratorEngine — Adapts proven recipes to new parts with Kienzle/Taylor physics scaling
+export { adaptivePipelineGeneratorEngine, AdaptivePipelineGeneratorEngine } from "./AdaptivePipelineGeneratorEngine.js";
+
+// ProvenPipelineOrchestratorEngine — Master orchestrator: proveOut, findSimilar, generatePipeline, compare, recordOutcome, dashboard
+export { provenPipelineOrchestratorEngine, ProvenPipelineOrchestratorEngine } from "./ProvenPipelineOrchestratorEngine.js";
+
+// BenchmarkReportGeneratorEngine — Benchmark report generation (5-layer: synthetic, math, cross-engine, machine, industry)
+export { benchmarkReportGeneratorEngine, BenchmarkReportGeneratorEngine } from "./BenchmarkReportGeneratorEngine.js";
