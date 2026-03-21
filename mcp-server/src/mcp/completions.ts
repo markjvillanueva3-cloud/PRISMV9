@@ -8,8 +8,8 @@
  * @see https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/completion
  */
 
-import { registryManager } from "../registries/index.js";
-import { log } from "../utils/Logger.js";
+import { toolRegistry } from "../registries/ToolRegistry.js";
+import { alarmRegistry } from "../registries/AlarmRegistry.js";
 
 /** Maximum suggestions returned per completion request */
 const MAX_SUGGESTIONS = 25;
@@ -93,6 +93,72 @@ const PLAYBOOK_CATEGORIES = [
 ];
 
 /**
+ * Complete tool IDs by searching the 94K+ tool registry.
+ * Uses the public search() API. Requires >= 2 chars to avoid huge scans.
+ */
+function completeTool(
+  prefix: string
+): { values: string[]; total?: number; hasMore?: boolean } {
+  if (prefix.length < 2) {
+    return { values: [], total: toolRegistry.size, hasMore: true };
+  }
+  try {
+    const result = toolRegistry.search({
+      query: prefix,
+      limit: MAX_SUGGESTIONS,
+    });
+    const values = result.tools.map(t =>
+      t.name ? `${t.name} (${t.id ?? ""})` : String(t.id ?? "")
+    );
+    return {
+      values,
+      total: result.total,
+      hasMore: result.total > MAX_SUGGESTIONS,
+    };
+  } catch {
+    return { values: [], total: 0 };
+  }
+}
+
+/**
+ * Common alarm code prefixes for fast sync autocomplete.
+ * Full alarm search is async — for MCP completions (sync),
+ * we provide common prefixes that cover the most-queried alarms.
+ */
+const COMMON_ALARM_PREFIXES = [
+  "EX1004", "EX1005", "EX1010", "EX1020", "EX1050",
+  "AL 100", "AL 101", "AL 102", "AL 103", "AL 109",
+  "SV0401", "SV0404", "SV0410", "SV0418",
+  "PS0003", "PS0091", "PS0300",
+  "OT0001", "OT0500",
+  "2000", "2004", "2006", "2010", "2024",
+  "300", "301", "302", "303", "304",
+  "1001", "1004", "1005", "1010", "1020",
+  "4000", "4001", "4004", "4010",
+  "6011", "6012", "6020",
+  "SERVO ALARM", "OVERTRAVEL", "OVERHEAT",
+  "SPINDLE ALARM", "APC ALARM", "TURRET ALARM",
+];
+
+/**
+ * Complete alarm codes using static common-alarm list.
+ * Sync-safe for MCP completion/complete handler.
+ */
+function completeAlarm(
+  prefix: string
+): { values: string[]; total?: number; hasMore?: boolean } {
+  if (prefix.length < 1) {
+    return { values: [], total: alarmRegistry.size, hasMore: true };
+  }
+  const values = filterSuggestions(COMMON_ALARM_PREFIXES, prefix);
+  return {
+    values,
+    total: alarmRegistry.size,
+    hasMore: true,
+  };
+}
+
+/**
  * Filter and rank suggestions by prefix match.
  * Case-insensitive, returns up to MAX_SUGGESTIONS.
  */
@@ -132,11 +198,9 @@ export function completeResourceArg(
       candidates = COMMON_MATERIALS;
       break;
     case "cutting-tool":
-      // Tool IDs are too numerous for static list — return empty
-      return { values: [], total: 94177, hasMore: true };
+      return completeTool(prefix);
     case "alarm-decode":
-      // Alarm codes are too numerous — return empty
-      return { values: [], total: 10033, hasMore: true };
+      return completeAlarm(prefix);
     case "playbook-rules":
       candidates = PLAYBOOK_CATEGORIES;
       break;
