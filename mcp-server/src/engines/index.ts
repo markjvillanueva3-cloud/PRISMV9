@@ -3515,6 +3515,14 @@ export { provenPipelineOrchestratorEngine, ProvenPipelineOrchestratorEngine } fr
 
 // BenchmarkReportGeneratorEngine — Benchmark report generation (5-layer: synthetic, math, cross-engine, machine, industry)
 export { benchmarkReportGeneratorEngine, BenchmarkReportGeneratorEngine } from "./BenchmarkReportGeneratorEngine.js";
+// SamplingWorkflowEngine — MCP Sampling workflow generators for feasibility, CAM strategy, post-processor, print-to-program, self-correcting S/F
+export { samplingWorkflowEngine, SamplingWorkflowEngine } from "./SamplingWorkflowEngine.js";
+
+// Academy engines
+export { AssessmentEngine } from "./AssessmentEngine.js";
+export { LessonRendererEngine } from "./LessonRendererEngine.js";
+export { KnowledgeCurriculumBridgeEngine } from "./KnowledgeCurriculumBridgeEngine.js";
+
 
 // RealTimeMachineIntelligenceEngine — TECH-MS2: spindle monitor, chatter detect, thermal comp, tool life countdown, time series
 export { realTimeMachineIntelligenceEngine, RealTimeMachineIntelligenceEngine } from "./RealTimeMachineIntelligenceEngine.js";
