@@ -20,7 +20,7 @@ export interface ToolAnnotationConfig {
 }
 
 /**
- * Annotation map for all 67 PRISM dispatchers.
+ * Annotation map for all 68 PRISM dispatchers.
  * Categorized by safety profile:
  * - READ_ONLY: Data queries, lookups, calculations (no side effects)
  * - COMPUTE: Pure computation, idempotent (same input = same output)
@@ -238,10 +238,11 @@ export const DISPATCHER_ANNOTATIONS: Record<string, ToolAnnotationConfig> = {
   // ORCHESTRATION: Multi-step pipelines (read-only, may be slow)
   // ═══════════════════════════════════════════════════════════════
   prism_cam: {
-    readOnlyHint: true,
+    readOnlyHint: false,
+    destructiveHint: false,
     idempotentHint: false,
     openWorldHint: false,
-    title: "CAM Operations (22 actions)",
+    title: "CAM Operations",
   },
   prism_cad: {
     readOnlyHint: false,
@@ -287,16 +288,28 @@ export const DISPATCHER_ANNOTATIONS: Record<string, ToolAnnotationConfig> = {
     title: "Product Intelligence",
   },
   prism_machine_live: {
-    readOnlyHint: true,
+    readOnlyHint: false,
     idempotentHint: false,
     openWorldHint: true,
     title: "Machine Live Data",
   },
   prism_integration: {
-    readOnlyHint: true,
-    idempotentHint: true,
-    openWorldHint: false,
+    readOnlyHint: false,
+    idempotentHint: false,
+    openWorldHint: true,
     title: "System Integration",
+  },
+  prism_proven_pipeline: {
+    readOnlyHint: true,
+    idempotentHint: false,
+    openWorldHint: false,
+    title: "Proven Pipeline Workflows",
+  },
+  prism_monitoring: {
+    readOnlyHint: true,
+    idempotentHint: false,
+    openWorldHint: false,
+    title: "System Monitoring",
   },
 
   // ═══════════════════════════════════════════════════════════════
