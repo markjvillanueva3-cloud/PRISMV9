@@ -32,6 +32,18 @@ const taskResults = new Map<string, {
  * Register task-based tools if the experimental API is available.
  * Falls back gracefully if the SDK version doesn't support it.
  */
+/** Experimental task store interface */
+interface TaskStore {
+  createTask(opts: { ttl: number; pollInterval: number }): Promise<{ taskId: string }>;
+  updateTask(taskId: string, update: { status: string; statusMessage: string }): Promise<void>;
+}
+
+/** Extra context passed to task handlers */
+interface TaskHandlerExtra {
+  taskStore: TaskStore;
+  taskId: string;
+}
+
 /** McpServer with experimental tasks API (not on public type) */
 type McpServerWithExperimental = McpServer & {
   experimental?: {
@@ -83,7 +95,7 @@ export function registerTaskTools(server: McpServer): void {
       {
         createTask: async (
           args: { gcode: string; material?: string; machine?: string },
-          extra: any
+          extra: TaskHandlerExtra
         ) => {
           const task = await extra.taskStore.createTask({
             ttl: 300000, // 5 min TTL
@@ -116,7 +128,7 @@ export function registerTaskTools(server: McpServer): void {
           return { task };
         },
 
-        getTask: async (_args: any, extra: any) => {
+        getTask: async (_args: Record<string, unknown>, extra: TaskHandlerExtra) => {
           const state = taskResults.get(extra.taskId);
           if (!state) {
             return {
@@ -137,7 +149,7 @@ export function registerTaskTools(server: McpServer): void {
           };
         },
 
-        getTaskResult: async (_args: any, extra: any) => {
+        getTaskResult: async (_args: Record<string, unknown>, extra: TaskHandlerExtra) => {
           const state = taskResults.get(extra.taskId);
           if (!state || state.status !== "completed") {
             return {
@@ -164,9 +176,10 @@ export function registerTaskTools(server: McpServer): void {
     );
 
     log.info("[MCP Tasks] Registered 1 task tool: prism_simulate_task");
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     log.warn(
-      `[MCP Tasks] Registration failed (non-fatal): ${err.message}`
+      `[MCP Tasks] Registration failed (non-fatal): ${message}`
     );
   }
 }
@@ -177,7 +190,7 @@ export function registerTaskTools(server: McpServer): void {
 async function runSimulationAsync(
   taskId: string,
   args: { gcode: string; material?: string; machine?: string },
-  taskStore: any
+  taskStore: TaskStore
 ): Promise<void> {
   const state = taskResults.get(taskId);
   if (!state) return;
@@ -210,12 +223,13 @@ async function runSimulationAsync(
       status: "completed",
       statusMessage: `Simulation complete: ${state.total} blocks`,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     state.status = "failed";
-    state.error = err.message;
+    state.error = message;
     await taskStore.updateTask(taskId, {
       status: "failed",
-      statusMessage: `Simulation failed: ${err.message}`,
+      statusMessage: `Simulation failed: ${message}`,
     });
   }
 }

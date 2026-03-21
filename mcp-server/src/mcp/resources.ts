@@ -104,7 +104,8 @@ export function registerResources(server: McpServer): void {
           }],
         };
       } catch (err) {
-        log.warn(`[MCP Resource] Machine lookup failed: ${id}`, err);
+        console.error(`[PRISM:resources] machine lookup failed for '${id}':`, err instanceof Error ? err.message : err);
+        log.warn(`[MCP Resource] Machine lookup failed: ${id}`, { error: String(err) });
         return {
           contents: [{
             uri: uri.href,
@@ -141,7 +142,8 @@ export function registerResources(server: McpServer): void {
           }],
         };
       } catch (err) {
-        log.warn(`[MCP Resource] Material lookup failed: ${id}`, err);
+        console.error(`[PRISM:resources] material lookup failed for '${id}':`, err instanceof Error ? err.message : err);
+        log.warn(`[MCP Resource] Material lookup failed: ${id}`, { error: String(err) });
         return {
           contents: [{
             uri: uri.href,
@@ -178,7 +180,8 @@ export function registerResources(server: McpServer): void {
           }],
         };
       } catch (err) {
-        log.warn(`[MCP Resource] Tool lookup failed: ${id}`, err);
+        console.error(`[PRISM:resources] tool lookup failed for '${id}':`, err instanceof Error ? err.message : err);
+        log.warn(`[MCP Resource] Tool lookup failed: ${id}`, { error: String(err) });
         return {
           contents: [{
             uri: uri.href,
@@ -228,7 +231,8 @@ export function registerResources(server: McpServer): void {
           }],
         };
       } catch (err) {
-        log.warn(`[MCP Resource] Alarm decode failed: ${code}`, err);
+        console.error(`[PRISM:resources] alarm decode failed for '${code}':`, err instanceof Error ? err.message : err);
+        log.warn(`[MCP Resource] Alarm decode failed: ${code}`, { error: String(err) });
         return {
           contents: [{
             uri: uri.href,

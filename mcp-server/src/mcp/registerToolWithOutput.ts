@@ -21,6 +21,21 @@ import { DISPATCHER_ANNOTATIONS } from "./toolAnnotations.js";
 /** Shape accepted by server.registerTool inputSchema */
 type ZodRawShape = Record<string, z.ZodTypeAny>;
 
+/** Minimal MCP tool handler signature */
+type ToolHandler = (args: Record<string, unknown>, extra: Record<string, unknown>) => Promise<unknown>;
+
+/** MCP server interface supporting both legacy tool() and newer registerTool() */
+interface McpServerLike {
+  tool?(name: string, description: string, inputSchema: ZodRawShape, handler: ToolHandler): void;
+  registerTool?(name: string, config: Record<string, unknown>, handler: ToolHandler): void;
+}
+
+/** MCP tool result shape */
+interface ToolResult {
+  content?: Array<{ type: string; text: string }>;
+  structuredContent?: Record<string, unknown>;
+}
+
 /**
  * Registers a dispatcher tool using registerTool() with outputSchema.
  *
@@ -39,13 +54,11 @@ type ZodRawShape = Record<string, z.ZodTypeAny>;
  * @param options - Additional registration options
  */
 export function registerToolWithOutput(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  server: any,
+  server: McpServerLike,
   toolName: string,
   description: string,
   inputSchema: ZodRawShape,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handler: (args: any, extra: any) => Promise<any>,
+  handler: ToolHandler,
   options?: {
     annotations?: ToolAnnotations;
     title?: string;
@@ -56,8 +69,7 @@ export function registerToolWithOutput(
     ?? DISPATCHER_ANNOTATIONS[toolName] as ToolAnnotations | undefined;
 
   // Build config for registerTool
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const config: Record<string, any> = {
+  const config: Record<string, unknown> = {
     description,
     inputSchema,
   };
@@ -80,9 +92,9 @@ export function registerToolWithOutput(
   }
 
   // Use registerTool if available, fall back to tool() for older SDK versions
-  if (typeof server.registerTool === "function") {
+  if (server.registerTool) {
     server.registerTool(toolName, config, handler);
-  } else {
+  } else if (server.tool) {
     // Fallback: use deprecated server.tool() which ignores outputSchema
     server.tool(toolName, description, inputSchema, handler);
   }
@@ -103,12 +115,10 @@ export function registerToolWithOutput(
  * @returns Wrapped handler that injects structuredContent
  */
 export function wrapWithOutputSchema(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handler: (args: any, extra: any) => Promise<any>,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): (args: any, extra: any) => Promise<any> {
+  handler: ToolHandler,
+): ToolHandler {
   return async (args, extra) => {
-    const result = await handler(args, extra);
+    const result = await handler(args, extra) as ToolResult | undefined;
 
     // Extract action name from args
     const action = args?.action as string | undefined;
@@ -124,7 +134,7 @@ export function wrapWithOutputSchema(
     // Extract the JSON data from the content text response
     if (result?.content?.[0]?.type === "text") {
       try {
-        const parsed = JSON.parse(result.content[0].text);
+        const parsed = JSON.parse(result.content[0].text) as Record<string, unknown>;
         return {
           ...result,
           structuredContent: parsed,

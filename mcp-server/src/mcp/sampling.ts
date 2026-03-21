@@ -222,12 +222,13 @@ export async function requestSampling(
       model: (r as Record<string, unknown> | null)?.model as string ?? "unknown",
       toolCalls: 0, // Tool calls handled by client
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
     log.warn(
-      `[Sampling] Request failed: ${err.message}`
+      `[Sampling] Request failed: ${message}`
     );
     return {
-      text: `Sampling failed: ${err.message}`,
+      text: `Sampling failed: ${message}`,
       model: "none",
       toolCalls: 0,
     };

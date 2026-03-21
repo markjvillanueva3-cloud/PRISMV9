@@ -585,14 +585,15 @@ export class PrismOAuthServer {
       };
 
       return { valid: true, user, claims };
-    } catch (err: any) {
-      if (err?.code === "ERR_JWT_EXPIRED") {
+    } catch (err: unknown) {
+      const joseErr = err as { code?: string; message?: string };
+      if (joseErr.code === "ERR_JWT_EXPIRED") {
         return { valid: false, error: "Token expired" };
       }
-      if (err?.code === "ERR_JWS_SIGNATURE_VERIFICATION_FAILED") {
+      if (joseErr.code === "ERR_JWS_SIGNATURE_VERIFICATION_FAILED") {
         return { valid: false, error: "Invalid token signature" };
       }
-      return { valid: false, error: `Token validation failed: ${err.message}` };
+      return { valid: false, error: `Token validation failed: ${joseErr.message ?? String(err)}` };
     }
   }
 
