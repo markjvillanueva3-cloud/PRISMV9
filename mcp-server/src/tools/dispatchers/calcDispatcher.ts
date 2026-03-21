@@ -393,6 +393,20 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { verdict: result.verdict, max_divergence_pct: result.max_divergence_pct, warnings_count: result.warnings?.length ?? 0, auto_action: result.auto_action };
     case "consistency_summary":
       return { total: result.total_checks, consistent: result.consistent, minor: result.minor_divergences, major: result.major_divergences, avg_div: result.avg_max_divergence_pct };
+    case "part_similarity_compare":
+      return { overall: result.overall, breakdown: result.breakdown };
+    case "part_similarity_find_nearest":
+      return { top_match: result[0]?.id, top_score: result[0]?.score, count: result.length };
+    case "part_similarity_batch":
+      return { pairs: result.length, top_pair: result[0]?.id_a + "/" + result[0]?.id_b, top_score: result[0]?.score };
+    case "part_similarity_set_weights":
+      return { weights: result };
+    case "adaptive_pipeline_generate":
+      return { pipeline_id: result.pipeline_id, total_steps: result.total_steps, confidence: result.overall_confidence, cycle_sec: result.estimated_cycle_time_sec, warnings: result.warnings?.length };
+    case "adaptive_pipeline_adapt_step":
+      return { operation: result.operation_type, adaptation: result.adaptation_type, confidence: result.confidence, cycle_sec: result.estimated_cycle_time_sec };
+    case "adaptive_pipeline_preview":
+      return { total_steps: result.total_steps, confidence: result.overall_confidence, warnings: result.warnings?.length };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -832,6 +846,10 @@ const ACTIONS = [
   "laser_interferometer_plan", "laser_interferometer_deadpath",
   // -- Grinding Burn + Variable Helix Chatter Suppression (video learning) --
   "grinding_burn_risk", "chatter_variable_helix_design",
+  // -- Part Similarity --
+  "part_similarity_compare", "part_similarity_find_nearest", "part_similarity_batch", "part_similarity_set_weights",
+  // -- Adaptive Pipeline Generator --
+  "adaptive_pipeline_generate", "adaptive_pipeline_adapt_step", "adaptive_pipeline_preview",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -7251,6 +7269,45 @@ export function registerCalcDispatcher(server: any): void {
           case "chatter_variable_helix_design": {
             const { dampingOptimizationEngine } = await import("../../engines/DampingOptimizationEngine.js");
             result = dampingOptimizationEngine.designVariableHelixTool(params as ValidatedParams);
+            break;
+          }
+
+          // ── Part Similarity ──
+          case "part_similarity_compare": {
+            const { partSimilarityEngine } = await import("../../engines/PartSimilarityEngine.js");
+            result = partSimilarityEngine.compare(params.part_a as ValidatedParams, params.part_b as ValidatedParams, params.custom_weights as ValidatedParams);
+            break;
+          }
+          case "part_similarity_find_nearest": {
+            const { partSimilarityEngine: psNearest } = await import("../../engines/PartSimilarityEngine.js");
+            result = psNearest.findNearest(params.target as ValidatedParams, params.candidates as ValidatedParams, params.top_n as ValidatedParams, params.custom_weights as ValidatedParams);
+            break;
+          }
+          case "part_similarity_batch": {
+            const { partSimilarityEngine: psBatch } = await import("../../engines/PartSimilarityEngine.js");
+            result = psBatch.batch(params.specs as ValidatedParams, params.custom_weights as ValidatedParams);
+            break;
+          }
+          case "part_similarity_set_weights": {
+            const { partSimilarityEngine: psWeights } = await import("../../engines/PartSimilarityEngine.js");
+            result = psWeights.setWeights(params.weights as ValidatedParams);
+            break;
+          }
+
+          // ── Adaptive Pipeline Generator ──
+          case "adaptive_pipeline_generate": {
+            const { adaptivePipelineGeneratorEngine } = await import("../../engines/AdaptivePipelineGeneratorEngine.js");
+            result = adaptivePipelineGeneratorEngine.calculate("pipeline_adapt", params as ValidatedParams);
+            break;
+          }
+          case "adaptive_pipeline_adapt_step": {
+            const { adaptivePipelineGeneratorEngine: apStep } = await import("../../engines/AdaptivePipelineGeneratorEngine.js");
+            result = apStep.calculate("pipeline_adapt_step", params as ValidatedParams);
+            break;
+          }
+          case "adaptive_pipeline_preview": {
+            const { adaptivePipelineGeneratorEngine: apPreview } = await import("../../engines/AdaptivePipelineGeneratorEngine.js");
+            result = apPreview.calculate("pipeline_preview", params as ValidatedParams);
             break;
           }
 
