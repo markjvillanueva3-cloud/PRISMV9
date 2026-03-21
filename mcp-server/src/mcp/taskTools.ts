@@ -32,8 +32,17 @@ const taskResults = new Map<string, {
  * Register task-based tools if the experimental API is available.
  * Falls back gracefully if the SDK version doesn't support it.
  */
+/** McpServer with experimental tasks API (not on public type) */
+type McpServerWithExperimental = McpServer & {
+  experimental?: {
+    tasks?: {
+      registerToolTask: (...args: unknown[]) => unknown;
+    };
+  };
+};
+
 export function registerTaskTools(server: McpServer): void {
-  const experimental = (server as any).experimental;
+  const experimental = (server as McpServerWithExperimental).experimental;
   if (!experimental?.tasks?.registerToolTask) {
     log.info(
       "[MCP Tasks] Experimental tasks API not available — " +

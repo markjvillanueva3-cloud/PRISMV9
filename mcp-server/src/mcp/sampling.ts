@@ -191,29 +191,35 @@ export async function requestSampling(
         intelligencePriority:
           options?.intelligencePriority ?? 0.7,
       },
+      // SDK boundary: tool schemas are user-defined JSON objects
+      // that match the SDK's Tool shape at runtime
       tools: tools.map(t => ({
         name: t.name,
         description: t.description,
-        inputSchema: t.inputSchema as any,
-      })),
+        inputSchema: t.inputSchema,
+      })) as Parameters<typeof serverInstance.createMessage>[0]["tools"],
     });
 
     // Extract text from result
     let text = "";
-    if (result && typeof result === "object") {
-      const r = result as any;
-      if (r.content?.type === "text") {
-        text = r.content.text;
-      } else if (typeof r.content === "string") {
-        text = r.content;
-      } else if (r.text) {
+    const r = result as Record<string, unknown> | null;
+    if (r) {
+      const content = r.content as
+        | { type: string; text: string }
+        | string
+        | undefined;
+      if (content && typeof content === "object" && content.type === "text") {
+        text = content.text;
+      } else if (typeof content === "string") {
+        text = content;
+      } else if (typeof r.text === "string") {
         text = r.text;
       }
     }
 
     return {
       text,
-      model: (result as any)?.model ?? "unknown",
+      model: (r as Record<string, unknown> | null)?.model as string ?? "unknown",
       toolCalls: 0, // Tool calls handled by client
     };
   } catch (err: any) {
@@ -245,7 +251,7 @@ export async function resolveMaterial(
     "Use the material_search tool to find candidates. " +
     "Return the best match with confidence level.",
     `Resolve this material: "${ambiguousName}"`,
-    SAMPLING_TOOL_SETS.materialResolve as any,
+    [...SAMPLING_TOOL_SETS.materialResolve],
     { maxTokens: 512, speedPriority: 0.8 }
   );
 
@@ -275,7 +281,7 @@ export async function selectMachine(
     "Consider power, rigidity, axes, and work envelope.",
     `Select machine for: ${operation} on ${material}. ` +
     `Requirements: ${requirements}`,
-    SAMPLING_TOOL_SETS.machineSelect as any,
+    [...SAMPLING_TOOL_SETS.machineSelect],
     { maxTokens: 1024, intelligencePriority: 0.9 }
   );
 
