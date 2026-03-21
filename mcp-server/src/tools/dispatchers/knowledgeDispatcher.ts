@@ -18,13 +18,44 @@ const ACADEMY_ACTIONS = [
   "academy_generate_questions",
 ] as const;
 
+const VISUAL_LAB_ACTIONS = [
+  "visual_lab_tool", "visual_lab_workpiece", "visual_lab_animation",
+  "visual_lab_toolpath", "visual_lab_stress", "visual_lab_chip",
+  "visual_lab_params",
+] as const;
+
+const KG_ACTIONS = [
+  "kg_schema", "kg_populate", "kg_query", "kg_recommend", "kg_gap",
+] as const;
+
+const TROUBLESHOOT_TREE_ACTIONS = [
+  "troubleshoot_diagnose", "troubleshoot_by_symptom",
+  "troubleshoot_tree", "troubleshoot_common",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
   ...ACADEMY_ACTIONS,
+  ...VISUAL_LAB_ACTIONS,
+  ...KG_ACTIONS,
+  ...TROUBLESHOOT_TREE_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
+let kgEngine: any = null;
+
+async function getKGEngine(): Promise<any> {
+  if (!kgEngine) {
+    try {
+      const mod = await import("../../engines/ManufacturingKnowledgeGraphEngine.js");
+      kgEngine = mod.manufacturingKnowledgeGraphEngine || new mod.ManufacturingKnowledgeGraphEngine();
+    } catch (e) {
+      log.warn("[knowledgeDispatcher] ManufacturingKnowledgeGraphEngine not available");
+    }
+  }
+  return kgEngine;
+}
 
 async function getEngine(): Promise<any> {
   if (!knowledgeEngine) {
@@ -231,6 +262,52 @@ export function registerKnowledgeDispatcher(server: any): void {
               default:
                 result = { error: `Unknown academy action: ${action}` };
             }
+            break;
+          }
+          // ── Visual Lab (3D Scene Descriptions) ─────────────
+          case "visual_lab_tool":
+          case "visual_lab_workpiece":
+          case "visual_lab_animation":
+          case "visual_lab_toolpath":
+          case "visual_lab_stress":
+          case "visual_lab_chip":
+          case "visual_lab_params": {
+            const { visualLabEngine } = await import(
+              "../../engines/VisualLabEngine.js"
+            );
+            const actionMap: Record<string, string> = {
+              visual_lab_tool: "tool_scene",
+              visual_lab_workpiece: "workpiece_scene",
+              visual_lab_animation: "cutting_animation",
+              visual_lab_toolpath: "toolpath_preview",
+              visual_lab_stress: "stress_overlay",
+              visual_lab_chip: "chip_formation",
+              visual_lab_params: "interactive_param",
+            };
+            result = visualLabEngine.calculate(
+              actionMap[action] as any, params
+            );
+            break;
+          }
+          case "kg_schema":
+          case "kg_populate":
+          case "kg_query":
+          case "kg_recommend":
+          case "kg_gap": {
+            const kg = await getKGEngine();
+            if (!kg) return dispatcherError(new Error("KG engine unavailable"), action, "prism_knowledge");
+            const kgResult = kg.calculate(action, params);
+            return { content: [{ type: "text", text: JSON.stringify(slimResponse(kgResult)) }] };
+          }
+          // ── Troubleshooting Decision Tree ──────────────────
+          case "troubleshoot_diagnose":
+          case "troubleshoot_by_symptom":
+          case "troubleshoot_tree":
+          case "troubleshoot_common": {
+            const { troubleshootingDecisionTreeEngine: dtEngine } = await import(
+              "../../engines/TroubleshootingDecisionTreeEngine.js"
+            );
+            result = dtEngine.calculate(action, params);
             break;
           }
         }

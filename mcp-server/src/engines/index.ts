@@ -2273,6 +2273,7 @@ export { toolpathSimulationEngine, ToolpathSimulationEngine } from "./ToolpathSi
 export { trustRegionEngine } from "./TrustRegionEngine.js";
 export { topologyEngine } from "./TopologyEngine.js";
 export { CORE_CATEGORIES, tribalKnowledgeEngine, TribalKnowledgeEngine } from "./TribalKnowledgeEngine.js";
+export { troubleshootingDecisionTreeEngine, TroubleshootingDecisionTreeEngine } from "./TroubleshootingDecisionTreeEngine.js";
 export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingEngine.js";
 export { troubleshootingAssistantEngine, TroubleshootingAssistantEngine } from "./TroubleshootingAssistantEngine.js";
 export { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";

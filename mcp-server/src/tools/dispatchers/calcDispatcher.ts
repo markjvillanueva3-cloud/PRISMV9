@@ -11,6 +11,7 @@ import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js"
 import { computationCache } from "../../engines/ComputationCache.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
+import { logActionTelemetry } from "../../utils/actionTelemetry.js";
 
 /** Zod-validated params — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls.
  *  Type is `any` because Zod runtime validation guarantees shape correctness; static types
@@ -94,6 +95,8 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
     case "uts_based_force":
       return { Ft_N: result.tangential_force_N?.value, torque_Nm: result.spindle_torque_Nm?.value, power_kW: result.spindle_power_kW?.value, teeth_engaged: result.teeth_engaged?.value, wear_factor: result.wear_factor_used?.value };
+    case "helix_angle_force_decomposition":
+      return { Fa_N: result.axial_force_N?.value, Fr_N: result.radial_force_N?.value, axial_ratio: result.axial_ratio?.value, radial_ratio: result.radial_ratio?.value, deflection_tendency: result.deflection_tendency };
     case "coolant_lifecycle":
       return { interval_days: result.optimal_change_interval_days, cost_per_day: result.total_cost_per_day, health: result.health_at_horizon, makeup_L_day: result.makeup_volume_L_per_day, warnings: result.warnings?.length || 0 };
     case "standards_check_compliance":
@@ -407,6 +410,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { operation: result.operation_type, adaptation: result.adaptation_type, confidence: result.confidence, cycle_sec: result.estimated_cycle_time_sec };
     case "adaptive_pipeline_preview":
       return { total_steps: result.total_steps, confidence: result.overall_confidence, warnings: result.warnings?.length };
+    case "sampling_feasibility":
+      return { constraints: result.context?.constraints?.length, questions: result.context?.openQuestions?.length, setups: result.context?.estimatedSetups };
+    case "sampling_cam_strategy":
+      return { top_strategy: result.rankedStrategies?.[0]?.name, score: result.rankedStrategies?.[0]?.score, count: result.rankedStrategies?.length };
+    case "sampling_post_processor":
+      return { dialect: result.bestMatch?.dialect, confidence: result.bestMatch?.confidence, alternatives: result.alternatives?.length };
+    case "sampling_print_to_program":
+      return { steps: result.chain?.length, dialect: result.metadata?.controllerDialect, material: result.metadata?.isoGroup };
+    case "sampling_self_correct_sf":
+      return { converged: result.convergence?.converged, iterations: result.convergence?.iterations, rpm: result.finalParams?.rpm, tool_life: result.finalParams?.toolLife_min };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -504,7 +517,7 @@ const ACTIONS = [
   "coolant_validate", "coolant_flow_check", "coolant_chip_evacuation",
   "hobbing_calc", "hobbing_shift",
   "cryo_predict", "cryo_recommend", "cryo_roi",
-  "hardness_convert", "hardness_batch",
+  "hardness_convert", "hardness_batch", "helix_angle_force_decomposition",
   "standard_dimension_lookup", "standard_dimension_apply",
   "bend_allowance_calc",
   "anodize_allowance",
@@ -850,6 +863,9 @@ const ACTIONS = [
   "part_similarity_compare", "part_similarity_find_nearest", "part_similarity_batch", "part_similarity_set_weights",
   // -- Adaptive Pipeline Generator --
   "adaptive_pipeline_generate", "adaptive_pipeline_adapt_step", "adaptive_pipeline_preview",
+  // -- Sampling Workflow --
+  "sampling_feasibility", "sampling_cam_strategy", "sampling_post_processor",
+  "sampling_print_to_program", "sampling_self_correct_sf",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -6365,6 +6381,12 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          case "helix_angle_force_decomposition": {
+            const { advancedCuttingMathEngine } = await import("../../engines/AdvancedCuttingMathEngine.js");
+            result = advancedCuttingMathEngine.helixAngleForceDecomposition(params as ValidatedParams);
+            break;
+          }
+
           // ── Coffin-Manson Fatigue (strain life, S-N curve, cyclic, thermal, multiaxial) ──
           case "fatigue_strain_life": case "fatigue_sn_curve":
           case "fatigue_cyclic_stress_strain": case "fatigue_thermal":
@@ -7310,6 +7332,16 @@ export function registerCalcDispatcher(server: any): void {
             result = apPreview.calculate("pipeline_preview", params as ValidatedParams);
             break;
           }
+          // ── Sampling Workflow ──
+          case "sampling_feasibility":
+          case "sampling_cam_strategy":
+          case "sampling_post_processor":
+          case "sampling_print_to_program":
+          case "sampling_self_correct_sf": {
+            const { samplingWorkflowEngine } = await import("../../engines/SamplingWorkflowEngine.js");
+            result = samplingWorkflowEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
 
           default:
             throw new Error(`Unknown calculation action: ${action}`);
@@ -7374,11 +7406,13 @@ export function registerCalcDispatcher(server: any): void {
           }, { category: "calculation", priority: "normal", source: "calcDispatcher" });
         } catch { /* best-effort */ }
 
+        logActionTelemetry(action, Date.now() - calcStart, true, "prism_calc");
         return {
           content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
         };
 
       } catch (error) {
+        logActionTelemetry(action, Date.now() - calcStart, false, "prism_calc");
         log.error(`[prism_calc] Error in ${action}:`, error);
         // MS4: Emit calc error event
         try {
