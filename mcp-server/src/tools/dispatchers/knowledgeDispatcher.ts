@@ -9,8 +9,20 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
 
-const ACTIONS = ["search", "cross_query", "formula", "relations", "stats",
-  "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats"] as const;
+const ACADEMY_ACTIONS = [
+  "academy_courses", "academy_course_detail",
+  "academy_start_course", "academy_complete_lesson",
+  "academy_quiz_start", "academy_quiz_answer",
+  "academy_quiz_result", "academy_dashboard",
+  "academy_certification_check", "academy_formula_cards",
+  "academy_generate_questions",
+] as const;
+
+const ACTIONS = [
+  "search", "cross_query", "formula", "relations", "stats",
+  "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
+  ...ACADEMY_ACTIONS,
+] as const;
 
 let knowledgeEngine: any = null;
 
@@ -137,6 +149,88 @@ export function registerKnowledgeDispatcher(server: any): void {
           case "tribal_stats": {
             const { tribalKnowledgeEngine } = await import("../../engines/TribalKnowledgeEngine.js");
             result = tribalKnowledgeEngine.stats();
+            break;
+          }
+          // ── PRISM Academy ──────────────────────────────────
+          case "academy_courses":
+          case "academy_course_detail":
+          case "academy_start_course":
+          case "academy_complete_lesson":
+          case "academy_dashboard":
+          case "academy_certification_check":
+          case "academy_formula_cards":
+          case "academy_generate_questions":
+          case "academy_quiz_start":
+          case "academy_quiz_answer":
+          case "academy_quiz_result": {
+            const { CurriculumEngine } = await import("../../engines/CurriculumEngine.js");
+            const { AssessmentEngine } = await import("../../engines/AssessmentEngine.js");
+            const { LessonRendererEngine } = await import("../../engines/LessonRendererEngine.js");
+            const curriculum = new CurriculumEngine();
+            const assessment = new AssessmentEngine();
+            const renderer = new LessonRendererEngine();
+            const sid = params.student_id ?? "default";
+            switch (action) {
+              case "academy_courses":
+                result = curriculum.getAllCourses().map(c => ({
+                  id: c.id, title: c.title, level: c.level,
+                  modules: c.modules.length, hours: c.estimatedHours,
+                  prerequisites: c.prerequisites,
+                }));
+                break;
+              case "academy_course_detail":
+                result = curriculum.getCourse(params.course_id);
+                break;
+              case "academy_start_course":
+                result = curriculum.startCourse(sid, params.course_id);
+                break;
+              case "academy_complete_lesson":
+                result = curriculum.completeLesson(
+                  sid, params.course_id, params.module_id,
+                  params.lesson_id, params.time_minutes ?? 5
+                );
+                break;
+              case "academy_dashboard":
+                result = curriculum.getStudentDashboard(sid);
+                break;
+              case "academy_certification_check":
+                result = curriculum.checkCertificationEligibility(
+                  sid, params.level ?? "operator"
+                );
+                break;
+              case "academy_formula_cards":
+                result = renderer.getAllFormulaCards();
+                break;
+              case "academy_generate_questions":
+                result = assessment.generateSpeedFeedQuestions(
+                  params.difficulty ?? 2
+                );
+                break;
+              case "academy_quiz_start": {
+                const course = curriculum.getCourse(params.course_id);
+                const mod = course?.modules.find(
+                  m => m.id === params.module_id
+                );
+                const questions = mod?.quiz.questions.length
+                  ? mod.quiz.questions
+                  : assessment.generateSpeedFeedQuestions(2);
+                result = assessment.startSession(
+                  sid, mod?.quiz.id ?? "quiz", questions,
+                  params.time_limit_minutes
+                );
+                break;
+              }
+              case "academy_quiz_answer":
+                result = assessment.submitAnswer(
+                  params.session_id, params.answer
+                );
+                break;
+              case "academy_quiz_result":
+                result = assessment.getResult(params.session_id);
+                break;
+              default:
+                result = { error: `Unknown academy action: ${action}` };
+            }
             break;
           }
         }
