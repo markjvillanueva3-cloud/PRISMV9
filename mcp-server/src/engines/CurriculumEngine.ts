@@ -29,7 +29,7 @@
 // Types
 // ═══════════════════════════════════════════════════════════════
 
-export type SkillLevel = "novice" | "intermediate" | "advanced" | "master";
+export type SkillLevel = "foundational" | "novice" | "intermediate" | "advanced" | "master";
 export type ContentType = "text" | "diagram" | "animation" | "calculator" | "sandbox" | "video" | "3d_viewer";
 export type QuestionType = "multiple_choice" | "calculation" | "visual_id" | "troubleshooting_tree";
 
@@ -159,7 +159,7 @@ export interface QuizScore {
 }
 
 export interface Certification {
-  level: "operator" | "programmer" | "master";
+  level: "foundational" | "operator" | "programmer" | "master";
   earnedDate: string;
   score: number;
   verificationCode: string;
@@ -644,6 +644,57 @@ export class CurriculumEngine {
   private initializeCurriculum(): void {
     // Course definitions — structure only, content populated by LessonRendererEngine
     const courseDefinitions: Array<Omit<Course, "modules"> & { moduleCount: number; moduleTitles: string[] }> = [
+      // ── Phase 0: Pre-Machining Fundamentals ──
+      {
+        id: "course-0a",
+        title: "Shop Math for Machinists",
+        description: "Decimals, fractions, metric, geometry, trig — all using machining examples. No prior math assumed.",
+        level: "novice",
+        prerequisites: [],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "Numbers & Decimals", "Fractions & Conversions",
+          "The Metric System", "Basic Geometry",
+          "Area & Volume", "Ratios & Percentages",
+          "Basic Algebra", "Trigonometry for Machinists",
+        ],
+      },
+      {
+        id: "course-0b",
+        title: "Hand Tools & Measurement",
+        description: "Every tool and instrument in the shop — wrenches to micrometers, tape measures to CMM reports.",
+        level: "novice",
+        prerequisites: ["course-0a"],
+        estimatedHours: 8,
+        moduleCount: 10,
+        moduleTitles: [
+          "Common Hand Tools", "Reading a Tape Measure",
+          "Calipers — Dial & Digital", "Micrometers",
+          "Height Gauges & Indicators", "Gauge Blocks & Pin Gauges",
+          "Surface Plates & Layout", "Thread Identification",
+          "Material Identification", "Inspection Reports",
+        ],
+      },
+      {
+        id: "course-0c",
+        title: "Blueprint Reading & GD&T",
+        description: "Read any engineering drawing — orthographic views, dimensions, tolerances, GD&T feature control frames.",
+        level: "novice",
+        prerequisites: ["course-0a"],
+        estimatedHours: 10,
+        certificationLevel: "foundational",
+        moduleCount: 12,
+        moduleTitles: [
+          "What is a Blueprint?", "Orthographic Projection",
+          "Isometric & Section Views", "Dimensioning Basics",
+          "Tolerancing", "Surface Finish Symbols",
+          "Thread Callouts", "Hole Callouts",
+          "GD&T Introduction", "GD&T Form Controls",
+          "GD&T Location Controls", "GD&T Orientation & Runout",
+        ],
+      },
+      // ── Phase 1: Machine Fundamentals ──
       {
         id: "course-1",
         title: "Manufacturing Fundamentals",
@@ -798,6 +849,39 @@ export class CurriculumEngine {
           "Post-Processor Issues",
         ],
       },
+      // ── Phase 5: Professional Development ──
+      {
+        id: "course-11",
+        title: "Shop Economics & Estimating",
+        description: "Cost per part, quoting, make-vs-buy, ROI on tooling, scrap economics",
+        level: "advanced",
+        prerequisites: ["course-2"],
+        estimatedHours: 5,
+        moduleCount: 6,
+        moduleTitles: [
+          "Cost Per Part Breakdown",
+          "Quoting Basics — Markup & Margin",
+          "Make vs Buy Decisions",
+          "ROI on Tooling Upgrades",
+          "Scrap Cost & First Article Economics",
+          "Price Breaks & Batch Economics",
+        ],
+      },
+      {
+        id: "course-12",
+        title: "Career Development for Machinists",
+        description: "Career paths, portfolio building, interview prep, continuous learning resources",
+        level: "intermediate",
+        prerequisites: ["course-1"],
+        estimatedHours: 3,
+        moduleCount: 4,
+        moduleTitles: [
+          "Career Paths — Operator to Engineer",
+          "Building a Programming Portfolio",
+          "Interview Preparation",
+          "Continuous Learning Resources",
+        ],
+      },
     ];
 
     for (const def of courseDefinitions) {
@@ -854,12 +938,20 @@ const CERTIFICATION_CONFIG: Record<string, {
   requiredCourses: string[];
   minimumScore: number;
 }> = {
+  foundational: {
+    requiredCourses: ["course-0a", "course-0b", "course-0c"],
+    minimumScore: 70,
+  },
   operator: {
-    requiredCourses: ["course-1", "course-2", "course-3"],
+    requiredCourses: [
+      "course-0a", "course-0b", "course-0c",
+      "course-1", "course-2", "course-3",
+    ],
     minimumScore: 80,
   },
   programmer: {
     requiredCourses: [
+      "course-0a", "course-0b", "course-0c",
       "course-1", "course-2", "course-3",
       "course-4", "course-5", "course-6", "course-7",
     ],
@@ -867,8 +959,10 @@ const CERTIFICATION_CONFIG: Record<string, {
   },
   master: {
     requiredCourses: [
+      "course-0a", "course-0b", "course-0c",
       "course-1", "course-2", "course-3", "course-4", "course-5",
       "course-6", "course-7", "course-8", "course-9", "course-10",
+      "course-11", "course-12",
     ],
     minimumScore: 90,
   },
