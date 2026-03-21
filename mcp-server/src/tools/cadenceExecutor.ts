@@ -5580,8 +5580,8 @@ function evaluateNLHookCondition(hook: any, ctx: NLHookContext): boolean {
     
     // Description keyword matching: check for key nouns in description vs context
     if (desc) {
-      const descWords = desc.split(/\s+/).filter(w => w.length > 4);
-      const matchCount = descWords.filter(w => contextStr.includes(w)).length;
+      const descWords = desc.split(/\s+/).filter((w: string) => w.length > 4);
+      const matchCount = descWords.filter((w: string) => contextStr.includes(w)).length;
       if (matchCount >= 2 && descWords.length > 0) {
         return true; // At least 2 description keywords match context
       }

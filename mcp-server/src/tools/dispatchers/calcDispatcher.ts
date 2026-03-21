@@ -68,12 +68,32 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { torque_Nm: result.cutting_torque_Nm?.value, thrust_N: result.axial_thrust_N?.value, power_kW: result.tapping_power_kW?.value, breakage_risk: result.breakage_risk, margin_pct: result.torque_margin_pct?.value, safe: result.is_safe };
     case "power_budget":
       return { required_kW: result.required_power_kW?.value, available_kW: result.available_power_kW?.value, utilization_pct: result.power_utilization_pct?.value, max_feed: result.max_feed_at_limit?.value, max_mrr: result.max_mrr_cm3_min?.value, limiting: result.limiting_factor, safe: result.is_safe };
+    case "spindle_torque_available":
+      return { torque_Nm: result.available_torque_Nm, power_kW: result.available_power_kW, region: result.region, base_speed: result.base_speed_rpm };
+    case "spindle_check_cut":
+      return { torque_ok: result.torque_ok, power_ok: result.power_ok, torque_margin: result.torque_margin_pct, power_margin: result.power_margin_pct, limiting: result.limiting_factor };
+    case "spindle_max_mrr":
+      return { mrr: result.max_mrr_cm3_per_min, max_ap: result.max_ap_mm, max_ae: result.max_ae_mm, limiting: result.limiting_factor, util_pct: result.spindle_utilization_pct };
+    case "spindle_plot_curve":
+      return { points: result.curve?.length, base_speed: result.base_speed_rpm, peak_torque: result.peak_torque_Nm, peak_power: result.peak_power_kW };
+    case "spindle_recommend_rpm":
+      return { feasible: result.feasible, rpm_range: result.rpm_range, optimal: result.optimal_rpm };
+    case "thin_wall_params":
+      return { ap_mm: result.recommended_ap_mm?.value, ae_mm: result.recommended_ae_mm?.value, fz_mm: result.recommended_fz_mm?.value, deflection_mm: result.wall_deflection_mm?.value, safe: result.deflection_safe, strategy: result.strategy };
+    case "thin_wall_deflection":
+      return { deflection_mm: result.static_deflection_mm?.value, force_N: result.cutting_force_N?.value, safety_factor: result.safety_factor?.value, safe: result.is_safe };
+    case "thin_wall_strategy":
+      return { risk: result.overall_risk, summary: result.summary };
+    case "thin_wall_frequency":
+      return { fn_Hz: result.natural_freq_Hz?.value, ft_Hz: result.tooth_passing_freq_Hz?.value, chatter_risk: result.chatter_risk };
     case "tool_deflection_predict":
       return { deflection_um: result.static_deflection_um?.value, error_um: result.dimensional_error_um?.value, stress_MPa: result.max_bending_stress_MPa?.value, safety_factor: result.safety_factor?.value, max_overhang_mm: result.max_recommended_overhang_mm?.value, within_tol: result.within_tolerance, safe: result.is_safe };
     case "chip_formation":
       return { shear_angle_deg: result.shear_angle_deg?.value, compression_ratio: result.chip_compression_ratio?.value, chip_type: result.chip_type, bue_risk: result.bue_risk, breakability: result.chip_breakability, safe: result.is_safe };
     case "chip_diagnose":
       return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
+    case "uts_based_force":
+      return { Ft_N: result.tangential_force_N?.value, torque_Nm: result.spindle_torque_Nm?.value, power_kW: result.spindle_power_kW?.value, teeth_engaged: result.teeth_engaged?.value, wear_factor: result.wear_factor_used?.value };
     case "coolant_lifecycle":
       return { interval_days: result.optimal_change_interval_days, cost_per_day: result.total_cost_per_day, health: result.health_at_horizon, makeup_L_day: result.makeup_volume_L_per_day, warnings: result.warnings?.length || 0 };
     case "standards_check_compliance":
@@ -230,6 +250,20 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { frontier_size: result.frontier.length, total_evaluated: result.total_evaluated, best_compromise: result.best_compromise?.objectives };
     case "chatter_stability_sld":
       return { optimal_rpm: result.optimal_rpm, max_stable_ap_mm: result.max_stable_ap_mm, lobes: result.lobes.length, stable_pockets: result.stable_pockets.length };
+    case "chatter_multi_frequency":
+      return { max_stable_depth_mm: result.max_stable_depth_mm, optimal_rpm: result.optimal_rpm, improvement_vs_zoa_pct: result.improvement_vs_zoa_pct, immersion_ratio: result.immersion_ratio, lobes: result.lobes?.length };
+    case "sle_predict":
+      return { sle_um: result.sle_um, phase_deg: result.phase_deg, risk: result.risk, ratio_to_natural: result.ratio_to_natural };
+    case "sle_optimize_rpm":
+      return { best_rpm: result.best_rpm, worst_rpm: result.worst_rpm, optimal_rpms: result.optimal_rpms?.length };
+    case "sle_combined_finish":
+      return { Ra_total_um: result.Ra_total_um, Ra_kinematic_um: result.Ra_kinematic_um, sle_um: result.sle_um, dominant_source: result.dominant_source };
+    case "rcsa_predict_frf":
+      return { natural_freq_Hz: result.natural_freq_Hz, stiffness_N_per_m: result.stiffness_N_per_m, damping_ratio: result.damping_ratio, dynamic_stiffness_N_per_um: result.dynamic_stiffness_N_per_um };
+    case "rcsa_compare":
+      return { better_for_stability: result.better_for_stability, stiffness_ratio: result.stiffness_ratio };
+    case "rcsa_suggest_length":
+      return { optimal_stickout_mm: result.optimal_stickout_mm, stability_margin: result.stability_margin, avoided_resonances: result.avoided_resonances?.length };
     case "surface_integrity_full":
       return { ra_um: result.roughness.ra_um, rz_um: result.roughness.rz_um, stress_type: result.residual_stress.type, stress_mpa: result.residual_stress.surface_mpa, white_layer: result.subsurface.white_layer_risk, grade: result.quality_grade };
     case "machining_energy_model":
@@ -547,6 +581,10 @@ const ACTIONS = [
   "hybrid_post_merge", "thermal_compensation_model", "spc_capability_analyze",
   "pareto_optimize", "chatter_stability_sld", "surface_integrity_full",
   "machining_energy_model",
+  // ── Chatter/Dynamics Enhancements (Altintas/Budak, Schmitz) ──
+  "chatter_multi_frequency",
+  "sle_predict", "sle_optimize_rpm", "sle_combined_finish",
+  "rcsa_predict_frf", "rcsa_compare", "rcsa_suggest_length",
   "monte_carlo_process",
   "doe_taguchi",
   "fixture_clamping",
@@ -627,7 +665,7 @@ const ACTIONS = [
   "boring_bar_deflection", "helical_milling_calc", "plunge_milling_calc",
   "high_feed_milling_calc", "gun_drilling_calc", "peck_drilling_calc",
   "reaming_calc", "coolant_flow_calc", "coolant_pressure_calc",
-  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "environmental_variation", "spindle_torque_curve", "stochastic_composite_mc", "stochastic_composite_sensitivity", "stochastic_grinding_mc", "stochastic_grinding_optimize",
+  "chip_load_calc", "chip_breaking_calc", "chip_diagnose", "coolant_lifecycle", "error_budget", "capability_predict", "stochastic_wear", "stochastic_dimension", "stochastic_deflection", "variability_pipeline", "material_variability", "stochastic_grinding", "thermal_wear_coupling", "stochastic_edm", "environmental_variation", "spindle_torque_curve", "stochastic_composite_mc", "stochastic_composite_sensitivity", "stochastic_grinding_mc", "stochastic_grinding_optimize", "thin_wall_params", "thin_wall_deflection", "thin_wall_strategy", "thin_wall_support", "thin_wall_frequency",
   "tool_overhang_calc", "tool_runout_calc", "cycle_time_calc",
   "tool_cost_per_part", "stock_allowance", "workholding_force",
   "stepover_calc", "ultimate_speed_feed", "tool_selection_advice",
@@ -767,7 +805,7 @@ const ACTIONS = [
   "strategy_ranking", "submit_measurement", "time_series_arima_calc", "topsis_calc", "transportation_problem_calc",
   "ts_change_point", "ts_exponential_smoothing", "ts_holt_winters", "uncertainty_correlation_from_data", "uncertainty_gaussian_copula",
   "uncertainty_kriging_fit", "uncertainty_qmc_uq", "uncertainty_sobol_sequence", "uncertainty_surrogate_optimize", "uq_methods_kriging_fit",
-  "uq_methods_kriging_uq", "uq_methods_qmc", "uq_methods_t_copula", "variance_reduction_adaptive_mc", "variance_reduction_antithetic",
+  "uq_methods_kriging_uq", "uq_methods_qmc", "uq_methods_t_copula", "uts_based_force", "variance_reduction_adaptive_mc", "variance_reduction_antithetic",
   "variance_reduction_importance", "vibration_isolator_calc", "waterjet_calc", "wavelet_transform",
   "physics_verify",
   // -- QS-MS6: Cross-Pipeline What-If --
@@ -792,6 +830,8 @@ const ACTIONS = [
   "diamond_turning_wear", "diamond_turning_machine_config",
   "laser_interferometer_wavelength", "laser_interferometer_comp_table",
   "laser_interferometer_plan", "laser_interferometer_deadpath",
+  // -- Grinding Burn + Variable Helix Chatter Suppression (video learning) --
+  "grinding_burn_risk", "chatter_variable_helix_design",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -805,7 +845,7 @@ export function registerCalcDispatcher(server: any): void {
       action: z.enum(ACTIONS),
       params: z.record(z.string(), z.any()).optional()
     },
-    async ({ action, params: rawParams = {} }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       log.info(`[prism_calc] Action: ${action}`);
       
       // Normalize common parameter aliases for usability
@@ -4415,6 +4455,56 @@ export function registerCalcDispatcher(server: any): void {
             result = spindleTorqueCurveEngine.calculate(params as ValidatedParams);
             break;
           }
+          case "spindle_torque_available": {
+            const { spindleTorqueCurveEngine: stcA } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = stcA.getAvailableTorqueAndPower(params as ValidatedParams);
+            break;
+          }
+          case "spindle_check_cut": {
+            const { spindleTorqueCurveEngine: stcB } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = stcB.checkCutFeasibility(params as ValidatedParams);
+            break;
+          }
+          case "spindle_max_mrr": {
+            const { spindleTorqueCurveEngine: stcC } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = stcC.findMaxMRR(params as ValidatedParams);
+            break;
+          }
+          case "spindle_plot_curve": {
+            const { spindleTorqueCurveEngine: stcD } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = stcD.plotTorquePowerCurve(params as ValidatedParams);
+            break;
+          }
+          case "spindle_recommend_rpm": {
+            const { spindleTorqueCurveEngine: stcE } = await import("../../engines/SpindleTorqueCurveEngine.js");
+            result = stcE.recommendRPMForOperation(params as ValidatedParams);
+            break;
+          }
+          case "thin_wall_params": {
+            const { ThinWallMachiningEngine } = await import("../../engines/ThinWallMachiningEngine.js");
+            result = new ThinWallMachiningEngine().thinWallParams(params as ValidatedParams);
+            break;
+          }
+          case "thin_wall_deflection": {
+            const { ThinWallMachiningEngine: TWD } = await import("../../engines/ThinWallMachiningEngine.js");
+            result = new TWD().thinWallDeflection(params as ValidatedParams);
+            break;
+          }
+          case "thin_wall_strategy": {
+            const { ThinWallMachiningEngine: TWS } = await import("../../engines/ThinWallMachiningEngine.js");
+            result = new TWS().thinWallStrategy(params as ValidatedParams);
+            break;
+          }
+          case "thin_wall_support": {
+            const { ThinWallMachiningEngine: TWSU } = await import("../../engines/ThinWallMachiningEngine.js");
+            result = new TWSU().thinWallSupport(params as ValidatedParams);
+            break;
+          }
+          case "thin_wall_frequency": {
+            const { ThinWallMachiningEngine: TWF } = await import("../../engines/ThinWallMachiningEngine.js");
+            result = new TWF().thinWallFrequency(params as ValidatedParams);
+            break;
+          }
           case "tool_overhang_calc": {
             const { toolOverhangEngine } = await import("../../engines/ToolOverhangEngine.js");
             result = toolOverhangEngine.calculate(params as ValidatedParams);
@@ -6250,6 +6340,13 @@ export function registerCalcDispatcher(server: any): void {
             break;
           }
 
+          // ── UTS-Based Cutting Force (CTE/Mitsubishi empirical model) ──
+          case "uts_based_force": {
+            const { advancedCuttingMathEngine } = await import("../../engines/AdvancedCuttingMathEngine.js");
+            result = advancedCuttingMathEngine.utsBasedForce(params as ValidatedParams);
+            break;
+          }
+
           // ── Coffin-Manson Fatigue (strain life, S-N curve, cyclic, thermal, multiaxial) ──
           case "fatigue_strain_life": case "fatigue_sn_curve":
           case "fatigue_cyclic_stress_strain": case "fatigue_thermal":
@@ -7091,6 +7188,69 @@ export function registerCalcDispatcher(server: any): void {
               "../../engines/StandardDimensionLookupEngine.js"
             );
             result = sda.applyStandardDimensions(params.tools ?? []);
+            break;
+          }
+
+          // ── Chatter/Dynamics Enhancements (Altintas/Budak, Schmitz) ──
+          case "chatter_multi_frequency": {
+            const { chatterStabilityLobeEngine: cslMF } = await import(
+              "../../engines/ChatterStabilityLobeEngine.js"
+            );
+            result = cslMF.multiFrequencyStability(params as ValidatedParams);
+            break;
+          }
+          case "sle_predict": {
+            const { surfaceLocationErrorEngine: sleP } = await import(
+              "../../engines/SurfaceLocationErrorEngine.js"
+            );
+            result = sleP.predictSLE(params as ValidatedParams);
+            break;
+          }
+          case "sle_optimize_rpm": {
+            const { surfaceLocationErrorEngine: sleO } = await import(
+              "../../engines/SurfaceLocationErrorEngine.js"
+            );
+            result = sleO.optimizeRPMForSLE(params as ValidatedParams);
+            break;
+          }
+          case "sle_combined_finish": {
+            const { surfaceLocationErrorEngine: sleC } = await import(
+              "../../engines/SurfaceLocationErrorEngine.js"
+            );
+            result = sleC.combinedFinishPrediction(params as ValidatedParams);
+            break;
+          }
+          case "rcsa_predict_frf": {
+            const { receptanceCouplingEngine: rcsaP } = await import(
+              "../../engines/ReceptanceCouplingEngine.js"
+            );
+            result = rcsaP.predictToolPointFRF(params as ValidatedParams);
+            break;
+          }
+          case "rcsa_compare": {
+            const { receptanceCouplingEngine: rcsaC } = await import(
+              "../../engines/ReceptanceCouplingEngine.js"
+            );
+            result = rcsaC.compareFRF(params as ValidatedParams);
+            break;
+          }
+          case "rcsa_suggest_length": {
+            const { receptanceCouplingEngine: rcsaL } = await import(
+              "../../engines/ReceptanceCouplingEngine.js"
+            );
+            result = rcsaL.suggestToolLength(params as ValidatedParams);
+            break;
+          }
+
+          // ── Grinding Burn Risk + Variable Helix Design (video learning) ──
+          case "grinding_burn_risk": {
+            const { grindingSurfaceFinishEngine } = await import("../../engines/GrindingSurfaceFinishEngine.js");
+            result = grindingSurfaceFinishEngine.assessBurnRisk(params as ValidatedParams);
+            break;
+          }
+          case "chatter_variable_helix_design": {
+            const { dampingOptimizationEngine } = await import("../../engines/DampingOptimizationEngine.js");
+            result = dampingOptimizationEngine.designVariableHelixTool(params as ValidatedParams);
             break;
           }
 

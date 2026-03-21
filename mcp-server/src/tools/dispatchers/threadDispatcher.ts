@@ -52,7 +52,7 @@ export function registerThreadDispatcher(server: any): void {
       ]),
       params: z.record(z.string(), z.any()).optional()
     },
-    async ({ action, params: rawParams = {} }) => {
+    async ({ action, params: rawParams = {} }: { action: string; params?: Record<string, any> }) => {
       try {
         // H1-MS2: Auto-normalize snake_case → camelCase params
         let params = rawParams;

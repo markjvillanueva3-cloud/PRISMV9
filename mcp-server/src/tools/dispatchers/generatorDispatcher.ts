@@ -114,7 +114,7 @@ export function registerGeneratorDispatcher(server: any): void {
           case "generate_batch": {
             const allTemplates = hookGenerator.getAllDomainTemplates();
             const targetDomains = params.domains && params.domains.length > 0 
-              ? params.domains.map(d => d.toUpperCase())
+              ? params.domains.map((d: string) => d.toUpperCase())
               : Object.keys(allTemplates);
             const config: BatchGenerationConfig = {
               domains: targetDomains,

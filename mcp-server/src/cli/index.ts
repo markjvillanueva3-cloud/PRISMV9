@@ -359,7 +359,7 @@ program
         if (arg.startsWith("--")) {
           const [key, ...valParts] = arg.slice(2).split("=");
           const val = valParts.join("=") || "true";
-          const camelKey = key.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+          const camelKey = key.replace(/-([a-z])/g, (_: string, c: string) => c.toUpperCase());
           params[camelKey] = isNaN(Number(val)) ? val : Number(val);
         }
       }
@@ -1414,6 +1414,47 @@ program
         final_context_keys: Object.keys(context).filter(k => !k.startsWith("_")),
         final_output: context,
       });
+    } catch (e) {
+      outputResult(null, e as Error);
+    }
+  });
+
+// ── Benchmark Command ──
+program
+  .command("benchmark")
+  .alias("bench")
+  .description("Run PRISM benchmark suite and generate report")
+  .option("--layer <n>", "Run specific layer (1-5)", parseInt)
+  .option("--part <id>", "Run specific benchmark part scorecard")
+  .option("--verbose", "Include detailed per-test results")
+  .option("--json", "Output raw JSON instead of formatted text")
+  .action(async (opts) => {
+    try {
+      const { benchmarkReportGeneratorEngine } = await import(
+        "../engines/BenchmarkReportGeneratorEngine.js"
+      );
+
+      if (opts.part) {
+        const card = benchmarkReportGeneratorEngine.scorecard({
+          benchmark_id: opts.part,
+        });
+        outputResult(card);
+        return;
+      }
+
+      if (opts.json) {
+        const report = benchmarkReportGeneratorEngine.generateReport({
+          include_layers: opts.layer ? [opts.layer] : undefined,
+          verbose: opts.verbose,
+        });
+        outputResult(report);
+      } else {
+        const text = benchmarkReportGeneratorEngine.generateTextReport({
+          include_layers: opts.layer ? [opts.layer] : undefined,
+          verbose: opts.verbose,
+        });
+        process.stdout.write(text + "\n");
+      }
     } catch (e) {
       outputResult(null, e as Error);
     }

@@ -51,7 +51,7 @@ export function registerMemoryDispatcher(server: McpServer): void {
       ]).describe("Memory graph action"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
-    async (args) => {
+    async (args: { action: string; params?: Record<string, any> }) => {
       const { action, params: rawParams = {} } = args;
       // H1-MS2: Auto-normalize snake_case → camelCase params
       let params = rawParams;

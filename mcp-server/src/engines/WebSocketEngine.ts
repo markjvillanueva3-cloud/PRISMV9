@@ -126,9 +126,9 @@ export class WebSocketEngine {
         timestamp: new Date().toISOString(),
       });
 
-      ws.on("message", (data) => this._handleMessage(client, data));
+      ws.on("message", (data: Buffer | string) => this._handleMessage(client, data));
       ws.on("close", () => this._handleDisconnect(client));
-      ws.on("error", (err) => log.error(`[WS] Client error ${clientId}:`, err.message));
+      ws.on("error", (err: Error) => log.error(`[WS] Client error ${clientId}:`, err.message));
       ws.on("pong", () => { client.lastPing = Date.now(); });
     });
 

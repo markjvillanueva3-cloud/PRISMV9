@@ -882,7 +882,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           if (kwResult.warmed) cadence.actions.push("🔥 KNOWLEDGE_ENGINE_PREWARMED");
         } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
 
-        globalThis.__prism_recon = {
+        (globalThis as Record<string, unknown>).__prism_recon = {
           recon: recon.warnings,
           warmStart: warmStart.session_info,
           knowledge: knowledgeHints?.total_enrichments ? knowledgeHints : undefined,
@@ -909,7 +909,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       call_number: callNum,
       timestamp: (/* @__PURE__ */ new Date()).toISOString()
     });
-    const mapping = DISPATCHER_HOOK_MAP[toolName];
+    const mapping = (DISPATCHER_HOOK_MAP as Record<string, { before: string; after: string; category: string }>)[toolName];
     if (mapping) {
       await fireHook(`${mapping.category}-BEFORE-EXEC-001`, {
         tool_name: toolName,
@@ -2150,9 +2150,9 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
       // Session metrics snapshot — every 15 calls
       try { autoSessionMetricsSnapshot(callNum); } catch (e: any) { log.debug(`[hook-cadence] ${e?.message?.slice(0, 80)}`); }
     }
-    if (callNum === 1 && globalThis.__prism_recon) {
-      cadence.session_recon = globalThis.__prism_recon;
-      delete globalThis.__prism_recon;
+    if (callNum === 1 && (globalThis as Record<string, unknown>).__prism_recon) {
+      cadence.session_recon = (globalThis as Record<string, unknown>).__prism_recon;
+      delete (globalThis as Record<string, unknown>).__prism_recon;
     }
     // Master Index generation — on first call (session boot), async non-blocking
     if (callNum === 1) {
@@ -2643,7 +2643,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
           `Phase: ${survivalData.phase}`,
           `## Recent Calls`, recentStr,
           `## Active Tasks`, todoSnap,
-          `## Key Findings`, cadence.actions.filter((a: string) => a.includes("\u2705") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5).map(f => `- ${f}`).join("\n") || "- none yet",
+          `## Key Findings`, cadence.actions.filter((a: string) => a.includes("\u2705") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5).map((f: string) => `- ${f}`).join("\n") || "- none yet",
         ].join("\n");
         safeWriteSync(path.join(STATE_DIR12, "SESSION_STATE.md"), sessionState);
       } catch { /* non-fatal */ }
@@ -2654,7 +2654,7 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
         const errors = cadence.actions.filter((a: string) => a.includes("ERROR") || a.includes("FAIL")).slice(-3);
         const findings = cadence.actions.filter((a: string) => a.includes("✅") || a.includes("COMPLETE") || a.includes("FIXED")).slice(-5);
         const wfStatus = (() => { try { const wf = JSON.parse(fs.readFileSync(path.join(STATE_DIR12, "WORKFLOW_STATE.json"), "utf-8")); return wf.status === "active" ? `${wf.workflow_type} step ${wf.current_step}/${wf.total_steps}` : "none"; } catch { return "none"; } })();
-        safeWriteSync(digestPath, `# Session Digest (call ${callNum})\nWorkflow: ${wfStatus}\nPhase: ${survivalData.phase}\n## Last 20 calls\n${actions.map(a => `- ${a}`).join("\n")}\n## Key findings\n${findings.map(f => `- ${f}`).join("\n") || "- none yet"}\n## Errors\n${errors.map(e => `- ${e}`).join("\n") || "- none"}\n`);
+        safeWriteSync(digestPath, `# Session Digest (call ${callNum})\nWorkflow: ${wfStatus}\nPhase: ${survivalData.phase}\n## Last 20 calls\n${actions.map(a => `- ${a}`).join("\n")}\n## Key findings\n${findings.map((f: string) => `- ${f}`).join("\n") || "- none yet"}\n## Errors\n${errors.map((e: string) => `- ${e}`).join("\n") || "- none"}\n`);
       }
     } catch { /* non-fatal */ }
     if (error) throw error;

@@ -2106,12 +2106,12 @@ Params vary by action — pass relevant fields in params object.`,
             const diff = eng.diffGCode(params.program_a, params.program_b);
             const ctx  = (params.context_lines as number) ?? 3;
             // Filter to changes + ctx surrounding lines of equal
-            const filtered = diff.filter((d, i) => {
+            const filtered = diff.filter((d: any, i: number) => {
               if (d.type !== "equal") return true;
               return diff.slice(Math.max(0, i - ctx), i + ctx + 1)
-                .some(n => n.type !== "equal");
+                .some((n: any) => n.type !== "equal");
             });
-            return slimResponse({ diff: filtered, total: diff.length, changes: diff.filter(d => d.type !== "equal").length });
+            return slimResponse({ diff: filtered, total: diff.length, changes: diff.filter((d: any) => d.type !== "equal").length });
           }
           case "program_compare_physics": {
             const eng = await getEngine("programCompare");
