@@ -5,25 +5,68 @@
  * quizzes, and student progress tracking. Supports prerequisite chains,
  * spaced repetition for formula review, and adaptive learning paths.
  *
- * 10 courses from Novice → Master:
+ * 15 courses from Novice → Master + Professional:
+ *  0A. Shop Math for Machinists (Novice, 8 modules, ~6hr)
+ *  0B. Hand Tools & Measurement (Novice, 10 modules, ~8hr)
+ *  0C. Blueprint Reading & GD&T (Novice, 12 modules, ~10hr)
  *   1. Manufacturing Fundamentals (Novice, 12 modules, ~8hr)
  *   2. Speed/Feed Mastery (Intermediate, 10 modules, ~6hr)
  *   3. G-Code Programming (Intermediate, 10 modules, ~8hr)
- *   4. Milling Operations (Intermediate→Advanced, 12 modules)
- *   5. Turning Operations (Intermediate→Advanced, 10 modules)
- *   6. CAM System Mastery (Advanced, 18 mini-modules)
- *   7. Material Science for Machinists (Advanced, 8 modules)
- *   8. 5-Axis Machining (Master, 8 modules)
- *   9. Process Optimization (Master, 8 modules)
- *  10. Troubleshooting & Problem Solving (Master, 10 modules)
+ *   4. Milling Operations (Advanced, 12 modules, ~10hr)
+ *   5. Turning Operations (Advanced, 10 modules, ~8hr)
+ *   6. CAM System Mastery (Advanced, 18 mini-modules, ~12hr)
+ *   7. Material Science for Machinists (Advanced, 8 modules, ~6hr)
+ *   8. 5-Axis Machining (Master, 8 modules, ~8hr)
+ *   9. Process Optimization (Master, 8 modules, ~8hr)
+ *  10. Troubleshooting & Problem Solving (Master, 10 modules, ~8hr)
+ *  11. Shop Economics & Estimating (Advanced, 6 modules, ~5hr)
+ *  12. Career Development (Intermediate, 4 modules, ~3hr)
  *
- * 3 certification levels:
- *   - PRISM Certified Operator (courses 1-3, ≥80%)
- *   - PRISM Certified Programmer (courses 1-7, ≥85%)
- *   - PRISM Certified Master (all 10, ≥90%)
+ * 4 certification levels:
+ *   - PRISM Foundational (courses 0A+0B+0C, ≥70%)
+ *   - PRISM Certified Operator (courses 0-3, ≥80%)
+ *   - PRISM Certified Programmer (courses 0-7, ≥85%)
+ *   - PRISM Certified Master (all 15, ≥90%)
  *
- * Lines: ~900
+ * Lines: ~1000 (+ ~4500 lines of rich course content in academy data files)
  */
+
+// ═══════════════════════════════════════════════════════════════
+// Academy Course Data Imports
+// ═══════════════════════════════════════════════════════════════
+
+import { COURSE_0A_MODULES } from "../data/academy/course-0a-shop-math.js";
+import { COURSE_0B_MODULES } from "../data/academy/course-0b-hand-tools.js";
+import { COURSE_0C_MODULES } from "../data/academy/course-0c-blueprint-reading.js";
+import { COURSE_1_MODULES } from "../data/academy/course-1-manufacturing-fundamentals.js";
+import { COURSE_2_MODULES } from "../data/academy/course-2-speed-feed-mastery.js";
+import { COURSE_3_MODULES } from "../data/academy/course-3-gcode-programming.js";
+import { COURSE_4_MODULES } from "../data/academy/course-4-milling-operations.js";
+import { COURSE_5_MODULES } from "../data/academy/course-5-turning-operations.js";
+import {
+  COURSE_6_MODULES, COURSE_7_MODULES, COURSE_8_MODULES,
+  COURSE_9_MODULES, COURSE_10_MODULES, COURSE_11_MODULES,
+  COURSE_12_MODULES,
+} from "../data/academy/course-6-to-12-advanced.js";
+
+/** Map of course ID → rich module content from academy data files */
+const RICH_MODULES: Record<string, Module[]> = {
+  "course-0a": COURSE_0A_MODULES,
+  "course-0b": COURSE_0B_MODULES,
+  "course-0c": COURSE_0C_MODULES,
+  "course-1": COURSE_1_MODULES,
+  "course-2": COURSE_2_MODULES,
+  "course-3": COURSE_3_MODULES,
+  "course-4": COURSE_4_MODULES,
+  "course-5": COURSE_5_MODULES,
+  "course-6": COURSE_6_MODULES,
+  "course-7": COURSE_7_MODULES,
+  "course-8": COURSE_8_MODULES,
+  "course-9": COURSE_9_MODULES,
+  "course-10": COURSE_10_MODULES,
+  "course-11": COURSE_11_MODULES,
+  "course-12": COURSE_12_MODULES,
+};
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -683,7 +726,7 @@ export class CurriculumEngine {
         level: "novice",
         prerequisites: ["course-0a"],
         estimatedHours: 10,
-        certificationLevel: "foundational",
+        certificationLevel: "operator",
         moduleCount: 12,
         moduleTitles: [
           "What is a Blueprint?", "Orthographic Projection",
@@ -885,7 +928,11 @@ export class CurriculumEngine {
     ];
 
     for (const def of courseDefinitions) {
-      const modules: Module[] = def.moduleTitles.map((title, idx) => ({
+      // Use rich academy content when available, fall back to stubs
+      const richModules = RICH_MODULES[def.id];
+      const modules: Module[] = richModules?.length
+        ? richModules
+        : def.moduleTitles.map((title, idx) => ({
         id: `${def.id}-mod-${idx + 1}`,
         courseId: def.id,
         title,
