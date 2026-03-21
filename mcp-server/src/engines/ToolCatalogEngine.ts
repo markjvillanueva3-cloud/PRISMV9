@@ -47,6 +47,7 @@ import { HELICAL_SPEED_FEED } from "../data/helical-speed-feed-data.js";
 import { HORN_TOOLS } from "../data/horn-tool-catalog.js";
 import { NIAGARA_TOOLS } from "../data/niagara-tool-catalog.js";
 import { DORMER_TOOLS } from "../data/dormer-pramet-tool-catalog.js";
+import { sumitomoToolCatalog } from "../data/sumitomo-tool-catalog.js";
 import { dimensionImputationEngine } from "./DimensionImputationEngine.js";
 
 // ── Unified Tool Types ──
@@ -1022,6 +1023,7 @@ export class ToolCatalogEngine {
     this._loadHornTools();
     this._loadNiagaraTools();
     this._loadDormerPrametTools();
+    this._loadSumitomoTools();
 
     // Apply statistical dimension imputation to upgrade estimated dimensions
     this.applyDimensionImputation();
@@ -2565,6 +2567,82 @@ export class ToolCatalogEngine {
         operations: toolType === "ball_mill" ? ["finish_3d", "profile", "pencil"] : ["pocket", "slot", "profile", "face", "ramp"],
         cutting_data: cuttingData,
         source: "Helical_Solutions_HSMLib",
+      });
+    }
+  }
+
+  private _loadSumitomoTools(): void {
+    const TYPE_MAP: Record<string, CatalogTool["type"]> = {
+      drill: "drill",
+      end_mill: "end_mill",
+      ball_end_mill: "ball_mill",
+      milling_cutter: "face_mill",
+      turning_insert: "insert",
+      boring_bar: "boring_bar",
+      grooving: "grooving_tool",
+      threading: "threading_tool",
+      holder: "turning_tool",
+    };
+
+    for (const st of sumitomoToolCatalog) {
+      const id = `SUM-${st.partNumber}`;
+      if (this.tools.has(id)) continue;
+
+      const toolType = TYPE_MAP[st.type] || "end_mill";
+      const toMM = st.metric ? 1 : 25.4;
+      const dc = (st.dc ?? 10) * toMM;
+      const shank = (st.shank ?? dc) * toMM;
+      const oal = (st.oal ?? dc * 5) * toMM;
+      const loc = (st.loc ?? dc * 2) * toMM;
+
+      // Scale speed/feed from SPEED_FEED_BASE by sqrt(dc/10)
+      const sfType = toolType === "ball_mill" ? "end_mill" :
+                     toolType === "insert" || toolType === "turning_tool" || toolType === "grooving_tool" || toolType === "threading_tool" ? "face_mill" :
+                     toolType;
+      const sfBase = SPEED_FEED_BASE.filter(s => s.tool_type === sfType);
+      const scale = Math.sqrt(dc / 10);
+      const cuttingData: CatalogTool["cutting_data"] = {};
+      for (const s of sfBase) {
+        cuttingData[s.iso_group] = {
+          vc_min: Math.round(s.vc_min * scale),
+          vc_max: Math.round(s.vc_max * scale),
+          fz_min: Math.round(s.fz_min * scale * 1000) / 1000,
+          fz_max: Math.round(s.fz_max * scale * 1000) / 1000,
+          ap_max: (s.ap_max_xD ?? 1) * dc,
+          ae_max: (s.ae_max_xD ?? 0.5) * dc,
+        };
+      }
+
+      const ops = toolType === "drill" ? ["drill", "peck_drill", "spot_drill"] :
+                  toolType === "end_mill" ? ["pocket", "slot", "profile", "face", "ramp"] :
+                  toolType === "ball_mill" ? ["finish_3d", "profile", "pencil"] :
+                  toolType === "face_mill" ? ["face", "shoulder"] :
+                  toolType === "insert" ? ["turning", "facing", "boring"] :
+                  toolType === "boring_bar" ? ["boring", "internal_turning"] :
+                  toolType === "grooving_tool" ? ["grooving", "parting"] :
+                  toolType === "threading_tool" ? ["threading"] :
+                  toolType === "turning_tool" ? ["turning", "facing"] :
+                  ["pocket", "profile"];
+
+      this.tools.set(id, {
+        id,
+        manufacturer: "Sumitomo",
+        series: st.subType || st.type,
+        designation: st.partNumber,
+        type: toolType,
+        material: toolType === "insert" ? "indexable" : "carbide",
+        coating: st.grade || "AlTiN",
+        physical: {
+          cutting_diameter_mm: Math.round(dc * 1000) / 1000,
+          shank_diameter_mm: Math.round(shank * 1000) / 1000,
+          overall_length_mm: Math.round(oal * 100) / 100,
+          flute_length_mm: Math.round(loc * 100) / 100,
+        },
+        flute_count: st.flutes ?? (toolType === "drill" ? 2 : toolType === "end_mill" ? 4 : undefined),
+        iso_groups: ["P", "M", "K", "N", "S", "H"],
+        operations: ops,
+        cutting_data: cuttingData,
+        source: "Sumitomo_Electric",
       });
     }
   }
