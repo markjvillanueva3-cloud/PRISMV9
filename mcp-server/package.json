@@ -19,7 +19,8 @@
         "release-gate": "npx tsx scripts/release-gate.ts",
         "release-gate:dry": "npx tsx scripts/release-gate.ts --dry-run",
         "build:web": "cd web && npm run build",
-        "build:all": "npm run build:fast && npm run build:web"
+        "build:all": "npm run build:fast && npm run build:web",
+        "prepare": "husky"
     },
     "keywords": [
         "mcp",
@@ -57,11 +58,18 @@
         "@typescript-eslint/parser": "^8.56.1",
         "esbuild": "^0.27.2",
         "eslint": "^10.0.2",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.4.0",
         "tsx": "^4.6.2",
         "typescript": "^5.9.3",
         "vitest": "^4.0.18"
     },
     "engines": {
         "node": ">=18.0.0"
+    },
+    "lint-staged": {
+        "*.ts": [
+            "npx tsc --noEmit --pretty"
+        ]
     }
 }
