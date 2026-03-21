@@ -76,6 +76,14 @@ const MTCONNECT_ACTIONS = [
   "mtconnect_machine_status", "mtconnect_alarms",
 ] as const;
 
+const RTMI_ACTIONS = [
+  "rtmi_spindle_monitor", "rtmi_chatter_detect",
+  "rtmi_thermal_compensate", "rtmi_tool_life_countdown",
+  "rtmi_dashboard", "rtmi_store_reading",
+  "rtmi_query_series", "rtmi_trend_analysis",
+  "rtmi_alert_check",
+] as const;
+
 const MQTT_ACTIONS = [
   "mqtt_connect", "mqtt_subscribe",
   "mqtt_latest", "mqtt_history",
@@ -91,6 +99,7 @@ const ACTIONS = [
   ...L3_INDUSTRY_ACTIONS,
   ...MTCONNECT_ACTIONS,
   ...MQTT_ACTIONS,
+  ...RTMI_ACTIONS,
 ] as const;
 
 // ============================================================================
@@ -322,6 +331,9 @@ export function registerMachineLiveDispatcher(server: any): void {
             case "mqtt_temperature": result = mqtt.getTemperature(params.topic, params.ambient_topic, params.length_mm, params.cte); break;
             default: result = { error: `Unknown MQTT action: ${action}` };
           }
+        } else if ((RTMI_ACTIONS as readonly string[]).includes(action)) {
+          const { realTimeMachineIntelligenceEngine } = await import("../../engines/index.js");
+          result = realTimeMachineIntelligenceEngine.calculate(action, params);
         } else if (MACHINE_ACTIONS.includes(action as ActionString as typeof MACHINE_ACTIONS[number])) {
           result = await (await getMachineLiveEngine("machineConnectivity"))(action, params);
         } else if (ADAPTIVE_ACTIONS.includes(action as ActionString as typeof ADAPTIVE_ACTIONS[number])) {

@@ -2629,7 +2629,9 @@ export { chipBreakingEngine, ChipBreakingEngine } from "./ChipBreakingEngine.js"
 export { workEnvelopeEngine, WorkEnvelopeEngine } from "./WorkEnvelopeEngine.js";
 
 // Spindle Torque Curve — torque/power regions, base speed, margins
-export { spindleTorqueCurveEngine, SpindleTorqueCurveEngine } from "./SpindleTorqueCurveEngine.js";
+export { spindleTorqueCurveEngine, SpindleTorqueCurveEngine, SPINDLE_PROFILES } from "./SpindleTorqueCurveEngine.js";
+export { ThinWallMachiningEngine } from "./ThinWallMachiningEngine.js";
+export type { TorquePowerInput, TorquePowerResult, CutFeasibilityInput, CutFeasibilityResult, MaxMRRInput, MaxMRRResult, PlotCurveInput, PlotCurveResult, RecommendRPMInput, RecommendRPMResult } from "./SpindleTorqueCurveEngine.js";
 
 // Fixture Plate — grid layout, clamping force, plate deflection
 export { fixturePlateEngine, FixturePlateEngine } from "./FixturePlateEngine.js";
@@ -2888,6 +2890,8 @@ export { ThermalCompensationModelEngine, thermalCompensationModelEngine } from "
 export { SPCProcessCapabilityEngine, spcProcessCapabilityEngine } from "./SPCProcessCapabilityEngine.js";
 export { MultiObjectiveParetoEngine, multiObjectiveParetoEngine } from "./MultiObjectiveParetoEngine.js";
 export { ChatterStabilityLobeEngine, chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
+export { SurfaceLocationErrorEngine, surfaceLocationErrorEngine } from "./SurfaceLocationErrorEngine.js";
+export { ReceptanceCouplingEngine, receptanceCouplingEngine } from "./ReceptanceCouplingEngine.js";
 export { SurfaceIntegrityPredictorEngine, surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
 export { MachiningEnergyModelEngine, machiningEnergyModelEngine } from "./MachiningEnergyModelEngine.js";
 export { MonteCarloProcessEngine, monteCarloProcessEngine } from "./MonteCarloProcessEngine.js";
@@ -3171,6 +3175,7 @@ export { ProbeRoutineGeneratorEngine, probeRoutineGeneratorEngine } from "./Prob
 
 // Auto Speed/Feed + Math/Stats
 export { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
+export { manufacturingKnowledgeGraphEngine } from "./ManufacturingKnowledgeGraphEngine.js";
 export { manufacturingStatisticsEngine } from "./ManufacturingStatisticsEngine.js";
 export { toolWearCompensationEngine } from "./ToolWearCompensationEngine.js";
 export { machineMatcherEngine } from "./MachineMatcherEngine.js";
@@ -3510,3 +3515,9 @@ export { provenPipelineOrchestratorEngine, ProvenPipelineOrchestratorEngine } fr
 
 // BenchmarkReportGeneratorEngine — Benchmark report generation (5-layer: synthetic, math, cross-engine, machine, industry)
 export { benchmarkReportGeneratorEngine, BenchmarkReportGeneratorEngine } from "./BenchmarkReportGeneratorEngine.js";
+
+// RealTimeMachineIntelligenceEngine — TECH-MS2: spindle monitor, chatter detect, thermal comp, tool life countdown, time series
+export { realTimeMachineIntelligenceEngine, RealTimeMachineIntelligenceEngine } from "./RealTimeMachineIntelligenceEngine.js";
+
+// VisualLabEngine � 3D scene descriptions for PRISM Academy machining visualization
+export { VisualLabEngine, visualLabEngine } from "./VisualLabEngine.js";
