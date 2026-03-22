@@ -3785,7 +3785,97 @@ export {
   type BatchStrategyRecommendation,
 } from "./BatchSizeStrategyEngine.js";
 
-// BOX Data Engines — FusionCPSParser, OkumaParametricProgram, PostProcessorCapabilityMatrix
+// MastercamStrategyEngine (E1102) — CAMX-MS3/U01 Dedicated Mastercam strategy recommendation
+export {
+  mastercamStrategyEngine,
+  MastercamStrategyEngineClass as MastercamStrategyEngine,
+  type MastercamCategory,
+  type MastercamPriority,
+  type MastercamFeature,
+  type MastercamMaterial,
+  type MastercamMachine,
+  type MastercamTool,
+  type MastercamStrategy,
+  type StrategyRating,
+  type StrategyRecommendation as MastercamStrategyRecommendation,
+  type DynamicMotionInfo,
+  type OptiRoughInfo,
+  type ProfitTurningInfo,
+} from "./MastercamStrategyEngine.js";
+
+// BOX Data Engines — FusionCPSParser, OkumaParametricProgram, PostProcessorCapabilityMatrix, ManufacturerCatalogIndex
 export { fusionCPSParserEngine } from "./FusionCPSParserEngine.js";
 export { okumaParametricProgramEngine } from "./OkumaParametricProgramEngine.js";
 export { postProcessorCapabilityMatrixEngine } from "./PostProcessorCapabilityMatrixEngine.js";
+export {
+  manufacturerCatalogIndexEngine,
+  type CatalogEntry as MfrCatalogEntry,
+  type WorkholdingCatalogEntry,
+  type MachineModelEntry,
+  type RawToolingEntry,
+  type CatalogFilter,
+  type ManufacturerSearchResult,
+  type GapReport,
+  type CatalogSummary,
+  type IngestionPriorityEntry,
+} from "./ManufacturerCatalogIndexEngine.js";
+
+// NXCAMStrategyEngine (E1104) — CAMX-MS5/U01 Siemens NX CAM strategy recommendation
+export {
+  nxCAMStrategyEngine,
+  NXCAMStrategyEngine,
+  type NXStrategyCategory,
+  type NXFeatureType,
+  type NXMaterialGroup,
+  type NXMachineType,
+  type NXPriority,
+  type NXRecommendInput,
+  type NXStrategyRecommendation,
+  type NXStrategyParameters,
+  type NXIPWCapability,
+  type NXFBMMapping,
+} from "./NXCAMStrategyEngine.js";
+
+// CAMX-MS4 U03 — SolidCAMiMachiningEngine (E1103)
+export {
+  solidCAMiMachiningEngine,
+  type SolidCAMiMachiningEngine,
+  type iMachiningFeature,
+  type iMachiningMaterial,
+  type iMachiningTool,
+  type iMachiningMachine,
+  type iMachiningResult,
+  type WizardParameters,
+  type SpiralPath,
+  type SpiralPoint,
+  type AdjustedToolpath,
+  type EngagementSegment,
+  type MoatZone,
+  type MoatResult,
+  type FeedProfile,
+  type FeedProfilePoint,
+} from "./SolidCAMiMachiningEngine.js";
+export { machineLearningStrategyRankerEngine, MachineLearningStrategyRankerEngine } from "./MachineLearningStrategyRankerEngine.js";
+
+// SolidCAMStrategyEngine (E1106) — CAMX-MS3/U02 Dedicated SolidCAM strategy recommendation
+export {
+  solidCAMStrategyEngine,
+  SolidCAMStrategyEngineClass as SolidCAMStrategyEngine,
+  type SolidCAMCategory,
+  type SolidCAMPriority,
+  type SolidCAMFeature,
+  type SolidCAMMaterial,
+  type SolidCAMMachine,
+  type SolidCAMTool,
+  type SolidCAMStrategy,
+  type SolidCAMStrategyRating,
+  type SolidCAMStrategyRecommendation,
+  type IMachiningInfo,
+  type HSSInfo,
+} from "./SolidCAMStrategyEngine.js";
+
+// BOX Data Ingestion Engines — Wave 1+2+3
+export { alarmDiagnosticsEngine } from "./AlarmDiagnosticsEngine.js";
+export { shopToolLibraryEngine } from "./ShopToolLibraryEngine.js";
+// manufacturerCatalogIndexEngine already exported above in BOX Data Engines block
+export { rawToolingNormalizerEngine } from "./RawToolingNormalizerEngine.js";

@@ -44,6 +44,10 @@ import { ACTION_CK_MS13_SCHEMAS } from "../../schemas/ckMs13ActionSchemas.js";
 import { ACTION_CAMX_MS21_SCHEMAS } from "../../schemas/camxMs21ActionSchemas.js";
 import { ACTION_CAMX_MS12_U02_SCHEMAS } from "../../schemas/camxMs12U02ActionSchemas.js";
 import { ACTION_BOX_DATA_SCHEMAS } from "../../schemas/boxDataActionSchemas.js";
+import { ACTION_CAMX_MS4_U03_SCHEMAS } from "../../schemas/camxMs4U03ActionSchemas.js";
+import { ACTION_CAMX_MS5_U01_SCHEMAS } from "../../schemas/camxMs5U01ActionSchemas.js";
+import { ACTION_ML_STRATEGY_RANKER_SCHEMAS } from "../../schemas/mlStrategyRankerActionSchemas.js";
+import { ACTION_CAMX_MS3_U02_SCHEMAS } from "../../schemas/camxMs3U02ActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -51,13 +55,18 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_CK_MS10_SCHEMAS, ...ACTION_CK_MS11_SCHEMAS,
   ...ACTION_CK_MS12_SCHEMAS, ...ACTION_CK_MS13_SCHEMAS,
   ...ACTION_CAMX_MS21_SCHEMAS, ...ACTION_CAMX_MS12_U02_SCHEMAS,
-  ...ACTION_BOX_DATA_SCHEMAS,
+  ...ACTION_BOX_DATA_SCHEMAS, ...ACTION_CAMX_MS5_U01_SCHEMAS,
+  ...ACTION_CAMX_MS4_U03_SCHEMAS,
+  ...ACTION_ML_STRATEGY_RANKER_SCHEMAS,
+  ...ACTION_CAMX_MS3_U02_SCHEMAS,
 };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
+// CAMX-MS3 U01 singletons
+let _mastercamStrategy: any;
 // CAMX-MS12 U02 singletons
 let _strategyBenchmark: any;
 // CAMX-MS12 U03 singletons
@@ -68,6 +77,14 @@ let _batchSizeStrategy: any;
 let _pipelineCostModel: any;
 // CAMX-MS21 U08 singletons
 let _prodBatchOpt: any;
+// CAMX-MS5 U01 singletons
+let _nxCAMStrategy: any;
+// CAMX-MS4 U03 singletons
+let _iMachining: any;
+// E1107 — ML Strategy Ranker
+let _mlStrategyRanker: any;
+// CAMX-MS3 U02 singletons
+let _solidCAMStrategy: any;
 // BOX Data singletons
 let _cpsParser: any, _okumaParam: any, _ppCapMatrix: any;
 async function getEngine(name: string): Promise<any> {
@@ -161,6 +178,8 @@ async function getEngine(name: string): Promise<any> {
     case "pipelineCostModel": return _pipelineCostModel ??= (await import("../../engines/PipelineCostModelEngine.js")).pipelineCostModelEngine;
     // CAMX-MS21 U08
     case "prodBatchOpt": return _prodBatchOpt ??= (await import("../../engines/ProductionBatchOptimizationEngine.js")).productionBatchOptimizationEngine;
+    // CAMX-MS3 U01
+    case "mastercamStrategy": return _mastercamStrategy ??= (await import("../../engines/MastercamStrategyEngine.js")).mastercamStrategyEngine;
     // CAMX-MS12 U02
     case "strategyBenchmark": return _strategyBenchmark ??= (await import("../../engines/StrategyBenchmarkEngine.js")).strategyBenchmarkEngine;
     // CAMX-MS12 U03
@@ -171,6 +190,14 @@ async function getEngine(name: string): Promise<any> {
     case "cpsParser": return _cpsParser ??= (await import("../../engines/FusionCPSParserEngine.js")).fusionCPSParserEngine;
     case "okumaParam": return _okumaParam ??= (await import("../../engines/OkumaParametricProgramEngine.js")).okumaParametricProgramEngine;
     case "ppCapMatrix": return _ppCapMatrix ??= (await import("../../engines/PostProcessorCapabilityMatrixEngine.js")).postProcessorCapabilityMatrixEngine;
+    // CAMX-MS5 U01
+    case "nxCAMStrategy": return _nxCAMStrategy ??= (await import("../../engines/NXCAMStrategyEngine.js")).nxCAMStrategyEngine;
+    // CAMX-MS4 U03
+    case "iMachining": return _iMachining ??= (await import("../../engines/SolidCAMiMachiningEngine.js")).solidCAMiMachiningEngine;
+    // E1107 — ML Strategy Ranker
+    case "mlStrategyRanker": return _mlStrategyRanker ??= (await import("../../engines/MachineLearningStrategyRankerEngine.js")).machineLearningStrategyRankerEngine;
+    // CAMX-MS3 U02
+    case "solidCAMStrategy": return _solidCAMStrategy ??= (await import("../../engines/SolidCAMStrategyEngine.js")).solidCAMStrategyEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -331,6 +358,9 @@ const ACTIONS = [
   "cam_advanced_strategy", "cam_smart_tool", "cam_verify",
   "cam_chatter_rpm", "cam_cost_feature",
   "cam_intelligent_sequence", "cam_list_actions",
+  // CAMX-MS3 U01 — MastercamStrategyEngine (E1102)
+  "mastercam_strategy_dynamic_motion", "mastercam_strategy_list", "mastercam_strategy_optirough",
+  "mastercam_strategy_params", "mastercam_strategy_profit_turning", "mastercam_strategy_recommend",
   // CAMX-MS12 U02 — StrategyBenchmarkEngine (E1096)
   "strategy_benchmark", "strategy_benchmark_compare", "strategy_benchmark_monte_carlo",
   // CAMX-MS12 U03 — StrategyComparisonEngine (E1099)
@@ -339,8 +369,17 @@ const ACTIONS = [
   "batch_strategy_recommend", "batch_strategy_adjust", "batch_strategy_cost",
   // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
   "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
-  "okuma_generate_casing", "okuma_generate_cbore", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults",
+  "okuma_generate_casing", "okuma_generate_cbore", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode",
   "pp_capability_matrix", "pp_capability_query", "pp_capability_compare", "pp_select_post", "pp_capability_summary",
+  // CAMX-MS5 U01 — NXCAMStrategyEngine (E1104)
+  "nx_cam_recommend", "nx_cam_parameters", "nx_cam_ipw", "nx_cam_fbm", "nx_cam_list_strategies",
+  // CAMX-MS4 U03 — SolidCAMiMachiningEngine (E1103)
+  "imachining_chipload", "imachining_compute", "imachining_engagement", "imachining_moat", "imachining_spiral", "imachining_wizard",
+  // E1107 — MachineLearningStrategyRankerEngine (4 actions)
+  "ml_strategy_history", "ml_strategy_rank", "ml_strategy_recommend", "ml_strategy_record",
+  // CAMX-MS3 U02 — SolidCAMStrategyEngine (E1106)
+  "solidcam_hss_details", "solidcam_imachining_details", "solidcam_strategy_list",
+  "solidcam_strategy_params", "solidcam_strategy_recommend",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -2259,6 +2298,44 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          // ── CAMX-MS3 U01: MastercamStrategyEngine (E1102) ────────────────────
+          case "mastercam_strategy_recommend": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.recommend(
+              params.feature,
+              params.material,
+              params.machine,
+              params.tool,
+              params.priority,
+            );
+            break;
+          }
+          case "mastercam_strategy_params": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.getParameters(params.strategy_name);
+            break;
+          }
+          case "mastercam_strategy_dynamic_motion": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.dynamicMotionDetails();
+            break;
+          }
+          case "mastercam_strategy_optirough": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.optiRoughDetails();
+            break;
+          }
+          case "mastercam_strategy_profit_turning": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.profitTurningDetails();
+            break;
+          }
+          case "mastercam_strategy_list": {
+            const eng = await getEngine("mastercamStrategy");
+            result = eng.listStrategies(params.category);
+            break;
+          }
+
           // ── CAMX-MS12 U02: StrategyBenchmarkEngine (E1096) ───────────────────
           case "strategy_benchmark": {
             const eng = await getEngine("strategyBenchmark");
@@ -2419,6 +2496,12 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          case "okuma_convert_to_hardcode": {
+            const eng = await getEngine("okumaParam");
+            result = eng.convertToHardcode(params.gcode, params.decimal_places);
+            break;
+          }
+
           // ── BOX Data: PostProcessorCapabilityMatrixEngine ─────────────────
           case "pp_capability_matrix": {
             const eng = await getEngine("ppCapMatrix");
@@ -2443,6 +2526,126 @@ Params vary by action — pass relevant fields in params object.`,
           case "pp_capability_summary": {
             const eng = await getEngine("ppCapMatrix");
             result = eng.getSummary();
+            break;
+          }
+
+          // ── CAMX-MS5 U01: NXCAMStrategyEngine (E1104) ──────────────────────
+          // ── CAMX-MS4 U03: SolidCAMiMachiningEngine (E1103) ───────────────────
+          case "imachining_compute": {
+            const eng = await getEngine("iMachining");
+            result = eng.compute(params.feature, params.material, params.tool, params.machine, params.level);
+            break;
+          }
+          case "imachining_wizard": {
+            const eng = await getEngine("iMachining");
+            result = eng.technologyWizard(params.material_iso, params.machine_class, params.level, params.tool_diameter_mm);
+            break;
+          }
+          case "imachining_spiral": {
+            const eng = await getEngine("iMachining");
+            result = eng.generateMorphedSpiral(params.boundary, params.tool_diameter, params.target_engagement);
+            break;
+          }
+          case "imachining_engagement": {
+            const eng = await getEngine("iMachining");
+            result = eng.constantEngagement(params.toolpath, params.target_angle);
+            break;
+          }
+          case "imachining_moat": {
+            const eng = await getEngine("iMachining");
+            result = eng.calculateMoat(params.boundary, params.tool_diameter, params.stepover_mm);
+            break;
+          }
+          case "imachining_chipload": {
+            const eng = await getEngine("iMachining");
+            result = eng.chipLoadMaintenance(params.engagement_profile, params.base_fz, params.spindle_rpm, params.flutes, params.target_engagement);
+            break;
+          }
+          case "nx_cam_recommend": {
+            const eng = await getEngine("nxCAMStrategy");
+            result = eng.recommend(params as any);
+            break;
+          }
+          case "nx_cam_parameters": {
+            const eng = await getEngine("nxCAMStrategy");
+            result = eng.getParameters(params.strategy_name);
+            break;
+          }
+          case "nx_cam_ipw": {
+            const eng = await getEngine("nxCAMStrategy");
+            result = eng.ipwCapabilities();
+            break;
+          }
+          case "nx_cam_fbm": {
+            const eng = await getEngine("nxCAMStrategy");
+            result = eng.fbmMapping(params.feature_type);
+            break;
+          }
+          case "nx_cam_list_strategies": {
+            const eng = await getEngine("nxCAMStrategy");
+            result = eng.listStrategies(params.category);
+            break;
+          }
+
+          // ── E1107 — ML Strategy Ranker ──────────────────────────────────
+          case "ml_strategy_record": {
+            const eng = await getEngine("mlStrategyRanker");
+            result = eng.recordOutcome(params.strategy, params.feature_type, params.material_iso, {
+              cycle_time_min: params.cycle_time_min,
+              tool_life_min: params.tool_life_min,
+              Ra_um: params.Ra_um,
+              scrap_rate: params.scrap_rate,
+              success: params.success,
+              composite_score: params.composite_score,
+            });
+            break;
+          }
+          case "ml_strategy_rank": {
+            const eng = await getEngine("mlStrategyRanker");
+            result = eng.rankStrategies(params.feature_type, params.material_iso, params.candidates, params.exploration);
+            break;
+          }
+          case "ml_strategy_history": {
+            const eng = await getEngine("mlStrategyRanker");
+            result = eng.getPerformanceHistory(params.strategy, params.feature_type, params.material_iso);
+            break;
+          }
+          case "ml_strategy_recommend": {
+            const eng = await getEngine("mlStrategyRanker");
+            result = eng.getRecommendation(params.feature_type, params.material_iso, params.priority);
+            break;
+          }
+
+          // ── CAMX-MS3 U02: SolidCAMStrategyEngine (E1106) ─────────────────
+          case "solidcam_strategy_recommend": {
+            const eng = await getEngine("solidCAMStrategy");
+            result = eng.recommend(
+              params.feature,
+              params.material,
+              params.machine,
+              params.tool,
+              params.priority,
+            );
+            break;
+          }
+          case "solidcam_strategy_params": {
+            const eng = await getEngine("solidCAMStrategy");
+            result = eng.getParameters(params.strategy_name);
+            break;
+          }
+          case "solidcam_imachining_details": {
+            const eng = await getEngine("solidCAMStrategy");
+            result = eng.iMachiningDetails();
+            break;
+          }
+          case "solidcam_hss_details": {
+            const eng = await getEngine("solidCAMStrategy");
+            result = eng.hssDetails();
+            break;
+          }
+          case "solidcam_strategy_list": {
+            const eng = await getEngine("solidCAMStrategy");
+            result = eng.listStrategies(params.category);
             break;
           }
 

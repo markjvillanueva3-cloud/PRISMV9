@@ -51,6 +51,12 @@ const DataDispatcherSchema = z.object({
     "catalog_workholding_lookup", "catalog_workholding_stats",
     "chart_pareto", "chart_waterfall", "chart_control",
     "chart_stability_lobe", "chart_histogram",
+    "benchmark_run", "benchmark_report", "benchmark_scorecard",
+    // BOX Data ingestion engines
+    "alarm_fix_lookup", "alarm_fix_search", "alarm_fix_summary",
+    "shop_tool_list", "shop_tool_search", "shop_tool_speed_feed", "shop_tool_summary",
+    "mfr_catalog_list", "mfr_catalog_search", "mfr_catalog_gaps", "mfr_catalog_summary",
+    "raw_tooling_analyze", "raw_tooling_summary",
   ]),
   params: z.record(z.string(), z.any()).optional()
 });
@@ -1064,6 +1070,95 @@ export function registerDataDispatcher(server: any): void {
             break;
           }
 
+          case "benchmark_run": {
+            const { benchmarkReportGeneratorEngine } = await import("../../engines/BenchmarkReportGeneratorEngine.js");
+            result = benchmarkReportGeneratorEngine.generateReport(params as any);
+            break;
+          }
+          case "benchmark_report": {
+            const { benchmarkReportGeneratorEngine: brge } = await import("../../engines/BenchmarkReportGeneratorEngine.js");
+            result = { text: brge.generateTextReport(params as any) };
+            break;
+          }
+          case "benchmark_scorecard": {
+            const { benchmarkReportGeneratorEngine: brge2 } = await import("../../engines/BenchmarkReportGeneratorEngine.js");
+            result = brge2.scorecard(params as any);
+            break;
+          }
+
+          // ── BOX Data: AlarmDiagnosticsEngine ────────────────────────────
+          case "alarm_fix_lookup": {
+            const { alarmDiagnosticsEngine: ade } = await import("../../engines/AlarmDiagnosticsEngine.js");
+            result = params.alarm_id ? ade.getFixProcedure(params.alarm_id) : ade.lookupAlarm(params.controller, params.code);
+            break;
+          }
+          case "alarm_fix_search": {
+            const { alarmDiagnosticsEngine: ade } = await import("../../engines/AlarmDiagnosticsEngine.js");
+            result = ade.searchAlarms(params.query ?? params.q ?? "");
+            break;
+          }
+          case "alarm_fix_summary": {
+            const { alarmDiagnosticsEngine: ade } = await import("../../engines/AlarmDiagnosticsEngine.js");
+            result = ade.getSummary();
+            break;
+          }
+
+          // ── BOX Data: ShopToolLibraryEngine ───────────────────────────────
+          case "shop_tool_list": {
+            const { shopToolLibraryEngine: ste } = await import("../../engines/ShopToolLibraryEngine.js");
+            result = params.category ? ste.getByCategory(params.category) : ste.loadAll();
+            break;
+          }
+          case "shop_tool_search": {
+            const { shopToolLibraryEngine: ste } = await import("../../engines/ShopToolLibraryEngine.js");
+            result = params.diameter ? ste.getByDiameter(params.diameter, params.tolerance) : ste.search(params.query ?? "");
+            break;
+          }
+          case "shop_tool_speed_feed": {
+            const { shopToolLibraryEngine: ste } = await import("../../engines/ShopToolLibraryEngine.js");
+            result = ste.getSpeedFeed(params.tool_number);
+            break;
+          }
+          case "shop_tool_summary": {
+            const { shopToolLibraryEngine: ste } = await import("../../engines/ShopToolLibraryEngine.js");
+            result = ste.getSummary();
+            break;
+          }
+
+          // ── BOX Data: ManufacturerCatalogIndexEngine ──────────────────────
+          case "mfr_catalog_list": {
+            const { manufacturerCatalogIndexEngine: mci } = await import("../../engines/ManufacturerCatalogIndexEngine.js");
+            result = params.type === "workholding" ? mci.getWorkholding() : params.type === "models" ? mci.getMachineModels(params.manufacturer) : mci.getCatalogs(params);
+            break;
+          }
+          case "mfr_catalog_search": {
+            const { manufacturerCatalogIndexEngine: mci } = await import("../../engines/ManufacturerCatalogIndexEngine.js");
+            result = params.product ? mci.searchByProduct(params.product) : mci.searchByManufacturer(params.manufacturer ?? params.query ?? "");
+            break;
+          }
+          case "mfr_catalog_gaps": {
+            const { manufacturerCatalogIndexEngine: mci } = await import("../../engines/ManufacturerCatalogIndexEngine.js");
+            result = mci.getGaps();
+            break;
+          }
+          case "mfr_catalog_summary": {
+            const { manufacturerCatalogIndexEngine: mci } = await import("../../engines/ManufacturerCatalogIndexEngine.js");
+            result = mci.getSummary();
+            break;
+          }
+
+          // ── BOX Data: RawToolingNormalizerEngine ──────────────────────────
+          case "raw_tooling_analyze": {
+            const { rawToolingNormalizerEngine: rtn } = await import("../../engines/RawToolingNormalizerEngine.js");
+            result = params.file ? rtn.analyzeFile(params.file) : rtn.getSummary();
+            break;
+          }
+          case "raw_tooling_summary": {
+            const { rawToolingNormalizerEngine: rtn } = await import("../../engines/RawToolingNormalizerEngine.js");
+            result = rtn.getSummary();
+            break;
+          }
+
           default:
             return jsonResponse({ error: `Unknown action: ${action}` });
         }
@@ -1075,5 +1170,5 @@ export function registerDataDispatcher(server: any): void {
     }
   );
 
-  log.info("[dataDispatcher] Registered prism_data (54 actions)");
+  log.info("[dataDispatcher] Registered prism_data (57 actions)");
 }

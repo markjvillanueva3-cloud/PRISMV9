@@ -2300,6 +2300,158 @@ class OkumaParametricProgramEngineImpl {
   }
 
   // --------------------------------------------------------------------------
+  // PUBLIC: Convert macro program to hardcoded G-code (ported from Python)
+  // --------------------------------------------------------------------------
+  /**
+   * Convert an Okuma macro program with V-variables to clean hardcoded G-code.
+   * Evaluates all expressions, resolves IF/GOTO branches, and outputs only
+   * the executed code path with no variables remaining.
+   *
+   * Ported from okuma_interpreter.py (547 lines Python → TypeScript)
+   */
+  convertToHardcode(programText: string, decimalPlaces = 4): {
+    gcode: string;
+    variables: Record<number, number>;
+    errors: string[];
+    warnings: string[];
+  } {
+    const variables: Record<number, number> = {};
+    const errors: string[] = [];
+    const warnings: string[] = [];
+
+    const evalExpr = (expr: string): number => {
+      let e = String(expr).trim();
+      // Replace V-variables
+      e = e.replace(/V(\d+)/gi, (_, n) => {
+        const v = variables[parseInt(n)];
+        if (v !== undefined) return String(v);
+        errors.push(`Undefined variable: V${n}`);
+        return "0";
+      });
+      // Brackets → parentheses
+      e = e.replace(/\[/g, "(").replace(/\]/g, ")");
+      // Trig functions (Okuma uses degrees)
+      e = e.replace(/TAN\(([^)]+)\)/gi, (_, a) => {
+        try { return String(Math.tan((eval(a) * Math.PI) / 180)); } catch { return "0"; }
+      });
+      e = e.replace(/SIN\(([^)]+)\)/gi, (_, a) => {
+        try { return String(Math.sin((eval(a) * Math.PI) / 180)); } catch { return "0"; }
+      });
+      e = e.replace(/COS\(([^)]+)\)/gi, (_, a) => {
+        try { return String(Math.cos((eval(a) * Math.PI) / 180)); } catch { return "0"; }
+      });
+      e = e.replace(/SQRT\(([^)]+)\)/gi, (_, a) => {
+        try { return String(Math.sqrt(eval(a))); } catch { return "0"; }
+      });
+      e = e.replace(/ABS\(([^)]+)\)/gi, (_, a) => {
+        try { return String(Math.abs(eval(a))); } catch { return "0"; }
+      });
+      try { return parseFloat(eval(e)); } catch (err) {
+        errors.push(`Eval error: ${expr} → ${err}`);
+        return 0;
+      }
+    };
+
+    const evalCondition = (cond: string): boolean => {
+      let e = cond.trim();
+      const ops: Record<string, string> = { " LT ": " < ", " GT ": " > ", " EQ ": " == ", " NE ": " != ", " LE ": " <= ", " GE ": " >= " };
+      for (const [ok, py] of Object.entries(ops)) e = e.replace(new RegExp(ok.replace(/\s/g, "\\s"), "gi"), py);
+      e = e.replace(/V(\d+)/gi, (_, n) => String(variables[parseInt(n)] ?? 0));
+      e = e.replace(/\[/g, "(").replace(/\]/g, ")");
+      try { return Boolean(eval(e)); } catch { return false; }
+    };
+
+    const fmtNum = (v: number): string => {
+      if (v === 0) return "0.";
+      const r = parseFloat(v.toFixed(decimalPlaces));
+      if (r === Math.floor(r)) return `${Math.floor(r)}.`;
+      let s = r.toFixed(decimalPlaces).replace(/0+$/, "");
+      if (s.endsWith(".")) s += "0";
+      return s;
+    };
+
+    const substituteVars = (line: string): string => {
+      // Resolve bracket expressions
+      let result = "";
+      let i = 0;
+      while (i < line.length) {
+        if (line[i] === "[") {
+          let depth = 1, j = i + 1;
+          while (j < line.length && depth > 0) { if (line[j] === "[") depth++; if (line[j] === "]") depth--; j++; }
+          if (depth === 0) { result += fmtNum(evalExpr(line.slice(i + 1, j - 1))); i = j; }
+          else { result += line[i]; i++; }
+        } else { result += line[i]; i++; }
+      }
+      // Standalone V## refs
+      result = result.replace(/V(\d+)/gi, (_, n) => {
+        const v = variables[parseInt(n)];
+        return v !== undefined ? fmtNum(v) : `V${n}`;
+      });
+      return result;
+    };
+
+    const lines = programText.split("\n");
+    // Pass 1: parse all variable definitions
+    const varDefLines = new Set<number>();
+    for (let idx = 0; idx < lines.length; idx++) {
+      const clean = lines[idx].replace(/\([^)]*\)\s*$/, "").trim();
+      const m = clean.match(/^V(\d+)\s*=\s*(.+)$/i);
+      if (m) {
+        variables[parseInt(m[1])] = evalExpr(m[2]);
+        varDefLines.add(idx);
+      }
+    }
+    // Build label index
+    const labels: Record<number, number> = {};
+    for (let idx = 0; idx < lines.length; idx++) {
+      const m = lines[idx].trim().match(/^N(\d+)\b/);
+      if (m) labels[parseInt(m[1])] = idx;
+    }
+    // Pass 2: interpret flow
+    const outputLines: string[] = [];
+    let cur = 0;
+    const maxIter = lines.length * 10;
+    let iter = 0;
+    while (cur < lines.length && iter < maxIter) {
+      iter++;
+      const stripped = lines[cur].trim();
+      if (varDefLines.has(cur)) { cur++; continue; }
+      if (!stripped) { cur++; continue; }
+      // IF [cond] GOTO N##
+      const ifM = stripped.match(/IF\s*\[([^\]]+)\]\s*GOTO\s*N(\d+)/i);
+      if (ifM) {
+        if (evalCondition(ifM[1])) {
+          const tgt = parseInt(ifM[2]);
+          if (tgt in labels) { cur = labels[tgt]; continue; }
+        }
+        cur++; continue;
+      }
+      // Unconditional GOTO
+      const gotoM = stripped.match(/^GOTO\s*N(\d+)$/i);
+      if (gotoM) {
+        const tgt = parseInt(gotoM[1]);
+        if (tgt in labels) { cur = labels[tgt]; continue; }
+        cur++; continue;
+      }
+      // Skip branch-only labels
+      if (/^N\d+\s*(\(.*\))?\s*$/.test(stripped)) { cur++; continue; }
+      // Skip section dividers and parameter headers
+      if (stripped.startsWith("(=") || stripped.includes("ADJUSTABLE PARAMETERS") || stripped.includes("AUTO-CALCULATIONS")) { cur++; continue; }
+      // Real code line — substitute values
+      let processed = substituteVars(lines[cur]);
+      // Strip branch N-labels from non-tool lines
+      if (!/\bT\d{6}\b/.test(processed)) {
+        const nm = processed.trim().match(/^N\d+\s+(.+)$/);
+        if (nm && !/^T\d{6}/.test(nm[1])) processed = nm[1];
+      }
+      outputLines.push(processed);
+      cur++;
+    }
+    if (iter >= maxIter) warnings.push("Maximum iterations reached — possible infinite loop");
+    return { gcode: outputLines.join("\n"), variables, errors, warnings };
+  }
+
+  // --------------------------------------------------------------------------
   // PRIVATE: Emit standard tool start sequence
   // --------------------------------------------------------------------------
   private _emitToolStart(
