@@ -3551,3 +3551,6 @@ export { KioskModeEngine, kioskModeEngine } from "./KioskModeEngine.js";
 
 // CAMPluginSDKEngine — Lightweight API for CAM vendor integration (<50ms)
 export { CAMPluginSDKEngine, camPluginSDKEngine } from "./CAMPluginSDKEngine.js";
+
+// SaaSAPIEngine — VAL-MS5: SaaS REST API layer
+export { saasAPIEngine, SaaSAPIEngine } from "./SaaSAPIEngine.js";

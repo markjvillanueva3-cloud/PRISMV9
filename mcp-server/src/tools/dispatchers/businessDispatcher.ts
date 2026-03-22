@@ -89,6 +89,7 @@ let _multiProcessQuote: any;
 let _shiftScheduleOptimizer: any;
 let _advancedReportRenderer: any;
 let _whiteLabelConfig: any;
+let _saasAPI: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -260,6 +261,12 @@ async function getEngine(name: string): Promise<any> {
           "../../engines/WhiteLabelConfigEngine.js"
         )
       ).whiteLabelConfigEngine;
+    case "saasAPI":
+      return _saasAPI ??= (
+        await import(
+          "../../engines/SaaSAPIEngine.js"
+        )
+      ).saasAPIEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -514,6 +521,13 @@ const ACTIONS = [
   "brand_fleet",
   "brand_tools",
   "brand_tips",
+  // ── SaaS API (VAL-MS5) ──
+  "api_route_map",
+  "api_usage",
+  "api_rate_check",
+  "api_webhook_register",
+  "api_webhook_list",
+  "api_health",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2185,6 +2199,18 @@ Params vary by action — pass relevant fields in params object.`,
         case "brand_tips": {
           const wl = await getEngine("whiteLabelConfig");
           result = wl.calculate(action, params);
+          break;
+        }
+
+        // ── SaaS API (VAL-MS5) ──
+        case "api_route_map":
+        case "api_usage":
+        case "api_rate_check":
+        case "api_webhook_register":
+        case "api_webhook_list":
+        case "api_health": {
+          const saas = await getEngine("saasAPI");
+          result = saas.calculate(action, params);
           break;
         }
 
