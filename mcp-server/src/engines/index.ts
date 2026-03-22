@@ -3543,5 +3543,11 @@ export { whiteLabelConfigEngine, WhiteLabelConfigEngine } from "./WhiteLabelConf
 
 // InstructorDashboardEngine — VAL-MS2: LMS class management, grades, analytics
 
+// CourseBuilderEngine — VAL-MS9: Auto-generate training courses from tribal tips + playbook rules
+export { CourseBuilderEngine, courseBuilderEngine } from "./CourseBuilderEngine.js";
+
 // KioskModeEngine — Shop floor touch interface: quick S/F, alarm decode, setup sheet, tool life
 export { KioskModeEngine, kioskModeEngine } from "./KioskModeEngine.js";
+
+// CAMPluginSDKEngine — Lightweight API for CAM vendor integration (<50ms)
+export { CAMPluginSDKEngine, camPluginSDKEngine } from "./CAMPluginSDKEngine.js";

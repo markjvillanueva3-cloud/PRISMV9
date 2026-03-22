@@ -93,6 +93,12 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { shear_angle_deg: result.shear_angle_deg?.value, compression_ratio: result.chip_compression_ratio?.value, chip_type: result.chip_type, bue_risk: result.bue_risk, breakability: result.chip_breakability, safe: result.is_safe };
     case "chip_diagnose":
       return { type: result.prediction?.predicted_type, shape: result.prediction?.predicted_shape, shear_deg: result.merchant_shear_deg, health: result.diagnosis?.health, issues: result.diagnosis?.issues?.length || 0, warnings: result.warnings?.length || 0 };
+    case "piispanen_shear_strain":
+      return { shear_strain: result.shear_strain?.value, chip_thickness_ratio: result.chip_thickness_ratio?.value, velocity_ratio: result.velocity_ratio?.value };
+    case "zorev_stress_distribution":
+      return { sigma_max_MPa: result.max_normal_stress_MPa?.value, sticking_mm: result.sticking_length_mm?.value, sliding_mm: result.sliding_length_mm?.value, crater_risk: result.crater_wear_risk, profile_points: result.stress_profile?.length || 0 };
+    case "thick_shear_zone":
+      return { V_s_mps: result.shear_velocity_mps?.value, strain_rate_per_s: result.strain_rate_per_s?.value, shear_strain: result.shear_strain?.value, delta_mm: result.zone_thickness_mm?.value };
     case "uts_based_force":
       return { Ft_N: result.tangential_force_N?.value, torque_Nm: result.spindle_torque_Nm?.value, power_kW: result.spindle_power_kW?.value, teeth_engaged: result.teeth_engaged?.value, wear_factor: result.wear_factor_used?.value };
     case "helix_angle_force_decomposition":
@@ -420,6 +426,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { steps: result.chain?.length, dialect: result.metadata?.controllerDialect, material: result.metadata?.isoGroup };
     case "sampling_self_correct_sf":
       return { converged: result.convergence?.converged, iterations: result.convergence?.iterations, rpm: result.finalParams?.rpm, tool_life: result.finalParams?.toolLife_min };
+    case "sdk_optimize_sf":
+      return { rpm: result.rpm, feed: result.feedRate_mmMin, power_kW: result.power_kW, tool_life: result.toolLife_min, confidence: result.confidence, warnings: result.warnings?.length || 0 };
+    case "sdk_check_safety":
+      return { safe: result.safe, score: result.score, issues: result.issues?.length || 0 };
+    case "sdk_suggest_tool":
+      return { topPick: result.topPick?.name, manufacturer: result.topPick?.manufacturer, count: result.tools?.length || 0 };
+    case "sdk_get_tip":
+      return { count: result.count, top_tip: result.tips?.[0]?.text?.slice(0, 80) };
+    case "sdk_batch":
+      return { count: result.results?.length || 0, totalTime_ms: result.totalTime_ms };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -808,7 +824,7 @@ const ACTIONS = [
   "composite_delamination_factor", "composite_tool_wear", "context_tree", "control_chart", "corrosion_rate_calc",
   "countersink_calc", "cut_to_learn", "cutting_number", "cutting_phenomena_brammertz", "cutting_phenomena_bue",
   "cutting_phenomena_coffinmanson", "cutting_phenomena_usui_crater", "cutting_physics_ext_brammertz", "cutting_physics_ext_bue", "cutting_physics_ext_colding",
-  "cutting_physics_ext_usui", "cv_learning_curve", "cv_leave_one_out", "cv_nested", "deburring_recommend",
+  "cutting_physics_ext_usui", "surface_integrity_prediction", "cv_learning_curve", "cv_leave_one_out", "cv_nested", "deburring_recommend",
   "digital_twin_sync", "dim_analysis_buckingham_pi", "dim_analysis_consistency", "electric_motor_calc", "empirical_chip_breakability",
   "empirical_feed_from_finish", "empirical_hardness_convert", "empirical_productivity", "empirical_surface_integrity", "empirical_thermal_properties",
   "experiment_sequence", "exponential_smoothing_calc", "export_learning", "fatigue_cyclic_stress_strain", "fatigue_multiaxial",
@@ -866,6 +882,10 @@ const ACTIONS = [
   // -- Sampling Workflow --
   "sampling_feasibility", "sampling_cam_strategy", "sampling_post_processor",
   "sampling_print_to_program", "sampling_self_correct_sf",
+  // -- Chip Mechanics Models (Piispanen / Zorev / Okushima-Hitomi) --
+  "piispanen_shear_strain", "zorev_stress_distribution", "thick_shear_zone",
+  // -- CAM Plugin SDK --
+  "sdk_optimize_sf", "sdk_check_safety", "sdk_suggest_tool", "sdk_get_tip", "sdk_batch",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -4484,6 +4504,26 @@ export function registerCalcDispatcher(server: any): void {
             result = chipBreakingEngine.calculate(params as ValidatedParams);
             break;
           }
+          case "chip_diagnose": {
+            const { chipMorphologyDiagnosticEngine } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
+            result = chipMorphologyDiagnosticEngine.diagnose(params as ValidatedParams);
+            break;
+          }
+          case "piispanen_shear_strain": {
+            const { chipMorphologyDiagnosticEngine: cmd1 } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
+            result = cmd1.piispanenShearStrain(params as ValidatedParams);
+            break;
+          }
+          case "zorev_stress_distribution": {
+            const { chipMorphologyDiagnosticEngine: cmd2 } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
+            result = cmd2.zorevStressDistribution(params as ValidatedParams);
+            break;
+          }
+          case "thick_shear_zone": {
+            const { chipMorphologyDiagnosticEngine: cmd3 } = await import("../../engines/ChipMorphologyDiagnosticEngine.js");
+            result = cmd3.thickShearZone(params as ValidatedParams);
+            break;
+          }
           case "spindle_torque_curve": {
             const { spindleTorqueCurveEngine } = await import("../../engines/SpindleTorqueCurveEngine.js");
             result = spindleTorqueCurveEngine.calculate(params as ValidatedParams);
@@ -6246,7 +6286,8 @@ export function registerCalcDispatcher(server: any): void {
           case "cutting_physics_ext_bue": case "cutting_physics_ext_bue_speed_map":
           case "cutting_physics_ext_usui": case "cutting_physics_ext_combined_wear":
           case "cutting_physics_ext_brammertz": case "cutting_physics_ext_roughness_decomp":
-          case "cutting_physics_ext_colding": case "cutting_physics_ext_taylor_colding": {
+          case "cutting_physics_ext_colding": case "cutting_physics_ext_taylor_colding":
+          case "surface_integrity_prediction": {
             const { advancedCuttingPhysicsExtEngine } = await import("../../engines/AdvancedCuttingPhysicsExtEngine.js");
             const cpxMap: Record<string, string> = {
               cutting_physics_ext_bue: "predictBUE",
@@ -6257,6 +6298,7 @@ export function registerCalcDispatcher(server: any): void {
               cutting_physics_ext_roughness_decomp: "surfaceRoughnessDecomposition",
               cutting_physics_ext_colding: "coldingToolLife",
               cutting_physics_ext_taylor_colding: "compareTaylorColding",
+              surface_integrity_prediction: "surfaceIntegrityPrediction",
             };
             result = (advancedCuttingPhysicsExtEngine as any)[cpxMap[action]](params as ValidatedParams);
             break;
@@ -7340,6 +7382,16 @@ export function registerCalcDispatcher(server: any): void {
           case "sampling_self_correct_sf": {
             const { samplingWorkflowEngine } = await import("../../engines/SamplingWorkflowEngine.js");
             result = samplingWorkflowEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
+          // ── CAM Plugin SDK ──
+          case "sdk_optimize_sf":
+          case "sdk_check_safety":
+          case "sdk_suggest_tool":
+          case "sdk_get_tip":
+          case "sdk_batch": {
+            const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
+            result = camPluginSDKEngine.calculate(action, params as ValidatedParams);
             break;
           }
 
