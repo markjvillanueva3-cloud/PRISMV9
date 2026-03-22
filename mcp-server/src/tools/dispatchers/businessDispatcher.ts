@@ -78,6 +78,7 @@ let _hrCompliance: any;
 let _customerMgmt: any;
 let _integrationAdapter: any;
 let _injectionMoldQuote: any;
+let _programmerProductivity: any;
 let _stockSizeOptimizer: any;
 let _marketMaterialPricing: any;
 let _batchOptimization: any;
@@ -487,6 +488,12 @@ const ACTIONS = [
   "report_scrap",
   // ROI Proof (VAL-MS0)
   "roi_log", "roi_log_outcome", "roi_summary", "roi_report", "roi_reset", "roi_configure_costs", "roi_events", "roi_trend",
+  // ── Programmer Productivity ──
+  "productivity_log",
+  "productivity_summary",
+  "productivity_achievements",
+  "productivity_digest",
+  "productivity_compare",
 ] as const;
 
 /** Registers business dispatcher.
