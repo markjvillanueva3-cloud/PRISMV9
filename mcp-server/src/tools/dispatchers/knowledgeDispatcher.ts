@@ -33,6 +33,12 @@ const TROUBLESHOOT_TREE_ACTIONS = [
   "troubleshoot_tree", "troubleshoot_common",
 ] as const;
 
+const INSTRUCTOR_ACTIONS = [
+  "instructor_create_class", "instructor_enroll",
+  "instructor_grades", "instructor_analytics",
+  "instructor_export", "instructor_assign",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats",
@@ -40,10 +46,30 @@ const ACTIONS = [
   ...VISUAL_LAB_ACTIONS,
   ...KG_ACTIONS,
   ...TROUBLESHOOT_TREE_ACTIONS,
+  ...INSTRUCTOR_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
 let kgEngine: any = null;
+let instructorEngine: any = null;
+
+async function getInstructorEngine(): Promise<any> {
+  if (!instructorEngine) {
+    try {
+      const mod = await import(
+        "../../engines/InstructorDashboardEngine.js"
+      );
+      instructorEngine =
+        mod.instructorDashboardEngine ||
+        new mod.InstructorDashboardEngine();
+    } catch (e) {
+      log.warn(
+        "[knowledgeDispatcher] InstructorDashboardEngine N/A"
+      );
+    }
+  }
+  return instructorEngine;
+}
 
 async function getKGEngine(): Promise<any> {
   if (!kgEngine) {
@@ -308,6 +334,24 @@ export function registerKnowledgeDispatcher(server: any): void {
               "../../engines/TroubleshootingDecisionTreeEngine.js"
             );
             result = dtEngine.calculate(action, params);
+            break;
+          }
+          // ── Instructor Dashboard ─────────────────────────
+          case "instructor_create_class":
+          case "instructor_enroll":
+          case "instructor_grades":
+          case "instructor_analytics":
+          case "instructor_export":
+          case "instructor_assign": {
+            const ie = await getInstructorEngine();
+            if (!ie) {
+              return dispatcherError(
+                new Error("InstructorDashboardEngine N/A"),
+                action,
+                "prism_knowledge"
+              );
+            }
+            result = await ie.calculate(action, params);
             break;
           }
         }

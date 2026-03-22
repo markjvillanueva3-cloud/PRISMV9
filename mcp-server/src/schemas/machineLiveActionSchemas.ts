@@ -407,4 +407,28 @@ export const MACHINE_LIVE_ACTION_SCHEMAS: ActionSchemaMap = {
   digital_twin_state,
   predictive_maintenance_alert,
   energy_report,
+  // Kiosk Mode (4)
+  kiosk_quick_sf: z.object({
+    materialCategory: z.enum([
+      "steel", "stainless", "aluminum",
+      "titanium", "cast_iron", "copper",
+    ]),
+    toolDiameter: z.number().positive(),
+    operation: z.enum(["face", "pocket", "slot", "drill", "turn"]),
+    response_level,
+  }).passthrough(),
+  kiosk_alarm_decode: z.object({
+    code: z.string().min(1),
+    controller: z.string().optional(),
+    response_level,
+  }).passthrough(),
+  kiosk_setup_sheet: z.object({
+    programId: z.string().optional(),
+    machineId: z.string().optional(),
+    response_level,
+  }).passthrough(),
+  kiosk_tool_life: z.object({
+    toolId: z.string().min(1),
+    response_level,
+  }).passthrough(),
 };

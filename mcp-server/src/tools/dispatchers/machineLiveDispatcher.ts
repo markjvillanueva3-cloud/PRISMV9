@@ -92,6 +92,11 @@ const MQTT_ACTIONS = [
   "mqtt_temperature",
 ] as const;
 
+const KIOSK_ACTIONS = [
+  "kiosk_quick_sf", "kiosk_alarm_decode",
+  "kiosk_setup_sheet", "kiosk_tool_life",
+] as const;
+
 const ACTIONS = [
   ...MACHINE_ACTIONS,
   ...ADAPTIVE_ACTIONS,
@@ -100,6 +105,7 @@ const ACTIONS = [
   ...MTCONNECT_ACTIONS,
   ...MQTT_ACTIONS,
   ...RTMI_ACTIONS,
+  ...KIOSK_ACTIONS,
 ] as const;
 
 // ============================================================================
@@ -334,6 +340,9 @@ export function registerMachineLiveDispatcher(server: any): void {
         } else if ((RTMI_ACTIONS as readonly string[]).includes(action)) {
           const { realTimeMachineIntelligenceEngine } = await import("../../engines/index.js");
           result = realTimeMachineIntelligenceEngine.calculate(action, params);
+        } else if ((KIOSK_ACTIONS as readonly string[]).includes(action)) {
+          const { kioskModeEngine } = await import("../../engines/KioskModeEngine.js");
+          result = kioskModeEngine.calculate(action, params);
         } else if (MACHINE_ACTIONS.includes(action as ActionString as typeof MACHINE_ACTIONS[number])) {
           result = await (await getMachineLiveEngine("machineConnectivity"))(action, params);
         } else if (ADAPTIVE_ACTIONS.includes(action as ActionString as typeof ADAPTIVE_ACTIONS[number])) {

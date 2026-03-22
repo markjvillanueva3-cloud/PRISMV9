@@ -1317,6 +1317,39 @@ const multi_process_estimate = z.object({
 }).passthrough();
 
 // ============================================================================
+// PROGRAMMER PRODUCTIVITY (5)
+// ============================================================================
+
+const productivity_log = z.object({
+  userId: str,
+  eventType: z.enum([
+    "sf_calc", "program_check", "crash_prevented",
+    "tip_viewed", "course_completed", "tool_selected",
+    "safety_check", "tolerance_check",
+    "cycle_time_improved", "material_used",
+    "operation_used",
+  ]),
+  details: z.record(z.string(), z.any()).optional(),
+}).passthrough();
+
+const productivity_summary = z.object({
+  userId: str,
+  period: z.enum(["week", "month", "year"]).optional(),
+}).passthrough();
+
+const productivity_achievements = z.object({
+  userId: str,
+}).passthrough();
+
+const productivity_digest = z.object({
+  userId: str,
+}).passthrough();
+
+const productivity_compare = z.object({
+  userId: str,
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -1551,4 +1584,10 @@ export const ACTION_BUSINESS_SCHEMAS: ActionSchemaMap = {
   // Multi-Process Quoting
   multi_process_quote,
   multi_process_estimate,
+  // Programmer Productivity
+  productivity_log,
+  productivity_summary,
+  productivity_achievements,
+  productivity_digest,
+  productivity_compare,
 };
