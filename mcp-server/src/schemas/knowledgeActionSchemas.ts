@@ -116,6 +116,62 @@ const tribal_suggest = z.object({
 const tribal_stats = z.object({}).passthrough();
 
 // ============================================================================
+// course_build
+// ============================================================================
+
+const course_build = z.object({
+  camSystem: optStr.describe("CAM system name (e.g. 'mastercam', 'fusion360')"),
+  cam_system: optStr.describe("Alternative snake_case for camSystem"),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional()
+    .describe("Course level (default: 'beginner')"),
+  maxModules: z.number().int().positive().optional()
+    .describe("Max modules (default: 10)"),
+  max_modules: z.number().int().positive().optional()
+    .describe("Alternative snake_case for maxModules"),
+}).passthrough();
+
+// ============================================================================
+// course_build_from_rules
+// ============================================================================
+
+const course_build_from_rules = z.object({
+  categories: z.array(z.string()).describe("Playbook rule categories"),
+  level: z.enum(["beginner", "intermediate", "advanced"]).optional()
+    .describe("Course level (default: 'intermediate')"),
+  maxModules: z.number().int().positive().optional()
+    .describe("Max modules (default: 10)"),
+  max_modules: z.number().int().positive().optional()
+    .describe("Alternative snake_case for maxModules"),
+}).passthrough();
+
+// ============================================================================
+// course_catalog — no params required
+// ============================================================================
+
+const course_catalog = z.object({}).passthrough();
+
+// ============================================================================
+// course_quiz_generate
+// ============================================================================
+
+const course_quiz_generate = z.object({
+  ruleCategories: z.array(z.string()).optional()
+    .describe("Rule categories to generate from (all if omitted)"),
+  rule_categories: z.array(z.string()).optional()
+    .describe("Alternative snake_case for ruleCategories"),
+  count: z.number().int().positive().optional()
+    .describe("Number of questions (default: 10)"),
+  difficulty: z.enum(["easy", "medium", "hard"]).optional()
+    .describe("Quiz difficulty (default: 'medium')"),
+}).passthrough();
+
+// ============================================================================
+// course_pricing — no params required
+// ============================================================================
+
+const course_pricing = z.object({}).passthrough();
+
+// ============================================================================
 // EXPORTED SCHEMA MAP
 // ============================================================================
 
@@ -129,4 +185,9 @@ export const ACTION_KNOWLEDGE_SCHEMAS: ActionSchemaMap = {
   tribal_search,
   tribal_suggest,
   tribal_stats,
+  course_build,
+  course_build_from_rules,
+  course_catalog,
+  course_quiz_generate,
+  course_pricing,
 };
