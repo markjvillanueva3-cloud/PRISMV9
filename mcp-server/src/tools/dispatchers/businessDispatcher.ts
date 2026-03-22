@@ -485,6 +485,8 @@ const ACTIONS = [
   "report_cost_sensitivity",
   "report_cycle_time_variance",
   "report_scrap",
+  // ROI Proof (VAL-MS0)
+  "roi_log", "roi_log_outcome", "roi_summary", "roi_report", "roi_reset", "roi_configure_costs", "roi_events", "roi_trend",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2094,7 +2096,23 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
-          default:
+          
+        // ═══ ROI PROOF (VAL-MS0) ═══
+        case "roi_log":
+        case "roi_log_outcome":
+        case "roi_summary":
+        case "roi_report":
+        case "roi_reset":
+        case "roi_configure_costs":
+        case "roi_events":
+        case "roi_trend": {
+          const { costSavingsTrackerEngine } = await import(
+            "../../engines/index.js"
+          );
+          result = costSavingsTrackerEngine.calculate(action, params);
+          break;
+        }
+        default:
             result = { error: `Unknown business action: ${action}` };
         }
 

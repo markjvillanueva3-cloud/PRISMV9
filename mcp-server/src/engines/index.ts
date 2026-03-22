@@ -3530,3 +3530,6 @@ export { realTimeMachineIntelligenceEngine, RealTimeMachineIntelligenceEngine } 
 
 // VisualLabEngine � 3D scene descriptions for PRISM Academy machining visualization
 export { VisualLabEngine, visualLabEngine } from "./VisualLabEngine.js";
+
+// CostSavingsTrackerEngine — VAL-MS0: ROI proof, persistent savings log
+export { costSavingsTrackerEngine, CostSavingsTrackerEngine } from "./CostSavingsTrackerEngine.js";
