@@ -769,7 +769,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **VibrationIsolationEngine**: VibrationIsolationEngine — Vibration Isolator Design Calculator
 - **VibrationIsolatorEngine**: VibrationIsolatorEngine — Vibration isolation mount design
 
-## Statistics & Quality (43)
+## Statistics & Quality (44)
 
 - **AMSAAReliabilityGrowthEngine**: PRISM MCP Server — AMSAA/Crow Reliability Growth Engine
 - **BayesianAdaptiveEngine**: PRISM MCP Server — Bayesian Adaptive Calibration Engine
@@ -778,6 +778,7 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **BenchmarkSuiteEngine**: PRISM MCP Server — Benchmark Suite Engine
 - **CalibrationEngine**: PRISM MCP Server — Calibration Engine
 - **DOEAnalysisEngine**: DOEAnalysisEngine — Design of Experiments for manufacturing processes
+- **FirstArticleInspectionPipelineEngine**: FirstArticleInspectionPipelineEngine — AS9102 First Article Inspection pipeline with Form 1/2/3 generation and disposition
 - **DOETaguchEngine**: DOETaguchEngine — Statistical Design of Experiments for machining optimization.
 - **FuzzyNeuralHybridEngine**: FuzzyNeuralHybridEngine — Neuro-fuzzy parameter optimization for CNC machining
 - **GraphTheoryEngine**: PRISM MCP Server — Graph Theory Engine
@@ -976,3 +977,8 @@ Use `/code-index E####` to resolve shortcode to full path.
 - **WorkholdingEngine**: PRISM Manufacturing Intelligence - Workholding Validation Engine
 - **WorkholdingForceEngine**: WorkholdingForceEngine — Workholding Clamping Force Calculations
 - **WorkholdingIntelligenceEngine**: R7-MS2: Workholding Intelligence Engine
+
+## BOX Data Engines (3)
+- **FusionCPSParserEngine**: Parses Fusion 360 .cps post processor files — extracts controller metadata, properties, motion limits, capabilities from 180 files
+- **OkumaParametricProgramEngine**: Generates Okuma OSP parametric macro programs — V-variable system, auto-calc chains, casing/counter-bore turning cycles
+- **PostProcessorCapabilityMatrixEngine**: Searchable capability matrix across 26 controller families — smoothing, retracts, multi-axis, probing, arcs

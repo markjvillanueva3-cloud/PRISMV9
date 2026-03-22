@@ -18,7 +18,7 @@ Updated: 2026-03-20 (verified against source code z.enum arrays)
 | businessDispatcher | prism_business — Business Operations | 202 |
 | cadDispatcher | prism_cad — CAD/Geometry | 57 |
 | calcDispatcher | prism_calc — Core Calculations (1041 actions in z.enum) | 1041 |
-| camDispatcher | prism_cam — CAM/Toolpath | 298 |
+| camDispatcher | prism_cam — CAM/Toolpath | 313 |
 | cncOpsDispatcher | prism_cnc_ops — CNC Operations | 41 |
 | complianceDispatcher | prism_compliance — Compliance-as-Code (F8) | 8 |
 | contextDispatcher | prism_context — Session state, memory, attention | 26 |
@@ -59,7 +59,7 @@ Updated: 2026-03-20 (verified against source code z.enum arrays)
 | processControlDispatcher | prism_process_control — Process Control & DOE | 6 |
 | productDispatcher | prism_product — SFC/PPG/Shop/ACNC Products | 41 |
 | provenPipelineDispatcher | prism_proven_pipeline — Proven part recipes, similarity matching | 22 |
-| qualityDispatcher | prism_quality — Quality & Metrology | 13 |
+| qualityDispatcher | prism_quality — Quality & Metrology | 17 |
 | ralphDispatcher | prism_ralph — Ralph agent tools | 3 |
 | realtimeDispatcher | prism_realtime — WebSocket MCP Tool Surface | 4 |
 | safetyDispatcher | prism_safety — Collision/Coolant/Spindle/ToolBreakage/Workholding | 30 |
@@ -77,7 +77,7 @@ Updated: 2026-03-20 (verified against source code z.enum arrays)
 | validationDispatcher | prism_validate — Validation (13 checks) | 13 |
 | vibrationPhysicsDispatcher | prism_vibration_physics — Vibration, Dynamics & Cutting Physics | 16 |
 | weldingJoiningDispatcher | prism_welding — Welding & Joining | 6 |
-| **TOTAL** | | **2842** |
+| **TOTAL** | | **2861** |
 
 ## Quick Action Routing
 

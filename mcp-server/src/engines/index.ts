@@ -3253,6 +3253,7 @@ export { calibratedSimulationEngine, CalibratedSimulationEngine } from './Calibr
 
 // Wired-but-unexported batch (2026-03-14)
 export { controllerDialectEngine, ControllerDialectEngineImpl } from './ControllerDialectEngine.js';
+export { controllerStrategyValidatorEngine } from './ControllerStrategyValidatorEngine.js';
 export { environmentalVariationEngine, EnvironmentalVariationEngine } from './EnvironmentalVariationEngine.js';
 
 // Batch 3 — missing dispatcher-wired engines
@@ -3554,3 +3555,237 @@ export { CAMPluginSDKEngine, camPluginSDKEngine } from "./CAMPluginSDKEngine.js"
 
 // SaaSAPIEngine — VAL-MS5: SaaS REST API layer
 export { saasAPIEngine, SaaSAPIEngine } from "./SaaSAPIEngine.js";
+
+// ============================================================================
+// PIPE-MS2: Print-to-Program Pipeline Engines
+// ============================================================================
+
+// MachiningKnowledgeBaseEngine — Canonical reference: 59 Kienzle materials, 19 Taylor combos,
+// 35 speed/feed entries, 13 toolpath strategies, tap drills, peck rules, workholding, setup planning
+export { machiningKnowledgeBaseEngine, MachiningKnowledgeBaseEngine } from "./MachiningKnowledgeBaseEngine.js";
+
+// TurningPrintToProgramEngine — Lathe: G71/G70/G72/G75/G76, CSS, multi-pass roughing
+export { turningPrintToProgramEngine, TurningPrintToProgramEngine } from "./TurningPrintToProgramEngine.js";
+
+// MultiAxisPrintToProgramEngine — 3+2 and 5-axis: G68.2, G43.4 TCP, singularity detection
+export { multiAxisPrintToProgramEngine, MultiAxisPrintToProgramEngine } from "./MultiAxisPrintToProgramEngine.js";
+
+// HolePatternPipelineEngine — Pattern recognition, TSP optimization, G81-G85 canned cycles
+export { holePatternPipelineEngine, HolePatternPipelineEngine } from "./HolePatternPipelineEngine.js";
+
+// ThreadingPipelineEngine — G76/G92 single-point, thread milling, rigid tap G84, multi-start
+export { threadingPipelineEngine, ThreadingPipelineEngine } from "./ThreadingPipelineEngine.js";
+
+// SecondaryOpsPipelineEngine — Deburring, Renishaw probing, engraving, wash, tool checks
+export { secondaryOpsPipelineEngine, SecondaryOpsPipelineEngine } from "./SecondaryOpsPipelineEngine.js";
+
+// CADDrawingKnowledgeEngine — GD&T rules, datum schemes, drawing layouts, DFM checks, fits, macros
+export { cadDrawingKnowledgeEngine, CADDrawingKnowledgeEngine } from "./CADDrawingKnowledgeEngine.js";
+
+// StrategyTaxonomyEngine — Canonical 3-tier strategy taxonomy (Category->Family->Variant), 60+ strategies, 20+ CAM systems
+export {
+  strategyTaxonomyEngine,
+  StrategyTaxonomyEngine,
+  type StrategyInfo,
+  type StrategyCategory,
+  type StrategyFamily,
+  type CamSystemId,
+  type CamEquivalent,
+  type TaxonomyStats,
+  type StrategySearchQuery,
+  type EngagementControl,
+} from "./StrategyTaxonomyEngine.js";
+
+// OptimalStrategySelectionEngine (E1087) — CAMX-MS1 U01 Unified strategy selector: physics simulation + algorithm routing + taxonomy + playbook
+export {
+  optimalStrategySelectionEngine,
+  OptimalStrategySelectionEngine,
+  type OptimalStrategyInput,
+  type OptimalStrategyResult,
+  type RankedStrategy,
+  type PhysicsResult,
+  type ScoreBreakdown,
+  type ZoneStrategy,
+  type FeatureInput as OSSFeatureInput,
+  type MaterialInput as OSSMaterialInput,
+  type MachineInput as OSSMachineInput,
+  type ToolInput as OSSToolInput,
+  type ConstraintInput as OSSConstraintInput,
+  type PreferenceInput as OSSPreferenceInput,
+  type OptimizationPriority,
+} from "./OptimalStrategySelectionEngine.js";
+
+// PackingSlipEngine — Professional packing slip generation for manufactured parts shipments (E1089)
+export {
+  packingSlipEngine,
+  PackingSlipEngine,
+  buildPackingSlip,
+  type PackingSlipFormat,
+  type PackingSlipLineItem,
+  type ShipToAddress,
+  type ShipFromAddress,
+  type PackingSlipFooter,
+  type PackingSlipInput,
+  type PackingSlipResult,
+} from "./PackingSlipEngine.js";
+
+// MachineStrategyConstraintEngine (E1091) — CAMX-MS2/U02 Validates strategy against machine physical capabilities
+export {
+  machineStrategyConstraintEngine,
+  MachineStrategyConstraintEngine,
+  type MachineCapabilities,
+  type StrategyRequirements,
+  type ConstraintCheck,
+  type ValidationResult as MSCValidationResult,
+  type RankedMachine,
+} from "./MachineStrategyConstraintEngine.js";
+
+// FixtureAwareStrategyEngine (E1101) — CAMX-MS12/U07 Adjust strategy selection based on workholding type
+export {
+  fixtureAwareStrategyEngine,
+  FixtureAwareStrategyEngine,
+  type FixtureType as FixtureAwareFixtureType,
+  type MachiningStrategy,
+  type AdjustStrategyInput,
+  type AdjustedStrategy,
+  type ValidateForFixtureInput,
+  type FixtureValidationResult,
+  type FeatureForFixture,
+  type FixtureRecommendation as FixtureAwareRecommendation,
+} from "./FixtureAwareStrategyEngine.js";
+
+// SafetyVetoEngine (E1098) — CAMX-MS14/U02 Hard veto gate: 8 mandatory rules, auto-escalation
+export {
+  safetyVetoEngine,
+  SafetyVetoEngine,
+  type VetoRule,
+  type VetoParams,
+  type MachineConstraints as VetoMachineConstraints,
+  type MaterialProps as VetoMaterialProps,
+  type ToolProps as VetoToolProps,
+  type WorkholdingProps as VetoWorkholdingProps,
+  type VetoCheckResult,
+  type VetoReport,
+  type EscalationResult,
+} from "./SafetyVetoEngine.js";
+
+// PipelineSafetyOrchestratorEngine (E1093) — CAMX-MS14/U01 Aggregate safety gate for pipeline decision points
+export {
+  pipelineSafetyOrchestratorEngine,
+  PipelineSafetyOrchestratorEngine,
+  type RiskLevel,
+  type RiskDimension,
+  type OperationInput as PipelineSafetyOperationInput,
+  type MaterialInput as PipelineSafetyMaterialInput,
+  type MachineInput as PipelineSafetyMachineInput,
+  type ToolInput as PipelineSafetyToolInput,
+  type WorkholdingInput as PipelineSafetyWorkholdingInput,
+  type SafetyAssessment,
+  type VetoResult,
+  type SafetyReport as PipelineSafetyReport,
+} from "./PipelineSafetyOrchestratorEngine.js";
+
+// ProductionBatchOptimizationEngine (E1094) — CAMX-MS21 U08 Batch production optimization
+export {
+  productionBatchOptimizationEngine,
+  ProductionBatchOptimizationEngine,
+  type BatchTool,
+  type PartDimensions,
+  type FixtureType,
+  type FixtureDimensions,
+  type ToleranceSpec,
+  type SPCData,
+  type MachineParams as BatchMachineParams,
+  type MaterialParams as BatchMaterialParams,
+  type ToolChangeEvent,
+  type ToolChangeSchedule,
+  type FixtureLoadingPlan,
+  type BarStockPlan,
+  type ProbingEvent,
+  type ProbingSchedule,
+  type CostLineItem as BatchCostLineItem,
+  type BatchCostBreakdown,
+  type BatchPlan,
+} from "./ProductionBatchOptimizationEngine.js";
+
+// PipelineCostModelEngine (E1095) — CAMX-MS13/U01 Total cost model at every pipeline stage
+export {
+  pipelineCostModelEngine,
+  PipelineCostModelEngine,
+  DEFAULT_RATES as PipelineCostDefaultRates,
+  type MachineType as PipelineCostMachineType,
+  type ToolEntry as PipelineCostToolEntry,
+  type SecondaryOpEntry as PipelineCostSecondaryOpEntry,
+  type PipelineCostInput,
+  type CostLineItem as PipelineCostLineItem,
+  type CostBreakdown as PipelineCostBreakdown,
+  type CostComparison,
+  type SensitivityResult as PipelineCostSensitivityResult,
+} from "./PipelineCostModelEngine.js";
+
+// StrategySequencingEngine (E1097) — CAMX-MS12 U06 Multi-op sequence optimizer with stock-state evolution
+export {
+  strategySequencingEngine,
+  StrategySequencingEngine,
+  type IsoGroup as SeqIsoGroup,
+  type OperationRole,
+  type AlgoTag,
+  type StrategyCandidate,
+  type FeatureInput as SeqFeatureInput,
+  type MaterialInput as SeqMaterialInput,
+  type StockDimensions,
+  type MachineInput as SeqMachineInput,
+  type SequenceConstraints,
+  type StockStateSnapshot,
+  type SequenceStep,
+  type StrategySequence,
+  type SequenceEvaluation,
+  type OptimizeResult as SeqOptimizeResult,
+} from "./StrategySequencingEngine.js";
+
+// StrategyBenchmarkEngine (E1096) — CAMX-MS12/U02 Physics+MC strategy benchmarking
+export {
+  strategyBenchmarkEngine,
+  StrategyBenchmarkEngine,
+  type BenchmarkStrategy,
+  type BenchmarkFeature,
+  type BenchmarkMaterial,
+  type BenchmarkTool,
+  type BenchmarkMachine,
+  type WeibullParams,
+  type CI95,
+  type StrategyBenchmarkResult,
+  type RankedBenchmark,
+  type MonteCarloDetail,
+} from "./StrategyBenchmarkEngine.js";
+
+// StrategyComparisonEngine (E1099) — CAMX-MS12/U03 N-strategy radar chart + explanation
+export {
+  strategyComparisonEngine,
+  StrategyComparisonEngine,
+  type DimensionScores,
+  type RankedStrategy as ComparisonRankedStrategy,
+  type WinnerSummary,
+  type ComparisonResult,
+  type HeadToHeadResult,
+  type RadarChartData,
+} from "./StrategyComparisonEngine.js";
+
+// BatchSizeStrategyEngine (E1100) — CAMX-MS12/U08 Batch-size-aware strategy optimizer
+export {
+  batchSizeStrategyEngine,
+  BatchSizeStrategyEngine,
+  type BatchTier,
+  type BatchFeature,
+  type BatchMaterial,
+  type BatchTool as BatchSizeTool,
+  type BatchMachine,
+  type AdjustedParams,
+  type CostBreakdown as BatchSizeCostBreakdown,
+  type BatchStrategyRecommendation,
+} from "./BatchSizeStrategyEngine.js";
+
+// BOX Data Engines — FusionCPSParser, OkumaParametricProgram, PostProcessorCapabilityMatrix
+export { fusionCPSParserEngine } from "./FusionCPSParserEngine.js";
+export { okumaParametricProgramEngine } from "./OkumaParametricProgramEngine.js";
+export { postProcessorCapabilityMatrixEngine } from "./PostProcessorCapabilityMatrixEngine.js";

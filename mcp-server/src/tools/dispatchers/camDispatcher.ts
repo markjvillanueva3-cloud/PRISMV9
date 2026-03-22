@@ -40,18 +40,36 @@ import { ACTION_CAM_KERNEL_SCHEMAS } from "../../schemas/camKernelActionSchemas.
 import { ACTION_CK_MS10_SCHEMAS } from "../../schemas/ckMs10ActionSchemas.js";
 import { ACTION_CK_MS11_SCHEMAS } from "../../schemas/ckMs11ActionSchemas.js";
 import { ACTION_CK_MS12_SCHEMAS } from "../../schemas/ckMs12ActionSchemas.js";
+import { ACTION_CK_MS13_SCHEMAS } from "../../schemas/ckMs13ActionSchemas.js";
+import { ACTION_CAMX_MS21_SCHEMAS } from "../../schemas/camxMs21ActionSchemas.js";
+import { ACTION_CAMX_MS12_U02_SCHEMAS } from "../../schemas/camxMs12U02ActionSchemas.js";
+import { ACTION_BOX_DATA_SCHEMAS } from "../../schemas/boxDataActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
   ...ACTION_CK_PIPELINE_SCHEMAS, ...ACTION_CAM_KERNEL_SCHEMAS,
   ...ACTION_CK_MS10_SCHEMAS, ...ACTION_CK_MS11_SCHEMAS,
-  ...ACTION_CK_MS12_SCHEMAS,
+  ...ACTION_CK_MS12_SCHEMAS, ...ACTION_CK_MS13_SCHEMAS,
+  ...ACTION_CAMX_MS21_SCHEMAS, ...ACTION_CAMX_MS12_U02_SCHEMAS,
+  ...ACTION_BOX_DATA_SCHEMAS,
 };
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons
 let _nlpCAMParser: any, _programCompare: any, _camCache: any, _batchCAM: any;
+// CAMX-MS12 U02 singletons
+let _strategyBenchmark: any;
+// CAMX-MS12 U03 singletons
+let _strategyComparison: any;
+// CAMX-MS12 U08 singletons
+let _batchSizeStrategy: any;
+// CK-MS13 singletons
+let _pipelineCostModel: any;
+// CAMX-MS21 U08 singletons
+let _prodBatchOpt: any;
+// BOX Data singletons
+let _cpsParser: any, _okumaParam: any, _ppCapMatrix: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -139,6 +157,20 @@ async function getEngine(name: string): Promise<any> {
     case "programCompare": return _programCompare ??= (await import("../../engines/ProgramCompareEngine.js")).programCompareEngine;
     case "camCache":      return _camCache      ??= (await import("../../engines/CAMResultCacheEngine.js")).camResultCacheEngine;
     case "batchCAM":      return _batchCAM      ??= (await import("../../engines/BatchCAMEngine.js")).batchCAMEngine;
+    // CK-MS13
+    case "pipelineCostModel": return _pipelineCostModel ??= (await import("../../engines/PipelineCostModelEngine.js")).pipelineCostModelEngine;
+    // CAMX-MS21 U08
+    case "prodBatchOpt": return _prodBatchOpt ??= (await import("../../engines/ProductionBatchOptimizationEngine.js")).productionBatchOptimizationEngine;
+    // CAMX-MS12 U02
+    case "strategyBenchmark": return _strategyBenchmark ??= (await import("../../engines/StrategyBenchmarkEngine.js")).strategyBenchmarkEngine;
+    // CAMX-MS12 U03
+    case "strategyComparison": return _strategyComparison ??= (await import("../../engines/StrategyComparisonEngine.js")).strategyComparisonEngine;
+    // CAMX-MS12 U08
+    case "batchSizeStrategy": return _batchSizeStrategy ??= (await import("../../engines/BatchSizeStrategyEngine.js")).batchSizeStrategyEngine;
+    // BOX Data engines
+    case "cpsParser": return _cpsParser ??= (await import("../../engines/FusionCPSParserEngine.js")).fusionCPSParserEngine;
+    case "okumaParam": return _okumaParam ??= (await import("../../engines/OkumaParametricProgramEngine.js")).okumaParametricProgramEngine;
+    case "ppCapMatrix": return _ppCapMatrix ??= (await import("../../engines/PostProcessorCapabilityMatrixEngine.js")).postProcessorCapabilityMatrixEngine;
     default: throw new Error(`Unknown CAM engine: ${name}`);
   }
 }
@@ -286,12 +318,29 @@ const ACTIONS = [
   "program_compare", "program_diff", "program_compare_physics",
   "cam_cache_stats", "cam_cache_clear",
   "batch_cam_generate", "batch_cam_optimize",
+  // CK-MS13 — PipelineCostModelEngine (E1095)
+  "pipeline_cost_compute", "pipeline_cost_compare",
+  "pipeline_cost_sensitivity", "pipeline_cost_breakeven",
+  // CAMX-MS21 U08 — ProductionBatchOptimizationEngine (E1094)
+  "production_batch_optimize", "production_batch_tool_changes",
+  "production_batch_fixture", "production_batch_barstock",
+  "production_batch_probing", "production_batch_cost",
   // CAM Kernel Unified (CK Track)
   "cam_unified_generate", "cam_complex_generate", "cam_production_toolpath",
   "cam_multi_process", "cam_mill_turn", "cam_5axis_convert",
   "cam_advanced_strategy", "cam_smart_tool", "cam_verify",
   "cam_chatter_rpm", "cam_cost_feature",
   "cam_intelligent_sequence", "cam_list_actions",
+  // CAMX-MS12 U02 — StrategyBenchmarkEngine (E1096)
+  "strategy_benchmark", "strategy_benchmark_compare", "strategy_benchmark_monte_carlo",
+  // CAMX-MS12 U03 — StrategyComparisonEngine (E1099)
+  "strategy_compare", "strategy_head_to_head", "strategy_radar_chart",
+  // CAMX-MS12 U08 — BatchSizeStrategyEngine (E1100)
+  "batch_strategy_recommend", "batch_strategy_adjust", "batch_strategy_cost",
+  // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
+  "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
+  "okuma_generate_casing", "okuma_generate_cbore", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults",
+  "pp_capability_matrix", "pp_capability_query", "pp_capability_compare", "pp_select_post", "pp_capability_summary",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -2142,6 +2191,259 @@ Params vary by action — pass relevant fields in params object.`,
             const eng    = await getEngine("batchCAM");
             const sorted = eng.optimizeBatchOrder(params.parts as any[]);
             return slimResponse({ parts: sorted, count: sorted.length });
+          }
+
+          // ── CK-MS13: PipelineCostModelEngine (E1095) ───────────────────────
+          case "pipeline_cost_compute": {
+            const eng = await getEngine("pipelineCostModel");
+            result = eng.computeCostPerPart(params);
+            break;
+          }
+          case "pipeline_cost_compare": {
+            const eng = await getEngine("pipelineCostModel");
+            result = eng.compareCosts(params.options ?? []);
+            break;
+          }
+          case "pipeline_cost_sensitivity": {
+            const eng = await getEngine("pipelineCostModel");
+            result = eng.sensitivityAnalysis(params);
+            break;
+          }
+          case "pipeline_cost_breakeven": {
+            const eng = await getEngine("pipelineCostModel");
+            result = eng.breakEvenQuantity(
+              params.setup_cost_usd,
+              params.per_part_variable_cost,
+              params.target_price_per_part,
+            );
+            break;
+          }
+
+          // ── ProductionBatchOptimizationEngine (E1094) — CAMX-MS21 U08 ──────
+          case "production_batch_optimize": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.optimizeBatch(
+              params.part_id, params.quantity, params.tools, params.machine, params.material,
+              params.part_dims, params.fixture_type, params.fixture_dims,
+              params.cycle_time_min, params.tolerances ?? [],
+              params.spc_data, params.bar_length_mm,
+            );
+            break;
+          }
+          case "production_batch_tool_changes": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.predictToolChanges(params.tools, params.cycle_time_min, params.quantity);
+            break;
+          }
+          case "production_batch_fixture": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.optimizeFixtureLoading(params.part_dims, params.fixture_type, params.fixture_dims);
+            break;
+          }
+          case "production_batch_barstock": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.optimizeBarStock(
+              params.part_length_mm, params.part_dia_mm, params.bar_length_mm,
+              params.grip_length_mm, params.cutoff_width_mm, params.material,
+            );
+            break;
+          }
+          case "production_batch_probing": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.probingSchedule(params.quantity, params.tolerances ?? [], params.spc_data);
+            break;
+          }
+          case "production_batch_cost": {
+            const eng = await getEngine("prodBatchOpt");
+            result = eng.batchCostAnalysis(params as any);
+            break;
+          }
+
+          // ── CAMX-MS12 U02: StrategyBenchmarkEngine (E1096) ───────────────────
+          case "strategy_benchmark": {
+            const eng = await getEngine("strategyBenchmark");
+            result = eng.benchmark(
+              params.strategy,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine,
+              params.trials,
+            );
+            break;
+          }
+          case "strategy_benchmark_compare": {
+            const eng = await getEngine("strategyBenchmark");
+            result = eng.compareBenchmarks(
+              params.strategies,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine,
+              params.trials,
+            );
+            break;
+          }
+          case "strategy_benchmark_monte_carlo": {
+            const eng = await getEngine("strategyBenchmark");
+            result = eng.monteCarloBenchmark(
+              params.strategy,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine,
+              params.trials,
+            );
+            break;
+          }
+
+          // ── CAMX-MS12 U03: StrategyComparisonEngine (E1099) ──────────────
+          case "strategy_compare": {
+            const eng = await getEngine("strategyComparison");
+            result = await eng.compare(
+              params.strategies,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine,
+              params.priority,
+              params.trials,
+            );
+            break;
+          }
+          case "strategy_head_to_head": {
+            const eng = await getEngine("strategyComparison");
+            result = await eng.headToHead(
+              params.strategy_a,
+              params.strategy_b,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine,
+              params.priority,
+              params.trials,
+            );
+            break;
+          }
+          case "strategy_radar_chart": {
+            const eng = await getEngine("strategyComparison");
+            result = eng.radarChart(params.comparison);
+            break;
+          }
+
+          // ── CAMX-MS12 U08: BatchSizeStrategyEngine (E1100) ───────────────
+          case "batch_strategy_recommend": {
+            const eng = await getEngine("batchSizeStrategy");
+            result = eng.recommend(
+              params.batch_size,
+              params.feature,
+              params.material,
+              params.tool,
+              params.machine ?? {},
+            );
+            break;
+          }
+          case "batch_strategy_adjust": {
+            const eng = await getEngine("batchSizeStrategy");
+            result = eng.adjustParameters(params.base_params, params.batch_size);
+            break;
+          }
+          case "batch_strategy_cost": {
+            const eng = await getEngine("batchSizeStrategy");
+            result = eng.costBreakdown(
+              params.strategy ?? "default",
+              params.batch_size,
+              params.params,
+              params.feature,
+              params.tool,
+              params.machine,
+            );
+            break;
+          }
+
+          // ── BOX Data: FusionCPSParserEngine ─────────────────────────────
+          case "cps_parse_file": {
+            const eng = await getEngine("cpsParser");
+            const content = await import("fs").then(fs => fs.readFileSync(params.file_path, "utf-8"));
+            result = eng.parseCPSFile(content, params.file_path);
+            break;
+          }
+          case "cps_parse_directory": {
+            const eng = await getEngine("cpsParser");
+            result = eng.parseCPSDirectory(params.directory ?? "C:/PRISM/BOX/FUSION BASIC POSTS");
+            break;
+          }
+          case "cps_search": {
+            const eng = await getEngine("cpsParser");
+            if (params.vendor) result = eng.searchByVendor(params.vendor);
+            else if (params.capability) result = eng.searchByCapability(params.capability);
+            else result = { error: "Provide vendor or capability param" };
+            break;
+          }
+          case "cps_property_catalog": {
+            const eng = await getEngine("cpsParser");
+            eng.parseCPSDirectory(params.directory ?? "C:/PRISM/BOX/FUSION BASIC POSTS");
+            result = eng.getPropertyCatalog();
+            break;
+          }
+          case "cps_compare_controllers": {
+            const eng = await getEngine("cpsParser");
+            result = eng.compareControllers(params.controller_a, params.controller_b);
+            break;
+          }
+
+          // ── BOX Data: OkumaParametricProgramEngine ────────────────────────
+          case "okuma_generate_casing": {
+            const eng = await getEngine("okumaParam");
+            result = eng.generateCasingProgram(params);
+            break;
+          }
+          case "okuma_generate_cbore": {
+            const eng = await getEngine("okumaParam");
+            result = eng.generateCounterBoreProgram(params);
+            break;
+          }
+          case "okuma_validate_macro": {
+            const eng = await getEngine("okumaParam");
+            result = eng.validateProgram(params.gcode);
+            break;
+          }
+          case "okuma_parse_macro": {
+            const eng = await getEngine("okumaParam");
+            result = eng.parseExistingMacro(params.gcode);
+            break;
+          }
+          case "okuma_defaults": {
+            const eng = await getEngine("okumaParam");
+            result = eng.getDefaults(params.material);
+            break;
+          }
+
+          // ── BOX Data: PostProcessorCapabilityMatrixEngine ─────────────────
+          case "pp_capability_matrix": {
+            const eng = await getEngine("ppCapMatrix");
+            result = params.family ? eng.getController(params.family) : eng.getMatrix();
+            break;
+          }
+          case "pp_capability_query": {
+            const eng = await getEngine("ppCapMatrix");
+            result = eng.query(params);
+            break;
+          }
+          case "pp_capability_compare": {
+            const eng = await getEngine("ppCapMatrix");
+            result = eng.compare(params.controllers);
+            break;
+          }
+          case "pp_select_post": {
+            const eng = await getEngine("ppCapMatrix");
+            result = eng.selectPost(params);
+            break;
+          }
+          case "pp_capability_summary": {
+            const eng = await getEngine("ppCapMatrix");
+            result = eng.getSummary();
+            break;
           }
 
           default:
