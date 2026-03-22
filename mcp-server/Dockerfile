@@ -1,46 +1,56 @@
-# PRISM MCP Server - Production Dockerfile
-# Safety-critical CNC manufacturing intelligence
-FROM node:20-alpine AS builder
+# PRISM MCP Server — Multi-Stage Docker Build
+# VAL-MS7 V7-U01
+#
+# Stage 1: Build (tsc type-check + esbuild bundle)
+# Stage 2: Runtime (node:22-alpine, minimal image)
+#
+# Usage:
+#   docker build -t prism-mcp .
+#   docker run -p 3000:3000 prism-mcp
+
+# --- Build Stage ---
+FROM node:22-alpine AS builder
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm ci --production=false
-COPY . .
-RUN npm run build
 
-FROM node:20-alpine AS production
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
+COPY tsconfig.json ./
+COPY src/ ./src/
+COPY data/ ./data/
+COPY scripts/ ./scripts/
+
+# Type-check then bundle
+RUN npx tsc --noEmit && \
+    npm run build:fast
+
+# --- Runtime Stage ---
+FROM node:22-alpine AS runtime
+
 WORKDIR /app
 
-# Security: non-root user
-RUN addgroup -g 1001 prism && adduser -u 1001 -G prism -s /bin/sh -D prism
+RUN addgroup -S prism && adduser -S prism -G prism
 
-# Copy built artifacts
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts && \
+    npm cache clean --force
 
-# Copy data directories (read-only in production)
-COPY --from=builder /app/data ./data
+COPY --from=builder /app/dist/ ./dist/
+COPY --from=builder /app/data/ ./data/
 
-# Runtime configuration
-ENV NODE_ENV=production
-ENV MAX_OLD_SPACE_SIZE=4096
-ENV PRISM_LOG_LEVEL=info
-ENV PRISM_DATA_DIR=/app/data
-ENV PRISM_STATE_DIR=/app/state
+RUN mkdir -p /app/state /home/prism/.prism && \
+    chown -R prism:prism /app /home/prism
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-  CMD node -e "const h=require('http');h.get('http://localhost:3000/health',r=>{process.exit(r.statusCode===200?0:1)}).on('error',()=>process.exit(1))"
-
-# State directory (writable)
-RUN mkdir -p /app/state && chown -R prism:prism /app/state
-VOLUME ["/app/state"]
-
-# Switch to non-root
 USER prism
 
-# Memory limit for safety-critical ops
-CMD ["node", "--max-old-space-size=4096", "--enable-source-maps", "dist/index.js"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
+  CMD node -e "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 EXPOSE 3000
+
+ENV NODE_ENV=production
+ENV PRISM_AUTH_ENABLED=true
+ENV PRISM_MCP_PATH=/app
+
+CMD ["node", "dist/index.js"]
