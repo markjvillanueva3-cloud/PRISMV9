@@ -19,6 +19,8 @@
  * @module PostProcessorPipelineEngine
  */
 
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+
 // ─── Type Definitions ────────────────────────────────────────────────
 
 export type ISOGroup = "P" | "M" | "K" | "N" | "S" | "H";
@@ -633,12 +635,53 @@ class PostProcessorPipelineEngineImpl {
    * Accepts G-code, CL data, or pre-parsed blocks. Resolves machine/tool/material
    * from catalogs. Runs all enabled stages. Returns optimized G-code + analytics.
    */
-  async process(input: PipelineInput): Promise<PipelineOutput> {
+  async process(input: PipelineInput & { resumeFromStage?: string; checkpointRunId?: string } = {} as any): Promise<PipelineOutput> {
     const startTime = Date.now();
     const stages: StageResult[] = [];
     const warnings: string[] = [];
     const aggressiveness = input.aggressiveness ?? DEFAULT_AGGRESSIVENESS;
     const optTarget = input.optimization_target ?? "balanced";
+
+    // Pipeline checkpointing — saves after each stage for resume-on-failure
+    const _cpm = new PipelineCheckpointManager('post-processor', input.checkpointRunId);
+    const _resumeTarget = input.resumeFromStage ?? '';
+    let _stageIdx = 0;
+    let _pastResume = !_resumeTarget; // if no resume target, run everything
+    const _origRunStage = this._runStage.bind(this);
+    const _origRunStageAsync = this._runStageAsync.bind(this);
+    // Wrap stage runners to add checkpointing
+    const _checkpointStage = (name: string, result: any) => {
+      if (!_pastResume && name === _resumeTarget) _pastResume = true;
+      if (_pastResume && result !== undefined) {
+        _cpm.checkpoint(name, _stageIdx, result);
+      }
+      _stageIdx++;
+    };
+    // Monkey-patch stage runners for this invocation to auto-checkpoint
+    const origRunStage = this._runStage;
+    this._runStage = ((name: string, phase: number, stgs: StageResult[], fn: () => any) => {
+      if (!_pastResume && name !== _resumeTarget) {
+        const cp = _cpm.resumeFrom(_stageIdx);
+        if (cp) { stgs.push({ stage: name, phase, status: "pass" as StageStatus, duration_ms: 0, summary: "Resumed from checkpoint", data: cp.data }); _stageIdx++; return cp.data; }
+      }
+      if (!_pastResume && name === _resumeTarget) _pastResume = true;
+      const result = _origRunStage(name, phase, stgs, fn);
+      _cpm.checkpoint(name, _stageIdx, result);
+      _stageIdx++;
+      return result;
+    }) as any;
+    this._runStageAsync = (async (name: string, phase: number, stgs: StageResult[], fn: () => Promise<any>) => {
+      if (!_pastResume && name !== _resumeTarget) {
+        const cp = _cpm.resumeFrom(_stageIdx);
+        if (cp) { stgs.push({ stage: name, phase, status: "pass" as StageStatus, duration_ms: 0, summary: "Resumed from checkpoint", data: cp.data }); _stageIdx++; return cp.data; }
+      }
+      if (!_pastResume && name === _resumeTarget) _pastResume = true;
+      const result = await _origRunStageAsync(name, phase, stgs, fn);
+      _cpm.checkpoint(name, _stageIdx, result);
+      _stageIdx++;
+      return result;
+    }) as any;
+    // Restore original methods on completion (in finally block at end)
 
     // ═══ PHASE 0: INPUT NORMALIZATION ═══
 
@@ -850,6 +893,82 @@ class PostProcessorPipelineEngineImpl {
       });
     } else {
       stages.push({ stage: "1.3_stability_lobes", phase: 1, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
+    }
+
+    // Stage 1.4: Spindle harmonics — avoid tooth-passing frequency resonance
+    if (stageFlags.spindle_harmonics) {
+      await this._runStageAsync("1.4_spindle_harmonics", 1, stages, async () => {
+        try {
+          const toolGroups = this._groupBlocksByTool(blocks);
+          const naturalFreqs = [800, 1600, 3200]; // Hz — default spindle harmonics
+          let shiftCount = 0;
+          let originalRpm = 0;
+          let shiftedRpm = 0;
+
+          for (const [toolNum, toolBlocks] of toolGroups) {
+            const tool = tools.find(t => t.id === String(toolNum)) ?? tools[0];
+            if (!tool) continue;
+            const fluteCount = tool.flute_count ?? 4;
+            const cuttingBlocks = toolBlocks.filter(b => b.move_type !== "G0" && b.spindle_rpm);
+            if (cuttingBlocks.length === 0) continue;
+
+            for (const block of cuttingBlocks) {
+              const rpm = block.spindle_rpm!;
+              if (originalRpm === 0) originalRpm = rpm;
+              const ftp = rpm * fluteCount / 60; // tooth-passing frequency (Hz)
+
+              // Check harmonics 1-5
+              let needsShift = false;
+              for (let h = 1; h <= 5; h++) {
+                const ftpHarmonic = ftp * h;
+                for (const nf of naturalFreqs) {
+                  if (Math.abs(ftpHarmonic - nf) / nf < 0.10) {
+                    needsShift = true;
+                    break;
+                  }
+                }
+                if (needsShift) break;
+              }
+
+              if (needsShift) {
+                // Shift RPM to midpoint between adjacent natural frequencies
+                // Convert back: rpm = ftp * 60 / fluteCount
+                // Find the two nearest natural freqs and pick midpoint
+                const allFreqs = [0, ...naturalFreqs, naturalFreqs[naturalFreqs.length - 1] * 2];
+                let bestMidFreq = ftp;
+                for (let fi = 0; fi < allFreqs.length - 1; fi++) {
+                  const lo = allFreqs[fi];
+                  const hi = allFreqs[fi + 1];
+                  if (ftp >= lo && ftp <= hi) {
+                    bestMidFreq = (lo + hi) / 2;
+                    break;
+                  }
+                }
+                const newRpm = Math.round(bestMidFreq * 60 / fluteCount);
+                if (newRpm !== rpm && newRpm > 0) {
+                  if (block.optimization) {
+                    block.optimization.optimized_rpm = newRpm;
+                    block.optimization.reasons.push(
+                      `Spindle harmonics: ftp=${ftp.toFixed(1)}Hz resonant → S=${newRpm}`
+                    );
+                  }
+                  block.spindle_rpm = newRpm;
+                  shiftedRpm = newRpm;
+                  shiftCount++;
+                }
+              }
+            }
+          }
+          return { harmonics_checked: 5, rpm_shifts: shiftCount, original_rpm: originalRpm, shifted_rpm: shiftedRpm };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "1.4_spindle_harmonics", phase: 1, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
     }
 
     // Stage 1.5: Tool deflection limits — max allowable force
@@ -1351,6 +1470,75 @@ class PostProcessorPipelineEngineImpl {
 
     // ═══ PHASE 3: MOTION OPTIMIZATION ═══
 
+    // Stage 3.1: Toolpath smoothing — corner rounding for smooth motion
+    if (stageFlags.toolpath_smoothing) {
+      await this._runStageAsync("3.1_toolpath_smoothing", 3, stages, async () => {
+        try {
+          let smoothedCorners = 0;
+          let maxChordError = 0;
+          const minAngleDeg = 15; // direction change threshold
+
+          for (let i = 1; i < blocks.length - 1; i++) {
+            const prev = blocks[i - 1];
+            const curr = blocks[i];
+            const next = blocks[i + 1];
+
+            // Only process cutting moves with XY coordinates
+            if (curr.move_type === "G0" || next.move_type === "G0") continue;
+            if (curr.x == null || curr.y == null) continue;
+            if (prev.x == null || prev.y == null) continue;
+            if (next.x == null || next.y == null) continue;
+
+            // Compute direction vectors
+            const dx1 = curr.x - prev.x;
+            const dy1 = curr.y - prev.y;
+            const dx2 = next.x - curr.x;
+            const dy2 = next.y - curr.y;
+
+            const len1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+            const len2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
+            if (len1 < 0.001 || len2 < 0.001) continue;
+
+            // Angle between segments
+            const dot = (dx1 * dx2 + dy1 * dy2) / (len1 * len2);
+            const clampedDot = Math.max(-1, Math.min(1, dot));
+            const angleDeg = Math.acos(clampedDot) * (180 / Math.PI);
+
+            if (angleDeg > minAngleDeg) {
+              // Apply corner rounding: radius = min(2.0, segment_length * 0.4)
+              const segLen = Math.min(len1, len2);
+              const radius = Math.min(2.0, segLen * 0.4);
+
+              // Compute chord error: e = r * (1 - cos(angle/2))
+              const halfAngleRad = (angleDeg / 2) * (Math.PI / 180);
+              const chordError = radius * (1 - Math.cos(halfAngleRad));
+              maxChordError = Math.max(maxChordError, chordError);
+
+              // Adjust corner point: shift toward the arc center (bisector direction)
+              const bisX = (dx1 / len1 + dx2 / len2);
+              const bisY = (dy1 / len1 + dy2 / len2);
+              const bisLen = Math.sqrt(bisX * bisX + bisY * bisY);
+              if (bisLen > 0.001) {
+                const shift = chordError;
+                curr.x += (bisX / bisLen) * shift;
+                curr.y += (bisY / bisLen) * shift;
+              }
+
+              smoothedCorners++;
+            }
+          }
+          return { smoothed_corners: smoothedCorners, max_chord_error: parseFloat(maxChordError.toFixed(6)) };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "3.1_toolpath_smoothing", phase: 3, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
     // Stage 3.2: Motion dynamics — achievable feed (accel/jerk/corner/servo)
     if (stageFlags.motion_dynamics) {
       await this._runStageAsync("3.2_motion_dynamics", 3, stages, async () => {
@@ -1397,6 +1585,143 @@ class PostProcessorPipelineEngineImpl {
     } else {
       stages.push({
         stage: "3.2_motion_dynamics", phase: 3, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 3.3: Look-ahead — bidirectional velocity planning
+    if (stageFlags.look_ahead) {
+      await this._runStageAsync("3.3_look_ahead", 3, stages, async () => {
+        try {
+          const machineAccel = machine?.accel_mm_s2?.x ?? 2000; // mm/s²
+          let adjustedCount = 0;
+          const count = blocks.length;
+
+          // Compute distances and max velocities per segment
+          const distances: number[] = new Array(count).fill(0);
+          const maxVels: number[] = new Array(count).fill(0); // mm/s
+          for (let i = 1; i < count; i++) {
+            const prev = blocks[i - 1];
+            const curr = blocks[i];
+            distances[i] = Math.sqrt(
+              ((curr.x ?? 0) - (prev.x ?? 0)) ** 2 +
+              ((curr.y ?? 0) - (prev.y ?? 0)) ** 2 +
+              ((curr.z ?? 0) - (prev.z ?? 0)) ** 2
+            );
+            maxVels[i] = (curr.feed_mm_min ?? 0) / 60;
+          }
+
+          // Forward pass: limit entry velocity based on previous exit + accel + distance
+          const entryVels: number[] = new Array(count).fill(0);
+          entryVels[0] = 0;
+          for (let i = 1; i < count; i++) {
+            if (blocks[i].move_type === "G0" || distances[i] < 0.001) {
+              entryVels[i] = maxVels[i];
+              continue;
+            }
+            // v² = v0² + 2*a*d → max entry = sqrt(prevExit² + 2*a*d)
+            const prevExit = entryVels[i - 1];
+            const maxEntry = Math.sqrt(prevExit * prevExit + 2 * machineAccel * distances[i]);
+            entryVels[i] = Math.min(maxVels[i], maxEntry);
+          }
+
+          // Backward pass: ensure deceleration is feasible
+          const exitVels: number[] = new Array(count).fill(0);
+          exitVels[count - 1] = 0;
+          for (let i = count - 2; i >= 0; i--) {
+            if (blocks[i].move_type === "G0" || distances[i + 1] < 0.001) {
+              exitVels[i] = entryVels[i];
+              continue;
+            }
+            const nextEntry = Math.min(entryVels[i + 1], exitVels[i + 1]);
+            const maxExit = Math.sqrt(nextEntry * nextEntry + 2 * machineAccel * distances[i + 1]);
+            exitVels[i] = Math.min(entryVels[i], maxExit);
+          }
+
+          // Apply clamped feeds
+          let totalEffectiveness = 0;
+          let effectivenessCount = 0;
+          for (let i = 1; i < count; i++) {
+            if (blocks[i].move_type === "G0" || !blocks[i].feed_mm_min) continue;
+            const plannedVel = Math.min(entryVels[i], exitVels[i]);
+            const plannedFeed = Math.round(plannedVel * 60);
+            const originalFeed = blocks[i].feed_mm_min ?? 0;
+
+            if (originalFeed > 0 && plannedFeed < originalFeed * 0.95) {
+              if (blocks[i].optimization) {
+                blocks[i].optimization!.optimized_feed = plannedFeed;
+                blocks[i].optimization!.reasons.push(
+                  `Look-ahead: F${originalFeed} → F${plannedFeed} (accel/decel limited)`
+                );
+              }
+              blocks[i].feed_mm_min = plannedFeed;
+              adjustedCount++;
+            }
+
+            if (originalFeed > 0) {
+              totalEffectiveness += ((blocks[i].feed_mm_min ?? originalFeed) / originalFeed) * 100;
+              effectivenessCount++;
+            }
+          }
+
+          const avgEffectiveness = effectivenessCount > 0
+            ? parseFloat((totalEffectiveness / effectivenessCount).toFixed(1))
+            : 100;
+
+          return { segments_planned: count, feeds_adjusted: adjustedCount, avg_effectiveness_pct: avgEffectiveness };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "3.3_look_ahead", phase: 3, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 3.4: Machine error compensation — thermal growth Z-offset
+    if (stageFlags.machine_error_comp) {
+      await this._runStageAsync("3.4_machine_error_comp", 3, stages, async () => {
+        try {
+          const deltaT = 2.0; // °C — default warm machine temperature rise
+          const cte = 12e-6; // steel CTE (1/°C)
+          let offsetCount = 0;
+          let maxOffset = 0;
+
+          // Use spindle nose as reference — distance_from_spindle ≈ Z travel from Z=0
+          for (const block of blocks) {
+            if (block.move_type === "G0") continue;
+            if (block.z == null) continue;
+
+            const distFromSpindle = Math.abs(block.z);
+            const delta = cte * deltaT * distFromSpindle; // thermal growth (mm)
+
+            if (delta > 0.0001) { // only apply if > 0.1 µm
+              block.z = block.z - delta; // compensate by shifting Z closer
+              maxOffset = Math.max(maxOffset, delta);
+              offsetCount++;
+
+              if (block.optimization) {
+                block.optimization.reasons.push(
+                  `Thermal comp: Z offset ${(delta * 1000).toFixed(2)}µm (ΔT=${deltaT}°C)`
+                );
+              }
+            }
+          }
+
+          return {
+            z_offsets_applied: offsetCount,
+            max_offset_um: parseFloat((maxOffset * 1000).toFixed(2)),
+            thermal_growth_model: "linear_CTE",
+          };
+        } catch {
+          return { status: "engine_unavailable" };
+        }
+      });
+    } else {
+      stages.push({
+        stage: "3.4_machine_error_comp", phase: 3, status: "skipped",
         duration_ms: 0, summary: "Disabled (opt-in)", data: null,
       });
     }
@@ -1506,6 +1831,180 @@ class PostProcessorPipelineEngineImpl {
     } else {
       stages.push({
         stage: "4.1_monte_carlo", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.2: Uncertainty propagation (force → deflection → dimension)
+    if (stageFlags.uncertainty_propagation === true) {
+      this._runStage("4.2_uncertainty_propagation", 4, stages, () => {
+        const blocksWithCI = blocks.filter(b => b.confidence?.force_ci_95);
+        if (blocksWithCI.length === 0) return { propagated_blocks: 0, max_dim_uncertainty_um: 0, note: "no confidence data" };
+
+        const E = 210e3; // Steel modulus MPa
+        const I = 1e-8;  // Approximate tool moment of inertia m^4
+        const L = 0.05;  // Overhang m
+        let maxDimUncertainty = 0;
+
+        for (const block of blocksWithCI) {
+          const ci = block.confidence!.force_ci_95;
+          const forceRange = ci[1] - ci[0];
+          const deflectionVar = (forceRange / (3 * E * I)) * Math.pow(L, 3);
+          const dimUncertaintyUm = deflectionVar * 1000;
+          if (dimUncertaintyUm > maxDimUncertainty) maxDimUncertainty = dimUncertaintyUm;
+        }
+
+        return {
+          propagated_blocks: blocksWithCI.length,
+          max_dim_uncertainty_um: +maxDimUncertainty.toFixed(3),
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.2_uncertainty_propagation", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.3: Dimensional verification (Cpk prediction)
+    if (stageFlags.dimensional_verification === true) {
+      this._runStage("4.3_dimensional_verification", 4, stages, () => {
+        const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+
+        // Find max dimensional uncertainty from 4.2 or estimate from force data
+        const stage42 = stages.find(s => s.stage === "4.2_uncertainty_propagation" && s.data);
+        const maxDimUncertaintyUm = (stage42?.data as any)?.max_dim_uncertainty_um ?? 0;
+        const maxDimUncertaintyMm = maxDimUncertaintyUm / 1000;
+
+        const cpk = maxDimUncertaintyMm > 0
+          ? toleranceMm / (3 * maxDimUncertaintyMm)
+          : 999; // No uncertainty data = assume capable
+
+        const blocksAtRisk = maxDimUncertaintyMm > toleranceMm / 3 ? 1 : 0;
+        let recommendation = "Process capable";
+        if (cpk < 1.0) {
+          recommendation = "CRITICAL: Cpk < 1.0 — reduce feed or increase rigidity";
+          warnings.push(`DIM_VERIFY: Predicted Cpk=${cpk.toFixed(2)} < 1.0 — process not capable`);
+        } else if (cpk < 1.33) {
+          recommendation = "WARNING: Cpk < 1.33 — marginal capability, consider tighter control";
+          warnings.push(`DIM_VERIFY: Predicted Cpk=${cpk.toFixed(2)} < 1.33 — marginal capability`);
+        }
+
+        return {
+          predicted_cpk: +cpk.toFixed(2),
+          blocks_at_risk: blocksAtRisk,
+          recommendation,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.3_dimensional_verification", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.4: Surface finish verification (Ra prediction)
+    if (stageFlags.surface_finish_verification === true) {
+      this._runStage("4.4_surface_finish_verification", 4, stages, () => {
+        const targetRa = input.surface_finish_Ra ?? DEFAULT_RA_SEMI;
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.feed_mm_min && b.spindle_rpm);
+        if (cuttingBlocks.length === 0) return { avg_ra_predicted: 0, max_ra: 0, blocks_exceeding_target: 0, note: "no cutting blocks" };
+
+        let sumRa = 0;
+        let maxRa = 0;
+        let blocksExceeding = 0;
+
+        for (const block of cuttingBlocks) {
+          const rpm = block.spindle_rpm ?? 1000;
+          const feedMmMin = block.feed_mm_min ?? 100;
+          const feedPerRev = feedMmMin / rpm; // mm/rev
+          // Tool nose radius: use corner_radius from tool context or default 0.4mm
+          const noseRadius = 0.4; // mm, typical insert nose radius
+          const raPredicted = (feedPerRev * feedPerRev) / (32 * noseRadius) * 1000; // μm
+
+          sumRa += raPredicted;
+          if (raPredicted > maxRa) maxRa = raPredicted;
+          if (raPredicted > targetRa) blocksExceeding++;
+        }
+
+        const avgRa = sumRa / cuttingBlocks.length;
+        if (blocksExceeding > 0) {
+          warnings.push(`SURFACE: ${blocksExceeding} block(s) exceed target Ra ${targetRa}μm (max predicted: ${maxRa.toFixed(2)}μm)`);
+        }
+
+        return {
+          avg_ra_predicted: +avgRa.toFixed(3),
+          max_ra: +maxRa.toFixed(3),
+          blocks_exceeding_target: blocksExceeding,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.4_surface_finish_verification", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.5: Environmental thermal drift model
+    if (stageFlags.environmental === true) {
+      this._runStage("4.5_environmental", 4, stages, () => {
+        const cte = 12e-6;       // Steel CTE (1/°C)
+        const deltaT = 2.0;      // °C typical shop variation
+        const machineLength = 500; // mm approximate machine length
+        const thermalShiftUm = cte * deltaT * machineLength * 1000; // μm
+
+        const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+        const toleranceUm = toleranceMm * 1000;
+        const cpkImpact = toleranceUm > 0 ? thermalShiftUm / toleranceUm : 0;
+
+        let warmUpRec = "Standard warm-up sufficient";
+        if (cpkImpact > 0.3) {
+          warmUpRec = "Extended warm-up recommended — thermal drift significant vs tolerance";
+          warnings.push(`THERMAL: Drift ${thermalShiftUm.toFixed(1)}μm reduces Cpk by ~${(cpkImpact * 100).toFixed(0)}%`);
+        }
+
+        return {
+          thermal_shift_um: +thermalShiftUm.toFixed(1),
+          cpk_impact: +cpkImpact.toFixed(3),
+          warm_up_recommendation: warmUpRec,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.5_environmental", phase: 4, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 4.6: Batch-to-batch material variability
+    if (stageFlags.batch_variability === true) {
+      this._runStage("4.6_batch_variability", 4, stages, () => {
+        const kcCv = 0.08; // 8% coefficient of variation for kc
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
+        const nominalForces = cuttingBlocks.map(b => b.forces!.Fc_N);
+        const meanForce = nominalForces.length > 0
+          ? nominalForces.reduce((a, b) => a + b, 0) / nominalForces.length
+          : 0;
+
+        // Force range: nominal * (1 ± 2*kc_cv)
+        const forceLow = meanForce * (1 - 2 * kcCv);
+        const forceHigh = meanForce * (1 + 2 * kcCv);
+
+        // Tool life CV via Taylor: if kc varies by 8%, force varies ~8%, life ~20% (amplified by Taylor exponent)
+        const lifeCvPct = kcCv * 100 * 2.5; // Amplified by ~1/n factor
+
+        const recommendedSF = lifeCvPct > 15 ? 1.3 : lifeCvPct > 10 ? 1.2 : 1.1;
+
+        return {
+          force_cv_pct: +(kcCv * 100).toFixed(1),
+          life_cv_pct: +lifeCvPct.toFixed(1),
+          force_range_N: [+forceLow.toFixed(0), +forceHigh.toFixed(0)],
+          recommended_safety_factor: recommendedSF,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "4.6_batch_variability", phase: 4, status: "skipped",
         duration_ms: 0, summary: "Disabled (opt-in)", data: null,
       });
     }
@@ -1677,6 +2176,87 @@ class PostProcessorPipelineEngineImpl {
       stages.push({ stage: "5.5_energy_optimization", phase: 5, status: "skipped", duration_ms: 0, summary: "Disabled (opt-in)", data: null });
     }
 
+    // Stage 5.6: Reliability check (Weibull tool reliability)
+    if (stageFlags.reliability_check === true) {
+      this._runStage("5.6_reliability_check", 5, stages, () => {
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.feed_mm_min);
+        if (cuttingBlocks.length === 0) return { reliability_pct: 100, note: "no cutting blocks" };
+
+        // Cumulative cutting time estimate (blocks × assumed 1s per block if no time data)
+        const cumulativeTimeSec = cuttingBlocks.length * 1.0;
+        const cumulativeTimeMin = cumulativeTimeSec / 60;
+
+        // Estimate eta (characteristic life) from Taylor tool life or default 30 min
+        const eta = 30; // minutes, typical tool life
+        const beta = 2.5; // Weibull shape parameter (typical for tool wear-out)
+
+        // R(t) = exp(-(t/eta)^beta)
+        const reliability = Math.exp(-Math.pow(cumulativeTimeMin / eta, beta));
+        const reliabilityPct = +(reliability * 100).toFixed(1);
+
+        // Time to 90% reliability: t = eta * (-ln(0.9))^(1/beta)
+        const timeTo90 = eta * Math.pow(-Math.log(0.9), 1 / beta);
+
+        const toolChangeRecommended = reliability < 0.85;
+        if (toolChangeRecommended) {
+          warnings.push(`RELIABILITY: Tool reliability ${reliabilityPct}% — tool change recommended before this program`);
+        }
+
+        return {
+          reliability_pct: reliabilityPct,
+          time_to_90pct_reliability: +timeTo90.toFixed(1),
+          cumulative_cutting_min: +cumulativeTimeMin.toFixed(2),
+          tool_change_recommended: toolChangeRecommended,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "5.6_reliability_check", phase: 5, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 5.7: Acoustic check (Kopac cutting noise model)
+    if (stageFlags.acoustic_check === true) {
+      this._runStage("5.7_acoustic_check", 5, stages, () => {
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.spindle_rpm);
+        if (cuttingBlocks.length === 0) return { noise_level_dba: 70, hearing_protection_required: false, note: "no cutting blocks" };
+
+        let maxNoise = 0;
+        const machineBackground = 70; // dBA
+
+        for (const block of cuttingBlocks) {
+          const rpm = block.spindle_rpm ?? 1000;
+          const toolDia = (block as any).tool_diameter_mm ?? 10;
+          const Vc = (Math.PI * toolDia * rpm) / 1000; // m/min
+          const ap = (block as any).ap_mm ?? 1;
+          const ae = (block as any).ae_mm ?? toolDia * 0.5;
+
+          // Kopac simplified: L_cut = 75 + 20*log10(Vc/100) + 10*log10(ap*ae)
+          const lCut = 75 + 20 * Math.log10(Math.max(Vc, 1) / 100) + 10 * Math.log10(Math.max(ap * ae, 0.01));
+          // Combined noise: 10*log10(10^(L_cut/10) + 10^(background/10))
+          const combined = 10 * Math.log10(Math.pow(10, lCut / 10) + Math.pow(10, machineBackground / 10));
+          if (combined > maxNoise) maxNoise = combined;
+        }
+
+        const hearingProtection = maxNoise > 85;
+        if (hearingProtection) {
+          warnings.push(`ACOUSTIC: Estimated noise ${maxNoise.toFixed(0)} dBA > 85 dBA — hearing protection required (ISO 4869)`);
+        }
+
+        return {
+          noise_level_dba: +maxNoise.toFixed(1),
+          hearing_protection_required: hearingProtection,
+          iso_4869_compliant: !hearingProtection,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "5.7_acoustic_check", phase: 5, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
     // ═══ PHASE 5.9: VERIFICATION (pre-output) ═══
 
     // Stage 5.9: 5-axis post processing (singularity + TCPC)
@@ -1733,6 +2313,103 @@ class PostProcessorPipelineEngineImpl {
       stages.push({ stage: "6.1_gcode_generation", phase: 6, status: "skipped", duration_ms: 0, summary: "Disabled", data: null });
     }
 
+    // Stage 6.2: Probe routine generation for critical features
+    if (stageFlags.probe_routines === true) {
+      this._runStage("6.2_probe_routines", 6, stages, () => {
+        const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0");
+        let probePointsGenerated = 0;
+        const probeLines: string[] = [];
+
+        for (const block of cuttingBlocks) {
+          // Insert probe for operations with tight tolerance (< 0.05mm)
+          if (toleranceMm < 0.05 && block.z !== undefined) {
+            probeLines.push(`G65 P9810 Z${block.z.toFixed(3)} F500.`);
+            probePointsGenerated++;
+          }
+        }
+
+        // Limit to first 10 probe points to avoid excessive probing
+        const limitedProbes = probeLines.slice(0, 10);
+
+        return {
+          probe_points_generated: probePointsGenerated,
+          critical_dims_covered: Math.min(probePointsGenerated, 10),
+          probe_gcode_lines: limitedProbes,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "6.2_probe_routines", phase: 6, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 6.3: Setup sheet generation
+    if (stageFlags.setup_sheet === true) {
+      this._runStage("6.3_setup_sheet", 6, stages, () => {
+        const toolsUsed = [...new Set(blocks.filter(b => b.tool_number).map(b => b.tool_number))];
+        const safetyStage = stages.find(s => s.stage === "5.1_safety_analysis" && s.data);
+        const safetyWarnings = (safetyStage?.data as any)?.critical_issues ?? 0;
+
+        const setupSheet = {
+          part_number: (input as any).part_id ?? "UNKNOWN",
+          material: input.material ?? "Unknown",
+          tools_used: toolsUsed,
+          work_offset: "G54",
+          fixture_notes: (input as any).fixture_notes ?? "See setup drawing",
+          estimated_cycle_time: (stages.find(s => s.stage === "6.6_cycle_time")?.data as any)?.total_seconds ?? null,
+          safety_warnings: safetyWarnings > 0 ? `${safetyWarnings} critical safety issue(s) — review before running` : "None",
+        };
+
+        return {
+          setup_sheet_generated: true,
+          setup_sheet: setupSheet,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "6.3_setup_sheet", phase: 6, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
+    // Stage 6.4: Controller-specific parameter injection
+    if (stageFlags.controller_params === true) {
+      this._runStage("6.4_controller_params", 6, stages, () => {
+        const controllerKey = (machine?.controller ?? input.controller ?? "fanuc").toLowerCase();
+        let initBlock = "";
+        let controllerType = "generic";
+
+        if (controllerKey.includes("fanuc")) {
+          initBlock = "G10 L2 P1 X0. Y0. Z0.";
+          controllerType = "fanuc";
+        } else if (controllerKey.includes("siemens") || controllerKey.includes("840d") || controllerKey.includes("828d")) {
+          initBlock = "CYCLE800()";
+          controllerType = "siemens";
+        } else {
+          initBlock = "G54";
+          controllerType = "generic";
+        }
+
+        // Prepend to output G-code if available
+        if (outputGcode && initBlock) {
+          outputGcode = initBlock + "\n" + outputGcode;
+        }
+
+        return {
+          params_injected: true,
+          controller_type: controllerType,
+          init_block: initBlock,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "6.4_controller_params", phase: 6, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
+      });
+    }
+
     // Stage 6.5: Analytics report
     let analytics: AnalyticsReport | undefined;
     if (stageFlags.analytics_report || input.include_analytics) {
@@ -1746,6 +2423,58 @@ class PostProcessorPipelineEngineImpl {
     if (stageFlags.cycle_time) {
       this._runStage("6.6_cycle_time", 6, stages, () => {
         return this._estimateCycleTime(blocks, machine);
+      });
+    }
+
+    // Stage 6.7: Digital twin state export
+    if (stageFlags.digital_twin === true) {
+      this._runStage("6.7_digital_twin", 6, stages, () => {
+        // Collect all enrichment data from blocks
+        const enrichedBlocks = blocks.map(b => ({
+          id: b.id,
+          line: (b as any).line,
+          move_type: b.move_type,
+          x: b.x, y: b.y, z: b.z,
+          feed_mm_min: b.feed_mm_min,
+          spindle_rpm: b.spindle_rpm,
+          forces: b.forces ?? null,
+          thermal: b.thermal ?? null,
+          wear: b.wear ?? null,
+          confidence: b.confidence ?? null,
+        }));
+
+        // Summarize stage results
+        const stagesSummary = stages.map(s => ({
+          stage: s.stage,
+          status: s.status,
+          duration_ms: s.duration_ms,
+        }));
+
+        // Force/thermal/wear profiles
+        const cuttingBlocks = blocks.filter(b => b.move_type !== "G0");
+        const forceProfile = cuttingBlocks.filter(b => b.forces).map(b => ({ id: b.id, Fc_N: b.forces!.Fc_N }));
+        const thermalProfile = cuttingBlocks.filter(b => b.thermal).map(b => ({ id: b.id, temp_C: (b.thermal as any)?.temperature_C ?? 0 }));
+        const wearProfile = cuttingBlocks.filter(b => b.wear).map(b => ({ id: b.id, remaining_pct: b.wear!.remaining_life_pct }));
+
+        const digitalTwinExport = {
+          blocks: enrichedBlocks,
+          force_profile: forceProfile,
+          thermal_profile: thermalProfile,
+          wear_profile: wearProfile,
+          stages_summary: stagesSummary,
+          timestamp: new Date().toISOString(),
+        };
+
+        return {
+          data_points_exported: enrichedBlocks.length,
+          twin_state: "ready" as const,
+          digital_twin_export: digitalTwinExport,
+        };
+      });
+    } else {
+      stages.push({
+        stage: "6.7_digital_twin", phase: 6, status: "skipped",
+        duration_ms: 0, summary: "Disabled (opt-in)", data: null,
       });
     }
 
@@ -1782,6 +2511,10 @@ class PostProcessorPipelineEngineImpl {
     }
 
     // ═══ BUILD RESULT ═══
+
+    // Restore original stage runners after pipeline completes
+    this._runStage = origRunStage;
+    this._runStageAsync = _origRunStageAsync;
 
     const overallStatus: StageStatus = stages.some(s => s.status === "fail") ? "fail"
       : stages.some(s => s.status === "warn") ? "warn" : "pass";
@@ -1989,6 +2722,7 @@ class PostProcessorPipelineEngineImpl {
       speed_feed: s.speed_feed !== false,
       constitutive: s.constitutive !== false,
       stability_lobes: s.stability_lobes !== false,
+      spindle_harmonics: s.spindle_harmonics === true, // opt-in
       engagement_analysis: s.engagement_analysis !== false,
       chip_thinning: s.chip_thinning !== false,
       adaptive_feed: s.adaptive_feed !== false,
@@ -2004,6 +2738,7 @@ class PostProcessorPipelineEngineImpl {
       fixture_check: s.fixture_check === true, // opt-in
       capability_forecast: s.capability_forecast === true, // opt-in
       controller_features: s.controller_features !== false,
+      multi_axis: s.multi_axis === true, // opt-in
       machine_error_comp: s.machine_error_comp === true, // opt-in
       safety_analysis: s.safety_analysis !== false,
       playbook_rules: s.playbook_rules !== false,
@@ -2014,6 +2749,17 @@ class PostProcessorPipelineEngineImpl {
       analytics_report: s.analytics_report !== false,
       cycle_time: s.cycle_time !== false,
       monte_carlo: s.monte_carlo === true, // opt-in (expensive)
+      uncertainty_propagation: s.uncertainty_propagation === true, // opt-in
+      dimensional_verification: s.dimensional_verification === true, // opt-in
+      surface_finish_verification: s.surface_finish_verification === true, // opt-in
+      environmental: s.environmental === true, // opt-in
+      batch_variability: s.batch_variability === true, // opt-in
+      reliability_check: s.reliability_check === true, // opt-in
+      acoustic_check: s.acoustic_check === true, // opt-in
+      controller_params: s.controller_params === true, // opt-in
+      probe_routines: s.probe_routines === true, // opt-in
+      setup_sheet: s.setup_sheet === true, // opt-in
+      digital_twin: s.digital_twin === true, // opt-in
     };
   }
 

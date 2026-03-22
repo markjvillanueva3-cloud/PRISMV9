@@ -1,9 +1,10 @@
 {
-  "version": "6.0.0",
+  "version": "6.1.0",
   "title": "PRISM App - Comprehensive Layered Roadmap",
-  "updated_at": "2026-03-14T21:30:00Z",
-  "total_milestones": 165,
-  "completed_milestones": 158,
+  "updated_at": "2026-03-22T12:00:00Z",
+  "total_milestones": 188,
+  "completed_milestones": 176,
+  "cpl_roadmap": "milestones/CPL-ROADMAP.json",
   "v6_roadmap": "milestones/V6-ROADMAP.json",
   "milestones": [
     {
@@ -2199,7 +2200,9 @@
       "id": "BENCH-MS1",
       "title": "Benchmark Parametric Sweeps — 8,640 S/F combos across 6 ISO groups × 8 ops × 12 tools × 5 machines × 3 DOC",
       "track": "BENCH",
-      "dependencies": ["BENCH-MS0"],
+      "dependencies": [
+        "BENCH-MS0"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -2210,7 +2213,9 @@
       "id": "BENCH-MS2",
       "title": "Benchmark Cross-Engine + E2E Pipelines — 1,500 pipeline tests × 20 dialects + 75 consistency checks",
       "track": "BENCH",
-      "dependencies": ["BENCH-MS0"],
+      "dependencies": [
+        "BENCH-MS0"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -2221,7 +2226,9 @@
       "id": "BENCH-MS3",
       "title": "Benchmark Machine Coverage — 205 machines × 3 operations + 2,730 machine-specific tests",
       "track": "BENCH",
-      "dependencies": ["BENCH-MS1"],
+      "dependencies": [
+        "BENCH-MS1"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -2232,12 +2239,246 @@
       "id": "BENCH-MS4",
       "title": "Benchmark Real-World — 10 industry parts, beat CAM defaults + report generator",
       "track": "BENCH",
-      "dependencies": ["BENCH-MS2"],
+      "dependencies": [
+        "BENCH-MS2"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
       "sessions": "1-2",
       "envelope_path": "milestones/BENCH-MS4.json"
+    },
+    {
+      "id": "CCM-MS0",
+      "title": "Hook Event Expansion — Wire All 18 Lifecycle Events",
+      "track": "CCM",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 16,
+      "completed_units": 16,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS0.json"
+    },
+    {
+      "id": "CCM-MS1",
+      "title": "Hook Type Modernization — Prompt, Agent & HTTP Hooks",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS0"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS1.json"
+    },
+    {
+      "id": "CCM-MS2",
+      "title": "Agent Architecture Expansion — Full Agent Definition System",
+      "track": "CCM",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 12,
+      "completed_units": 12,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS2.json"
+    },
+    {
+      "id": "CCM-MS3",
+      "title": "Skill Modernization — Model/Effort/Context Frontmatter",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS2"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS3.json"
+    },
+    {
+      "id": "CCM-MS4",
+      "title": "Rules System Expansion — Path-Specific Domain Rules",
+      "track": "CCM",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1",
+      "envelope_path": "milestones/CCM-MS4.json"
+    },
+    {
+      "id": "CCM-MS5",
+      "title": "Scheduling & Automation — Cron Jobs & Batch Operations",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS0",
+        "CCM-MS2"
+      ],
+      "status": "complete",
+      "total_units": 14,
+      "completed_units": 14,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS5.json"
+    },
+    {
+      "id": "CCM-MS6",
+      "title": "Security & Sandbox Configuration",
+      "track": "CCM",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 8,
+      "completed_units": 8,
+      "sessions": "1",
+      "envelope_path": "milestones/CCM-MS6.json"
+    },
+    {
+      "id": "CCM-MS7",
+      "title": "Memory & Context Optimization — Auto-Memory & Compaction",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS0",
+        "CCM-MS4"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS7.json"
+    },
+    {
+      "id": "CCM-MS8",
+      "title": "MCP & Integration Modernization — .mcp.json & Annotations",
+      "track": "CCM",
+      "dependencies": [],
+      "status": "complete",
+      "total_units": 8,
+      "completed_units": 8,
+      "sessions": "1",
+      "envelope_path": "milestones/CCM-MS8.json"
+    },
+    {
+      "id": "CCM-MS9",
+      "title": "Agent Teams & Orchestration — Multi-Agent Coordination",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS2",
+        "CCM-MS3"
+      ],
+      "status": "complete",
+      "total_units": 12,
+      "completed_units": 12,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS9.json"
+    },
+    {
+      "id": "CCM-MS10",
+      "title": "Code Review Automation Pipeline — Domain-Aware PR Reviews",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS2"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS10.json"
+    },
+    {
+      "id": "CCM-MS11",
+      "title": "Cowork & Dispatch Integration — Desktop Agent + Phone Control",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS3",
+        "CCM-MS5"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS11.json"
+    },
+    {
+      "id": "CCM-MS12",
+      "title": "Autonomous Bot & Messaging — Discord/Slack Manufacturing Assistant",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS8",
+        "CCM-MS9"
+      ],
+      "status": "complete",
+      "total_units": 10,
+      "completed_units": 10,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS12.json"
+    },
+    {
+      "id": "CCM-MS13",
+      "title": "Auto-Remediation Pipeline — Warn-to-AutoFix Conversion",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS0",
+        "CCM-MS1"
+      ],
+      "status": "complete",
+      "total_units": 14,
+      "completed_units": 14,
+      "sessions": "2",
+      "envelope_path": "milestones/CCM-MS13.json"
+    },
+    {
+      "id": "CCM-MS14",
+      "title": "Stochastic Coordination Layer — Probabilistic System Models",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS0",
+        "CCM-MS13"
+      ],
+      "status": "complete",
+      "total_units": 14,
+      "completed_units": 14,
+      "sessions": "2",
+      "envelope_path": "milestones/CCM-MS14.json"
+    },
+    {
+      "id": "CCM-MS15",
+      "title": "Self-Healing Infrastructure — Auto-Detect & Repair Drift",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS14"
+      ],
+      "status": "complete",
+      "total_units": 12,
+      "completed_units": 12,
+      "sessions": "2",
+      "envelope_path": "milestones/CCM-MS15.json"
+    },
+    {
+      "id": "CCM-MS16",
+      "title": "Observability & Telemetry — Complete System Metrics",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS14"
+      ],
+      "status": "complete",
+      "total_units": 12,
+      "completed_units": 12,
+      "sessions": "1-2",
+      "envelope_path": "milestones/CCM-MS16.json"
+    },
+    {
+      "id": "CCM-MS17",
+      "title": "Adaptive Optimization — ML-Based Auto-Tuning",
+      "track": "CCM",
+      "dependencies": [
+        "CCM-MS14",
+        "CCM-MS16"
+      ],
+      "status": "complete",
+      "total_units": 12,
+      "completed_units": 12,
+      "sessions": "2",
+      "envelope_path": "milestones/CCM-MS17.json"
     }
   ]
 }
