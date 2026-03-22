@@ -88,6 +88,7 @@ let _weldFabQuote: any;
 let _multiProcessQuote: any;
 let _shiftScheduleOptimizer: any;
 let _advancedReportRenderer: any;
+let _whiteLabelConfig: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -247,6 +248,18 @@ async function getEngine(name: string): Promise<any> {
       return _advancedReportRenderer ??= (
         await import("../../engines/AdvancedReportRendererEngine.js")
       ).advancedReportRendererEngine;
+    case "programmerProductivity":
+      return _programmerProductivity ??= (
+        await import(
+          "../../engines/ProgrammerProductivityEngine.js"
+        )
+      ).programmerProductivityEngine;
+    case "whiteLabelConfig":
+      return _whiteLabelConfig ??= (
+        await import(
+          "../../engines/WhiteLabelConfigEngine.js"
+        )
+      ).whiteLabelConfigEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -494,6 +507,13 @@ const ACTIONS = [
   "productivity_achievements",
   "productivity_digest",
   "productivity_compare",
+  // ── White Label Config (VAL-MS3) ──
+  "brand_configure",
+  "brand_status",
+  "brand_reset",
+  "brand_fleet",
+  "brand_tools",
+  "brand_tips",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2119,6 +2139,55 @@ Params vary by action — pass relevant fields in params object.`,
           result = costSavingsTrackerEngine.calculate(action, params);
           break;
         }
+        // ═══ PROGRAMMER PRODUCTIVITY ═══
+        case "productivity_log": {
+          const eng = await getEngine(
+            "programmerProductivity"
+          );
+          result = eng.log(params);
+          break;
+        }
+        case "productivity_summary": {
+          const eng = await getEngine(
+            "programmerProductivity"
+          );
+          result = eng.summary(params);
+          break;
+        }
+        case "productivity_achievements": {
+          const eng = await getEngine(
+            "programmerProductivity"
+          );
+          result = eng.achievements(params);
+          break;
+        }
+        case "productivity_digest": {
+          const eng = await getEngine(
+            "programmerProductivity"
+          );
+          result = eng.digest(params);
+          break;
+        }
+        case "productivity_compare": {
+          const eng = await getEngine(
+            "programmerProductivity"
+          );
+          result = eng.compare(params);
+          break;
+        }
+
+        // ═══ WHITE LABEL CONFIG (VAL-MS3) ═══
+        case "brand_configure":
+        case "brand_status":
+        case "brand_reset":
+        case "brand_fleet":
+        case "brand_tools":
+        case "brand_tips": {
+          const wl = await getEngine("whiteLabelConfig");
+          result = wl.calculate(action, params);
+          break;
+        }
+
         default:
             result = { error: `Unknown business action: ${action}` };
         }

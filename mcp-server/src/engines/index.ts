@@ -3538,4 +3538,10 @@ export { costSavingsTrackerEngine, CostSavingsTrackerEngine } from "./CostSaving
 // ProgrammerProductivityEngine — Per-user productivity metrics + gamification achievements
 export { programmerProductivityEngine, ProgrammerProductivityEngine } from "./ProgrammerProductivityEngine.js";
 
+// WhiteLabelConfigEngine — VAL-MS3: dealer branding, fleet config
+export { whiteLabelConfigEngine, WhiteLabelConfigEngine } from "./WhiteLabelConfigEngine.js";
+
 // InstructorDashboardEngine — VAL-MS2: LMS class management, grades, analytics
+
+// KioskModeEngine — Shop floor touch interface: quick S/F, alarm decode, setup sheet, tool life
+export { KioskModeEngine, kioskModeEngine } from "./KioskModeEngine.js";
