@@ -3523,6 +3523,7 @@ export { samplingWorkflowEngine, SamplingWorkflowEngine } from "./SamplingWorkfl
 export { AssessmentEngine } from "./AssessmentEngine.js";
 export { LessonRendererEngine } from "./LessonRendererEngine.js";
 export { KnowledgeCurriculumBridgeEngine } from "./KnowledgeCurriculumBridgeEngine.js";
+export { InstructorDashboardEngine, instructorDashboardEngine } from "./InstructorDashboardEngine.js";
 
 
 // RealTimeMachineIntelligenceEngine — TECH-MS2: spindle monitor, chatter detect, thermal comp, tool life countdown, time series
@@ -3533,3 +3534,8 @@ export { VisualLabEngine, visualLabEngine } from "./VisualLabEngine.js";
 
 // CostSavingsTrackerEngine — VAL-MS0: ROI proof, persistent savings log
 export { costSavingsTrackerEngine, CostSavingsTrackerEngine } from "./CostSavingsTrackerEngine.js";
+
+// ProgrammerProductivityEngine — Per-user productivity metrics + gamification achievements
+export { programmerProductivityEngine, ProgrammerProductivityEngine } from "./ProgrammerProductivityEngine.js";
+
+// InstructorDashboardEngine — VAL-MS2: LMS class management, grades, analytics
