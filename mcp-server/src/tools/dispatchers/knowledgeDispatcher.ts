@@ -33,6 +33,12 @@ const TROUBLESHOOT_TREE_ACTIONS = [
   "troubleshoot_tree", "troubleshoot_common",
 ] as const;
 
+const COURSE_BUILDER_ACTIONS = [
+  "course_build", "course_build_from_rules",
+  "course_catalog", "course_quiz_generate",
+  "course_pricing",
+] as const;
+
 const INSTRUCTOR_ACTIONS = [
   "instructor_create_class", "instructor_enroll",
   "instructor_grades", "instructor_analytics",
@@ -47,6 +53,7 @@ const ACTIONS = [
   ...KG_ACTIONS,
   ...TROUBLESHOOT_TREE_ACTIONS,
   ...INSTRUCTOR_ACTIONS,
+  ...COURSE_BUILDER_ACTIONS,
 ] as const;
 
 let knowledgeEngine: any = null;
@@ -352,6 +359,18 @@ export function registerKnowledgeDispatcher(server: any): void {
               );
             }
             result = await ie.calculate(action, params);
+            break;
+          }
+          // ── Course Builder (VAL-MS9) ───────────────────────
+          case "course_build":
+          case "course_build_from_rules":
+          case "course_catalog":
+          case "course_quiz_generate":
+          case "course_pricing": {
+            const { courseBuilderEngine: cbEngine } = await import(
+              "../../engines/CourseBuilderEngine.js"
+            );
+            result = cbEngine.calculate(action, params);
             break;
           }
         }
