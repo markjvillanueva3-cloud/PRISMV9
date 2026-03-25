@@ -220,11 +220,17 @@ export const CANONICAL_TOOL_MODULUS: Record<ToolMaterial, number> = {
  *
  * Reference: Kienzle & Victor (1957), "Spezifische Schnittkräfte bei der Metallbearbeitung"
  */
-export function kienzleForce(kc1_1: number, mc: number, ap: number, fz: number): number {
+export function kienzleForce(kc1_1: number, mc: number, ap: number, fz: number, edgePrep?: 'sharp' | 'light_hone' | 'heavy_hone' | 'chamfer' | 't_land'): number {
   if (fz <= 0 || ap <= 0) return 0;
   const h = Math.max(fz, 0.001); // Prevent division issues at very small feeds
   const kc = kc1_1 * Math.pow(h, -mc); // Specific cutting force [N/mm²]
-  return kc * ap * h; // Fc = kc × b × h = kc1.1 × b × h^(1-mc) [N]
+  // Edge preparation correction: honed/chamfered edges increase Kc by 5-25%
+  // Source: Seco Tools geometry guide + Denkena & Biermann (2014) "Cutting edge geometries" CIRP Annals
+  const EDGE_PREP_FACTOR: Record<string, number> = {
+    sharp: 1.0, light_hone: 1.07, heavy_hone: 1.12, chamfer: 1.18, t_land: 1.25,
+  };
+  const k_edge = EDGE_PREP_FACTOR[edgePrep ?? 'sharp'] ?? 1.0;
+  return kc * ap * h * k_edge; // Fc = kc × b × h × k_edge [N]
 }
 
 /**
@@ -239,9 +245,17 @@ export function kienzleForce(kc1_1: number, mc: number, ap: number, fz: number):
  * Reference: F.W. Taylor (1907), "On the Art of Cutting Metals"
  * ISO 3685:1993 — Tool-life testing with single-point turning tools
  */
-export function taylorLife(C: number, n: number, Vc: number): number {
+export function taylorLife(C: number, n: number, Vc: number, coating?: string): number {
   if (Vc <= 0 || C <= 0 || n <= 0) return 9999;
-  return Math.pow(C / Vc, 1 / n);
+  // Coating performance multiplier — extends effective Taylor C constant
+  // Source: Walter Tiger·tec Gold data + Sandvik/Kennametal coating studies
+  const COATING_MULTIPLIER: Record<string, number> = {
+    uncoated: 1.0, TiN: 1.3, TiCN: 1.4, TiAlN: 1.5, AlTiN: 1.6,
+    AlCrN: 1.5, nACo: 1.7, CVD_Al2O3: 1.8, CVD_TiCN_Al2O3: 1.9,
+    Tiger_tec_Gold: 2.0, PVD_multilayer: 1.4, DLC: 1.3, diamond: 3.0,
+  };
+  const k_coat = COATING_MULTIPLIER[coating ?? 'uncoated'] ?? 1.0;
+  return Math.pow((C * k_coat) / Vc, 1 / n);
 }
 
 /**

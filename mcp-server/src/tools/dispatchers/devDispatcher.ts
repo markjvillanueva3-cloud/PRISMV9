@@ -601,7 +601,8 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
           case "file_read": {
-            const fullPath = path.join(MCP_ROOT, params.path || "");
+            const fullPath = path.resolve(MCP_ROOT, params.path || "");
+            if (!fullPath.startsWith(path.resolve(MCP_ROOT))) { result = "ERROR: Path traversal detected — access denied"; break; }
             if (!fs.existsSync(fullPath)) { result = { error: `File not found: ${params.path}` }; break; }
             const lines = fs.readFileSync(fullPath, "utf-8").split("\n");
             const start = params.start_line ?? 0;
@@ -610,7 +611,8 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
           case "file_write": {
-            const fullPath = path.join(MCP_ROOT, params.path || "");
+            const fullPath = path.resolve(MCP_ROOT, params.path || "");
+            if (!fullPath.startsWith(path.resolve(MCP_ROOT))) { result = "ERROR: Path traversal detected — access denied"; break; }
             const dir = path.dirname(fullPath);
             if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
             safeWriteSync(fullPath, params.content || "", "utf-8");

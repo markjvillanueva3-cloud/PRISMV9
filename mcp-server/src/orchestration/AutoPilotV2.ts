@@ -305,7 +305,9 @@ Score ≥ 0.70 = PASSED. Score < 0.70 = BLOCKED.`,
           const cleaned = valResp[0].text.trim().replace(/^```json?\s*/, '').replace(/\s*```$/, '');
           const parsed = JSON.parse(cleaned);
           finalScore = parsed.score || finalScore;
-        } catch { }
+        } catch {
+          log.debug("[AutoPilotV2] Could not parse validation score from response, using default");
+        }
       } catch (error) {
         log.error(`[AutoPilotV2] Validation failed: ${error}`);
       }

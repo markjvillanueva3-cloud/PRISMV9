@@ -64,6 +64,8 @@ const ACTIONS = [
   "f360_live_revolve", "f360_live_hole", "f360_live_pattern", "f360_live_combine",
   "f360_live_shell", "f360_live_export", "f360_live_geometry", "f360_live_undo",
   "f360_live_new_doc", "f360_live_execute_raw",
+  // PIPE-MS2: PrintToGeometryEngine (previously orphaned)
+  "blueprint_to_3d_model", "blueprint_to_cadquery_script",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -443,6 +445,13 @@ Params vary by action — pass relevant fields in params object.`,
           case "f360_live_execute_raw": {
             const fb = await getEngine("f360Bridge");
             result = await fb.executeRaw(params.code ?? "");
+            break;
+          }
+          // ── PIPE-MS2: PrintToGeometryEngine (previously orphaned) ──
+          case "blueprint_to_3d_model":
+          case "blueprint_to_cadquery_script": {
+            const { printToGeometryEngine } = await import("../../engines/PrintToGeometryEngine.js");
+            result = printToGeometryEngine.convert(params as any);
             break;
           }
           default:

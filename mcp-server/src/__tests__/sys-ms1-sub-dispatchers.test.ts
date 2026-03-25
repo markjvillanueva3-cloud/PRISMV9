@@ -1,7 +1,7 @@
 /**
  * SYS-MS1: Intelligence Mega-Dispatcher Decomposition — Integration Tests
  * Tests all 5 sub-dispatchers extracted from prism_intelligence:
- *   prism_product (40), prism_machine_live (40), prism_integration (42),
+ *   prism_product (41), prism_machine_live (70), prism_integration (42),
  *   prism_knowledge_ext (40), prism_diagnosis (38)
  * Verifies registration, action routing, and backward compatibility.
  */
@@ -92,7 +92,7 @@ describe("prism_product dispatcher", () => {
 });
 
 // ============================================================================
-// prism_machine_live (40 actions)
+// prism_machine_live (70 actions)
 // ============================================================================
 describe("prism_machine_live dispatcher", () => {
   const { server, tools } = createMockServer();
@@ -103,10 +103,10 @@ describe("prism_machine_live dispatcher", () => {
     expect(ml.name).toBe("prism_machine_live");
   });
 
-  it("has 40 actions in schema", () => {
+  it("has 70 actions in schema", () => {
     const actionEnum = ml.schema.action.options ?? ml.schema.action._def?.values;
     expect(actionEnum).toBeDefined();
-    expect(actionEnum.length).toBe(40);
+    expect(actionEnum.length).toBe(70);
   });
 
   it("machine_register returns result", async () => {
@@ -367,7 +367,7 @@ describe("prism_diagnosis — additional action coverage", () => {
 // Action count totals
 // ============================================================================
 describe("SYS-MS1 action count verification", () => {
-  it("total extracted actions = 200", () => {
+  it("total extracted actions = 231", () => {
     const { server: s1, tools: t1 } = createMockServer();
     const { server: s2, tools: t2 } = createMockServer();
     const { server: s3, tools: t3 } = createMockServer();
@@ -387,10 +387,10 @@ describe("SYS-MS1 action count verification", () => {
     const diagCount = t5[0].schema.action.options?.length ?? t5[0].schema.action._def?.values?.length ?? 0;
 
     expect(productCount).toBe(41);
-    expect(machineCount).toBe(40);
+    expect(machineCount).toBe(70);
     expect(integCount).toBe(42);
     expect(knowCount).toBe(40);
     expect(diagCount).toBe(38);
-    expect(productCount + machineCount + integCount + knowCount + diagCount).toBe(201);
+    expect(productCount + machineCount + integCount + knowCount + diagCount).toBe(231);
   });
 });

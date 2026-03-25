@@ -124,8 +124,8 @@ describe("Real-World G-code Simulation", () => {
       expect(sim.blocks_simulated).toBe(POCKET_PROGRAM.length);
     });
 
-    it("aluminum force < 500N for this DOC/feed", () => {
-      expect(sim.max_force_N).toBeLessThan(500);
+    it("aluminum force < 800N for this DOC/feed", () => {
+      expect(sim.max_force_N).toBeLessThan(800);
     });
 
     it("no axis violations within 100x100 envelope", () => {

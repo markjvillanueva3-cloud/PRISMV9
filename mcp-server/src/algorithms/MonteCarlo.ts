@@ -160,9 +160,12 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
     }
 
     // Statistics
+    // BUG FIX: Save unsorted copy for Sobol sensitivity indices before sorting.
+    // Sorting destroys sample correspondence — results[j] must match varSamples[i][j].
+    const unsortedResults = [...results];
     results.sort((a, b) => a - b);
-    const mean = results.reduce((s, v) => s + v, 0) / nSamples;
-    const variance = results.reduce((s, v) => s + (v - mean) ** 2, 0) / (nSamples - 1);
+    const mean = unsortedResults.reduce((s, v) => s + v, 0) / nSamples;
+    const variance = unsortedResults.reduce((s, v) => s + (v - mean) ** 2, 0) / (nSamples - 1);
     const std_dev = Math.sqrt(variance);
     const median = results[Math.floor(nSamples / 2)];
 
@@ -181,7 +184,9 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
       p95: results[Math.floor(0.95 * nSamples)],
     };
 
-    // First-order sensitivity indices (variance-based, Sobol)
+    // Correlation-based sensitivity indices (R-squared, NOT true Sobol first-order indices).
+    // For true Sobol indices, use StochasticCuttingForceEngine's Saltelli scheme.
+    // These capture linear correlation only — nonlinear and interaction effects are missed.
     const sensitivity_indices: Record<string, number> = {};
     /** For.
      * @param let - let
@@ -189,7 +194,7 @@ export class MonteCarlo implements Algorithm<MonteCarloInput, MonteCarloOutput> 
      */
     for (let i = 0; i < variables.length; i++) {
       const varMean = varSamples[i].reduce((s, v) => s + v, 0) / nSamples;
-      const cov = varSamples[i].reduce((s, v, j) => s + (v - varMean) * (results[j] - mean), 0) / (nSamples - 1);
+      const cov = varSamples[i].reduce((s, v, j) => s + (v - varMean) * (unsortedResults[j] - mean), 0) / (nSamples - 1);
       const varVariance = varSamples[i].reduce((s, v) => s + (v - varMean) ** 2, 0) / (nSamples - 1);
       sensitivity_indices[variables[i].name] = variance > 0 ? Math.abs(cov * cov / (varVariance * variance)) : 0;
     }

@@ -740,9 +740,13 @@ export class PrismOAuthServer {
       }
     }
 
-    // Cap revocation set size (LRU-like: just clear if too large)
+    // Cap revocation set size — evict oldest entries, keep most recent 5000
     if (this.revokedAccessTokens.size > 10_000) {
-      this.revokedAccessTokens.clear();
+      const entries = Array.from(this.revokedAccessTokens);
+      const toRemove = entries.slice(0, entries.length - 5_000);
+      for (const token of toRemove) {
+        this.revokedAccessTokens.delete(token);
+      }
     }
 
     return { codes_removed: codesRemoved, tokens_removed: tokensRemoved };

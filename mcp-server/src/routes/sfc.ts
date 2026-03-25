@@ -16,7 +16,7 @@ export function createSfcRouter(callTool: CallToolFn): Router {
   // POST /api/v1/sfc/calculate — Core speed & feed calculation
   router.post("/calculate", requireFields("material", "operation"), async (req, res, next) => {
     try {
-      const result = await callTool("prism_calc", "speed_feed", req.body);
+      const result = await callTool("prism_product", "sfc_calculate", req.body);
       res.json({ result, safety: result?.safety, meta: result?.meta });
     } catch (e) { next(e); }
   });

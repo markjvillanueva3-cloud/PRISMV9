@@ -123,8 +123,8 @@ function hasMinimumRole(
   userRole: OAuthRole,
   requiredRole: OAuthRole
 ): boolean {
-  const userLevel = ROLE_HIERARCHY[userRole] ?? 0;
-  const requiredLevel = ROLE_HIERARCHY[requiredRole] ?? 0;
+  const userLevel = ROLE_HIERARCHY.indexOf(userRole);
+  const requiredLevel = ROLE_HIERARCHY.indexOf(requiredRole);
   return userLevel >= requiredLevel;
 }
 

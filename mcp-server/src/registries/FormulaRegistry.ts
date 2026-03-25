@@ -9,6 +9,7 @@ import { BaseRegistry } from "./base.js";
 import { PATHS, FORMULA_DOMAINS } from "../constants.js";
 import { log } from "../utils/Logger.js";
 import { fileExists, readJsonFile, listDirectory } from "../utils/files.js";
+import { safeFormulaEval } from "../utils/safeMathEval.js";
 
 // ============================================================================
 // FORMULA TYPES
@@ -1017,8 +1018,7 @@ export class FormulaRegistry extends BaseRegistry<Formula> {
          */
         if (formulaJs && typeof formulaJs === "string") {
           try {
-            const fn = new Function("return " + formulaJs)();
-            const evalResult = fn(inputs);
+            const evalResult = safeFormulaEval(formulaJs, inputs as Record<string, number>);
             if (typeof evalResult === "number") { result = evalResult; }
             else if (typeof evalResult === "object") {
               const vals = Object.values(evalResult).filter(v => typeof v === "number");

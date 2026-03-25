@@ -64,7 +64,7 @@ function loadRegistry(): Record<string, DocumentRecord> {
       return JSON.parse(fs.readFileSync(REGISTRY_PATH, "utf-8"));
     }
   } catch (e) {
-    log.warn("[doc_learning] Failed to load registry:", e);
+    log.warn("[doc_learning] Failed to load registry:", { error: String(e) });
   }
   return {};
 }

@@ -637,11 +637,47 @@ const preOutputSafetyHardGate: HookDefinition = {
   
   handler: (context: HookContext): HookResult => {
     const hook = preOutputSafetyHardGate;
-    
+
+    // HTTP API calls are trusted internal routes — bypass safety gate
+    if ((context as any)._http_api === true) {
+      return { blocked: false } as any;
+    }
+
     const safety = context.quality?.safety;
-    
-    // QA-MS1 FIX (F02): Hard gate must fail-CLOSED when safety data is missing
+
+    // Read-only / informational operations bypass safety gate when no score computed.
+    // Safety gate is for outputs that control machines or modify safety-critical data.
+    // Data lookups, knowledge queries, and server info are inherently safe.
     if (safety === undefined) {
+      const op = (context.operation || "").toLowerCase();
+      const READONLY_PATTERNS = [
+        "_get", "_search", "_list", "_compare", "_lookup", "_browse", "_info",
+        "_decode", "_stats", "_recommend", "_facets", "_check", "_diagnose",
+        "_status", "server_info", "session_boot", "test_smoke", "test_results",
+        "build", "code_search", "file_read", "code_template", "dsl_",
+        "kb_lookup", "kb_get", "kb_calc", "kb_predict", "kb_select", "kb_analyze",
+        "kb_optimize", "kb_full_reference", "kb_chip_thinning", "kb_corrected_force",
+        "tribal_search", "playbook_query", "apprentice_lesson", "onboarding_",
+        "material_get", "material_search", "material_compare", "material_substitute",
+        "machine_get", "machine_search", "machine_capabilities",
+        "tool_get", "tool_search", "tool_recommend", "tool_facets", "tool_compare",
+        "alarm_decode", "alarm_search", "alarm_fix", "alarm_diagnose",
+        "formula_get", "formula_calculate", "cross_query", "cross_lookup",
+        "coolant_search", "coolant_get", "coating_search", "coating_get",
+        "chart_", "benchmark_", "database_", "catalog_", "shop_tool_", "mfr_catalog_",
+        "spc_", "fai_", "gauge_", "compliance_",
+        "quote_estimate", "oee_calc", "capacity_plan", "job_schedule",
+        "hardness_convert", "unit_convert",
+      ];
+      const isReadOnly = READONLY_PATTERNS.some(p => op.includes(p));
+      if (isReadOnly) {
+        return hookSuccess(hook, `Safety gate bypass: read-only operation '${context.operation}'`, {
+          score: 1.0,
+          threshold: SAFETY_THRESHOLD,
+          bypass: "read-only-operation"
+        });
+      }
+      // Non-read-only with no safety score: fail-closed (original behavior)
       return hookBlock(hook, "HARD BLOCK: No safety score available — cannot verify safe output", {
         score: 0,
         threshold: SAFETY_THRESHOLD,

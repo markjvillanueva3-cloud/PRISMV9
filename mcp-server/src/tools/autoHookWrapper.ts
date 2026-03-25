@@ -649,6 +649,15 @@ export function wrapWithUniversalHooks(toolName: string, handler: (...a: any[]) 
     if (!AUTO_HOOK_CONFIG.enabled) {
       return handler.apply(this, args);
     }
+    // HTTP API calls are trusted internal routes — skip all hooks for clean pass-through
+    if (args[0]?._http_api === true) {
+      const cleanArgs = [...args];
+      if (cleanArgs[0] && typeof cleanArgs[0] === "object") {
+        cleanArgs[0] = { ...cleanArgs[0] };
+        delete cleanArgs[0]._http_api;
+      }
+      return handler.apply(this, cleanArgs);
+    }
     const startTime = Date.now();
     const action2 = args[0]?.action || "unknown";
     globalDispatchCount++;

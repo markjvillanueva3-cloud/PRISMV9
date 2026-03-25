@@ -14,18 +14,76 @@
  */
 
 import { randomUUID } from 'crypto';
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+import { homedir } from 'os';
 import { log } from '../utils/Logger.js';
 import { getAnthropicClient, getModelForTier, hasValidApiKey } from './api-config.js';
 import { getEffort, type EffortLevel } from './effortTiers.js';
 import { apiCallWithTimeout } from '../utils/apiTimeout.js';
 
-/** Map effort levels to timeout boundaries (ms) */
-const EFFORT_TIMEOUTS: Record<EffortLevel, number> = {
+// ============================================================================
+// ADAPTIVE TIMEOUT CONFIG (from ~/.prism/optimizer-config.json)
+// ============================================================================
+
+interface OptimizerConfig {
+  effort_routing: {
+    low_max_latency_ms: number;
+    medium_max_latency_ms: number;
+    high_max_latency_ms: number;
+  };
+}
+
+let _adaptiveTimeouts: Record<EffortLevel, number> | null = null;
+let _adaptiveTimeoutsLoadedAt = 0;
+const ADAPTIVE_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+/** Default effort-level timeouts (ms) */
+const DEFAULT_EFFORT_TIMEOUTS: Record<EffortLevel, number> = {
   max: 120_000,   // 2 min — safety calcs need deep reasoning
   high: 60_000,   // 1 min — data retrieval with reasoning
   medium: 30_000, // 30s — operational tasks
   low: 15_000,    // 15s — pure reads
 };
+
+/**
+ * Load adaptive timeouts from ~/.prism/optimizer-config.json.
+ * Caches result for 5 minutes. Falls back to defaults on error.
+ */
+function loadAdaptiveTimeouts(): Record<EffortLevel, number> {
+  const now = Date.now();
+  if (_adaptiveTimeouts && (now - _adaptiveTimeoutsLoadedAt) < ADAPTIVE_CACHE_TTL_MS) {
+    return _adaptiveTimeouts;
+  }
+
+  const configPath = join(homedir(), '.prism', 'optimizer-config.json');
+  try {
+    if (existsSync(configPath)) {
+      const raw = readFileSync(configPath, 'utf-8');
+      const parsed = JSON.parse(raw) as OptimizerConfig;
+      if (parsed?.effort_routing) {
+        const er = parsed.effort_routing;
+        _adaptiveTimeouts = {
+          max: DEFAULT_EFFORT_TIMEOUTS.max, // max always uses hardcoded ceiling
+          high: typeof er.high_max_latency_ms === 'number' ? er.high_max_latency_ms : DEFAULT_EFFORT_TIMEOUTS.high,
+          medium: typeof er.medium_max_latency_ms === 'number' ? er.medium_max_latency_ms : DEFAULT_EFFORT_TIMEOUTS.medium,
+          low: typeof er.low_max_latency_ms === 'number' ? er.low_max_latency_ms : DEFAULT_EFFORT_TIMEOUTS.low,
+        };
+        _adaptiveTimeoutsLoadedAt = now;
+        return _adaptiveTimeouts;
+      }
+    }
+  } catch {
+    // Invalid or unreadable config — fall back to defaults
+  }
+
+  _adaptiveTimeouts = { ...DEFAULT_EFFORT_TIMEOUTS };
+  _adaptiveTimeoutsLoadedAt = now;
+  return _adaptiveTimeouts;
+}
+
+/** Map effort levels to timeout boundaries (ms) — reads adaptive config */
+const EFFORT_TIMEOUTS: Record<EffortLevel, number> = { ...DEFAULT_EFFORT_TIMEOUTS };
 
 /** Map effort levels to model tier selection */
 const EFFORT_MODEL_TIER: Record<EffortLevel, 'opus' | 'sonnet' | 'haiku'> = {
@@ -62,7 +120,7 @@ export async function prismAPICall(options: PrismAPICallOptions): Promise<PrismA
   const effort = getEffort(options.action);
   const correlationId = options.correlationId || randomUUID();
   const model = options.model || getModelForTier(EFFORT_MODEL_TIER[effort]);
-  const timeout = EFFORT_TIMEOUTS[effort];
+  const timeout = loadAdaptiveTimeouts()[effort];
   const startTime = Date.now();
 
   log.info(JSON.stringify({

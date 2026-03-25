@@ -1,13 +1,15 @@
 /**
  * prism_quality — Quality & Metrology Dispatcher
  *
- * 13 actions: spc_calculate, cpk_predict, cmm_plan, measurement_analyze,
+ * 17 actions: spc_calculate, cpk_predict, cmm_plan, measurement_analyze,
  *   tolerance_stack, gdt_validate, bias_correct, gauge_rr,
  *   blueprint_extract, blueprint_setup_sheet, blueprint_inspection_plan,
- *   blueprint_compare_revisions, blueprint_dxf_dimensions
+ *   blueprint_compare_revisions, blueprint_dxf_dimensions,
+ *   fai_run, fai_generate_forms, fai_evaluate_characteristic, fai_disposition
  *
  * Engine dependencies: QualityPredictionEngine, ToleranceStackEngine,
- *   DimensionalAnalysisEngine, BlueprintOCREngine, PrintReadingEngine
+ *   DimensionalAnalysisEngine, BlueprintOCREngine, PrintReadingEngine,
+ *   FirstArticleInspectionPipelineEngine
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -15,7 +17,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { QUALITY_ACTION_SCHEMAS } from "../../schemas/qualityActionSchemas.js";
 
-let _quality: any, _tolerance: any, _dimensional: any, _blueprint: any, _printReading: any;
+let _quality: any, _tolerance: any, _dimensional: any, _blueprint: any, _printReading: any, _fai: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "quality": return _quality ??= (await import("../../engines/QualityPredictionEngine.js")).qualityPredictionEngine;
@@ -23,15 +25,18 @@ async function getEngine(name: string): Promise<any> {
     case "dimensional": return _dimensional ??= (await import("../../engines/DimensionalAnalysisEngine.js")).dimensionalAnalysisEngine;
     case "blueprint": return _blueprint ??= (await import("../../engines/BlueprintOCREngine.js")).blueprintOCREngine;
     case "printReading": return _printReading ??= (await import("../../engines/PrintReadingEngine.js")).printReadingEngine;
+    case "fai": return _fai ??= (await import("../../engines/FirstArticleInspectionPipelineEngine.js")).firstArticleInspectionPipelineEngine;
     default: throw new Error(`Unknown quality engine: ${name}`);
   }
 }
 
 const ACTIONS = [
-  "spc_calculate", "cpk_predict", "cmm_plan", "measurement_analyze",
-  "tolerance_stack", "gdt_validate", "bias_correct", "gauge_rr",
-  "blueprint_extract", "blueprint_setup_sheet", "blueprint_inspection_plan",
   "blueprint_compare_revisions", "blueprint_dxf_dimensions",
+  "blueprint_extract", "blueprint_inspection_plan", "blueprint_setup_sheet",
+  "bias_correct", "cmm_plan", "cpk_predict",
+  "fai_disposition", "fai_evaluate_characteristic", "fai_generate_forms", "fai_run",
+  "gauge_rr", "gdt_validate", "measurement_analyze",
+  "spc_calculate", "tolerance_stack",
 ] as const;
 
 /** Registers quality dispatcher.
@@ -198,6 +203,31 @@ Params vary by action — pass relevant fields in params object.`,
             const prEngine = await getEngine("printReading");
             const dxfText = params.dxf_text ?? params.text ?? "";
             result = prEngine.extractDxfDimensions(dxfText, { unit: params.unit });
+            break;
+          }
+          case "fai_run": {
+            const faiEngine = await getEngine("fai");
+            result = await faiEngine.runFAI(params);
+            break;
+          }
+          case "fai_generate_forms": {
+            const faiEngine = await getEngine("fai");
+            result = faiEngine.generateForms(params.fai_id);
+            break;
+          }
+          case "fai_evaluate_characteristic": {
+            const { evaluateCharacteristic } = await import("../../engines/FirstArticleInspectionPipelineEngine.js");
+            result = evaluateCharacteristic(
+              params.nominal ?? 0,
+              params.tolerance_plus ?? 0.1,
+              params.tolerance_minus ?? -0.1,
+              params.measured ?? params.measured_value ?? 0,
+            );
+            break;
+          }
+          case "fai_disposition": {
+            const { dispositionRecommendation } = await import("../../engines/FirstArticleInspectionPipelineEngine.js");
+            result = dispositionRecommendation(params.results ?? params.characteristics ?? []);
             break;
           }
           default:

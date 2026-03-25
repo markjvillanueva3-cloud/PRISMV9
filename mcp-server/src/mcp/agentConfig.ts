@@ -190,7 +190,7 @@ export const PRISM_AGENT_CONFIG = {
       command: "node",
       args: ["dist/index.js"],
       cwd: process.env.PRISM_MCP_PATH
-        ?? new URL("../../", import.meta.url).pathname.replace(/^\/([A-Z]:)/, "$1"),
+        ?? process.cwd(),
       env: {
         TRANSPORT: "stdio",
         LOG_LEVEL: "warn",

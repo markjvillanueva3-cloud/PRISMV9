@@ -60,7 +60,7 @@ describe("FeedbackPersistenceEngine", () => {
 
     it("should handle missing file gracefully", () => {
       const mlf = new MachineLearningFeedbackEngine();
-      const r = pe.restoreFromFile({ engine: mlf, filePath: "/nonexistent/path.json" });
+      const r = pe.restoreFromFile({ engine: mlf, filePath: "C:/PRISM/mcp-server/data/nonexistent-test-file.json" });
       expect(r.restored).toBe(false);
     });
   });

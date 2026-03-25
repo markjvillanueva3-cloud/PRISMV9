@@ -1,77 +1,53 @@
-# PRISM Manufacturing Intelligence — Core Rules
+# PRISM MCP Server — Development Context
 
 ## What This Is
-Safety-critical CNC manufacturing MCP server. 53 dispatchers, 1286 actions, 150 engines.
-Mathematical errors cause tool explosions and operator injuries.
-**Lives depend on correctness. Zero tolerance for shortcuts or placeholders.**
+Safety-critical CNC manufacturing MCP server. 77 dispatchers, 2,700+ actions, 1,245 engines.
+Mathematical errors cause tool breakage, part scrap, and machine crashes.
+Physics constants MUST come from src/physics/constants.ts — never inline.
 
-## Safety Laws (HARD RULES)
-1. **S(x) >= 0.70 HARD BLOCK** — safety score must pass before any release
-2. **NO PLACEHOLDERS** — every value real, complete, verified
-3. **NEW >= OLD** — never lose data, actions, hooks, knowledge, line counts
-4. **MCP FIRST** — use prism: dispatchers before filesystem when available
-5. **NO DUPLICATES** — check before creating, one source of truth
-6. **100% UTILIZATION** — if it exists, use it everywhere
-
-## Build
-```bash
-npm run build          # tsc --noEmit (type-check) + esbuild (bundle)
-npm run build:fast     # esbuild only (no type-check)
+## Structure
 ```
-- **NEVER** standalone `tsc` (needs 16GB+ heap for 130K LOC)
-- After build: run `scripts/verify-build.ps1` (checks 7 required symbols + bad patterns)
-- Omega >= 0.70 = release ready. Current: Omega = 0.912 (R3 verified)
-
-## Subagents (.claude/agents/)
-- **safety-physics** (opus, red): ALL safety + physics validation. S(x) >= 0.70 HARD BLOCK.
-- **implementer** (sonnet, blue): Code changes, wiring, data processing. Follows Safety Laws.
-- **verifier** (haiku, green): Tests, audits, regression checks. Reports only, never fixes.
-
-## Key Paths
-```
-src/tools/dispatchers/       — 53 dispatcher files (see dispatchers/CLAUDE.md)
-src/engines/                 — 150 engine exports (see engines/CLAUDE.md)
-src/tools/autoHookWrapper.ts — Central hook/cadence/logging wrapper
-src/tools/cadenceExecutor.ts — Cadence functions (checkpoint, pressure, etc.)
-src/utils/paramNormalizer.ts — Snake-to-camel param aliases
-src/utils/smokeTest.ts       — 5 boot canary tests
-src/utils/responseSlimmer.ts — Token optimization
-data/roadmap-index.json      — Master roadmap index (v5.3.0, 95 milestones)
-data/milestones/             — 94 milestone envelope JSON files
-data/docs/gsd/GSD_QUICK.md   — GSD v22.0 canonical protocol
-C:/PRISM/state/              — Runtime state (logs, checkpoints, position)
+src/engines/           — 1,245 engines. CHECK ENGINE_DIGEST.md BEFORE creating new ones.
+src/tools/dispatchers/ — 77 dispatchers routing to engines. Each has z.enum action list.
+src/registries/        — 24 registries (materials, tools, machines, strategies, formulas)
+src/physics/           — constants.ts = canonical Kienzle/Taylor/material DB. IMPORT from here.
+src/algorithms/        — 51 algorithms (Kienzle, SLD, MonteCarlo, Bayesian, etc.)
+src/mcp/               — MCP protocol (auth, elicitation, health probes, sampling, tasks)
+src/schemas/           — Zod schemas per dispatcher action
+src/hooks/             — Safety hooks (crossFieldPhysics, materialSanity, machineLimitGuard)
+src/middleware/        — Auth middleware, rate limiting, validation
+src/db/                — PostgreSQL schema + connection pooling (20 connections)
+src/routes/            — Express API routes (51 files including /learning/*)
+src/utils/             — Logger (Winston), atomicWrite, pipelineCheckpoint
+src/__tests__/         — 808 test files (vitest 4.0)
+web/src/               — React/Vite frontend (45 pages, 8 learning components)
+dist/                  — 61MB esbuild bundle
 ```
 
-## Thoroughness Law (HARD RULE)
-- **NEVER skim, skip, or dismiss content without deep reading.** Every source gets a full assessment.
-- ZIPs with "0 PDFs" must still be checked for HTML, text, XML, JSON, CSV, and code files.
-- "Low novelty" and "already covered" claims require citing the SPECIFIC existing engine/tip that covers it.
-- Before committing any learning/extraction batch, verify: "Did I read EVERY file? Did I extract EVERYTHING useful?"
-- Optimize for COMPLETENESS over speed. Missing useful content is worse than spending extra time.
-- When processing large documents (>100 pages), read at least the TOC + 3 representative sections before any novelty judgment.
+## Key Engine Categories (don't rebuild — USE these)
+- **Force/Physics** (17): KienzleForceModel, CuttingForce, StochasticCuttingForce, ConstitutiveModel...
+- **Speed/Feed** (6): UltimateSpeedFeed, AutoSpeedFeed, SpeedFeedOrchestrator (central hub, 2,851 LOC)
+- **Chatter/Stability** (13): ChatterStabilityLobe, RegenerativeChatter, DampingOptimization, StochasticChatter...
+- **Deflection** (17): ToolDeflection, PartDeflection, BoringBarDeflection, StochasticDeflection...
+- **Thermal** (24): CuttingTemperature, ThermalWearCoupling (RK4 ODE), CryogenicCutting, ThermalExpansion...
+- **Wear/Life** (9): ToolWearProgression, AdvancedWearPhysics, StochasticToolLife (Weibull)...
+- **Surface** (17): SurfaceFinishPredictor, SurfaceIntegrity, ResidualStress, StochasticSurfaceFinish...
+- **CAM Bridges** (40): per-CAM strategy engines for 18 CAM systems
+- **Post-Processing** (20): PostProcessorPipeline (38 stages!), LathePostProcessor, FiveAxisPost...
+- **Quality/SPC** (10): SPCProcessCapability, NelsonSPCRules, MetrologyUncertainty, FAI...
+- **Business/ERP** (42): QuoteEstimator, ActualCost, CapacityPlanning, JobLifecycle, OEE, GL, Invoicing...
+- **Pipelines** (9): PrintToProgram, Turning, MultiAxis, MillTurn, EDM, Grinding, Laser, Waterjet, QuoteToShip
 
-## Code Conventions
-- TypeScript strict mode, esbuild bundles to single dist/index.js
-- All file writes use atomic pattern (write .tmp then rename)
-- Anti-regression: `validate_anti_regression` mandatory before file replacements
-- >50 lines of new code: state plan and get approval first
-- When ambiguous: ask, don't assume and build 200 lines wrong
-- Evidence >= L3 required for claims. "Evidence > 'I think'"
+## Key Patterns
+- Engines export singletons: `export const fooEngine = new FooEngine();`
+- Dispatchers lazy-load: `const engine = await import("../engines/Foo.js");`
+- Physics outputs: `AtomicValue<T> = { value, confidence, source, unit? }`
+- Tests: vitest `describe/it/expect`, run with `npx vitest run [file]`
+- Build: `npx tsc --noEmit` (type check) or `npm run build` (full)
 
-## Editing Protocol
-- READ then edit_block/str_replace then VERIFY (never retype existing code)
-- Append don't rewrite. State exact lines changed after edits.
-- >30% doc reduction: warning. >60%: BLOCKED.
-- On errors: fix ONE build error, rebuild, repeat. >5 from one edit: revert
-
-## Session Protocol
-1. Read `CURRENT_POSITION.md` and `ACTION_TRACKER.md` on start
-2. Update position every 3 tool calls or after significant work
-3. Flush results to disk after each logical unit
-4. After build: run `scripts/verify-build.ps1`
-5. Before file replacement: run anti-regression validation
-
-## Domain Context (loaded from subdirectory CLAUDE.md files)
-- `src/engines/CLAUDE.md` — AtomicValue schema, calculation patterns, engine list
-- `src/tools/dispatchers/CLAUDE.md` — Dispatcher conventions, param normalization, action routing
-- Registry counts, persistence paths, and architecture details: see MASTER_INDEX.md
+## Safety Rules
+- NEVER inline Kienzle/Taylor constants — import from constants.ts
+- NEVER create stub engines — enforcement hook blocks placeholder returns
+- ALWAYS run tests after modifying engines — hook suggests affected test files
+- ALWAYS check ENGINE_DIGEST.md before creating new engines — prevent duplicates
+- Canonical constants: kc1.1 per ISO group (P=1800, M=2100, K=1100, N=700, S=2800, H=3200)

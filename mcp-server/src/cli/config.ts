@@ -38,3 +38,57 @@ export async function loadConfig(customPath?: string): Promise<CLIConfig> {
   }
   return {};
 }
+
+// ============================================================================
+// CCM CONFIG HELPERS
+// ============================================================================
+
+const PRISM_DIR = join(homedir(), ".prism");
+
+/**
+ * Load cache configuration from ~/.prism/cache-config.json.
+ * Returns parsed JSON or null if file is missing/invalid.
+ */
+export function loadCacheConfig(): Record<string, any> | null {
+  try {
+    const p = join(PRISM_DIR, "cache-config.json");
+    if (existsSync(p)) {
+      return JSON.parse(readFileSync(p, "utf-8"));
+    }
+  } catch {
+    // missing or invalid — return null
+  }
+  return null;
+}
+
+/**
+ * Load optimizer configuration from ~/.prism/optimizer-config.json.
+ * Returns parsed JSON or null if file is missing/invalid.
+ */
+export function loadOptimizerConfig(): Record<string, any> | null {
+  try {
+    const p = join(PRISM_DIR, "optimizer-config.json");
+    if (existsSync(p)) {
+      return JSON.parse(readFileSync(p, "utf-8"));
+    }
+  } catch {
+    // missing or invalid — return null
+  }
+  return null;
+}
+
+/**
+ * Load coordination stats from ~/.prism/coordination-stats.json (read-only).
+ * Returns parsed JSON or null if file is missing/invalid.
+ */
+export function loadCoordinationStats(): Record<string, any> | null {
+  try {
+    const p = join(PRISM_DIR, "coordination-stats.json");
+    if (existsSync(p)) {
+      return JSON.parse(readFileSync(p, "utf-8"));
+    }
+  } catch {
+    // missing or invalid — return null
+  }
+  return null;
+}

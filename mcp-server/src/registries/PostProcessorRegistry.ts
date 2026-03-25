@@ -416,7 +416,7 @@ export class PostProcessorRegistry extends BaseRegistry<PostProcessor> {
           }
         }
       } catch (error) {
-        log.warn(`PostProcessorRegistry: Failed to load from ${dbPath}`, error);
+        log.warn(`PostProcessorRegistry: Failed to load from ${dbPath}`, { error: String(error) });
       }
     }
   }

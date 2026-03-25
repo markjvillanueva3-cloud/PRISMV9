@@ -1,0 +1,13 @@
+# Dispatcher & Schema Rules
+- Actions in z.enum must match case statements exactly
+- Lazy imports: const { Engine } = await import('path')
+- Schema files required for each action group (src/tools/schemas/)
+- Action names: snake_case, unique across all dispatchers
+- Never decrease action count (anti-regression)
+- Every new action needs a corresponding schema with Zod validation
+- Dispatcher function signature: async (action: string, params: unknown) => Promise<DispatchResult>
+- Always validate params with Zod before engine calls
+- Return { result, metadata } objects — never raw engine output
+- Cross-dispatcher calls are forbidden — use shared engines instead
+- Import engines lazily to avoid circular dependencies and reduce cold-start
+- Test every action path including invalid input rejection

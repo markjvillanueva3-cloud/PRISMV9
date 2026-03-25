@@ -17,7 +17,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/quote/generate — Generate full manufacturing quote
   router.post("/quote/generate", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "quote_generate", req.body);
+      const result = await callTool("prism_product", "shop_quote", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -27,7 +27,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/quote/breakdown — Detailed cost breakdown
   router.post("/quote/breakdown", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "cost_breakdown", req.body);
+      const result = await callTool("prism_product", "shop_cost", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -37,7 +37,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/quote/compare — Compare quotes across strategies
   router.post("/quote/compare", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "quote_compare", req.body);
+      const result = await callTool("prism_product", "shop_compare", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -59,7 +59,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/job/schedule — Schedule job on machines
   router.post("/job/schedule", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "schedule_jobs", req.body);
+      const result = await callTool("prism_product", "shop_schedule", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -69,7 +69,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/job/track — Track job progress and OEE
   router.post("/job/track", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "job_track", req.body);
+      const result = await callTool("prism_product", "shop_job", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -81,7 +81,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/analytics/capacity — Capacity utilization analysis
   router.post("/analytics/capacity", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "capacity_plan", req.body);
+      const result = await callTool("prism_product", "shop_dashboard", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });
@@ -91,7 +91,7 @@ export function createErpRouter(callTool: CallToolFn): Router {
   // POST /erp/analytics/bottleneck — Bottleneck identification
   router.post("/analytics/bottleneck", async (req, res) => {
     try {
-      const result = await callTool("prism_intelligence", "bottleneck_identify", req.body);
+      const result = await callTool("prism_calc", "bottleneck_identify", req.body);
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });

@@ -5,7 +5,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_SESSION_SCHEMAS } from "../../schemas/sessionActionSchemas.js";
 import * as fs from "fs";
 import * as path from "path";
-import { execSync } from "child_process";
+import { execFileSync } from "child_process";
 import { hookExecutor, type HookPhase } from "../../engines/HookExecutor.js";
 import type { StateEvent } from "../../types/prism-schema.js";
 import { atomicWrite } from "../../utils/atomicWrite.js";
@@ -214,7 +214,7 @@ async function runPythonScript(scriptName: string, args: string[] = []): Promise
     return `ERROR: Script not found: ${scriptPath}`;
   }
   try {
-    const result = execSync(`"${PYTHON}" "${scriptPath}" ${args.map(a => a.includes(' ') ? `"${a}"` : a).join(' ')}`, {
+    const result = execFileSync(PYTHON, [scriptPath, ...args], {
       encoding: 'utf-8',
       timeout: 30000,
       cwd: SCRIPTS_DIR
@@ -570,11 +570,15 @@ export function registerSessionDispatcher(server: any): void {
               
               let transcriptPath = "";
               if (params.transcript_name && params.transcript_name !== 'latest') {
-                transcriptPath = path.join(TRANSCRIPTS_DIR, params.transcript_name);
+                transcriptPath = path.resolve(TRANSCRIPTS_DIR, params.transcript_name);
               } else {
-                transcriptPath = path.join(TRANSCRIPTS_DIR, files[0]);
+                transcriptPath = path.resolve(TRANSCRIPTS_DIR, files[0]);
               }
-              
+
+              if (!transcriptPath.startsWith(path.resolve(TRANSCRIPTS_DIR))) {
+                return ok({ error: "Path traversal detected — access denied" });
+              }
+
               if (!fs.existsSync(transcriptPath)) {
                 return ok({ error: `Transcript not found: ${transcriptPath}` });
               }
@@ -760,8 +764,8 @@ export function registerSessionDispatcher(server: any): void {
               const shutdownScript = path.join(PATHS.SCRIPTS, "session_enhanced_shutdown.py");
               const summary = params.summary || params.quick_resume || "session ended";
               if (fs.existsSync(shutdownScript)) {
-                const sdOutput = execSync(
-                  `"${PYTHON_PATH}" "${shutdownScript}" --summary "${summary.replace(/"/g, "'")}" --json`,
+                const sdOutput = execFileSync(
+                  PYTHON_PATH, [shutdownScript, "--summary", summary, "--json"],
                   { encoding: 'utf-8', timeout: 15000, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }
                 );
                 try { enhancedShutdown = JSON.parse(sdOutput); } catch { enhancedShutdown = { raw: sdOutput.slice(0, 200) }; }

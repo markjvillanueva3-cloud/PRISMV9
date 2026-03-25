@@ -302,7 +302,7 @@ describe("MachiningPlaybookEngine", () => {
 
     it("should have 292 total rules", () => {
       const stats = engine.stats();
-      expect(stats.total).toBe(296);
+      expect(stats.total).toBe(305);
     });
   });
 
@@ -364,9 +364,9 @@ describe("MachiningPlaybookEngine", () => {
       expect(rules.length).toBe(17);
     });
 
-    it("hole_making should have 8 rules (2 original + 6 new)", () => {
+    it("hole_making should have 10 rules (2 original + 6 new + 2 drilling coolant)", () => {
       const rules = engine.byCategory("hole_making");
-      expect(rules.length).toBe(8);
+      expect(rules.length).toBe(10);
     });
 
     it("thin_wall should have 6 rules (2 original + 4 new)", () => {
@@ -488,9 +488,9 @@ describe("MachiningPlaybookEngine", () => {
       expect(rules.some(r => r.id === "TURN-001")).toBe(true);
     });
 
-    it("threading should have 6 rules", () => {
+    it("threading should have 9 rules (6 original + 3 tapping)", () => {
       const rules = engine.byCategory("threading");
-      expect(rules.length).toBe(6);
+      expect(rules.length).toBe(9);
       expect(rules.some(r => r.id === "THR-001")).toBe(true);
     });
 
@@ -506,9 +506,9 @@ describe("MachiningPlaybookEngine", () => {
       expect(rules.some(r => r.id === "QI-001")).toBe(true);
     });
 
-    it("coolant_strategy should have 8 rules", () => {
+    it("coolant_strategy should have 9 rules (8 original + 1 MQL nozzle)", () => {
       const rules = engine.byCategory("coolant_strategy");
-      expect(rules.length).toBe(8);
+      expect(rules.length).toBe(9);
       expect(rules.some(r => r.id === "COOL-001")).toBe(true);
     });
 
@@ -661,7 +661,7 @@ describe("MachiningPlaybookEngine", () => {
   describe("stats covers all 32 categories", () => {
     it("total rules should be 292", () => {
       const stats = engine.stats();
-      expect(stats.total).toBe(296);
+      expect(stats.total).toBe(305);
     });
 
     it("all 43 categories should have rules", () => {

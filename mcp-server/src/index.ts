@@ -165,6 +165,14 @@ import { registerWeldingJoiningDispatcher } from "./tools/dispatchers/weldingJoi
 import { registerFormingCastingDispatcher } from "./tools/dispatchers/formingCastingDispatcher.js";
 import { registerMechanicalDesignDispatcher } from "./tools/dispatchers/mechanicalDesignDispatcher.js";
 import { registerFluidThermalDispatcher } from "./tools/dispatchers/fluidThermalDispatcher.js";
+// PIPE-MS2: Print-to-Program pipeline dispatchers
+import { registerTurningProgramDispatcher } from "./tools/dispatchers/turningProgramDispatcher.js";
+import { registerMultiAxisProgramDispatcher } from "./tools/dispatchers/multiAxisProgramDispatcher.js";
+import { registerHolePatternDispatcher } from "./tools/dispatchers/holePatternDispatcher.js";
+import { registerMachiningKnowledgeBaseDispatcher } from "./tools/dispatchers/machiningKnowledgeBaseDispatcher.js";
+import { registerThreadingPipelineDispatcher } from "./tools/dispatchers/threadingPipelineDispatcher.js";
+import { registerSecondaryOpsDispatcher } from "./tools/dispatchers/secondaryOpsDispatcher.js";
+import { registerCADDrawingKnowledgeDispatcher } from "./tools/dispatchers/cadDrawingKnowledgeDispatcher.js";
 
 // SYNERGY: Cross-feature integration wiring — F1↔F8
 import { initSynergies } from "./tools/synergyIntegration.js";
@@ -591,8 +599,16 @@ async function registerTools(): Promise<void> {
   registerFormingCastingDispatcher(server); // 16 actions: press brake, stamping, extrusion, sheet nesting, tube forming...
   registerMechanicalDesignDispatcher(server); // 51 actions: gears, bearings, springs, bolts, shafts, cams, clutches...
   registerFluidThermalDispatcher(server);   // 35 actions: pumps, piping, hydraulics, heat exchangers, valves, compressors...
+  // PIPE-MS2: Print-to-Program pipeline
+  registerTurningProgramDispatcher(server);    // 2 actions: turning_print_to_program, turning_process_plan
+  registerMultiAxisProgramDispatcher(server);  // 2 actions: multiaxis_print_to_program, multiaxis_process_plan
+  registerHolePatternDispatcher(server);       // 3 actions: hole_pattern_program, hole_pattern_detect, hole_pattern_optimize
+  registerMachiningKnowledgeBaseDispatcher(server); // 25 actions: kb_lookup_*/physics corrections/workholding/toolpath/stock/setups/magazine
+  registerThreadingPipelineDispatcher(server);      // 3 actions: threading_pipeline, threading_plan, threading_pass_schedule
+  registerSecondaryOpsDispatcher(server);           // 2 actions: secondary_ops_pipeline, secondary_ops_plan
+  registerCADDrawingKnowledgeDispatcher(server);    // 11 actions: cad_select_gdt/datums/drawing/dfm/fit/macros
 
-  log.info(`All PRISM tools registered: 55 dispatchers (1670+ actions)`);
+  log.info(`All PRISM tools registered: 62 dispatchers (1718+ actions)`);
 
   // MCP PRIMITIVES: Resources, Prompts, Logging, Tasks
   try {
@@ -820,10 +836,14 @@ async function runHTTP(): Promise<void> {
 
   // Helper: call an MCP tool handler and return result
   async function callTool(toolName: string, action: string, params: Record<string, any> = {}) {
-    const tool = (server as any)._registeredTools?.get(toolName);
+    // _registeredTools is a plain Record<string, RegisteredTool>, not a Map
+    const registeredTools = (server as any)._registeredTools ?? {};
+    const tool = registeredTools[toolName];
     if (!tool) return { error: `Tool ${toolName} not found` };
     try {
-      const result = await tool.callback({ action, params });
+      // SDK v1.27.1: registered tool uses .handler(args, extra), not .callback
+      // _http_api flag bypasses universal hooks (no session context needed for REST routes)
+      const result = await tool.handler({ action, params, _http_api: true }, {});
       const text = result?.content?.[0]?.text;
       return text ? JSON.parse(text) : result;
     } catch (e: any) {
@@ -836,8 +856,8 @@ async function runHTTP(): Promise<void> {
   registerRoutes(app, callTool);
   
   const port = parseInt(process.env.PORT || "3000", 10);
-  // R6: Configurable bind address — 0.0.0.0 for Docker, 127.0.0.1 for dev
-  const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+  // R6: Bind to localhost by default; set PRISM_BIND_HOST=0.0.0.0 for Docker/network exposure
+  const host = process.env.PRISM_BIND_HOST || '127.0.0.1';
   const httpServer = app.listen(port, host, () => {
     log.info(`MCP server running on http://${host}:${port}/mcp`);
   });

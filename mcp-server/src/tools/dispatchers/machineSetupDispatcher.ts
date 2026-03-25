@@ -1,11 +1,13 @@
 /**
  * prism_machine_setup — Machine Setup & Quality Dispatcher
  *
- * 25 actions: balancing, maintenance, critical speed, dynamic balance,
+ * 46 actions: balancing, maintenance, critical speed, dynamic balance,
  *   kinematics, leveling, warmup, RTCP, spindle load/runout/speed variation,
  *   work envelope, tool magazine, tool balancing, fixture plate, magnetic bearing,
  *   press fit, shrink fit, gauging, parallelism, surface integrity, thread gage,
- *   tolerance stackup, stepover optimization, statistical process
+ *   tolerance stackup, stepover optimization, statistical process,
+ *   hobby CNC profiles, cobot machining, OPC-UA connector,
+ *   machine strategy constraint, fixture-aware strategy selection (CAMX-MS12/U07)
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -23,6 +25,8 @@ let _gauging: any, _parallelism: any, _surfIntegrity: any, _threadGage: any;
 let _tolStackup: any, _stepover: any, _statProcess: any;
 let _hobbyCNC: any, _cobotMachining: any;
 let _opcua: any;
+let _machineStrategyConstraint: any;
+let _fixtureAwareStrategy: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -54,6 +58,8 @@ async function getEngine(name: string): Promise<any> {
     case "hobbyCNC": return _hobbyCNC ??= (await import("../../engines/HobbyCNCProfileEngine.js")).hobbyCNCProfileEngine;
     case "cobotMachining": return _cobotMachining ??= (await import("../../engines/CobotMachiningEngine.js")).cobotMachiningEngine;
     case "opcua": return _opcua ??= (await import("../../engines/OpcUaConnectorEngine.js")).OpcUaConnectorEngine;
+    case "machineStrategyConstraint": return _machineStrategyConstraint ??= (await import("../../engines/MachineStrategyConstraintEngine.js")).machineStrategyConstraintEngine;
+    case "fixtureAwareStrategy": return _fixtureAwareStrategy ??= (await import("../../engines/FixtureAwareStrategyEngine.js")).fixtureAwareStrategyEngine;
     default: throw new Error(`Unknown engine: ${name}`);
   }
 }
@@ -76,6 +82,8 @@ const ACTIONS = [
   "opcua_connect", "opcua_disconnect", "opcua_read", "opcua_read_batch",
   "opcua_subscribe", "opcua_unsubscribe", "opcua_browse",
   "opcua_controller_profile", "opcua_machine_status", "opcua_monitor_alarms",
+  "machine_strategy_validate", "machine_strategy_find_best", "machine_strategy_requirements",
+  "fixture_strategy_adjust", "fixture_strategy_validate", "fixture_recommend",
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -85,7 +93,7 @@ export function registerMachineSetupDispatcher(server: any): void {
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
-      log.info(`[prism_machine_setup] Action: ${action} (43 actions wired)`);
+      log.info(`[prism_machine_setup] Action: ${action} (46 actions wired)`);
       let result: any;
       try {
         let params = rawParams;
@@ -194,6 +202,26 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "opcua_monitor_alarms") {
           const eng = await getEngine("opcua");
           result = await eng.monitorAlarms(params);
+        // Machine Strategy Constraint actions (CAMX-MS2/U02)
+        } else if (action === "machine_strategy_validate") {
+          const eng = await getEngine("machineStrategyConstraint");
+          result = eng.validate(params);
+        } else if (action === "machine_strategy_find_best") {
+          const eng = await getEngine("machineStrategyConstraint");
+          result = eng.findBestMachine(params);
+        } else if (action === "machine_strategy_requirements") {
+          const eng = await getEngine("machineStrategyConstraint");
+          result = eng.getRequirements(params);
+        // Fixture Aware Strategy actions (CAMX-MS12/U07)
+        } else if (action === "fixture_strategy_adjust") {
+          const eng = await getEngine("fixtureAwareStrategy");
+          result = eng.adjustStrategy(params);
+        } else if (action === "fixture_strategy_validate") {
+          const eng = await getEngine("fixtureAwareStrategy");
+          result = eng.validateForFixture(params);
+        } else if (action === "fixture_recommend") {
+          const eng = await getEngine("fixtureAwareStrategy");
+          result = eng.recommendFixture(params.feature, params.strategies);
         // Special cases
         } else if (action === "surface_integrity_assess") {
           const eng = await getEngine("surfIntegrity");

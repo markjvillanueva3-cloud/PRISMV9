@@ -12,6 +12,7 @@ import { computationCache } from "../../engines/ComputationCache.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
 import { logActionTelemetry } from "../../utils/actionTelemetry.js";
+import { safeFunctionEval } from "../../utils/safeMathEval.js";
 
 /** Zod-validated params — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls.
  *  Type is `any` because Zod runtime validation guarantees shape correctness; static types
@@ -430,6 +431,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { rpm: result.rpm, feed: result.feedRate_mmMin, power_kW: result.power_kW, tool_life: result.toolLife_min, confidence: result.confidence, warnings: result.warnings?.length || 0 };
     case "sdk_check_safety":
       return { safe: result.safe, score: result.score, issues: result.issues?.length || 0 };
+    case "pipeline_safety_assess":
+      return { risk_level: result.risk_level, vetoed: result.vetoed, Fc_N: result.computed?.Fc_N, power_kW: result.computed?.power_kW, escalation: result.escalation_actions?.length || 0 };
+    case "pipeline_safety_veto":
+      return { vetoed: result.vetoed, reasons: result.reasons?.length || 0, escalation: result.escalation_actions?.length || 0 };
+    case "pipeline_safety_batch":
+      return { overall_risk: result.overall_risk, total: result.total, vetoed_count: result.vetoed_operations?.length || 0, counts: result.counts };
+    case "safety_veto_check":
+      return { vetoed: result.vetoed, rule: result.rule, original_value: result.original_value, limit: result.limit, escalation_action: result.escalation_action };
+    case "safety_veto_all":
+      return { vetoed: result.vetoed, active_vetos: result.active_vetos?.length || 0, rules_fired: result.active_vetos?.map((v: any) => v.rule) };
+    case "safety_veto_escalate":
+      return { resolved: result.resolved, iterations: result.iterations, remaining_vetos: result.remaining_vetos, final_ap_mm: result.final_params?.ap_mm, final_fz_mm: result.final_params?.fz_mm };
     case "sdk_suggest_tool":
       return { topPick: result.topPick?.name, manufacturer: result.topPick?.manufacturer, count: result.tools?.length || 0 };
     case "sdk_get_tip":
@@ -886,6 +899,10 @@ const ACTIONS = [
   "piispanen_shear_strain", "zorev_stress_distribution", "thick_shear_zone",
   // -- CAM Plugin SDK --
   "sdk_optimize_sf", "sdk_check_safety", "sdk_suggest_tool", "sdk_get_tip", "sdk_batch",
+  // -- CAMX-MS14/U01: Pipeline Safety Orchestrator --
+  "pipeline_safety_assess", "pipeline_safety_veto", "pipeline_safety_batch",
+  // -- CAMX-MS14/U02: Safety Veto Engine (E1098) --
+  "safety_veto_check", "safety_veto_all", "safety_veto_escalate",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1785,7 +1802,7 @@ export function registerCalcDispatcher(server: any): void {
           case "ga_optimize": {
             const { geneticAlgorithmEngine } = await import("../../engines/GeneticAlgorithmEngine.js");
             result = geneticAlgorithmEngine.optimize(
-              new Function("genes", params.fitnessBody) as (g: number[]) => number,
+              safeFunctionEval(params.fitnessBody, ["genes"]),
               params.bounds, params.config,
             );
             break;
@@ -1795,7 +1812,7 @@ export function registerCalcDispatcher(server: any): void {
           case "sa_optimize": {
             const { simulatedAnnealingEngine } = await import("../../engines/SimulatedAnnealingEngine.js");
             result = simulatedAnnealingEngine.optimize(
-              new Function("solution", params.fitnessBody) as (s: number[]) => number,
+              safeFunctionEval(params.fitnessBody, ["solution"]),
               params.bounds, params.config,
             );
             break;
@@ -2613,7 +2630,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Swarm Algorithms (PSO + ACO) ──
           case "pso_optimize": {
             const { swarmAlgorithmsEngine } = await import("../../engines/SwarmAlgorithmsEngine.js");
-            const fitFn = new Function("pos", params.fitness_body ?? "return -(pos[0]**2+pos[1]**2)") as (pos: number[]) => number;
+            const fitFn = safeFunctionEval(params.fitness_body ?? "return -(pos[0]**2+pos[1]**2)", ["pos"]);
             result = swarmAlgorithmsEngine.psoOptimize(fitFn, params.bounds, {
               swarmSize: params.swarm_size, maxIterations: params.max_iterations,
               w: params.w, c1: params.c1, c2: params.c2, wDecay: params.w_decay,
@@ -2677,28 +2694,28 @@ export function registerCalcDispatcher(server: any): void {
 
           case "swarm_neural_optimize": {
             const { swarmNeuralHybridEngine } = await import("../../engines/SwarmNeuralHybridEngine.js");
-            const objFn = new Function("x", params.objective_body) as (x: number[]) => number;
+            const objFn = safeFunctionEval(params.objective_body, ["x"]);
             result = swarmNeuralHybridEngine.optimize(objFn, params.bounds, params.config ?? {});
             break;
           }
 
           case "xai_lime": {
             const { xaiEngine } = await import("../../engines/XAIEngine.js");
-            const limePredictFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            const limePredictFn = safeFunctionEval(params.predict_body, ["x"]);
             result = xaiEngine.limeExplain(limePredictFn, params.instance, params.num_samples, params.num_features);
             break;
           }
 
           case "xai_shap": {
             const { xaiEngine } = await import("../../engines/XAIEngine.js");
-            const shapPredictFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            const shapPredictFn = safeFunctionEval(params.predict_body, ["x"]);
             result = xaiEngine.shapExplain(shapPredictFn, params.instance, params.background, params.num_samples);
             break;
           }
 
           case "xai_permutation_importance": {
             const { xaiEngine } = await import("../../engines/XAIEngine.js");
-            const piFn = new Function("x", params.predict_body) as (x: number[]) => number;
+            const piFn = safeFunctionEval(params.predict_body, ["x"]);
             result = xaiEngine.permutationImportance(piFn, params.X, params.y, params.num_repeats);
             break;
           }
@@ -2935,7 +2952,7 @@ export function registerCalcDispatcher(server: any): void {
 
           case "de_optimize": {
             const { differentialEvolutionEngine } = await import("../../engines/DifferentialEvolutionEngine.js");
-            const fitFn = new Function("genes", params.fitness_body) as (g: number[]) => number;
+            const fitFn = safeFunctionEval(params.fitness_body, ["genes"]);
             result = differentialEvolutionEngine.optimize(fitFn, params.bounds, params.config ?? {});
             break;
           }
@@ -3989,7 +4006,7 @@ export function registerCalcDispatcher(server: any): void {
           case "pso_minimize":
           case "pso_maximize": {
             const { particleSwarmOptimizationEngine: pso } = await import("../../engines/ParticleSwarmOptimizationEngine.js");
-            const objFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const objFn = safeFunctionEval(params.objective_body ?? "return x[0]**2", ["x"]);
             const psoConfig = { dimensions: params.dimensions ?? 2, bounds: params.bounds, swarmSize: params.swarm_size, maxIterations: params.max_iterations, seed: params.seed };
             result = action === "pso_maximize" ? pso.maximize(objFn, psoConfig) : pso.minimize(objFn, psoConfig);
             break;
@@ -4010,7 +4027,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Optimization: Bayesian ──
           case "bayesian_optimize": {
             const { bayesianOptimizationEngine: bo } = await import("../../engines/BayesianOptimizationEngine.js");
-            const boFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const boFn = safeFunctionEval(params.objective_body ?? "return x[0]**2", ["x"]);
             result = bo.minimize(boFn, { dimensions: params.dimensions ?? 1, bounds: params.bounds, acquisitionFunction: params.acquisition_function, maxIterations: params.max_iterations, seed: params.seed });
             break;
           }
@@ -4023,7 +4040,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Optimization: Trust Region ──
           case "trust_region_minimize": {
             const { trustRegionEngine: tr } = await import("../../engines/TrustRegionEngine.js");
-            const trFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const trFn = safeFunctionEval(params.objective_body ?? "return x[0]**2", ["x"]);
             result = tr.minimize(trFn, { dimensions: params.dimensions ?? 1, x0: params.x0, bounds: params.bounds, maxIterations: params.max_iterations });
             break;
           }
@@ -4100,9 +4117,9 @@ export function registerCalcDispatcher(server: any): void {
           // ── SQP ──
           case "sqp_minimize": {
             const { sqpEngine } = await import("../../engines/SQPEngine.js");
-            const sqpObj = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const sqpObj = safeFunctionEval(params.objective_body ?? "return x[0]**2", ["x"]);
             const sqpConstraints = (params.constraint_bodies ?? []).map(
-              (b: string) => new Function("x", b) as (x: number[]) => number
+              (b: string) => safeFunctionEval(b, ["x"])
             );
             result = sqpEngine.minimize(sqpObj, {
               dimensions: params.dimensions ?? 1, x0: params.x0,
@@ -4238,7 +4255,7 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "robust_bootstrap": {
             const { robustStatisticsEngine } = await import("../../engines/RobustStatisticsEngine.js");
-            const statFn = new Function("d", params.statistic_body ?? "return d.reduce((s,v)=>s+v,0)/d.length") as (d: number[]) => number;
+            const statFn = safeFunctionEval(params.statistic_body ?? "return d.reduce((s,v)=>s+v,0)/d.length", ["d"]);
             result = robustStatisticsEngine.bootstrap(params.data, statFn, params);
             break;
           }
@@ -4319,7 +4336,7 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "convex_minimize": {
             const { convexOptimizationEngine } = await import("../../engines/ConvexOptimizationEngine.js");
-            const objFn = new Function("x", params.objective_body ?? "return x[0]**2") as (x: number[]) => number;
+            const objFn = safeFunctionEval(params.objective_body ?? "return x[0]**2", ["x"]);
             result = convexOptimizationEngine.minimizeConvex(objFn, {
               dimensions: params.dimensions ?? 2,
               x0: params.x0, bounds: params.bounds,
@@ -4331,7 +4348,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Numerical Integration ──
           case "numerical_integrate": {
             const { numericalIntegrationEngine } = await import("../../engines/NumericalIntegrationEngine.js");
-            const intFn = new Function("x", params.function_body ?? "return x*x") as (x: number) => number;
+            const intFn = safeFunctionEval(params.function_body ?? "return x*x", ["x"]);
             const method = params.method ?? "simpson";
             if (method === "adaptive") {
               result = numericalIntegrationEngine.adaptiveSimpson(intFn, params.a ?? 0, params.b ?? 1, params.tolerance);
@@ -4346,7 +4363,7 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "numerical_integrate_2d": {
             const { numericalIntegrationEngine } = await import("../../engines/NumericalIntegrationEngine.js");
-            const fn2d = new Function("x", "y", params.function_body ?? "return x*y") as (x: number, y: number) => number;
+            const fn2d = safeFunctionEval(params.function_body ?? "return x*y", ["x", "y"]);
             result = numericalIntegrationEngine.integrate2D(fn2d, params.xa ?? 0, params.xb ?? 1, params.ya ?? 0, params.yb ?? 1, params.nx, params.ny);
             break;
           }
@@ -4359,7 +4376,7 @@ export function registerCalcDispatcher(server: any): void {
           // ── Differential Equations ──
           case "ode_rk45_solve": {
             const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
-            const odeFn = new Function("t", "y", params.function_body ?? "return [y[0]]") as (t: number, y: number[]) => number[];
+            const odeFn = safeFunctionEval(params.function_body ?? "return [y[0]]", ["t", "y"]);
             result = differentialEquationEngine.rk45({
               f: odeFn, y0: params.y0, tSpan: params.t_span,
               adaptive: params.adaptive,
@@ -4368,13 +4385,13 @@ export function registerCalcDispatcher(server: any): void {
           }
           case "ode_second_order": {
             const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
-            const f2 = new Function("t", "y", "v", params.function_body ?? "return -y") as (t: number, y: number, v: number) => number;
+            const f2 = safeFunctionEval(params.function_body ?? "return -y", ["t", "y", "v"]);
             result = differentialEquationEngine.solveSecondOrder({ f: f2, y0: params.y0 ?? 1, v0: params.v0 ?? 0, tSpan: params.t_span, dt: params.dt, numPoints: params.num_points });
             break;
           }
           case "ode_stability": {
             const { differentialEquationEngine } = await import("../../engines/DifferentialEquationEngine.js");
-            const stabFn = new Function("t", "y", params.function_body ?? "return [-y[0]]") as (t: number, y: number[]) => number[];
+            const stabFn = safeFunctionEval(params.function_body ?? "return [-y[0]]", ["t", "y"]);
             result = differentialEquationEngine.stabilityAnalysis(stabFn, params.y0 ?? [1]);
             break;
           }
@@ -7392,6 +7409,24 @@ export function registerCalcDispatcher(server: any): void {
           case "sdk_batch": {
             const { camPluginSDKEngine } = await import("../../engines/CAMPluginSDKEngine.js");
             result = camPluginSDKEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
+
+          // ── CAMX-MS14/U01: Pipeline Safety Orchestrator ──
+          case "pipeline_safety_assess":
+          case "pipeline_safety_veto":
+          case "pipeline_safety_batch": {
+            const { pipelineSafetyOrchestratorEngine } = await import("../../engines/PipelineSafetyOrchestratorEngine.js");
+            result = pipelineSafetyOrchestratorEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
+
+          // ── CAMX-MS14/U02: Safety Veto Engine (E1098) ──
+          case "safety_veto_check":
+          case "safety_veto_all":
+          case "safety_veto_escalate": {
+            const { safetyVetoEngine } = await import("../../engines/SafetyVetoEngine.js");
+            result = safetyVetoEngine.calculate(action, params as ValidatedParams);
             break;
           }
 

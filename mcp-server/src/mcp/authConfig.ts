@@ -88,7 +88,13 @@ export function getAuthConfig(): OAuthConfig {
   if (_config) return _config;
 
   const secret = process.env.PRISM_JWT_SECRET || process.env.JWT_SECRET || "";
-  const enabled = process.env.PRISM_AUTH_ENABLED !== "false" && secret.length >= 32;
+  const explicitlyDisabled = process.env.PRISM_AUTH_ENABLED === "false";
+  const enabled = !explicitlyDisabled && secret.length >= 32;
+
+  // Warn if auth is off not by choice but by missing secret
+  if (!enabled && !explicitlyDisabled && secret.length < 32) {
+    console.warn("[PRISM Auth] WARNING: Auth is disabled because no JWT secret (>=32 chars) is configured. Set PRISM_JWT_SECRET or explicitly set PRISM_AUTH_ENABLED=false to silence this warning.");
+  }
 
   // Parse additional clients from PRISM_OAUTH_CLIENTS JSON env var
   let extraClients: OAuthClientConfig[] = [];

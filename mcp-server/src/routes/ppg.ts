@@ -75,7 +75,7 @@ export function createPpgRouter(callTool: CallToolFn): Router {
   // GET /ppg/controllers — List supported CNC controllers
   router.get("/controllers", async (_req, res) => {
     try {
-      const result = await callTool("prism_generator", "gcode_controllers", {});
+      const result = await callTool("prism_product", "ppg_controllers", {});
       res.json({ ok: true, data: result });
     } catch (e: any) {
       res.status(500).json({ ok: false, error: e.message });

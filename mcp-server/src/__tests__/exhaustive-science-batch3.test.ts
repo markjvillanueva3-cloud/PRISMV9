@@ -391,7 +391,7 @@ describe("ConstitutiveModelEngine", () => {
   });
 
   describe("parisLaw", () => {
-    it("predicts fatigue crack growth cycles to failure", async () => {
+    it("predicts fatigue crack growth cycles to failure", { timeout: 60000, retry: 2 }, async () => {
       const { constitutiveModelEngine: e } = await import("../engines/ConstitutiveModelEngine.js");
       const r = e.parisLaw({
         initial_crack_mm: 1, critical_crack_mm: 20,

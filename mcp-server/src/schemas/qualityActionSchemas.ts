@@ -129,6 +129,61 @@ const blueprint_dxf_dimensions = z.object({
 }).passthrough();
 
 // ============================================================================
+// FIRST ARTICLE INSPECTION — AS9102 (4)
+// ============================================================================
+
+/** fai_run — Run full FAI pipeline per AS9102 */
+const fai_run = z.object({
+  part_number: z.string(),
+  revision: z.string(),
+  features: z.array(z.object({
+    feature_id: z.string(),
+    feature_name: z.string(),
+    reference_location: z.string(),
+    designator: z.enum(["critical", "major", "minor"]),
+    nominal: z.number(),
+    tolerance_plus: z.number(),
+    tolerance_minus: z.number(),
+    unit: z.string().optional(),
+    inspection_method: z.string().optional(),
+    equipment_id: z.string().optional(),
+  }).passthrough()),
+  material_cert_id: z.string().optional(),
+  measurements: z.array(z.object({
+    feature_id: z.string(),
+    measured_value: z.number(),
+    inspection_method: z.string().optional(),
+    equipment_id: z.string().optional(),
+  }).passthrough()).optional(),
+  serial_number: z.string().optional(),
+  purchase_order: z.string().optional(),
+  supplier: z.string().optional(),
+  drawing_number: z.string().optional(),
+  organization: z.string().optional(),
+  inspector: z.string().optional(),
+}).passthrough();
+
+/** fai_generate_forms — Generate AS9102 Form 1/2/3 from a completed FAI */
+const fai_generate_forms = z.object({
+  fai_id: z.string(),
+}).passthrough();
+
+/** fai_evaluate_characteristic — Evaluate single characteristic tolerance */
+const fai_evaluate_characteristic = z.object({
+  nominal: z.number(),
+  tolerance_plus: z.number(),
+  tolerance_minus: z.number(),
+  measured: z.number().optional(),
+  measured_value: z.number().optional(),
+}).passthrough();
+
+/** fai_disposition — Determine accept/reject/MRB from characteristic results */
+const fai_disposition = z.object({
+  results: z.array(z.record(z.string(), z.unknown())).optional(),
+  characteristics: z.array(z.record(z.string(), z.unknown())).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -150,4 +205,9 @@ export const QUALITY_ACTION_SCHEMAS: ActionSchemaMap = {
   blueprint_inspection_plan,
   blueprint_compare_revisions,
   blueprint_dxf_dimensions,
+  // First Article Inspection — AS9102 (4)
+  fai_run,
+  fai_generate_forms,
+  fai_evaluate_characteristic,
+  fai_disposition,
 };

@@ -370,6 +370,7 @@ program
       if (!route) throw new Error(`Unknown action: ${action}. Use 'prism calc --list' to see available actions.`);
 
       // Dynamic import of the target engine and call calculate()
+      if (!/^[A-Za-z0-9]+Engine$/.test(route.target)) throw new Error(`Invalid engine name: ${route.target}`);
       const engineMod = await import(`../engines/${route.target}.js`) as Record<string, { calculate?: (a: string, p: Record<string, unknown>) => unknown }>;
       const engine = Object.values(engineMod).find(v => v && typeof v === "object" && "calculate" in v);
       if (engine?.calculate) {
@@ -957,6 +958,7 @@ program
             continue;
           }
 
+          if (!/^[A-Za-z0-9]+Engine$/.test(route.target)) throw new Error(`Invalid engine name: ${route.target}`);
           const engineMod = await import(`../engines/${route.target}.js`) as Record<string, { calculate?: (a: string, p: Record<string, unknown>) => unknown }>;
           const engine = Object.values(engineMod).find(v => v && typeof v === "object" && "calculate" in v);
 
