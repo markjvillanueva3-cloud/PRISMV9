@@ -3,17 +3,17 @@ import { useLearningPlan, useLearningRecommend } from "../../hooks/useLearning";
 import type { LearningModule, RecommendedModule, LearningDomain } from "../../types/learning";
 
 const DOMAIN_COLORS: Record<LearningDomain, string> = {
-  cad: "border-blue-400 bg-blue-50",
-  cam: "border-green-400 bg-green-50",
-  shop_practice: "border-amber-400 bg-amber-50",
-  machine_operation: "border-purple-400 bg-purple-50",
+  cad: "border-blue-400 bg-blue-500/10",
+  cam: "border-green-400 bg-green-500/10",
+  shop_practice: "border-amber-400 bg-amber-500/10",
+  machine_operation: "border-purple-400 bg-purple-500/10",
 };
 
 const DIFF_BADGES: Record<string, string> = {
-  beginner: "bg-green-100 text-green-700",
-  intermediate: "bg-amber-100 text-amber-700",
-  advanced: "bg-blue-100 text-blue-700",
-  expert: "bg-purple-100 text-purple-700",
+  beginner: "bg-green-500/20 text-green-400",
+  intermediate: "bg-amber-500/20 text-amber-400",
+  advanced: "bg-blue-500/20 text-blue-400",
+  expert: "bg-purple-500/20 text-purple-400",
 };
 
 function ModuleCard({
@@ -33,30 +33,30 @@ function ModuleCard({
           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
             ${isRecommended
               ? "bg-blue-600 text-white ring-2 ring-blue-300"
-              : "bg-slate-200 text-slate-600"
+              : "bg-slate-700 text-slate-300"
             }`}
         >
           {index + 1}
         </div>
-        <div className="w-0.5 flex-1 bg-slate-200 mt-1" />
+        <div className="w-0.5 flex-1 bg-slate-700/60 mt-1" />
       </div>
 
       {/* Card */}
       <div
         className={`flex-1 mb-4 p-4 rounded-lg border-l-4 transition-all
-          ${DOMAIN_COLORS[mod.domain] ?? "border-slate-300 bg-slate-50"}
-          ${isRecommended ? "ring-2 ring-blue-200 shadow-sm" : ""}
+          ${DOMAIN_COLORS[mod.domain] ?? "border-slate-600 bg-slate-900/50"}
+          ${isRecommended ? "ring-2 ring-blue-200 shadow-lg shadow-black/20" : ""}
         `}
       >
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="font-medium text-slate-800 text-sm">{mod.title}</h3>
+          <h3 className="font-medium text-slate-100 text-sm">{mod.title}</h3>
           {isRecommended && (
             <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full">
               Next
             </span>
           )}
         </div>
-        <p className="text-xs text-slate-500 mb-2">{mod.description}</p>
+        <p className="text-xs text-slate-400 mb-2">{mod.description}</p>
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <span className={`px-2 py-0.5 rounded-full ${DIFF_BADGES[mod.difficulty] ?? ""}`}>
             {mod.difficulty}
@@ -76,7 +76,7 @@ function ModuleCard({
         {mod.topics.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {mod.topics.slice(0, 4).map((t) => (
-              <span key={t} className="text-xs bg-white/60 text-slate-500 px-1.5 py-0.5 rounded">
+              <span key={t} className="text-xs bg-slate-700/60 text-slate-400 px-1.5 py-0.5 rounded">
                 {t}
               </span>
             ))}
@@ -104,8 +104,8 @@ export default function LearningPath() {
 
   return (
     <div className="p-6 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Learning Path</h1>
-      <p className="text-slate-500 text-sm mb-6">
+      <h1 className="text-2xl font-bold text-slate-100 mb-1">Learning Path</h1>
+      <p className="text-slate-400 text-sm mb-6">
         Your personalized journey to CNC mastery
       </p>
 
@@ -118,31 +118,31 @@ export default function LearningPath() {
       {plan.data && (
         <>
           {/* Summary bar */}
-          <div className="flex flex-wrap gap-4 mb-6 p-4 bg-white rounded-xl border border-slate-200">
+          <div className="flex flex-wrap gap-4 mb-6 p-4 bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60">
             <div>
               <div className="text-2xl font-bold text-blue-600">
                 {plan.data.modules.length}
               </div>
-              <div className="text-xs text-slate-500">Modules</div>
+              <div className="text-xs text-slate-400">Modules</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
                 {plan.data.estimated_weeks}
               </div>
-              <div className="text-xs text-slate-500">Weeks</div>
+              <div className="text-xs text-slate-400">Weeks</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-amber-600">
                 {plan.data.total_hours}
               </div>
-              <div className="text-xs text-slate-500">Hours</div>
+              <div className="text-xs text-slate-400">Hours</div>
             </div>
           </div>
 
           {/* Milestones */}
           {plan.data.milestones.length > 0 && (
-            <div className="mb-6 p-4 bg-white rounded-xl border border-slate-200">
-              <h2 className="font-semibold text-slate-800 mb-2 text-sm">
+            <div className="mb-6 p-4 bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60">
+              <h2 className="font-semibold text-slate-200 mb-2 text-sm">
                 Milestones
               </h2>
               <div className="space-y-1">
@@ -151,7 +151,7 @@ export default function LearningPath() {
                     <span className="text-slate-400 font-mono text-xs w-16">
                       Week {m.week}
                     </span>
-                    <span className="text-slate-700">{m.description}</span>
+                    <span className="text-slate-300">{m.description}</span>
                   </div>
                 ))}
               </div>
@@ -173,7 +173,7 @@ export default function LearningPath() {
       )}
 
       {plan.error && (
-        <div className="text-sm text-red-500 bg-red-50 p-3 rounded-lg">
+        <div className="text-sm text-red-400 bg-red-500/10 p-3 rounded-lg">
           {plan.error}
         </div>
       )}

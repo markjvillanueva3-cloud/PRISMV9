@@ -44,17 +44,17 @@ export default function MaterialWizard() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">
+      <h1 className="text-2xl font-bold text-slate-100 mb-1">
         Material Selection
       </h1>
-      <p className="text-slate-500 text-sm mb-6">
+      <p className="text-slate-400 text-sm mb-6">
         Find the right material for your machining job
       </p>
 
       {step === "requirements" && (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+        <div className="bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-1">
               Application
             </label>
             <input
@@ -62,14 +62,14 @@ export default function MaterialWizard() {
               value={form.application}
               onChange={(e) => setForm({ ...form, application: e.target.value })}
               placeholder="e.g., Aerospace bracket, Medical implant"
-              className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm
+              className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200
                 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Material Family
               </label>
               <select
@@ -77,7 +77,7 @@ export default function MaterialWizard() {
                 onChange={(e) =>
                   setForm({ ...form, material_family: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               >
                 <option value="">Any</option>
                 <option value="steel">Steel</option>
@@ -89,7 +89,7 @@ export default function MaterialWizard() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Budget
               </label>
               <select
@@ -100,7 +100,7 @@ export default function MaterialWizard() {
                     budget: e.target.value as "" | "low" | "medium" | "high",
                   })
                 }
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-white"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               >
                 <option value="">Any</option>
                 <option value="low">Low</option>
@@ -112,7 +112,7 @@ export default function MaterialWizard() {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Min Hardness (HRC)
               </label>
               <input
@@ -121,11 +121,11 @@ export default function MaterialWizard() {
                 onChange={(e) =>
                   setForm({ ...form, hardness_min: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Max Hardness (HRC)
               </label>
               <input
@@ -134,11 +134,11 @@ export default function MaterialWizard() {
                 onChange={(e) =>
                   setForm({ ...form, hardness_max: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Min Machinability (%)
               </label>
               <input
@@ -147,31 +147,31 @@ export default function MaterialWizard() {
                 onChange={(e) =>
                   setForm({ ...form, machinability_min: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               />
             </div>
           </div>
 
           <div className="flex gap-4">
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-slate-300">
               <input
                 type="checkbox"
                 checked={form.corrosion_resistance}
                 onChange={(e) =>
                   setForm({ ...form, corrosion_resistance: e.target.checked })
                 }
-                className="rounded border-slate-300"
+                className="rounded border-slate-600"
               />
               Corrosion Resistance
             </label>
-            <label className="flex items-center gap-2 text-sm text-slate-700">
+            <label className="flex items-center gap-2 text-sm text-slate-300">
               <input
                 type="checkbox"
                 checked={form.heat_resistance}
                 onChange={(e) =>
                   setForm({ ...form, heat_resistance: e.target.checked })
                 }
-                className="rounded border-slate-300"
+                className="rounded border-slate-600"
               />
               Heat Resistance
             </label>
@@ -192,7 +192,7 @@ export default function MaterialWizard() {
         <div>
           <button
             onClick={() => setStep("requirements")}
-            className="mb-4 text-sm text-blue-600 hover:text-blue-800"
+            className="mb-4 text-sm text-blue-400 hover:text-blue-300"
           >
             &larr; Modify Requirements
           </button>
@@ -200,22 +200,22 @@ export default function MaterialWizard() {
           {/* Comparison table */}
           {select.data.recommendations.length > 0 && (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm border border-slate-200 rounded-lg overflow-hidden">
-                <thead className="bg-slate-50">
+              <table className="w-full text-sm border border-slate-700/60 rounded-xl overflow-hidden">
+                <thead className="bg-slate-900/50">
                   <tr>
-                    <th className="text-left p-3 font-medium text-slate-700">
+                    <th className="text-left p-3 font-medium text-slate-300">
                       Material
                     </th>
-                    <th className="text-left p-3 font-medium text-slate-700">
+                    <th className="text-left p-3 font-medium text-slate-300">
                       Family
                     </th>
-                    <th className="text-center p-3 font-medium text-slate-700">
+                    <th className="text-center p-3 font-medium text-slate-300">
                       Match
                     </th>
                     {select.data.comparison_properties.slice(0, 4).map((p) => (
                       <th
                         key={p}
-                        className="text-center p-3 font-medium text-slate-700"
+                        className="text-center p-3 font-medium text-slate-300"
                       >
                         {p}
                       </th>
@@ -228,27 +228,27 @@ export default function MaterialWizard() {
                     (rec: MaterialRecommendation) => (
                       <tr
                         key={rec.material_id}
-                        className="border-t border-slate-100 hover:bg-slate-50"
+                        className="border-t border-slate-700/40 hover:bg-slate-800"
                       >
                         <td className="p-3">
-                          <div className="font-medium text-slate-800">
+                          <div className="font-medium text-slate-100">
                             {rec.name}
                           </div>
                           <div className="text-xs text-slate-400">
                             {rec.grade}
                           </div>
                         </td>
-                        <td className="p-3 text-slate-600 capitalize">
+                        <td className="p-3 text-slate-300 capitalize">
                           {rec.family}
                         </td>
                         <td className="p-3 text-center">
                           <span
                             className={`px-2 py-0.5 rounded-full text-xs font-medium
                             ${rec.match_score >= 80
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-green-500/20 text-green-400"
                                 : rec.match_score >= 60
-                                  ? "bg-amber-100 text-amber-700"
-                                  : "bg-red-100 text-red-700"
+                                  ? "bg-amber-500/20 text-amber-400"
+                                  : "bg-red-500/20 text-red-400"
                             }`}
                           >
                             {rec.match_score}%
@@ -259,7 +259,7 @@ export default function MaterialWizard() {
                           .map((p) => (
                             <td
                               key={p}
-                              className="p-3 text-center text-slate-600"
+                              className="p-3 text-center text-slate-300"
                             >
                               {rec.properties[p] ?? "-"}
                             </td>
@@ -267,7 +267,7 @@ export default function MaterialWizard() {
                         <td className="p-3">
                           <button
                             onClick={() => goToSfc(rec)}
-                            className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                            className="text-xs text-blue-400 hover:text-blue-300 font-medium"
                           >
                             Calculate
                           </button>
@@ -285,15 +285,15 @@ export default function MaterialWizard() {
             {select.data.recommendations.map((rec: MaterialRecommendation) => (
               <div
                 key={rec.material_id}
-                className="p-4 bg-white rounded-lg border border-slate-200"
+                className="p-4 bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60"
               >
-                <h3 className="font-medium text-slate-800">
+                <h3 className="font-medium text-slate-100">
                   {rec.name} ({rec.grade})
                 </h3>
                 {rec.pros.length > 0 && (
                   <div className="mt-2">
                     {rec.pros.map((p) => (
-                      <div key={p} className="text-xs text-green-600">
+                      <div key={p} className="text-xs text-green-400">
                         + {p}
                       </div>
                     ))}
@@ -302,7 +302,7 @@ export default function MaterialWizard() {
                 {rec.cons.length > 0 && (
                   <div className="mt-1">
                     {rec.cons.map((c) => (
-                      <div key={c} className="text-xs text-red-500">
+                      <div key={c} className="text-xs text-red-400">
                         - {c}
                       </div>
                     ))}
@@ -326,7 +326,7 @@ export default function MaterialWizard() {
       )}
 
       {select.error && (
-        <div className="mt-4 text-sm text-red-500 bg-red-50 p-3 rounded-lg">
+        <div className="mt-4 text-sm text-red-400 bg-red-500/10 p-3 rounded-lg">
           {select.error}
         </div>
       )}

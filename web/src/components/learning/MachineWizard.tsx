@@ -51,15 +51,15 @@ export default function MachineWizard() {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Machine Selection</h1>
-      <p className="text-slate-500 text-sm mb-6">
+      <h1 className="text-2xl font-bold text-slate-100 mb-1">Machine Selection</h1>
+      <p className="text-slate-400 text-sm mb-6">
         Find the right CNC machine for your application
       </p>
 
       {step === "input" && (
-        <div className="bg-white rounded-xl border border-slate-200 p-6 space-y-4">
+        <div className="bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60 p-6 space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Part Envelope (mm)
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -72,7 +72,7 @@ export default function MachineWizard() {
                     type="number"
                     value={form[dim]}
                     onChange={(e) => setForm({ ...form, [dim]: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                    className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
                   />
                 </div>
               ))}
@@ -80,7 +80,7 @@ export default function MachineWizard() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Required Operations
             </label>
             <div className="flex flex-wrap gap-2">
@@ -90,8 +90,8 @@ export default function MachineWizard() {
                   onClick={() => toggleOp(op)}
                   className={`px-3 py-1.5 rounded-lg text-sm border transition-all
                     ${form.operations.includes(op)
-                      ? "border-blue-500 bg-blue-50 text-blue-700 font-medium"
-                      : "border-slate-200 text-slate-600 hover:border-slate-300"
+                      ? "border-blue-500 bg-blue-500/10 text-blue-300 font-medium"
+                      : "border-slate-700/60 text-slate-300 hover:border-slate-600"
                     }`}
                 >
                   {op.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}
@@ -102,7 +102,7 @@ export default function MachineWizard() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Material
               </label>
               <input
@@ -110,12 +110,12 @@ export default function MachineWizard() {
                 value={form.material}
                 onChange={(e) => setForm({ ...form, material: e.target.value })}
                 placeholder="e.g., Titanium, Inconel"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200
                   focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">
+              <label className="block text-sm font-medium text-slate-300 mb-1">
                 Accuracy Required (mm)
               </label>
               <input
@@ -124,13 +124,13 @@ export default function MachineWizard() {
                 value={form.accuracy}
                 onChange={(e) => setForm({ ...form, accuracy: e.target.value })}
                 placeholder="e.g., 0.01"
-                className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm"
+                className="w-full px-3 py-2 border border-slate-700/60 rounded-lg text-sm bg-slate-900/50 text-slate-200"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-2">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Production Volume
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -140,8 +140,8 @@ export default function MachineWizard() {
                   onClick={() => setForm({ ...form, volume: v.value })}
                   className={`p-2 rounded-lg border text-sm text-center transition-all
                     ${form.volume === v.value
-                      ? "border-blue-500 bg-blue-50 font-medium"
-                      : "border-slate-200 hover:border-slate-300"
+                      ? "border-blue-500 bg-blue-500/10 font-medium text-blue-300"
+                      : "border-slate-700/60 text-slate-300 hover:border-slate-600"
                     }`}
                 >
                   {v.label}
@@ -165,13 +165,13 @@ export default function MachineWizard() {
         <div>
           <button
             onClick={() => setStep("input")}
-            className="mb-4 text-sm text-blue-600 hover:text-blue-800"
+            className="mb-4 text-sm text-blue-400 hover:text-blue-300"
           >
             &larr; Change Requirements
           </button>
 
           {!select.data.requirements_met && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+            <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg text-sm text-amber-400">
               No machines fully meet all requirements. Showing closest matches.
             </div>
           )}
@@ -180,11 +180,11 @@ export default function MachineWizard() {
             {select.data.recommendations.map((rec: MachineRecommendation) => (
               <div
                 key={rec.machine_id}
-                className="p-4 bg-white rounded-lg border border-slate-200"
+                className="p-4 bg-slate-800/70 backdrop-blur-sm rounded-xl border border-slate-700/60"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h3 className="font-medium text-slate-800">{rec.name}</h3>
+                    <h3 className="font-medium text-slate-100">{rec.name}</h3>
                     <div className="text-xs text-slate-400 mt-0.5">
                       {rec.manufacturer} &middot; {rec.type} &middot; {rec.axes}-axis
                     </div>
@@ -192,55 +192,55 @@ export default function MachineWizard() {
                   <span
                     className={`text-xs px-2 py-0.5 rounded-full font-medium
                       ${rec.match_score >= 80
-                        ? "bg-green-100 text-green-700"
+                        ? "bg-green-500/20 text-green-400"
                         : rec.match_score >= 60
-                          ? "bg-amber-100 text-amber-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-amber-500/20 text-amber-400"
+                          : "bg-red-500/20 text-red-400"
                       }`}
                   >
                     {rec.match_score}%
                   </span>
                 </div>
 
-                <div className="mt-3 grid grid-cols-5 gap-2 p-2 bg-slate-50 rounded text-xs">
+                <div className="mt-3 grid grid-cols-5 gap-2 p-2 bg-slate-900/50 rounded text-xs">
                   <div>
                     <div className="text-slate-400">Table</div>
-                    <div className="font-medium text-slate-700">
+                    <div className="font-medium text-slate-300">
                       {rec.table_size.x}x{rec.table_size.y}mm
                     </div>
                   </div>
                   <div>
                     <div className="text-slate-400">Spindle</div>
-                    <div className="font-medium text-slate-700">
+                    <div className="font-medium text-slate-300">
                       {rec.spindle_max_rpm.toLocaleString()} RPM
                     </div>
                   </div>
                   <div>
                     <div className="text-slate-400">Power</div>
-                    <div className="font-medium text-slate-700">
+                    <div className="font-medium text-slate-300">
                       {rec.power_kw} kW
                     </div>
                   </div>
                   <div>
                     <div className="text-slate-400">Accuracy</div>
-                    <div className="font-medium text-slate-700">
+                    <div className="font-medium text-slate-300">
                       {rec.accuracy_mm} mm
                     </div>
                   </div>
                   <div>
                     <div className="text-slate-400">Axes</div>
-                    <div className="font-medium text-slate-700">{rec.axes}</div>
+                    <div className="font-medium text-slate-300">{rec.axes}</div>
                   </div>
                 </div>
 
                 <div className="flex gap-4 mt-2 text-xs">
                   {rec.pros.length > 0 && (
-                    <div className="text-green-600">
+                    <div className="text-green-400">
                       {rec.pros.map((p) => `+ ${p}`).join(" ")}
                     </div>
                   )}
                   {rec.cons.length > 0 && (
-                    <div className="text-red-500">
+                    <div className="text-red-400">
                       {rec.cons.map((c) => `- ${c}`).join(" ")}
                     </div>
                   )}
@@ -258,7 +258,7 @@ export default function MachineWizard() {
       )}
 
       {select.error && (
-        <div className="mt-4 text-sm text-red-500 bg-red-50 p-3 rounded-lg">
+        <div className="mt-4 text-sm text-red-400 bg-red-500/10 p-3 rounded-lg">
           {select.error}
         </div>
       )}
