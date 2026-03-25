@@ -39,6 +39,11 @@ state/context_snapshot.json
 state/session_metrics.json
 state/next_session_prep.json
 state/COGNITIVE_STATE.json
+state/logs/audit.jsonl
+
+# Ephemeral runtime files
+*.pid
+.swarm/memory.db
 
 # hyperMILL installation files (large binaries)
 HYPERMILL/
@@ -61,3 +66,29 @@ mcp-server/extract-err.txt
 mcp-server/output.step
 tmp_mit_*
 reddit.md
+# lsmcp cache
+.lsmcp/cache
+
+# Logs
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dev-debug.log
+# Dependency directories
+# Environment variables
+.env
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+.DS_Store
+
+# Task files
+# tasks.json
+# tasks/ 
