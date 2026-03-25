@@ -45,28 +45,11 @@ Data:                     95,608 tools, 910 machines, 2,957 materials, 3,700+ tr
 - `FormulaRegistry` — 499 formulas
 - `AlgorithmRegistry` — 51 algorithms
 
-### Quality/Compliance (exist, need wiring):
-- `SPCProcessCapabilityEngine` — Cp/Cpk/Pp/Ppk + Nelson rules
-- `FirstArticleInspectionPipelineEngine` — AS9102 FAI
-- `MaterialCertTraceabilityEngine` — full chain-of-custody (UNWIRED)
-- `MetrologyUncertaintyEngine` — GUM-compliant uncertainty
-
-### Business/ERP (42 wired to businessDispatcher):
-- `QuoteEstimatorEngine`, `ActualCostEngine`, `CapacityPlanningEngine`
-- `JobLifecycleEngine` (13-state), `OEECalculatorEngine`
-- `GeneralLedgerEngine`, `InvoicingEngine`, `PayrollEngine` (exist, Phase 14)
-
-### Learning/Knowledge:
-- `OnboardingEngine` — 5 disclosure levels (NOT wired to frontend)
-- `ApprenticeEngine` — 20 lessons, 5 challenges (NOT wired to frontend)
-- `MachiningPlaybookEngine` — 296 rules
-- `TribalKnowledgeEngine` — 3,700+ tips across 20 CAM systems
-
-### Memory/Persistence (USE these for session continuity):
-- `MemoryGraphEngine` — WAL-backed JSONL decision graph (state/memory_graph/)
-- `SessionEventLogEngine` — tracks file changes, decisions, errors
-- `TelemetryEngine` — records all tool invocations
-- `ContextSnapshotEngine` — save/restore context snapshots
+### Also exist (check ENGINE_DIGEST.md for full list):
+- Quality: SPC, FAI (AS9102), MaterialCert, Metrology — need wiring
+- Business: 42 engines wired to businessDispatcher (Quote, Cost, Capacity, OEE, etc.)
+- Learning: Onboarding, Apprentice, Playbook (296 rules), TribalKnowledge (3,700+ tips)
+- Memory: MemoryGraph, SessionEventLog, Telemetry, ContextSnapshot
 
 ## Token-Efficient Navigation (use INSTEAD of Glob/Grep):
 - `ENGINE_DIGEST.md` — ALL 1,245 engines with 1-line descriptions
@@ -75,23 +58,27 @@ Data:                     95,608 tools, 910 machines, 2,957 materials, 3,700+ tr
 - `/navigate <topic>` — zero-IO file routing
 - `/code-index <shortcode>` — resolve E0001→path instantly
 
-## Roadmap (what we're building, in order):
-Master file: `C:/PRISM/CAMX-RESTRUCTURED-ROADMAP-v24.md` (~5,567 lines)
-Current phase: check HANDOFF.md for exact position
+## Roadmap:
+`C:/PRISM/CAMX-RESTRUCTURED-ROADMAP-v24.md` | Current position: HANDOFF.md
 ```
-Phase 0-A: Print Reading        ← EXECUTING NOW
-Phase 0-B: Bug Fixes + Security
-Phase 0-C: Test Infra + Real-World Validation (42+ parts)
-Phase 0-D: Registry Wiring + Fusion Infrastructure + CAD Engine
-Phase 1:   Knowledge + Decisions + UX/Onboarding
-Phase 2:   Business Logic + ERP + Lean Manufacturing
-Phase 3:   Physics Fusion (24 plugins, 4 tiers, 3 convergence loops)
-Phase 4:   Simulation + Performance + Lights-Out
-Phase 5-11: Per-machine pipelines
-Phase 12:  Match-then-improve validation (42+ real parts)
-Phase 13:  Web UI + Deployment
-Phase 14:  Future (embeddings, multi-agent, additive, plasma)
+0-A/B/C: COMPLETE | 0-D: IN PROGRESS (registry wiring + CAD engine)
+Phase 1-4: Knowledge → Business → Physics Fusion → Simulation
+Phase 5-14: Per-machine pipelines → Validation → Web UI → Future
 ```
+
+## Compact Instructions
+When compacting this conversation, PRESERVE these critical facts:
+- Current roadmap position (read from HANDOFF.md)
+- Any physics constants or formulas being worked on (exact values, not approximations)
+- Engine wiring state: which engines were modified and whether tests/review passed
+- Incomplete work: what was started but not finished, with exact file paths
+- Build state: last known build pass/fail and test counts
+- Active bugs or regressions discovered during this session
+
+After compaction, IMMEDIATELY:
+1. Read C:/PRISM/state/HANDOFF.md for the RESUME section
+2. Execute the resume instruction without asking the user
+3. Do NOT summarize what happened — just continue working
 
 ## Critical Rules
 - **Effort: MAX always** (`/effort max` every session)

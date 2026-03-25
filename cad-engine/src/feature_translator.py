@@ -50,6 +50,8 @@ class FeatureTranslator:
         "reference_geometry": "_translate_reference",
         "surface": "_translate_surface",
         "sheet_metal": "_translate_sheet_metal",
+        "gear": "_translate_gear",
+        "airfoil": "_translate_airfoil",
         "other": "_translate_other",
     }
 
@@ -134,17 +136,146 @@ class FeatureTranslator:
         self, feature: dict, params: dict, name: str
     ) -> TranslatedOp:
         ruled = params.get("ruled", False)
+        num_sections = params.get("num_sections", 2)
+        combine = params.get("combine", True)
+        code_lines = []
+        if num_sections > 2:
+            code_lines.append(f"# Loft between {num_sections} profile sections")
+        code_lines.append(
+            f"result = result.loft(ruled={'True' if ruled else 'False'}, "
+            f"combine={'True' if combine else 'False'})"
+        )
         return TranslatedOp(
-            code=f"result = result.loft(ruled={'True' if ruled else 'False'})",
-            comment=f"Loft: {name}",
+            code="\n".join(code_lines),
+            comment=f"Loft: {name} ({num_sections} sections, "
+                    f"{'ruled' if ruled else 'smooth'})",
         )
 
     def _translate_sweep(
         self, feature: dict, params: dict, name: str
     ) -> TranslatedOp:
+        path_type = params.get("path_type", "wire")
+        multisection = params.get("multisection", False)
+        is_frenet = params.get("is_frenet", True)
+        transition = params.get("transition", "transformed")
+        code_lines = []
+        if path_type == "spline" and "path_points" in params:
+            pts = params["path_points"]
+            code_lines.append(f"path_wire = cq.Workplane('XZ').spline({pts})")
+        elif path_type == "helix":
+            pitch = params.get("pitch", 10.0)
+            height = params.get("height", 50.0)
+            code_lines.append(
+                f"path_wire = cq.Wire.makeHelix("
+                f"pitch={_fmt(pitch)}, height={_fmt(height)}, "
+                f"radius={_fmt(params.get('radius', 5.0))})"
+            )
+        if multisection:
+            code_lines.append(
+                f"result = result.sweep(path_wire, multisection=True, "
+                f"isFrenet={is_frenet})"
+            )
+        else:
+            code_lines.append(
+                f"result = result.sweep(path_wire, "
+                f"isFrenet={is_frenet}, "
+                f"transition='{transition}')"
+            )
         return TranslatedOp(
-            code="result = result.sweep(path_wire)",
-            comment=f"Sweep: {name} along path",
+            code="\n".join(code_lines),
+            comment=f"Sweep: {name} along {path_type} path",
+        )
+
+    def _translate_gear(
+        self, feature: dict, params: dict, name: str
+    ) -> TranslatedOp:
+        gear_type = params.get("gear_type", "spur")
+        module = params.get("module", 2.0)
+        teeth = params.get("teeth_number", 20)
+        width = params.get("width", 10.0)
+        pressure_angle = params.get("pressure_angle", 20.0)
+        bore_d = params.get("bore_diameter", 8.0)
+
+        gear_class_map = {
+            "spur": "SpurGear",
+            "bevel": "BevelGear",
+            "rack": "RackGear",
+            "ring": "RingGear",
+            "worm": "Worm",
+            "helical": "SpurGear",
+        }
+        cls = gear_class_map.get(gear_type, "SpurGear")
+
+        extra_args = ""
+        if gear_type == "bevel":
+            cone_angle = params.get("cone_angle", 45.0)
+            extra_args = f", cone_angle={_fmt(cone_angle)}, face_width={_fmt(width)}"
+        elif gear_type == "rack":
+            length = params.get("length", 100.0)
+            height = params.get("height", 15.0)
+            extra_args = (
+                f", length={_fmt(length)}, width={_fmt(width)}, "
+                f"height={_fmt(height)}"
+            )
+        elif gear_type == "worm":
+            lead_angle = params.get("lead_angle", 10.0)
+            n_threads = params.get("n_threads", 1)
+            extra_args = (
+                f", lead_angle={_fmt(lead_angle)}, "
+                f"n_threads={n_threads}, length={_fmt(width)}"
+            )
+        else:
+            helix = params.get("helix_angle", 0.0)
+            extra_args = f", width={_fmt(width)}, helix_angle={_fmt(helix)}"
+
+        code = (
+            f"import cq_gears\n"
+            f"gear_obj = cq_gears.{cls}("
+            f"module={_fmt(module)}, teeth_number={teeth}, "
+            f"pressure_angle={_fmt(pressure_angle)}, "
+            f"bore_d={_fmt(bore_d)}{extra_args})\n"
+            f"result = cq.Workplane('XY').gear(gear_obj)"
+        )
+        return TranslatedOp(
+            code=code,
+            imports={"cq_gears"},
+            comment=f"Gear: {name} ({gear_type}, m={module}, z={teeth})",
+        )
+
+    def _translate_airfoil(
+        self, feature: dict, params: dict, name: str
+    ) -> TranslatedOp:
+        airfoil_type = params.get("airfoil_type", "naca")
+        chord = params.get("chord_length", 100.0)
+        span = params.get("span", 200.0)
+
+        if airfoil_type == "naca":
+            naca_code = params.get("naca_code", "2412")
+            code = (
+                f"import parafoil\n"
+                f"foil = parafoil.NACAAirfoil('{naca_code}', {_fmt(chord)})\n"
+                f"coords = foil.get_coords()\n"
+                f"pts = [(c[0], c[1]) for c in coords]\n"
+                f"result = cq.Workplane('XY').polyline(pts).close()"
+                f".extrude({_fmt(span)})"
+            )
+        else:
+            inlet = params.get("inlet_angle", 0.0)
+            outlet = params.get("outlet_angle", 0.0)
+            code = (
+                f"import parafoil\n"
+                f"foil = parafoil.CamberThicknessAirfoil("
+                f"{_fmt(inlet)}, {_fmt(outlet)}, {_fmt(chord)}, "
+                f"angle_units='deg')\n"
+                f"coords = foil.get_coords()\n"
+                f"pts = [(c[0], c[1]) for c in coords]\n"
+                f"result = cq.Workplane('XY').polyline(pts).close()"
+                f".extrude({_fmt(span)})"
+            )
+        return TranslatedOp(
+            code=code,
+            imports={"parafoil"},
+            comment=f"Airfoil: {name} ({airfoil_type}, chord={chord}mm)",
         )
 
     def _translate_fillet(

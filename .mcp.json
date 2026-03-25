@@ -18,22 +18,35 @@
         "C:/PRISM/cad-engine/mcp_cad_converter.py"
       ]
     },
-    "grafana": {
-      "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "mcp-grafana"
-      ],
-      "env": {
-        "GRAFANA_URL": "http://localhost:3000",
-        "GRAFANA_SERVICE_ACCOUNT_TOKEN": ""
-      }
-    },
     "cqask": {
       "type": "stdio",
       "command": "C:/Users/Admin.DIGITALSTORM-PC/AppData/Local/Programs/Python/Python312/python.exe",
       "args": [
         "C:/PRISM/cqask/mcp_cqask_server.py"
+      ]
+    },
+    "eslint": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@eslint/mcp@latest"
+      ]
+    },
+    "vitest": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@djankies/vitest-mcp"
+      ]
+    },
+    "excel": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@negokaz/excel-mcp-server"
       ]
     }
   }

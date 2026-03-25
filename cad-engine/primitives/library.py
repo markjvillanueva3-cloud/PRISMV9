@@ -780,7 +780,217 @@ DOVETAIL = PrimitiveDef(
 
 
 # ============================================================================
-# Registry — all 20 primitives
+# 21. spur_gear — involute spur gear via cq_gears
+# ============================================================================
+
+def _spur_gear_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import cq_gears\n\n"
+        f"gear = cq_gears.SpurGear(\n"
+        f"    module={_f(p['module'])},\n"
+        f"    teeth_number={p['teeth_number']},\n"
+        f"    width={_f(p['width'])},\n"
+        f"    pressure_angle={_f(p['pressure_angle'])},\n"
+        f"    helix_angle={_f(p['helix_angle'])},\n"
+        f"    bore_d={_f(p['bore_diameter'])},\n"
+        f")\n"
+        f"result = cq.Workplane('XY').gear(gear)"
+    )
+
+SPUR_GEAR = PrimitiveDef(
+    name="spur_gear",
+    description="Involute spur gear with configurable module, teeth, and bore",
+    tags=["gear", "power_transmission", "involute", "spur"],
+    params={
+        "module": ParamSpec("module", "float", 2.0, "mm", 0.3, 20.0, "Gear module (tooth size)"),
+        "teeth_number": ParamSpec("teeth_number", "int", 20, "", 6, 200, "Number of teeth"),
+        "width": ParamSpec("width", "float", 10.0, "mm", 1.0, 200.0, "Face width"),
+        "pressure_angle": ParamSpec("pressure_angle", "float", 20.0, "deg", 14.5, 30.0, "Pressure angle"),
+        "helix_angle": ParamSpec("helix_angle", "float", 0.0, "deg", 0.0, 45.0, "Helix angle (0 = straight)"),
+        "bore_diameter": ParamSpec("bore_diameter", "float", 8.0, "mm", 0.0, 100.0, "Center bore diameter"),
+    },
+    processes=["hobbing", "milling", "wire_edm"],
+    tooling=["gear_hob", "end_mill", "wire_edm"],
+    _code_fn=_spur_gear_code,
+)
+
+# ============================================================================
+# 22. bevel_gear — conical gear for angled shaft power transmission
+# ============================================================================
+
+def _bevel_gear_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import cq_gears\n\n"
+        f"gear = cq_gears.BevelGear(\n"
+        f"    module={_f(p['module'])},\n"
+        f"    teeth_number={p['teeth_number']},\n"
+        f"    cone_angle={_f(p['cone_angle'])},\n"
+        f"    face_width={_f(p['face_width'])},\n"
+        f"    pressure_angle={_f(p['pressure_angle'])},\n"
+        f"    bore_d={_f(p['bore_diameter'])},\n"
+        f")\n"
+        f"result = cq.Workplane('XY').gear(gear)"
+    )
+
+BEVEL_GEAR = PrimitiveDef(
+    name="bevel_gear",
+    description="Conical bevel gear for angled shaft power transmission",
+    tags=["gear", "power_transmission", "bevel", "conical"],
+    params={
+        "module": ParamSpec("module", "float", 2.0, "mm", 0.3, 20.0, "Gear module"),
+        "teeth_number": ParamSpec("teeth_number", "int", 20, "", 6, 200, "Number of teeth"),
+        "cone_angle": ParamSpec("cone_angle", "float", 45.0, "deg", 5.0, 85.0, "Pitch cone half-angle"),
+        "face_width": ParamSpec("face_width", "float", 10.0, "mm", 1.0, 100.0, "Face width"),
+        "pressure_angle": ParamSpec("pressure_angle", "float", 20.0, "deg", 14.5, 30.0, "Pressure angle"),
+        "bore_diameter": ParamSpec("bore_diameter", "float", 8.0, "mm", 0.0, 100.0, "Center bore diameter"),
+    },
+    processes=["hobbing", "milling", "grinding"],
+    tooling=["gear_hob", "bevel_gear_cutter"],
+    _code_fn=_bevel_gear_code,
+)
+
+# ============================================================================
+# 23. rack_gear — linear gear for linear-to-rotary motion conversion
+# ============================================================================
+
+def _rack_gear_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import cq_gears\n\n"
+        f"gear = cq_gears.RackGear(\n"
+        f"    module={_f(p['module'])},\n"
+        f"    length={_f(p['length'])},\n"
+        f"    width={_f(p['width'])},\n"
+        f"    height={_f(p['height'])},\n"
+        f"    pressure_angle={_f(p['pressure_angle'])},\n"
+        f")\n"
+        f"result = cq.Workplane('XY').gear(gear)"
+    )
+
+RACK_GEAR = PrimitiveDef(
+    name="rack_gear",
+    description="Linear rack gear for rack-and-pinion mechanisms",
+    tags=["gear", "power_transmission", "rack", "linear"],
+    params={
+        "module": ParamSpec("module", "float", 2.0, "mm", 0.3, 20.0, "Gear module"),
+        "length": ParamSpec("length", "float", 100.0, "mm", 10.0, 2000.0, "Rack length"),
+        "width": ParamSpec("width", "float", 20.0, "mm", 3.0, 200.0, "Rack width"),
+        "height": ParamSpec("height", "float", 15.0, "mm", 3.0, 100.0, "Rack height"),
+        "pressure_angle": ParamSpec("pressure_angle", "float", 20.0, "deg", 14.5, 30.0, "Pressure angle"),
+    },
+    processes=["hobbing", "milling", "broaching"],
+    tooling=["gear_hob", "end_mill", "broach"],
+    _code_fn=_rack_gear_code,
+)
+
+# ============================================================================
+# 24. ring_gear — internal gear for planetary gear systems
+# ============================================================================
+
+def _ring_gear_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import cq_gears\n\n"
+        f"gear = cq_gears.RingGear(\n"
+        f"    module={_f(p['module'])},\n"
+        f"    teeth_number={p['teeth_number']},\n"
+        f"    width={_f(p['width'])},\n"
+        f"    rim_width={_f(p['rim_width'])},\n"
+        f"    pressure_angle={_f(p['pressure_angle'])},\n"
+        f"    bore_d={_f(p['bore_diameter'])},\n"
+        f")\n"
+        f"result = cq.Workplane('XY').gear(gear)"
+    )
+
+RING_GEAR = PrimitiveDef(
+    name="ring_gear",
+    description="Internal ring gear for planetary gear systems",
+    tags=["gear", "power_transmission", "ring", "internal", "planetary"],
+    params={
+        "module": ParamSpec("module", "float", 2.0, "mm", 0.3, 20.0, "Gear module"),
+        "teeth_number": ParamSpec("teeth_number", "int", 40, "", 12, 300, "Number of teeth"),
+        "width": ParamSpec("width", "float", 10.0, "mm", 1.0, 200.0, "Face width"),
+        "rim_width": ParamSpec("rim_width", "float", 5.0, "mm", 1.0, 50.0, "Rim thickness beyond tooth root"),
+        "pressure_angle": ParamSpec("pressure_angle", "float", 20.0, "deg", 14.5, 30.0, "Pressure angle"),
+        "bore_diameter": ParamSpec("bore_diameter", "float", 0.0, "mm", 0.0, 200.0, "Center bore diameter"),
+    },
+    processes=["wire_edm", "broaching", "milling"],
+    tooling=["wire_edm", "broach", "slotting_cutter"],
+    _code_fn=_ring_gear_code,
+)
+
+# ============================================================================
+# 25. worm_gear — worm screw for high-ratio speed reduction
+# ============================================================================
+
+def _worm_gear_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import cq_gears\n\n"
+        f"gear = cq_gears.Worm(\n"
+        f"    module={_f(p['module'])},\n"
+        f"    lead_angle={_f(p['lead_angle'])},\n"
+        f"    n_threads={p['n_threads']},\n"
+        f"    length={_f(p['length'])},\n"
+        f"    pressure_angle={_f(p['pressure_angle'])},\n"
+        f"    bore_d={_f(p['bore_diameter'])},\n"
+        f")\n"
+        f"result = cq.Workplane('XY').gear(gear)"
+    )
+
+WORM_GEAR = PrimitiveDef(
+    name="worm_gear",
+    description="Worm screw for high-ratio speed reduction drives",
+    tags=["gear", "power_transmission", "worm", "speed_reduction"],
+    params={
+        "module": ParamSpec("module", "float", 2.0, "mm", 0.3, 20.0, "Gear module"),
+        "lead_angle": ParamSpec("lead_angle", "float", 10.0, "deg", 1.0, 45.0, "Lead angle"),
+        "n_threads": ParamSpec("n_threads", "int", 1, "", 1, 6, "Number of thread starts"),
+        "length": ParamSpec("length", "float", 40.0, "mm", 5.0, 500.0, "Worm length"),
+        "pressure_angle": ParamSpec("pressure_angle", "float", 20.0, "deg", 14.5, 30.0, "Pressure angle"),
+        "bore_diameter": ParamSpec("bore_diameter", "float", 8.0, "mm", 0.0, 100.0, "Center bore diameter"),
+    },
+    processes=["hobbing", "milling", "grinding", "turning"],
+    tooling=["gear_hob", "thread_mill", "grinding_wheel"],
+    _code_fn=_worm_gear_code,
+)
+
+# ============================================================================
+# 26. naca_airfoil — NACA 4-digit airfoil profile extruded to span
+# ============================================================================
+
+def _naca_airfoil_code(p: dict) -> str:
+    return (
+        f"import cadquery as cq\n"
+        f"import parafoil\n\n"
+        f"foil = parafoil.NACAAirfoil('{p['naca_code']}', {_f(p['chord_length'])})\n"
+        f"coords = foil.get_coords()\n"
+        f"pts = [(c[0], c[1]) for c in coords]\n"
+        f"result = (\n"
+        f"    cq.Workplane('XY')\n"
+        f"    .polyline(pts).close()\n"
+        f"    .extrude({_f(p['span'])})\n"
+        f")"
+    )
+
+NACA_AIRFOIL = PrimitiveDef(
+    name="naca_airfoil",
+    description="NACA 4-digit airfoil profile extruded to a given span",
+    tags=["airfoil", "aerodynamic", "naca", "profile", "wing"],
+    params={
+        "naca_code": ParamSpec("naca_code", "str", "2412", "", None, None, "NACA 4-digit code (e.g. 2412, 0012)"),
+        "chord_length": ParamSpec("chord_length", "float", 100.0, "mm", 10.0, 2000.0, "Chord length"),
+        "span": ParamSpec("span", "float", 200.0, "mm", 5.0, 5000.0, "Extrusion span"),
+    },
+    processes=["milling", "wire_edm"],
+    tooling=["ball_end_mill", "wire_edm"],
+    _code_fn=_naca_airfoil_code,
+)
+
+# ============================================================================
+# Registry — all 26 primitives
 # ============================================================================
 
 PRIMITIVES: dict[str, PrimitiveDef] = {
@@ -805,5 +1015,11 @@ PRIMITIVES: dict[str, PrimitiveDef] = {
         THREAD_RELIEF,
         UNDERCUT,
         DOVETAIL,
+        SPUR_GEAR,
+        BEVEL_GEAR,
+        RACK_GEAR,
+        RING_GEAR,
+        WORM_GEAR,
+        NACA_AIRFOIL,
     ]
 }

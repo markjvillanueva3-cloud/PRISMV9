@@ -373,6 +373,67 @@ def center_of_mass(solid: cq.Workplane) -> Vec3:
     return Vec3(com.X(), com.Y(), com.Z())
 
 
+def topology_counts(solid: cq.Workplane) -> dict[str, int]:
+    """Count topological entities (solids, faces, edges, vertices)."""
+    return {
+        "solids": len(solid.solids().vals()),
+        "faces": len(solid.faces().vals()),
+        "edges": len(solid.edges().vals()),
+        "vertices": len(solid.vertices().vals()),
+    }
+
+
+def introspect(solid: cq.Workplane) -> dict:
+    """Unified geometry introspection — bbox, volume, area, CoM, topology.
+
+    Returns a single dict with all measurable properties of the solid.
+    Mirrors CQAsk's _get_object_info() pattern but uses PRISM's existing
+    kernel functions for accuracy. Each property is fault-tolerant.
+
+    NOTE: This is a baseline implementation. Future work should add:
+    - Moment of inertia tensor
+    - Feature recognition summary (holes, pockets, bosses detected)
+    - Symmetry detection
+    - Minimum bounding cylinder / OBB
+    - Wall thickness analysis
+    """
+    info: dict = {}
+
+    try:
+        bb = bounding_box(solid)
+        info["bounding_box"] = {
+            "min": bb.min.as_tuple(),
+            "max": bb.max.as_tuple(),
+            "size_mm": bb.size.as_tuple(),
+            "center": bb.center.as_tuple(),
+        }
+    except Exception:
+        pass
+
+    try:
+        info["volume_mm3"] = round(volume(solid), 4)
+    except Exception:
+        pass
+
+    try:
+        info["surface_area_mm2"] = round(surface_area(solid), 4)
+    except Exception:
+        pass
+
+    try:
+        com = center_of_mass(solid)
+        info["center_of_mass"] = com.as_tuple()
+    except Exception:
+        pass
+
+    try:
+        info["topology"] = topology_counts(solid)
+    except Exception:
+        pass
+
+    return info
+
+
 # ---------------------------------------------------------------------------
 # Convenience: box, cylinder, sphere
 # ---------------------------------------------------------------------------

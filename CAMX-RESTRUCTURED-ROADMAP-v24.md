@@ -2437,34 +2437,62 @@ UNITS: U-CAD1, U-CAD2
 
 KNOWLEDGE SOURCES:
   - C:/PRISM/cad-engine/ — 176 Python files, CadQuery 2.x + OpenCascade (OCP)
-  - C:/PRISM/cad-engine/src/cad_kernel.py — 436 lines, 25+ solid modeling operations
+  - C:/PRISM/cad-engine/src/cad_kernel.py — solid modeling ops + introspect() unified geometry analysis
+  - C:/PRISM/cad-engine/src/feature_translator.py — feature→CadQuery: gear, airfoil, sweep (helix/spline), loft (multi-section)
+  - C:/PRISM/cad-engine/primitives/library.py — 26 primitives (20 mfg + 5 gears + 1 airfoil via cq_gears/parafoil)
+  - C:/PRISM/cad-engine/src/prompts/cad_prompts.py — extraction prompt + CADQUERY_CODEGEN_PROMPT (full API ref)
+  - C:/PRISM/cad-engine/mcp_cad_converter.py — MCP server: 5 tools, STEP/IGES/STL/BREP/DXF/3MF/glTF
+  - C:/PRISM/cqask/ — CQAsk clone: conversational CadQuery MCP (4 tools), dual LLM provider
   - C:/PRISM/mcp-server/src/engines/CadQueryCodeGeneratorEngine.ts — generates CadQuery scripts
   - C:/PRISM/mcp-server/scripts/cadquery-executor.py — executes CadQuery → STEP/STL
   - C:/PRISM/BOX/PART MODELS FOR LEARNING ENGINE/ — 33 production STEP files
   - C:/PRISM/cad-engine/exports/ — 23 generated STEP files, 10 roundtrip verifications
+  - HuggingFace datasets (NOT YET DOWNLOADED): CADCoder/GenCAD-Code (163K image→CadQuery pairs),
+    ricemonster/NeurIPS11092 (170K text→CadQuery pairs) — sketch-extrude only, no holes/fillets/threads
+
+BASELINE (added 2026-03-24 from scout/CQAsk merge):
+  - Primitives: 26 total (20 mfg + spur/bevel/rack/ring/worm gears + NACA airfoil)
+  - Feature translator: gear (6 types), airfoil (NACA + camber-thickness), sweep (helix/spline/Frenet),
+    loft (multi-section/ruled/smooth) — all with correct cq_gears/parafoil imports
+  - Code-gen prompt: CADQUERY_CODEGEN_PROMPT — complete CadQuery API ref (30+ methods, selectors,
+    patterns, assemblies, gear/airfoil libs, 3 worked examples). EXTRACTION prompt already existed.
+  - Geometry introspection: cad_kernel.introspect() — bbox, volume, surface area, CoM, topology counts
+  - MCP servers: cad-converter (batch STEP/STL/etc), cqask (NL→CadQuery generation)
+  - GAPS STILL OPEN: no moment-of-inertia, no feature recognition from introspect, no symmetry
+    detection, no wall thickness analysis, no parametric CurveArc/thread/helix primitives,
+    no assembly primitives, code-gen prompt not yet wired into CadQueryCodeGeneratorEngine.ts,
+    HuggingFace datasets not downloaded, sweep/loft translators untested on complex geometry
 
 INTENT:
-  CadQuery/OpenCascade CAD kernel EXISTS but isn't deeply wired into the MCP pipeline.
+  CadQuery/OpenCascade CAD kernel EXISTS with solid baseline capabilities (26 primitives,
+  code-gen prompt, introspection, gear/airfoil support). Wire it deeper into the MCP pipeline.
   120 CAD models exist but no test compares generated geometry to reference.
   Wire the CAD engine and prove PRISM can READ a part, UNDERSTAND features, RECREATE it.
 
 WORK:
   U-CAD1: Audit + wire CAD engine capabilities
     - Map cad_kernel.py (Python) vs CADKernelEngine.ts (TypeScript): which is canonical for what?
-    - Python path: solid modeling (extrude, revolve, loft, boolean ops)
+    - Python path: solid modeling (extrude, revolve, loft, boolean ops) + 26 primitives + introspect()
     - TypeScript path: lightweight geometry analysis (NURBS eval, BVH, Voronoi)
     - Wire cadquery-executor.py as solid modeling backend
+    - Wire CADQUERY_CODEGEN_PROMPT into CadQueryCodeGeneratorEngine.ts (prompt exists, not yet connected)
     - Verify CadQueryCodeGeneratorEngine → executor → STEP output works end-to-end
+    - Test gear primitives: generate spur/bevel/rack via cq_gears, verify STEP export
+    - Test airfoil primitives: generate NACA 2412 via parafoil, verify STEP export
     → /compact
 
   U-CAD2: CAD validation test suite
     - Roundtrip test: 10 reference_parts/ → STEP import → features → CadQuery regen → STEP export
-    - Compare: volume ±1%, surface area ±2%, bounding box ±0.1mm, feature count exact
+    - Compare using introspect(): volume ±1%, surface area ±2%, bounding box ±0.1mm, topology exact
     - Production part test: 5 BOX STEP files → attempt to recreate from extracted features
     - Full pipeline test: STEP → FeatureRecognition → ProcessPlan → S/F → G-code
+    - Sweep/loft stress test: helix sweep, spline sweep, 3+ section loft on non-trivial geometry
+    - Consider: download HuggingFace datasets (163K+170K) as extended test fixtures (sketch-extrude only)
     → /compact
 
 EXIT GATE: ✓ CAD roundtrip passes for 10 parts + 5 production parts attempted + full pipeline tested
+           ✓ introspect() produces valid metrics for all roundtrip parts
+           ✓ gear + airfoil primitives generate valid STEP files
 ```
 
 **`/compact` → new session**
@@ -2498,7 +2526,128 @@ WORK:
 EXIT GATE: ✓ All 3 directories audited + unmigrated capabilities identified + BOX index verified
 ```
 
-**`/compact` CHECKPOINT 0-D COMPLETE (including fusion + CAD + sync + broad audit)**
+---
+
+### SESSION 0-D-TORQUE: Machine Spindle Torque Curve Acquisition (910 machines → validated power envelopes)
+```
+SMART CONFIG: Role=mechanical engineer + data engineer + manufacturing domain expert | OPUS | MAX
+UNITS: U-TQ1, U-TQ2, U-TQ3, U-TQ4
+ESTIMATED CONTEXT: 60-70% per session (heavy data work + web research + validation)
+
+KNOWLEDGE SOURCES:
+  - C:/PRISM/mcp-server/src/data/machine-profiles-catalog-ext2.ts — 679 machines, single-point torque_nm
+  - C:/PRISM/mcp-server/src/data/machine-profiles-catalog-ext.ts — 180 machines
+  - C:/PRISM/mcp-server/src/data/machine-profiles-catalog.ts — 54 machines (may overlap)
+  - C:/PRISM/mcp-server/src/engines/SpindleTorqueCurveEngine.ts — two-region model (constant torque / constant power)
+  - C:/PRISM/mcp-server/src/engines/SpeedFeedOrchestratorEngine.ts — 80% power budget, torque check (lines ~1800-1900)
+  - C:/PRISM/mcp-server/src/data/machine-kinematics-enriched.ts — 430KB drive type data (belt/direct/gear/integral)
+  - Manufacturer spec sheets: Haas, Okuma, Mazak, DMG Mori, Makino, Doosan, Matsuura, Hermle, Hurco, Mori Seiki
+  - HSMAdvisor community machine profiles (via HSMAdvisorCore.dll if accessible, else manual reference)
+  - Machine manuals in BOX: C:\Users\Admin.DIGITALSTORM-PC\Box\ (check for spindle spec PDFs)
+  - GWizard machine database (desktop reference if available)
+
+INTENT:
+  910 machines have single-point torque_nm and power_kw values but NO RPM-dependent torque curves.
+  SpindleTorqueCurveEngine models the two-region power envelope (constant torque below base speed,
+  constant power above) but most machine entries lack the critical base_speed_rpm parameter needed
+  to compute the curve. Without real curves, PRISM cannot detect:
+  - Torque starvation at low RPM (large tools, tough materials)
+  - Power limiting at high RPM (small tools, high-speed aluminum)
+  - Optimal RPM pockets between torque and power limits
+  - Gear range transitions (machines with 2-3 speed gearboxes)
+
+  This data directly feeds SpeedFeedOrchestratorEngine's torque/power checks, ChatterStabilityLobeEngine's
+  RPM selection, and every pipeline's final S/F validation. Without it, PRISM's physics advantage over
+  tools like HSMAdvisor is incomplete — we have the models but not the machine-specific data to drive them.
+
+  GOAL: Every machine in the database gets a validated torque-power envelope with base speed, peak torque,
+  continuous rating, and gear range breakpoints where applicable.
+
+WORK:
+  U-TQ1: Audit + classify machine spindle data
+    - Read all 3 machine profile catalogs, extract unique machines
+    - For each machine: catalog what exists (max_rpm, power_kw, torque_nm, taper, drive_type)
+    - Classify into tiers:
+      TIER-A: Has torque_nm + power_kw + base_speed_rpm + drive_type (curve computable) → how many?
+      TIER-B: Has torque_nm + power_kw but MISSING base_speed_rpm (curve estimable from P=T×ω) → how many?
+      TIER-C: Missing torque OR power (needs manufacturer lookup) → how many?
+    - Cross-reference machine-kinematics-enriched.ts for drive_type (belt/direct/gear/integral)
+    - Identify machines with known gearbox (gear drive → multiple torque ranges)
+    - Priority list: YOUR shop machines first (Haas, Okuma, Hurco from BOX data), then top 50 by popularity
+    - Output: C:/PRISM/state/torque-curve-audit.json with per-machine classification
+    → /compact
+
+  U-TQ2: Retrieve torque curves — Tier A+B machines (computable/estimable)
+    - For TIER-B machines: compute base_speed_rpm from P_kw = T_nm × (2π × RPM_base / 60000)
+      → RPM_base = (P_kw × 60000) / (2π × T_nm)
+    - For each machine with known drive type:
+      BELT DRIVE: Single constant-torque/constant-power curve, base speed from P=Tω
+      DIRECT DRIVE: Flat torque to max RPM (electric motor characteristic), may have field weakening
+      GEAR DRIVE: Multiple torque ranges (low gear: high torque / low RPM, high gear: low torque / high RPM)
+        → Need gear ratios or at minimum 2 torque-speed points per gear
+      INTEGRAL: Motor-in-spindle, typically flat torque with thermal derating above continuous duty
+    - Generate torque curve arrays: [{rpm: N, torque_nm: T, power_kw: P}] at 10+ RPM points per machine
+    - For YOUR shop machines (Haas VF-2, Okuma Multus, Hurco):
+      → Check BOX for actual machine manuals with spindle spec sheets
+      → Use exact manufacturer data, not estimates
+    - Validate: T_curve(max_rpm) × max_rpm = rated_power_kw (energy conservation check)
+    - Output: torque_curves field added to each machine profile
+    → /compact
+
+  U-TQ3: Web research — Tier C machines + gear-drive specifics
+    - For TIER-C machines missing torque or power: search manufacturer spec sheets
+      → WebSearch per manufacturer: "Haas VF-2 spindle torque curve specifications"
+      → WebSearch: "DMG Mori NLX 2500 spindle power diagram"
+      → WebSearch: "Okuma MULTUS spindle torque specifications"
+    - For gear-drive machines: find gear range specifications
+      → Most manufacturers publish torque at low gear and high gear
+      → Some publish full S-N diagrams (speed vs torque with gear transitions)
+    - Cross-reference against HSMAdvisor database where available
+    - Cross-reference against GWizard machine profiles where available
+    - For machines where NO data is findable:
+      → Estimate from similar machines in same class (same power/taper/drive type)
+      → Mark confidence: "manufacturer_spec" vs "estimated_from_class" vs "computed_from_PT"
+    - /prism-review with physics-reviewer agent on curve data
+    → /compact
+
+  U-TQ4: Wire curves into physics pipeline + validation tests
+    - Update SpindleTorqueCurveEngine to accept curve arrays (not just two-region model)
+      → Interpolate between curve points for any RPM query
+      → Support multi-gear machines (select gear by RPM range)
+      → Continuous vs 30-min vs S3 duty ratings if available
+    - Update SpeedFeedOrchestratorEngine to use real curves:
+      → Replace: torque_check = Fc * D/2 < max_torque (single point)
+      → With: torque_check = Fc * D/2 < torque_at_rpm(selected_rpm) (curve lookup)
+      → Add: power_check = Pc < power_at_rpm(selected_rpm) (not just rated power)
+    - Write validation tests:
+      → Test: Haas VF-2 at 500 RPM must return constant-torque region value
+      → Test: Haas VF-2 at 8000 RPM must return constant-power region value
+      → Test: gear-drive machine selects correct gear for requested RPM
+      → Test: SpeedFeedOrchestrator rejects S/F that exceeds torque curve
+      → Test: same material/tool on two different machines gives different optimal RPM
+      → Golden test: compare PRISM torque limit vs HSMAdvisor for 5 common setups
+    - Update MachineRegistry interface to include torque_curve field
+    - Update MachineProfileEngine to expose curve data via MCP action
+    → /compact
+
+EXIT GATE:
+  ✓ All 910 machines classified (TIER-A/B/C counts documented)
+  ✓ YOUR shop machines have manufacturer-verified torque curves
+  ✓ Top 50 machines by popularity have validated curves
+  ✓ Remaining machines have computed/estimated curves with confidence ratings
+  ✓ SpindleTorqueCurveEngine accepts and interpolates real curve data
+  ✓ SpeedFeedOrchestratorEngine uses curve-based torque/power checks
+  ✓ Gear-drive machines correctly model multiple speed ranges
+  ✓ 10+ validation tests pass including cross-machine comparison
+  ✓ Energy conservation check: T(RPM) × RPM = P(RPM) for all curve points
+  ✓ /prism-review with physics-reviewer confirms curve data integrity
+```
+
+**`/compact` → new session**
+
+---
+
+**`/compact` CHECKPOINT 0-D COMPLETE (including fusion + CAD + sync + torque curves + broad audit)**
 
 ---
 
