@@ -9,6 +9,10 @@ export interface SfcCalculateRequest {
   depth?: number;
   width?: number;
   coolant?: string;
+  /** Composite speed multiplier (priority × toolpath strategy) */
+  speed_multiplier?: number;
+  /** Composite feed multiplier (priority × CAM software × toolpath strategy) */
+  feed_multiplier?: number;
 }
 
 /** Speed & feed result */

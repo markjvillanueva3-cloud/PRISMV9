@@ -1,13 +1,31 @@
 import { useState, useCallback, useMemo } from "react";
+
+// Machine mode & config
+import MachineModeTabs from "../components/sfc/MachineModeTabs";
+import MachineConfigPanel, { type MachineConfig } from "../components/sfc/MachineConfigPanel";
+import type { MachineMode } from "../data/machineModes";
+import { getModeConfig } from "../data/machineModes";
+
+// Left column components
 import SmartMaterialSelector from "../components/sfc/SmartMaterialSelector";
-import OperationSelector from "../components/sfc/OperationSelector";
-import SmartToolSelector from "../components/sfc/SmartToolSelector";
-import SmartMachineSelector from "../components/sfc/SmartMachineSelector";
+import StockDimensions, { type StockDims } from "../components/sfc/StockDimensions";
+
+// Center column components
+import CamSoftwareSelector from "../components/sfc/CamSoftwareSelector";
+import CuttingPrioritySelector from "../components/sfc/CuttingPrioritySelector";
+import ToolpathStrategySelector from "../components/sfc/ToolpathStrategySelector";
 import ParameterPanel, { type SfcParams } from "../components/sfc/ParameterPanel";
 import ResultsDisplay from "../components/sfc/ResultsDisplay";
-import CompatibilityValidator, {
-  type Suggestion,
-} from "../components/sfc/CompatibilityValidator";
+import CompatibilityValidator, { type Suggestion } from "../components/sfc/CompatibilityValidator";
+
+// Right column components
+import SmartToolSelector from "../components/sfc/SmartToolSelector";
+import SmartMachineSelector from "../components/sfc/SmartMachineSelector";
+import ToolHolderSelector, { type ToolHolderConfig } from "../components/sfc/ToolHolderSelector";
+import InsertSelector, { type InsertConfig } from "../components/sfc/InsertSelector";
+import FixtureSelector from "../components/sfc/FixtureSelector";
+
+// Tabs & extras
 import ComparisonView from "../components/sfc/ComparisonView";
 import PresetManager from "../components/sfc/PresetManager";
 import CalculationHistory from "../components/sfc/CalculationHistory";
@@ -22,6 +40,10 @@ import type { OperationType } from "../data/operations";
 import { getOperationById } from "../data/operations";
 import type { CuttingToolEntry } from "../data/tools";
 import type { MachineEntry } from "../data/machines";
+import type { CamSelection } from "../data/camSoftware";
+import { getCamFeedMultiplier } from "../data/camSoftware";
+import type { ToolpathStrategy, CuttingPriority } from "../data/toolpathStrategies";
+import { CUTTING_PRIORITIES } from "../data/toolpathStrategies";
 import {
   type CalcSnapshot,
   type SfcPreset,
@@ -38,23 +60,101 @@ const DEFAULT_PARAMS: SfcParams = {
   coolant: "flood",
 };
 
+const DEFAULT_STOCK: StockDims = {
+  shapeId: "plate",
+  values: { length: 152.4, width: 101.6, height: 50.8 },
+};
+
+const DEFAULT_MACHINE_CFG: MachineConfig = {
+  controllerId: "",
+  spindleId: "",
+  atcId: "",
+};
+
+const DEFAULT_HOLDER: ToolHolderConfig = {
+  taperId: "",
+  holderId: "",
+  shankDiameter: 12,
+  overhang: "standard",
+};
+
+const DEFAULT_INSERT: InsertConfig = {
+  gradeId: "medium",
+  coatingId: "altin",
+  geometryId: "",
+};
+
 type RightTab = "charts" | "compare" | "history";
 
 export default function SfcCalculatorPage() {
+  // Machine mode + sub-operation (replaces OperationSelector)
+  const [machineMode, setMachineMode] = useState<MachineMode>("mill");
+  const modeConfig = getModeConfig(machineMode);
+  const [subOperation, setSubOperation] = useState<string | null>(
+    modeConfig.subOperations[0]?.id ?? null,
+  );
+
+  // Left column state
   const [material, setMaterial] = useState<MaterialEntry | null>(null);
+  const [machineConfig, setMachineConfig] = useState<MachineConfig>(DEFAULT_MACHINE_CFG);
+  const [stockDims, setStockDims] = useState<StockDims>(DEFAULT_STOCK);
+
+  // Center column state
   const [operation, setOperation] = useState<OperationType | null>(null);
-  const [tool, setTool] = useState<CuttingToolEntry | null>(null);
-  const [machine, setMachine] = useState<MachineEntry | null>(null);
+  const [camSelection, setCamSelection] = useState<CamSelection | null>(null);
+  const [cuttingPriority, setCuttingPriority] = useState<CuttingPriority>("balanced");
+  const [toolpathStrategy, setToolpathStrategy] = useState<ToolpathStrategy | null>(null);
   const [params, setParams] = useState<SfcParams>(DEFAULT_PARAMS);
   const [imperial, setImperial] = useState(false);
+
+  // Right column state
+  const [tool, setTool] = useState<CuttingToolEntry | null>(null);
+  const [machine, setMachine] = useState<MachineEntry | null>(null);
+  const [toolHolder, setToolHolder] = useState<ToolHolderConfig>(DEFAULT_HOLDER);
+  const [insertConfig, setInsertConfig] = useState<InsertConfig>(DEFAULT_INSERT);
+  const [fixtureId, setFixtureId] = useState<string | null>(null);
+
+  // Results & history
   const [comparison, setComparison] = useState<CalcSnapshot[]>(loadComparison);
   const [fullHistory, setFullHistory] = useState<CalcSnapshot[]>(loadFullHistory);
   const [rightTab, setRightTab] = useState<RightTab>("charts");
   const calc = useSfcCalculate();
 
+  // Mode change resets downstream selections
+  const handleModeChange = useCallback((mode: MachineMode) => {
+    setMachineMode(mode);
+    setOperation(null);
+    setTool(null);
+    setToolpathStrategy(null);
+    setMachineConfig(DEFAULT_MACHINE_CFG);
+    setToolHolder(DEFAULT_HOLDER);
+    setFixtureId(null);
+    const cfg = getModeConfig(mode);
+    const defaultShape = cfg.stockShapes[0] || "plate";
+    setStockDims({ shapeId: defaultShape, values: DEFAULT_STOCK.values });
+    // Auto-select first sub-operation and load its defaults
+    const firstSub = cfg.subOperations[0]?.id ?? null;
+    setSubOperation(firstSub);
+    if (firstSub) {
+      const op = getOperationById(firstSub);
+      if (op) {
+        setOperation(op);
+        setParams({
+          tool_diameter: op.defaults.tool_diameter,
+          number_of_teeth: op.defaults.number_of_teeth,
+          depth: op.defaults.depth,
+          width: op.defaults.width,
+          tool_material: op.defaults.tool_material,
+          coolant: op.defaults.coolant,
+        });
+      }
+    }
+  }, []);
+
   const handleOperationChange = useCallback((op: OperationType) => {
     setOperation(op);
     setTool(null);
+    setToolpathStrategy(null);
     setParams({
       tool_diameter: op.defaults.tool_diameter,
       number_of_teeth: op.defaults.number_of_teeth,
@@ -64,6 +164,17 @@ export default function SfcCalculatorPage() {
       coolant: op.defaults.coolant,
     });
   }, []);
+
+  /** When a sub-operation pill is clicked, map it to the matching OperationType */
+  const handleSubOperationChange = useCallback((subOpId: string | null) => {
+    setSubOperation(subOpId);
+    if (subOpId) {
+      const op = getOperationById(subOpId);
+      if (op) handleOperationChange(op);
+    } else {
+      setOperation(null);
+    }
+  }, [handleOperationChange]);
 
   const handleMaterialChange = useCallback((mat: MaterialEntry) => {
     setMaterial(mat);
@@ -79,6 +190,17 @@ export default function SfcCalculatorPage() {
       tool_material: t.substrate,
     }));
   }, []);
+
+  const handleToolpathChange = useCallback((strategy: ToolpathStrategy | null) => {
+    setToolpathStrategy(strategy);
+    if (strategy && operation) {
+      setParams((prev) => ({
+        ...prev,
+        depth: +(operation.defaults.depth * strategy.docMultiplier).toFixed(3),
+        width: +(operation.defaults.width * strategy.wocMultiplier).toFixed(3),
+      }));
+    }
+  }, [operation]);
 
   const handleSuggestion = useCallback((suggestion: Suggestion) => {
     switch (suggestion.type) {
@@ -113,6 +235,8 @@ export default function SfcCalculatorPage() {
 
   const handleCalculate = async () => {
     if (!material || !operation) return;
+    const camMult = getCamFeedMultiplier(camSelection);
+    const priorityCfg = CUTTING_PRIORITIES.find((p) => p.id === cuttingPriority) ?? CUTTING_PRIORITIES[2];
     try {
       const result = await calc.execute({
         material: material.id,
@@ -121,9 +245,11 @@ export default function SfcCalculatorPage() {
         tool_material: params.tool_material,
         tool_diameter: params.tool_diameter,
         number_of_teeth: params.number_of_teeth,
-        depth: params.depth,
+        depth: params.depth * priorityCfg.docMult,
         width: params.width,
         coolant: params.coolant,
+        speed_multiplier: priorityCfg.speedMult * (toolpathStrategy?.speedMultiplier ?? 1),
+        feed_multiplier: priorityCfg.feedMult * camMult * (toolpathStrategy?.feedMultiplier ?? 1),
       });
       if (result) {
         const snap = makeSnapshot(result);
@@ -152,13 +278,10 @@ export default function SfcCalculatorPage() {
   }, [comparison]);
 
   const handleReloadFromHistory = useCallback((entry: CalcSnapshot) => {
-    // Restore material
     const mat = MATERIALS.find((m) => m.id === entry.materialId);
     if (mat) setMaterial(mat);
-    // Restore operation
     const op = getOperationById(entry.operationId);
     if (op) setOperation(op);
-    // Restore params
     setParams(entry.params);
     setTool(null);
   }, []);
@@ -192,7 +315,6 @@ export default function SfcCalculatorPage() {
     });
   }, [calc.data, material, operation, tool, params, machine, comparison, imperial]);
 
-  // Derived values for machine validation
   const requiredRpm = calc.data?.spindle_speed ?? 0;
   const requiredPowerKw = Number(calc.data?.meta?.power_kw) || 0;
   const requiredAxes = operation?.category === "milling" ? 3 : 2;
@@ -216,7 +338,17 @@ export default function SfcCalculatorPage() {
   }, [rightTab, rightTabs]);
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-[1600px]">
+      {/* Machine Mode Tabs + Sub-Operation Pills — full width */}
+      <div className="mb-4">
+        <MachineModeTabs
+          value={machineMode}
+          onChange={handleModeChange}
+          subOperation={subOperation}
+          onSubOperationChange={handleSubOperationChange}
+        />
+      </div>
+
       {/* Compatibility banner */}
       <div className="mb-4">
         <CompatibilityValidator
@@ -230,23 +362,43 @@ export default function SfcCalculatorPage() {
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-        {/* Left column — inputs */}
+      {/* ============ 3-COLUMN LAYOUT ============ */}
+      <div className="grid gap-4 xl:grid-cols-[minmax(300px,380px)_minmax(400px,1fr)_minmax(300px,380px)]">
+
+        {/* ─── LEFT COLUMN: Machine + Material + Stock ─── */}
         <div className="space-y-4">
+          <MachineConfigPanel
+            mode={machineMode}
+            value={machineConfig}
+            onChange={setMachineConfig}
+          />
           <SmartMaterialSelector
             value={material}
             onChange={handleMaterialChange}
             operationId={operation?.id}
           />
-          <OperationSelector
-            value={operation}
-            onChange={handleOperationChange}
+          <StockDimensions
+            modeShapes={modeConfig.stockShapes}
+            value={stockDims}
+            onChange={setStockDims}
+            imperial={imperial}
           />
-          <SmartToolSelector
-            materialGroup={material?.group ?? null}
-            operationId={operation?.id ?? null}
-            value={tool}
-            onChange={handleToolChange}
+        </div>
+
+        {/* ─── CENTER COLUMN: Params + Results ─── */}
+        <div className="space-y-4">
+          <CamSoftwareSelector
+            value={camSelection}
+            onChange={setCamSelection}
+          />
+          <CuttingPrioritySelector
+            value={cuttingPriority}
+            onChange={setCuttingPriority}
+          />
+          <ToolpathStrategySelector
+            operationCategory={operation?.category ?? null}
+            value={toolpathStrategy}
+            onChange={handleToolpathChange}
           />
           <ParameterPanel
             operation={operation}
@@ -274,10 +426,8 @@ export default function SfcCalculatorPage() {
               Select a material and operation to enable calculation
             </p>
           )}
-        </div>
 
-        {/* Right column — results + tabs */}
-        <div className="space-y-4">
+          {/* Results */}
           <ResultsDisplay
             result={calc.data}
             loading={calc.loading}
@@ -285,7 +435,6 @@ export default function SfcCalculatorPage() {
             imperial={imperial}
           />
 
-          {/* Action buttons */}
           {calc.data && material && operation && (
             <div className="flex gap-2">
               <Button
@@ -305,15 +454,7 @@ export default function SfcCalculatorPage() {
             </div>
           )}
 
-          <SmartMachineSelector
-            requiredRpm={requiredRpm}
-            requiredPowerKw={requiredPowerKw}
-            requiredAxes={requiredAxes}
-            value={machine}
-            onChange={setMachine}
-          />
-
-          {/* Tab bar */}
+          {/* Tabs */}
           <div className="flex gap-1 border-b border-slate-200 dark:border-slate-700" role="tablist" aria-label="Result views">
             {rightTabs.map((t) => (
               <button
@@ -339,30 +480,45 @@ export default function SfcCalculatorPage() {
               </button>
             ))}
           </div>
+          {rightTab === "charts" && <AdvancedCharts result={calc.data} params={params} machine={machine} />}
+          {rightTab === "compare" && <ComparisonView entries={comparison} onRemove={handleRemoveFromComparison} imperial={imperial} />}
+          {rightTab === "history" && <CalculationHistory entries={fullHistory} onReload={handleReloadFromHistory} onAddToComparison={handleAddToComparison} onClear={handleClearHistory} />}
+        </div>
 
-          {/* Tab content */}
-          {rightTab === "charts" && (
-            <AdvancedCharts
-              result={calc.data}
-              params={params}
-              machine={machine}
-            />
+        {/* ─── RIGHT COLUMN: Tool Holder + Insert + Tool + Fixture + Machine ─── */}
+        <div className="space-y-4">
+          <SmartToolSelector
+            materialGroup={material?.group ?? null}
+            operationId={operation?.id ?? null}
+            value={tool}
+            onChange={handleToolChange}
+          />
+          {modeConfig.showToolHolder && (
+            <>
+              <ToolHolderSelector
+                mode={machineMode}
+                value={toolHolder}
+                onChange={setToolHolder}
+                imperial={imperial}
+              />
+              <InsertSelector
+                value={insertConfig}
+                onChange={setInsertConfig}
+              />
+            </>
           )}
-          {rightTab === "compare" && (
-            <ComparisonView
-              entries={comparison}
-              onRemove={handleRemoveFromComparison}
-              imperial={imperial}
-            />
-          )}
-          {rightTab === "history" && (
-            <CalculationHistory
-              entries={fullHistory}
-              onReload={handleReloadFromHistory}
-              onAddToComparison={handleAddToComparison}
-              onClear={handleClearHistory}
-            />
-          )}
+          <FixtureSelector
+            mode={machineMode}
+            value={fixtureId}
+            onChange={setFixtureId}
+          />
+          <SmartMachineSelector
+            requiredRpm={requiredRpm}
+            requiredPowerKw={requiredPowerKw}
+            requiredAxes={requiredAxes}
+            value={machine}
+            onChange={setMachine}
+          />
         </div>
       </div>
     </div>
