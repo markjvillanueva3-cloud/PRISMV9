@@ -1,0 +1,187 @@
+{
+  "id": "CAMX-MS1",
+  "version": "7.0.0",
+  "title": "Optimal Strategy Selection Engine \u2014 Unified Intelligence",
+  "brief": "THE unified strategy selector combining CrossCamRecommender physics + AdaptiveToolpathRouter rules + StrategyTaxonomy normalization + SFO parameters. Wire into all 7 pipelines. Expand CrossCamRecommender from 8\u219222 CAM systems + turning.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Optimal Strategy Selection",
+      "units": [
+        {
+          "id": "U01",
+          "title": "OptimalStrategySelectionEngine",
+          "description": "Unified selector ~800L. Input: enriched feature + material + machine + tool + constraints + preferences. Output: ranked strategy list with physics justification, cost estimate, risk assessment.",
+          "exit_conditions": [
+            "Engine created ~800L",
+            "Combines 3 sources",
+            "Ranked output with justification"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Wire into PrintToProgramPipelineEngine",
+          "description": "Replace strategy-blind autoAssignOperations() with OptimalStrategy call per feature.",
+          "exit_conditions": [
+            "P2P uses OptimalStrategy",
+            "Named strategy per operation",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Wire into PartGeometryPipelineEngine",
+          "description": "Replace _computeSfStrategy() with OptimalStrategy call.",
+          "exit_conditions": [
+            "PartGeometry uses OptimalStrategy",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Wire into CAMKernelOrchestratorEngine",
+          "description": "Replace selectStrategy() switch.",
+          "exit_conditions": [
+            "CAMKernel uses OptimalStrategy",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Wire into UnifiedCAMPipelineEngine",
+          "description": "OptimalStrategy \u2192 AdaptiveToolpathRouter chain.",
+          "exit_conditions": [
+            "Unified pipeline chain works",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Multi-strategy zone decomposition",
+          "description": "Complex features get zone-decomposed strategies (TGAR rough \u2192 AMEF corners \u2192 HRAF finish).",
+          "exit_conditions": [
+            "Zone decomposition working",
+            "Hybrid strategies generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "User preference system",
+          "description": "Accept cam_system_preference, strategy_preference, priority (speed/quality/tool_life/cost/balanced).",
+          "exit_conditions": [
+            "Preferences influence selection",
+            "Don't override physics",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Decision explanation engine",
+          "description": "Human-readable explanation for every selection.",
+          "exit_conditions": [
+            "Explanations generated",
+            "Includes alternatives considered",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "cam_optimal_strategy, cam_strategy_explain, cam_zone_decompose.",
+          "exit_conditions": [
+            "3 actions wired",
+            "z.enum updated",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "40+ tests for strategy selection accuracy.",
+          "exit_conditions": [
+            "40+ tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "CrossCamRecommender expansion 8\u219222 CAM systems",
+          "description": "Expand CAM_STRATEGY_DATABASE from 22 strategies/8 systems to 60+ strategies/22 systems.",
+          "exit_conditions": [
+            "60+ strategies",
+            "22 CAM systems",
+            "Physics coefficients populated"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "CrossCamRecommender turning support",
+          "description": "Add turning strategy evaluation: ProfitTurning, iMachining Turning, NX Turning. Kienzle turning force, Colwell chip thinning.",
+          "exit_conditions": [
+            "Turning strategies evaluated",
+            "Kienzle turning physics",
+            "Tests for turning scenarios"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U13",
+          "title": "MachiningPlaybook integration",
+          "description": "Wire 296 rules into all pipelines. Per-feature warnings.",
+          "exit_conditions": [
+            "Playbook queried at every decision",
+            "Warnings in output",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U14",
+          "title": "ToolpathStrategyRegistry utilization",
+          "description": "Wire 762+ strategies as canonical lookup for all decision points.",
+          "exit_conditions": [
+            "Registry queried by OptimalStrategy",
+            "762+ strategies searchable",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U15",
+          "title": "MultiObjectivePareto in strategy selection",
+          "description": "NSGA-II Pareto front for multi-criteria decisions instead of weighted scoring.",
+          "exit_conditions": [
+            "Pareto front computed",
+            "Tradeoff visualization data",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U16",
+          "title": "Sensitivity analysis at every decision",
+          "description": "Report: 'Cycle time is 73% driven by ae, 18% by Vc, 9% by fz.'",
+          "exit_conditions": [
+            "Sensitivity factors in output",
+            "Actionable guidance",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

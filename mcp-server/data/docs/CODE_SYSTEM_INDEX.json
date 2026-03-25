@@ -2,7 +2,7 @@
   "_meta": {
     "version": "2.0.0",
     "generated": "2026-03-13T13:23:10.080Z",
-    "total_codes": 1814,
+    "total_codes": 1822,
     "root": "mcp-server/"
   },
   "categories": {
@@ -5250,6 +5250,12 @@
       "code": "E0861",
       "path": "src/engines/reactiveChainBootstrap.ts",
       "name": "reactiveChainBootstrap",
+      "category": "E"
+    },
+    "E1092": {
+      "code": "E1092",
+      "path": "src/engines/FirstArticleInspectionPipelineEngine.ts",
+      "name": "FirstArticleInspectionPipeline",
       "category": "E"
     },
     "D01": {
@@ -10969,6 +10975,55 @@
       "path": "data/docs/MEMORY.md",
       "name": "MEMORY",
       "category": "X"
+    },
+    "E0862": {
+      "type": "E",
+      "name": "MachiningKnowledgeBaseEngine",
+      "description": "Canonical machining reference â€” 59 Kienzle materials, Taylor constants, speed/feed, tap drills, toolpath strategies, workholding, setup planning",
+      "file": "src/engines/MachiningKnowledgeBaseEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E0863": {
+      "type": "E",
+      "name": "TurningPrintToProgramEngine",
+      "description": "Lathe print-to-program â€” G71/G70/G72/G75/G76 cycles, CSS, multi-pass roughing, physics-validated",
+      "file": "src/engines/TurningPrintToProgramEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E0864": {
+      "type": "E",
+      "name": "MultiAxisPrintToProgramEngine",
+      "description": "3+2 and 5-axis print-to-program â€” G68.2 tilted work plane, G43.4 TCP, singularity detection",
+      "file": "src/engines/MultiAxisPrintToProgramEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E0865": {
+      "type": "E",
+      "name": "HolePatternPipelineEngine",
+      "description": "Hole pattern recognition and drilling â€” bolt circle/grid/row detection, TSP optimization, G81-G85",
+      "file": "src/engines/HolePatternPipelineEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E0866": {
+      "type": "E",
+      "name": "ThreadingPipelineEngine",
+      "description": "Threading pipeline â€” G76/G92 single-point, thread milling, rigid tap G84, NPT/BSP/ACME/multi-start",
+      "file": "src/engines/ThreadingPipelineEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E0867": {
+      "type": "E",
+      "name": "CADDrawingKnowledgeEngine",
+      "description": "GD&T selection, datum schemes, drawing layouts, DFM checks, ISO 286 fits, Fusion 360 modeling rules, G-code macros",
+      "file": "src/engines/CADDrawingKnowledgeEngine.ts",
+      "milestone": "PIPE-MS2"
+    },
+    "E1093": {
+      "type": "E",
+      "name": "AutoPrintToProgramBridgeEngine",
+      "description": "Automated file-to-program bridge: text/STEP/IGES/DXF → feature extraction → mill/turn routing → G-code",
+      "file": "src/engines/AutoPrintToProgramBridgeEngine.ts",
+      "milestone": "PIPE-MS2"
     }
   },
   "reverse": {
@@ -11253,6 +11308,7 @@
     "src/engines/FinancialAnalysisEngine.ts": "E0279",
     "src/engines/FinishingPassOptimizationEngine.ts": "E0280",
     "src/engines/FiniteElementEngine.ts": "E0281",
+    "src/engines/FirstArticleInspectionPipelineEngine.ts": "E1092",
     "src/engines/FixtureClampingEngine.ts": "E0282",
     "src/engines/FixtureDesignEngine.ts": "E0283",
     "src/engines/FixturePlateEngine.ts": "E0284",

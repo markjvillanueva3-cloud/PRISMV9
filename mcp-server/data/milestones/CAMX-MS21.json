@@ -1,0 +1,120 @@
+{
+  "id": "CAMX-MS21",
+  "version": "7.0.0",
+  "title": "Make-vs-Buy + Full Quote-to-Ship Lifecycle Pipeline",
+  "brief": "MakeVsBuyDecisionEngine, ShopNetworkEngine, WorkholdingSurfaceInference, QuoteToShipOrchestrator, PackingSlip, MaterialCertTraceability, FAI Pipeline, ProductionBatchOptimization.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Full Lifecycle",
+      "units": [
+        {
+          "id": "U01",
+          "title": "MakeVsBuyDecisionEngine",
+          "description": "Per-operation: in-house cost vs vendor cost. Breakeven quantity. Lead time, quality risk, IP sensitivity.",
+          "exit_conditions": [
+            "Make/buy decisions computed",
+            "Breakeven quantity",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "ShopNetworkEngine",
+          "description": "Register capabilities, broadcast overflow, receive bids. API schema for future marketplace.",
+          "exit_conditions": [
+            "API schema defined",
+            "Capability registration",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "WorkholdingSurfaceInferenceEngine",
+          "description": "From STEP/B-Rep: identify grip/datum surfaces. Track survival through machining. Auto-flag when machining removes needed surface.",
+          "exit_conditions": [
+            "Surface inference works",
+            "Survival tracking",
+            "Dead-end auto-detection"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "QuoteToShipOrchestratorEngine",
+          "description": "End-to-end: BlueprintOCR\u2192DFM\u2192Feasibility\u2192Quote\u2192ProcessPlan\u2192ToolSelect\u2192Strategy\u2192S/F\u2192Program\u2192Post\u2192Package\u2192Lifecycle\u2192Quality\u2192Ship.",
+          "exit_conditions": [
+            "Full orchestrator works",
+            "All stages connected",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "PackingSlipEngine",
+          "description": "Part number, quantity, revision, material cert, inspection results, PO reference.",
+          "exit_conditions": [
+            "Packing slips generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "MaterialCertTraceabilityEngine",
+          "description": "Heat lot \u2192 stock \u2192 program \u2192 FAI \u2192 production \u2192 shipping. AS9100/ITAR compliant.",
+          "exit_conditions": [
+            "Full traceability chain",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "FirstArticleInspectionPipelineEngine",
+          "description": "CMMPathPlanning \u2192 ProbingCycleGen \u2192 Measurement \u2192 AS9102 Form 1/2/3.",
+          "exit_conditions": [
+            "FAI pipeline works",
+            "AS9102 forms",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "ProductionBatchOptimizationEngine",
+          "description": "Batch tool life, fixture loading, bar stock cutoff, probing intervals.",
+          "exit_conditions": [
+            "Batch optimization works",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "9 actions.",
+          "exit_conditions": [
+            "9 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "40+ tests.",
+          "exit_conditions": [
+            "40+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

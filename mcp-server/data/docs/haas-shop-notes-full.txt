@@ -1,0 +1,1274 @@
+
+===== PAGE 1 =====
+ SHOP  
+NOTES
+GPocket Guide and Reference Charts  
+for CNC Machinists
+–  Made in the U.S.A. –
+
+===== PAGE 2 =====
+Decimal Equivalent Chart / Millimeter to Inch Chart 
+Haas Mill G-Codes / Haas Mill M-Codes 
+Haas Lathe G-Codes / Haas Lathe M-Codes 
+Abbreviations and Measurement Units 
+Mill and Lathe Formulas 
+Tapping and Threading Formulas 
+Tap Drill Calculation  
+Drill Point Depth & Countersink Formulas
+Degree FormulasWHAT’S INSIDE THIS BOOKLET?
+39-1501104800-331-6746
+2800 Sturgis Rd., Oxnard, CA 93030
+www.HaasCNC.comHaas Automation, Inc.Proudly printed and manufactured by:
+
+===== PAGE 3 =====
+1
+MACHINIST’S CNC REFERENCE GUIDE1Table of ConTenTs
+Decimal Equivalent Chart  .....................................................
+Pipe Thread Sizes  .....................................................................
+Millimeter to Inch Chart  ........................................................
+Metric Taps  .................................................................................
+Metric Thread Pitch Conversion  .........................................
+Haas Mill G-Codes  ....................................................................
+Haas Mill 5-Axis G-Codes .......................................................
+Haas Mill M-Codes  ...................................................................
+Haas Lathe G-Codes  ................................................................
+Haas Lathe M-Codes  .......................................................................
+Abbreviations & Measurement Units  .......................................
+Mill and Lathe Formulas  ........................................................
+Tapping and Threading Formulas  .....................................
+Tap Drill Calculation  ................................................................
+Centerdrill Dimensions  ..........................................................
+Drill Point Depth & Countersink Formulas  .....................
+Degree Formulas  ......................................................................2
+5
+6
+8
+9
+10
+13
+14
+16
+19
+22
+23
+24
+25
+26
+27
+28
+
+===== PAGE 4 =====
+2
+MACHINIST’S CNC REFERENCE GUIDEDeCimal  equivalenT  CharT  .0059 – .0980
+Decimal Drill  Tap
+Equiv. Size  mm Sizes
+.0059 97 0.150
+.0063 96 0.160
+.0067 95 0.170
+.0071 94 0.180
+.0075 93 0.191
+.0079 92 0.201
+.0083 91 0.211
+.0087 90 0.221
+.0091 89 0.231
+.0095 88 0.241
+.0100 87 0.254
+.0105 86 0.267
+.0110 85 0.279
+.0115 84 0.292
+.0120 83 0.305
+.0125 82 0.318
+.0130 81 0.330
+.0135 80 0.343
+.0145 79 0.368
+.0156        1/64 0.397
+.0160 78 0.406
+.0180 77 0.457
+.0200 76 0.508
+.0210 75 0.533
+.0225 74 0.572
+.0240 73 0.610
+.0250 72 0.635
+.0260 71 0.660
+.0280 70 0.711
+.0292 69 0.742
+.0310 68 0.787
+.0313        1/32 0.794Decimal Drill  Tap
+Equiv. Size  mm Sizes
+.0320 67 0.813
+.0330 66 0.838
+.0350 65 0.889
+.0360 64 0.914
+.0370 63 0.940
+.0380 62 0.965
+.0390 61 0.991
+.0400 60 1.016
+.0410 59 1.041
+.0420 58 1.067
+.0430 57 1.092
+.0465 56 1.181
+.0469       3/64 1.191 #0-80
+.0520 55 1.321
+.0550 54 1.397
+.0595 53 1.511 #1-64 • #1-72
+.0625       1/16 1.588
+.0635 52 1.613
+.0670 51 1.702
+.0700 50 1.778  #2-56 • #2-64
+.0730 49 1.854
+.0760 48 1.930
+.0781       5/64 1.984 
+.0785 47 1.994 #3-48
+.0810 46 2.057 
+.0820 45 2.083 #3-56
+.0860 44 2.184
+.0890 43 2.261 #4-40
+.0935 42 2.375 #4-48
+.0938       3/32 2.381
+.0960 41 2.438
+.0980 40 2.489
+Tap drill sizes above based on approximately 75% full thread
+Tap # Sizes    #0 = .060    #1 = .073    #2 = .086    #3 = .099    #4 = .112  
+Tap # x .013 + .060 = Thread # OD   
+
+===== PAGE 5 =====
+3
+MACHINIST’S CNC REFERENCE GUIDEDeCimal  equivalenT  CharT  .0995  – .2969
+Decimal Drill  Tap
+Equiv. Size  mm Sizes
+.0995 39 2.527 
+.1015 38 2.578 #5-40
+.1040 37 2.642 #5-44
+.1065 36 2.705 #6-32
+.1094    7/64 2.778
+.1100 35 2.794
+.1110 34 2.819
+.1130 33 2.870 #6-40
+.1160 32 2.946
+.1200 31 3.048
+.1250      1/8 3.175
+.1285 30 3.264
+.1360 29 3.454   #8-32 • #8-36
+.1405 28 3.569
+.1406    9/64 3.572
+.1440 27 3.658
+.1470 26 3.734
+.1495 25 3.797 #10-24
+.1520 24 3.861
+.1540 23 3.912
+.1563     5/32 3.969
+.1570 22 3.988
+.1590 21 4.039 #10-32
+.1610 20 4.089
+.1660 19 4.216
+.1695 18 4.305
+.1719    11/64 4.366
+.1730 17 4.394 
+.1770 16 4.496 #12-24
+.1800 15 4.572 
+.1820 14 4.623 #12-28
+.1850 13 4.699 Decimal Drill  Tap
+Equiv. Size  mm Sizes
+.1875     3/16 4.763 #12-32
+.1890 12 4.801
+.1910 11 4.851
+.1935 10 4.915
+.1960 9 4.978
+.1990 8 5.055
+.2010 7 5.105 1/4-20
+.2031    13/64 5.159
+.2040 6 5.182
+.2055 5 5.220
+.2090 4 5.309 
+.2130 3 5.410 1/4-28
+.2188    7/32 5.556   1/4-32
+.2210 2 5.613
+.2280 1 5.791
+.2340 A 5.944
+.2344    15/64 5.953
+.2380 B 6.045
+.2420 C 6.147
+.2460 D 6.248
+.2500    1/4&E 6.350
+.2570 F 6.528 5/16-18
+.2610 G 6.629
+.2656    17/64 6.747
+.2660 H 6.756
+.2720 I 6.909 5/16-24
+.2770 J 7.036
+.2810 K 7.137
+.2813    9/32 7.144 5/16-32
+.2900 L 7.366
+.2950 M 7.493
+.2969    19/64 7.541
+Tap drill sizes above based on approximately 75% full thread
+Tap # Sizes    #5 = .125    #6 = .138    #8 = .164    #10 = .190    #12 = .216  
+Tap # x .013 + .060 = Thread # OD    
+
+===== PAGE 6 =====
+4
+MACHINIST’S CNC REFERENCE GUIDEDeCimal  equivalenT  CharT  .3020 – 1.000
+Decimal  Drill  Tap
+Equiv. Size  mm Sizes
+.3020 N 7.671
+.3125    5/16 7.938 3/8-16
+.3160 O 8.026
+.3230 P 8.204
+.3281    21/64 8.334
+.3320 Q 8.433 3/8-24
+.3390 R 8.611
+.3438    11/32 8.731 3/8-32
+.3480 S 8.839
+.3580 T 9.093
+.3594 23/64 9.128
+.3680 U 9.347 7/16-14
+.3750 3/8 9.525 
+.3770 V 9.576
+.3860 W 9.804 
+.3906 25/64 9.922 7/16-20
+.3970 X 10.084
+.4040 Y 10.262 7/16-28
+.4063 13/32 10.319
+.4130 Z 10.490
+.4219 27/64 10.716 1/2-13
+.4375 7/16 11.113 
+.4531 29/64 11.509 1/2-20
+.4688 15/32 11.906 1/2-28
+.4844 31/64 12.303 9/16-12
+.5000 1/2 12.700   9/16-18
+.5156 33/64 13.097 9/16-24
+.5313 17/32 13.494 5/8-11
+.5469 35/64 13.891 Decimal  Drill  Tap
+Equiv. Size   mm Sizes
+.5625 9/16 14.288 5/8-18
+.5781 37/64 14.684 5/8-24
+.5938 19/32 15.081 
+.6094 39/64 15.478 11/16-12
+.6250 5/8 15.875 
+.6406 41/64 16.272 11/16-20 • 11/16-24
+.6563 21/32 16.669 3/4-10
+.6719 43/64 17.066 
+.6875 11/16 17.462 3/4-16
+.7031 45/64 17.859 3/4-20
+.7188 23/32 18.256 
+.7344 47/64 18.653 13/16-12
+.7500 3/4 19.050 13/16-16
+.7656 49/64 19.447 13/16-20 • 7/8-9
+.7813 25/32 19.844 
+.7969 51/64 20.241 7/8-14
+.8125 13/16 20.637 
+.8281 53/64 21.034 7/8-20
+.8438 27/32 21.431 
+.8594 55/64 21.828 15/16-12
+.8750 7/8 22.225 15/16-16 • 1.0-8
+.8906 57/64 22.622 15/16-20
+.9063 29/32 23.019  
+.9219 59/64 23.416 1.0-12
+.9375 15/16 23.813  
+.9531 61/64 24.209 1.0-20
+.9688 31/32 24.606 
+.9844 63/64 25.003 
+1.000  1 25.400 
+Tap drill sizes above based on approximately 75% full thread
+A decimal equivalent chart  can be displayed on a Haas control by pressing the HELP/
+CALC button, and then selecting the Drill Table tab. Use the jog handle or cursor keys 
+to scroll through the chart.
+
+===== PAGE 7 =====
+5
+MACHINIST’S CNC REFERENCE GUIDEPiPe ThreaD  sizes
+Tap Approx. Approx. 
+Thread Size inside Dia. outside Dia. Tap Drill
+ 
+1/8 – 27 1/4 3/8 11/32
+1/4 – 18 3/8 17/32 7/16
+3/8 – 18 1/2 11/16 37/64
+1/2 – 14 5/8 13/16 23/32
+3/4 – 14 13/16 1 59/64
+1 – 111/2 11/16 15/16 15/32
+11/4 – 111/2 13/8 15/8 11/2
+11/2 – 111/2 15/8 17/8 147/64
+2 – 111/2 21/16 23/8 27/32
+21/2 – 8 29/16 27/8 25/8
+Pipe sizes are generally determined by the inside diameter of the pipe. The 
+chart above gives nominal and approximate actual dimensions of commonly 
+used sizes of standard threaded pipe.
+
+===== PAGE 8 =====
+6
+MACHINIST’S CNC REFERENCE GUIDEmillimeTer  To inCh CharT  0.01  – 12.5
+0.01 .0004
+0.02 .0008
+0.03 .0012
+0.04 .0016
+0.05 .0020
+0.06 .0024
+0.07 .0028
+0.08 .0032
+0.09 .0035
+0.1 .0039
+0.2 .0079
+0.3 .0118
+0.4 .0157
+0.5 .0197
+0.6 .0236
+0.7 .0276
+0.8 .0315
+0.9 .0354
+1.0 .0394
+1.1 .0433
+1.2 .0472
+1.3 .0512
+1.4 .0551
+1.5 .0591
+1.6 .0630
+1.7 .0669
+1.8 .0709
+1.9 .0748
+2.0 .0787
+2.1 .0827
+2.2 .0866
+2.3 .0906
+2.4 .0945
+2.5 .09842.6 .1024
+2.7 .1063
+2.8 .1102
+2.9 .1142
+3.0 .1181
+3.1 .1220
+3.2 .1260
+3.3 .1299
+3.4 .1339
+3.5 .1378
+3.6 .1417
+3.7  .1457
+3.8  .1496
+3.9 .1535
+4.0 .1575
+4.1 .1614
+4.2 .1654
+4.3 .1693
+4.4 .1732
+4.5 .1772
+4.6 .1811
+4.7 .1850
+4.8 .1890
+4.9  .1929
+5.0  .1969
+5.1  .2008
+5.2  .2047
+5.3  .2087
+5.4 .2126
+5.5 .2165
+5.6 .2205
+5.7 .2244
+5.8 .2283
+5.9 .23236.0 .2362
+6.1 .2402
+6.2 .2441
+6.3 .2480
+6.4 .2520
+6.5 .2559
+6.6 .2598
+6.7 .2638
+6.8 .2677
+6.9 .2717
+7.0 .2756
+7.1 .2795
+7.2 .2835
+7.3 .2874
+7.4 .2913
+7.5 .2953
+7.6 .2992
+7.7 .3031
+7.8 .3071
+7.9 .3110
+8.0 .3150
+8.1 .3189
+8.2 .3228
+8.3 .3268
+8.4 .3307
+8.5 .3346
+8.6 .3386
+8.7 .3425
+8.8 .3465
+8.9 .3504
+9.0 .3543
+9.1 .3583
+9.2 .3622
+9.3 .36619.4 .3701
+9.5 .3740
+9.6 .3780
+9.7 .3819
+9.8 .3858
+9.9 .3898
+10.0 .3937
+10.1 .3976
+10.2 .4016
+10.3 .4055
+10.4 .4094
+10.5 .4134
+10.6 .4173
+10.7 .4213
+10.8 .4252
+10.9 .4291
+11.0 .4331
+11.1 .4370
+11.2 .4409
+11.3 .4449
+11.4 .4488
+11.5 .4528
+11.6 .4567
+11.7 .4606
+11.8 .4646
+11.9 .4685
+12.0 .4724
+12.1 .4764
+12.2 .4803
+12.3 .4843
+12.4 .4882
+12.5 .4921
+Setting 9  on a Haas allows you to change between inch  and millimeter  
+dimensioning .mm    Inch mm     Inch mm     Inch mm     Inch
+
+===== PAGE 9 =====
+7
+MACHINIST’S CNC REFERENCE GUIDEmillimeTer  To inCh CharT  12.6  – 25.4
+12.6 .4961
+12.7 .5000
+12.8 .5039
+12.9 .5079
+13.0 .5118
+13.1 .5157
+13.2 .5197
+13.3 .5236
+13.4 .5276
+13.5 .5315
+13.6 .5354
+13.7 .5394
+13.8 .5433
+13.9 .5472
+14.0 .5512
+14.1 .5551
+14.2 .5591
+14.3 .5630
+14.4 .5669
+14.5 .5709
+14.6 .5748
+14.7 .5787
+14.8 .5827
+14.9 .5866
+15.0 .5906
+15.1 .5945
+15.2 .5984
+15.3 .6024
+15.4 .6063
+15.5 .6102
+15.6 .6142
+15.7 .6181
+15.8 .622015.9 .6260
+16.0 .6299
+16.1 .6339
+16.2 .6378
+16.3 .6417
+16.4 .6457
+16.5 .6496
+16.6 .6535
+16.7 .6575
+16.8 .6614
+16.9 .6654
+17.0 .6693
+17.1 .6732
+17.2 .6772
+17.3 .6811
+17.4 .6850
+17.5 .6890
+17.6 .6929
+17.7 .6968
+17.8 .7008
+17.9 .7047
+18.0 .7087
+18.1 .7126
+18.2 .7165
+18.3 .7205
+18.4 .7244
+18.5 .7283
+18.6 .7323
+18.7 .7362
+18.8 .7402
+18.9 .7441
+19.0 .7480
+19.1 .752019.2 .7559
+19.3 .7598
+19.4 .7638
+19.5 .7677
+19.6 .7717
+19.7 .7756
+19.8 .7795
+19.9 .7835
+20.0 .7874
+20.1 .7913
+20.2 .7953
+20.3 .7992
+20.4 .8031
+20.5 .8071
+20.6 .8110
+20.7 .8150
+20.8 .8189
+20.9 .8228
+21.0 .8268
+21.1 .8307
+21.2 .8346
+21.3 .8386
+21.4 .8425
+21.5 .8465
+21.6 .8504
+21.7 .8543
+21.8 .8583
+21.9 .8622
+22.0 .8661
+22.1 .8701
+22.2 .8740
+22.3 .8780
+22.4 .881922.5 .8858
+22.6 .8898
+22.7 .8937
+22.8 .8976
+22.9 .9016
+23.0 .9055
+23.1 .9094
+23.2 .9134
+23.3 .9173
+23.4 .9213
+23.5 .9252
+23.6 .9291
+23.7 .9331
+23.8 .9370
+23.9 .9409
+24.0 .9449
+24.1 .9488
+24.2 .9528
+24.3 .9567
+24.4 .9606
+24.5 .9646
+24.6 .9685
+24.7 .9724
+24.8 .9764
+24.9 .9803
+25.0 .9843
+25.1 .9882
+25.2 .9921
+25.3 .9961
+25.4 1.0mm    Inch mm     Inch mm     Inch mm     Inch
+
+===== PAGE 10 =====
+8
+MACHINIST’S CNC REFERENCE GUIDEmeTriC  TaPs
+Tap MM  Drill Dia.
+Sizes Tap Drill  in Inches
+M1 x 0.25 0.75 .0295
+M1.1 x 0.25 0.85    .0335
+M1.2 x 0.25 0.95    .0374
+M1.4 x 0.3 1.10 .0433
+M1.6 x 0.35 1.25    .0492
+M1.8 x 0.35 1.45    .0571
+M2 x 0.4 1.60 .0630
+M2.2 x 0.45 1.75    .0689
+M2.5 x 0.45 2.05 .0807
+M3 x 0.5 2.50 .0984
+M3.5 x 0.6 2.90 .1142
+M4 x 0.7 3.30 .1299
+M4.5 x 0.75 3.70 .1457
+M5 x 0.8 4.20 .1654
+M6 x 1 5.00 .1969
+M7 x 1 6.00 .2362
+M8 x 1.25 6.75 .2657
+M8 x 1 7.00 .2756
+M10 x 1.5 8.50 .3346
+M10 x 1.25 8.75 .3445
+M12 x 1.75 10.20 .4016
+M12 x 1.25 10.80 .4252Tap MM Drill Dia.
+Sizes Tap Drill  in Inches
+M14 x 2 12.00 .4724  
+M14 x 1.5 12.50 .4921  
+M16 x 2 14.00 .5512  
+M16 x 1.5 14.50 .5709  
+M18 x 2.5 15.50 .6102  
+M18 x 1.5 16.50 .6496  
+M20 x 2.5 17.50 .6890  
+M20 x 1.5 18.50 .7283  
+M22 x 2.5 19.50 .7677  
+M22 x 1.5 20.50 .8071  
+M24 x 3 21.00 .8268  
+M24 x 2 22.00 .8661  
+M27 x 3 24.00 .9449  
+M27 x 2 25.00 .9843  
+M30 x 3.5 26.50 1.0433  
+M30 x 2 28.00 1.1024  
+M33 x 3.5 29.50 1.1614  
+M33 x 2 31.00 1.2205  
+M36 x 4 32.00 1.2598  
+M36 x 3 33.00 1.2992  
+M39 x 4 35.00 1.3780  
+M39 x 3 36.00 1.4173
+Tap drill sizes based on 77% full metric thread
+Metric tap and drill sizes  can be displayed on a Haas control by pressing the HELP/
+CALC button twice, and then selecting the Drill Table tab.
+
+===== PAGE 11 =====
+9
+MACHINIST’S CNC REFERENCE GUIDEmeTriC  ThreaD  PiTCh Conversion
+. 25 . 00984 101.6002 . 00639
+. 30 . 01181 84.6668 . 00767
+. 35 . 01378 72.5716 . 00895
+. 40 . 01575 63.5001 . 01023
+. 45 . 01772 56.4446 . 01151
+. 50 . 01969 50.8001 . 01279
+. 60 . 02362 42.3334 . 01534
+. 70 . 02756 36.2858 . 01790
+. 75 . 02953 33.8667 .01918
+. 80 . 03150 31.7501 .02046
+. 90 . 03543 28.2228 . 02301
+1.00 . 03937 25.4000 .02557
+1.25 . 04921 20.3200 . 03196
+1.50 . 05906 16.9334 . 03836
+1.75 . 06890 14.5143 . 04475
+2.00 . 07874 12.7000 . 05114
+2.50 . 09843 10.1600 . 06393
+3.00 . 11811 8.4667 . 07671
+3.50 . 13780 7.2572 . 08950
+4.00 . 15748 6.3500 . 10229
+4.50 . 17717 5.6445 . 11508
+5.00 . 19685 5.0800 . 12785
+6.00 . 23622 4.2333 . 15344Metric  Thd. Pitch Threads Basic  
+Thd. Pitch in Inches Per In. Height
+
+===== PAGE 12 =====
+10
+MACHINIST’S CNC REFERENCE GUIDEhaas mill G-C oDes
+G00 *  Rapid Motion Positioning 01
+G01   Linear Interpolation Motion 01
+G02   Circular Interpolation Motion CW 01
+G03   Circular Interpolation Motion CCW 01
+G04   Dwell 00
+G09   Exact Stop  00
+G10   Set Offsets 00
+G12   Circular Pocket Milling CW 00
+G13   Circular Pocket Milling CCW 00
+G17 *  XY Plane Selection 02
+G18   XZ Plane Selection 02
+G19   YZ Plane Selection 02
+G20   Select Inches 06
+G21   Select Metric 06
+G28   Return To Machine Zero Point 00
+G29   Return From Reference Point 00
+G31   Feed Until Skip 00
+G35   Automatic Tool Diameter Measurement 00
+G36   Automatic Work Offset Measurement 00
+G37   Automatic Tool Offset Measurement  00
+G40 *  Cutter Compensation Cancel  07
+G41   2D Cutter Compensation Left  07
+G42   2D Cutter Compensation Right  07
+G43   Tool Length Compensation + (Add)  08
+G44   Tool Length Compensation - (Subtract)  08
+G47   Text Engraving  00
+G49 *  G43/G44/G143 Cancel  08
+G50 *  Cancel Scaling  11
+G51   Scaling  11
+G52   Set Work Coordinate System  00 or 12
+G53   Non-Modal Machine Coordinate Selection  00
+* default(may vary with software version)
+Code  Description  Group 
+
+===== PAGE 13 =====
+11
+MACHINIST’S CNC REFERENCE GUIDEhaas mill G-C oDes
+G54 *  Select Work Coordinate System #1  12
+G55   Select Work Coordinate System #2  12
+G56   Select Work Coordinate System #3  12
+G57   Select Work Coordinate System #4  12
+G58   Select Work Coordinate System #5  12
+G59   Select Work Coordinate System #6  12
+G60   Uni-Directional Positioning  00
+G61   Exact Stop Mode  15
+G64 *  G61 Cancel  15
+G65   Macro Subroutine Call Option  00
+G68   Rotation  16
+G69 *  Cancel G68 Rotation  16
+G70   Bolt Hole Circle  00
+G71   Bolt Hole Arc  00
+G72   Bolt Holes Along an Angle  00
+G73   High-Speed Peck Drilling Canned Cycle  09
+G74   Reverse Tap Canned Cycle  09
+G76   Fine Boring Canned Cycle  09
+G77   Back Bore Canned Cycle  09
+G80 *  Canned Cycle Cancel  09
+G81   Drill Canned Cycle  09
+G82   Spot Drill Canned Cycle  09
+G83   Normal Peck Drilling Canned Cycle  09
+G84   Tapping Canned Cycle  09
+G85   Boring Canned Cycle  09
+G86   Bore and Stop Canned Cycle  09
+G87   Bore In and Manual Retract Canned Cycle  09
+G88   Bore In, Dwell, Manual Retract Canned Cycle  09
+G89   Bore In, Dwell, Bore Out Canned Cycle  09
+G90 *  Absolute Position Command  03
+G91   Incremental Position Command  03
+* default
+In the Offset display on a Haas, you can zero all offsets  at once by pressing ORIGIN, 
+and following the simple on-screen commands. You can’t undo this .  Code  Description  Group 
+
+===== PAGE 14 =====
+12
+MACHINIST’S CNC REFERENCE GUIDEhaas mill G-C oDes
+* defaultG92   Set Work Coordinate Systems Shift Value  00
+G93   Inverse Time Feed Mode  05
+G94 *  Feed Per Minute Mode  05
+G95   Feed per Revolution  05
+G98 *  Canned Cycle Initial Point Return  10
+G99   Canned Cycle R Plane Return  10
+G100   Cancel Mirror Image  00
+G101   Enable Mirror Image  00
+G103   Limit Block Buffering  00
+G107   Cylindrical Mapping  00
+G110-G129   Coordinate System #7 - #26  12
+G136   Automatic Work Offset Center Measurement  00
+G141   3D+ Cutter Compensation  07
+G143   5-Axis Tool Length Compensation +  08
+G150   General Purpose Pocket Milling  00
+G153   5-Axis High Speed Peck Drilling Canned Cycle  09
+G154   Select Work Coordinates P1-P99  12
+G155   5-Axis Reverse Tap Canned Cycle  09
+G161   5-Axis Drill Canned Cycle  09
+G162   5-Axis Spot Drill Canned Cycle  09
+G163   5-Axis Normal Peck Drilling Canned Cycle  09
+G164   5-Axis Tapping Canned Cycle  09
+G165   5-Axis Boring Canned Cycle  09
+G166   5-Axis Bore and Stop Canned Cycle  09(may vary with software version)
+Code  Description  Group 
+
+===== PAGE 15 =====
+13
+MACHINIST’S CNC REFERENCE GUIDEhaas mill G-C oDes
+G169   5-Axis Bore and Dwell Canned Cycle  09
+G174   CCW Non-Vertical Rigid Tap  00
+G184   CW Non-Vertical Rigid Tap  00
+G187   Setting the Smoothness Level  00
+G188   Get Program From PST  00
+G234  Tool Center Point Control (TCPC) 08 
+G254  Dynamic Work Offset (DWO) 23
+G255  Cancel Dynamic Work Offset (DWO) 23
+To Zero the POS-OPER Display:  This display is used for reference only. Each axis 
+can be zeroed out independently, to then show its position relative to where 
+you selected to zero that axis. To zero out a specific axis, press HAND JOG, 
+and then press POSIT. When you Handle Jog the X, Y, or Z axis and then press 
+ORIGIN, the axis that is selected will be zeroed. Or, you can press an X, Y, or Z 
+letter key and then ORIGIN to zero that axis display. You can also press the X, Y, 
+or Z key and enter a number (X2.125), then press ORIGIN to enter the number 
+in that axis display.Code  Description  Group 
+
+===== PAGE 16 =====
+14
+MACHINIST’S CNC REFERENCE GUIDEhaas mill m-C oDes
+M00   Stop Program
+M01   Optional Program Stop
+M02   Program End
+M03   Spindle On Foward
+M04   Spindle On Reverse
+M05   Spindle Stop
+M06   Tool Change 
+M07   Shower Coolant On
+M08   Coolant On
+M09   Coolant Off
+M10   Engage 4th Axis Brake
+M11   Release 4th Axis Brake
+M12   Engage 5th Axis Brake
+M13   Release 5th Axis Brake
+M16   Tool Change
+M18   Clamp APC Pallet and Close Door
+M19   Orient Spindle 
+M21-M25   Optional User M Function with M-Fin
+M29 Set Output Relay with M-Fin 
+M30   Program End and Reset
+M31   Chip Conveyor Forward
+M33   Chip Conveyor Stop 
+M34   Coolant Increment
+M35   Coolant Decrement
+M36   Pallet Part Ready
+M39   Rotate Tool Turret
+M41   Low Gear Override
+M42   High Gear Override
+M49   Set Status of Pallet
+M51-M55   Set Optional User M-codes
+When Setting 32  on a Haas machine is set to  IGNORE , then all commands for 
+turning coolant on or off will be ignored. The coolant can still be turned on and 
+off manually with the COOLNT button.(may vary with software version)
+
+===== PAGE 17 =====
+15
+MACHINIST’S CNC REFERENCE GUIDEhaas mill m-C oDes
+M59   Set Output Relay
+M61-M65   Clear Optional User M-codes
+M69   Clear Output Relay
+M73 Tool Air Blast (TAB) On
+M74 Too Air Blast (TAB) Off
+M75   Set G35 or G136 Reference Point
+M78   Alarm if Skip Signal Found
+M79   Alarm if Skip Signal Not Found
+M80   Auto Door Open
+M81   Auto Door Close
+M82   Tool Unclamp
+M83   Auto Air Gun On
+M84   Auto Air Gun Off
+M86   Tool Clamp
+M88   Through-Spindle Coolant On
+M89   Through-Spindle Coolant Off
+M95   Sleep Mode
+M96   Jump If No Input
+M97   Local Sub-Program Call
+M98   Sub-Program Call
+M99   Sub-Program Return or Loop
+M109   Interactive User Input
+M130 / M131 Display Media / Cancel Display Media
+M138 / M139 M138/M139 Spindle Speed Variation  On/Off
+Jog Keys:  You can select an axis for jogging on a Haas by entering the axis letter 
+on the input line and then pressing the HANDLE JOG button.
+
+===== PAGE 18 =====
+16
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  G-C oDes
+* defaultG00 *  Rapid Motion Positioning  01
+G01   Linear Interpolation Motion  01
+G02   CW Circular Interpolation Motion  01
+G03   CCW Circular Interpolation Motion  01
+G04   Dwell  00
+G09   Exact Stop  00
+G10   Set Offsets  00
+G14   Secondary Spindle Swap  17
+G15   Secondary Spindle Cancel  17
+G17   XY Plane Selection 00
+G18 *  XZ Plane Selection 02
+G19   YZ Plane Selection 02
+G20   Select Inches  06
+G21   Select Metric  06
+G28   Return To Machine Zero Point  00
+G29   Return From Reference Point  00
+G31   Skip Function  00
+G32   Thread Cutting  01
+G40 *  Tool Nose Compensation Cancel  07
+G41   Tool Nose Compensation (TNC) Left  07
+G42   Tool Nose Compensation (TNC) Right  07
+G50 Spindle Speed Clamp  00
+G50   Set Global Coordinate Offset FANUC 00
+G52   Set Local Coordinate System FANUC  00
+G53   Machine Coordinate Selection  00
+G54 *  Coordinate System #1 FANUC  12
+G55   Coordinate System #2 FANUC  12
+G56   Coordinate System #3 FANUC  12
+G57   Coordinate System #4 FANUC  12
+G58   Coordinate System #5 FANUC  12(may vary with software version)
+Code  Description  Group 
+
+===== PAGE 19 =====
+17
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  G-C oDes
+* defaultG59   Coordinate System #6 FANUC  12
+G61   Exact Stop Modal  15
+G64 *  Exact Stop Cancel G61  15
+G65   Macro Subroutine Call Option  00
+G70   Finishing Cycle  00
+G71   O.D./I.D. Stock Removal Cycle  00
+G72   End Face Stock Removal Cycle  00
+G73   Irregular Path Stock Removal Cycle  00
+G74   End Face Grooving Cycle  00
+G75   O.D./I.D. Grooving Cycle  00
+G76   Threading Cycle, Multiple Pass  00
+G80 *  Canned Cycle Cancel  09
+G81   Drill Canned Cycle  09
+G82   Spot Drill Canned Cycle  09
+G83   Normal Peck Drilling Canned Cycle  09
+G84   Tapping Canned Cycle  09
+G85   Boring Canned Cycle  09
+G86   Bore and Stop Canned Cycle  09
+G89   Bore and Dwell Canned Cycle  09
+G90   O.D./I.D. Turning Cycle  01
+G92   Threading Cycle  01
+G94   End Facing Cycle  01
+G95   Live Tooling Rigid Tap (Face)  09
+G96   Constant Surface Speed On  13
+G97 *  Constant Surface Speed Off  13
+G98   Feed Per Minute  10
+G99 *  Feed Per Revolution  10
+G100   Disable Mirror Image  00
+G101  Enable Mirror Image  00
+G103   Limit Block Lookahead  00Code  Description  Group 
+
+===== PAGE 20 =====
+18
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  G-C oDes
+G105   Servo Bar Command  09
+G110   Coordinate System #7  12
+G111   Coordinate System #8  12
+G112   XY to XC interpretation  04
+G113   Cancel G112  04
+G114-G129   Coordinate System #9 - #24  12
+G154   Select Work Coordinates P1-99  12
+G184   Reverse Tapping Canned Cycle For Left Hand Threads  09
+G186   Reverse Live Tool Rigid Tap (For Left Hand Threads)  10
+G187   Accuracy Control  00
+G195   Forward Live Tool Radial Tapping (Diameter)  00
+G196   Reverse Live Tool Radial Tapping (Diameter)  00
+G198   Disengage Synchronous Spindle Control  00
+G199   Engage Synchronous Spindle Control  00
+G200   Index on the Fly  00
+G211   Manual Tool Setting
+G212   Auto Tool Setting
+G241   Radial Drill Canned Cycle  09
+G242   Radial Spot Drill Canned Cycle  09
+G243   Radial Normal Peck Drilling Canned Cycle  09
+G245   Radial Boring Canned Cycle  09
+G246   Radial Bore and Stop Canned Cycle  09
+G249   Radial Bore and Dwell Canned Cycle  09(may vary with software version)
+Code  Description  Group 
+
+===== PAGE 21 =====
+19
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  m-C oDes
+M00   Stop Program
+M01   Stop Program
+M02   Program End
+M03   Spindle On Foward
+M04   Spindle On Reverse
+M05   Spindle Stop
+M08   Coolant On
+M09   Coolant Off
+M10   Chuck Clamp
+M11   Chuck Unclamp
+M12   Auto Jet Air Blast On (Optional)
+M13   Auto Jet Air Blast Off (Optional)
+M14   Main Spindle Brake On (Optional C-Axis)
+M15   Main Spindle Brake Off (Optional C-Axis)
+M17   Turret Rotation Fwd
+M18   Turret Rotation Rev
+M19   Orient Spindle (Optional)
+M21   Tailstock Advance (Optional)
+M22   Tailstock Retract (Optional)
+M23   Chamfer Out of Thread On
+M24   Chamfer Out of Thread Off
+M30   End of Program and Reset
+M31   Chip Auger Forward (Optional)
+M33   Chip Auger Stop (Optional)
+M36   Parts Catcher On (Optional)
+M37   Parts Catcher Off (Optional)
+M38   Spindle Speed Variation On
+M39   Spindle Speed Variation Off
+M41   Low Gear (Optional)
+M42   High Gear (Optional)
+
+===== PAGE 22 =====
+20
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  m-C oDes
+M43   Turret Unlock (Service Use Only)
+M44   Turret Lock (Service Use Only)
+M51  User M Turn On (Optional)
+M52  User M Turn On (Optional)
+M53  User M Turn On (Optional)
+M54  User M Turn On (Optional)
+M55  User M Turn On (Optional)
+M56  User M Turn On (Optional)
+M57  User M Turn On (Optional)
+M58   User M Turn On (Optional)
+M59   Set Output Relay
+M61  User M Turn Off (Optional)
+M62 User M Turn Off (Optional)
+M63 User M Turn Off (Optional)
+M64 User M Turn Off (Optional)
+M65 User M Turn Off (Optional)
+M66 User M Turn Off (Optional)
+M67 User M Turn Off (Optional)
+M68   User M Turn Off (Optional)
+M69   Clear Output Relay
+M78   Alarm if Skip Signal Found
+M79   Alarm if Skip Signal Not Found
+M85   Automatic Door Open (Optional)
+M86   Automatic Door Close (Optional)
+M88   High-Pressure Coolant On (Optional)
+M89   High-Pressure Coolant Off (Optional)
+M95   Sleep Mode
+M96   Jump If No Signal
+M97   Local Subprogram Call
+M98   Subprogram Call
+M99   Subprogram Return Or Loop(may vary with software version)
+
+===== PAGE 23 =====
+21
+MACHINIST’S CNC REFERENCE GUIDEhaas laThe  m-C oDes
+M104   Probe Arm Extend (Optional)
+M105   Probe Arm Retract (Optional)
+M109   Interactive User Input
+M110   Secondary Spindle Chuck Clamp (Optional)
+M111   Secondary Spindle Chuck Unclamp (Optional)
+M112   Secondary Spindle Air Blast On (Optional)
+M113   Secondary Spindle Air Blast Off (Optional)
+M114   Secondary Spindle Brake On (Optional)
+M115   Secondary Spindle Brake Off (Optional)
+M119   Secondary Spindle Orient (Optional)
+M121 User M-codes (Optional)
+M122 User M-codes (Optional)
+M123 User M-codes (Optional)
+M124 User M-codes (Optional)
+M125 User M-codes (Optional)
+M126 User M-codes (Optional)
+M127 User M-codes (Optional)
+M128   User M-codes (Optional)
+M130 / M131 Display Media / Cancel Display Media
+M133   Live Tool Fwd (Optional)
+M134   Live Tool Rev (Optional)
+M135   Live Tool Stop (Optional)
+M138 Spindle Speed Variation On
+M139 Spindle Speed Variation Off
+M143   Secondary Spindle Forward (Optional)
+M144   Secondary Spindle Reverse (Optional)
+M145   Secondary Spindle Stop (Optional)
+M154   C-Axis Engage (Optional)
+M155   C-Axis Disengage (Optional)
+
+===== PAGE 24 =====
+22
+MACHINIST’S CNC REFERENCE GUIDEºC = Degrees Celsius
+DIA = Diameter 
+d = Depth of Cut
+F = Feed in Inches or mm Per Minute (F)
+ºF = Degrees Fahrenheit
+FPR = Feed Per Revolution (F)
+FPT = Feed Per Tooth
+IPM = Inches Per Minute
+IPR = Inches Per Revolution
+L = Length of Cut
+MRR = Metal Removal Rate (cubic in./min.)
+RPM = Revolutions Per Minute
+SFM  = Surface Feed Per Minute
+SMPM = Surface Meters Per Minute
+MMPR = Millimeters Per Revolution
+T = Number of Teeth in a Cutter
+TCm =  Time Cutting in Minutes
+TCs = Time Cutting in Seconds
+TPI = Threads Per Inch
+W = Width of CutabbreviaTions  & measuremenT  uniTs
+Chip Conveyor  - The chip conveyor on a Haas can be turned on or off when a 
+program is running, either manually using the control keys or in the program 
+using M-codes. The M-code equivalent to CHIP FWD is M31, and CHIP STOP is 
+M33. You can set the Conveyor Cycle time (in minutes) with Setting 114, and the 
+Conveyor On-Time (in minutes) with Setting 115.
+
+===== PAGE 25 =====
+23
+MACHINIST’S CNC REFERENCE GUIDEmill anD laThe  formulas
+Cutting Speed (surface feet/min.)  
+SFM   =  0.262 x DIA x RPM
+Revolutions Per Minute  
+RPM   =  3.82  x  SFM ÷ DIA
+Feed Rate (in/min.)  
+IPM = FPT x T x RPM
+Feed Per Revolution  
+FPR = IPM ÷ RPM
+Feed Per Tooth (in)  
+FPT = IPM ÷ (RPM x T)
+Metal Removal Rate  
+MRR  = W x d x F
+Converting IPR to IPM  
+IPM  =   IPR  x  RPMConverting IPM to IPR  
+IPR  =   IPM ÷ RPM
+Converting SFM to SMPM  
+SMPM  = SFM x .3048
+Converting IPR to MMPR  
+MMPR  = IPR x 25.40
+Distance over Time (in minutes)  
+L = IPM x TCm
+Time Cutting over Distance (Mill) 
+(minutes)  
+TCm  = L ÷ IPM
+Time Cutting over Distance (Mill) 
+(seconds)  
+TCs = L ÷ IPM x 60
+mm x 0.03937 = in.
+m x 39.37 = in.
+m x 3.2808 = ft
+m x 1.0936 = yd
+km x 0.621 = mi
+Celsius to Fahrenheit  
+(˚C x 1.8) + 32 = ˚Fin. x 25.4 = mm
+in. x 0.0254 = m
+ft x 0.3048 = m
+yd x 0.9144 = m
+mi x 1.6093 = km
+Fahrenheit to Celsius  
+(˚F - 32) ÷ 1.8 = ˚CINCH METRIC CONVERSION
+
+===== PAGE 26 =====
+24
+MACHINIST’S CNC REFERENCE GUIDEINCH TAPS
+Tap Drill Size (inch)   =  Thread Diameter  –
+ 
+% of Full Thread (inch)  = Number of TPI  x
+IPM (Mill Tapping Feed Rate)   =  RPM ÷ TPI
+IPR (Lathe Threading)  = 1 ÷ TPI
+Form Tap Drill Size   =  Basic Tap DIA  –
+Recommended 65% form thread:
+Form Tap Drill Size   =  Basic Tap DIA  –TaPPinG  anD ThreaDinG  formulas
+0.01299 x % of Full Thread
+Number of TPI
+Major DIA of Thread – Drilled DIA
+0.01299
+0.0068 x % of Full Thread
+Number of TPI
+Tap Drill Size (metric)  = Thread Diameter (mm)  –
+% of Full Thread (metric)  =                 x [Thread DIA (mm) – Drilled Hole DIA (mm)]
+SMPM  = RPM x Metric Pitch
+Recommended 65% form thread:
+Form Tap Drill Size (metric)   =  Basic Tap DIA – (.75 x pitch (in metric) x .65)% of Full Thread x MM Pitch
+147.06
+147.06
+MM PitchMETRIC TAPS0.442
+Number of TPI
+
+===== PAGE 27 =====
+25
+MACHINIST’S CNC REFERENCE GUIDETaP Drill CalCulaTion
+FIND TAP DRILL SIZES
+ON ANY BASIC SIZE THREAD
+for an Approximate 75% Thread
+ NC/NF INCH & ISO METRIC
+Major dia. less thread pitch = Tap drill size
+Note: thread pitch = 1.0 inch divided by threads per inch (TPI) 
+Inch Example:  
+(1 ÷ 16 = .0625) 
+3/8 – 16  = .375 – .0625  = .3125 tap drill
+Metric Example:
+M10 – 1.5  = 10 – 1.5 = M8.5 tap drill
+
+===== PAGE 28 =====
+26
+MACHINIST’S CNC REFERENCE GUIDECenTerDrill  Dimensions
+Size Body Dia  Drill Dia Drill Length OAL  
+ (A) (D) (C) (L)
+00 1/8 0.025 0.030 1 1/8
+0 1/8 1/32 0.038 1 1/8
+1 1/8 3/64 3/64 1 1/4
+2 3/16 5/64 5/64 1 7/8
+3 1/4 7/64 7/64 2
+4 5/16 1/8 1/8 2 1/8
+5 7/16 3/16 3/16 2 3/4
+6 1/2 7/32 7/32 3
+7 5/8 1/4 1/4 3 1/4
+8 3/4 5/16 5/16 3 1/2STANDARD 60 ˚ CENTERDRILL
+
+===== PAGE 29 =====
+27
+MACHINIST’S CNC REFERENCE GUIDEDrill PoinT DePTh  & C ounTersink
+DiameTer  formulas
+To calculate drill tip depth for a chamfer diameter,  
+or drill point depth for a required drilling depth:
+Example: To calculate for a 118-degree drill tip depth, multiply the dia. by 0.3
+i.e., 0.250 drill diameter x .3  =  0.075 drill tip depth60˚   0.866 x Dia. = Point Depth
+82˚   0.575 x Dia. = Point Depth
+90˚    0.500 x Dia. = Point Depth
+118˚   0.300 x Dia. = Point Depth
+120˚   0.288 x Dia. = Point Depth
+135˚ 0.207 x Dia. = Point DepthDrill Point
+Angle (DPA) Factor
+
+===== PAGE 30 =====
+28
+MACHINIST’S CNC REFERENCE GUIDEDeGree  formulas
+CONVERT MINUTES OF A DEGREE TO A DECIMAL:
+Divide minutes by 60
+degree minutes to convert: 30° 42' 
+divide minutes by 60: 42 ÷ 60 = 0.7  
+bring down degrees:  30.7°
+CONVERT MINUTES AND SECONDS TO DECIMAL:
+Divide seconds, then minutes by 60  
+degree minutes and seconds to convert: 30° 41' 15"
+divide seconds by 60: 15 ÷ 60 = 0.25
+divide decimal minutes by 60: 41.25 ÷ 60 = 0.6875
+bring down degrees:  30.6875°
+CONVERT A DECIMAL DEGREE TO MINUTES:
+Multiply decimal by 60
+decimal degree to convert: 30.7° 
+multiply decimal degree by 60:    0.7 x 60 = 42'
+bring down degrees:  30° 42'
+CONVERT DECIMAL TO MINUTES AND SECONDS:
+Multiply decimal by 60 
+decimal degree to convert: 30.6875°
+multiply the degree decimal by 60: 0.6875 x 60 = 41.25'
+multiply decimal minutes by 60:  0.25 x 60 = 15"
+bring down degrees:  30° 41' 15"
+
+===== PAGE 31 =====
+29
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 32 =====
+30
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 33 =====
+31
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 34 =====
+32
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 35 =====
+33
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 36 =====
+34
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 37 =====
+35
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 38 =====
+36
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 39 =====
+37
+MACHINIST’S CNC REFERENCE GUIDE
+
+===== PAGE 40 =====
+Haas Automation, Inc. USA
+2800 Sturgis Road, Oxnard, CA 93030
+P. 800-331-6746  I  www.HaasCNC.com
+Haas Automation, Europe
+Mercuriusstraat 28, B-1930
+Zaventem, Belgium
+P. ++32-2-522 99 05  I  www.HaasCNC.com
+Haas Automation, Asia
+No. 96 Yi Wei Road, Building 67
+Waigaoqiao F.T.Z., Shanghai, 200131, P.R.C
+P. ++86-21-3861 6666  I  www.HaasCNC.com
+This book is copyrighted material.  
+© 2018 by Haas Automation, Inc., USA. All rights reserved.  
+May not be reproduced without written permission from publisher.  
+Extra copies available by contacting your local HFO.
+
+===== PAGE 41 =====
+Haas Automation, Inc. USA
+2800 Sturgis Road, Oxnard, CA 93030
+P. 800-331-6746  I  www.HaasCNC.com
+Haas Automation, Europe
+Mercuriusstraat 28, B-1930
+Zaventem, Belgium
+P. ++32-2-522 99 05  I  www.HaasCNC.com
+Haas Automation, Asia
+No. 96 Yi Wei Road, Building 67
+Waigaoqiao F.T.Z., Shanghai, 200131, P.R.C
+P. ++86-21-3861 6666  I  www.HaasCNC.comThis book is copyrighted material.  
+© 2018 by Haas Automation, Inc., USA. All rights reserved.  
+May not be reproduced without written permission from publisher.  
+Extra copies available by contacting your local HFO.

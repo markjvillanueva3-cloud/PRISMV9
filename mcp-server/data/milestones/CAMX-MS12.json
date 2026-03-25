@@ -1,0 +1,159 @@
+{
+  "id": "CAMX-MS12",
+  "version": "7.0.0",
+  "title": "Feature-to-Strategy Intelligence Engine",
+  "brief": "Exhaustive rule base for {feature\u00d7material\u00d7machine\u00d7tool\u00d7tolerance\u00d7batch}\u2192optimal strategy. ML ranking, stochastic comparison, Cpk prediction, robust optimization.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Strategy Intelligence",
+      "units": [
+        {
+          "id": "U01",
+          "title": "FeatureStrategyKnowledgeBaseEngine",
+          "description": "203 rules covering {10 features × 6 ISO × 3 axes × 3 operations} + special conditions. Dispatcher wired (5 actions). Build passes.",
+          "exit_conditions": [
+            "200+ rules",
+            "All feature types covered",
+            "Build passes"
+          ],
+          "status": "complete",
+          "completed_at": "2026-03-22T23:25:00Z",
+          "engine": "E1112",
+          "actions": ["strategy_kb_query", "strategy_kb_best", "strategy_kb_add", "strategy_kb_stats", "strategy_kb_list"]
+        },
+        {
+          "id": "U02",
+          "title": "StrategyBenchmarkEngine",
+          "description": "Predicted cycle time, tool life, Ra, Cpk, cost per strategy. Kienzle + Taylor + MC 500 trials.",
+          "exit_conditions": [
+            "Benchmarks computed",
+            "MC-backed predictions",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "StrategyComparisonEngine",
+          "description": "Side-by-side comparison with radar chart data.",
+          "exit_conditions": [
+            "Comparison engine works",
+            "Radar chart data",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "MachineLearningStrategyRankerEngine",
+          "description": "Bayesian updating from actual results. Fleet learning.",
+          "exit_conditions": [
+            "ML ranker works",
+            "Bayesian updating",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "ContextualStrategyOverrideEngine",
+          "description": "Edge cases: thin walls, deep bores, fragile materials, prototypes.",
+          "exit_conditions": [
+            "Override rules active",
+            "Edge cases handled",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "StrategySequencingEngine",
+          "description": "Multi-operation strategy sequences. TGAR\u2192AMEF\u2192HRAF\u2192PTDC.",
+          "exit_conditions": [
+            "Sequences generated",
+            "Stock state evolution",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "FixtureAwareStrategyEngine",
+          "description": "Adjust strategy for vise/vacuum/pallet workholding.",
+          "exit_conditions": [
+            "Fixture-aware selection",
+            "Force limits respected",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "BatchSizeStrategyEngine",
+          "description": "Optimize differently for prototype (1-5) vs production (100+) vs long run (1000+).",
+          "exit_conditions": [
+            "Batch-aware optimization",
+            "Cost vs safety tradeoff",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "8+ actions.",
+          "exit_conditions": [
+            "8 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "50+ tests.",
+          "exit_conditions": [
+            "50+ tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "Stochastic strategy comparison",
+          "description": "1000-trial MC per candidate. P(meets_tolerance), P(tool_survives), E[cost]. Select highest P(success).",
+          "exit_conditions": [
+            "1000-trial MC per strategy",
+            "Probabilistic selection",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "Cpk prediction gate",
+          "description": "ProcessCapabilityPredictionEngine per strategy. Reject if Cpk < 1.33. Prefer Cpk > 2.0.",
+          "exit_conditions": [
+            "Cpk gate active",
+            "Reject below 1.33",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U13",
+          "title": "Robust optimization under uncertainty",
+          "description": "Optimize for best worst-case under \u00b115% material variation.",
+          "exit_conditions": [
+            "Robust optimization works",
+            "Worst-case optimized",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

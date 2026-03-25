@@ -1,8 +1,10 @@
 # PRISM Compact Index
 
-E=1081 D=68 A=51 T=757+ RG=22 H=21 U=16 C=80 S=72 M=113 DOC=39
+E=1245 D=77 A=51 T=808 RG=22 H=31hooks+61scripts U=16 C=80 S=72 M=113 DOC=39
+Skills: 161 slash commands | Enforcement: 24 enforce-*.py scripts | Memory: 22 files
 DSL: 1814 shortcodes. Resolve: /code-index E0001 or codeSystemIndexEngine.resolve('E0001')
-Actions: 2665+ | CLI: 21 commands | ToolRouter: 123/46
+Actions: 2700+ | Tribal Tips: 3700+ (20 CAM systems) | Formulas: 499 | Materials: 2957
+Updated: 2026-03-24 — ENGINE_DIGEST regenerated with ALL 1,245 engines
 
 ## Paths
 E: src/engines/ | D: src/tools/dispatchers/ | A: src/algorithms/ | T: src/__tests__/

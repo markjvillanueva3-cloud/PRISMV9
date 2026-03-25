@@ -1,0 +1,126 @@
+{
+  "id": "CAMX-MS0.7",
+  "version": "7.0.0",
+  "title": "Uncertainty Chain Completion \u2014 End-to-End Statistical Variability",
+  "brief": "Connect three isolated uncertainty pockets into one chain: Material(\u00b1\u03c3)\u2192Force(\u00b1\u03c3)\u2192Deflection(\u00b1\u03c3)\u2192Finish(\u00b1\u03c3)\u2192Strategy(CI)\u2192ToolLife(Weibull)\u2192Cost(\u00b1\u03c3)\u2192Output(confidence). Add Taguchi, Markov, digital twin calibration.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Complete the Uncertainty Chain",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire UncertaintyPropagationPipelineEngine into SFO",
+          "description": "Replace SFO inline MC with UncertaintyPropagationPipeline (full MC/FOSM/PCE chain). Currently test-only.",
+          "exit_conditions": [
+            "UncertaintyPropagation called from SFO",
+            "MC/FOSM/PCE methods available",
+            "CI95 in SFO output"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Connect Link 4: Surface Finish(\u00b1\u03c3) \u2192 Strategy Selection(CI)",
+          "description": "CrossCamRecommender accepts Ra_distribution. Uncertainty penalty for high-variance strategies. Confidence interval on ranking.",
+          "exit_conditions": [
+            "Ra distribution consumed",
+            "Uncertainty penalty in scoring",
+            "CI on strategy ranking"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Connect Link 5: Strategy \u2192 Tool Life(Weibull)",
+          "description": "Wire StochasticToolLifeEngine into CrossCamRecommender. Full Weibull per strategy. Score includes P(survive target life).",
+          "exit_conditions": [
+            "Weibull per strategy candidate",
+            "P(survive) in scoring",
+            "MLE fitting used"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Connect Link 6: Tool Life(Weibull) \u2192 Cost(\u00b1\u03c3)",
+          "description": "QuoteEstimatorEngine accepts Weibull tool life. Cost CI95 instead of point estimate.",
+          "exit_conditions": [
+            "Cost has CI95",
+            "Weibull-aware tool amortization",
+            "Variance propagated"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Connect Link 7: Cost(\u00b1\u03c3) \u2192 Pipeline Output(confidence)",
+          "description": "P2P outputs statistical confidence: P(all_params_within_spec) from propagated distributions. Replace heuristic deduction score.",
+          "exit_conditions": [
+            "Statistical confidence in output",
+            "Propagated from MC distributions",
+            "Replaces heuristic score"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Sobol sensitivity at pipeline output",
+          "description": "Sobol indices showing which input contributes most to uncertainty. Actionable: 'Measure kc1.1 for this material lot.'",
+          "exit_conditions": [
+            "Sobol indices in output",
+            "Actionable recommendations",
+            "Top-3 sensitivity factors"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Taguchi robustness in strategy selection",
+          "description": "DOETaguchEngine for top-3 strategies. L9 analysis varying noise factors. Select best S/N ratio.",
+          "exit_conditions": [
+            "Taguchi L9 for top strategies",
+            "S/N ratio comparison",
+            "Most robust strategy selected"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Markov tool state integration",
+          "description": "MarkovChainEngine for wear state transitions (fresh\u2192worn\u2192near-failure\u2192failed). Predict tool change timing.",
+          "exit_conditions": [
+            "Markov tool states modeled",
+            "Tool change timing predicted",
+            "Fed into cost model"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Digital twin calibration loop",
+          "description": "ProcessDigitalTwinEngine consumes actual results via MTConnect/OPC-UA. Auto-calibrate kc1.1, Taylor C/n, stiffness.",
+          "exit_conditions": [
+            "Digital twin calibration active",
+            "Auto-adjusts physics constants",
+            "Improves with each part"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Uncertainty chain tests",
+          "description": "40+ tests: end-to-end chain, Sobol indices, Taguchi, Markov, digital twin. CI95 narrows with calibration data.",
+          "exit_conditions": [
+            "40+ tests pass",
+            "Full chain verified",
+            "CI narrows with data"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

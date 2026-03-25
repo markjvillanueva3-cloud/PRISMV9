@@ -1,0 +1,99 @@
+{
+  "id": "CAMX-MS10",
+  "version": "7.0.0",
+  "title": "Tool Export/Sync for All Major CAM Systems",
+  "brief": "Export PRISM 95K+ tool catalog to native formats for Mastercam, SolidCAM, NX. Universal ISO 13399 export. CuttingDataExport.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Universal Tool Export",
+      "units": [
+        {
+          "id": "U01",
+          "title": "MastercamToolExportEngine",
+          "description": "Export to .mcam-tools format.",
+          "exit_conditions": [
+            "Export works",
+            "Tool assemblies",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "SolidCAMToolExportEngine",
+          "description": "Export to SolidCAM format.",
+          "exit_conditions": [
+            "Export works",
+            "Tool tables",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "NXToolExportEngine",
+          "description": "Export to NX .dat/.prt format.",
+          "exit_conditions": [
+            "Export works",
+            "3D assemblies",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "UniversalToolExportEngine",
+          "description": "ISO 13399 (GTC), STEP-NC (AP238), MTConnect Assets, QIF.",
+          "exit_conditions": [
+            "4 formats supported",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "ToolSyncOrchestratorEngine",
+          "description": "Orchestrate sync across multiple CAM systems. Detect drift, batch sync.",
+          "exit_conditions": [
+            "Multi-system sync",
+            "Drift detection",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "CuttingDataExportEngine",
+          "description": "Export physics-computed cutting data to native formats.",
+          "exit_conditions": [
+            "Per-material per-tool export",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "6 export actions.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

@@ -1,466 +1,1360 @@
-# PRISM MASTER_INDEX
+# PRISM MASTER INDEX - Complete System Catalog
+## Regenerated: 2026-03-23 21:05
+## This file lists EVERY asset in the PRISM system, categorized for lookup.
+## ALWAYS read this before building anything new to prevent duplicates.
 
-**Generated**: 2026-03-13 07:09
-**Version**: v9.0
+## 1. Engines (1245)
 
-## Summary
+### 5-Axis & Multi-Axis (8)
+- FiveAxisCAMIntegrationEngine
+- FiveAxisPostEngine
+- FiveAxisToolpathIntegrationEngine
+- HyperMillMultiAxisEngine
+- MultiAxisKinematicEngine
+- MultiAxisPrintToProgramEngine
+- MultiaxisToolpathEngine
+- RTCP_CompensationEngine
 
-| Component | Count |
-|-----------|-------|
-| Engines | 857 |
-| Dispatchers | 58 |
-| Algorithms | 51 |
-| Registries | 22 |
-| Schemas | 0 |
-| Hooks | 21 |
-| Utils | 16 |
-| Services | 3 |
-| Data/Catalog files | 67 |
-| Test files | 530 |
-| Milestones | 110 |
-| Docs | 36 |
-| Slash commands | 134 |
-| Web files | 12377 |
-| Root configs | 83 |
+### AI & Machine Learning (12)
+- AnomalyDetectionEngine
+- BayesianInferenceEngine
+- BayesianOptimizationEngine
+- FederatedLearningEngine
+- FuzzyNeuralHybridEngine
+- GeneticAlgorithmEngine
+- KalmanFilterEngine
+- MachineLearningFeedbackEngine
+- ParticleSwarmOptimizationEngine
+- RealTimeAnomalyDetectionEngine
+- SwarmNeuralHybridEngine
+- TransferLearningEngine
 
-## 1. Engines (857)
+### Additive Manufacturing (6)
+- AdditiveManufacturingPhysicsEngine
+- ISO286ExtendedEngine
+- PowderCompactionEngine
+- SinteringProcessEngine
+- SolidEditingEngine
+- ToolCallDeduplicatorEngine
 
-Path: `src/engines/`
+### Business & ERP (20)
+- CampaignEngine
+- CircularInterpolationEngine
+- ERPIntegrationEngine
+- FilterPressEngine
+- FinancialAnalysisEngine
+- HeatExchangerPlateEngine
+- JobShopSchedulingEngine
+- MasterPostProcessorEngine
+- MaterialInterpolationEngine
+- OrderManagerEngine
+- ProcessFingerprintEngine
+- ProductEngine
+- ProgrammerProductivityEngine
+- PurchaseOrderEngine
+- SegmentInterpolatorEngine
+- ShopNetworkEngine
+- ShopSchedulerEngine
+- ShopToolLibraryEngine
+- StripeBillingEngine
+- ToolOutputFingerprinterEngine
 
-| AHPEngine                                     | AIMLEngine                                    |
-| AMSAAReliabilityGrowthEngine                  | AbsorptionChillerEngine                       |
-| AccumulatorEngine                             | AcoSequencerEngine                            |
-| AcousticEmissionMonitoringEngine              | ActionSchemaCacheEngine                       |
-| ActualCostEngine                              | AdaptiveClearingEngine                        |
-| AdaptiveControlEngine                         | AdaptiveEngagementEngine                      |
-| AdaptiveFeedControlEngine                     | AdaptiveRefinementEngine                      |
-| AdaptiveSpindleControlEngine                  | AdaptiveTessellationEngine                    |
-| AdditiveQuoteEngine                           | AdhesiveBondEngine                            |
-| AdhesiveBondingEngine                         | AdvancedCalculations                          |
-| AdvancedChipThicknessEngine                   | AdvancedCuttingMathEngine                     |
-| AdvancedCuttingPhysicsEngine                  | AdvancedPostProcessorEngine                   |
-| AdvancedWearPhysicsEngine                     | AgentExecutor                                 |
-| AirCompressorEngine                           | AirDuctEngine                                 |
-| AlarmEscalationEngine                         | AlgorithmEngine                               |
-| AlgorithmGatewayEngine                        | AlgorithmSelectorEngine                       |
-| AnodizeAllowanceEngine                        | AnodizingProcessEngine                        |
-| AntColonyOptimizationEngine                   | ApprenticeEngine                              |
-| AssemblyEngine                                | AssignmentProblemEngine                       |
-| AuditEngine                                   | AuthEngine                                    |
-| AutoSpeedFeedEngine                           | AutoclaveProcessEngine                        |
-| AxialPistonPumpEngine                         | AxisCompensationEngine                        |
-| BSplineEngine                                 | BVHEngine                                     |
-| BackplotEngine                                | BalancingMachineEngine                        |
-| BallEndMillEngine                             | BallMillEngine                                |
-| BallScrewEngine                               | BallScrewSelectionEngine                      |
-| BarFeederEngine                               | BarPullerTimingEngine                         |
-| BashCommandClassifierEngine                   | BatchOptimizationEngine                       |
-| BatchProcessor                                | BatchQueryEngine                              |
-| BayesianAdaptiveEngine                        | BayesianInferenceEngine                       |
-| BayesianOptimizationEngine                    | BayesianToolLifeEngine                        |
-| BearingSelectionEngine                        | BeltDriveEngine                               |
-| BenchmarkSuiteEngine                          | BendAllowanceEngine                           |
-| BevelGearEngine                               | BlowMoldingEngine                             |
-| BlowerEngine                                  | BlueprintOCREngine                            |
-| BlueprintToQuoteBridgeEngine                  | BoilerTubeEngine                              |
-| BoltTorqueEngine                              | BoltedJointEngine                             |
-| BoreFinishingEngine                           | BoringBarDeflectionEngine                     |
-| BoringBarEngine                               | BottleneckIdentificationEngine                |
-| BrazingProcessEngine                          | BrazingSolderingEngine                        |
-| BroachDesignEngine                            | BroachingEngine                               |
-| BucketElevatorEngine                          | BurrFormationEngine                           |
-| CADKernelEngine                               | CAMIntegrationEngine                          |
-| CAMKernelEngine                               | CNCMaintenanceEngine                          |
-| CNCProgramAssemblerEngine                     | CacheEngine                                   |
-| CadBridge                                     | CalenderingEngine                             |
-| CalibrationEngine                             | CallChainEngine                               |
-| CamDesignEngine                               | CamKnowledgePortabilityEngine                 |
-| CamProfileEngine                              | CampaignEngine                                |
-| CapacitorBankEngine                           | CapacityPlanningEngine                        |
-| CarburizingEngine                             | CastingDefectEngine                           |
-| CastingQuoteEngine                            | CathodicProtectionEngine                      |
-| CenterDrillEngine                             | CenterlessGrindingEngine                      |
-| CentrifugalCastingEngine                      | CentrifugalPumpEngine                         |
-| CentrifugeEngine                              | CertificateEngine                             |
-| ChainDriveEngine                              | ChamferEngine                                 |
-| ChamferMillingEngine                          | ChanceConstrainedOptimizationEngine           |
-| ChatterPredictionEngine                       | ChatterStabilityLobeEngine                    |
-| ChemicalVaporDepositionEngine                 | ChipBreakingEngine                            |
-| ChipConveyorEngine                            | ChipFormationPredictionEngine                 |
-| ChipLoadEngine                                | ChuckJawForceEngine                           |
-| CircularInterpolationEngine                   | CircularPocketEngine                          |
-| ClampingSimEngine                             | ClusterAnalysisEngine                         |
-| ClusteringEngine                              | ClutchBrakeEngine                             |
-| ClutchDesignEngine                            | CoatingThicknessEngine                        |
-| CodeSystemIndexEngine                         | CollisionDetectionEngine                      |
-| CollisionEngine                               | CollisionIntegrationEngine                    |
-| ColumnBucklingEngine                          | CompactFormatterEngine                        |
-| CompactPlannerEngine                          | CompactionStrategyEngine                      |
-| ComplianceEngine                              | CompressionMoldingEngine                      |
-| CompressorDesignEngine                        | ComputationCache                              |
-| CondenserDesignEngine                         | ConfigEngine                                  |
-| ConnectingRodEngine                           | ConstitutiveModelEngine                       |
-| ConstraintSatisfactionEngine                  | ConstructionGeometryEngine                    |
-| ContextBudgetEngine                           | ContextDigestEngine                           |
-| ContextIntegrityEngine                        | ContextInventoryEngine                        |
-| ContextPreloaderEngine                        | ContextSnapshotEngine                         |
-| ContextWindowMapEngine                        | ContextWindowPressureEngine                   |
-| ContinuousImprovementEngine                   | ConversationBudgetEngine                      |
-| ConversationTrimmerEngine                     | ConversationalMemoryEngine                    |
-| ConvexOptimizationEngine                      | ConveyorBeltEngine                            |
-| ConveyorDesignEngine                          | CoolantDynamicsEngine                         |
-| CoolantFlowEngine                             | CoolantPressureEngine                         |
-| CoolantStrategyEngine                         | CoolantValidationEngine                       |
-| CoolingTowerEngine                            | CoriolisFlowMeterEngine                       |
-| CorrosionRateEngine                           | CostAwareRouterEngine                         |
-| CostEstimationEngine                          | CostEstimatorEngine                           |
-| CounterboreSinkEngine                         | CounterboringEngine                           |
-| CountersinkEngine                             | CouplingEngine                                |
-| CouplingSelectionEngine                       | CraneLoadEngine                               |
-| CrankshaftDesignEngine                        | CreepLifeEngine                               |
-| CriticalSpeedEngine                           | CrossCamNovelAlgorithms                       |
-| CrossCamRecommenderEngine                     | CryogenicTreatmentEngine                      |
-| CrystallizationEngine                         | CurvatureAnalysisEngine                       |
-| CustomerManagementEngine                      | CutterContactEngine                           |
-| CuttingDataLookupEngine                       | CuttingFluidSelectionEngine                   |
-| CuttingForceEngine                            | CuttingMechanicsEngine                        |
-| CuttingPowerBudgetEngine                      | CuttingTemperatureEngine                      |
-| CuttingThermalEngine                          | CycleTimeAccuracyEngine                       |
-| CycleTimeEngine                               | CycleTimeEstimatorEngine                      |
-| CycleToControlEngine                          | CycloidDriveEngine                            |
-| CycloneSeparatorEngine                        | DNCTransferEngine                             |
-| DOEAnalysisEngine                             | DOETaguchEngine                               |
-| DamperDesignEngine                            | DampingOptimizationEngine                     |
-| DataValidationEngine                          | DeburringEngine                               |
-| DecisionTreeEngine                            | DfMRulesEngine                                |
-| DiaphragmPumpEngine                           | DiffEngine                                    |
-| DiffMinimizerEngine                           | DiffTokenEstimatorEngine                      |
-| DifferentialEquationEngine                    | DifferentialEvolutionEngine                   |
-| DiffuserEngine                                | DigitalThreadEngine                           |
-| DigitalTwinEngine                             | DigitalTwinSyncEngine                         |
-| DigitalWorkInstructionEngine                  | DimensionalAnalysisEngine                     |
-| DiskBrakeEngine                               | DispatcherMapEngine                           |
-| DistillationColumnEngine                      | DrillBreakthroughForceEngine                  |
-| DrillCycleOptimizationEngine                  | DrumBrakeEngine                               |
-| DynamicBalanceEngine                          | DynamicProgrammingEngine                      |
-| EBWeldingEngine                               | EDMEngine                                     |
-| EDMParameterEngine                            | EDMSurfaceIntegrityEngine                     |
-| EDMWireEngine                                 | ERPIntegrationEngine                          |
-| EditPlannerEngine                             | EjectorEngine                                 |
-| ElectricMotorEngine                           | ElectroPlatingEngine                          |
-| ElectrochemicalEngine                         | ElectrodeDesignEngine                         |
-| ElectrospinningEngine                         | ElectrostaticPrecipitatorEngine               |
-| EmployeeEngine                                | EndToEndPipelineEngine                        |
-| EnergyOptimizationEngine                      | EngagementAdaptiveFeedEngine                  |
-| EngagementGeometryEngine                      | EngineRegistryEngine                          |
-| EntryExitStrategyEngine                       | ErrorContextEngine                            |
-| EvaporatorDesignEngine                        | EvaporatorProcessEngine                       |
-| EventBus                                      | EventEngine                                   |
-| ExponentialSmoothingEngine                    | ExportEngine                                  |
-| ExtrusionForceEngine                          | FacingEngine                                  |
-| FailureForensicsEngine                        | FanSelectionEngine                            |
-| FatigueLifeEngine                             | FeatureInteractionEngine                      |
-| FeatureRecognitionEngine                      | FeatureToZoneEngine                           |
-| FederatedLearningEngine                       | FeedOptimizationEngine                        |
-| FeedRateOptimizationEngine                    | FilamentWindingEngine                         |
-| FileAccessPatternEngine                       | FileIOEngine                                  |
-| FilletingEngine                               | FilterPressEngine                             |
-| FinancialAnalysisEngine                       | FinishingPassOptimizationEngine               |
-| FiniteElementEngine                           | FixtureClampingEngine                         |
-| FixtureDesignEngine                           | FixturePlateEngine                            |
-| FlangeBoltEngine                              | FlatPatternEngine                             |
-| FlotationCellEngine                           | FluidCouplingEngine                           |
-| FluidizedBedEngine                            | FlyingShearEngine                             |
-| FlywheelEnergyEngine                          | FlywheelEngine                                |
-| FourierAnalysisEngine                         | FractureToughnessEngine                       |
-| FreezeDryingEngine                            | FrequentPathEngine                            |
-| FrictionStirWeldingEngine                     | FurnaceHeatingEngine                          |
-| FuzzyLogicEngine                              | FuzzyNeuralHybridEngine                       |
-| GCodeEnergyOptimizerEngine                    | GCodeIntelligencePipelineEngine               |
-| GCodeOptimizationEngine                       | GCodeSafetyAnalyzerEngine                     |
-| GCodeSnippetEngine                            | GCodeTemplateEngine                           |
-| GCodeTranspilerEngine                         | GCodeValidationEngine                         |
-| GCodeVerificationEngine                       | GDTStackupEngine                              |
-| GameTheoryEngine                              | GasketDesignEngine                            |
-| GaugingEngine                                 | GearHobbingEngine                             |
-| GearPumpEngine                                | GearTrainEngine                               |
-| GeneralLedgerEngine                           | GenerativeProcessEngine                       |
-| GeneticAlgorithmEngine                        | GeometryAlgorithmsEngine                      |
-| GeometryEngine                                | GradientOptimizationEngine                    |
-| GranulationProcessEngine                      | GraphAlgorithmsEngine                         |
-| GraphTheoryEngine                             | GrepOptimizerEngine                           |
-| GrindingForceEngine                           | GrindingSurfaceFinishEngine                   |
-| GrindingWheelEngine                           | GunDrillingEngine                             |
-| HRComplianceEngine                            | HardnessConversionEngine                      |
-| HarmonicAnalysisEngine                        | HarmonicDriveEngine                           |
-| HealthEngine                                  | HeatExchangerEngine                           |
-| HeatExchangerPlateEngine                      | HeatTransferEngine                            |
-| HeatTreatmentEngine                           | HeatTreatmentResponseEngine                   |
-| HelicalInterpolationEngine                    | HelicalMillingEngine                          |
-| HertzContactEngine                            | HighFeedMillingEngine                         |
-| HoningEngine                                  | HookEfficiencyEngine                          |
-| HookEngine                                    | HookExecutor                                  |
-| HookRuleMatcherEngine                         | HybridLaserMachineEngine                      |
-| HybridPostMergeEngine                         | HydraulicCylinderEngine                       |
-| HydraulicMotorEngine                          | HydraulicPressEngine                          |
-| HyperMillControllerCatalogEngine              | HyperMillCycleCatalogEngine                   |
-| HyperMillCycleDefaultsEngine                  | HyperMillMaterialMapEngine                    |
-| HyperMillMultiAxisEngine                      | HyperMillSafetyHooks                          |
-| HyperMillStrategyEngine                       | HyperMillThreadStandardEngine                 |
-| HypoidGearEngine                              | ImpellerEngine                                |
-| ImportCostEngine                              | IncrementalReadEngine                         |
-| InductionHeatingEngine                        | InferenceChainEngine                          |
-| InformationTheoryEngine                       | InjectionMoldQuoteEngine                      |
-| InjectionMoldingEngine                        | InsertGradeSelectionEngine                    |
-| IntegrationAdapterEngine                      | IntelligenceEngine                            |
-| IntentDecompositionEngine                     | InteriorPointEngine                           |
-| InventoryEOQEngine                            | InventoryOptimizationEngine                   |
-| InverseKinematicsSolverEngine                 | InverseSolverEngine                           |
-| InvoicingEngine                               | IonImplantationEngine                         |
-| IsosurfaceEngine                              | JobCostingEngine                              |
-| JobLearningEngine                             | JobLifecycleEngine                            |
-| JobShopSchedulingEngine                       | JohnsonCookEngine                             |
-| JournalBearingEngine                          | KalmanFilterEngine                            |
-| KeyseatCutterEngine                           | KeywayDesignEngine                            |
-| KeywayEngine                                  | KeywayStressEngine                            |
-| KinematicsEngine                              | KnowledgeGraphEngine                          |
-| KnowledgeQueryEngine                          | KnurlingEngine                                |
-| LLMEngine                                     | LaserCutInterfaceEngine                       |
-| LaserCuttingEngine                            | LaserMarkingEngine                            |
-| LaserWeldingEngine                            | LathePostProcessorEngine                      |
-| LeadScrewEngine                               | LeafSpringEngine                              |
-| LeanSixSigmaEngine                            | LearningPathEngine                            |
-| LinearGuideEngine                             | LinearMotionEngine                            |
-| LinearProgrammingEngine                       | LinearRegressionEngine                        |
-| LiveToolingEngine                             | LocalSearchEngine                             |
-| LoggingEngine                                 | MachinabilityRatingEngine                     |
-| MachineConfigDatabaseEngine                   | MachineConnectivityEngine                     |
-| MachineGeometricAccuracyEngine                | MachineKinematicsEngine                       |
-| MachineLevelingEngine                         | MachineMatcherEngine                          |
-| MachineProfileEngine                          | MachineRateDatabaseEngine                     |
-| MachineSelectionEngine                        | MachineVibrationEngine                        |
-| MachineWarmupEngine                           | MachiningEnergyModelEngine                    |
-| MachiningPlaybookEngine                       | MagneticBearingEngine                         |
-| MagneticChuckEngine                           | ManufacturingCalculations                     |
-| ManufacturingGenomeEngine                     | ManufacturingStatisticsEngine                 |
-| ManusATCSBridge                               | MarketMaterialPricingEngine                   |
-| MarkovChainEngine                             | MarkovDecisionEngine                          |
-| MaskingCalculatorEngine                       | MasterIndexGenerator                          |
-| MasterPostProcessorEngine                     | MaterialEquivalenceEngine                     |
-| MaterialInterpolationEngine                   | MaterialSelectionEngine                       |
-| MeasurementIntegrationEngine                  | MembraneFiltrationEngine                      |
-| MemoryGraphEngine                             | MeshDecimationEngine                          |
-| MeshEngine                                    | MetricsEngine                                 |
-| MicroEDMEngine                                | MicroMachiningEngine                          |
-| MicrostructureEffectEngine                    | MigrationEngine                               |
-| MixerAgitatorEngine                           | MobileInterfaceEngine                         |
-| ModularFixtureLayoutEngine                    | MonteCarloEngine                              |
-| MonteCarloProcessEngine                       | MotionDynamicsProfileEngine                   |
-| MultiAxisKinematicEngine                      | MultiCamStrategyEngine                        |
-| MultiCamStrategyEngineExt                     | MultiObjectiveEngine                          |
-| MultiObjectiveParetoEngine                    | MultiProcessQuoteEngine                       |
-| MultiSetupPlannerEngine                       | MultiTenantEngine                             |
-| MultiaxisToolpathEngine                       | NLHookEngine                                  |
-| NURBSEngine                                   | NestingEngine                                 |
-| NetworkFlowEngine                             | NitridingProcessEngine                        |
-| NoiseLevelEngine                              | NotificationEngine                            |
-| NovelPostProcessorBridgeEngine                | NovelToolpathAlgorithmsExt                    |
-| NovelToolpathEngine                           | NovelToolpathSimulatorEngine                  |
-| NozzleEngine                                  | NumericalIntegrationEngine                    |
-| NumericalMethodsEngine                        | OEECalculatorEngine                           |
-| OffsetSurfaceEngine                           | OnboardingEngine                              |
-| OperationSequencerEngine                      | OptimalControlEngine                          |
-| OptimizationEngine                            | OptimizationSimplexEngine                     |
-| OrderManagerEngine                            | OrificeFlowMeterEngine                        |
-| OutputBudgetEnforcerEngine                    | OutputBudgetEngine                            |
-| OutputTruncatorEngine                         | PFPEngine                                     |
-| PIDControllerEngine                           | ParallelCallPlannerEngine                     |
-| ParallelismEngine                             | ParametricPartLibraryEngine                   |
-| ParametricSurfaceEngine                       | PartDeflectionEngine                          |
-| PartOffForceEngine                            | ParticleSwarmOptimizationEngine               |
-| PartingGroovingEngine                         | PassivationEngine                             |
-| PayrollEngine                                 | PeckDrillingEngine                            |
-| PeckDrillingOptimizationEngine                | PeristalticPumpEngine                         |
-| PhotochemicalEtchingEngine                    | PhysicsPredictionEngine                       |
-| PipeSizingEngine                              | PipeStressEngine                              |
-| PipingPressureEngine                          | PistonDesignEngine                            |
-| PlanetaryGearEngine                           | PlasmaArcEngine                               |
-| PlasmaCuttingEngine                           | PlatingAllowanceEngine                        |
-| PluginEngine                                  | PlungeMillingEngine                           |
-| PneumaticConveyingEngine                      | PneumaticCylinderEngine                       |
-| PostProcessorEngine                           | PostProcessorFeedOptimizerEngine              |
-| PostProcessorGeneratorEngine                  | PostSelectionEngine                           |
-| PowderCompactionEngine                        | PowerSkivingEngine                            |
-| PredictionValidationEngine                    | PredictiveFailureEngine                       |
-| PredictiveMaintenanceEngine                   | PressBrakeEngine                              |
-| PressFitEngine                                | PrincipalComponentEngine                      |
-| PrintReadingEngine                            | ProbeRoutineEngine                            |
-| ProbeRoutineGeneratorEngine                   | ProbingCycleEngine                            |
-| ProcessDigitalTwinEngine                      | ProcessPlanEngine                             |
-| ProcessRobustnessEngine                       | ProductEngine                                 |
-| ProfilingEngine                               | ProgramStructureEngine                        |
-| ProgressiveCavityPumpEngine                   | ProjectSchedulingEngine                       |
-| PromptCompressionEngine                       | PromptTemplateEngine                          |
-| PropellerEngine                               | ProtocolBridgeEngine                          |
-| PultrusionProcessEngine                       | PumpSelectionEngine                           |
-| PurchaseOrderEngine                           | PurchasingDirectoryEngine                     |
-| QLearningEngine                               | QualityManagementEngine                       |
-| QualityPredictionEngine                       | QuenchingProcessEngine                        |
-| QueueEngine                                   | QueueingTheoryEngine                          |
-| QuickCalcEngine                               | QuoteAnalyticsEngine                          |
-| QuoteEngine                                   | QuoteEstimatorEngine                          |
-| QuotingEngine                                 | RLPostProcessorEngine                         |
-| RTCP_CompensationEngine                       | RTDEngine                                     |
-| RackPinionEngine                              | RampingEngine                                 |
-| RateLimitEngine                               | ReadOptimizerEngine                           |
-| RealTimeAnomalyDetectionEngine                | ReamingEngine                                 |
-| RecastLayerEngine                             | ReciprocatingCompressorEngine                 |
-| RegenerativeChatterPredictor                  | ReliabilityEngineeringEngine                  |
-| ReliabilityWeibullEngine                      | RepetitionDetectorEngine                      |
-| ReportEngine                                  | ReportRenderer                                |
-| ReportingEngine                               | ResinTransferEngine                           |
-| ResistanceWeldingEngine                       | ResponseCacheEngine                           |
-| ResponseFormatterEngine                       | ResponseTemplateEngine                        |
-| RestMachiningEngine                           | RigidBodyDynamicsEngine                       |
-| RivetJointEngine                              | RivetedJointEngine                            |
-| RoadmapExecutor                               | RobustStatisticsEngine                        |
-| RocketNozzleEngine                            | RollingBearingEngine                          |
-| RollingContactEngine                          | RollingMillEngine                             |
-| RotaryKilnEngine                              | RotationalMoldingEngine                       |
-| RoughnessConversionEngine                     | RunoutCompensationEngine                      |
-| RunoutEffectEngine                            | SPCChartingEngine                             |
-| SPCProcessCapabilityEngine                    | SQPEngine                                     |
-| SchedulingEngine                              | SchemaCompactEngine                           |
-| ScrewCompressorEngine                         | ScrewConveyorEngine                           |
-| ScrewExtrusionEngine                          | ScrewJackEngine                               |
-| ScriptExecutor                                | ScrollCompressorEngine                        |
-| SealSelectionEngine                           | SecondaryOpsEngine                            |
-| SegmentInterpolatorEngine                     | SensorDataSchemaEngine                        |
-| SensorFusionEngine                            | SensorSimulatorEngine                         |
-| SessionBudgetAdvisorEngine                    | SessionDeltaEngine                            |
-| SessionEventLogEngine                         | SessionLifecycleEngine                        |
-| SessionReplayEngine                           | SessionTokenLedgerEngine                      |
-| SettingsEngine                                | SetupReductionEngine                          |
-| SetupSheetEngine                              | SetupSheetFromGCodeEngine                     |
-| ShaftAlignmentEngine                          | SheetMetalNestingEngine                       |
-| SheetMetalQuoteEngine                         | ShiftHandoffEngine                            |
-| ShockAbsorberEngine                           | ShopSchedulerEngine                           |
-| ShotPeeningEngine                             | ShrinkFitEngine                               |
-| SignalProcessingEngine                        | SilhouetteEngine                              |
-| SimulatedAnnealingEngine                      | SimulationEngine                              |
-| SinglePointThreadEngine                       | SingularityAvoidanceEngine                    |
-| SinkerEDMCalculatorEngine                     | SinteringProcessEngine                        |
-| SketchConstraintEngine                        | SketchEngine                                  |
-| SkillAutoLoader                               | SkillBundleEngine                             |
-| SkillExecutor                                 | SlottingEngine                                |
-| SmartDefaultsEngine                           | SmartPrefetchEngine                           |
-| SoftJawProfileEngine                          | SolderingProcessEngine                        |
-| SolidEditingEngine                            | SourceCatalogAggregator                       |
-| SpatialIndexEngine                            | SpecificCuttingEnergyEngine                   |
-| SpectralGraphEngine                           | SpindleBearingLoadEngine                      |
-| SpindleHarmonicsQualityEngine                 | SpindleLoadMonitorEngine                      |
-| SpindlePowerCheckEngine                       | SpindleProtectionEngine                       |
-| SpindleRunoutEngine                           | SpindleSpeedVariationEngine                   |
-| SpindleTorqueCurveEngine                      | SplineJointEngine                             |
-| SplineMillingEngine                           | SplineStressEngine                            |
-| SpotDrillingEngine                            | SprayDryerEngine                              |
-| SprayDryingEngine                             | SpringCalcEngine                              |
-| SpringDesignEngine                            | SpringPassEngine                              |
-| SpringbackPredictionEngine                    | SputteringProcessEngine                       |
-| StabilityRPMRewriterEngine                    | StampingDieEngine                             |
-| StatisticalProcessEngine                      | StatisticalProcessMonitoringEngine            |
-| SteadyRestPlacementEngine                     | SteamTurbineEngine                            |
-| StepoverOptimizationEngine                    | StochasticProcessEngine                       |
-| StockAllowanceEngine                          | StockModelEngine                              |
-| StockSizeOptimizerEngine                      | StopConditionEngine                           |
-| SubprogramEngine                              | SurfaceFinishDatabaseEngine                   |
-| SurfaceFinishEngine                           | SurfaceFinishPredictorEngine                  |
-| SurfaceGrindingEngine                         | SurfaceIntegrityEngine                        |
-| SurfaceIntegrityPredictorEngine               | SurfaceIntersectionEngine                     |
-| SurfaceReconstructionEngine                   | SurfaceRoughnessEngine                        |
-| SurfaceTreatmentEngine                        | SurvivalAnalysisEngine                        |
-| SustainabilityEngine                          | SustainabilityLCAEngine                       |
-| SwarmAlgorithmsEngine                         | SwarmExecutor                                 |
-| SwarmGroupExecutor                            | SwarmNeuralHybridEngine                       |
-| SystemSnapshotEngine                          | TOPSISEngine                                  |
-| TailstockForceEngine                          | TankDesignEngine                              |
-| TapDrillEngine                                | TaperTurningEngine                            |
-| TappingTorqueEngine                           | TaskAgentClassifier                           |
-| TelemetryEngine                               | TenantEngine                                  |
-| TensileToMachinabilityEngine                  | ThermalCompensationModelEngine                |
-| ThermalExpansionEngine                        | ThermalExpansionJointEngine                   |
-| ThermalFatigueEngine                          | ThermalGrowthCompensationEngine               |
-| ThermalModelingEngine                         | ThermalSimEngine                              |
-| ThermalSprayEngine                            | ThermocoupleEngine                            |
-| ThermoelectricEngine                          | ThermoformingEngine                           |
-| ThickenerEngine                               | ThinFilmDepositionEngine                      |
-| ThinFloorVibrationEngine                      | ThreadCalculationEngine                       |
-| ThreadGageEngine                              | ThreadMillingEngine                           |
-| ThreadTurningEngine                           | ThreeDPrintedFixtureEngine                    |
-| TiltAngleOptimizationEngine                   | TimeClockEngine                               |
-| TimeSeriesARIMAEngine                         | TimeSeriesEngine                              |
-| TokenAccountingEngine                         | TokenBudgetAllocatorEngine                    |
-| ToleranceEngine                               | ToleranceStackEngine                          |
-| ToleranceStackUpEngine                        | TombstoneLayoutEngine                         |
-| ToolAssemblyDeflectionEngine                  | ToolAssemblyEngine                            |
-| ToolAxisOptimizationEngine                    | ToolBalancingEngine                           |
-| ToolBreakageEngine                            | ToolCallBatchEngine                           |
-| ToolCallBatchOptimizerEngine                  | ToolCallDeduplicatorEngine                    |
-| ToolCallHistogramEngine                       | ToolCallPipelineEngine                        |
-| ToolCallThrottleEngine                        | ToolCatalogEngine                             |
-| ToolCoatingSelectionEngine                    | ToolCostPerPartEngine                         |
-| ToolCostPredictorEngine                       | ToolCribEngine                                |
-| ToolDeflectionPredictionEngine                | ToolGeometrySelectionEngine                   |
-| ToolHolderDatabaseEngine                      | ToolLifeAdaptiveEngine                        |
-| ToolOutputFingerprinterEngine                 | ToolOutputSummarizerEngine                    |
-| ToolOverhangEngine                            | ToolPathStepoverEngine                        |
-| ToolPresettingEngine                          | ToolRedirectEngine                            |
-| ToolRouterEngine                              | ToolRunoutEngine                              |
-| ToolSelectionAdvisorEngine                    | ToolSelectionEngine                           |
-| ToolUsageEngine                               | ToolWearCompensationEngine                    |
-| ToolWearProgressionEngine                     | ToolWearRateEngine                            |
-| ToolholderDynamicsEngine                      | ToolpathCalculations                          |
-| ToolpathGenerationEngine                      | ToolpathLinkingEngine                         |
-| ToolpathSegmentOptimizerEngine                | ToolpathSimulationEngine                      |
-| ToolpathThermalEngine                         | TopologyEngine                                |
-| TorsionBarEngine                              | TransformerEngine                             |
-| TransitionPathEngine                          | TransportationProblemEngine                   |
-| TribalKnowledgeEngine                         | TribologyEngine                               |
-| TrochoidalMillingEngine                       | TroubleshootingEngine                         |
-| TrustRegionEngine                             | TubeFormingEngine                             |
-| TurbineBladeEngine                            | TurningForceEngine                            |
-| UltimateSpeedFeedEngine                       | UltrasonicFlowMeterEngine                     |
-| UltrasonicWeldingEngine                       | UncertaintyQuantificationEngine               |
-| UnitConversionEngine                          | UserAssistanceSkillsEngine                    |
-| UserWorkflowSkillsEngine                      | VacuumCastingEngine                           |
-| VacuumPumpEngine                              | ValveDesignEngine                             |
-| ValveSizingEngine                             | VanePumpEngine                                |
-| VenturiEngine                                 | VibrationAnalysisEngine                       |
-| VibrationDampeningEngine                      | VibrationIsolationEngine                      |
-| VibrationIsolatorEngine                       | VibratoryFeederEngine                         |
-| VideoLearningEngine                           | VisualizationEngine                           |
-| VoronoiEngine                                 | VoxelStockEngine                              |
-| VoxelStockIntegrationEngine                   | WasteDetectorEngine                           |
-| WaterHammerEngine                             | WaterjetCuttingEngine                         |
-| WaterjetEngine                                | WaterjetTaperEngine                           |
-| WaveletAnalysisEngine                         | WaveletEngine                                 |
-| WearForceCompensationEngine                   | WebSocketEngine                               |
-| WebhookEngine                                 | WeldDistortionEngine                          |
-| WeldFabricationQuoteEngine                    | WeldPrepEngine                                |
-| WeldStrengthEngine                            | WeldingEngine                                 |
-| WhiteLayerDetectionEngine                     | WireDrawingEngine                             |
-| WireEDMSettingsEngine                         | WireRopeEngine                                |
-| WorkCoordinateEngine                          | WorkEnvelopeEngine                            |
-| WorkEnvelopeValidatorEngine                   | WorkflowChainsEngine                          |
-| WorkholdingEngine                             | WorkholdingForceEngine                        |
-| WorkholdingIntelligenceEngine                 | WormGearEngine                                |
-| XAIEngine                                     | ZLevelOptimizationEngine                      |
-| reactiveChainBootstrap                        |
+### CAD & Geometry (20)
+- BSplineEngine
+- CADKernelEngine
+- CADOperationTaxonomyEngine
+- CadBridge
+- CadQueryCodeGeneratorEngine
+- ContextDigestEngine
+- DXFParserEngine
+- FilletingEngine
+- IGESImportEngine
+- MeshDecimationEngine
+- MeshEngine
+- NURBSEngine
+- PostLibraryConfiguratorEngine
+- RecastLayerEngine
+- STEPNCEngines
+- STLToVoxelGridEngine
+- SketchConstraintEngine
+- SketchEngine
+- StepImportEngine
+- SweptVolumeEngine
 
-## 2. Dispatchers (58)
+### CAM System Bridges (40)
+- BatchCAMAPIBridgeEngines
+- BatchCAMAddInGenerators
+- BatchCAMControllerEngines
+- BatchCAMMaterialBridgeEngines
+- BatchCAMOperationCatalogEngines
+- BatchCAMSafetyEngines
+- BatchCAMStrategyEngines
+- BatchCAMStrategyEngines2
+- BatchCAMToolBridgeEngines
+- CAMAddInFrameworkEngine
+- CAMKernelDispatcherBridge
+- CATIACodeGeneratorEngine
+- CATIAStrategyEngine
+- Fusion360CodeGeneratorEngine
+- Fusion360LiveBridgeEngine
+- FusionCPSParserEngine
+- FusionToolExportEngine
+- FusionToolSyncEngine
+- HyperMillCodeGeneratorEngine
+- HyperMillControllerCatalogEngine
+- HyperMillCycleCatalogEngine
+- HyperMillCycleDefaultsEngine
+- HyperMillMaterialBridgeEngine
+- HyperMillMaterialMapEngine
+- HyperMillSafetyHooks
+- HyperMillStrategyEngine
+- HyperMillToolExportEngine
+- MastercamCodeGeneratorEngine
+- MastercamSafetyHooksEngine
+- MastercamStrategyEngine
+- MastercamToolExportEngine
+- MultiCamStrategyEngine
+- MultiCamStrategyEngineExt
+- MultiProcessCAMBridgeEngine
+- NXCAMStrategyEngine
+- SensorFusionEngine
+- SolidCAMCodeGeneratorEngine
+- SolidCAMSafetyHooksEngine
+- SolidCAMStrategyEngine
+- SolidCAMiMachiningEngine
 
-Path: `src/tools/dispatchers/`
+### Chatter & Stability (13)
+- ChatterPredictionEngine
+- ChatterStabilityLobeEngine
+- DampingOptimizationEngine
+- MachineVibrationEngine
+- MultiBodyVibrationEngine
+- RegenerativeChatterPredictor
+- StochasticChatterEngine
+- ThinFloorVibrationEngine
+- VibrationAnalysisEngine
+- VibrationDampeningEngine
+- VibrationIsolationEngine
+- VibrationIsolatorEngine
+- VibratoryFeederEngine
 
+### Collision & Safety (12)
+- AccessibilityAnalysisEngine
+- AlarmEscalationEngine
+- CollisionDetectionEngine
+- CollisionEngine
+- CollisionIntegrationEngine
+- CollisionPreventionEngine
+- GCodeSafetyAnalyzerEngine
+- PipelineSafetyOrchestratorEngine
+- PostVerificationSafetyEngine
+- SafetyEscalationEngine
+- SafetyVetoEngine
+- ToolBreakageEngine
+
+### Controller Knowledge (2)
+- ControllerFeatureMatrixEngine
+- PIDControllerEngine
+
+### Cost & Quoting (22)
+- ActualCostEngine
+- AdditiveQuoteEngine
+- BlueprintToQuoteBridgeEngine
+- CastingQuoteEngine
+- CostAwareRouterEngine
+- CostEstimationEngine
+- CostEstimatorEngine
+- CostSavingsTrackerEngine
+- CycleTimeEstimatorEngine
+- DiffTokenEstimatorEngine
+- ImportCostEngine
+- InjectionMoldQuoteEngine
+- JobCostingEngine
+- MarketMaterialPricingEngine
+- MultiProcessQuoteEngine
+- PipelineCostModelEngine
+- QuoteAnalyticsEngine
+- QuoteEngine
+- QuoteEstimatorEngine
+- SetupCostOptimizationEngine
+- SheetMetalQuoteEngine
+- WeldFabricationQuoteEngine
+
+### Cutting Physics & Force (17)
+- AdvancedChipThicknessEngine
+- ChipConveyorEngine
+- ChipFormationPredictionEngine
+- ChipLoadEngine
+- ChipMorphologyDiagnosticEngine
+- ConstitutiveModelEngine
+- CuttingForceEngine
+- DrillBreakthroughForceEngine
+- ExtrusionForceEngine
+- ForceCapabilityEngine
+- JohnsonCookEngine
+- KienzleForceModelEngine
+- OutputBudgetEnforcerEngine
+- PartOffForceEngine
+- StochasticCuttingForceEngine
+- WearForceCompensationEngine
+- WorkholdingForceEngine
+
+### Decision & Reasoning (8)
+- ContextualStrategyOverrideEngine
+- DecisionTreeEngine
+- FuzzyLogicEngine
+- InferenceChainEngine
+- MakeVsBuyDecisionEngine
+- MarkovDecisionEngine
+- PipelineDecisionOrchestratorEngine
+- TroubleshootingDecisionTreeEngine
+
+### Deflection & Surface (17)
+- PartDeflectionEngine
+- ResidualStressPredictionEngine
+- RoughnessConversionEngine
+- RunoutCompensationEngine
+- RunoutEffectEngine
+- SpindleRunoutEngine
+- StochasticDeflectionEngine
+- StochasticSurfaceFinishEngine
+- SurfaceFinishDatabaseEngine
+- SurfaceFinishEngine
+- SurfaceFinishPredictorEngine
+- SurfaceIntegrityEngine
+- SurfaceIntegrityPredictorEngine
+- SurfaceRoughnessEngine
+- ToolAssemblyDeflectionEngine
+- ToolDeflectionPredictionEngine
+- ToolRunoutEngine
+
+### Documentation & Reporting (6)
+- AdvancedReportRendererEngine
+- BenchmarkReportGeneratorEngine
+- CertificationTrackingEngine
+- ReportEngine
+- ReportRenderer
+- ReportingEngine
+
+### EDM (Wire & Sinker) (24)
+- AdvancedMLStatisticsEngine
+- AdvancedMathematicalMethodsEngine
+- EDMCostDocumentationEngine
+- EDMCuttingParamFlushEngine
+- EDMDrawingInterpretationEngine
+- EDMEngine
+- EDMFeasibilityEngine
+- EDMMaterialMachineWireEngine
+- EDMMonitorSurfaceIntegrityEngine
+- EDMMultiPassStrategyEngine
+- EDMParameterEngine
+- EDMPostProcessGCodeEngine
+- EDMProgramAssemblerEngine
+- EDMQualityOrchestratorEngine
+- EDMStartHoleSetupEngine
+- EDMSurfaceIntegrityEngine
+- EDMToolpathStrategyEngine
+- EDMWireEngine
+- ElectrodeDesignEngine
+- MicroEDMEngine
+- SinkerEDMCalculatorEngine
+- StochasticEDMEngine
+- VibrationAssistedMachiningEngine
+- WireEDMSettingsEngine
+
+### Feature Recognition (5)
+- DFMFeedbackEngine
+- DfMRulesEngine
+- FeatureRecognitionEngine
+- FeatureStrategyKnowledgeBaseEngine
+- FeatureToZoneEngine
+
+### Forming & Sheet Metal (10)
+- PayrollEngine
+- RollingBearingEngine
+- RollingContactEngine
+- RollingMillEngine
+- ScrollCompressorEngine
+- StampingDieEngine
+- StrategyPerformanceTrackerEngine
+- ThermoformingEngine
+- TransformerEngine
+- TubeFormingEngine
+
+### GD&T & Tolerance (6)
+- DimensionalAnalysisCrossValidationEngine
+- DimensionalAnalysisEngine
+- GDTStackupEngine
+- ToleranceEngine
+- ToleranceStackEngine
+- ToleranceStackUpEngine
+
+### Grinding (14)
+- BurnishingPolishingEngine
+- CenterlessGrindingEngine
+- FlywheelEnergyEngine
+- FlywheelEngine
+- GrindingForceEngine
+- GrindingProgramAssemblerEngine
+- GrindingSurfaceFinishEngine
+- GrindingWheelDressingOptimizationEngine
+- GrindingWheelEngine
+- HoningEngine
+- HoningProcessEngine
+- StochasticGrindingDressingEngine
+- StochasticGrindingEngine
+- SurfaceGrindingEngine
+
+### Inspection & Measurement (14)
+- AdaptiveCalibrationEngine
+- CMMPathPlanningEngine
+- CalibratedSimulationEngine
+- CalibrationEngine
+- EngagementGeometryEngine
+- FirstArticleInspectionPipelineEngine
+- MeasurementIntegrationEngine
+- PhysicsAutoCalibrationEngine
+- PredictionCalibrationEngine
+- ProbeRoutineEngine
+- ProbeRoutineGeneratorEngine
+- ProbingCycleEngine
+- ProbingProgramEngine
+- StratifiedCalibrationEngine
+
+### Laser Cutting (8)
+- HybridLaserMachineEngine
+- LaserAblationPhysicsEngine
+- LaserCutInterfaceEngine
+- LaserCuttingEngine
+- LaserInterferometerCompensationEngine
+- LaserMarkingEngine
+- LaserProgramAssemblerEngine
+- LaserWeldingEngine
+
+### Learning & Knowledge Base (18)
+- ApprenticeEngine
+- BlueprintOCREngine
+- CADDrawingKnowledgeEngine
+- CamKnowledgePortabilityEngine
+- FleetDeploymentLearningEngine
+- InteractiveLearningSessionEngine
+- JobLearningEngine
+- KnowledgeCurriculumBridgeEngine
+- KnowledgeGraphEngine
+- KnowledgeQueryEngine
+- LearningPathEngine
+- MachiningKnowledgeBaseEngine
+- MachiningPlaybookEngine
+- ManufacturingKnowledgeGraphEngine
+- PDFBlueprintDimensionExtractorEngine
+- QLearningEngine
+- TribalKnowledgeEngine
+- VideoLearningEngine
+
+### Machine Selection (7)
+- MachineLearningStrategyRankerEngine
+- MachineMatcherEngine
+- MachineRateDatabaseEngine
+- MachineSelectionEngine
+- MachineStrategyConstraintEngine
+- MachineWarmupEngine
+- SpindleTorqueCurveEngine
+
+### Material Science (12)
+- CeramicsMachiningEngine
+- CompositeMachiningPhysicsEngine
+- CompositesMachiningPhysicsEngine
+- HardnessConversionEngine
+- HeatTreatmentEngine
+- HeatTreatmentResponseEngine
+- MagnesiumMachiningEngine
+- MaterialBatchVariabilityEngine
+- MaterialCertTraceabilityEngine
+- MaterialEquivalenceEngine
+- MaterialSelectionEngine
+- SuperalloyMachiningEngine
+
+### Mill-Turn & Swiss (3)
+- LiveToolingEngine
+- MillTurnCAMEngine
+- MillTurnSwissPipelineEngine
+
+### Milling (25)
+- AdaptiveClearingEngine
+- AdaptiveControlEngine
+- AdaptiveEngagementEngine
+- AdaptiveFeedControlEngine
+- AdaptivePipelineGeneratorEngine
+- AdaptiveRefinementEngine
+- AdaptiveSpindleControlEngine
+- AdaptiveTessellationEngine
+- AdaptiveToolpathRouterEngine
+- AdvancedMillingStrategiesEngine
+- BallEndMillEngine
+- BayesianAdaptiveEngine
+- ChamferMillingEngine
+- CircularPocketEngine
+- EngagementAdaptiveFeedEngine
+- HelicalInterpolationEngine
+- HelicalMillingEngine
+- HighFeedMillingEngine
+- LineByLineAdaptiveEngine
+- PlungeMillingEngine
+- SplineMillingEngine
+- ToolLifeAdaptiveEngine
+- ToolpathSmoothingEngine
+- TrochoidalMillingEngine
+- VoronoiMedialAxisPocketEngine
+
+### Nesting & Sheet (7)
+- NestingEngine
+- SetupSheetEngine
+- SetupSheetFromGCodeEngine
+- SetupSheetLibraryEngine
+- SheetMetalNestingEngine
+- SheetNestingEngine
+- SplineStressEngine
+
+### Non-Traditional Machining (4)
+- ElectrochemicalEngine
+- ElectrochemicalMachiningEngine
+- PlasmaCuttingEngine
+- UltrasonicMachiningPhysicsEngine
+
+### OEE & Scheduling (7)
+- BottleneckAnalysisEngine
+- BottleneckIdentificationEngine
+- CapacityPlanningEngine
+- OEECalculatorEngine
+- SetupReductionEngine
+- ShiftHandoffEngine
+- ShiftScheduleOptimizerEngine
+
+### Optimization (30)
+- AntColonyOptimizationEngine
+- AssemblyOptimizationEngine
+- BatchOptimizationEngine
+- CamxEnergyOptimizationEngine
+- ChanceConstrainedOptimizationEngine
+- ConvexOptimizationEngine
+- DifferentialEvolutionEngine
+- DrillCycleOptimizationEngine
+- DynamicProgrammingEngine
+- EnergyOptimizationEngine
+- EnergyOptimizationIntegrationEngine
+- FeedOptimizationEngine
+- FeedRateOptimizationEngine
+- FinishingPassOptimizationEngine
+- GCodeOptimizationEngine
+- GradientOptimizationEngine
+- InventoryOptimizationEngine
+- LinearProgrammingEngine
+- MetaheuristicOptimizationEngine
+- OptimizationEngine
+- OptimizationFormulasEngine
+- OptimizationSimplexEngine
+- OptimizationTierEngine
+- PeckDrillingOptimizationEngine
+- ProductionBatchOptimizationEngine
+- ReliabilityOptimizationEngine
+- SimulatedAnnealingEngine
+- TiltAngleOptimizationEngine
+- ToolAxisOptimizationEngine
+- ZLevelOptimizationEngine
+
+### Pipeline & Orchestration (24)
+- AutoPrintToProgramBridgeEngine
+- CAMKernelOrchestratorEngine
+- CrossPipelineWhatIfEngine
+- DesignToFloorPipelineEngine
+- EndToEndPipelineEngine
+- FeasibilityOrchestratorEngine
+- GCodeIntelligencePipelineEngine
+- HolePatternPipelineEngine
+- MathIntegrationPipelineEngine
+- OperatorDashboardOrchestratorEngine
+- PartGeometryPipelineEngine
+- PipelineArchitectureEngine
+- PipelineConsistencyHookEngine
+- PredictiveMaintenanceOrchestratorEngine
+- PrintToProgramPipelineEngine
+- ProvenPipelineOrchestratorEngine
+- QuoteToShipOrchestratorEngine
+- ScalableCAMOrchestratorEngine
+- SecondaryOpsPipelineEngine
+- ToolCallPipelineEngine
+- ToolSyncOrchestratorEngine
+- UnifiedCAMPipelineEngine
+- VideoReplayOrchestratorEngine
+- VideoReplayPipelineEngine
+
+### Post-Processing (20)
+- AdvancedPostPhysicsEngine
+- AdvancedPostProcessorEngine
+- BackplotEngine
+- ControllerDialectEngine
+- GCodeTranspilerEngine
+- MotionControllerInjectionEngine
+- NovelPostProcessorBridgeEngine
+- PostOutputGenerationEngine
+- PostPhysicsFoundationEngine
+- PostProcessorAPIEngine
+- PostProcessorEngine
+- PostProcessorFeedOptimizerEngine
+- PostProcessorGeneratorEngine
+- PostProcessorPipelineEngine
+- PostProcessorVerificationEngine
+- PostValidationSuiteEngine
+- ProgramStructureEngine
+- RLPostProcessorEngine
+- SubprogramEngine
+- WorkCoordinateEngine
+
+### Prediction (7)
+- PhysicsPredictionEngine
+- PredictionFeedbackOrchestratorEngine
+- PredictionValidationEngine
+- PredictiveFailureEngine
+- SelfLearningCAMEngine
+- SpringbackPredictionEngine
+- TimeSeriesForecastEngine
+
+### Process Routing (1)
+- MultiProcessCAMRouterEngine
+
+### Quality & SPC (10)
+- LeanSixSigmaEngine
+- NelsonSPCRulesEngine
+- PostProcessorCapabilityMatrixEngine
+- ProcessCapabilityPredictionEngine
+- QualityFormulasEngine
+- QualityManagementEngine
+- QualityPredictionEngine
+- SPCChartingEngine
+- SPCProcessCapabilityEngine
+- SpindleHarmonicsQualityEngine
+
+### Sensing & Monitoring (9)
+- AcousticEmissionMonitoringEngine
+- MTConnectAdapterEngine
+- OpcUaConnectorEngine
+- PredictiveMaintenanceEngine
+- SensorDataSchemaEngine
+- SpindleLoadMonitorEngine
+- StopConditionEngine
+- WaveletAnalysisEngine
+- WaveletEngine
+
+### Simulation (12)
+- CNCSimulationPipelineEngine
+- DigitalTwinEngine
+- DigitalTwinFormulasEngine
+- DigitalTwinSyncEngine
+- PhysicsAwareSimulationEngine
+- PredictiveSimulationEngine
+- ProcessDigitalTwinEngine
+- SensorSimulatorEngine
+- SimulationEngine
+- SimulationReportEngine
+- SimulationVisualizationBridgeEngine
+- VericutBridgeEngine
+
+### Speed & Feed (6)
+- AutoSpeedFeedEngine
+- InstantaneousEngagementEngine
+- SpeedFeedOrchestratorEngine
+- StepoverOptimizationEngine
+- ToolPathStepoverEngine
+- UltimateSpeedFeedEngine
+
+### Statistics & Uncertainty (23)
+- AdvancedRegressionEngine
+- AdvancedStatisticalLearningEngine
+- AdvancedUncertaintyEngine
+- AdvancedUncertaintyMethodsEngine
+- LinearRegressionEngine
+- ManufacturingStatisticsEngine
+- MetrologyUncertaintyEngine
+- MonteCarloEngine
+- MonteCarloProcessEngine
+- MultipleRegressionEngine
+- ReliabilityWeibullEngine
+- RobustStatisticsEngine
+- StatisticalMLEngine
+- StatisticalProcessEngine
+- StatisticalProcessMonitoringEngine
+- StochasticCompositesEngine
+- StochasticDimensionalEngine
+- StochasticProcessEngine
+- StochasticRoutingEngine
+- StochasticWrapperEngine
+- UncertaintyPropagationPipelineEngine
+- UncertaintyQuantificationEngine
+- reactiveChainBootstrap
+
+### Stock & Raw Material (6)
+- CumulativeStockChainEngine
+- StockAllowanceEngine
+- StockModelEngine
+- StockSizeOptimizerEngine
+- VoxelStockEngine
+- VoxelStockIntegrationEngine
+
+### Surface Treatment (6)
+- AnodizeAllowanceEngine
+- AnodizingProcessEngine
+- CarburizingEngine
+- ElectroPlatingEngine
+- NitridingProcessEngine
+- PlatingAllowanceEngine
+
+### Sustainability (12)
+- CentrifugalCastingEngine
+- GCodeEnergyOptimizerEngine
+- MachiningEnergyModelEngine
+- ParallelCallPlannerEngine
+- SpecificCuttingEnergyEngine
+- SustainabilityEngine
+- SustainabilityFormulasEngine
+- SustainabilityLCAEngine
+- ToolCallBatchEngine
+- ToolCallBatchOptimizerEngine
+- ToolCallHistogramEngine
+- ToolCallThrottleEngine
+
+### System Infrastructure (33)
+- ActionSchemaCacheEngine
+- AgentExecutor
+- AuthEngine
+- AuthEngineV7
+- BatchProcessor
+- BatchQueryEngine
+- CAMResultCacheEngine
+- CacheEngine
+- CodeSystemIndexEngine
+- ComputationCache
+- ConfigEngine
+- ContextBudgetEngine
+- ContextIntegrityEngine
+- ContextInventoryEngine
+- ContextPreloaderEngine
+- ContextSnapshotEngine
+- ContextWindowMapEngine
+- ContextWindowPressureEngine
+- ErrorContextEngine
+- FileSystemNavigatorEngine
+- MachineConfigDatabaseEngine
+- ResponseCacheEngine
+- SessionBudgetAdvisorEngine
+- SessionDeltaEngine
+- SessionEventLogEngine
+- SessionLifecycleEngine
+- SessionReplayEngine
+- SessionTokenLedgerEngine
+- TaskAgentClassifier
+- TokenAccountingEngine
+- TokenBudgetAllocatorEngine
+- WebhookEngine
+- WhiteLabelConfigEngine
+
+### Thermal & Temperature (24)
+- CoolantCostOptimizationEngine
+- CoolantDynamicsEngine
+- CoolantFlowEngine
+- CoolantOptimizationPhysicsEngine
+- CoolantPressureEngine
+- CoolantStrategyEngine
+- CoolantValidationEngine
+- CryogenicCuttingEngine
+- CryogenicTreatmentEngine
+- CuttingTemperatureEngine
+- CuttingThermalEngine
+- InverseThermalCompensationEngine
+- LAMThermalSofteningEngine
+- StochasticThermalEngine
+- ThermalCompensationModelEngine
+- ThermalExpansionEngine
+- ThermalExpansionJointEngine
+- ThermalFatigueEngine
+- ThermalFieldToolpathEngine
+- ThermalGrowthCompensationEngine
+- ThermalModelingEngine
+- ThermalSimEngine
+- ThermalWearCouplingEngine
+- ToolpathThermalEngine
+
+### Tool Selection (20)
+- CoatingSelectionEngine
+- InsertGradeSelectionEngine
+- InventoryAwareToolSelectorEngine
+- SmartToolSelectorEngine
+- ToolAssemblyEngine
+- ToolAssemblyModelEngine
+- ToolCatalogEngine
+- ToolChangeOptimizationEngine
+- ToolCoatingSelectionEngine
+- ToolCostPerPartEngine
+- ToolCostPredictorEngine
+- ToolGeometrySelectionEngine
+- ToolHolderDatabaseEngine
+- ToolInventoryOrchestratorEngine
+- ToolMagazineOptimizationEngine
+- ToolROIEngine
+- ToolSelectionAdvisorEngine
+- ToolSelectionEngine
+- ToolSubstitutionRiskEngine
+- ToolholderDynamicsEngine
+
+### Tool Wear & Life (9)
+- AdvancedWearPhysicsEngine
+- BayesianToolLifeEngine
+- StochasticToolLifeEngine
+- StochasticToolWearEngine
+- ToolBreakagePredictionEngine
+- ToolWearCompensationEngine
+- ToolWearProgressionEngine
+- ToolWearRateEngine
+- WearPatternRefinishEngine
+
+### Toolpath & Strategy (14)
+- AlgorithmSelectorEngine
+- NovelToolpathAlgorithmsExt
+- NovelToolpathEngine
+- NovelToolpathSimulatorEngine
+- PHCurveToolpathEngine
+- ProductionToolpathEngine
+- RestMachiningEngine
+- StochasticToolpathRoutingEngine
+- ToolpathCalculations
+- ToolpathGenerationEngine
+- ToolpathIntegrationEngine
+- ToolpathLinkingEngine
+- ToolpathSegmentOptimizerEngine
+- ToolpathSimulationEngine
+
+### Turning & Lathe (32)
+- BarFeederEngine
+- BarPullerTimingEngine
+- BarStockVibrationEngine
+- BoringBarDeflectionEngine
+- BoringBarEngine
+- ChuckJawForceEngine
+- ContactMechanicsSurfaceEngine
+- CounterboringEngine
+- DiamondTurningEngine
+- DigitalThreadEngine
+- EDMWireSlugCornerTaperEngine
+- HyperMillThreadStandardEngine
+- InverseKinematicsSolverEngine
+- LathePostProcessorEngine
+- MagneticChuckEngine
+- PartingGroovingEngine
+- SinglePointThreadEngine
+- SteadyRestPlacementEngine
+- TailstockForceEngine
+- TaperTurningEngine
+- ThreadCalculationEngine
+- ThreadGageEngine
+- ThreadMillingEngine
+- ThreadMillingPhysicsEngine
+- ThreadStrengthFatigueEngine
+- ThreadTurningEngine
+- ThreadingPipelineEngine
+- TurningForceEngine
+- TurningPrintToProgramEngine
+- TurningProfileEngine
+- TurningProgramAssemblerEngine
+- WaterjetTaperEngine
+
+### Uncategorized (546)
+- AHPEngine
+- AIMLEngine
+- AIMLFormulasEngine
+- AMSAAReliabilityGrowthEngine
+- AbsorptionChillerEngine
+- AccumulatorEngine
+- AcoSequencerEngine
+- AdvancedCalculations
+- AdvancedCuttingMathEngine
+- AdvancedCuttingPhenomenaEngine
+- AdvancedCuttingPhysicsEngine
+- AdvancedCuttingPhysicsExtEngine
+- AirCompressorEngine
+- AirDuctEngine
+- AlarmDiagnosticsEngine
+- AlgorithmEngine
+- AlgorithmGatewayEngine
+- AssemblyEngine
+- AssessmentEngine
+- AssignmentProblemEngine
+- AuditEngine
+- AutoclaveProcessEngine
+- AxialPistonPumpEngine
+- AxisCompensationEngine
+- BVHEngine
+- BalancingMachineEngine
+- BallMillEngine
+- BallScrewEngine
+- BallScrewSelectionEngine
+- BashCommandClassifierEngine
+- BatchCAMEngine
+- BatchSizeStrategyEngine
+- BearingSelectionEngine
+- BeltDriveEngine
+- BenchmarkSuiteEngine
+- BendAllowanceEngine
+- BevelGearEngine
+- BlowMoldingEngine
+- BlowerEngine
+- BoilerTubeEngine
+- BoltTorqueEngine
+- BoltedJointEngine
+- BoreFinishingEngine
+- BroachDesignEngine
+- BroachingEngine
+- BucketElevatorEngine
+- BurrFormationEngine
+- CAMIntegrationEngine
+- CAMKernelEngine
+- CAMKernelExtensionEngine
+- CAMKernelValidationEngine
+- CAMPluginSDKEngine
+- CAMUtilityEngines
+- CNCMaintenanceEngine
+- CNCProgramAssemblerEngine
+- CalenderingEngine
+- CallChainEngine
+- CamDesignEngine
+- CamProfileEngine
+- CapacitorBankEngine
+- CastingDefectEngine
+- CathodicProtectionEngine
+- CenterDrillEngine
+- CentrifugalPumpEngine
+- CentrifugeEngine
+- CertificateEngine
+- ChainDriveEngine
+- ChamferEngine
+- ChartDataGeneratorEngine
+- ChemicalVaporDepositionEngine
+- ChipBreakingEngine
+- ClothoidBlendingEngine
+- ClusterAnalysisEngine
+- ClusteringEngine
+- ClutchBrakeEngine
+- ClutchDesignEngine
+- CoatingThicknessEngine
+- CobotMachiningEngine
+- CoffinMansonFatigueEngine
+- ColumnBucklingEngine
+- CompactFormatterEngine
+- CompactPlannerEngine
+- CompactionStrategyEngine
+- ComplianceEngine
+- CompressionMoldingEngine
+- CompressorDesignEngine
+- CondenserDesignEngine
+- ConnectingRodEngine
+- ConstraintSatisfactionEngine
+- ConstructionGeometryEngine
+- ContinuousImprovementEngine
+- ControllerStrategyValidatorEngine
+- ConversationBudgetEngine
+- ConversationTrimmerEngine
+- ConversationalMemoryEngine
+- ConveyorBeltEngine
+- ConveyorDesignEngine
+- CoolingTowerEngine
+- CoriolisFlowMeterEngine
+- CorrosionRateEngine
+- CounterboreSinkEngine
+- CountersinkEngine
+- CouplingEngine
+- CouplingSelectionEngine
+- CourseBuilderEngine
+- CpsPostParserEngine
+- CraneLoadEngine
+- CrankshaftDesignEngine
+- CreepLifeEngine
+- CriticalSpeedEngine
+- CrossCAMPostEngine
+- CrossCamNovelAlgorithms
+- CrossCamRecommenderEngine
+- CrossCatalogValidationEngine
+- CrossPhysicsCouplingEngine
+- CrystallizationEngine
+- CurriculumEngine
+- CurvatureAnalysisEngine
+- CustomerManagementEngine
+- CutterContactEngine
+- CuttingDataExportEngine
+- CuttingDataLookupEngine
+- CuttingFluidLifecycleEngine
+- CuttingFluidSelectionEngine
+- CuttingMechanicsEngine
+- CuttingPowerBudgetEngine
+- CycleTimeAccuracyEngine
+- CycleTimeEngine
+- CycleToControlEngine
+- CycloidDriveEngine
+- CycloneSeparatorEngine
+- DNCTransferEngine
+- DOEAnalysisEngine
+- DOETaguchEngine
+- DamperDesignEngine
+- DataValidationEngine
+- DeburringEngine
+- DeepHoleDrillingPhysicsEngine
+- DiaphragmPumpEngine
+- DiffEngine
+- DiffMinimizerEngine
+- DifferentialEquationEngine
+- DiffuserEngine
+- DigitalWorkInstructionEngine
+- DimensionImputationEngine
+- DimensionlessNumbersEngine
+- DiskBrakeEngine
+- DispatcherMapEngine
+- DistillationColumnEngine
+- DrumBrakeEngine
+- DynamicBalanceEngine
+- EditPlannerEngine
+- EjectorEngine
+- ElectricMotorEngine
+- ElectrospinningEngine
+- ElectrostaticPrecipitatorEngine
+- EmpiricalCorrelationEngine
+- EmployeeEngine
+- EnergyHarvestingEngine
+- EngineRegistryEngine
+- EnsembleMLEngine
+- EntryExitStrategyEngine
+- EnvironmentalVariationEngine
+- ErgonomicWorkstationEngine
+- EvaporatorDesignEngine
+- EvaporatorProcessEngine
+- EventBus
+- EventEngine
+- ExecutionVerificationEngine
+- ExponentialSmoothingEngine
+- ExportEngine
+- FacingEngine
+- FailureForensicsEngine
+- FanSelectionEngine
+- FatigueLifeEngine
+- FeasibilityAnalysisEngine
+- FeatureClusteringEngine
+- FeatureInteractionEngine
+- FeedbackPersistenceEngine
+- FilamentWindingEngine
+- FileAccessPatternEngine
+- FileIOEngine
+- FiniteElementEngine
+- FlangeBoltEngine
+- FlatPatternEngine
+- FleetLearningStrategyEngine
+- FlotationCellEngine
+- FluidCouplingEngine
+- FluidizedBedEngine
+- FlyingShearEngine
+- FourierAnalysisEngine
+- FractureToughnessEngine
+- FreezeDryingEngine
+- FrequentPathEngine
+- FundamentalPhysicsCompletionEngine
+- FurnaceHeatingEngine
+- GCodeSnippetEngine
+- GCodeTemplateEngine
+- GCodeValidationEngine
+- GCodeVerificationEngine
+- GameTheoryEngine
+- GasketDesignEngine
+- GaugingEngine
+- GearHobbingEngine
+- GearPumpEngine
+- GearTrainEngine
+- GeneralLedgerEngine
+- GenerativeProcessEngine
+- GeometryAlgorithmsEngine
+- GeometryEngine
+- GrafanaBridgeEngine
+- GranulationProcessEngine
+- GraphAlgorithmsEngine
+- GraphTheoryEngine
+- GrepOptimizerEngine
+- GunDrillingEngine
+- HRComplianceEngine
+- HarmonicAnalysisEngine
+- HarmonicDriveEngine
+- HealthEngine
+- HeatExchangerEngine
+- HeatTransferEngine
+- HertzContactEngine
+- HobbyCNCProfileEngine
+- HookEfficiencyEngine
+- HookEngine
+- HookExecutor
+- HookRuleMatcherEngine
+- HybridPostMergeEngine
+- HydraulicCylinderEngine
+- HydraulicMotorEngine
+- HydraulicPressEngine
+- HypoidGearEngine
+- ISO13399ToolDataEngine
+- ImpellerEngine
+- IncrementalReadEngine
+- InductionHeatingEngine
+- IndustryStandardsComplianceEngine
+- InformationTheoryEngine
+- InjectionMoldingEngine
+- InstructorDashboardEngine
+- IntegratedVerificationEngine
+- IntegrationAdapterEngine
+- IntelligenceEngine
+- IntelligentSequencingEngine
+- IntentDecompositionEngine
+- InteriorPointEngine
+- InventoryEOQEngine
+- InverseSolverEngine
+- InvoicingEngine
+- IonImplantationEngine
+- IsosurfaceEngine
+- JobLifecycleEngine
+- JobProfitabilityWaterfallEngine
+- JournalBearingEngine
+- KDEGradientBoostEngine
+- KeyseatCutterEngine
+- KeywayDesignEngine
+- KeywayEngine
+- KeywayStressEngine
+- KinematicsEngine
+- KioskModeEngine
+- KnurlingEngine
+- LLMEngine
+- LeadScrewEngine
+- LeafSpringEngine
+- LessonRendererEngine
+- LinearGuideEngine
+- LinearMotionEngine
+- LocalSearchEngine
+- LoggingEngine
+- MachinabilityRatingEngine
+- MachineConnectivityEngine
+- MachineGeometricAccuracyEngine
+- MachineKinematicsEngine
+- MachineLevelingEngine
+- MachineModelAcquisitionEngine
+- MachineModelDownloaderEngine
+- MachineOptionRegistryEngine
+- MachinePostCrossRefEngine
+- MachineProfileEngine
+- MachineToolErrorBudgetEngine
+- MachiningAcousticsEngine
+- MagneticBearingEngine
+- ManufacturerCatalogIndexEngine
+- ManufacturingCalculations
+- ManufacturingGenomeEngine
+- ManufacturingIntegrationEngine
+- ManusATCSBridge
+- MarkovChainEngine
+- MaskingCalculatorEngine
+- MasterIndexGenerator
+- MembraneFiltrationEngine
+- MemoryGraphEngine
+- MetricsEngine
+- MetrologyBudgetEngine
+- MicroMachiningEngine
+- MicrostructureEffectEngine
+- MigrationEngine
+- MinerCumulativeDamageEngine
+- MinimumJerkTrajectoryEngine
+- MixerAgitatorEngine
+- MobileInterfaceEngine
+- MorrisScreeningEngine
+- MotionCompensationEngine
+- MotionDynamicsProfileEngine
+- MqttBridgeEngine
+- MultiCAMPostEngine
+- MultiObjectiveEngine
+- MultiObjectiveParetoEngine
+- MultiSetupFeasibilityChainEngine
+- MultiSetupPlannerEngine
+- MultiTenantEngine
+- NCSIMULBridgeEngine
+- NLHookEngine
+- NLPCAMParserEngine
+- NXCAMCodeGeneratorEngine
+- NetworkFlowEngine
+- NoiseLevelEngine
+- NotificationEngine
+- NozzleEngine
+- NumericalIntegrationEngine
+- NumericalMethodsEngine
+- OffsetSurfaceEngine
+- OkumaParametricProgramEngine
+- OnboardingEngine
+- OperationSequencerEngine
+- OptimalControlEngine
+- OptimalStrategySelectionEngine
+- OrificeFlowMeterEngine
+- OutputBudgetEngine
+- OutputTruncatorEngine
+- PFPEngine
+- PackingSlipEngine
+- ParallelismEngine
+- ParametricPartLibraryEngine
+- ParametricSurfaceEngine
+- PartFamilyEconomicsEngine
+- PartSimilarityEngine
+- PassivationEngine
+- PeckDrillingEngine
+- PeristalticPumpEngine
+- PermutationTestEngine
+- PhotochemicalEtchingEngine
+- PhysicsMLHybridEngine
+- PipeSizingEngine
+- PipeStressEngine
+- PipingPressureEngine
+- PistonDesignEngine
+- PlanetaryGearEngine
+- PlasmaArcEngine
+- PlaywrightAutomationEngine
+- PluginEngine
+- PneumaticConveyingEngine
+- PneumaticCylinderEngine
+- PostAMFinishingPlanEngine
+- PostPropertyTaxonomyEngine
+- PostSelectionEngine
+- PowerMillCodeGeneratorEngine
+- PowerMillStrategyEngine
+- PowerSkivingEngine
+- PressBrakeEngine
+- PressFitEngine
+- PrincipalComponentEngine
+- PrintReadingEngine
+- PrintToGeometryEngine
+- ProcessPlanEngine
+- ProcessRobustnessEngine
+- ProcessSynthesisEngine
+- ProcessVariabilityIntegrationEngine
+- ProductionPackageEngine
+- ProfilingEngine
+- ProgramCompareEngine
+- ProgressiveCavityPumpEngine
+- ProjectSchedulingEngine
+- PromptCompressionEngine
+- PromptTemplateEngine
+- PropellerEngine
+- ProtocolBridgeEngine
+- ProvenPartRecipeEngine
+- PultrusionProcessEngine
+- PumpSelectionEngine
+- PurchasingDirectoryEngine
+- QIFIntegrationEngine
+- QuenchingProcessEngine
+- QueueEngine
+- QueueingTheoryEngine
+- QuickCalcEngine
+- QuotingEngine
+- ROIAdvisorEngine
+- RTDEngine
+- RackPinionEngine
+- RampingEngine
+- RapidRepositionOptEngine
+- RateLimitEngine
+- RawToolingNormalizerEngine
+- ReadOptimizerEngine
+- RealTimeMachineIntelligenceEngine
+- ReamingEngine
+- ReceptanceCouplingEngine
+- ReciprocatingCompressorEngine
+- ReliabilityBlockDiagramEngine
+- ReliabilityEngineeringEngine
+- RepetitionDetectorEngine
+- ResinTransferEngine
+- ResponseFormatterEngine
+- ResponseTemplateEngine
+- RigidBodyDynamicsEngine
+- RigidityDegradationEngine
+- RoadmapExecutor
+- RocketNozzleEngine
+- RotaryKilnEngine
+- RotationalMoldingEngine
+- SQPEngine
+- SaaSAPIEngine
+- SamplingWorkflowEngine
+- SchedulingEngine
+- SchedulingPhysicsEngine
+- SchemaCompactEngine
+- ScrapRootCauseEngine
+- ScrewCompressorEngine
+- ScrewConveyorEngine
+- ScrewExtrusionEngine
+- ScrewJackEngine
+- ScriptExecutor
+- SealSelectionEngine
+- SecondaryOpsEngine
+- SequenceFeasibilityEngine
+- SettingsEngine
+- SetupTransitionEngine
+- ShaftAlignmentEngine
+- ShockAbsorberEngine
+- ShotPeeningEngine
+- ShrinkFitEngine
+- SignalProcessingEngine
+- SignalProcessingToolkitEngine
+- SilhouetteEngine
+- SingularityAvoidanceEngine
+- SkillAutoLoader
+- SkillBundleEngine
+- SkillExecutor
+- SlottingEngine
+- SmartDefaultsEngine
+- SmartPrefetchEngine
+- SoftJawProfileEngine
+- SourceCatalogAggregator
+- SpatialIndexEngine
+- SpectralGraphEngine
+- SpindleBearingLoadEngine
+- SpindlePowerCheckEngine
+- SpindleProtectionEngine
+- SpindleSpeedVariationEngine
+- SplineJointEngine
+- SpotDrillingEngine
+- SprayDryerEngine
+- SprayDryingEngine
+- SpringCalcEngine
+- SpringDesignEngine
+- SpringPassEngine
+- SputteringProcessEngine
+- StabilityRPMRewriterEngine
+- StandardDimensionLookupEngine
+- SteamTurbineEngine
+- StrategyBenchmarkEngine
+- StrategyComparisonEngine
+- StrategyEvolutionEngine
+- StrategyRankingUpdateEngine
+- StrategySequencingEngine
+- StrategyTaxonomyEngine
+- SurfaceIntersectionEngine
+- SurfaceLocationErrorEngine
+- SurfaceReconstructionEngine
+- SurfaceTreatmentEngine
+- SurvivalAnalysisEngine
+- SwarmAlgorithmsEngine
+- SwarmExecutor
+- SwarmGroupExecutor
+- SystemSnapshotEngine
+- TCODashboardEngine
+- TOPSISEngine
+- TankDesignEngine
+- TapDrillEngine
+- TappingTorqueEngine
+- TelemetryEngine
+- TenantEngine
+- TensileToMachinabilityEngine
+- TestingProtocolEngine
+- ThermalSprayEngine
+- ThermocoupleEngine
+- ThermoelectricEngine
+- ThickenerEngine
+- ThinFilmDepositionEngine
+- ThinWallMachiningEngine
+- TimeClockEngine
+- TimeSeriesARIMAEngine
+- TimeSeriesCompletionEngine
+- TimeSeriesEngine
+- ToolBalancingEngine
+- ToolCribEngine
+- ToolOutputSummarizerEngine
+- ToolOverhangEngine
+- ToolPresettingEngine
+- ToolRedirectEngine
+- ToolRouterEngine
+- ToolUsageEngine
+- TopologyEngine
+- TorsionBarEngine
+- TransitionPathEngine
+- TransportationProblemEngine
+- TribologyEngine
+- TroubleshootingAssistantEngine
+- TroubleshootingEngine
+- TrustRegionEngine
+- TurbineBladeEngine
+- UltrasonicFlowMeterEngine
+- UnifiedPhysicsVerifierEngine
+- UnitConversionEngine
+- UniversalToolExportEngine
+- UserAssistanceSkillsEngine
+- UserToolLibraryEngine
+- UserToolLibraryPersistence
+- UserWorkflowSkillsEngine
+- VacuumCastingEngine
+- VacuumPumpEngine
+- ValveDesignEngine
+- ValveSizingEngine
+- VanePumpEngine
+- VarianceReductionEngine
+- VenturiEngine
+- VideoActionExtractorEngine
+- VisionActionAnalyzerEngine
+- VisualLabEngine
+- VisualizationEngine
+- VoronoiEngine
+- WasteDetectorEngine
+- WaterHammerEngine
+- WebSocketEngine
+- WhiteLayerDetectionEngine
+- WireDrawingEngine
+- WireRopeEngine
+- WorkEnvelopeEngine
+- WorkEnvelopeValidatorEngine
+- WorkflowChainsEngine
+- WorkpieceStateEngine
+- WormGearEngine
+- XAIEngine
+
+### Waterjet (4)
+- AbrasiveJetMachiningEngine
+- WaterjetCuttingEngine
+- WaterjetEngine
+- WaterjetProgramAssemblerEngine
+
+### Welding & Joining (15)
+- AdhesiveBondEngine
+- AdhesiveBondingEngine
+- BrazingProcessEngine
+- BrazingSolderingEngine
+- EBWeldingEngine
+- FrictionStirWeldingEngine
+- ResistanceWeldingEngine
+- RivetJointEngine
+- RivetedJointEngine
+- SolderingProcessEngine
+- UltrasonicWeldingEngine
+- WeldDistortionEngine
+- WeldPrepEngine
+- WeldStrengthEngine
+- WeldingEngine
+
+### Workholding (15)
+- ClampingSimEngine
+- FixtureAwareStrategyEngine
+- FixtureClampingEngine
+- FixtureDesignEngine
+- FixtureDynamicsEngine
+- FixturePlateEngine
+- ModularFixtureLayoutEngine
+- ThreeDPrintedFixtureEngine
+- TombstoneLayoutEngine
+- WorkholdingEngine
+- WorkholdingIntelligenceEngine
+- WorkholdingRetrofitAdvisorEngine
+- WorkholdingSurfaceInferenceEngine
+- WorkholdingVerificationEngine
+- WorkholdingViabilityEngine
+
+## 2. Dispatchers (77)
 - adaptiveControlDispatcher
 - atcsDispatcher
 - authDispatcher
@@ -470,10 +1364,13 @@ Path: `src/tools/dispatchers/`
 - bridgeDispatcher
 - businessDispatcher
 - cadDispatcher
+- cadDrawingKnowledgeDispatcher
 - calcDispatcher
 - camDispatcher
+- cncOpsDispatcher
 - complianceDispatcher
 - contextDispatcher
+- cplDispatcher
 - dataDispatcher
 - devDispatcher
 - diagnosisDispatcher
@@ -481,11 +1378,15 @@ Path: `src/tools/dispatchers/`
 - documentLearningDispatcher
 - edmDispatcher
 - exportDispatcher
+- feasibilityDispatcher
 - fiveAxisDispatcher
+- fluidThermalDispatcher
+- formingCastingDispatcher
 - generatorDispatcher
 - grindingDispatcher
 - gsdDispatcher
 - guardDispatcher
+- holePatternDispatcher
 - hookDispatcher
 - industryDispatcher
 - integrationDispatcher
@@ -494,8 +1395,14 @@ Path: `src/tools/dispatchers/`
 - knowledgeExtDispatcher
 - l2EngineDispatcher
 - machineLiveDispatcher
+- machineSetupDispatcher
+- machiningKnowledgeBaseDispatcher
 - manusDispatcher
+- materialProcessingDispatcher
+- mechanicalDesignDispatcher
 - memoryDispatcher
+- monitoringDispatcher
+- multiAxisProgramDispatcher
 - multiOpDispatcher
 - nlHookDispatcher
 - omegaDispatcher
@@ -503,12 +1410,14 @@ Path: `src/tools/dispatchers/`
 - pfpDispatcher
 - processControlDispatcher
 - productDispatcher
+- provenPipelineDispatcher
 - qualityDispatcher
 - ralphDispatcher
 - realtimeDispatcher
 - safetyDispatcher
 - schedulingDispatcher
 - scientificMathDispatcher
+- secondaryOpsDispatcher
 - sessionDispatcher
 - shopPracticeDispatcher
 - skillScriptDispatcher
@@ -516,14 +1425,15 @@ Path: `src/tools/dispatchers/`
 - telemetryDispatcher
 - tenantDispatcher
 - threadDispatcher
+- threadingPipelineDispatcher
 - toolpathDispatcher
 - turningDispatcher
+- turningProgramDispatcher
 - validationDispatcher
+- vibrationPhysicsDispatcher
+- weldingJoiningDispatcher
 
 ## 3. Algorithms (51)
-
-Path: `src/algorithms/`
-
 - AdaptiveControllerModel
 - AnomalyDetector
 - AntColonyTSP
@@ -577,9 +1487,6 @@ Path: `src/algorithms/`
 - types
 
 ## 4. Registries (22)
-
-Path: `src/registries/`
-
 - AgentRegistry
 - AlarmRegistry
 - AlgorithmRegistry
@@ -603,189 +1510,163 @@ Path: `src/registries/`
 - base
 - manager
 
-## 5. Action Schemas (0)
-
-Path: `src/tools/schemas/`
-
-
-## 6. Data & Catalogs (67)
-
-Path: `src/data/`
-
-- accupro-tools-extracted.json
-- additional-tool-catalog.ts
-- ampc-tools-extracted.json
-- big-daishowa-holders.ts
-- camfix-tools-extracted.json
-- catalog-c010b-extracted.json
-- catalog-inventory.json
-- collision-avoidance-data.json
+## 5. Data & Tribal Knowledge (85)
+### Tribal Tip Files (21)
+- bobcad-cam-tips.ts
+- camworks-cam-tips.ts
+- catia-cam-tips.ts
+- cimatron-cam-tips.ts
 - controller-knowledge-tips.ts
-- controller-knowledge.json
-- docs
-- emuge-tools-extracted.json
-- flash-tools-extracted.json
+- edgecam-cam-tips.ts
+- esprit-cam-tips.ts
 - fusion360-cam-tips-ext.ts
 - fusion360-cam-tips.ts
+- gibbscam-cam-tips.ts
+- hypermill-cam-tips-ext.ts
+- mastercam-cam-tips.ts
+- nx-cam-tips-ext.ts
+- nx-cam-tips.ts
+- powermill-cam-tips.ts
+- solidcam-cam-tips.ts
+- sprutcam-cam-tips.ts
+- surfcam-cam-tips.ts
+- tebis-cam-tips.ts
+- topsolid-cam-tips.ts
+- worknc-cam-tips.ts
+### Other Data (64)
+- additional-tool-catalog.ts
+- ampc-tool-catalog.ts
+- benchmark-industry-programs.ts
+- benchmark-parts.ts
+- big-daishowa-holders.ts
+- dormer-pramet-tool-catalog.ts
+- emuge-tool-catalog.ts
+- global-cnc-dimensions.ts
+- global-cnc-tool-catalog.ts
 - guhring-holder-catalog.ts
-- guhring-holders-extracted.json
+- guhring-iscar-speed-feed-data.ts
 - guhring-tool-catalog.ts
-- guhring-tools-extracted.json
 - haimer-holder-catalog.ts
-- haimer-holders-extracted.json
+- helical-speed-feed-data.ts
+- helical-tool-catalog.ts
+- horn-tool-catalog.ts
+- hypermill-materials-catalog.ts
+- hypermill-speed-feed-catalog.ts
+- hypermill-tool-schema-notes.ts
 - indexable-tool-catalog.ts
-- ingersoll-tools-extracted.json
-- iscar-tools-extracted.json
-- iscar-turning-extracted.json
-- kennametal-holemaking-extracted.json
-- kennametal-milling-extracted.json
-- kennametal-threading-extracted.json
-- kennametal-turning-extracted.json
-- korloy-rotating-extracted.json
-- korloy-tools-extracted.json
-- korloy-turning-extracted.json
-- ma-ford-tools-extracted.json
+- ingersoll-tool-catalog.ts
+- iso286-extended-catalog.ts
+- kennametal-tooling-systems-catalog.ts
+- kennametal-turning-catalog.ts
 - machine-3d-model-catalog.ts
 - machine-enrichment-catalog.ts
+- machine-enrichment-inferred.ts
 - machine-kinematics-catalog.ts
+- machine-kinematics-enriched.ts
+- machine-post-enriched.ts
 - machine-profiles-catalog-ext.ts
 - machine-profiles-catalog-ext2.ts
 - machine-profiles-catalog.ts
-- mastercam-cam-tips.ts
+- manufacturer-speed-feed-data.ts
+- mitsubishi-tool-catalog.ts
+- mitsubishi-turning-catalog.ts
 - multi-manufacturer-grades.ts
-- nx-cam-tips-ext.ts
-- nx-cam-tips.ts
+- new-manufacturer-speed-feed-data.ts
+- niagara-tool-catalog.ts
+- osg-speed-feed-data.ts
 - osg-tool-catalog.ts
-- osg-tools-extracted.json
-- rapidkut-tools-extracted.json
-- sandvik-master-extracted.json
+- regofix-holder-catalog.ts
+- sandvik-2018-rotating-catalog.ts
+- sandvik-2022-tool-catalog.ts
 - sandvik-tool-catalog.ts
-- sandvik-tools-extracted.json
 - seco-tool-catalog.ts
-- seco-tools-extracted.json
+- seco-toolholders-catalog.ts
 - sgs-tool-catalog.ts
-- siemens-sinumerik-tips.json
-- solidcam-cam-tips.ts
+- sumitomo-tool-catalog.ts
 - threadDataAcme.ts
 - threadDataISO.ts
 - threadDataPipe.ts
 - threadDataUnified.ts
-- tooling-systems-extracted.json
 - tungaloy-drill-catalog.ts
 - tungaloy-endmill-catalog.ts
 - tungaloy-holder-catalog.ts
+- tungaloy-tooling-catalog.ts
 - tungaloy-turning-catalog.ts
-- tungaloy-us-drill-extracted.json
-- unknown_solid-tools-extracted.json
+- tungaloy-us-tool-catalog.ts
+- user-proven-cutting-data.ts
+- widia-2022-inch-catalog.ts
+- widia-2022-turning-catalog.ts
 - workholding-catalog.ts
-- yg1-tools-extracted.json
+- zenit-tool-catalog.ts
 
-## 7. Tests (530)
+## 6. Hooks & Scripts
+### Enforcement Hooks (24)
+- enforce-auto-compact.py
+- enforce-auto-continue.py
+- enforce-constants-check.py
+- enforce-context-retention.py
+- enforce-duplicate-check.py
+- enforce-forge-triple-output.py
+- enforce-index-auto-update.py
+- enforce-index-sync.py
+- enforce-instruction-compliance.py
+- enforce-knowledge-consult-mark.py
+- enforce-knowledge-consult.py
+- enforce-knowledge-depth.py
+- enforce-math-completeness.py
+- enforce-output-validation.py
+- enforce-plan-before-build.py
+- enforce-post-compact-continue.py
+- enforce-regression-test.py
+- enforce-review-gate.py
+- enforce-stagnant-check.py
+- enforce-stub-detector.py
+- enforce-test-quality.py
+- enforce-unit-counter.py
+- enforce-wiring-completeness.py
+- enforce-wiring-gate.py
+### Other Hook Scripts (38)
+- _gen2.py
+- _gen_master_index.py
+- _generate_hooks.py
+- adaptive_optimizer.py
+- agent-gate-check.py
+- anomaly_detector.py
+- auto_feature_selector.py
+- cache_optimizer.py
+- common.sh
+- coordination_stats.py
+- detect_cowork.py
+- error_classifier.py
+- instructions_loaded_logic.py
+- mcp-health-check.sh
+- pipeline_rollback.py
+- post_action_pipeline.py
+- postcompact_logic.py
+- posttooluse_failure_logic.py
+- prism-build.sh
+- prism-scan.sh
+- review-metrics.py
+- self_healing.py
+- session_end_logic.py
+- session_orchestrator.py
+- stop_failure_logic.py
+- subagent_start_logic.py
+- subagent_stop_logic.py
+- team-aggregator.py
+- telemetry_analyzer.py
+- transcript-prefilter.sh
+- update-skill-frontmatter.py
+- update-skill-frontmatter.sh
+- userpromptsubmit_logic.py
+- video-extract-compact.sh
+- video-watchlist-batch.sh
+- watchlist-to-urls.sh
+- weekly_report.py
+- worktree_logic.py
 
-Path: `src/__tests__/`
-
-## 8. Hooks (21)
-
-Path: `src/hooks/`
-
-- AdvancedManufacturingHooks
-- AgentHooks
-- AutomationHooks
-- CadenceDefinitions
-- CognitiveHooks
-- ControllerHooks
-- CrossReferenceHooks
-- EnforcementHooks
-- LifecycleHooks
-- ManufacturingHooks
-- ObservabilityHooks
-- OrchestrationHooks
-- RecoveryHooks
-- SafetyQualityHooks
-- SchemaHooks
-- SpecialtyCadences
-- SpecialtyManufacturingHooks
-- hookBridge
-- hookRegistration
-- post-roadmap-unit
-- pre-roadmap-execute
-
-## 9. Utils (16)
-
-Path: `src/utils/`
-
-- Config
-- Logger
-- SafetyValidator
-- apiTimeout
-- atomicWrite
-- dispatcherMiddleware
-- env
-- errors
-- fileSystem
-- files
-- formatters
-- paramNormalizer
-- responseSlimmer
-- smokeTest
-- structuredLogger
-- validators
-
-## 10. Services (3)
-
-Path: `src/services/`
-
-- RoadmapLoader
-- TaskClaimService
-- dataLoader
-
-## 11. Milestones (110)
-
-Path: `data/milestones/`
-
-## 12. Docs (36)
-
-Path: `data/docs/`
-
-- ACTION_TRACKER.md
-- CALC_RESULTS_STAGING.json
-- CODE_SYSTEM_INDEX.json
-- CODE_SYSTEM_INDEX.md
-- COMPACTION_SNAPSHOT.md
-- CROSS_DIRECTORY_AUDIT_2026-03-04.md
-- DECISIONS_LOG.md
-- DSL_COMPACT.md
-- FULL_SYSTEM_AUDIT.md
-- GSD_COMMANDS.md
-- HOOK_DEFINITIONS_v20.md
-- MANUS_COMPLIANCE.md
-- MASTER_INDEX.md
-- PATH_INDEX.md
-- PROJECT_INSTRUCTIONS_v2.md
-- RALPH_SCHEDULE.md
-- RALPH_VALIDATION_W1-W5.md
-- RESOURCE_EXTRACTION_ROADMAP.md
-- RGS_PIPELINE_ARCHITECTURE.md
-- ROADMAP_V6.md
-- SCRIPT_INDEX.json
-- SESSION_HANDOFF.md
-- SKILL_TIER_MAP.json
-- SUPERPOWERS_CHECKLIST.md
-- SYSTEM_INVENTORY.md
-- VIDEO_WATCHLIST.md
-- archive
-- build_taxonomy.ps1
-- fix_recovery_card.ps1
-- fix_state.ps1
-- gsd
-- roadmap
-- scan_scripts.ps1
-- scan_skills.ps1
-- tier2-controller-tips.json
-- todo.md
-
-## 13. Slash Commands (134)
-
+## 7. Slash Commands (161)
+- /acquire-models
 - /action-help
 - /action-search
 - /addtomatrix
@@ -793,33 +1674,42 @@ Path: `data/docs/`
 - /audit-task
 - /auto-commit
 - /auto-speed-feed
+- /autopilot
 - /autopilot-camk
 - /autopilot-full
-- /autopilot
 - /bash-optimize
 - /bash-shortcuts
 - /batch-check
 - /bid-to-win
+- /blueprint-read
 - /boot
 - /calc
+- /calibrate
 - /check-dsl
+- /cnc-simulate
 - /code-index
 - /commands
 - /compact
+- /context
 - /context-integrity
 - /context-map
-- /context
 - /controller-enrich
 - /cost-optimize
 - /counts
+- /cps-analyze
 - /cycle-time-crush
 - /defaults
 - /digest
+- /digest-all
 - /drill-calc
 - /engine-browse
+- /ergo-check
 - /estimate
+- /feasibility-check
 - /findings
 - /first-part-right
+- /forge
+- /forge-app-wire
 - /forge-audit
 - /forge-cleanup
 - /forge-debug
@@ -830,6 +1720,7 @@ Path: `data/docs/`
 - /forge-hooks
 - /forge-learn
 - /forge-materials
+- /forge-mcp-wire
 - /forge-metrics
 - /forge-perf
 - /forge-postflight
@@ -841,15 +1732,16 @@ Path: `data/docs/`
 - /forge-types
 - /forge-video-watchlist
 - /forge-wiring
-- /forge
 - /formula-browse
 - /full-job
+- /fusion-generate
 - /gcode
 - /handoff
 - /health
 - /hook-browse
 - /hook-profile
 - /hook-stats
+- /hook-status
 - /hypermill-3d-strategy-guide
 - /hypermill-project-setup
 - /injection-mold-quote
@@ -859,15 +1751,24 @@ Path: `data/docs/`
 - /machine-enrich
 - /machine-optimize
 - /machine-roi
+- /magazine-optimize
 - /material-lookup
 - /material-price
+- /measure
 - /milestone
+- /navigate
+- /okuma-macro
 - /pdf-learn
+- /physics-verify
 - /pick-task
+- /plan-build
 - /playbook
+- /predict
 - /pressure
+- /print-to-program
 - /prism-paths
 - /process-calc
+- /process-health
 - /program-gen
 - /program-validate
 - /quality-check
@@ -881,6 +1782,8 @@ Path: `data/docs/`
 - /remember
 - /replay
 - /rgs
+- /roadmap-quality-check
+- /roi-analysis
 - /safety-audit
 - /scope
 - /scripts
@@ -890,8 +1793,8 @@ Path: `data/docs/`
 - /ship
 - /shop-doctor
 - /slim
-- /smart-route
 - /smart
+- /smart-route
 - /snapshot
 - /spindle-optimize
 - /startup
@@ -901,8 +1804,8 @@ Path: `data/docs/`
 - /sync
 - /system-audit
 - /template
-- /test-speed-feed
 - /test
+- /test-speed-feed
 - /token-budget
 - /token-ledger
 - /tool-catalog
@@ -915,105 +1818,79 @@ Path: `data/docs/`
 - /unit-convert
 - /unwired-review
 - /update-all-docs
+- /vam-analyze
+- /video-follow
 - /video-learn
+- /video-replay
 - /waste-report
 - /wear-analysis
 - /what-changed
+- /what-if
 - /yolo-mode
 
-## 14. Root Configuration
+## 8. Memory Files (23)
+- MEMORY.md
+- compaction-survival.json
+- completed-work-archive.md
+- debugging-patterns.md
+- feedback_absolute_completeness.md
+- feedback_autonomous_compact.md
+- feedback_mit_knowledge.md
+- feedback_roadmap_approval.md
+- last.md
+- prism-audit-findings.md
+- project_cam_kernel_status.md
+- project_camx_roadmap.md
+- project_ccm_track.md
+- project_cpl_track.md
+- project_mcp_modernization.md
+- project_post_ultimate.md
+- project_tribal_expansion_progress.md
+- project_wire_edm_pipeline.md
+- reference_box_data.md
+- reference_system_capabilities.md
+- tool-catalog.md
+- user_mit_web_design.md
+- user_shop_profile.md
 
-- .commit-msg.tmp
-- .dockerignore
-- .env
-- .gitignore
-- 0
-- CLAUDE.md
-- CLAUDE_CODE_BRIEFING_FOR_PRISM.md
-- DEDUP_PLAN.md
-- DISPATCHER_ARCHITECTURE.md
-- Dockerfile
-- INTEGRATION_MAP.json
-- INTEGRATION_MAP.md
-- MCP_ENHANCEMENT_ROADMAP_v2.md
-- MCP_ROUND2_ROADMAP_v3.md
-- MCP_TOOL_CONTRACTS.json
-- MERGED_ROADMAP_v6.md
-- PRIORITY_ROADMAP.json
-- PRIORITY_ROADMAP.md
-- PRISM_DEV_WORKFLOW.md
-- README.md
-- RESOURCE_CLASSIFICATION.json
-- START_MCP_SERVER.bat
-- SYSTEM_ARCHITECTURE.json
-- TOOL_REGISTRY.md
-- UNIFIED_ROADMAP_v8.md
-- _audit_d1.js
-- _audit_d1.py
-- _audit_main.js
-- _check.js
-- _check_actions.js
-- _check_cad.cjs
-- _check_cadence.js
-- _check_d2_cli.js
-- _check_guard.js
-- _count.ps1
-- _find_imports.cjs
-- _findpy.py
-- _gen_roadmap.js
-- _milestones_data.json
-- _strip_interfaces.js
-- _test_data.json
-- _write_data.js
-- audit.js
-- audit_full.py
-- audit_tools.py
-- context_audit.ps1
-- convert_machines.js
-- convert_machines_all.js
-- docker-compose.yml
-- extract-err.txt
-- extract-errors.log
-- extract_formulas.js
-- extract_tools.js
-- fix_logger.ps1
-- fix_logger_imports.py
-- fix_stringify.js
-- generate-dispatchers.mjs
-- generate_roadmap.js
-- generate_roadmap_index.py
-- package-lock.json
-- package.json
-- prism_local_mcp_server.py
-- recover_ahw.js
-- rename_collisions.py
-- scan_headers.ps1
-- scan_r1.ps1
-- test-registries.js
-- test_autofire.py
-- test_build.js
-- test_dev_tools.py
-- test_dev_tools_full.py
-- test_health.js
-- test_mcp_integration.py
-- test_omega.py
-- test_omega2.js
-- test_omega_load.js
-- tsconfig.json
-- tsconfig.tsbuildinfo
-- validate_brainstorm.js
-- validate_gaps.js
-- validate_stubs.js
-- verify_omega.py
-- vitest.config.ts
+## 9. Test Files (808)
+Located in: src/__tests__/ and tests/
 
-## 15. Code System Index (DSL)
+## 10. Milestones (216)
 
-Shortcode mapping for 1622+ files.
+## 11. Roadmap Files
+- CAMX-CODE-REVIEW-PROTOCOL.md
+- CAMX-CONSOLIDATED-ROADMAP-v20.md
+- CAMX-FINAL-ROADMAP-v17.md
+- CAMX-PIPELINE-ENGINE-MATRIX.md
+- CAMX-RESTRUCTURED-ROADMAP-v24.md
+- CAMX-ROADMAP-v18-AMENDMENTS.md
+- CAMX-ROADMAP-v19-AMENDMENTS.md
+- CAMX-ROADMAP-v21-GAP-FIXES.md
+- CAMX-ROADMAP-v22-QUALITY-FIXES.md
+- CAMX-ROADMAP-v23-QUALITY-CHECKPOINTS.md
+- CAMX-TOOL-SELECTION-GUIDE.md
+- FIVE-AXIS-COMPREHENSIVE-ROADMAP.md
+- GRINDING-COMPREHENSIVE-ROADMAP.md
+- LASER-COMPREHENSIVE-ROADMAP.md
+- LATHE-COMPREHENSIVE-ROADMAP.md
+- MILL-TURN-COMPREHENSIVE-ROADMAP.md
+- MILLING-COMPREHENSIVE-ROADMAP.md
+- WATERJET-COMPREHENSIVE-ROADMAP.md
+- WIRE-EDM-COMPREHENSIVE-ROADMAP.md
 
-- Full index: `data/docs/CODE_SYSTEM_INDEX.json`
-- Compact ref: `data/docs/DSL_COMPACT.md` (~400 tokens)
-- Engine: `src/engines/CodeSystemIndexEngine.ts`
-- Skill: `/code-index`
-
-Categories: E=Engine(857), D=Dispatcher(58), A=Algorithm(51), S=Schema(0), H=Hook(21), U=Util(16), T=Test(530), C=Catalog(67), R=Registry(22)
+## SUMMARY
+| Asset | Count |
+|-------|-------|
+| Engines | 1245 |
+| Engine Categories | 52 |
+| Dispatchers | 77 |
+| Algorithms | 51 |
+| Registries | 22 |
+| Data/Tribal files | 85 |
+| Enforcement hooks | 24 |
+| Hook scripts (all) | 62 |
+| Slash commands | 161 |
+| Memory files | 23 |
+| Test files | 808 |
+| Milestones | 216 |

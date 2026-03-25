@@ -1,0 +1,97 @@
+{
+  "id": "CAMX-MS16",
+  "version": "7.0.0",
+  "title": "Complete Dispatcher Wiring Sweep",
+  "brief": "Wire ALL new CAM-system-specific engines. Target: 120+ new actions. z.enum sync, index.ts exports, build verification.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Dispatcher Wiring",
+      "units": [
+        {
+          "id": "U01",
+          "title": "camDispatcher expansion",
+          "description": "Wire all new CAM engines. 100+ new actions.",
+          "exit_conditions": [
+            "100+ actions wired",
+            "z.enum updated",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "calcDispatcher expansion",
+          "description": "StrategyTaxonomy, cost models, safety models. 20+ actions.",
+          "exit_conditions": [
+            "20+ actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "toolpathDispatcher expansion",
+          "description": "Strategy intelligence, sequencing, comparison. 15+ actions.",
+          "exit_conditions": [
+            "15+ actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "integrationDispatcher expansion",
+          "description": "Pipeline integration, cross-CAM bridges, tool export. 20+ actions.",
+          "exit_conditions": [
+            "20+ actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "ToolRouter expansion",
+          "description": "50+ new routing patterns.",
+          "exit_conditions": [
+            "50+ patterns added",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "z.enum sync",
+          "description": "All dispatcher z.enum arrays include every new action.",
+          "exit_conditions": [
+            "All enums complete",
+            "Zero missing actions"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "index.ts exports",
+          "description": "Export all new engines from src/engines/index.ts.",
+          "exit_conditions": [
+            "All exports added",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Build verification",
+          "description": "npm run build passes with 0 errors.",
+          "exit_conditions": [
+            "0 TS errors",
+            "Build passes"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

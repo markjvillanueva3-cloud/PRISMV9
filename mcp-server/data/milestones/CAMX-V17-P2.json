@@ -1,0 +1,75 @@
+{
+  "id": "CAMX-V17-P2",
+  "version": "8.0.0",
+  "title": "Machine Selection + ROI + Outsourcing + Stock Tracking",
+  "brief": "Wire machine auto-selection, ROI advisory for purchases, outsourcing with revenue calc, tool ROI at every selection, stock model tracking through operations.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Business Logic Integration",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Wire MachineSelection + ROI into pipeline",
+          "description": "After features extracted, query MachineMatcherEngine. Rank user machines by capability+cost+availability. If no capable machine: ROIAdvisorEngine computes purchase ROI. ShopNetworkEngine + MakeVsBuyDecisionEngine for outsource option with revenue calc.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Machine selection in output",
+            "Outsource when needed",
+            "ROI for purchases"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Wire ToolROIEngine at EVERY tool selection",
+          "description": "Every tool recommendation: crib option + 3 catalog price points + ROI calculation + annual savings at user's volume.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "3 price points per tool",
+            "ROI in output"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Wire OEECalculatorEngine + CapacityPlanningEngine",
+          "description": "Check availability before generating. Report OEE impact. Scheduling suggestion for batch.",
+          "smart_config": "SONNET/HIGH",
+          "exit_conditions": [
+            "Wire OEECalculatorEngine + CapacityPlanningEngine complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Wire stock model tracking (StockModel + VoxelStock + CumulativeStockChain)",
+          "description": "After each operation, update stock model. Finishing ops receive ACTUAL remaining stock. RestMachiningEngine uses stock to find uncut areas.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Stock tracked through operations",
+            "Rest machining detects remaining stock"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Wire SecondaryOpsEngine + StockAllowanceEngine",
+          "description": "When part needs anodizing/plating/grinding: add dimensional allowance. Include secondary op cost in total.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Allowances added for secondary ops",
+            "Cost includes secondary"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

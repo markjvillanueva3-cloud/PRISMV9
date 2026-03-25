@@ -1,0 +1,123 @@
+{
+  "id": "CAMX-MS9",
+  "version": "7.0.0",
+  "title": "hyperMILL AC Bridge + Fusion 360 Engine Parity",
+  "brief": "Bridge hyperMILL Automation Center Python API. Build Fusion 360 parity engines (Strategy, Safety, Material, Operations, Controller).",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "hyperMILL AC + Fusion 360 Parity",
+      "units": [
+        {
+          "id": "U01",
+          "title": "HyperMillAutomationCenterEngine",
+          "description": "Bridge to hyperMILL AC Python API. Job creation, operation sequencing, NC code gen. Leverage .vsix extension.",
+          "exit_conditions": [
+            "AC bridge works",
+            "Job creation",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "HyperMillCodeGeneratorEngine",
+          "description": "Generate AC Python scripts for operation creation, cycle config, strategy params.",
+          "exit_conditions": [
+            "Script generation works",
+            "20+ operation types",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "HyperMillToolExportEngine",
+          "description": "Export PRISM tools to hyperMILL Tool Database format. Map 29 geometry classes.",
+          "exit_conditions": [
+            "Tool export works",
+            "29 classes mapped",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "Fusion360StrategyEngine",
+          "description": "Dedicated F360 strategy engine matching hyperMILL depth.",
+          "exit_conditions": [
+            "Strategy engine created",
+            "All F360 strategies",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Fusion360SafetyHooksEngine",
+          "description": "F360-specific safety validations.",
+          "exit_conditions": [
+            "Safety hooks created",
+            "Simulation verification",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Fusion360MaterialBridgeEngine",
+          "description": "Bridge F360 material library.",
+          "exit_conditions": [
+            "Material bridge works",
+            "ISO group mapping",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Fusion360OperationCatalogEngine",
+          "description": "Complete F360 operation catalog.",
+          "exit_conditions": [
+            "All operations cataloged",
+            "Default parameters",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Fusion360ControllerCatalogEngine",
+          "description": "F360 machine library (.machine files).",
+          "exit_conditions": [
+            "Controller catalog works",
+            "Axis definitions",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "15+ new actions for hyperMILL AC and Fusion 360 parity.",
+          "exit_conditions": [
+            "15+ actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "40+ tests.",
+          "exit_conditions": [
+            "40+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "id": "CAMX-MS11",
+  "version": "7.0.0",
+  "title": "CAM System Add-In Framework",
+  "brief": "Reusable framework for CAM add-ins. Generate add-ins for Mastercam(.NET), SolidCAM(VBA), NX(NXOpen), hyperMILL(Python), PowerMill(Macro), CATIA(EKL).",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Add-In Framework + Generation",
+      "units": [
+        {
+          "id": "U01",
+          "title": "CAMAddInFrameworkEngine",
+          "description": "Reusable framework: HTTP client to PRISM MCP, UI panel templates, tool sync module.",
+          "exit_conditions": [
+            "Framework created ~500L",
+            "HTTP client works",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Mastercam NetHook Add-In",
+          "description": "C# add-in via .NET CHook API.",
+          "exit_conditions": [
+            "Add-in generated",
+            "PRISM panel in Mastercam",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "SolidCAM SolidWorks Add-In",
+          "description": "VBA/VSTA add-in via SolidWorks API.",
+          "exit_conditions": [
+            "Add-in generated",
+            "PRISM task pane",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "NX CAM Add-In",
+          "description": "Python NXOpen add-in.",
+          "exit_conditions": [
+            "Add-in generated",
+            "PRISM toolbar",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "hyperMILL AC Add-In",
+          "description": "Python AC plugin.",
+          "exit_conditions": [
+            "Add-in generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "PowerMill Plugin",
+          "description": "PowerMill macro plugin.",
+          "exit_conditions": [
+            "Plugin generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "CATIA Add-In",
+          "description": "VBA/EKL add-in.",
+          "exit_conditions": [
+            "Add-in generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Install scripts + documentation",
+          "description": "Install scripts for all add-ins.",
+          "exit_conditions": [
+            "Install scripts work",
+            "Integration guides"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "Dispatcher wiring",
+          "description": "cam_addin_generate, cam_addin_install, cam_addin_status.",
+          "exit_conditions": [
+            "3 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}

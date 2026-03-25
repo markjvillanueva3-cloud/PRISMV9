@@ -1,0 +1,101 @@
+{
+  "id": "CAMX-MS14",
+  "version": "7.0.0",
+  "title": "Safety-First Decision Engine",
+  "brief": "Safety verification at every decision point. Hard vetoes. Automatic escalation. Real collision prevention. Tool breakage prediction.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Safety First",
+      "units": [
+        {
+          "id": "U01",
+          "title": "PipelineSafetyOrchestratorEngine",
+          "description": "Aggregates collision/overload/chatter/thermal/breakage/workholding risk at every decision.",
+          "exit_conditions": [
+            "Safety orchestrator created",
+            "All risk types aggregated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "SafetyVetoEngine",
+          "description": "Hard vetoes: power > 85%, deflection > tol/3, P(chatter) > 15%, P(collision) > 0.",
+          "exit_conditions": [
+            "Veto rules active",
+            "Never bypassed",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "SafetyEscalationEngine",
+          "description": "When tight: reduce DOC, reduce feed, switch strategy, add spring passes.",
+          "exit_conditions": [
+            "Escalation works",
+            "Automatic parameter reduction",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "CollisionPreventionEngine",
+          "description": "Pre-compute collision zones for entire toolpath. Reject + auto-reroute.",
+          "exit_conditions": [
+            "Real collision prevention",
+            "SweptVolume integrated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "ToolBreakagePredictionEngine",
+          "description": "Miner cumulative damage + deflection stress + chip load peaks. Alert P(breakage) > 5%.",
+          "exit_conditions": [
+            "Breakage prediction works",
+            "Alert threshold",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "WorkholdingVerificationEngine",
+          "description": "Cutting force vs grip force margin at every operation.",
+          "exit_conditions": [
+            "Workholding verified",
+            "Safety factor > 1.5",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "40+ tests.",
+          "exit_conditions": [
+            "40+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ]
+}
