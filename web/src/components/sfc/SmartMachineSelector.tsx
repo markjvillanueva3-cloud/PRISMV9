@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { validateMachines, type MachineEntry, type MachineValidation } from "../../data/machines";
+import { useMemo, useState, useEffect, useRef } from "react";
+import { validateMachines, MACHINES, type MachineEntry, type MachineValidation } from "../../data/machines";
+import { dataApi } from "../../api/data";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -17,12 +18,77 @@ function capabilityBadge(axes: number): { label: string; color: "green" | "blue"
   return { label: `${axes}-Axis`, color: "slate" };
 }
 
+/** Map backend machine to MachineEntry shape */
+function mapBackendMachine(m: Record<string, unknown>): MachineEntry {
+  const sp = (m.spindle ?? {}) as Record<string, unknown>;
+  const we = (m.work_envelope ?? {}) as Record<string, unknown>;
+  const x = (we.x ?? {}) as Record<string, unknown>;
+  const y = (we.y ?? {}) as Record<string, unknown>;
+  const atc = (m.tool_changer ?? m.atc ?? {}) as Record<string, unknown>;
+  const axes = m.type === "5-Axis" || String(m.subtype ?? "").includes("5") ? 5
+    : String(m.type ?? "").toLowerCase().includes("lathe") ? 2 : 3;
+  const machineType = String(m.type ?? "VMC").toLowerCase().includes("lathe") ? "Lathe" as const
+    : String(m.type ?? "").toLowerCase().includes("turn") ? "Mill-Turn" as const
+    : axes >= 5 ? "5-Axis" as const
+    : String(m.type ?? "").toLowerCase().includes("horizontal") ? "HMC" as const : "VMC" as const;
+  return {
+    id: String(m.id ?? ""),
+    name: `${m.manufacturer ?? ""} ${m.model ?? ""}`.trim(),
+    manufacturer: String(m.manufacturer ?? ""),
+    type: machineType,
+    axes,
+    spindleMaxRpm: Number(sp.max_rpm ?? m.spindleMaxRpm ?? 10000),
+    spindlePowerKw: Number(sp.power_rating ?? sp.power_continuous ?? m.spindlePowerKw ?? 15),
+    maxToolDiameter: Number((atc as Record<string, unknown>).max_tool_diameter ?? 100),
+    toolCapacity: Number((atc as Record<string, unknown>).capacity ?? 20),
+    tableSize: { x: Number(x.max ?? 500), y: Number((y as Record<string, unknown>).max ?? 400) },
+    controller: String((m.controller as Record<string, unknown>)?.manufacturer ?? "") + " " + String((m.controller as Record<string, unknown>)?.model ?? ""),
+  };
+}
+
 export default function SmartMachineSelector({
   requiredRpm, requiredPowerKw, requiredAxes, value, onChange,
 }: Props) {
+  const [backendMachines, setBackendMachines] = useState<MachineEntry[]>([]);
+  const [backendLoading, setBackendLoading] = useState(false);
+  const fetchedRef = useRef(false);
+
+  // Fetch backend machines once on mount
+  useEffect(() => {
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
+    setBackendLoading(true);
+    dataApi.searchMachines({ query: "*", limit: 100 })
+      .then((res: unknown) => {
+        const items = ((res as Record<string, unknown>).results ?? (Array.isArray(res) ? res : [])) as Record<string, unknown>[];
+        const mapped = items.map(mapBackendMachine);
+        const localIds = new Set(MACHINES.map(m => m.id));
+        setBackendMachines(mapped.filter(m => !localIds.has(m.id)));
+      })
+      .catch(() => setBackendMachines([]))
+      .finally(() => setBackendLoading(false));
+  }, []);
+
+  // Combine local (9) + backend (888) for validation
+  const allMachines = useMemo(() => [...MACHINES, ...backendMachines], [backendMachines]);
+
   const validations = useMemo(
-    () => validateMachines(requiredRpm, requiredPowerKw, requiredAxes),
-    [requiredRpm, requiredPowerKw, requiredAxes],
+    () => {
+      // Validate against all machines (local + backend)
+      const results: MachineValidation[] = allMachines.map((machine) => {
+        const issues: string[] = [];
+        const rpmOk = !requiredRpm || machine.spindleMaxRpm >= requiredRpm;
+        const powerOk = !requiredPowerKw || machine.spindlePowerKw >= requiredPowerKw;
+        const axesOk = !requiredAxes || machine.axes >= requiredAxes;
+        if (!rpmOk) issues.push(`RPM: needs ${Math.round(requiredRpm)}, max ${machine.spindleMaxRpm}`);
+        if (!powerOk) issues.push(`Power: needs ${requiredPowerKw.toFixed(1)} kW, max ${machine.spindlePowerKw}`);
+        if (!axesOk) issues.push(`Axes: needs ${requiredAxes}, has ${machine.axes}`);
+        return { machine, rpmOk, powerOk, axesOk, issues };
+      });
+      // Sort capable first, then by power descending
+      return results.sort((a, b) => a.issues.length - b.issues.length || b.machine.spindlePowerKw - a.machine.spindlePowerKw);
+    },
+    [requiredRpm, requiredPowerKw, requiredAxes, allMachines],
   );
 
   const capable = validations.filter((v) => v.issues.length === 0);
@@ -38,13 +104,19 @@ export default function SmartMachineSelector({
         </p>
       )}
 
-      {hasRequirements && capable.length === 0 && (
+      {backendLoading && (
+        <p className="text-xs text-primary-500 animate-pulse mb-2">Loading 888 machine profiles...</p>
+      )}
+      {hasRequirements && capable.length === 0 && !backendLoading && (
         <div className="rounded-md bg-red-50 p-3 dark:bg-red-900/20">
           <p className="text-xs font-medium text-red-600">
             No machines meet the requirements ({Number.isFinite(requiredRpm) ? Math.round(requiredRpm) : 0} RPM,{" "}
             {Number.isFinite(requiredPowerKw) ? requiredPowerKw.toFixed(1) : "0.0"} kW, {requiredAxes}-axis)
           </p>
         </div>
+      )}
+      {hasRequirements && capable.length > 0 && (
+        <p className="text-xs text-slate-400 mb-1">{capable.length} of {allMachines.length} machines qualify</p>
       )}
 
       {/* Capable machines */}

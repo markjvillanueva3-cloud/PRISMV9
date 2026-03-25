@@ -637,8 +637,33 @@ export const ALGORITHM_SOURCE_FILE_CATALOG: Record<string, SourceFileCatalogEntr
 // ============================================================================
 
 function selectAlgorithm(input: AlgorithmSelectInput): { best: AlgorithmEntry; alternatives: AlgorithmEntry[] } {
+  // U-REG5: Merge AlgorithmRegistry (52+) with inline ALGORITHM_DB (10)
+  let allAlgorithms = ALGORITHM_DB;
+  try {
+    const { algorithmRegistry } = require("../registries/AlgorithmRegistry.js");
+    if (algorithmRegistry?.count && algorithmRegistry.count() > 0) {
+      const registryEntries = algorithmRegistry.all();
+      const inlineNames = new Set(ALGORITHM_DB.map(a => a.name));
+      const extras: AlgorithmEntry[] = [];
+      for (const entry of registryEntries) {
+        if (!inlineNames.has(entry.id) && !inlineNames.has(entry.name)) {
+          extras.push({
+            name: entry.id || entry.name,
+            course: entry.source || "registry",
+            problems: (entry.problem_types || []) as ProblemType[],
+            domains: (entry.domains || []) as DomainType[],
+            description: entry.description || entry.name,
+          });
+        }
+      }
+      if (extras.length > 0) {
+        allAlgorithms = [...ALGORITHM_DB, ...extras];
+      }
+    }
+  } catch { /* Registry not loaded — use inline DB only */ }
+
   // Score each algorithm by match quality
-  const scored = ALGORITHM_DB.map(alg => {
+  const scored = allAlgorithms.map(alg => {
     let score = 0;
     if (alg.problems.includes(input.problem_type)) score += 2;
     if (alg.domains.includes(input.domain)) score += 2;

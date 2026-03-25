@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { getCompatibleTools, COATINGS, type CuttingToolEntry } from "../../data/tools";
+import { dataApi } from "../../api/data";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -17,11 +18,56 @@ function coatingColor(coating: string): "green" | "yellow" | "blue" | "slate" {
   return "blue";
 }
 
+/** Map backend tool results to CuttingToolEntry shape */
+function mapBackendTool(t: Record<string, unknown>): CuttingToolEntry {
+  return {
+    id: String(t.id ?? t.catalog_id ?? ""),
+    name: String(t.name ?? t.description ?? ""),
+    type: String(t.type ?? t.tool_type ?? "endmill"),
+    manufacturer: String(t.manufacturer ?? t.brand ?? ""),
+    substrate: String(t.substrate ?? t.tool_material ?? "Carbide"),
+    coating: String(t.coating ?? "TiAlN"),
+    diameter: Number(t.diameter ?? t.DC ?? t.tool_diameter ?? 12),
+    fluteCount: Number(t.fluteCount ?? t.flutes ?? t.ZEFP ?? 4),
+    helixAngle: Number(t.helixAngle ?? t.helix_angle ?? 35),
+    maxDoc: Number(t.maxDoc ?? t.max_doc ?? t.APMX ?? 36),
+    suitedOperations: (t.suitedOperations ?? t.suited_operations ?? []) as string[],
+    suitedMaterials: (t.suitedMaterials ?? t.suited_materials ?? []) as string[],
+    avoidMaterials: (t.avoidMaterials ?? t.avoid_materials ?? []) as string[],
+    maxRpm: Number(t.maxRpm ?? t.max_rpm ?? 20000),
+  };
+}
+
 export default function SmartToolSelector({ materialGroup, operationId, value, onChange }: Props) {
+  const [backendTools, setBackendTools] = useState<CuttingToolEntry[]>([]);
+  const [backendLoading, setBackendLoading] = useState(false);
+  const fetchedRef = useRef<string>("");
+
+  // Local instant results
   const { compatible, incompatible } = useMemo(() => {
     if (!materialGroup || !operationId) return { compatible: [], incompatible: [] };
     return getCompatibleTools(materialGroup, operationId);
   }, [materialGroup, operationId]);
+
+  // Backend search when material/operation changes
+  useEffect(() => {
+    if (!materialGroup || !operationId) return;
+    const key = `${materialGroup}-${operationId}`;
+    if (fetchedRef.current === key) return;
+    fetchedRef.current = key;
+
+    setBackendLoading(true);
+    dataApi.searchTools({ query: `${materialGroup} ${operationId}`, limit: 30 })
+      .then((res: unknown) => {
+        const items = ((res as Record<string, unknown>).results ?? (Array.isArray(res) ? res : [])) as Record<string, unknown>[];
+        const mapped = items.map(mapBackendTool);
+        // Deduplicate against local
+        const localIds = new Set(compatible.map(t => t.id));
+        setBackendTools(mapped.filter(t => !localIds.has(t.id)));
+      })
+      .catch(() => setBackendTools([]))
+      .finally(() => setBackendLoading(false));
+  }, [materialGroup, operationId, compatible]);
 
   if (!materialGroup || !operationId) {
     return (
@@ -33,8 +79,40 @@ export default function SmartToolSelector({ materialGroup, operationId, value, o
 
   return (
     <Card title="Tool">
-      {compatible.length === 0 && (
+      {compatible.length === 0 && backendTools.length === 0 && !backendLoading && (
         <p className="text-sm text-slate-400">No compatible tools found</p>
+      )}
+      {backendLoading && (
+        <p className="text-xs text-primary-500 animate-pulse">Searching 109,814 tools...</p>
+      )}
+      {backendTools.length > 0 && (
+        <div className="mb-2">
+          <p className="text-xs text-slate-400 mb-1">From PRISM catalog ({backendTools.length} matches)</p>
+          <div className="space-y-1 max-h-40 overflow-y-auto">
+            {backendTools.map((tool) => (
+              <button
+                key={tool.id}
+                type="button"
+                onClick={() => onChange(tool)}
+                className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors ${
+                  value?.id === tool.id
+                    ? "bg-primary-600 text-white"
+                    : "text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-700"
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium">{tool.name}</div>
+                  <div className="flex gap-2 text-xs opacity-75">
+                    <span>{tool.diameter}mm</span>
+                    <span>{tool.fluteCount}F</span>
+                    <span>{tool.manufacturer}</span>
+                  </div>
+                </div>
+                <Badge color={coatingColor(tool.coating)}>{tool.coating}</Badge>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Compatible tools */}

@@ -1,126 +1,56 @@
 {
-  "updated": "2026-02-26T23:55:58.339Z",
-  "session_call_count": 52,
+  "updated": "2026-03-24T23:11:06.086Z",
+  "session_call_count": 5,
   "actions": [
     {
-      "seq": 41,
-      "ts": "2026-02-26T23:18:05.991Z",
-      "tool": "prism_calc",
-      "action": "cutting_force",
-      "params_summary": "material=cast-iron-gray, cutting_speed=250, feed_per_tooth=0.2, axial_depth=5, radial_depth=15, tool_diameter=25, number",
+      "seq": 1,
+      "ts": "2026-03-24T23:10:22.180Z",
+      "tool": "prism_quality",
+      "action": "blueprint_extract",
+      "params_summary": "text=PART: ADAPTER SLEEVE\nMATERIAL:",
       "success": true,
-      "duration_ms": 1,
-      "result_preview": "{\"Fc\":2663.44854015622,\"Ff\":1065.3794160624882,\"Fp\":799.034562046866,\"F_resultant\":2977.8259951809437,\"specific_force\":2967.1880733933476,\"chip_thickn"
+      "duration_ms": 946,
+      "result_preview": "{\"blocked\":true,\"blocker\":\"pre-output-safety-hard-gate\",\"reason\":\"🚫 BLOCKED by pre-output-safety-hard-gate: HARD BLOCK: No safety score available — c"
     },
     {
-      "seq": 42,
-      "ts": "2026-02-26T23:18:25.668Z",
-      "tool": "prism_calc",
-      "action": "tool_life",
-      "params_summary": "material=steel-4140, cutting_speed=200, feed=0.15, depth=3",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"tool_life_minutes\":1,\"optimal_speed\":170,\"warnings\":[\"⚠️ TAYLOR_CLIFF: Tool life 1.0 min is dangerously short. Small speed increase will cause rapid"
-    },
-    {
-      "seq": 43,
-      "ts": "2026-02-26T23:18:26.516Z",
-      "tool": "prism_calc",
-      "action": "tool_life",
-      "params_summary": "material=aluminum-6061, cutting_speed=400, feed=0.12, depth=4",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"tool_life_minutes\":0.1,\"optimal_speed\":340,\"warnings\":[\"Tool life 0.07 min very low\",\"⚠️ TAYLOR_CLIFF: Tool life 0.1 min is dangerously short. Small"
-    },
-    {
-      "seq": 44,
-      "ts": "2026-02-26T23:18:27.373Z",
-      "tool": "prism_calc",
-      "action": "tool_life",
-      "params_summary": "material=titanium-6al4v, cutting_speed=60, feed=0.08, depth=2",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"tool_life_minutes\":170.1,\"optimal_speed\":51,\"warnings\":[],\"calculation_method\":\"Taylor (V×T^n = C)\"}"
-    },
-    {
-      "seq": 45,
-      "ts": "2026-02-26T23:18:28.247Z",
-      "tool": "prism_calc",
-      "action": "tool_life",
-      "params_summary": "material=stainless-304, cutting_speed=150, feed=0.1, depth=2.5",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"tool_life_minutes\":3.9,\"optimal_speed\":128,\"warnings\":[\"⚠️ TAYLOR_CLIFF: Tool life 3.9 min is dangerously short. Small speed increase will cause rap"
-    },
-    {
-      "seq": 46,
-      "ts": "2026-02-26T23:18:29.094Z",
-      "tool": "prism_calc",
-      "action": "tool_life",
-      "params_summary": "material=cast-iron-gray, cutting_speed=250, feed=0.2, depth=5",
-      "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"tool_life_minutes\":0.3,\"optimal_speed\":213,\"warnings\":[\"⚠️ TAYLOR_CLIFF: Tool life 0.3 min is dangerously short. Small speed increase will cause rap"
-    },
-    {
-      "seq": 47,
-      "ts": "2026-02-26T23:18:29.937Z",
-      "tool": "prism_calc",
-      "action": "surface_finish",
-      "params_summary": "feed=0.6, nose_radius=0.8, operation=milling",
-      "success": true,
-      "duration_ms": 1,
-      "result_preview": "{\"Ra\":28.12,\"Rz\":112.5,\"Rt\":146.25,\"theoretical_Ra\":14.06,\"actual_Ra\":28.12,\"finish_factor\":2,\"warnings\":[\"Surface may be rough\"]}"
-    },
-    {
-      "seq": 48,
-      "ts": "2026-02-26T23:18:31.344Z",
-      "tool": "prism_calc",
-      "action": "surface_finish",
-      "params_summary": "feed=0.36, nose_radius=0.4, operation=milling",
-      "success": true,
-      "duration_ms": 1,
-      "result_preview": "{\"Ra\":20.25,\"Rz\":81,\"Rt\":105.3,\"theoretical_Ra\":10.12,\"actual_Ra\":20.25,\"finish_factor\":2,\"warnings\":[\"Surface may be rough\"]}"
-    },
-    {
-      "seq": 49,
-      "ts": "2026-02-26T23:55:55.753Z",
-      "tool": "prism_data",
-      "action": "material_search",
-      "params_summary": "query=*, limit=1",
-      "success": true,
-      "duration_ms": 19,
-      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Read CURRENT_POSITION.md and continue\",\"recent\":[\"✅ D3_LKG_UPDATED: prism_data:material_search\",\"🤖 AG"
-    },
-    {
-      "seq": 50,
-      "ts": "2026-02-26T23:55:56.646Z",
-      "tool": "prism_data",
-      "action": "machine_search",
-      "params_summary": "query=*, limit=1",
+      "seq": 2,
+      "ts": "2026-03-24T23:10:30.742Z",
+      "tool": "prism_cad",
+      "action": "blueprint_to_cadquery_script",
+      "params_summary": "blueprint_text=PART: ADAPTER SLEEVE\nMATERIAL:",
       "success": true,
       "duration_ms": 5,
-      "result_preview": "{\"machines\":[{\"manufacturer\":\"Haas\",\"model\":\"ST-10\",\"type\":\"2-axis_slant_bed\",\"maxSwing\":419,\"maxTurningDiameter\":254,\"maxTurningLength\":356,\"barCapac"
+      "result_preview": "{\"blocked\":true,\"blocker\":\"pre-output-safety-hard-gate\",\"reason\":\"🚫 BLOCKED by pre-output-safety-hard-gate: HARD BLOCK: No safety score available — c"
     },
     {
-      "seq": 51,
-      "ts": "2026-02-26T23:55:57.494Z",
-      "tool": "prism_data",
-      "action": "tool_search",
-      "params_summary": "query=*, limit=1",
+      "seq": 3,
+      "ts": "2026-03-24T23:10:38.877Z",
+      "tool": "prism_cad",
+      "action": "cadquery_generate_script",
+      "params_summary": "description=Adapter sleeve: cylindrical bo, units=inch",
       "success": true,
-      "duration_ms": 3,
-      "result_preview": "{\"tools\":[{\"id\":\"EM-SQ-001.0-2F-0000\",\"vendor\":\"OSG\",\"catalog_number\":\"OSG-EM-1-2\",\"category\":\"MILLING\",\"subcategory\":\"END_MILLS\",\"type\":\"SQUARE\",\"nam"
+      "duration_ms": 6,
+      "result_preview": "{\"blocked\":true,\"blocker\":\"pre-output-safety-hard-gate\",\"reason\":\"🚫 BLOCKED by pre-output-safety-hard-gate: HARD BLOCK: No safety score available — c"
     },
     {
-      "seq": 52,
-      "ts": "2026-02-26T23:55:58.339Z",
-      "tool": "prism_data",
-      "action": "alarm_search",
-      "params_summary": "query=*, limit=1",
+      "seq": 4,
+      "ts": "2026-03-24T23:10:51.592Z",
+      "tool": "prism_dev",
+      "action": "session_boot",
+      "params_summary": "{}",
       "success": true,
-      "duration_ms": 2,
-      "result_preview": "{\"alarms\":[{\"alarm_id\":\"ALM-BRO-P001\",\"code\":\"P001\",\"name\":\"PROGRAM ALARM 1\",\"category\":\"PROGRAM\",\"severity\":\"LOW\",\"description\":\"Program alarm 1\",\"ca"
+      "duration_ms": 747,
+      "result_preview": "{\"timestamp\":\"2026-03-24T23:10:50.655Z\",\"instance_id\":\"claude-22588-1774393850655\",\"coordination\":\"registered\",\"stale_claims_reaped\":1,\"active_instanc"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-03-24T23:11:06.085Z",
+      "tool": "prism_guard",
+      "action": "autohook_status",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 190,
+      "result_preview": "{\"_COMPACTION_DETECTED\":true,\"_RECOVERY\":{\"do\":\"Phase: unknown, Call: 4, Last: prism_dev:session_boot\",\"recent\":[\"prism_quality:blueprint_extract\",\"pr"
     }
   ],
   "_hint": "READ THIS FIRST after compaction. Shows last 12 tool calls with results."

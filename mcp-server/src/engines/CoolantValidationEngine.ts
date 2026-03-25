@@ -694,10 +694,29 @@ class CoolantValidationEngine {
       recommendedDelivery = 'AIR_BLAST'; // HSM often better with air (except fire-risk materials)
     }
 
-    // Recommend coolant type
-    const recommendedType = params.materialType 
+    // Recommend coolant type — enriched from CoolantRegistry (U-REG4)
+    let recommendedType: CoolantType = params.materialType
       ? RECOMMENDED_COOLANT[params.materialType] || 'WATER_SOLUBLE'
       : 'WATER_SOLUBLE';
+    try {
+      const { coolantRegistry } = require("../registries/CoolantRegistry.js");
+      if (coolantRegistry?.count && coolantRegistry.count() > 0 && params.materialType) {
+        const results = coolantRegistry.searchCoolants({
+          material_group: params.materialType,
+          operation: params.operation,
+          limit: 1,
+        });
+        if (results?.coolants?.length > 0) {
+          const best = results.coolants[0];
+          if (best.category) {
+            recommendedType = best.category as CoolantType;
+          }
+          if (best.notes) {
+            recommendations.push(`Registry: ${best.notes}`);
+          }
+        }
+      }
+    } catch { /* Registry not loaded — use inline RECOMMENDED_COOLANT */ }
 
     // Overall adequacy
     const overallAdequate = flow.isAdequate && 

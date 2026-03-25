@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { ISO_GROUPS, searchMaterials, type MaterialEntry } from "../../data/materials";
+import { ISO_GROUPS, searchMaterials as searchLocal, MATERIALS, type MaterialEntry } from "../../data/materials";
+import { dataApi } from "../../api/data";
 import { Card, Badge } from "../ui";
 
 interface Props {
@@ -52,10 +53,54 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
   const [activeIdx, setActiveIdx] = useState(-1);
   const [favorites, setFavorites] = useState<string[]>(() => loadIds(FAVORITES_KEY));
   const [recents, setRecents] = useState<string[]>(() => loadIds(RECENTS_KEY));
+  const [backendResults, setBackendResults] = useState<MaterialEntry[]>([]);
+  const [backendLoading, setBackendLoading] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const filtered = useMemo(() => searchMaterials(query), [query]);
+  // Instant local results (28 entries) + async backend results (6,346+)
+  const localFiltered = useMemo(() => searchLocal(query), [query]);
+
+  // Debounced backend search — fires 300ms after typing stops
+  useEffect(() => {
+    if (!query.trim() || query.length < 2) {
+      setBackendResults([]);
+      return;
+    }
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(async () => {
+      setBackendLoading(true);
+      try {
+        const res = await dataApi.searchMaterials({ query, limit: 50 }) as { results?: MaterialEntry[] };
+        const items = (res.results ?? (Array.isArray(res) ? res : [])) as MaterialEntry[];
+        // Map backend results to MaterialEntry shape
+        const mapped: MaterialEntry[] = items.map((m: Record<string, unknown>) => ({
+          id: String(m.id ?? m.name ?? ""),
+          name: String(m.name ?? m.id ?? ""),
+          group: String(m.group ?? m.iso_group ?? "P"),
+          groupLabel: ISO_GROUPS.find(g => g.code === String(m.group ?? m.iso_group ?? "P"))?.label ?? "Steel",
+          hardness: Number(m.hardness ?? m.hardness_hb ?? 200),
+          tensileStrength: Number(m.tensileStrength ?? m.tensile_strength ?? m.uts_mpa ?? 600),
+          machinability: Number(m.machinability ?? m.machinability_index ?? 50),
+        }));
+        setBackendResults(mapped);
+      } catch {
+        // Backend unavailable — local-only mode
+        setBackendResults([]);
+      } finally {
+        setBackendLoading(false);
+      }
+    }, 300);
+    return () => clearTimeout(debounceRef.current);
+  }, [query]);
+
+  // Merge: local results first (instant), then backend results (deduplicated)
+  const filtered = useMemo(() => {
+    const localIds = new Set(localFiltered.map(m => m.id));
+    const uniqueBackend = backendResults.filter(m => !localIds.has(m.id));
+    return [...localFiltered, ...uniqueBackend];
+  }, [localFiltered, backendResults]);
 
   // Recommendations for current operation
   const recommendedIds = useMemo(
@@ -160,9 +205,14 @@ export default function SmartMaterialSelector({ value, onChange, operationId }: 
             dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         />
 
-        {open && flatItems.length === 0 && query.trim() && (
+        {open && flatItems.length === 0 && query.trim() && !backendLoading && (
           <div className="absolute z-20 mt-1 w-full rounded-md border border-slate-200 bg-white p-3 text-center text-xs text-slate-400 shadow-lg dark:border-slate-600 dark:bg-slate-800">
             No materials match &ldquo;{query}&rdquo;
+          </div>
+        )}
+        {open && backendLoading && (
+          <div className="absolute z-20 mt-1 w-full rounded-md border border-slate-200 bg-white p-2 text-center text-xs text-primary-500 shadow-lg dark:border-slate-600 dark:bg-slate-800">
+            Searching 6,346+ materials...
           </div>
         )}
         {open && flatItems.length > 0 && (

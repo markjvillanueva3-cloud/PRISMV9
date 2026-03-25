@@ -183,6 +183,42 @@ for (const p of toCatalogProfiles()) {
   if (!machines.has(p.id)) machines.set(p.id, p);
 }
 
+// U-REG5: Enrich with MachineRegistry (824+ machines) as third data layer
+try {
+  const { machineRegistry } = require("../registries/MachineRegistry.js");
+  if (machineRegistry?.count && machineRegistry.count() > 0) {
+    for (const entry of machineRegistry.all()) {
+      if (entry.id && !machines.has(entry.id)) {
+        // Map registry format to MachineProfile (minimal — just enough for lookup/validation)
+        machines.set(entry.id, {
+          id: entry.id,
+          name: entry.name || entry.id,
+          model: entry.model || entry.name || entry.id,
+          manufacturer: entry.manufacturer || "unknown",
+          type: entry.type || "vmc",
+          spindle: {
+            max_rpm: entry.max_rpm || 10000,
+            rated_power_kw: entry.power_kw || 15,
+            peak_power_kw: entry.peak_power_kw || (entry.power_kw ? entry.power_kw * 1.25 : 18.75),
+            torque_nm_at_rpm: entry.torque_curve || [],
+            drive: entry.spindle_drive || "gear",
+          },
+          axes: { count: entry.axes || 3, travels_mm: entry.travels_mm || { x: 500, y: 400, z: 300 } },
+          rapid_rates_mm_min: entry.rapid_rates || { x: 30000, y: 30000, z: 20000 },
+          rapid_rate_mmmin: entry.rapid_rate_mmmin || 30000,
+          max_feed_mmmin: entry.max_feed_mmmin || 15000,
+          controller: entry.controller || "fanuc",
+          tool_changer_capacity: entry.atc_capacity || 20,
+          max_tool_diameter_mm: entry.max_tool_diameter_mm || 80,
+          max_tool_length_mm: entry.max_tool_length_mm || 300,
+          max_part_weight_kg: entry.max_part_weight_kg || 500,
+          coolant: entry.coolant || { flood: true },
+        } as unknown as MachineProfile);
+      }
+    }
+  }
+} catch { /* MachineRegistry not loaded — use defaults + catalog only */ }
+
 export interface ValidationResult {
   valid: boolean;
   machine: string;

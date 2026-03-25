@@ -626,6 +626,30 @@ export class CoatingSelectionEngine {
       coating, iso_group, operation, speed_range, coolant, substrate
     );
 
+    // Step 4b (U-REG4): Enrich alternatives from CoatingRegistry (100+ coatings)
+    try {
+      const { coatingRegistry } = require("../registries/CoatingRegistry.js");
+      if (coatingRegistry?.count && coatingRegistry.count() > 0) {
+        const registryResults = coatingRegistry.recommend({
+          material_group: iso_group,
+          application: operation,
+        });
+        if (Array.isArray(registryResults)) {
+          const existingNames = new Set([coating, ...alternatives.map((a: CoatingAlternative) => a.coating)]);
+          for (const entry of registryResults.slice(0, 3)) {
+            const name = entry.name || entry.id;
+            if (name && !existingNames.has(name)) {
+              alternatives.push({
+                coating: name as CoatingName,
+                why_not: `Registry alternative: ${entry.description || name}`,
+              });
+              existingNames.add(name);
+            }
+          }
+        }
+      }
+    } catch { /* Registry not loaded — use inline DB only */ }
+
     // Step 5: Attach properties
     const props = COATING_DB[coating];
 

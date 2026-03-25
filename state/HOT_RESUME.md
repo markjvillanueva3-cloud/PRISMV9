@@ -1,11 +1,11 @@
-# HOT_RESUME (call 52 — 2026-02-26T23:55:58.339Z)
-Last: prism_data:alarm_search (2ms, OK)
+# HOT_RESUME (call 9 — 2026-03-24T23:12:24.629Z)
+Last: prism_dev:file_read (3ms, OK)
 ## Recent
-- prism_calc:tool_life
-- prism_calc:tool_life
-- prism_calc:surface_finish
-- prism_calc:surface_finish
-- prism_data:material_search
-- prism_data:machine_search
-- prism_data:tool_search
-- prism_data:alarm_search
+- prism_cad:blueprint_to_cadquery_script
+- prism_cad:cadquery_generate_script
+- prism_dev:session_boot
+- prism_guard:autohook_status
+- prism_dev:code_search
+- prism_dev:file_read
+- prism_dev:file_read
+- prism_dev:file_read

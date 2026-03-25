@@ -178,6 +178,7 @@ export interface CuttingForceResult {
     iso_group: string;
   };
   calculation_method: string;
+  provenance?: FormulaProvenance;
 }
 
 /** Tool Life Result configuration/data structure.
@@ -189,6 +190,7 @@ export interface ToolLifeResult {
   optimal_speed?: number;
   warnings: string[];
   calculation_method: string;
+  provenance?: FormulaProvenance;
 }
 
 /** Surface Finish Result configuration/data structure.
@@ -201,6 +203,7 @@ export interface SurfaceFinishResult {
   actual_Ra: number;
   finish_factor: number;
   warnings: string[];
+  provenance?: FormulaProvenance;
 }
 
 /** M R R Result configuration/data structure.
@@ -212,6 +215,43 @@ export interface MRRResult {
   spindle_speed: number; // n [rpm]
   machining_time?: number; // [min] if volume provided
   warnings: string[];
+}
+
+// ============================================================================
+// FORMULA PROVENANCE (U-REG3: FormulaRegistry wiring)
+// ============================================================================
+
+/** Formula provenance for verifiable physics output.
+ * When PRISM says "Ra = 0.32μm", the machinist sees "calculated using fz²/(32r) per ISO 4287".
+ */
+export interface FormulaProvenance {
+  formula_id: string;
+  equation: string;
+  references: string[];
+  assumptions?: string[];
+}
+
+/** Lazy-load FormulaRegistry and look up provenance by formula name/category.
+ * Returns undefined if registry not available (graceful degradation).
+ */
+function getProvenance(category: string, name?: string): FormulaProvenance | undefined {
+  try {
+    const { formulaRegistry } = require("../registries/FormulaRegistry.js");
+    if (!formulaRegistry?.count || formulaRegistry.count() === 0) return undefined;
+    const all = formulaRegistry.all();
+    const match = all.find((f: { category: string; name: string }) =>
+      f.category === category || (name && f.name.toLowerCase().includes(name.toLowerCase()))
+    );
+    if (!match) return undefined;
+    return {
+      formula_id: match.formula_id,
+      equation: match.equation_plain || match.equation,
+      references: match.references || [],
+      assumptions: match.assumptions,
+    };
+  } catch {
+    return undefined; // Registry not loaded — no provenance
+  }
 }
 
 // ============================================================================
@@ -372,7 +412,8 @@ export function calculateKienzleCuttingForce(
       source: dataQuality
     },
     force_ratios: { Ff_over_Fc: ffRatio, Fp_over_Fc: fpRatio, iso_group: isoGroup },
-    calculation_method: "Kienzle (Fc = kc1.1 × h^(-mc) × b)"
+    calculation_method: "Kienzle (Fc = kc1.1 × h^(-mc) × b)",
+    provenance: getProvenance("cutting_force", "kienzle"),
   };
 }
 
@@ -461,7 +502,8 @@ export function calculateDrillingForce(
       source: "drilling_model"
     },
     force_ratios: { Ff_over_Fc: Fc_tangential > 0 ? Ff_thrust / Fc_tangential : 0, Fp_over_Fc: 0, iso_group: "drilling" },
-    calculation_method: "Drilling (Sandvik/Shaw: M=kc×D²×fn/8000, Ff=0.5×kc×D×fn×sin(κr)×chisel)"
+    calculation_method: "Drilling (Sandvik/Shaw: M=kc×D²×fn/8000, Ff=0.5×kc×D×fn×sin(κr)×chisel)",
+    provenance: getProvenance("cutting_force", "drilling"),
   };
 }
 
@@ -534,7 +576,8 @@ export function calculateTaylorToolLife(
     tool_life_minutes: Math.round(tool_life * 10) / 10,
     optimal_speed: Math.round(optimal_speed),
     warnings,
-    calculation_method: "Taylor (V×T^n = C)"
+    calculation_method: "Taylor (V×T^n = C)",
+    provenance: getProvenance("tool_life", "taylor"),
   };
 }
 
@@ -653,7 +696,8 @@ export function calculateSurfaceFinish(
     theoretical_Ra: Math.round(Ra_theoretical * 100) / 100,
     actual_Ra: Math.round(Ra_actual * 100) / 100,
     finish_factor: process_factor,
-    warnings
+    warnings,
+    provenance: getProvenance("surface_finish", "roughness"),
   };
 }
 

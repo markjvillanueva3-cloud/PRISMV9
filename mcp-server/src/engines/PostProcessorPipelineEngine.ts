@@ -2601,18 +2601,38 @@ class PostProcessorPipelineEngineImpl {
     if (input.machine && "max_rpm" in input.machine) {
       machine = input.machine as MachineContext;
     } else if (input.machine && "name" in input.machine) {
-      // Placeholder for catalog lookup
+      const machineName = (input.machine as any).name as string;
+      let resolvedController: ControllerFamily = input.controller ?? "fanuc";
+      let confidence = 0.3;
+
+      // U-REG4: Query PostProcessorRegistry for machine-specific post config (sync)
+      try {
+        const { postProcessorRegistry } = require("../registries/PostProcessorRegistry.js");
+        if (postProcessorRegistry?.count && postProcessorRegistry.count() > 0) {
+          const allPosts = postProcessorRegistry.all();
+          const nameLower = machineName.toLowerCase();
+          const match = allPosts.find((p: any) =>
+            p.machine_examples?.some((m: string) => m.toLowerCase().includes(nameLower)) ||
+            p.controller_model?.toLowerCase().includes(nameLower)
+          );
+          if (match?.controller_family) {
+            resolvedController = match.controller_family as ControllerFamily;
+            confidence = 0.8; // Registry match is high confidence
+          }
+        }
+      } catch { /* Registry not loaded — use input.controller or fanuc default */ }
+
       machine = {
         id: "resolved",
-        name: (input.machine as any).name,
+        name: machineName,
         brand: "unknown",
-        controller: input.controller ?? "fanuc",
+        controller: resolvedController,
         max_rpm: 12000,
         max_power_kW: 15,
         rapid_rate_mm_min: { x: 30000, y: 30000, z: 20000 },
         work_volume: { x: 500, y: 400, z: 300 },
         axes: 3,
-        resolution_confidence: 0.3,
+        resolution_confidence: confidence,
       };
     }
 

@@ -291,11 +291,52 @@ export class ToolSelectionEngine {
   private generateCandidates(req: ToolRequirements, isoGroup: string, opMap: { types: string[]; min_flutes: number; preferred_coating: string }): ToolRecommendation[] {
     // Try real catalog tools first via ToolCatalogEngine
     const catalogResults = this.queryCatalog(req, isoGroup, opMap);
-    if (catalogResults.length >= 3) return catalogResults;
 
-    // Fall back to synthetic candidates if catalog has too few matches
+    // U-REG5: Supplement with ToolRegistry (500+ indexed tools) if catalog is thin
+    let registryResults: ToolRecommendation[] = [];
+    if (catalogResults.length < 3) {
+      try {
+        const { toolRegistry } = require("../registries/ToolRegistry.js");
+        if (toolRegistry?.count && toolRegistry.count() > 0) {
+          const found = toolRegistry.search({
+            type: opMap.types[0],
+            diameter_mm: req.feature_diameter_mm,
+            material_group: isoGroup,
+            limit: 10,
+          });
+          if (Array.isArray(found)) {
+            const catalogIds = new Set(catalogResults.map(r => r.tool_id));
+            registryResults = found
+              .filter((t: any) => t.id && !catalogIds.has(t.id))
+              .slice(0, 5)
+              .map((t: any) => {
+                const d = t.diameter_mm || t.cutting_diameter_mm || 10;
+                const flutes = t.flute_count || opMap.min_flutes;
+                const coating = t.coating || opMap.preferred_coating;
+                const { score, rationale, warnings } = scoreTool(d, flutes, coating, req, isoGroup);
+                rationale.push(`Registry tool: ${t.manufacturer || "unknown"} ${t.name || t.id}`);
+                return {
+                  tool_id: t.id, tool_type: t.type || opMap.types[0], diameter_mm: d,
+                  description: `${t.manufacturer || "Registry"} ${t.name || t.id} — ${d}mm ${flutes}F ${coating}`,
+                  score: Math.min(100, score + 5), rationale, warnings,
+                  estimated_tool_life_min: estimateToolLife(isoGroup, ISO_BASE_SPEEDS[isoGroup] || 200, 0.1),
+                  recommended_speed_mpm: ISO_BASE_SPEEDS[isoGroup] || 200,
+                  recommended_feed_mmpt: 0.1,
+                  coating, substrate: t.material || "carbide",
+                  cost_category: "standard" as const,
+                } as ToolRecommendation;
+              });
+          }
+        }
+      } catch { /* ToolRegistry not loaded */ }
+    }
+
+    const combined = [...catalogResults, ...registryResults];
+    if (combined.length >= 3) return combined;
+
+    // Fall back to synthetic candidates if catalog + registry have too few matches
     const synthetic = this.generateSyntheticCandidates(req, isoGroup, opMap);
-    return [...catalogResults, ...synthetic];
+    return [...combined, ...synthetic];
   }
 
   private queryCatalog(req: ToolRequirements, isoGroup: string, opMap: { types: string[]; min_flutes: number; preferred_coating: string }): ToolRecommendation[] {
