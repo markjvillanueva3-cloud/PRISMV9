@@ -3,10 +3,10 @@ import { useDigitalTwin } from "../../hooks/useLearning";
 import type { TwinStatus, TwinAlert, TwinHistoryPoint } from "../../types/learning";
 
 const STATE_COLORS: Record<string, string> = {
-  idle: "bg-slate-100 text-slate-600",
-  running: "bg-green-100 text-green-700",
-  alarm: "bg-red-100 text-red-700",
-  maintenance: "bg-amber-100 text-amber-700",
+  idle: "bg-slate-700 text-slate-300",
+  running: "bg-green-500/20 text-green-400",
+  alarm: "bg-red-500/20 text-red-400",
+  maintenance: "bg-amber-500/20 text-amber-400",
 };
 
 function Gauge({ label, value, max, unit, warning }: {
@@ -15,30 +15,30 @@ function Gauge({ label, value, max, unit, warning }: {
   const pct = Math.min((value / max) * 100, 100);
   const color = warning ? "#ef4444" : pct > 80 ? "#f59e0b" : "#10b981";
   return (
-    <div className="p-3 bg-slate-50 rounded-lg text-center">
-      <div className="text-xs text-slate-400 mb-1">{label}</div>
+    <div className="p-3 bg-slate-900/50 rounded-lg text-center">
+      <div className="text-xs text-slate-500 mb-1">{label}</div>
       <div className="relative w-16 h-16 mx-auto">
         <svg viewBox="0 0 36 36" className="w-full h-full transform -rotate-90">
-          <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="rgba(71,85,105,0.5)" strokeWidth="3" />
           <circle cx="18" cy="18" r="15.5" fill="none" stroke={color} strokeWidth="3"
             strokeDasharray={`${pct} ${100 - pct}`} strokeLinecap="round" />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-sm font-bold text-slate-800">
+          <span className="text-sm font-bold text-slate-100">
             {value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value}
           </span>
         </div>
       </div>
-      <div className="text-xs text-slate-500 mt-1">{unit}</div>
+      <div className="text-xs text-slate-400 mt-1">{unit}</div>
     </div>
   );
 }
 
 function AlertRow({ alert }: { alert: TwinAlert }) {
   const sevColors = {
-    info: "border-blue-200 bg-blue-50 text-blue-700",
-    warning: "border-amber-200 bg-amber-50 text-amber-700",
-    critical: "border-red-200 bg-red-50 text-red-700",
+    info: "border-blue-500/30 bg-blue-500/10 text-blue-300",
+    warning: "border-amber-500/30 bg-amber-500/10 text-amber-300",
+    critical: "border-red-500/30 bg-red-500/10 text-red-300",
   };
   return (
     <div className={`p-2.5 rounded-lg border text-sm ${sevColors[alert.severity]}`}>
@@ -74,8 +74,8 @@ function HistoryChart({ points }: { points: TwinHistoryPoint[] }) {
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full">
       <polyline points={rpmLine} fill="none" stroke="#3b82f6" strokeWidth="1.5" />
       <polyline points={loadLine} fill="none" stroke="#f59e0b" strokeWidth="1.5" />
-      <text x={w - pad} y={12} textAnchor="end" className="text-[8px] fill-blue-500">RPM</text>
-      <text x={w - pad} y={22} textAnchor="end" className="text-[8px] fill-amber-500">Load%</text>
+      <text x={w - pad} y={12} textAnchor="end" className="text-[11px] fill-blue-500">RPM</text>
+      <text x={w - pad} y={22} textAnchor="end" className="text-[11px] fill-amber-500">Load%</text>
     </svg>
   );
 }
@@ -139,10 +139,10 @@ export default function DigitalTwin() {
       {status && (
         <>
           {/* Machine header */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 mb-4">
+          <div className="rounded-xl border border-slate-700/60 bg-slate-800/70 backdrop-blur-sm p-5 mb-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="font-semibold text-slate-800 text-lg">
+                <h2 className="font-semibold text-slate-200 text-lg">
                   {status.machine_name}
                 </h2>
                 <div className="text-xs text-slate-400 mt-0.5">
@@ -167,20 +167,20 @@ export default function DigitalTwin() {
           </div>
 
           {/* Position display */}
-          <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+          <div className="rounded-xl border border-slate-700/60 bg-slate-800/70 backdrop-blur-sm p-4 mb-4">
             <h3 className="text-sm font-medium text-slate-700 mb-2">Current Position</h3>
             <div className="grid grid-cols-3 gap-4 font-mono text-sm">
               <div>
                 <span className="text-slate-400">X:</span>{" "}
-                <span className="text-slate-800 font-bold">{status.position.x.toFixed(3)}</span>
+                <span className="text-slate-200 font-bold">{status.position.x.toFixed(3)}</span>
               </div>
               <div>
                 <span className="text-slate-400">Y:</span>{" "}
-                <span className="text-slate-800 font-bold">{status.position.y.toFixed(3)}</span>
+                <span className="text-slate-200 font-bold">{status.position.y.toFixed(3)}</span>
               </div>
               <div>
                 <span className="text-slate-400">Z:</span>{" "}
-                <span className="text-slate-800 font-bold">{status.position.z.toFixed(3)}</span>
+                <span className="text-slate-200 font-bold">{status.position.z.toFixed(3)}</span>
               </div>
             </div>
             <div className="text-xs text-slate-400 mt-2">
@@ -190,7 +190,7 @@ export default function DigitalTwin() {
 
           {/* Alerts */}
           {status.alerts.length > 0 && (
-            <div className="bg-white rounded-xl border border-slate-200 p-4 mb-4">
+            <div className="rounded-xl border border-slate-700/60 bg-slate-800/70 backdrop-blur-sm p-4 mb-4">
               <h3 className="text-sm font-medium text-slate-700 mb-2">
                 Alerts ({status.alerts.length})
               </h3>
@@ -205,7 +205,7 @@ export default function DigitalTwin() {
       )}
 
       {/* History section */}
-      <div className="bg-white rounded-xl border border-slate-200 p-4">
+      <div className="rounded-xl border border-slate-700/60 bg-slate-800/70 backdrop-blur-sm p-4">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-medium text-slate-700">History</h3>
           <button
