@@ -263,6 +263,126 @@ export class ChipBreakingEngine {
       warnings,
     };
   }
+
+  /**
+   * Analyze chip formation using ChipBreakingModel algorithm for ISO 3685
+   * chip type classification with BUE risk assessment.
+   *
+   * Provides ISO-compliant chip form codes, built-up-edge risk by cutting speed
+   * range per ISO material group, and feed modification recommendations when
+   * continuous/stringy chips are predicted (wrap-around-workpiece = crash risk).
+   *
+   * Falls back to the existing score-based classification if ChipBreakingModel unavailable.
+   *
+   * References: ISO 3685:1993; Jawahir (1988); Sandvik (2020)
+   */
+  analyzeChipFormISO(input: {
+    feed_per_tooth: number;
+    axial_depth: number;
+    cutting_speed: number;
+    tool_diameter: number;
+    iso_group: string;
+    n_flutes?: number;
+    lead_angle?: number;
+    has_chipbreaker?: boolean;
+    rake_angle?: number;
+  }): ChipBreakingResult & {
+    iso_model_used: boolean;
+    chip_type_iso: "broken" | "segmented" | "continuous" | "stringy" | "snarled";
+    chip_form_code: number;
+    bue_risk: "low" | "medium" | "high";
+    breaking_feasibility: "good" | "marginal" | "poor";
+    feed_modification: { action: "none" | "increase" | "decrease"; target_feed?: number; reason?: string };
+  } {
+    const iso = input.iso_group?.toUpperCase() ?? "P";
+
+    // Try ChipBreakingModel algorithm for ISO analysis
+    let isoModelUsed = false;
+    let chipTypeISO: "broken" | "segmented" | "continuous" | "stringy" | "snarled" = "continuous";
+    let chipFormCode = 5;
+    let bueRisk: "low" | "medium" | "high" = "low";
+    let breakingFeasibility: "good" | "marginal" | "poor" = "marginal";
+    let feedMod: { action: "none" | "increase" | "decrease"; target_feed?: number; reason?: string } = { action: "none" };
+
+    try {
+      const { ChipBreakingModel } = require("../algorithms/ChipBreakingModel.js");
+      const model = new ChipBreakingModel();
+      const isoResult = model.calculate({
+        feed_per_tooth: input.feed_per_tooth,
+        axial_depth: input.axial_depth,
+        cutting_speed: input.cutting_speed,
+        tool_diameter: input.tool_diameter,
+        iso_group: iso,
+        lead_angle: input.lead_angle ?? 45,
+        has_chipbreaker: input.has_chipbreaker ?? false,
+        rake_angle: input.rake_angle ?? 6,
+      });
+      isoModelUsed = true;
+      chipTypeISO = isoResult.chip_type;
+      chipFormCode = isoResult.chip_form_code;
+      bueRisk = isoResult.bue_risk;
+      breakingFeasibility = isoResult.breaking_feasibility;
+
+      // Determine feed modification based on chip type
+      if (chipTypeISO === "continuous" || chipTypeISO === "stringy" || chipTypeISO === "snarled") {
+        // Continuous chips: increase feed to promote breaking
+        const minBreakingFeed = input.feed_per_tooth * 1.5;
+        feedMod = {
+          action: "increase",
+          target_feed: r3(Math.min(minBreakingFeed, 0.3)),
+          reason: `${chipTypeISO} chips predicted for ${iso} — increase feed to promote chip breaking`,
+        };
+      } else if (isoResult.chip_thickness > 0.5) {
+        // Very thick chips: reduce feed to prevent jamming
+        feedMod = {
+          action: "decrease",
+          target_feed: r3(input.feed_per_tooth * 0.7),
+          reason: `Chip thickness ${r3(isoResult.chip_thickness)}mm exceeds jam threshold`,
+        };
+      }
+    } catch {
+      // Fallback: derive from score-based system
+      const matMap: Record<string, string> = { P: "steel", M: "stainless", K: "cast_iron", N: "aluminum", S: "titanium", H: "cast_iron" };
+      const baseMat = matMap[iso] ?? "steel";
+      const difficulty = BREAK_DIFFICULTY[baseMat] ?? 3;
+      if (difficulty >= 4 && input.feed_per_tooth <= 0.1) {
+        chipTypeISO = "stringy";
+        chipFormCode = 7;
+        breakingFeasibility = "poor";
+        feedMod = { action: "increase", target_feed: 0.15, reason: "Low feed with difficult material" };
+      } else if (difficulty <= 1) {
+        chipTypeISO = "segmented";
+        chipFormCode = 3;
+        breakingFeasibility = "good";
+      }
+    }
+
+    // Run base calculation for the standard result fields
+    // Base calculate() expects feed_mm_rev (per revolution), not per tooth
+    const nFlutes = input.n_flutes ?? 1;
+    const feedPerRev = input.feed_per_tooth * nFlutes;
+    const matMap: Record<string, "steel" | "stainless" | "aluminum" | "cast_iron" | "titanium" | "superalloy"> = {
+      P: "steel", M: "stainless", K: "cast_iron", N: "aluminum", S: "titanium", H: "cast_iron",
+    };
+    const baseResult = this.calculate({
+      feed_mm_rev: feedPerRev,
+      depth_of_cut_mm: input.axial_depth,
+      rake_angle_deg: input.rake_angle ?? 6,
+      work_material: matMap[iso] ?? "steel",
+      cutting_speed_mpm: input.cutting_speed,
+      chipbreaker_type: input.has_chipbreaker ? "medium" : "none",
+    });
+
+    return {
+      ...baseResult,
+      iso_model_used: isoModelUsed,
+      chip_type_iso: chipTypeISO,
+      chip_form_code: chipFormCode,
+      bue_risk: bueRisk,
+      breaking_feasibility: breakingFeasibility,
+      feed_modification: feedMod,
+    };
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────

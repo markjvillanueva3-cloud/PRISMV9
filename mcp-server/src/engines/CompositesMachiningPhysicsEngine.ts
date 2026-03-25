@@ -173,6 +173,8 @@ export class CompositesMachiningPhysicsEngine {
   /**
    * Assess delamination risk using Tsai-Hill failure criterion.
    * Tsai-Hill: (σ1/X)² - (σ1·σ2/X²) + (σ2/Y)² + (τ12/S)² >= 1 → failure
+   * Ref: Tsai & Wu (1971), J Composite Materials 5(1):58-80
+   * Hocheng-Dharan delamination: Hocheng & Dharan (1990), ASME J Eng for Industry 112(3):236-239
    */
   assessDelaminationRisk(input: DelaminationInput): DelaminationResult {
     const props = FIBER_PROPERTIES[input.fiber_type];
@@ -221,12 +223,15 @@ export class CompositesMachiningPhysicsEngine {
     // Critical thrust force for delamination onset (Hocheng-Dharan model)
     // Fc_crit = π * √(8 * GIc * E * h³ / (3*(1-ν²)))
     // Simplified: proportional to interlaminar fracture toughness
-    const GIc = this._getInterlaminarToughness(input.fiber_type); // J/m²
+    const GIc = this._getInterlaminarToughness(input.fiber_type); // J/m² = N/m
     const E_GPa = props.elastic_modulus_GPa;
     const h = input.depth_of_cut_mm; // remaining thickness approximation
     const nu = 0.3;
+    // Hocheng-Dharan critical thrust: Fc = π√(8·GIc·E·h³ / (3(1-ν²)))
+    // Unit consistency: GIc(N/m)→GIc/1e3(N/mm), E_GPa→E_GPa*1e3(MPa=N/mm²), h(mm)
+    // Simplification: (GIc/1e3)*(E_GPa*1e3) = GIc*E_GPa
     const critical_thrust_N = Math.PI * Math.sqrt(
-      (8 * GIc * E_GPa * 1e3 * (h ** 3)) / (3 * (1 - nu * nu))
+      (8 * GIc * E_GPa * (h ** 3)) / (3 * (1 - nu * nu))
     );
 
     // Tool recommendations based on fiber type

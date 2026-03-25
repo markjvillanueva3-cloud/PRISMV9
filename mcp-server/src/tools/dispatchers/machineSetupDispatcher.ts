@@ -84,6 +84,7 @@ const ACTIONS = [
   "opcua_controller_profile", "opcua_machine_status", "opcua_monitor_alarms",
   "machine_strategy_validate", "machine_strategy_find_best", "machine_strategy_requirements",
   "fixture_strategy_adjust", "fixture_strategy_validate", "fixture_recommend",
+  "workholding_infer_surfaces", "workholding_track_survival", "workholding_detect_dead_ends",
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -222,6 +223,16 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "fixture_recommend") {
           const eng = await getEngine("fixtureAwareStrategy");
           result = eng.recommendFixture(params.feature, params.strategies);
+        // Workholding Surface Inference (0-D-7a: E1085 orphan wiring)
+        } else if (action === "workholding_infer_surfaces") {
+          const { workholdingSurfaceInferenceEngine } = await import("../../engines/WorkholdingSurfaceInferenceEngine.js");
+          result = workholdingSurfaceInferenceEngine.inferSurfaces(params as any);
+        } else if (action === "workholding_track_survival") {
+          const { workholdingSurfaceInferenceEngine } = await import("../../engines/WorkholdingSurfaceInferenceEngine.js");
+          result = workholdingSurfaceInferenceEngine.trackSurvival(params as any);
+        } else if (action === "workholding_detect_dead_ends") {
+          const { workholdingSurfaceInferenceEngine } = await import("../../engines/WorkholdingSurfaceInferenceEngine.js");
+          result = workholdingSurfaceInferenceEngine.detectDeadEndsDirect(params as any);
         // Special cases
         } else if (action === "surface_integrity_assess") {
           const eng = await getEngine("surfIntegrity");

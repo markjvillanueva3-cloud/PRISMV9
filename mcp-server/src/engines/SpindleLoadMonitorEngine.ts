@@ -204,6 +204,179 @@ export class SpindleLoadMonitorEngine {
       warnings,
     };
   }
+
+  /**
+   * Analyze vibration signal using FFTAnalyzer for frequency-domain peaks
+   * and WaveletBreakage for transient breakage event detection.
+   *
+   * Combines both algorithms to produce monitoring thresholds:
+   * - Expected force/vibration alarm levels from FFT dominant peaks
+   * - Tool breakage event detection from wavelet energy spikes
+   * - Vibration health status for program monitoring comments
+   *
+   * Uses lazy require() — gracefully degrades if algorithms unavailable.
+   */
+  analyzeVibration(input: {
+    signal: number[];
+    sample_rate: number;
+    spindle_speed?: number;
+    n_flutes?: number;
+    tool_diameter_mm?: number;
+    rated_power_kw?: number;
+    operation?: "roughing" | "finishing" | "drilling" | "tapping";
+    expected_force_N?: number;
+  }): SpindleLoadMonitorResult & {
+    fft_used: boolean;
+    wavelet_used: boolean;
+    dominant_frequencies: Array<{ frequency: number; magnitude: number; is_harmonic: boolean }>;
+    breakage_events: Array<{ time: number; severity: string; energy_ratio: number }>;
+    vibration_health: "healthy" | "warning" | "critical";
+    monitoring_thresholds: {
+      force_alarm_N: number;
+      force_retract_N: number;
+      vibration_alarm_rms: number;
+    };
+    monitoring_comment: string;
+  } {
+    const warnings: string[] = [];
+    const rpm = input.spindle_speed ?? 8000;
+    const flutes = input.n_flutes ?? 4;
+    const toolDia = input.tool_diameter_mm ?? 20; // mm
+    const ratedPower = input.rated_power_kw ?? 22;
+    const op = input.operation ?? "roughing";
+    const expectedForce = input.expected_force_N ?? 500;
+
+    // Guard: empty signal
+    if (input.signal.length === 0) {
+      warnings.push("Empty signal — no vibration analysis possible");
+      const baseResult = this.calculate({
+        nominal_load_pct: 50, rated_power_kw: ratedPower, operation: op,
+      });
+      return {
+        ...baseResult,
+        warnings: [...baseResult.warnings, ...warnings],
+        fft_used: false, wavelet_used: false,
+        dominant_frequencies: [], breakage_events: [],
+        vibration_health: "healthy" as const,
+        monitoring_thresholds: {
+          force_alarm_N: r1(expectedForce * 1.5),
+          force_retract_N: r1(expectedForce * 2.0),
+          vibration_alarm_rms: 0,
+        },
+        monitoring_comment: `(EXPECTED FORCE: ${Math.round(expectedForce)}N, ALARM AT: ${Math.round(expectedForce * 1.5)}N, RETRACT AT: ${Math.round(expectedForce * 2.0)}N)`,
+      };
+    }
+
+    // Signal RMS for vibration level
+    const rms = Math.sqrt(
+      input.signal.reduce((s, v) => s + v * v, 0) / input.signal.length,
+    );
+
+    // ── FFT Analysis ──
+    let fftUsed = false;
+    let dominantFreqs: Array<{ frequency: number; magnitude: number; is_harmonic: boolean }> = [];
+    const toothPassingFreq = (rpm * flutes) / 60;
+
+    try {
+      const { FFTAnalyzer } = require("../algorithms/FFTAnalyzer.js");
+      const fft = new FFTAnalyzer();
+      const fftResult = fft.calculate({
+        signal: input.signal,
+        sample_rate: input.sample_rate,
+        window: "hann",
+        n_peaks: 8,
+        min_frequency: 10,
+      });
+      fftUsed = true;
+      dominantFreqs = fftResult.dominant_peaks.map((p: { frequency: number; magnitude: number; is_harmonic: boolean }) => ({
+        frequency: p.frequency,
+        magnitude: p.magnitude,
+        is_harmonic: p.is_harmonic,
+      }));
+      if (fftResult.warnings) warnings.push(...fftResult.warnings);
+    } catch {
+      warnings.push("FFTAnalyzer unavailable — using signal RMS only");
+    }
+
+    // ── Wavelet Breakage Detection ──
+    let waveletUsed = false;
+    let breakageEvents: Array<{ time: number; severity: string; energy_ratio: number }> = [];
+    let waveletHealth: "healthy" | "warning" | "critical" = "healthy";
+
+    try {
+      const { WaveletToolBreakage } = require("../algorithms/WaveletBreakage.js");
+      const wavelet = new WaveletToolBreakage();
+      const waveletResult = wavelet.calculate({
+        signal: input.signal,
+        sample_rate: input.sample_rate,
+        n_scales: 12,
+        threshold: 5,
+      });
+      waveletUsed = true;
+      waveletHealth = waveletResult.health_status;
+      breakageEvents = waveletResult.events.map((e: { time: number; severity: string; energy_ratio: number }) => ({
+        time: e.time,
+        severity: e.severity,
+        energy_ratio: e.energy_ratio,
+      }));
+      if (waveletResult.warnings) warnings.push(...waveletResult.warnings);
+    } catch {
+      warnings.push("WaveletBreakage unavailable — breakage detection disabled");
+    }
+
+    // ── Derive monitoring thresholds ──
+    // Force alarm: 1.5× expected (warning), 2.0× (retract)
+    const th = THRESHOLDS[op] ?? THRESHOLDS.roughing;
+    const forceAlarm = expectedForce * th.warn;
+    const forceRetract = expectedForce * th.retract;
+
+    // Vibration alarm from FFT: 3× baseline RMS if peaks show non-harmonic content
+    const hasNonHarmonic = dominantFreqs.some(f =>
+      !f.is_harmonic && Math.abs(f.frequency - toothPassingFreq) > 20,
+    );
+    const vibAlarmRMS = hasNonHarmonic ? rms * 2.0 : rms * 3.0;
+
+    // Overall vibration health
+    let vibHealth: "healthy" | "warning" | "critical" = waveletHealth;
+    if (vibHealth === "healthy" && hasNonHarmonic) {
+      vibHealth = "warning";
+    }
+
+    // Monitoring comment for G-code embedding
+    const comment = `(EXPECTED FORCE: ${Math.round(expectedForce)}N, ` +
+      `ALARM AT: ${Math.round(forceAlarm)}N, ` +
+      `RETRACT AT: ${Math.round(forceRetract)}N)`;
+
+    // Build base result from standard calculate()
+    // Canonical: Pc = Fc × Vc / 60000 (kW), Vc = π·D·N/1000 (m/min)
+    // Ref: ManufacturingCalculations.ts line 915; Sandvik (2020)
+    const Vc_mpm = (Math.PI * toolDia * rpm) / 1000; // m/min
+    const cuttingPowerKW = (expectedForce * Vc_mpm) / 60000; // kW
+    const nomLoad = ratedPower > 0
+      ? (cuttingPowerKW / ratedPower) * 100
+      : 50;
+    const baseResult = this.calculate({
+      nominal_load_pct: Math.min(100, nomLoad),
+      rated_power_kw: ratedPower,
+      operation: op,
+    });
+
+    return {
+      ...baseResult,
+      warnings: [...baseResult.warnings, ...warnings],
+      fft_used: fftUsed,
+      wavelet_used: waveletUsed,
+      dominant_frequencies: dominantFreqs,
+      breakage_events: breakageEvents,
+      vibration_health: vibHealth,
+      monitoring_thresholds: {
+        force_alarm_N: r1(forceAlarm),
+        force_retract_N: r1(forceRetract),
+        vibration_alarm_rms: r2(vibAlarmRMS),
+      },
+      monitoring_comment: comment,
+    };
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────

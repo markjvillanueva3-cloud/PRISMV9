@@ -234,6 +234,124 @@ export class ChipConveyorEngine {
       warnings,
     };
   }
+
+  /**
+   * Calculate conveyor requirements from cutting process parameters using
+   * ChipVolumeRate algorithm for operation-specific MRR computation.
+   *
+   * Instead of accepting a raw mrr_cm3_min input, this method computes
+   * the actual MRR from tool engagement geometry (accounting for operation
+   * type, chip thinning in side milling, drill cross-section, etc.)
+   * and derives the required coolant flow from chip production rate.
+   *
+   * Falls back to simple Q = ae×ap×Vf if ChipVolumeRate unavailable.
+   *
+   * References: Altintas (2012); Sandvik (2020)
+   */
+  calculateFromProcess(input: {
+    operation: "milling_slot" | "milling_side" | "milling_face" | "turning" | "drilling" | "boring";
+    tool_diameter: number;
+    depth_of_cut: number;
+    width_of_cut: number;
+    feed_rate: number;
+    cutting_speed: number;
+    n_flutes?: number;
+    spindle_power?: number;
+    work_material?: "steel" | "aluminum" | "cast_iron" | "stainless" | "titanium";
+    chip_type?: "stringy" | "broken" | "powder" | "curled";
+    conveyor_type?: "hinge_belt" | "scraper" | "auger" | "magnetic";
+    belt_width_mm?: number;
+    bin_volume_liters?: number;
+    machines_served?: number;
+  }): ChipConveyorResult & {
+    volume_rate_model_used: boolean;
+    computed_mrr_cm3: number;
+    cutting_power_kw: number;
+    feed_per_tooth: number;
+    avg_chip_thickness_mm: number;
+    coolant_flow_recommended_lpm: number;
+  } {
+    const mat = input.work_material ?? "steel";
+    let mrrCm3 = 0;
+    let powerKW = 0;
+    let fz = 0;
+    let hAvg = 0;
+    let volumeRateUsed = false;
+
+    // Try ChipVolumeRate algorithm for accurate MRR
+    try {
+      const { ChipVolumeRatePredictor } = require("../algorithms/ChipVolumeRate.js");
+      const predictor = new ChipVolumeRatePredictor();
+      const cvrResult = predictor.calculate({
+        operation: input.operation,
+        tool_diameter: input.tool_diameter,
+        depth_of_cut: input.depth_of_cut,
+        width_of_cut: input.width_of_cut,
+        feed_rate: input.feed_rate,
+        cutting_speed: input.cutting_speed,
+        n_flutes: input.n_flutes,
+        spindle_power: input.spindle_power,
+      });
+      volumeRateUsed = true;
+      mrrCm3 = cvrResult.mrr_cm3_per_min;
+      powerKW = cvrResult.cutting_power_kw;
+      fz = cvrResult.feed_per_tooth;
+      hAvg = cvrResult.avg_chip_thickness;
+    } catch {
+      // Fallback: simple MRR = ae × ap × Vf / 1000 (for milling)
+      const D = input.tool_diameter;
+      const n = (input.cutting_speed * 1000) / (Math.PI * D);
+      if (input.operation.startsWith("milling")) {
+        mrrCm3 = (input.width_of_cut * input.depth_of_cut * input.feed_rate) / 1000;
+        fz = input.feed_rate / (n * (input.n_flutes ?? 4));
+        hAvg = fz * (input.width_of_cut / D);
+      } else if (input.operation === "turning") {
+        mrrCm3 = (input.depth_of_cut * input.feed_rate * input.cutting_speed * 1000) / 1000;
+        fz = input.feed_rate;
+        hAvg = input.feed_rate;
+      } else if (input.operation === "drilling") {
+        mrrCm3 = (Math.PI / 4 * D * D * input.feed_rate * n) / 1000;
+        fz = input.feed_rate / 2;
+        hAvg = fz;
+      } else {
+        mrrCm3 = (input.width_of_cut * input.depth_of_cut * input.feed_rate) / 1000;
+        fz = input.feed_rate;
+        hAvg = fz;
+      }
+      // Simple power estimate: P = kc × Q / 60000
+      const kc = mat === "aluminum" ? 800 : mat === "cast_iron" ? 1200 : 2000; // N/mm²
+      powerKW = (kc * mrrCm3 * 1000) / 60000;
+    }
+
+    // Coolant flow recommendation: ~2 L/min per cm³/min MRR for steel,
+    // scaled by material factor
+    const matCoolantFactor: Record<string, number> = {
+      steel: 2.0, stainless: 2.5, aluminum: 1.5,
+      cast_iron: 1.0, titanium: 3.0,
+    };
+    const coolantFlow = mrrCm3 * (matCoolantFactor[mat] ?? 2.0);
+
+    // Run base conveyor calculation with the computed MRR
+    const baseResult = this.calculate({
+      mrr_cm3_min: mrrCm3,
+      work_material: mat,
+      chip_type: input.chip_type,
+      conveyor_type: input.conveyor_type,
+      belt_width_mm: input.belt_width_mm,
+      bin_volume_liters: input.bin_volume_liters,
+      machines_served: input.machines_served,
+    });
+
+    return {
+      ...baseResult,
+      volume_rate_model_used: volumeRateUsed,
+      computed_mrr_cm3: r2(mrrCm3),
+      cutting_power_kw: r2(powerKW),
+      feed_per_tooth: r2(fz),
+      avg_chip_thickness_mm: r2(hAvg),
+      coolant_flow_recommended_lpm: r1(Math.max(coolantFlow, 3)),
+    };
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────

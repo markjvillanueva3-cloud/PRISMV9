@@ -491,6 +491,124 @@ export class CeramicsMachiningEngine {
     };
   }
 
+  /**
+   * Bayesian-updated fracture assessment from observed strength data.
+   *
+   * Ceramics have inherent scatter in strength (Weibull distribution). When
+   * actual fracture test data is available from a batch, this method uses
+   * BayesianWearModel to update the characteristic strength σ₀ posterior,
+   * giving a tighter fracture probability estimate than the catalog value.
+   *
+   * Learning loop: test 5-10 samples → measure fracture strengths →
+   * this method narrows σ₀ → assessMicroFracture uses updated strength.
+   *
+   * Lazy-requires BayesianWearModel; falls back to assessMicroFracture() if unavailable.
+   *
+   * Reference: Weibull (1951); ASTM C1161 flexural strength testing;
+   *            Playbook: CBN/ceramic guidance for brittle materials
+   */
+  assessWithBayesian(input: MicroFractureInput & {
+    observed_strengths?: number[];
+  }): MicroFractureResult & {
+    bayesian_model_used: boolean;
+    posterior_strength_mean: number | null;
+    posterior_strength_std: number | null;
+    updated_fracture_probability: number | null;
+    updated_safety_factor: number | null;
+  } {
+    const baseResult = this.assessMicroFracture(input);
+    const mat = CERAMIC_PROPERTIES[input.material];
+    const observed = input.observed_strengths;
+
+    if (!observed || observed.length === 0) {
+      return {
+        ...baseResult,
+        bayesian_model_used: false,
+        posterior_strength_mean: null,
+        posterior_strength_std: null,
+        updated_fracture_probability: null,
+        updated_safety_factor: null,
+      };
+    }
+
+    let bayesianUsed = false;
+    let postMean: number | null = null;
+    let postStd: number | null = null;
+    let updatedFracProb: number | null = null;
+    let updatedSF: number | null = null;
+
+    try {
+      const { BayesianWearModel } = require("../algorithms/BayesianWearModel.js");
+      const bwm = new BayesianWearModel();
+
+      // Prior: catalog characteristic strength ± 15% CV (typical for ceramics)
+      const priorMean = mat.characteristic_strength_MPa;
+      const priorStd = priorMean * 0.15;
+
+      const bmResult = bwm.calculate({
+        prior_mean: priorMean,
+        prior_std: priorStd,
+        observations: observed,
+        likelihood_std: priorStd,
+        vb_threshold: input.applied_stress_MPa, // threshold = applied stress
+      });
+
+      bayesianUsed = true;
+      postMean = bmResult.posterior_mean;
+      postStd = bmResult.posterior_std;
+
+      // Updated Weibull fracture probability with posterior σ₀
+      // P_f = 1 - exp(-(σ/σ₀_posterior)^m)
+      const postMeanVal = bmResult.posterior_mean as number;
+      postMean = postMeanVal;
+      const m_w = mat.weibull_modulus;
+      updatedFracProb = 1 - Math.exp(
+        -Math.pow(input.applied_stress_MPa / postMeanVal, m_w)
+      );
+
+      // Updated safety factor from posterior K_Ic estimate
+      // Scale K_Ic proportionally to strength change
+      const strengthRatio = postMeanVal / priorMean;
+      const updatedKIc = mat.fracture_toughness_MPa_sqrt_m * strengthRatio;
+      const Y = 1.12;
+      const flaw = input.initial_flaw_size_mm
+        ?? ({ as_fired: 0.2, ground: 0.05, lapped: 0.02, polished: 0.005 } as Record<string, number>)[input.surface_condition ?? "ground"]
+        ?? 0.05;
+      const K_I = Y * input.applied_stress_MPa * Math.sqrt(Math.PI * flaw * 1e-3);
+      updatedSF = updatedKIc / Math.max(K_I, 1e-6);
+    } catch {
+      // Fallback: simple mean of observations
+      const obsMean = observed.reduce((s, v) => s + v, 0) / observed.length;
+      postMean = obsMean;
+      const m_w = mat.weibull_modulus;
+      updatedFracProb = 1 - Math.exp(
+        -Math.pow(input.applied_stress_MPa / obsMean, m_w)
+      );
+      // Compute fallback safety factor from observed strength ratio
+      const strengthRatioFB = obsMean / mat.characteristic_strength_MPa;
+      const updatedKIcFB = mat.fracture_toughness_MPa_sqrt_m * strengthRatioFB;
+      const Y_fb = 1.12;
+      const flawFB = input.initial_flaw_size_mm
+        ?? ({ as_fired: 0.2, ground: 0.05, lapped: 0.02, polished: 0.005 } as Record<string, number>)[input.surface_condition ?? "ground"]
+        ?? 0.05;
+      const K_I_fb = Y_fb * input.applied_stress_MPa * Math.sqrt(Math.PI * flawFB * 1e-3);
+      updatedSF = updatedKIcFB / Math.max(K_I_fb, 1e-6);
+    }
+
+    return {
+      ...baseResult,
+      bayesian_model_used: bayesianUsed,
+      posterior_strength_mean: postMean !== null
+        ? Math.round(postMean * 10) / 10 : null,
+      posterior_strength_std: postStd !== null
+        ? Math.round(postStd * 10) / 10 : null,
+      updated_fracture_probability: updatedFracProb !== null
+        ? Math.round(updatedFracProb * 10000) / 10000 : null,
+      updated_safety_factor: updatedSF !== null
+        ? Math.round(updatedSF * 100) / 100 : null,
+    };
+  }
+
   // ============================================================================
   // PRIVATE HELPERS
   // ============================================================================

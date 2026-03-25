@@ -223,6 +223,136 @@ export class ToolWearRateEngine {
       warnings,
     };
   }
+  /**
+   * Extended tool life prediction using ExtendedTaylorModel algorithm.
+   *
+   * Adds feed/depth exponents and thermal derating beyond the basic
+   * T = (C/V)^(1/n) × feed/DOC corrections in calculate().
+   *
+   * Extended Taylor: V × T^n × f^a × d^b = C
+   * Temperature derating: T_final = T_ext × temperature_factor
+   * Speed for 60-min life: V₆₀ = C / 60^n (with corrections)
+   *
+   * Lazy-requires ExtendedTaylorModel; falls back to calculate() if unavailable.
+   *
+   * Reference: Taylor (1907); ISO 3685 (Tool life testing);
+   *            Machining Playbook: VB ≤ 0.3mm carbide, 0.15mm finishing
+   */
+  extendedToolLife(input: ToolWearRateInput & {
+    temperature_factor?: number;
+  }): ToolWearRateResult & {
+    extended_model_used: boolean;
+    speed_for_60min_life: number | null;
+    taylor_cliff_warning: boolean;
+    taylor_warnings: string[];
+  } {
+    const Vc = input.cutting_speed_mpm;
+    const f = input.feed_mm ?? 0.15;
+    const ap = input.depth_of_cut_mm ?? 1.0;
+    const toolMat = input.tool_material ?? "carbide";
+    const workMat = input.work_material ?? "steel";
+    const tempFactor = input.temperature_factor ?? 1.0;
+
+    // Get Taylor constants from the engine's lookup table
+    const taylorTable = TAYLOR[toolMat] ?? TAYLOR.carbide;
+    const taylor = taylorTable[workMat] ?? taylorTable.steel;
+
+    let extendedUsed = false;
+    let speedFor60: number | null = null;
+    let cliffWarning = false;
+    const taylorWarnings: string[] = [];
+
+    try {
+      const { ExtendedTaylorModel } = require("../algorithms/ExtendedTaylorModel.js");
+      const model = new ExtendedTaylorModel();
+      const etResult = model.calculate({
+        cutting_speed: Vc,
+        C: taylor.C,
+        n: taylor.n,
+        feed: f,
+        depth: ap,
+        feed_exponent: 0.35,   // standard exponent a
+        depth_exponent: 0.20,  // standard exponent b
+        ref_feed: 0.15,
+        ref_depth: 1.0,
+        temperature_factor: tempFactor,
+      });
+
+      extendedUsed = true;
+      speedFor60 = etResult.speed_for_60min ?? null;
+      if (etResult.warnings) taylorWarnings.push(...etResult.warnings);
+      cliffWarning = etResult.warnings?.some(
+        (w: string) => w.includes("TAYLOR_CLIFF")
+      ) ?? false;
+
+      // Build result using algorithm's tool_life_minutes
+      const toolLife = etResult.tool_life_minutes;
+      const maxWear = input.max_flank_wear_mm ?? 0.3;
+      const currentWear = input.current_flank_wear_mm ?? 0;
+      const wearRate = toolLife > 0 ? maxWear / toolLife : 0;
+      const wearRemaining = maxWear - currentWear;
+      const remainingLife = wearRate > 0 ? wearRemaining / wearRate : 0;
+
+      const craterRisk = Vc > taylor.C * 0.7 ? "high"
+        : Vc > taylor.C * 0.5 ? "moderate" : "low";
+
+      const warnings: string[] = [...taylorWarnings];
+      if (toolLife < 5) {
+        warnings.push(
+          `Very short tool life ${r1(toolLife)}min — reduce speed or upgrade tool`
+        );
+      }
+      if (currentWear > maxWear * 0.8) {
+        warnings.push(
+          `Flank wear ${currentWear}mm at ${r0(currentWear / maxWear * 100)}% of limit — replace soon`
+        );
+      }
+      if (tempFactor < 0.7) {
+        warnings.push(
+          `Severe thermal derating (${tempFactor}) — consider coolant improvement`
+        );
+      }
+
+      return {
+        predicted_tool_life: av(r1(toolLife), "min", 2,
+          `ExtendedTaylor: V×T^n×f^a×d^b=C, temp=${tempFactor}`),
+        taylor_constant: av(taylor.C, "m/min", 0, `${toolMat} on ${workMat}`),
+        taylor_exponent: av(taylor.n, "n", 0, `${toolMat} exponent`),
+        flank_wear_rate: av(r4(wearRate), "mm/min", 0.001,
+          `VB_max/${r1(toolLife)}min`),
+        time_to_max_wear: av(r1(toolLife), "min", 2,
+          `Extended Taylor with feed/depth/temp corrections`),
+        remaining_life: av(r1(Math.max(remainingLife, 0)), "min", 2,
+          currentWear > 0
+            ? `${r3(wearRemaining)}mm remaining`
+            : "No current wear data"),
+        optimal_speed_cost: av(
+          r0(etResult.optimal_speed), "m/min", 5,
+          "85% of cutting speed (conservative)"),
+        optimal_speed_productivity: av(
+          r0(etResult.optimal_speed * 1.15), "m/min", 5,
+          "Max production rate"),
+        crater_wear_risk: av(
+          craterRisk === "high" ? 2 : craterRisk === "moderate" ? 1 : 0,
+          craterRisk, 0, "Speed vs Taylor C ratio"),
+        warnings,
+        extended_model_used: extendedUsed,
+        speed_for_60min_life: speedFor60,
+        taylor_cliff_warning: cliffWarning,
+        taylor_warnings: taylorWarnings,
+      };
+    } catch {
+      // Fallback: use basic calculate() method
+      const baseResult = this.calculate(input);
+      return {
+        ...baseResult,
+        extended_model_used: false,
+        speed_for_60min_life: null,
+        taylor_cliff_warning: false,
+        taylor_warnings: ["ExtendedTaylorModel unavailable — using basic Taylor"],
+      };
+    }
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────────────────

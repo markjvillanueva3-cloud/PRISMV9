@@ -701,6 +701,151 @@ export class StochasticToolLifeEngine {
       confidence,
     };
   }
+
+  /**
+   * Update tool life prediction from real-world observed tool lives using
+   * BayesianWearModel algorithm (conjugate normal-normal update).
+   *
+   * Complements the existing Gamma-conjugate bayesianUpdate() (which updates
+   * wear RATE from VB measurements) with a direct tool-life posterior from
+   * observed actual tool lives — answering "how long will the NEXT tool last?"
+   *
+   * Learning loop: shop runs 5 tools → records actual lives → this method
+   * narrows the prediction interval → next program uses tighter estimates.
+   *
+   * Lazy-requires BayesianWearModel; falls back to compute() if unavailable.
+   *
+   * Reference: Conjugate normal-normal Bayesian update;
+   *            ISO 3685 VB=0.3mm end-of-life criterion
+   */
+  updateFromMeasurements(input: {
+    material: string;
+    cutting_speed_mpm: number;
+    feed_mm: number;
+    depth_mm: number;
+    tool_material?: "carbide" | "ceramic" | "cbn" | "hss";
+    coating?: CoatingKey;
+    observed_lives: number[];
+    vb_threshold?: number;
+  }): AtomicValue<StochasticToolLifeResult> & {
+    bayesian_model_used: boolean;
+    posterior_mean_life: number;
+    posterior_std_life: number;
+    credible_interval_95: [number, number];
+    probability_exceed_threshold: number | null;
+    recommendation: string;
+    shrinkage: number;
+    uncertainty_reduction: number;
+  } {
+    const toolMat = input.tool_material ?? "carbide";
+    const coating = input.coating ?? "TiAlN";
+    const vbThresh = input.vb_threshold ?? 0.3;
+
+    // Get deterministic Taylor life as prior
+    const taylor = this.getTaylor(input.material, toolMat, coating);
+    const priorLife = this.taylorLife(
+      taylor.C, taylor.n, input.cutting_speed_mpm,
+      input.feed_mm, input.depth_mm, taylor.p, taylor.q
+    );
+
+    // Run the full stochastic compute for the base result
+    const baseResult = this.compute({
+      material: input.material,
+      cutting_speed_mpm: input.cutting_speed_mpm,
+      feed_mm: input.feed_mm,
+      depth_mm: input.depth_mm,
+      tool_material: toolMat,
+      coating,
+      wear_limit_mm: vbThresh,
+      method: "all",
+    });
+
+    // Guard: need observations
+    if (!input.observed_lives || input.observed_lives.length === 0) {
+      return {
+        ...baseResult,
+        bayesian_model_used: false,
+        posterior_mean_life: priorLife,
+        posterior_std_life: priorLife * taylor.cv_C,
+        credible_interval_95: [
+          priorLife * (1 - 1.96 * taylor.cv_C),
+          priorLife * (1 + 1.96 * taylor.cv_C),
+        ],
+        probability_exceed_threshold: null,
+        recommendation: "COLLECT_MORE: No observations — using Taylor prior only.",
+        shrinkage: 0,
+        uncertainty_reduction: 1,
+      };
+    }
+
+    let bayesianUsed = false;
+    let posteriorMean = priorLife;
+    let posteriorStd = priorLife * taylor.cv_C;
+    let ci95: [number, number] = [
+      priorLife * (1 - 1.96 * taylor.cv_C),
+      priorLife * (1 + 1.96 * taylor.cv_C),
+    ];
+    let probExceed: number | null = null;
+    let recommendation = "OK: Wear prediction within acceptable bounds.";
+    let shrinkage = 0;
+    let uncertaintyReduction = 1;
+
+    try {
+      const { BayesianWearModel } = require("../algorithms/BayesianWearModel.js");
+      const model = new BayesianWearModel();
+
+      // Prior: Taylor life ± scatter (CV from database)
+      const priorStd = priorLife * taylor.cv_C;
+
+      const bmResult = model.calculate({
+        prior_mean: priorLife,
+        prior_std: priorStd,
+        observations: input.observed_lives,
+        likelihood_std: priorStd,
+        vb_threshold: priorLife * 0.5, // flag if posterior < 50% of expected
+      });
+
+      bayesianUsed = true;
+      posteriorMean = bmResult.posterior_mean;
+      posteriorStd = bmResult.posterior_std;
+      ci95 = bmResult.credible_interval_95;
+      probExceed = bmResult.probability_exceed_threshold;
+      recommendation = bmResult.recommendation;
+      shrinkage = bmResult.shrinkage;
+      uncertaintyReduction = bmResult.uncertainty_reduction;
+    } catch {
+      // Fallback: simple mean of observations weighted with prior
+      const obsMean = input.observed_lives.reduce((s, v) => s + v, 0) / input.observed_lives.length;
+      const n = input.observed_lives.length;
+      const priorPrec = 1 / (priorLife * taylor.cv_C) ** 2;
+      const likePrec = n / (priorLife * taylor.cv_C) ** 2;
+      const postPrec = priorPrec + likePrec;
+      posteriorMean = (priorPrec * priorLife + likePrec * obsMean) / postPrec;
+      posteriorStd = Math.sqrt(1 / postPrec);
+      ci95 = [posteriorMean - 1.96 * posteriorStd, posteriorMean + 1.96 * posteriorStd];
+      shrinkage = Math.abs(posteriorMean - priorLife) / Math.max(Math.abs(obsMean - priorLife), 0.01);
+      shrinkage = Math.min(1, shrinkage);
+      uncertaintyReduction = posteriorStd / (priorLife * taylor.cv_C);
+      recommendation = n < 3
+        ? "COLLECT_MORE: Fewer than 3 observations — uncertainty still high."
+        : "OK: Bayesian fallback applied.";
+    }
+
+    return {
+      ...baseResult,
+      bayesian_model_used: bayesianUsed,
+      posterior_mean_life: Math.round(posteriorMean * 100) / 100,
+      posterior_std_life: Math.round(posteriorStd * 100) / 100,
+      credible_interval_95: [
+        Math.round(ci95[0] * 100) / 100,
+        Math.round(ci95[1] * 100) / 100,
+      ],
+      probability_exceed_threshold: probExceed,
+      recommendation,
+      shrinkage: Math.round(shrinkage * 1000) / 1000,
+      uncertainty_reduction: Math.round(uncertaintyReduction * 1000) / 1000,
+    };
+  }
 }
 
 /** Singleton engine instance */

@@ -404,6 +404,161 @@ class ChatterPredictionEngineImpl {
 
     return ranges;
   }
+
+  /**
+   * Detect chatter using STFTChatter algorithm for time-frequency analysis.
+   *
+   * Advantages over the existing DFT-based detectChatter():
+   * - Tracks chatter ONSET time (when it first appears)
+   * - Provides severity classification (none/mild/moderate/severe)
+   * - Reports chatter percentage (fraction of signal with chatter)
+   * - Generates monitoring comment for G-code embedding
+   *
+   * Falls back to existing DFT-based detectChatter() if STFTChatter unavailable.
+   */
+  detectChatterSTFT(input: {
+    signal: number[];
+    sample_rate: number;
+    spindle_speed: number;
+    n_flutes: number;
+    window_size?: number;
+    overlap?: number;
+    threshold?: number;
+  }): ChatterDetectionResult & {
+    stft_used: boolean;
+    severity: "none" | "mild" | "moderate" | "severe";
+    chatter_percentage: number;
+    chatter_onset_time: number;
+    chatter_signal_ratio: number;
+    tooth_passing_frequency_Hz: number;
+    monitoring_comment: string;
+    recommended_rpm_change: number | null;
+  } {
+    const warnings: string[] = [];
+    const { signal, sample_rate, spindle_speed, n_flutes } = input;
+    const toothFreq = (spindle_speed * n_flutes) / 60;
+
+    // Guard: empty signal
+    if (signal.length === 0) {
+      warnings.push("Empty signal — no chatter analysis possible");
+      return {
+        chatterDetected: false,
+        chatterFrequency_Hz: null,
+        chatterSeverity: 0,
+        toothPassingFrequency_Hz: r2(toothFreq),
+        harmonicPeaks: [],
+        nonHarmonicPeaks: [],
+        recommendation: "No signal data provided",
+        stft_used: false,
+        severity: "none" as const,
+        chatter_percentage: 0,
+        chatter_onset_time: -1,
+        chatter_signal_ratio: 0,
+        tooth_passing_frequency_Hz: r2(toothFreq),
+        monitoring_comment: `(CHATTER: NONE, TPF: ${Math.round(toothFreq)}Hz)`,
+        recommended_rpm_change: null,
+      };
+    }
+
+    // Try STFTChatter algorithm
+    let stftUsed = false;
+    let severity: "none" | "mild" | "moderate" | "severe" = "none";
+    let chatterPct = 0;
+    let chatterOnset = -1;
+    let chatterSignalRatio = 0;
+    let stftChatterFreq: number | null = null;
+
+    try {
+      const { STFTChatterDetection } = require("../algorithms/STFTChatter.js");
+      const stft = new STFTChatterDetection();
+      const stftResult = stft.calculate({
+        signal,
+        sample_rate,
+        spindle_speed,
+        n_flutes,
+        window_size: input.window_size ?? 512,
+        overlap: input.overlap ?? 0.75,
+        threshold: input.threshold ?? 3.0,
+      });
+      stftUsed = true;
+      severity = stftResult.severity;
+      chatterPct = stftResult.chatter_percentage;
+      chatterOnset = stftResult.chatter_onset_time;
+      chatterSignalRatio = stftResult.chatter_signal_ratio;
+      if (stftResult.chatter_detected) {
+        stftChatterFreq = stftResult.chatter_frequency;
+      }
+      if (stftResult.warnings) warnings.push(...stftResult.warnings);
+    } catch {
+      warnings.push("STFTChatter unavailable — falling back to DFT detection");
+    }
+
+    // Run base DFT detection for comparison and as fallback
+    const baseResult = this.detectChatter(signal, {
+      sampleRate: sample_rate,
+      teeth: n_flutes,
+      rpm: spindle_speed,
+    });
+
+    // Merge: prefer STFT results when available
+    const chatterDetected = stftUsed
+      ? severity !== "none"
+      : baseResult.chatterDetected;
+    const chatterFreqHz = stftUsed && stftChatterFreq
+      ? stftChatterFreq
+      : baseResult.chatterFrequency_Hz;
+
+    // If not using STFT, derive severity from DFT severity score
+    if (!stftUsed && baseResult.chatterDetected) {
+      if (baseResult.chatterSeverity > 0.7) severity = "severe";
+      else if (baseResult.chatterSeverity > 0.4) severity = "moderate";
+      else severity = "mild";
+      chatterPct = baseResult.chatterSeverity * 100;
+    }
+
+    // Recommend RPM change: shift to nearest stable pocket
+    // Chatter frequency fc relates to lobe number: N_sweet = 60*fc / (n_flutes*(k+1))
+    let recommendedRPM: number | null = null;
+    if (chatterDetected && chatterFreqHz) {
+      // Try k=0 lobe pocket (highest stable depth)
+      const sweetRPM = (60 * chatterFreqHz) / (n_flutes * 1);
+      // Only recommend if within ±30% of current RPM
+      if (Math.abs(sweetRPM - spindle_speed) / spindle_speed < 0.3) {
+        recommendedRPM = Math.round(sweetRPM);
+      }
+    }
+
+    // Build monitoring comment
+    let monitoringComment: string;
+    if (!chatterDetected) {
+      monitoringComment = `(CHATTER: NONE, TPF: ${Math.round(toothFreq)}Hz)`;
+    } else {
+      monitoringComment = `(CHATTER: ${severity.toUpperCase()} at ${Math.round(chatterFreqHz ?? 0)}Hz, ` +
+        `ALARM: REDUCE ap 30%${recommendedRPM ? `, TRY RPM: ${recommendedRPM}` : ""})`;
+    }
+
+    return {
+      ...baseResult,
+      chatterDetected,
+      chatterFrequency_Hz: chatterFreqHz,
+      chatterSeverity: stftUsed ? chatterSignalRatio : baseResult.chatterSeverity,
+      recommendation: severity === "none"
+        ? "No chatter — stable cutting"
+        : severity === "mild"
+          ? "Mild chatter — monitor closely, consider reducing ap 10-20%"
+          : severity === "moderate"
+            ? "Moderate chatter — reduce ap 30% or adjust RPM to nearest sweet spot"
+            : "SEVERE chatter — STOP. Reduce ap significantly or change spindle speed",
+      stft_used: stftUsed,
+      severity,
+      chatter_percentage: r2(chatterPct),
+      chatter_onset_time: r4(chatterOnset),
+      chatter_signal_ratio: r4(chatterSignalRatio),
+      tooth_passing_frequency_Hz: r2(toothFreq),
+      monitoring_comment: monitoringComment,
+      recommended_rpm_change: recommendedRPM,
+    };
+  }
 }
 
 function r2(v: number): number { return Math.round(v * 100) / 100; }

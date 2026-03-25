@@ -421,6 +421,170 @@ export class ChatterStabilityLobeEngine {
       method: "multi_frequency",
     };
   }
+
+  /**
+   * U-ALG2: Algorithm-backed stability analysis.
+   * Uses StabilityLobeDiagram algorithm (SDOF) or FRFStabilityLobe (multi-mode FRF)
+   * for validated, safety-critical chatter prediction.
+   *
+   * When assembly FRF data is available (from ReceptanceCouplingEngine.predictWithRCSA),
+   * FRFStabilityLobe produces assembly-specific stability boundaries. Otherwise,
+   * StabilityLobeDiagram provides SDOF-based prediction from structural parameters.
+   *
+   * Ref: Altintas & Budak (1995); Schmitz & Smith (2019) "Machining Dynamics"
+   */
+  computeWithAlgorithms(input: ChatterInput & {
+    /** Measured/predicted FRF data (from RCSA or tap test) for multi-mode analysis */
+    assembly_frf?: Array<{ frequency: number; real: number; imag: number }>;
+  }): AtomicValue<ChatterResult & { algorithm_used: string }> {
+    const { tool, workpiece, machine, cutting } = input;
+    const Ks = (workpiece.kc11_mpa || KC11[workpiece.iso_group] || 2100);
+    const rpmRange: [number, number] = input.rpm_range || [machine.min_rpm || 2000, machine.max_rpm];
+
+    // Path 1: FRF-based multi-mode stability (most accurate)
+    if (input.assembly_frf && input.assembly_frf.length >= 10) {
+      try {
+        const { FRFStabilityLobe } = require("../algorithms/FRFStabilityLobe.js");
+        const frfAlg = new FRFStabilityLobe();
+        const frfInput = {
+          frf_data: input.assembly_frf.map(pt => ({
+            frequency: pt.frequency,
+            compliance: { real: pt.real, imag: pt.imag },
+          })),
+          n_flutes: tool.flute_count,
+          Kt: Ks,
+          radial_immersion: cutting.radial_immersion_ratio,
+          speed_min: rpmRange[0],
+          speed_max: rpmRange[1],
+          n_speed_points: input.rpm_points || 200,
+          n_lobes: 10,
+          frf_units: "m_per_N" as const,
+        };
+
+        const validation = frfAlg.validate(frfInput);
+        if (validation.valid) {
+          const frfResult = frfAlg.calculate(frfInput);
+
+          // Convert to ChatterResult format
+          const lobes: StabilityLobe[] = [];
+          const lobeMap = new Map<number, { rpms: number[]; aps: number[] }>();
+          for (const pt of frfResult.stability_boundary) {
+            if (!lobeMap.has(pt.lobe_number)) lobeMap.set(pt.lobe_number, { rpms: [], aps: [] });
+            const lobe = lobeMap.get(pt.lobe_number)!;
+            lobe.rpms.push(Math.round(pt.speed_rpm));
+            lobe.aps.push(Math.round(pt.depth_limit_mm * 100) / 100);
+          }
+          for (const [num, data] of lobeMap) {
+            lobes.push({ lobe_number: num, rpm_values: data.rpms, ap_limit_mm: data.aps });
+          }
+
+          const stablePockets = frfResult.sweet_spots.map((ss: { speed_rpm: number; depth_limit_mm: number }, i: number) => ({
+            rpm_range: [Math.round(ss.speed_rpm * 0.98), Math.round(ss.speed_rpm * 1.02)] as [number, number],
+            max_ap_mm: Math.round(ss.depth_limit_mm * 100) / 100,
+            lobe: i,
+          }));
+
+          const recs = [`FRF-based SLD: ${frfResult.n_modes} modes detected`];
+          if (frfResult.sweet_spots.length > 0) {
+            const best = frfResult.sweet_spots[0];
+            recs.push(`Best sweet spot: ${Math.round(best.speed_rpm)} RPM (ap ≤ ${best.depth_limit_mm.toFixed(1)}mm)`);
+          }
+
+          return {
+            value: {
+              lobes,
+              optimal_rpm: frfResult.sweet_spots[0]?.speed_rpm ? Math.round(frfResult.sweet_spots[0].speed_rpm) : rpmRange[0],
+              max_stable_ap_mm: Math.round(frfResult.min_stable_depth * 100) / 100,
+              critical_frequency_hz: Math.round(frfResult.critical_frequency),
+              chatter_frequency_hz: Math.round(frfResult.critical_frequency * 1.02),
+              stable_pockets: stablePockets.slice(0, 5),
+              recommendations: recs,
+              algorithm_used: "FRFStabilityLobe (multi-mode, Altintas-Budak 1995)",
+            },
+            unit: "stability_lobe_diagram",
+            formula: "b_lim = -1/(2·Kt·α·Re[Σ Gp(ωc)]) — multi-mode FRF",
+            confidence: 0.90,
+          };
+        }
+      } catch { /* FRFStabilityLobe not available */ }
+    }
+
+    // Path 2: SDOF StabilityLobeDiagram algorithm (validated, safety-critical)
+    try {
+      const { StabilityLobeDiagram } = require("../algorithms/StabilityLobeDiagram.js");
+      const sldAlg = new StabilityLobeDiagram();
+
+      const E = E_MOD[tool.material] || 600000;
+      const I = (Math.PI / 64) * Math.pow(tool.diameter_mm, 4);
+      const L = tool.overhang_mm;
+      const k = machine.stiffness_n_um ? machine.stiffness_n_um * 1000 : (3 * E * I) / Math.pow(L, 3);
+      const natFreq = machine.natural_frequency_hz || (1 / (2 * Math.PI)) * Math.sqrt(k * 1000 / 0.05);
+      const zeta = machine.damping_ratio || 0.03;
+
+      const sldInput = {
+        natural_frequency: natFreq,
+        damping_ratio: zeta,
+        stiffness: k * 1000, // N/m
+        specific_cutting_force: Ks,
+        num_teeth: tool.flute_count,
+        radial_immersion: cutting.radial_immersion_ratio,
+        rpm_range: rpmRange,
+        num_points: input.rpm_points || 100,
+        num_lobes: 10,
+      };
+
+      const validation = sldAlg.validate(sldInput);
+      if (validation.valid) {
+        const sldResult = sldAlg.calculate(sldInput);
+
+        const lobes: StabilityLobe[] = sldResult.lobes.map((lobe: { lobe_number: number; rpm: number[]; depth_limit: number[] }) => ({
+          lobe_number: lobe.lobe_number,
+          rpm_values: lobe.rpm,
+          ap_limit_mm: lobe.depth_limit,
+        }));
+
+        const stablePockets = sldResult.sweet_spots.map((ss: { rpm: number; max_depth: number; lobe_number: number }) => ({
+          rpm_range: [Math.round(ss.rpm * 0.98), Math.round(ss.rpm * 1.02)] as [number, number],
+          max_ap_mm: ss.max_depth,
+          lobe: ss.lobe_number,
+        }));
+
+        const recs = [`SLD algorithm: unconditional limit ${sldResult.unconditional_limit}mm`];
+        if (sldResult.sweet_spots.length > 0) {
+          recs.push(`Best sweet spot: ${sldResult.sweet_spots[0].rpm} RPM (ap ≤ ${sldResult.sweet_spots[0].max_depth}mm)`);
+        }
+        if (zeta < 0.02) recs.push("Low damping — consider vibration-damping toolholder");
+        if (tool.overhang_mm / tool.diameter_mm > 5) {
+          recs.push(`L/D = ${(tool.overhang_mm / tool.diameter_mm).toFixed(1)} — high chatter risk`);
+        }
+
+        return {
+          value: {
+            lobes,
+            optimal_rpm: sldResult.sweet_spots[0]?.rpm || rpmRange[0],
+            max_stable_ap_mm: sldResult.unconditional_limit,
+            critical_frequency_hz: Math.round(natFreq),
+            chatter_frequency_hz: Math.round(sldResult.chatter_frequency),
+            stable_pockets: stablePockets.slice(0, 5),
+            recommendations: recs,
+            algorithm_used: "StabilityLobeDiagram (SDOF, Altintas-Budak 1995)",
+          },
+          unit: "stability_lobe_diagram",
+          formula: "b_lim = -1/(2·Ks·N_t·α_xx·Re[G(ω_c)]/k)",
+          confidence: machine.natural_frequency_hz ? 0.85 : 0.65,
+        };
+      }
+    } catch { /* StabilityLobeDiagram algorithm not available */ }
+
+    // Path 3: Inline fallback (existing compute method)
+    const fallback = this.compute(input);
+    return {
+      value: { ...fallback.value, algorithm_used: "inline_SDOF_fallback" },
+      unit: fallback.unit,
+      formula: fallback.formula,
+      confidence: fallback.confidence,
+    };
+  }
 }
 
 export const chatterStabilityLobeEngine = new ChatterStabilityLobeEngine();

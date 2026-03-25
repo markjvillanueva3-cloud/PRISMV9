@@ -537,6 +537,112 @@ class InstantaneousEngagementEngineImpl {
       force_reduction_pct: Number(forceReduction.toFixed(1)),
     };
   }
+
+  /**
+   * CWE-enhanced engagement computation.
+   * Uses CWEZBuffer algorithm for actual engagement geometry instead of
+   * simple heuristic estimation. More accurate for curved walls, rest stock,
+   * and multi-pass scenarios where engagement varies within a single block.
+   *
+   * Returns the same structure as computeOptimalSF but with CWE-derived
+   * actual chip thickness that can be passed directly to Kienzle force model.
+   */
+  computeOptimalSFWithCWE(input: {
+    ae_mm: number;
+    ap_mm: number;
+    tool_diameter_mm: number;
+    tool_type: ToolGeometry["type"];
+    corner_radius_mm?: number;
+    flute_count: number;
+    target_Vc_m_min: number;
+    target_fz_mm: number;
+    kc1_1?: number;
+    mc?: number;
+    /** Current tool position for CWE */
+    current_position: { x: number; y: number; z: number; feed_angle?: number };
+    /** Previous tool positions for Z-buffer surface tracking */
+    previous_positions?: Array<{ x: number; y: number; z: number; feed_angle?: number }>;
+  }): {
+    rpm: number;
+    feed_mm_min: number;
+    fz_mm: number;
+    engagement_angle_deg: number;
+    effective_diameter_mm: number;
+    chip_thinning_factor: number;
+    actual_chip_thickness_mm: number;
+    force_N: number;
+    power_kW: number;
+    classification: string;
+    cwe_engagement_ratio: number;
+    cwe_max_engagement_deg: number;
+    cwe_method: string;
+  } {
+    // Run CWE Z-buffer analysis
+    let cweResult: { avg_engagement_angle: number; max_engagement_angle: number; engagement_ratio: number; effective_radial_depth: number; calculation_method: string } | null = null;
+    try {
+      const { CWEZBuffer } = require("../algorithms/CWEZBuffer.js");
+      const cwe = new CWEZBuffer();
+      const cweInput = {
+        tool_diameter: input.tool_diameter_mm,
+        n_axial_slices: Math.max(5, Math.ceil(input.ap_mm / 0.5)),
+        angular_resolution: 5,
+        current_position: input.current_position,
+        previous_positions: input.previous_positions || [],
+        depth_of_cut: input.ap_mm,
+        width_of_cut: input.ae_mm,
+      };
+      const validation = cwe.validate(cweInput);
+      if (validation.valid) {
+        cweResult = cwe.calculate(cweInput);
+      }
+    } catch { /* CWE algorithm not available — fall back to analytical */ }
+
+    // Use CWE engagement if available, otherwise analytical
+    const ae = cweResult ? cweResult.effective_radial_depth : input.ae_mm;
+    const tool: ToolGeometry = {
+      type: input.tool_type,
+      diameter_mm: input.tool_diameter_mm,
+      corner_radius_mm: input.corner_radius_mm,
+      flute_count: input.flute_count,
+      flute_length_mm: 0,
+    };
+
+    const engAngle = cweResult ? cweResult.avg_engagement_angle : this._engagementAngle(ae, input.tool_diameter_mm);
+    const effectiveDiam = this._effectiveDiameter(tool, input.ap_mm);
+    const chipThinning = this._chipThinningFactor(ae, input.tool_diameter_mm);
+    const optRpm = this._optimalRpm(input.target_Vc_m_min, effectiveDiam);
+    const optFz = this._optimalFz(input.target_fz_mm, chipThinning, engAngle, 180);
+    const optFeed = optFz * input.flute_count * optRpm;
+
+    // Actual chip thickness from CWE engagement geometry
+    // h_actual = fz × sin(arccos(1 - ae/R)) — the CWE-corrected value
+    const R = input.tool_diameter_mm / 2;
+    const aeR = Math.min(ae / R, 2);
+    const sinTheta = Math.sqrt(Math.max(0, aeR * (2 - aeR)));
+    const actualChip = sinTheta > 0.001 ? input.target_fz_mm * sinTheta : input.target_fz_mm;
+
+    const kc = input.kc1_1 || 2000;
+    const mc = input.mc || 0.25;
+    const force = kc * input.ap_mm * Math.pow(Math.max(actualChip, 0.001), 1 - mc);
+    const Vc = (Math.PI * effectiveDiam * optRpm) / 1000;
+    const power = (force * Vc) / (60 * 1000);
+
+    return {
+      rpm: Math.round(optRpm),
+      feed_mm_min: Math.round(optFeed),
+      fz_mm: Number(optFz.toFixed(4)),
+      engagement_angle_deg: Number(engAngle.toFixed(1)),
+      effective_diameter_mm: Number(effectiveDiam.toFixed(2)),
+      chip_thinning_factor: Number(chipThinning.toFixed(3)),
+      actual_chip_thickness_mm: Number(actualChip.toFixed(4)),
+      force_N: Math.round(force),
+      power_kW: Number(power.toFixed(3)),
+      classification: this._classifyEngagement(engAngle, ae, input.tool_diameter_mm),
+      cwe_engagement_ratio: cweResult ? Number(cweResult.engagement_ratio.toFixed(4)) : 0,
+      cwe_max_engagement_deg: cweResult ? Number(cweResult.max_engagement_angle.toFixed(1)) : 0,
+      cwe_method: cweResult ? cweResult.calculation_method : "analytical_fallback",
+    };
+  }
 }
 
 export const instantaneousEngagementEngine = new InstantaneousEngagementEngineImpl();

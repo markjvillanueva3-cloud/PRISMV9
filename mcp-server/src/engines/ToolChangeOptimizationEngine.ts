@@ -602,6 +602,173 @@ export class ToolChangeOptimizationEngine {
       warnings,
     };
   }
+  // ──────────────────────────────────────────────────────────────────────────
+  // 4. optimizeWithTSP — ACO-based tool sequence optimization for >10 tool jobs
+  // ──────────────────────────────────────────────────────────────────────────
+
+  optimizeWithTSP(
+    operations: ToolChangeOperation[],
+    machine?: MachineConfig,
+  ): ToolChangeResult & {
+    tsp_used: boolean;
+    tsp_improvement_pct: number;
+    tsp_best_time_sec: number;
+    tsp_greedy_time_sec: number;
+    tsp_method: string;
+  } {
+    const warnings: string[] = [];
+
+    // Get unique tools and their change times
+    const toolIds = [...new Set(operations.map(o => o.tool_id))];
+    const n = toolIds.length;
+    const atcSwap = machine?.atc_swap_sec ?? DEFAULT_ATC_SWAP_SEC;
+    const timePerSlot = machine?.time_per_slot_sec ?? DEFAULT_TIME_PER_SLOT_SEC;
+
+    // For small tool counts, greedy is near-optimal — skip TSP overhead
+    if (n < 3) {
+      const greedy = this.optimizeToolChanges(operations, [], machine?.magazine_capacity);
+      return {
+        ...greedy,
+        tsp_used: false,
+        tsp_improvement_pct: 0,
+        tsp_best_time_sec: greedy.total_tool_changes * atcSwap,
+        tsp_greedy_time_sec: greedy.total_tool_changes * atcSwap,
+        tsp_method: "greedy (< 3 tools)",
+      };
+    }
+
+    // Build tool change time matrix
+    // Time to switch from tool i to tool j depends on magazine distance + ATC swap
+    const toolIndex = new Map(toolIds.map((id, i) => [id, i]));
+    const changeTimes: Array<{ from: number; to: number; time: number }> = [];
+
+    for (let i = 0; i < n; i++) {
+      for (let j = 0; j < n; j++) {
+        if (i === j) continue;
+        // Magazine rotation time depends on pocket distance (assume sequential pockets)
+        const pocketDist = Math.abs(i - j);
+        const rotTime = pocketDist * timePerSlot;
+        changeTimes.push({ from: i, to: j, time: atcSwap + rotTime });
+      }
+    }
+
+    // Try AntColonyTSP via lazy require
+    let tspResult: { best_sequence: number[]; best_time: number; improvement_pct: number; calculation_method: string } | null = null;
+    try {
+      const { AntColonyTSP } = require("../algorithms/AntColonyTSP.js");
+      const tsp = new AntColonyTSP();
+      tspResult = tsp.calculate({
+        n_tools: n,
+        change_times: changeTimes,
+        default_change_time: atcSwap,
+        n_iterations: Math.min(200, n * 20),
+        seed: 42,
+      });
+    } catch {
+      warnings.push("AntColonyTSP algorithm not available — falling back to greedy");
+    }
+
+    // Greedy baseline for comparison
+    const greedyResult = this.optimizeToolChanges(operations, [], machine?.magazine_capacity);
+    const greedyTime = greedyResult.total_tool_changes * atcSwap;
+
+    if (!tspResult) {
+      return {
+        ...greedyResult,
+        tsp_used: false,
+        tsp_improvement_pct: 0,
+        tsp_best_time_sec: greedyTime,
+        tsp_greedy_time_sec: greedyTime,
+        tsp_method: "greedy (TSP unavailable)",
+      };
+    }
+
+    // TSP gives optimal tool ORDER — now resequence operations to follow this order
+    const tspToolOrder = tspResult.best_sequence.map(i => toolIds[i]);
+    const toolOrderMap = new Map(tspToolOrder.map((id, rank) => [id, rank]));
+
+    // Build prerequisite graph
+    const prereqMap = new Map<string, Set<string>>();
+    for (const op of operations) {
+      if (op.prerequisites) {
+        prereqMap.set(op.id, new Set(op.prerequisites));
+      }
+    }
+
+    // Sort operations by TSP tool order, grouping same-tool ops together
+    // Respect prerequisites via stable topological sort
+    const opsByTool = new Map<string, ToolChangeOperation[]>();
+    for (const op of operations) {
+      const group = opsByTool.get(op.tool_id) ?? [];
+      group.push(op);
+      opsByTool.set(op.tool_id, group);
+    }
+
+    const sequenced: ToolChangeOperation[] = [];
+    const completed = new Set<string>();
+
+    for (const toolId of tspToolOrder) {
+      const toolOps = opsByTool.get(toolId) ?? [];
+      // Within each tool group, order by prerequisites
+      for (const op of toolOps) {
+        const prereqs = prereqMap.get(op.id);
+        if (prereqs && ![...prereqs].every(p => completed.has(p))) {
+          // Prerequisite not yet met — defer to end
+          continue;
+        }
+        sequenced.push(op);
+        completed.add(op.id);
+      }
+    }
+
+    // Add any deferred operations (prerequisite conflicts)
+    for (const op of operations) {
+      if (!completed.has(op.id)) {
+        sequenced.push(op);
+        completed.add(op.id);
+        warnings.push(`Op ${op.id} deferred due to prerequisite conflict with TSP order`);
+      }
+    }
+
+    // Count optimized tool changes
+    let tspChanges = 0;
+    const optimizedSequence: OptimizedStep[] = [];
+    for (let i = 0; i < sequenced.length; i++) {
+      const change = i > 0 && sequenced[i].tool_id !== sequenced[i - 1].tool_id;
+      if (change) tspChanges++;
+      optimizedSequence.push({
+        order: i + 1,
+        operation_id: sequenced[i].id,
+        tool_id: sequenced[i].tool_id,
+        tool_change: change,
+        cumulative_changes: tspChanges,
+        reason: change ? `TSP-optimized switch to ${sequenced[i].tool_id}` : undefined,
+      });
+    }
+
+    const tspTime = tspResult.best_time;
+    const improvement = greedyTime > 0 ? ((greedyTime - tspTime) / greedyTime) * 100 : 0;
+
+    const originalChanges = greedyResult.original_tool_changes;
+    const changesSaved = originalChanges - tspChanges;
+
+    log.info(`[ToolChangeOptimization] TSP: ${n} tools, greedy=${greedyResult.total_tool_changes} → TSP=${tspChanges} changes, time saved=${Math.round(improvement)}%`);
+
+    return {
+      optimized_sequence: optimizedSequence,
+      total_tool_changes: tspChanges,
+      changes_saved: changesSaved,
+      time_saved_sec: Math.round(changesSaved * atcSwap * 10) / 10,
+      original_tool_changes: originalChanges,
+      reduction_pct: originalChanges > 0 ? Math.round((changesSaved / originalChanges) * 1000) / 10 : 0,
+      warnings: [...greedyResult.warnings, ...warnings],
+      tsp_used: true,
+      tsp_improvement_pct: Math.round(improvement * 10) / 10,
+      tsp_best_time_sec: Math.round(tspTime * 10) / 10,
+      tsp_greedy_time_sec: Math.round(greedyTime * 10) / 10,
+      tsp_method: tspResult.calculation_method,
+    };
+  }
 }
 
 // ── Singleton ────────────────────────────────────────────────────────────────

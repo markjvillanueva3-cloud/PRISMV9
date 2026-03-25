@@ -528,6 +528,10 @@ const ACTIONS = [
   "api_webhook_register",
   "api_webhook_list",
   "api_health",
+  // ── Quote-to-Ship Pipeline (0-D-7a: E1086 orphan wiring) ──
+  "quote_to_ship_run",
+  "quote_to_ship_validate",
+  "quote_to_ship_status",
 ] as const;
 
 /** Registers business dispatcher.
@@ -2211,6 +2215,23 @@ Params vary by action — pass relevant fields in params object.`,
         case "api_health": {
           const saas = await getEngine("saasAPI");
           result = saas.calculate(action, params);
+          break;
+        }
+
+        // ── Quote-to-Ship Pipeline (0-D-7a: E1086 orphan wiring) ──
+        case "quote_to_ship_run": {
+          const { quoteToShipOrchestratorEngine } = await import("../../engines/QuoteToShipOrchestratorEngine.js");
+          result = await quoteToShipOrchestratorEngine.runFullPipeline(params as any);
+          break;
+        }
+        case "quote_to_ship_validate": {
+          const { quoteToShipOrchestratorEngine: qtsVal } = await import("../../engines/QuoteToShipOrchestratorEngine.js");
+          result = qtsVal.validateInput(params as any);
+          break;
+        }
+        case "quote_to_ship_status": {
+          const { quoteToShipOrchestratorEngine: qtsStat } = await import("../../engines/QuoteToShipOrchestratorEngine.js");
+          result = qtsStat.getStageDescriptors();
           break;
         }
 

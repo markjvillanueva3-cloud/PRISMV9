@@ -386,6 +386,118 @@ export class MagnesiumMachiningEngine {
       warnings,
     };
   }
+  /**
+   * Fire risk assessment with Bayesian temperature uncertainty quantification.
+   *
+   * The base assessFireRisk() returns a point estimate of chip temperature.
+   * In safety-critical Mg machining, KNOWING the uncertainty matters: a mean
+   * temperature of 400°C with σ=50°C means ~16% chance of exceeding 480°C.
+   *
+   * When IR temperature observations are available from previous cuts, this
+   * method uses BayesianWearModel to compute a posterior temperature
+   * distribution and confidence-weighted fire risk.
+   *
+   * SAFETY: Water-based coolant + hot Mg = explosive H₂ gas (MIE ~20 mJ).
+   * Class D extinguisher ONLY. Never water, CO₂ fire extinguisher, or foam.
+   *
+   * Lazy-requires BayesianWearModel; falls back to assessFireRisk() if unavailable.
+   *
+   * Reference: Mg machining fire incidents (ASM Handbook Vol 16);
+   *            Playbook: Class D extinguisher, H₂ monitoring
+   */
+  assessFireRiskWithUncertainty(input: MgFireRiskInput & {
+    observed_temperatures?: number[];
+  }): MgFireRiskResult & {
+    bayesian_model_used: boolean;
+    temperature_posterior_mean: number | null;
+    temperature_posterior_std: number | null;
+    temperature_credible_95: [number, number] | null;
+    probability_exceeds_ignition: number | null;
+    confidence_in_risk: number;
+  } {
+    const baseResult = this.assessFireRisk(input);
+    const alloy = MG_ALLOY_PROPERTIES[input.alloy];
+    const observed = input.observed_temperatures;
+    const T_ignition = alloy.ignition_temp_C * alloy.fire_resistance_factor;
+
+    if (!observed || observed.length === 0) {
+      return {
+        ...baseResult,
+        bayesian_model_used: false,
+        temperature_posterior_mean: null,
+        temperature_posterior_std: null,
+        temperature_credible_95: null,
+        probability_exceeds_ignition: null,
+        confidence_in_risk: 0.6, // low confidence without observations
+      };
+    }
+
+    let bayesianUsed = false;
+    let postMean: number | null = null;
+    let postStd: number | null = null;
+    let ci95: [number, number] | null = null;
+    let pExceed: number | null = null;
+    let confidence = 0.6;
+
+    try {
+      const { BayesianWearModel } = require("../algorithms/BayesianWearModel.js");
+      const bwm = new BayesianWearModel();
+
+      // Prior: model-predicted chip temperature ± 15% (thermal model uncertainty)
+      const priorMean = baseResult.chip_temperature_C;
+      const priorStd = priorMean * 0.15;
+
+      const bmResult = bwm.calculate({
+        prior_mean: priorMean,
+        prior_std: priorStd,
+        observations: observed,
+        likelihood_std: priorStd * 0.8, // IR sensors slightly more precise than model
+        vb_threshold: T_ignition, // threshold = ignition temperature
+      });
+
+      bayesianUsed = true;
+      postMean = bmResult.posterior_mean;
+      postStd = bmResult.posterior_std;
+      ci95 = bmResult.credible_interval_95;
+      pExceed = bmResult.probability_exceed_threshold;
+      confidence = observed.length >= 5 ? 0.92
+        : observed.length >= 3 ? 0.85 : 0.75;
+
+      // Escalate fire risk if posterior shows significant ignition probability
+      if (pExceed !== null && pExceed > 0.1) {
+        const existingWarnings = baseResult.warnings;
+        existingWarnings.push(
+          `Bayesian analysis: ${(pExceed * 100).toFixed(1)}% probability of ` +
+          `exceeding ignition temperature ${Math.round(T_ignition)}°C — ` +
+          "REDUCE speed or switch to CO₂ coolant"
+        );
+      }
+    } catch {
+      // Fallback: simple statistics on observations
+      const obsMean = observed.reduce((s, v) => s + v, 0) / observed.length;
+      const obsVar = observed.reduce((s, v) => s + (v - obsMean) ** 2, 0) / Math.max(observed.length - 1, 1);
+      postMean = obsMean;
+      postStd = Math.sqrt(obsVar);
+      ci95 = [obsMean - 1.96 * Math.sqrt(obsVar), obsMean + 1.96 * Math.sqrt(obsVar)];
+      confidence = 0.7;
+    }
+
+    return {
+      ...baseResult,
+      bayesian_model_used: bayesianUsed,
+      temperature_posterior_mean: postMean !== null
+        ? Math.round(postMean * 10) / 10 : null,
+      temperature_posterior_std: postStd !== null
+        ? Math.round(postStd * 10) / 10 : null,
+      temperature_credible_95: ci95 !== null ? [
+        Math.round(ci95[0] * 10) / 10,
+        Math.round(ci95[1] * 10) / 10,
+      ] : null,
+      probability_exceeds_ignition: pExceed !== null
+        ? Math.round(pExceed * 10000) / 10000 : null,
+      confidence_in_risk: confidence,
+    };
+  }
 }
 
 /** Singleton instance */

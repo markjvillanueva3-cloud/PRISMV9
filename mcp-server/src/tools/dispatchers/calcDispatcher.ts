@@ -443,6 +443,18 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { vetoed: result.vetoed, active_vetos: result.active_vetos?.length || 0, rules_fired: result.active_vetos?.map((v: any) => v.rule) };
     case "safety_veto_escalate":
       return { resolved: result.resolved, iterations: result.iterations, remaining_vetos: result.remaining_vetos, final_ap_mm: result.final_params?.ap_mm, final_fz_mm: result.final_params?.fz_mm };
+    case "superalloy_analyze":
+      return { Fc_N: result.cutting_force_N, temp_C: result.temperature_C, life_min: result.tool_life_min, learning: result.learning_model_used, taylor_life: result.extended_taylor_life };
+    case "ceramics_fracture":
+      return { fracture_prob: result.fracture_probability, safety_factor: result.safety_factor, bayesian: result.bayesian_model_used, updated_prob: result.updated_fracture_probability };
+    case "magnesium_fire_risk":
+      return { fire_risk: result.fire_risk, risk_score: result.risk_score, temp_C: result.chip_temperature_C, bayesian: result.bayesian_model_used, p_ignition: result.probability_exceeds_ignition };
+    case "composites_tsai_hill":
+      return { delamination_risk: result.delamination_risk, tsai_hill: result.tsai_hill_index, thrust_N: result.critical_thrust_force_N, sigma1: result.stress_components?.sigma1_MPa };
+    case "composites_fiber_pullout":
+      return { pullout_mm: result.pullout_length_mm, quality_impact: result.surface_quality_impact, damage_zone_mm: result.fiber_damage_zone_mm, matrix_crack_risk: result.matrix_cracking_risk };
+    case "composites_optimize_cutting":
+      return { speed_mpm: result.optimal_speed_mpm, feed_mm: result.optimal_feed_mm, mrr: result.mrr_cm3_per_min, delamination: result.delamination_risk, Ra_um: result.expected_Ra_um };
     case "sdk_suggest_tool":
       return { topPick: result.topPick?.name, manufacturer: result.topPick?.manufacturer, count: result.tools?.length || 0 };
     case "sdk_get_tip":
@@ -834,7 +846,8 @@ const ACTIONS = [
   "bolt_torque_calc", "bootstrap_resample", "capability_with_ci", "carburizing_calc", "casting_defect_calc",
   "chain_drive_calc", "chamfer_milling_calc", "chip_conveyor_calc", "circular_pocket_calc", "cluster_analysis_calc",
   "cnc_maintenance_calc", "coating_thickness_calc", "compare_and_learn", "composite_chip_formation", "composite_delamination",
-  "composite_delamination_factor", "composite_tool_wear", "context_tree", "control_chart", "corrosion_rate_calc",
+  "composite_delamination_factor", "composite_tool_wear", "composites_tsai_hill", "composites_fiber_pullout", "composites_optimize_cutting",
+  "context_tree", "control_chart", "corrosion_rate_calc",
   "countersink_calc", "cut_to_learn", "cutting_number", "cutting_phenomena_brammertz", "cutting_phenomena_bue",
   "cutting_phenomena_coffinmanson", "cutting_phenomena_usui_crater", "cutting_physics_ext_brammertz", "cutting_physics_ext_bue", "cutting_physics_ext_colding",
   "cutting_physics_ext_usui", "surface_integrity_prediction", "cv_learning_curve", "cv_leave_one_out", "cv_nested", "deburring_recommend",
@@ -903,6 +916,8 @@ const ACTIONS = [
   "pipeline_safety_assess", "pipeline_safety_veto", "pipeline_safety_batch",
   // -- CAMX-MS14/U02: Safety Veto Engine (E1098) --
   "safety_veto_check", "safety_veto_all", "safety_veto_escalate",
+  // -- Advanced Materials (0-D-6) --
+  "superalloy_analyze", "ceramics_fracture", "magnesium_fire_risk",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -7427,6 +7442,40 @@ export function registerCalcDispatcher(server: any): void {
           case "safety_veto_escalate": {
             const { safetyVetoEngine } = await import("../../engines/SafetyVetoEngine.js");
             result = safetyVetoEngine.calculate(action, params as ValidatedParams);
+            break;
+          }
+
+          // ── Advanced Materials (0-D-6) ──
+          case "superalloy_analyze": {
+            const { superalloyMachiningEngine } = await import("../../engines/SuperalloyMachiningEngine.js");
+            result = superalloyMachiningEngine.analyzeWithLearning(params as ValidatedParams);
+            break;
+          }
+          case "ceramics_fracture": {
+            const { ceramicsMachiningEngine } = await import("../../engines/CeramicsMachiningEngine.js");
+            result = ceramicsMachiningEngine.assessWithBayesian(params as ValidatedParams);
+            break;
+          }
+          case "magnesium_fire_risk": {
+            const { magnesiumMachiningEngine } = await import("../../engines/MagnesiumMachiningEngine.js");
+            result = magnesiumMachiningEngine.assessFireRiskWithUncertainty(params as ValidatedParams);
+            break;
+          }
+
+          // ── Composites Machining Physics (0-D-7a: Tsai-Hill delamination, fiber pullout, multi-objective optimization) ──
+          case "composites_tsai_hill": {
+            const { compositesMachiningPhysicsEngine } = await import("../../engines/CompositesMachiningPhysicsEngine.js");
+            result = compositesMachiningPhysicsEngine.assessDelaminationRisk(params as ValidatedParams);
+            break;
+          }
+          case "composites_fiber_pullout": {
+            const { compositesMachiningPhysicsEngine: cmpeFP } = await import("../../engines/CompositesMachiningPhysicsEngine.js");
+            result = cmpeFP.predictFiberPullout(params as ValidatedParams);
+            break;
+          }
+          case "composites_optimize_cutting": {
+            const { compositesMachiningPhysicsEngine: cmpeOC } = await import("../../engines/CompositesMachiningPhysicsEngine.js");
+            result = cmpeOC.optimizeCuttingParams(params as ValidatedParams);
             break;
           }
 

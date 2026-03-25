@@ -226,8 +226,125 @@ export class PeckDrillingOptimizationEngine {
     if (m.includes("carbon") && m.includes("steel")) return "carbon_steel";
     return "steel";
   }
+
+  /**
+   * Optimize peck drilling using ChipEvacuationModel for physics-based
+   * L/D strategy selection with coolant pressure/flow requirements.
+   *
+   * Enhances the existing heuristic peck calculation with:
+   * - L/D-based strategy selection (standard/peck/high-pressure/gundrill)
+   * - Required coolant pressure and flow for the chosen strategy
+   * - Material-specific peck depth from evacuation model
+   * - Pressure/flow adequacy check against machine capabilities
+   *
+   * Falls back to existing calculate() if ChipEvacuationModel unavailable.
+   *
+   * References: Sandvik Drilling Application Guide (2021); Klocke (2011)
+   */
+  optimizeWithEvacuation(input: PeckDrillingInput & {
+    system_pressure_bar?: number;
+    system_flow_lpm?: number;
+  }): PeckDrillingResult & {
+    evacuation_model_used: boolean;
+    required_pressure_bar: number;
+    required_flow_lpm: number;
+    pressure_adequate: boolean;
+    flow_adequate: boolean;
+    evacuation_strategy: string;
+    chip_volume_per_peck_mm3: number | null;
+    max_depth_no_retract_mm: number;
+  } {
+    const D = input.drill_diameter_mm;
+    const L = input.hole_depth_mm;
+    const sysPressure = input.system_pressure_bar ?? 40;
+    const sysFlow = input.system_flow_lpm ?? 20;
+
+    // Run base calculation first
+    const baseResult = this.calculate(input);
+
+    // Map drill material to evacuation model material type
+    const matKey = this._materialKey(input.material);
+    const evacMatMap: Record<string, string> = {
+      steel: "steel", stainless: "stainless", aluminum: "aluminum",
+      titanium: "titanium", inconel: "superalloy", cast_iron: "cast_iron",
+      copper: "copper", brass: "copper", carbon_steel: "steel",
+      alloy_steel: "steel", plastic: "aluminum",
+    };
+    const evacMat = evacMatMap[matKey] ?? "steel";
+
+    // Try ChipEvacuationModel
+    let evacUsed = false;
+    let reqPressure = 20;
+    let reqFlow = 10;
+    let pressureOK = true;
+    let flowOK = true;
+    let evacStrategy = baseResult.peck_strategy;
+    let chipVolPerPeck: number | null = null;
+    let maxNoRetract = D * 3;
+
+    try {
+      const { ChipEvacuationModel } = require("../algorithms/ChipEvacuationModel.js");
+      const model = new ChipEvacuationModel();
+      const evacResult = model.calculate({
+        tool_diameter: D,
+        hole_depth: L,
+        material_type: evacMat as "steel" | "stainless" | "aluminum" | "titanium" | "superalloy" | "cast_iron" | "copper",
+        system_pressure: sysPressure,
+        system_flow: sysFlow,
+        coolant_through: input.coolant_through_spindle,
+        feed_per_rev: input.feed_per_rev_mm,
+        cutting_speed: input.cutting_speed_m_min,
+      });
+      evacUsed = true;
+      reqPressure = evacResult.required_pressure;
+      reqFlow = evacResult.required_flow;
+      pressureOK = evacResult.pressure_adequate;
+      flowOK = evacResult.flow_adequate;
+      evacStrategy = evacResult.strategy;
+      chipVolPerPeck = evacResult.chip_volume_per_peck;
+      maxNoRetract = evacResult.max_depth_no_retract;
+
+      // Override peck depth from evacuation model if it's more conservative
+      if (evacResult.peck_depth !== null && evacResult.peck_depth < baseResult.peck_depth_mm) {
+        baseResult.peck_depth_mm = Math.round(evacResult.peck_depth * 100) / 100;
+        baseResult.num_pecks = Math.ceil(L / baseResult.peck_depth_mm);
+      }
+
+      // Add evacuation warnings to recommendations
+      if (!pressureOK) {
+        baseResult.recommendations.push(
+          `Coolant pressure ${sysPressure} bar insufficient — need ${reqPressure.toFixed(0)} bar for ${evacStrategy}`,
+        );
+      }
+      if (!flowOK) {
+        baseResult.recommendations.push(
+          `Coolant flow ${sysFlow} L/min insufficient — need ${reqFlow.toFixed(1)} L/min for chip evacuation`,
+        );
+      }
+      if (evacResult.recommendations) {
+        baseResult.recommendations.push(...evacResult.recommendations);
+      }
+    } catch {
+      // Fallback: estimate pressure/flow from L/D heuristic
+      const ldRatio = L / D;
+      reqPressure = ldRatio > 8 ? 70 : ldRatio > 5 ? 40 : 20;
+      reqFlow = D * (ldRatio > 8 ? 1.5 : 1.0);
+      pressureOK = sysPressure >= reqPressure;
+      flowOK = sysFlow >= reqFlow;
+    }
+
+    return {
+      ...baseResult,
+      evacuation_model_used: evacUsed,
+      required_pressure_bar: Math.round(reqPressure * 10) / 10,
+      required_flow_lpm: Math.round(reqFlow * 10) / 10,
+      pressure_adequate: pressureOK,
+      flow_adequate: flowOK,
+      evacuation_strategy: evacStrategy,
+      chip_volume_per_peck_mm3: chipVolPerPeck !== null ? Math.round(chipVolPerPeck) : null,
+      max_depth_no_retract_mm: Math.round(maxNoRetract * 10) / 10,
+    };
+  }
 }
 
-/** Peck Drilling Optimization Engine constant.
- */
 export const peckDrillingOptimizationEngine = new PeckDrillingOptimizationEngine();

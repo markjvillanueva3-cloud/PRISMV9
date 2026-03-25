@@ -54,6 +54,8 @@ export interface KienzleInput {
   cutting_speed: number;
   /** Rake angle [degrees] (default 6). */
   rake_angle?: number;
+  /** CWE-computed actual chip thickness [mm] — bypasses Martellotti when provided */
+  actual_chip_thickness_mm?: number;
   /** ISO material group: N, P, M, K, S, H (default "P"). */
   iso_group?: string;
   /** Data quality: "verified" or "estimated" (default "estimated"). */
@@ -206,11 +208,10 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
     const engagement_ratio = Math.min(radial_depth / tool_diameter, 1.0);
     let h_mean: number;
 
-    /** If.
-     * @param number_of_teeth - number_of_teeth
-     * @returns void
-     */
-    if (number_of_teeth === 1) {
+    if (input.actual_chip_thickness_mm && input.actual_chip_thickness_mm > 0) {
+      // CWE Z-buffer provided actual chip thickness — use directly
+      h_mean = input.actual_chip_thickness_mm;
+    } else if (number_of_teeth === 1) {
       // Single-point (turning/boring): h = feed directly
       h_mean = feed_per_tooth;
     } else {
@@ -228,8 +229,12 @@ export class KienzleForceModel implements Algorithm<KienzleInput, KienzleOutput>
     // Kienzle specific cutting force: kc = kc1.1 × h^(-mc)
     const kc = kc1_1 * Math.pow(h, -mc);
 
-    // Rake angle correction (Sandvik): factor = 1 - 0.01 × γ
-    const rake_correction = 1 - 0.01 * rake_angle;
+    // Rake angle correction: K_gamma = 1 - 0.01 × (gamma - gamma_ref)
+    // gamma_ref = 6° — reference rake angle for canonical kc1.1 values
+    // At gamma=6°, K_gamma = 1.0. Positive rake → lower force.
+    // Ref: Altintas "Manufacturing Automation" Eq. 2.24
+    const GAMMA_REF = 6;
+    const rake_correction = 1 - 0.01 * (rake_angle - GAMMA_REF);
 
     // Engaged teeth for milling: z_e = z × φ_e / (2π)
     let z_e = 1;

@@ -151,6 +151,8 @@ export interface CuttingConditions {
   number_of_teeth: number;    // z
   rake_angle?: number;        // γ [degrees]
   tool_nose_radius?: number;  // r [mm]
+  /** CWE-computed actual chip thickness [mm] — bypasses Martellotti approximation when provided */
+  actual_chip_thickness_mm?: number;
 }
 
 /** Cutting Force Result configuration/data structure.
@@ -316,7 +318,11 @@ export function calculateKienzleCuttingForce(
   // Calculate chip geometry
   const engagement_ratio = Math.min(radial_depth / tool_diameter, 1.0);
   let h_mean: number;
-  if (number_of_teeth === 1) {
+  if (conditions.actual_chip_thickness_mm && conditions.actual_chip_thickness_mm > 0) {
+    // CWE Z-buffer provided actual chip thickness — use it directly
+    // This is more accurate than Martellotti for complex geometry (curved walls, rest stock)
+    h_mean = conditions.actual_chip_thickness_mm;
+  } else if (number_of_teeth === 1) {
     // Single-point tool (turning/boring): h = feed per rev directly
     h_mean = feed_per_tooth;
   } else {
@@ -333,10 +339,13 @@ export function calculateKienzleCuttingForce(
   // Specific cutting force with Kienzle equation
   const kc = kc1_1 * Math.pow(h, -mc);
   
-  // Rake angle correction: Sandvik standard Kc = kc1.1 × h^(-mc) × (1 - 0.01×γ)
-  // Ref: Sandvik Coromant Technical Guide, specific cutting force section
-  // γ₀ = actual rake angle, correction referenced from 0° (neutral insert)
-  const rake_correction = 1 - 0.01 * rake_angle;
+  // Rake angle correction: K_gamma = 1 - 0.01 × (gamma - gamma_ref)
+  // gamma_ref = 6° — the reference rake angle at which canonical kc1.1 values are measured
+  // At gamma=6° (Sandvik standard insert geometry), K_gamma = 1.0 (no correction)
+  // Positive rake (gamma > 6°) → lower force. Negative rake (gamma < 6°) → higher force.
+  // Ref: Altintas "Manufacturing Automation" Eq. 2.24; Sandvik Technical Guide
+  const GAMMA_REF = 6; // Reference rake angle [°] for canonical kc1.1 values
+  const rake_correction = 1 - 0.01 * (rake_angle - GAMMA_REF);
   
   // For milling (multi-tooth), compute simultaneously engaged teeth
   // z_e = z × φ_e / (2π) — average teeth in cut at any instant
@@ -1117,6 +1126,207 @@ export function calculateProductivityMetrics(
   };
 }
 
+// ============================================================================
+// ROUGHING PASS PLANNER (DPMultiPass Algorithm)
+// ============================================================================
+
+export interface RoughingPlanInput {
+  /** Total radial stock to remove [mm]. */
+  total_stock_mm: number;
+  /** Workpiece diameter [mm]. */
+  workpiece_diameter_mm: number;
+  /** Cut length [mm]. */
+  cut_length_mm: number;
+  /** Max depth of cut per pass [mm]. Default 5. */
+  max_depth_mm?: number;
+  /** Min depth of cut per pass [mm]. Default 0.5. */
+  min_depth_mm?: number;
+  /** Cutting speed [m/min]. Default 200. */
+  cutting_speed_mpm?: number;
+  /** Feed rate [mm/rev]. Default 0.3. */
+  feed_mm_rev?: number;
+  /** Max spindle power [kW]. Default 15. */
+  max_power_kw?: number;
+  /** Tool change time [s]. Default 30. */
+  tool_change_time_s?: number;
+  /** Material ISO group for force calculation. */
+  iso_group?: "P" | "M" | "K" | "N" | "S" | "H";
+  /** Kienzle kc1.1 [N/mm²]. */
+  kc1_1?: number;
+  /** Kienzle mc exponent. */
+  mc?: number;
+}
+
+export interface RoughingPassDetail {
+  pass_number: number;
+  depth_of_cut_mm: number;
+  diameter_before_mm: number;
+  diameter_after_mm: number;
+  machining_time_min: number;
+  cutting_force_N: number;
+  power_kw: number;
+  power_utilization_pct: number;
+}
+
+export interface RoughingPlanResult {
+  passes: RoughingPassDetail[];
+  n_passes: number;
+  total_time_min: number;
+  total_time_with_changes_min: number;
+  equal_depth_time_min: number;
+  savings_pct: number;
+  feasible: boolean;
+  dp_used: boolean;
+  method: string;
+  warnings: string[];
+}
+
+/**
+ * Plan optimal roughing pass allocation using DPMultiPass algorithm.
+ * Minimizes total cycle time by choosing optimal number and depth of passes,
+ * respecting power constraints. Falls back to equal-depth allocation if DP unavailable.
+ *
+ * Ref: Shin & Joo (1992); Wang et al. (2002)
+ */
+export function planRoughingPasses(input: RoughingPlanInput): RoughingPlanResult {
+  const warnings: string[] = [];
+  const {
+    total_stock_mm, workpiece_diameter_mm, cut_length_mm,
+    max_depth_mm = 5, min_depth_mm = 0.5,
+    cutting_speed_mpm = 200, feed_mm_rev = 0.3,
+    max_power_kw = 15, tool_change_time_s = 30,
+    kc1_1 = 1800, mc = 0.25,
+  } = input;
+
+  // Validate inputs
+  if (total_stock_mm <= 0 || total_stock_mm > workpiece_diameter_mm / 2) {
+    warnings.push("Invalid stock: must be > 0 and <= half the diameter");
+    return {
+      passes: [], n_passes: 0, total_time_min: 0,
+      total_time_with_changes_min: 0, equal_depth_time_min: 0,
+      savings_pct: 0, feasible: false, dp_used: false,
+      method: "error", warnings,
+    };
+  }
+
+  // Specific cutting force for power estimation [N/mm²]
+  const Kc = kc1_1 * Math.pow(feed_mm_rev, -mc);
+
+  // Try DPMultiPass algorithm
+  let dpResult: {
+    passes: Array<{ pass_number: number; depth_of_cut: number; diameter_after: number; machining_time: number; power_required: number }>;
+    n_passes: number; total_time: number; total_time_with_changes: number;
+    equal_depth_time: number; savings_pct: number; feasible: boolean; calculation_method: string;
+  } | null = null;
+
+  try {
+    const { DPMultiPass } = require("../algorithms/DPMultiPass.js");
+    const dp = new DPMultiPass();
+    dpResult = dp.calculate({
+      total_stock: total_stock_mm,
+      workpiece_diameter: workpiece_diameter_mm,
+      cut_length: cut_length_mm,
+      min_depth: min_depth_mm,
+      max_depth: max_depth_mm,
+      Kc,
+      max_power: max_power_kw,
+      feed_rate: feed_mm_rev,
+      cutting_speed: cutting_speed_mpm,
+      tool_change_time: tool_change_time_s,
+    });
+  } catch {
+    warnings.push("DPMultiPass algorithm not available — using equal-depth allocation");
+  }
+
+  if (dpResult && dpResult.passes.length > 0) {
+    // Enrich DP passes with Kienzle force data
+    const enrichedPasses: RoughingPassDetail[] = [];
+    let cumStock = 0;
+
+    for (const pass of dpResult.passes) {
+      const dBefore = workpiece_diameter_mm - 2 * cumStock;
+      cumStock += pass.depth_of_cut;
+      const dAfter = workpiece_diameter_mm - 2 * cumStock;
+
+      // Kienzle turning force: Fc = kc × ap × f
+      // kc = kc1.1 × h^(-mc), h = feed for turning
+      const kc = kc1_1 * Math.pow(feed_mm_rev, -mc);
+      const Fc = kc * pass.depth_of_cut * feed_mm_rev;
+      const power = Fc * cutting_speed_mpm / (60 * 1000); // kW
+
+      enrichedPasses.push({
+        pass_number: pass.pass_number,
+        depth_of_cut_mm: Math.round(pass.depth_of_cut * 1000) / 1000,
+        diameter_before_mm: Math.round(dBefore * 100) / 100,
+        diameter_after_mm: Math.round(dAfter * 100) / 100,
+        machining_time_min: Math.round(pass.machining_time * 1000) / 1000,
+        cutting_force_N: Math.round(Fc),
+        power_kw: Math.round(power * 100) / 100,
+        power_utilization_pct: Math.round((power / max_power_kw) * 1000) / 10,
+      });
+    }
+
+    return {
+      passes: enrichedPasses,
+      n_passes: dpResult.n_passes,
+      total_time_min: Math.round(dpResult.total_time * 1000) / 1000,
+      total_time_with_changes_min: Math.round(dpResult.total_time_with_changes * 1000) / 1000,
+      equal_depth_time_min: Math.round(dpResult.equal_depth_time * 1000) / 1000,
+      savings_pct: Math.round(dpResult.savings_pct * 10) / 10,
+      feasible: dpResult.feasible,
+      dp_used: true,
+      method: dpResult.calculation_method,
+      warnings,
+    };
+  }
+
+  // Fallback: equal-depth allocation
+  const nPasses = Math.max(1, Math.ceil(total_stock_mm / max_depth_mm));
+  const equalDepth = total_stock_mm / nPasses;
+  const passes: RoughingPassDetail[] = [];
+  let totalTime = 0;
+  let cumStock = 0;
+
+  for (let i = 0; i < nPasses; i++) {
+    const dBefore = workpiece_diameter_mm - 2 * cumStock;
+    cumStock += equalDepth;
+    const dAfter = workpiece_diameter_mm - 2 * cumStock;
+    const rpm = (cutting_speed_mpm * 1000) / (Math.PI * dBefore);
+    const time = cut_length_mm / (feed_mm_rev * rpm);
+    const kc = kc1_1 * Math.pow(feed_mm_rev, -mc);
+    const Fc = kc * equalDepth * feed_mm_rev;
+    const power = Fc * cutting_speed_mpm / (60 * 1000);
+
+    passes.push({
+      pass_number: i + 1,
+      depth_of_cut_mm: Math.round(equalDepth * 1000) / 1000,
+      diameter_before_mm: Math.round(dBefore * 100) / 100,
+      diameter_after_mm: Math.round(dAfter * 100) / 100,
+      machining_time_min: Math.round(time * 1000) / 1000,
+      cutting_force_N: Math.round(Fc),
+      power_kw: Math.round(power * 100) / 100,
+      power_utilization_pct: Math.round((power / max_power_kw) * 1000) / 10,
+    });
+    totalTime += time;
+  }
+
+  const tChange = tool_change_time_s / 60;
+  const totalWithChanges = totalTime + (nPasses - 1) * tChange;
+
+  return {
+    passes,
+    n_passes: nPasses,
+    total_time_min: Math.round(totalTime * 1000) / 1000,
+    total_time_with_changes_min: Math.round(totalWithChanges * 1000) / 1000,
+    equal_depth_time_min: Math.round(totalWithChanges * 1000) / 1000,
+    savings_pct: 0,
+    feasible: passes.every(p => p.power_kw <= max_power_kw),
+    dp_used: false,
+    method: `equal-depth fallback (${nPasses} passes × ${equalDepth.toFixed(2)}mm)`,
+    warnings,
+  };
+}
+
 // Export singleton
 /** Manufacturing Calculations constant.
  */
@@ -1131,6 +1341,7 @@ export const manufacturingCalculations = {
   chipLoad: calculateChipLoad,
   torque: calculateTorque,
   productivity: calculateProductivityMetrics,
+  roughingPlan: planRoughingPasses,
   getDefaultKienzle,
   getDefaultTaylor,
   SAFETY_LIMITS

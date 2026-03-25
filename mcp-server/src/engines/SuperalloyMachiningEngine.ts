@@ -419,6 +419,136 @@ export class SuperalloyMachiningEngine {
     };
   }
 
+  /**
+   * Enhanced superalloy analysis with learning algorithms.
+   *
+   * Augments analyzeNickelAlloy() with:
+   * - ExtendedTaylorModel for temperature-derated tool life (ISO S group
+   *   has steep n exponent 0.15-0.25, making temperature correction critical)
+   * - BayesianWearModel for posterior crater wear rate from observed data
+   *   (superalloys have high batch-to-batch scatter in work hardening)
+   *
+   * The learning loop: run 3-5 tools → measure crater depths → this method
+   * narrows the Usui wear rate prediction → next tool gets better life estimate.
+   *
+   * Lazy-requires both algorithms; falls back to analyzeNickelAlloy() if unavailable.
+   *
+   * Reference: Usui (1984) crater wear; Taylor (1907) extended;
+   *            Inconel 718 notch wear data (Sandvik 2020)
+   */
+  analyzeWithLearning(input: SuperalloyAnalyzeInput & {
+    observed_crater_depths?: number[];
+    temperature_factor?: number;
+  }): SuperalloyAnalyzeResult & {
+    learning_model_used: boolean;
+    extended_taylor_life: number | null;
+    posterior_crater_rate: number | null;
+    crater_confidence_95: [number, number] | null;
+    learning_recommendation: string;
+  } {
+    // Run base analysis for J-C physics
+    const baseResult = this.analyzeNickelAlloy(input);
+
+    // ISO S Taylor constants for superalloys (from TribalKnowledge: steep n exponent)
+    const taylorMap: Record<SuperalloyType, { C: number; n: number }> = {
+      inconel_718:  { C: 80,  n: 0.18 },
+      inconel_625:  { C: 90,  n: 0.19 },
+      waspaloy:     { C: 75,  n: 0.17 },
+      rene_41:      { C: 65,  n: 0.16 },
+      hastelloy_x:  { C: 95,  n: 0.20 },
+      mar_m247:     { C: 55,  n: 0.15 },
+    };
+
+    const taylor = taylorMap[input.alloy] ?? taylorMap.inconel_718;
+    const tempFactor = input.temperature_factor ?? 1.0;
+
+    let learningUsed = false;
+    let extTaylorLife: number | null = null;
+    let posteriorRate: number | null = null;
+    let craterCI: [number, number] | null = null;
+    let learningRec = "No learning data — using Usui model only.";
+
+    // Try ExtendedTaylorModel for temperature-corrected life
+    try {
+      const { ExtendedTaylorModel } = require("../algorithms/ExtendedTaylorModel.js");
+      const etm = new ExtendedTaylorModel();
+      const etResult = etm.calculate({
+        cutting_speed: input.cutting_speed_mpm,
+        C: taylor.C,
+        n: taylor.n,
+        feed: input.feed_mm,
+        depth: input.depth_mm,
+        feed_exponent: 0.32,
+        depth_exponent: 0.18,
+        ref_feed: 0.15,
+        ref_depth: 1.5,
+        temperature_factor: tempFactor,
+      });
+      extTaylorLife = etResult.tool_life_minutes;
+      learningUsed = true;
+    } catch {
+      // ExtendedTaylorModel not available
+    }
+
+    // Try BayesianWearModel for crater wear posterior
+    const observed = input.observed_crater_depths;
+    if (observed && observed.length > 0) {
+      try {
+        const { BayesianWearModel } = require("../algorithms/BayesianWearModel.js");
+        const bwm = new BayesianWearModel();
+
+        // Prior: Usui-predicted crater rate (from base result's tool_life)
+        const usui = USUI_PARAMS[input.tool_material ?? "carbide"];
+        const toolLife = Math.max(baseResult.tool_life_min, 0.1);
+        const priorRate = usui.max_crater_mm / toolLife;
+        const priorStd = priorRate * 0.3; // 30% CV typical for superalloys
+
+        // Convert crater depths (mm) to rates (mm/min) assuming each
+        // observation is from one tool run lasting ~tool_life_min
+        const observedRates = observed.map(d => d / toolLife);
+
+        const bmResult = bwm.calculate({
+          prior_mean: priorRate,
+          prior_std: priorStd,
+          observations: observedRates,
+          likelihood_std: priorStd,
+          vb_threshold: usui.max_crater_mm,
+        });
+
+        const postRate = bmResult.posterior_mean as number;
+        posteriorRate = postRate;
+        craterCI = bmResult.credible_interval_95;
+        learningUsed = true;
+
+        // Update tool life from posterior wear rate
+        const posteriorLife = postRate > 1e-10
+          ? usui.max_crater_mm / postRate : baseResult.tool_life_min;
+
+        learningRec = bmResult.recommendation.startsWith("REPLACE")
+          ? `REPLACE: Crater wear rate ${postRate.toFixed(4)} mm/min exceeds safe limit for ${input.alloy}.`
+          : `Learning from ${observed.length} observations: posterior life ~${posteriorLife.toFixed(1)} min ` +
+            `(${bmResult.uncertainty_reduction < 0.8 ? "uncertainty reduced" : "collect more data"}).`;
+      } catch {
+        // BayesianWearModel not available
+      }
+    }
+
+    if (!learningUsed) {
+      learningRec = "Learning algorithms unavailable — using Usui crater wear model only.";
+    }
+
+    return {
+      ...baseResult,
+      learning_model_used: learningUsed,
+      extended_taylor_life: extTaylorLife !== null
+        ? Math.round(extTaylorLife * 10) / 10 : null,
+      posterior_crater_rate: posteriorRate !== null
+        ? Math.round(posteriorRate * 10000) / 10000 : null,
+      crater_confidence_95: craterCI,
+      learning_recommendation: learningRec,
+    };
+  }
+
   // ============================================================================
   // PRIVATE HELPERS
   // ============================================================================

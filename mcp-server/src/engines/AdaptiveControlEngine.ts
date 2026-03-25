@@ -557,6 +557,140 @@ function startSession(params: Record<string, unknown>): AdaptiveState {
   return session;
 }
 
+// ─── Kalman-Fused Wear Estimation ────────────────────────────────────────────
+
+/**
+ * Fuse multiple sensor signals (spindle load history) into a filtered
+ * wear-state estimate using KalmanFilter algorithm.
+ *
+ * State model (constant-velocity wear):
+ *   x = [wear_pct, wear_rate_pct_per_min]
+ *   F = [[1, dt], [0, 1]]
+ *   H = [[wearToLoad, 0]]  (load_increase_pct ≈ 0.4 × wear_pct)
+ *
+ * Gracefully degrades to max(time,load,VB) estimation when algorithm
+ * unavailable.
+ *
+ * Reference: Kalman (1960); Sick (2002) tool condition monitoring
+ */
+function estimateWearKalman(params: Record<string, unknown>): WearResult & {
+  kalman_used: boolean;
+  state_estimate: number[];
+  covariance_diag: number[];
+  filter_consistent: boolean;
+} {
+  const loadHistory = (params.load_history as number[]) ?? [];
+  const baselineLoad = (params.baseline_load_pct as number) ?? 40;
+  const expectedLife = (params.expected_life_min as number) ?? 45;
+  const dt = (params.time_step_min as number) ?? 1;
+  const flankWearVb = (params.flank_wear_mm as number) ?? 0;
+
+  // Need >= 3 readings for meaningful filtering
+  if (loadHistory.length < 3) {
+    const base = compensateWear(params);
+    return {
+      ...base,
+      kalman_used: false,
+      state_estimate: [],
+      covariance_diag: [],
+      filter_consistent: true,
+    };
+  }
+
+  let kalmanUsed = false;
+  let finalWear = 0;
+  let finalRate = 0;
+  let stateEstimate: number[] = [];
+  let covDiag: number[] = [];
+  let filterConsistent = true;
+
+  try {
+    const { KalmanFilter } = require("../algorithms/KalmanFilter.js");
+    const kalman = new KalmanFilter();
+
+    // Convert load history to load-increase measurements
+    // Wear-to-load factor: 1% wear ≈ 0.4% load increase (inverse of 2.5× heuristic
+    // from compensateWear()). Ref: Caron Engineering ToolWatcher empirical correlation;
+    // Kistler cutting force monitoring app notes — spindle load rise of 15-25% at VB=0.3mm
+    // on steel gives ~2-3× wear-to-load multiplier. 2.5 is conservative midpoint.
+    const wearToLoad = 0.4;
+    const measurements = loadHistory.map(load => {
+      const loadIncrease = ((load - baselineLoad) / baselineLoad) * 100;
+      return [loadIncrease];
+    });
+
+    const kfResult = kalman.calculate({
+      n_states: 2,
+      n_measurements: 1,
+      F: [1, dt, 0, 1],             // constant-velocity wear model
+      H: [wearToLoad, 0],           // observation: load_increase ≈ 0.4 × wear
+      Q: [0.5, 0, 0, 0.01],         // process noise (wear variation)
+      R: [4],                        // measurement noise (load sensor ±2%)
+      x0: [0, 100 / expectedLife],   // start: 0% wear, expected rate
+      P0: [100, 0, 0, 10],          // initial uncertainty
+      measurements,
+    });
+
+    kalmanUsed = true;
+    finalWear = Math.max(0, Math.min(100, kfResult.final_state[0]));
+    finalRate = Math.max(0, kfResult.final_state[1]);
+    stateEstimate = kfResult.final_state;
+    covDiag = kfResult.final_covariance_diag;
+    filterConsistent = kfResult.filter_consistent;
+  } catch {
+    // Fallback: max of time/load/VB estimates (same as compensateWear)
+    const timeBasedWear = (((params.cutting_time_min as number) ?? 0) / expectedLife) * 100;
+    const loadCurrent = loadHistory[loadHistory.length - 1] ?? baselineLoad;
+    const loadIncrease = ((loadCurrent - baselineLoad) / baselineLoad) * 100;
+    const loadBasedWear = loadIncrease * 2.5;
+    const wearFromVb = flankWearVb > 0 ? (flankWearVb / 0.3) * 100 : 0;
+    finalWear = Math.min(Math.max(timeBasedWear, loadBasedWear, wearFromVb), 100);
+    finalRate = expectedLife > 0 ? 100 / expectedLife : 2;
+  }
+
+  const remainingLife = finalRate > 0
+    ? Math.max((100 - finalWear) / finalRate, 0)
+    : expectedLife;
+
+  // Force & surface finish estimates from wear level
+  const loadCurrent = loadHistory[loadHistory.length - 1] ?? baselineLoad;
+  const forceIncrease = Math.round(((loadCurrent - baselineLoad) / baselineLoad) * 100);
+  const feedComp = finalWear > 50
+    ? Math.round(100 - (finalWear - 50) * 0.3) : 100;
+  const raDeg = Math.round(finalWear * 0.5);
+  const shouldReplace = finalWear >= defaultConfig.wear_replacement_pct;
+
+  if (activeSession) {
+    activeSession.tool_wear_pct = finalWear;
+    if (feedComp < 100) {
+      activeSession.current_overrides.feed = feedComp;
+      activeSession.overrides_issued++;
+    }
+  }
+
+  const methodLabel = kalmanUsed ? "Kalman-filtered" : "max(time,load,VB)";
+  const recommendation = shouldReplace
+    ? `[${methodLabel}] Tool at ${finalWear.toFixed(0)}% wear — REPLACE NOW. Remaining: ${remainingLife.toFixed(1)} min.`
+    : finalWear > 50
+    ? `[${methodLabel}] Tool at ${finalWear.toFixed(0)}% wear. Feed → ${feedComp}%. Remaining: ~${remainingLife.toFixed(1)} min.`
+    : `[${methodLabel}] Tool at ${finalWear.toFixed(0)}% wear. Normal. Remaining: ~${remainingLife.toFixed(1)} min.`;
+
+  return {
+    estimated_wear_pct: Math.round(finalWear * 10) / 10,
+    wear_rate_pct_per_min: Math.round(finalRate * 100) / 100,
+    remaining_life_min: Math.round(remainingLife * 10) / 10,
+    force_increase_pct: forceIncrease,
+    feed_compensation_pct: feedComp,
+    ra_degradation_pct: raDeg,
+    should_replace: shouldReplace,
+    recommendation,
+    kalman_used: kalmanUsed,
+    state_estimate: stateEstimate,
+    covariance_diag: covDiag,
+    filter_consistent: filterConsistent,
+  };
+}
+
 // ─── Dispatcher ──────────────────────────────────────────────────────────────
 
 /** Adaptive Control.
@@ -590,6 +724,14 @@ export function adaptiveControl(action: string, params: Record<string, unknown> 
     case "adaptive_wear": {
       const result = compensateWear(params);
       const id = `WR-${Date.now()}`;
+      const stored = { query_id: id, ...result } as unknown as Record<string, unknown>;
+      resultStore.set(id, stored);
+      return stored;
+    }
+
+    case "adaptive_wear_kalman": {
+      const result = estimateWearKalman(params);
+      const id = `WK-${Date.now()}`;
       const stored = { query_id: id, ...result } as unknown as Record<string, unknown>;
       resultStore.set(id, stored);
       return stored;
@@ -652,9 +794,9 @@ export function adaptiveControl(action: string, params: Record<string, unknown> 
 
     default:
       return { error: `Unknown action: ${action}`, valid_actions: [
-        "adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_thermal",
-        "adaptive_override", "adaptive_status", "adaptive_config", "adaptive_log",
-        "adaptive_history", "adaptive_get",
+        "adaptive_chipload", "adaptive_chatter", "adaptive_wear", "adaptive_wear_kalman",
+        "adaptive_thermal", "adaptive_override", "adaptive_status", "adaptive_config",
+        "adaptive_log", "adaptive_history", "adaptive_get",
       ]};
   }
 }

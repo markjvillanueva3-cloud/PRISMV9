@@ -390,6 +390,115 @@ export class ReceptanceCouplingEngine {
 
     return { fn, zeta: Math.max(0.001, zeta), k };
   }
+
+  /**
+   * U-ALG2: RCSA algorithm-backed prediction when measured substructure FRF data
+   * is available. Uses the RCSA algorithm (Schmitz & Duncan 2005) for rigorous
+   * receptance coupling instead of the simplified analytical model.
+   *
+   * When measured spindle FRF data is provided (e.g., from tap test), this produces
+   * assembly-specific predictions — a 10mm endmill in BT40 vs HSK-A63 will show
+   * DIFFERENT dynamics because the assembly receptances differ.
+   *
+   * Falls back to analytical predictToolPointFRF() if RCSA algorithm not available.
+   */
+  predictWithRCSA(input: {
+    tool: ToolSpec;
+    holder: HolderSpec;
+    /** Measured spindle-holder FRF data (from tap test at holder-tool interface) */
+    spindle_frf?: { frequencies: number[]; H11_real: number[]; H11_imag: number[] };
+    freq_range?: [number, number];
+    freq_points?: number;
+  }): FRFResult & { method: string; rcsa_used: boolean } {
+    // Try RCSA algorithm with measured data
+    if (input.spindle_frf && input.spindle_frf.frequencies.length >= 10) {
+      try {
+        const { RCSA } = require("../algorithms/RCSA.js");
+        const rcsa = new RCSA();
+
+        // Build tool substructure FRF from Euler-Bernoulli beam theory
+        const mat = TOOL_MATERIALS[input.tool.material] || TOOL_MATERIALS.carbide;
+        const E = mat.E_GPa * 1e9;
+        const rho = mat.density_kg_m3;
+        const D = input.tool.diameter_mm / 1000;
+        const L = input.tool.stickout_mm / 1000;
+        const fluteReduction = input.tool.flutes ? Math.max(0.6, 1 - 0.08 * input.tool.flutes) : 0.85;
+        const D_eff = D * Math.sqrt(fluteReduction);
+        const Ival = (Math.PI / 64) * Math.pow(D_eff, 4);
+        const A = (Math.PI / 4) * D_eff * D_eff;
+
+        // Generate analytical tool FRF at same frequencies as spindle data
+        const freqs = input.spindle_frf.frequencies;
+        const k_beam = 3 * E * Ival / (L * L * L);
+        const lambda1 = 1.8751;
+        const fn_beam = (lambda1 * lambda1 / (2 * Math.PI * L * L)) * Math.sqrt(E * Ival / (rho * A));
+        const omega_n_beam = 2 * Math.PI * fn_beam;
+        const zeta_beam = 0.005; // low structural damping for carbide
+
+        const toolH11: Array<{ re: number; im: number }> = freqs.map(f => {
+          const omega = 2 * Math.PI * f;
+          const r = omega / omega_n_beam;
+          const dr = 1 - r * r;
+          const di = 2 * zeta_beam * r;
+          const denom = k_beam * (dr * dr + di * di);
+          return { re: dr / denom, im: -di / denom };
+        });
+
+        // Build RCSA input
+        const rcsaInput = {
+          substructure_a: {
+            frequencies: freqs,
+            H11: freqs.map((_, i) => ({
+              re: input.spindle_frf!.H11_real[i],
+              im: input.spindle_frf!.H11_imag[i],
+            })),
+          },
+          substructure_b: {
+            frequencies: freqs,
+            H11: toolH11,
+          },
+          joint_stiffness: TAPER_STIFFNESS[input.holder.taper]?.k_N_per_m || 2.5e8,
+          joint_damping: 100,
+        };
+
+        const validation = rcsa.validate(rcsaInput);
+        if (validation.valid) {
+          const rcsaResult = rcsa.calculate(rcsaInput);
+
+          // Convert RCSA output to FRFResult format
+          const frf: FRFPoint[] = rcsaResult.coupled_frf.map((pt: { frequency: number; compliance: { re: number; im: number } }) => ({
+            freq_Hz: Math.round(pt.frequency * 10) / 10,
+            real: pt.compliance.re,
+            imag: pt.compliance.im,
+            magnitude: Math.sqrt(pt.compliance.re ** 2 + pt.compliance.im ** 2),
+          }));
+
+          return {
+            frf,
+            natural_freq_Hz: Math.round(rcsaResult.dominant_frequency),
+            damping_ratio: rcsaResult.modes[0]?.damping_ratio || 0.03,
+            stiffness_N_per_m: Math.round(rcsaResult.dynamic_stiffness),
+            dynamic_stiffness_N_per_um: Math.round(rcsaResult.dynamic_stiffness / 1e6 * 1000) / 1000,
+            method: "RCSA (Schmitz-Duncan 2005) with measured spindle FRF",
+            rcsa_used: true,
+          };
+        }
+      } catch { /* RCSA algorithm not available */ }
+    }
+
+    // Fallback: analytical prediction
+    const analytical = this.predictToolPointFRF({
+      machine_frf: input.spindle_frf
+        ? { freq_Hz: input.spindle_frf.frequencies, real: input.spindle_frf.H11_real, imag: input.spindle_frf.H11_imag }
+        : { natural_freq_Hz: 2000, damping_ratio: 0.03, stiffness_N_per_m: 1e7 },
+      tool: input.tool,
+      holder: input.holder,
+      freq_range: input.freq_range,
+      freq_points: input.freq_points,
+    });
+
+    return { ...analytical, method: "Euler-Bernoulli analytical (no measured FRF)", rcsa_used: false };
+  }
 }
 
 export const receptanceCouplingEngine = new ReceptanceCouplingEngine();
