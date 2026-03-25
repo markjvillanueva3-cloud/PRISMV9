@@ -341,7 +341,8 @@ export class AdditiveManufacturingPhysicsEngine {
    */
   meltPool(input: MeltPoolInput): AtomicValue<MeltPoolResult> {
     const mat = this.getMaterial(input.material);
-    const nTrials = input.n_trials ?? 500;
+    const MAX_TRIALS = 100_000;
+    const nTrials = Math.min(input.n_trials ?? 500, MAX_TRIALS);
     const T0 = (input.preheat_C ?? 25) + 273.15; // K
     const T_liq = mat.T_liq + 273.15; // K
 

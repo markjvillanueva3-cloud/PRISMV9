@@ -659,7 +659,7 @@ export class MultiTenantEngine {
    */
   getStats(): {
     total_tenants: number; active: number; suspended: number; deleted: number;
-    slb: ReturnType<typeof this.getSLBStats>; metrics: typeof this.metrics;
+    slb: unknown; metrics: Record<string, unknown>;
   } {
     this.init();
     const tenants = [...this.tenants.values()];

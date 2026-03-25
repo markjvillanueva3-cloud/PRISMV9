@@ -388,7 +388,8 @@ export class EnergyHarvestingEngine {
     const power_density = vol_cm3 > 0 ? P_mW / vol_cm3 : 0;
 
     // Monte Carlo uncertainty
-    const nmc = input.mc_samples ?? 500;
+    const MAX_TRIALS = 100_000;
+    const nmc = Math.min(input.mc_samples ?? 500, MAX_TRIALS);
     const rng = mulberry32(42);
     const uSamples = lhsSamples(nmc, rng);
     const mcPowers: number[] = [];
@@ -466,7 +467,8 @@ export class EnergyHarvestingEngine {
     const eta_real = eta_carnot * (sqrtZT - 1) / (sqrtZT + Tc / Th);
 
     // Monte Carlo
-    const nmc = input.mc_samples ?? 500;
+    const MAX_TRIALS = 100_000;
+    const nmc = Math.min(input.mc_samples ?? 500, MAX_TRIALS);
     const rng = mulberry32(77);
     const uSamples = lhsSamples(nmc, rng);
     const mcPowers: number[] = [];

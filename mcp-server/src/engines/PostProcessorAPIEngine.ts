@@ -60,7 +60,7 @@ class PostProcessorAPIEngineImpl {
 
         // CORS headers
         if (cors) {
-          res.setHeader("Access-Control-Allow-Origin", "*");
+          res.setHeader("Access-Control-Allow-Origin", process.env.PRISM_CORS_ORIGIN || "http://127.0.0.1");
           res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
           res.setHeader("Access-Control-Allow-Headers", "Content-Type");
           if (req.method === "OPTIONS") {
@@ -223,9 +223,19 @@ class PostProcessorAPIEngineImpl {
   }
 
   private _readBody(req: http.IncomingMessage): Promise<string> {
+    const MAX_BODY_SIZE = 10 * 1024 * 1024; // 10MB
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
-      req.on("data", (chunk: Buffer) => chunks.push(chunk));
+      let totalSize = 0;
+      req.on("data", (chunk: Buffer) => {
+        totalSize += chunk.length;
+        if (totalSize > MAX_BODY_SIZE) {
+          req.destroy();
+          reject(new Error("Request body too large"));
+          return;
+        }
+        chunks.push(chunk);
+      });
       req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       req.on("error", reject);
     });

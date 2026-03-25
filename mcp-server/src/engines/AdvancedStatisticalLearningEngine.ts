@@ -281,7 +281,8 @@ class SeededRNG {
     }
     const d = shape - 1 / 3;
     const c = 1 / Math.sqrt(9 * d);
-    while (true) {
+    const MAX_ITER = 10_000;
+    for (let _iter = 0; _iter < MAX_ITER; _iter++) {
       let x: number;
       let v: number;
       do {
@@ -293,6 +294,7 @@ class SeededRNG {
       if (u < 1 - 0.0331 * (x * x) * (x * x)) return d * v * scale;
       if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v * scale;
     }
+    return d * scale; // fallback after MAX_ITER
   }
 
   /** Inverse-Gamma */

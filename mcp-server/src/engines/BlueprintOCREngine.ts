@@ -165,11 +165,47 @@ const DIMENSION_PATTERNS: Array<{ type: string; pattern: RegExp; groups: string[
     pattern: /\b(\d{1,4}\.?\d{0,4})\s*(?:([±])\s*(\d+\.?\d+)|([+-]\s*\d+\.?\d+)\s*\/\s*([+-]\s*\d+\.?\d+))/g,
     groups: ["nominal", "bilateral_sign", "bilateral_val", "upper", "lower"],
   },
-  // Depth: ▽5.0, depth 10.0
+  // Depth: ▽5.0, depth 10.0, .500 dp., 0.750 deep
   {
     type: "depth",
-    pattern: /(?:▽|depth|dp|deep)\s*(\d+\.?\d*)\s*(?:([±])\s*(\d+\.?\d*))?/gi,
+    pattern: /(?:▽|depth|dp\.?|deep)\s*(\d+\.?\d*)\s*(?:([±])\s*(\d+\.?\d*))?/gi,
     groups: ["nominal", "bilateral_sign", "bilateral_val"],
+  },
+  // Depth (number-first): .500 dp., 0.750 deep, 25.0mm deep
+  {
+    type: "depth",
+    pattern: /(\d*\.?\d+)\s*(?:dp\.?|deep)\b/gi,
+    groups: ["nominal"],
+  },
+  // Diameter text: 2.0 Dia., 1.5 DIA, 12.7mm dia
+  {
+    type: "diameter",
+    pattern: /(\d+\.?\d*)\s*(?:Dia\.?|DIA\.?|dia\.?)\b/g,
+    groups: ["nominal"],
+  },
+  // OD/ID stock dimensions: 2.0" OD, 50mm ID, 2.0 OD x 4.0 length
+  {
+    type: "diameter",
+    pattern: /(\d+\.?\d*)\s*(?:"|in\.?)?\s*(?:OD|O\.D\.?|ID|I\.D\.?)\b/gi,
+    groups: ["nominal"],
+  },
+  // Length/width from stock callout: x 4.0 length, x 100mm long
+  {
+    type: "linear",
+    pattern: /[xX×]\s*(\d+\.?\d*)\s*(?:"|in\.?|mm)?\s*(?:length|long|wide|width)\b/gi,
+    groups: ["nominal"],
+  },
+  // Groove/slot width: .250 wide, 3.0mm wide
+  {
+    type: "linear",
+    pattern: /(\d*\.?\d+)\s*(?:"|in\.?|mm)?\s*wide\b/gi,
+    groups: ["nominal"],
+  },
+  // Tool nose radius: .031 TNR, .0312 TNR
+  {
+    type: "radius",
+    pattern: /(\d*\.?\d+)\s*TNR\b/gi,
+    groups: ["nominal"],
   },
 ];
 
@@ -362,6 +398,9 @@ function parseTitleBlock(text: string): TitleBlockData {
   const partNumber = extract([
     /(?:PART\s*(?:NO|NUMBER|#|NUM))\s*[:\-.]?\s*([A-Z0-9][\w\-./]+)/i,
     /(?:P\/N|PN)\s*[:\-.]?\s*([A-Z0-9][\w\-./]+)/i,
+    // CNC program O-number: O00020, O0075, O12345
+    /^[%\s]*\n?\s*(O\d{4,5})\b/m,
+    /\b(O\d{4,5})\s*\(/m,
   ]);
 
   const revision = extract([

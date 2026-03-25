@@ -451,7 +451,8 @@ class UncertaintyPropagationPipelineEngine {
    */
   propagate(input: PipelineInput): AtomicValue<PipelineResult> {
     const method = input.method ?? "mc";
-    const N = input.n_trials ?? 2000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.n_trials ?? 2000, MAX_TRIALS);
     const pceOrder = input.pce_order ?? 2;
 
     // Build base parameter map from uncertain params (means)

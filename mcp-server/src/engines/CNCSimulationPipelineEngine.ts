@@ -25,6 +25,7 @@
  */
 
 import type { ToolShape, MoveSegment, Position3D, AABB, CollisionZone as SweptCollisionZone } from "./SweptVolumeEngine.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 
 export interface SimulationInput {
   gcode_blocks: string[];
@@ -170,7 +171,11 @@ export class CNCSimulationPipelineEngine {
   /**
    * Run full CNC simulation pipeline
    */
-  simulate(input: SimulationInput): SimulationResult {
+  simulate(input: SimulationInput & { resumeFromStage?: number; checkpointRunId?: string }): SimulationResult {
+    const cpm = new PipelineCheckpointManager('cnc-simulation', input.checkpointRunId);
+    const resumeFrom = input.resumeFromStage ?? -1;
+    let t0 = Date.now();
+
     const {
       gcode_blocks,
       tool_diameter_mm = 12,
@@ -217,6 +222,9 @@ export class CNCSimulationPipelineEngine {
     };
     const mat = materialData[material] ?? materialData.steel;
 
+    // Checkpoint stage 0: setup complete
+    cpm.checkpoint('setup', 0, { toolShape, envelope, material, mat }, Date.now() - t0);
+
     // Simulate each block
     const blockResults: BlockResult[] = [];
     const collisions: SimulationResult["collisions"] = [];
@@ -230,6 +238,11 @@ export class CNCSimulationPipelineEngine {
     let maxTemp = 0;
     let maxDeflection = 0;
     let totalMRR = 0;
+
+    const MAX_GCODE_BLOCKS = 500_000;
+    if (gcode_blocks.length > MAX_GCODE_BLOCKS) {
+      return { error: `G-code exceeds maximum block limit of ${MAX_GCODE_BLOCKS}` } as any;
+    }
 
     for (let i = 0; i < gcode_blocks.length; i++) {
       const block = gcode_blocks[i];
@@ -281,14 +294,14 @@ export class CNCSimulationPipelineEngine {
 
         // Cutting physics (only for feed moves below stock surface)
         if (moveType === "linear" && newPos.z < 0 && currentRPM > 0) {
-          const fz = feedRate / (tool_flutes * currentRPM) * 1000; // mm/tooth (feed in mm/min)
+          const fz = feedRate / (tool_flutes * currentRPM); // mm/tooth (feed in mm/min)
           const ap = Math.min(Math.abs(newPos.z), stock_z_mm); // depth of cut
           const ae = tool_diameter_mm * 0.5; // assume 50% radial engagement
 
           // Kienzle force: Fc = kc1.1 * b * h^(1-mc)
           const h = fz > 0 ? fz : 0.1;
           const kc = mat.kc11 * Math.pow(h, -mat.mc);
-          const Fc = kc * ap * ae / 1000; // N
+          const Fc = kc * ap * h; // N (Kienzle: Fc = kc1.1 * b * h^(1-mc), kc already includes h^(-mc))
           blockResult.cutting_force_N = Math.round(Fc);
           if (Fc > maxForce) maxForce = Fc;
 
@@ -318,6 +331,15 @@ export class CNCSimulationPipelineEngine {
       blockResults.push(blockResult);
       currentPos = newPos;
     }
+
+    // Checkpoint stage 1: block simulation complete
+    cpm.checkpoint('block_simulation', 1, {
+      blocks_simulated: blockResults.length,
+      collisions: collisions.length,
+      axis_violations: axisViolations.length,
+      maxForce, maxTemp, maxDeflection, totalMRR,
+    }, Date.now() - t0);
+    t0 = Date.now();
 
     // Tool life (Taylor): T = C / (V^n) — simplified
     const Vc_avg = currentRPM > 0 ? Math.PI * tool_diameter_mm * currentRPM / 1000 : 50;
@@ -357,6 +379,11 @@ export class CNCSimulationPipelineEngine {
       `Cost: $${Math.round(totalCost * 100) / 100}`,
       `Safety: ${Math.round(safetyScore * 100)}%`,
     ].join(" | ");
+
+    // Checkpoint stage 2: post-processing (tool life, cost, safety score)
+    cpm.checkpoint('post_processing', 2, {
+      toolLifeConsumed, totalCost, safetyScore, stockRemoved,
+    }, Date.now() - t0);
 
     return {
       total_blocks: gcode_blocks.length,

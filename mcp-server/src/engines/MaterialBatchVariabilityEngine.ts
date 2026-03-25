@@ -370,7 +370,8 @@ export class MaterialBatchVariabilityEngine {
   analyze(input: MaterialBatchInput): MaterialBatchResult {
     const warnings: string[] = [];
     const recommendations: string[] = [];
-    const N = input.mc_samples ?? 1000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 1000, MAX_TRIALS);
     const props = MATERIAL_DB[input.material_family];
 
     if (!props) {

@@ -275,6 +275,265 @@ export class ChipMorphologyDiagnosticEngine {
     return { health, issues, recommendations, temperature_estimate_C: tempEst };
   }
 
+  /**
+   * Piispanen card model — idealized shear strain in chip formation.
+   * Models chip as a deck of cards sliding along the shear plane.
+   * γ = cos(α) / (sin(φ) · cos(φ - α))
+   * Reference: Piispanen (1937), "Theory of Formation of Metal Chips"
+   */
+  piispanenShearStrain(input: {
+    shear_angle_deg: number;
+    rake_angle_deg: number;
+  }): {
+    shear_strain: { value: number; unit: string; source: string };
+    chip_thickness_ratio: { value: number; unit: string; source: string };
+    velocity_ratio: { value: number; unit: string; source: string };
+    note: string;
+  } {
+    const phi = input.shear_angle_deg * Math.PI / 180;
+    const alpha = input.rake_angle_deg * Math.PI / 180;
+
+    const sinPhi = Math.sin(phi);
+    const cosAlpha = Math.cos(alpha);
+    const cosPhiMinusAlpha = Math.cos(phi - alpha);
+
+    const denom = sinPhi * cosPhiMinusAlpha;
+    const gamma = Math.abs(denom) > 1e-12
+      ? cosAlpha / denom
+      : 0;
+
+    // chip thickness ratio r = sin(φ) / cos(φ - α)
+    const r = Math.abs(cosPhiMinusAlpha) > 1e-12
+      ? sinPhi / cosPhiMinusAlpha
+      : 1;
+
+    return {
+      shear_strain: {
+        value: Number(gamma.toFixed(4)),
+        unit: "dimensionless",
+        source: "Piispanen (1937): γ = cos(α) / (sin(φ)·cos(φ-α))",
+      },
+      chip_thickness_ratio: {
+        value: Number(r.toFixed(4)),
+        unit: "dimensionless",
+        source: "r = sin(φ) / cos(φ - α); ratio of uncut to cut chip thickness",
+      },
+      velocity_ratio: {
+        value: Number(r.toFixed(4)),
+        unit: "dimensionless",
+        source: "V_chip / V_cutting = r (chip thickens by same ratio it slows)",
+      },
+      note:
+        "Piispanen's deck-of-cards analogy: the workpiece material shears like " +
+        "a stack of inclined cards sliding over each other along the shear plane. " +
+        `φ=${input.shear_angle_deg.toFixed(1)}°, α=${input.rake_angle_deg.toFixed(1)}°. ` +
+        "Higher rake angle (α) reduces shear strain; steeper shear plane (φ) reduces strain.",
+    };
+  }
+
+  /**
+   * Zorev stress distribution on tool rake face.
+   * Normal stress σ(x) = σ_max × (1 - x/lc)^n  (exponential decay from cutting edge)
+   * Shear stress: sticking zone (τ = τ_s) near edge, sliding zone (τ = μ·σ) further out.
+   * Reference: Zorev (1963), "Inter-relationship between shear processes on tool face and flank"
+   */
+  zorevStressDistribution(input: {
+    normal_force_N: number;
+    contact_length_mm: number;
+    chip_width_mm: number;
+    shear_yield_stress_MPa: number;
+    friction_coefficient: number;
+    n_exponent?: number;
+    num_points?: number;
+  }): {
+    sticking_length_mm: { value: number; unit: string; source: string };
+    sliding_length_mm: { value: number; unit: string; source: string };
+    max_normal_stress_MPa: { value: number; unit: string; source: string };
+    stress_profile: Array<{ x_mm: number; sigma_MPa: number; tau_MPa: number; zone: string }>;
+    crater_wear_risk: string;
+    note: string;
+  } {
+    const {
+      normal_force_N,
+      contact_length_mm,
+      chip_width_mm,
+      shear_yield_stress_MPa,
+      friction_coefficient,
+      n_exponent = 2,
+      num_points = 20,
+    } = input;
+
+    const lc = contact_length_mm;
+    const area = lc * chip_width_mm; // mm²  →  convert force to MPa
+
+    // σ_max from integral: ∫₀^lc σ_max·(1-x/lc)^n dx = F_n / w
+    // = σ_max · lc / (n+1)  →  σ_max = (n+1)·F_n / (lc·w)
+    const sigma_max = ((n_exponent + 1) * normal_force_N) / area;
+
+    // Sticking zone boundary: τ_s = μ·σ(x) → σ(x) = τ_s/μ
+    // σ_max·(1 - x_p/lc)^n = τ_s/μ → x_p = lc·(1 - (τ_s/(μ·σ_max))^(1/n))
+    const tau_s = shear_yield_stress_MPa;
+    const mu = friction_coefficient;
+    let l_p = 0;
+    if (sigma_max > 0 && mu > 0) {
+      const ratio = tau_s / (mu * sigma_max);
+      l_p = ratio < 1
+        ? lc * (1 - Math.pow(ratio, 1 / n_exponent))
+        : 0;
+    }
+    l_p = Math.max(0, Math.min(l_p, lc));
+    const l_sliding = lc - l_p;
+
+    // Build stress profile
+    const stress_profile: Array<{ x_mm: number; sigma_MPa: number; tau_MPa: number; zone: string }> = [];
+    for (let i = 0; i < num_points; i++) {
+      const x = (i / (num_points - 1)) * lc;
+      const factor = Math.pow(Math.max(0, 1 - x / lc), n_exponent);
+      const sigma = sigma_max * factor;
+      const zone = x <= l_p ? "sticking" : "sliding";
+      const tau = zone === "sticking" ? tau_s : mu * sigma;
+      stress_profile.push({
+        x_mm: Number(x.toFixed(4)),
+        sigma_MPa: Number(sigma.toFixed(2)),
+        tau_MPa: Number(tau.toFixed(2)),
+        zone,
+      });
+    }
+
+    // Crater wear risk based on peak normal stress vs typical threshold (~1000 MPa)
+    let crater_wear_risk: string;
+    if (sigma_max > 1500) crater_wear_risk = "high";
+    else if (sigma_max > 800) crater_wear_risk = "moderate";
+    else crater_wear_risk = "low";
+
+    return {
+      sticking_length_mm: {
+        value: Number(l_p.toFixed(4)),
+        unit: "mm",
+        source: `Zorev sticking zone: x_p = lc·(1-(τ_s/(μ·σ_max))^(1/n)) = ${l_p.toFixed(3)} mm`,
+      },
+      sliding_length_mm: {
+        value: Number(l_sliding.toFixed(4)),
+        unit: "mm",
+        source: `Sliding zone = lc - l_p = ${l_sliding.toFixed(3)} mm`,
+      },
+      max_normal_stress_MPa: {
+        value: Number(sigma_max.toFixed(2)),
+        unit: "MPa",
+        source: `σ_max = (n+1)·F_n/(lc·w) = (${n_exponent + 1}·${normal_force_N})/(${lc}·${chip_width_mm}) = ${sigma_max.toFixed(1)} MPa`,
+      },
+      stress_profile,
+      crater_wear_risk,
+      note:
+        "Zorev model: stress peaks at the cutting edge (x=0) and decays toward tool tip (x=lc). " +
+        "Near the edge the chip is seized (sticking friction, τ=τ_s); further out it slides (τ=μσ). " +
+        "Maximum normal stress drives crater wear at ~0.3–0.5 lc from edge. " +
+        `σ_max=${sigma_max.toFixed(0)} MPa, sticking zone=${l_p.toFixed(3)} mm (${((l_p / lc) * 100).toFixed(0)}% of contact).`,
+    };
+  }
+
+  /**
+   * Okushima-Hitomi thick shear zone model.
+   * Unlike Merchant's idealized thin plane, models shear zone as having finite thickness δ.
+   * Strain rate: γ̇ = V_s / δ. More accurate for ductile materials with large shear zones.
+   * Reference: Okushima & Hitomi (1961)
+   */
+  thickShearZone(input: {
+    cutting_speed_mpm: number;
+    shear_angle_deg: number;
+    rake_angle_deg: number;
+    zone_thickness_mm?: number;
+    feed_mm?: number;
+  }): {
+    shear_velocity_mps: { value: number; unit: string; source: string };
+    strain_rate_per_s: { value: number; unit: string; source: string };
+    shear_strain: { value: number; unit: string; source: string };
+    zone_thickness_mm: { value: number; unit: string; source: string };
+    thin_vs_thick_comparison: string;
+    note: string;
+  } {
+    const {
+      cutting_speed_mpm,
+      shear_angle_deg,
+      rake_angle_deg,
+      feed_mm,
+    } = input;
+
+    const phi = shear_angle_deg * Math.PI / 180;
+    const alpha = rake_angle_deg * Math.PI / 180;
+
+    // Shear velocity: V_s = V_c · cos(α) / cos(φ - α)
+    const V_c_mps = cutting_speed_mpm / 60;
+    const cosPhiMinusAlpha = Math.cos(phi - alpha);
+    const V_s = Math.abs(cosPhiMinusAlpha) > 1e-12
+      ? V_c_mps * Math.cos(alpha) / cosPhiMinusAlpha
+      : V_c_mps;
+
+    // Zone thickness: use provided value or estimate δ ≈ 0.1 × feed (ductile metals rule of thumb)
+    let delta_mm: number;
+    let delta_source: string;
+    if (input.zone_thickness_mm !== undefined && input.zone_thickness_mm > 0) {
+      delta_mm = input.zone_thickness_mm;
+      delta_source = "user-provided measured zone thickness";
+    } else if (feed_mm !== undefined && feed_mm > 0) {
+      delta_mm = 0.1 * feed_mm;
+      delta_source = `Estimated: δ ≈ 0.1 × feed = 0.1 × ${feed_mm} = ${delta_mm.toFixed(4)} mm (ductile metal rule of thumb)`;
+    } else {
+      delta_mm = 0.05; // default 50 µm
+      delta_source = "Default δ = 0.05 mm (typical ductile machining; provide feed_mm for auto-estimate)";
+    }
+
+    const delta_m = delta_mm / 1000; // convert to metres
+    const strain_rate = V_s / delta_m; // s⁻¹
+
+    // Shear strain (same formula as Piispanen — context differs; Merchant thin-plane gives same γ)
+    const sinPhi = Math.sin(phi);
+    const denom = sinPhi * cosPhiMinusAlpha;
+    const gamma = Math.abs(denom) > 1e-12
+      ? Math.cos(alpha) / denom
+      : 0;
+
+    // Thin-plane model gives infinite strain rate (δ→0); thick model gives finite value
+    const thin_label = strain_rate > 1e5
+      ? "very high (>10⁵ /s) — verify zone thickness"
+      : strain_rate > 1e4
+        ? "high (10⁴–10⁵ /s) — typical for metals"
+        : "moderate (<10⁴ /s) — soft/ductile material or large shear zone";
+
+    return {
+      shear_velocity_mps: {
+        value: Number(V_s.toFixed(4)),
+        unit: "m/s",
+        source: `V_s = V_c·cos(α)/cos(φ-α) = ${V_c_mps.toFixed(3)}·cos(${rake_angle_deg}°)/cos(${(shear_angle_deg - rake_angle_deg).toFixed(1)}°)`,
+      },
+      strain_rate_per_s: {
+        value: Number(strain_rate.toFixed(1)),
+        unit: "s⁻¹",
+        source: `γ̇ = V_s / δ = ${V_s.toFixed(4)} m/s / ${delta_m.toFixed(6)} m = ${strain_rate.toFixed(0)} /s`,
+      },
+      shear_strain: {
+        value: Number(gamma.toFixed(4)),
+        unit: "dimensionless",
+        source: "γ = cos(α) / (sin(φ)·cos(φ-α)) — same as Piispanen; thick model adds finite δ context",
+      },
+      zone_thickness_mm: {
+        value: Number(delta_mm.toFixed(4)),
+        unit: "mm",
+        source: delta_source,
+      },
+      thin_vs_thick_comparison:
+        `Merchant thin-plane: δ→0, γ̇→∞ (unphysical). ` +
+        `Okushima-Hitomi thick zone: δ=${delta_mm.toFixed(3)} mm → γ̇=${strain_rate.toFixed(0)} /s (${thin_label}). ` +
+        `Typical machining strain rates: 10³–10⁵ /s.`,
+      note:
+        `Thick shear zone model accounts for the finite width of the plastic zone in real cutting. ` +
+        `V_s=${V_s.toFixed(3)} m/s, δ=${delta_mm.toFixed(3)} mm, γ̇=${strain_rate.toFixed(0)} /s. ` +
+        `Shear strain γ=${gamma.toFixed(3)} is independent of zone thickness — it depends only on ` +
+        `geometry (φ, α). Zone thickness affects only strain RATE, which drives thermal generation and ` +
+        `tool wear at the shear plane.`,
+    };
+  }
+
   /** Main entry — predict chip morphology and diagnose process. */
   diagnose(input: ChipDiagnoseInput): ChipDiagnoseResult {
     const warnings: string[] = [];

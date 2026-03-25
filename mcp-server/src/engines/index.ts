@@ -3582,6 +3582,9 @@ export { secondaryOpsPipelineEngine, SecondaryOpsPipelineEngine } from "./Second
 // CADDrawingKnowledgeEngine — GD&T rules, datum schemes, drawing layouts, DFM checks, fits, macros
 export { cadDrawingKnowledgeEngine, CADDrawingKnowledgeEngine } from "./CADDrawingKnowledgeEngine.js";
 
+// AutoPrintToProgramBridgeEngine — Automated file→features→program pipeline
+export { autoPrintToProgramBridgeEngine, AutoPrintToProgramBridgeEngine } from "./AutoPrintToProgramBridgeEngine.js";
+
 // StrategyTaxonomyEngine — Canonical 3-tier strategy taxonomy (Category->Family->Variant), 60+ strategies, 20+ CAM systems
 export {
   strategyTaxonomyEngine,
@@ -3785,6 +3788,21 @@ export {
   type BatchStrategyRecommendation,
 } from "./BatchSizeStrategyEngine.js";
 
+// ContextualStrategyOverrideEngine (E1111) — CAMX-MS12/U05 Hard-override rules for physical constraint edge cases
+export {
+  contextualStrategyOverrideEngine,
+  ContextualStrategyOverrideEngine,
+  type OverrideFeature,
+  type OverrideMaterial,
+  type OverrideTool,
+  type OverrideStrategy,
+  type OverrideAdjustment,
+  type OverrideResult,
+  type MachiningParams as OverrideMachiningParams,
+  type AdjustedParams as OverrideAdjustedParams,
+  type OverrideRuleDescription,
+} from "./ContextualStrategyOverrideEngine.js";
+
 // MastercamStrategyEngine (E1102) — CAMX-MS3/U01 Dedicated Mastercam strategy recommendation
 export {
   mastercamStrategyEngine,
@@ -3803,6 +3821,68 @@ export {
   type ProfitTurningInfo,
 } from "./MastercamStrategyEngine.js";
 
+// MastercamCodeGeneratorEngine (E1117) — CAMX-MS3/U09 VBScript + C# NetHook code generation
+export {
+  mastercamCodeGeneratorEngine,
+  MastercamCodeGeneratorEngineClass as MastercamCodeGeneratorEngine,
+  type ScriptType,
+  type OperationType,
+  type TemplateCategory,
+  type ToolSpec as MCToolSpec,
+  type CuttingParams as MCCuttingParams,
+  type StrategyParams as MCStrategyParams,
+  type OperationSpec as MCOperationSpec,
+  type GenerateCodeParams,
+  type ScriptTemplate,
+  type CodeGenerationResult,
+} from "./MastercamCodeGeneratorEngine.js";
+
+// MastercamSafetyHooksEngine (E1113) — CAMX-MS3/U02 Mastercam-specific safety validations
+export {
+  mastercamSafetyHooksEngine,
+  MastercamSafetyHooksEngine,
+  type SafetySeverity,
+  type SafetyFinding,
+  type SafetyValidationResult,
+  type BatchValidationResult,
+  type SafetyRuleDescription,
+  type SafetyOperation,
+  type SafetyTool,
+  type SafetyMaterial,
+  type SafetyMachine,
+  type SafetyStrategy,
+} from "./MastercamSafetyHooksEngine.js";
+
+// MastercamToolExportEngine (E1123) — CAMX-MS10/U01 Tool catalog export to .mcam-tools format
+export {
+  mastercamToolExportEngine,
+  MastercamToolExportEngineClass as MastercamToolExportEngine,
+  type McamToolType,
+  type McamToolMaterial,
+  type McamHolderType,
+  type McamExportFormat,
+  type McamExportFilter,
+  type McamCuttingData,
+  type McamHolder,
+  type McamTool,
+  type McamLibrary,
+  type McamExportResult,
+} from "./MastercamToolExportEngine.js";
+
+// HyperMillToolExportEngine (E1127) — CAMX-MS9/U03 Tool catalog export to hyperMILL .hmt SQLite format
+export {
+  hyperMillToolExportEngine,
+  HyperMillToolExportEngineClass as HyperMillToolExportEngine,
+  type HMGeometryClass,
+  type HMExportOptions,
+  type HMToolRow,
+  type HMNCToolRow,
+  type HMDepotRow,
+  type HMMaterialRow,
+  type HMToolExportResult,
+  type HMExportFilter,
+} from "./HyperMillToolExportEngine.js";
+
 // BOX Data Engines — FusionCPSParser, OkumaParametricProgram, PostProcessorCapabilityMatrix, ManufacturerCatalogIndex
 export { fusionCPSParserEngine } from "./FusionCPSParserEngine.js";
 export { okumaParametricProgramEngine } from "./OkumaParametricProgramEngine.js";
@@ -3819,6 +3899,21 @@ export {
   type CatalogSummary,
   type IngestionPriorityEntry,
 } from "./ManufacturerCatalogIndexEngine.js";
+
+// NXCAMCodeGeneratorEngine (E1119) — CAMX-MS5/U06 NXOpen script generation
+export {
+  nxCAMCodeGeneratorEngine,
+  NXCAMCodeGeneratorEngine,
+  type NXOpenLanguage,
+  type NXOperationType,
+  type NXTemplateCategory,
+  type NXOperation,
+  type NXTool,
+  type NXCodeGenParams,
+  type NXGeneratedScript,
+  type NXTemplate,
+  type NXMKERecipe,
+} from "./NXCAMCodeGeneratorEngine.js";
 
 // NXCAMStrategyEngine (E1104) — CAMX-MS5/U01 Siemens NX CAM strategy recommendation
 export {
@@ -3874,8 +3969,550 @@ export {
   type HSSInfo,
 } from "./SolidCAMStrategyEngine.js";
 
+// BatchCAMStrategyEngines2 (E1110) — 4 CAM strategy engines in one file
+export {
+  workNCStrategyEngine,
+  WorkNCStrategyEngine,
+  topSolidStrategyEngine,
+  TopSolidStrategyEngine,
+  bobCADStrategyEngine,
+  BobCADStrategyEngine,
+  cimatronStrategyEngine,
+  CimatronStrategyEngine,
+} from "./BatchCAMStrategyEngines2.js";
+
+// BatchCAMStrategyEngines (E1109) — 6 CAM strategy engines in one file
+export {
+  tebisStrategyEngine,
+  TebisStrategyEngine,
+  edgecamStrategyEngine,
+  EdgecamStrategyEngine,
+  espritStrategyEngine,
+  ESPRITStrategyEngine,
+  gibbsCAMStrategyEngine,
+  GibbsCAMStrategyEngine,
+  camWorksStrategyEngine,
+  CAMWorksStrategyEngine,
+  sprutCAMStrategyEngine,
+  SprutCAMStrategyEngine,
+  type CAMStrategy as BatchCAMStrategy,
+  type StrategyCategory as BatchStrategyCategory,
+  type FeatureType as BatchFeatureType,
+  type MaterialGroup as BatchMaterialGroup,
+  type Priority as BatchPriority,
+  type StrategyRecommendation as BatchCAMStrategyRecommendation,
+} from "./BatchCAMStrategyEngines.js";
+
+// CATIAStrategyEngine (E1108) — CATIA V5/3DEXPERIENCE CAM strategy recommendation
+export {
+  catiaStrategyEngine,
+  CATIAStrategyEngineClass as CATIAStrategyEngine,
+  type CATIAWorkbench,
+  type CATIACategory,
+  type CATIAPriority,
+  type CATIAFeature,
+  type CATIAMaterial,
+  type CATIAMachine,
+  type CATIATool,
+  type CATIAStrategy,
+  type CATIAStrategyRating,
+  type CATIAStrategyRecommendation,
+  type KBMInfo,
+  type MfgProgramInfo,
+} from "./CATIAStrategyEngine.js";
+
 // BOX Data Ingestion Engines — Wave 1+2+3
 export { alarmDiagnosticsEngine } from "./AlarmDiagnosticsEngine.js";
 export { shopToolLibraryEngine } from "./ShopToolLibraryEngine.js";
 // manufacturerCatalogIndexEngine already exported above in BOX Data Engines block
 export { rawToolingNormalizerEngine } from "./RawToolingNormalizerEngine.js";
+
+// CAMX-MS12 U01 — FeatureStrategyKnowledgeBaseEngine (E1112)
+export {
+  featureStrategyKnowledgeBaseEngine,
+  FeatureStrategyKnowledgeBaseEngine,
+  type IsoGroup as KBIsoGroup,
+  type FeatureType as KBFeatureType,
+  type MachineAxes as KBMachineAxes,
+  type OperationType as KBOperationType,
+  type SpecialCondition as KBSpecialCondition,
+  type RuleSource as KBRuleSource,
+  type StrategyParameters as KBStrategyParameters,
+  type RuleConditions as KBRuleConditions,
+  type StrategyRule as KBStrategyRule,
+  type StrategyRecommendation as KBStrategyRecommendation,
+  type QueryConditions as KBQueryConditions,
+} from "./FeatureStrategyKnowledgeBaseEngine.js";
+
+
+// E1116 — BatchCAMMaterialBridgeEngines (4 material bridge singletons)
+export {
+  mastercamMaterialBridgeEngine,
+  solidCAMMaterialBridgeEngine,
+  nxCAMMaterialBridgeEngine,
+  powerMillMaterialBridgeEngine,
+  type ISOGroup,
+  type MaterialBridgeResult,
+} from "./BatchCAMMaterialBridgeEngines.js";
+
+// E1122 — CATIACodeGeneratorEngine (CAMX-MS6/U07)
+export {
+  catiaCodeGeneratorEngine,
+  CATIACodeGeneratorEngine,
+  type CATIAScriptType,
+  type CATIAOpType,
+  type CATIAOperation,
+  type CATIATool as CATIACodeGenTool,
+  type CATIAVBAParams,
+  type CATIAEKLRule,
+  type CATIAEKLTemplateRef,
+  type CATIACodeResult,
+  type CATIATemplate,
+} from "./CATIACodeGeneratorEngine.js";
+
+// E1121 — PowerMillCodeGeneratorEngine (CAMX-MS6/U03)
+export {
+  powerMillCodeGeneratorEngine,
+  PowerMillCodeGeneratorEngine,
+  type PMOperationType,
+  type PMTemplateCategory,
+  type PMOperation,
+  type PMTool,
+  type PMGenerateParams,
+  type PMGenerateResult,
+  type PMTemplate,
+  type PMPostConfigResult,
+} from "./PowerMillCodeGeneratorEngine.js";
+
+// E1118 — SolidCAMCodeGeneratorEngine (CAMX-MS4/U09)
+export {
+  solidCAMCodeGeneratorEngine,
+  SolidCAMCodeGeneratorEngine,
+  type SCOperationType,
+  type SCTemplateCategory,
+  type SCOperation,
+  type SCTool,
+  type SCGenerateParams,
+  type SCGenerateResult,
+  type SCTemplate,
+  type SCGPPConfigResult,
+} from "./SolidCAMCodeGeneratorEngine.js";
+
+// E1126 — ToolSyncOrchestratorEngine (CAMX-MS10/U05)
+export {
+  toolSyncOrchestratorEngine,
+  ToolSyncOrchestratorEngine,
+  type SupportedSystem,
+  type ToolRecord,
+  type SyncResult,
+  type DriftReport,
+  type ConflictEntry,
+  type ConflictResolutionResult,
+  type ConflictResolution,
+  type SystemSyncStatus,
+} from "./ToolSyncOrchestratorEngine.js";
+
+// E1128 — CuttingDataExportEngine (CAMX-MS10/U06) — Kienzle/Taylor cutting data export
+export {
+  cuttingDataExportEngine,
+  CuttingDataExportEngineClass as CuttingDataExportEngine,
+  type CAMSystem as CuttingDataCAMSystem,
+  type OperationType as CuttingDataOperationType,
+  type CuttingTool,
+  type MaterialRecord as CuttingMaterialRecord,
+  type ComputedCuttingData,
+  type ExportResult as CuttingDataExportResult,
+  type ExportAllResult as CuttingDataExportAllResult,
+} from "./CuttingDataExportEngine.js";
+
+// E1125 — CAMAddInFrameworkEngine (CAMX-MS11/U01)
+export {
+  camAddInFrameworkEngine,
+  CAMAddInFrameworkEngine,
+  type CamSystem,
+  type Language,
+  type FeatureType as AddInFeatureType,
+  type GeneratedFile,
+  type AddInResult,
+  type HTTPClientResult,
+  type UIPanelResult,
+  type ToolSyncResult,
+  type PostIntegrationResult,
+  type SupportedSystem as AddInSupportedSystem,
+} from "./CAMAddInFrameworkEngine.js";
+
+// E1129 — STEPNCEngines (CAMX-MS20 U01+U02) — STEP-NC ISO 14649 / AP238 parser + generator
+export {
+  stepNCParserEngine,
+  stepNCGeneratorEngine,
+  STEPNCParserEngine,
+  STEPNCGeneratorEngine,
+  type STEPNCModel,
+  type STEPNCWorkingstep,
+  type STEPNCWorkplan,
+  type STEPNCFeature,
+  type STEPNCTool,
+  type STEPNCTechnology,
+  type STEPNCParseResult,
+  type PRISMFeature as STEPNCPRISMFeature,
+  type PRISMTool as STEPNCPRISMTool,
+  type CuttingParams as STEPNCCuttingParams,
+} from "./STEPNCEngines.js";
+
+// E1130 — VericutBridgeEngine (CAMX-MS20/U05) — CGTech VERICUT simulation bridge
+export {
+  vericutBridgeEngine,
+  VericutBridgeEngine,
+  type VericutTool,
+  type VericutStock,
+  type VericutFixture,
+  type VericutWCS,
+  type VericutExportPackage,
+  type VericutProjectFile,
+  type OptiPathBlock,
+  type OptimizedProgram,
+  type CollisionEvent,
+  type CollisionSeverity as VericutCollisionSeverity,
+  type MaterialRemovalVerification,
+  type CollisionAnalysis,
+  type ForceBlock,
+  type ForceComparison,
+  type PrismMachine,
+  type PrismProgram,
+  type PrismStock,
+  type PrismFixture,
+  type PrismToolRecord,
+  type PrismWCS,
+} from "./VericutBridgeEngine.js";
+
+// E1132 — NCSIMULBridgeEngine (CAMX-MS20/U06) — Hexagon NCSIMUL simulation bridge
+export {
+  ncsimulBridgeEngine,
+  NCSIMULBridgeEngine,
+  type NCSIMULTool,
+  type NCSIMULStock,
+  type NCSIMULFixture,
+  type NCSIMULWorkCS,
+  type NCSIMULExportPackage,
+  type NCSIMULProjectFile,
+  type NCSIMULCollisionEvent,
+  type NCSIMULCollisionSeverity,
+  type NCSIMULMaterialRemoval,
+  type SimulationAnalysis,
+  type NCSIMULMachine,
+  type NCSIMULProgram,
+  type NCSIMULStockInput,
+  type NCSIMULFixtureInput,
+  type NCSIMULToolInput,
+  type NCSIMULWCSInput,
+  type RawSimulationResults,
+} from "./NCSIMULBridgeEngine.js";
+
+// E1134 — ShopNetworkEngine (CAMX-MS21/U02)
+export {
+  shopNetworkEngine,
+  type ShopMachine,
+  type ShopProfile,
+  type ShopSearchCriteria,
+  type ShopMatch,
+  type JobBroadcast,
+  type JobResponse,
+  type Certification,
+  type ShiftSchedule,
+} from "./ShopNetworkEngine.js";
+
+
+// E1133 — ISO13399ToolDataEngine (CAMX-MS20/U03) — ISO 13399 GTC tool data import/export
+export {
+  iso13399ToolDataEngine,
+  ISO13399ToolDataEngine,
+  type PRISMTool as ISO13399PRISMTool,
+  type CuttingDataPerMaterial,
+  type ToolAssembly as ISO13399ToolAssembly,
+  type ISO13399ImportResult,
+  type ISO13399ExportResult,
+  type ISO13399ExportOptions,
+  type ISO13399ValidationResult,
+  type PRISMToolType,
+} from "./ISO13399ToolDataEngine.js";
+
+// E1135 — QIFIntegrationEngine (CAMX-MS20/U04) — ANSI/DMSC QIF 3.0 measurement data interchange
+export {
+  qifIntegrationEngine,
+  QIFIntegrationEngine,
+  type CharacteristicType,
+  type MeasurementMethod,
+  type CharacteristicNominal,
+  type CharacteristicActual,
+  type MeasurementPlan,
+  type InspectionResults,
+  type PRISMFeature as QIFPRISMFeature,
+  type QIFValidationResult,
+  type FeatureInput as QIFFeatureInput,
+  type ToleranceInput as QIFToleranceInput,
+  type MeasurementRecord as QIFMeasurementRecord,
+} from "./QIFIntegrationEngine.js";
+
+// E1136 — TCODashboardEngine (CAMX-MS13/U06)
+export {
+  tcoDashboardEngine,
+  TCODashboardEngine,
+  type TCOJobInput,
+  type TCODashboardData,
+  type CostComponent,
+  type CostComparisonResult,
+  type ParetoData,
+  type CostDriverAnalysisResult,
+  type SavingsOpportunity,
+  type SavingsOpportunitiesResult,
+  type MachineUtilizationInput as TCOMachineUtilizationInput,
+  type MachineUtilizationCostResult,
+  type CostHistoryRecord,
+  type HistoricalTrendResult,
+} from "./TCODashboardEngine.js";
+
+// E1137 — ToolChangeOptimizationEngine (CAMX-MS13/U02)
+export {
+  toolChangeOptimizationEngine,
+  ToolChangeOptimizationEngine,
+  type ToolChangeOperation,
+  type MagazineTool,
+  type MachineConfig as ToolChangeMachineConfig,
+  type ToolChangeResult,
+  type OptimizedStep,
+  type MagazineLayout,
+  type MagazineAssignment,
+  type SisterPlacement,
+  type ToolSharingResult,
+  type ToolSharingGroup,
+} from "./ToolChangeOptimizationEngine.js";
+
+// E1138 — SafetyEscalationEngine (CAMX-MS14/U03)
+export {
+  safetyEscalationEngine,
+  SafetyEscalationEngine,
+  type VetoRuleType,
+  type EscalationVetoReport,
+  type EscalationParams,
+  type EscalationMachineLimits,
+  type EscalationAction,
+  type EscalationIteration,
+  type EscalationResult as SafetyEscalationResult,
+} from "./SafetyEscalationEngine.js";
+
+// E1139 — CollisionPreventionEngine (CAMX-MS14/U04)
+export {
+  collisionPreventionEngine,
+  CollisionPreventionEngine,
+  type ToolpathBlock,
+  type PreventionToolAssembly,
+  type BoundingBox as PreventionBoundingBox,
+  type MachineEnvelope as PreventionMachineEnvelope,
+  type PreventionCollisionEvent,
+  type CollisionZone as PreventionCollisionZone,
+  type PreventionCollisionReport,
+} from "./CollisionPreventionEngine.js";
+
+// E1140 — FleetLearningStrategyEngine (CAMX-MS15/U04)
+export {
+  fleetLearningStrategyEngine,
+  FleetLearningStrategyEngine,
+  type FleetIsoGroup,
+  type FleetOutcome,
+  type ShopPerformanceRecord,
+  type ShopData,
+  type TransferContext,
+  type FleetPerformanceStats,
+  type ShopEstimate,
+  type TransferLearningResult,
+  type StrategyRecommendation as FleetStrategyRecommendation,
+  type TransferAdjustment,
+  type FleetInsightsResult,
+} from "./FleetLearningStrategyEngine.js";
+
+// E1141 — BatchCAMControllerEngines (4 controller catalog singletons)
+export {
+  mastercamControllerCatalogEngine,
+  solidCAMControllerCatalogEngine,
+  nxCAMControllerCatalogEngine,
+  powerMillControllerCatalogEngine,
+  type ControllerProfile,
+  type ControllerLookupResult,
+  type PostMappingResult,
+  type GPPMappingResult,
+  type MTBMappingResult,
+} from "./BatchCAMControllerEngines.js";
+
+// E1142 — BatchCAMOperationCatalogEngines (4 operation catalog singletons)
+export {
+  mastercamOperationCatalogEngine,
+  solidCAMOperationCatalogEngine,
+  nxCAMOperationCatalogEngine,
+  powerMillOperationCatalogEngine,
+  type CATOperation,
+  type OperationParams as CatalogOperationParams,
+  type OperationCategory,
+} from "./BatchCAMOperationCatalogEngines.js";
+
+// E1143 — BatchCAMToolBridgeEngines (4 tool library bridge singletons)
+export {
+  mastercamToolBridgeEngine,
+  solidCAMToolBridgeEngine,
+  nxCAMToolBridgeEngine,
+  hyperMillToolBridgeEngine,
+  type ToolRecord as BridgeToolRecord,
+  type DriftReport as BridgeDriftReport,
+  type ToolMappingEntry,
+} from "./BatchCAMToolBridgeEngines.js";
+
+// E1144 — BatchCAMAPIBridgeEngines (4 HTTP API bridge singletons)
+export {
+  mastercamNETBridgeEngine,
+  solidCAMSolidWorksBridgeEngine,
+  nxOpenBridgeEngine,
+  hyperMillACBridgeEngine,
+  type BridgeConnectionResult,
+  type BridgeActionResult,
+} from "./BatchCAMAPIBridgeEngines.js";
+
+// E1145 — BatchCAMAddInGenerators (6 per-CAM add-in generator singletons)
+export {
+  MastercamAddInGenerator,
+  SolidCAMAddInGenerator,
+  NXCAMAddInGenerator,
+  HyperMillACAddInGenerator,
+  PowerMillAddInGenerator,
+  CATIAAddInGenerator,
+  mastercamAddInGenerator,
+  solidCAMAddInGenerator,
+  nxCAMAddInGenerator,
+  hyperMillACAddInGenerator,
+  powerMillAddInGenerator,
+  catiaAddInGenerator,
+  type AddInGeneratorOptions,
+} from "./BatchCAMAddInGenerators.js";
+
+// E1146 — StrategyEvolutionEngine (CAMX-MS15/U05)
+export {
+  strategyEvolutionEngine,
+  StrategyEvolutionEngine,
+  type EvolutionIsoGroup,
+  type ParameterBounds,
+  type EvolutionMaterial,
+  type EvolutionTool,
+  type EvolutionMachine,
+  type EvolutionFeature,
+  type Individual,
+  type EvolutionResult,
+  type EvolutionRun,
+} from "./StrategyEvolutionEngine.js";
+
+// E1147 — PredictionCalibrationEngine (CAMX-MS15/U06)
+export {
+  predictionCalibrationEngine,
+  PredictionCalibrationEngine,
+  type CalibrationMeasurement as PCECalibrationMeasurement,
+  type BayesianPosterior as PCEBayesianPosterior,
+  type CalibrationFactors,
+  type CalibrationHistoryEntry,
+  type CalibrationResult as PCECalibrationResult,
+} from "./PredictionCalibrationEngine.js";
+
+// E1148 — WorkholdingVerificationEngine (CAMX-MS14/U06)
+export {
+  workholdingVerificationEngine,
+  WorkholdingVerificationEngine,
+  type VerifyCuttingForces,
+  type WorkholdingConfig,
+  type VerifyPartGeometry,
+  type OperationVerification,
+  type VerificationReport,
+} from "./WorkholdingVerificationEngine.js";
+
+// E1149 — ToolBreakagePredictionEngine (CAMX-MS14/U05)
+export {
+  toolBreakagePredictionEngine,
+  ToolBreakagePredictionEngine,
+  type BreakageTool,
+  type BreakageForces,
+  type EngagementEntry,
+  type BreakagePrediction as TBPBreakagePrediction,
+  type CumulativeDamageState,
+} from "./ToolBreakagePredictionEngine.js";
+
+// E1150 — CamxEnergyOptimizationEngine (CAMX-MS13/U04)
+export {
+  camxEnergyOptimizationEngine,
+  CamxEnergyOptimizationEngine,
+  type CamxEnergyBlock,
+  type CamxMachinePowerProfile,
+  type CamxEnergyBreakdown,
+  type CamxEnergySaving,
+  type CamxEnergyOptimizationResult,
+} from "./CamxEnergyOptimizationEngine.js";
+
+// E1151 — StrategyRankingUpdateEngine (CAMX-MS15/U02)
+export {
+  strategyRankingUpdateEngine,
+  StrategyRankingUpdateEngine,
+  type StrategyOutcome,
+  type StrategySufficientStats,
+  type StrategyRankEntry,
+  type StrategyConfidence,
+} from "./StrategyRankingUpdateEngine.js";
+
+// E1152 — AnomalyDetectionEngine (CAMX-MS15/U03)
+export {
+  anomalyDetectionEngine,
+  AnomalyDetectionEngine,
+  type PredictedValues,
+  type ActualValues,
+  type AnomalyContext,
+  type AnomalyFactor,
+  type AnomalyDetectionResult,
+  type AnomalyRecord,
+  type AutoAdjustResult,
+  type AnomalyHistoryFilter,
+} from "./AnomalyDetectionEngine.js";
+
+// E1154 — CoolantCostOptimizationEngine (CAMX-MS13/U03)
+export {
+  coolantCostOptimizationEngine,
+  CoolantCostOptimizationEngine,
+  type CoolantStrategy as CoolantCostStrategy,
+  type MaterialGroup,
+  type CoolantOperation as CoolantCostOperation,
+  type CoolantMachineConfig,
+  type CoolantCostBreakdown,
+  type CoolantComparison,
+  type CoolantConstraints,
+  type LifecycleCostResult,
+} from "./CoolantCostOptimizationEngine.js";
+
+// E1155 — SetupCostOptimizationEngine (CAMX-MS13/U05)
+export {
+  setupCostOptimizationEngine,
+  SetupCostOptimizationEngine,
+  type SetupComplexity,
+  type SetupDefinition,
+  type SetupOptimizationInput,
+  type SetupCostBreakdown,
+  type SetupOptimizationResult,
+  type SetupTimeEstimate,
+  type DatumChainResult,
+  type SetupReductionSuggestion,
+} from "./SetupCostOptimizationEngine.js";
+
+// E1156 — EnergyOptimizationIntegrationEngine (CAMX-MS13/U04)
+export {
+  energyOptimizationIntegrationEngine,
+  EnergyOptimizationIntegrationEngine,
+  GRID_EMISSION_FACTORS,
+  type GridMix,
+  type EnergyProgram,
+  type EnergyMachineRef,
+  type EnergyCostAddition,
+  type CarbonFootprintResult,
+  type EnergySavingSuggestion,
+  type EnergySavingsReport,
+} from "./EnergyOptimizationIntegrationEngine.js";

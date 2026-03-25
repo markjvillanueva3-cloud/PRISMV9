@@ -899,6 +899,122 @@ class AdvancedCuttingPhysicsExtEngineImpl {
 
     return { models };
   }
+
+  // ── Model 5: Surface Integrity Prediction ────────────────────────────
+
+  /**
+   * Surface integrity prediction: white layer thickness, microhardness,
+   * and roughness degradation as function of tool flank wear.
+   *
+   * Based on empirical data from PMC 2024 study of AISI 4340 hard milling.
+   * WLT follows exponential growth with VB: WLT ≈ 6.6 × exp(2.9 × VB)
+   * Ra threshold at VB ≈ 0.4mm (below: <0.8μm, above: rapid degradation)
+   * Microhardness: HV ≈ 457 + 138 × VB² (quadratic with wear)
+   *
+   * Reference: PMC 11415661 (2024), AISI 4340 ball nose end milling
+   */
+  surfaceIntegrityPrediction(input: {
+    flank_wear_mm: number;
+    cutting_speed_mpm?: number;
+    feed_per_tooth_mm?: number;
+    workpiece_hardness_HV?: number;
+  }): {
+    white_layer_thickness_um: { value: number; unit: string; source: string };
+    surface_roughness_Ra_um: { value: number; unit: string; source: string };
+    surface_microhardness_HV: { value: number; unit: string; source: string };
+    hardness_affected_depth_um: { value: number; unit: string; source: string };
+    integrity_rating: string;
+    recommendation: string;
+  } {
+    const VB = Math.max(0, input.flank_wear_mm);
+    const Vc = input.cutting_speed_mpm ?? 270;
+    const fz = input.feed_per_tooth_mm ?? 0.06;
+    const HV_work = input.workpiece_hardness_HV ?? 430;
+
+    // ── White layer thickness: WLT = 6.6 × exp(2.9 × VB) μm ────────
+    // Fitted to PMC 11415661 data: VB 0→0.6mm, WLT 6.6→39μm
+    const wlt = 6.6 * Math.exp(2.9 * VB);
+
+    // ── Surface roughness Ra: piecewise linear ───────────────────────
+    // Breakpoint at VB=0.4mm (Ra=0.80μm); rapid degradation above
+    let Ra: number;
+    if (VB <= 0.4) {
+      Ra = 0.46 + 0.85 * VB;
+    } else {
+      Ra = 0.46 + 0.85 * 0.4 + 9.25 * (VB - 0.4);
+    }
+
+    // ── Microhardness: HV = 457 + 138 × VB² ────────────────────────
+    // Calibrated to: VB=0→457HV, VB=0.4→479HV≈482.6, VB=0.6→547HV≈540
+    const HV = 457 + 138 * VB * VB;
+
+    // ── Hardness-affected depth: linear from 70μm (VB=0) to 120μm (VB=0.6) ──
+    const depth_um = 70 + (120 - 70) * Math.min(VB / 0.6, 1);
+
+    // ── Speed / hardness scaling notes (informational) ───────────────
+    // At non-reference conditions the empirical coefficients shift slightly;
+    // for now we log the deviation so callers can apply engineering judgment.
+    const speed_factor = Vc / 270;
+    const hardness_factor = HV_work / 430;
+    log.debug(
+      `[SurfaceIntegrity] VB=${VB.toFixed(3)}mm WLT=${wlt.toFixed(1)}μm ` +
+      `Ra=${Ra.toFixed(3)}μm HV=${HV.toFixed(1)} depth=${depth_um.toFixed(0)}μm ` +
+      `speed_ratio=${speed_factor.toFixed(2)} hardness_ratio=${hardness_factor.toFixed(2)}`
+    );
+
+    // ── Integrity rating ─────────────────────────────────────────────
+    let integrity_rating: string;
+    if (VB < 0.1) {
+      integrity_rating = "excellent";
+    } else if (VB < 0.2) {
+      integrity_rating = "good";
+    } else if (VB < 0.4) {
+      integrity_rating = "acceptable";
+    } else if (VB < 0.5) {
+      integrity_rating = "degraded";
+    } else {
+      integrity_rating = "critical";
+    }
+
+    // ── Recommendation ───────────────────────────────────────────────
+    let recommendation: string;
+    if (VB < 0.1) {
+      recommendation = "Tool condition excellent. Surface integrity within specification. Continue operation.";
+    } else if (VB < 0.2) {
+      recommendation = "Surface integrity good. Monitor wear progression. Ra expected below 0.63μm.";
+    } else if (VB < 0.4) {
+      recommendation = `Acceptable range but white layer growing (${wlt.toFixed(1)}μm). Plan tool change before VB=0.4mm to maintain Ra<0.8μm.`;
+    } else if (VB < 0.5) {
+      recommendation = `VB approaching critical threshold. Ra=${Ra.toFixed(2)}μm exceeds 0.8μm limit. Replace tool immediately for hard-milling applications.`;
+    } else {
+      recommendation = `CRITICAL: VB=${VB.toFixed(3)}mm. WLT=${wlt.toFixed(1)}μm, Ra=${Ra.toFixed(2)}μm — severe surface degradation. Stop and replace tool now.`;
+    }
+
+    return {
+      white_layer_thickness_um: {
+        value: Math.round(wlt * 10) / 10,
+        unit: "μm",
+        source: "PMC 11415661 exponential fit: WLT=6.6×exp(2.9×VB)",
+      },
+      surface_roughness_Ra_um: {
+        value: Math.round(Ra * 1000) / 1000,
+        unit: "μm",
+        source: "PMC 11415661 piecewise: Ra=0.46+0.85×VB (VB≤0.4), +9.25×(VB-0.4) above",
+      },
+      surface_microhardness_HV: {
+        value: Math.round(HV * 10) / 10,
+        unit: "HV0.5",
+        source: "PMC 11415661 quadratic: HV=457+138×VB²",
+      },
+      hardness_affected_depth_um: {
+        value: Math.round(depth_um * 10) / 10,
+        unit: "μm",
+        source: "Linear interpolation: 70μm at VB=0, 120μm at VB=0.6mm",
+      },
+      integrity_rating,
+      recommendation,
+    };
+  }
 }
 
 // ─── Singleton Export ───────────────────────────────────────────────

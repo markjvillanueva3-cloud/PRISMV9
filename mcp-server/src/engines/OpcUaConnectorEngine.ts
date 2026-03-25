@@ -447,8 +447,14 @@ export class OpcUaConnectorEngine {
     const opcua = await import("node-opcua");
     const { OPCUAClient, MessageSecurityMode, SecurityPolicy, UserTokenType } = opcua;
 
-    const secMode = resolveSecurityMode(securityMode);
-    const secPolicy = resolveSecurityPolicy(securityMode);
+    // If credentials are provided but security mode is "None", upgrade to SignAndEncrypt
+    let effectiveSecurityMode = securityMode;
+    if (credentials && (!securityMode || securityMode === "None")) {
+      effectiveSecurityMode = "SignAndEncrypt";
+    }
+
+    const secMode = resolveSecurityMode(effectiveSecurityMode);
+    const secPolicy = resolveSecurityPolicy(effectiveSecurityMode);
 
     const client = OPCUAClient.create({
       applicationName,
@@ -552,8 +558,13 @@ export class OpcUaConnectorEngine {
         try { await entry.session?.close?.(); } catch { /* ignore */ }
         try { await entry.client?.disconnect?.(); } catch { /* ignore */ }
 
-        const secMode = resolveSecurityMode(entry.connectParams.securityMode);
-        const secPolicy = resolveSecurityPolicy(entry.connectParams.securityMode);
+        // If credentials present but security mode is "None", upgrade to SignAndEncrypt
+        let reconnectSecMode = entry.connectParams.securityMode;
+        if (entry.connectParams.credentials && (!reconnectSecMode || reconnectSecMode === "None")) {
+          reconnectSecMode = "SignAndEncrypt";
+        }
+        const secMode = resolveSecurityMode(reconnectSecMode);
+        const secPolicy = resolveSecurityPolicy(reconnectSecMode);
 
         const newClient = OPCUAClient.create({
           applicationName: entry.connectParams.applicationName || "PRISM-OpcUaConnector",

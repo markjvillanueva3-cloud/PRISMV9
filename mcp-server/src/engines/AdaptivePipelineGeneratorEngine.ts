@@ -1445,6 +1445,290 @@ export class AdaptivePipelineGeneratorEngine {
     }
     return counts;
   }
+
+  // ==========================================================================
+  // Flat-format convenience methods (used by tests & orchestrator)
+  // ==========================================================================
+
+  private static readonly STANDARD_DIAMETERS = [
+    1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10, 12, 14, 16, 18, 20, 25, 30, 32, 40, 50,
+  ];
+
+  private snapToStandard(d: number): number {
+    let best = AdaptivePipelineGeneratorEngine.STANDARD_DIAMETERS[0];
+    let bestDiff = Math.abs(d - best);
+    for (const s of AdaptivePipelineGeneratorEngine.STANDARD_DIAMETERS) {
+      const diff = Math.abs(d - s);
+      // Prefer larger standard when equidistant (safer for machining)
+      if (diff < bestDiff || (diff === bestDiff && s > best)) {
+        bestDiff = diff;
+        best = s;
+      }
+    }
+    return best;
+  }
+
+  /**
+   * adapt() — Flat-format adaptation for simple step structures.
+   * Accepts flat source_recipe/target_spec and returns flat adapted steps.
+   */
+  adapt(params: {
+    source_recipe: {
+      iso_group: string;
+      hardness_hb?: number;
+      dimensions?: { x: number; y: number; z: number };
+      steps: Array<{
+        operation: string;
+        tool_diameter_mm: number;
+        tool_type: string;
+        rpm: number;
+        feed_mmmin: number;
+        axial_depth_mm: number;
+        radial_depth_mm: number;
+        coolant: string;
+      }>;
+      cycle_time_min?: number;
+    };
+    target_spec: {
+      material?: string;
+      iso_group?: string;
+      hardness_hb?: number;
+      dimensions?: { x: number; y: number; z: number };
+      features?: string[];
+      tolerances?: { dimension: string; value_mm: number }[];
+      surface_finish_ra?: number;
+      operations?: string[];
+    };
+    similarity_score: number;
+    aggressiveness?: number;
+  }): {
+    steps: Array<{
+      operation: string;
+      tool_diameter_mm: number;
+      tool_type: string;
+      rpm: number;
+      feed_mmmin: number;
+      axial_depth_mm: number;
+      radial_depth_mm: number;
+      coolant: string;
+      adaptation_notes: string[];
+    }>;
+    confidence: number;
+    warnings: string[];
+    estimated_cycle_time_min?: number;
+  } {
+    const srcIso = params.source_recipe.iso_group.toUpperCase();
+    const tgtIso = (params.target_spec.iso_group ?? srcIso).toUpperCase();
+    const aggr = params.aggressiveness ?? 0.5;
+    const sameGroup = srcIso === tgtIso;
+
+    const kcSrc = getKienzleData(srcIso);
+    const kcTgt = getKienzleData(tgtIso);
+
+    const srcHardness = params.source_recipe.hardness_hb ?? (kcSrc.hardness_hrc * 10);
+    const tgtHardness = params.target_spec.hardness_hb ?? (kcTgt.hardness_hrc * 10);
+
+    // Dimension scale factor
+    let dimScale = 1.0;
+    if (params.source_recipe.dimensions && params.target_spec.dimensions) {
+      const sVol =
+        params.source_recipe.dimensions.x *
+        params.source_recipe.dimensions.y *
+        params.source_recipe.dimensions.z;
+      const tVol =
+        params.target_spec.dimensions.x *
+        params.target_spec.dimensions.y *
+        params.target_spec.dimensions.z;
+      if (sVol > 0) dimScale = Math.pow(tVol / sVol, 1 / 3);
+    }
+    // Blend dimScale toward 1.0 with aggressiveness
+    dimScale = 1.0 + (dimScale - 1.0) * aggr;
+
+    const warnings: string[] = [];
+    const adaptedSteps: Array<{
+      operation: string;
+      tool_diameter_mm: number;
+      tool_type: string;
+      rpm: number;
+      feed_mmmin: number;
+      axial_depth_mm: number;
+      radial_depth_mm: number;
+      coolant: string;
+      adaptation_notes: string[];
+    }> = [];
+
+    if (!sameGroup) {
+      warnings.push(
+        `Material group change: ${srcIso} -> ${tgtIso}`,
+      );
+    }
+
+    for (const step of params.source_recipe.steps) {
+      const notes: string[] = [];
+
+      // --- Feed scaling via Kienzle kc ratio ---
+      const kcRatio = kcTgt.kc1_1 / kcSrc.kc1_1;
+      let feedFactor = 1.0 / kcRatio;
+      feedFactor = clamp(feedFactor, 0.4, 2.5);
+      let feed = step.feed_mmmin * feedFactor;
+
+      // --- RPM scaling ---
+      let rpm = step.rpm;
+      const hardnessRatio = tgtHardness / srcHardness;
+      if (hardnessRatio > 1) {
+        rpm *= Math.pow(1 / hardnessRatio, 0.3);
+        notes.push(`RPM reduced for higher hardness (ratio ${hardnessRatio.toFixed(2)})`);
+      } else if (hardnessRatio < 1) {
+        rpm *= Math.pow(1 / hardnessRatio, 0.3);
+      }
+      // Extra RPM reduction for S/H groups when source is P
+      if ((tgtIso === "S" || tgtIso === "H") && srcIso !== tgtIso) {
+        const speedFactor = tgtIso === "H" ? 0.45 : 0.6;
+        rpm *= speedFactor;
+        notes.push(`RPM reduced for ${tgtIso}-group material`);
+      }
+
+      // --- Depth scaling ---
+      let axialDepth = step.axial_depth_mm * dimScale;
+      let radialDepth = step.radial_depth_mm;
+
+      // --- Tool diameter snap ---
+      const toolDiam = this.snapToStandard(step.tool_diameter_mm);
+      if (toolDiam !== step.tool_diameter_mm) {
+        notes.push(`Tool snapped: ${step.tool_diameter_mm} -> ${toolDiam}mm`);
+      }
+
+      // --- Surface finish adjustment ---
+      const sfTarget = params.target_spec.surface_finish_ra;
+      if (sfTarget !== undefined && sfTarget < 0.8 && step.operation === "finishing") {
+        const sfFactor = Math.max(0.3, sfTarget / 1.6);
+        feed *= sfFactor;
+        notes.push(`Feed reduced for fine surface finish (Ra ${sfTarget})`);
+      }
+
+      // --- Coolant adaptation ---
+      let coolant = step.coolant;
+      if ((tgtIso === "S" || tgtIso === "H") && coolant === "dry") {
+        coolant = "flood";
+        notes.push("Coolant changed from dry to flood for difficult material");
+      }
+      if (tgtIso === "N" && coolant === "dry") {
+        coolant = "mist";
+        notes.push("Added mist coolant for aluminum");
+      }
+
+      // --- Clamps ---
+      feed = clamp(Math.round(feed * 10) / 10, 20, 20000);
+      rpm = clamp(Math.round(rpm), 100, 60000);
+      axialDepth = clamp(Math.round(axialDepth * 1000) / 1000, 0.05, 50);
+      radialDepth = clamp(Math.round(radialDepth * 1000) / 1000, 0.05, 100);
+
+      if (!sameGroup) {
+        notes.push(`Kienzle kc ratio ${kcRatio.toFixed(3)}: feed factor ${feedFactor.toFixed(3)}`);
+      }
+
+      adaptedSteps.push({
+        operation: step.operation,
+        tool_diameter_mm: toolDiam,
+        tool_type: step.tool_type,
+        rpm,
+        feed_mmmin: feed,
+        axial_depth_mm: axialDepth,
+        radial_depth_mm: radialDepth,
+        coolant,
+        adaptation_notes: notes,
+      });
+    }
+
+    // --- Inject finishing pass if tight tolerances and none present ---
+    const hasTightTol = (params.target_spec.tolerances ?? []).some(
+      t => t.value_mm < 0.02,
+    );
+    const hasFinishing = adaptedSteps.some(s => s.operation === "finishing");
+    if (hasTightTol && !hasFinishing) {
+      const lastStep = adaptedSteps[adaptedSteps.length - 1];
+      adaptedSteps.push({
+        operation: "finishing",
+        tool_diameter_mm: lastStep.tool_diameter_mm,
+        tool_type: lastStep.tool_type,
+        rpm: lastStep.rpm,
+        feed_mmmin: clamp(Math.round(lastStep.feed_mmmin * 0.5), 20, 20000),
+        axial_depth_mm: clamp(lastStep.axial_depth_mm * 0.3, 0.05, 50),
+        radial_depth_mm: clamp(lastStep.radial_depth_mm * 0.3, 0.05, 100),
+        coolant: lastStep.coolant,
+        adaptation_notes: ["Finishing pass injected for tight tolerance"],
+      });
+    }
+
+    // --- Confidence ---
+    let confidence = params.similarity_score;
+    if (!sameGroup) confidence *= 0.8;
+    if (warnings.length > 0) confidence *= 0.9;
+    confidence = clamp(confidence, 0, 1);
+
+    // --- Cycle time estimate ---
+    let estimatedCycleTimeMin: number | undefined;
+    if (params.source_recipe.cycle_time_min) {
+      const avgFeedRatio =
+        adaptedSteps.reduce((s, st, i) => {
+          const orig = params.source_recipe.steps[i];
+          return s + (orig ? st.feed_mmmin / orig.feed_mmmin : 1);
+        }, 0) / adaptedSteps.length;
+      estimatedCycleTimeMin =
+        Math.round(
+          params.source_recipe.cycle_time_min / Math.max(avgFeedRatio, 0.1) * 100,
+        ) / 100;
+    }
+
+    return {
+      steps: adaptedSteps,
+      confidence: Math.round(confidence * 1000) / 1000,
+      warnings,
+      estimated_cycle_time_min: estimatedCycleTimeMin,
+    };
+  }
+
+  /**
+   * preview() — Quick preview of adaptation parameters without full recipe.
+   */
+  preview(params: {
+    source_iso_group: string;
+    target_iso_group: string;
+    source_hardness_hb?: number;
+    target_hardness_hb?: number;
+    sample_rpm: number;
+    sample_feed_mmmin: number;
+  }): {
+    force_ratio: number;
+    adapted_rpm: number;
+    adapted_feed: number;
+    speed_factor: number;
+    feed_factor: number;
+  } {
+    const srcIso = params.source_iso_group.toUpperCase();
+    const tgtIso = params.target_iso_group.toUpperCase();
+    const kcSrc = getKienzleData(srcIso);
+    const kcTgt = getKienzleData(tgtIso);
+
+    const forceRatio = kcTgt.kc1_1 / kcSrc.kc1_1;
+    const feedFactor = 1.0 / forceRatio;
+
+    const srcHardness = params.source_hardness_hb ?? (kcSrc.hardness_hrc * 10);
+    const tgtHardness = params.target_hardness_hb ?? (kcTgt.hardness_hrc * 10);
+    const hardnessRatio = tgtHardness / srcHardness;
+    let speedFactor = Math.pow(1 / hardnessRatio, 0.3);
+    if ((tgtIso === "S" || tgtIso === "H") && srcIso !== tgtIso) {
+      speedFactor *= tgtIso === "H" ? 0.45 : 0.6;
+    }
+
+    return {
+      force_ratio: forceRatio,
+      adapted_rpm: clamp(Math.round(params.sample_rpm * speedFactor), 100, 60000),
+      adapted_feed: clamp(Math.round(params.sample_feed_mmmin * feedFactor * 10) / 10, 20, 20000),
+      speed_factor: Math.round(speedFactor * 1000) / 1000,
+      feed_factor: Math.round(feedFactor * 1000) / 1000,
+    };
+  }
 }
 
 // Singleton

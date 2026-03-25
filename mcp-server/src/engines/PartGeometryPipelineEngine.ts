@@ -6,7 +6,9 @@
  * Orchestrates feature analysis, tool-to-feature matching, strategy ranking,
  * operation sequencing, and magazine layout.
  *
- * Self-contained — no imports from other engines to avoid circular deps.
+ * Lazy-loads OptimalStrategySelectionEngine (E1087) and MachiningPlaybookEngine
+ * for enhanced strategy selection and per-operation advisories, with graceful
+ * fallback to inline physics if unavailable.
  * Uses inline Kienzle force, Taylor tool-life, and chip-thinning physics.
  *
  * References:
@@ -263,6 +265,32 @@ function estimateVolume(f: PartFeature): number {
   const w = f.width_mm ?? 20;
   const l = f.length_mm ?? w;
   return w * l * f.depth_mm;
+}
+
+// ============================================================================
+// LAZY-LOADED SUB-ENGINES (graceful fallback if unavailable)
+// ============================================================================
+
+const _pgpLazyCache: Record<string, any> = {};
+
+function _pgpLazyEngine<T = any>(name: string, path: string): T | null {
+  if (!(name in _pgpLazyCache)) {
+    try {
+      const m = require(path);
+      _pgpLazyCache[name] = m[name] ? new m[name]() : null;
+    } catch {
+      _pgpLazyCache[name] = null;
+    }
+  }
+  return _pgpLazyCache[name] as T | null;
+}
+
+function getOptimalStrategyEngine(): any {
+  return _pgpLazyEngine("OptimalStrategySelectionEngine", "./OptimalStrategySelectionEngine.js");
+}
+
+function getMachiningPlaybookEngine(): any {
+  return _pgpLazyEngine("MachiningPlaybookEngine", "./MachiningPlaybookEngine.js");
 }
 
 // ============================================================================
@@ -697,7 +725,7 @@ class PartGeometryPipelineEngine {
         const rapidTime = 0.05; // 3 seconds rapid overhead per operation
         const estTime = Math.max(0.1, cutTime + rapidTime);
 
-        rawOps.push({
+        const opPlan: OperationPlan = {
           sequence_number: 0, // assigned after sorting
           feature_id: ef.id,
           feature_type: ef.type,
@@ -714,7 +742,32 @@ class PartGeometryPipelineEngine {
           estimated_mrr_cm3min: Math.round(mrr * 100) / 100,
           warnings: opWarnings,
           notes: opNotes,
-        });
+        };
+
+        // ── Try MachiningPlaybookEngine for per-operation advisories ──
+        try {
+          const mpb = getMachiningPlaybookEngine();
+          if (mpb && typeof mpb.advise === "function") {
+            const advice = mpb.advise({
+              features: [ef.type],
+              operation_type: op,
+              wall_thickness_mm: ef.wall_thickness_mm,
+              tolerance_mm: ef.tolerance_mm,
+              surface_finish_Ra: ef.surface_finish_Ra_um,
+              aspect_ratio: ef.aspect_ratio,
+            });
+            if (advice?.critical_warnings?.length) {
+              opPlan.warnings.push(...advice.critical_warnings);
+            }
+            if (advice?.summary?.length) {
+              opPlan.notes.push(...advice.summary.map((s: string) => `[Playbook] ${s}`));
+            }
+          }
+        } catch {
+          // MachiningPlaybookEngine unavailable — skip
+        }
+
+        rawOps.push(opPlan);
       }
     }
 
@@ -803,6 +856,73 @@ class PartGeometryPipelineEngine {
     let ap: number;
     let ae: number;
     let strategy: string;
+
+    // ── Try OptimalStrategySelectionEngine (E1087) for milling ops ──
+    const isMilling = op === "roughing" || op === "semi_finishing" || op === "finishing";
+    if (isMilling) {
+      try {
+        const ose = getOptimalStrategyEngine();
+        if (ose && typeof ose.compute === "function") {
+          const oseResult = ose.compute({
+            feature: {
+              type: feat.type,
+              depth: feat.depth_mm,
+              width: feat.width_mm,
+              corner_radius: feat.corner_radius_mm,
+              wall_thickness: feat.wall_thickness_mm,
+              tolerance: feat.tolerance_mm,
+              surface_finish: feat.surface_finish_Ra_um,
+            },
+            material: { name: preference },
+            tool: {
+              diameter: d,
+              flutes: tool.flutes,
+              material: tool.material,
+              coating: tool.coating,
+            },
+            preference: preference ? { strategy_hint: preference } : undefined,
+          });
+          if (oseResult?.selected) {
+            const sel = oseResult.selected;
+            strategy = sel.canonical_id ?? sel.display_name ?? "adaptive";
+            const params = sel.parameters;
+            if (params) {
+              ae = d * (params.ae_pct / 100);
+              ap = Math.min(d * params.ap_factor, feat.depth_mm);
+              vc = mat.vc_base_mpm * params.Vc_multiplier;
+              fz = d * 0.01 * (params.fz_multiplier ?? 1);
+            } else {
+              ae = d * 0.10;
+              ap = Math.min(d * 1.0, feat.depth_mm);
+              fz = d * 0.01;
+            }
+            opNotes.push(`Strategy via OptimalStrategySelectionEngine: ${strategy} (score=${sel.score})`);
+            // Add any playbook warnings from the engine
+            if (oseResult.playbook_warnings?.length) {
+              opWarnings.push(...oseResult.playbook_warnings);
+            }
+
+            // Still compute Taylor tool life and Kienzle force
+            const taylorC = mat.taylor_C_factor * mat.vc_base_mpm;
+            const toolLife = Math.pow(taylorC / vc, 1 / mat.taylor_n);
+            if (toolLife < 10) {
+              opWarnings.push(`Short tool life estimate: ${toolLife.toFixed(1)} min at Vc=${vc.toFixed(0)} m/min`);
+            }
+            const fc = mat.kc1_1 * ap * Math.pow(fz, 1 - mat.mc);
+            const power_kW = (fc * vc) / 60000;
+            opNotes.push(`Fc=${fc.toFixed(0)}N, Power=${power_kW.toFixed(2)}kW (Kienzle)`);
+
+            if (feat.aspect_ratio > 4) {
+              opWarnings.push(`High aspect ratio (${feat.aspect_ratio}): risk of tool deflection and chatter`);
+            }
+
+            return { strategy, vc, fz, ap, ae, opWarnings, opNotes };
+          }
+        }
+      } catch {
+        // OptimalStrategySelectionEngine unavailable — fall through to inline logic
+      }
+    }
 
     const isRough = op === "roughing";
     const isFinish = op === "finishing" || op === "semi_finishing";

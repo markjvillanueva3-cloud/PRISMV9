@@ -137,7 +137,8 @@ function gammaRandom(shape: number, scale: number): number {
   }
   const d = shape - 1 / 3;
   const c = 1 / Math.sqrt(9 * d);
-  for (;;) {
+  const MAX_ITER = 10_000;
+  for (let _iter = 0; _iter < MAX_ITER; _iter++) {
     let x: number, v: number;
     do { x = normalRandom(0, 1); v = 1 + c * x; } while (v <= 0);
     v = v * v * v;
@@ -147,6 +148,7 @@ function gammaRandom(shape: number, scale: number): number {
       return d * v * scale;
     }
   }
+  return d * scale; // fallback after MAX_ITER
 }
 
 /** Beta distribution */

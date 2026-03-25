@@ -231,7 +231,8 @@ export class StochasticGrindingEngine {
   analyze(input: GrindingUncertaintyInput): StochasticGrindingResult {
     const warnings: string[] = [];
     const recommendations: string[] = [];
-    const N = input.mc_samples ?? 1000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 1000, MAX_TRIALS);
 
     const mat = MAT_THERMAL[input.material_type ?? "steel"];
     const k = input.thermal_conductivity_W_mK ?? mat.k_W_mK;

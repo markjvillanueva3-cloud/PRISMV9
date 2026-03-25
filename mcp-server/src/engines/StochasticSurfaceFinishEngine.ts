@@ -349,7 +349,8 @@ export class StochasticSurfaceFinishEngine {
     const zeta = input.damping_ratio ?? 0.03;
     const fn_hz = input.natural_freq_hz ?? 800;
     const vb = input.vb_mm ?? 0;
-    const nTrials = input.n_trials ?? 2000;
+    const MAX_TRIALS = 100_000;
+    const nTrials = Math.min(input.n_trials ?? 2000, MAX_TRIALS);
     const method = input.method ?? 'both';
     const mat = getMaterial(input.material);
 

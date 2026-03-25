@@ -785,6 +785,171 @@ class AdvancedCuttingMathEngineImpl {
   }
 
   // =========================================================================
+  // UTS-BASED TANGENTIAL FORCE MODEL (CTE / Mitsubishi)
+  // =========================================================================
+
+  /**
+   * UTS-based tangential cutting force: Ft = σ_UTS × A × Zc × Ef × Tf
+   * Alternative to Kienzle model — uses material ultimate tensile strength
+   * instead of specific cutting force kc1.1.
+   *
+   * Reference: CTE Magazine "Understanding Tangential Cutting Force When Milling"
+   *
+   * @param uts_MPa - Ultimate tensile strength of workpiece (MPa)
+   * @param ap_mm - Axial depth of cut (mm)
+   * @param fz_mm - Feed per tooth (mm/tooth)
+   * @param z - Total number of teeth on cutter
+   * @param engagement_angle_deg - Radial engagement angle (degrees)
+   * @param wear_factor - Tool wear correction: 1.0 (sharp), 1.10-1.25 (light/med), 1.30-1.60 (heavy duty)
+   * @param cutter_diameter_mm - Cutter diameter for power/torque calc
+   * @param cutting_speed_mpm - Cutting speed for power calc (m/min)
+   */
+  utsBasedForce(input: {
+    uts_MPa: number;
+    ap_mm: number;
+    fz_mm: number;
+    z: number;
+    engagement_angle_deg: number;
+    wear_factor?: number;
+    cutter_diameter_mm?: number;
+    cutting_speed_mpm?: number;
+  }): {
+    tangential_force_N: { value: number; unit: string; source: string };
+    chip_area_mm2: { value: number; unit: string; source: string };
+    teeth_engaged: { value: number; unit: string; source: string };
+    engagement_factor: { value: number; unit: string; source: string };
+    wear_factor_used: { value: number; unit: string; source: string };
+    spindle_torque_Nm?: { value: number; unit: string; source: string };
+    spindle_power_kW?: { value: number; unit: string; source: string };
+    comparison_note: string;
+  } {
+    const src = "UTS-based force (CTE/Mitsubishi)";
+    const { uts_MPa, ap_mm, fz_mm, z, engagement_angle_deg } = input;
+    const Tf = input.wear_factor ?? 1.1; // default: light wear
+
+    // Chip cross-section area: A = ap × fz
+    const A = ap_mm * fz_mm; // mm²
+
+    // Number of teeth engaged: Zc = Z × α / 360
+    const Zc = Math.max(z * engagement_angle_deg / 360, 1);
+
+    // Engagement factor: accounts for partial radial engagement
+    // Ef = ae/D normalized, approximated from engagement angle
+    const Ef = Math.sin(engagement_angle_deg * Math.PI / 360); // half-angle sine
+
+    // Tangential force: Ft = σ_UTS × A × Zc × Ef × Tf
+    // Note: σ_UTS in MPa = N/mm², A in mm² → F in N
+    const Ft = uts_MPa * A * Zc * Ef * Tf;
+
+    const result: {
+      tangential_force_N: { value: number; unit: string; source: string };
+      chip_area_mm2: { value: number; unit: string; source: string };
+      teeth_engaged: { value: number; unit: string; source: string };
+      engagement_factor: { value: number; unit: string; source: string };
+      wear_factor_used: { value: number; unit: string; source: string };
+      spindle_torque_Nm?: { value: number; unit: string; source: string };
+      spindle_power_kW?: { value: number; unit: string; source: string };
+      comparison_note: string;
+    } = {
+      tangential_force_N: { value: Ft, unit: "N", source: src },
+      chip_area_mm2: { value: A, unit: "mm²", source: src },
+      teeth_engaged: { value: Zc, unit: "teeth", source: src },
+      engagement_factor: { value: Ef, unit: "ratio", source: src },
+      wear_factor_used: { value: Tf, unit: "ratio", source: src },
+      comparison_note: `UTS-based model uses σ_UTS=${uts_MPa}MPa. ` +
+        `For comparison, Kienzle uses kc1.1 (typically 1.5-4× UTS). ` +
+        `Wear factors: sharp=1.0, light=1.10-1.25, heavy=1.30-1.60.`,
+    };
+
+    // Spindle torque: Ts = Ft × R (R = D/2 in meters)
+    if (input.cutter_diameter_mm) {
+      const R_m = input.cutter_diameter_mm / 2000;
+      const Ts = Ft * R_m;
+      result.spindle_torque_Nm = { value: Ts, unit: "Nm", source: src };
+    }
+
+    // Spindle power: Ps = Ft × Vc / 60000 (kW)
+    if (input.cutting_speed_mpm) {
+      const Ps = Ft * input.cutting_speed_mpm / 60000;
+      result.spindle_power_kW = { value: Ps, unit: "kW", source: src };
+    }
+
+    return result;
+  }
+
+  /** Tool wear factor reference table */
+  static WEAR_FACTORS = {
+    sharp_new: 1.0,
+    light_facemilling: 1.10,
+    medium_facemilling: 1.25,
+    heavy_duty_facemilling: 1.30,
+    extra_heavy_duty: 1.60,
+    worn_flank_03mm: 1.35,
+    worn_flank_05mm: 1.55,
+  } as const;
+
+  // =========================================================================
+  // HELIX ANGLE FORCE DECOMPOSITION
+  // =========================================================================
+
+  /**
+   * Helix angle force decomposition: resolves tangential cutting force
+   * into axial and radial components based on end mill helix angle.
+   *
+   * Fa = Ft × sin(β)  (axial force)
+   * Fr = Ft × cos(β)  (radial component)
+   * Radial ratio = cos(β), Axial ratio = sin(β)
+   *
+   * Reference: CADEM Technologies, Travers Tool helix angle engineering data
+   * Validated: 0°→100%R/0%A, 30°→75%R/25%A, 45°→50%R/50%A
+   */
+  helixAngleForceDecomposition(input: {
+    tangential_force_N: number;
+    helix_angle_deg: number;
+    cutter_diameter_mm?: number;
+    spindle_rpm?: number;
+  }): {
+    axial_force_N: { value: number; unit: string; source: string };
+    radial_force_N: { value: number; unit: string; source: string };
+    axial_ratio: { value: number; unit: string; source: string };
+    radial_ratio: { value: number; unit: string; source: string };
+    resultant_force_N: { value: number; unit: string; source: string };
+    deflection_tendency: string;
+    recommended_helix_by_application: Record<string, string>;
+  } {
+    const src = "Helix angle force decomposition (CADEM/Travers)";
+    const { tangential_force_N: Ft, helix_angle_deg } = input;
+    const beta = helix_angle_deg * Math.PI / 180;
+
+    const Fa = Ft * Math.sin(beta); // axial component
+    const Fr = Ft * Math.cos(beta); // radial component
+    const F_res = Math.sqrt(Fa * Fa + Fr * Fr); // = Ft always, but explicit
+
+    const axial_ratio = Math.sin(beta);
+    const radial_ratio = Math.cos(beta);
+
+    const deflection = radial_ratio > 0.7 ? "high_radial_deflection_risk" :
+      radial_ratio > 0.5 ? "moderate_balanced" : "low_radial_axial_dominant";
+
+    return {
+      axial_force_N: { value: Fa, unit: "N", source: src },
+      radial_force_N: { value: Fr, unit: "N", source: src },
+      axial_ratio: { value: axial_ratio, unit: "ratio", source: src },
+      radial_ratio: { value: radial_ratio, unit: "ratio", source: src },
+      resultant_force_N: { value: F_res, unit: "N", source: src },
+      deflection_tendency: deflection,
+      recommended_helix_by_application: {
+        "abrasive_plastics_brass": "0°",
+        "steel_cast_iron_roughing": "30°",
+        "stainless_HRSA": "35-40°",
+        "aluminum_nonferrous": "37-45°",
+        "finishing_high_speed": "45-60°",
+        "chatter_suppression": "variable (unequal spacing)",
+      },
+    };
+  }
+
+  // =========================================================================
   // PRIVATE HELPERS
   // =========================================================================
 

@@ -1056,7 +1056,8 @@ export class AdvancedUncertaintyMethodsEngine {
    * @returns UQ results with surrogate quality metrics
    */
   krigingBasedUQ(params: KrigingUQInput): KrigingUQResult {
-    const nMC = params.n_mc_samples ?? 100000;
+    const MAX_TRIALS = 100_000;
+    const nMC = Math.min(params.n_mc_samples ?? 100000, MAX_TRIALS);
     const { X, y } = params.model_fn_evaluations;
     const distKeys = Object.keys(params.input_distributions);
     const nDims = distKeys.length;

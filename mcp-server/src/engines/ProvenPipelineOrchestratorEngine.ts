@@ -318,19 +318,25 @@ export class ProvenPipelineOrchestratorEngine {
       similarityScore = matches[0].score;
     }
 
-    // Adapt the proven recipe to the new spec
-    const adapted = adaptivePipelineGeneratorEngine.calculate("pipeline_adapt", {
-      source_recipe: sourceRecipe,
+    // Adapt the proven recipe to the new spec using flat-format adapt()
+    const adapted = adaptivePipelineGeneratorEngine.adapt({
+      source_recipe: {
+        iso_group: sourceRecipe.iso_group,
+        hardness_hb: sourceRecipe.hardness_hb,
+        dimensions: sourceRecipe.dimensions,
+        steps: sourceRecipe.steps,
+        cycle_time_min: sourceRecipe.cycle_time_min,
+      },
       target_spec: params.spec,
       similarity_score: similarityScore,
       aggressiveness: params.aggressiveness,
-    }) as any;
+    });
 
     return {
       source_recipe_id: sourceRecipe.id,
       similarity_score: similarityScore,
       confidence: adapted.confidence,
-      adapted_steps: adapted.steps,
+      adapted_steps: adapted.steps.map((s, i) => ({ step_index: i, ...s })),
       warnings: adapted.warnings,
       estimated_cycle_time_min: adapted.estimated_cycle_time_min,
     };

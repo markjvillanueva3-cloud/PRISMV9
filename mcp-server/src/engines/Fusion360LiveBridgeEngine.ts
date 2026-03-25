@@ -367,12 +367,22 @@ export class Fusion360LiveBridgeEngine {
    * Execute arbitrary Python code inside Fusion 360.
    * Use for advanced operations not covered by specific endpoints.
    * The code has access to `adsk` and `app` variables.
+   *
+   * WARNING: This method sends code directly to Fusion 360 for execution.
+   * Only call with trusted/internally-generated code — never with raw user input.
+   * All public-facing actions should use the typed methods (createSketch, extrude, etc.)
+   * which validate parameters before building code strings.
    */
   async executeRaw(code: string): Promise<{
     success: boolean;
     result?: unknown;
     error?: string;
   }> {
+    // Block obviously dangerous patterns that should never appear in F360 Python
+    const blocked = /import\s+os|import\s+subprocess|import\s+sys|__import__|exec\s*\(|eval\s*\(|open\s*\(/;
+    if (blocked.test(code)) {
+      return { success: false, error: "Blocked: code contains disallowed import/exec pattern" };
+    }
     return this._post("/execute", { code });
   }
 
@@ -589,6 +599,17 @@ export class Fusion360LiveBridgeEngine {
     }
 
     if (t === "mirror_body") {
+      // Validate plane to prevent code injection via string interpolation
+      const VALID_PLANES: Record<string, string> = {
+        XY: "xYConstructionPlane",
+        XZ: "xZConstructionPlane",
+        YZ: "yZConstructionPlane",
+      };
+      const rawPlane = ((p.plane as string) ?? "XY").toUpperCase();
+      const planeProp = VALID_PLANES[rawPlane];
+      if (!planeProp) {
+        return { success: false, feature_name: undefined, error: `Invalid plane "${rawPlane}". Must be XY, XZ, or YZ.` };
+      }
       return this.executeRaw(`
 app = adsk.core.Application.get()
 design = adsk.fusion.Design.cast(app.activeProduct)
@@ -596,7 +617,7 @@ root = design.rootComponent
 mirrors = root.features.mirrorFeatures
 entities = adsk.core.ObjectCollection.create()
 entities.add(root.bRepBodies.item(0))
-plane = root.${((p.plane as string) ?? "XY").toLowerCase().replace("xy", "xYConstructionPlane").replace("xz", "xZConstructionPlane").replace("yz", "yZConstructionPlane")}
+plane = root.${planeProp}
 mi = mirrors.createInput(entities, plane)
 result = {"success": True, "feature_name": mirrors.add(mi).name}
 `).then((r) => ({

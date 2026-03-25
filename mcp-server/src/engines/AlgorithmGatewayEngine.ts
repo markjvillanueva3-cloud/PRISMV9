@@ -1074,7 +1074,8 @@ export interface MonteCarloResult {
 function runMonteCarlo(data: Record<string, any>): MonteCarloResult {
   const distributions: { name: string; mean: number; std: number }[] = data.parameter_distributions ?? [];
   const model: string = data.model ?? 'taylor_tool_life';
-  const numSamples: number = data.num_samples ?? 1000;
+  const MAX_TRIALS = 100_000;
+  const numSamples: number = Math.min(data.num_samples ?? 1000, MAX_TRIALS);
 
   // Box-Muller for normal random
   function randn(): number {

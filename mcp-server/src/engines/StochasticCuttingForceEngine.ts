@@ -503,10 +503,13 @@ export class StochasticCuttingForceEngine {
       rake_angle_deg = 6,
       edge_radius_um = 25,
       runout_um = 5,
-      n_trials = 2000,
+      n_trials: _n_trials = 2000,
       method = "both",
       overrides,
     } = input;
+
+    const MAX_TRIALS = 100_000;
+    const n_trials = Math.min(_n_trials, MAX_TRIALS);
 
     const width_mm = input.width_mm ?? diam;
     const ae_ratio = Math.min(width_mm / diam, 1.0);

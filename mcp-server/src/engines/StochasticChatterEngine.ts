@@ -308,7 +308,8 @@ class StochasticChatterEngine {
    */
   compute(input: StochasticChatterInput): AtomicValue<StochasticChatterResult> {
     const mat = MATERIAL_DB[input.material] ?? MATERIAL_DB["AISI 4140"];
-    const N = input.n_trials ?? 500; // per grid point, so keep moderate
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.n_trials ?? 500, MAX_TRIALS); // per grid point, so keep moderate
     const z = input.flute_count;
     const D = input.tool_diameter_mm;
     const fn_mean = input.natural_freq_hz ?? mat.fn_default_hz;

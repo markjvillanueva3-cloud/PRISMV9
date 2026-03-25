@@ -41,6 +41,16 @@
 
 import { log } from "../utils/Logger.js";
 
+// Lazy-loaded nesting engine — avoids circular imports
+let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
+async function getSheetNestingEngine(): Promise<import("./SheetNestingEngine.js").SheetNestingEngine> {
+  if (!_sheetNestingEngine) {
+    const mod = await import("./SheetNestingEngine.js");
+    _sheetNestingEngine = new mod.SheetNestingEngine();
+  }
+  return _sheetNestingEngine;
+}
+
 // ============================================================================
 // TYPES — AtomicValue wrapper (PRISM standard)
 // ============================================================================
@@ -141,6 +151,10 @@ export interface AbrasiveWJProfile extends WaterjetBaseProfile {
   kerf_compensation?: "left" | "right" | "none";
   /** Cut type label for header comment. */
   cut_type?: string;
+  /** Multi-part nesting input — if provided, triggers nested multi-part program */
+  nesting?: WaterjetNestingInput;
+  /** Quantity of the single part (used with nesting when parts[] not provided) */
+  quantity?: number;
 }
 
 /** Pure waterjet — no abrasive, soft materials only. */
@@ -250,6 +264,46 @@ export interface WaterjetCostBreakdown {
   cost_per_mm: number;
 }
 
+/** Nesting input — optional multi-part sheet nesting for waterjet cutting */
+export interface WaterjetNestingInput {
+  /** Sheet width [mm] */
+  sheet_width: number;
+  /** Sheet height [mm] */
+  sheet_height: number;
+  /** Parts to nest — each with cut path and optional quantity */
+  parts: Array<{
+    id: string;
+    cut_path: Array<{ x: number; y: number }>;
+    quantity?: number;
+  }>;
+  /** Spacing between parts [mm] — default kerf + 5mm */
+  spacing_mm?: number;
+  /** Allow 0/90/180/270 rotation — default true */
+  rotation_allowed?: boolean;
+  /** Grain direction constraint — "X" | "Y" | null */
+  grain_direction?: "X" | "Y" | null;
+  /** Tab/micro-joint width [mm] for part retention — 0 = no tabs. Default: 2.0 */
+  tab_width_mm?: number;
+  /** Tab spacing along contour [mm] — default 80 */
+  tab_spacing_mm?: number;
+}
+
+/** Nesting result appended to WaterjetProgram when nesting is active */
+export interface WaterjetNestingResult {
+  parts_per_sheet: number;
+  utilization_pct: number;
+  waste_pct: number;
+  sheets_used: number;
+  nested_positions: Array<{
+    part_id: string;
+    instance: number;
+    x: number;
+    y: number;
+    rotation_deg: number;
+  }>;
+  tabs_placed: number;
+}
+
 /** Complete assembled waterjet program. */
 export interface WaterjetProgram {
   /** Program metadata. */
@@ -282,6 +336,8 @@ export interface WaterjetProgram {
   cost: WaterjetCostBreakdown;
   /** Stochastic uncertainty (if run_uncertainty = true). */
   uncertainty?: WaterjetUncertainty;
+  /** Nesting result (present when multi-part nesting was used). */
+  nesting_result?: WaterjetNestingResult;
   /** Warnings accumulated during assembly. */
   warnings: string[];
   /** Physics diagnostics (key formula values). */
@@ -1374,6 +1430,288 @@ export class WaterjetProgramAssemblerEngine {
         "computeUncertainty",
         "stats",
       ],
+    };
+  }
+
+  // ============================================================================
+  // NESTED MULTI-PART CUTTING
+  // ============================================================================
+
+  /**
+   * Generate a nested multi-part waterjet cutting program.
+   *
+   * If the input includes nesting configuration (sheet dimensions + parts or quantity > 1),
+   * calls SheetNestingEngine to optimize part placement, then generates G-code for ALL
+   * nested parts with pierce sequences per part and tab placement for retention.
+   *
+   * Falls back to single-part `assembleAbrasiveWJ` if nesting is not needed or fails.
+   */
+  async assembleNestedAbrasiveWJ(input: AbrasiveWJProfile): Promise<WaterjetProgram> {
+    const nesting = input.nesting;
+    const quantity = input.quantity ?? 1;
+    const needsNesting = nesting && (
+      (nesting.parts && nesting.parts.length > 0) || quantity > 1
+    );
+
+    if (!needsNesting) {
+      return this.assembleAbrasiveWJ(input);
+    }
+
+    log.debug("WaterjetProgramAssemblerEngine.assembleNestedAbrasiveWJ", {
+      parts: nesting.parts?.length ?? 1,
+      sheet: `${nesting.sheet_width}x${nesting.sheet_height}mm`,
+    });
+
+    // Build single-part result for physics baseline
+    const baseResult = this.assembleAbrasiveWJ(input);
+    const warnings = [...baseResult.warnings];
+
+    // Build polygon list for nesting engine
+    let nestParts: Array<{ id: string; cut_path: Array<{ x: number; y: number }>; quantity: number }>;
+
+    if (nesting.parts && nesting.parts.length > 0) {
+      nestParts = nesting.parts.map(p => ({
+        id: p.id,
+        cut_path: p.cut_path,
+        quantity: p.quantity ?? 1,
+      }));
+    } else if (input.cut_path && input.cut_path.length >= 2) {
+      nestParts = [{
+        id: input.part_description ?? "PART_1",
+        cut_path: input.cut_path,
+        quantity,
+      }];
+    } else {
+      warnings.push("Nesting requested but no cut path provided — falling back to single-part");
+      return { ...baseResult, warnings };
+    }
+
+    // Lazy-load nesting engine
+    let nestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine;
+    try {
+      nestingEngine = await getSheetNestingEngine();
+    } catch (e) {
+      warnings.push(`SheetNestingEngine unavailable — falling back to single-part: ${e}`);
+      return { ...baseResult, warnings };
+    }
+
+    const sheet = {
+      width_mm: nesting.sheet_width,
+      height_mm: nesting.sheet_height,
+    };
+
+    // Use kerf width from base result for spacing
+    const kerfSpacing = (baseResult.operations[0]?.kerf_width_mm?.value ?? 1.0) + (nesting.spacing_mm ?? 5);
+
+    const nestResult = nestingEngine.optimizeNesting(
+      nestParts.map(p => ({
+        id: p.id,
+        vertices: p.cut_path,
+        quantity: p.quantity,
+      })),
+      sheet,
+      {
+        spacing_mm: kerfSpacing,
+        rotation_allowed: nesting.rotation_allowed ?? true,
+        grain_direction: nesting.grain_direction ?? null,
+      }
+    );
+
+    if (nestResult.placed.length === 0) {
+      warnings.push("Nesting failed — no parts fit on sheet. Falling back to single-part.");
+      return { ...baseResult, warnings };
+    }
+
+    // Build context for G-code generation
+    const ctx = this._buildContext(input, false);
+    const dialect = DIALECTS[ctx.controller];
+    const stackCount = Math.max(1, input.stack_count ?? 1);
+    const effectiveThickness = ctx.thickness_mm * stackCount;
+    const speed = this._zengKimSpeed(ctx.N_m, ctx.P_MPa, ctx.m_a_g_per_min, ctx.d_f_mm, effectiveThickness, ctx.Q_q);
+    const pierceTime = this._pierceTime(ctx.P_MPa, ctx.m_a_g_per_min, effectiveThickness, ctx.material.pierce_factor, input.pierce_strategy ?? "stationary");
+    const kerf = this._kerfWidth(ctx.d_f_mm, ctx.standoff_mm, effectiveThickness);
+
+    // Tab configuration
+    const tabWidth = nesting.tab_width_mm ?? 2.0;
+    const tabSpacing = nesting.tab_spacing_mm ?? 80;
+    let totalTabs = 0;
+
+    // Generate combined G-code
+    const glines: string[] = [];
+    glines.push(...dialect.prog_start(ctx.programNumber));
+    glines.push(dialect.comment(`NESTED WATERJET PROGRAM — ${nestResult.placed.length} PARTS ON ${nestResult.sheets_used} SHEET(S)`));
+    glines.push(dialect.comment(`MATERIAL: ${ctx.material.name.toUpperCase()}`));
+    glines.push(dialect.comment(`THICKNESS: ${effectiveThickness}MM  PRESSURE: ${ctx.P_MPa}MPA`));
+    glines.push(dialect.comment(`SHEET: ${nesting.sheet_width}x${nesting.sheet_height}MM`));
+    glines.push(dialect.comment(`UTILIZATION: ${nestResult.utilization_pct.toFixed(1)}%`));
+    glines.push(dialect.comment(`QUALITY: Q${ctx.quality}  SPEED: ${speed.toFixed(1)}MM/MIN`));
+    glines.push(dialect.comment(`KERF: ${kerf.top.toFixed(3)}MM  PIERCE TIME: ${pierceTime.toFixed(1)}S`));
+    if (tabWidth > 0) glines.push(dialect.comment(`TABS: ${tabWidth}MM WIDE EVERY ${tabSpacing}MM`));
+    glines.push("");
+
+    // Kerf compensation
+    if (input.kerf_compensation && input.kerf_compensation !== "none") {
+      const side = input.kerf_compensation === "left" ? "G41" : "G42";
+      glines.push(dialect.comment(`KERF COMPENSATION ${input.kerf_compensation.toUpperCase()} — ${side}`));
+      glines.push(`${side} D${(kerf.top / 2).toFixed(3)}`);
+      glines.push("");
+    }
+
+    // Cut each nested part
+    const cutOrder = nestResult.cut_order.length > 0 ? nestResult.cut_order : nestResult.placed;
+    let partIndex = 0;
+    let totalCutLen = 0;
+
+    for (const placement of cutOrder) {
+      partIndex++;
+      const nestPart = nestParts.find(p => p.id === placement.part_id);
+      const cutPath = nestPart?.cut_path ?? input.cut_path;
+      if (!cutPath || cutPath.length < 2) continue;
+
+      const offsetX = placement.x;
+      const offsetY = placement.y;
+      const rotRad = (placement.rotation_deg * Math.PI) / 180;
+      const cosR = Math.cos(rotRad);
+      const sinR = Math.sin(rotRad);
+
+      const transformedPath = cutPath.map(pt => ({
+        x: offsetX + pt.x * cosR - pt.y * sinR,
+        y: offsetY + pt.x * sinR + pt.y * cosR,
+      }));
+
+      const partCutLen = this._pathLength(transformedPath);
+      totalCutLen += partCutLen;
+
+      glines.push(dialect.comment(`--- PART ${partIndex}/${cutOrder.length}: ${placement.part_id}#${placement.instance} AT (${fmtN(offsetX, 1)}, ${fmtN(offsetY, 1)}) ROT=${placement.rotation_deg}° ---`));
+
+      // Rapid to start
+      glines.push(dialect.comment("MOVE TO PIERCE POINT"));
+      glines.push(dialect.rapid_move(transformedPath[0].x, transformedPath[0].y));
+      glines.push("");
+
+      // Pierce sequence
+      glines.push(dialect.comment("PIERCE SEQUENCE"));
+      glines.push(dialect.pump_on);
+      if (!input.pierce_strategy || input.pierce_strategy === "stationary") {
+        glines.push(dialect.abrasive_on);
+        glines.push(dialect.pierce_dwell(pierceTime));
+      } else if (input.pierce_strategy === "moving") {
+        glines.push(dialect.abrasive_on);
+        glines.push(dialect.comment("MOVING PIERCE — WIGGLE 0.5MM"));
+        glines.push(dialect.feed_move(transformedPath[0].x + 0.25, transformedPath[0].y, speed * 0.1, ctx.quality));
+        glines.push(dialect.feed_move(transformedPath[0].x, transformedPath[0].y, speed * 0.1, ctx.quality));
+        glines.push(dialect.pierce_dwell(pierceTime * 0.5));
+      } else if (input.pierce_strategy === "edge_start") {
+        glines.push(dialect.abrasive_on);
+        glines.push(dialect.comment("EDGE START — NO PIERCE DWELL"));
+      } else {
+        glines.push(dialect.comment("PRE-DRILL HOLE PRESENT — DIRECT CUT START"));
+        glines.push(dialect.abrasive_on);
+      }
+      glines.push("");
+
+      // Cut path with tab insertion
+      glines.push(dialect.comment("CUT PATH"));
+      let distAccum = 0;
+      const tabCount = tabWidth > 0 ? Math.max(2, Math.floor(partCutLen / tabSpacing)) : 0;
+      const tabInterval = tabCount > 0 ? partCutLen / tabCount : Infinity;
+      let nextTabAt = tabInterval;
+
+      for (let i = 1; i < transformedPath.length; i++) {
+        const segDx = transformedPath[i].x - transformedPath[i - 1].x;
+        const segDy = transformedPath[i].y - transformedPath[i - 1].y;
+        const segLength = Math.sqrt(segDx * segDx + segDy * segDy);
+        distAccum += segLength;
+
+        if (tabWidth > 0 && distAccum >= nextTabAt) {
+          // Tab: abrasive off, traverse tab width, abrasive on
+          glines.push(dialect.abrasive_off + "  " + dialect.comment(`TAB — MICRO-JOINT ${tabWidth}mm`));
+          glines.push(dialect.feed_move(transformedPath[i].x, transformedPath[i].y, speed, ctx.quality));
+          glines.push(dialect.abrasive_on + "  " + dialect.comment("RESUME CUT"));
+          nextTabAt += tabInterval;
+          totalTabs++;
+        } else {
+          glines.push(dialect.feed_move(transformedPath[i].x, transformedPath[i].y, speed, ctx.quality));
+        }
+      }
+      glines.push("");
+
+      // Jet off for this part
+      glines.push(dialect.comment("JET OFF"));
+      glines.push(dialect.abrasive_off);
+      glines.push(dialect.pump_off);
+      glines.push("");
+    }
+
+    // Close kerf compensation
+    if (input.kerf_compensation && input.kerf_compensation !== "none") {
+      glines.push("G40 (CANCEL KERF COMPENSATION)");
+    }
+
+    glines.push(...dialect.prog_end());
+
+    const nestedGcode = glines.join("\n");
+
+    // Compute timing
+    const cuttingMin = totalCutLen / speed;
+    const piercingMin = (cutOrder.length * pierceTime) / 60;
+    const rapidMin = cutOrder.length * 0.15;
+    const totalMin = cuttingMin + piercingMin + rapidMin;
+
+    // Build nesting result
+    const nestingResultOutput: WaterjetNestingResult = {
+      parts_per_sheet: Math.ceil(nestResult.placed.length / nestResult.sheets_used),
+      utilization_pct: nestResult.utilization_pct,
+      waste_pct: parseFloat((100 - nestResult.utilization_pct).toFixed(2)),
+      sheets_used: nestResult.sheets_used,
+      nested_positions: nestResult.placed.map(p => ({
+        part_id: p.part_id,
+        instance: p.instance,
+        x: p.x,
+        y: p.y,
+        rotation_deg: p.rotation_deg,
+      })),
+      tabs_placed: totalTabs,
+    };
+
+    if (nestResult.unplaced.length > 0) {
+      warnings.push(`${nestResult.unplaced.length} part instance(s) could not fit on ${nestResult.sheets_used} sheet(s)`);
+    }
+
+    // Build aggregated operation
+    const op: WaterjetOperation = {
+      type: "nested_abrasive_wj_through",
+      name: `Nested AWJ — ${nestResult.placed.length} parts`,
+      cutting_speed_mm_per_min: av(speed, "mm/min", `V=N_m·P^1.25·m_a^0.687·d_f^0.343/(h^1.15·Q_q)`, 0.85),
+      kerf_width_mm: av(kerf.top, "mm", `w=d_f+2·Δ_spread`, 0.90),
+      taper_deg: baseResult.operations[0]?.taper_deg ?? av(0, "°", "", 0.80),
+      ra_um: baseResult.operations[0]?.ra_um ?? av(0, "µm", "", 0.75),
+      pierce_time_s: av(pierceTime, "s", `t_p=C_p·h^1.5/(P·m_a)^0.5`, 0.80),
+      pierce_count: cutOrder.length,
+      gcode_lines: glines,
+      estimated_cut_time_min: cuttingMin,
+      abrasive_kg: (ctx.m_a_g_per_min / 1000) * (cuttingMin + piercingMin),
+    };
+
+    const cost = this._computeCost(ctx, op, totalMin, totalCutLen);
+    const physics = this._computePhysics(ctx);
+    const uncertainty = (input.run_uncertainty !== false) ? this.computeUncertainty(input) : undefined;
+
+    return {
+      header: this._buildHeader(ctx, input),
+      operations: [op],
+      gcode: nestedGcode,
+      cycle_time: {
+        piercing_min: round2(piercingMin),
+        cutting_min: round2(cuttingMin),
+        rapid_min: round2(rapidMin),
+        total_min: round2(totalMin),
+      },
+      cost,
+      uncertainty,
+      nesting_result: nestingResultOutput,
+      warnings,
+      physics,
     };
   }
 

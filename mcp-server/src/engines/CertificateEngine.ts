@@ -732,7 +732,7 @@ export class CertificateEngine {
    */
   getStats(): {
     total: number; verified: number; partial: number; failed: number;
-    dispatchers: number; signing: boolean; metrics: typeof this.metrics;
+    dispatchers: number; signing: boolean; metrics: Record<string, unknown>;
   } {
     return {
       total: this.index.totalCerts,

@@ -26,6 +26,115 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+
+// ============================================================================
+// LAZY-LOADED ENGINE HELPERS (graceful fallback if unavailable)
+// ============================================================================
+
+let _smartToolSelector: any = null;
+let _coatingSelector: any = null;
+
+function getSmartToolSelector(): any {
+  if (_smartToolSelector === undefined) return null;
+  if (_smartToolSelector) return _smartToolSelector;
+  try {
+    const m = require("./SmartToolSelectorEngine.js");
+    _smartToolSelector = m.smartToolSelectorEngine ?? m.default ?? new m.SmartToolSelectorEngine();
+    return _smartToolSelector;
+  } catch {
+    _smartToolSelector = undefined; // mark as permanently unavailable
+    return null;
+  }
+}
+
+function getCoatingSelector(): any {
+  if (_coatingSelector === undefined) return null;
+  if (_coatingSelector) return _coatingSelector;
+  try {
+    const m = require("./CoatingSelectionEngine.js");
+    _coatingSelector = m.coatingSelectionEngine ?? m.default ?? new m.CoatingSelectionEngine();
+    return _coatingSelector;
+  } catch {
+    _coatingSelector = undefined;
+    return null;
+  }
+}
+
+let _autoSpeedFeedEngine: any = null;
+
+function getAutoSpeedFeedEngine(): any {
+  if (_autoSpeedFeedEngine === undefined) return null;
+  if (_autoSpeedFeedEngine) return _autoSpeedFeedEngine;
+  try {
+    const m = require("./AutoSpeedFeedEngine.js");
+    _autoSpeedFeedEngine = m.autoSpeedFeedEngine ?? m.default ?? new m.AutoSpeedFeedEngineImpl();
+    return _autoSpeedFeedEngine;
+  } catch {
+    _autoSpeedFeedEngine = undefined; // mark as permanently unavailable
+    return null;
+  }
+}
+
+let _coolantStrategyEngine: any = null;
+
+function getCoolantStrategyEngine(): any {
+  if (_coolantStrategyEngine === undefined) return null;
+  if (_coolantStrategyEngine) return _coolantStrategyEngine;
+  try {
+    const m = require("./CoolantStrategyEngine.js");
+    _coolantStrategyEngine = m.coolantStrategyEngine ?? m.default ?? new m.CoolantStrategyEngine();
+    return _coolantStrategyEngine;
+  } catch {
+    _coolantStrategyEngine = undefined; // mark as permanently unavailable
+    return null;
+  }
+}
+
+let _entryExitStrategyEngine: any = null;
+
+function getEntryExitStrategyEngine(): any {
+  if (_entryExitStrategyEngine === undefined) return null;
+  if (_entryExitStrategyEngine) return _entryExitStrategyEngine;
+  try {
+    const m = require("./EntryExitStrategyEngine.js");
+    _entryExitStrategyEngine = m.entryExitStrategyEngine ?? m.default ?? new m.EntryExitStrategyEngine();
+    return _entryExitStrategyEngine;
+  } catch {
+    _entryExitStrategyEngine = undefined;
+    return null;
+  }
+}
+
+let _intelligentSequencingEngine: any = null;
+
+function getIntelligentSequencingEngine(): any {
+  if (_intelligentSequencingEngine === undefined) return null;
+  if (_intelligentSequencingEngine) return _intelligentSequencingEngine;
+  try {
+    const m = require("./IntelligentSequencingEngine.js");
+    _intelligentSequencingEngine = m.intelligentSequencingEngine ?? m.default ?? new m.IntelligentSequencingEngine();
+    return _intelligentSequencingEngine;
+  } catch {
+    _intelligentSequencingEngine = undefined;
+    return null;
+  }
+}
+
+let _workholdingVerificationEngine: any = null;
+
+function getWorkholdingVerificationEngine(): any {
+  if (_workholdingVerificationEngine === undefined) return null;
+  if (_workholdingVerificationEngine) return _workholdingVerificationEngine;
+  try {
+    const m = require("./WorkholdingVerificationEngine.js");
+    _workholdingVerificationEngine = m.workholdingVerificationEngine ?? m.default ?? new m.WorkholdingVerificationEngine();
+    return _workholdingVerificationEngine;
+  } catch {
+    _workholdingVerificationEngine = undefined;
+    return null;
+  }
+}
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -164,6 +273,10 @@ export interface PlannedOperation {
   approach: "plunge" | "ramp" | "helical" | "direct";
   coolant: "flood" | "mist" | "through_tool" | "air" | "off";
   notes: string[];
+  /** Feature position from drawing — drives G-code coordinates */
+  position?: { x: number; y: number; z: number };
+  /** Feature dimensions for G-code extent calculations */
+  feature_dims?: { width_mm?: number; length_mm?: number; depth_mm?: number; diameter_mm?: number };
 }
 
 /** A single G-code block in the output program. */
@@ -287,14 +400,16 @@ export interface ValidationResult {
 
 interface KienzleData { kc1_1: number; mc: number; }
 
-/** Kienzle specific cutting force coefficients by ISO group. */
+/** Kienzle specific cutting force coefficients by ISO group.
+ * VALUES MUST MATCH src/physics/constants.ts (canonical Sandvik-validated source).
+ * Do NOT modify these without updating constants.ts first. */
 const KIENZLE_DB: Record<string, KienzleData> = {
-  P: { kc1_1: 2000, mc: 0.25 },  // Steel
-  M: { kc1_1: 2400, mc: 0.25 },  // Stainless
-  K: { kc1_1: 1200, mc: 0.25 },  // Cast iron
-  N: { kc1_1: 800, mc: 0.23 },   // Aluminum
-  S: { kc1_1: 2800, mc: 0.28 },  // Superalloys
-  H: { kc1_1: 3200, mc: 0.30 },  // Hardened steel
+  P: { kc1_1: 1800, mc: 0.25 },  // Steel — Sandvik validated median (was 2000, corrected)
+  M: { kc1_1: 2100, mc: 0.25 },  // Stainless — Sandvik validated median (was 2400, corrected)
+  K: { kc1_1: 1100, mc: 0.28 },  // Cast iron — Sandvik validated (was 1200/0.25, corrected)
+  N: { kc1_1: 700, mc: 0.23 },   // Aluminum — Sandvik validated (was 800, corrected)
+  S: { kc1_1: 2800, mc: 0.28 },  // Superalloys — matches canonical
+  H: { kc1_1: 3200, mc: 0.30 },  // Hardened steel — matches canonical
 };
 
 /** Taylor tool life coefficients by ISO group + carbide tooling. */
@@ -425,6 +540,14 @@ function formatTime(seconds: number): string {
 export class PrintToProgramPipelineEngine {
   readonly name = "PrintToProgramPipelineEngine";
   readonly version = "1.0.0";
+
+  // Pipeline context set during generateProcessPlan for use in selectTool
+  private _currentMaterial: MaterialCallout | null = null;
+  private _currentMaxRPM = 12000;
+  private _currentMaxPower = 15;
+  private _currentTarget = "balanced";
+  private _currentMachineBrand: string | undefined;
+  private _currentMachineModel: string | undefined;
 
   /**
    * Main dispatcher — routes action strings to sub-methods.
@@ -686,6 +809,12 @@ export class PrintToProgramPipelineEngine {
     maxPower: number,
     target: string,
   ): PlannedOperation[] {
+    // Store context for selectTool's SmartToolSelector integration
+    this._currentMaterial = mat;
+    this._currentMaxRPM = maxRPM;
+    this._currentMaxPower = maxPower;
+    this._currentTarget = target;
+
     const iso = mat.iso_group || "P";
     const kienzle = KIENZLE_DB[iso] || KIENZLE_DB.P;
     const taylor = TAYLOR_DB[iso] || TAYLOR_DB.P;
@@ -696,8 +825,41 @@ export class PrintToProgramPipelineEngine {
     let toolNumber = 1;
     const toolMap = new Map<string, SelectedTool>();
 
-    // Sort features by priority
-    const sorted = [...features].sort((a, b) => a.priority - b.priority);
+    // --- Try IntelligentSequencingEngine for optimal sequencing (U08) ---
+    let sorted: MachinableFeature[];
+    const ise = getIntelligentSequencingEngine();
+    if (ise) {
+      try {
+        // Map features to SequenceableOp format
+        const seqOps = features.map((feat, i) => ({
+          id: feat.id || `feat_${i}`,
+          type: feat.type,
+          operation: feat.required_operations[0] || "rough",
+          tool_diameter_mm: feat.diameter_mm || feat.width_mm,
+          position: feat.position,
+          depth_mm: feat.depth_mm,
+          is_datum: feat.type === "face",
+        }));
+        const seqResult = ise.sequence(seqOps);
+        if (seqResult?.operations?.length === features.length) {
+          // Re-order features to match sequencing engine's order
+          const idOrder = new Map<string, number>(seqResult.operations.map((op: any, idx: number) => [op.id as string, idx as number]));
+          sorted = [...features].sort((a, b) => {
+            const ia = idOrder.get(a.id) ?? 999;
+            const ib = idOrder.get(b.id) ?? 999;
+            return ia - ib;
+          });
+          log.info?.(`IntelligentSequencingEngine: ${seqResult.rules_applied?.length ?? 0} rules, ${seqResult.tool_changes} tool changes, quality=${seqResult.sequence_quality_score}`);
+        } else {
+          sorted = [...features].sort((a, b) => a.priority - b.priority);
+        }
+      } catch {
+        sorted = [...features].sort((a, b) => a.priority - b.priority);
+      }
+    } else {
+      // Fallback: sort by hardcoded priority table
+      sorted = [...features].sort((a, b) => a.priority - b.priority);
+    }
 
     for (const feat of sorted) {
       for (const opType of feat.required_operations) {
@@ -793,6 +955,10 @@ export class PrintToProgramPipelineEngine {
 
         // Build notes
         const notes: string[] = [];
+        // Add tool selection rationale if available (from SmartToolSelector or CoatingSelector)
+        if ((tool as any)._rationale) {
+          notes.push((tool as any)._rationale);
+        }
         if (deflection > 0.05) notes.push(`Tool deflection ${deflection.toFixed(3)}mm — verify finish tolerance`);
         if (toolLife < 15) notes.push(`Short tool life ${toolLife.toFixed(1)}min — consider speed reduction`);
         if (power > maxPower * 0.7) notes.push(`High power usage ${(power / maxPower * 100).toFixed(0)}%`);
@@ -825,6 +991,8 @@ export class PrintToProgramPipelineEngine {
           cycle_time_sec: Math.round(cycleTimeSec * 10) / 10,
           passes,
           approach,
+          position: feat.position,
+          feature_dims: { width_mm: feat.width_mm, length_mm: feat.length_mm, depth_mm: feat.depth_mm, diameter_mm: feat.diameter_mm },
           coolant,
           notes,
         });
@@ -880,9 +1048,76 @@ export class PrintToProgramPipelineEngine {
 
   /**
    * Select the best tool for a given operation and feature.
-   * Maps operation type to tool type and assigns geometry.
+   * Tries SmartToolSelectorEngine (95K catalog) first, falls back to synthetic tool.
+   * Also tries CoatingSelectionEngine for coating instead of hardcoded TiAlN.
    */
   private selectTool(opType: OperationType, feat: MachinableFeature, toolNum: number): SelectedTool {
+    // --- Try SmartToolSelectorEngine (catalog-backed selection) ---
+    const smartSelector = getSmartToolSelector();
+    if (smartSelector && this._currentMaterial) {
+      try {
+        const optimGoalMap: Record<string, string> = {
+          balanced: "balanced",
+          max_speed: "speed",
+          max_tool_life: "tool_life",
+          min_cost: "cost",
+          surface_quality: "surface_finish",
+        };
+        const result = smartSelector.select({
+          operation_type: opType,
+          material_iso_group: this._currentMaterial.iso_group || "P",
+          material_name: this._currentMaterial.material_name,
+          material_hardness_hrc: this._currentMaterial.hardness_hrc,
+          machine_name: this._currentMachineBrand && this._currentMachineModel
+            ? `${this._currentMachineBrand} ${this._currentMachineModel}` : undefined,
+          max_rpm: this._currentMaxRPM,
+          max_power_kw: this._currentMaxPower,
+          feature_diameter_mm: feat.diameter_mm,
+          feature_depth_mm: feat.depth_mm,
+          feature_width_mm: feat.width_mm,
+          corner_radius_mm: feat.corner_radius_mm,
+          tolerance_mm: feat.tolerance_mm,
+          surface_finish_Ra: feat.surface_finish_Ra_um,
+          optimize_for: (optimGoalMap[this._currentTarget] || "balanced") as any,
+          max_results: 1,
+        });
+
+        if (result?.best_tool) {
+          const bt = result.best_tool;
+          const toolType = this.toolTypeForOp(opType);
+          const fluteLen = bt.flute_length_mm || Math.max((bt.diameter_mm || 12) * 2, (feat.depth_mm || 10) + 2);
+          const stickOut = fluteLen + (bt.diameter_mm || 12);
+          const cornerR = (toolType === "ball_endmill") ? (bt.diameter_mm || 12) / 2 :
+            (toolType === "bull_nose") ? Math.min(2, (bt.diameter_mm || 12) * 0.15) : 0;
+
+          // Build rationale note for operation
+          const rationale = bt.rationale?.length
+            ? `SmartToolSelector: ${bt.designation || bt.tool_id} (score ${(bt.score * 100).toFixed(0)}%) — ${bt.rationale.join("; ")}`
+            : `SmartToolSelector: ${bt.designation || bt.tool_id} (score ${(bt.score * 100).toFixed(0)}%)`;
+
+          const selected: SelectedTool & { _rationale?: string } = {
+            tool_number: toolNum,
+            tool_type: toolType,
+            diameter_mm: Math.round((bt.diameter_mm || 12) * 10) / 10,
+            flutes: bt.flute_count || this.flutesForToolType(toolType, bt.diameter_mm || 12),
+            flute_length_mm: Math.round(fluteLen),
+            corner_radius_mm: cornerR,
+            material: "carbide",
+            coating: bt.coating || "TiAlN",
+            stick_out_mm: Math.round(stickOut),
+            holder_type: (bt.diameter_mm || 12) <= 20 ? "ER32" : "BT40",
+            _rationale: rationale,
+          };
+
+          log.info(`[PrintToProgramPipeline] SmartToolSelector picked ${bt.designation || bt.tool_id} for ${opType}`);
+          return selected;
+        }
+      } catch (err: any) {
+        log.warn(`[PrintToProgramPipeline] SmartToolSelector failed for ${opType}, falling back to synthetic: ${err?.message || err}`);
+      }
+    }
+
+    // --- Fallback: synthetic tool from fixed ratios ---
     const diam = this.idealToolDiameter(opType, feat);
     const toolType = this.toolTypeForOp(opType);
     const flutes = this.flutesForToolType(toolType, diam);
@@ -891,7 +1126,34 @@ export class PrintToProgramPipelineEngine {
     const cornerR = (toolType === "ball_endmill") ? diam / 2 :
       (toolType === "bull_nose") ? Math.min(2, diam * 0.15) : 0;
 
-    return {
+    // --- Try CoatingSelectionEngine instead of hardcoded TiAlN ---
+    let coating = "TiAlN";
+    let coatingRationale = "";
+    const coatingSelector = getCoatingSelector();
+    if (coatingSelector && this._currentMaterial) {
+      try {
+        const iso = this._currentMaterial.iso_group || "P";
+        const isRough = opType.includes("rough") || opType === "drill" || opType === "face" || opType === "slot";
+        const coatingOp = isRough ? "roughing" : "finishing";
+        const speedRange = SPEED_RANGES[iso] || SPEED_RANGES.P;
+        const speed = isRough ? speedRange.rough : speedRange.finish;
+        const coatingResult = coatingSelector.calculate({
+          iso_group: iso,
+          operation: coatingOp,
+          speed_range: speed <= 150 ? "low" : speed <= 400 ? "medium" : "high",
+          coolant: "flood",
+          substrate: "carbide",
+        });
+        if (coatingResult?.coating) {
+          coating = coatingResult.coating;
+          coatingRationale = coatingResult.reasoning?.join("; ") || "";
+        }
+      } catch {
+        // Keep TiAlN default
+      }
+    }
+
+    const selected: SelectedTool & { _rationale?: string } = {
       tool_number: toolNum,
       tool_type: toolType,
       diameter_mm: Math.round(diam * 10) / 10,
@@ -899,10 +1161,12 @@ export class PrintToProgramPipelineEngine {
       flute_length_mm: Math.round(fluteLen),
       corner_radius_mm: cornerR,
       material: "carbide",
-      coating: "TiAlN",
+      coating,
       stick_out_mm: Math.round(stickOut),
       holder_type: diam <= 20 ? "ER32" : "BT40",
+      _rationale: coatingRationale ? `Synthetic tool, coating via CoatingSelectionEngine: ${coating} — ${coatingRationale}` : undefined,
     };
+    return selected;
   }
 
   /**
@@ -1029,6 +1293,37 @@ export class PrintToProgramPipelineEngine {
    * Select approach strategy based on operation and feature.
    */
   private selectApproach(opType: OperationType, feat: MachinableFeature): PlannedOperation["approach"] {
+    // --- Try EntryExitStrategyEngine first (U07) ---
+    const eese = getEntryExitStrategyEngine();
+    if (eese) {
+      try {
+        const toolDiam = feat.diameter_mm || feat.width_mm || 10;
+        const input = {
+          tool_diameter: toolDiam,
+          pocket_width: feat.width_mm,
+          pocket_depth: feat.depth_mm || 10,
+          material: this._currentMaterial?.iso_group,
+          center_cutting: opType === "drill" || opType === "bore",
+        };
+        const result = eese.selectEntry(input);
+        if (result?.recommended_method) {
+          const methodMap: Record<string, PlannedOperation["approach"]> = {
+            helical: "helical", ramp: "ramp", plunge: "plunge",
+            pre_drill: "plunge", arc_in: "ramp", direct: "direct",
+          };
+          const mapped = methodMap[result.recommended_method] ?? "direct";
+          // Store feed_factor on current context for caller to pick up
+          if (result.feed_factor && result.feed_factor !== 1) {
+            (this as any)._lastEntryFeedFactor = result.feed_factor;
+          }
+          return mapped;
+        }
+      } catch {
+        // Fall through to hardcoded logic
+      }
+    }
+
+    // Fallback: hardcoded table
     switch (opType) {
       case "drill":
       case "ream":
@@ -1050,6 +1345,42 @@ export class PrintToProgramPipelineEngine {
    * Select coolant strategy based on material and operation.
    */
   private selectCoolant(iso: string, opType: OperationType, tool: SelectedTool): PlannedOperation["coolant"] {
+    // --- Try CoolantStrategyEngine first (U06) ---
+    const cse = getCoolantStrategyEngine();
+    if (cse) {
+      try {
+        // Map ISO group to CoolantMaterial
+        const isoToMaterial: Record<string, string> = {
+          P: "carbon_steel", M: "stainless_steel", K: "cast_iron",
+          N: "aluminum", S: "nickel_alloy", H: "hardened_steel",
+        };
+        // Map OperationType to CoolantOperation
+        const opMap: Record<string, string> = {
+          face: "milling_rough", rough: "milling_rough", semi_finish: "milling_finish",
+          finish: "milling_finish", drill: "drilling", ream: "reaming",
+          bore: "boring", tap: "tapping", chamfer: "milling_finish",
+          thread_mill: "thread_milling", slot: "milling_rough",
+          contour: "milling_finish", pocket_rough: "milling_rough", pocket_finish: "milling_finish",
+        };
+        const csInput = {
+          workpiece_material: isoToMaterial[iso] || "carbon_steel",
+          operation: opMap[opType] || "milling_rough",
+          tool_has_through_coolant: tool.flute_length_mm > tool.diameter_mm * 4,
+        };
+        const result = cse.calculate(csInput);
+        // Map CoolantMethod to PlannedOperation coolant type
+        const methodMap: Record<string, PlannedOperation["coolant"]> = {
+          flood: "flood", through_spindle: "through_tool", through_tool: "through_tool",
+          mql: "mist", air_blast: "air", dry: "off",
+          cryogenic_co2: "flood", cryogenic_ln2: "flood",
+        };
+        return methodMap[result.primary_method] ?? "flood";
+      } catch {
+        // Fall through to existing logic
+      }
+    }
+
+    // --- Fallback: original if/else rules ---
     // Through-tool for deep holes
     if ((opType === "drill" || opType === "bore") && tool.flute_length_mm > tool.diameter_mm * 4) {
       return "through_tool";
@@ -1166,10 +1497,14 @@ export class PrintToProgramPipelineEngine {
     const { cutting_params: cp, passes, approach } = op;
     const ap = cp.depth_of_cut_mm;
     const F = cp.feed_mm_min;
-    const pos = { x: 0, y: 0 }; // Simplified — real impl uses feature position
+    // Use feature position from drawing data — falls back to stock center if unspecified
+    const pos = op.position ?? { x: 0, y: 0, z: 0 };
+    const dims = op.feature_dims ?? {};
+    const xPos = pos.x.toFixed(3);
+    const yPos = pos.y.toFixed(3);
 
-    // Rapid to above feature
-    addLine(`G0 X0. Y0.`, "Rapid to feature position");
+    // Rapid to above feature (Playbook Rule 573: first rapid move is critical for safety)
+    addLine(`G0 X${xPos} Y${yPos}`, `Rapid to feature ${op.feature_id} position`);
 
     switch (op.operation_type) {
       case "drill": {
@@ -1200,13 +1535,16 @@ export class PrintToProgramPipelineEngine {
 
       case "face": {
         const ae = cp.width_of_cut_mm;
+        // Face milling: zigzag across stock from feature position
+        const faceW = dims.width_mm || dims.length_mm || 100;
+        const faceStartX = pos.x;
+        const faceEndX = pos.x + faceW;
         addLine(`G0 Z2.`, "Rapid to R-plane");
         addLine(`G1 Z${(-ap).toFixed(2)} F${Math.round(F * 0.3)}`, "Plunge to depth");
-        // Zigzag face passes
         for (let i = 0; i < 3; i++) {
-          const yPos = i * ae;
-          addLine(`G1 X100. Y${yPos.toFixed(1)} F${F}`, "Face pass");
-          addLine(`G1 X0. Y${(yPos + ae).toFixed(1)} F${F}`, "Return pass");
+          const yStep = pos.y + i * ae;
+          addLine(`G1 X${faceEndX.toFixed(3)} Y${yStep.toFixed(3)} F${F}`, "Face pass");
+          addLine(`G1 X${faceStartX.toFixed(3)} Y${(yStep + ae).toFixed(3)} F${F}`, "Return pass");
         }
         addLine(`G0 Z50.`, "Retract");
         break;
@@ -1214,27 +1552,35 @@ export class PrintToProgramPipelineEngine {
 
       default: {
         // Generic multi-pass cutting (rough/finish/contour/pocket/slot)
+        // Compute feature extents from position + dimensions
+        const extW = dims.width_mm || dims.diameter_mm || 50;
+        const extL = dims.length_mm || dims.width_mm || dims.diameter_mm || 50;
+        const x0 = pos.x;
+        const y0 = pos.y;
+        const x1 = pos.x + extW;
+        const y1 = pos.y + extL;
+
         for (let p = 1; p <= passes; p++) {
           const zDepth = -(p * ap);
 
           // Approach
           if (approach === "helical") {
             addLine(`G0 Z2.`, "Above material");
-            addLine(`G2 X0. Y0. Z${zDepth.toFixed(2)} I${(op.tool.diameter_mm * 0.3).toFixed(1)} J0. F${Math.round(F * 0.5)}`,
+            addLine(`G2 X${xPos} Y${yPos} Z${zDepth.toFixed(2)} I${(op.tool.diameter_mm * 0.3).toFixed(1)} J0. F${Math.round(F * 0.5)}`,
               `Helical entry pass ${p}/${passes}`);
           } else if (approach === "ramp") {
             addLine(`G0 Z2.`, "Above material");
-            addLine(`G1 X10. Z${zDepth.toFixed(2)} F${Math.round(F * 0.3)}`, `Ramp entry pass ${p}/${passes}`);
+            addLine(`G1 X${(x0 + 10).toFixed(3)} Z${zDepth.toFixed(2)} F${Math.round(F * 0.3)}`, `Ramp entry pass ${p}/${passes}`);
           } else {
             addLine(`G0 Z2.`, "Above material");
             addLine(`G1 Z${zDepth.toFixed(2)} F${Math.round(F * 0.3)}`, `Plunge pass ${p}/${passes}`);
           }
 
-          // Cutting move (simplified contour)
-          addLine(`G1 X50. F${F}`, "Cut +X");
-          addLine(`G1 Y50. F${F}`, "Cut +Y");
-          addLine(`G1 X0. F${F}`, "Cut -X");
-          addLine(`G1 Y0. F${F}`, "Cut -Y");
+          // Cutting move — rectangular contour around feature extents
+          addLine(`G1 X${x1.toFixed(3)} F${F}`, "Cut +X");
+          addLine(`G1 Y${y1.toFixed(3)} F${F}`, "Cut +Y");
+          addLine(`G1 X${x0.toFixed(3)} F${F}`, "Cut -X");
+          addLine(`G1 Y${y0.toFixed(3)} F${F}`, "Cut -Y");
         }
 
         addLine(`G0 Z50.`, "Retract to safe Z");
@@ -1523,31 +1869,152 @@ export class PrintToProgramPipelineEngine {
    * @param input - Drawing input with features, dimensions, material
    * @returns Complete pipeline result with G-code, setup sheet, confidence
    */
-  runFullPipeline(input: DrawingInput): PrintToProgramResult {
+  runFullPipeline(input: DrawingInput, options?: { resumeFromStage?: number; runId?: string }): PrintToProgramResult {
     log.info(`[PrintToProgramPipeline] Full pipeline for ${input.part_number || "PART"}`);
+
+    const cpm = new PipelineCheckpointManager('print-to-program', options?.runId);
+    const resumeFrom = options?.resumeFromStage ?? -1;
 
     const maxRPM = input.max_spindle_rpm || 12000;
     const maxPower = input.max_power_kW || 15;
     const target = input.optimization_target || "balanced";
 
     // S1: Validate intake
-    const intake = this.validateIntake(input);
+    let t0 = Date.now();
+    let intake: ReturnType<typeof this.validateIntake>;
+    if (resumeFrom > 0) {
+      const cp = cpm.resumeFrom(0);
+      intake = cp?.data ?? this.validateIntake(input);
+    } else {
+      intake = this.validateIntake(input);
+      cpm.checkpoint('validate_intake', 0, intake, Date.now() - t0);
+    }
 
     // S2: Classify features
+    t0 = Date.now();
     const iso = input.material?.iso_group || "P";
-    const classified = this.classifyFeatures(input.features, iso);
+    let classified: ReturnType<typeof this.classifyFeatures>;
+    if (resumeFrom > 1) {
+      const cp = cpm.resumeFrom(1);
+      classified = cp?.data ?? this.classifyFeatures(input.features, iso);
+    } else {
+      classified = this.classifyFeatures(input.features, iso);
+      cpm.checkpoint('classify_features', 1, classified, Date.now() - t0);
+    }
 
     // S3: Process plan
-    const operations = this.generateProcessPlan(classified, input.material, maxRPM, maxPower, target);
+    t0 = Date.now();
+    this._currentMachineBrand = input.machine_brand;
+    this._currentMachineModel = input.machine_model;
+    let operations: ReturnType<typeof this.generateProcessPlan>;
+    if (resumeFrom > 2) {
+      const cp = cpm.resumeFrom(2);
+      operations = cp?.data ?? this.generateProcessPlan(classified, input.material, maxRPM, maxPower, target);
+    } else {
+      operations = this.generateProcessPlan(classified, input.material, maxRPM, maxPower, target);
+      cpm.checkpoint('process_plan', 2, operations, Date.now() - t0);
+    }
 
     // S4: Generate G-code
-    const { blocks, text } = this.generateProgram(operations, input);
+    t0 = Date.now();
+    let programOutput: ReturnType<typeof this.generateProgram>;
+    if (resumeFrom > 3) {
+      const cp = cpm.resumeFrom(3);
+      programOutput = cp?.data ?? this.generateProgram(operations, input);
+    } else {
+      programOutput = this.generateProgram(operations, input);
+      cpm.checkpoint('generate_program', 3, programOutput, Date.now() - t0);
+    }
+    let { blocks, text } = programOutput;
+
+    // S4.5: AutoSpeedFeedEngine post-processing (U22) — optimize per-block S/F
+    const asfe = getAutoSpeedFeedEngine();
+    if (asfe) {
+      try {
+        // Build tool definitions from planned operations
+        const toolMap = new Map<number, any>();
+        for (const op of operations) {
+          if (!toolMap.has(op.tool.tool_number)) {
+            toolMap.set(op.tool.tool_number, {
+              tool_number: op.tool.tool_number,
+              diameter_mm: op.tool.diameter_mm,
+              flutes: op.tool.flutes,
+              type: op.tool.tool_type?.replace(/_/g, "") as any,
+              material: op.tool.material?.toLowerCase() as any,
+              coating: op.tool.coating,
+              flute_length_mm: op.tool.flute_length_mm,
+              corner_radius_mm: op.tool.corner_radius_mm,
+            });
+          }
+        }
+        const toolDefs = Array.from(toolMap.values());
+
+        const asfInput = {
+          gcode: text,
+          material: input.material?.material_name || "steel",
+          iso_group: input.material?.iso_group,
+          tools: toolDefs,
+          annotate: true,
+          preserve_rapids: true,
+        };
+
+        // optimize() is async — run synchronously if possible, skip if not
+        const result = asfe.optimize(asfInput);
+        if (result && typeof result.then === "function") {
+          // Cannot await in sync compute — skip async optimization
+          log.debug?.("AutoSpeedFeedEngine: skipping async optimization in sync pipeline");
+        } else if (result?.gcode) {
+          text = result.gcode;
+          log.info?.(`AutoSpeedFeedEngine: optimized ${result.stats?.lines_modified ?? 0} lines`);
+        }
+      } catch (e: any) {
+        log.debug?.(`AutoSpeedFeedEngine: fallback to original G-code — ${e?.message}`);
+      }
+    }
 
     // S5: Validate
+    t0 = Date.now();
     const safetyChecks = this.runSafetyChecks(blocks, operations, maxRPM, maxPower);
+
+    // --- WorkholdingVerificationEngine (U09) ---
+    const wve = getWorkholdingVerificationEngine();
+    if (wve) {
+      try {
+        const workholding = {
+          type: "vise" as const,
+          clamping_force_N: 20000,
+          clamp_points: 2,
+          clamping_method: "manual" as const,
+        };
+        for (const op of operations) {
+          const forces = {
+            Fc_N: op.physics.cutting_force_N,
+            torque_Nm: op.physics.torque_Nm,
+            operation_name: `Op ${op.op_number} (${op.operation_type})`,
+          };
+          const vResult = wve.verify(forces, workholding);
+          if (vResult && vResult.safety_factor < 1.5) {
+            safetyChecks.push({
+              rule: "workholding_force",
+              status: vResult.safety_factor < 1.0 ? "fail" : "warn",
+              message: `Op ${op.op_number}: Workholding safety factor ${vResult.safety_factor.toFixed(2)} (< 1.5) — ${vResult.recommendations?.[0] || "increase clamping force or reduce cut"}`,
+            });
+          } else if (vResult) {
+            safetyChecks.push({
+              rule: "workholding_force",
+              status: "pass",
+              message: `Op ${op.op_number}: Workholding SF ${vResult.safety_factor.toFixed(2)} OK`,
+            });
+          }
+        }
+      } catch {
+        // Fall through — no workholding check (current behavior)
+      }
+    }
     const totalCycleTime = operations.reduce((sum, op) => sum + op.cycle_time_sec, 0);
     const setupSheet = this.generateSetupSheet(operations, input, totalCycleTime);
     const confidence = this.calculateConfidence(intake, operations, safetyChecks);
+    cpm.checkpoint('validate_output', 4, { safetyChecks, confidence }, Date.now() - t0);
 
     // Collect all warnings
     const allWarnings = [
@@ -1606,6 +2073,9 @@ export class PrintToProgramPipelineEngine {
     const maxRPM = input.max_spindle_rpm || 12000;
     const maxPower = input.max_power_kW || 15;
     const target = input.optimization_target || "balanced";
+
+    this._currentMachineBrand = input.machine_brand;
+    this._currentMachineModel = input.machine_model;
 
     const intake = this.validateIntake(input);
     const iso = input.material?.iso_group || "P";

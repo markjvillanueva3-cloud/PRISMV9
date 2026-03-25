@@ -94,7 +94,7 @@ export class PhysicsAwareSimulationEngine {
 
     // Kienzle cutting force: Fc = kc * b * h
     const kc = kc11 * Math.pow(Math.max(h, 0.001), -mc);
-    const Fc = kc * ap * ae / 1000; // N (b=ap, h=ae/1000 approx)
+    const Fc = kc * ap * h; // N (Kienzle: kc already includes h^(-mc), so Fc = kc1.1 * ap * h^(1-mc))
 
     // Force components (empirical ratios)
     const Ff = Fc * 0.5;  // feed force ~50% of cutting force

@@ -266,7 +266,8 @@ export class ThermalWearCouplingEngine {
     const toolE = input.tool_E_GPa ?? 600;
     const simTime = input.simulation_time_min ?? 60;
     const dt = input.time_step_s ?? 1;
-    const mcN = input.mc_samples ?? 0;
+    const MAX_TRIALS = 100_000;
+    const mcN = Math.min(input.mc_samples ?? 0, MAX_TRIALS);
 
     // Deterministic run
     const { trajectory, limitTime } = this.integrateODE(

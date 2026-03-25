@@ -229,7 +229,8 @@ export class StochasticEDMEngine {
   analyze(input: EDMUncertaintyInput): StochasticEDMResult {
     const warnings: string[] = [];
     const recommendations: string[] = [];
-    const N = input.mc_samples ?? 1000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 1000, MAX_TRIALS);
 
     const mat = EDM_MATS[input.material ?? "steel"];
     const alpha = input.thermal_diffusivity_mm2_s ?? mat.alpha_mm2_s;

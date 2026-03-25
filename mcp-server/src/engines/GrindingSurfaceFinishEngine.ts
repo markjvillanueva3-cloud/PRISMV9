@@ -337,6 +337,177 @@ export class GrindingSurfaceFinishEngine {
     };
   }
 
+  // ─── Grinding Burn Temperature Threshold Model ───────────────────────
+  // Reference: Malkin & Guo (2008) "Grinding Technology", Ch. 6
+  //            Jaeger (1942) "Moving sources of heat"
+
+  private static readonly BURN_THERMAL_DATA: Record<string, {k: number; rho: number; Cp: number; Ac1: number; temper_start: number}> = {
+    'steel_4140':  { k: 42, rho: 7850, Cp: 475, Ac1: 727, temper_start: 500 },
+    'steel_4340':  { k: 38, rho: 7850, Cp: 475, Ac1: 723, temper_start: 480 },
+    'steel_52100': { k: 46, rho: 7810, Cp: 475, Ac1: 740, temper_start: 450 },
+    'steel_m2_hss':{ k: 26, rho: 8160, Cp: 420, Ac1: 830, temper_start: 550 },
+    'cast_iron':   { k: 50, rho: 7200, Cp: 500, Ac1: 750, temper_start: 500 },
+    'inconel_718': { k: 11, rho: 8190, Cp: 435, Ac1: 950, temper_start: 700 },
+  };
+
+  private static readonly BURN_SPECIFIC_ENERGY: Record<string, number> = {
+    'steel_4140': 40, 'steel_4340': 45, 'steel_52100': 50,
+    'steel_m2_hss': 55, 'cast_iron': 30, 'inconel_718': 60, // J/mm³
+  };
+
+  private static readonly BURN_COOLANT_FACTOR: Record<string, number> = {
+    flood: 0.6, mql: 0.8, dry: 1.0, cryogenic: 0.45,
+  };
+
+  /**
+   * Assess grinding burn risk using contact zone temperature estimation.
+   * Grinding burn occurs when contact temperature exceeds critical metallurgical thresholds:
+   * - Tempering burn: 500-700°C → softening, tensile residual stress
+   * - Rehardening burn: >723°C (Ac1 for steel) → untempered martensite, brittle
+   *
+   * Temperature model (Jaeger moving heat source):
+   *   T_contact = T_ambient + (q_w × l_c) / (k × sqrt(π × Pe))
+   *   where: q_w = specific grinding energy × material removal rate per unit width
+   *          l_c = geometric contact length = sqrt(a × D_s)
+   *          Pe = Peclet number = V_w × l_c / (4 × α)
+   *          α = thermal diffusivity = k/(ρ×Cp)
+   *
+   * Reference: Malkin & Guo (2008) "Grinding Technology", Ch. 6
+   *            Jaeger (1942) "Moving sources of heat"
+   */
+  assessBurnRisk(input: {
+    material: string;
+    wheel_speed_mps: number;
+    work_speed_mm_per_min: number;
+    depth_of_cut_mm: number;
+    wheel_diameter_mm: number;
+    specific_energy_J_per_mm3?: number;
+    coolant: 'flood' | 'mql' | 'dry' | 'cryogenic';
+  }): {
+    contact_temp_C: number;
+    burn_risk: 'none' | 'low' | 'tempering' | 'rehardening' | 'severe';
+    threshold_tempering_C: number;
+    threshold_rehardening_C: number;
+    margin_C: number;
+    specific_energy_used: number;
+    contact_length_mm: number;
+    peclet_number: number;
+    recommendations: string[];
+    barkhausen_noise_expected: 'pass' | 'marginal' | 'fail';
+  } {
+    const mat = GrindingSurfaceFinishEngine.BURN_THERMAL_DATA[input.material];
+    if (!mat) {
+      throw new Error(`Unknown material '${input.material}'. Supported: ${Object.keys(GrindingSurfaceFinishEngine.BURN_THERMAL_DATA).join(', ')}`);
+    }
+
+    const u = input.specific_energy_J_per_mm3
+      ?? GrindingSurfaceFinishEngine.BURN_SPECIFIC_ENERGY[input.material]
+      ?? 45;
+    const coolantFactor = GrindingSurfaceFinishEngine.BURN_COOLANT_FACTOR[input.coolant] ?? 1.0;
+
+    const a = input.depth_of_cut_mm;          // mm
+    const Ds = input.wheel_diameter_mm;        // mm
+    const Vw = input.work_speed_mm_per_min / 1000 / 60; // mm/min → m/s
+    const Vs = input.wheel_speed_mps;          // m/s
+
+    // Geometric contact length: l_c = sqrt(a × D_s) [mm]
+    const l_c = Math.sqrt(a * Ds);
+
+    // Thermal diffusivity: α = k / (ρ × Cp) [m²/s → mm²/s conversion: k in W/mK, ρ in kg/m³, Cp in J/kgK]
+    // α [m²/s] = k / (ρ × Cp), convert to mm²/s: multiply by 1e6
+    const alpha_mm2_s = (mat.k / (mat.rho * mat.Cp)) * 1e6;
+
+    // Peclet number: Pe = V_w × l_c / (4 × α)
+    // V_w in m/s → mm/s: multiply by 1000
+    const Vw_mm_s = input.work_speed_mm_per_min / 60;
+    const Pe = (Vw_mm_s * l_c) / (4 * alpha_mm2_s);
+
+    // Specific material removal rate per unit width: Q'w = a × Vw [mm²/s]
+    const Qw_prime = a * Vw_mm_s; // mm²/s
+
+    // Heat flux to workpiece: q_w = u × Q'w × coolant_factor [W/mm]
+    // u in J/mm³, Q'w in mm²/s → q_w in W/mm
+    const q_w = u * Qw_prime * coolantFactor;
+
+    // Jaeger moving heat source: T_contact = T_ambient + (q_w × l_c) / (k_mm × sqrt(π × Pe))
+    // k in W/(m·K) → W/(mm·K): divide by 1000
+    const k_mm = mat.k / 1000;
+    const T_ambient = 25;
+    const T_contact = T_ambient + (q_w * l_c) / (k_mm * Math.sqrt(Math.PI * Math.max(Pe, 0.001)));
+
+    // Burn risk classification
+    const tempering_threshold = mat.temper_start;
+    const rehardening_threshold = mat.Ac1;
+    const severe_threshold = rehardening_threshold + 100;
+
+    let burn_risk: 'none' | 'low' | 'tempering' | 'rehardening' | 'severe';
+    if (T_contact >= severe_threshold) {
+      burn_risk = 'severe';
+    } else if (T_contact >= rehardening_threshold) {
+      burn_risk = 'rehardening';
+    } else if (T_contact >= tempering_threshold) {
+      burn_risk = 'tempering';
+    } else if (T_contact >= tempering_threshold * 0.85) {
+      burn_risk = 'low';
+    } else {
+      burn_risk = 'none';
+    }
+
+    // Margin below nearest dangerous threshold
+    const margin = tempering_threshold - T_contact;
+
+    // Barkhausen noise prediction
+    let barkhausen: 'pass' | 'marginal' | 'fail';
+    if (T_contact >= rehardening_threshold) {
+      barkhausen = 'fail';
+    } else if (T_contact >= tempering_threshold * 0.9) {
+      barkhausen = 'marginal';
+    } else {
+      barkhausen = 'pass';
+    }
+
+    // Recommendations
+    const recommendations: string[] = [];
+    if (burn_risk === 'severe' || burn_risk === 'rehardening') {
+      recommendations.push('CRITICAL: Reduce depth of cut immediately — rehardening burn causes brittle untempered martensite');
+      recommendations.push(`Reduce a_e from ${a.toFixed(3)}mm to <${(a * tempering_threshold / T_contact).toFixed(3)}mm`);
+      if (input.coolant !== 'flood' && input.coolant !== 'cryogenic') {
+        recommendations.push('Switch to flood coolant or cryogenic cooling');
+      }
+      recommendations.push('Increase work speed to reduce contact time');
+      recommendations.push('Consider continuous-dress creep-feed (CDCF) for thermal management');
+    } else if (burn_risk === 'tempering') {
+      recommendations.push('WARNING: Tempering burn zone — softening and tensile residual stress likely');
+      recommendations.push(`Reduce depth of cut by ${Math.round((1 - tempering_threshold / T_contact) * 100)}%`);
+      if (input.coolant === 'dry' || input.coolant === 'mql') {
+        recommendations.push('Switch to flood coolant for better heat extraction');
+      }
+      recommendations.push('Dress wheel more frequently to maintain sharpness (reduces specific energy)');
+    } else if (burn_risk === 'low') {
+      recommendations.push('Near tempering threshold — monitor Barkhausen noise or etch inspection');
+      recommendations.push('Maintain wheel sharpness with regular dressing');
+    } else {
+      recommendations.push('Operating within safe thermal limits');
+    }
+
+    if (input.material === 'inconel_718') {
+      recommendations.push('Inconel: Use ceramic or CBN wheels; high specific energy demands aggressive cooling');
+    }
+
+    return {
+      contact_temp_C: Math.round(T_contact * 10) / 10,
+      burn_risk,
+      threshold_tempering_C: tempering_threshold,
+      threshold_rehardening_C: rehardening_threshold,
+      margin_C: Math.round(margin * 10) / 10,
+      specific_energy_used: u,
+      contact_length_mm: Math.round(l_c * 1000) / 1000,
+      peclet_number: Math.round(Pe * 1000) / 1000,
+      recommendations,
+      barkhausen_noise_expected: barkhausen,
+    };
+  }
+
   /** Find closest standard mesh size */
   private closestMeshSize(mesh: number): number {
     const sizes = Object.keys(GRAIN_DENSITY_BY_MESH).map(Number);

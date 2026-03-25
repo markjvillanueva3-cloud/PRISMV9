@@ -18,6 +18,14 @@
  */
 
 import { log } from "../utils/Logger.js";
+import {
+  getKienzleByISO, getTaylor, getSpeed, lookupKienzleMaterial,
+  predictRaTurning, COOLANT_MATRIX, PECK_RULES,
+  OPERATION_SEQUENCE_RULES, SAFE_START_BLOCKS,
+  THREADING_INFEED, calcTapDrill,
+  thermalDeratingFactor, rakeAngleCorrectionFactor, correctedCuttingForce,
+  availablePower,
+} from "./MachiningKnowledgeBaseEngine.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -30,7 +38,10 @@ export type TurningFeatureType =
   | "groove_od" | "groove_id" | "groove_face" | "groove_cutoff"
   | "thread_od" | "thread_id" | "thread_pipe"
   | "drill_center" | "drill_through" | "drill_blind"
-  | "part_off";
+  | "part_off"
+  // Live tooling features (C-axis / Y-axis milling on lathe)
+  | "whistle_notch" | "od_pocket_mill" | "cross_drill" | "cross_tap"
+  | "keyway" | "flat_mill" | "hex_mill";
 
 export type TurningOpType =
   | "od_rough" | "od_finish" | "od_thread"
@@ -39,7 +50,10 @@ export type TurningOpType =
   | "groove" | "groove_finish"
   | "drill" | "bore_rough" | "bore_finish"
   | "thread_single_point" | "thread_insert"
-  | "part_off" | "center_drill" | "taper";
+  | "part_off" | "center_drill" | "taper"
+  // Live tooling operations
+  | "live_whistle_notch" | "live_od_pocket" | "live_cross_drill"
+  | "live_cross_tap" | "live_keyway" | "live_flat_mill";
 
 export interface TurningFeature {
   id: string;
@@ -61,6 +75,26 @@ export interface TurningFeature {
   position_z_mm?: number;
   required_operations?: TurningOpType[];
   priority?: number;
+  // Live tooling parameters
+  notch_angle_deg?: number;        // Whistle notch angle (5-20°)
+  notch_depth_mm?: number;         // Depth of whistle notch into OD
+  notch_width_mm?: number;         // Width of notch along Z
+  pocket_width_mm?: number;        // OD pocket width (Z direction)
+  pocket_depth_mm?: number;        // OD pocket depth into OD (radial)
+  pocket_length_mm?: number;       // OD pocket arc length (C direction)
+  c_axis_position_deg?: number;    // Angular position on C-axis (0-360)
+  live_tool_diameter_mm?: number;  // End mill diameter for live ops
+  cross_hole_diameter_mm?: number; // Cross-drilled hole diameter
+  /** Multi-point profile for G71/G70 contour — array of {X (dia), Z (axial), radius?, type?} */
+  profile_points?: Array<{
+    X: number;  // diameter mm
+    Z: number;  // axial position mm (negative = toward chuck)
+    type?: "rapid" | "linear" | "arc_cw" | "arc_ccw";
+    R?: number; // arc radius mm
+    I?: number; // arc center offset X
+    K?: number; // arc center offset Z
+    feed?: number; // per-segment feed override mm/rev
+  }>;
 }
 
 export interface TurningMaterial {
@@ -141,31 +175,18 @@ export interface TurningInput {
   optimization_target?: "balanced" | "max_speed" | "max_tool_life" | "min_cost" | "surface_quality";
   tailstock?: boolean;
   sub_spindle?: boolean;
+  controller?: "fanuc" | "haas" | "mazak" | "okuma" | "siemens";
+  dual_spindle_cutoff?: boolean;  // Sub-spindle grips part during cutoff
+  dual_spindle_sync_rpm?: number; // If set, both spindles run at this RPM
 }
 
 // ============================================================================
 // INLINE PHYSICS
 // ============================================================================
 
-interface KienzleTurning { kc1_1: number; mc: number; }
-
-const KIENZLE_TURNING: Record<string, KienzleTurning> = {
-  P: { kc1_1: 2000, mc: 0.25 },
-  M: { kc1_1: 2400, mc: 0.25 },
-  K: { kc1_1: 1200, mc: 0.25 },
-  N: { kc1_1: 800, mc: 0.23 },
-  S: { kc1_1: 2800, mc: 0.28 },
-  H: { kc1_1: 3200, mc: 0.30 },
-};
-
-const TAYLOR_TURNING: Record<string, { C: number; n: number }> = {
-  P: { C: 300, n: 0.25 },
-  M: { C: 180, n: 0.20 },
-  K: { C: 350, n: 0.28 },
-  N: { C: 700, n: 0.35 },
-  S: { C: 130, n: 0.18 },
-  H: { C: 100, n: 0.15 },
-};
+// Kienzle and Taylor constants now sourced from MachiningKnowledgeBaseEngine
+// (validated against Sandvik GC 2023, Kennametal 2018, ISCAR 2023)
+// Using getKienzleByISO() and getTaylor() from imported KB
 
 const TURNING_SPEEDS: Record<string, { rough: number; finish: number }> = {
   P: { rough: 220, finish: 320 },
@@ -185,9 +206,15 @@ const TURNING_FEEDS: Record<string, { rough: number; finish: number }> = {
   H: { rough: 0.12, finish: 0.05 },
 };
 
-function kienzleForceTurning(kc1_1: number, mc: number, ap: number, f: number): number {
+function kienzleForceTurning(kc1_1: number, mc: number, ap: number, f: number, approachAngleDeg?: number): number {
   if (f <= 0 || ap <= 0) return 0;
-  return kc1_1 * ap * Math.pow(f, 1 - mc);
+  // K_kappa correction: chip thickness h = f × sin(κr) for non-90° approach angles
+  // Sandvik Metal Cutting Technical Guide, Table 4.2
+  // Most turning inserts: κr = 93-95° → K_kappa ≈ 0.996-0.998 (small effect)
+  // For 45° face turning: K_kappa = sin(45°) = 0.707 (30% force reduction)
+  const kappa = approachAngleDeg ?? 95; // Default 95° (standard OD turning)
+  const K_kappa = Math.sin((kappa * Math.PI) / 180);
+  return kc1_1 * ap * Math.pow(f * K_kappa, 1 - mc);
 }
 
 function taylorLifeTurning(C: number, n: number, Vc: number): number {
@@ -209,6 +236,110 @@ function formatTimeTurning(seconds: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = Math.round(seconds % 60);
   return `${mins}:${secs.toString().padStart(2, "0")}`;
+}
+
+/**
+ * Generate stepped G97 RPM commands that emulate G96 CSS behavior.
+ *
+ * USE CASE: Dual-spindle cutoff on machines where G96 is blocked during
+ * synchronized spindle operation (e.g., Okuma Multus with G199 active).
+ *
+ * Instead of G96 S{Vc} which dynamically adjusts RPM, we pre-calculate
+ * the correct RPM at discrete diameter points and output explicit G97 S{rpm}
+ * commands at each step. Both spindles follow the same explicit RPM —
+ * no conflict with synchronization.
+ *
+ * The blade moves from OD toward center. As diameter decreases, RPM must
+ * increase to maintain constant surface speed: RPM = (1000 × Vc) / (π × D)
+ *
+ * Safety:
+ *   - G50 Smax still clamps maximum RPM
+ *   - G99 (feed/rev) MUST be active — chip load stays constant as RPM changes
+ *   - Feed reduction in last 20% of travel (blade rigidity decreases near center)
+ *   - Explicit both-spindle RPM command for sync safety
+ *
+ * @param od_mm         Part outer diameter (start of cut)
+ * @param Vc_m_min      Target cutting speed (m/min)
+ * @param maxRPM        Spindle speed clamp
+ * @param feed_mm_rev   Feed per revolution for cutoff
+ * @param steps         Number of diameter steps (5-10 typical)
+ * @param controller    Controller type for syntax differences
+ * @param cutoffZ       Z position of cutoff
+ */
+function generateSteppedCSSCutoff(params: {
+  od_mm: number;
+  Vc_m_min: number;
+  maxRPM: number;
+  feed_mm_rev: number;
+  steps: number;
+  controller: string;
+  cutoffZ_mm: number;
+  lineNumFn: () => string;
+}): string[] {
+  const { od_mm, Vc_m_min, maxRPM, feed_mm_rev, steps, controller, cutoffZ_mm, lineNumFn: ln } = params;
+  const lines: string[] = [];
+
+  // Calculate diameter steps from OD to center
+  const stepSize = od_mm / (steps * 2); // Diameter steps (radius movement × 2)
+  const isOkuma = controller === "okuma";
+  const syncOn = isOkuma ? "G199" : "M205";   // Sync spindle ON
+  const syncOff = isOkuma ? "G198" : "M206";   // Sync spindle OFF
+
+  lines.push(`(=== DUAL-SPINDLE CUTOFF WITH STEPPED CSS EMULATION ===)`);
+  lines.push(`(Target Vc: ${Vc_m_min} m/min | OD: ${od_mm}mm | Smax: ${maxRPM} RPM)`);
+  lines.push(`(G96 blocked in sync mode — using pre-calculated G97 RPM steps)`);
+  lines.push(``);
+  lines.push(`${ln()} ${syncOn} (Synchronize spindles — both at same RPM)`);
+  lines.push(`${ln()} G99 (Feed per rev — CRITICAL: maintains chip load as RPM changes)`);
+
+  // Calculate RPM at starting diameter
+  const startRPM = Math.min(Math.round((1000 * Vc_m_min) / (Math.PI * od_mm)), maxRPM);
+  lines.push(`${ln()} G97 S${startRPM} M03 (RPM at D=${od_mm.toFixed(1)}mm)`);
+  if (isOkuma) {
+    lines.push(`${ln()} M143 (Sub-spindle forward — same direction as main)`);
+  }
+  lines.push(`${ln()} G00 X${(od_mm + 2).toFixed(1)} Z${cutoffZ_mm.toFixed(1)} (Rapid to cutoff position)`);
+  lines.push(`${ln()} M08 (Coolant ON — aimed at blade tip)`);
+
+  // Generate stepped cuts from OD to center
+  let currentD = od_mm;
+  const totalSteps = steps;
+  const feedReductionPoint = od_mm * 0.2; // Reduce feed in last 20% of diameter
+
+  for (let i = 0; i < totalSteps; i++) {
+    const nextD = Math.max(currentD - stepSize * 2, -1.0); // -1.0 = past center
+    const isLastStep = i === totalSteps - 1 || nextD <= 0;
+    const targetD = isLastStep ? -1.0 : nextD; // Past center on last step
+
+    // Calculate RPM for midpoint of this segment
+    const midD = Math.max((currentD + Math.max(nextD, 2)) / 2, 2);
+    const rpm = Math.min(Math.round((1000 * Vc_m_min) / (Math.PI * midD)), maxRPM);
+
+    // Feed adjustment: reduce near center (blade loses rigidity)
+    const inReductionZone = currentD <= feedReductionPoint;
+    const segFeed = inReductionZone
+      ? Math.round(feed_mm_rev * 0.6 * 1000) / 1000  // 60% feed near center
+      : feed_mm_rev;
+
+    const rpmNote = rpm >= maxRPM ? " (CLAMPED at Smax)" : "";
+    const feedNote = inReductionZone ? " (reduced — blade rigidity)" : "";
+
+    lines.push(`${ln()} G97 S${rpm} (Vc=${Vc_m_min} at D=${midD.toFixed(1)}mm = ${rpm} RPM${rpmNote})`);
+    lines.push(`${ln()} G01 X${targetD.toFixed(1)} F${segFeed}${feedNote}`);
+
+    if (isLastStep) break;
+    currentD = nextD;
+  }
+
+  lines.push(`${ln()} G00 X${(od_mm + 10).toFixed(1)} (Rapid retract — part drops)`);
+  lines.push(`${ln()} M09 (Coolant OFF)`);
+  if (isOkuma) {
+    lines.push(`${ln()} M145 (Sub-spindle STOP)`);
+  }
+  lines.push(`${ln()} ${syncOff} (Disengage spindle sync)`);
+  lines.push(`(=== END DUAL-SPINDLE CUTOFF ===)`);
+
+  return lines;
 }
 
 // ============================================================================
@@ -265,6 +396,9 @@ export class TurningPrintToProgramEngine {
       id_bore: 5, id_contour: 5, id_taper: 5,
       groove_od: 6, groove_id: 6, groove_face: 6,
       thread_od: 7, thread_id: 7, thread_pipe: 7,
+      // Live tooling after all turning ops, before cutoff
+      whistle_notch: 7.5, od_pocket_mill: 7.5, cross_drill: 7.5,
+      cross_tap: 7.5, keyway: 7.5, flat_mill: 7.5, hex_mill: 7.5,
       groove_cutoff: 8, part_off: 9,
     };
     return p[type] ?? 5;
@@ -301,6 +435,14 @@ export class TurningPrintToProgramEngine {
       case "drill_blind":
         return ["center_drill", "drill"];
       case "part_off": return ["part_off"];
+      // Live tooling features
+      case "whistle_notch": return ["live_whistle_notch"];
+      case "od_pocket_mill": return ["live_od_pocket"];
+      case "cross_drill": return ["live_cross_drill"];
+      case "cross_tap": return ["live_cross_drill", "live_cross_tap"];
+      case "keyway": return ["live_keyway"];
+      case "flat_mill": return ["live_flat_mill"];
+      case "hex_mill": return ["live_flat_mill"];
       default: return ["od_rough", "od_finish"];
     }
   }
@@ -353,6 +495,19 @@ export class TurningPrintToProgramEngine {
       case "taper":
         return { tool_number: toolNum, insert_type: "VNMG", nose_radius_mm: noseR,
           approach_angle_deg: 35, holder_style: "SVJBR", material: "carbide", coating: "TiAlN" };
+      // Live tooling
+      case "live_whistle_notch":
+      case "live_od_pocket":
+      case "live_keyway":
+      case "live_flat_mill":
+        return { tool_number: toolNum, insert_type: "drill" as any, nose_radius_mm: 0,
+          approach_angle_deg: 0, holder_style: "ER32-LIVE", material: "carbide", coating: "TiAlN" };
+      case "live_cross_drill":
+        return { tool_number: toolNum, insert_type: "drill", nose_radius_mm: 0,
+          approach_angle_deg: 140, holder_style: "ER32-LIVE", material: "carbide", coating: "TiAlN" };
+      case "live_cross_tap":
+        return { tool_number: toolNum, insert_type: "drill" as any, nose_radius_mm: 0,
+          approach_angle_deg: 0, holder_style: "ER32-LIVE", material: "HSS" as any, coating: "TiN" };
       default:
         return { tool_number: toolNum, insert_type: "CNMG", nose_radius_mm: 0.8,
           approach_angle_deg: 95, holder_style: "DCLNR", material: "carbide", coating: "TiAlN" };
@@ -372,8 +527,8 @@ export class TurningPrintToProgramEngine {
     target: string,
   ): { params: TurningCuttingParams; physics: TurningOperationPhysics } {
     const iso = mat.iso_group || "P";
-    const kz = KIENZLE_TURNING[iso] || KIENZLE_TURNING.P;
-    const tay = TAYLOR_TURNING[iso] || TAYLOR_TURNING.P;
+    const kz = getKienzleByISO(iso);
+    const tay = getTaylor(iso);
     const speeds = TURNING_SPEEDS[iso] || TURNING_SPEEDS.P;
     const feeds = TURNING_FEEDS[iso] || TURNING_FEEDS.P;
 
@@ -437,13 +592,23 @@ export class TurningPrintToProgramEngine {
       ap = Math.min(3.0, (feat.depth_mm || 3));
     }
 
-    // Physics
-    const Fc = kienzleForceTurning(kz.kc1_1, kz.mc, ap, isThread ? ap * 0.3 : f);
+    // Physics — corrected with rake angle + approach angle (Sandvik Metal Cutting Guide)
+    const rakeAngle = isFinish ? 8 : 6;  // Finish inserts have more positive rake
+    const approachAngle = tool.approach_angle_deg || 95; // Standard OD turning = 95°
+    // Effective chip thickness: h_eff = f × sin(κr) for approach angle correction
+    const sinKappa = Math.sin((approachAngle * Math.PI) / 180);
+    const chipThickness = isThread ? ap * 0.3 : f * sinKappa;
+    const Fc = correctedCuttingForce({
+      kc1_1: kz.kc1_1, mc: kz.mc,
+      ap_mm: ap,
+      chip_thickness_mm: chipThickness,
+      rake_angle_deg: rakeAngle,
+    });
     const power = (Fc * actualVc) / 60000;
     const torque = (Fc * workD / 2) / 1000;
     const toolLife = taylorLifeTurning(tay.C, tay.n, actualVc);
-    const Ra = turningRa(isThread ? 0.1 : f, tool.nose_radius_mm || 0.4);
-    const mrrVal = ap * f * actualVc * 1000 / Math.PI;
+    const Ra = predictRaTurning(isThread ? 0.1 : f, tool.nose_radius_mm || 0.4);
+    const mrrVal = ap * f * actualVc * 1000;  // MRR = ap × f × Vc × 1000 [mm³/min]
 
     return {
       params: {
@@ -571,12 +736,28 @@ export class TurningPrintToProgramEngine {
       lines.push(`(OP${op.op_number}: ${op.operation_type} - Feature ${op.feature_id})`);
 
       switch (op.operation_type) {
-        case "face_rough":
+        case "face_rough": {
+          // G72 facing cycle — multi-pass with physics-driven DOC
+          const faceStartX = input.bar_stock_od_mm / 2 + 2;
+          const faceStock = op.cutting_params.depth_of_cut_mm * (op.passes || 3); // Total facing stock
+          const faceDOC = op.cutting_params.depth_of_cut_mm || 1.5;
+          lines.push(`${ln()} G00 X${faceStartX.toFixed(1)} Z2.0`);
+          // G72 W(DOC) R(retract) — Fanuc facing canned cycle
+          lines.push(`${ln()} G72 W${faceDOC.toFixed(2)} R1.0`);
+          lines.push(`${ln()} G72 P${lineNum + 1} Q${lineNum + 3} U0.2 W0.05 F${f}`);
+          // Profile definition (P to Q blocks)
+          lines.push(`${ln()} G00 Z${(-faceStock).toFixed(2)}`);
+          lines.push(`${ln()} G01 X${faceStartX.toFixed(1)} F${f}`);
+          lines.push(`${ln()} X-1.0 (Face to center — past centerline for clean finish)`);
+          lines.push(`${ln()} G00 Z2.0`);
+          break;
+        }
         case "face_finish": {
-          const startX = input.bar_stock_od_mm / 2 + 2;
-          lines.push(`${ln()} G00 X${startX.toFixed(1)} Z1.0`);
-          lines.push(`${ln()} G01 Z0.0 F${f}`);
-          lines.push(`${ln()} G01 X-1.0 F${f} (Face to center)`);
+          // G70 finishing pass references the same P/Q profile from roughing
+          const faceFinStartX = input.bar_stock_od_mm / 2 + 2;
+          lines.push(`${ln()} G00 X${faceFinStartX.toFixed(1)} Z1.0`);
+          lines.push(`${ln()} G01 Z0.0 F${(f * 0.5).toFixed(3)} (Finish face — reduced feed for Ra)`);
+          lines.push(`${ln()} G01 X-1.0 F${(f * 0.5).toFixed(3)}`);
           lines.push(`${ln()} G00 Z2.0`);
           lines.push(`${ln()} G28 U0 W0`);
           break;
@@ -585,22 +766,93 @@ export class TurningPrintToProgramEngine {
           const feat = input.features.find(ff => ff.id === op.feature_id);
           const targetOD = feat?.od_mm || (input.finished_od_mm || input.bar_stock_od_mm - 4);
           const startZ = -(feat?.length_mm || input.part_length_mm);
+          const isID = op.operation_type.startsWith("id_") || op.operation_type.startsWith("bore_");
+          const profilePts = feat?.profile_points;
+
+          // Rapid to start position above stock
           lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 2).toFixed(1)} Z2.0`);
-          lines.push(`${ln()} G71 U${ap.toFixed(1)} R1.0 (Rough cycle, DOC=${ap}mm)`);
-          lines.push(`${ln()} G71 P${lineNum} Q${lineNum + 20} U0.5 W0.1 F${f}`);
-          lines.push(`${ln()} G00 X${targetOD.toFixed(1)}`);
-          lines.push(`${ln()} G01 Z${startZ.toFixed(1)} F${f}`);
-          lineNum += 10;
+
+          // G71 line 1: U=DOC, R=retract
+          lines.push(`${ln()} G71 U${ap.toFixed(1)} R1.0 (Rough DOC=${ap}mm)`);
+
+          // Pre-calculate P and Q block numbers
+          // P = next line after G71 line 2
+          // Q = P + (profile_points_count + 1) * 10 (for each segment + departure)
+          const pNum = lineNum + 10; // Will be the number AFTER the G71 P/Q line
+          const numProfileLines = profilePts ? profilePts.length + 1 : 2; // +1 for Q departure
+          const qNum = pNum + numProfileLines * 10;
+
+          const finishStock = isID ? -0.3 : 0.5;
+          lines.push(`${ln()} G71 P${pNum} Q${qNum} U${finishStock.toFixed(1)} W0.1 F${f}`);
+
+          // ── Profile definition (P..Q) with TNC + arcs ──
+          if (profilePts && profilePts.length > 0) {
+            const tnc = isID ? "G41" : "G42";
+            const firstPt = profilePts[0];
+
+            // P block: TNC ON + rapid to first profile X position
+            lineNum = pNum; // Force lineNum to P
+            lines.push(`N${pNum} ${tnc} G00 X${firstPt.X.toFixed(3)} (P — TNC ON)`);
+            lineNum += 10;
+
+            // Each profile point gets its own sequential N-number
+            for (let i = 0; i < profilePts.length; i++) {
+              const pt = profilePts[i];
+              const feedStr = pt.feed ? ` F${pt.feed.toFixed(3)}` : "";
+              const nStr = `N${lineNum}`;
+              lineNum += 10;
+
+              if (pt.type === "arc_cw") {
+                const arcAddr = pt.R !== undefined ? ` R${pt.R.toFixed(3)}` : `${pt.I !== undefined ? ` I${pt.I.toFixed(3)}` : ""}${pt.K !== undefined ? ` K${pt.K.toFixed(3)}` : ""}`;
+                lines.push(`${nStr} G02 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${arcAddr}${feedStr}`);
+              } else if (pt.type === "arc_ccw") {
+                const arcAddr = pt.R !== undefined ? ` R${pt.R.toFixed(3)}` : `${pt.I !== undefined ? ` I${pt.I.toFixed(3)}` : ""}${pt.K !== undefined ? ` K${pt.K.toFixed(3)}` : ""}`;
+                lines.push(`${nStr} G03 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${arcAddr}${feedStr}`);
+              } else if (i === 0) {
+                // First linear: Z approach to profile start
+                lines.push(`${nStr} G01 Z${pt.Z.toFixed(3)}${feedStr || ` F${f}`}`);
+              } else {
+                lines.push(`${nStr} G01 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${feedStr}`);
+              }
+            }
+
+            // Q block: TNC OFF departure — must travel ≥ 2× nose radius
+            lines.push(`N${qNum} G40 G00 X${(input.bar_stock_od_mm + 2).toFixed(1)} (Q — TNC OFF)`);
+            lineNum = qNum + 10;
+          } else {
+            // Fallback: simple 2-point profile
+            lineNum = pNum;
+            lines.push(`N${pNum} G00 X${targetOD.toFixed(1)}`);
+            lineNum += 10;
+            lines.push(`N${lineNum} G01 Z${startZ.toFixed(1)} F${f}`);
+            lines.push(`N${qNum} G00 X${(input.bar_stock_od_mm + 2).toFixed(1)}`);
+            lineNum = qNum + 10;
+          }
+
+          // Store P/Q for G70 finish reference
+          (op as any)._pBlock = pNum;
+          (op as any)._qBlock = qNum;
+
           lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 5).toFixed(1)} Z2.0`);
           break;
         }
         case "od_finish": {
-          const feat = input.features.find(ff => ff.id === op.feature_id);
-          const targetOD = feat?.od_mm || (input.finished_od_mm || input.bar_stock_od_mm - 4);
-          const startZ = -(feat?.length_mm || input.part_length_mm);
-          lines.push(`${ln()} G00 X${(targetOD + 1).toFixed(1)} Z2.0`);
-          lines.push(`${ln()} G70 P${lineNum - 60} Q${lineNum - 30} (Finish cycle)`);
-          lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 5).toFixed(1)} Z2.0`);
+          const roughOp = operations.find(o => o.feature_id === op.feature_id && o.operation_type === "od_rough");
+          const pBlock = (roughOp as any)?._pBlock;
+          const qBlock = (roughOp as any)?._qBlock;
+
+          if (pBlock && qBlock) {
+            lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 2).toFixed(1)} Z2.0`);
+            lines.push(`${ln()} G70 P${pBlock} Q${qBlock} (Finish — retraces rough profile)`);
+            lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 5).toFixed(1)} Z2.0`);
+          } else {
+            // No roughing op found — generate standalone finish pass
+            const feat = input.features.find(ff => ff.id === op.feature_id);
+            const targetOD = feat?.od_mm || (input.finished_od_mm || input.bar_stock_od_mm - 4);
+            lines.push(`${ln()} G00 X${(targetOD + 1).toFixed(1)} Z2.0`);
+            lines.push(`${ln()} G01 Z${(-(feat?.length_mm || input.part_length_mm)).toFixed(1)} F${f} (Single finish pass)`);
+            lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 5).toFixed(1)} Z2.0`);
+          }
           break;
         }
         case "id_rough":
@@ -608,18 +860,73 @@ export class TurningPrintToProgramEngine {
           const feat = input.features.find(ff => ff.id === op.feature_id);
           const boreD = feat?.id_mm || 20;
           const depth = feat?.depth_mm || 30;
+          const profilePtsID = feat?.profile_points;
+
+          // Rapid to start position below bore OD
           lines.push(`${ln()} G00 X${(boreD - 2).toFixed(1)} Z2.0`);
           lines.push(`${ln()} G71 U${ap.toFixed(1)} R1.0`);
-          lines.push(`${ln()} G71 P${lineNum} Q${lineNum + 20} U-0.3 W0.1 F${f}`);
-          lines.push(`${ln()} G00 X${boreD.toFixed(1)}`);
-          lines.push(`${ln()} G01 Z${(-depth).toFixed(1)} F${f}`);
-          lineNum += 10;
+
+          // P/Q calculation
+          const pNumID = lineNum + 10;
+          const numIDLines = profilePtsID ? profilePtsID.length + 1 : 2;
+          const qNumID = pNumID + numIDLines * 10;
+
+          lines.push(`${ln()} G71 P${pNumID} Q${qNumID} U-0.3 W0.1 F${f}`);
+
+          if (profilePtsID && profilePtsID.length > 0) {
+            // Full ID profile with G41 TNC and arcs
+            const firstPtID = profilePtsID[0];
+            lineNum = pNumID;
+            lines.push(`N${pNumID} G41 G00 X${firstPtID.X.toFixed(3)} (P — ID TNC ON)`);
+            lineNum += 10;
+
+            for (let i = 0; i < profilePtsID.length; i++) {
+              const pt = profilePtsID[i];
+              const feedStr = pt.feed ? ` F${pt.feed.toFixed(3)}` : "";
+              const nStr = `N${lineNum}`;
+              lineNum += 10;
+
+              if (pt.type === "arc_cw") {
+                const arcAddr = pt.R !== undefined ? ` R${pt.R.toFixed(3)}` : `${pt.I !== undefined ? ` I${pt.I.toFixed(3)}` : ""}${pt.K !== undefined ? ` K${pt.K.toFixed(3)}` : ""}`;
+                lines.push(`${nStr} G02 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${arcAddr}${feedStr}`);
+              } else if (pt.type === "arc_ccw") {
+                const arcAddr = pt.R !== undefined ? ` R${pt.R.toFixed(3)}` : `${pt.I !== undefined ? ` I${pt.I.toFixed(3)}` : ""}${pt.K !== undefined ? ` K${pt.K.toFixed(3)}` : ""}`;
+                lines.push(`${nStr} G03 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${arcAddr}${feedStr}`);
+              } else if (i === 0) {
+                lines.push(`${nStr} G01 Z${pt.Z.toFixed(3)}${feedStr || ` F${f}`}`);
+              } else {
+                lines.push(`${nStr} G01 X${pt.X.toFixed(3)} Z${pt.Z.toFixed(3)}${feedStr}`);
+              }
+            }
+
+            lines.push(`N${qNumID} G40 G00 X${(boreD - 5).toFixed(1)} (Q — ID TNC OFF)`);
+            lineNum = qNumID + 10;
+          } else {
+            // Fallback simple bore profile
+            lineNum = pNumID;
+            lines.push(`N${pNumID} G00 X${boreD.toFixed(1)}`);
+            lineNum += 10;
+            lines.push(`N${lineNum} G01 Z${(-depth).toFixed(1)} F${f}`);
+            lines.push(`N${qNumID} G00 X${(boreD - 5).toFixed(1)}`);
+            lineNum = qNumID + 10;
+          }
+
+          (op as any)._pBlock = pNumID;
+          (op as any)._qBlock = qNumID;
           lines.push(`${ln()} G00 X${(boreD - 5).toFixed(1)} Z2.0`);
           break;
         }
         case "id_finish":
         case "bore_finish": {
-          lines.push(`${ln()} G70 P${lineNum - 60} Q${lineNum - 30} (Bore finish cycle)`);
+          const roughOpID = operations.find(o => o.feature_id === op.feature_id && (o.operation_type === "bore_rough" || o.operation_type === "id_rough"));
+          const pBlockID = (roughOpID as any)?._pBlock;
+          const qBlockID = (roughOpID as any)?._qBlock;
+
+          if (pBlockID && qBlockID) {
+            lines.push(`${ln()} G70 P${pBlockID} Q${qBlockID} (ID Finish — retraces bore profile)`);
+          } else {
+            lines.push(`${ln()} G70 P${lineNum - 60} Q${lineNum - 30} (Bore finish cycle)`);
+          }
           lines.push(`${ln()} G28 U0 W0`);
           break;
         }
@@ -631,7 +938,9 @@ export class TurningPrintToProgramEngine {
           const grooveW = feat?.groove_width_mm || feat?.width_mm || 3;
           lines.push(`${ln()} G00 X${((feat?.od_mm || input.bar_stock_od_mm) + 2).toFixed(1)} Z${grooveZ.toFixed(1)}`);
           lines.push(`${ln()} G75 R1.0`);
-          lines.push(`${ln()} G75 X${grooveD.toFixed(1)} Z${(grooveZ - grooveW).toFixed(1)} P${Math.round(ap * 1000)} Q${Math.round(grooveW * 1000)} F${(f * 0.5).toFixed(3)}`);
+          // G75 Q = Z-axis peck step (µm on Fanuc). Use groove_width/3 for chip clearing, max 2mm
+          const zPeck = Math.min(2, grooveW / 3); // mm — peck step for chip evacuation
+          lines.push(`${ln()} G75 X${grooveD.toFixed(1)} Z${(grooveZ - grooveW).toFixed(1)} P${Math.round(ap * 1000)} Q${Math.round(zPeck * 1000)} F${(f * 0.5).toFixed(3)}`);
           lines.push(`${ln()} G00 X${((feat?.od_mm || input.bar_stock_od_mm) + 5).toFixed(1)}`);
           break;
         }
@@ -645,10 +954,25 @@ export class TurningPrintToProgramEngine {
           const threadLen = feat?.length_mm || 20;
           const starts = feat?.thread_starts || 1;
           const minorD = threadD - threadDepth * 2;
+          const lead = pitch * starts; // Multi-start: lead = pitch × starts (Machinery's Handbook Ch.31)
           lines.push(`${ln()} G00 X${(threadD + 2).toFixed(1)} Z5.0`);
           lines.push(`${ln()} G97 S${Math.round(op.cutting_params.spindle_rpm)} M03`);
-          lines.push(`${ln()} G76 P0${Math.round(threadDepth * 100)}060 Q${Math.round(threadDepth * 100 / 8)}0 R0.05`);
-          lines.push(`${ln()} G76 X${minorD.toFixed(3)} Z${(-threadLen).toFixed(1)} P${Math.round(threadDepth * 1000)} Q${Math.round(threadDepth * 100)} F${pitch.toFixed(3)} (${starts}-start, pitch ${pitch}mm)`);
+          // Generate one G76 pair per start, offset by 360/starts degrees
+          for (let s = 0; s < starts; s++) {
+            const angleOffset = (360 / starts) * s;
+            if (starts > 1) {
+              lines.push(`${ln()} (--- Thread start ${s + 1}/${starts}, Q-angle ${angleOffset.toFixed(0)}deg ---)`);
+              // Q parameter = start angle in 0.001 degree increments on Fanuc/Haas
+              lines.push(`${ln()} G76 P0${Math.round(threadDepth * 100)}060 Q${Math.round(angleOffset * 1000)} R0.05`);
+            } else {
+              lines.push(`${ln()} G76 P0${Math.round(threadDepth * 100)}060 Q${Math.round(threadDepth * 100 / 8)}0 R0.05`);
+            }
+            lines.push(`${ln()} G76 X${minorD.toFixed(3)} Z${(-threadLen).toFixed(1)} P${Math.round(threadDepth * 1000)} Q${Math.round(threadDepth * 100)} F${lead.toFixed(3)} (Start ${s + 1}/${starts}, lead ${lead}mm)`);
+            if (starts > 1 && s < starts - 1) {
+              // Return to start position for next thread start
+              lines.push(`${ln()} G00 X${(threadD + 2).toFixed(1)} Z5.0`);
+            }
+          }
           lines.push(`${ln()} G96 S${op.cutting_params.cutting_speed_m_min} (Return to CSS)`);
           break;
         }
@@ -672,9 +996,37 @@ export class TurningPrintToProgramEngine {
         case "part_off": {
           const partOffD = input.features.find(ff => ff.id === op.feature_id)?.od_mm || input.bar_stock_od_mm;
           const partOffZ = -(input.part_length_mm + 1);
-          lines.push(`${ln()} G00 X${(partOffD + 2).toFixed(1)} Z${partOffZ.toFixed(1)}`);
-          lines.push(`${ln()} G01 X-1.0 F${(f * 0.3).toFixed(3)} (Part off)`);
-          lines.push(`${ln()} G00 X${(partOffD + 10).toFixed(1)}`);
+
+          if (input.dual_spindle_cutoff && input.sub_spindle) {
+            // ── DUAL-SPINDLE CUTOFF: Stepped G97 CSS emulation ──
+            // G96 is blocked when both spindles are synchronized (e.g., Okuma G199).
+            // We pre-calculate RPM at discrete diameter steps to maintain constant
+            // surface speed without G96. Both spindles follow explicit G97 commands.
+            const cutoffVc = op.cutting_params.cutting_speed_m_min * 0.65; // 35% reduction for parting
+            const steppedLines = generateSteppedCSSCutoff({
+              od_mm: partOffD,
+              Vc_m_min: cutoffVc,
+              maxRPM: input.max_spindle_rpm || 4000,
+              feed_mm_rev: f * 0.3,
+              steps: Math.max(5, Math.min(12, Math.ceil(partOffD / 10))), // ~1 step per 10mm diameter
+              controller: input.controller || "fanuc",
+              cutoffZ_mm: partOffZ,
+              lineNumFn: ln,
+            });
+            for (const sl of steppedLines) {
+              lines.push(sl);
+            }
+          } else {
+            // ── STANDARD SINGLE-SPINDLE CUTOFF ──
+            lines.push(`${ln()} G00 X${(partOffD + 2).toFixed(1)} Z${partOffZ.toFixed(1)}`);
+            // Entry feed ramp: 50% feed for first 2mm to prevent shock
+            lines.push(`${ln()} G01 X${(partOffD - 2).toFixed(1)} F${(f * 0.15).toFixed(3)} (Entry — reduced feed)`);
+            // Full feed through body
+            lines.push(`${ln()} G01 X${Math.max(partOffD * 0.2, 5).toFixed(1)} F${(f * 0.3).toFixed(3)} (Part off — full feed)`);
+            // Reduced feed approaching center (blade flexes)
+            lines.push(`${ln()} G01 X-1.0 F${(f * 0.18).toFixed(3)} (Approaching center — reduced feed)`);
+            lines.push(`${ln()} G00 X${(partOffD + 10).toFixed(1)}`);
+          }
           break;
         }
         case "taper": {
@@ -687,6 +1039,111 @@ export class TurningPrintToProgramEngine {
           lines.push(`${ln()} G01 X${startD.toFixed(1)} Z0.0 F${f}`);
           lines.push(`${ln()} G01 X${endD.toFixed(1)} Z${(-taperLen).toFixed(1)} F${f} (Taper ${angle}°)`);
           lines.push(`${ln()} G00 X${(startD + 5).toFixed(1)} Z5.0`);
+          break;
+        }
+        // ── LIVE TOOLING OPERATIONS ──
+        case "live_whistle_notch": {
+          const feat = input.features.find(ff => ff.id === op.feature_id);
+          const angle = feat?.notch_angle_deg || 10;
+          const depth = feat?.notch_depth_mm || 3.175; // 0.125"
+          const width = feat?.notch_width_mm || 10;
+          const zPos = feat?.position_z_mm || 20;
+          const cPos = feat?.c_axis_position_deg || 0;
+          const toolD = feat?.live_tool_diameter_mm || 12.7; // 0.5" end mill
+          const liveRPM = Math.min(Math.round((1000 * 80) / (Math.PI * toolD)), 6000);
+          const liveFeed = Math.round(liveRPM * 0.05 * 3); // fz × flutes × RPM
+
+          lines.push(`(--- LIVE TOOL: Whistle Notch ${angle}° ---)`);
+          lines.push(`${ln()} M05 (Stop main spindle)`);
+          lines.push(`${ln()} M19 (Orient spindle — C-axis lock)`);
+          lines.push(`${ln()} G00 C${cPos.toFixed(1)} (Index C-axis to notch position)`);
+          lines.push(`${ln()} G97 S${liveRPM} M133 (Live tool ON, ${liveRPM} RPM)`);
+          lines.push(`${ln()} M08`);
+          // Position above notch
+          lines.push(`${ln()} G00 X${((feat?.od_mm || input.bar_stock_od_mm) + 5).toFixed(1)} Z${(-zPos).toFixed(1)}`);
+          // Plunge to depth at angle
+          const plungeX = (feat?.od_mm || input.bar_stock_od_mm) - depth * 2;
+          lines.push(`${ln()} G01 X${plungeX.toFixed(3)} F${Math.round(liveFeed * 0.3)} (Plunge to notch depth)`);
+          // Cut notch at angle
+          const dZ = width * Math.tan(angle * Math.PI / 180);
+          lines.push(`${ln()} G01 Z${(-zPos - width).toFixed(3)} X${(plungeX + dZ * 2).toFixed(3)} F${liveFeed} (Angled notch ${angle}°)`);
+          // Retract
+          lines.push(`${ln()} G00 X${((feat?.od_mm || input.bar_stock_od_mm) + 10).toFixed(1)}`);
+          lines.push(`${ln()} M135 (Live tool OFF)`);
+          lines.push(`${ln()} M03 (Main spindle restart)`);
+          break;
+        }
+        case "live_od_pocket": {
+          const feat = input.features.find(ff => ff.id === op.feature_id);
+          const pocketW = feat?.pocket_width_mm || 31.75;  // 1.25"
+          const pocketD = feat?.pocket_depth_mm || 3.175;  // 0.125"
+          const zPos = feat?.position_z_mm || 30;
+          const cPos = feat?.c_axis_position_deg || 0;
+          const toolD = feat?.live_tool_diameter_mm || 12.7;
+          const liveRPM = Math.min(Math.round((1000 * 80) / (Math.PI * toolD)), 6000);
+          const liveFeed = Math.round(liveRPM * 0.04 * 3);
+          const partOD = feat?.od_mm || input.bar_stock_od_mm;
+          const pocketBottom = partOD - pocketD * 2;
+
+          lines.push(`(--- LIVE TOOL: OD Pocket Mill ${pocketW.toFixed(1)}mm × ${pocketD.toFixed(3)}mm deep ---)`);
+          lines.push(`${ln()} M05 (Stop main spindle)`);
+          lines.push(`${ln()} M19 (Orient spindle)`);
+          lines.push(`${ln()} G00 C${cPos.toFixed(1)} (C-axis position)`);
+          lines.push(`${ln()} G97 S${liveRPM} M133 (Live tool ON)`);
+          lines.push(`${ln()} M08`);
+          // Position above pocket start
+          lines.push(`${ln()} G00 X${(partOD + 5).toFixed(1)} Z${(-zPos).toFixed(1)}`);
+          // Stepdown passes (0.5mm per pass for tool steel)
+          const stepDown = 0.5;
+          const passes = Math.ceil(pocketD / stepDown);
+          for (let p = 1; p <= passes; p++) {
+            const currentDepth = Math.min(p * stepDown, pocketD);
+            const currentX = partOD - currentDepth * 2;
+            lines.push(`${ln()} G01 X${currentX.toFixed(3)} F${Math.round(liveFeed * 0.3)} (Pocket pass ${p}/${passes}, depth=${currentDepth.toFixed(2)}mm)`);
+            lines.push(`${ln()} G01 Z${(-zPos - pocketW).toFixed(3)} F${liveFeed} (Cut pocket length)`);
+            lines.push(`${ln()} G00 X${(partOD + 2).toFixed(1)} (Retract)`);
+            lines.push(`${ln()} G00 Z${(-zPos).toFixed(1)} (Return to start)`);
+          }
+          lines.push(`${ln()} G00 X${(partOD + 10).toFixed(1)}`);
+          lines.push(`${ln()} M135 (Live tool OFF)`);
+          lines.push(`${ln()} M03 (Main spindle restart)`);
+          break;
+        }
+        case "live_cross_drill": {
+          const feat = input.features.find(ff => ff.id === op.feature_id);
+          const holeD = feat?.cross_hole_diameter_mm || feat?.diameter_mm || 6.35;
+          const zPos = feat?.position_z_mm || 20;
+          const cPos = feat?.c_axis_position_deg || 0;
+          const partOD = feat?.od_mm || input.bar_stock_od_mm;
+          const liveRPM = Math.min(Math.round((1000 * 60) / (Math.PI * holeD)), 4000);
+          const liveFeed = 0.05 * liveRPM; // 0.05 mm/rev
+
+          lines.push(`(--- LIVE TOOL: Cross Drill Ø${holeD.toFixed(1)}mm ---)`);
+          lines.push(`${ln()} M05 (Stop main spindle)`);
+          lines.push(`${ln()} M19 (Orient spindle)`);
+          lines.push(`${ln()} G00 C${cPos.toFixed(1)}`);
+          lines.push(`${ln()} G97 S${liveRPM} M133 (Live drill ON)`);
+          lines.push(`${ln()} M08`);
+          lines.push(`${ln()} G00 X${(partOD + 5).toFixed(1)} Z${(-zPos).toFixed(1)}`);
+          // Peck drill through OD into center
+          const drillDepth = partOD / 2 + 2; // Through to center + clearance
+          lines.push(`${ln()} G83 X${(partOD - drillDepth * 2).toFixed(1)} R${(partOD / 2 + 2).toFixed(1)} Q${(holeD * 2000).toFixed(0)} F${Math.round(liveFeed)} (Cross peck drill)`);
+          lines.push(`${ln()} G80`);
+          lines.push(`${ln()} G00 X${(partOD + 10).toFixed(1)}`);
+          lines.push(`${ln()} M135 (Live tool OFF)`);
+          lines.push(`${ln()} M03 (Main spindle restart)`);
+          break;
+        }
+        case "live_cross_tap":
+        case "live_keyway":
+        case "live_flat_mill": {
+          const feat = input.features.find(ff => ff.id === op.feature_id);
+          lines.push(`(--- LIVE TOOL: ${op.operation_type} ---)`);
+          lines.push(`${ln()} M05 (Stop main spindle)`);
+          lines.push(`${ln()} M19 (Orient spindle)`);
+          lines.push(`${ln()} (Live tooling operation — CAM-generated toolpath recommended)`);
+          lines.push(`${ln()} (Feature: ${feat?.type || op.operation_type}, pos Z=${feat?.position_z_mm || 0}mm)`);
+          lines.push(`${ln()} M03 (Main spindle restart)`);
           break;
         }
         default: {
@@ -737,6 +1194,45 @@ export class TurningPrintToProgramEngine {
     }
     if (input.bar_stock_od_mm <= 0) {
       warnings.push({ stage: "intake", severity: "critical", message: "Bar stock OD must be positive" });
+    }
+    if (input.finished_od_mm && input.finished_od_mm >= input.bar_stock_od_mm) {
+      warnings.push({ stage: "intake", severity: "critical", message: `Finished OD (${input.finished_od_mm}mm) must be smaller than bar stock OD (${input.bar_stock_od_mm}mm)` });
+    }
+    // L/D ratio chatter risk
+    const ld_ratio = input.part_length_mm / input.bar_stock_od_mm;
+    if (ld_ratio > 4 && !input.tailstock) {
+      warnings.push({ stage: "safety", severity: "warning", message: `L/D ratio ${ld_ratio.toFixed(1)} > 4 — tailstock support recommended to prevent chatter` });
+    }
+    if (ld_ratio > 8) {
+      warnings.push({ stage: "safety", severity: "critical", message: `L/D ratio ${ld_ratio.toFixed(1)} > 8 — steady rest or follow rest required` });
+    }
+    // Chuck jaw clearance + drill depth checks
+    for (const f of input.features) {
+      if (f.type === "part_off" || f.type === "groove_cutoff") continue;
+      if (f.od_mm && f.od_mm > input.bar_stock_od_mm) {
+        warnings.push({ stage: "safety", severity: "critical", message: `Feature ${f.id}: OD ${f.od_mm}mm exceeds bar stock ${input.bar_stock_od_mm}mm` });
+      }
+      // Drill L/D ratio checks for ALL hole features
+      if ((f.type === "drill_through" || f.type === "drill_blind" || f.type === "id_bore") && f.depth_mm && f.diameter_mm) {
+        const drillLD = f.depth_mm / f.diameter_mm;
+        if (drillLD > 10) {
+          warnings.push({ stage: "safety", severity: "critical", message: `Feature ${f.id}: drill L/D=${drillLD.toFixed(1)} > 10 — gun drill or special tooling required` });
+        } else if (drillLD > 5) {
+          warnings.push({ stage: "safety", severity: "warning", message: `Feature ${f.id}: drill L/D=${drillLD.toFixed(1)} > 5 — deep hole peck cycle (G83) required, through-tool coolant recommended` });
+        } else if (drillLD > 3) {
+          warnings.push({ stage: "safety", severity: "info", message: `Feature ${f.id}: drill L/D=${drillLD.toFixed(1)} > 3 — peck drilling recommended` });
+        }
+      }
+      // Also check drill_through using depth_mm or length_mm
+      if (f.type === "drill_through" && (f.depth_mm || f.length_mm)) {
+        const drillDepth = f.depth_mm || f.length_mm;
+        const drillDia = f.diameter_mm || 10;
+        const drillLD = drillDepth / drillDia;
+        if (drillLD > 5 && !f.diameter_mm) {
+          // Already caught above if diameter_mm exists; this catches length_mm fallback
+          warnings.push({ stage: "safety", severity: "warning", message: `Feature ${f.id}: deep drill L/D=${drillLD.toFixed(1)} — peck cycle + through-tool coolant` });
+        }
+      }
     }
 
     // Classify features

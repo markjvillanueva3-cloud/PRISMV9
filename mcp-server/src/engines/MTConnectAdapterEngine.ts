@@ -559,6 +559,18 @@ export class MTConnectAdapterEngine {
 
   private async fetchXml(path: string): Promise<string> {
     const url = `${this.config.agentUrl}${path}`;
+
+    // SSRF protection: block internal/metadata addresses
+    const parsedUrl = new URL(url);
+    const blockedPrefixes = ['169.254.', '127.0.', '10.', '172.16.', '172.17.', '172.18.', '172.19.',
+      '172.20.', '172.21.', '172.22.', '172.23.', '172.24.', '172.25.', '172.26.',
+      '172.27.', '172.28.', '172.29.', '172.30.', '172.31.', '192.168.', '0.0.0.0'];
+    const blockedExact = ['localhost', '::1', '[::1]'];
+    if (blockedPrefixes.some(prefix => parsedUrl.hostname.startsWith(prefix)) ||
+        blockedExact.includes(parsedUrl.hostname)) {
+      throw new Error('SSRF blocked: internal/metadata addresses not allowed');
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(
       () => controller.abort(),

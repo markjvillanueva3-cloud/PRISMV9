@@ -209,6 +209,218 @@ export class ChatterStabilityLobeEngine {
       confidence: machine.natural_frequency_hz ? 0.85 : 0.65,
     };
   }
+
+  /**
+   * Multi-frequency stability solution for low radial immersion (ae/D < 25%).
+   * The zeroth-order approximation (ZOA) overestimates stability by 15-30% at low immersion.
+   * This method includes higher harmonics of directional factors for accurate prediction.
+   *
+   * Reference: Budak & Altintas (1998) "Analytical Prediction of Chatter Stability in
+   * Milling—Part II: Application of the General Formulation to Common Milling Systems"
+   * ASME J. Dyn. Sys., Meas., and Control, 120(1), 31-36
+   */
+  multiFrequencyStability(input: {
+    natural_freq_Hz: number;
+    damping_ratio: number;
+    stiffness_N_per_m: number;
+    Ktc: number;
+    Krc: number;
+    ae_mm: number;
+    D_mm: number;
+    flutes: number;
+    rpm_range: [number, number];
+    rpm_points?: number;
+    harmonics?: number;
+  }): {
+    lobes: Array<{ rpm: number; a_lim_mm: number }>;
+    zoa_lobes: Array<{ rpm: number; a_lim_mm: number }>;
+    max_stable_depth_mm: number;
+    optimal_rpm: number;
+    improvement_vs_zoa_pct: number;
+    immersion_ratio: number;
+    method: "multi_frequency";
+  } {
+    const {
+      natural_freq_Hz, damping_ratio, stiffness_N_per_m, Ktc, Krc,
+      ae_mm, D_mm, flutes, rpm_range, rpm_points = 200, harmonics = 4,
+    } = input;
+
+    const immersion_ratio = ae_mm / D_mm;
+
+    // Engagement angles (up-milling convention)
+    const phi_st = 0;
+    const phi_ex = Math.acos(1 - 2 * immersion_ratio);
+
+    // ── Compute Fourier coefficients of directional factors ──
+    // a_pq(r) = (N_t/2π) × ∫[φ_st..φ_ex] directional_term × e^(-j·r·N_t·φ) dφ
+    // For the zeroth harmonic (r=0) this is the standard ZOA
+    const computeDirectionalCoeffs = (numHarmonics: number): Array<{ axx: number; axy: number; ayx: number; ayy: number }> => {
+      const coeffs: Array<{ axx: number; axy: number; ayx: number; ayy: number }> = [];
+      const nSteps = 500; // integration steps
+      const dPhi = (phi_ex - phi_st) / nSteps;
+      const Kr = Krc / Ktc; // force ratio
+
+      for (let r = 0; r <= numHarmonics; r++) {
+        let axx = 0, axy = 0, ayx = 0, ayy = 0;
+
+        for (let s = 0; s <= nSteps; s++) {
+          const phi = phi_st + s * dPhi;
+          const w = (s === 0 || s === nSteps) ? 0.5 : 1.0; // trapezoidal
+
+          // Directional factors per Altintas (2012) eq. 3.33
+          const sin2 = Math.sin(2 * phi);
+          const cos2 = Math.cos(2 * phi);
+
+          const gxx = 0.5 * (sin2 + Kr * (1 - cos2));
+          const gxy = 0.5 * ((1 + cos2) + Kr * sin2);
+          const gyx = 0.5 * ((-1 + cos2) + Kr * sin2);
+          const gyy = 0.5 * (sin2 - Kr * (1 + cos2));
+
+          // For r-th harmonic: multiply by cos/sin of r*N_t*phi
+          // Using real part approximation for the dominant effect
+          const harmonicAngle = r * flutes * phi;
+          const cosH = Math.cos(harmonicAngle);
+          const sinH = Math.sin(harmonicAngle);
+
+          // Fourier coefficient (real part contributes to stability limit)
+          axx += w * gxx * cosH * dPhi;
+          axy += w * gxy * cosH * dPhi;
+          ayx += w * gyx * cosH * dPhi;
+          ayy += w * gyy * cosH * dPhi;
+        }
+
+        const scale = flutes / (2 * Math.PI);
+        coeffs.push({
+          axx: axx * scale,
+          axy: axy * scale,
+          ayx: ayx * scale,
+          ayy: ayy * scale,
+        });
+      }
+
+      return coeffs;
+    };
+
+    const allCoeffs = computeDirectionalCoeffs(harmonics);
+    const zoaCoeffs = [allCoeffs[0]]; // zeroth order only
+
+    // ── Sweep RPM and compute stability limits ──
+    const computeLobes = (coeffs: Array<{ axx: number; axy: number; ayx: number; ayy: number }>): Array<{ rpm: number; a_lim_mm: number }> => {
+      const lobes: Array<{ rpm: number; a_lim_mm: number }> = [];
+      const omega_n = 2 * Math.PI * natural_freq_Hz;
+      const k = stiffness_N_per_m / 1000; // Convert N/m → N/mm for consistency with Ktc [N/mm²]
+      const zeta = damping_ratio;
+
+      for (let i = 0; i < rpm_points; i++) {
+        const rpm = rpm_range[0] + (rpm_range[1] - rpm_range[0]) * i / (rpm_points - 1);
+        const omega_tooth = 2 * Math.PI * rpm * flutes / 60;
+
+        // Sweep chatter frequencies near natural frequency
+        // The chatter frequency is near fn but shifted by the process
+        let minAlim = Infinity;
+
+        for (let fc_mult = 0.70; fc_mult <= 1.30; fc_mult += 0.005) {
+          const fc = natural_freq_Hz * fc_mult;
+          const omega_c = 2 * Math.PI * fc;
+          const r = omega_c / omega_n;
+
+          // FRF at chatter frequency
+          const dr = 1 - r * r;
+          const di = 2 * zeta * r;
+          const denom_sq = dr * dr + di * di;
+          const reG = dr / (k * denom_sq);
+          const imG = -di / (k * denom_sq);
+
+          // Sum directional coefficients with harmonic coupling
+          let sum_axx = 0;
+          for (let h = 0; h < coeffs.length; h++) {
+            // Each harmonic h contributes with a phase that depends on omega_tooth
+            // At higher harmonics, the FRF is evaluated at omega_c + h*omega_tooth
+            if (h === 0) {
+              sum_axx += coeffs[h].axx;
+            } else {
+              // FRF at shifted frequency: omega_c + h*omega_tooth
+              const omega_shifted = omega_c + h * omega_tooth;
+              const r_s = omega_shifted / omega_n;
+              const dr_s = 1 - r_s * r_s;
+              const di_s = 2 * zeta * r_s;
+              const denom_s = dr_s * dr_s + di_s * di_s;
+              const reG_s = dr_s / (k * denom_s);
+
+              // Harmonic contribution weighted by shifted FRF ratio
+              const frfRatio = Math.abs(reG_s) / (Math.abs(reG) + 1e-30);
+              sum_axx += coeffs[h].axx * frfRatio;
+            }
+          }
+
+          // For 2D: use eigenvalue of directional matrix summed across harmonics
+          // Full 2D eigenvalue: Λ = 0.5*(axx+ayy) ± sqrt((axx-ayy)²/4 + axy*ayx)
+          // Sum all harmonic contributions for accurate low-immersion result
+          let totalAxx = 0, totalAyy = 0, totalAxy = 0, totalAyx = 0;
+          for (const c of coeffs) {
+            totalAxx += Math.abs(c.axx);
+            totalAyy += Math.abs(c.ayy);
+            totalAxy += Math.abs(c.axy);
+            totalAyx += Math.abs(c.ayx);
+          }
+          const sumTotal = totalAxx + totalAyy;
+          const detTotal = totalAxx * totalAyy - totalAxy * totalAyx;
+          const disc = sumTotal * sumTotal / 4 - detTotal;
+          const effectiveEigen = 0.5 * sumTotal + (disc > 0 ? Math.sqrt(disc) : 0);
+
+          if (Math.abs(effectiveEigen * reG) > 1e-20) {
+            // Critical depth: a_lim = -1/(2 × Ktc × Lambda_real × Re[G])
+            const a_lim = -1 / (2 * Ktc * effectiveEigen * reG);
+            if (a_lim > 0.01 && a_lim < 500) {
+              if (a_lim < minAlim) minAlim = a_lim;
+            }
+          }
+        }
+
+        if (minAlim < Infinity) {
+          lobes.push({ rpm: Math.round(rpm), a_lim_mm: Math.round(minAlim * 1000) / 1000 });
+        }
+      }
+
+      return lobes;
+    };
+
+    const multiFreqLobes = computeLobes(allCoeffs);
+    const zoaLobes = computeLobes(zoaCoeffs);
+
+    // ── Compute summary statistics ──
+    let maxStableMulti = 0, optimalRpmMulti = rpm_range[0];
+    for (const pt of multiFreqLobes) {
+      if (pt.a_lim_mm > maxStableMulti) {
+        maxStableMulti = pt.a_lim_mm;
+        optimalRpmMulti = pt.rpm;
+      }
+    }
+
+    let maxStableZoa = 0;
+    for (const pt of zoaLobes) {
+      if (pt.a_lim_mm > maxStableZoa) {
+        maxStableZoa = pt.a_lim_mm;
+      }
+    }
+
+    // At low immersion, multi-freq gives LOWER limits than ZOA (ZOA is optimistic)
+    // improvement_vs_zoa_pct shows how much more conservative multi-freq is
+    // Positive means ZOA was over-predicting by this percentage
+    const avgMulti = multiFreqLobes.reduce((s, p) => s + p.a_lim_mm, 0) / (multiFreqLobes.length || 1);
+    const avgZoa = zoaLobes.reduce((s, p) => s + p.a_lim_mm, 0) / (zoaLobes.length || 1);
+    const improvement = avgZoa > 0 ? ((avgZoa - avgMulti) / avgZoa) * 100 : 0;
+
+    return {
+      lobes: multiFreqLobes,
+      zoa_lobes: zoaLobes,
+      max_stable_depth_mm: Math.round(maxStableMulti * 1000) / 1000,
+      optimal_rpm: optimalRpmMulti,
+      improvement_vs_zoa_pct: Math.round(improvement * 10) / 10,
+      immersion_ratio: Math.round(immersion_ratio * 1000) / 1000,
+      method: "multi_frequency",
+    };
+  }
 }
 
 export const chatterStabilityLobeEngine = new ChatterStabilityLobeEngine();

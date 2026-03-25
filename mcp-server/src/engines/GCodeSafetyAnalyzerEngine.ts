@@ -1301,6 +1301,10 @@ export class GCodeSafetyAnalyzerEngine {
     gcode: string,
     config: SafetyAnalysisConfig,
   ): SafetyAnalysisResult {
+    const MAX_GCODE_SIZE = 50 * 1024 * 1024; // 50MB
+    if (gcode.length > MAX_GCODE_SIZE) {
+      throw new Error(`G-code input exceeds maximum size of ${MAX_GCODE_SIZE} bytes (${Math.round(gcode.length / 1024 / 1024)}MB provided)`);
+    }
     const lines = this.parseProgram(gcode, config.controller);
     const state = this.createInitialState();
     const critical: SafetyIssue[] = [];

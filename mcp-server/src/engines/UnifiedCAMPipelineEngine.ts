@@ -2,7 +2,9 @@
  * UnifiedCAMPipelineEngine — CK-MS0/U01
  * Master orchestrator: single entry point for feature-to-G-code.
  *
- * Pipeline: Features → SmartToolSelection → AdaptiveToolpathRouting →
+ * Pipeline: Features → SmartToolSelection (+ DecisionAudit) →
+ *           SafetyAssessment → OptimalStrategy → PlaybookWarnings →
+ *           AdaptiveToolpathRouting (+ strategy hint) →
  *           PostProcessing → IntegratedVerification → ProductionPackage
  *
  * Input:  { features[], material, machine_name, controller?, options? }
@@ -39,6 +41,46 @@ function getMachineProfile() {
     } catch { _ext.mp = null; }
   }
   return _ext.mp;
+}
+
+function getOptimalStrategy() {
+  if (_ext.os === undefined) {
+    try {
+      const m = require("./OptimalStrategySelectionEngine.js");
+      _ext.os = m.optimalStrategySelectionEngine || null;
+    } catch { _ext.os = null; }
+  }
+  return _ext.os;
+}
+
+function getPipelineSafety() {
+  if (_ext.ps === undefined) {
+    try {
+      const m = require("./PipelineSafetyOrchestratorEngine.js");
+      _ext.ps = m.pipelineSafetyOrchestratorEngine || null;
+    } catch { _ext.ps = null; }
+  }
+  return _ext.ps;
+}
+
+function getPlaybook() {
+  if (_ext.pb === undefined) {
+    try {
+      const m = require("./MachiningPlaybookEngine.js");
+      _ext.pb = m.machiningPlaybookEngine || null;
+    } catch { _ext.pb = null; }
+  }
+  return _ext.pb;
+}
+
+function getDecisionOrchestrator() {
+  if (_ext.do === undefined) {
+    try {
+      const m = require("./PipelineDecisionOrchestratorEngine.js");
+      _ext.do = m.pipelineDecisionOrchestratorEngine || null;
+    } catch { _ext.do = null; }
+  }
+  return _ext.do;
 }
 
 // ── Controller map ────────────────────────────────────────────
@@ -119,6 +161,10 @@ export interface UnifiedCAMResult {
   cost_estimate: any;
   warnings: string[];
   verification_verdict: string;
+  playbook_warnings: string[];
+  decision_audit: any[];
+  safety_assessments: any[];
+  strategy_hints: any[];
   pipeline_summary: {
     features_processed: number;
     tools_selected: number;
@@ -156,6 +202,10 @@ export class UnifiedCAMPipelineEngine {
     const algorithmsUsed: string[] = [];
     let allSegments: any[] = [];
     const toolsSelected: any[] = [];
+    const decisionAudit: any[] = [];
+    const safetyAssessments: any[] = [];
+    const strategyHints: any[] = [];
+    const playbookWarnings: string[] = [];
 
     // ── 1. Resolve machine ────────────────────────────────────
     let machine: any = null;
@@ -178,7 +228,7 @@ export class UnifiedCAMPipelineEngine {
 
     // ── 2. Process each feature ───────────────────────────────
     for (const feature of req.features) {
-      // 2a. Smart tool selection
+      // 2a. Smart tool selection (wrapped with DecisionOrchestrator for audit)
       let toolResult: any = null;
       try {
         const sts = getSmartTool();
@@ -203,6 +253,51 @@ export class UnifiedCAMPipelineEngine {
         }
       } catch { /* tool selection fallback below */ }
 
+      // 2a-audit. PipelineDecisionOrchestratorEngine (E1080) — decision audit trail
+      try {
+        const dorch = getDecisionOrchestrator();
+        if (dorch?.decide && toolResult?.best_tool && toolResult?.alternatives?.length) {
+          const candidates = [toolResult.best_tool, ...(toolResult.alternatives || [])].map((t: any, i: number) => ({
+            id: t.tool_id || `tool_${i}`,
+            label: `${t.manufacturer || "Generic"} ${t.type || "end_mill"} D${t.diameter_mm || 10}`,
+            data: t,
+          }));
+          const decision = dorch.decide({
+            category: "tool_select" as any,
+            context: {
+              feature: {
+                type: feature.type,
+                diameter_mm: feature.dimensions?.diameter_mm,
+                depth_mm: feature.dimensions?.depth_mm,
+                width_mm: feature.dimensions?.width_mm,
+                wall_thickness_mm: feature.wall_thickness_mm,
+                tolerance_mm: feature.tolerance_mm,
+                surface_finish_Ra: feature.surface_finish_Ra,
+              },
+              material: { name: req.material, iso_group: iso, hardness_hrc: req.material_hardness_hrc },
+              machine: { name: req.machine_name, max_rpm: machine?.spindle?.max_rpm, max_power_kw: machine?.spindle?.rated_power_kw },
+              operation: feature.operation,
+            },
+            candidates,
+            objective: (req.options?.optimize_for || "balanced") as any,
+            pipeline_stage: "unified_cam_tool_select",
+            caller: "UnifiedCAMPipelineEngine",
+          });
+          if (decision) {
+            decisionAudit.push({
+              feature: feature.type,
+              decision_id: decision.decision_id,
+              choice: decision.choice?.label,
+              score: decision.score,
+              justification: decision.justification,
+              alternatives: decision.alternatives,
+              warnings: decision.warnings,
+            });
+            if (decision.warnings?.length) warnings.push(...decision.warnings);
+          }
+        }
+      } catch { /* decision audit optional */ }
+
       const bestTool = toolResult?.best_tool || {
         diameter_mm: 10, flute_count: 3, flute_length_mm: 30,
         overall_length_mm: 60, coating: "TiAlN", type: "end_mill",
@@ -214,12 +309,121 @@ export class UnifiedCAMPipelineEngine {
       toolsSelected.push(bestTool);
       if (bestTool.warnings?.length) warnings.push(...bestTool.warnings);
 
-      // 2b. Adaptive toolpath routing
+      // 2a-safety. PipelineSafetyOrchestratorEngine (E1093) — safety gate
+      const params = bestTool.recommended_params || {};
+      try {
+        const pso = getPipelineSafety();
+        if (pso?.assess && params.feed_mmpt && params.speed_mpm) {
+          const safetyResult = pso.assess(
+            {
+              name: `${feature.type}_${feature.operation || "roughing"}`,
+              ap_mm: params.ap_mm || 5,
+              fz_mm: params.feed_mmpt || 0.1,
+              vc_mpm: params.speed_mpm || 150,
+              tool_diameter_mm: bestTool.diameter_mm || 10,
+              num_teeth: bestTool.flute_count || 3,
+              ae_mm: params.ae_mm,
+              tool_stickout_mm: bestTool.overall_length_mm || (bestTool.diameter_mm || 10) * 6,
+              tolerance_mm: feature.tolerance_mm,
+            },
+            {
+              name: req.material,
+              kc1_1: bestTool.physics?.specific_energy_J_mm3 ? bestTool.physics.specific_energy_J_mm3 * 500 : 1500,
+              mc: 0.25,
+              T_melt_C: iso === "N" ? 660 : iso === "S" ? 1350 : 1500,
+            },
+            {
+              name: req.machine_name,
+              max_power_kW: machine?.spindle?.rated_power_kw || 15,
+              max_rpm: machine?.spindle?.max_rpm || 12000,
+            },
+            { tensile_strength_MPa: 3500 },
+            { grip_force_N: 10000, friction_coefficient: 0.3 },
+          );
+          safetyAssessments.push({
+            feature: feature.type,
+            risk_level: safetyResult.risk_level,
+            vetoed: safetyResult.vetoed,
+            justification: safetyResult.justification,
+            escalation_actions: safetyResult.escalation_actions,
+          });
+          // If critical/veto, reduce parameters for safety
+          if (safetyResult.vetoed || safetyResult.risk_level === "critical") {
+            const reductionFactor = safetyResult.vetoed ? 0.6 : 0.8;
+            if (params.ap_mm) params.ap_mm *= reductionFactor;
+            if (params.feed_mmpt) params.feed_mmpt *= reductionFactor;
+            if (params.feed_mmmin) params.feed_mmmin *= reductionFactor;
+            warnings.push(`[SAFETY] ${feature.type}: ${safetyResult.risk_level} — parameters reduced by ${Math.round((1 - reductionFactor) * 100)}%`);
+          }
+        }
+      } catch { /* safety assessment optional */ }
+
+      // 2b-strategy. OptimalStrategySelectionEngine — ranked strategy hint
+      let strategyHint: string | undefined;
+      try {
+        const ose = getOptimalStrategy();
+        if (ose?.compute) {
+          const stratResult = ose.compute({
+            feature: {
+              type: feature.type,
+              depth: feature.dimensions?.depth_mm,
+              width: feature.dimensions?.width_mm,
+              length: feature.dimensions?.length_mm,
+              corner_radius: feature.corner_radius_mm,
+              wall_thickness: feature.wall_thickness_mm,
+              tolerance: feature.tolerance_mm,
+              surface_finish: feature.surface_finish_Ra,
+            },
+            material: { iso_group: iso as any, name: req.material, hardness_hrc: req.material_hardness_hrc },
+            machine: {
+              max_rpm: machine?.spindle?.max_rpm,
+              max_power_kW: machine?.spindle?.rated_power_kw,
+            },
+            tool: { diameter_mm: bestTool.diameter_mm, flute_count: bestTool.flute_count },
+            preference: { priority: (req.options?.optimize_for || "balanced") as any },
+          });
+          if (stratResult?.selected) {
+            strategyHint = stratResult.selected.canonical_id;
+            strategyHints.push({
+              feature: feature.type,
+              selected: stratResult.selected.display_name,
+              score: stratResult.selected.score,
+              alternatives_considered: stratResult.alternatives_considered,
+              playbook_warnings: stratResult.playbook_warnings,
+            });
+            if (stratResult.playbook_warnings?.length) {
+              playbookWarnings.push(...stratResult.playbook_warnings);
+            }
+          }
+        }
+      } catch { /* optimal strategy optional */ }
+
+      // 2b-playbook. MachiningPlaybookEngine — experiential warnings
+      try {
+        const pb = getPlaybook();
+        if (pb?.advise) {
+          const pbResult = pb.advise({
+            material_iso: iso,
+            features: [feature.type],
+            tolerance_mm: feature.tolerance_mm,
+            wall_thickness_mm: feature.wall_thickness_mm,
+            surface_finish_Ra: feature.surface_finish_Ra,
+            operation_type: feature.operation,
+            hardness_hrc: req.material_hardness_hrc,
+          });
+          if (pbResult?.critical_warnings?.length) {
+            playbookWarnings.push(...pbResult.critical_warnings);
+            warnings.push(...pbResult.critical_warnings.map((w: string) => `[PLAYBOOK] ${w}`));
+          }
+        }
+      } catch { /* playbook optional */ }
+
+      // 2c. Adaptive toolpath routing
       let routeResult: any = null;
       try {
         const atr = getRouter();
         if (atr?.route) {
-          routeResult = atr.route({
+          const routeInput: any = {
             feature_type: feature.type,
             operation: feature.operation || "roughing",
             material_iso_group: iso,
@@ -238,9 +442,12 @@ export class UnifiedCAMPipelineEngine {
               width_mm: feature.dimensions.width_mm || feature.dimensions.length_mm,
               depth_mm: feature.dimensions.depth_mm || 10,
             } : undefined,
-            rpm: bestTool.recommended_params?.rpm,
-            feed_mmpt: bestTool.recommended_params?.feed_mmpt,
-          });
+            rpm: params.rpm,
+            feed_mmpt: params.feed_mmpt,
+          };
+          // Pass OptimalStrategy hint to router if available
+          if (strategyHint) routeInput.strategy_hint = strategyHint;
+          routeResult = atr.route(routeInput);
         }
       } catch { /* router fallback below */ }
 
@@ -411,6 +618,10 @@ export class UnifiedCAMPipelineEngine {
       cost_estimate: productionPkg?.cost_estimate || {},
       warnings: [...new Set(warnings)],
       verification_verdict: verification.verdict,
+      playbook_warnings: [...new Set(playbookWarnings)],
+      decision_audit: decisionAudit,
+      safety_assessments: safetyAssessments,
+      strategy_hints: strategyHints,
       pipeline_summary: {
         features_processed: req.features.length,
         tools_selected: toolsSelected.length,

@@ -24,6 +24,7 @@ import * as path from 'path';
 import { randomUUID, createHash } from 'crypto';
 import { log } from '../utils/Logger.js';
 import { safeWriteSync } from "../utils/atomicWrite.js";
+import { getTelemetryDir, getTelemetryFile } from '../utils/telemetryPath.js';
 import {
   TelemetryRecord, TelemetryOutcome, MetricsWindow,
   DispatcherMetrics, ActionMetrics, DataIntegrityMetrics,
@@ -50,7 +51,8 @@ export const crc32 = sha256;
 // STATE DIRECTORY
 // ============================================================================
 
-const STATE_DIR = path.join(process.cwd(), 'state', 'telemetry');
+/** Unified telemetry directory — ~/.prism/telemetry/ with cwd fallback */
+const STATE_DIR = getTelemetryDir();
 
 function ensureStateDir(): void {
   try {

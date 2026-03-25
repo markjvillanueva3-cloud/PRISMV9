@@ -41,6 +41,16 @@
 
 import { log } from "../utils/Logger.js";
 
+// Lazy-loaded nesting engine — avoids circular imports
+let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
+async function getSheetNestingEngine(): Promise<import("./SheetNestingEngine.js").SheetNestingEngine> {
+  if (!_sheetNestingEngine) {
+    const mod = await import("./SheetNestingEngine.js");
+    _sheetNestingEngine = new mod.SheetNestingEngine();
+  }
+  return _sheetNestingEngine;
+}
+
 // ============================================================================
 // ATOMIC VALUE WRAPPER
 // ============================================================================
@@ -472,6 +482,49 @@ export interface LaserCutGeometry {
   lead_out_mm?: number;
 }
 
+/** Nesting input — optional multi-part sheet nesting for laser cutting */
+export interface LaserNestingInput {
+  /** Sheet width [mm] */
+  sheet_width: number;
+  /** Sheet height [mm] */
+  sheet_height: number;
+  /** Parts to nest — each with geometry and optional quantity */
+  parts: Array<{
+    id: string;
+    geometry: LaserCutGeometry;
+    quantity?: number;
+  }>;
+  /** Spacing between parts [mm] — default kerf + 5mm */
+  spacing_mm?: number;
+  /** Allow 0/90/180/270 rotation — default true */
+  rotation_allowed?: boolean;
+  /** Grain direction constraint — "X" | "Y" | null */
+  grain_direction?: "X" | "Y" | null;
+  /** Tab/micro-joint width [mm] for part retention — 0 = no tabs. Default: 2.0 */
+  tab_width_mm?: number;
+  /** Tab spacing along contour [mm] — default 80 */
+  tab_spacing_mm?: number;
+  /** Enable common-line cutting detection — default true */
+  common_line_enabled?: boolean;
+}
+
+/** Nesting result appended to LaserProgram when nesting is active */
+export interface LaserNestingResult {
+  parts_per_sheet: number;
+  utilization_pct: number;
+  waste_pct: number;
+  sheets_used: number;
+  nested_positions: Array<{
+    part_id: string;
+    instance: number;
+    x: number;
+    y: number;
+    rotation_deg: number;
+  }>;
+  common_line_pairs: Array<{ part_a: string; part_b: string; shared_edge_mm: number }>;
+  tabs_placed: number;
+}
+
 /** Input profile for laser cutting */
 export interface LaserCutProfile {
   process: LaserProcessType;
@@ -496,6 +549,10 @@ export interface LaserCutProfile {
   program_number?: number;
   /** Part name */
   part_name?: string;
+  /** Multi-part nesting input — if provided, triggers nested multi-part program */
+  nesting?: LaserNestingInput;
+  /** Quantity of the single part (used with nesting when parts[] not provided) */
+  quantity?: number;
 }
 
 /** Input profile for laser marking */
@@ -612,6 +669,9 @@ export interface LaserProgram {
 
   // Uncertainty (Monte Carlo 500 samples)
   uncertainty?: LaserUncertainty;
+
+  // Nesting result (present when multi-part nesting was used)
+  nesting_result?: LaserNestingResult;
 
   warnings: string[];
   recommendations: string[];
@@ -1598,6 +1658,321 @@ export class LaserProgramAssemblerEngine {
         "computeUncertainty",
         "stats"
       ]
+    };
+  }
+
+  // -------------------------------------------------------------------------
+  // NESTED MULTI-PART CUTTING
+  // -------------------------------------------------------------------------
+
+  /**
+   * Generate a nested multi-part laser cutting program.
+   *
+   * If the input includes nesting configuration (sheet dimensions + parts or quantity > 1),
+   * calls SheetNestingEngine to optimize part placement, then generates G-code for ALL
+   * nested parts with lead-in/lead-out per part, tab placement for retention, and
+   * common-line cutting detection.
+   *
+   * Falls back to single-part `assembleLaserCut` if nesting is not needed or fails.
+   */
+  async assembleNestedLaserCut(input: LaserCutProfile): Promise<LaserProgram> {
+    // Determine if nesting is needed
+    const nesting = input.nesting;
+    const quantity = input.quantity ?? 1;
+    const needsNesting = nesting && (
+      (nesting.parts && nesting.parts.length > 0) || quantity > 1
+    );
+
+    if (!needsNesting) {
+      // Single-part path — no nesting needed
+      return this.assembleLaserCut(input);
+    }
+
+    log.debug(`[${this.engineName}] assembleNestedLaserCut: nesting ${nesting.parts?.length ?? 1} part(s) on ${nesting.sheet_width}x${nesting.sheet_height}mm sheet`);
+
+    // Build single-part result first for physics/uncertainty
+    const baseResult = this.assembleLaserCut(input);
+    const warnings = [...baseResult.warnings];
+    const recs = [...baseResult.recommendations];
+
+    // Build polygon list for nesting engine
+    let nestParts: Array<{ id: string; vertices: Array<{ x: number; y: number }>; quantity: number; geometry: LaserCutGeometry }>;
+
+    if (nesting.parts && nesting.parts.length > 0) {
+      nestParts = nesting.parts.map(p => ({
+        id: p.id,
+        vertices: p.geometry.points,
+        quantity: p.quantity ?? 1,
+        geometry: p.geometry,
+      }));
+    } else if (input.geometry && input.geometry.points.length >= 2) {
+      // Single part with quantity > 1
+      nestParts = [{
+        id: input.part_name ?? "PART_1",
+        vertices: input.geometry.points,
+        quantity,
+        geometry: input.geometry,
+      }];
+    } else {
+      warnings.push("Nesting requested but no geometry provided — falling back to single-part");
+      return { ...baseResult, warnings };
+    }
+
+    // Lazy-load and call nesting engine
+    let nestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine;
+    try {
+      nestingEngine = await getSheetNestingEngine();
+    } catch (e) {
+      warnings.push(`SheetNestingEngine unavailable — falling back to single-part: ${e}`);
+      return { ...baseResult, warnings };
+    }
+
+    const sheet = {
+      width_mm: nesting.sheet_width,
+      height_mm: nesting.sheet_height,
+    };
+
+    const kerfSpacing = baseResult.kerf_width.value + (nesting.spacing_mm ?? 5);
+
+    const nestResult = nestingEngine.optimizeNesting(
+      nestParts.map(p => ({
+        id: p.id,
+        vertices: p.vertices,
+        quantity: p.quantity,
+      })),
+      sheet,
+      {
+        spacing_mm: kerfSpacing,
+        rotation_allowed: nesting.rotation_allowed ?? true,
+        grain_direction: nesting.grain_direction ?? null,
+      }
+    );
+
+    if (nestResult.placed.length === 0) {
+      warnings.push("Nesting failed — no parts fit on sheet. Falling back to single-part.");
+      return { ...baseResult, warnings };
+    }
+
+    // Tab/micro-joint placement
+    const tabWidth = nesting.tab_width_mm ?? 2.0;
+    const tabSpacing = nesting.tab_spacing_mm ?? 80;
+    let totalTabs = 0;
+
+    // Common-line detection
+    const commonLinePairs: Array<{ part_a: string; part_b: string; shared_edge_mm: number }> = [];
+    if (nesting.common_line_enabled !== false) {
+      const placed = nestResult.placed;
+      for (let i = 0; i < placed.length; i++) {
+        for (let j = i + 1; j < placed.length; j++) {
+          const a = placed[i];
+          const b = placed[j];
+          if (a.sheet_index !== b.sheet_index) continue;
+          // Check if bounding boxes share an edge (within kerf tolerance)
+          const tolerance = kerfSpacing * 1.1;
+          const aRight = a.bbox.x + a.bbox.w;
+          const bLeft = b.bbox.x;
+          const aTop = a.bbox.y + a.bbox.h;
+          const bBottom = b.bbox.y;
+          // Vertical shared edge
+          if (Math.abs(aRight - bLeft) < tolerance) {
+            const overlapY = Math.min(aTop, b.bbox.y + b.bbox.h) - Math.max(a.bbox.y, b.bbox.y);
+            if (overlapY > 0) {
+              commonLinePairs.push({ part_a: `${a.part_id}#${a.instance}`, part_b: `${b.part_id}#${b.instance}`, shared_edge_mm: parseFloat(overlapY.toFixed(2)) });
+            }
+          }
+          // Horizontal shared edge
+          if (Math.abs(aTop - bBottom) < tolerance) {
+            const overlapX = Math.min(aRight, b.bbox.x + b.bbox.w) - Math.max(a.bbox.x, b.bbox.x);
+            if (overlapX > 0) {
+              commonLinePairs.push({ part_a: `${a.part_id}#${a.instance}`, part_b: `${b.part_id}#${b.instance}`, shared_edge_mm: parseFloat(overlapX.toFixed(2)) });
+            }
+          }
+        }
+      }
+    }
+
+    // Generate combined G-code for all nested parts
+    const mat = this._resolveMaterial(input.material);
+    const ctrl = input.controller ?? "generic_laser";
+    const dialect = LASER_DIALECTS[ctrl];
+    const cs = dialect.comment_style;
+    const C = (t: string) => comment(t, cs);
+    const prog_no = input.program_number ?? 1001;
+    const phys = computeCutPhysics(
+      mat, input.power_w, input.thickness_mm,
+      input.focus_diameter_mm ?? (input.laser_type === "co2" ? 0.30 : 0.10),
+      input.gas_pressure_bar,
+      input.nozzle_diameter_mm ?? 1.5,
+      input.laser_type, input.process
+    );
+    if (input.speed_override_mmpm) phys.V_cut_mmpm = input.speed_override_mmpm;
+    const F_feed = Math.round(phys.V_cut_mmpm);
+    const pierce_ms = Math.round(phys.t_pierce_s * 1000);
+    const pierce_s = phys.t_pierce_s.toFixed(3);
+    const powerLine = fillMCode(dialect.m_power_set, { P: Math.round(input.power_w) });
+    const pierceCmd = fillMCode(dialect.m_pierce, { pierce_ms, pierce_s });
+    const progStart = fillMCode(dialect.prog_start, {
+      PROG_NO: prog_no.toString().padStart(4, "0"),
+      PROG_NAME: (input.part_name ?? "NESTED_CUT").toUpperCase().replace(/\s/g, "_")
+    });
+
+    const lines: string[] = [];
+    lines.push(progStart);
+    lines.push(C(`NESTED LASER CUTTING PROGRAM — ${nestResult.placed.length} PARTS ON ${nestResult.sheets_used} SHEET(S)`));
+    lines.push(C(`MATERIAL : ${mat.name.toUpperCase()}`));
+    lines.push(C(`THICKNESS: ${input.thickness_mm}mm`));
+    lines.push(C(`SHEET    : ${nesting.sheet_width}x${nesting.sheet_height}mm`));
+    lines.push(C(`UTILIZATION: ${nestResult.utilization_pct.toFixed(1)}%`));
+    lines.push(C(`LASER    : ${input.laser_type.toUpperCase()} ${input.power_w}W`));
+    lines.push(C(`GAS      : ${input.assist_gas.toUpperCase()} ${input.gas_pressure_bar}BAR`));
+    lines.push(C(`SPEED    : ${F_feed} MM/MIN  KERF: ${fmt(phys.w_kerf_mm, 2)}mm`));
+    if (tabWidth > 0) lines.push(C(`TABS     : ${tabWidth}mm WIDE EVERY ${tabSpacing}mm`));
+    if (commonLinePairs.length > 0) lines.push(C(`COMMON LINES: ${commonLinePairs.length} PAIR(S) DETECTED`));
+    lines.push("");
+
+    // Safe start
+    lines.push("G90 G21 G54");
+    lines.push(dialect.feed_mode);
+    lines.push("G00 Z5.0");
+    lines.push(powerLine);
+    lines.push(dialect.m_gas_on + "  " + C("ASSIST GAS ON"));
+    lines.push("");
+
+    // Cut each part in nesting order
+    const cutOrder = nestResult.cut_order.length > 0 ? nestResult.cut_order : nestResult.placed;
+    let partIndex = 0;
+
+    for (const placement of cutOrder) {
+      partIndex++;
+      // Find the corresponding geometry
+      const nestPart = nestParts.find(p => p.id === placement.part_id);
+      const geom = nestPart?.geometry ?? input.geometry;
+      if (!geom || geom.points.length < 2) continue;
+
+      const offsetX = placement.x;
+      const offsetY = placement.y;
+
+      // Transform points by placement offset + rotation
+      const rotRad = (placement.rotation_deg * Math.PI) / 180;
+      const cosR = Math.cos(rotRad);
+      const sinR = Math.sin(rotRad);
+
+      const transformedPts = geom.points.map(pt => ({
+        x: offsetX + pt.x * cosR - pt.y * sinR,
+        y: offsetY + pt.x * sinR + pt.y * cosR,
+      }));
+
+      lines.push(C(`--- PART ${partIndex}/${cutOrder.length}: ${placement.part_id}#${placement.instance} AT (${fmt(offsetX, 1)}, ${fmt(offsetY, 1)}) ROT=${placement.rotation_deg}° ---`));
+
+      // Lead-in
+      const lead_in = geom.lead_in_mm ?? 3.0;
+      const p0 = transformedPts[0];
+      const p1 = transformedPts[1];
+      const dx = p1.x - p0.x;
+      const dy = p1.y - p0.y;
+      const segLen = Math.sqrt(dx * dx + dy * dy) || 1;
+      const pierce_x = p0.x - (dx / segLen) * lead_in;
+      const pierce_y = p0.y - (dy / segLen) * lead_in;
+
+      lines.push(`G00 X${fmt(pierce_x)} Y${fmt(pierce_y)}  ${C("RAPID TO PIERCE")}`);
+      lines.push("G00 Z0.5  " + C("CUT HEIGHT"));
+      lines.push(dialect.m_laser_on + "  " + C("LASER ON — PIERCE"));
+      lines.push(pierceCmd + "  " + C("PIERCE DWELL"));
+
+      // Lead-in move
+      lines.push(`G01 X${fmt(p0.x)} Y${fmt(p0.y)} F${F_feed}  ${C("LEAD-IN")}`);
+
+      // Contour with tab insertion
+      const contourLen = this._contourLength(geom);
+      const tabCount = tabWidth > 0 ? Math.max(2, Math.floor(contourLen / tabSpacing)) : 0;
+      let distAccum = 0;
+      const tabInterval = tabCount > 0 ? contourLen / tabCount : Infinity;
+      let nextTabAt = tabInterval;
+
+      for (let i = 1; i < transformedPts.length; i++) {
+        const segDx = transformedPts[i].x - transformedPts[i - 1].x;
+        const segDy = transformedPts[i].y - transformedPts[i - 1].y;
+        const segLength = Math.sqrt(segDx * segDx + segDy * segDy);
+        distAccum += segLength;
+
+        if (tabWidth > 0 && distAccum >= nextTabAt) {
+          // Insert tab: laser off, traverse tab width, laser on
+          lines.push(dialect.m_laser_off + "  " + C(`TAB — MICRO-JOINT ${tabWidth}mm`));
+          lines.push(`G01 X${fmt(transformedPts[i].x)} Y${fmt(transformedPts[i].y)} F${F_feed}`);
+          lines.push(dialect.m_laser_on + "  " + C("RESUME CUT"));
+          nextTabAt += tabInterval;
+          totalTabs++;
+        } else {
+          lines.push(`G01 X${fmt(transformedPts[i].x)} Y${fmt(transformedPts[i].y)} F${F_feed}`);
+        }
+      }
+
+      // Close contour if closed
+      if (geom.closed) {
+        lines.push(`G01 X${fmt(transformedPts[0].x)} Y${fmt(transformedPts[0].y)} F${F_feed}  ${C("CLOSE CONTOUR")}`);
+      }
+
+      // Lead-out
+      const lead_out = geom.lead_out_mm ?? 2.0;
+      const pLast = transformedPts[transformedPts.length - 1];
+      lines.push(`G01 X${fmt(pLast.x + (dx / segLen) * lead_out)} Y${fmt(pLast.y + (dy / segLen) * lead_out)} F${F_feed}  ${C("LEAD-OUT")}`);
+
+      lines.push(dialect.m_laser_off + "  " + C("LASER OFF"));
+      lines.push("G00 Z5.0  " + C("RETRACT"));
+      lines.push("");
+    }
+
+    // End
+    lines.push(dialect.m_gas_off + "  " + C("GAS OFF"));
+    lines.push("G00 Z50.0  " + C("RETRACT FINAL"));
+    lines.push("G00 X0.000 Y0.000  " + C("HOME"));
+    lines.push(dialect.prog_end);
+
+    const nestedGcode = lines.join("\n");
+
+    // Recalculate total cycle time for all nested parts
+    let totalContour = 0;
+    for (const np of nestParts) {
+      const partContour = this._contourLength(np.geometry);
+      totalContour += partContour * np.quantity;
+    }
+    const totalTraverse = (totalContour / phys.V_cut_mmpm) * 60;
+    const totalPierceTime = cutOrder.length * phys.t_pierce_s;
+    const totalCycleTime = totalPierceTime + totalTraverse + cutOrder.length * 5; // 5s overhead per part
+    const totalEnergy = (input.power_w / 1000) * (totalCycleTime / 3600);
+
+    const nestingResultOutput: LaserNestingResult = {
+      parts_per_sheet: Math.ceil(nestResult.placed.length / nestResult.sheets_used),
+      utilization_pct: nestResult.utilization_pct,
+      waste_pct: parseFloat((100 - nestResult.utilization_pct).toFixed(2)),
+      sheets_used: nestResult.sheets_used,
+      nested_positions: nestResult.placed.map(p => ({
+        part_id: p.part_id,
+        instance: p.instance,
+        x: p.x,
+        y: p.y,
+        rotation_deg: p.rotation_deg,
+      })),
+      common_line_pairs: commonLinePairs,
+      tabs_placed: totalTabs,
+    };
+
+    if (nestResult.unplaced.length > 0) {
+      warnings.push(`${nestResult.unplaced.length} part instance(s) could not fit on ${nestResult.sheets_used} sheet(s)`);
+    }
+    if (commonLinePairs.length > 0) {
+      recs.push(`${commonLinePairs.length} common-line pair(s) detected — potential cut-path sharing for speed improvement`);
+    }
+
+    return {
+      ...baseResult,
+      cycle_time_s: { value: totalCycleTime, unit: "s", formula: "Σ(t_pierce+L/V+overhead) per nested part", confidence: 0.82 },
+      energy_kwh: { value: totalEnergy, unit: "kWh", formula: "P[kW]×t_total[h]", confidence: 0.90 },
+      gcode: nestedGcode,
+      gcode_lines: nestedGcode.split("\n").length,
+      nesting_result: nestingResultOutput,
+      warnings,
+      recommendations: recs,
     };
   }
 

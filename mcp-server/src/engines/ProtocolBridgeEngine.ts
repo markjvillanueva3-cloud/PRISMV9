@@ -578,7 +578,7 @@ export class ProtocolBridgeEngine {
    */
   getStats(): {
     endpoints: number; active_endpoints: number; api_keys: number; active_keys: number;
-    metrics: typeof this.metrics;
+    metrics: Record<string, unknown>;
     by_protocol: Record<string, number>;
   } {
     this.init();

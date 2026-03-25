@@ -75,6 +75,7 @@ export class CodeSystemIndexEngine {
     const pat = pattern.toLowerCase();
     const results: CodeEntry[] = [];
     for (const entry of Object.values(data.codes)) {
+      if (!entry.name || !entry.path) continue;
       if (entry.name.toLowerCase().includes(pat) || entry.path.toLowerCase().includes(pat)) {
         results.push(entry);
         if (results.length >= limit) break;
@@ -86,7 +87,7 @@ export class CodeSystemIndexEngine {
   /** List all codes in a category. E.g. listCategory("D") -> all dispatchers */
   listCategory(prefix: string): CodeEntry[] {
     const data = this.ensureLoaded();
-    return Object.values(data.codes).filter(e => e.code.startsWith(prefix.toUpperCase()));
+    return Object.values(data.codes).filter(e => e.code && e.code.startsWith(prefix.toUpperCase()));
   }
 
   /** Get category summary */

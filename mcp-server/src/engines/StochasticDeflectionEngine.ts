@@ -219,7 +219,8 @@ export class StochasticDeflectionEngine {
   analyze(input: StochasticDeflectionInput): StochasticDeflectionResult {
     const warnings: string[] = [];
     const recommendations: string[] = [];
-    const N = input.mc_samples ?? 2000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 2000, MAX_TRIALS);
     const limit = input.deflection_limit_um ?? 25;
     const numFlutes = input.num_flutes ?? 4;
     const confidence = input.confidence_pct ?? 95;

@@ -328,6 +328,31 @@ function resolveCoolantProps(coolant: CryoCoolant): CoolantProps {
  * heat transfer, tool life, cutting forces, and surface integrity.
  */
 export class CryogenicCuttingEngine {
+  /**
+   * Empirical cryogenic performance improvement constants by coolant type and work material.
+   * Sources: Pusavec et al. (2010), Jawahir et al. (2016), Bermingham et al. (2012),
+   *          2024-2025 literature survey (Springer IJAMT, CIRP Annals, J. Manuf. Sci. Eng.).
+   * Note: CO2 is 19% less power consumption vs LN2; LN2 preferred for LCA (lower impact).
+   *       LN2+MQL hybrid achieves best overall performance for Ti/Ni alloys.
+   */
+  static readonly CRYO_PERFORMANCE = {
+    LN2: {
+      titanium: { force_reduction_pct: 32, tool_wear_reduction_pct: 67, ra_reduction_pct: 61, temp_reduction_pct: 85 },
+      inconel:  { force_reduction_pct: 15, tool_wear_reduction_pct: 35, ra_reduction_pct: 27, temp_reduction_pct: 75 },
+      steel:    { force_reduction_pct: 10, tool_wear_reduction_pct: 40, ra_reduction_pct: 20, temp_reduction_pct: 70 },
+      aluminum: { force_reduction_pct:  5, tool_wear_reduction_pct: 15, ra_reduction_pct: 10, temp_reduction_pct: 50 },
+    },
+    CO2: {
+      titanium: { force_reduction_pct: 25, tool_wear_reduction_pct: 55, ra_reduction_pct: 45, temp_reduction_pct: 70 },
+      inconel:  { force_reduction_pct: 12, tool_wear_reduction_pct: 35, ra_reduction_pct: 27, temp_reduction_pct: 65 },
+      steel:    { force_reduction_pct:  8, tool_wear_reduction_pct: 30, ra_reduction_pct: 15, temp_reduction_pct: 55 },
+      aluminum: { force_reduction_pct:  3, tool_wear_reduction_pct: 10, ra_reduction_pct:  8, temp_reduction_pct: 40 },
+    },
+    LN2_MQL_hybrid: {
+      titanium: { force_reduction_pct: 38, tool_wear_reduction_pct: 72, ra_reduction_pct: 65, temp_reduction_pct: 88 },
+      inconel:  { force_reduction_pct: 20, tool_wear_reduction_pct: 45, ra_reduction_pct: 35, temp_reduction_pct: 80 },
+    },
+  } as const;
 
   // --------------------------------------------------------------------------
   // 1. CRYOGENIC HEAT TRANSFER
@@ -487,7 +512,8 @@ export class CryogenicCuttingEngine {
     const wear_reduction_pct = (1 - diffusion_ratio) * 100 * 0.6 + (K_avg - 1) / K_avg * 100 * 0.4;
 
     // Monte Carlo with LHS
-    const N = input.mc_samples ?? 500;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 500, MAX_TRIALS);
     const rng = new PRNG(12345);
     const samples = rng.lhs(N, 2); // [K_cryo_u, T_dry_u] each in [0,1]
     const lifeSamples: number[] = [];

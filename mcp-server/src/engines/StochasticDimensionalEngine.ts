@@ -187,7 +187,8 @@ export class StochasticDimensionalEngine {
   simulate(input: DimUncertaintyInput): DimUncertaintyResult {
     const warnings: string[] = [];
     const qty = input.production_qty ?? 200;
-    const mcPerPart = input.mc_samples_per_part ?? 100;
+    const MAX_TRIALS = 100_000;
+    const mcPerPart = Math.min(input.mc_samples_per_part ?? 100, MAX_TRIALS);
     const subgroupSize = input.spc_subgroup_size ?? 5;
 
     // Defaults (all in µm)

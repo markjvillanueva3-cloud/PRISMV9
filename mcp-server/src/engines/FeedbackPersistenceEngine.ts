@@ -1,6 +1,7 @@
 // @ts-nocheck
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 // ============================================================================
 // Interfaces
@@ -166,6 +167,23 @@ const ISO_MATERIAL_DEFAULTS: Record<string, MaterialDefaults> = {
 
 const DEFAULT_PERSIST_PATH = 'C:/PRISM/mcp-server/data/machine-learning-data.json';
 
+/** Validate that the resolved file path stays within allowed directories */
+function validatePersistPath(filePath: string): void {
+  const resolved = path.resolve(filePath);
+  const homeDir = os.homedir();
+  const prismDataDir = path.resolve(DEFAULT_PERSIST_PATH, '..');
+  const allowedPrefixes = [
+    path.join(homeDir, '.prism'),
+    prismDataDir,
+  ];
+  const isAllowed = allowedPrefixes.some(prefix =>
+    resolved.startsWith(prefix + path.sep) || resolved.startsWith(prefix + '/') || resolved === prefix
+  );
+  if (!isAllowed) {
+    throw new Error(`Path traversal blocked: "${resolved}" is outside allowed directories (${allowedPrefixes.join(', ')})`);
+  }
+}
+
 // ============================================================================
 // FeedbackPersistenceEngine
 // ============================================================================
@@ -200,6 +218,7 @@ export class FeedbackPersistenceEngine {
    */
   persistToFile(input: PersistInput): PersistResult {
     const filePath = input.filePath || DEFAULT_PERSIST_PATH;
+    validatePersistPath(filePath);
 
     try {
       // Export data from the MLF engine
@@ -271,6 +290,7 @@ export class FeedbackPersistenceEngine {
    */
   restoreFromFile(input: RestoreInput): RestoreResult {
     const filePath = input.filePath || DEFAULT_PERSIST_PATH;
+    validatePersistPath(filePath);
 
     try {
       if (!fs.existsSync(filePath)) {

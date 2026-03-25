@@ -118,7 +118,8 @@ export class CalibratedSimulationEngine {
   }): CalibratedSimResult {
     const mat = MATERIALS[input.material] ?? MATERIALS.steel;
     const cal = this.calibrations.get(input.material) ?? DEFAULT_CALIBRATION;
-    const mcSamples = input.mc_samples ?? 500;
+    const MAX_TRIALS = 100_000;
+    const mcSamples = Math.min(input.mc_samples ?? 500, MAX_TRIALS);
     const forceLimit = input.force_limit_N ?? 5000;
     const lifeLimit = input.life_limit_min ?? 30;
     const tempLimit = input.temp_limit_C ?? 800;
@@ -139,7 +140,7 @@ export class CalibratedSimulationEngine {
 
     // Point estimates (calibrated)
     const kc = kc11 * Math.pow(h, -mc);
-    const Fc = kc * ap * ae / 1000;
+    const Fc = kc * ap * h; // Kienzle: kc already includes h^(-mc), so Fc = kc1.1 * ap * h^(1-mc)
     const toolLife = taylorC / Math.pow(Math.max(Vc, 1), taylorN);
     const tempRise = kThermal * Math.pow(Math.max(Fc * Vc / 60, 0), 0.5);
     const temperature = 20 + tempRise;
@@ -169,7 +170,7 @@ export class CalibratedSimulationEngine {
 
       const fz_s = Math.max(f_s / z, 0.001);
       const kc_s = kc11_s * Math.pow(fz_s, -mc_s);
-      const Fc_s = kc_s * ap_s * ae / 1000;
+      const Fc_s = kc_s * ap_s * fz_s;
       forceSamples.push(Fc_s);
 
       const Vc_s = Vc * (1 + 0.02 * randn());

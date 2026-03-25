@@ -80,6 +80,24 @@ const MAX_TAP_SPEED: Record<string, number> = {
   P: 25, M: 12, K: 20, N: 40, S: 8, H: 10,
 };
 
+/**
+ * Material-specific tapping speed ranges (m/min).
+ * Source: OSG Tap Guide, ToolHIT tapping speeds reference, Sandvik threading recommendations.
+ * Note: Form/roll taps can run 50-100% faster than the max values below.
+ * For high-speed tapping with small-diameter taps (<M6) in aluminium, speeds of 100-150 m/min
+ * are achievable on machines with synchronised rigid tapping.
+ */
+export const TAPPING_SFM_BY_MATERIAL: Record<string, { min_mpm: number; max_mpm: number; note: string }> = {
+  low_carbon_steel:   { min_mpm: 6,   max_mpm: 15,  note: "ISO P — general carbon steel, e.g. 1018/1045" },
+  tempered_hard_steel:{ min_mpm: 5,   max_mpm: 10,  note: "ISO H — tempered / hardened steel >30 HRC" },
+  stainless_steel:    { min_mpm: 2,   max_mpm: 7,   note: "ISO M — austenitic/martensitic; work-hardens rapidly" },
+  cast_iron:          { min_mpm: 8,   max_mpm: 10,  note: "ISO K — grey/ductile cast iron; brittle chip" },
+  aluminum:           { min_mpm: 15,  max_mpm: 30,  note: "ISO N — free-cutting aluminium alloys" },
+  titanium:           { min_mpm: 2,   max_mpm: 5,   note: "ISO S — galling risk; mandatory high-pressure coolant" },
+  brass_bronze:       { min_mpm: 15,  max_mpm: 25,  note: "ISO N — free-machining copper alloys" },
+  high_speed_small_dia:{ min_mpm: 100, max_mpm: 150, note: "Small-dia taps (<M6) in Al/brass on rigid-tapping machines" },
+};
+
 // ─── Engine ────────────────────────────────────────────────────────
 
 /** Tapping Torque Engine engine/manager.

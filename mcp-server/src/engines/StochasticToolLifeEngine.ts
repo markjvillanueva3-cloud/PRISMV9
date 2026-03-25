@@ -613,7 +613,8 @@ export class StochasticToolLifeEngine {
     const toolMat = input.tool_material ?? "carbide";
     const coating = input.coating ?? "TiAlN";
     const wearLimit = input.wear_limit_mm ?? 0.3;
-    const N = input.n_trials ?? 2000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.n_trials ?? 2000, MAX_TRIALS);
     const method = input.method ?? "all";
     const costRatio = 7.0; // C_failure / C_replace
 

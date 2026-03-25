@@ -519,7 +519,8 @@ export class LAMThermalSofteningEngine {
     const eps = 0.3;
     const epsDot = 1e3;
     const k_wear = 1.5;
-    const N = input.mc_samples ?? 500;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 500, MAX_TRIALS);
     const rng = createPRNG(42);
 
     // Nominal surface temperature

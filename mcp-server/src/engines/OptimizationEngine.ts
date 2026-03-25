@@ -1130,11 +1130,6 @@ export function catalogSourceFiles(): {
     categories,
   };
 
-  console.log(
-    `[OptimizationEngine] Source catalog: ${report.cataloged} files, ` +
-    `${report.total_lines} lines, ${criticalModules.length} CRITICAL modules`
-  );
-
   return report;
 }
 

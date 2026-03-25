@@ -891,7 +891,7 @@ export class ComplianceEngine {
    */
   getStats(): {
     templates_available: number; templates_active: number;
-    total_requirements: number; metrics: typeof this.metrics;
+    total_requirements: number; metrics: Record<string, unknown>;
     disclaimer: string;
   } {
     this.init();

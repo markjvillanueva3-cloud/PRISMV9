@@ -366,6 +366,30 @@ const KIENZLE_DB: Record<ISOGroup, KienzleMaterial> = {
   H: { kc1_1: 3200, mc: 0.28, Vc_rough: 80,  Vc_finish: 150, taylor_n: 0.18, taylor_C: 150 },
 };
 
+// ─── Lazy-loaded Sub-Engine Helpers ───────────────────────────────────
+
+const _ckLazyCache: Record<string, any> = {};
+
+function _ckLazyEngine<T = any>(name: string, path: string): T | null {
+  if (!(name in _ckLazyCache)) {
+    try {
+      const m = require(path);
+      _ckLazyCache[name] = m[name] ? new m[name]() : null;
+    } catch {
+      _ckLazyCache[name] = null;
+    }
+  }
+  return _ckLazyCache[name] as T | null;
+}
+
+function getOptimalStrategyEngine(): any {
+  return _ckLazyEngine("OptimalStrategySelectionEngine", "./OptimalStrategySelectionEngine.js");
+}
+
+function getCollisionPreventionEngine(): any {
+  return _ckLazyEngine("CollisionPreventionEngine", "./CollisionPreventionEngine.js");
+}
+
 // ─── Strategy Selection Logic ─────────────────────────────────────────
 
 /** Maps feature type to recommended milling strategy. */
@@ -636,7 +660,52 @@ export class CAMKernelOrchestratorEngine {
 
     for (let i = 0; i < sequenced.length; i++) {
       const feat = sequenced[i];
-      const strategy = selectStrategy(feat, input.machine.axes);
+      let strategy: MillingStrategy;
+      let strategyJustification: string[] | undefined;
+
+      // Try OptimalStrategySelectionEngine (E1087) for physics-backed selection
+      const ose = getOptimalStrategyEngine();
+      if (ose) {
+        try {
+          const axesNum = input.machine.axes.startsWith("5") ? 5
+            : input.machine.axes.startsWith("4") ? 4 : 3;
+          const oseResult = ose.compute({
+            feature: {
+              type: feat.type,
+              depth: feat.dimensions.depth_mm,
+              width: feat.dimensions.width_mm,
+              length: feat.dimensions.length_mm,
+              tolerance: feat.tolerance_mm,
+              surface_finish: feat.surface_finish_Ra,
+              wall_angle: feat.wall_angle_deg,
+              corner_radius: feat.dimensions.radius_mm,
+            },
+            material: { iso_group: iso },
+            machine: {
+              max_rpm: input.machine.max_rpm,
+              max_power_kw: input.machine.max_power_kw,
+              axes: axesNum as 3 | 4 | 5,
+            },
+            tool: input.tool_constraints?.[0] ? {
+              diameter: input.tool_constraints[0].max_diameter_mm,
+              flutes: input.tool_constraints[0].num_flutes,
+            } : undefined,
+          });
+          if (oseResult?.selected?.canonical_id) {
+            // Map canonical_id to local MillingStrategy (snake_case match)
+            const mapped = oseResult.selected.canonical_id as MillingStrategy;
+            strategy = mapped;
+            strategyJustification = oseResult.justification;
+          } else {
+            strategy = selectStrategy(feat, input.machine.axes);
+          }
+        } catch {
+          strategy = selectStrategy(feat, input.machine.axes);
+        }
+      } else {
+        strategy = selectStrategy(feat, input.machine.axes);
+      }
+
       const tool = recommendTool(feat, strategy, input.tool_constraints);
 
       // Speed/feed from Kienzle model
@@ -692,7 +761,10 @@ export class CAMKernelOrchestratorEngine {
         estimated_time_sec: Math.round(opTime),
         estimated_mrr_cm3_min: Math.round(mrr * 100) / 100,
         toolpath_length_mm: Math.round(toolpathLen),
-        notes: this._generateOpNotes(feat, strategy, force, actualVc, iso),
+        notes: [
+          ...this._generateOpNotes(feat, strategy, force, actualVc, iso),
+          ...(strategyJustification ? strategyJustification.map(j => `[E1087] ${j}`) : []),
+        ],
       });
     }
 
@@ -1029,32 +1101,86 @@ export class CAMKernelOrchestratorEngine {
     // ── Stage 6: Collision Check ──
     let collisionCheck: CamSimulateResult["collision_check"];
     if (checks.collision !== false) {
-      // Simplified clearance check based on stock envelope and tool dimensions
-      const stockX = input.stock.dimensions_mm.x;
-      const stockY = input.stock.dimensions_mm.y;
-      const stockZ = input.stock.dimensions_mm.z;
-      const minClearance = Math.min(stockX, stockY, stockZ) * 0.02; // 2% of smallest dim
-      const nearMisses = ops.filter(op => {
-        const toolStickout = op.tool.flute_length_mm * 1.5;
-        return toolStickout > stockZ * 0.8;
-      }).length;
+      const s6 = Date.now();
+      const cpe = getCollisionPreventionEngine();
+      let usedEngine = false;
 
-      collisionCheck = {
-        collisions_found: 0,
-        near_misses: nearMisses,
-        min_clearance_mm: Math.round(minClearance * 100) / 100,
-        safe: true,
-      };
+      if (cpe && ops.length > 0) {
+        try {
+          // Build toolpath blocks from operations
+          const blocks = ops.map((op, idx) => ({
+            index: idx,
+            x: 0, y: 0, z: -(op.depth_of_cut_mm ?? 5),
+          }));
+          const toolAssembly = {
+            diameter_mm: ops[0].tool.diameter_mm,
+            cutting_length_mm: ops[0].tool.flute_length_mm,
+            tool_type: "endmill" as const,
+          };
+          const stockBox = {
+            x_min: 0, x_max: input.stock.dimensions_mm.x,
+            y_min: 0, y_max: input.stock.dimensions_mm.y,
+            z_min: -input.stock.dimensions_mm.z, z_max: 0,
+          };
 
-      if (nearMisses > 0) {
-        findings.push({
-          severity: "info",
-          category: "collision",
-          message: `${nearMisses} near-miss(es) detected — tool stickout close to stock depth`,
-          recommendation: "Verify clearance planes and tool lengths",
-        });
+          const report = cpe.checkFullToolpath(blocks, toolAssembly, stockBox);
+          collisionCheck = {
+            collisions_found: report.collision_count,
+            near_misses: report.near_miss_count,
+            min_clearance_mm: Math.round(report.min_clearance_mm * 100) / 100,
+            safe: report.certified_safe,
+          };
+          usedEngine = true;
+
+          if (report.collision_count > 0) {
+            findings.push({
+              severity: "critical",
+              category: "collision",
+              message: `[E1139] ${report.collision_count} collision(s) detected in toolpath`,
+              recommendation: report.recommendations?.[0] ?? "Review toolpath for holder/fixture interference",
+            });
+          }
+          if (report.near_miss_count > 0) {
+            findings.push({
+              severity: "warning",
+              category: "collision",
+              message: `[E1139] ${report.near_miss_count} near-miss(es) — min clearance ${report.min_clearance_mm.toFixed(2)}mm`,
+              recommendation: "Verify clearance planes and tool lengths",
+            });
+          }
+        } catch {
+          // Fall through to simplified check
+        }
       }
-      stages.push({ stage: "collision_check", status: "complete", duration_ms: 0 });
+
+      if (!usedEngine) {
+        // Simplified clearance check (fallback)
+        const stockX = input.stock.dimensions_mm.x;
+        const stockY = input.stock.dimensions_mm.y;
+        const stockZ = input.stock.dimensions_mm.z;
+        const minClearance = Math.min(stockX, stockY, stockZ) * 0.02;
+        const nearMisses = ops.filter(op => {
+          const toolStickout = op.tool.flute_length_mm * 1.5;
+          return toolStickout > stockZ * 0.8;
+        }).length;
+
+        collisionCheck = {
+          collisions_found: 0,
+          near_misses: nearMisses,
+          min_clearance_mm: Math.round(minClearance * 100) / 100,
+          safe: true,
+        };
+
+        if (nearMisses > 0) {
+          findings.push({
+            severity: "info",
+            category: "collision",
+            message: `${nearMisses} near-miss(es) detected — tool stickout close to stock depth`,
+            recommendation: "Verify clearance planes and tool lengths",
+          });
+        }
+      }
+      stages.push({ stage: "collision_check", status: "complete", duration_ms: Date.now() - s6 });
     }
 
     // ── Stage 7: Surface Quality ──

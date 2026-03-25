@@ -138,6 +138,9 @@ const ROUTE_PATTERNS: RoutePattern[] = [
   { keywords: ["process control", "adaptive control", "in-process", "feedback loop"], route: "dispatcher", target: "processControlDispatcher", action: "ctc_analyze", reason: "Adaptive process control (6 actions)", estimatedTokens: 300 },
   { keywords: ["machine monitoring", "telemetry", "opc ua", "mtconnect", "machine data"], route: "dispatcher", target: "telemetryDispatcher", action: "telemetry_query", reason: "Machine telemetry", estimatedTokens: 300 },
 
+  // Spindle torque/power curve
+  { keywords: ["spindle torque", "spindle power", "torque curve", "power limit", "stall", "machine capacity"], route: "dispatcher", target: "calcDispatcher", action: "spindle_torque_available", reason: "Spindle torque/power curve analysis (5 actions)", estimatedTokens: 200 },
+
   // Diagnosis & troubleshooting
   { keywords: ["troubleshoot", "diagnose", "root cause", "chatter", "vibration problem", "surface finish problem"], route: "dispatcher", target: "diagnosisDispatcher", action: "diagnose_issue", reason: "Problem diagnosis", estimatedTokens: 400 },
 

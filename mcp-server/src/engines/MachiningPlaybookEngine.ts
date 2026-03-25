@@ -62,7 +62,9 @@ export type RuleCategory =
   | "cross_domain"      // Multi-physics synthesis rules
   | "gdt"              // Geometric dimensioning & tolerancing
   | "machine_capability" // Spindle power, axis dynamics, servo limits
-  | "failure_analysis"; // Root cause diagnosis for tool/process failures
+  | "failure_analysis"  // Root cause diagnosis for tool/process failures
+  | "milling"           // Milling-specific rules (strategy, flute selection, helix)
+  | "drilling";         // Drilling-specific rules (through-coolant, peck, deep hole)
 
 export type Severity = "critical" | "important" | "recommended" | "tip";
 
@@ -1917,6 +1919,129 @@ const PLAYBOOK_RULES: PlaybookRule[] = [
     exceptions: ["High-volume production where rigid tapping is faster and more economical"],
     source: "Emuge — 'Thread Milling vs Tapping Guide'",
     related_rules: ["SEQ-008"],
+  },
+
+  {
+    id: "threading-form-tap-speed",
+    category: "threading",
+    severity: "important",
+    title: "Form taps run 50-100% faster SFM than cut taps",
+    rule: "Form taps (roll taps) can run at 50-100% higher SFM than cut taps in the same material. Form taps create threads by displacing material rather than cutting, producing stronger threads with no chips.",
+    reasoning: "Form taps have no cutting edges to wear, generate no chips (eliminating evacuation issues), and produce cold-worked threads with ~10% higher tensile strength. The speed increase is possible because there's no chip formation heat.",
+    conditions: [{ type: "operation_type", operations: ["tapping"] }],
+    exceptions: ["Cast iron and brittle materials — form taps cannot displace brittle material and will break", "Hardened steel >40 HRC where material displacement is not possible"],
+    source: "OSG Tap Guide, ToolHIT tapping speeds reference",
+    evidence_level: "manufacturer_data",
+    quantitative: "Form tap SFM = cut tap SFM × 1.5–2.0. Thread tensile strength increase ~10% due to cold-working of thread flanks.",
+  },
+  {
+    id: "threading-tap-feed-sync",
+    category: "threading",
+    severity: "critical",
+    title: "Tapping feed rate must exactly match pitch",
+    rule: "Tapping feed rate MUST equal pitch × RPM exactly. Any mismatch causes thread damage, tap breakage, or oversized threads. For rigid tapping, the CNC controller synchronizes spindle and Z-axis. Formula: Feed(mm/min) = Pitch(mm) × RPM, or Feed(IPM) = RPM ÷ TPI.",
+    reasoning: "Unlike milling where feed can vary, tapping is geometrically constrained — one revolution = one pitch advance. CNC rigid tapping mode (G84) handles this automatically, but manual feed overrides MUST be disabled during tapping.",
+    conditions: [{ type: "operation_type", operations: ["tapping"] }],
+    exceptions: ["Floating tap holders with axial compensation can absorb small feed errors (±5%), but rigid tapping is always preferred for accuracy"],
+    source: "CNC tapping fundamentals, OSG tap selection guide",
+    evidence_level: "peer_reviewed",
+    quantitative: "Feed(mm/min) = Pitch(mm) × RPM. Example: M10×1.5 at 500 RPM → Feed = 1.5 × 500 = 750 mm/min. Feed(IPM) = RPM ÷ TPI. Example: 1/4-20 UNC at 300 RPM → Feed = 300 ÷ 20 = 15 IPM.",
+    standard_ref: "ISO 529 — Tapping; ASME B1.13M — Metric screw threads",
+  },
+  {
+    id: "threading-difficult-materials",
+    category: "threading",
+    severity: "important",
+    title: "Reduce tapping speed for stainless and titanium",
+    rule: "For stainless steel (ISO M) and titanium (ISO S), reduce tapping SFM to 2-7 m/min and 2-5 m/min respectively. Use spiral flute taps for blind holes (pulls chips up) and spiral point taps for through holes (pushes chips forward). Always use high-pressure coolant.",
+    reasoning: "Work hardening in stainless and galling in titanium are the #1 causes of tap breakage. Low speed + high-pressure coolant flush prevents built-up edge formation and chip packing in flutes.",
+    conditions: [{ type: "operation_type", operations: ["tapping"] }, { type: "material_iso", groups: ["M"] }],
+    exceptions: ["Form/roll taps in low-hardness stainless (<200 HB) can run at the higher end of the range with excellent results"],
+    source: "OSG tap guide, Sandvik threading recommendations",
+    evidence_level: "manufacturer_data",
+    quantitative: "Stainless: 2–7 m/min. Titanium: 2–5 m/min. High-pressure coolant: 70+ bar preferred. Drill hole oversized by 5-10% vs standard tap drill to reduce torque.",
+  },
+
+  {
+    id: "milling-helix-angle-steel",
+    category: "milling",
+    severity: "recommended",
+    title: "Use 30° helix for steel roughing, 35-40° for stainless/HRSA",
+    rule: "Select helix angle based on material and operation. Steel/cast iron roughing: 30°. Stainless and HRSA: 35-40°. Aluminum/non-ferrous: 37-45°. Finishing: 45-60°. Abrasive plastics/brass: 0° (straight). Higher helix = more axial force (presses tool into holder) but less radial force (less deflection/vibration).",
+    reasoning: "At 30° helix, 75% of cutting force is radial and 25% axial. At 45°, forces split 50/50. Higher helix reduces radial deflection but increases axial pull-out risk in poorly retained tools. The trade-off optimizes for each material's cutting behavior.",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing", "finishing"] }],
+    exceptions: ["Variable helix end mills override this for chatter-prone setups", "Micro-milling (<1mm) may use higher helix regardless of material"],
+    source: "CADEM Technologies, Travers Tool helix angle guide, OSG end mill selection",
+    evidence_level: "manufacturer_data" as const,
+    quantitative: "Force split: 0°→100%R/0%A, 30°→75%R/25%A, 45°→50%R/50%A. Formula: Fa=Ft×sin(β), Fr=Ft×cos(β).",
+  },
+  {
+    id: "milling-flute-count-selection",
+    category: "milling",
+    severity: "recommended",
+    title: "2-3 flutes for aluminum, 4+ for steel",
+    rule: "Use 2-3 flute end mills for aluminum and non-ferrous materials — larger flute valleys allow bigger chips and better evacuation. Use 4+ flutes for steel and harder alloys — higher rigidity, smoother engagement, better surface finish. 3-flute is a performance alternative to 2-flute in aluminum with faster feed rates.",
+    reasoning: "Aluminum produces long, stringy chips that need large gullet space. Steel produces smaller chips where rigidity and number of cutting edges matter more. Each additional flute allows proportionally higher feed rate at the same chip load: Feed = fz × z × RPM.",
+    conditions: [{ type: "operation_type", operations: ["milling", "roughing", "finishing", "slotting"] }],
+    exceptions: ["High-efficiency milling (HEM) in steel can use 5-7 flutes with very light radial engagement", "Single-flute end mills for very soft plastics or extremely high-RPM routers"],
+    source: "OSG end mill guide, CNC Cookbook flute count analysis, Harvey Performance",
+    evidence_level: "manufacturer_data" as const,
+    quantitative: "Aluminum: 2-3 flutes, fz 0.05-0.20mm. Steel: 4+ flutes, fz 0.03-0.12mm. Feed increase per flute: Feed_new = Feed_old × (z_new/z_old) at constant fz.",
+  },
+  {
+    id: "milling-minimum-chip-load",
+    category: "milling",
+    severity: "critical",
+    title: "Never go below minimum chip load — causes rubbing and work hardening",
+    rule: "Carbide end mills must maintain minimum 0.004 inch (0.1mm) chip load per tooth. Chip load should be 5-20% of the cutting edge radius as absolute minimum. Going below this causes rubbing instead of cutting, generates excessive heat, work-hardens stainless and titanium, accelerates flank wear, and produces chatter. In hard milling (>45 HRC), 0.0008 inch/tooth is the burnishing threshold.",
+    reasoning: "Below the minimum uncut chip thickness (MUCT), the tool plows rather than shears the workpiece. This converts cutting energy to friction heat, destroys the tool coating, and in work-hardening materials creates a hardened layer that makes subsequent passes even harder. The MUCT is directly related to edge radius — sharper tools can cut thinner chips.",
+    conditions: [{ type: "operation_type", operations: ["milling", "finishing", "roughing"] }],
+    exceptions: ["Micromilling with edge radii 0.001-0.005mm can cut at proportionally lower chip loads", "Spring passes for surface finish may intentionally use sub-MUCT chip loads for 1-2 passes only"],
+    source: "CNC Cookbook feeds/speeds guide, NYC CNC chip load fundamentals",
+    evidence_level: "peer_reviewed" as const,
+    quantitative: "Carbide min chip load: 0.004 inch (0.1mm). Hard milling burnishing: 0.0008 inch/tooth. Aerospace super-alloy burnishing: IPR < 0.0035 inch. MUCT = 5-20% of edge radius. Micromilling edge radius: 0.001-0.005mm.",
+  },
+  {
+    id: "coolant-mql-nozzle-setup",
+    category: "coolant_strategy",
+    severity: "important",
+    title: "MQL nozzle must be 20-30mm from cut zone at 60° elevation",
+    rule: "For MQL (Minimum Quantity Lubrication): position nozzle 20-30mm from cutting zone (20mm for end milling, 25mm for slot milling, 30mm for drilling/grinding). Set elevation angle to 60° and 120° relative to feed direction. Flow rate 40-60 mL/h (60 for hardened steel). Air pressure 0.3-0.4 MPa. Use dual-jet nozzles for stainless/titanium/superalloys — 15-20% better than single-jet.",
+    reasoning: "MQL aerosol needs precise delivery to the cutting zone. Too far and droplets disperse before reaching the tool-chip interface. Too close risks nozzle damage. The 120°/60° angle ensures lubricant reaches both the rake face and flank face. Dual jets provide redundant coverage for difficult materials where single-point failure causes rapid tool degradation.",
+    conditions: [{ type: "always" }],
+    exceptions: ["Through-tool MQL systems have built-in delivery — external nozzle position is irrelevant", "Deep hole drilling >5xD may need through-coolant instead of external MQL"],
+    source: "Springer 2025 MQL slot milling study, Tandfonline 2025 dual-jet optimization, JMES MQL review",
+    evidence_level: "peer_reviewed" as const,
+    quantitative: "Distance: 20-30mm. Flow: 40-60 mL/h. Pressure: 0.3-0.4 MPa (6 bar). Elevation: 60°. Feed angle: 120°. Improvements vs dry: force -14.6%, temp -42.1%, Ra -41.8%. Dual vs single jet: +15-20% improvement.",
+  },
+
+  // ── DRILLING COOLANT RULES ────────────────────────────────────────────────
+
+  {
+    id: "drilling-coolant-through-pressure",
+    category: "hole_making",
+    severity: "critical",
+    title: "Minimum 1000 PSI coolant pressure for through-coolant drills",
+    rule: "Through-coolant carbide drills require minimum 1000 PSI (70 bar) coolant pressure for optimal chip evacuation. Pressure scales inversely with drill diameter: <3mm needs 800-1000 PSI, 3-8mm needs 500-800 PSI, 8-15mm needs 400-600 PSI, >15mm needs 300-500 PSI. Insufficient pressure causes chip packing, overheating, and drill failure.",
+    reasoning: "High-pressure coolant through the drill core creates a hydraulic flushing action that evacuates chips from the cutting zone. Without adequate pressure, chips re-cut and pack in flutes, causing catastrophic failure especially in deep holes. Material adjustment: titanium needs 40% more pressure than steel baseline.",
+    conditions: [{ type: "operation_type", operations: ["drilling"] }],
+    exceptions: ["MQL systems use milliliters/hour at much lower pressure but with precise aerosol delivery", "Shallow holes (<1xD) may not need through-coolant at all"],
+    source: "Guhring deep hole drilling guide, MSC BetterMRO, GuessTools coolant-through reference",
+    evidence_level: "manufacturer_data" as const,
+    quantitative: "Pressure by diameter: <3mm=800-1000PSI, 3-8mm=500-800PSI, 8-15mm=400-600PSI, >15mm=300-500PSI. Material multipliers: Ti x1.4, SS x1.2, Al x0.8, CI x1.0.",
+  },
+  {
+    id: "drilling-deep-hole-peck",
+    category: "hole_making",
+    severity: "important",
+    title: "Peck every 1xD for deep holes, full retract above 3xD",
+    rule: "For holes deeper than 3xD without through-coolant: peck drill every 1x diameter depth with full retraction. Start with 70-80% feed rate for the first diameter depth (entry feed). Above 10xD depth requires specialty drills. Above 12xD requires a pilot hole. Through-coolant drills can often drill without pecking up to 5xD.",
+    reasoning: "Chip evacuation degrades exponentially with depth. Full retraction clears chips from flutes and allows coolant to flush the hole. Entry feed reduction prevents walking and establishes a clean pilot. Pilot holes above 12xD ensure drill enters straight — clearance tolerance up to 0.0004 inch.",
+    conditions: [{ type: "depth_ratio_above", ld_ratio: 3 }],
+    exceptions: ["Through-coolant drills at 1000+ PSI can skip pecking up to 5xD in most materials", "Gun drills operate differently — single-lip continuous cutting up to 100xD"],
+    source: "Guhring deep hole guide, MSC BetterMRO carbide deep-hole drilling",
+    evidence_level: "manufacturer_data" as const,
+    quantitative: "Peck interval: 1xD. Entry feed: 70-80%. Pilot clearance: 0.0004 inch. Deep hole thresholds: 3xD=peck, 10xD=specialty, 12xD=pilot required, 20xD+=gun drill.",
   },
 
   // ── EDM RULES ────────────────────────────────────────────────────────────

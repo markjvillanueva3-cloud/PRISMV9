@@ -21,6 +21,36 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+
+// ── Lazy-loaded engine singletons (graceful fallback if unavailable) ──
+let _monteCarloEngine: any = undefined;
+let _stochasticToolLifeEngine: any = undefined;
+let _machiningPlaybookEngine: any = undefined;
+
+function getMonteCarloEngine(): any {
+  if (_monteCarloEngine === undefined) {
+    try { _monteCarloEngine = require("./MonteCarloEngine.js").monteCarloEngine; }
+    catch { _monteCarloEngine = null; }
+  }
+  return _monteCarloEngine;
+}
+
+function getStochasticToolLifeEngine(): any {
+  if (_stochasticToolLifeEngine === undefined) {
+    try { _stochasticToolLifeEngine = require("./StochasticToolLifeEngine.js").stochasticToolLifeEngine; }
+    catch { _stochasticToolLifeEngine = null; }
+  }
+  return _stochasticToolLifeEngine;
+}
+
+function getMachiningPlaybookEngine(): any {
+  if (_machiningPlaybookEngine === undefined) {
+    try { _machiningPlaybookEngine = require("./MachiningPlaybookEngine.js").machiningPlaybookEngine; }
+    catch { _machiningPlaybookEngine = null; }
+  }
+  return _machiningPlaybookEngine;
+}
 
 // ============================================================================
 // ATOMIC VALUE
@@ -433,9 +463,9 @@ const MATERIAL_DB: Record<string, MaterialRecord> = {
     iso_group: "S",
     hb: 334,
     sigma_y_MPa: 880,
-    kc1_1: 1600,
-    mc: 0.23,
-    k_thermal: 7.2,
+    kc1_1: 2800,  // FIXED: was 1600 (43% underestimate). Canonical: 2800 per constants.ts/Sandvik
+    mc: 0.28,     // FIXED: was 0.23. Canonical ISO S mc=0.28 per constants.ts
+    k_thermal: 6.7,  // corrected to match canonical titanium_gr5
     machinability_factor: 0.25,
     vc_base: { roughing: 50, finishing: 80 },
     aliases: ["ti-6al-4v", "ti64", "grade5", "grade 5", "ti6al4v", "tc4", "6al4v"],
@@ -1193,13 +1223,38 @@ export class SpeedFeedOrchestratorEngine {
       matchSource = `iso_group_${input.iso_group}`;
     }
 
+    // Try MaterialRegistry (1,662+ materials) before falling back to steel
+    let registryRec: MaterialRecord | undefined;
+    if (matKey === undefined && input.material) {
+      try {
+        const { materialRegistry } = require("../registries/MaterialRegistry.js");
+        if (materialRegistry?.loaded) {
+          const found = materialRegistry.findByName?.(input.material) ?? materialRegistry.search?.(input.material)?.[0];
+          if (found) {
+            registryRec = {
+              iso_group: found.iso_group || "P",
+              hb: found.hardness_brinell || found.hb || 200,
+              sigma_y_MPa: found.yield_strength || found.sigma_y_MPa || 400,
+              kc1_1: found.kc1_1 || 1800,
+              mc: found.mc || 0.25,
+              k_thermal: found.thermal_conductivity || 40,
+              machinability_factor: found.machinability_factor || found.machinability || 1.0,
+              vc_base: { roughing: found.vc_roughing || 150, finishing: found.vc_finishing || 220 },
+              aliases: [],
+            };
+            matchSource = "material_registry";
+          }
+        }
+      } catch { /* Registry not loaded — fall through */ }
+    }
+
     // Ultimate fallback
-    if (matKey === undefined) {
+    if (matKey === undefined && !registryRec) {
       matKey = "steel";
       matchSource = "default_steel";
     }
 
-    const rec = MATERIAL_DB[matKey];
+    const rec = registryRec || MATERIAL_DB[matKey!];
     const conf = input.material !== undefined ? lookupConf : defaultConf;
 
     // Allow user overrides on hardness and yield strength
@@ -1221,7 +1276,7 @@ export class SpeedFeedOrchestratorEngine {
     const kcSrc = `kienzle_adjusted_hb_ratio_${hardnessRatio.toFixed(2)}`;
 
     return {
-      name: av(matKey, conf, matchSource),
+      name: av(matKey ?? input.material ?? "unknown", conf, matchSource),
       iso_group: av(
         input.iso_group ?? rec.iso_group,
         hasISO ? userConf : conf,
@@ -1580,50 +1635,105 @@ export class SpeedFeedOrchestratorEngine {
     const kc_cv = 0.10; // 8-12% typical
     const mc_cv = 0.07;
     const n_trials = 500;
-    const seed = 42;
-    let s = seed;
-    const rng = (): number => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
-    const boxMuller = (): number => {
-      const u1 = Math.max(1e-10, rng()); const u2 = rng();
-      return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
-    };
-
-    const forces: number[] = [];
-    const lives: number[] = [];
-    const ras: number[] = [];
-    const chatterCount = { stable: 0, unstable: 0 };
     const noseR = tool.corner_radius_mm?.value ?? 0.4;
 
-    for (let i = 0; i < n_trials; i++) {
-      const kc_s = kc1_1 * (1 + kc_cv * boxMuller());
-      const mc_s = mc * (1 + mc_cv * boxMuller());
-      const h = Math.max(0.001, fz);
-      const Fc_s = kc_s * ap * Math.pow(h, 1 - mc_s);
-      forces.push(Fc_s);
+    // ── Try MonteCarloEngine for MC trials, fall back to inline RNG ──
+    let forces: number[] = [];
+    let lives: number[] = [];
+    let ras: number[] = [];
+    const chatterCount = { stable: 0, unstable: 0 };
+    let usedMCEngine = false;
 
-      // Taylor life with scatter
-      const n_taylor = 0.25 * (1 + 0.08 * boxMuller());
-      const C_taylor = (Vc * 1.5) * (1 + 0.15 * boxMuller());
-      const T_s = Math.pow(Math.max(1, C_taylor / Math.max(1, Vc)), 1 / Math.max(0.05, n_taylor));
-      lives.push(Math.max(0.1, T_s));
+    const mcEngine = getMonteCarloEngine();
+    if (mcEngine) {
+      try {
+        // Use MonteCarloEngine.simulate() for each distribution
+        const forceResult = mcEngine.simulate(() => {
+          const kc_s = kc1_1 * (1 + kc_cv * (2 * Math.random() - 1) * 1.73);
+          const mc_s = mc * (1 + mc_cv * (2 * Math.random() - 1) * 1.73);
+          const h = Math.max(0.001, fz);
+          return kc_s * ap * Math.pow(h, 1 - mc_s);
+        }, n_trials);
+        const lifeResult = mcEngine.simulate(() => {
+          const n_taylor = 0.25 * (1 + 0.08 * (2 * Math.random() - 1) * 1.73);
+          const C_taylor = (Vc * 1.5) * (1 + 0.15 * (2 * Math.random() - 1) * 1.73);
+          return Math.max(0.1, Math.pow(Math.max(1, C_taylor / Math.max(1, Vc)), 1 / Math.max(0.05, n_taylor)));
+        }, n_trials);
+        const raResult = mcEngine.simulate(() => {
+          const fz_s = fz * (1 + 0.05 * (2 * Math.random() - 1) * 1.73);
+          const r_s = noseR * (1 + 0.03 * (2 * Math.random() - 1) * 1.73);
+          const bue_factor = 1 + Math.max(0, 0.1 * (2 * Math.random() - 1) * 1.73);
+          return Math.max(0.01, ((fz_s * fz_s) / (32 * Math.max(0.01, r_s))) * 1000 * bue_factor);
+        }, n_trials);
 
-      // Surface finish: Ra ≈ fz²/(32·r) with scatter on fz, nose radius, BUE
-      const fz_s = fz * (1 + 0.05 * boxMuller()); // ±5% feed scatter
-      const r_s = noseR * (1 + 0.03 * boxMuller()); // ±3% nose radius scatter
-      const bue_factor = 1 + Math.max(0, 0.1 * boxMuller()); // BUE adds roughness
-      const Ra_s = ((fz_s * fz_s) / (32 * Math.max(0.01, r_s))) * 1000 * bue_factor; // mm→µm
-      ras.push(Math.max(0.01, Ra_s));
+        // FIXED: Previously re-generated samples with Math.random() (unseeded, different from MC engine).
+        // Now use MC engine statistics directly. Raw arrays populated from seeded inline fallback below
+        // if MC engine path was used, skip redundant re-generation — use forceResult/lifeResult/raResult
+        // statistics directly for CI computation. Forces/lives/ras arrays only needed for fallback path.
+        if (forceResult && lifeResult && raResult) {
+          // MC engine already computed CI95 — use those directly
+          forces = [forceResult.mean]; // sentinel for "MC engine handled this"
+          lives = [lifeResult.mean];
+          ras = [raResult.mean];
+          // Stability from MC — run stability check using mean force
+          const k_s = stiffness_n_per_um * 1e6;
+          const Ks_mean = forceResult.mean * ae / 1000;
+          const re_G_worst = -1 / (2 * k_s * Math.max(0.001, damping));
+          const a_lim = -1 / (2 * Math.max(1, Ks_mean) * re_G_worst);
+          // Use MC variance to estimate chatter probability
+          const forceCV = forceResult.std_dev / Math.max(1, forceResult.mean);
+          const stabilityMargin = (a_lim - ap) / Math.max(0.1, a_lim);
+          chatterCount.stable = stabilityMargin > forceCV ? n_trials : Math.round(n_trials * 0.5);
+          chatterCount.unstable = n_trials - chatterCount.stable;
+        }
+        usedMCEngine = true;
+        log.info("[SpeedFeedOrchestrator] Used MonteCarloEngine for MC trials");
+      } catch (e) {
+        log.warn(`[SpeedFeedOrchestrator] MonteCarloEngine fallback: ${e}`);
+      }
+    }
 
-      // Stability check
-      const k_s = stiffness_n_per_um * 1e6;
-      const zeta = damping;
-      const Ks = kc_s * ae / 1000;
-      const re_G_worst = -1 / (2 * k_s * Math.max(0.001, zeta));
-      const a_lim = -1 / (2 * Math.max(1, Ks) * re_G_worst);
-      if (ap > a_lim * (1 + 0.1 * boxMuller())) {
-        chatterCount.unstable++;
-      } else {
-        chatterCount.stable++;
+    // Inline RNG fallback (original code)
+    if (!usedMCEngine) {
+      const seed = 42;
+      let s = seed;
+      const rng = (): number => { s = (s * 1664525 + 1013904223) & 0x7fffffff; return s / 0x7fffffff; };
+      const boxMuller = (): number => {
+        const u1 = Math.max(1e-10, rng()); const u2 = rng();
+        return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+      };
+
+      for (let i = 0; i < n_trials; i++) {
+        const kc_s = kc1_1 * (1 + kc_cv * boxMuller());
+        const mc_s = mc * (1 + mc_cv * boxMuller());
+        const h = Math.max(0.001, fz);
+        const Fc_s = kc_s * ap * Math.pow(h, 1 - mc_s);
+        forces.push(Fc_s);
+
+        // Taylor life with scatter
+        const n_taylor = 0.25 * (1 + 0.08 * boxMuller());
+        const C_taylor = (Vc * 1.5) * (1 + 0.15 * boxMuller());
+        const T_s = Math.pow(Math.max(1, C_taylor / Math.max(1, Vc)), 1 / Math.max(0.05, n_taylor));
+        lives.push(Math.max(0.1, T_s));
+
+        // Surface finish: Ra ≈ fz²/(32·r) with scatter on fz, nose radius, BUE
+        const fz_s = fz * (1 + 0.05 * boxMuller()); // ±5% feed scatter
+        const r_s = noseR * (1 + 0.03 * boxMuller()); // ±3% nose radius scatter
+        const bue_factor = 1 + Math.max(0, 0.1 * boxMuller()); // BUE adds roughness
+        const Ra_s = ((fz_s * fz_s) / (32 * Math.max(0.01, r_s))) * 1000 * bue_factor; // mm→µm
+        ras.push(Math.max(0.01, Ra_s));
+
+        // Stability check
+        const k_s = stiffness_n_per_um * 1e6;
+        const zeta = damping;
+        const Ks = kc_s * ae / 1000;
+        const re_G_worst = -1 / (2 * k_s * Math.max(0.001, zeta));
+        const a_lim = -1 / (2 * Math.max(1, Ks) * re_G_worst);
+        if (ap > a_lim * (1 + 0.1 * boxMuller())) {
+          chatterCount.unstable++;
+        } else {
+          chatterCount.stable++;
+        }
       }
     }
 
@@ -1637,15 +1747,49 @@ export class SpeedFeedOrchestratorEngine {
     const ci2_5 = Math.floor(n_trials * 0.025);
     const ci97_5 = Math.floor(n_trials * 0.975);
 
-    // Weibull fit for tool life (method of moments: β≈1.2·(mean/stddev), η from mean)
-    const lifeStd = Math.sqrt(lives.reduce((s, v) => s + (v - lifeMean) ** 2, 0) / n_trials);
-    const lifeCv = lifeStd / Math.max(0.01, lifeMean);
-    const weibullBeta = Math.max(0.5, 1.2 / Math.max(0.01, lifeCv)); // shape
-    // η from Γ function approximation: mean = η·Γ(1+1/β) ≈ η for β>2
-    const gammaApprox = 1 - 0.5772 / weibullBeta + 0.9890 / (weibullBeta * weibullBeta);
-    const weibullEta = lifeMean / Math.max(0.1, gammaApprox); // scale (characteristic life)
-    // P(survive 30min) = exp(-(30/η)^β)
-    const pSurvive30 = Math.exp(-Math.pow(30 / Math.max(0.1, weibullEta), weibullBeta));
+    // ── Try StochasticToolLifeEngine for Weibull MLE, fall back to method-of-moments ──
+    let weibullBeta = 0;
+    let weibullEta = 0;
+    let pSurvive30 = 0;
+    let usedSTLEngine = false;
+
+    const stlEngine = getStochasticToolLifeEngine();
+    if (stlEngine) {
+      try {
+        const stlResult = stlEngine.compute({
+          material: material.name.value,
+          cutting_speed_mpm: Vc,
+          feed_mm: fz,
+          depth_mm: ap,
+          tool_material: tool.material?.value as any,
+          coating: tool.coating?.value as any,
+          n_trials,
+          target_time_min: 30,
+          method: "weibull",
+        });
+        if (stlResult?.value?.weibull) {
+          weibullBeta = stlResult.value.weibull.beta;
+          weibullEta = stlResult.value.weibull.eta_min;
+          pSurvive30 = stlResult.value.p_survive_target ?? Math.exp(-Math.pow(30 / Math.max(0.1, weibullEta), weibullBeta));
+          usedSTLEngine = true;
+          log.info("[SpeedFeedOrchestrator] Used StochasticToolLifeEngine for Weibull fit");
+        }
+      } catch (e) {
+        log.warn(`[SpeedFeedOrchestrator] StochasticToolLifeEngine fallback: ${e}`);
+      }
+    }
+
+    // Inline method-of-moments fallback (original code)
+    if (!usedSTLEngine) {
+      const lifeStd = Math.sqrt(lives.reduce((s, v) => s + (v - lifeMean) ** 2, 0) / n_trials);
+      const lifeCv = lifeStd / Math.max(0.01, lifeMean);
+      weibullBeta = Math.max(0.5, 1.2 / Math.max(0.01, lifeCv)); // shape
+      // η from Γ function approximation: mean = η·Γ(1+1/β) ≈ η for β>2
+      const gammaApprox = 1 - 0.5772 / weibullBeta + 0.9890 / (weibullBeta * weibullBeta);
+      weibullEta = lifeMean / Math.max(0.1, gammaApprox); // scale (characteristic life)
+      // P(survive 30min) = exp(-(30/η)^β)
+      pSurvive30 = Math.exp(-Math.pow(30 / Math.max(0.1, weibullEta), weibullBeta));
+    }
 
     // Surface finish Cpk (if target Ra implied from cut_type)
     const raStd = Math.sqrt(ras.reduce((s, v) => s + (v - raMean) ** 2, 0) / n_trials);
@@ -1699,18 +1843,44 @@ export class SpeedFeedOrchestratorEngine {
    * Kienzle/Taylor/deflection physics, applies safety checks, and returns
    * a fully-traced OrchestratorResult.
    */
-  public compute(input: OrchestratorInput): AtomicValue<OrchestratorResult> {
+  public compute(input: OrchestratorInput & { resumeFromStage?: number; checkpointRunId?: string }): AtomicValue<OrchestratorResult> {
     log.info("[SpeedFeedOrchestrator] compute() start");
 
+    const cpm = new PipelineCheckpointManager('speed-feed-orchestrator', input.checkpointRunId);
+    const resumeFrom = input.resumeFromStage ?? -1;
+
     // ── Step 1: Resolve all 8 categories ──
-    const machine   = this.resolveMachine(input);
-    const tool      = this.resolveTool(input);
-    const material  = this.resolveMaterial(input);
-    const holder    = this.resolveHolder(input);
-    const coolant   = this.resolveCoolant(input);
-    const workhold  = this.resolveWorkholding(input);
-    const camStrat  = this.resolveCAMStrategy(input);
-    const geometry  = this.resolveGeometry(input);
+    let t0 = Date.now();
+    const machine   = resumeFrom > 0 ? (cpm.resumeFrom(0)?.data ?? this.resolveMachine(input)) : this.resolveMachine(input);
+    if (resumeFrom <= 0) cpm.checkpoint('resolve_machine', 0, machine, Date.now() - t0);
+
+    t0 = Date.now();
+    const tool      = resumeFrom > 1 ? (cpm.resumeFrom(1)?.data ?? this.resolveTool(input)) : this.resolveTool(input);
+    if (resumeFrom <= 1) cpm.checkpoint('resolve_tool', 1, tool, Date.now() - t0);
+
+    t0 = Date.now();
+    const material  = resumeFrom > 2 ? (cpm.resumeFrom(2)?.data ?? this.resolveMaterial(input)) : this.resolveMaterial(input);
+    if (resumeFrom <= 2) cpm.checkpoint('resolve_material', 2, material, Date.now() - t0);
+
+    t0 = Date.now();
+    const holder    = resumeFrom > 3 ? (cpm.resumeFrom(3)?.data ?? this.resolveHolder(input)) : this.resolveHolder(input);
+    if (resumeFrom <= 3) cpm.checkpoint('resolve_holder', 3, holder, Date.now() - t0);
+
+    t0 = Date.now();
+    const coolant   = resumeFrom > 4 ? (cpm.resumeFrom(4)?.data ?? this.resolveCoolant(input)) : this.resolveCoolant(input);
+    if (resumeFrom <= 4) cpm.checkpoint('resolve_coolant', 4, coolant, Date.now() - t0);
+
+    t0 = Date.now();
+    const workhold  = resumeFrom > 5 ? (cpm.resumeFrom(5)?.data ?? this.resolveWorkholding(input)) : this.resolveWorkholding(input);
+    if (resumeFrom <= 5) cpm.checkpoint('resolve_workholding', 5, workhold, Date.now() - t0);
+
+    t0 = Date.now();
+    const camStrat  = resumeFrom > 6 ? (cpm.resumeFrom(6)?.data ?? this.resolveCAMStrategy(input)) : this.resolveCAMStrategy(input);
+    if (resumeFrom <= 6) cpm.checkpoint('resolve_cam_strategy', 6, camStrat, Date.now() - t0);
+
+    t0 = Date.now();
+    const geometry  = resumeFrom > 7 ? (cpm.resumeFrom(7)?.data ?? this.resolveGeometry(input)) : this.resolveGeometry(input);
+    if (resumeFrom <= 7) cpm.checkpoint('resolve_geometry', 7, geometry, Date.now() - t0);
 
     const formulas_used: string[] = [];
     const dn_warnings: string[] = [];  // DN bearing speed limit warnings (merged into playbook_warnings later)
@@ -1892,8 +2062,9 @@ export class SpeedFeedOrchestratorEngine {
     const torqueNm = rpm > 0 ? (powerKW * 30000) / (Math.PI * rpm) : 0;
     formulas_used.push("T = P × 30000 / (π × RPM) [Nm]");
 
-    // Taylor tool life: T = (C/Vc)^(1/n)
-    const taylorN = 0.25;  // carbide default
+    // Taylor tool life: T = (C/Vc)^(1/n) — per-material n from canonical Taylor constants
+    const TAYLOR_N_BY_ISO: Record<string, number> = { P: 0.25, M: 0.22, K: 0.28, N: 0.35, S: 0.18, H: 0.20 };
+    const taylorN = TAYLOR_N_BY_ISO[material.iso_group.value] ?? 0.25;  // FIXED: was hardcoded 0.25 for all materials
     // C from material: approximate as vc_base * machinability^0.5 * 10
     const taylorC = material.vc_base_roughing.value * Math.sqrt(material.machinability_factor.value) * 10;
     let toolLifeMin = Math.pow(taylorC / Math.max(Vc, 1), 1 / taylorN);
@@ -2172,7 +2343,7 @@ export class SpeedFeedOrchestratorEngine {
     const typeEntry = stiffnessByType[machTypeForStiffness];
     const stiffness = typeEntry ? (typeEntry[rig] ?? rigMap[rig] ?? 50) : (rigMap[rig] ?? 50);
     const natFreq = machine.nat_freq_hz.value;
-    const dampingR = gwDampMap[gw] ?? 0.03;
+    const dampingR = gwDampMap[gw as keyof typeof gwDampMap] ?? 0.03;
     const fullUQ = this.computeFullUncertainty(
       material, tool, Vc, fz, ap, ae, stiffness, natFreq, dampingR,
     );
@@ -2358,6 +2529,35 @@ export class SpeedFeedOrchestratorEngine {
       );
     }
 
+    // ── Step 9b: MachiningPlaybookEngine integration (296 rules) ──
+    const playbookEngine = getMachiningPlaybookEngine();
+    if (playbookEngine) {
+      try {
+        const playbookResult = playbookEngine.advise({
+          material_iso: isoGroup,
+          tolerance_mm: geometry.feature_tolerance_mm?.value,
+          wall_thickness_mm: geometry.wall_thickness_mm?.value,
+          surface_finish_Ra: finalRa,
+          operation_type: input.operation ?? "milling",
+          hardness_hrc: input.hardness_hrc,
+          aspect_ratio: geometry.overhang_ratio?.value,
+          spindle_rpm: rpm,
+        });
+        if (playbookResult?.summary?.length > 0) {
+          for (const warning of playbookResult.summary) {
+            // Avoid duplicates with inline rules
+            if (!playbook_warnings.some(w => w.includes(warning.substring(0, 40)))) {
+              playbook_warnings.push(warning);
+            }
+          }
+          engines_called.push("MachiningPlaybookEngine");
+          log.info(`[SpeedFeedOrchestrator] MachiningPlaybookEngine added ${playbookResult.summary.length} rules`);
+        }
+      } catch (e) {
+        log.warn(`[SpeedFeedOrchestrator] MachiningPlaybookEngine skipped: ${e}`);
+      }
+    }
+
     // ── Step 10: Build and return OrchestratorResult ──
     const result: OrchestratorResult = {
       cutting_speed_mpm: Math.round(Vc * 10) / 10,
@@ -2428,6 +2628,9 @@ export class SpeedFeedOrchestratorEngine {
       `RPM=${result.spindle_rpm}, fz=${result.feed_per_tooth_mm} mm, ` +
       `Vf=${result.feed_rate_mmmin} mm/min, confidence=${result.overall_confidence}`,
     );
+
+    // Checkpoint final result (stage 8 = physics + aggregation)
+    cpm.checkpoint('physics_and_result', 8, result);
 
     return {
       value: result,

@@ -649,17 +649,8 @@ class PostProcessorPipelineEngineImpl {
     let _pastResume = !_resumeTarget; // if no resume target, run everything
     const _origRunStage = this._runStage.bind(this);
     const _origRunStageAsync = this._runStageAsync.bind(this);
-    // Wrap stage runners to add checkpointing
-    const _checkpointStage = (name: string, result: any) => {
-      if (!_pastResume && name === _resumeTarget) _pastResume = true;
-      if (_pastResume && result !== undefined) {
-        _cpm.checkpoint(name, _stageIdx, result);
-      }
-      _stageIdx++;
-    };
-    // Monkey-patch stage runners for this invocation to auto-checkpoint
-    const origRunStage = this._runStage;
-    this._runStage = ((name: string, phase: number, stgs: StageResult[], fn: () => any) => {
+    // Local closure-captured stage runners with checkpointing (no instance mutation)
+    const _localRunStage = ((name: string, phase: number, stgs: StageResult[], fn: () => any) => {
       if (!_pastResume && name !== _resumeTarget) {
         const cp = _cpm.resumeFrom(_stageIdx);
         if (cp) { stgs.push({ stage: name, phase, status: "pass" as StageStatus, duration_ms: 0, summary: "Resumed from checkpoint", data: cp.data }); _stageIdx++; return cp.data; }
@@ -669,8 +660,8 @@ class PostProcessorPipelineEngineImpl {
       _cpm.checkpoint(name, _stageIdx, result);
       _stageIdx++;
       return result;
-    }) as any;
-    this._runStageAsync = (async (name: string, phase: number, stgs: StageResult[], fn: () => Promise<any>) => {
+    }) as typeof this._runStage;
+    const _localRunStageAsync = (async (name: string, phase: number, stgs: StageResult[], fn: () => Promise<any>) => {
       if (!_pastResume && name !== _resumeTarget) {
         const cp = _cpm.resumeFrom(_stageIdx);
         if (cp) { stgs.push({ stage: name, phase, status: "pass" as StageStatus, duration_ms: 0, summary: "Resumed from checkpoint", data: cp.data }); _stageIdx++; return cp.data; }
@@ -680,20 +671,19 @@ class PostProcessorPipelineEngineImpl {
       _cpm.checkpoint(name, _stageIdx, result);
       _stageIdx++;
       return result;
-    }) as any;
-    // Restore original methods on completion (in finally block at end)
+    }) as typeof this._runStageAsync;
 
     // ═══ PHASE 0: INPUT NORMALIZATION ═══
 
     // Stage 0.1: Parse input
-    const parseResult = this._runStage("0.1_parse_input", 0, stages, () => {
+    const parseResult = _localRunStage("0.1_parse_input", 0, stages, () => {
       return this._parseInput(input);
     });
     let blocks = parseResult?.blocks ?? [];
     const parsedTools = parseResult?.tools ?? new Map<number, { diameter_mm?: number }>();
 
     // Stage 0.2-0.5: Resolve contexts
-    const resolveResult = this._runStage("0.2_resolve_context", 0, stages, () => {
+    const resolveResult = _localRunStage("0.2_resolve_context", 0, stages, () => {
       return this._resolveContexts(input, parsedTools);
     });
     const machine = resolveResult?.machine;
@@ -703,7 +693,7 @@ class PostProcessorPipelineEngineImpl {
     const coolant = resolveResult?.coolant ?? input.coolant;
 
     // Stage 0.6: Smart defaults
-    this._runStage("0.6_smart_defaults", 0, stages, () => {
+    _localRunStage("0.6_smart_defaults", 0, stages, () => {
       return this._applySmartDefaults(input, machine, material, tools, blocks, warnings);
     });
 
@@ -713,7 +703,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.1: Base Speed/Feed
     if (stageFlags.speed_feed && material) {
-      await this._runStageAsync("1.1_base_speed_feed", 1, stages, async () => {
+      await _localRunStageAsync("1.1_base_speed_feed", 1, stages, async () => {
         const eng = await this._getEngine("ultimateSF");
         const isoGroup = material.iso_group;
         const kc1_1 = material.kc1_1 ?? DEFAULT_KC1_1[isoGroup] ?? 2000;
@@ -803,7 +793,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.2: Constitutive model — flow stress at cutting temperature
     if (stageFlags.constitutive && material) {
-      await this._runStageAsync("1.2_constitutive_model", 1, stages, async () => {
+      await _localRunStageAsync("1.2_constitutive_model", 1, stages, async () => {
         const eng = await this._getEngine("constitutive");
         const isoGroup = material.iso_group;
         // Johnson-Cook thermal softening for steel/stainless
@@ -841,7 +831,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.3: Stability lobe analysis — chatter-free RPM selection
     if (stageFlags.stability_lobes) {
-      await this._runStageAsync("1.3_stability_lobes", 1, stages, async () => {
+      await _localRunStageAsync("1.3_stability_lobes", 1, stages, async () => {
         try {
           const eng = await this._getEngine("stochasticChatter");
           const toolGroups = this._groupBlocksByTool(blocks);
@@ -897,7 +887,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.4: Spindle harmonics — avoid tooth-passing frequency resonance
     if (stageFlags.spindle_harmonics) {
-      await this._runStageAsync("1.4_spindle_harmonics", 1, stages, async () => {
+      await _localRunStageAsync("1.4_spindle_harmonics", 1, stages, async () => {
         try {
           const toolGroups = this._groupBlocksByTool(blocks);
           const naturalFreqs = [800, 1600, 3200]; // Hz — default spindle harmonics
@@ -973,7 +963,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.5: Tool deflection limits — max allowable force
     if (stageFlags.deflection_limit) {
-      await this._runStageAsync("1.5_tool_deflection", 1, stages, async () => {
+      await _localRunStageAsync("1.5_tool_deflection", 1, stages, async () => {
         try {
           const eng = await this._getEngine("stochasticDeflection");
           const toolGroups = this._groupBlocksByTool(blocks);
@@ -1019,7 +1009,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.6: Chip morphology — predict chip type and evacuation
     if (stageFlags.chip_thinning) { // reuse chip_thinning flag
-      await this._runStageAsync("1.6_chip_morphology", 1, stages, async () => {
+      await _localRunStageAsync("1.6_chip_morphology", 1, stages, async () => {
         try {
           const eng = await this._getEngine("chipMorphology");
           const chipWarnings: string[] = [];
@@ -1053,7 +1043,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.7: Coolant strategy — select type/pressure/flow
     if (stageFlags.coolant_strategy !== false && material) {
-      this._runStage("1.7_coolant_strategy", 1, stages, () => {
+      _localRunStage("1.7_coolant_strategy", 1, stages, () => {
         const isoGroup = material.iso_group;
         const recommended: CoolantContext = (() => {
           switch (isoGroup) {
@@ -1080,7 +1070,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.8: Fixture force check — clamping vs cutting force
     if (stageFlags.fixture_check === true) { // opt-in
-      await this._runStageAsync("1.8_fixture_check", 1, stages, async () => {
+      await _localRunStageAsync("1.8_fixture_check", 1, stages, async () => {
         try {
           const eng = await this._getEngine("fixtureClamping");
           const maxForce = Math.max(...blocks.filter(b => b.forces).map(b => b.forces!.resultant_N), 0);
@@ -1108,7 +1098,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 1.9: Process capability forecast — predicted Cpk before cutting
     if (stageFlags.capability_forecast === true) { // opt-in
-      await this._runStageAsync("1.9_capability_forecast", 1, stages, async () => {
+      await _localRunStageAsync("1.9_capability_forecast", 1, stages, async () => {
         try {
           const eng = await this._getEngine("processCapability");
           const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
@@ -1136,7 +1126,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.1-2.2: Engagement analysis + chip thinning
     if (stageFlags.engagement_analysis) {
-      await this._runStageAsync("2.1_engagement_chip_thinning", 2, stages, async () => {
+      await _localRunStageAsync("2.1_engagement_chip_thinning", 2, stages, async () => {
         const eng = await this._getEngine("instantaneous");
         const toolGroups = this._groupBlocksByTool(blocks);
         let blocksOptimized = 0;
@@ -1235,7 +1225,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.3: Adaptive feed — constant chip load / force / MRR modes
     if (stageFlags.adaptive_feed) {
-      await this._runStageAsync("2.3_adaptive_feed", 2, stages, async () => {
+      await _localRunStageAsync("2.3_adaptive_feed", 2, stages, async () => {
         try {
           const eng = await this._getEngine("engagementAdaptive");
           const toolGroups = this._groupBlocksByTool(blocks);
@@ -1287,7 +1277,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.4: Corner detection — refined engagement spike feed reduction
     if (stageFlags.corner_detection) {
-      this._runStage("2.4_corner_detection", 2, stages, () => {
+      _localRunStage("2.4_corner_detection", 2, stages, () => {
         let cornersDetected = 0;
         for (let i = 2; i < blocks.length; i++) {
           const prev = blocks[i - 1];
@@ -1329,7 +1319,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.5: Plunge/ramp detection — axial feed limiting
     if (stageFlags.plunge_detection) {
-      this._runStage("2.5_plunge_ramp", 2, stages, () => {
+      _localRunStage("2.5_plunge_ramp", 2, stages, () => {
         let plungesDetected = 0;
         let rampsDetected = 0;
         for (let i = 1; i < blocks.length; i++) {
@@ -1372,7 +1362,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.6: Wear progression tracking
     if (stageFlags.wear_progression) {
-      this._runStage("2.6_wear_progression", 2, stages, () => {
+      _localRunStage("2.6_wear_progression", 2, stages, () => {
         const toolGroups = this._groupBlocksByTool(blocks);
         for (const [toolNum, toolBlocks] of toolGroups) {
           const tool = tools.find(t => t.id === String(toolNum));
@@ -1421,7 +1411,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 2.7: Thermal accumulation tracking
     if (stageFlags.thermal_tracking) {
-      this._runStage("2.7_thermal_tracking", 2, stages, () => {
+      _localRunStage("2.7_thermal_tracking", 2, stages, () => {
         let cumulativeHeat = 0;
         const heatDissipationRate = 50; // J/s estimated conduction+convection
 
@@ -1472,7 +1462,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 3.1: Toolpath smoothing — corner rounding for smooth motion
     if (stageFlags.toolpath_smoothing) {
-      await this._runStageAsync("3.1_toolpath_smoothing", 3, stages, async () => {
+      await _localRunStageAsync("3.1_toolpath_smoothing", 3, stages, async () => {
         try {
           let smoothedCorners = 0;
           let maxChordError = 0;
@@ -1541,7 +1531,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 3.2: Motion dynamics — achievable feed (accel/jerk/corner/servo)
     if (stageFlags.motion_dynamics) {
-      await this._runStageAsync("3.2_motion_dynamics", 3, stages, async () => {
+      await _localRunStageAsync("3.2_motion_dynamics", 3, stages, async () => {
         try {
           const eng = await this._getEngine("motionDynamics");
           let feedsClamped = 0;
@@ -1591,7 +1581,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 3.3: Look-ahead — bidirectional velocity planning
     if (stageFlags.look_ahead) {
-      await this._runStageAsync("3.3_look_ahead", 3, stages, async () => {
+      await _localRunStageAsync("3.3_look_ahead", 3, stages, async () => {
         try {
           const machineAccel = machine?.accel_mm_s2?.x ?? 2000; // mm/s²
           let adjustedCount = 0;
@@ -1682,7 +1672,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 3.4: Machine error compensation — thermal growth Z-offset
     if (stageFlags.machine_error_comp) {
-      await this._runStageAsync("3.4_machine_error_comp", 3, stages, async () => {
+      await _localRunStageAsync("3.4_machine_error_comp", 3, stages, async () => {
         try {
           const deltaT = 2.0; // °C — default warm machine temperature rise
           const cte = 12e-6; // steel CTE (1/°C)
@@ -1728,7 +1718,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 3.5: Controller feature injection
     if (stageFlags.controller_features && (machine?.controller || input.controller)) {
-      await this._runStageAsync("3.5_controller_features", 3, stages, async () => {
+      await _localRunStageAsync("3.5_controller_features", 3, stages, async () => {
         try {
           const eng = await this._getEngine("controllerDialect");
           const ctrl = machine?.controller ?? input.controller ?? "fanuc";
@@ -1793,7 +1783,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.1: Monte Carlo force distribution
     if (stageFlags.monte_carlo) {
-      this._runStage("4.1_monte_carlo", 4, stages, () => {
+      _localRunStage("4.1_monte_carlo", 4, stages, () => {
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
         if (cuttingBlocks.length === 0) return { status: "no_force_data" };
 
@@ -1837,7 +1827,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.2: Uncertainty propagation (force → deflection → dimension)
     if (stageFlags.uncertainty_propagation === true) {
-      this._runStage("4.2_uncertainty_propagation", 4, stages, () => {
+      _localRunStage("4.2_uncertainty_propagation", 4, stages, () => {
         const blocksWithCI = blocks.filter(b => b.confidence?.force_ci_95);
         if (blocksWithCI.length === 0) return { propagated_blocks: 0, max_dim_uncertainty_um: 0, note: "no confidence data" };
 
@@ -1868,7 +1858,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.3: Dimensional verification (Cpk prediction)
     if (stageFlags.dimensional_verification === true) {
-      this._runStage("4.3_dimensional_verification", 4, stages, () => {
+      _localRunStage("4.3_dimensional_verification", 4, stages, () => {
         const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
 
         // Find max dimensional uncertainty from 4.2 or estimate from force data
@@ -1905,7 +1895,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.4: Surface finish verification (Ra prediction)
     if (stageFlags.surface_finish_verification === true) {
-      this._runStage("4.4_surface_finish_verification", 4, stages, () => {
+      _localRunStage("4.4_surface_finish_verification", 4, stages, () => {
         const targetRa = input.surface_finish_Ra ?? DEFAULT_RA_SEMI;
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.feed_mm_min && b.spindle_rpm);
         if (cuttingBlocks.length === 0) return { avg_ra_predicted: 0, max_ra: 0, blocks_exceeding_target: 0, note: "no cutting blocks" };
@@ -1947,7 +1937,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.5: Environmental thermal drift model
     if (stageFlags.environmental === true) {
-      this._runStage("4.5_environmental", 4, stages, () => {
+      _localRunStage("4.5_environmental", 4, stages, () => {
         const cte = 12e-6;       // Steel CTE (1/°C)
         const deltaT = 2.0;      // °C typical shop variation
         const machineLength = 500; // mm approximate machine length
@@ -1978,7 +1968,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.6: Batch-to-batch material variability
     if (stageFlags.batch_variability === true) {
-      this._runStage("4.6_batch_variability", 4, stages, () => {
+      _localRunStage("4.6_batch_variability", 4, stages, () => {
         const kcCv = 0.08; // 8% coefficient of variation for kc
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
         const nominalForces = cuttingBlocks.map(b => b.forces!.Fc_N);
@@ -2011,7 +2001,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 4.7: Process robustness score
     if (stageFlags.robustness_score === true) {
-      this._runStage("4.7_robustness_score", 4, stages, () => {
+      _localRunStage("4.7_robustness_score", 4, stages, () => {
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.forces);
         if (cuttingBlocks.length === 0) return { score: 100, note: "no cutting data" };
 
@@ -2048,7 +2038,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.1: G-code safety analysis
     if (stageFlags.safety_analysis) {
-      await this._runStageAsync("5.1_safety_analysis", 5, stages, async () => {
+      await _localRunStageAsync("5.1_safety_analysis", 5, stages, async () => {
         const eng = await this._getEngine("safety");
         // Reconstruct G-code from blocks for safety analysis
         const tempGcode = this._blocksToGCode(blocks, machine?.controller ?? input.controller ?? "fanuc");
@@ -2077,7 +2067,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.2: Playbook rules
     if (stageFlags.playbook_rules && material) {
-      await this._runStageAsync("5.2_playbook_rules", 5, stages, async () => {
+      await _localRunStageAsync("5.2_playbook_rules", 5, stages, async () => {
         try {
           const eng = await this._getEngine("playbook");
           const result = eng.query({
@@ -2103,7 +2093,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.3: Tribal knowledge — CAM-system-specific tips
     if (stageFlags.tribal_knowledge && material) {
-      this._runStage("5.3_tribal_knowledge", 5, stages, () => {
+      _localRunStage("5.3_tribal_knowledge", 5, stages, () => {
         const tips: string[] = [];
         const isoGroup = material.iso_group;
 
@@ -2139,7 +2129,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.5: Energy optimization advisory
     if (stageFlags.energy_optimization) {
-      this._runStage("5.5_energy_optimization", 5, stages, () => {
+      _localRunStage("5.5_energy_optimization", 5, stages, () => {
         let idleSpindleBlocks = 0;
         let consecutiveRapids = 0;
         let maxConsecutiveRapids = 0;
@@ -2178,7 +2168,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.6: Reliability check (Weibull tool reliability)
     if (stageFlags.reliability_check === true) {
-      this._runStage("5.6_reliability_check", 5, stages, () => {
+      _localRunStage("5.6_reliability_check", 5, stages, () => {
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.feed_mm_min);
         if (cuttingBlocks.length === 0) return { reliability_pct: 100, note: "no cutting blocks" };
 
@@ -2218,7 +2208,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.7: Acoustic check (Kopac cutting noise model)
     if (stageFlags.acoustic_check === true) {
-      this._runStage("5.7_acoustic_check", 5, stages, () => {
+      _localRunStage("5.7_acoustic_check", 5, stages, () => {
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0" && b.spindle_rpm);
         if (cuttingBlocks.length === 0) return { noise_level_dba: 70, hearing_protection_required: false, note: "no cutting blocks" };
 
@@ -2261,7 +2251,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 5.9: 5-axis post processing (singularity + TCPC)
     if (machine?.axes === 5 || blocks.some(b => b.a !== undefined || b.b !== undefined || b.c !== undefined)) {
-      await this._runStageAsync("5.9_five_axis_post", 5, stages, async () => {
+      await _localRunStageAsync("5.9_five_axis_post", 5, stages, async () => {
         try {
           const eng = await this._getEngine("fiveAxisPost");
           const fiveAxisBlocks = blocks.filter(b =>
@@ -2296,7 +2286,7 @@ class PostProcessorPipelineEngineImpl {
     // Stage 6.1: G-code generation using ControllerDialectEngine
     let outputGcode = "";
     if (stageFlags.gcode_generation) {
-      await this._runStageAsync("6.1_gcode_generation", 6, stages, async () => {
+      await _localRunStageAsync("6.1_gcode_generation", 6, stages, async () => {
         const controllerKey = machine?.controller ?? input.controller ?? "fanuc";
         try {
           const dialectEng = await this._getEngine("controllerDialect");
@@ -2315,7 +2305,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 6.2: Probe routine generation for critical features
     if (stageFlags.probe_routines === true) {
-      this._runStage("6.2_probe_routines", 6, stages, () => {
+      _localRunStage("6.2_probe_routines", 6, stages, () => {
         const toleranceMm = input.tolerance_mm ?? DEFAULT_TOLERANCE_MM;
         const cuttingBlocks = blocks.filter(b => b.move_type !== "G0");
         let probePointsGenerated = 0;
@@ -2347,7 +2337,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 6.3: Setup sheet generation
     if (stageFlags.setup_sheet === true) {
-      this._runStage("6.3_setup_sheet", 6, stages, () => {
+      _localRunStage("6.3_setup_sheet", 6, stages, () => {
         const toolsUsed = [...new Set(blocks.filter(b => b.tool_number).map(b => b.tool_number))];
         const safetyStage = stages.find(s => s.stage === "5.1_safety_analysis" && s.data);
         const safetyWarnings = (safetyStage?.data as any)?.critical_issues ?? 0;
@@ -2376,7 +2366,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 6.4: Controller-specific parameter injection
     if (stageFlags.controller_params === true) {
-      this._runStage("6.4_controller_params", 6, stages, () => {
+      _localRunStage("6.4_controller_params", 6, stages, () => {
         const controllerKey = (machine?.controller ?? input.controller ?? "fanuc").toLowerCase();
         let initBlock = "";
         let controllerType = "generic";
@@ -2413,7 +2403,7 @@ class PostProcessorPipelineEngineImpl {
     // Stage 6.5: Analytics report
     let analytics: AnalyticsReport | undefined;
     if (stageFlags.analytics_report || input.include_analytics) {
-      this._runStage("6.5_analytics_report", 6, stages, () => {
+      _localRunStage("6.5_analytics_report", 6, stages, () => {
         analytics = this._generateAnalytics(blocks, tools, machine);
         return analytics;
       });
@@ -2421,14 +2411,14 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 6.6: Cycle time estimate
     if (stageFlags.cycle_time) {
-      this._runStage("6.6_cycle_time", 6, stages, () => {
+      _localRunStage("6.6_cycle_time", 6, stages, () => {
         return this._estimateCycleTime(blocks, machine);
       });
     }
 
     // Stage 6.7: Digital twin state export
     if (stageFlags.digital_twin === true) {
-      this._runStage("6.7_digital_twin", 6, stages, () => {
+      _localRunStage("6.7_digital_twin", 6, stages, () => {
         // Collect all enrichment data from blocks
         const enrichedBlocks = blocks.map(b => ({
           id: b.id,
@@ -2480,7 +2470,7 @@ class PostProcessorPipelineEngineImpl {
 
     // Stage 6.8: Output verification — validate generated G-code
     if (outputGcode.length > 10) {
-      await this._runStageAsync("6.8_output_verification", 6, stages, async () => {
+      await _localRunStageAsync("6.8_output_verification", 6, stages, async () => {
         try {
           const eng = await this._getEngine("ppVerify");
           const result = eng.verify({
@@ -2511,10 +2501,6 @@ class PostProcessorPipelineEngineImpl {
     }
 
     // ═══ BUILD RESULT ═══
-
-    // Restore original stage runners after pipeline completes
-    this._runStage = origRunStage;
-    this._runStageAsync = _origRunStageAsync;
 
     const overallStatus: StageStatus = stages.some(s => s.status === "fail") ? "fail"
       : stages.some(s => s.status === "warn") ? "warn" : "pass";

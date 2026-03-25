@@ -721,4 +721,3 @@ export class ThreadCalculationEngine {
  */
 export const threadEngine = new ThreadCalculationEngine();
 
-console.log('[ThreadCalculationEngine] Initialized');

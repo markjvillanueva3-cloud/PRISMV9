@@ -322,7 +322,8 @@ export class StochasticToolWearEngine {
   analyze(input: StochasticWearInput): StochasticWearResult {
     const warnings: string[] = [];
     const recommendations: string[] = [];
-    const N = input.mc_samples ?? 2000;
+    const MAX_TRIALS = 100_000;
+    const N = Math.min(input.mc_samples ?? 2000, MAX_TRIALS);
     const wearLimit = input.wear_limit_mm ?? 0.3;
 
     // ── FOSM (fast analytical) ──

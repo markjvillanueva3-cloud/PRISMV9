@@ -324,6 +324,112 @@ export interface SwissMachiningResult {
   warnings: string[];
 }
 
+// ─── Program Assembly Interfaces ──────────────────────────────────
+
+/** Controller type for G-code formatting. */
+export type MillTurnController = "fanuc" | "mazak" | "siemens" | "index" | "citizen";
+
+/** A turning operation for program assembly. */
+export interface TurningOperation {
+  type: "od_rough" | "od_finish" | "id_rough" | "id_finish" | "face" | "groove" | "thread" | "cut_off" | "chamfer";
+  tool_number: number;
+  offset_number: number;
+  tool_label?: string;
+  start_x_mm: number;
+  end_x_mm: number;
+  start_z_mm: number;
+  end_z_mm: number;
+  depth_of_cut_mm?: number;
+  feed_mm_rev: number;
+  cutting_speed_m_min: number;
+  max_rpm?: number;
+  css?: boolean;
+  channel?: number;
+  coolant?: "flood" | "mist" | "high_pressure" | "off";
+}
+
+/** A live-tool (milling) operation for program assembly. */
+export interface LiveToolOperation {
+  type: "cross_drill" | "face_mill" | "c_axis_contour" | "y_axis_mill" | "cross_tap" | "keyway_mill" | "polygon_turn";
+  tool_number: number;
+  offset_number: number;
+  tool_label?: string;
+  tool_diameter_mm: number;
+  c_positions_deg?: number[];
+  y_position_mm?: number;
+  z_start_mm: number;
+  z_end_mm?: number;
+  depth_mm: number;
+  width_mm?: number;
+  spindle_rpm: number;
+  feed_mm_min: number;
+  polar_interpolation?: boolean;
+  channel?: number;
+  coolant?: "flood" | "mist" | "high_pressure" | "off";
+}
+
+/** A sub-spindle operation for program assembly. */
+export interface SubSpindleOperation {
+  type: "face" | "drill" | "bore" | "tap" | "chamfer" | "turn_od" | "turn_id" | "thread";
+  tool_number: number;
+  offset_number: number;
+  tool_label?: string;
+  start_x_mm?: number;
+  end_x_mm?: number;
+  start_z_mm: number;
+  end_z_mm: number;
+  depth_of_cut_mm?: number;
+  feed_mm_rev: number;
+  cutting_speed_m_min: number;
+  max_rpm?: number;
+  coolant?: "flood" | "mist" | "high_pressure" | "off";
+}
+
+/** Transfer configuration for sub-spindle handoff. */
+export interface TransferConfig {
+  mode: TransferMode;
+  overlap_mm?: number;
+  cut_off_tool_number?: number;
+  cut_off_tool_width_mm?: number;
+  cut_off_feed_mm_rev?: number;
+  part_off_x_mm?: number;
+  sync_rpm?: number;
+}
+
+/** Bar feeder configuration for program assembly. */
+export interface BarFeederConfig {
+  enabled: boolean;
+  bar_diameter_mm?: number;
+  bar_pull_code?: string;
+  next_part_m_code?: string;
+  feed_stop_position_mm?: number;
+}
+
+/** Full program assembly input. */
+export interface ProgramAssemblyInput {
+  turning_ops: TurningOperation[];
+  live_tool_ops: LiveToolOperation[];
+  sub_spindle_ops?: SubSpindleOperation[];
+  transfer?: TransferConfig;
+  bar_feeder?: BarFeederConfig;
+  controller: MillTurnController;
+  material: { name: string; iso_group: string };
+  stock_od_mm: number;
+  part_length_mm: number;
+  program_number?: number;
+  program_comment?: string;
+}
+
+/** Program assembly output. */
+export interface ProgramAssemblyResult {
+  program_text: string;
+  channels: number;
+  sync_points: number;
+  cycle_time_est_min: number;
+  line_count: number;
+  warnings: string[];
+}
+
 // ─── Dispatch wrapper ──────────────────────────────────────────────
 
 /** Union dispatch input for calculate(). */
@@ -333,8 +439,9 @@ export interface MillTurnSwissInput {
     | "sub_spindle_transfer"
     | "multi_channel_program"
     | "bar_feeder_calc"
-    | "swiss_machining";
-  params: LiveToolInput | SubSpindleTransferInput | MultiChannelInput | BarFeederInput | SwissMachiningInput;
+    | "swiss_machining"
+    | "mill_turn_assemble_program";
+  params: LiveToolInput | SubSpindleTransferInput | MultiChannelInput | BarFeederInput | SwissMachiningInput | ProgramAssemblyInput;
 }
 
 // ─── Constants ─────────────────────────────────────────────────────
@@ -420,7 +527,7 @@ export class MillTurnSwissPipelineEngine {
    * @param input - Action + params union
    * @returns Calculation result for the requested action
    */
-  calculate(input: MillTurnSwissInput): LiveToolResult | SubSpindleTransferResult | MultiChannelResult | BarFeederResult | SwissMachiningResult {
+  calculate(input: MillTurnSwissInput): LiveToolResult | SubSpindleTransferResult | MultiChannelResult | BarFeederResult | SwissMachiningResult | ProgramAssemblyResult {
     switch (input.action) {
       case "live_tool_calc":
         return this.calculateLiveTool(input.params as LiveToolInput);
@@ -432,6 +539,8 @@ export class MillTurnSwissPipelineEngine {
         return this.calculateBarFeeder(input.params as BarFeederInput);
       case "swiss_machining":
         return this.calculateSwissMachining(input.params as SwissMachiningInput);
+      case "mill_turn_assemble_program":
+        return this.assembleProgram(input.params as ProgramAssemblyInput);
       default:
         throw new Error(`Unknown mill-turn action: ${(input as any).action}`);
     }
@@ -1573,6 +1682,157 @@ export class MillTurnSwissPipelineEngine {
       total_bar_weight_kg: 0,
       part_weight_kg: 0,
       recommendations: recs,
+      warnings,
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════
+  // PROGRAM ASSEMBLY — Combine turning + live tool + sub-spindle ops
+  // ═══════════════════════════════════════════════════════════════════
+
+  assembleProgram(input: ProgramAssemblyInput): ProgramAssemblyResult {
+    const lines: string[] = [];
+    const warnings: string[] = [];
+    const ctrl = input.controller;
+    const progNum = input.program_number ?? 1;
+
+    // Program header
+    lines.push(`O${String(progNum).padStart(4, "0")} (${input.program_comment || "MILL-TURN PROGRAM"})`);
+    lines.push(`(MATERIAL: ${input.material.name} ISO ${input.material.iso_group})`);
+    lines.push(`(STOCK: OD${input.stock_od_mm}mm L${input.part_length_mm}mm)`);
+    lines.push("");
+
+    // Safety block — controller-specific
+    if (ctrl === "fanuc" || ctrl === "mazak") {
+      lines.push("G28 U0 W0");
+      lines.push("G50 S4000");
+    } else if (ctrl === "siemens") {
+      lines.push("G28 U0 W0");
+      lines.push("LIMS=4000");
+    } else {
+      lines.push("G28 U0 W0");
+    }
+    lines.push("G18 G40 G80 G99");
+    lines.push("");
+
+    // Turning operations (main spindle)
+    let totalCycleMin = 0;
+
+    for (const op of input.turning_ops) {
+      const ap = op.depth_of_cut_mm ?? 2.0;
+      const Vc = op.cutting_speed_m_min;
+      const rpm = Math.round((1000 * Vc) / (Math.PI * input.stock_od_mm));
+      const feedMmMin = round4(op.feed_mm_rev * rpm);
+
+      lines.push(`(--- ${op.type.toUpperCase()} ---)`);
+      lines.push(`T${String(op.tool_number).padStart(2, "0")}${String(op.offset_number).padStart(2, "0")}${op.tool_label ? " (" + op.tool_label + ")" : ""}`);
+      if (op.css) {
+        lines.push(`G96 S${Math.round(Vc)} M03`);
+        lines.push(`G50 S${op.max_rpm ?? Math.round(rpm * 1.3)}`);
+      } else {
+        lines.push(`G97 S${rpm} M03`);
+      }
+      lines.push(op.coolant === "off" ? "M09" : "M08");
+
+      // Moves based on operation type
+      lines.push(`G00 X${round4(op.start_x_mm)} Z${round4(op.start_z_mm)}`);
+      lines.push(`G01 X${round4(op.end_x_mm)} Z${round4(op.end_z_mm)} F${round4(op.feed_mm_rev)}`);
+      lines.push(`G00 X${round4(input.stock_od_mm + 5)} Z5.0`);
+
+      // Cycle time estimate
+      const cutLength = Math.abs(op.end_z_mm - op.start_z_mm);
+      const radialTravel = Math.abs(op.end_x_mm - op.start_x_mm) / 2;
+      const passes = ap > 0 ? Math.ceil(radialTravel / ap) : 1;
+      if (feedMmMin > 0) totalCycleMin += (cutLength * passes) / feedMmMin;
+
+      lines.push("");
+    }
+
+    // Live tooling operations (C-axis / Y-axis)
+    for (const ltop of input.live_tool_ops) {
+      lines.push(`(--- LIVE TOOL: ${ltop.type.toUpperCase()} ---)`);
+      lines.push(`T${String(ltop.tool_number).padStart(2, "0")}${String(ltop.offset_number).padStart(2, "0")}${ltop.tool_label ? " (" + ltop.tool_label + ")" : ""}`);
+      lines.push("M05"); // Stop main spindle
+      lines.push("M19"); // Orient spindle
+      lines.push(`G97 S${ltop.spindle_rpm} M03`);
+
+      if (ltop.type === "cross_drill") {
+        const cPos = ltop.c_positions_deg ?? [0];
+        for (const c of cPos) {
+          lines.push(`G00 C${round4(c)}`);
+          lines.push(`G00 Z${round4(ltop.z_start_mm)}`);
+          lines.push(`G83 Z${round4(ltop.z_start_mm - ltop.depth_mm)} R${round4(ltop.z_start_mm + 2)} Q${round4(Math.min(ltop.depth_mm / 3, ltop.tool_diameter_mm * 3))} F${round4(ltop.feed_mm_min)}`);
+          lines.push("G80");
+        }
+      } else if (ltop.type === "face_mill" || ltop.type === "keyway_mill") {
+        lines.push(`G00 C0.`);
+        if (ltop.y_position_mm !== undefined) lines.push(`G00 Y${round4(ltop.y_position_mm)}`);
+        lines.push(`G00 Z${round4(ltop.z_start_mm)}`);
+        lines.push(`G01 Z${round4(ltop.z_end_mm ?? ltop.z_start_mm - ltop.depth_mm)} F${round4(ltop.feed_mm_min)}`);
+      } else {
+        lines.push(`G00 Z${round4(ltop.z_start_mm)}`);
+        lines.push(`G01 Z${round4(ltop.z_end_mm ?? ltop.z_start_mm - ltop.depth_mm)} F${round4(ltop.feed_mm_min)}`);
+      }
+
+      if (ltop.feed_mm_min > 0) totalCycleMin += ltop.depth_mm / ltop.feed_mm_min;
+      lines.push("");
+    }
+
+    // Sub-spindle operations (if any)
+    let syncPoints = 0;
+    if (input.sub_spindle_ops && input.sub_spindle_ops.length > 0) {
+      lines.push("(--- SUB-SPINDLE OPERATIONS ---)");
+
+      if (input.transfer) {
+        lines.push("M05");
+        syncPoints++;
+        if (ctrl === "mazak") {
+          lines.push("G14.1"); // Sub-spindle approach
+        }
+        lines.push("M68"); // Sub-spindle clamp
+        lines.push("M24"); // Main spindle unclamp
+        lines.push("(PART TRANSFERRED TO SUB-SPINDLE)");
+        lines.push("");
+      }
+
+      for (const subOp of input.sub_spindle_ops) {
+        const subRpm = Math.round((1000 * subOp.cutting_speed_m_min) / (Math.PI * input.stock_od_mm));
+        lines.push(`T${String(subOp.tool_number).padStart(2, "0")}${String(subOp.offset_number).padStart(2, "0")}${subOp.tool_label ? " (" + subOp.tool_label + ")" : ""}`);
+        lines.push(`G97 S${subRpm} M04`);
+        lines.push(`G00 X${round4(subOp.start_x_mm ?? input.stock_od_mm + 2)} Z${round4(subOp.start_z_mm)}`);
+        lines.push(`G01 X${round4(subOp.end_x_mm ?? input.stock_od_mm * 0.8)} Z${round4(subOp.end_z_mm)} F${round4(subOp.feed_mm_rev)}`);
+        const subFeedMmMin = subOp.feed_mm_rev * subRpm;
+        const subCutLen = Math.abs(subOp.end_z_mm - subOp.start_z_mm);
+        if (subFeedMmMin > 0) totalCycleMin += subCutLen / subFeedMmMin;
+        syncPoints++;
+      }
+      lines.push("");
+    }
+
+    // Program end
+    lines.push("G28 U0 W0");
+    lines.push("M05");
+    lines.push("M09");
+    lines.push("M30");
+    lines.push("%");
+
+    // Validations
+    if (input.turning_ops.length === 0 && input.live_tool_ops.length === 0) {
+      warnings.push("No operations defined — program contains only header/footer");
+    }
+    const totalTools = input.turning_ops.length + input.live_tool_ops.length + (input.sub_spindle_ops?.length ?? 0);
+    if (totalTools > 12) {
+      warnings.push(`${totalTools} tools used — verify turret/magazine capacity`);
+    }
+
+    const channels = input.sub_spindle_ops && input.sub_spindle_ops.length > 0 ? 2 : 1;
+
+    return {
+      program_text: lines.join("\n"),
+      channels,
+      sync_points: syncPoints,
+      cycle_time_est_min: round4(totalCycleMin),
+      line_count: lines.length,
       warnings,
     };
   }

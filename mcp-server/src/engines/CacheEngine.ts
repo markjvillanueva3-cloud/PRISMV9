@@ -3,9 +3,30 @@
  *
  * In-memory LRU cache with TTL support, namespace isolation,
  * hit/miss statistics, and bulk operations.
+ * Supports external TTL configuration via ~/.prism/cache-config.json.
  *
  * Actions: cache_get, cache_set, cache_delete, cache_clear, cache_stats
  */
+
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
+import { homedir } from 'os';
+
+// ============================================================================
+// EXTERNAL CONFIG TYPES
+// ============================================================================
+
+interface ExternalCacheEntry {
+  ttl_ms: number;
+  target_stale_rate?: number;
+}
+
+interface ExternalCacheConfig {
+  caches: Record<string, ExternalCacheEntry>;
+}
+
+/** Loaded external config (null = not yet loaded, undefined = no file / invalid) */
+let _externalConfig: ExternalCacheConfig | null | undefined = null;
 
 // ============================================================================
 // TYPES
@@ -224,6 +245,57 @@ export class CacheEngine {
     return { ...this.config };
   }
 
+  /**
+   * Load external TTL configuration from ~/.prism/cache-config.json.
+   * If the file exists and is valid, returns the parsed config.
+   * If the file is missing or invalid, returns null (no crash).
+   */
+  static loadExternalConfig(): ExternalCacheConfig | null {
+    if (_externalConfig !== null) {
+      return _externalConfig ?? null;
+    }
+    const configPath = join(homedir(), '.prism', 'cache-config.json');
+    try {
+      if (existsSync(configPath)) {
+        const raw = readFileSync(configPath, 'utf-8');
+        const parsed = JSON.parse(raw) as ExternalCacheConfig;
+        if (parsed && typeof parsed.caches === 'object') {
+          _externalConfig = parsed;
+          // External cache config loaded from ~/.prism/cache-config.json
+          return parsed;
+        }
+      }
+    } catch {
+      // Invalid or unreadable config — silently use defaults
+    }
+    _externalConfig = undefined;
+    return null;
+  }
+
+  /**
+   * Get the configured TTL (in seconds) for a named cache from external config.
+   * Falls back to the engine's default_ttl_sec if no external config or no entry.
+   */
+  static getConfiguredTTLSec(cacheName: string, fallbackSec: number): number {
+    const ext = CacheEngine.loadExternalConfig();
+    if (ext && ext.caches[cacheName]) {
+      return ext.caches[cacheName].ttl_ms / 1000;
+    }
+    return fallbackSec;
+  }
+
+  /**
+   * Apply external config overrides to this instance's default TTL.
+   * Call with the logical cache name (e.g. "ActionSchemaCache").
+   * If ~/.prism/cache-config.json has a matching entry, overrides default_ttl_sec.
+   */
+  applyExternalConfig(cacheName: string): void {
+    const ext = CacheEngine.loadExternalConfig();
+    if (ext && ext.caches[cacheName]) {
+      this.config.default_ttl_sec = ext.caches[cacheName].ttl_ms / 1000;
+    }
+  }
+
   // ---- PRIVATE ----
 
   private totalSize(): number {
@@ -262,3 +334,6 @@ export class CacheEngine {
 /** Cache Engine constant.
  */
 export const cacheEngine = new CacheEngine();
+
+// Apply external config to the default singleton (uses "GenericCache" key)
+cacheEngine.applyExternalConfig('GenericCache');

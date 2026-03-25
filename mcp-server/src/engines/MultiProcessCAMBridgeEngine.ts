@@ -33,7 +33,7 @@ export type ManufacturingProcess =
   | "milling" | "turning" | "drilling"
   | "wire_edm" | "sinker_edm"
   | "grinding" | "laser" | "waterjet"
-  | "additive";
+  | "additive" | "multi_axis" | "mill_turn";
 
 const PROCESS_MAP: Record<string, ManufacturingProcess> = {
   // Milling
@@ -67,6 +67,14 @@ const PROCESS_MAP: Record<string, ManufacturingProcess> = {
   // Additive
   additive_ded: "additive", additive_powder: "additive",
   ded_repair: "additive",
+  // Multi-axis (5-axis)
+  five_axis: "multi_axis", multi_axis: "multi_axis",
+  five_axis_contour: "multi_axis", five_axis_swarf: "multi_axis",
+  impeller: "multi_axis", blisk: "multi_axis", turbine_blade: "multi_axis",
+  // Mill-turn
+  mill_turn: "mill_turn", turn_mill: "mill_turn",
+  live_tool: "mill_turn", sub_spindle: "mill_turn",
+  swiss: "mill_turn", multi_channel: "mill_turn",
 };
 
 // ── Interfaces ────────────────────────────────────────────────
@@ -180,6 +188,12 @@ export class MultiProcessCAMBridgeEngine {
         case "waterjet":
           result = this._processWaterjet(feature, material);
           break;
+        case "multi_axis":
+          result = this._processMultiAxis(feature, material, machine);
+          break;
+        case "mill_turn":
+          result = this._processMillTurn(feature, material, machine);
+          break;
         default:
           // Milling and drilling handled by existing UnifiedCAMPipeline
           result = this._processMillingStub(feature, material, machine);
@@ -211,6 +225,38 @@ export class MultiProcessCAMBridgeEngine {
     material: { iso_group: string; hardness_hrc?: number },
     machine?: { max_rpm?: number },
   ): ProcessResult {
+    // ── Try delegating to TurningPrintToProgramEngine ──
+    const TurningEngine = pLazy("turning", "./TurningPrintToProgramEngine", "turningPrintToProgramEngine");
+    if (TurningEngine) {
+      try {
+        const delegated = TurningEngine.calculate("turning_print_to_program", {
+          feature_type: feature.type,
+          material_iso_group: material.iso_group,
+          od_mm: feature.turning?.od_mm,
+          id_mm: feature.turning?.id_mm,
+          length_mm: feature.turning?.length_mm,
+          thread_pitch_mm: feature.turning?.thread_pitch_mm,
+          groove_width_mm: feature.turning?.groove_width_mm,
+          groove_depth_mm: feature.turning?.groove_depth_mm,
+          hardness_hrc: material.hardness_hrc,
+          max_rpm: machine?.max_rpm,
+        });
+        if (delegated && delegated.gcode) {
+          return {
+            process: "turning",
+            feature_id: feature.id,
+            gcode: typeof delegated.gcode === "string" ? delegated.gcode : delegated.gcode.join("\n"),
+            gcode_lines: delegated.gcode_lines || (typeof delegated.gcode === "string" ? delegated.gcode.split("\n").length : delegated.gcode.length),
+            parameters: delegated.parameters || {},
+            physics: delegated.physics || {},
+            tool_recommendation: delegated.tool_recommendation || "",
+            warnings: delegated.warnings || [],
+          };
+        }
+      } catch { /* fall through to inline implementation */ }
+    }
+
+    // ── Inline fallback ──
     const t = feature.turning || {};
     const od = t.od_mm || 50;
     const length = t.length_mm || 30;
@@ -596,6 +642,69 @@ export class MultiProcessCAMBridgeEngine {
     material: { iso_group: string },
     machine?: { max_rpm?: number; max_power_kw?: number },
   ): ProcessResult {
+    // ── Try delegating to PrintToProgramPipelineEngine ──
+    const P2PEngine = pLazy("printtoprogram", "./PrintToProgramPipelineEngine", "printToProgramPipelineEngine");
+    if (P2PEngine) {
+      try {
+        const delegated = P2PEngine.calculate("generate_program", {
+          feature_type: feature.type,
+          material_iso_group: material.iso_group,
+          length_mm: feature.dimensions?.length_mm,
+          width_mm: feature.dimensions?.width_mm,
+          depth_mm: feature.dimensions?.depth_mm,
+          diameter_mm: feature.dimensions?.diameter_mm,
+          tolerance_mm: feature.tolerance_mm,
+          surface_finish_Ra: feature.surface_finish_Ra,
+          max_rpm: machine?.max_rpm,
+          max_power_kw: machine?.max_power_kw,
+        });
+        if (delegated && (delegated.gcode || delegated.program)) {
+          const gcode = delegated.gcode || delegated.program || "";
+          const gcodeStr = typeof gcode === "string" ? gcode : gcode.join("\n");
+          return {
+            process: "milling",
+            feature_id: feature.id,
+            gcode: gcodeStr,
+            gcode_lines: gcodeStr.split("\n").length,
+            parameters: delegated.parameters || {},
+            physics: delegated.physics || {},
+            tool_recommendation: delegated.tool_recommendation || "",
+            warnings: delegated.warnings || [],
+          };
+        }
+      } catch { /* fall through */ }
+    }
+
+    // ── Try UnifiedCAMPipelineEngine as secondary fallback ──
+    const UnifiedEngine = pLazy("unifiedcam", "./UnifiedCAMPipelineEngine", "unifiedCAMPipelineEngine");
+    if (UnifiedEngine) {
+      try {
+        const delegated = UnifiedEngine.generate({
+          feature_type: feature.type,
+          material: material.iso_group,
+          material_iso_group: material.iso_group,
+          dimensions: feature.dimensions,
+          tolerance_mm: feature.tolerance_mm,
+          surface_finish_Ra: feature.surface_finish_Ra,
+        });
+        if (delegated && (delegated.gcode || delegated.program)) {
+          const gcode = delegated.gcode || delegated.program || "";
+          const gcodeStr = typeof gcode === "string" ? gcode : gcode.join("\n");
+          return {
+            process: "milling",
+            feature_id: feature.id,
+            gcode: gcodeStr,
+            gcode_lines: gcodeStr.split("\n").length,
+            parameters: delegated.parameters || {},
+            physics: delegated.physics || {},
+            tool_recommendation: delegated.tool_recommendation || "",
+            warnings: delegated.warnings || [],
+          };
+        }
+      } catch { /* fall through */ }
+    }
+
+    // ── Inline stub fallback ──
     return {
       process: "milling",
       feature_id: feature.id,
@@ -605,6 +714,120 @@ export class MultiProcessCAMBridgeEngine {
       physics: {},
       tool_recommendation: "Use UnifiedCAMPipelineEngine.generate() for milling features",
       warnings: ["Milling features should be routed through UnifiedCAMPipelineEngine"],
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // MULTI-AXIS — 5-axis contouring, swarf, impellers
+  // ═══════════════════════════════════════════════════════════
+  private _processMultiAxis(
+    feature: ProcessFeature,
+    material: { iso_group: string },
+    machine?: { max_rpm?: number; max_power_kw?: number },
+  ): ProcessResult {
+    // ── Try delegating to MultiAxisPrintToProgramEngine ──
+    const MultiAxisEngine = pLazy("multiaxis", "./MultiAxisPrintToProgramEngine", "multiAxisPrintToProgramEngine");
+    if (MultiAxisEngine) {
+      try {
+        const delegated = MultiAxisEngine.calculate("multi_axis_program", {
+          feature_type: feature.type,
+          material_iso_group: material.iso_group,
+          length_mm: feature.dimensions?.length_mm,
+          width_mm: feature.dimensions?.width_mm,
+          depth_mm: feature.dimensions?.depth_mm,
+          diameter_mm: feature.dimensions?.diameter_mm,
+          tolerance_mm: feature.tolerance_mm,
+          surface_finish_Ra: feature.surface_finish_Ra,
+          max_rpm: machine?.max_rpm,
+          max_power_kw: machine?.max_power_kw,
+        });
+        if (delegated && (delegated.gcode || delegated.program)) {
+          const gcode = delegated.gcode || delegated.program || "";
+          const gcodeStr = typeof gcode === "string" ? gcode : gcode.join("\n");
+          return {
+            process: "multi_axis",
+            feature_id: feature.id,
+            gcode: gcodeStr,
+            gcode_lines: gcodeStr.split("\n").length,
+            parameters: delegated.parameters || {},
+            physics: delegated.physics || {},
+            tool_recommendation: delegated.tool_recommendation || "",
+            warnings: delegated.warnings || [],
+          };
+        }
+      } catch { /* fall through to milling stub */ }
+    }
+
+    // ── Fallback: route through milling stub ──
+    const fallback = this._processMillingStub(feature, material, machine);
+    fallback.process = "multi_axis";
+    fallback.warnings.push("MultiAxisPrintToProgramEngine unavailable — fell back to milling pipeline");
+    return fallback;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // MILL-TURN — live tooling, sub-spindle, Swiss, multi-channel
+  // ═══════════════════════════════════════════════════════════
+  private _processMillTurn(
+    feature: ProcessFeature,
+    material: { iso_group: string; hardness_hrc?: number },
+    machine?: { max_rpm?: number; max_power_kw?: number },
+  ): ProcessResult {
+    // ── Try delegating to MillTurnSwissPipelineEngine ──
+    const MTEngine = pLazy("millturn", "./MillTurnSwissPipelineEngine", "millTurnSwissPipelineEngine");
+    if (MTEngine) {
+      try {
+        const delegated = MTEngine.calculate({
+          operation: feature.type,
+          material_iso_group: material.iso_group,
+          od_mm: feature.turning?.od_mm,
+          id_mm: feature.turning?.id_mm,
+          length_mm: feature.turning?.length_mm || feature.dimensions?.length_mm,
+          width_mm: feature.dimensions?.width_mm,
+          depth_mm: feature.dimensions?.depth_mm,
+          diameter_mm: feature.dimensions?.diameter_mm,
+          hardness_hrc: material.hardness_hrc,
+          max_rpm: machine?.max_rpm,
+        });
+        if (delegated) {
+          const gcode = delegated.gcode || delegated.program || "";
+          const gcodeStr = typeof gcode === "string" ? gcode : (Array.isArray(gcode) ? gcode.join("\n") : String(gcode));
+          return {
+            process: "mill_turn",
+            feature_id: feature.id,
+            gcode: gcodeStr || `(MILL-TURN — ${feature.type} via MillTurnSwissPipelineEngine)`,
+            gcode_lines: gcodeStr ? gcodeStr.split("\n").length : 1,
+            parameters: delegated.parameters || {},
+            physics: delegated.physics || {},
+            tool_recommendation: delegated.tool_recommendation || "",
+            warnings: delegated.warnings || [],
+          };
+        }
+      } catch { /* fall through to combined fallback */ }
+    }
+
+    // ── Fallback: combine turning + milling results ──
+    const turningResult = this._processTurning(feature, material, machine);
+    const millingResult = this._processMillingStub(feature, { iso_group: material.iso_group }, machine);
+    return {
+      process: "mill_turn",
+      feature_id: feature.id,
+      gcode: `(MILL-TURN COMBINED — ${feature.type})\n${turningResult.gcode}\n\n${millingResult.gcode}`,
+      gcode_lines: turningResult.gcode_lines + millingResult.gcode_lines + 2,
+      parameters: { ...turningResult.parameters, ...millingResult.parameters },
+      physics: {
+        force_N: turningResult.physics.force_N,
+        power_kW: turningResult.physics.power_kW,
+        mrr_mm3_min: turningResult.physics.mrr_mm3_min,
+        surface_finish_Ra: turningResult.physics.surface_finish_Ra,
+        cycle_time_min: (turningResult.physics.cycle_time_min || 0) + (millingResult.physics.cycle_time_min || 0),
+      },
+      tool_recommendation: `${turningResult.tool_recommendation}; ${millingResult.tool_recommendation}`,
+      warnings: [
+        "MillTurnSwissPipelineEngine unavailable — fell back to separate turning+milling",
+        ...turningResult.warnings,
+        ...millingResult.warnings,
+      ],
     };
   }
 }

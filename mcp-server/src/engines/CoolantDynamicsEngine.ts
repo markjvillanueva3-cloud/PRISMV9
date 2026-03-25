@@ -12,6 +12,36 @@ import { log } from "../utils/Logger.js";
 
 // ─── Types ─────────────────────────────────────────────────────────
 
+export interface CoolantThroughDrillingInput {
+  drill_diameter_mm: number;
+  material_group: string; // P/M/K/N/S/H (ISO material group)
+  depth_ratio: number;    // L/D ratio
+  coolant_type?: "flood" | "mql" | "through_coolant"; // default: through_coolant
+}
+
+export interface AtomicValue { value: number; unit: string; source: string; }
+
+export interface PeckRecommendation {
+  peck_interval_xD: number;
+  entry_feed_pct: number;
+  full_retract_depth_xD: number;
+  requires_peck: boolean;
+}
+
+export interface CoolantThroughDrillingOutput {
+  recommended_pressure_psi: AtomicValue;
+  recommended_flow_gpm: AtomicValue;
+  feed_multiplier: AtomicValue;
+  tool_life_multiplier: AtomicValue;
+  peck_recommendation: PeckRecommendation;
+  deep_hole_classification: "standard" | "deep" | "very_deep" | "gun_drill";
+  performance_gains: {
+    temp_reduction_pct: number;
+    roundness_improvement_pct: number;
+    production_rate_increase_pct: number;
+  };
+}
+
 export interface ReynoldsChannelFlowInput {
   channel_diameter_mm: number; flow_rate_lpm: number; channel_length_mm: number;
   coolant_density_kg_m3?: number; viscosity_Pa_s?: number; roughness_um?: number;
@@ -271,6 +301,160 @@ class CoolantDynamicsEngineImpl {
       max_interface_temp_C: T0 + T_shear_rise + T_friction_rise,
       workpiece_surface_temp_C: T0 + T_shear_rise * 0.25,
       temperature_field: field, heat_partition_to_chip_pct: R_n * 100 };
+  }
+
+  /**
+   * Through-coolant drilling parameters: pressure, flow, feed/life multipliers, peck strategy.
+   * References: Guhring deep hole drilling guide, MSC BetterMRO, GuessTools coolant-through reference.
+   */
+  coolantThroughDrillingParams(input: CoolantThroughDrillingInput): CoolantThroughDrillingOutput {
+    const { drill_diameter_mm: d, material_group, depth_ratio, coolant_type = "through_coolant" } = input;
+
+    // ── Base pressure by diameter (PSI) ────────────────────────────
+    let basePressurePsi: number;
+    if (d < 3)       basePressurePsi = 900;   // mid of 800–1000
+    else if (d < 8)  basePressurePsi = 650;   // mid of 500–800
+    else if (d < 15) basePressurePsi = 500;   // mid of 400–600
+    else             basePressurePsi = 400;   // mid of 300–500
+
+    // ── Material pressure multiplier (ISO group) ───────────────────
+    const matUpper = material_group.toUpperCase();
+    const matMult =
+      matUpper === "S" ? 1.4 :   // Ti/Ni superalloys — +40%
+      matUpper === "M" ? 1.2 :   // Stainless steel — +20%
+      matUpper === "N" ? 0.8 :   // Aluminium — −20%
+      1.0;                        // P/K/H — baseline
+
+    const pressurePsi = Math.round(basePressurePsi * matMult);
+
+    // ── Flow rate (GPM) by diameter ────────────────────────────────
+    let flowGpm: number;
+    if (d < 6)       flowGpm = 0.75;  // mid of 0.5–1
+    else if (d < 12) flowGpm = 1.5;   // mid of 1–2
+    else             flowGpm = 3.0;   // mid of 2–4
+
+    // ── Feed & tool-life multipliers (through-coolant vs standard) ─
+    const isThroughCoolant = coolant_type === "through_coolant";
+    const feedMult       = isThroughCoolant ? 1.45 : 1.0;  // mid of 1.4–1.5×
+    const toolLifeMult   = isThroughCoolant ? 1.4  : 1.0;  // mid of 1.3–1.5×
+
+    // ── Peck strategy ──────────────────────────────────────────────
+    const requiresPeck = depth_ratio > 3;
+    const peck: PeckRecommendation = {
+      peck_interval_xD: 1.0,
+      entry_feed_pct: 75,           // mid of 70–80%
+      full_retract_depth_xD: 3.0,
+      requires_peck: requiresPeck,
+    };
+
+    // ── Deep-hole classification ───────────────────────────────────
+    const deepClass: CoolantThroughDrillingOutput["deep_hole_classification"] =
+      depth_ratio <= 3  ? "standard" :
+      depth_ratio <= 10 ? "deep"     :
+      depth_ratio <= 20 ? "very_deep": "gun_drill";
+
+    const src = "Guhring deep hole drilling guide; MSC BetterMRO; GuessTools coolant-through reference";
+
+    log.debug(`[CoolantDynamics] coolantThroughDrillingParams: d=${d}mm, mat=${material_group}, LD=${depth_ratio}, P=${pressurePsi}psi`);
+
+    return {
+      recommended_pressure_psi: { value: pressurePsi, unit: "PSI", source: src },
+      recommended_flow_gpm:     { value: flowGpm,     unit: "GPM", source: src },
+      feed_multiplier:          { value: feedMult,    unit: "ratio", source: "Through-coolant feed advantage; Guhring, Sandvik application guides" },
+      tool_life_multiplier:     { value: toolLifeMult, unit: "ratio", source: "Through-coolant tool life improvement; Sandvik Coromant drilling guide" },
+      peck_recommendation: peck,
+      deep_hole_classification: deepClass,
+      performance_gains: {
+        temp_reduction_pct: 70,           // mid of 65–75%
+        roundness_improvement_pct: 40,
+        production_rate_increase_pct: 25, // mid of 20–30%
+      },
+    };
+  }
+
+  /**
+   * MQL (Minimum Quantity Lubrication) optimal parameter recommendation.
+   * Based on 2024-2025 research: Springer Manufacturing & Materials Processing,
+   * Tandfonline International Journal of Advanced Manufacturing Technology,
+   * JMES (Journal of Mechanical Engineering Science) MQL optimization studies.
+   *
+   * Key findings:
+   * - Nozzle distance: 20-30 mm optimal (25 mm slot milling, 20 mm end milling)
+   * - Flow rate: 40-60 mL/h (60 mL/h reduces force 14.6%, temp 42.1%, Ra 41.8%)
+   * - Air pressure: 0.2-0.4 MPa (6 bar), higher pressure = better atomization
+   * - Nozzle angle: 60° elevation, 120° relative to feed direction
+   * - Dual-jet nozzles outperform single-jet by ~15-20%
+   */
+  mqlOptimalParameters(input: {
+    operation: string;
+    material_group?: string;
+    tool_diameter_mm?: number;
+    cutting_speed_mpm?: number;
+  }): {
+    nozzle_distance_mm: AtomicValue;
+    flow_rate_ml_per_h: AtomicValue;
+    air_pressure_MPa: AtomicValue;
+    nozzle_elevation_deg: AtomicValue;
+    nozzle_feed_angle_deg: AtomicValue;
+    nozzle_type: string;
+    expected_improvements: {
+      cutting_force_reduction_pct: number;
+      temperature_reduction_pct: number;
+      surface_roughness_improvement_pct: number;
+      tool_life_increase_pct: number;
+    };
+    comparison_vs_flood: string;
+  } {
+    const op = input.operation.toLowerCase();
+    const mat = (input.material_group ?? "P").toUpperCase();
+    const src = "Springer IJAMT 2024; Tandfonline Adv Manuf Technol 2024; JMES MQL optimization 2025";
+
+    // Nozzle distance by operation
+    let nozzle_distance_mm: number;
+    if (op === "milling" || op === "slot_milling") nozzle_distance_mm = 25;
+    else if (op === "turning") nozzle_distance_mm = 20;
+    else nozzle_distance_mm = 30; // drilling, grinding
+
+    // Flow rate by material group
+    let flow_rate_ml_per_h: number;
+    if (mat === "H") flow_rate_ml_per_h = 60;       // hardened steel — max flow
+    else if (mat === "N") flow_rate_ml_per_h = 40;  // aluminium — lower viscosity
+    else flow_rate_ml_per_h = 50;                    // P/M/K/S — general
+
+    // Air pressure by material hardness class
+    let air_pressure_MPa: number;
+    if (mat === "M" || mat === "S" || mat === "H") air_pressure_MPa = 0.4; // difficult materials
+    else air_pressure_MPa = 0.3;
+
+    // Hard/HRSA materials: tighter standoff, higher pressure for better penetration
+    if (mat === "S" || mat === "H") nozzle_distance_mm = Math.max(nozzle_distance_mm - 5, 15);
+
+    // Dual jet recommended for difficult materials
+    const nozzle_type = (mat === "M" || mat === "S" || mat === "H") ? "dual_jet" : "single_jet";
+
+    // Expected improvements (60 mL/h baseline from 2024-2025 studies)
+    const force_pct   = mat === "H" ? 14.6 : mat === "S" ? 12.0 : 10.0;
+    const temp_pct    = mat === "H" ? 42.1 : mat === "S" ? 35.0 : 30.0;
+    const ra_pct      = mat === "H" ? 41.8 : mat === "S" ? 35.0 : 28.0;
+    const life_pct    = mat === "H" ? 35.0 : mat === "S" ? 30.0 : 20.0;
+
+    log.debug(`[CoolantDynamics] mqlOptimalParameters: op=${op}, mat=${mat}, d=${nozzle_distance_mm}mm, Q=${flow_rate_ml_per_h}mL/h`);
+
+    return {
+      nozzle_distance_mm:    { value: nozzle_distance_mm,  unit: "mm",  source: src },
+      flow_rate_ml_per_h:    { value: flow_rate_ml_per_h,  unit: "mL/h", source: src },
+      air_pressure_MPa:      { value: air_pressure_MPa,    unit: "MPa", source: src },
+      nozzle_elevation_deg:  { value: 60,                  unit: "deg", source: src },
+      nozzle_feed_angle_deg: { value: 120,                 unit: "deg", source: src },
+      nozzle_type,
+      expected_improvements: {
+        cutting_force_reduction_pct:        force_pct,
+        temperature_reduction_pct:          temp_pct,
+        surface_roughness_improvement_pct:  ra_pct,
+        tool_life_increase_pct:             life_pct,
+      },
+      comparison_vs_flood: `MQL at ${flow_rate_ml_per_h} mL/h uses ~99% less fluid than flood coolant while achieving comparable or better surface finish in ${mat}-group materials. CO2+MQL hybrid achieves 19% lower power vs LN2.`,
+    };
   }
 
   /** Cryogenic machining (LN2/CO2): phase-change heat removal and boiling regime. */
