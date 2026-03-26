@@ -48,6 +48,14 @@ import {
   COURSE_9_MODULES, COURSE_10_MODULES, COURSE_11_MODULES,
   COURSE_12_MODULES,
 } from "../data/academy/course-6-to-12-advanced.js";
+import {
+  L0_04_MODULES, L0_05_MODULES, L0_06_MODULES,
+  L0_07_MODULES, L0_08_MODULES,
+} from "../data/academy/courses-L0-foundations.js";
+import {
+  L1_01_MODULES, L1_02_MODULES, L1_03_MODULES, L1_04_MODULES, L1_05_MODULES,
+  L1_06_MODULES, L1_07_MODULES, L1_08_MODULES, L1_09_MODULES, L1_10_MODULES,
+} from "../data/academy/courses-L1-operator.js";
 
 /** Map of course ID → rich module content from academy data files */
 const RICH_MODULES: Record<string, Module[]> = {
@@ -66,13 +74,30 @@ const RICH_MODULES: Record<string, Module[]> = {
   "course-10": COURSE_10_MODULES,
   "course-11": COURSE_11_MODULES,
   "course-12": COURSE_12_MODULES,
+  // L0 Foundations expansion (L0-04 through L0-08)
+  "L0-04": L0_04_MODULES,
+  "L0-05": L0_05_MODULES,
+  "L0-06": L0_06_MODULES,
+  "L0-07": L0_07_MODULES,
+  "L0-08": L0_08_MODULES,
+  // L1 Operator expansion (L1-01 through L1-10)
+  "L1-01": L1_01_MODULES,
+  "L1-02": L1_02_MODULES,
+  "L1-03": L1_03_MODULES,
+  "L1-04": L1_04_MODULES,
+  "L1-05": L1_05_MODULES,
+  "L1-06": L1_06_MODULES,
+  "L1-07": L1_07_MODULES,
+  "L1-08": L1_08_MODULES,
+  "L1-09": L1_09_MODULES,
+  "L1-10": L1_10_MODULES,
 };
 
 // ═══════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════
 
-export type SkillLevel = "foundational" | "novice" | "intermediate" | "advanced" | "master";
+export type SkillLevel = "foundational" | "novice" | "intermediate" | "advanced" | "specialist" | "expert" | "master";
 export type ContentType = "text" | "diagram" | "animation" | "calculator" | "sandbox" | "video" | "3d_viewer";
 export type QuestionType = "multiple_choice" | "calculation" | "visual_id" | "troubleshooting_tree";
 
@@ -202,7 +227,7 @@ export interface QuizScore {
 }
 
 export interface Certification {
-  level: "foundational" | "operator" | "programmer" | "master";
+  level: "foundational" | "operator" | "programmer" | "specialist" | "expert" | "master";
   earnedDate: string;
   score: number;
   verificationCode: string;
@@ -426,7 +451,7 @@ export class CurriculumEngine {
 
   checkCertificationEligibility(
     studentId: string,
-    level: "operator" | "programmer" | "master"
+    level: "foundational" | "operator" | "programmer" | "specialist" | "expert" | "master"
   ): {
     eligible: boolean;
     coursesRequired: string[];
@@ -477,7 +502,7 @@ export class CurriculumEngine {
 
   awardCertification(
     studentId: string,
-    level: "operator" | "programmer" | "master"
+    level: "foundational" | "operator" | "programmer" | "specialist" | "expert" | "master"
   ): Certification | null {
     const eligibility = this.checkCertificationEligibility(studentId, level);
     if (!eligibility.eligible) return null;
@@ -737,7 +762,208 @@ export class CurriculumEngine {
           "GD&T Location Controls", "GD&T Orientation & Runout",
         ],
       },
-      // ── Phase 1: Machine Fundamentals ──
+      // ── L0 Expansion: Materials, Safety, Machines, Tools, Workholding ──
+      {
+        id: "L0-04",
+        title: "Materials & Metallurgy Basics",
+        description: "Iron vs steel vs aluminum, hardness, heat treatment intro, ISO 513 material groups — everything about your workpiece.",
+        level: "foundational",
+        prerequisites: ["course-0a"],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "What is Metal?", "Iron & Steel Families", "Aluminum Alloys", "Stainless Steel",
+          "Exotic Materials", "Plastics & Composites", "ISO 513 Material Groups", "Material Identification",
+        ],
+      },
+      {
+        id: "L0-05",
+        title: "Shop Safety & Hazard Recognition",
+        description: "PPE, machine guarding, chip hazards, LOTO, fire safety, emergency procedures — stay alive in the shop.",
+        level: "foundational",
+        prerequisites: [],
+        estimatedHours: 4,
+        moduleCount: 6,
+        moduleTitles: [
+          "Personal Protective Equipment", "Machine Guarding & Interlocks", "Chip & Coolant Hazards",
+          "Electrical & Fire Safety", "Lifting & Ergonomics", "Emergency Procedures",
+        ],
+      },
+      {
+        id: "L0-06",
+        title: "Introduction to CNC Machines",
+        description: "VMCs, HMCs, lathes, Swiss, grinders, EDM — machine types, axes, controllers, and how to read a spec sheet.",
+        level: "foundational",
+        prerequisites: [],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "What is CNC?", "Vertical Machining Centers", "Horizontal Machining Centers", "CNC Lathes",
+          "Swiss-Type Lathes", "Grinders, EDM & Specialty", "CNC Controllers", "Machine Specs That Matter",
+        ],
+      },
+      {
+        id: "L0-07",
+        title: "Cutting Tools — Types & Anatomy",
+        description: "End mills, drills, inserts, holders, coatings, tool materials — the tools that touch the metal.",
+        level: "foundational",
+        prerequisites: [],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "Why Cutting Tools Matter", "End Mills", "Drills", "Inserts & Indexable Tools",
+          "Tool Holders", "Tool Coatings", "Tool Materials", "Reading a Tool Catalog",
+        ],
+      },
+      {
+        id: "L0-08",
+        title: "Workholding Fundamentals",
+        description: "Vises, chucks, collets, fixtures, 3-2-1 locating, clamping force calculations — how to hold the part.",
+        level: "foundational",
+        prerequisites: [],
+        estimatedHours: 6,
+        moduleCount: 6,
+        moduleTitles: [
+          "Why Workholding Matters", "Vises", "Chucks & Collets",
+          "Fixtures & Jigs", "The 3-2-1 Locating Principle", "Clamping Force Calculations",
+        ],
+      },
+      // ── L1 Operator (10 courses) ──
+      {
+        id: "L1-01",
+        title: "CNC Machine Setup",
+        description: "Work offsets (G54-G59), tool length compensation (G43), touch-off, first article process, fixture offsets, warm-up, setup sheets.",
+        level: "novice",
+        prerequisites: ["course-0a", "course-0b", "L0-06"],
+        estimatedHours: 8,
+        moduleCount: 8,
+        moduleTitles: [
+          "Work Coordinate Systems", "Setting Work Offsets", "Tool Length Compensation", "Tool Diameter Compensation",
+          "First Article Process", "Fixture Offsets & Probing", "Machine Warm-Up", "Setup Documentation",
+        ],
+      },
+      {
+        id: "L1-02",
+        title: "Speeds & Feeds — The Foundation",
+        description: "RPM formula, chip load, SFM, table feed, chip thinning, MRR, power/torque — the physics of cutting.",
+        level: "novice",
+        prerequisites: ["course-0a", "L0-04", "L0-07"],
+        estimatedHours: 8,
+        moduleCount: 10,
+        moduleTitles: [
+          "Cutting Speed (Vc/SFM)", "The RPM Formula", "Feed Per Tooth (fz)", "Table Feed Rate",
+          "Depth & Width of Cut", "Chip Thinning", "Metal Removal Rate (MRR)",
+          "Power & Torque Requirements", "Speed/Feed Tables", "Your First S/F Calculation",
+        ],
+      },
+      {
+        id: "L1-03",
+        title: "G-Code Programming I — Motion",
+        description: "Program structure, G00/G01/G02/G03, absolute vs incremental, work offsets, M-codes, writing your first program.",
+        level: "novice",
+        prerequisites: ["L0-06"],
+        estimatedHours: 8,
+        moduleCount: 10,
+        moduleTitles: [
+          "Program Structure", "G00 Rapid Traverse", "G01 Linear Feed", "G02/G03 Circular Interpolation",
+          "G90 vs G91", "G28 Machine Home", "Work Offset Selection", "M-Codes Essentials",
+          "Program Comments & Organization", "Writing Your First Program",
+        ],
+      },
+      {
+        id: "L1-04",
+        title: "G-Code Programming II — Cycles",
+        description: "Canned drilling cycles (G81/G83/G73), tapping (G84), boring (G85/G86/G76), cycle cancel, multiple holes.",
+        level: "novice",
+        prerequisites: ["L1-03"],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "Canned Cycles Overview", "G81 Spot Drilling", "G83 Deep Hole Peck", "G73 High-Speed Peck",
+          "G84 Tapping", "G85/G86 Boring", "G76 Fine Boring", "Cycle Cancel & Multiple Holes",
+        ],
+      },
+      {
+        id: "L1-05",
+        title: "Basic Milling Operations",
+        description: "Face milling, pocketing, slotting, contouring, shoulder milling, drilling, tapping, chamfering, climb vs conventional.",
+        level: "novice",
+        prerequisites: ["L1-02", "L1-03"],
+        estimatedHours: 8,
+        moduleCount: 10,
+        moduleTitles: [
+          "Face Milling", "Pocket Milling", "Slot Milling", "Contour Milling", "Shoulder Milling",
+          "Drilling on a Mill", "Tapping on a Mill", "Chamfering & Deburring",
+          "Climb vs Conventional Milling", "Putting It All Together",
+        ],
+      },
+      {
+        id: "L1-06",
+        title: "Basic Turning Operations",
+        description: "OD roughing/finishing, facing, grooving, parting, threading, boring, drilling, knurling, tool nose radius comp.",
+        level: "novice",
+        prerequisites: ["L1-02", "L1-03"],
+        estimatedHours: 8,
+        moduleCount: 10,
+        moduleTitles: [
+          "OD Roughing", "OD Finishing", "Facing", "Grooving / Parting",
+          "Threading (Single-Point)", "Boring", "Drilling on a Lathe", "Knurling",
+          "Tool Nose Radius Compensation", "Turning Process Planning",
+        ],
+      },
+      {
+        id: "L1-07",
+        title: "Coolant & Chip Management",
+        description: "Coolant types, concentration, through-spindle, MQL, air blast, chip control strategies.",
+        level: "novice",
+        prerequisites: ["L0-05"],
+        estimatedHours: 4,
+        moduleCount: 6,
+        moduleTitles: [
+          "Why Coolant?", "Coolant Types", "Coolant Concentration",
+          "Through-Spindle Coolant (TSC)", "Air Blast & MQL", "Chip Management",
+        ],
+      },
+      {
+        id: "L1-08",
+        title: "Quality & Inspection Basics",
+        description: "First article inspection, in-process checks, go/no-go gauges, surface finish measurement, SPC basics, traceability.",
+        level: "novice",
+        prerequisites: ["course-0b", "course-0c"],
+        estimatedHours: 6,
+        moduleCount: 8,
+        moduleTitles: [
+          "Why Quality Matters", "First Article Inspection", "In-Process Checks", "Go/No-Go Gauges",
+          "Micrometers & Calipers Review", "Surface Finish Measurement", "SPC Basics", "Documentation & Traceability",
+        ],
+      },
+      {
+        id: "L1-09",
+        title: "Troubleshooting Basics",
+        description: "Systematic diagnosis of chatter, poor finish, tool breakage, dimensional errors, chip problems, coolant issues.",
+        level: "novice",
+        prerequisites: ["L1-05", "L1-06"],
+        estimatedHours: 8,
+        moduleCount: 8,
+        moduleTitles: [
+          "The Systematic Approach", "Chatter & Vibration", "Poor Surface Finish", "Tool Breakage",
+          "Dimensional Errors", "Chip Problems", "Coolant Issues", "When to Call for Help",
+        ],
+      },
+      {
+        id: "L1-10",
+        title: "CNC Safety & Emergency Procedures",
+        description: "Machine-specific safety, feed/speed override, dry run, single block, alarm response, crash recovery, pre-flight checklist.",
+        level: "novice",
+        prerequisites: ["L0-05", "L0-06"],
+        estimatedHours: 6,
+        moduleCount: 6,
+        moduleTitles: [
+          "Machine-Specific Safety", "Feed & Speed Override Safety", "Dry Run & Single Block",
+          "Alarm Response", "Tool Crash Recovery", "Pre-Flight Checklist",
+        ],
+      },
+      // ── Legacy Phase 1: Machine Fundamentals ──
       {
         id: "course-1",
         title: "Manufacturing Fundamentals",
@@ -984,34 +1210,60 @@ export class CurriculumEngine {
 const CERTIFICATION_CONFIG: Record<string, {
   requiredCourses: string[];
   minimumScore: number;
+  description: string;
 }> = {
   foundational: {
-    requiredCourses: ["course-0a", "course-0b", "course-0c"],
+    requiredCourses: [
+      "course-0a", "course-0b", "course-0c",
+      "L0-04", "L0-05", "L0-06", "L0-07", "L0-08",
+    ],
     minimumScore: 70,
+    description: "PRISM Foundational — pre-employment readiness, shop math through workholding",
   },
   operator: {
     requiredCourses: [
       "course-0a", "course-0b", "course-0c",
-      "course-1", "course-2", "course-3",
+      "L0-04", "L0-05", "L0-06", "L0-07", "L0-08",
+      "L1-01", "L1-02", "L1-03", "L1-04", "L1-05",
+      "L1-06", "L1-07", "L1-08", "L1-09", "L1-10",
     ],
-    minimumScore: 80,
+    minimumScore: 75,
+    description: "PRISM Certified Operator — CNC setup, operation, basic programming",
   },
   programmer: {
     requiredCourses: [
       "course-0a", "course-0b", "course-0c",
-      "course-1", "course-2", "course-3",
-      "course-4", "course-5", "course-6", "course-7",
+      "L0-04", "L0-05", "L0-06", "L0-07", "L0-08",
+      "L1-01", "L1-02", "L1-03", "L1-04", "L1-05",
+      "L1-06", "L1-07", "L1-08", "L1-09", "L1-10",
+      "L2-01", "L2-02", "L2-03", "L2-04", "L2-05", "L2-06",
+      "L2-07", "L2-08", "L2-09", "L2-10", "L2-11", "L2-12",
+    ],
+    minimumScore: 80,
+    description: "PRISM Certified Programmer — cutting physics, CAM, post processing, fixtures",
+  },
+  specialist: {
+    requiredCourses: [
+      "L3-01", "L3-02", "L3-03", "L3-04", "L3-05", "L3-06", "L3-07",
+      "L3-08", "L3-09", "L3-10", "L3-11", "L3-12", "L3-13", "L3-14",
     ],
     minimumScore: 85,
+    description: "PRISM Specialist — requires Programmer cert + L3 core + at least 1 specialization track",
+  },
+  expert: {
+    requiredCourses: [
+      "L4-01", "L4-02", "L4-03", "L4-04",
+      "L4-05", "L4-06", "L4-07", "L4-08",
+    ],
+    minimumScore: 88,
+    description: "PRISM Expert — requires Specialist cert + L4 courses + 2 specialization tracks",
   },
   master: {
     requiredCourses: [
-      "course-0a", "course-0b", "course-0c",
-      "course-1", "course-2", "course-3", "course-4", "course-5",
-      "course-6", "course-7", "course-8", "course-9", "course-10",
-      "course-11", "course-12",
+      "L5-01", "L5-02", "L5-03", "L5-04", "L5-05", "L5-06",
     ],
     minimumScore: 90,
+    description: "PRISM Certified Master — requires Expert cert + L5 courses + 3 specialization tracks",
   },
 };
 
