@@ -1247,3 +1247,24 @@
 - **XAIEngine**: PRISM MCP Server -- Explainable AI Engine
 - **ZLevelOptimizationEngine**: Z-Level Optimization Engine
 - **reactiveChainBootstrap**: reactiveChainBootstrap.ts - Register reactive chains at module load time
+- **PhysicsFusionOrchestrator.types**: PhysicsFusionOrchestrator.types — [AUTO-ADDED, needs description]
+
+- **PhysicsPluginRegistry**: PhysicsPluginRegistry — [AUTO-ADDED, needs description]
+
+- **PhysicsFusionConvergenceEngine**: PhysicsFusionConvergenceEngine — [AUTO-ADDED, needs description]
+
+- **KienzleForcePlugin**: KienzleForcePlugin — [AUTO-ADDED, needs description]
+
+- **CuttingTemperaturePlugin**: CuttingTemperaturePlugin — [AUTO-ADDED, needs description]
+
+- **ToolDeflectionPlugin**: ToolDeflectionPlugin — [AUTO-ADDED, needs description]
+
+- **ChatterStabilityPlugin**: ChatterStabilityPlugin — [AUTO-ADDED, needs description]
+
+- **SurfaceFinishPlugin**: SurfaceFinishPlugin — [AUTO-ADDED, needs description]
+
+- **PhysicsFusionOrchestratorEngine**: PhysicsFusionOrchestratorEngine — [AUTO-ADDED, needs description]
+
+- **PipelineRegistryBridge**: PipelineRegistryBridge — [AUTO-ADDED, needs description]
+
+- **SystemVariabilityIndexEngine**: SystemVariabilityIndexEngine — Compute total system state space (SVI = ∏ subsystem variabilities), track Ψ reachability across 13 subsystems and 9 pipelines

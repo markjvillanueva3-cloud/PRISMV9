@@ -1,30 +1,40 @@
-# HANDOFF: 2026-03-25 — Phase 0-D-7a COMPLETE
+# HANDOFF: 2026-03-27 — Session 6-1 COMPLETE + SystemVariabilityIndexEngine BUILT
 
 ## STATE
-- Phase 0-D-7a: Wire Composites + Orphans (U-MAT3, U-MAT4) — COMPLETE
-- 3 engines wired to 3 dispatchers (9 new actions total)
-- 19 new tests + 63 existing = 82 all passing
-- 23,645 regression tests passing (2 pre-existing fails: llm-engine, memoryProfile)
-- Build: PASS
-- 3-loop scrutiny: CONDITIONAL PASS
-  - Physics: 1 CRITICAL fixed (Hocheng-Dharan unit mismatch), 2 HIGH pre-existing, 1 MEDIUM addressed
-  - Test: 19 tests cover all 3 engines (async runFullPipeline not unit-testable)
-  - Wiring: still running but manually verified
+- Phase 6 Session 6-1: Route Contract Stabilization — COMPLETE
+- SystemVariabilityIndexEngine — BUILT, WIRED, TESTED, LIVE
+- SVI: 1.8 × 10^43 | Ψ = 40.8% | 9 pipelines tracked
+- 58/58 new tests pass (53 route-contract + 5 SVI)
+- /prism-review PASS (3 rounds, all CRITICAL+HIGH fixed)
+- 0 new TS errors
 
 ## WHAT WAS DONE
-- U-MAT3: CompositesMachiningPhysicsEngine → calcDispatcher (composites_tsai_hill, composites_fiber_pullout, composites_optimize_cutting)
-- U-MAT4a: WorkholdingSurfaceInferenceEngine (E1085) → machineSetupDispatcher (workholding_infer_surfaces, workholding_track_survival, workholding_detect_dead_ends)
-- U-MAT4b: QuoteToShipOrchestratorEngine (E1086) → businessDispatcher (quote_to_ship_run, quote_to_ship_validate, quote_to_ship_status)
-- CRITICAL FIX: Hocheng-Dharan formula unit consistency (GIc*E_GPa*1e3 → GIc*E_GPa, was 31.6x overestimate)
-- Added Tsai-Wu (1971) and Hocheng-Dharan (1990) citations
-- Slim response extractors for composites actions in calcDispatcher
+### Session 6-1 (U-ROUTEFIX1/2/3)
+- Added 8 missing calcDispatcher case implementations + power_torque action
+- ISO code→verbose name mapping for Kienzle/Taylor lookups
+- Physics fixes: radial_depth, power defaults, speed_feed whitelist, hardness mapping, MPa→GPa
+- 53 integration tests with toBeCloseTo, edge cases, known vectors
 
-## FILES MODIFIED
-- src/tools/dispatchers/calcDispatcher.ts (3 actions + 3 case handlers + 3 slim extractors)
-- src/tools/dispatchers/machineSetupDispatcher.ts (3 actions + 3 case handlers)
-- src/tools/dispatchers/businessDispatcher.ts (3 actions + 3 case handlers)
-- src/engines/CompositesMachiningPhysicsEngine.ts (Hocheng-Dharan fix + citations)
-- src/__tests__/u-mat3-mat4-wiring.test.ts (19 tests, NEW)
+### SystemVariabilityIndexEngine
+- New engine: computes total state space (SVI = ∏ subsystem variabilities)
+- Tracks 13 subsystems: materials, tools, machines, formulas, algorithms, strategies, engines, dispatchers, actions, pipelines, dialects, tests, tribal_tips
+- Tracks 9 pipeline reachability scores
+- Persists to state/shared/SVI.json + SVI-compact.md for cross-terminal awareness
+- Wired to prism_dev: svi_compute, svi_read, svi_summary
+- Codex awareness file: state/shared/CODEX-SVI-AWARENESS.md
+- 5 tests pass
+
+## FILES CHANGED
+- mcp-server/src/tools/dispatchers/calcDispatcher.ts — +1 action, +8 cases, physics fixes
+- mcp-server/src/tools/dispatchers/devDispatcher.ts — +3 actions (svi_compute/read/summary)
+- mcp-server/src/engines/SystemVariabilityIndexEngine.ts — NEW
+- mcp-server/src/__tests__/route-contract-sfc-speedfeed.test.ts — NEW (25 tests)
+- mcp-server/src/__tests__/route-contract-cam-ppg.test.ts — NEW (16 tests)
+- mcp-server/src/__tests__/route-contract-erp-context.test.ts — NEW (12 tests)
+- mcp-server/src/__tests__/svi-engine.test.ts — NEW (5 tests)
+- state/shared/SVI.json — live SVI data
+- state/shared/SVI-compact.md — human-readable SVI dashboard
+- state/shared/CODEX-SVI-AWARENESS.md — Codex integration guide
 
 ## RESUME
-Phase 0-D-7b: Wire Process Engines (U-PROC1, U-PROC2, U-PROC3). HoningProcessEngine+BurnishingPolishingEngine(verify exists)+GrindingWheelDressingOptimizationEngine+ScrapRootCauseEngine+ToolSubstitutionRiskEngine. Roadmap line 2175.
+Commit all Session 6-1 + SVI changes and push. Then proceed to Session 6-2 (File Upload + CAD Storage + Parts Library). Every future session should run svi_compute after wiring work to track Ψ growth.

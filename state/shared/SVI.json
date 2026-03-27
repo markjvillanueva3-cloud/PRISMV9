@@ -1,0 +1,272 @@
+{
+  "timestamp": "2026-03-27T22:50:04.301Z",
+  "version": "1.0.0",
+  "subsystems": [
+    {
+      "name": "Materials",
+      "category": "data",
+      "entities": 3,
+      "dimensions": 8,
+      "variability": 24,
+      "wired_pct": 85,
+      "reachable": 20.4,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tools",
+      "category": "data",
+      "entities": 95608,
+      "dimensions": 10,
+      "variability": 956080,
+      "wired_pct": 40,
+      "reachable": 382432,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Machines",
+      "category": "data",
+      "entities": 910,
+      "dimensions": 14,
+      "variability": 12740,
+      "wired_pct": 60,
+      "reachable": 7644,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tribal Tips",
+      "category": "data",
+      "entities": 3700,
+      "dimensions": 2,
+      "variability": 7400,
+      "wired_pct": 30,
+      "reachable": 2220,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Formulas",
+      "category": "physics",
+      "entities": 499,
+      "dimensions": 5,
+      "variability": 2495,
+      "wired_pct": 70,
+      "reachable": 1746.5,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Algorithms",
+      "category": "physics",
+      "entities": 208,
+      "dimensions": 4,
+      "variability": 832,
+      "wired_pct": 55,
+      "reachable": 457.6,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Strategies",
+      "category": "physics",
+      "entities": 762,
+      "dimensions": 8,
+      "variability": 6096,
+      "wired_pct": 50,
+      "reachable": 3048,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Engines",
+      "category": "pipeline",
+      "entities": 1245,
+      "dimensions": 3,
+      "variability": 3735,
+      "wired_pct": 65,
+      "reachable": 2427.75,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Dispatchers",
+      "category": "pipeline",
+      "entities": 77,
+      "dimensions": 1,
+      "variability": 77,
+      "wired_pct": 90,
+      "reachable": 69.3,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Actions",
+      "category": "pipeline",
+      "entities": 2700,
+      "dimensions": 1,
+      "variability": 2700,
+      "wired_pct": 85,
+      "reachable": 2295,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Pipelines",
+      "category": "output",
+      "entities": 9,
+      "dimensions": 50,
+      "variability": 450,
+      "wired_pct": 100,
+      "reachable": 450,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Dialects",
+      "category": "output",
+      "entities": 20,
+      "dimensions": 38,
+      "variability": 760,
+      "wired_pct": 80,
+      "reachable": 608,
+      "growth_since_last": 0
+    },
+    {
+      "name": "Tests",
+      "category": "intelligence",
+      "entities": 816,
+      "dimensions": 3,
+      "variability": 2448,
+      "wired_pct": 100,
+      "reachable": 2448,
+      "growth_since_last": 0
+    }
+  ],
+  "pipelines": [
+    {
+      "name": "PrintToProgram",
+      "stages": 12,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 15,
+      "controller_dialects": 20,
+      "reachability_score": 0.9
+    },
+    {
+      "name": "Turning",
+      "stages": 10,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 12,
+      "controller_dialects": 20,
+      "reachability_score": 0.74
+    },
+    {
+      "name": "MultiAxis",
+      "stages": 14,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 18,
+      "controller_dialects": 15,
+      "reachability_score": 0.91
+    },
+    {
+      "name": "MillTurn",
+      "stages": 16,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines",
+        "strategies"
+      ],
+      "physics_formulas_used": 20,
+      "controller_dialects": 12,
+      "reachability_score": 0.92
+    },
+    {
+      "name": "EDM",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 6,
+      "controller_dialects": 6,
+      "reachability_score": 0.38
+    },
+    {
+      "name": "Grinding",
+      "stages": 10,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 8,
+      "controller_dialects": 6,
+      "reachability_score": 0.52
+    },
+    {
+      "name": "Laser",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 5,
+      "controller_dialects": 7,
+      "reachability_score": 0.37
+    },
+    {
+      "name": "Waterjet",
+      "stages": 8,
+      "registries_connected": [
+        "materials",
+        "machines"
+      ],
+      "physics_formulas_used": 5,
+      "controller_dialects": 6,
+      "reachability_score": 0.36
+    },
+    {
+      "name": "QuoteToShip",
+      "stages": 21,
+      "registries_connected": [
+        "materials",
+        "tools",
+        "machines"
+      ],
+      "physics_formulas_used": 10,
+      "controller_dialects": 1,
+      "reachability_score": 0.51
+    }
+  ],
+  "total_entities": 106557,
+  "total_dimensions": 995837,
+  "total_variability": 995837,
+  "total_reachable": 405866.55,
+  "svi_log10": 43.25,
+  "svi_display": "1.8 × 10^43",
+  "psi_reachability": 0.408,
+  "psi_display": "40.8%",
+  "previous_svi_log10": 43.25,
+  "svi_delta": 0,
+  "trend": "stable",
+  "counts": {
+    "materials": 3,
+    "tools": 95608,
+    "machines": 910,
+    "formulas": 499,
+    "algorithms": 208,
+    "strategies": 762,
+    "engines": 1245,
+    "dispatchers": 77,
+    "actions": 2700,
+    "pipelines": 9,
+    "dialects": 20,
+    "tests": 816,
+    "tribal_tips": 3700
+  }
+}

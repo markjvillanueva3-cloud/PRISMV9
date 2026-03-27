@@ -1,6 +1,6 @@
 # PRISM Compact Index
 
-E=1245 D=77 A=51 T=808 RG=22 H=31hooks+61scripts U=16 C=80 S=72 M=113 DOC=39
+E=1259 D=77 A=51 T=808 RG=22 H=31hooks+61scripts U=16 C=80 S=72 M=148 DOC=39
 Skills: 161 slash commands | Enforcement: 24 enforce-*.py scripts | Memory: 22 files
 DSL: 1814 shortcodes. Resolve: /code-index E0001 or codeSystemIndexEngine.resolve('E0001')
 Actions: 2700+ | Tribal Tips: 3700+ (20 CAM systems) | Formulas: 499 | Materials: 2957
@@ -17,25 +17,30 @@ M: data/milestones/ | DOC: data/docs/ | Routes: src/routes/ | Web: web/src/
 - DIRECTORY_DIGEST.md: 215 dirs with purposes + domain routing
 - DSL_COMPACT.md: shortcode category reference
 
+## Pipelines (9 — shared helper integration via U-ARCH2)
+PrintToProgramPipelineEngine | TurningPrintToProgramEngine | MultiAxisPrintToProgramEngine
+MillTurnSwissPipelineEngine | EDMProgramAssemblerEngine | GrindingProgramAssemblerEngine
+LaserProgramAssemblerEngine | WaterjetProgramAssemblerEngine | QuoteToShipOrchestratorEngine
+
 ## Top Engines by Domain
 - CAD & Geometry(34): BSplineEngine, BVHEngine, CADKernelEngine, IGESImportEngine, STLToVoxelGridEngine
 - CAM & G-Code(49): AdaptiveRefinementEngine, AdvancedPostProcessorEngine, SetupSheetLibraryEngine
 - Casting & Molding(13): BlowMoldingEngine, CastingDefectEngine, CastingQuoteEngine
-- Cutting & Machining(83): AdvancedCuttingMathEngine, CeramicsMachiningEngine, CompositesMachiningPhysicsEngine
+- Cutting & Machining(84): AdvancedCuttingMathEngine, CeramicsMachiningEngine, CompositesMachiningPhysicsEngine, GrindingWheelDressingOptimizationEngine
 - Economics & Costing(20): ActualCostEngine, JobProfitabilityWaterfallEngine, ShiftScheduleOptimizerEngine
 - Forming & Sheet Metal(17): BendAllowanceEngine, CalenderingEngine, ContextWindowPressureEngine
 - Knowledge & Learning(13): BlueprintOCREngine, PDFBlueprintDimensionExtractorEngine, FederatedLearningEngine
 - Machine & CNC(37): AdaptiveSpindleControlEngine, CobotMachiningEngine, HobbyCNCProfileEngine
 - Material Handling(43): AirCompressorEngine, AxialPistonPumpEngine, BucketElevatorEngine
 - Non-Traditional(17): AbrasiveJetMachiningEngine, ElectrochemicalMachiningEngine, UltrasonicMachiningPhysicsEngine
-- Physics Models(1): ConstitutiveModelEngine
+- Physics Models(10): ConstitutiveModelEngine, PhysicsFusionConvergenceEngine, PhysicsFusionOrchestratorEngine, PhysicsFusionOrchestrator.types, PhysicsPluginRegistry, KienzleForcePlugin, CuttingTemperaturePlugin, ToolDeflectionPlugin, ChatterStabilityPlugin, SurfaceFinishPlugin
 - Powder & Additive(3): PostAMFinishingPlanEngine, PowderCompactionEngine, SinteringProcessEngine
-- Safety & Risk(2): ErgonomicWorkstationEngine, HyperMillSafetyHooks
+- Safety & Risk(3): ErgonomicWorkstationEngine, HyperMillSafetyHooks, ToolSubstitutionRiskEngine
 - Sensing & Monitoring(22): AcousticEmissionMonitoringEngine, PredictiveMaintenanceOrchestratorEngine
-- Statistics & Quality(43): CertificationTrackingEngine, IndustryStandardsComplianceEngine, TestingProtocolEngine
-- Surface & Coating(23): AnodizeAllowanceEngine, AnodizingProcessEngine, CarburizingEngine
+- Statistics & Quality(44): CertificationTrackingEngine, IndustryStandardsComplianceEngine, ScrapRootCauseEngine, TestingProtocolEngine
+- Surface & Coating(25): AnodizeAllowanceEngine, AnodizingProcessEngine, BurnishingPolishingEngine, CarburizingEngine, HoningProcessEngine
 - Sustainability(9): ParallelCallPlannerEngine, SustainabilityEngine, SustainabilityLCAEngine
-- System & Infra(27): AgentExecutor, AlgorithmEngine, AlgorithmGatewayEngine
+- System & Infra(28): AgentExecutor, AlgorithmEngine, AlgorithmGatewayEngine, SystemVariabilityIndexEngine
 - Thermal & Heat Treatment(20): CoolantDynamicsEngine, CoolantFlowEngine, CoolantPressureEngine
 - Token Optimization(37): ActionSchemaCacheEngine, BashCommandClassifierEngine, BatchQueryEngine
 - Welding & Joining(15): AdhesiveBondEngine, AdhesiveBondingEngine, BrazingProcessEngine
@@ -45,6 +50,11 @@ M: data/milestones/ | DOC: data/docs/ | Routes: src/routes/ | Web: web/src/
 calcDispatcher(1130+) | camDispatcher | toolpathDispatcher | shopPracticeDispatcher
 cncOpsDispatcher | machineSetupDispatcher | mechanicalDesignDispatcher | fluidThermalDispatcher
 businessDispatcher | cadDispatcher | fluidThermalDispatcher
+
+## Roadmap Tracks (269 milestones, 176 complete)
+CAMX(26) | CCM(18) | QA(15) | CAMX-v17(15) | CK(14) | CC(12)
+**NEW**: EIGC(12) Engine Integrity Gap Closure | MXU(12) Max Utilization | ACP(10) Automation Control Plane | PROD(2) Production Gate
+Specs: docs/superpowers/specs/2026-03-25-*.md (3 new design docs)
 
 ## Navigation
 /navigate <topic> | /code-index <shortcode> | /digest-all (~1100 tokens)

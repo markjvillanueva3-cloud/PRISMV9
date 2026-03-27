@@ -18,6 +18,8 @@ import { PATHS } from "../../constants.js";
 import { safeWriteSync } from "../../utils/atomicWrite.js";
 import * as TaskClaimService from "../../services/TaskClaimService.js";
 
+const __filename = new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1");
+const __dirname = path.dirname(__filename);
 // __dirname at runtime = C:\PRISM\mcp-server\dist (esbuild bundles to single file)
 const MCP_ROOT = path.join(__dirname, "..");        // C:\PRISM\mcp-server (for build/src/dist)
 const PROJECT_ROOT = path.join(__dirname, "../.."); // C:\PRISM (for data/state)
@@ -25,7 +27,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(PROJECT_ROOT, "data", "docs");
 const STATE_DIR = path.join(PROJECT_ROOT, "state");
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -675,6 +677,22 @@ export function registerDevDispatcher(server: any): void {
               const files = fs.readdirSync(resultsDir).filter(f => f.startsWith("SMOKE-")).sort();
               result = { available_runs: files.length, latest: files[files.length - 1] || "none" };
             }
+            break;
+          }
+
+          case "svi_compute": {
+            const { systemVariabilityIndexEngine } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            result = await systemVariabilityIndexEngine.compute();
+            break;
+          }
+          case "svi_read": {
+            const { systemVariabilityIndexEngine: sviR } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            result = sviR.read() ?? { error: "SVI not yet computed. Run svi_compute first." };
+            break;
+          }
+          case "svi_summary": {
+            const { systemVariabilityIndexEngine: sviS } = await import("../../engines/SystemVariabilityIndexEngine.js");
+            result = { summary: sviS.summary() };
             break;
           }
         }

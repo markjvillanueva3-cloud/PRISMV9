@@ -40,16 +40,16 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { Ra_um: result.Ra, Rz_um: result.Rz };
     case "mrr":
       return { mrr_cm3min: result.mrr, feed_rate: result.feed_rate, spindle_speed: result.spindle_speed };
-    case "power":
-      return { power_kW: result.power, torque_Nm: result.torque, safe: result.safe };
+    case "power": case "power_torque":
+      return { power_kW: result.power_spindle_kw ?? result.power, torque_Nm: result.torque_nm ?? result.torque, safe: result.safe };
     case "torque":
-      return { torque_Nm: result.torque, safe: result.safe };
+      return { torque_Nm: result.torque_nm ?? result.torque, safe: result.safe };
     case "chip_load":
       return { hex_mm: result.hex_mm, chip_load_ok: result.chip_load_ok };
     case "stability":
       return { stable: result.is_stable, critical_depth_mm: result.critical_depth };
     case "deflection":
-      return { deflection_mm: result.static_deflection, safe: result.safe };
+      return { deflection_mm: result.static_deflection, safe: (result.safety_factor ?? 0) >= 2.0 };
     case "thermal":
       return { T_tool_C: result.tool_temperature, T_chip_C: result.chip_temperature };
     case "drilling_force":
@@ -455,12 +455,26 @@ function calcExtractKeyValues(action: string, result: any): Record<string, unkno
       return { pullout_mm: result.pullout_length_mm, quality_impact: result.surface_quality_impact, damage_zone_mm: result.fiber_damage_zone_mm, matrix_crack_risk: result.matrix_cracking_risk };
     case "composites_optimize_cutting":
       return { speed_mpm: result.optimal_speed_mpm, feed_mm: result.optimal_feed_mm, mrr: result.mrr_cm3_per_min, delamination: result.delamination_risk, Ra_um: result.expected_Ra_um };
+    case "honing_design":
+      return { Ra: result.expected_Ra, cycle_sec: result.expected_cycle_time_sec, crosshatch: result.crosshatch_angle, rpm: result.rotation_rpm, pressure_bar: result.expansion_pressure_bar };
+    case "honing_stone_select":
+      return { stone: result.stone_type, grit: result.grit_size, reasoning: result.reasoning?.slice(0, 80) };
+    case "honing_plateau":
+      return { Rk: result.expected_profile?.Rk, Rpk: result.expected_profile?.Rpk, Rvk: result.expected_profile?.Rvk, Mr1: result.expected_profile?.Mr1, Mr2: result.expected_profile?.Mr2 };
+    case "burnishing_predict":
+      return { Ra_um: result.final_Ra_um, hardness_HRC: result.hardness_increase_HRC, residual_MPa: result.residual_stress_MPa, depth_mm: result.depth_of_effect_mm };
+    case "lapping_predict":
+      return { rate_um_min: result.removal_rate_um_per_min, time_min: result.time_to_target_min, flatness_um: result.expected_flatness_um, Ra_um: result.surface_Ra_um };
+    case "polishing_predict":
+      return { time_min: result.estimated_time_min, cost: result.cost_estimate, Ra_um: result.achievable_Ra_um, steps: result.steps?.length };
     case "sdk_suggest_tool":
       return { topPick: result.topPick?.name, manufacturer: result.topPick?.manufacturer, count: result.tools?.length || 0 };
     case "sdk_get_tip":
       return { count: result.count, top_tip: result.tips?.[0]?.text?.slice(0, 80) };
     case "sdk_batch":
       return { count: result.results?.length || 0, totalTime_ms: result.totalTime_ms };
+    case "physics_fusion":
+      return { Fc_N: result.Fc_N, power_kW: result.power_kW, tier: result.fusion_detail?.tier_executed, confidence: result.fusion_detail?.overall_confidence, iterations: result.fusion_detail?.total_iterations, time_ms: result.fusion_detail?.compute_time_ms };
     default:
       // Generic: pick first 5 numeric/string fields
       const kv: Record<string, any> = {};
@@ -488,7 +502,7 @@ function validateMaterialName(name: string | undefined): string | null {
 
 const ACTIONS = [
   "cutting_force", "tool_life", "speed_feed", "flow_stress", "surface_finish",
-  "mrr", "power", "torque", "chip_load", "stability", "deflection", "thermal",
+  "mrr", "power", "torque", "power_torque", "chip_load", "stability", "deflection", "thermal",
   "cost_optimize", "multi_optimize", "productivity", "engagement",
   "trochoidal", "hsm", "scallop", "stepover", "cycle_time", "arc_fit",
   "chip_thinning", "multi_pass", "coolant_strategy", "gcode_snippet",
@@ -918,6 +932,9 @@ const ACTIONS = [
   "safety_veto_check", "safety_veto_all", "safety_veto_escalate",
   // -- Advanced Materials (0-D-6) --
   "superalloy_analyze", "ceramics_fracture", "magnesium_fire_risk",
+  // -- Honing + Burnishing/Polishing (0-D-7b: U-PROC1) --
+  "honing_design", "honing_stone_select", "honing_plateau",
+  "burnishing_predict", "lapping_predict", "polishing_predict",
 ] as const;
 
 /** Registers calc dispatcher.
@@ -1139,6 +1156,118 @@ export function registerCalcDispatcher(server: any): void {
           case "chip_thinning": {
             const { calculateChipThinning } = await import("../../engines/ToolpathCalculations.js");
             result = calculateChipThinning(params.tool_diameter, params.radial_depth, params.feed_per_tooth, params.number_of_teeth || 4, params.cutting_speed || 150);
+            break;
+          }
+
+          case "cutting_force": {
+            const mfgCalc = await import("../../engines/ManufacturingCalculations.js");
+            const cfMat = (params.material_id || params.material) ? await getMat(params.material_id || params.material) : null;
+            const cfIsoMap: Record<string, string> = { p: "steel_medium_carbon", m: "stainless_austenitic", k: "cast_iron_gray", n: "aluminum_wrought", s: "inconel", h: "steel_high_carbon" };
+            const cfGroupKey = cfIsoMap[(params.material_group || "P").toLowerCase()] || params.material_group || "P";
+            const cfCoeffs = params.kc1_1 ? { kc1_1: params.kc1_1, mc: params.mc ?? 0.25 } : (cfMat?.kienzle ?? mfgCalc.getDefaultKienzle(cfGroupKey));
+            const cfDia = params.tool_diameter || 12;
+            result = mfgCalc.calculateKienzleCuttingForce({
+              cutting_speed: params.cutting_speed || 150,
+              feed_per_tooth: params.feed_per_tooth || params.feed || 0.1,
+              axial_depth: params.axial_depth || params.ap || 3,
+              radial_depth: params.radial_depth || params.ae || cfDia * 0.5,
+              tool_diameter: cfDia,
+              number_of_teeth: params.number_of_teeth || params.z || 4,
+              rake_angle: params.rake_angle,
+              actual_chip_thickness_mm: params.actual_chip_thickness_mm,
+            }, cfCoeffs as any);
+            break;
+          }
+
+          case "tool_life": {
+            const mfgTL = await import("../../engines/ManufacturingCalculations.js");
+            const tlMat = (params.material_id || params.material) ? await getMat(params.material_id || params.material) : null;
+            const tlIsoMap: Record<string, string> = { p: "steel", m: "stainless", k: "cast_iron", n: "aluminum", s: "inconel", h: "steel" };
+            const tlGroupKey = tlIsoMap[(params.material_group || "P").toLowerCase()] || params.material_group || "P";
+            const tlCoeffs = params.C ? { C: params.C, n: params.n ?? 0.25 } : (tlMat?.taylor ?? mfgTL.getDefaultTaylor(tlGroupKey, params.tool_material || "Carbide"));
+            result = mfgTL.calculateTaylorToolLife(
+              params.cutting_speed || 150,
+              tlCoeffs as any,
+              params.feed_per_tooth || params.feed,
+              params.axial_depth || params.ap || params.depth
+            );
+            break;
+          }
+
+          case "surface_finish": {
+            const { calculateSurfaceFinish } = await import("../../engines/ManufacturingCalculations.js");
+            result = calculateSurfaceFinish(
+              params.feed_per_tooth || params.feed || params.fz || 0.1,
+              params.nose_radius || params.corner_radius || 0.8,
+              params.is_milling ?? (params.operation === "milling"),
+              params.radial_depth || params.ae,
+              params.tool_diameter,
+              params.operation
+            );
+            break;
+          }
+
+          case "deflection": {
+            const { calculateToolDeflection } = await import("../../engines/AdvancedCalculations.js");
+            // youngs_modulus expects GPa (carbide=600, HSS=200, steel=210)
+            let eGPa = params.youngs_modulus || params.E || 600;
+            if (eGPa > 10000) eGPa = eGPa / 1000; // auto-convert MPa → GPa
+            result = calculateToolDeflection(
+              params.cutting_force || params.force || 500,
+              params.tool_diameter || 12,
+              params.overhang_length || params.overhang || params.stickout || 50,
+              eGPa,
+              params.runout || 0.005
+            );
+            break;
+          }
+
+          case "speed_feed": {
+            const { calculateSpeedFeed } = await import("../../engines/ManufacturingCalculations.js");
+            const sfOp = params.operation || "roughing";
+            const sfValidOps = new Set(["roughing", "finishing", "semi-finishing"]);
+            result = calculateSpeedFeed({
+              material_hardness: params.hardness_HRC || params.hardness || params.material_hardness,
+              operation: sfValidOps.has(sfOp) ? sfOp : "roughing",
+              tool_diameter: params.tool_diameter || 12,
+              tool_material: params.tool_material || "Carbide",
+              number_of_teeth: params.number_of_teeth || params.z || 4,
+            } as any);
+            break;
+          }
+
+          case "mrr": {
+            const { calculateMRR } = await import("../../engines/ManufacturingCalculations.js");
+            const mrrDia = params.tool_diameter || 12;
+            result = calculateMRR({
+              cutting_speed: params.cutting_speed || 150,
+              feed_per_tooth: params.feed_per_tooth || params.feed || 0.1,
+              axial_depth: params.axial_depth || params.ap || 3,
+              radial_depth: params.radial_depth || params.ae || mrrDia * 0.5,
+              tool_diameter: mrrDia,
+              number_of_teeth: params.number_of_teeth || params.z || 4,
+            });
+            break;
+          }
+
+          case "power": case "power_torque": {
+            const { calculateSpindlePower } = await import("../../engines/ManufacturingCalculations.js");
+            result = calculateSpindlePower(
+              params.cutting_force || params.force || 500,
+              params.cutting_speed || 150,
+              params.tool_diameter || 12,
+              params.efficiency ?? 0.80
+            );
+            break;
+          }
+
+          case "torque": {
+            const { calculateTorque } = await import("../../engines/ManufacturingCalculations.js");
+            result = calculateTorque(
+              params.cutting_force || params.force || 500,
+              params.tool_diameter || 12,
+              params.operation || "milling"
+            );
             break;
           }
 
@@ -6080,6 +6209,11 @@ export function registerCalcDispatcher(server: any): void {
           }
 
           // ── USF-MS0: Speed/Feed Orchestrator ──
+          case "sf_orchestrate": {
+            const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
+            result = speedFeedOrchestratorEngine.compute(params as ValidatedParams);
+            break;
+          }
           case "sf_quick": {
             const { speedFeedOrchestratorEngine } = await import("../../engines/SpeedFeedOrchestratorEngine.js");
             result = speedFeedOrchestratorEngine.compute({ ...params, uncertainty_mode: "quick" } as ValidatedParams);
@@ -7476,6 +7610,45 @@ export function registerCalcDispatcher(server: any): void {
           case "composites_optimize_cutting": {
             const { compositesMachiningPhysicsEngine: cmpeOC } = await import("../../engines/CompositesMachiningPhysicsEngine.js");
             result = cmpeOC.optimizeCuttingParams(params as ValidatedParams);
+            break;
+          }
+
+          // ── Honing + Burnishing/Polishing (0-D-7b: U-PROC1) ──
+          case "honing_design": {
+            const { honingProcessEngine } = await import("../../engines/HoningProcessEngine.js");
+            result = honingProcessEngine.designHoningProcess(params as ValidatedParams);
+            break;
+          }
+          case "honing_stone_select": {
+            const { honingProcessEngine: hpeSS } = await import("../../engines/HoningProcessEngine.js");
+            result = hpeSS.selectStone(params as ValidatedParams);
+            break;
+          }
+          case "honing_plateau": {
+            const { honingProcessEngine: hpePH } = await import("../../engines/HoningProcessEngine.js");
+            result = hpePH.plateauHoning(params as ValidatedParams);
+            break;
+          }
+          case "burnishing_predict": {
+            const { burnishingPolishingEngine } = await import("../../engines/BurnishingPolishingEngine.js");
+            result = burnishingPolishingEngine.predictBurnishing(params as ValidatedParams);
+            break;
+          }
+          case "lapping_predict": {
+            const { burnishingPolishingEngine: bpeLap } = await import("../../engines/BurnishingPolishingEngine.js");
+            result = bpeLap.predictLapping(params as ValidatedParams);
+            break;
+          }
+          case "polishing_predict": {
+            const { burnishingPolishingEngine: bpePol } = await import("../../engines/BurnishingPolishingEngine.js");
+            result = bpePol.predictPolishing(params as ValidatedParams);
+            break;
+          }
+
+          // ── Physics Fusion (0-D-FUSION-3) ──
+          case "physics_fusion": {
+            const { physicsFusionOrchestratorEngine } = await import("../../engines/PhysicsFusionOrchestratorEngine.js");
+            result = physicsFusionOrchestratorEngine.compute(params as ValidatedParams);
             break;
           }
 
