@@ -40,6 +40,8 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -781,6 +783,8 @@ export class WaterjetProgramAssemblerEngine {
    */
   assembleAbrasiveWJ(input: AbrasiveWJProfile): WaterjetProgram {
     log.debug("WaterjetProgramAssemblerEngine.assembleAbrasiveWJ", { material: input.material, thickness_mm: input.thickness_mm });
+    const cpm = new PipelineCheckpointManager("waterjet-abrasive", (input as any).runId);
+    cpm.checkpoint("intake", 0, { material: input.material, thickness: input.thickness_mm });
 
     const ctx = this._buildContext(input, false);
     const warnings: string[] = [...ctx.warnings];
@@ -2016,10 +2020,20 @@ export class WaterjetProgramAssemblerEngine {
     };
   }
 
+  /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+
+  /** ISO group → best representative waterjet material for fallback (U-ARCH3). */
+  private static readonly _ISO_WJ_FALLBACK: Record<string, string> = {
+    P: "mild_steel", M: "stainless_304", K: "mild_steel",
+    N: "aluminum_6061", S: "titanium", H: "tool_steel_D2",
+  };
+
   private _resolveMaterialKey(material: string): string {
     const m = material.toLowerCase().replace(/[\s\-\/]/g, "_");
+    // Tier 1: direct key
     if (MATERIAL_DB[m]) return m;
-    // Fuzzy match
+    // Tier 2: fuzzy match
     if (m.includes("stainless") || m.includes("316") || m.includes("ss316")) return "stainless_316";
     if (m.includes("stainless") || m.includes("304") || m.includes("ss304")) return "stainless_304";
     if (m.includes("stainless")) return "stainless_304";
@@ -2037,6 +2051,21 @@ export class WaterjetProgramAssemblerEngine {
     if (m.includes("carbon") || m.includes("cfrp") || m.includes("cf_")) return "carbon_fiber";
     if (m.includes("rubber") || m.includes("silicone") || m.includes("epdm")) return "rubber";
     if (m.includes("acrylic") || m.includes("pmma") || m.includes("plexiglass")) return "acrylic";
+
+    // U-ARCH3 Tier 3: use bridge ISO group detection for best waterjet fallback
+    if (!this._resolvedMaterial) {
+      resolveMaterial({ material_name: material })
+        .then(rm => { this._resolvedMaterial = rm; })
+        .catch(() => { /* fall through to mild_steel */ });
+    }
+    if (this._resolvedMaterial) {
+      const fbKey = WaterjetProgramAssemblerEngine._ISO_WJ_FALLBACK[this._resolvedMaterial.iso_group];
+      if (fbKey && MATERIAL_DB[fbKey]) {
+        log.info(`[WaterjetProgramAssemblerEngine] Material '${material}' resolved via registry as ISO ${this._resolvedMaterial.iso_group} → ${fbKey}`);
+        return fbKey;
+      }
+    }
+
     return "mild_steel";
   }
 

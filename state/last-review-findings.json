@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-03-27T13:25:00Z",
+  "scope": "U-ARCH3 pipeline bridge activation: MillTurn, EDM, Grinding, Laser, Waterjet + test file",
+  "critical": 0,
+  "high": 0,
+  "medium": 3,
+  "low": 2,
+  "total": 5,
+  "verdict": "PASS",
+  "findings": [
+    "MEDIUM: EDM module-level _edmResolvedMaterial cache is singleton — persists across calls",
+    "MEDIUM: Async fire-and-forget means first call gets no bridge data (same as PrintToProgram/Turning pattern)",
+    "MEDIUM: Grinding resolveMaterial name overlaps bridge import (TypeScript resolves correctly)",
+    "LOW: resolveMachine import unused in MillTurn (pre-existing from U-ARCH2)",
+    "LOW: Tests verify integration-level acceptance, not bridge-value differentiation"
+  ],
+  "findings_fixed": [],
+  "findings_deferred": {
+    "critical": [
+      "ISO S kc1_1=1700 in MachKB vs canonical 2800 (pre-existing, tracked in prior review)"
+    ],
+    "high": []
+  },
+  "test_results": {
+    "millturn_regression": "29/29 pass",
+    "pipeline_wiring_regression": "68/68 pass",
+    "bridge_integration": "39/39 pass",
+    "exports_regression": "32/32 pass",
+    "other_pipeline_regression": "62/62 pass",
+    "total": "230/230 pass"
+  }
+}

@@ -44,6 +44,8 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
 
 // ============================================================================
 // TYPES
@@ -824,9 +826,50 @@ function ci95(samples: number[]): [number, number] {
   return [lo, hi];
 }
 
-/** Look up material or fall back to steel_1045. */
+/** ISO group → best representative EDM material for fallback selection (U-ARCH3). */
+const ISO_EDM_FALLBACK: Record<string, string> = {
+  P: "steel_1045", M: "stainless_304", K: "cast_iron",
+  N: "aluminum_6061", S: "titanium", H: "tool_steel_D2",
+};
+
+/** Cached bridge resolution for enriched ISO group detection (U-ARCH3). */
+let _edmResolvedMaterial: ResolvedMaterialContext | null = null;
+
+/**
+ * Look up EDM material with 3-tier fallback (U-ARCH3):
+ *   1. Exact key match in EDM_MATERIALS
+ *   2. Fuzzy substring match across EDM_MATERIALS keys
+ *   3. Bridge ISO group detection → best EDM material for that group
+ *   4. steel_1045 last resort
+ */
 function getMaterial(materialKey: string): EDMMaterial {
-  return EDM_MATERIALS[materialKey] ?? EDM_MATERIALS["steel_1045"];
+  // Tier 1: exact key
+  if (EDM_MATERIALS[materialKey]) return EDM_MATERIALS[materialKey];
+
+  // Tier 2: fuzzy substring match
+  const lower = materialKey.toLowerCase().replace(/[\s\-\/]/g, "_");
+  for (const [k, v] of Object.entries(EDM_MATERIALS)) {
+    if (lower.includes(k) || k.includes(lower)) return v;
+  }
+
+  // Tier 3: use bridge ISO group for best EDM fallback
+  // Fire async resolution for future calls (non-blocking)
+  if (!_edmResolvedMaterial) {
+    resolveMaterial({ material_name: materialKey })
+      .then(rm => { _edmResolvedMaterial = rm; })
+      .catch(() => { /* fall through to steel_1045 */ });
+  }
+  if (_edmResolvedMaterial) {
+    const isoKey = ISO_EDM_FALLBACK[_edmResolvedMaterial.iso_group];
+    if (isoKey && EDM_MATERIALS[isoKey]) {
+      log.info(`[EDMProgramAssemblerEngine] Material '${materialKey}' resolved via registry as ISO ${_edmResolvedMaterial.iso_group} → ${isoKey}`);
+      return EDM_MATERIALS[isoKey];
+    }
+  }
+
+  // Tier 4: last resort
+  log.warn(`[EDMProgramAssemblerEngine] Material '${materialKey}' not found — using steel_1045`);
+  return EDM_MATERIALS["steel_1045"];
 }
 
 /** Format seconds as "Xh Ym Zs". */
@@ -1083,6 +1126,8 @@ export class EDMProgramAssemblerEngine {
    */
   assembleWireEDM(input: WireEDMPartProfile): WireEDMProgram {
     log.info(`[EDMProgramAssemblerEngine] assembleWireEDM: ${input.part_name}`);
+    const cpm = new PipelineCheckpointManager("edm-wire", (input as any).runId);
+    cpm.checkpoint("intake", 0, { part: input.part_name, material: input.material });
 
     const mat = getMaterial(input.material);
     const controller = input.controller ?? "fanuc_wedm";
@@ -1210,6 +1255,8 @@ export class EDMProgramAssemblerEngine {
    */
   assembleSinkerEDM(input: SinkerEDMPartProfile): SinkerEDMProgram {
     log.info(`[EDMProgramAssemblerEngine] assembleSinkerEDM: ${input.part_name}`);
+    const cpm = new PipelineCheckpointManager("edm-sinker", (input as any).runId);
+    cpm.checkpoint("intake", 0, { part: input.part_name, material: input.material });
 
     const mat = getMaterial(input.material);
     const controller = input.controller ?? "generic_edm";

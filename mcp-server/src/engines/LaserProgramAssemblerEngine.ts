@@ -40,6 +40,8 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -994,12 +996,7 @@ function buildGCodeCut(
     const lead_out = geom.lead_out_mm ?? 2.0;
     lines.push(`G01 X${fmt(pLast.x + (dx / len) * lead_out)} Y${fmt(pLast.y + (dy / len) * lead_out)} F${F_feed}  ${C("LEAD-OUT")}`);
   } else {
-    // No geometry — emit a simple 100mm line as placeholder
-    lines.push(`G00 X0.000 Y0.000  ${C("RAPID TO START")}`);
-    lines.push("G00 Z0.5");
-    lines.push(dialect.m_laser_on + "  " + C("LASER ON"));
-    lines.push(pierceCmd);
-    lines.push(`G01 X100.000 Y0.000 F${F_feed}  ${C("CUT LINE")}`);
+    throw new Error("geometry with at least 2 points is required for laser cut G-code generation");
   }
 
   lines.push(dialect.m_laser_off + "  " + C("LASER OFF"));
@@ -1272,6 +1269,18 @@ export class LaserProgramAssemblerEngine {
    */
   assembleLaserCut(input: LaserCutProfile): LaserProgram {
     log.debug(`[${this.engineName}] assembleLaserCut: ${input.process} material=${input.material}`);
+    const cpm = new PipelineCheckpointManager("laser-cut", (input as any).runId);
+    cpm.checkpoint("intake", 0, { material: input.material, process: input.process });
+
+    if (!input.assist_gas) {
+      throw new Error("assist_gas is required for laser cut program generation");
+    }
+    if (!Number.isFinite(input.gas_pressure_bar)) {
+      throw new Error("gas_pressure_bar is required for laser cut program generation");
+    }
+    if (!input.geometry || !Array.isArray(input.geometry.points) || input.geometry.points.length < 2) {
+      throw new Error("geometry with at least 2 points is required for laser cut program generation");
+    }
 
     const mat = this._resolveMaterial(input.material);
     const focus_d   = input.focus_diameter_mm  ?? (input.laser_type === "co2" ? 0.30 : 0.10);
@@ -1980,17 +1989,47 @@ export class LaserProgramAssemblerEngine {
   // PRIVATE HELPERS
   // -------------------------------------------------------------------------
 
+  /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+
+  /** ISO group → best representative laser material for fallback selection (U-ARCH3). */
+  private static readonly _ISO_LASER_FALLBACK: Record<string, string> = {
+    P: "mild_steel", M: "stainless_steel", K: "mild_steel",
+    N: "aluminum", S: "titanium", H: "mild_steel",
+  };
+
   private _resolveMaterial(name: string): LaserMaterialDB {
-    // Exact match
+    // Tier 1: exact match
     if (LASER_MAT_DB[name]) return LASER_MAT_DB[name];
 
-    // Fuzzy match (case-insensitive substring)
+    // Tier 2: fuzzy match (case-insensitive substring)
     const lower = name.toLowerCase();
     for (const [key, mat] of Object.entries(LASER_MAT_DB)) {
       if (lower.includes(key) || key.includes(lower)) return mat;
     }
 
-    // Fallback — mild steel with a warning baked in
+    // U-ARCH3 Tier 3: use bridge ISO group detection for best laser fallback
+    if (!this._resolvedMaterial) {
+      resolveMaterial({ material_name: name })
+        .then(rm => { this._resolvedMaterial = rm; })
+        .catch(() => { /* fall through to mild_steel */ });
+    }
+    if (this._resolvedMaterial) {
+      const rm = this._resolvedMaterial;
+      const fbKey = LaserProgramAssemblerEngine._ISO_LASER_FALLBACK[rm.iso_group];
+      if (fbKey && LASER_MAT_DB[fbKey]) {
+        const base = { ...LASER_MAT_DB[fbKey] };
+        // Enrich with bridge physics where available
+        base.rho = rm.density_kg_m3;
+        base.k_therm = rm.k_thermal;
+        base.cp = rm.cp_J_kgK;
+        base.name = rm.name;
+        log.info(`[${this.engineName}] Material '${name}' resolved via registry as ISO ${rm.iso_group} → ${fbKey}`);
+        return base;
+      }
+    }
+
+    // Tier 4: last resort
     log.warn(`[${this.engineName}] Unknown material '${name}' — falling back to mild_steel`);
     return { ...LASER_MAT_DB["mild_steel"]!, name: `${name} (fallback: mild_steel)` };
   }

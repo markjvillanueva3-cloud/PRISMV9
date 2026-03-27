@@ -39,6 +39,8 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
 
 // ============================================================================
 // ATOMIC VALUE WRAPPER
@@ -1327,16 +1329,45 @@ export class GrindingProgramAssemblerEngine {
   // PRIVATE HELPERS
   // --------------------------------------------------------------------------
 
+  /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+
   private resolveMaterial(name: string): GrindingMaterial {
     enrichGrindingFromCanonical(); // lazy canonical physics enrichment
     const key = name.toLowerCase().replace(/[^a-z0-9_]/g, "_");
-    // Try direct key
+    // Tier 1: direct key
     if (GRINDING_MATERIALS[key]) return GRINDING_MATERIALS[key];
-    // Fuzzy match
+    // Tier 2: fuzzy match
     for (const [k, v] of Object.entries(GRINDING_MATERIALS)) {
       if (k.includes(key) || key.includes(k)) return v;
     }
-    // Default: 4140 steel
+    // U-ARCH3 Tier 3: use bridge ISO group detection for best grinding fallback
+    // Fire async resolution for future calls (non-blocking)
+    if (!this._resolvedMaterial) {
+      resolveMaterial({ material_name: name })
+        .then(rm => { this._resolvedMaterial = rm; })
+        .catch(() => { /* fall through to 4140_steel */ });
+    }
+    if (this._resolvedMaterial) {
+      const rm = this._resolvedMaterial;
+      // Map bridge ISO group to closest grinding material
+      const isoFallback: Record<string, string> = {
+        P: "4140_steel", M: "stainless_304", K: "cast_iron",
+        N: "aluminum_6061", S: "inconel_718", H: "d2_tool_steel",
+      };
+      const fallbackKey = isoFallback[rm.iso_group];
+      if (fallbackKey && GRINDING_MATERIALS[fallbackKey]) {
+        // Enrich with bridge physics where available
+        const base = { ...GRINDING_MATERIALS[fallbackKey] };
+        base.k_thermal = rm.k_thermal;
+        base.density = rm.density_kg_m3;
+        base.c_specific = rm.cp_J_kgK;
+        base.name = rm.name;
+        log.info(`[${this.engineName}] Material '${name}' resolved via registry as ISO ${rm.iso_group} → ${fallbackKey}`);
+        return base;
+      }
+    }
+    // Tier 4: last resort
     log.warn(`[${this.engineName}] Material '${name}' not found — using 4140_steel`);
     return GRINDING_MATERIALS["4140_steel"]!;
   }
@@ -1479,6 +1510,8 @@ export class GrindingProgramAssemblerEngine {
    */
   assembleSurfaceGrind(input: SurfaceGrindProfile): GrindingProgram {
     log.debug(`[${this.engineName}] assembleSurfaceGrind: ${input.operation_subtype} / ${input.material}`);
+    const cpm = new PipelineCheckpointManager("grinding-surface", (input as any).runId);
+    cpm.checkpoint("intake", 0, { material: input.material, subtype: input.operation_subtype });
 
     const mat = this.resolveMaterial(input.material);
     const wheel = this.resolveWheel(input.wheel_spec, mat);

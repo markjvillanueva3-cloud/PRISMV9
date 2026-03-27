@@ -19,10 +19,40 @@
  * @version 1.0.0 — CK-MS6
  */
 
+import {
+  CANONICAL_KIENZLE,
+  type ISOGroup,
+} from "../physics/constants.js";
+import { log } from "../utils/Logger.js";
+import { smartToolSelectorEngine } from "./SmartToolSelectorEngine.js";
+import { coolantStrategyEngine } from "./CoolantStrategyEngine.js";
+import { entryExitStrategyEngine } from "./EntryExitStrategyEngine.js";
+import { workholdingVerificationEngine } from "./WorkholdingVerificationEngine.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
+
+// ============================================================================
+// SHARED ENGINE HELPERS (ESM-safe, non-blocking — 0-D-ARCH U-ARCH2)
+// ============================================================================
+
+function getSmartToolSelector(): any { return smartToolSelectorEngine; }
+function getCoolantStrategyEngine(): any { return coolantStrategyEngine; }
+function getEntryExitStrategyEngine(): any { return entryExitStrategyEngine; }
+function getWorkholdingVerificationEngine(): any { return workholdingVerificationEngine; }
+
+/** Map ISO to CoolantStrategy material */
+function mtCoolantMat(iso: string): string {
+  const m: Record<string, string> = {
+    P: "carbon_steel", M: "stainless", K: "cast_iron",
+    N: "aluminum", S: "titanium", H: "hardened_steel",
+  };
+  return m[iso] || "carbon_steel";
+}
+
 // ─── Types ─────────────────────────────────────────────────────────
 
-/** ISO material group for Kienzle cutting force model. */
-export type ISOGroupMT = "P" | "M" | "K" | "N" | "S" | "H";
+/** ISO material group — alias for canonical ISOGroup from physics/constants.ts */
+export type ISOGroupMT = ISOGroup;
 
 /** Live tooling operation type. */
 export type LiveToolOp =
@@ -78,6 +108,8 @@ export interface LiveToolInput {
   workpiece_diameter_mm: number;
   offset_from_centerline_mm?: number;
   iso_group?: ISOGroupMT;
+  /** Material name for per-material physics lookup from 2.9K registry (optional, falls back to ISO group). */
+  material_name?: string;
   live_spindle_power_kW?: number;
   c_axis_resolution_deg?: number;
   y_axis_travel_mm?: number;
@@ -104,6 +136,8 @@ export interface SubSpindleTransferInput {
   overlap_mm?: number;
   back_work_operations?: BackWorkOp[];
   iso_group?: ISOGroupMT;
+  /** Material name for per-material physics lookup from 2.9K registry (optional). */
+  material_name?: string;
 }
 
 /** Back-working operation after sub-spindle transfer. */
@@ -195,6 +229,8 @@ export interface SwissMachiningInput {
   thread_pitch_mm?: number;
   hole_depth_mm?: number;
   iso_group?: ISOGroupMT;
+  /** Material name for per-material physics lookup from 2.9K registry (optional). */
+  material_name?: string;
 }
 
 // ─── Result Interfaces ─────────────────────────────────────────────
@@ -446,15 +482,9 @@ export interface MillTurnSwissInput {
 
 // ─── Constants ─────────────────────────────────────────────────────
 
-/** Kienzle kc1.1 and mc by ISO group — Altintas Table 2.1 */
-const KIENZLE_ISO: Record<ISOGroupMT, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },
-  M: { kc1_1: 2100, mc: 0.25 },
-  K: { kc1_1: 1100, mc: 0.25 },
-  N: { kc1_1: 700,  mc: 0.25 },
-  S: { kc1_1: 2800, mc: 0.22 },
-  H: { kc1_1: 3200, mc: 0.20 },
-};
+/** Kienzle kc1.1 and mc by ISO group — canonical source (physics/constants.ts)
+ * Migration: 0-D-ARCH U-ARCH1 — fixed mc divergence: K 0.25→0.28, S 0.22→0.28, H 0.20→0.30 */
+const KIENZLE_ISO: Record<ISOGroupMT, { kc1_1: number; mc: number }> = CANONICAL_KIENZLE;
 
 /** Young's modulus (GPa) by common workpiece material */
 const MODULUS_GPa: Record<string, number> = {
@@ -522,6 +552,30 @@ const GUIDE_BUSHING_CLEARANCE_MM = 0.005; // bushing-to-bar clearance
  */
 export class MillTurnSwissPipelineEngine {
 
+  /** Cached material context from PipelineRegistryBridge (2.9K materials). */
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+
+  /**
+   * Fire async material resolution from the registry bridge (non-blocking).
+   * Populates _resolvedMaterial cache for per-material kc1_1/mc instead of ISO-group averages.
+   */
+  private _fireResolveMaterial(materialName?: string, iso?: ISOGroupMT): void {
+    if (this._resolvedMaterial) return; // already cached
+    if (!materialName && !iso) return;
+    resolveMaterial({ material_name: materialName, iso_group: iso })
+      .then(rm => { this._resolvedMaterial = rm; })
+      .catch(() => { /* fallback to KIENZLE_ISO — already handled at call sites */ });
+  }
+
+  /**
+   * Get Kienzle kc1_1/mc: prefer per-material registry data, fall back to ISO group.
+   */
+  private _getKienzle(iso: ISOGroupMT): { kc1_1: number; mc: number } {
+    const rm = this._resolvedMaterial;
+    if (rm) return { kc1_1: rm.kc1_1, mc: rm.mc };
+    return KIENZLE_ISO[iso] ?? KIENZLE_ISO.P;
+  }
+
   /**
    * Main dispatch method — routes to sub-calculations by action.
    * @param input - Action + params union
@@ -573,6 +627,7 @@ export class MillTurnSwissPipelineEngine {
       workpiece_diameter_mm: Dw,
       offset_from_centerline_mm: offset = 0,
       iso_group: iso = "P",
+      material_name: matName,
       live_spindle_power_kW: maxPower,
       num_flutes: z_teeth = 2,
       c_axis_resolution_deg = 0.001,
@@ -580,6 +635,9 @@ export class MillTurnSwissPipelineEngine {
       hole_depth_mm,
       interpolation_type: interpOverride,
     } = input;
+
+    // Fire async per-material physics resolution (U-ARCH3)
+    this._fireResolveMaterial(matName, iso);
 
     const recs: string[] = [];
     const warnings: string[] = [];
@@ -629,7 +687,8 @@ export class MillTurnSwissPipelineEngine {
 
     // ── 4. Cutting force (Kienzle for milling) ──
     // For live tool milling: h_avg = fz * sqrt(ae/D_eff) (average chip thickness)
-    const kienzle = KIENZLE_ISO[iso];
+    // U-ARCH3: per-material kc1_1/mc from registry when available, else ISO group
+    const kienzle = this._getKienzle(iso);
     const h_avg = operation === "cross_drill" || operation === "cross_tap" || operation === "off_center_drill"
       ? f_rev / 2   // drilling: h = f/2
       : fz * Math.sqrt(Math.max(ae / D_eff, 0.01));
@@ -686,6 +745,50 @@ export class MillTurnSwissPipelineEngine {
       recs.push(`Large centerline offset reduces effective diameter by ${((1 - D_eff / D) * 100).toFixed(0)}% — verify chip load`);
     }
 
+    // SmartToolSelector enrichment for live tooling (0-D-ARCH U-ARCH2)
+    try {
+      const sts = getSmartToolSelector();
+      const stsResult = sts.select({
+        material_iso_group: iso,
+        operation: operation.replace("cross_", "").replace("off_center_", ""),
+        max_diameter_mm: D,
+        max_depth_mm: ap,
+        optimization_goal: "balanced",
+      });
+      if (stsResult.best_tool) {
+        recs.push(`SmartToolSelector: ${stsResult.best_tool.designation} (score=${stsResult.best_tool.score.toFixed(2)})`);
+      }
+    } catch { /* non-blocking */ }
+
+    // CoolantStrategy enrichment (0-D-ARCH U-ARCH2)
+    try {
+      const cse = getCoolantStrategyEngine();
+      const coolOp = operation.includes("drill") || operation.includes("tap") ? "drilling" : "milling_rough";
+      const coolantResult = cse.calculate({
+        workpiece_material: mtCoolantMat(iso),
+        operation: coolOp,
+        cutting_speed_m_min: Vc_eff,
+        depth_of_cut_mm: ap,
+        hole_depth_mm: hole_depth_mm,
+        hole_diameter_mm: D,
+      });
+      recs.push(`Coolant: ${coolantResult.primary_method} (${coolantResult.fluid_type})`);
+    } catch { /* non-blocking */ }
+
+    // EntryExitStrategy for pocket/face milling on live tool (0-D-ARCH U-ARCH2)
+    if (operation === "face_mill" || operation === "keyway_mill" || operation === "y_axis_mill") {
+      try {
+        const eese = getEntryExitStrategyEngine();
+        const entryResult = eese.selectEntry({
+          tool_diameter: D,
+          pocket_depth: ap,
+          pocket_width: ae,
+          material: mtCoolantMat(iso),
+        });
+        recs.push(`Entry: ${entryResult.recommended_method} (feed×${entryResult.feed_factor.toFixed(2)})`);
+      } catch { /* non-blocking */ }
+    }
+
     return {
       effective_diameter_mm: round4(D_eff),
       effective_cutting_speed_m_min: round4(Vc_eff),
@@ -740,12 +843,18 @@ export class MillTurnSwissPipelineEngine {
       overlap_mm: overlap = 2.0,
       back_work_operations: backOps = [],
       iso_group: iso = "P",
+      material_name: matName,
     } = input;
+
+    // Fire async per-material physics resolution (U-ARCH3)
+    this._fireResolveMaterial(matName, iso);
 
     const recs: string[] = [];
     const warnings: string[] = [];
     const sequence: string[] = [];
-    const density = input.workpiece_material_density_kg_m3 ?? DENSITY_KG_M3[iso];
+    const density = input.workpiece_material_density_kg_m3
+      ?? (this._resolvedMaterial?.density_kg_m3)
+      ?? DENSITY_KG_M3[iso];
 
     // ── 1. Workpiece mass ──
     const volume_m3 = Math.PI * (Dw / 2000) ** 2 * (Lw / 1000);
@@ -757,7 +866,8 @@ export class MillTurnSwissPipelineEngine {
     const F_centrif = mass_kg * omega * omega * r_grip;
 
     // ── 3. Cut-off force (Kienzle) ──
-    const kienzle = KIENZLE_ISO[iso];
+    // U-ARCH3: per-material kc1_1/mc from registry when available
+    const kienzle = this._getKienzle(iso);
     const h_cutoff = cutFeed; // chip thickness ≈ feed for parting
     const kc = kienzle.kc1_1 * Math.pow(Math.max(h_cutoff, 0.001), -kienzle.mc);
     const Fc_cutoff = kc * h_cutoff * cutWidth * 1.25; // 1.25x constrained chip flow factor
@@ -1249,7 +1359,11 @@ export class MillTurnSwissPipelineEngine {
       thread_pitch_mm,
       hole_depth_mm,
       iso_group: iso = "P",
+      material_name: matName,
     } = input;
+
+    // Fire async per-material physics resolution (U-ARCH3)
+    this._fireResolveMaterial(matName, iso);
 
     const recs: string[] = [];
     const warnings: string[] = [];
@@ -1264,7 +1378,8 @@ export class MillTurnSwissPipelineEngine {
     const L_D = ld_override ?? L_overhang / Dw;
 
     // ── 3. Cutting force estimate (if not provided) ──
-    const kienzle = KIENZLE_ISO[iso];
+    // U-ARCH3: per-material kc1_1/mc from registry when available
+    const kienzle = this._getKienzle(iso);
     const h = f; // chip thickness ≈ feed for turning
     const kc = kienzle.kc1_1 * Math.pow(Math.max(h, 0.001), -kienzle.mc);
     const F_calc = kc * h * ap;
@@ -1696,6 +1811,17 @@ export class MillTurnSwissPipelineEngine {
     const ctrl = input.controller;
     const progNum = input.program_number ?? 1;
 
+    // U-ARCH3: fire per-material resolution with the material name from the program input
+    this._fireResolveMaterial(input.material?.name, input.material?.iso_group as ISOGroupMT);
+
+    // Pipeline checkpoint manager (0-D-ARCH U-ARCH2)
+    const cpm = new PipelineCheckpointManager("millturn-assemble", (input as any).runId);
+    cpm.checkpoint("intake", 0, {
+      turning_ops: input.turning_ops.length,
+      live_tool_ops: input.live_tool_ops.length,
+      sub_spindle_ops: input.sub_spindle_ops?.length ?? 0,
+    });
+
     // Program header
     lines.push(`O${String(progNum).padStart(4, "0")} (${input.program_comment || "MILL-TURN PROGRAM"})`);
     lines.push(`(MATERIAL: ${input.material.name} ISO ${input.material.iso_group})`);
@@ -1816,6 +1942,34 @@ export class MillTurnSwissPipelineEngine {
     lines.push("M30");
     lines.push("%");
 
+    cpm.checkpoint("generate_program", 1, { line_count: lines.length, sync_points: syncPoints });
+
+    // Workholding verification for sub-spindle transfer (0-D-ARCH U-ARCH2)
+    if (input.sub_spindle_ops && input.sub_spindle_ops.length > 0) {
+      try {
+        const wve = getWorkholdingVerificationEngine();
+        // Estimate max cutting force from sub-spindle ops
+        // U-ARCH3: per-material kc1_1/mc from registry when available
+        const maxSubFc = Math.max(...input.sub_spindle_ops.map(op => {
+          const iso = input.material?.iso_group || "P";
+          const kienzle = this._getKienzle(iso as ISOGroupMT);
+          const f = op.feed_mm_rev || 0.15;
+          const ap = op.depth_of_cut_mm ?? 1.5;
+          return kienzle.kc1_1 * ap * Math.pow(f, 1 - kienzle.mc);
+        }), 0);
+        if (maxSubFc > 0) {
+          const whResult = wve.verify(
+            { Fc_N: maxSubFc, operation_name: "sub_spindle_max_force" },
+            { type: "sub_spindle_collet", clamping_force_N: 15000, clamp_points: 1, clamping_method: "collet" },
+          );
+          if (whResult.safety_factor < 2.0) {
+            warnings.push(`Sub-spindle grip: Fc=${Math.round(maxSubFc)}N, safety factor ${whResult.safety_factor.toFixed(1)} (min 2.0 for transfer)`);
+          }
+          log.info(`[MillTurnAssemble] Sub-spindle workholding: Fc=${Math.round(maxSubFc)}N, SF=${whResult.safety_factor.toFixed(1)}`);
+        }
+      } catch { /* non-blocking */ }
+    }
+
     // Validations
     if (input.turning_ops.length === 0 && input.live_tool_ops.length === 0) {
       warnings.push("No operations defined — program contains only header/footer");
@@ -1826,6 +1980,7 @@ export class MillTurnSwissPipelineEngine {
     }
 
     const channels = input.sub_spindle_ops && input.sub_spindle_ops.length > 0 ? 2 : 1;
+    cpm.checkpoint("validate_output", 2, { channels, warnings: warnings.length });
 
     return {
       program_text: lines.join("\n"),
