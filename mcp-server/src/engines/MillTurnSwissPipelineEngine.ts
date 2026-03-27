@@ -454,6 +454,8 @@ export interface ProgramAssemblyInput {
   part_length_mm: number;
   program_number?: number;
   program_comment?: string;
+  machine_brand?: string;
+  machine_model?: string;
 }
 
 /** Program assembly output. */
@@ -554,6 +556,8 @@ export class MillTurnSwissPipelineEngine {
 
   /** Cached material context from PipelineRegistryBridge (2.9K materials). */
   private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  /** Cached machine context from PipelineRegistryBridge (910 machines). */
+  private _resolvedMachine: ResolvedMachineContext | null = null;
 
   /**
    * Fire async material resolution from the registry bridge (non-blocking).
@@ -1813,6 +1817,13 @@ export class MillTurnSwissPipelineEngine {
 
     // U-ARCH3: fire per-material resolution with the material name from the program input
     this._fireResolveMaterial(input.material?.name, input.material?.iso_group as ISOGroupMT);
+
+    // U-ARCH3: fire async machine resolution (non-blocking, enriches machine limits)
+    if (!this._resolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+        .then(rm => { this._resolvedMachine = rm; })
+        .catch(() => {});
+    }
 
     // Pipeline checkpoint manager (0-D-ARCH U-ARCH2)
     const cpm = new PipelineCheckpointManager("millturn-assemble", (input as any).runId);

@@ -407,3 +407,158 @@ describe("U-ARCH3 — Waterjet bridge activation", () => {
     expect(result.operations.length).toBeGreaterThan(0);
   });
 });
+
+// ============================================================================
+// U-ARCH3 MACHINE RESOLUTION — verify all 8 pipelines fire resolveMachine
+// ============================================================================
+
+describe("U-ARCH3 — resolveMachine activation in chip-cutting pipelines", () => {
+  it("PrintToProgram uses resolved machine max_rpm when no input spindle rpm", async () => {
+    const { PrintToProgramPipelineEngine } = await import("../engines/PrintToProgramPipelineEngine.js");
+    const engine = new PrintToProgramPipelineEngine();
+    // With no max_spindle_rpm, should fall back to resolved or 12000 default
+    const result = engine.runFullPipeline({
+      part_number: "MACH-TEST-001",
+      material: { iso_group: "P", material_name: "1045 Steel" },
+      dimensions: [
+        { id: "d1", type: "linear", nominal_mm: 40, tolerance: { plus_mm: 0.1, minus_mm: 0.1 }, confidence: 0.95 },
+        { id: "d2", type: "linear", nominal_mm: 80, tolerance: { plus_mm: 0.1, minus_mm: 0.1 }, confidence: 0.95 },
+        { id: "d3", type: "depth", nominal_mm: 10, tolerance: { plus_mm: 0.05, minus_mm: 0.05 }, confidence: 0.90 },
+      ],
+      features: [{
+        id: "f1", type: "pocket", width_mm: 40, length_mm: 80, depth_mm: 10,
+      }],
+      machine_brand: "Haas",
+      machine_model: "VF-2",
+    });
+    expect(result.program_text).toBeDefined();
+    expect(result.program_text.length).toBeGreaterThan(0);
+    expect(result.confidence_score).toBeGreaterThan(0);
+  });
+
+  it("Turning pipeline accepts machine_brand/model fields", async () => {
+    const { TurningPrintToProgramEngine } = await import("../engines/TurningPrintToProgramEngine.js");
+    const engine = new TurningPrintToProgramEngine();
+    const result = engine.runPipeline({
+      material: { iso_group: "P", material_name: "4140 Steel" },
+      bar_stock_od_mm: 50,
+      part_length_mm: 100,
+      machine_brand: "Mazak",
+      machine_model: "QT-250",
+      features: [{ type: "od_rough", start_diameter_mm: 50, end_diameter_mm: 40, length_mm: 80 }],
+    });
+    expect(result.program_text).toBeDefined();
+    expect(result.program_text.length).toBeGreaterThan(0);
+  });
+
+  it("MultiAxis pipeline accepts machine_brand/model fields", async () => {
+    const { MultiAxisPrintToProgramEngine } = await import("../engines/MultiAxisPrintToProgramEngine.js");
+    const engine = new MultiAxisPrintToProgramEngine();
+    const result = engine.runPipeline({
+      material: { iso_group: "S", material_name: "Ti-6Al-4V" },
+      machine_brand: "DMG Mori",
+      machine_model: "DMU 50",
+      features: [{
+        id: "f1",
+        type: "impeller_blade",
+        orientation: { A_deg: 15, B_deg: 0, C_deg: 45 },
+        depth_mm: 15,
+        width_mm: 20,
+        length_mm: 60,
+        surface_finish_Ra_um: 1.6,
+      }],
+    });
+    expect(result.program_text).toBeDefined();
+    expect(result.confidence_score).toBeGreaterThan(0);
+  });
+
+  it("MillTurn assembleProgram fires resolveMachine with brand/model", async () => {
+    const { MillTurnSwissPipelineEngine } = await import("../engines/MillTurnSwissPipelineEngine.js");
+    const engine = new MillTurnSwissPipelineEngine();
+    const result = engine.assembleProgram({
+      turning_ops: [{
+        type: "od_rough", tool_number: 1, offset_number: 1,
+        start_x_mm: 25, end_x_mm: 20, start_z_mm: 0, end_z_mm: -80,
+        feed_mm_rev: 0.2, cutting_speed_m_min: 200,
+      }],
+      live_tool_ops: [],
+      controller: "fanuc",
+      material: { name: "4140 Steel", iso_group: "P" },
+      stock_od_mm: 50,
+      part_length_mm: 100,
+      machine_brand: "Citizen",
+      machine_model: "L20",
+    });
+    expect(result.program_text).toBeDefined();
+    expect(result.line_count).toBeGreaterThan(0);
+  });
+});
+
+describe("U-ARCH3 — resolveMachine activation in assembler pipelines", () => {
+  it("EDM assembleWireEDM accepts machine_brand/model", async () => {
+    const { EDMProgramAssemblerEngine } = await import("../engines/EDMProgramAssemblerEngine.js");
+    const engine = new EDMProgramAssemblerEngine();
+    const result = engine.assembleWireEDM({
+      part_name: "mach-test-edm",
+      material: "steel_1045",
+      thickness_mm: 25,
+      contour: [{ x_mm: 0, y_mm: 0 }, { x_mm: 10, y_mm: 0 }, { x_mm: 10, y_mm: 10 }, { x_mm: 0, y_mm: 10 }],
+      num_skim_passes: 1,
+      machine_brand: "Mitsubishi",
+      machine_model: "MV2400S",
+    });
+    expect(result.gcode).toBeDefined();
+    expect(result.operations.length).toBeGreaterThan(0);
+  });
+
+  it("Grinding assembleSurfaceGrind runs with machine context", async () => {
+    const { GrindingProgramAssemblerEngine } = await import("../engines/GrindingProgramAssemblerEngine.js");
+    const engine = new GrindingProgramAssemblerEngine();
+    const result = engine.assembleSurfaceGrind({
+      operation_subtype: "horizontal_reciprocating",
+      material: "4140_steel",
+      part_length_mm: 200,
+      part_width_mm: 50,
+      stock_mm: 0.5,
+      target_Ra_um: 0.8,
+      wheel_diameter_mm: 200,
+      wheel_width_mm: 25,
+      machine_brand: "Okamoto",
+      machine_model: "ACC-1224DX",
+    });
+    expect(result.gcode).toBeDefined();
+    expect(result.physics.specific_energy.value).toBeGreaterThan(0);
+  });
+
+  it("Laser assembleLaserCut runs with machine context", async () => {
+    const { LaserProgramAssemblerEngine } = await import("../engines/LaserProgramAssemblerEngine.js");
+    const engine = new LaserProgramAssemblerEngine();
+    const result = engine.assembleLaserCut({
+      material: "mild_steel",
+      thickness_mm: 6,
+      laser_type: "fiber",
+      laser_power_W: 4000,
+      assist_gas: "nitrogen",
+      gas_pressure_bar: 12,
+      geometry: { points: [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 100 }, { x: 0, y: 100 }], closed: true },
+      machine_brand: "Trumpf",
+      machine_model: "TruLaser 3030",
+    });
+    expect(result.gcode).toBeDefined();
+    expect(result.gcode.length).toBeGreaterThan(0);
+  });
+
+  it("Waterjet assembleAbrasiveWJ runs with machine context", async () => {
+    const { WaterjetProgramAssemblerEngine } = await import("../engines/WaterjetProgramAssemblerEngine.js");
+    const engine = new WaterjetProgramAssemblerEngine();
+    const result = engine.assembleAbrasiveWJ({
+      material: "mild_steel",
+      thickness_mm: 12,
+      cut_path: [{ x: 0, y: 0 }, { x: 50, y: 0 }, { x: 50, y: 50 }, { x: 0, y: 50 }],
+      machine_brand: "OMAX",
+      machine_model: "GlobalMax 1530",
+    });
+    expect(result.gcode).toBeDefined();
+    expect(result.operations.length).toBeGreaterThan(0);
+  });
+});

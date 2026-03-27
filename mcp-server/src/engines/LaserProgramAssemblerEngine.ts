@@ -41,7 +41,7 @@
 
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
-import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -555,6 +555,10 @@ export interface LaserCutProfile {
   nesting?: LaserNestingInput;
   /** Quantity of the single part (used with nesting when parts[] not provided) */
   quantity?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** Input profile for laser marking */
@@ -580,6 +584,10 @@ export interface LaserMarkProfile {
   controller?: LaserController;
   program_number?: number;
   part_name?: string;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** Input profile for laser welding */
@@ -608,6 +616,10 @@ export interface LaserWeldProfile {
   controller?: LaserController;
   program_number?: number;
   part_name?: string;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** Input profile for laser drilling */
@@ -634,6 +646,10 @@ export interface LaserDrillProfile {
   controller?: LaserController;
   program_number?: number;
   part_name?: string;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** Generated laser program output */
@@ -1268,6 +1284,7 @@ export class LaserProgramAssemblerEngine {
    * Monte Carlo: 500 samples, CI95 for speed/kerf/HAZ/Rz, P(fail) metrics.
    */
   assembleLaserCut(input: LaserCutProfile): LaserProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleLaserCut: ${input.process} material=${input.material}`);
     const cpm = new PipelineCheckpointManager("laser-cut", (input as any).runId);
     cpm.checkpoint("intake", 0, { material: input.material, process: input.process });
@@ -1375,6 +1392,7 @@ export class LaserProgramAssemblerEngine {
    * Computes mark depth via volumetric ablation rate using Beer-Lambert + spot area.
    */
   assembleLaserMark(input: LaserMarkProfile): LaserProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleLaserMark: ${input.process} material=${input.material}`);
 
     const mat       = this._resolveMaterial(input.material);
@@ -1458,6 +1476,7 @@ export class LaserProgramAssemblerEngine {
    * Wobble: gap-bridging oscillation welding.
    */
   assembleLaserWeld(input: LaserWeldProfile): LaserProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleLaserWeld: ${input.process} material=${input.material}`);
 
     const mat       = this._resolveMaterial(input.material);
@@ -1561,6 +1580,7 @@ export class LaserProgramAssemblerEngine {
    * circle perimeter with V_trepan derived from Schulz model.
    */
   assembleLaserDrill(input: LaserDrillProfile): LaserProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleLaserDrill: ${input.process} material=${input.material}`);
 
     const mat       = this._resolveMaterial(input.material);
@@ -1991,6 +2011,16 @@ export class LaserProgramAssemblerEngine {
 
   /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
   private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  /** Cached machine context from registry bridge (U-ARCH3). */
+  private _resolvedMachine: ResolvedMachineContext | null = null;
+
+  /** Fire async machine resolution — call at start of each assemble method. */
+  private _fireResolveMachine(input: { machine_brand?: string; machine_model?: string }): void {
+    if (this._resolvedMachine) return;
+    resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+      .then(rm => { this._resolvedMachine = rm; })
+      .catch(() => {});
+  }
 
   /** ISO group → best representative laser material for fallback selection (U-ARCH3). */
   private static readonly _ISO_LASER_FALLBACK: Record<string, string> = {

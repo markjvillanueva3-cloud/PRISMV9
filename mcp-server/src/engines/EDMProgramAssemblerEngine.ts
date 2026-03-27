@@ -45,7 +45,7 @@
 
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
-import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 
 // ============================================================================
 // TYPES
@@ -125,6 +125,10 @@ export interface WireEDMPartProfile {
   controller?: EDMController;
   /** Program number (default 1). */
   program_number?: number;
+  /** Machine brand for registry lookup. */
+  machine_brand?: string;
+  /** Machine model for registry lookup. */
+  machine_model?: string;
 }
 
 /** A single wire EDM operation (roughing cut or skim pass). */
@@ -263,6 +267,10 @@ export interface SinkerEDMPartProfile {
   jump_frequency_hz?: number;
   controller?: EDMController;
   program_number?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** A single sinker EDM operation. */
@@ -327,6 +335,10 @@ export interface MicroEDMPartProfile {
   aspect_ratio?: number;
   controller?: EDMController;
   program_number?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 /** Micro EDM assembled program. */
@@ -834,6 +846,8 @@ const ISO_EDM_FALLBACK: Record<string, string> = {
 
 /** Cached bridge resolution for enriched ISO group detection (U-ARCH3). */
 let _edmResolvedMaterial: ResolvedMaterialContext | null = null;
+/** Cached machine context from registry bridge (U-ARCH3). */
+let _edmResolvedMachine: ResolvedMachineContext | null = null;
 
 /**
  * Look up EDM material with 3-tier fallback (U-ARCH3):
@@ -1130,6 +1144,14 @@ export class EDMProgramAssemblerEngine {
     cpm.checkpoint("intake", 0, { part: input.part_name, material: input.material });
 
     const mat = getMaterial(input.material);
+
+    // U-ARCH3: fire async machine resolution (non-blocking, enriches machine context)
+    if (!_edmResolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+        .then(rm => { _edmResolvedMachine = rm; })
+        .catch(() => {});
+    }
+
     const controller = input.controller ?? "fanuc_wedm";
     const dialect = DIALECTS[controller];
     const progNum = input.program_number ?? 1;
@@ -1254,6 +1276,12 @@ export class EDMProgramAssemblerEngine {
    * orbiting, and optional C-axis indexing.
    */
   assembleSinkerEDM(input: SinkerEDMPartProfile): SinkerEDMProgram {
+    // U-ARCH3: Fire async machine resolution (non-blocking)
+    if (!_edmResolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+        .then(rm => { _edmResolvedMachine = rm; })
+        .catch(() => {});
+    }
     log.info(`[EDMProgramAssemblerEngine] assembleSinkerEDM: ${input.part_name}`);
     const cpm = new PipelineCheckpointManager("edm-sinker", (input as any).runId);
     cpm.checkpoint("intake", 0, { part: input.part_name, material: input.material });
@@ -1377,6 +1405,12 @@ export class EDMProgramAssemblerEngine {
    * and WEDG (wire electro-discharge grinding for electrode preparation).
    */
   assembleMicroEDM(input: MicroEDMPartProfile): MicroEDMProgram {
+    // U-ARCH3: Fire async machine resolution (non-blocking)
+    if (!_edmResolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+        .then(rm => { _edmResolvedMachine = rm; })
+        .catch(() => {});
+    }
     log.info(`[EDMProgramAssemblerEngine] assembleMicroEDM: ${input.part_name}`);
 
     const mat = getMaterial(input.material);

@@ -41,7 +41,7 @@
 
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
-import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 
 // Lazy-loaded nesting engine — avoids circular imports
 let _sheetNestingEngine: import("./SheetNestingEngine.js").SheetNestingEngine | null = null;
@@ -133,6 +133,10 @@ export interface WaterjetBaseProfile {
   part_description?: string;
   /** Target surface finish Ra [µm]. If set, quality is auto-upgraded if needed. */
   target_ra_um?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
   /** Enable 5-axis taper compensation (requires tilt head). Default: false. */
   taper_compensation?: boolean;
   /** Run Monte Carlo uncertainty. Default: true. */
@@ -782,6 +786,7 @@ export class WaterjetProgramAssemblerEngine {
    *          Bernoulli abrasive velocity, taper geometry.
    */
   assembleAbrasiveWJ(input: AbrasiveWJProfile): WaterjetProgram {
+    this._fireResolveMachine(input);
     log.debug("WaterjetProgramAssemblerEngine.assembleAbrasiveWJ", { material: input.material, thickness_mm: input.thickness_mm });
     const cpm = new PipelineCheckpointManager("waterjet-abrasive", (input as any).runId);
     cpm.checkpoint("intake", 0, { material: input.material, thickness: input.thickness_mm });
@@ -944,6 +949,7 @@ export class WaterjetProgramAssemblerEngine {
    *          standoff-dependent jet coherence length.
    */
   assemblePureWJ(input: PureWJProfile): WaterjetProgram {
+    this._fireResolveMachine(input);
     log.debug("WaterjetProgramAssemblerEngine.assemblePureWJ", { material: input.material });
 
     const ctx = this._buildContext(input, true);
@@ -1072,6 +1078,7 @@ export class WaterjetProgramAssemblerEngine {
    *   with AWJ" Transactions of ASME J. Manufacturing Science 129(6).
    */
   assembleTaperCompensated(input: TaperCompProfile): WaterjetProgram {
+    this._fireResolveMachine(input);
     log.debug("WaterjetProgramAssemblerEngine.assembleTaperCompensated", { material: input.material });
 
     const ctx = this._buildContext(input, false);
@@ -1212,6 +1219,7 @@ export class WaterjetProgramAssemblerEngine {
    *      J. Engineering for Industry 113, pp.29–37
    */
   assembleControlledDepth(input: ControlledDepthProfile): WaterjetProgram {
+    this._fireResolveMachine(input);
     log.debug("WaterjetProgramAssemblerEngine.assembleControlledDepth", { material: input.material, pocket_depth_mm: input.pocket_depth_mm });
 
     const ctx = this._buildContext(input, false);
@@ -2022,6 +2030,16 @@ export class WaterjetProgramAssemblerEngine {
 
   /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
   private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  /** Cached machine context from registry bridge (U-ARCH3). */
+  private _resolvedMachine: ResolvedMachineContext | null = null;
+
+  /** Fire async machine resolution — call at start of each assemble method. */
+  private _fireResolveMachine(input: { machine_brand?: string; machine_model?: string }): void {
+    if (this._resolvedMachine) return;
+    resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+      .then(rm => { this._resolvedMachine = rm; })
+      .catch(() => {});
+  }
 
   /** ISO group → best representative waterjet material for fallback (U-ARCH3). */
   private static readonly _ISO_WJ_FALLBACK: Record<string, string> = {

@@ -40,7 +40,7 @@
 
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
-import { resolveMaterial, type ResolvedMaterialContext } from "./PipelineRegistryBridge.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 
 // ============================================================================
 // ATOMIC VALUE WRAPPER
@@ -379,6 +379,10 @@ export interface SurfaceGrindProfile {
   v_w_mm_min?: number;
   /** Cross-feed step-over b_step [mm] — default 0.7 × wheel_width */
   cross_feed_step_mm?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 export interface CylindricalGrindProfile {
@@ -417,6 +421,10 @@ export interface CylindricalGrindProfile {
   bore_diameter_mm?: number;
   /** For multi-step: array of diameter steps */
   step_diameters_mm?: number[];
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 export interface CenterlessGrindProfile {
@@ -441,6 +449,10 @@ export interface CenterlessGrindProfile {
   controller?: GrindingController;
   program_number?: number;
   coolant?: boolean;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 export interface CreepFeedProfile {
@@ -459,6 +471,10 @@ export interface CreepFeedProfile {
   controller?: GrindingController;
   program_number?: number;
   coolant?: boolean;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 export interface SpecialGrindProfile {
@@ -483,6 +499,10 @@ export interface SpecialGrindProfile {
   thread_pitch_mm?: number;
   /** Number of thread ribs — for multi-rib thread grinding */
   thread_ribs?: number;
+  /** Machine brand for registry resolution (U-ARCH3). */
+  machine_brand?: string;
+  /** Machine model for registry resolution (U-ARCH3). */
+  machine_model?: string;
 }
 
 // ============================================================================
@@ -1331,6 +1351,16 @@ export class GrindingProgramAssemblerEngine {
 
   /** Cached bridge resolution for registry-backed enrichment (U-ARCH3). */
   private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  /** Cached machine context from registry bridge (U-ARCH3). */
+  private _resolvedMachine: ResolvedMachineContext | null = null;
+
+  /** Fire async machine resolution — call at start of each assemble method. */
+  private _fireResolveMachine(input: { machine_brand?: string; machine_model?: string }): void {
+    if (this._resolvedMachine) return;
+    resolveMachine({ brand: input.machine_brand, model: input.machine_model })
+      .then(rm => { this._resolvedMachine = rm; })
+      .catch(() => {});
+  }
 
   private resolveMaterial(name: string): GrindingMaterial {
     enrichGrindingFromCanonical(); // lazy canonical physics enrichment
@@ -1509,6 +1539,7 @@ export class GrindingProgramAssemblerEngine {
    *         creep-feed, speed-stroke.
    */
   assembleSurfaceGrind(input: SurfaceGrindProfile): GrindingProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleSurfaceGrind: ${input.operation_subtype} / ${input.material}`);
     const cpm = new PipelineCheckpointManager("grinding-surface", (input as any).runId);
     cpm.checkpoint("intake", 0, { material: input.material, subtype: input.operation_subtype });
@@ -1586,6 +1617,7 @@ export class GrindingProgramAssemblerEngine {
    * Covers: OD plunge, OD traverse, OD taper, ID bore, face, multi-step.
    */
   assembleCylindricalGrind(input: CylindricalGrindProfile): GrindingProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleCylindricalGrind: ${input.operation_subtype}`);
 
     const mat = this.resolveMaterial(input.material);
@@ -1656,6 +1688,7 @@ export class GrindingProgramAssemblerEngine {
    * Reference: Hashimoto F., Annals CIRP 51/1 (2002) 275–279
    */
   assembleCenterlessGrind(input: CenterlessGrindProfile): GrindingProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleCenterlessGrind: ${input.operation_subtype}`);
 
     const mat = this.resolveMaterial(input.material);
@@ -1730,6 +1763,7 @@ export class GrindingProgramAssemblerEngine {
    * Reference: Andrew et al., "Creep Feed Grinding", Holt Rinehart Winston 1985
    */
   assembleCreepFeedGrind(input: CreepFeedProfile): GrindingProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleCreepFeedGrind: ${input.material}`);
 
     const mat = this.resolveMaterial(input.material);
@@ -1787,6 +1821,7 @@ export class GrindingProgramAssemblerEngine {
    * Assemble a special grinding program (jig, thread, gear, tool-cutter, HEDG).
    */
   assembleSpecialGrind(input: SpecialGrindProfile): GrindingProgram {
+    this._fireResolveMachine(input);
     log.debug(`[${this.engineName}] assembleSpecialGrind: ${input.operation_subtype}`);
 
     const mat = this.resolveMaterial(input.material);

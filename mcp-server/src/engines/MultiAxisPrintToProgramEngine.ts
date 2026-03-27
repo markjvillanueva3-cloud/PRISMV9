@@ -16,11 +16,45 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { smartToolSelectorEngine } from "./SmartToolSelectorEngine.js";
+import { coolantStrategyEngine } from "./CoolantStrategyEngine.js";
+import { entryExitStrategyEngine } from "./EntryExitStrategyEngine.js";
+import { intelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
+import { workholdingVerificationEngine } from "./WorkholdingVerificationEngine.js";
+import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import {
   getKienzleByISO, getTaylor, COOLANT_MATRIX,
   chipThinningFactor, correctFzForChipThinning, radialEngagementFactor,
   thermalDeratingFactor, checkStability, correctedCuttingForce,
 } from "./MachiningKnowledgeBaseEngine.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
+import { CANONICAL_MATERIAL_DB, type ISOGroup } from "../physics/constants.js";
+
+// ============================================================================
+// SHARED ENGINE HELPERS (ESM-safe, non-blocking — 0-D-ARCH U-ARCH2)
+// ============================================================================
+
+function getSmartToolSelector(): any { return smartToolSelectorEngine; }
+function getCoolantStrategyEngine(): any { return coolantStrategyEngine; }
+function getEntryExitStrategyEngine(): any { return entryExitStrategyEngine; }
+function getIntelligentSequencingEngine(): any { return intelligentSequencingEngine; }
+function getWorkholdingVerificationEngine(): any { return workholdingVerificationEngine; }
+
+/** Map 5-axis op types to CoolantStrategy operation types */
+function mapToCoolantOp5ax(opType: string): string {
+  if (opType.includes("drill")) return "drilling";
+  if (opType.includes("face")) return "milling_finish";
+  return "milling_rough";
+}
+
+/** Map ISO group to CoolantStrategy material name */
+function mapToCoolantMat(iso: string): string {
+  const m: Record<string, string> = {
+    P: "carbon_steel", M: "stainless", K: "cast_iron",
+    N: "aluminum", S: "titanium", H: "hardened_steel",
+  };
+  return m[iso] || "carbon_steel";
+}
 
 // ============================================================================
 // TYPES
@@ -149,6 +183,8 @@ export interface MultiAxisInput {
   controller?: string;
   max_spindle_rpm?: number;
   max_power_kW?: number;
+  machine_brand?: string;
+  machine_model?: string;
   has_rtcp?: boolean;
   features: MultiAxisFeature[];
   optimization_target?: "balanced" | "max_speed" | "max_tool_life" | "surface_quality";
@@ -205,6 +241,11 @@ function singularityRisk(A: number, B: number): "none" | "low" | "medium" | "hig
 export class MultiAxisPrintToProgramEngine {
   readonly name = "MultiAxisPrintToProgramEngine";
   readonly version = "1.0.0";
+
+  // U-ARCH3: Cached registry resolution for material-specific physics
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  private _resolvedMachine: ResolvedMachineContext | null = null;
+  private _cachedMaterialName: string = "";
 
   calculate(action: string, params: Record<string, unknown>): MultiAxisProgramResult {
     switch (action) {
@@ -351,8 +392,39 @@ export class MultiAxisPrintToProgramEngine {
     tool: MultiAxisToolSelection, maxRPM: number, target: string,
   ): { params: MultiAxisCuttingParams; physics: MultiAxisPhysics } {
     const iso = mat.iso_group || "P";
-    const kz = getKienzleByISO(iso);
-    const tay = getTaylor(iso);
+
+    // U-ARCH3: Material-specific physics from CANONICAL_MATERIAL_DB (13 materials, sync)
+    // + async MaterialRegistry (2.9K) cache. Sync guarantees first-call accuracy.
+    const matKey = mat.material_name?.toLowerCase().replace(/[^a-z0-9]/g, "_") ?? "";
+    const matNameLower = mat.material_name?.toLowerCase() ?? "";
+    const canonicalMat = CANONICAL_MATERIAL_DB[matKey]
+      ?? Object.values(CANONICAL_MATERIAL_DB).find(m =>
+        // ISO group must match to prevent cross-group false positives (e.g., "carbon fiber" → Carbon Steel)
+        m.iso_group === iso && (
+          m.name.toLowerCase().includes(matNameLower)
+          || matNameLower.includes(m.name.toLowerCase().split(" ")[0])
+        )
+      );
+
+    // Async registry enrichment for future calls (non-blocking, populates cache)
+    // Invalidate cache when material changes between calls on the same singleton
+    const currentMatName = mat.material_name ?? "";
+    if (!this._resolvedMaterial || this._cachedMaterialName !== currentMatName) {
+      this._cachedMaterialName = currentMatName;
+      this._resolvedMaterial = null;
+      resolveMaterial({ material_name: mat.material_name, iso_group: iso as ISOGroup })
+        .then(rm => { this._resolvedMaterial = rm; })
+        .catch(() => { /* fallback to canonical — handled below */ });
+    }
+
+    // Priority: cached registry > sync canonical DB > MachKB defaults
+    const rm = this._resolvedMaterial;
+    const kz = rm ? { kc1_1: rm.kc1_1, mc: rm.mc }
+      : canonicalMat ? { kc1_1: canonicalMat.kc1_1, mc: canonicalMat.mc }
+      : getKienzleByISO(iso);
+    const tay = rm ? { C: rm.taylor_C, n: rm.taylor_n }
+      : canonicalMat ? { C: canonicalMat.taylor_C, n: canonicalMat.taylor_n }
+      : getTaylor(iso);
     const speeds = SPEED_5AX[iso] || SPEED_5AX.P;
     const feeds = FEED_5AX[iso] || FEED_5AX.P;
 
@@ -589,12 +661,44 @@ export class MultiAxisPrintToProgramEngine {
     log.info(`[MultiAxisPrintToProgram] Pipeline for ${input.part_number || "5AX-PART"}`);
 
     const warnings: MultiAxisProgramResult["warnings"] = [];
-    const maxRPM = input.max_spindle_rpm || 15000;
-    const maxPower = input.max_power_kW || 20;
+
+    // U-ARCH3: Fire async machine resolution (non-blocking, enriches defaults)
+    if (!this._resolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model, max_rpm: input.max_spindle_rpm, max_power_kw: input.max_power_kW })
+        .then(rm => { this._resolvedMachine = rm; })
+        .catch(() => {});
+    }
+    const rmach = this._resolvedMachine;
+    const maxRPM = input.max_spindle_rpm || rmach?.max_spindle_rpm || 15000;
+    const maxPower = input.max_power_kW || rmach?.max_power_kw || 20;
     const target = input.optimization_target || "balanced";
 
+    // Pipeline checkpoint manager (0-D-ARCH U-ARCH2)
+    const cpm = new PipelineCheckpointManager("multiaxis-print-to-program", (input as any).runId);
+
     const classified = this.classifyFeatures(input.features);
-    classified.sort((a, b) => (a.priority || 5) - (b.priority || 5));
+
+    // Intelligent sequencing — shared helper (0-D-ARCH U-ARCH2)
+    try {
+      const ise = getIntelligentSequencingEngine();
+      const seqOps = classified.map(f => ({
+        id: f.id,
+        type: f.type,
+        operation: f.required_operations?.[0] || f.type,
+        phase: f.priority !== undefined ? Math.min(7, Math.floor(f.priority)) : undefined,
+        depth_mm: f.depth_mm,
+        axes_required: f.type.startsWith("5ax") || f.type.startsWith("impeller") || f.type.startsWith("blisk") ? 5 : 4,
+      }));
+      const seqResult = ise.sequence(seqOps);
+      const idOrder = new Map<string, number>(seqResult.operations.map((o: any, i: number) => [o.id, i]));
+      classified.sort((a, b) => (idOrder.get(a.id) ?? 99) - (idOrder.get(b.id) ?? 99));
+      if (seqResult.rules_applied.length > 0) {
+        log.info(`[MultiAxisPrintToProgram] Sequencing: ${seqResult.rules_applied.length} rules, quality=${seqResult.sequence_quality_score}`);
+      }
+    } catch {
+      classified.sort((a, b) => (a.priority || 5) - (b.priority || 5));
+    }
+    cpm.checkpoint("classify_sequence", 0, { classified_count: classified.length });
 
     const operations: MultiAxisPlannedOp[] = [];
     let opNum = 1;
@@ -611,6 +715,38 @@ export class MultiAxisPrintToProgramEngine {
 
         const tool = this.selectTool(opType, feat, tNum);
         const { params, physics } = this.calcParams(opType, feat, input.material, tool, maxRPM, target);
+
+        // SmartToolSelector enhancement (0-D-ARCH U-ARCH2)
+        const opNotes: string[] = [];
+        try {
+          const sts = getSmartToolSelector();
+          const stsResult = sts.select({
+            material_iso_group: input.material.iso_group,
+            operation: opType.replace("5ax_", "").replace("3plus2_", ""),
+            max_diameter_mm: feat.diameter_mm || tool.diameter_mm,
+            max_depth_mm: feat.depth_mm,
+            optimization_goal: target,
+          });
+          if (stsResult.best_tool) {
+            opNotes.push(`SmartToolSelector: ${stsResult.best_tool.designation} (score=${stsResult.best_tool.score.toFixed(2)})`);
+          }
+        } catch { /* non-blocking */ }
+
+        // EntryExitStrategy for pocket/face ops (0-D-ARCH U-ARCH2)
+        if (opType.includes("pocket") || opType.includes("face") || opType.includes("mill")) {
+          try {
+            const eese = getEntryExitStrategyEngine();
+            const entryResult = eese.selectEntry({
+              tool_diameter: tool.diameter_mm,
+              pocket_depth: feat.depth_mm,
+              pocket_width: feat.width_mm,
+              material: mapToCoolantMat(input.material.iso_group),
+            });
+            if (entryResult.recommended_method) {
+              opNotes.push(`Entry: ${entryResult.recommended_method} (feed×${entryResult.feed_factor.toFixed(2)})`);
+            }
+          } catch { /* non-blocking */ }
+        }
 
         if (physics.power_kW > maxPower) {
           const reduction = maxPower / physics.power_kW;
@@ -632,6 +768,25 @@ export class MultiAxisPrintToProgramEngine {
 
         const cycleTime = this.estimateCycleTime(opType, feat, params);
 
+        // Enhanced coolant via CoolantStrategyEngine (0-D-ARCH U-ARCH2)
+        let coolant = this.selectCoolant(input.material.iso_group, opType);
+        try {
+          const cse = getCoolantStrategyEngine();
+          const coolantResult = cse.calculate({
+            workpiece_material: mapToCoolantMat(input.material.iso_group),
+            operation: mapToCoolantOp5ax(opType),
+            cutting_speed_m_min: params.cutting_speed_m_min,
+            depth_of_cut_mm: params.depth_of_cut_mm,
+            workpiece_hardness_hrc: input.material.hardness_hrc,
+          });
+          const methodMap: Record<string, typeof coolant> = {
+            flood: "flood", through_spindle: "through_tool", through_tool: "through_tool",
+            mql: "mist", air_blast: "air", dry: "off",
+            cryogenic_co2: "through_tool", cryogenic_ln2: "through_tool",
+          };
+          coolant = methodMap[coolantResult.primary_method] || coolant;
+        } catch { /* fallback to inline */ }
+
         operations.push({
           op_number: opNum++,
           feature_id: feat.id,
@@ -643,11 +798,12 @@ export class MultiAxisPrintToProgramEngine {
           cycle_time_sec: cycleTime,
           passes: Math.max(1, Math.ceil((feat.depth_mm || 5) / (params.depth_of_cut_mm || 1))),
           interpolation_mode: is5axOp ? "TCP" : "linear",
-          coolant: this.selectCoolant(input.material.iso_group, opType),
-          notes: [],
+          coolant,
+          notes: opNotes,
         });
       }
     }
+    cpm.checkpoint("generate_operations", 1, { operation_count: operations.length });
 
     if (needs5ax && !input.has_rtcp) {
       warnings.push({ stage: "machine", severity: "warning",
@@ -668,17 +824,35 @@ export class MultiAxisPrintToProgramEngine {
       }
     }
 
+    // Workholding verification — shared helper (0-D-ARCH U-ARCH2)
+    const maxFc = Math.max(...operations.map(o => o.physics?.cutting_force_N || 0), 0);
+    if (maxFc > 0) {
+      try {
+        const wve = getWorkholdingVerificationEngine();
+        const whResult = wve.verify(
+          { Fc_N: maxFc, operation_name: "max_force_5ax" },
+          { type: "5ax_vise", clamping_force_N: 25000, clamp_points: 2, clamping_method: "hydraulic" },
+        );
+        if (whResult.safety_factor < 1.5) {
+          warnings.push({ stage: "safety", severity: "warning",
+            message: `Workholding: max Fc=${Math.round(maxFc)}N, safety factor ${whResult.safety_factor.toFixed(1)} (min 1.5)` });
+        }
+      } catch { /* non-blocking */ }
+    }
+
+    const hasCriticalWarnings = warnings.some(w => w.severity === "critical");
     const totalCycleTime = operations.reduce((s, o) => s + o.cycle_time_sec, 0);
-    const programText = this.generateGCode(operations, input);
+    const programText = hasCriticalWarnings ? "" : this.generateGCode(operations, input);
     const toolChanges = new Set(operations.map(o => o.tool.tool_number)).size;
+    cpm.checkpoint("generate_program", 2, { line_count: programText.split("\n").length, tool_changes: toolChanges });
 
     let confidence = 0.80;
-    if (warnings.some(w => w.severity === "critical")) confidence -= 0.2;
-    if (needs5ax && input.has_rtcp) confidence += 0.1;
-    confidence = Math.max(0.3, Math.min(1.0, confidence));
+    if (hasCriticalWarnings) confidence -= 0.5;
+    if (!hasCriticalWarnings && needs5ax && input.has_rtcp) confidence += 0.1;
+    confidence = Math.max(hasCriticalWarnings ? 0.05 : 0.3, Math.min(1.0, confidence));
 
     return {
-      success: true,
+      success: operations.length > 0 && !hasCriticalWarnings,
       part_number: input.part_number || "5AX-001",
       material: input.material.material_name,
       operations,
@@ -686,7 +860,7 @@ export class MultiAxisPrintToProgramEngine {
       total_tool_changes: toolChanges,
       estimated_cycle_time_sec: Math.round(totalCycleTime),
       program_text: programText,
-      program_line_count: programText.split("\n").length,
+      program_line_count: programText.length > 0 ? programText.split("\n").length : 0,
       requires_rtcp: needs5ax,
       max_simultaneous_axes: maxAxes,
       confidence_score: Math.round(confidence * 100) / 100,

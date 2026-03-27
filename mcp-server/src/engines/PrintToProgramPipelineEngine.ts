@@ -13,127 +13,70 @@
  *   S4: Program Generation — G-code with safety moves, coolant, spindle control
  *   S5: Validation & Output — safety checks, setup sheet, confidence score
  *
- * Physics (inline, no imports):
+ * Physics (canonical imports from physics/constants.ts — migrated 0-D-ARCH):
  *   - Kienzle (1952): Fc = kc1.1 × ap × fz^(1−mc)
  *   - Taylor (1907): VT^n = C  →  T = (C/Vc)^(1/n)
  *   - Deflection: δ = F×L³/(3×E×I), I = π×d⁴/64
  *   - MRR: ap × ae × Vf (mm³/min)
  *   - Surface finish: Ra = fz²/(32×r_nose) (ideal)
  *
- * Self-contained — no imports from other engines to avoid circular deps.
+ * Constants and helper functions imported from physics/constants.ts.
+ * Helper engines imported directly so ESM builds cannot silently fall back.
  *
  * @module engines/PrintToProgramPipelineEngine
  */
 
 import { log } from "../utils/Logger.js";
 import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
+import {
+  CANONICAL_KIENZLE,
+  CANONICAL_TAYLOR,
+  CANONICAL_MATERIAL_DB,
+  CANONICAL_MILLING_SPEEDS,
+  CANONICAL_MILLING_FEEDS,
+  kienzleForce,
+  taylorLife,
+  type ISOGroup,
+} from "../physics/constants.js";
+import { smartToolSelectorEngine } from "./SmartToolSelectorEngine.js";
+import { coatingSelectionEngine } from "./CoatingSelectionEngine.js";
+import { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
+import { coolantStrategyEngine } from "./CoolantStrategyEngine.js";
+import { entryExitStrategyEngine } from "./EntryExitStrategyEngine.js";
+import { intelligentSequencingEngine } from "./IntelligentSequencingEngine.js";
+import { workholdingVerificationEngine } from "./WorkholdingVerificationEngine.js";
+import { resolveMaterial, resolveMachine, type ResolvedMaterialContext, type ResolvedMachineContext } from "./PipelineRegistryBridge.js";
 
 // ============================================================================
-// LAZY-LOADED ENGINE HELPERS (graceful fallback if unavailable)
+// DIRECT ENGINE HELPERS (ESM-safe, no runtime require fallbacks)
 // ============================================================================
-
-let _smartToolSelector: any = null;
-let _coatingSelector: any = null;
 
 function getSmartToolSelector(): any {
-  if (_smartToolSelector === undefined) return null;
-  if (_smartToolSelector) return _smartToolSelector;
-  try {
-    const m = require("./SmartToolSelectorEngine.js");
-    _smartToolSelector = m.smartToolSelectorEngine ?? m.default ?? new m.SmartToolSelectorEngine();
-    return _smartToolSelector;
-  } catch {
-    _smartToolSelector = undefined; // mark as permanently unavailable
-    return null;
-  }
+  return smartToolSelectorEngine;
 }
 
 function getCoatingSelector(): any {
-  if (_coatingSelector === undefined) return null;
-  if (_coatingSelector) return _coatingSelector;
-  try {
-    const m = require("./CoatingSelectionEngine.js");
-    _coatingSelector = m.coatingSelectionEngine ?? m.default ?? new m.CoatingSelectionEngine();
-    return _coatingSelector;
-  } catch {
-    _coatingSelector = undefined;
-    return null;
-  }
+  return coatingSelectionEngine;
 }
-
-let _autoSpeedFeedEngine: any = null;
 
 function getAutoSpeedFeedEngine(): any {
-  if (_autoSpeedFeedEngine === undefined) return null;
-  if (_autoSpeedFeedEngine) return _autoSpeedFeedEngine;
-  try {
-    const m = require("./AutoSpeedFeedEngine.js");
-    _autoSpeedFeedEngine = m.autoSpeedFeedEngine ?? m.default ?? new m.AutoSpeedFeedEngineImpl();
-    return _autoSpeedFeedEngine;
-  } catch {
-    _autoSpeedFeedEngine = undefined; // mark as permanently unavailable
-    return null;
-  }
+  return autoSpeedFeedEngine;
 }
-
-let _coolantStrategyEngine: any = null;
 
 function getCoolantStrategyEngine(): any {
-  if (_coolantStrategyEngine === undefined) return null;
-  if (_coolantStrategyEngine) return _coolantStrategyEngine;
-  try {
-    const m = require("./CoolantStrategyEngine.js");
-    _coolantStrategyEngine = m.coolantStrategyEngine ?? m.default ?? new m.CoolantStrategyEngine();
-    return _coolantStrategyEngine;
-  } catch {
-    _coolantStrategyEngine = undefined; // mark as permanently unavailable
-    return null;
-  }
+  return coolantStrategyEngine;
 }
-
-let _entryExitStrategyEngine: any = null;
 
 function getEntryExitStrategyEngine(): any {
-  if (_entryExitStrategyEngine === undefined) return null;
-  if (_entryExitStrategyEngine) return _entryExitStrategyEngine;
-  try {
-    const m = require("./EntryExitStrategyEngine.js");
-    _entryExitStrategyEngine = m.entryExitStrategyEngine ?? m.default ?? new m.EntryExitStrategyEngine();
-    return _entryExitStrategyEngine;
-  } catch {
-    _entryExitStrategyEngine = undefined;
-    return null;
-  }
+  return entryExitStrategyEngine;
 }
-
-let _intelligentSequencingEngine: any = null;
 
 function getIntelligentSequencingEngine(): any {
-  if (_intelligentSequencingEngine === undefined) return null;
-  if (_intelligentSequencingEngine) return _intelligentSequencingEngine;
-  try {
-    const m = require("./IntelligentSequencingEngine.js");
-    _intelligentSequencingEngine = m.intelligentSequencingEngine ?? m.default ?? new m.IntelligentSequencingEngine();
-    return _intelligentSequencingEngine;
-  } catch {
-    _intelligentSequencingEngine = undefined;
-    return null;
-  }
+  return intelligentSequencingEngine;
 }
 
-let _workholdingVerificationEngine: any = null;
-
 function getWorkholdingVerificationEngine(): any {
-  if (_workholdingVerificationEngine === undefined) return null;
-  if (_workholdingVerificationEngine) return _workholdingVerificationEngine;
-  try {
-    const m = require("./WorkholdingVerificationEngine.js");
-    _workholdingVerificationEngine = m.workholdingVerificationEngine ?? m.default ?? new m.WorkholdingVerificationEngine();
-    return _workholdingVerificationEngine;
-  } catch {
-    _workholdingVerificationEngine = undefined;
-    return null;
-  }
+  return workholdingVerificationEngine;
 }
 
 // ============================================================================
@@ -395,81 +338,24 @@ export interface ValidationResult {
 }
 
 // ============================================================================
-// KIENZLE MATERIAL DATABASE (inline, no imports)
+// PHYSICS CONSTANTS — imported from canonical source (physics/constants.ts)
 // ============================================================================
+// All Kienzle, Taylor, speed, and feed constants are imported at the top of this file
+// from CANONICAL_KIENZLE, CANONICAL_TAYLOR, CANONICAL_MILLING_SPEEDS, CANONICAL_MILLING_FEEDS.
+// Previously these were inline copies that could diverge from the canonical source.
+// Migration: 0-D-ARCH U-ARCH1 (2026-03-26)
 
-interface KienzleData { kc1_1: number; mc: number; }
-
-/** Kienzle specific cutting force coefficients by ISO group.
- * VALUES MUST MATCH src/physics/constants.ts (canonical Sandvik-validated source).
- * Do NOT modify these without updating constants.ts first. */
-const KIENZLE_DB: Record<string, KienzleData> = {
-  P: { kc1_1: 1800, mc: 0.25 },  // Steel — Sandvik validated median (was 2000, corrected)
-  M: { kc1_1: 2100, mc: 0.25 },  // Stainless — Sandvik validated median (was 2400, corrected)
-  K: { kc1_1: 1100, mc: 0.28 },  // Cast iron — Sandvik validated (was 1200/0.25, corrected)
-  N: { kc1_1: 700, mc: 0.23 },   // Aluminum — Sandvik validated (was 800, corrected)
-  S: { kc1_1: 2800, mc: 0.28 },  // Superalloys — matches canonical
-  H: { kc1_1: 3200, mc: 0.30 },  // Hardened steel — matches canonical
-};
-
-/** Taylor tool life coefficients by ISO group + carbide tooling. */
-const TAYLOR_DB: Record<string, { C: number; n: number }> = {
-  P: { C: 350, n: 0.25 },
-  M: { C: 200, n: 0.20 },
-  K: { C: 400, n: 0.28 },
-  N: { C: 800, n: 0.35 },
-  S: { C: 150, n: 0.18 },
-  H: { C: 120, n: 0.15 },
-};
-
-/** Recommended cutting speed ranges (m/min) by ISO group, carbide. */
-const SPEED_RANGES: Record<string, { rough: number; finish: number }> = {
-  P: { rough: 200, finish: 300 },
-  M: { rough: 120, finish: 180 },
-  K: { rough: 250, finish: 350 },
-  N: { rough: 500, finish: 800 },
-  S: { rough: 40, finish: 60 },
-  H: { rough: 80, finish: 120 },
-};
-
-/** Feed per tooth ranges (mm/tooth) by ISO group. */
-const FEED_RANGES: Record<string, { rough: number; finish: number }> = {
-  P: { rough: 0.15, finish: 0.08 },
-  M: { rough: 0.12, finish: 0.06 },
-  K: { rough: 0.18, finish: 0.10 },
-  N: { rough: 0.20, finish: 0.10 },
-  S: { rough: 0.08, finish: 0.04 },
-  H: { rough: 0.06, finish: 0.03 },
-};
+const KIENZLE_DB = CANONICAL_KIENZLE as Record<string, { kc1_1: number; mc: number }>;
+const TAYLOR_DB = CANONICAL_TAYLOR as Record<string, { C: number; n: number }>;
+const SPEED_RANGES = CANONICAL_MILLING_SPEEDS as Record<string, { rough: number; finish: number }>;
+const FEED_RANGES = CANONICAL_MILLING_FEEDS as Record<string, { rough: number; finish: number }>;
 
 // ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
-/**
- * Kienzle cutting force: Fc = kc1.1 × ap × fz^(1−mc)
- * @param kc1_1 - Specific cutting force at h=1mm (N/mm²)
- * @param mc - Kienzle exponent
- * @param ap - Depth of cut (mm)
- * @param fz - Feed per tooth (mm)
- * @returns Cutting force per tooth (N)
- */
-function kienzleForce(kc1_1: number, mc: number, ap: number, fz: number): number {
-  if (fz <= 0 || ap <= 0) return 0;
-  return kc1_1 * ap * Math.pow(fz, 1 - mc);
-}
-
-/**
- * Taylor tool life: T = (C / Vc)^(1/n)
- * @param C - Taylor constant
- * @param n - Taylor exponent
- * @param Vc - Cutting speed (m/min)
- * @returns Tool life (min)
- */
-function taylorLife(C: number, n: number, Vc: number): number {
-  if (Vc <= 0) return Infinity;
-  return Math.pow(C / Vc, 1 / n);
-}
+// kienzleForce() and taylorLife() imported from physics/constants.ts (canonical source)
+// Removed local duplicates — 0-D-ARCH U-ARCH1 migration
 
 /**
  * Tool deflection: δ = F×L³/(3×E×I), I = π×d⁴/64
@@ -548,6 +434,9 @@ export class PrintToProgramPipelineEngine {
   private _currentTarget = "balanced";
   private _currentMachineBrand: string | undefined;
   private _currentMachineModel: string | undefined;
+  // Registry-resolved contexts (U-ARCH3: pipeline ↔ registry bridge)
+  private _resolvedMaterial: ResolvedMaterialContext | null = null;
+  private _resolvedMachine: ResolvedMachineContext | null = null;
 
   /**
    * Main dispatcher — routes action strings to sub-methods.
@@ -816,8 +705,33 @@ export class PrintToProgramPipelineEngine {
     this._currentTarget = target;
 
     const iso = mat.iso_group || "P";
-    const kienzle = KIENZLE_DB[iso] || KIENZLE_DB.P;
-    const taylor = TAYLOR_DB[iso] || TAYLOR_DB.P;
+
+    // U-ARCH3: Material-specific physics lookup from CANONICAL_MATERIAL_DB (13 materials,
+    // synchronous) instead of ISO group averages. Also fires async MaterialRegistry
+    // (2.9K materials) resolution to cache for subsequent calls within this instance.
+    // Sync lookup guarantees material-specific values on FIRST call — no race condition.
+    const matKey = mat.material_name?.toLowerCase().replace(/[^a-z0-9]/g, "_") ?? "";
+    const canonicalMat = CANONICAL_MATERIAL_DB[matKey]
+      ?? Object.values(CANONICAL_MATERIAL_DB).find(m =>
+        m.name.toLowerCase().includes(mat.material_name?.toLowerCase() ?? "")
+        || (mat.material_name?.toLowerCase() ?? "").includes(m.name.toLowerCase().split(" ")[0])
+      );
+
+    // Async registry enrichment for future calls (non-blocking, populates cache)
+    if (!this._resolvedMaterial) {
+      resolveMaterial({ material_name: mat.material_name, iso_group: iso as any })
+        .then(rm => { this._resolvedMaterial = rm; })
+        .catch(() => { /* fallback to canonical — already handled below */ });
+    }
+
+    // Priority: cached registry > sync canonical DB match > ISO group defaults
+    const rm = this._resolvedMaterial;
+    const kienzle = rm ? { kc1_1: rm.kc1_1, mc: rm.mc }
+      : canonicalMat ? { kc1_1: canonicalMat.kc1_1, mc: canonicalMat.mc }
+      : (KIENZLE_DB[iso] || KIENZLE_DB.P);
+    const taylor = rm ? { C: rm.taylor_C, n: rm.taylor_n }
+      : canonicalMat ? { C: canonicalMat.taylor_C, n: canonicalMat.taylor_n }
+      : (TAYLOR_DB[iso] || TAYLOR_DB.P);
     const speedRange = SPEED_RANGES[iso] || SPEED_RANGES.P;
     const feedRange = FEED_RANGES[iso] || FEED_RANGES.P;
     const operations: PlannedOperation[] = [];
@@ -1695,11 +1609,12 @@ export class PrintToProgramPipelineEngine {
 
     // 5. Check tool length comp is set before cutting
     let hasToolLenComp = false;
+    const isCuttingBlock = (code: string): boolean => /^G0?[123](?:\s|$)/.test(code.trim());
     for (const block of blocks) {
       if (block.code.includes("G43")) hasToolLenComp = true;
       if (block.code.includes("M06")) hasToolLenComp = false; // reset after tool change
       if (block.code.includes("G43")) hasToolLenComp = true;
-      if ((block.code.startsWith("G1") || block.code.startsWith("G2") || block.code.startsWith("G3")) && !hasToolLenComp) {
+      if (isCuttingBlock(block.code) && !hasToolLenComp) {
         checks.push({
           rule: "tool_length_comp",
           status: "fail",
@@ -1875,8 +1790,16 @@ export class PrintToProgramPipelineEngine {
     const cpm = new PipelineCheckpointManager('print-to-program', options?.runId);
     const resumeFrom = options?.resumeFromStage ?? -1;
 
-    const maxRPM = input.max_spindle_rpm || 12000;
-    const maxPower = input.max_power_kW || 15;
+    // U-ARCH3: Fire async machine resolution (non-blocking, enriches defaults for subsequent calls)
+    if (!this._resolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model, max_rpm: input.max_spindle_rpm, max_power_kw: input.max_power_kW })
+        .then(rm => { this._resolvedMachine = rm; })
+        .catch(() => { /* fallback to input/defaults — already handled below */ });
+    }
+
+    const rm = this._resolvedMachine;
+    const maxRPM = input.max_spindle_rpm || rm?.max_spindle_rpm || 12000;
+    const maxPower = input.max_power_kW || rm?.max_power_kw || 15;
     const target = input.optimization_target || "balanced";
 
     // S1: Validate intake
@@ -2035,12 +1958,16 @@ export class PrintToProgramPipelineEngine {
     const safetyPassRate = safetyChecks.length > 0
       ? safetyChecks.filter(c => c.status === "pass").length / safetyChecks.length
       : 1;
+    const hasFailedSafetyChecks = safetyChecks.some(c => c.status === "fail");
+    const canEmitProgram = !hasFailedSafetyChecks && operations.length > 0;
+    const emittedProgramText = canEmitProgram ? text : "";
+    const emittedProgramLineCount = canEmitProgram ? blocks.length : 0;
 
     // Count tool changes
     const toolChanges = new Set(operations.map(o => o.tool.tool_number)).size;
 
     return {
-      success: true,
+      success: canEmitProgram,
       part_number: input.part_number || "PART-001",
       material: input.material?.material_name || "Unknown",
       intake_validation: intake,
@@ -2051,8 +1978,8 @@ export class PrintToProgramPipelineEngine {
       total_tool_changes: toolChanges,
       estimated_cycle_time_sec: Math.round(totalCycleTime),
       program: blocks,
-      program_text: text,
-      program_line_count: blocks.length,
+      program_text: emittedProgramText,
+      program_line_count: emittedProgramLineCount,
       safety_checks: safetyChecks,
       safety_pass_rate: Math.round(safetyPassRate * 100) / 100,
       setup_sheet: setupSheet,
@@ -2070,8 +1997,16 @@ export class PrintToProgramPipelineEngine {
   runProcessPlan(input: DrawingInput): ProcessPlanResult {
     log.info(`[PrintToProgramPipeline] Process plan for ${input.part_number || "PART"}`);
 
-    const maxRPM = input.max_spindle_rpm || 12000;
-    const maxPower = input.max_power_kW || 15;
+    // U-ARCH3: Fire async machine resolution (non-blocking)
+    if (!this._resolvedMachine) {
+      resolveMachine({ brand: input.machine_brand, model: input.machine_model, max_rpm: input.max_spindle_rpm, max_power_kw: input.max_power_kW })
+        .then(rm => { this._resolvedMachine = rm; })
+        .catch(() => {});
+    }
+
+    const rmPlan = this._resolvedMachine;
+    const maxRPM = input.max_spindle_rpm || rmPlan?.max_spindle_rpm || 12000;
+    const maxPower = input.max_power_kW || rmPlan?.max_power_kw || 15;
     const target = input.optimization_target || "balanced";
 
     this._currentMachineBrand = input.machine_brand;
