@@ -1298,6 +1298,10 @@ export const ACTIONS = [
   "pp_kb_search", "pp_kb_get_recommended_settings",
   "pp_kb_validate_configuration", "pp_kb_generate_function_template",
   "pp_kb_get_statistics",
+  // CAMX-MS2/U07 — Controller & machine strategy validation
+  "strategy_controller_validate", "strategy_machine_validate",
+  "strategy_find_compatible_controllers", "strategy_find_best_machine",
+  "strategy_compatibility_matrix",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -7531,6 +7535,55 @@ Params vary by action — pass relevant fields in params object.`,
           case "pp_kb_get_statistics": {
             const { postProcessorKnowledgeEngine } = await import("../../engines/PostProcessorKnowledgeEngine.js");
             result = postProcessorKnowledgeEngine.getStatistics();
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // CAMX-MS2/U07 — Controller & machine strategy validation actions
+          // ═══════════════════════════════════════════════════════════════════
+          case "strategy_controller_validate": {
+            const { controllerStrategyValidatorEngine } = await import("../../engines/ControllerStrategyValidatorEngine.js");
+            result = controllerStrategyValidatorEngine.validate(
+              params.strategy as any,
+              params.controller as any,
+              params.overrides as any,
+            );
+            break;
+          }
+
+          case "strategy_machine_validate": {
+            const { machineStrategyConstraintEngine } = await import("../../engines/MachineStrategyConstraintEngine.js");
+            result = machineStrategyConstraintEngine.validate({
+              strategy: params.strategy as string,
+              machine: params.machine as any,
+              part_envelope_mm: params.part_envelope_mm as any,
+              tool_count: params.tool_count as number | undefined,
+              coolant_type: params.coolant_type as string | undefined,
+            });
+            break;
+          }
+
+          case "strategy_find_compatible_controllers": {
+            const { controllerStrategyValidatorEngine } = await import("../../engines/ControllerStrategyValidatorEngine.js");
+            result = controllerStrategyValidatorEngine.findCompatibleControllers(params.strategy as any);
+            break;
+          }
+
+          case "strategy_find_best_machine": {
+            const { machineStrategyConstraintEngine } = await import("../../engines/MachineStrategyConstraintEngine.js");
+            result = machineStrategyConstraintEngine.findBestMachine({
+              strategy: params.strategy as string,
+              machines: params.machines as any,
+              part_envelope_mm: params.part_envelope_mm as any,
+              tool_count: params.tool_count as number | undefined,
+              coolant_type: params.coolant_type as string | undefined,
+            });
+            break;
+          }
+
+          case "strategy_compatibility_matrix": {
+            const { controllerStrategyValidatorEngine } = await import("../../engines/ControllerStrategyValidatorEngine.js");
+            result = controllerStrategyValidatorEngine.compatibilityMatrix();
             break;
           }
 
