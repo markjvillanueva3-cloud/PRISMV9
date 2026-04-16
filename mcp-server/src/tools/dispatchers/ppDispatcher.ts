@@ -191,6 +191,9 @@ let _ppToolChangeValidator: any;
 // PP-MIN: G-code minimizer (strip redundant tokens)
 let _ppGCodeMinimizer: any;
 
+// PP-WO: Work offset (G54-G59) usage validator
+let _ppWorkOffsetValidator: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -352,6 +355,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppToolChangeValidator ??= (await import("../../engines/PPToolChangeValidatorEngine.js")).ppToolChangeValidatorEngine;
     case "gcodeMinimizer":
       return _ppGCodeMinimizer ??= (await import("../../engines/PPGCodeMinimizerEngine.js")).ppGCodeMinimizerEngine;
+    case "workOffsetValidator":
+      return _ppWorkOffsetValidator ??= (await import("../../engines/PPWorkOffsetValidatorEngine.js")).ppWorkOffsetValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -655,6 +660,11 @@ const ACTIONS = [
   "pp_min_aggressive",             // Aggressive minimize (strip comments + N-words)
   "pp_min_conservative",           // Conservative minimize (keep comments + N-words)
   "pp_min_defaults",               // Default minimizer options
+
+  // ===== PP_WO: Work offset (G54-G59) usage validator (3 actions) — PP-WO =====
+  "pp_wo_validate",                // Full work-offset usage validation
+  "pp_wo_quick",                   // Quick pass/fail + distinct offsets used
+  "pp_wo_defaults",                // Default work-offset validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1990,6 +2000,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_min_defaults": {
             const engine = await getEngine("gcodeMinimizer");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_WO (PP-WO — Work offset G54-G59 validator) =====
+          case "pp_wo_validate": {
+            const engine = await getEngine("workOffsetValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              safe_z_mm: params.safe_z_mm,
+              require_initial_offset: params.require_initial_offset,
+              allow_mid_op_switch_with_m_code: params.allow_mid_op_switch_with_m_code,
+              extended_offset_max_p: params.extended_offset_max_p,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_wo_quick": {
+            const engine = await getEngine("workOffsetValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_wo_defaults": {
+            const engine = await getEngine("workOffsetValidator");
             result = engine.defaultOptions();
             break;
           }
