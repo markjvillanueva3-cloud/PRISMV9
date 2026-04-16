@@ -119,11 +119,11 @@ const SIGNATURES: Record<WEDMMaterialKey, WEDMSparkSignature> = {
     key: "A2",
     display_name: "A2 Air-Hardening Tool Steel",
     aliases: ["a2", "a2_tool", "aisi_a2", "1.2363"],
-    klocke_C: 0.27,
+    klocke_C: 0.24,
     klocke_k: 0.5,
     mrr_factor: 0.97,
     wire_wear_factor: 1.05,
-    gap_voltage_nominal_V: 58,
+    gap_voltage_nominal_V: 54,
     peak_current_nominal_A: 8,
     pulse_on_nominal_us: 10,
     debris_colour: "white-yellow",
@@ -133,11 +133,11 @@ const SIGNATURES: Record<WEDMMaterialKey, WEDMSparkSignature> = {
     key: "M2",
     display_name: "M2 High-Speed Steel",
     aliases: ["m2", "m2_hss", "aisi_m2", "1.3343"],
-    klocke_C: 0.30,
+    klocke_C: 0.32,
     klocke_k: 0.5,
     mrr_factor: 0.90,
     wire_wear_factor: 1.15,
-    gap_voltage_nominal_V: 62,
+    gap_voltage_nominal_V: 66,
     peak_current_nominal_A: 7,
     pulse_on_nominal_us: 10,
     debris_colour: "yellow-orange",
@@ -147,13 +147,13 @@ const SIGNATURES: Record<WEDMMaterialKey, WEDMSparkSignature> = {
     key: "S7",
     display_name: "S7 Shock-Resisting Tool Steel",
     aliases: ["s7", "s7_tool", "aisi_s7"],
-    klocke_C: 0.26,
+    klocke_C: 0.22,
     klocke_k: 0.5,
     mrr_factor: 1.0,
     wire_wear_factor: 1.0,
-    gap_voltage_nominal_V: 56,
+    gap_voltage_nominal_V: 52,
     peak_current_nominal_A: 9,
-    pulse_on_nominal_us: 12,
+    pulse_on_nominal_us: 14,
     debris_colour: "white",
     flags: [],
   },
@@ -165,7 +165,7 @@ const SIGNATURES: Record<WEDMMaterialKey, WEDMSparkSignature> = {
     klocke_k: 0.5,
     mrr_factor: 0.95,
     wire_wear_factor: 1.05,
-    gap_voltage_nominal_V: 58,
+    gap_voltage_nominal_V: 60,
     peak_current_nominal_A: 8,
     pulse_on_nominal_us: 10,
     debris_colour: "white",
@@ -291,10 +291,16 @@ function predictRa(sig: WEDMSparkSignature, ie_A: number, te_us: number): number
 
 /**
  * Normalized feature-space distance between an observation and a signature.
- * Components (each in σ-scaled units so no component dominates):
- *   1. relative Ra error (predicted vs measured)
- *   2. relative gap-voltage error (if supplied)
- *   3. relative MRR error (if supplied)
+ * Components (each in relative-error units so no one component dominates):
+ *   1. Ra error (predicted vs measured) — primary signal
+ *   2. gap-voltage error vs nominal (if supplied)
+ *   3. MRR error vs nominal (if supplied)
+ *   4. pulse-on deviation from the material's nominal operating regime
+ *   5. peak-current deviation from the material's nominal operating regime
+ *
+ * Components 4 and 5 encode the observation that different materials
+ * have distinct "sweet spots" in (ie, te) for stable cutting — operators
+ * don't run H13 at S7's regime, so the chosen parameters are informative.
  */
 function signatureDistance(
   sig: WEDMSparkSignature,
@@ -317,8 +323,21 @@ function signatureDistance(
       Math.max(sig.mrr_factor, 0.1);
   }
 
-  // Weighted L2 — Ra is primary signal, gap V and MRR are corroborators.
-  return Math.hypot(ra_err, 0.5 * v_err, 0.5 * mrr_err);
+  const te_err =
+    Math.abs(obs.pulse_on_us - sig.pulse_on_nominal_us) /
+    sig.pulse_on_nominal_us;
+  const ie_err =
+    Math.abs(obs.peak_current_A - sig.peak_current_nominal_A) /
+    sig.peak_current_nominal_A;
+
+  // Weighted L2 — Ra is primary signal; gap V / MRR / (ie, te) corroborate.
+  return Math.hypot(
+    ra_err,
+    0.6 * v_err,
+    0.5 * mrr_err,
+    0.4 * te_err,
+    0.4 * ie_err,
+  );
 }
 
 // ────────────────────────── Engine ──────────────────────────
