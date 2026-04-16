@@ -86,6 +86,9 @@ let _ppMachineVectorEncoder: any;
 // PP-AGI-MS3: Material Property Vector
 let _ppMaterialVector: any;
 
+// PP-AGI-MS2: Cutting Tool Encoder
+let _ppToolEncoder: any;
+
 // PP-AGI-MS7: Multi-Modal Fusion
 let _ppFusion: any;
 
@@ -167,6 +170,10 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS3: Material Property Vector
     case "materialVector":
       return _ppMaterialVector ??= (await import("../../engines/PPMaterialPropertyVectorEngine.js")).ppMaterialPropertyVectorEngine;
+
+    // PP-AGI-MS2: Cutting Tool Encoder
+    case "toolEncoder":
+      return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
 
     // PP-AGI-MS7: Multi-Modal Fusion
     case "multiModalFusion":
@@ -311,6 +318,11 @@ const ACTIONS = [
   "pp_material_embed_all",         // Embed all materials in database
   "pp_material_compare",           // Compare two materials (substitution safety)
   "pp_material_nearest",           // Find k-nearest materials
+
+  // ===== PP_TOOL_VECTOR: Cutting tool embeddings (3 actions) — PP-AGI-MS2 =====
+  "pp_tool_embed",                 // Embed a tool spec to 36-dim vector
+  "pp_tool_compare",               // Compare two tool specs
+  "pp_tool_nearest",               // Find nearest tools from reference library
 
   // ===== PP_FUSION: Multi-modal fusion (3 actions) — PP-AGI-MS7 =====
   "pp_fusion_fuse",                // Fuse controller+machine+material to 120-dim
@@ -870,6 +882,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_machine_nearest": {
             const engine = await getEngine("machineVectorEncoder");
             result = engine.findNearest(params.machineId ?? params.machine_id, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_TOOL_VECTOR: Cutting tool embeddings (PP-AGI-MS2) =====
+          case "pp_tool_embed": {
+            const engine = await getEngine("toolEncoder");
+            result = engine.embed(params.spec ?? params);
+            break;
+          }
+          case "pp_tool_compare": {
+            const engine = await getEngine("toolEncoder");
+            result = engine.compare(params.toolA ?? params.tool_a, params.toolB ?? params.tool_b);
+            break;
+          }
+          case "pp_tool_nearest": {
+            const engine = await getEngine("toolEncoder");
+            result = engine.findNearest(params.spec ?? params, params.k ?? 5);
             break;
           }
 
