@@ -173,6 +173,9 @@ let _ppProgramMerger: any;
 // PP-STATS: Descriptive G-code statistics
 let _ppGCodeStatistics: any;
 
+// PP-SCALE: Feed/speed scaler for G-code
+let _ppFeedSpeedScaler: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -322,6 +325,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramMerger ??= (await import("../../engines/PPProgramMergerEngine.js")).ppProgramMergerEngine;
     case "gcodeStatistics":
       return _ppGCodeStatistics ??= (await import("../../engines/PPGCodeStatisticsEngine.js")).ppGCodeStatisticsEngine;
+    case "feedSpeedScaler":
+      return _ppFeedSpeedScaler ??= (await import("../../engines/PPFeedSpeedScalerEngine.js")).ppFeedSpeedScalerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -590,6 +595,13 @@ const ACTIONS = [
   // ===== PP_STATS: Descriptive G-code statistics (2 actions) — PP-STATS =====
   "pp_stats_analyze",             // Full descriptive statistics for a G-code program
   "pp_stats_similarity",          // Histogram cosine similarity between 2 programs
+
+  // ===== PP_SCALE: Feed/speed scaler (5 actions) — PP-SCALE =====
+  "pp_scale_apply",               // Apply full scaling options (feed, speed, clamp, range)
+  "pp_scale_feed",                // Convenience: scale only feeds by factor
+  "pp_scale_speed",               // Convenience: scale only spindle speeds by factor
+  "pp_scale_clamp_feed",          // Convenience: clamp feeds to max_feed
+  "pp_scale_defaults",            // Default scaler options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1737,6 +1749,52 @@ Actions: ${ACTIONS.join(", ")}.`,
               a_metrics: { lines: statsA.total_lines, tools: statsA.unique_tool_count },
               b_metrics: { lines: statsB.total_lines, tools: statsB.unique_tool_count },
             };
+            break;
+          }
+
+          // ===== PP_SCALE (PP-SCALE — feed/speed scaler) =====
+          case "pp_scale_apply": {
+            const engine = await getEngine("feedSpeedScaler");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              feed_factor: params.feed_factor ?? params.feedFactor,
+              speed_factor: params.speed_factor ?? params.speedFactor,
+              max_feed: params.max_feed ?? params.maxFeed,
+              max_speed: params.max_speed ?? params.maxSpeed,
+              min_feed: params.min_feed ?? params.minFeed,
+              min_speed: params.min_speed ?? params.minSpeed,
+              feed_range_min: params.feed_range_min ?? params.rangeMin,
+              feed_range_max: params.feed_range_max ?? params.rangeMax,
+              skip_rapid_feeds: params.skip_rapid_feeds ?? params.skipRapids,
+              round_decimals: params.round_decimals ?? params.decimals,
+            };
+            result = engine.scale(gcode, options);
+            break;
+          }
+          case "pp_scale_feed": {
+            const engine = await getEngine("feedSpeedScaler");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const factor = params.factor ?? params.feed_factor ?? 1;
+            result = engine.scaleFeed(gcode, factor);
+            break;
+          }
+          case "pp_scale_speed": {
+            const engine = await getEngine("feedSpeedScaler");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const factor = params.factor ?? params.speed_factor ?? 1;
+            result = engine.scaleSpeed(gcode, factor);
+            break;
+          }
+          case "pp_scale_clamp_feed": {
+            const engine = await getEngine("feedSpeedScaler");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const maxFeed = params.max_feed ?? params.maxFeed ?? 10000;
+            result = engine.clampFeedTo(gcode, maxFeed);
+            break;
+          }
+          case "pp_scale_defaults": {
+            const engine = await getEngine("feedSpeedScaler");
+            result = engine.defaultOptions();
             break;
           }
 
