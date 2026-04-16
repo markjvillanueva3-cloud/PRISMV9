@@ -128,11 +128,17 @@ let _ppWorkflow: any;
 // PP-AGI-AUDITOR: Program Library Auditor
 let _ppLibraryAuditor: any;
 
+// PP-DL-MS1: Controller Adaptation
+let _ppControllerAdaptation: any;
+
 // PP-DL-MS3: Physics Constraint Validator
 let _ppPhysicsValidator: any;
 
 // PP-DL-MS4: Safety Rule Validator
 let _ppSafetyRuleValidator: any;
+
+// PP-DL-MS5: Greedy Toolpath Optimizer
+let _ppGreedyOptimizer: any;
 
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
@@ -257,6 +263,10 @@ async function getEngine(name: string): Promise<any> {
       return _ppWorkflow ??= (await import("../../engines/PPAGIReasoningWorkflowEngine.js")).ppAGIReasoningWorkflowEngine;
     case "libraryAuditor":
       return _ppLibraryAuditor ??= (await import("../../engines/PPAGIProgramLibraryAuditorEngine.js")).ppAGIProgramLibraryAuditorEngine;
+    case "controllerAdaptation":
+      return _ppControllerAdaptation ??= (await import("../../engines/PPControllerAdaptationEngine.js")).ppControllerAdaptationEngine;
+    case "greedyOptimizer":
+      return _ppGreedyOptimizer ??= (await import("../../engines/PPGreedyToolpathOptimizerEngine.js")).ppGreedyToolpathOptimizerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -491,6 +501,14 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_ADAPT: Controller parameter adaptation (2 actions) — PP-DL-MS1 =====
+  "pp_adapt_parameters",           // Adapt parameters for a specific controller
+  "pp_adapt_list_profiles",        // List controllers with adaptation profiles
+
+  // ===== PP_OPTIMIZE_GREEDY: Greedy toolpath optimizer (2 actions) — PP-DL-MS5 =====
+  "pp_optimize_greedy",            // Full greedy optimization
+  "pp_optimize_greedy_quick",      // Quick 10-iteration optimization
 
   // ===== PP_PHYSICS_VALIDATE: Physics constraint validator (2 actions) — PP-DL-MS3 =====
   "pp_physics_validate",           // Full physics validation of cutting conditions
@@ -1442,6 +1460,30 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_ADAPT (PP-DL-MS1) =====
+          case "pp_adapt_parameters": {
+            const engine = await getEngine("controllerAdaptation");
+            result = engine.adapt(params);
+            break;
+          }
+          case "pp_adapt_list_profiles": {
+            const engine = await getEngine("controllerAdaptation");
+            result = { profiles: engine.listProfiles() };
+            break;
+          }
+
+          // ===== PP_OPTIMIZE_GREEDY (PP-DL-MS5) =====
+          case "pp_optimize_greedy": {
+            const engine = await getEngine("greedyOptimizer");
+            result = engine.optimize(params, params.maxIter ?? params.max_iter ?? 30);
+            break;
+          }
+          case "pp_optimize_greedy_quick": {
+            const engine = await getEngine("greedyOptimizer");
+            result = engine.quickOptimize(params);
             break;
           }
 
