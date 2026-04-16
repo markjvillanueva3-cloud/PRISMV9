@@ -109,6 +109,13 @@ import { stochasticSurfaceFinishEngine } from "./StochasticSurfaceFinishEngine.j
 import { surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
 import { roughnessConversionEngine } from "./RoughnessConversionEngine.js";
 
+// Material engines (5) — MS-WIRE-1/Material layer
+import { johnsonCookEngine } from "./JohnsonCookEngine.js";
+import { constitutiveModelEngine } from "./ConstitutiveModelEngine.js";
+import { materialInterpolationEngine } from "./MaterialInterpolationEngine.js";
+import { materialEquivalenceEngine } from "./MaterialEquivalenceEngine.js";
+import { materialBatchVariabilityEngine } from "./MaterialBatchVariabilityEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1474,6 +1481,82 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // MATERIAL ENGINES — MS-WIRE-1 / Material layer (5 engines)
+  // =========================================================================
+
+  /**
+   * Johnson-Cook flow stress model with strain, strain rate, temperature.
+   * σ = [A + B·ε^n][1 + C·ln(ε̇/ε̇₀)][1 - ((T-T_ref)/(T_melt-T_ref))^m]
+   * Delegates to: JohnsonCookEngine.
+   */
+  calculateJohnsonCookFlowStress(
+    params: Parameters<typeof johnsonCookEngine.calculateFlowStress>[0],
+    strain: number,
+    strain_rate: number,
+    temperature: number,
+  ) {
+    return johnsonCookEngine.calculateFlowStress(params, strain, strain_rate, temperature);
+  }
+
+  /**
+   * Get Johnson-Cook parameters for a material.
+   * Delegates to: JohnsonCookEngine.getParams().
+   */
+  getJohnsonCookParams(materialId: string) {
+    return johnsonCookEngine.getParams(materialId);
+  }
+
+  /**
+   * Advanced constitutive models (Zerilli-Armstrong, MTS, Voce, PTW, Paris, Norton creep).
+   * Delegates to: ConstitutiveModelEngine.
+   */
+  applyConstitutiveModel(
+    model: "zerilliArmstrong" | "mechanicalThresholdStress" | "voceHardening" |
+           "prestonTonksWallace" | "parisLaw" | "nortonCreep",
+    input: any,
+  ) {
+    switch (model) {
+      case "zerilliArmstrong":         return constitutiveModelEngine.zerilliArmstrong(input);
+      case "mechanicalThresholdStress": return constitutiveModelEngine.mechanicalThresholdStress(input);
+      case "voceHardening":            return constitutiveModelEngine.voceHardening(input);
+      case "prestonTonksWallace":      return constitutiveModelEngine.prestonTonksWallace(input);
+      case "parisLaw":                 return constitutiveModelEngine.parisLaw(input);
+      case "nortonCreep":              return constitutiveModelEngine.nortonCreep(input);
+    }
+  }
+
+  /**
+   * Material property interpolation — find similar materials, interpolate missing values.
+   * Delegates to: MaterialInterpolationEngine.
+   */
+  interpolateMaterial(method: "findSimilar" | "interpolate" | "compare" | "list", input?: any) {
+    switch (method) {
+      case "findSimilar":  return materialInterpolationEngine.findSimilar(
+                                  input.target, input.count, input.criteria);
+      case "interpolate":  return materialInterpolationEngine.interpolateParams(
+                                  input.unknownMaterial, input.knownSimilar, input.property);
+      case "compare":      return materialInterpolationEngine.compareMaterials(input.matA, input.matB);
+      case "list":         return materialInterpolationEngine.listMaterials();
+    }
+  }
+
+  /**
+   * Material equivalence — find DIN/ISO/AISI/JIS equivalents.
+   * Delegates to: MaterialEquivalenceEngine.
+   */
+  findMaterialEquivalent(input: Parameters<typeof materialEquivalenceEngine.findEquivalent>[0]) {
+    return materialEquivalenceEngine.findEquivalent(input);
+  }
+
+  /**
+   * Material batch variability analysis — within-batch and batch-to-batch uncertainty.
+   * Delegates to: MaterialBatchVariabilityEngine.analyze().
+   */
+  analyzeMaterialBatchVariability(input: Parameters<typeof materialBatchVariabilityEngine.analyze>[0]) {
+    return materialBatchVariabilityEngine.analyze(input);
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1556,6 +1639,12 @@ class MillingPhysicsKernelEngine {
       "StochasticSurfaceFinishEngine (Monte Carlo Ra with uncertainty)",
       "SurfaceIntegrityPredictorEngine (AtomicValue wrapped integrity)",
       "RoughnessConversionEngine (Ra/Rz/Rq/Rp/Rv conversions)",
+      // Material engines (MS-WIRE-1/Material layer)
+      "JohnsonCookEngine (σ = [A+Bε^n][1+C·ln(ε̇/ε̇₀)][1-T*^m])",
+      "ConstitutiveModelEngine (Zerilli-Armstrong, MTS, Voce, PTW, Paris, Norton)",
+      "MaterialInterpolationEngine (find similar, interpolate, compare)",
+      "MaterialEquivalenceEngine (DIN/ISO/AISI/JIS equivalents)",
+      "MaterialBatchVariabilityEngine (within/between batch uncertainty)",
     ];
   }
 
@@ -1581,8 +1670,9 @@ class MillingPhysicsKernelEngine {
                             //  SurfaceIntegrityPredictor, RoughnessConversion)
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
-      total_engines: 59,
-      total_functions: 68,
+      material: 5,          // JohnsonCook, Constitutive, Interpolation, Equivalence, BatchVariability
+      total_engines: 64,
+      total_functions: 74,
     };
   }
 }
