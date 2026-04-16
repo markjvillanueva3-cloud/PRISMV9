@@ -182,6 +182,9 @@ let _ppControllerCompat: any;
 // PP-MODAL: Modal state tracker for G-code programs
 let _ppModalTracker: any;
 
+// PP-ARC: Arc validator for G-code (G2/G3 geometry sanity)
+let _ppArcValidator: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -337,6 +340,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppControllerCompat ??= (await import("../../engines/PPControllerCompatibilityEngine.js")).ppControllerCompatibilityEngine;
     case "modalTracker":
       return _ppModalTracker ??= (await import("../../engines/PPModalStateTrackerEngine.js")).ppModalStateTrackerEngine;
+    case "arcValidator":
+      return _ppArcValidator ??= (await import("../../engines/PPArcValidatorEngine.js")).ppArcValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -624,6 +629,11 @@ const ACTIONS = [
   "pp_modal_state_at_line",        // Modal state at a specific line
   "pp_modal_transitions",          // All transitions in a specific modal group
   "pp_modal_active",               // Active value of a modal group at a line
+
+  // ===== PP_ARC: Arc validator G2/G3 (3 actions) — PP-ARC =====
+  "pp_arc_validate",               // Full arc validation with per-issue details
+  "pp_arc_quick",                  // Quick pass/fail arc check
+  "pp_arc_defaults",               // Default arc validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1879,6 +1889,28 @@ Actions: ${ACTIONS.join(", ")}.`,
             const line = params.line ?? params.line_number ?? 1;
             const full = engine.track(gcode);
             result = engine.getActiveModal(full, group, line);
+            break;
+          }
+
+          // ===== PP_ARC (PP-ARC — arc validator) =====
+          case "pp_arc_validate": {
+            const engine = await getEngine("arcValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              radius_tolerance_mm: params.radius_tolerance_mm ?? params.tolerance,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_arc_quick": {
+            const engine = await getEngine("arcValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_arc_defaults": {
+            const engine = await getEngine("arcValidator");
+            result = engine.defaultOptions();
             break;
           }
 
