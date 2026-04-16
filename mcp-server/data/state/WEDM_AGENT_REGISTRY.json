@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T15:45:00.000Z",
+  "description": "WEDM agent registry (Phase 0.16 U-WEDM-PLG1)",
+  "agents": [
+    {
+      "id": "wedm-programmer",
+      "role": "Wire EDM program generation specialist",
+      "skills": ["/wedm-studio", "/wedm-program"],
+      "engines": ["WEDMPostProcessorEngine", "WEDMTaperSolverEngine", "WEDMStrategyLibraryEngine"],
+      "tier": "specialist",
+      "whenToInvoke": "User needs to generate a WEDM G-code program from drawing or specification"
+    },
+    {
+      "id": "wedm-advisor",
+      "role": "AI-powered parameter optimization advisor",
+      "skills": ["/wedm-ai-advisor"],
+      "engines": ["WEDMCalculatorAIEngine", "WEDMNeuralTrainingEngine", "WEDMFeedbackCalibrationEngine"],
+      "tier": "specialist",
+      "whenToInvoke": "User needs parameter recommendations based on material, thickness, finish target"
+    },
+    {
+      "id": "wedm-troubleshooter",
+      "role": "Wire break and quality issue diagnostician",
+      "skills": ["/wedm-troubleshoot"],
+      "engines": ["WEDMDiagnosticEngine", "WireEDMDeepReasoningEngine"],
+      "tier": "specialist",
+      "whenToInvoke": "User reports wire breaks, poor finish, dimensional issues, or other WEDM problems"
+    },
+    {
+      "id": "wedm-scheduler",
+      "role": "Batch job scheduling and machine utilization",
+      "skills": ["/wedm-batch"],
+      "engines": ["WEDMSchedulingEngine", "WEDMBatchProgramAnalyzerEngine"],
+      "tier": "specialist",
+      "whenToInvoke": "User needs to optimize batch of WEDM jobs or resolve scheduling conflicts"
+    },
+    {
+      "id": "wedm-jm-die-concierge",
+      "role": "JM Die customer-specific WEDM concierge",
+      "skills": ["/wedm-jm-die"],
+      "engines": ["PRISMSelfAwarenessEngine", "WireEDMSelfAwarenessIntegrationEngine"],
+      "tier": "specialist",
+      "whenToInvoke": "User mentions a JM Die customer (ATF, ALCOA, ITW, OPTIMAS, etc.) for WEDM work"
+    },
+    {
+      "id": "wedm-feasibility",
+      "role": "Wire EDM feasibility assessment",
+      "skills": ["/wedm-feasibility"],
+      "engines": ["EDMDrawingInterpretationEngine", "WEDMPreFlightCheckEngine"],
+      "tier": "analyst",
+      "whenToInvoke": "User needs to verify WEDM feasibility before committing to programming"
+    }
+  ],
+  "slashCommandRecommenderRules": [
+    {
+      "triggers": ["wire edm", "wedm", "wire cut"],
+      "recommend": ["/wedm-program", "/wedm-feasibility"],
+      "priority": "high"
+    },
+    {
+      "triggers": ["E-code", "ecode", "E1847", "E1845"],
+      "recommend": ["/wedm-controller", "/wedm-ai-advisor"],
+      "priority": "high"
+    },
+    {
+      "triggers": ["wire break", "wire broke", "wedm problem"],
+      "recommend": ["/wedm-troubleshoot"],
+      "priority": "critical"
+    },
+    {
+      "triggers": ["wedm cost", "wire edm quote", "edm estimate"],
+      "recommend": ["/wedm-cost", "/quote-to-ship"],
+      "priority": "high"
+    }
+  ],
+  "statistics": {
+    "totalAgents": 6,
+    "totalRules": 4,
+    "lastUpdated": "2026-04-16T15:45:00.000Z"
+  }
+}

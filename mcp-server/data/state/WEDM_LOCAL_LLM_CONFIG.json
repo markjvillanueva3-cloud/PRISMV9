@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T15:45:00.000Z",
+  "description": "Local LLM infrastructure config for WEDM (Phase 0.15)",
+  "enabled": false,
+  "models": {
+    "gcode-specialist": {
+      "name": "Qwen2.5-Coder-7B",
+      "provider": "ollama",
+      "endpoint": "http://localhost:11434",
+      "modelId": "qwen2.5-coder:7b",
+      "vramRequired_gb": 14,
+      "purpose": "G-code specialized reasoning for WEDM programs",
+      "deployed": false
+    },
+    "embeddings": {
+      "name": "all-MiniLM-L6-v2",
+      "provider": "transformers",
+      "modelId": "sentence-transformers/all-MiniLM-L6-v2",
+      "vramRequired_gb": 0.08,
+      "dimension": 384,
+      "purpose": "Program similarity embeddings",
+      "deployed": false
+    },
+    "wedm-lora": {
+      "name": "WEDM LoRA Adapter",
+      "provider": "peft",
+      "baseModel": "mistralai/Mistral-7B-v0.1",
+      "adapterPath": "wedm-lora-adapter/",
+      "config": {
+        "r": 8,
+        "alpha": 16,
+        "dropout": 0.1,
+        "targetModules": ["q_proj", "v_proj"]
+      },
+      "trainingData": "WEDM_OUTCOME_LEDGER.jsonl",
+      "deployed": false
+    }
+  },
+  "qdrant": {
+    "endpoint": "http://localhost:6333",
+    "collections": ["wedm_programs", "wedm_outcomes", "wedm_tips"],
+    "vectorCount": 0,
+    "targetVectorCount": 2000
+  },
+  "routing": {
+    "simpleQueries": "gcode-specialist",
+    "similaritySearch": "embeddings + qdrant",
+    "domainSpecific": "wedm-lora",
+    "fallback": "claude-api"
+  },
+  "skills": {
+    "/wedm-local-ask": {
+      "description": "Query local model for WEDM",
+      "targetLatency_sec": 2
+    },
+    "/wedm-train-lora": {
+      "description": "Trigger overnight LoRA training",
+      "schedule": "nightly"
+    }
+  },
+  "hardwareRequirements": {
+    "minimum": "Any system (Qwen 7B works on 16GB system RAM)",
+    "recommended": "RTX 4080 (12GB+ VRAM for LoRA training)",
+    "current": "pending detection"
+  }
+}

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-16T15:45:00.000Z",
+  "description": "WEDM multi-level abstraction hierarchy: Tip → Principle → Law (Phase 0.14 U-WEDM-AGI8)",
+  "levels": {
+    "level-3-laws": {
+      "description": "Fundamental physical laws governing WEDM",
+      "entries": [
+        {
+          "id": "LAW-01",
+          "name": "Dielectric Breakdown Law",
+          "statement": "Spark initiation requires gap voltage to exceed dielectric breakdown strength (~20-100 V/µm)",
+          "source": "MIT 2.008 + Kroetz 1987",
+          "implications": ["PRIN-01", "PRIN-02"]
+        },
+        {
+          "id": "LAW-02",
+          "name": "Energy Balance Law",
+          "statement": "Material removal volume per spark is proportional to pulse energy and inversely proportional to material thermal capacity",
+          "source": "MIT 2.008 + Kunieda 2005",
+          "implications": ["PRIN-03", "PRIN-04"]
+        },
+        {
+          "id": "LAW-03",
+          "name": "Thermal Diffusion Law",
+          "statement": "Heat-affected zone depth = sqrt(thermal diffusivity * on-time)",
+          "source": "MIT 2.008 thermal physics",
+          "implications": ["PRIN-05", "PRIN-06"]
+        },
+        {
+          "id": "LAW-04",
+          "name": "Wire Beam Law",
+          "statement": "Wire deflection under cutting force follows beam theory: δ = FL/(T + k·v)",
+          "source": "Sommer 2007",
+          "implications": ["PRIN-07", "PRIN-08"]
+        }
+      ]
+    },
+    "level-2-principles": {
+      "description": "Engineering principles derived from laws",
+      "entries": [
+        {
+          "id": "PRIN-01",
+          "name": "Voltage-Gap Coupling",
+          "statement": "Increasing servo voltage widens effective gap but reduces MRR",
+          "parent": "LAW-01",
+          "implications": ["TIP-WEDM-006"]
+        },
+        {
+          "id": "PRIN-02",
+          "name": "Dielectric Conductivity Control",
+          "statement": "Maintain dielectric conductivity 15-25 µS/cm for stable spark regime",
+          "parent": "LAW-01",
+          "implications": ["TIP-WEDM-006"]
+        },
+        {
+          "id": "PRIN-03",
+          "name": "Energy-Finish Tradeoff",
+          "statement": "Higher pulse energy → higher MRR but rougher Ra",
+          "parent": "LAW-02",
+          "implications": ["TIP-WEDM-008", "TIP-MIT-208-01"]
+        },
+        {
+          "id": "PRIN-04",
+          "name": "Multi-Pass Finishing",
+          "statement": "Mirror finish requires 3+ skim passes with decreasing energy",
+          "parent": "LAW-02",
+          "implications": ["TIP-WEDM-008"]
+        },
+        {
+          "id": "PRIN-05",
+          "name": "On-Time Thermal Limit",
+          "statement": "On-time limited by HAZ depth tolerance",
+          "parent": "LAW-03",
+          "implications": ["TIP-MIT-208-03"]
+        },
+        {
+          "id": "PRIN-06",
+          "name": "Thick-Section Derating",
+          "statement": "Reduce on-time 20-30% for thin sections to prevent wire break",
+          "parent": "LAW-03",
+          "implications": ["TIP-WEDM-001"]
+        },
+        {
+          "id": "PRIN-07",
+          "name": "Tension-Accuracy Coupling",
+          "statement": "Higher wire tension improves accuracy but increases break risk",
+          "parent": "LAW-04",
+          "implications": ["TIP-MIT-208-05", "TIP-WEDM-005"]
+        },
+        {
+          "id": "PRIN-08",
+          "name": "Taper Approach Strategy",
+          "statement": "Reduce tension 10-15% for taper angles > 10°",
+          "parent": "LAW-04",
+          "implications": ["TIP-WEDM-005"]
+        }
+      ]
+    },
+    "level-1-tips": {
+      "description": "Actionable operator tips (concrete, specific)",
+      "entries": [
+        { "id": "TIP-WEDM-001", "title": "Reduce on-time for thin sections", "parent": "PRIN-06" },
+        { "id": "TIP-WEDM-002", "title": "Increase flushing for deep cuts", "parent": "PRIN-03" },
+        { "id": "TIP-WEDM-003", "title": "Use zinc wire for carbide", "parent": "PRIN-03" },
+        { "id": "TIP-WEDM-004", "title": "Pre-drill start holes for thick parts", "parent": "PRIN-06" },
+        { "id": "TIP-WEDM-005", "title": "Lower tension for taper cuts", "parent": "PRIN-08" },
+        { "id": "TIP-WEDM-006", "title": "Check dielectric conductivity daily", "parent": "PRIN-02" },
+        { "id": "TIP-WEDM-008", "title": "Multiple skim cuts for Ra < 0.4", "parent": "PRIN-04" },
+        { "id": "TIP-MIT-208-01", "title": "Discharge energy determines crater size", "parent": "PRIN-03" },
+        { "id": "TIP-MIT-208-03", "title": "Thermal diffusion length limits MRR", "parent": "PRIN-05" },
+        { "id": "TIP-MIT-208-05", "title": "Wire tension affects accuracy", "parent": "PRIN-07" },
+        { "id": "TIP-MIT-2830-01", "title": "Adaptive control reduces wire breaks", "parent": "PRIN-06" },
+        { "id": "TIP-MIT-6S191-03", "title": "Transfer learning for new materials", "parent": "PRIN-03" }
+      ]
+    }
+  },
+  "statistics": {
+    "totalLevels": 3,
+    "totalLaws": 4,
+    "totalPrinciples": 8,
+    "totalTips": 12,
+    "totalEntries": 24
+  },
+  "lastUpdated": "2026-04-16T15:45:00.000Z"
+}
