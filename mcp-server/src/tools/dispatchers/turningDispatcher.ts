@@ -150,6 +150,12 @@ const ACTIONS = [
   "lathe_iso14971_risk",
   "lathe_eco_validate",
   "lathe_counterfeit_assess",
+  // LATHE-PRO-MS10: Cost optimization & batch economics
+  "lathe_bar_feed_pitch",
+  "lathe_bar_remnant_plan",
+  "lathe_part_cost_model",
+  "lathe_aux_axis_timing",
+  "lathe_feedback_tune",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1872,6 +1878,99 @@ Actions: ${ACTIONS.join(", ")}.`,
               ocm_coc_present: params.ocm_coc_present ?? false,
               lot_traceability_complete: params.lot_traceability_complete ?? false,
               gidep_prior_hit: params.gidep_prior_hit,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS10: Cost optimization & batch economics
+          case "lathe_bar_feed_pitch": {
+            const { barFeedPitchOptimizerEngine } = await import("../../engines/BarFeedPitchOptimizerEngine.js");
+            result = barFeedPitchOptimizerEngine.optimize({
+              part_length_mm: params.part_length_mm,
+              quantity_needed: params.quantity_needed ?? 1,
+              bar_length_mm: params.bar_length_mm,
+              cutoff_kerf_mm: params.cutoff_kerf_mm,
+              bar_end_loss_mm: params.bar_end_loss_mm,
+              bar_head_face_mm: params.bar_head_face_mm,
+              candidate_bar_diameters_mm: params.candidate_bar_diameters_mm,
+              bar_diameter_mm: params.bar_diameter_mm,
+              part_max_diameter_mm: params.part_max_diameter_mm,
+              material_density_kgm3: params.material_density_kgm3,
+              material_price_per_kg: params.material_price_per_kg,
+              part_mass_kg: params.part_mass_kg,
+            });
+            break;
+          }
+
+          case "lathe_bar_remnant_plan": {
+            const { barRemnantManagementEngine } = await import("../../engines/BarRemnantManagementEngine.js");
+            result = barRemnantManagementEngine.plan(
+              params.inventory ?? [],
+              {
+                part_length_mm: params.part_length_mm,
+                quantity_needed: params.quantity_needed ?? 1,
+                diameter_mm: params.diameter_mm,
+                material: params.material,
+                diameter_tol_mm: params.diameter_tol_mm,
+                cutoff_kerf_mm: params.cutoff_kerf_mm,
+                bar_head_face_mm: params.bar_head_face_mm,
+                min_feasible_length_mm: params.min_feasible_length_mm,
+                material_price_per_kg: params.material_price_per_kg,
+                material_density_kgm3: params.material_density_kgm3,
+              },
+            );
+            break;
+          }
+
+          case "lathe_part_cost_model": {
+            const { lathePartCostModelEngine } = await import("../../engines/LathePartCostModelEngine.js");
+            result = lathePartCostModelEngine.compute({
+              cycle_time_s: params.cycle_time_s,
+              machine_rate_per_hr: params.machine_rate_per_hr,
+              operations: params.operations ?? [],
+              part_mass_kg: params.part_mass_kg ?? 0,
+              waste_mass_kg: params.waste_mass_kg ?? 0,
+              material_price_per_kg: params.material_price_per_kg ?? 0,
+              setup_time_s: params.setup_time_s ?? 0,
+              setup_rate_per_hr: params.setup_rate_per_hr ?? 0,
+              batch_size: params.batch_size ?? 1,
+              scrap_rate: params.scrap_rate,
+              spindle_power_kw: params.spindle_power_kw,
+              energy_price_per_kwh: params.energy_price_per_kwh,
+              secondary_ops: params.secondary_ops,
+            });
+            break;
+          }
+
+          case "lathe_aux_axis_timing": {
+            const { latheAuxAxisTimingEngine } = await import("../../engines/LatheAuxAxisTimingEngine.js");
+            result = latheAuxAxisTimingEngine.analyze({
+              operations: params.operations ?? [],
+              rapid_rate_mm_min: params.rapid_rate_mm_min,
+              spindle_accel_rpm_s: params.spindle_accel_rpm_s,
+              turret: params.turret ?? "BMT",
+              turret_base_index_s: params.turret_base_index_s,
+              turret_step_time_s: params.turret_step_time_s,
+              coolant_settle_s: params.coolant_settle_s,
+              chuck_actuate_s: params.chuck_actuate_s,
+              tailstock_cycle_s: params.tailstock_cycle_s,
+              part_catcher_cycle_s: params.part_catcher_cycle_s,
+              lookahead_per_corner_s: params.lookahead_per_corner_s,
+              live_tool_engage_s: params.live_tool_engage_s,
+            });
+            break;
+          }
+
+          case "lathe_feedback_tune": {
+            const { latheActualFeedbackTuningEngine } = await import("../../engines/LatheActualFeedbackTuningEngine.js");
+            result = latheActualFeedbackTuningEngine.tune({
+              records: params.records ?? [],
+              alpha: params.alpha,
+              taylor: params.taylor ?? {},
+              cycle_time_k: params.cycle_time_k,
+              baseline_scrap_rate: params.baseline_scrap_rate,
+              kc_scale: params.kc_scale,
+              outlier_reject_ratio: params.outlier_reject_ratio,
             });
             break;
           }
