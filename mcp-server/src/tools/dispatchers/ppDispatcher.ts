@@ -269,6 +269,9 @@ let _ppSpeedMode: any;
 // PP-PE: Program-end validator (M30/M02/M99)
 let _ppProgramEnd: any;
 
+// PP-AI: Absolute/incremental mode validator (G90/G91)
+let _ppAbsInc: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -482,6 +485,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppSpeedMode ??= (await import("../../engines/PPSpeedModeValidatorEngine.js")).ppSpeedModeValidatorEngine;
     case "programEnd":
       return _ppProgramEnd ??= (await import("../../engines/PPProgramEndValidatorEngine.js")).ppProgramEndValidatorEngine;
+    case "absInc":
+      return _ppAbsInc ??= (await import("../../engines/PPAbsIncValidatorEngine.js")).ppAbsIncValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -915,6 +920,11 @@ const ACTIONS = [
   "pp_pe_validate",                // Full program-end validation
   "pp_pe_quick",                   // Quick pass/fail + M30/M99 counts
   "pp_pe_defaults",                // Default program-end validator options
+
+  // PP-AI: Absolute/incremental mode validator (G90/G91)
+  "pp_ai_validate",                // Full distance-mode validation
+  "pp_ai_quick",                   // Quick pass/fail + final mode + switch count
+  "pp_ai_defaults",                // Default distance-mode validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2939,6 +2949,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_pe_defaults": {
             const engine = await getEngine("programEnd");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_AI (PP-AI — Absolute/incremental mode validator) =====
+          case "pp_ai_validate": {
+            const engine = await getEngine("absInc");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_mixed_in_block: params.check_mixed_in_block,
+              check_initial_mode: params.check_initial_mode,
+              check_switch_during_arc: params.check_switch_during_arc,
+              check_switch_in_canned: params.check_switch_in_canned,
+              check_mode_restored: params.check_mode_restored,
+              check_g91_large_address: params.check_g91_large_address,
+              g91_large_address_threshold: params.g91_large_address_threshold,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_ai_quick": {
+            const engine = await getEngine("absInc");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_ai_defaults": {
+            const engine = await getEngine("absInc");
             result = engine.defaultOptions();
             break;
           }
