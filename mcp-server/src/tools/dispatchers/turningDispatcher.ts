@@ -132,6 +132,15 @@ const ACTIONS = [
   "lathe_birdnest_predict",
   "lathe_parting_chip_clearance",
   "lathe_subspindle_purge_plan",
+  // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence
+  "lathe_gdt_callout_parse",
+  "lathe_datum_reference_frame",
+  "lathe_coax_runout_validate",
+  "lathe_roundness_sampling_plan",
+  "lathe_gage_rr_msa",
+  "lathe_inverse_stackup_allocate",
+  "lathe_fcf_syntax_validate",
+  "lathe_profile_deviation_analyze",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1644,6 +1653,112 @@ Actions: ${ACTIONS.join(", ")}.`,
               air_blast_pressure_bar: params.air_blast_pressure_bar,
               synchronous_transfer: params.synchronous_transfer,
               controller: params.controller,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: parse FCF callout text
+          case "lathe_gdt_callout_parse": {
+            const { gdtCalloutParserEngine } = await import("../../engines/GDTCalloutParserEngine.js");
+            if (params.line1 && params.line2) {
+              result = gdtCalloutParserEngine.parseComposite(params.line1, params.line2);
+            } else {
+              result = gdtCalloutParserEngine.parse(params.callout ?? params.line1 ?? "");
+            }
+            break;
+          }
+
+          // LATHE-PRO-MS8: build A|B|C datum reference frame
+          case "lathe_datum_reference_frame": {
+            const { latheDatumReferenceFrameEngine } = await import("../../engines/LatheDatumReferenceFrameEngine.js");
+            result = latheDatumReferenceFrameEngine.assign({
+              part_id: params.part_id ?? "part",
+              features: params.features ?? [],
+              fixed_primary: params.fixed_primary,
+              fixed_secondary: params.fixed_secondary,
+              fixed_tertiary: params.fixed_tertiary,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: coaxiality/runout TIR stackup validation
+          case "lathe_coax_runout_validate": {
+            const { latheCoaxialityRunoutValidatorEngine } = await import("../../engines/LatheCoaxialityRunoutValidatorEngine.js");
+            result = latheCoaxialityRunoutValidatorEngine.validate({
+              callout: params.callout ?? "circular_runout",
+              tolerance_mm: params.tolerance_mm,
+              feature_diameter_mm: params.feature_diameter_mm,
+              feature_length_mm: params.feature_length_mm,
+              spindle_runout_mm: params.spindle_runout_mm,
+              chuck_runout_mm: params.chuck_runout_mm,
+              toolsetup_offset_mm: params.toolsetup_offset_mm,
+              cutting_force_n: params.cutting_force_n,
+              overhang_mm: params.overhang_mm,
+              part_e_gpa: params.part_e_gpa,
+              cpk_target: params.cpk_target,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: roundness/cylindricity sampling plan (ISO 12181)
+          case "lathe_roundness_sampling_plan": {
+            const { roundnessCylindricitySamplingEngine } = await import("../../engines/RoundnessCylindricitySamplingEngine.js");
+            result = roundnessCylindricitySamplingEngine.plan({
+              feature: params.feature ?? "roundness",
+              method: params.method ?? "rotary_datum",
+              tolerance_mm: params.tolerance_mm,
+              diameter_mm: params.diameter_mm,
+              length_mm: params.length_mm,
+              expected_upr: params.expected_upr,
+              filter_cutoff_upr: params.filter_cutoff_upr,
+              precision_class: params.precision_class,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: Gage R&R / Measurement System Analysis
+          case "lathe_gage_rr_msa": {
+            const { gageRRMSAEngine } = await import("../../engines/GageRRMSAEngine.js");
+            result = gageRRMSAEngine.analyze({
+              measurements: params.measurements ?? [],
+              tolerance_width: params.tolerance_width,
+              method: params.method,
+              process_sigma: params.process_sigma,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: inverse stackup — allocate assembly tol to components
+          case "lathe_inverse_stackup_allocate": {
+            const { inverseStackupAllocatorEngine } = await import("../../engines/InverseStackupAllocatorEngine.js");
+            result = inverseStackupAllocatorEngine.allocate({
+              assembly_tolerance_mm: params.assembly_tolerance_mm,
+              method: params.method ?? "rss",
+              components: params.components ?? [],
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: FCF syntax validator
+          case "lathe_fcf_syntax_validate": {
+            const { fcfSyntaxValidatorEngine } = await import("../../engines/FCFSyntaxValidatorEngine.js");
+            result = fcfSyntaxValidatorEngine.validate({
+              fcf: params.fcf,
+              feature_size_mm: params.feature_size_mm,
+              is_feature_of_size: params.is_feature_of_size,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS8: profile deviation analysis
+          case "lathe_profile_deviation_analyze": {
+            const { profileDeviationAnalyzerEngine } = await import("../../engines/ProfileDeviationAnalyzerEngine.js");
+            result = profileDeviationAnalyzerEngine.analyze({
+              basis: params.basis ?? [],
+              measured: params.measured ?? [],
+              tolerance_mm: params.tolerance_mm,
+              zone_type: params.zone_type,
+              best_fit: params.best_fit,
             });
             break;
           }
