@@ -136,6 +136,13 @@ import { surfaceFinishDatabaseEngine } from "./SurfaceFinishDatabaseEngine.js";
 import { surfaceTreatmentEngine } from "./SurfaceTreatmentEngine.js";
 const contactMechanicsSurfaceEngine = new ContactMechanicsSurfaceEngine();
 
+// Spindle engines (5) — MS-WIRE-1/Force+Power layer
+import { spindlePowerCheckEngine } from "./SpindlePowerCheckEngine.js";
+import { spindleTorqueCurveEngine } from "./SpindleTorqueCurveEngine.js";
+import { spindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
+import { spindleRunoutEngine } from "./SpindleRunoutEngine.js";
+import { forceCapabilityEngine } from "./ForceCapabilityEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1649,6 +1656,35 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // SPINDLE / POWER ENGINES (5) — MS-WIRE-1/Power layer
+  // =========================================================================
+
+  /** Spindle power check — validates required power vs machine capability. */
+  getSpindlePowerCheck() {
+    return spindlePowerCheckEngine;
+  }
+
+  /** Spindle torque curve — computes available torque at RPM from motor profile. */
+  calculateSpindleTorqueCurve(input: Parameters<typeof spindleTorqueCurveEngine.calculate>[0]) {
+    return spindleTorqueCurveEngine.calculate(input);
+  }
+
+  /** Spindle bearing load — calculates radial/axial bearing loads from cutting. */
+  calculateSpindleBearingLoad(input: Parameters<typeof spindleBearingLoadEngine.calculate>[0]) {
+    return spindleBearingLoadEngine.calculate(input);
+  }
+
+  /** Spindle runout — predicts TIR error at tool tip from spindle/holder/tool. */
+  calculateSpindleRunout(input: Parameters<typeof spindleRunoutEngine.calculate>[0]) {
+    return spindleRunoutEngine.calculate(input);
+  }
+
+  /** Force capability — checks if machine can handle required cutting force. */
+  getForceCapability() {
+    return forceCapabilityEngine;
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1752,6 +1788,12 @@ class MillingPhysicsKernelEngine {
       "ContactMechanicsSurfaceEngine (asperity deformation, real contact area)",
       "SurfaceFinishDatabaseEngine (empirical finish data)",
       "SurfaceTreatmentEngine (shot peen, nitriding, coating)",
+      // Spindle/power engines (MS-WIRE-1/Power layer)
+      "SpindlePowerCheckEngine (power vs capability validator)",
+      "SpindleTorqueCurveEngine (available torque at RPM from motor profile)",
+      "SpindleBearingLoadEngine (radial/axial bearing load)",
+      "SpindleRunoutEngine (TIR at tool tip from spindle/holder/tool)",
+      "ForceCapabilityEngine (machine force-handling check)",
     ];
   }
 
@@ -1774,8 +1816,9 @@ class MillingPhysicsKernelEngine {
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
       material: 5,          // JohnsonCook, Constitutive, Interpolation, Equivalence, BatchVariability
-      total_engines: 76,
-      total_functions: 86,
+      spindle_power: 5,     // SpindlePowerCheck, TorqueCurve, BearingLoad, Runout, ForceCapability
+      total_engines: 81,
+      total_functions: 91,
     };
   }
 }
