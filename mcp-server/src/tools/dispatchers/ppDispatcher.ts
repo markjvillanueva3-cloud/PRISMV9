@@ -110,6 +110,9 @@ let _ppJobAdvisor: any;
 // PP-AGI-TEMPLATES: Scenario Template Library
 let _ppTemplateLibrary: any;
 
+// PP-AGI-ANALYZER: G-code Program Analyzer
+let _ppProgramAnalyzer: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -218,6 +221,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppJobAdvisor ??= (await import("../../engines/PPJobScenarioAdvisorEngine.js")).ppJobScenarioAdvisorEngine;
     case "templateLibrary":
       return _ppTemplateLibrary ??= (await import("../../engines/PPScenarioTemplateLibraryEngine.js")).ppScenarioTemplateLibraryEngine;
+    case "programAnalyzer":
+      return _ppProgramAnalyzer ??= (await import("../../engines/PPGCodeProgramAnalyzerEngine.js")).ppGCodeProgramAnalyzerEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -415,6 +420,11 @@ const ACTIONS = [
   "pp_templates_by_tag",           // Filter by tag
   "pp_templates_top_proven",       // Get top proven templates by success rate
   "pp_templates_stats",            // Library statistics
+
+  // ===== PP_ANALYZER: G-code program analyzer (3 actions) — PP-AGI-ANALYZER =====
+  "pp_analyzer_analyze",           // Full analysis of a G-code program
+  "pp_analyzer_batch",             // Batch analyze multiple programs
+  "pp_analyzer_compare",           // Compare two programs and list differences
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1235,6 +1245,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_templates_stats": {
             const engine = await getEngine("templateLibrary");
             result = engine.getStats();
+            break;
+          }
+
+          // ===== PP_ANALYZER (PP-AGI-ANALYZER) =====
+          case "pp_analyzer_analyze": {
+            const engine = await getEngine("programAnalyzer");
+            result = engine.analyze(params.gcode, params.sourceFile ?? params.source_file);
+            break;
+          }
+          case "pp_analyzer_batch": {
+            const engine = await getEngine("programAnalyzer");
+            result = { reports: engine.analyzeBatch(params.programs ?? []) };
+            break;
+          }
+          case "pp_analyzer_compare": {
+            const engine = await getEngine("programAnalyzer");
+            result = engine.compare(params.gcodeA ?? params.gcode_a, params.gcodeB ?? params.gcode_b);
             break;
           }
 
