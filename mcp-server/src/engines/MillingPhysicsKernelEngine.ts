@@ -44,6 +44,16 @@ import { cuttingTemperatureEngine } from "./CuttingTemperatureEngine.js";
 import { thermalWearCouplingEngine } from "./ThermalWearCouplingEngine.js";
 import { stochasticThermalEngine } from "./StochasticThermalEngine.js";
 
+// Deflection engines (1)
+import { toolDeflectionPredictionEngine } from "./ToolDeflectionPredictionEngine.js";
+
+// Stability engines (1)
+import { chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
+
+// Surface engines (2)
+import { surfaceFinishPredictorEngine } from "./SurfaceFinishPredictorEngine.js";
+import { surfaceIntegrityEngine } from "./SurfaceIntegrityEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -751,6 +761,135 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // PHASE 1 WIRING: DEFLECTION ENGINES
+  // =========================================================================
+
+  /**
+   * Advanced tool deflection with stepped shaft modeling.
+   * Delegates to: ToolDeflectionPredictionEngine.calculate()
+   *
+   * More sophisticated than constants.ts toolDeflection() — includes:
+   * - Holder + tool stepped shaft modeling
+   * - Flute count effective inertia reduction
+   * - Helix angle axial force component
+   * - Stress analysis and safety factor
+   */
+  calculateAdvancedToolDeflection(input: {
+    tool_diameter_mm: number;
+    tool_overhang_mm: number;
+    cutting_force_N: number;
+    force_direction?: "radial" | "tangential" | "axial";
+    tool_material?: "carbide" | "hss" | "ceramic" | "cermet" | "cbn" | "pcd";
+    holder_diameter_mm?: number;
+    holder_length_mm?: number;
+    flute_count?: number;
+    helix_angle_deg?: number;
+    tolerance_target_mm?: number;
+  }) {
+    return toolDeflectionPredictionEngine.calculate(input);
+  }
+
+  // =========================================================================
+  // PHASE 1 WIRING: STABILITY ENGINES
+  // =========================================================================
+
+  /**
+   * Generate stability lobe diagram (SLD) using Altintas-Budak model.
+   * Delegates to: ChatterStabilityLobeEngine.compute()
+   *
+   * This is the canonical milling stability model used industry-wide.
+   * Returns: critical axial depth vs RPM curve, safe operating regions.
+   */
+  generateStabilityLobes(input: {
+    tool: {
+      diameter_mm: number;
+      flute_count: number;
+      overhang_mm: number;
+      material: "carbide" | "hss" | "cermet";
+    };
+    workpiece: {
+      iso_group: "P" | "M" | "K" | "N" | "S" | "H";
+      kc11_mpa?: number;
+    };
+    machine: {
+      machine_id?: string;
+      natural_frequency_hz?: number;
+      damping_ratio?: number;
+      stiffness_n_um?: number;
+      max_rpm: number;
+      min_rpm?: number;
+    };
+    cutting: {
+      radial_immersion_ratio: number;
+      up_milling: boolean;
+      cutting_speed_mpm?: number;
+    };
+    rpm_range?: [number, number];
+    rpm_points?: number;
+  }) {
+    return chatterStabilityLobeEngine.compute(input);
+  }
+
+  // =========================================================================
+  // PHASE 1 WIRING: SURFACE ENGINES
+  // =========================================================================
+
+  /**
+   * Predict surface finish along toolpath with algorithm effects.
+   * Delegates to: SurfaceFinishPredictorEngine.predict()
+   *
+   * Includes: Brammertz Ra, scallop height, waviness, algorithm corrections.
+   */
+  predictSurfaceFinish(input: {
+    segments: Array<{
+      fz: number;
+      stepover_mm: number;
+      cusp_angle_deg?: number;
+      surface_speed_mpm?: number;
+      inclination_deg?: number;
+    }>;
+    tool: {
+      corner_radius_mm: number;
+      ball_radius_mm?: number;
+      edge_radius_um?: number;
+      flute_count?: number;
+    };
+    algorithm?: string;
+    target_ra_um?: number;
+    material?: string;
+    coolant?: string;
+  }) {
+    return surfaceFinishPredictorEngine.predict(input);
+  }
+
+  /**
+   * Calculate optimal feed per tooth for target Ra.
+   * Delegates to: SurfaceFinishPredictorEngine.optimalFeedForRa()
+   */
+  optimalFeedForTargetRa(target_ra_um: number, toolRadius_mm: number, edgeRadius_um: number = 5): number {
+    return surfaceFinishPredictorEngine.optimalFeedForRa(target_ra_um, toolRadius_mm, edgeRadius_um);
+  }
+
+  /**
+   * Analyze surface integrity (residual stress, white layer, fatigue).
+   * Delegates to: SurfaceIntegrityEngine.calculate()
+   *
+   * Critical for aerospace/medical where surface integrity affects fatigue life.
+   */
+  analyzeSurfaceIntegrity(input: {
+    process?: "turning" | "milling" | "grinding" | "hard_turning" | "edm" | "honing" | "polishing" | "shot_peen";
+    feed_mm_rev?: number;
+    tool_nose_radius_mm?: number;
+    cutting_speed_m_min?: number;
+    depth_of_cut_mm?: number;
+    material?: "steel" | "stainless" | "titanium" | "nickel_alloy" | "aluminum";
+    coolant?: "flood" | "mql" | "dry" | "cryogenic";
+    tool_condition?: "sharp" | "moderate_wear" | "worn";
+  }) {
+    return surfaceIntegrityEngine.calculate(input);
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -777,6 +916,13 @@ class MillingPhysicsKernelEngine {
       "CuttingTemperatureEngine (Trigger model)",
       "ThermalWearCouplingEngine (RK4 ODE coupled analysis)",
       "StochasticThermalEngine (Monte Carlo thermal uncertainty)",
+      // Deflection engines (Phase 1 continued)
+      "ToolDeflectionPredictionEngine (stepped shaft, stress analysis)",
+      // Stability engines (Phase 1 continued)
+      "ChatterStabilityLobeEngine (Altintas-Budak SLD)",
+      // Surface engines (Phase 1 continued)
+      "SurfaceFinishPredictorEngine (Brammertz Ra, scallop, algorithm effects)",
+      "SurfaceIntegrityEngine (residual stress, white layer, fatigue)",
     ];
   }
 
@@ -790,8 +936,11 @@ class MillingPhysicsKernelEngine {
       thermal: 4,           // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal
       force: 5,             // Kienzle, CuttingForce, Stochastic, Power, Energy
       math: 1,              // AdvancedCuttingMath
-      total_engines: 12,
-      total_functions: 16,
+      deflection: 1,        // ToolDeflectionPrediction
+      stability: 1,         // ChatterStabilityLobe
+      surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
+      total_engines: 16,
+      total_functions: 21,
     };
   }
 }

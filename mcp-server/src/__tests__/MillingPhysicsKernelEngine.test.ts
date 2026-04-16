@@ -427,9 +427,109 @@ describe("MillingPhysicsKernelEngine", () => {
   describe("getWiringStats", () => {
     it("should return engine counts by category", () => {
       const stats = millingPhysicsKernelEngine.getWiringStats();
-      expect(stats.total_engines).toBeGreaterThanOrEqual(12);
+      expect(stats.total_engines).toBeGreaterThanOrEqual(16);
       expect(stats.force).toBeGreaterThanOrEqual(5);
       expect(stats.thermal).toBeGreaterThanOrEqual(4);
+      expect(stats.deflection).toBeGreaterThanOrEqual(1);
+      expect(stats.stability).toBeGreaterThanOrEqual(1);
+      expect(stats.surface).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  // =========================================================================
+  // PHASE 1 WIRING TESTS: Deflection Engines
+  // =========================================================================
+
+  describe("calculateAdvancedToolDeflection (ToolDeflectionPredictionEngine)", () => {
+    it("should calculate deflection with stress analysis", () => {
+      const result = millingPhysicsKernelEngine.calculateAdvancedToolDeflection({
+        tool_diameter_mm: 10,
+        tool_overhang_mm: 50,
+        cutting_force_N: 500,
+        tool_material: "carbide",
+        flute_count: 4,
+      });
+
+      expect(result.static_deflection_um.value).toBeGreaterThan(0);
+      expect(result.max_bending_stress_MPa.value).toBeGreaterThan(0);
+      expect(result.safety_factor.value).toBeGreaterThan(0);
+      expect(result.is_safe).toBeDefined();
+    });
+  });
+
+  // =========================================================================
+  // PHASE 1 WIRING TESTS: Stability Engines
+  // =========================================================================
+
+  describe("generateStabilityLobes (ChatterStabilityLobeEngine)", () => {
+    it("should generate stability lobe diagram", () => {
+      const result = millingPhysicsKernelEngine.generateStabilityLobes({
+        tool: {
+          diameter_mm: 10,
+          flute_count: 4,
+          overhang_mm: 40,
+          material: "carbide",
+        },
+        workpiece: {
+          iso_group: "P",
+        },
+        machine: {
+          natural_frequency_hz: 800,
+          damping_ratio: 0.03,
+          stiffness_n_um: 50,
+          max_rpm: 10000,
+        },
+        cutting: {
+          radial_immersion_ratio: 0.5,
+          up_milling: false,
+        },
+        rpm_points: 20,
+      });
+
+      // Result is AtomicValue<ChatterResult>
+      expect(result.value).toBeDefined();
+      expect(result.value.lobes).toBeDefined();
+      expect(result.value.critical_frequency_hz).toBeGreaterThan(0);
+      expect(result.value.recommendations).toBeDefined();
+      // Lobes may be empty depending on parameters, but structure should exist
+      expect(Array.isArray(result.value.lobes)).toBe(true);
+    });
+  });
+
+  // =========================================================================
+  // PHASE 1 WIRING TESTS: Surface Engines
+  // =========================================================================
+
+  describe("analyzeSurfaceIntegrity (SurfaceIntegrityEngine)", () => {
+    it("should analyze surface integrity for milling", () => {
+      const result = millingPhysicsKernelEngine.analyzeSurfaceIntegrity({
+        process: "milling",
+        feed_mm_rev: 0.15,
+        tool_nose_radius_mm: 0.8,
+        cutting_speed_m_min: 150,
+        depth_of_cut_mm: 2.0,
+        material: "steel",
+        coolant: "flood",
+      });
+
+      expect(result.surface_roughness_ra.value).toBeGreaterThan(0);
+      expect(result.residual_stress_surface).toBeDefined();
+      expect(result.white_layer_thickness).toBeDefined();
+      expect(result.fatigue_derating).toBeDefined();
+      expect(result.surface_quality_score.value).toBeGreaterThan(0);
+    });
+  });
+
+  describe("optimalFeedForTargetRa", () => {
+    it("should calculate optimal feed for target Ra", () => {
+      const fz = millingPhysicsKernelEngine.optimalFeedForTargetRa(
+        1.6,  // Target Ra = 1.6 µm
+        0.8,  // Tool radius = 0.8mm
+        5     // Edge radius = 5 µm
+      );
+
+      expect(fz).toBeGreaterThan(0);
+      expect(fz).toBeLessThan(0.5); // Reasonable feed range
     });
   });
 });
