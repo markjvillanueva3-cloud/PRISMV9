@@ -122,6 +122,9 @@ let _ppKnowledgeIndex: any;
 // PP-AGI-BENCHMARK: Quality benchmarks
 let _ppBenchmark: any;
 
+// PP-AGI-WORKFLOW: Multi-step reasoning orchestrator
+let _ppWorkflow: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -238,6 +241,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppKnowledgeIndex ??= (await import("../../engines/PPKnowledgeIndexEngine.js")).ppKnowledgeIndexEngine;
     case "benchmark":
       return _ppBenchmark ??= (await import("../../engines/PPAGIBenchmarkEngine.js")).ppAGIBenchmarkEngine;
+    case "workflow":
+      return _ppWorkflow ??= (await import("../../engines/PPAGIReasoningWorkflowEngine.js")).ppAGIReasoningWorkflowEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -457,6 +462,10 @@ const ACTIONS = [
   "pp_benchmark_run_all",          // Run all benchmark cases
   "pp_benchmark_category",         // Run benchmarks for a category
   "pp_benchmark_quick",            // Quick CI-style smoke test
+
+  // ===== PP_WORKFLOW: Multi-step reasoning (2 actions) — PP-AGI-WORKFLOW =====
+  "pp_workflow_run",               // Run a named workflow with typed input
+  "pp_workflow_list",              // List all available workflow types
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1355,6 +1364,18 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_benchmark_quick": {
             const engine = await getEngine("benchmark");
             result = engine.quickCheck();
+            break;
+          }
+
+          // ===== PP_WORKFLOW (PP-AGI-WORKFLOW) =====
+          case "pp_workflow_run": {
+            const engine = await getEngine("workflow");
+            result = engine.run(params.type, params.input);
+            break;
+          }
+          case "pp_workflow_list": {
+            const engine = await getEngine("workflow");
+            result = { workflows: engine.listWorkflows() };
             break;
           }
 
