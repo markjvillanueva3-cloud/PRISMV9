@@ -200,6 +200,46 @@ export class QdrantVectorStoreEngine {
     }
   }
 
+  /**
+   * Scroll through every point in a collection using the cursor-style
+   * API. Returns a flat array of points with payload+vector; intended
+   * for export/backup, not for hot-path lookups.
+   */
+  async scrollAll(
+    collection: string,
+    pageSize = 256,
+  ): Promise<Result<Array<{ id: string | number; vector: number[]; payload?: Record<string, unknown> }>>> {
+    if (!this.client) return err("not connected");
+    if (!collection || collection.trim() === "") return err("collection required");
+    const out: Array<{
+      id: string | number;
+      vector: number[];
+      payload?: Record<string, unknown>;
+    }> = [];
+    let offset: string | number | undefined;
+    try {
+      while (true) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const raw: any = await this.client.scroll(collection, {
+          limit: pageSize,
+          with_payload: true,
+          with_vector: true,
+          offset,
+        });
+        const points = Array.isArray(raw?.points) ? raw.points : [];
+        for (const p of points) {
+          const vec = Array.isArray(p.vector) ? p.vector : [];
+          out.push({ id: p.id, vector: vec, payload: p.payload ?? undefined });
+        }
+        if (!raw?.next_page_offset) break;
+        offset = raw.next_page_offset;
+      }
+      return ok(out);
+    } catch (e) {
+      return err("scroll failed", e);
+    }
+  }
+
   disconnect(): void {
     this.client = null;
     this.lastConnectOptions = null;
