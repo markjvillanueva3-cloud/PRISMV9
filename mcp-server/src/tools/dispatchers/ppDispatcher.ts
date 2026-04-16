@@ -242,6 +242,9 @@ let _ppSpindleState: any;
 // PP-TLC: Tool length compensation validator
 let _ppToolLengthComp: any;
 
+// PP-TC: Thread cycle validator (lathe)
+let _ppThreadCycle: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -437,6 +440,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppSpindleState ??= (await import("../../engines/PPSpindleStateValidatorEngine.js")).ppSpindleStateValidatorEngine;
     case "toolLengthComp":
       return _ppToolLengthComp ??= (await import("../../engines/PPToolLengthCompValidatorEngine.js")).ppToolLengthCompValidatorEngine;
+    case "threadCycle":
+      return _ppThreadCycle ??= (await import("../../engines/PPThreadCycleValidatorEngine.js")).ppThreadCycleValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -825,6 +830,11 @@ const ACTIONS = [
   "pp_tlc_validate",               // Full G43/G44/G49 validation
   "pp_tlc_quick",                  // Quick pass/fail + G43 count
   "pp_tlc_defaults",               // Default TLC validator options
+
+  // PP-TC: Thread cycle validator (lathe G32/G33/G76/G92)
+  "pp_tc_validate",                // Full threading cycle validation
+  "pp_tc_quick",                   // Quick pass/fail + pass count
+  "pp_tc_defaults",                // Default thread cycle validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2597,6 +2607,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_tlc_defaults": {
             const engine = await getEngine("toolLengthComp");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_TC (PP-TC — Lathe thread cycle validator) =====
+          case "pp_tc_validate": {
+            const engine = await getEngine("threadCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_feed_per_rev: params.check_feed_per_rev,
+              check_pitch_f: params.check_pitch_f,
+              check_g76_params: params.check_g76_params,
+              check_retract_before: params.check_retract_before,
+              check_css_off: params.check_css_off,
+              check_pitch_consistency: params.check_pitch_consistency,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_tc_quick": {
+            const engine = await getEngine("threadCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_tc_defaults": {
+            const engine = await getEngine("threadCycle");
             result = engine.defaultOptions();
             break;
           }
