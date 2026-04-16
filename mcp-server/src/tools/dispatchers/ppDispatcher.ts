@@ -140,6 +140,9 @@ let _ppSafetyRuleValidator: any;
 // PP-DL-MS5: Greedy Toolpath Optimizer
 let _ppGreedyOptimizer: any;
 
+// PP-MACH: Machine-Specific Post Config
+let _ppMachinePost: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -267,6 +270,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppControllerAdaptation ??= (await import("../../engines/PPControllerAdaptationEngine.js")).ppControllerAdaptationEngine;
     case "greedyOptimizer":
       return _ppGreedyOptimizer ??= (await import("../../engines/PPGreedyToolpathOptimizerEngine.js")).ppGreedyToolpathOptimizerEngine;
+    case "machinePost":
+      return _ppMachinePost ??= (await import("../../engines/PPMachineSpecificPostEngine.js")).ppMachineSpecificPostEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -501,6 +506,12 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_MACHINE_POST: Machine-specific post configs (4 actions) — PP-MACH =====
+  "pp_machine_post_generate",      // Generate post config for a JM Die machine
+  "pp_machine_post_generate_all",  // Generate configs for all machines
+  "pp_machine_post_list",          // List JM Die machine inventory
+  "pp_machine_post_validate_job",  // Validate cutting conditions for a machine
 
   // ===== PP_ADAPT: Controller parameter adaptation (2 actions) — PP-DL-MS1 =====
   "pp_adapt_parameters",           // Adapt parameters for a specific controller
@@ -1460,6 +1471,31 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_MACHINE_POST (PP-MACH) =====
+          case "pp_machine_post_generate": {
+            const engine = await getEngine("machinePost");
+            result = engine.generateConfig(params.machineId ?? params.machine_id);
+            break;
+          }
+          case "pp_machine_post_generate_all": {
+            const engine = await getEngine("machinePost");
+            result = { configs: engine.generateAllConfigs() };
+            break;
+          }
+          case "pp_machine_post_list": {
+            const engine = await getEngine("machinePost");
+            result = { machines: engine.listMachines() };
+            break;
+          }
+          case "pp_machine_post_validate_job": {
+            const engine = await getEngine("machinePost");
+            result = engine.validateForJob(
+              params.machineId ?? params.machine_id,
+              params.conditions ?? params,
+            );
             break;
           }
 
