@@ -229,7 +229,81 @@
       "commit": "a956369d",
       "renamedTo": "LatheActualFeedbackTuningEngine",
       "renameReason": "DuplicationGuard 90% name-similarity to CalibrationEngine (instrument calibration); new name emphasizes post-run actual-vs-predicted physics tuning"
+    },
+    {
+      "name": "DNCFileTransferEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "DNC file transfer protocol adapter: FTP/RS232 drip-feed/USB/Ethernet with machine-specific control chars (Fanuc DNC / Okuma DNC-A). No existing engine covers protocol-level NC file movement.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "MTConnectLiveStatusEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "MTConnect XML stream parser — machine execution/program/alarm/spindle state. Standard protocol (MTConnect 1.5/2.x) not currently covered. Distinct from OEE (aggregated KPI) and ShopFloorCheckIn (human log-in).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheJobSetupSheetEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Operator-facing setup sheet generator: tooling, offsets, chuck/jaw pos, tailstock, coolant settings. Distinct from JobTravelerEngine (routing) and OperatorDashboardOrchestrator (live UI).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52",
+      "renamedTo": "LatheChangeoverBriefEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing SetupSheetEngine (generic tool/op-oriented); new name emphasizes workholding-oriented changeover brief (chuck, jaws, tailstock) distinct from the tool/op-level document"
+    },
+    {
+      "name": "LatheFirstPieceApprovalEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "First-off sign-off gate — inspection readings vs tolerance, accept/reject + hold codes. Different from FirstArticleInspectionPipeline (FAI for PPAP/AS9102 first production).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheOnMachineProbeCycleEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "OMV on-machine probe cycle library (Renishaw/Marposs) — OD, ID, face, groove, thread start, work-offset bump. G-code macro sequences not covered by existing engines.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheChuckJawSetupEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Soft-jaw boring calc + grip length + jaw balance — lathe-specific fixture math not covered by ChuckGripForce (jaw force only) or FixtureStiffness (generic).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "CNCToolOffsetPersistenceEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Sync tool offset tables between CNC memory (H/D/W words) and ERP; track drift across shifts + RMAs. Not covered by tool-life or tool-crib engines.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "OperatorActionAuditTrailEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Operator override/e-stop/cycle-skip audit log with reason codes for AS9100/FDA traceability. Distinct from ShopFloorCheckIn (login) and ShiftHandoff (narrative).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
     }
   ],
-  "lastUpdated": "2026-04-16T22:05:00Z"
+  "lastUpdated": "2026-04-16T22:01:00Z"
 }
