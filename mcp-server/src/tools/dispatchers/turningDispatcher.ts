@@ -156,6 +156,15 @@ const ACTIONS = [
   "lathe_part_cost_model",
   "lathe_aux_axis_timing",
   "lathe_feedback_tune",
+  // LATHE-PRO-MS11: Shop floor integration & deployment
+  "lathe_dnc_transfer",
+  "lathe_mtconnect_status",
+  "lathe_changeover_brief",
+  "lathe_first_piece_approve",
+  "lathe_probe_cycle",
+  "lathe_chuck_jaw_setup",
+  "lathe_tool_offset_sync",
+  "lathe_operator_audit",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1971,6 +1980,109 @@ Actions: ${ACTIONS.join(", ")}.`,
               baseline_scrap_rate: params.baseline_scrap_rate,
               kc_scale: params.kc_scale,
               outlier_reject_ratio: params.outlier_reject_ratio,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS11: Shop floor integration & deployment
+          case "lathe_dnc_transfer": {
+            const { dncFileTransferEngine } = await import("../../engines/DNCFileTransferEngine.js");
+            result = dncFileTransferEngine.buildTransfer({
+              program_number: params.program_number,
+              controller: params.controller ?? "fanuc",
+              protocol: params.protocol ?? "rs232",
+              program: params.program ?? params.program_body ?? "",
+              baud: params.baud,
+              max_size_bytes: params.max_size_bytes,
+            });
+            break;
+          }
+
+          case "lathe_mtconnect_status": {
+            const { mtConnectLiveStatusEngine } = await import("../../engines/MTConnectLiveStatusEngine.js");
+            result = mtConnectLiveStatusEngine.parse({
+              items: params.items ?? [],
+              total_blocks: params.total_blocks,
+            });
+            break;
+          }
+
+          case "lathe_changeover_brief": {
+            const { latheChangeoverBriefEngine } = await import("../../engines/LatheChangeoverBriefEngine.js");
+            result = latheChangeoverBriefEngine.generate(params as any);
+            break;
+          }
+
+          case "lathe_first_piece_approve": {
+            const { latheFirstPieceApprovalEngine } = await import("../../engines/LatheFirstPieceApprovalEngine.js");
+            result = latheFirstPieceApprovalEngine.evaluate({
+              job_id: params.job_id,
+              part_number: params.part_number,
+              operator: params.operator,
+              inspector: params.inspector,
+              readings: params.readings ?? [],
+              warning_band_fraction: params.warning_band_fraction,
+              instrument_uncertainty_mm: params.instrument_uncertainty_mm,
+            });
+            break;
+          }
+
+          case "lathe_probe_cycle": {
+            const { latheOnMachineProbeCycleEngine } = await import("../../engines/LatheOnMachineProbeCycleEngine.js");
+            result = latheOnMachineProbeCycleEngine.generate({
+              cycle: params.cycle,
+              nominal_mm: params.nominal_mm,
+              tol_mm: params.tol_mm,
+              probe_feed_mm_min: params.probe_feed_mm_min,
+              approach_mm: params.approach_mm,
+              macro_override: params.macro_override,
+              wcs: params.wcs,
+              axis: params.axis,
+              probe_stylus_length_mm: params.probe_stylus_length_mm,
+            });
+            break;
+          }
+
+          case "lathe_chuck_jaw_setup": {
+            const { latheChuckJawSetupEngine } = await import("../../engines/LatheChuckJawSetupEngine.js");
+            result = latheChuckJawSetupEngine.compute({
+              part_od_mm: params.part_od_mm,
+              part_od_tol_mm: params.part_od_tol_mm,
+              clamp_force_kn: params.clamp_force_kn,
+              jaw_modulus_mpa: params.jaw_modulus_mpa,
+              jaw_contact_area_mm2: params.jaw_contact_area_mm2,
+              jaw_mass_kg: params.jaw_mass_kg,
+              jaw_centroid_radius_mm: params.jaw_centroid_radius_mm,
+              chuck_rated_max_rpm: params.chuck_rated_max_rpm,
+              operating_rpm: params.operating_rpm,
+              step_required: params.step_required,
+              step_z_mm: params.step_z_mm,
+              use_master_pressure: params.use_master_pressure,
+            });
+            break;
+          }
+
+          case "lathe_tool_offset_sync": {
+            const { cncToolOffsetPersistenceEngine } = await import("../../engines/CNCToolOffsetPersistenceEngine.js");
+            result = cncToolOffsetPersistenceEngine.sync({
+              controller_records: params.controller_records ?? [],
+              erp_records: params.erp_records ?? [],
+              wear_band_mm: params.wear_band_mm,
+              error_threshold_mm: params.error_threshold_mm,
+            });
+            break;
+          }
+
+          case "lathe_operator_audit": {
+            const { operatorActionAuditTrailEngine } = await import("../../engines/OperatorActionAuditTrailEngine.js");
+            result = operatorActionAuditTrailEngine.record({
+              new_events: params.new_events,
+              existing_trail: params.existing_trail,
+              filter_machine_id: params.filter_machine_id,
+              filter_operator_id: params.filter_operator_id,
+              filter_from: params.filter_from,
+              filter_to: params.filter_to,
+              limit: params.limit,
             });
             break;
           }
