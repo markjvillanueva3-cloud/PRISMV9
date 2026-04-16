@@ -179,6 +179,9 @@ let _ppFeedSpeedScaler: any;
 // PP-COMPAT: Controller compatibility checker for G-code
 let _ppControllerCompat: any;
 
+// PP-MODAL: Modal state tracker for G-code programs
+let _ppModalTracker: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -332,6 +335,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppFeedSpeedScaler ??= (await import("../../engines/PPFeedSpeedScalerEngine.js")).ppFeedSpeedScalerEngine;
     case "controllerCompat":
       return _ppControllerCompat ??= (await import("../../engines/PPControllerCompatibilityEngine.js")).ppControllerCompatibilityEngine;
+    case "modalTracker":
+      return _ppModalTracker ??= (await import("../../engines/PPModalStateTrackerEngine.js")).ppModalStateTrackerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -613,6 +618,12 @@ const ACTIONS = [
   "pp_compat_quick",               // Quick pass/fail compatibility result
   "pp_compat_rank",                // Rank multiple controllers by compatibility
   "pp_compat_list_controllers",    // List all supported controller targets
+
+  // ===== PP_MODAL: Modal state tracker (4 actions) — PP-MODAL =====
+  "pp_modal_track",                // Full per-line modal state timeline
+  "pp_modal_state_at_line",        // Modal state at a specific line
+  "pp_modal_transitions",          // All transitions in a specific modal group
+  "pp_modal_active",               // Active value of a modal group at a line
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1834,6 +1845,40 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_compat_list_controllers": {
             const engine = await getEngine("controllerCompat");
             result = engine.listControllers();
+            break;
+          }
+
+          // ===== PP_MODAL (PP-MODAL — modal state tracker) =====
+          case "pp_modal_track": {
+            const engine = await getEngine("modalTracker");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const initial = params.initial ?? params.initial_state;
+            result = engine.track(gcode, initial);
+            break;
+          }
+          case "pp_modal_state_at_line": {
+            const engine = await getEngine("modalTracker");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const line = params.line ?? params.line_number ?? 1;
+            const full = engine.track(gcode);
+            result = engine.getStateAtLine(full, line);
+            break;
+          }
+          case "pp_modal_transitions": {
+            const engine = await getEngine("modalTracker");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const group = params.group ?? "motion";
+            const full = engine.track(gcode);
+            result = engine.getTransitions(full, group);
+            break;
+          }
+          case "pp_modal_active": {
+            const engine = await getEngine("modalTracker");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const group = params.group ?? "motion";
+            const line = params.line ?? params.line_number ?? 1;
+            const full = engine.track(gcode);
+            result = engine.getActiveModal(full, group, line);
             break;
           }
 
