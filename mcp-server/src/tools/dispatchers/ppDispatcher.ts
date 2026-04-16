@@ -272,6 +272,9 @@ let _ppProgramEnd: any;
 // PP-AI: Absolute/incremental mode validator (G90/G91)
 let _ppAbsInc: any;
 
+// PP-MF: Macro flow validator (WHILE/DO/END/GOTO)
+let _ppMacroFlow: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -487,6 +490,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramEnd ??= (await import("../../engines/PPProgramEndValidatorEngine.js")).ppProgramEndValidatorEngine;
     case "absInc":
       return _ppAbsInc ??= (await import("../../engines/PPAbsIncValidatorEngine.js")).ppAbsIncValidatorEngine;
+    case "macroFlow":
+      return _ppMacroFlow ??= (await import("../../engines/PPMacroFlowValidatorEngine.js")).ppMacroFlowValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -925,6 +930,11 @@ const ACTIONS = [
   "pp_ai_validate",                // Full distance-mode validation
   "pp_ai_quick",                   // Quick pass/fail + final mode + switch count
   "pp_ai_defaults",                // Default distance-mode validator options
+
+  // PP-MF: Macro flow validator (WHILE/DO/END/GOTO)
+  "pp_mf_validate",                // Full macro-flow validation
+  "pp_mf_quick",                   // Quick pass/fail + balanced + nesting
+  "pp_mf_defaults",                // Default macro-flow validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2977,6 +2987,35 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_ai_defaults": {
             const engine = await getEngine("absInc");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_MF (PP-MF — Macro flow validator) =====
+          case "pp_mf_validate": {
+            const engine = await getEngine("macroFlow");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_do_end_balance: params.check_do_end_balance,
+              check_do_label_range: params.check_do_label_range,
+              check_nested_conflict: params.check_nested_conflict,
+              check_while_do: params.check_while_do,
+              check_goto_targets: params.check_goto_targets,
+              check_while_in_conditional: params.check_while_in_conditional,
+              max_do_label: params.max_do_label,
+              min_do_label: params.min_do_label,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_mf_quick": {
+            const engine = await getEngine("macroFlow");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_mf_defaults": {
+            const engine = await getEngine("macroFlow");
             result = engine.defaultOptions();
             break;
           }
