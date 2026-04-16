@@ -402,6 +402,41 @@ const event_reset = z.object({
   confirm: optBool.describe("Must be true to execute reset"),
 }).passthrough();
 
+// ── CPP-MS2 U-CPP16: SessionInsightsLedgerEngine ──
+
+/** insight_record — append a schema-validated insight entry to the ledger */
+const insight_record = z.object({
+  sessionId: z.string().describe("Session ID (required)"),
+  category: z.enum([
+    "duplication-avoided",
+    "goal-completed",
+    "error-recovery",
+    "dedup-hit",
+    "blocked-action",
+    "user-preference",
+    "pattern-learned",
+    "other",
+  ]).describe("Insight category"),
+  summary: z.string().min(1).describe("One-line summary of the insight"),
+  detail: z.string().optional().describe("Optional extended detail"),
+  relatedGoalIds: z.array(z.string()).optional().describe("Linked milestone/goal IDs"),
+  confidence: z.number().min(0).max(1).optional().describe("Confidence in [0,1]"),
+  id: z.string().optional().describe("Explicit entry ID (default: auto-generated)"),
+  at: z.string().optional().describe("Explicit ISO timestamp (default: now)"),
+}).passthrough();
+
+/** insight_top — return the N most recent insights, optionally filtered */
+const insight_top = z.object({
+  n: z.number().int().min(1).max(500).optional().describe("Number of entries to return (default: 10)"),
+  category: z.string().optional().describe("Optional category filter"),
+  sessionId: z.string().optional().describe("Optional session ID filter"),
+}).passthrough();
+
+/** insight_summarize — counts per category + total + optional time-window summary */
+const insight_summarize = z.object({
+  sessionId: z.string().optional().describe("Optional session ID filter"),
+}).passthrough();
+
 export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   // State management
   state_load,
@@ -487,4 +522,9 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   event_query,
   event_stats,
   event_reset,
+
+  // SessionInsightsLedgerEngine (CPP-MS2-U-CPP16)
+  insight_record,
+  insight_top,
+  insight_summarize,
 };

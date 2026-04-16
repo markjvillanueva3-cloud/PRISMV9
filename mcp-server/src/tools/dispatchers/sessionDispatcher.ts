@@ -102,7 +102,11 @@ const ACTIONS = [
   "event_log",
   "event_query",
   "event_stats",
-  "event_reset"
+  "event_reset",
+  // SessionInsightsLedgerEngine (CPP-MS2-U-CPP16)
+  "insight_record",
+  "insight_top",
+  "insight_summarize",
 ] as const;
 
 function ok(data: any) {
@@ -1286,6 +1290,75 @@ export function registerSessionDispatcher(server: any): void {
             const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
             sessionEventLogEngine.reset();
             return ok({ success: true, data: { reset: true } });
+          }
+
+          // ============================================================
+          // CPP-MS2 U-CPP16: SESSION INSIGHTS LEDGER (append-only JSONL)
+          // ============================================================
+          case "insight_record": {
+            const { SessionInsightsLedgerEngine } = await import("../../engines/SessionInsightsLedgerEngine.js");
+            const fsMod = await import("node:fs");
+            const pathMod = await import("node:path");
+            const ledgerPath = pathMod.join("H:/prism/state", "SESSION_INSIGHTS_LEDGER.jsonl");
+            const engine = new SessionInsightsLedgerEngine((line: string) => {
+              fsMod.appendFileSync(ledgerPath, line, "utf-8");
+            });
+            const out = await engine.record({
+              sessionId: params.sessionId,
+              category: params.category,
+              summary: params.summary,
+              detail: params.detail,
+              relatedGoalIds: params.relatedGoalIds,
+              confidence: params.confidence,
+              id: params.id,
+              at: params.at,
+            });
+            return ok({ success: out.ok, data: out });
+          }
+          case "insight_top": {
+            const { SessionInsightsLedgerEngine } = await import("../../engines/SessionInsightsLedgerEngine.js");
+            const fsMod = await import("node:fs");
+            const pathMod = await import("node:path");
+            const ledgerPath = pathMod.join("H:/prism/state", "SESSION_INSIGHTS_LEDGER.jsonl");
+            const engine = new SessionInsightsLedgerEngine();
+            const n = Number.isInteger(params.n) && params.n > 0 ? params.n : 10;
+            let lines: string[] = [];
+            if (fsMod.existsSync(ledgerPath)) {
+              lines = fsMod.readFileSync(ledgerPath, "utf-8").split("\n").filter(Boolean);
+            }
+            const entries = lines.map(l => engine.parse(l)).filter((e): e is NonNullable<typeof e> => e !== null);
+            let filtered = entries;
+            if (params.category) filtered = filtered.filter(e => e.category === params.category);
+            if (params.sessionId) filtered = filtered.filter(e => e.sessionId === params.sessionId);
+            const sorted = filtered.sort((a, b) => b.at.localeCompare(a.at)).slice(0, n);
+            return ok({ success: true, data: { entries: sorted, count: sorted.length, totalInLedger: entries.length } });
+          }
+          case "insight_summarize": {
+            const { SessionInsightsLedgerEngine } = await import("../../engines/SessionInsightsLedgerEngine.js");
+            const fsMod = await import("node:fs");
+            const pathMod = await import("node:path");
+            const ledgerPath = pathMod.join("H:/prism/state", "SESSION_INSIGHTS_LEDGER.jsonl");
+            const engine = new SessionInsightsLedgerEngine();
+            let lines: string[] = [];
+            if (fsMod.existsSync(ledgerPath)) {
+              lines = fsMod.readFileSync(ledgerPath, "utf-8").split("\n").filter(Boolean);
+            }
+            const entries = lines.map(l => engine.parse(l)).filter((e): e is NonNullable<typeof e> => e !== null);
+            const scope = params.sessionId ? entries.filter(e => e.sessionId === params.sessionId) : entries;
+            const byCategory: Record<string, number> = {};
+            for (const e of scope) {
+              byCategory[e.category] = (byCategory[e.category] ?? 0) + 1;
+            }
+            const bySession = new Set(scope.map(e => e.sessionId)).size;
+            const earliest = scope.length > 0 ? scope.reduce((m, e) => (e.at < m ? e.at : m), scope[0].at) : null;
+            const latest = scope.length > 0 ? scope.reduce((m, e) => (e.at > m ? e.at : m), scope[0].at) : null;
+            return ok({ success: true, data: {
+              total: scope.length,
+              byCategory,
+              distinctSessions: bySession,
+              earliest,
+              latest,
+            } });
           }
 
           default:

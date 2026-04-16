@@ -1,18 +1,21 @@
 /**
- * sessionDispatcher + contextDispatcher wiring tests — CPP-MS2 U-CPP08/09/10
+ * sessionDispatcher + contextDispatcher + memoryDispatcher wiring tests — CPP-MS2
  *
  * Captures the handler fn registered via server.tool() and invokes it directly.
- * Validates 9 new actions (5 ContextChainEngine + 4 SessionEventLogEngine) on
- * sessionDispatcher and 4 new actions (ContextWindowMapEngine) on contextDispatcher
- * route without schema rejection and return a structured response.
+ * Covers:
+ *   - U-CPP08 (ContextChainEngine, 5 actions on sessionDispatcher)
+ *   - U-CPP09 (ContextWindowMapEngine, 4 actions on contextDispatcher)
+ *   - U-CPP10 (SessionEventLogEngine, 4 actions on sessionDispatcher)
+ *   - U-CPP15 (MemoryPressureMonitorEngine, 3 actions on memoryDispatcher)
+ *   - U-CPP16 (SessionInsightsLedgerEngine, 3 actions on sessionDispatcher)
  *
- * Minimal smoke-style coverage; deep engine behaviour is covered by
- * ContextChainEngine.test.ts, context-window-map-engine.test.ts, and
- * session-event-log-engine.test.ts.
+ * Minimal smoke-style coverage; deep engine behaviour is covered by the
+ * engines' own companion tests.
  */
 import { describe, it, expect } from "vitest";
 import { registerSessionDispatcher } from "../tools/dispatchers/sessionDispatcher.js";
 import { registerContextDispatcher } from "../tools/dispatchers/contextDispatcher.js";
+import { registerMemoryDispatcher } from "../tools/dispatchers/memoryDispatcher.js";
 
 type Handler = (args: { action: string; params?: Record<string, any> }) => Promise<any>;
 
@@ -115,6 +118,51 @@ describe("contextDispatcher — ContextWindowMapEngine wiring (U-CPP09)", () => 
 
   it("window_stale_detect returns newly_marked_stale count", async () => {
     const out = unwrap(await handler({ action: "window_stale_detect", params: {} }));
+    expect(out).toBeDefined();
+  });
+});
+
+describe("memoryDispatcher — MemoryPressureMonitorEngine wiring (U-CPP15)", () => {
+  const handler = captureHandler(registerMemoryDispatcher);
+
+  it("pressure_record samples current heap", async () => {
+    const out = unwrap(await handler({ action: "pressure_record", params: {} }));
+    expect(out).toBeDefined();
+  });
+
+  it("pressure_get returns samples + trend", async () => {
+    const out = unwrap(await handler({ action: "pressure_get", params: { n: 5 } }));
+    expect(out).toBeDefined();
+  });
+
+  it("pressure_recommend returns reading + trend + recommendation", async () => {
+    const out = unwrap(await handler({ action: "pressure_recommend", params: {} }));
+    expect(out).toBeDefined();
+  });
+});
+
+describe("sessionDispatcher — SessionInsightsLedgerEngine wiring (U-CPP16)", () => {
+  const handler = captureHandler(registerSessionDispatcher);
+
+  it("insight_record appends a schema-validated entry", async () => {
+    const out = unwrap(await handler({
+      action: "insight_record",
+      params: {
+        sessionId: "test-session",
+        category: "other",
+        summary: "wiring smoke test",
+      },
+    }));
+    expect(out).toBeDefined();
+  });
+
+  it("insight_top returns top-N entries (possibly empty)", async () => {
+    const out = unwrap(await handler({ action: "insight_top", params: { n: 5 } }));
+    expect(out).toBeDefined();
+  });
+
+  it("insight_summarize returns counts by category", async () => {
+    const out = unwrap(await handler({ action: "insight_summarize", params: {} }));
     expect(out).toBeDefined();
   });
 });

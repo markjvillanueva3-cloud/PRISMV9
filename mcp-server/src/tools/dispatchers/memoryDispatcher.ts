@@ -51,7 +51,11 @@ export function registerMemoryDispatcher(server: McpServer): void {
         "consolidate",
         "consolidation_stats",
         "consolidation_patterns",
-      ]).describe("Memory graph action"),
+        // CPP-MS2 U-CPP15: MemoryPressureMonitorEngine
+        "pressure_record",
+        "pressure_get",
+        "pressure_recommend",
+      ]).describe("Memory graph + pressure monitor actions"),
       params: z.record(z.string(), z.any()).optional().describe("Action parameters"),
     },
     async (args: { action: string; params?: Record<string, any> }) => {
@@ -206,8 +210,43 @@ export function registerMemoryDispatcher(server: McpServer): void {
             break;
           }
 
+          // ============================================================
+          // CPP-MS2 U-CPP15: MEMORY PRESSURE MONITOR
+          // ============================================================
+          case "pressure_record": {
+            const { memoryPressureMonitorEngine } = await import("../../engines/MemoryPressureMonitorEngine.js");
+            const reading = memoryPressureMonitorEngine.sampleNow(params.nowIso);
+            result = { success: true, data: reading };
+            break;
+          }
+          case "pressure_get": {
+            const { memoryPressureMonitorEngine } = await import("../../engines/MemoryPressureMonitorEngine.js");
+            const n = Number.isInteger(params.n) && params.n > 0 ? params.n : 10;
+            const samples = memoryPressureMonitorEngine.lastN(n);
+            const trend = memoryPressureMonitorEngine.trend();
+            result = { success: true, data: { samples, trend } };
+            break;
+          }
+          case "pressure_recommend": {
+            const { memoryPressureMonitorEngine } = await import("../../engines/MemoryPressureMonitorEngine.js");
+            const reading = memoryPressureMonitorEngine.sampleNow();
+            const trend = memoryPressureMonitorEngine.trend();
+            let recommendation = "continue";
+            if (reading.band === "critical") {
+              recommendation = "compact_now";
+            } else if (reading.band === "warn" && trend.rising) {
+              recommendation = "compact_soon";
+            } else if (reading.band === "warn") {
+              recommendation = "monitor";
+            } else if (trend.rising && reading.heapUtilization >= 0.8) {
+              recommendation = "watch_trend";
+            }
+            result = { success: true, data: { reading, trend, recommendation } };
+            break;
+          }
+
           default:
-            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns'] };
+            result = { error: `Unknown action: ${action}`, available: ['get_health', 'trace_decision', 'find_similar', 'get_session', 'get_node', 'run_integrity', 'consolidate', 'consolidation_stats', 'consolidation_patterns', 'pressure_record', 'pressure_get', 'pressure_recommend'] };
         }
 
         const elapsed = (performance.now() - start).toFixed(1);

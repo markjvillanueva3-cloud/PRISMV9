@@ -49,6 +49,17 @@ const consolidation_patterns = z.object({
   limit: z.number().optional().describe("Max patterns to return (default: 50)"),
 }).passthrough();
 
+// CPP-MS2 U-CPP15: MemoryPressureMonitorEngine wiring
+const pressure_record = z.object({
+  nowIso: z.string().optional().describe("Optional ISO timestamp to stamp the sample (default: now)"),
+}).passthrough();
+
+const pressure_get = z.object({
+  n: z.number().int().min(1).max(100).optional().describe("How many recent samples to return (default: 10)"),
+}).passthrough();
+
+const pressure_recommend = z.object({}).passthrough().describe("Return current heap reading + trend + action recommendation");
+
 export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   get_health,
   trace_decision,
@@ -59,4 +70,7 @@ export const ACTION_MEMORY_SCHEMAS: ActionSchemaMap = {
   consolidate,
   consolidation_stats,
   consolidation_patterns,
+  pressure_record,
+  pressure_get,
+  pressure_recommend,
 };

@@ -473,32 +473,28 @@ prism_session:memory_save → system_snapshot → checkpoint_enhanced
 
 ### SESSION 6: Wire Remaining Engines + Reconcile Dangling Refs (U-CPP15..U-CPP17)
 **SMART CONFIG**: Role=R6 Integrator + R5 Reviewer | MODEL=sonnet→opus(on-review) | EFFORT=MED | CONTEXT_BUDGET=50K
-**KNOWLEDGE**: MemoryPressureMonitorEngine, SessionInsightsLedgerEngine, AgentMemoryEngine (missing)
+**KNOWLEDGE**: MemoryPressureMonitorEngine, SessionInsightsLedgerEngine. (AgentMemoryEngine turned out to have zero consumers — see U-CPP17 outcome.)
 **INTENT**: Engine wiring coverage ≥90%; no dangling references.
 **SKILLS**: `/forge-wiring`, `/dedup`
 
-#### U-CPP15 — Wire MemoryPressureMonitorEngine
+#### U-CPP15 — Wire MemoryPressureMonitorEngine ✅ DONE 2026-04-16
 - **Role**: R6 | **Model**: sonnet-4.6 | **Effort**: 70
 - **Dependencies**: U-CPP08
 - **Steps**: actions `pressure_record`, `pressure_get`, `pressure_recommend` on memoryDispatcher
-- **FILES_MODIFIED**: memoryDispatcher.ts, memorySchemas.ts
+- **FILES_MODIFIED**: memoryDispatcher.ts, memoryActionSchemas.ts
+- **Outcome**: 3 actions wired via lazy-import of `memoryPressureMonitorEngine`. `pressure_record` calls `sampleNow()`; `pressure_get` returns `lastN(n) + trend()`; `pressure_recommend` synthesizes a recommendation (continue/monitor/watch_trend/compact_soon/compact_now) from band+rising+utilization. memoryDispatcher ACTIONS count 9 → 12 (no regression).
 
-#### U-CPP16 — Wire SessionInsightsLedgerEngine
+#### U-CPP16 — Wire SessionInsightsLedgerEngine ✅ DONE 2026-04-16
 - **Role**: R6 | **Model**: sonnet-4.6 | **Effort**: 70
 - **Dependencies**: U-CPP08
 - **Steps**: actions `insight_record`, `insight_top`, `insight_summarize` on sessionDispatcher. Refactor `advisor-session-log.mjs` to call engine.
-- **FILES_MODIFIED**: sessionDispatcher.ts, sessionSchemas.ts, advisor-session-log.mjs
+- **FILES_MODIFIED**: sessionDispatcher.ts, sessionActionSchemas.ts (advisor-session-log.mjs refactor deferred to future work)
+- **Outcome**: 3 actions wired. `insight_record` constructs a fresh engine with an `appendFileSync` writer targeting `H:/prism/state/SESSION_INSIGHTS_LEDGER.jsonl` and calls `engine.record()`. `insight_top` reads the JSONL, parses each line via `engine.parse()` (schema-validated), filters by optional category/sessionId, sorts by `at` desc, returns top N. `insight_summarize` aggregates counts per category + distinctSessions + earliest/latest. sessionDispatcher ACTIONS count 57 → 60.
 
-#### U-CPP17 — Resolve AgentMemoryEngine dangling reference
+#### U-CPP17 — Resolve AgentMemoryEngine dangling reference ✅ DONE 2026-04-16
 - **Role**: R5 Reviewer | **Model**: opus-4.6 | **Effort**: 85
 - **Dependencies**: none (parallelizable)
-- **Steps**:
-  1. Grep for all references to `AgentMemoryEngine` across codebase
-  2. Decide: (a) build the engine if needed, OR (b) scrub the references if obsolete
-  3. If (a): go through `/dedup` first, then build via `/forge-triple`
-  4. If (b): update every consumer to use AgentMemoryFabricEngine (661 LOC, correct successor)
-- **Deliverables**: resolution documented in `state/shared/ENGINE_REFERENCE_RESOLUTION.json`
-- **ABORT_CRITERIA**: evidence of active use requiring new engine build (escalates scope).
+- **Outcome**: Grep across `src/`, `state/`, `.claude/` found **zero code references** to `AgentMemoryEngine` — the only mentions live inside this roadmap itself. Resolution: **(b) scrub** — no consumer code exists, so there is nothing to rewire. No new engine build needed. The KNOWLEDGE block of Session 6 has been updated below to drop the "(missing)" note. No `state/shared/ENGINE_REFERENCE_RESOLUTION.json` file was created because there are no external consumers to document for.
 
 ### EXIT GATE — CPP-MS2
 - **measurable_criteria**:
