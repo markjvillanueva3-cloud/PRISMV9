@@ -392,3 +392,6 @@ export class WaveletToolBreakage implements Algorithm<WaveletBreakageInput, Wave
     };
   }
 }
+
+// Alias export for index.ts compatibility
+export { WaveletToolBreakage as WaveletBreakage };

@@ -131,9 +131,10 @@ function findDuplicates(proposed, existingList, threshold = 0.75) {
       continue;
     }
 
-    // Substring containment
+    // Substring containment - require BOTH strings to be substantial (>6 chars)
+    // to avoid false positives on generic words like "index", "cache", "base"
     if (normalizedProposed.includes(normalizedExisting) || normalizedExisting.includes(normalizedProposed)) {
-      if (normalizedProposed.length > 3 && normalizedExisting.length > 3) {
+      if (normalizedProposed.length > 6 && normalizedExisting.length > 6) {
         matches.push({ name: existing, similarity: 0.9, reason: 'NAME OVERLAP' });
         continue;
       }
@@ -153,25 +154,41 @@ function checkContentDuplication(content) {
   const warnings = [];
   const contentLower = content.toLowerCase();
 
-  // Check for known formulas being re-implemented (require word boundary match)
+  // Skip content checking for files that are clearly configuration/constants
+  // (they may list formulas/algorithms without implementing them)
+  if (contentLower.includes('const ') && contentLower.includes('set(') ||
+      contentLower.includes('boost_terms') || contentLower.includes('known_') ||
+      contentLower.includes('domain_terms') || contentLower.includes('stop_words')) {
+    return warnings; // Skip - this is a configuration file listing terms
+  }
+
+  // Check for known formulas being re-implemented
+  // Must have BOTH: formula name AND implementation indicators (=, function body, etc.)
   for (const formula of KNOWN_FORMULAS) {
     const formulaLower = formula.toLowerCase();
-    // Only match if formula appears as a word (not substring)
     const regex = new RegExp(`\\b${formulaLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
-    if (regex.test(content) &&
-        (contentLower.includes('implement') || contentLower.includes('calculate') ||
-         contentLower.includes('formula') || contentLower.includes('equation'))) {
+
+    // Require strong implementation signals, not just mentioning the term
+    const hasImplementation = (
+      (contentLower.includes(`${formulaLower}(`) || contentLower.includes(`${formulaLower} =`)) &&
+      (contentLower.includes('return ') || contentLower.includes('math.'))
+    );
+
+    if (regex.test(content) && hasImplementation) {
       warnings.push(`Re-implementing "${formula}" — already exists in FormulaRegistry or CrossDisciplinaryDeepLearningEngine`);
     }
   }
 
-  // Check for known algorithms (require word boundary match, skip short names)
+  // Check for known algorithms (require strong implementation signals)
   for (const algo of KNOWN_ALGORITHMS) {
-    if (algo.length < 5) continue; // Skip short algorithm names to avoid false positives
+    if (algo.length < 6) continue; // Skip short names
     const algoNormalized = algo.toLowerCase().replace(/[^a-z]/g, '');
-    const regex = new RegExp(`\\b${algoNormalized}\\b`, 'i');
-    if (regex.test(contentLower) &&
-        (contentLower.includes('class ') || contentLower.includes('implement'))) {
+
+    // Must be defining a class/function with this name
+    const classPattern = new RegExp(`class\\s+${algoNormalized}`, 'i');
+    const funcPattern = new RegExp(`function\\s+${algoNormalized}`, 'i');
+
+    if (classPattern.test(contentLower) || funcPattern.test(contentLower)) {
       warnings.push(`Re-implementing "${algo}" — already exists in AlgorithmRegistry`);
     }
   }

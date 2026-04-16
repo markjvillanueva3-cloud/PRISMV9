@@ -295,3 +295,6 @@ export class ChipVolumeRatePredictor implements Algorithm<ChipVolumeRateInput, C
     };
   }
 }
+
+// Alias export for index.ts compatibility
+export { ChipVolumeRatePredictor as ChipVolumeRate };

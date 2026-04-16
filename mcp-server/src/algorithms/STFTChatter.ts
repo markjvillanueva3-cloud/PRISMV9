@@ -434,3 +434,6 @@ export class STFTChatterDetection implements Algorithm<STFTChatterInput, STFTCha
     };
   }
 }
+
+// Alias export for index.ts compatibility
+export { STFTChatterDetection as STFTChatter };
