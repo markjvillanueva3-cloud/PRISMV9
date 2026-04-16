@@ -165,6 +165,15 @@ const ACTIONS = [
   "lathe_chuck_jaw_setup",
   "lathe_tool_offset_sync",
   "lathe_operator_audit",
+  // LATHE-PRO-MS12: Simulation, verification & visualization
+  "lathe_block_engagement_sim",
+  "lathe_stock_evolution",
+  "lathe_envelope_breach_replay",
+  "lathe_block_time_profile",
+  "lathe_deviation_map",
+  "lathe_program_backtrace",
+  "lathe_program_signoff_dossier",
+  "lathe_replay_frame_compile",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -2083,6 +2092,91 @@ Actions: ${ACTIONS.join(", ")}.`,
               filter_from: params.filter_from,
               filter_to: params.filter_to,
               limit: params.limit,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS12: Simulation, verification & visualization
+          case "lathe_block_engagement_sim": {
+            const { latheBlockEngagementSimulatorEngine } = await import("../../engines/LatheBlockEngagementSimulatorEngine.js");
+            result = latheBlockEngagementSimulatorEngine.simulate({
+              blocks: params.blocks ?? [],
+              stock_od_mm: params.stock_od_mm,
+              nose_radius_mm: params.nose_radius_mm,
+            });
+            break;
+          }
+
+          case "lathe_stock_evolution": {
+            const { latheStockEvolutionEngine } = await import("../../engines/LatheStockEvolutionEngine.js");
+            result = latheStockEvolutionEngine.evolve({
+              initial_od_mm: params.initial_od_mm,
+              initial_length_mm: params.initial_length_mm,
+              initial_id_mm: params.initial_id_mm,
+              passes: params.passes ?? [],
+              sample_step_mm: params.sample_step_mm,
+            });
+            break;
+          }
+
+          case "lathe_envelope_breach_replay": {
+            const { latheEnvelopeBreachReplayEngine } = await import("../../engines/LatheEnvelopeBreachReplayEngine.js");
+            result = latheEnvelopeBreachReplayEngine.replay({
+              blocks: params.blocks ?? [],
+              envelope: params.envelope,
+            });
+            break;
+          }
+
+          case "lathe_block_time_profile": {
+            const { latheBlockTimeProfilerEngine } = await import("../../engines/LatheBlockTimeProfilerEngine.js");
+            result = latheBlockTimeProfilerEngine.profile({
+              blocks: params.blocks ?? [],
+              top_n: params.top_n,
+            });
+            break;
+          }
+
+          case "lathe_deviation_map": {
+            const { latheDeviationMapEngine } = await import("../../engines/LatheDeviationMapEngine.js");
+            result = latheDeviationMapEngine.compare({
+              commanded: params.commanded ?? [],
+              actual: params.actual ?? [],
+              tolerance_r_mm: params.tolerance_r_mm,
+            });
+            break;
+          }
+
+          case "lathe_program_backtrace": {
+            const { latheProgramBacktraceEngine } = await import("../../engines/LatheProgramBacktraceEngine.js");
+            result = latheProgramBacktraceEngine.trace({
+              blocks: params.blocks ?? [],
+              failing_block_n: params.failing_block_n,
+              max_depth: params.max_depth,
+            });
+            break;
+          }
+
+          case "lathe_program_signoff_dossier": {
+            const { latheProgramSignoffDossierEngine } = await import("../../engines/LatheProgramSignoffDossierEngine.js");
+            result = latheProgramSignoffDossierEngine.assemble({
+              program_id: params.program_id,
+              engagement: params.engagement,
+              stock: params.stock,
+              breach: params.breach,
+              time: params.time,
+              deviation: params.deviation,
+              deviation_tol_mm: params.deviation_tol_mm,
+            });
+            break;
+          }
+
+          case "lathe_replay_frame_compile": {
+            const { latheReplayFrameCompilerEngine } = await import("../../engines/LatheReplayFrameCompilerEngine.js");
+            result = latheReplayFrameCompilerEngine.compile({
+              program_id: params.program_id,
+              blocks: params.blocks ?? [],
+              fps: params.fps,
             });
             break;
           }
