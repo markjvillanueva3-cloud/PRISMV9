@@ -303,7 +303,87 @@
       "built": true,
       "builtAt": "2026-04-16T22:01:00Z",
       "commit": "4d961a52"
+    },
+    {
+      "name": "LatheBlockEngagementSimulatorEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Per-block tool engagement simulator: XZ toolpath evolution with chip thickness, MRR, and engagement width per block. Distinct from ToolpathSimulationEngine (generic), AdaptiveEngagementEngine (mill-focused control), EngagementGeometryEngine (static geometry).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheStockEvolutionEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "2D cross-section stock profile evolution across sequential passes — final part geometry produced by the simulated program. Distinct from StockMaterialDatabase (material catalog) and MaterialRemovalSimulationEngine (3D mill-centric).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheCollisionReplayEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Replay simulated run block-by-block with turret/holder/tailstock/chuck geometry, flagging first-collision block. Distinct from LatheCollisionZoneEngine (static zone check) and VideoReplayOrchestratorEngine (video UI replay).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheEnvelopeBreachReplayEngine",
+      "renameReason": "DuplicationGuard 90% match vs existing CollisionEngine — renamed to emphasize forbidden-volume intrusion scope (chuck/tailstock/steady/limits)."
+    },
+    {
+      "name": "LatheCycleTimeProfilerEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Per-block cycle-time decomposition into rapid / feed / dwell / tool-change / retract / M-code segments with bottleneck ranking. Distinct from LatheOpTimeBreakdownEngine (operation-level rollup) and LatheAuxAxisTimingEngine (aux axis overlap).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheBlockTimeProfilerEngine",
+      "renameReason": "DuplicationGuard 90% match vs existing CycleTimeEngine — renamed to emphasize block-granularity (the actual distinguishing feature vs operation/whole-program rollup)."
+    },
+    {
+      "name": "LatheDeviationMapEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Compare simulated final profile to CAD nominal, producing per-feature deviation map (max/min/RMS) with hot-spot flagging. Distinct from LatheProfileDeviationEngine (measured profile analytics) — this is simulated-vs-CAD prediction.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheProgramBacktraceEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Given a failed/out-of-tol block, trace back through the program to identify the root-cause source block (offset edit, mis-fed N-block, wrong WCS). Distinct from LatheTroubleshootingIntelligenceEngine (symptom-to-cause LLM) — this is deterministic block-walk.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheVerificationReportEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Consolidate simulation outputs (collision, deviation, cycle time, engagement) into a lathe-specific pass/fail verification report with severity-ranked findings. Distinct from SimulationReportEngine (generic format) and LatheQualityGateEngine (post-inspection gate).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheProgramSignoffDossierEngine",
+      "renameReason": "Preemptive rename to avoid SimulationReportEngine + multi-VerificationEngine overlap. 'Dossier' is a distinct token; emphasizes signoff-aggregation role (bundles engagement + stock + breach + time + deviation summaries into verdict)."
+    },
+    {
+      "name": "LatheRenderFrameSequenceEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Emit rendering-ready frame snapshots (stock profile + tool pose + cut region) at sampled block indices for UI playback. Distinct from VisualizationEngine (generic) and SimulationVisualizationBridgeEngine (cross-tool data marshal).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheReplayFrameCompilerEngine",
+      "renameReason": "Preemptive rename to avoid Sequence*/Renderer* token collisions (LatheSequenceOptimizerEngine, ReportRenderer, LessonRenderer). 'Compiler' is distinct; emphasizes data-marshalling role (not 3D rendering)."
     }
   ],
-  "lastUpdated": "2026-04-16T22:01:00Z"
+  "lastUpdated": "2026-04-16T22:18:00Z"
 }
