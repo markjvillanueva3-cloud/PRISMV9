@@ -143,6 +143,9 @@ let _ppGreedyOptimizer: any;
 // PP-MACH: Machine-Specific Post Config
 let _ppMachinePost: any;
 
+// PP-E2E: End-to-End Post Generator
+let _ppE2EGenerator: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -272,6 +275,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppGreedyOptimizer ??= (await import("../../engines/PPGreedyToolpathOptimizerEngine.js")).ppGreedyToolpathOptimizerEngine;
     case "machinePost":
       return _ppMachinePost ??= (await import("../../engines/PPMachineSpecificPostEngine.js")).ppMachineSpecificPostEngine;
+    case "e2eGenerator":
+      return _ppE2EGenerator ??= (await import("../../engines/PPEndToEndPostGeneratorEngine.js")).ppEndToEndPostGeneratorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -506,6 +511,10 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_E2E: End-to-end G-code generator (2 actions) — PP-E2E =====
+  "pp_e2e_generate",               // Generate complete G-code program from job spec
+  "pp_e2e_generate_simple",        // Quick single-operation program
 
   // ===== PP_MACHINE_POST: Machine-specific post configs (4 actions) — PP-MACH =====
   "pp_machine_post_generate",      // Generate post config for a JM Die machine
@@ -1471,6 +1480,26 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_E2E (PP-E2E) =====
+          case "pp_e2e_generate": {
+            const engine = await getEngine("e2eGenerator");
+            result = engine.generate(params);
+            break;
+          }
+          case "pp_e2e_generate_simple": {
+            const engine = await getEngine("e2eGenerator");
+            result = engine.generateSimple(
+              params.machineId ?? params.machine_id,
+              params.toolNum ?? params.tool_num ?? 1,
+              params.toolDia ?? params.tool_dia ?? 10,
+              params.operation ?? "roughing",
+              params.speed ?? 5000,
+              params.feed ?? 500,
+              params.doc ?? 2,
+            );
             break;
           }
 
