@@ -128,6 +128,9 @@ let _ppWorkflow: any;
 // PP-AGI-AUDITOR: Program Library Auditor
 let _ppLibraryAuditor: any;
 
+// PP-AGI-REPORT: Markdown Report Generator
+let _ppReportGenerator: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -248,6 +251,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppWorkflow ??= (await import("../../engines/PPAGIReasoningWorkflowEngine.js")).ppAGIReasoningWorkflowEngine;
     case "libraryAuditor":
       return _ppLibraryAuditor ??= (await import("../../engines/PPAGIProgramLibraryAuditorEngine.js")).ppAGIProgramLibraryAuditorEngine;
+    case "reportGenerator":
+      return _ppReportGenerator ??= (await import("../../engines/PPAGIReportGeneratorEngine.js")).ppAGIReportGeneratorEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -476,6 +481,14 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_REPORT: Markdown report generator (6 actions) — PP-AGI-REPORT =====
+  "pp_report_job_advice",          // Markdown report from JobAdvice
+  "pp_report_program_analysis",    // Markdown report from ProgramAnalysisReport
+  "pp_report_library_audit",       // Markdown report from LibraryAuditResult
+  "pp_report_dashboard",           // Markdown report from SystemDashboard
+  "pp_report_workflow",            // Markdown report from WorkflowResult
+  "pp_report_executive",           // 1-paragraph executive summary
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1409,6 +1422,38 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_REPORT (PP-AGI-REPORT) =====
+          case "pp_report_job_advice": {
+            const engine = await getEngine("reportGenerator");
+            result = { markdown: engine.jobAdviceReport(params.advice) };
+            break;
+          }
+          case "pp_report_program_analysis": {
+            const engine = await getEngine("reportGenerator");
+            result = { markdown: engine.programAnalysisReport(params.report) };
+            break;
+          }
+          case "pp_report_library_audit": {
+            const engine = await getEngine("reportGenerator");
+            result = { markdown: engine.libraryAuditReport(params.audit) };
+            break;
+          }
+          case "pp_report_dashboard": {
+            const engine = await getEngine("reportGenerator");
+            result = { markdown: engine.dashboardReport(params.dashboard) };
+            break;
+          }
+          case "pp_report_workflow": {
+            const engine = await getEngine("reportGenerator");
+            result = { markdown: engine.workflowReport(params.workflow) };
+            break;
+          }
+          case "pp_report_executive": {
+            const engine = await getEngine("reportGenerator");
+            result = { summary: engine.executiveSummary(params.advice) };
             break;
           }
 
