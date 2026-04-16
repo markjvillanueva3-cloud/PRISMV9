@@ -36,6 +36,12 @@
           },
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/lib/night-mode-guard.mjs",
+            "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/lib/orphan-detection-hook.mjs",
             "timeout": 2000,
             "continueOnError": true
@@ -439,6 +445,12 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/always-build-guard.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/ai-session-sync.mjs",
