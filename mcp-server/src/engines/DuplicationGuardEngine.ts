@@ -69,6 +69,30 @@ const INDEX_TTL_MS = 300000; // 5 minutes
 // CROSS-SESSION PERSISTENT REGISTRY (survives across chat sessions)
 // ============================================================================
 
+/** U-AWR24: extraction-log.json entry schema */
+interface ExtractionEntry {
+  id?: string;
+  type?: string;
+  name?: string;
+  source?: string;
+  description?: string;
+  timestamp?: string;
+  status?: "completed" | "partial" | "failed" | "superseded";
+  tipsGenerated?: number;
+  programsIndexed?: number;
+  [key: string]: unknown;
+}
+
+/** U-AWR24: full extraction-log.json shape */
+interface ExtractionLog {
+  schemaVersion?: string;
+  lastUpdated?: string;
+  description?: string;
+  extractions?: ExtractionEntry[];
+  doNotExtract?: string[];
+  stats?: Record<string, unknown>;
+}
+
 interface CrossSessionEntry {
   id: string;
   type: AssetType;
@@ -677,11 +701,12 @@ export class DuplicationGuardEngine {
     const logPath = path.join(this.baseDir, "mcp-server", "data", "state", "extraction-log.json");
 
     try {
-      let content = { extractions: [] as any[] };
+      let content: ExtractionLog = { extractions: [] };
       if (fs.existsSync(logPath)) {
         content = JSON.parse(fs.readFileSync(logPath, "utf-8"));
       }
 
+      content.extractions = content.extractions ?? [];
       content.extractions.push({
         id: `${type}-${name}`,
         type,
@@ -689,12 +714,99 @@ export class DuplicationGuardEngine {
         source: assetPath,
         description,
         timestamp: new Date().toISOString(),
+        status: "completed",
       });
+
+      // U-AWR24: auto-sync doNotExtract after every append
+      content.doNotExtract = this.buildDoNotExtract(content.extractions);
+      content.lastUpdated = new Date().toISOString();
 
       fs.writeFileSync(logPath, JSON.stringify(content, null, 2));
     } catch (err) {
       log.warn(`[DuplicationGuard] Could not update extraction log: ${err}`);
     }
+  }
+
+  /**
+   * U-AWR24: Rebuild doNotExtract array from the extractions list, 1:1.
+   * Filters to entries with status === "completed" and generates a
+   * human-readable blocker line for each.
+   */
+  buildDoNotExtract(extractions: ExtractionEntry[]): string[] {
+    const out: string[] = [];
+    for (const e of extractions) {
+      if (e.status && e.status !== "completed") continue; // skip superseded, failed
+      const id = e.id ?? e.name ?? "unknown";
+      let count = "";
+      if (typeof (e as any).tipsGenerated === "number") {
+        count = ` - ${(e as any).tipsGenerated} tips already extracted`;
+      } else if (typeof (e as any).programsIndexed === "number") {
+        count = ` - ${(e as any).programsIndexed} programs already indexed`;
+      } else {
+        count = " - already extracted";
+      }
+      out.push(`${id}${count}`);
+    }
+    return out;
+  }
+
+  /**
+   * U-AWR24: Public utility — sync the extraction log's doNotExtract array
+   * against the current extractions list. Called by post-extract hook and
+   * directly for one-time reconciliation.
+   */
+  async syncDoNotExtract(): Promise<{
+    synced: boolean;
+    before: number;
+    after: number;
+    added: string[];
+  }> {
+    const logPath = path.join(this.baseDir, "mcp-server", "data", "state", "extraction-log.json");
+    if (!fs.existsSync(logPath)) {
+      return { synced: false, before: 0, after: 0, added: [] };
+    }
+    try {
+      const content: ExtractionLog = JSON.parse(fs.readFileSync(logPath, "utf-8"));
+      const before = (content.doNotExtract ?? []).length;
+      const before_set = new Set(content.doNotExtract ?? []);
+      const rebuilt = this.buildDoNotExtract(content.extractions ?? []);
+      const added = rebuilt.filter(x => !before_set.has(x));
+      content.doNotExtract = rebuilt;
+      content.lastUpdated = new Date().toISOString();
+      fs.writeFileSync(logPath, JSON.stringify(content, null, 2));
+      return { synced: true, before, after: rebuilt.length, added };
+    } catch (err) {
+      log.warn(`[DuplicationGuard] syncDoNotExtract failed: ${err}`);
+      return { synced: false, before: 0, after: 0, added: [] };
+    }
+  }
+
+  /**
+   * U-AWR24: ResourceType coverage — verify every enum value has at least
+   * one extraction path covered, so mustNotReExtract can block future
+   * re-extractions across all resource types.
+   */
+  getResourceTypeCoverage(): { type: string; covered: boolean; extractionCount: number }[] {
+    const logPath = path.join(this.baseDir, "mcp-server", "data", "state", "extraction-log.json");
+    const allTypes = ["pdf", "video", "course", "catalog", "program", "cad", "post",
+                      "model", "spreadsheet", "archive", "other"];
+    const counts: Record<string, number> = {};
+    try {
+      if (fs.existsSync(logPath)) {
+        const content: ExtractionLog = JSON.parse(fs.readFileSync(logPath, "utf-8"));
+        for (const e of content.extractions ?? []) {
+          const t = (e.type || "other").toLowerCase();
+          counts[t] = (counts[t] || 0) + 1;
+        }
+      }
+    } catch {
+      // fall through
+    }
+    return allTypes.map(t => ({
+      type: t,
+      covered: (counts[t] || 0) > 0,
+      extractionCount: counts[t] || 0,
+    }));
   }
 
   private getRegistryForType(index: AssetRegistry, type: AssetType): Map<string, ExistingAsset> {
