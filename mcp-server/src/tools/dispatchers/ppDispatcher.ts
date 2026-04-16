@@ -149,6 +149,9 @@ let _ppE2EGenerator: any;
 // PP-CAP: Capability Matrix
 let _ppCapMatrix: any;
 
+// PP-TURNING: Okuma Turning Post
+let _ppOkumaTurning: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -282,6 +285,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppE2EGenerator ??= (await import("../../engines/PPEndToEndPostGeneratorEngine.js")).ppEndToEndPostGeneratorEngine;
     case "capMatrix":
       return _ppCapMatrix ??= (await import("../../engines/PPAGICapabilityMatrixEngine.js")).ppAGICapabilityMatrixEngine;
+    case "okumaTurning":
+      return _ppOkumaTurning ??= (await import("../../engines/PPOkumaTurningPostEngine.js")).ppOkumaTurningPostEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -516,6 +521,10 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
+  "pp_turning_generate",           // Generate complete Okuma turning program
+  "pp_turning_simple_od_rough",    // Quick OD roughing program
 
   // ===== PP_CAPABILITY: Capability matrix (3 actions) — PP-CAP =====
   "pp_capability_matrix",          // Full capability matrix for all JM Die machines
@@ -1490,6 +1499,25 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_TURNING (PP-TURNING) =====
+          case "pp_turning_generate": {
+            const engine = await getEngine("okumaTurning");
+            result = engine.generate(params);
+            break;
+          }
+          case "pp_turning_simple_od_rough": {
+            const engine = await getEngine("okumaTurning");
+            result = engine.generateSimpleODRough(
+              params.barDia ?? params.bar_dia ?? 50,
+              params.finishDia ?? params.finish_dia ?? 30,
+              params.length ?? 40,
+              params.sfm ?? 200,
+              params.feedIPR ?? params.feed_ipr ?? 0.012,
+              params.doc ?? 2,
+            );
             break;
           }
 
