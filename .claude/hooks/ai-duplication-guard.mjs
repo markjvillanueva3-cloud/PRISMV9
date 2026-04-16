@@ -22,6 +22,16 @@ import { createInterface } from 'node:readline';
 const MCP_SERVER = 'H:/prism/mcp-server';
 const REGISTRY_PATH = `${MCP_SERVER}/data/state/cross-session-asset-registry.json`;
 
+// HTTP opt-in: when this flag file exists, the hook will call the MCP
+// server's /api/v1/asset-check/name-check route for a second opinion.
+// The result can *tighten* (upgrade to block) but never *loosen* a decision
+// produced by the inline check — so losing connectivity only drops us back
+// to the original behaviour.
+const HTTP_FLAG = 'H:/prism/.claude/cache/asset-check-http-enabled.flag';
+const HTTP_ENDPOINT = process.env.PRISM_ASSET_CHECK_URL ||
+  'http://127.0.0.1:3000/api/v1/asset-check/name-check';
+const HTTP_TIMEOUT_MS = 500;
+
 // Asset type detection patterns (expanded for better coverage)
 const ASSET_PATTERNS = [
   { pattern: /[/\\]engines[/\\][A-Z].*Engine\.ts$/, type: 'engine', dir: `${MCP_SERVER}/src/engines` },
@@ -196,6 +206,60 @@ function checkContentDuplication(content) {
   return warnings;
 }
 
+/**
+ * Opt-in HTTP upgrade. Returns:
+ *   - { decision: "block" | "warn", reason } when the server responded
+ *   - null when the flag is absent, the server is down, or anything fails.
+ *
+ * Never throws — a broken server must not break the hook.
+ */
+async function httpUpgrade({ assetType, proposedName, content }) {
+  try {
+    if (!(await fileExists(HTTP_FLAG))) return null;
+  } catch {
+    return null;
+  }
+  // Map hook asset types to the route's enum. Unsupported types → skip.
+  const typeMap = {
+    engine: 'engine',
+    formula: 'formula',
+    algorithm: 'algorithm',
+    skill: 'skill',
+    hook: 'hook',
+    dispatcher: 'action',
+  };
+  const routeType = typeMap[assetType];
+  if (!routeType) return null;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), HTTP_TIMEOUT_MS);
+  try {
+    const body = {
+      type: routeType,
+      proposedName,
+      description: typeof content === 'string' ? content.slice(0, 4000) : '',
+      threshold: 0.75,
+    };
+    const response = await fetch(HTTP_ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (!data || typeof data.decision !== 'string') return null;
+    if (data.decision === 'block' || data.decision === 'warn') {
+      return { decision: data.decision, reason: data.reason || 'asset-check HTTP' };
+    }
+    return null;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 function outputBlock(reason) {
   const output = {
     hookSpecificOutput: {
@@ -304,12 +368,24 @@ async function main() {
     warnings.push(...contentWarnings);
   }
 
+  // Optional HTTP upgrade: the MCP server re-runs the LayeredAssetCheckEngine
+  // with richer context. Any block/warn is appended so the high-confidence
+  // path below can fire. Flag-gated + 500ms-capped so an offline server is
+  // a no-op.
+  const upgrade = await httpUpgrade({ assetType, proposedName, content });
+  if (upgrade) {
+    warnings.push(
+      `HTTP ASSET-CHECK ${upgrade.decision.toUpperCase()}: ${upgrade.reason}`
+    );
+  }
+
   // BLOCK if high-confidence duplicate detected
   if (warnings.length > 0) {
     const hasHighConfidence = warnings.some(w =>
       w.includes('EXACT DUPLICATE') ||
       w.includes('NAME OVERLAP') ||
-      w.includes('Re-implementing')
+      w.includes('Re-implementing') ||
+      w.includes('HTTP ASSET-CHECK BLOCK')
     );
 
     if (hasHighConfidence || warnings.length >= 2) {

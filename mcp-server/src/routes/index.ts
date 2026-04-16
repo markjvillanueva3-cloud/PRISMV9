@@ -77,6 +77,7 @@ import { createRealtimeRouter } from "./realtime.js";
 import { createViewerRouter } from "./viewer.js";
 import { createApiExtRouter } from "./api-ext.js";
 import { createCalibrationRouter } from "./calibration.js";
+import { createAssetCheckRouter } from "./asset-check.js";
 // import { createPUOARouter } from "./puoa.js";  // TEMP: file corrupted, recreate
 import { apiVersioning } from "./openapi.js";
 import { log } from "../utils/Logger.js";
@@ -165,6 +166,7 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/realtime", createRealtimeRouter());  // /api/v1/realtime/* (SSE stream + emit + stats)
   app.use("/api/v1/ext", createApiExtRouter(callTool)); // /api/v1/ext/* (external integration — optimize, feedback, learning)
   app.use("/api/v1/calibration", createCalibrationRouter()); // INFRA-5-1: actuals ingestion + outlier detection
+  app.use("/api/v1/asset-check", createAssetCheckRouter(callTool)); // PP-INFRA: dedup name/layered gate for hooks
   // app.use("/api/v1/puoa", createPUOARouter());          // TEMP: disabled, file corrupted
   app.use("/api/viewer", createViewerRouter());         // /api/viewer/* (3D scene catalog + scene graph — no /v1/ prefix, matches frontend viewer API)
 
