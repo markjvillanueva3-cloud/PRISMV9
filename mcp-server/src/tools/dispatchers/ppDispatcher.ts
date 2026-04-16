@@ -203,6 +203,9 @@ let _ppCoolantSequence: any;
 // PP-CC: Canned cycle (G81-G89) validator
 let _ppCannedCycle: any;
 
+// PP-CD: Cutter compensation (G40/G41/G42) validator
+let _ppCutterComp: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -372,6 +375,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCoolantSequence ??= (await import("../../engines/PPCoolantSequenceValidatorEngine.js")).ppCoolantSequenceValidatorEngine;
     case "cannedCycle":
       return _ppCannedCycle ??= (await import("../../engines/PPCannedCycleValidatorEngine.js")).ppCannedCycleValidatorEngine;
+    case "cutterComp":
+      return _ppCutterComp ??= (await import("../../engines/PPCutterCompValidatorEngine.js")).ppCutterCompValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -695,6 +700,11 @@ const ACTIONS = [
   "pp_cc_validate",                // Full canned cycle validation
   "pp_cc_quick",                   // Quick pass/fail + distinct cycles seen
   "pp_cc_defaults",                // Default canned cycle validator options
+
+  // ===== PP_CD: Cutter compensation (G40/G41/G42) validator (3 actions) — PP-CD =====
+  "pp_cd_validate",                // Full cutter compensation validation
+  "pp_cd_quick",                   // Quick pass/fail + final comp mode
+  "pp_cd_defaults",                // Default cutter comp validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2128,6 +2138,30 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_cc_defaults": {
             const engine = await getEngine("cannedCycle");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CD (PP-CD — Cutter compensation validator) =====
+          case "pp_cd_validate": {
+            const engine = await getEngine("cutterComp");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              safe_z_mm: params.safe_z_mm,
+              require_linear_activation: params.require_linear_activation,
+              warn_missing_final_g40: params.warn_missing_final_g40,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cd_quick": {
+            const engine = await getEngine("cutterComp");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cd_defaults": {
+            const engine = await getEngine("cutterComp");
             result = engine.defaultOptions();
             break;
           }
