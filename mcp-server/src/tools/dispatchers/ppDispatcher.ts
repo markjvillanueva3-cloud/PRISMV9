@@ -245,6 +245,9 @@ let _ppToolLengthComp: any;
 // PP-TC: Thread cycle validator (lathe)
 let _ppThreadCycle: any;
 
+// PP-CST: Coordinate system transform validator (G68/G51/mirror)
+let _ppCoordTransform: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -442,6 +445,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppToolLengthComp ??= (await import("../../engines/PPToolLengthCompValidatorEngine.js")).ppToolLengthCompValidatorEngine;
     case "threadCycle":
       return _ppThreadCycle ??= (await import("../../engines/PPThreadCycleValidatorEngine.js")).ppThreadCycleValidatorEngine;
+    case "coordTransform":
+      return _ppCoordTransform ??= (await import("../../engines/PPCoordSystemTransformValidatorEngine.js")).ppCoordSystemTransformValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -835,6 +840,11 @@ const ACTIONS = [
   "pp_tc_validate",                // Full threading cycle validation
   "pp_tc_quick",                   // Quick pass/fail + pass count
   "pp_tc_defaults",                // Default thread cycle validator options
+
+  // PP-CST: Coordinate system transform validator (G68/G51/mirror)
+  "pp_cst_validate",               // Full transform validation
+  "pp_cst_quick",                  // Quick pass/fail + active-at-end flags
+  "pp_cst_defaults",               // Default transform validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2634,6 +2644,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_tc_defaults": {
             const engine = await getEngine("threadCycle");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CST (PP-CST — Coordinate system transform validator) =====
+          case "pp_cst_validate": {
+            const engine = await getEngine("coordTransform");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_g68_cancel: params.check_g68_cancel,
+              check_g51_cancel: params.check_g51_cancel,
+              check_mirror_cancel: params.check_mirror_cancel,
+              check_nested_g68: params.check_nested_g68,
+              check_rotation_in_comp: params.check_rotation_in_comp,
+              check_scaling_threading: params.check_scaling_threading,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cst_quick": {
+            const engine = await getEngine("coordTransform");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cst_defaults": {
+            const engine = await getEngine("coordTransform");
             result = engine.defaultOptions();
             break;
           }
