@@ -237,6 +237,106 @@ describe("LatheMasterOrchestratorFacadeEngine", () => {
     });
   });
 
+  // ── programming_analysis (MS9-MS12 capstone) ───────────────────────────
+
+  describe("orchestrate() — programming_analysis (MS9-MS12 capstone)", () => {
+    it("should route programming_analysis to LatheProgrammingAGIChain", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 10,
+        family_parts_expected: 3,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      expect(resp.request_type).toBe("programming_analysis");
+      expect(resp.routed_to).toBe("LatheProgrammingAGIChain");
+    });
+
+    it("should invoke all 4 MS9-MS12 engines", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 10,
+        family_parts_expected: 3,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      expect(resp.provenance.engines_invoked).toContain("LatheProgrammingStyleSelectorEngine");
+      expect(resp.provenance.engines_invoked).toContain("LatheProgramCatalogEngine");
+      expect(resp.provenance.engines_invoked).toContain("LatheProgrammingCostEngine");
+      expect(resp.provenance.engines_invoked).toContain("LathePartFamilyPlanningEngine");
+    });
+
+    it("should return a primary result with all 4 engine outputs", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 10,
+        family_parts_expected: 3,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      const primary = resp.primary_result as any;
+      expect(primary.style_selection).toBeDefined();
+      expect(primary.similar_programs).toBeDefined();
+      expect(primary.cost_comparison).toBeDefined();
+      expect(primary.family_planning).toBeDefined();
+      expect(primary.summary).toBeDefined();
+      expect(typeof primary.summary).toBe("string");
+    });
+
+    it("should include stage_timings_ms for every stage", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 10,
+        family_parts_expected: 3,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      const primary = resp.primary_result as any;
+      expect(typeof primary.stage_timings_ms.style_selection_ms).toBe("number");
+      expect(typeof primary.stage_timings_ms.cost_comparison_ms).toBe("number");
+      expect(typeof primary.stage_timings_ms.family_planning_ms).toBe("number");
+    });
+
+    it("should synthesize a plain-language summary", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 10,
+        family_parts_expected: 3,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      const primary = resp.primary_result as any;
+      expect(primary.summary).toMatch(/[Rr]ecommend/);
+    });
+
+    it("should route Mazatrol controller to mazatrol conversational", async () => {
+      const req: LatheOrchRequest = {
+        type: "programming_analysis",
+        controller: "mazatrol_smooth_ai",
+        customer: "ALCOA",
+        part_complexity: "simple",
+        lot_size: 1,
+        family_parts_expected: 1,
+        operator_skill_level: "beginner",
+        available_cam_seats: 0,
+      };
+      const resp = await latheMasterOrchestratorFacadeEngine.orchestrate(req);
+      const primary = resp.primary_result as any;
+      expect(primary.recommended_style).toBe("conversational");
+      expect(primary.conversational_type).toBe("mazatrol");
+    });
+  });
+
   describe("orchestrate() — deep_analyze", () => {
     it("should route deep_analyze to LatheUnifiedAIOrchestrator", async () => {
       const req: LatheOrchRequest = {

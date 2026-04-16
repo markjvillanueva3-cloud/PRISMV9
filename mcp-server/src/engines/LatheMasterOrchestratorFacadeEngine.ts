@@ -44,7 +44,8 @@ export type LatheOrchRequestType =
   | "deep_analyze"
   | "quick"
   | "awareness_snapshot"
-  | "validate";
+  | "validate"
+  | "programming_analysis"; // MS9-MS12 capstone: style + catalog + cost + family
 
 export interface LatheOrchRequest {
   type: LatheOrchRequestType;
@@ -69,6 +70,20 @@ export interface LatheOrchRequest {
   include_physics?: boolean;
   program_text?: string;
   part_geometry?: unknown;
+
+  // Fields used by "programming_analysis" request type (MS9-MS12 capstone)
+  customer?: string;
+  part_complexity?: "simple" | "moderate" | "complex" | "very_complex";
+  lot_size?: number;
+  family_parts_expected?: number;
+  operator_skill_level?: "beginner" | "intermediate" | "expert";
+  available_cam_seats?: number;
+  time_constraint?: "urgent" | "normal" | "flexible";
+  machine_availability?: "dedicated" | "shared" | "bottleneck";
+  has_threading?: boolean;
+  requires_5axis?: boolean;
+  features?: string[];
+  part_family?: string;
 }
 
 export interface LatheOrchResponse {
@@ -281,6 +296,142 @@ class LatheMasterOrchestratorFacadeEngineImpl {
         break;
       }
 
+      case "programming_analysis": {
+        // MS9-MS12 capstone: chain style selector + catalog + cost + family planning
+        routed = "LatheProgrammingAGIChain";
+        engines.push(
+          "LatheProgrammingStyleSelectorEngine",
+          "LatheProgramCatalogEngine",
+          "LatheProgrammingCostEngine",
+          "LathePartFamilyPlanningEngine"
+        );
+
+        const customer = req.customer ?? "unknown";
+        const controller = req.controller ?? "okuma_osp_p300";
+        const complexity = req.part_complexity ?? "moderate";
+        const lotSize = req.lot_size ?? 1;
+        const familyExpected = req.family_parts_expected ?? 1;
+        const camSeats = req.available_cam_seats ?? 0;
+        const operator = req.operator_skill_level ?? "intermediate";
+        const timing = req.time_constraint ?? "normal";
+        const availability = req.machine_availability ?? "shared";
+
+        const stageTimings: Record<string, number> = {};
+
+        // Stage 1 — Style selection
+        let stylePick: any = null;
+        try {
+          const t0 = Date.now();
+          const { latheProgrammingStyleSelectorEngine } = await import(
+            "./LatheProgrammingStyleSelectorEngine.js"
+          );
+          stylePick = latheProgrammingStyleSelectorEngine.selectProgrammingStyle({
+            controller,
+            part_complexity: complexity,
+            lot_size: lotSize,
+            family_parts_expected: familyExpected,
+            operator_skill_level: operator,
+            available_cam_seats: camSeats,
+            time_constraint: timing,
+            machine_availability: availability,
+            has_threading: req.has_threading,
+            has_live_tooling: req.has_live_tooling,
+            requires_5axis: req.requires_5axis,
+            material: req.material,
+          });
+          stageTimings.style_selection_ms = Date.now() - t0;
+        } catch (err) {
+          stylePick = { error: `Style selection failed: ${err}` };
+        }
+
+        // Stage 2 — Archive similarity search (only if we have a customer)
+        let similarPrograms: any[] = [];
+        try {
+          const t0 = Date.now();
+          const { latheProgramCatalogEngine } = await import("./LatheProgramCatalogEngine.js");
+          similarPrograms = latheProgramCatalogEngine.findSimilarPrograms(
+            {
+              customer: req.customer,
+              controller,
+              features: req.features,
+              part_family: req.part_family,
+              part_complexity: complexity,
+              has_threading: req.has_threading,
+              has_live_tooling: req.has_live_tooling,
+            },
+            5
+          );
+          stageTimings.catalog_search_ms = Date.now() - t0;
+        } catch {
+          similarPrograms = [];
+        }
+
+        // Stage 3 — Cost comparison across all 4 styles
+        let costComparison: any = null;
+        try {
+          const t0 = Date.now();
+          const { latheProgrammingCostEngine } = await import("./LatheProgrammingCostEngine.js");
+          costComparison = latheProgrammingCostEngine.compareApproaches({
+            controller,
+            part_complexity: complexity,
+            lot_size: lotSize,
+            has_threading: req.has_threading,
+            has_live_tooling: req.has_live_tooling,
+            requires_5axis: req.requires_5axis,
+            available_cam_seats: camSeats,
+          });
+          stageTimings.cost_comparison_ms = Date.now() - t0;
+        } catch (err) {
+          costComparison = { error: `Cost comparison failed: ${err}` };
+        }
+
+        // Stage 4 — Family planning (only if we have a customer)
+        let familyPlan: any = null;
+        try {
+          const t0 = Date.now();
+          const { lathePartFamilyPlanningEngine } = await import(
+            "./LathePartFamilyPlanningEngine.js"
+          );
+          familyPlan = lathePartFamilyPlanningEngine.analyzeFamilyPotential(
+            {
+              part_family: req.part_family,
+              part_complexity: complexity,
+              lot_size: lotSize,
+              family_parts_expected: familyExpected,
+              features: req.features,
+              material: req.material,
+            },
+            customer
+          );
+          stageTimings.family_planning_ms = Date.now() - t0;
+          formulas.push("Break-even analysis", "Family likelihood");
+        } catch (err) {
+          familyPlan = { error: `Family planning failed: ${err}` };
+        }
+
+        // Confidence = average of the 3 engines that produced confidence scores
+        const styleConf = stylePick?.confidence ?? 0;
+        const familyConf = familyPlan?.family_likelihood ?? 0;
+        confidence = Math.max(0, Math.min(1, (styleConf + familyConf) / 2 + 0.2));
+
+        primary = {
+          recommended_style: stylePick?.recommended_style,
+          conversational_type: stylePick?.conversational_type,
+          style_selection: stylePick,
+          similar_programs: similarPrograms,
+          cost_comparison: costComparison,
+          family_planning: familyPlan,
+          stage_timings_ms: stageTimings,
+          // Headline takeaway — synthesized one-liner
+          summary: this.buildProgrammingAnalysisSummary(
+            stylePick,
+            familyPlan,
+            similarPrograms.length
+          ),
+        };
+        break;
+      }
+
       case "validate": {
         routed = "LatheValidationPipeline";
         engines.push("LatheCollisionZoneEngine", "LatheScienceHardeningEngine");
@@ -356,6 +507,35 @@ class LatheMasterOrchestratorFacadeEngineImpl {
       },
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Build a one-line summary of a programming_analysis result.
+   * Used by the UI headline and by AGI chat responses.
+   */
+  private buildProgrammingAnalysisSummary(
+    stylePick: any,
+    familyPlan: any,
+    similarCount: number
+  ): string {
+    if (!stylePick || stylePick.error) {
+      return "Programming analysis could not produce a recommendation.";
+    }
+    const style = stylePick.recommended_style;
+    const conv = stylePick.conversational_type;
+    const styleLabel = conv ? `${style} (${conv})` : style;
+
+    const familyPart =
+      familyPlan && familyPlan.recommended_investment && familyPlan.recommended_investment !== "none"
+        ? ` Consider ${familyPlan.recommended_investment} investment (industry: ${familyPlan.industry}, likelihood ${familyPlan.family_likelihood}).`
+        : "";
+
+    const archivePart =
+      similarCount > 0
+        ? ` ${similarCount} similar program${similarCount === 1 ? "" : "s"} found in archive.`
+        : "";
+
+    return `Recommend ${styleLabel} for this part.${familyPart}${archivePart}`.trim();
   }
 
   /**
