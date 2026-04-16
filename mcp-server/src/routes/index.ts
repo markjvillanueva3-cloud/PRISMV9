@@ -33,6 +33,7 @@ import { createExportRouter } from "./exportRoutes.js";
 import { createDataRouter } from "./data.js";
 import { createSafetyRouter } from "./safety.js";
 import { createAuthRouter } from "./auth.js";
+import { createAgentRouter } from "./agent.js";
 import { createAdminRouter } from "./admin.js";
 import { createOpenApiRouter } from "./openapi.js";
 import { createPpgRouter } from "./ppg.js";
@@ -120,6 +121,7 @@ export function registerRoutes(app: Express, callTool: CallToolFn): void {
   app.use("/api/v1/data", createDataRouter(callTool));
   app.use("/api/v1/safety", createSafetyRouter(callTool));
   app.use("/api/v1/auth", createAuthRouter(callTool));
+  app.use("/api/v1/agent", createAgentRouter(callTool));
   app.use("/api/v1/admin", createAdminRouter(callTool));
   app.use("/api/v1/ppg", createPpgRouter(callTool));
   // Alias: PRISM.cps and web UI use /api/ppg/ (no v1 prefix)
