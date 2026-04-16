@@ -2571,6 +2571,7 @@ export { CORE_CATEGORIES, tribalKnowledgeEngine, TribalKnowledgeEngine } from ".
 export { tribalKnowledgeActivationEngine, TribalKnowledgeActivationEngine } from "./TribalKnowledgeActivationEngine.js";
 export { tribalKnowledgeTrainingEngine, TribalKnowledgeTrainingEngine } from "./TribalKnowledgeTrainingEngine.js";
 export { algorithmWiringEngine, AlgorithmWiringEngine, type AlgorithmInfo, type AlgorithmCategory, type WiringTarget, type AlgorithmWiring, type WiringReport } from "./AlgorithmWiringEngine.js";
+export { reasoningWiringEngine, ReasoningWiringEngine, type ReasoningEngineInfo, type ReasoningCategory, type ReasoningDomain, type DispatcherWiring, type ReasoningWiring, type ReasoningWiringReport } from "./ReasoningWiringEngine.js";
 export { treeOfThoughtEngine, TreeOfThoughtEngine } from "./TreeOfThoughtEngine.js";
 export { troubleshootingDecisionTreeEngine, TroubleshootingDecisionTreeEngine } from "./TroubleshootingDecisionTreeEngine.js";
 export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingEngine.js";
