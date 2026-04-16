@@ -3533,6 +3533,10 @@ export { ProbeRoutineGeneratorEngine, probeRoutineGeneratorEngine } from "./Prob
 export { autoSpeedFeedEngine } from "./AutoSpeedFeedEngine.js";
 export { manufacturingKnowledgeGraphEngine } from "./ManufacturingKnowledgeGraphEngine.js";
 export { manufacturingStatisticsEngine } from "./ManufacturingStatisticsEngine.js";
+
+// Cross-Disciplinary Learning (PP-WIRE-MS1 — Dormant Giants)
+export { crossDisciplinaryEngine, CrossDisciplinaryDeepLearningEngine } from "./CrossDisciplinaryDeepLearningEngine.js";
+export { crossDisciplinaryFormulaIntegrationEngine, CrossDisciplinaryFormulaIntegrationEngine } from "./CrossDisciplinaryFormulaIntegrationEngine.js";
 export { toolWearCompensationEngine } from "./ToolWearCompensationEngine.js";
 export { machineMatcherEngine } from "./MachineMatcherEngine.js";
 

@@ -31,6 +31,19 @@ import { chipFormationPredictionEngine } from "./ChipFormationPredictionEngine.j
 import { loewenShawHeatPartitionEngine } from "./LoewenShawHeatPartitionEngine.js";
 import { advancedCuttingMathEngine } from "./AdvancedCuttingMathEngine.js";
 
+// === PHASE 1 WIRING: Additional Physics Engines ===
+// Force engines (5)
+import { kienzleForceModelEngine } from "./KienzleForceModelEngine.js";
+import { cuttingForceEngine } from "./CuttingForceEngine.js";
+import { stochasticCuttingForceEngine } from "./StochasticCuttingForceEngine.js";
+import { cuttingPowerBudgetEngine } from "./CuttingPowerBudgetEngine.js";
+import { specificCuttingEnergyEngine } from "./SpecificCuttingEnergyEngine.js";
+
+// Thermal engines (3)
+import { cuttingTemperatureEngine } from "./CuttingTemperatureEngine.js";
+import { thermalWearCouplingEngine } from "./ThermalWearCouplingEngine.js";
+import { stochasticThermalEngine } from "./StochasticThermalEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -508,12 +521,277 @@ class MillingPhysicsKernelEngine {
       toolLife,
       chipFormation,
       source: this.SOURCE,
-      engines_consulted: [
-        "constants.ts (kienzleForce, taylorLife, extendedTaylorLife, toolDeflection, predictedRa)",
-        "ChipFormationPredictionEngine (Merchant shear angle)",
-        "LoewenShawHeatPartitionEngine (1954 heat partition model)",
-        "AdvancedCuttingMathEngine (helix angle force decomposition)",
-      ],
+      engines_consulted: this.getWiredEngines(),
+    };
+  }
+
+  // =========================================================================
+  // PHASE 1 WIRING: ADDITIONAL FORCE ENGINES
+  // =========================================================================
+
+  /**
+   * Full Kienzle model with rake/wear/speed corrections.
+   * Delegates to: KienzleForceModelEngine.calculateSpecificCuttingForce()
+   */
+  calculateKienzleSpecificForce(input: {
+    kc1_1: number;
+    mc: number;
+    feed_mm: number;
+    depth_of_cut_mm: number;
+    approach_angle_deg?: number;
+    rake_angle_deg?: number;
+    flank_wear_mm?: number;
+    cutting_speed_mpm?: number;
+    tool_diameter_mm?: number;
+  }) {
+    return kienzleForceModelEngine.calculateSpecificCuttingForce(input);
+  }
+
+  /**
+   * Multi-component force calculation (Fc, Ff, Fp, resultant, torque, power).
+   * Delegates to: KienzleForceModelEngine.calculateForceComponents()
+   */
+  calculateForceComponents(input: {
+    operation: "turning" | "milling";
+    kc1_1: number;
+    mc: number;
+    feed_mm: number;
+    depth_of_cut_mm: number;
+    cutting_speed_mpm: number;
+    tool_diameter_mm?: number;
+    flutes?: number;
+    radial_depth_mm?: number;
+    approach_angle_deg?: number;
+    rake_angle_deg?: number;
+    helix_angle_deg?: number;
+    flank_wear_mm?: number;
+  }) {
+    return kienzleForceModelEngine.calculateForceComponents(input);
+  }
+
+  /**
+   * Instantaneous and average milling forces with engagement modeling.
+   * Delegates to: KienzleForceModelEngine.calculateMillingForces()
+   */
+  calculateInstantaneousMillingForces(input: {
+    kc1_1: number;
+    mc: number;
+    fz: number;
+    ap: number;
+    ae: number;
+    d: number;
+    z: number;
+    cutting_speed_mpm: number;
+    helix_angle_deg?: number;
+    down_milling?: boolean;
+    rake_angle_deg?: number;
+    flank_wear_mm?: number;
+  }) {
+    return kienzleForceModelEngine.calculateMillingForces(input);
+  }
+
+  /**
+   * Multi-component cutting force with material lookup.
+   * Delegates to: CuttingForceEngine.calculate()
+   */
+  calculateCuttingForce(input: {
+    operation?: "turning" | "milling" | "drilling";
+    material_type?: "steel" | "aluminum" | "titanium" | "stainless" | "cast_iron" | "brass";
+    depth_of_cut_mm: number;
+    feed_mm: number;
+    cutting_speed_mpm?: number;
+    lead_angle_deg?: number;
+    rake_angle_deg?: number;
+    tool_diameter_mm?: number;
+    flutes?: number;
+    radial_engagement_mm?: number;
+  }) {
+    return cuttingForceEngine.calculate(input);
+  }
+
+  /**
+   * Monte Carlo stochastic force with uncertainty quantification.
+   * Delegates to: StochasticCuttingForceEngine.compute()
+   *
+   * Uses Latin Hypercube Sampling + Sobol sensitivity indices.
+   */
+  calculateStochasticForce(input: {
+    material: string;
+    depth_mm: number;
+    feed_mm: number;
+    width_mm?: number;
+    tool_diameter_mm: number;
+    flute_count: number;
+    rake_angle_deg?: number;
+    edge_radius_um?: number;
+    runout_um?: number;
+    n_trials?: number;
+    method?: "mc" | "fosm" | "both";
+  }) {
+    return stochasticCuttingForceEngine.compute(input);
+  }
+
+  /**
+   * Power budget analysis (spindle, feed drive, efficiency).
+   * Delegates to: CuttingPowerBudgetEngine.calculate()
+   *
+   * Validates parameters against machine power/torque envelope.
+   */
+  calculatePowerBudget(input: {
+    machine_power_kW: number;
+    machine_max_torque_Nm?: number;
+    machine_base_rpm?: number;
+    machine_max_rpm?: number;
+    cutting_speed_m_min: number;
+    tool_diameter_mm?: number;
+    workpiece_diameter_mm?: number;
+    feed_mm_rev?: number;
+    feed_mm_tooth?: number;
+    flutes?: number;
+    depth_of_cut_mm: number;
+    width_of_cut_mm?: number;
+    material_kc1_1?: number;
+    material_mc?: number;
+    iso_group?: "P" | "M" | "K" | "N" | "S" | "H";
+  }) {
+    return cuttingPowerBudgetEngine.calculate(input);
+  }
+
+  /**
+   * Specific cutting energy and efficiency analysis.
+   * Delegates to: SpecificCuttingEnergyEngine.calculate()
+   *
+   * Models energy per volume removed, CO₂ equivalent, machine efficiency.
+   */
+  calculateSpecificEnergy(input: {
+    cutting_force_N?: number;
+    chip_width_mm?: number;
+    chip_thickness_mm?: number;
+    kc1_1?: number;
+    mc?: number;
+    feed_mm?: number;
+    mrr_cm3_min?: number;
+    cutting_speed_m_min?: number;
+    depth_of_cut_mm?: number;
+    width_of_cut_mm?: number;
+  }) {
+    return specificCuttingEnergyEngine.calculate(input);
+  }
+
+  // =========================================================================
+  // PHASE 1 WIRING: ADDITIONAL THERMAL ENGINES
+  // =========================================================================
+
+  /**
+   * Trigger temperature model for tool-chip interface.
+   * Delegates to: CuttingTemperatureEngine.calculate()
+   *
+   * Based on Loewen-Shaw + Sandvik Thermal Load Guide.
+   */
+  calculateTriggerTemperature(input: {
+    cutting_speed_mpm: number;
+    feed_mm: number;
+    depth_of_cut_mm?: number;
+    material_type?: "steel" | "aluminum" | "titanium" | "stainless" | "cast_iron" | "inconel";
+    tool_coating?: "uncoated" | "TiN" | "TiCN" | "TiAlN" | "AlCrN" | "diamond" | "CBN";
+    coolant?: "flood" | "mist" | "mql" | "dry" | "through_tool" | "cryogenic";
+    ambient_temp_c?: number;
+  }) {
+    return cuttingTemperatureEngine.calculate(input);
+  }
+
+  /**
+   * Coupled force-temperature-wear-deflection ODE solver.
+   * Delegates to: ThermalWearCouplingEngine.analyze()
+   *
+   * This is the most sophisticated physics model — it couples:
+   * - Cutting force → temperature → wear rate → force increase → ...
+   * - Uses RK4 ODE integration for time-stepping
+   * - Based on Usui (1978) wear model: dW/dt = A·σ_n·V_s·exp(-B/T)
+   */
+  analyzeThermalWearCoupling(input: {
+    cutting_speed_m_min: number;
+    feed_mm_rev: number;
+    depth_of_cut_mm: number;
+    initial_force_N: number;
+    tool_diameter_mm?: number;
+    tool_overhang_mm?: number;
+    tool_E_GPa?: number;
+    usui_C1?: number;
+    usui_C2?: number;
+    wear_force_factor?: number;
+    wear_limit_mm?: number;
+    time_steps?: number;
+    dt_minutes?: number;
+  }) {
+    return thermalWearCouplingEngine.analyze(input);
+  }
+
+  /**
+   * Monte Carlo thermal analysis with uncertainty.
+   * Delegates to: StochasticThermalEngine.compute()
+   *
+   * Uses Jaeger moving heat source + Loewen-Shaw partition.
+   * Returns coating exceedance probability.
+   */
+  calculateStochasticThermal(input: {
+    material: string;
+    cutting_speed_mpm: number;
+    feed_mm: number;
+    depth_mm: number;
+    width_mm?: number;
+    tool_diameter_mm: number;
+    coolant_type: "flood" | "mql" | "dry" | "cryogenic";
+    coating?: "TiAlN" | "TiN" | "AlCrN" | "uncoated" | "diamond";
+    coating_max_temp_c?: number;
+    n_trials?: number;
+    method?: "mc" | "fosm" | "both";
+  }) {
+    return stochasticThermalEngine.compute(input);
+  }
+
+  // =========================================================================
+  // ENGINE REGISTRY
+  // =========================================================================
+
+  /**
+   * List all wired engines for introspection.
+   */
+  getWiredEngines(): string[] {
+    return [
+      // Core physics (from constants.ts)
+      "constants.ts (kienzleForce, taylorLife, extendedTaylorLife, toolDeflection, predictedRa)",
+      // Chip formation
+      "ChipFormationPredictionEngine (Merchant shear angle, chip morphology)",
+      // Thermal - Loewen-Shaw
+      "LoewenShawHeatPartitionEngine (1954 heat partition model)",
+      // Math utilities
+      "AdvancedCuttingMathEngine (helix force decomposition)",
+      // Force engines (Phase 1)
+      "KienzleForceModelEngine (full Kienzle with corrections, milling engagement)",
+      "CuttingForceEngine (multi-component with material lookup)",
+      "StochasticCuttingForceEngine (Monte Carlo force uncertainty)",
+      "CuttingPowerBudgetEngine (spindle/feed power analysis)",
+      "SpecificCuttingEnergyEngine (energy classification)",
+      // Thermal engines (Phase 1)
+      "CuttingTemperatureEngine (Trigger model)",
+      "ThermalWearCouplingEngine (RK4 ODE coupled analysis)",
+      "StochasticThermalEngine (Monte Carlo thermal uncertainty)",
+    ];
+  }
+
+  /**
+   * Get count of wired engines by category.
+   */
+  getWiringStats(): Record<string, number> {
+    return {
+      core_physics: 5,      // constants.ts functions
+      chip_formation: 1,    // ChipFormationPredictionEngine
+      thermal: 4,           // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal
+      force: 5,             // Kienzle, CuttingForce, Stochastic, Power, Energy
+      math: 1,              // AdvancedCuttingMath
+      total_engines: 12,
+      total_functions: 16,
     };
   }
 }

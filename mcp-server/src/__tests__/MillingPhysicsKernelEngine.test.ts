@@ -313,4 +313,123 @@ describe("MillingPhysicsKernelEngine", () => {
       expect(result.engines_consulted.join(",")).toContain("LoewenShaw");
     });
   });
+
+  // =========================================================================
+  // PHASE 1 WIRING TESTS: Additional Force Engines
+  // =========================================================================
+
+  describe("calculateKienzleSpecificForce (KienzleForceModelEngine)", () => {
+    it("should calculate specific cutting force with corrections", () => {
+      const result = millingPhysicsKernelEngine.calculateKienzleSpecificForce({
+        kc1_1: 1800,
+        mc: 0.25,
+        feed_mm: 0.2,
+        depth_of_cut_mm: 3.0,
+        rake_angle_deg: 10,
+        cutting_speed_mpm: 150,
+      });
+
+      expect(result.kc).toBeGreaterThan(0);
+      expect(result.kc_corrected).toBeGreaterThan(0);
+      expect(result.main_cutting_force_Fc).toBeGreaterThan(0);
+      expect(result.cutting_power_Pc).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculateForceComponents (KienzleForceModelEngine)", () => {
+    it("should calculate all force components for milling", () => {
+      const result = millingPhysicsKernelEngine.calculateForceComponents({
+        operation: "milling",
+        kc1_1: 1800,
+        mc: 0.25,
+        feed_mm: 0.1,
+        depth_of_cut_mm: 2.0,
+        cutting_speed_mpm: 150,
+        tool_diameter_mm: 10,
+        flutes: 4,
+        radial_depth_mm: 5,
+      });
+
+      expect(result.Fc).toBeGreaterThan(0);
+      expect(result.Ff).toBeGreaterThan(0);
+      expect(result.Fp).toBeGreaterThan(0);
+      expect(result.Fr).toBeGreaterThan(0);       // Resultant force
+      expect(result.power_kW).toBeGreaterThan(0);
+    });
+  });
+
+  describe("calculatePowerBudget (CuttingPowerBudgetEngine)", () => {
+    it("should validate power against machine envelope", () => {
+      const result = millingPhysicsKernelEngine.calculatePowerBudget({
+        machine_power_kW: 15,
+        cutting_speed_m_min: 150,
+        tool_diameter_mm: 10,
+        depth_of_cut_mm: 2.0,
+        width_of_cut_mm: 5.0,
+        feed_mm_tooth: 0.1,
+        flutes: 4,
+        iso_group: "P",
+      });
+
+      expect(result.required_power_kW).toBeDefined();
+      expect(result.power_utilization_pct).toBeDefined();
+      expect(result.power_utilization_pct.value).toBeLessThanOrEqual(100);
+    });
+  });
+
+  describe("calculateSpecificEnergy (SpecificCuttingEnergyEngine)", () => {
+    it("should calculate energy per volume", () => {
+      const result = millingPhysicsKernelEngine.calculateSpecificEnergy({
+        kc1_1: 1800,
+        mc: 0.25,
+        feed_mm: 0.1,
+        depth_of_cut_mm: 2.0,
+        width_of_cut_mm: 5.0,
+        cutting_speed_m_min: 150,
+      });
+
+      expect(result.specific_energy_J_mm3).toBeDefined();
+      expect(result.specific_energy_J_mm3.value).toBeGreaterThan(0);
+    });
+  });
+
+  // =========================================================================
+  // PHASE 1 WIRING TESTS: Additional Thermal Engines
+  // =========================================================================
+
+  describe("calculateTriggerTemperature (CuttingTemperatureEngine)", () => {
+    it("should calculate interface temperatures", () => {
+      const result = millingPhysicsKernelEngine.calculateTriggerTemperature({
+        cutting_speed_mpm: 150,
+        feed_mm: 0.2,
+        depth_of_cut_mm: 2.0,
+        material_type: "steel",
+        tool_coating: "TiAlN",
+        coolant: "flood",
+      });
+
+      expect(result.interface_temperature.value).toBeGreaterThan(100);
+      expect(result.chip_temperature.value).toBeGreaterThan(100);
+      expect(result.thermal_margin.value).toBeDefined();
+    });
+  });
+
+  describe("getWiredEngines", () => {
+    it("should list all wired engines", () => {
+      const engines = millingPhysicsKernelEngine.getWiredEngines();
+      expect(engines.length).toBeGreaterThanOrEqual(12);
+      expect(engines.join(",")).toContain("KienzleForceModelEngine");
+      expect(engines.join(",")).toContain("CuttingPowerBudgetEngine");
+      expect(engines.join(",")).toContain("ThermalWearCouplingEngine");
+    });
+  });
+
+  describe("getWiringStats", () => {
+    it("should return engine counts by category", () => {
+      const stats = millingPhysicsKernelEngine.getWiringStats();
+      expect(stats.total_engines).toBeGreaterThanOrEqual(12);
+      expect(stats.force).toBeGreaterThanOrEqual(5);
+      expect(stats.thermal).toBeGreaterThanOrEqual(4);
+    });
+  });
 });
