@@ -128,6 +128,10 @@ const ACTIONS = [
   "lathe_grind_replace_evaluate",
   "lathe_bar_cut_plan",
   "lathe_inspection_plan",
+  // LATHE-PRO-MS7: bird-nest / parting chip clearance / sub-spindle purge
+  "lathe_birdnest_predict",
+  "lathe_parting_chip_clearance",
+  "lathe_subspindle_purge_plan",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1585,6 +1589,61 @@ Actions: ${ACTIONS.join(", ")}.`,
               regulatory_regime: params.regulatory_regime,
               cmm_available: params.cmm_available,
               probe_available: params.probe_available,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS7: bird-nest chip wrap risk prediction
+          case "lathe_birdnest_predict": {
+            const { latheBirdNestPredictorEngine } = await import("../../engines/LatheBirdNestPredictorEngine.js");
+            result = latheBirdNestPredictorEngine.predict({
+              material_iso_group: params.material_iso_group,
+              ductility: params.ductility,
+              vc_m_min: params.vc_m_min,
+              feed_mm_rev: params.feed_mm_rev,
+              doc_mm: params.doc_mm,
+              clearance_length_mm: params.clearance_length_mm,
+              length_over_diameter: params.length_over_diameter,
+              lead_angle_deg: params.lead_angle_deg,
+              chipbreaker: params.chipbreaker,
+              coolant: params.coolant,
+              inverted_mounting: params.inverted_mounting,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS7: parting / deep grooving chip clearance
+          case "lathe_parting_chip_clearance": {
+            const { lathePartingChipClearanceEngine } = await import("../../engines/LathePartingChipClearanceEngine.js");
+            result = lathePartingChipClearanceEngine.evaluate({
+              blade_width_mm: params.blade_width_mm,
+              slot_depth_mm: params.slot_depth_mm,
+              bar_od_mm: params.bar_od_mm,
+              feed_mm_rev: params.feed_mm_rev,
+              vc_m_min: params.vc_m_min,
+              coolant_pressure_bar: params.coolant_pressure_bar,
+              nozzle_diameter_mm: params.nozzle_diameter_mm,
+              coolant_targeted: params.coolant_targeted,
+              material_iso_group: params.material_iso_group,
+              peck_depth_mm: params.peck_depth_mm,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS7: sub-spindle transfer purge timing
+          case "lathe_subspindle_purge_plan": {
+            const { latheSubSpindleTransferPurgeEngine } = await import("../../engines/LatheSubSpindleTransferPurgeEngine.js");
+            result = latheSubSpindleTransferPurgeEngine.plan({
+              main_rpm: params.main_rpm,
+              decel_rps2: params.decel_rps2,
+              transfer_length_mm: params.transfer_length_mm,
+              transfer_diameter_mm: params.transfer_diameter_mm,
+              material_iso_group: params.material_iso_group,
+              coolant_pressure_bar: params.coolant_pressure_bar,
+              air_blast_available: params.air_blast_available,
+              air_blast_pressure_bar: params.air_blast_pressure_bar,
+              synchronous_transfer: params.synchronous_transfer,
+              controller: params.controller,
             });
             break;
           }
