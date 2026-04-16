@@ -200,6 +200,9 @@ let _ppSpindleSpeedSafety: any;
 // PP-CO: Coolant sequence (M7/M8/M9) validator
 let _ppCoolantSequence: any;
 
+// PP-CC: Canned cycle (G81-G89) validator
+let _ppCannedCycle: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -367,6 +370,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppSpindleSpeedSafety ??= (await import("../../engines/PPSpindleSpeedSafetyEngine.js")).ppSpindleSpeedSafetyEngine;
     case "coolantSequence":
       return _ppCoolantSequence ??= (await import("../../engines/PPCoolantSequenceValidatorEngine.js")).ppCoolantSequenceValidatorEngine;
+    case "cannedCycle":
+      return _ppCannedCycle ??= (await import("../../engines/PPCannedCycleValidatorEngine.js")).ppCannedCycleValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -685,6 +690,11 @@ const ACTIONS = [
   "pp_co_validate",                // Full coolant M7/M8/M9 sequence validation
   "pp_co_quick",                   // Quick pass/fail + final coolant state
   "pp_co_defaults",                // Default coolant sequence validator options
+
+  // ===== PP_CC: Canned cycle (G81-G89) validator (3 actions) — PP-CC =====
+  "pp_cc_validate",                // Full canned cycle validation
+  "pp_cc_quick",                   // Quick pass/fail + distinct cycles seen
+  "pp_cc_defaults",                // Default canned cycle validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2095,6 +2105,29 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_co_defaults": {
             const engine = await getEngine("coolantSequence");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CC (PP-CC — Canned cycle validator) =====
+          case "pp_cc_validate": {
+            const engine = await getEngine("cannedCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              require_rigid_tap: params.require_rigid_tap,
+              warn_peck_exceeds_depth: params.warn_peck_exceeds_depth,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cc_quick": {
+            const engine = await getEngine("cannedCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cc_defaults": {
+            const engine = await getEngine("cannedCycle");
             result = engine.defaultOptions();
             break;
           }
