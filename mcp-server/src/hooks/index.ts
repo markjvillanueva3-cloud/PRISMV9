@@ -62,6 +62,7 @@ import { resourceWatcherHooks } from "./ResourceWatcherHook.js";
 import { knowledgeHooks } from "./KnowledgeHooks.js";
 import { wedmSafetyHooks } from "./WEDMSafetyHooks.js";
 import { wedmSVIHooks } from "./WEDMSVIHooks.js";
+import { wedmPerceptionHooks } from "./WEDMPerceptionHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -91,6 +92,7 @@ export * from "./hookBridge.js";
 export * from "./frontendFeatureAuditHook.js";
 export * from "./ResourceWatcherHook.js";
 export * from "./KnowledgeHooks.js";
+export * from "./WEDMPerceptionHooks.js";
 
 // ============================================================================
 // COMBINED EXPORTS
@@ -123,6 +125,7 @@ export const allHooks = [
   ...knowledgeHooks,                // KAR-MS1: Knowledge wiring + validation
   ...wedmSafetyHooks,               // PP-0.3: 16 WEDM safety hooks
   ...wedmSVIHooks,                  // PP-0.10: 2 WEDM SVI coupling hooks
+  ...wedmPerceptionHooks,           // WEDM-AGI P1-MS1: sensor anomaly + twin sync
 ];
 
 /**
@@ -152,6 +155,7 @@ export const hookCounts = {
   knowledge: knowledgeHooks.length,                          // KAR-MS1
   wedmSafety: wedmSafetyHooks.length,                        // PP-0.3
   wedmSVI: wedmSVIHooks.length,                              // PP-0.10
+  wedmPerception: wedmPerceptionHooks.length,                // WEDM-AGI P1-MS1
   total: 0 // Computed below
 };
 

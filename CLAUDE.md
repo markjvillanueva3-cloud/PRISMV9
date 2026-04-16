@@ -42,7 +42,7 @@
 
 - **Engines**: 71 WEDM/EDM engines (`src/engines/WEDM*.ts`, `EDM*.ts`, `WireEDM*.ts`)
 - **Skills**: 12 WEDM skills (`~/.claude/commands/wedm-*.md`)
-- **Hooks**: 18 WEDM hooks (16 safety + 2 SVI coupling)
+- **Hooks**: 20 WEDM hooks (16 safety + 2 SVI coupling + 2 perception)
 - **Playbooks**: 8 workflow playbooks (`data/playbooks/wedm_*.json`)
 - **State Files**: 31 WEDM state/index files (`data/state/WEDM_*.json`)
 - **MIT Courses**: 5 courses integrated (2.008, 2.830, 2.813, 18.06, 6.S191)
