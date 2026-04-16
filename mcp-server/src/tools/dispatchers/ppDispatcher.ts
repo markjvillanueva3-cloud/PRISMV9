@@ -266,6 +266,9 @@ let _ppFeedMode: any;
 // PP-SM: Speed-mode validator (G96/G97)
 let _ppSpeedMode: any;
 
+// PP-PE: Program-end validator (M30/M02/M99)
+let _ppProgramEnd: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -477,6 +480,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppFeedMode ??= (await import("../../engines/PPFeedModeValidatorEngine.js")).ppFeedModeValidatorEngine;
     case "speedMode":
       return _ppSpeedMode ??= (await import("../../engines/PPSpeedModeValidatorEngine.js")).ppSpeedModeValidatorEngine;
+    case "programEnd":
+      return _ppProgramEnd ??= (await import("../../engines/PPProgramEndValidatorEngine.js")).ppProgramEndValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -905,6 +910,11 @@ const ACTIONS = [
   "pp_sm_validate",                // Full spindle speed-mode validation
   "pp_sm_quick",                   // Quick pass/fail + final mode + max-RPM
   "pp_sm_defaults",                // Default speed-mode validator options
+
+  // PP-PE: Program-end validator (M30/M02/M99)
+  "pp_pe_validate",                // Full program-end validation
+  "pp_pe_quick",                   // Quick pass/fail + M30/M99 counts
+  "pp_pe_defaults",                // Default program-end validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2899,6 +2909,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_sm_defaults": {
             const engine = await getEngine("speedMode");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_PE (PP-PE — Program-end validator) =====
+          case "pp_pe_validate": {
+            const engine = await getEngine("programEnd");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_missing_end: params.check_missing_end,
+              check_end_not_last: params.check_end_not_last,
+              check_multiple_ends: params.check_multiple_ends,
+              check_m99_in_main: params.check_m99_in_main,
+              check_subprogram_m99: params.check_subprogram_m99,
+              check_trailing_percent: params.check_trailing_percent,
+              check_leading_percent: params.check_leading_percent,
+              treat_m02_as_end: params.treat_m02_as_end,
+              subprogram_only: params.subprogram_only,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_pe_quick": {
+            const engine = await getEngine("programEnd");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_pe_defaults": {
+            const engine = await getEngine("programEnd");
             result = engine.defaultOptions();
             break;
           }
