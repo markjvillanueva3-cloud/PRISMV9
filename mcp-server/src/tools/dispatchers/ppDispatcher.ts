@@ -239,6 +239,9 @@ let _ppBlockSkip: any;
 // PP-SS: Spindle state validator
 let _ppSpindleState: any;
 
+// PP-TLC: Tool length compensation validator
+let _ppToolLengthComp: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -432,6 +435,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppBlockSkip ??= (await import("../../engines/PPBlockSkipValidatorEngine.js")).ppBlockSkipValidatorEngine;
     case "spindleState":
       return _ppSpindleState ??= (await import("../../engines/PPSpindleStateValidatorEngine.js")).ppSpindleStateValidatorEngine;
+    case "toolLengthComp":
+      return _ppToolLengthComp ??= (await import("../../engines/PPToolLengthCompValidatorEngine.js")).ppToolLengthCompValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -815,6 +820,11 @@ const ACTIONS = [
   "pp_ss_validate",                // Full spindle-state validation
   "pp_ss_quick",                   // Quick pass/fail + M3/M4/M5 counts
   "pp_ss_defaults",                // Default spindle-state validator options
+
+  // PP-TLC: Tool length compensation validator
+  "pp_tlc_validate",               // Full G43/G44/G49 validation
+  "pp_tlc_quick",                  // Quick pass/fail + G43 count
+  "pp_tlc_defaults",               // Default TLC validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2561,6 +2571,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_ss_defaults": {
             const engine = await getEngine("spindleState");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_TLC (PP-TLC — Tool length comp validator) =====
+          case "pp_tlc_validate": {
+            const engine = await getEngine("toolLengthComp");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_missing_h: params.check_missing_h,
+              check_h_t_mismatch: params.check_h_t_mismatch,
+              check_motion_without_tlc: params.check_motion_without_tlc,
+              check_g49_plunge: params.check_g49_plunge,
+              check_tool_change_g43: params.check_tool_change_g43,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_tlc_quick": {
+            const engine = await getEngine("toolLengthComp");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_tlc_defaults": {
+            const engine = await getEngine("toolLengthComp");
             result = engine.defaultOptions();
             break;
           }
