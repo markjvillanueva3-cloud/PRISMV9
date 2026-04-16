@@ -5332,10 +5332,11 @@
     },
     {
       "id": "LATHE-ROADMAP",
-      "title": "LATHE-ROADMAP",
+      "title": "LATHE-ROADMAP (ARCHIVED — superseded by LATHE-MASTER)",
       "track": "LATHE",
       "dependencies": [],
-      "status": "not_started",
+      "status": "archived",
+      "superseded_by": "LATHE-MASTER",
       "total_units": 0,
       "completed_units": 0,
       "sessions": "1",
@@ -5789,12 +5790,13 @@
     },
     {
       "id": "LATHE-PRO-MS0",
-      "title": "Enhanced Orchestrator (35 Stages + 5 Safety)",
+      "title": "Enhanced Orchestrator (ARCHIVED — superseded by LATHE-MASTER)",
       "track": "LATHE-PRO",
       "dependencies": [
         "LATHE-PRO-MS-1"
       ],
-      "status": "not_started",
+      "status": "archived",
+      "superseded_by": "LATHE-MASTER",
       "total_units": 14,
       "completed_units": 0,
       "sessions": "5",
@@ -8205,8 +8207,31 @@
       "envelope_path": "milestones/AI-AWARE-HARDEN.json",
       "priority": "P0",
       "owner": "Claude-AI"
+    },
+    {
+      "id": "LATHE-MASTER",
+      "title": "Lathe Master Unified Roadmap — 7-phase / 62-unit consolidation of 9 prior lathe roadmaps; 5 features + AGI substrate",
+      "track": "LATHE",
+      "dependencies": [
+        "CAMX-MS12"
+      ],
+      "supersedes": [
+        "LATHE-PRO-MS0",
+        "LATHE-PRO-v2",
+        "LATHE-PRO-v3",
+        "LATHE-ROADMAP",
+        "LATHE-AI"
+      ],
+      "status": "not_started",
+      "total_units": 62,
+      "completed_units": 0,
+      "sessions": "22",
+      "envelope_path": "milestones/LATHE-MASTER.json",
+      "authoritative_doc": "LATHE-MASTER-UNIFIED-ROADMAP.md",
+      "priority": "P0",
+      "owner": "Claude-AI"
     }
   ],
-  "total_milestones": 572,
+  "total_milestones": 573,
   "completed_milestones": 238
 }

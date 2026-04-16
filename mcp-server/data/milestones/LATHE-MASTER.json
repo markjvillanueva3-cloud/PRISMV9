@@ -1,0 +1,929 @@
+{
+  "id": "LATHE-MASTER",
+  "version": "1.0.0",
+  "title": "Lathe Master Unified Roadmap",
+  "track": "LATHE",
+  "brief": "Unified lathe roadmap consolidating 9 prior envelopes into one 7-phase, 62-unit master plan targeting 5 concrete PRISM app features (Speed/Feed Calculator, Post-Processor Generator, Master Post-Processor, Print-to-Program, ERP/Business) on a shared AGI substrate (deep learning, deep reasoning, deep logic, neural networking, near-AGI intelligence).",
+  "created_at": "2026-04-16T23:15:00Z",
+  "created_by": "claude-opus-4.7",
+  "supersedes": [
+    "LATHE-PRO-MS0",
+    "LATHE-PRO-v2",
+    "LATHE-PRO-v3",
+    "LATHE-ROADMAP",
+    "LATHE-AI"
+  ],
+  "authoritative_doc": "LATHE-MASTER-UNIFIED-ROADMAP.md",
+  "status": "not_started",
+  "total_units": 62,
+  "completed_units": 0,
+  "sessions": "22",
+  "envelope_path": "milestones/LATHE-MASTER.json",
+  "features": [
+    "Speed & Feed Calculator",
+    "Post-Processor Generator",
+    "Master Post-Processor",
+    "Print-to-Program",
+    "ERP / Business Management",
+    "AGI Deep-Learning Cross-Cutting"
+  ],
+  "dependencies": [
+    "CAMX-MS12"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Audit + Harden",
+      "goal": "Inventory current state, verify wiring, identify gaps before building features.",
+      "sessions": 2,
+      "smart_config": {
+        "role": "code-archaeologist + reviewer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "60%"
+      },
+      "knowledge_sources": [
+        "ENGINE_DIGEST.md",
+        "DISPATCHER_DIGEST.md",
+        "LATHE-PRO-MS0.json",
+        "LATHE-PRO-v2.json",
+        "LATHE-PRO-v3.json",
+        "LATHE-ROADMAP.json",
+        "LATHE-AI.json",
+        "roadmap-index.json"
+      ],
+      "units": [
+        {
+          "id": "U-LTH01",
+          "title": "Lathe Engine Inventory Reconciliation",
+          "description": "Parse all 87 Lathe*.ts engines -> build lathe-engine-registry.json with {name, shortcode, LOC, exports, categories, test_coverage}.",
+          "exit_conditions": ["Every lathe engine categorized", "Duplicates surfaced", "Registry count equals filesystem +/- 2"],
+          "files_created": ["data/state/lathe-engine-registry.json"],
+          "rollback": "git rm registry if count deviates",
+          "omega_floor": 0.85,
+          "depends_on": [],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH02",
+          "title": "Dispatcher Wiring Audit for Lathe Actions",
+          "description": "Scan camDispatcher and lathe*Dispatcher for lathe engine references; produce lathe-wiring-audit.md.",
+          "exit_conditions": ["100% engines wired or flagged orphan with reason"],
+          "files_created": ["state/shared/lathe-wiring-audit.md"],
+          "rollback": "restore prior wiring state",
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH01"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH03",
+          "title": "Lathe Test Coverage Sweep",
+          "description": "Run vitest filtered on Lathe*.test.ts; identify engines without test files; produce lathe-test-gap.md.",
+          "exit_conditions": ["Every engine has passing tests (>=10) or scheduled unit to add them"],
+          "files_created": ["state/shared/lathe-test-gap.md"],
+          "rollback": "remove gap doc",
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH01"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH04",
+          "title": "Physics Constants Inline-Usage Sweep (Lathe)",
+          "description": "Grep lathe engines for inlined kc1.1, Taylor C/n, density, specific heat; refactor to import from constants.ts; build_verify.",
+          "exit_conditions": ["Zero inline physics constants in Lathe*.ts", "Build passes", "No test regressions"],
+          "rollback": "git reset per-engine on test regress",
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH01"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH05",
+          "title": "Knowledge Source Completeness Check",
+          "description": "For each P1-P5 feature, verify >=1 tribal tip file + >=1 reference program set + >=1 formula group exists.",
+          "exit_conditions": [">=3 knowledge sources per feature"],
+          "files_created": ["state/shared/lathe-knowledge-coverage.md"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH01", "U-LTH02"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH06",
+          "title": "Legacy Envelope Archival",
+          "description": "Mark LATHE-PRO-MS0, LATHE-PRO-v2, LATHE-PRO-v3, LATHE-ROADMAP, LATHE-AI as status: archived, superseded_by: LATHE-MASTER; update roadmap-index.json; move legacy .md files to plans-archive/lathe-pre-consolidation/.",
+          "exit_conditions": ["All 5 legacy envelopes flagged archived", "LATHE-MASTER shown active in index"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH01", "U-LTH02", "U-LTH03", "U-LTH04", "U-LTH05"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "lathe-inventory-stale-guard",
+        "action": "prism_lathe:inventory_snapshot",
+        "skill": "/lathe-audit"
+      }
+    },
+    {
+      "id": "P1",
+      "title": "Speed & Feed Calculator",
+      "goal": "Unified, AI-backed speed/feed calculator for PRISM web app + MCP action.",
+      "feature_target": 1,
+      "sessions": 3,
+      "smart_config": {
+        "role": "backend-dev + physics-reviewer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "SpeedFeedOrchestratorEngine",
+        "KienzleForceModelEngine",
+        "StochasticCuttingForceEngine",
+        "ChipLoadEngine",
+        "lathe-physics-science-tips.ts",
+        "src/physics/constants.ts",
+        "FormulaRegistry"
+      ],
+      "units": [
+        {
+          "id": "U-LTH07",
+          "title": "LatheSpeedFeedCalculatorFacadeEngine",
+          "description": "Single facade consolidating 16 speed/feed engines behind .calculate({material, tool, op, machine}) -> AtomicValue<recommendation, band, confidence, sources[], reasoning[]>.",
+          "exit_conditions": ["Single-entry API", ">=12 tests", "No duplication", "Build passes"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH06"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH08",
+          "title": "LatheSpeedFeedDeepLearningAdvisorEngine",
+          "description": "Neural-net-backed advisor. Uses LatheDeepLearningIntelligenceEngine + LatheAttentionMechanismEngine. Returns DL-adjusted recommendation with top-3 feature SHAP scores.",
+          "exit_conditions": ["Deterministic seed", ">=10 tests", ">=3 influential features in explanation"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH07"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH09",
+          "title": "LatheSpeedFeedReasoningBridgeEngine",
+          "description": "Causal / counterfactual layer via LatheCausalInferenceEngine + LatheDeepReasoningEngine. Answers what-if scenarios.",
+          "exit_conditions": [">=6 what-if scenarios", "Confidence drops under extrapolation"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH07", "U-LTH08"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH10",
+          "title": "Dispatcher Wiring for Speed/Feed Calculator",
+          "description": "Wire lathe_sf_calculate, lathe_sf_advise, lathe_sf_whatif, lathe_sf_cite_sources, lathe_sf_explain through camDispatcher.",
+          "exit_conditions": ["5 actions callable via MCP", "Schemas pass", ">=8 integration tests"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH07", "U-LTH08", "U-LTH09"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH11",
+          "title": "Web Calculator Panel (React)",
+          "description": "web/src/pages/LatheSpeedFeedCalculator.tsx panel with form, result card, bands, explain, whatif.",
+          "exit_conditions": ["Renders on dev server", "E2E form submission produces recommendation", "Screenshot test"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH10"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH12",
+          "title": "Shop-Aware Tuning Layer",
+          "description": "LatheSpeedFeedShopAwareTuningEngine adjusts by JM Die actuals via LatheActualFeedbackTuningEngine + LatheShopAwareOptimizationEngine.",
+          "exit_conditions": ["JM Die profile produces >5% delta vs generic", ">=12 tests"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH07", "U-LTH08"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH13",
+          "title": "Speed/Feed Calculator Regression Suite",
+          "description": "Golden dataset of 200 {material, tool, op} cases with expected Vc/fn ranges from Sandvik/Kennametal catalogs.",
+          "exit_conditions": ["200-case snapshot", "All within +/- 5%", "Regression alarm set"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH07", "U-LTH08", "U-LTH09", "U-LTH10", "U-LTH11", "U-LTH12"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH14",
+          "title": "Forge-Triple for Speed/Feed Calculator",
+          "description": "Hook speed-feed-out-of-band-guard + action prism_lathe:sf_full + skill /auto-speed-feed-lathe.",
+          "exit_conditions": ["All 3 deliverables exist with tests"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH07", "U-LTH08", "U-LTH09", "U-LTH10", "U-LTH11", "U-LTH12", "U-LTH13"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "speed-feed-out-of-band-guard",
+        "action": "prism_lathe:sf_full",
+        "skill": "/auto-speed-feed-lathe"
+      },
+      "exit_gate": "Machinist opens calculator, enters real JM Die job, gets recommendation within +/- 5% of Sandvik catalog, sees DL confidence band, asks what-if, result cited."
+    },
+    {
+      "id": "P2",
+      "title": "Post-Processor Generator",
+      "goal": "Given {controller vendor, machine kinematics, axis map, dialect quirks}, automatically generate a new post-processor artifact with full validator stack and regression tests.",
+      "feature_target": 2,
+      "sessions": 4,
+      "smart_config": {
+        "role": "backend-dev + code-archaeologist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "PPEndToEndPostGeneratorEngine",
+        "PPMachineSpecificPostEngine",
+        "PPControllerEmbeddingEngine",
+        "PPDialectTransferEngine",
+        "ControllerKnowledgeDBEngine",
+        "27 PP* validators",
+        "okuma-osp-extracted-tips.ts",
+        "controller-knowledge-tips.ts",
+        "fanuc-controller-tips.json"
+      ],
+      "units": [
+        {
+          "id": "U-LTH15",
+          "title": "Controller Spec Ingestion Engine",
+          "description": "LathePostGeneratorSpecIngestEngine accepts controller manual PDF/spec -> normalized ControllerSpec. Uses PPControllerEmbeddingEngine.",
+          "exit_conditions": ["Ingests Fanuc 31i-T, Okuma OSP-P300L, Mitsubishi M80", "ControllerSpec validates against Zod schema"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH14"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH16",
+          "title": "Post-Processor Skeleton Generator",
+          "description": "LathePostGeneratorSkeletonEngine emits NewLathePost.ts skeleton with all required hooks, pre-wired against all PP* validators.",
+          "exit_conditions": ["Skeleton compiles", "Passes PPGCodeLintEngine on hello-world", "Round-trips through PPEndToEndPostGeneratorEngine"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH15"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH17",
+          "title": "Dialect Transfer Learning",
+          "description": "LathePostDialectTransferEngine transfers G-code patterns from known-good post to novel dialect with minimal examples.",
+          "exit_conditions": ["5 Okuma + 1 Mitsubishi -> viable Mitsubishi post passes 80%+ validators"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH15", "U-LTH16"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH18",
+          "title": "Validator Stack Auto-Wiring for Generated Posts",
+          "description": "LathePostGeneratorValidatorWiringEngine auto-wires all 27 PP* validators with per-validator config from ControllerSpec.",
+          "exit_conditions": ["All 27 validators run on reference program without hard-fail on valid programs"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH16"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH19",
+          "title": "Regression Test Auto-Generator",
+          "description": "LathePostGeneratorTestSynthEngine generates vitest test file with fixtures from matching reference programs in JM Die archive.",
+          "exit_conditions": ["New post emits test file with >=20 fixtures", "All tests pass on skeleton"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH16", "U-LTH18"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH20",
+          "title": "Knowledge-Graph Integration",
+          "description": "LathePostGeneratorKnowledgeIndexEngine registers each generated post into PPKnowledgeIndexEngine + ManufacturingKnowledgeGraphEngine.",
+          "exit_conditions": ["Generated post appears in knowledge graph", "Discoverable by prism_knowledge_graph:query_post"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH15", "U-LTH16", "U-LTH17", "U-LTH18", "U-LTH19"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH21",
+          "title": "Active-Learning Feedback Loop",
+          "description": "LathePostGeneratorActiveLearningEngine queues shop-floor failures into PPActiveLearningQueueEngine; regeneration incorporates corrections.",
+          "exit_conditions": ["Simulated failure -> queue -> regen produces corrected post verified against fixture"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH18", "U-LTH19"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH22",
+          "title": "Uncertainty Quantification for Generated Posts",
+          "description": "LathePostGeneratorUncertaintyEngine uses PPEnsembleUncertaintyEngine for per-block confidence. Blocks ship if ensemble disagreement > 15%.",
+          "exit_conditions": ["High-risk blocks flagged", "Per-program confidence published"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH18"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH23",
+          "title": "Dispatcher Wiring for Generator",
+          "description": "Wire lathe_postgen_{ingest, skeleton, transfer, validate, test, register, feedback, uncertainty} through camDispatcher.",
+          "exit_conditions": ["8 actions callable", "Schemas pass", ">=12 integration tests"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH15", "U-LTH16", "U-LTH17", "U-LTH18", "U-LTH19", "U-LTH20", "U-LTH21", "U-LTH22"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH24",
+          "title": "Forge-Triple for Post-Processor Generator",
+          "description": "Hook postgen-validator-skip-guard + action prism_lathe:postgen_full + skill /lathe-postgen.",
+          "exit_conditions": ["All 3 deliverables", "End-to-end test produces working Mitsubishi post"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH15", "U-LTH16", "U-LTH17", "U-LTH18", "U-LTH19", "U-LTH20", "U-LTH21", "U-LTH22", "U-LTH23"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "postgen-validator-skip-guard",
+        "action": "prism_lathe:postgen_full",
+        "skill": "/lathe-postgen"
+      },
+      "exit_gate": "Given Mitsubishi M80 spec + 3 reference programs, generator produces a Mitsubishi lathe post that (a) compiles, (b) passes all 27 validators, (c) round-trips reference program within 95% fidelity, (d) registers into knowledge graph, (e) exposes uncertainty per-block."
+    },
+    {
+      "id": "P3",
+      "title": "Master Post-Processor",
+      "goal": "Single canonical post in PRISM app routing to correct per-machine post for any JM Die machine. Self-aware, self-updating.",
+      "feature_target": 3,
+      "sessions": 3,
+      "smart_config": {
+        "role": "system-architect + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "MasterPostProcessorEngine",
+        "MasterPostProcessorGeniusEngine",
+        "MasterPostProcessorAGIOrchestrationEngine",
+        "PostProcessorAGIContinuousLearningEngine",
+        "PostProcessorAGIMasterRegistryEngine",
+        "ShopConfigurationEngine (JM Die 21 machines)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH25",
+          "title": "LatheMasterPostRouterEngine",
+          "description": "Central router: given {machineId, operation, controller} -> selects and invokes correct sub-post. Integrates with ShopConfigurationEngine.",
+          "exit_conditions": ["Routes to correct sub-post for all 21 JM Die machines", "Fallback via P2 generator for unknown"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH24"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH26",
+          "title": "LatheMasterPostUnifiedOutputEngine",
+          "description": "Unifies output format across sub-posts. Standard header/footer/metadata via PPModalStateTrackerEngine.",
+          "exit_conditions": ["Diff between any 2 sub-posts shows only legitimate dialect differences"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH25"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH27",
+          "title": "LatheMasterPostSelfAwarenessEngine",
+          "description": "Continuously audits sub-posts via PostProcessorAGIContinuousLearningEngine + PostProcessorAISelfAwarenessIntegrationEngine. Detects drift, flags regeneration.",
+          "exit_conditions": ["Seeded drift detection produces remediation recommendation"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH25"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH28",
+          "title": "LatheMasterPostDeepReasoningEngine",
+          "description": "Uses LatheDeepReasoningEngine + CausalReasoningEngine to explain WHY master post picked a sub-post.",
+          "exit_conditions": ["Human-readable decision trace with >=4 reasoning steps"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH25"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH29",
+          "title": "LatheMasterPostEnsembleCrossCheckEngine",
+          "description": "When two sub-posts could serve a job, runs both, compares outputs, flags divergence > 10% block-count or > 5% cycle-time.",
+          "exit_conditions": ["Ensemble check on 5+ ambiguous fixtures", "Divergence reporting accurate"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH25", "U-LTH28"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH30",
+          "title": "LatheMasterPostAPIEngine + Dispatcher Wiring",
+          "description": "Wire lathe_masterpost_{route, emit, validate, explain, cross_check, audit} through camDispatcher; REST in routes/python-api.ts.",
+          "exit_conditions": ["Web UI POSTs job -> master post -> G-code + explanation", "E2E test passes"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH25", "U-LTH26", "U-LTH27", "U-LTH28", "U-LTH29"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH31",
+          "title": "Master Post Regression Test Matrix",
+          "description": "Golden matrix of 150 jobs across 21 JM Die machines + 5 validator groups.",
+          "exit_conditions": ["150-cell matrix all green", "Baseline locked"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH25", "U-LTH26", "U-LTH27", "U-LTH28", "U-LTH29", "U-LTH30"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH32",
+          "title": "Forge-Triple for Master Post",
+          "description": "Hook masterpost-unknown-machine-guard + action prism_lathe:masterpost_full + skill /lathe-masterpost.",
+          "exit_conditions": ["All 3 deliverables exist"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH25", "U-LTH26", "U-LTH27", "U-LTH28", "U-LTH29", "U-LTH30", "U-LTH31"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "masterpost-unknown-machine-guard",
+        "action": "prism_lathe:masterpost_full",
+        "skill": "/lathe-masterpost"
+      },
+      "exit_gate": "Selecting any JM Die lathe in PRISM app -> Master Post emits validated G-code + explanation trace within 3 seconds. Unknown machines auto-trigger P2 generator path."
+    },
+    {
+      "id": "P4",
+      "title": "Print-to-Program (THE BIG ONE)",
+      "goal": "End-to-end blueprint -> G-code pipeline: PDF drop -> OCR -> feature recognition -> GD&T -> strategy -> toolpath -> master post emission -> validation -> signoff dossier.",
+      "feature_target": 4,
+      "sessions": 6,
+      "smart_config": {
+        "role": "ml-developer + backend-dev",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "BlueprintOCREngine",
+        "BlueprintVisionOCREngine",
+        "PDFBlueprintDimensionExtractorEngine",
+        "GDTCalloutParserEngine",
+        "GDTStackupEngine",
+        "PrintReadingEngine",
+        "TurningPrintIntakeEngine",
+        "TurningFeatureTaxonomyEngine",
+        "FeatureStrategyKnowledgeBaseEngine (CAMX-MS12 E1112)",
+        "CpkPredictionGateEngine (CAMX-MS12 E1203)",
+        "StrategyStochasticRiskEngine (CAMX-MS12 E1201)"
+      ],
+      "units": [
+        {
+          "id": "U-LTH33",
+          "title": "Blueprint Ingest + Vision-OCR Pipeline",
+          "description": "LathePrintIngestPipelineEngine orchestrates BlueprintVisionOCR + PDFBlueprintDimensionExtractor + GDTCalloutParser -> BlueprintIntake JSON.",
+          "exit_conditions": ["10 JM Die drawings round-tripped with >=90% dim-extraction accuracy"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH32"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH34",
+          "title": "Turning Feature Recognition",
+          "description": "LatheTurningFeatureRecognizerEngine emits turning feature list {OD, ID, face, groove, thread, chamfer, radius}.",
+          "exit_conditions": [">=12 feature types on 20 JM Die parts", ">=95% precision"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH33"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH35",
+          "title": "GD&T Tolerance Propagation",
+          "description": "LathePrintToleranceStackEngine propagates GDT through feature->operation chain; assigns per-feature Cpk target.",
+          "exit_conditions": ["Per-feature Cpk assigned", "Stack-up warnings when chain exceeds budget"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH34"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH36",
+          "title": "Feature-to-Strategy Mapping (CAMX-MS12 handoff)",
+          "description": "LathePrintFeatureStrategySelectorEngine consumes features + tolerance + material + machine. Delegates to FeatureStrategyKnowledgeBaseEngine (CAMX-MS12 E1112, 203 rules).",
+          "exit_conditions": ["Every feature mapped to strategy", "Strategies cited with KB rule IDs"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH34", "U-LTH35", "CAMX-MS12"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH37",
+          "title": "Multi-Op Sequence Planning",
+          "description": "LathePrintSequencePlannerEngine from strategy plan -> ordered sequence with stock state tracking. Uses StrategySequencingEngine (CAMX-MS12 U06).",
+          "exit_conditions": ["Valid sequence for all 20 test parts", "Cycle-time predicted"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH36"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH38",
+          "title": "Workholding + Setup Selection",
+          "description": "LathePrintSetupSelectionEngine selects chuck jaws, tailstock engagement, steady rest. Uses FixtureAwareStrategyEngine (CAMX-MS12 U07).",
+          "exit_conditions": ["Setup plan with gripper-force validation", "Flags parts requiring steady rest"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH36", "U-LTH37"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH39",
+          "title": "Toolpath Generation + CAM Integration",
+          "description": "LathePrintToolpathGeneratorEngine from operation sequence -> per-op toolpath via LatheCAMIntelligenceEngine + P1 speed/feed.",
+          "exit_conditions": [">=15 feature types", "Cycle time within 10% of Mastercam ground truth"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH36", "U-LTH37", "U-LTH38", "U-LTH14"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH40",
+          "title": "Program Emission via Master Post",
+          "description": "LathePrintProgramEmitterEngine sends toolpath through Master Post (P3) -> G-code + signoff dossier.",
+          "exit_conditions": ["G-code for 20 JM Die fixtures", "All pass PP* validator stack"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH39", "U-LTH32"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH41",
+          "title": "Program Validation + Signoff Dossier",
+          "description": "LathePrintProgramSignoffEngine runs all 27 PP* validators + physics + safety. Produces machinist-grade signoff PDF.",
+          "exit_conditions": ["Dossier for 15 fixtures", "Machinist QA <=2 material corrections per 10"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH40"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH42",
+          "title": "Print-to-Program Deep-Learning Intelligence",
+          "description": "LathePrintToProgramDLIntelligenceEngine predicts failure probability and suggests corrections via LatheDeepLearningIntelligenceEngine + LatheAttentionMechanismEngine.",
+          "exit_conditions": ["Failure prediction >=75% accuracy on 50-program held-out set"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH39", "U-LTH40", "U-LTH41"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH43",
+          "title": "Print-to-Program Reasoning Layer",
+          "description": "LathePrintToProgramReasoningEngine explains full decision chain via LatheDeepReasoningEngine + LatheOpusReasoningEngine + CausalReasoningEngine + CounterfactualReasoningEngine.",
+          "exit_conditions": [">=10 decision steps in reasoning trace per fixture"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH33", "U-LTH34", "U-LTH35", "U-LTH36", "U-LTH37", "U-LTH38", "U-LTH39", "U-LTH40", "U-LTH41", "U-LTH42"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH44",
+          "title": "Print-to-Program Knowledge Graph Integration",
+          "description": "LathePrintToProgramKnowledgeGraphEngine adds nodes/edges to ManufacturingKnowledgeGraph per emission.",
+          "exit_conditions": ["Graph queries return semantically relevant matches", "5+ queries benchmarked"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH33", "U-LTH34", "U-LTH35", "U-LTH36", "U-LTH37", "U-LTH38", "U-LTH39", "U-LTH40", "U-LTH41", "U-LTH42", "U-LTH43"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH45",
+          "title": "Print-to-Program Dispatcher Wiring + Web UI",
+          "description": "Wire lathe_p2p_{ingest, features, tolerance, strategy, sequence, setup, toolpath, emit, signoff, explain, kg_query} through camDispatcher + web/src/pages/LathePrintToProgram.tsx.",
+          "exit_conditions": ["Drag-and-drop PDF -> program in UI", "11 actions callable", "E2E passes"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH33", "U-LTH34", "U-LTH35", "U-LTH36", "U-LTH37", "U-LTH38", "U-LTH39", "U-LTH40", "U-LTH41", "U-LTH42", "U-LTH43", "U-LTH44"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH46",
+          "title": "Print-to-Program End-to-End Regression",
+          "description": "Golden matrix of 50 JM Die prints -> 50 programs -> diff against machinist-approved baseline.",
+          "exit_conditions": ["50-cell matrix green", "Baseline locked", "Regression alarm set"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH45"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH47",
+          "title": "Forge-Triple for Print-to-Program",
+          "description": "Hook p2p-cpk-below-gate (uses CpkPredictionGateEngine E1203) + action prism_lathe:p2p_full + skill /lathe-print-to-program.",
+          "exit_conditions": ["All 3 deliverables", "Full pipeline runs on 10 fresh JM Die prints E2E"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH33", "U-LTH34", "U-LTH35", "U-LTH36", "U-LTH37", "U-LTH38", "U-LTH39", "U-LTH40", "U-LTH41", "U-LTH42", "U-LTH43", "U-LTH44", "U-LTH45", "U-LTH46"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "p2p-cpk-below-gate",
+        "action": "prism_lathe:p2p_full",
+        "skill": "/lathe-print-to-program"
+      },
+      "exit_gate": "Drop a PDF blueprint -> 60 seconds later you have a validated G-code program with signoff dossier (toolpath viz, Cpk predictions, reasoning trace, risk summary). Machinist accepts >=8/10 without material corrections."
+    },
+    {
+      "id": "P5",
+      "title": "ERP / Business Management",
+      "goal": "Shop-grade business layer: quotes, actual costs, scheduling, customers, inventory, POs, invoicing. Feeds off P1/P3/P4 outputs.",
+      "feature_target": 5,
+      "sessions": 4,
+      "smart_config": {
+        "role": "backend-dev + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "QuoteEngine",
+        "QuoteEstimatorEngine",
+        "QuoteAutopilotEngine",
+        "QuoteToShipOrchestratorEngine",
+        "InstantQuoteEngine",
+        "BlueprintToQuoteBridgeEngine",
+        "ActualCostEngine",
+        "JobCostingEngine",
+        "LathePartCostModelEngine",
+        "LatheProgrammingCostEngine",
+        "ShopSchedulerEngine",
+        "JobShopSchedulingEngine"
+      ],
+      "units": [
+        {
+          "id": "U-LTH48",
+          "title": "LatheAutoQuoteFromPrintEngine",
+          "description": "Bridge P4 print-to-program output -> instant quote. BlueprintToQuoteBridgeEngine + QuoteEstimatorEngine + LathePartCostModelEngine.",
+          "exit_conditions": ["Quote produced from print <=90s", "<=10% variance vs manual on 10 JM Die fixtures"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH47"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH49",
+          "title": "LatheActualCostReconciliationEngine",
+          "description": "Reconciles actual vs quoted cost; feeds LatheActualFeedbackTuningEngine for next quote.",
+          "exit_conditions": ["Variance report produced", "Next quote shows reduced variance"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH48"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH50",
+          "title": "LatheJobSchedulingEngine",
+          "description": "Integrates quotes -> shop schedule. ShopSchedulerEngine + JobShopSchedulingEngine + ShiftScheduleOptimizerEngine.",
+          "exit_conditions": ["Respects 21-machine constraints", "Honors due dates", "Minimizes changeovers"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH48"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH51",
+          "title": "LatheCustomerOrderLifecycleEngine",
+          "description": "Tracks customer -> order -> quote -> job -> shipment -> invoice lifecycle.",
+          "exit_conditions": ["End-to-end lifecycle visible in web UI", "State transitions audited"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH48", "U-LTH50"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH52",
+          "title": "LathePurchaseOrderAutomationEngine",
+          "description": "Auto-generates PO requirements (stock, tools, consumables) on quote. PurchaseOrderEngine + InventoryAwareToolSelectorEngine + InventoryEOQEngine.",
+          "exit_conditions": ["PO draft produced per job", "Integrates with inventory levels"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH48", "U-LTH51"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH53",
+          "title": "LatheInventoryIntelligenceEngine",
+          "description": "Real-time inventory view with EOQ + reorder triggers. InventoryOptimizationEngine + InventoryEOQEngine + JMDieProgramInventoryEngine.",
+          "exit_conditions": ["Inventory dashboard live", "Reorder alerts fire on seeded data"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH52"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH54",
+          "title": "LatheJobProfitabilityAnalyticsEngine",
+          "description": "Per-job profitability waterfall. JobProfitabilityWaterfallEngine + CustomerPortfolioMinerEngine.",
+          "exit_conditions": ["Profitability report produced", "Top-10 and bottom-10 jobs visible"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH49", "U-LTH51"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH55",
+          "title": "LatheBusinessIntelligenceDashboard",
+          "description": "Web dashboard consolidating quotes, jobs, schedule, inventory, profitability, KPIs. web/src/pages/LatheERPDashboard.tsx.",
+          "exit_conditions": ["Dashboard loads on dev server", "6 tiles populated with live data"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH48", "U-LTH49", "U-LTH50", "U-LTH51", "U-LTH52", "U-LTH53", "U-LTH54"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH56",
+          "title": "Dispatcher Wiring for ERP",
+          "description": "Wire lathe_erp_{quote_from_print, reconcile, schedule, lifecycle, po, inventory, profitability, dashboard} through businessDispatcher.",
+          "exit_conditions": ["8 actions callable via MCP", "Schemas pass", ">=10 integration tests"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH48", "U-LTH49", "U-LTH50", "U-LTH51", "U-LTH52", "U-LTH53", "U-LTH54", "U-LTH55"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH57",
+          "title": "Forge-Triple for ERP",
+          "description": "Hook erp-quote-variance-guard + action prism_lathe:erp_full + skill /lathe-erp and /quote-to-ship-lathe.",
+          "exit_conditions": ["All 3 deliverables", "E2E JM Die order flows quote -> schedule -> po -> invoice"],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH48", "U-LTH49", "U-LTH50", "U-LTH51", "U-LTH52", "U-LTH53", "U-LTH54", "U-LTH55", "U-LTH56"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "erp-quote-variance-guard",
+        "action": "prism_lathe:erp_full",
+        "skill": "/lathe-erp"
+      },
+      "exit_gate": "A JM Die salesperson uploads a PDF -> gets quote in <2 minutes with <=10% variance. The job lifecycles through schedule -> PO -> machine -> reconcile -> invoice, all visible on ERP dashboard."
+    },
+    {
+      "id": "PX",
+      "title": "AGI Deep-Learning Cross-Cutting",
+      "goal": "Ensure AGI substrate actually runs through P1-P5, not just isolated engines. Cross-cutting units unifying DL/NN/reasoning across features.",
+      "sessions": 2,
+      "smart_config": {
+        "role": "ml-developer + system-architect",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "75%"
+      },
+      "knowledge_sources": [
+        "LatheAGICoreEngine",
+        "LatheDeepReasoningEngine",
+        "LatheDeepLearningIntelligenceEngine",
+        "LatheNeuralIntelligenceEngine",
+        "LatheTransformerEngine",
+        "LatheAttentionMechanismEngine",
+        "LatheMetaLearningEngine",
+        "LatheTransferLearningEngine",
+        "LatheCausalInferenceEngine",
+        "LatheKnowledgeGraphEngine",
+        "CrossDisciplinaryDeepLearningEngine",
+        "PRISMCreativeReasoningEngine",
+        "AGISafetyContainmentEngine"
+      ],
+      "parallel_with": ["P2", "P3", "P4", "P5"],
+      "units": [
+        {
+          "id": "U-LTH58",
+          "title": "LatheAGIFeatureBridgeEngine",
+          "description": "Central bridge: .reason(featureName, context) -> {prediction, explanation, confidence, novel_insights[]} for P1-P5.",
+          "exit_conditions": ["All 5 features call this bridge", "Trace produced for every call"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH14"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH59",
+          "title": "LatheAGIContinuousLearningEngine",
+          "description": "Long-running learner consuming P1/P4/P5 outcomes. LatheActiveLearningEngine + LatheMetaLearningEngine + JobLearningEngine.",
+          "exit_conditions": ["Seeded rejection -> next prediction shows behavior change"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH58"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH60",
+          "title": "LatheAGIKnowledgeUnificationEngine",
+          "description": "Unifies LatheKnowledgeGraphEngine + ManufacturingKnowledgeGraphEngine + KnowledgeGraphNeuralBridgeEngine.",
+          "exit_conditions": ["Single query endpoint returns nodes+edges from 3 sub-graphs", "Graph-backed reasoning traces >=5 steps"],
+          "omega_floor": 0.85,
+          "depends_on": ["U-LTH58"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH61",
+          "title": "LatheAGISafetyContainmentEngine (integration)",
+          "description": "Integrate AGISafetyContainmentEngine to bound outputs: no unsafe speeds, no absurd quotes, no out-of-capacity schedules. Uses FuzzyNeuralHybridEngine.",
+          "exit_conditions": ["Adversarial inputs caught + rejected with safety trace"],
+          "omega_floor": 0.92,
+          "depends_on": ["U-LTH58", "U-LTH59", "U-LTH60"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH62",
+          "title": "Forge-Triple for AGI Substrate",
+          "description": "Hook agi-safety-envelope-guard + action prism_lathe:agi_reason + skill /lathe-agi-explain.",
+          "exit_conditions": ["All 3 deliverables tested against all 5 features"],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH58", "U-LTH59", "U-LTH60", "U-LTH61"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "agi-safety-envelope-guard",
+        "action": "prism_lathe:agi_reason",
+        "skill": "/lathe-agi-explain"
+      },
+      "exit_gate": "Any P1-P5 output produces AGI reasoning trace with >=5 steps, confidence bands, novel-insight flags. Safety bounds hard-enforced."
+    }
+  ],
+  "aggregate_metrics": {
+    "total_phases": 7,
+    "total_units": 62,
+    "total_sessions": 24,
+    "total_hooks": 14,
+    "total_actions": 62,
+    "total_skills": 13,
+    "new_engines": "~30",
+    "test_files": "~60",
+    "test_cases": "~620",
+    "omega_target": 1.0,
+    "svi_baseline": 0.977,
+    "svi_psi_target": 0.98,
+    "mcp_utilization_target": 0.45
+  },
+  "session_map": [
+    { "session_id": "P0-S1", "phase": "P0", "units": ["U-LTH01", "U-LTH02", "U-LTH03"], "smart_config": { "role": "code-archaeologist + reviewer", "model": "sonnet", "effort": "HIGH", "context_budget": "60%" } },
+    { "session_id": "P0-S2", "phase": "P0", "units": ["U-LTH04", "U-LTH05", "U-LTH06"], "smart_config": { "role": "reviewer + physics-reviewer", "model": "sonnet", "effort": "HIGH", "context_budget": "50%" } },
+    { "session_id": "P1-S1", "phase": "P1", "units": ["U-LTH07", "U-LTH08", "U-LTH09"], "smart_config": { "role": "backend-dev + physics-reviewer", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P1-S2", "phase": "P1", "units": ["U-LTH10", "U-LTH11", "U-LTH12"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "60%" } },
+    { "session_id": "P1-S3", "phase": "P1", "units": ["U-LTH13", "U-LTH14"], "smart_config": { "role": "tester + perf-analyzer", "model": "haiku", "effort": "HIGH", "context_budget": "40%" } },
+    { "session_id": "P2-S1", "phase": "P2", "units": ["U-LTH15", "U-LTH16", "U-LTH17"], "smart_config": { "role": "backend-dev + code-archaeologist", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P2-S2", "phase": "P2", "units": ["U-LTH18", "U-LTH19", "U-LTH20"], "smart_config": { "role": "backend-dev + physics-reviewer", "model": "opus", "effort": "MAX", "context_budget": "65%" } },
+    { "session_id": "P2-S3", "phase": "P2", "units": ["U-LTH21", "U-LTH22", "U-LTH23"], "smart_config": { "role": "backend-dev + ml-developer", "model": "opus", "effort": "MAX", "context_budget": "60%" } },
+    { "session_id": "P2-S4", "phase": "P2", "units": ["U-LTH24"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "45%" } },
+    { "session_id": "P3-S1", "phase": "P3", "units": ["U-LTH25", "U-LTH26", "U-LTH27"], "smart_config": { "role": "system-architect + backend-dev", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P3-S2", "phase": "P3", "units": ["U-LTH28", "U-LTH29", "U-LTH30"], "smart_config": { "role": "backend-dev + ml-developer", "model": "opus", "effort": "HIGH", "context_budget": "60%" } },
+    { "session_id": "P3-S3", "phase": "P3", "units": ["U-LTH31", "U-LTH32"], "smart_config": { "role": "tester + reviewer", "model": "sonnet", "effort": "HIGH", "context_budget": "50%" } },
+    { "session_id": "P4-S1", "phase": "P4", "units": ["U-LTH33", "U-LTH34", "U-LTH35"], "smart_config": { "role": "ml-developer + backend-dev", "model": "opus", "effort": "MAX", "context_budget": "75%" } },
+    { "session_id": "P4-S2", "phase": "P4", "units": ["U-LTH36", "U-LTH37", "U-LTH38"], "smart_config": { "role": "backend-dev + physics-reviewer", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P4-S3", "phase": "P4", "units": ["U-LTH39", "U-LTH40", "U-LTH41"], "smart_config": { "role": "backend-dev + ml-developer + physics-reviewer", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P4-S4", "phase": "P4", "units": ["U-LTH42", "U-LTH43", "U-LTH44"], "smart_config": { "role": "ml-developer + backend-dev", "model": "opus", "effort": "MAX", "context_budget": "65%" } },
+    { "session_id": "P4-S5", "phase": "P4", "units": ["U-LTH45", "U-LTH46"], "smart_config": { "role": "backend-dev + cicd-engineer", "model": "sonnet", "effort": "HIGH", "context_budget": "55%" } },
+    { "session_id": "P4-S6", "phase": "P4", "units": ["U-LTH47"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "45%" } },
+    { "session_id": "P5-S1", "phase": "P5", "units": ["U-LTH48", "U-LTH49", "U-LTH50"], "smart_config": { "role": "backend-dev + system-architect", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P5-S2", "phase": "P5", "units": ["U-LTH51", "U-LTH52", "U-LTH53"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "55%" } },
+    { "session_id": "P5-S3", "phase": "P5", "units": ["U-LTH54", "U-LTH55", "U-LTH56"], "smart_config": { "role": "backend-dev + ml-developer", "model": "sonnet", "effort": "HIGH", "context_budget": "55%" } },
+    { "session_id": "P5-S4", "phase": "P5", "units": ["U-LTH57"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "45%" } },
+    { "session_id": "PX-S1", "phase": "PX", "units": ["U-LTH58", "U-LTH59", "U-LTH60"], "smart_config": { "role": "ml-developer + system-architect", "model": "opus", "effort": "MAX", "context_budget": "75%" }, "parallelizable": true, "parallel_with": ["P2", "P3", "P4", "P5"] },
+    { "session_id": "PX-S2", "phase": "PX", "units": ["U-LTH61", "U-LTH62"], "smart_config": { "role": "ml-developer + physics-reviewer + system-architect", "model": "opus", "effort": "MAX", "context_budget": "65%" }, "critical_path": true }
+  ],
+  "compact_checkpoints": [
+    { "after_unit": "U-LTH03", "session_handoff": "P0-S1 -> P0-S2" },
+    { "after_unit": "U-LTH06", "session_handoff": "P0-S2 -> P1-S1" },
+    { "after_unit": "U-LTH09", "session_handoff": "P1-S1 -> P1-S2" },
+    { "after_unit": "U-LTH12", "session_handoff": "P1-S2 -> P1-S3" },
+    { "after_unit": "U-LTH14", "session_handoff": "P1-S3 -> P2-S1" },
+    { "after_unit": "U-LTH17", "session_handoff": "P2-S1 -> P2-S2" },
+    { "after_unit": "U-LTH20", "session_handoff": "P2-S2 -> P2-S3" },
+    { "after_unit": "U-LTH23", "session_handoff": "P2-S3 -> P2-S4" },
+    { "after_unit": "U-LTH24", "session_handoff": "P2-S4 -> P3-S1" },
+    { "after_unit": "U-LTH27", "session_handoff": "P3-S1 -> P3-S2" },
+    { "after_unit": "U-LTH30", "session_handoff": "P3-S2 -> P3-S3" },
+    { "after_unit": "U-LTH32", "session_handoff": "P3-S3 -> P4-S1" },
+    { "after_unit": "U-LTH35", "session_handoff": "P4-S1 -> P4-S2" },
+    { "after_unit": "U-LTH38", "session_handoff": "P4-S2 -> P4-S3" },
+    { "after_unit": "U-LTH41", "session_handoff": "P4-S3 -> P4-S4" },
+    { "after_unit": "U-LTH44", "session_handoff": "P4-S4 -> P4-S5" },
+    { "after_unit": "U-LTH46", "session_handoff": "P4-S5 -> P4-S6" },
+    { "after_unit": "U-LTH47", "session_handoff": "P4-S6 -> P5-S1" },
+    { "after_unit": "U-LTH50", "session_handoff": "P5-S1 -> P5-S2" },
+    { "after_unit": "U-LTH53", "session_handoff": "P5-S2 -> P5-S3" },
+    { "after_unit": "U-LTH56", "session_handoff": "P5-S3 -> P5-S4" },
+    { "after_unit": "U-LTH60", "session_handoff": "PX-S1 -> PX-S2" }
+  ],
+  "mcp_utilization": {
+    "target_percentage": 45,
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work_every_5_to_10_calls": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "verification_tools": {
+    "tests": ["mcp__vitest__run_tests", "mcp__vitest__analyze_coverage", "mcp__vitest__list_tests"],
+    "lint": ["mcp__eslint__lint-files"],
+    "memory": ["codebase-memory-mcp search_graph", "codebase-memory-mcp trace_call_path"],
+    "taskmaster": ["mcp__taskmaster-ai__get_tasks", "mcp__taskmaster-ai__next_task", "mcp__taskmaster-ai__set_task_status"],
+    "regression_matrix_units": ["U-LTH13", "U-LTH31", "U-LTH46"]
+  },
+  "critical_path": "U-LTH01 -> U-LTH06 -> U-LTH14 -> U-LTH24 -> U-LTH32 -> U-LTH47 -> U-LTH57 -> U-LTH62 (~22 sessions)",
+  "parallelizable": ["PX-S1 (U-LTH58-U-LTH60) parallel with P2-P5"],
+  "whole_roadmap_exit_gates": [
+    "Machinist: Speed/Feed panel -> recommendation + explanation <3s [P1]",
+    "Machinist: Controller spec PDF -> working post <5min [P2]",
+    "Machinist: Any JM Die machine -> master post G-code <3s [P3]",
+    "Machinist: Customer print PDF -> signoff dossier + G-code <60s accepted 8/10 [P4]",
+    "Salesperson: Same PDF -> Quote + schedule + PO + inventory <90s [P5]",
+    "Every output: AGI reasoning trace >=5 steps, confidence, sources, novel insights [PX]"
+  ]
+}
