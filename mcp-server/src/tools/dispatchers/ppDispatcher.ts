@@ -92,6 +92,9 @@ let _ppToolEncoder: any;
 // PP-DL-MS0: Training Data Pipeline
 let _ppTrainingPipeline: any;
 
+// PP-DL-MS6: Active Learning Queue
+let _ppActiveLearning: any;
+
 // PP-DL-MS8: Ensemble & Uncertainty
 let _ppEnsembleUncertainty: any;
 
@@ -194,6 +197,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
     case "trainingPipeline":
       return _ppTrainingPipeline ??= (await import("../../engines/PPTrainingDataPipelineEngine.js")).ppTrainingDataPipelineEngine;
+    case "activeLearning":
+      return _ppActiveLearning ??= (await import("../../engines/PPActiveLearningQueueEngine.js")).ppActiveLearningQueueEngine;
     case "ensembleUncertainty":
       return _ppEnsembleUncertainty ??= (await import("../../engines/PPEnsembleUncertaintyEngine.js")).ppEnsembleUncertaintyEngine;
     case "decisionExplainer":
@@ -358,6 +363,14 @@ const ACTIONS = [
   "pp_training_process",           // Process a G-code program into training record
   "pp_training_batch",             // Process multiple programs
   "pp_training_stats",             // Get pipeline statistics
+
+  // ===== PP_ACTIVE_LEARNING: Review queue (6 actions) — PP-DL-MS6 =====
+  "pp_active_evaluate",            // Evaluate scenario and queue if uncertain
+  "pp_active_next",                // Get next scenario for expert review
+  "pp_active_label",               // Record expert label for a scenario
+  "pp_active_reject",              // Reject queued scenario
+  "pp_active_stats",               // Queue statistics
+  "pp_active_labeled",             // Get all labeled scenarios
 
   // ===== PP_UNCERTAINTY: Ensemble uncertainty (3 actions) — PP-DL-MS8 =====
   "pp_uncertainty_estimate",       // Estimate scenario uncertainty with risk analysis
@@ -974,6 +987,52 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_training_stats": {
             const engine = await getEngine("trainingPipeline");
             result = engine.getStats();
+            break;
+          }
+
+          // ===== PP_ACTIVE_LEARNING (PP-DL-MS6) =====
+          case "pp_active_evaluate": {
+            const engine = await getEngine("activeLearning");
+            result = engine.evaluate({
+              controller_id: params.controllerId ?? params.controller_id,
+              machine_id: params.machineId ?? params.machine_id,
+              material_id: params.materialId ?? params.material_id,
+            }, {
+              min_uncertainty: params.minUncertainty ?? params.min_uncertainty,
+              max_queue_size: params.maxQueueSize ?? params.max_queue_size,
+              strategy: params.strategy,
+            });
+            break;
+          }
+          case "pp_active_next": {
+            const engine = await getEngine("activeLearning");
+            result = engine.getNext() ?? { queued: false };
+            break;
+          }
+          case "pp_active_label": {
+            const engine = await getEngine("activeLearning");
+            result = {
+              success: engine.label(params.id, {
+                ground_truth: params.groundTruth ?? params.ground_truth ?? {},
+                confidence: params.confidence ?? 1.0,
+                expert_id: params.expertId ?? params.expert_id,
+              }),
+            };
+            break;
+          }
+          case "pp_active_reject": {
+            const engine = await getEngine("activeLearning");
+            result = { success: engine.reject(params.id, params.reason) };
+            break;
+          }
+          case "pp_active_stats": {
+            const engine = await getEngine("activeLearning");
+            result = engine.getStats();
+            break;
+          }
+          case "pp_active_labeled": {
+            const engine = await getEngine("activeLearning");
+            result = { labeled: engine.getLabeled() };
             break;
           }
 
