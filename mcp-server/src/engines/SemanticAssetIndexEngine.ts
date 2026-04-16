@@ -14,6 +14,7 @@
  * @milestone PP-INFRA-SEMANTIC-INDEX
  */
 
+import { createHash } from "node:crypto";
 import type { QdrantVectorStoreEngine, Result, SearchHit } from "./QdrantVectorStoreEngine.js";
 
 export interface IndexableAsset {
@@ -78,9 +79,10 @@ export class SemanticAssetIndexEngine {
     }
     return this.store.upsert(this.config.collection, [
       {
-        id: asset.id,
+        id: toQdrantId(asset.id),
         vector: embed.vector,
         payload: {
+          externalId: asset.id,
           kind: asset.kind,
           name: asset.name,
           description: asset.description ?? "",
@@ -109,9 +111,10 @@ export class SemanticAssetIndexEngine {
         };
       }
       points.push({
-        id: asset.id,
+        id: toQdrantId(asset.id),
         vector: embed.vector,
         payload: {
+          externalId: asset.id,
           kind: asset.kind,
           name: asset.name,
           description: asset.description ?? "",
@@ -176,8 +179,9 @@ export class SemanticAssetIndexEngine {
 
   private toAssetHit(hit: SearchHit): AssetSearchHit {
     const payload = hit.payload ?? {};
+    const externalId = typeof payload.externalId === "string" ? payload.externalId : null;
     return {
-      id: String(hit.id),
+      id: externalId ?? String(hit.id),
       kind: String(payload.kind ?? "unknown"),
       name: String(payload.name ?? ""),
       score: hit.score,
@@ -197,4 +201,18 @@ export class SemanticAssetIndexEngine {
     if (!a.kind || a.kind.trim() === "") throw new Error("asset.kind required");
     if (!a.name || a.name.trim() === "") throw new Error("asset.name required");
   }
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Qdrant point IDs must be unsigned integers or UUIDs. PRISM assets use
+ * human-readable slugs ("eng-kienzle"). Translate via a deterministic SHA-1
+ * UUID-v5 (namespace: PRISM). The original slug stays in payload.externalId
+ * so search hits still round-trip back to the caller's ID space.
+ */
+function toQdrantId(externalId: string): string {
+  if (UUID_RE.test(externalId)) return externalId.toLowerCase();
+  const h = createHash("sha1").update(`prism-asset:${externalId}`).digest("hex");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }

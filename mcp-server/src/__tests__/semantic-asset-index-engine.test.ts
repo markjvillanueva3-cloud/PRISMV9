@@ -200,7 +200,11 @@ describe("SemanticAssetIndexEngine", () => {
       expect(r.ok).toBe(true);
       expect(store.upserts).toHaveLength(1);
       expect(store.upserts[0].collection).toBe("assets");
-      expect(store.upserts[0].points[0].id).toBe("e1");
+      // Qdrant requires UUID ids; original slug is preserved in payload.externalId.
+      expect(store.upserts[0].points[0].id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+      );
+      expect(store.upserts[0].points[0].payload?.externalId).toBe("e1");
       expect(store.upserts[0].points[0].vector.length).toBe(8);
       expect(store.upserts[0].points[0].payload?.kind).toBe("engine");
       expect(store.upserts[0].points[0].payload?.tags).toEqual(["k"]);

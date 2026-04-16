@@ -117,6 +117,13 @@ const ACTIONS = [
   "lathe_stock_feed_validate",
   "lathe_stock_feed_advance",
   "lathe_stock_feed_yield",
+  // LATHE-PRO-MS5: CSS / hard turning / coolant / time / economic speed
+  "lathe_css_optimize",
+  "lathe_css_select_mode",
+  "lathe_hard_turn_decide",
+  "lathe_coolant_advise",
+  "lathe_op_time_breakdown",
+  "lathe_gilbert_economic",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1424,6 +1431,113 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_stock_feed_yield": {
             const { stockFeedCycleEngine } = await import("../../engines/StockFeedCycleEngine.js");
             result = stockFeedCycleEngine.getYield(params.bar, params.part);
+            break;
+          }
+
+          // LATHE-PRO-MS5: Constant Surface Speed optimization (G96/G50 clamp)
+          case "lathe_css_optimize": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            result = latheCSSOptimizerEngine.optimize({
+              Vc_m_min: params.Vc_m_min ?? params.vc_m_min,
+              max_od_mm: params.max_od_mm,
+              min_od_mm: params.min_od_mm,
+              rated_max_rpm: params.rated_max_rpm,
+              min_rpm: params.min_rpm,
+              cut_length_mm: params.cut_length_mm,
+              f_mm_rev: params.f_mm_rev,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS5: G96 vs G97 mode selection for a single feature
+          case "lathe_css_select_mode": {
+            const { latheCSSOptimizerEngine } = await import("../../engines/LatheCSSOptimizerEngine.js");
+            result = latheCSSOptimizerEngine.selectMode(
+              params.Vc_m_min ?? params.vc_m_min,
+              params.diameter_mm,
+              params.rated_max_rpm,
+              params.feature_length_mm
+            );
+            break;
+          }
+
+          // LATHE-PRO-MS5: Hard turning (CBN/ceramic) vs grind decision
+          case "lathe_hard_turn_decide": {
+            const { hardTurningDecisionEngine } = await import("../../engines/HardTurningDecisionEngine.js");
+            result = hardTurningDecisionEngine.decide({
+              hardness_hrc: params.hardness_hrc,
+              target_ra_um: params.target_ra_um,
+              target_tolerance_mm: params.target_tolerance_mm,
+              feature: params.feature ?? "od",
+              lot_size: params.lot_size ?? 1,
+              diameter_mm: params.diameter_mm,
+              length_over_diameter: params.length_over_diameter,
+              shop_has_grinder: params.shop_has_grinder,
+              cbn_cost_per_edge_usd: params.cbn_cost_per_edge_usd,
+              grind_cost_per_part_usd: params.grind_cost_per_part_usd,
+              setup_hours: params.setup_hours,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS5: Coolant mode advisor (flood/HPC/mist/MQL/dry/cryo)
+          case "lathe_coolant_advise": {
+            const { latheCoolantAdvisorEngine } = await import("../../engines/LatheCoolantAdvisorEngine.js");
+            result = latheCoolantAdvisorEngine.advise({
+              iso_group: params.iso_group,
+              operation: params.operation,
+              tool_material: params.tool_material,
+              Vc_m_min: params.Vc_m_min ?? params.vc_m_min,
+              ap_mm: params.ap_mm,
+              deep_hole: params.deep_hole,
+              hard_turning: params.hard_turning,
+              cryo_available: params.cryo_available,
+              sustainability_priority: params.sustainability_priority,
+              thru_spindle_available: params.thru_spindle_available,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS5: Detailed per-bucket time breakdown for a lathe op
+          case "lathe_op_time_breakdown": {
+            const { latheOpTimeBreakdownEngine } = await import("../../engines/LatheOpTimeBreakdownEngine.js");
+            result = latheOpTimeBreakdownEngine.compute({
+              cut_length_mm: params.cut_length_mm,
+              feed_mm_min: params.feed_mm_min,
+              pass_count: params.pass_count,
+              rapid_travel_mm: params.rapid_travel_mm,
+              rapid_feed_mm_min: params.rapid_feed_mm_min,
+              tool_changes: params.tool_changes,
+              tool_change_sec: params.tool_change_sec,
+              thread_cycles: params.thread_cycles,
+              thread_cycle_sec: params.thread_cycle_sec,
+              probe_sequences: params.probe_sequences,
+              probe_sec_each: params.probe_sec_each,
+              chip_pause_interval_sec: params.chip_pause_interval_sec,
+              chip_pause_duration_sec: params.chip_pause_duration_sec,
+              spindle_rpm: params.spindle_rpm,
+              spindle_accel_rps2: params.spindle_accel_rps2,
+              load_unload_sec: params.load_unload_sec,
+              fixed_overhead_sec: params.fixed_overhead_sec,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS5: Gilbert min-cost / min-time economic Vc
+          case "lathe_gilbert_economic": {
+            const { gilbertEconomicSpeedEngine } = await import("../../engines/GilbertEconomicSpeedEngine.js");
+            result = gilbertEconomicSpeedEngine.compute({
+              K_T: params.K_T ?? params.k_t,
+              n: params.n,
+              machining_cost_per_sec_usd: params.machining_cost_per_sec_usd,
+              tool_change_time_sec: params.tool_change_time_sec,
+              tool_cost_per_edge_usd: params.tool_cost_per_edge_usd,
+              cut_length_mm: params.cut_length_mm,
+              f_mm_rev: params.f_mm_rev,
+              diameter_mm: params.diameter_mm,
+              revenue_per_part_usd: params.revenue_per_part_usd,
+              rpm_clamp: params.rpm_clamp,
+            });
             break;
           }
 

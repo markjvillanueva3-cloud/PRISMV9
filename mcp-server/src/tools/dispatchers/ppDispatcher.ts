@@ -158,6 +158,9 @@ let _ppWireEDM: any;
 // PP-SEDM: Sinker EDM Post
 let _ppSinkerEDM: any;
 
+// PP-SSP: Okuma Sub-Spindle Sync Post
+let _ppOkumaSubSpindle: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -297,6 +300,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppWireEDM ??= (await import("../../engines/PPWireEDMPostEngine.js")).ppWireEDMPostEngine;
     case "sinkerEDM":
       return _ppSinkerEDM ??= (await import("../../engines/PPSinkerEDMPostEngine.js")).ppSinkerEDMPostEngine;
+    case "okumaSubSpindle":
+      return _ppOkumaSubSpindle ??= (await import("../../engines/PPOkumaSubSpindleSyncEngine.js")).ppOkumaSubSpindleSyncEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -540,6 +545,11 @@ const ACTIONS = [
   "pp_sedm_generate",             // Generate sinker EDM program
   "pp_sedm_standard_3stage",      // Standard 3-stage burn (rough + semi + finish)
   "pp_sedm_defaults",             // Get stage defaults / orbit codes
+
+  // ===== PP_SSP: Okuma sub-spindle sync post (3 actions) — PP-SSP =====
+  "pp_ssp_generate",              // Generate twin-spindle program
+  "pp_ssp_simple_transfer",       // Simple main→sub transfer program
+  "pp_ssp_list_operations",       // List supported operation types
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1562,6 +1572,30 @@ Actions: ${ACTIONS.join(", ")}.`,
                 defaults: engine.getStageDefaults(s),
                 epack: engine.getEpackNumber(s),
               })),
+            };
+            break;
+          }
+
+          // ===== PP_SSP (PP-SSP — Okuma Sub-Spindle Sync) =====
+          case "pp_ssp_generate": {
+            const engine = await getEngine("okumaSubSpindle");
+            result = engine.generate(params);
+            break;
+          }
+          case "pp_ssp_simple_transfer": {
+            const engine = await getEngine("okumaSubSpindle");
+            result = engine.generateSimpleTransfer(
+              params.barDiameterMm ?? params.bar_diameter_mm ?? params.barDia ?? 25,
+              params.partLengthMm ?? params.part_length_mm ?? params.length ?? 60,
+              params.material ?? "D2",
+            );
+            break;
+          }
+          case "pp_ssp_list_operations": {
+            const engine = await getEngine("okumaSubSpindle");
+            result = {
+              operations: engine.listOperations(),
+              machine_models: engine.listMachineModels(),
             };
             break;
           }
