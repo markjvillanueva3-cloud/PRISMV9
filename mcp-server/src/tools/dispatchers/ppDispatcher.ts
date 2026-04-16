@@ -95,6 +95,9 @@ let _ppTrainingPipeline: any;
 // PP-DL-MS6: Active Learning Queue
 let _ppActiveLearning: any;
 
+// PP-DL-MS7: Online Learning Tracker
+let _ppOnlineLearning: any;
+
 // PP-DL-MS8: Ensemble & Uncertainty
 let _ppEnsembleUncertainty: any;
 
@@ -199,6 +202,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppTrainingPipeline ??= (await import("../../engines/PPTrainingDataPipelineEngine.js")).ppTrainingDataPipelineEngine;
     case "activeLearning":
       return _ppActiveLearning ??= (await import("../../engines/PPActiveLearningQueueEngine.js")).ppActiveLearningQueueEngine;
+    case "onlineLearning":
+      return _ppOnlineLearning ??= (await import("../../engines/PPOnlineLearningTrackerEngine.js")).ppOnlineLearningTrackerEngine;
     case "ensembleUncertainty":
       return _ppEnsembleUncertainty ??= (await import("../../engines/PPEnsembleUncertaintyEngine.js")).ppEnsembleUncertaintyEngine;
     case "decisionExplainer":
@@ -371,6 +376,13 @@ const ACTIONS = [
   "pp_active_reject",              // Reject queued scenario
   "pp_active_stats",               // Queue statistics
   "pp_active_labeled",             // Get all labeled scenarios
+
+  // ===== PP_ONLINE_LEARNING: Production feedback tracker (5 actions) — PP-DL-MS7 =====
+  "pp_online_record",              // Record a prediction
+  "pp_online_outcome",             // Record actual outcome (feedback)
+  "pp_online_metrics",             // Get domain metrics
+  "pp_online_stats",               // Full stats with drift alerts
+  "pp_online_export",              // Export labeled data for retraining
 
   // ===== PP_UNCERTAINTY: Ensemble uncertainty (3 actions) — PP-DL-MS8 =====
   "pp_uncertainty_estimate",       // Estimate scenario uncertainty with risk analysis
@@ -1033,6 +1045,46 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_active_labeled": {
             const engine = await getEngine("activeLearning");
             result = { labeled: engine.getLabeled() };
+            break;
+          }
+
+          // ===== PP_ONLINE_LEARNING (PP-DL-MS7) =====
+          case "pp_online_record": {
+            const engine = await getEngine("onlineLearning");
+            const id = engine.recordPrediction(
+              params.domain,
+              params.prediction,
+              params.confidence ?? 0.5,
+              params.context,
+            );
+            result = { id };
+            break;
+          }
+          case "pp_online_outcome": {
+            const engine = await getEngine("onlineLearning");
+            result = {
+              success: engine.recordOutcome(
+                params.id,
+                params.actualOutcome ?? params.actual_outcome,
+                params.errorMagnitude ?? params.error_magnitude,
+                params.notes,
+              ),
+            };
+            break;
+          }
+          case "pp_online_metrics": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getDomainMetrics(params.domain);
+            break;
+          }
+          case "pp_online_stats": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getStats();
+            break;
+          }
+          case "pp_online_export": {
+            const engine = await getEngine("onlineLearning");
+            result = { records: engine.exportLabeledData() };
             break;
           }
 
