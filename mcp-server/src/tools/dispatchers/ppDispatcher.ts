@@ -107,6 +107,9 @@ let _ppDecisionExplainer: any;
 // PP-AGI-ADVISOR: Unified Job Advisor
 let _ppJobAdvisor: any;
 
+// PP-AGI-TEMPLATES: Scenario Template Library
+let _ppTemplateLibrary: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -213,6 +216,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppDecisionExplainer ??= (await import("../../engines/PPDecisionExplainerEngine.js")).ppDecisionExplainerEngine;
     case "jobAdvisor":
       return _ppJobAdvisor ??= (await import("../../engines/PPJobScenarioAdvisorEngine.js")).ppJobScenarioAdvisorEngine;
+    case "templateLibrary":
+      return _ppTemplateLibrary ??= (await import("../../engines/PPScenarioTemplateLibraryEngine.js")).ppScenarioTemplateLibraryEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -402,6 +407,14 @@ const ACTIONS = [
   // ===== PP_ADVISOR: Unified job advisor (2 actions) — PP-AGI-ADVISOR =====
   "pp_advisor_advise",             // Get comprehensive job advice using all PP-AGI engines
   "pp_advisor_outcome",            // Record actual job outcome for feedback loop
+
+  // ===== PP_TEMPLATES: Scenario template library (6 actions) — PP-AGI-TEMPLATES =====
+  "pp_templates_search",           // Full-text search across templates
+  "pp_templates_find_similar",     // Find templates similar to a scenario
+  "pp_templates_by_industry",      // Filter by industry
+  "pp_templates_by_tag",           // Filter by tag
+  "pp_templates_top_proven",       // Get top proven templates by success rate
+  "pp_templates_stats",            // Library statistics
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1184,6 +1197,44 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.notes,
               ),
             };
+            break;
+          }
+
+          // ===== PP_TEMPLATES (PP-AGI-TEMPLATES) =====
+          case "pp_templates_search": {
+            const engine = await getEngine("templateLibrary");
+            result = { results: engine.search(params.query ?? "", params.limit ?? 10) };
+            break;
+          }
+          case "pp_templates_find_similar": {
+            const engine = await getEngine("templateLibrary");
+            result = {
+              results: engine.findSimilar({
+                controller_id: params.controllerId ?? params.controller_id,
+                machine_id: params.machineId ?? params.machine_id,
+                material_id: params.materialId ?? params.material_id,
+              }, params.limit ?? 5),
+            };
+            break;
+          }
+          case "pp_templates_by_industry": {
+            const engine = await getEngine("templateLibrary");
+            result = { templates: engine.getByIndustry(params.industry) };
+            break;
+          }
+          case "pp_templates_by_tag": {
+            const engine = await getEngine("templateLibrary");
+            result = { templates: engine.getByTag(params.tag) };
+            break;
+          }
+          case "pp_templates_top_proven": {
+            const engine = await getEngine("templateLibrary");
+            result = { templates: engine.getTopProven(params.limit ?? 5) };
+            break;
+          }
+          case "pp_templates_stats": {
+            const engine = await getEngine("templateLibrary");
+            result = engine.getStats();
             break;
           }
 
