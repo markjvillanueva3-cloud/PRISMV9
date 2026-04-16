@@ -209,6 +209,22 @@ export class UnifiedAwarenessOrchestrator {
       matches.push(...this.searchExtractions(normalizedQuery, limit));
     }
 
+    // U-AWR10 — tool, rule/playbook, resource domains
+    if (domain === "all" || domain === "tool") {
+      searchedDomains.push("tool");
+      matches.push(...(await this.searchTools(normalizedQuery, limit)));
+    }
+
+    if (domain === "all" || (domain as any) === "rule" || (domain as any) === "playbook") {
+      searchedDomains.push((domain as any) === "playbook" ? "tribal" : "tribal");
+      matches.push(...(await this.searchPlaybookRules(normalizedQuery, limit)));
+    }
+
+    if (domain === "all" || domain === "resource") {
+      searchedDomains.push("resource");
+      matches.push(...(await this.searchResources(normalizedQuery, limit)));
+    }
+
     // Sort by confidence
     matches.sort((a, b) => b.confidence - a.confidence);
 
@@ -478,6 +494,86 @@ export class UnifiedAwarenessOrchestrator {
       }
     }
 
+    return matches.slice(0, limit);
+  }
+
+  /**
+   * Search tool catalog — U-AWR10 wiring.
+   * Delegates to ToolCatalogEngine for real tool data (50k+ tools).
+   */
+  private async searchTools(query: string, limit: number): Promise<AwarenessMatch[]> {
+    const matches: AwarenessMatch[] = [];
+    try {
+      const { toolCatalogEngine } = await import("./ToolCatalogEngine.js");
+      const hits = toolCatalogEngine.search({ max_results: limit });
+      for (const t of hits) {
+        const normalized = `${t.id} ${t.manufacturer} ${t.type} ${t.subtype}`.toLowerCase();
+        if (!query || normalized.includes(query) || query.split(" ").some(w => normalized.includes(w))) {
+          matches.push({
+            domain: "tool",
+            name: t.id,
+            description: `${t.manufacturer} ${t.type}${t.subtype ? "/" + t.subtype : ""} ⌀${t.physical.cutting_diameter_mm}mm`,
+            confidence: normalized.includes(query) ? 0.85 : 0.6,
+            metadata: { manufacturer: t.manufacturer, diameter_mm: t.physical.cutting_diameter_mm },
+          });
+        }
+      }
+    } catch {
+      // Engine unavailable — graceful degradation
+    }
+    return matches.slice(0, limit);
+  }
+
+  /**
+   * Search playbook rules — U-AWR10 wiring.
+   * Delegates to MachiningPlaybookEngine for shop-floor rules.
+   */
+  private async searchPlaybookRules(query: string, limit: number): Promise<AwarenessMatch[]> {
+    const matches: AwarenessMatch[] = [];
+    try {
+      const { machiningPlaybookEngine } = await import("./MachiningPlaybookEngine.js");
+      const result = machiningPlaybookEngine.advise({} as any);
+      for (const r of result.rules) {
+        const normalized = `${r.id} ${r.title} ${r.rule} ${r.category}`.toLowerCase();
+        if (!query || normalized.includes(query) || query.split(" ").some(w => normalized.includes(w))) {
+          matches.push({
+            domain: "tribal", // reuse existing tribal surface for rules
+            name: r.id,
+            description: `[${r.severity.toUpperCase()}] ${r.title}`,
+            confidence: normalized.includes(query) ? 0.9 : 0.65,
+            metadata: { category: r.category, severity: r.severity },
+          });
+          if (matches.length >= limit) break;
+        }
+      }
+    } catch {
+      // Engine unavailable — graceful degradation
+    }
+    return matches.slice(0, limit);
+  }
+
+  /**
+   * Search resource indexes — U-AWR10 wiring.
+   * Delegates to ResourceIndexEngine for H: drive coverage.
+   */
+  private async searchResources(query: string, limit: number): Promise<AwarenessMatch[]> {
+    const matches: AwarenessMatch[] = [];
+    try {
+      const { resourceIndexEngine } = await import("./ResourceIndexEngine.js");
+      const results = resourceIndexEngine.search(query) ?? [];
+      const resultsArr = Array.isArray(results) ? results : [];
+      for (const r of resultsArr.slice(0, limit)) {
+        matches.push({
+          domain: "resource",
+          name: (r as any).path ?? (r as any).name ?? String(r),
+          description: (r as any).description ?? `Resource: ${(r as any).type ?? "folder"}`,
+          confidence: 0.75,
+          metadata: r as any,
+        });
+      }
+    } catch {
+      // Engine unavailable — graceful degradation
+    }
     return matches.slice(0, limit);
   }
 
