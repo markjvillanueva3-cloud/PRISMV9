@@ -63,6 +63,7 @@ import { knowledgeHooks } from "./KnowledgeHooks.js";
 import { wedmSafetyHooks } from "./WEDMSafetyHooks.js";
 import { wedmSVIHooks } from "./WEDMSVIHooks.js";
 import { wedmPerceptionHooks } from "./WEDMPerceptionHooks.js";
+import { wedmLearningHooks } from "./WEDMLearningHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -93,6 +94,7 @@ export * from "./frontendFeatureAuditHook.js";
 export * from "./ResourceWatcherHook.js";
 export * from "./KnowledgeHooks.js";
 export * from "./WEDMPerceptionHooks.js";
+export * from "./WEDMLearningHooks.js";
 
 // ============================================================================
 // COMBINED EXPORTS
@@ -126,6 +128,7 @@ export const allHooks = [
   ...wedmSafetyHooks,               // PP-0.3: 16 WEDM safety hooks
   ...wedmSVIHooks,                  // PP-0.10: 2 WEDM SVI coupling hooks
   ...wedmPerceptionHooks,           // WEDM-AGI P1-MS1: sensor anomaly + twin sync
+  ...wedmLearningHooks,             // WEDM-AGI P3-MS1: learning trigger + drift alert
 ];
 
 /**
@@ -156,6 +159,7 @@ export const hookCounts = {
   wedmSafety: wedmSafetyHooks.length,                        // PP-0.3
   wedmSVI: wedmSVIHooks.length,                              // PP-0.10
   wedmPerception: wedmPerceptionHooks.length,                // WEDM-AGI P1-MS1
+  wedmLearning: wedmLearningHooks.length,                    // WEDM-AGI P3-MS1
   total: 0 // Computed below
 };
 
