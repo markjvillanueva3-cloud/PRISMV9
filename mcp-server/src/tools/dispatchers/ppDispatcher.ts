@@ -302,6 +302,9 @@ let _ppBlockComposition: any;
 // PP-FRR: Feed-rate reasonableness validator
 let _ppFeedRateReasonability: any;
 
+// PP-CRR: Coordinate-range reasonableness validator
+let _ppCoordinateRange: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -537,6 +540,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppBlockComposition ??= (await import("../../engines/PPBlockCompositionValidatorEngine.js")).ppBlockCompositionValidatorEngine;
     case "feedRateReasonability":
       return _ppFeedRateReasonability ??= (await import("../../engines/PPFeedRateReasonabilityValidatorEngine.js")).ppFeedRateReasonabilityValidatorEngine;
+    case "coordinateRange":
+      return _ppCoordinateRange ??= (await import("../../engines/PPCoordinateRangeValidatorEngine.js")).ppCoordinateRangeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1007,6 +1012,9 @@ const ACTIONS = [
   "pp_frr_validate",               // Feed-rate reasonableness validation
   "pp_frr_quick",                  // Quick pass/fail + min/max F
   "pp_frr_defaults",               // Default feed-rate reasonableness options
+  "pp_crr_validate",               // Coordinate-range reasonableness
+  "pp_crr_quick",                  // Quick pass/fail + coord/axes stats
+  "pp_crr_defaults",               // Default coordinate-range options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3372,6 +3380,39 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_frr_defaults": {
             const engine = await getEngine("feedRateReasonability");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CRR (PP-CRR — Coordinate-range reasonableness) =====
+          case "pp_crr_validate": {
+            const engine = await getEngine("coordinateRange");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_absurd_large: params.check_absurd_large,
+              check_absurd_small: params.check_absurd_small,
+              check_angular_unwrap: params.check_angular_unwrap,
+              check_nan_literal: params.check_nan_literal,
+              check_extra_decimals: params.check_extra_decimals,
+              check_leading_zero_only: params.check_leading_zero_only,
+              max_linear_range: params.max_linear_range,
+              min_nonzero_resolution: params.min_nonzero_resolution,
+              max_rotary_deg: params.max_rotary_deg,
+              max_decimals: params.max_decimals,
+              linear_axes: params.linear_axes,
+              rotary_axes: params.rotary_axes,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_crr_quick": {
+            const engine = await getEngine("coordinateRange");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_crr_defaults": {
+            const engine = await getEngine("coordinateRange");
             result = engine.defaultOptions();
             break;
           }
