@@ -139,6 +139,17 @@ const KAR_WIRING_ACTIONS = [
   "knowledge_conflict_detect", "knowledge_conflict_resolve_authority",
 ] as const;
 
+/** U-AWR26: VideoLearningEngine ingestion pipeline — 73 mp4/mov/mkv videos. */
+const VIDEO_ACTIONS = [
+  "video_check_prerequisites",
+  "video_get_info",
+  "video_extract_keyframes",
+  "video_transcribe",
+  "video_process",
+  "video_process_directory",
+  "video_extract_playbook_rules",
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -157,7 +168,10 @@ const ACTIONS = [
   ...WORKFLOW_TEMPLATE_ACTIONS,
   ...KNOWLEDGE_SPINE_ACTIONS,
   ...KAR_WIRING_ACTIONS,
+  ...VIDEO_ACTIONS,
 ] as const;
+
+export { ACTIONS };
 
 let knowledgeEngine: any = null;
 let kgEngine: any = null;
@@ -1825,6 +1839,55 @@ export function registerKnowledgeDispatcher(server: any): void {
                 notes: resolved.notes,
               };
             }
+            break;
+          }
+
+          // ═════════════════════════════════════════════════════════════════
+          // U-AWR26 — VideoLearningEngine pipeline actions
+          // ═════════════════════════════════════════════════════════════════
+          case "video_check_prerequisites": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.checkPrerequisites();
+            break;
+          }
+          case "video_get_info": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.getVideoInfo(params.video_path as string);
+            break;
+          }
+          case "video_extract_keyframes": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.extractKeyframes(
+              params.video_path as string,
+              params.output_dir as string,
+              params.options as any,
+            );
+            break;
+          }
+          case "video_transcribe": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.transcribeAudio(
+              params.audio_path as string,
+              (params.model as string) ?? "whisper-1",
+            );
+            break;
+          }
+          case "video_process": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.processVideo(params as any);
+            break;
+          }
+          case "video_process_directory": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = await videoLearningEngine.processDirectory(params as any);
+            break;
+          }
+          case "video_extract_playbook_rules": {
+            const { videoLearningEngine } = await import("../../engines/VideoLearningEngine.js");
+            result = videoLearningEngine.extractPlaybookRules(
+              params.transcript as any,
+              params.keyframes as any,
+            );
             break;
           }
         }
