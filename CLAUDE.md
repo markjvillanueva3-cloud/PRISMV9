@@ -44,13 +44,13 @@
 - **Skills**: 12 WEDM skills (`~/.claude/commands/wedm-*.md`)
 - **Hooks**: 18 WEDM hooks (16 safety + 2 SVI coupling)
 - **Playbooks**: 8 workflow playbooks (`data/playbooks/wedm_*.json`)
-- **State Files**: 27 WEDM state/index files (`data/state/WEDM_*.json`)
+- **State Files**: 31 WEDM state/index files (`data/state/WEDM_*.json`)
 - **MIT Courses**: 5 courses integrated (2.008, 2.830, 2.813, 18.06, 6.S191)
 - **Tribal Tips**: 46 WEDM tips (20 field + 26 MIT-derived)
 - **Formulas**: 14 WEDM formulas with MIT citations
 - **JM Die Programs**: 26 indexed (full harvest pending zip extraction)
 - **SVI Psi**: 0.875 / 1.0 target
-- **Last cascade**: 2026-04-16T15:34:20.295Z
+- **Last cascade**: 2026-04-16T15:43:55.597Z
 <!-- AUTO-WEDM-END -->
 
 ## AI System Intelligence (MANDATORY READ)

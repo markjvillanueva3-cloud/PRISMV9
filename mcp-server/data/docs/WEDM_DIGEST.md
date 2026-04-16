@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-16T15:34:20.260Z
+**Generated:** 2026-04-16T15:43:55.567Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -11,7 +11,7 @@
 |--------|------:|
 | Engines | 55 |
 | Playbooks | 8 |
-| State Files | 30 |
+| State Files | 38 |
 
 ## Engines (55)
 
@@ -86,7 +86,7 @@
 | `wedm-jm-die-customer` | WEDM JM Die Customer-Specific Flow | 6 |
 | `wedm-continuous-learning` | WEDM Continuous Learning Pipeline | 5 |
 
-## State Files (30)
+## State Files (38)
 
 - `data/state/WEDM_VALIDATION_REPORT.json`
 - `data/state/WEDM_PRODUCTION_READINESS.json`
@@ -118,6 +118,14 @@
 - `data/state/WEDM_FORMULA_PROVENANCE_INDEX.json`
 - `data/state/WEDM_PARAMETER_CORPUS.json`
 - `data/state/WEDM_SVI_SURFACES.json`
+- `data/state/WEDM_BOOTSTRAP_MODE.flag`
+- `data/state/WEDM_HOOK_ORDER_REGISTRY.json`
+- `data/state/WEDM_BOOT_TELEMETRY.jsonl`
+- `data/state/WEDM_SESSION_BRIEF.md`
+- `data/state/WEDM_ABSTRACTION_HIERARCHY.json`
+- `data/state/WEDM_LOCAL_LLM_CONFIG.json`
+- `data/state/WEDM_AGENT_REGISTRY.json`
+- `data/state/WEDM_AGENT_UTILIZATION_LEDGER.jsonl`
 
 ---
 > Regenerate: `npx ts-node scripts/wedm_generate_digest.ts`
