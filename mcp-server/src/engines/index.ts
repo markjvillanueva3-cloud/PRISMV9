@@ -6303,3 +6303,15 @@ export {
   type StyleRecommendation,
   type StyleCostComparison,
 } from './LatheProgrammingStyleSelectorEngine.js';
+
+// --- LATHE-AWARE-HARDEN MS10: Program Catalog Index & Retrieval (E108) ---
+export {
+  latheProgramCatalogEngine,
+  type CamSystem,
+  type ProgramCatalogEntry,
+  type PartSpec,
+  type SimilarityMatch,
+  type ProgrammingHistory,
+  type StyleDistribution,
+  type ScanOptions,
+} from './LatheProgramCatalogEngine.js';

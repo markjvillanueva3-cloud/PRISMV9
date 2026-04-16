@@ -97,6 +97,10 @@ const ACTIONS = [
   // MS9: Programming Style Selector (U-LAT68, U-LAT69)
   "lathe_select_programming_style",
   "lathe_compare_programming_costs",
+  // MS10: Program Catalog Index & Retrieval (U-LAT73, U-LAT74, U-LAT75)
+  "lathe_find_similar_programs",
+  "lathe_programming_history",
+  "lathe_catalog_stats",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1294,6 +1298,50 @@ Actions: ${ACTIONS.join(", ")}.`,
             // Return current lathe domain awareness state via facade engine
             const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
             result = latheMasterOrchestratorFacadeEngine.getLatheSnapshot();
+            break;
+          }
+
+          // MS10: Find similar programs (U-LAT73)
+          case "lathe_find_similar_programs": {
+            const { latheProgramCatalogEngine } = await import("../../engines/LatheProgramCatalogEngine.js");
+            const partSpec = {
+              controller: params.controller,
+              customer: params.customer,
+              material: params.material,
+              part_family: params.part_family,
+              features: params.features,
+              part_complexity: params.part_complexity,
+              has_threading: params.has_threading,
+              has_live_tooling: params.has_live_tooling,
+            };
+            const limit = typeof params.limit === "number" ? params.limit : 10;
+            result = {
+              matches: latheProgramCatalogEngine.findSimilarPrograms(partSpec, limit),
+              query: partSpec,
+              catalog_size: latheProgramCatalogEngine.size(),
+            };
+            break;
+          }
+
+          // MS10: Programming history by customer (U-LAT74)
+          case "lathe_programming_history": {
+            const { latheProgramCatalogEngine } = await import("../../engines/LatheProgramCatalogEngine.js");
+            const customer = params.customer ?? "";
+            if (!customer) {
+              result = { error: "customer is required" };
+              break;
+            }
+            result = latheProgramCatalogEngine.getProgrammingHistory(String(customer));
+            break;
+          }
+
+          // MS10: Catalog stats / pie chart data (U-LAT75)
+          case "lathe_catalog_stats": {
+            const { latheProgramCatalogEngine } = await import("../../engines/LatheProgramCatalogEngine.js");
+            result = {
+              distribution: latheProgramCatalogEngine.getStyleDistribution(),
+              stats: latheProgramCatalogEngine.getStats(),
+            };
             break;
           }
 
