@@ -248,6 +248,9 @@ let _ppThreadCycle: any;
 // PP-CST: Coordinate system transform validator (G68/G51/mirror)
 let _ppCoordTransform: any;
 
+// PP-PC: Probe cycle validator (Renishaw G65 P981x)
+let _ppProbeCycle: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -447,6 +450,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppThreadCycle ??= (await import("../../engines/PPThreadCycleValidatorEngine.js")).ppThreadCycleValidatorEngine;
     case "coordTransform":
       return _ppCoordTransform ??= (await import("../../engines/PPCoordSystemTransformValidatorEngine.js")).ppCoordSystemTransformValidatorEngine;
+    case "probeCycle":
+      return _ppProbeCycle ??= (await import("../../engines/PPProbeCycleValidatorEngine.js")).ppProbeCycleValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -845,6 +850,11 @@ const ACTIONS = [
   "pp_cst_validate",               // Full transform validation
   "pp_cst_quick",                  // Quick pass/fail + active-at-end flags
   "pp_cst_defaults",               // Default transform validator options
+
+  // PP-PC: Probe cycle validator (Renishaw G65 P981x)
+  "pp_pc_validate",                // Full probe cycle validation
+  "pp_pc_quick",                   // Quick pass/fail + measurement count
+  "pp_pc_defaults",                // Default probe validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2671,6 +2681,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_cst_defaults": {
             const engine = await getEngine("coordTransform");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_PC (PP-PC — Probe cycle validator) =====
+          case "pp_pc_validate": {
+            const engine = await getEngine("probeCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              max_probe_feed: params.max_probe_feed,
+              require_protected_move: params.require_protected_move,
+              check_spindle_off: params.check_spindle_off,
+              check_tlc_active: params.check_tlc_active,
+              check_feed_limit: params.check_feed_limit,
+              check_required_args: params.check_required_args,
+              check_cutter_comp_off: params.check_cutter_comp_off,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_pc_quick": {
+            const engine = await getEngine("probeCycle");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_pc_defaults": {
+            const engine = await getEngine("probeCycle");
             result = engine.defaultOptions();
             break;
           }
