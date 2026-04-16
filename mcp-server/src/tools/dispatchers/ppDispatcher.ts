@@ -146,6 +146,9 @@ let _ppMachinePost: any;
 // PP-E2E: End-to-End Post Generator
 let _ppE2EGenerator: any;
 
+// PP-CAP: Capability Matrix
+let _ppCapMatrix: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -277,6 +280,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppMachinePost ??= (await import("../../engines/PPMachineSpecificPostEngine.js")).ppMachineSpecificPostEngine;
     case "e2eGenerator":
       return _ppE2EGenerator ??= (await import("../../engines/PPEndToEndPostGeneratorEngine.js")).ppEndToEndPostGeneratorEngine;
+    case "capMatrix":
+      return _ppCapMatrix ??= (await import("../../engines/PPAGICapabilityMatrixEngine.js")).ppAGICapabilityMatrixEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -511,6 +516,11 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_CAPABILITY: Capability matrix (3 actions) — PP-CAP =====
+  "pp_capability_matrix",          // Full capability matrix for all JM Die machines
+  "pp_capability_assess",          // Assess a single machine
+  "pp_capability_ranked",          // Machines ranked by readiness
 
   // ===== PP_E2E: End-to-end G-code generator (2 actions) — PP-E2E =====
   "pp_e2e_generate",               // Generate complete G-code program from job spec
@@ -1480,6 +1490,23 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_CAPABILITY (PP-CAP) =====
+          case "pp_capability_matrix": {
+            const engine = await getEngine("capMatrix");
+            result = engine.generateMatrix();
+            break;
+          }
+          case "pp_capability_assess": {
+            const engine = await getEngine("capMatrix");
+            result = engine.assessMachine(params.machineId ?? params.machine_id);
+            break;
+          }
+          case "pp_capability_ranked": {
+            const engine = await getEngine("capMatrix");
+            result = { ranked: engine.getRankedMachines() };
             break;
           }
 
