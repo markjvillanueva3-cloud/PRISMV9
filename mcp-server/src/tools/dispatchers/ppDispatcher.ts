@@ -89,6 +89,9 @@ let _ppMaterialVector: any;
 // PP-AGI-MS2: Cutting Tool Encoder
 let _ppToolEncoder: any;
 
+// PP-AGI-MS6: Toolpath Strategy Encoder
+let _ppToolpathEncoder: any;
+
 // PP-AGI-MS7: Multi-Modal Fusion
 let _ppFusion: any;
 
@@ -174,6 +177,8 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS2: Cutting Tool Encoder
     case "toolEncoder":
       return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
+    case "toolpathEncoder":
+      return _ppToolpathEncoder ??= (await import("../../engines/PPToolpathStrategyEncoderEngine.js")).ppToolpathStrategyEncoderEngine;
 
     // PP-AGI-MS7: Multi-Modal Fusion
     case "multiModalFusion":
@@ -323,6 +328,11 @@ const ACTIONS = [
   "pp_tool_embed",                 // Embed a tool spec to 36-dim vector
   "pp_tool_compare",               // Compare two tool specs
   "pp_tool_nearest",               // Find nearest tools from reference library
+
+  // ===== PP_TOOLPATH_VECTOR: Toolpath strategy embeddings (3 actions) — PP-AGI-MS6 =====
+  "pp_toolpath_embed",             // Embed a toolpath strategy to 28-dim vector
+  "pp_toolpath_compare",           // Compare two strategies
+  "pp_toolpath_recommend",         // Recommend strategies from reference library
 
   // ===== PP_FUSION: Multi-modal fusion (3 actions) — PP-AGI-MS7 =====
   "pp_fusion_fuse",                // Fuse controller+machine+material to 120-dim
@@ -899,6 +909,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_tool_nearest": {
             const engine = await getEngine("toolEncoder");
             result = engine.findNearest(params.spec ?? params, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_TOOLPATH_VECTOR: Toolpath strategy embeddings (PP-AGI-MS6) =====
+          case "pp_toolpath_embed": {
+            const engine = await getEngine("toolpathEncoder");
+            result = engine.embed(params.spec ?? params);
+            break;
+          }
+          case "pp_toolpath_compare": {
+            const engine = await getEngine("toolpathEncoder");
+            result = engine.compare(params.strategyA ?? params.strategy_a, params.strategyB ?? params.strategy_b);
+            break;
+          }
+          case "pp_toolpath_recommend": {
+            const engine = await getEngine("toolpathEncoder");
+            result = engine.recommend(params.spec ?? params, params.k ?? 5);
             break;
           }
 
