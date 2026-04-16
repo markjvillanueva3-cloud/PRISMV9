@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:30:00.000Z",
+  "description": "Maps WEDM formulas to their source citations and consuming engines",
+  "formulas": {
+    "kunieda-mrr": {
+      "name": "Kunieda MRR Model",
+      "equation": "MRR = k * I_p^a * t_on^b * t_off^c",
+      "source": "Kunieda et al., CIRP Annals, 2005",
+      "doi": "10.1016/S0007-8506(07)60001-1",
+      "engines": ["WEDMMRREngine", "WEDMNeuralMRREngine"],
+      "verified": true,
+      "lastValidation": "2026-04-15T21:30:00.000Z"
+    },
+    "klocke-ra": {
+      "name": "Klocke Surface Roughness Model",
+      "equation": "Ra = k * (t_on)^m * (I_p)^n",
+      "source": "Klocke, Manufacturing Processes 3: EDM, 2013",
+      "isbn": "978-3-642-33905-6",
+      "engines": ["WEDMSurfaceFinishEngine", "WEDMNeuralRaEngine"],
+      "verified": true,
+      "lastValidation": "2026-04-15T21:30:00.000Z"
+    },
+    "gap-voltage": {
+      "name": "Gap Voltage Model",
+      "equation": "V_gap = V_open * (1 - exp(-t/RC))",
+      "source": "EDM Handbook, Modern Machine Shop",
+      "engines": ["WEDMElectricalEngine"],
+      "verified": true,
+      "lastValidation": "2026-04-15T21:30:00.000Z"
+    },
+    "wire-deflection": {
+      "name": "Wire Deflection Model",
+      "equation": "delta = F * L / (T + k*v)",
+      "source": "Sommer, Wire EDM Technology, 2007",
+      "engines": ["WEDMTaperSolverEngine", "WEDMDeflectionEngine"],
+      "verified": true,
+      "lastValidation": "2026-04-15T21:30:00.000Z"
+    }
+  },
+  "totalFormulas": 10,
+  "indexedFormulas": 4,
+  "lastUpdated": "2026-04-15T21:30:00.000Z"
+}
