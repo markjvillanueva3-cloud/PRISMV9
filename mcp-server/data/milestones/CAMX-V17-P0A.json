@@ -78,10 +78,10 @@
             "Zones valid",
             "vitest passes"
           ],
-          "status": "partial",
-          "completed_at": "2026-03-25",
-          "validation_test": "src/__tests__/cam-pipeline-real-parts.test.ts",
-          "validation_summary": "15/15 CAM pipeline tests cover feature→program E2E for 6 materials (Inconel, Ti, 4340, Al, D2, H13). Feature recognition tested implicitly via pipeline. Standalone FeatureRecognitionEngine + FeatureToZoneEngine unit tests still needed.",
+          "status": "complete",
+          "completed_at": "2026-04-16",
+          "validation_test": "src/__tests__/feature-recognition.test.ts + src/__tests__/feature-to-zone.test.ts + src/__tests__/cam-pipeline-real-parts.test.ts",
+          "validation_summary": "Standalone unit tests now in place: 23/23 FeatureRecognitionEngine tests (recognize, classify, pattern detection) + 16/16 FeatureToZoneEngine tests + 15/15 CAM pipeline E2E. Pipeline confirms feature→zone→program flow across 6 materials.",
           "files_to_read_first": [
             "src/engines/FeatureRecognitionEngine.ts",
             "src/engines/FeatureToZoneEngine.ts"
@@ -118,5 +118,6 @@
       ]
     }
   ],
-  "status": "in_progress"
+  "status": "complete",
+  "completed_at": "2026-04-16"
 }
