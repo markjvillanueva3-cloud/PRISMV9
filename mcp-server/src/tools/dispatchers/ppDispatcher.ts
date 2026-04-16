@@ -128,6 +128,12 @@ let _ppWorkflow: any;
 // PP-AGI-AUDITOR: Program Library Auditor
 let _ppLibraryAuditor: any;
 
+// PP-DL-MS3: Physics Constraint Validator
+let _ppPhysicsValidator: any;
+
+// PP-DL-MS4: Safety Rule Validator
+let _ppSafetyRuleValidator: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -251,6 +257,10 @@ async function getEngine(name: string): Promise<any> {
       return _ppWorkflow ??= (await import("../../engines/PPAGIReasoningWorkflowEngine.js")).ppAGIReasoningWorkflowEngine;
     case "libraryAuditor":
       return _ppLibraryAuditor ??= (await import("../../engines/PPAGIProgramLibraryAuditorEngine.js")).ppAGIProgramLibraryAuditorEngine;
+    case "physicsValidator":
+      return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
+    case "safetyRuleValidator":
+      return _ppSafetyRuleValidator ??= (await import("../../engines/PPSafetyRuleValidatorEngine.js")).ppSafetyRuleValidatorEngine;
     case "reportGenerator":
       return _ppReportGenerator ??= (await import("../../engines/PPAGIReportGeneratorEngine.js")).ppAGIReportGeneratorEngine;
     case "physicsEncoder":
@@ -481,6 +491,16 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_PHYSICS_VALIDATE: Physics constraint validator (2 actions) — PP-DL-MS3 =====
+  "pp_physics_validate",           // Full physics validation of cutting conditions
+  "pp_physics_is_safe",            // Quick pass/fail safety check
+
+  // ===== PP_SAFETY_RULES: Safety rule validator (4 actions) — PP-DL-MS4 =====
+  "pp_safety_rules_validate",      // Validate G-code against all safety rules
+  "pp_safety_rules_is_safe",       // Quick pass/fail
+  "pp_safety_rules_list",          // List all rules
+  "pp_safety_rules_toggle",        // Enable/disable a rule
 
   // ===== PP_REPORT: Markdown report generator (6 actions) — PP-AGI-REPORT =====
   "pp_report_job_advice",          // Markdown report from JobAdvice
@@ -1422,6 +1442,40 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_PHYSICS_VALIDATE (PP-DL-MS3) =====
+          case "pp_physics_validate": {
+            const engine = await getEngine("physicsValidator");
+            result = engine.validate(params.condition ?? params);
+            break;
+          }
+          case "pp_physics_is_safe": {
+            const engine = await getEngine("physicsValidator");
+            result = { safe: engine.isSafe(params.condition ?? params) };
+            break;
+          }
+
+          // ===== PP_SAFETY_RULES (PP-DL-MS4) =====
+          case "pp_safety_rules_validate": {
+            const engine = await getEngine("safetyRuleValidator");
+            result = engine.validate(params.context ?? params);
+            break;
+          }
+          case "pp_safety_rules_is_safe": {
+            const engine = await getEngine("safetyRuleValidator");
+            result = { safe: engine.isSafe(params.context ?? params) };
+            break;
+          }
+          case "pp_safety_rules_list": {
+            const engine = await getEngine("safetyRuleValidator");
+            result = { rules: engine.listRules() };
+            break;
+          }
+          case "pp_safety_rules_toggle": {
+            const engine = await getEngine("safetyRuleValidator");
+            result = { success: engine.setRuleEnabled(params.ruleId ?? params.rule_id, params.enabled) };
             break;
           }
 
