@@ -206,6 +206,9 @@ let _ppCannedCycle: any;
 // PP-CD: Cutter compensation (G40/G41/G42) validator
 let _ppCutterComp: any;
 
+// PP-LN: Line number sanity (N-word + framing) validator
+let _ppLineNumberSanity: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -377,6 +380,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCannedCycle ??= (await import("../../engines/PPCannedCycleValidatorEngine.js")).ppCannedCycleValidatorEngine;
     case "cutterComp":
       return _ppCutterComp ??= (await import("../../engines/PPCutterCompValidatorEngine.js")).ppCutterCompValidatorEngine;
+    case "lineNumberSanity":
+      return _ppLineNumberSanity ??= (await import("../../engines/PPLineNumberSanityEngine.js")).ppLineNumberSanityEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -705,6 +710,11 @@ const ACTIONS = [
   "pp_cd_validate",                // Full cutter compensation validation
   "pp_cd_quick",                   // Quick pass/fail + final comp mode
   "pp_cd_defaults",                // Default cutter comp validator options
+
+  // ===== PP_LN: Line number & framing validator (3 actions) — PP-LN =====
+  "pp_ln_validate",                // Full N-word + framing validation
+  "pp_ln_quick",                   // Quick pass/fail + program end check
+  "pp_ln_defaults",                // Default line number validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2162,6 +2172,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_cd_defaults": {
             const engine = await getEngine("cutterComp");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_LN (PP-LN — Line number & framing validator) =====
+          case "pp_ln_validate": {
+            const engine = await getEngine("lineNumberSanity");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              require_percent: params.require_percent,
+              require_o_number: params.require_o_number,
+              require_program_end_m_code: params.require_program_end_m_code,
+              max_n_gap: params.max_n_gap,
+              warn_large_n_gap: params.warn_large_n_gap,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_ln_quick": {
+            const engine = await getEngine("lineNumberSanity");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_ln_defaults": {
+            const engine = await getEngine("lineNumberSanity");
             result = engine.defaultOptions();
             break;
           }
