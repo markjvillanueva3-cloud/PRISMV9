@@ -194,6 +194,9 @@ let _ppGCodeMinimizer: any;
 // PP-WO: Work offset (G54-G59) usage validator
 let _ppWorkOffsetValidator: any;
 
+// PP-SS: Spindle speed safety validator (ramps, flips, dwell)
+let _ppSpindleSpeedSafety: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -357,6 +360,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppGCodeMinimizer ??= (await import("../../engines/PPGCodeMinimizerEngine.js")).ppGCodeMinimizerEngine;
     case "workOffsetValidator":
       return _ppWorkOffsetValidator ??= (await import("../../engines/PPWorkOffsetValidatorEngine.js")).ppWorkOffsetValidatorEngine;
+    case "spindleSpeedSafety":
+      return _ppSpindleSpeedSafety ??= (await import("../../engines/PPSpindleSpeedSafetyEngine.js")).ppSpindleSpeedSafetyEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -665,6 +670,11 @@ const ACTIONS = [
   "pp_wo_validate",                // Full work-offset usage validation
   "pp_wo_quick",                   // Quick pass/fail + distinct offsets used
   "pp_wo_defaults",                // Default work-offset validator options
+
+  // ===== PP_SS: Spindle speed safety validator (3 actions) — PP-SS =====
+  "pp_ss_validate",                // Full spindle safety validation
+  "pp_ss_quick",                   // Quick pass/fail + peak RPM
+  "pp_ss_defaults",                // Default spindle safety validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2025,6 +2035,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_wo_defaults": {
             const engine = await getEngine("workOffsetValidator");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_SS (PP-SS — Spindle speed safety validator) =====
+          case "pp_ss_validate": {
+            const engine = await getEngine("spindleSpeedSafety");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              max_rpm_step_ratio: params.max_rpm_step_ratio,
+              require_dwell_after_start: params.require_dwell_after_start,
+              min_dwell_seconds: params.min_dwell_seconds,
+              allow_s_without_spindle: params.allow_s_without_spindle,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_ss_quick": {
+            const engine = await getEngine("spindleSpeedSafety");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_ss_defaults": {
+            const engine = await getEngine("spindleSpeedSafety");
             result = engine.defaultOptions();
             break;
           }
