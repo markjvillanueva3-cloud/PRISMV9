@@ -1302,6 +1302,9 @@ export const ACTIONS = [
   "strategy_controller_validate", "strategy_machine_validate",
   "strategy_find_compatible_controllers", "strategy_find_best_machine",
   "strategy_compatibility_matrix",
+  // CAMX-MS2/U05+U06 — Cost-optimal & safety-first strategy decisions
+  "strategy_cost_compute", "strategy_cost_decide", "strategy_cost_sensitivity",
+  "strategy_safety_assess", "strategy_safety_decide", "strategy_safety_filter",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -7584,6 +7587,61 @@ Params vary by action — pass relevant fields in params object.`,
           case "strategy_compatibility_matrix": {
             const { controllerStrategyValidatorEngine } = await import("../../engines/ControllerStrategyValidatorEngine.js");
             result = controllerStrategyValidatorEngine.compatibilityMatrix();
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // CAMX-MS2/U05 — Cost-optimal strategy decision actions
+          // ═══════════════════════════════════════════════════════════════════
+          case "strategy_cost_compute": {
+            const { strategyCostOptimalEngine } = await import("../../engines/StrategyCostOptimalEngine.js");
+            result = strategyCostOptimalEngine.computeCost(
+              params.option as any,
+              params.rates as any,
+            );
+            break;
+          }
+
+          case "strategy_cost_decide": {
+            const { strategyCostOptimalEngine } = await import("../../engines/StrategyCostOptimalEngine.js");
+            result = strategyCostOptimalEngine.decide(
+              params.options as any,
+              params.rates as any,
+            );
+            break;
+          }
+
+          case "strategy_cost_sensitivity": {
+            const { strategyCostOptimalEngine } = await import("../../engines/StrategyCostOptimalEngine.js");
+            result = strategyCostOptimalEngine.sensitivity(
+              params.option as any,
+              params.rates as any,
+              params.delta_pct as number | undefined,
+            );
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // CAMX-MS2/U06 — Safety-first strategy decision actions
+          // ═══════════════════════════════════════════════════════════════════
+          case "strategy_safety_assess": {
+            const { strategySafetyDecisionEngine } = await import("../../engines/StrategySafetyDecisionEngine.js");
+            result = strategySafetyDecisionEngine.assess(params.option as any);
+            break;
+          }
+
+          case "strategy_safety_decide": {
+            const { strategySafetyDecisionEngine } = await import("../../engines/StrategySafetyDecisionEngine.js");
+            result = strategySafetyDecisionEngine.decide(
+              params.options as any,
+              params.cost_preferred_id as string | undefined,
+            );
+            break;
+          }
+
+          case "strategy_safety_filter": {
+            const { strategySafetyDecisionEngine } = await import("../../engines/StrategySafetyDecisionEngine.js");
+            result = strategySafetyDecisionEngine.filterSafe(params.options as any);
             break;
           }
 
