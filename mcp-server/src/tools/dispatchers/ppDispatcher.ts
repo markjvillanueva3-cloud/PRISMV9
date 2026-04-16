@@ -278,6 +278,9 @@ let _ppMacroFlow: any;
 // PP-SS: Safe-start block validator
 let _ppSafeStart: any;
 
+// PP-CHAR: Character/byte-level validator
+let _ppCharacter: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -497,6 +500,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppMacroFlow ??= (await import("../../engines/PPMacroFlowValidatorEngine.js")).ppMacroFlowValidatorEngine;
     case "safeStart":
       return _ppSafeStart ??= (await import("../../engines/PPSafeStartBlockValidatorEngine.js")).ppSafeStartBlockValidatorEngine;
+    case "character":
+      return _ppCharacter ??= (await import("../../engines/PPCharacterValidatorEngine.js")).ppCharacterValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -943,6 +948,9 @@ const ACTIONS = [
   "pp_ss_validate",                // Full safe-start block validation
   "pp_ss_quick",                   // Quick pass/fail + missing-count
   "pp_ss_defaults",                // Default safe-start validator options
+  "pp_char_validate",              // Byte-level char validation
+  "pp_char_quick",                 // Quick pass/fail + BOM/non-ASCII count
+  "pp_char_defaults",              // Default character validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3058,6 +3066,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_ss_defaults": {
             const engine = await getEngine("safeStart");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CHAR (PP-CHAR — Character/byte validator) =====
+          case "pp_char_validate": {
+            const engine = await getEngine("character");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_bom: params.check_bom,
+              check_non_ascii: params.check_non_ascii,
+              check_non_printable: params.check_non_printable,
+              check_embedded_null: params.check_embedded_null,
+              check_tab: params.check_tab,
+              check_trailing_whitespace: params.check_trailing_whitespace,
+              check_mixed_line_endings: params.check_mixed_line_endings,
+              check_bare_cr: params.check_bare_cr,
+              check_long_lines: params.check_long_lines,
+              check_lowercase: params.check_lowercase,
+              max_line_length: params.max_line_length,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_char_quick": {
+            const engine = await getEngine("character");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_char_defaults": {
+            const engine = await getEngine("character");
             result = engine.defaultOptions();
             break;
           }
