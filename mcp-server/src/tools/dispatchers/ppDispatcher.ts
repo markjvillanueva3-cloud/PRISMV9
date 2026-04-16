@@ -164,6 +164,9 @@ let _ppOkumaSubSpindle: any;
 // PP-LINT: G-code syntactic linter
 let _ppGCodeLint: any;
 
+// PP-CHUNK: Program chunker for DNC drip-feed
+let _ppProgramChunker: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -307,6 +310,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppOkumaSubSpindle ??= (await import("../../engines/PPOkumaSubSpindleSyncEngine.js")).ppOkumaSubSpindleSyncEngine;
     case "gcodeLint":
       return _ppGCodeLint ??= (await import("../../engines/PPGCodeLintEngine.js")).ppGCodeLintEngine;
+    case "programChunker":
+      return _ppProgramChunker ??= (await import("../../engines/PPProgramChunkerEngine.js")).ppProgramChunkerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -561,6 +566,11 @@ const ACTIONS = [
   "pp_lint_quick_check",          // Fast pass/fail + critical count
   "pp_lint_report",               // Human-readable report string
   "pp_lint_list_rules",           // List all detected rule IDs
+
+  // ===== PP_CHUNK: Program chunker for DNC drip-feed (3 actions) — PP-CHUNK =====
+  "pp_chunk_program",             // Split G-code program into chunks with modal restore
+  "pp_chunk_list_strategies",     // List available chunking strategies
+  "pp_chunk_defaults",            // Get default options for a given strategy
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1634,6 +1644,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_lint_list_rules": {
             const engine = await getEngine("gcodeLint");
             result = { rules: engine.listRules() };
+            break;
+          }
+
+          // ===== PP_CHUNK (PP-CHUNK — program chunker) =====
+          case "pp_chunk_program": {
+            const engine = await getEngine("programChunker");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              strategy: params.strategy,
+              max_lines_per_chunk: params.max_lines_per_chunk ?? params.maxLines,
+              max_bytes_per_chunk: params.max_bytes_per_chunk ?? params.maxBytes,
+              safe_block: params.safe_block ?? params.safeBlock,
+              preserve_headers: params.preserve_headers ?? params.preserveHeaders,
+              chunk_comment: params.chunk_comment ?? params.chunkComment,
+            };
+            result = engine.chunk(gcode, options);
+            break;
+          }
+          case "pp_chunk_list_strategies": {
+            const engine = await getEngine("programChunker");
+            result = { strategies: engine.listStrategies() };
+            break;
+          }
+          case "pp_chunk_defaults": {
+            const engine = await getEngine("programChunker");
+            const strategy = params.strategy ?? "by_lines";
+            result = engine.defaultOptions(strategy);
             break;
           }
 
