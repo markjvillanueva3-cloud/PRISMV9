@@ -74,6 +74,8 @@ const ACTIONS = [
   // LATHE-UNIFIED-SCIENCE: PhD-level physics/chemistry/metallurgy integration
   "lathe_unified_analyze", "lathe_unified_recommend", "lathe_unified_forces",
   "lathe_unified_thermal", "lathe_unified_metallurgy", "lathe_unified_chemistry",
+  // MS2: Vendor Turning Catalog Actions (U-LAT23-U-LAT25)
+  "lathe_vendor_tool_lookup", "lathe_insert_grade_select", "lathe_iso_code_resolve",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -965,6 +967,43 @@ Actions: ${ACTIONS.join(", ")}.`,
               params.cutting_params || params.params
             );
             result = analysis.chemistry;
+            break;
+          }
+
+          // MS2: Vendor Turning Catalog Actions (U-LAT23-U-LAT25)
+          case "lathe_vendor_tool_lookup": {
+            const { vendorTurningCatalogExtractorEngine } = await import("../../engines/VendorTurningCatalogExtractorEngine.js");
+            result = vendorTurningCatalogExtractorEngine.searchInserts({
+              designation: params.designation,
+              shape: params.shape,
+              ic_mm: params.ic_mm,
+              nose_radius_mm: params.nose_radius_mm,
+              iso_group: params.iso_group,
+              vendor: params.vendor,
+              chipbreaker_type: params.chipbreaker_type,
+              limit: params.limit || 20,
+            });
+            break;
+          }
+
+          case "lathe_insert_grade_select": {
+            const { vendorTurningCatalogExtractorEngine } = await import("../../engines/VendorTurningCatalogExtractorEngine.js");
+            result = vendorTurningCatalogExtractorEngine.recommendGrade({
+              iso_group: params.iso_group || "P",
+              operation: params.operation || "medium",
+              vendor: params.vendor,
+              substrate: params.substrate,
+            });
+            break;
+          }
+
+          case "lathe_iso_code_resolve": {
+            const { vendorTurningCatalogExtractorEngine, parseISO1832Designation } = await import("../../engines/VendorTurningCatalogExtractorEngine.js");
+            const resolved = vendorTurningCatalogExtractorEngine.resolveISOCode(params.designation || "");
+            result = {
+              ...resolved,
+              iso_shape_angle: resolved.parsed?.iso_shape ? { C: 80, D: 55, E: 75, T: 60, S: 90, R: 360, V: 35, W: 80 }[resolved.parsed.iso_shape] : null,
+            };
             break;
           }
 

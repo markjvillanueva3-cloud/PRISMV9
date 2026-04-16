@@ -2457,6 +2457,7 @@ export { differentialEvolutionEngine } from "./DifferentialEvolutionEngine.js";
 export { digitalTwinEngine, DigitalTwinEngine } from "./DigitalTwinEngine.js";
 export { energyOptimizationEngine, EnergyOptimizationEngine } from "./EnergyOptimizationEngine.js";
 export { toolCatalogEngine, ToolCatalogEngine } from "./ToolCatalogEngine.js";
+export { vendorTurningCatalogExtractorEngine, VendorTurningCatalogExtractorEngine, parseISO1832Designation, classifyChipbreaker } from "./VendorTurningCatalogExtractorEngine.js";
 export { unitConversionEngine, UnitConversionEngine } from "./UnitConversionEngine.js";
 export { machineProfileEngine, MachineProfileEngine } from "./MachineProfileEngine.js";
 export { eventEngine, EventEngine } from "./EventEngine.js";
