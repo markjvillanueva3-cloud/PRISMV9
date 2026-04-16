@@ -28,7 +28,85 @@
       "built": true,
       "builtAt": "2026-04-16T15:40:00Z",
       "commit": "0017a6b2"
+    },
+    {
+      "name": "GDTCalloutParserEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Parse drawing GD&T callouts (feature, symbol, tolerance, datums, material modifiers M/L/F) into structured data. Nothing currently parses raw callout text.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "LatheDatumReferenceFrameEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Build A|B|C datum reference frame for turned parts — typical A=axis, B=face, C=clocking. Decision logic not covered by existing engines.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "LatheCoaxialityRunoutValidatorEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Given coaxial/runout callout, validate achievable TIR from spindle + chuck + deflection stack. Differs from RunoutEffect (tool life) and SpindleRunout (spindle alone).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "RoundnessCylindricitySamplingEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "ISO 12181 probe-point sampling plan: number of points, spacing, UPR filter cutoff for given roundness tolerance + method (2-pt, 3-pt vee, rotary).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "GageRRMSAEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Gage R&R / Measurement System Analysis (ANOVA or range method). Operator × part variance decomposition. No MSA engine exists; SPC engines are downstream.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "ToleranceBandAllocationEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Inverse of GDTStackup: given assembly tolerance, allocate across components (equal / cost-weighted / capability-weighted).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "InverseStackupAllocatorEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing ToleranceEngine"
+    },
+    {
+      "name": "FeatureControlFrameValidatorEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "ASME Y14.5 feature control frame syntax validator — catches invalid symbol/modifier combinations (e.g., diameter on flatness, M modifier on form).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "FCFSyntaxValidatorEngine",
+      "renameReason": "Shorter canonical name for FCF"
+    },
+    {
+      "name": "ProfileToleranceAnalyzerEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Profile-of-line / profile-of-surface deviation from basis curve. Lathe-specific: NURBS/parametric profile inspection; not covered by existing engines.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "ProfileDeviationAnalyzerEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing ToleranceEngine"
     }
   ],
-  "lastUpdated": "2026-04-16T15:40:00Z"
+  "lastUpdated": "2026-04-16T16:10:00Z"
 }
