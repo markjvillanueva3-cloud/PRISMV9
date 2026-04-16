@@ -6286,3 +6286,20 @@ export {
   type LatheOrchResponse,
   type LatheAwarenessSnapshot,
 } from './LatheMasterOrchestratorFacadeEngine.js';
+
+// --- LATHE-AWARE-HARDEN MS9: Programming Style Selector (E107) ---
+export {
+  latheProgrammingStyleSelectorEngine,
+  styleSelectionInputSchema,
+  type ProgrammingStyle,
+  type ConversationalType,
+  type PartComplexity as StyleSelectorPartComplexity,
+  type OperatorSkill,
+  type TimeConstraint,
+  type MachineAvailability,
+  type StyleSelectionInput,
+  type StyleScore,
+  type CostEstimate as StyleSelectorCostEstimate,
+  type StyleRecommendation,
+  type StyleCostComparison,
+} from './LatheProgrammingStyleSelectorEngine.js';

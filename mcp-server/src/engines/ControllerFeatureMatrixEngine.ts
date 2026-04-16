@@ -1357,6 +1357,73 @@ const CONTROLLER_MATRIX: ControllerFeatureSet[] = [
       "Up to 10 axes and 4 channels for complex multi-pallet horizontal centers",
       "G54.1 P1-P300 extended work offsets for flexible automation cells"
     ]
+  },
+
+  // ==========================================================================
+  // U06 — HURCO WinMax
+  // Source: Hurco WinMax Operator's Manual (2023), Hurco public datasheets
+  // ==========================================================================
+
+  {
+    controller: "Hurco WinMax",
+    family: "hurco",
+    variant: "WinMax Mill/Lathe Desktop",
+    year_introduced: 2010,
+    features: {
+      hsm_smoothing: {
+        supported: true,
+        code: "UltiMotion (parameterized)",
+        levels: ["Standard", "UltiMotion (smooth/fast/balanced)"]
+      },
+      ai_contour: { supported: false },
+      look_ahead_blocks: 1000,
+      tcp_rtcp: { supported: false, code: "N/A — 3-axis primary; 4/5-axis indexed via WinMax 5-axis module" },
+      tilted_workplane: { supported: true, code: "Tilted Plane (WinMax dialog)", modes: ["3-point", "angles"] },
+      extended_cycles: true,
+      rigid_tapping: { supported: true, code: "M29 + G84" },
+      deep_hole_drilling: { supported: true, codes: ["Peck Drill (dialog)", "G83"] },
+      probing_cycles: { supported: true, type: "Renishaw probing integrated in WinMax dialogs", codes: ["Probe Part", "Probe Tool"] },
+      macro_programming: { supported: true, type: "NC Productivity Package (Macro B compatible) + parametric WinMax variables" },
+      conversational: { supported: true, name: "WinMax Conversational (DXF import + dialog-based part programming)" },
+      subprograms: { supported: true, call_code: "M98 P / subroutine dialog", max_nesting: 8 },
+      nurbs: false,
+      spline: true,
+      helical: true,
+      polar_interpolation: true,
+      max_axes: 5,
+      max_channels: 1,
+      max_wcs: 6,
+      max_tools: 200,
+      max_program_size: "2 GB (PC-based)",
+      ssv: { supported: false },
+      thermal_comp: { supported: true, code: "Integrated thermal compensation" },
+      collision_avoidance: { supported: true, code: "WinMax Verify (3D simulation)" },
+      adaptive_control: { supported: false }
+    },
+    key_gcodes: {
+      "Conversational": "Dialog-based (no G-code required)",
+      "DXF Import":     "File > Import DXF (builds contours)",
+      "UltiMotion":     "Parameter setting (tool-dependent)",
+      "Rigid tap":      "M29 S_ + G84",
+      "Peck drill":     "Dialog (or G83)",
+      "Work offset":    "G54–G59",
+      "Arc IJK":        "G2/G3 I_ J_ K_",
+      "Helical":        "G2/G3 I_ J_ K_ Z_",
+      "Probe part":     "Probe Part dialog",
+      "Probe tool":     "Probe Tool dialog",
+      "Subroutine":     "M98 P_ (or subroutine dialog)",
+      "Program end":    "M30"
+    },
+    notes: [
+      "Hurco WinMax is PC-based dual-mode: accepts conversational dialog OR NC G-code",
+      "Conversational mode allows part programming via DXF import + dialog-driven feature entry — no G-code required",
+      "NC Productivity Package adds Macro B compatibility for shops migrating from Fanuc",
+      "UltiMotion is Hurco's trademarked motion smoothing — parameterized per tool and operation",
+      "Primarily used on Hurco VM/BMC/TM mills and TMX lathes at JM Die and similar job shops",
+      "Targeted at job-shop operators — strong conversational workflow for one-off and low-lot parts",
+      "5-axis support via WinMax 5-axis module with indexed tilted-plane cycles (no full TCP)",
+      "WinMax Verify provides 3D simulation with collision detection before running the program"
+    ]
   }
 ];
 

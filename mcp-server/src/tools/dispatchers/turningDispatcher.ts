@@ -94,6 +94,9 @@ const ACTIONS = [
   "lathe_awareness_snapshot",
   // MS8: Lathe Master Orchestrator Facade (U-LAT61)
   "lathe_orchestrate_facade",
+  // MS9: Programming Style Selector (U-LAT68, U-LAT69)
+  "lathe_select_programming_style",
+  "lathe_compare_programming_costs",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1291,6 +1294,50 @@ Actions: ${ACTIONS.join(", ")}.`,
             // Return current lathe domain awareness state via facade engine
             const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
             result = latheMasterOrchestratorFacadeEngine.getLatheSnapshot();
+            break;
+          }
+
+          // MS9: Programming Style Selector (U-LAT68)
+          case "lathe_select_programming_style": {
+            const { latheProgrammingStyleSelectorEngine } = await import("../../engines/LatheProgrammingStyleSelectorEngine.js");
+            result = latheProgrammingStyleSelectorEngine.selectProgrammingStyle({
+              controller: params.controller ?? "okuma_osp_p300",
+              part_complexity: params.part_complexity ?? "moderate",
+              lot_size: params.lot_size ?? 1,
+              family_parts_expected: params.family_parts_expected ?? 1,
+              operator_skill_level: params.operator_skill_level ?? "intermediate",
+              available_cam_seats: params.available_cam_seats ?? 0,
+              time_constraint: params.time_constraint ?? "normal",
+              machine_availability: params.machine_availability ?? "shared",
+              has_threading: params.has_threading,
+              has_live_tooling: params.has_live_tooling,
+              requires_5axis: params.requires_5axis,
+              material: params.material,
+              shop_rate_usd_hr: params.shop_rate_usd_hr,
+              programming_rate_usd_hr: params.programming_rate_usd_hr,
+            });
+            break;
+          }
+
+          // MS9: Programming Cost Comparison (U-LAT69)
+          case "lathe_compare_programming_costs": {
+            const { latheProgrammingStyleSelectorEngine } = await import("../../engines/LatheProgrammingStyleSelectorEngine.js");
+            result = latheProgrammingStyleSelectorEngine.compareProgrammingCosts({
+              controller: params.controller ?? "okuma_osp_p300",
+              part_complexity: params.part_complexity ?? "moderate",
+              lot_size: params.lot_size ?? 1,
+              family_parts_expected: params.family_parts_expected ?? 1,
+              operator_skill_level: params.operator_skill_level ?? "intermediate",
+              available_cam_seats: params.available_cam_seats ?? 0,
+              time_constraint: params.time_constraint ?? "normal",
+              machine_availability: params.machine_availability ?? "shared",
+              has_threading: params.has_threading,
+              has_live_tooling: params.has_live_tooling,
+              requires_5axis: params.requires_5axis,
+              material: params.material,
+              shop_rate_usd_hr: params.shop_rate_usd_hr,
+              programming_rate_usd_hr: params.programming_rate_usd_hr,
+            });
             break;
           }
 
