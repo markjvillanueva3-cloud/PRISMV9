@@ -80,6 +80,9 @@ let _assetWiringSummary: any;
 let _ppControllerEmbedding: any;
 let _ppDialectTransfer: any;
 
+// PP-AGI-MS1: Machine Vector Encoder
+let _ppMachineVectorEncoder: any;
+
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "pp":
@@ -150,6 +153,10 @@ async function getEngine(name: string): Promise<any> {
       return _ppControllerEmbedding ??= (await import("../../engines/PPControllerEmbeddingEngine.js")).ppControllerEmbeddingEngine;
     case "dialectTransfer":
       return _ppDialectTransfer ??= (await import("../../engines/PPDialectTransferEngine.js")).ppDialectTransferEngine;
+
+    // PP-AGI-MS1: Machine Vector Encoder
+    case "machineVectorEncoder":
+      return _ppMachineVectorEncoder ??= (await import("../../engines/PPMachineVectorEncoderEngine.js")).ppMachineVectorEncoderEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -278,6 +285,12 @@ const ACTIONS = [
   "pp_embedding_nearest",          // Find k-nearest controllers
   "pp_embedding_cluster",          // Cluster all controllers by behavior
   "pp_embedding_transfer",         // Transfer G-code patterns to unknown controller
+
+  // ===== PP_MACHINE_VECTOR: Machine kinematic embeddings (4 actions) — PP-AGI-MS1 =====
+  "pp_machine_embed",              // Embed a machine to 40-dim vector
+  "pp_machine_embed_all",          // Embed all representative machines
+  "pp_machine_compare",            // Compare two machines (similarity + gaps)
+  "pp_machine_nearest",            // Find k-nearest machines
 
   // ===== PP_WIRING: Asset wiring (9 actions) — PP-WIRE-MS5-7 =====
   "pp_wiring_algorithms",        // List algorithms with wiring status
@@ -810,6 +823,28 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_embedding_transfer": {
             const engine = await getEngine("dialectTransfer");
             result = engine.transfer(params.spec ?? params);
+            break;
+          }
+
+          // ===== PP_MACHINE_VECTOR: Machine kinematic embeddings (PP-AGI-MS1) =====
+          case "pp_machine_embed": {
+            const engine = await getEngine("machineVectorEncoder");
+            result = engine.embed(params.machineId ?? params.machine_id);
+            break;
+          }
+          case "pp_machine_embed_all": {
+            const engine = await getEngine("machineVectorEncoder");
+            result = { embeddings: engine.embedAll() };
+            break;
+          }
+          case "pp_machine_compare": {
+            const engine = await getEngine("machineVectorEncoder");
+            result = engine.compare(params.machineA ?? params.machine_a, params.machineB ?? params.machine_b);
+            break;
+          }
+          case "pp_machine_nearest": {
+            const engine = await getEngine("machineVectorEncoder");
+            result = engine.findNearest(params.machineId ?? params.machine_id, params.k ?? 5);
             break;
           }
 
