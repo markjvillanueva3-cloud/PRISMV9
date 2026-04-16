@@ -251,6 +251,9 @@ let _ppCoordTransform: any;
 // PP-PC: Probe cycle validator (Renishaw G65 P981x)
 let _ppProbeCycle: any;
 
+// PP-HSM: High-speed machining / lookahead validator (G05.1 Q1)
+let _ppHSM: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -452,6 +455,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCoordTransform ??= (await import("../../engines/PPCoordSystemTransformValidatorEngine.js")).ppCoordSystemTransformValidatorEngine;
     case "probeCycle":
       return _ppProbeCycle ??= (await import("../../engines/PPProbeCycleValidatorEngine.js")).ppProbeCycleValidatorEngine;
+    case "highSpeedMachining":
+      return _ppHSM ??= (await import("../../engines/PPHighSpeedMachiningValidatorEngine.js")).ppHighSpeedMachiningValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -855,6 +860,11 @@ const ACTIONS = [
   "pp_pc_validate",                // Full probe cycle validation
   "pp_pc_quick",                   // Quick pass/fail + measurement count
   "pp_pc_defaults",                // Default probe validator options
+
+  // PP-HSM: High-speed machining / lookahead validator (G05.1 Q1)
+  "pp_hsm_validate",               // Full HSM/lookahead validation
+  "pp_hsm_quick",                  // Quick pass/fail + surfacing block count
+  "pp_hsm_defaults",               // Default HSM validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2709,6 +2719,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_pc_defaults": {
             const engine = await getEngine("probeCycle");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_HSM (PP-HSM — High-speed machining / lookahead validator) =====
+          case "pp_hsm_validate": {
+            const engine = await getEngine("highSpeedMachining");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_surfacing_without_hsm: params.check_surfacing_without_hsm,
+              check_hsm_threading: params.check_hsm_threading,
+              check_hsm_rigid_tap: params.check_hsm_rigid_tap,
+              check_hsm_probing: params.check_hsm_probing,
+              check_g61_surfacing: params.check_g61_surfacing,
+              check_cancel_at_end: params.check_cancel_at_end,
+              surfacing_threshold: params.surfacing_threshold,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_hsm_quick": {
+            const engine = await getEngine("highSpeedMachining");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_hsm_defaults": {
+            const engine = await getEngine("highSpeedMachining");
             result = engine.defaultOptions();
             break;
           }
