@@ -71,12 +71,52 @@ const LEARN_ACTIONS = [
   "learn_transparency", "learn_history", "learn_get",
 ] as const;
 
+/** U-AWR20: SpreadsheetIngestionEngine — 1,806 xlsx/xls/csv on H: drive. */
+const SPREADSHEET_ACTIONS = [
+  "spreadsheet_parse_file",
+  "spreadsheet_parse_csv",
+  "spreadsheet_detect_columns",
+  "spreadsheet_to_employee_inputs",
+  "spreadsheet_import_employees",
+] as const;
+
+/** U-AWR20: route spreadsheet actions to SpreadsheetIngestionEngine. */
+async function routeSpreadsheetAction(action: string, params: any): Promise<unknown> {
+  const { spreadsheetIngestionEngine } = await import("../../engines/SpreadsheetIngestionEngine.js");
+  switch (action) {
+    case "spreadsheet_parse_file":
+      return spreadsheetIngestionEngine.parseFile(
+        params.file_path as string,
+        (params.target as any) ?? "employee",
+      );
+    case "spreadsheet_parse_csv":
+      return spreadsheetIngestionEngine.parseCSVContent(
+        params.content as string,
+        (params.target as any) ?? "employee",
+      );
+    case "spreadsheet_detect_columns":
+      return spreadsheetIngestionEngine.detectColumns(
+        params.headers as string[],
+        (params.target as any) ?? "employee",
+      );
+    case "spreadsheet_to_employee_inputs":
+      return spreadsheetIngestionEngine.toEmployeeInputs(params.parse_result as any);
+    case "spreadsheet_import_employees":
+      return spreadsheetIngestionEngine.importEmployees(params.parse_result as any);
+    default:
+      throw new Error(`Unknown spreadsheet action: ${action}`);
+  }
+}
+
 const ACTIONS = [
   ...APPRENTICE_ACTIONS,
   ...GENOME_ACTIONS,
   ...GRAPH_ACTIONS,
   ...LEARN_ACTIONS,
+  ...SPREADSHEET_ACTIONS,
 ] as const;
+
+export { ACTIONS };
 
 // ============================================================================
 // KEY VALUE EXTRACTOR (for slim responses)
@@ -234,6 +274,8 @@ export function registerKnowledgeExtDispatcher(server: any): void {
           ? await (await getKnowledgeEngine("manufacturingGenome"))(action, params)
           : GRAPH_ACTIONS.includes(action as ActionString as typeof GRAPH_ACTIONS[number])
           ? await (await getKnowledgeEngine("knowledgeGraph"))(action, params)
+          : SPREADSHEET_ACTIONS.includes(action as ActionString as typeof SPREADSHEET_ACTIONS[number])
+          ? await routeSpreadsheetAction(action, params)
           : await (await getKnowledgeEngine("federatedLearning"))(action, params);
 
         // Post-hooks
