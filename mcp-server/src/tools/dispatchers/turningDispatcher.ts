@@ -141,6 +141,15 @@ const ACTIONS = [
   "lathe_inverse_stackup_allocate",
   "lathe_fcf_syntax_validate",
   "lathe_profile_deviation_analyze",
+  // LATHE-PRO-MS9: AS9100 / ISO 13485 / FDA compliance intelligence
+  "lathe_iso13485_evaluate",
+  "lathe_nadcap_qualify",
+  "lathe_dhf_evaluate",
+  "lathe_process_validation_iqoqpq",
+  "lathe_capa_evaluate",
+  "lathe_iso14971_risk",
+  "lathe_eco_validate",
+  "lathe_counterfeit_assess",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1759,6 +1768,110 @@ Actions: ${ACTIONS.join(", ")}.`,
               tolerance_mm: params.tolerance_mm,
               zone_type: params.zone_type,
               best_fit: params.best_fit,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS9: AS9100 / ISO 13485 / FDA compliance intelligence
+          case "lathe_iso13485_evaluate": {
+            const { iso13485QmsEngine } = await import("../../engines/ISO13485QMSEngine.js");
+            result = iso13485QmsEngine.evaluate({
+              device_class: params.device_class,
+              sterile: params.sterile,
+              implantable: params.implantable,
+              software_containing: params.software_containing,
+              evidence: params.evidence ?? [],
+            });
+            break;
+          }
+
+          case "lathe_nadcap_qualify": {
+            const { nadcapProcessQualificationEngine } = await import("../../engines/NadcapProcessQualificationEngine.js");
+            result = nadcapProcessQualificationEngine.qualify({
+              process: params.process,
+              cycle_months: params.cycle_months,
+              last_audit_date: params.last_audit_date,
+              line_items: params.line_items ?? [],
+              operator_certs: params.operator_certs,
+              tus_last_date: params.tus_last_date,
+              accredited: params.accredited,
+            });
+            break;
+          }
+
+          case "lathe_dhf_evaluate": {
+            const { designHistoryFileEngine } = await import("../../engines/DesignHistoryFileEngine.js");
+            result = designHistoryFileEngine.evaluate({
+              device_name: params.device_name ?? "device",
+              device_class: params.device_class,
+              risk_level: params.risk_level,
+              artifacts: params.artifacts ?? [],
+            });
+            break;
+          }
+
+          case "lathe_process_validation_iqoqpq": {
+            const { processValidationIQOQPQEngine } = await import("../../engines/ProcessValidationIQOQPQEngine.js");
+            result = processValidationIQOQPQEngine.validate({
+              process_name: params.process_name ?? "process",
+              iq_items: params.iq_items ?? [],
+              oq_runs: params.oq_runs ?? [],
+              pq_runs: params.pq_runs ?? [],
+              min_oq_replicates: params.min_oq_replicates,
+              min_pq_runs: params.min_pq_runs,
+              target_cpk: params.target_cpk,
+            });
+            break;
+          }
+
+          case "lathe_capa_evaluate": {
+            const { capaWorkflowEngine } = await import("../../engines/CAPAWorkflowEngine.js");
+            result = capaWorkflowEngine.evaluate({
+              record: params.record,
+              min_dwell_days: params.min_dwell_days,
+              overdue_escalate_days: params.overdue_escalate_days,
+              now: params.now,
+            });
+            break;
+          }
+
+          case "lathe_iso14971_risk": {
+            const { iso14971RiskManagementEngine } = await import("../../engines/ISO14971RiskManagementEngine.js");
+            result = iso14971RiskManagementEngine.evaluate({
+              device_name: params.device_name ?? "device",
+              intended_use: params.intended_use ?? "",
+              hazards: params.hazards ?? [],
+              acceptable_threshold: params.acceptable_threshold,
+              alarp_upper: params.alarp_upper,
+            });
+            break;
+          }
+
+          case "lathe_eco_validate": {
+            const { engineeringChangeOrderEngine } = await import("../../engines/EngineeringChangeOrderEngine.js");
+            result = engineeringChangeOrderEngine.validate({
+              record: params.record,
+              now: params.now,
+              class_i_approvers: params.class_i_approvers,
+              class_ii_approvers: params.class_ii_approvers,
+            });
+            break;
+          }
+
+          case "lathe_counterfeit_assess": {
+            const { counterfeitPartPreventionEngine } = await import("../../engines/CounterfeitPartPreventionEngine.js");
+            result = counterfeitPartPreventionEngine.assess({
+              part_number: params.part_number ?? "unknown",
+              quantity: params.quantity ?? 1,
+              critical_application: params.critical_application ?? false,
+              provenance: params.provenance,
+              auth_tests: params.auth_tests ?? [],
+              packaging_intact_oem_seal: params.packaging_intact_oem_seal ?? false,
+              esd_packaging_correct: params.esd_packaging_correct ?? false,
+              reel_label_matches: params.reel_label_matches ?? false,
+              ocm_coc_present: params.ocm_coc_present ?? false,
+              lot_traceability_complete: params.lot_traceability_complete ?? false,
+              gidep_prior_hit: params.gidep_prior_hit,
             });
             break;
           }
