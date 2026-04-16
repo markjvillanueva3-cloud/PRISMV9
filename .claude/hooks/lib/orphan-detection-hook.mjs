@@ -23,13 +23,27 @@ async function main(rawInput) {
   try {
     const hookInput = JSON.parse(rawInput);
     const result = await processHook(hookInput);
-    console.log(JSON.stringify(result));
+    emit(result);
   } catch (error) {
-    console.log(JSON.stringify({
-      decision: "allow",
-      reason: `Orphan detection hook error: ${error.message}`,
-    }));
+    emit({ decision: "allow", reason: `Orphan detection hook error: ${error.message}` });
   }
+}
+
+// Claude Code PreToolUse expects `hookSpecificOutput.permissionDecision`.
+// Keep the internal helpers returning `{ decision, reason }` for readability
+// and only translate at the boundary.
+function emit(result) {
+  const dec = (result && result.decision) === "deny" ? "deny" : "allow";
+  const out = {
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: dec,
+    },
+  };
+  if (result && result.reason) {
+    out.hookSpecificOutput.permissionDecisionReason = result.reason;
+  }
+  console.log(JSON.stringify(out));
 }
 
 async function processHook(hookInput) {

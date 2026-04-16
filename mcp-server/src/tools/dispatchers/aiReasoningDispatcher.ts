@@ -326,14 +326,16 @@ const ACTIONS = [
   "session_update",
   "session_summary",
   // Proactive AI Intelligence (ProactiveAIIntelligenceEngine) - 8 actions
-  "proactive_analyze",
-  "proactive_quick",
-  "proactive_anomaly",
-  "proactive_patterns",
-  "proactive_learn",
-  "proactive_calibration",
-  "proactive_thresholds",
-  "proactive_summary",
+  // Renamed with proactive_ai_ prefix to avoid collision with
+  // ProactiveIntelligenceEngine above (proactive_analyze, proactive_patterns).
+  "proactive_ai_analyze",
+  "proactive_ai_quick",
+  "proactive_ai_anomaly",
+  "proactive_ai_patterns",
+  "proactive_ai_learn",
+  "proactive_ai_calibration",
+  "proactive_ai_thresholds",
+  "proactive_ai_summary",
   // Cross-Disciplinary Deep Learning (CrossDisciplinaryDeepLearningEngine) - 8 actions
   "cross_domain_reason",
   "cross_domain_formula",
@@ -4330,7 +4332,7 @@ export function registerAIReasoningDispatcher(server: any): void {
           }
 
           // === Proactive AI Intelligence (ProactiveAIIntelligenceEngine) ===
-          case "proactive_analyze": {
+          case "proactive_ai_analyze": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             const result = await proactiveAI.analyze({
               intent: params.intent,
@@ -4341,7 +4343,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "proactive_quick": {
+          case "proactive_ai_quick": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             if (!params.scenario) {
               return ok({ error: "Missing required param: scenario" });
@@ -4350,7 +4352,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok({ scenario: params.scenario, suggestions });
           }
 
-          case "proactive_anomaly": {
+          case "proactive_ai_anomaly": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             if (!params.parameters) {
               return ok({ error: "Missing required param: parameters" });
@@ -4359,13 +4361,13 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok({ anomalies });
           }
 
-          case "proactive_patterns": {
+          case "proactive_ai_patterns": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             const patterns = proactiveAI.getPatterns();
             return ok({ patterns });
           }
 
-          case "proactive_learn": {
+          case "proactive_ai_learn": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             if (!params.suggestion_id || params.correction === undefined) {
               return ok({ error: "Missing required params: suggestion_id, correction" });
@@ -4378,13 +4380,13 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok({ learned: true, suggestion_id: params.suggestion_id });
           }
 
-          case "proactive_calibration": {
+          case "proactive_ai_calibration": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             const calibration = proactiveAI.getCalibration();
             return ok(calibration);
           }
 
-          case "proactive_thresholds": {
+          case "proactive_ai_thresholds": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             if (params.add) {
               const { parameter, min, max } = params.add;
@@ -4398,7 +4400,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok({ thresholds });
           }
 
-          case "proactive_summary": {
+          case "proactive_ai_summary": {
             const { proactiveAI } = await import("../../engines/ProactiveAIIntelligenceEngine.js");
             return ok({ summary: proactiveAI.getSummary() });
           }
@@ -5358,7 +5360,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_harvest_tribal": {
+          case "mill_prod_harvest_tribal": {
             const { millingProductionKnowledgeHarvesterEngine } = await import("../../engines/MillingProductionKnowledgeHarvesterEngine.js");
             const result = millingProductionKnowledgeHarvesterEngine.getTribalKnowledge(
               params.category,
@@ -5367,13 +5369,13 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_harvest_stats": {
+          case "mill_prod_harvest_stats": {
             const { millingProductionKnowledgeHarvesterEngine } = await import("../../engines/MillingProductionKnowledgeHarvesterEngine.js");
             return ok(millingProductionKnowledgeHarvesterEngine.getStats());
           }
 
           // ========== Milling AGI Orchestration (MILL-AGI-ORCH) ==========
-          case "mill_agi_analyze": {
+          case "mill_agi_orch_analyze": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             const result = millingAGIOrchestrationEngine.analyzeWithAGI({
               material: params.material || "4140",
@@ -5393,7 +5395,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_agi_quick": {
+          case "mill_agi_orch_quick": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             const result = millingAGIOrchestrationEngine.quickAnalyze(
               params.material || "4140",
@@ -5405,7 +5407,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_agi_optimal": {
+          case "mill_agi_orch_optimal": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             const result = millingAGIOrchestrationEngine.getOptimalParameters(
               params.material || "4140",
@@ -5416,7 +5418,7 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_agi_validate": {
+          case "mill_agi_orch_validate": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             const result = millingAGIOrchestrationEngine.validateParameters(
               params.material || "4140",
@@ -5428,12 +5430,12 @@ export function registerAIReasoningDispatcher(server: any): void {
             return ok(result);
           }
 
-          case "mill_agi_awareness": {
+          case "mill_agi_orch_awareness": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             return ok(millingAGIOrchestrationEngine.getSelfAwareness());
           }
 
-          case "mill_agi_stats": {
+          case "mill_agi_orch_stats": {
             const { millingAGIOrchestrationEngine } = await import("../../engines/MillingAGIOrchestrationEngine.js");
             return ok(millingAGIOrchestrationEngine.getStats());
           }

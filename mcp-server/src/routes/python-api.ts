@@ -28,12 +28,12 @@ const router = Router();
 const EngineCallSchema = z.object({
   engine: z.string().min(1),
   method: z.string().min(1),
-  args: z.record(z.unknown()).optional().default({}),
+  args: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 const FormulaCalcSchema = z.object({
   formula: z.string().min(1),
-  params: z.record(z.number()),
+  params: z.record(z.string(), z.number()),
 });
 
 const TribalSearchSchema = z.object({
