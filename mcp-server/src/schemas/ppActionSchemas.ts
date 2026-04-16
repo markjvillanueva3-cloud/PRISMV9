@@ -733,6 +733,57 @@ const pp_graph_link = z.object({
 }).passthrough();
 
 // ============================================================================
+// PP_WIRING: Asset wiring schemas (PP-WIRE-MS5-7) (9 actions)
+// ============================================================================
+
+/** Algorithm category filter */
+const algorithmCategory = z.enum([
+  "optimization", "prediction", "detection", "modeling", "analysis",
+  "control", "geometry", "thermal", "wear", "vibration", "machine_learning", "signal_processing"
+]).optional();
+
+/** Reasoning category filter */
+const reasoningCategory = z.enum([
+  "decision_making", "diagnostic", "creative", "causal", "multi_path",
+  "deep_thinking", "explanation", "scientific", "domain_specific", "orchestration"
+]).optional();
+
+/** Reasoning domain filter */
+const reasoningDomain = z.enum([
+  "general", "milling", "turning", "five_axis", "edm",
+  "post_processor", "business", "quality", "optimization"
+]).optional();
+
+const pp_wiring_algorithms = z.object({
+  category: algorithmCategory,
+}).passthrough();
+
+const pp_wiring_algorithms_orphans = z.object({}).passthrough();
+
+const pp_wiring_algorithms_consumers = z.object({
+  algorithmName: z.string(),
+}).passthrough();
+
+const pp_wiring_reasoning = z.object({
+  category: reasoningCategory,
+  domain: reasoningDomain,
+}).passthrough();
+
+const pp_wiring_reasoning_orphans = z.object({}).passthrough();
+
+const pp_wiring_reasoning_recommend = z.object({
+  task: z.enum(["decision", "diagnosis", "optimization", "explanation", "creative"]),
+}).passthrough();
+
+const pp_wiring_summary = z.object({}).passthrough();
+
+const pp_wiring_trends = z.object({}).passthrough();
+
+const pp_wiring_priority = z.object({
+  limit: z.number().int().min(1).max(50).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -846,4 +897,15 @@ export const PP_ACTION_SCHEMAS: ActionSchemaMap = {
   pp_graph_gaps,
   pp_graph_tribal,
   pp_graph_link,
+
+  // Wiring (PP-WIRE-MS5-7)
+  pp_wiring_algorithms,
+  pp_wiring_algorithms_orphans,
+  pp_wiring_algorithms_consumers,
+  pp_wiring_reasoning,
+  pp_wiring_reasoning_orphans,
+  pp_wiring_reasoning_recommend,
+  pp_wiring_summary,
+  pp_wiring_trends,
+  pp_wiring_priority,
 };

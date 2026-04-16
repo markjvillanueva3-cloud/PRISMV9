@@ -1,10 +1,10 @@
 /**
  * PostProcessor Dispatcher Tests
  * ==============================
- * Tests for the prism_pp dispatcher covering all 80 actions across 15 categories.
+ * Tests for the prism_pp dispatcher covering all 89 actions across 16 categories.
  *
  * @module __tests__/ppDispatcher.test
- * @milestone PP-DISPATCHER, PP-WIRE-MS1, PP-TRIBAL-ACTIVATION
+ * @milestone PP-DISPATCHER, PP-WIRE-MS1, PP-TRIBAL-ACTIVATION, PP-WIRE-MS5-7
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -15,9 +15,9 @@ import { PP_ACTION_SCHEMAS } from "../schemas/ppActionSchemas.js";
 
 describe("ppDispatcher", () => {
   describe("Schema validation", () => {
-    it("should have 80 action schemas defined", () => {
+    it("should have 89 action schemas defined", () => {
       const actionCount = Object.keys(PP_ACTION_SCHEMAS).length;
-      expect(actionCount).toBe(80);
+      expect(actionCount).toBe(89);
     });
 
     it("should have all generate actions", () => {

@@ -1,7 +1,7 @@
 /**
  * prism_pp — PostProcessor-Specific Dispatcher
  *
- * 80 actions for post processor operations across 15 categories:
+ * 89 actions for post processor operations across 16 categories:
  *   - pp_generate (G-code generation)
  *   - pp_analyze (analysis)
  *   - pp_optimize (optimization)
@@ -17,6 +17,7 @@
  *   - pp_formula (cross-disciplinary formulas) — PP-WIRE-MS1
  *   - pp_learning (MIT courses + algorithms) — PP-WIRE-MS1
  *   - pp_graph (manufacturing knowledge graph) — PP-WIRE-MS1
+ *   - pp_wiring (asset wiring dashboard) — PP-WIRE-MS5-7
  *
  * Engine dependencies: PostProcessorEngine, PostProcessorPipelineEngine,
  *   PostProcessorAnalyzerEngine, PostProcessorNeuralNetworkEngine,
@@ -68,6 +69,11 @@ let _knowledgeGraph: any;
 
 // Tribal Knowledge Activation (PP-TRIBAL-ACTIVATION)
 let _tribalActivation: any;
+
+// Asset Wiring Engines (PP-WIRE-MS5-7)
+let _algorithmWiring: any;
+let _reasoningWiring: any;
+let _assetWiringSummary: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -125,6 +131,14 @@ async function getEngine(name: string): Promise<any> {
     // Tribal Knowledge Activation (PP-TRIBAL-ACTIVATION)
     case "tribalActivation":
       return _tribalActivation ??= (await import("../../engines/TribalKnowledgeActivationEngine.js")).tribalKnowledgeActivationEngine;
+
+    // Asset Wiring Engines (PP-WIRE-MS5-7)
+    case "algorithmWiring":
+      return _algorithmWiring ??= (await import("../../engines/AlgorithmWiringEngine.js")).algorithmWiringEngine;
+    case "reasoningWiring":
+      return _reasoningWiring ??= (await import("../../engines/ReasoningWiringEngine.js")).reasoningWiringEngine;
+    case "assetWiringSummary":
+      return _assetWiringSummary ??= (await import("../../engines/AssetWiringSummaryEngine.js")).assetWiringSummaryEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -245,6 +259,17 @@ const ACTIONS = [
   "pp_graph_gaps",               // Detect knowledge gaps
   "pp_graph_tribal",             // Graph-based tribal traversal
   "pp_graph_link",               // Link tribal tip to graph node
+
+  // ===== PP_WIRING: Asset wiring (9 actions) — PP-WIRE-MS5-7 =====
+  "pp_wiring_algorithms",        // List algorithms with wiring status
+  "pp_wiring_algorithms_orphans", // List orphaned algorithms
+  "pp_wiring_algorithms_consumers", // Get consumers for an algorithm
+  "pp_wiring_reasoning",         // List reasoning engines with wiring status
+  "pp_wiring_reasoning_orphans", // List orphaned reasoning engines
+  "pp_wiring_reasoning_recommend", // Recommend reasoning engines for a task
+  "pp_wiring_summary",           // Get unified wiring summary
+  "pp_wiring_trends",            // Get utilization trends
+  "pp_wiring_priority",          // Get prioritized orphan list
 ] as const;
 
 // ============================================================================
@@ -734,6 +759,59 @@ Actions: ${ACTIONS.join(", ")}.`,
             const engine = await getEngine("mfgKnowledgeGraph");
             engine.linkTip?.(params.tipId, params.nodeId, params.relationship, params.weight);
             result = { linked: true };
+            break;
+          }
+
+          // ===== PP_WIRING: Asset wiring (PP-WIRE-MS5-7) =====
+          case "pp_wiring_algorithms": {
+            const engine = await getEngine("algorithmWiring");
+            result = {
+              algorithms: engine.listAlgorithms(params.category),
+              stats: engine.getStats(),
+            };
+            break;
+          }
+          case "pp_wiring_algorithms_orphans": {
+            const engine = await getEngine("algorithmWiring");
+            result = { orphans: engine.listOrphanedAlgorithms() };
+            break;
+          }
+          case "pp_wiring_algorithms_consumers": {
+            const engine = await getEngine("algorithmWiring");
+            result = { consumers: engine.getConsumers(params.algorithmName) };
+            break;
+          }
+          case "pp_wiring_reasoning": {
+            const engine = await getEngine("reasoningWiring");
+            result = {
+              engines: engine.listEngines(params.category, params.domain),
+              stats: engine.getStats(),
+            };
+            break;
+          }
+          case "pp_wiring_reasoning_orphans": {
+            const engine = await getEngine("reasoningWiring");
+            result = { orphans: engine.listOrphanedEngines() };
+            break;
+          }
+          case "pp_wiring_reasoning_recommend": {
+            const engine = await getEngine("reasoningWiring");
+            result = { recommendations: engine.recommendEngines(params.task) };
+            break;
+          }
+          case "pp_wiring_summary": {
+            const engine = await getEngine("assetWiringSummary");
+            result = engine.getSummary();
+            break;
+          }
+          case "pp_wiring_trends": {
+            const engine = await getEngine("assetWiringSummary");
+            result = { trends: engine.getUtilizationTrends() };
+            break;
+          }
+          case "pp_wiring_priority": {
+            const engine = await getEngine("assetWiringSummary");
+            result = { priorities: engine.getOrphanPriorityList(params.limit || 10) };
             break;
           }
 
