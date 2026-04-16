@@ -143,6 +143,12 @@ import { spindleBearingLoadEngine } from "./SpindleBearingLoadEngine.js";
 import { spindleRunoutEngine } from "./SpindleRunoutEngine.js";
 import { forceCapabilityEngine } from "./ForceCapabilityEngine.js";
 
+// Fixture/workholding engines (4) — MS-WIRE-1/Workholding layer (affects deflection)
+import { fixtureClampingEngine } from "./FixtureClampingEngine.js";
+import { fixtureDynamicsEngine } from "./FixtureDynamicsEngine.js";
+import { fixturePlateEngine } from "./FixturePlateEngine.js";
+import { latheWorkholdingEngine } from "./LatheWorkholdingEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1685,6 +1691,31 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // FIXTURE / WORKHOLDING ENGINES (4) — MS-WIRE-1/Workholding layer
+  // Affects workpiece deflection and stability during cutting.
+  // =========================================================================
+
+  /** Fixture clamping force — required clamp force for cutting force resistance. */
+  calculateFixtureClamping(input: Parameters<typeof fixtureClampingEngine.compute>[0]) {
+    return fixtureClampingEngine.compute(input);
+  }
+
+  /** Fixture dynamics — natural frequency, modal analysis of fixture. */
+  calculateFixtureDynamics(input: Parameters<typeof fixtureDynamicsEngine.calculate>[0]) {
+    return fixtureDynamicsEngine.calculate(input);
+  }
+
+  /** Fixture plate deflection — plate flex under clamp + cut force. */
+  calculateFixturePlate(input: Parameters<typeof fixturePlateEngine.calculate>[0]) {
+    return fixturePlateEngine.calculate(input);
+  }
+
+  /** Lathe workholding (chuck, collet, steady rest). */
+  getLatheWorkholding() {
+    return latheWorkholdingEngine;
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1794,6 +1825,11 @@ class MillingPhysicsKernelEngine {
       "SpindleBearingLoadEngine (radial/axial bearing load)",
       "SpindleRunoutEngine (TIR at tool tip from spindle/holder/tool)",
       "ForceCapabilityEngine (machine force-handling check)",
+      // Fixture/workholding engines (MS-WIRE-1/Workholding layer)
+      "FixtureClampingEngine (clamp force sizing for cutting resistance)",
+      "FixtureDynamicsEngine (natural frequency, modal)",
+      "FixturePlateEngine (plate flex under clamp + cut force)",
+      "LatheWorkholdingEngine (chuck, collet, steady rest)",
     ];
   }
 
@@ -1817,8 +1853,9 @@ class MillingPhysicsKernelEngine {
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
       material: 5,          // JohnsonCook, Constitutive, Interpolation, Equivalence, BatchVariability
       spindle_power: 5,     // SpindlePowerCheck, TorqueCurve, BearingLoad, Runout, ForceCapability
-      total_engines: 81,
-      total_functions: 91,
+      workholding: 4,       // FixtureClamping, FixtureDynamics, FixturePlate, LatheWorkholding
+      total_engines: 85,
+      total_functions: 95,
     };
   }
 }
