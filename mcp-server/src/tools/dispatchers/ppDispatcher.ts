@@ -209,6 +209,9 @@ let _ppCutterComp: any;
 // PP-LN: Line number sanity (N-word + framing) validator
 let _ppLineNumberSanity: any;
 
+// PP-UM: Units mode (G20/G21) validator
+let _ppUnitsMode: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -382,6 +385,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCutterComp ??= (await import("../../engines/PPCutterCompValidatorEngine.js")).ppCutterCompValidatorEngine;
     case "lineNumberSanity":
       return _ppLineNumberSanity ??= (await import("../../engines/PPLineNumberSanityEngine.js")).ppLineNumberSanityEngine;
+    case "unitsMode":
+      return _ppUnitsMode ??= (await import("../../engines/PPUnitsModeValidatorEngine.js")).ppUnitsModeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -715,6 +720,11 @@ const ACTIONS = [
   "pp_ln_validate",                // Full N-word + framing validation
   "pp_ln_quick",                   // Quick pass/fail + program end check
   "pp_ln_defaults",                // Default line number validator options
+
+  // ===== PP_UM: Units mode (G20/G21) validator (3 actions) — PP-UM =====
+  "pp_um_validate",                // Full units mode validation
+  "pp_um_quick",                   // Quick pass/fail + initial units
+  "pp_um_defaults",                // Default units mode validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2198,6 +2208,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_ln_defaults": {
             const engine = await getEngine("lineNumberSanity");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_UM (PP-UM — Units mode validator) =====
+          case "pp_um_validate": {
+            const engine = await getEngine("unitsMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_plausibility: params.check_plausibility,
+              check_feed_scale: params.check_feed_scale,
+              inch_coord_max_plausible: params.inch_coord_max_plausible,
+              mm_coord_min_plausible: params.mm_coord_min_plausible,
+              inch_feed_max_plausible: params.inch_feed_max_plausible,
+              mm_feed_min_plausible: params.mm_feed_min_plausible,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_um_quick": {
+            const engine = await getEngine("unitsMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_um_defaults": {
+            const engine = await getEngine("unitsMode");
             result = engine.defaultOptions();
             break;
           }
