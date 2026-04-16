@@ -65,6 +65,17 @@ import { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
 import { toolLifeAdaptiveEngine } from "./ToolLifeAdaptiveEngine.js";
 import { advancedCuttingPhenomenaEngine } from "./AdvancedCuttingPhenomenaEngine.js";
 
+// Stability engines (9) — MS-WIRE-1/U-WIRE-05
+import { chatterPredictionEngine } from "./ChatterPredictionEngine.js";
+import { regenerativeChatterPredictor } from "./RegenerativeChatterPredictor.js";
+import { stochasticChatterEngine } from "./StochasticChatterEngine.js";
+import { mdofStabilityEngine } from "./MDOFStabilityEngine.js";
+import { stabilityRPMRewriter } from "./StabilityRPMRewriterEngine.js";
+import { vibrationAnalysisEngine } from "./VibrationAnalysisEngine.js";
+import { dampingOptimizationEngine } from "./DampingOptimizationEngine.js";
+import { machineVibrationEngine } from "./MachineVibrationEngine.js";
+import { thinFloorVibrationEngine } from "./ThinFloorVibrationEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1007,6 +1018,145 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // STABILITY / CHATTER ENGINES — MS-WIRE-1 / U-WIRE-05 (9 engines)
+  // =========================================================================
+
+  /**
+   * Chatter prediction with stability lobes, critical speeds, and chatter detection.
+   * Delegates to: ChatterPredictionEngine.
+   */
+  predictChatter(method: "stabilityLobes" | "checkStability" | "detectChatter" | "criticalSpeeds" | "detectSTFT",
+                 input: any) {
+    switch (method) {
+      case "stabilityLobes":  return chatterPredictionEngine.generateStabilityLobes(input);
+      case "checkStability":  return chatterPredictionEngine.checkStability(input);
+      case "detectChatter":   return chatterPredictionEngine.detectChatter(input);
+      case "criticalSpeeds":  return chatterPredictionEngine.criticalSpeeds(input);
+      case "detectSTFT":      return chatterPredictionEngine.detectChatterSTFT(input);
+    }
+  }
+
+  /**
+   * Regenerative chatter prediction (Altintas-Budak SLD + stability lobes).
+   * Delegates to: RegenerativeChatterPredictor.
+   */
+  predictRegenerativeChatter(input: Parameters<typeof regenerativeChatterPredictor.predict>[0]) {
+    return regenerativeChatterPredictor.predict(input);
+  }
+
+  /**
+   * Generate stability lobes across RPM range via regenerative chatter model.
+   * Delegates to: RegenerativeChatterPredictor.stabilityLobes().
+   */
+  generateRegenerativeLobes(
+    input: Parameters<typeof regenerativeChatterPredictor.stabilityLobes>[0],
+    rpmRange: [number, number],
+  ) {
+    return regenerativeChatterPredictor.stabilityLobes(input, rpmRange);
+  }
+
+  /**
+   * Stochastic chatter with FRF uncertainty — Monte Carlo + FOSM + chance-constrained.
+   * Delegates to: StochasticChatterEngine.compute().
+   */
+  calculateStochasticChatter(input: Parameters<typeof stochasticChatterEngine.compute>[0]) {
+    return stochasticChatterEngine.compute(input);
+  }
+
+  /**
+   * Multi-DOF chatter stability (eigenvalue + SDOF comparison + tap-test FRF).
+   * Delegates to: MDOFStabilityEngine.
+   */
+  analyzeMDOFStability(method: "compute" | "eigenvalue" | "compareSDOF" | "importFRF" | "analyticalModes",
+                        input: any) {
+    switch (method) {
+      case "compute":           return mdofStabilityEngine.compute(input);
+      case "eigenvalue":        return mdofStabilityEngine.computeWithEigenvalue(input);
+      case "compareSDOF":       return mdofStabilityEngine.compareSDOFvsMDOF(input);
+      case "importFRF":         return mdofStabilityEngine.importFRFFromTapTest(input);
+      case "analyticalModes":   return mdofStabilityEngine.analyticalToolModes(input);
+    }
+  }
+
+  /**
+   * Rewrite G-code RPMs to avoid chatter zones using SLD analysis.
+   * Delegates to: StabilityRPMRewriterEngine.
+   */
+  rewriteStableRPM(gcode: string, config: Parameters<typeof stabilityRPMRewriter.rewrite>[1]) {
+    return stabilityRPMRewriter.rewrite(gcode, config);
+  }
+
+  /**
+   * Analyze G-code for chatter risk without rewriting.
+   * Delegates to: StabilityRPMRewriterEngine.analyzeChatterRisk().
+   */
+  analyzeChatterRiskInGCode(gcode: string, config: Parameters<typeof stabilityRPMRewriter.analyzeChatterRisk>[1]) {
+    return stabilityRPMRewriter.analyzeChatterRisk(gcode, config);
+  }
+
+  /**
+   * Generate analytical SLD (stability lobe diagram).
+   * Delegates to: StabilityRPMRewriterEngine.generateAnalyticalSLD().
+   */
+  generateAnalyticalSLD(params: Parameters<typeof stabilityRPMRewriter.generateAnalyticalSLD>[0]) {
+    return stabilityRPMRewriter.generateAnalyticalSLD(params);
+  }
+
+  /**
+   * Vibration analysis — SDOF/MDOF natural frequencies, forced response, modal.
+   * Delegates to: VibrationAnalysisEngine.
+   */
+  analyzeVibration(method: "sdofNatural" | "sdofFree" | "sdofForced" | "frf" | "modal",
+                   input: any) {
+    switch (method) {
+      case "sdofNatural":  return vibrationAnalysisEngine.sdofNaturalFrequency(input);
+      case "sdofFree":     return vibrationAnalysisEngine.sdofFreeResponse(
+                                    input.zeta, input.omega_n, input.x0, input.v0, input.t_span);
+      case "sdofForced":   return vibrationAnalysisEngine.sdofForcedResponse(
+                                    input.system, input.F0, input.omega, input.t_span);
+      case "frf":          return vibrationAnalysisEngine.generateFRF(
+                                    input.system, input.freq_range);
+      case "modal":        return vibrationAnalysisEngine.modalAnalysis(input.M, input.K);
+    }
+  }
+
+  /**
+   * Damping optimization — variable helix, variable pitch, tuned mass damper comparison.
+   * Delegates to: DampingOptimizationEngine.
+   */
+  optimizeDamping(input: Parameters<typeof dampingOptimizationEngine.optimize>[0]) {
+    return dampingOptimizationEngine.optimize(input);
+  }
+
+  /**
+   * Design variable-helix tool for chatter suppression.
+   * Delegates to: DampingOptimizationEngine.designVariableHelixTool().
+   */
+  designVariableHelixTool(input: Parameters<typeof dampingOptimizationEngine.designVariableHelixTool>[0]) {
+    return dampingOptimizationEngine.designVariableHelixTool(input);
+  }
+
+  /**
+   * Machine vibration analysis — structural modes, base/spindle vibration.
+   * Delegates to: MachineVibrationEngine.calculate().
+   */
+  analyzeMachineVibration(input: Parameters<typeof machineVibrationEngine.calculate>[0]) {
+    return machineVibrationEngine.calculate(input);
+  }
+
+  /**
+   * Thin-floor/thin-wall vibration analysis — pocket floors, wall deflection.
+   * Delegates to: ThinFloorVibrationEngine.
+   */
+  analyzeThinFeatureVibration(
+    method: "analyze" | "minThickness",
+    input: any,
+  ) {
+    if (method === "analyze") return thinFloorVibrationEngine.analyze(input);
+    return thinFloorVibrationEngine.minThickness(input.props, input.target_deflection_um);
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1050,6 +1200,16 @@ class MillingPhysicsKernelEngine {
       "BayesianToolLifeEngine (Gaussian Process regression)",
       "ToolLifeAdaptiveEngine (Weibull reliability/hazard replacement)",
       "AdvancedCuttingPhenomenaEngine (BUE, chip segmentation, burr formation)",
+      // Stability engines (MS-WIRE-1/U-WIRE-05)
+      "ChatterPredictionEngine (stability lobes, detection, critical speeds, STFT)",
+      "RegenerativeChatterPredictor (Altintas-Budak regenerative SLD)",
+      "StochasticChatterEngine (Monte Carlo FRF uncertainty, FOSM, chance-constrained)",
+      "MDOFStabilityEngine (multi-DOF eigenvalue stability, tap-test FRF)",
+      "StabilityRPMRewriterEngine (G-code RPM rewriting via SLD analysis)",
+      "VibrationAnalysisEngine (SDOF/MDOF natural freq, forced response, modal)",
+      "DampingOptimizationEngine (variable helix/pitch, tuned mass damper)",
+      "MachineVibrationEngine (structural modes, base/spindle vibration)",
+      "ThinFloorVibrationEngine (thin-floor/thin-wall vibration)",
     ];
   }
 
@@ -1064,12 +1224,13 @@ class MillingPhysicsKernelEngine {
       force: 5,             // Kienzle, CuttingForce, Stochastic, Power, Energy
       math: 1,              // AdvancedCuttingMath
       deflection: 1,        // ToolDeflectionPrediction
-      stability: 1,         // ChatterStabilityLobe
+      stability: 10,        // ChatterStabilityLobe + 9 new (Chatter, Regenerative, Stochastic,
+                            // MDOF, RPMRewriter, Vibration, Damping, MachineVibration, ThinFloor)
       surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
-      total_engines: 25,
-      total_functions: 30,
+      total_engines: 34,
+      total_functions: 42,
     };
   }
 }
