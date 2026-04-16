@@ -230,6 +230,9 @@ let _ppMacroVariable: any;
 // PP-AT: Axis travel (envelope) validator
 let _ppAxisTravel: any;
 
+// PP-DP: Decimal-point validator
+let _ppDecimalPoint: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -417,6 +420,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppMacroVariable ??= (await import("../../engines/PPMacroVariableValidatorEngine.js")).ppMacroVariableValidatorEngine;
     case "axisTravel":
       return _ppAxisTravel ??= (await import("../../engines/PPAxisTravelValidatorEngine.js")).ppAxisTravelValidatorEngine;
+    case "decimalPoint":
+      return _ppDecimalPoint ??= (await import("../../engines/PPDecimalPointValidatorEngine.js")).ppDecimalPointValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -785,6 +790,11 @@ const ACTIONS = [
   "pp_at_validate",                // Full axis travel validation
   "pp_at_quick",                   // Quick pass/fail + motion lines
   "pp_at_defaults",                // Default axis travel validator options
+
+  // PP-DP: Decimal-point validator
+  "pp_dp_validate",                // Full decimal-point validation
+  "pp_dp_quick",                   // Quick pass/fail + dim missing
+  "pp_dp_defaults",                // Default decimal-point validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2452,6 +2462,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_at_defaults": {
             const engine = await getEngine("axisTravel");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_DP (PP-DP — Decimal-point validator) =====
+          case "pp_dp_validate": {
+            const engine = await getEngine("decimalPoint");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_dimensions: params.check_dimensions,
+              check_feed: params.check_feed,
+              check_spindle: params.check_spindle,
+              check_dwell: params.check_dwell,
+              dimension_letters: params.dimension_letters,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_dp_quick": {
+            const engine = await getEngine("decimalPoint");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_dp_defaults": {
+            const engine = await getEngine("decimalPoint");
             result = engine.defaultOptions();
             break;
           }
