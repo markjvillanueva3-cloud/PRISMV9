@@ -91,7 +91,18 @@ const ACTIONS = [
   "action_search",
   "action_find",
   "tool_route",
-  "tool_route_best"
+  "tool_route_best",
+  // ContextChainEngine (CPP-MS2-U-CPP08)
+  "context_chain_pressure",
+  "context_chain_plan",
+  "context_chain_compaction",
+  "context_chain_prioritize",
+  "context_chain_health",
+  // SessionEventLogEngine (CPP-MS2-U-CPP10)
+  "event_log",
+  "event_query",
+  "event_stats",
+  "event_reset"
 ] as const;
 
 function ok(data: any) {
@@ -1178,6 +1189,103 @@ export function registerSessionDispatcher(server: any): void {
             const intent = params.intent || params.query || params.q || "";
             const best = tr.bestRoute(intent);
             return ok(best || { error: "No route found for intent" });
+          }
+
+          // ================================================================
+          // ContextChainEngine surface (CPP-MS2-U-CPP08)
+          // ================================================================
+          case "context_chain_pressure": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const tokensUsed = Number(params.tokens_used ?? params.tokensUsed ?? 0);
+            const contextSize = params.context_size ?? params.contextSize;
+            const result = contextSize !== undefined
+              ? contextChainEngine.estimatePressure(tokensUsed, Number(contextSize))
+              : contextChainEngine.estimatePressure(tokensUsed);
+            return ok({ success: true, data: result });
+          }
+
+          case "context_chain_plan": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const result = contextChainEngine.planContextLoad(
+              params.task_class ?? params.taskClass,
+              (params.bundles ?? []) as any,
+              Number(params.budget_tokens ?? params.budgetTokens ?? 0),
+            );
+            return ok({ success: true, data: result });
+          }
+
+          case "context_chain_compaction": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const result = contextChainEngine.planCompaction(
+              params.pressure as any,
+              params.active_task ?? params.activeTask ?? "",
+              params.build_status ?? params.buildStatus ?? "",
+              (params.critical_facts ?? params.criticalFacts ?? []) as string[],
+            );
+            return ok({ success: true, data: result });
+          }
+
+          case "context_chain_prioritize": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const result = contextChainEngine.prioritizeBundles(
+              params.task_class ?? params.taskClass,
+              (params.bundles ?? []) as any,
+              Number(params.budget_tokens ?? params.budgetTokens ?? 0),
+            );
+            return ok({ success: true, data: result });
+          }
+
+          case "context_chain_health": {
+            const { contextChainEngine } = await import("../../engines/ContextChainEngine.js");
+            const result = contextChainEngine.getHealthReport(
+              Number(params.memory_lines ?? params.memoryLines ?? 0),
+              Number(params.tokens_used ?? params.tokensUsed ?? 0),
+              params.active_bundles ?? params.activeBundles,
+              params.bundle_cost ?? params.bundleCost,
+            );
+            return ok({ success: true, data: result });
+          }
+
+          // ================================================================
+          // SessionEventLogEngine surface (CPP-MS2-U-CPP10)
+          // ================================================================
+          case "event_log": {
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            sessionEventLogEngine.record(
+              params.type as any,
+              String(params.summary ?? ""),
+              params.data as Record<string, unknown> | undefined,
+            );
+            return ok({ success: true, data: { logged: true, type: params.type } });
+          }
+
+          case "event_query": {
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            const since = Number(params.since ?? 0);
+            const events = since > 0
+              ? sessionEventLogEngine.since(since)
+              : sessionEventLogEngine.getState().events;
+            const filtered = params.type
+              ? events.filter((e) => e.type === params.type)
+              : events;
+            return ok({ success: true, data: { events: filtered, count: filtered.length } });
+          }
+
+          case "event_stats": {
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            return ok({ success: true, data: {
+              counts: sessionEventLogEngine.counts(),
+              one_liner: sessionEventLogEngine.oneLiner(),
+            } });
+          }
+
+          case "event_reset": {
+            if (!params.confirm) {
+              return ok({ success: false, error: "event_reset requires confirm=true" });
+            }
+            const { sessionEventLogEngine } = await import("../../engines/SessionEventLogEngine.js");
+            sessionEventLogEngine.reset();
+            return ok({ success: true, data: { reset: true } });
           }
 
           default:

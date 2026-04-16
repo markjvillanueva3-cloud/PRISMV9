@@ -53,6 +53,11 @@ const ACTIONS = [
   "catalog_search",
   "catalog_engine",
   "catalog_stats",
+  // CPP-MS2 U-CPP09: ContextWindowMapEngine — live inventory of context-window consumers
+  "window_map",
+  "window_utilization",
+  "window_reclaimable",
+  "window_stale_detect",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -842,6 +847,32 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
           case "catalog_stats": {
             const stats = await getCatalogStats();
             return ok(stats);
+          }
+
+          // ============================================================
+          // CPP-MS2 U-CPP09: CONTEXT WINDOW MAP (live consumer inventory)
+          // ============================================================
+          case "window_map": {
+            const { contextWindowMapEngine } = await import("../../engines/ContextWindowMapEngine.js");
+            const map = contextWindowMapEngine.map();
+            const chart = contextWindowMapEngine.chart();
+            const oneLiner = contextWindowMapEngine.oneLiner();
+            return ok({ success: true, data: { map, chart, oneLiner } });
+          }
+          case "window_utilization": {
+            const { contextWindowMapEngine } = await import("../../engines/ContextWindowMapEngine.js");
+            const utilization = contextWindowMapEngine.utilization();
+            return ok({ success: true, data: { utilization_pct: utilization } });
+          }
+          case "window_reclaimable": {
+            const { contextWindowMapEngine } = await import("../../engines/ContextWindowMapEngine.js");
+            const reclaimable = contextWindowMapEngine.reclaimable();
+            return ok({ success: true, data: reclaimable });
+          }
+          case "window_stale_detect": {
+            const { contextWindowMapEngine } = await import("../../engines/ContextWindowMapEngine.js");
+            const newlyStale = contextWindowMapEngine.detectStale();
+            return ok({ success: true, data: { newly_marked_stale: newlyStale } });
           }
 
           default:

@@ -337,6 +337,71 @@ const tool_route_best = z.object({
 // EXPORT MAP
 // ============================================================================
 
+// ============================================================================
+// ContextChainEngine — 5 actions (CPP-MS2-U-CPP08)
+// ============================================================================
+
+/** context_chain_pressure — Estimate current context pressure from token usage */
+const context_chain_pressure = z.object({
+  tokens_used: z.number().int().nonnegative().describe("Tokens consumed so far"),
+  context_size: z.number().int().positive().optional().describe("Total context window size (default 1M)"),
+}).passthrough();
+
+/** context_chain_plan — Build a context load plan for a task class within a budget */
+const context_chain_plan = z.object({
+  task_class: z.string().describe("Task classification (see AutomationChainEngine)"),
+  bundles: z.array(z.unknown()).describe("Available context bundles (ContextBundle[])"),
+  budget_tokens: z.number().int().positive().describe("Token budget for context loading"),
+}).passthrough();
+
+/** context_chain_compaction — Plan what to preserve and prune during compaction */
+const context_chain_compaction = z.object({
+  pressure: z.unknown().describe("ContextPressure object (from context_chain_pressure)"),
+  active_task: z.string().describe("Current task being worked on"),
+  build_status: z.string().describe("Last known build status"),
+  critical_facts: z.array(z.string()).default([]).describe("Key facts to survive compaction"),
+}).passthrough();
+
+/** context_chain_prioritize — Score bundles for the current task class */
+const context_chain_prioritize = z.object({
+  task_class: z.string().describe("Task classification"),
+  bundles: z.array(z.unknown()).describe("Available bundles"),
+  budget_tokens: z.number().int().positive().describe("Budget for scoring normalization"),
+}).passthrough();
+
+/** context_chain_health — Generate a context health report */
+const context_chain_health = z.object({
+  memory_lines: z.number().int().nonnegative().describe("MEMORY.md line count"),
+  tokens_used: z.number().int().nonnegative().describe("Approximate tokens consumed"),
+  active_bundles: z.number().int().nonnegative().optional(),
+  bundle_cost: z.number().nonnegative().optional(),
+}).passthrough();
+
+// ============================================================================
+// SessionEventLogEngine — 4 actions (CPP-MS2-U-CPP10)
+// ============================================================================
+
+/** event_log — Record a session event. type = EventType (file-edit, test-fail, decision, etc.) */
+const event_log = z.object({
+  type: z.string().describe("EventType: file-create|file-edit|file-delete|test-pass|test-fail|build-pass|build-fail|commit|decision|error|user-request|milestone"),
+  summary: z.string().describe("Short human-readable event summary"),
+  data: z.record(z.string(), z.unknown()).optional().describe("Optional structured payload"),
+}).passthrough();
+
+/** event_query — Return events since a timestamp, optionally filtered by type */
+const event_query = z.object({
+  since: z.number().int().optional().describe("Epoch ms; defaults to session start"),
+  type: optStr.describe("Filter to this EventType"),
+}).passthrough();
+
+/** event_stats — Event counts by type + one-line summary */
+const event_stats = z.object({}).passthrough();
+
+/** event_reset — Clear all session events (destructive) */
+const event_reset = z.object({
+  confirm: optBool.describe("Must be true to execute reset"),
+}).passthrough();
+
 export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   // State management
   state_load,
@@ -409,4 +474,17 @@ export const ACTION_SESSION_SCHEMAS: ActionSchemaMap = {
   action_find,
   tool_route,
   tool_route_best,
+
+  // ContextChainEngine (CPP-MS2-U-CPP08)
+  context_chain_pressure,
+  context_chain_plan,
+  context_chain_compaction,
+  context_chain_prioritize,
+  context_chain_health,
+
+  // SessionEventLogEngine (CPP-MS2-U-CPP10)
+  event_log,
+  event_query,
+  event_stats,
+  event_reset,
 };

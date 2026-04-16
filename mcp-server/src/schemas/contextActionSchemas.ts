@@ -58,4 +58,8 @@ export const ACTION_CONTEXT_SCHEMAS: Record<string, z.ZodObject<any>> = {
   "todo_update": z.object({ id: z.string().optional(), data: z.record(z.string(), z.any()).optional() }).passthrough(),
   "tool_mask_state": z.object({}).passthrough(),
   "vary_response": z.object({}).passthrough(),
+  "window_map": z.object({}).passthrough().describe("Return full context window map: segments, totalTokens, byType breakdown, largestSegments, staleTokens"),
+  "window_reclaimable": z.object({}).passthrough().describe("Return stale segments and total reclaimable tokens"),
+  "window_stale_detect": z.object({}).passthrough().describe("Auto-detect and mark stale segments based on age threshold; returns number newly marked stale"),
+  "window_utilization": z.object({}).passthrough().describe("Return context utilization percentage (totalTokens / contextLimit * 100)"),
 };
