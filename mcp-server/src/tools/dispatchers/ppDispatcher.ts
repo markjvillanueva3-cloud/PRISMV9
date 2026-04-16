@@ -176,6 +176,9 @@ let _ppGCodeStatistics: any;
 // PP-SCALE: Feed/speed scaler for G-code
 let _ppFeedSpeedScaler: any;
 
+// PP-COMPAT: Controller compatibility checker for G-code
+let _ppControllerCompat: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -327,6 +330,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppGCodeStatistics ??= (await import("../../engines/PPGCodeStatisticsEngine.js")).ppGCodeStatisticsEngine;
     case "feedSpeedScaler":
       return _ppFeedSpeedScaler ??= (await import("../../engines/PPFeedSpeedScalerEngine.js")).ppFeedSpeedScalerEngine;
+    case "controllerCompat":
+      return _ppControllerCompat ??= (await import("../../engines/PPControllerCompatibilityEngine.js")).ppControllerCompatibilityEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -602,6 +607,12 @@ const ACTIONS = [
   "pp_scale_speed",               // Convenience: scale only spindle speeds by factor
   "pp_scale_clamp_feed",          // Convenience: clamp feeds to max_feed
   "pp_scale_defaults",            // Default scaler options
+
+  // ===== PP_COMPAT: Controller compatibility checker (4 actions) — PP-COMPAT =====
+  "pp_compat_check",               // Full compatibility check against target controller
+  "pp_compat_quick",               // Quick pass/fail compatibility result
+  "pp_compat_rank",                // Rank multiple controllers by compatibility
+  "pp_compat_list_controllers",    // List all supported controller targets
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1795,6 +1806,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_scale_defaults": {
             const engine = await getEngine("feedSpeedScaler");
             result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_COMPAT (PP-COMPAT — controller compatibility) =====
+          case "pp_compat_check": {
+            const engine = await getEngine("controllerCompat");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const target = params.target ?? params.controller ?? "fanuc";
+            result = engine.check(gcode, target);
+            break;
+          }
+          case "pp_compat_quick": {
+            const engine = await getEngine("controllerCompat");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const target = params.target ?? params.controller ?? "fanuc";
+            result = engine.quickCheck(gcode, target);
+            break;
+          }
+          case "pp_compat_rank": {
+            const engine = await getEngine("controllerCompat");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const targets = params.targets ?? params.controllers;
+            result = engine.rankControllers(gcode, targets);
+            break;
+          }
+          case "pp_compat_list_controllers": {
+            const engine = await getEngine("controllerCompat");
+            result = engine.listControllers();
             break;
           }
 
