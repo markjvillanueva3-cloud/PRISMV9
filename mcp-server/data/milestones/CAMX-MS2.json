@@ -1,10 +1,11 @@
 {
   "id": "CAMX-MS2",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "title": "Controller & Machine Strategy Validation",
   "brief": "Pre-validate strategy compatibility with controller and machine. Fallback chains. Cost-optimal and safety-first decision engines.",
   "created_at": "2026-03-22T14:54:56Z",
   "created_by": "claude-opus-4.6",
+  "completed_at": "2026-04-16T22:30:00Z",
   "phases": [
     {
       "id": "P0",
@@ -30,7 +31,8 @@
             "Uses 910 machine profiles",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "694-line engine on disk + passing tests (pre-existing at gap check time 2026-04-16)"
         },
         {
           "id": "U03",
@@ -41,7 +43,8 @@
             "Explanation logged",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "StrategyFallbackChainEngine created commit 84c74900 — 14 tests passing"
         },
         {
           "id": "U04",
@@ -52,7 +55,8 @@
             "Incompatible flagged",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "Stage 0.55 already present; extended at 84c74900 to invoke StrategyFallbackChainEngine on controller incompatibility and surface fallback_chosen + explanation in pipeline findings"
         },
         {
           "id": "U05",
@@ -63,7 +67,8 @@
             "Minimum cost selected",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "StrategyCostOptimalEngine on disk + passing tests (pre-existing)"
         },
         {
           "id": "U06",
@@ -74,7 +79,8 @@
             "Safety > cost priority",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "StrategySafetyDecisionEngine on disk + passing tests (pre-existing)"
         },
         {
           "id": "U07",
@@ -84,7 +90,8 @@
             "5 actions wired",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "camDispatcher: 11 actions wired — strategy_controller_validate, strategy_machine_validate, strategy_find_compatible_controllers, strategy_find_best_machine, strategy_compatibility_matrix, strategy_cost_compute/decide/sensitivity, strategy_safety_assess/decide/filter, plus U03 strategy_fallback_chain + strategy_fallback_default_chain added at 84c74900"
         },
         {
           "id": "U08",
@@ -94,10 +101,11 @@
             "30+ tests pass",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "note": "110 tests pass across 5 CAMX-MS2 engines (Controller, Machine, CostOptimal, SafetyDecision, FallbackChain)"
         }
       ]
     }
   ],
-  "status": "in_progress"
+  "status": "complete"
 }
