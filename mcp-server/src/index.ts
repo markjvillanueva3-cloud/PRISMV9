@@ -114,6 +114,9 @@ import { registerIntelligenceDispatcher } from "./tools/dispatchers/intelligence
 // AI Reasoning — Claude-powered intelligence across all features (Dispatcher #83)
 import { registerAIReasoningDispatcher } from "./tools/dispatchers/aiReasoningDispatcher.js";
 
+// Agent — AGENT-MS1-5 unified agent surface (chat, memory, capabilities, context)
+import { registerAgentDispatcher } from "./tools/dispatchers/agentDispatcher.js";
+
 // SYS-MS1: Product Dispatcher — 40 actions extracted from intelligence (Dispatcher #46)
 import { registerProductDispatcher } from "./tools/dispatchers/productDispatcher.js";
 
@@ -611,6 +614,9 @@ async function registerTools(): Promise<void> {
 
   // AI Reasoning — Claude-powered intelligence across all features (12 actions)
   registerAIReasoningDispatcher(server);
+
+  // Agent — chat/memory/capabilities/context/self_awareness/stats (8 actions)
+  registerAgentDispatcher(server);
 
   // SYS-MS1: Product Dispatcher — SFC, PPG, Shop, ACNC (40 actions)
   registerProductDispatcher(server);
