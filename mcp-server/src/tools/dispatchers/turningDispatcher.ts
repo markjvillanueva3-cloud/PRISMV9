@@ -124,6 +124,10 @@ const ACTIONS = [
   "lathe_coolant_advise",
   "lathe_op_time_breakdown",
   "lathe_gilbert_economic",
+  // LATHE-PRO-MS6: grinding replacement / bar cut plan / inspection plan
+  "lathe_grind_replace_evaluate",
+  "lathe_bar_cut_plan",
+  "lathe_inspection_plan",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1537,6 +1541,50 @@ Actions: ${ACTIONS.join(", ")}.`,
               diameter_mm: params.diameter_mm,
               revenue_per_part_usd: params.revenue_per_part_usd,
               rpm_clamp: params.rpm_clamp,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS6: grind-replacement feasibility + cost/time savings
+          case "lathe_grind_replace_evaluate": {
+            const { grindingReplacementEngine } = await import("../../engines/GrindingReplacementEngine.js");
+            result = grindingReplacementEngine.evaluate({
+              baseline: params.baseline,
+              hardness_hrc: params.hardness_hrc,
+              length_over_diameter: params.length_over_diameter,
+              diameter_mm: params.diameter_mm,
+              wall_thickness_mm: params.wall_thickness_mm,
+              lot_size: params.lot_size,
+              residual_stress_requirement: params.residual_stress_requirement,
+              concentricity_mm: params.concentricity_mm,
+              turret_precision_mm: params.turret_precision_mm,
+              cbn_cycle_sec_estimate: params.cbn_cycle_sec_estimate,
+              cbn_cost_per_part_usd_estimate: params.cbn_cost_per_part_usd_estimate,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS6: FFD 1D bar stock cut plan
+          case "lathe_bar_cut_plan": {
+            const { barStockCutPlanEngine } = await import("../../engines/BarStockCutPlanEngine.js");
+            result = barStockCutPlanEngine.plan({
+              requirements: params.requirements,
+              bar_options: params.bar_options,
+              kerf_mm: params.kerf_mm,
+            });
+            break;
+          }
+
+          // LATHE-PRO-MS6: inspection plan generator
+          case "lathe_inspection_plan": {
+            const { turningInspectionPlanEngine } = await import("../../engines/TurningInspectionPlanEngine.js");
+            result = turningInspectionPlanEngine.generate({
+              part_id: params.part_id,
+              lot_size: params.lot_size,
+              features: params.features,
+              regulatory_regime: params.regulatory_regime,
+              cmm_available: params.cmm_available,
+              probe_available: params.probe_available,
             });
             break;
           }
