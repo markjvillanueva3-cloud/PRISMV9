@@ -555,11 +555,13 @@ class ControllerStrategyValidatorEngineImpl {
 
   /**
    * Validate that a strategy is executable on a target controller.
+   * @param _visited - internal cycle guard for fallback chain recursion
    */
   validate(
     strategy: StrategyType,
     controller: ControllerFamily,
-    overrides?: Partial<StrategyRequirements>
+    overrides?: Partial<StrategyRequirements>,
+    _visited?: Set<StrategyType>
   ): ValidationResult {
     const caps = CONTROLLER_DB[controller];
     if (!caps) {
@@ -767,13 +769,17 @@ class ControllerStrategyValidatorEngineImpl {
     const score = Math.max(0, 100 - penalty);
     const compatible = issues.length === 0;
 
-    // Find fallback if incompatible
+    // Find fallback if incompatible (cycle-guarded to prevent infinite recursion
+    // on circular chains like swarf_cutting ↔ 5axis_simultaneous)
     let fallback_suggestion: string | undefined;
     if (!compatible) {
       const chain = FALLBACK_CHAINS[strategy];
       if (chain) {
+        const visited = _visited ?? new Set<StrategyType>();
+        visited.add(strategy);
         for (const alt of chain) {
-          const altResult = this.validate(alt, controller);
+          if (visited.has(alt)) continue;
+          const altResult = this.validate(alt, controller, undefined, visited);
           if (altResult.compatible) {
             fallback_suggestion = `Consider using '${alt}' instead (compatibility score: ${altResult.score}/100)`;
             break;
