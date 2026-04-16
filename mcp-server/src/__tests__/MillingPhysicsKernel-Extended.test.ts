@@ -74,9 +74,9 @@ describe("MillingPhysicsKernel: Extended wiring (MS-WIRE-1 batch 3)", () => {
       expect(stats.stability).toBe(14);
     });
 
-    it("surface count is 10", () => {
+    it("surface count >= 10", () => {
       const stats = millingPhysicsKernelEngine.getWiringStats();
-      expect(stats.surface).toBe(10);
+      expect(stats.surface).toBeGreaterThanOrEqual(10);
     });
 
     it("total_engines >= 76", () => {

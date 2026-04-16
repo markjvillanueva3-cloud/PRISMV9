@@ -149,6 +149,19 @@ import { fixtureDynamicsEngine } from "./FixtureDynamicsEngine.js";
 import { fixturePlateEngine } from "./FixturePlateEngine.js";
 import { latheWorkholdingEngine } from "./LatheWorkholdingEngine.js";
 
+// Surface geometry engines (4 more) — MS-WIRE-1/U-WIRE-06 final
+import { offsetSurfaceEngine } from "./OffsetSurfaceEngine.js";
+import { parametricSurfaceEngine } from "./ParametricSurfaceEngine.js";
+import { surfaceReconstructionEngine } from "./SurfaceReconstructionEngine.js";
+import { surfaceIntersectionEngine } from "./SurfaceIntersectionEngine.js";
+
+// Spindle monitoring engines (5 more) — final batch
+import { spindleLoadMonitorEngine } from "./SpindleLoadMonitorEngine.js";
+import { spindleSpeedVariationEngine } from "./SpindleSpeedVariationEngine.js";
+import { spindleHarmonicsQualityEngine } from "./SpindleHarmonicsQualityEngine.js";
+import { spindleProtectionEngine } from "./SpindleProtectionEngine.js";
+import { adaptiveSpindleControlEngine } from "./AdaptiveSpindleControlEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1716,6 +1729,41 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // SURFACE GEOMETRY ENGINES (4) — MS-WIRE-1/U-WIRE-06 final
+  // =========================================================================
+
+  /** Offset surface — compute constant-distance offset surface (toolpath). */
+  getOffsetSurface() { return offsetSurfaceEngine; }
+
+  /** Parametric surface — NURBS/Bezier surface evaluation, derivatives. */
+  getParametricSurface() { return parametricSurfaceEngine; }
+
+  /** Surface reconstruction from point cloud (scan → NURBS fit). */
+  getSurfaceReconstruction() { return surfaceReconstructionEngine; }
+
+  /** Surface intersection — find curves of intersection between surfaces. */
+  getSurfaceIntersection() { return surfaceIntersectionEngine; }
+
+  // =========================================================================
+  // SPINDLE MONITORING ENGINES (5) — final batch
+  // =========================================================================
+
+  /** Spindle load monitor — real-time load tracking, anomaly detection. */
+  getSpindleLoadMonitor() { return spindleLoadMonitorEngine; }
+
+  /** Spindle speed variation — SSV chatter-suppression scheduling. */
+  getSpindleSpeedVariation() { return spindleSpeedVariationEngine; }
+
+  /** Spindle harmonics quality — vibration harmonic analysis for health. */
+  getSpindleHarmonicsQuality() { return spindleHarmonicsQualityEngine; }
+
+  /** Spindle protection — overload/thermal/vibration protection logic. */
+  getSpindleProtection() { return spindleProtectionEngine; }
+
+  /** Adaptive spindle control — real-time RPM/feed adjustment from sensors. */
+  getAdaptiveSpindleControl() { return adaptiveSpindleControlEngine; }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1830,6 +1878,17 @@ class MillingPhysicsKernelEngine {
       "FixtureDynamicsEngine (natural frequency, modal)",
       "FixturePlateEngine (plate flex under clamp + cut force)",
       "LatheWorkholdingEngine (chuck, collet, steady rest)",
+      // Surface geometry engines
+      "OffsetSurfaceEngine (constant-distance offset surface for toolpath)",
+      "ParametricSurfaceEngine (NURBS/Bezier surface evaluation)",
+      "SurfaceReconstructionEngine (point cloud → NURBS fit)",
+      "SurfaceIntersectionEngine (curves of intersection between surfaces)",
+      // Spindle monitoring engines
+      "SpindleLoadMonitorEngine (real-time load tracking)",
+      "SpindleSpeedVariationEngine (SSV chatter suppression)",
+      "SpindleHarmonicsQualityEngine (vibration harmonic health)",
+      "SpindleProtectionEngine (overload/thermal/vibration)",
+      "AdaptiveSpindleControlEngine (real-time RPM/feed adjustment)",
     ];
   }
 
@@ -1848,14 +1907,14 @@ class MillingPhysicsKernelEngine {
       deflection: 8,        // ToolDeflectionPrediction + 7 new (Part, BoringBar, Stochastic,
                             // Timoshenko, ToolAssembly, WorkpieceCompensation, SurfaceLocationError)
       stability: 14,        // 10 + 4 more (VAM, VibrationDampening, VibrationIsolation, VibrationIsolator)
-      surface: 10,          // 7 + 3 more (ContactMechanics, SurfaceFinishDB, SurfaceTreatment)
+      surface: 14,          // 10 + 4 more (OffsetSurface, ParametricSurface, SurfaceReconstruction, SurfaceIntersection)
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
       material: 5,          // JohnsonCook, Constitutive, Interpolation, Equivalence, BatchVariability
-      spindle_power: 5,     // SpindlePowerCheck, TorqueCurve, BearingLoad, Runout, ForceCapability
+      spindle_power: 10,    // 5 + 5 more (LoadMonitor, SpeedVariation, Harmonics, Protection, AdaptiveControl)
       workholding: 4,       // FixtureClamping, FixtureDynamics, FixturePlate, LatheWorkholding
-      total_engines: 85,
-      total_functions: 95,
+      total_engines: 94,
+      total_functions: 104,
     };
   }
 }
