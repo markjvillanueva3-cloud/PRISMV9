@@ -275,6 +275,9 @@ let _ppAbsInc: any;
 // PP-MF: Macro flow validator (WHILE/DO/END/GOTO)
 let _ppMacroFlow: any;
 
+// PP-SS: Safe-start block validator
+let _ppSafeStart: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -492,6 +495,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppAbsInc ??= (await import("../../engines/PPAbsIncValidatorEngine.js")).ppAbsIncValidatorEngine;
     case "macroFlow":
       return _ppMacroFlow ??= (await import("../../engines/PPMacroFlowValidatorEngine.js")).ppMacroFlowValidatorEngine;
+    case "safeStart":
+      return _ppSafeStart ??= (await import("../../engines/PPSafeStartBlockValidatorEngine.js")).ppSafeStartBlockValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -935,6 +940,9 @@ const ACTIONS = [
   "pp_mf_validate",                // Full macro-flow validation
   "pp_mf_quick",                   // Quick pass/fail + balanced + nesting
   "pp_mf_defaults",                // Default macro-flow validator options
+  "pp_ss_validate",                // Full safe-start block validation
+  "pp_ss_quick",                   // Quick pass/fail + missing-count
+  "pp_ss_defaults",                // Default safe-start validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3016,6 +3024,40 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_mf_defaults": {
             const engine = await getEngine("macroFlow");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_SS (PP-SS — Safe-start block validator) =====
+          case "pp_ss_validate": {
+            const engine = await getEngine("safeStart");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              window_blocks: params.window_blocks,
+              check_plane_select: params.check_plane_select,
+              check_distance_mode: params.check_distance_mode,
+              check_feed_mode: params.check_feed_mode,
+              check_cutter_comp_cancel: params.check_cutter_comp_cancel,
+              check_tool_length_cancel: params.check_tool_length_cancel,
+              check_canned_cycle_cancel: params.check_canned_cycle_cancel,
+              check_work_offset: params.check_work_offset,
+              check_units_mode: params.check_units_mode,
+              check_motion_before_start: params.check_motion_before_start,
+              check_spread: params.check_spread,
+              max_spread_blocks: params.max_spread_blocks,
+              enabled: params.enabled,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_ss_quick": {
+            const engine = await getEngine("safeStart");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_ss_defaults": {
+            const engine = await getEngine("safeStart");
             result = engine.defaultOptions();
             break;
           }
