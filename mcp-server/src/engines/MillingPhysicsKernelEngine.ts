@@ -76,6 +76,15 @@ import { dampingOptimizationEngine } from "./DampingOptimizationEngine.js";
 import { machineVibrationEngine } from "./MachineVibrationEngine.js";
 import { thinFloorVibrationEngine } from "./ThinFloorVibrationEngine.js";
 
+// Deflection engines (7) — MS-WIRE-1/U-WIRE-04
+import { partDeflectionEngine } from "./PartDeflectionEngine.js";
+import { boringBarDeflectionEngine } from "./BoringBarDeflectionEngine.js";
+import { stochasticDeflectionEngine } from "./StochasticDeflectionEngine.js";
+import { timoshenkoDeflectionEngine } from "./TimoshenkoDeflectionEngine.js";
+import { toolAssemblyDeflectionEngine } from "./ToolAssemblyDeflectionEngine.js";
+import { workpieceDeflectionCompensationEngine } from "./WorkpieceDeflectionCompensationEngine.js";
+import { surfaceLocationErrorEngine } from "./SurfaceLocationErrorEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1157,6 +1166,70 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // DEFLECTION ENGINES — MS-WIRE-1 / U-WIRE-04 (7 engines)
+  // =========================================================================
+
+  /**
+   * Part deflection under cutting force (Euler-Bernoulli beam + stress analysis).
+   * Delegates to: PartDeflectionEngine.calculate().
+   */
+  calculatePartDeflection(input: Parameters<typeof partDeflectionEngine.calculate>[0]) {
+    return partDeflectionEngine.calculate(input);
+  }
+
+  /**
+   * Boring bar deflection (L/D stickout with cantilever + shank joint compliance).
+   * Delegates to: BoringBarDeflectionEngine.calculate().
+   */
+  calculateBoringBarDeflection(input: Parameters<typeof boringBarDeflectionEngine.calculate>[0]) {
+    return boringBarDeflectionEngine.calculate(input);
+  }
+
+  /**
+   * Stochastic deflection with Monte Carlo + sensitivity analysis.
+   * Delegates to: StochasticDeflectionEngine.analyze().
+   */
+  calculateStochasticDeflection(input: Parameters<typeof stochasticDeflectionEngine.analyze>[0]) {
+    return stochasticDeflectionEngine.analyze(input);
+  }
+
+  /**
+   * Timoshenko beam deflection (shear-corrected for short/stubby tools).
+   * Delegates to: TimoshenkoDeflectionEngine.calculate().
+   */
+  calculateTimoshenkoDeflection(input: Parameters<typeof timoshenkoDeflectionEngine.calculate>[0]) {
+    return timoshenkoDeflectionEngine.calculate(input);
+  }
+
+  /**
+   * Tool assembly deflection (stacked holder + tool + extension compliance).
+   * Delegates to: ToolAssemblyDeflectionEngine.compute().
+   */
+  calculateAssemblyDeflection(input: Parameters<typeof toolAssemblyDeflectionEngine.compute>[0]) {
+    return toolAssemblyDeflectionEngine.compute(input);
+  }
+
+  /**
+   * Workpiece deflection compensation (G-code path offset based on deflection).
+   * Delegates to: WorkpieceDeflectionCompensationEngine.calculate().
+   */
+  calculateWorkpieceCompensation(...args: Parameters<typeof workpieceDeflectionCompensationEngine.calculate>) {
+    return workpieceDeflectionCompensationEngine.calculate(...args);
+  }
+
+  /**
+   * Surface Location Error prediction (regenerative chatter-induced error).
+   * Delegates to: SurfaceLocationErrorEngine.
+   */
+  predictSurfaceLocationError(method: "predictSLE" | "optimizeRPM" | "combinedFinish", input: any) {
+    switch (method) {
+      case "predictSLE":     return surfaceLocationErrorEngine.predictSLE(input);
+      case "optimizeRPM":    return surfaceLocationErrorEngine.optimizeRPMForSLE(input);
+      case "combinedFinish": return surfaceLocationErrorEngine.combinedFinishPrediction(input);
+    }
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1210,6 +1283,14 @@ class MillingPhysicsKernelEngine {
       "DampingOptimizationEngine (variable helix/pitch, tuned mass damper)",
       "MachineVibrationEngine (structural modes, base/spindle vibration)",
       "ThinFloorVibrationEngine (thin-floor/thin-wall vibration)",
+      // Deflection engines (MS-WIRE-1/U-WIRE-04)
+      "PartDeflectionEngine (Euler-Bernoulli beam + stress analysis)",
+      "BoringBarDeflectionEngine (L/D cantilever + shank joint compliance)",
+      "StochasticDeflectionEngine (Monte Carlo + sensitivity analysis)",
+      "TimoshenkoDeflectionEngine (shear-corrected beam for short tools)",
+      "ToolAssemblyDeflectionEngine (stacked holder + tool + extension)",
+      "WorkpieceDeflectionCompensationEngine (G-code path offset)",
+      "SurfaceLocationErrorEngine (regenerative chatter-induced surface error)",
     ];
   }
 
@@ -1223,14 +1304,15 @@ class MillingPhysicsKernelEngine {
       thermal: 4,           // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal
       force: 5,             // Kienzle, CuttingForce, Stochastic, Power, Energy
       math: 1,              // AdvancedCuttingMath
-      deflection: 1,        // ToolDeflectionPrediction
+      deflection: 8,        // ToolDeflectionPrediction + 7 new (Part, BoringBar, Stochastic,
+                            // Timoshenko, ToolAssembly, WorkpieceCompensation, SurfaceLocationError)
       stability: 10,        // ChatterStabilityLobe + 9 new (Chatter, Regenerative, Stochastic,
                             // MDOF, RPMRewriter, Vibration, Damping, MachineVibration, ThinFloor)
       surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
-      total_engines: 34,
-      total_functions: 42,
+      total_engines: 41,
+      total_functions: 50,
     };
   }
 }
