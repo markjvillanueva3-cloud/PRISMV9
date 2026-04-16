@@ -59,6 +59,16 @@ const external = [
   "pdf-parse",
   "proper-lockfile",
   "zod-to-json-schema",
+
+  // External-infra clients (PP-INFRA-*): keep native/onnx bindings outside
+  // the bundle so .node binaries stay on disk and WASM loads at runtime.
+  "z3-solver",
+  "@qdrant/js-client-rest",
+  "ollama",
+  "@xenova/transformers",
+  "onnxruntime-node",
+  "onnxruntime-common",
+  "sharp",
 ];
 
 // ── Parse CLI args ─────────────────────────────────────────────────────────
