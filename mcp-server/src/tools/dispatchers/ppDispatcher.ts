@@ -185,6 +185,9 @@ let _ppModalTracker: any;
 // PP-ARC: Arc validator for G-code (G2/G3 geometry sanity)
 let _ppArcValidator: any;
 
+// PP-TC: Tool change safety validator
+let _ppToolChangeValidator: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -342,6 +345,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppModalTracker ??= (await import("../../engines/PPModalStateTrackerEngine.js")).ppModalStateTrackerEngine;
     case "arcValidator":
       return _ppArcValidator ??= (await import("../../engines/PPArcValidatorEngine.js")).ppArcValidatorEngine;
+    case "toolChangeValidator":
+      return _ppToolChangeValidator ??= (await import("../../engines/PPToolChangeValidatorEngine.js")).ppToolChangeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -634,6 +639,11 @@ const ACTIONS = [
   "pp_arc_validate",               // Full arc validation with per-issue details
   "pp_arc_quick",                  // Quick pass/fail arc check
   "pp_arc_defaults",               // Default arc validator options
+
+  // ===== PP_TC: Tool-change safety validator (3 actions) — PP-TC =====
+  "pp_tc_validate",                // Full tool-change safety check
+  "pp_tc_quick",                   // Quick pass/fail + tool-change count
+  "pp_tc_defaults",                // Default TC validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1910,6 +1920,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_arc_defaults": {
             const engine = await getEngine("arcValidator");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_TC (PP-TC — tool change validator) =====
+          case "pp_tc_validate": {
+            const engine = await getEngine("toolChangeValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              safe_z_mm: params.safe_z_mm ?? params.safeZ,
+              require_coolant_off: params.require_coolant_off,
+              require_spindle_off: params.require_spindle_off,
+              require_cutter_comp_off: params.require_cutter_comp_off,
+              require_explicit_retract: params.require_explicit_retract,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_tc_quick": {
+            const engine = await getEngine("toolChangeValidator");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_tc_defaults": {
+            const engine = await getEngine("toolChangeValidator");
             result = engine.defaultOptions();
             break;
           }
