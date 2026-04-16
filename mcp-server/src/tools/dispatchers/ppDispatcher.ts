@@ -83,6 +83,9 @@ let _ppDialectTransfer: any;
 // PP-AGI-MS1: Machine Vector Encoder
 let _ppMachineVectorEncoder: any;
 
+// PP-AGI-MS3: Material Property Vector
+let _ppMaterialVector: any;
+
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "pp":
@@ -157,6 +160,10 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS1: Machine Vector Encoder
     case "machineVectorEncoder":
       return _ppMachineVectorEncoder ??= (await import("../../engines/PPMachineVectorEncoderEngine.js")).ppMachineVectorEncoderEngine;
+
+    // PP-AGI-MS3: Material Property Vector
+    case "materialVector":
+      return _ppMaterialVector ??= (await import("../../engines/PPMaterialPropertyVectorEngine.js")).ppMaterialPropertyVectorEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -291,6 +298,12 @@ const ACTIONS = [
   "pp_machine_embed_all",          // Embed all representative machines
   "pp_machine_compare",            // Compare two machines (similarity + gaps)
   "pp_machine_nearest",            // Find k-nearest machines
+
+  // ===== PP_MATERIAL_VECTOR: Material property embeddings (4 actions) — PP-AGI-MS3 =====
+  "pp_material_embed",             // Embed a material to 32-dim vector
+  "pp_material_embed_all",         // Embed all materials in database
+  "pp_material_compare",           // Compare two materials (substitution safety)
+  "pp_material_nearest",           // Find k-nearest materials
 
   // ===== PP_WIRING: Asset wiring (9 actions) — PP-WIRE-MS5-7 =====
   "pp_wiring_algorithms",        // List algorithms with wiring status
@@ -845,6 +858,28 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_machine_nearest": {
             const engine = await getEngine("machineVectorEncoder");
             result = engine.findNearest(params.machineId ?? params.machine_id, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_MATERIAL_VECTOR: Material property embeddings (PP-AGI-MS3) =====
+          case "pp_material_embed": {
+            const engine = await getEngine("materialVector");
+            result = engine.embed(params.materialId ?? params.material_id ?? params.material);
+            break;
+          }
+          case "pp_material_embed_all": {
+            const engine = await getEngine("materialVector");
+            result = { embeddings: engine.embedAll() };
+            break;
+          }
+          case "pp_material_compare": {
+            const engine = await getEngine("materialVector");
+            result = engine.compare(params.materialA ?? params.material_a, params.materialB ?? params.material_b);
+            break;
+          }
+          case "pp_material_nearest": {
+            const engine = await getEngine("materialVector");
+            result = engine.findNearest(params.materialId ?? params.material_id ?? params.material, params.k ?? 5);
             break;
           }
 
