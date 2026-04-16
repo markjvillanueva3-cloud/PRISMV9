@@ -105,6 +105,9 @@ const ACTIONS = [
   "lathe_estimate_programming_cost",
   "lathe_compare_programming_approaches",
   "lathe_break_even_analysis",
+  // MS12: Part Family Planning (U-LAT85, U-LAT86)
+  "lathe_family_planning",
+  "lathe_macro_roi",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1302,6 +1305,41 @@ Actions: ${ACTIONS.join(", ")}.`,
             // Return current lathe domain awareness state via facade engine
             const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
             result = latheMasterOrchestratorFacadeEngine.getLatheSnapshot();
+            break;
+          }
+
+          // MS12: Family planning (U-LAT85)
+          case "lathe_family_planning": {
+            const { lathePartFamilyPlanningEngine } = await import("../../engines/LathePartFamilyPlanningEngine.js");
+            const customer = params.customer ?? "unknown";
+            const partSpec = {
+              part_family: params.part_family,
+              part_complexity: params.part_complexity ?? "moderate",
+              lot_size: params.lot_size ?? 1,
+              family_parts_expected: params.family_parts_expected ?? 1,
+              features: params.features,
+              material: params.material,
+              variable_dimensions: params.variable_dimensions,
+            };
+            result = lathePartFamilyPlanningEngine.analyzeFamilyPotential(partSpec, customer);
+            break;
+          }
+
+          // MS12: Macro ROI (U-LAT86)
+          case "lathe_macro_roi": {
+            const { lathePartFamilyPlanningEngine } = await import("../../engines/LathePartFamilyPlanningEngine.js");
+            const customer = params.customer ?? "unknown";
+            const partSpec = {
+              part_family: params.part_family,
+              part_complexity: params.part_complexity ?? "moderate",
+              lot_size: params.lot_size ?? 1,
+              family_parts_expected: params.family_parts_expected ?? 1,
+              features: params.features,
+              material: params.material,
+              variable_dimensions: params.variable_dimensions,
+            };
+            const macroInvestmentHr = params.macro_investment_hr ?? 2;
+            result = lathePartFamilyPlanningEngine.computeMacroROI(partSpec, macroInvestmentHr, customer);
             break;
           }
 

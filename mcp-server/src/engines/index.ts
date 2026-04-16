@@ -6326,3 +6326,13 @@ export {
   type BreakEvenPoint,
   type BreakEvenAnalysis,
 } from './LatheProgrammingCostEngine.js';
+
+// --- LATHE-AWARE-HARDEN MS12: Part Family Planning (E110) ---
+export {
+  lathePartFamilyPlanningEngine,
+  type CustomerIndustry,
+  type InvestmentLevel,
+  type FamilyPartSpec,
+  type FamilyPlanningResult,
+  type MacroROIResult,
+} from './LathePartFamilyPlanningEngine.js';
