@@ -211,6 +211,77 @@ export class ChuckJawForceEngine {
         : `UNSAFE: SF=${result.safety_factor.toFixed(1)} — ${result.recommendations[0]}`,
     };
   }
+
+  // MS1 U-LAT16: Speed-dependent chuck force scaling
+  /**
+   * Calculate effective gripping force at a given RPM, accounting for centrifugal loss.
+   * Returns the actual gripping force available at operating speed.
+   *
+   * @param staticGripForce_N - Static gripping force at 0 RPM (from chuck pressure)
+   * @param rpm - Operating spindle RPM
+   * @param gripDiameter_mm - Diameter at jaw contact point
+   * @param jawMass_kg - Mass per jaw (or estimate: workpiece_mass × 0.15 / num_jaws)
+   * @param numJaws - Number of jaws (3, 4, 6)
+   * @param accelFactor - Dynamic factor for acceleration (1.0 steady, 1.2-1.5 accel/decel)
+   * @returns Effective gripping force after centrifugal loss [N]
+   */
+  calculateSpeedDependentGrip(
+    staticGripForce_N: number,
+    rpm: number,
+    gripDiameter_mm: number,
+    jawMass_kg: number,
+    numJaws: number,
+    accelFactor: number = 1.0,
+  ): { effective_grip_N: number; centrifugal_loss_N: number; loss_pct: number; rpm_headroom_pct: number } {
+    // Angular velocity
+    const omega = (2 * Math.PI * rpm) / 60;
+
+    // Jaw centrifugal force: F_cf = m × ω² × r
+    // The grip jaw lifts outward, reducing normal force
+    const jawR_m = (gripDiameter_mm / 2 + 50) / 1000; // Jaw CG ~50mm beyond grip point
+    const centrifugalPerJaw = jawMass_kg * omega * omega * jawR_m * accelFactor;
+    const totalCentrifugalLoss = centrifugalPerJaw * numJaws;
+
+    // Effective grip after centrifugal loss
+    const effectiveGrip = Math.max(0, staticGripForce_N - totalCentrifugalLoss);
+    const lossPct = staticGripForce_N > 0 ? (totalCentrifugalLoss / staticGripForce_N) * 100 : 0;
+
+    // RPM headroom: how much more RPM before grip → 0
+    // Solve: static - numJaws × jawMass × (ω_max)² × r = 0
+    const omegaMax = staticGripForce_N > 0 && jawMass_kg > 0 && jawR_m > 0
+      ? Math.sqrt(staticGripForce_N / (numJaws * jawMass_kg * jawR_m))
+      : omega * 10;
+    const rpmMax = omegaMax * 60 / (2 * Math.PI);
+    const rpmHeadroom = rpm > 0 ? ((rpmMax - rpm) / rpm) * 100 : 100;
+
+    return {
+      effective_grip_N: Math.round(effectiveGrip),
+      centrifugal_loss_N: Math.round(totalCentrifugalLoss),
+      loss_pct: Math.round(lossPct * 10) / 10,
+      rpm_headroom_pct: Math.round(rpmHeadroom),
+    };
+  }
+
+  /**
+   * Get jaw mass estimate based on chuck type.
+   * Used when actual jaw mass is unknown.
+   * @param chuckType - Type of chuck
+   * @param workpieceMass_kg - Workpiece mass for relative estimate
+   * @param numJaws - Number of jaws
+   */
+  estimateJawMass(chuckType: ChuckType, workpieceMass_kg: number, numJaws: number): number {
+    const massFactors: Record<ChuckType, number> = {
+      "3_jaw_scroll": 0.12,
+      "3_jaw_power": 0.18,
+      "4_jaw_independent": 0.25,
+      "6_jaw": 0.10,
+      "collet": 0.05,
+    };
+    const factor = massFactors[chuckType] ?? 0.15;
+    // Minimum jaw mass floor: 0.5kg per jaw for power chucks
+    const minJawMass = chuckType.includes("power") ? 0.5 : 0.2;
+    return Math.max(minJawMass, workpieceMass_kg * factor * 3 / numJaws);
+  }
 }
 
 /** Chuck Jaw Force Engine constant.

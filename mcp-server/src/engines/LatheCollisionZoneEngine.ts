@@ -369,23 +369,35 @@ class LatheCollisionZoneEngineImpl {
   }
 
   // --------------------------------------------------------------------------
-  // 4. Turret index collision check (U06)
+  // 4. Turret index collision check (U06) — MS1 U-LAT15: swept-volume enhanced
   // --------------------------------------------------------------------------
   checkTurretIndex(input: CollisionCheckInput): CollisionCheck {
     const longestTool = Math.max(...input.turret.tool_protrusions_mm, 0);
     const turretRadius = input.turret.turret_radius_mm;
-    const swingRadius = turretRadius + longestTool;
+
+    // MS1 U-LAT15: Enhanced swept-volume calculation
+    // Consider tool holder diameter in addition to protrusion
+    const maxHolderDia = Math.max(...(input.turret.tool_holder_diameters_mm ?? [20]), 20);
+    const holderRadialContribution = maxHolderDia / 2;
+
+    // Swept volume includes: turret radius + tool stickout + holder radial offset
+    // For disc turret, rotation sweeps a torus; we use conservative outer envelope
+    const swingRadius = turretRadius + longestTool + holderRadialContribution;
+
+    // For drum turrets (BMT), the swept volume is more complex — use 1.15× safety factor
+    const turretFactor = input.turret.turret_type === "drum" || input.turret.turret_type === "bmt" ? 1.15 : 1.0;
+    const effectiveSwingRadius = swingRadius * turretFactor;
 
     const partRadius = input.workpiece.bar_stock_od_mm / 2;
     const jawProtrusion = input.workpiece.chuck_jaw_protrusion_mm ?? 15;
     const obstacleRadius = partRadius + jawProtrusion;
 
-    // X position must clear the swing radius
+    // X position must clear the swept volume envelope
     const currentXRadius = (input.current_x_mm ?? 0) / 2; // diameter → radius
-    const clearance = currentXRadius - swingRadius - obstacleRadius;
+    const clearance = currentXRadius - effectiveSwingRadius - obstacleRadius;
 
-    // Minimum safe X (diameter) for turret indexing
-    const minSafeXDia = 2 * (swingRadius + obstacleRadius + SAFETY_MARGIN_MM);
+    // Minimum safe X (diameter) for turret indexing — conservative margin
+    const minSafeXDia = 2 * (effectiveSwingRadius + obstacleRadius + SAFETY_MARGIN_MM);
 
     const passed = clearance >= SAFETY_MARGIN_MM;
 
@@ -394,8 +406,8 @@ class LatheCollisionZoneEngineImpl {
       passed,
       clearance_mm: clearance,
       description: passed
-        ? `Turret index safe at X${(input.current_x_mm ?? 0).toFixed(1)}: ${clearance.toFixed(1)}mm clearance`
-        : `TURRET INDEX COLLISION: swing radius ${swingRadius.toFixed(1)}mm + obstacle ${obstacleRadius.toFixed(1)}mm — retract X to at least ${minSafeXDia.toFixed(1)}mm diameter before indexing`,
+        ? `Turret index safe at X${(input.current_x_mm ?? 0).toFixed(1)}: ${clearance.toFixed(1)}mm clearance (swept vol: ${effectiveSwingRadius.toFixed(1)}mm)`
+        : `TURRET INDEX COLLISION: swept volume ${effectiveSwingRadius.toFixed(1)}mm + obstacle ${obstacleRadius.toFixed(1)}mm — retract X to at least ${minSafeXDia.toFixed(1)}mm diameter before indexing`,
       severity: passed ? "info" : "critical",
     };
   }
