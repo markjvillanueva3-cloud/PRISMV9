@@ -92,6 +92,12 @@ let _ppToolEncoder: any;
 // PP-DL-MS0: Training Data Pipeline
 let _ppTrainingPipeline: any;
 
+// PP-DL-MS8: Ensemble & Uncertainty
+let _ppEnsembleUncertainty: any;
+
+// PP-DL-MS9: Decision Explainer
+let _ppDecisionExplainer: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -188,6 +194,10 @@ async function getEngine(name: string): Promise<any> {
       return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
     case "trainingPipeline":
       return _ppTrainingPipeline ??= (await import("../../engines/PPTrainingDataPipelineEngine.js")).ppTrainingDataPipelineEngine;
+    case "ensembleUncertainty":
+      return _ppEnsembleUncertainty ??= (await import("../../engines/PPEnsembleUncertaintyEngine.js")).ppEnsembleUncertaintyEngine;
+    case "decisionExplainer":
+      return _ppDecisionExplainer ??= (await import("../../engines/PPDecisionExplainerEngine.js")).ppDecisionExplainerEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -348,6 +358,16 @@ const ACTIONS = [
   "pp_training_process",           // Process a G-code program into training record
   "pp_training_batch",             // Process multiple programs
   "pp_training_stats",             // Get pipeline statistics
+
+  // ===== PP_UNCERTAINTY: Ensemble uncertainty (3 actions) — PP-DL-MS8 =====
+  "pp_uncertainty_estimate",       // Estimate scenario uncertainty with risk analysis
+  "pp_uncertainty_monte_carlo",    // Monte Carlo dropout for prediction variance
+  "pp_uncertainty_calibrate",      // Calibrate raw similarity to probability
+
+  // ===== PP_EXPLAIN: Decision explainer (3 actions) — PP-DL-MS9 =====
+  "pp_explain_scenario",           // Full explanation with factors, counterfactuals, analogies
+  "pp_explain_controller_choice",  // Why chose one controller over another
+  "pp_explain_material_sub",       // Explain material substitution safety
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -954,6 +974,68 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_training_stats": {
             const engine = await getEngine("trainingPipeline");
             result = engine.getStats();
+            break;
+          }
+
+          // ===== PP_UNCERTAINTY (PP-DL-MS8) =====
+          case "pp_uncertainty_estimate": {
+            const engine = await getEngine("ensembleUncertainty");
+            result = engine.estimateUncertainty({
+              controller_id: params.controllerId ?? params.controller_id,
+              machine_id: params.machineId ?? params.machine_id,
+              material_id: params.materialId ?? params.material_id,
+            });
+            break;
+          }
+          case "pp_uncertainty_monte_carlo": {
+            const engine = await getEngine("ensembleUncertainty");
+            result = engine.monteCarloDropout({
+              controller_id: params.controllerId ?? params.controller_id,
+              machine_id: params.machineId ?? params.machine_id,
+              material_id: params.materialId ?? params.material_id,
+            }, params.samples ?? 20);
+            break;
+          }
+          case "pp_uncertainty_calibrate": {
+            const engine = await getEngine("ensembleUncertainty");
+            result = {
+              calibrated: engine.calibrate(
+                params.rawSimilarity ?? params.raw_similarity ?? 0,
+                params.threshold ?? 0.7,
+                params.steepness ?? 10,
+              ),
+            };
+            break;
+          }
+
+          // ===== PP_EXPLAIN (PP-DL-MS9) =====
+          case "pp_explain_scenario": {
+            const engine = await getEngine("decisionExplainer");
+            result = engine.explain({
+              controller_id: params.controllerId ?? params.controller_id,
+              machine_id: params.machineId ?? params.machine_id,
+              material_id: params.materialId ?? params.material_id,
+            });
+            break;
+          }
+          case "pp_explain_controller_choice": {
+            const engine = await getEngine("decisionExplainer");
+            result = {
+              explanation: engine.explainControllerChoice(
+                params.chosen,
+                params.alternative,
+              ),
+            };
+            break;
+          }
+          case "pp_explain_material_sub": {
+            const engine = await getEngine("decisionExplainer");
+            result = {
+              explanation: engine.explainMaterialSubstitution(
+                params.original,
+                params.substitute,
+              ),
+            };
             break;
           }
 
