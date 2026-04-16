@@ -425,4 +425,19 @@ TASK-DECOMPOSITION: For quote/plan/design tasks
 - SessionStart hook: Auto-injects context
 - Compaction survival: Preserves minimal context
 - MEMORY.md: Cross-session self-awareness sync
+
+## 🔎 Capability Discovery — Surface Tools at Moment of Need
+Four categories of PRISM capability are easy to forget mid-task:
+1. **Token-saving hooks** (FileReadCache, GrepResultCache, JsonStateSummarizer) — silent when working, invisible when forgotten
+2. **Stale-data traps** (CLAUDE.md counts drift; PRISM-INVENTORY-LATEST.md is authoritative)
+3. **Advanced engines** (PRISMCreativeReasoningEngine, prismSelfAwarenessEngine, CrossDisciplinaryDeepLearningEngine) buried among 2,000+ engines
+4. **Coordination hazards** (settings.json conflicts with 4 concurrent chats)
+
+**Auto-surfacing mechanism:** UserPromptSubmit hook `capability-reminder.mjs` grep-matches your prompt against `state/shared/CAPABILITY_INDEX.json` triggers and injects a one-line hint. Max 3 reminders per prompt, 10-min cooldown per entry per session.
+
+**Manual discovery:** run `/capabilities` slash command to list all entries by category. Or `/capabilities [keyword]` to filter.
+
+**Schema source:** `state/shared/CAPABILITY_INDEX.json` (trigger phrases → capability hints). Update this file when you add a capability users should know about.
+
+**Related hook:** `ai-auto-command-router.mjs` covers slash commands; `capability-reminder.mjs` covers scripts, hooks, engines, and stale-data traps that have no slash-command equivalent.
 - CLAUDE.md: Full context available via `generateClaudeMdContext()`
