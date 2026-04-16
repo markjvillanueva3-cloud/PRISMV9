@@ -155,6 +155,9 @@ let _ppOkumaTurning: any;
 // PP-WEDM: Wire EDM Post
 let _ppWireEDM: any;
 
+// PP-SEDM: Sinker EDM Post
+let _ppSinkerEDM: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -292,6 +295,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppOkumaTurning ??= (await import("../../engines/PPOkumaTurningPostEngine.js")).ppOkumaTurningPostEngine;
     case "wireEDM":
       return _ppWireEDM ??= (await import("../../engines/PPWireEDMPostEngine.js")).ppWireEDMPostEngine;
+    case "sinkerEDM":
+      return _ppSinkerEDM ??= (await import("../../engines/PPSinkerEDMPostEngine.js")).ppSinkerEDMPostEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -530,6 +535,11 @@ const ACTIONS = [
   // ===== PP_WEDM: Wire EDM post (2 actions) — PP-WEDM =====
   "pp_wedm_generate",             // Generate wire EDM program
   "pp_wedm_standard_4pass",       // Standard 4-pass strategy (rough + 3 skim)
+
+  // ===== PP_SEDM: Sinker EDM post (3 actions) — PP-SEDM =====
+  "pp_sedm_generate",             // Generate sinker EDM program
+  "pp_sedm_standard_3stage",      // Standard 3-stage burn (rough + semi + finish)
+  "pp_sedm_defaults",             // Get stage defaults / orbit codes
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1524,6 +1534,35 @@ Actions: ${ACTIONS.join(", ")}.`,
               params.material ?? "D2",
               params.wireDia ?? params.wire_dia ?? 0.25,
             );
+            break;
+          }
+
+          // ===== PP_SEDM (PP-SEDM) =====
+          case "pp_sedm_generate": {
+            const engine = await getEngine("sinkerEDM");
+            result = engine.generate(params);
+            break;
+          }
+          case "pp_sedm_standard_3stage": {
+            const engine = await getEngine("sinkerEDM");
+            result = engine.generateStandard3Stage(
+              params.cavityDepth ?? params.cavity_depth ?? params.cavity_depth_mm ?? 20,
+              params.material ?? "H13",
+              params.machineModel ?? params.machine_model ?? "EA12V",
+            );
+            break;
+          }
+          case "pp_sedm_defaults": {
+            const engine = await getEngine("sinkerEDM");
+            result = {
+              stages: engine.listStages(),
+              orbit_patterns: engine.listOrbitPatterns(),
+              stage_defaults: engine.listStages().map((s: any) => ({
+                stage: s,
+                defaults: engine.getStageDefaults(s),
+                epack: engine.getEpackNumber(s),
+              })),
+            };
             break;
           }
 
