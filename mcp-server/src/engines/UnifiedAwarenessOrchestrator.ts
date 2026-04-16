@@ -73,6 +73,12 @@ export interface CapabilityInventory {
   jmDiePrograms: number;
   resourceFolders: number;
   completedExtractions: number;
+  // U-AWR23 — deeper source coverage
+  hooks: number;
+  routes: number;
+  schemas: number;
+  migrations: number;
+  registries: number;
 }
 
 export interface SessionSnapshot {
@@ -372,6 +378,12 @@ export class UnifiedAwarenessOrchestrator {
       jmDiePrograms: 24545, // Known count
       resourceFolders: RESOURCE_FOLDERS.length,
       completedExtractions: COMPLETED_EXTRACTIONS.length,
+      // U-AWR23 — deeper source coverage
+      hooks: await this.countHooks(),
+      routes: await this.countRoutes(),
+      schemas: await this.countSchemas(),
+      migrations: await this.countMigrations(),
+      registries: await this.countRegistries(),
     };
 
     this.inventoryCache = inventory;
@@ -619,7 +631,30 @@ export class UnifiedAwarenessOrchestrator {
   }
 
   private async countActions(): Promise<number> {
-    return 5156; // Known count from audit
+    // U-AWR23: live count by scanning dispatcher z.enum() lists instead
+    // of a stale hardcoded 5156. Sums unique action strings across all
+    // *Dispatcher.ts files.
+    const dispatchersDir = path.join(this.baseDir, "mcp-server", "src", "tools", "dispatchers");
+    try {
+      const files = fs.readdirSync(dispatchersDir).filter(f => f.endsWith("Dispatcher.ts"));
+      let total = 0;
+      for (const file of files) {
+        try {
+          const content = fs.readFileSync(path.join(dispatchersDir, file), "utf-8");
+          // Match export const ACTIONS = [ ... ] as const;
+          const m = content.match(/export\s+const\s+ACTIONS\s*=\s*\[([\s\S]*?)\]\s*as\s+const/);
+          if (m) {
+            const entries = m[1].match(/"[a-z_][a-z0-9_]*"/gi) || [];
+            total += new Set(entries).size;
+          }
+        } catch {
+          // skip unreadable file
+        }
+      }
+      return total || 5156;
+    } catch {
+      return 5156; // Fallback to prior known count
+    }
   }
 
   private countFormulas(): number {
@@ -654,7 +689,128 @@ export class UnifiedAwarenessOrchestrator {
   }
 
   private async countTribalTips(): Promise<number> {
-    return 339; // Known count (242 controller + 97 wedm)
+    // U-AWR23: live count across tribal data files + engine KNOWLEDGE_BASE
+    const dataDir = path.join(this.baseDir, "mcp-server", "src", "data");
+    let total = 0;
+    try {
+      const files = fs.readdirSync(dataDir).filter(
+        f => /tribal|tip|cam-tips/i.test(f) && (f.endsWith(".ts") || f.endsWith(".json")),
+      );
+      for (const file of files) {
+        try {
+          const content = fs.readFileSync(path.join(dataDir, file), "utf-8");
+          // Count object entries with an id: field (tip pattern) or top-level array
+          if (file.endsWith(".json")) {
+            const data = JSON.parse(content);
+            if (Array.isArray(data)) total += data.length;
+          } else {
+            const idMatches = content.match(/\bid:\s*["'`][^"'`]+["'`]/g);
+            if (idMatches) total += idMatches.length;
+          }
+        } catch {
+          // skip unreadable/malformed
+        }
+      }
+    } catch {
+      // dir missing
+    }
+    // Add TribalKnowledgeEngine inline tips if present
+    try {
+      const tribEng = path.join(this.baseDir, "mcp-server", "src", "engines", "TribalKnowledgeEngine.ts");
+      if (fs.existsSync(tribEng)) {
+        const content = fs.readFileSync(tribEng, "utf-8");
+        const kbMatches = content.match(/\bid:\s*["'`][^"'`]+["'`]/g);
+        if (kbMatches) total += kbMatches.length;
+      }
+    } catch {
+      // skip
+    }
+    return total > 0 ? total : 339;
+  }
+
+  /** U-AWR23: count hooks registered across .claude/ and mcp-server/hooks/. */
+  private async countHooks(): Promise<number> {
+    let total = 0;
+    const candidateDirs = [
+      path.join(this.baseDir, ".claude", "hooks"),
+      path.join(this.baseDir, "mcp-server", "src", "hooks"),
+      path.join(this.baseDir, "mcp-server", "hooks"),
+    ];
+    for (const dir of candidateDirs) {
+      try {
+        if (fs.existsSync(dir)) {
+          total += fs.readdirSync(dir)
+            .filter(f => f.endsWith(".mjs") || f.endsWith(".ts") || f.endsWith(".js"))
+            .filter(f => !f.endsWith(".test.ts"))
+            .length;
+        }
+      } catch {
+        // skip
+      }
+    }
+    return total;
+  }
+
+  /** U-AWR23: count registered routes in Express route modules. */
+  private async countRoutes(): Promise<number> {
+    const routesDir = path.join(this.baseDir, "mcp-server", "src", "routes");
+    try {
+      if (!fs.existsSync(routesDir)) return 0;
+      const files = fs.readdirSync(routesDir).filter(f => f.endsWith(".ts"));
+      let total = 0;
+      for (const file of files) {
+        try {
+          const content = fs.readFileSync(path.join(routesDir, file), "utf-8");
+          // Count router.get/post/put/delete/patch
+          const matches = content.match(/\brouter\.(get|post|put|delete|patch)\(/g);
+          if (matches) total += matches.length;
+        } catch {
+          // skip
+        }
+      }
+      return total;
+    } catch {
+      return 0;
+    }
+  }
+
+  /** U-AWR23: count Zod schema files in mcp-server/src/schemas/. */
+  private async countSchemas(): Promise<number> {
+    const schemasDir = path.join(this.baseDir, "mcp-server", "src", "schemas");
+    try {
+      if (!fs.existsSync(schemasDir)) return 0;
+      return fs.readdirSync(schemasDir)
+        .filter(f => f.endsWith(".ts") && !f.endsWith(".test.ts"))
+        .length;
+    } catch {
+      return 0;
+    }
+  }
+
+  /** U-AWR23: count SQL migrations in mcp-server/src/db/migrations/. */
+  private async countMigrations(): Promise<number> {
+    const migrationsDir = path.join(this.baseDir, "mcp-server", "src", "db", "migrations");
+    try {
+      if (!fs.existsSync(migrationsDir)) return 0;
+      return fs.readdirSync(migrationsDir)
+        .filter(f => f.endsWith(".sql") || f.endsWith(".ts"))
+        .length;
+    } catch {
+      return 0;
+    }
+  }
+
+  /** U-AWR23: count registries in mcp-server/src/registries/. */
+  private async countRegistries(): Promise<number> {
+    const registriesDir = path.join(this.baseDir, "mcp-server", "src", "registries");
+    try {
+      if (!fs.existsSync(registriesDir)) return 0;
+      return fs.readdirSync(registriesDir)
+        .filter(f => f.endsWith("Registry.ts") || f.endsWith("registry.ts"))
+        .length;
+    } catch {
+      return 0;
+    }
   }
 
   private async countPlaybookRules(): Promise<number> {
