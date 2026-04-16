@@ -254,6 +254,9 @@ let _ppProbeCycle: any;
 // PP-HSM: High-speed machining / lookahead validator (G05.1 Q1)
 let _ppHSM: any;
 
+// PP-PSEL: Plane selection validator (G17/G18/G19)
+let _ppPlaneSelect: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -457,6 +460,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProbeCycle ??= (await import("../../engines/PPProbeCycleValidatorEngine.js")).ppProbeCycleValidatorEngine;
     case "highSpeedMachining":
       return _ppHSM ??= (await import("../../engines/PPHighSpeedMachiningValidatorEngine.js")).ppHighSpeedMachiningValidatorEngine;
+    case "planeSelect":
+      return _ppPlaneSelect ??= (await import("../../engines/PPPlaneSelectValidatorEngine.js")).ppPlaneSelectValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -865,6 +870,11 @@ const ACTIONS = [
   "pp_hsm_validate",               // Full HSM/lookahead validation
   "pp_hsm_quick",                  // Quick pass/fail + surfacing block count
   "pp_hsm_defaults",               // Default HSM validator options
+
+  // PP-PSEL: Plane selection validator (G17/G18/G19)
+  "pp_psel_validate",              // Full plane-selection validation
+  "pp_psel_quick",                 // Quick pass/fail + arc count + final plane
+  "pp_psel_defaults",              // Default plane-select validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2747,6 +2757,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_hsm_defaults": {
             const engine = await getEngine("highSpeedMachining");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_PSEL (PP-PSEL — Plane selection validator) =====
+          case "pp_psel_validate": {
+            const engine = await getEngine("planeSelect");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_arc_without_plane: params.check_arc_without_plane,
+              check_plane_change_during_arc: params.check_plane_change_during_arc,
+              check_plane_change_with_comp: params.check_plane_change_with_comp,
+              check_drill_plane_mismatch: params.check_drill_plane_mismatch,
+              check_arc_wrong_ijk: params.check_arc_wrong_ijk,
+              check_plane_restored: params.check_plane_restored,
+              default_plane_assumption: params.default_plane_assumption,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_psel_quick": {
+            const engine = await getEngine("planeSelect");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_psel_defaults": {
+            const engine = await getEngine("planeSelect");
             result = engine.defaultOptions();
             break;
           }
