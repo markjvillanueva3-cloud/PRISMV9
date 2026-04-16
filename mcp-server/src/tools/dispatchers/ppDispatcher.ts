@@ -257,6 +257,9 @@ let _ppHSM: any;
 // PP-PSEL: Plane selection validator (G17/G18/G19)
 let _ppPlaneSelect: any;
 
+// PP-RP: Reference return validator (G28/G30/G53)
+let _ppRefReturn: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -462,6 +465,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppHSM ??= (await import("../../engines/PPHighSpeedMachiningValidatorEngine.js")).ppHighSpeedMachiningValidatorEngine;
     case "planeSelect":
       return _ppPlaneSelect ??= (await import("../../engines/PPPlaneSelectValidatorEngine.js")).ppPlaneSelectValidatorEngine;
+    case "referenceReturn":
+      return _ppRefReturn ??= (await import("../../engines/PPReferenceReturnValidatorEngine.js")).ppReferenceReturnValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -875,6 +880,11 @@ const ACTIONS = [
   "pp_psel_validate",              // Full plane-selection validation
   "pp_psel_quick",                 // Quick pass/fail + arc count + final plane
   "pp_psel_defaults",              // Default plane-select validator options
+
+  // PP-RP: Reference return validator (G28/G30/G53)
+  "pp_rp_validate",                // Full reference-return validation
+  "pp_rp_quick",                   // Quick pass/fail + safe-Z pattern count
+  "pp_rp_defaults",                // Default reference-return validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2785,6 +2795,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_psel_defaults": {
             const engine = await getEngine("planeSelect");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_RP (PP-RP — Reference return validator) =====
+          case "pp_rp_validate": {
+            const engine = await getEngine("referenceReturn");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_cutter_comp: params.check_cutter_comp,
+              check_safe_z: params.check_safe_z,
+              check_absolute_nonzero: params.check_absolute_nonzero,
+              check_g30_p_range: params.check_g30_p_range,
+              check_g53_motion: params.check_g53_motion,
+              check_g53_unreferenced: params.check_g53_unreferenced,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_rp_quick": {
+            const engine = await getEngine("referenceReturn");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_rp_defaults": {
+            const engine = await getEngine("referenceReturn");
             result = engine.defaultOptions();
             break;
           }
