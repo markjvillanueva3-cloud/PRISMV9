@@ -154,16 +154,27 @@ export interface TurningMaterial {
   hardness_hrc?: number;
 }
 
+/** Insert types for turning + live tooling operations */
+export type TurningInsertType =
+  // Standard turning inserts
+  | "CNMG" | "DNMG" | "WNMG" | "VNMG" | "TNMG" | "CCMT" | "DCMT" | "VCMT" | "TCMT"
+  | "groove_insert" | "thread_insert" | "cutoff" | "boring_bar" | "drill"
+  // Live tooling types (MS1 U-LAT18)
+  | "end_mill" | "face_mill" | "tap" | "reamer" | "spot_drill";
+
+/** Tool material types including HSS for tapping */
+export type ToolMaterialType = "carbide" | "cermet" | "ceramic" | "CBN" | "PCD" | "HSS" | "cobalt_HSS";
+
 export interface TurningInsert {
   tool_number: number;
-  insert_type: "CNMG" | "DNMG" | "WNMG" | "VNMG" | "TNMG" | "CCMT" | "DCMT" | "VCMT" | "TCMT"
-    | "groove_insert" | "thread_insert" | "cutoff" | "boring_bar" | "drill";
+  insert_type: TurningInsertType;
   nose_radius_mm: number;
   approach_angle_deg: number;
   holder_style: string;
-  material: "carbide" | "cermet" | "ceramic" | "CBN" | "PCD";
+  material: ToolMaterialType;
   coating: string;
   min_bore_mm?: number;
+  stickout_mm?: number;  // MS1 U-LAT18: explicit stickout for deflection calcs
 }
 
 export interface TurningCuttingParams {
@@ -194,6 +205,9 @@ export interface TurningPlannedOp {
   canned_cycle?: string;
   coolant: "flood" | "mist" | "off" | "high_pressure";
   notes: string[];
+  // MS1 U-LAT18: G71/G70 cycle block tracking (used internally for finish pass reference)
+  _pBlock?: number;
+  _qBlock?: number;
 }
 
 export interface TurningProgramResult {
@@ -266,6 +280,8 @@ export interface TurningInput {
   controller?: "fanuc" | "haas" | "mazak" | "okuma" | "siemens" | "dmg_mori" | "citizen" | "star";
   dual_spindle_cutoff?: boolean;  // Sub-spindle grips part during cutoff
   dual_spindle_sync_rpm?: number; // If set, both spindles run at this RPM
+  // MS1 U-LAT18: Pipeline checkpoint tracking
+  runId?: string;
 }
 
 // ============================================================================
@@ -587,19 +603,19 @@ export class TurningPrintToProgramEngine {
       case "taper":
         return { tool_number: toolNum, insert_type: "VNMG", nose_radius_mm: noseR,
           approach_angle_deg: 35, holder_style: "SVJBR", material: "carbide", coating: "TiAlN" };
-      // Live tooling
+      // Live tooling (MS1 U-LAT18: proper types)
       case "live_whistle_notch":
       case "live_od_pocket":
       case "live_keyway":
       case "live_flat_mill":
-        return { tool_number: toolNum, insert_type: "drill" as any, nose_radius_mm: 0,
+        return { tool_number: toolNum, insert_type: "end_mill", nose_radius_mm: 0,
           approach_angle_deg: 0, holder_style: "ER32-LIVE", material: "carbide", coating: "TiAlN" };
       case "live_cross_drill":
         return { tool_number: toolNum, insert_type: "drill", nose_radius_mm: 0,
           approach_angle_deg: 140, holder_style: "ER32-LIVE", material: "carbide", coating: "TiAlN" };
       case "live_cross_tap":
-        return { tool_number: toolNum, insert_type: "drill" as any, nose_radius_mm: 0,
-          approach_angle_deg: 0, holder_style: "ER32-LIVE", material: "HSS" as any, coating: "TiN" };
+        return { tool_number: toolNum, insert_type: "tap", nose_radius_mm: 0,
+          approach_angle_deg: 0, holder_style: "ER32-LIVE", material: "HSS", coating: "TiN" };
       default:
         return { tool_number: toolNum, insert_type: "CNMG", nose_radius_mm: 0.8,
           approach_angle_deg: 95, holder_style: "DCLNR", material: "carbide", coating: "TiAlN" };
@@ -952,17 +968,17 @@ export class TurningPrintToProgramEngine {
             lineNum = qNum + 10;
           }
 
-          // Store P/Q for G70 finish reference
-          (op as any)._pBlock = pNum;
-          (op as any)._qBlock = qNum;
+          // Store P/Q for G70 finish reference (MS1 U-LAT18: typed)
+          op._pBlock = pNum;
+          op._qBlock = qNum;
 
           lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 5).toFixed(1)} Z2.0`);
           break;
         }
         case "od_finish": {
           const roughOp = operations.find(o => o.feature_id === op.feature_id && o.operation_type === "od_rough");
-          const pBlock = (roughOp as any)?._pBlock;
-          const qBlock = (roughOp as any)?._qBlock;
+          const pBlock = roughOp?._pBlock;
+          const qBlock = roughOp?._qBlock;
 
           if (pBlock && qBlock) {
             lines.push(`${ln()} G00 X${(input.bar_stock_od_mm + 2).toFixed(1)} Z2.0`);
@@ -1034,16 +1050,16 @@ export class TurningPrintToProgramEngine {
             lineNum = qNumID + 10;
           }
 
-          (op as any)._pBlock = pNumID;
-          (op as any)._qBlock = qNumID;
+          op._pBlock = pNumID;
+          op._qBlock = qNumID;
           lines.push(`${ln()} G00 X${(boreD - 5).toFixed(1)} Z2.0`);
           break;
         }
         case "id_finish":
         case "bore_finish": {
           const roughOpID = operations.find(o => o.feature_id === op.feature_id && (o.operation_type === "bore_rough" || o.operation_type === "id_rough"));
-          const pBlockID = (roughOpID as any)?._pBlock;
-          const qBlockID = (roughOpID as any)?._qBlock;
+          const pBlockID = roughOpID?._pBlock;
+          const qBlockID = roughOpID?._qBlock;
 
           if (pBlockID && qBlockID) {
             lines.push(`${ln()} G70 P${pBlockID} Q${qBlockID} (ID Finish — retraces bore profile)`);
@@ -1389,7 +1405,7 @@ export class TurningPrintToProgramEngine {
     }
 
     // Pipeline checkpoint manager (0-D-ARCH U-ARCH2)
-    const cpm = new PipelineCheckpointManager("turning-print-to-program", (input as any).runId);
+    const cpm = new PipelineCheckpointManager("turning-print-to-program", input.runId);
     cpm.checkpoint("validate_intake", 0, { feature_count: input.features.length, warnings: warnings.length });
 
     // Classify features
@@ -1609,7 +1625,7 @@ export class TurningPrintToProgramEngine {
             material: "carbide",
           },
           workpiece: {
-            iso_group: input.material.iso_group as any,
+            iso_group: input.material.iso_group,
           },
           machine: {
             max_rpm: input.max_spindle_rpm || 4000,
@@ -1648,8 +1664,19 @@ export class TurningPrintToProgramEngine {
     let safeRetractX: number | undefined;
     let safeRetractZ: number | undefined;
     try {
-      // Build turret config from planned operations
-      const toolProtrusions = operations.map(o => (o.tool as any).stickout_mm ?? 40);
+      // Build turret config from planned operations (MS1 U-LAT18: typed stickout)
+      const toolProtrusions = operations.map(o => o.tool.stickout_mm ?? 40);
+      // MS1 U-LAT18: Helper to map operation type to collision tool type
+      const mapToolType = (opType: TurningOpType): "turning" | "boring" | "grooving" | "threading" | "parting" | "drill" | "live_mill" | "live_drill" => {
+        if (opType.includes("bore")) return "boring";
+        if (opType.includes("groove")) return "grooving";
+        if (opType === "part_off") return "parting";
+        if (opType.includes("thread")) return "threading";
+        if (opType.includes("drill") || opType === "center_drill") return "drill";
+        if (opType.startsWith("live_") && opType.includes("drill")) return "live_drill";
+        if (opType.startsWith("live_")) return "live_mill";
+        return "turning";
+      };
       const collisionResult = latheCollisionZoneEngine.checkAll({
         turret: {
           station_count: Math.max(new Set(operations.map(o => o.tool.tool_number)).size, 8),
@@ -1663,19 +1690,14 @@ export class TurningPrintToProgramEngine {
           chuck_jaw_protrusion_mm: 15,
         },
         machine: {
-          max_swing_diameter_mm: (rmach as any)?.max_swing_mm ?? 400,
+          max_swing_diameter_mm: 400, // Default swing; override via machine config
           tailstock_engaged: input.tailstock ?? false,
           tailstock_z_mm: input.tailstock ? input.part_length_mm + 5 : undefined,
         },
         tools: operations.map((o, i) => ({
           station: o.tool.tool_number,
-          tool_type: (o.operation_type.includes("bore") ? "boring" :
-            o.operation_type.includes("groove") ? "grooving" :
-            o.operation_type === "part_off" ? "parting" :
-            o.operation_type.includes("thread") ? "threading" :
-            o.operation_type.includes("drill") ? "drill" :
-            o.operation_type.startsWith("live_") ? "live_mill" : "turning") as any,
-          tool_stickout_mm: (o.tool as any).stickout_mm ?? 40,
+          tool_type: mapToolType(o.operation_type),
+          tool_stickout_mm: o.tool.stickout_mm ?? 40,
           holder_protrusion_mm: 30,
           diameter_mm: o.tool.min_bore_mm ?? ((o.cutting_params.depth_of_cut_mm * 2) || 20),
           blade_width_mm: o.operation_type === "part_off" ? 3 : (o.operation_type.includes("groove") ? 4 : undefined),
@@ -1853,8 +1875,8 @@ export class TurningPrintToProgramEngine {
       }
 
       const highRisks = riskFactors.filter(r => r.severity === "high").length;
-      const overallRisk = highRisks >= 2 ? "critical" : highRisks >= 1 ? "high" : riskFactors.length >= 2 ? "medium" : "low";
-      aiRiskAssessment = { overall_risk: overallRisk as any, risk_factors: riskFactors };
+      const overallRisk: "low" | "medium" | "high" | "critical" = highRisks >= 2 ? "critical" : highRisks >= 1 ? "high" : riskFactors.length >= 2 ? "medium" : "low";
+      aiRiskAssessment = { overall_risk: overallRisk, risk_factors: riskFactors };
 
       // Threading dialect intelligence (synchronous)
       if (hasThreading && input.controller) {
