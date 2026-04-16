@@ -215,6 +215,9 @@ let _ppUnitsMode: any;
 // PP-FO: Feed override (F-word sequencing) validator
 let _ppFeedOverride: any;
 
+// PP-CG: Call graph (M98/M99/O-number) validator
+let _ppCallGraph: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -392,6 +395,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppUnitsMode ??= (await import("../../engines/PPUnitsModeValidatorEngine.js")).ppUnitsModeValidatorEngine;
     case "feedOverride":
       return _ppFeedOverride ??= (await import("../../engines/PPFeedOverrideValidatorEngine.js")).ppFeedOverrideValidatorEngine;
+    case "callGraph":
+      return _ppCallGraph ??= (await import("../../engines/PPCallGraphValidatorEngine.js")).ppCallGraphValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -735,6 +740,11 @@ const ACTIONS = [
   "pp_fo_validate",                // Full feed-override validation
   "pp_fo_quick",                   // Quick pass/fail + first feed
   "pp_fo_defaults",                // Default feed override validator options
+
+  // PP-CG: Call graph (M98/M99/O-number) validator
+  "pp_cg_validate",                // Full call-graph validation
+  "pp_cg_quick",                   // Quick pass/fail + program count
+  "pp_cg_defaults",                // Default call graph validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2270,6 +2280,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_fo_defaults": {
             const engine = await getEngine("feedOverride");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CG (PP-CG — Call graph validator) =====
+          case "pp_cg_validate": {
+            const engine = await getEngine("callGraph");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              max_nesting_depth: params.max_nesting_depth,
+              max_repeat_count: params.max_repeat_count,
+              check_forward_reference: params.check_forward_reference,
+              check_nesting_depth: params.check_nesting_depth,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cg_quick": {
+            const engine = await getEngine("callGraph");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cg_defaults": {
+            const engine = await getEngine("callGraph");
             result = engine.defaultOptions();
             break;
           }
