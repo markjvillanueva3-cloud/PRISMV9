@@ -80,6 +80,8 @@ const ACTIONS = [
   "lathe_machine_kinematics_lookup",
   // MS5: HyperMILL Turning Strategy Actions (U-LAT39)
   "lathe_hypermill_strategy_lookup",
+  // MS5: Mark's MULTUS Pattern Actions (U-LAT42)
+  "lathe_pattern_inject",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1103,6 +1105,48 @@ Actions: ${ACTIONS.join(", ")}.`,
             } else {
               // Return all strategies
               result = { strategies: HYPERMILL_TURNING_STRATEGIES, count: HYPERMILL_TURNING_STRATEGIES.length };
+            }
+            break;
+          }
+
+          // MS5: Mark's MULTUS Pattern Inject (U-LAT42)
+          case "lathe_pattern_inject": {
+            const {
+              findPatternById,
+              getPatternsByCategory,
+              searchPatterns,
+              getPatternsForPartType,
+              getPatternsForMaterial,
+              getPatternStats,
+              MARKS_MULTUS_PATTERNS,
+            } = await import("../../data/marks-multus-patterns.js");
+
+            if (params.id) {
+              // Lookup by ID
+              const pattern = findPatternById(params.id);
+              result = pattern ? { found: true, pattern } : { found: false, id: params.id };
+            } else if (params.category) {
+              // Get by category
+              const patterns = getPatternsByCategory(params.category);
+              result = { patterns, count: patterns.length, category: params.category };
+            } else if (params.search) {
+              // Search by keyword
+              const patterns = searchPatterns(params.search);
+              result = { patterns, count: patterns.length, query: params.search };
+            } else if (params.part_type) {
+              // Get patterns for part type
+              const patterns = getPatternsForPartType(params.part_type);
+              result = { patterns, count: patterns.length, part_type: params.part_type };
+            } else if (params.material || params.iso_group) {
+              // Get patterns for material group
+              const patterns = getPatternsForMaterial(params.material || params.iso_group);
+              result = { patterns, count: patterns.length, material: params.material || params.iso_group };
+            } else if (params.stats) {
+              // Get stats
+              result = getPatternStats();
+            } else {
+              // Return all patterns
+              result = { patterns: MARKS_MULTUS_PATTERNS, count: MARKS_MULTUS_PATTERNS.length };
             }
             break;
           }
