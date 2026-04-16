@@ -1,0 +1,54 @@
+{
+  "id": "EIGC-MS0",
+  "version": "1.0.0",
+  "title": "Baseline Truth Manifest: Engine Capability Audit",
+  "brief": "Open 7 scoped engines + 4 drifting milestone files. Record every incomplete, misleading, or stub runtime path into engine-capability-manifest.json. Classify each as real/partial/stub/noop/roadmap_drift. No fixes yet — truth-finding only.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Audit and Manifest",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Audit ToolSyncOrchestratorEngine + BatchCAMToolBridgeEngines",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Audit MultiProcessCAMBridgeEngine + SolidEditingEngine",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Audit SecondaryOpsPipelineEngine + ExecutionVerificationEngine + ToolpathSimulationEngine",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U04",
+          "title": "Audit milestone drift: CAMX-MS10, L0-P2-MS1, L1-P2-MS1, SYS-MS4",
+          "effort": 50,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Build engine-capability-manifest.json + missed-gap-findings.md",
+          "effort": 40,
+          "dependencies": ["P0-U04"],
+          "exit_conditions": ["Every scoped engine action classified"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["EIGC-MS0A"],
+  "exit_conditions": ["Manifest exists with every scoped engine action classified before any code changes"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-engine-integrity-gap-closure-roadmap-design.md"
+}

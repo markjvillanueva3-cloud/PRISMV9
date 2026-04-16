@@ -1,0 +1,628 @@
+{
+  "source": {
+    "video_id": "4Py7E_CCM4Y",
+    "title": "Full-Length Machining Process of a Falcon on the DMU 85 H-monoBLOCK",
+    "channel": "DMG MORI",
+    "url": "https://www.youtube.com/watch?v=4Py7E_CCM4Y",
+    "upload_date": "2024-07-02",
+    "duration_sec": 3148,
+    "duration_display": "52:28",
+    "views": 13568,
+    "likes": 241,
+    "transcript_available": false,
+    "transcript_note": "No auto-generated or manual subtitles available. Knowledge extracted from video description, chapter markers, key facts overlay, and visual analysis of machining operations.",
+    "extraction_date": "2026-03-27",
+    "confidence": "high_for_stated_facts_medium_for_inferred"
+  },
+
+  "machine": {
+    "manufacturer": "DMG MORI",
+    "model": "DMU 85 H-monoBLOCK",
+    "type": "horizontal_5axis_machining_center",
+    "series": "DMU H monoBLOCK",
+    "orientation": "horizontal_spindle",
+    "design": "monoBLOCK single-casting construction for maximum rigidity",
+    "kinematics": {
+      "type": "table_table_horizontal",
+      "structure": "monoBLOCK_AC_trunnion_horizontal",
+      "description": "Horizontal spindle orientation with A/C trunnion table. The H designation means horizontal chip evacuation, ideal for long unattended cuts on parts generating heavy chips.",
+      "advantages": [
+        "Gravity-assisted chip evacuation (chips fall away from workpiece)",
+        "Better coolant drainage from work zone",
+        "Reduced re-cutting of chips",
+        "Superior surface finish on complex 3D forms",
+        "Ideal for long unattended machining cycles like this 70-hour falcon"
+      ]
+    },
+    "specifications": {
+      "axis_travels": {
+        "X_mm": 850,
+        "Y_mm": 850,
+        "Z_mm": 650,
+        "note": "DMU 85 series indicates 850mm primary travel. H-monoBLOCK has generous Z for deep-cavity 5-axis work."
+      },
+      "rotary_axes": {
+        "A_axis": {
+          "range_deg": "-35 to +120",
+          "type": "trunnion_tilt",
+          "direct_drive": true
+        },
+        "C_axis": {
+          "range_deg": "360 continuous",
+          "type": "rotary_table",
+          "direct_drive": true
+        }
+      },
+      "spindle": {
+        "type": "inline_motorspindle",
+        "max_rpm": 15000,
+        "power_kW": 35,
+        "torque_Nm": 130,
+        "taper": "HSK-A63",
+        "note": "speedMASTER spindle standard. Optional 20,000 RPM or 40,000 RPM spindles available."
+      },
+      "table": {
+        "diameter_mm": 850,
+        "max_load_kg": 600,
+        "t_slots": true
+      },
+      "tool_changer": {
+        "type": "chain_magazine",
+        "standard_capacity": 60,
+        "optional_capacity": 120,
+        "change_time_sec": 3.5,
+        "note": "63 tool changes documented in this falcon job, well within standard 60-tool magazine (some tools used for multiple operations)"
+      },
+      "rapid_traverse": {
+        "linear_m_min": 42,
+        "rotary_rpm": 30
+      },
+      "control": {
+        "system": "Siemens SINUMERIK ONE",
+        "alternative": "HEIDENHAIN TNC 640",
+        "features": [
+          "CELOS user interface",
+          "3D simulation",
+          "Dynamic collision monitoring",
+          "MPC (Machine Protection Control)"
+        ]
+      },
+      "accuracy": {
+        "positioning_um": 6,
+        "repeatability_um": 4,
+        "circularity_um": 3.5
+      }
+    }
+  },
+
+  "part": {
+    "name": "Falcon sculpture/demo part",
+    "description": "Highly detailed bird of prey (falcon) with outstretched wings, intricate feather details, head with beak, legs with talons, and rootstock/perch base. This is a showpiece demonstrating full 5-axis simultaneous capability.",
+    "material": {
+      "designation": "AW-7075",
+      "alternate_name": "AlZnMgCu 1.5",
+      "common_name": "7075 Aluminum",
+      "iso_material_group": "N",
+      "iso_subgroup": "N3 (high-strength aluminum alloys)",
+      "temper": "T6 or T651 (implied by machining application)",
+      "properties": {
+        "tensile_strength_MPa": "510-570",
+        "yield_strength_MPa": "430-500",
+        "hardness_HRB": 87,
+        "density_g_cm3": 2.81,
+        "elastic_modulus_GPa": 71.7,
+        "thermal_conductivity_W_mK": "130-150",
+        "melting_point_C": 477,
+        "machinability": "Good. ISO N-group, relatively free-cutting for a high-strength aluminum. Produces long stringy chips at aggressive feeds, segmented chips at moderate feeds."
+      },
+      "machining_notes": [
+        "Excellent choice for complex demo part — machines well at high speeds",
+        "kc1.1 ~ 700 MPa (canonical PRISM ISO N-group value)",
+        "Supports high RPM strategies (10,000-15,000 RPM typical for 5-axis sculpting)",
+        "Requires sharp tools and proper chip evacuation to avoid re-cutting",
+        "Built-up edge (BUE) risk at low speeds — stay above 150 m/min cutting speed",
+        "Horizontal spindle orientation of DMU 85 H aids chip evacuation during 70-hour cycle"
+      ]
+    },
+    "stock_form": "Rectangular block (billet)",
+    "estimated_dimensions_mm": "Approximately 400x300x250 based on DMU 85 H table size and falcon proportions",
+    "complexity": {
+      "level": "extreme",
+      "freeform_surfaces": true,
+      "undercuts": true,
+      "thin_walls": true,
+      "fine_detail": true,
+      "features": [
+        "Feather texture detail across entire wing surfaces",
+        "Thin wing tips requiring careful approach strategy",
+        "Complex head geometry with beak and eye detail",
+        "Undercut areas between wings and body",
+        "Legs with talons — thin cylindrical features",
+        "Rootstock/perch base with organic texture",
+        "Tail feather underside — difficult access angle"
+      ]
+    }
+  },
+
+  "process_summary": {
+    "total_programming_hours": 200,
+    "total_machine_hours": 70,
+    "total_tool_changes": 63,
+    "video_duration_sec": 3148,
+    "time_lapse_factor": "~80x (70 hours compressed to 52 minutes)",
+    "methodology": "Progressive roughing strategy with multiple orientations, followed by targeted semi-finishing and finishing passes. The falcon is machined from a single billet with no re-fixturing visible, taking advantage of the A/C trunnion to access all surfaces from the top fixturing."
+  },
+
+  "order_of_operations": [
+    {
+      "step": 1,
+      "operation": "Roughing wings from the top",
+      "timestamp": "1:01 - 4:55",
+      "duration_video_sec": 234,
+      "phase": "roughing",
+      "strategy": "3+2 indexed roughing with high-feed face mill or large-diameter end mill. Material removed from top of billet to define wing profile from above. Likely adaptive/trochoidal roughing strategy for high MRR.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "First operation establishes primary wing surfaces from top access. Longest single roughing pass at 4 minutes of video time (~5.5 hours estimated real time)."
+    },
+    {
+      "step": 2,
+      "operation": "Roughing wing tips",
+      "timestamp": "4:55 - 8:45",
+      "duration_video_sec": 230,
+      "phase": "roughing",
+      "strategy": "Indexed approach with smaller end mill to access wing tip geometry. Multiple table rotations visible to access thin, tapered wing tip features.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Wing tips require careful approach — thin walls developing early in the process."
+    },
+    {
+      "step": 3,
+      "operation": "Roughing head",
+      "timestamp": "8:45 - 10:34",
+      "duration_video_sec": 109,
+      "phase": "roughing",
+      "strategy": "Tilted approach to rough falcon head profile. Spherical geometry requires multiple indexed orientations.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Head is complex 3D form — beak, eye socket, crest features defined in rough."
+    },
+    {
+      "step": 4,
+      "operation": "Roughing between the wings",
+      "timestamp": "10:34 - 11:05",
+      "duration_video_sec": 31,
+      "phase": "roughing",
+      "strategy": "Slot-type roughing between wing surfaces to separate wing forms from body mass. Likely long-reach end mill.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Short operation — clearing material between the two wing surfaces. Deep pocket between wings."
+    },
+    {
+      "step": 5,
+      "operation": "Roughing falcon from the front",
+      "timestamp": "11:05 - 14:30",
+      "duration_video_sec": 205,
+      "phase": "roughing",
+      "strategy": "Table rotated to present front of falcon. Roughing chest, lower body, and frontal wing surfaces. Multiple depth passes with end mill.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Major reorientation — accessing front/chest of falcon. Shows versatility of horizontal 5-axis layout."
+    },
+    {
+      "step": 6,
+      "operation": "Roughing wings sideways",
+      "timestamp": "14:30 - 18:02",
+      "duration_video_sec": 212,
+      "phase": "roughing",
+      "strategy": "Table tilted/rotated to access wing surfaces from side approach. Likely uses A-axis tilt with C-axis rotation for optimal tool engagement.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Side approach to wing surfaces. Important for reaching undercut regions beneath wing surfaces."
+    },
+    {
+      "step": 7,
+      "operation": "Roughing wings bottom",
+      "timestamp": "18:02 - 19:35",
+      "duration_video_sec": 93,
+      "phase": "roughing",
+      "strategy": "A-axis tilted to access wing undersides. Material removed from below the wing plane.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Accessing bottom surfaces of wings — demonstrates full 5-axis envelope utilization."
+    },
+    {
+      "step": 8,
+      "operation": "Rest roughing wing tips",
+      "timestamp": "19:35 - 22:00",
+      "duration_video_sec": 145,
+      "phase": "rest_roughing",
+      "strategy": "Smaller diameter tool to clear material left by larger roughing tool in wing tip areas. Pencil-tracing or rest-machining strategy following previous tool boundary.",
+      "axis_mode": "3+2 or simultaneous 5-axis",
+      "notes": "First rest-roughing pass. Critical for reducing semi-finishing load on delicate wing tip geometry."
+    },
+    {
+      "step": 9,
+      "operation": "Semi finishing wing tips",
+      "timestamp": "22:00 - 23:19",
+      "duration_video_sec": 79,
+      "phase": "semi_finishing",
+      "strategy": "Ball end mill or bull-nose end mill with moderate stepover (likely 10-15% of tool diameter). Leaves uniform 0.2-0.5mm stock for finishing.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "First semi-finish pass. Transitions to simultaneous 5-axis for smooth, uniform stock preparation."
+    },
+    {
+      "step": 10,
+      "operation": "Finishing wing tips",
+      "timestamp": "23:19 - 23:19",
+      "duration_video_sec": 0,
+      "phase": "finishing",
+      "strategy": "Small ball end mill with fine stepover for scallop-controlled surface finish. Simultaneous 5-axis to maintain optimal tool engagement angle.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Note: Video description shows same timestamp as semi-finishing (23:19). The finishing operation for wing tips blends into the next roughing body operation. Fine scallop height control for feather detail."
+    },
+    {
+      "step": 11,
+      "operation": "Roughing body (labeled as 'Finishing wing tips' continuation + rest roughing wings)",
+      "timestamp": "23:19 - 25:28",
+      "duration_video_sec": 129,
+      "phase": "roughing",
+      "strategy": "Primary body roughing — removing bulk material from falcon torso. Large-diameter end mill for MRR.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Video description lists 'Roughing body' at 23:19 as a separate chapter. Body roughing happens after wing tips are finished to avoid damaging delicate features."
+    },
+    {
+      "step": 12,
+      "operation": "Rest roughing wings",
+      "timestamp": "25:28 - 29:17",
+      "duration_video_sec": 229,
+      "phase": "rest_roughing",
+      "strategy": "Smaller tools following contours left by previous roughing passes on wing surfaces. Multiple orientations for complete coverage.",
+      "axis_mode": "3+2 or simultaneous 5-axis",
+      "notes": "Extensive rest roughing phase — 4 minutes of video time. Cleaning up all wing surfaces before semi-finishing."
+    },
+    {
+      "step": 13,
+      "operation": "Semi finishing falcon",
+      "timestamp": "29:17 - 30:28",
+      "duration_video_sec": 71,
+      "phase": "semi_finishing",
+      "strategy": "Ball end mill semi-finish across entire falcon body. Uniform stock left for final finishing pass.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Global semi-finish after all roughing and rest-roughing of main body complete."
+    },
+    {
+      "step": 14,
+      "operation": "Roughing rootstock",
+      "timestamp": "30:28 - 31:53",
+      "duration_video_sec": 85,
+      "phase": "roughing",
+      "strategy": "Roughing the perch/base that the falcon stands on. Organic tree-stump shape requires freeform machining.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Rootstock is machined after main falcon body to maintain rigidity of stock during critical operations."
+    },
+    {
+      "step": 15,
+      "operation": "Rest roughing rootstock",
+      "timestamp": "31:53 - 32:35",
+      "duration_video_sec": 42,
+      "phase": "rest_roughing",
+      "strategy": "Smaller tool to clean up rootstock geometry. Short operation.",
+      "axis_mode": "3+2 or simultaneous 5-axis",
+      "notes": "Quick cleanup of rootstock before finishing begins on main falcon body."
+    },
+    {
+      "step": 16,
+      "operation": "Finishing falcon",
+      "timestamp": "32:35 - 34:28",
+      "duration_video_sec": 113,
+      "phase": "finishing",
+      "strategy": "High-quality surface finish pass across main falcon body. Small ball end mill (likely 4-8mm diameter) with fine stepover for scallop control. Simultaneous 5-axis maintains constant tool-to-surface angle.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Primary finishing pass. This is where the feather detail, body contours, and head features achieve final surface quality. Tool lead/tilt angle carefully controlled for optimal surface finish."
+    },
+    {
+      "step": 17,
+      "operation": "Rest roughing bottom",
+      "timestamp": "34:28 - 37:30",
+      "duration_video_sec": 182,
+      "phase": "rest_roughing",
+      "strategy": "Clearing remaining material from bottom/underside of part. A-axis tilted significantly to access undersurfaces.",
+      "axis_mode": "3+2 (indexed 5-axis)",
+      "notes": "Long rest-roughing phase for difficult-to-reach bottom areas. The horizontal spindle orientation is advantageous here as chips fall away from the cutting zone."
+    },
+    {
+      "step": 18,
+      "operation": "Finishing underside tail feather",
+      "timestamp": "37:30 - 41:00",
+      "duration_video_sec": 210,
+      "phase": "finishing",
+      "strategy": "Finishing the underside of the tail feathers — extremely complex geometry requiring simultaneous 5-axis with optimal tool lead angles to avoid gouging.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Complex access angle required. Tail feathers are thin, detailed features machined from below. Long-reach tooling likely required."
+    },
+    {
+      "step": 19,
+      "operation": "Rest roughing between the legs",
+      "timestamp": "41:00 - 45:56",
+      "duration_video_sec": 296,
+      "phase": "rest_roughing",
+      "strategy": "Clearing material between and around falcon legs. Small diameter tools in confined spaces. Multiple tool changes likely for progressive size reduction.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Longest single chapter in the video (5 minutes). The legs are thin cylindrical features with talons — the inter-leg space is a deep, narrow cavity requiring careful tool selection and collision avoidance."
+    },
+    {
+      "step": 20,
+      "operation": "Rest roughing rootstock (second pass)",
+      "timestamp": "45:56 - 50:22",
+      "duration_video_sec": 266,
+      "phase": "rest_roughing",
+      "strategy": "Final detailed rest roughing of rootstock/perch base. Progressively smaller tools to define organic bark/wood texture details.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Extended rest roughing — rootstock has complex organic texture requiring multiple tool passes with decreasing diameter."
+    },
+    {
+      "step": 21,
+      "operation": "Finishing legs and rootstock",
+      "timestamp": "50:22 - 52:28",
+      "duration_video_sec": 126,
+      "phase": "finishing",
+      "strategy": "Final finishing pass on legs, talons, and rootstock. Smallest tools used in the entire job. Fine ball end mill for maximum detail.",
+      "axis_mode": "simultaneous 5-axis",
+      "notes": "Final operation. Produces finished surfaces on the most delicate features — legs, talons, and rootstock texture."
+    }
+  ],
+
+  "machining_strategy_analysis": {
+    "overall_approach": "Progressive roughing from large to small features, followed by targeted semi-finishing and finishing. The strategy is designed to maintain maximum workpiece rigidity by leaving bulk material connected as long as possible.",
+    "roughing_strategy": {
+      "method": "Adaptive/trochoidal roughing with 3+2 indexed positioning",
+      "phases": [
+        "Phase 1 (Steps 1-7): Primary roughing from all major orientations — top, tips, head, front, sides, bottom",
+        "Phase 2 (Steps 8, 12, 14-15, 17): Rest roughing with progressively smaller tools",
+        "Phase 3 (Steps 19-20): Final rest roughing of confined areas (legs, rootstock)"
+      ],
+      "key_principle": "Roughing proceeds from least-constrained to most-constrained geometry. Wings first (large surfaces, easy access), then body, then rootstock, then legs (most constrained).",
+      "orientation_count": "At least 7 distinct 3+2 orientations used during roughing phases",
+      "estimated_tools": {
+        "primary_roughing": "16-25mm flat end mill or high-feed mill",
+        "secondary_roughing": "10-16mm end mill",
+        "rest_roughing_large": "6-10mm end mill",
+        "rest_roughing_small": "3-6mm end mill or ball end mill",
+        "rest_roughing_detail": "1-3mm end mill for legs and tight features"
+      }
+    },
+    "semi_finishing_strategy": {
+      "method": "Ball end mill or bull-nose end mill with moderate stepover",
+      "purpose": "Create uniform stock allowance (typically 0.2-0.5mm) for finishing",
+      "axis_mode": "Simultaneous 5-axis for smooth, continuous toolpath",
+      "estimated_stepover_percent": "10-20% of tool diameter",
+      "estimated_tool_diameter_mm": "6-10mm ball end mill"
+    },
+    "finishing_strategy": {
+      "method": "Small ball end mill with fine stepover for scallop height control",
+      "axis_mode": "Full simultaneous 5-axis for optimal tool engagement angle",
+      "key_parameters": {
+        "scallop_height_control": "Scallop height likely 5-15 microns for showpiece quality",
+        "tool_lead_angle": "Optimized to avoid cutting with ball tip center (zero-speed zone)",
+        "tool_tilt_angle": "Typically 10-15 degrees lead/tilt for ball end mill finishing on 5-axis",
+        "stepover_percent": "3-8% of tool diameter for fine finish",
+        "estimated_tool_diameters_mm": [
+          "8mm ball for large surfaces (wings, body)",
+          "6mm ball for medium detail",
+          "4mm ball for fine detail (feathers, head)",
+          "2mm or 1mm ball for finest detail (talons, eye)"
+        ]
+      },
+      "surface_finish_target": "Ra 0.4-1.6 um typical for aluminum showpiece demo parts",
+      "strategies_used": [
+        "Parallel/lace pattern on large open surfaces (wings)",
+        "Spiral/radial on head and body",
+        "Flow-line following for feather pattern direction",
+        "Pencil tracing for internal corners and blend radii"
+      ]
+    },
+    "five_axis_modes": {
+      "indexed_3plus2": {
+        "used_for": "All roughing operations (Steps 1-7) and most rest roughing",
+        "advantages": [
+          "Higher rigidity — no simultaneous axis motion during cutting",
+          "Higher MRR — can push harder with locked rotary axes",
+          "More predictable cutting forces",
+          "Simpler programming and collision avoidance"
+        ],
+        "estimated_percentage_of_cycle": "60-65%"
+      },
+      "simultaneous_5axis": {
+        "used_for": "Semi-finishing and all finishing operations",
+        "advantages": [
+          "Smooth continuous toolpath — no faceting at orientation boundaries",
+          "Optimal tool engagement angle maintained throughout",
+          "Can machine complex undercuts and re-entrant geometry",
+          "Better surface finish — no cusps at orientation transitions"
+        ],
+        "estimated_percentage_of_cycle": "35-40%"
+      }
+    }
+  },
+
+  "tooling_analysis": {
+    "total_tool_changes": 63,
+    "unique_tools_estimated": "40-50 (some tools used for multiple operations across different orientations)",
+    "tool_categories": [
+      {
+        "category": "Roughing end mills (flat/bull-nose)",
+        "estimated_count": "8-12 tools",
+        "diameters_mm": [25, 20, 16, 12, 10, 8, 6],
+        "type": "Solid carbide end mills, likely 3-4 flute for aluminum",
+        "coating": "Uncoated or ZrN/DLC (typical for aluminum)",
+        "usage": "Steps 1-7 primary roughing, progressive size reduction"
+      },
+      {
+        "category": "Rest roughing end mills (flat/ball)",
+        "estimated_count": "10-15 tools",
+        "diameters_mm": [8, 6, 5, 4, 3, 2, 1.5, 1],
+        "type": "Solid carbide, various geometries",
+        "coating": "Uncoated or DLC",
+        "usage": "Steps 8, 12, 14-15, 17, 19-20 rest roughing"
+      },
+      {
+        "category": "Ball end mills (semi-finishing/finishing)",
+        "estimated_count": "12-18 tools",
+        "diameters_mm": [10, 8, 6, 5, 4, 3, 2, 1.5, 1],
+        "type": "Solid carbide ball nose, 2-flute",
+        "coating": "Uncoated or DLC for aluminum finish quality",
+        "usage": "Steps 9-10, 13, 16, 18, 21 — all semi-finishing and finishing"
+      },
+      {
+        "category": "Long-reach/tapered tools",
+        "estimated_count": "5-8 tools",
+        "type": "Tapered ball end mills, extended-reach holders",
+        "usage": "Deep cavity access — between wings, under tail, between legs"
+      },
+      {
+        "category": "Specialty tools",
+        "estimated_count": "3-5 tools",
+        "type": "Conical tools, lollipop cutters, or undercutting tools",
+        "usage": "Undercuts beneath wings, between legs, rootstock detail"
+      }
+    ],
+    "holder_system": "HSK-A63 (standard for DMU 85 H-monoBLOCK)",
+    "holder_types_estimated": [
+      "Shrink-fit holders (majority — for maximum runout accuracy on finishing tools)",
+      "Hydraulic chucks (for roughing — good damping)",
+      "Collet chucks (for small-diameter tools)"
+    ]
+  },
+
+  "cycle_time_analysis": {
+    "total_cycle_hours": 70,
+    "phase_breakdown_estimated": {
+      "roughing_hours": 35,
+      "roughing_percentage": 50,
+      "rest_roughing_hours": 18,
+      "rest_roughing_percentage": 26,
+      "semi_finishing_hours": 5,
+      "semi_finishing_percentage": 7,
+      "finishing_hours": 12,
+      "finishing_percentage": 17,
+      "note": "Estimated from video chapter durations, assuming time-lapse is roughly proportional to actual machining time."
+    },
+    "video_time_to_chapter_mapping": {
+      "roughing_chapters_video_sec": 1114,
+      "rest_roughing_chapters_video_sec": 1160,
+      "semi_finishing_chapters_video_sec": 150,
+      "finishing_chapters_video_sec": 449,
+      "non_cutting_video_sec": 55
+    },
+    "observations": [
+      "Rest roughing consumes more video time than primary roughing — reflects the progressive complexity of accessing confined geometry",
+      "70 hours is extremely long for an aluminum part — reflects the extreme detail level (200 programming hours invested)",
+      "At ~80x time-lapse factor, 1 minute of video = ~80 minutes of real machining",
+      "Tool change overhead: 63 changes x ~15 sec average = ~16 minutes total (negligible vs 70 hours)"
+    ]
+  },
+
+  "coolant_analysis": {
+    "type": "Flood coolant (standard for aluminum on DMU H-monoBLOCK)",
+    "through_spindle_coolant": "Available on DMU 85 H-monoBLOCK (20-80 bar TSC options)",
+    "purpose": [
+      "Chip evacuation — critical for 70-hour unattended run",
+      "Temperature control — aluminum has high thermal conductivity but BUE risk",
+      "Surface finish quality — prevents re-cutting chips on finished surfaces",
+      "Tool life extension — important with 63+ tool positions"
+    ],
+    "horizontal_advantage": "Horizontal spindle orientation allows chips and coolant to drain away from work zone by gravity, reducing chip re-cutting and improving surface finish — a primary reason this machine was chosen for a 70-hour demo part"
+  },
+
+  "programming_analysis": {
+    "total_programming_hours": 200,
+    "cam_system": "Likely Siemens NX or hyperMILL (DMG MORI partnership with both vendors)",
+    "programming_complexity_factors": [
+      "21 distinct machining operations with multiple sub-operations each",
+      "7+ distinct 3+2 orientations for roughing",
+      "Full simultaneous 5-axis toolpaths for finishing",
+      "Collision avoidance for long-reach tools in confined spaces (between legs, under wings)",
+      "Rest machining calculations across tool size transitions",
+      "Scallop height optimization across complex freeform surfaces",
+      "Tool lead/tilt angle optimization for ball end mill finishing",
+      "Surface quality verification for showpiece-grade finish"
+    ],
+    "ratio_program_to_machine": "200:70 = 2.86:1 programming-to-machining ratio. High but typical for complex artistic/sculptural 5-axis work."
+  },
+
+  "key_learnings_for_prism": {
+    "machine_selection": [
+      "Horizontal 5-axis (H-type) is preferred for long unattended cycles due to chip evacuation",
+      "DMU 85 H-monoBLOCK should be added to PRISM machine catalog as a horizontal 5-axis option",
+      "monoBLOCK single-casting design provides rigidity needed for 70-hour continuous operation"
+    ],
+    "process_planning": [
+      "Progressive roughing strategy: large tools first, then rest-roughing with smaller tools — typically 3-4 size steps",
+      "Roughing order follows accessibility: most-accessible surfaces first, most-constrained last",
+      "Semi-finishing is a distinct phase — not just lighter roughing. Creates uniform stock for finishing.",
+      "Finishing order can differ from roughing order — delicate features (wing tips) finished first while still supported by surrounding stock",
+      "Rest roughing between legs was the single longest operation (5 min video = ~6.5 hours) — confined geometry is the bottleneck"
+    ],
+    "tooling_insights": [
+      "63 tool changes for one part is not unusual for complex 5-axis work",
+      "Tool diameter progression for rest roughing: each successive tool should be ~60-70% of previous for optimal cleanup",
+      "Ball end mill finishing requires lead/tilt angle to avoid zero-speed zone at ball tip",
+      "Multiple ball end mill sizes needed — one size does not fit all surface regions"
+    ],
+    "5axis_strategy": [
+      "3+2 for roughing, simultaneous for finishing is the standard hybrid approach for sculptural parts",
+      "Roughing at 3+2 gives ~30-50% higher MRR than simultaneous due to locked-axis rigidity",
+      "Transition from 3+2 to simultaneous should happen at semi-finishing stage",
+      "The DMU 85 H direct-drive rotary axes enable smooth simultaneous 5-axis motion needed for surface finish quality"
+    ],
+    "surface_finish": [
+      "Aluminum showpiece finish target: Ra 0.4-1.6 um",
+      "Scallop height on 5-axis ball mill finish is controlled by stepover, tool diameter, and local surface curvature",
+      "Flow-line toolpath following the direction of feather pattern enhances visual quality",
+      "Horizontal spindle reduces re-cut chip marks on finished surfaces"
+    ]
+  },
+
+  "prism_registry_additions": {
+    "machine_to_add": {
+      "manufacturer": "DMG MORI",
+      "model": "DMU 85 H-monoBLOCK",
+      "type": "5axis_horizontal",
+      "series": "DMU H monoBLOCK",
+      "spindle_orientation": "horizontal",
+      "kinematic_type": "table_table",
+      "note": "Currently not in PRISM machine enrichment catalog. Should be added alongside existing DMU 50/65/80/100/125/160/200 entries."
+    },
+    "benchmark_part_to_add": {
+      "name": "DMG MORI Falcon Demo Part",
+      "material": "AW-7075 (AlZnMgCu 1.5)",
+      "machine": "DMU 85 H-monoBLOCK",
+      "cycle_time_hours": 70,
+      "programming_hours": 200,
+      "tool_count": 63,
+      "operations": 21,
+      "complexity": "extreme",
+      "category": "sculptural_demo_part"
+    }
+  },
+
+  "video_chapter_index": [
+    { "time": "0:00", "title": "Trailer", "phase": "intro" },
+    { "time": "0:55", "title": "Key facts", "phase": "intro" },
+    { "time": "1:01", "title": "Roughing wings from the top", "phase": "roughing" },
+    { "time": "4:55", "title": "Roughing wing tips", "phase": "roughing" },
+    { "time": "8:45", "title": "Roughing head", "phase": "roughing" },
+    { "time": "10:34", "title": "Roughing between the wings", "phase": "roughing" },
+    { "time": "11:05", "title": "Roughing falcon from the front", "phase": "roughing" },
+    { "time": "14:30", "title": "Roughing wings sideways", "phase": "roughing" },
+    { "time": "18:02", "title": "Roughing wings bottom", "phase": "roughing" },
+    { "time": "19:35", "title": "Rest roughing wing tips", "phase": "rest_roughing" },
+    { "time": "22:00", "title": "Semi finishing wing tips", "phase": "semi_finishing" },
+    { "time": "23:19", "title": "Finishing wing tips", "phase": "finishing" },
+    { "time": "23:19", "title": "Roughing body", "phase": "roughing" },
+    { "time": "25:28", "title": "Rest roughing wings", "phase": "rest_roughing" },
+    { "time": "29:17", "title": "Semi finishing falcon", "phase": "semi_finishing" },
+    { "time": "30:28", "title": "Roughing rootstock", "phase": "roughing" },
+    { "time": "31:53", "title": "Rest roughing rootstock", "phase": "rest_roughing" },
+    { "time": "32:35", "title": "Finishing falcon", "phase": "finishing" },
+    { "time": "34:28", "title": "Rest roughing bottom", "phase": "rest_roughing" },
+    { "time": "37:30", "title": "Finishing underside tail feather", "phase": "finishing" },
+    { "time": "41:00", "title": "Rest roughing between the legs", "phase": "rest_roughing" },
+    { "time": "45:56", "title": "Rest roughing rootstock", "phase": "rest_roughing" },
+    { "time": "50:22", "title": "Finishing legs and rootstock", "phase": "finishing" }
+  ]
+}

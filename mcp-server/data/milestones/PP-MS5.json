@@ -1,0 +1,182 @@
+{
+  "id": "PP-MS5",
+  "version": "6.2.0",
+  "title": "5-Axis Post Processing + Output Generation + Verification",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Build the FiveAxisPostEngine for complete 5-axis post processing (RTCP/TCPC, singularity management, rotary axis limits, inverse time feed, linearization). Wire Phase 6 (output generation) — controller-specific G-code generation through ControllerDialectEngine, probe routines, setup sheets, analytics reports, cycle time estimation, and digital twin snapshots. Build PostProcessorVerificationEngine for output validation — grammar checking, travel limit verification, backplot reconstruction.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "5-Axis Post Processing Engine",
+      "units": [
+        {
+          "id": "U01",
+          "title": "FiveAxisPostEngine — RTCP/TCPC + Rotary axis management + Inverse time feed",
+          "status": "complete",
+          "steps": [
+            "Create FiveAxisPostEngine.ts (~1500 lines)",
+            "RTCP/TCPC output per controller:",
+            "  Fanuc: G43.4 (Type 1) / G43.5 (Type 2) with H offset",
+            "  Siemens: TRAORI / TRAFOOF, CYCLE800 for swivel planes",
+            "  Heidenhain: FUNCTION TCPM with axis selection (AXIS POS STAY/PATHCTRL)",
+            "  Haas: G234 (DWO — Dynamic Work Offset)",
+            "  Mazak: G43.4 with pivot point definition",
+            "  Okuma: G43.4/G43.5 variant + coordinate rotation",
+            "Pivot point / gauge length handling per machine kinematics",
+            "Rotary axis management:",
+            "  Detect axis wrapping requirements (0-360, ±180, ±99999, hard stops)",
+            "  Insert axis unwind moves when approaching limits",
+            "  Handle axis flip at singularity (B=0 for head-head: A jumps 180°)",
+            "  Shortest path rotation selection (CW vs CCW)",
+            "Inverse time feed (G93) calculation:",
+            "  For 5-axis simultaneous: F = 1/time_per_block (minutes)",
+            "  Combined linear + rotary distance → equivalent feed rate",
+            "  Handle transition between G93 (inverse time) and G94 (feed per minute)",
+            "Linearization with tolerance control:",
+            "  Break long 5-axis moves into linear segments within tolerance",
+            "  User-configurable linearization tolerance (default 0.01mm)",
+            "  Minimize number of segments while maintaining tolerance (binary search)",
+            "Coordinate system rotation:",
+            "  G68.2 (Fanuc tilted work plane)",
+            "  CYCLE800 (Siemens swivel)",
+            "  Plane Spatial (Heidenhain)",
+            "  G68 (Mazak coordinate rotation)"
+          ],
+          "exit_conditions": [
+            "5-axis program with TCPC produces correct G-code for Fanuc, Siemens, Heidenhain",
+            "Rotary axis unwind inserted before limit violation",
+            "Inverse time feed calculated correctly for combined linear+rotary moves",
+            "Linearization tolerance maintained within user specification",
+            "Singularity detection flags and manages pole regions",
+            "30+ tests covering 5-axis scenarios"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Output Generation Stages (Phase 6 of Pipeline)",
+      "units": [
+        {
+          "id": "U02",
+          "title": "Stage 6.1-6.2 — G-code generation through ControllerDialectEngine + Controller parameter blocks",
+          "status": "complete",
+          "steps": [
+            "Wire ControllerDialectEngine (from PP-MS3) as the G-code code generator",
+            "For each ToolpathBlock → generate controller-specific G-code line using dialect rules",
+            "Safe start block: controller-specific initialization (G90 G21 G17 G40 G80 order per dialect)",
+            "Tool change sequence: per machine type (vertical spindle, horizontal, turret, ATC)",
+            "Canned cycle generation: translate drill/tap/bore operations to controller-specific cycles",
+            "Arc output: IJK vs R format per controller dialect",
+            "Sub-program generation: if repeated geometry, extract to sub-program per controller convention",
+            "Controller parameter blocks: insert at program start and per-operation as needed",
+            "  Look-ahead depth setting (where configurable)",
+            "  Smoothing mode / tolerance setting",
+            "  HSC mode activation",
+            "  TCPC/RTCP activation for 5-axis",
+            "Program end: controller-specific (M30, M2, END PGM, M99 for sub-program)",
+            "Line numbering: per controller convention (N10 N20... or N1 N2... or no numbers)"
+          ],
+          "exit_conditions": [
+            "Same toolpath produces valid G-code for all 15 controller dialects",
+            "Canned cycles translated correctly (G81 ↔ CYCLE81 ↔ BORE1)",
+            "Controller parameter blocks appropriate for operation type",
+            "Program structure (header, tool changes, operations, end) follows controller conventions"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Stage 6.3-6.5 — Probe routines + Setup sheet + Analytics report",
+          "status": "complete",
+          "steps": [
+            "Wire ProbeRoutineGeneratorEngine: insert probe routines at strategic points",
+            "WCS setup: probe reference surfaces before first cut",
+            "In-process inspection: probe critical features after finishing (optional, user-configurable)",
+            "Tool measurement: tool length/diameter measurement before first use (G37/G38 or controller-specific)",
+            "Wire SetupSheetFromGCodeEngine: generate complete setup sheet from pipeline data",
+            "Tool list with: tool number, description, holder, gauge length, RPM range, feed range, coolant type",
+            "Work holding description, WCS datum location, clamping force requirements",
+            "Safety notes from playbook and safety analysis",
+            "Estimated cycle time, stock material, tolerance callouts",
+            "Generate analytics report:",
+            "  Per-operation: force range (with CI), power range, temperature range, MRR, tool wear prediction",
+            "  Per-tool: estimated tool life consumed, remaining life, cost per part",
+            "  Overall: total cycle time, cutting time vs non-cutting, energy estimate, cost estimate",
+            "  Optimization impact: time saved vs constant S/F, force reduction, tool life improvement"
+          ],
+          "exit_conditions": [
+            "Probe routines generated for controller-specific syntax",
+            "Setup sheet contains all necessary info for operator (no gaps)",
+            "Analytics report shows per-operation and overall metrics",
+            "Optimization impact quantified as % improvement over constant S/F baseline"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Stage 6.6-6.7 — Cycle time estimation + Digital twin snapshot",
+          "status": "complete",
+          "steps": [
+            "Wire CycleTimeEstimatorEngine: calculate realistic cycle time using machine motion model",
+            "Not just distance/feed — account for acceleration, deceleration, servo settling, tool change time",
+            "Use MotionDynamicsProfileEngine achievable feeds (not commanded feeds) for realistic estimate",
+            "Breakdown: cutting time, rapid time, tool change time, probe time, dwell time",
+            "Wire digital twin snapshot: save predicted state for post-run comparison",
+            "Snapshot includes: predicted forces per block, temperatures, wear state, dimensional predictions",
+            "Format for future comparison with actual monitoring data (when available)",
+            "This enables the Bayesian adaptive learning loop — compare predicted vs actual, update priors"
+          ],
+          "exit_conditions": [
+            "Cycle time estimate within 10% of actual for well-characterized machines",
+            "Time breakdown shows cutting vs non-cutting ratio",
+            "Digital twin snapshot serializable and loadable",
+            "Snapshot format compatible with DigitalTwinSyncEngine"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Post Processor Verification Engine",
+      "units": [
+        {
+          "id": "U05",
+          "title": "PostProcessorVerificationEngine — Grammar + Travel limits + Backplot",
+          "status": "complete",
+          "steps": [
+            "Create PostProcessorVerificationEngine.ts (~1000 lines)",
+            "Controller grammar validation:",
+            "  Parse generated G-code against controller-specific grammar rules",
+            "  Check: valid G/M codes for controller, correct argument format, block structure",
+            "  Check: no deprecated codes, no unsupported features for controller version",
+            "  Check: mandatory codes present (e.g., T before M6, S before M3)",
+            "Travel limit verification:",
+            "  Simulate all moves and verify within machine work volume (X/Y/Z/A/B/C limits)",
+            "  Check rapids for potential crash zones (above stock, avoid fixtures if geometry provided)",
+            "  Verify Z clearance plane is safe",
+            "Feed/speed sanity check:",
+            "  All S values within machine RPM range",
+            "  All F values within machine axis feed rate limits",
+            "  No zero or negative feeds on cutting moves",
+            "Sequence validation:",
+            "  Program number format correct",
+            "  Tool calls in valid order",
+            "  Coolant on before cut, off before tool change",
+            "  Work offset set before cutting",
+            "Backplot reconstruction:",
+            "  Parse output G-code back to XYZ points",
+            "  Verify reconstructed path matches original toolpath within tolerance",
+            "  Detect any path deviations introduced by smoothing or linearization"
+          ],
+          "exit_conditions": [
+            "Grammar validation catches invalid G/M codes per controller",
+            "Travel limit check catches out-of-envelope moves",
+            "Backplot reconstruction matches original within 0.001mm",
+            "Validation report returned with pass/fail per check category",
+            "20+ tests covering validation scenarios"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

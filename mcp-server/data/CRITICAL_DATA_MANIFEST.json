@@ -1,0 +1,160 @@
+{
+  "manifest_version": "1.0.0",
+  "generated_at": "2026-04-12T21:45:00.000Z",
+  "milestone": "L0-NEW-MS0",
+  "unit": "P0-U02",
+  "description": "Critical PRISM data files manifest - formulas, physics, material data",
+
+  "critical_files": {
+    "registries": {
+      "path": "src/registries/",
+      "files": [
+        {
+          "name": "MaterialRegistry.ts",
+          "lines": 1662,
+          "purpose": "Material properties, ISO groups, Kienzle coefficients",
+          "consumers": ["SpeedFeedOrchestratorEngine", "MaterialLookupEngine", "KienzleForceModel"],
+          "backup_priority": 1
+        },
+        {
+          "name": "FormulaRegistry.ts",
+          "lines": 1486,
+          "purpose": "499 physics formulas across 20 domains",
+          "consumers": ["FormulaEngine", "PhysicsValidationEngine"],
+          "backup_priority": 1
+        },
+        {
+          "name": "AlgorithmRegistry.ts",
+          "lines": 1132,
+          "purpose": "52 algorithms (Kienzle, Taylor, SLD, Monte Carlo)",
+          "consumers": ["AlgorithmExecutionEngine", "ChatterPredictionEngine"],
+          "backup_priority": 1
+        },
+        {
+          "name": "ToolRegistry.ts",
+          "lines": 1398,
+          "purpose": "Tool specifications and geometries",
+          "consumers": ["ToolSelectionEngine", "CuttingParameterEngine"],
+          "backup_priority": 2
+        },
+        {
+          "name": "MachineRegistry.ts",
+          "lines": 1426,
+          "purpose": "Machine capabilities and spindle data",
+          "consumers": ["MachineSelectionEngine", "SpindlePowerEngine"],
+          "backup_priority": 2
+        },
+        {
+          "name": "CoatingRegistry.ts",
+          "purpose": "Coating performance data",
+          "backup_priority": 3
+        },
+        {
+          "name": "CoolantRegistry.ts",
+          "purpose": "Coolant specifications",
+          "backup_priority": 3
+        },
+        {
+          "name": "PhysicsMappingRegistry.ts",
+          "purpose": "Physics model mappings",
+          "backup_priority": 2
+        }
+      ]
+    },
+
+    "physics": {
+      "path": "src/physics/",
+      "files": [
+        {
+          "name": "constants.ts",
+          "size_bytes": 31160,
+          "purpose": "Canonical Kienzle/Taylor constants - NEVER inline these values",
+          "consumers": ["ALL physics engines"],
+          "backup_priority": 1,
+          "warning": "Import ONLY - never duplicate or inline these values"
+        }
+      ]
+    },
+
+    "extracted_catalogs": {
+      "path": "src/data/",
+      "priority": "HIGH",
+      "files": [
+        {
+          "name": "hypermill-cutting-tech.json",
+          "purpose": "hyperMILL cutting technology data",
+          "backup_priority": 2
+        },
+        {
+          "name": "hypermill-materials.json",
+          "purpose": "hyperMILL material database",
+          "backup_priority": 2
+        },
+        {
+          "name": "sandvik-master-extracted.json",
+          "purpose": "Sandvik master tool catalog",
+          "backup_priority": 2
+        },
+        {
+          "name": "controller-knowledge.json",
+          "purpose": "CNC controller information",
+          "backup_priority": 3
+        }
+      ]
+    }
+  },
+
+  "integrity_checks": {
+    "registries_typescript": {
+      "validation": "npx tsc --noEmit src/registries/*.ts",
+      "expected": "no errors"
+    },
+    "json_validity": {
+      "validation": "node -e \"JSON.parse(require('fs').readFileSync('FILE'))\"",
+      "expected": "no parse errors"
+    },
+    "formula_count": {
+      "expected_minimum": 109,
+      "source": "FormulaRegistry.ts header comment"
+    },
+    "algorithm_count": {
+      "expected_minimum": 52,
+      "source": "AlgorithmRegistry.ts"
+    }
+  },
+
+  "backup_locations": {
+    "primary": "data/backups/critical/",
+    "secondary": ".git (version controlled)",
+    "offsite": "configured per deployment",
+    "last_backup": "2026-04-12T16:45:49Z",
+    "backup_verified": true
+  },
+
+  "validation_status": {
+    "last_verified": "2026-04-12T16:45:49Z",
+    "build_status": "PASS",
+    "json_files_valid": true,
+    "checksums_generated": true,
+    "physics_constants_intact": true
+  },
+
+  "recovery_procedure": {
+    "steps": [
+      "1. Verify backup integrity with checksums",
+      "2. Stop MCP server",
+      "3. Restore files from backup",
+      "4. Run integrity checks",
+      "5. Restart MCP server",
+      "6. Verify all engines load correctly"
+    ]
+  },
+
+  "dependencies": {
+    "MaterialRegistry": ["FormulaRegistry", "PhysicsMappingRegistry"],
+    "FormulaRegistry": ["constants.ts", "AlgorithmRegistry"],
+    "AlgorithmRegistry": ["constants.ts"],
+    "ToolRegistry": ["MaterialRegistry", "CoatingRegistry"],
+    "MachineRegistry": ["SpindleDefaults"]
+  }
+}

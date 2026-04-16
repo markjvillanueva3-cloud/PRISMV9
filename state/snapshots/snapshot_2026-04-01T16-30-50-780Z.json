@@ -1,0 +1,343 @@
+{
+  "checkpoints": [],
+  "completedExtractions": [
+    {
+      "category": "machines/CORE",
+      "date": "2026-01-20",
+      "files": 8,
+      "totalLines": 4489
+    },
+    {
+      "category": "machines/ENHANCED",
+      "date": "2026-01-20",
+      "machines": 310,
+      "manufacturers": 33
+    },
+    {
+      "category": "materials/DEEP-ACCURACY-V2",
+      "compositionsMatched": 5095,
+      "date": "2026-02-27",
+      "materials": 6353
+    }
+  ],
+  "context_dna": "a4244ed7db964010",
+  "currentSession": {
+    "id": "SESSION-1775061050720",
+    "name": "Session 2026-04-01",
+    "startTime": "2026-04-01T16:30:50.720Z",
+    "status": "IN_PROGRESS",
+    "phase": "0",
+    "progress": {}
+  },
+  "lastUpdated": "2026-04-01T16:30:50.720Z",
+  "last_checkpoint": null,
+  "layers": {
+    "L0": {
+      "details": "14 registries + 12 core + 12 specialty databases. 6,353 materials (165 params), 310 machines, 29,569 registry entries. Materials DB v10.2 deep accuracy.",
+      "existing": 38,
+      "milestones": 5,
+      "milestonesComplete": 5,
+      "name": "Data Foundation",
+      "sessions": "10-14",
+      "status": "complete",
+      "target": 38
+    },
+    "L1": {
+      "details": "50 algorithms verified (QA-MS0). Includes 17 original + 14 monolith port + 19 new.",
+      "existing": 50,
+      "milestones": 4,
+      "milestonesComplete": 4,
+      "name": "Algorithm Foundation",
+      "sessions": "6-8",
+      "status": "complete",
+      "target": 44
+    },
+    "L10": {
+      "details": "Security, CI/CD, monitoring, cross-cutting features.",
+      "existing": 0,
+      "milestones": 4,
+      "milestonesComplete": 0,
+      "name": "Enterprise & Production",
+      "sessions": "8-12",
+      "status": "not_started",
+      "target": 4
+    },
+    "L2": {
+      "details": "169 engines verified (QA-MS0). 75 original + 94 new. QA-MS3 core calc audit complete.",
+      "existing": 169,
+      "milestones": 5,
+      "milestonesComplete": 4,
+      "name": "Engine Foundation",
+      "sessions": "20-26",
+      "status": "in_progress",
+      "target": 187
+    },
+    "L3": {
+      "details": "45 dispatchers, 1060 actions verified (QA-MS0). QA-MS6/8/9 dispatchers audited.",
+      "existing": 45,
+      "milestones": 2,
+      "milestonesComplete": 2,
+      "name": "Dispatcher Layer",
+      "sessions": "4-6",
+      "status": "complete",
+      "target": 44
+    },
+    "L4": {
+      "details": "157 hooks verified (QA-MS0). QA-MS1 safety chain: 2 CRITICAL fixed, S(x) hardened.",
+      "existing": 157,
+      "milestones": 2,
+      "milestonesComplete": 2,
+      "name": "Hooks & Safety",
+      "sessions": "3-4",
+      "status": "complete",
+      "target": 152
+    },
+    "L5": {
+      "details": "153 skills (57 CC + 96 PRISM) + 48 scripts. 68 new planned.",
+      "existing": 201,
+      "milestones": 3,
+      "milestonesComplete": 1,
+      "name": "Skills & Scripts",
+      "sessions": "4-6",
+      "status": "in_progress",
+      "target": 269
+    },
+    "L6": {
+      "details": "50+ REST/WebSocket endpoints exposing all dispatcher actions.",
+      "existing": 0,
+      "milestones": 2,
+      "milestonesComplete": 0,
+      "name": "API Layer",
+      "sessions": "3-4",
+      "status": "not_started",
+      "target": 50
+    },
+    "L7": {
+      "details": "Speed & Feed Calculator — first launch product.",
+      "existing": 0,
+      "milestones": 4,
+      "milestonesComplete": 0,
+      "name": "SFC Product",
+      "sessions": "7-10",
+      "status": "not_started",
+      "target": 4
+    },
+    "L8": {
+      "details": "PPG, CAD/CAM Learning, ERP/Business, PASS2 Pages.",
+      "existing": 0,
+      "milestones": 7,
+      "milestonesComplete": 0,
+      "name": "Products 2-4",
+      "sessions": "30-42",
+      "status": "not_started",
+      "target": 7
+    },
+    "L9": {
+      "details": "CAD Geometry Kernel + CAM Toolpath Algorithms + WebGL 3D Viewer.",
+      "existing": 0,
+      "milestones": 3,
+      "milestonesComplete": 0,
+      "name": "CAD/CAM Kernel",
+      "sessions": "10-15",
+      "status": "not_started",
+      "target": 3
+    }
+  },
+  "materialsDatabase": {
+    "categories": {
+      "H_HARDENED": 364,
+      "K_CAST_IRON": 123,
+      "M_STAINLESS": 823,
+      "N_NONFERROUS": 932,
+      "P_STEELS": 2720,
+      "S_SUPERALLOYS": 133,
+      "X_SPECIALTY": 1258
+    },
+    "compositionsInDB": 775,
+    "confidenceDistribution": {
+      "HIGH": "~45%",
+      "LOW": "<1%",
+      "MEDIUM": "~4%",
+      "MEDIUM_HIGH": "~10%",
+      "SUBCATEGORY_SPECIFIC": "~40%"
+    },
+    "matchingStrategies": 39,
+    "metalCompositionCoverage": "100.0%",
+    "overallCompositionCoverage": "83.5%",
+    "parameterCount": 165,
+    "totalMaterials": 6353,
+    "version": "10.2-DEEP-ACCURACY"
+  },
+  "nextMilestone": {
+    "id": "QA-MS10",
+    "name": "Hook & Cadence Audit",
+    "sessions": "1-2"
+  },
+  "phases": {
+    "CC": {
+      "milestones": 12,
+      "milestonesComplete": 0,
+      "name": "Knowledge Engine",
+      "sessions": "35-40",
+      "status": "not_started"
+    },
+    "CC-EXT": {
+      "milestones": 6,
+      "milestonesComplete": 0,
+      "name": "Extended Learning",
+      "sessions": "18-24",
+      "status": "not_started"
+    },
+    "QA": {
+      "milestones": 15,
+      "milestonesComplete": 10,
+      "name": "QA Audit Track",
+      "sessions": "10-15",
+      "status": "in_progress"
+    }
+  },
+  "prism": {
+    "extractedFiles": 1775,
+    "monolithFiles": 830,
+    "monolithLines": 986621,
+    "sourceVersion": "8.89.002",
+    "targetVersion": "9.0.0"
+  },
+  "qaAudit": {
+    "completed": 10,
+    "milestones": [
+      {
+        "id": "QA-MS0",
+        "name": "Verified Baseline (Rubric + Inventories)",
+        "status": "complete"
+      },
+      {
+        "critical": 2,
+        "findings": 18,
+        "id": "QA-MS1",
+        "name": "Safety Chain Audit",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS2",
+        "name": "Quality Scoring Audit",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS3",
+        "name": "Core Calculation Engines",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS4",
+        "name": "Algorithm Suite Part 1",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS5",
+        "name": "Algorithm Suite Part 2 — Optimization & ML",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS6",
+        "name": "Intelligence Mega-Dispatcher",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS7",
+        "name": "Registry & Data Quality",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS8",
+        "name": "Manufacturing Dispatchers",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS9",
+        "name": "Infrastructure & Enterprise Dispatchers",
+        "status": "complete"
+      },
+      {
+        "id": "QA-MS10",
+        "name": "Hook & Cadence Audit",
+        "status": "pending"
+      },
+      {
+        "id": "QA-MS11",
+        "name": "Skill & Script Audit",
+        "status": "pending"
+      },
+      {
+        "id": "QA-MS12",
+        "name": "Integration Testing",
+        "status": "pending"
+      },
+      {
+        "id": "QA-MS13",
+        "name": "Performance & Load Testing",
+        "status": "pending"
+      },
+      {
+        "id": "QA-MS14",
+        "name": "Final Verification & Sign-off",
+        "status": "pending"
+      }
+    ],
+    "totalMilestones": 15
+  },
+  "quality_scores": {
+    "S": null,
+    "omega": null
+  },
+  "sessionArchives": [
+    {
+      "id": "0.EXT.1",
+      "name": "PRISM REBUILD LIVING SYSTEM - FIRST ACTUAL SESSION",
+      "status": "ARCHIVED"
+    },
+    {
+      "id": "0.EXT.1b",
+      "name": "MATERIALS DATABASE",
+      "status": "ARCHIVED"
+    },
+    {
+      "id": "0.EXT.2",
+      "name": "MACHINES DATABASE",
+      "status": "ARCHIVED"
+    }
+  ],
+  "session_id": "S-1773671131",
+  "started_at": "2026-03-16T09:25:31.179911",
+  "tool_calls": 0,
+  "updated_at": "2026-04-01T08:45:15.428398",
+  "verified": {
+    "actions": 1060,
+    "algorithms": 50,
+    "ccHooks": 18,
+    "ccSkills": 57,
+    "dispatchers": 45,
+    "engines": 169,
+    "formulas": 109,
+    "formulasTarget": 509,
+    "hooks": 157,
+    "materialCategories": 7,
+    "materialCompositions": 775,
+    "materialParams": 165,
+    "materials": 6353,
+    "metalCompositionCoverage": 100,
+    "omega": 1,
+    "prismSkills": 96,
+    "registries": 14,
+    "registryEntries": 29569,
+    "schemaVersion": "v2",
+    "scripts": 48,
+    "testsPassing": 152,
+    "testsTotal": 152,
+    "toolpathStrategies": 680,
+    "tscErrors": 0
+  },
+  "version": "3.0.0",
+  "work_items": [],
+  "_snapshot_ts": "2026-04-01T16:30:50.780Z"
+}

@@ -1,0 +1,469 @@
+{
+  "scan_date": "2026-02-23",
+  "task_id": "MS0-T1",
+  "total_files": 255,
+  "total_subdirectories": 17,
+  "note": "16 actual subdirectories + 'root_engines' (18 files directly in engines/ root, not in any subdirectory)",
+  "classification_rules": {
+    "safety_class": {
+      "CRITICAL": "physics, thermal, vibration, post_processor - direct machine safety impact",
+      "HIGH": "optimization, simulation, quality - computational correctness critical",
+      "MEDIUM": "business, machines, materials, tools - operational but not safety-critical",
+      "LOW": "ai_ml, ai_complete, cad_cam, cad_complete, core, infrastructure - support/enhancement layer"
+    },
+    "integration_wave": {
+      "1": "CRITICAL safety class - must integrate first with full validation",
+      "2": "HIGH safety class - integrate with testing",
+      "3": "MEDIUM safety class - standard integration",
+      "4": "LOW safety class - integrate last, enhancement layer"
+    },
+    "complexity": {
+      "S": "under 200 lines",
+      "M": "200-500 lines",
+      "L": "500-1000 lines",
+      "XL": "1000+ lines"
+    }
+  },
+  "summary": {
+    "by_safety_class": {
+      "CRITICAL": {"file_count": 41, "subdirs": ["physics", "post_processor", "vibration", "root_engines"]},
+      "HIGH": {"file_count": 35, "subdirs": ["optimization", "simulation", "quality"]},
+      "MEDIUM": {"file_count": 26, "subdirs": ["business", "machines", "materials", "tools"]},
+      "LOW": {"file_count": 153, "subdirs": ["ai_ml", "ai_complete", "cad_cam", "cad_complete", "core", "infrastructure"]}
+    },
+    "by_complexity": {
+      "S": {"count": 63, "description": "under 200 lines - quick to integrate"},
+      "M": {"count": 117, "description": "200-500 lines - moderate effort"},
+      "L": {"count": 49, "description": "500-1000 lines - significant effort"},
+      "XL": {"count": 26, "description": "1000+ lines - major effort, may need decomposition"}
+    },
+    "by_wave": {
+      "wave_1": {"count": 41, "description": "CRITICAL safety - physics/thermal/vibration/post_processor/root_engines"},
+      "wave_2": {"count": 35, "description": "HIGH - optimization/simulation/quality"},
+      "wave_3": {"count": 26, "description": "MEDIUM - business/machines/materials/tools"},
+      "wave_4": {"count": 153, "description": "LOW - AI/ML/CAD/core/infrastructure"}
+    }
+  },
+  "categories": {
+    "physics": {
+      "file_count": 9,
+      "safety_class": "CRITICAL",
+      "integration_wave": 1,
+      "description": "Core physics engines: cutting mechanics, kinematics, contact constraints, thermal, and Jacobian solvers. Direct impact on machine safety through force/deflection/thermal calculations.",
+      "files": [
+        {"name": "PRISM_AI_100_PHYSICS_GENERATOR.js", "lines": 3675, "size_kb": 163.9, "complexity": "XL", "description": "AI-driven physics parameter generation for 100% coverage"},
+        {"name": "PRISM_CALCULATOR_PHYSICS_ENGINE.js", "lines": 350, "size_kb": 13.8, "complexity": "M", "description": "Calculator-integrated physics computations"},
+        {"name": "PRISM_CONTACT_CONSTRAINT_ENGINE.js", "lines": 447, "size_kb": 13.9, "complexity": "M", "description": "Contact and constraint physics for tool-workpiece interaction"},
+        {"name": "PRISM_INVERSE_KINEMATICS_SOLVER.js", "lines": 356, "size_kb": 13.4, "complexity": "M", "description": "Inverse kinematics solver for multi-axis machines"},
+        {"name": "PRISM_JACOBIAN_ENGINE.js", "lines": 236, "size_kb": 8.9, "complexity": "M", "description": "Jacobian matrix computation for kinematic chains"},
+        {"name": "PRISM_KINEMATIC_SOLVER.js", "lines": 549, "size_kb": 16.6, "complexity": "L", "description": "Machine kinematic models (3-axis, 4-axis, 5-axis VMC/HMC)"},
+        {"name": "PRISM_LATHE_PARAM_ENGINE.js", "lines": 650, "size_kb": 29.6, "complexity": "L", "description": "Comprehensive lathe parameter engine with setup analysis"},
+        {"name": "PRISM_PHYSICS_ENGINE.js", "lines": 2974, "size_kb": 100.6, "complexity": "XL", "description": "Core physics: deflection, force, power, thermal calculations"},
+        {"name": "PRISM_UNIFIED_CUTTING_ENGINE.js", "lines": 334, "size_kb": 12.1, "complexity": "M", "description": "Unified cutting parameter calculation with advanced roughing"}
+      ]
+    },
+    "post_processor": {
+      "file_count": 12,
+      "safety_class": "CRITICAL",
+      "integration_wave": 1,
+      "description": "G-code generation, validation, and post-processing engines. Safety-critical: incorrect G-code can cause machine crashes, tool breakage, or operator injury.",
+      "files": [
+        {"name": "POST_PROCESSOR_100_PERCENT.js", "lines": 1204, "size_kb": 40.5, "complexity": "XL", "description": "Complete post processor with G-code validator and modal state tracking"},
+        {"name": "POST_PROCESSOR_ENGINE_V2.js", "lines": 295, "size_kb": 11.0, "complexity": "M", "description": "V2 post processor engine"},
+        {"name": "PRISM_GCODE_BACKPLOT_ENGINE.js", "lines": 862, "size_kb": 27.6, "complexity": "L", "description": "G-code backplot visualization and verification"},
+        {"name": "PRISM_GCODE_PROGRAMMING_ENGINE.js", "lines": 127, "size_kb": 7.0, "complexity": "S", "description": "G-code programming utilities"},
+        {"name": "PRISM_GUARANTEED_POST_PROCESSOR.js", "lines": 307, "size_kb": 16.8, "complexity": "M", "description": "Guaranteed-correct post processor with safety checks"},
+        {"name": "PRISM_INTERNAL_POST_ENGINE.js", "lines": 930, "size_kb": 46.0, "complexity": "L", "description": "Internal post engine with user selection and machine-specific output"},
+        {"name": "PRISM_POST_INTEGRATION_MODULE.js", "lines": 676, "size_kb": 21.7, "complexity": "L", "description": "Post processor integration module"},
+        {"name": "PRISM_POST_OPTIMIZER.js", "lines": 121, "size_kb": 6.5, "complexity": "S", "description": "Post-processing optimization for rapid moves and feed rates"},
+        {"name": "PRISM_POST_PROCESSOR_DATABASE_V2.js", "lines": 2717, "size_kb": 105.3, "complexity": "XL", "description": "Post processor database with G-force physics engine and controller configs"},
+        {"name": "PRISM_POST_PROCESSOR_ENGINE.js", "lines": 138, "size_kb": 4.4, "complexity": "S", "description": "Core post processor engine"},
+        {"name": "PRISM_POST_PROCESSOR_GENERATOR.js", "lines": 336, "size_kb": 10.3, "complexity": "M", "description": "Post processor generator for new machine configurations"},
+        {"name": "PRISM_RL_POST_PROCESSOR.js", "lines": 172, "size_kb": 5.4, "complexity": "S", "description": "Reinforcement learning enhanced post processor"}
+      ]
+    },
+    "vibration": {
+      "file_count": 2,
+      "safety_class": "CRITICAL",
+      "integration_wave": 1,
+      "description": "Chatter detection and vibration analysis engines. Safety-critical: undetected chatter causes tool breakage and part damage.",
+      "files": [
+        {"name": "PRISM_CALCULATOR_CHATTER_ENGINE.js", "lines": 133, "size_kb": 6.8, "complexity": "S", "description": "Stability analysis with critical depth calculation and risk assessment"},
+        {"name": "PRISM_PHASE1_CHATTER_SYSTEM.js", "lines": 42, "size_kb": 1.3, "complexity": "S", "description": "Phase 1 chatter detection system initialization"}
+      ]
+    },
+    "root_engines": {
+      "file_count": 18,
+      "safety_class": "CRITICAL",
+      "integration_wave": 1,
+      "description": "Root-level engine files not in subdirectories. Predominantly physics/thermal/vibration engines with direct safety impact. Includes cutting mechanics, thermal modeling, tool life prediction, and signal processing.",
+      "files": [
+        {"name": "PRISM_ADVANCED_KINEMATICS_ENGINE.js", "lines": 609, "size_kb": 22.8, "complexity": "L", "description": "Advanced multi-axis kinematic transformations", "logical_domain": "physics"},
+        {"name": "PRISM_CHATTER_PREDICTION_ENGINE.js", "lines": 397, "size_kb": 16.3, "complexity": "M", "description": "Stability lobe prediction for chatter avoidance", "logical_domain": "vibration"},
+        {"name": "PRISM_CUTTING_MECHANICS_ENGINE.js", "lines": 277, "size_kb": 10.9, "complexity": "M", "description": "Cutting force and mechanics calculations", "logical_domain": "physics"},
+        {"name": "PRISM_CUTTING_PHYSICS.js", "lines": 214, "size_kb": 7.9, "complexity": "M", "description": "Cutting physics fundamentals", "logical_domain": "physics"},
+        {"name": "PRISM_CUTTING_THERMAL_ENGINE.js", "lines": 2755, "size_kb": 110.1, "complexity": "XL", "description": "Shear plane temperature, Trigger-Chao model, thermal analysis", "logical_domain": "physics/thermal"},
+        {"name": "PRISM_HEAT_TRANSFER_ENGINE.js", "lines": 471, "size_kb": 18.4, "complexity": "M", "description": "Heat transfer calculations for machining", "logical_domain": "physics/thermal"},
+        {"name": "PRISM_INTELLIGENT_CUTTING_PARAM_ENGINE.js", "lines": 705, "size_kb": 29.5, "complexity": "L", "description": "Intelligent cutting parameter optimization", "logical_domain": "physics"},
+        {"name": "PRISM_JOHNSON_COOK_DATABASE.js", "lines": 150, "size_kb": 7.8, "complexity": "S", "description": "Johnson-Cook material constitutive model parameters", "logical_domain": "physics/materials"},
+        {"name": "PRISM_PHASE1_SPEED_FEED_CALCULATOR.js", "lines": 237, "size_kb": 8.5, "complexity": "M", "description": "Speed and feed calculator", "logical_domain": "physics"},
+        {"name": "PRISM_PHASE3_ADVANCED_SIGNAL.js", "lines": 441, "size_kb": 14.9, "complexity": "M", "description": "Discrete wavelet transform and advanced signal processing", "logical_domain": "vibration/signal"},
+        {"name": "PRISM_PHASE3_MANUFACTURING_PHYSICS.js", "lines": 152, "size_kb": 5.5, "complexity": "S", "description": "Manufacturing physics Phase 3", "logical_domain": "physics"},
+        {"name": "PRISM_RIGID_BODY_DYNAMICS_ENGINE.js", "lines": 14, "size_kb": 0.6, "complexity": "S", "description": "Rigid body dynamics (stub/placeholder)", "logical_domain": "physics"},
+        {"name": "PRISM_SURFACE_FINISH_ENGINE.js", "lines": 299, "size_kb": 11.0, "complexity": "M", "description": "Surface finish calculation per ISO 1302 / ASME Y14.36", "logical_domain": "quality"},
+        {"name": "PRISM_THERMAL_EXPANSION_ENGINE.js", "lines": 1563, "size_kb": 65.8, "complexity": "XL", "description": "Linear/volumetric thermal expansion per Bryan Principles", "logical_domain": "physics/thermal"},
+        {"name": "PRISM_THERMAL_MODELING.js", "lines": 192, "size_kb": 6.6, "complexity": "S", "description": "Thermal analysis modeling", "logical_domain": "physics/thermal"},
+        {"name": "PRISM_TOOL_LIFE_ENGINE.js", "lines": 192, "size_kb": 8.1, "complexity": "S", "description": "Tool wear and life prediction", "logical_domain": "tools"},
+        {"name": "PRISM_VIBRATION_ANALYSIS_ENGINE.js", "lines": 399, "size_kb": 15.6, "complexity": "M", "description": "Vibration analysis per MIT 16.07 and Altintas models", "logical_domain": "vibration"},
+        {"name": "SPEED_FEED_UI.js", "lines": 894, "size_kb": 38.8, "complexity": "L", "description": "Speed/feed calculator UI with history and overrides", "logical_domain": "ui/tools"}
+      ]
+    },
+    "optimization": {
+      "file_count": 25,
+      "safety_class": "HIGH",
+      "integration_wave": 2,
+      "description": "Mathematical optimization engines: combinatorial, multi-objective, constrained/unconstrained, swarm intelligence, trust region, and interior point methods. Computational correctness directly affects machining parameters.",
+      "files": [
+        {"name": "PRISM_ACO_SEQUENCER.js", "lines": 758, "size_kb": 27.4, "complexity": "L", "description": "Ant Colony Optimization for operation sequencing"},
+        {"name": "PRISM_ADVANCED_FEED_OPTIMIZER.js", "lines": 66, "size_kb": 2.1, "complexity": "S", "description": "Advanced feed rate optimization"},
+        {"name": "PRISM_ADVANCED_OPTIMIZATION_ENGINE.js", "lines": 1018, "size_kb": 33.2, "complexity": "XL", "description": "Advanced optimization with multiple solver strategies"},
+        {"name": "PRISM_ADVANCED_UNCONSTRAINED_OPTIMIZER.js", "lines": 1825, "size_kb": 68.8, "complexity": "XL", "description": "Unconstrained optimization: conjugate gradient, L-BFGS, Newton methods"},
+        {"name": "PRISM_CALCULATOR_OPTIMIZER.js", "lines": 147, "size_kb": 8.5, "complexity": "S", "description": "Calculator-integrated optimizer"},
+        {"name": "PRISM_COMBINATORIAL_OPTIMIZER.js", "lines": 3938, "size_kb": 161.8, "complexity": "XL", "description": "Branch & Bound, cutting planes, dynamic programming per MIT 15.083J"},
+        {"name": "PRISM_CONSTRAINED_OPTIMIZER.js", "lines": 484, "size_kb": 18.0, "complexity": "M", "description": "Constrained optimization with penalty/barrier methods"},
+        {"name": "PRISM_INTERIOR_POINT_ENGINE.js", "lines": 373, "size_kb": 13.1, "complexity": "M", "description": "Interior point method for linear/quadratic programming"},
+        {"name": "PRISM_MFG_OPTIMIZATION.js", "lines": 186, "size_kb": 6.4, "complexity": "S", "description": "Manufacturing-specific optimization"},
+        {"name": "PRISM_MFG_OPTIMIZATION_ADVANCED_B.js", "lines": 198, "size_kb": 7.1, "complexity": "S", "description": "Advanced manufacturing optimization variant B"},
+        {"name": "PRISM_MOEAD_ENGINE.js", "lines": 425, "size_kb": 18.0, "complexity": "M", "description": "MOEA/D multi-objective evolutionary algorithm"},
+        {"name": "PRISM_MONTE_CARLO_ENGINE.js", "lines": 348, "size_kb": 12.4, "complexity": "M", "description": "Monte Carlo simulation for uncertainty quantification"},
+        {"name": "PRISM_MULTI_OBJECTIVE_ENGINE.js", "lines": 377, "size_kb": 15.7, "complexity": "M", "description": "Multi-objective optimization engine"},
+        {"name": "PRISM_MULTI_OBJECTIVE_OPTIMIZER.js", "lines": 300, "size_kb": 10.0, "complexity": "M", "description": "Multi-objective optimizer with Pareto front"},
+        {"name": "PRISM_PHASE1_OPTIMIZERS.js", "lines": 808, "size_kb": 29.7, "complexity": "L", "description": "Phase 1 optimization algorithms collection"},
+        {"name": "PRISM_POST_OPTIMIZER.js", "lines": 122, "size_kb": 6.5, "complexity": "S", "description": "Post-optimization pass for toolpaths"},
+        {"name": "PRISM_RAPIDS_OPTIMIZER.js", "lines": 132, "size_kb": 4.0, "complexity": "S", "description": "Rapid move optimization"},
+        {"name": "PRISM_RAPID_PATH_OPTIMIZER.js", "lines": 325, "size_kb": 11.4, "complexity": "M", "description": "Rapid path optimization for non-cutting moves"},
+        {"name": "PRISM_ROBUST_OPTIMIZATION.js", "lines": 256, "size_kb": 8.7, "complexity": "M", "description": "Robust optimization under uncertainty"},
+        {"name": "PRISM_SQP_INTERIOR_POINT_ENGINE.js", "lines": 897, "size_kb": 35.5, "complexity": "L", "description": "SQP and interior point for constrained optimization per MIT 6.251J"},
+        {"name": "PRISM_SWARM_ALGORITHMS.js", "lines": 310, "size_kb": 12.2, "complexity": "M", "description": "Swarm intelligence algorithms"},
+        {"name": "PRISM_SWARM_NEURAL_HYBRID.js", "lines": 193, "size_kb": 6.9, "complexity": "S", "description": "Swarm-neural network hybrid optimizer"},
+        {"name": "PRISM_SWARM_TOOLPATH.js", "lines": 237, "size_kb": 8.5, "complexity": "M", "description": "Swarm-based toolpath optimization"},
+        {"name": "PRISM_TRUST_REGION_OPTIMIZER.js", "lines": 374, "size_kb": 12.8, "complexity": "M", "description": "Trust region optimization method"},
+        {"name": "PRISM_UNCONSTRAINED_OPTIMIZATION.js", "lines": 528, "size_kb": 18.5, "complexity": "L", "description": "Unconstrained optimization fundamentals"}
+      ]
+    },
+    "simulation": {
+      "file_count": 7,
+      "safety_class": "HIGH",
+      "integration_wave": 2,
+      "description": "Collision detection, motion simulation, 3D visualization, and stock verification. High safety class: undetected collisions can damage machines.",
+      "files": [
+        {"name": "PRISM_3D_TOOLPATH_STRATEGY_ENGINE.js", "lines": 102, "size_kb": 4.6, "complexity": "S", "description": "3D toolpath strategy selection and configuration"},
+        {"name": "PRISM_3D_VISUALIZATION_ENGINE.js", "lines": 235, "size_kb": 8.6, "complexity": "M", "description": "Three.js-based 3D visualization with color schemes"},
+        {"name": "PRISM_COLLISION_ALGORITHMS.js", "lines": 284, "size_kb": 10.5, "complexity": "M", "description": "Collision detection algorithms library"},
+        {"name": "PRISM_COLLISION_DETECTION_V2.js", "lines": 416, "size_kb": 13.4, "complexity": "M", "description": "Enhanced collision detection V2"},
+        {"name": "PRISM_COLLISION_ENGINE.js", "lines": 304, "size_kb": 9.9, "complexity": "M", "description": "Core collision detection with AABB and tool bounding boxes"},
+        {"name": "PRISM_COLLISION_MOTION.js", "lines": 1295, "size_kb": 48.9, "complexity": "XL", "description": "GJK algorithm, EPA, motion planning collision analysis"},
+        {"name": "PRISM_STOCK_POSITIONS_DATABASE.js", "lines": 39, "size_kb": 2.3, "complexity": "S", "description": "Stock positions database for simulation"}
+      ]
+    },
+    "quality": {
+      "file_count": 3,
+      "safety_class": "HIGH",
+      "integration_wave": 2,
+      "description": "Quality management: inspection, SPC, non-conformance tracking, corrective actions. High importance for manufacturing compliance.",
+      "files": [
+        {"name": "PRISM_INSPECTION_ENGINE.js", "lines": 206, "size_kb": 5.7, "complexity": "M", "description": "Inspection planning and execution engine"},
+        {"name": "PRISM_PHASE2_QUALITY_SYSTEM.js", "lines": 404, "size_kb": 13.4, "complexity": "M", "description": "Phase 2 quality management system"},
+        {"name": "PRISM_QUALITY_MANAGER.js", "lines": 378, "size_kb": 14.5, "complexity": "M", "description": "Quality manager with SPC, NCR, CAR tracking per ISO standards"}
+      ]
+    },
+    "business": {
+      "file_count": 11,
+      "safety_class": "MEDIUM",
+      "integration_wave": 3,
+      "description": "Business operations: job scheduling, costing, quoting, financials, inventory, order management, subscriptions. Operational importance but not safety-critical.",
+      "files": [
+        {"name": "PRISM_FINANCIAL_ENGINE.js", "lines": 183, "size_kb": 6.5, "complexity": "S", "description": "NPV, ROI, and financial calculations"},
+        {"name": "PRISM_INVENTORY_ENGINE.js", "lines": 159, "size_kb": 5.7, "complexity": "S", "description": "Inventory tracking and management"},
+        {"name": "PRISM_JOB_COSTING_ENGINE.js", "lines": 379, "size_kb": 13.6, "complexity": "M", "description": "Job costing with material, labor, and overhead"},
+        {"name": "PRISM_JOB_SHOP_SCHEDULING_ENGINE.js", "lines": 926, "size_kb": 38.8, "complexity": "L", "description": "Job shop scheduling with dispatching rules per MIT 15.053"},
+        {"name": "PRISM_JOB_TRACKING_ENGINE.js", "lines": 246, "size_kb": 8.0, "complexity": "M", "description": "Job tracking and status management"},
+        {"name": "PRISM_ORDER_MANAGER.js", "lines": 330, "size_kb": 12.8, "complexity": "M", "description": "Order management system"},
+        {"name": "PRISM_PURCHASING_SYSTEM.js", "lines": 342, "size_kb": 17.6, "complexity": "M", "description": "Purchasing and procurement system"},
+        {"name": "PRISM_QUOTING_ENGINE.js", "lines": 215, "size_kb": 7.9, "complexity": "M", "description": "Quoting with margin targets, rush/prototype pricing, volume discounts"},
+        {"name": "PRISM_REPORTING_ENGINE.js", "lines": 412, "size_kb": 17.5, "complexity": "M", "description": "Business reporting engine"},
+        {"name": "PRISM_SCHEDULING_ENGINE.js", "lines": 182, "size_kb": 5.9, "complexity": "S", "description": "Production scheduling engine"},
+        {"name": "PRISM_SUBSCRIPTION_SYSTEM.js", "lines": 270, "size_kb": 10.3, "complexity": "M", "description": "Subscription management system"}
+      ]
+    },
+    "machines": {
+      "file_count": 4,
+      "safety_class": "MEDIUM",
+      "integration_wave": 3,
+      "description": "Machine-specific engines: 3D system visualization, rigidity calculations, machine simulation. Medium safety - provides machine context data.",
+      "files": [
+        {"name": "PRISM_HIGH_FIDELITY_MACHINE_GENERATOR.js", "lines": 402, "size_kb": 13.1, "complexity": "M", "description": "High-fidelity 3D machine model generation"},
+        {"name": "PRISM_MACHINE_3D_SYSTEM.js", "lines": 545, "size_kb": 17.8, "complexity": "L", "description": "Machine 3D visualization and model management system"},
+        {"name": "PRISM_MACHINE_RIGIDITY_SYSTEM.js", "lines": 94, "size_kb": 2.9, "complexity": "S", "description": "Machine rigidity assessment system"},
+        {"name": "PRISM_MACHINE_SIMULATION_ENGINE.js", "lines": 253, "size_kb": 8.8, "complexity": "M", "description": "Machine motion simulation engine"}
+      ]
+    },
+    "materials": {
+      "file_count": 2,
+      "safety_class": "MEDIUM",
+      "integration_wave": 3,
+      "description": "Material property simulation and REST API for material data. Supports material removal simulation and property lookup.",
+      "files": [
+        {"name": "PRISM_MATERIAL_SIMULATION_ENGINE.js", "lines": 232, "size_kb": 9.7, "complexity": "M", "description": "Material removal simulation with dexel model and collision detection"},
+        {"name": "PRISM_REST_MATERIAL_ENGINE.js", "lines": 234, "size_kb": 7.0, "complexity": "M", "description": "REST API for material property access"}
+      ]
+    },
+    "tools": {
+      "file_count": 9,
+      "safety_class": "MEDIUM",
+      "integration_wave": 3,
+      "description": "Tool management: 3D tool/holder generation, performance data, library management, lathe parameters, nose radius compensation.",
+      "files": [
+        {"name": "PRISM_ENHANCED_LATHE_LIVE_TOOLING_ENGINE.js", "lines": 635, "size_kb": 17.5, "complexity": "L", "description": "Enhanced lathe live tooling configuration"},
+        {"name": "PRISM_LATHE_PARAM_ENGINE.js", "lines": 649, "size_kb": 29.6, "complexity": "L", "description": "Comprehensive lathe parameter analysis and recommendations"},
+        {"name": "PRISM_PHASE1_TOOL_LIFE_MANAGER.js", "lines": 86, "size_kb": 2.8, "complexity": "S", "description": "Phase 1 tool life management"},
+        {"name": "PRISM_TOOL_3D_GENERATOR.js", "lines": 440, "size_kb": 12.0, "complexity": "M", "description": "3D tool model generation for all tool types"},
+        {"name": "PRISM_TOOL_GENERATOR.js", "lines": 197, "size_kb": 5.6, "complexity": "S", "description": "Tool geometry generation"},
+        {"name": "PRISM_TOOL_HOLDER_3D_GENERATOR.js", "lines": 558, "size_kb": 17.9, "complexity": "L", "description": "3D tool holder model generation"},
+        {"name": "PRISM_TOOL_LIBRARY_MANAGER.js", "lines": 169, "size_kb": 5.8, "complexity": "S", "description": "Tool library CRUD management"},
+        {"name": "PRISM_TOOL_NOSE_RADIUS_COMPENSATION_ENGINE.js", "lines": 81, "size_kb": 3.0, "complexity": "S", "description": "Tool nose radius compensation calculations"},
+        {"name": "PRISM_TOOL_PERFORMANCE_ENGINE.js", "lines": 1236, "size_kb": 44.3, "complexity": "XL", "description": "Tool performance data: coatings, materials, speed factors"}
+      ]
+    },
+    "ai_ml": {
+      "file_count": 74,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "Machine learning and AI engines: neural networks, decision trees, reinforcement learning, genetic algorithms, PSO, Bayesian methods, NLP, OCR, clustering, deep learning. Enhancement layer that improves recommendations but not safety-critical.",
+      "files": [
+        {"name": "PRISM_ACTIVATIONS_ENGINE.js", "lines": 163, "size_kb": 4.6, "complexity": "S", "description": "Neural network activation functions"},
+        {"name": "PRISM_ADVANCED_DQN.js", "lines": 725, "size_kb": 25.5, "complexity": "L", "description": "Deep Q-Network with extensions for RL"},
+        {"name": "PRISM_AIRCUT_ELIMINATION_ENGINE.js", "lines": 5228, "size_kb": 308.2, "complexity": "XL", "description": "Air cut detection and elimination using AI"},
+        {"name": "PRISM_AI_100_ENGINE_WRAPPER.js", "lines": 15, "size_kb": 0.4, "complexity": "S", "description": "AI 100% engine wrapper stub"},
+        {"name": "PRISM_AI_100_PHYSICS_GENERATOR.js", "lines": 3676, "size_kb": 163.9, "complexity": "XL", "description": "AI-driven physics parameter generation"},
+        {"name": "PRISM_AI_AUTO_CAM.js", "lines": 560, "size_kb": 21.8, "complexity": "L", "description": "AI-automated CAM programming"},
+        {"name": "PRISM_AI_COMPLETE_SYSTEM.js", "lines": 376, "size_kb": 15.1, "complexity": "M", "description": "AI system integration hub"},
+        {"name": "PRISM_AI_INTEGRATED_SYSTEM.js", "lines": 382, "size_kb": 16.7, "complexity": "M", "description": "AI integration hub for subsystem coordination"},
+        {"name": "PRISM_AI_ORCHESTRATION_ENGINE.js", "lines": 605, "size_kb": 21.2, "complexity": "L", "description": "AI orchestration and workflow coordination"},
+        {"name": "PRISM_AI_PHYSICS_ENGINE.js", "lines": 356, "size_kb": 12.3, "complexity": "M", "description": "AI-enhanced physics predictions"},
+        {"name": "PRISM_AI_TRAINING_DATA.js", "lines": 200, "size_kb": 12.9, "complexity": "M", "description": "AI training data definitions"},
+        {"name": "PRISM_ATTENTION_COMPLETE.js", "lines": 8, "size_kb": 0.3, "complexity": "S", "description": "Attention mechanism stub/redirect"},
+        {"name": "PRISM_ATTENTION_ENGINE.js", "lines": 281, "size_kb": 9.3, "complexity": "M", "description": "Attention mechanism implementations"},
+        {"name": "PRISM_AUTOENCODER.js", "lines": 146, "size_kb": 7.9, "complexity": "S", "description": "Autoencoder implementation"},
+        {"name": "PRISM_AXIS_BEHAVIOR_LEARNING_ENGINE.js", "lines": 367, "size_kb": 12.5, "complexity": "M", "description": "Machine axis behavior learning"},
+        {"name": "PRISM_BAYESIAN_LEARNING.js", "lines": 282, "size_kb": 10.1, "complexity": "M", "description": "Bayesian online learning"},
+        {"name": "PRISM_BAYESIAN_SYSTEM.js", "lines": 235, "size_kb": 8.3, "complexity": "M", "description": "Bayesian inference system"},
+        {"name": "PRISM_BAYESIAN_TOOL_LIFE.js", "lines": 369, "size_kb": 13.3, "complexity": "M", "description": "Bayesian tool life prediction"},
+        {"name": "PRISM_CALCULATOR_CONSTRAINT_ENGINE.js", "lines": 215, "size_kb": 9.0, "complexity": "M", "description": "Calculator constraint engine with ML"},
+        {"name": "PRISM_CALCULATOR_LEARNING_ENGINE.js", "lines": 281, "size_kb": 12.9, "complexity": "M", "description": "Learning from calculator usage patterns"},
+        {"name": "PRISM_CALCULATOR_RECOMMENDATION_ENGINE.js", "lines": 155, "size_kb": 8.8, "complexity": "S", "description": "ML-based calculator recommendations"},
+        {"name": "PRISM_CAM_LEARNING_ENGINE.js", "lines": 332, "size_kb": 11.9, "complexity": "M", "description": "CAM operation learning engine"},
+        {"name": "PRISM_CLUSTERING_ENGINE.js", "lines": 471, "size_kb": 15.3, "complexity": "M", "description": "K-means, DBSCAN, hierarchical clustering"},
+        {"name": "PRISM_CNN_ENGINE.js", "lines": 6, "size_kb": 0.3, "complexity": "S", "description": "CNN engine stub"},
+        {"name": "PRISM_COMPLEX_CAD_LEARNING_ENGINE.js", "lines": 326, "size_kb": 10.0, "complexity": "M", "description": "Learning from complex CAD feature patterns"},
+        {"name": "PRISM_CONTACT_CONSTRAINT_ENGINE.js", "lines": 448, "size_kb": 13.9, "complexity": "M", "description": "Contact constraint with ML integration"},
+        {"name": "PRISM_CONTACT_CONSTRAINT_LEARNING_ENGINE.js", "lines": 497, "size_kb": 15.4, "complexity": "M", "description": "Contact constraint learning from experience"},
+        {"name": "PRISM_CSP_ENHANCED_ENGINE.js", "lines": 361, "size_kb": 15.9, "complexity": "M", "description": "Enhanced constraint satisfaction problem solver"},
+        {"name": "PRISM_DECISION_TREE_ENGINE.js", "lines": 3172, "size_kb": 123.0, "complexity": "XL", "description": "Decision trees for classification and manufacturing decisions"},
+        {"name": "PRISM_DEEP_LEARNING.js", "lines": 19, "size_kb": 0.7, "complexity": "S", "description": "Deep learning module stub"},
+        {"name": "PRISM_DIFFERENTIAL_EVOLUTION.js", "lines": 601, "size_kb": 22.0, "complexity": "L", "description": "Differential evolution optimizer"},
+        {"name": "PRISM_DL.js", "lines": 600, "size_kb": 19.6, "complexity": "L", "description": "Deep learning framework"},
+        {"name": "PRISM_DQN_ENGINE.js", "lines": 136, "size_kb": 5.0, "complexity": "S", "description": "Deep Q-Network engine"},
+        {"name": "PRISM_ENSEMBLE_ENGINE.js", "lines": 260, "size_kb": 8.9, "complexity": "M", "description": "Ensemble learning methods"},
+        {"name": "PRISM_FAILSAFE_GENERATOR.js", "lines": 170, "size_kb": 4.9, "complexity": "S", "description": "AI failsafe parameter generation"},
+        {"name": "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", "lines": 386, "size_kb": 14.6, "complexity": "M", "description": "Fusion-style sketch constraint solving with ML"},
+        {"name": "PRISM_GA_ENGINE.js", "lines": 631, "size_kb": 23.8, "complexity": "L", "description": "Genetic algorithm optimizer"},
+        {"name": "PRISM_GRADIENT_BOOSTING.js", "lines": 205, "size_kb": 10.1, "complexity": "M", "description": "Gradient boosting implementation"},
+        {"name": "PRISM_GRAPH_ALGORITHMS_ENGINE.js", "lines": 441, "size_kb": 16.7, "complexity": "M", "description": "Graph algorithm library for ML"},
+        {"name": "PRISM_INTELLIGENT_DECISION_ENGINE.js", "lines": 1612, "size_kb": 58.7, "complexity": "XL", "description": "Intelligent decision engine with multiple ML models"},
+        {"name": "PRISM_LEAN_SIX_SIGMA_KAIZEN.js", "lines": 1471, "size_kb": 66.6, "complexity": "XL", "description": "Lean Six Sigma and Kaizen methodology engine"},
+        {"name": "PRISM_LOSS_FUNCTIONS_ENGINE.js", "lines": 145, "size_kb": 4.3, "complexity": "S", "description": "ML loss function library"},
+        {"name": "PRISM_LSTM_ENGINE.js", "lines": 69, "size_kb": 3.2, "complexity": "S", "description": "LSTM recurrent neural network"},
+        {"name": "PRISM_MACHINE_3D_LEARNING_ENGINE.js", "lines": 382, "size_kb": 19.7, "complexity": "M", "description": "Machine 3D model learning from usage"},
+        {"name": "PRISM_MESH_REPAIR_ENGINE.js", "lines": 567, "size_kb": 21.3, "complexity": "L", "description": "3D mesh repair algorithms"},
+        {"name": "PRISM_ML.js", "lines": 948, "size_kb": 36.2, "complexity": "L", "description": "Core ML framework: neural network layers, activations, training"},
+        {"name": "PRISM_ML_ALGORITHMS.js", "lines": 747, "size_kb": 27.4, "complexity": "L", "description": "ML algorithms collection"},
+        {"name": "PRISM_ML_FEATURE_RECOGNITION.js", "lines": 286, "size_kb": 10.0, "complexity": "M", "description": "ML-based manufacturing feature recognition"},
+        {"name": "PRISM_MODEL_COMPRESSION_ENGINE.js", "lines": 285, "size_kb": 10.6, "complexity": "M", "description": "ML model compression and quantization"},
+        {"name": "PRISM_MONTE_CARLO_ENGINE.js", "lines": 349, "size_kb": 12.4, "complexity": "M", "description": "Monte Carlo simulation engine"},
+        {"name": "PRISM_NEURAL_ENGINE_ENHANCED.js", "lines": 331, "size_kb": 13.6, "complexity": "M", "description": "Enhanced neural network engine"},
+        {"name": "PRISM_NEURAL_NETWORK.js", "lines": 106, "size_kb": 4.6, "complexity": "S", "description": "Neural network foundation with Sequential model"},
+        {"name": "PRISM_NLP_ENGINE.js", "lines": 181, "size_kb": 5.9, "complexity": "S", "description": "Natural language processing engine"},
+        {"name": "PRISM_OCR_ENGINE.js", "lines": 277, "size_kb": 7.9, "complexity": "M", "description": "Optical character recognition engine"},
+        {"name": "PRISM_OPTIMIZERS_ENGINE.js", "lines": 314, "size_kb": 13.3, "complexity": "M", "description": "ML optimizer algorithms (Adam, SGD, RMSProp)"},
+        {"name": "PRISM_OPTIMIZER_ADVANCED.js", "lines": 174, "size_kb": 9.3, "complexity": "S", "description": "Multi-objective ML optimization"},
+        {"name": "PRISM_PARAMETRIC_CONSTRAINT_SOLVER.js", "lines": 636, "size_kb": 19.6, "complexity": "L", "description": "Parametric constraint solving with ML"},
+        {"name": "PRISM_PHASE3_ADVANCED_RL.js", "lines": 838, "size_kb": 29.4, "complexity": "L", "description": "Advanced reinforcement learning Phase 3"},
+        {"name": "PRISM_PHASE3_DEEP_LEARNING.js", "lines": 659, "size_kb": 24.0, "complexity": "L", "description": "Phase 3 deep learning implementations"},
+        {"name": "PRISM_PHASE6_DEEPLEARNING.js", "lines": 315, "size_kb": 12.9, "complexity": "M", "description": "Phase 6 deep learning"},
+        {"name": "PRISM_PIML_CHATTER_ENGINE.js", "lines": 860, "size_kb": 30.3, "complexity": "L", "description": "Physics-informed ML for chatter prediction"},
+        {"name": "PRISM_PROBABILISTIC_REASONING_ENGINE.js", "lines": 419, "size_kb": 16.9, "complexity": "M", "description": "Probabilistic reasoning and inference"},
+        {"name": "PRISM_PSO_OPTIMIZER.js", "lines": 862, "size_kb": 33.4, "complexity": "L", "description": "Particle Swarm Optimization"},
+        {"name": "PRISM_REGULARIZATION_ENGINE.js", "lines": 12613, "size_kb": 507.1, "complexity": "XL", "description": "Comprehensive regularization: dropout, L1/L2, batch norm, weight decay"},
+        {"name": "PRISM_RL_QLEARNING_ENGINE.js", "lines": 719, "size_kb": 25.7, "complexity": "L", "description": "Q-Learning and SARSA implementation"},
+        {"name": "PRISM_RL_SARSA_ENGINE.js", "lines": 84, "size_kb": 3.0, "complexity": "S", "description": "SARSA reinforcement learning"},
+        {"name": "PRISM_SEARCH_ENHANCED_ENGINE.js", "lines": 303, "size_kb": 13.4, "complexity": "M", "description": "Enhanced search with ML ranking"},
+        {"name": "PRISM_SEQUENCE_MODEL_ENGINE.js", "lines": 198, "size_kb": 7.5, "complexity": "S", "description": "Sequence model for temporal data"},
+        {"name": "PRISM_SIMULATED_ANNEALING.js", "lines": 569, "size_kb": 21.0, "complexity": "L", "description": "Simulated annealing optimizer"},
+        {"name": "PRISM_TRANSFORMER_ENGINE.js", "lines": 267, "size_kb": 12.2, "complexity": "M", "description": "Transformer architecture implementation"},
+        {"name": "PRISM_TRUE_AI_SYSTEM.js", "lines": 288, "size_kb": 11.5, "complexity": "M", "description": "True AI system integration"},
+        {"name": "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js", "lines": 5389, "size_kb": 192.9, "complexity": "XL", "description": "Unified CAD learning system"},
+        {"name": "PRISM_UNIFIED_LEARNING_ENGINE.js", "lines": 193, "size_kb": 7.4, "complexity": "S", "description": "Unified learning engine facade"},
+        {"name": "PRISM_XAI_ENGINE.js", "lines": 334, "size_kb": 11.6, "complexity": "M", "description": "Explainable AI engine"}
+      ]
+    },
+    "ai_complete": {
+      "file_count": 13,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "Complete AI/ML algorithm implementations: reinforcement learning, attention mechanisms, time series, clustering, GNN, hyperparameter optimization, online learning, XAI. Academic-sourced (Stanford, MIT).",
+      "files": [
+        {"name": "PRISM_ACTIVE_LEARNING_COMPLETE.js", "lines": 206, "size_kb": 7.2, "complexity": "M", "description": "Active learning implementation"},
+        {"name": "PRISM_ATTENTION_COMPLETE.js", "lines": 300, "size_kb": 13.1, "complexity": "M", "description": "Scaled dot-product and multi-head attention per Vaswani et al."},
+        {"name": "PRISM_CLUSTERING_COMPLETE.js", "lines": 605, "size_kb": 25.0, "complexity": "L", "description": "Complete clustering: K-means, DBSCAN, hierarchical"},
+        {"name": "PRISM_GNN_COMPLETE.js", "lines": 435, "size_kb": 18.1, "complexity": "M", "description": "Graph neural network complete implementation"},
+        {"name": "PRISM_HYPEROPT_COMPLETE.js", "lines": 327, "size_kb": 11.8, "complexity": "M", "description": "Hyperparameter optimization complete"},
+        {"name": "PRISM_LR_SCHEDULER_COMPLETE.js", "lines": 211, "size_kb": 7.0, "complexity": "M", "description": "Learning rate scheduler complete"},
+        {"name": "PRISM_NORMALIZATION_COMPLETE.js", "lines": 64, "size_kb": 3.3, "complexity": "S", "description": "Normalization techniques complete"},
+        {"name": "PRISM_ONLINE_LEARNING_COMPLETE.js", "lines": 460, "size_kb": 19.6, "complexity": "M", "description": "Online learning complete"},
+        {"name": "PRISM_OPTIMIZATION_COMPLETE.js", "lines": 199, "size_kb": 7.9, "complexity": "S", "description": "Optimization algorithms complete"},
+        {"name": "PRISM_RL_COMPLETE.js", "lines": 719, "size_kb": 29.8, "complexity": "L", "description": "Reinforcement learning complete: Q-learning, SARSA, policy gradient"},
+        {"name": "PRISM_TIME_SERIES_COMPLETE.js", "lines": 780, "size_kb": 29.4, "complexity": "L", "description": "Time series: exponential smoothing, ARIMA, forecasting"},
+        {"name": "PRISM_UNCERTAINTY_COMPLETE.js", "lines": 222, "size_kb": 7.2, "complexity": "M", "description": "Uncertainty quantification complete"},
+        {"name": "PRISM_XAI_COMPLETE.js", "lines": 392, "size_kb": 17.0, "complexity": "M", "description": "Explainable AI complete implementation"}
+      ]
+    },
+    "cad_cam": {
+      "file_count": 55,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "CAD/CAM engines: BREP, NURBS, BVH, sketch, topology, mesh, toolpath generation, surface reconstruction, feature recognition, collision, voxel stock. Large and diverse subsystem.",
+      "files": [
+        {"name": "PRISM_ADAPTIVE_CLEARING_ENGINE.js", "lines": 437, "size_kb": 16.9, "complexity": "M", "description": "Adaptive clearing toolpath generation"},
+        {"name": "PRISM_ADAPTIVE_TESSELLATION_ENGINE_V2.js", "lines": 218, "size_kb": 7.0, "complexity": "M", "description": "Adaptive tessellation for surfaces"},
+        {"name": "PRISM_ADVANCED_BLADE_SURFACE_ENGINE.js", "lines": 484, "size_kb": 17.2, "complexity": "M", "description": "Blade and impeller surface machining"},
+        {"name": "PRISM_ADVANCED_SWEEP_LOFT_ENGINE.js", "lines": 511, "size_kb": 15.4, "complexity": "L", "description": "Sweep and loft surface creation"},
+        {"name": "PRISM_BREP_CAD_GENERATOR_V2.js", "lines": 1293, "size_kb": 43.9, "complexity": "XL", "description": "B-Rep CAD geometry generator with topology"},
+        {"name": "PRISM_BREP_TESSELLATOR.js", "lines": 724, "size_kb": 22.3, "complexity": "L", "description": "B-Rep to mesh tessellation"},
+        {"name": "PRISM_BSPLINE_ENGINE.js", "lines": 207, "size_kb": 7.6, "complexity": "M", "description": "B-Spline curve and surface engine"},
+        {"name": "PRISM_BVH_ENGINE.js", "lines": 6562, "size_kb": 248.7, "complexity": "XL", "description": "Bounding Volume Hierarchy for collision detection"},
+        {"name": "PRISM_CAD_CAM_INTEGRATION_HUB.js", "lines": 567, "size_kb": 27.0, "complexity": "L", "description": "CAD/CAM integration coordination hub"},
+        {"name": "PRISM_CAD_CONFIDENCE_ENGINE.js", "lines": 199, "size_kb": 6.5, "complexity": "S", "description": "CAD operation confidence scoring"},
+        {"name": "PRISM_CAD_KERNEL_MIT.js", "lines": 286, "size_kb": 11.1, "complexity": "M", "description": "CAD kernel with MIT-sourced algorithms"},
+        {"name": "PRISM_CAD_MATH.js", "lines": 157, "size_kb": 7.8, "complexity": "S", "description": "CAD mathematical operations"},
+        {"name": "PRISM_CAD_QUALITY_ASSURANCE_ENGINE.js", "lines": 335, "size_kb": 9.8, "complexity": "M", "description": "CAD model quality assurance and validation"},
+        {"name": "PRISM_CAM_KERNEL_COMPLETE.js", "lines": 1237, "size_kb": 40.8, "complexity": "XL", "description": "Complete CAM kernel implementation"},
+        {"name": "PRISM_CAM_KERNEL_MIT.js", "lines": 176, "size_kb": 6.4, "complexity": "S", "description": "CAM kernel with MIT algorithms"},
+        {"name": "PRISM_CAM_TOOLPATH_PARAMETERS_ENGINE.js", "lines": 162, "size_kb": 5.8, "complexity": "S", "description": "CAM toolpath parameter management"},
+        {"name": "PRISM_CLIPPER2_ENGINE.js", "lines": 1317, "size_kb": 48.3, "complexity": "XL", "description": "Clipper2 polygon boolean operations"},
+        {"name": "PRISM_CONSTRUCTION_GEOMETRY_ENGINE.js", "lines": 461, "size_kb": 13.3, "complexity": "M", "description": "Construction geometry creation"},
+        {"name": "PRISM_CURVATURE_ANALYSIS_ENGINE.js", "lines": 319, "size_kb": 11.1, "complexity": "M", "description": "Surface curvature analysis"},
+        {"name": "PRISM_ENHANCED_MILL_TURN_CAM_ENGINE.js", "lines": 436, "size_kb": 14.2, "complexity": "M", "description": "Mill-turn CAM programming"},
+        {"name": "PRISM_ENHANCED_TOOLPATH_GENERATOR.js", "lines": 390, "size_kb": 13.2, "complexity": "M", "description": "Enhanced toolpath generation strategies"},
+        {"name": "PRISM_FEATURE_HISTORY_MANAGER.js", "lines": 492, "size_kb": 14.9, "complexity": "M", "description": "Parametric feature history management"},
+        {"name": "PRISM_FEATURE_INTERACTION_ENGINE.js", "lines": 879, "size_kb": 32.8, "complexity": "L", "description": "Feature interaction and dependency analysis"},
+        {"name": "PRISM_FEATURE_RECOGNITION_ENHANCED.js", "lines": 304, "size_kb": 10.5, "complexity": "M", "description": "Enhanced feature recognition from geometry"},
+        {"name": "PRISM_FILLETING_ENGINE.js", "lines": 408, "size_kb": 12.5, "complexity": "M", "description": "Fillet and chamfer creation"},
+        {"name": "PRISM_FUSION_SKETCH_CONSTRAINT_ENGINE.js", "lines": 385, "size_kb": 14.6, "complexity": "M", "description": "Fusion-style sketch constraint solver"},
+        {"name": "PRISM_GEODESIC_DISTANCE_ENGINE.js", "lines": 4050, "size_kb": 161.2, "complexity": "XL", "description": "Geodesic distance computation on meshes"},
+        {"name": "PRISM_GEOMETRY_ALGORITHMS.js", "lines": 386, "size_kb": 14.1, "complexity": "M", "description": "Core geometry algorithms library"},
+        {"name": "PRISM_INTELLIGENT_COLLISION_SYSTEM.js", "lines": 153, "size_kb": 5.1, "complexity": "S", "description": "Intelligent collision avoidance"},
+        {"name": "PRISM_ISOSURFACE_ENGINE.js", "lines": 227, "size_kb": 9.7, "complexity": "M", "description": "Isosurface extraction (marching cubes)"},
+        {"name": "PRISM_LATHE_TOOLPATH_ENGINE.js", "lines": 555, "size_kb": 14.0, "complexity": "L", "description": "Lathe-specific toolpath generation"},
+        {"name": "PRISM_MESH_DECIMATION_ENGINE.js", "lines": 466, "size_kb": 14.8, "complexity": "M", "description": "Mesh simplification/decimation"},
+        {"name": "PRISM_MOTION_PLANNING_ENHANCED_ENGINE.js", "lines": 344, "size_kb": 14.3, "complexity": "M", "description": "Enhanced motion planning for multi-axis"},
+        {"name": "PRISM_MULTIAXIS_TOOLPATH_ENGINE.js", "lines": 668, "size_kb": 26.3, "complexity": "L", "description": "Multi-axis (4/5 axis) toolpath generation"},
+        {"name": "PRISM_NURBS_ADVANCED_ENGINE.js", "lines": 139, "size_kb": 5.8, "complexity": "S", "description": "Advanced NURBS curve/surface operations"},
+        {"name": "PRISM_NURBS_LIBRARY.js", "lines": 237, "size_kb": 9.7, "complexity": "M", "description": "NURBS library for CAD geometry"},
+        {"name": "PRISM_OFFSET_SURFACE_ENGINE.js", "lines": 121, "size_kb": 5.3, "complexity": "S", "description": "Surface offset operations"},
+        {"name": "PRISM_PARAMETRIC_CAD_ENHANCEMENT_ENGINE.js", "lines": 266, "size_kb": 8.3, "complexity": "M", "description": "Parametric CAD model enhancement"},
+        {"name": "PRISM_REAL_CAD_PRIORITY_SYSTEM.js", "lines": 80, "size_kb": 3.0, "complexity": "S", "description": "CAD operation priority system"},
+        {"name": "PRISM_REAL_TOOLPATH_ENGINE.js", "lines": 14, "size_kb": 0.7, "complexity": "S", "description": "Real toolpath engine stub"},
+        {"name": "PRISM_REST_MACHINING_ENGINE.js", "lines": 621, "size_kb": 24.4, "complexity": "L", "description": "Rest machining and remaining material detection"},
+        {"name": "PRISM_SIEMENS_5AXIS_CAM_ENGINE.js", "lines": 295, "size_kb": 9.8, "complexity": "M", "description": "Siemens 5-axis CAM integration"},
+        {"name": "PRISM_SILHOUETTE_ENGINE.js", "lines": 248, "size_kb": 9.1, "complexity": "M", "description": "Silhouette edge detection"},
+        {"name": "PRISM_SKETCH_ENGINE.js", "lines": 681, "size_kb": 20.0, "complexity": "L", "description": "2D sketch engine with planes and constraints"},
+        {"name": "PRISM_SOLID_EDITING_ENGINE.js", "lines": 550, "size_kb": 16.1, "complexity": "L", "description": "Solid body editing operations"},
+        {"name": "PRISM_SURFACE_INTERSECTION_ENGINE.js", "lines": 126, "size_kb": 5.5, "complexity": "S", "description": "Surface-surface intersection"},
+        {"name": "PRISM_SURFACE_RECONSTRUCTION_ENGINE.js", "lines": 588, "size_kb": 19.8, "complexity": "L", "description": "Surface reconstruction from point clouds"},
+        {"name": "PRISM_TOOLPATH_OPTIMIZATION.js", "lines": 214, "size_kb": 8.1, "complexity": "M", "description": "Toolpath optimization algorithms"},
+        {"name": "PRISM_TOOLPATH_STRATEGIES_COMPLETE.js", "lines": 1048, "size_kb": 23.1, "complexity": "XL", "description": "Complete toolpath strategy library"},
+        {"name": "PRISM_TOPOLOGY_ENGINE.js", "lines": 911, "size_kb": 33.1, "complexity": "L", "description": "Topology engine for B-Rep operations"},
+        {"name": "PRISM_UNIFIED_3D_VIEWPORT_ENGINE.js", "lines": 935, "size_kb": 30.8, "complexity": "L", "description": "Unified 3D viewport and rendering"},
+        {"name": "PRISM_UNIFIED_TOOLPATH_DECISION_ENGINE.js", "lines": 347, "size_kb": 12.4, "complexity": "M", "description": "Toolpath strategy decision engine"},
+        {"name": "PRISM_V858_CAD_SYSTEM.js", "lines": 66, "size_kb": 2.7, "complexity": "S", "description": "V8.58 CAD system compatibility"},
+        {"name": "PRISM_VORONOI_ENGINE.js", "lines": 119, "size_kb": 3.9, "complexity": "S", "description": "Voronoi diagram generation"},
+        {"name": "PRISM_VOXEL_STOCK_ENGINE.js", "lines": 495, "size_kb": 15.5, "complexity": "M", "description": "Voxel-based stock model for simulation"}
+      ]
+    },
+    "cad_complete": {
+      "file_count": 4,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "Complete CAD/CAM subsystem implementations: full CAD generation, feature recognition, feature-to-strategy mapping. Consolidated modules.",
+      "files": [
+        {"name": "PRISM_COMPLETE_CAD_CAM_ENGINE.js", "lines": 308, "size_kb": 12.6, "complexity": "M", "description": "Complete CAD/CAM engine integration"},
+        {"name": "PRISM_COMPLETE_CAD_GENERATION_ENGINE.js", "lines": 2914, "size_kb": 98.7, "complexity": "XL", "description": "Complete CAD generation with math, geometry, BREP, and thread support"},
+        {"name": "PRISM_COMPLETE_FEATURE_ENGINE.js", "lines": 496, "size_kb": 16.0, "complexity": "M", "description": "Complete feature recognition and analysis"},
+        {"name": "PRISM_FEATURE_STRATEGY_COMPLETE.js", "lines": 1458, "size_kb": 32.3, "complexity": "XL", "description": "95 features with roughing/semi-finish/finishing strategy maps"}
+      ]
+    },
+    "core": {
+      "file_count": 5,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "Core orchestration and utility engines: enhanced orchestration, failsafe generation, interval arithmetic, numerical engine, unified output.",
+      "files": [
+        {"name": "PRISM_ENHANCED_ORCHESTRATION_ENGINE.js", "lines": 452, "size_kb": 15.8, "complexity": "M", "description": "Enhanced orchestration with 68 machine models and 7 post processors"},
+        {"name": "PRISM_FAILSAFE_GENERATOR.js", "lines": 169, "size_kb": 4.9, "complexity": "S", "description": "Failsafe parameter generation for error recovery"},
+        {"name": "PRISM_INTERVAL_ENGINE.js", "lines": 847, "size_kb": 26.8, "complexity": "L", "description": "Interval arithmetic for guaranteed numerical bounds"},
+        {"name": "PRISM_NUMERICAL_ENGINE.js", "lines": 19, "size_kb": 1.0, "complexity": "S", "description": "Numerical engine stub"},
+        {"name": "PRISM_UNIFIED_OUTPUT_ENGINE.js", "lines": 195, "size_kb": 7.7, "complexity": "S", "description": "Unified output formatting engine"}
+      ]
+    },
+    "infrastructure": {
+      "file_count": 2,
+      "safety_class": "LOW",
+      "integration_wave": 4,
+      "description": "Infrastructure engines: database management and event management. Foundational services for the engine ecosystem.",
+      "files": [
+        {"name": "PRISM_DB_MANAGER.js", "lines": 258, "size_kb": 10.5, "complexity": "M", "description": "Central database registry and management with layer-based access control"},
+        {"name": "PRISM_EVENT_MANAGER.js", "lines": 106, "size_kb": 2.9, "complexity": "S", "description": "Event listener management with automatic tracking and delegation"}
+      ]
+    }
+  },
+  "cross_references": {
+    "note": "Many engines reference each other. Key dependency chains identified during sampling:",
+    "critical_chains": [
+      "PHYSICS_ENGINE -> CUTTING_THERMAL_ENGINE -> THERMAL_EXPANSION_ENGINE (thermal safety chain)",
+      "POST_PROCESSOR_DATABASE_V2 -> INTERNAL_POST_ENGINE -> GCODE_BACKPLOT_ENGINE (G-code chain)",
+      "KINEMATIC_SOLVER -> INVERSE_KINEMATICS_SOLVER -> JACOBIAN_ENGINE (kinematics chain)",
+      "COLLISION_ENGINE -> COLLISION_MOTION -> BVH_ENGINE (collision safety chain)",
+      "CHATTER_PREDICTION_ENGINE -> VIBRATION_ANALYSIS_ENGINE -> CALCULATOR_CHATTER_ENGINE (vibration chain)"
+    ]
+  },
+  "recommendations": {
+    "wave_1_priority": "Start with physics/thermal/vibration/post_processor - these are the safety backbone. Total: 41 files (9 physics + 12 post_processor + 2 vibration + 18 root-level CRITICAL).",
+    "wave_2_priority": "Optimization (25) + simulation (7) + quality (3) = 35 files. High computational correctness requirements.",
+    "wave_3_priority": "Business (11) + machines (4) + materials (2) + tools (9) = 26 files. Operational but not safety-critical.",
+    "wave_4_priority": "AI/ML (74) + ai_complete (13) + cad_cam (55) + cad_complete (4) + core (5) + infrastructure (2) = 153 files. Enhancement layer.",
+    "xl_files_needing_decomposition": [
+      "PRISM_REGULARIZATION_ENGINE.js (12,613 lines) - needs splitting into sub-modules",
+      "PRISM_BVH_ENGINE.js (6,562 lines) - large but cohesive spatial data structure",
+      "PRISM_AIRCUT_ELIMINATION_ENGINE.js (5,228 lines) - AI detection + elimination could split",
+      "PRISM_UNIFIED_CAD_LEARNING_SYSTEM.js (5,389 lines) - learning subsystem, decomposable",
+      "PRISM_GEODESIC_DISTANCE_ENGINE.js (4,050 lines) - algorithmic, may stay monolithic",
+      "PRISM_COMBINATORIAL_OPTIMIZER.js (3,938 lines) - multiple algorithms, could split by type",
+      "PRISM_AI_100_PHYSICS_GENERATOR.js (3,676 lines) - physics generation, complex",
+      "PRISM_DECISION_TREE_ENGINE.js (3,172 lines) - ML trees, moderate complexity",
+      "PRISM_PHYSICS_ENGINE.js (2,974 lines) - core physics, could split: deflection/force/thermal",
+      "PRISM_COMPLETE_CAD_GENERATION_ENGINE.js (2,914 lines) - CAD gen with math+geometry",
+      "PRISM_CUTTING_THERMAL_ENGINE.js (2,755 lines) - thermal models, safety-critical"
+    ]
+  }
+}

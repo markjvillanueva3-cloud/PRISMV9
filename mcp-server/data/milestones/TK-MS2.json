@@ -1,0 +1,81 @@
+{
+  "id": "TK-MS2",
+  "title": "Consumer Delivery — Pipeline Integration",
+  "track": "TK",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 6,
+  "completed_units": 6,
+  "units": [
+    {
+      "id": "TK-MS2-U10",
+      "title": "PipelineRegistryBridge + PipelineDecisionOrchestrator tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PipelineRegistryBridge.ts",
+        "src/engines/PipelineDecisionOrchestratorEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    },
+    {
+      "id": "TK-MS2-U11",
+      "title": "WEDM + EDM tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/WEDMCompleteOrchestrationEngine.ts",
+        "src/engines/EDMProgramAssemblerEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    },
+    {
+      "id": "TK-MS2-U12",
+      "title": "PostProcessor + IntelligentSequencing tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PostProcessorPipelineEngine.ts",
+        "src/engines/IntelligentSequencingEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    },
+    {
+      "id": "TK-MS2-U13",
+      "title": "Turning + MillTurn + MultiAxis tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/TurningPrintToProgramEngine.ts",
+        "src/engines/MillTurnSwissPipelineEngine.ts",
+        "src/engines/MultiAxisPrintToProgramEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    },
+    {
+      "id": "TK-MS2-U14",
+      "title": "ProcessPlan + AutoProgram + Intelligence tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/ProcessPlanEngine.ts",
+        "src/engines/AutoProgramOrchestratorEngine.ts",
+        "src/engines/IntelligenceEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    },
+    {
+      "id": "TK-MS2-U15",
+      "title": "Grinding + Laser + Waterjet tribal integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/GrindingProgramAssemblerEngine.ts",
+        "src/engines/LaserProgramAssemblerEngine.ts",
+        "src/engines/WaterjetProgramAssemblerEngine.ts"
+      ],
+      "tests": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+    }
+  ],
+  "test_summary": {
+    "total_tests": 28,
+    "passing": 28,
+    "test_file": "src/__tests__/tk-ms2-pipeline-tribal.test.ts"
+  },
+  "engines_integrated": 14,
+  "integration_pattern": "tribalKnowledgeEngine.search() queries with category/operation_type/material filtering, tips added to warnings/recommendations arrays"
+}

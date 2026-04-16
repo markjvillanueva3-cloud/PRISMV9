@@ -1,0 +1,59 @@
+{
+  "id": "SYS-MS4",
+  "title": "Engine Wiring Audit & Dead Code Cleanup",
+  "track": "SYS",
+  "priority": "P1",
+  "status": "complete",
+  "description": "Build engine dependency graph (static + dynamic references), identify truly dead engines vs indirectly-wired ones, remove confirmed dead code, sync index.ts header with actual export count. Gap analysis found 136/156 exported engines have no direct dispatcher import — most are indirectly wired but ~15-20 may be genuinely dead.",
+  "source": "GAP-ANALYSIS-2026-02-28",
+  "findings": [
+    "116-136 engines not directly imported by any dispatcher (87% of exports)",
+    "index.ts header claims 171 engines but only 156 unique modules export",
+    "AlgorithmGatewayEngine (65KB) overlaps AlgorithmEngine — likely dead",
+    "WhiteLayerDetectionEngine never called by any code path",
+    "~212 physical .ts files in engines/ vs 156 barrel exports — 56 files not in index"
+  ],
+  "units": [
+    {
+      "id": "SYS-MS4-U00",
+      "title": "Build Engine Dependency Graph",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Scan all dispatchers for direct engine imports (static import statements)"},
+        {"number": 2, "instruction": "Scan all engines for engine-to-engine imports (internal wiring)"},
+        {"number": 3, "instruction": "Scan for dynamic/string-based engine references in orchestration, swarm, and algorithm routing"},
+        {"number": 4, "instruction": "Produce a JSON graph: { engine: string, importedBy: string[], importedByType: 'dispatcher'|'engine'|'dynamic' }[]"},
+        {"number": 5, "instruction": "Classify each engine: WIRED (dispatcher), INTERNAL (engine-to-engine), DYNAMIC (string routing), ORPHANED (no references)"}
+      ],
+      "exit_conditions": ["Complete dependency graph JSON saved to state/SYS-MS4/engine-dependency-graph.json", "Every engine in index.ts classified"]
+    },
+    {
+      "id": "SYS-MS4-U01",
+      "title": "Remove Confirmed Dead Engines",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "From the dependency graph, extract all ORPHANED engines"},
+        {"number": 2, "instruction": "For each orphaned engine, do a final grep for any string reference (dynamic imports, config files, test files)"},
+        {"number": 3, "instruction": "For confirmed dead engines (AlgorithmGatewayEngine, WhiteLayerDetectionEngine, others): remove from index.ts exports, move files to a deprecated/ folder or delete"},
+        {"number": 4, "instruction": "For engines that exist on disk but aren't in index.ts: determine if they should be added to barrel or removed"},
+        {"number": 5, "instruction": "Run TSC and full test suite to verify no regressions"}
+      ],
+      "exit_conditions": ["Zero orphaned engines remain", "TSC clean", "All tests pass"]
+    },
+    {
+      "id": "SYS-MS4-U02",
+      "title": "Sync Index Header & Export Count",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Count actual unique exports in index.ts after dead code removal"},
+        {"number": 2, "instruction": "Update index.ts header comment to match actual count"},
+        {"number": 3, "instruction": "Update MASTER_INDEX.md Section 4 engine count"},
+        {"number": 4, "instruction": "Update any CLAUDE.md files that reference engine counts"},
+        {"number": 5, "instruction": "Update constants.ts ENGINE_COUNT if it exists"}
+      ],
+      "exit_conditions": ["All count references match actual export count", "No stale '171 engines' strings remain"]
+    }
+  ],
+  "dependencies": [],
+  "deliverables": ["Engine dependency graph (JSON)", "Dead engine cleanup", "Accurate engine counts across all docs"]
+}

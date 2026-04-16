@@ -1,0 +1,192 @@
+/**
+ * SourceCatalogAggregator — Unified query interface for all 28 engine SOURCE_FILE_CATALOG exports.
+ * Each engine exports a catalog of source files it was ported from, with metadata like
+ * filename, source_dir, category, lines, safety_class, and description.
+ *
+ * This aggregator collects them all and provides search/filter/stats capabilities.
+ */
+import { log } from "../utils/Logger.js";
+
+// Lazy-loaded catalog map: engine_name → catalog entries
+let _aggregated: Record<string, Record<string, CatalogEntry>> | null = null;
+
+/** Catalog Entry configuration/data structure.
+ */
+export interface CatalogEntry {
+  filename: string;
+  source_dir: string;
+  category: string;
+  lines: number;
+  safety_class: string;
+  description: string;
+  [key: string]: any; // Some engines add extra fields (ai_domain, target_engine, etc.)
+}
+
+interface CatalogImport {
+  engine: string;
+  constName: string;
+  load: () => Promise<Record<string, unknown>>;
+}
+
+// All 28 catalog sources — lazy-imported to avoid startup cost
+const CATALOG_SOURCES: CatalogImport[] = [
+  { engine: "AlgorithmGateway", constName: "ALGORITHM_SOURCE_FILE_CATALOG", load: () => import("./AlgorithmGatewayEngine.js") },
+  { engine: "Apprentice", constName: "APPRENTICE_SOURCE_FILE_CATALOG", load: () => import("./ApprenticeEngine.js") },
+  { engine: "CAMIntegration", constName: "CAM_SOURCE_FILE_CATALOG", load: () => import("./CAMIntegrationEngine.js") },
+  { engine: "Campaign", constName: "CAMPAIGN_SOURCE_FILE_CATALOG", load: () => import("./CampaignEngine.js") },
+  { engine: "Collision", constName: "SIMULATION_SOURCE_FILE_CATALOG", load: () => import("./CollisionEngine.js") },
+  { engine: "Compliance", constName: "QUALITY_SOURCE_FILE_CATALOG", load: () => import("./ComplianceEngine.js") },
+  { engine: "DNCTransfer", constName: "DNC_SOURCE_FILE_CATALOG", load: () => import("./DNCTransferEngine.js") },
+  { engine: "ERPIntegration", constName: "INTEGRATION_SOURCE_FILE_CATALOG", load: () => import("./ERPIntegrationEngine.js") },
+  { engine: "EventBus", constName: "EVENTBUS_SOURCE_FILE_CATALOG", load: () => import("./EventBus.js") },
+  { engine: "FederatedLearning", constName: "FEDERATED_SOURCE_FILE_CATALOG", load: () => import("./FederatedLearningEngine.js") },
+  { engine: "GCodeTemplate", constName: "POST_PROCESSOR_SOURCE_FILE_CATALOG", load: () => import("./GCodeTemplateEngine.js") },
+  { engine: "Intelligence", constName: "INTELLIGENCE_SOURCE_FILE_CATALOG", load: () => import("./IntelligenceEngine.js") },
+  { engine: "JobLearning", constName: "JOB_LEARNING_SOURCE_FILE_CATALOG", load: () => import("./JobLearningEngine.js") },
+  { engine: "KnowledgeGraph", constName: "KNOWLEDGE_SOURCE_FILE_CATALOG", load: () => import("./KnowledgeGraphEngine.js") },
+  { engine: "KnowledgeQuery", constName: "KNOWLEDGE_QUERY_SOURCE_FILE_CATALOG", load: () => import("./KnowledgeQueryEngine.js") },
+  { engine: "MachineConnectivity", constName: "CONNECTIVITY_SOURCE_FILE_CATALOG", load: () => import("./MachineConnectivityEngine.js") },
+  { engine: "ManufacturingCalc", constName: "UNITS_SOURCE_FILE_CATALOG", load: () => import("./ManufacturingCalculations.js") },
+  { engine: "Measurement", constName: "MEASUREMENT_SOURCE_FILE_CATALOG", load: () => import("./MeasurementIntegrationEngine.js") },
+  { engine: "Optimization", constName: "OPTIMIZATION_SOURCE_FILE_CATALOG", load: () => import("./OptimizationEngine.js") },
+  { engine: "PhysicsPrediction", constName: "PHYSICS_SOURCE_FILE_CATALOG", load: () => import("./PhysicsPredictionEngine.js") },
+  { engine: "Product", constName: "BUSINESS_SOURCE_FILE_CATALOG", load: () => import("./ProductEngine.js") },
+  { engine: "ProtocolBridge", constName: "PROTOCOL_SOURCE_FILE_CATALOG", load: () => import("./ProtocolBridgeEngine.js") },
+  { engine: "ScriptExecutor", constName: "SCRIPT_SOURCE_FILE_CATALOG", load: () => import("./ScriptExecutor.js") },
+  { engine: "ShopScheduler", constName: "SCHEDULER_SOURCE_FILE_CATALOG", load: () => import("./ShopSchedulerEngine.js") },
+  { engine: "SpindleProtection", constName: "SPINDLE_SOURCE_FILE_CATALOG", load: () => import("./SpindleProtectionEngine.js") },
+  { engine: "Toolpath", constName: "TOOLPATH_SOURCE_FILE_CATALOG", load: () => import("./ToolpathCalculations.js") },
+  { engine: "Workholding", constName: "WORKHOLDING_SOURCE_FILE_CATALOG", load: () => import("./WorkholdingEngine.js") },
+  { engine: "WorkholdingIntel", constName: "WORKHOLDING_INTELLIGENCE_SOURCE_FILE_CATALOG", load: () => import("./WorkholdingIntelligenceEngine.js") },
+];
+
+/**
+ * Lazy-load and aggregate all 28 catalogs.
+ */
+async function loadAll(): Promise<Record<string, Record<string, CatalogEntry>>> {
+  if (_aggregated) return _aggregated;
+  _aggregated = {};
+  for (const src of CATALOG_SOURCES) {
+    try {
+      const mod = await src.load();
+      const catalog = mod[src.constName];
+      if (catalog && typeof catalog === "object") {
+        _aggregated[src.engine] = catalog as Record<string, CatalogEntry>;
+      }
+    } catch (err) {
+      log.debug(`[SourceCatalog] Skipping ${src.engine}: ${err}`);
+    }
+  }
+  return _aggregated;
+}
+
+/**
+ * Get all catalogs aggregated by engine.
+  * @returns promise resolving to {
+  engines:  record<string, { entries: number; categories: string[]; total_lines: number }>;
+  total_entries: number;
+  total_lines: number;
+  total_engines: number;
+}
+ */
+export async function getAllCatalogs(): Promise<{
+  engines: Record<string, { entries: number; categories: string[]; total_lines: number }>;
+  total_entries: number;
+  total_lines: number;
+  total_engines: number;
+}> {
+  const all = await loadAll();
+  const engines: Record<string, { entries: number; categories: string[]; total_lines: number }> = {};
+  let totalEntries = 0;
+  let totalLines = 0;
+  for (const [engine, catalog] of Object.entries(all)) {
+    const entries = Object.values(catalog);
+    const categories = [...new Set(entries.map(e => e.category))];
+    const lines = entries.reduce((sum, e) => sum + (e.lines || 0), 0);
+    engines[engine] = { entries: entries.length, categories, total_lines: lines };
+    totalEntries += entries.length;
+    totalLines += lines;
+  }
+  return { engines, total_entries: totalEntries, total_lines: totalLines, total_engines: Object.keys(engines).length };
+}
+
+/**
+ * Search across all catalogs by keyword (matches filename, description, category).
+  * @param query - query string
+  * @param options - configuration options
+  * @returns promise resolving to array<{ engine: string; id: string; entry:  catalog entry }>
+ */
+export async function searchCatalog(query: string, options?: {
+  engine?: string;
+  category?: string;
+  safety_class?: string;
+  limit?: number;
+}): Promise<Array<{ engine: string; id: string; entry: CatalogEntry }>> {
+  const all = await loadAll();
+  const q = query.toLowerCase();
+  const results: Array<{ engine: string; id: string; entry: CatalogEntry }> = [];
+  const limit = options?.limit || 50;
+
+  for (const [engine, catalog] of Object.entries(all)) {
+    if (options?.engine && engine !== options.engine) continue;
+    for (const [id, entry] of Object.entries(catalog)) {
+      if (options?.category && entry.category !== options.category) continue;
+      if (options?.safety_class && entry.safety_class !== options.safety_class) continue;
+      const searchable = `${id} ${entry.filename} ${entry.description} ${entry.category}`.toLowerCase();
+      if (searchable.includes(q)) {
+        results.push({ engine, id, entry });
+        if (results.length >= limit) return results;
+      }
+    }
+  }
+  return results;
+}
+
+/**
+ * Get catalog entries for a specific engine.
+  * @param engineName - engine name
+  * @returns promise resolving to record<string,  catalog entry> | null
+ */
+export async function getEngineCatalog(engineName: string): Promise<Record<string, CatalogEntry> | null> {
+  const all = await loadAll();
+  return all[engineName] || null;
+}
+
+/**
+ * Get stats grouped by category across all engines.
+  * @returns promise resolving to {
+  by_category:  record<string, { count: number; total_lines: number; engines: string[] }>;
+  by_safety_class:  record<string, number>;
+  total_entries: number;
+}
+ */
+export async function getCatalogStats(): Promise<{
+  by_category: Record<string, { count: number; total_lines: number; engines: string[] }>;
+  by_safety_class: Record<string, number>;
+  total_entries: number;
+}> {
+  const all = await loadAll();
+  const byCategory: Record<string, { count: number; total_lines: number; engines: Set<string> }> = {};
+  const bySafety: Record<string, number> = {};
+  let total = 0;
+
+  for (const [engine, catalog] of Object.entries(all)) {
+    for (const entry of Object.values(catalog)) {
+      total++;
+      const cat = entry.category || "unknown";
+      if (!byCategory[cat]) byCategory[cat] = { count: 0, total_lines: 0, engines: new Set() };
+      byCategory[cat].count++;
+      byCategory[cat].total_lines += entry.lines || 0;
+      byCategory[cat].engines.add(engine);
+
+      const sc = entry.safety_class || "UNKNOWN";
+      bySafety[sc] = (bySafety[sc] || 0) + 1;
+    }
+  }
+
+  const by_category: Record<string, { count: number; total_lines: number; engines: string[] }> = {};
+  for (const [cat, data] of Object.entries(byCategory)) {
+    by_category[cat] = { count: data.count, total_lines: data.total_lines, engines: [...data.engines] };
+  }
+  return { by_category, by_safety_class: bySafety, total_entries: total };
+}

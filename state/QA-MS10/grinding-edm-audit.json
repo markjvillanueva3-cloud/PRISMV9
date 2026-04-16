@@ -1,0 +1,51 @@
+{
+  "audit_id": "QA-MS10-P0-U01",
+  "title": "GrindingEngine + EDMEngine Specialty Process Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T06:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Grinding logic in dispatcher-inline (4 actions), 3 EDM engines (444 total lines) covering wire/surface/micro processes",
+
+  "grinding": {
+    "dispatcher": "src/tools/dispatchers/grindingDispatcher.ts (138 lines)",
+    "tool_name": "prism_grinding",
+    "actions": ["wheel_select", "dress_params", "surface_integrity", "burn_threshold"],
+    "standalone_engine": "NONE — logic is dispatcher-inline or routed to extracted JS modules",
+    "wheel_types": ["aluminum_oxide", "silicon_carbide", "cbn", "diamond", "ceramic"],
+    "bond_types": ["vitrified", "resinoid"],
+    "dressing_types": ["single_point_diamond", "rotary"],
+    "workpiece_materials": ["steel", "carbide"],
+    "coverage": "Wheel selection, dressing parameters, surface integrity prediction, burn threshold detection"
+  },
+
+  "edm_engines": {
+    "WireEDMSettingsEngine": {
+      "file": "src/engines/WireEDMSettingsEngine.ts",
+      "lines": 165,
+      "class": "WireEDMSettingsEngine",
+      "purpose": "Wire EDM cutting parameters: wire tension, flushing pressure, pulse settings"
+    },
+    "EDMSurfaceIntegrityEngine": {
+      "file": "src/engines/EDMSurfaceIntegrityEngine.ts",
+      "lines": 156,
+      "class": "EDMSurfaceIntegrityEngine",
+      "purpose": "EDM surface integrity: recast layer thickness, HAZ depth, surface roughness prediction"
+    },
+    "MicroEDMEngine": {
+      "file": "src/engines/MicroEDMEngine.ts",
+      "lines": 123,
+      "class": "MicroEDMEngine",
+      "purpose": "Micro-EDM: electrode design for micro features, material removal rate at micro scale"
+    }
+  },
+
+  "edm_dispatcher": {
+    "file": "src/tools/dispatchers/edmDispatcher.ts (75 lines)",
+    "tool_name": "prism_edm",
+    "actions": ["wire_settings", "electrode_design", "surface_integrity", "micro_edm"],
+    "wiring": "Each action routes to corresponding EDM engine"
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "grinding_models_verified": true, "edm_models_verified": true, "parameter_ranges_validated": true }
+}

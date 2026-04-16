@@ -1,0 +1,36 @@
+{
+  "_meta": {
+    "track": "LATHE-PRO",
+    "title": "Lathe Programming Intelligence — Complete Zero-Experience Pipeline",
+    "version": "3.0.0",
+    "created": "2026-04-05",
+    "previous_versions": ["1.0.0 (37.4/100)", "2.0.0 (71.8/100)"],
+    "target_score": 82,
+    "total_milestones": 17,
+    "total_units": 142,
+    "estimated_sessions": 48,
+    "scrutiny_rounds": 3,
+    "engines_to_wire": 35,
+    "engines_to_create": 26,
+    "description": "v3.0: Fixes 4 agents below 60 from v2 scrutiny. Splits Swiss (MS6->MS6a+MS6b, 16u), Threading (MS4->MS4a+MS4b, 16u), expands CAD/CAM (MS-1, 12u) and Workholding (MS3, 14u). Full RGS quality fields on all 142 units."
+  },
+  "milestones": [
+    {"id": "LATHE-PRO-MS-1", "title": "Input Pipeline — Photo/CAD to Structured Features", "phase": "A", "units": 12, "sessions": 4, "depends_on": [], "status": "not_started"},
+    {"id": "LATHE-PRO-MS-2", "title": "Zero-Experience UI & Guided Workflow", "phase": "A", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS-1"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS0", "title": "Enhanced Orchestrator (35 Stages + 5 Safety)", "phase": "B", "units": 14, "sessions": 5, "depends_on": ["LATHE-PRO-MS-1"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS1", "title": "Insert Wear Intelligence & Life Prediction", "phase": "C", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS2", "title": "Offset + Thermal + GD&T Compensation", "phase": "C", "units": 10, "sessions": 4, "depends_on": ["LATHE-PRO-MS1"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS3", "title": "Sequence + Multi-Op + Workholding (Expanded)", "phase": "C", "units": 14, "sessions": 5, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS4a", "title": "Threading Deep Intelligence", "phase": "D", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS4b", "title": "Grooving & Parting Deep Intelligence", "phase": "D", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS5", "title": "Hard Turning, Finishing & Grinding Replacement", "phase": "D", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0", "LATHE-PRO-MS4a"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS6a", "title": "Swiss/Mill-Turn Multi-Channel G-Code Emission", "phase": "D", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS6b", "title": "Swiss Production Intelligence & Bar Management", "phase": "D", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS6a"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS7", "title": "Chip Control & Coolant Strategy", "phase": "D", "units": 6, "sessions": 2, "depends_on": ["LATHE-PRO-MS0"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS8", "title": "GD&T, Inspection & Metrology Intelligence", "phase": "E", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS2"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS9", "title": "Quality Compliance (AS9100/ISO 13485/FDA)", "phase": "E", "units": 6, "sessions": 2, "depends_on": ["LATHE-PRO-MS8"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS10", "title": "Cost Optimization & Batch Economics", "phase": "F", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS0", "LATHE-PRO-MS1"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS11", "title": "Shop Floor Integration & Deployment", "phase": "F", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS10"], "status": "not_started"},
+    {"id": "LATHE-PRO-MS12", "title": "Simulation, Verification & Visualization", "phase": "G", "units": 8, "sessions": 3, "depends_on": ["LATHE-PRO-MS-2", "LATHE-PRO-MS0"], "status": "not_started"}
+  ]
+}

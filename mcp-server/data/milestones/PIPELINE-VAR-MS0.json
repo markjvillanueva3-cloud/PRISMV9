@@ -1,0 +1,549 @@
+{
+  "id": "PIPELINE-VAR-MS0",
+  "version": "1.0.0",
+  "title": "Per-Block Variability Maximization Across All 9 Pipelines",
+  "brief": "Auto-chain PostProcessor for 4 chip-cutting pipelines, add native per-block optimization to 4 non-cutting pipelines, create universal safety gate for all 8 pipeline outputs. Goal: every G-code block gets physics-optimized variable S/F/power — no more static programs.",
+  "track": "PIPELINE-VAR",
+  "track_name": "Pipeline Variability Maximization",
+  "created_at": "2026-04-03T16:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "status": "complete",
+  "total_units": 15,
+  "completed_units": 15,
+  "estimated_sessions": 6,
+  "dependencies": [
+    "CALC-HARDEN-MS0"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "PostProcessorPipelineEngine.ts (3,301 LOC — 38-stage, 10/10 physics)",
+      "PrintToProgramPipelineEngine.ts (milling, 8/10)",
+      "TurningPrintToProgramEngine.ts (turning, 7/10)",
+      "MultiAxisPrintToProgramEngine.ts (5-axis, 6/10)",
+      "MillTurnSwissPipelineEngine.ts (mill-turn, 6/10)",
+      "EDMProgramAssemblerEngine.ts (wire/sinker EDM, 4/10)",
+      "GrindingProgramAssemblerEngine.ts (grinding, 5/10)",
+      "LaserProgramAssemblerEngine.ts (laser, 4/10)",
+      "WaterjetProgramAssemblerEngine.ts (waterjet, 2/10)",
+      "ChatterStabilityLobeEngine.ts (SLD — now hardened)",
+      "StochasticChatterEngine.ts (Bayesian tap-test)",
+      "CuttingTemperatureEngine.ts (thermal — now hardened)",
+      "SpeedFeedOrchestratorEngine.ts (central hub, 2,851 LOC)",
+      "UltimateSpeedFeedEngine.ts (31 physics models)",
+      "AutoSpeedFeedEngine.ts (per-line optimizer)",
+      "GCodeSafetyAnalyzerEngine.ts (safety validation)"
+    ],
+    "formulas": [
+      "Kienzle: Fc = kc1_1 * ap * fz^(1-mc) — chip-cutting force",
+      "Taylor: T = (C/Vc)^(1/n) — tool life",
+      "Sato: MRR_edm = C * I^a * t_on^b * t_off^c — EDM removal rate",
+      "Malkin: u = Ft*vs/(ae*b*vw) — grinding specific energy",
+      "Beer-Lambert: I(z) = I0 * exp(-alpha*z) — laser absorption",
+      "Schulz: Vc_laser = P/(rho*cp*T*d*kerf) — laser cutting speed",
+      "Hashish: h = C * P^a * d_n^b * v^c * m_dot^d — waterjet depth",
+      "Zeng-Kim: Ra_wj = C * P^a * v^b * d^c — waterjet roughness"
+    ],
+    "constants": "src/physics/constants.ts — all canonical Kienzle/Taylor/material DB",
+    "tribal_knowledge": "TribalKnowledgeEngine (3,700+ tips) — query for EDM spark-out, grinding stone selection, laser kerf, waterjet nozzle wear tips",
+    "playbook": "MachiningPlaybookEngine (296 rules) — anti-patterns for per-pass sequencing, power ramps, pressure cycling",
+    "registries": "MachineRegistry (910 machines — axis limits, spindle specs), MaterialRegistry (6,346 materials — thermal/mechanical props), ToolCatalogEngine (95,608 tools)",
+    "reference": "20-agent physics scrutiny (complete), 5-agent business scrutiny (complete), pipeline audit (complete), Altintas (2012), Malkin & Guo (2008), Hashish (1989)"
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Tier 1 — Auto-Chain PostProcessor for Chip-Cutting Pipelines",
+      "session": "PIPELINE-VAR-0a",
+      "smart_config": "ROLE=CNC Programmer + Pipeline Architect | OPUS | MAXIMUM",
+      "intent": "After you generate a milling, turning, 5-axis, or mill-turn program, speed and feed for every cut is automatically optimized for your exact machine and material — no extra steps needed. You get one G-code file with all adjustments built in, ready to load and run.",
+      "units": [
+        {
+          "id": "U-PV01",
+          "title": "Auto-chain PostProcessor into PrintToProgramPipeline + add chatter pre-check",
+          "description": "Add PostProcessorPipelineEngine as the final stage of PrintToProgramPipelineEngine. After G-code generation, automatically invoke PostProcessor for per-block S/F optimization. Also add ChatterStabilityLobeEngine.compute() as a pre-generation check — reject ap/RPM combos that fall in the SLD danger zone. Add thermal growth warning when predicted ΔT > 10µm drift.",
+          "knowledge_sources": [
+            "PrintToProgramPipelineEngine.ts",
+            "PostProcessorPipelineEngine.ts",
+            "ChatterStabilityLobeEngine.ts",
+            "CuttingTemperatureEngine.ts"
+          ],
+          "exit_conditions": [
+            "PostProcessor auto-invoked after G-code generation",
+            "Chatter check rejects unstable ap/RPM",
+            "Thermal warning fires when ΔT > 10µm",
+            "Existing milling tests pass",
+            "Build PASS",
+            "omega_floor ≥ 0.85"
+          ],
+          "abort_criteria": [
+            "PostProcessor rejects >5% of valid programs",
+            "Chatter false-positive rate >15%",
+            "Existing tests regress"
+          ],
+          "rollback": "Revert PrintToProgramPipelineEngine.ts; remove PostProcessor auto-chain",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV02",
+          "title": "Auto-chain PostProcessor into TurningPrintToProgram + add deflection check for boring bars",
+          "description": "Add PostProcessorPipelineEngine as final stage for turning programs. Add BoringBarDeflectionEngine check when tool L/D > 4. Add chatter stability check for turning operations. Wire thermal derating already in engine to use CuttingTemperatureEngine for more accurate prediction.",
+          "knowledge_sources": [
+            "TurningPrintToProgramEngine.ts",
+            "PostProcessorPipelineEngine.ts",
+            "BoringBarDeflectionEngine.ts"
+          ],
+          "exit_conditions": [
+            "PostProcessor auto-invoked for turning G-code",
+            "Boring bar deflection warning at L/D > 4",
+            "Turning tests pass",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "PostProcessor rejects >5% of turning programs",
+            "Boring bar deflection check false-positives >10%",
+            "Existing turning tests regress"
+          ],
+          "rollback": "Revert TurningPrintToProgramEngine.ts; remove PostProcessor auto-chain",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV03a",
+          "title": "Auto-chain PostProcessor into MultiAxis pipeline + singularity feed reduction",
+          "description": "Add PostProcessorPipelineEngine as final stage for 5-axis programs. Add singularity-aware feed reduction: when A < 15°, reduce feed ≥30%. Query TribalKnowledgeEngine for 5-axis anti-patterns.",
+          "knowledge_sources": [
+            "MultiAxisPrintToProgramEngine.ts",
+            "PostProcessorPipelineEngine.ts",
+            "TribalKnowledgeEngine (5-axis tips)"
+          ],
+          "exit_conditions": [
+            "PostProcessor auto-invoked for 5-axis",
+            "Feed reduces ≥30% when A < 15°",
+            "5-axis tests pass",
+            "Build PASS",
+            "omega_floor ≥ 0.85"
+          ],
+          "abort_criteria": [
+            "PostProcessor rejects >5% of 5-axis blocks",
+            "Singularity feed reduction causes >20% cycle time increase",
+            "Existing 5-axis tests regress"
+          ],
+          "rollback": "Revert MultiAxisPrintToProgramEngine.ts to pre-edit state; disable PostProcessor auto-chain flag",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV03b",
+          "title": "Auto-chain PostProcessor into MillTurnSwiss pipeline + Taylor tool life",
+          "description": "Add PostProcessorPipelineEngine as final stage for mill-turn/swiss programs. Add Taylor tool life integration from canonical taylorLife(). Query MachiningPlaybookEngine for mill-turn sequencing rules.",
+          "knowledge_sources": [
+            "MillTurnSwissPipelineEngine.ts",
+            "PostProcessorPipelineEngine.ts",
+            "MachiningPlaybookEngine (mill-turn rules)"
+          ],
+          "exit_conditions": [
+            "PostProcessor auto-invoked for mill-turn",
+            "Taylor tool life from canonical taylorLife()",
+            "Mill-turn tests pass",
+            "Build PASS",
+            "omega_floor ≥ 0.85"
+          ],
+          "abort_criteria": [
+            "PostProcessor fails on multi-channel G-code",
+            "Taylor life prediction <1 min for valid inputs",
+            "Existing mill-turn tests regress"
+          ],
+          "rollback": "Revert MillTurnSwissPipelineEngine.ts to pre-edit state",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Tier 2a — Per-Pass Optimization for EDM + Grinding",
+      "session": "PIPELINE-VAR-1a",
+      "smart_config": "ROLE=EDM/Grinding Process Engineer + Physicist | OPUS | MAXIMUM",
+      "intent": "EDM programs automatically reduce power as they reach final dimensions so you get a smooth finish without restarts or touch-ups. Grinding programs dial back depth-of-cut before burn risk, so your parts are in-spec and you replace wheels less often.",
+      "units": [
+        {
+          "id": "U-PV04",
+          "title": "EDM per-pass discharge energy optimization via Sato MRR model",
+          "description": "Modify EDMProgramAssemblerEngine to compute optimal I_peak and t_on per pass. Roughing passes: maximize MRR (high I_peak, long t_on). Semi-finish: reduce I_peak by 30-50%. Finish: minimum I_peak for target Ra. Use existing Sato MRR model and DiBitonto recast layer model to set per-pass parameters. Output G-code with variable power settings per pass block.",
+          "knowledge_sources": [
+            "EDMProgramAssemblerEngine.ts (Sato model at line ~500)",
+            "Puertas & Luis 2004 Ra model"
+          ],
+          "exit_conditions": [
+            "G-code has variable I_peak/t_on per pass",
+            "Roughing MRR within 10% of max",
+            "Finish pass Ra ≤ target",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Per-pass I_peak variation <20% range",
+            "Finish Ra exceeds target by >50%",
+            "EDM tests regress"
+          ],
+          "rollback": "Revert EDMProgramAssemblerEngine.ts per-pass changes",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV05",
+          "title": "Grinding per-pass wheel speed + ae optimization with Malkin burn threshold",
+          "description": "Modify GrindingProgramAssemblerEngine to vary ae (depth of cut) and vw (work speed) per pass. Use Malkin specific energy model to compute burn threshold per material. Roughing: maximize ae up to 80% of burn threshold. Finish: reduce ae for target Rz. Spark-out passes at zero infeed. Output G-code with variable F/ae per pass block.",
+          "knowledge_sources": [
+            "GrindingProgramAssemblerEngine.ts (Malkin model, Jaeger thermal)",
+            "Verkerk 1977 Rz model"
+          ],
+          "exit_conditions": [
+            "G-code has variable ae/F per pass",
+            "No pass exceeds burn threshold",
+            "Spark-out correctly at zero infeed",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Any pass exceeds burn threshold",
+            "Spark-out not at zero infeed",
+            "Grinding tests regress"
+          ],
+          "rollback": "Revert GrindingProgramAssemblerEngine.ts per-pass changes",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Tier 2b — Per-Segment Optimization for Laser + Waterjet",
+      "session": "PIPELINE-VAR-2a",
+      "smart_config": "ROLE=Laser/Waterjet Process Engineer + Physicist | OPUS | MAXIMUM",
+      "intent": "Laser programs now slow down in corners for clean cuts and ramp power on thick sections — no more edge damage. Waterjet programs automatically adjust speed for taper compensation at corners — no more hand-tweaking.",
+      "units": [
+        {
+          "id": "U-PV06",
+          "title": "Laser per-segment power/speed optimization via Beer-Lambert + Schulz",
+          "description": "Modify LaserProgramAssemblerEngine to vary laser power and feed speed per G-code segment based on geometry. Corners: reduce speed 30-50% for clean cuts. Curves: adjust power for constant kerf width. Thick-to-thin transitions: ramp power proportionally to thickness. Pierce points: high power + dwell. Use existing Beer-Lambert absorption and Schulz cutting speed models.",
+          "knowledge_sources": [
+            "LaserProgramAssemblerEngine.ts (Beer-Lambert, Schulz, Yilbas Rz model)"
+          ],
+          "exit_conditions": [
+            "G-code has variable P/F per segment",
+            "Corner speed reduction applied",
+            "Pierce dwell correct",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Corner speed reduction >60% (over-conservative)",
+            "Pierce dwell causes >5s delay per hole",
+            "Laser tests regress"
+          ],
+          "rollback": "Revert LaserProgramAssemblerEngine.ts per-segment changes",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV07",
+          "title": "Waterjet per-segment pressure/speed optimization via Hashish model",
+          "description": "Enhance WaterjetProgramAssemblerEngine with Hashish depth/speed model and Zeng-Kim roughness model for per-segment optimization. Entry piercing: reduced speed + ramp pressure. Corners: reduce speed for taper compensation. Quality zones: Q1 (rough)→Q5 (finish) map to different speeds. Abrasive flow rate variation for thick vs thin sections.",
+          "knowledge_sources": [
+            "WaterjetProgramAssemblerEngine.ts (Hashish 1989/1991, Zeng-Kim 2001)"
+          ],
+          "exit_conditions": [
+            "G-code has variable F/pressure per segment",
+            "Quality level maps to speed correctly",
+            "Taper compensation at corners",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Quality-level speed mapping inverted",
+            "Taper compensation worsens taper",
+            "Waterjet tests regress"
+          ],
+          "rollback": "Revert WaterjetProgramAssemblerEngine.ts per-segment changes",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Tier 2c — Safety Validation for Non-Cutting Pipelines",
+      "session": "PIPELINE-VAR-2b",
+      "smart_config": "ROLE=Safety Engineer + CNC Process Specialist | OPUS | HIGH",
+      "intent": "Every pipeline output — including EDM, Grinding, Laser, Waterjet — passes through safety validation before reaching the machine. No unvalidated G-code leaves the system.",
+      "units": [
+        {
+          "id": "U-PV08",
+          "title": "Add safety validation to EDM pipeline (power limits, gap monitoring, wire tension)",
+          "description": "Add safety checks to EDMProgramAssemblerEngine: max discharge energy per material (prevents workpiece damage), wire tension limits for wire EDM, minimum gap voltage threshold, flushing pressure requirements. Import machine limits from MachineRegistry where available.",
+          "knowledge_sources": [
+            "EDMProgramAssemblerEngine.ts",
+            "GCodeSafetyAnalyzerEngine.ts"
+          ],
+          "exit_conditions": [
+            "Power limit check per material",
+            "Wire tension validated",
+            "Safety warnings in output",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Safety check false-positives >10%",
+            "EDM power limits not sourced from registry",
+            "Build fails"
+          ],
+          "rollback": "Revert EDMProgramAssemblerEngine.ts safety additions",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV09",
+          "title": "Add safety validation to Grinding pipeline (wheel speed, burn detection, dresser)",
+          "description": "Add safety checks to GrindingProgramAssemblerEngine: max wheel peripheral speed (typically 25-45 m/s depending on bond), burn risk warning when specific energy > threshold, dresser compensation tracking. Import wheel speed limits from specifications.",
+          "knowledge_sources": [
+            "GrindingProgramAssemblerEngine.ts",
+            "GCodeSafetyAnalyzerEngine.ts"
+          ],
+          "exit_conditions": [
+            "Wheel speed limit enforced",
+            "Burn risk warning fires",
+            "Safety section in output",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Safety check false-positives >10%",
+            "Wheel speed limit not enforced",
+            "Build fails"
+          ],
+          "rollback": "Revert GrindingProgramAssemblerEngine.ts safety additions",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV10a",
+          "title": "Add safety validation to Laser pipeline",
+          "description": "Max power per material from MaterialRegistry (prevents fire/vaporization). Beam delivery pressure check. Assist gas type and pressure validation. BLOCK mode for power > material limit. WARN mode for pressure near boundary.",
+          "knowledge_sources": [
+            "LaserProgramAssemblerEngine.ts",
+            "MaterialRegistry (laser absorption data)",
+            "TribalKnowledgeEngine (laser tips)"
+          ],
+          "exit_conditions": [
+            "Power BLOCKED when > material limit",
+            "Assist gas validated per material",
+            "Machine envelope checked from MachineRegistry",
+            "Build PASS",
+            "omega_floor ≥ 0.85"
+          ],
+          "abort_criteria": [
+            "Safety check false-positives on >10% of valid programs",
+            "Performance regression >2x on laser program generation"
+          ],
+          "rollback": "Revert LaserProgramAssemblerEngine.ts safety additions",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV10b",
+          "title": "Add safety validation to Waterjet pipeline",
+          "description": "Max pressure rating from MachineRegistry (4000-6000 bar typical). Nozzle wear tracking (warn at 80% of rated hours). Abrasive flow rate limits. BLOCK mode for pressure > pump rating. WARN mode for nozzle near end-of-life.",
+          "knowledge_sources": [
+            "WaterjetProgramAssemblerEngine.ts",
+            "MachineRegistry (pump specs)",
+            "TribalKnowledgeEngine (waterjet tips)"
+          ],
+          "exit_conditions": [
+            "Pressure BLOCKED when > pump rating",
+            "Nozzle wear warning at 80% life",
+            "Abrasive flow within limits",
+            "Build PASS",
+            "omega_floor ≥ 0.85"
+          ],
+          "abort_criteria": [
+            "Safety check false-positives on >10% of valid programs",
+            "Pressure limits not sourced from registry"
+          ],
+          "rollback": "Revert WaterjetProgramAssemblerEngine.ts safety additions",
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Universal Safety Gate + Integration Tests + Milestone Close",
+      "session": "PIPELINE-VAR-3a",
+      "smart_config": "ROLE=Systems Architect + Test Engineer | OPUS | HIGH",
+      "intent": "All 9 program types — milling, turning, EDM, laser, everything — pass through the same safety checklist before you load them. Consistent confidence across your entire shop. You never load an unsafe program by accident.",
+      "units": [
+        {
+          "id": "U-PV11",
+          "title": "Create universal pipeline safety gate hook with tiered BLOCK/WARN",
+          "description": "PostToolUse hook fires after any pipeline G-code generation. TIERED SAFETY: BLOCK for axis overshoot, spindle RPM > max, feed > max, workholding < 1.5x force (hardware crash/injury risk). WARN for chatter probability > 30%, thermal drift > 10µm, coolant pressure margin < 20%, nozzle wear > 80%. Sources limits from MachineRegistry. Calls per-pipeline safety validators (EDM/Grinding/Laser/Waterjet) from U-PV08/09/10a/10b.",
+          "knowledge_sources": [
+            "src/hooks/",
+            "MachineRegistry",
+            "GCodeSafetyAnalyzerEngine.ts"
+          ],
+          "exit_conditions": [
+            "Hook fires after pipeline actions",
+            "Validates axis limits from registry",
+            "Warns on unsafe parameters",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Hook rejects >5% of valid programs",
+            "BLOCK mode triggers on safe parameters",
+            "Performance regression >500ms per program"
+          ],
+          "rollback": "Remove pipeline-safety-gate hook registration",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV12",
+          "title": "Integration test suite — per-block variability verification across all 9 pipelines",
+          "description": "Write tests verifying variability by PARSING G-code output: extract all S/F/P values per block using regex, compute uniqueValues/totalBlocks ratio. Acceptance: ≥40% of cutting blocks have distinct S or F values. Tests: (1) Chip-cutting: parse S/F from PostProcessor output, verify ratio ≥ 0.40. (2) EDM: parse I_peak/t_on per pass, verify ≥3 distinct power levels. (3) Grinding: parse ae/F per pass, verify burn threshold not exceeded. (4) Laser: parse P/F per segment, verify corner speed < straight speed. (5) Waterjet: parse F per segment, verify Q-level→speed mapping. (6) Safety gate: test BLOCK on intentional violation (RPM > max), test PASS on valid program. (7) Regression: store baseline outputs, compare future runs within ±5%.",
+          "knowledge_sources": [
+            "All 9 pipeline engines"
+          ],
+          "exit_conditions": [
+            "9 pipeline variability tests",
+            "All pass",
+            "Per-block S/F confirmed variable (not static)",
+            "Build PASS"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "<7 of 9 pipeline tests pass",
+            "Variability ratio <0.20 for any pipeline",
+            "Safety gate test fails on valid program"
+          ],
+          "rollback": "Delete test file; no engine changes to revert",
+          "status": "complete"
+        },
+        {
+          "id": "U-PV13",
+          "title": "Update milestone + CURRENT_POSITION + scorecard",
+          "description": "Mark milestone complete. Update pipeline scorecard: all 9 pipelines should now score 8+/10. Update CURRENT_POSITION.md with new pipeline capabilities.",
+          "knowledge_sources": [
+            "state/CURRENT_POSITION.md",
+            "data/milestones/PIPELINE-VAR-MS0.json"
+          ],
+          "exit_conditions": [
+            "Milestone marked complete",
+            "Scorecard updated — all pipelines ≥ 8/10",
+            "Build PASS (0 tsc errors)",
+            "All 97+ tests pass (0 regressions)",
+            "omega_floor ≥ 0.85"
+          ],
+          "status": "not_started",
+          "abort_criteria": [
+            "Any pipeline scores <7/10",
+            "Build regression",
+            "Test count decreased"
+          ],
+          "rollback": "N/A (documentation only)",
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "pipeline-safety-gate",
+      "trigger": "PostToolUse:pipeline-gcode-generated",
+      "scope": "Fires after any of 9 pipelines generate G-code. Validates machine axis limits, spindle RPM max, feed rate max, rapid clearance from MachineRegistry."
+    },
+    "action": {
+      "dispatcher": "safety",
+      "name": "validate_pipeline_output",
+      "description": "Invoke safety validation on any G-code program. Returns warnings/errors per block."
+    },
+    "skill": {
+      "command": "/program-optimize",
+      "signature": "/program-optimize <gcode> [material] [machine]",
+      "description": "Re-run per-block physics optimization on existing G-code. Returns optimized program with variable S/F."
+    }
+  },
+  "variability_metrics": {
+    "definition": "% of G-code blocks with unique S or F value vs total blocks",
+    "baseline_static": "Typical static program: 1 S value, 1 F value per operation (variability ≈ 0%)",
+    "target_dynamic": "≥40% of cutting blocks have individually optimized S/F values",
+    "cycle_time_target": "10-30% reduction vs static S/F (measured by PostProcessor time field)",
+    "surface_finish_target": "Ra variance ≤ 0.3µm across program (vs ≤ 0.8µm with static)",
+    "tool_life_target": "≥20% improvement via Taylor integral T=∫1/T(Vc(t))dt"
+  },
+  "enforcement_hooks": {
+    "physics_agent": "physics-review-agent fires per-unit, validates Kienzle/Taylor/domain models",
+    "wiring_agent": "wiring-review-agent verifies imports, dispatcher cases, schema entries",
+    "constants_checker": "MUST import from src/physics/constants.ts — blocks inline kc1_1/mc",
+    "stub_detector": "Blocks placeholder returns, TODO stubs, empty methods in engines",
+    "review_gate": "After 3 engine edits, MANDATORY /prism-review before next edit (review-gate.sh)",
+    "auto_compact": "Fires at 3/6/9/12 unit boundaries (per session structure)",
+    "test_baseline": "97+ tests must pass (current baseline), 0 regressions"
+  },
+  "mcp_utilization": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:action_search"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot"
+    ],
+    "quality_gates": [
+      "npx tsc --noEmit",
+      "npx vitest run <affected-tests>"
+    ],
+    "skills_per_phase": {
+      "P0": [
+        "/auto-speed-feed",
+        "/program-validate",
+        "/prism-review",
+        "/physics-verify"
+      ],
+      "P1": [
+        "/auto-speed-feed",
+        "/prism-review",
+        "/formula-check"
+      ],
+      "P2": [
+        "/program-validate",
+        "/prism-review",
+        "/safety-audit"
+      ],
+      "P3": [
+        "/safety-audit",
+        "/prism-review",
+        "/machine-check"
+      ],
+      "P4": [
+        "/test",
+        "/prism-review",
+        "/program-validate",
+        "/forge-triple"
+      ]
+    }
+  },
+  "feature_cascade": {
+    "NEW_HOOKS": [
+      "pipeline-safety-gate → validates all 9 pipeline outputs"
+    ],
+    "NEW_ACTIONS": [
+      "safety:validate_pipeline_output → manual safety check on G-code"
+    ],
+    "NEW_SKILLS": [
+      "/program-optimize → per-block physics re-optimization"
+    ],
+    "AVAILABLE_TO": [
+      "WEDM-HARDEN-MS0",
+      "LATHE-MS*",
+      "PP-MOAT-MS*",
+      "CAMX-MS*"
+    ],
+    "SESSION_ARTIFACTS": "Auto-written by PostCompact hook after each session"
+  }
+}

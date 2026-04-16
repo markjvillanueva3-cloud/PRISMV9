@@ -1,0 +1,106 @@
+/**
+ * RobustStatisticsEngine — Robust & Non-Parametric Statistics
+ *
+ * Statistical methods resistant to outliers and non-normality:
+ * - Robust location (trimmed mean, Winsorized mean, median, Hodges-Lehmann)
+ * - Robust scale (MAD, IQR, Qn)
+ * - Outlier detection (Grubbs, modified Z-score, boxplot)
+ * - Non-parametric tests (Mann-Whitney U, Kruskal-Wallis)
+ * - Bootstrap confidence intervals
+ * - Robust regression (Theil-Sen)
+ *
+ * Manufacturing use: SPC with non-normal data, outlier detection in
+ * measurement data, robust process capability, tool wear trend
+ * analysis with sensor noise.
+ *
+ * @module RobustStatisticsEngine
+ */
+// ---------------------------------------------------------------------------
+// Engine
+// ---------------------------------------------------------------------------
+class RobustStatisticsEngineImpl {
+    /**
+     * Compute robust location estimates.
+     */
+    robustLocation(data, trimPercent = 0.1) {
+        const sorted = [...data].sort((a, b) => a - b);
+        const n = sorted.length;
+        const mean = data.reduce((s, v) => s + v, 0) / n;
+        const median = n % 2 === 0
+            ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+            : sorted[Math.floor(n / 2)];
+        // Trimmed mean
+        const trim = Math.floor(n * trimPercent);
+        const trimmed = sorted.slice(trim, n - trim);
+        const trimmedMean = trimmed.reduce((s, v) => s + v, 0) / trimmed.length;
+        // Winsorized mean
+        const winsorized = sorted.map((v, i) => {
+            if (i < trim)
+                return sorted[trim];
+            if (i >= n - trim)
+                return sorted[n - trim - 1];
+            return v;
+        });
+        const winsorizedMean = winsorized.reduce((s, v) => s + v, 0) / n;
+        // Hodges-Lehmann estimator: median of pairwise averages
+        const pairAverages = [];
+        for (let i = 0; i < n; i++) {
+            for (let j = i; j < n; j++) {
+                pairAverages.push((sorted[i] + sorted[j]) / 2);
+            }
+        }
+        pairAverages.sort((a, b) => a - b);
+        const hodgesLehmann = pairAverages[Math.floor(pairAverages.length / 2)];
+        return { mean, median, trimmedMean, winsorizedMean, hodgesLehmann };
+    }
+    /**
+     * Compute robust scale estimates.
+     */
+    robustScale(data) {
+        const sorted = [...data].sort((a, b) => a - b);
+        const n = sorted.length;
+        const mean = data.reduce((s, v) => s + v, 0) / n;
+        const std = Math.sqrt(data.reduce((s, v) => s + (v - mean) ** 2, 0) / n);
+        const median = n % 2 === 0
+            ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+            : sorted[Math.floor(n / 2)];
+        // MAD
+        const absDevs = data.map(v => Math.abs(v - median));
+        absDevs.sort((a, b) => a - b);
+        const mad = absDevs[Math.floor(absDevs.length / 2)];
+        // IQR
+        const q1 = sorted[Math.floor(n * 0.25)];
+        const q3 = sorted[Math.floor(n * 0.75)];
+        const iqr = q3 - q1;
+        return {
+            std,
+            mad,
+            iqr,
+            normalizedMad: mad * 1.4826,
+        };
+    }
+    /**
+     * Detect outliers using modified Z-score (MAD-based).
+     */
+    detectOutliers(data, method = "mad", threshold) {
+        const sorted = [...data].sort((a, b) => a - b);
+        const n = data.length;
+        if (method === "boxplot") {
+            const q1 = sorted[Math.floor(n * 0.25)];
+            const q3 = sorted[Math.floor(n * 0.75)];
+            const iqr = q3 - q1;
+            const k = threshold ?? 1.5;
+            const lower = q1 - k * iqr;
+            const upper = q3 + k * iqr;
+            const outlierIndices = data
+                .map((v, i) => v < lower || v > upper ? i : -1)
+                .filter(i => i >= 0);
+            return {
+                outlierIndices,
+                outlierValues: outlierIndices.map(i => data[i]),
+                method: "boxplot",
+                threshold: k,
+                cleanData: data.filter((_, i) => !outlierIndices.includes(i)),
+            };
+        }
+        if (method === "grubb

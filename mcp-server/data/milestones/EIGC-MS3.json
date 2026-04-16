@@ -1,0 +1,18 @@
+{
+  "id": "EIGC-MS3",
+  "version": "1.0.0",
+  "title": "Fix Silent No-Ops and Helper Correctness",
+  "brief": "Patch SolidEditingEngine (real boolean ops or explicit unsupported), ToolpathSimulationEngine (real feed profiling or remove placeholder), and any helper that returns unchanged state while claiming mutation.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "No-Op Fixes", "sessions": "1-2", "units": [
+    {"id": "P0-U01", "title": "Fix SolidEditingEngine cut/intersect — real mutation or unsupported", "effort": 80, "dependencies": []},
+    {"id": "P0-U02", "title": "Fix ToolpathSimulationEngine feed profiling — real extension or remove placeholder", "effort": 60, "dependencies": []},
+    {"id": "P0-U03", "title": "Sweep all scoped helpers for mutation-truth violations", "effort": 40, "dependencies": ["P0-U01", "P0-U02"]}
+  ]}],
+  "dependencies": ["EIGC-MS2"],
+  "exit_conditions": ["No scoped mutating API silently no-ops while claiming success"]
+}

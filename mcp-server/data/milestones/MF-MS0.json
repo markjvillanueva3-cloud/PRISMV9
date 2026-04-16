@@ -1,0 +1,57 @@
+{
+  "id": "MF-MS0",
+  "version": "6.2.0",
+  "title": "Workpiece State Engine + Geometry Input Layer",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "Build the WorkpieceStateEngine that tracks material removal step-by-step through the operation sequence. Create 3-level geometry input: Level 3 (Fusion B-rep via LiveBridge), Level 2 (feature-based AABB subtraction), Level 1 (G-code stock reconstruction). This engine is the foundation — every other feasibility check queries the evolving workpiece state.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "WorkpieceStateEngine Core",
+      "units": [
+        {
+          "id": "U01",
+          "title": "WorkpieceStateEngine: IPW tracking with surface catalog and wall thickness detection",
+          "status": "complete",
+          "steps": [
+            "Define WorkpieceState type: stock geometry, operations_applied, current_ipw, surfaces[], wall_sections[], volume_removed_pct",
+            "initialize(): set stock from bounding box, feature list, or B-rep reference",
+            "applyOperation(): subtract material for one operation, update IPW, recalculate surfaces and walls",
+            "getState(afterOp): return snapshot at any point in sequence",
+            "getSurfaces(): catalog all remaining surfaces with area, normal, position, flatness",
+            "getMinWallThickness(): scan IPW for thinnest wall section using cross-section analysis",
+            "rollback(toOp): undo operations for alternate sequence testing",
+            "Level 2 geometry: AABB constructive subtraction (stock - operation bounding boxes)",
+            "Track clamping zones: top, bottom, side1, side2, bore — area and accessibility",
+            "Track datum surfaces: which reference surfaces are still intact"
+          ],
+          "exit_conditions": [
+            "IPW updates correctly after each operation",
+            "Surface catalog accurate after material removal",
+            "Wall thickness detection finds minimum section",
+            "Rollback restores previous state correctly",
+            "20+ unit tests"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Geometry input adapters: Fusion B-rep, feature-based, G-code reconstruction",
+          "status": "complete",
+          "steps": [
+            "Level 3 adapter: Fusion360LiveBridgeEngine geometry endpoint → extract faces, edges, volumes",
+            "Level 2 adapter: PartGeometryPipelineEngine features → AABB representation",
+            "Level 1 adapter: G-code parser → SweptVolumeEngine → reconstructed stock removal",
+            "Auto-detect available fidelity level and use highest available",
+            "Graceful degradation: if Fusion unavailable, fall back to Level 2; if no features, Level 1"
+          ],
+          "exit_conditions": [
+            "All 3 geometry levels produce compatible WorkpieceState",
+            "Level detection works automatically",
+            "10+ tests across fidelity levels"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

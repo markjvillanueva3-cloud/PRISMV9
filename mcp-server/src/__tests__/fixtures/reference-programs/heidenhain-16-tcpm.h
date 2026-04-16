@@ -1,0 +1,45 @@
+0  BEGIN PGM TCPM5AXIS MM
+1  ; 5-axis contouring with FUNCTION TCPM
+2  ; Material: Aluminum 7075-T6
+3  ; Tool: 10mm ball nose end mill
+4  ; Machine: 5-axis with A/C rotary axes
+5  BLK FORM 0.1 Z X-60 Y-60 Z-40
+6  BLK FORM 0.2 X+60 Y+60 Z+0
+7  TOOL CALL 25 Z S8000 F1500 DL+0 DR+0
+8  L Z+100 R0 FMAX M3
+9  ; Enable TCPM - maintain tool center point
+10 FUNCTION TCPM F TCP AXIS POS PATHCTRL AXIS
+11 ; Position to start - tool tilted 15 deg about B
+12 L X-40 Y+0 Z+5 A+0 C+0 R0 FMAX
+13 L Z-5 F300
+14 ; Contour pass with simultaneous A rotation
+15 L X-40 Y+0 Z-5 A+0 C+0 F1500
+16 L X-30 Y+0 Z-6 A+5 C+0 F1500
+17 L X-20 Y+0 Z-8 A+10 C+0 F1500
+18 L X-10 Y+0 Z-10 A+15 C+0 F1500
+19 L X+0 Y+0 Z-12 A+15 C+0 F1500
+20 L X+10 Y+0 Z-10 A+15 C+0 F1500
+21 L X+20 Y+0 Z-8 A+10 C+0 F1500
+22 L X+30 Y+0 Z-6 A+5 C+0 F1500
+23 L X+40 Y+0 Z-5 A+0 C+0 F1500
+24 ; Stepover
+25 L Y+2 R0 F1500
+26 ; Return pass
+27 L X+40 Y+2 Z-5 A+0 C+0 F1500
+28 L X+30 Y+2 Z-6 A+5 C+0 F1500
+29 L X+20 Y+2 Z-8 A+10 C+0 F1500
+30 L X+10 Y+2 Z-10 A+15 C+0 F1500
+31 L X+0 Y+2 Z-12 A+15 C+0 F1500
+32 L X-10 Y+2 Z-10 A+15 C+0 F1500
+33 L X-20 Y+2 Z-8 A+10 C+0 F1500
+34 L X-30 Y+2 Z-6 A+5 C+0 F1500
+35 L X-40 Y+2 Z-5 A+0 C+0 F1500
+36 ; Retract
+37 L Z+50 R0 FMAX
+38 ; Reset TCPM
+39 FUNCTION RESET TCPM
+40 L A+0 C+0 R0 FMAX
+41 L Z+100 R0 FMAX M5
+42 TOOL CALL 0
+43 L Z+100 R0 FMAX M30
+44 END PGM TCPM5AXIS MM

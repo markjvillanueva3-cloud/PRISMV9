@@ -1,0 +1,19 @@
+{
+  "id": "EIGC-MS8",
+  "version": "1.0.0",
+  "title": "Provenance and Confidence Contracts + Physics Fusion Integration",
+  "brief": "Define minimum provenance fields (source basis, assumptions, completeness, confidence, degraded reason) for high-value outputs. Integrate Physics Fusion confidence scores and convergence statuses into the provenance framework. Define confidence downgrade rules for partial/bridge/uncalibrated results.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Provenance + Confidence", "sessions": "2", "units": [
+    {"id": "P0-U01", "title": "Define provenance fields for speed/feed, post, print-to-program, ERP outputs", "effort": 60, "dependencies": []},
+    {"id": "P0-U02", "title": "Integrate Physics Fusion confidence scores into provenance framework", "effort": 50, "dependencies": ["P0-U01"]},
+    {"id": "P0-U03", "title": "Define confidence downgrade rules for partial/bridge/uncalibrated", "effort": 40, "dependencies": ["P0-U01"]}
+  ]}],
+  "dependencies": ["EIGC-MS7"],
+  "exit_conditions": ["High-value outputs explain what they know, what they inferred, and how trustworthy the result is"],
+  "notes": "Gap fix: Physics Fusion integration added during scrutiny — FUSION-1/2/3 produce confidence scores that must flow into provenance"
+}

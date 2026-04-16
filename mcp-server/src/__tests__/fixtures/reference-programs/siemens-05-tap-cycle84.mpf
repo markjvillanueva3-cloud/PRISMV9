@@ -1,0 +1,47 @@
+; =============================================
+; SIEMENS 840D sl — Rigid Tapping with CYCLE84
+; Material: 6061-T6 Aluminum
+; Tool: M10x1.5 HSS-E spiral flute tap
+; Pre-drilled 8.5mm holes
+; =============================================
+
+N10 G54 G90 G17 G64 SOFT       ; Safe start
+N20 T9 D1 M6                   ; M10x1.5 tap
+N30 S600 M3                    ; Conservative RPM for tapping
+N40 M8                         ; Coolant ON
+N50 G0 Z50                     ; Clearance plane
+
+; CYCLE84 — Rigid tapping
+; CYCLE84(RTP, RFP, SDIS, DP, DPR, DTB, SDAC, MPIT, PIT, POSS, SST, SST1, AXN, PTAB, PRESSION, TECHNO)
+;   RTP  = 50       retract plane
+;   RFP  = 0        reference plane
+;   SDIS = 3        safety distance
+;   DP   = -20      thread depth (absolute)
+;   DPR  = 0        (absolute mode)
+;   DTB  = 0.2      dwell at bottom
+;   SDAC = 3        rotation direction (3 = M3)
+;   MPIT = 0        not used when PIT specified
+;   PIT  = 1.5      thread pitch in mm
+;   POSS = 0        spindle orient position (not used)
+;   SST  = 600      spindle speed tapping
+;   SST1 = 900      spindle speed retract
+;   AXN  = 0        not used
+
+N60 MCALL CYCLE84(50, 0, 3, -20, 0, 0.2, 3, 0, 1.5, 0, 600, 900, 0)
+
+; Tap 6 pre-drilled holes
+N70 X20 Y20                    ; Hole 1
+N80 X60 Y20                    ; Hole 2
+N90 X100 Y20                   ; Hole 3
+N100 X20 Y60                   ; Hole 4
+N110 X60 Y60                   ; Hole 5
+N120 X100 Y60                  ; Hole 6
+
+N130 MCALL                     ; Cancel modal cycle
+
+; Retract and end
+N140 G0 Z50
+N150 M9                        ; Coolant OFF
+N160 M5                        ; Spindle stop
+N170 G0 X0 Y0 SUPA
+N180 M30

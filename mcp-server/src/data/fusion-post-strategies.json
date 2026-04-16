@@ -1,0 +1,384 @@
+{
+  "_metadata": {
+    "source": "Fusion 360 Post Processors (CPS files)",
+    "extracted": "2026-03-25",
+    "files_analyzed": [
+      "haas next generation.cps",
+      "haas.cps",
+      "fanuc.cps",
+      "siemens-840d.cps",
+      "mazak integrex i-100.cps"
+    ],
+    "location": "C:/PRISM/BOX/FUSION BASIC POSTS/"
+  },
+  "tolerance_standards": {
+    "default_tolerance_mm": 0.002,
+    "minimum_chord_length_mm": 0.25,
+    "minimum_circular_radius_mm": 0.01,
+    "maximum_circular_radius_mm": 1000,
+    "minimum_circular_sweep_rad": 0.000175,
+    "motion_output_tolerance_siemens": 0.0001,
+    "maximum_circular_radii_difference_mm": 0.005
+  },
+  "arc_handling": {
+    "haas": {
+      "max_circular_sweep_deg": 355,
+      "allow_helical": true,
+      "allow_spiral": true,
+      "allow_any_circular_plane": true,
+      "spiral_linearize_if_radii_diff_exceeds_mm": 0.005,
+      "full_circle_handling": "IJK mode only (radius mode linearizes full circles)",
+      "arc_planes": {
+        "XY": "G17",
+        "ZX": "G18",
+        "YZ": "G19"
+      },
+      "arc_format": "G2/G3 with IJK (incremental from start) or R (radius)",
+      "radius_mode_rule": "If sweep > 180deg, negate radius value to allow up to <360 deg arcs",
+      "g68_rotation_linearizes_non_XY_arcs": true,
+      "algorithm": "IJK computed as (center - start): iOutput(cx-start.x), jOutput(cy-start.y)"
+    },
+    "fanuc": {
+      "max_circular_sweep_deg": 180,
+      "allow_helical": true,
+      "allow_3d_arcs_property": true,
+      "allow_any_circular_plane": true,
+      "arc_format": "G2/G3 with IJK or R",
+      "force_IJK_option": true,
+      "smoothing_AICC": "G05.1 Q0/Q1 with R-level (1-10)"
+    },
+    "siemens_840d": {
+      "max_circular_sweep_deg": 90,
+      "use_arc_turn_option_extends_to": "999*360 revolutions",
+      "allow_helical": true,
+      "allow_any_circular_plane": true,
+      "CIP_command_option": true,
+      "smoothing": "CYCLE832 with 3 levels"
+    },
+    "mazak_integrex": {
+      "max_circular_sweep_deg": 90,
+      "reduced_sweep_reason": "Break up circular moves on quadrant boundaries for mill-turn",
+      "allow_helical": true,
+      "allow_spiral": true
+    }
+  },
+  "drilling_cycles": {
+    "haas_fanuc_gcode_mapping": {
+      "drilling_G81": {
+        "gcode": "G81",
+        "params": "X Y Z R F",
+        "retract": "G98 (initial) / G99 (R-plane)",
+        "cycle_reversal": "E parameter for reverse spindle (E2000)"
+      },
+      "counter_boring_G82": {
+        "gcode": "G82",
+        "params": "X Y Z R P F",
+        "dwell": "P in milliseconds (1-99999999)",
+        "fallback": "If no dwell, outputs G81 instead"
+      },
+      "chip_breaking_G73": {
+        "gcode": "G73",
+        "params_standard": "X Y Z R Q F",
+        "params_degressive": "X Y Z R I(initial) J(reduction) K(minimum) F",
+        "accumulated_depth_mode": "Q(depth) K(accumulated) - requires useG73Retract property",
+        "logic": "If accumulatedDepth < depth AND incrementalDepthReduction > 0, expand to longhand moves",
+        "retract_behavior": "Rapid retract small amount (chip break), not full retract"
+      },
+      "deep_drilling_G83": {
+        "gcode": "G83",
+        "params_standard": "X Y Z R Q F",
+        "params_degressive": "X Y Z R I(initial) J(reduction) K(minimum) F",
+        "peck_algorithm": "Full retract to R-plane between each peck for chip evacuation"
+      },
+      "tapping_G84_G74": {
+        "gcode_right": "G84",
+        "gcode_left": "G74",
+        "feed_calculation_IPM": "threadPitch * spindleSpeed",
+        "feed_calculation_IPR": "threadPitch (with G95 mode)",
+        "rigid_tapping_options": [
+          "yes",
+          "no",
+          "without_spindle_direction"
+        ],
+        "pitch_vs_feed": "usePitchForTapping property selects F-word interpretation"
+      },
+      "peck_tapping": {
+        "gcode": "G84/G74 with Q parameter",
+        "requirement": "Software >= 100.23.000.1201 (HAAS)",
+        "fallback_algorithm": [
+          "1. Start at stock surface",
+          "2. step = incrementalDepth",
+          "3. u -= step; step -= incrementalDepthReduction",
+          "4. if step < minimumIncrementalDepth: step = minimumIncrementalDepth",
+          "5. Output G99 G84/G74 to depth u",
+          "6. Repeat until u <= cycle.bottom",
+          "7. Uses G99 (retract to R) between pecks, individual cycle calls"
+        ]
+      }
+    },
+    "siemens_840d_cycle_mapping": {
+      "drilling": "CYCLE81",
+      "spot_drilling": "CYCLE82 (with dwell)",
+      "deep_drilling": "CYCLE83 (with degression type, reduction amount, min depth, first feedrate factor, upper/lower dwell)",
+      "rapid_peck": "CYCLE83 (with peck retract parameter)",
+      "reaming": "CYCLE85 (with plunging and retract feedrate)",
+      "tapping": "CYCLE84 (with peck depth, retract amount, dwell, pitch, tapping/retract speed)",
+      "extended_cycles": "Post-2011 controllers support additional parameters"
+    }
+  },
+  "rapid_move_strategies": {
+    "haas_dogleg_avoidance": {
+      "description": "HAAS pre-NGC follows dogleg path on G0 (moves one axis at a time)",
+      "solution": "Post uses G1 at highFeedrate by default for multi-axis moves",
+      "highFeedrate_mm_min": 5000,
+      "highFeedrate_in_min": 500,
+      "rule": "G0 only when useG0=true AND moving along single axis",
+      "algorithm": "Count changed axes: if (x?1:0)+(y?1:0)+(z?1:0) > 1 then G1+highFeed"
+    },
+    "haas_ngc_5axis_rapid": {
+      "rule": "If TCP active or multi-axis, use G1+highFeed for synchronized motion",
+      "algorithm": "Count changed axes including rotary, if >1 and (tcp || !useG0) then G1+highFeed"
+    }
+  },
+  "smoothing_algorithms": {
+    "haas_G187": {
+      "levels": {
+        "rough": 1,
+        "medium": 2,
+        "finish": 3
+      },
+      "automatic_mode": {
+        "criteria_options": [
+          "stock",
+          "tolerance"
+        ],
+        "difference_criteria": [
+          "level",
+          "tolerance",
+          "both"
+        ],
+        "thresholds_mm": {
+          "roughing": 0.5,
+          "semi_finishing": 0.1,
+          "finishing": 0.05
+        },
+        "assignment_logic": "stock > roughing_threshold -> rough(1), stock > semi_threshold -> semi(2), stock < finishing_threshold -> finish(3), else -> semi(2)",
+        "cancel_compensation_before_level_change": false
+      }
+    },
+    "fanuc_AICC_AIAPC": {
+      "command": "G05.1 Q0 (off) / G05.1 Q1 (on)",
+      "levels": "R1-R10 appended to G05.1 Q1",
+      "automatic_mode": "Same stock threshold logic"
+    },
+    "siemens_CYCLE832": {
+      "levels": [
+        1,
+        2,
+        3
+      ],
+      "automatic_mode": true
+    }
+  },
+  "coolant_control": {
+    "haas": {
+      "COOLANT_FLOOD": {
+        "on": 8,
+        "off": 9
+      },
+      "COOLANT_THROUGH_TOOL": {
+        "on": 88,
+        "off": 89
+      },
+      "COOLANT_AIR": {
+        "on": 83,
+        "off": 84
+      },
+      "COOLANT_AIR_THROUGH_TOOL": {
+        "on": 73,
+        "off": 74
+      },
+      "COOLANT_FLOOD_THROUGH_TOOL": {
+        "on": [
+          88,
+          8
+        ],
+        "off": [
+          89,
+          9
+        ]
+      },
+      "VFD_pressure_codes": {
+        "low": "P0",
+        "normal": "P1",
+        "high": "P2"
+      },
+      "logic": [
+        "Probe operations force coolant OFF",
+        "TSC/air-through-tool are 'special coolants' that force spindle speed rewrite when switched",
+        "Coolant pressure appended to flood line when VFD equipped",
+        "Multiple coolant codes can be single-line or multi-line (singleLineCoolant setting)"
+      ]
+    }
+  },
+  "tool_change_sequence": {
+    "haas_standard": {
+      "steps": [
+        "Optional stop M1 (if property enabled)",
+        "Cancel rotation G69 (if G68 active)",
+        "Cancel tilted workplane G255 (if G254 active)",
+        "Retract Z: G53 Z0 (or G28, or clearance height)",
+        "Cancel tool length comp: G49 (via toolLengthCompOutput)",
+        "Tool change: T## M6",
+        "Write tool comment",
+        "Preload next tool: T## (if preloadTool enabled)",
+        "Optional tool measurement: G65 P9023",
+        "Chip conveyor: M31 (if gotChipConveyor enabled)"
+      ]
+    },
+    "fast_tool_change": "Skips spindle off, coolant off, and Z retract",
+    "tool_measurement_P9023": {
+      "probing_types": {
+        "shell_mill_endmill": "A23 (rotate measure)",
+        "drill_tap_center": "A12 (non-rotate measure)",
+        "full_measure": "A13 (rotate length and diameter)"
+      },
+      "params": "T=tool_number, H=body_length, D=diameter"
+    },
+    "tool_breakage_P9853": {
+      "params": "T=tool_number, B=0, H=tolerance",
+      "note": "Cancels tool length compensation (sets H49)"
+    }
+  },
+  "multi_axis": {
+    "haas_ngc": {
+      "DWO": {
+        "on": "G254",
+        "off": "G255",
+        "description": "Dynamic Work Offset for tilted workplane"
+      },
+      "TCPC": "Tool Center Point Control with TCP property",
+      "polar_interpolation": {
+        "activation": "activatePolarMode(tolerance/2, 0, directionVector)",
+        "direction_calc": "Cross product of direction with rotary axis, then cross axis with result",
+        "feed_mode": "DPM or Inverse Time based on property"
+      },
+      "axis_unwind": {
+        "method_1": "Move to closest 0 via G28 G91",
+        "method_2": "Table stays via G92",
+        "reset_G90_after": true
+      },
+      "work_plane_optimization": "OPTIMIZE_AXIS (also OPTIMIZE_NONE, OPTIMIZE_BOTH, OPTIMIZE_TABLES, OPTIMIZE_HEADS)"
+    },
+    "fanuc": {
+      "tilted_workplane": "G68.2",
+      "workpiece_error_comp": "G54.4 (Fanuc 30i)",
+      "inverse_time_feed": "G93"
+    },
+    "siemens_840d": {
+      "CYCLE800": {
+        "modes": {
+          "39": "CAB",
+          "27": "CBA",
+          "57": "ABC",
+          "45": "ACB",
+          "30": "BCA",
+          "54": "BAC",
+          "192": "Rotary angles"
+        },
+        "retract_methods": {
+          "0": "No retraction",
+          "1": "Retract in machine Z",
+          "2": "Retract in machine Z then XY"
+        },
+        "swivel_data_record": "Configurable label"
+      },
+      "tool_vector_output": "A3=, B3=, C3= format (6 decimal precision)",
+      "shortest_direction": true
+    }
+  },
+  "compensation_logic": {
+    "radius_compensation": {
+      "left": "G41 D##",
+      "right": "G42 D##",
+      "cancel": "G40",
+      "constraints": [
+        "Must activate on G1 linear move",
+        "Cannot change on G0 rapid",
+        "Cannot activate/deactivate on G2/G3 circular",
+        "Cannot activate/deactivate on 5-axis move",
+        "Resets X/Y output when pending to force coordinate output"
+      ]
+    },
+    "feed_output_optimization": {
+      "description": "Feed is modal - only output when changed",
+      "no_motion_optimization": "If feed changes but next record is also motion, defer to next line",
+      "parametric_feed": {
+        "first_parameter": 100,
+        "assignment_syntax": "#100=feedvalue",
+        "output_syntax": "F#100",
+        "benefit": "Reduces program size for repeated feed values"
+      }
+    }
+  },
+  "format_precision": {
+    "haas_pre_ngc": {
+      "xyz_mm": 3,
+      "xyz_in": 4,
+      "ijk": 6,
+      "feed_mm": 0,
+      "feed_in": 1,
+      "abc_deg": 3,
+      "peck_mm": 3,
+      "peck_in": 4
+    },
+    "haas_ngc": {
+      "xyz_mm": 3,
+      "xyz_in": 4,
+      "ijk": 6,
+      "feed_mm": 2,
+      "feed_in": 3,
+      "abc_deg": 3,
+      "peck_mm": 3,
+      "peck_in": 4
+    },
+    "fanuc": {
+      "xyz_mm": 3,
+      "xyz_in": 4,
+      "ijk": 6,
+      "feed_mm": 0,
+      "feed_in": 1,
+      "abc_deg": 3,
+      "inverse_time": 3
+    },
+    "siemens_840d": {
+      "xyz_standard_mm": 3,
+      "xyz_standard_in": 4,
+      "xyz_increased_mm": 5,
+      "xyz_increased_in": 6,
+      "abc_standard_deg": 3,
+      "abc_increased_deg": 6,
+      "feed_mm": 1,
+      "feed_in": 2,
+      "tool_vector": 6
+    }
+  },
+  "wcs_definitions": {
+    "haas": {
+      "standard": "G54-G59",
+      "extended": "G154 P1-P99"
+    },
+    "haas_ngc": {
+      "standard": "G54-G59",
+      "extended": "G154 P1-P99"
+    },
+    "fanuc": {
+      "standard": "G54-G59",
+      "extended": "G54.1 P1-P300"
+    },
+    "siemens_840d": {
+      "standard": "G54-G57",
+      "extended": "G505-G599"
+    }
+  }
+}

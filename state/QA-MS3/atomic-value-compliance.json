@@ -1,0 +1,94 @@
+{
+  "audit_id": "QA-MS3-P0-U06",
+  "title": "AtomicValue Compliance Check Across All Calc Engines",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:55:00Z",
+  "status": "COMPLETE",
+  "verdict": "FAIL — AtomicValue schema is documented as MANDATORY but not implemented in any calculation engine",
+
+  "atomicvalue_schema": {
+    "documented_in": "src/engines/CLAUDE.md",
+    "interface": {
+      "value": "number",
+      "unit": "string",
+      "uncertainty": "number (absolute, same unit)",
+      "confidence": "number (0-1, optional)",
+      "source": "string (calculation method name)",
+      "warning": "string (optional)"
+    },
+    "stated_requirement": "MANDATORY for all calculations — 'Never return bare numbers'"
+  },
+
+  "implementation_status": {
+    "class_or_interface_exists": false,
+    "grep_result": "Only found in engines/CLAUDE.md — no TypeScript implementation",
+    "engines_using_atomic_value": 0,
+    "engines_returning_raw_numbers": "ALL"
+  },
+
+  "engine_compliance_matrix": {
+    "ManufacturingCalculations.ts": {
+      "functions_audited": [
+        "calculateKienzleCuttingForce", "calculateTaylorToolLife", "calculateJohnsonCookStress",
+        "calculateSurfaceFinish", "calculateMRR", "calculateSpeedFeed",
+        "calculateSpindlePower", "calculateChipLoad", "calculateTorque", "calculateProductivityMetrics"
+      ],
+      "returns_AtomicValue": false,
+      "returns_typed_results": true,
+      "has_uncertainty": "Partial — CuttingForceResult has uncertainty bounds, others don't",
+      "has_units_in_comments": true,
+      "has_units_in_output": false
+    },
+    "AdvancedCalculations.ts": {
+      "functions_audited": [
+        "calculateStabilityLobes", "calculateToolDeflection", "calculateCuttingTemperature",
+        "calculateMinimumCostSpeed", "optimizeCuttingParameters"
+      ],
+      "returns_AtomicValue": false,
+      "returns_typed_results": true,
+      "has_uncertainty": false,
+      "has_units_in_comments": true,
+      "has_units_in_output": false
+    }
+  },
+
+  "partial_compliance_notes": {
+    "CuttingForceResult_uncertainty": {
+      "location": "ManufacturingCalculations.ts:151",
+      "fields": ["Fc_range", "power_range", "confidence", "source"],
+      "description": "Closest to AtomicValue pattern — has range bounds and confidence. But embedded in result object, not on individual values."
+    },
+    "calculation_method_field": "Most result types include a 'calculation_method' string — equivalent to AtomicValue.source",
+    "warnings_field": "Most result types include a 'warnings' array — equivalent to AtomicValue.warning",
+    "units_in_interface_comments": "Interfaces document units in JSDoc (e.g., 'Fc: number // Main cutting force [N]') but units are not programmatically accessible"
+  },
+
+  "findings": [
+    {
+      "id": "F37",
+      "severity": "MEDIUM",
+      "title": "AtomicValue is documented as MANDATORY but not implemented anywhere",
+      "file": "src/engines/CLAUDE.md",
+      "line": 6,
+      "issue": "engines/CLAUDE.md states 'All return types use AtomicValue schema' and 'Never return bare numbers. Always: { value: 245.3, unit: \"N\", uncertainty: 12.1, source: \"kienzle\" }'. However, no AtomicValue class/interface exists in TypeScript code. All 15 calculation functions return typed result objects with raw number fields. Units exist only in JSDoc comments, not in runtime data.",
+      "impact": "Medium — Without programmatic unit tracking, there's no protection against unit confusion (e.g., mixing N and kN, mm and m). Uncertainty propagation through calculation chains is not possible. The documentation creates a false expectation.",
+      "fix": "Option A (minimal): Update CLAUDE.md to reflect reality — typed result objects with inline units. Option B (full): Implement AtomicValue wrapper and refactor outputs. Option C (pragmatic): Add unit metadata to result interfaces without wrapping individual values."
+    }
+  ],
+
+  "existing_safety_mitigations": {
+    "typed_interfaces": "Every calculation function has a dedicated result interface (CuttingForceResult, ToolLifeResult, etc.)",
+    "safety_limits": "SAFETY_LIMITS constant enforces bounds on all major parameters",
+    "input_validation": "validateCuttingConditions() rejects invalid inputs with throws",
+    "warnings_array": "Every result includes a warnings[] array for edge cases",
+    "cross_field_physics": "validateCrossFieldPhysics() catches physically impossible combinations"
+  },
+
+  "recommendation": "Option A (update docs) for now. AtomicValue would be a significant refactor touching all 15+ functions and their 30+ consumers. The current typed result objects with warnings provide adequate safety for the existing use case.",
+
+  "exit_conditions_met": {
+    "atomic_value_usage_checked": true,
+    "unit_tracking_status": "NOT_IMPLEMENTED — units in comments only",
+    "uncertainty_propagation_status": "PARTIAL — CuttingForceResult only"
+  }
+}

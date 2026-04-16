@@ -1,0 +1,59 @@
+{
+  "audit_id": "QA-MS8-P0-U03",
+  "title": "prism_manus Dispatcher Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T04:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 11 actions: 5 task management (Claude API), 2 specialized AI (research/sandbox), 4 hook management (local registry). Clean architecture.",
+
+  "dispatcher_overview": {
+    "file": "src/tools/dispatchers/manusDispatcher.ts",
+    "tool_name": "prism_manus",
+    "total_actions": 11,
+    "total_lines": 295,
+    "description": "PRISM's built-in AI agent task execution engine — uses Claude API, NOT external Manus service"
+  },
+
+  "actions": {
+    "task_management": {
+      "actions": ["create_task", "task_status", "task_result", "cancel_task", "list_tasks"],
+      "backend": "Claude API via callClaude() helper",
+      "storage": "In-memory Map<string, ManusTask> — session lifetime only",
+      "execution": "Async fire-and-forget for create_task — returns task_id immediately",
+      "model_tiers": { "quality": "sonnet", "speed": "haiku", "balanced": "sonnet", "deep": "sonnet" }
+    },
+    "specialized_ai": {
+      "actions": ["web_research", "code_sandbox"],
+      "backend": "Claude API with specialized system prompts",
+      "web_research": "depth parameter (standard=haiku, deep=sonnet)",
+      "code_sandbox": "Mental code execution — not actual sandbox"
+    },
+    "hook_management": {
+      "actions": ["hook_trigger", "hook_list", "hook_chain", "hook_stats"],
+      "backend": "Local hook registry file (PATHS.HOOKS_REGISTRY)",
+      "hook_chain": "Traverses relatedHooks graph up to max_depth (default 10), cycle-safe via visited Set"
+    }
+  },
+
+  "api_integration": {
+    "callClaude_function": "Raw fetch to api.anthropic.com/v1/messages",
+    "api_key": "getApiKey() from config/api-config.js",
+    "safety": "hasValidApiKey() check before all Claude-backed actions",
+    "model_selection": "getModelForTier() — configurable per tier"
+  },
+
+  "param_normalization": {
+    "pattern": "params = normalizeParams(rawParams)",
+    "consistent": true
+  },
+
+  "note": "prism_manus is NOT a manufacturing dispatcher — it is an AI agent/hook management tool. Naming in QA-MS8 envelope may be misleading.",
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "all_actions_inventoried": true,
+    "engine_coverage_verified": true,
+    "manufacturing_process_coverage_assessed": true
+  }
+}

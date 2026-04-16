@@ -1,0 +1,103 @@
+{
+  "title": "Wire EDM Shop NC Program Catalog",
+  "version": "1.0.0",
+  "source": "C:/Users/Mark Villanueva/Box/WIRE EDM/",
+  "machine": "Mitsubishi MV-series (M800 Advanced Plus 3 controller)",
+  "updated": "2026-04-10",
+  "programs": [
+    {
+      "id": "SHOP-001",
+      "filename": "ITW SHAKEPROOF 500-30540-24000-04.NC",
+      "customer": "ITW Shakeproof",
+      "part_number": "500-30540-24000-04",
+      "controller": "mitsubishi",
+      "material": "D2 Tool Steel (ISO H group)",
+      "material_hardness": "HRC 58-62",
+      "thickness_mm": 25.4,
+      "thickness_in": 1.0,
+      "profile_type": "hex_profile_plus_bore",
+      "num_passes": 4,
+      "pass_structure": [
+        { "pass": 1, "e_code": "E1221", "h_register": 1, "offset_in": 0.0085, "offset_mm": 0.2159, "feed_ipm": 0.12, "feed_mmmin": 3.048, "comp": "G42" },
+        { "pass": 2, "e_code": "E1222", "h_register": 2, "offset_in": 0.0064, "offset_mm": 0.1626, "feed_ipm": 0.24, "feed_mmmin": 6.096, "comp": "G42" },
+        { "pass": 3, "e_code": "E1223", "h_register": 3, "offset_in": 0.0058, "offset_mm": 0.1473, "feed_ipm": 0.21, "feed_mmmin": 5.334, "comp": "G41" },
+        { "pass": 4, "e_code": "E1224", "h_register": 4, "offset_in": 0.0053, "offset_mm": 0.1346, "feed_ipm": 0.20, "feed_mmmin": 5.080, "comp": "G42" }
+      ],
+      "features": ["hex_profile", "bore_circular", "glue_stop_M01"],
+      "m_codes": ["M01", "M02", "M20", "M21", "M58", "M78", "M80", "M81", "M82", "M83", "M84", "M85", "M90", "M91"],
+      "has_taper": false,
+      "has_adaptive_control": true,
+      "has_tank_management": true,
+      "total_lines": 143,
+      "calibration_notes": "Best D2/H-group calibration anchor. Offset cascade shows 0.0032in total reduction over 4 passes. Pass 3 uses G41 (error averaging technique). Bore feature repeats same E-code sequence."
+    },
+    {
+      "id": "SHOP-002",
+      "filename": "NOZE TEST.NC",
+      "customer": "Internal (calibration)",
+      "part_number": "NOZE-TEST",
+      "controller": "mitsubishi",
+      "material": "Stainless Steel (ISO M group, inferred from E28xx codes)",
+      "thickness_mm": 25,
+      "thickness_in": 1.0,
+      "profile_type": "capsule_nozzle_with_taper",
+      "num_passes": 5,
+      "pass_structure": [
+        { "pass": 1, "e_code": "E2821", "h_register": 1, "offset_in": 0.0, "offset_mm": 0.0, "feed_ipm": 0.16, "feed_mmmin": 4.064 },
+        { "pass": 2, "e_code": "E2822", "h_register": 2, "offset_in": 0.0, "offset_mm": 0.0, "feed_ipm": 0.23, "feed_mmmin": 5.842 },
+        { "pass": 3, "e_code": "E2823", "h_register": 3, "offset_in": 0.0, "offset_mm": 0.0, "feed_ipm": 0.26, "feed_mmmin": 6.604 },
+        { "pass": 4, "e_code": "E2824", "h_register": 4, "offset_in": 0.0, "offset_mm": 0.0, "feed_ipm": 0.30, "feed_mmmin": 7.620 },
+        { "pass": 5, "e_code": "E2825", "h_register": 5, "offset_in": 0.0, "offset_mm": 0.0, "feed_ipm": null, "feed_mmmin": null }
+      ],
+      "features": ["capsule_nozzle", "uv_taper_4axis", "inline_uv_coordinates"],
+      "m_codes": ["M02", "M20", "M21", "M58", "M78", "M80", "M81", "M82", "M83", "M84", "M85", "M90", "M91"],
+      "has_taper": true,
+      "taper_type": "inline_uv",
+      "uv_range": {
+        "u_min_in": -0.04786,
+        "u_max_in": 0.00716,
+        "v_min_in": -0.00287,
+        "v_max_in": 0.00287
+      },
+      "has_adaptive_control": true,
+      "has_tank_management": true,
+      "total_lines": 114,
+      "calibration_notes": "Zero H-offsets (taper compensation via E-codes). Feed rates INCREASE each pass (unusual — taper geometry). UV values on every G1 line. E28xx group = stainless steel family in Mitsubishi tech tables."
+    },
+    {
+      "id": "SHOP-003",
+      "filename": "Wire Program - 5 inch square.NC",
+      "customer": "Internal (test)",
+      "part_number": "5IN-SQUARE-TEST",
+      "controller": "fanuc_generic",
+      "material": "Unknown (test program)",
+      "profile_type": "simple_square",
+      "num_passes": 1,
+      "pass_structure": [],
+      "features": ["G54_work_offset", "simple_contour"],
+      "m_codes": ["M30"],
+      "has_taper": false,
+      "has_adaptive_control": false,
+      "has_tank_management": false,
+      "total_lines": 12,
+      "calibration_notes": "Minimal test program — no cutting conditions, offsets, or pass structure. Machine validation only."
+    }
+  ],
+  "calibration_summary": {
+    "total_programs": 3,
+    "controllers_represented": ["mitsubishi"],
+    "materials_represented": ["D2_tool_steel", "stainless_steel"],
+    "iso_groups_represented": ["H", "M"],
+    "pass_counts": [1, 4, 5],
+    "features": ["2d_profile", "bore", "uv_taper", "adaptive_control", "tank_management"],
+    "gaps": [
+      "Need P-group (mild steel) real programs",
+      "Need K-group (carbide) real programs",
+      "Need N-group (aluminum/copper) real programs",
+      "Need S-group (titanium/superalloy) real programs",
+      "Need thick section (>50mm) real programs",
+      "Need Sodick/Fanuc controller real programs",
+      "Box folder has 244 .mcx-8 (Mastercam binary) files — potential NC extraction with Mastercam"
+    ]
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "id": "PCCA-MS4",
+  "version": "1.0.0",
+  "title": "Speed/Feed Knowledge Activation",
+  "brief": "Promote latent manufacturer, setup, holder, fixture, and finish knowledge into the live speed/feed calculator path with evidence and uncertainty.",
+  "created_at": "2026-03-30T18:00:00Z",
+  "created_by": "claude-haiku-4-5",
+  "track": "PCCA",
+  "track_name": "PRISM Capability Conversion and Activation",
+  "status": "complete",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Knowledge Activation",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build ManufacturerCuttingDataRegistryEngine with tool category-specific inputs",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build ThreadMethodSelectorEngine and SpeedFeedEvidenceEngine",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build HolderAwareSpeedFeedEngine and FixtureConstraintGuardEngine",
+          "effort": 60,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Build FinishTargetAdvisorTool with thermal/coolant compensation hooks",
+          "effort": 50,
+          "dependencies": [
+            "P0-U03"
+          ]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Wire manufacturer data, holder constraints, and finish targets into live calculator path",
+          "effort": 50,
+          "dependencies": [
+            "P0-U04"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    "PCCA-MS0"
+  ],
+  "exit_conditions": [
+    "Speed/feed outputs expose evidence and uncertainty",
+    "Holder, fixture, finish, and thread-method effects are first-class",
+    "Manufacturer and feedback data influence recommendations in traceable way"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-prism-capability-conversion-roadmap-design.md",
+  "primary_sources": [
+    "mcp-server/data/docs/walter-drilling-threading-extracted.txt",
+    "mcp-server/data/docs/sandvik-gc-turning-sample.txt",
+    "mcp-server/data/docs/LEARNING_RESOURCES.md",
+    "mcp-server/src/engines/UltimateSpeedFeedEngine.ts",
+    "mcp-server/src/engines/ToolholderDynamicsEngine.ts",
+    "mcp-server/src/engines/FixtureAwareStrategyEngine.ts"
+  ],
+  "notes": "Injection target: Phase 3-Extended (Level 3 Decisions + Process Physics). Must complete before Level 3 routing contracts finalize.",
+  "completed_at": "2026-04-04T16:15:00Z",
+  "completion_note": "Verified: engines exist and are substantive. Build PASS."
+}

@@ -1,0 +1,525 @@
+{
+  "id": "PPG-HARDEN-MS0",
+  "title": "Post Processor Generator — Gap Remediation + Web App Page + Full Wiring",
+  "version": "1.0.0",
+  "created": "2026-04-09",
+  "omega_target": 1.0,
+  "status": "pending",
+  "depends_on": ["PPG-REAL-MS0"],
+  "estimated_sessions": 12,
+  "estimated_units": 42,
+
+  "mcp_utilization_protocol": {
+    "session_start": "prism_session:context_boot -> dispatcher_map -> memory_recall -> system_snapshot -> action_search '<goal>'",
+    "during_work": "prism_session:auto_checkpoint (every 5-10 calls) -> action_search -> tool_route_best -> wip_capture",
+    "session_end": "prism_session:memory_save -> system_snapshot -> checkpoint_enhanced",
+    "plugins": "mcp__vitest__run_tests | mcp__eslint__lint-files | codebase-memory-mcp search_graph",
+    "feature_cascade": "Read SESSION_ARTIFACTS.json at start -> write via PostCompact hook at end",
+    "context_retain": ".compaction-survival.md + HANDOFF.md + SVI-compact.md + MEMORY.md"
+  },
+
+  "enforcement_protocol": {
+    "hooks": [
+      "review-gate.sh: BLOCKS edits after 3 engine changes without /prism-review",
+      "enforce-auto-compact.py: WARN@15, URGENT@25, BLOCK@35 edits",
+      "PostToolUse stub detector: BLOCKS stub returns in engines",
+      "PostToolUse test quality: BLOCKS || true and bare .includes() in tests",
+      "enforce-constants-check.py: BLOCKS inline kc1.1/Taylor constants"
+    ],
+    "skills": ["/forge-engines", "/forge-wiring", "/prism-review", "/test", "/physics-verify", "/program-validate", "/scrutinize", "/trace", "/forge-triple", "/action-search", "/navigate"]
+  },
+
+  "brief": {
+    "goal": "Fix all 20-agent scrutiny findings, build full PPG web page following calculator design, wire 920 machines + 6353 materials + 75K tools + 2365 holders to page. User flow: machine → controller → features → CAM → tools → generate post + G-code.",
+    "complexity": "XL",
+    "category": "product_delivery",
+    "domain": "post_processor_generator",
+    "urgency": "high"
+  },
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Critical Bug Fixes — 20-Agent Scrutiny Remediation",
+      "sessions": ["S1", "S2"],
+      "intent": "Fix all CRITICAL and HIGH findings from the 20-agent review. Machine ID mismatch (C1), property reduction (C2), Hurco VM30i specs (H1), 4140 Vc (H2), TIR usage (H3), prove-out in CPS (H4), CORS fix (H6), default aggressiveness (H7)."
+    },
+    {
+      "id": "P2",
+      "title": "PPG Page Architecture — Layout + Machine Selector + Controller",
+      "sessions": ["S3", "S4"],
+      "intent": "Build the new PPG page shell following CalculatorPage patterns. Machine search wired to 920-machine database. Controller auto-populated. Machine features auto-detected with toggles."
+    },
+    {
+      "id": "P3",
+      "title": "Material + Tooling + Holder Wiring",
+      "sessions": ["S5", "S6"],
+      "intent": "Wire material search (6353 materials), tool selection (75K tools), holder selection (2365 holders) to the PPG page with search, filter, and physics auto-calculation."
+    },
+    {
+      "id": "P4",
+      "title": "CAM Package + Post Generation + G-Code Preview",
+      "sessions": ["S7", "S8"],
+      "intent": "CAM package selector (Fusion/Mastercam/hyperMILL/etc), CPS generation pipeline, G-code preview with physics annotations, download + deploy flow."
+    },
+    {
+      "id": "P5",
+      "title": "Medium Findings + Data Fixes + Polish",
+      "sessions": ["S9", "S10"],
+      "intent": "Fix all MEDIUM findings: Macor kc1.1, Mo kc1.1, LB3000 RPM, DNC mode, chip thinning formula, thin-wall derating, MAZATROL detection, AS9100 traceability."
+    },
+    {
+      "id": "P6",
+      "title": "Integration Testing + Final Scrutiny",
+      "sessions": ["S11", "S12"],
+      "intent": "Full E2E testing of the complete PPG page flow. Re-run 20-agent scrutiny. All findings resolved. Omega 1.0."
+    }
+  ],
+
+  "sessions": [
+    {
+      "id": "S1",
+      "title": "Critical Fix — Machine ID Mismatch + Property Reduction",
+      "depends_on": [],
+      "units": ["U-PH01", "U-PH02", "U-PH03"],
+      "smart_config": { "role": "CPS Engineer + UX Simplifier", "model": "opus", "effort": "MAX", "context_budget": "70%" },
+      "intent": "Fix the #1 bug: machine dropdown IDs don't match database keys. Reduce 601 properties to manageable set. Fix Hurco VM30i specs.",
+      "exit_gate": "All machine dropdown selections resolve to correct database entries. Properties reduced to <=200. VM30i specs correct. npx vitest run passes."
+    },
+    {
+      "id": "S2",
+      "title": "Critical Fix — Physics + Safety + Defaults",
+      "depends_on": ["S1"],
+      "units": ["U-PH04", "U-PH05", "U-PH06", "U-PH07"],
+      "smart_config": { "role": "Manufacturing Physics + Safety Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Fix 4140 Vc to 170-180, wire TIR into speed calc, add prove-out to CPS fallback, fix default aggressiveness to 'balanced', fix CORS headers.",
+      "exit_gate": "4140 rec=175. TIR used in speed calc. Prove-out in CPS standalone. Default aggressiveness=balanced. CORS headers on /api. All tests pass."
+    },
+    {
+      "id": "S3",
+      "title": "PPG Page Shell — Layout + Routing + Hero",
+      "depends_on": ["S1"],
+      "units": ["U-PH08", "U-PH09", "U-PH10"],
+      "smart_config": { "role": "Frontend Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "Create PostProcessorPage.tsx (new page, replacing/extending existing PPG page). Route at /ppg. WorkspacePrimitives layout. 5-step wizard flow: Machine → Material → Tools → CAM → Generate.",
+      "exit_gate": "Page renders at /ppg. 5-step wizard navigation works. WorkspacePrimitives used throughout. Dark theme matches calculator."
+    },
+    {
+      "id": "S4",
+      "title": "Machine Selector — Search + Controller + Features",
+      "depends_on": ["S3"],
+      "units": ["U-PH11", "U-PH12", "U-PH13", "U-PH14"],
+      "smart_config": { "role": "Frontend + Data Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Wire machine search to 920-machine database via /api/v1/data/machine_search. Auto-populate controller from machine. Auto-detect machine features (TSC, probing, 4th/5th axis, rigid tapping, chip conveyor). User can toggle features on/off.",
+      "exit_gate": "Machine search returns results from 920-machine DB. Controller auto-fills. Features auto-populate with toggles. All wired to state."
+    },
+    {
+      "id": "S5",
+      "title": "Material Selector — Search + Physics Display",
+      "depends_on": ["S4"],
+      "units": ["U-PH15", "U-PH16", "U-PH17"],
+      "smart_config": { "role": "Frontend + Physics Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "Wire material search to 6353-material database. Show Kienzle constants, Taylor tool life, recommended speeds. Group by ISO category with filter.",
+      "exit_gate": "Material search returns from full DB. Kienzle/Taylor displayed. ISO group filter works. Physics auto-calculated on selection."
+    },
+    {
+      "id": "S6",
+      "title": "Tool + Holder Selection — Per-Operation Config",
+      "depends_on": ["S5"],
+      "units": ["U-PH18", "U-PH19", "U-PH20", "U-PH21"],
+      "smart_config": { "role": "Frontend + Tooling Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Wire tool search to 75K-tool database. Wire holder search to 2365-holder database. Per-tool card with: type, diameter, flutes, material, coating, holder, insert nose radius. Physics auto-updates on each change.",
+      "exit_gate": "Tool search works. Holder search works. Per-tool cards with all fields. S/F auto-recalculates. Holder TIR/stiffness shown."
+    },
+    {
+      "id": "S7",
+      "title": "CAM Package Selector + Post Generation Pipeline",
+      "depends_on": ["S6"],
+      "units": ["U-PH22", "U-PH23", "U-PH24", "U-PH25"],
+      "smart_config": { "role": "CAM Integration Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "CAM package dropdown (Fusion 360, Mastercam, hyperMILL, SolidCAM, NX, CATIA, Esprit, GibbsCAM). Each package maps to post template. Generate button calls pipeline. CPS file generated with all user selections embedded.",
+      "exit_gate": "8 CAM packages selectable. Post generation produces valid CPS. Machine/material/tool selections embedded in generated CPS. Download button works."
+    },
+    {
+      "id": "S8",
+      "title": "G-Code Preview + Comparison + Prove-Out Controls",
+      "depends_on": ["S7"],
+      "units": ["U-PH26", "U-PH27", "U-PH28"],
+      "smart_config": { "role": "Frontend + Pipeline Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "G-code preview panel with syntax highlighting. Upload existing program → optimize → side-by-side diff. Prove-out controls (enable/disable, feed%, speed%). Physics annotations per changed line.",
+      "exit_gate": "G-code preview renders. Upload + optimize works. Diff view shows changes. Prove-out toggle functional. Physics reasons displayed."
+    },
+    {
+      "id": "S9",
+      "title": "Medium Findings — Physics Data Fixes",
+      "depends_on": ["S2"],
+      "units": ["U-PH29", "U-PH30", "U-PH31", "U-PH32"],
+      "smart_config": { "role": "Physics + Data Engineer", "model": "opus", "effort": "MAX", "context_budget": "55%" },
+      "intent": "Fix: Macor kc1.1 to 950, Mo kc1.1 to 1550, LB3000 RPM to 5000. Improve chip thinning formula with full (D-ae) term. Add thin-wall derating. Fix MAZATROL detection (require 2+ markers). Add version stamp to G-code header.",
+      "exit_gate": "All material constants corrected. Chip thinning uses full formula. Thin-wall mode available. MAZATROL needs 2+ markers. Version in header. Tests pass."
+    },
+    {
+      "id": "S10",
+      "title": "Medium Findings — CPS Polish + Missing Features",
+      "depends_on": ["S9"],
+      "units": ["U-PH33", "U-PH34", "U-PH35"],
+      "smart_config": { "role": "CPS Engineer + Hurco Specialist", "model": "opus", "effort": "MAX", "context_budget": "55%" },
+      "intent": "Add DNC/drip-feed awareness for large programs. Fix safe-start block order (G90 first). Add G54.1 P1-P48 extended work offsets. Add M88 through-spindle coolant code. Add Hurco VMX30U to database.",
+      "exit_gate": "DNC warning on large programs. Safe start G90 first. Extended offsets supported. M88 TSC correct. VMX30U in DB. Tests pass."
+    },
+    {
+      "id": "S11",
+      "title": "Integration Testing — Full Page E2E",
+      "depends_on": ["S8", "S10"],
+      "units": ["U-PH36", "U-PH37", "U-PH38"],
+      "smart_config": { "role": "QA Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "Full E2E tests: machine search → controller auto-fill → features → material → tools → CAM → generate → preview → download. Test all 8 CAM packages. Test offline fallback. Test 3 machine brands end-to-end.",
+      "exit_gate": "15+ E2E tests pass. All 8 CAM packages generate valid output. Offline mode works. Machine auto-fill verified for Haas/Hurco/DMG."
+    },
+    {
+      "id": "S12",
+      "title": "Final Scrutiny — Re-run 20 Agents + Ship",
+      "depends_on": ["S11"],
+      "units": ["U-PH39", "U-PH40", "U-PH41", "U-PH42"],
+      "smart_config": { "role": "QA + Product Delivery", "model": "opus", "effort": "MAX", "context_budget": "70%" },
+      "intent": "Re-run all 20 scrutiny agents. All CRITICAL/HIGH findings resolved. All MEDIUM findings resolved. Deploy add-in + CPS to desktop. Omega 1.0.",
+      "exit_gate": "20-agent scrutiny: 0 CRITICAL, 0 HIGH, <=3 MINOR. All tests pass. CPS on desktop. Add-in installable. Omega >= 1.0."
+    }
+  ],
+
+  "work": {
+    "U-PH01": {
+      "title": "Fix machine dropdown-to-database ID mismatch",
+      "description": "Synchronize ALL machine enum IDs with machineDatabase keys. The enum uses haas_vf_1 but DB uses haas_vf1, enum uses dn_solutions_* but DB uses doosan_*. Fix ONE direction (standardize enum IDs to match DB keys). Verify all 162 machines resolve.",
+      "session": "S1",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Any machine dropdown selection still silently fails", "Machine count changes", "Existing tests break"],
+      "exit_gate": "All 162 machine dropdown selections resolve to a database entry. No undefined returns from machineDatabase lookup. Verified by grep."
+    },
+    "U-PH02": {
+      "title": "Reduce CPS properties from 601 to <=200",
+      "description": "Reduce 24 tool pockets to 10 max. Remove unused properties. Group remaining into logical sections. Target: 10 pockets × 12 essential fields = 120 pocket props + 50 machine/material/global = ~170 total.",
+      "session": "S1",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Any referenced property removed without updating consumers", "Physics calculation breaks", "Post fails to generate"],
+      "exit_gate": "Property count <= 200. All referenced properties still exist. Post generates valid G-code. Tests pass."
+    },
+    "U-PH03": {
+      "title": "Fix Hurco VM30i specs — torque, taper, power, defaults",
+      "description": "VM30i: maxRpm=10000 (correct), powerHp=25 (not 30), torqueFtLb=105 (not 79), taper=cat40 (not big_plus_40). Fix machineDatabase entry. Fix longDescription. Fix default spindle interface property. Set default aggressiveness to 'balanced' (not 'max_mrr').",
+      "session": "S1",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Specs don't match Hurco published data", "Default mode is still aggressive"],
+      "exit_gate": "VM30i: 10K RPM, 25 HP, 105 ft-lb, CAT40. Default aggressiveness=balanced. Verified by reading machineDatabase entry."
+    },
+    "U-PH04": {
+      "title": "Raise 4140 annealed Vc from 140 to 175 m/min",
+      "description": "Update P_4140_ANN speed rec from 140 to 175, min from 90 to 100, max from 195 to 240. Also check P_4140_QT and adjust proportionally. These represent TiAlN-coated carbide baseline per Sandvik catalog.",
+      "session": "S2",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Vc exceeds Sandvik published range", "Other materials accidentally changed"],
+      "exit_gate": "P_4140_ANN rec=175. Verified against Sandvik CoroMill Plura catalog."
+    },
+    "U-PH05": {
+      "title": "Wire TIR into speed calculation, stiffness into feed",
+      "description": "In calculateSpeed: change holderFactor to use holderData.tir (lower TIR = higher speed). In calculateFeedRate: keep using holderData.stiffness. Formula: speedFactor = 1.0 - (tir * 500) clamped [0.85, 1.0]. feedFactor = 0.85 + (stiffness * 0.15) as today.",
+      "session": "S2",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Speed factor goes below 0.80", "Feed factor changes direction", "Drill chuck gets higher speed than shrink fit"],
+      "exit_gate": "Shrink fit (TIR=0.0001) speed factor > drill chuck (TIR=0.001). Feed factor unchanged. Tests pass."
+    },
+    "U-PH06": {
+      "title": "Add prove-out mode to CPS standalone (no server needed)",
+      "description": "Add prismProveOut boolean property (default: true), prismProveOutFeedPct (default: 50), prismProveOutSpeedPct (default: 80). In onSection, if prove-out enabled, multiply S by speedPct/100 and F by feedPct/100 AFTER physics optimization. Add header comment warning.",
+      "session": "S2",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Prove-out defaults to OFF", "Prove-out applied before physics", "No header warning"],
+      "exit_gate": "Prove-out ON by default. 50% feed, 80% speed. Header says PROVE-OUT. Derated values clamped to machine limits."
+    },
+    "U-PH07": {
+      "title": "Fix CORS headers on Express server for add-in panel",
+      "description": "In routes/index.ts, ensure CORS middleware sends Access-Control-Allow-Origin: * for localhost requests. Verify panel.html fetch() calls work in Fusion's CEF browser. Add error feedback when search fails.",
+      "session": "S2",
+      "files_modified": ["src/routes/index.ts", "scripts/fusion360-prism-addin/panel.html"],
+      "abort_criteria": ["CORS breaks existing API consumers", "Panel still fails to fetch"],
+      "exit_gate": "fetch('http://localhost:18361/api/cam') from file:// origin succeeds with CORS. Panel search shows results."
+    },
+    "U-PH08": {
+      "title": "Create PPG page shell with 5-step wizard",
+      "description": "New component or refactor PostProcessorGeneratorPage.tsx. 5-step wizard: 1.Machine 2.Material 3.Tools 4.CAM 5.Generate. Use WorkspacePrimitives (WorkspaceHero, PanelCard, TabButton, ActionButton, Field, Input, Select, StatusPill). Dark theme. Step indicator at top.",
+      "session": "S3",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Page doesn't render", "WorkspacePrimitives not used", "Steps don't navigate"],
+      "exit_gate": "5-step wizard renders at /ppg. Each step shows/hides content. Navigation works. Matches calculator dark theme."
+    },
+    "U-PH09": {
+      "title": "Wire page routing and lazy loading",
+      "description": "Ensure /ppg route in App.tsx uses lazyNamed pattern. Add breadcrumbs. Connect to sidebar navigation.",
+      "session": "S3",
+      "files_modified": ["web/src/App.tsx"],
+      "abort_criteria": ["Route doesn't load", "Breaks other routes"],
+      "exit_gate": "/ppg loads PPG page. Breadcrumbs show. Sidebar link works."
+    },
+    "U-PH10": {
+      "title": "Build WorkspaceHero and SummaryTiles for PPG",
+      "description": "Hero section: 'Post Processor Generator' title, subtitle 'Physics-optimized G-code for any CNC machine'. 4 SummaryTiles: Machine (selected or 'None'), Material, Tools (count), Status (ready/configuring).",
+      "session": "S3",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Tiles don't update from state", "Layout breaks on mobile"],
+      "exit_gate": "Hero renders. 4 tiles update reactively. Layout responsive."
+    },
+    "U-PH11": {
+      "title": "Build MachineSearchPanel component",
+      "description": "Searchable input calling /api/v1/data/machine_search. Debounced (300ms). Results show: brand, model, RPM, HP, torque, taper, rigidity. Click selects. Selected machine card shows full specs. Uses PanelCard wrapper.",
+      "session": "S4",
+      "files_modified": ["web/src/components/ppg/MachineSearchPanel.tsx"],
+      "files_created": ["web/src/components/ppg/MachineSearchPanel.tsx"],
+      "abort_criteria": ["Search doesn't hit API", "Results don't render", "Selection doesn't update state"],
+      "exit_gate": "Type 'Haas VF' → see VF-1/2/2SS/3/4/5. Click VF-2 → specs fill. Card shows RPM/HP/torque/taper."
+    },
+    "U-PH12": {
+      "title": "Auto-populate controller from machine selection",
+      "description": "When machine selected, read controller field from machine profile (e.g., Haas → 'Haas NGC', DMG → 'Siemens 840D', Mazak → 'MAZATROL SmoothAi'). Controller dropdown auto-fills but user can override. Controller affects post output dialect.",
+      "session": "S4",
+      "files_modified": ["web/src/components/ppg/MachineSearchPanel.tsx", "web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Controller doesn't auto-fill", "Override doesn't persist"],
+      "exit_gate": "Select Haas VF-2 → controller shows 'Haas NGC'. Select DMG DMU 50 → controller shows 'Siemens 840D'. User can override."
+    },
+    "U-PH13": {
+      "title": "Build FeatureAutoDetectPanel component",
+      "description": "Machine features auto-detected from machine profile and controller: TSC (bool+PSI), probing (bool), 4th axis (bool), 5th axis (bool), rigid tapping (bool), chip conveyor (bool), pallet changer (bool), bar feeder (bool). User toggles to enable/disable. Features affect post output (M-codes, cycles).",
+      "session": "S4",
+      "files_created": ["web/src/components/ppg/FeatureAutoDetectPanel.tsx"],
+      "abort_criteria": ["Features don't auto-populate", "Toggles don't affect state"],
+      "exit_gate": "Haas VF-2 → TSC=off, probing=off, 4th=off, rigid_tap=on. DMG DMU 50 → TSC=on(1000psi), probing=on, 5th=on. User toggles work."
+    },
+    "U-PH14": {
+      "title": "Build machine feature database (if gaps exist)",
+      "description": "Check if MachineRegistry has feature flags per machine. If not, build a feature inference engine: TSC from coolantPsi>0, 5-axis from simultaneous_axes>=5, probing from controller capability, rigid tapping from controller. Store inferred features.",
+      "session": "S4",
+      "files_modified": ["src/registries/MachineRegistry.ts"],
+      "abort_criteria": ["Inference gives wrong features", "Registry data corrupted"],
+      "exit_gate": "920 machines have inferred feature flags. Spot-check 10 machines matches reality."
+    },
+    "U-PH15": {
+      "title": "Build MaterialSearchPanel component",
+      "description": "Searchable input calling /api/v1/data/material_search. Results show: name, ISO group, hardness, kc1.1, rec Vc. ISO group filter tabs (P/M/K/N/S/H/X). Selected material card shows full Kienzle/Taylor/thermal data.",
+      "session": "S5",
+      "files_created": ["web/src/components/ppg/MaterialSearchPanel.tsx"],
+      "abort_criteria": ["Search doesn't return results", "Kienzle constants not displayed"],
+      "exit_gate": "Type '4140' → see annealed/QT variants. Click → shows kc1.1=1980, mc=0.25, Vc=175. ISO tabs filter correctly."
+    },
+    "U-PH16": {
+      "title": "Wire material selection to physics preview",
+      "description": "When material + machine + tool are all selected, show real-time physics preview: recommended RPM, feed, SFM, IPT, force (N), power (kW), tool life estimate. Uses SpeedFeedOrchestrator via /api/v1/speed-feed/orchestrate.",
+      "session": "S5",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Physics doesn't recalculate on change", "NaN in display"],
+      "exit_gate": "Select Haas VF-2 + 4140 + 12mm endmill → RPM/feed/force displayed. Change material to 6061 → values update instantly."
+    },
+    "U-PH17": {
+      "title": "Add offline material fallback (top 200 embedded)",
+      "description": "Embed top 200 materials in the frontend for offline use. If server unreachable, search falls back to embedded data. Show 'offline mode' indicator.",
+      "session": "S5",
+      "files_created": ["web/src/data/materialsFallback.ts"],
+      "abort_criteria": ["Fallback data doesn't match server data", "No offline indicator"],
+      "exit_gate": "Disconnect server → material search still works with 200 materials. 'Offline' badge shown."
+    },
+    "U-PH18": {
+      "title": "Build ToolConfigCard component",
+      "description": "Per-tool card: tool type (endmill/drill/tap/face mill/etc), diameter, flutes, material, coating, insert nose radius (free-form number). Searchable tool lookup from 75K-tool database. Auto-fills fields from catalog match.",
+      "session": "S6",
+      "files_created": ["web/src/components/ppg/ToolConfigCard.tsx"],
+      "abort_criteria": ["Card doesn't render", "Tool search doesn't return results"],
+      "exit_gate": "Search 'Sandvik CoroMill' → results. Select → diameter/flutes/coating auto-fill. Manual override works."
+    },
+    "U-PH19": {
+      "title": "Build HolderSelectorPanel component",
+      "description": "Per-tool holder selection. Search 2365 holders by brand/type. Show TIR, stiffness, max RPM, balance grade. Selected holder affects physics calculation (speed derating from TIR, feed from stiffness).",
+      "session": "S6",
+      "files_created": ["web/src/components/ppg/HolderSelectorPanel.tsx"],
+      "abort_criteria": ["Holder search doesn't work", "TIR/stiffness not shown"],
+      "exit_gate": "Search 'Haimer shrink' → holders listed. TIR=0.00008, stiffness=1.00 shown. Selection updates physics."
+    },
+    "U-PH20": {
+      "title": "Wire tool + holder to real-time S/F calculation",
+      "description": "When tool + holder + material + machine all set, show per-tool S/F card with: RPM, feed (mm/min), SFM, IPT, chip load (fz), force, power, tool life. Update on any input change.",
+      "session": "S6",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Calculations don't update", "NaN values", "Physics ignores holder"],
+      "exit_gate": "Full chain: machine+material+tool+holder → S/F displayed. Change holder from ER to shrink → speed increases."
+    },
+    "U-PH21": {
+      "title": "Multi-tool support — add/remove tools dynamically",
+      "description": "User can add multiple tool cards (T1-T10). Each has independent tool/holder/physics. Add button, remove button, reorder. State managed as array of tool configs.",
+      "session": "S6",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Can't add more than 1 tool", "Remove breaks state"],
+      "exit_gate": "Add 5 tools. Each has independent S/F. Remove T3 → T4/T5 renumber. State persists."
+    },
+    "U-PH22": {
+      "title": "Build CAMPackageSelector component",
+      "description": "Dropdown or card grid: Fusion 360, Mastercam, hyperMILL, SolidCAM, NX, CATIA, Esprit, GibbsCAM. Each maps to a post template configuration (output format, specific M-codes, cycle syntax). Show CAM-specific notes.",
+      "session": "S7",
+      "files_created": ["web/src/components/ppg/CAMPackageSelector.tsx"],
+      "abort_criteria": ["Not all 8 CAMs listed", "Selection doesn't affect post generation"],
+      "exit_gate": "8 CAM packages selectable. Each shows brief description. Selection stored in state."
+    },
+    "U-PH23": {
+      "title": "Wire post generation pipeline to page",
+      "description": "Generate button calls /api/ppg/generate-post with: machine specs, controller, features, material, tools, CAM package. Returns generated CPS file content. Show generation progress. Handle errors.",
+      "session": "S7",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx", "src/routes/ppg.ts"],
+      "abort_criteria": ["Generation fails", "CPS output invalid", "No error handling"],
+      "exit_gate": "Click Generate → CPS file produced. Contains correct machine limits, material data, tool configs. Download button works."
+    },
+    "U-PH24": {
+      "title": "Embed user selections into generated CPS",
+      "description": "Generated CPS should have: machineDatabase entry for selected machine pre-filled, materialDatabase entries for selected materials, per-tool properties pre-configured, prove-out defaults, correct controller dialect. User shouldn't need to re-enter anything in Fusion.",
+      "session": "S7",
+      "files_modified": ["src/engines/MasterPostProcessorEngine.ts"],
+      "abort_criteria": ["CPS doesn't contain user selections", "Machine specs missing", "Material data missing"],
+      "exit_gate": "Generated CPS for Haas VF-2 + 4140 steel: machineDatabase has VF-2 entry, materialSpecific defaults to P_4140_ANN, T1 properties match user input."
+    },
+    "U-PH25": {
+      "title": "Wire program optimization pipeline to page",
+      "description": "Upload existing NC program → pipeline optimizes with selected machine/material/tools → show optimized output + comparison report. Uses /api/ppg/pipeline endpoint.",
+      "session": "S7",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Upload doesn't work", "Pipeline fails", "No comparison shown"],
+      "exit_gate": "Upload Haas program → optimized output shown. Comparison report with physics reasons. Download optimized version."
+    },
+    "U-PH26": {
+      "title": "Build G-code preview panel with syntax highlighting",
+      "description": "G-code preview with line numbers, syntax highlighting (G/M codes colored, comments dimmed, S/F values highlighted). Scrollable. Copy to clipboard. Shows PRISM physics comments inline.",
+      "session": "S8",
+      "files_created": ["web/src/components/ppg/GcodePreviewPanel.tsx"],
+      "abort_criteria": ["No syntax highlighting", "Large programs lag", "No copy button"],
+      "exit_gate": "Preview renders 1000+ lines without lag. G-codes green, M-codes blue, comments gray. Copy works."
+    },
+    "U-PH27": {
+      "title": "Build side-by-side diff view for program comparison",
+      "description": "Two-column diff: original (left) vs optimized (right). Changed lines highlighted. Per-line physics reason tooltip (chip thinning +15%, stability RPM shift, machine limit clamp). Aggregate summary card at top.",
+      "session": "S8",
+      "files_modified": ["web/src/components/ppg/GcodeComparisonPanel.tsx"],
+      "abort_criteria": ["Diff doesn't align", "No physics reasons", "No aggregate summary"],
+      "exit_gate": "Diff shows changed S/F lines highlighted. Hover → physics reason. Summary shows cycle time delta, force reduction."
+    },
+    "U-PH28": {
+      "title": "Build prove-out controls on page",
+      "description": "Prove-out section: enable/disable toggle (default ON), feed% slider (default 50), speed% slider (default 80). When enabled, G-code preview shows derated values. Header comment updated. Promote to production button (disables prove-out).",
+      "session": "S8",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Prove-out toggle doesn't affect output", "No visual feedback"],
+      "exit_gate": "Toggle ON → preview shows derated S/F + header warning. Slider adjustment updates in real-time. Promote button disables prove-out."
+    },
+    "U-PH29": {
+      "title": "Fix Macor kc1.1 (1400→950), Mo kc1.1 (1800→1550), LB3000 RPM (3800→5000)",
+      "description": "Correct 3 material constants and 1 machine spec in the CPS materialDatabase and machineDatabase. Also fix in the pipeline engine's physics constants if they exist there.",
+      "session": "S9",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Values don't match published sources", "Other entries accidentally changed"],
+      "exit_gate": "Macor kc1.1=950. Mo kc1.1=1550. LB3000 maxRpm=5000. Verified by grep."
+    },
+    "U-PH30": {
+      "title": "Improve chip thinning formula with full (D-ae) term",
+      "description": "Replace simplified 1/sqrt(ae/D) with full Sandvik formula: D/(2*sqrt(ae*(D-ae))). Keeps 50% WOC cutoff. Results in more accurate compensation at 15-40% WOC range.",
+      "session": "S9",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Formula produces NaN at ae=0 or ae=D", "Results diverge >5% from old formula at <15% WOC"],
+      "exit_gate": "New formula matches Sandvik handbook. At 10% WOC: new=3.32x vs old=3.16x (5% closer to correct). At 25% WOC: new=2.31x vs old=2.0x (15% more accurate)."
+    },
+    "U-PH31": {
+      "title": "Add thin-wall derating mode",
+      "description": "Add prismThinWallMode property (off/auto/manual). When wall thickness < 3xD, automatically reduce feed and DOC. Auto mode detects from Fusion's stock-to-leave and minimum radius. Show warning in G-code comment.",
+      "session": "S9",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Derating applied to non-thin-wall parts", "No user control"],
+      "exit_gate": "Thin-wall mode reduces feed 20-40% based on wall thickness. Auto-detects from Fusion data. Manual override available."
+    },
+    "U-PH32": {
+      "title": "Fix MAZATROL detection + add version stamp to G-code header",
+      "description": "MAZATROL detection now requires 2+ markers (not OR). Add PRISM version, material ID, physics model revision to every G-code header for AS9100 traceability.",
+      "session": "S9",
+      "files_modified": ["src/engines/PostProcessorPipelineEngine.ts", "data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["MAZATROL detection stops working", "Version stamp missing from output"],
+      "exit_gate": "MAZATROL needs 2+ markers. Header shows: PRISM v11, material ID, physics model date. Verified in test output."
+    },
+    "U-PH33": {
+      "title": "Add DNC/drip-feed awareness for large programs",
+      "description": "When program exceeds 5000 lines, add DNC warning comment in header. Add prismDNCMode property. When enabled, suppress optional stop, limit block length, add % at start/end for clean DNC operation.",
+      "session": "S10",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["DNC mode breaks small programs", "Warning shows on short programs"],
+      "exit_gate": "Programs >5000 lines get DNC warning. DNC mode property available. Short programs unaffected."
+    },
+    "U-PH34": {
+      "title": "Fix safe-start order + add extended work offsets",
+      "description": "Change safe start to G90 G80 G40 G17 G21/G20 (G90 first). Add G54.1 P1-P48 support for extended work offsets beyond G59.",
+      "session": "S10",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["Safe start breaks existing programs", "G54.1 syntax wrong for Hurco"],
+      "exit_gate": "Safe start outputs G90 first. G54.1 P1-P48 available via workOffsetExtended property."
+    },
+    "U-PH35": {
+      "title": "Add Hurco VMX30U + M88 TSC + Haas TSC option",
+      "description": "Add VMX30U (5-axis trunnion) to machineDatabase. Fix M88 as through-spindle coolant code for Hurco. Add TSC pressure option for Haas machines (many have TSC installed as option, currently shows 0).",
+      "session": "S10",
+      "files_modified": ["data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps"],
+      "abort_criteria": ["VMX30U specs wrong", "M88 breaks non-TSC machines"],
+      "exit_gate": "VMX30U in DB with correct 5-axis specs. M88 output for TSC when enabled. Haas TSC note in coolant property."
+    },
+    "U-PH36": {
+      "title": "E2E test — Machine → Material → Tools → Generate flow",
+      "description": "Comprehensive E2E test: search machine → select → controller auto-fills → features populate → search material → select → add tool → configure holder → select CAM → generate → verify CPS output. Test 3 machines (Haas VF-2, Hurco VM30i, DMG DMU 50).",
+      "session": "S11",
+      "files_created": ["web/src/__tests__/ppg-page-e2e.test.tsx"],
+      "abort_criteria": ["Any step in the flow fails", "Generated CPS missing user data"],
+      "exit_gate": "3 E2E flows pass. Each produces valid CPS with correct machine/material/tool data embedded."
+    },
+    "U-PH37": {
+      "title": "E2E test — All 8 CAM packages + offline fallback",
+      "description": "Test post generation for each of 8 CAM packages. Verify output format differences. Test offline mode: disconnect server → page still works with embedded data → generation falls back to local.",
+      "session": "S11",
+      "files_created": ["web/src/__tests__/ppg-cam-packages.test.tsx"],
+      "abort_criteria": ["Any CAM package produces invalid output", "Offline mode crashes"],
+      "exit_gate": "8 CAM packages produce valid output. Offline mode serves 200 materials + 160 machines. No crashes."
+    },
+    "U-PH38": {
+      "title": "E2E test — Program upload + optimize + diff + prove-out",
+      "description": "Upload real Haas NC program. Optimize with pipeline. Verify diff view shows changes with physics reasons. Toggle prove-out → verify derated values. Download optimized program.",
+      "session": "S11",
+      "files_created": ["web/src/__tests__/ppg-optimize-flow.test.tsx"],
+      "abort_criteria": ["Upload fails", "Diff doesn't show physics reasons", "Prove-out doesn't affect output"],
+      "exit_gate": "Upload → optimize → diff → prove-out → download. All steps work. Physics reasons shown per line."
+    },
+    "U-PH39": {
+      "title": "Re-run 20-agent scrutiny on fixed CPS",
+      "description": "Launch all 20 scrutiny agents against the fixed CPS and web page. Collect findings. All CRITICAL and HIGH must be resolved.",
+      "session": "S12",
+      "abort_criteria": ["Any CRITICAL finding remains", "Any HIGH finding remains"],
+      "exit_gate": "0 CRITICAL, 0 HIGH findings. All 20 agents report PASS or MINOR only."
+    },
+    "U-PH40": {
+      "title": "Fix any remaining findings from re-scrutiny",
+      "description": "Address any MEDIUM findings from the re-scrutiny that are practical to fix. Document remaining MINOR findings as known issues.",
+      "session": "S12",
+      "abort_criteria": ["Fixes introduce new bugs"],
+      "exit_gate": "All practical MEDIUM fixes applied. Known issues documented."
+    },
+    "U-PH41": {
+      "title": "Deploy final CPS + add-in to desktop",
+      "description": "Copy final HURCO_VM30i_PRISM_v11.cps to desktop. Update add-in with fixed naming convention, CORS fix, manifest. Install to Fusion AddIns folder. Verify it loads.",
+      "session": "S12",
+      "abort_criteria": ["CPS doesn't post in Fusion", "Add-in doesn't load"],
+      "exit_gate": "CPS on desktop. Add-in installed and visible in Fusion. Panel opens. Server connection green."
+    },
+    "U-PH42": {
+      "title": "Final regression — all PPG tests + MOAT + E2E",
+      "description": "Run every PPG test file. Run MOAT regression. Run new E2E tests. All must pass. Omega >= 1.0.",
+      "session": "S12",
+      "abort_criteria": ["Any test failure", "Omega < 1.0"],
+      "exit_gate": "All tests pass. 0 failures. Omega >= 1.0. Product ready."
+    }
+  }
+}

@@ -1,0 +1,850 @@
+{
+  "source": "hyperMILL OPEN MIND Technologies certified packages",
+  "hyperpost_version": "hyperPOST 2021.2",
+  "extracted_date": "2026-04-10",
+  "notes": "All parameters extracted verbatim from manufacturer-certified .def configuration files. Values prefixed I: = integer, F: = float, S: = string. Value -1 or S:-1 means disabled/not used.",
+  "machines": {
+    "haas_vf2": {
+      "_meta": {
+        "post_package": "H-VF_R12c_E19",
+        "post_file": "H-VF_s_R12c_E19.def",
+        "controller": "Haas NGC (Fanuc-compatible)",
+        "unit_system": "INCH",
+        "axes": "3-axis vertical"
+      },
+      "tool_change": {
+        "tc_command": "M6",
+        "tc_command_note": "Standard Haas ATC — T## M6 on same line; preselect_tool mode not explicitly set in main .def (uses file_TC_start.txt/file_TC_end.txt templates)",
+        "spindle_off_before_tc": true,
+        "coolant_off_before_tc": true,
+        "tool_list_output": true
+      },
+      "tool_length_compensation": {
+        "on_code": "G43 H",
+        "tip_reference": "tnumber",
+        "center_reference": "tnumber",
+        "source": "files_cfg/toolReference.def — toolReferenceM_prefix = G43 H"
+      },
+      "coolant": {
+        "coolant1": "M08",
+        "coolant1_off": "M09",
+        "coolant1_function": "flood coolant",
+        "coolant2": "M88",
+        "coolant2_off": "M89",
+        "coolant2_function": "through-spindle coolant (TSC)",
+        "coolant3": "Mxxx",
+        "coolant3_off": "Mxxx",
+        "coolant3_function": "user-defined / not assigned",
+        "coolant4": null,
+        "coolant4_off": null,
+        "coolant_mode": 1
+      },
+      "work_offsets": {
+        "primary": "G54",
+        "format": "G54 through G59, then G54.1 P1 through G54.1 P14 (extended)",
+        "workoffset_param": "G54",
+        "offset_table": {
+          "G54": 1,
+          "G55": 2,
+          "G56": 3,
+          "G57": 4,
+          "G58": 5,
+          "G59": 6,
+          "G54.1 P1": 101,
+          "G54.1 P2": 102,
+          "G54.1 P3": 103,
+          "G54.1 P4": 104,
+          "G54.1 P5": 105,
+          "G54.1 P6": 106,
+          "G54.1 P7": 107,
+          "G54.1 P8": 108,
+          "G54.1 P9": 109,
+          "G54.1 P10": 110,
+          "G54.1 P11": 111,
+          "G54.1 P12": 112,
+          "G54.1 P13": 113,
+          "G54.1 P14": 114
+        },
+        "wpa_zero_point_base_register": 5220,
+        "wpa_zero_point_offset": 20,
+        "wpa_zero_point_count": 6,
+        "wpa_additional_zero_point_base": 7000,
+        "wpa_additional_zero_point_offset": 20,
+        "wpa_additional_zero_point_count": 48
+      },
+      "spindle": {
+        "cw": "M3",
+        "ccw": "M4",
+        "stop": "M5",
+        "low_gear": "M37",
+        "high_gear": "M38",
+        "gear_threshold_rpm": -970,
+        "note": "Negative spindleThreshold value — gear change triggered below 970 RPM (magnitude)"
+      },
+      "canned_cycles": {
+        "boring_cycle_number": 86,
+        "boring_offset": 0.0,
+        "reaming_cycle_number": 81,
+        "tapping_mode": 1,
+        "rigid_tapping_cycle": "G95",
+        "note": "tap_rigidMode=95 → G95 rigid tapping"
+      },
+      "hsc_smoothing": {
+        "hsc_on": "disabled (-1)",
+        "hsc_off": "G05P0",
+        "note": "HSC_ON set to -1 (suppressed); G05P0 cancels look-ahead"
+      },
+      "arc_output": {
+        "mode": 1,
+        "arc_radius_min_inch": 0.005,
+        "arc_radius_max_inch": 999.99,
+        "arc_chordal_tolerance": -0.0005,
+        "circle_pocket_i_zero": false,
+        "circle_pocket_k_trad": true
+      },
+      "decimal_precision": {
+        "xyz_decimals": 4,
+        "note": "0.0001 inch resolution on linear axes"
+      },
+      "block_numbers": {
+        "enabled": true,
+        "n_max": 9999,
+        "n_last_job_user": 99998
+      },
+      "safe_position": {
+        "sP_file": "sP.txt",
+        "sP_after_tc": true,
+        "sP_begin_end_file": "sP_begin-end.txt",
+        "sP_content": "G98 G91 Z0 / G98 G91 X0 Y0",
+        "sP_begin_end_content": "G98 G91 Z0 / G98 G91 X0 Y0",
+        "sP_tc_content": "G98 G91 Z0 / G98 G91 X0 Y0",
+        "interpretation": "G98=return to initial plane, G91=incremental, Z0/X0Y0 = retract to machine zero in Z then XY"
+      },
+      "precision_smoothing": {
+        "source": "files_cfg/Precision.cfg",
+        "command": "G187 P# E#",
+        "precision_output_enabled": true,
+        "levels": {
+          "rough_P1": { "command": "G187 P1 E", "tolerance_inch": 0.004 },
+          "medium_P2": { "command": "G187 P2 E", "tolerance_inch": 0.002 },
+          "fine_P3": { "command": "G187 P3 E", "tolerance_inch": 0.0005 }
+        },
+        "tolerance_range_inch": { "min": 0.0001, "max": 0.01 },
+        "tolerance_factor": 1.0
+      },
+      "probing": {
+        "cycle_mode": "Renishaw_IP",
+        "positioning_macro": "G65 P9810",
+        "pre_positioning_feed": "F3000",
+        "probe_activation": "disabled (no activation_sx set)",
+        "probe_deactivation": "disabled"
+      },
+      "feed_format": {
+        "g0_g1_f_value": "F199.9",
+        "note": "Maximum feed rate cap inserted as G0/G1 F199.9 in post output"
+      },
+      "file_structure": {
+        "file_start": "file_start.txt",
+        "file_start2": "file_start2.txt",
+        "file_end": "file_end.txt",
+        "file_end2": "file_end2.txt",
+        "job_start": "job_start.txt",
+        "job_end": "job_end.txt",
+        "tc_start": "file_TC_start.txt",
+        "tc_end": "file_TC_end.txt",
+        "toolchange_comment": "toolChange_comment.txt",
+        "header": true
+      },
+      "d_offset": {
+        "D_added_value": 30,
+        "note": "Tool diameter offset register = tool number + 30"
+      }
+    },
+    "hurco_vmx30i": {
+      "_meta": {
+        "post_package": "Max_R02g_E07",
+        "post_file": "Max_BNC_ISNC_R02g_E07.def",
+        "controller": "Hurco MAX (BNC/ISNC dual-mode)",
+        "unit_system": "INCH (unitSystem=0)",
+        "language": "eng",
+        "axes": "3+1 axis (4th axis rotary capable)",
+        "file_mode": 0
+      },
+      "tool_change": {
+        "tc_command": "BNC and ISNC modes — defined via file_TC_start.txt / file_TC_end.txt templates",
+        "t_preselection": false,
+        "spindle_off_before_tc": true,
+        "coolant_off_before_tc": true,
+        "tool_list_output": true,
+        "tool_name_in_output": true,
+        "tools_in_order_of_usage": false,
+        "last_tool_tracking": true
+      },
+      "tool_length_compensation": {
+        "note": "Not explicitly coded in .def — handled via BNC/ISNC controller's internal tool management; no G43 prefix defined (Hurco MAX uses internal tool offsets)"
+      },
+      "coolant": {
+        "coolant1": "M08",
+        "coolant1_off": "M09",
+        "coolant1_function": "flood coolant",
+        "coolant2": "Mxx",
+        "coolant2_off": "Mxx",
+        "coolant2_function": "user-defined placeholder",
+        "coolant3": "Mxxx",
+        "coolant3_off": "Mxxx",
+        "coolant3_function": "user-defined placeholder",
+        "coolant4": "Mxxxx",
+        "coolant4_off": "Mxxxx",
+        "coolant4_function": "user-defined placeholder"
+      },
+      "work_offsets": {
+        "format": "G54 through G59 standard + G54.1 P1-P14 extended",
+        "offset_table": {
+          "G54": 1,
+          "G55": 2,
+          "G56": 3,
+          "G57": 4,
+          "G58": 5,
+          "G59": 6,
+          "G54.1 P1": 101,
+          "G54.1 P2": 102,
+          "G54.1 P3": 103,
+          "G54.1 P4": 104,
+          "G54.1 P5": 105,
+          "G54.1 P6": 106,
+          "G54.1 P7": 107,
+          "G54.1 P8": 108,
+          "G54.1 P9": 109,
+          "G54.1 P10": 110,
+          "G54.1 P11": 111,
+          "G54.1 P12": 112,
+          "G54.1 P13": 113,
+          "G54.1 P14": 114
+        },
+        "wpa_zero_point_base_register": 5220,
+        "wpa_zero_point_offset": 20,
+        "wpa_zero_point_count": 6,
+        "wpa_additional_zero_point_base": 7000,
+        "wpa_additional_zero_point_offset": 20,
+        "wpa_additional_zero_point_count": 48
+      },
+      "spindle": {
+        "note": "Hurco MAX handles spindle internally — M3/M4/M5 standard but not explicitly overridden in .def"
+      },
+      "canned_cycles": {
+        "boring_cycle_number": 86,
+        "boring_q_shift_inch": 0.2,
+        "reaming_cycle_enabled": true,
+        "bnc_sync_tap_drill": true,
+        "isnc_sync_tap_drill": true,
+        "note": "BNC and ISNC both use synchronised tapping"
+      },
+      "arc_output": {
+        "mode": 1,
+        "ijk_decimals": 6,
+        "note": "6 decimal places on I/J/K arc center values"
+      },
+      "decimal_precision": {
+        "xyz_decimals": 6,
+        "note": "0.000001 inch resolution — highest precision of the four machines"
+      },
+      "block_numbers": {
+        "enabled": false,
+        "n_max": 99999,
+        "n_last_job_user": 99998,
+        "note": "blockNumber=0 means N-numbers suppressed by default"
+      },
+      "file_init_codes": {
+        "freeStartNC1": "G90",
+        "freeStartNC2": "G21",
+        "freeStartNC3": "M09",
+        "freeStartNC4": "M05",
+        "freeEndNC3": "M02",
+        "file_start_sign": "%",
+        "file_end_sign": "E",
+        "note": "G21 metric in file header is a quirk — unit system param = 0 (inch); G21 may be overridden by machine; M02 end of program"
+      },
+      "4th_axis": {
+        "source": "files_cfg/om_4xf_cfg.def",
+        "rotation_direction": "cw",
+        "clamp_code": "(CLAMP-A)",
+        "unclamp_code": "(UNCLAMP-A)",
+        "zero_position_command": "G90 G0 A0.",
+        "safe_position_Z": "G91 G28 Z0",
+        "tcpm_tolerance_G0": 0.1,
+        "tcpm_tolerance_G1": 0.01
+      },
+      "subfile_output": {
+        "source": "files_cfg/subFile.def",
+        "mode": "OFF",
+        "extension": ".h",
+        "name_format": "<NCfile_fmt-%04ld><JOBID_fmt-%02ld>"
+      },
+      "probing": {
+        "cycle_mode": "Renishaw_IP",
+        "positioning_macro": "G65 P9810",
+        "pre_positioning_feed": "F3000",
+        "probe_activation": "M184",
+        "probe_deactivation": "M185"
+      },
+      "feed_parameters": {
+        "Parameter_4_feedXY": "#1",
+        "Parameter_4_feedZ": "#2",
+        "Parameter_4_feedZ_R": "#3",
+        "Parameter_4_feed_lmacro": "#4",
+        "Parameter_4_feed_smacro": "#5",
+        "Parameter_4_feed_emacro": "#6",
+        "note": "Feed rates passed via macro variables #1-#6"
+      },
+      "D_offset": {
+        "D_added_value": "disabled (-1)",
+        "note": "No D-offset addition; Hurco manages cutter comp internally"
+      },
+      "file_structure": {
+        "file_start": "file_start.txt",
+        "file_start2": "file_start2.txt",
+        "file_end": "file_end.txt",
+        "tc_start": "file_TC_start.txt",
+        "tc_end": "file_TC_end.txt"
+      }
+    },
+    "okuma_m460v_5ax": {
+      "_meta": {
+        "post_package": "OSP_R01w_E03",
+        "post_file": "OSPM_MT_TabAC_MUx_R01w_E03.def",
+        "cfg_file": "MU500-VAL-TabAC.def",
+        "controller": "Okuma OSP-P300M (OSPM)",
+        "unit_system": "INCH",
+        "language": "eng",
+        "axes": "5-axis (Table A + C configuration, MU500-V style kinematics)",
+        "rotary_table": "A-axis tilt + C-axis rotary",
+        "machine_config": "Multi-tasking capable (Turning=0 in main config, mill mode)"
+      },
+      "tool_change": {
+        "tc_macro": "G111",
+        "tc_macro_mode": "eng",
+        "t_variable": "VC120",
+        "t_next_variable": "VC121",
+        "tc_t_var_prefix": "T",
+        "tc_tnext_var_prefix": "V",
+        "nt_t_var_prefix": "NT",
+        "spindle_off_before_tc": true,
+        "coolant_off_before_tc": true,
+        "search_tool": true,
+        "M5_at_TC": true,
+        "tool_list_output": true,
+        "tc_start_file": "TC_start.txt",
+        "tc_end_file": "TC_end.txt",
+        "t_format": "%ld"
+      },
+      "tool_length_compensation": {
+        "on_code": "G56 HA",
+        "off_code": "implicit (G56 HA is Okuma tool length compensation with H register = tool number)",
+        "toollength_comp_T": "blank (milling mode only)",
+        "source": "main .def toollength_comp_on = G56 HA",
+        "note": "G56 is Okuma-specific tool length offset command; HA = H followed by tool number"
+      },
+      "coolant": {
+        "coolant1": "M8",
+        "coolant1_off": "M9",
+        "coolant1_function": "flood coolant",
+        "coolant2": "M51",
+        "coolant2_off": "M9",
+        "coolant2_function": "through-spindle coolant (TSC)",
+        "coolant3": "M12",
+        "coolant3_off": "M9",
+        "coolant3_function": "air blast / mist",
+        "coolant4": "M339",
+        "coolant4_off": "M9",
+        "coolant4_function": "coolant 4 (high-pressure or chip conveyor)",
+        "coolant5": "M12",
+        "coolant5_off": "M9",
+        "coolant5_function": "air blast (same code as coolant3)",
+        "note": "All coolant OFF codes resolve to M9 on Okuma OSP"
+      },
+      "work_offsets": {
+        "format": "G15 H##",
+        "workoffset_param": "15",
+        "primary": "G15 H1",
+        "range": "G15 H1 through G15 H200",
+        "offset_ids": "1-200 (H1=1, H2=2, ... H200=200)",
+        "note": "Okuma uses G15 H-number format instead of G54-G59; 200 work coordinate systems available"
+      },
+      "spindle": {
+        "cw": "M3 (standard Okuma)",
+        "ccw": "M4",
+        "stop": "M5",
+        "high_gear": "M41",
+        "low_gear": "M40",
+        "work_spindle_gear": 540,
+        "turning_spindle_cw": "D3",
+        "turning_spindle_ccw": "D4",
+        "tool_spindle_clamp": "M508",
+        "tool_spindle_unclamp": "M509"
+      },
+      "clamp_unclamp": {
+        "R1_unclamp": "M11",
+        "R1_clamp": "M10",
+        "R2_unclamp": "M27",
+        "R2_clamp": "M26",
+        "note": "R1=A-axis tilt table, R2=C-axis rotary table"
+      },
+      "canned_cycles": {
+        "boring_cycle": "G86",
+        "boring_G76_Q_shift_inch": 0.1,
+        "tapping_cycle": "G74_G84",
+        "tapping_note": "G74 = left-hand tapping, G84 = right-hand tapping",
+        "F_mode_tapping": 1,
+        "drilling_5X_mode": false
+      },
+      "5axis_tcp": {
+        "plane_call": "CALL_OO88",
+        "R1_mode_frame": 1,
+        "G469_mode": "P4",
+        "3D_as_frame": true,
+        "5th_workoffset_id": 25,
+        "frame_reset_mode": 0,
+        "5X_output_mode": "tilt_angles",
+        "R1_mode_5X": 1,
+        "5x_approach_mode": 1,
+        "TCPM_prefix": "()",
+        "TCPM_suffix": "()",
+        "note": "CALL_OO88 is Okuma OSP macro call for 5-axis TCPM. G469 P4 mode for tilted work plane."
+      },
+      "super_nurbs": {
+        "enabled": true,
+        "super_nurbs_mode": 1,
+        "source": "files_cfg/MU500-VAL-TabAC.def",
+        "SuperNurbs": true,
+        "finish_max_inch": 0.1,
+        "microfinish_max_inch": 0.0004,
+        "SuperNurbs_E_factor": 2.0,
+        "SuperNurbs_F_factor": 2.0,
+        "sP_SuperNurbs_file": "sP_SuberNurbs.txt",
+        "sP_SuperNurbs_content": "(empty — no special SuperNURBS safe position block)",
+        "J_levels": {
+          "J0": { "R_tolerance_inch": 0.0004, "L_lookahead_inch": 0.200, "I_mode": 2 },
+          "J1": { "R_tolerance_inch": 0.0025, "L_lookahead_inch": 0.490, "I_mode": 2 },
+          "J2": { "R_tolerance_inch": 0.004, "L_lookahead_inch": 0.780, "I_mode": 2 }
+        },
+        "note": "J0=finest finish (microfinish), J1=standard finish, J2=roughing. R=tolerance radius, L=lookahead arc length, I=interpolation mode."
+      },
+      "safe_position": {
+        "sP_file": "sP.txt",
+        "sP_end_file": "sP_end.txt",
+        "sP_file_T": "sP_T.txt",
+        "sP_end_file_T": "sP_T_end.txt",
+        "sP_G17_frame": false,
+        "sP_content": "G30P10",
+        "sP_end_content": "G30P10",
+        "sP_T_content": "(empty)",
+        "sP_T_end_content": "(empty)",
+        "note": "G30P10 = Okuma 2nd reference position return command (machine home for tool change)"
+      },
+      "arc_output": {
+        "toolradius_comp": "DA",
+        "note": "DA = Okuma-specific tool radius compensation register"
+      },
+      "decimal_precision": {
+        "xyz_decimals": 4,
+        "abc_decimals": 3,
+        "note": "Linear 0.0001 inch, rotary 0.001 degree"
+      },
+      "rotary_limits": {
+        "minimum_A": -110.0,
+        "maximum_A": 20.0,
+        "note": "A-axis (tilt) travel: -110 to +20 degrees"
+      },
+      "block_numbers": {
+        "enabled": true,
+        "n_max": 0,
+        "n_format": "N%04ld",
+        "n_last_job_user": 99998,
+        "note": "Nmax=0 means unlimited block numbers; format is 4-digit zero-padded"
+      },
+      "program_end": {
+        "final_M": "M30",
+        "PGM_Info": true
+      },
+      "probing": {
+        "cycle_mode": "Okuma",
+        "positioning_macro": "CALL O9810",
+        "pre_positioning_feed": "F3000",
+        "probe_activation": "PW=1",
+        "probe_deactivation": "disabled"
+      },
+      "turning_mode": {
+        "turning": false,
+        "turning_macro": true,
+        "OTON_macro": "G111",
+        "OTOFF_macro": "G112",
+        "G196_enabled": true,
+        "note": "Machine is capable of turning mode but configured for milling only (Turning=0)"
+      },
+      "tool_measurement": {
+        "toolbreak_check": false,
+        "tool_measure": false,
+        "note": "On-machine tool measurement disabled in this configuration"
+      },
+      "specials": {
+        "G445_ON": false,
+        "N_x_T": false
+      },
+      "file_structure": {
+        "header": "header.txt",
+        "file_start": "file_start.txt",
+        "file_end": "file_end.txt",
+        "file_start_sign": "-",
+        "file_end_sign": "-",
+        "job_start": "job_start.txt",
+        "job_end": "job_end.txt",
+        "tc_start": "TC_start.txt",
+        "tc_end": "TC_end.txt",
+        "toolchange_comment": "toolChange_comment.txt"
+      },
+      "G30_return_mode": {
+        "2Ddrill_end": 0,
+        "2Dmill_end": 0,
+        "3D_end": 0,
+        "5X_end": 0,
+        "note": "G30 = 0 for all operation endings — no intermediate reference return between ops"
+      },
+      "post_languages": {
+        "source": "files_cfg/om_post_languages.def",
+        "supported": ["ger", "fra", "eng", "spa", "ita", "dut"],
+        "default": "eng"
+      }
+    },
+    "roku_roku_hc658": {
+      "_meta": {
+        "post_package": "F_R10b_E20",
+        "post_file": "F_s_R10b_E20.def",
+        "controller": "Fanuc 31i (Roku-Roku HC-658 horizontal machining center)",
+        "unit_system": "INCH",
+        "axes": "4-axis HMC (X/Y/Z + B-axis pallet rotary)",
+        "hsc_mode": "AI Advanced Preview (G05P10000)"
+      },
+      "tool_change": {
+        "tc_command": "M6",
+        "tc_format": "T%ld (space) M6",
+        "split_T_M": false,
+        "preselect_tool": true,
+        "first_tool_call": true,
+        "last_tool_tracking": false,
+        "spindle_off_before_tc": true,
+        "coolant_off_before_tc": true,
+        "tool_list_output": false,
+        "tc_content_file": "disabled (-)",
+        "note": "M6 is Fanuc-standard tool change; preselect next tool T## before M6 execution"
+      },
+      "tool_length_compensation": {
+        "enabled": true,
+        "H_added_value": 0,
+        "source": "toolReference.def — toolReferenceM_prefix = H (bare H register, no G43 prefix shown)",
+        "tip_reference": "tnumber",
+        "center_reference": "tnumber",
+        "Disc_top_reference": "tregister",
+        "note": "H register offset only (H<tool_number>); G43 implied by Fanuc controller; toolReference_Off=1 means active"
+      },
+      "coolant": {
+        "coolant1": "M8",
+        "coolant1_off": "M9",
+        "coolant1_function": "flood coolant",
+        "coolant2": "M7",
+        "coolant2_off": "M9",
+        "coolant2_function": "mist coolant",
+        "coolant3": "Mxxx",
+        "coolant3_off": "Mxxx",
+        "coolant3_function": "user-defined placeholder",
+        "coolant4": "Mxxxx",
+        "coolant4_off": "Mxxxx",
+        "coolant4_function": "user-defined placeholder",
+        "coolant_mode": 0
+      },
+      "work_offsets": {
+        "primary": "G54",
+        "format": "G54 through G59 standard + G54.1 P1-P14 extended",
+        "offset_table": {
+          "G54": 1,
+          "G55": 2,
+          "G56": 3,
+          "G57": 4,
+          "G58": 5,
+          "G59": 6,
+          "G54.1 P1": 101,
+          "G54.1 P2": 102,
+          "G54.1 P3": 103,
+          "G54.1 P4": 104,
+          "G54.1 P5": 105,
+          "G54.1 P6": 106,
+          "G54.1 P7": 107,
+          "G54.1 P8": 108,
+          "G54.1 P9": 109,
+          "G54.1 P10": 110,
+          "G54.1 P11": 111,
+          "G54.1 P12": 112,
+          "G54.1 P13": 113,
+          "G54.1 P14": 114
+        }
+      },
+      "spindle": {
+        "cw": "M3",
+        "ccw": "M4",
+        "stop": "M5",
+        "gear_mode_active": false,
+        "gear_speed_range_1_max_rpm": 1000,
+        "gear_mode_1": "disabled (-)",
+        "gear_speed_range_2_max_rpm": 99999,
+        "gear_mode_2": "disabled (-)",
+        "gear_mode_ODHD": "disabled (-)",
+        "gear_mode_GD": "disabled (-)",
+        "spindle_suffix_output": false,
+        "S_value_min": 501,
+        "S_value_max": 2500,
+        "S_suffix": ".2",
+        "note": "Gear change macros not active; spindle suffix .2 used for speeds 501-2500 RPM range"
+      },
+      "canned_cycles": {
+        "boring_cycle_number": 76,
+        "boring_q_shift_inch": 0.1,
+        "boring_q_command": "Q",
+        "left_tapping_cycle": "G74",
+        "right_tapping_cycle": "G84",
+        "F_mode_tapping": 1,
+        "tapping_S_mode": 1,
+        "tapping_S_file": "tapDrilling_S.txt",
+        "subfile_call_format": "M98P%04ld",
+        "subfile_begin_format": "O%04ld",
+        "note": "G76 = fine boring cycle (back-boring with Q shift); G74 CCW tap, G84 CW tap"
+      },
+      "hsc_smoothing": {
+        "hsc_mode": 1,
+        "hsc_on": "G05P10000",
+        "hsc_off": "G05P0",
+        "sgi_mode": false,
+        "AI_ON_feedrate_threshold": 50000,
+        "note": "G05 P10000 = Fanuc AI Advanced Preview Control ON (AICC); G05 P0 = OFF"
+      },
+      "sgi_smoothing": {
+        "source": "files_cfg/SGI_mode_tol_cfg.def",
+        "sgi_cfg_file_exists": true,
+        "sgi_default_command": "M250",
+        "tolerance_range_inch": { "min": 0.00002, "max": 0.01 },
+        "tolerance_factor": 1.0,
+        "levels": {
+          "level_1_finest": { "tolerance_max_inch": 0.00002, "command": "M252" },
+          "level_2_fine": { "tolerance_max_inch": 0.00004, "command": "M250" },
+          "level_3_medium": { "tolerance_max_inch": 0.0004, "command": "M251" }
+        }
+      },
+      "precision_smoothing": {
+        "source": "files_cfg/precision.def",
+        "enabled": false,
+        "2D_command": "G131 P",
+        "3D_command": "G131 M",
+        "tolerance_range_inch": { "min": 0.0002, "max": 0.006 },
+        "tolerance_factor": 1.0,
+        "levels": {
+          "fine_P3": { "command_value": "3", "tolerance_max_inch": 0.0002 },
+          "medium_P2": { "command_value": "2", "tolerance_max_inch": 0.001 },
+          "rough_P1": { "command_value": "1", "tolerance_max_inch": 0.006 }
+        },
+        "default_precision": "2"
+      },
+      "om_tolerance_smoothing": {
+        "source": "files_cfg/om_tol_cfg.def",
+        "note": "Vax series tolerance commands M821-M830",
+        "default_command": "M830",
+        "tolerance_range_inch": { "min": 0.01, "max": 0.1 },
+        "tolerance_factor": 1.0,
+        "levels": [
+          { "tolerance_max_inch": 0.01, "command": "M830" },
+          { "tolerance_max_inch": 0.02, "command": "M829" },
+          { "tolerance_max_inch": 0.03, "command": "M828" },
+          { "tolerance_max_inch": 0.04, "command": "M827" },
+          { "tolerance_max_inch": 0.05, "command": "M826" },
+          { "tolerance_max_inch": 0.06, "command": "M825" },
+          { "tolerance_max_inch": 0.07, "command": "M824" },
+          { "tolerance_max_inch": 0.08, "command": "M823" },
+          { "tolerance_max_inch": 0.09, "command": "M822" },
+          { "tolerance_max_inch": 0.10, "command": "M821" }
+        ]
+      },
+      "arc_output": {
+        "mode": 1,
+        "feedrates_with_dot": true
+      },
+      "decimal_precision": {
+        "xyz_decimals": 4,
+        "note": "0.0001 inch resolution on linear axes"
+      },
+      "block_numbers": {
+        "enabled": true,
+        "n_max": 99999,
+        "n_last_job_user": 99998
+      },
+      "safe_position": {
+        "sP_file_firstTC": "sP_TC_first.txt",
+        "sP_file_TC": "sP_TC.txt",
+        "sP_file_TC_end": "sP_TC_end.txt",
+        "sP_file_cycleEnd": "disabled (-1)",
+        "sP_file_end": "sP_end.txt",
+        "note": "No sP.txt files found in files_x — safe position content embedded in file templates"
+      },
+      "ATLM_tool_measurement": {
+        "source": "files_cfg/ATLM_Config.def",
+        "ATLM_active": false,
+        "configuration_mode": "Blum_PTSI",
+        "height_offset_inch": 0.019,
+        "radius_offset_inch": 0.011,
+        "radius_tolerance_inch": 0.002,
+        "length_tolerance_inch": 0.002,
+        "num_check_points": 3,
+        "num_measurements": 3,
+        "scatter_tolerance_inch": 0.0002,
+        "runout_tolerance_inch": 0.0002,
+        "spindle_speed_rpm": 300.0,
+        "spindle_speed_min_rpm": 200.0,
+        "spindle_speed_max_rpm": 500.0,
+        "safety_distance_inch": 2.0,
+        "overtravel_distance_inch": 0.2,
+        "checking_feedrate_ipm": 30.0,
+        "precheck_enabled": false,
+        "tc_repeat_suppress": false,
+        "tool_types_measured": {
+          "ballmill": { "type_id": 1, "check_type": "measure+breakage", "file": "P9603_TL_TR.txt" },
+          "endmill": { "type_id": 2, "check_type": "measure+breakage", "file": "P9603_TL_TR.txt" },
+          "bullnose": { "type_id": 3, "check_type": "measure+breakage", "file": "P9603_TL_TR.txt" },
+          "drill": { "type_id": 5, "check_type": "measure+breakage", "file": "P9603_TL" }
+        }
+      },
+      "touch_probe": {
+        "source": "files_cfg/touchProbe.def",
+        "P1_default": 1,
+        "P2_default": 1,
+        "P3_default_inch": 0.03,
+        "P4_default_inch": 0.02,
+        "P5_default_inch": 0.025
+      },
+      "tool_offset_mapping": {
+        "source": "files_cfg/om_tool_dt_cfg.def",
+        "active": false,
+        "example": "T2D_TVALUE_1003 = I:1000, T2H_TVALUE_1003 = I:1000",
+        "note": "Static D/H register assignments by tool number — tool 1003 maps to D1000/H1000"
+      },
+      "nc_event_handling": {
+        "source": "files_cfg/ncEvent.def",
+        "NCEvent_general": false,
+        "note": "All NC event actions (tailstock, steady rest, door, tool carrier, bar, gripper, counter spindle) inactive"
+      },
+      "subfile_output": {
+        "source": "files_cfg/subFile.def",
+        "mode": "OFF",
+        "extension": ".nc",
+        "name_format": "O<JOBID_fmt-%04ld>"
+      },
+      "file_end_sign": "%",
+      "use_job_name": false,
+      "file_structure": {
+        "file_start": "file_start.txt",
+        "file_start2": "file_start2.txt",
+        "file_end": "file_end.txt",
+        "file_end2": "file_end2.txt",
+        "tc_start": "file_TC_start.txt",
+        "tc_end": "file_TC_end.txt",
+        "toolchange_comment": "toolChange_comment.txt",
+        "job_start": "job_start.txt",
+        "job_end": "job_end.txt"
+      },
+      "D_offset": {
+        "D_added_value": 0,
+        "D_4_TC": false,
+        "note": "D register = tool number + 0 (same number)"
+      },
+      "comp_commands": {
+        "comp_on_command_before": "disabled (-)",
+        "comp_off_command_after": "disabled (-)"
+      }
+    }
+  },
+  "cross_machine_comparison": {
+    "work_offset_formats": {
+      "haas_vf2": "G54-G59 + G54.1 P1-P14",
+      "hurco_vmx30i": "G54-G59 + G54.1 P1-P14",
+      "okuma_m460v_5ax": "G15 H1-H200 (200 coordinate systems)",
+      "roku_roku_hc658": "G54-G59 + G54.1 P1-P14"
+    },
+    "tool_length_comp_codes": {
+      "haas_vf2": "G43 H<tool_number>",
+      "hurco_vmx30i": "Controller-internal (no explicit G43 in post)",
+      "okuma_m460v_5ax": "G56 HA<tool_number>",
+      "roku_roku_hc658": "H<tool_number> (G43 implicit)"
+    },
+    "tool_change_commands": {
+      "haas_vf2": "M6",
+      "hurco_vmx30i": "BNC/ISNC internal",
+      "okuma_m460v_5ax": "G111 (Okuma macro)",
+      "roku_roku_hc658": "M6"
+    },
+    "flood_coolant_on": {
+      "haas_vf2": "M08",
+      "hurco_vmx30i": "M08",
+      "okuma_m460v_5ax": "M8",
+      "roku_roku_hc658": "M8"
+    },
+    "tsc_coolant_on": {
+      "haas_vf2": "M88",
+      "hurco_vmx30i": "not defined",
+      "okuma_m460v_5ax": "M51",
+      "roku_roku_hc658": "not defined"
+    },
+    "coolant_off": {
+      "haas_vf2": "M09 (flood), M89 (TSC)",
+      "hurco_vmx30i": "M09",
+      "okuma_m460v_5ax": "M9 (all channels)",
+      "roku_roku_hc658": "M9"
+    },
+    "hsc_ai_control": {
+      "haas_vf2": "G05P0 (OFF only; ON suppressed)",
+      "hurco_vmx30i": "not defined in .def",
+      "okuma_m460v_5ax": "SuperNURBS G-code via CALL_OO88 macro",
+      "roku_roku_hc658": "G05P10000 (ON) / G05P0 (OFF)"
+    },
+    "xyz_decimal_places": {
+      "haas_vf2": 4,
+      "hurco_vmx30i": 6,
+      "okuma_m460v_5ax": 4,
+      "roku_roku_hc658": 4
+    },
+    "boring_cycle_G_code": {
+      "haas_vf2": "G86",
+      "hurco_vmx30i": "G86",
+      "okuma_m460v_5ax": "G86",
+      "roku_roku_hc658": "G76"
+    },
+    "tapping_right_hand": {
+      "haas_vf2": "G95 (rigid tapping mode)",
+      "hurco_vmx30i": "G84 (BNC/ISNC sync tap)",
+      "okuma_m460v_5ax": "G84",
+      "roku_roku_hc658": "G84"
+    },
+    "tapping_left_hand": {
+      "haas_vf2": "not explicitly defined",
+      "hurco_vmx30i": "G74 (sync)",
+      "okuma_m460v_5ax": "G74",
+      "roku_roku_hc658": "G74"
+    },
+    "safe_home_command": {
+      "haas_vf2": "G98 G91 Z0 then G98 G91 X0 Y0",
+      "hurco_vmx30i": "G91 G28 Z0 (4th axis safe; main not defined in .def)",
+      "okuma_m460v_5ax": "G30P10 (Okuma 2nd reference position)",
+      "roku_roku_hc658": "defined in sP_TC_first.txt / sP_TC.txt templates (not raw txt available)"
+    },
+    "probing_macro": {
+      "haas_vf2": "G65 P9810 (Renishaw Inspection Plus)",
+      "hurco_vmx30i": "G65 P9810 (Renishaw Inspection Plus)",
+      "okuma_m460v_5ax": "CALL O9810 (Okuma macro format)",
+      "roku_roku_hc658": "G65 P9810 (Renishaw Inspection Plus)"
+    }
+  }
+}

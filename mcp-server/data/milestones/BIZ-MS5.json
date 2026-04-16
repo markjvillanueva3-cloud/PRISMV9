@@ -1,0 +1,1441 @@
+{
+  "id": "BIZ-MS5",
+  "version": "1.0.0",
+  "title": "Maintenance, Assets, Compliance & Integrations",
+  "brief": "Final milestone for the Business Management track. Covers the full maintenance lifecycle (preventive maintenance schedules, work orders, parts/labor tracking), equipment asset registry with depreciation, calibration management frontend wired to the existing CalibrationEngine, OSHA safety compliance logs, ISO/AS9100 internal audit management with 8D CAPA workflow, full 8D enhancement to QualityManagementEngine, and three integration connectors (E2 Shop System bidirectional sync, QuickBooks deep invoice/payment sync, email/SMS/in-app notifications wired to NotificationEngine). All engines either exist or extend existing ones — no greenfield physics.",
+  "created_at": "2026-04-08T23:00:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 10,
+  "total_sessions": "6-8",
+  "plan_file": "H:/prism/plans/erp-employee/BUSINESS-MANAGEMENT-MASTER-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS5-P1",
+      "title": "Maintenance & Asset Management",
+      "description": "Create PreventiveMaintenanceEngine from scratch and wire it to a calendar-based frontend page. Create EquipmentAssetEngine with depreciation math. Add the MaintenanceWorkOrderPage for create/assign/complete task flow. Wire CalibrationEngine (already 334 lines) to a new CalibrationPage with gage R&R display, certificate upload, and out-of-cal lockout.",
+      "sessions": "3",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ36",
+          "title": "Create PreventiveMaintenanceEngine + PreventiveMaintenancePage",
+          "phase": "BIZ-MS5-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/CalibrationEngine.ts (first 60 lines) to understand the singleton export pattern, PersistenceBridge wiring style, and dispatcher action naming convention used in this codebase before writing any new engine code"
+            },
+            {
+              "number": 2,
+              "instruction": "Read src/tools/dispatchers/businessDispatcher.ts (first 80 lines) to confirm the z.enum action list structure and lazy-import pattern for engines"
+            },
+            {
+              "number": 3,
+              "instruction": "Create src/engines/PreventiveMaintenanceEngine.ts. Define interfaces: PMSchedule { id, machine_id, machine_name, task_name, trigger_type: 'calendar' | 'hours', interval_days: number | undefined, interval_hours: number | undefined, last_completed_at: string | undefined, last_completed_hours: number | undefined, parts_list: PMPart[], estimated_duration_min: number, instructions: string, created_at: string }, PMPart { part_name, part_number, quantity, unit_cost }, PMWorkOrder { id, schedule_id, machine_id, machine_name, task_name, parts_list: PMPart[], status: 'open' | 'in_progress' | 'complete' | 'cancelled', assigned_to: string | undefined, scheduled_date: string, completed_at: string | undefined, labor_hours: number | undefined, total_cost: number | undefined, notes: string | undefined, created_at: string }, MaintenanceDowntime { id, machine_id, type: 'scheduled' | 'unscheduled', started_at: string, ended_at: string | undefined, duration_min: number | undefined, work_order_id: string | undefined, cause: string | undefined }"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement PreventiveMaintenanceEngine class with private Maps: pmSchedules: Map<string, PMSchedule>, pmWorkOrders: Map<string, PMWorkOrder>, maintenanceDowntime: Map<string, MaintenanceDowntime>. In constructor, call persistenceBridge.register() for all three Maps"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement createSchedule(params): PMSchedule — validates that either interval_days (for calendar) or interval_hours (for hours) is present based on trigger_type, assigns a uuid-style id, stores in pmSchedules, calls persistenceBridge.persist('pm_schedules')"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement listSchedules(filters?: { machine_id?: string; overdue_only?: boolean }): PMSchedule[] — returns schedules filtered by machine_id if provided. If overdue_only, filter using isScheduleDue() helper"
+            },
+            {
+              "number": 7,
+              "instruction": "Implement isScheduleDue(schedule: PMSchedule, currentHours?: number): boolean — for calendar type: returns true if Date.now() >= (last_completed_at date + interval_days * 86400000) OR if last_completed_at is undefined. For hours type: returns true if (currentHours - last_completed_hours) >= interval_hours OR if last_completed_hours is undefined"
+            },
+            {
+              "number": 8,
+              "instruction": "Implement generateWorkOrder(scheduleId: string, scheduledDate: string): PMWorkOrder — creates a PMWorkOrder from the schedule template, status = 'open', stores in pmWorkOrders, calls persistenceBridge.persist('pm_work_orders'). Throws if schedule not found. Throws if an open/in_progress work order already exists for the same schedule"
+            },
+            {
+              "number": 9,
+              "instruction": "Implement completeWorkOrder(workOrderId: string, params: { labor_hours: number; notes?: string; parts_used?: PMPart[] }): PMWorkOrder — sets status = 'complete', completed_at = ISO timestamp, labor_hours, notes. Calculates total_cost = sum of (parts_used quantity * unit_cost) + (labor_hours * 75) using a $75/hr default labor rate. Updates the parent schedule's last_completed_at. Calls persistenceBridge.persist('pm_work_orders') and persistenceBridge.persist('pm_schedules')"
+            },
+            {
+              "number": 10,
+              "instruction": "Implement getOverdueAlerts(currentMachineHours?: Map<string, number>): Array<{ schedule: PMSchedule; days_overdue: number; hours_overdue: number | undefined }> — iterates all schedules, calls isScheduleDue(), computes days_overdue as Math.floor((Date.now() - due_date_ms) / 86400000) for calendar type or hours_overdue for hours type"
+            },
+            {
+              "number": 11,
+              "instruction": "Implement recordDowntime(params: Omit<MaintenanceDowntime, 'id'>): MaintenanceDowntime — stores in maintenanceDowntime Map. If ended_at is provided, compute duration_min = (Date.parse(ended_at) - Date.parse(started_at)) / 60000. Calls persistenceBridge.persist('maintenance_downtime')"
+            },
+            {
+              "number": 12,
+              "instruction": "Add ENTITY_CONFIGS entries in src/db/BusinessStore.ts for pm_schedules (knownColumns: id, machine_id, machine_name, task_name, trigger_type, interval_days, interval_hours, last_completed_at, last_completed_hours, estimated_duration_min, instructions, created_at; jsonColumns: parts_list), pm_work_orders (knownColumns: id, schedule_id, machine_id, machine_name, task_name, status, assigned_to, scheduled_date, completed_at, labor_hours, total_cost, notes, created_at; jsonColumns: parts_list), maintenance_downtime (knownColumns: id, machine_id, type, started_at, ended_at, duration_min, work_order_id, cause)"
+            },
+            {
+              "number": 13,
+              "instruction": "Export the singleton: export const preventiveMaintenanceEngine = new PreventiveMaintenanceEngine()"
+            },
+            {
+              "number": 14,
+              "instruction": "Add dispatcher actions to businessDispatcher.ts z.enum: 'pm_schedule_create', 'pm_schedule_list', 'pm_work_order_generate', 'pm_complete', 'pm_overdue_alerts'. Add case handlers: pm_schedule_create calls preventiveMaintenanceEngine.createSchedule(args), pm_schedule_list calls listSchedules(args), pm_work_order_generate calls generateWorkOrder(args.schedule_id, args.scheduled_date), pm_complete calls completeWorkOrder(args.work_order_id, args), pm_overdue_alerts calls getOverdueAlerts()"
+            },
+            {
+              "number": 15,
+              "instruction": "Add schemas in src/schemas/businessActionSchemas.ts for all 5 new actions. pm_schedule_create: machine_id (string required), machine_name (string required), task_name (string required), trigger_type (z.enum(['calendar','hours']) required), interval_days (number optional), interval_hours (number optional), parts_list (array of PMPart objects optional), estimated_duration_min (number required), instructions (string required). pm_schedule_list: machine_id (string optional), overdue_only (boolean optional). pm_work_order_generate: schedule_id (string required), scheduled_date (string required). pm_complete: work_order_id (string required), labor_hours (number required), notes (string optional), parts_used (array optional). pm_overdue_alerts: no required fields. No .passthrough() on any schema"
+            },
+            {
+              "number": 16,
+              "instruction": "Create web/src/pages/PreventiveMaintenancePage.tsx. Use React 19 hooks. On mount, call GET /api/erp/pm-schedules and GET /api/erp/pm-overdue-alerts. Render: (a) top row of 3 stat cards — Total Schedules, Overdue (red badge if >0), Due This Week; (b) calendar view showing upcoming PM dates for the next 30 days (use a simple div-based grid for Mon-Sun columns, mark days with PM tasks); (c) overdue alerts table with columns Machine, Task, Days Overdue, Action (Generate Work Order button); (d) full schedules table with columns Machine, Task, Trigger, Next Due, Last Completed, Action (View Work Orders). All data calls go through web/src/api/client.ts functions"
+            },
+            {
+              "number": 17,
+              "instruction": "Add client functions to web/src/api/client.ts: pmScheduleCreate(params), pmScheduleList(filters?), pmWorkOrderGenerate(scheduleId, scheduledDate), pmComplete(workOrderId, params), pmOverdueAlerts(). Each calls the corresponding businessDispatcher action via the existing POST /api/mcp or equivalent RPC path"
+            },
+            {
+              "number": 18,
+              "instruction": "Add the route to web/src/App.tsx (or router file): path='/app/maintenance' element=<PreventiveMaintenancePage /> behind clearance_level >= 'lead' guard"
+            },
+            {
+              "number": 19,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors before marking complete"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/PreventiveMaintenanceEngine.ts",
+              "type": "source",
+              "description": "Full PM engine: schedule create/list, work order generate/complete, downtime recording, overdue alerts with calendar and hours-based triggers"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entries added for pm_schedules, pm_work_orders, maintenance_downtime"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "5 new actions: pm_schedule_create, pm_schedule_list, pm_work_order_generate, pm_complete, pm_overdue_alerts"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 5 PM actions, no .passthrough()"
+            },
+            {
+              "path": "web/src/pages/PreventiveMaintenancePage.tsx",
+              "type": "source",
+              "description": "Calendar view of upcoming PMs, overdue alerts table, schedules table with generate work order action"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "5 new PM client functions"
+            }
+          ],
+          "exit_conditions": [
+            "PreventiveMaintenanceEngine exports singleton with createSchedule, listSchedules, generateWorkOrder, completeWorkOrder, getOverdueAlerts, recordDowntime",
+            "isScheduleDue() correctly handles both calendar (days) and hours-based triggers",
+            "generateWorkOrder() throws if a duplicate open work order already exists for the schedule",
+            "completeWorkOrder() updates parent schedule last_completed_at",
+            "total_cost calculation: parts cost + labor_hours * 75",
+            "pm_schedules, pm_work_orders, maintenance_downtime registered with PersistenceBridge",
+            "BusinessStore.ts ENTITY_CONFIGS covers all three entity names",
+            "All 5 dispatcher actions have z.enum entry + case handler + schema",
+            "PreventiveMaintenancePage renders stat cards, 30-day calendar grid, overdue alerts, and schedules table",
+            "Route /app/maintenance renders PreventiveMaintenancePage behind lead clearance guard",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/CalibrationEngine.ts (existing — use as wiring pattern)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts",
+            "web/src/App.tsx"
+          ],
+          "abort_criteria": [
+            "A PreventiveMaintenanceEngine already exists in src/engines/ — read it fully before adding anything, extend rather than duplicate",
+            "PersistenceBridge.register() signature has changed — check the actual API and adapt"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/PreventiveMaintenanceEngine.ts",
+              "web/src/pages/PreventiveMaintenancePage.tsx"
+            ],
+            "files_modified": [
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm src/engines/PreventiveMaintenanceEngine.ts web/src/pages/PreventiveMaintenancePage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ37",
+          "title": "Create EquipmentAssetEngine + EquipmentAssetPage",
+          "phase": "BIZ-MS5-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ36"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/PreventiveMaintenanceEngine.ts (just created) to ensure EquipmentAssetEngine follows the same file structure and PersistenceBridge patterns"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/EquipmentAssetEngine.ts. Define interfaces: AssetRecord { id, asset_tag, name, category: 'machine' | 'fixture' | 'gage' | 'tooling' | 'other', manufacturer, model_number, serial_number, location, purchase_date: string, purchase_cost: number, salvage_value: number, useful_life_years: number, depreciation_method: 'straight_line' | 'macrs_5yr' | 'macrs_7yr', current_book_value: number, status: 'active' | 'disposed' | 'transferred', calibration_required: boolean, last_calibration_date: string | undefined, next_calibration_date: string | undefined, calibration_interval_days: number | undefined, notes: string | undefined, created_at: string }, AssetTransfer { id, asset_id, from_location, to_location, transferred_at: string, transferred_by: string, reason: string }, DepreciationSchedule { asset_id, year: number, beginning_book_value: number, depreciation_amount: number, ending_book_value: number, cumulative_depreciation: number }"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement EquipmentAssetEngine class with private Maps: assets: Map<string, AssetRecord>, assetTransfers: Map<string, AssetTransfer>. In constructor, call persistenceBridge.register() for both Maps"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement registerAsset(params: Omit<AssetRecord, 'id' | 'current_book_value' | 'created_at'>): AssetRecord — assigns id, sets current_book_value = purchase_cost - computeDepreciation(purchase_cost, salvage_value, useful_life_years, depreciation_method, monthsSincePurchase), stores in assets Map, calls persist()"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement computeDepreciation(purchaseCost: number, salvageValue: number, usefulLifeYears: number, method: string, monthsElapsed: number): number — for 'straight_line': annual = (purchaseCost - salvageValue) / usefulLifeYears; return Math.min(annual * (monthsElapsed / 12), purchaseCost - salvageValue). For 'macrs_5yr': use IRS MACRS 5-year half-year convention rates [20, 32, 19.2, 11.52, 11.52, 5.76] percent array applied by year index (floor(monthsElapsed/12)). For 'macrs_7yr': rates [14.29, 24.49, 17.49, 12.49, 8.93, 8.92, 8.93, 4.46] percent. Return cumulative depreciation through the elapsed period. Never exceed purchaseCost - salvageValue"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement getDepreciationSchedule(assetId: string): DepreciationSchedule[] — computes year-by-year schedule from purchase_date through end of useful_life_years, returning one row per year with beginning_book_value, depreciation_amount, ending_book_value, cumulative_depreciation"
+            },
+            {
+              "number": 7,
+              "instruction": "Implement listAssets(filters?: { category?: string; location?: string; calibration_required?: boolean; status?: string }): AssetRecord[] — returns filtered list. Sort by name ascending"
+            },
+            {
+              "number": 8,
+              "instruction": "Implement transferAsset(assetId: string, params: { to_location: string; transferred_by: string; reason: string }): AssetTransfer — updates asset.location, creates AssetTransfer record, stores in assetTransfers, calls persist() on both Maps"
+            },
+            {
+              "number": 9,
+              "instruction": "Implement getDueCalibrations(daysAhead?: number): Array<{ asset: AssetRecord; days_until_due: number }> — for assets with calibration_required = true, compute days until next_calibration_date. Return those where days_until_due <= (daysAhead ?? 30). Sort by days_until_due ascending"
+            },
+            {
+              "number": 10,
+              "instruction": "Add ENTITY_CONFIGS in BusinessStore.ts for assets (knownColumns: id, asset_tag, name, category, manufacturer, model_number, serial_number, location, purchase_date, purchase_cost, salvage_value, useful_life_years, depreciation_method, current_book_value, status, calibration_required, last_calibration_date, next_calibration_date, calibration_interval_days, notes, created_at) and asset_transfers (knownColumns: id, asset_id, from_location, to_location, transferred_at, transferred_by, reason)"
+            },
+            {
+              "number": 11,
+              "instruction": "Export singleton: export const equipmentAssetEngine = new EquipmentAssetEngine()"
+            },
+            {
+              "number": 12,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'asset_register', 'asset_list', 'asset_depreciation', 'asset_transfer', 'asset_due_calibrations'. Add case handlers calling the corresponding engine methods"
+            },
+            {
+              "number": 13,
+              "instruction": "Add schemas in businessActionSchemas.ts: asset_register with all AssetRecord fields except id/current_book_value/created_at; asset_list with optional filters; asset_depreciation with asset_id (string required); asset_transfer with asset_id, to_location, transferred_by, reason (all string required); asset_due_calibrations with days_ahead (number optional). No .passthrough()"
+            },
+            {
+              "number": 14,
+              "instruction": "Create web/src/pages/EquipmentAssetPage.tsx. Render: (a) summary stats row: Total Assets count, Total Book Value (sum of current_book_value), Calibrations Due This Month (count from getDueCalibrations(30)); (b) filter bar with dropdowns for category, location, status; (c) asset table with columns Asset Tag, Name, Category, Location, Purchase Cost, Book Value, Status, Cal Due, Actions (View Depreciation Schedule, Transfer); (d) Depreciation Schedule modal: shows year-by-year table for the selected asset; (e) Transfer modal: to_location text input + reason text input + submit. Wire all actions to client functions"
+            },
+            {
+              "number": 15,
+              "instruction": "Add client functions: assetRegister(params), assetList(filters?), assetDepreciation(assetId), assetTransfer(assetId, params), assetDueCalibrations(daysAhead?) in web/src/api/client.ts"
+            },
+            {
+              "number": 16,
+              "instruction": "Add route /app/assets -> EquipmentAssetPage in App.tsx behind clearance_level >= 'lead' guard"
+            },
+            {
+              "number": 17,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/EquipmentAssetEngine.ts",
+              "type": "source",
+              "description": "Asset registry with straight-line and MACRS depreciation, calibration due dates, transfer tracking"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entries for assets and asset_transfers"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "5 new actions: asset_register, asset_list, asset_depreciation, asset_transfer, asset_due_calibrations"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 5 asset actions"
+            },
+            {
+              "path": "web/src/pages/EquipmentAssetPage.tsx",
+              "type": "source",
+              "description": "Asset list with filters, depreciation schedule modal, transfer modal, cal due alerts"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "5 new asset client functions"
+            }
+          ],
+          "exit_conditions": [
+            "EquipmentAssetEngine exports singleton with registerAsset, listAssets, getDepreciationSchedule, transferAsset, getDueCalibrations",
+            "computeDepreciation() implements straight_line, macrs_5yr (6-year half-year rates), macrs_7yr (8-year half-year rates) correctly — never exceeds purchaseCost - salvageValue",
+            "getDepreciationSchedule() returns one row per year through full useful life",
+            "transferAsset() updates asset.location and creates AssetTransfer record atomically",
+            "getDueCalibrations() returns only assets with calibration_required = true",
+            "assets and asset_transfers registered with PersistenceBridge",
+            "All 5 dispatcher actions have z.enum entry + case handler + schema",
+            "EquipmentAssetPage renders summary stats, filterable asset table, depreciation schedule modal, and transfer modal",
+            "Route /app/assets renders behind lead clearance guard",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/PreventiveMaintenanceEngine.ts (U-BIZ36 result — use as pattern)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "An EquipmentAssetEngine already exists — read it first, extend rather than recreate",
+            "MACRS rates differ in a referenced IRS table — use the IRS Rev. Proc. 87-57 half-year convention rates as specified in steps 5"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/EquipmentAssetEngine.ts",
+              "web/src/pages/EquipmentAssetPage.tsx"
+            ],
+            "files_modified": [
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm src/engines/EquipmentAssetEngine.ts web/src/pages/EquipmentAssetPage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ38",
+          "title": "Create MaintenanceWorkOrderPage",
+          "phase": "BIZ-MS5-P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 60,
+          "dependencies": ["U-BIZ36"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read web/src/pages/PreventiveMaintenancePage.tsx (just created in U-BIZ36) and web/src/api/client.ts to understand the PM client functions already available (pmScheduleList, pmWorkOrderGenerate, pmComplete)"
+            },
+            {
+              "number": 2,
+              "instruction": "Create web/src/pages/MaintenanceWorkOrderPage.tsx. On mount, call a new client function workOrderList() that calls businessDispatcher action 'pm_work_order_list' (add this action to businessDispatcher and schema before wiring the page). The work_order_list action returns all PMWorkOrders sorted by scheduled_date ascending"
+            },
+            {
+              "number": 3,
+              "instruction": "Add 'pm_work_order_list' and 'pm_work_order_assign' to businessDispatcher.ts z.enum. Case pm_work_order_list: calls preventiveMaintenanceEngine.listWorkOrders(args) — implement listWorkOrders(filters?: { status?: string; machine_id?: string; assigned_to?: string }): PMWorkOrder[] in PreventiveMaintenanceEngine. Case pm_work_order_assign: calls preventiveMaintenanceEngine.assignWorkOrder(args.work_order_id, args.assigned_to) — implement assignWorkOrder(id, assignedTo): PMWorkOrder in PreventiveMaintenanceEngine, sets assigned_to, calls persist(). Add schemas for both: pm_work_order_list (all fields optional), pm_work_order_assign (work_order_id required, assigned_to required string)"
+            },
+            {
+              "number": 4,
+              "instruction": "Render the MaintenanceWorkOrderPage with: (a) filter bar with status dropdown (all/open/in_progress/complete/cancelled) and machine dropdown populated from unique machine_ids in the work order list; (b) priority badge per work order — compute from scheduled_date: past due = 'Emergency' (red), due today = 'Urgent' (orange), due within 7 days = 'Routine' (green); (c) work order table with columns: WO#, Machine, Task, Scheduled Date, Priority, Assigned To, Status, Parts (count), Labor Hours, Cost; (d) Assign button — opens modal with employee name input, calls workOrderAssign(); (e) Complete button — opens modal with labor_hours (number input), notes (textarea), parts_used (dynamic list of part_name/quantity/unit_cost rows with Add Row button), calls pmComplete()"
+            },
+            {
+              "number": 5,
+              "instruction": "Add a Labor vs Parts cost breakdown footer to the Complete modal: computed in real time as user enters labor_hours (labor cost = hours * 75) and parts rows (sum of qty * unit_cost). Show 'Estimated Total: $X.XX'"
+            },
+            {
+              "number": 6,
+              "instruction": "Add client functions to web/src/api/client.ts: workOrderList(filters?), workOrderAssign(workOrderId, assignedTo)"
+            },
+            {
+              "number": 7,
+              "instruction": "Add route /app/work-orders -> MaintenanceWorkOrderPage in App.tsx behind clearance_level >= 'shop_floor' guard (all shop floor staff can view and complete work orders)"
+            },
+            {
+              "number": 8,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/MaintenanceWorkOrderPage.tsx",
+              "type": "source",
+              "description": "Work order list with priority badges, assign modal, complete modal with parts/labor cost breakdown"
+            },
+            {
+              "path": "src/engines/PreventiveMaintenanceEngine.ts",
+              "type": "source",
+              "description": "listWorkOrders() and assignWorkOrder() methods added"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "pm_work_order_list and pm_work_order_assign actions added"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for pm_work_order_list and pm_work_order_assign"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "workOrderList() and workOrderAssign() client functions"
+            }
+          ],
+          "exit_conditions": [
+            "listWorkOrders() supports filters: status, machine_id, assigned_to",
+            "assignWorkOrder() updates assigned_to field and calls persist()",
+            "Priority badge logic: past due = Emergency, today = Urgent, within 7 days = Routine",
+            "Complete modal computes real-time estimated cost (labor + parts) before submission",
+            "pm_work_order_list and pm_work_order_assign have z.enum entries + case handlers + schemas",
+            "Route /app/work-orders is accessible to shop_floor clearance level",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/PreventiveMaintenanceEngine.ts (U-BIZ36 result)",
+            "web/src/pages/PreventiveMaintenancePage.tsx (U-BIZ36 result)",
+            "web/src/api/client.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts"
+          ],
+          "abort_criteria": [
+            "A MaintenanceWorkOrderPage already exists — read it first and extend rather than overwrite"
+          ],
+          "rollback": {
+            "files_created": ["web/src/pages/MaintenanceWorkOrderPage.tsx"],
+            "files_modified": [
+              "src/engines/PreventiveMaintenanceEngine.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/engines/PreventiveMaintenanceEngine.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm web/src/pages/MaintenanceWorkOrderPage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ39",
+          "title": "Wire CalibrationEngine to CalibrationPage",
+          "phase": "BIZ-MS5-P1",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 60,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/CalibrationEngine.ts in full (334 lines) to catalogue all public methods, their signatures, return types, and Map names. List every method before writing any frontend code"
+            },
+            {
+              "number": 2,
+              "instruction": "Check src/tools/dispatchers/businessDispatcher.ts for existing CalibrationEngine actions. Identify which of calSchedule_create, calRecord, calCertificate_upload, calOverdue_alerts are already wired vs which are missing"
+            },
+            {
+              "number": 3,
+              "instruction": "For any missing actions, add to businessDispatcher.ts z.enum and add case handlers. Required actions: cal_schedule_create (creates a calibration schedule), cal_record (records a completed calibration with result: 'pass' | 'fail' | 'conditional'), cal_overdue_alerts (returns gages/assets past due), cal_lockout (sets a gage status to 'do_not_use' with reason), cal_unlock (re-enables a locked-out gage after recalibration). Wire to CalibrationEngine methods"
+            },
+            {
+              "number": 4,
+              "instruction": "For any missing schemas, add to businessActionSchemas.ts: cal_schedule_create (gage_id string required, gage_name string required, interval_days number required, responsible_tech string required), cal_record (gage_id string required, performed_by string required, result z.enum(['pass','fail','conditional']) required, certificate_ref string optional, notes string optional), cal_overdue_alerts (no required fields), cal_lockout (gage_id string required, reason string required), cal_unlock (gage_id string required). No .passthrough()"
+            },
+            {
+              "number": 5,
+              "instruction": "Add client functions to web/src/api/client.ts: calScheduleCreate(params), calRecord(params), calOverdueAlerts(), calLockout(gageId, reason), calUnlock(gageId)"
+            },
+            {
+              "number": 6,
+              "instruction": "Create web/src/pages/CalibrationPage.tsx. On mount: call calOverdueAlerts() and calScheduleList() (add cal_schedule_list action if missing). Render: (a) summary stat cards — Total Gages, Overdue (red if >0), Due This Month, Locked Out (orange badge if >0); (b) overdue alerts banner (collapsible yellow bar) listing gage name + days overdue for each overdue gage; (c) locked-out gages section (red border cards) showing gage name, lockout reason, Unlock button (calls calUnlock() — requires confirmation modal); (d) full calibration schedule table with columns Gage, Interval (days), Last Cal, Next Due, Last Result (green PASS / red FAIL / orange CONDITIONAL badge), Assigned Tech, Actions (Record Cal, Lock Out)"
+            },
+            {
+              "number": 7,
+              "instruction": "Add Record Calibration modal in CalibrationPage.tsx: fields — Performed By (text input), Result (select: pass/fail/conditional), Certificate Ref (text input, optional), Notes (textarea). On submit, call calRecord(). If result = 'fail', automatically prompt: 'Do you want to lock out this gage?' with a reason textarea. If yes, also call calLockout()"
+            },
+            {
+              "number": 8,
+              "instruction": "Add a Gage R&R tracking section: a table below the main schedules table labeled 'Gage R&R History' with columns Gage, Study Date, Operator Count, %GR&R, Status (<=10% = Acceptable green, 10-30% = Marginal yellow, >30% = Unacceptable red). Add dispatcher action cal_grr_record (gage_id, study_date, operator_count, percent_grr all required) and client function calGrrRecord(params). Wire Add R&R Study button to open a simple modal"
+            },
+            {
+              "number": 9,
+              "instruction": "Add route /app/calibration -> CalibrationPage in App.tsx behind clearance_level >= 'lead' guard"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "web/src/pages/CalibrationPage.tsx",
+              "type": "source",
+              "description": "Calibration schedule management with overdue alerts, lockout panel, R&R history, record calibration modal"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "Missing cal_* actions added (cal_schedule_create, cal_record, cal_overdue_alerts, cal_lockout, cal_unlock, cal_grr_record)"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all added cal_* actions"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "calScheduleCreate, calRecord, calOverdueAlerts, calLockout, calUnlock, calGrrRecord client functions"
+            }
+          ],
+          "exit_conditions": [
+            "CalibrationEngine methods are called via dispatcher (not direct import) from all page actions",
+            "cal_lockout sets gage status to 'do_not_use' and cal_unlock reverses it",
+            "Locked-out gages shown in red section on CalibrationPage with Unlock button",
+            "Record Cal modal auto-prompts lockout if result = 'fail'",
+            "Gage R&R %GR&R displayed with color-coded status (<=10 green, 10-30 yellow, >30 red)",
+            "Route /app/calibration behind lead clearance guard",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/CalibrationEngine.ts (existing — read in full first)",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts",
+            "web/src/App.tsx"
+          ],
+          "abort_criteria": [
+            "CalibrationEngine does not have a lockout mechanism — add lockout_status field to the calibration record interface and implement cal_lockout/cal_unlock directly in the engine"
+          ],
+          "rollback": {
+            "files_created": ["web/src/pages/CalibrationPage.tsx"],
+            "files_modified": [
+              "src/engines/CalibrationEngine.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/engines/CalibrationEngine.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm web/src/pages/CalibrationPage.tsx"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "PM schedule trigger logic: calendar days vs machine hours calculated correctly",
+        "MACRS depreciation rates match IRS Rev. Proc. 87-57 half-year convention exactly",
+        "Work order duplicate prevention: generateWorkOrder() throws on existing open WO",
+        "Calibration lockout: locked gages must be blocked from recording new inspection results until unlocked",
+        "All new engines have PersistenceBridge wiring and ENTITY_CONFIGS entries",
+        "All new dispatcher actions have z.enum entries, case handlers, and schemas with no .passthrough()"
+      ]
+    },
+    {
+      "id": "BIZ-MS5-P2",
+      "title": "Compliance & Audit Management",
+      "description": "Add OSHA incident/near-miss tracking with OSHA 300/300A/301 log generation. Add ISO/AS9100 internal audit scheduling with finding and CAPA tracking. Enhance QualityManagementEngine with full 8D workflow. All pages behind appropriate clearance levels.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ40",
+          "title": "Add OSHA Compliance Page",
+          "phase": "BIZ-MS5-P2",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/HRComplianceEngine.ts in full to understand the training record interface and hr_training_* dispatcher actions already available. Note exact method signatures for hr_training_list and hr_training_record"
+            },
+            {
+              "number": 2,
+              "instruction": "Check businessDispatcher.ts for existing osha_* actions. If none exist, plan to add all 4"
+            },
+            {
+              "number": 3,
+              "instruction": "Define new interfaces in a new file src/engines/OSHAComplianceEngine.ts: OSHAIncident { id, incident_date: string, employee_id: string | undefined, employee_name: string | undefined, location: string, description: string, injury_type: 'injury' | 'illness' | 'near_miss' | 'property_damage', body_part_affected: string | undefined, days_away: number, days_restricted: number, medical_treatment: 'first_aid' | 'medical_beyond_first_aid' | 'hospitalization' | 'fatality', recordable: boolean, osha_case_number: string | undefined, reported_by: string, anonymous: boolean, witnesses: string[], corrective_actions: string[], created_at: string }, PPEAssignment { id, employee_id: string, ppe_type: string, size: string | undefined, issued_date: string, issued_by: string, condition: 'good' | 'worn' | 'replace' }"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement OSHAComplianceEngine with private Maps: incidents: Map<string, OSHAIncident>, ppeAssignments: Map<string, PPEAssignment>. Register both with PersistenceBridge in constructor"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement createIncident(params: Omit<OSHAIncident, 'id' | 'created_at'>): OSHAIncident — auto-determines recordable = true if medical_treatment != 'first_aid' || days_away > 0 || days_restricted > 0. For anonymous incidents, store employee_id = 'ANONYMOUS' and do not store employee_name. Calls persist()"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement generateOSHA300Log(year: number): OSHA300Row[] — filters incidents where recordable = true and year(incident_date) == year. Maps each to OSHA300Row { case_number, employee_name: anonymous ? 'Privacy Case' : employee_name, job_title, date_of_injury, where_event_occurred, describe_injury, days_away, days_restricted, injury_type_checkboxes }. Returns array sorted by incident_date"
+            },
+            {
+              "number": 7,
+              "instruction": "Implement generateOSHA300ASummary(year: number): OSHA300ASummary — aggregates OSHA300Log for the year into totals: total_injuries, total_illnesses, total_days_away, total_days_restricted, total_deaths. Returns the summary object with establishment name 'PRISM Manufacturing' as placeholder"
+            },
+            {
+              "number": 8,
+              "instruction": "Implement assignPPE(params: Omit<PPEAssignment, 'id'>): PPEAssignment — stores in ppeAssignments, calls persist()"
+            },
+            {
+              "number": 9,
+              "instruction": "Implement listPPEByEmployee(employeeId: string): PPEAssignment[] — returns all PPE assignments for the employee. Adds a flag needs_replacement = (condition === 'replace')"
+            },
+            {
+              "number": 10,
+              "instruction": "Add ENTITY_CONFIGS in BusinessStore.ts for osha_incidents (knownColumns: id, incident_date, employee_id, employee_name, location, injury_type, body_part_affected, days_away, days_restricted, medical_treatment, recordable, osha_case_number, reported_by, anonymous, created_at; jsonColumns: witnesses, corrective_actions) and ppe_assignments (knownColumns: id, employee_id, ppe_type, size, issued_date, issued_by, condition)"
+            },
+            {
+              "number": 11,
+              "instruction": "Export singleton: export const oshaComplianceEngine = new OSHAComplianceEngine()"
+            },
+            {
+              "number": 12,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'osha_incident_create', 'osha_log_300', 'osha_near_miss', 'osha_ppe_assign'. Case handlers: osha_incident_create -> createIncident(args), osha_log_300 -> generateOSHA300Log(args.year), osha_near_miss -> createIncident({...args, injury_type: 'near_miss', recordable: false}), osha_ppe_assign -> assignPPE(args)"
+            },
+            {
+              "number": 13,
+              "instruction": "Add schemas in businessActionSchemas.ts: osha_incident_create (incident_date required, location required, injury_type z.enum required, medical_treatment z.enum required, days_away number default 0, days_restricted number default 0, employee_id optional string, anonymous boolean default false, description string required, reported_by string required), osha_log_300 (year number required), osha_near_miss (same as osha_incident_create minus recordable), osha_ppe_assign (employee_id, ppe_type, issued_date, issued_by all required string; size optional; condition z.enum default 'good'). No .passthrough()"
+            },
+            {
+              "number": 14,
+              "instruction": "Create web/src/pages/OSHACompliancePage.tsx. Render 4 tabbed sections: (a) Tab 'Incidents': incident list table with columns Date, Employee (or 'Anonymous'), Type, Medical Treatment, Days Away, Recordable badge, Actions. New Incident button opens full incident form modal. (b) Tab 'OSHA 300 Log': year selector (default current year), 'Generate Log' button calls oshaLog300(), renders a printable table matching OSHA 300 column layout. (c) Tab 'Safety Training': calls hr_training_list from HRComplianceEngine via existing client functions, shows employee training records with expiry dates. Filter by department. (d) Tab 'PPE Tracking': table of PPE assignments filterable by employee, shows condition badge (good=green, worn=yellow, replace=red), Add PPE button"
+            },
+            {
+              "number": 15,
+              "instruction": "Add client functions to web/src/api/client.ts: oshaIncidentCreate(params), oshaLog300(year), oshaNearMiss(params), oshaPpeAssign(params)"
+            },
+            {
+              "number": 16,
+              "instruction": "Add route /app/osha -> OSHACompliancePage in App.tsx behind clearance_level >= 'lead' guard"
+            },
+            {
+              "number": 17,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/OSHAComplianceEngine.ts",
+              "type": "source",
+              "description": "OSHA incident recording, OSHA 300/300A log generation, PPE assignment tracking"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS entries for osha_incidents and ppe_assignments"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "osha_incident_create, osha_log_300, osha_near_miss, osha_ppe_assign actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 4 OSHA actions"
+            },
+            {
+              "path": "web/src/pages/OSHACompliancePage.tsx",
+              "type": "source",
+              "description": "4-tab compliance page: Incidents, OSHA 300 Log, Safety Training, PPE Tracking"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "4 new OSHA client functions"
+            }
+          ],
+          "exit_conditions": [
+            "createIncident() sets recordable = true automatically when medical_treatment != 'first_aid' or days_away > 0 or days_restricted > 0",
+            "Anonymous incidents store employee_id = 'ANONYMOUS' and omit employee_name",
+            "generateOSHA300Log() returns only recordable incidents for the specified year",
+            "generateOSHA300ASummary() aggregates totals correctly",
+            "PPE assignments with condition = 'replace' show red badge on page",
+            "Safety Training tab uses hr_training_list actions from HRComplianceEngine — no duplicate data fetch",
+            "osha_incidents and ppe_assignments registered with PersistenceBridge",
+            "All 4 dispatcher actions have z.enum entries + case handlers + schemas",
+            "Route /app/osha behind lead clearance guard",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/HRComplianceEngine.ts (existing — read for training record patterns)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "OSHAComplianceEngine already exists — read it fully, extend rather than duplicate"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/OSHAComplianceEngine.ts",
+              "web/src/pages/OSHACompliancePage.tsx"
+            ],
+            "files_modified": [
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm src/engines/OSHAComplianceEngine.ts web/src/pages/OSHACompliancePage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ41",
+          "title": "Add ISO/AS9100 Audit Manager",
+          "phase": "BIZ-MS5-P2",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ42"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/QualityManagementEngine.ts to understand the NCR/CAPA data structures already present and the methods available after U-BIZ42 completes (ncr_8d_create, ncr_8d_advance, ncr_8d_report). U-BIZ42 must be complete before this unit executes"
+            },
+            {
+              "number": 2,
+              "instruction": "Create src/engines/AuditManagerEngine.ts. Define interfaces: AuditSchedule { id, standard: 'ISO_9001' | 'AS9100D' | 'ISO_14001' | 'IATF_16949' | 'internal', audit_name: string, scheduled_date: string, lead_auditor: string, scope: string, status: 'planned' | 'in_progress' | 'complete' | 'cancelled', created_at: string }, AuditFinding { id, audit_id: string, finding_type: 'observation' | 'minor_nc' | 'major_nc', clause_reference: string, description: string, evidence: string, due_date: string, assigned_to: string, status: 'open' | 'capa_created' | 'closed', capa_id: string | undefined, created_at: string }, ManagementReviewPackage { id, review_date: string, generated_at: string, period_start: string, period_end: string, sections: ManagementReviewSection[] }, ManagementReviewSection { title: string; content: string }"
+            },
+            {
+              "number": 3,
+              "instruction": "Implement AuditManagerEngine with Maps: auditSchedules, auditFindings, managementReviews. Register all three with PersistenceBridge in constructor"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement scheduleAudit(params: Omit<AuditSchedule, 'id' | 'created_at'>): AuditSchedule — stores in auditSchedules, calls persist()"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement createFinding(params: Omit<AuditFinding, 'id' | 'created_at'>): AuditFinding — validates audit_id exists in auditSchedules, stores in auditFindings, calls persist()"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement createCAPA(findingId: string, capaParams: object): { finding: AuditFinding; capa_id: string } — calls qualityManagementEngine.ncr_8d_create (import qualityManagementEngine) with source = 'audit_finding', links the returned capa_id back to the finding by setting finding.capa_id = capa_id. Calls persist(). Returns both objects"
+            },
+            {
+              "number": 7,
+              "instruction": "Implement generateManagementReview(periodStart: string, periodEnd: string): ManagementReviewPackage — queries qualityManagementEngine for NCR counts in period, queries auditFindings for open findings, queries OEE data if available (wrap in try/catch). Builds ManagementReviewSection array with sections: 'Quality Objectives Status', 'NCR Summary', 'Audit Findings', 'Customer Complaints', 'OEE Summary', 'Action Items'. Each section has a content string with real data pulled from the engines. Stores in managementReviews, calls persist()"
+            },
+            {
+              "number": 8,
+              "instruction": "Add ENTITY_CONFIGS in BusinessStore.ts for audit_schedules (knownColumns: id, standard, audit_name, scheduled_date, lead_auditor, scope, status, created_at), audit_findings (knownColumns: id, audit_id, finding_type, clause_reference, description, evidence, due_date, assigned_to, status, capa_id, created_at), management_reviews (knownColumns: id, review_date, generated_at, period_start, period_end; jsonColumns: sections)"
+            },
+            {
+              "number": 9,
+              "instruction": "Export singleton: export const auditManagerEngine = new AuditManagerEngine()"
+            },
+            {
+              "number": 10,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'audit_schedule', 'audit_finding_create', 'audit_capa_create', 'audit_mgmt_review'. Case handlers: audit_schedule -> scheduleAudit(args), audit_finding_create -> createFinding(args), audit_capa_create -> createCAPA(args.finding_id, args), audit_mgmt_review -> generateManagementReview(args.period_start, args.period_end)"
+            },
+            {
+              "number": 11,
+              "instruction": "Add schemas: audit_schedule (standard z.enum required, audit_name required, scheduled_date required, lead_auditor required, scope required), audit_finding_create (audit_id required, finding_type z.enum(['observation','minor_nc','major_nc']) required, clause_reference required, description required, evidence required, due_date required, assigned_to required), audit_capa_create (finding_id required string, capa description and team fields passed through), audit_mgmt_review (period_start required, period_end required). No .passthrough()"
+            },
+            {
+              "number": 12,
+              "instruction": "Create web/src/pages/AuditManagerPage.tsx. Render 3 tabs: (a) 'Audit Schedule': annual calendar view (similar to PreventiveMaintenancePage but for audits), table of all audits with status badge, New Audit button; (b) 'Findings & CAPA': filter by audit, finding type, status. Table with columns Finding Type (color-coded badge: Observation=blue, Minor NC=orange, Major NC=red), Clause, Description, Due Date, Assigned To, Status, CAPA Link (shows 8D case ID if capa_id exists, else Create CAPA button); (c) 'Management Review': Generate Package button with date range picker, displays generated package as accordion sections"
+            },
+            {
+              "number": 13,
+              "instruction": "Add client functions: auditSchedule(params), auditFindingCreate(params), auditCapaCreate(findingId, params), auditMgmtReview(periodStart, periodEnd) in web/src/api/client.ts"
+            },
+            {
+              "number": 14,
+              "instruction": "Add route /app/audit-manager -> AuditManagerPage in App.tsx behind clearance_level >= 'hr_manager' guard"
+            },
+            {
+              "number": 15,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/AuditManagerEngine.ts",
+              "type": "source",
+              "description": "Audit scheduling, finding tracking, CAPA creation via QualityManagementEngine, management review package generation"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS for audit_schedules, audit_findings, management_reviews"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "audit_schedule, audit_finding_create, audit_capa_create, audit_mgmt_review actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 4 audit actions"
+            },
+            {
+              "path": "web/src/pages/AuditManagerPage.tsx",
+              "type": "source",
+              "description": "3-tab audit manager: schedule, findings/CAPA, management review package"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "4 new audit client functions"
+            }
+          ],
+          "exit_conditions": [
+            "createCAPA() links finding.capa_id to the new 8D case from QualityManagementEngine",
+            "generateManagementReview() populates all 6 sections with real data from live engines (wrapped in try/catch for optional sources)",
+            "Finding type badges: Observation=blue, Minor NC=orange, Major NC=red",
+            "audit_schedules, audit_findings, management_reviews registered with PersistenceBridge",
+            "All 4 dispatcher actions have z.enum entries + case handlers + schemas",
+            "Route /app/audit-manager behind hr_manager clearance guard",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/QualityManagementEngine.ts (after U-BIZ42 — read for ncr_8d_create signature)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "U-BIZ42 is not yet complete — this unit MUST NOT execute before U-BIZ42 because it depends on ncr_8d_create being present in QualityManagementEngine"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/AuditManagerEngine.ts",
+              "web/src/pages/AuditManagerPage.tsx"
+            ],
+            "files_modified": [
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts",
+              "web/src/App.tsx"
+            ],
+            "procedure": "git checkout -- src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts web/src/App.tsx && git rm src/engines/AuditManagerEngine.ts web/src/pages/AuditManagerPage.tsx"
+          }
+        },
+        {
+          "id": "U-BIZ42",
+          "title": "Add NCR/CAPA Full 8D Workflow to QualityManagementEngine",
+          "phase": "BIZ-MS5-P2",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/QualityManagementEngine.ts in full (424 lines) to understand existing ncr_create, ncr_update method signatures, NCR interface fields, and what Maps are already in use. Do not duplicate any existing logic"
+            },
+            {
+              "number": 2,
+              "instruction": "Define new interface EightDReport in QualityManagementEngine.ts: { id, ncr_id: string, d1_team: string[], d2_problem_statement: string | undefined, d3_containment: string | undefined, d4_root_cause: string | undefined, d5_corrective_actions: string[] | undefined, d6_implementation_date: string | undefined, d7_prevention: string | undefined, d8_congratulate: string | undefined, current_discipline: number, status: 'open' | 'closed', source: 'receiving_inspection' | 'in_process' | 'final_inspection' | 'customer_complaint' | 'audit_finding', created_at: string, closed_at: string | undefined }"
+            },
+            {
+              "number": 3,
+              "instruction": "Add private Map eightDReports: Map<string, EightDReport> to QualityManagementEngine. Register with persistenceBridge.register('eight_d_reports', this.eightDReports) in constructor. Add 'eight_d_reports' ENTITY_CONFIGS in BusinessStore.ts (knownColumns: id, ncr_id, d1_team_json, d2_problem_statement, d3_containment, d4_root_cause, d6_implementation_date, d7_prevention, d8_congratulate, current_discipline, status, source, created_at, closed_at; jsonColumns: d1_team, d5_corrective_actions)"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement createEightD(params: { ncr_id: string; d1_team: string[]; source: EightDReport['source'] }): EightDReport — validates ncr_id exists in the NCR Map. Creates EightDReport with current_discipline = 1, status = 'open'. Calls persist()"
+            },
+            {
+              "number": 5,
+              "instruction": "Implement advanceEightD(reportId: string, disciplineData: Partial<EightDReport>): EightDReport — merges disciplineData into the existing report, increments current_discipline by 1 (max 8). If current_discipline reaches 8 and d8_congratulate is provided, sets status = 'closed', closed_at = ISO timestamp. Validates that required fields for the current discipline are not empty before advancing: D2 requires d2_problem_statement, D3 requires d3_containment, D4 requires d4_root_cause, D5 requires d5_corrective_actions with at least one item, D6 requires d6_implementation_date, D7 requires d7_prevention. Throws a descriptive error if the required field is missing. Calls persist()"
+            },
+            {
+              "number": 6,
+              "instruction": "Implement getEightDReport(reportId: string): EightDReport — returns the report or throws if not found"
+            },
+            {
+              "number": 7,
+              "instruction": "Implement listEightDByNCR(ncrId: string): EightDReport[] — returns all 8D reports linked to a given NCR"
+            },
+            {
+              "number": 8,
+              "instruction": "Add source classification logic to the existing createNCR() method: accept optional source parameter matching EightDReport['source'] type, store on the NCR record. Update NCR interface to add source?: EightDReport['source'] if not already present"
+            },
+            {
+              "number": 9,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'ncr_8d_create', 'ncr_8d_advance', 'ncr_8d_report'. Case handlers: ncr_8d_create -> qualityManagementEngine.createEightD(args), ncr_8d_advance -> qualityManagementEngine.advanceEightD(args.report_id, args), ncr_8d_report -> qualityManagementEngine.getEightDReport(args.report_id)"
+            },
+            {
+              "number": 10,
+              "instruction": "Add schemas: ncr_8d_create (ncr_id required, d1_team array of strings required, source z.enum required), ncr_8d_advance (report_id required string, plus all EightDReport optional fields that can be updated), ncr_8d_report (report_id required string). No .passthrough()"
+            },
+            {
+              "number": 11,
+              "instruction": "Enhance the existing NCR detail view in the web app: check if web/src/pages/QualityPage.tsx or equivalent NCR page exists. If it does, add an '8D Workflow' tab or expandable section to the NCR detail panel. Show current_discipline progress bar (1-8), each discipline as an accordion row with its label (D1: Team through D8: Congratulate), the stored data, and an Edit/Complete button that calls ncr_8d_advance. If no NCR page exists, document the path where 8D UI should be added in a TODO comment in QualityManagementEngine.ts"
+            },
+            {
+              "number": 12,
+              "instruction": "Add client functions: ncr8dCreate(params), ncr8dAdvance(reportId, disciplineData), ncr8dReport(reportId) in web/src/api/client.ts"
+            },
+            {
+              "number": 13,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/QualityManagementEngine.ts",
+              "type": "source",
+              "description": "8D report interface and methods: createEightD, advanceEightD, getEightDReport, listEightDByNCR added. NCR interface gains source field"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS for eight_d_reports"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "ncr_8d_create, ncr_8d_advance, ncr_8d_report actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 3 NCR 8D actions"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "ncr8dCreate, ncr8dAdvance, ncr8dReport client functions"
+            }
+          ],
+          "exit_conditions": [
+            "EightDReport interface has all 8 discipline fields plus source, status, created_at, closed_at",
+            "advanceEightD() validates required fields per discipline and throws with a descriptive error if missing",
+            "advanceEightD() sets status = 'closed' and closed_at when D8 is completed",
+            "NCR interface has optional source field",
+            "eightDReports Map registered with PersistenceBridge",
+            "BusinessStore.ts has eight_d_reports ENTITY_CONFIGS",
+            "ncr_8d_create, ncr_8d_advance, ncr_8d_report in z.enum with case handlers and schemas",
+            "ncr8dCreate, ncr8dAdvance, ncr8dReport added to web/src/api/client.ts",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/QualityManagementEngine.ts (existing — read fully before modifying)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "QualityManagementEngine already has a partial 8D implementation — read it fully, extend existing structs rather than creating parallel ones",
+            "More than 5 type errors after adding the eightDReports Map — check whether NCR types are shared across multiple files and update callers incrementally"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/QualityManagementEngine.ts",
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/api/client.ts"
+            ],
+            "procedure": "git checkout -- src/engines/QualityManagementEngine.ts src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/api/client.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "OSHA recordability logic: medical_treatment != first_aid OR days_away > 0 OR days_restricted > 0 — all three conditions must be OR'd correctly",
+        "Anonymous incident privacy: employee_name must never be stored for anonymous submissions",
+        "8D advance guard: each discipline gate must throw with field name in error message, not silently skip",
+        "8D closure: status = closed and closed_at timestamp set only when D8 d8_congratulate is non-empty",
+        "Audit CAPA link: finding.capa_id must be set from the returned 8D report id, not a placeholder",
+        "Management Review: all 6 sections must contain real data from live engines, not hardcoded text"
+      ]
+    },
+    {
+      "id": "BIZ-MS5-P3",
+      "title": "External Integrations & Notification System",
+      "description": "Wire E2 Shop System bidirectional sync using IntegrationAdapterEngine patterns. Add QuickBooks deep invoice/payment sync on top of existing OAuth. Wire NotificationEngine (229 lines, already exists) to email, SMS, and in-app notification channels with user preferences. Add NotificationBell component to Layout.tsx.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ43",
+          "title": "Wire E2 Shop System Connector",
+          "phase": "BIZ-MS5-P3",
+          "sequence": 8,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/IntegrationAdapterEngine.ts in full to understand the integration_export_qb, integration_export_csv, integration_reconcile_bank method signatures, the IntegrationConfig interface, and PersistenceBridge usage pattern"
+            },
+            {
+              "number": 2,
+              "instruction": "Read web/src/pages/IntegrationsPage.tsx to understand what integration status panels already exist and how to add E2 without breaking existing QB/CSV panels"
+            },
+            {
+              "number": 3,
+              "instruction": "Add E2 integration methods to IntegrationAdapterEngine.ts: (a) e2Connect(config: { base_url: string; api_key: string; shop_id: string }): Promise<{ connected: boolean; version: string; shop_name: string }> — validates connectivity by calling GET {base_url}/api/v1/ping with Authorization: Bearer {api_key} header. Returns { connected: true, version, shop_name } on 200, throws with error message on failure. Stores config in a private e2Config Map, calls persist(). (b) e2SyncStatus(): { last_sync: string | undefined; jobs_synced: number; employees_synced: number; invoices_synced: number; errors: string[] } — returns current sync state from a private e2SyncState Map"
+            },
+            {
+              "number": 4,
+              "instruction": "Implement e2SyncNow(): Promise<E2SyncResult> — define E2SyncResult interface { synced_at: string; jobs_pulled: number; employees_pulled: number; time_entries_pushed: number; invoices_pushed: number; conflicts: E2Conflict[]; errors: string[] }, E2Conflict { entity_type: string; entity_id: string; prism_value: unknown; e2_value: unknown; resolution: 'e2_wins' | 'prism_wins' }. Sync logic: (1) GET {base_url}/api/v1/jobs — pull jobs from E2, upsert into PRISM JobLifecycleEngine (E2 is source of truth for job/customer data). (2) GET {base_url}/api/v1/employees — pull employees, upsert into PRISM EmployeeEngine. (3) GET PRISM time entries since last_sync, POST to {base_url}/api/v1/time-entries (PRISM is source of truth for time). (4) GET PRISM completed jobs not yet invoiced, POST to {base_url}/api/v1/invoices. Apply conflict resolution rules: E2 wins on customer/job data fields, PRISM wins on hours/cost fields. Store result in e2SyncState, call persist(). Handle all HTTP errors with try/catch and record in errors array"
+            },
+            {
+              "number": 5,
+              "instruction": "Add ENTITY_CONFIGS in BusinessStore.ts for e2_config (knownColumns: id, base_url, shop_id, connected, last_sync) and e2_sync_state (knownColumns: id, synced_at, jobs_pulled, employees_pulled, time_entries_pushed, invoices_pushed; jsonColumns: conflicts, errors)"
+            },
+            {
+              "number": 6,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'e2_connect', 'e2_sync_status', 'e2_sync_now'. Case handlers: e2_connect -> integrationAdapterEngine.e2Connect(args), e2_sync_status -> integrationAdapterEngine.e2SyncStatus(), e2_sync_now -> integrationAdapterEngine.e2SyncNow()"
+            },
+            {
+              "number": 7,
+              "instruction": "Add schemas: e2_connect (base_url string required URL, api_key string required, shop_id string required), e2_sync_status (no required fields), e2_sync_now (no required fields). No .passthrough()"
+            },
+            {
+              "number": 8,
+              "instruction": "Add client functions to web/src/api/client.ts: e2Connect(config), e2SyncStatus(), e2SyncNow()"
+            },
+            {
+              "number": 9,
+              "instruction": "Enhance web/src/pages/IntegrationsPage.tsx: add an 'E2 Shop System' panel card following the same layout as existing integration panels. Show: connection status badge (Connected/Disconnected), last sync timestamp, sync stats (jobs/employees/time entries/invoices), a 'Sync Now' button (calls e2SyncNow(), shows spinner during call, then refreshes status), a 'Configure' button that opens a modal with base_url, api_key, shop_id inputs. Conflicts list (collapsible) showing E2 vs PRISM value and resolution"
+            },
+            {
+              "number": 10,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/IntegrationAdapterEngine.ts",
+              "type": "source",
+              "description": "e2Connect, e2SyncStatus, e2SyncNow methods added with full bidirectional sync logic and conflict resolution"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS for e2_config and e2_sync_state"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "e2_connect, e2_sync_status, e2_sync_now actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for all 3 E2 actions"
+            },
+            {
+              "path": "web/src/pages/IntegrationsPage.tsx",
+              "type": "source",
+              "description": "E2 Shop System panel added alongside existing integration panels"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "e2Connect, e2SyncStatus, e2SyncNow client functions"
+            }
+          ],
+          "exit_conditions": [
+            "e2Connect() stores config and verifies connectivity with a real HTTP call to the configured base_url/api/v1/ping",
+            "e2SyncNow() implements all 4 sync directions with correct source-of-truth rules (E2 wins on customer/job, PRISM wins on time/cost)",
+            "Conflicts are recorded in E2SyncResult with prism_value, e2_value, and resolution fields",
+            "All HTTP errors in e2SyncNow() are caught and added to errors array — sync never throws uncaught exceptions",
+            "e2_config and e2_sync_state registered with PersistenceBridge",
+            "E2 panel on IntegrationsPage shows connected status, last sync, stats, and Sync Now button",
+            "All 3 dispatcher actions have z.enum entries + case handlers + schemas",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/IntegrationAdapterEngine.ts (existing — read fully first)",
+            "web/src/pages/IntegrationsPage.tsx (existing — read to match panel layout)",
+            "src/db/PersistenceBridge.ts",
+            "src/db/BusinessStore.ts",
+            "src/tools/dispatchers/businessDispatcher.ts"
+          ],
+          "abort_criteria": [
+            "E2 API URL format or auth scheme differs from documented in the task — implement with configurable base_url and api_key as specified, do not hardcode"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/IntegrationAdapterEngine.ts",
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/pages/IntegrationsPage.tsx",
+              "web/src/api/client.ts"
+            ],
+            "procedure": "git checkout -- src/engines/IntegrationAdapterEngine.ts src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/pages/IntegrationsPage.tsx web/src/api/client.ts"
+          }
+        },
+        {
+          "id": "U-BIZ44",
+          "title": "Wire QuickBooks Deep Sync",
+          "phase": "BIZ-MS5-P3",
+          "sequence": 9,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 60,
+          "dependencies": ["U-BIZ43"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/IntegrationAdapterEngine.ts to find the existing integration_export_qb method and any OAuth token storage already implemented. Identify what QBO data fields are already mapped vs what needs to be added"
+            },
+            {
+              "number": 2,
+              "instruction": "Read web/src/pages/IntegrationsPage.tsx to find the existing QBO panel and understand current OAuth flow UI"
+            },
+            {
+              "number": 3,
+              "instruction": "Add qboSyncInvoices(): Promise<QBOInvoiceSyncResult> to IntegrationAdapterEngine.ts — define QBOInvoiceSyncResult { synced_at: string; invoices_created: number; invoices_updated: number; errors: string[] }. Logic: (1) Get all PRISM invoices with status = 'approved' and qbo_invoice_id = undefined. (2) For each, POST to QBO API endpoint /v3/company/{realmId}/invoice with QBO invoice payload mapping (customer_ref from job customer_name, line items from invoice lines, due date, total amount). (3) On 200, store returned QBO invoice ID back on the PRISM invoice record (add qbo_invoice_id field to invoice interface if not present). Handle 401 by triggering OAuth refresh. All errors caught and added to errors array. Calls persist() after updates"
+            },
+            {
+              "number": 4,
+              "instruction": "Add qboSyncPayments(): Promise<QBOPaymentSyncResult> — define QBOPaymentSyncResult { synced_at: string; payments_synced: number; invoices_marked_paid: number; errors: string[] }. Logic: (1) GET QBO /v3/company/{realmId}/query?query=SELECT * FROM Payment WHERE TxnDate >= :last_sync. (2) For each payment, match PRISM invoice by qbo_invoice_id. (3) Mark matched PRISM invoices as 'paid' with payment_date and payment_amount. Calls persist()"
+            },
+            {
+              "number": 5,
+              "instruction": "Add qboReconcile(): Promise<QBOReconcileResult> — define QBOReconcileResult { period: string; prism_gl_total: number; qbo_gl_total: number; discrepancies: QBODiscrepancy[]; matched: number }. Logic: GET QBO Trial Balance report for current month. Compare total revenue/COGS/liability totals against PRISM GL totals from ActualCostEngine. Build discrepancies list for any line items differing by more than $0.01. Return the reconcile result (do not auto-correct — report only)"
+            },
+            {
+              "number": 6,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'qbo_sync_invoices', 'qbo_sync_payments', 'qbo_reconcile'. Case handlers call the three new methods. Add schemas: all three actions require no mandatory parameters. No .passthrough()"
+            },
+            {
+              "number": 7,
+              "instruction": "Add client functions: qboSyncInvoices(), qboSyncPayments(), qboReconcile() in web/src/api/client.ts"
+            },
+            {
+              "number": 8,
+              "instruction": "Enhance the QBO panel in web/src/pages/IntegrationsPage.tsx: add three new action buttons beneath the existing OAuth connect button — 'Sync Invoices' (calls qboSyncInvoices, shows result toast with count), 'Sync Payments' (calls qboSyncPayments), 'Reconcile GL' (calls qboReconcile, opens results modal showing PRISM total vs QBO total and discrepancy table). Show last sync timestamps for each operation"
+            },
+            {
+              "number": 9,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/IntegrationAdapterEngine.ts",
+              "type": "source",
+              "description": "qboSyncInvoices, qboSyncPayments, qboReconcile methods added"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "qbo_sync_invoices, qbo_sync_payments, qbo_reconcile actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for 3 QBO actions"
+            },
+            {
+              "path": "web/src/pages/IntegrationsPage.tsx",
+              "type": "source",
+              "description": "Sync Invoices, Sync Payments, Reconcile GL buttons with result display added to QBO panel"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "qboSyncInvoices, qboSyncPayments, qboReconcile client functions"
+            }
+          ],
+          "exit_conditions": [
+            "qboSyncInvoices() maps PRISM invoices to QBO invoice payload and stores returned qbo_invoice_id on PRISM invoices",
+            "qboSyncPayments() marks PRISM invoices 'paid' when matching QBO payment found by qbo_invoice_id",
+            "qboReconcile() reports GL discrepancies > $0.01 without auto-correcting",
+            "OAuth 401 errors trigger token refresh attempt before failing",
+            "All 3 dispatcher actions have z.enum entries + case handlers + schemas",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/IntegrationAdapterEngine.ts (after U-BIZ43 — read for QBO OAuth pattern)",
+            "web/src/pages/IntegrationsPage.tsx (after U-BIZ43)",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "QBO OAuth token not yet stored from previous session (Session 6-5) — check IntegrationAdapterEngine for qbo_token Map before implementing sync; if absent, add token storage first"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/IntegrationAdapterEngine.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/pages/IntegrationsPage.tsx",
+              "web/src/api/client.ts"
+            ],
+            "procedure": "git checkout -- src/engines/IntegrationAdapterEngine.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/pages/IntegrationsPage.tsx web/src/api/client.ts"
+          }
+        },
+        {
+          "id": "U-BIZ45",
+          "title": "Wire Email/Notification System",
+          "phase": "BIZ-MS5-P3",
+          "sequence": 10,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["BIZ-MS0"],
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Read src/engines/NotificationEngine.ts in full (229 lines) to catalogue all existing methods, notification types, channel types, and Maps. List everything before writing any code"
+            },
+            {
+              "number": 2,
+              "instruction": "Check businessDispatcher.ts for existing notification_* or notify_* actions. Identify gaps vs the required actions: notify_send, notify_preferences_get, notify_preferences_set"
+            },
+            {
+              "number": 3,
+              "instruction": "Enhance NotificationEngine.ts: add or verify NotificationPreferences interface { employee_id: string; email_enabled: boolean; sms_enabled: boolean; in_app_enabled: boolean; opted_out_types: NotificationType[] } where NotificationType covers all business event types below. Add private Map notificationPreferences: Map<string, NotificationPreferences>. Register with PersistenceBridge. Add ENTITY_CONFIGS for notification_preferences (knownColumns: employee_id, email_enabled, sms_enabled, in_app_enabled; jsonColumns: opted_out_types)"
+            },
+            {
+              "number": 4,
+              "instruction": "Add or verify in NotificationEngine.ts: sendNotification(params: { recipient_employee_id: string; type: NotificationType; subject: string; body: string; channels?: ('email' | 'sms' | 'in_app')[] }): Promise<NotificationResult> — checks recipient preferences first (opt-out honored), sends via each requested channel. For email channel: calls a configurable SMTP send function (accept nodemailer-compatible config from env vars SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS — wrap send in try/catch, log errors, do not throw). For SMS channel: calls a configurable webhook URL from env var SMS_WEBHOOK_URL with POST { to: employee_phone, message: body } — wrap in try/catch. For in_app channel: stores notification in a private inAppNotifications: Map<string, InAppNotification[]> keyed by employee_id. Define InAppNotification { id, type, subject, body, created_at, read_at: string | undefined }"
+            },
+            {
+              "number": 5,
+              "instruction": "Define the full NotificationType enum in NotificationEngine.ts: 'quote_sent' | 'order_confirmed' | 'invoice_due' | 'invoice_overdue' | 'po_received' | 'machine_alarm' | 'pm_overdue' | 'credit_hold' | 'ncr_created' | 'ncr_assigned' | 'cal_overdue' | 'cal_lockout' | 'work_order_assigned' | 'work_order_overdue' | 'audit_finding_due' | 'payroll_approved' | 'general'"
+            },
+            {
+              "number": 6,
+              "instruction": "Add getInAppNotifications(employeeId: string): InAppNotification[] — returns all unread in_app notifications for employee, sorted newest first"
+            },
+            {
+              "number": 7,
+              "instruction": "Add markNotificationRead(employeeId: string, notificationId: string): void — sets read_at = ISO timestamp, calls persist()"
+            },
+            {
+              "number": 8,
+              "instruction": "Add getUnreadCount(employeeId: string): number — returns count of InAppNotifications with read_at = undefined for the employee"
+            },
+            {
+              "number": 9,
+              "instruction": "Wire transactional events from existing engines: (a) In OrderManagerEngine.ts createOrder() — after persist(), call notificationEngine.sendNotification({ type: 'order_confirmed', ... }) (import notificationEngine). (b) In PreventiveMaintenanceEngine.ts getOverdueAlerts() — after computing overdue list, fire notify for each overdue schedule with type 'pm_overdue' to the assigned tech if one exists. (c) In CalibrationEngine.ts — on lockout, fire notify with type 'cal_lockout'. Wrap all notification calls in try/catch so they never break the primary engine operation"
+            },
+            {
+              "number": 10,
+              "instruction": "Add to businessDispatcher.ts z.enum: 'notify_send', 'notify_preferences_get', 'notify_preferences_set'. Case handlers: notify_send -> notificationEngine.sendNotification(args), notify_preferences_get -> notificationEngine.getPreferences(args.employee_id), notify_preferences_set -> notificationEngine.setPreferences(args.employee_id, args). Add schemas: notify_send (recipient_employee_id required, type z.enum NotificationType required, subject required, body required, channels array optional), notify_preferences_get (employee_id required), notify_preferences_set (employee_id required, email_enabled boolean optional, sms_enabled boolean optional, in_app_enabled boolean optional, opted_out_types array optional). No .passthrough()"
+            },
+            {
+              "number": 11,
+              "instruction": "Create web/src/components/NotificationBell.tsx — a React component that: on mount calls getInAppNotifications() and getUnreadCount() for the current logged-in employee. Renders a bell icon button with a red badge showing unread count (hidden if 0). On click, opens a dropdown panel (max-height 400px, scrollable) listing the most recent 20 notifications. Each notification shows type icon, subject, time-ago string, read/unread background. Clicking a notification calls markNotificationRead() and navigates to the relevant page (e.g., 'pm_overdue' -> /app/maintenance, 'cal_lockout' -> /app/calibration). 'Mark All Read' button at top of panel. Poll for new notifications every 30 seconds using setInterval, clear on unmount"
+            },
+            {
+              "number": 12,
+              "instruction": "Add NotificationBell to web/src/components/Layout.tsx header — import and render <NotificationBell /> in the header bar, to the left of the user avatar/menu if one exists, or at the far right of the navigation bar"
+            },
+            {
+              "number": 13,
+              "instruction": "Add client functions to web/src/api/client.ts: notifySend(params), notifyPreferencesGet(employeeId), notifyPreferencesSet(employeeId, prefs), notifyGetInApp(employeeId), notifyMarkRead(employeeId, notificationId), notifyUnreadCount(employeeId)"
+            },
+            {
+              "number": 14,
+              "instruction": "Run npm run build:fast and fix all TypeScript errors"
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/NotificationEngine.ts",
+              "type": "source",
+              "description": "NotificationType enum with 17 types, NotificationPreferences with per-type opt-out, in-app notification store, sendNotification with email/SMS/in_app channels, getInAppNotifications, markNotificationRead, getUnreadCount"
+            },
+            {
+              "path": "src/db/BusinessStore.ts",
+              "type": "source",
+              "description": "ENTITY_CONFIGS for notification_preferences and in_app_notifications"
+            },
+            {
+              "path": "src/tools/dispatchers/businessDispatcher.ts",
+              "type": "source",
+              "description": "notify_send, notify_preferences_get, notify_preferences_set actions"
+            },
+            {
+              "path": "src/schemas/businessActionSchemas.ts",
+              "type": "source",
+              "description": "Schemas for 3 notify actions"
+            },
+            {
+              "path": "web/src/components/NotificationBell.tsx",
+              "type": "source",
+              "description": "Bell icon with unread count badge, dropdown with 20 most recent notifications, mark read, 30s polling"
+            },
+            {
+              "path": "web/src/components/Layout.tsx",
+              "type": "source",
+              "description": "NotificationBell added to header"
+            },
+            {
+              "path": "web/src/api/client.ts",
+              "type": "source",
+              "description": "6 new notification client functions"
+            }
+          ],
+          "exit_conditions": [
+            "NotificationType covers all 17 event types listed in step 5",
+            "sendNotification() checks preferences and skips opted-out channels silently",
+            "Email send uses SMTP_HOST/PORT/USER/PASS env vars and never throws on failure",
+            "SMS send uses SMS_WEBHOOK_URL env var and never throws on failure",
+            "getUnreadCount() returns integer count of notifications with read_at = undefined",
+            "NotificationBell polls every 30s and clears interval on component unmount",
+            "Notification click navigates to correct page per type",
+            "Transactional hooks in OrderManagerEngine, PreventiveMaintenanceEngine, CalibrationEngine are wrapped in try/catch",
+            "notification_preferences and in_app_notifications registered with PersistenceBridge",
+            "All 3 dispatcher actions have z.enum entries + case handlers + schemas",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/NotificationEngine.ts (existing — read fully first)",
+            "web/src/components/Layout.tsx (existing — read to find header element before inserting bell)",
+            "src/engines/OrderManagerEngine.ts",
+            "src/engines/PreventiveMaintenanceEngine.ts (U-BIZ36 result)",
+            "src/engines/CalibrationEngine.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/schemas/businessActionSchemas.ts",
+            "web/src/api/client.ts"
+          ],
+          "abort_criteria": [
+            "NotificationEngine already has in_app notifications implemented — read fully, extend rather than duplicate the Map or polling logic"
+          ],
+          "rollback": {
+            "files_created": ["web/src/components/NotificationBell.tsx"],
+            "files_modified": [
+              "src/engines/NotificationEngine.ts",
+              "src/engines/OrderManagerEngine.ts",
+              "src/engines/PreventiveMaintenanceEngine.ts",
+              "src/engines/CalibrationEngine.ts",
+              "src/db/BusinessStore.ts",
+              "src/tools/dispatchers/businessDispatcher.ts",
+              "src/schemas/businessActionSchemas.ts",
+              "web/src/components/Layout.tsx",
+              "web/src/api/client.ts"
+            ],
+            "procedure": "git checkout -- src/engines/NotificationEngine.ts src/engines/OrderManagerEngine.ts src/engines/PreventiveMaintenanceEngine.ts src/engines/CalibrationEngine.ts src/db/BusinessStore.ts src/tools/dispatchers/businessDispatcher.ts src/schemas/businessActionSchemas.ts web/src/components/Layout.tsx web/src/api/client.ts && git rm web/src/components/NotificationBell.tsx"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "E2 sync: conflict resolution must be deterministic — E2 wins on customer/job fields, PRISM wins on time/cost fields, no ambiguous merge",
+        "QBO sync: qbo_invoice_id must be stored back on PRISM invoice record after successful QBO creation — without this, re-runs will duplicate invoices",
+        "Notification send: email and SMS channels must be wrapped in independent try/catch blocks so one channel failure does not block in-app delivery",
+        "Transactional hooks: notification calls in OrderManager/PMEngine/CalibrationEngine must never throw — always try/catch",
+        "Notification bell polling: setInterval must be cleared in useEffect cleanup to prevent memory leaks",
+        "User preferences: opted_out_types check must occur before any channel delivery attempt"
+      ]
+    }
+  ],
+  "dependencies": ["BIZ-MS0"],
+  "exit_conditions": [
+    "PreventiveMaintenanceEngine creates PM schedules (calendar and hours-based), generates work orders, tracks downtime",
+    "isScheduleDue() correctly evaluates both trigger types",
+    "EquipmentAssetEngine computes straight-line and MACRS (5yr and 7yr) depreciation correctly",
+    "computeDepreciation() never exceeds purchaseCost - salvageValue",
+    "MaintenanceWorkOrderPage accessible to shop_floor clearance, priority badges computed from scheduled_date",
+    "CalibrationPage wired to existing CalibrationEngine — no new engine created for calibration",
+    "Cal lockout/unlock round-trips correctly through CalibrationEngine",
+    "OSHAComplianceEngine auto-sets recordable flag based on medical treatment and lost days",
+    "Anonymous incidents store 'ANONYMOUS' as employee_id with no name",
+    "OSHA 300 log generation returns only recordable incidents for the specified year",
+    "QualityManagementEngine 8D workflow: advanceEightD() validates required fields per discipline",
+    "8D report closes (status = 'closed', closed_at set) only when D8 is completed with non-empty d8_congratulate",
+    "AuditManagerEngine.createCAPA() stores capa_id from QualityManagementEngine on the finding record",
+    "AuditManagerEngine.generateManagementReview() populates all 6 sections with live data",
+    "E2 bidirectional sync: E2 wins on customer/job, PRISM wins on time/cost — conflicts recorded not auto-corrected",
+    "QBO qboSyncInvoices() stores qbo_invoice_id back on PRISM invoice — prevents duplicate creation on re-run",
+    "QBO qboReconcile() reports GL discrepancies > $0.01 without auto-correcting",
+    "NotificationEngine has 17 NotificationType values",
+    "NotificationBell polls every 30s and clears interval on unmount",
+    "Transactional notification calls in OrderManagerEngine, PreventiveMaintenanceEngine, CalibrationEngine are try/catch wrapped",
+    "All new engines registered with PersistenceBridge and have ENTITY_CONFIGS in BusinessStore.ts",
+    "All new dispatcher actions have z.enum entries, case handlers, and schemas with no .passthrough()",
+    "All 10 routes added to App.tsx with correct clearance level guards",
+    "npm run build:fast produces 0 errors",
+    "npx vitest run shows no regressions vs BIZ-MS0 baseline"
+  ],
+  "forge_triple": {
+    "hook": "biz-ms5-completeness-guard — on any businessDispatcher.ts edit, verifies that every new BIZ-MS5 action has both a case handler and a corresponding schema in businessActionSchemas.ts. Blocks commit if any action is in z.enum without a matching schema",
+    "action": "prism_business:biz_ms5_status — enumerates all BIZ-MS5 engines (PreventiveMaintenanceEngine, EquipmentAssetEngine, OSHAComplianceEngine, AuditManagerEngine), checks PersistenceBridge registration, ENTITY_CONFIGS coverage, and dispatcher action presence. Returns a completeness report per engine",
+    "skill": "/biz-maintenance — shows PM schedule overdue count, work orders by status, asset calibration due list, and notification unread count in a single dashboard summary"
+  },
+  "enforcement": {
+    "pre_hooks": ["search-router-hook.mjs", "navigate-first-hook.mjs", "copilot-dedup-hook.mjs"],
+    "post_hooks": ["build-guard-hook.mjs", "token-economy-hook.mjs"],
+    "review_required": true
+  }
+}

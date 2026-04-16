@@ -1,0 +1,336 @@
+{
+  "id": "HM-REV-MS7",
+  "version": "8.3.0",
+  "title": "Turning/Mill-Turn + Medical Domain",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Add mill-turn GeometryTypes to HyperMillStrategyEngine (currently ZERO mill-turn geometry types), wire turning cycles through physics pipeline, and build medical domain support (CoCr/PEEK cutting parameters, dental blank router, biomedical validation). Addresses Agent 12 finding (68/100 turning, zero mill-turn geometry types) and Agent 13 finding (46/100 medical, CoCr present but no cutting params, PEEK present but no params).",
+  "dependencies": [
+    "HM-REV-MS2",
+    "HM-REV-MS3"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillStrategyEngine.ts (492 LOC — 20+ strategies, ZERO mill-turn types)",
+      "HyperMillCycleCatalogEngine.ts (232 LOC — turning cycles: OD/ID rough/finish, groove, thread, parting)",
+      "TurningPrintToProgramEngine (G96/G97, TNRC — turning physics)",
+      "MillTurnSwissPipelineEngine (multi-channel mill-turn)"
+    ],
+    "registries": [
+      "MaterialRegistry (CoCr under 'Medicinal Technology', PEEK present)",
+      "ToolRegistry (turning inserts, dental cutters)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (CSS limits, turning force constants, PEEK thermal ceiling)",
+      "KienzleForceModelEngine (turning force model)"
+    ],
+    "reference": [
+      "Agent 12 report (turning/mill-turn gaps)",
+      "Agent 13 report (medical/dental domain gaps)",
+      "hypermill-materials.json (CoCr and PEEK entries)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-css-limit — DECLARED+BUILT here (blocks if constant surface speed exceeds machine max RPM at min diameter)",
+    "action": "cam:hypermill_millturn_strategy — DECLARED+BUILT here",
+    "skill": "/hypermill-turning-strategy — DECLARED here, BUILT in HM-REV-MS12 (Skills Phase 2)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read StrategyEngine + TurningPrintToProgram + Agent 12/13 reports)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS7-S1",
+      "title": "Mill-Turn Geometry Types + Turning Physics Pipeline",
+      "smart_config": {
+        "role": "Turning/Mill-Turn Manufacturing Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillStrategyEngine.ts (492 LOC)",
+        "TurningPrintToProgramEngine",
+        "MillTurnSwissPipelineEngine",
+        "HyperMillCycleCatalogEngine.ts (turning cycles)"
+      ],
+      "intent": "Add mill-turn geometry types to HyperMillStrategyEngine and wire turning cycles through PRISM's turning physics pipeline. After this session, hyperMILL turning and mill-turn operations get physics-backed parameters (CSS, TNRC, cutting forces).",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR38",
+          "title": "Add mill-turn GeometryTypes to HyperMillStrategyEngine + wire turning cycles",
+          "description": "Add mill-turn geometry types to HyperMillStrategyEngine: OD_PROFILE, ID_PROFILE, FACE, GROOVE_OD, GROOVE_ID, GROOVE_FACE, THREAD_OD, THREAD_ID, PARTING, BORE, RECESS, CROSS_HOLE, CROSS_SLOT, OFF_CENTER_FEATURE. Wire 18+ turning cycles from HyperMillCycleCatalogEngine to these geometry types. Connect to TurningPrintToProgramEngine for G96/G97 CSS, TNRC tool nose radius comp, and turning force model.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "14+ mill-turn geometry types added to HyperMillStrategyEngine",
+            "18+ turning cycles mapped to geometry types",
+            "G96/G97 CSS mode selection from TurningPrintToProgramEngine",
+            "TNRC (tool nose radius compensation) wired",
+            "16 existing Strategy tests still pass",
+            "4 new tests: OD profile, ID bore, groove, thread"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/engines/hypermill/HyperMillStrategyEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "16 existing tests regress"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillStrategyEngine.ts"
+          }
+        },
+        {
+          "id": "U-HMR39",
+          "title": "Build hypermill-css-limit hook + mill-turn synchronization logic",
+          "description": "Build hypermill-css-limit hook that validates constant surface speed (G96) against machine RPM limits: at small diameters, CSS requires very high RPM that may exceed machine max. Hook computes required RPM at minimum machining diameter and blocks if > machine max RPM (from MachineRegistry). Add mill-turn synchronization logic for C-axis milling operations during turning (cross-hole, cross-slot, off-center features).",
+          "depends_on": [
+            "U-HMR38"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-css-limit hook blocks when RPM at min diameter > machine max",
+            "RPM calculation: RPM = (1000 * Vc) / (pi * D_min)",
+            "Machine max RPM from MachineRegistry (not hardcoded)",
+            "Mill-turn C-axis sync logic handles cross-hole and cross-slot",
+            "cam:hypermill_millturn_strategy action registered",
+            "4 unit tests: CSS safe, CSS block at small D, C-axis cross-hole, cross-slot"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/schemas/hypermillMillTurnSchema.ts"
+            ],
+            "files_modified": [
+              "src/hooks/registry.ts",
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/schemas/hypermillMillTurnSchema.ts src/hooks/registry.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR40",
+          "title": "Wire MillTurnSwissPipelineEngine for multi-channel hyperMILL mill-turn",
+          "description": "Connect hyperMILL mill-turn operations to PRISM's MillTurnSwissPipelineEngine for multi-channel synchronization. Handle: main spindle + sub-spindle handoff, simultaneous OD turning + cross-milling, bar feed sequencing, part-off + catch. Create multi-channel operation sequencer that respects physical constraints (spindle direction, turret position, coolant routing).",
+          "depends_on": [
+            "U-HMR38",
+            "U-HMR39"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Multi-channel sync wired to MillTurnSwissPipelineEngine",
+            "Main/sub spindle handoff logic implemented",
+            "Simultaneous operations respect physical constraints",
+            "3 unit tests: spindle handoff, simultaneous ops, bar feed sequence"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- affected files"
+          }
+        }
+      ],
+      "exit_gate": "✓ 14+ mill-turn geometry types added | ✓ 18+ turning cycles mapped | ✓ CSS limit hook active | ✓ Multi-channel mill-turn wired | ✓ tsc 0 errors | ✓ 11+ new tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-css-limit"
+        ],
+        "new_actions": [
+          "cam:hypermill_millturn_strategy"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS9",
+          "HM-REV-MS11",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS7-S2",
+      "title": "Medical Domain — CoCr/PEEK Parameters + Dental Blank Router",
+      "smart_config": {
+        "role": "Medical Device Manufacturing Engineer + Biocompatible Materials Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "Agent 13 report (medical/dental gaps)",
+        "hypermill-materials.json (CoCr under 'Medicinal Technology', PEEK entries)",
+        "HyperMillMaterialBridgeEngine.ts (521 LOC)",
+        "HyperMillMultiAxisEngine.ts (dental strategies)"
+      ],
+      "intent": "Build medical domain support: CoCr-specific cutting parameters (ISO S group, high work hardening), PEEK-specific parameters (thermal ceiling, chip evacuation), dental blank router (disc vs block blank type → appropriate strategy), and biomedical cutting parameter validation.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/physics-verify",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR41",
+          "title": "Build CoCr + PEEK cutting parameter profiles with biomedical validation",
+          "description": "Create HyperMillMedicalMaterialProfiles with: CoCr-specific parameters (ISO S group, kc1.1=2800, high work hardening correction factor, recommended speed 20-40 m/min, climb milling mandatory), PEEK-specific parameters (thermal ceiling 250C to avoid crystallinity change, low cutting force but stringy chips, sharp tools mandatory). Wire to MaterialBridge so that CoCr/PEEK material selections automatically get biomedical-validated cutting parameters.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "CoCr cutting params use kc1.1=2800 from constants.ts",
+            "PEEK thermal ceiling at 250C enforced",
+            "Work hardening correction factor applied for CoCr",
+            "Parameters validated against published biomedical machining data",
+            "A medical device machinist would accept these parameters",
+            "4 unit tests: CoCr roughing, CoCr finishing, PEEK drilling, PEEK milling"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillMedicalMaterialProfiles.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "CoCr speed outside 20-40 m/min range"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillMedicalMaterialProfiles.ts"
+          }
+        },
+        {
+          "id": "U-HMR42",
+          "title": "Build dental blank router (disc/block → strategy) + dental cycle wiring",
+          "description": "Create HyperMillDentalBlankRouter that routes dental blank type (disc for crowns/bridges/abutments, block for single units) to appropriate hyperMILL dental strategy. Disc blanks use rotary A-axis positioning + 3+2 milling, block blanks use 5-axis simultaneous. Wire to HyperMillMultiAxisEngine dental strategies. Include material routing: zirconia (green state vs sintered), PEEK, CoCr, titanium (grade 5 for implants).",
+          "depends_on": [
+            "U-HMR41"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Dental blank router selects disc vs block strategy",
+            "Disc blank uses 3+2 positioning, block uses 5-axis simultaneous",
+            "4 dental materials routed (zirconia, PEEK, CoCr, Ti grade 5)",
+            "Zirconia green state uses higher speeds/lower forces than sintered",
+            "cam:hypermill_dental_route action registered",
+            "3 unit tests: zirconia disc, CoCr block, PEEK disc"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillDentalBlankRouter.ts",
+              "src/schemas/hypermillDentalSchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillDentalBlankRouter.ts src/schemas/hypermillDentalSchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR43",
+          "title": "Build biomedical cutting parameter validation hook + FDA/MDR compliance notes",
+          "description": "Build hypermill-biomedical-validation hook that validates cutting parameters for medical device materials: no coolant contamination risk (through-spindle coolant only for implant-grade), surface finish requirements per FDA guidance (Ra < 0.8 for implant surfaces), burr-free edge requirement validation. Include compliance notes referencing FDA 21 CFR 820 and EU MDR Annex I essential requirements.",
+          "depends_on": [
+            "U-HMR41",
+            "U-HMR42"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "hypermill-biomedical-validation hook registered",
+            "Coolant contamination check for implant-grade materials",
+            "Surface finish validated against Ra < 0.8 for implant surfaces",
+            "Compliance notes reference FDA 21 CFR 820 and EU MDR",
+            "3 unit tests: implant surface check, coolant validation, burr-free edge"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/registry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ CoCr + PEEK cutting params validated | ✓ Dental blank router active | ✓ Biomedical validation hook firing | ✓ FDA/MDR compliance notes included | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-biomedical-validation"
+        ],
+        "new_actions": [
+          "cam:hypermill_dental_route"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS10",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

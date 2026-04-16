@@ -1,0 +1,106 @@
+{
+  "unit": "P0-U05",
+  "title": "Emergency Stop / Hard Block Paths End-to-End Trace",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:55:00Z",
+  "status": "PASS",
+
+  "hard_block_paths": [
+    {
+      "id": "HB-1",
+      "trigger": "SafetyBlockError thrown",
+      "source": "src/errors/PrismError.ts:52",
+      "mechanism": "Custom error class extending PrismError with code='safety', severity='block'",
+      "propagation": [
+        "Engine detects unsafe condition → throws SafetyBlockError",
+        "calcDispatcher catch block (line 1359): if (physicsErr?.name === 'SafetyBlockError') throw physicsErr — NOT caught, propagates up",
+        "MCP server returns error response to client — operation halted"
+      ],
+      "bypass_possible": false,
+      "verified": true
+    },
+    {
+      "id": "HB-2",
+      "trigger": "S(x) < 0.70 in computeSafetyScore",
+      "source": "src/utils/validators.ts:660-666",
+      "mechanism": "Returns status='BLOCKED' which callers check",
+      "propagation": [
+        "computeSafetyScore returns {status: 'BLOCKED', score: <0.70}",
+        "validateMaterial (line 920): if (safety.status === 'BLOCKED') → adds SAFETY_BLOCKED issue",
+        "Caller receives validation result with blocked status — up to caller to enforce",
+        "FormulaRegistry (line 883-884): if (inputs.S < 0.70) → adds 'HARD BLOCK: S(x) < 0.70'"
+      ],
+      "bypass_possible": false,
+      "notes": "S(x) block is a data-level block (returns BLOCKED status), not an exception. Callers must check."
+    },
+    {
+      "id": "HB-3",
+      "trigger": "criticalDataMissing (force_safety.score===0 OR tool_life.score===0)",
+      "source": "src/utils/validators.ts:649-655",
+      "mechanism": "Even if weighted total >= 0.70, missing force/toolLife data forces BLOCKED",
+      "propagation": "Same as HB-2 — returns BLOCKED status",
+      "bypass_possible": false,
+      "verified": true
+    },
+    {
+      "id": "HB-4",
+      "trigger": "Lambda score < 0.50 on calculation result",
+      "source": "src/tools/autoHookWrapper.ts:414",
+      "mechanism": "If proofResult.validity_score < 0.5, fires CALC-SAFETY-VIOLATION-001 hook",
+      "propagation": [
+        "CALC-SAFETY-VIOLATION-001 hook fires with score + threshold",
+        "_safety_warning injected into result object (line 422-428)",
+        "Result still returned to client — NOT blocked, just annotated"
+      ],
+      "bypass_possible": false,
+      "notes": "Lambda < 0.50 is a WARNING, not a hard block. Result is annotated but not prevented."
+    },
+    {
+      "id": "HB-5",
+      "trigger": "Negative force/power/speed in calculation result",
+      "source": "src/tools/autoHookWrapper.ts:235-262",
+      "mechanism": "validateSafetyProof deducts 0.3-0.5 from validity score per physics violation",
+      "propagation": "Feeds into Lambda scoring (HB-4)",
+      "bypass_possible": false
+    },
+    {
+      "id": "HB-6",
+      "trigger": "No API key for safety-critical operations",
+      "source": "Multiple files using hasValidApiKey()",
+      "mechanism": "14 features gated — all return error/skip, never crash",
+      "propagation": "Graceful degradation — returns error with instructions",
+      "bypass_possible": false
+    }
+  ],
+
+  "bypass_analysis": {
+    "SafetyBlockError_catch_audit": {
+      "calcDispatcher": "Re-throws SafetyBlockError (line 1359) — NOT swallowed ✓",
+      "safetyDispatcher": "FIXED (QA-MS1-U02): Was catching+swallowing SafetyBlockError in catch-all. Re-throw added. Now propagates correctly ✓",
+      "autoHookWrapper": "General catch does NOT catch SafetyBlockError before dispatch — it propagates ✓"
+    },
+    "S(x)_enforcement_audit": {
+      "pattern": "S(x) block relies on callers checking status='BLOCKED'",
+      "known_callers": [
+        "validateMaterial (validators.ts:920) — checks and adds SAFETY_BLOCKED ✓",
+        "FormulaRegistry (line 883-884) — checks inputs.S < 0.70 ✓"
+      ],
+      "note": "S(x) is a validator function — it doesn't throw. Enforcement is at the caller level."
+    }
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "SafetyBlockError propagates correctly — not caught/swallowed by dispatcher middleware" },
+    { "severity": "OK", "finding": "S(x) BLOCKED status has no WARNING bypass — eliminated in prior fix" },
+    { "severity": "OK", "finding": "criticalDataMissing overrides score threshold — can't bypass by gaming other components" },
+    { "severity": "OK", "finding": "No bypass paths found around any hard block mechanism" },
+    { "severity": "MEDIUM", "finding": "Lambda 0.50-0.89 gap (from U03) — invalid calcs pass without result annotation. Not a safety block bypass since Lambda is advisory, but could improve." },
+    { "severity": "INFO", "finding": "S(x) is enforced at caller level, not via exception. All known callers check correctly, but new callers must remember to check." }
+  ],
+
+  "exit_conditions_met": {
+    "all_triggers_documented": true,
+    "execution_paths_traced": true,
+    "no_bypass_paths_found": true
+  }
+}

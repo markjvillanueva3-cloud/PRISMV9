@@ -1,0 +1,99 @@
+{
+  "audit_id": "QA-MS1-P0-U04",
+  "title": "Safety Factor Application Order Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T22:50:00Z",
+  "status": "COMPLETE",
+  "verdict": "0 CRITICAL, 0 MEDIUM, 1 LOW. Safety factors are correctly applied as post-hoc ratios, not pre-calculation multipliers.",
+
+  "key_finding": "PRISM uses safety factors as OUTPUT RATIOS (available/required), not INPUT MULTIPLIERS. This architecture inherently avoids the ordering problem because uncertainty is computed on the raw physics result, and the safety factor is a separate metric derived from the same result.",
+
+  "safety_factor_patterns": [
+    {
+      "engine": "AdvancedCalculations.ts (deflection)",
+      "line": 300,
+      "formula": "safety_factor = max_stress_force / cutting_force",
+      "type": "POST-HOC RATIO",
+      "uncertainty_available": true,
+      "uncertainty_source": "Kienzle uncertainty propagates through force calculation (±15-25%)",
+      "order_correct": true,
+      "note": "Safety factor is computed from the physics result, not applied to inputs. Force is computed first with uncertainty, then SF = capacity/demand."
+    },
+    {
+      "engine": "ClampingSimEngine.ts",
+      "line": 124,
+      "formula": "requiredForce = resultant × MIN_SAFETY_FACTOR / (μ × n_surfaces)",
+      "type": "INPUT MULTIPLIER — but for DESIGN, not for validation",
+      "order_note": "MIN_SAFETY_FACTOR (2.5 per ISO 10218) is a design requirement floor, not a calculation modifier. The actual SF is then recalculated at line 126 as totalClampForce × μ × n / resultant. The two-step approach: (1) compute minimum design force, (2) compute actual safety factor from real forces, is correct engineering practice.",
+      "uncertainty_interaction": "Cutting forces come from upstream Kienzle with uncertainty bounds. The SF calculation uses the point estimate (resultant), not the worst-case. This is acceptable because MIN_SAFETY_FACTOR of 2.5 already accounts for typical uncertainty.",
+      "order_correct": true
+    },
+    {
+      "engine": "FixtureDesignEngine.ts",
+      "line": 156,
+      "formula": "F_clamp = F_cutting × safetyFactor / (μ × n_surfaces)",
+      "type": "INPUT MULTIPLIER — design sizing",
+      "order_note": "Same pattern as ClampingSimEngine — uses SF to size fixture for design, then computes actual SF as a ratio.",
+      "order_correct": true
+    },
+    {
+      "engine": "ChuckJawForceEngine.ts",
+      "line": 162,
+      "formula": "sf = grippingForce / requiredGrippingForce",
+      "type": "POST-HOC RATIO",
+      "order_correct": true
+    },
+    {
+      "engine": "MagneticChuckEngine.ts",
+      "line": 137,
+      "formula": "sf = holdingForce / cuttingForce",
+      "type": "POST-HOC RATIO",
+      "order_correct": true
+    },
+    {
+      "engine": "ThreadCalculationEngine.ts",
+      "line": 357,
+      "formula": "safetyFactor = min(internalStrip, externalStrip) / boltTensile",
+      "type": "POST-HOC RATIO",
+      "order_correct": true
+    },
+    {
+      "engine": "CollisionDetectionEngine.ts",
+      "line": 164,
+      "formula": "safety_margin_mm = effectiveMargin (clearance distance)",
+      "type": "DISTANCE MARGIN — not a multiplier",
+      "order_correct": true
+    }
+  ],
+
+  "uncertainty_propagation_model": {
+    "primary_source": "ManufacturingCalculations.ts (Kienzle force model)",
+    "mechanism": "Fc_range = [Fc × (1-uncertainty%), Fc × (1+uncertainty%)]",
+    "data_quality_tiers": {
+      "verified": "±15%, confidence 0.85",
+      "estimated": "±25%, confidence 0.70"
+    },
+    "propagation": "Uncertainty bounds are returned alongside point estimates. Downstream consumers can use Fc_range to compute worst-case safety factors.",
+    "gap_noted": "Downstream engines (ClampingSimEngine, FixtureDesignEngine, etc.) use point estimates, not worst-case bounds. The built-in safety factor floor (2.5) compensates but isn't formally linked to the uncertainty range."
+  },
+
+  "findings": [
+    {
+      "id": "F17",
+      "severity": "LOW",
+      "title": "Downstream safety factor calculations use point estimates, not uncertainty worst-case",
+      "issue": "ManufacturingCalculations returns uncertainty.Fc_range but downstream engines (ClampingSimEngine at line 119, FixtureDesignEngine at line 156) use the point estimate Fc, not the upper bound of the range. For design sizing, using Fc_upper (1.25 × Fc for estimated data) would be more conservative.",
+      "impact": "Low — the minimum safety factor of 2.5 already provides substantial margin (2.5 > 1.25 uncertainty factor). But for materials with higher uncertainty, the margin shrinks.",
+      "fix": "Consider using Fc_range[1] (upper bound) for safety-critical sizing calculations, or document that the SF of 2.5 covers the uncertainty envelope."
+    }
+  ],
+
+  "summary": {
+    "critical_findings": 0,
+    "medium_findings": 0,
+    "low_findings": 1,
+    "pattern": "PRISM correctly uses post-hoc ratio safety factors (capacity/demand), not pre-calculation input multipliers. The ordering problem (SF before uncertainty) does not exist in this architecture.",
+    "engines_audited": 7,
+    "all_correct": true
+  }
+}

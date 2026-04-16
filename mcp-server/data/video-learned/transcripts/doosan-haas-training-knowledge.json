@@ -1,0 +1,759 @@
+{
+  "metadata": {
+    "generated": "2026-03-28",
+    "source_videos": 7,
+    "transcripts_available": 6,
+    "total_runtime_minutes": 284,
+    "knowledge_domains": ["doosan_smx_9axis", "haas_ngc_control", "haas_lathe_setup", "haas_st20y_dual_spindle", "mastercam_mill_turn", "titanium_machining", "automation_robotics", "cmm_inspection"]
+  },
+  "videos": [
+    {
+      "id": "WZj5W0ek20A",
+      "title": "Doosan SMX 3100 9 AXIS TOOLING, SETUP & MACHINING DEMO",
+      "duration": "2:00:42",
+      "channel": "Titans of CNC",
+      "transcript_available": true,
+      "content_type": "live_machining_demo",
+      "description": "Multi-episode live event showing full machining of a Ti-6Al-4V titanium part on the SMX 3100 9-axis mill-turn. Covers tooling, programming with Mastercam mill-turn module, chuck transfer, coolant strategy, 5-axis milling operations, CMM inspection with Mitutoyo."
+    },
+    {
+      "id": "OJF82IdCVQ8",
+      "title": "Incredible 5 Axis Tool Paths on 9 Axis Doosan Mill/Turn Episode 2",
+      "duration": "58:46",
+      "channel": "Titans of CNC",
+      "transcript_available": true,
+      "content_type": "live_machining_demo",
+      "description": "Episode 2 continuation. Detailed walkthrough of 5-axis toolpath programming in Mastercam mill-turn module, blade expert paths, pinch turning, stock models, code expert syncing, machine simulation. Inspection segment with Mitutoyo Crysta Apex 5-axis CMM."
+    },
+    {
+      "id": "DcWP8gANypk",
+      "title": "Haas Control Training Video",
+      "duration": "29:41",
+      "channel": "Haas Automation (Moss Factory)",
+      "transcript_available": true,
+      "content_type": "control_training",
+      "description": "Complete NGC (Next Generation Control) training: startup procedure, hand jog, feed/speed overrides, program management, offset setup, VPS probing for work offsets, VPS G-code generation, settings, diagnostics, help system, tool management."
+    },
+    {
+      "id": "m0ukd8vT9bw",
+      "title": "Haas Make This Part On Day One",
+      "duration": "29:14",
+      "channel": "Haas Automation",
+      "transcript_available": true,
+      "content_type": "first_part_tutorial",
+      "description": "Complete first-part workflow on Haas TL (Tool Room Lathe). Tool offset setup (X diameter measure, Z face measure), VPS/Shape Creator programming, collision avoidance, single block proving, G54/G55 work offsets for multi-op parts."
+    },
+    {
+      "id": "eX3KzIyq7BQ",
+      "title": "Haas ST-20Y Setup Video",
+      "duration": "23:45",
+      "channel": "Haas Automation (Aaron Ruck)",
+      "transcript_available": true,
+      "content_type": "machine_setup",
+      "description": "Full dual-spindle setup on Haas ST-20Y with Y-axis. Tool eye probing system for automatic tool offset setting, G10 stored offsets for repeat jobs, sub-spindle tool setup, bolt-on tool center line, Z face measure on sub-spindle with finished part reference."
+    },
+    {
+      "id": "-nZR7THEwNY",
+      "title": "Secrets to Running a SMX3100 9 Axis Mill Turn",
+      "duration": "16:02",
+      "channel": "Titans of CNC (Tyson)",
+      "transcript_available": true,
+      "content_type": "programming_tips",
+      "description": "Mastercam programming techniques for the SMX 3100/2100. 3D OptiRough with spindle-coordinated motion, avoidance geometry, transform & rotate for multi-face operations, quick C-plane, morph toolpath for chamfers with 5-axis output, collision control with holder/shank checking."
+    },
+    {
+      "id": "H5bRy1smFOY",
+      "title": "Titanium Part on 9 AXIS MILL/TURN Speeds & Feeds PUMA SMX3100",
+      "duration": "6:45",
+      "channel": "Titans of CNC",
+      "transcript_available": false,
+      "content_type": "speeds_feeds",
+      "description": "Titanium speeds and feeds on the SMX3100. No auto-generated subtitles available for this video."
+    }
+  ],
+  "doosan_smx_9axis": {
+    "machine_model": "Doosan PUMA SMX 3100",
+    "also_referenced": ["Doosan PUMA SMX 2100"],
+    "axis_configuration": {
+      "total_axes": 9,
+      "upper_milling_head": {
+        "axes": ["X (up/down)", "Y (in/out across part)", "Z (along spindle axis)", "B (tilt/swivel)"],
+        "axis_count": 4,
+        "description": "Like a 3-axis mill with B-axis tilt. X up/down, Y in/out across the part, Z along the spindle axis, B-axis back and forth for angle cuts on either side."
+      },
+      "lower_turret": {
+        "axes": ["X (radial)", "Z (axial)"],
+        "axis_count": 2,
+        "description": "Like a standard 2-axis lathe with live tooling capability. Same as PUMA lathe configuration with bolt-on live tools and regular turning tools."
+      },
+      "sub_spindle": {
+        "axes": ["A (axial travel in/out)"],
+        "axis_count": 1,
+        "description": "A-axis moves sub-spindle in and out to grab longer/shorter parts, enables part transfer between spindles."
+      },
+      "c_axes": {
+        "c1": "Main spindle rotation (becomes 5th axis when combined with upper head B-axis)",
+        "c2": "Sub-spindle rotation (independent 5th axis for sub-spindle operations)",
+        "axis_count": 2
+      },
+      "effective_configurations": {
+        "main_spindle_5axis": "Upper head (X,Y,Z,B) + C1 = full 5-axis milling on main spindle",
+        "sub_spindle_5axis": "Upper head (X,Y,Z,B) + C2 = full 5-axis milling on sub-spindle",
+        "turning": "Lower turret (X,Z) for standard turning on either spindle",
+        "pinch_turning": "Lower turret + upper head turning simultaneously from both sides"
+      }
+    },
+    "milling_spindle": {
+      "horsepower": 35,
+      "max_rpm": 12000,
+      "description": "True milling spindle, not like live tooling (typically 5-7K RPM, 10HP). Can aggressively machine titanium, Monel, Inconel."
+    },
+    "tool_magazine": {
+      "total_tools": 80,
+      "configuration": "Two magazines of 40 tools each",
+      "advantage": "No need for expensive live tool holders. Any angle, any tool — just program and tool change."
+    },
+    "workholding": {
+      "main_spindle": {
+        "chuck_type": "Schunk THW Plus (quick jaw change chuck)",
+        "jaw_change_time": "Under 4 minutes vs 10-30 minutes conventional",
+        "mechanism": "Quarter-turn allen wrench release, safety mechanism prevents wrench removal without jaw",
+        "jaw_types_used": ["Impact series claw jaws (vampire jaws) for raw stock", "Soft bored jaws for finish operations"]
+      },
+      "sub_spindle": {
+        "chuck_type": "Schunk 6-jaw chuck",
+        "jaw_type": "Soft jaws",
+        "reason_6_jaw": "Thin-wall parts need contact around entire surface; 3 jaws leave unsupported areas that deflect"
+      }
+    },
+    "work_envelope": {
+      "max_diameter_approx": "2 feet (610mm)",
+      "max_length_approx": "5 feet (1524mm)",
+      "notes": "Steady rest available for long parts. Range from 8-inch chucks to 5-meter bed lengths across SMX family."
+    },
+    "controller": "Fanuc 31i-B5 (same as Mori Seiki NTX 2500)",
+    "programming": {
+      "cam_software": "Mastercam Mill-Turn module",
+      "dual_program_structure": "Two separate programs run simultaneously — one for upper head, one for lower turret",
+      "sync_mechanism": "Code Expert in Mastercam: link operations between upper/lower streams, define when each stream starts/waits",
+      "plane_management": "Mill-turn auto-creates work planes from selected geometry; no manual plane setup for most operations",
+      "stock_models": "Generate after each operation to see remaining material; use as input for subsequent toolpaths to avoid air cutting"
+    },
+    "process_planning": {
+      "sequence_pattern": "Alternate between lathe ops (lower turret) and mill ops (upper head)",
+      "typical_flow": [
+        "1. Face and rough turn OD (lower turret, CNMG insert)",
+        "2. Face mill / high-feed mill flats or hex (upper head, 2-inch face mill)",
+        "3. Finish turn (lower turret)",
+        "4. Rough mill features — slots, pockets (upper head, Harvey One TE end mill)",
+        "5. Finish mill — ball tracking (upper head, Harvey Three ball end mill)",
+        "6. Drill operations (upper head, Kennametal WiTech drill)",
+        "7. Chamfer (upper head)",
+        "8. Thread mill (upper head)",
+        "9. Chuck transfer to sub-spindle",
+        "10. Back-side operations: threads, ID bore"
+      ],
+      "g54_management": {
+        "note": "Separate G54 offsets for lower turret AND upper turret. When moving part (e.g., facing to adjust position), BOTH G54s must be updated by same amount.",
+        "chuck_transfer": "Additional G54 set to front of sub-spindle jaws; must also be updated if main-spindle part position changes."
+      }
+    },
+    "pinch_turning": {
+      "description": "Simultaneous turning from both lower turret and upper head, pinching the part from both sides",
+      "use_case_1": "Long skinny parts: equalizes cutting forces from both sides, prevents deflection, allows heavier cuts",
+      "use_case_2": "Cycle time reduction: removes material at twice the rate since both tools are cutting simultaneously",
+      "programming": "Mastercam mill-turn: 'Pinch Turn Main' + 'Pinch Turn Associated' toolpaths linked together"
+    },
+    "5axis_toolpath_strategies": {
+      "blade_expert": {
+        "description": "Specialized Mastercam path for airfoil/impeller shapes with repeating blades around a hub",
+        "setup_time": "2-3 minutes",
+        "inputs": "Hub floor surface, blade splitter surfaces, fillets, number of segments",
+        "cutting_style": "Full slotting, aggressive roughing in 2 depth cuts",
+        "automation": "Automatically patterns around part based on segment count"
+      },
+      "multi_axis_pocketing": {
+        "description": "Dynamic style motion with constant cutter engagement for rest roughing",
+        "advantage": "More efficient tool engagement vs blade expert",
+        "trade_off": "More programming time but better tool motion and tool life"
+      },
+      "3d_optirough_with_spindle": {
+        "description": "3D OptiRough where spindle (C-axis) rotates coordinated with tool motion",
+        "setup": "Select C-axis face + upper left spindle in setup tab",
+        "example": "Tool cuts on OD while spindle rotates — effectively uses all 9 axes for roughing"
+      },
+      "morph_toolpath": {
+        "description": "Multi-axis morph between two curves for chamfer or radius finishing",
+        "setup_steps": [
+          "Select two boundary curves (e.g., top and bottom of chamfer)",
+          "Select machining geometry surfaces",
+          "Set zigzag cutting method for continuous motion",
+          "Set step-over (0.0001 for fine finish)",
+          "Set 5-axis output format",
+          "Tool axis control: surface-based",
+          "Collision control: flute trim + holder avoidance"
+        ]
+      },
+      "transform_and_rotate": {
+        "description": "Program one face, then rotate/mirror to other faces automatically",
+        "critical_note": "Ensure lead-outs and clearances give enough space to fully retract before rotation",
+        "saves": "Program once, apply to all symmetric faces"
+      }
+    },
+    "simulation": {
+      "importance": "Critical for 9-axis — too many moving components to visualize mentally",
+      "requirements": [
+        "Fully modeled machine including sheet metal enclosure",
+        "All tool holders modeled (KM50 holders from Kennametal on lower turret)",
+        "Accurate tool lengths and shank dimensions",
+        "Chuck jaw geometry for clearance checking"
+      ],
+      "clearance_checks": [
+        "Lower turret to chuck jaws at max Z-minus position",
+        "B-axis head tilt clearance to chuck jaws",
+        "Tool shank to hex walls during 5-axis motion",
+        "Backside tools to sub-spindle chuck"
+      ]
+    }
+  },
+  "titanium_machining_on_smx3100": {
+    "material": "Ti-6Al-4V (6-4 titanium, aerospace grade)",
+    "material_code": "604V or 604B",
+    "general_sfm_range": {
+      "handbook_sfm": "~175 SFM typical for Ti-6Al-4V",
+      "face_milling_high_feed": "200 SFM with 2-inch high-feed cutter (Kennametal 7792)",
+      "peripheral_milling": "400-500 SFM possible with trochoidal/peripheral milling (Harvey Three end mills)",
+      "turning_sfm": "160 SFM (conservative for live demo)"
+    },
+    "cutting_parameters": {
+      "turning_roughing": {
+        "insert": "CNMG (Kennametal)",
+        "sfm": 160,
+        "feed_ipr": 0.008,
+        "doc": "0.080 inch (80 thou)",
+        "stock_allowance": "5 thou on face, 5 thou on OD for finish",
+        "notes": "G96 constant surface speed, RPM increases as diameter decreases. Conservative for live camera."
+      },
+      "face_milling_high_feed": {
+        "tool": "Kennametal 7792 high-feed face mill, 2-inch diameter",
+        "sfm": 200,
+        "chip_load_per_tooth": 0.012,
+        "doc_per_pass": "0.025 inch (25 thou)",
+        "notes": "High-feed geometry allows shallow aggressive cuts. Light harmonic rumble at this feed — increasing feed would eliminate it."
+      },
+      "slot_roughing_5axis": {
+        "tool": "Harvey One TE end mill, 3/8 inch, 60 thou corner radius",
+        "strategy": "5-axis roughing with C-axis rotation coordinated with tool motion",
+        "passes": "2 passes per slot"
+      },
+      "slot_finishing_5axis": {
+        "tool": "Harvey Three ball end mill, 3/8 inch (Duo Lock 6-flute)",
+        "strategy": "Ball tracking — starts at top of slot, works down",
+        "motion": "Full 5-axis simultaneous, C-axis turning along with part as tool traces slot angle"
+      },
+      "drilling": {
+        "tool": "Kennametal WiTech drill, 12mm",
+        "rpm": 1000,
+        "feed_rate_ipm": 3,
+        "coolant": "Through-spindle high pressure (Blaser Synergy 735)"
+      },
+      "id_bore": {
+        "size": "1.25 inch (also mentions 1.5 inch on different feature)"
+      }
+    },
+    "coolant": {
+      "product": "Blaser Synergy 735",
+      "type": "Synthetic",
+      "advantages": [
+        "Clear — allows visual monitoring of cut (important for education/filming and real machining)",
+        "Safe for machine components",
+        "Essential for titanium — without coolant, titanium will catch fire during milling",
+        "Used across all machines in Titans facility"
+      ],
+      "delivery": "Through-spindle high pressure for drilling and deep feature operations"
+    },
+    "chip_control": {
+      "target": "Short, broken chips — not long stringy ones",
+      "method": "Dial in feed rate so chips break cleanly. Too low feed = long stringy chips wrapping around tool/part.",
+      "safety_note": "NEVER reach into machine to remove stringy chips with bare hands — they cut like razor wire"
+    },
+    "tooling_used": {
+      "lower_turret_holders": "KM50 tool holders from Kennametal",
+      "turning_inserts": ["CNMG (Kennametal)", "DNMG 431 (Sandvik)"],
+      "end_mills": [
+        "Harvey One TE — roughing titanium",
+        "Harvey Three — ball end mill finishing",
+        "Core Five — heavy roughing"
+      ],
+      "pricing_reference": "Harvey end mills starting at $41 (3/8 inch) and $56 (1/2 inch) at time of video"
+    }
+  },
+  "haas_ngc_control": {
+    "source_video": "DcWP8gANypk",
+    "startup_procedure": [
+      "1. Cycle the door (open/close) to verify door switch",
+      "2. Release E-stop (twist right, follow arrows)",
+      "3. Press Reset to clear alarm",
+      "4. Press Power Up (blue button) to home all axes",
+      "5. Press Cancel to clear startup checklist screen"
+    ],
+    "key_buttons": {
+      "cycle_start": "Start/resume program execution",
+      "feed_hold": "Pause program (does NOT lose position or reset program)",
+      "reset": "Clear alarms, reset program to start",
+      "power_up": "Home all axes simultaneously",
+      "recover": "Recovery from tool change failure or mid-change E-stop — answers yes/no questions to recover"
+    },
+    "hand_jog": {
+      "axis_selection": "X, Y, Z, plus B, C on equipped machines",
+      "increments": ["0.0001 (tenth)", "0.001 (thou)", "0.01 (ten thou)", "0.1 (hundred thou)"],
+      "jog_lock": "Press jog lock to feed continuously at selected rate without holding button",
+      "feed_rates": "100 thou/min, 1 in/min, 10 in/min, 100 in/min"
+    },
+    "override_controls": {
+      "feed_rate": "+/- 10% per press, 100% to reset",
+      "spindle_speed": "+/- 10% per press, 100% to reset",
+      "handle_feed": "1% increments using hand wheel when engaged",
+      "rapid_override": ["5%", "25% (recommended for proving)", "50%", "100%"],
+      "haas_recommendation": "25% rapid override when proving new programs"
+    },
+    "mode_selections": {
+      "edit": "Edit G-code, functions: insert/alter/delete/undo, F1 menu (save, copy, paste, search, find/replace, line numbers)",
+      "memory": "Run program mode. Options: single block, graphics (2D simulation), option stop (M01), block delete (/ prefix)",
+      "mdi": "Manual Data Input — type and execute short code sequences, probing",
+      "handle_jog": "Manual axis movement",
+      "zero_return": "Home axes. Options: All (like power up), Single (individual axis), G28",
+      "list_program": "Select/manage programs. Navigate: Memory, USB, Network tabs"
+    },
+    "program_management": {
+      "loading_from_usb": "List Program > USB tab > Select file > Enter > F2 (OK) > Go to Memory tab > Enter to load to memory",
+      "warning": "Loading from USB makes USB the active source — program tries to run FROM USB. Always switch to Memory tab before running.",
+      "erase": "Select program > checkmark > Erase Program > confirm",
+      "copy_from_usb": "List Program > USB > find file > F2 copy > select Memory destination > Enter"
+    },
+    "display_screens": {
+      "program": "Active codes, tool info, coolant level, override %, position, timer/counter",
+      "position": {
+        "tabs": ["Program (work offset position)", "Distance to Go (during run)", "Machine (absolute machine position)", "Operator (like DRO, can zero axes)"],
+        "all_tab": "Shows all 4 position displays simultaneously — recommended when proving new programs"
+      },
+      "offset": {
+        "tool_offsets": "Length, diameter, wear. Note: in-spindle indicator shows active tool. Scroll right for flute count (for chip load display), probing data.",
+        "work_offsets": "G54-G59 etc. Access via F4 shortcut or arrow navigation. Shows X, Y, Z plus B, C on equipped machines."
+      },
+      "current_commands": {
+        "mechanisms": "Spindle orient, spindle brake",
+        "timers": "Extended timer information",
+        "macro_variables": "Display and edit macros (if equipped)",
+        "active_codes": "Detailed active G/M codes",
+        "atm": "Automatic Tool Management — redundant tooling setup",
+        "calculator": "Standard, milling speed/feed calculator, tapping calculator"
+      },
+      "alarms": {
+        "active_alarms": "Alarm number + brief description",
+        "messages": "Operator messages conveyed through program",
+        "alarm_history": "Time-stamped log of all alarms",
+        "alarm_viewer": "Look up any alarm number description, F1 search",
+        "key_history": "Time-stamped keystroke log — verify what was actually typed"
+      },
+      "diagnostics": {
+        "gauges": "Current machine gauges",
+        "system": "Serial number, software revision, power-on time",
+        "io": "IO monitor for machine/keyboard",
+        "maintenance": "Loop cycles, force lubrication (F2/F3), coolant refill"
+      },
+      "settings": {
+        "navigation": "Cursor through settings, search function (type keyword > F1)",
+        "network": "Wired/wireless setup, net share, HaasConnect app, remote display",
+        "rotary": "4th/5th axis setup",
+        "user_positions": "Second-home, tool change position, table positions",
+        "user_travel_limits": "Jog to limit position > F2 to store as soft limit",
+        "alias_codes": "Create custom G-codes"
+      },
+      "help": {
+        "comprehensive": "Full manual on control",
+        "features": "Table of contents, G-code lists, programming examples",
+        "search": "F1 search by keyword (e.g., 'SSB')",
+        "sample_programs": "Can copy from help and paste into program"
+      }
+    },
+    "vps_probing": {
+      "description": "Visual Programming System — guided probing and G-code generation",
+      "work_offset_probing": {
+        "navigation": "Edit > top > VPS > Probing > Work Offsets",
+        "feature_types": ["Vise corner", "Single surface", "Boss", "Pocket", "Bore"],
+        "vise_corner_example": {
+          "steps": [
+            "Select work offset (e.g., G59)",
+            "Select corner number (1 = lower left)",
+            "Enter X/Y incremental distance from corner (e.g., 0.5 inch)",
+            "Enter Z travel distance for probe descent",
+            "Hand jog probe over corner (eyeball position)",
+            "Cycle Start — probes top face, then X/Y work offsets"
+          ]
+        }
+      },
+      "gcode_generation": {
+        "navigation": "Edit > top > VPS > right arrow > select operation type",
+        "circle_contour_example": {
+          "prompts": ["Work offset", "Tool number", "Tool diameter", "RPM", "Feed rate", "Coolant on/off", "Retract height", "Feature depth", "Feature position", "Circle diameter", "Internal/External"],
+          "output_options": ["F4: Insert to clipboard (paste into existing program)", "Output to MDI", "Create new program (asks for O-number, name, comment)"]
+        }
+      }
+    },
+    "important_settings_referenced": {
+      "setting_53": "Jog Without Zero Return — allows jogging before machine is homed (useful for clearing turret)",
+      "ssb": "Single Spindle Brake (referenced as example search term)"
+    }
+  },
+  "haas_first_part_workflow": {
+    "source_video": "m0ukd8vT9bw",
+    "machine": "Haas TL (Tool Room Lathe)",
+    "lathe_axis_conventions": {
+      "z_plus": "Away from spindle",
+      "z_minus": "Towards spindle",
+      "x_minus": "Towards spindle center line",
+      "x_plus": "Away from center line",
+      "critical_note": "ALL X values are in DIAMETER, not radius. Point at 0.5 inch from center = X1.0"
+    },
+    "tool_offset_setup": {
+      "drill_x_offset": {
+        "method": "Indicate center of drill holder front-to-back, highlight offset, press X Diameter Measure, enter 0",
+        "applies_to": "All ER32 drill holders"
+      },
+      "turning_x_offset": {
+        "method": "Skim OD of stock, jog away in Z+, measure diameter with mic/caliper, highlight offset, press X Diameter Measure, enter measured diameter"
+      },
+      "turning_z_offset": {
+        "method": "Skim Z face, jog away in X, highlight offset, press Z Face Measure"
+      },
+      "drill_z_offset": {
+        "method": "Jog drill to face of part using shim/paper drag test, highlight offset, press Z Face Measure. Optionally subtract shim thickness."
+      }
+    },
+    "work_offset_setup": {
+      "op10": "G54 — X=0, Z=0 set where tools were touched off (spindle center line and part face)",
+      "op20": "G55 — second operation after flipping part"
+    },
+    "vps_shape_creator": {
+      "purpose": "Define part profile graphically for lathe operations",
+      "workflow": [
+        "Edit > Shape Creator > Origin for new shape",
+        "Enter XZ coordinates for each profile point as new rows",
+        "Select motion type: linear feed, rapid, arc",
+        "Add chamfers/radii at intersections",
+        "F4 to save shape",
+        "Import into VPS OD Roughing template"
+      ],
+      "key_parameters": {
+        "raw_dimensions": "Define green box (raw stock). Example: X3.0, Z0.05",
+        "rapid_point": "Where tool rapids to before feeding. Set just outside stock (e.g., X3.1, Z0.1). Critical: rapid point and profile start must share same Z value.",
+        "contour_start": "First profile point. X must account for tool nose radius (TNR). For 0.031 TNR: X = -0.062 (diameter value).",
+        "tool_nose_compensation": "If programmed to X0 instead of X-0.062, leaves nib/pip on face. Must go below center by TNR amount (in diameter)."
+      }
+    },
+    "vps_od_roughing_template": {
+      "parameters": {
+        "shape": "Import from Shape Creator",
+        "tool": "Defaults to active turret tool",
+        "work_offset": "G54 for op1, G55 for op2",
+        "max_rpm": "Set to 1000 for first parts (safety limit)",
+        "surface_speed": "From insert manufacturer data (entered 1601 SFM — limited by max RPM)",
+        "coolant": "Flood coolant ON",
+        "stock_removal_cycle": "71 for OD roughing, 0 for finish pass",
+        "doc": "0.055 inch (1.5mm) — from manufacturer chart",
+        "finish_stock_x": "0.010 inch",
+        "finish_stock_z": "0.003 inch",
+        "feed_rate": "0.016 IPR (may bump to 0.020 to break stringy chips)",
+        "retract_home": "NO — especially on TL with long tools. Set safe tool change position instead (e.g., X3.1, Z8.0)",
+        "end_m_code": "M1 (optional stop between operations), M30 for last operation"
+      }
+    },
+    "collision_avoidance_checklist": [
+      "1. During tool change: turret must be far from chuck, tailstock, and doors",
+      "2. At home position: verify long tools clear all obstructions",
+      "3. Turning at max Z-minus: check that other turret tools don't hit chuck jaws",
+      "4. Jog to furthest Z-minus programmed position and visually verify clearance",
+      "5. Use 5% rapid override + single block for first run",
+      "6. Stop about 1 inch from part, check Distance To Go display",
+      "7. If Distance To Go says -5 inches but you're only 1 inch away — STOP. Something is wrong."
+    ],
+    "proving_procedure": [
+      "1. Run graphics simulation first — look for rapids through part or weird moves",
+      "2. Verify T-numbers match turret positions (T101 = turning, T202 = spot drill, T303 = long drill)",
+      "3. Set 5% rapid override",
+      "4. Enable single block",
+      "5. Cycle start through each line, watching tool approach",
+      "6. Feed hold when ~1 inch from part",
+      "7. Check Position > Distance To Go — verify reasonable",
+      "8. Continue single block through first few roughing passes",
+      "9. Turn off single block when cycle looks safe",
+      "10. Enable option stop (M01 after each operation) — check coolant, chips, part"
+    ]
+  },
+  "haas_st20y_setup": {
+    "source_video": "eX3KzIyq7BQ",
+    "machine": "Haas ST-20Y (dual spindle with Y-axis live tooling)",
+    "key_features": {
+      "dual_spindle": true,
+      "y_axis": true,
+      "live_tooling": true,
+      "part_transfer": "Full part transfer from main to sub-spindle in single operation"
+    },
+    "tool_eye_probing_system": {
+      "description": "Automatic tool offset setting using built-in tool eye probe",
+      "activation": "Edit > Probing system > Set Tool Offsets > Turning Tools > Manual (for first setup)",
+      "tool_eye_deploy_retract": "F2 toggles between extended/retracted. ALWAYS retract before indexing turret.",
+      "process_per_tool": [
+        "1. MDI > index to desired turret position (T101, T303, etc.)",
+        "2. Edit > F2 twice to deploy tool eye",
+        "3. Set tool number and offset number",
+        "4. Set tool tip direction (3=OD facing, 2=ID boring, 7=drill centerline, 4=sub-spindle OD)",
+        "5. Controller shows diagram of correct approach direction",
+        "6. Hand jog tool to ~0.250 inch (6mm) from probe per instruction",
+        "7. Cycle Start — tool eye measures (double-touch: initial + accuracy pass)",
+        "8. Handle away from probe",
+        "9. Edit > F2 to retract tool eye",
+        "10. Power Up + A (return to safe position)",
+        "11. Repeat for next tool"
+      ],
+      "tool_tip_directions": {
+        "3": "Outside facing (OD turning, facing)",
+        "2": "ID boring",
+        "7": "Drill (centerline, Z only)",
+        "4": "Sub-spindle outside cutting"
+      },
+      "bolt_on_drill_x_center": "After Z probe, go to Offsets > highlight X geometry > press F3 (Set to Bolt-on Center Line). Machine knows center line for bolt-on tools."
+    },
+    "g10_stored_offsets": {
+      "description": "Pre-stored work offsets in program. Dramatically reduces setup time for repeat jobs.",
+      "benefit": "With same jaws (stamped 1/2/3, loaded in same position) + G10 offsets, setup becomes: touch off tools + load material + go.",
+      "example": "G10 lines at program start set G54, G55, G56 etc. for main and sub-spindle operations.",
+      "combined_savings": "Jaw change: minutes instead of re-boring. Offsets: already close. Tool eye: fast automatic touch-off."
+    },
+    "sub_spindle_tool_setup": {
+      "front_side_tools": "Standard tool eye process",
+      "back_side_turning_tool": {
+        "offset_convention": "Same turret position (T1) but different offset number (T1/21 instead of T1/01)",
+        "tip_direction": 4,
+        "process": "Same as front but tip direction 4 for sub-spindle OD cutting"
+      },
+      "back_side_boring_bar": {
+        "problem": "Cannot physically touch boring bar to tool eye (wrong direction)",
+        "x_solution": "If boring bars on positions 6 and 24 use same holder size, copy X geometry offset from front boring bar to back boring bar (same X dimension)",
+        "z_solution_option_1": "Run part, stop before back boring bar runs, touch off to part face, Z Face Measure",
+        "z_solution_option_2": "Use finished reference part: MDI > G56 B-3.0 (move sub-spindle to machining position) > hand jog boring bar to finished part face using paper drag > Z Face Measure with part reference length"
+      }
+    },
+    "sub_spindle_z_touch_off": {
+      "method": "Move sub-spindle to machining position via G-code (e.g., G56 B-3.0), then touch tool to known reference part face",
+      "critical_concept": "Z0 is face of part, so sub-spindle must be in machining position (not home) when touching off",
+      "measurement_example": "Tool at Z = -6.938 from home to part face"
+    },
+    "tooling_used": {
+      "turning": ["Sandvik CNMG 432s", "Sandvik DNMG 431"],
+      "grooving": "Iscar TangGrip (extra reach for deeper grooves)",
+      "drilling": "Mitsubishi 1-inch insert drill",
+      "boring": "Kennametal 3/4 boring bar, CCMT insert, 1 thou TNR"
+    },
+    "jaw_management": {
+      "stamping": "Stamp jaws 1, 2, 3 and always load in same position on same machine",
+      "runout": "Fresh material will show wobble (not machine surface yet) — this is normal",
+      "benefit": "Saving stamped jaws + G10 offsets = dramatic setup time reduction on repeat jobs"
+    }
+  },
+  "smx_programming_secrets": {
+    "source_video": "-nZR7THEwNY",
+    "programmer": "Tyson (Titans of CNC)",
+    "machine": "Doosan PUMA SMX 3100 / 2100",
+    "cam_software": "Mastercam",
+    "tips": [
+      {
+        "topic": "3D OptiRough with Spindle Coordination",
+        "description": "Use 3D OptiRough toolpath with C-axis face selection and upper left spindle to make spindle rotate with tool. Tool cuts on OD while spindle coordinates — effectively wrapping roughing motion around the part.",
+        "setup_steps": [
+          "Select OptiRough under milling toolpaths",
+          "Select machining geometry (e.g., 3 faces using Ctrl+click for similar surfaces)",
+          "Set containment to OD of part",
+          "Select tool (e.g., 3/4 bullnose end mill)",
+          "In Setup tab: select 'C-axis face' + 'upper left spindle'",
+          "Use stock model from lathe operations",
+          "Set 20% step-over",
+          "Steep/shallow: force max and min depth to same value (e.g., 2.4 inch) for single-depth pass",
+          "Adjust lead-in/lead-out radius",
+          "Set avoidance geometry AFTER first generation to see what tool tries to do, then restrict"
+        ],
+        "avoidance_geometry_tip": "Generate toolpath first without avoidance, see where rapid lines go wrong, then set avoidance to exclude those areas. Approach varies by part geometry."
+      },
+      {
+        "topic": "Transform and Rotate",
+        "description": "Program a 2D or any pass on one face, then use Transform Rotate to copy it to other faces at specified angles. Spindle rotates automatically in posted code.",
+        "critical_warning": "Ensure lead-outs and clearances retract tool fully before rotation. If tool isn't clear when spindle rotates, collision will occur.",
+        "time_savings": "Only program one instance of feature, transform handles the rest"
+      },
+      {
+        "topic": "Quick C-Plane",
+        "description": "Right-click part surface in Mastercam > Quick C Plane > selects surface and creates tool plane with Z pointing outward. Instant plane setup for any angled face.",
+        "best_practice": "RENAME quick C-planes after creation. Otherwise you get many 'Quick C Plane 1' and 'Quick C Plane 2' entries that are impossible to identify later."
+      },
+      {
+        "topic": "Morph Toolpath for Chamfers",
+        "details": {
+          "navigation": "Milling > Multi-axis > Unified",
+          "tool_stick_out": "Must stick out farther than usual for multi-axis — tool rotates significantly and needs clearance to chuck/part",
+          "axis_combination": "Upright",
+          "cut_pattern": "Morph between two curves (outside and inside edges of chamfer)",
+          "step_over": "0.0001 for fine surface finish",
+          "cutting_method": "Zigzag (stays on part, alternating direction each pass)",
+          "tool_axis_control": "Surface-based",
+          "extended_trim": "Start 50% of tool diameter off the chamfer edge",
+          "output_format": "5-axis (utilizes B-axis tilt of upper spindle)",
+          "collision_control": {
+            "flute": "Trim and re-link on collision with machining geometry",
+            "holder_shank_shoulder": "Retract along tool axis if close to avoidance geometry (outside of part)"
+          },
+          "linking": "Default links follow surfaces; adjust lead-in/lead-out as needed"
+        }
+      },
+      {
+        "topic": "Mastercam Simulation on SMX",
+        "machine_model_in_sim": "Full SMX 3100 with chucks, turrets, magazine",
+        "what_to_verify": [
+          "Tool tilting and spindle coordinated motion",
+          "No purple in toolpath (indicates linking/gap issues)",
+          "Tool clearance to chuck jaws during B-axis rotation",
+          "Full path verification before going to machine"
+        ]
+      }
+    ]
+  },
+  "cmm_inspection": {
+    "source": "WZj5W0ek20A (inspection segments)",
+    "equipment": {
+      "shop_floor_cmm": {
+        "model": "Mitutoyo MYStar 555",
+        "type": "Shop floor CMM (cast iron construction)",
+        "temperature_range": "10-40°C (50-104°F) with real-time compensation",
+        "power": "Single 110V, no compressed air needed",
+        "accuracy": "2.2 microns (86 millionths inch)",
+        "speed": "24 inches/second approach speed",
+        "design": "Open design for large/long parts, future robot loading"
+      },
+      "lab_cmm": {
+        "model": "Mitutoyo Crysta Apex with PH-20 5-axis head",
+        "5axis_head": "Full simultaneous 5-axis measurement (not 3+2 positioning)",
+        "angular_resolution": "Less than 1 degree increments (vs old 7.5/15/22.5 degree lock points)",
+        "head_touch": "Moves probe head without moving entire machine — faster measurement, faster calibration",
+        "time_savings": "40-65% reduction in inspection programming time",
+        "accuracy": "2.2 microns, under 3 microns with extended stylus",
+        "probe_rack": "6-station with standard force, medium force, EM-1, EM-2, light force, 6-way modules"
+      }
+    },
+    "inspection_workflow": {
+      "operator_interface": "Quick Launcher touch screen — select part by picture",
+      "alignment": "CNC alignment: 4-point plane on top, circle on OD for origin, edge for clocking",
+      "scanning": {
+        "sb25_probe": "Constant contact scanning probe",
+        "contour_scan": "~288-290 points around profile from CAD model path",
+        "measurement_perpendicular": "Measures perpendicular to tangent at each CAD model point"
+      },
+      "threaded_hole_measurement": "Chase threads out incrementally to stay in major diameter — without chasing, measurement shifts to minor diameter",
+      "complex_feature_measurement": {
+        "flutes_slots": "Section at 3 different heights to detect deflection or path deviation",
+        "rationale": "Part may flex more at free end — 3 sections reveal if cutting path deviated at different depths"
+      },
+      "reporting": {
+        "pass": "Green OK in corner, optional no-print when all good",
+        "fail": "Print only bad features (not full 300-feature report)",
+        "data_storage": "Results to statistical collection software/database"
+      }
+    }
+  },
+  "automation_and_robotics": {
+    "source": "WZj5W0ek20A (automation segment)",
+    "cell_configuration": {
+      "cnc_machine": "Fanuc RoboDrill",
+      "robot": "Fanuc robot",
+      "connection": "Single ethernet cable (pre-configured I/O)",
+      "door": "Servo door (robot enters as door opens, exits as door closes — saves cycle time vs pneumatic)",
+      "workholding": "Schunk pneumatic vise (air to open/close via M-code)",
+      "gripper": "Schunk PGN Plus 2-finger gripper"
+    },
+    "robodrill_specs": {
+      "tool_changer": "21 tools, 0.7 second tool change, 1.2 second chip-to-chip",
+      "spindle": "24,000 RPM",
+      "spool_up": "0.16 seconds",
+      "tapping": "Up to 8,000 RPM rigid tapping, 1.6 seconds back-out",
+      "feed_rate": "20 inches/second",
+      "interface": "iHMI (icon-driven screen for digital learners)"
+    },
+    "safety": {
+      "type": "Light curtain/area scanner (no cage)",
+      "green": "Full speed operation",
+      "yellow": "10% movement (human in zone)",
+      "red": "Complete stop (human too close)"
+    },
+    "gripper_design": {
+      "custom_fingers": "Designed in-house, 3D printed for testing, then machined from aluminum on DNM 5700L",
+      "dual_diameter": "2.0 inch OD raw stock + 1.9 inch finished step — robot goes deeper for finished part pickup",
+      "profile": "Low profile with ball-track surface for trunnion clearance"
+    },
+    "vise_jaws": {
+      "prototyping": "3D printed first, then machined aluminum",
+      "design": "Low profile ball-track surface for 5-axis clearance"
+    },
+    "process_flow": [
+      "1. Robot picks puck from table (future: conveyor)",
+      "2. Servo door opens",
+      "3. Robot enters, places in pneumatic vise",
+      "4. 0.5 second wait timer before vise closes (prevents premature grip)",
+      "5. Robot retracts, door closes",
+      "6. Machine runs program (engraving + chamfer with air blast)",
+      "7. Air blast cleans chips from part and vise",
+      "8. Door opens, robot enters, vise opens (with wait timer)",
+      "9. Robot removes part, places on output table",
+      "10. Robot picks next puck, repeats"
+    ]
+  },
+  "cross_cutting_knowledge": {
+    "mill_turn_advantages": [
+      "Complete part in one setup — no moving between machines",
+      "Eliminates fixture design for milling (chuck IS the fixture)",
+      "Reduces scrap from re-fixturing and re-alignment",
+      "One operator can run the machine while it produces complete parts",
+      "Automation-ready with bar feeder and parts catcher",
+      "Flexible: landing gears, bolt carrier assemblies, valves, tubes with features",
+      "Not just for aerospace — any job shop moving parts between lathe and mill benefits"
+    ],
+    "tool_change_safety_on_lathes": [
+      "Never command tool change near chuck, tailstock, or doors",
+      "Verify long tools won't hit anything at home position",
+      "Set safe tool change position far in front of part (e.g., Z+8 inches)",
+      "Check that non-active turret tools clear chuck jaws at maximum Z-minus cutting position"
+    ],
+    "mastercam_mill_turn_key_concepts": [
+      "Separate program streams for upper head and lower turret",
+      "Sync operations in Code Expert — link start of one stream to completion of another",
+      "Saved syncs persist across re-posts",
+      "Plane management largely automatic — derived from selected geometry",
+      "Stock models between operations for visualizing and optimizing subsequent toolpaths",
+      "Transform/Rotate for symmetric features around C-axis",
+      "Full machine simulation with modeled holders is essential for clearance verification"
+    ],
+    "haas_essential_lathe_codes": {
+      "referenced_as": "Essential Nine Lines document (linked in Haas video descriptions)",
+      "g54_g55": "Work offsets for multi-operation parts",
+      "g96": "Constant surface speed (CSS) — RPM varies with diameter",
+      "g97": "Constant RPM",
+      "g71": "OD roughing cycle",
+      "m01": "Optional stop (pause between operations for checking)",
+      "m30": "Program end and rewind"
+    },
+    "key_formulas_and_values": {
+      "tool_nose_radius_compensation": "X value must go below centerline by TNR amount (in diameter). 0.031 TNR = program X-0.062",
+      "titanium_sfm_range": "150-200 SFM turning, 400-500 SFM peripheral milling",
+      "high_feed_milling_titanium": "200 SFM, 0.012 per tooth chip load, 0.025 inch DOC",
+      "turning_titanium_6-4": "160 SFM, 0.008 IPR, 0.080 DOC (conservative)"
+    }
+  }
+}

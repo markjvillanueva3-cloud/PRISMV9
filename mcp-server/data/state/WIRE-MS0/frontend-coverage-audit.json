@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "1.0.0",
+  "auditTimestamp": "2026-04-12T20:30:00Z",
+  "milestone": "WIRE-MS0",
+  "protocol": "FRONTEND_FEATURE_AUDIT_v1",
+  "summary": {
+    "totalUnits": 15,
+    "existingCoverage": 9,
+    "requiresEnhancement": 9,
+    "requiresNewPage": 3,
+    "blocked": 0
+  },
+  "unitCoverage": {
+    "P0-U02-machine-live": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "ShopFloorLivePage.tsx",
+      "coveragePercent": 65,
+      "existingPages": [
+        {"name": "ShopFloorLivePage.tsx", "lineCount": 350, "coverage": 65},
+        {"name": "OEEDashboardPage.tsx", "lineCount": 280, "coverage": 45},
+        {"name": "PreventiveMaintenancePage.tsx", "lineCount": 220, "coverage": 30}
+      ],
+      "gaps": [
+        {"id": "gap-adaptive-control", "description": "Add adaptive control override panel", "priority": "high"},
+        {"id": "gap-digital-twin", "description": "Add digital twin state visualization", "priority": "medium"},
+        {"id": "gap-machine-connect", "description": "Add machine connection status indicators", "priority": "high"}
+      ],
+      "action": "ENHANCE ShopFloorLivePage.tsx with adaptive control and digital twin tabs"
+    },
+    "P0-U03-diagnosis": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "RootCausePage.tsx",
+      "coveragePercent": 55,
+      "existingPages": [
+        {"name": "RootCausePage.tsx", "lineCount": 380, "coverage": 55},
+        {"name": "A3ReportPage.tsx", "lineCount": 290, "coverage": 25}
+      ],
+      "gaps": [
+        {"id": "gap-inverse-solver", "description": "Add inverse solver calculator", "priority": "high"},
+        {"id": "gap-process-gen", "description": "Add generative process planning", "priority": "high"},
+        {"id": "gap-sustainability", "description": "Add sustainability metrics", "priority": "medium"}
+      ],
+      "action": "ENHANCE RootCausePage.tsx with Inverse Solver and Process Generator tabs"
+    },
+    "P1-U01-cnc-ops": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "PostProcessorGeneratorPage.tsx",
+      "coveragePercent": 60,
+      "existingPages": [
+        {"name": "PostProcessorGeneratorPage.tsx", "lineCount": 420, "coverage": 60},
+        {"name": "PostProcessorPage.tsx", "lineCount": 180, "coverage": 40},
+        {"name": "SetupSheetPage.tsx", "lineCount": 310, "coverage": 35},
+        {"name": "ProgramReleasePage.tsx", "lineCount": 250, "coverage": 30}
+      ],
+      "gaps": [
+        {"id": "gap-motion-profile", "description": "Add motion dynamics visualizer", "priority": "medium"},
+        {"id": "gap-tool-magazine", "description": "Add tool magazine management", "priority": "medium"}
+      ],
+      "action": "ENHANCE PostProcessorGeneratorPage.tsx OR merge into unified CNC Ops hub"
+    },
+    "P1-U02-knowledge": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "KnowledgeBrowserPage.tsx",
+      "coveragePercent": 70,
+      "existingPages": [
+        {"name": "KnowledgeBrowserPage.tsx", "lineCount": 280, "coverage": 70},
+        {"name": "KnowledgeIngestionPage.tsx", "lineCount": 240, "coverage": 55},
+        {"name": "LearningDashboard.tsx", "lineCount": 190, "coverage": 40},
+        {"name": "AILearningDashboardPage.tsx", "lineCount": 320, "coverage": 50}
+      ],
+      "gaps": [
+        {"id": "gap-apprentice-mode", "description": "Add interactive apprentice training mode", "priority": "high"},
+        {"id": "gap-manufacturing-genome", "description": "Add manufacturing genome explorer", "priority": "medium"},
+        {"id": "gap-federated-learning", "description": "Add federated learning status panel", "priority": "low"}
+      ],
+      "action": "ENHANCE KnowledgeBrowserPage.tsx with Apprentice and Genome tabs"
+    },
+    "P1-U03-vibration": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "CalculatorPage.tsx",
+      "coveragePercent": 45,
+      "existingPages": [
+        {"name": "CalculatorPage.tsx", "lineCount": 12909, "coverage": 45}
+      ],
+      "gaps": [
+        {"id": "gap-stability-lobes", "description": "Add stability lobe diagram generator", "priority": "high"},
+        {"id": "gap-modal-analysis", "description": "Add modal analysis input/output", "priority": "high"},
+        {"id": "gap-process-damping", "description": "Add process damping calculator", "priority": "medium"}
+      ],
+      "action": "ADD Vibration/Chatter tab to CalculatorPage.tsx (12,909 LOC central hub)"
+    },
+    "P1-U04-thermal": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "CalculatorPage.tsx",
+      "coveragePercent": 35,
+      "existingPages": [
+        {"name": "CalculatorPage.tsx", "lineCount": 12909, "coverage": 35}
+      ],
+      "gaps": [
+        {"id": "gap-heat-exchanger", "description": "Add heat exchanger calculator", "priority": "high"},
+        {"id": "gap-pump-sizing", "description": "Add pump sizing calculator", "priority": "high"},
+        {"id": "gap-hydraulics", "description": "Add hydraulic system calculator", "priority": "medium"},
+        {"id": "gap-compressor", "description": "Add compressor sizing", "priority": "medium"}
+      ],
+      "action": "ADD Thermal/Fluid tab to CalculatorPage.tsx"
+    },
+    "P1-U05-integrations": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "IntegrationsPage.tsx",
+      "coveragePercent": 80,
+      "existingPages": [
+        {"name": "IntegrationsPage.tsx", "lineCount": 280, "coverage": 80}
+      ],
+      "gaps": [
+        {"id": "gap-measurement-cmm", "description": "Enhance CMM integration panel", "priority": "medium"}
+      ],
+      "action": "ENHANCE IntegrationsPage.tsx - already 80% complete, minor improvements only"
+    },
+    "P2-U01-edm": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "WireEdmWizardPage.tsx",
+      "coveragePercent": 70,
+      "existingPages": [
+        {"name": "WireEdmWizardPage.tsx", "lineCount": 420, "coverage": 70},
+        {"name": "WireEdmUploadPage.tsx", "lineCount": 180, "coverage": 40},
+        {"name": "WireEdmResultsPage.tsx", "lineCount": 220, "coverage": 35}
+      ],
+      "gaps": [
+        {"id": "gap-sinker-edm", "description": "Add sinker EDM wizard flow", "priority": "high"},
+        {"id": "gap-laser-ablation", "description": "Add laser ablation parameters", "priority": "medium"}
+      ],
+      "action": "CREATE SinkerEdmWizardPage.tsx OR add Sinker tab to WireEdmWizardPage"
+    },
+    "P2-U02-turning": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "LatheWizardPage.tsx",
+      "coveragePercent": 85,
+      "existingPages": [
+        {"name": "LatheWizardPage.tsx", "lineCount": 380, "coverage": 85},
+        {"name": "LatheUploadPage.tsx", "lineCount": 190, "coverage": 40},
+        {"name": "LatheResultsPage.tsx", "lineCount": 210, "coverage": 35}
+      ],
+      "gaps": [],
+      "action": "EXISTING COVERAGE ADEQUATE - minor polish only"
+    },
+    "P2-U03-grinding": {
+      "recommendation": "create_new",
+      "primaryPage": null,
+      "coveragePercent": 0,
+      "existingPages": [],
+      "gaps": [
+        {"id": "gap-grinding-all", "description": "No grinding page exists", "priority": "high"}
+      ],
+      "action": "CREATE GrindingPage.tsx - genuinely new functionality"
+    },
+    "P2-U04-forming": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "SheetMetalQuotePage.tsx",
+      "coveragePercent": 50,
+      "existingPages": [
+        {"name": "SheetMetalQuotePage.tsx", "lineCount": 320, "coverage": 50},
+        {"name": "InjectionMoldPage.tsx", "lineCount": 280, "coverage": 35}
+      ],
+      "gaps": [
+        {"id": "gap-casting", "description": "Add casting calculator", "priority": "medium"},
+        {"id": "gap-forging", "description": "Add forging parameters", "priority": "medium"}
+      ],
+      "action": "ENHANCE SheetMetalQuotePage.tsx with Casting/Forging tabs OR create FormingPage"
+    },
+    "P2-U05-welding": {
+      "recommendation": "create_new",
+      "primaryPage": null,
+      "coveragePercent": 0,
+      "existingPages": [],
+      "gaps": [
+        {"id": "gap-welding-all", "description": "No welding page exists", "priority": "high"}
+      ],
+      "action": "CREATE WeldingPage.tsx - genuinely new functionality"
+    },
+    "P3-U01-settings": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "ShopProfilePage.tsx",
+      "coveragePercent": 60,
+      "existingPages": [
+        {"name": "ShopProfilePage.tsx", "lineCount": 350, "coverage": 60}
+      ],
+      "gaps": [
+        {"id": "gap-backend-sync", "description": "Add backend persistence for settings", "priority": "high"}
+      ],
+      "action": "ENHANCE ShopProfilePage.tsx with backend sync"
+    },
+    "P3-U02-navigation": {
+      "recommendation": "enhance_existing",
+      "primaryPage": "AppShell",
+      "coveragePercent": 40,
+      "existingPages": [],
+      "gaps": [
+        {"id": "gap-sidebar-complete", "description": "Add all 102+ pages to sidebar", "priority": "high"}
+      ],
+      "action": "ENHANCE AppShell/Sidebar with complete navigation"
+    },
+    "P3-U03-verification": {
+      "recommendation": "audit_only",
+      "primaryPage": null,
+      "coveragePercent": 0,
+      "existingPages": [],
+      "gaps": [],
+      "action": "RUN VERIFICATION AUDIT - no code changes, just verify pipeline completeness"
+    }
+  },
+  "designLanguageRequirements": {
+    "required": [
+      "prism-glow-* classes (cyan, violet, emerald, amber, red)",
+      "prism-chip status badges",
+      "prism-spectrum-fill progress bars",
+      "prism-led-sweep animated effects",
+      "bg-[rgba(2,6,23,0.78)] dark backgrounds",
+      "border-white/10 borders"
+    ],
+    "reference": "CalculatorPage.tsx (12,909 LOC)"
+  },
+  "executionPlan": {
+    "phase1_enhance": [
+      "P1-U05: IntegrationsPage.tsx (80% covered - minor polish)",
+      "P2-U02: LatheWizardPage.tsx (85% covered - minor polish)"
+    ],
+    "phase2_enhance": [
+      "P0-U02: ShopFloorLivePage.tsx (add adaptive control, digital twin)",
+      "P0-U03: RootCausePage.tsx (add inverse solver, process gen)",
+      "P1-U02: KnowledgeBrowserPage.tsx (add apprentice, genome)"
+    ],
+    "phase3_enhance": [
+      "P1-U01: PostProcessorGeneratorPage.tsx (add motion profile, tool magazine)",
+      "P1-U03: CalculatorPage.tsx (add vibration/chatter tab)",
+      "P1-U04: CalculatorPage.tsx (add thermal/fluid tab)",
+      "P2-U01: WireEdmWizardPage.tsx (add sinker EDM)",
+      "P2-U04: SheetMetalQuotePage.tsx (add casting/forging)"
+    ],
+    "phase4_create_new": [
+      "P2-U03: GrindingPage.tsx (no existing coverage)",
+      "P2-U05: WeldingPage.tsx (no existing coverage)"
+    ],
+    "phase5_infrastructure": [
+      "P3-U01: ShopProfilePage.tsx backend sync",
+      "P3-U02: AppShell sidebar wiring",
+      "P3-U03: Final verification audit"
+    ]
+  }
+}

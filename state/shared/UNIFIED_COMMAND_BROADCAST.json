@@ -1,0 +1,107 @@
+{
+  "version": "1.0.0",
+  "updated": "2026-04-15T17:00:00.000Z",
+  "description": "Unified command awareness broadcast for ALL sessions (Claude + Codex)",
+
+  "critical_commands": {
+    "/pdf-learn": {
+      "purpose": "AI-powered PDF/document knowledge extraction into tribal tips",
+      "triggers": ["pdf", "document", "manual", "catalog", "paper", "extract from pdf"],
+      "auto_invoke": true,
+      "priority": 0
+    },
+    "/video-learn": {
+      "purpose": "AI-powered video/tutorial knowledge extraction into procedures",
+      "triggers": ["video", "youtube", "tutorial", "training", "watch"],
+      "auto_invoke": true,
+      "priority": 0
+    },
+    "/forge-triple": {
+      "purpose": "Create engines + skills + hooks with EXHAUSTIVE extraction",
+      "triggers": ["create engine", "new engine", "build engine", "forge", "generate capability"],
+      "auto_invoke": true,
+      "priority": 1,
+      "requires_dedup": true
+    },
+    "/dedup": {
+      "purpose": "Check for duplicates BEFORE creating ANY new asset",
+      "triggers": ["duplicate", "before creating", "already exists", "similar"],
+      "auto_invoke": true,
+      "priority": 0,
+      "mandatory_before": ["/forge-triple", "/forge-engine"]
+    },
+    "/wire-edm-studio": {
+      "purpose": "Full Wire EDM programming studio with AI",
+      "triggers": ["wire edm", "wedm", "edm program", "wire cut", "mitsubishi edm"],
+      "auto_invoke": true,
+      "priority": 1
+    },
+    "/lathe-studio": {
+      "purpose": "Full lathe/turning programming studio with AI",
+      "triggers": ["lathe", "turning", "okuma", "turning center", "cnc lathe"],
+      "auto_invoke": true,
+      "priority": 1
+    },
+    "/quote-to-ship": {
+      "purpose": "Full quote-to-ship pipeline orchestration",
+      "triggers": ["quote", "estimate", "job cost", "order", "ship"],
+      "auto_invoke": true,
+      "priority": 2
+    },
+    "/auto-speed-feed": {
+      "purpose": "Auto-calculate optimal speed/feed parameters",
+      "triggers": ["speed", "feed", "sfm", "ipm", "rpm", "cutting parameters"],
+      "auto_invoke": true,
+      "priority": 2
+    },
+    "/shop-knowledge": {
+      "purpose": "Extract and categorize shop floor tribal knowledge",
+      "triggers": ["tribal", "shop floor", "operator", "experience", "wisdom"],
+      "auto_invoke": true,
+      "priority": 2
+    },
+    "/machine-harden": {
+      "purpose": "Harden AI capabilities for specific machines",
+      "triggers": ["harden", "strengthen", "improve machine"],
+      "auto_invoke": false,
+      "priority": 3
+    },
+    "/program-optimize": {
+      "purpose": "Optimize CNC programs for speed/feed/tool life",
+      "triggers": ["optimize program", "improve program", "faster program"],
+      "auto_invoke": false,
+      "priority": 3
+    },
+    "/scrutinize": {
+      "purpose": "Deep scrutiny of code for issues and improvements",
+      "triggers": ["scrutinize", "deep review", "audit code"],
+      "auto_invoke": false,
+      "priority": 3
+    }
+  },
+
+  "auto_invoke_rules": [
+    "When 'pdf' or 'document' or 'manual' mentioned → suggest /pdf-learn",
+    "When 'video' or 'youtube' or 'tutorial' mentioned → suggest /video-learn",
+    "When 'create engine' or 'new engine' mentioned → suggest /dedup first, then /forge-triple",
+    "When 'wire edm' or 'wedm' mentioned → suggest /wire-edm-studio",
+    "When 'lathe' or 'turning' mentioned → suggest /lathe-studio",
+    "When 'quote' or 'estimate' mentioned → suggest /quote-to-ship",
+    "When 'speed' or 'feed' mentioned → suggest /auto-speed-feed"
+  ],
+
+  "session_sync": {
+    "broadcast_interval_ms": 5000,
+    "active_sessions_file": "ACTIVE_WORK_REGISTRY.json",
+    "chat_file": "AGENT_CHAT.jsonl",
+    "coordination_file": "AGENT_COORDINATION_STATUS.json"
+  },
+
+  "cross_session_rules": [
+    "CHECK ACTIVE_WORK_REGISTRY.json before starting work",
+    "POST to AGENT_CHAT.jsonl when starting significant work",
+    "READ other sessions' chat entries to avoid duplicate work",
+    "CLAIM milestones via roadmap-index.json before working",
+    "RUN /dedup before creating ANY new engine/hook/skill"
+  ]
+}

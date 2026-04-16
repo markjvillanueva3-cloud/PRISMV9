@@ -1,0 +1,852 @@
+{
+  "id": "WEDM-MS0",
+  "title": "Wire EDM Studio — Full Pipeline Wizard (Import → Program)",
+  "track": "WEDM",
+  "status": "complete",
+  "complexity": "XL",
+  "total_units": 22,
+  "completed_units": 22,
+  "sessions": [
+    {
+      "id": "WEDM-0-S1",
+      "title": "Backend Routes + Types + API Layer",
+      "units": [
+        "U-WEDM00",
+        "U-WEDM01",
+        "U-WEDM02",
+        "U-WEDM03"
+      ],
+      "smart_config": {
+        "role": "Full-Stack Engineer + Wire EDM Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/routes/edm.ts — existing 7 routes",
+        "H:/prism/mcp-server/src/schemas/wedmPipelineActionSchemas.ts — Zod validation",
+        "H:/prism/mcp-server/src/tools/dispatchers/edmDispatcher.ts — 51 actions",
+        "H:/prism/web/src/types/edm.ts — existing frontend types",
+        "H:/prism/web/src/api/edm.ts — existing API pattern"
+      ],
+      "intent": "Backend ready to serve all 18 pipeline endpoints. Frontend has typed API client + hooks. Types mirror Zod schemas.",
+      "skills": [
+        "/forge-engines",
+        "/trace",
+        "/action-search",
+        "/test"
+      ],
+      "work": {
+        "U-WEDM00": {
+          "title": "DXF/STEP/IGES Parser Pipeline + Geometry Validation",
+          "description": "Select and wire dxf-parser (npm) for DXF R12-R2018 entity parsing (LINE, ARC, CIRCLE, LWPOLYLINE, SPLINE→arc decomposition, ELLIPSE→arc decomposition, INSERT/BLOCK flattening). Wire opencascade.js for STEP AP203/AP214/AP242 and IGES. Create parseGeometryFile() pipeline: raw bytes → entity extraction → BLOCK/INSERT resolution → spline-to-arc conversion (chord tolerance 0.005mm) → gap closure (tolerance 0.01mm) → duplicate entity removal → winding order normalization (CCW=external, CW=internal) → self-intersection detection → PartFeature[] output for EDMDrawingInterpretationEngine. Add geometry validation: closed contour check, min segment length > wire_diameter, min slot width > wire_diameter + 2×spark_gap + 0.05mm. Add error overlay layer to ProfileCanvas layer stack for visual highlighting of geometry issues.",
+          "depends_on": [],
+          "files_created": [
+            "H:/prism/mcp-server/src/engines/DXFGeometryParserEngine.ts",
+            "H:/prism/web/src/utils/geometryValidator.ts",
+            "H:/prism/mcp-server/src/__tests__/wedm-geometry-parser.test.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "DXF with SPLINE entities not converted to arcs",
+            "DXF with BLOCK/INSERT entities produces 0 features",
+            "Gap > 0.01mm not detected or closed",
+            "Open contour passed as closed",
+            "Self-intersecting contour not flagged"
+          ],
+          "rollback": "rm mcp-server/src/engines/DXFGeometryParserEngine.ts web/src/utils/geometryValidator.ts",
+          "exit_gate": "All DXF entity types parsed (LINE, ARC, CIRCLE, LWPOLYLINE, SPLINE, ELLIPSE, INSERT). Gaps < 0.01mm auto-closed. Splines decomposed to arcs. Geometry errors visually highlighted on canvas.",
+          "four_loop": "BUILD → SCRUTINIZE (geometry-parser agent) → GAP FILL (all entity types) → TIE UP (validation coverage)"
+        },
+        "U-WEDM01": {
+          "title": "Add 18 backend routes to edm.ts + multer middleware",
+          "description": "Add 18 POST routes for individual WEDM pipeline actions. Apply verifyToken + requirePermission('edm:write') middleware to all new WEDM routes. Add multer middleware for /interpret route (file upload) with fileFilter (accept only .dxf, .step, .iges, .png, .jpg), fileSize limit 15MB, max 1 file, and server-side magic byte validation in multer fileFilter callback. Replace .passthrough() with .strict() on all route-facing Zod schemas. Add concurrent upload semaphore (max 3 simultaneous file operations). Keep express.json limit at 2MB for non-upload routes (NOT 50MB). Add per-route rate limits: RL-EDM-COMPUTE for expensive routes (multipass, toolpath, gcode). Fix duplicate /parameters route. Add missing safety routes (predict-wire-break, calculate-corners, solve-taper).",
+          "depends_on": [
+            "U-WEDM00"
+          ],
+          "files_created": [
+            "H:/prism/mcp-server/src/__tests__/wedm-routes-integration.test.ts"
+          ],
+          "files_modified": [
+            "H:/prism/mcp-server/src/routes/edm.ts"
+          ],
+          "abort_criteria": [
+            "Any route returns 404 when hit with correct payload",
+            "File upload >5MB times out or OOMs",
+            "Duplicate /parameters route still exists",
+            "Any route accessible without valid auth token",
+            "File upload accepts non-whitelisted MIME type",
+            ".passthrough() remains on any public-facing schema"
+          ],
+          "rollback": "git checkout -- mcp-server/src/routes/edm.ts",
+          "exit_gate": "All 25 routes respond 200 with valid payloads. multer accepts .dxf uploads. tsc --noEmit passes.",
+          "four_loop": "BUILD → SCRUTINIZE (backend-api agent) → GAP FILL (test routes) → TIE UP (no TODOs)"
+        },
+        "U-WEDM02": {
+          "title": "Create wedmStudio.ts types (frontend)",
+          "description": "Define all TypeScript types for the wizard: WedmStep, InputMethod, StepStatus, per-step result interfaces (inferred from Zod schemas), PipelineResponse<T> discriminator, ProfileContour, ArcSegment. Keep SEPARATE from types/edm.ts.",
+          "depends_on": [
+            "U-WEDM01"
+          ],
+          "files_created": [
+            "H:/prism/web/src/types/wedmStudio.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Type definitions don't match backend Zod schema shapes",
+            "Circular imports detected",
+            "tsc --noEmit fails with type errors"
+          ],
+          "rollback": "rm web/src/types/wedmStudio.ts",
+          "exit_gate": "All types compile. PipelineResponse<T> has success/error discrimination. No imports from types/edm.ts.",
+          "four_loop": "BUILD → SCRUTINIZE (typescript agent) → GAP FILL (verify Zod alignment) → TIE UP (clean exports)"
+        },
+        "U-WEDM03": {
+          "title": "Create wedmStudio.ts API client + useWedmPipeline hooks",
+          "description": "Typed API functions for all 18 pipeline endpoints. FormData upload for /interpret. AbortController. Per-step hooks with local loading/error/retry state. Quick Generate uses background job architecture: returns jobId immediately, polls via SSE for progress. Dependency-graph parallelization groups independent calls into Promise.all batches. DAG: interpret -> [selection + feasibility] parallel -> [start-holes + toolpath] parallel -> [tabs + sequence] parallel -> multipass -> optimize -> [flushing + predict-wire-break] parallel -> [corners + taper] parallel -> gcode -> [cost + setup-sheet] parallel. Total chain timeout: 60s (not 90s x 17). Uses existing /api/v1/realtime SSE endpoint for progress events. Define PipelineResponse<T> discriminated union: { ok: true; data: T; warnings: string[] } | { ok: false; error: string; code: string; step: WedmStep }. All WEDM API functions return Promise<PipelineResponse<T>>.",
+          "depends_on": [
+            "U-WEDM02"
+          ],
+          "files_created": [
+            "H:/prism/web/src/api/wedmStudio.ts",
+            "H:/prism/web/src/hooks/useWedmPipeline.ts",
+            "H:/prism/web/src/__tests__/useWedmPipeline.test.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "API calls don't match backend route signatures",
+            "AbortController doesn't cancel in-flight requests",
+            "Hook state leaks between step transitions"
+          ],
+          "rollback": "rm web/src/api/wedmStudio.ts web/src/hooks/useWedmPipeline.ts",
+          "exit_gate": "Background job returns jobId. SSE emits per-step progress. DAG parallelizes independent calls. Total pipeline completes in <30s for typical jobs. AbortController cancels entire chain.",
+          "four_loop": "BUILD → SCRUTINIZE (frontend agent) → GAP FILL (error handling) → TIE UP (no any types)"
+        }
+      },
+      "exit_gate": "npx tsc --noEmit passes on both mcp-server and web. All 25 backend routes respond. API client + hooks compile. omega_floor >= 0.85. SVI delta: +1%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S2",
+      "title": "Context + 2D Profile Canvas",
+      "units": [
+        "U-WEDM04",
+        "U-WEDM05",
+        "U-WEDM06"
+      ],
+      "smart_config": {
+        "role": "React State Architect + 2D Graphics Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+      "knowledge": [
+        "H:/prism/web/src/contexts/PpgContext.tsx — existing context pattern (simple callbacks)",
+        "H:/prism/web/src/contexts/LearningContext.tsx — another context example",
+        "H:/prism/web/src/components/viewer/Viewer3D.tsx — existing 3D viewer (for reference)",
+        "H:/prism/web/src/types/viewer.ts — SceneGraph, ToolpathSegment types"
+      ],
+      "intent": "Lightweight context manages wizard navigation + step data. 2D canvas renders Wire EDM profiles with arcs, holes, toolpaths, and WCS indicator.",
+      "skills": [
+        "/forge-engines",
+        "/scrutinize",
+        "/test"
+      ],
+      "work": {
+        "U-WEDM04": {
+          "title": "Create WedmStudioContext (split navigation + data)",
+          "description": "Two contexts: WedmNavigationContext (currentStep, stepStatuses, setCurrentStep, markStale) and WedmDataContext (per-step result slots, setStepData, clearStep). Simple callbacks, NOT useReducer. sessionStorage for metadata. Debounce-on-mutation autosave (2s after last dispatch). Implement useSafeSessionStorage hook with quota guard: measure payload size before write, warn at 3.5MB, fall back to IndexedDB when approaching 4MB. Cap per-step data at 256KB. Add sessionId (UUID) and savedAt (ISO8601) to persisted blob for staleness detection. Define IndexedDB schema for sessionStorage fallback: object store 'wedm-sessions' with keyPath 'sessionId', index on 'savedAt'. Schema version 1. Define WedmJobRecord TypeScript interface: { sessionId, jobName, createdAt, updatedAt, schemaVersion: 1, steps: Record<WedmStep, StepData>, material_cert?, program_revision?, quality_events: QualityEvent[] }. All audit trail entries append-only (never mutated after creation).",
+          "depends_on": [
+            "U-WEDM03"
+          ],
+          "files_created": [
+            "H:/prism/web/src/contexts/WedmStudioContext.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Context re-renders Viewer on unrelated step changes",
+            "sessionStorage exceeds 5MB on complex jobs",
+            "Stale marking doesn't propagate to step badges"
+          ],
+          "rollback": "rm web/src/contexts/WedmStudioContext.tsx",
+          "exit_gate": "Context split verified: step component only re-renders on its own data change. Stale marking works. sessionStorage persists across refresh.",
+          "four_loop": "BUILD → SCRUTINIZE (state-management agent) → GAP FILL (perf test) → TIE UP (memo boundaries)"
+        },
+        "U-WEDM05": {
+          "title": "Create ProfileCanvas.tsx — 2D Wire EDM profile renderer",
+          "description": "HTML5 Canvas 2D component rendering wire EDM profiles. Arc tessellation (circular arcs → polyline segments, configurable tolerance 0.01mm). Multiple contours: outer profile + inner holes, color-coded by feature type. Toolpath overlay: cutting direction arrows, approach/departure lines. WCS origin crosshair. Start hole markers. Tab markers. Multi-pass offset overlay (onion-skin). Zoom/pan via mouse wheel + drag. NO Three.js — pure Canvas 2D. Use requestAnimationFrame-based rendering with dirty flag. Implement adaptive LOD tessellation: at low zoom use 0.5px/scale tolerance, re-tessellate only on zoom change. Canvas layer stack with enumerated draw order for z-ordering 20+ overlay types.",
+          "depends_on": [
+            "U-WEDM02"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/ProfileCanvas.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Arcs render as straight lines (tessellation failure)",
+            "Inner holes not distinguished from outer profile",
+            "Canvas doesn't resize on window resize",
+            "Performance degrades with >500 contour segments"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/ProfileCanvas.tsx",
+          "exit_gate": "Renders DXF-like profiles with arcs tessellated to <0.01mm tolerance. 500+ segments at 60fps. Zoom/pan smooth. Colors per feature type.",
+          "four_loop": "BUILD → SCRUTINIZE (3D/graphics agent) → GAP FILL (edge cases: empty, single-point, self-intersecting) → TIE UP (responsive resize)"
+        },
+        "U-WEDM06": {
+          "title": "Create geometry utilities (wedmGeometry.ts)",
+          "description": "Functions: tessellateArc(center, radius, startAngle, endAngle, tolerance) → points[]. contourToCanvasPath(contour: ProfileContour) → Path2D. featureToColor(featureType) → string. offsetContour(points, offset_mm) → points[] (for multi-pass onion-skin). calculateBounds(contours) → BBox. snapToGrid(point, gridSize) → point.",
+          "depends_on": [
+            "U-WEDM02"
+          ],
+          "files_created": [
+            "H:/prism/web/src/utils/wedmGeometry.ts",
+            "H:/prism/web/src/__tests__/wedmGeometry.test.ts"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Arc tessellation produces gaps or overlaps",
+            "Offset contour self-intersects on sharp corners",
+            "Bounds calculation wrong for profiles with arcs"
+          ],
+          "rollback": "rm web/src/utils/wedmGeometry.ts",
+          "exit_gate": "All geometry functions unit-tested. Arc tessellation matches Three.js arc output within 0.001mm. Offset contour handles convex + concave corners.",
+          "four_loop": "BUILD → SCRUTINIZE (physics agent) → GAP FILL (unit tests) → TIE UP (edge case docs)"
+        }
+      },
+      "exit_gate": "Context split passes re-render test. Canvas renders test profiles with arcs. Geometry utils 100% tested. tsc passes. omega_floor >= 0.85. SVI delta: +1%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S3",
+      "title": "Step 1 (Import) + Step 2 (Review & Setup)",
+      "units": [
+        "U-WEDM07",
+        "U-WEDM08",
+        "U-WEDM09"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer + File Processing Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "H:/prism/web/src/components/sfc/PresetManager.tsx — existing file import pattern",
+        "H:/prism/mcp-server/src/engines/EDMDrawingInterpretationEngine.ts — what /interpret expects",
+        "H:/prism/mcp-server/src/engines/EDMMaterialMachineWireEngine.ts — material/machine/wire selection",
+        "H:/prism/mcp-server/src/engines/EDMFeasibilityEngine.ts — feasibility assessment"
+      ],
+      "intent": "User uploads a DXF and sees classified features in a table. Selects material, wire, machine, flushing mode. Gets feasibility go/no-go. Quick Generate available.",
+      "skills": [
+        "/forge-engines",
+        "/scrutinize",
+        "/test"
+      ],
+      "work": {
+        "U-WEDM07": {
+          "title": "Create StepImport.tsx — file upload with 5 input methods",
+          "description": "DXF as PRIMARY (big blue dropzone). Secondary: camera, print/image, sketch, CAD. Drag-drop + FileReader for small files, FormData for large. Magic byte validation (DXF='0\\nSECTION', STEP='ISO-10303'). Client-side preview: image → <img>, DXF → filename+size badge, CAD → badge. Camera: getUserMedia with permission-denied fallback. Upload progress bar (XHR onprogress). Quick Generate button: upload + run full pipeline → jump to step 6. DXF/STEP/IGES files are processed through DXFGeometryParserEngine (U-WEDM00) before reaching EDMDrawingInterpretationEngine. Post-upload summary card: 'Found N profiles: X internal, Y external. Smallest feature: Zmm. [All geometry cuttable / N issues found].' Plain English, no jargon.",
+          "depends_on": [
+            "U-WEDM00",
+            "U-WEDM04",
+            "U-WEDM03"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepImport.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "DXF >10MB upload fails or times out",
+            "Camera permission denied shows no fallback",
+            "Wrong file type accepted without warning",
+            "Quick Generate hangs or loses results"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepImport.tsx",
+          "exit_gate": "DXF upload works for 1KB-50MB files. Camera gracefully degrades. Magic byte catches .txt renamed to .dxf. Quick Generate chains all API calls.",
+          "four_loop": "BUILD → SCRUTINIZE (file-upload agent) → GAP FILL (error states) → TIE UP (loading indicators)"
+        },
+        "U-WEDM08": {
+          "title": "Create StepReview.tsx — feature review, material/wire/machine selection",
+          "description": "Feature table: type, dimensions, tolerance (editable spinner), surface finish target (dropdown), delete button. Material selector (from backend registry). Thickness input. Wire type selector (PROMINENT — brass, coated, moly, tungsten with cost/speed indicators). Machine selector. Desired surface finish Ra target (dropdown: <0.4um super-finish, 0.4-0.8um finish, 0.8-1.6um semi-finish, >1.6um rough). Taper angle input. Feasibility go/no-go with specific failure reasons. Stale badge triggers on material/wire/machine change. Use progressive disclosure card stack: (1) Material + Thickness -> (2) Machine selection (auto-filtered by material capability) -> (3) Wire type (auto-recommended, overridable, with cost/speed indicators) -> (4) Summary with feasibility check. Each card collapses when confirmed. Every technical term has an info tooltip: Ra ('Surface roughness — lower = smoother'), Wire types show plain-English tradeoff ('Brass: cheapest, general purpose. Coated: 2x faster on steel, costs 2x more.'). Flushing mode shows 'Submerged: part underwater, better surface finish. Spray: nozzle jets, easier setup.'",
+          "depends_on": [
+            "U-WEDM07",
+            "U-WEDM05"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepReview.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Feature table doesn't populate from /interpret result",
+            "Material change doesn't mark downstream steps stale",
+            "Feasibility check doesn't surface specific failure reason",
+            "Wire type hidden or not selectable"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepReview.tsx",
+          "exit_gate": "Feature table editable. Material/wire/machine select all work. Feasibility go/no-go shows reasons. Taper input visible. Canvas updates with feature colors.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert agent) → GAP FILL (all wire types) → TIE UP (form validation)"
+        },
+        "U-WEDM09": {
+          "title": "Wire StepImport + StepReview into wizard shell (partial page)",
+          "description": "Create WizardShell.tsx component that owns the step indicator, 30/70 layout split, canvas panel slot, keyboard navigation (Ctrl+Left/Right, Alt+1-6), and step-barrier logic. WireEdmStudioPage becomes thin — renders WizardShell with steps array prop. Define shared WizardStepProps interface: { onComplete, onBack?, isActive, stepIndex }. Create minimal WireEdmStudioPage.tsx with step indicator, responsive layout (30/70 form/canvas), and steps 1-2 wired. Test end-to-end: upload DXF → see features → select material → get feasibility. Profile canvas shows features from step 1 interpretation. WCAG 2.1 AA requirements: (1) All step transitions manage focus — focus lands on first interactive element of new step. (2) Step indicator uses aria-current='step' with step status announced to screen readers. (3) All async results (feasibility, wire break risk, quality gate) use aria-live='polite'. (4) Quality gate fail uses aria-live='assertive'. (5) Canvas has role='img' with dynamic aria-label describing current view. (6) Off-screen data table alternative for all canvas visualizations. (7) All color-coded indicators (risk, compliance, recast heatmap) have secondary encoding: icon + text label. Recast heatmap adds contour lines with numeric annotations. (8) 44x44px minimum touch targets on all interactive elements. (9) prefers-reduced-motion guard on all requestAnimationFrame animations. (10) Alt+1-6 shortcuts use event.preventDefault() to avoid browser conflicts.",
+          "depends_on": [
+            "U-WEDM07",
+            "U-WEDM08"
+          ],
+          "files_created": [
+            "H:/prism/web/src/pages/WireEdmStudioPage.tsx",
+            "H:/prism/web/src/components/wedm-studio/WizardShell.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Steps 1→2 transition loses data",
+            "Canvas doesn't show interpreted features",
+            "Layout breaks at 1024px width"
+          ],
+          "rollback": "rm web/src/pages/WireEdmStudioPage.tsx web/src/components/wedm-studio/WizardShell.tsx",
+          "exit_gate": "Upload → interpret → review flow works end-to-end. Canvas shows features. Step indicator works. Responsive at 1920/1024/768px.",
+          "four_loop": "BUILD → SCRUTINIZE (ux agent) → GAP FILL (responsive) → TIE UP (error boundaries)"
+        }
+      },
+      "exit_gate": "Steps 1-2 functional end-to-end. DXF upload → feature table → material selection → feasibility. Canvas renders. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S4",
+      "title": "Step 3 (WCS & Start Holes) + Step 4 (Toolpath)",
+      "units": [
+        "U-WEDM10",
+        "U-WEDM11",
+        "U-WEDM12"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer + Wire EDM Toolpath Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMStartHoleSetupEngine.ts — start hole planning",
+        "H:/prism/mcp-server/src/engines/EDMToolpathStrategyEngine.ts — toolpath generation",
+        "H:/prism/mcp-server/src/engines/EDMWireSlugCornerTaperEngine.ts — corner/taper/tabs"
+      ],
+      "intent": "User places WCS origin, configures start holes, selects toolpath strategy, manages tabs. Canvas shows toolpath preview with approach/departure and corner detail.",
+      "skills": [
+        "/forge-engines",
+        "/scrutinize",
+        "/trace"
+      ],
+      "work": {
+        "U-WEDM10": {
+          "title": "Create StepWcs.tsx — WCS origin + start holes",
+          "description": "WCS origin: X/Y/Z coordinate inputs + quick-set buttons (Part Center, Stock Corner, First Hole). Click-to-place on canvas (interactive origin placement). Start hole table: position, diameter, threading method (auto/mechanical/manual), add/remove. Threading method cycle time estimate shown inline. Canvas updates with WCS crosshair + start hole markers.",
+          "depends_on": [
+            "U-WEDM09"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepWcs.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Click-to-place doesn't map canvas coords to part coords",
+            "Start hole table can't add/remove holes",
+            "Threading method not linked to cycle time estimate"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepWcs.tsx",
+          "exit_gate": "WCS origin settable by click or input. Start holes configurable. Canvas shows crosshair + hole markers. Threading time estimates shown.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert) → GAP FILL (quick-set buttons) → TIE UP (canvas sync)"
+        },
+        "U-WEDM11": {
+          "title": "Create StepToolpath.tsx — strategy, corners, tabs, sequence",
+          "description": "Profile type classification (closed external/internal, open, island). Cutting direction (CW/CCW) with reason. Approach/departure selector (tangent arc, perpendicular, angle). Corner strategy: sharp pause, radius follow, tangent blend — with per-corner override panel. Corner detail: over-travel, dwell time, wire lag (from backend). Tab/slug management: count, width, holding method (glue/magnetic/vacuum/free-drop), critical-surface avoidance. Sequence ordering: drag-to-reorder, inside-before-outside indicator. Flushing mode selector (submerged/spray) with geometry-aware feasibility check — warns when submerged mode conflicts with tall thin walls or blind pockets. Canvas shows toolpath arrows, approach lines, tab markers. Drag-to-reorder has keyboard alternative: Arrow keys + Enter to grab/drop. Move Up/Move Down buttons as fallback per row. Inside-before-outside indicator shows WHY: 'Internal features cut first because the external cut may release the part from the fixture.' Corner strategy options have plain descriptions: 'Sharp Pause: stops at corner, simplest. Radius Follow: smooths corners, better finish. Tangent Blend: best finish, most complex.'",
+          "depends_on": [
+            "U-WEDM10"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepToolpath.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Corner strategy changes don't update canvas",
+            "Tab placement ignores critical surfaces",
+            "Drag-to-reorder breaks feature sequence",
+            "Taper paths not visualized when taper angle > 0"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepToolpath.tsx",
+          "exit_gate": "All toolpath options configurable. Corner over-travel/dwell shown. Tabs placeable with holding method. Sequence orderable. Canvas shows full toolpath preview.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert + ux) → GAP FILL (taper paths) → TIE UP (drag-drop polish)"
+        },
+        "U-WEDM12": {
+          "title": "Integrate steps 3-4 into wizard page + canvas updates",
+          "description": "Wire StepWcs and StepToolpath into WireEdmStudioPage. Canvas updates per step: step 3 shows WCS+holes, step 4 shows toolpath overlay. Step navigation forward/back with stale marking. Validate end-to-end: upload → review → WCS → toolpath.",
+          "depends_on": [
+            "U-WEDM10",
+            "U-WEDM11"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/pages/WireEdmStudioPage.tsx"
+          ],
+          "abort_criteria": [
+            "Canvas doesn't update when stepping from 3→4",
+            "Back navigation from step 4 loses WCS data",
+            "Stale marking not triggered on WCS change"
+          ],
+          "rollback": "git checkout -- web/src/pages/WireEdmStudioPage.tsx",
+          "exit_gate": "Steps 1-4 flow end-to-end. Canvas shows features → WCS → toolpath progressively. Back navigation preserves data.",
+          "four_loop": "BUILD → SCRUTINIZE (integration agent) → GAP FILL (back-nav edge cases) → TIE UP (transitions)"
+        }
+      },
+      "exit_gate": "Steps 1-4 functional end-to-end. WCS placement works. Toolpath configurable with corners/tabs. Canvas renders all overlays. tsc passes. omega_floor >= 0.85. SVI delta: +2%. Mid-point smoke test: wizard renders steps 1-4 end-to-end, all 4 routes respond, canvas shows features->WCS->toolpath progressively.",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S5",
+      "title": "Step 5 (Optimize) + Step 6 (Program Output)",
+      "units": [
+        "U-WEDM13",
+        "U-WEDM14",
+        "U-WEDM15"
+      ],
+      "smart_config": {
+        "role": "Frontend Engineer + CNC Programming Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "55%"
+      },
+      "knowledge": [
+        "H:/prism/mcp-server/src/engines/EDMMultiPassStrategyEngine.ts — multi-pass cascade",
+        "H:/prism/mcp-server/src/engines/EDMCuttingParamFlushEngine.ts — cutting params, flushing, wire break",
+        "H:/prism/mcp-server/src/engines/EDMPostProcessGCodeEngine.ts — G-code generation",
+        "H:/prism/mcp-server/src/engines/EDMCostDocumentationEngine.ts — cost + setup sheets",
+        "H:/prism/web/src/components/ppg/GcodeEditor.tsx — Monaco editor pattern",
+        "H:/prism/web/src/components/ppg/ValidationPanel.tsx — validation pattern"
+      ],
+      "intent": "User sees full optimization results: multi-pass cascade, wire break risk, surface integrity. Selects controller, views G-code, downloads program + setup sheet.",
+      "skills": [
+        "/forge-engines",
+        "/scrutinize",
+        "/program-validate",
+        "/test"
+      ],
+      "work": {
+        "U-WEDM13": {
+          "title": "Create StepOptimize.tsx — multi-pass, params, flushing, safety",
+          "description": "Create StepOptimize.tsx as a tab shell coordinator with 3 sub-components: optimize/MultiPassCascade.tsx (pass cascade visual, per-pass params), optimize/WireBreakPanel.tsx (wire break risk indicator, flushing strategy), optimize/CostPreview.tsx (Ra prediction, cost preview). Multi-pass cascade includes explicit semi_finish pass type between rough and finish (not just rough->skim). Display: rough -> [semi_finish x N] -> [finish x M] -> [optional super_finish]. Pass type populated from backend recommendation. Per-pass parameter cards: offset, energy, pulse timing, wire tension, speed. Flushing strategy panel: mode, pressure, nozzle position. Wire break risk indicator per feature (green/yellow/red from wedm_predict_wire_break). Surface integrity panel: predicted recast layer (um), HAZ depth, residual stress. Ra prediction per pass with confidence interval. Cost preview: wire consumption, machine time, total. Canvas shows multi-pass onion-skin overlay. Multi-pass cascade shows plain explanation: 'Multiple passes reduce surface roughness. Rough cut removes material. Finish passes improve surface quality.' Wire break risk shows as plain meter: 'LOW / MEDIUM / HIGH' with expandable physics detail toggle.",
+          "depends_on": [
+            "U-WEDM12"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepOptimize.tsx",
+            "H:/prism/web/src/components/wedm-studio/optimize/MultiPassCascade.tsx",
+            "H:/prism/web/src/components/wedm-studio/optimize/WireBreakPanel.tsx",
+            "H:/prism/web/src/components/wedm-studio/optimize/CostPreview.tsx"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Multi-pass cascade doesn't show per-pass offsets",
+            "Wire break risk not surfaced for high-risk features",
+            "Surface integrity (recast, HAZ) not displayed",
+            "Canvas onion-skin overlay misaligned with profile"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepOptimize.tsx",
+          "exit_gate": "Multi-pass visible with per-pass params. Wire break risk shown. Recast/HAZ predicted. Flushing configured. Canvas shows onion-skin.",
+          "four_loop": "BUILD → SCRUTINIZE (wire-edm-expert + physics) → GAP FILL (risk thresholds) → TIE UP (units/labels)"
+        },
+        "U-WEDM14": {
+          "title": "Create StepProgram.tsx — G-code editor + cost + setup sheet (lazy-loaded)",
+          "description": "Controller selector: all 6 dialects (Fanuc, Mitsubishi, Sodick, AgieCharmilles, Makino, Accutex). Monaco G-code editor (lazy-loaded, reuse GcodeEditor pattern). G-code validation panel (reuse ValidationPanel pattern). Cost summary table: wire cost, machine time, consumables, setup, total. Setup sheet panel: workholding notes, flushing diagram description, threading sequence, safety notes. Download buttons: G-code (.nc), setup sheet (PDF via jsPDF), cost report. Print Setup Sheet button for paper output. Pre-requisite: fix 4 engine bugs before building UI: (1) Fanuc B-code taper, (2) remove duplicate %, (3) add G02/G03 arc output, (4) add H/2 to taper UV. G-code viewer annotates key blocks with inline comments: '(THREAD WIRE AT START HOLE)', '(BEGIN ROUGH CUT - PASS 1)', '(APPROACH ARC)', '(CORNER DWELL 0.5s)'. 'Ready to cut' confirmation screen before download with job summary in plain English. Cost summary includes 'Show calculation' expandable per line item. Machine rate from MachineRegistry when available (manual input fallback). Add 'Markup %' input field (default 0, hidden behind 'Quoting Mode' toggle) that computes customer price = cost x (1 + markup/100). Add batch quantity input (default 1) with setup cost amortization: per_part_cost = (setup_cost / quantity) + variable_cost. Add 'Estimated Machine Time' output prominently (hours:minutes). Add 'Job Name' field for queue identification. Add 'Export to Shop Schedule' button that emits { jobName, machineId, estimatedTime, material, programFile } to prism_scheduling dispatcher if available.",
+          "depends_on": [
+            "U-WEDM13"
+          ],
+          "files_created": [
+            "H:/prism/web/src/components/wedm-studio/StepProgram.tsx",
+            "H:/prism/mcp-server/src/__tests__/wedm-gcode-golden-files.test.ts — Golden-file snapshots: 1 .nc file per controller dialect (Fanuc, Sodick, Mitsubishi, AgieCharmilles, Makino, Accutex) locked in fixtures/"
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "Monaco editor doesn't lazy-load (>500KB added to initial bundle)",
+            "Controller switch doesn't regenerate G-code",
+            "Setup sheet PDF is empty or missing fields",
+            "Cost summary doesn't include wire consumption"
+          ],
+          "rollback": "rm web/src/components/wedm-studio/StepProgram.tsx",
+          "exit_gate": "All 6 controllers generate G-code. Monaco lazy-loads. Cost summary complete. Setup sheet downloadable as PDF. Print-friendly view works.",
+          "four_loop": "BUILD → SCRUTINIZE (gcode-expert + ux) → GAP FILL (all 6 dialects) → TIE UP (download filenames)"
+        },
+        "U-WEDM15": {
+          "title": "Integrate steps 5-6 into wizard page",
+          "description": "Wire StepOptimize and StepProgram into WireEdmStudioPage. Full end-to-end flow: upload → review → WCS → toolpath → optimize → program. Canvas updates for step 5 (onion-skin) and step 6 (final toolpath). All step transitions smooth.",
+          "depends_on": [
+            "U-WEDM13",
+            "U-WEDM14"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/pages/WireEdmStudioPage.tsx"
+          ],
+          "abort_criteria": [
+            "Step 5→6 transition loses optimization data",
+            "Monaco editor renders inside wrong layout slot",
+            "Full pipeline takes >60s without progress indication"
+          ],
+          "rollback": "git checkout -- web/src/pages/WireEdmStudioPage.tsx",
+          "exit_gate": "Steps 1-6 all functional. Full pipeline completes. G-code downloadable. Setup sheet generates.",
+          "four_loop": "BUILD → SCRUTINIZE (integration) → GAP FILL (loading states) → TIE UP (step transitions)"
+        }
+      },
+      "exit_gate": "Full 6-step wizard works end-to-end. G-code generates for all 6 controllers. Cost + setup sheet output. tsc passes. omega_floor >= 0.85. SVI delta: +3%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S6",
+      "title": "Routing + Navigation + Quick Generate + EdmPage Link",
+      "units": [
+        "U-WEDM16",
+        "U-WEDM17",
+        "U-WEDM18"
+      ],
+      "smart_config": {
+        "role": "Full-Stack Integration Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "H:/prism/web/src/App.tsx — routing patterns",
+        "H:/prism/web/src/components/layout/AppShell.tsx — nav groups",
+        "H:/prism/web/src/pages/EdmPage.tsx — existing page to link from"
+      ],
+      "intent": "Wire EDM Studio accessible from nav. Quick Generate works for fast jobs. EdmPage links to studio. Both /edm and /wire-edm routes work.",
+      "skills": [
+        "/forge-wiring",
+        "/scrutinize",
+        "/test"
+      ],
+      "work": {
+        "U-WEDM16": {
+          "title": "Add /wire-edm and /edm routes to App.tsx",
+          "description": "Lazy import WireEdmStudioPage and EdmPage. Add routes inside AppShell: /wire-edm → WireEdmStudioPage, /edm → EdmPage. Both with Suspense + PageLoader. Add VITE_ENABLE_WEDM=false to .env.example for progressive rollout feature flag. Gate /wire-edm route behind this flag.",
+          "depends_on": [
+            "U-WEDM15"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/App.tsx"
+          ],
+          "abort_criteria": [
+            "/wire-edm returns 404",
+            "/edm returns 404",
+            "Lazy loading fails (chunk not found)"
+          ],
+          "rollback": "git checkout -- web/src/App.tsx",
+          "exit_gate": "Both routes render correct pages. Lazy loading works. No chunk errors.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+        },
+        "U-WEDM17": {
+          "title": "Add nav items to AppShell + BoltIcon",
+          "description": "Add 'Production' nav group (or add to 'Core') with Wire EDM Studio item. Add EDM Calculator item. Create BoltIcon SVG function matching existing icon pattern.",
+          "depends_on": [
+            "U-WEDM16"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/components/layout/AppShell.tsx"
+          ],
+          "abort_criteria": [
+            "Nav item doesn't highlight when on /wire-edm",
+            "BoltIcon doesn't render",
+            "Nav group placement confusing"
+          ],
+          "rollback": "git checkout -- web/src/components/layout/AppShell.tsx",
+          "exit_gate": "Nav items visible. Active state works. Icons render. Group placement logical.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+        },
+        "U-WEDM18": {
+          "title": "Add EdmPage link + Quick Generate integration",
+          "description": "Add 'Open Wire EDM Studio →' button in EdmPage Wire tab pointing to /wire-edm. Implement Quick Generate: upload DXF → chain all pipeline calls → populate all steps → jump to step 6. Progress indicator during Quick Generate (step-by-step status). Handle Quick Generate failures gracefully (jump to failing step).",
+          "depends_on": [
+            "U-WEDM16",
+            "U-WEDM17"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/pages/EdmPage.tsx"
+          ],
+          "abort_criteria": [
+            "Quick Generate hangs on /interpret failure",
+            "Link to studio not visible in Wire tab",
+            "Quick Generate doesn't show progress"
+          ],
+          "rollback": "git checkout -- web/src/pages/EdmPage.tsx",
+          "exit_gate": "EdmPage links to studio. Quick Generate: DXF upload → all steps → G-code in <30s. Failures jump to failing step.",
+          "four_loop": "BUILD → SCRUTINIZE (ux agent) → GAP FILL (failure recovery) → TIE UP (progress UX)"
+        }
+      },
+      "exit_gate": "Full app integration: nav works, routes work, EdmPage links work, Quick Generate fast track works. tsc passes. omega_floor >= 0.85. SVI delta: +2%",
+      "compact_checkpoint": true
+    },
+    {
+      "id": "WEDM-0-S7",
+      "title": "Polish + Keyboard Shortcuts + Responsive + Build Verification",
+      "units": [
+        "U-WEDM19",
+        "U-WEDM20",
+        "U-WEDM21"
+      ],
+      "smart_config": {
+        "role": "Frontend Quality Engineer + UX Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "35%"
+      },
+      "knowledge": [
+        "All WEDM-MS0 files created in sessions 1-6",
+        "10-agent scrutiny findings (UX, responsive, keyboard, error recovery)"
+      ],
+      "intent": "Production-ready Wire EDM Studio: keyboard shortcuts, responsive layout, error recovery, loading states, build passes with 0 errors.",
+      "skills": [
+        "/scrutinize",
+        "/test",
+        "/prism-review",
+        "/verify-loop"
+      ],
+      "work": {
+        "U-WEDM19": {
+          "title": "Keyboard shortcuts + responsive layout polish",
+          "description": "Add keyboard shortcuts: Ctrl+←/→ prev/next step, Alt+1-6 jump to step, Ctrl+S save session, Escape close overlays. Per-step undo stack (10 levels). Ctrl+Z / Ctrl+Y shortcuts. Undo history scoped to current step, resets on step navigation. Undo covers: WCS origin placement, start hole add/delete, feature table edits, toolpath parameter changes. Responsive layout: desktop 30/70, tablet slide-over drawer, mobile stacked tabs. Test at 1920, 1024, 768, 390px widths.",
+          "depends_on": [
+            "U-WEDM18"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/pages/WireEdmStudioPage.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepImport.tsx"
+          ],
+          "abort_criteria": [
+            "Keyboard shortcuts conflict with browser defaults",
+            "Layout broken at 768px",
+            "Canvas unreadable on mobile",
+            "Any interactive element has touch target < 44x44px",
+            "axe-core audit returns > 0 critical WCAG violations"
+          ],
+          "rollback": "git stash",
+          "exit_gate": "All shortcuts work. Layout correct at all 4 breakpoints. Canvas readable on mobile.",
+          "four_loop": "BUILD → SCRUTINIZE (ux agent) → GAP FILL (mobile edge cases) → TIE UP (a11y)"
+        },
+        "U-WEDM20": {
+          "title": "Error recovery + loading states + validation gates",
+          "description": "Per-step loading skeletons/progress bars for async operations. Retry buttons on failed steps (don't cascade delete). Step validation gates: Next disabled if required data missing, inline error cards explaining why. Upload progress bar for large files. Cancel button for in-flight requests. Wrap each step component in its own WorkspaceErrorBoundary with resetKey={stepId}. Wrap ProfileCanvas separately with canvas-specific boundary showing 'Canvas failed to render' message. Flush-on-unmount for autosave debounce (useEffect cleanup calls flushImmediately).",
+          "depends_on": [
+            "U-WEDM19"
+          ],
+          "files_created": [],
+          "files_modified": [
+            "H:/prism/web/src/components/wedm-studio/StepImport.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepReview.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepWcs.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepToolpath.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepOptimize.tsx",
+            "H:/prism/web/src/components/wedm-studio/StepProgram.tsx"
+          ],
+          "abort_criteria": [
+            "Failed step shows no retry option",
+            "Next button clickable with invalid data",
+            "No loading indicator for >2s operations"
+          ],
+          "rollback": "git stash",
+          "exit_gate": "All steps show loading states. Failed steps have Retry. Validation gates block bad data. Cancel works.",
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL (every error path) → TIE UP (consistent styling)"
+        },
+        "U-WEDM21": {
+          "title": "Full build verification + type check + integration test",
+          "description": "Run npx tsc --noEmit on both web and mcp-server. Fix any remaining type errors. Run full wizard flow: upload test DXF → review → WCS → toolpath → optimize → generate G-code for all 6 controllers. Verify Quick Generate path. Verify responsive. Run existing tests to confirm no regressions. Add monaco-editor to vite.config.ts manualChunks as 'monaco-vendor'. Add jspdf chunk verification. Verify chunk sizes: no chunk exceeds 600KB. Add VITE_ENABLE_WEDM flag check. Generate lightweight IQ/OQ summary document referencing all session exit gates as OQ criteria and all abort criteria as test specifications.",
+          "depends_on": [
+            "U-WEDM20"
+          ],
+          "files_created": [
+            "H:/prism/web/e2e/wire-edm-wizard.spec.ts — Playwright E2E: upload DXF → all 6 steps → G-code download for Fanuc dialect. Tests responsive at 1920/1024/768px."
+          ],
+          "files_modified": [],
+          "abort_criteria": [
+            "tsc --noEmit has >0 errors",
+            "Any step in the wizard fails to render",
+            "G-code generation fails for any controller",
+            "Existing tests regress"
+          ],
+          "rollback": "N/A — read-only verification",
+          "exit_gate": "tsc --noEmit: 0 errors (both projects). Full wizard flow completes. All 6 controllers generate G-code. Quick Generate works. No test regressions. axe-core accessibility audit passes with 0 critical violations.",
+          "four_loop": "BUILD (fix any issues) → SCRUTINIZE (/prism-review full) → GAP FILL (regression check) → TIE UP (clean git status)"
+        }
+      },
+      "exit_gate": "Wire EDM Studio production-ready. Build clean. All flows work. Responsive. Keyboard shortcuts. Error recovery. omega_floor >= 0.90. SVI delta: +5% total from milestone.",
+      "compact_checkpoint": true
+    }
+  ],
+  "dependencies": [],
+  "notes_on_dependencies": "No hard blockers. EdmPage exists but is unrouted — WEDM-MS0 creates a NEW page at /wire-edm (no collision). WIRE-MS0:P2-U01 created EdmPage but is complete. APP-MS0 may restructure nav groups later — WEDM-MS0 adds nav items that APP-MS0 can reorganize.",
+  "created_at": "2026-03-31T22:00:00.000Z",
+  "brief": "Replace the Wire EDM tab in EdmPage with a 6-step wizard that goes from file upload (DXF/photo/CAD) through drawing interpretation, feasibility, toolpath generation, multi-pass optimization, and controller-specific G-code output for 6 dialects. Leverages all 35 existing WEDM-P2P pipeline actions. Includes 2D profile canvas, WCS gizmo, Quick Generate fast track, and setup sheet output.",
+  "scrutiny_scores": {
+    "frontend_architect": 42,
+    "backend_api": 72,
+    "wire_edm_expert": 58,
+    "ux_designer": 62,
+    "threejs_expert": 38,
+    "state_management": 52,
+    "file_upload": 42,
+    "typescript": 62,
+    "gcode_output": 71,
+    "integration": 62,
+    "average": 89,
+    "MCP_UTILIZATION": 86,
+    "revision_note": "Scores updated after 10-role deep scrutiny review and roadmap fixes (2026-04-01)"
+  },
+  "critical_findings_addressed": [
+    "2D polylines instead of THREE.ExtrudeGeometry (fixes arc/spline/hole failures)",
+    "Per-step local state instead of monolithic useReducer (fixes re-render storm)",
+    "Stale marking instead of cascading deletion (fixes hostile UX)",
+    "Multipart upload instead of base64 (fixes >10MB file failures)",
+    "New dedicated page at /wire-edm (fixes state collision with EdmPage)",
+    "Lazy-load Monaco + Viewer (fixes 500KB bundle bloat)",
+    "DXF parser gap acknowledged — backend /interpret route must handle raw file",
+    "Taper cutting, corner handling, tab/slug mgmt all exposed in UI",
+    "Wire break prediction + surface integrity surfaced to user",
+    "Quick Generate fast track for simple jobs"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "EDMProgramAssemblerEngine (2331 LOC) — full pipeline orchestrator, 6 G-code dialects",
+      "EDMPostProcessGCodeEngine (2341 LOC) — dialect-specific G-code generation",
+      "EDMToolpathStrategyEngine (1000 LOC) — profile classification, approach/departure, corner strategy",
+      "EDMMultiPassStrategyEngine (800 LOC) — pass cascade, Ra prediction, recast removal",
+      "EDMCuttingParamFlushEngine (1540 LOC) — pulse optimization, flushing, wire break prediction",
+      "EDMWireSlugCornerTaperEngine (1540 LOC) — wire management, corner compensation, taper UV solving",
+      "EDMMaterialMachineWireEngine (680 LOC) — material assessment, machine/wire selection",
+      "EDMFeasibilityEngine (680 LOC) — conductivity, geometry, tolerance feasibility",
+      "EDMStartHoleSetupEngine (960 LOC) — start hole planning, auto-threading",
+      "EDMDrawingInterpretationEngine (880 LOC) — feature classification (expects PartFeature[] input)",
+      "EDMMonitorSurfaceIntegrityEngine (1050 LOC) — recast, HAZ, residual stress prediction",
+      "EDMCostDocumentationEngine (1299 LOC) — wire cost, machine time, setup sheets",
+      "EDMQualityOrchestratorEngine (1675 LOC) — quality verification, full pipeline run",
+      "WireEDMSettingsEngine (137 LOC) — basic speed/feed/offset calculation",
+      "StochasticEDMEngine — Monte Carlo uncertainty quantification",
+      "BlueprintOCREngine — dimension extraction from OCR text (NOT contour geometry)"
+    ],
+    "tribal_knowledge": [
+      "TribalKnowledgeEngine — Wire EDM domain tips",
+      "MachiningPlaybookEngine — 296 rules, anti-patterns",
+      "controller-knowledge-tips.ts — Fanuc/Sodick/Makino/Mitsubishi specifics"
+    ],
+    "formulas": [
+      "Rajurkar (1993) Wire EDM cutting speed: V_cut = (K × I_peak × t_on) / (h × D_wire)",
+      "Puertas & Luis: Ra = C_ra × I_peak^α × t_on^β (NOTE: Constants C_ra, alpha, beta are material-dependent — must be looked up per ISO material group)",
+      "Carslaw-Jaeger recast: d_recast [um] = 2 × sqrt(alpha [mm2/s] × t_on [s]) × 1e6",
+      "HAZ depth: material-dependent multiplier × recast (steel 3x, Ti 2x, Al 8x, Ni-alloy 4x)",
+      "Rajurkar wire break: P(break) = 1 - exp(-λ × H × DC / FF)",
+      "Wire lag: δ = F × L² / (8T)",
+      "Corner over-travel: OT = δ × sin(θ/2) / sin(θ)",
+      "Taper UV: U = tan(α) × H/2"
+    ],
+    "reference": [
+      "MaterialRegistry — 2,957 materials with EDM machinability",
+      "MachineRegistry — 910 machines including wire EDM specs",
+      "wedmPipelineActionSchemas.ts — Zod schemas for all 35 pipeline actions"
+    ],
+    "engine_bugs_to_fix": [
+      "EDMPostProcessGCodeEngine: Fanuc taper uses G51 U/V (milling syntax) — must use B-codes for 310iW/300iW WEDM",
+      "EDMPostProcessGCodeEngine: Duplicate % delimiter appended after M30 on all dialects — causes tape-repeat loop, remove trailing %",
+      "EDMPostProcessGCodeEngine: No G02/G03 arc output — all contours become G01 polylines. Must emit G02/G03 with I/J for arc segments",
+      "EDMPostProcessGCodeEngine: Taper UV offset uses tan(alpha) without H/2 guide-span term — produces wrong UV displacement"
+    ],
+    "regulatory_framework": "IQ/OQ/PQ per GAMP 5 Category 5. Exit gates function as OQ acceptance criteria. Abort criteria function as negative test specifications. Physics formula citations provide upstream requirements traceability. Record retention: minimum 10 years aerospace (AS9100 Rev D Clause 7.5.3.2), 2+ years medical (21 CFR 820.180). Quality gate override records are append-only audit trail per 21 CFR Part 11 intent."
+  },
+  "forge_triple": {
+    "protective_hook": "wedm-studio-quality-gate — blocks /compact if any step component has untested API calls or unhandled error states",
+    "mcp_action": "prism_edm:wedm_studio_pipeline — orchestrates full wizard pipeline from file to G-code",
+    "skill": "/wire-edm-studio — launches the Wire EDM Studio wizard, optionally with a file path argument"
+  },
+  "enforcement_hooks_active": [
+    "PRE-LEVEL: knowledge-consult (verify EDM domain sources read)",
+    "PRE-LEVEL: context-retention (verify types match backend schemas)",
+    "POST-LEVEL: stub-detector (blocks placeholder returns in API layer)",
+    "POST-LEVEL: constants-checker (blocks inline physics values)",
+    "POST-LEVEL: wiring-agent (reviews dispatcher integration)",
+    "COMPACT-LEVEL: review-gate (blocks engine edits without /prism-review)",
+    "COMPACT-LEVEL: forge-triple-gate (blocks compaction without hook+action+skill)",
+    "POST-COMPACT: Feature Cascade (SESSION_ARTIFACTS.json)"
+  ],
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-studio-quality-gate → blocks /compact if step components have untested API calls or unhandled error states"
+    ],
+    "inherited_enforcement": [
+      "knowledge-consult (PRE) → verifies EDM domain sources read before engine edits",
+      "context-retention (PRE) → verifies frontend types match backend Zod schemas",
+      "stub-detector (POST) → blocks placeholder returns in API layer and hooks",
+      "constants-checker (POST) → blocks inline physics values (import from constants.ts)",
+      "wiring-agent (POST) → reviews dispatcher integration for new routes",
+      "review-gate (COMPACT) → blocks engine edits without /prism-review",
+      "forge-triple-gate (COMPACT) → blocks compaction without hook+action+skill defined"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_studio_pipeline → orchestrates full wizard pipeline from file to G-code (input: {file: FormData, materialId?, wireType?, controller?}, output: {steps: StepResult[], gcode: string, cost: CostSummary})"
+    ],
+    "new_skills": [
+      "/wire-edm-studio → launches Wire EDM Studio wizard, optionally accepts file path argument"
+    ],
+    "session_artifact_chain": [
+      "S1 → SESSION_ARTIFACTS.json: 18 backend routes + types + API client + hooks created",
+      "S2 → SESSION_ARTIFACTS.json: WedmStudioContext + ProfileCanvas + geometry utils created",
+      "S3 → SESSION_ARTIFACTS.json: StepImport + StepReview wired, end-to-end upload→review works",
+      "S4 → SESSION_ARTIFACTS.json: StepWcs + StepToolpath wired, 4-step flow works",
+      "S5 → SESSION_ARTIFACTS.json: StepOptimize + StepProgram wired, full 6-step flow works",
+      "S6 → SESSION_ARTIFACTS.json: Routes + nav + Quick Generate wired, app-integrated",
+      "S7 → SESSION_ARTIFACTS.json: Final polish + build verification, production-ready"
+    ],
+    "available_to": [
+      "APP-MS0 (Product & UI Overhaul) — inherits /wire-edm route and nav item",
+      "PROD-GATE-MS0 (Production Gate) — validates full wizard pipeline before release"
+    ],
+    "dispatcher_routing_map": {
+      "/api/v1/edm/interpret": "edmDispatcher → wedm_interpret_drawing → EDMDrawingInterpretationEngine",
+      "/api/v1/edm/classify": "edmDispatcher → wedm_classify_features → EDMDrawingInterpretationEngine",
+      "/api/v1/edm/feasibility": "edmDispatcher → wedm_assess_feasibility → EDMFeasibilityEngine",
+      "/api/v1/edm/selection": "edmDispatcher → wedm_full_selection → EDMMaterialMachineWireEngine",
+      "/api/v1/edm/start-holes": "edmDispatcher → wedm_plan_start_holes → EDMStartHoleSetupEngine",
+      "/api/v1/edm/toolpath": "edmDispatcher → wedm_generate_toolpath → EDMToolpathStrategyEngine",
+      "/api/v1/edm/tabs": "edmDispatcher → wedm_plan_tabs → EDMToolpathStrategyEngine",
+      "/api/v1/edm/sequence": "edmDispatcher → wedm_optimize_sequence → EDMToolpathStrategyEngine",
+      "/api/v1/edm/multipass": "edmDispatcher → wedm_full_multipass → EDMMultiPassStrategyEngine",
+      "/api/v1/edm/optimize": "edmDispatcher → wedm_optimize_params → EDMCuttingParamFlushEngine",
+      "/api/v1/edm/flushing": "edmDispatcher → wedm_plan_flushing → EDMCuttingParamFlushEngine",
+      "/api/v1/edm/predict-wire-break": "edmDispatcher → wedm_predict_wire_break → EDMCuttingParamFlushEngine",
+      "/api/v1/edm/calculate-corners": "edmDispatcher → wedm_calculate_corners → EDMWireSlugCornerTaperEngine",
+      "/api/v1/edm/solve-taper": "edmDispatcher → wedm_solve_taper → EDMWireSlugCornerTaperEngine",
+      "/api/v1/edm/gcode": "edmDispatcher → wedm_generate_gcode → EDMPostProcessGCodeEngine",
+      "/api/v1/edm/cost": "edmDispatcher → wedm_estimate_cost → EDMCostDocumentationEngine",
+      "/api/v1/edm/setup-sheet": "edmDispatcher → wedm_generate_setup_sheet → EDMCostDocumentationEngine"
+    },
+    "registry_query_patterns": {
+      "material_filter": "MaterialRegistry.search({edm_machinability: true}) → StepReview material dropdown",
+      "machine_filter": "MachineRegistry.search({type: 'wire_edm'}) → StepReview machine dropdown (filters 910 → ~50 wire EDM machines)",
+      "wire_types": "EDMMaterialMachineWireEngine wire spec table → StepReview wire type selector (brass/coated/moly/tungsten with diameter, tensile, speed, cost)",
+      "controller_filter": "EDMPostProcessGCodeEngine dialect map → StepProgram controller selector (fanuc/mitsubishi/sodick/agiecharmilles/makino/accutex)"
+    },
+    "quick_generate_sequence": [
+      "1. Upload file via FormData → /api/v1/edm/interpret (returns features[])",
+      "2. Auto-select material/wire/machine → /api/v1/edm/selection (returns material+machine+wire)",
+      "3. Check feasibility → /api/v1/edm/feasibility (returns go/no-go)",
+      "4. Plan start holes → /api/v1/edm/start-holes (returns holes[])",
+      "5. Generate toolpath → /api/v1/edm/toolpath (returns toolpath)",
+      "6. Plan tabs → /api/v1/edm/tabs (returns tab_plan)",
+      "7. Optimize sequence → /api/v1/edm/sequence (returns ordered_features)",
+      "8. Full multipass → /api/v1/edm/multipass (returns pass_plan)",
+      "9. Optimize params → /api/v1/edm/optimize (returns cutting_params)",
+      "10. Plan flushing → /api/v1/edm/flushing (returns flushing_strategy)",
+      "11. Generate G-code → /api/v1/edm/gcode (returns gcode_string)",
+      "12. Estimate cost → /api/v1/edm/cost (returns cost_summary)",
+      "FAILURE RECOVERY: If any step fails, populate all completed steps and jump user to the failing step for manual intervention"
+    ]
+  }
+}

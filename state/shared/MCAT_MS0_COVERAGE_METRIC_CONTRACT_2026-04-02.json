@@ -1,0 +1,305 @@
+{
+  "id": "MCAT-MS0-COVERAGE-CONTRACT-2026-04-02",
+  "parentMilestone": "MCAT-MS0",
+  "lane": "MCAT-MS0/P1-U01-support",
+  "status": "working",
+  "derivedFrom": [
+    "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.json",
+    "H:/PRISM/state/shared/MCAT_MS0_LEGALITY_GRAPH_SPEC_2026-04-02.json"
+  ],
+  "denominatorRule": {
+    "allowedSources": [
+      "enumerated_legal_values",
+      "enumerated_legal_tuples",
+      "explicit_numeric_boundary_classes",
+      "explicit_bundle_classes",
+      "source_family_discovery_from_census"
+    ],
+    "forbidden": [
+      "naive_cartesian_products_after_legality_constraints_exist"
+    ]
+  },
+  "metrics": {
+    "Cov_1": {
+      "formula": "tested_values(d) / legal_values(d)",
+      "domains": [
+        "machine_package",
+        "controller_package",
+        "spindle_package",
+        "coolant_id",
+        "machine_feature_id",
+        "holder_family",
+        "tool_family",
+        "cam_environment",
+        "toolpath_id",
+        "material_state",
+        "workholding_family"
+      ]
+    },
+    "Cov_2": {
+      "formula": "tested_pairs(i,j) / legal_pairs(i,j)",
+      "criticalPairs": [
+        [
+          "machine_package",
+          "machine_configuration_bundle"
+        ],
+        [
+          "machine_package",
+          "tooling_layout_topology"
+        ],
+        [
+          "machine_package",
+          "holder_bundle"
+        ],
+        [
+          "machine_package",
+          "coolant_set"
+        ],
+        [
+          "controller_package",
+          "controller_feature_set"
+        ],
+        [
+          "spindle_package",
+          "holder_bundle"
+        ],
+        [
+          "holder_bundle",
+          "tool_bundle"
+        ],
+        [
+          "tool_bundle",
+          "toolpath_strategy"
+        ],
+        [
+          "material_state",
+          "tool_bundle"
+        ],
+        [
+          "material_state",
+          "coolant_set"
+        ],
+        [
+          "workholding_bundle",
+          "machine_partition"
+        ],
+        [
+          "user_overlay",
+          "canonical_machine_package"
+        ]
+      ]
+    },
+    "Cov_bundle": {
+      "formula": "tested_bundle_classes(d) / legal_bundle_classes(d)",
+      "domains": [
+        "coolant_subsets",
+        "machine_feature_subsets",
+        "controller_feature_subsets",
+        "holder_style_subsets",
+        "software_binding_subsets",
+        "workholding_subsets"
+      ]
+    },
+    "Cov_t": {
+      "formula": "covered_legal_tuples(stratum) / enumerated_legal_tuples(stratum)",
+      "baselineT": 3,
+      "highRiskT": 4,
+      "hotspotT": 5
+    },
+    "Cov_b": {
+      "formula": "tested_boundaries / defined_boundaries",
+      "numericDomains": [
+        "spindle_rpm",
+        "magazine_or_turret_station_count",
+        "tool_diameter",
+        "flute_or_insert_count",
+        "holder_projection_or_gauge_length",
+        "doc",
+        "woc",
+        "feed",
+        "sfm",
+        "finish_target"
+      ]
+    },
+    "Cov_num": {
+      "formula": "within_tolerance_cases / oracle_scored_cases",
+      "oracleSources": [
+        "backend_solve_outputs",
+        "deterministic_calculators",
+        "bounded_expectation_bands"
+      ]
+    },
+    "Met_pass": {
+      "formula": "passed_invariants / executed_invariants"
+    },
+    "Wire_cov_source": {
+      "formula": "wired_source_families / discovered_source_families"
+    },
+    "Wire_cov_consumer": {
+      "formula": "consumers_using_canonical_truth / target_consumers",
+      "targetConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ]
+    },
+    "Penalty": {
+      "formula": "unresolved_legality_edges / total_legality_edges",
+      "classes": [
+        "merge_conflict",
+        "inferred_widening",
+        "fallback_only_surface",
+        "corpus_gap",
+        "stale_metadata",
+        "consumer_drift"
+      ]
+    },
+    "Q_cov": {
+      "formula": "0.15*Cov_1 + 0.20*Cov_2 + 0.10*Cov_bundle + 0.15*Cov_t + 0.10*Cov_b + 0.15*Cov_num + 0.10*Met_pass + 0.05*Wire_cov_source - Penalty",
+      "dashboardOnly": true
+    }
+  },
+  "releaseFloors": {
+    "Cov_1": 1.0,
+    "criticalCov_2": 1.0,
+    "criticalCov_bundle": 1.0,
+    "hotspotCov_tMin": 0.95,
+    "Cov_numMin": 0.97,
+    "Met_pass": 1.0,
+    "Wire_cov_sourceMin": 0.95,
+    "Wire_cov_consumerMin": 0.9,
+    "penaltyMaxPriorityBrands": 0.02,
+    "requiresSourceCountReconciliation": true
+  },
+  "riskStrata": {
+    "t3": [
+      [
+        "machine_package",
+        "coolant_set",
+        "material_state"
+      ],
+      [
+        "machine_package",
+        "cam_environment",
+        "toolpath_strategy"
+      ],
+      [
+        "machine_package",
+        "holder_bundle",
+        "tool_bundle"
+      ],
+      [
+        "machine_package",
+        "workholding_bundle",
+        "stock_shape"
+      ]
+    ],
+    "t4": [
+      [
+        "machine_package",
+        "spindle_package",
+        "holder_bundle",
+        "tool_bundle"
+      ],
+      [
+        "machine_package",
+        "controller_feature_bundle",
+        "cam_environment",
+        "toolpath_strategy"
+      ],
+      [
+        "machine_package",
+        "coolant_bundle",
+        "material_state",
+        "finish_target"
+      ],
+      [
+        "lathe_or_swiss_topology",
+        "live_tooling_flag",
+        "holder_interface",
+        "tool_family"
+      ],
+      [
+        "user_overlay",
+        "machine_package",
+        "controller_package",
+        "coolant_subset"
+      ]
+    ],
+    "t5Hotspots": [
+      [
+        "machine_package",
+        "spindle_package",
+        "holder_bundle",
+        "tool_bundle",
+        "toolpath_strategy"
+      ],
+      [
+        "machine_package",
+        "controller_feature_bundle",
+        "cam_environment",
+        "toolpath_strategy",
+        "material_state"
+      ],
+      [
+        "machine_package",
+        "coolant_bundle",
+        "finish_target",
+        "tool_bundle",
+        "material_state"
+      ]
+    ]
+  },
+  "requiredInvariants": [
+    "disabling a controller feature may not unlock new toolpaths",
+    "narrowing coolant capability may not widen legal coolant selection",
+    "incompatible holder interface may not remain legal after spindle or turret change",
+    "increasing tooling station capacity may expand fit but not machine identity",
+    "fallback to live transitions may not invent unsupported options",
+    "save/load roundtrip preserves canonical machine id and enabled subsets",
+    "overlay bundle closure holds after persistence and reload"
+  ],
+  "evidenceSchema": {
+    "requiredFields": [
+      "run_id",
+      "source_family_version_or_census_ref",
+      "legality_graph_version_ref",
+      "metric_contract_version_ref",
+      "counts",
+      "failed_tuples_with_legality_reason",
+      "ambiguity_classes_touched",
+      "affected_consumers",
+      "artifact_paths"
+    ],
+    "countSections": [
+      "values",
+      "pairs",
+      "bundle_classes",
+      "t_wise_tuples",
+      "numeric_cases",
+      "invariants"
+    ]
+  },
+  "currentGateOutcome": {
+    "session1CompleteIf": [
+      "census_exists",
+      "legality_graph_exists",
+      "metric_contract_exists"
+    ],
+    "largestBlockingGap": {
+      "domain": "tool_corpus",
+      "intendedCount": 95608,
+      "activeUniqueLiveIds": 13967
+    },
+    "remainingSourceWiringDeficits": [
+      "calculator_workholding",
+      "calculator_backend_toolpath_binding"
+    ]
+  },
+  "immediateNext": [
+    "Session 2 legality extractors from backend canonical registries",
+    "tool corpus recovery or reconciliation",
+    "calculator workholding and backend strategy registry binding"
+  ]
+}

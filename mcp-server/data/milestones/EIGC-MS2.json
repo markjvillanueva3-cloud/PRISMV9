@@ -1,0 +1,21 @@
+{
+  "id": "EIGC-MS2",
+  "version": "1.0.0",
+  "title": "Fix Runtime Honesty: Fail-Closed Patches",
+  "brief": "Patch 5 engines so unsupported paths fail closed: ToolSyncOrchestrator (explicit unsupported metadata), BatchCAMToolBridge (bridge vs native distinction), MultiProcessCAMBridge (no placeholder G-code), SecondaryOpsPipeline (surface unsupported ops), ExecutionVerification (no fake correction success).",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Runtime Honesty Patches", "sessions": "2-3", "units": [
+    {"id": "P0-U01", "title": "Patch ToolSyncOrchestratorEngine — unsupported sync targets return explicit metadata", "effort": 70, "dependencies": []},
+    {"id": "P0-U02", "title": "Patch BatchCAMToolBridgeEngines — bridge fallbacks clearly labeled", "effort": 60, "dependencies": []},
+    {"id": "P0-U03", "title": "Patch MultiProcessCAMBridgeEngine — no placeholder G-code on delegate failure", "effort": 70, "dependencies": []},
+    {"id": "P0-U04", "title": "Patch SecondaryOpsPipelineEngine — unsupported ops surfaced structurally", "effort": 50, "dependencies": []},
+    {"id": "P0-U05", "title": "Patch ExecutionVerificationEngine — unsupported corrections don't imply success", "effort": 50, "dependencies": []},
+    {"id": "P0-U06", "title": "Validate dispatcher schema correctness for all scoped actions", "effort": 40, "dependencies": ["P0-U01", "P0-U02", "P0-U03", "P0-U04", "P0-U05"]}
+  ]}],
+  "dependencies": ["EIGC-MS1"],
+  "exit_conditions": ["All incomplete runtime paths fail closed or degrade explicitly", "Dispatcher schemas validated"]
+}

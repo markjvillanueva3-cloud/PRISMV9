@@ -1,0 +1,298 @@
+{
+  "id": "HM-REV-MS10",
+  "version": "8.3.0",
+  "title": "Quality Chain + Setup Sheet + Formula Registry",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire PRISM's quality chain (SPC, FAI AS9102, metrology) to hyperMILL output, build auto-generated setup sheet PDF for hyperMILL jobs, and register 20 hyperMILL-specific formulas in FormulaRegistry (F-HM-001 to F-HM-020). Addresses Agent 20 finding (0/14 hyperMILL formulas in FormulaRegistry) and the gap where quality engines exist but are not connected to hyperMILL output.",
+  "dependencies": [
+    "HM-REV-MS5",
+    "HM-REV-MS6"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "SPCProcessCapabilityEngine (Cp/Cpk calculation)",
+      "FAIEngine (AS9102 first article inspection)",
+      "MetrologyUncertaintyEngine (measurement uncertainty)",
+      "SetupSheetEngine (setup sheet generation)",
+      "SurfaceFinishPredictorEngine (Ra/Rz for quality requirements)"
+    ],
+    "registries": [
+      "FormulaRegistry (499 formulas — target for 20 F-HM registrations)"
+    ],
+    "services": [],
+    "physics": [
+      "constants.ts (SPC control limits, measurement uncertainty factors)"
+    ],
+    "reference": [
+      "Agent 20 report (0/14 formulas registered)",
+      "Agent 6 report (quality hooks designed)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hypermill-quality-gate — DECLARED+BUILT here (blocks job release if quality package incomplete)",
+    "action": "cam:hypermill_quality_package — DECLARED+BUILT here",
+    "skill": "/hypermill-setup-sheet — DECLARED here, BUILT in HM-REV-MS12"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read quality engines + FormulaRegistry)"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS10-S1",
+      "title": "Quality Chain Wiring + Setup Sheet Generation",
+      "smart_config": {
+        "role": "Quality Engineer + Manufacturing Documentation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "SPCProcessCapabilityEngine",
+        "FAIEngine",
+        "SetupSheetEngine",
+        "MetrologyUncertaintyEngine"
+      ],
+      "intent": "Wire the existing quality engines to hyperMILL output and build auto-generated setup sheets. After this session, every hyperMILL job can produce a complete quality package (setup sheet, FAI plan, SPC control plan, measurement uncertainty budget).",
+      "skills": [
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR54",
+          "title": "Wire SPC + FAI + Metrology engines to hyperMILL job output",
+          "description": "Create HyperMillQualityBridge that connects hyperMILL job output to: SPCProcessCapabilityEngine (Cp/Cpk targets per tolerance), FAIEngine (AS9102 first article inspection plan from drawing dimensions), MetrologyUncertaintyEngine (measurement uncertainty per feature type). Create cam:hypermill_quality_package action that generates complete quality documentation from a hyperMILL job.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperMillQualityBridge connects to 3 quality engines",
+            "cam:hypermill_quality_package action generates quality documentation",
+            "SPC control plan with Cp/Cpk targets per tolerance",
+            "FAI plan in AS9102 format",
+            "Measurement uncertainty budget per feature",
+            "A quality inspector would accept the documentation format",
+            "4 unit tests: SPC plan, FAI plan, uncertainty budget, complete package"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperMillQualityBridge.ts",
+              "src/schemas/hypermillQualitySchema.ts"
+            ],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillQualityBridge.ts src/schemas/hypermillQualitySchema.ts src/tools/dispatchers/camDispatcher.ts"
+          }
+        },
+        {
+          "id": "U-HMR55",
+          "title": "Build auto setup sheet generator for hyperMILL jobs",
+          "description": "Wire SetupSheetEngine to hyperMILL jobs to auto-generate setup sheet PDF containing: machine assignment, WCS/datum locations, tool list with geometry, operation sequence with speeds/feeds, fixture description, safety notes, quality checkpoints. Include hyperMILL-specific fields: controller model, post-processor variant, AC script references, cycle type per operation.",
+          "depends_on": [
+            "U-HMR54"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Setup sheet auto-generated from hyperMILL job data",
+            "Includes machine, WCS, tools, ops, fixture, safety, quality fields",
+            "hyperMILL-specific fields included (controller, post, AC scripts)",
+            "cam:hypermill_setup_sheet action registered",
+            "hypermill-quality-gate hook blocks job release if setup sheet missing",
+            "3 unit tests: setup sheet generation, quality gate block, PDF output format"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts",
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/tools/dispatchers/camDispatcher.ts src/hooks/registry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ Quality chain wired (SPC + FAI + Metrology) | ✓ Setup sheet auto-generated | ✓ Quality gate hook active | ✓ tsc 0 errors | ✓ 7+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hypermill-quality-gate"
+        ],
+        "new_actions": [
+          "cam:hypermill_quality_package",
+          "cam:hypermill_setup_sheet"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS11",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS10-S2",
+      "title": "Formula Registry — 20 hyperMILL Formulas (F-HM-001 to F-HM-020)",
+      "smart_config": {
+        "role": "Manufacturing Physics Specialist + Formula Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "FormulaRegistry (499 existing formulas)",
+        "HyperMillCycleDefaultsEngine.ts (implicit formulas in defaults)",
+        "hypermill-cutting-tech.json (speed/feed relationships)",
+        "Agent 20 report (14 formulas identified, 0 registered)"
+      ],
+      "intent": "Register 20 hyperMILL-specific formulas in FormulaRegistry. Agent 20 identified 14 formulas stranded in data catalogs — this session extracts them plus 6 additional formulas discovered during MS2-MS8 work. Each formula gets a proper F-HM-NNN identifier with source citation.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR56",
+          "title": "Register F-HM-001 to F-HM-010 — cutting parameter formulas",
+          "description": "Register 10 cutting parameter formulas: F-HM-001 (hyperMILL MAXX roughing optimal stepover), F-HM-002 (scallop height from ball-nose tool diameter + stepover), F-HM-003 (effective cutting diameter at depth for ball-nose), F-HM-004 (trochoidal slot width from tool + engagement), F-HM-005 (pecking depth formula from L/D ratio), F-HM-006 (thread mill feed from pitch + tool diameter), F-HM-007 (barrel cutter effective radius), F-HM-008 (MAXX HPC chip thinning correction), F-HM-009 (5-axis tilt compensation for effective feed), F-HM-010 (rest material tool diameter selection). Each formula cites hyperMILL manual source.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "10 formulas registered as F-HM-001 through F-HM-010",
+            "Each formula has source citation (manual part + page)",
+            "Formulas compute correctly against known reference values",
+            "FormulaRegistry count increased by 10",
+            "5 unit tests: scallop height, effective diameter, chip thinning, tilt compensation, rest material"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/registries/FormulaRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "formula results don't match reference values"
+            ],
+            "rollback_procedure": "git checkout -- src/registries/FormulaRegistry.ts"
+          }
+        },
+        {
+          "id": "U-HMR57",
+          "title": "Register F-HM-011 to F-HM-020 — process + quality formulas",
+          "description": "Register 10 process/quality formulas: F-HM-011 (grinding specific energy from wheel + material), F-HM-012 (EDM material removal rate from current + voltage + gap), F-HM-013 (electrode wear ratio from material pair), F-HM-014 (heat treatment soak time from cross-section + material), F-HM-015 (turning CSS RPM at diameter), F-HM-016 (threading lead-in distance from pitch), F-HM-017 (surface roughness from feed + nose radius — turning), F-HM-018 (probing approach speed from trigger force + stylus mass), F-HM-019 (measurement uncertainty from probe + temperature + fixturing), F-HM-020 (cycle time from cut length + feed + rapid distance + accel). Each formula cites source.",
+          "depends_on": [
+            "U-HMR56"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "10 formulas registered as F-HM-011 through F-HM-020",
+            "Each formula has source citation",
+            "FormulaRegistry total count increased by 20 from baseline",
+            "Grinding energy formula validates against published data",
+            "Turning Ra formula matches Rth = f^2 / (8*r) relationship",
+            "5 unit tests: grinding energy, EDM MRR, CSS RPM, turning Ra, cycle time"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/registries/FormulaRegistry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/registries/FormulaRegistry.ts"
+          }
+        },
+        {
+          "id": "U-HMR58",
+          "title": "Build formula validation test suite + formula-to-engine cross-reference map",
+          "description": "Create comprehensive test suite validating all 20 F-HM formulas against published reference values. Build cross-reference map showing which engine uses which formula (e.g., F-HM-002 used by HyperMillStrategyEngine for scallop height prediction, F-HM-015 used by hypermill-css-limit hook for RPM check). This map enables formula impact analysis when values change.",
+          "depends_on": [
+            "U-HMR56",
+            "U-HMR57"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "20 formula validation tests with published reference values",
+            "Cross-reference map links formulas to consuming engines/hooks",
+            "Map is queryable (which formulas does engine X use?)",
+            "All 20 formulas pass validation against reference values",
+            "A manufacturing engineer would accept the formula derivations"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill-formulas.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "test failures > 0",
+              "formula results outside 5% of reference values"
+            ],
+            "rollback_procedure": "git checkout -- src/__tests__/hypermill-formulas.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 20 F-HM formulas registered | ✓ All formulas validated against references | ✓ Cross-reference map built | ✓ FormulaRegistry count += 20 | ✓ tsc 0 errors | ✓ 10+ tests pass | omega_floor >= 0.90 | SVI delta: +2%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS11",
+          "HM-REV-MS12",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

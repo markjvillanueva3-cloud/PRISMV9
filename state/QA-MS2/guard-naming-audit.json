@@ -1,0 +1,104 @@
+{
+  "audit_id": "QA-MS2-P0-U01",
+  "title": "GuardEngine Naming Confusion Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:45:00Z",
+  "status": "COMPLETE",
+  "verdict": "3 MEDIUM findings — naming inconsistencies between dispatcher name, behavior, and action categories",
+
+  "dispatcher_profile": {
+    "tool_name": "prism_guard",
+    "file": "src/tools/dispatchers/guardDispatcher.ts",
+    "declared_purpose": "Reasoning + Enforcement + AutoHook diagnostics",
+    "total_actions": 14,
+    "action_list": [
+      "decision_log", "failure_library", "error_capture",
+      "pre_write_gate", "pre_write_diff", "pre_call_validate",
+      "autohook_status", "autohook_test",
+      "pattern_scan", "pattern_history",
+      "learning_query", "learning_save",
+      "lkg_status", "priority_score"
+    ]
+  },
+
+  "behavior_categorization": {
+    "actual_guards_blocking": {
+      "actions": ["pre_write_gate", "pre_write_diff"],
+      "count": 2,
+      "behavior": "CAN block operations (pre_write_gate blocks >50-line writes without approval, pre_write_diff blocks writes to unread files)"
+    },
+    "validation_lookup": {
+      "actions": ["pre_call_validate"],
+      "count": 1,
+      "behavior": "Rename lookup — checks if a tool name was renamed, returns RENAMED or NOT_IN_RENAME_MAP. Does NOT validate or block."
+    },
+    "logging_tracking": {
+      "actions": ["decision_log", "failure_library", "error_capture"],
+      "count": 3,
+      "behavior": "Record decisions, failure patterns, and errors to JSONL files. Purely observational."
+    },
+    "diagnostics": {
+      "actions": ["autohook_status", "autohook_test"],
+      "count": 2,
+      "behavior": "Read hook execution history and fire test hooks. Purely diagnostic."
+    },
+    "learning_python": {
+      "actions": ["pattern_scan", "pattern_history", "learning_query", "learning_save", "lkg_status", "priority_score"],
+      "count": 6,
+      "behavior": "Python script wrappers for pattern detection, learning store, LKG tracker, priority scoring. No guarding."
+    }
+  },
+
+  "naming_patterns_across_codebase": {
+    "guard_prefix": {
+      "prism_guard_dispatcher": "14 actions — only 2 are actual guards",
+      "SafetyQualityHooks.ts": "5 blocking safety hooks (actual guards, not named 'guard')",
+      "EnforcementHooks.ts": "preOutputSafetyHardGate (actual guard, uses 'gate' not 'guard')",
+      "HookEngine.ts": "CALC-SAFETY-VIOLATION-001 (actual guard, not named 'guard')"
+    },
+    "validate_prefix": {
+      "prism_validate_dispatcher": "7 actions — all do actual validation",
+      "validators.ts": "computeSafetyScore, validateRange — actual validators",
+      "crossFieldPhysics.ts": "validateCrossFieldPhysics — actual validator that throws"
+    },
+    "check_prefix": {
+      "scrutinize-roadmap.ts": "13 check* functions — all do actual checking",
+      "CoolantValidationEngine.ts": "checkBrackets — actual checking"
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F21",
+      "severity": "MEDIUM",
+      "title": "'prism_guard' is a misnomer — only 2/14 actions are guards",
+      "issue": "The dispatcher is named 'guard' but 86% of its actions (12/14) are logging, diagnostics, learning, or lookup — not guarding. The actual blocking guards in PRISM live in SafetyQualityHooks, EnforcementHooks, and HookEngine.",
+      "impact": "Developers looking for guarding behavior might look in the wrong place. The dispatcher mixes 5 different concerns.",
+      "fix": "Rename to 'prism_reasoning' or 'prism_ops' and split into focused dispatchers: (1) decision/error tracking, (2) write gates, (3) learning/patterns"
+    },
+    {
+      "id": "F22",
+      "severity": "MEDIUM",
+      "title": "'pre_call_validate' doesn't validate — it does rename lookup",
+      "file": "src/tools/dispatchers/guardDispatcher.ts",
+      "line": 599,
+      "issue": "pre_call_validate checks a static KNOWN_RENAMES map (139 entries) and returns RENAMED or NOT_IN_RENAME_MAP. It doesn't validate the tool exists, check parameters, or block anything.",
+      "impact": "Name suggests validation but provides only rename suggestions. A developer calling pre_call_validate expecting parameter validation gets a rename lookup.",
+      "fix": "Rename to 'pre_call_rename_check' or 'check_tool_rename'"
+    },
+    {
+      "id": "F23",
+      "severity": "MEDIUM",
+      "title": "Actual guards scattered across hooks, not in 'guard' dispatcher",
+      "issue": "The real guarding behavior (S(x) < 0.70 block, RPM > 60000 block, force plausibility, etc.) lives in SafetyQualityHooks.ts (5 blocking hooks), EnforcementHooks.ts (preOutputSafetyHardGate), and HookEngine.ts (CALC-SAFETY-VIOLATION-001). None of these are in prism_guard.",
+      "impact": "Architectural confusion — the 'guard' dispatcher guards nothing safety-critical, while safety guards live elsewhere.",
+      "fix": "Document this clearly in GSD or add a prism_guard action that reports the locations of actual safety guards."
+    }
+  ],
+
+  "exit_conditions_met": {
+    "all_naming_patterns_cataloged": true,
+    "inconsistencies_identified": true,
+    "naming_convention_proposal": "guard = blocking enforcement, validate = parameter/data checking, check = passive analysis"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "config": {
+    "chain_id": "chain_1771728168594_6140",
+    "name": "analyze_and_recommend",
+    "response_level": "full",
+    "log_to_disk": true,
+    "input": {
+      "scenario": "High tool wear rate when milling Inconel 718",
+      "material": "Inconel 718",
+      "machine": "unspecified",
+      "constraints": "none specified"
+    },
+    "steps": [
+      {
+        "name": "classify",
+        "model_tier": "haiku",
+        "max_tokens": 400,
+        "temperature": 0.2,
+        "prompt_template": "Analyze this manufacturing scenario and extract key parameters.\n\nScenario: {{scenario}}\nMaterial: {{material}}\nMachine: {{machine}}\nConstraints: {{constraints}}\n\nProvide a concise structured classification:\n1. PROBLEM TYPE: (one of: cutting_parameters, tool_selection, workholding, process_planning, quality_issue, machine_selection)\n2. MATERIAL GROUP: (ISO group P/M/K/N/S/H or unknown)\n3. KEY PARAMETERS: (list 3-5 critical numerical or categorical parameters from the scenario)\n4. COMPLEXITY: (simple/moderate/complex)\n5. CLASSIFICATION SUMMARY: (1 sentence)"
+      },
+      {
+        "name": "generate_solutions",
+        "model_tier": "haiku",
+        "max_tokens": 600,
+        "temperature": 0.4,
+        "depends_on": [
+          "classify"
+        ],
+        "prompt_template": "Based on this manufacturing problem classification, generate 3-4 candidate solutions.\n\nCLASSIFICATION:\n{{classify_output}}\n\nOriginal Scenario: {{scenario}}\n\nFor each candidate solution, provide:\n- SOLUTION: (brief title)\n- APPROACH: (2-3 sentences describing the technical approach)\n- PARAMETERS: (specific values where applicable)\n- TRADE-OFFS: (pros and cons)\n\nFormat each solution as: CANDIDATE [N]: ..."
+      },
+      {
+        "name": "rank_solutions",
+        "model_tier": "haiku",
+        "max_tokens": 700,
+        "temperature": 0.2,
+        "depends_on": [
+          "generate_solutions"
+        ],
+        "prompt_template": "Evaluate and rank these manufacturing solution candidates.\n\nCANDIDATES:\n{{generate_solutions_output}}\n\nSCENARIO: {{scenario}}\nCONSTRAINTS: {{constraints}}\n\nRank from best to worst. For each, provide:\nRANK [N]:\n- SOLUTION: (title from above)\n- RATIONALE: (why this rank, 1-2 sentences)\n- CONFIDENCE: (0.0-1.0, reflecting certainty given available information)\n- RECOMMENDATION: (specific next action)\n\nEnd with: RECOMMENDED_ACTION: (the single most important next step)"
+      }
+    ]
+  },
+  "result": {
+    "chain_id": "chain_1771728168594_6140",
+    "name": "analyze_and_recommend",
+    "steps_completed": 3,
+    "total_steps": 3,
+    "total_tokens": {
+      "input": 3293,
+      "output": 1700
+    },
+    "total_duration_ms": 17943,
+    "final_output": "# RANKING: Inconel 718 High Tool Wear Solutions\n\n---\n\n## RANK 1:\n- **SOLUTION:** Reduce Cutting Speed + Implement Through-Spindle Coolant (TSC)\n- **RATIONALE:** TSC directly addresses the root cause of Inconel 718 tool failure—extreme thermal stress (>1000°C) and adhesion wear at the tool-chip interface. The 50–80 bar pressure penetrates the cutting zone, reducing crater wear and thermal fatigue by 60–70%, while lower speeds (60–80 m/min) shift the wear mechanism from catastrophic thermal cracking to controlled flank wear. This is the industry-standard solution for superalloy milling and delivers 2–3× tool life extension with proven reliability.\n- **CONFIDENCE:** 0.92\n- **RECOMMENDATION:** Verify spindle has TSC capability (check pump pressure rating ≥50 bar). Source synthetic coolant formulated for superalloys (e.g., Mobil Pyrogard, Castrol Hysol). Conduct 30 min trial run at 70 m/min, 0.12 mm/tooth, 2.5 mm ap; measure flank wear (VB) at 15, 30 min intervals. Target: VB <0.15 mm at 60 min.\n\n---\n\n## RANK 2:\n- **SOLUTION:** Switch to CBN Tool Grade + Moderate Speed/Feed Optimization\n- **RATIONALE:** CBN tools exhibit superior thermal hardness (retain strength >1200°C vs. carbide ~900°C) and resist crater wear mechanisms that dominate Inconel 718 milling. Higher speed capability (100–140 m/min) and aggressive feed (0.12–0.20 mm/tooth) recover MRR losses, and surface finish typically improves 15–25% due to lower built-up edge formation. However, CBN cost (3–5× carbide) and brittleness in interrupted cuts create higher per-tool expense and setup risk compared to TSC + carbide.\n- **CONFIDENCE:** 0.85\n- **RECOMMENDATION:** Validate machine rigidity (spindle runout <0.05 mm TIR, minimal chatter). Source PCBN inserts rated for Inconel (e.g., Sandvik PCBN, Kennametal KCB) with negative rake geometry. Run comparative wear test: CBN at 120 m/min vs. coated carbide + TSC at 70 m/min over 120 min. Calculate cost-per-part (tool cost ÷ tool life ÷ parts per tool life) to justify premium.\n\n---\n\n## RANK 3:\n- **SOLUTION:** *(Implicit baseline: continue current carbide + flood coolant at high speed)*\n- **RATIONALE:** Without intervention, high-speed carbide milling of Inconel 718 will continue to suffer rapid crater wear, thermal cracks, and tool life <30 min. Standard flood cool",
+    "step_results": [
+      {
+        "step_name": "classify",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 794,
+          "output": 400
+        },
+        "duration_ms": 4330,
+        "output": "# Manufacturing Analysis: High Tool Wear in Inconel 718 Milling\n\n## Structured Classification\n\n**1. PROBLEM TYPE:**  \n`tool_selection` + `cutting_parameters`  \n(Wear rate is primarily a function of speed/feed/coolant strategy and tool grade selection)\n\n**2. MATERIAL GROUP:**  \n`S` — Heat-resistant superalloy  \n(Inconel 718: Ni-based, work-hardens aggressively, kc1_1 ≈ 2200–2800 N/mm², low machinability)\n\n**3. KEY PARAMETERS:**\n\n| Parameter | Status | Criticality |\n|-----------|--------|-------------|\n| Cutting speed (Vc) | **Unspecified** | 🔴 CRITICAL |\n| Feed per tooth (fz) | **Unspecified** | 🔴 CRITICAL |\n| Coolant strategy | **Unspecified** | 🔴 CRITICAL |\n| Tool grade/coating | **Unspecified** | 🟠 HIGH |\n| Depth of cut (ap) | **Unspecified** | 🟡 MEDIUM |\n\n**4. COMPLEXITY:**  \n`moderate`  \n(Superalloy milling is inherently challenging; diagnosis requires process parameter review, but solution space is well-defined)\n\n**5. CLASSIFICATION SUMMARY:**  \nInconel 718 exhibits accelerated flank/crater wear in milling due to high cutting temperatures and work-hardening; root cause likely excessive speed, inadequate coolant delivery, or suboptimal tool grade—requires parameter audit and TSC/flood coolant verification.\n\n---\n\n## Immediate Diagnostic Questions"
+      },
+      {
+        "step_name": "generate_solutions",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 1137,
+          "output": 600
+        },
+        "duration_ms": 6267,
+        "output": "# CANDIDATE SOLUTIONS: Inconel 718 High Tool Wear\n\n---\n\n## CANDIDATE 1: Reduce Cutting Speed + Implement Through-Spindle Coolant (TSC)\n\n**APPROACH:**  \nInconel 718 generates extreme cutting temperatures (>1000°C); excessive speed accelerates crater wear and thermal fatigue. TSC delivery (>50 bar) penetrates the tool-chip interface, reducing temperature and adhesion wear while enabling lower, more stable speeds.\n\n**PARAMETERS:**\n- Cutting speed: **60–80 m/min** (down from typical 100+ m/min for carbide)\n- Feed per tooth: **0.10–0.15 mm/tooth** (maintain moderate aggressiveness)\n- Coolant: **High-pressure TSC flood** (50–80 bar, synthetic or semi-synthetic)\n- Tool grade: **Coated carbide (TiAlN or AlCrN)**, positive rake (10–15°)\n- Depth of cut: **2–3 mm ap** (avoid heavy interrupted cuts)\n\n**TRADE-OFFS:**\n- ✅ **Pros:** Dramatically extends tool life (2–3× improvement typical); reduces thermal cracks; proven for superalloys\n- ❌ **Cons:** Requires TSC-capable spindle; higher coolant cost; slower MRR (~30–40% reduction vs. aggressive parameters)\n\n**EXPECTED OUTCOME:** Flank wear (VB) <0.2 mm over 60–90 min tool life (vs. <30 min at high speed)\n\n---\n\n## CANDIDATE 2: Switch to CBN Tool Grade + Moderate Speed/Feed Optimization\n\n**APPROACH:**  \nCubic boron nitride (CBN) tools withstand higher temperatures and resist crater wear far better than carbide in superalloys. Combined with optimized feed/speed, CBN enables longer tool life and superior surface finish despite higher tool cost.\n\n**PARAMETERS:**\n- Cutting speed: **100–140 m/min** (CBN tolerates higher speeds than carbide)\n- Feed per tooth: **0.12–0.20 mm/tooth** (CBN handles aggressive feeds)\n- Coolant: **Flood coolant** (standard, 15–20 L/min minimum)\n- Tool grade: **Uncoated or coated CBN** (e.g., PCBN inserts, negative rake 0–5°)\n- Depth of cut: **3–4 mm ap** (CBN rigidity supports heavier cuts)\n\n**TRADE-"
+      },
+      {
+        "step_name": "rank_solutions",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 1362,
+          "output": 700
+        },
+        "duration_ms": 7346,
+        "output": "# RANKING: Inconel 718 High Tool Wear Solutions\n\n---\n\n## RANK 1:\n- **SOLUTION:** Reduce Cutting Speed + Implement Through-Spindle Coolant (TSC)\n- **RATIONALE:** TSC directly addresses the root cause of Inconel 718 tool failure—extreme thermal stress (>1000°C) and adhesion wear at the tool-chip interface. The 50–80 bar pressure penetrates the cutting zone, reducing crater wear and thermal fatigue by 60–70%, while lower speeds (60–80 m/min) shift the wear mechanism from catastrophic thermal cracking to controlled flank wear. This is the industry-standard solution for superalloy milling and delivers 2–3× tool life extension with proven reliability.\n- **CONFIDENCE:** 0.92\n- **RECOMMENDATION:** Verify spindle has TSC capability (check pump pressure rating ≥50 bar). Source synthetic coolant formulated for superalloys (e.g., Mobil Pyrogard, Castrol Hysol). Conduct 30 min trial run at 70 m/min, 0.12 mm/tooth, 2.5 mm ap; measure flank wear (VB) at 15, 30 min intervals. Target: VB <0.15 mm at 60 min.\n\n---\n\n## RANK 2:\n- **SOLUTION:** Switch to CBN Tool Grade + Moderate Speed/Feed Optimization\n- **RATIONALE:** CBN tools exhibit superior thermal hardness (retain strength >1200°C vs. carbide ~900°C) and resist crater wear mechanisms that dominate Inconel 718 milling. Higher speed capability (100–140 m/min) and aggressive feed (0.12–0.20 mm/tooth) recover MRR losses, and surface finish typically improves 15–25% due to lower built-up edge formation. However, CBN cost (3–5× carbide) and brittleness in interrupted cuts create higher per-tool expense and setup risk compared to TSC + carbide.\n- **CONFIDENCE:** 0.85\n- **RECOMMENDATION:** Validate machine rigidity (spindle runout <0.05 mm TIR, minimal chatter). Source PCBN inserts rated for Inconel (e.g., Sandvik PCBN, Kennametal KCB) with negative rake geometry. Run comparative wear test: CBN at 120 m/min vs. coated carbide + TSC at 70 m/min over 120 min. Calculate cost-per-part (tool cost ÷ tool life ÷ parts per tool life) to justify premium.\n\n---\n\n## RANK 3:\n- **SOLUTION:** *(Implicit baseline: continue current carbide + flood coolant at high speed)*\n- **RATIONALE:** Without intervention, high-speed carbide milling of Inconel 718 will continue to suffer rapid crater wear, thermal cracks, and tool life <30 min. Standard flood cool"
+      }
+    ],
+    "status": "completed"
+  }
+}

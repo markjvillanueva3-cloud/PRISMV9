@@ -1,0 +1,1322 @@
+{
+  "total_engines": 125,
+  "total_lines": 76286,
+  "generated_at": "2026-02-28",
+  "categories": {
+    "Manufacturing Intelligence (L2-P1)": [
+      {
+        "file": "AdvancedCalculations.ts",
+        "lines": 639,
+        "exports": [
+          "advancedCalculations",
+          "calculateStabilityLobes",
+          "calculateToolDeflection",
+          "calculateCuttingTemperature",
+          "calculateMinimumCostSpeed",
+          "optimizeCuttingParameters"
+        ],
+        "description": "Stability analysis, thermal modeling, and optimization"
+      },
+      {
+        "file": "CampaignEngine.ts",
+        "lines": 1421,
+        "exports": [
+          "createCampaign",
+          "validateCampaign",
+          "optimizeCampaign",
+          "estimateCycleTime",
+          "listCampaignActions",
+          "CAMPAIGN_ACTIONS"
+        ],
+        "description": "Campaign management for multi-operation machining"
+      },
+      {
+        "file": "CollisionEngine.ts",
+        "lines": 2089,
+        "exports": [
+          "collisionEngine",
+          "CollisionEngine",
+          "Vector3",
+          "Matrix4",
+          "Quaternion",
+          "AABB",
+          "OBB",
+          "Capsule"
+        ],
+        "description": "3D collision detection for CNC machining safety"
+      },
+      {
+        "file": "DecisionTreeEngine.ts",
+        "lines": 1467,
+        "exports": [
+          "decide",
+          "selectToolType",
+          "selectInsertGrade",
+          "selectCoolantStrategy",
+          "selectWorkholding",
+          "selectStrategy",
+          "selectApproachRetract",
+          "listDecisionTrees",
+          "normalizeISOGroup",
+          "DECISION_TREES"
+        ],
+        "description": "Manufacturing decision logic - tool, insert, coolant, workholding selection"
+      },
+      {
+        "file": "DimensionalAnalysisEngine.ts",
+        "lines": 224,
+        "exports": [
+          "DimensionalAnalysisEngine",
+          "dimensionalAnalysisEngine"
+        ],
+        "description": "Dimensional analysis and unit validation (SAFETY CRITICAL)"
+      },
+      {
+        "file": "FailureForensicsEngine.ts",
+        "lines": 527,
+        "exports": [
+          "failureForensics"
+        ],
+        "description": "Failure forensics - root cause analysis of machining failures"
+      },
+      {
+        "file": "GenerativeProcessEngine.ts",
+        "lines": 1147,
+        "exports": [
+          "generativeProcess"
+        ],
+        "description": "Generative process planning from part features"
+      },
+      {
+        "file": "IntelligenceEngine.ts",
+        "lines": 2564,
+        "exports": [
+          "intelligenceEngine",
+          "executeIntelligenceAction",
+          "INTELLIGENCE_ACTIONS",
+          "INTELLIGENCE_SOURCE_FILE_CATALOG",
+          "getSourceFileCatalog",
+          "catalogSourceFiles"
+        ],
+        "description": "Intelligence Engine - unified manufacturing intelligence hub"
+      },
+      {
+        "file": "InverseSolverEngine.ts",
+        "lines": 741,
+        "exports": [
+          "inverseSolver"
+        ],
+        "description": "Inverse problem solving - derive inputs from desired outputs"
+      },
+      {
+        "file": "JobLearningEngine.ts",
+        "lines": 442,
+        "exports": [
+          "jobLearning",
+          "jobRecord",
+          "jobInsights",
+          "clearJobStore",
+          "getJobStoreSize"
+        ],
+        "description": "Job-level learning from machining history"
+      },
+      {
+        "file": "ManufacturingCalculations.ts",
+        "lines": 991,
+        "exports": [
+          "manufacturingCalculations",
+          "calculateKienzleCuttingForce",
+          "calculateTaylorToolLife",
+          "calculateJohnsonCookStress",
+          "calculateSurfaceFinish",
+          "calculateMRR",
+          "calculateSpeedFeed",
+          "getDefaultKienzle",
+          "getDefaultTaylor",
+          "SAFETY_LIMITS"
+        ],
+        "description": "Core physics-based calculations for CNC machining (Kienzle, Taylor, Johnson-Cook)"
+      },
+      {
+        "file": "ManufacturingGenomeEngine.ts",
+        "lines": 445,
+        "exports": [
+          "manufacturingGenome"
+        ],
+        "description": "Manufacturing genome - process DNA encoding"
+      },
+      {
+        "file": "OptimizationEngine.ts",
+        "lines": 1094,
+        "exports": [
+          "optimization",
+          "optimizeParameters",
+          "optimizeSequence",
+          "sustainabilityReport",
+          "ecoOptimize"
+        ],
+        "description": "Constrained optimization for machining parameters"
+      },
+      {
+        "file": "PhysicsPredictionEngine.ts",
+        "lines": 1023,
+        "exports": [
+          "physicsPrediction",
+          "predictSurfaceIntegrity",
+          "predictChatter",
+          "predictThermalCompensation",
+          "unifiedMachiningModel",
+          "couplingSensitivity"
+        ],
+        "description": "Physics-based prediction (surface integrity, thermal, chatter)"
+      },
+      {
+        "file": "QualityPredictionEngine.ts",
+        "lines": 279,
+        "exports": [
+          "QualityPredictionEngine",
+          "qualityPredictionEngine"
+        ],
+        "description": "Manufacturing quality prediction from process data"
+      },
+      {
+        "file": "SchedulingEngine.ts",
+        "lines": 233,
+        "exports": [
+          "SchedulingEngine",
+          "schedulingEngine"
+        ],
+        "description": "Manufacturing scheduling and sequencing"
+      },
+      {
+        "file": "SetupSheetEngine.ts",
+        "lines": 566,
+        "exports": [
+          "setupSheetEngine",
+          "buildSetupSheet"
+        ],
+        "description": "Professional setup sheet generation"
+      },
+      {
+        "file": "SpindleProtectionEngine.ts",
+        "lines": 1009,
+        "exports": [
+          "spindleProtectionEngine",
+          "SpindleProtectionEngine"
+        ],
+        "description": "Real-time spindle load protection from overload"
+      },
+      {
+        "file": "SustainabilityEngine.ts",
+        "lines": 862,
+        "exports": [
+          "sustainabilityEngine"
+        ],
+        "description": "Sustainability metrics and eco-optimization"
+      },
+      {
+        "file": "ThreadCalculationEngine.ts",
+        "lines": 659,
+        "exports": [
+          "threadEngine",
+          "ThreadCalculationEngine"
+        ],
+        "description": "Complete thread calculations (ISO, UNC, UNF, ACME, NPT, etc.)"
+      },
+      {
+        "file": "ToleranceEngine.ts",
+        "lines": 541,
+        "exports": [
+          "calculateITGrade",
+          "analyzeShaftHoleFit",
+          "toleranceStackUp",
+          "calculateCpk",
+          "findAchievableGrade"
+        ],
+        "description": "Tolerance analysis - IT grades, shaft-hole fits, Cpk"
+      },
+      {
+        "file": "ToleranceStackEngine.ts",
+        "lines": 231,
+        "exports": [
+          "ToleranceStackEngine",
+          "toleranceStackEngine"
+        ],
+        "description": "Tolerance stack-up analysis"
+      },
+      {
+        "file": "ToolBreakageEngine.ts",
+        "lines": 1071,
+        "exports": [
+          "toolBreakageEngine",
+          "ToolBreakageEngine"
+        ],
+        "description": "Physics-based tool breakage prediction"
+      },
+      {
+        "file": "ToolpathCalculations.ts",
+        "lines": 1304,
+        "exports": [
+          "toolpathCalculations",
+          "calculateEngagementAngle",
+          "calculateTrochoidalParams",
+          "calculateHSMParams",
+          "calculateScallopHeight",
+          "calculateOptimalStepover",
+          "estimateCycleTime",
+          "calculateArcFitting"
+        ],
+        "description": "Toolpath strategy calculations for CNC machining"
+      },
+      {
+        "file": "WorkholdingEngine.ts",
+        "lines": 1486,
+        "exports": [
+          "workholdingEngine",
+          "WorkholdingEngine"
+        ],
+        "description": "Physics-based workholding safety validation"
+      },
+      {
+        "file": "WorkholdingIntelligenceEngine.ts",
+        "lines": 481,
+        "exports": [
+          "workholdingIntelligence",
+          "fixtureRecommend"
+        ],
+        "description": "Workholding intelligence - fixture recommendation"
+      }
+    ],
+    "CAD/CAM (L2-P2)": [
+      {
+        "file": "CADKernelEngine.ts",
+        "lines": 758,
+        "exports": [
+          "CADKernelEngine",
+          "cadKernelEngine"
+        ],
+        "description": "Computational Geometry and B-Rep Kernel"
+      },
+      {
+        "file": "CAMIntegrationEngine.ts",
+        "lines": 1230,
+        "exports": [
+          "camIntegration",
+          "searchToolLibrary",
+          "getToolFromLibrary",
+          "getAllTools"
+        ],
+        "description": "CAM system integration with tool library management"
+      },
+      {
+        "file": "CAMKernelEngine.ts",
+        "lines": 874,
+        "exports": [
+          "CAMKernelEngine",
+          "camKernelEngine"
+        ],
+        "description": "Computer-Aided Manufacturing Kernel"
+      },
+      {
+        "file": "CadBridge.ts",
+        "lines": 390,
+        "exports": [
+          "CadBridge",
+          "getCadBridge"
+        ],
+        "description": "TypeScript client bridge for the Python CAD engine"
+      },
+      {
+        "file": "CollisionDetectionEngine.ts",
+        "lines": 278,
+        "exports": [
+          "CollisionDetectionEngine",
+          "collisionDetectionEngine"
+        ],
+        "description": "CAD/CAM collision detection (SAFETY CRITICAL)"
+      },
+      {
+        "file": "FeatureRecognitionEngine.ts",
+        "lines": 247,
+        "exports": [
+          "FeatureRecognitionEngine",
+          "featureRecognitionEngine"
+        ],
+        "description": "CAD feature recognition from geometry"
+      },
+      {
+        "file": "FileIOEngine.ts",
+        "lines": 784,
+        "exports": [
+          "FileIOEngine",
+          "fileIOEngine"
+        ],
+        "description": "CAD file import/export (STEP, IGES, STL)"
+      },
+      {
+        "file": "GCodeOptimizationEngine.ts",
+        "lines": 265,
+        "exports": [
+          "GCodeOptimizationEngine",
+          "gcodeOptimizationEngine"
+        ],
+        "description": "G-code path optimization"
+      },
+      {
+        "file": "GCodeTemplateEngine.ts",
+        "lines": 1592,
+        "exports": [
+          "generateGCode",
+          "generateProgram",
+          "resolveController",
+          "listControllers",
+          "listOperations",
+          "SUPPORTED_CONTROLLERS",
+          "SUPPORTED_OPERATIONS"
+        ],
+        "description": "G-code template generation for multiple controllers"
+      },
+      {
+        "file": "GeometryEngine.ts",
+        "lines": 224,
+        "exports": [
+          "GeometryEngine",
+          "geometryEngine"
+        ],
+        "description": "Computational geometry primitives"
+      },
+      {
+        "file": "MeshEngine.ts",
+        "lines": 286,
+        "exports": [
+          "MeshEngine",
+          "meshEngine"
+        ],
+        "description": "Mesh generation and manipulation"
+      },
+      {
+        "file": "PostProcessorEngine.ts",
+        "lines": 381,
+        "exports": [
+          "PostProcessorEngine",
+          "postProcessorEngine"
+        ],
+        "description": "CNC post-processor for controller-specific output"
+      },
+      {
+        "file": "SimulationEngine.ts",
+        "lines": 598,
+        "exports": [
+          "SimulationEngine",
+          "simulationEngine"
+        ],
+        "description": "CNC machining simulation engine"
+      },
+      {
+        "file": "StockModelEngine.ts",
+        "lines": 201,
+        "exports": [
+          "StockModelEngine",
+          "stockModelEngine"
+        ],
+        "description": "Stock model tracking for material removal"
+      },
+      {
+        "file": "ToolAssemblyEngine.ts",
+        "lines": 182,
+        "exports": [
+          "ToolAssemblyEngine",
+          "toolAssemblyEngine"
+        ],
+        "description": "Tool assembly configuration and validation"
+      },
+      {
+        "file": "ToolpathGenerationEngine.ts",
+        "lines": 237,
+        "exports": [
+          "ToolpathGenerationEngine",
+          "toolpathGenerationEngine"
+        ],
+        "description": "Toolpath generation from geometry and strategy"
+      },
+      {
+        "file": "VisualizationEngine.ts",
+        "lines": 476,
+        "exports": [
+          "VisualizationEngine",
+          "visualizationEngine"
+        ],
+        "description": "3D visualization data pipeline"
+      },
+      {
+        "file": "WorkCoordinateEngine.ts",
+        "lines": 227,
+        "exports": [
+          "WorkCoordinateEngine",
+          "workCoordinateEngine"
+        ],
+        "description": "Work coordinate system management (G54-G59)"
+      }
+    ],
+    "Safety & Compliance (L2-P3)": [
+      {
+        "file": "CertificateEngine.ts",
+        "lines": 642,
+        "exports": [
+          "certificateEngine",
+          "CertificateEngine"
+        ],
+        "description": "Formal verification certificate generation"
+      },
+      {
+        "file": "ComplianceEngine.ts",
+        "lines": 824,
+        "exports": [
+          "complianceEngine",
+          "ComplianceEngine"
+        ],
+        "description": "Compliance-as-Code regulatory validation"
+      },
+      {
+        "file": "CoolantValidationEngine.ts",
+        "lines": 767,
+        "exports": [
+          "coolantValidationEngine",
+          "CoolantValidationEngine"
+        ],
+        "description": "Coolant flow validation for safe machining"
+      },
+      {
+        "file": "ModularFixtureLayoutEngine.ts",
+        "lines": 153,
+        "exports": [
+          "ModularFixtureLayoutEngine",
+          "modularFixtureLayoutEngine"
+        ],
+        "description": "Modular fixture layout optimization"
+      },
+      {
+        "file": "PFPEngine.ts",
+        "lines": 797,
+        "exports": [
+          "pfpEngine",
+          "PFPEngine"
+        ],
+        "description": "Predictive Failure Prevention - proactive failure analysis"
+      },
+      {
+        "file": "PredictiveFailureEngine.ts",
+        "lines": 793,
+        "exports": [
+          "PredictiveFailureEngine",
+          "predictiveFailureEngineInstance"
+        ],
+        "description": "Predictive failure prevention engine"
+      }
+    ],
+    "5-Axis & Specialty Machining": [
+      {
+        "file": "InverseKinematicsSolverEngine.ts",
+        "lines": 198,
+        "exports": [
+          "InverseKinematicsSolverEngine",
+          "inverseKinematicsSolverEngine"
+        ],
+        "description": "5-axis inverse kinematics solver"
+      },
+      {
+        "file": "RTCP_CompensationEngine.ts",
+        "lines": 213,
+        "exports": [
+          "RTCP_CompensationEngine",
+          "rtcpCompensationEngine"
+        ],
+        "description": "Rotary tool center point compensation (SAFETY CRITICAL)"
+      },
+      {
+        "file": "SingularityAvoidanceEngine.ts",
+        "lines": 219,
+        "exports": [
+          "SingularityAvoidanceEngine",
+          "singularityAvoidanceEngine"
+        ],
+        "description": "5-axis singularity detection and avoidance (SAFETY CRITICAL)"
+      },
+      {
+        "file": "TiltAngleOptimizationEngine.ts",
+        "lines": 183,
+        "exports": [
+          "TiltAngleOptimizationEngine",
+          "tiltAngleOptimizationEngine"
+        ],
+        "description": "5-axis tilt angle optimization"
+      },
+      {
+        "file": "WorkEnvelopeValidatorEngine.ts",
+        "lines": 201,
+        "exports": [
+          "WorkEnvelopeValidatorEngine",
+          "workEnvelopeValidatorEngine"
+        ],
+        "description": "5-axis work envelope validation (SAFETY CRITICAL)"
+      }
+    ],
+    "Turning & Lathe": [
+      {
+        "file": "BarPullerTimingEngine.ts",
+        "lines": 112,
+        "exports": [
+          "BarPullerTimingEngine",
+          "barPullerTimingEngine"
+        ],
+        "description": "Bar puller timing calculations for lathe bar feeders"
+      },
+      {
+        "file": "ChuckJawForceEngine.ts",
+        "lines": 184,
+        "exports": [
+          "ChuckJawForceEngine",
+          "chuckJawForceEngine"
+        ],
+        "description": "Chuck jaw gripping force calculations (SAFETY CRITICAL)"
+      },
+      {
+        "file": "LiveToolingEngine.ts",
+        "lines": 137,
+        "exports": [
+          "LiveToolingEngine",
+          "liveToolingEngine"
+        ],
+        "description": "Live tooling calculations for lathe milling/drilling"
+      },
+      {
+        "file": "SinglePointThreadEngine.ts",
+        "lines": 238,
+        "exports": [
+          "SinglePointThreadEngine",
+          "singlePointThreadEngine"
+        ],
+        "description": "Single-point threading calculations (SAFETY CRITICAL)"
+      },
+      {
+        "file": "SteadyRestPlacementEngine.ts",
+        "lines": 133,
+        "exports": [
+          "SteadyRestPlacementEngine",
+          "steadyRestPlacementEngine"
+        ],
+        "description": "Steady rest placement calculations for long parts"
+      },
+      {
+        "file": "TailstockForceEngine.ts",
+        "lines": 165,
+        "exports": [
+          "TailstockForceEngine",
+          "tailstockForceEngine"
+        ],
+        "description": "Tailstock force calculations (SAFETY CRITICAL)"
+      }
+    ],
+    "EDM & Non-Traditional": [
+      {
+        "file": "EDMSurfaceIntegrityEngine.ts",
+        "lines": 156,
+        "exports": [
+          "EDMSurfaceIntegrityEngine",
+          "edmSurfaceIntegrityEngine"
+        ],
+        "description": "EDM surface integrity assessment (SAFETY CRITICAL)"
+      },
+      {
+        "file": "ElectrodeDesignEngine.ts",
+        "lines": 155,
+        "exports": [
+          "ElectrodeDesignEngine",
+          "electrodeDesignEngine"
+        ],
+        "description": "Sinker EDM electrode design calculations"
+      },
+      {
+        "file": "MicroEDMEngine.ts",
+        "lines": 123,
+        "exports": [
+          "MicroEDMEngine",
+          "microEDMEngine"
+        ],
+        "description": "Micro-EDM process parameter calculations"
+      },
+      {
+        "file": "WireEDMSettingsEngine.ts",
+        "lines": 166,
+        "exports": [
+          "WireEDMSettingsEngine",
+          "wireEDMSettingsEngine"
+        ],
+        "description": "Wire EDM process settings calculations"
+      }
+    ],
+    "Intelligence & AI": [
+      {
+        "file": "AIMLEngine.ts",
+        "lines": 694,
+        "exports": [
+          "AIMLEngine",
+          "aimlEngine"
+        ],
+        "description": "Manufacturing AI/ML Intelligence"
+      },
+      {
+        "file": "AdaptiveControlEngine.ts",
+        "lines": 672,
+        "exports": [
+          "adaptiveControl"
+        ],
+        "description": "Real-Time Adaptive Machining Control"
+      },
+      {
+        "file": "AlgorithmEngine.ts",
+        "lines": 257,
+        "exports": [
+          "AlgorithmEngine",
+          "algorithmEngine"
+        ],
+        "description": "Unified typed algorithm management"
+      },
+      {
+        "file": "AlgorithmGatewayEngine.ts",
+        "lines": 1608,
+        "exports": [
+          "algorithmGateway",
+          "algorithmSelect"
+        ],
+        "description": "Algorithm Gateway - unified algorithm selection and routing"
+      },
+      {
+        "file": "ApprenticeEngine.ts",
+        "lines": 621,
+        "exports": [
+          "apprenticeEngine"
+        ],
+        "description": "Machinist Apprentice - guided learning and assistance"
+      },
+      {
+        "file": "FederatedLearningEngine.ts",
+        "lines": 826,
+        "exports": [
+          "federatedLearning"
+        ],
+        "description": "Anonymous federated learning network"
+      },
+      {
+        "file": "InferenceChainEngine.ts",
+        "lines": 1103,
+        "exports": [
+          "runInferenceChain",
+          "analyzeAndRecommend",
+          "deepDiagnose",
+          "listChainTypes",
+          "CHAIN_ACTIONS"
+        ],
+        "description": "Multi-step inference chain reasoning"
+      },
+      {
+        "file": "KnowledgeGraphEngine.ts",
+        "lines": 919,
+        "exports": [
+          "knowledgeGraph"
+        ],
+        "description": "Knowledge graph for manufacturing domain relationships"
+      },
+      {
+        "file": "KnowledgeQueryEngine.ts",
+        "lines": 1196,
+        "exports": [
+          "knowledgeEngine",
+          "KnowledgeQueryEngine"
+        ],
+        "description": "Unified knowledge access and querying"
+      },
+      {
+        "file": "PredictiveMaintenanceEngine.ts",
+        "lines": 825,
+        "exports": [
+          "predictiveMaintenance"
+        ],
+        "description": "Predictive maintenance scheduling and analysis"
+      }
+    ],
+    "Shop Floor & Digital": [
+      {
+        "file": "BottleneckIdentificationEngine.ts",
+        "lines": 126,
+        "exports": [
+          "BottleneckIdentificationEngine",
+          "bottleneckIdentificationEngine"
+        ],
+        "description": "Production bottleneck detection and analysis"
+      },
+      {
+        "file": "DNCTransferEngine.ts",
+        "lines": 518,
+        "exports": [
+          "dncTransfer",
+          "generateParameterBlock",
+          "executeDNCTransfer",
+          "generateQRData",
+          "getTransferHistory",
+          "getTransferById"
+        ],
+        "description": "DNC / CNC file transfer integration"
+      },
+      {
+        "file": "DigitalThreadEngine.ts",
+        "lines": 109,
+        "exports": [
+          "DigitalThreadEngine",
+          "digitalThreadEngine"
+        ],
+        "description": "Digital thread traceability across manufacturing lifecycle"
+      },
+      {
+        "file": "DigitalWorkInstructionEngine.ts",
+        "lines": 145,
+        "exports": [
+          "DigitalWorkInstructionEngine",
+          "digitalWorkInstructionEngine"
+        ],
+        "description": "Digital work instruction generation"
+      },
+      {
+        "file": "ERPIntegrationEngine.ts",
+        "lines": 592,
+        "exports": [
+          "erpIntegration",
+          "importWorkOrder",
+          "recordCostFeedback",
+          "importQualityData"
+        ],
+        "description": "ERP / MES system integration"
+      },
+      {
+        "file": "MachineConnectivityEngine.ts",
+        "lines": 849,
+        "exports": [
+          "machineConnectivity",
+          "registerMachine",
+          "unregisterMachine",
+          "listMachines",
+          "getMachine",
+          "connectMachine",
+          "disconnectMachine",
+          "ingestLiveData",
+          "getLiveStatus",
+          "getAllMachineStatuses",
+          "detectChatter",
+          "startToolWearMonitor",
+          "updateToolWear",
+          "getToolWear",
+          "updateThermalState",
+          "getThermalState",
+          "acknowledgeAlert",
+          "getAlertHistory"
+        ],
+        "description": "MTConnect/OPC-UA data ingestion and machine monitoring"
+      },
+      {
+        "file": "MeasurementIntegrationEngine.ts",
+        "lines": 562,
+        "exports": [
+          "measurementIntegration",
+          "importCMMData",
+          "compareSurfaceFinish",
+          "recordProbeData",
+          "analyzeDrift",
+          "detectCalibrationBias"
+        ],
+        "description": "Measurement and inspection integration (CMM, probing)"
+      },
+      {
+        "file": "MobileInterfaceEngine.ts",
+        "lines": 396,
+        "exports": [
+          "mobileInterface",
+          "quickLookup",
+          "processVoiceQuery",
+          "decodeAlarm",
+          "startToolTimer",
+          "checkToolTimer",
+          "resetToolTimer",
+          "listToolTimers",
+          "generateOfflineCache"
+        ],
+        "description": "Mobile/tablet interface data layer with voice support"
+      },
+      {
+        "file": "OEECalculatorEngine.ts",
+        "lines": 132,
+        "exports": [
+          "OEECalculatorEngine",
+          "oeeCalculatorEngine"
+        ],
+        "description": "Overall Equipment Effectiveness (OEE) calculations"
+      },
+      {
+        "file": "ShiftHandoffEngine.ts",
+        "lines": 110,
+        "exports": [
+          "ShiftHandoffEngine",
+          "shiftHandoffEngine"
+        ],
+        "description": "Shift handoff data management"
+      },
+      {
+        "file": "ShopSchedulerEngine.ts",
+        "lines": 735,
+        "exports": [
+          "shopScheduler",
+          "shopSchedule",
+          "machineUtilization"
+        ],
+        "description": "Shop floor scheduling and machine utilization"
+      }
+    ],
+    "Infrastructure": [
+      {
+        "file": "AuthEngine.ts",
+        "lines": 327,
+        "exports": [
+          "AuthEngine",
+          "authEngine"
+        ],
+        "description": "Authentication and authorization (SECURITY CRITICAL)"
+      },
+      {
+        "file": "BatchProcessor.ts",
+        "lines": 302,
+        "exports": [
+          "batchProcessor"
+        ],
+        "description": "Batch processing pipeline for bulk operations"
+      },
+      {
+        "file": "ComputationCache.ts",
+        "lines": 406,
+        "exports": [
+          "computationCache"
+        ],
+        "description": "Computation result caching layer"
+      },
+      {
+        "file": "ConversationalMemoryEngine.ts",
+        "lines": 453,
+        "exports": [
+          "conversationalMemory",
+          "detectTransition",
+          "transitionState",
+          "startJob",
+          "updateJob",
+          "findJob",
+          "resumeJob",
+          "getActiveJob",
+          "getConversationContext",
+          "getRecentJobs",
+          "completeJob",
+          "resetConversation"
+        ],
+        "description": "Conversational memory and context management"
+      },
+      {
+        "file": "DiffEngine.ts",
+        "lines": 175,
+        "exports": [
+          "diffEngine"
+        ],
+        "description": "Diff computation engine"
+      },
+      {
+        "file": "EventBus.ts",
+        "lines": 1202,
+        "exports": [
+          "eventBusEngine",
+          "EventBusEngine",
+          "emit",
+          "on",
+          "once",
+          "off",
+          "EventTypes"
+        ],
+        "description": "Centralized event-driven communication system"
+      },
+      {
+        "file": "ExportEngine.ts",
+        "lines": 187,
+        "exports": [
+          "ExportEngine",
+          "exportEngine"
+        ],
+        "description": "Data export engine for reports and files"
+      },
+      {
+        "file": "HookEngine.ts",
+        "lines": 819,
+        "exports": [
+          "hookEngine",
+          "HookEngine",
+          "eventBus",
+          "EventBus",
+          "registerHook",
+          "executeHooks",
+          "emitEvent",
+          "createCognitiveHook"
+        ],
+        "description": "Event-driven hook system with lifecycle management"
+      },
+      {
+        "file": "HookExecutor.ts",
+        "lines": 851,
+        "exports": [
+          "hookExecutor",
+          "HookExecutor"
+        ],
+        "description": "Core hook infrastructure and execution"
+      },
+      {
+        "file": "IntentDecompositionEngine.ts",
+        "lines": 692,
+        "exports": [
+          "intentEngine",
+          "decomposeIntent"
+        ],
+        "description": "Intent decomposition and NLP parsing"
+      },
+      {
+        "file": "MemoryGraphEngine.ts",
+        "lines": 920,
+        "exports": [
+          "memoryGraphEngine",
+          "MemoryGraphEngine"
+        ],
+        "description": "Cross-session memory graph for persistent context"
+      },
+      {
+        "file": "MultiTenantEngine.ts",
+        "lines": 590,
+        "exports": [
+          "multiTenantEngine",
+          "MultiTenantEngine"
+        ],
+        "description": "Multi-tenant isolation and data partitioning"
+      },
+      {
+        "file": "NLHookEngine.ts",
+        "lines": 952,
+        "exports": [
+          "nlHookEngine",
+          "NLHookEngine"
+        ],
+        "description": "Natural language hook definition and execution"
+      },
+      {
+        "file": "OnboardingEngine.ts",
+        "lines": 265,
+        "exports": [
+          "onboardingEngine",
+          "generateWelcome",
+          "getDisclosureSuggestion",
+          "recordInteraction",
+          "getOnboardingState",
+          "resetSession",
+          "getCommonMaterials"
+        ],
+        "description": "User onboarding and first-5-minutes experience"
+      },
+      {
+        "file": "ProductEngine.ts",
+        "lines": 2590,
+        "exports": [
+          "productSFC",
+          "productPPG",
+          "productShop",
+          "productACNC"
+        ],
+        "description": "Product packaging - SFC, PPG, Shop, ACNC product bundles"
+      },
+      {
+        "file": "ProtocolBridgeEngine.ts",
+        "lines": 593,
+        "exports": [
+          "protocolBridgeEngine",
+          "ProtocolBridgeEngine"
+        ],
+        "description": "Protocol bridge for cross-system communication"
+      },
+      {
+        "file": "ReportEngine.ts",
+        "lines": 395,
+        "exports": [
+          "ReportEngine",
+          "reportEngine"
+        ],
+        "description": "Manufacturing report generation"
+      },
+      {
+        "file": "ReportRenderer.ts",
+        "lines": 1161,
+        "exports": [
+          "renderReport",
+          "listReportTypes",
+          "REPORT_TYPES"
+        ],
+        "description": "Template rendering engine for manufacturing reports"
+      },
+      {
+        "file": "ResponseFormatterEngine.ts",
+        "lines": 676,
+        "exports": [
+          "responseFormatter",
+          "formatForPersona",
+          "detectResponsePersona",
+          "detectUnits"
+        ],
+        "description": "Persona-adaptive response formatting"
+      },
+      {
+        "file": "ResponseTemplateEngine.ts",
+        "lines": 669,
+        "exports": [
+          "ResponseTemplateEngine",
+          "autoResponseTemplate",
+          "getResponseTemplateStats"
+        ],
+        "description": "Response template hooks and auto-formatting"
+      },
+      {
+        "file": "SessionLifecycleEngine.ts",
+        "lines": 354,
+        "exports": [
+          "SessionLifecycleEngine",
+          "recordSessionToolCall",
+          "recordSessionHook",
+          "recordSessionSkillInjection",
+          "recordSessionTemplateMatch",
+          "recordSessionPressure",
+          "recordSessionCheckpoint",
+          "recordSessionCompactionRecovery",
+          "recordSessionError",
+          "getSessionQualityScore",
+          "writeSessionIncrementalPrep",
+          "getSessionMetrics"
+        ],
+        "description": "Session lifecycle tracking and quality metrics"
+      },
+      {
+        "file": "SettingsEngine.ts",
+        "lines": 303,
+        "exports": [
+          "SettingsEngine",
+          "settingsEngine"
+        ],
+        "description": "User/system configuration management"
+      },
+      {
+        "file": "TelemetryEngine.ts",
+        "lines": 606,
+        "exports": [
+          "telemetryEngine",
+          "TelemetryEngine"
+        ],
+        "description": "Dispatcher telemetry and self-optimization"
+      },
+      {
+        "file": "TenantEngine.ts",
+        "lines": 189,
+        "exports": [
+          "TenantEngine",
+          "tenantEngine"
+        ],
+        "description": "Tenant management and isolation"
+      },
+      {
+        "file": "UserAssistanceSkillsEngine.ts",
+        "lines": 541,
+        "exports": [
+          "userAssistanceSkills",
+          "getAllAssistanceSkills",
+          "getAssistanceSkillById",
+          "searchAssistanceSkills",
+          "matchAssistanceSkill",
+          "explainPhysics",
+          "assessConfidence",
+          "getCommonMistakes",
+          "generateSafetyReport"
+        ],
+        "description": "User assistance skills - physics explanations, safety reports"
+      },
+      {
+        "file": "UserWorkflowSkillsEngine.ts",
+        "lines": 606,
+        "exports": [
+          "userWorkflowSkills",
+          "getAllSkills",
+          "getSkillById",
+          "searchSkills",
+          "matchSkill",
+          "getSkillsByCategory",
+          "getSkillSteps",
+          "getSkillForPersona"
+        ],
+        "description": "User workflow skills - persona-adaptive skill routing"
+      },
+      {
+        "file": "WorkflowChainsEngine.ts",
+        "lines": 478,
+        "exports": [
+          "workflowChains",
+          "matchWorkflows",
+          "findBestWorkflow",
+          "getWorkflow",
+          "listWorkflows",
+          "getAllWorkflows"
+        ],
+        "description": "Pre-built workflow chains for common operations"
+      }
+    ],
+    "Orchestration": [
+      {
+        "file": "AgentExecutor.ts",
+        "lines": 835,
+        "exports": [
+          "agentExecutor",
+          "AgentExecutor",
+          "executeAgent",
+          "executeAgentsParallel",
+          "executeAgentPipeline"
+        ],
+        "description": "Multi-agent orchestration, task queue, and execution coordination"
+      },
+      {
+        "file": "ContextBudgetEngine.ts",
+        "lines": 162,
+        "exports": [
+          "ContextBudgetEngine"
+        ],
+        "description": "Context window budget allocation and management"
+      },
+      {
+        "file": "ManusATCSBridge.ts",
+        "lines": 305,
+        "exports": [
+          "delegateUnits",
+          "pollResults",
+          "getDelegationStatus",
+          "getActiveDelegations",
+          "clearCompletedDelegations",
+          "getBridgeStatus"
+        ],
+        "description": "ATCS-to-Manus Claude API execution bridge"
+      },
+      {
+        "file": "RoadmapExecutor.ts",
+        "lines": 849,
+        "exports": [
+          "roadmapExecutor",
+          "RoadmapExecutorEngine",
+          "buildDependencyDAG",
+          "getReadyUnits",
+          "getReadyUnitsInPhase",
+          "getReadyUnitsGlobal",
+          "planPhaseExecution",
+          "planRoadmapExecution",
+          "createInitialPosition",
+          "getCompletedIds",
+          "advancePosition",
+          "checkRoadmapPhaseGate",
+          "summarizePlan",
+          "getNextBatch",
+          "validateBatch"
+        ],
+        "description": "Parallel execution protocol for roadmap milestones"
+      },
+      {
+        "file": "ScriptExecutor.ts",
+        "lines": 829,
+        "exports": [
+          "scriptExecutor",
+          "ScriptExecutor"
+        ],
+        "description": "Script execution engine for automation"
+      },
+      {
+        "file": "SkillAutoLoader.ts",
+        "lines": 433,
+        "exports": [
+          "autoLoadForTask",
+          "getLoadedExcerptsBlock",
+          "clearSkillCache"
+        ],
+        "description": "Smart skill loading with chain awareness and domain mapping"
+      },
+      {
+        "file": "SkillBundleEngine.ts",
+        "lines": 238,
+        "exports": [
+          "getAllBundles",
+          "getBundle",
+          "getBundlesForAction",
+          "getBundlesForDomain",
+          "listBundles"
+        ],
+        "description": "Skill bundle packaging and lookup"
+      },
+      {
+        "file": "SkillExecutor.ts",
+        "lines": 861,
+        "exports": [
+          "skillExecutor",
+          "SkillExecutor"
+        ],
+        "description": "Skill integration and execution engine"
+      },
+      {
+        "file": "SourceCatalogAggregator.ts",
+        "lines": 174,
+        "exports": [
+          "getAllCatalogs",
+          "searchCatalog",
+          "getEngineCatalog",
+          "getCatalogStats"
+        ],
+        "description": "Unified query interface for all engine source catalogs"
+      },
+      {
+        "file": "SwarmExecutor.ts",
+        "lines": 991,
+        "exports": [
+          "swarmExecutor",
+          "SwarmExecutor",
+          "executeSwarm",
+          "executeParallelSwarm",
+          "executeConsensusSwarm"
+        ],
+        "description": "Advanced multi-agent swarm coordination patterns"
+      },
+      {
+        "file": "SwarmGroupExecutor.ts",
+        "lines": 357,
+        "exports": [
+          "executeSwarmGroups"
+        ],
+        "description": "Multi-group swarm orchestration"
+      },
+      {
+        "file": "TaskAgentClassifier.ts",
+        "lines": 630,
+        "exports": [
+          "classifyTask",
+          "quickClassify"
+        ],
+        "description": "Automatic agent and swarm pattern recommendation"
+      }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+/**
+ * ScalableCAMOrchestratorEngine — CK-MS1/U03
+ * Full pipeline for complex parts with 200+ features.
+ *
+ * Pipeline:
+ *   1. FeatureClustering → group into setup-oriented clusters
+ *   2. Per-cluster: SmartToolSelection → tool from 46K catalog
+ *   3. Per-cluster: AdaptiveToolpathRouting → best algorithm per feature
+ *   4. CumulativeStockChain →

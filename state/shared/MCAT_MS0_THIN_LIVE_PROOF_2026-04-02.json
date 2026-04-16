@@ -1,0 +1,151 @@
+{
+  "roadmap": "MCAT-MS0",
+  "unit": "U-MVAR06",
+  "status": "complete",
+  "completedAt": "2026-04-03T02:34:22.165Z",
+  "scope": [
+    "calculator live machine posture proof",
+    "program-release downstream machine-surface proof"
+  ],
+  "calculatorProof": {
+    "route": "http://127.0.0.1:3100/calculator",
+    "cases": [
+      {
+        "id": "calc-okuma-genos-m460v-5ax",
+        "machineId": "okuma_genos_m460v_5ax",
+        "result": "pass",
+        "controller": "Okuma OSP-P300MA-H",
+        "spindle": "15,000 RPM CAT 40 Big+",
+        "magazineCapacity": 48,
+        "enabledControllerFeatures": [
+          "CAS collision avoidance",
+          "Machining Navi",
+          "High-speed machining mode",
+          "High-precision contour control",
+          "TCP / 5-axis kinematics",
+          "Tilted workplane"
+        ],
+        "enabledCoolantStrategies": [
+          "Flood",
+          "Through-spindle",
+          "Through-air",
+          "Air blast"
+        ],
+        "holderSurface": {
+          "mode": "live_holder_database",
+          "label": "Tool crib: CAT 40 Big+",
+          "compatibleHolderCount": 173
+        },
+        "artifact": "H:/PRISM/output/playwright/calculator-okuma-live-proof-2026-04-02.png"
+      },
+      {
+        "id": "calc-haas-st20y",
+        "machineId": "haas_st_20y",
+        "result": "pass_with_open_verification",
+        "controller": "Haas NGC",
+        "spindle": "4,000 RPM A2-6 spindle",
+        "turretPresets": [
+          8,
+          10,
+          12,
+          16,
+          24
+        ],
+        "installedTurretStations": 12,
+        "enabledCoolantStrategies": [
+          "Flood",
+          "Through-spindle"
+        ],
+        "verificationWarnings": [
+          "Live tooling recommended but not confirmed in machine profile.",
+          "Bar feeder / support recommended but not confirmed in machine profile."
+        ]
+      },
+      {
+        "id": "calc-citizen-cincom-l20",
+        "machineId": "citizen_l20",
+        "result": "pass_with_fallback",
+        "controller": "Cincom / Mitsubishi Meldas",
+        "spindle": "10,000 RPM Swiss spindle set",
+        "gangStationPresets": [
+          6,
+          8,
+          10,
+          12
+        ],
+        "installedGangStations": 8,
+        "enabledCoolantStrategies": [
+          "Flood",
+          "Through-spindle"
+        ],
+        "holderSurface": {
+          "mode": "fallback_holder_library",
+          "label": "Swiss gang package",
+          "compatibleHolderCount": 1
+        },
+        "verifiedMachineFeatures": [
+          "Through-spindle coolant"
+        ],
+        "unverifiedRecommendedFeatures": [
+          "Live tooling",
+          "Bar feeder / support"
+        ],
+        "artifact": "H:/PRISM/output/playwright/calculator-citizen-live-proof-2026-04-02.png"
+      }
+    ]
+  },
+  "programReleaseProof": {
+    "route": "http://127.0.0.1:3100/print-to-cnc",
+    "rest": {
+      "catalogMachineCount": 789,
+      "catalogDuplicateIds": 0,
+      "okumaSearchTotal": 56,
+      "genosQueryTotal": 1,
+      "genosLookup": {
+        "id": "machine-okuma-genos-m460v-5ax",
+        "manufacturerId": "okuma",
+        "manufacturer": "Okuma",
+        "label": "Okuma Genos M460V-5AX",
+        "familyId": "5-axis",
+        "familyLabel": "5-Axis Machining Center",
+        "controller": "Okuma OSP-P300MA-H",
+        "kinematics": "5-axis trunnion",
+        "spindle": "CAT 40 Big+ 15,000rpm",
+        "maxRpm": 15000,
+        "machineRatePerHour": 165
+      }
+    },
+    "browser": {
+      "pageMounted": true,
+      "consoleErrorCount": 0,
+      "successfulRequests": [
+        "POST /api/v1/operating-system/program-release/catalog",
+        "GET /api/v1/operating-system/program-release/machine-profile/default/shell-default",
+        "POST /api/v1/operating-system/program-release/machine-search",
+        "POST /api/v1/operating-system/program-release/workspace"
+      ],
+      "artifact": "H:/PRISM/output/playwright/program-release-live-proof-2026-04-02.png"
+    }
+  },
+  "findings": [
+    {
+      "id": "prgrel-duplicate-machine-ids",
+      "status": "fixed",
+      "detail": "Program Release emitted duplicate machine ids because the registry merge deduped on label+kinematics while downstream selectors keyed on machine.id."
+    }
+  ],
+  "sourceChanges": [
+    "H:/PRISM/mcp-server/src/utils/programReleaseMachineCatalog.ts",
+    "H:/PRISM/mcp-server/src/__tests__/operating-system-engines.test.ts"
+  ],
+  "verification": {
+    "backendFocusedTests": {
+      "file": "H:/PRISM/mcp-server/src/__tests__/operating-system-engines.test.ts",
+      "result": "pass",
+      "passed": 50
+    },
+    "backendBuildFast": "pass",
+    "backendBuild": "blocked_by_existing_prebuild_gate"
+  },
+  "nextUnit": "U-MVAR07"
+}

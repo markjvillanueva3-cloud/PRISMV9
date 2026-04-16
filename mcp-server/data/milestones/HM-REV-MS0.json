@@ -1,0 +1,292 @@
+{
+  "id": "HM-REV-MS0",
+  "version": "8.3.0",
+  "title": "HyperCAD-S CAD Automation + Mock Layer",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Build HyperCADSAutomationEngine for CAD API coverage (import/heal/analyze/stock-model), PrintToHyperCADSBridge for STEP-to-AC-Python import workflow, HyperCADSStockModelEngine for automated offset solid creation, FeatureToStrategyBridgeEngine for feature-to-strategy recommendations, and a HyperCADSMockLayer for CI testability without USB key. Addresses Agent 1 finding (14/100 CAD score) and Agent 19 defect #4 (untestable without USB).",
+  "dependencies": [],
+  "knowledge_sources": {
+    "engines": [
+      "HyperMillCodeGeneratorEngine.ts (982 LOC — AC Python script generation pattern)",
+      "HyperMillStrategyEngine.ts (492 LOC — 20+ strategies for feature-to-strategy mapping)"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry (762 strategies across 18 CAM systems)",
+      "MaterialRegistry (2,957 materials)"
+    ],
+    "services": [
+      "UserMachineProfileService.ts (service pattern reference)"
+    ],
+    "physics": [
+      "constants.ts (stock allowance defaults, material thermal expansion)"
+    ],
+    "reference": [
+      "hypermill-cam-tips-ext.ts (83 advanced tips)",
+      "hypermill-post-configs.json (17 NcGenerator post configs)"
+    ]
+  },
+  "forge_triple": {
+    "hook": "hyperCADS-import-validation — DECLARED here, BUILT in HM-REV-MS0-S1 U-HMR03",
+    "action": "cam:hyperCADS_automate — DECLARED here, BUILT in HM-REV-MS0-S1 U-HMR01",
+    "skill": "/hyperCADS-import — DECLARED here, BUILT in HM-REV-MS3 (Skills Phase 1)"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult (read HyperMillCodeGeneratorEngine AC pattern before coding)"
+    ],
+    "post_level": [
+      "stub-detector (no placeholder returns)",
+      "constants-checker (no inline physics)"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS0-S1",
+      "title": "HyperCADSAutomationEngine + PrintToHyperCADSBridge + StockModelEngine",
+      "smart_config": {
+        "role": "CAD Automation Engineer + hyperMILL Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillCodeGeneratorEngine.ts (AC Python pattern)",
+        "hypermill-cam-tips-ext.ts",
+        "hypermill-post-configs.json"
+      ],
+      "intent": "Build the three core CAD automation engines that give PRISM programmatic control over hyperCAD-S operations via Automation Center Python scripts. Each engine generates AC Python code for its domain (import/heal, stock model, feature extraction).",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR01",
+          "title": "Build HyperCADSAutomationEngine — CAD API automation via AC Python",
+          "description": "Create HyperCADSAutomationEngine with actions: hyperCADS_import (STEP/IGES/DXF → AC Python import script), hyperCADS_heal (geometry healing + normal alignment script), hyperCADS_analyze (draft/undercut/wall thickness analysis script). Uses same AC Python generation pattern as HyperMillCodeGeneratorEngine. Outputs executable Python scripts for Automation Center.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperCADSAutomationEngine.ts exports singleton with 3 actions",
+            "Each action generates valid AC Python script strings",
+            "tsc --noEmit passes with 0 errors",
+            "3 unit tests verify script output structure"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperCADSAutomationEngine.ts"
+            ],
+            "files_modified": [
+              "src/engines/index.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperCADSAutomationEngine.ts src/engines/index.ts"
+          }
+        },
+        {
+          "id": "U-HMR02",
+          "title": "Build PrintToHyperCADSBridge — STEP path → AC Python import → heal → set workpiece",
+          "description": "Create PrintToHyperCADSBridge that chains: file validation → import script generation → heal script generation → stock model assignment. Takes a STEP file path and material specification, outputs a complete AC Python script sequence that imports, heals, and prepares the part for CAM.",
+          "depends_on": [
+            "U-HMR01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "PrintToHyperCADSBridge.ts exports singleton",
+            "Generates chained AC Python script from STEP path + material input",
+            "Validates STEP file extension and material lookup against MaterialRegistry",
+            "2 unit tests verify end-to-end bridge output"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/PrintToHyperCADSBridge.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/PrintToHyperCADSBridge.ts"
+          }
+        },
+        {
+          "id": "U-HMR03",
+          "title": "Build HyperCADSStockModelEngine — automated offset solid creation for finishing allowances",
+          "description": "Create HyperCADSStockModelEngine that generates AC Python scripts for stock model creation: bounding box stock, offset solid with configurable allowances (axial/radial), cylinder stock from OD. Hooks into hyperCADS-import-validation to ensure stock model is always created before CAM operations.",
+          "depends_on": [
+            "U-HMR01"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperCADSStockModelEngine.ts exports singleton with 3 stock generation modes",
+            "Offset solid uses allowance values from constants.ts (not hardcoded)",
+            "hyperCADS-import-validation hook BUILT and registered",
+            "3 unit tests for bounding box, offset solid, and cylinder stock modes"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperCADSStockModelEngine.ts"
+            ],
+            "files_modified": [
+              "src/hooks/registry.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperCADSStockModelEngine.ts src/hooks/registry.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3 CAD engines built and exported | ✓ AC Python scripts generate valid syntax | ✓ hyperCADS-import-validation hook registered | ✓ tsc 0 errors | ✓ 8+ tests pass | omega_floor >= 0.90 | SVI delta: +1%",
+      "feature_cascade": {
+        "new_hooks": [
+          "hyperCADS-import-validation"
+        ],
+        "new_actions": [
+          "cam:hyperCADS_import",
+          "cam:hyperCADS_heal",
+          "cam:hyperCADS_analyze",
+          "cam:hyperCADS_stock_model"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS9"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS0-S2",
+      "title": "FeatureToStrategyBridgeEngine + HyperCADSMockLayer for CI",
+      "smart_config": {
+        "role": "CAD/CAM Integration Engineer",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "HyperMillStrategyEngine.ts (20+ strategies)",
+        "ToolpathStrategyRegistry",
+        "HyperMillCycleCatalogEngine.ts (120+ cycles)"
+      ],
+      "intent": "Build the feature-to-strategy recommendation bridge and a mock layer that allows all HyperCAD-S engines to be tested in CI without a USB key. Mock layer intercepts AC Python execution and returns deterministic test fixtures.",
+      "skills": [
+        "/forge-engines",
+        "/prism-review",
+        "/test",
+        "/checkpoint"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR04",
+          "title": "Build FeatureToStrategyBridgeEngine — recognized features → strategy recommendations",
+          "description": "Create FeatureToStrategyBridgeEngine that maps recognized geometric features (pocket, hole, boss, slot, freeform surface) to recommended hyperMILL strategies from HyperMillStrategyEngine. Uses feature geometry (depth, width, draft angle, surface area) to select optimal cycle type from HyperMillCycleCatalogEngine.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "FeatureToStrategyBridgeEngine.ts maps 10+ feature types to strategies",
+            "References HyperMillStrategyEngine and HyperMillCycleCatalogEngine",
+            "Recommendations include cycle type + rationale string",
+            "4 unit tests covering pocket, hole, boss, and freeform features"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/FeatureToStrategyBridgeEngine.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/FeatureToStrategyBridgeEngine.ts"
+          }
+        },
+        {
+          "id": "U-HMR05",
+          "title": "Build HyperCADSMockLayer — CI test fixture for all CAD engines",
+          "description": "Create HyperCADSMockLayer that intercepts all AC Python script execution calls and returns deterministic test fixtures. Provides mock responses for import (feature list), heal (repair report), analyze (draft/undercut report), and stock model (bounding box). Enables full CI testing of MS0-MS9 engines without hyperMILL USB key. Wire into test setup with HYPERMILL_MOCK=true environment variable.",
+          "depends_on": [
+            "U-HMR01",
+            "U-HMR02",
+            "U-HMR03",
+            "U-HMR04"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "HyperCADSMockLayer.ts provides mock responses for all 4 CAD engine actions",
+            "HYPERMILL_MOCK=true env var toggles mock layer on",
+            "All existing HyperCAD-S tests pass with mock layer active",
+            "Mock fixtures match real AC Python response schemas",
+            "3 unit tests verify mock layer intercept and response shape"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/hypermill/HyperCADSMockLayer.ts",
+              "src/engines/hypermill/__fixtures__/hyperCADS-mock-responses.json"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "test failures > 0",
+              "mock responses don't match real schemas"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperCADSMockLayer.ts src/engines/hypermill/__fixtures__/"
+          }
+        }
+      ],
+      "exit_gate": "✓ FeatureToStrategyBridge maps 10+ features | ✓ MockLayer covers all CAD actions | ✓ CI runs without USB key | ✓ tsc 0 errors | ✓ 7+ new tests pass | omega_floor >= 0.90 | SVI delta: +1%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [
+          "cam:feature_to_strategy"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS4",
+          "HM-REV-MS9",
+          "HM-REV-MS13"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

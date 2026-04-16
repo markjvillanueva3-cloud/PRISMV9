@@ -1,0 +1,23 @@
+/**
+ * PostSelectionEngine — Intelligent post-processor feature selection.
+ *
+ * Given a job context (machine profile, part geometry, material, CAM source),
+ * decides WHICH post-processor features should be activated for optimal results.
+ *
+ * Addresses Gap 1: "Can generate 100+ post configs but cannot decide which is optimal."
+ * Uses rule-based scoring + feature interaction validation to select the best feature set.
+ */
+const FEATURE_DATABASE = [
+    // ── HSM Features ──
+    {
+        id: "hsm_smoothing",
+        name: "High-Speed Machining Smoothing",
+        category: "hsm",
+        controllers: ["fanuc", "haas", "siemens", "mazak", "okuma", "heidenhain"],
+        gcode_impact: "G5.1/G187/CYCLE832/M120",
+        base_time_impact_pct: -8,
+        risk_level: "none",
+        conflicts: [],
+        synergies: ["corner_rounding", "nurbs_interpolation"],
+        conditions: (ctx) => {
+            if (ctx.operation_type === "drillin

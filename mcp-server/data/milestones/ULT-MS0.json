@@ -1,0 +1,374 @@
+{
+  "id": "ULT-MS0",
+  "track": "ULT",
+  "status": "complete",
+  "completed_units": 5,
+  "version": "1.0.0",
+  "title": "Canonical Shop Domain + Event Spine",
+  "brief": "Create the single source of truth for jobs, travelers, labor sessions, quantities, approvals, attachments, and live update events so every frontend and backend workflow can synchronize against the same contract.",
+  "created_at": "2026-03-27T18:00:00Z",
+  "created_by": "codex-rgs-forge-triple",
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Contracts + Core State",
+      "description": "Define the canonical shop objects and wire them into durable backend state and transport surfaces.",
+      "sessions": "1-2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4.6",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Canonical shop-domain schema pack",
+          "phase": "P1",
+          "sequence": 1,
+          "role": "R1",
+          "role_name": "Schema Architect",
+          "model": "opus-4.6",
+          "effort": 94,
+          "tools": [
+            { "tool": "prism_sp", "action": "brainstorm" },
+            { "tool": "prism_sp", "action": "write_file" }
+          ],
+          "entry_conditions": [
+            "Current EmployeeEngine, TimeClockEngine, ERP route, Jobs page, and Scheduling page payloads have been inventoried.",
+            "The roadmap vocabulary for job, traveler, timer, and event ids is still flexible."
+          ],
+          "exit_conditions": [
+            "A canonical schema exists for job, traveler, labor_session, quantity_actual, approval, attachment, and live_event.",
+            "REST and websocket payloads share one identifier, timestamp, and provenance language."
+          ],
+          "rollback": "Delete the new shop schema files and restore callers to their prior local DTOs.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Audit the active backend and frontend payload shapes, then normalize entity names and lifecycle states into one shop-domain lexicon.",
+              "tool_calls": ["prism_sp:read_file", "prism_sp:brainstorm"]
+            },
+            {
+              "number": 2,
+              "instruction": "Publish Zod and TypeScript contracts for the canonical entities plus their websocket event variants.",
+              "tool_calls": ["prism_sp:write_file", "prism_validate:completeness"],
+              "validation": "Representative shop payloads parse through the new contracts without lossy remapping."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/schemas/shop/shopDomain.ts",
+              "type": "schema",
+              "description": "Canonical job, traveler, labor, quantity, approval, and attachment schemas.",
+              "line_count_est": 220
+            },
+            {
+              "path": "src/schemas/shop/liveEventContracts.ts",
+              "type": "schema",
+              "description": "Canonical websocket event schemas for job rooms, department rooms, and employee rooms.",
+              "line_count_est": 140
+            }
+          ],
+          "estimated_minutes": 180
+        },
+        {
+          "id": "P1-U02",
+          "title": "ShopStateEngine + repository boundary",
+          "phase": "P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Implementer",
+          "model": "sonnet-4.6",
+          "effort": 86,
+          "dependencies": ["P1-U01"],
+          "tools": [
+            { "tool": "prism_sp", "action": "write_file" },
+            { "tool": "prism_session", "action": "state_checkpoint" }
+          ],
+          "entry_conditions": [
+            "Canonical schemas from P1-U01 validate.",
+            "The storage split between transient session state and persistent shop state is documented."
+          ],
+          "exit_conditions": [
+            "A durable ShopStateEngine owns job/traveler/timer/quantity snapshots.",
+            "Persistence adapters are isolated behind a repository port instead of leaking directly into routes."
+          ],
+          "rollback": "Remove the ShopStateEngine and repository port files, then revert route call sites.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Introduce a ShopStateEngine that owns reads, writes, optimistic concurrency, and event-ready snapshots for the canonical entities.",
+              "tool_calls": ["prism_sp:write_file", "prism_sp:review"]
+            },
+            {
+              "number": 2,
+              "instruction": "Define repository ports for persistence so SQLite, E2 sync, and future durable stores can all target the same contract.",
+              "tool_calls": ["prism_sp:write_file", "prism_session:state_checkpoint"],
+              "validation": "No route file mutates core shop state without going through the new engine."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/engines/ShopStateEngine.ts",
+              "type": "source",
+              "description": "Central state owner for job lifecycle, traveler progress, and live shop snapshots.",
+              "line_count_est": 340
+            },
+            {
+              "path": "src/engines/ShopRepositoryPort.ts",
+              "type": "source",
+              "description": "Persistence port definitions for transactional shop storage and sync adapters.",
+              "line_count_est": 120
+            }
+          ],
+          "estimated_minutes": 160
+        },
+        {
+          "id": "P1-U03",
+          "title": "REST + websocket contract alignment",
+          "phase": "P1",
+          "sequence": 3,
+          "role": "R6",
+          "role_name": "Integrator",
+          "model": "sonnet-4.6",
+          "effort": 82,
+          "dependencies": ["P1-U02"],
+          "tools": [
+            { "tool": "prism_bridge", "action": "route_map" },
+            { "tool": "prism_sp", "action": "write_file" }
+          ],
+          "entry_conditions": [
+            "ShopStateEngine exists and exposes canonical read/write methods.",
+            "The existing ERP route drift has been cataloged."
+          ],
+          "exit_conditions": [
+            "ERP HTTP routes and websocket room payloads share one contract source.",
+            "The backend exposes a dedicated live shop route surface instead of hiding all state behind seeded UI clients."
+          ],
+          "rollback": "Revert the new route registrations and restore the previous erp.ts-only surface.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Map the current frontend ERP expectations to canonical handlers and split live shop transport into its own route module.",
+              "tool_calls": ["prism_bridge:route_map", "prism_sp:plan"]
+            },
+            {
+              "number": 2,
+              "instruction": "Wire a dedicated live route surface and room map so the frontend can subscribe to job, department, and employee updates without bespoke adapters.",
+              "tool_calls": ["prism_sp:write_file", "prism_sp:build"],
+              "validation": "Every live route and room name is documented against a matching canonical schema."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/routes/shopLive.ts",
+              "type": "source",
+              "description": "Dedicated HTTP route surface for live shop state and subscription bootstrap.",
+              "line_count_est": 220
+            },
+            {
+              "path": "src/routes/erp.ts",
+              "type": "source",
+              "description": "Aligned ERP routes that delegate to canonical shop-domain handlers.",
+              "line_count_est": 80
+            }
+          ],
+          "estimated_minutes": 150
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.8,
+        "ralph_required": true,
+        "custom_checks": [
+          "Canonical ids and timestamps are consistent across REST and websocket contracts.",
+          "No route mutates shop state outside ShopStateEngine."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Contract drift",
+        "Entity naming consistency",
+        "Migration readiness"
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Forge-Triple Controls",
+      "description": "Add the slash-command, skill, hook, and test surfaces that keep the new contracts discoverable and guarded.",
+      "sessions": "1",
+      "primary_role": "R7",
+      "primary_model": "opus-4.6",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Forge-triple shop-domain starter assets",
+          "phase": "P2",
+          "sequence": 4,
+          "role": "R7",
+          "role_name": "Prompt Engineer",
+          "model": "opus-4.6",
+          "effort": 88,
+          "dependencies": ["P1-U03"],
+          "tools": [
+            { "tool": "prism_skill_script", "action": "skill_search" },
+            { "tool": "prism_sp", "action": "write_file" }
+          ],
+          "entry_conditions": [
+            "Canonical shop contracts exist and route names are stable.",
+            "The team needs an execution surface that can bootstrap future forge-triple work quickly."
+          ],
+          "exit_conditions": [
+            "A dedicated command and skill template exist for inspecting live shop status, contract health, and subscription rooms.",
+            "Future roadmap units can reuse the same guidance without re-deriving the contract language."
+          ],
+          "rollback": "Remove the command and template assets if the contract naming changes materially.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Author a command surface that explains how to inspect live shop status, contract health, and subscription rooms.",
+              "tool_calls": ["prism_sp:write_file", "prism_skill_script:skill_search"]
+            },
+            {
+              "number": 2,
+              "instruction": "Create a reusable skill template for future domain-contract work so forge-triple sessions start from the same playbook.",
+              "tool_calls": ["prism_sp:write_file"],
+              "validation": "The new command and skill reference the canonical route names, entity ids, and event rooms."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "commands/shop-live-status.md",
+              "type": "command",
+              "description": "Slash-command guidance for inspecting canonical shop contracts and live room health.",
+              "line_count_est": 80
+            },
+            {
+              "path": "data/templates/ultimate-app/prism-shop-domain-contract.md",
+              "type": "skill",
+              "description": "Reusable forge-triple skill template for shop-domain and event-contract work.",
+              "line_count_est": 120
+            }
+          ],
+          "estimated_minutes": 100,
+          "creates_skill": true,
+          "creates_command": true
+        },
+        {
+          "id": "P2-U02",
+          "title": "Contract-drift hook + regression suite",
+          "phase": "P2",
+          "sequence": 5,
+          "role": "R3",
+          "role_name": "Test Writer",
+          "model": "sonnet-4.6",
+          "effort": 84,
+          "dependencies": ["P2-U01"],
+          "tools": [
+            { "tool": "prism_hook", "action": "coverage" },
+            { "tool": "prism_ralph", "action": "loop" }
+          ],
+          "entry_conditions": [
+            "Canonical shop contracts and command surfaces are in place.",
+            "The team is ready to prevent future UI/backend route drift automatically."
+          ],
+          "exit_conditions": [
+            "A hook warns on contract drift before route or page changes land.",
+            "The canonical contract test suite fails closed when ids, payloads, or room names drift."
+          ],
+          "rollback": "Disable the new hook and remove the regression suite if it blocks unrelated work unexpectedly.",
+          "steps": [
+            {
+              "number": 1,
+              "instruction": "Implement a drift-detection hook that compares contract exports against route and page consumers during edit time.",
+              "tool_calls": ["prism_hook:coverage", "prism_sp:write_file"]
+            },
+            {
+              "number": 2,
+              "instruction": "Write the contract regression suite and run a Ralph scrutiny pass against edge cases and migration notes.",
+              "tool_calls": ["prism_sp:write_file", "prism_ralph:loop"],
+              "validation": "Breaking changes to ids, room names, or canonical payload fields fail the suite immediately."
+            }
+          ],
+          "deliverables": [
+            {
+              "path": "src/hooks/shopContractDrift.ts",
+              "type": "hook",
+              "description": "Edit-time guard that detects backend/frontend contract drift before it ships.",
+              "line_count_est": 140
+            },
+            {
+              "path": "src/__tests__/shopDomain.contract.test.ts",
+              "type": "test",
+              "description": "Regression suite covering canonical shop contracts, route parity, and live room naming.",
+              "line_count_est": 220
+            }
+          ],
+          "estimated_minutes": 120,
+          "creates_hook": true
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 0.8,
+        "ralph_required": true,
+        "custom_checks": [
+          "The shop contract command and skill assets reference the same canonical paths shipped in P1.",
+          "The drift hook catches a seeded contract mismatch in test."
+        ]
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Hook false-positive rate",
+        "Tool and command discoverability",
+        "Contract test completeness"
+      ]
+    }
+  ],
+  "total_units": 5,
+  "total_sessions": "2-3",
+  "dependency_graph": "P1-U01 -> P1-U02 -> P1-U03 -> P2-U01 -> P2-U02",
+  "role_matrix": [
+    { "code": "R1", "name": "Schema Architect", "model": "opus-4.6", "effort": 95, "description": "Define durable contracts, DTOs, and invariants." },
+    { "code": "R2", "name": "Implementer", "model": "sonnet-4.6", "effort": 80, "description": "Build production engines and source modules." },
+    { "code": "R3", "name": "Test Writer", "model": "sonnet-4.6", "effort": 75, "description": "Author regression and integration tests." },
+    { "code": "R6", "name": "Integrator", "model": "sonnet-4.6", "effort": 80, "description": "Wire routes, events, and UI surfaces." },
+    { "code": "R7", "name": "Prompt Engineer", "model": "opus-4.6", "effort": 90, "description": "Create forge-triple skills and command surfaces." }
+  ],
+  "tool_map": [
+    { "tool": "prism_sp", "phases": ["P1", "P2"], "purpose": "Plan units, write deliverables, and run build/test gates." },
+    { "tool": "prism_session", "phases": ["P1"], "purpose": "Checkpoint contract migration state while the domain spine is introduced." },
+    { "tool": "prism_bridge", "phases": ["P1"], "purpose": "Inspect route maps and keep transport surfaces aligned." },
+    { "tool": "prism_skill_script", "phases": ["P2"], "purpose": "Generate and maintain forge-triple skill surfaces." },
+    { "tool": "prism_hook", "phases": ["P2"], "purpose": "Create and audit drift-prevention hooks." },
+    { "tool": "prism_ralph", "phases": ["P2"], "purpose": "Scrutinize milestone outputs before handoff." }
+  ],
+  "deliverables_index": [
+    { "path": "src/schemas/shop/shopDomain.ts", "type": "schema", "description": "Canonical job, traveler, labor, quantity, approval, and attachment schemas.", "line_count_est": 220 },
+    { "path": "src/schemas/shop/liveEventContracts.ts", "type": "schema", "description": "Canonical websocket event schemas for job rooms, department rooms, and employee rooms.", "line_count_est": 140 },
+    { "path": "src/engines/ShopStateEngine.ts", "type": "source", "description": "Central state owner for job lifecycle, traveler progress, and live shop snapshots.", "line_count_est": 340 },
+    { "path": "src/engines/ShopRepositoryPort.ts", "type": "source", "description": "Persistence port definitions for transactional shop storage and sync adapters.", "line_count_est": 120 },
+    { "path": "src/routes/shopLive.ts", "type": "source", "description": "Dedicated HTTP route surface for live shop state and subscription bootstrap.", "line_count_est": 220 },
+    { "path": "src/routes/erp.ts", "type": "source", "description": "Aligned ERP routes that delegate to canonical shop-domain handlers.", "line_count_est": 80 },
+    { "path": "commands/shop-live-status.md", "type": "command", "description": "Slash-command guidance for inspecting canonical shop contracts and live room health.", "line_count_est": 80 },
+    { "path": "data/templates/ultimate-app/prism-shop-domain-contract.md", "type": "skill", "description": "Reusable forge-triple skill template for shop-domain and event-contract work.", "line_count_est": 120 },
+    { "path": "src/hooks/shopContractDrift.ts", "type": "hook", "description": "Edit-time guard that detects backend/frontend contract drift before it ships.", "line_count_est": 140 },
+    { "path": "src/__tests__/shopDomain.contract.test.ts", "type": "test", "description": "Regression suite covering canonical shop contracts, route parity, and live room naming.", "line_count_est": 220 }
+  ],
+  "existing_leverage": [
+    { "asset": "src/engines/EventBus.ts", "type": "engine", "count": 1, "usage": "Reuse the existing event bus as the backbone for live shop state transitions." },
+    { "asset": "src/engines/WebSocketEngine.ts", "type": "engine", "count": 1, "usage": "Reuse room-based websocket delivery instead of creating a second realtime stack." },
+    { "asset": "src/engines/EmployeeEngine.ts", "type": "engine", "count": 1, "usage": "Seed employee, department, and role vocabulary for the canonical domain." },
+    { "asset": "src/engines/TimeClockEngine.ts", "type": "engine", "count": 1, "usage": "Use the existing shift and job-time logic as the starting point for labor-session contracts." }
+  ],
+  "scrutiny_config": {
+    "pass_mode": "adaptive",
+    "min_passes": 3,
+    "max_passes": 6,
+    "convergence_rule": "delta < 2",
+    "escalation_rule": "if pass 4+ finds CRITICAL, flag for human review",
+    "scrutinizer_model": "opus-4.6",
+    "scrutinizer_effort": 92,
+    "improvement_threshold": 0.95
+  },
+  "scrutiny_log": "data/state/ULT-MS0/scrutiny-log.json",
+  "position_file": "data/state/ULT-MS0/position.json",
+  "state_dir": "data/state/ULT-MS0"
+}

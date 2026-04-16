@@ -1,0 +1,618 @@
+/**
+ * KnowledgeLineageEngine.ts — KAR-MS0 U-KAR03
+ * Knowledge Provenance and Lineage Tracking
+ *
+ * Tracks:
+ * - Source provenance: which source provided which value
+ * - Conflict resolution: authority ranking for competing values
+ * - Version history: lineage chains through previousVersionId
+ * - Lineage graph: persisted to JSON for auditability
+ *
+ * Exit criteria:
+ * - Can trace any value to source
+ * - Conflict resolution follows authority ranking
+ * - Lineage graph persisted to JSON
+ */
+
+import { z } from "zod";
+import {
+  KnowledgeAtom,
+  KnowledgeAtomSchema,
+  AUTHORITY_RANK,
+  AuthorityLevel,
+} from "../types/KnowledgeAtom.js";
+import * as fs from "fs";
+import * as path from "path";
+
+// ============================================================================
+// Lineage Node Schema
+// ============================================================================
+
+/**
+ * A node in the lineage graph representing one atom version.
+ */
+export const LineageNodeSchema = z.object({
+  /** Atom ID */
+  atomId: z.string(),
+
+  /** Atom title for display */
+  title: z.string(),
+
+  /** Source path */
+  sourcePath: z.string(),
+
+  /** Authority level */
+  authority: z.string(),
+
+  /** Authority rank (1-10) */
+  authorityRank: z.number(),
+
+  /** Version number */
+  version: z.number(),
+
+  /** Parent atom ID (previous version) */
+  parentId: z.string().nullable(),
+
+  /** Child atom IDs (superseded by) */
+  childIds: z.array(z.string()),
+
+  /** Conflict resolution: atoms this superseded */
+  supersedes: z.array(z.string()),
+
+  /** Conflict resolution: atom this was superseded by */
+  supersededBy: z.string().nullable(),
+
+  /** ISO timestamp */
+  timestamp: z.string(),
+
+  /** Extraction method */
+  extractionMethod: z.string().optional(),
+});
+export type LineageNode = z.infer<typeof LineageNodeSchema>;
+
+/**
+ * Edge connecting two lineage nodes.
+ */
+export const LineageEdgeSchema = z.object({
+  /** Source node ID */
+  from: z.string(),
+
+  /** Target node ID */
+  to: z.string(),
+
+  /** Relationship type */
+  type: z.enum(["version", "supersedes", "derived_from", "conflicts_with"]),
+
+  /** Timestamp of relationship */
+  timestamp: z.string(),
+
+  /** Reason for relationship */
+  reason: z.string().optional(),
+});
+export type LineageEdge = z.infer<typeof LineageEdgeSchema>;
+
+/**
+ * Full lineage graph.
+ */
+export const LineageGraphSchema = z.object({
+  /** Schema version for migrations */
+  schemaVersion: z.string(),
+
+  /** Last update timestamp */
+  updatedAt: z.string(),
+
+  /** Total nodes */
+  nodeCount: z.number(),
+
+  /** Total edges */
+  edgeCount: z.number(),
+
+  /** Nodes by atom ID */
+  nodes: z.record(z.string(), LineageNodeSchema),
+
+  /** Edges (keyed by "from:to:type") */
+  edges: z.record(z.string(), LineageEdgeSchema),
+
+  /** Conflict resolution log */
+  conflictLog: z.array(z.object({
+    timestamp: z.string(),
+    winnerAtomId: z.string(),
+    loserAtomIds: z.array(z.string()),
+    reason: z.string(),
+  })),
+});
+export type LineageGraph = z.infer<typeof LineageGraphSchema>;
+
+// ============================================================================
+// Conflict Resolution Types
+// ============================================================================
+
+export interface ConflictResolutionResult {
+  winner: KnowledgeAtom;
+  losers: KnowledgeAtom[];
+  reason: string;
+  authorityDelta: number;
+  confidenceDelta: number;
+}
+
+export interface TraceResult {
+  atom: KnowledgeAtom;
+  lineageChain: LineageNode[];
+  sourceOrigin: {
+    path: string;
+    sourceType: string;
+    authority: string;
+    extractedAt: string;
+  };
+  depth: number;
+}
+
+// ============================================================================
+// KnowledgeLineageEngine
+// ============================================================================
+
+/**
+ * Engine for tracking knowledge provenance and lineage.
+ */
+export class KnowledgeLineageEngine {
+  private graph: LineageGraph;
+  private atomIndex: Map<string, KnowledgeAtom> = new Map();
+  private persistPath: string;
+  private dirty: boolean = false;
+
+  constructor(persistPath?: string) {
+    this.persistPath = persistPath || path.join(
+      process.cwd(),
+      "data/state/knowledge-lineage.json"
+    );
+    this.graph = this.createEmptyGraph();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Graph Initialization
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private createEmptyGraph(): LineageGraph {
+    return {
+      schemaVersion: "1.0.0",
+      updatedAt: new Date().toISOString(),
+      nodeCount: 0,
+      edgeCount: 0,
+      nodes: {},
+      edges: {},
+      conflictLog: [],
+    };
+  }
+
+  /**
+   * Load lineage graph from JSON file.
+   */
+  async load(): Promise<{ success: boolean; nodeCount: number; error?: string }> {
+    try {
+      if (!fs.existsSync(this.persistPath)) {
+        return { success: true, nodeCount: 0 };
+      }
+
+      const raw = await fs.promises.readFile(this.persistPath, "utf-8");
+      const data = JSON.parse(raw);
+      const parsed = LineageGraphSchema.safeParse(data);
+
+      if (!parsed.success) {
+        return {
+          success: false,
+          nodeCount: 0,
+          error: `Schema validation failed: ${parsed.error.issues.map(i => i.message).join(", ")}`,
+        };
+      }
+
+      this.graph = parsed.data;
+      this.dirty = false;
+      return { success: true, nodeCount: this.graph.nodeCount };
+    } catch (error) {
+      return {
+        success: false,
+        nodeCount: 0,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  /**
+   * Persist lineage graph to JSON file.
+   */
+  async persist(): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Ensure directory exists
+      const dir = path.dirname(this.persistPath);
+      if (!fs.existsSync(dir)) {
+        await fs.promises.mkdir(dir, { recursive: true });
+      }
+
+      this.graph.updatedAt = new Date().toISOString();
+      this.graph.nodeCount = Object.keys(this.graph.nodes).length;
+      this.graph.edgeCount = Object.keys(this.graph.edges).length;
+
+      const json = JSON.stringify(this.graph, null, 2);
+      await fs.promises.writeFile(this.persistPath, json, "utf-8");
+      this.dirty = false;
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Atom Registration
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Register an atom in the lineage graph.
+   */
+  registerAtom(atom: KnowledgeAtom): LineageNode {
+    const node: LineageNode = {
+      atomId: atom.id,
+      title: atom.title,
+      sourcePath: atom.source.path,
+      authority: atom.source.authority,
+      authorityRank: atom.source.authorityRank,
+      version: atom.version,
+      parentId: atom.previousVersionId || null,
+      childIds: [],
+      supersedes: [],
+      supersededBy: null,
+      timestamp: atom.extractedAt,
+      extractionMethod: atom.source.extractionMethod,
+    };
+
+    this.graph.nodes[atom.id] = node;
+    this.atomIndex.set(atom.id, atom);
+    this.dirty = true;
+
+    // Link to parent if exists
+    if (atom.previousVersionId && this.graph.nodes[atom.previousVersionId]) {
+      this.graph.nodes[atom.previousVersionId].childIds.push(atom.id);
+      this.addEdge(atom.previousVersionId, atom.id, "version", "New version created");
+    }
+
+    return node;
+  }
+
+  /**
+   * Add an edge between two nodes.
+   */
+  private addEdge(
+    from: string,
+    to: string,
+    type: LineageEdge["type"],
+    reason?: string
+  ): void {
+    const key = `${from}:${to}:${type}`;
+    if (!this.graph.edges[key]) {
+      this.graph.edges[key] = {
+        from,
+        to,
+        type,
+        timestamp: new Date().toISOString(),
+        reason,
+      };
+      this.dirty = true;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Conflict Resolution
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Resolve conflicts between competing atoms using authority ranking.
+   * Higher authority wins. Ties broken by confidence, then recency.
+   */
+  resolveConflicts(atoms: KnowledgeAtom[]): ConflictResolutionResult {
+    if (atoms.length === 0) {
+      throw new Error("Cannot resolve conflicts with empty atom list");
+    }
+
+    if (atoms.length === 1) {
+      return {
+        winner: atoms[0],
+        losers: [],
+        reason: "Single atom, no conflict",
+        authorityDelta: 0,
+        confidenceDelta: 0,
+      };
+    }
+
+    // Sort by: authority (desc), confidence (desc), extractedAt (desc)
+    const sorted = [...atoms].sort((a, b) => {
+      const authDiff = b.source.authorityRank - a.source.authorityRank;
+      if (authDiff !== 0) return authDiff;
+
+      const confDiff = b.confidence - a.confidence;
+      if (confDiff !== 0) return confDiff;
+
+      return new Date(b.extractedAt).getTime() - new Date(a.extractedAt).getTime();
+    });
+
+    const winner = sorted[0];
+    const losers = sorted.slice(1);
+
+    // Calculate deltas
+    const authorityDelta = winner.source.authorityRank - losers[0].source.authorityRank;
+    const confidenceDelta = winner.confidence - losers[0].confidence;
+
+    // Build reason
+    let reason: string;
+    if (authorityDelta > 0) {
+      reason = `Authority: ${winner.source.authority} (${winner.source.authorityRank}) > ${losers[0].source.authority} (${losers[0].source.authorityRank})`;
+    } else if (confidenceDelta > 0) {
+      reason = `Confidence: ${winner.confidence.toFixed(2)} > ${losers[0].confidence.toFixed(2)} (same authority)`;
+    } else {
+      reason = `Recency: ${winner.extractedAt} newer than ${losers[0].extractedAt} (same authority/confidence)`;
+    }
+
+    // Update graph
+    for (const loser of losers) {
+      if (this.graph.nodes[winner.id]) {
+        this.graph.nodes[winner.id].supersedes.push(loser.id);
+      }
+      if (this.graph.nodes[loser.id]) {
+        this.graph.nodes[loser.id].supersededBy = winner.id;
+      }
+      this.addEdge(winner.id, loser.id, "supersedes", reason);
+    }
+
+    // Log conflict
+    this.graph.conflictLog.push({
+      timestamp: new Date().toISOString(),
+      winnerAtomId: winner.id,
+      loserAtomIds: losers.map(l => l.id),
+      reason,
+    });
+    this.dirty = true;
+
+    return {
+      winner,
+      losers,
+      reason,
+      authorityDelta,
+      confidenceDelta,
+    };
+  }
+
+  /**
+   * Find conflicting atoms by matching key fields.
+   * Atoms conflict if they describe the same knowledge from different sources.
+   */
+  findConflicts(
+    atom: KnowledgeAtom,
+    matchFields: (keyof KnowledgeAtom)[] = ["type", "category", "title"]
+  ): KnowledgeAtom[] {
+    const conflicts: KnowledgeAtom[] = [];
+
+    for (const [id, existingAtom] of this.atomIndex) {
+      if (id === atom.id) continue;
+
+      const matches = matchFields.every(field => {
+        const atomValue = atom[field];
+        const existingValue = existingAtom[field];
+        if (typeof atomValue === "string" && typeof existingValue === "string") {
+          return atomValue.toLowerCase() === existingValue.toLowerCase();
+        }
+        return atomValue === existingValue;
+      });
+
+      if (matches) {
+        conflicts.push(existingAtom);
+        this.addEdge(atom.id, id, "conflicts_with", "Matching fields detected");
+      }
+    }
+
+    return conflicts;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Lineage Tracing
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Trace an atom back to its original source.
+   */
+  traceToSource(atomId: string): TraceResult | null {
+    const atom = this.atomIndex.get(atomId);
+    if (!atom) return null;
+
+    const chain: LineageNode[] = [];
+    let current: LineageNode | undefined = this.graph.nodes[atomId];
+    let depth = 0;
+    const visited = new Set<string>();
+
+    // Walk up the version chain
+    while (current && !visited.has(current.atomId)) {
+      visited.add(current.atomId);
+      chain.push(current);
+      depth++;
+
+      if (current.parentId) {
+        current = this.graph.nodes[current.parentId];
+      } else {
+        break;
+      }
+
+      // Safety: prevent infinite loops
+      if (depth > 1000) {
+        throw new Error(`Circular lineage detected at atom ${atomId}`);
+      }
+    }
+
+    // Origin is the last in chain (oldest ancestor)
+    const origin = chain[chain.length - 1];
+
+    return {
+      atom,
+      lineageChain: chain,
+      sourceOrigin: {
+        path: origin.sourcePath,
+        sourceType: origin.authority,
+        authority: origin.authority,
+        extractedAt: origin.timestamp,
+      },
+      depth,
+    };
+  }
+
+  /**
+   * Get all descendants of an atom (atoms derived from it).
+   */
+  getDescendants(atomId: string): LineageNode[] {
+    const descendants: LineageNode[] = [];
+    const queue: string[] = [atomId];
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      if (visited.has(currentId)) continue;
+      visited.add(currentId);
+
+      const node = this.graph.nodes[currentId];
+      if (!node) continue;
+
+      if (currentId !== atomId) {
+        descendants.push(node);
+      }
+
+      queue.push(...node.childIds);
+    }
+
+    return descendants;
+  }
+
+  /**
+   * Get atoms superseded by a given atom.
+   */
+  getSuperseded(atomId: string): LineageNode[] {
+    const node = this.graph.nodes[atomId];
+    if (!node) return [];
+
+    return node.supersedes
+      .map(id => this.graph.nodes[id])
+      .filter((n): n is LineageNode => n !== undefined);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Queries
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Get all atoms from a specific source path.
+   */
+  getAtomsBySource(sourcePath: string): LineageNode[] {
+    return Object.values(this.graph.nodes).filter(
+      node => node.sourcePath === sourcePath
+    );
+  }
+
+  /**
+   * Get all atoms with a specific authority level.
+   */
+  getAtomsByAuthority(authority: AuthorityLevel): LineageNode[] {
+    return Object.values(this.graph.nodes).filter(
+      node => node.authority === authority
+    );
+  }
+
+  /**
+   * Get conflict resolution history.
+   */
+  getConflictLog(): LineageGraph["conflictLog"] {
+    return [...this.graph.conflictLog];
+  }
+
+  /**
+   * Get graph statistics.
+   */
+  getStats(): {
+    nodeCount: number;
+    edgeCount: number;
+    conflictCount: number;
+    averageChainDepth: number;
+    authorityDistribution: Record<string, number>;
+  } {
+    const nodes = Object.values(this.graph.nodes);
+    const authorityDist: Record<string, number> = {};
+
+    let totalDepth = 0;
+    let rootCount = 0;
+
+    for (const node of nodes) {
+      authorityDist[node.authority] = (authorityDist[node.authority] || 0) + 1;
+
+      if (!node.parentId) {
+        rootCount++;
+        // Calculate chain depth for roots
+        const descendants = this.getDescendants(node.atomId);
+        totalDepth += descendants.length + 1;
+      }
+    }
+
+    return {
+      nodeCount: Object.keys(this.graph.nodes).length,
+      edgeCount: Object.keys(this.graph.edges).length,
+      conflictCount: this.graph.conflictLog.length,
+      averageChainDepth: rootCount > 0 ? totalDepth / rootCount : 0,
+      authorityDistribution: authorityDist,
+    };
+  }
+
+  /**
+   * Check if graph has unsaved changes.
+   */
+  isDirty(): boolean {
+    return this.dirty;
+  }
+
+  /**
+   * Get node by atom ID.
+   */
+  getNode(atomId: string): LineageNode | undefined {
+    return this.graph.nodes[atomId];
+  }
+
+  /**
+   * Get atom by ID.
+   */
+  getAtom(atomId: string): KnowledgeAtom | undefined {
+    return this.atomIndex.get(atomId);
+  }
+
+  /**
+   * Export graph for visualization (D3, Cytoscape, etc.)
+   */
+  exportForVisualization(): {
+    nodes: Array<{ id: string; label: string; authority: number; group: string }>;
+    edges: Array<{ source: string; target: string; type: string }>;
+  } {
+    return {
+      nodes: Object.values(this.graph.nodes).map(n => ({
+        id: n.atomId,
+        label: n.title,
+        authority: n.authorityRank,
+        group: n.authority,
+      })),
+      edges: Object.values(this.graph.edges).map(e => ({
+        source: e.from,
+        target: e.to,
+        type: e.type,
+      })),
+    };
+  }
+}
+
+// ============================================================================
+// Singleton Export
+// ============================================================================
+
+export const knowledgeLineageEngine = new KnowledgeLineageEngine();

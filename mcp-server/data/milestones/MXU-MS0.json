@@ -1,0 +1,66 @@
+{
+  "id": "MXU-MS0",
+  "version": "1.0.0",
+  "title": "Capability Census & Activation Matrix",
+  "brief": "Inventory all source surfaces + external stores. Run live registry loads vs filesystem. Build activation matrix (on disk/loadable/callable/surfaced/product-relevant). Include Physics Fusion system (3 engines, 5 plugins, 95 tests) as a Tier 2+ product capability.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Source Surface Inventory",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory all source surfaces: engines, plugins, routes, MCP tools, hooks, scripts, skills",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Inventory external stores: memory files, benchmark data, course assets, config",
+          "effort": 50,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Run live registry loads vs filesystem — identify gaps between registered and on-disk",
+          "effort": 70,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Activation Matrix Build",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Build activation matrix columns: on_disk / loadable / callable / surfaced / product_relevant",
+          "effort": 60,
+          "dependencies": ["P0-U03", "P0-U02"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Classify Physics Fusion system (3 engines, 5 plugins, 95 tests) as Tier 2+ product capability",
+          "effort": 50,
+          "dependencies": ["P1-U01"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Produce activation-matrix.json with per-capability status using MXU-MS0A taxonomy",
+          "effort": 60,
+          "dependencies": ["P1-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS0A"],
+  "exit_conditions": ["Activation matrix covers every discoverable capability", "Physics Fusion classified as Tier 2+", "Gap count between on-disk and surfaced is quantified"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

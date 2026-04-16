@@ -1,0 +1,3604 @@
+{
+  "course": "MIT 10.34 - Numerical Methods Applied to Chemical Engineering",
+  "semester": "Fall 2015",
+  "extracted_at": "2026-04-12T23:05:01.187Z",
+  "lectures_processed": 29,
+  "total_formulas": 464,
+  "total_algorithms": 2,
+  "total_concepts": 17,
+  "all_topics": [
+    "boundary value",
+    "convergence",
+    "decomposition",
+    "dense",
+    "differentiation",
+    "eigenvalue",
+    "error",
+    "finite difference",
+    "finite element",
+    "gradient",
+    "hessian",
+    "initial value",
+    "integration",
+    "interpolation",
+    "iteration",
+    "jacobian",
+    "linear system",
+    "matrix",
+    "monte carlo",
+    "newton",
+    "norm",
+    "ode",
+    "optimization",
+    "pde",
+    "quadrature",
+    "residual",
+    "singular value",
+    "sparse",
+    "stability",
+    "stochastic",
+    "tolerance",
+    "vector"
+  ],
+  "by_category": {
+    "formulas": {
+      "summation": 80,
+      "general": 306,
+      "linear_algebra": 7,
+      "differential": 34,
+      "optimization": 9,
+      "integration": 28
+    },
+    "concepts": {
+      "theorem": 11,
+      "definition": 6
+    }
+  },
+  "results": [
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\5ccbd31752f61f4f37d3637f05b78ae4_MIT10_34F15_Lec01.pdf",
+      "lecture_number": 1,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 1: Organization, Numerical Error, Basics o",
+      "extracted_at": "2026-04-12T23:04:57.363Z",
+      "page_count": 31,
+      "text_length": 20070,
+      "formulas": [
+        {
+          "latex_like": "suming an inordinate amount of time even after",
+          "context": "you are not proficient with MATLAB. • Sometimes you may find a homework problem is consuming an inordinate amount of time even after you have asked for help. • If this happens, just turn in what you have completed",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "ax = b, which has the obvious solution \tx \t= \tb/a. But even",
+          "context": "the solution of such systems. Of course, there is the simplest linear uation \tax \t= \tb, which has the obvious solution \tx \t= \tb/a. But even such a simple context there is a complication. If \ta \t= 0 \twhen \tb \t6\t \t= 0 ,",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "a = 0 \twhen \tb \t6\t \t= 0 ,",
+          "context": "uation \tax \t= \tb, which has the obvious solution \tx \t= \tb/a. But even such a simple context there is a complication. If \ta \t= 0 \twhen \tb \t6\t \t= 0 , value of \tx \tsolves the equation. If \ta \t= 0 \tand \tb \t= 0 \tas well, every",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "a = 0 \tand \tb \t= 0 \tas well, every",
+          "context": "such a simple context there is a complication. If \ta \t= 0 \twhen \tb \t6\t \t= 0 , value of \tx \tsolves the equation. If \ta \t= 0 \tand \tb \t= 0 \tas well, every lue of x \tsolves the equation. Thus, there are either 0, 1 or an infinite",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "ax = b, have?",
+          "context": "• How many solutions does the equation: ax=b, have? 13",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "summation of two vectors. Thus solving this problem r",
+          "context": ". The solution, \t˙\tm1 and \t˙\tm2 , can be seen as the appropriate we summation of two vectors. Thus solving this problem req what scalar multiples of the vectors (1, \u00002) and (1, 1) will s This process is depicted in figure 2.2. It is easy to see that if",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume a basis",
+          "context": "are not parallel, then their intersection is necessarily on a line through the space ( ˙\tm0 , ˙\tm1 , ˙\tm2 ) , and there are infinitely many solutions which reside this line. \tChemical engineers are taught to \tassume a basis for one of the unknowns in such circumstances. This automatically selects th",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = A \t\\ \tb",
+          "context": "In MATLAB: x \t= \tA \t\\ \tb ax \t= \tb \t) \tx \t= \ta\u00001b",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "ax = b \t) \tx \t= \ta\u00001b",
+          "context": "x \t= \tA \t\\ \tb ax \t= \tb \t) \tx \t= \ta\u00001b Ax \t= \tb \t) \tx \t= \tA\u00001b",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b \t) \tx \t= \tA\u00001b",
+          "context": "ax \t= \tb \t) \tx \t= \ta\u00001b Ax \t= \tb \t) \tx \t= \tA\u00001b ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "z = a \t+ \tib \ta, b \t2 \tR",
+          "context": "i \t= p\u00001 z \t2 \tC \tz \t= \ta \t+ \tib \ta, b \t2 \tR ¯\tz \t= \ta \t\u0000 \tib",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "z = a \t\u0000 \tib",
+          "context": "z \t2 \tC \tz \t= \ta \t+ \tib \ta, b \t2 \tR ¯\tz \t= \ta \t\u0000 \tib R \t⇢ \tC",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xT = (x1 x2 . . . xN )",
+          "context": "C A xT = (x1 x2 . . . xN ) ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "kxkp = 0 \tx \t= 0",
+          "context": "!1/p kxkp = 0 \tx \t= 0 kcxkp = \t|c|kxkp",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "kcxkp = |c|kxkp",
+          "context": "kxkp = 0 \tx \t= 0 kcxkp = \t|c|kxkp |x \t· \ty| \t kxkpkykq \tp, q > \t0, \t1/p \t+ 1/q \t= 1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = (p2/2, p2/2)",
+          "context": "21 x \t= (p2/2, p2/2) kxk1 = p2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "yk2 = 0 \tx \t= \ty",
+          "context": "kx \t\u0000 \tyk2 \u0000 \t0 kx \t\u0000 \tyk2 = 0 \tx \t= \ty kx \t\u0000 \tyk2  kx \t\u0000 \tvk2 + \tky \t\u0000 \tvk2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = A \t+ \tB \t) \tCij = \tAij + \tBij",
+          "context": "• Set of all real matrices with N rows and M columns, \tRN ⇥M • Addition: \tC \t= \tA \t+ \tB \t) \tCij = \tAij + \tBij • Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = cA \t) \tCij = \tcAij",
+          "context": "• Addition: \tC \t= \tA \t+ \tB \t) \tCij = \tAij + \tBij • Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij • Transpose: \tC \t= \tAT ) \tCij = \tAji",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = AT ) \tCij = \tAji",
+          "context": "• Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij • Transpose: \tC \t= \tAT ) \tCij = \tAji • Trace (square matrices): N",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = Ax \t) \tyi = X Aij xj",
+          "context": "• Matrices: M • Matrix-vector product: \ty \t= \tAx \t) \tyi = X Aij xj j=1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = AB \t) \tCij =",
+          "context": "M • Matrix-matrix product: \tC \t= \tAB \t) \tCij = perti k",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = AA\u00001 = \tI \tif \tdet(A) = 0",
+          "context": "• transposition: \t(AB)T = \tBT AT • inversion: \tA\u00001A \t= \tAA\u00001 = \tI \tif \tdet(A) = 0 28",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = AB \t) \tCij = X AikBkj",
+          "context": "M C \t= \tAB \t) \tCij = X AikBkj k=1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = xyT = \tx \t⌦ \ty \t) \tAij = \txiyj",
+          "context": "• Matrices: • Dyadic product: \tA \t= \txyT = \tx \t⌦ \ty \t) \tAij = \txiyj • Determinant (square matrices only):",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1, 2, . . . N. The quantity \tM ij(A) is called a minor of A and",
+          "context": "20 \t10.34: \tnumerical methods, \tlecture notes for any i = 1, 2, . . . N. The quantity \tM ij(A) is called a minor of A and is the determinant of an (N \u0000 1) ⇥ (N \u0000 1) matrix that is identical to A",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "optimization",
+        "boundary value",
+        "initial value",
+        "error",
+        "tolerance",
+        "matrix",
+        "vector",
+        "norm",
+        "monte carlo",
+        "stochastic"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\7a64b24dfac5335b0c77e0d54cd06cd5_MIT10_34F15_Lec02.pdf",
+      "lecture_number": 2,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 2: More basics of linear algebra Matrix no",
+      "extracted_at": "2026-04-12T23:04:57.625Z",
+      "page_count": 31,
+      "text_length": 8866,
+      "formulas": [
+        {
+          "latex_like": "C = A \t+ \tB \t) \tCij = \tAij + \tBij",
+          "context": "• Set of all real matrices with N rows and M columns, \tRN ⇥M • Addition: \tC \t= \tA \t+ \tB \t) \tCij = \tAij + \tBij • Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = cA \t) \tCij = \tcAij",
+          "context": "• Addition: \tC \t= \tA \t+ \tB \t) \tCij = \tAij + \tBij • Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij • Transpose: \tC \t= \tAT ) \tCij = \tAji",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = AT ) \tCij = \tAji",
+          "context": "• Multiplication by scalar: \tC \t= \tcA \t) \tCij = \tcAij • Transpose: \tC \t= \tAT ) \tCij = \tAji • Trace (square matrices): N",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = Ax \t) \tyi = X Aij xj",
+          "context": "• Matrices: M • Matrix-vector product: \ty \t= \tAx \t) \tyi = X Aij xj j=1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = AB \t) \tCij = X AikBkj",
+          "context": "M • Matrix-matrix product: \tC \t= \tAB \t) \tCij = X AikBkj k=1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "AB = 6\t \tBA",
+          "context": "• Properties: • no commutation in general: AB \t=\t6\t \tBA • association: \tA(BC) = (AB)C",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = AA-1 = \tI \tif \t6\t \tdet(A) = 0",
+          "context": "• transposition: \t(AB)T = \tBT AT • inversion: \tA-1A \t= \tAA-1 = \tI \tif \t6\t \tdet(A) = 0 6",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = y \t· \tx",
+          "context": " • A scalar: \tyT x \t= \ty \t· \tx Scalars,Vectors and Matrices",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1, 2, . . . N. The quantity \tM ij(A) is called a minor of A and",
+          "context": "20 \t10.34: \tnumerical methods, \tlecture notes for any i = 1, 2, . . . N. The quantity \tM ij(A) is called a minor of A and is the determinant of an (N - 1) ⇥ (N - 1) matrix that is identical to A",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = xy \t= \tx \t⌦ \ty \t) \tAij = \txiyj",
+          "context": "T • Dyadic product: \tA \t= \txy \t= \tx \t⌦ \ty \t) \tAij = \txiyj • Determinant (square matrices only):",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = sin ✓x1 + \tcos ✓x2",
+          "context": "◆ y \t= sin ✓x1 + \tcos ✓x2 ◆",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = Ax \tthen \tkAk2 = \tmax",
+          "context": "kyk2 • Example: let \ty \t= \tAx \tthen \tkAk2 = \tmax x \tkxk2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "kAkp = 0 \tonly if \tA \t= 0",
+          "context": "• Properties: • kAkp > \t0, \tkAkp = 0 \tonly if \tA \t= 0 kcAkp = \t|c|kAkp• kAxkp  kAkpkxkp• kABkp  kAkpkBkp•",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "kcAkp = |c|kAkp• kAxkp  kAkpkxkp• kABkp  kAkpkBkp•",
+          "context": "• kAkp > \t0, \tkAkp = 0 \tonly if \tA \t= 0 kcAkp = \t|c|kAkp• kAxkp  kAkpkxkp• kABkp  kAkpkBkp• • kA \t+ \tBkp  kAkp + \tkBkp",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b , has exact solution: \tx \t= \tA 1b",
+          "context": "solution of linear equations: • Suppose: \tAx \t= \tb , has exact solution: \tx \t= \tA 1b • If there is a small error in \tb , denoted \t6b, how",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = A-1(b \t+ \t6b)",
+          "context": "much of an error is produced in \tx ? x \t+ \t6x \t= \tA-1(b \t+ \t6b) 6x \t= \tA-16b",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k5xkp = kA 15bkp  kA 1kpk5bkp",
+          "context": "• Absolute error in \tx \t: k5xkp = \tkA 15bkp  kA 1kpk5bkp • Relative error in \tx \t:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "kbkp = kAxkp  kAkpkxkp ) kxkp > kbkp",
+          "context": "• Relative error in \tx \t: kbkp = \tkAxkp  kAkpkxkp ) kxkp > kbkp kAkp",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume a unique solution exists, can we find it?",
+          "context": "• Measures how numerical error is magnified in solution of linear equations. • Assume a unique solution exists, can we find it? • (R.E. in answer) is bounded by (condition number) x (R.E. in data)",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Ax = b \tis ill-conditioned. What now?",
+          "context": "• Condition number: • Ax \t= \tb \tis ill-conditioned. What now? • Rescale the equations:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = 1 \t10\u00009",
+          "context": "✓ 1010 1 ◆ A \t= 1 \t10\u00009 (A) \t⇡",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "D = , \t(DA) \t⇡",
+          "context": "✓ 10\u000010 0 ◆ D \t= \t, \t(DA) \t⇡ 0 \t1",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "optimization",
+        "eigenvalue",
+        "interpolation",
+        "error",
+        "matrix",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\83188f37745ad938333f377d24e76e55_MIT10_34F15_Lec03.pdf",
+      "lecture_number": 3,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 3: Existence and uniqueness of solutions F",
+      "extracted_at": "2026-04-12T23:04:57.878Z",
+      "page_count": 26,
+      "text_length": 12755,
+      "formulas": [
+        {
+          "latex_like": "A = 1 \t-2 \t1 \t1@ \tA",
+          "context": "0 -2 \t1 \t0 \t1 1 A \t= \t1 \t-2 \t1 \t1@ \tA 0 \t1 \t-2 \t1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = I \t- ksk2",
+          "context": "ss A \t= \tI \t- ksk2 2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = \u00001(1, 0) \t+ \t\u00002(0, 1); \t\u00001, \u00002 2 \tR}",
+          "context": "• Is this a vector space? {y \t: \ty \t= \t\u00001(1, 0) \t+ \t\u00002(0, 1); \t\u00001, \u00002 2 \tR} • Is this a vector space?",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = \u00001(1, 1, 0) \t+ \t\u00002(1, 0, 1); \t\u00001, \u00002 2 \tR}",
+          "context": "• Is this a vector space? {y \t: \ty \t= \t\u00001(1, 1, 0) \t+ \t\u00002(1, 0, 1); \t\u00001, \u00002 2 \tR} 9",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = \u00001(1, 0) + \t\u00002(0, 1); \t\u00001, \u00002 2 \tR}",
+          "context": "{(1, 0), (0, 1)} {y \t: \ty \t= \t\u00001(1, 0) + \t\u00002(0, 1); \t\u00001, \u00002 2 \tR} {y \t: \ty \t= \t\u00001(1, 1, 0) + \t\u00002(1, 0, 1); \t\u00001, \u00002 2 \tR}",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = \u00001(1, 1, 0) + \t\u00002(1, 0, 1); \t\u00001, \u00002 2 \tR}",
+          "context": "{y \t: \ty \t= \t\u00001(1, 0) + \t\u00002(0, 1); \t\u00001, \u00002 2 \tR} {y \t: \ty \t= \t\u00001(1, 1, 0) + \t\u00002(1, 0, 1); \t\u00001, \u00002 2 \tR} ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = A((3, 0) \t+ \t(0, 1)); \tA1, A2 2 \tR}",
+          "context": "• Is this a subspace? {y \t: \ty \t= \tA((3, 0) \t+ \t(0, 1)); \tA1, A2 2 \tR} M",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = X Aixi",
+          "context": "• The linear combination of a set of vectors: y \t= X Aixi i=1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = X Aixi; \tAi \t2 \tR, i \t= 1, . . . , M }",
+          "context": "M = \t{y \t2 \tRN : \ty \t= X Aixi; \tAi \t2 \tR, i \t= 1, . . . , M } i=1 11",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = 0 has a non-trivial solution, then the",
+          "context": "2 • In general, if \tAx \t= 0 has a non-trivial solution, then the vectors \t(Ac",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = 0, then a",
+          "context": "• Uniqueness of solutions to: Ax \t= \tb • If we can find one vector for which: \tAx \t= 0, then a unique solution cannot exist.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = x \t+ \tx \t, and \tAxH = 0 \twhile \tAxP = \tb",
+          "context": "H \tP • Let \tx \t= \tx \t+ \tx \t, and \tAxH = 0 \twhile \tAxP = \tb H \tH \tP",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = cx \t+ \tx \tis another solution.",
+          "context": "H \tH \tP • If \tx \t6\t \t= 0 , \tx \t= \tcx \t+ \tx \tis another solution. • Therefore, \tx \tcannot be unique.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xH = 0 \tonly if \txH = 0",
+          "context": "c . . . \tAM c )xH = 0 \tonly if \txH = 0 • If a system has more variables than equations, then a",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "S = span{(1, 0, 0), (0, 1, 0), (0, 0, 1)}, \tdim S \t= 3",
+          "context": "span: S \t= \tspan{(1, 0, 0), (0, 1, 0), (0, 0, 1)}, \tdim S \t= 3 S \t= \tspan{(1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, 2)}, \tdim S \t= 3",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "S = span{(1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, 2)}, \tdim S \t= 3",
+          "context": "S \t= \tspan{(1, 0, 0), (0, 1, 0), (0, 0, 1)}, \tdim S \t= 3 S \t= \tspan{(1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, 2)}, \tdim S \t= 3 • Example: can \tAx \t= \tb \thave a unique solution?",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b \thave a unique solution?",
+          "context": "S \t= \tspan{(1, 0, 0), (0, 1, 0), (0, 0, 1), (0, 0, 2)}, \tdim S \t= 3 • Example: can \tAx \t= \tb \thave a unique solution? 0 1 \t4 \t0 1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b \texist only if \tb \t2 \tR(A)",
+          "context": "c\tc } • Solutions to \tAx \t= \tb \texist only if \tb \t2 \tR(A) • Example: 0 1 \t0 \t0 1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = 0 \t0 \t0@ \tA",
+          "context": "• Example: 0 1 \t0 \t0 1 • Does a solution exist with \tA \t= \t0 \t0 \t0@ \tA 0 \t0 \t0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "b = 0 \t?@ \tA",
+          "context": "0 1 1 • If \tb \t= \t0 \t?@ \tA 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "b = 1 \t?@ \tA",
+          "context": "0 0 1 • If \tb \t= \t1 \t?@ \tA 0 19",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b, \tAy \t= \tb",
+          "context": "• Uniqueness: • Consider two solutions \tAx \t= \tb, \tAy \t= \tb • Such that \tA(x \t\u0000 \ty) = 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = 0, \tx \t= \ty",
+          "context": "• Such that \tA(x \t\u0000 \ty) = 0 • If \tdim N (A) = 0 \t, then \tx \t\u0000 \ty \t= 0, \tx \t= \ty • A unique solution exists 23",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = 0 \tor \t0",
+          "context": "C A = 0 \tor \t0 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "suming [D] = 1 and performing back subs",
+          "context": "these species. This eigenvector is a set of non-zero concentra belongs to the null space of the reaction rate matrix. This s determined by assuming [D] = 1 and performing back subs determine the concentrations of the other components. The non-zero vectors satisfying steady-state condition is",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "r = dim R(A). \t(2.46)",
+          "context": "dimension of its column space: r = dim R(A). \t(2.46) The dimension of the null space is necessarily r \u0000 M:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = M, the dimension of the null space is zero. Such a matrix is said",
+          "context": "If the rank of a matrix equals the number of columns in the matrix, r = \tM, the dimension of the null space is zero. Such a matrix is said to be full rank. The rank of a matrix can be determined by reducing it",
+          "category": "linear_algebra",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = N. The matrix",
+          "context": ". \t(2.47) A square, non-singular matrix in CN⇥N , has rank r = N. The matrix is singular if r < N – the columns of the matrix are linearly dependent.",
+          "category": "linear_algebra",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = dim R(A)",
+          "context": "• Rank of a matrix is the dimension of its column space r \t= dim R(A) • Finding the rank: transform to upper triangular form",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = dim R(A) = \tN",
+          "context": "• For any \tb \tin \tAx \t= \tb • A solution exists only if \tr \t= dim R(A) = \tN • Uniqueness:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = dim R(A) = \tM",
+          "context": "• A solution is unique only if \tdim N (A) = 0 • Equivalently when \tr \t= dim R(A) = \tM 26",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": ":",
+          "definition": "dim N (A) = \tM \t\u0000 \tr 25 ",
+          "category": "theorem",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "eigenvalue",
+        "matrix",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\a5e262473b8dd742ff8a8e5afd98848e_MIT10_34F15_Lec04.pdf",
+      "lecture_number": 4,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 4: Gaussian elimination Sparse matrices 1 ",
+      "extracted_at": "2026-04-12T23:04:58.178Z",
+      "page_count": 27,
+      "text_length": 46133,
+      "formulas": [
+        {
+          "latex_like": "Ax = b, where \tA \t2 \tCN⇥N and \tx, b \t2 \tCN . \tThis can be",
+          "context": "A more general algorithm is as follows. Begin with the system of equations, \tAx \t= \tb, where \tA \t2 \tCN⇥N and \tx, b \t2 \tCN . \tThis can be represented as",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume that the rows are ordered so that \tA11 \t6\t \t= 0.",
+          "context": ". systems of lin Assume that the rows are ordered so that \tA11 \t6\t \t= 0. The first step in reducing the equation to upper triangular form is to select the pivot, A11 , and compute the set of ratios, lk1 = Ak1/A11 with k = 2, 3, . . . , N. For",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "lk1 = Ak1/A11 with k = 2, 3, . . . , N. For",
+          "context": "reducing the equation to upper triangular form is to select the pivot, A11 , and compute the set of ratios, lk1 = Ak1/A11 with k = 2, 3, . . . , N. For each row k > 1, perform the operation: \t(row)k \t! (row)k \u0000 lk1 (row)1 .",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume this pivot",
+          "context": "and the entire first column has been reduced to a single value. The same procedure is followed to eliminate values from the second column. First select the pivot, A22 \u0000 l21 A12 . For now, assume this pivot is not zero. \tThen calculate the ratios: \tlk2 \t= \tA k2/(A22 \u0000 l21 A12 ) \tfor k = 3, 4, . . . N",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "k = 3, 4, . . . N. Finally, perform the row operation (row)k \t! (row)k \u0000",
+          "context": "is not zero. \tThen calculate the ratios: \tlk2 \t= \tA k2/(A22 \u0000 l21 A12 ) \tfor k = 3, 4, . . . N. Finally, perform the row operation (row)k \t! (row)k \u0000 lk2 (row)2 for each row k > 2. This will eliminate the all values below",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "lk1 = A k1/A11 with k = 2, 3, . . . , N. For",
+          "context": "reducing the equation to upper triangular form is to select the pivot, A11 , and compute the set of ratios, lk1 = A k1/A11 with k = 2, 3, . . . , N. For each row k > 1, perform the operation: \t(row)k \t! (row)k \u0000 lk1(row)1 .",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = 3, 4, . . . N. Finally, perform the ro \tk \tk \u0000",
+          "context": "is not zero. \tThen calculate the ratios: \tfor k = 3, 4, . . . N. Finally, perform the ro \tk \tk \u0000 lk2 (row)2 for each row k > 2. This will eliminate the all values below",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = A \t\\b. The backslash operator performs Gaussian",
+          "context": "In MATLAB the solutions to this system of equations is given by the command x \t= \tA \t\\b. The backslash operator performs Gaussian systems of linear equation",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = 3, 4, . . . N. Finally, perform the row operation",
+          "context": "is not zero. \tThen calculate the ratios: \tlk2 \t= \tA k2/(A22 \tl21 A12 ) \tfor k = 3, 4, . . . N. Finally, perform the row operation lk2 (row) 2 for each row k > 2. This will eliminate",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume that the rows are orde",
+          "context": "this, simple back substitution produces the desired solution. In MATLAB the solutions to this system of equations is given by Assume that the rows are orde reducing the equation to upper t and compute the set of ratios, l",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "k = 3, 4, . . . N. Finally, perform",
+          "context": "is not zero. \tThen calculate the k = 3, 4, . . . N. Finally, perform for each row k > 2. T",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = A \t\\b. The b",
+          "context": "In MATLAB the solutions t the command x \t= \tA \t\\b. The b Assume that the rows are ordered so that",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume that the rows are ordered so that",
+          "context": "In MATLAB the solutions t the command x \t= \tA \t\\b. The b Assume that the rows are ordered so that reducing the equation to upper triangular fo and compute the set of ratios, lk1 = A k1/A",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "k = 3, 4, . . . N. Finally, perform the row op",
+          "context": "is not zero. \tThen calculate the ratios: \tlk2 k = 3, 4, . . . N. Finally, perform the row op lk2 (row)2 for each row \t. This will elim",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = A \t\\b. The backslash op",
+          "context": "In MATLAB the solutions to this syste the command x \t= \tA \t\\b. The backslash op Assume that the rows are or",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume that the rows are or",
+          "context": "In MATLAB the solutions to this syste the command x \t= \tA \t\\b. The backslash op Assume that the rows are or reducing the equation to uppe and compute the set of ratios",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "k = cj+N k \u0000tD",
+          "context": "j cj+N k = cj+N k \u0000tD +",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "P = I, then P AC",
+          "context": "490 non-zero \t479 non-zero matrix, \tP \t= I, then P AC i = AC",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b, can have rows and columns reordered by",
+          "context": "nitary matrix is its inverse: \tP \u00001 = \tP † . A system of \tN \tequations N \tunknowns, \tAx \t= \tb, can have rows and columns reordered by g two permutation matrices \tP 1 and \tP 2 :",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = ˆb, where ˆA \t=",
+          "context": "2 )(P 2x) = \tP 1b. s system of equations can be rewritten as ˆA ˆ\tx \t= ˆb, where ˆA \t= P T",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = P 2x \tand ˆb \t= \tP 1b \tare reordered forms of \tA, \tx \tand \tb,",
+          "context": "P T 2 , \tˆ\tx \t= \tP 2x \tand ˆb \t= \tP 1b \tare reordered forms of \tA, \tx \tand \tb, ectively.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "P = [ \t10 \t9 \t8 \t7 \t6 \t5 \t4 \t3 \t2 \t1 \t]",
+          "context": "used? • P \t= \t[ \t10 \t9 \t8 \t7 \t6 \t5 \t4 \t3 \t2 \t1 \t] • A \t= \tA( \tP, \t: \t)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = A( \tP, \t: \t)",
+          "context": "• P \t= \t[ \t10 \t9 \t8 \t7 \t6 \t5 \t4 \t3 \t2 \t1 \t] • A \t= \tA( \tP, \t: \t) 28",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "P = symrcm(A);",
+          "context": "• Example: • P \t= \tsymrcm(A); • figure; \tspy(A);",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": "of matrix multipli-",
+          "definition": "tion: P A = ⇣",
+          "category": "definition",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "ode",
+        "error",
+        "sparse",
+        "matrix",
+        "vector"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\eda0e10ff375b9374fd8d696d2d08481_MIT10_34F15_Lec05.pdf",
+      "lecture_number": 5,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 5: Eigenvalues and eigenvectors 1  -- 1 of",
+      "extracted_at": "2026-04-12T23:04:58.466Z",
+      "page_count": 28,
+      "text_length": 25752,
+      "formulas": [
+        {
+          "latex_like": "P = I, then P AC",
+          "context": "490 non-zero \t479 non-zero matrix, \tP \t= I, then P AC i = AC",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b, can have rows and columns reordered by",
+          "context": "nitary matrix is its inverse: \tP \u00001 = \tP † . A system of \tN \tequations N \tunknowns, \tAx \t= \tb, can have rows and columns reordered by g two permutation matrices \tP 1 and \tP 2 :",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = ˆb, where ˆA \t=",
+          "context": "2 )(P 2x) = \tP 1b. s system of equations can be rewritten as ˆA ˆ\tx \t= ˆb, where ˆA \t= P T",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = P 2x \tand ˆb \t= \tP 1b \tare reordered forms of \tA, \tx \tand \tb,",
+          "context": "P T 2 , \tˆ\tx \t= \tP 2x \tand ˆb \t= \tP 1b \tare reordered forms of \tA, \tx \tand \tb, ectively.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = spdiags(ones(N,2)/2, \t[-1 \t1], \tN, \tN);",
+          "context": " • A=spdiags(ones(N,2)/2, \t[-1 \t1], \tN, \tN); • A(1,2)=1; \tA(N,N-1)=1;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Aw = \u0000w \t) \t(A \t\u0000 \t\u0000I) w \t= 0",
+          "context": "• pN (\u0000) = \tc(\u00001 \u0000 \t\u0000)(\u00002 \u0000 \t\u0000) . . . (\u0000N \u0000 \t\u0000) Aw \t= \t\u0000w \t) \t(A \t\u0000 \t\u0000I) w \t= 0 w \t= 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "l1 = A11 , l2 \t= \tA22 , . . . , lN \t= \tA NN . One can show using the recursive",
+          "context": "The eigenvalues of a diagonal matrix are just the diagonal entries: l1 \t= \tA11 , l2 \t= \tA22 , . . . , lN \t= \tA NN . One can show using the recursive definition of the determinant that this holds for triangular matrices as",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = 0 \tor \t0",
+          "context": "C A = 0 \tor \t0 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "l = 0 and l \t= \t\u0000k1 \tas well as two other",
+          "context": ", which has the obvious roots l \t= 0 and l \t= \t\u0000k1 \tas well as two other roots. Therefore \tl \t= 0 \tis indeed a root. Because the determinant of",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "l = 0 \tis indeed a root. Because the determinant of",
+          "context": "which has the obvious roots l \t= 0 and l \t= \t\u0000k1 \tas well as two other roots. Therefore \tl \t= 0 \tis indeed a root. Because the determinant of det(A) =",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "l = 0 \tand \tl \t= \t\u0000k1 \tas well as two other",
+          "context": ", which has the obvious roots \tl \t= 0 \tand \tl \t= \t\u0000k1 \tas well as two other roots. Therefore \tl \t= 0 \tis indeed a root. Because the determinant of",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "rows = multiplicity of eigenvalue \t18",
+          "context": "• These \tcomponents of \tare arbitrary • # of all zero rows = multiplicity of eigenvalue \t18 38 \t10.34: \tnumerical methods, lecture notes",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = dim R(A). \t(2.46)",
+          "context": "dimension of its column space: r = dim R(A). \t(2.46) The dimension of the null space is necessarily r \u0000 M:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = M, the dimension of the null space is zero. Such a matrix is said",
+          "context": "If the rank of a matrix equals the number of columns in the matrix, r = M, the dimension of the null space is zero. Such a matrix is said to be full rank. The rank of a matrix can be determined by reducing it",
+          "category": "linear_algebra",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = N. The matrix",
+          "context": ". \t(2.47) A square, non-singular matrix in CN⇥N , has rank r = N. The matrix is singular if r < N – the columns of the matrix are linearly dependent.",
+          "category": "linear_algebra",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "multiplicity = 2 \tgeometric multiplicity = 2",
+          "context": "◆ algebraic multiplicity = 2 \tgeometric multiplicity = 2 algebraic multiplicity = 2 geometric multiplicity = 1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "multiplicity = 2 geometric multiplicity = 1",
+          "context": "algebraic multiplicity = 2 \tgeometric multiplicity = 2 algebraic multiplicity = 2 geometric multiplicity = 1 p(\u0000) = \t\u00002",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "W = (w1 w2 . . . \twN )",
+          "context": "AW \t= \tW⇤ W \t= (w1 w2 . . . \twN ) ⇤ \t=",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ax = b \t) \tW⇤W\u00001x \t= \tb",
+          "context": "of eigenvectors and eigenvalues are known: Ax \t= \tb \t) \tW⇤W\u00001x \t= \tb • step 1: \t⇤(W\u00001x) = \tW\u00001b \t) \t⇤y \t= \tc",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = ⇤\u00001c \t) \tW\u00001x⇤\u00001W\u00001b",
+          "context": "• step 1: \t⇤(W\u00001x) = \tW\u00001b \t) \t⇤y \t= \tc • step 2: \ty \t= \t⇤\u00001c \t) \tW\u00001x⇤\u00001W\u00001b • step 3: \tx \t= \tW⇤\u00001W\u00001b",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = W⇤\u00001W\u00001b",
+          "context": "• step 2: \ty \t= \t⇤\u00001c \t) \tW\u00001x⇤\u00001W\u00001b • step 3: \tx \t= \tW⇤\u00001W\u00001b • But how is \tW\u00001 computed?",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = AT and \tkw \tk \t= 1, then W\u00001 = \tWT",
+          "context": "• (W\u00001)T are the eigenvectors of \tAT • If \tA \t= \tAT and \tkw \tk \t= 1, then W\u00001 = \tWT i \t2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "wj = \u0000ij 28",
+          "context": "• Eigenvalue matrix is unitary: \tWWT = \tI • Eigenvectors are orthogonal: \twi · \twj = \t\u0000ij 28 ",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": "of matrix multipli-",
+          "definition": "tion: P A = ⇣",
+          "category": "definition",
+          "confidence": 0.75
+        },
+        {
+          "term": "of the determinant that this holds for triangular ",
+          "definition": "well: 0 = det 0",
+          "category": "definition",
+          "confidence": 0.75
+        },
+        {
+          "term": "of the determinant that this holds for triangular ",
+          "definition": "well: 0 = det 0",
+          "category": "definition",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "linear system",
+        "eigenvalue",
+        "decomposition",
+        "ode",
+        "sparse",
+        "matrix",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\b3d5967d107c09284ab273a74fa33212_MIT10_34F15_Lec06.pdf",
+      "lecture_number": 6,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 6: Singular value decomposition Iterative ",
+      "extracted_at": "2026-04-12T23:04:58.700Z",
+      "page_count": 23,
+      "text_length": 9228,
+      "formulas": [
+        {
+          "latex_like": "y = Ay, \ty(0) = 0, y(L) = 0",
+          "context": "d2 y \t= \tAy, \ty(0) = 0, y(L) = 0 dx2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = C1e \t+ \tC2e",
+          "context": "Ax \t- \tAx y \t= \tC1e \t+ \tC2e p \tp",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = , n \t2 \tZ",
+          "context": "p 2⇡n y(L) = 0 \t) \t\u0000A \t= \t, n \t2 \tZ L",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "n = yn = \tC \tsin \tx",
+          "context": "✓ 2⇡n ◆2 ✓ 2⇡n ◆ n = \tyn = \tC \tsin \tx L \tL 4",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = 0 and \tx \t= \tL \tsuch that there",
+          "context": "e product of the elastic modulus and the area moment of inertia of th ial load. The beam is pinned at \tx \t= 0 and \tx \t= \tL \tsuch that there s. \tThis equation admits the trivial solution \ty(x) = 0 for which",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = i \tx \tfor \ti \t= 1, 2, . . . N \twith \tx \t= \tL/(N \t+ 1).",
+          "context": "ibuted so that \tx(N ) i = \ti \tx \tfor \ti \t= 1, 2, . . . N \twith \tx \t= \tL/(N \t+ 1). s \tyi = \ty(xi). Note, this set does not include the end points, \tx \t= 0 a",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "yi = y(xi). Note, this set does not include the end points, \tx \t= 0 a",
+          "context": "i = \ti \tx \tfor \ti \t= 1, 2, . . . N \twith \tx \t= \tL/(N \t+ 1). s \tyi = \ty(xi). Note, this set does not include the end points, \tx \t= 0 a Recap",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = (U⌃V†)†U⌃V† = \tV⌃†⌃V†",
+          "context": "• UU† = \tI , \tVV† = \tI •A†A \t= (U⌃V†)†U⌃V† = \tV⌃†⌃V† • V \tare the eigenvectors of \tA†A",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = 0 \t1 \t0 \t0 [U,S,V] \t= \tsvd(A)\t@ \tA",
+          "context": "• Example: 0 1 \t0 \t0 \t0 1 A \t= \t0 \t1 \t0 \t0 [U,S,V] \t= \tsvd(A)\t@ \tA 0 \t0 \t1 \t0 0 1 \t0 \t0 \t0 1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "U = 0 \t1 \t0 \t⌃ \t= \t0 \t1 \t0 \t0 \tV \t= B \tC",
+          "context": "0 \t1 \t0 \t0 U \t= \t0 \t1 \t0 \t⌃ \t= \t0 \t1 \t0 \t0 \tV \t= B \tC @ \tA \t@ \tA \tB 0 \t0 \t1 \t0 C",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "V = 0 \t1 \t0@ \tA",
+          "context": "0 1 \t0 \t0 1 V \t= \t0 \t1 \t0@ \tA 0 \t0 \t1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "CU = 0 \t0 \t1 \t0@ \tA",
+          "context": "B 0 \t1 \t0 \t0 C B \tCU \t= 0 \t0 \t1 \t0@ \tA 0 \t0 \t0 \t1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "b = U \t⌃V† x \t- \tU†b",
+          "context": "x \tthat • where \tAx \t- \tb \t= \tU \t⌃V† x \t- \tU†b • Let \ty \t= \tV† x \tand \tp \t= \tU†b",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = V† x \tand \tp \t= \tU†b",
+          "context": "• where \tAx \t- \tb \t= \tU \t⌃V† x \t- \tU†b • Let \ty \t= \tV† x \tand \tp \t= \tU†b • then \t¢(x) = \tkU(⌃y \t- \tp)k2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1 \ti=r+1 12",
+          "context": "• then \t¢(x) = X |⌃iiyi - \tpi|2 + X |pi|2 i=1 \ti=r+1 12 ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y = V† x \tp \t= \tU†b",
+          "context": "• with \tA \t2 \tRN ⇥M x \t2 \tRM b \t2 \tRN • and \ty \t= \tV† x \tp \t= \tU†b • Minimizes: r \tN",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1 \ti=r+1",
+          "context": "¢(x) = X |⌃iiyi - \tpi|2 + X |pi|2 i=1 \ti=r+1 • Therefore, \tyi = pi for \t1 \t \ti \t \tr",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "yi = pi for \t1 \t \ti \t \tr",
+          "context": "i=1 \ti=r+1 • Therefore, \tyi = pi for \t1 \t \ti \t \tr ⌃ii",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "yi = 0 \tfor the rest and find \tx \t= \tVy \t13",
+          "context": "• Least squares system is underdetermined • Just set: \tyi = 0 \tfor the rest and find \tx \t= \tVy \t13 ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xi = (I \t\u0000 \tC) \tc \t= \tA\u00001b \t14",
+          "context": "• The converged \txi \tis a solution if: \u00001 xi = (I \t\u0000 \tC) \tc \t= \tA\u00001b \t14 ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = -D 1R(xi - \tx)",
+          "context": "• Substitute: b \t= \tAx • Then: \txi+1 - \tx \t= \t-D 1R(xi - \tx) • Take the norm of both sides: kxi+1 - \txkp  kD-1Rkp",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xexact = (3/4, 1/2, 1/4)",
+          "context": "0 xexact = (3/4, 1/2, 1/4) • Try Jacobi: \tx0 = (1, 0, 0)",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "eigenvalue",
+        "singular value",
+        "decomposition",
+        "pde",
+        "convergence",
+        "error",
+        "iteration",
+        "matrix",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\dda387e8e2ae0175241fea57d9135ed7_MIT10_34F15_Lec07.pdf",
+      "lecture_number": 7,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 7: Solutions of nonlinear equations Newton",
+      "extracted_at": "2026-04-12T23:04:59.001Z",
+      "page_count": 27,
+      "text_length": 12194,
+      "formulas": [
+        {
+          "latex_like": "sume the iterations converge. When should I stop?",
+          "context": "• Iterate on: xi+1 = \tCxi + \tc • Until converged to solution of: Ax \t= \tb • Assume the iterations converge. When should I stop? 3 ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "TG = TL = \tT",
+          "context": "• Thermal equil. – same temperature in gas/liquid ˆ \tˆ \tˆTG = \tTL = \tT • Mechanical equil. – same pressure in gas/liquid",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "PG = PL = \tPsat",
+          "context": "• Mechanical equil. – same pressure in gas/liquid ˆ \tˆ \tˆPG = \tPL = \tPsat • Chemical equil. – same chemical potential in gas/liquid",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "eliminate = v)dv\tˆ \tPsatPsat P (ˆ",
+          "context": "1 Z v\tˆL ˆ \tˆ \tˆ• Use \tto eliminate\t= \tv)dv\tˆ \tPsatPsat P (ˆ v\tˆL \u0000 \tv\tˆGfrom: \tv\tˆG",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = 0 \t,• If \tf ( ⇤) = 0 \tand ⇤) \t6",
+          "context": "• Inverse function theorem: x \tdet J(x \t= 0 \t,• If \tf ( ⇤) = 0 \tand ⇤) \t6 ⇤",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian is: 0 @f1 \t@f1 \t@f1",
+          "context": "⇤ • then \tx \tis a locally unique solution, • where the Jacobian is: 0 @f1 \t@f1 \t@f1 1 . . .@x1 \t@x2 \t@xN",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian describes the rate of change o",
+          "context": "@fN \t@fN \t@fN @x1 \t@x2 . . . @xN • The Jacobian describes the rate of change of a vector function with respect to all of its independent variables. • If \tdet J(x⇤) = 0 , solution may/may not be locally unique",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian of the function is:",
+          "context": "• Inverse function theorem: • Consider a linear equation: \tf (x) = \tAx \t\u0000 \tb • The Jacobian of the function is: J(x) = \tA • The equation: \tf (x) = 0 , has a locally unique solution",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "xkj = 1 k=1 \t19",
+          "context": "+ 2 \u0000xj \u0000xk + \t. . . @xj @xkj=1 k=1 \t19 ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = g(x⇤)• ⇤",
+          "context": "• The algorithmic map: \txi+1 = \tg(xi) , is designed so that: x \t= \tg(x⇤)• ⇤ ⇤",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "q = 1, C \t< \t1 , convergence is linear",
+          "context": "• when the limit exists and is not zero: • q \t= 1, C \t< \t1 , convergence is linear • If \tC \t= \t10\u00001 each iteration is 1 digit more",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "C = 10\u00001 each iteration is 1 digit more",
+          "context": "• q \t= 1, C \t< \t1 , convergence is linear • If \tC \t= \t10\u00001 each iteration is 1 digit more accurate than the previous",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "q = 2 , convergence is quadratic",
+          "context": "• q > \t1 , convergence is super-linear • q \t= 2 , convergence is quadratic • The number of accurate digits doubles with each",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "di = \u0000f (xi) \t) \tdi = \t\u0000[J(xi)]\u00001f (xi)",
+          "context": "• Solve for the displacement: J(xi)di = \t\u0000f (xi) \t) \tdi = \t\u0000[J(xi)]\u00001f (xi) • Update the iterate:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian of the function f (x) = ( f1 (",
+          "context": "have no solution. Or, the circles just touch and there is a unique solution. Or, the circles overlap and there are two solutions. The Jacobian of the function f (x) = ( f1 (x1 , x2 ), \tf2 (x1 , x2 )) is J(x) = 2(x1 \u0000 2) \t2(x2 \u0000 2) 2(x1 + 3) \t2(x2 + 1)",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian is nearly singular –",
+          "context": "tolerance of \t10\u000010 . Clearly, an initial guess that resides near a solution to the equations is desirable. \tHowever, such a guess must not be near places where the Jacobian is nearly singular – the line, 3x1 \u0000 5x2 + 5, in this case. Table \t3.1",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian of the function \tf (x) = ( f1",
+          "context": "have no solution. Or, the circles just touch and there is a unique solution. Or, the circles overlap and there are two solutions. The Jacobian of the function \tf (x) = ( f1 (x1 , x2 ), \tf2 (x1 , x2 )) is J(x) = 2(x1 \u0000 2) \t2(x2 \u0000 2) 2(x1 + 3) \t2(x2 + 1)",
+          "category": "general",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": ":",
+          "definition": "x \tdet J(x \t= 0 \t,• If \tf ( ⇤) = 0 \tand ⇤) \t6 ⇤ • then \tx \tis a locally unique solution,",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": ":",
+          "definition": "• Consider a linear equation: \tf (x) = \tAx \t\u0000 \tb • The Jacobian of the function is: J(x) = \tA",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": "is just a generalization of what",
+          "definition": "we learned in our study of linear algebra. • In fact, in a neighborhood close to a root of \tf (x), we can often treat the function as linear!",
+          "category": "theorem",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "newton",
+        "jacobian",
+        "singular value",
+        "decomposition",
+        "convergence",
+        "tolerance",
+        "iteration",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\cf15e5d4453fc4b44a4c31f1bb13ffb4_MIT10_34F15_Lec08.pdf",
+      "lecture_number": 8,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 8: Quasi-Newton-Raphson methods 1  -- 1 of",
+      "extracted_at": "2026-04-12T23:04:59.290Z",
+      "page_count": 29,
+      "text_length": 10334,
+      "formulas": [
+        {
+          "latex_like": "Jacobian is not singular: \tdet J(x⇤) =",
+          "context": "i!1 \tkxi+1 \u0000 \tx⇤k2 p • as long as the Jacobian is not singular: \tdet J(x⇤) = 0\t6 • When the Jacobian is singular, linear convergence occurs. • Notice that quadratic convergence is guaranteed only",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian is singular, linear convergenc",
+          "context": "p • as long as the Jacobian is not singular: \tdet J(x⇤) = 0\t6 • When the Jacobian is singular, linear convergence occurs. • Notice that quadratic convergence is guaranteed only when the iterates are sufficiently close to the root.",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian is nearly singular. The damped",
+          "context": "J(x) is singular, the color map takes on a fractal structure which depict the boundaries of local convergence. The Newton-Raphson method performs poorly where the Jacobian is nearly singular. The damped Newton-Raphson method can fix this behavior and widen the region of local convergence.",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian may not be easy to calculate a",
+          "context": "Failures of NR Method • Other problems with Newton-Raphson method: • The Jacobian may not be easy to calculate analytically. • What are possible sources for \tf (x)? • Inverting the Jacobian many times may be too costly",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian many times may be too costly",
+          "context": "• The Jacobian may not be easy to calculate analytically. • What are possible sources for \tf (x)? • Inverting the Jacobian many times may be too costly computationally. • What are some options for mitigating this?",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian requires an",
+          "context": "results of simulations Calculation of Jacobian • Analytical calculation of the Jacobian requires an analytical formula for \tf (x). • For functions of a few dimensions, analytical",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian are: \tJij (x) = @xj",
+          "context": "FD Approximation of Jacobian @fi • The elements of the Jacobian are: \tJij (x) = @xj • These can be approximated by finite differences as: @fi fi(x \t+ \t✏ej ) \t\u0000 \tfi(x)",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian can be evaluated as:",
+          "context": "@xj ✏ • where \tej is a unit vector for which \tx \t· \tej = \txj • Equivalently, the columns of the Jacobian can be evaluated as: f (x \t+ \t✏ej ) \t\u0000 \tf (x) JC =j ✏",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian at a single point?",
+          "context": "JC =j ✏ • How many function evaluations does it take to calculate the Jacobian at a single point? • How will approximation of the Jacobian affect convergence? 18",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian affect convergence?",
+          "context": "• How many function evaluations does it take to calculate the Jacobian at a single point? • How will approximation of the Jacobian affect convergence? 18 ",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "f = my_func( \tx \t)",
+          "context": "• A MATLAB function that does the function evaluation: function \tf \t= \tmy_func( \tx \t) f \t= \t%Whatever \tthis \tfunction \tdoes;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = %Whatever \tthis \tfunction \tdoes;",
+          "context": "function \tf \t= \tmy_func( \tx \t) f \t= \t%Whatever \tthis \tfunction \tdoes; • A MATLAB function that calculates the Jacobian",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "jacobian( \tx \t)",
+          "context": "f \t= \t%Whatever \tthis \tfunction \tdoes; • A MATLAB function that calculates the Jacobian function \tJ \t= \tmy_jacobian( \tx \t) J \t= \tzeros( \tlength( \tx \t), \tlength( \tx \t) \t); for \ti \t= \t1:length(x)",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "J = my_jacobian( \tx \t)",
+          "context": "• A MATLAB function that calculates the Jacobian function \tJ \t= \tmy_jacobian( \tx \t) J \t= \tzeros( \tlength( \tx \t), \tlength( \tx \t) \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "J = zeros( \tlength( \tx \t), \tlength( \tx \t) \t);",
+          "context": "function \tJ \t= \tmy_jacobian( \tx \t) J \t= \tzeros( \tlength( \tx \t), \tlength( \tx \t) \t); for \ti \t= \t1:length(x)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1:length(x)",
+          "context": "J \t= \tzeros( \tlength( \tx \t), \tlength( \tx \t) \t); for \ti \t= \t1:length(x) dx \t= \tx; \teps \t= \t10^-8 \t* \tx(i);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dx = x; \teps \t= \t10^-8 \t* \tx(i);",
+          "context": "for \ti \t= \t1:length(x) dx \t= \tx; \teps \t= \t10^-8 \t* \tx(i); dx( \ti \t) \t= \tdx( \ti \t) \t+ \teps;",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "uv = A-1 _ 1 + \tvT A-1u",
+          "context": "uvT -1 A \t+ \tuv \t= \tA-1 _ 1 + \tvT A-1u • Applied to rank-1 update:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian inverse!",
+          "context": "J(xi)-1 = \tJ(xi-1)-1 - kxi - xi-1k2 2 + (xi - xi-1)T J(xi-1)-1f (xi) • An iterative formula for the Jacobian inverse! 22 ",
+          "category": "general",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "jacobian",
+        "optimization",
+        "interpolation",
+        "convergence",
+        "error",
+        "vector",
+        "finite difference"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\d75744236e3fc0bfcfc6a4119b84af74_MIT10_34F15_Lec09.pdf",
+      "lecture_number": 9,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 9: Homotopy and bifurcation 1  -- 1 of 34 ",
+      "extracted_at": "2026-04-12T23:04:59.412Z",
+      "page_count": 34,
+      "text_length": 8716,
+      "formulas": [
+        {
+          "latex_like": "lambda = [ \t0:0.01:1 \t];",
+          "context": "f (x) = \tx3 \u0000 \t2\u0000x \t+ 1 lambda \t= \t[ \t0:0.01:1 \t]; xguess \t= \t-1;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1:length( \tlambda \t)",
+          "context": "xguess \t= \t-1; for \ti \t= \t1:length( \tlambda \t) f \t= \t@( \tx \t) \tx \t.^ \t3 \t- \t2 \t* \tlambda( \ti \t) \t* \tx \t+ \t1;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = @( \tx \t) \tx \t.^ \t3 \t- \t2 \t* \tlambda( \ti \t) \t* \tx \t+ \t1;",
+          "context": "for \ti \t= \t1:length( \tlambda \t) f \t= \t@( \tx \t) \tx \t.^ \t3 \t- \t2 \t* \tlambda( \ti \t) \t* \tx \t+ \t1; x( \ti \t) \t= \tfzero( \t@( \tx \t) \tf( \tx \t), \txguess \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xguess = x( \ti \t);",
+          "context": "x( \ti \t) \t= \tfzero( \t@( \tx \t) \tf( \tx \t), \txguess \t); xguess \t= \tx( \ti \t); end;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "vguess = 8 \t/ \t3 \t* \tT \t/ \tP;",
+          "context": "P \t= \t0.1; vguess \t= \t8 \t/ \t3 \t* \tT \t/ \tP; f \t= \t@( \tv \t) \t( \tP \t+ \t3 \t./ \tv \t.^ \t2 \t) \t.* \t( \tv \t- \t1/ \t3 \t) \t- \t8 \t/ \t3 \t* \tT;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = @( \tv \t) \t( \tP \t+ \t3 \t./ \tv \t.^ \t2 \t) \t.* \t( \tv \t- \t1/ \t3 \t) \t- \t8 \t/ \t3 \t* \tT;",
+          "context": "vguess \t= \t8 \t/ \t3 \t* \tT \t/ \tP; f \t= \t@( \tv \t) \t( \tP \t+ \t3 \t./ \tv \t.^ \t2 \t) \t.* \t( \tv \t- \t1/ \t3 \t) \t- \t8 \t/ \t3 \t* \tT; g \t= \t@( \tv \t) \tP \t.* \tv \t- \t8 \t/ \t3 \t* \tT;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "g = @( \tv \t) \tP \t.* \tv \t- \t8 \t/ \t3 \t* \tT;",
+          "context": "f \t= \t@( \tv \t) \t( \tP \t+ \t3 \t./ \tv \t.^ \t2 \t) \t.* \t( \tv \t- \t1/ \t3 \t) \t- \t8 \t/ \t3 \t* \tT; g \t= \t@( \tv \t) \tP \t.* \tv \t- \t8 \t/ \t3 \t* \tT; h \t= \t@( \tv, \tl \t) \tl \t* \tf( \tv \t) \t+ \t( \t1 \t- \tl \t) \t* \tg( \tv \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "h = @( \tv, \tl \t) \tl \t* \tf( \tv \t) \t+ \t( \t1 \t- \tl \t) \t* \tg( \tv \t);",
+          "context": "g \t= \t@( \tv \t) \tP \t.* \tv \t- \t8 \t/ \t3 \t* \tT; h \t= \t@( \tv, \tl \t) \tl \t* \tf( \tv \t) \t+ \t( \t1 \t- \tl \t) \t* \tg( \tv \t); lambda \t= \t[ \t0:0.01:1 \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "vguess = v( \ti \t);",
+          "context": "v( \ti \t) \t= \tfzero( \t@( \tv \t) \th( \tv, \tlambda( \ti \t) \t), \tvguess \t); vguess \t= \tv( \ti \t); end;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r = 0, f 0(x⇤) = 0",
+          "context": "r > \t0, x⇤ = 0, ±pr r \t= 0, f 0(x⇤) = 0 ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian is singular at a",
+          "context": "• Finding bifurcation (and turning) points can be of great physical interest. • Like turning points, the Jacobian is singular at a bifurcation point: 26",
+          "category": "general",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "jacobian",
+        "optimization",
+        "iteration"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\1ff8a9ddadd69f21351c50644f4f95c8_MIT10_34F15_Lec10.pdf",
+      "lecture_number": 10,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 10: Unconstrained Optimization Steepest de",
+      "extracted_at": "2026-04-12T23:04:59.506Z",
+      "page_count": 22,
+      "text_length": 6874,
+      "formulas": [
+        {
+          "latex_like": "sume \tis twice differentiable, then:",
+          "context": "• Optimality criteria: • How do I check for local minima? • Assume \tis twice differentiable, then: • where: • As",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "g = rf (x) = 0",
+          "context": "d \t\u0000d g \t= \trf (x) = 0 f (x)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "gradient. Where is the critical point?",
+          "context": "Unconstrained Optimization • Examples: • Calculate the gradient. Where is the critical point? Calculate the Hessian. Is the critical point a minimum? 12",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "di = \u0000g(xi)",
+          "context": "xi+1 = \txi + \t↵idi di = \t\u0000g(xi) \u0000g(xi)T di",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = g(xi)T H(xi)g(xi)",
+          "context": "g(xi)T g(xi) ↵i = g(xi)T H(xi)g(xi) ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = g(xi)T g(xi)",
+          "context": "2 ↵i = g(xi)T g(xi) g(xi)T H(xi)g(xi)",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "gradient",
+        "hessian",
+        "optimization",
+        "eigenvalue",
+        "convergence"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\0f368dd4b8bff802fcd20d5b05f2ae22_MIT10_34F15_Lec11.pdf",
+      "lecture_number": 11,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 11: Unconstrained Optimization Newton-Raph",
+      "extracted_at": "2026-04-12T23:04:59.623Z",
+      "page_count": 24,
+      "text_length": 7605,
+      "formulas": [
+        {
+          "latex_like": "i = g(xi)T H(xi)g(xi)",
+          "context": "g(xi)T g(xi) ↵i = g(xi)T H(xi)g(xi) ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = \u0000\u0000 ˙\tx \t+ \tF",
+          "context": "4 m¨\tx \t= \t\u0000\u0000 ˙\tx \t+ \tF m¨\tx \t= \t\u0000\u0000 ˙\tx \t\u0000 rU",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = \u0000\u0000 ˙\tx \t\u0000 rU",
+          "context": "m¨\tx \t= \t\u0000\u0000 ˙\tx \t+ \tF m¨\tx \t= \t\u0000\u0000 ˙\tx \t\u0000 rU ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "gradient method:",
+          "context": " Unconstrained Optimization • Conjugate gradient method: • Consider the minimization of: • This has a minimum when?",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "gradient method",
+          "context": " Unconstrained Optimization • Conjugate gradient method • is quadratic in \t. • is minimized when",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "i = \u0000 i)T pi",
+          "context": "f (xi+1) g(x ↵i = \t\u0000 i)T pi pT",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "pi = 0 \t) \tpT",
+          "context": "g(xi+2)T pi = 0 [A (xi+1 + \t↵i+1pi+1) \t\u0000 \tb]T pi = 0 \t) \tpT i+1Api = 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian of \t?",
+          "context": "• Accuracy of the iterates will improve quadratically! • Newton-Raphson iteration: • What is the Jacobian of \t? 12 g(x) = \trf (x) = 0",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume the objective function can be",
+          "context": "Trust-Region Methods • Both Newton-Raphson and the optimized steepest descent methods assume the objective function can be described locally by a quadratic function. • That quadratic approximation may be good or bad",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "i = \u0000↵ig(xi)",
+          "context": "dSD i = \t\u0000↵ig(xi) dN R",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = \u0000H(xi)\u00001g(xi)",
+          "context": "dN R i = \t\u0000H(xi)\u00001g(xi) kdN R",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = Ri/kg(xi)k2",
+          "context": "i k2 < Ri ↵i = \tRi/kg(xi)k2 Ri",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "jacobian",
+        "gradient",
+        "hessian",
+        "optimization",
+        "iteration",
+        "matrix",
+        "vector"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\489a4d0057e5b7f8aaa2de0da21bebdb_MIT10_34F15_Lec12.pdf",
+      "lecture_number": 12,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 12: Constrained Optimization Equality cons",
+      "extracted_at": "2026-04-12T23:04:59.782Z",
+      "page_count": 27,
+      "text_length": 7725,
+      "formulas": [
+        {
+          "latex_like": "D = {x \t: \tc(x) = 0}",
+          "context": "of constraints: • Equality constraints: \tD \t= \t{x \t: \tc(x) = 0} • Inequality constraints: \tD \t= \t{x \t: \th(x) \t> \t0}",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "D = {x \t: \th(x) \t> \t0}",
+          "context": "• Equality constraints: \tD \t= \t{x \t: \tc(x) = 0} • Inequality constraints: \tD \t= \t{x \t: \th(x) \t> \t0} 5",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = @(x) \tx(1)^2 \t+ \t10 \t* \tx(2)^2;",
+          "context": "Inequality Constraints f \t= \t@(x) \tx(1)^2 \t+ \t10 \t* \tx(2)^2; grad_f \t= \t@(x) \t[ \t2*x(1); \t20*x(2) \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "grad_f = @(x) \t[ \t2*x(1); \t20*x(2) \t];",
+          "context": "f \t= \t@(x) \tx(1)^2 \t+ \t10 \t* \tx(2)^2; grad_f \t= \t@(x) \t[ \t2*x(1); \t20*x(2) \t]; H_f \t= \t@(x) \t[ \t2 \t0; \t0 \t20 \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "H_f = @(x) \t[ \t2 \t0; \t0 \t20 \t];",
+          "context": "grad_f \t= \t@(x) \t[ \t2*x(1); \t20*x(2) \t]; H_f \t= \t@(x) \t[ \t2 \t0; \t0 \t20 \t]; h \t= \t@(x) \t1 \t- \t( \tx(1) \t- \t2 \t)^2 \t- \t( \tx(2) \t- \t2 \t)^2;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "h = @(x) \t1 \t- \t( \tx(1) \t- \t2 \t)^2 \t- \t( \tx(2) \t- \t2 \t)^2;",
+          "context": "H_f \t= \t@(x) \t[ \t2 \t0; \t0 \t20 \t]; h \t= \t@(x) \t1 \t- \t( \tx(1) \t- \t2 \t)^2 \t- \t( \tx(2) \t- \t2 \t)^2; grad_h \t= \t@(x) \t[ \t-2*(x(1)-2); \t-2*(x(2)-2) \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "grad_h = @(x) \t[ \t-2*(x(1)-2); \t-2*(x(2)-2) \t];",
+          "context": "h \t= \t@(x) \t1 \t- \t( \tx(1) \t- \t2 \t)^2 \t- \t( \tx(2) \t- \t2 \t)^2; grad_h \t= \t@(x) \t[ \t-2*(x(1)-2); \t-2*(x(2)-2) \t]; H_h \t= \t@(x) \t[ \t-2 \t0; \t0 \t-2 \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "H_h = @(x) \t[ \t-2 \t0; \t0 \t-2 \t];",
+          "context": "grad_h \t= \t@(x) \t[ \t-2*(x(1)-2); \t-2*(x(2)-2) \t]; H_h \t= \t@(x) \t[ \t-2 \t0; \t0 \t-2 \t]; phi \t= \t@(x,mu) \tf( \tx \t) \t- \tmu \t* \tlog( \th( \tx \t) \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "phi = @(x,mu) \tf( \tx \t) \t- \tmu \t* \tlog( \th( \tx \t) \t);",
+          "context": "H_h \t= \t@(x) \t[ \t-2 \t0; \t0 \t-2 \t]; phi \t= \t@(x,mu) \tf( \tx \t) \t- \tmu \t* \tlog( \th( \tx \t) \t); grad_phi \t= \t@(x,mu) \tgrad_f( \tx \t) \t- \tmu \t/ \th( \tx \t) \t* \tgrad_h( \tx \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "grad_phi = @(x,mu) \tgrad_f( \tx \t) \t- \tmu \t/ \th( \tx \t) \t* \tgrad_h( \tx \t);",
+          "context": "phi \t= \t@(x,mu) \tf( \tx \t) \t- \tmu \t* \tlog( \th( \tx \t) \t); grad_phi \t= \t@(x,mu) \tgrad_f( \tx \t) \t- \tmu \t/ \th( \tx \t) \t* \tgrad_h( \tx \t); H_phi \t= \t@(x,mu) \tH_f( \tx \t) \t- \tmu \t/ \th( \tx \t) \t* \tH_h( \tx \t) \t+ \tmu \t/ \th( \tx \t)^2 \t* \tgrad_h( \tx \t) \t* \tgrad_h( \tx \t)';",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = [ \t2; \t2 \t];",
+          "context": "H_phi \t= \t@(x,mu) \tH_f( \tx \t) \t- \tmu \t/ \th( \tx \t) \t* \tH_h( \tx \t) \t+ \tmu \t/ \th( \tx \t)^2 \t* \tgrad_h( \tx \t) \t* \tgrad_h( \tx \t)'; x \t= \t[ \t2; \t2 \t]; for \tmu \t= \t[ \t1:-0.01:0.01 \t]",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "mu = [ \t1:-0.01:0.01 \t]",
+          "context": "x \t= \t[ \t2; \t2 \t]; for \tmu \t= \t[ \t1:-0.01:0.01 \t] while \t( \tnorm( \tgrad_phi( \tx, \tmu \t) \t) \t> \t1e-8 \t)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = x \t- \tH_phi( \tx, \tmu \t) \t\\ \tgrad_phi( \tx, \tmu \t);",
+          "context": "while \t( \tnorm( \tgrad_phi( \tx, \tmu \t) \t) \t> \t1e-8 \t) x \t= \tx \t- \tH_phi( \tx, \tmu \t) \t\\ \tgrad_phi( \tx, \tmu \t); end;",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "optimization",
+        "vector",
+        "norm"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\2a24e45cb83836b4ed575dfe4cbef93c_MIT10_34F15_Lec13.pdf",
+      "lecture_number": 13,
+      "title": "ODE-IVP and Numerical Integration 10",
+      "extracted_at": "2026-04-12T23:05:00.008Z",
+      "page_count": 22,
+      "text_length": 22543,
+      "formulas": [
+        {
+          "latex_like": "dt = v \tm dv",
+          "context": "dx dt = \tv \tm dv dt + \tbv \t+ \tkx \t= \tf (t)",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sumably small). \tThis recursion is called the \texplic",
+          "context": "\u0000t (x(t + \u0000t) \u0000 x(t)) ⇡ f (x(t), t) \t(33) x(t + \u0000t) ⇡ x(t) + (\u0000t)f (x(t), t), \t(34) here \t\u0000t \tis a positive number (presumably small). \tThis recursion is called the \texplicit Euler ethod or just simply the \tEuler \tmethod. Starting at time \tt = t0, the numerical estimates of \tx(t) 4",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "t = t0, the numerical estimates of \tx(t)",
+          "context": "here \t\u0000t \tis a positive number (presumably small). \tThis recursion is called the \texplicit Euler ethod or just simply the \tEuler \tmethod. Starting at time \tt = t0, the numerical estimates of \tx(t) 4",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sumed that",
+          "context": "x(t0 + (k + 1)\u0000t) ⇡ x(t0 + k\u0000t) + (\u0000t)f (x(t0 + k\u0000t), t0 + k\u0000t) \t(39) ... ations have implicitly employed a mesh along the time axis, and implicitly assumed that he same between each time step (removal of this assumption is made later). The notation plified by defining \ttk \t= t0 + k\u0000t, with integer ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumption is made later). The notation",
+          "context": "... ations have implicitly employed a mesh along the time axis, and implicitly assumed that he same between each time step (removal of this assumption is made later). The notation plified by defining \ttk \t= t0 + k\u0000t, with integer \tk \t= 0, 1, 2, . . . , x(t0) = x0 \t(40)",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "tk = t0 + k\u0000t, with integer \tk \t= 0, 1, 2, . . . ,",
+          "context": "he same between each time step (removal of this assumption is made later). The notation plified by defining \ttk \t= t0 + k\u0000t, with integer \tk \t= 0, 1, 2, . . . , x(t0) = x0 \t(40)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "tk = t0 + k\u0000t, with intege",
+          "context": "the \u0000t is the same between each time step (removal of th can be simplified by defining \ttk \t= t0 + k\u0000t, with intege x(t0) = x0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sumption is made later",
+          "context": "... These equations have implicitly employed a mesh along the time axis, and implicitl the \u0000t is the same between each time step (removal of this assumption is made later can be simplified by defining \ttk \t= t0 + k\u0000t, with integer \tk \t= 0, 1, 2, . . . , x(t0) = x0",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "f = @(x,t) \t% \tDoes \tsomething",
+          "context": "• Explicit Euler method: f \t= \t@(x,t) \t% \tDoes \tsomething t0 \t= \t0;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "t = [t0:dt:tf]",
+          "context": "x0 \t= \t% \tInitial \tcondition t \t= \t[t0:dt:tf] x \t= \tzeros( \tlength( \tx0 \t), \tlength( \tt \t) \t);",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = zeros( \tlength( \tx0 \t), \tlength( \tt \t) \t);",
+          "context": "t \t= \t[t0:dt:tf] x \t= \tzeros( \tlength( \tx0 \t), \tlength( \tt \t) \t); x( \t:, \t1 \t) \t= \tx0;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 2:length( \tt \t)",
+          "context": "x( \t:, \t1 \t) \t= \tx0; for \ti \t= \t2:length( \tt \t) x( \t:, \ti \t) \t= \tx( \t:, \ti \t- \t1 \t) \t+ \tdt \t* \tf( \tx( \t:, \ti \t- \t1 \t), \tt( \ti \t- \t1 \t) \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = \u0000y, \ty(0) = 1 \ty(t) = \te\u0000t",
+          "context": "dy dt = \t\u0000y, \ty(0) = 1 \ty(t) = \te\u0000t 10−7 10−6 10−5 10−4 10−3 10−2 10−1",
+          "category": "differential",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "optimization",
+        "integration",
+        "ode",
+        "initial value",
+        "stability",
+        "error",
+        "iteration",
+        "vector",
+        "norm",
+        "finite difference"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\1d690d228d4051aa73175b567ef61c9a_MIT10_34F15_Lec16.pdf",
+      "lecture_number": 16,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 16: ODE-IVP and Numerical Integration 1  -",
+      "extracted_at": "2026-04-12T23:05:00.107Z",
+      "page_count": 21,
+      "text_length": 7054,
+      "formulas": [
+        {
+          "latex_like": "dt = \u0000x, x(0) = \tx0",
+          "context": "dx dt = \t\u0000x, x(0) = \tx0 Give a closed form formula for the numerical solution",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xk = x(k\u0000t)",
+          "context": "dt = \t\u0000x, x(0) = \tx0 xk = \tx(k\u0000t) xk+1 = \txk + \t\u0000t\u0000xk+1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xk = x0ek\u0000\u0000t",
+          "context": "x0 xk = \tx0ek\u0000\u0000t \u0000t\u0000",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = f (x(t), t)",
+          "context": "dx dt = \tf (x(t), t) x(tk+1) = \tx(tk\u00001) + 2\u0000tf (x(tk), tk)",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = 1 (x(tk+1) \t\u0000 \tx(tk \t1)) + \tO((\u0000t)2) = \tf (x(tk), t\u0000 \tk)",
+          "context": "dx dt = 1 (x(tk+1) \t\u0000 \tx(tk \t1)) + \tO((\u0000t)2) = \tf (x(tk), t\u0000 \tk) 2\u0000t",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "integral of a known, continuous function ca",
+          "context": "d x(t) = \tf (⌧ ), \tx(t0) = 0 dt integral of a known, continuous function ca f (t) x(tf )",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integrals, this approach is not as straightforward,",
+          "context": "an appropriate spacing between points can be chosen when changes more or less rapidly with • For multi-dimensional integrals, this approach is not as straightforward, however. Numerical Integration",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Sum integrals over the polynomial fits in each fit reg",
+          "context": "• Fit the function to a polynomial of a prescribed degree within small regions of the domain of integration. • Sum integrals over the polynomial fits in each fit region. • This fails with higher dimensions because the number of fit regions grows exponentially with dimension.",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integrals over the polynomial fits in each fit region.",
+          "context": "• Fit the function to a polynomial of a prescribed degree within small regions of the domain of integration. • Sum integrals over the polynomial fits in each fit region. • This fails with higher dimensions because the number of fit regions grows exponentially with dimension.",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral can be handled with ODE-IVP methods or",
+          "context": "t \tt \tt • 0 \t0 \tf The first integral can be handled with ODE-IVP methods or polynomial interpolation • The second must be handled separately through either:",
+          "category": "integration",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "eigenvalue",
+        "interpolation",
+        "integration",
+        "differentiation",
+        "ode",
+        "stability",
+        "matrix",
+        "monte carlo"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\257703821d85d38298d95962bc24f399_MIT10_34F15_Lec18.pdf",
+      "lecture_number": 18,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 18: Differential Algebraic Equations 1  --",
+      "extracted_at": "2026-04-12T23:05:00.252Z",
+      "page_count": 26,
+      "text_length": 7686,
+      "formulas": [
+        {
+          "latex_like": "integral can be handled with ODE-IVP methods",
+          "context": "• Of the sort: • Can be split into two domains of integration • The first integral can be handled with ODE-IVP methods or polynomial interpolation • The second must be handled separately through either:",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = \u0000x, x(0) = \tx0",
+          "context": "dx dt = \t\u0000x, x(0) = \tx0 Give a closed form formula for the numerical solution",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xk = x(k\u0000t)",
+          "context": "dt = \t\u0000x, x(0) = \tx0 xk = \tx(k\u0000t) xk+1 = \txk + \t\u0000t\u0000xk+1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xk = x0ek\u0000\u0000t",
+          "context": "x0 xk = \tx0ek\u0000\u0000t \u0000t\u0000",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = f (x, t), \tx(0) = \tx0",
+          "context": "M dx dt = \tf (x, t), \tx(0) = \tx0 M",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = M\u00001f (x, t)",
+          "context": "dx dt = \tM\u00001f (x, t) ",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = f (x, y, t)",
+          "context": "dx dt = \tf (x, y, t) 0 = \tg(x, y, t)",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = a cos(!t)",
+          "context": "2 kx2 \u0000 \tE \t= 0 x \t= \ta cos(!t) has a solution:",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = m ˙\tx, @f",
+          "context": "@f @ \t˙\tx = \tm ˙\tx, @f @x = \tkx, @f",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = kx, @f",
+          "context": "@ \t˙\tx = \tm ˙\tx, @f @x = \tkx, @f @t = 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = f (x, y, t) \tx(0) = \tx0",
+          "context": "dx dt = \tf (x, y, t) \tx(0) = \tx0 0 = \tg(x, y, t)",
+          "category": "differential",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "interpolation",
+        "integration",
+        "ode",
+        "stability",
+        "error",
+        "matrix"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\c4dfeaf5317ec2bbae302c346353cb7f_MIT10_34F15_Lec19.pdf",
+      "lecture_number": 19,
+      "title": "Numerical Methods Applied to Chemical Engineering Lecture 19: Differential Algebraic Equations 1  --",
+      "extracted_at": "2026-04-12T23:05:00.433Z",
+      "page_count": 26,
+      "text_length": 8347,
+      "formulas": [
+        {
+          "latex_like": "V = ˙\t. → c1(t) = \tc2(t) + Q \u0000\t˙ (3)dt",
+          "context": "system of ODEs? substitute (1) dc2 \tV= ˙\t. → c1(t) = \tc2(t) + Q \u0000\t˙ (3)dt derivative \tof (2) ↓derivative \tof (3)",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dy = s(x, y, t)",
+          "context": "solve for: dy = \ts(x, y, t) dt",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dx = f (x, y, t) (1)",
+          "context": "derivative \tof (2) dx = \tf (x, y, t) (1) dt",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "v = \u0000k(t)x(t) + \tmg",
+          "context": "g m ˙\tv \t= \t\u0000k(t)x(t) + \tmg kx(t)k2 = \tL2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = f (x, t)",
+          "context": "• Consistent initialization of initial value problems: { ˙\tx(0), x(0)} • index-0 DAE (ODE-IVP): \t˙\tx \t= \tf (x, t) • 1. \tx(0) \t! \t˙\tx(0) \t= \tf (x(0), 0)",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "differentiation",
+        "ode",
+        "initial value",
+        "error"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\3cf3e3bfef5fc5402585f08e53865f55_MIT10_34F15_Lec20.pdf",
+      "lecture_number": 20,
+      "title": "Boundary Condition notes -Bill Green, Fall 2015 Typically we need to specify boundary conditions at ",
+      "extracted_at": "2026-04-12T23:05:00.488Z",
+      "page_count": 3,
+      "text_length": 3803,
+      "formulas": [
+        {
+          "latex_like": "dr = 0 at r=0 if a problem",
+          "context": "discontinuities when there are phase changes, e.g. at the surface of a puddle. Sometimes there are symmetries that tell you a boundary condition, e.g. dC/dr =0 at r=0 if a problem has cylindrical or spherical symmetry (otherwise there would be a cusp in C(r), which is usually",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sumes that nothing changes after a certain point, i.e",
+          "context": "has cylindrical or spherical symmetry (otherwise there would be a cusp in C(r), which is usually unphysical). Sometimes one knows the value of a variable on a boundary so Dirichlet boundary condition. Often one assumes that nothing changes after a certain point, i.e. all the derivatives are zero, so",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "boundary = -D dC/dx + v C \ton right hand side",
+          "context": "concentrations C (where D is the diffusivity and v is the flow into the boundary). -D dC/dx + v C \ton left side of boundary \t= \t-D dC/dx + v C \ton right hand side Where the velocity v is positive if it is moving in the +x direction.",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "y_feed = -r \tAD*dy/dz + F*y",
+          "context": "into a packed-bed catalytic reactor: F*y_feed = -r \tAD*dy/dz + F*y Where y is the mass fraction of the species of interest, r \tis the density, A is the cross-sectional area, and",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "gradient is very small outside the reac",
+          "context": "Where y is the mass fraction of the species of interest, r \tis the density, A is the cross-sectional area, and F is the mass flow rate (which is conserved across the boundary). Note that this is approximating that the mass fraction gradient is very small outside the reactor so we omitted the -r \tA D",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "y_feed = -D*dy/dz + Vz*y",
+          "context": "perpendicular to the z-axis: Vz*y_feed = -D*dy/dz + Vz*y Note that the velocity in the z direction Vz usually jumps as the flow enters the reactor because the",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "gradient",
+        "ode"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\f84380caa401f6bda0c51c1eb1ab4da8_MIT10_34F15_Lec21.pdf",
+      "lecture_number": 21,
+      "title": "Notes on BVP-ODE -Bill Green There are multiple methods for solving systems of ordinary differential",
+      "extracted_at": "2026-04-12T23:05:00.527Z",
+      "page_count": 5,
+      "text_length": 7018,
+      "formulas": [
+        {
+          "latex_like": "tx = t0 or tx=tf",
+          "context": "plus B boundary conditions that hold only at specific values of t called tx: q(y’(tx),y(tx),tx) = 0 where usually tx=t0 or tx=tf Note that g and q are vector-valued functions, and y is usually a vector also.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Zbest = fsolve(@residual,Zguess)",
+          "context": "embed that calculation inside a nonlinear equation solver like fsolve, e.g. Zbest=fsolve(@residual,Zguess) The advantage of shooting is that there are only a few unknown initial conditions, so fsolve is",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian. The disadvantage is that an",
+          "context": "Zbest=fsolve(@residual,Zguess) The advantage of shooting is that there are only a few unknown initial conditions, so fsolve is only solving a few equations with a small Jacobian. The disadvantage is that an ODE-IVP problem must be solved at each iteration of fsolve, and that can be expensive particu",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sum of some basis functions:",
+          "context": "2 2) Collocation: Approximate the solution y(t) as a sum of some basis functions: y(t) =  dn n(t) This converts the problem into computing the N d’s. The collocation method writes the N",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian of f(d)=(g(d);q(d)), which has",
+          "context": "choice you’ll get a different approximate solution y(t). Usually increasing the number of basis functions and collocation points {tm} increases the accuracy of the approximation. However, fsolve or similar programs typically need to evaluate the Jacobian of f(d)=(g(d);q(d)), which has N2 elements. I",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian) will be large. One can make",
+          "context": "fsolve or similar programs typically need to evaluate the Jacobian of f(d)=(g(d);q(d)), which has N2 elements. If N is very large this can be expensive and for very large N it is likely that the cond(Jacobian) will be large. One can make the Jacobian matrix sparser by making using a local basis (dis",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian matrix sparser by making using",
+          "context": "fsolve or similar programs typically need to evaluate the Jacobian of f(d)=(g(d);q(d)), which has N2 elements. If N is very large this can be expensive and for very large N it is likely that the cond(Jacobian) will be large. One can make the Jacobian matrix sparser by making using a local basis (dis",
+          "category": "linear_algebra",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian means that varying some linear",
+          "context": "cond(Jacobian) will be large. One can make the Jacobian matrix sparser by making using a local basis (discussed below), that saves CPU time and might improved the conditioning. Note that a poorly-conditioned Jacobian means that varying some linear combination of the d’s does not change the quality o",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integrals can all be evaluated analytically, these integra",
+          "context": "of this form:  k(t) g(y’(t;d),y(t;d),t) = 0 If the integrals can all be evaluated analytically, these integral equations become explicit algebraic equations in the unknowns d, can be solved using fsolve. This can also work if the integrals are evaluated numerically, but it may be necessary to re-e",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integrals are evaluated numerically, but it may be necessa",
+          "context": "If the integrals can all be evaluated analytically, these integral equations become explicit algebraic equations in the unknowns d, can be solved using fsolve. This can also work if the integrals are evaluated numerically, but it may be necessary to re-evaluate numerical integrals inside each iterat",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral evaluations and make the Jacobian sparser (and so",
+          "context": "Note that in both Collocation and Galerkin method, fsolve and similar programs evaluate the Jacobian of the system of equations, which has N2 elements. This can be very large if N is large. One can simplify the integral evaluations and make the Jacobian sparser (and so easier to evaluate and store) ",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian sparser (and so easier to eval",
+          "context": "Note that in both Collocation and Galerkin method, fsolve and similar programs evaluate the Jacobian of the system of equations, which has N2 elements. This can be very large if N is large. One can simplify the integral evaluations and make the Jacobian sparser (and so easier to evaluate and store) ",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian and it is easy to evaluate",
+          "context": "Note this approach only gives you a set of points, not the values between (though you could interpolate), and it only works if t is small enough that the finite difference closely approximates the derivative, so you need a lot of points. But this usually gives a sparse Jacobian and it is easy to ev",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian but it will still be sparse.",
+          "context": "derivative, so you need a lot of points. But this usually gives a sparse Jacobian and it is easy to evaluate the residuals. You can increase t if you use a high-order finite differencing formula, this add some bands to the Jacobian but it will still be sparse.  -- 3 of 5 --",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian used in the Collocation method",
+          "context": "i.e. choose n(t) so that it is only nonzero is a small range, i.e. n(t)=0 if |t-tn|>X Use of local basis functions makes g(t’) depend only on the small number of basis functions n(t) with tn close to t’. This directly makes the Jacobian used in the Collocation method very sparse. Also, in the Gal",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral will only depend on a few d’s. So use of a local b",
+          "context": "with tn close to t’. This directly makes the Jacobian used in the Collocation method very sparse. Also, in the Galerkin method, if k(t) is local, then one only needs to integrate over a small range of t’s near tm, and the resulting integral will only depend on a few d’s. So use of a local basis als",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian used in the Galerkin method sp",
+          "context": "Also, in the Galerkin method, if k(t) is local, then one only needs to integrate over a small range of t’s near tm, and the resulting integral will only depend on a few d’s. So use of a local basis also make the Jacobian used in the Galerkin method sparse. The most popular Local Basis functions are",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integrals. However, it can cause complications if the",
+          "context": "With these basis functions, one is trying to do a piecewise linear approximation t the solution y(t). Note that these basis functions have discontinuous first derivatives. In Galerkin’s method this unsmoothness doesn’t matter much since one is mostly evaluating integrals. However, it can cause compl",
+          "category": "integration",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "jacobian",
+        "integration",
+        "ode",
+        "boundary value",
+        "initial value",
+        "iteration",
+        "residual",
+        "sparse",
+        "matrix",
+        "vector",
+        "finite difference"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\89c6e85d6b258173922b9dbebaf51361_MIT10_34F15_Lec22.pdf",
+      "lecture_number": 22,
+      "title": "Some notes about PDEs -Bill Green Nov",
+      "extracted_at": "2026-04-12T23:05:00.580Z",
+      "page_count": 5,
+      "text_length": 8667,
+      "formulas": [
+        {
+          "latex_like": "Jacobian matrix. Using a method that ma",
+          "context": "F(c)=0 This is how most elliptic PDEs are solved. The main challenge is the huge number of unknowns, and the size of the corresponding Jacobian matrix. Using a method that makes a very sparse Jacobian (e.g. using a local basis set) is key. Finding a sufficiently good initial guess can also be very c",
+          "category": "linear_algebra",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian (e.g. using",
+          "context": "F(c)=0 This is how most elliptic PDEs are solved. The main challenge is the huge number of unknowns, and the size of the corresponding Jacobian matrix. Using a method that makes a very sparse Jacobian (e.g. using a local basis set) is key. Finding a sufficiently good initial guess can also be very c",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Gradient, where one rewrites the probl",
+          "context": "would like to solve this equation using “direct” methods, which do not require storing any large intermediate objects. Several methods have been proposed to do this. One of the most successful is Conjugate Gradient, where one rewrites the problem as a minimization min q = (F+J*∆c) T (F+J*∆c)",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "q = (F+J*∆c) T",
+          "context": "Conjugate Gradient, where one rewrites the problem as a minimization min q = (F+J*∆c) T (F+J*∆c)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Gradient method for minimization only r",
+          "context": "min q = (F+J*∆c) T (F+J*∆c) The Conjugate Gradient method for minimization only requires evaluating J*v not solving J*v=b, and evaluating J*v does not require storing any matrices (you can compute the non-zero elements of J, use them, and delete them). However, it is an iterative method, so it does ",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "v = b, and",
+          "context": "(F+J*∆c) The Conjugate Gradient method for minimization only requires evaluating J*v not solving J*v=b, and evaluating J*v does not require storing any matrices (you can compute the non-zero elements of J, use",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "c = -F). Also, if many sub-iterations are",
+          "context": "minimization problem exactly in one step like Newton-Raphson would (so at each iteration in solving the PDE problem we are going to do several sub-iterations to solve J*∆c=-F). Also, if many sub-iterations are required numerical noise can creep in causing problems, so people currently use a fancier ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Gradient algorithm. The performance of",
+          "context": "PDE problem we are going to do several sub-iterations to solve J*∆c=-F). Also, if many sub-iterations are required numerical noise can creep in causing problems, so people currently use a fancier version called bicgstab instead of the simple Conjugate Gradient algorithm. The performance of Conjugate",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "v = -(A*F) \tB*v = ∆c",
+          "context": "“preconditioners” A and B to modify the matrix: (A*J*B)*v = -(A*F) \tB*v = ∆c 2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "t = D ∂2 c/∂x 2 - v ∂c/∂x + r(c)",
+          "context": "the PDE equation ∂c/∂t = D ∂2 c/∂x 2 - v ∂c/∂x + r(c) might be replaced by the finite difference equation",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dt = D {c(m-1) – 2 c(m) + c(m+1)} /(∆x) 2 - v { c(m-1)-c(m) } /∆x + r(c(m))",
+          "context": "might be replaced by the finite difference equation dc(m)/dt = D {c(m-1) – 2 c(m) + c(m+1)} /(∆x) 2 - v { c(m-1)-c(m) } /∆x + r(c(m)) There will be similar equations for each mesh point xm. This can be compactly written",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "new = C old + ∆t * F(C new )",
+          "context": "marching is to use Implicit Euler with relatively large time steps: C new = C old + ∆t * F(C new ) 3",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Gradient methods rather than Newton-Rap",
+          "context": " However, note that this is still a (huge) system of nonlinear equations, and so it may need to be solved iteratively using Conjugate Gradient methods rather than Newton-Raphson with Gaussian elimination. And solving this systems of equations also needs an initial guess… which perhaps we could suppl",
+          "category": "optimization",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": ") have",
+          "definition": "solutions that are propagating waves. Any small fluctuation at early times propagates to later times, often with no or very minor damping. Examples include acoustics and Maxwell’s equations. Special m",
+          "category": "definition",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "newton",
+        "jacobian",
+        "gradient",
+        "ode",
+        "pde",
+        "error",
+        "iteration",
+        "sparse",
+        "matrix",
+        "vector",
+        "norm",
+        "finite difference"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\f8e7cb2be59c944f94b13ed7f5f6a20f_MIT10_34F15_Lec25.pdf",
+      "lecture_number": 25,
+      "title": "Numerical Methods Applied to Chemical Engineering Finite Volume Methods Constructing Simulations of ",
+      "extracted_at": "2026-04-12T23:05:00.721Z",
+      "page_count": 35,
+      "text_length": 9798,
+      "formulas": [
+        {
+          "latex_like": "integral version of such an equation is:",
+          "context": "• is the density of a conserved quantity • is the flux density of a conserved quantity • The integral version of such an equation is: Finite Volume Method @b",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "t = \u0000r \t· \tj \t+ \tr(x, t)",
+          "context": "@b @t = \t\u0000r \t· \tj \t+ \tr(x, t) b(x, t)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sum of fluxes through each face of the volume *",
+          "context": "• faces⇤ · \tj)(t) the sum of fluxes through each face of the volume * d¯b⇤ V ⇤ = \tFk(t) + \tV ⇤r\t¯⇤(t)",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = R and y=B: Dirichlet zero concentration.",
+          "context": "x 10 -4 on at x=R and y=B: Dirichlet zero concentration. ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = i \t+ (j \t\u0000 \t1)Nx ci,j+1 = \tck+Nx",
+          "context": "Indexing k \t= \ti \t+ (j \t\u0000 \t1)Nx ci,j+1 = \tck+Nx ck = \tci,j \tor",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "ck = ci,j \tor",
+          "context": "k \t= \ti \t+ (j \t\u0000 \t1)Nx ci,j+1 = \tck+Nx ck = \tci,j \tor k \t= \tj \t+ (i \t\u0000 \t1)Ny ci,j+1 = \tck+1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = j \t+ (i \t\u0000 \t1)Ny ci,j+1 = \tck+1",
+          "context": "ck = \tci,j \tor k \t= \tj \t+ (i \t\u0000 \t1)Ny ci,j+1 = \tck+1 3,",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = i \t+ (j \t\u0000 \t1)Nx",
+          "context": "N k \t= \ti \t+ (j \t\u0000 \t1)Nx fk(c) = \tfi,j (c) \tor",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = j \t+ (i \t\u0000 \t1)Ny",
+          "context": "fk(c) = \tfi,j (c) \tor k \t= \tj \t+ (i \t\u0000 \t1)Ny 3",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "cl = ci,j,k, \tl \t=?",
+          "context": "N cl = \tci,j,k, \tl \t=? Exercise: write a single index for finite difference nodes in a cubic",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "cl = ci,j,k, \tl \t= \ti \t+ (j \t\u0000 \t1)Nx + (k \t\u0000 \t1)NxNy",
+          "context": "Nz cl = \tci,j,k, \tl \t= \ti \t+ (j \t\u0000 \t1)Nx + (k \t\u0000 \t1)NxNy 23",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "r2c = 0\tc \t= 0",
+          "context": "Example: solve the diffusion equation in 2-D on a square with side = 1. r2c \t= 0\tc \t= 0 c \t= 0",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "h = 1 \t/ \t10; \t% \tSpacing \tbetween \tfinite \tdifference \tnodes",
+          "context": "Example: solve the diffusion equation in 2-D on a square with side = 1. h \t= \t1 \t/ \t10; \t% \tSpacing \tbetween \tfinite \tdifference \tnodes Nx \t= \t1 \t+ \t1 \t/ \th; \t% \tNumber \tof \tnodes \tin \tx-direction",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Nx = 1 \t+ \t1 \t/ \th; \t% \tNumber \tof \tnodes \tin \tx-direction",
+          "context": "h \t= \t1 \t/ \t10; \t% \tSpacing \tbetween \tfinite \tdifference \tnodes Nx \t= \t1 \t+ \t1 \t/ \th; \t% \tNumber \tof \tnodes \tin \tx-direction Ny \t= \tNx; \t% \tNumber \tof \tnodes \tin \ty-direction",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ny = Nx; \t% \tNumber \tof \tnodes \tin \ty-direction",
+          "context": "Nx \t= \t1 \t+ \t1 \t/ \th; \t% \tNumber \tof \tnodes \tin \tx-direction Ny \t= \tNx; \t% \tNumber \tof \tnodes \tin \ty-direction c0 \t= \tzeros( \tNx \t* \tNy, \t1 \t); \t% \tInitial \tguess \tfor \tsolution",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "c = fsolve( \t@( \tc \t) \tmy_func( \tc, \tNx, \tNy \t), \tc0 \t); \t% \tFind \troot \tof \tFD \tequations",
+          "context": "c0 \t= \tzeros( \tNx \t* \tNy, \t1 \t); \t% \tInitial \tguess \tfor \tsolution c \t= \tfsolve( \t@( \tc \t) \tmy_func( \tc, \tNx, \tNy \t), \tc0 \t); \t% \tFind \troot \tof \tFD \tequations ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = my_func( \tc, \tNx, \tNy \t)",
+          "context": "Example: solve the diffusion equation in 2-D on a square with side = 1. function \tf \t= \tmy_func( \tc, \tNx, \tNy \t) % \tLoop \tover \tall \tnodes",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "k = i \t+ \t( \tj \t- \t1 \t) \t* \tNx; \t% \tCompound \tindex",
+          "context": "for \tj \t= \t1:Ny k \t= \ti \t+ \t( \tj \t- \t1 \t) \t* \tNx; \t% \tCompound \tindex % \tBoundary \tnodes",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = = \t1 \t)",
+          "context": "% \tBoundary \tnodes if \t( \ti \t== \t1 \t) f( \tk \t) \t= \tc( \tk \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = = \tNx \t)",
+          "context": "f( \tk \t) \t= \tc( \tk \t); elseif \t( \ti \t== \tNx \t) f( \tk \t) \t= \tc( \tk \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "j = = \t1 \t)",
+          "context": "f( \tk \t) \t= \tc( \tk \t); elseif( \tj \t== \t1 \t) f( \tk \t) \t= \tc( \tk \t) \t- \t1;",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "j = = \tNy \t)",
+          "context": "f( \tk \t) \t= \tc( \tk \t) \t- \t1; elseif( \tj \t== \tNy \t) f( \tk \t) \t= \tc( \tk \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Ac = sparse( \tNx \t* \tNy, \t1 \t);",
+          "context": "function \t[ \tAc, \tb \t] \t= \tmy_func( \tc, \tNx, \tNy \t) Ac \t= \tsparse( \tNx \t* \tNy, \t1 \t); b \t= \tsparse( \tNx \t* \tNy, \t1 \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "b = sparse( \tNx \t* \tNy, \t1 \t);",
+          "context": "Ac \t= \tsparse( \tNx \t* \tNy, \t1 \t); b \t= \tsparse( \tNx \t* \tNy, \t1 \t); % \tLoop \tover \tall \tnodes",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "gradient), \tminres \t(minimum \tresidual",
+          "context": "% \tFind \tsolution \tof \tlinear \tFD \tequations \tusing \tthe \tan \titerative \tmethod % \tThis \tis \tgmres \t(generalized \tminimum \tresidual). \tOther \tchoices \tinclude % \tbicgstab \t(conjugate \tgradient), \tminres \t(minimum \tresidual), \tetc. % \tThe \trequires \ta \tfunction \tthat \treturns \tA*c \tgiven \tc. c \t= \tgm",
+          "category": "optimization",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "c = gmres( \t@( \tc \t) \tmy_func( \tc, \tNx, \tNy \t), \tb, \t100, \t1e-6, \t100 \t);",
+          "context": "% \tThe \trequires \ta \tfunction \tthat \treturns \tA*c \tgiven \tc. c \t= \tgmres( \t@( \tc \t) \tmy_func( \tc, \tNx, \tNy \t), \tb, \t100, \t1e-6, \t100 \t); ",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "b = sparse( \tNx \t* \tNy, \t1 \t); k \t= \ti \t+ (j \t\u0000 \t1)Nx",
+          "context": "Ac \t= \tsparse( \tNx \t* \tNy, \t1 \t); b \t= \tsparse( \tNx \t* \tNy, \t1 \t); k \t= \ti \t+ (j \t\u0000 \t1)Nx % \tDefine \tindices \tof \tboundary \tpoints \tand \tinterior \tpoints",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "bottom = [ \t1:Nx \t];",
+          "context": "% \tDefine \tindices \tof \tboundary \tpoints \tand \tinterior \tpoints bottom \t= \t[ \t1:Nx \t]; top \t= \tNx*Ny \t- \t[ \t1:Nx \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "top = Nx*Ny \t- \t[ \t1:Nx \t];",
+          "context": "bottom \t= \t[ \t1:Nx \t]; top \t= \tNx*Ny \t- \t[ \t1:Nx \t]; left \t= \t[ \t1:Nx:Nx*Ny \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "left = [ \t1:Nx:Nx*Ny \t];",
+          "context": "top \t= \tNx*Ny \t- \t[ \t1:Nx \t]; left \t= \t[ \t1:Nx:Nx*Ny \t]; right \t= \t[ \tNx:Nx:Nx*Ny \t];",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "right = [ \tNx:Nx:Nx*Ny \t];",
+          "context": "left \t= \t[ \t1:Nx:Nx*Ny \t]; right \t= \t[ \tNx:Nx:Nx*Ny \t]; interior \t= \tsetdiff( \t[ \t1:Nx*Ny \t], \t[ \tleft, \tright, \tbottom, \ttop \t] \t);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "interior = setdiff( \t[ \t1:Nx*Ny \t], \t[ \tleft, \tright, \tbottom, \ttop \t] \t);",
+          "context": "right \t= \t[ \tNx:Nx:Nx*Ny \t]; interior \t= \tsetdiff( \t[ \t1:Nx*Ny \t], \t[ \tleft, \tright, \tbottom, \ttop \t] \t); Ac( \tleft \t) \t= \tc( \tleft \t);",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "gradient",
+        "decomposition",
+        "ode",
+        "pde",
+        "stability",
+        "residual",
+        "sparse",
+        "vector",
+        "finite difference",
+        "finite element"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\a567dac9c472b1748c63f6522525bf4a_MIT10_34F15_Lec26.pdf",
+      "lecture_number": 26,
+      "title": "Numerical Methods Applied to Chemical Eng",
+      "extracted_at": "2026-04-12T23:05:00.772Z",
+      "page_count": 10,
+      "text_length": 16593,
+      "formulas": [
+        {
+          "latex_like": "E = {heads, tails}. If the experiment is measuring the temperature in a",
+          "context": "reactor. An experiment is defined by the set of outcomes, E. If the experiment is flipping a coin, then E = {heads, tails}. If the experiment is measuring the temperature in a reactor T in degrees K, then E is the set of all nonnegative real numbers, E = R+.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "B = {100} = ‘the measured temperature is 100 K ’ did not occur.",
+          "context": "[270, 290] = ‘the measured temperature is in the interval [270, 290] K ’ occurred, but the event B = {100} = ‘the measured temperature is 100 K ’ did not occur. The probabilities of events are of interest (see Section 1.4). For example, Pr([270, 290])",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "A = (300, +∞) and B = [0, 400), and of interest is the probability that both events occur",
+          "context": "temperature is greater than 300 K and less than 400 K. In this case, there are two events, A = (300, +∞) and B = [0, 400), and of interest is the probability that both events occur in single trial. This probability is denoted by Pr(A and B), where (A and B) is the event",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sumptions. One fundamental result that follows from",
+          "context": "3. If the events A and B are mutually exclusive, then Pr(A or B) = Pr(A) + Pr(B). Every other result in probability theory, intuitive or otherwise, can be derived from these three rules without any further assumptions. One fundamental result that follows from these properties is: For any events A an",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = (x′ − 〈x〉)2px(x′)dx′,",
+          "context": "∞ x = (x′ − 〈x〉)2px(x′)dx′, ∫−∞",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = (x′)2px(x′)dx′ − 2〈x〉",
+          "context": "∞ ∞ x = (x′)2px(x′)dx′ − 2〈x〉 ∫ +∞ +",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "∫ +∞ +",
+          "context": "∞ ∞ x = (x′)2px(x′)dx′ − 2〈x〉 ∫ +∞ + x′p 2 x(x′)dx′ + 〈x〉",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σx = 〈x2〉 − 〈x〉2.",
+          "context": "2 〈x2〉 − 2〈x〉〈x〉 + 〈x〉2, σx = 〈x2〉 − 〈x〉2. The variance is a measure of the deviation of samples of the PDF px from the mean 〈x〉. The variance of f is",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = 〈x2〉 − 〈x〉2.",
+          "context": "〈x2〉 − 2〈x〉〈x〉 + 〈x〉2, σx = 〈x2〉 − 〈x〉2. The variance is a measure of the deviation of samples of the PDF px from the mean 〈x〉.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "f = 〈(f (x) − 〈f 〉)2〉,",
+          "context": "σ2 f = 〈(f (x) − 〈f 〉)2〉, =",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "σx = √σ2",
+          "context": "−∞ = 〈f 2〉 − 〈f 〉2. The standard deviations of x and f are σx = √σ2 x and σf = √",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σx = σ.",
+          "context": "2π The mean and standard deviation of a random variable x with this PDF are 〈x〉 = η and σx = σ. The uniform PDF on an interval [a, b] ⊂ R is 1",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = (x1, . . . , xn),",
+          "context": "A random vector is a vector of random variables x = (x1, . . . , xn), which some references write as a row and some as a column. In the most natural case, ran-",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "v = (vx, vy , vz ).",
+          "context": "the experiment may be to measure the velocity of a particle, which has three components v = (vx, vy , vz ). 6",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "∫ xˆ1 ∫ xˆn",
+          "context": "−∞ −∞ and is related to the joint cumulative probability function by ∫ xˆ1 ∫ xˆn Fx(xˆ) = · · · px(x′ 1, · · · , x′",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Cij = 〈(xi − 〈xi〉)(xj − 〈xj 〉)〉,",
+          "context": "The covariance of the two (scalar) random variables xi and xj is Cij = 〈(xi − 〈xi〉)(xj − 〈xj 〉)〉, = 〈xixj 〉 − 〈xi〉〈xj 〉.",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xi = Cii. The covariance matrix of the random vector x is",
+          "context": "The variance of xi is σ2 xi = Cii. The covariance matrix of the random vector x is  C11",
+          "category": "linear_algebra",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "xi = x(ξi)).",
+          "context": "where x1, . . . , xN are N samples from px (equivalently, values of the random variable x in N trials, xi = x(ξi)). The sample average is a function of N samples from px. An equivalent interpretation",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "x = (x1, . . . , xn)",
+          "context": "have the same PDF px. That is, SN f is a function of a random vector x = (x1, . . . , xn) with",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "∫−∞ −∞",
+          "context": "SN f (x1, · · · , xN )px(x1) · · · px(xN )dx1 · · · dxN , ∫−∞ −∞ +∞ ∫ +∞ σ2 N = · · · ( 2",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σ2 N = · · · ( 2",
+          "context": "∫−∞ −∞ +∞ ∫ +∞ σ2 N = · · · ( 2 SN , x N f (x1, · · · N )\tSf",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "N = · · · ( 2",
+          "context": "+∞ ∫ +∞ σ2 N = · · · ( 2 SN , x N",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [
+        {
+          "name": "s for generating random numbers are not studied in this course, but we do",
+          "steps": [
+            "The generated numbers are not actually random, but are designed to appear random",
+            "Generating good random numbers is computationally expensive. When writing"
+          ],
+          "context": "Algorithms for generating random numbers are not studied in this course, but we do make two notes: 8  -- 8 of 10 --  1. The generated numbers are not actually random, but are designed to appear random in certain respects, which make them useful for certain applications. If simulations involving random numbers become important to your thesis/job, you should study the available methods and make sure",
+          "confidence": 0.6
+        }
+      ],
+      "concepts": [
+        {
+          "term": "states that: For any event B,",
+          "definition": "Pr(B) = Pr(B|A1)Pr(A1) + Pr(B|A2)Pr(A2) + · · · + Pr(B|An)Pr(An). 1.7 Bayes’ Theorem For two events Ai and B, taking the intersection of two sets is independent of the order",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": "indicates that",
+          "definition": "Pr(B) = Pr(B|A1)Pr(A1) + Pr(B|A2)Pr(A2) + · · · + Pr(B|An)Pr(An). Substituting this equation into the denominator of (1) gives Bayes’ Theorem: Pr(B",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": ":",
+          "definition": "Pr(B Pr(Ai|B) = |Ai)Pr(Ai) . Pr(B|A1)Pr(A1) + Pr(B|A2)Pr(A2) + · · · + Pr(B|An)Pr(An)",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": "provides a very useful framework for using experim",
+          "definition": "to update knowledge about a physical problem, which is often applied in the design of prognostic/diagnostic systems and in the estimation of states or model parameters from experimental data.",
+          "category": "theorem",
+          "confidence": 0.75
+        },
+        {
+          "term": "states that the distribution of SN",
+          "definition": "f approaches the normal distri- bution, regardless of the PDF of x, as N approaches infinity. 4 Random Number Generators",
+          "category": "theorem",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "ode",
+        "matrix",
+        "vector",
+        "norm",
+        "monte carlo"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\168c68e26eabe2e8c9f0ecc5ae2cc161_MIT10_34F15_Lec28.pdf",
+      "lecture_number": 28,
+      "title": "Models vs",
+      "extracted_at": "2026-04-12T23:05:00.824Z",
+      "page_count": 15,
+      "text_length": 7430,
+      "formulas": [
+        {
+          "latex_like": "suming large number N of",
+          "context": "-- 2 of 15 --  Start by assuming large number N of repeats of each experiment… • \tBy central-limit-theorem of statistics, for case",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σ-1 exp (-χ2/2)",
+          "context": "with a single observable, a true model, accurate parameters and knob values, and many repeats: p(<y>|x,θ) = (2π)-1/2 σ-1 exp (-χ2/2) • \tWhere χ2 = ({<y> - f(x,θ)}/σ)2 And estimated variance of the mean σ = (<y 2>-<y> 2)/N2",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σ = (<y 2>-<y> 2)/N2",
+          "context": "p(<y>|x,θ) = (2π)-1/2 σ-1 exp (-χ2/2) • \tWhere χ2 = ({<y> - f(x,θ)}/σ)2 And estimated variance of the mean σ = (<y 2>-<y> 2)/N2 • \tFor multiple quantities measured on same experiment need to consider Covariance of data:",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Σ (y i,n - <yi >)(y j,n - <y j >)} / N",
+          "context": "• \tFor multiple quantities measured on same experiment need to consider Covariance of data: Cov ij = {Σ (y i,n - <yi >)(y j,n - <y j >)} / N • \tSo we estimate Covariance of the Means (for large N): C ij ~ Cov ij / N",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "ij = {Σ (y i,n - <yi >)(y j,n - <y j >)} / N",
+          "context": "experiment need to consider Covariance of data: Cov ij = {Σ (y i,n - <yi >)(y j,n - <y j >)} / N • \tSo we estimate Covariance of the Means (for",
+          "category": "summation",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "ΣΣ \t(<yk >-f k (xm(k),θ))Dkz(<yz>-fz(xm(z),θ))",
+          "context": "p(<y>|X,θ)=(2π) –K/2|C| -1/2 exp( - ½ \tχ2) where χ2 = \tΣΣ \t(<yk >-f k (xm(k),θ))Dkz(<yz>-fz(xm(z),θ)) and D = inv(C) • \tOften the covariance is ignored, then Dkz = δkzσk-2",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "D = inv(C)",
+          "context": "χ2 = \tΣΣ \t(<yk >-f k (xm(k),θ))Dkz(<yz>-fz(xm(z),θ)) and D = inv(C) • \tOften the covariance is ignored, then Dkz = δkzσk-2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Dkz = δkzσk-2",
+          "context": "and D = inv(C) • \tOften the covariance is ignored, then Dkz = δkzσk-2 4",
+          "category": "summation",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "σk) and adjusted 2 model",
+          "context": "improbable, and you performed 12 experiments (each repeated many times to get a good average <y k> and estimate of σk) and adjusted 2 model parameters, then you can use Matlab function chi2inv:",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "chi2max = chi2inv(0.95,12-2)",
+          "context": "chi2inv: chi2max = chi2inv(0.95,12-2) in this case case chi2max =18.3",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "∫∫ dK <y> p(<y>|X,θ) H(Q-χ2)",
+          "context": "The probability that a measured data set (with many repeats) would yield a χ2<Q is given by: Prob(χ2<Q) = \t∫∫ dK <y> p(<y>|X,θ) H(Q-χ2) where H is the Heaviside function. This K-dimensional multiple integral can be simplified by change of",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral can be simplified by change of",
+          "context": "Prob(χ2<Q) = \t∫∫ dK <y> p(<y>|X,θ) H(Q-χ2) where H is the Heaviside function. This K-dimensional multiple integral can be simplified by change of variables to the single integral shown in the Matlab chi2inv documentation.",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral shown in the Matlab chi2inv",
+          "context": "where H is the Heaviside function. This K-dimensional multiple integral can be simplified by change of variables to the single integral shown in the Matlab chi2inv documentation. If M parameters have been adjusted to fit the data it is customary to",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∫∫ d WX p prior (X)p(<y>|X,θ)",
+          "context": "integrate this uncertainty out to get our new improved “posterior” p(θ) that we will report: p(θ)= p prior (θ) ∫∫ d WX p prior (X)p(<y>|X,θ) Contours of this new p(θ) can also have a very convoluted shape…",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "max = maxθ θv",
+          "context": "to compute the upper limit of the interval: θv,max = maxθ θv s.t. χ2(θ)<Q",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Σ V ji V ki /λi",
+          "context": "than one parameter, that means the parameters are correlated. The “covariance of the parameters” is given by C jk = Σ V ji V ki /λi • \tThis can be computed by SVD, often this is more numerically stable, see Numerical Recipes.",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "jk = Σ V ji V ki /λi",
+          "context": "correlated. The “covariance of the parameters” is given by C jk = Σ V ji V ki /λi • \tThis can be computed by SVD, often this is more",
+          "category": "summation",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Σ J kl J kz σk-2 where J kl = ∂f k/∂θl",
+          "context": "• \tAlmost everyone neglects the second term, which is sensitive to noise in the data, and just uses: Hlz ~ Σ J kl J kz σk-2 where J kl = ∂f k/∂θl • \tNote now the Hessian doesn’t really depend on the experimental data (at all for a linear model),",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "kl = ∂f k/∂θl",
+          "context": "is sensitive to noise in the data, and just uses: Hlz ~ Σ J kl J kz σk-2 where J kl = ∂f k/∂θl • \tNote now the Hessian doesn’t really depend on",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Jacobian of the model w.r.t. to the θ.",
+          "context": "you can compute it before the experiment begins…see page 413 in Beers’ text. His “X” is the Jacobian of the model w.r.t. to the θ. 12 ",
+          "category": "general",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "σ (or D). Double check if you",
+          "context": "2) Need to be sure you have done enough repeats. If N is small probability is non-Gaussian with “fat tail”. 3) χ2 is extremely sensitive to estimate of σ (or D). Double check if you really believe these values. 4) Uncertainties in X and any parameters θ you did not adjust might",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Jacobian evaluated at your prior",
+          "context": "do the experiments. • \tEven for nonlinear models you can do this ahead of time, using the Jacobian evaluated at your prior nominal value of θ. 14",
+          "category": "general",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": "s",
+          "definition": "• \tWe’re comparing experimental Data points y i mesured with knob settings “x” to model predictions f i (x,θ) where θ are the parameters",
+          "category": "definition",
+          "confidence": 0.75
+        },
+        {
+          "term": "of statistics, for case",
+          "definition": "with a single observable, a true model, accurate parameters and knob values, and many repeats: p(<y>|x,θ) = (2π)-1/2 σ-1 exp (-χ2/2)",
+          "category": "theorem",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "jacobian",
+        "hessian",
+        "optimization",
+        "ode",
+        "error",
+        "tolerance",
+        "matrix",
+        "vector"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\a239a43ff1ad1238ac40b126dfaff4f4_MIT10_34F15_Lec29.pdf",
+      "lecture_number": 29,
+      "title": "Summary of Confidence Limits on Estimated Model Parameters After computing the best-fit values from ",
+      "extracted_at": "2026-04-12T23:05:00.867Z",
+      "page_count": 4,
+      "text_length": 5805,
+      "formulas": [
+        {
+          "latex_like": "Summary of Confidence Limits on Estimated Model Param",
+          "context": "Summary of Confidence Limits on Estimated Model Parameters After computing the best-fit values from 2 χ minimization, the model is",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "summarizes the methods which ignores the prior inform",
+          "context": "quantitatively tested for consistency with the data. If the model is consistent with the data, next step is to compute the confidence limits on the model parameters. The following section summarizes the methods which ignores the prior information in finding confidence limits as discussed in the clas",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "approx = χbest + θ - θ H θ - θ",
+          "context": "T\t2 2 best best\tχapprox = χbest + θ - θ H θ - θ where",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "i = 1 i m n",
+          "context": "mn 2 i=1 i m n Y Y\t1",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "H = 2 σ θ θ",
+          "context": "Y Y\t1 H =2 σ θ θ ∂ ∂",
+          "category": "summation",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "v = 2 and the",
+          "context": "an explanation for dropping the second order derivatives. Let us consider the case in which we have 2 parameters of interests, so v = 2 and the 2",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "v = 2 and confidence limit of 0.90, 2",
+          "context": " receipes in C. If we look up in table, for v = 2 and confidence limit of 0.90, 2 ∆χ =",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "new = V θ, the uncertainties in θnew will be less",
+          "context": "T combinations of the parameters θnew = V θ, the uncertainties in θnew will be less correlated. If you want to report",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "suming the data and model are true. The approach is b",
+          "context": "parameters to take any value. Approach #2: In this approach, we start by assuming the data and model are true. The approach is based on the consistency test of the model with the data. We accept the parameter values if they keep 2",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume that the model with the parameters is consistent",
+          "context": "on the consistency test of the model with the data. We accept the parameter values if they keep 2 χ small enough to assume that the model with the parameters is consistent with the data. • Choose the confidence limit where we would say model and data become",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "p = 0.99, i.e. we reject any parameter set θ which gives a",
+          "context": "• Choose the confidence limit where we would say model and data become inconsistent, say p = 0.99, i.e. we reject any parameter set θ which gives a ( )2",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "hessian",
+        "ode"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\93e2569ca1915ab51f618de92936b076_MIT10_34F15_Lec30.pdf",
+      "lecture_number": 30,
+      "title": "How Do We Know if Model and Data are really \tConsistent? χ2(θ) = minθ ||(yexpt -ymodel (θ))/σ||2 θ a",
+      "extracted_at": "2026-04-12T23:05:00.915Z",
+      "page_count": 4,
+      "text_length": 2019,
+      "formulas": [
+        {
+          "latex_like": "σ = σmodel + σexpt",
+          "context": "χ2(θ) = minθ ||(yexpt -ymodel (θ))/σ||2 θ are the parameters we are adjusting to fit the data • \tUncertainty σ = σmodel + σexpt • \tIf minθ χ2 > tolerance it is very likely that the model is inconsistent with the data.",
+          "category": "summation",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "optimization",
+        "ode",
+        "error",
+        "tolerance"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\fbd24f4068beaea6f1ffc4c4cc70bdf7_MIT10_34F15_Lec31_1.pdf",
+      "lecture_number": 31,
+      "title": "Numerics: Flames are usually solved using Operator Splitting • \tMany Equations of form ∂Yn/∂t = Reac",
+      "extracted_at": "2026-04-12T23:05:00.971Z",
+      "page_count": 5,
+      "text_length": 2270,
+      "formulas": [
+        {
+          "latex_like": "t = Reactionn (Y) + Transport n [Y]",
+          "context": "• \tMany Equations of form ∂Yn/∂t = Reactionn (Y) + Transport n [Y] • \tTypical Yn(x,y,z,t) represent mass fraction of nth species. 100 species",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "points = 10 6 state variables.",
+          "context": "• \tTypical Yn(x,y,z,t) represent mass fraction of nth species. 100 species at 10,000 mesh points = 10 6 state variables. • \tSeldom possible to provide good enough initial guess for steady-",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dy/dt = R + T",
+          "context": " Operator Splitting Methods • \tSuppose dy/dt = R + T • \tSimplest: first integrate dy/dt=T, then start from y(t f ) and integrate dy/dt=R. Not very accurate.",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dy/dt=T",
+          "context": "Operator Splitting Methods • \tSuppose dy/dt = R + T • \tSimplest: first integrate dy/dt=T, then start from y(t f ) and integrate dy/dt=R. Not very accurate. • \tStrang: half-step of T, full step R, half step T",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = T, then start from y(t f )",
+          "context": "• \tSuppose dy/dt = R + T • \tSimplest: first integrate dy/dt=T, then start from y(t f ) and integrate dy/dt=R. Not very accurate.",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dy/dt=R. Not very accurate.",
+          "context": "• \tSuppose dy/dt = R + T • \tSimplest: first integrate dy/dt=T, then start from y(t f ) and integrate dy/dt=R. Not very accurate. • \tStrang: half-step of T, full step R, half step T – \tSecond-order accurate, stable.",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = R. Not very accurate.",
+          "context": "• \tSimplest: first integrate dy/dt=T, then start from y(t f ) and integrate dy/dt=R. Not very accurate. • \tStrang: half-step of T, full step R, half step T",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dy/dt = (R+c) + (T-c) how to choose c?",
+          "context": "– \tSecond-order accurate, stable. – \tCan be slow to converge to steady-state solution. • \tBalanced: dy/dt = (R+c) + (T-c) how to choose c? “Simple Balanced”: c=1/2 (R(y n)-T(yn)) • \t“Rebalanced”: use averages of R and T over their steps",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = (R+c) + (T-c) how to choose c?",
+          "context": "– \tCan be slow to converge to steady-state solution. • \tBalanced: dy/dt = (R+c) + (T-c) how to choose c? “Simple Balanced”: c=1/2 (R(y n)-T(yn))",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "c = 1/2 (R(y n)-T(yn))",
+          "context": "• \tBalanced: dy/dt = (R+c) + (T-c) how to choose c? “Simple Balanced”: c=1/2 (R(y n)-T(yn)) • \t“Rebalanced”: use averages of R and T over their steps",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "dY/dt = (Reaction) + (Transport) ~ 0",
+          "context": " Split each timestep into 3 substeps Near Steady State, dY/dt = (Reaction) + (Transport) ~ 0 But each term separately is large. Splitting them makes you walk away from true trajectory during substeps.",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = (Reaction) + (Transport) ~ 0",
+          "context": "Split each timestep into 3 substeps Near Steady State, dY/dt = (Reaction) + (Transport) ~ 0 But each term separately is large. Splitting them makes",
+          "category": "differential",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "gradient",
+        "ode",
+        "pde",
+        "error"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\96f9cd4f20305f674d0b101785b09f9b_MIT10_34F15_Lec32.pdf",
+      "lecture_number": 32,
+      "title": "Monte Carlo Integration 10",
+      "extracted_at": "2026-04-12T23:05:01.047Z",
+      "page_count": 9,
+      "text_length": 3859,
+      "formulas": [
+        {
+          "latex_like": "σ2(<y>)  σ2(y)/N",
+          "context": "• \tBy Central Limit Theorem of Statistics, as N gets large: <y>N  <y>true with error decreasing as N -1/2 σ2(<y>)  σ2(y)/N • \tWhen we do this average by repeating an experiment, we are sampling from a probability distribution pexpt(y).",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Σ g(yi)",
+          "context": "expected value of g(y). If we are sampling (experimentally or with synthetic data): <g> = (1/N) Σ g(yi) This is called a “stochastic” method, gives different result each time, but as N gets very large it gets accurate.",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∫ g(y) p(y) dy",
+          "context": "• \tIf we know p(y), we could instead compute this integral “deterministically”: <g> = ∫ g(y) p(y) dy probably we would do this using quadrature in uniform intervals, or maybe some adaptive meshing technique (e.g. rewrite it as an ODE",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral can be rewritten this way",
+          "context": "-- 3 of 9 --  Any integral can be rewritten this way • \tIntegrals are averages: � 𝑓 𝑥 𝑑𝑥 = < 𝑓 >∗ (𝑏 − 𝑎)",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Integrals are averages:",
+          "context": " Any integral can be rewritten this way • \tIntegrals are averages: � 𝑓 𝑥 𝑑𝑥 = < 𝑓 >∗ (𝑏 − 𝑎) 𝑏",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral stochastically by drawing numbers from",
+          "context": "< 𝑓 > = \t� 𝑓 𝑥 𝑝 𝑥 𝑑𝑥 𝑝 𝑥 \t= \t𝐻 𝑎 \t− 𝐻 𝑏 \t/(𝑏 − 𝑎) • \tSo we can compute any integral stochastically by drawing numbers from p(x), which is a uniform distribution from a to b: For i=1:N",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "x = a + (b-a)*rand;",
+          "context": "For i=1:N x = a + (b-a)*rand; sum_f = sum_f + f(x);",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sum_f = sum_f + f(x);",
+          "context": "For i=1:N x = a + (b-a)*rand; sum_f = sum_f + f(x); end mean_f = sum_f / N;",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sum_f / N;",
+          "context": "sum_f = sum_f + f(x); end mean_f = sum_f / N; 4 ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "mean_f = sum_f / N;",
+          "context": "end mean_f = sum_f / N; 4",
+          "category": "summation",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "m = 100, need one million",
+          "context": "• \tFor small m, we can use Simpson’s rule, 2 m points gives one interval in each dimension. If m=100, need one million function evals. To make it two intervals in each dimension",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "m = 100). Curse of",
+          "context": "function evals. To make it two intervals in each dimension to gain a sig fig, need 4 m points (~10 12 if m=100). Curse of Dimensionality!",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "integrals of this type (e.g. in",
+          "context": " Metropolis Monte-Carlo • \tOften we want to compute integrals of this type (e.g. in statistical mechanics & quantum mechanics, also in turbulent flow simulations)",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Sum_f = Sum_f + f(x k)",
+          "context": "Compute a random number 0<u<1 (u = rand) Accept the step if u<w(x k)/w(x i ). Else set x k=x i . • \tSum_f = Sum_f + f(x k) 7 ",
+          "category": "summation",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [
+        {
+          "term": "of Statistics, as N gets large:",
+          "definition": "<y>N  <y>true with error decreasing as N -1/2 σ2(<y>)  σ2(y)/N • \tWhen we do this average by repeating an experiment,",
+          "category": "theorem",
+          "confidence": 0.75
+        }
+      ],
+      "topics": [
+        "quadrature",
+        "integration",
+        "ode",
+        "error",
+        "dense",
+        "norm",
+        "monte carlo",
+        "stochastic"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\175e8fac63d6c2ed68aef3537e9f7a0b_MIT10_34F15_Lec33.pdf",
+      "lecture_number": 33,
+      "title": "Fall 2015 Metropolis Monte Carlo Algorithm The Metropolis Monte Carlo method is very useful for calc",
+      "extracted_at": "2026-04-12T23:05:01.080Z",
+      "page_count": 6,
+      "text_length": 6727,
+      "formulas": [
+        {
+          "latex_like": "integrals. This",
+          "context": "dimensional vector of spatial coordinates), pN is momentum space (a 3N dimensional vector of momentum). Both the numerators as well as the denominator have 6N integrals to be computed. We can use Monte Carlo method to evaluate these integrals. This consists of simply summing over random points sampl",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "summing over random points sampled according to the p",
+          "context": "vector of momentum). Both the numerators as well as the denominator have 6N integrals to be computed. We can use Monte Carlo method to evaluate these integrals. This consists of simply summing over random points sampled according to the probability distribution. Rewriting the above expression in ter",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral using the weighting function. Following is the alg",
+          "context": "expression for P is so difficult to evaluate, instead we would like to use a method that works directly with w. Now let us see how to implement the Metropolis Monte Carlo Method to solve the integral using the weighting function. Following is the algorithm: Metropolis Monte Carlo Method: We have to ",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Sum” defined, where this scalar",
+          "context": "We have to generate a random sequence q[1], q[2], q[3] …of states to solve for the integral. We start with some value for q and then make moves to different states. For the kth iteration (move), you are at a state q[k] and have a scalar “Sum” defined, where this scalar holds the value of the integra",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "integral we are attempting to solve:",
+          "context": "We start with some value for q and then make moves to different states. For the kth iteration (move), you are at a state q[k] and have a scalar “Sum” defined, where this scalar holds the value of the integral we are attempting to solve: 1) \tRandomly generate a step Δq (e.g. using Ndim random numbers",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "n = 1..Ndim, where Δ is the maximum",
+          "context": "1) \tRandomly generate a step Δq (e.g. using Ndim random numbers from rand function, Δq(n) =Δ*(2*rand-1), for n=1..Ndim, where Δ is the maximum allowable displacement in any of the coordinates in successive iterations)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Sum = Sum + B(q[k+1])",
+          "context": "else q[k+1] = q[k] 4) \tSum = Sum + B(q[k+1]) 5) \t<B> = Sum/(No. of random points) Note: “rand” is a uniformly-distributed random number from 0 (zero) to 1 (one).",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Sum/(No. of random points)",
+          "context": "q[k+1] = q[k] 4) \tSum = Sum + B(q[k+1]) 5) \t<B> = Sum/(No. of random points) Note: “rand” is a uniformly-distributed random number from 0 (zero) to 1 (one). The goal of the Metropolis MC method is to generate N states of q such that:",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Summing these two expressions gives",
+          "context": " The P(qi|qj) expressions are conditional probabilities, which represent the probability of moving to state qi given that we were in state qj. Summing these two expressions gives us the total number of states in our system in state qi: 2",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "Nqi = 0, both of the preceding equations tell us:",
+          "context": " \t \t When ΔNqi = 0, both of the preceding equations tell us: constant",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "Nqi = 0) once the",
+          "context": "preceding equation is true for all states i in our system. Another way to think about the above expression is that there will be no change in the system (ΔNqi = 0) once the 3",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "integral using Metropolis Monte Carlo Method:",
+          "context": "the system is always trying to reach equilibrium. Simple Example with Metropolis MC Method: Suppose we want to solve following integral using Metropolis Monte Carlo Method: 4 ",
+          "category": "integration",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "integration",
+        "iteration",
+        "vector",
+        "monte carlo"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\e5b22898c90e79a1bee8f6d9615c2950_MIT10_34F15_Lec34.pdf",
+      "lecture_number": 34,
+      "title": "Stochastic Chemical Kinetics Joseph K",
+      "extracted_at": "2026-04-12T23:05:01.161Z",
+      "page_count": 12,
+      "text_length": 23606,
+      "formulas": [
+        {
+          "latex_like": "sumptions underlying equa-",
+          "context": "dt where k is the rate constant. The stochastic approach to chemical kinetics is concerned with modeling chemical reactions in situations where the assumptions underlying equa- tions of this type break down. In order to illustrate this, suppose that the reaction above is occuring in a drop of water ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "suming that the number of molecules NI changes contin",
+          "context": "NI (t)N (t), where NAv is Avogadro’s number. Solving this ODE from some known initial con- dition, we are assuming that the number of molecules NI changes continuously and can take any value in R (this is called a continuum assumption). Surely, if we begin solving this equation with NI (t0) = 3, the",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumption). Surely, if we",
+          "context": "where NAv is Avogadro’s number. Solving this ODE from some known initial con- dition, we are assuming that the number of molecules NI changes continuously and can take any value in R (this is called a continuum assumption). Surely, if we begin solving this equation with NI (t0) = 3, there will come ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "NI = 2, then only one reaction can occur, after which NI = 0",
+          "context": "However, the problem can become very serious for small numbers of molecules. In the worst case, if NI = 2, then only one reaction can occur, after which NI = 0 and the reaction rate must also be zero. However, the continuum approximation",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "N = 3, then the reaction",
+          "context": "associated stoichiometry vector νμ, which describes the discontinuous change in X when the reaction Rμ occurs. For example, if N = 3, then the reaction S1 + S2 → S3 (1)",
+          "category": "general",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume that these",
+          "context": "X(tˆ+ dt) = X(tˆ− dt) + νμ. As mentioned previously, we will not simulate reacting systems in enough detail to say deterministically when a given reaction will occur. Instead, we assume that these reactions occur stochastically, according to some probability distributions. Our goal is to understand ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumption is well justified for elementary",
+          "context": "In words, the fundamental hypothesis states that, for small enough durations dt, the probability that a particular group of Rμ reactants will react in V during the interval [t, t + dt] increases linearly with dt. This assumption is well justified for elementary unimolecular and bimolecular reactions",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumptions behind this derivation are:",
+          "context": "unimolecular and bimolecular reactions. In the bimolecular case, one can derive the constant cμ from the kinetic theory of gases (which you will study extensively in 10.65 next semester). The basic assumptions behind this derivation are: 1. the positions of the molecules in V are random and uniforml",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumptions, it is possible to derive the probability o",
+          "context": "2. the velocities of the molecules in V are distributed according to the Maxwell- Boltzmann distribution. Under these assumptions, it is possible to derive the probability of a collision between two molecules within a given time interval. The purpose of mentioning this is to point out that the stoch",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume in the following derivations that all single rea",
+          "context": "such situations tends toward zero more rapidly than dt, and becomes dominated by the probability of the simpler outcomes where only a single reaction occurs in [t, t + dt]. For this reason, we can always assume in the following derivations that all single reaction events in [t, t + dt] are mutually ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sumption will vanish as dt → 0.",
+          "context": "this reason, we can always assume in the following derivations that all single reaction events in [t, t + dt] are mutually exclusive, because only one reaction can occur. Though this is not strictly true, the error in making this assumption will vanish as dt → 0. 4 ",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sum the individual",
+          "context": "To compute this probability, recall that there are hμ(X(t)) distinct groups of reactants that could possibly react in [t, t + dt], each with probability cμdt. Since we may assume that these hμ possible reactions are mutually exclusive, then we may sum the individual probabilities to get P r(exactly ",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume that",
+          "context": "rμ(t) = kμC1(t)C2(t). Of course, for the dimerization reaction (2), these expressions do not agree so well. For the purposes of simulating stochastic reacting systems, we will always assume that the reaction parameters cμ are known. 2.3 The Probability Exactly One Reaction Occurs in [t, t + dt]",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sum probabilities to get",
+          "context": "Since we need only consider the case where at most one reaction occurs in [t, t + dt], the occurrences of each different type of reaction R1, . . . , RM are mutually exclusive. It follows that we can simply sum probabilities to get P r(exactly 1 rxn occurs in [t, t + dt] | X(t) = n) M",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ P r(exactly 1 Rμ rxn occurs in [t, t + dt] | X(t)",
+          "context": "P r(exactly 1 rxn occurs in [t, t + dt] | X(t) = n) M = ∑ P r(exactly 1 Rμ rxn occurs in [t, t + dt] | X(t) = n), μ=1 M",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμdt",
+          "context": "= μ ∑ hμ(n)cμdt =1 5",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume that at most one reaction occurs in V during [t,",
+          "context": "occur in V within the time interval [t, t + τ ]? We denote this probability by P0(τ, n). We consider first the probability P0(ǫ, n), where ǫ is small. For small enough ǫ, we may assume that at most one reaction occurs in V during [t, t + ǫ]. It follows that P0(ǫ, n) = 1 − P r(exactly 1 rxn occurs in",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμǫ.",
+          "context": "= 1 − μ ∑ hμ(n)cμǫ. =1 In order to calculate P0(τ, n), we divide [t, t + τ ] into a large number K intervals of",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ cμhμ(n)",
+          "context": "1 μ ∑ cμhμ(n) − =1",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ cμhμ(n)τ",
+          "context": "= exp ( M − ∑ cμhμ(n)τ ) .",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "summing up the probabilities of the distinct (i.e. mu",
+          "context": "probability function changes in time. To derive it, lets suppose that P (n, t | n0, t0) is known for all n and attempt to derive an expression for P (n, t + dt | n0, t0). This is done by simply summing up the probabilities of the distinct (i.e. mutually exclusive) ways in which the system could come",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ P (n − νμ, t | n0, t0)hμ(n − νμ)cμdt,",
+          "context": "we have M P (n, t + dt | n0, t0) = P (n, t | n0, t0)P0(dt, n) + ∑ P (n − νμ, t | n0, t0)hμ(n − νμ)cμdt, μ=1 = P (n, t | n0, t0)",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ P (n − νμ, t | n0, t0)hμ(n − νμ)cμdt.",
+          "context": "=1 M + ∑ P (n − νμ, t | n0, t0)hμ(n − νμ)cμdt. μ=1 Rearranging gives,",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ [P (n − νμ, t | n0, t0)hμ(n − νμ)cμ",
+          "context": "Rearranging gives, P (n, t + dt | n0, t0) − P (n, t | n0, t0) M = ∑ [P (n − νμ, t | n0, t0)hμ(n − νμ)cμ dt μ=1 − P (n, t | n0, t0)hμ(n)cμ ,",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ [P (n − νμ, t | n0, t0)hμ(n − νμ)cμ − P (n, t | n0",
+          "context": "] dP (n, t | n0, t0) M = ∑ [P (n − νμ, t | n0, t0)hμ(n − νμ)cμ − P (n, t | n0, t0)hμ(n)cμ] . dt μ=1 Supposing that, due to a limited number of reactant molecules in a closed system, we know",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμdτ",
+          "context": "[ M μ ∑ hμ(n)cμdτ =1 ]",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμτ",
+          "context": "μ ) [ ] ∑ hμ(n)cμτ =1 μ ∑ hμ(n)cμdτ .",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμdτ .",
+          "context": "∑ hμ(n)cμτ =1 μ ∑ hμ(n)cμdτ . =1 To simplify notation, define the total reaction propensity:",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑ hμ(n)cμ.",
+          "context": "a(n) ≡ μ ∑ hμ(n)cμ. =1 9",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∑μ′ −1",
+          "context": "In fact, this is another application of the inversion method. In this case it is easy to see that the probability of selecting μ′ in this way is proportional to the length of the interval [ ∑μ′ −1 μ=1 hμ(n)cμ a(n) ,",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "t = t0, X(t) = n0.",
+          "context": "4.3 Algorithm 1. Initialize: t = t0, X(t) = n0. 2. While t < tf :",
+          "category": "general",
+          "confidence": 0.6
+        }
+      ],
+      "algorithms": [
+        {
+          "name": "Unnamed Algorithm",
+          "steps": [
+            "Initialize: t = t0, X(t) = n0.",
+            "While t < tf :"
+          ],
+          "context": "4.3 Algorithm 1. Initialize: t = t0, X(t) = n0. 2. While t < tf : (a) Compute the total reaction propensity a(X(t)). (b) Sample two random numbers, r1 and r2, from the uniform distribution on (0, 1). (c) Determine the next reaction time as τ = 1 a(X(t)) ln ( 1 r1 .",
+          "confidence": 0.6
+        }
+      ],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "ode",
+        "error",
+        "sparse",
+        "vector",
+        "monte carlo",
+        "stochastic"
+      ],
+      "warnings": []
+    },
+    {
+      "source_pdf": "H:\\prism\\Resources\\MIT COURSES\\10.34-fall-2015\\static_resources\\0ecf6c422fe7fb9b2a3c48b66bf56bcc_MIT10_34F15_Lec35.pdf",
+      "lecture_number": 35,
+      "title": "Stochastic Methods wrap-up 10",
+      "extracted_at": "2026-04-12T23:05:01.187Z",
+      "page_count": 11,
+      "text_length": 4623,
+      "formulas": [
+        {
+          "latex_like": "integrals have",
+          "context": " Multidimensional Integrals • \tMany important multidimensional integrals have integrands of this form: p(x)f(x) where p is a probability density.",
+          "category": "integration",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "∫∫∫w(x)dx",
+          "context": "probability density. • \tOften an un-normalized p is known: p(x) = w(x)/∫∫∫w(x)dx • \tBoltzmann distribution: w(x)=exp(-E(x)/kT) • \tBayesian analysis of experiments:",
+          "category": "differential",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "dt = M * P \tP(to)=Po",
+          "context": "the system being in a discrete state: P N(t). dP/dt = M * P \tP(to)=Po • \tNumber of possible states usually enormous",
+          "category": "differential",
+          "confidence": 0.6
+        },
+        {
+          "latex_like": "sume NA , NB, etc.",
+          "context": "• \tOften have an idea of <N> but not full probability distribution of N. • \tCommon approach: assume NA , NB, etc. uncorrelated initially, and use a separate Poisson distribution for each one:",
+          "category": "summation",
+          "confidence": 0.7
+        },
+        {
+          "latex_like": "sume diffusion is equilibrated and so",
+          "context": "• \tIf diffusion is too fast, ∆t will be very small and it will be very expensive to compute a trajectory. – \tSometimes people assume diffusion is equilibrated and so create a different random distribution of A and B on surface at each time step corresponding to (slow) reactions",
+          "category": "summation",
+          "confidence": 0.7
+        }
+      ],
+      "algorithms": [],
+      "concepts": [],
+      "topics": [
+        "newton",
+        "ode",
+        "error",
+        "norm",
+        "monte carlo",
+        "stochastic"
+      ],
+      "warnings": []
+    }
+  ]
+}

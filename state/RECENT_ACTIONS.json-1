@@ -1,0 +1,127 @@
+{
+  "updated": "2026-04-09T20:06:07.412Z",
+  "session_call_count": 5,
+  "actions": [
+    {
+      "seq": 4,
+      "ts": "2026-04-03T20:40:05.735Z",
+      "tool": "prism_edm",
+      "action": "wedm_full_multipass",
+      "params_summary": "material=D2, thickness_mm=50, wire_type=brass, wire_diameter_mm=0.25, target_Ra_um=0.8, tolerance_mm=0.01, cut_type=prof",
+      "success": true,
+      "duration_ms": 3,
+      "result_preview": "{\"blocked\":true,\"blocker\":\"pre-output-safety-hard-gate\",\"reason\":\"🚫 BLOCKED by pre-output-safety-hard-gate: HARD BLOCK: No safety score available — c"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-04-03T20:40:06.803Z",
+      "tool": "prism_edm",
+      "action": "wedm_predict_wire_break",
+      "params_summary": "material=D2, thickness_mm=50, wire_type=brass, wire_diameter_mm=0.25, flushing_mode=submerged, cut_type=profile",
+      "success": true,
+      "duration_ms": 2,
+      "result_preview": "{\"blocked\":true,\"blocker\":\"pre-output-safety-hard-gate\",\"reason\":\"🚫 BLOCKED by pre-output-safety-hard-gate: HARD BLOCK: No safety score available — c"
+    },
+    {
+      "seq": 1,
+      "ts": "2026-04-06T14:54:17.225Z",
+      "tool": "prism_dev",
+      "action": "gap_scan",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 32599,
+      "result_preview": "{\"timestamp\":\"2026-04-06T14:54:15.926Z\",\"version\":\"1.0.0\",\"total_engines\":1476,\"total_dispatchers\":81,\"total_actions\":3405,\"total_routes\":62,\"dimensio"
+    },
+    {
+      "seq": 2,
+      "ts": "2026-04-06T15:01:09.271Z",
+      "tool": "prism_dev",
+      "action": "auto_wiring_scan",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 409873,
+      "result_preview": "{\"total_engines\":1475,\"engines_with_gaps\":1313,\"gap_rate\":89,\"top_gaps\":[{\"engine\":\"AbrasiveJetMachiningEngine\",\"gaps\":[\"W:schema\"]},{\"engine\":\"Absorp"
+    },
+    {
+      "seq": 3,
+      "ts": "2026-04-06T15:01:13.765Z",
+      "tool": "prism_dev",
+      "action": "schema_gap_scan",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 2445,
+      "result_preview": "{\"total_engines\":1476,\"with_schema\":186,\"without_schema\":1290,\"schema_coverage\":13,\"missing\":{\"_items\":[\"HyperMillSkillsBatchEngine\",\"reactiveChainBoo"
+    },
+    {
+      "seq": 4,
+      "ts": "2026-04-06T15:01:18.214Z",
+      "tool": "prism_dev",
+      "action": "test_gap_scan",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 2169,
+      "result_preview": "{\"total_engines\":1476,\"with_tests\":1358,\"without_tests\":118,\"test_coverage\":92,\"missing\":{\"_items\":[\"HyperMillSkillsBatchEngine\",\"reactiveChainBootstr"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-04-06T15:01:19.848Z",
+      "tool": "prism_dev",
+      "action": "engine_overlap_scan",
+      "params_summary": "{}",
+      "success": true,
+      "duration_ms": 9,
+      "result_preview": "{\"total_engines\":0,\"duplicate_groups\":[],\"duplicate_count\":0,\"verdict\":\"CLEAN\"}"
+    },
+    {
+      "seq": 1,
+      "ts": "2026-04-09T20:06:06.308Z",
+      "tool": "prism_dev",
+      "action": "svi_summary",
+      "params_summary": "action=svi_summary",
+      "success": true,
+      "duration_ms": 1185,
+      "result_preview": "{\"summary\":\"SVI: 3.8 × 10^43 | Ψ=40.8% →\\nEntities: 107,908 | Reachable: 407,820\\n3 materials | 95608 tools | 910 machines\\n1424 engines | 81 dispatch"
+    },
+    {
+      "seq": 2,
+      "ts": "2026-04-09T20:06:06.490Z",
+      "tool": "prism_dev",
+      "action": "quality_dashboard_summary",
+      "params_summary": "action=quality_dashboard_summary",
+      "success": true,
+      "duration_ms": 4,
+      "result_preview": "{\"summary\":\"# PRISM Quality Dashboard\\nUpdated: 2026-04-09T12:51:08.471Z\\n\\n## System Health\\n  System Q (min): 0.788  |  Mean Q: 0.788\\n  Engines: 1 "
+    },
+    {
+      "seq": 3,
+      "ts": "2026-04-09T20:06:07.034Z",
+      "tool": "prism_dev",
+      "action": "resource_census_summary",
+      "params_summary": "action=resource_census_summary",
+      "success": true,
+      "duration_ms": 4,
+      "result_preview": "{\"summary\":\"# Resource Census\\nScanned: 2026-04-09T12:49:57.363Z | Duration: 57936ms\\nTotal: 0 resources | 0 MB\\n\\n## By Location\\n- **prism**: 0 file"
+    },
+    {
+      "seq": 4,
+      "ts": "2026-04-09T20:06:07.236Z",
+      "tool": "prism_dev",
+      "action": "route_sync_summary",
+      "params_summary": "action=route_sync_summary",
+      "success": true,
+      "duration_ms": 6,
+      "result_preview": "{\"summary\":\"Route sync: 8 matched / 895 routes + 358 clients (0.6%). Orphaned routes: 887. Orphaned clients: 350. Gap to 90%: 89.4pp.\"}"
+    },
+    {
+      "seq": 5,
+      "ts": "2026-04-09T20:06:07.411Z",
+      "tool": "prism_dev",
+      "action": "quality_score_summary",
+      "params_summary": "action=quality_score_summary",
+      "success": true,
+      "duration_ms": 5,
+      "result_preview": "{\"summary\":\"# PRISM Development Quality Score\\nUpdated: 2026-04-09T12:49:41.110Z\\nEngines: 1/1500 scored\\n\\n## Composite Scores\\n  System Q (min):  0."
+    }
+  ],
+  "_hint": "READ THIS FIRST after compaction. Shows last 12 tool calls with results."
+}

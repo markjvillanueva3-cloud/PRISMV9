@@ -1,0 +1,73 @@
+; =============================================
+; SIEMENS 840D sl — Tilted Workplane with CYCLE800
+; Material: 7075-T6 Aluminum
+; Tool: 10mm end mill for pocket on angled face
+; Machine: 5-axis with A/B rotary (table-table)
+; =============================================
+
+N10 G54 G90 G17 G64 SOFT       ; Safe start
+N20 T3 D1 M6                   ; 10mm end mill
+N30 S6000 M3                   ; Vc ~188 m/min
+N40 M8                         ; Coolant ON
+N50 G0 Z100                    ; Clearance plane (higher for 5-axis safety)
+
+; ---- Operation 1: Top face (no tilt) ----
+; Machine a reference pocket on top
+N60 G0 X50 Y40
+N70 G0 Z2
+N80 G1 Z-5 F300
+N90 G1 X80 F1500
+N100 G1 Y60 F1500
+N110 G1 X20 F1500
+N120 G1 Y20 F1500
+N130 G1 X80 F1500
+N140 G0 Z100
+
+; ---- Operation 2: Tilt A=30, B=0 ----
+; CYCLE800(MODE, TC, ST, MODE2, X0, Y0, Z0, A, B, DIR, FR, RET_LEVEL)
+; CYCLE800(1, "", 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 1)
+;   MODE = 1     new workplane activation
+;   TC   = ""    no kinematic name (use default)
+;   ST   = 0     no table rotation
+;   MODE2= 0     standard mode
+;   X0-Z0= 0     rotation center at WCS origin
+;   A    = 30    tilt 30 degrees around A axis
+;   B    = 0     no B rotation
+;   DIR  = 0     shortest path
+;   FR   = 0     default feed for rotation
+;   1    = activate
+
+N150 CYCLE800(1, "", 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 1)
+
+; Machine pocket on 30-degree tilted face
+; (Coordinates are now in tilted workplane)
+N160 G0 X30 Y30
+N170 G0 Z2
+N180 G1 Z-4 F250               ; Shallower on angled face
+N190 G1 X70 F1200
+N200 G1 Y50
+N210 G1 X30
+N220 G1 Y30
+N230 G0 Z50
+
+; ---- Operation 3: Tilt A=0, B=45 ----
+N240 CYCLE800(1, "", 0, 0, 0, 0, 0, 0, 0, 45, 0, 0, 0, 0, 0, 0, 1)
+
+N250 G0 X20 Y20
+N260 G0 Z2
+N270 G1 Z-3 F250
+N280 G1 X60 F1200
+N290 G1 Y50
+N300 G1 X20
+N310 G1 Y20
+N320 G0 Z50
+
+; ---- Deactivate tilted workplane ----
+N330 CYCLE800()                 ; Reset to G54 standard orientation
+
+; Retract and end
+N340 G0 Z100
+N350 M9
+N360 M5
+N370 G0 X0 Y0 SUPA
+N380 M30

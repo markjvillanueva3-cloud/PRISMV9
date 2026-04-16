@@ -1,0 +1,686 @@
+{
+  "id": "roku-roku-rky-1000n",
+  "machine_id": "roku-roku-rky-1000n",
+  "manufacturer": "Roku-Roku",
+  "model": "RKY-1000N",
+  "version": "1.0.0",
+  "created_at": "2026-03-29T19:00:00Z",
+  "updated_at": "2026-03-29T19:00:00Z",
+
+  "cover_info": {
+    "manufacturer": "Roku-Roku (Sodick Group)",
+    "model_family": "RKY Series High-Speed Graphite/Die Mold",
+    "models_covered": ["RKY-1000N", "RKY-1000N-40K"],
+    "manual_part_number": "RKY1000N-OM-EN-R02",
+    "revision": "R02",
+    "publication_date": "2024-01",
+    "language": "en",
+    "total_pages": 312,
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "spindle_specs": {
+    "max_rpm": 30000,
+    "max_rpm_optional": 40000,
+    "min_rpm": 1000,
+    "power_continuous_kw": 3.7,
+    "power_30min_kw": 5.5,
+    "power_peak_kw": 5.5,
+    "torque_max_nm": 6.0,
+    "torque_continuous_nm": 3.5,
+    "taper_type": "HSK-E32",
+    "bearing_type": "ceramic (Si3N4) hybrid angular contact, oil-air lubrication",
+    "drive_type": "built-in motor (integral motorspindle)",
+    "base_speed_rpm": 10000,
+    "core_cooled": true,
+    "drawbar_force_kn": 4.5,
+    "warmup_procedure": "CRITICAL for 30K+ RPM spindle: Run at 5,000 RPM for 5 min, 10,000 RPM for 5 min, 15,000 RPM for 5 min, 20,000 RPM for 5 min, 25,000 RPM for 3 min, 30,000 RPM for 2 min. Total: 25 min. Mandatory after idle >4 hours. Ceramic bearings require thermal equilibrium before high-speed operation. Skipping warmup at 30K+ RPM risks catastrophic bearing failure.",
+    "torque_curve": [
+      { "rpm": 1000, "torque_nm": 6.0, "power_kw": 0.6 },
+      { "rpm": 3000, "torque_nm": 6.0, "power_kw": 1.9 },
+      { "rpm": 5000, "torque_nm": 6.0, "power_kw": 3.1 },
+      { "rpm": 8000, "torque_nm": 4.4, "power_kw": 3.7 },
+      { "rpm": 10000, "torque_nm": 3.5, "power_kw": 3.7 },
+      { "rpm": 15000, "torque_nm": 2.4, "power_kw": 3.7 },
+      { "rpm": 20000, "torque_nm": 1.8, "power_kw": 3.7 },
+      { "rpm": 24000, "torque_nm": 2.2, "power_kw": 5.5 },
+      { "rpm": 28000, "torque_nm": 1.9, "power_kw": 5.5 },
+      { "rpm": 30000, "torque_nm": 1.75, "power_kw": 5.5 }
+    ],
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "axis_kinematics": {
+    "axes": [
+      {
+        "name": "X",
+        "travel_mm": 500,
+        "rapid_mm_min": 20000,
+        "max_feed_mm_min": 15000,
+        "accel_m_s2": 6.0,
+        "resolution_um": 0.1,
+        "repeatability_um": 1,
+        "accuracy_um": 3,
+        "ball_screw_pitch_mm": 5,
+        "linear_scale": true
+      },
+      {
+        "name": "Y",
+        "travel_mm": 400,
+        "rapid_mm_min": 20000,
+        "max_feed_mm_min": 15000,
+        "accel_m_s2": 6.0,
+        "resolution_um": 0.1,
+        "repeatability_um": 1,
+        "accuracy_um": 3,
+        "ball_screw_pitch_mm": 5,
+        "linear_scale": true
+      },
+      {
+        "name": "Z",
+        "travel_mm": 200,
+        "rapid_mm_min": 15000,
+        "max_feed_mm_min": 10000,
+        "accel_m_s2": 6.0,
+        "resolution_um": 0.1,
+        "repeatability_um": 1,
+        "accuracy_um": 3,
+        "ball_screw_pitch_mm": 5,
+        "linear_scale": true
+      }
+    ],
+    "simultaneous_axes": 3,
+    "work_envelope_mm": { "x": 500, "y": 400, "z": 200 },
+    "spindle_to_table_min_mm": 50,
+    "spindle_to_table_max_mm": 250,
+    "table_size_mm": { "x": 600, "y": 450 },
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "controller_features": {
+    "controller_manufacturer": "Mitsubishi Electric (Fanuc 31i option)",
+    "controller_model": "Mitsubishi M80 (primary) / Fanuc 31i-B5 (option)",
+    "firmware_version": "M80 v4.2",
+    "custom_g_codes": [
+      { "code": "G05.1 Q1", "description": "High-speed machining control — nano smoothing with predictive interpolation for graphite electrodes", "syntax": "G05.1 Q1 / G05.1 Q0", "example": "G05.1 Q1 (enable HSM for electrode finishing)" },
+      { "code": "G05 P2", "description": "SSS control (Super Smooth Surface) — Mitsubishi advanced path smoothing for electrode surfaces", "syntax": "G05 P2 / G05 P0", "example": "G05 P2 (enable SSS for Ra 0.4um electrode finish)" },
+      { "code": "G08 P1", "description": "High-precision contour control — reduces corner rounding on electrode geometry", "syntax": "G08 P1 / G08 P0" },
+      { "code": "G43.4", "description": "Tool center point control — for 5-axis operation with optional rotary table", "syntax": "G43.4 H_", "example": "G43.4 H01" },
+      { "code": "G54.1", "description": "Extended work coordinate system — 48 additional work offsets for electrode pallets", "syntax": "G54.1 P_", "example": "G54.1 P12 (electrode pallet position 12)" },
+      { "code": "G68", "description": "Coordinate rotation — rotates coordinate system for angled electrode features", "syntax": "G68 X_ Y_ R_", "example": "G68 X0 Y0 R15.0 (rotate 15 deg for angular rib)" },
+      { "code": "G73", "description": "High-speed peck drilling — chip break cycle for graphite drilling (rarely used)", "syntax": "G73 X_ Y_ Z_ R_ Q_ F_" },
+      { "code": "G28", "description": "Reference point return — rapid to machine home", "syntax": "G28 X_ Y_ Z_", "example": "G28 G91 Z0 (home Z)" },
+      { "code": "G31", "description": "Skip function — probe touch signal for electrode measurement", "syntax": "G31 X_ Y_ Z_ F_" },
+      { "code": "G52", "description": "Local coordinate system — electrode position offset from pallet datum", "syntax": "G52 X_ Y_ Z_" }
+    ],
+    "custom_m_codes": [
+      { "code": "M03", "description": "Spindle on CW — starts spindle at commanded speed (CW standard for graphite)", "modal": true },
+      { "code": "M04", "description": "Spindle on CCW — counterclockwise (rarely used in graphite)", "modal": true },
+      { "code": "M05", "description": "Spindle stop — stops spindle rotation", "modal": true },
+      { "code": "M06", "description": "Tool change — executes automatic tool change from 16-tool ATC", "modal": false },
+      { "code": "M09", "description": "All coolant/air off — deactivates air blast and vacuum", "modal": true },
+      { "code": "M19", "description": "Spindle orient — position spindle at specified angle for tool change", "modal": false },
+      { "code": "M30", "description": "Program end and rewind", "modal": false },
+      { "code": "M50", "description": "Dust collection ON — activates graphite dust extraction system (CRITICAL)", "modal": true },
+      { "code": "M51", "description": "Dust collection OFF — deactivates dust extraction", "modal": true },
+      { "code": "M52", "description": "Air blast ON — activates through-spindle or nozzle air blast for chip clearing", "modal": true },
+      { "code": "M53", "description": "Air blast OFF — deactivates air blast", "modal": true },
+      { "code": "M60", "description": "Spindle warmup cycle — executes automatic spindle warmup program (5-stage ramp to max RPM)", "modal": false },
+      { "code": "M70", "description": "Vacuum table ON — activates vacuum clamping for thin electrodes", "modal": true },
+      { "code": "M71", "description": "Vacuum table OFF — releases vacuum clamping", "modal": true },
+      { "code": "M98", "description": "Subprogram call — calls external subprogram", "modal": false },
+      { "code": "M99", "description": "Subprogram return — returns from M98", "modal": false },
+      { "code": "M100", "description": "Ionizer ON — activates static charge neutralizer for graphite dust", "modal": true },
+      { "code": "M101", "description": "Ionizer OFF — deactivates static neutralizer", "modal": true }
+    ],
+    "macro_support": {
+      "type": "Mitsubishi M80 User Macro / Fanuc Macro B (if Fanuc controller option)",
+      "variable_range": "#100-#199 (local), #500-#599 (common persistent), #1000-#1999 (system I/O), #2001-#2200 (tool offsets), #3000-#3999 (system control), #5000-#5999 (system variables)",
+      "max_nesting_depth": 5,
+      "supports_goto": true
+    },
+    "probing_cycles": [
+      { "cycle_code": "G31", "description": "Basic skip signal — touch probe for electrode measurement", "parameters": ["X", "Y", "Z", "F"] },
+      { "cycle_code": "O9100", "description": "Electrode datum measurement — establish electrode datum from blank stock", "parameters": ["X nominal", "Y nominal", "Z top"] },
+      { "cycle_code": "O9110", "description": "Electrode dimension check — verify electrode dimensions before EDM", "parameters": ["X target", "Y target", "Z target", "tolerance"] },
+      { "cycle_code": "O9120", "description": "Tool length measurement — measure tool on in-machine setter", "parameters": ["tool number", "expected length"] }
+    ],
+    "max_program_size_kb": 65536,
+    "max_tool_offsets": 100,
+    "max_work_offsets": 54,
+    "conversational_mode": false,
+    "high_speed_machining": true,
+    "look_ahead_blocks": 150,
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "alarm_codes": [
+    {
+      "code": "DUST-001",
+      "severity": "emergency",
+      "category": "Dust Extraction",
+      "description": "DUST EXTRACTION FAILURE — graphite dust collection system not operating or airflow below minimum",
+      "probable_causes": ["Dust collector filter clogged", "Dust collector motor failure", "Duct disconnected or blocked", "Airflow sensor fault"],
+      "corrective_actions": ["STOP MACHINING IMMEDIATELY — graphite dust is explosive in concentration", "Check dust collector is powered on", "Inspect and replace HEPA filter if clogged", "Check duct connections for leaks or blockages", "Verify airflow sensor reading on controller", "Do NOT resume machining until dust extraction is confirmed operational"],
+      "parts_needed": [{ "part_number": "RR-HEPA-001", "description": "HEPA Filter Element for Dust Collector", "quantity": 1 }],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": false,
+      "related_alarms": ["DUST-002"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "DUST-002",
+      "severity": "critical",
+      "category": "Dust Extraction",
+      "description": "DUST COLLECTOR FILTER PRESSURE HIGH — differential pressure across dust filter exceeds threshold",
+      "probable_causes": ["Filter element loaded with graphite dust", "Filter not cleaned on schedule", "Pre-filter bypassed allowing fine dust to reach HEPA"],
+      "corrective_actions": ["Replace or clean primary filter element", "Check HEPA filter condition", "Verify pre-filter is installed correctly", "Clean duct interior if heavily coated"],
+      "parts_needed": [{ "part_number": "RR-PREFLT-001", "description": "Pre-Filter Element", "quantity": 1 }],
+      "estimated_downtime_min": 20,
+      "requires_service_tech": false,
+      "related_alarms": ["DUST-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SP-001",
+      "severity": "critical",
+      "category": "Spindle",
+      "description": "SPINDLE BEARING TEMPERATURE HIGH — ceramic bearing temperature exceeded 60C threshold",
+      "probable_causes": ["Insufficient spindle warmup before high-RPM operation", "Bearing preload incorrect", "Oil-air lubrication failure", "Bearing wear or contamination from graphite dust ingress"],
+      "corrective_actions": ["STOP spindle immediately", "Allow 20 min cooldown", "Check oil-air lubrication system — verify oil mist is visible at bearing drain", "If temperature does not normalize after cooldown, bearing inspection required", "Check spindle seal for graphite dust ingress"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": true,
+      "related_alarms": ["SP-002", "SP-003"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SP-002",
+      "severity": "critical",
+      "category": "Spindle",
+      "description": "SPINDLE VIBRATION ALARM — high-frequency vibration detected above threshold at current RPM",
+      "probable_causes": ["Tool unbalance at high RPM (>20K)", "Spindle bearing degradation", "HSK-E32 taper contaminated with graphite dust", "Collet not properly seated"],
+      "corrective_actions": ["Reduce RPM and check tool balance grade (G2.5 minimum at 30K RPM)", "Clean HSK-E32 taper and tool holder taper thoroughly", "Check collet nut torque", "If vibration persists at reduced RPM, bearing inspection required"],
+      "parts_needed": [],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["SP-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SP-003",
+      "severity": "error",
+      "category": "Spindle",
+      "description": "SPINDLE OVERLOAD — spindle motor current exceeded continuous rating",
+      "probable_causes": ["Depth of cut too aggressive for graphite grade", "Dull tool — graphite abrasion wears tools rapidly", "Tool diameter too large for spindle power (>12mm in hard graphite)"],
+      "corrective_actions": ["Reduce depth of cut — max recommended 0.5mm for finishing", "Replace worn tool — check under 10x magnification for edge rounding", "Use smaller diameter tool for heavy cutting in hard graphite grades (HK-15+)"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["SP-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SP-004",
+      "severity": "warning",
+      "category": "Spindle",
+      "description": "SPINDLE OIL-AIR LUBRICATION LOW — oil reservoir for bearing lubrication below minimum",
+      "probable_causes": ["Oil reservoir needs refill", "Oil metering valve failure", "Air supply pressure insufficient for oil mist generation"],
+      "corrective_actions": ["Refill spindle bearing lubrication oil reservoir with specified oil", "Check metering valve operation", "Verify air pressure >4 bar at lubrication unit", "Do NOT run spindle above 10K RPM until lubrication confirmed"],
+      "parts_needed": [{ "part_number": "RR-SPL-OIL", "description": "Spindle Bearing Lubrication Oil (100ml)", "quantity": 1 }],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["SP-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV-001",
+      "severity": "critical",
+      "category": "Servo",
+      "description": "X AXIS EXCESS ERROR — X following error exceeded threshold",
+      "probable_causes": ["Collision with fixture or part", "Ball screw contamination from graphite dust", "Servo gain parameter drift", "Way cover seal failure allowing dust ingress"],
+      "corrective_actions": ["Check for collision damage", "Inspect way covers and seals for graphite dust ingress", "Clean ball screw if dust contamination visible", "Run servo diagnostic"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": true,
+      "related_alarms": ["SV-002", "SV-003"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV-002",
+      "severity": "critical",
+      "category": "Servo",
+      "description": "Y AXIS EXCESS ERROR — Y following error exceeded threshold",
+      "probable_causes": ["Collision event", "Y axis ball screw dust contamination", "Servo amplifier fault"],
+      "corrective_actions": ["Check for collision", "Inspect Y way covers for dust breach", "Run servo diagnostic", "Contact service if persistent"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": true,
+      "related_alarms": ["SV-001", "SV-003"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "SV-003",
+      "severity": "critical",
+      "category": "Servo",
+      "description": "Z AXIS EXCESS ERROR — Z following error exceeded threshold",
+      "probable_causes": ["Tool crash into part", "Z counterbalance issue", "Ball screw contamination"],
+      "corrective_actions": ["Check for crash damage to spindle/tool", "Inspect Z ball screw and way cover", "Check Z counterbalance pressure"],
+      "parts_needed": [],
+      "estimated_downtime_min": 30,
+      "requires_service_tech": true,
+      "related_alarms": ["SV-001", "SV-002"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OT-001",
+      "severity": "critical",
+      "category": "Overtravel",
+      "description": "X AXIS OVERTRAVEL — X exceeded 500mm software limit",
+      "probable_causes": ["Program coordinates beyond X travel", "Work offset set incorrectly", "G54.1 offset error"],
+      "corrective_actions": ["Jog X away from limit", "Check work offset values", "Verify program within 500mm envelope"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["OT-002", "OT-003"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OT-002",
+      "severity": "critical",
+      "category": "Overtravel",
+      "description": "Y AXIS OVERTRAVEL — Y exceeded 400mm software limit",
+      "probable_causes": ["Program coordinates beyond Y travel", "Work offset incorrect"],
+      "corrective_actions": ["Jog Y away from limit", "Check work offset values"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["OT-001", "OT-003"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "OT-003",
+      "severity": "critical",
+      "category": "Overtravel",
+      "description": "Z AXIS OVERTRAVEL — Z exceeded 200mm software limit",
+      "probable_causes": ["Tool length offset wrong", "Program Z depth exceeds 200mm travel", "Note: 200mm Z travel is very limited — verify electrode height + tool length fits"],
+      "corrective_actions": ["Jog Z in +Z direction", "Check tool length offset", "Verify electrode height allows sufficient Z travel for all features"],
+      "parts_needed": [],
+      "estimated_downtime_min": 5,
+      "requires_service_tech": false,
+      "related_alarms": ["OT-001", "OT-002"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "ATC-001",
+      "severity": "error",
+      "category": "ATC",
+      "description": "TOOL CHANGE ALARM — ATC did not complete tool change sequence",
+      "probable_causes": ["Tool stuck in spindle (graphite dust on HSK taper)", "ATC arm gripper contaminated with graphite", "Magazine index fault"],
+      "corrective_actions": ["Clean HSK-E32 spindle taper with lint-free cloth", "Clean ATC arm gripper fingers", "Check magazine for contamination", "Reset ATC from maintenance screen"],
+      "parts_needed": [],
+      "estimated_downtime_min": 15,
+      "requires_service_tech": false,
+      "related_alarms": ["ATC-002"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "ATC-002",
+      "severity": "error",
+      "category": "ATC",
+      "description": "TOOL NOT CLAMPED — HSK-E32 tool not detected in spindle after change",
+      "probable_causes": ["Graphite dust contamination on HSK taper preventing clamp", "Drawbar mechanism weak", "HSK taper damage"],
+      "corrective_actions": ["Clean spindle and tool holder HSK tapers thoroughly", "Retry tool clamp", "Inspect HSK taper for damage under magnification", "Check drawbar force"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["ATC-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "code": "THERM-001",
+      "severity": "warning",
+      "category": "Thermal",
+      "description": "SPINDLE THERMAL LIMIT — spindle approaching thermal limit at current RPM",
+      "probable_causes": ["Extended operation above 25K RPM", "Core cooling system underperforming", "Ambient temperature above 28C"],
+      "corrective_actions": ["Reduce RPM for next operation to allow cooldown", "Check core cooling oil level and chiller operation", "Verify chiller setpoint (typically 22-24C)", "Consider reducing sustained high-RPM cycle time"],
+      "parts_needed": [],
+      "estimated_downtime_min": 10,
+      "requires_service_tech": false,
+      "related_alarms": ["SP-001"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "maintenance_schedule": [
+    {
+      "task_id": "RKY-MAINT-001",
+      "task": "Clean and inspect dust extraction system",
+      "interval": "daily",
+      "category": "cleaning",
+      "procedure_steps": ["Check dust collector bag/filter fullness indicator", "Empty dust collection bin if >50% full", "Inspect duct connections for leaks — graphite dust escaping ducts is a safety hazard", "Verify airflow sensor reads within normal range", "Check that dust extraction activates automatically with spindle start (M50 interlock)"],
+      "parts_needed": [],
+      "safety_warnings": ["EXPLOSION HAZARD: Concentrated graphite dust is combustible. Do NOT use compressed air to blow dust inside machine enclosure. Use vacuum ONLY.", "Wear N95 respirator when handling dust collection bin"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-002",
+      "task": "Clean HSK-E32 spindle taper and tool holder tapers",
+      "interval": "daily",
+      "category": "cleaning",
+      "procedure_steps": ["Remove tool from spindle", "Clean spindle taper with lint-free cloth moistened with light oil", "Inspect taper for graphite dust deposits — graphite is abrasive and degrades taper accuracy", "Clean all tool holder HSK-E32 tapers before returning to magazine", "Apply thin film of anti-seize to tool holder tapers if machine will idle >8h"],
+      "parts_needed": [],
+      "safety_warnings": ["Spindle must be stopped and verified before approaching taper"],
+      "estimated_time_min": 10,
+      "requires_power_off": true,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-003",
+      "task": "Spindle warmup cycle",
+      "interval": "daily",
+      "category": "inspection",
+      "procedure_steps": ["Execute M60 automatic warmup cycle (or manual: S5000 5min, S10000 5min, S15000 5min, S20000 5min, S25000 3min, S30000 2min)", "Monitor spindle bearing temperature during warmup — should stabilize within 2C of ambient + 10C", "Do NOT begin production until temperature is stable", "Total warmup time: 25 minutes"],
+      "parts_needed": [],
+      "safety_warnings": ["NEVER skip warmup when operating above 20K RPM — ceramic bearing thermal shock causes catastrophic failure costing $15,000+ for spindle replacement"],
+      "estimated_time_min": 25,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-004",
+      "task": "Inspect way cover seals for graphite dust ingress",
+      "interval": "daily",
+      "category": "inspection",
+      "procedure_steps": ["Visually inspect all 3 axis way cover seals", "Look for graphite dust deposits behind way covers", "Check seal lips for tears or gaps", "If dust is found behind seals, clean immediately and assess seal replacement", "Graphite dust on ball screws or linear scales is a critical failure mode"],
+      "parts_needed": [],
+      "safety_warnings": ["Graphite dust on linear scales causes positioning errors. On ball screws it accelerates wear by 10x."],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-005",
+      "task": "Check spindle bearing oil-air lubrication system",
+      "interval": "weekly",
+      "category": "inspection",
+      "procedure_steps": ["Check oil reservoir level — refill if below minimum", "Verify oil mist is visible at bearing drain port during operation", "Check air pressure at lubrication unit — minimum 4 bar", "Inspect air filter on lubrication unit", "Verify oil metering valve cycles are correct (check pulse counter on unit)"],
+      "parts_needed": [{ "part_number": "RR-SPL-OIL", "description": "Spindle Bearing Lubrication Oil (100ml)", "quantity": 1 }],
+      "safety_warnings": ["Running 30K RPM without bearing lubrication destroys the spindle in minutes"],
+      "estimated_time_min": 10,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-006",
+      "task": "Replace dust collection pre-filter",
+      "interval": "weekly",
+      "category": "replacement",
+      "procedure_steps": ["Turn off dust collector", "Remove pre-filter element from housing", "Inspect HEPA filter behind pre-filter — replace if discolored", "Install new pre-filter", "Restart dust collector and verify airflow"],
+      "parts_needed": [{ "part_number": "RR-PREFLT-001", "description": "Pre-Filter Element", "quantity": 1 }],
+      "safety_warnings": ["Wear N95 respirator during filter change", "Dispose of used filter in sealed bag — graphite dust"],
+      "estimated_time_min": 15,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-007",
+      "task": "Clean and inspect ATC magazine and gripper",
+      "interval": "weekly",
+      "category": "cleaning",
+      "procedure_steps": ["Inspect all 16 tool pots for graphite dust accumulation", "Clean pot clamping surfaces with vacuum", "Check ATC arm gripper fingers for graphite buildup", "Clean gripper contact surfaces", "Run test tool change cycle to verify timing"],
+      "parts_needed": [],
+      "safety_warnings": ["Machine must be in maintenance mode — ATC disabled"],
+      "estimated_time_min": 15,
+      "requires_power_off": true,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-008",
+      "task": "Replace HEPA filter in dust collection system",
+      "interval": "monthly",
+      "category": "replacement",
+      "procedure_steps": ["Turn off dust collector", "Remove HEPA filter housing cover", "Carefully remove old HEPA filter — avoid shaking (releases fine graphite)", "Install new HEPA filter ensuring proper seal", "Check gasket on housing cover", "Restart and verify pressure differential is within spec"],
+      "parts_needed": [{ "part_number": "RR-HEPA-001", "description": "HEPA Filter Element for Dust Collector", "quantity": 1 }],
+      "safety_warnings": ["Wear N95 respirator and eye protection", "Bag used HEPA filter immediately — do not leave open in shop", "Graphite dust is a respiratory irritant"],
+      "estimated_time_min": 20,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-009",
+      "task": "Spindle bearing inspection at 30K+ RPM",
+      "interval": "quarterly",
+      "category": "inspection",
+      "procedure_steps": ["Run spindle at 30K RPM for 10 min after warmup", "Monitor bearing temperature — should be ambient + 10-15C at steady state", "Use vibration analyzer to measure bearing vibration signature", "Compare to baseline values — alert if >20% increase", "Check runout with test bar at 30K RPM — should be <2um TIR"],
+      "parts_needed": [],
+      "safety_warnings": ["Keep hands and tools clear of spindle during high-speed test"],
+      "estimated_time_min": 30,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-010",
+      "task": "Replace way cover seals on all axes",
+      "interval": "semi_annual",
+      "category": "replacement",
+      "procedure_steps": ["Remove existing way cover seals on X, Y, Z axes", "Clean all guide surfaces of graphite dust deposits", "Inspect linear scales for graphite contamination — clean with specified solvent if needed", "Install new seal assemblies", "Verify no dust ingress after 1 hour of operation"],
+      "parts_needed": [
+        { "part_number": "RR-SEAL-X", "description": "X Axis Way Cover Seal Set", "quantity": 1 },
+        { "part_number": "RR-SEAL-Y", "description": "Y Axis Way Cover Seal Set", "quantity": 1 },
+        { "part_number": "RR-SEAL-Z", "description": "Z Axis Way Cover Seal Set", "quantity": 1 }
+      ],
+      "safety_warnings": ["Critical maintenance — graphite dust ingress to linear scales causes irreversible accuracy loss"],
+      "estimated_time_min": 120,
+      "requires_power_off": true,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "task_id": "RKY-MAINT-011",
+      "task": "Check and calibrate linear scales",
+      "interval": "annual",
+      "category": "calibration",
+      "procedure_steps": ["Run thermal warmup cycle (30 min)", "Use laser interferometer to check positioning accuracy on all 3 axes", "Verify X/Y accuracy within 3um specification over full travel", "Check Z accuracy within 3um over 200mm travel", "Adjust pitch error compensation if needed", "Record all measurements for trending"],
+      "parts_needed": [],
+      "safety_warnings": ["Keep hands clear during axis motion"],
+      "estimated_time_min": 90,
+      "requires_power_off": false,
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "parts_book": [
+    { "oem_part_number": "RR-HEPA-001", "description": "HEPA Filter Element for Dust Collector", "category": "filter", "quantity_per_machine": 1, "replacement_interval_hours": 500, "unit_price_usd": 120.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-PREFLT-001", "description": "Dust Collection Pre-Filter Element", "category": "filter", "quantity_per_machine": 1, "replacement_interval_hours": 160, "unit_price_usd": 25.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-SPL-OIL", "description": "Spindle Bearing Lubrication Oil (100ml) — ISO VG 10", "category": "spindle", "quantity_per_machine": 1, "replacement_interval_hours": 1000, "unit_price_usd": 45.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-SEAL-X", "description": "X Axis Way Cover Seal Set", "category": "seal", "quantity_per_machine": 1, "replacement_interval_hours": 4000, "unit_price_usd": 180.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-SEAL-Y", "description": "Y Axis Way Cover Seal Set", "category": "seal", "quantity_per_machine": 1, "replacement_interval_hours": 4000, "unit_price_usd": 180.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-SEAL-Z", "description": "Z Axis Way Cover Seal Set", "category": "seal", "quantity_per_machine": 1, "replacement_interval_hours": 4000, "unit_price_usd": 150.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-AIR-FLT", "description": "Air Filter Element (3 micron) for lubrication unit", "category": "filter", "quantity_per_machine": 1, "replacement_interval_hours": 2000, "unit_price_usd": 15.00, "critical": false, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-ELEC-FLT", "description": "Electrical Cabinet Air Filter (anti-static)", "category": "filter", "quantity_per_machine": 2, "replacement_interval_hours": 1000, "unit_price_usd": 18.00, "critical": false, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "oem_part_number": "RR-COOL-OIL", "description": "Spindle Core Cooling Oil (1L)", "category": "spindle", "quantity_per_machine": 2, "unit_price_usd": 55.00, "critical": true, "cross_references": [], "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "programming_tips": [
+    {
+      "topic": "Graphite Milling Fundamentals — Climb Milling ONLY",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "description": "Graphite MUST be machined using climb milling (down-cut) exclusively. Conventional milling (up-cut) causes severe chipping on electrode edges and corners. Graphite does not form chips like metal — it fractures as dust particles. Climb milling pushes the fracture force into the bulk material, producing clean edges. Set CAM to climb-only for all 2D and 3D operations. This rule applies to ALL graphite grades from soft (EDM-3) to hard (POCO HK-6).",
+      "gotchas": ["NEVER use conventional milling on graphite — even briefly during tool entry causes edge chipping visible on EDM burn", "Conventional entry moves in CAM must be replaced with ramp or helical entry", "Tool path direction must be verified in simulation — a single conventional move can scrap an electrode", "This applies to both roughing and finishing — no exceptions"],
+      "related_alarms": [],
+      "applicable_operations": ["graphite_milling", "electrode_manufacturing"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Shallow DOC + High Feed Strategy for Graphite",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "code_example": "(Graphite roughing — shallow DOC, high feed)\nS25000 M03\nM50 (dust collection ON)\nG01 Z-0.3 F3000 (0.3mm DOC, 3000mm/min feed)\n(Graphite finishing — very shallow, high speed)\nS30000\nG01 Z-0.05 F5000 (0.05mm DOC, 5000mm/min)",
+      "description": "Graphite machining strategy is opposite to metal cutting: use very shallow depth of cut (0.1-0.5mm rough, 0.02-0.1mm finish) with very high feed rates (2000-8000 mm/min) and maximum RPM (25K-30K). Graphite is not plastically deformed — it fractures. Shallow cuts produce smaller fracture particles (finer dust) yielding better surface finish. Deep cuts cause large fractures that produce chipped surfaces unusable for precision EDM.",
+      "gotchas": ["Max DOC rough: 0.5mm in soft graphite, 0.3mm in fine-grain graphite (HK-15+)", "Finish DOC: 0.02-0.05mm for Ra 0.4-0.8um surface finish", "Feed rate can exceed 5000mm/min because graphite cutting forces are very low", "Chip load per tooth: 0.02-0.05mm/tooth typical — tool geometry matters more than chip load"],
+      "related_alarms": [],
+      "applicable_operations": ["graphite_roughing", "graphite_finishing", "electrode_manufacturing"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "No Coolant — Dry or Air Blast ONLY",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "code_example": "M50 (dust collection ON — MANDATORY)\nM52 (air blast ON — chip clearing)\nS30000 M03\nG01 ... (machining)\nM53 (air blast OFF)\nM51 (dust collection OFF — only after all cutting done)",
+      "description": "Graphite must be machined DRY or with air blast only. NEVER use liquid coolant on graphite. Coolant turns graphite dust into an abrasive slurry that destroys way covers, linear scales, and bearings. Air blast (M52) is used for chip (dust) evacuation from deep pockets. The primary chip removal method is the dust collection system (M50), which MUST be active whenever the spindle is running. Some shops use ionized air (M100) to prevent static buildup that attracts graphite dust to machine surfaces.",
+      "gotchas": ["NEVER, under any circumstances, use flood coolant or mist coolant on graphite", "Dust collection (M50) must be ON before first spindle start and OFF only after last spindle stop", "Air blast pressure should be 3-4 bar — too high scatters dust past extraction system", "Static charge on graphite dust attracts it to every surface — use ionizer (M100) if available", "Graphite dust + moisture = conductive paste that can short electrical components"],
+      "related_alarms": ["DUST-001"],
+      "applicable_operations": ["graphite_milling", "electrode_manufacturing"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Tool Selection for Graphite Electrodes",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "description": "Use diamond-coated (CVD) or nano-grain carbide tools for graphite. Uncoated carbide wears 10-50x faster. Typical tools: 2-flute ball nose for 3D finishing, 2-flute flat end mill for 2D roughing. HSK-E32 holders with ER16 or ER11 collets. Maximum tool shank is 6mm for most electrode work — the RKY-1000N's small HSK-E32 taper is designed for small precision tools. Tool balance grade G2.5 at 30,000 RPM minimum. Use shrink-fit or precision collet holders — never side-lock.",
+      "gotchas": ["Uncoated carbide in graphite: tool life ~30 min. Diamond-coated: tool life 10-50 hours", "Ball nose tools must have center-cutting geometry for graphite — non-center-cutting leaves witness mark at tool center", "Maximum recommended tool diameter: 12mm. Larger tools exceed spindle power for any meaningful material removal", "Tool runout must be <5um at 30K RPM — graphite surface finish is directly proportional to runout", "Replace tools at first sign of edge rounding — dull tools cause edge chipping on electrodes"],
+      "related_alarms": [],
+      "applicable_operations": ["tool_selection", "graphite_milling", "electrode_finishing"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Surface Finish Targets for EDM Electrode Quality",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "description": "EDM electrode surface finish directly affects the EDM burn quality. Target surface finish on the electrode depends on the EDM application: Roughing electrode: Ra 1.6-3.2um (acceptable tool marks). Semi-finish electrode: Ra 0.8-1.6um. Finishing electrode: Ra 0.2-0.8um (mirror-like for text, logos, textures). Orbitless EDM electrode: Ra 0.1-0.4um. Use SSS control (G05 P2) for finishing electrodes to achieve Ra <0.4um on the RKY-1000N.",
+      "gotchas": ["Electrode surface roughness transfers to EDM cavity at approximately 1:1 ratio for fine EDM", "Overburn per side must be accounted for in electrode size — typically 0.05-0.3mm depending on EDM settings", "EDM rib electrodes require better finish than EDM pocket electrodes (ribs burn at higher VDI)", "A Ra 0.4um electrode finish requires 0.02mm stepover with a 1mm ball nose at 30K RPM"],
+      "related_alarms": [],
+      "applicable_operations": ["electrode_finishing", "edm_preparation"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Dust Explosion Prevention — CRITICAL Safety Protocol",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "description": "Graphite dust is a combustion hazard. Fine graphite particles (<50um) in airborne concentration >55 g/m3 are explosive when exposed to ignition source. The RKY-1000N dust extraction system is designed to maintain concentration well below this limit during normal operation. Key rules: (1) NEVER use compressed air to blow graphite dust, (2) ALWAYS run dust extraction during any cutting, (3) Clean machine with vacuum ONLY, (4) No open flames or sparking tools near the machine, (5) Ground all dust collection ducts to prevent static discharge.",
+      "gotchas": ["Graphite dust explosion is a REAL industrial hazard — not theoretical", "Dust collector must be ATEX-rated or equivalent for combustible dust", "Static electricity from graphite dust buildup can be an ignition source — use ionizer", "Electrical cabinet filters must be anti-static rated to prevent dust accumulation causing shorts"],
+      "related_alarms": ["DUST-001", "DUST-002"],
+      "applicable_operations": ["safety", "graphite_milling"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "G05 P2 SSS Control for Electrode Finishing",
+      "controller_dialect": "Mitsubishi M80",
+      "code_example": "G05 P2 (enable SSS — Super Smooth Surface)\nS30000 M03\nG01 ... F5000 (finishing passes — SSS smooths path)\nG05 P0 (cancel SSS before tool change)",
+      "description": "Mitsubishi SSS (Super Smooth Surface) control provides superior path interpolation smoothing for 3D contouring. Enables the controller to predictively smooth the tool path while maintaining surface tolerance. On the RKY-1000N, SSS combined with 30K RPM and 0.02mm stepovers produces mirror-finish electrodes (Ra 0.2-0.4um). SSS engages the 150-block lookahead buffer and dynamically adjusts feed rate at curvature transitions.",
+      "gotchas": ["SSS mode reduces feed rate at sharp transitions — actual feed may be 50% of programmed at tight corners", "Cancel SSS (G05 P0) before tool change — leaving it active can cause erratic motion", "SSS is most effective with small point-to-point distances (<0.1mm) from CAM", "For Fanuc 31i controller option, use G05.1 Q1 instead of G05 P2"],
+      "related_alarms": [],
+      "applicable_operations": ["electrode_finishing", "3d_contouring", "high_speed_machining"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Electrode Pallet System and G54.1 Multi-Electrode Setup",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "code_example": "G54.1 P1 (electrode 1 position on pallet)\n(machine electrode 1)\nG54.1 P2 (electrode 2 position)\n(machine electrode 2)\n(repeat for up to 48 electrodes per pallet)",
+      "description": "The RKY-1000N is commonly used with electrode pallet systems (Erowa, System 3R, Hirschmann) that hold multiple electrode blanks. Each electrode position is a separate work offset in G54.1. Typical workflow: load pallet with electrode blanks, probe each blank to set G54.1 offsets, run batch program that machines all electrodes sequentially. This enables unattended electrode production of 10-50 electrodes per pallet.",
+      "gotchas": ["Always probe each electrode blank before machining — pallet repeatability is typically 2-5um, but blank positioning varies more", "Use G10 L2 with probe results to automatically set G54.1 offsets from macro", "Ensure dust extraction capacity is sufficient for extended unattended runs — check bin fullness before starting batch", "Each electrode should have its own program or subprogram to allow individual recuts if quality check fails"],
+      "related_alarms": [],
+      "applicable_operations": ["electrode_batch_production", "pallet_management", "unattended_operation"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Tool Path Strategies for EDM Electrode Corners and Ribs",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "description": "EDM electrode corners and thin ribs are the most failure-prone features in graphite machining. Sharp corners chip if the tool decelerates too aggressively. Thin ribs (<0.5mm) can snap if tool pressure is on the wrong side. Strategies: (1) Use constant-engagement toolpaths that maintain steady chip load around corners, (2) Approach all corners from the outside-in with climb milling, (3) For ribs <1mm thick, use ballnose tool radius equal to or smaller than half the rib thickness, (4) Reduce feed rate 30-50% when machining features thinner than 2x tool diameter.",
+      "gotchas": ["Corner chipping on electrodes produces visible defects in every EDM cavity — electrode corners are the highest-precision features", "CAM corner rounding settings must be tighter than normal — use 0.005mm or less corner rounding tolerance", "Thin rib electrodes: always machine both sides in the same operation to avoid thermal shift between setups", "For ribs <0.3mm, consider wire EDM for the electrode rather than milling"],
+      "related_alarms": [],
+      "applicable_operations": ["electrode_finishing", "thin_wall_machining", "precision_features"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    },
+    {
+      "topic": "Safe Program Start Block (Graphite Machine)",
+      "controller_dialect": "Mitsubishi M80 / Fanuc 31i",
+      "code_example": "O0001 (ELECTRODE-001 FINISHING)\nG00 G17 G40 G49 G54 G80 G90\nM50 (dust collection ON — BEFORE any spindle start)\nG28 G91 Z0 (home Z)\nG28 G91 X0 Y0 (home XY)\nT01 M06 (tool change)\nG43 H01 Z50.0 (TLO at safe Z)\nM52 (air blast ON)\nS30000 M03 (spindle start at 30K)\n(begin machining)",
+      "description": "Graphite machine safe start MUST include dust collection activation (M50) before any spindle start. The sequence is: safety line, dust extraction ON, home axes, tool change, TLO, air blast, then spindle start. This ensures dust extraction is active before any dust-generating operation. At program end: spindle stop, air blast off, then dust extraction off AFTER a 10-second delay to clear residual airborne dust.",
+      "gotchas": ["CRITICAL: M50 must come BEFORE M03 in every program — running the spindle without dust extraction violates safety protocol", "M51 (dust off) should include a G04 P10000 dwell (10 sec) to allow airborne dust to be captured", "Include G49 in safe start — TLO errors are just as dangerous on graphite machines as metal machines", "Program end: M05 (spindle stop), G04 P10000 (dwell), M53 (air off), G04 P5000 (dwell), M51 (dust off)"],
+      "related_alarms": ["DUST-001"],
+      "applicable_operations": ["all"],
+      "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 }
+    }
+  ],
+
+  "safety_limits": [
+    { "parameter": "Maximum spindle speed (standard)", "max_value": 30000, "unit": "RPM", "consequence_of_violation": "Spindle drive fault, bearing damage", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum spindle speed (optional)", "max_value": 40000, "unit": "RPM", "consequence_of_violation": "Spindle drive fault, catastrophic bearing failure", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum spindle power (continuous)", "max_value": 3.7, "unit": "kW", "consequence_of_violation": "Spindle overload alarm", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum spindle torque", "max_value": 6.0, "unit": "Nm", "consequence_of_violation": "Spindle stall, servo error", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum spindle bearing temperature", "max_value": 60, "unit": "C", "consequence_of_violation": "Bearing damage alarm, spindle shutdown", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "X axis travel limit", "max_value": 500, "unit": "mm", "consequence_of_violation": "Overtravel alarm", "interlock_type": "both", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Y axis travel limit", "max_value": 400, "unit": "mm", "consequence_of_violation": "Overtravel alarm", "interlock_type": "both", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Z axis travel limit", "max_value": 200, "unit": "mm", "consequence_of_violation": "Overtravel alarm — note very limited Z travel", "interlock_type": "both", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum depth of cut in graphite (roughing)", "max_value": 0.5, "unit": "mm", "consequence_of_violation": "Edge chipping, poor electrode surface, tool breakage", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum depth of cut in graphite (finishing)", "max_value": 0.1, "unit": "mm", "consequence_of_violation": "Surface finish degradation, edge chipping", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum tool weight in ATC", "max_value": 1.5, "unit": "kg", "consequence_of_violation": "ATC overload, tool drop", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Tool balance grade at max RPM", "max_value": 2.5, "unit": "G_grade", "consequence_of_violation": "Spindle vibration alarm, bearing damage, poor surface finish", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Maximum ambient operating temperature", "max_value": 30, "unit": "C", "consequence_of_violation": "Thermal alarms — this machine is more temperature-sensitive than standard VMCs due to 30K spindle", "interlock_type": "none", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } },
+    { "parameter": "Graphite dust concentration limit", "max_value": 55, "unit": "g_per_m3", "consequence_of_violation": "EXPLOSION HAZARD — dust extraction failure creates combustible atmosphere", "interlock_type": "software", "requires_override_key": false, "source": { "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual", "extraction_method": "manual", "extracted_at": "2026-03-29T19:00:00Z", "confidence": 0.95 } }
+  ],
+
+  "coolant_specs": {
+    "coolant_types": [
+      { "type": "DRY MACHINING ONLY — no liquid coolant", "concentration_pct_min": null, "concentration_pct_max": null, "recommended_brand": "N/A — graphite machines operate dry" },
+      { "type": "Air blast", "concentration_pct_min": null, "concentration_pct_max": null, "recommended_brand": "3-4 bar clean dry air through spindle or nozzle" }
+    ],
+    "tank_capacity_liters": 0,
+    "pump_pressure_bar": 0,
+    "flow_rate_lpm": 0,
+    "filtration_um": null,
+    "through_spindle": false,
+    "through_spindle_pressure_bar": null,
+    "mql_capable": false,
+    "chip_conveyor_type": "vacuum_dust_extraction",
+    "dust_collection_required": true,
+    "dust_collection_type": "HEPA with pre-filter, ATEX-rated",
+    "dust_collection_airflow_m3_hr": 1200,
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  },
+
+  "tooling_constraints": {
+    "max_tool_diameter_mm": 12,
+    "max_tool_length_mm": 100,
+    "max_tool_weight_kg": 1.5,
+    "magazine_capacity": 16,
+    "tool_change_time_sec": 2.5,
+    "taper_type": "HSK-E32",
+    "pull_stud_type": "N/A (HSK — face and taper contact)",
+    "gauge_line_mm": 0,
+    "typical_tool_shank_mm": 6,
+    "collet_type": "ER16 (ER11 for tools <3mm)",
+    "recommended_holder_type": "Shrink-fit or precision collet — never side-lock",
+    "min_balance_grade": "G2.5 at 30,000 RPM",
+    "recommended_tool_coating": "CVD diamond or nano-grain uncoated carbide",
+    "source": {
+      "handbook_title": "Roku-Roku RKY-1000N High-Speed Machining Center Operator's Manual",
+      "extraction_method": "manual",
+      "extracted_at": "2026-03-29T19:00:00Z",
+      "confidence": 0.95
+    }
+  }
+}

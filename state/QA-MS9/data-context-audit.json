@@ -1,0 +1,50 @@
+{
+  "audit_id": "QA-MS9-P0-U03",
+  "title": "prism_data + prism_context Pipeline Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T05:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - prism_data (33 actions, registry query layer) + prism_context (26 actions, context management + budget + catalog)",
+
+  "prism_data": {
+    "file": "src/tools/dispatchers/dataDispatcher.ts",
+    "tool_name": "prism_data",
+    "total_actions": 33,
+    "action_groups": {
+      "material": ["material_get", "material_search", "material_compare", "material_substitute"],
+      "machine": ["machine_get", "machine_search", "machine_capabilities", "machine_toolholder_match"],
+      "tool": ["tool_get", "tool_search", "tool_recommend", "tool_facets", "tool_compare"],
+      "alarm": ["alarm_decode", "alarm_search", "alarm_fix", "alarm_diagnose"],
+      "formula": ["formula_get", "formula_calculate"],
+      "cross_query": ["cross_query", "cross_lookup", "dsl_lookup", "speed_feed_calc"],
+      "coolant": ["coolant_search", "coolant_recommend", "coolant_get"],
+      "coating": ["coating_search", "coating_recommend", "coating_get"],
+      "database": ["database_list", "database_search"],
+      "workholding": ["workholding_get", "workholding_search"],
+      "insert": ["insert_get", "insert_search"]
+    },
+    "note": "This is the unified registry query interface — wraps all 5 core registries + coolant/coating/workholding/insert extended registries"
+  },
+
+  "prism_context": {
+    "file": "src/tools/dispatchers/contextDispatcher.ts",
+    "tool_name": "prism_context",
+    "total_actions": 26,
+    "action_groups": {
+      "kv_management": ["kv_sort_json", "kv_check_stability"],
+      "tool_state": ["tool_mask_state"],
+      "memory": ["memory_externalize", "memory_restore"],
+      "todo": ["todo_update", "todo_read"],
+      "error_handling": ["error_preserve", "error_patterns"],
+      "response": ["vary_response"],
+      "team_coordination": ["team_spawn", "team_broadcast", "team_create_task", "team_heartbeat"],
+      "budget": ["budget_get", "budget_track", "budget_report", "budget_reset"],
+      "context_intelligence": ["attention_score", "focus_optimize", "relevance_filter", "context_monitor_check"],
+      "source_catalog": ["catalog_overview", "catalog_search", "catalog_engine", "catalog_stats"]
+    },
+    "python_integration": "D2 Context Intelligence actions use Python scripts via runPythonScript()"
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "all_data_actions_inventoried": true, "data_flow_documented": true, "context_lifecycle_verified": true }
+}

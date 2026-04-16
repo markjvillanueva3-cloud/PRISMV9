@@ -1,0 +1,59 @@
+{
+  "id": "ACP-MS3",
+  "version": "1.0.0",
+  "title": "Context, Compaction & Handoff Chain",
+  "brief": "Align PreCompact/PostCompact/SessionEnd/boot recovery into a unified context management chain. Chain-state serialization for persistence across compactions. Context-trim rules by bundle type. Handoff package generation for session transitions. Recovery quality scoring.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Context Management & Handoff",
+      "sessions": "2-3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Align PreCompact/PostCompact/SessionEnd hooks into unified context chain with shared state contract",
+          "effort": 80,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Implement chain-state serialization: persist active chain progress, pending steps, and intermediate results across compactions",
+          "effort": 85,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define context-trim rules by bundle type: code bundles keep file paths + diffs, product bundles keep parameters + results",
+          "effort": 60,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Implement handoff package generation: serialize current task state, progress, and next-steps for session transitions",
+          "effort": 75,
+          "dependencies": ["P0-U02", "P0-U03"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Implement recovery quality scoring: measure fact survival rate post-compaction, flag sessions with >20% context loss",
+          "effort": 65,
+          "dependencies": ["P0-U04"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS2"],
+  "exit_conditions": [
+    "PreCompact/PostCompact/SessionEnd aligned into single context chain",
+    "Chain state survives compaction via serialization",
+    "Context-trim rules applied per bundle type",
+    "Handoff packages generated for all session transitions",
+    "Recovery quality scored with actionable thresholds"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

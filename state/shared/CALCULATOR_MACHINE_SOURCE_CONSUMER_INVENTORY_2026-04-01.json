@@ -1,0 +1,107 @@
+{
+  "id": "machine-source-consumer-inventory-2026-04-01",
+  "created_at": "2026-04-01T02:45:00Z",
+  "machine_count_baseline": 920,
+  "sources": [
+    {
+      "id": "S1",
+      "label": "Machine Registry layered corpus",
+      "kind": "live",
+      "primary_files": [
+        "H:/PRISM/mcp-server/src/registries/MachineRegistry.ts",
+        "H:/PRISM/mcp-server/src/routes/data.ts",
+        "H:/PRISM/data/machines/ENHANCED/json/ALL_MACHINES_ENRICHED.json",
+        "H:/PRISM/extracted/machines/ENHANCED"
+      ],
+      "risks": [
+        "duplicate machine ids across source packs",
+        "fragmented raw type taxonomy"
+      ]
+    },
+    {
+      "id": "S2",
+      "label": "Legacy machine-profile catalogs",
+      "kind": "supporting",
+      "primary_files": [
+        "H:/PRISM/mcp-server/src/data/machine-profiles-catalog.ts",
+        "H:/PRISM/mcp-server/src/data/machine-profiles-catalog-ext.ts",
+        "H:/PRISM/mcp-server/src/data/machine-profiles-catalog-ext2.ts"
+      ],
+      "risks": [
+        "legacy contract shape",
+        "not the richest source of configuration truth"
+      ]
+    },
+    {
+      "id": "S3",
+      "label": "MachineProfileEngine runtime store",
+      "kind": "runtime",
+      "primary_files": [
+        "H:/PRISM/mcp-server/src/engines/MachineProfileEngine.ts"
+      ],
+      "risks": [
+        "legacy type/model",
+        "custom profiles not yet bridged to calculator package contract"
+      ]
+    },
+    {
+      "id": "S4",
+      "label": "Calculator fallback catalog",
+      "kind": "fallback",
+      "primary_files": [
+        "H:/PRISM/mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "risks": [
+        "narrower than live registry",
+        "missing shared package metadata"
+      ]
+    },
+    {
+      "id": "S5",
+      "label": "Program Release static machine catalog",
+      "kind": "downstream-static",
+      "primary_files": [
+        "H:/PRISM/mcp-server/src/engines/ProgramReleaseCatalogEngine.ts"
+      ],
+      "risks": [
+        "tiny static catalog",
+        "highest downstream drift risk"
+      ]
+    }
+  ],
+  "consumers": [
+    {
+      "id": "C1",
+      "label": "Calculator machine-selection module",
+      "files": [
+        "H:/PRISM/mcp-server/web/src/api/calculatorData.ts",
+        "H:/PRISM/mcp-server/web/src/pages/CalculatorPage.tsx"
+      ]
+    },
+    {
+      "id": "C2",
+      "label": "MachineProfileEngine validation actions",
+      "files": [
+        "H:/PRISM/mcp-server/src/engines/MachineProfileEngine.ts"
+      ]
+    },
+    {
+      "id": "C3",
+      "label": "Program Release / Print to CNC",
+      "files": [
+        "H:/PRISM/mcp-server/src/engines/ProgramReleaseCatalogEngine.ts",
+        "H:/PRISM/mcp-server/web/src/pages/ProgramReleasePage.tsx",
+        "H:/PRISM/mcp-server/web/src/pages/QuoteBuilderPage.tsx"
+      ]
+    },
+    {
+      "id": "C4",
+      "label": "Data-route and lookup consumers",
+      "files": [
+        "H:/PRISM/mcp-server/src/routes/data.ts",
+        "H:/PRISM/mcp-server/src/bot/discord-bot.ts",
+        "H:/PRISM/mcp-server/src/mcp/resources.ts"
+      ]
+    }
+  ]
+}

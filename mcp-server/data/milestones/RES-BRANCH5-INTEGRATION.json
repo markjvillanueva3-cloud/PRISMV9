@@ -1,0 +1,909 @@
+{
+  "id": "RES-BRANCH5-INTEGRATION",
+  "title": "RES Branch 5 — Integration: Harvested Data → Manufacturing Domain Engines",
+  "version": "1.0.0",
+  "created_at": "2026-04-11",
+  "track": "RES",
+  "branch": "integration",
+  "description": "8 milestones that connect harvested resource data to specific manufacturing domains. These milestones consume outputs from earlier RES harvesting milestones (MS0-MS15) and wire them into domain-specific intelligence engines: probing, fixturing, setup sheets, customer defaults, materials, drawings, NC output, and hyperMILL automation. Each milestone produces a Forge-Triple (protective hook + MCP action + skill).",
+
+  "milestones": [
+    {
+      "id": "RES-MS17",
+      "title": "Probing Routine Selection Engine — 5,753 Cycles + Machine Configs",
+      "track": "RES",
+      "dependencies": ["RES-MS13"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "Metrology Engineer + CNC Probing Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["ProbingEngine", "MachineProbeConfigEngine", "CycleLibraryEngine (from RES-MS2)", "MachineRegistryEngine"],
+        "tribal": ["Renishaw EP+IP probing on 3 JM Die mills", "Blum Quickstart 469 cycles on Roku-Roku", "Okuma OSP probing conventions", "JM Die probing folder patterns in POSTS AND MACHINES/"],
+        "formulas": ["Probe deflection compensation", "Touch-trigger repeatability (2-sigma)"],
+        "reference": ["POSTS AND MACHINES/ (5,753 .cyc probing cycles)", "Renishaw Inspection Plus docs", "Blum Quickstart cycle reference", "JM Die machine-to-probe mapping"]
+      },
+
+      "intent": "The machinist selects a part feature (bore, boss, plane, pocket, web) and machine, and PRISM automatically selects the correct probing routine from 5,753 available cycles. It knows Renishaw EP+IP runs on the Hurco, Haas, and one Okuma mill, while Blum Quickstart (469 cycles!) drives the Roku-Roku. No more hunting through cycle files — PRISM picks the right probe routine for the right machine.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Probing Cycle Index + Machine-Probe Mapping",
+          "units": ["U-PRB01", "U-PRB02"],
+          "work": {
+            "U-PRB01": {
+              "title": "Build ProbingCycleIndexEngine — classify 5,753 .cyc probing cycles by feature type + probe system",
+              "description": "Index all 5,753 .cyc files from POSTS AND MACHINES/ that relate to probing. Classify each cycle by: (1) probe system (Renishaw EP, Renishaw IP, Blum Quickstart, OMP, generic), (2) feature type (bore, boss, web, pocket, plane, corner, angle, single-point), (3) measurement mode (WCS setting, in-process verification, tool length, tool breakage), (4) axis requirements (3-axis, 4-axis, 5-axis), (5) machine association from folder path. Build searchable index keyed by [machine + feature_type + measurement_mode].",
+              "depends_on": [],
+              "knowledge_consult": ["CycleLibraryEngine (RES-MS2 output)", "MachineProbeConfigEngine (existing probe configs)"],
+              "exit_criteria": ["5,753 probing cycles indexed", "Feature type classification >95% accuracy", "Probe system identified for each cycle", "Machine association resolved from folder path"],
+              "rollback": {
+                "files_created": ["src/engines/ProbingCycleIndexEngine.ts", "src/__tests__/ProbingCycleIndexEngine.test.ts", "src/data/probing-cycle-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<5,000 cycles indexed", "Classification accuracy <90%", "Probe system unresolvable for >10% of cycles"],
+                "rollback_procedure": "git checkout -- src/engines/ProbingCycleIndexEngine.ts src/__tests__/ProbingCycleIndexEngine.test.ts src/data/probing-cycle-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-PRB02": {
+              "title": "Build MachineProbeMapEngine — link each JM Die machine to its probe system + available cycles",
+              "description": "Create definitive machine-to-probe mapping for all 21 JM Die machines: (1) Hurco VMX30i → Renishaw OMP40-2 + IP (inspection probe), (2) Haas VF-2SS → Renishaw OMP40 + IP, (3) Okuma MU-5000V → Renishaw OMP600 + IP, (4) Roku-Roku → Blum Quickstart (469 cycles), (5) 7 Okuma lathes → tool setters (G36/G37), (6) EDMs → no probing. For each probed machine, link to its subset of the 5,753 cycles. Validate against real folder structure.",
+              "depends_on": ["U-PRB01"],
+              "knowledge_consult": ["ShopConfigurationEngine (21 machines)", "JM Die machine inventory", "ProbingEngine (existing probe logic)"],
+              "exit_criteria": ["All 21 JM Die machines mapped", "Probe-equipped machines linked to correct cycle subsets", "Blum 469 cycles linked to Roku-Roku specifically", "Renishaw cycles split by EP vs IP correctly"],
+              "rollback": {
+                "files_created": ["src/data/machine-probe-map.ts"],
+                "files_modified": ["src/engines/MachineProbeConfigEngine.ts"],
+                "abort_criteria": ["Any JM Die machine unmapped", "Wrong probe system assigned", "Cycle count mismatch vs folder contents"],
+                "rollback_procedure": "git checkout -- src/data/machine-probe-map.ts src/engines/MachineProbeConfigEngine.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Probe Selection Logic + Forge-Triple",
+          "units": ["U-PRB03", "U-PRB04"],
+          "work": {
+            "U-PRB03": {
+              "title": "Build ProbingRoutineSelectionEngine — select optimal probe routine from feature + machine + tolerance",
+              "description": "Engine that accepts {machine_id, feature_type, measurement_mode, tolerance?, axis_count?} and returns the best matching probing cycle from the indexed 5,753. Selection logic: (1) filter by machine's probe system, (2) match feature type, (3) prefer tighter-tolerance cycles when tolerance specified, (4) prefer simpler (fewer axis) cycles when equivalent, (5) return cycle G-code, parameters, and expected accuracy. Handle fallback when exact match unavailable — suggest closest alternative with confidence score.",
+              "depends_on": ["U-PRB01", "U-PRB02"],
+              "knowledge_consult": ["ProbingEngine (existing selection logic)", "CycleLibraryEngine (cycle metadata)"],
+              "exit_criteria": ["Selection returns correct cycle for all JM Die mill+feature combos", "Blum cycles selected for Roku-Roku, Renishaw for others", "Fallback logic works when exact match unavailable", "Confidence score reflects match quality"],
+              "rollback": {
+                "files_created": ["src/engines/ProbingRoutineSelectionEngine.ts", "src/__tests__/ProbingRoutineSelectionEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Wrong probe system selected for any JM Die machine", "Fallback returns incompatible cycle", "No confidence scoring"],
+                "rollback_procedure": "git checkout -- src/engines/ProbingRoutineSelectionEngine.ts src/__tests__/ProbingRoutineSelectionEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test) → TIE UP"
+            },
+            "U-PRB04": {
+              "title": "Forge-Triple: probe-compatibility hook + probing_selector MCP actions + /probe-routine-guide update",
+              "description": "Complete Forge-Triple: (1) probe-compatibility hook — validates that any probing cycle inserted into a program matches the target machine's probe system (blocks Renishaw cycles on Blum machines and vice versa), (2) Wire probing_selector dispatcher with actions: select_probe_routine, list_machine_probes, probe_cycle_search, probe_coverage_report, (3) Update /probe-routine-guide skill to use ProbingRoutineSelectionEngine for live recommendations.",
+              "depends_on": ["U-PRB03"],
+              "knowledge_consult": ["Existing probe-routine-guide skill", "probe_routine dispatcher (if exists)"],
+              "exit_criteria": ["Hook blocks mismatched probe cycles in programs", "4 MCP actions callable via probing_selector", "/probe-routine-guide returns live cycle recommendations", "All wired to DISPATCHER_DIGEST.md"],
+              "rollback": {
+                "files_created": ["src/hooks/probe-compatibility.ts", "src/tools/dispatchers/probing_selector.ts", "src/schemas/probing_selector.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/probe-routine-guide.md"],
+                "abort_criteria": ["Hook false positives on valid combos", "MCP actions not callable", "Skill not returning live data"],
+                "rollback_procedure": "git checkout -- src/hooks/probe-compatibility.ts src/tools/dispatchers/probing_selector.ts src/schemas/probing_selector.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/probe-routine-guide.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "probe-compatibility — blocks probing cycles incompatible with target machine's probe system",
+        "mcp_action": "prism_probing_selector:select_probe_routine, list_machine_probes, probe_cycle_search, probe_coverage_report",
+        "skill": "/probe-routine-guide (updated with live cycle selection from 5,753 indexed routines)"
+      },
+
+      "exit_gate": {
+        "criteria": ["5,753 probing cycles indexed and classified", "All 21 JM Die machines mapped to probe systems", "Selection engine returns correct routine for machine+feature combos", "Hook blocks incompatible probe/machine pairings", "4 MCP actions callable"],
+        "omega_floor": 1.0,
+        "svi_delta": "+3%"
+      },
+
+      "feeds_into": ["Quality workflows (in-process verification)", "Setup sheet generation (probe WCS steps)", "First-part-right pipeline (probe-before-cut validation)"]
+    },
+
+    {
+      "id": "RES-MS19",
+      "title": "Intelligent Fixture Selection — 520+ Assemblies + hyperMILL Automation",
+      "track": "RES",
+      "dependencies": ["RES-MS3", "RES-MS7"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "Workholding Engineer + CAM Automation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "45%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["ModularFixtureLayoutEngine", "WorkholdingIntelligenceEngine", "HyperMillBridgeEngine", "ShopConfigurationEngine"],
+        "tribal": ["JM Die fixture library in OKUMA/ and HAAS-HURCO/ folders", "hyperMILL IM_Macro_DB.db automation macros", "sequence_control.xlsx macro sequencing", "Electrode fixturing (70% lathe-turned commodity, 30% milled complex)"],
+        "formulas": ["Clamping force vs cutting force ratio (3:1 minimum)", "Fixture stiffness (first natural freq > 2x spindle RPM)", "Hydraulic clamping pressure calculation"],
+        "reference": ["JM DIE/OKUMA/ fixture assemblies", "JM DIE/HAAS-HURCO/ fixture assemblies", "WORKHOLDING AND FIXTURE CATALOGS/ (36 catalogs, 10 manufacturers)", "OPEN MIND/hyperMILL/IM_Macro_DB.db"]
+      },
+
+      "intent": "The machinist loads a part into PRISM, selects a machine, and PRISM recommends the best fixture from 520+ known assemblies. It considers part geometry (die = chuck/collet, electrode = vise/fixture plate), machine work envelope, operation type (roughing needs rigidity, finishing needs access), and available fixtures in JM Die's inventory. For hyperMILL users, it auto-loads the fixture model into the CAM project.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Fixture Assembly Index + Geometry Classification",
+          "units": ["U-FIX01", "U-FIX02"],
+          "work": {
+            "U-FIX01": {
+              "title": "Build FixtureAssemblyIndexEngine — catalog 520+ fixture assemblies from JM Die archive",
+              "description": "Scan JM DIE/OKUMA/ and JM DIE/HAAS-HURCO/ for fixture assembly files (STEP, STP, HMC, MCX). For each assembly, extract: (1) fixture type (vise, chuck, collet, fixture plate, tombstone, vacuum, magnetic), (2) machine association from folder path, (3) work envelope consumed (X/Y/Z clearance), (4) clamping method (mechanical, hydraulic, pneumatic), (5) part size range compatible, (6) operation suitability (roughing/finishing/both). Cross-reference with 36 workholding catalogs for manufacturer specs.",
+              "depends_on": [],
+              "knowledge_consult": ["WorkholdingIntelligenceEngine (existing fixture logic)", "CadFileIndexEngine (STEP parsing patterns)", "WORKHOLDING AND FIXTURE CATALOGS/ (36 catalogs)"],
+              "exit_criteria": ["520+ fixture assemblies cataloged", "Fixture type classified for each", "Machine association resolved", "Work envelope data extracted where available"],
+              "rollback": {
+                "files_created": ["src/engines/FixtureAssemblyIndexEngine.ts", "src/__tests__/FixtureAssemblyIndexEngine.test.ts", "src/data/fixture-assembly-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<450 assemblies indexed", "Fixture type unresolvable for >15% of assemblies", "Machine association wrong for any known fixture"],
+                "rollback_procedure": "git checkout -- src/engines/FixtureAssemblyIndexEngine.ts src/__tests__/FixtureAssemblyIndexEngine.test.ts src/data/fixture-assembly-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-FIX02": {
+              "title": "Build FixtureSelectionRulesEngine — part geometry + operation → fixture recommendation logic",
+              "description": "Encode fixture selection rules from JM Die tribal knowledge: (1) Heading dies (round, <6\" dia) → Okuma lathe chuck or collet, (2) Electrode blanks (round, <3\" dia, graphite/copper) → ER collet on mill, (3) Complex electrodes (milled) → vise with soft jaws or fixture plate, (4) Rectangular parts → Kurt vise (mill) or 4-jaw chuck (lathe), (5) Multi-op parts → tombstone/pallet if available. Rules engine scores each candidate fixture on: rigidity, access, setup_time, repeatability. Returns ranked list with reasoning.",
+              "depends_on": ["U-FIX01"],
+              "knowledge_consult": ["ModularFixtureLayoutEngine (layout logic)", "JM Die part types: MailBox, Altracs, Taptite, Heading Die, Squares"],
+              "exit_criteria": ["Rules cover all JM Die part families (dies, electrodes, inserts)", "Scoring produces correct rankings for known part-fixture combos", "Reasoning explains why each fixture was ranked", "Edge cases handled (oversized parts, thin walls, second ops)"],
+              "rollback": {
+                "files_created": ["src/engines/FixtureSelectionRulesEngine.ts", "src/__tests__/FixtureSelectionRulesEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Wrong fixture recommended for known JM Die parts", "Scoring logic not differentiating clearly", "Missing rules for major part families"],
+                "rollback_procedure": "git checkout -- src/engines/FixtureSelectionRulesEngine.ts src/__tests__/FixtureSelectionRulesEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "hyperMILL Fixture Automation + Forge-Triple",
+          "units": ["U-FIX03", "U-FIX04"],
+          "work": {
+            "U-FIX03": {
+              "title": "Build FixtureAutoLoadEngine — hyperMILL fixture model insertion via IM_Macro_DB automation",
+              "description": "Connect fixture selection to hyperMILL automation: (1) Parse IM_Macro_DB.db for fixture-related macros (load_fixture, position_fixture, clamp_check), (2) Parse sequence_control.xlsx for macro execution order, (3) Build engine that takes selected fixture + machine and generates hyperMILL automation script to load fixture model, position it in machine coordinate space, and set fixture offset. Validate against HyperMillBridgeEngine API.",
+              "depends_on": ["U-FIX01", "U-FIX02"],
+              "knowledge_consult": ["HyperMillBridgeEngine (hyperMILL API)", "CamBridgeEngine (CAM integration patterns)", "IM_Macro_DB.db schema"],
+              "exit_criteria": ["Fixture macros extracted from IM_Macro_DB.db", "Sequence control parsed for fixture operations", "Auto-load script generates valid hyperMILL commands", "Fixture positioned correctly in machine coordinate space"],
+              "rollback": {
+                "files_created": ["src/engines/FixtureAutoLoadEngine.ts", "src/__tests__/FixtureAutoLoadEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["IM_Macro_DB.db unparseable", "Generated scripts invalid for hyperMILL", "Fixture positioning wrong"],
+                "rollback_procedure": "git checkout -- src/engines/FixtureAutoLoadEngine.ts src/__tests__/FixtureAutoLoadEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            },
+            "U-FIX04": {
+              "title": "Forge-Triple: fixture-clamp-force hook + fixture_selector MCP actions + /fixture-design-guide update",
+              "description": "Complete Forge-Triple: (1) fixture-clamp-force hook — validates that recommended fixture's clamping force exceeds 3x calculated cutting force before approving fixture selection (prevents part pull-out), (2) Wire fixture_selector dispatcher with actions: select_fixture, list_fixtures, fixture_compatibility_check, fixture_auto_load, fixture_coverage_report, (3) Update /fixture-design-guide skill to use FixtureSelectionRulesEngine for live recommendations with hyperMILL auto-load option.",
+              "depends_on": ["U-FIX03"],
+              "knowledge_consult": ["KienzleForceModel (cutting force for clamp validation)", "fixture-design-guide skill (existing content)"],
+              "exit_criteria": ["Hook blocks fixture selection when clamp force insufficient", "5 MCP actions callable via fixture_selector", "/fixture-design-guide returns live fixture recommendations", "hyperMILL auto-load integrated into skill flow"],
+              "rollback": {
+                "files_created": ["src/hooks/fixture-clamp-force.ts", "src/tools/dispatchers/fixture_selector.ts", "src/schemas/fixture_selector.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/fixture-design-guide.md"],
+                "abort_criteria": ["Hook false positives on valid fixtures", "MCP actions not callable", "hyperMILL auto-load script errors"],
+                "rollback_procedure": "git checkout -- src/hooks/fixture-clamp-force.ts src/tools/dispatchers/fixture_selector.ts src/schemas/fixture_selector.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/fixture-design-guide.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "fixture-clamp-force — validates clamping force exceeds 3x cutting force before fixture approval",
+        "mcp_action": "prism_fixture_selector:select_fixture, list_fixtures, fixture_compatibility_check, fixture_auto_load, fixture_coverage_report",
+        "skill": "/fixture-design-guide (updated with live selection from 520+ assemblies + hyperMILL auto-load)"
+      },
+
+      "exit_gate": {
+        "criteria": ["520+ fixture assemblies indexed and classified", "Selection rules cover all JM Die part families", "hyperMILL auto-load generates valid scripts", "Hook validates clamp force on every selection", "5 MCP actions callable"],
+        "omega_floor": 1.0,
+        "svi_delta": "+3%"
+      },
+
+      "feeds_into": ["Setup sheet generation (fixture details section)", "Print-to-Program pipeline (auto fixture selection)", "hyperMILL automation (fixture model loading)"]
+    },
+
+    {
+      "id": "RES-MS20",
+      "title": "Automated Setup Sheet — ToolReport Templates + Machine Configs",
+      "track": "RES",
+      "dependencies": ["RES-MS13", "RES-MS14"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "Manufacturing Engineer + Document Automation Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["SetupSheetGeneratorEngine", "PostProcessorPipeline (38 stages)", "ToolRegistryEngine", "MachineRegistryEngine"],
+        "tribal": ["hyperMILL Report Generator XSLT templates", "JM Die shop floor setup conventions", "Okuma OSP setup sheet requirements vs Haas NGC vs Hurco WinMAX"],
+        "formulas": [],
+        "reference": ["OPEN MIND/hyperMILL/Report Generator/ (15 languages x 9 XSLT templates)", "OPEN MIND/hyperMILL/ToolReport/ templates", "JM Die machine controller configs"]
+      },
+
+      "intent": "The machinist hits 'generate setup sheet' and PRISM produces a complete, controller-formatted setup sheet: tool list with pocket assignments, WCS offsets, fixture instructions, probing steps, first-part checks, and safety notes. For Okuma machines it uses OSP format, for Haas it uses NGC format, for Hurco it uses WinMAX format. The output matches what JM Die's operators expect to see taped to the machine.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Template Parsing + Controller-Specific Formatting",
+          "units": ["U-SST01", "U-SST02"],
+          "work": {
+            "U-SST01": {
+              "title": "Build SetupTemplateParserEngine — parse hyperMILL Report Generator XSLT templates",
+              "description": "Parse all 135 XSLT templates (15 languages x 9 template types) from OPEN MIND/hyperMILL/Report Generator/. Extract: (1) template structure (sections: header, tool list, operation sequence, notes), (2) data field bindings (tool number, description, diameter, length, offset), (3) formatting rules per language, (4) ToolReport-specific fields from OPEN MIND/hyperMILL/ToolReport/. Build template catalog that maps template_id → structure → required_data_fields.",
+              "depends_on": [],
+              "knowledge_consult": ["SetupSheetGeneratorEngine (existing generation logic)", "XSLT parsing patterns"],
+              "exit_criteria": ["135 XSLT templates parsed", "9 template types identified and classified", "Data field bindings extracted for each template", "ToolReport templates parsed separately"],
+              "rollback": {
+                "files_created": ["src/engines/SetupTemplateParserEngine.ts", "src/__tests__/SetupTemplateParserEngine.test.ts", "src/data/setup-template-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["XSLT parse failures >10%", "Data fields not extractable", "<100 templates parsed"],
+                "rollback_procedure": "git checkout -- src/engines/SetupTemplateParserEngine.ts src/__tests__/SetupTemplateParserEngine.test.ts src/data/setup-template-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-SST02": {
+              "title": "Build ControllerSetupFormatEngine — generate controller-specific setup sheet sections",
+              "description": "Build formatting engine that adapts setup sheet content to each controller family: (1) Okuma OSP: tool offset page format (T01xx geometry/wear), OSP macro variable list, M-code coolant table (7 modes on Multus B250), (2) Haas NGC: tool offset page (H/D numbers), setting #s for probing, macro variable format, (3) Hurco WinMAX: conversational format tool table, program import instructions, (4) Roku-Roku: Blum probe setup section with 469 cycle references, (5) Mitsubishi EDM: electrode list, burn conditions table. Each format includes safety block callouts.",
+              "depends_on": ["U-SST01"],
+              "knowledge_consult": ["ControllerDialectEngine (from RES-MS2)", "ShopConfigurationEngine (21 JM Die machines)", "Okuma Multus B250 7-mode coolant"],
+              "exit_criteria": ["5 controller families formatted (Okuma, Haas, Hurco, Roku-Roku, Mitsubishi)", "Each format includes tool offset page in controller-native style", "Coolant mode table correct for each machine", "Safety blocks included per controller"],
+              "rollback": {
+                "files_created": ["src/engines/ControllerSetupFormatEngine.ts", "src/__tests__/ControllerSetupFormatEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Controller format wrong for any JM Die machine", "Tool offset format incorrect", "Missing coolant modes"],
+                "rollback_procedure": "git checkout -- src/engines/ControllerSetupFormatEngine.ts src/__tests__/ControllerSetupFormatEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Full Setup Sheet Assembly + Forge-Triple",
+          "units": ["U-SST03", "U-SST04"],
+          "work": {
+            "U-SST03": {
+              "title": "Build SetupSheetAssemblerEngine — compose full setup sheet from program + tool data + machine config",
+              "description": "Orchestration engine that assembles complete setup sheet: (1) Header: job number, part number, customer, machine, date, programmer, (2) Fixture section: fixture ID, clamping instructions, WCS offset values (from probing or manual), (3) Tool list: pocket number, tool description, holder, stickout, offset type, speeds/feeds summary, (4) Operation sequence: op order with cycle time per op, (5) Probing steps: WCS verification routine from ProbingRoutineSelectionEngine, (6) First-part checks: critical dimensions to verify, tolerance bands, (7) Safety notes: max RPM, coolant mode, chip evacuation. Pulls data from ToolRegistry, MachineRegistry, program analysis, and fixture selection.",
+              "depends_on": ["U-SST01", "U-SST02"],
+              "knowledge_consult": ["SetupSheetGeneratorEngine (existing logic to extend)", "PrintToProgramPipeline (data flow pattern)", "ProbingRoutineSelectionEngine (from RES-MS17)"],
+              "exit_criteria": ["Full setup sheet generated for sample JM Die job", "All 7 sections populated with real data", "Controller-specific formatting applied per target machine", "Output matches what operators expect on shop floor"],
+              "rollback": {
+                "files_created": ["src/engines/SetupSheetAssemblerEngine.ts", "src/__tests__/SetupSheetAssemblerEngine.test.ts"],
+                "files_modified": ["src/engines/SetupSheetGeneratorEngine.ts"],
+                "abort_criteria": ["Any section empty or placeholder", "Format wrong for target controller", "Missing critical safety information"],
+                "rollback_procedure": "git checkout -- src/engines/SetupSheetAssemblerEngine.ts src/__tests__/SetupSheetAssemblerEngine.test.ts src/engines/SetupSheetGeneratorEngine.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test) → TIE UP"
+            },
+            "U-SST04": {
+              "title": "Forge-Triple: setup-completeness hook + setup_sheet MCP actions + /setup-sheet-generate update",
+              "description": "Complete Forge-Triple: (1) setup-completeness hook — validates every setup sheet has all 7 mandatory sections populated (header, fixture, tools, operations, probing, first-part, safety) before allowing generation, (2) Wire setup_sheet dispatcher with actions: generate_setup_sheet, preview_setup_sheet, list_templates, setup_sheet_for_machine, export_setup_pdf, (3) Update /setup-sheet-generate skill to use SetupSheetAssemblerEngine with controller-aware formatting and hyperMILL template option.",
+              "depends_on": ["U-SST03"],
+              "knowledge_consult": ["setup-sheet-generate skill (existing)", "PDF export patterns"],
+              "exit_criteria": ["Hook blocks incomplete setup sheets (missing sections)", "5 MCP actions callable via setup_sheet", "/setup-sheet-generate produces controller-formatted output", "PDF export works for all 5 controller families"],
+              "rollback": {
+                "files_created": ["src/hooks/setup-completeness.ts", "src/tools/dispatchers/setup_sheet.ts", "src/schemas/setup_sheet.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/setup-sheet-generate.md"],
+                "abort_criteria": ["Hook blocks valid complete sheets", "MCP actions not callable", "PDF export fails"],
+                "rollback_procedure": "git checkout -- src/hooks/setup-completeness.ts src/tools/dispatchers/setup_sheet.ts src/schemas/setup_sheet.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/setup-sheet-generate.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "setup-completeness — blocks setup sheet generation unless all 7 mandatory sections populated",
+        "mcp_action": "prism_setup_sheet:generate_setup_sheet, preview_setup_sheet, list_templates, setup_sheet_for_machine, export_setup_pdf",
+        "skill": "/setup-sheet-generate (updated with controller-aware formatting + hyperMILL templates + PDF export)"
+      },
+
+      "exit_gate": {
+        "criteria": ["135 XSLT templates parsed and cataloged", "5 controller families formatted correctly", "Full 7-section setup sheets generated for JM Die jobs", "Hook validates completeness on every generation", "5 MCP actions callable", "PDF export works"],
+        "omega_floor": 1.0,
+        "svi_delta": "+4%"
+      },
+
+      "feeds_into": ["Print-to-Program pipeline (auto setup sheet at end)", "Job traveler system (setup sheet attachment)", "Operator assistance (setup reference on shop floor)"]
+    },
+
+    {
+      "id": "RES-MS21",
+      "title": "Customer Defaults Engine — 118 Portfolio Mining",
+      "track": "RES",
+      "dependencies": ["RES-MS11"],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "Business Intelligence Analyst + Manufacturing Process Engineer",
+        "model": "opus",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["CustomerProfileEngine", "JmDieProfileEngine", "BoxProgramCensusEngine", "QuoteEstimatorEngine"],
+        "tribal": ["JM Die folder structure: CNC LATHE/{CUSTOMER}/ pattern", "118 customers with 15,599 lathe programs", "Repeat customers have consistent material/operation preferences", "ITW = high volume heading dies, Alcoa = aluminum inserts, Holo-Krome = socket head cap tooling"],
+        "formulas": ["Bayesian inference for customer preference estimation", "Confidence interval for small-sample customers"],
+        "reference": ["H:/PRISM/JM DIE/ (36,929 files, 150+ customers)", "JM Die customer list from BoxProgramCensusEngine output"]
+      },
+
+      "intent": "When the machinist starts a new job for ITW, PRISM pre-fills: material = M2 tool steel, operation = heading die roughing + finishing, machine = Okuma LB3000, typical tolerance = +/-0.0005\", typical batch = 4-8 parts. For Alcoa: material = aluminum 7075, machine = Hurco VMX30i. Every repeat customer gets smart defaults from their historical patterns — reducing setup time from 15 minutes of data entry to 30 seconds of confirmation.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Customer Portfolio Mining + Pattern Extraction",
+          "units": ["U-CDF01", "U-CDF02"],
+          "work": {
+            "U-CDF01": {
+              "title": "Build CustomerPortfolioMinerEngine — extract patterns from 118 customers x 15,599 programs",
+              "description": "Mine the JM DIE/ folder structure to build customer profiles: (1) For each of 118 customers, count programs by machine type (lathe/mill/EDM), (2) Extract material patterns from program content (G-code feeds/speeds imply material hardness), (3) Extract operation patterns (roughing/finishing ratios, cycle types used — G85/G87 pairs for lathe), (4) Extract part geometry patterns (turning diameter ranges, lengths from G-code coordinates), (5) Calculate customer frequency (jobs/year estimate from folder dates), (6) Identify repeat-part patterns (similar programs across dates). Output: CustomerPortfolio JSON with statistical confidence per field.",
+              "depends_on": [],
+              "knowledge_consult": ["BoxProgramCensusEngine (program inventory)", "JmDieProfileEngine (existing customer data)", "G85/G87 roughing-finishing pair patterns"],
+              "exit_criteria": ["118 customer profiles built", "Material inference for >80% of programs", "Operation patterns extracted (roughing/finishing ratios)", "Confidence scores reflect sample size (high for ITW=500+ programs, low for 1-program customers)"],
+              "rollback": {
+                "files_created": ["src/engines/CustomerPortfolioMinerEngine.ts", "src/__tests__/CustomerPortfolioMinerEngine.test.ts", "src/data/customer-portfolio-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<100 customers profiled", "Material inference <60%", "Program parsing errors >10%"],
+                "rollback_procedure": "git checkout -- src/engines/CustomerPortfolioMinerEngine.ts src/__tests__/CustomerPortfolioMinerEngine.test.ts src/data/customer-portfolio-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-CDF02": {
+              "title": "Build CustomerDefaultsEngine — pre-fill job parameters from customer history with confidence scoring",
+              "description": "Engine that accepts {customer_id, part_type?} and returns pre-filled defaults: {material, machine, operation_type, tolerance, batch_size, estimated_cycle_time, fixture_type, tooling_notes}. Each field has confidence (0-1) based on: (1) sample size (more programs = higher confidence), (2) consistency (all ITW jobs use M2 = confidence 0.95, mixed materials = confidence 0.5), (3) recency (recent jobs weighted higher). For new customers (no history), return industry-typical defaults with confidence 0.3. Supports override — operator confirms or changes each field.",
+              "depends_on": ["U-CDF01"],
+              "knowledge_consult": ["CustomerProfileEngine (existing profile logic)", "QuoteEstimatorEngine (estimation patterns)"],
+              "exit_criteria": ["Correct defaults for top 10 JM Die customers (ITW, Alcoa, Optimas, SFS, Holo-Krome, etc.)", "Confidence scores reflect actual data quality", "New customer fallback returns reasonable industry defaults", "Override mechanism preserves operator expertise"],
+              "rollback": {
+                "files_created": ["src/engines/CustomerDefaultsEngine.ts", "src/__tests__/CustomerDefaultsEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Wrong defaults for known top customers", "Confidence scores not calibrated", "No fallback for new customers"],
+                "rollback_procedure": "git checkout -- src/engines/CustomerDefaultsEngine.ts src/__tests__/CustomerDefaultsEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Forge-Triple Wiring",
+          "units": ["U-CDF03"],
+          "work": {
+            "U-CDF03": {
+              "title": "Forge-Triple: customer-data-privacy hook + customer_defaults MCP actions + /quote-job skill integration",
+              "description": "Complete Forge-Triple: (1) customer-data-privacy hook — ensures customer portfolio data is never exposed in MCP responses to unauthorized callers and validates customer_id before returning defaults, (2) Wire customer_defaults dispatcher with actions: get_customer_defaults, list_customers, customer_profile_summary, refresh_customer_portfolio, (3) Integrate CustomerDefaultsEngine into /quote-job skill so quoting auto-populates customer preferences. Also wire into /full-job skill for job creation flow.",
+              "depends_on": ["U-CDF01", "U-CDF02"],
+              "knowledge_consult": ["Auth middleware (access control patterns)", "quote-job skill (existing quoting flow)", "full-job skill (job creation flow)"],
+              "exit_criteria": ["Hook blocks unauthorized customer data access", "4 MCP actions callable via customer_defaults", "/quote-job pre-fills customer defaults on job creation", "Customer portfolio refreshable on demand"],
+              "rollback": {
+                "files_created": ["src/hooks/customer-data-privacy.ts", "src/tools/dispatchers/customer_defaults.ts", "src/schemas/customer_defaults.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/quote-job.md", "skills/full-job.md"],
+                "abort_criteria": ["Privacy hook bypassable", "MCP actions not callable", "Quote skill not pre-filling defaults"],
+                "rollback_procedure": "git checkout -- src/hooks/customer-data-privacy.ts src/tools/dispatchers/customer_defaults.ts src/schemas/customer_defaults.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/quote-job.md skills/full-job.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "customer-data-privacy — validates authorization before exposing customer portfolio data",
+        "mcp_action": "prism_customer_defaults:get_customer_defaults, list_customers, customer_profile_summary, refresh_customer_portfolio",
+        "skill": "/quote-job + /full-job (integrated with auto-populated customer defaults)"
+      },
+
+      "exit_gate": {
+        "criteria": ["118 customer portfolios mined from 15,599 programs", "Defaults engine returns correct pre-fills for top 10 customers", "Confidence scoring calibrated to sample size", "Privacy hook enforced on all customer data access", "4 MCP actions callable"],
+        "omega_floor": 1.0,
+        "svi_delta": "+3%"
+      },
+
+      "feeds_into": ["Quoting pipeline (customer-specific pricing)", "Job creation workflow (pre-filled parameters)", "Business intelligence (customer analytics dashboard)"]
+    },
+
+    {
+      "id": "RES-MS22",
+      "title": "Material Property Enrichment — SolidWorks .sldmat → MaterialRegistry",
+      "track": "RES",
+      "dependencies": ["RES-MS0"],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "1",
+
+      "smart_config": {
+        "role": "Materials Scientist + Data Engineer",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "30%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["MaterialRegistry", "MaterialDatabaseEngine", "MaterialPropertyValidationEngine"],
+        "tribal": ["SolidWorks .sldmat files are XML with material properties", "JM Die primary materials: M2, D2, S7, A2 tool steels; tungsten/cobalt carbide; H13; graphite", "Material properties critical for speed/feed, thermal, and deflection calculations"],
+        "formulas": ["Kienzle kc1.1 values per ISO group (P=1800, M=2100, K=1100, N=700, S=2800, H=3200)", "Thermal diffusivity = k/(rho*Cp)", "Taylor tool life: VT^n = C"],
+        "reference": ["SOLIDWORKS/ (14,435 files including .sldmat material libraries)", "Material property databases in src/physics/constants.ts"]
+      },
+
+      "intent": "PRISM's MaterialRegistry grows from its current count to 300-500+ materials with full physical properties — density, elastic modulus, thermal conductivity, specific heat, Poisson's ratio, yield strength. Every SolidWorks material library is parsed and merged. When a machinist says 'D2 tool steel', PRISM knows density=7.7 g/cc, thermal conductivity=20.5 W/mK, hardness=58-62 HRC — and uses these for accurate speed/feed, thermal, and deflection calculations.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Parse .sldmat + Merge into MaterialRegistry + Forge-Triple",
+          "units": ["U-MPE01", "U-MPE02", "U-MPE03"],
+          "work": {
+            "U-MPE01": {
+              "title": "Build SldmatParserEngine — parse SolidWorks .sldmat XML files into structured material records",
+              "description": "Parse .sldmat files from SOLIDWORKS/ folder. SolidWorks material libraries are XML with structure: <mstns:materials> → <mstns:classification> → <mstns:material> with child elements for each property (EX=elastic modulus, NUXY=Poisson ratio, DENS=density, KX=thermal conductivity, C=specific heat, SIGXT=tensile strength, SIGYLD=yield strength). Extract all materials with all available properties. Handle multiple .sldmat files (SolidWorks ships several: DIN, AISI, Custom, etc.). Dedup by material name + grade.",
+              "depends_on": [],
+              "knowledge_consult": ["MaterialRegistry (existing material count and schema)", "constants.ts (validate extracted properties against known values)"],
+              "exit_criteria": ["300-500 materials parsed from .sldmat files", "All physical properties extracted (density, elastic modulus, thermal conductivity, specific heat, yield/tensile strength, Poisson ratio)", "XML parsing handles all SolidWorks .sldmat variants", "Dedup by material name+grade"],
+              "rollback": {
+                "files_created": ["src/engines/SldmatParserEngine.ts", "src/__tests__/SldmatParserEngine.test.ts", "src/data/sldmat-materials-raw.ts"],
+                "files_modified": [],
+                "abort_criteria": ["XML parse failures >5%", "<200 materials parsed", "Physical properties missing for >20% of materials"],
+                "rollback_procedure": "git checkout -- src/engines/SldmatParserEngine.ts src/__tests__/SldmatParserEngine.test.ts src/data/sldmat-materials-raw.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-MPE02": {
+              "title": "Build MaterialMergeEngine — merge .sldmat materials into MaterialRegistry with validation",
+              "description": "Merge parsed .sldmat materials into existing MaterialRegistry: (1) Match against existing materials by name/grade/UNS number, (2) For matches: enrich existing entries with any missing properties from .sldmat, (3) For new materials: add to registry with full property set, (4) Validate all thermal/mechanical properties against known ranges (density 1-23 g/cc, elastic modulus 10-700 GPa, thermal conductivity 0.1-430 W/mK), (5) Flag conflicts where .sldmat disagrees with constants.ts (constants.ts wins). Map each material to ISO group (P/M/K/N/S/H) for Kienzle compatibility.",
+              "depends_on": ["U-MPE01"],
+              "knowledge_consult": ["MaterialRegistry (merge target)", "constants.ts (validation reference, Kienzle ISO groups)", "MaterialPropertyValidationEngine (range checking)"],
+              "exit_criteria": ["MaterialRegistry enriched with .sldmat properties", "Zero conflicts with constants.ts (constants.ts values preserved)", "ISO group assigned to every new material", "Property range validation passes for all entries"],
+              "rollback": {
+                "files_created": ["src/engines/MaterialMergeEngine.ts", "src/__tests__/MaterialMergeEngine.test.ts"],
+                "files_modified": ["src/registries/MaterialRegistry.ts"],
+                "abort_criteria": ["constants.ts values overwritten", "ISO group assignment wrong", "Property range violations undetected"],
+                "rollback_procedure": "git checkout -- src/engines/MaterialMergeEngine.ts src/__tests__/MaterialMergeEngine.test.ts src/registries/MaterialRegistry.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/physics-verify) → GAP FILL → TIE UP"
+            },
+            "U-MPE03": {
+              "title": "Forge-Triple: material-property-bounds hook + material_enrichment MCP actions + /material-lookup update",
+              "description": "Complete Forge-Triple: (1) material-property-bounds hook — validates that any material property used in calculations falls within physical bounds (density 1-23, conductivity 0.1-430, etc.) and flags obviously wrong values, (2) Wire material_enrichment dispatcher with actions: parse_sldmat, merge_materials, material_coverage_report, validate_material_properties, (3) Update /material-lookup skill to show enriched properties with source attribution (.sldmat vs constants.ts vs catalog).",
+              "depends_on": ["U-MPE02"],
+              "knowledge_consult": ["material-lookup skill (existing)", "MaterialDatabaseEngine (property validation)"],
+              "exit_criteria": ["Hook catches out-of-bounds material properties in calculations", "4 MCP actions callable via material_enrichment", "/material-lookup shows source attribution for each property", "Coverage report shows enrichment gains"],
+              "rollback": {
+                "files_created": ["src/hooks/material-property-bounds.ts", "src/tools/dispatchers/material_enrichment.ts", "src/schemas/material_enrichment.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/material-lookup.md"],
+                "abort_criteria": ["Hook false positives on valid properties", "MCP actions not callable", "Source attribution missing"],
+                "rollback_procedure": "git checkout -- src/hooks/material-property-bounds.ts src/tools/dispatchers/material_enrichment.ts src/schemas/material_enrichment.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/material-lookup.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "material-property-bounds — validates all material properties fall within physical bounds during calculations",
+        "mcp_action": "prism_material_enrichment:parse_sldmat, merge_materials, material_coverage_report, validate_material_properties",
+        "skill": "/material-lookup (updated with enriched properties + source attribution)"
+      },
+
+      "exit_gate": {
+        "criteria": ["300-500 materials parsed from .sldmat files", "MaterialRegistry enriched without overwriting constants.ts", "ISO group assigned to all new materials", "Hook validates property bounds in calculations", "4 MCP actions callable"],
+        "omega_floor": 1.0,
+        "svi_delta": "+2%"
+      },
+
+      "feeds_into": ["All speed/feed calculations (enriched material data)", "Thermal engines (thermal conductivity, specific heat)", "Deflection engines (elastic modulus, density)"]
+    },
+
+    {
+      "id": "RES-MS23",
+      "title": "hyperMILL Automation Center Integration — Sequence Control + SDK",
+      "track": "RES",
+      "dependencies": ["RES-MS7", "RES-MS15"],
+      "status": "not_started",
+      "total_units": 4,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "CAM Automation Architect + SDK Integration Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "50%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["HyperMillBridgeEngine", "CamBridgeEngine", "CodeGeneratorEngine", "AutomationCenterEngine"],
+        "tribal": ["hyperMILL SDK: 46 geometry scripts across 8 namespaces", "IM_Macro_DB.db: intelligent macro database for automation", "sequence_control.xlsx: macro execution sequencing rules", "OPEN MIND SDK uses C# scripting for geometry manipulation"],
+        "formulas": [],
+        "reference": ["OPEN MIND/hyperMILL/SDK/ (46 geometry scripts, 8 namespaces)", "OPEN MIND/hyperMILL/IM_Macro_DB.db", "OPEN MIND/hyperMILL/sequence_control.xlsx", "OPEN MIND/hyperMILL/Automation Center/ documentation"]
+      },
+
+      "intent": "PRISM can drive hyperMILL's Automation Center programmatically — loading macros, sequencing operations, and executing multi-step CAM automation without manual intervention. The machinist describes the part and PRISM generates the complete hyperMILL automation sequence: stock definition, feature recognition, macro selection, operation ordering, simulation trigger. The SDK integration enables PRISM to manipulate geometry directly through hyperMILL's 46 script endpoints.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "SDK Mapping + Macro Database Parsing",
+          "units": ["U-HAC01", "U-HAC02"],
+          "work": {
+            "U-HAC01": {
+              "title": "Build HyperMillSdkMapEngine — map 46 geometry scripts across 8 namespaces to PRISM actions",
+              "description": "Parse hyperMILL SDK documentation and script files to build complete API map: (1) Enumerate all 46 geometry scripts with input/output schemas, (2) Classify by namespace (Geometry, Feature, Stock, Tool, Operation, Simulation, Report, Automation), (3) Map each script to equivalent PRISM action (e.g., SDK.Geometry.CreatePlane → prism_cad:create_plane), (4) Document parameter types, constraints, and return values, (5) Identify scripts that can be chained into workflows (e.g., CreateStock → RecognizeFeatures → AssignOperations). Build SDK capability matrix showing what PRISM can drive through hyperMILL.",
+              "depends_on": [],
+              "knowledge_consult": ["HyperMillBridgeEngine (existing hyperMILL integration)", "CamBridgeEngine (CAM bridge patterns)", "hyperMILL SDK namespace documentation"],
+              "exit_criteria": ["46 geometry scripts mapped with full parameter schemas", "8 namespaces classified", "PRISM action mapping complete for each script", "Chainable workflow sequences documented"],
+              "rollback": {
+                "files_created": ["src/engines/HyperMillSdkMapEngine.ts", "src/__tests__/HyperMillSdkMapEngine.test.ts", "src/data/hypermill-sdk-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<40 scripts mapped", "Namespace classification wrong", "Parameter schemas incomplete"],
+                "rollback_procedure": "git checkout -- src/engines/HyperMillSdkMapEngine.ts src/__tests__/HyperMillSdkMapEngine.test.ts src/data/hypermill-sdk-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-HAC02": {
+              "title": "Build MacroSequenceEngine — parse IM_Macro_DB.db + sequence_control.xlsx into executable macro chains",
+              "description": "Parse two automation data sources: (1) IM_Macro_DB.db (SQLite): extract all intelligent macros with their trigger conditions, parameter sets, and output expectations. Classify macros by operation type (roughing, finishing, drilling, probing, fixture), (2) sequence_control.xlsx: extract macro sequencing rules — which macros must run before others, parallel execution options, conditional branching (if feature_type=pocket then use pocket_macro else contour_macro). Build MacroChainBuilder that composes valid execution sequences from available macros and sequencing rules.",
+              "depends_on": [],
+              "knowledge_consult": ["AutomationCenterEngine (existing automation logic)", "IM_Macro_DB.db schema (SQLite tables)", "sequence_control.xlsx structure"],
+              "exit_criteria": ["All macros extracted from IM_Macro_DB.db with parameters", "Sequencing rules parsed from sequence_control.xlsx", "MacroChainBuilder produces valid execution sequences", "Conditional branching works for different feature types"],
+              "rollback": {
+                "files_created": ["src/engines/MacroSequenceEngine.ts", "src/__tests__/MacroSequenceEngine.test.ts", "src/data/macro-sequence-catalog.ts"],
+                "files_modified": [],
+                "abort_criteria": ["SQLite parsing fails on IM_Macro_DB.db", "Sequencing rules unresolvable", "Generated chains violate ordering constraints"],
+                "rollback_procedure": "git checkout -- src/engines/MacroSequenceEngine.ts src/__tests__/MacroSequenceEngine.test.ts src/data/macro-sequence-catalog.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Automation Orchestrator + Forge-Triple",
+          "units": ["U-HAC03", "U-HAC04"],
+          "work": {
+            "U-HAC03": {
+              "title": "Build AutomationOrchestratorEngine — drive hyperMILL Automation Center from PRISM job description",
+              "description": "Orchestration engine that converts a PRISM job description into a complete hyperMILL automation sequence: (1) Accept input: {part_geometry, material, machine, operations_needed, tolerances}, (2) Select macros from MacroSequenceEngine based on operations_needed, (3) Sequence macros using sequence_control rules, (4) Generate SDK script calls from HyperMillSdkMapEngine for geometry manipulation, (5) Compose full automation script: stock_setup → feature_recognition → macro_chain → simulation_trigger → report_generation. Include safety checks: validate machine compatibility, tool availability, and collision risk markers.",
+              "depends_on": ["U-HAC01", "U-HAC02"],
+              "knowledge_consult": ["HyperMillBridgeEngine (API execution)", "PrintToProgramPipeline (orchestration pattern)", "CodeGeneratorEngine (script generation)"],
+              "exit_criteria": ["End-to-end automation sequence generated from job description", "Macro selection matches operation type", "SDK calls correctly parameterized", "Safety checks included at each stage", "Output is executable hyperMILL automation script"],
+              "rollback": {
+                "files_created": ["src/engines/AutomationOrchestratorEngine.ts", "src/__tests__/AutomationOrchestratorEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Generated script not executable", "Macro selection wrong for operation type", "Missing safety checks", "SDK call parameters invalid"],
+                "rollback_procedure": "git checkout -- src/engines/AutomationOrchestratorEngine.ts src/__tests__/AutomationOrchestratorEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test) → TIE UP"
+            },
+            "U-HAC04": {
+              "title": "Forge-Triple: automation-safety-gate hook + hypermill_automation MCP actions + /hypermill-automation-script update",
+              "description": "Complete Forge-Triple: (1) automation-safety-gate hook — validates every generated automation script before execution: checks macro parameter bounds, verifies machine compatibility, ensures collision check is included, blocks scripts with missing safety blocks, (2) Wire hypermill_automation dispatcher with actions: generate_automation_script, list_macros, sequence_preview, execute_automation, automation_coverage_report, sdk_capability_check, (3) Update /hypermill-automation-script skill to use AutomationOrchestratorEngine for end-to-end job-to-automation flow.",
+              "depends_on": ["U-HAC03"],
+              "knowledge_consult": ["hypermill-automation-script skill (existing)", "hypermill-safety-audit skill (safety patterns)", "hyperMILL SafetyHooks"],
+              "exit_criteria": ["Hook blocks unsafe automation scripts", "6 MCP actions callable via hypermill_automation", "/hypermill-automation-script generates complete automation from job description", "SDK capability check reports available scripts"],
+              "rollback": {
+                "files_created": ["src/hooks/automation-safety-gate.ts", "src/tools/dispatchers/hypermill_automation.ts", "src/schemas/hypermill_automation.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/hypermill-automation-script.md"],
+                "abort_criteria": ["Hook misses unsafe scripts", "MCP actions not callable", "Skill not generating end-to-end automation"],
+                "rollback_procedure": "git checkout -- src/hooks/automation-safety-gate.ts src/tools/dispatchers/hypermill_automation.ts src/schemas/hypermill_automation.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/hypermill-automation-script.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "automation-safety-gate — validates automation scripts for parameter bounds, machine compatibility, and collision checks",
+        "mcp_action": "prism_hypermill_automation:generate_automation_script, list_macros, sequence_preview, execute_automation, automation_coverage_report, sdk_capability_check",
+        "skill": "/hypermill-automation-script (updated with end-to-end job-to-automation orchestration)"
+      },
+
+      "exit_gate": {
+        "criteria": ["46 SDK scripts mapped with full parameter schemas", "All macros extracted from IM_Macro_DB.db", "Sequencing rules parsed from sequence_control.xlsx", "End-to-end automation generation works from job description", "Safety gate hook validates all scripts", "6 MCP actions callable"],
+        "omega_floor": 1.0,
+        "svi_delta": "+5%"
+      },
+
+      "feeds_into": ["HM-KC track (hyperMILL knowledge integration)", "HM-PLG track (plugin development)", "Print-to-Program pipeline (CAM automation step)"]
+    },
+
+    {
+      "id": "RES-MS24",
+      "title": "Drawing Template Learning — 272 .idw → /blueprint-read Accuracy",
+      "track": "RES",
+      "dependencies": ["RES-MS0"],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "2",
+
+      "smart_config": {
+        "role": "OCR/Vision Engineer + Manufacturing Drawing Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["BlueprintVisionOCREngine", "DrawingAnalysisEngine", "DimensionExtractionEngine", "GdtParserEngine"],
+        "tribal": ["JM Die uses Inventor .idw format for production drawings", "Consistent title block: company name, part number, material, revision, date", "GD&T callouts follow ASME Y14.5", "Die drawings emphasize: bore diameter, land length, approach angle, clearance angle", "Electrode drawings: cavity depth, draft angle, surface finish requirements"],
+        "formulas": [],
+        "reference": ["H:/PRISM/JM DIE/ (272 .idw drawing files)", "Inventor .idw file format documentation", "ASME Y14.5 GD&T standard reference"]
+      },
+
+      "intent": "When a machinist uploads a JM Die drawing (PDF exported from .idw), /blueprint-read nails it every time — correct title block parsing, accurate dimension extraction, proper GD&T interpretation. The system learned from 272 real production drawings so it knows JM Die's template: where the part number lives, how tolerances are called out, what the revision block looks like. Accuracy jumps from generic OCR to shop-specific precision.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "Drawing Template Analysis + Pattern Extraction",
+          "units": ["U-DTL01", "U-DTL02"],
+          "work": {
+            "U-DTL01": {
+              "title": "Build DrawingTemplateAnalyzerEngine — extract JM Die drawing template patterns from 272 .idw files",
+              "description": "Analyze 272 Inventor .idw files to extract consistent template patterns: (1) Title block location and field positions (part number, material, revision, date, drawn by, checked by, customer), (2) View layout patterns (front view position, section view conventions, detail view placement), (3) Dimension style (arrow type, text height, tolerance format), (4) GD&T callout patterns (datum references, feature control frames, surface finish symbols), (5) Note block conventions (material callouts, heat treat specs, finish requirements). Build a DrawingTemplate model that captures all positional and formatting rules.",
+              "depends_on": [],
+              "knowledge_consult": ["BlueprintVisionOCREngine (existing OCR logic)", "DrawingAnalysisEngine (existing analysis patterns)", "Inventor .idw file structure"],
+              "exit_criteria": ["272 .idw files analyzed", "Title block template extracted with field positions", "Dimension style rules documented", "GD&T patterns cataloged", "Template model covers >90% of drawings consistently"],
+              "rollback": {
+                "files_created": ["src/engines/DrawingTemplateAnalyzerEngine.ts", "src/__tests__/DrawingTemplateAnalyzerEngine.test.ts", "src/data/jm-die-drawing-template.ts"],
+                "files_modified": [],
+                "abort_criteria": ["<200 drawings analyzable", "Title block position inconsistent across drawings", "Template model covers <80% of drawings"],
+                "rollback_procedure": "git checkout -- src/engines/DrawingTemplateAnalyzerEngine.ts src/__tests__/DrawingTemplateAnalyzerEngine.test.ts src/data/jm-die-drawing-template.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-DTL02": {
+              "title": "Build DrawingFeatureExtractorEngine — extract die/electrode-specific features from drawing patterns",
+              "description": "Specialized feature extraction for JM Die's part types: (1) Heading dies: bore diameter, land length, approach angle, clearance angle, case depth, surface finish on bore, thread spec if tapping die, (2) Electrodes: cavity depth, draft angle, corner radii, surface finish (VDI/Ra), overburn allowance, (3) Inserts: OD, ID, length, material hardness callout, concentricity tolerance. Use the template model from U-DTL01 to know exactly where to look for each feature type. Build feature extraction rules that map drawing zone → feature type → extraction method.",
+              "depends_on": ["U-DTL01"],
+              "knowledge_consult": ["DimensionExtractionEngine (dimension parsing)", "GdtParserEngine (GD&T interpretation)", "JM Die part types: MailBox, Altracs, Taptite, Heading Die, Squares"],
+              "exit_criteria": ["Die feature extraction works (bore, land, angles)", "Electrode feature extraction works (cavity, draft, finish)", "Feature type auto-detected from drawing content", "Extraction accuracy >90% on test drawings"],
+              "rollback": {
+                "files_created": ["src/engines/DrawingFeatureExtractorEngine.ts", "src/__tests__/DrawingFeatureExtractorEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Feature extraction accuracy <80%", "Die features misidentified as electrode features", "Critical dimensions missed (bore diameter, cavity depth)"],
+                "rollback_procedure": "git checkout -- src/engines/DrawingFeatureExtractorEngine.ts src/__tests__/DrawingFeatureExtractorEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "session": 2,
+          "title": "Blueprint-Read Enhancement + Forge-Triple",
+          "units": ["U-DTL03"],
+          "work": {
+            "U-DTL03": {
+              "title": "Forge-Triple: drawing-dimension-sanity hook + drawing_learning MCP actions + /blueprint-read accuracy upgrade",
+              "description": "Complete Forge-Triple: (1) drawing-dimension-sanity hook — validates extracted dimensions fall within physically plausible ranges for the part type (heading die bore 0.1\"-6\", electrode cavity depth 0.01\"-3\", etc.) and flags likely OCR misreads, (2) Wire drawing_learning dispatcher with actions: analyze_drawing_template, extract_features, drawing_accuracy_report, retrain_template, (3) Upgrade /blueprint-read skill to use DrawingTemplateAnalyzerEngine + DrawingFeatureExtractorEngine for JM Die drawings — template-aware parsing that knows exactly where each field lives.",
+              "depends_on": ["U-DTL01", "U-DTL02"],
+              "knowledge_consult": ["blueprint-read skill (existing OCR flow)", "BlueprintVisionOCREngine (OCR pipeline to enhance)"],
+              "exit_criteria": ["Hook catches implausible dimensions (OCR errors like 1.000\" misread as 7.000\")", "4 MCP actions callable via drawing_learning", "/blueprint-read accuracy >95% on JM Die drawings (vs generic baseline)", "Template-aware parsing activated for .idw-sourced PDFs"],
+              "rollback": {
+                "files_created": ["src/hooks/drawing-dimension-sanity.ts", "src/tools/dispatchers/drawing_learning.ts", "src/schemas/drawing_learning.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/blueprint-read.md", "src/engines/BlueprintVisionOCREngine.ts"],
+                "abort_criteria": ["Hook false positives on valid dimensions", "MCP actions not callable", "Blueprint-read accuracy regression on non-JM-Die drawings"],
+                "rollback_procedure": "git checkout -- src/hooks/drawing-dimension-sanity.ts src/tools/dispatchers/drawing_learning.ts src/schemas/drawing_learning.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/blueprint-read.md src/engines/BlueprintVisionOCREngine.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "drawing-dimension-sanity — validates extracted dimensions against part-type physical ranges, catches OCR misreads",
+        "mcp_action": "prism_drawing_learning:analyze_drawing_template, extract_features, drawing_accuracy_report, retrain_template",
+        "skill": "/blueprint-read (upgraded with template-aware parsing for JM Die .idw drawings, >95% accuracy)"
+      },
+
+      "exit_gate": {
+        "criteria": ["272 .idw drawings analyzed for template patterns", "Drawing template model extracted with field positions", "Die + electrode feature extraction >90% accuracy", "Hook catches OCR misreads via dimension sanity", "4 MCP actions callable", "/blueprint-read accuracy >95% on JM Die drawings"],
+        "omega_floor": 1.0,
+        "svi_delta": "+3%"
+      },
+
+      "feeds_into": ["Print-to-Program pipeline (accurate drawing input)", "DFM Check (extracted feature analysis)", "Quoting (auto-extracted dimensions for estimation)"]
+    },
+
+    {
+      "id": "RES-MS25",
+      "title": "NC Output Format Understanding — NcGenerator + Report Generator",
+      "track": "RES",
+      "dependencies": ["RES-MS2"],
+      "status": "not_started",
+      "total_units": 3,
+      "completed_units": 0,
+      "sessions": "1",
+
+      "smart_config": {
+        "role": "CNC Post Processor Engineer + Output Format Specialist",
+        "model": "sonnet",
+        "effort": "HIGH",
+        "context_budget": "35%"
+      },
+
+      "knowledge_sources": {
+        "engines": ["PostProcessorPipeline (38 stages)", "NcGeneratorConfigEngine", "ControllerDialectEngine (from RES-MS2)", "LathePostProcessor"],
+        "tribal": ["OPEN MIND NcGenerator handles G-code translation per controller", "9 CNC controller configs with dialect-specific rules", "Report Generator produces formatted output docs per language/template", "JM Die runs Okuma OSP, Haas NGC, Hurco WinMAX, Fanuc 31i-B5, Mitsubishi"],
+        "formulas": [],
+        "reference": ["OPEN MIND/NcGenerator/ (9 controller configs with G-code translation tables)", "OPEN MIND/Report Generator/ (15 languages x 9 XSLT templates)", "PostProcessorPipeline 38-stage reference"]
+      },
+
+      "intent": "PRISM understands the exact output format for every CNC controller in the shop. When generating NC code for the Okuma LB3000, it produces OSP-compatible output with correct G85/G87 boring cycles, M-code coolant control, and Okuma-specific tool offset format. For the Haas VF-2SS, it outputs NGC-compatible code with Haas-specific probing cycles and setting references. The Report Generator templates provide formatted job documentation in the operator's preferred language.",
+
+      "phases": [
+        {
+          "session": 1,
+          "title": "NcGenerator Config Parsing + Report Template Mapping + Forge-Triple",
+          "units": ["U-NCF01", "U-NCF02", "U-NCF03"],
+          "work": {
+            "U-NCF01": {
+              "title": "Build NcGeneratorParserEngine — parse 9 controller configs into G-code translation rules",
+              "description": "Parse OPEN MIND NcGenerator configs for each of the 9 CNC controller families: (1) Extract G-code translation tables (generic G-code → controller-specific G-code), (2) Extract M-code mappings per controller (coolant, spindle, clamp, ATC), (3) Extract format rules (line numbering, block structure, comment syntax, decimal precision), (4) Extract safety block templates (program start, program end, tool change, emergency stop), (5) Map each config to controllers in JM Die's shop (Okuma OSP config → 7 Okuma lathes + 1 mill). Build NcTranslationRuleSet per controller family.",
+              "depends_on": [],
+              "knowledge_consult": ["NcGeneratorConfigEngine (existing config handling)", "ControllerDialectEngine (from RES-MS2 — merge, don't duplicate)", "PostProcessorPipeline (38 stages)"],
+              "exit_criteria": ["9 controller configs parsed completely", "G-code translation tables extracted per controller", "M-code mappings extracted per controller", "JM Die machine-to-config mapping validated", "No duplication with ControllerDialectEngine (extend, don't rebuild)"],
+              "rollback": {
+                "files_created": ["src/engines/NcGeneratorParserEngine.ts", "src/__tests__/NcGeneratorParserEngine.test.ts", "src/data/nc-generator-rules.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Config parse failures", "G-code translation rules incomplete", "Duplication with ControllerDialectEngine"],
+                "rollback_procedure": "git checkout -- src/engines/NcGeneratorParserEngine.ts src/__tests__/NcGeneratorParserEngine.test.ts src/data/nc-generator-rules.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE (/prism-review) → GAP FILL (/test + edge cases) → TIE UP (no TODOs)"
+            },
+            "U-NCF02": {
+              "title": "Build NcOutputValidatorEngine — validate generated NC code against controller-specific rules",
+              "description": "Validation engine that checks generated NC programs against the parsed NcTranslationRuleSet: (1) Verify all G-codes are valid for target controller, (2) Verify M-codes match controller assignments, (3) Verify format compliance (line numbers, block structure, precision), (4) Verify safety blocks present (start/end sequences), (5) Verify no cross-controller contamination (Okuma G-codes in Haas program). Returns validation report with pass/fail per rule, specific line numbers for violations, and suggested fixes.",
+              "depends_on": ["U-NCF01"],
+              "knowledge_consult": ["PostProcessorPipeline (existing validation stages)", "program-validate skill (existing validation flow)"],
+              "exit_criteria": ["Validation catches wrong G-codes for controller", "Validation catches missing safety blocks", "Validation catches cross-controller contamination", "Line-specific violation reporting works", "Suggested fixes are controller-appropriate"],
+              "rollback": {
+                "files_created": ["src/engines/NcOutputValidatorEngine.ts", "src/__tests__/NcOutputValidatorEngine.test.ts"],
+                "files_modified": [],
+                "abort_criteria": ["Validation misses known bad G-codes", "False positives on valid programs", "No line-specific reporting"],
+                "rollback_procedure": "git checkout -- src/engines/NcOutputValidatorEngine.ts src/__tests__/NcOutputValidatorEngine.test.ts"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            },
+            "U-NCF03": {
+              "title": "Forge-Triple: nc-output-dialect hook + nc_output MCP actions + /program-validate enhancement",
+              "description": "Complete Forge-Triple: (1) nc-output-dialect hook — fires on every NC program generation, validates output G/M codes match target controller's translation rules, blocks programs with wrong controller dialect, (2) Wire nc_output dispatcher with actions: validate_nc_output, list_controller_configs, translate_gcode, nc_format_report, report_template_preview, (3) Enhance /program-validate skill to include controller-specific dialect validation using NcOutputValidatorEngine — catches Okuma codes in Haas programs before they reach the shop floor.",
+              "depends_on": ["U-NCF01", "U-NCF02"],
+              "knowledge_consult": ["program-validate skill (existing)", "PostProcessorPipeline (integration point)"],
+              "exit_criteria": ["Hook blocks wrong-dialect NC programs", "5 MCP actions callable via nc_output", "/program-validate includes controller dialect check", "Report template preview shows formatted output"],
+              "rollback": {
+                "files_created": ["src/hooks/nc-output-dialect.ts", "src/tools/dispatchers/nc_output.ts", "src/schemas/nc_output.ts"],
+                "files_modified": ["src/tools/dispatchers/index.ts", "src/hooks/index.ts", "skills/program-validate.md"],
+                "abort_criteria": ["Hook misses wrong-dialect codes", "MCP actions not callable", "Program-validate regression"],
+                "rollback_procedure": "git checkout -- src/hooks/nc-output-dialect.ts src/tools/dispatchers/nc_output.ts src/schemas/nc_output.ts src/tools/dispatchers/index.ts src/hooks/index.ts skills/program-validate.md"
+              },
+              "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+            }
+          },
+          "compact_checkpoint": true
+        }
+      ],
+
+      "forge_triple": {
+        "protective_hook": "nc-output-dialect — blocks NC programs containing G/M codes from wrong controller dialect",
+        "mcp_action": "prism_nc_output:validate_nc_output, list_controller_configs, translate_gcode, nc_format_report, report_template_preview",
+        "skill": "/program-validate (enhanced with controller-specific dialect validation)"
+      },
+
+      "exit_gate": {
+        "criteria": ["9 NcGenerator controller configs parsed", "G/M code translation rules extracted per controller", "Validation engine catches wrong-dialect codes", "Hook blocks cross-controller contamination", "5 MCP actions callable", "Report Generator templates mapped"],
+        "omega_floor": 1.0,
+        "svi_delta": "+3%"
+      },
+
+      "feeds_into": ["PP-MOAT track (post processor moat reinforcement)", "Program generation (controller-aware output)", "Setup sheet generation (controller-specific format sections)"]
+    }
+  ],
+
+  "summary": {
+    "total_milestones": 8,
+    "total_units": 28,
+    "total_sessions": 14,
+    "new_engines_estimated": 18,
+    "new_hooks_estimated": 8,
+    "new_mcp_actions_estimated": 37,
+    "new_skills_updated": 8,
+    "probing_cycles_indexed": 5753,
+    "fixture_assemblies_cataloged": 520,
+    "xslt_templates_parsed": 135,
+    "customer_portfolios_mined": 118,
+    "materials_enriched": "300-500",
+    "drawings_analyzed": 272,
+    "sdk_scripts_mapped": 46,
+    "nc_controller_configs": 9,
+    "compaction_points": 14
+  },
+
+  "dependency_graph": {
+    "RES-MS17": ["RES-MS13"],
+    "RES-MS19": ["RES-MS3", "RES-MS7"],
+    "RES-MS20": ["RES-MS13", "RES-MS14"],
+    "RES-MS21": ["RES-MS11"],
+    "RES-MS22": ["RES-MS0"],
+    "RES-MS23": ["RES-MS7", "RES-MS15"],
+    "RES-MS24": ["RES-MS0"],
+    "RES-MS25": ["RES-MS2"],
+    "parallelizable_wave_early": ["RES-MS22", "RES-MS24"],
+    "parallelizable_wave_mid": ["RES-MS17", "RES-MS19", "RES-MS20", "RES-MS21", "RES-MS25"],
+    "parallelizable_wave_late": ["RES-MS23"],
+    "cross_milestone_data_flows": {
+      "RES-MS17_probing → RES-MS20_setup_sheets": "Probing routine selection feeds into setup sheet probing section",
+      "RES-MS19_fixtures → RES-MS20_setup_sheets": "Fixture selection feeds into setup sheet fixture section",
+      "RES-MS21_customer_defaults → RES-MS20_setup_sheets": "Customer preferences influence setup sheet formatting",
+      "RES-MS22_materials → RES-MS21_customer_defaults": "Enriched material data improves customer material inference",
+      "RES-MS23_automation → RES-MS19_fixtures": "hyperMILL automation drives fixture auto-loading",
+      "RES-MS24_drawings → RES-MS21_customer_defaults": "Drawing analysis enriches customer part type patterns",
+      "RES-MS25_nc_output → RES-MS20_setup_sheets": "Controller format rules drive setup sheet formatting"
+    }
+  }
+}

@@ -1,0 +1,173 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2026-02-02T12:45:00Z",
+    "session": "SESSION-17-HOOK-MAXIMIZATION",
+    "phase": "Phase 0 - Hook Maximization",
+    "totalHooks": 7114,
+    "totalAgents": 64,
+    "mappedPairs": 1847
+  },
+  "tierAssignmentRules": {
+    "OPUS": {
+      "description": "Complex reasoning, safety-critical, multi-factor analysis",
+      "criteria": [
+        "S(x) < 0.70 violations",
+        "Anti-regression checks",
+        "Quality scoring (Ω computation)",
+        "Multi-step causal reasoning",
+        "Safety violations",
+        "Uncertainty > 30%"
+      ],
+      "cognitivePatterns": ["CAUSAL", "BAYES", "ENSEMBLE"],
+      "priorityRange": [90, 100],
+      "maxConcurrent": 3
+    },
+    "SONNET": {
+      "description": "Structured validation, calculations, code analysis",
+      "criteria": [
+        "Data validation",
+        "Mathematical calculations",
+        "Pattern matching",
+        "Code generation",
+        "Structured extraction"
+      ],
+      "cognitivePatterns": ["OPT", "GRAD", "MULTI"],
+      "priorityRange": [50, 89],
+      "maxConcurrent": 10
+    },
+    "HAIKU": {
+      "description": "Fast execution, formatting, simple checks",
+      "criteria": [
+        "Formatting tasks",
+        "Simple validations",
+        "Counting operations",
+        "Status checks",
+        "Logging"
+      ],
+      "cognitivePatterns": ["RL"],
+      "priorityRange": [0, 49],
+      "maxConcurrent": 20
+    }
+  },
+  "hookToAgentMapping": {
+    "calculation": {
+      "CALC-BEFORE-EXEC-001": { "tier": "OPUS", "agent": "AGENT-SAFETY-VALIDATOR", "reason": "Pre-execution safety validation" },
+      "CALC-AFTER-EXEC-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Simple logging task" },
+      "CALC-SAFETY-VIOLATION-001": { "tier": "OPUS", "agent": "AGENT-SAFETY-CRISIS", "reason": "CRITICAL safety handling" },
+      "CALC-UNCERTAINTY-EXCEED-001": { "tier": "OPUS", "agent": "AGENT-UNCERTAINTY-ANALYST", "reason": "Bayesian uncertainty analysis" },
+      "CALC-RANGE-CHECK-001": { "tier": "SONNET", "agent": "AGENT-RANGE-VALIDATOR", "reason": "Structured range validation" },
+      "CALC-KIENZLE-BEFORE-001": { "tier": "SONNET", "agent": "AGENT-PHYSICS-CALCULATOR", "reason": "Physics calculation validation" },
+      "CALC-TAYLOR-BEFORE-001": { "tier": "SONNET", "agent": "AGENT-PHYSICS-CALCULATOR", "reason": "Physics calculation validation" },
+      "CALC-JOHNSON-COOK-BEFORE-001": { "tier": "SONNET", "agent": "AGENT-PHYSICS-CALCULATOR", "reason": "Physics calculation validation" },
+      "CALC-MRR-VALIDATE-001": { "tier": "SONNET", "agent": "AGENT-LIMIT-CHECKER", "reason": "Machine limit validation" },
+      "CALC-POWER-CHECK-001": { "tier": "SONNET", "agent": "AGENT-POWER-ANALYST", "reason": "Power utilization analysis" },
+      "CALC-DEFLECTION-001": { "tier": "OPUS", "agent": "AGENT-DEFLECTION-SAFETY", "reason": "Safety-critical deflection check" },
+      "CALC-CHATTER-STABILITY-001": { "tier": "OPUS", "agent": "AGENT-STABILITY-ANALYST", "reason": "Complex stability lobe analysis" }
+    },
+    "file": {
+      "FILE-BEFORE-CREATE-001": { "tier": "SONNET", "agent": "AGENT-FILE-VALIDATOR", "reason": "Path and permission validation" },
+      "FILE-AFTER-CREATE-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Simple logging" },
+      "FILE-VALIDATION-FAIL-001": { "tier": "SONNET", "agent": "AGENT-ERROR-HANDLER", "reason": "Error recovery logic" },
+      "FILE-GCODE-VALIDATE-001": { "tier": "OPUS", "agent": "AGENT-GCODE-SAFETY", "reason": "SAFETY CRITICAL G-code validation" },
+      "FILE-JSON-VALIDATE-001": { "tier": "HAIKU", "agent": "AGENT-JSON-CHECKER", "reason": "Simple syntax validation" },
+      "FILE-BACKUP-CREATE-001": { "tier": "HAIKU", "agent": "AGENT-BACKUP-MANAGER", "reason": "Simple file copy" },
+      "FILE-SIZE-CHECK-001": { "tier": "HAIKU", "agent": "AGENT-SIZE-CHECKER", "reason": "Simple size comparison" },
+      "FILE-ENCODING-CHECK-001": { "tier": "HAIKU", "agent": "AGENT-ENCODING-CHECKER", "reason": "Simple encoding check" }
+    },
+    "state": {
+      "STATE-BEFORE-MUTATE-001": { "tier": "SONNET", "agent": "AGENT-STATE-SNAPSHOT", "reason": "State capture for rollback" },
+      "STATE-AFTER-MUTATE-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Mutation logging" },
+      "STATE-ROLLBACK-001": { "tier": "OPUS", "agent": "AGENT-ROLLBACK-MANAGER", "reason": "Complex rollback orchestration" },
+      "STATE-VALIDATE-MUTATION-001": { "tier": "SONNET", "agent": "AGENT-TRANSITION-VALIDATOR", "reason": "State transition validation" },
+      "STATE-CHECKPOINT-001": { "tier": "HAIKU", "agent": "AGENT-CHECKPOINT-CREATOR", "reason": "Simple checkpoint creation" },
+      "STATE-ANTI-REGRESSION-001": { "tier": "OPUS", "agent": "AGENT-ANTI-REGRESSION", "reason": "CRITICAL: Prevents data loss" }
+    },
+    "agent": {
+      "AGENT-BEFORE-SPAWN-001": { "tier": "SONNET", "agent": "AGENT-SPAWN-VALIDATOR", "reason": "Tier and resource validation" },
+      "AGENT-AFTER-SPAWN-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Spawn logging" },
+      "AGENT-ERROR-001": { "tier": "OPUS", "agent": "AGENT-ERROR-ANALYST", "reason": "Complex error analysis and recovery" },
+      "AGENT-TIER-VALIDATE-001": { "tier": "OPUS", "agent": "AGENT-TIER-OPTIMIZER", "reason": "Bayesian tier optimization" },
+      "AGENT-RESOURCE-CHECK-001": { "tier": "SONNET", "agent": "AGENT-RESOURCE-MANAGER", "reason": "Resource availability check" }
+    },
+    "batch": {
+      "BATCH-BEFORE-EXEC-001": { "tier": "SONNET", "agent": "AGENT-BATCH-VALIDATOR", "reason": "Batch parameter validation" },
+      "BATCH-AFTER-EXEC-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Result logging" },
+      "BATCH-PARTIAL-FAILURE-001": { "tier": "OPUS", "agent": "AGENT-PARTIAL-RECOVERY", "reason": "Complex recovery decisions" },
+      "BATCH-CHECKPOINT-001": { "tier": "HAIKU", "agent": "AGENT-CHECKPOINT-CREATOR", "reason": "Simple checkpoint" },
+      "BATCH-PROGRESS-001": { "tier": "HAIKU", "agent": "AGENT-PROGRESS-TRACKER", "reason": "Progress tracking" },
+      "BATCH-ROLLBACK-001": { "tier": "OPUS", "agent": "AGENT-ROLLBACK-MANAGER", "reason": "Complex rollback orchestration" }
+    },
+    "formula": {
+      "FORMULA-BEFORE-APPLY-001": { "tier": "SONNET", "agent": "AGENT-FORMULA-VALIDATOR", "reason": "Input validation" },
+      "FORMULA-AFTER-APPLY-001": { "tier": "HAIKU", "agent": "AGENT-LOGGER", "reason": "Result logging" },
+      "FORMULA-MAPE-EXCEED-001": { "tier": "OPUS", "agent": "AGENT-ACCURACY-ANALYST", "reason": "Bayesian accuracy analysis" },
+      "FORMULA-CACHE-CHECK-001": { "tier": "HAIKU", "agent": "AGENT-CACHE-MANAGER", "reason": "Simple cache lookup" }
+    }
+  },
+  "agentInventory": {
+    "OPUS": [
+      { "id": "AGENT-SAFETY-VALIDATOR", "description": "Pre-execution safety validation", "hookCount": 2 },
+      { "id": "AGENT-SAFETY-CRISIS", "description": "Critical safety violation handling", "hookCount": 1 },
+      { "id": "AGENT-UNCERTAINTY-ANALYST", "description": "Bayesian uncertainty analysis", "hookCount": 1 },
+      { "id": "AGENT-DEFLECTION-SAFETY", "description": "Tool deflection safety analysis", "hookCount": 1 },
+      { "id": "AGENT-STABILITY-ANALYST", "description": "Chatter stability analysis", "hookCount": 1 },
+      { "id": "AGENT-GCODE-SAFETY", "description": "G-code safety validation", "hookCount": 1 },
+      { "id": "AGENT-ROLLBACK-MANAGER", "description": "Complex rollback orchestration", "hookCount": 2 },
+      { "id": "AGENT-ANTI-REGRESSION", "description": "Anti-regression enforcement", "hookCount": 1 },
+      { "id": "AGENT-ERROR-ANALYST", "description": "Complex error analysis", "hookCount": 1 },
+      { "id": "AGENT-TIER-OPTIMIZER", "description": "Bayesian tier optimization", "hookCount": 1 },
+      { "id": "AGENT-PARTIAL-RECOVERY", "description": "Partial failure recovery", "hookCount": 1 },
+      { "id": "AGENT-ACCURACY-ANALYST", "description": "Formula accuracy analysis", "hookCount": 1 }
+    ],
+    "SONNET": [
+      { "id": "AGENT-RANGE-VALIDATOR", "description": "Input range validation", "hookCount": 1 },
+      { "id": "AGENT-PHYSICS-CALCULATOR", "description": "Physics formula validation", "hookCount": 3 },
+      { "id": "AGENT-LIMIT-CHECKER", "description": "Machine limit validation", "hookCount": 1 },
+      { "id": "AGENT-POWER-ANALYST", "description": "Power utilization analysis", "hookCount": 1 },
+      { "id": "AGENT-FILE-VALIDATOR", "description": "File path validation", "hookCount": 1 },
+      { "id": "AGENT-ERROR-HANDLER", "description": "Error recovery logic", "hookCount": 1 },
+      { "id": "AGENT-STATE-SNAPSHOT", "description": "State capture for rollback", "hookCount": 1 },
+      { "id": "AGENT-TRANSITION-VALIDATOR", "description": "State transition validation", "hookCount": 1 },
+      { "id": "AGENT-SPAWN-VALIDATOR", "description": "Agent spawn validation", "hookCount": 1 },
+      { "id": "AGENT-RESOURCE-MANAGER", "description": "Resource availability check", "hookCount": 1 },
+      { "id": "AGENT-BATCH-VALIDATOR", "description": "Batch parameter validation", "hookCount": 1 },
+      { "id": "AGENT-FORMULA-VALIDATOR", "description": "Formula input validation", "hookCount": 1 }
+    ],
+    "HAIKU": [
+      { "id": "AGENT-LOGGER", "description": "Simple logging operations", "hookCount": 7 },
+      { "id": "AGENT-JSON-CHECKER", "description": "JSON syntax validation", "hookCount": 1 },
+      { "id": "AGENT-BACKUP-MANAGER", "description": "File backup operations", "hookCount": 1 },
+      { "id": "AGENT-SIZE-CHECKER", "description": "File size validation", "hookCount": 1 },
+      { "id": "AGENT-ENCODING-CHECKER", "description": "Encoding validation", "hookCount": 1 },
+      { "id": "AGENT-CHECKPOINT-CREATOR", "description": "Checkpoint creation", "hookCount": 2 },
+      { "id": "AGENT-PROGRESS-TRACKER", "description": "Progress tracking", "hookCount": 1 },
+      { "id": "AGENT-CACHE-MANAGER", "description": "Cache operations", "hookCount": 1 }
+    ]
+  },
+  "coverageStatistics": {
+    "phase0Hooks": 41,
+    "mappedToAgents": 41,
+    "coveragePercent": 100,
+    "byTier": {
+      "OPUS": { "hooks": 14, "percent": 34.1 },
+      "SONNET": { "hooks": 12, "percent": 29.3 },
+      "HAIKU": { "hooks": 15, "percent": 36.6 }
+    },
+    "byCategory": {
+      "calculation": { "hooks": 12, "mapped": 12 },
+      "file": { "hooks": 8, "mapped": 8 },
+      "state": { "hooks": 6, "mapped": 6 },
+      "agent": { "hooks": 5, "mapped": 5 },
+      "batch": { "hooks": 6, "mapped": 6 },
+      "formula": { "hooks": 4, "mapped": 4 }
+    }
+  },
+  "safetyConstraints": {
+    "safetyHooksRequireOPUS": true,
+    "antiRegressionRequiresOPUS": true,
+    "gCodeValidationRequiresOPUS": true,
+    "uncertaintyAbove30RequiresOPUS": true,
+    "partialFailureRequiresOPUS": true
+  }
+}

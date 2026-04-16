@@ -1,0 +1,22 @@
+{
+  "id": "PP-REV-MS2",
+  "title": "Tool Optimization + Magazine Layout",
+  "track": "PP-REV",
+  "status": "complete",
+  "description": "Wire ToolChangeOptimizationEngine to productDispatcher with tool change resequencing (TSP), magazine pocket optimization, and sister tool placement. Web UI with editable operations table, visual magazine layout, and savings metrics.",
+  "dependencies": ["PP-REV-MS1"],
+  "sessions": [
+    {
+      "id": "PP-REV-MS2-S1",
+      "title": "Wire Engines + API Routes + Web UI",
+      "units": [
+        { "id": "U-REV13", "title": "Wire ToolChangeOptimizationEngine (ppg_tool_change_optimize) — pre-existing", "status": "complete" },
+        { "id": "U-REV14", "title": "Wire ToolMagazineOptimizationEngine (ppg_magazine_layout) — pre-existing", "status": "complete" },
+        { "id": "U-REV15", "title": "Tool optimization integrated in OptimizationReportEngine — pre-existing", "status": "complete" },
+        { "id": "U-REV16", "title": "API routes + client + ToolOptimizationPage.tsx + 24 tests", "status": "complete" }
+      ]
+    }
+  ],
+  "total_units": 4,
+  "completed_units": 4
+}

@@ -1,0 +1,174 @@
+{
+  "id": "CAMX-V17-P3",
+  "version": "8.0.0",
+  "title": "Upgrade ALL Pipelines to Level 3+ Decision Quality",
+  "brief": "Every decision evaluates ≥3 alternatives with physics scoring. No more hardcoded switch/case for critical decisions. ToolpathCostComparison shows strategy×tooling matrix.",
+  "created_at": "2026-03-23T11:07:22Z",
+  "created_by": "claude-opus-4.6",
+  "roadmap_version": "v17-final",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Level 3 Decision Upgrades",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Turning: selectInsert() → SCORED selection from KB",
+          "description": "Replace switch/case with KB selectInsertGeometry(). Evaluate 5+ geometries (CNMG/DNMG/VNMG/WNMG/CCMT). Score by geometry fit, nose radius vs Ra, approach angle vs access, strength vs force, cost. Return top 3 with rationale.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Turning: selectInsert() → SCORED selection from KB complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "Turning: calculateCuttingParams() → FULL Kienzle + manufacturer data",
+          "description": "Add approach angle. Add nose radius engagement. Add thermal derating. Use KB getSpeed() + manufacturer S/F data instead of inline tables.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Turning: calculateCuttingParams() → FULL Kienzle + manufacturer data complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "Milling: real geometry + pocket toolpath + cutter comp",
+          "description": "Feature XYZ dims → real coordinates. Pocket offset clearing (zigzag simple, adaptive complex). G41/G42 for contour ops. Chip thinning correction.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Milling: real geometry + pocket toolpath + cutter comp complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "5-Axis: real multi-point toolpath + G93 + kinematics",
+          "description": "Generate XYZ-AB point arrays via CutterContactEngine. G93 inverse time. Machine kinematic limits from MachineProfile. ToolAxisOptimizationEngine for orientation.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "5-Axis: real multi-point toolpath + G93 + kinematics complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "Grinding: SCORED wheel selection from 11 specs",
+          "description": "Evaluate ALL 11 wheel specs against target Ra, material, operation. Score and rank.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Grinding: SCORED wheel selection from 11 specs complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "Laser: auto-select process mode (fiber vs CO2 × assist gas)",
+          "description": "Score combinations using existing material DB (R_fiber, R_co2, recommended_gas).",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Laser: auto-select process mode (fiber vs CO2 × assist gas) complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Waterjet: auto-select quality + pierce strategy",
+          "description": "Score Q1-Q5 against target Ra + taper. Auto-select pierce from material brittleness.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "Waterjet: auto-select quality + pierce strategy complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "ALL: wire OptimalStrategySelection into every pipeline",
+          "description": "Query E1087 for strategy with physics scoring. Not internal switch/case.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "ALL: wire OptimalStrategySelection into every pipeline complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U09",
+          "title": "ALL: wire PipelineDecisionOrchestrator for audit trail",
+          "description": "Every decision through E1080 for 5-axis scoring + safety veto + justification.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "ALL: wire PipelineDecisionOrchestrator for audit trail complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U10",
+          "title": "Build ToolpathCostComparisonEngine",
+          "description": "Generate 2+ options (simple vs advanced toolpath, crib vs catalog tools). Show cost comparison matrix. Batch economics.",
+          "smart_config": "OPUS/MAX",
+          "exit_conditions": [
+            "Build ToolpathCostComparisonEngine complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U11",
+          "title": "ALL: wire collision avoidance per machine type",
+          "description": "CollisionPreventionEngine with machine-specific zones (turret swing, spindle head, wire guide, nozzle, etc.).",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "ALL: wire collision avoidance per machine type complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U12",
+          "title": "ALL: add MC uncertainty (500 trials) to cutting pipelines",
+          "description": "Milling, 5-Axis, Turning, Mill-Turn get CI95 on force/life/Ra matching grinding/EDM/laser/waterjet standard.",
+          "smart_config": "OPUS/HIGH",
+          "exit_conditions": [
+            "ALL: add MC uncertainty (500 trials) to cutting pipelines complete",
+            "Build passes",
+            "/prism-review passes",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

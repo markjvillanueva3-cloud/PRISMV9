@@ -1,0 +1,61 @@
+{
+  "id": "MXU-MS6",
+  "version": "1.0.0",
+  "title": "Product-Pillar Capability Packages",
+  "brief": "Define activation bundles for 4 product pillars: speed/feed (including fusion_tier routing), post-processing, print-to-program, and ERP/quote. Identify capability gaps per bundle. Define activation order and durable memory per pillar.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Bundle Definition & Gap Analysis",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define speed/feed pillar bundle with fusion_tier routing (Tier 1 empirical, Tier 2 analytical, Tier 3 FEA)",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Define post-processing pillar bundle: G-code generation, verification, optimization",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define print-to-program pillar bundle: drawing interpretation, feature recognition, CAM path",
+          "effort": 60,
+          "dependencies": []
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Activation Order & Memory",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Define ERP/quote pillar bundle: cost estimation, time calculation, material planning",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P1-U02",
+          "title": "Identify capability gaps per bundle and map to EIGC promotion decisions",
+          "effort": 50,
+          "dependencies": ["P0-U01", "P0-U02", "P0-U03", "P1-U01"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS3", "EIGC-MS4"],
+  "exit_conditions": ["4 pillar bundles fully defined with capability lists", "Gaps identified and mapped to EIGC decisions", "Activation order documented", "Durable memory schema defined per pillar"],
+  "notes": "Depends on EIGC-MS4 feature promotion decisions — bundle contents may shift based on promote/downgrade outcomes",
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

@@ -1,0 +1,506 @@
+{
+  "id": "MCAT-MS0-LEGALITY-GRAPH-2026-04-02",
+  "parentMilestone": "MCAT-MS0",
+  "lane": "MCAT-MS0/P1-U01-support",
+  "status": "working",
+  "derivedFrom": [
+    "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.md",
+    "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.json",
+    "H:/PRISM/mcp-server/src/contracts/userMachineProfile.ts",
+    "H:/PRISM/mcp-server/web/src/utils/machineConfigurationOptions.ts",
+    "H:/PRISM/mcp-server/web/src/utils/machinePackageContract.ts",
+    "H:/PRISM/mcp-server/web/src/pages/CalculatorPage.tsx",
+    "H:/PRISM/mcp-server/src/utils/calculatorToolHolderCatalog.ts"
+  ],
+  "canonicalPrecedence": [
+    "backend_merged_machine_package",
+    "backend_machine_configuration_bundle",
+    "backend_material_tool_holder_workholding_toolpath_legality",
+    "user_machine_profile_overlay",
+    "frontend_fallback_surfaces",
+    "explicit_ambiguity_or_unavailable_state"
+  ],
+  "partitions": [
+    "mill",
+    "lathe",
+    "swiss",
+    "mill_turn",
+    "vtl",
+    "wire_edm",
+    "sinker_edm",
+    "laser",
+    "waterjet"
+  ],
+  "bridges": {
+    "allowed": [
+      {
+        "id": "mill_turn_dual_mode",
+        "from": "mill_turn",
+        "to": [
+          "lathe_tool_families",
+          "live_milling_tool_families"
+        ]
+      },
+      {
+        "id": "swiss_turning_bridge",
+        "from": "swiss",
+        "to": [
+          "turning_tool_families",
+          "gang_or_live_tool_holders"
+        ]
+      },
+      {
+        "id": "vtl_turning_bridge",
+        "from": "vtl",
+        "to": [
+          "turning_tool_families"
+        ]
+      }
+    ],
+    "forbidden": [
+      {
+        "id": "mill_to_turret_holder",
+        "reason": "mills may not inherit turret-only holders without an explicit bridge"
+      },
+      {
+        "id": "lathe_to_cat_bt_hska_without_bridge",
+        "reason": "turning platforms need explicit driven-tool or milling-head topology before spindle-holder legality exists"
+      },
+      {
+        "id": "non_spindle_modes_to_holder_space",
+        "reason": "wire_edm, sinker_edm, laser, and waterjet do not use spindle-holder legality"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "machine_package",
+      "kind": "entity",
+      "requiredFields": [
+        "canonicalMachineId",
+        "packageId",
+        "manufacturerId",
+        "manufacturerLabel",
+        "modelLabel",
+        "mode",
+        "familyId",
+        "familyLabel",
+        "machineTypeId",
+        "machineTypeLabel",
+        "axisClass",
+        "orientation",
+        "toolingLayout",
+        "packageProvenance"
+      ]
+    },
+    {
+      "id": "machine_configuration_bundle",
+      "kind": "bundle",
+      "setValuedFields": [
+        "controllerOptions",
+        "spindleOptions",
+        "coolantOptionIds",
+        "controllerCapabilityOptions",
+        "sourceRecordIds"
+      ]
+    },
+    {
+      "id": "controller_package",
+      "kind": "entity",
+      "scalarFields": [
+        "controllerId",
+        "controllerLabel"
+      ],
+      "setValuedFields": [
+        "enabledControllerFeatureIds"
+      ]
+    },
+    {
+      "id": "spindle_package",
+      "kind": "entity",
+      "scalarFields": [
+        "spindlePackageId",
+        "interfaceId",
+        "taper",
+        "maxRpm",
+        "maxPowerHp",
+        "maxTorqueFtLb"
+      ]
+    },
+    {
+      "id": "coolant_set",
+      "kind": "set",
+      "members": [
+        "flood",
+        "tsc",
+        "through_air",
+        "mist",
+        "air",
+        "dielectric"
+      ]
+    },
+    {
+      "id": "machine_capability_bundle",
+      "kind": "set",
+      "examples": [
+        "probing",
+        "5_axis_package",
+        "cas",
+        "machining_navi",
+        "high_speed_mode",
+        "sub_spindle",
+        "live_tooling",
+        "milling_head",
+        "second_turret"
+      ]
+    },
+    {
+      "id": "tooling_layout_topology",
+      "kind": "entity",
+      "requiredFields": [
+        "kind",
+        "stations",
+        "stationOptions",
+        "allowCustomStations",
+        "interfaceId",
+        "spindleConnectionTypeId",
+        "turretTypeId",
+        "turretCount",
+        "hasSubSpindle",
+        "hasMillingHead",
+        "liveTooling"
+      ]
+    },
+    {
+      "id": "holder_bundle",
+      "kind": "bundle",
+      "requiredFields": [
+        "holderId",
+        "holderStyleIds",
+        "holderType",
+        "holderSubcategory",
+        "compatibleLayoutKinds",
+        "compatibleSpindleConnectionTypeIds",
+        "compatibleTurretTypeIds",
+        "requiresLiveTooling",
+        "requiresMillingHead",
+        "minTurretCount",
+        "toolInterface"
+      ]
+    },
+    {
+      "id": "tool_bundle",
+      "kind": "bundle",
+      "requiredFields": [
+        "toolId",
+        "mode",
+        "family",
+        "operation",
+        "supportedOperations",
+        "geometryClass",
+        "holderInterface"
+      ]
+    },
+    {
+      "id": "cam_environment",
+      "kind": "entity",
+      "requiredFields": [
+        "environmentId",
+        "mode",
+        "kind",
+        "vendor",
+        "licensedToolpaths"
+      ]
+    },
+    {
+      "id": "toolpath_strategy",
+      "kind": "entity",
+      "requiredFields": [
+        "toolpathId",
+        "operationId",
+        "mode",
+        "pathFamily"
+      ]
+    },
+    {
+      "id": "material_state",
+      "kind": "entity",
+      "requiredFields": [
+        "group",
+        "subcategory",
+        "grade",
+        "condition",
+        "provenance"
+      ]
+    },
+    {
+      "id": "fixture_bundle",
+      "kind": "bundle",
+      "requiredFields": [
+        "fixtureFamily",
+        "clampingPosture",
+        "stockShapeCompatibility",
+        "machineModeCompatibility"
+      ]
+    },
+    {
+      "id": "user_overlay",
+      "kind": "bundle",
+      "requiredFields": [
+        "selectedControllerId",
+        "enabledControllerFeatureIds",
+        "selectedSpindlePackageId",
+        "enabledCoolantStrategyIds",
+        "toolingStationCountOverride",
+        "measuredPerformance",
+        "enabledWorkholdingIds",
+        "enabledSoftwareBindings"
+      ]
+    }
+  ],
+  "setValuedDomains": [
+    "enabledControllerFeatureIds",
+    "enabledMachineFeatureIds",
+    "enabledCoolantStrategyIds",
+    "holderStyleIds",
+    "compatibleLayoutKinds",
+    "compatibleSpindleConnectionTypeIds",
+    "compatibleTurretTypeIds",
+    "supportedOperations",
+    "licensedToolpaths",
+    "enabledWorkholdingIds",
+    "enabledSoftwareBindings"
+  ],
+  "modeProfiles": {
+    "mill": {
+      "allowedLayoutKinds": [
+        "magazine"
+      ],
+      "allowedInterfaceFamilies": [
+        "cat40",
+        "cat40-big-plus",
+        "cat50",
+        "bt40",
+        "bt50",
+        "hsk-a63",
+        "hsk-a100",
+        "sk40",
+        "sk50",
+        "r8"
+      ]
+    },
+    "lathe": {
+      "allowedLayoutKinds": [
+        "turret"
+      ],
+      "allowedInterfaceFamilies": [
+        "vdi20",
+        "vdi25",
+        "vdi30",
+        "vdi40",
+        "vdi50",
+        "vdi60",
+        "bmt45",
+        "bmt55",
+        "bmt65",
+        "bmt75",
+        "capto-c3",
+        "capto-c4",
+        "capto-c5",
+        "capto-c6",
+        "capto-c8",
+        "psc32",
+        "psc40",
+        "psc50",
+        "psc63",
+        "psc80",
+        "hsk-t63",
+        "hsk-t80",
+        "hsk-t100"
+      ]
+    },
+    "swiss": {
+      "allowedLayoutKinds": [
+        "gang"
+      ],
+      "requiredFlags": [
+        "guide_bushing_or_equivalent_support",
+        "explicit_live_tooling_if_milling_is_legal"
+      ]
+    },
+    "mill_turn": {
+      "allowedLayoutKinds": [
+        "turret"
+      ],
+      "requiredFlags": [
+        "liveTooling_or_hasMillingHead",
+        "explicit_turretCount"
+      ]
+    },
+    "wire_edm": {
+      "allowedLayoutKinds": [
+        "wire"
+      ],
+      "disallows": [
+        "spindle_holder_legality"
+      ]
+    },
+    "sinker_edm": {
+      "allowedLayoutKinds": [
+        "electrode"
+      ],
+      "disallows": [
+        "spindle_holder_legality"
+      ]
+    },
+    "laser": {
+      "allowedLayoutKinds": [
+        "laser"
+      ],
+      "disallows": [
+        "spindle_holder_legality"
+      ]
+    },
+    "waterjet": {
+      "allowedLayoutKinds": [
+        "waterjet"
+      ],
+      "disallows": [
+        "spindle_holder_legality"
+      ]
+    }
+  },
+  "edges": [
+    {
+      "id": "machine_to_configuration",
+      "from": "machine_package",
+      "to": "machine_configuration_bundle",
+      "rule": "selected controller, spindle, coolant, and controller features must resolve through a machine-owned configuration bundle"
+    },
+    {
+      "id": "configuration_to_controller",
+      "from": "machine_configuration_bundle",
+      "to": "controller_package",
+      "rule": "selectedControllerId must belong to the configuration bundle"
+    },
+    {
+      "id": "configuration_to_spindle",
+      "from": "machine_configuration_bundle",
+      "to": "spindle_package",
+      "rule": "selectedSpindlePackageId must belong to the configuration bundle"
+    },
+    {
+      "id": "configuration_to_coolant_set",
+      "from": "machine_configuration_bundle",
+      "to": "coolant_set",
+      "rule": "enabledCoolantStrategyIds must be a subset of the active configuration bundle coolant ids"
+    },
+    {
+      "id": "topology_to_holder",
+      "from": "tooling_layout_topology",
+      "to": "holder_bundle",
+      "rule": "holder bundle must satisfy layout kind, interface family, live-tooling, milling-head, and turret-count constraints"
+    },
+    {
+      "id": "holder_to_tool",
+      "from": "holder_bundle",
+      "to": "tool_bundle",
+      "rule": "holder interface/style must match the selected tool family and operation expectations"
+    },
+    {
+      "id": "mode_to_tool",
+      "from": "machine_package",
+      "to": "tool_bundle",
+      "rule": "tool mode must remain inside the machine partition unless a declared bridge exists"
+    },
+    {
+      "id": "cam_to_toolpath",
+      "from": "cam_environment",
+      "to": "toolpath_strategy",
+      "rule": "selected toolpath must belong to the active CAM environment or map to an explicit backend canonical strategy"
+    },
+    {
+      "id": "toolpath_to_tool",
+      "from": "toolpath_strategy",
+      "to": "tool_bundle",
+      "rule": "selected tool must support the toolpath operation family"
+    },
+    {
+      "id": "material_to_cutting_stack",
+      "from": "material_state",
+      "to": [
+        "tool_bundle",
+        "toolpath_strategy",
+        "coolant_set"
+      ],
+      "rule": "material state narrows legal tool, strategy, coolant, and finish expectations"
+    },
+    {
+      "id": "fixture_to_machine_and_path",
+      "from": "fixture_bundle",
+      "to": [
+        "machine_package",
+        "toolpath_strategy"
+      ],
+      "rule": "fixture bundle must respect machine mode, stock shape, and operation family"
+    },
+    {
+      "id": "overlay_to_canonical",
+      "from": "user_overlay",
+      "to": [
+        "machine_package",
+        "machine_configuration_bundle"
+      ],
+      "rule": "overlay may narrow or evidence-enable but may not invent unsupported combinations without provenance"
+    }
+  ],
+  "ambiguityClasses": [
+    "stale_metadata",
+    "merge_conflict",
+    "inferred_option",
+    "fallback_surface",
+    "corpus_gap",
+    "consumer_drift",
+    "numeric_unbounded"
+  ],
+  "confidenceTiers": [
+    "published",
+    "merged",
+    "shop_audit",
+    "dealer_spec",
+    "inferred",
+    "fallback"
+  ],
+  "negativeControls": [
+    "CAT/BT/HSK-A holder on a plain turret lathe without milling-head or driven-tool bridge",
+    "BMT/VDI/CAPTO turret holder on a plain mill magazine machine",
+    "controller feature selection outside the selected controller package",
+    "coolant selection not present in the active machine configuration",
+    "tooling station override outside station options when custom stations are disabled",
+    "saved machine profile that mixes controller/spindle packages from incompatible configurations",
+    "fallback workholding or fallback CAM/toolpath surfaces silently promoted to canonical legality"
+  ],
+  "consumerEnforcement": {
+    "calculator": [
+      "may render fallback surfaces",
+      "may not convert fallback-only data into canonical legality",
+      "must remain package-driven for controller, spindle, coolant, holder, and tool compatibility"
+    ],
+    "userMachineProfile": [
+      "is the canonical overlay persistence surface",
+      "must validate all selected subsets against canonical machine truth"
+    ],
+    "programRelease": [
+      "may consume machine identity, family, controller, and spindle truth from the canonical machine graph",
+      "must not maintain a divergent machine selector contract"
+    ],
+    "printToCnc": [
+      "must bind to the same machine package and overlay surfaces before shipping machine-aware automation"
+    ]
+  },
+  "immediateNext": [
+    "U-MVAR03 - publish the metric and risk contract",
+    "recover unwired workholding and backend toolpath registry edges",
+    "lift holder legality beyond TOOLHOLDERS.json so backend-only holder families join the calculator legality surface"
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "id": "PP-MS1",
+  "version": "6.2.0",
+  "title": "Physics Optimization Stages — Speed/Feed + Engagement + Stability + Deflection",
+  "created_at": "2026-03-13T20:00:00Z",
+  "description": "Wire the physics foundation stages (Phase 1) into the pipeline. These stages compute the base cutting parameters per operation using UltimateSpeedFeedEngine, then refine with constitutive models, stability lobe analysis, spindle harmonics, tool deflection limits, chip morphology prediction, coolant strategy, fixture force verification, and process capability forecasting. Every parameter is physics-backed, not table-lookup.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Core Physics Stages (Phase 1 of Pipeline)",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Stage 1.1 — UltimateSpeedFeed base calculation per operation",
+          "status": "complete",
+          "steps": [
+            "Wire UltimateSpeedFeedEngine.calculate() as pipeline stage",
+            "Input: MaterialContext + ToolContext + operation type + aggressiveness",
+            "Output: base Vc, fz, RPM, feed_mm_min, MRR, power_kW, torque_Nm per operation",
+            "Apply aggressiveness scaling: 0.0→60% of physics max, 0.5→85%, 1.0→100%",
+            "Clamp to machine limits from MachineContext (max RPM, max power, max torque)",
+            "Store base S/F in PipelineContext for downstream stages to refine"
+          ],
+          "exit_conditions": [
+            "Base S/F calculated for all standard operations (facing, profiling, pocketing, drilling, tapping, boring, threading, slotting)",
+            "Machine limits correctly clamp results",
+            "Aggressiveness slider produces measurable differences"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Stage 1.2 — Constitutive model refinement (flow stress at cutting temperature)",
+          "status": "complete",
+          "steps": [
+            "Wire ConstitutiveModelEngine for material behavior at actual cutting temperature",
+            "Calculate cutting temperature from Loewen-Shaw model (already in UltimateSpeedFeed)",
+            "Adjust kc1.1 based on thermal softening — Johnson-Cook: σ = (A+Bε^n)(1+C·ln(ε̇/ε̇₀))(1-(T-T_r/T_m-T_r)^m)",
+            "For titanium/nickel alloys: use Zerilli-Armstrong (BCC/FCC variants)",
+            "Adjust force predictions downstream based on actual flow stress, not room-temp kc1.1",
+            "If LAMThermalSofteningEngine data available, incorporate laser preheat effects"
+          ],
+          "exit_conditions": [
+            "Cutting force predictions adjust for thermal softening",
+            "Titanium at high speed shows significant softening correction",
+            "Aluminum shows minimal correction (validates physics)"
+          ]
+        },
+        {
+          "id": "U03",
+          "title": "Stage 1.3-1.4 — Stability lobes + Spindle harmonics → chatter-free RPM selection",
+          "status": "complete",
+          "steps": [
+            "Wire StochasticChatterEngine: compute stability lobe diagram for tool+holder+machine assembly",
+            "Input: tool geometry, holder stiffness, machine modal params (if available, else estimate from catalog)",
+            "Identify stable RPM pockets — prefer these over unstable zones",
+            "Wire spindle harmonic avoidance: avoid RPM values near machine natural frequencies",
+            "If stability data unavailable, use conservative depth-of-cut limits (50% of tool diameter for roughing)",
+            "Output: adjusted RPM (may shift from base to nearest stable pocket), max stable ap",
+            "Add warning if requested ap exceeds stability limit"
+          ],
+          "exit_conditions": [
+            "RPM shifts to stable pocket when base RPM falls in unstable zone",
+            "Stability lobes computed for at least 3 tool geometries",
+            "Warning generated when ap > stable limit",
+            "Graceful fallback when modal data unavailable"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Stage 1.5-1.6 — Tool deflection limits + Chip morphology prediction",
+          "status": "complete",
+          "steps": [
+            "Wire StochasticDeflectionEngine: δ = FL³/3EI with runout (TIR from holder)",
+            "Calculate max allowable force for target deflection (user tolerance or default 0.01mm for finishing, 0.05mm for roughing)",
+            "If deflection exceeds limit, reduce feed (primary) or ap (secondary) until force ≤ limit",
+            "Wire ChipMorphologyDiagnosticEngine: predict chip type from Merchant shear angle model",
+            "Verify chip evacuation — continuous chips in deep pockets → suggest chip breaker or peck cycle",
+            "For exotic materials (Inconel, Ti): flag bird's-nest chip risk above certain fz thresholds"
+          ],
+          "exit_conditions": [
+            "Slender tools (L/D > 5) get automatic feed reduction",
+            "Deflection-limited feed is lower than force-limited feed for long reach tools",
+            "Chip type prediction matches ISO 3685 classification",
+            "Deep pocket operations get chip evacuation warnings"
+          ]
+        },
+        {
+          "id": "U05",
+          "title": "Stage 1.7-1.9 — Coolant strategy + Fixture force check + Process capability forecast",
+          "status": "complete",
+          "steps": [
+            "Wire CoolantDynamicsEngine: select coolant type based on material + operation + playbook rules",
+            "TSC (through-spindle coolant): calculate required pressure from Reynolds number model",
+            "MQL: spray parameters from material thermal conductivity",
+            "Cryogenic: LN2/CO2 flow from CryogenicCuttingEngine heat transfer model",
+            "Wire FixtureClampingEngine: verify clamping force > cutting force × safety factor (2.0 default)",
+            "If fixture data unavailable, flag as unverified with recommendation",
+            "Wire ProcessCapabilityPredictionEngine: forecast Cpk before cutting",
+            "Monte Carlo: combine tool deflection + thermal growth + machine error + material variability → predicted dimensional distribution",
+            "Warn if predicted Cpk < 1.33 for critical dimensions"
+          ],
+          "exit_conditions": [
+            "Coolant type auto-selected per material group (flood for steel, MQL for aluminum, cryo for titanium)",
+            "Fixture force check warns when cutting force approaches 50% of clamping force",
+            "Cpk forecast produces realistic confidence intervals",
+            "All stages degrade gracefully when data is missing",
+            "25+ tests across all Phase 1 stages"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

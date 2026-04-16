@@ -1,0 +1,171 @@
+════════════════════════════════════════════════════════════════════════════════
+ROADMAP SCRUTINY AGENT 1/20 — STRUCTURAL COMPLIANCE REPORT
+════════════════════════════════════════════════════════════════════════════════
+
+MILESTONE: PIPELINE-VAR-MS0
+File: H:\prism\mcp-server\data\milestones\PIPELINE-VAR-MS0.json
+Date: 2026-04-03
+Status: NOT STARTED
+
+════════════════════════════════════════════════════════════════════════════════
+AUDIT CHECKLIST
+════════════════════════════════════════════════════════════════════════════════
+
+1. PHASE STRUCTURE COMPLIANCE
+   PASS: All 5 phases (P0-P4) have session ID
+   PASS: All 5 phases have smart_config defined
+   PASS: All 5 phases have intent statement
+
+   Details:
+   - P0 (PIPELINE-VAR-0a): Tier 1 Auto-Chain PostProcessor [3 units]
+   - P1 (PIPELINE-VAR-1a): Tier 2a Per-Pass Optimization [2 units]
+   - P2 (PIPELINE-VAR-2a): Tier 2b Per-Segment Optimization [2 units]
+   - P3 (PIPELINE-VAR-2b): Tier 2c Safety Validation [3 units]
+   - P4 (PIPELINE-VAR-3a): Universal Safety Gate + Tests [3 units]
+
+2. UNIT STRUCTURE COMPLIANCE
+   PASS: All 13 units have id field
+   PASS: All 13 units have title field
+   PASS: All 13 units have description field
+   PASS: All 13 units have knowledge_sources array
+   PASS: All 13 units have exit_conditions array
+   PASS: All 13 units have status field
+
+   Unit List:
+   - U-PV01: Auto-chain PostProcessor into PrintToProgramPipeline + chatter pre-check
+   - U-PV02: Auto-chain PostProcessor into TurningPrintToProgram + deflection check
+   - U-PV03: Auto-chain PostProcessor into MultiAxis + MillTurnSwiss pipelines
+   - U-PV04: EDM per-pass discharge energy optimization via Sato MRR model
+   - U-PV05: Grinding per-pass wheel speed + ae optimization with Malkin burn threshold
+   - U-PV06: Laser per-segment power/speed optimization via Beer-Lambert + Schulz
+   - U-PV07: Waterjet per-segment pressure/speed optimization via Hashish model
+   - U-PV08: Add safety validation to EDM pipeline (power limits, gap monitoring, wire tension)
+   - U-PV09: Add safety validation to Grinding pipeline (wheel speed, burn detection, dresser)
+   - U-PV10: Add safety validation to Laser + Waterjet pipelines
+   - U-PV11: Create universal pipeline safety gate hook
+   - U-PV12: Integration test suite — per-block variability verification
+   - U-PV13: Update milestone + CURRENT_POSITION + scorecard
+
+3. UNIT ID FORMAT COMPLIANCE
+   PASS: All unit IDs follow U-{PREFIX}{NN} format
+
+   Verified:
+   - Prefix: PV (consistent across all units)
+   - Numbering: 01-13 (sequential, no gaps)
+   - Format: U-PV01, U-PV02, ..., U-PV13
+
+4. FORGE TRIPLE BLOCK
+   PASS: Forge triple present with all 3 components
+
+   Contents:
+   - hook: "pipeline-safety-gate — universal G-code safety validation for all 9 pipeline outputs"
+   - action: "cam:pipeline_optimize — triggers PostProcessor auto-chain for any pipeline output"
+   - skill: "/program-optimize — re-run per-block physics on any G-code program"
+
+5. DEPENDENCY MANAGEMENT
+   PASS: Dependencies listed
+   PASS: Dependency CALC-HARDEN-MS0 exists
+
+   Verified:
+   - File: /H/prism/mcp-server/data/milestones/CALC-HARDEN-MS0.json [EXISTS]
+   - Logical dependency: Calculator hardening must complete before pipeline variability
+
+6. UNIT COUNT ACCURACY
+   PASS: Declared total matches actual
+
+   Verification:
+   - total_units field: 13
+   - Actual unit count: P0(3) + P1(2) + P2(2) + P3(3) + P4(3) = 13
+   - Match: YES
+
+7. LOGICAL ORDERING
+   PASS: Phases ordered logically (no forward dependencies required)
+
+   Phase Progression:
+   1. P0: Wire PostProcessor into 4 chip-cutting pipelines (milling, turning, 5-axis, mill-turn)
+   2. P1: Add per-pass optimization to EDM + Grinding (non-cutting, sequential)
+   3. P2: Add per-segment optimization to Laser + Waterjet (non-cutting, sequential)
+   4. P3: Add safety validation to all 6 non-cutting pipeline outputs
+   5. P4: Create universal safety hook + integration tests + close milestone
+
+   Dependency Flow:
+   - P0 units are independent (parallel-safe)
+   - P1 units are independent (EDM ≠ Grinding)
+   - P2 units are independent (Laser ≠ Waterjet)
+   - P3 units depend on P0 (safety requires prior outputs exist)
+   - P4 depends on P0 + P1 + P2 + P3 (integration test combines all)
+
+8. KNOWLEDGE SOURCES COMPLETENESS
+   PASS: All 4 required categories present
+
+   Contents:
+   - engines: 16 entries (PostProcessor, PrintToProgram, Turning, MultiAxis, MillTurnSwiss, EDM, Grinding, Laser, Waterjet, Chatter, StochasticChatter, Thermal, SpeedFeed, UltimateSpeedFeed, AutoSpeedFeed, Safety)
+   - formulas: 8 entries (Kienzle, Taylor, Sato EDM, Malkin grinding, Beer-Lambert, Schulz laser, Hashish waterjet, Zeng-Kim)
+   - constants: Referenced correctly (src/physics/constants.ts)
+   - reference: Complete audit trail cited (20-agent physics, 5-agent business, pipeline audit)
+
+9. EXIT CONDITIONS COMPLETENESS
+   PASS: All units have exit_conditions defined
+
+   Sample Verification:
+   - U-PV01: 4 conditions (PostProcessor auto-invoked, chatter check rejects, thermal warning, tests pass, build pass)
+   - U-PV04: 3 conditions (variable I_peak/t_on per pass, MRR within 10%, Ra ≤ target, build pass)
+   - U-PV12: 3 conditions (9 pipeline variability tests, all pass, per-block S/F confirmed variable)
+
+════════════════════════════════════════════════════════════════════════════════
+FINAL SCORE
+════════════════════════════════════════════════════════════════════════════════
+
+Compliance Score: 100/100
+
+All 9 audit criteria PASSED:
+1. Phase structure (session, smart_config, intent)  ✓ 5/5
+2. Unit completeness (all required fields)         ✓ 13/13
+3. Unit ID format (U-{PREFIX}{NN})                 ✓ 13/13
+4. Forge triple block                              ✓ 1/1
+5. Dependencies (listed and valid)                 ✓ 1/1
+6. Unit count accuracy                             ✓ Match (13=13)
+7. Logical ordering (no forward deps)              ✓ 5 phases ordered
+8. Knowledge sources (all 4 categories)            ✓ Complete
+9. Exit conditions (all units have ≥1)            ✓ 13/13
+
+════════════════════════════════════════════════════════════════════════════════
+VIOLATIONS FOUND: 0
+════════════════════════════════════════════════════════════════════════════════
+
+No structural violations detected. The milestone is READY FOR EXECUTION per PRISM RGS standard.
+
+════════════════════════════════════════════════════════════════════════════════
+ADDITIONAL OBSERVATIONS
+════════════════════════════════════════════════════════════════════════════════
+
+STRENGTHS:
+1. Comprehensive physics coverage across 8 different manufacturing processes
+2. Well-defined progression from chip-cutting (P0) → non-cutting optimization (P1-P2) → safety validation (P3) → integration (P4)
+3. All 16 required engine references present and cited correctly
+4. 8 physics formulas with proper citations (Kienzle, Taylor, Sato, Malkin, Beer-Lambert, Schulz, Hashish, Zeng-Kim)
+5. Explicit forge triple with hook, action, skill components
+6. Estimated 5 sessions for 13 units is realistic (average 2.6 units/session)
+
+ARCHITECTURAL NOTES:
+1. PostProcessor is the central hub for chip-cutting pipelines (P0 focus)
+2. Non-cutting pipelines have distinct optimization strategies (P1-P2):
+   - EDM: Per-pass I_peak/t_on (MRR → finish transition)
+   - Grinding: Per-pass ae/F (burn threshold management)
+   - Laser: Per-segment power/speed (kerf control)
+   - Waterjet: Per-segment pressure/speed (taper compensation)
+3. Universal safety gate (U-PV11) applies to all 8 pipeline outputs uniformly
+4. Integration test suite (U-PV12) verifies variability across all 9 pipelines
+
+RISK ASSESSMENT:
+- Low: All 13 units have clear exit conditions
+- Low: Dependency on CALC-HARDEN-MS0 is external and pre-requisite
+- Low: No circular dependencies detected
+- Medium: EDM pass scheduling (Sato model) requires tuning data per material
+
+════════════════════════════════════════════════════════════════════════════════
+RECOMMENDATION: APPROVED FOR EXECUTION
+════════════════════════════════════════════════════════════════════════════════
+
+The PIPELINE-VAR-MS0 milestone meets 100% PRISM RGS compliance. Ready to proceed
+with session PIPELINE-VAR-0a (U-PV01, U-PV02, U-PV03) per the V24 roadmap protocol.

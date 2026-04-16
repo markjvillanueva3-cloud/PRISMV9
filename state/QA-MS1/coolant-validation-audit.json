@@ -1,0 +1,222 @@
+{
+  "id": "QA-MS1-U01",
+  "title": "CoolantValidationEngine Bracket & Edge Case Audit",
+  "generated_at": "2026-02-27T17:00:00Z",
+  "generated_by": "claude-opus-4.6",
+  "supersedes": "P0-U01 shallow bracket-only audit (2026-02-28T01:35:00Z)",
+  "files_audited": [
+    "mcp-server/src/engines/CoolantValidationEngine.ts (753 lines, full read)",
+    "mcp-server/src/tools/coolantValidationTools.ts (425 lines, full read)",
+    "mcp-server/src/algorithms/CoolantFlowModel.ts (287 lines, full read)",
+    "mcp-server/src/tools/dispatchers/safetyDispatcher.ts (wiring grep)"
+  ],
+
+  "bracket_verification": {
+    "speed_brackets": {
+      "location": "CoolantValidationEngine.ts:282-286",
+      "brackets": [
+        { "condition": "> 300 m/min", "multiplier": 1.4 },
+        { "condition": "> 200 m/min", "multiplier": 1.2 },
+        { "condition": "<= 200 m/min", "multiplier": 1.0, "implicit": true }
+      ],
+      "ordering_correct": true,
+      "no_dead_branches": true,
+      "previous_fix_verified": "Dead else-if >300 branch was fixed — now checks >300 first, >200 second",
+      "algorithm_consistent": "CoolantFlowModel.ts:171-175 uses identical brackets"
+    },
+    "ld_pressure_brackets": {
+      "location": "CoolantValidationEngine.ts:378-383 (pressure), 458-478 (chip evacuation)",
+      "brackets": [
+        { "range": "L/D < 3", "pressure_bar": 10, "strategy": "STANDARD" },
+        { "range": "L/D 3-5", "pressure_bar": 20, "strategy": "STANDARD" },
+        { "range": "L/D 5-8", "pressure_bar": 40, "strategy": "PECK_CYCLE" },
+        { "range": "L/D 8-12", "pressure_bar": 70, "strategy": "HIGH_PRESSURE" },
+        { "range": "L/D 12-20", "pressure_bar": 100, "strategy": "HIGH_PRESSURE" },
+        { "range": "L/D > 20", "pressure_bar": 150, "strategy": "GUNDRILLING" }
+      ],
+      "contiguous": true,
+      "no_gaps": true,
+      "algorithm_consistent": "CoolantFlowModel.ts:114-121 LD_STRATEGIES matches pressure values exactly"
+    },
+    "flow_requirements": {
+      "location": "CoolantValidationEngine.ts:181-192",
+      "operations_covered": 10,
+      "all_CoolantOperation_types_covered": true,
+      "algorithm_consistent": "CoolantFlowModel.ts:91-96 uses identical values"
+    },
+    "material_factors": {
+      "location": "CoolantValidationEngine.ts:209-216",
+      "materials_covered": 6,
+      "algorithm_has_more": "CoolantFlowModel also covers copper (0.8) and plastic (0.3)",
+      "values_consistent": true
+    },
+    "mql_consumption": {
+      "location": "CoolantValidationEngine.ts:221-232",
+      "operations_covered": 10,
+      "grinding_correctly_zero": true
+    },
+    "mql_compatibility": {
+      "location": "CoolantValidationEngine.ts:555-569",
+      "all_operations_mapped": true,
+      "grinding_NOT_RECOMMENDED": true,
+      "gundrilling_NOT_RECOMMENDED": true
+    },
+    "thermal_status": {
+      "location": "CoolantValidationEngine.ts:660-665",
+      "tiers": ["SAFE", "MARGINAL", "RISK"],
+      "logic_correct": true
+    }
+  },
+
+  "findings": [
+    {
+      "id": "CV-CRITICAL-001",
+      "severity": "CRITICAL",
+      "dimension": "correctness",
+      "title": "MQL unit conversion bug — L/hr passed as mL/hr",
+      "description": "In validateCoolant() line 654, MQL flow is converted as `system.flowRate * 60`. CoolantSystem.flowRate is in L/min, so `* 60` gives L/hr. But validateMQLParameters() expects mL/hr (comparing against MQL_CONSUMPTION ranges of 10-300 mL/hr). The conversion should be `* 60 * 1000` (= * 60000) to convert L/min to mL/hr.",
+      "evidence": "CoolantValidationEngine.ts:654: `mql = this.validateMQLParameters(params, system.flowRate * 60, 6);` — passes L/hr not mL/hr. MQL_CONSUMPTION at line 222: `MILLING_GENERAL: { min: 20, max: 50 }` — these are in mL/hr.",
+      "impact": "ALL MQL validations through the comprehensive validateCoolant() path receive flow 1000x too low, causing every MQL setup to wrongly fail validation. Direct calls to validateMQLParameters via tool handler (handleValidateMQL) are NOT affected since they pass user-provided mL/hr directly.",
+      "remediation": "Change line 654 from `system.flowRate * 60` to `system.flowRate * 60000`",
+      "effort": "2m code fix",
+      "rubric_score": 2
+    },
+    {
+      "id": "CV-MAJOR-001",
+      "severity": "MAJOR",
+      "dimension": "safety",
+      "title": "Division by zero in flow utilization calculation",
+      "description": "Line 311: `utilizationPercent = (requiredFlow / availableFlow) * 100` has no guard for availableFlow === 0. The DRY/AIR_BLAST early return at lines 294-306 handles those delivery types, but a FLOOD or THROUGH_SPINDLE system with flowRate=0 will produce NaN/Infinity.",
+      "evidence": "CoolantValidationEngine.ts:311 vs CoolantFlowModel.ts:223 which correctly handles: `system_flow_rate > 0 ? (required_flow / system_flow_rate) * 100 : 999`",
+      "impact": "NaN propagates to utilizationPercent check at line 318, causing inconsistent thermal status assessment.",
+      "remediation": "Add guard: `const utilizationPercent = availableFlow > 0 ? (requiredFlow / availableFlow) * 100 : 999;`",
+      "effort": "2m code fix"
+    },
+    {
+      "id": "CV-MAJOR-002",
+      "severity": "MAJOR",
+      "dimension": "safety",
+      "title": "Dry machining titanium/superalloy returns isAdequate=true",
+      "description": "validateCoolantFlow() lines 294-306 returns isAdequate=true for ALL DRY/AIR_BLAST deliveries regardless of material type. Dry machining titanium is a FIRE HAZARD — titanium chips ignite spontaneously. The CoolantFlowModel algorithm correctly warns about this at line 236-238, but the engine does not.",
+      "evidence": "CoolantValidationEngine.ts:294-306 returns `{ isAdequate: true }` for DRY delivery with only a generic warning. No material check. CoolantFlowModel.ts:236: adds fire risk warning for titanium/superalloy.",
+      "impact": "Titanium/superalloy dry machining validated as adequate, creating fire risk.",
+      "remediation": "Add material check in DRY/AIR_BLAST path: if material is TITANIUM or SUPERALLOY, set isAdequate=false and add fire risk warning.",
+      "effort": "5m code fix"
+    },
+    {
+      "id": "CV-MAJOR-003",
+      "severity": "MAJOR",
+      "dimension": "completeness",
+      "title": "CoolantSystem fields concentration/temperature/filtration never validated",
+      "description": "CoolantSystem interface declares concentration (%), temperature (C), filtration (um), and tankCapacity (L) fields, but NO engine method validates them. These are safety-relevant: wrong concentration causes corrosion/biological growth, wrong filtration clogs TSC nozzles.",
+      "evidence": "CoolantValidationEngine.ts:67-76 declares 4 optional fields. Zero usage in any validation logic.",
+      "impact": "Safety-relevant coolant parameters accepted but silently ignored.",
+      "remediation": "Add validateCoolantCondition() method for concentration/temperature/filtration validation.",
+      "effort": "30m new method"
+    },
+    {
+      "id": "CV-MINOR-001",
+      "severity": "MINOR",
+      "dimension": "completeness",
+      "title": "Tool input schema missing cryogenic coolant types",
+      "description": "coolantValidationTools.ts line 60 lists coolantType enum with COMPRESSED_AIR but omits LIQUID_NITROGEN and LIQUID_CO2 from the engine's CoolantType.",
+      "evidence": "coolantValidationTools.ts:60 vs CoolantValidationEngine.ts:39-47",
+      "impact": "Cryogenic cooling not selectable via MCP tool.",
+      "remediation": "Add LIQUID_NITROGEN and LIQUID_CO2 to tool schema enum.",
+      "effort": "2m"
+    },
+    {
+      "id": "CV-MINOR-002",
+      "severity": "MINOR",
+      "dimension": "correctness",
+      "title": "Hardcoded defaults in TSC and chip evacuation handlers",
+      "description": "handleCheckTSC() hardcodes cuttingSpeed=80, handleChipEvacuation() hardcodes cuttingSpeed=80, feedRate=100. Not exposed to users.",
+      "evidence": "coolantValidationTools.ts:270,291-292",
+      "impact": "Low — these methods don't use cutting speed for their core calculations.",
+      "remediation": "Add optional cuttingSpeed/feedRate to tool schemas.",
+      "effort": "5m"
+    },
+    {
+      "id": "CV-INFO-001",
+      "severity": "INFO",
+      "dimension": "correctness",
+      "title": "Speed bracket fix verified — dead branch eliminated",
+      "description": "Line 282 correctly orders speed brackets: >300 first, >200 second. Algorithm CoolantFlowModel.ts:171-175 uses identical structure.",
+      "evidence": "CoolantValidationEngine.ts:282-286"
+    },
+    {
+      "id": "CV-INFO-002",
+      "severity": "INFO",
+      "dimension": "correctness",
+      "title": "L/D pressure brackets consistent across engine and algorithm",
+      "description": "Both PRESSURE_BY_LD and LD_STRATEGIES use the same 10/20/40/70/100/150 bar progression.",
+      "evidence": "CoolantValidationEngine.ts:197-204, CoolantFlowModel.ts:114-121"
+    },
+    {
+      "id": "CV-INFO-003",
+      "severity": "INFO",
+      "dimension": "completeness",
+      "title": "Wiring complete — 5 tools via safetyDispatcher",
+      "description": "All 5 coolant validation tools registered in safetyDispatcher and route correctly.",
+      "evidence": "safetyDispatcher.ts:57-58, :137"
+    }
+  ],
+
+  "rubric_scores": {
+    "correctness": {
+      "score": 3,
+      "rationale": "Core bracket logic correct and consistent with algorithm. MQL unit conversion bug is critical but isolated to one path. Division by zero is an edge case."
+    },
+    "completeness": {
+      "score": 3,
+      "rationale": "5 tools covering flow/pressure/chip/MQL/recommendations. But 4 CoolantSystem fields declared and never used. Missing cryogenic in tool schema."
+    },
+    "safety": {
+      "score": 3,
+      "rationale": "Good L/D-based chip evacuation and material factors. But dry machining titanium passes validation — real fire hazard. MQL bug causes false negatives (fail-safe direction)."
+    },
+    "performance": {
+      "score": 5,
+      "rationale": "Simple arithmetic, lookup tables, no performance concerns."
+    },
+    "composite_omega_qa": "0.35*3 + 0.25*3 + 0.25*3 + 0.15*5 = 1.05 + 0.75 + 0.75 + 0.75 = 3.30",
+    "pass_fail": "CONDITIONAL PASS — no component below 3, but critical MQL bug and titanium dry machining must be fixed"
+  },
+
+  "recommended_fixes": [
+    {
+      "priority": "P0",
+      "file": "mcp-server/src/engines/CoolantValidationEngine.ts",
+      "line": 654,
+      "fix": "Change `system.flowRate * 60` to `system.flowRate * 60000` for correct L/min to mL/hr conversion",
+      "impact": "MQL validation through validateCoolant() path will receive correct flow units"
+    },
+    {
+      "priority": "P0",
+      "file": "mcp-server/src/engines/CoolantValidationEngine.ts",
+      "line": 311,
+      "fix": "Add zero guard: `const utilizationPercent = availableFlow > 0 ? (requiredFlow / availableFlow) * 100 : 999;`",
+      "impact": "Prevents NaN/Infinity propagation for zero-flow systems"
+    },
+    {
+      "priority": "P1",
+      "file": "mcp-server/src/engines/CoolantValidationEngine.ts",
+      "lines": "294-306",
+      "fix": "Add material check in DRY/AIR_BLAST path — if TITANIUM or SUPERALLOY, set isAdequate=false with fire risk warning",
+      "impact": "Prevents unsafe dry machining of reactive/thermal-sensitive materials"
+    },
+    {
+      "priority": "P2",
+      "file": "mcp-server/src/engines/CoolantValidationEngine.ts",
+      "fix": "Add validateCoolantCondition() method for concentration, temperature, filtration validation",
+      "impact": "Validates currently-ignored safety-relevant coolant parameters"
+    },
+    {
+      "priority": "P3",
+      "file": "mcp-server/src/tools/coolantValidationTools.ts",
+      "line": 60,
+      "fix": "Add LIQUID_NITROGEN, LIQUID_CO2 to coolantType enum",
+      "impact": "Enables cryogenic cooling selection through MCP tool"
+    }
+  ]
+}

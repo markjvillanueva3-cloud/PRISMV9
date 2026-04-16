@@ -1,0 +1,215 @@
+{
+  "video_id": "u3wHT31kmuw",
+  "title": "Multi-Axis Milling on DMG MORI NLX-2500 Lathe - Inconel 625",
+  "source": "Titans of CNC",
+  "presenters": ["Titan (host)", "Tyson (programmer/machinist)"],
+  "academy_content": true,
+  "machine": {
+    "make": "DMG MORI",
+    "model": "NLX-2500",
+    "type": "turning_center",
+    "capabilities": [
+      "turning",
+      "live_tooling",
+      "multi_axis_milling",
+      "c_axis",
+      "y_axis"
+    ],
+    "turret_interface": "KM50 (ball lock quick-change system)",
+    "notes": "Turret-mounted live tooling with KM50 interface provides crash protection — if a crash occurs, the KM50 adapter breaks away rather than damaging the entire turret"
+  },
+  "material": {
+    "name": "Inconel 625",
+    "iso_group": "S",
+    "uns": "N06625",
+    "category": "nickel_based_superalloy",
+    "hardness_range_hrc": "20-35",
+    "condition": "annealed",
+    "classification": "aerospace_superalloy",
+    "future_materials_mentioned": [
+      "Inconel 718",
+      "A-286",
+      "Hastelloy",
+      "Monel"
+    ],
+    "notes": "Part of Titans of CNC Aerospace tutorial series focusing on difficult-to-machine superalloys"
+  },
+  "software": {
+    "cam_primary": "Autodesk Fusion 360",
+    "cam_secondary": "PowerMill",
+    "notes": "Fusion 360 used for multiaxis surfacing operations; PowerMill also employed for more complicated jobs"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "type": "roughing_mill",
+      "operation_name": "3D roughing with end mill",
+      "tool": {
+        "type": "end_mill",
+        "flutes": 6,
+        "brand": "not_specified",
+        "notes": "6-flute end mill used for initial roughing pass in live tooling mode"
+      },
+      "stock_allowance_in": 0.010,
+      "stock_allowance_mm": 0.254,
+      "notes": "Roughed out the entire profile leaving 0.010 in (10 thou) per wall. Left large step marks on curved surfaces due to end mill geometry limitations on complex contours."
+    },
+    {
+      "sequence": 2,
+      "type": "semi_finish_mill",
+      "operation_name": "Multi-axis semi-finish surfacing with ball mill",
+      "tool": {
+        "type": "ball_end_mill",
+        "diameter_fraction": "3/8",
+        "diameter_in": 0.375,
+        "diameter_mm": 9.525,
+        "brand": "Harvey Tool",
+        "model": "Harvey 3 ball mill",
+        "flutes": null,
+        "holder": "KM50 Hydro Force shrink-fit / hydraulic holder",
+        "holder_interface": "KM50 ball lock",
+        "notes": "Harvey Tool 3/8 ball end mill in KM50 Hydro Force holder. KM50 is similar to Capto but uses ball lock mechanism. Provides super rigid connection and crash protection for turret."
+      },
+      "sfm": 200,
+      "feed_per_tooth_in": 0.003,
+      "feed_per_tooth_mm": 0.076,
+      "stepover_in": 0.025,
+      "stepover_mm": 0.635,
+      "stock_allowance_in": 0.004,
+      "stock_allowance_mm": 0.102,
+      "toolpath_type": "multi_axis_surfacing",
+      "notes": "Semi-finish pass with ball mill cleaning up roughing steps. Leaving 0.004 in (4 thou) per wall for final finish pass. 200 SFM and 0.003 IPT described as 'aggressive' for a ball mill in a turret-mounted live tooling setup on Inconel 625."
+    },
+    {
+      "sequence": 3,
+      "type": "finish_mill",
+      "operation_name": "Final finish surfacing pass",
+      "tool": {
+        "type": "ball_end_mill",
+        "diameter_fraction": "3/8",
+        "diameter_in": 0.375,
+        "diameter_mm": 9.525,
+        "brand": "Harvey Tool",
+        "model": "Harvey 3 ball mill",
+        "notes": "Same ball mill used for final finish — 'just kiss it' pass to final dimension"
+      },
+      "stock_allowance_in": 0.0,
+      "toolpath_type": "multi_axis_surfacing",
+      "notes": "Final finish pass removing the remaining 0.004 in stock to achieve final contour. Described as a light 'kiss' pass at correct depth for perfect surface finish."
+    }
+  ],
+  "cutting_parameters": {
+    "semi_finish_ball_mill": {
+      "material": "Inconel 625",
+      "tool": "3/8 ball end mill (Harvey Tool)",
+      "sfm": 200,
+      "feed_per_tooth_in": 0.003,
+      "feed_per_tooth_mm": 0.076,
+      "stepover_in": 0.025,
+      "stepover_mm": 0.635,
+      "stepover_percent_of_diameter": 6.67,
+      "calculated_rpm_at_full_diameter": 2037,
+      "calculated_rpm_note": "RPM = (200 SFM x 12) / (pi x 0.375) = ~2037 RPM at full 3/8 diameter; effective cutting diameter varies with depth of engagement on ball mill",
+      "roughing_stock_left_in": 0.010,
+      "semi_finish_stock_left_in": 0.004,
+      "assessment": "Presenter called 200 SFM and 0.003 IPT 'aggressive' for turret-mounted ball mill on Inconel 625. This is on the higher end for nickel superalloys — typical range for Inconel 625 milling is 100-200 SFM with carbide tooling."
+    }
+  },
+  "workholding": {
+    "method": "chuck",
+    "notes": "Part held in lathe chuck; multiaxis milling performed via C-axis and Y-axis motion with live tooling in turret"
+  },
+  "tooling_system": {
+    "interface": "KM50",
+    "type": "ball_lock_quick_change",
+    "holder": "Hydro Force (hydraulic shrink-fit)",
+    "advantages": [
+      "Super rigid connection",
+      "Crash protection — adapter breaks before turret damage",
+      "Quick change capability",
+      "Similar to Capto system but ball lock mechanism"
+    ],
+    "brand": "Kennametal (KM is Kennametal modular)",
+    "notes": "KM50 is the Kennametal modular tooling system in 50mm size. Ball lock mechanism provides very rigid and repeatable connection. The Hydro Force holder adds hydraulic clamping for vibration damping and concentricity."
+  },
+  "process_strategy": {
+    "approach": "three_pass_surfacing",
+    "description": "Three-pass approach for multi-axis surfacing on lathe: (1) rough with 6-flute end mill leaving 0.010 stock, (2) semi-finish with ball mill leaving 0.004 stock with 0.025 stepover, (3) final finish pass to size",
+    "rationale": "End mill cannot follow complex curved contours precisely, leaving stair-step marks. Ball mill traces the contour smoothly. Two ball mill passes (semi-finish + finish) ensure surface quality while managing tool deflection and cutting forces on the superalloy.",
+    "key_technique": "Progressively reducing stock allowance: 0.010 -> 0.004 -> 0.000 prevents excessive cutting forces on the ball mill which has lower rigidity than a flat end mill"
+  },
+  "tribal_tips": [
+    {
+      "tip": "When multi-axis milling Inconel 625 on a lathe, use a three-pass strategy: rough with end mill (leave 0.010\"), semi-finish with ball mill (leave 0.004\"), then final finish pass to size",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "200 SFM with 0.003 IPT is considered aggressive for a 3/8\" ball mill in turret-mounted live tooling on Inconel 625 — this is near the upper boundary of the recommended range",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "speeds_and_feeds"
+    },
+    {
+      "tip": "KM50 ball lock tooling interface on DMG MORI NLX-2500 provides crash protection — the adapter breaks away before the turret is damaged, unlike direct-mount tooling",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "tooling"
+    },
+    {
+      "tip": "Use a 0.025\" stepover (about 6.7% of cutter diameter) for semi-finish ball mill surfacing on Inconel 625 — balances cycle time with surface quality",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "toolpath_strategy"
+    },
+    {
+      "tip": "Harvey Tool ball end mills with KM50 Hydro Force holders provide the rigidity needed for multi-axis surfacing in a turret setup — hydraulic clamping reduces vibration",
+      "confidence": 0.85,
+      "source": "video",
+      "category": "tooling"
+    },
+    {
+      "tip": "When roughing complex 3D surfaces on a lathe with live tooling, a 6-flute end mill removes material faster but leaves large step marks on curves — follow up with ball mill for contour accuracy",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "For Inconel 625 multi-axis lathe work, progressively reduce stock allowance across passes (10 thou -> 4 thou -> zero) to manage cutting forces and prevent ball mill deflection",
+      "confidence": 0.90,
+      "source": "video",
+      "category": "process_strategy"
+    },
+    {
+      "tip": "Fusion 360 handles multiaxis surfacing toolpaths for lathe live tooling; PowerMill is used for more complicated jobs requiring advanced toolpath control",
+      "confidence": 0.80,
+      "source": "video",
+      "category": "cam_software"
+    },
+    {
+      "tip": "The Titans of CNC Academy series covers Inconel 625, Inconel 718, A-286, Hastelloy, and Monel — all aerospace superalloys with similar but distinct machining characteristics",
+      "confidence": 0.95,
+      "source": "video",
+      "category": "material_knowledge"
+    }
+  ],
+  "key_learnings": [
+    "DMG MORI NLX-2500 is capable of multi-axis surfacing using C-axis live tooling with ball end mills — not just basic turning",
+    "Three-pass milling strategy (rough end mill -> semi-finish ball -> finish ball) is production-proven for Inconel 625 on lathe",
+    "200 SFM / 0.003 IPT / 0.025\" stepover is a validated parameter set for semi-finish ball milling Inconel 625 (aggressive end of range)",
+    "KM50 Hydro Force tooling system provides crash protection and rigidity critical for multi-axis lathe milling",
+    "Progressive stock reduction (0.010\" -> 0.004\" -> 0\") manages forces on ball mill in turret-mounted setup",
+    "Harvey Tool 3/8\" ball end mills used successfully for Inconel 625 surfacing in live tooling applications",
+    "Fusion 360 and PowerMill both used for CAM programming of multi-axis lathe operations",
+    "This is part of a larger tutorial series covering aerospace superalloys: Inconel 625, 718, A-286, Hastelloy, Monel"
+  ],
+  "metadata": {
+    "extracted_date": "2026-03-27",
+    "transcript_quality": "auto_generated",
+    "confidence_note": "Auto-generated YouTube subtitles — some values may have transcription errors. Numbers cross-referenced where spoken clearly. The 200 SFM, 0.003 IPT, 0.025 stepover, 0.010 and 0.004 stock allowance values were all spoken clearly and confirmed by both speakers.",
+    "video_duration_approx": "4:06",
+    "content_type": "shop_floor_walkthrough",
+    "part_type": "aerospace_component_with_complex_contours"
+  }
+}

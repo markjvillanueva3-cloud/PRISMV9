@@ -1,0 +1,122 @@
+{
+  "id": "BP-MS0",
+  "version": "1.0.0",
+  "title": "Backend Business Platform — E2/QB/Xometry/Fictiv Feature Parity",
+  "brief": "10 sessions, 28 units, 23 new DB tables. File upload + CAD storage, instant quoting, DFM analysis, QuickBooks connector, approval workflows, job travelers, role-based desks, customer portal, preset libraries. Modeled after E2 Shop System, QuickBooks, Xometry, Fictiv.",
+  "created_at": "2026-04-01T18:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "BP",
+  "track_name": "Business Platform",
+  "status": "not_started",
+  "total_units": 28,
+  "total_sessions": "10",
+  "plan_file": "H:/prism/plans/erp-employee/phase6-business-platform-e2-qb-parity.md",
+  "dependencies": ["EMP-MS0"],
+  "phases": [
+    {
+      "id": "BP-P1",
+      "title": "Route Contract Stabilization",
+      "description": "Fix 5 PASL route misalignments, add 24+ integration tests.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-ROUTEFIX1", "title": "Fix speed/feed route split-brain + CAM contract mismatch", "phase": "BP-P1", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": []},
+        {"id": "U-ROUTEFIX2", "title": "Fix PPG route/action drift + ERP analytics wiring", "phase": "BP-P1", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": []},
+        {"id": "U-ROUTEFIX3", "title": "Context catalog fix + 24 integration tests", "phase": "BP-P1", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-ROUTEFIX1", "U-ROUTEFIX2"]}
+      ]
+    },
+    {
+      "id": "BP-P2",
+      "title": "File Upload + CAD Storage + Parts Library",
+      "description": "FileStorageEngine, PartsLibraryEngine, SHA-256 dedup, revisions.",
+      "sessions": "1",
+      "primary_role": "R2",
+      "primary_model": "opus-4.6",
+      "units": [
+        {"id": "U-BLOB1", "title": "FileStorageEngine with SHA-256 dedup + version tracking", "phase": "BP-P2", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-ROUTEFIX3"]},
+        {"id": "U-BLOB2", "title": "PartsLibraryEngine with revisions + CAD metadata extraction", "phase": "BP-P2", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-BLOB1"]},
+        {"id": "U-BLOB3", "title": "File upload API routes + attachment linking", "phase": "BP-P2", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-BLOB2"]}
+      ]
+    },
+    {
+      "id": "BP-P3",
+      "title": "Instant Quote Pipeline",
+      "description": "InstantQuoteEngine (CAD→price), qty breaks, lead times, revisions.",
+      "sessions": "1",
+      "units": [
+        {"id": "U-IQUOTE1", "title": "InstantQuoteEngine: CAD→feature→price pipeline", "phase": "BP-P3", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90, "dependencies": ["U-BLOB3"]},
+        {"id": "U-IQUOTE2", "title": "Quantity breaks + lead time estimation", "phase": "BP-P3", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-IQUOTE1"]},
+        {"id": "U-IQUOTE3", "title": "Quote revisions + status history tracking", "phase": "BP-P3", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-IQUOTE2"]}
+      ]
+    },
+    {
+      "id": "BP-P4",
+      "title": "DFM Analysis + GD&T Backend",
+      "sessions": "1",
+      "units": [
+        {"id": "U-DFM1", "title": "DFMPipelineEngine with tolerance feasibility + Cpk", "phase": "BP-P4", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 90, "dependencies": ["U-IQUOTE3"]},
+        {"id": "U-DFM2", "title": "Cost impact per DFM issue + GD&T analysis", "phase": "BP-P4", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-DFM1"]}
+      ]
+    },
+    {
+      "id": "BP-P5",
+      "title": "QuickBooks Online Connector",
+      "sessions": "1",
+      "units": [
+        {"id": "U-QBO1", "title": "OAuth 2.0 token management + encrypted storage", "phase": "BP-P5", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": []},
+        {"id": "U-QBO2", "title": "GL mapping + 3-way matching", "phase": "BP-P5", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-QBO1"]},
+        {"id": "U-QBO3", "title": "Webhook sync + rate-limited queue", "phase": "BP-P5", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-QBO2"]}
+      ]
+    },
+    {
+      "id": "BP-P6",
+      "title": "Approval Workflows + Audit Trails",
+      "sessions": "1",
+      "units": [
+        {"id": "U-APPR1", "title": "Generic ApprovalWorkflowEngine", "phase": "BP-P6", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": []},
+        {"id": "U-APPR2", "title": "Record timeline + comments + attachments", "phase": "BP-P6", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-APPR1"]},
+        {"id": "U-APPR3", "title": "Approval decision tracking + escalation rules", "phase": "BP-P6", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-APPR2"]}
+      ]
+    },
+    {
+      "id": "BP-P7",
+      "title": "Job Traveler + Dual Time Tracking",
+      "sessions": "1",
+      "units": [
+        {"id": "U-TRAV1", "title": "JobTravelerEngine with routing steps", "phase": "BP-P7", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": []},
+        {"id": "U-TRAV2", "title": "MachineDispatchEngine + planning board", "phase": "BP-P7", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-TRAV1"]},
+        {"id": "U-TRAV3", "title": "Dual time tracking (setup + cycle) on routing steps", "phase": "BP-P7", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-TRAV2"]}
+      ]
+    },
+    {
+      "id": "BP-P8",
+      "title": "Role-Based Desks + Global Search",
+      "sessions": "1",
+      "units": [
+        {"id": "U-DESK1", "title": "DeskPayloadEngine: role-based dashboard payloads", "phase": "BP-P8", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": []},
+        {"id": "U-DESK2", "title": "GlobalSearchEngine: cross-entity ranked search", "phase": "BP-P8", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-DESK1"]}
+      ]
+    },
+    {
+      "id": "BP-P9",
+      "title": "Customer Portal + Milestone Tracking",
+      "sessions": "1",
+      "units": [
+        {"id": "U-PORTAL1", "title": "14-milestone order template + status engine", "phase": "BP-P9", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": []},
+        {"id": "U-PORTAL2", "title": "Token-based portal: quality docs + messaging", "phase": "BP-P9", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": ["U-PORTAL1"]},
+        {"id": "U-PORTAL3", "title": "Portal security: never expose internal cost data", "phase": "BP-P9", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-PORTAL2"]}
+      ]
+    },
+    {
+      "id": "BP-P10",
+      "title": "Preset Libraries + Learning Backend",
+      "sessions": "1",
+      "units": [
+        {"id": "U-PRESET1", "title": "PresetLibraryEngine: saved machining presets + compare", "phase": "BP-P10", "sequence": 1, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": []},
+        {"id": "U-LEARN1", "title": "LearningProgressionEngine: courses + checkpoints", "phase": "BP-P10", "sequence": 2, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 75, "dependencies": []},
+        {"id": "U-LEARN2", "title": "Knowledge facets + media + enrollment tracking", "phase": "BP-P10", "sequence": 3, "role": "R2", "role_name": "Builder", "model": "opus-4.6", "effort": 60, "dependencies": ["U-LEARN1"]}
+      ]
+    }
+  ]
+}

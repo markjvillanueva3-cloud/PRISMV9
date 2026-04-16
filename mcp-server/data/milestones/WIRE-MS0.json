@@ -1,0 +1,283 @@
+{
+  "id": "WIRE-MS0",
+  "title": "Full App Pipeline Wiring — All Dispatcher Actions to UI",
+  "track": "WIRE",
+  "version": "1.1.0",
+  "created_at": "2026-03-14T00:00:00Z",
+  "updated_at": "2026-04-12T20:45:00Z",
+  "status": "in_progress",
+  "total_units": 16,
+  "completed_units": 1,
+  "description": "Wire every unwired dispatcher (285 actions across 13 dispatchers) through the full pipeline: backend route → API client → TypeScript types → React hook → page component → App.tsx route. AUDIT-DRIVEN: Each unit either ENHANCES existing pages (9 units) or CREATES genuinely new pages (3 units). Culminates in a fully-pipelined system ready for UI design polish.",
+  "protocol": "FRONTEND_FEATURE_AUDIT_v1",
+  "auditReport": "data/state/WIRE-MS0/frontend-coverage-audit.json",
+  "units": [
+    {
+      "id": "P0-U01",
+      "title": "Mechanical Design Calculator Page",
+      "status": "complete",
+      "description": "Create /mechanical route with calculator page for 51 mechanical engineering engines (gears, bearings, springs, brakes, couplings, shafts, fasteners). Tab layout by category. Each tab: input form → calculate → results card.",
+      "auditAction": "CREATE_NEW",
+      "auditReason": "No existing page covers mechanical engineering calculations (0% coverage)",
+      "acceptance_criteria": [
+        "Route: POST /api/v1/mechanical/* (8+ endpoints covering gear, bearing, spring, shaft, fastener, coupling, brake, cam categories)",
+        "API client: mechanical.ts with typed functions per category",
+        "Types: mechanical.ts with request/response interfaces per calculation type",
+        "Hook: useMechanical.ts with exports per category",
+        "Page: MechanicalDesignPage.tsx with 8 tabs (Gears, Bearings, Springs, Shafts, Fasteners, Couplings, Brakes, Cams)",
+        "Route wired in App.tsx at /mechanical",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P0-U02",
+      "title": "Machine Live Dashboard — ENHANCE ShopFloorLivePage",
+      "status": "not_started",
+      "description": "ENHANCE existing ShopFloorLivePage.tsx (65% coverage). ADD: adaptive control panel, digital twin visualization, machine connection status. Uses machineLiveDispatcher (40 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "ShopFloorLivePage.tsx",
+      "coveragePercent": 65,
+      "gaps": ["adaptive-control", "digital-twin", "machine-connect"],
+      "acceptance_criteria": [
+        "ADD 'Adaptive Control' tab to ShopFloorLivePage.tsx with override controls",
+        "ADD 'Digital Twin' tab showing machine state visualization",
+        "ADD machine connection status indicators with real-time updates",
+        "PRESERVE existing job tracking and labor session functionality",
+        "API: /api/v1/machine-live/* endpoints wired to existing page",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P0-U03",
+      "title": "Diagnosis & Troubleshooting — ENHANCE RootCausePage",
+      "status": "not_started",
+      "description": "ENHANCE existing RootCausePage.tsx (55% coverage). ADD: inverse solver calculator, generative process planning, sustainability metrics. Uses diagnosisDispatcher (38 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "RootCausePage.tsx",
+      "coveragePercent": 55,
+      "gaps": ["inverse-solver", "process-gen", "sustainability"],
+      "acceptance_criteria": [
+        "ADD 'Inverse Solver' tab with parameter back-calculation",
+        "ADD 'Process Generator' tab with generative planning interface",
+        "ADD 'Sustainability' metrics section to existing analysis tabs",
+        "PRESERVE existing 5-Why analysis and Fishbone diagram functionality",
+        "API: /api/v1/diagnosis/* endpoints wired",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U01",
+      "title": "CNC Operations — ENHANCE PostProcessorGeneratorPage",
+      "status": "not_started",
+      "description": "ENHANCE existing PostProcessorGeneratorPage.tsx (60% coverage). ADD: motion dynamics visualizer, tool magazine management. Uses cncOpsDispatcher (32 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "PostProcessorGeneratorPage.tsx",
+      "coveragePercent": 60,
+      "gaps": ["motion-profile", "tool-magazine"],
+      "acceptance_criteria": [
+        "ADD 'Motion Profile' tab with dynamics visualization",
+        "ADD 'Tool Magazine' section with magazine management",
+        "PRESERVE existing post processor generation functionality",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U02",
+      "title": "Knowledge Extension — ENHANCE KnowledgeBrowserPage",
+      "status": "not_started",
+      "description": "ENHANCE existing KnowledgeBrowserPage.tsx (70% coverage). ADD: interactive apprentice mode, manufacturing genome explorer, federated learning status. Uses knowledgeExtDispatcher (40 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "KnowledgeBrowserPage.tsx",
+      "coveragePercent": 70,
+      "gaps": ["apprentice-mode", "manufacturing-genome", "federated-learning"],
+      "acceptance_criteria": [
+        "ADD 'Apprentice Mode' tab with interactive training workflow",
+        "ADD 'Manufacturing Genome' explorer section",
+        "ADD federated learning status panel",
+        "PRESERVE existing knowledge browsing and search functionality",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U03",
+      "title": "Vibration & Modal Analysis — ENHANCE CalculatorPage",
+      "status": "not_started",
+      "description": "ADD Vibration/Chatter tab to existing CalculatorPage.tsx (45% coverage). ADD: stability lobe diagram generator, modal analysis, process damping calculator. Uses vibrationPhysicsDispatcher (16 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "CalculatorPage.tsx",
+      "coveragePercent": 45,
+      "gaps": ["stability-lobes", "modal-analysis", "process-damping"],
+      "acceptance_criteria": [
+        "ADD 'Vibration' tab to CalculatorPage.tsx main tab bar",
+        "INCLUDE stability lobe diagram generator with interactive parameters",
+        "INCLUDE modal analysis input/output section",
+        "INCLUDE process damping calculator",
+        "PRESERVE all existing calculator functionality (12,909 LOC)",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U04",
+      "title": "Fluid & Thermal Calculator — ENHANCE CalculatorPage",
+      "status": "not_started",
+      "description": "ADD Thermal/Fluid tab to existing CalculatorPage.tsx (35% coverage). ADD: heat exchanger, pump sizing, hydraulic system, compressor calculators. Uses fluidThermalDispatcher (35 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "CalculatorPage.tsx",
+      "coveragePercent": 35,
+      "gaps": ["heat-exchanger", "pump-sizing", "hydraulics", "compressor"],
+      "acceptance_criteria": [
+        "ADD 'Thermal & Fluid' tab to CalculatorPage.tsx main tab bar",
+        "INCLUDE heat exchanger calculator",
+        "INCLUDE pump sizing calculator",
+        "INCLUDE hydraulic system calculator",
+        "INCLUDE compressor sizing calculator",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P1-U05",
+      "title": "Integration Hub — ENHANCE IntegrationsPage (MINOR)",
+      "status": "not_started",
+      "description": "MINOR ENHANCEMENT to existing IntegrationsPage.tsx (80% coverage). ADD: enhanced CMM integration panel. Uses integrationDispatcher (42 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "IntegrationsPage.tsx",
+      "coveragePercent": 80,
+      "gaps": ["measurement-cmm"],
+      "acceptance_criteria": [
+        "ENHANCE CMM integration panel with additional options",
+        "PRESERVE existing CAM, DNC, ERP, Mobile integrations",
+        "Minor polish only — page is 80% complete",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U01",
+      "title": "EDM & Non-Traditional — ENHANCE WireEdmWizardPage",
+      "status": "not_started",
+      "description": "ENHANCE existing WireEdmWizardPage.tsx (70% coverage). ADD: sinker EDM wizard flow, laser ablation parameters. Uses edmDispatcher (16 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "WireEdmWizardPage.tsx",
+      "coveragePercent": 70,
+      "gaps": ["sinker-edm", "laser-ablation"],
+      "acceptance_criteria": [
+        "ADD sinker EDM workflow option to wizard",
+        "ADD laser ablation parameters section",
+        "PRESERVE existing wire EDM 5-step wizard",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U02",
+      "title": "Turning Operations — VERIFY LatheWizardPage (MINOR)",
+      "status": "not_started",
+      "description": "VERIFY existing LatheWizardPage.tsx (85% coverage). Minor polish only — existing coverage adequate. Uses turningDispatcher (8 actions).",
+      "auditAction": "VERIFY_EXISTING",
+      "primaryPage": "LatheWizardPage.tsx",
+      "coveragePercent": 85,
+      "gaps": [],
+      "acceptance_criteria": [
+        "VERIFY turning dispatcher actions are wired to LatheWizardPage",
+        "Minor UI polish if needed",
+        "Existing coverage adequate — no major changes",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U03",
+      "title": "Grinding Operations Page — CREATE NEW",
+      "status": "not_started",
+      "description": "CREATE NEW GrindingPage.tsx — no existing coverage (0%). Genuinely new functionality. Uses grindingDispatcher (6 actions).",
+      "auditAction": "CREATE_NEW",
+      "auditReason": "No existing page covers grinding operations (0% coverage)",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: GrindingPage.tsx following Calculator Studio design",
+        "Tabs: Surface Grinding | Cylindrical | Centerless | Parameters",
+        "Route wired at /grinding",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U04",
+      "title": "Forming & Casting — ENHANCE SheetMetalQuotePage",
+      "status": "not_started",
+      "description": "ENHANCE existing SheetMetalQuotePage.tsx (50% coverage). ADD: casting calculator, forging parameters. Uses formingCastingDispatcher (16 actions).",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "SheetMetalQuotePage.tsx",
+      "coveragePercent": 50,
+      "gaps": ["casting", "forging"],
+      "acceptance_criteria": [
+        "ADD 'Casting' tab with casting calculator",
+        "ADD 'Forging' section with forging parameters",
+        "PRESERVE existing sheet metal functionality",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P2-U05",
+      "title": "Welding & Joining Page — CREATE NEW",
+      "status": "not_started",
+      "description": "CREATE NEW WeldingPage.tsx — no existing coverage (0%). Genuinely new functionality. Uses weldingJoiningDispatcher (6 actions).",
+      "auditAction": "CREATE_NEW",
+      "auditReason": "No existing page covers welding operations (0% coverage)",
+      "acceptance_criteria": [
+        "Full pipeline: Route + API + Types + Hook + Page",
+        "Page: WeldingPage.tsx following Calculator Studio design",
+        "Tabs: MIG/MAG | TIG | Spot | Laser | Parameters",
+        "Route wired at /welding",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U01",
+      "title": "Settings Backend Sync — ENHANCE ShopProfilePage",
+      "status": "not_started",
+      "description": "ADD backend persistence to existing ShopProfilePage.tsx (60% coverage). Create /api/v1/settings route, add localStorage fallback.",
+      "auditAction": "ENHANCE_EXISTING",
+      "primaryPage": "ShopProfilePage.tsx",
+      "coveragePercent": 60,
+      "gaps": ["backend-sync"],
+      "acceptance_criteria": [
+        "Route: /api/v1/settings (GET/PUT)",
+        "API client: settings.ts",
+        "Hook: useSettings.ts with localStorage fallback",
+        "ShopProfilePage syncs with backend on save",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U02",
+      "title": "Navigation & Sidebar Wiring",
+      "status": "not_started",
+      "description": "Update AppShell sidebar/navigation to include ALL feature pages. Group by category: Machining, Engineering, Business, Monitoring, Admin.",
+      "auditAction": "ENHANCE_EXISTING",
+      "acceptance_criteria": [
+        "Sidebar shows all 102+ pages grouped logically",
+        "Active route highlighted",
+        "Collapsible category sections",
+        "Badge counts for alerts",
+        "Build: 0 TS errors"
+      ]
+    },
+    {
+      "id": "P3-U03",
+      "title": "Final Pipeline Verification & Schema Update",
+      "status": "not_started",
+      "description": "Re-run full pipeline audit. Verify every dispatcher action has a UI path. Update APP_PIPELINE_SCHEMA.md. Zero unwired actions.",
+      "auditAction": "AUDIT_ONLY",
+      "acceptance_criteria": [
+        "APP_PIPELINE_SCHEMA.md updated with all pages",
+        "0 unwired user-facing dispatcher actions",
+        "All routes verified in App.tsx",
+        "Build: 0 TS errors across web + mcp-server",
+        "Full test suite passes"
+      ]
+    }
+  ],
+  "executionSummary": {
+    "createNew": ["P0-U01 (done)", "P2-U03", "P2-U05"],
+    "enhanceExisting": ["P0-U02", "P0-U03", "P1-U01", "P1-U02", "P1-U03", "P1-U04", "P1-U05", "P2-U01", "P2-U04", "P3-U01", "P3-U02"],
+    "verifyExisting": ["P2-U02"],
+    "auditOnly": ["P3-U03"]
+  }
+}

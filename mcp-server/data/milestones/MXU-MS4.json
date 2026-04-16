@@ -1,0 +1,66 @@
+{
+  "id": "MXU-MS4",
+  "version": "1.0.0",
+  "title": "Course-to-Capability Transformation",
+  "brief": "Inventory extracted learning assets. Build course-source ledger. Define transformation pipeline (concept->lesson->skill->test). Attach provenance metadata. Quality gates: same scrutiny standard as hand-written assets.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "MXU",
+  "track_name": "Max Utilization",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Asset Inventory & Ledger",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory all extracted learning assets from courses/tutorials/docs",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build course-source ledger: map each asset to its origin course/section/timestamp",
+          "effort": 50,
+          "dependencies": ["P0-U01"]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Transformation Pipeline & Quality",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Define transformation pipeline stages: concept -> lesson -> skill -> test",
+          "effort": 60,
+          "dependencies": ["P0-U02"]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Attach provenance metadata to each transformed asset (source, version, confidence)",
+          "effort": 50,
+          "dependencies": ["P1-U01"]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Define quality gates: same 3-agent scrutiny standard as hand-written assets",
+          "effort": 60,
+          "dependencies": ["P1-U02"]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Validate pipeline end-to-end on 3 sample course extractions",
+          "effort": 50,
+          "dependencies": ["P1-U03"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["MXU-MS0"],
+  "exit_conditions": ["All extracted learning assets inventoried with provenance", "Course-source ledger complete", "Transformation pipeline defined and validated on 3 samples", "Quality gates match hand-written asset scrutiny standard"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-max-utilization-roadmap-design.md"
+}

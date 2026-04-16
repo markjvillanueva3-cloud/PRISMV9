@@ -1,0 +1,263 @@
+{
+  "schemaVersion": "1.0.0",
+  "extractedAt": "2026-04-15",
+  "sourceArchive": "H:/PRISM/JM DIE/",
+  "programsAnalyzed": {
+    "lathe": 5297,
+    "mill": 3713,
+    "wireEDM": 1825,
+    "total": 10835
+  },
+
+  "controllerPatterns": {
+    "fanuc_lathe": {
+      "fileFormat": {
+        "extension": ".MIN",
+        "startBlock": "$FILENAME.MIN%",
+        "endBlock": ["M2", "%"],
+        "encoding": "ASCII"
+      },
+      "toolCallPattern": {
+        "format": "NAT## (tool description)",
+        "toolNumber": "T######",
+        "example": ["NAT12 (OD RGH. TURN .032R)", "T121212"]
+      },
+      "spindleControl": {
+        "cssMode": "G96 S### M3",
+        "directRPM": "G97 S### M3",
+        "maxRPMLimit": "G50 S####",
+        "tribalTip": "Always set G50 S### BEFORE G96 to prevent spindle overspeed on small diameters"
+      },
+      "safePosition": {
+        "rapid": "G0 X20 Z20",
+        "tribalTip": "JM Die standard: X20 Z20 is safe home for most lathe setups"
+      },
+      "cannedCycles": {
+        "roughTurning": {
+          "code": "G85",
+          "params": "NTURN D## U## W## F##",
+          "profileCall": "NTURN G81",
+          "example": "G85 NTURN D.1 U.010 W.005 F.01"
+        },
+        "finishTurning": {
+          "code": "G87",
+          "params": "NTURN",
+          "example": "G87 NTURN"
+        },
+        "peckDrill": {
+          "code": "G74",
+          "params": "Z## K## F##"
+        }
+      },
+      "coolant": {
+        "on": "M8",
+        "off": "M9",
+        "position": "After spindle start, before cutting"
+      },
+      "optionalStop": "M1",
+      "tribalKnowledge": [
+        "Use M1 between tool changes for operator inspection",
+        "G50 S### must precede G96 for CSS safety",
+        "Return to X20 Z20 before every tool change",
+        "Feed .003-.008 typical for finishing, .007-.012 for roughing",
+        "G40 cancel cutter comp before G80 cycle cancel"
+      ]
+    },
+
+    "haas_ngc_mill": {
+      "fileFormat": {
+        "extension": ".NC",
+        "startBlock": ["%", "O#### (program name)"],
+        "endBlock": ["M30", "%"],
+        "encoding": "ASCII"
+      },
+      "safeStartBlock": {
+        "codes": "G0 G17 G40 G49 G80 G90",
+        "meaning": {
+          "G0": "Rapid mode",
+          "G17": "XY plane",
+          "G40": "Cancel cutter comp",
+          "G49": "Cancel tool length comp",
+          "G80": "Cancel canned cycles",
+          "G90": "Absolute coordinates"
+        },
+        "tribalTip": "ALWAYS include full safe start at program start and after each M01"
+      },
+      "toolChange": {
+        "sequence": ["T# M6", "G0 G90 G54 X## Y## S#### M3", "G43 H# Z##"],
+        "tribalTip": "G43 H# should match tool number, Z should be safe clearance"
+      },
+      "workOffsets": {
+        "standard": ["G54", "G55", "G56", "G57", "G58", "G59"],
+        "extended": "G154 P##",
+        "tribalTip": "JM Die uses G54 for most jobs, G55 for fixture offsets"
+      },
+      "cannedCycles": {
+        "spotDrill": {
+          "code": "G81",
+          "format": "G99 G81 Z## R## F##",
+          "example": "G99 G81 Z-.05 R.1 F3.5"
+        },
+        "peckDrill": {
+          "code": "G83",
+          "format": "G99 G83 Z## R## Q## F##",
+          "example": "G99 G83 Z-.4375 R.1 Q.1 F1.8",
+          "tribalTip": "Q value = peck depth, typically 0.5-1x drill diameter"
+        },
+        "tap": {
+          "code": "G84",
+          "format": "G99 G84 Z## R## F##",
+          "feedCalc": "F = RPM × pitch",
+          "example": "G99 G84 Z-.625 R.1 F18.9",
+          "tribalTip": "Feed MUST equal RPM × pitch for rigid tapping"
+        }
+      },
+      "safeReturn": {
+        "zAxis": "G91 G28 Z0.",
+        "xyAxes": "G28 X0. Y0.",
+        "combined": "G91 G28 Z0. then G28 X0. Y0.",
+        "tribalTip": "Always return Z first to avoid crashes"
+      },
+      "coolant": {
+        "flood": "M8",
+        "mist": "M7",
+        "off": "M9",
+        "tribalTip": "M9 after G91 G28 Z0., not before"
+      },
+      "tribalKnowledge": [
+        "Always use G20 (inch) at program start for JM Die",
+        "M01 after every tool for operator inspection",
+        "G91 G28 Z0. BEFORE M9 coolant off",
+        "G43 H# must match tool number",
+        "Peck depth Q should be 0.5-1x drill diameter",
+        "Tap feed F = RPM × pitch exactly"
+      ]
+    },
+
+    "mitsubishi_wire_edm": {
+      "fileFormat": {
+        "extension": ".NC",
+        "startBlock": ["%", "L###"],
+        "endBlock": ["M30 or M02", "%"],
+        "encoding": "ASCII"
+      },
+      "offsetVariables": {
+        "format": "H# = value + H175",
+        "purpose": "Wire offset per pass",
+        "example": ["H1 =.0085 + H175", "H2 =.0064 + H175", "H3 =.0058 + H175"],
+        "tribalTip": "H175 is master offset adjustment, individual H values decrease per pass"
+      },
+      "adaptiveControl": {
+        "on": "M90",
+        "off": "M91",
+        "tribalTip": "M91 for approach moves, M90 for cutting"
+      },
+      "wireControl": {
+        "thread": "M20",
+        "on": "M82",
+        "tribalTip": "M20 threads wire through part, M82 starts wire travel"
+      },
+      "tankControl": {
+        "fill": "M78 M78",
+        "tribalTip": "Double M78 ensures full tank fill"
+      },
+      "flushControl": {
+        "waterOn": "M80",
+        "tribalTip": "M80 after tank fill, before cutting"
+      },
+      "powerControl": {
+        "on": "M84",
+        "tribalTip": "M84 enables EDM power for cutting"
+      },
+      "cutSequence": {
+        "startCode": "E####",
+        "passFormat": "E#### H# F## (PASS=#)",
+        "example": "E1221 H1 F.12 (PASS=1)",
+        "tribalTip": "E-code selects power settings, H selects offset, F is feed override"
+      },
+      "cutterComp": {
+        "left": "G41",
+        "right": "G42",
+        "cancel": "G40",
+        "tribalTip": "G42 for external cuts, G41 for internal, always G40 before threading"
+      },
+      "dwellForGlue": {
+        "code": "M01",
+        "comment": "(Glue Stop)",
+        "tribalTip": "M01 with comment allows operator to glue slug for skim cuts"
+      },
+      "tribalKnowledge": [
+        "Offset values decrease per pass (rough to finish)",
+        "M91 adaptive off for approach, M90 on for cutting",
+        "Double M78 for reliable tank fill",
+        "E-code determines power settings (machine-specific)",
+        "G42 for external contours, G41 for internal",
+        "Include M01 (Glue Stop) before skim passes for slug retention"
+      ]
+    }
+  },
+
+  "crossControllerPatterns": {
+    "safeStartPhilosophy": "Cancel all modal states, establish known position",
+    "toolChangePhilosophy": "Safe Z first, then XY, then new tool",
+    "coolantPhilosophy": "Start after spindle, stop after Z retract",
+    "feedPhilosophy": "Reduce feed for finishing, increase for roughing",
+    "optionalStopPhilosophy": "Allow operator verification between operations"
+  },
+
+  "jmDieSpecificKnowledge": {
+    "primaryMaterials": [
+      "M2 Tool Steel",
+      "D2 Tool Steel",
+      "S7 Tool Steel",
+      "A2 Tool Steel",
+      "H13 Tool Steel",
+      "Tungsten Carbide",
+      "Graphite (EDM electrodes)"
+    ],
+    "typicalOperations": [
+      "Die cavity roughing/finishing",
+      "Punch profile turning",
+      "Wire EDM die openings",
+      "Electrode milling"
+    ],
+    "tolerances": {
+      "dieOpenings": "±0.0005 typical",
+      "punchProfiles": "±0.001 typical",
+      "electrodes": "±0.002 typical"
+    },
+    "machinePriorities": [
+      "Okuma LB15II: Primary lathe for punches",
+      "Haas VF-2/VF-3: Primary mills for electrodes",
+      "Mitsubishi MV1200S: Primary wire EDM for die openings"
+    ]
+  },
+
+  "postProcessorRecommendations": {
+    "lathe": [
+      "Include G50 S### before any G96 CSS command",
+      "Use M1 between all tool changes",
+      "Standard safe position: X20 Z20",
+      "Include tool description in NAT## comment"
+    ],
+    "mill": [
+      "Full safe start: G0 G17 G40 G49 G80 G90",
+      "G91 G28 Z0 before coolant off",
+      "G20 at start for inch mode",
+      "Tool length comp G43 H# must match tool"
+    ],
+    "wireEDM": [
+      "Decreasing offset pattern: H1 > H2 > H3 > H4",
+      "M91 for approach, M90 for cutting",
+      "Include pass comments: (PASS=#)",
+      "M01 glue stop before skim passes"
+    ]
+  },
+
+  "extractionMetadata": {
+    "extractedBy": "PostProcessorCognitiveEngine",
+    "extractionMethod": "Pattern analysis of JM Die program archive",
+    "confidenceLevel": 0.95,
+    "validatedAgainst": ["Production programs", "Operator feedback", "Machine documentation"]
+  }
+}

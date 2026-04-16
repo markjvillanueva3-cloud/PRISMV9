@@ -1,0 +1,46 @@
+{
+  "id": "SYS-MS5",
+  "title": "MASTER_INDEX Regeneration",
+  "track": "SYS",
+  "priority": "P1",
+  "status": "complete",
+  "completed_at": "2026-03-01T02:35:00Z",
+  "description": "Regenerate MASTER_INDEX.md from current codebase reality. Section 4 documents only 102 engines but 156+ exist (34% coverage). Line counts are stale (e.g., ManufacturingCalculations listed as 550L, actual 991L — 80% error). Use MasterIndexGenerator engine to produce accurate output.",
+  "source": "GAP-ANALYSIS-2026-02-28",
+  "findings": [
+    "MASTER_INDEX Section 4 lists 102 engines, reality is 156+ (54+ undocumented)",
+    "Line counts are stale: ManufacturingCalculations 550L→991L (80% error)",
+    "Footer says '171 TypeScript engine classes' but body only lists 102",
+    "Multiple engine descriptions outdated after REM-MS0 through REM-MS5 changes"
+  ],
+  "units": [
+    {
+      "id": "SYS-MS5-U00",
+      "title": "Audit Current MASTER_INDEX Accuracy",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Read current MASTER_INDEX.md Section 4 (engines listing)"},
+        {"number": 2, "instruction": "For each listed engine, verify: (a) file exists, (b) line count matches, (c) description is accurate"},
+        {"number": 3, "instruction": "Identify engines that exist in index.ts but are missing from MASTER_INDEX"},
+        {"number": 4, "instruction": "Produce an accuracy report: { listed, missing, stale_count, stale_description }"}
+      ],
+      "exit_conditions": ["Accuracy report saved to state/SYS-MS5/master-index-accuracy.json"]
+    },
+    {
+      "id": "SYS-MS5-U01",
+      "title": "Regenerate MASTER_INDEX Engine Section",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Use MasterIndexGenerator or manual scan to enumerate all engines from index.ts exports"},
+        {"number": 2, "instruction": "For each engine: compute current line count, extract class description from JSDoc or first comment"},
+        {"number": 3, "instruction": "Categorize engines into functional groups (Calculation, Safety, Manufacturing, Intelligence, Infrastructure, etc.)"},
+        {"number": 4, "instruction": "Regenerate Section 4 of MASTER_INDEX.md with all engines, accurate line counts, and descriptions"},
+        {"number": 5, "instruction": "Update Section 15 summary counts to match new reality"},
+        {"number": 6, "instruction": "Verify all other MASTER_INDEX sections (dispatchers, hooks, cadences, algorithms) are still accurate"}
+      ],
+      "exit_conditions": ["All engines in index.ts appear in MASTER_INDEX", "All line counts within 5% of actual", "Section 15 summary matches body counts"]
+    }
+  ],
+  "dependencies": ["SYS-MS4"],
+  "deliverables": ["Regenerated MASTER_INDEX.md with 100% engine coverage", "Accuracy audit report"]
+}

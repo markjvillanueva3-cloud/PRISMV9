@@ -1,0 +1,87 @@
+{
+  "id": "MF-MS4",
+  "version": "6.2.0",
+  "title": "System Integration — PP Pipeline + Simulation + CAM + Fusion 360",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "Wire the feasibility stack into all PRISM subsystems: PP pipeline Stage 0.8 (pre-check), CNC simulation bridge (IPW-aware physics), CAM program assembly pre-hook, and Fusion 360 LiveBridge for real geometry extraction and CAM tree validation. Build the FeasibilityOrchestratorEngine that chains all layers.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Orchestrator + PP Integration",
+      "units": [
+        {
+          "id": "U01",
+          "title": "FeasibilityOrchestratorEngine: master orchestrator chaining all 6 layers",
+          "status": "pending",
+          "steps": [
+            "fullAnalysis(): run complete forward simulation with all checks",
+            "quickCheck(): fast pass/fail (top 5 risks in <100ms)",
+            "whatIf(): test impact of moving one operation",
+            "Chain: WorkpieceState → Accessibility → Workholding → Rigidity → Sequence → Report",
+            "Output: CompleteFeasibilityReport with per-operation risk, dead-ends, suggestions"
+          ],
+          "exit_conditions": [
+            "Full analysis runs all layers",
+            "Quick check completes in <100ms",
+            "whatIf produces meaningful comparison"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "PP Pipeline Stage 0.8: feasibility pre-check before physics optimization",
+          "status": "pending",
+          "steps": [
+            "Add Stage 0.8 to PostProcessorPipelineEngine between smart defaults (0.6) and physics (1.1)",
+            "Quick mode: check top risks, add warnings to pipeline output",
+            "Full mode: forward simulation, block pipeline if dead-end detected",
+            "Configurable: stages.feasibility_precheck = true/false"
+          ],
+          "exit_conditions": [
+            "Stage 0.8 appears in pipeline output",
+            "Dead-end blocks pipeline with actionable error",
+            "Quick mode adds warnings without blocking"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Simulation + CAM + Fusion Integration",
+      "units": [
+        {
+          "id": "U03",
+          "title": "CNC Simulation bridge: feed IPW state for progressive physics verification",
+          "status": "pending",
+          "steps": [
+            "Feed WorkpieceState to CNCSimulationPipelineEngine at each operation boundary",
+            "Block-by-block force check against evolving geometry (not just static stock)",
+            "Detect mid-program force spikes from changing engagement conditions",
+            "Wire to PhysicsAwareSimulationEngine for thermal/deflection/Ra tracking"
+          ],
+          "exit_conditions": [
+            "Simulation uses evolving IPW, not static stock",
+            "Force spikes from geometry changes detected"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "CAM + Fusion integration: pre-validate sequences, extract live geometry",
+          "status": "pending",
+          "steps": [
+            "CNCProgramAssemblerEngine pre-hook: validate sequence before assembly",
+            "Fusion360LiveBridgeEngine: extract B-rep geometry for Level 3 analysis",
+            "Fusion CAM tree reader (via LiveBridge): read operation list, tool assignments, setup orientations",
+            "AutoResequence: if dead-end found, suggest valid ordering via MCP response",
+            "Wire 12 dispatcher actions to camDispatcher"
+          ],
+          "exit_conditions": [
+            "CAM assembly pre-check catches dead-ends before G-code generation",
+            "Fusion geometry extraction works for Level 3 analysis",
+            "All 12 actions callable through dispatcher"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

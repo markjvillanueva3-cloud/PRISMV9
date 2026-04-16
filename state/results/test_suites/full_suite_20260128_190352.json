@@ -1,0 +1,180 @@
+{
+  "suite_name": "PRISM Coordination System Tests",
+  "started": "2026-01-28T19:03:51.345464",
+  "phases": {
+    "regression": {
+      "summary": {
+        "passed": 7,
+        "failed": 0,
+        "total": 7,
+        "success_rate": 1.0
+      },
+      "results": [
+        {
+          "name": "resource_registry",
+          "passed": true,
+          "details": "Skills:99, Agents:64, Formulas:22",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "formula_registry",
+          "passed": true,
+          "details": "21 formulas present",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "capability_matrix",
+          "passed": true,
+          "details": "23 resources with capabilities",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "synergy_matrix",
+          "passed": true,
+          "details": "44 synergy pairs",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "skills_exist",
+          "passed": true,
+          "details": "All 6 new skills present",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "orchestrator_v6",
+          "passed": true,
+          "details": "43944 bytes, all components present",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        },
+        {
+          "name": "agent_registry",
+          "passed": true,
+          "details": "All 6 new agents present",
+          "timestamp": "2026-01-28T19:03:51.352008"
+        }
+      ],
+      "timestamp": "2026-01-28T19:03:51.352008"
+    },
+    "combination_engine": {
+      "passed": 0,
+      "failed": 5,
+      "total": 5,
+      "results": [
+        {
+          "task": "Calculate optimal speed and feed for milling 4140 steel",
+          "passed": false,
+          "psi_score": 0.0,
+          "skills_selected": 8,
+          "agents_selected": 8,
+          "proof_certificate": "OPTIMAL",
+          "elapsed_seconds": 0.03407597541809082
+        },
+        {
+          "task": "Extract material data from monolith",
+          "passed": false,
+          "psi_score": 0.0,
+          "skills_selected": 8,
+          "agents_selected": 8,
+          "proof_certificate": "OPTIMAL",
+          "elapsed_seconds": 0.028467893600463867
+        },
+        {
+          "task": "Design architecture for tool selection engine",
+          "passed": false,
+          "psi_score": 0.0,
+          "skills_selected": 8,
+          "agents_selected": 8,
+          "proof_certificate": "OPTIMAL",
+          "elapsed_seconds": 0.02960824966430664
+        },
+        {
+          "task": "Validate formula calibration status",
+          "passed": false,
+          "psi_score": 0.0,
+          "skills_selected": 8,
+          "agents_selected": 8,
+          "proof_certificate": "OPTIMAL",
+          "elapsed_seconds": 0.030364274978637695
+        },
+        {
+          "task": "Coordinate multi-agent swarm for enhancement",
+          "passed": false,
+          "psi_score": 0.0,
+          "skills_selected": 8,
+          "agents_selected": 8,
+          "proof_certificate": "OPTIMAL",
+          "elapsed_seconds": 0.036659955978393555
+        }
+      ]
+    },
+    "benchmarks": {
+      "valid_tasks": 15,
+      "invalid_tasks": 0,
+      "total_tasks": 15,
+      "invalid_details": []
+    },
+    "file_integrity": {
+      "passed": 7,
+      "failed": 0,
+      "total": 7,
+      "files": [
+        {
+          "path": "C:\\PRISM\\data\\coordination\\RESOURCE_REGISTRY.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 40254,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\data\\coordination\\CAPABILITY_MATRIX.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 11690,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\data\\coordination\\SYNERGY_MATRIX.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 13980,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\data\\coordination\\AGENT_REGISTRY.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 11847,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\state\\CALIBRATION_STATE.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 7936,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\data\\FORMULA_REGISTRY.json",
+          "exists": true,
+          "valid_json": true,
+          "size_bytes": 29756,
+          "passed": true
+        },
+        {
+          "path": "C:\\PRISM\\scripts\\prism_unified_system_v6.py",
+          "exists": true,
+          "size_bytes": 44686,
+          "passed": true
+        }
+      ]
+    }
+  },
+  "completed": "2026-01-28T19:03:52.315679",
+  "elapsed_seconds": 0.9702146053314209,
+  "summary": {
+    "total_passed": 7,
+    "total_failed": 5,
+    "success_rate": 0.5833333333333334,
+    "status": "FAILED"
+  }
+}

@@ -1,0 +1,199 @@
+{
+  "id": "HM-KC-MS0",
+  "version": "8.3.0",
+  "title": "Parameter Extraction Pipeline — Build 8 Extractor Scripts",
+  "track": "HM-KC",
+  "status": "complete",
+  "description": "Build the data-driven extraction pipeline that reads hyperMILL installation files (Metric.cfg, omCycles.txt, demo.db, IM_Tool_DB, IM_Macro_DB, omFeature2JobCatalog XMLs, omPP XMLs) and outputs structured parameter schemas. These schemas are the foundation for all subsequent KC milestones — every skill, script, hook, and physics mapping is auto-generated from them. 8 extraction scripts covering the full ~8,163 parameter surface.",
+  "dependencies": ["HM-REV-MS8"],
+  "knowledge_sources": {
+    "engines": ["HyperMillCycleDefaultsEngine", "HyperMillToolExportEngine", "HyperMillCycleCatalogEngine"],
+    "registries": ["FormulaRegistry", "ToolRegistry"],
+    "services": [],
+    "physics": ["src/physics/constants.ts"],
+    "reference": [
+      "data/hypermill/Metric.cfg (138 files)",
+      "data/hypermill/omCycles.txt",
+      "data/hypermill/demo.db (547 tools, 29 geometry classes)",
+      "data/hypermill/IM_Tool_DB",
+      "data/hypermill/IM_Macro_DB",
+      "data/hypermill/omFeature2JobCatalog_*.xml",
+      "data/hypermill/omPP*.xml",
+      "scripts/extract-hypermill-materials.py",
+      "scripts/extract-hypermill-speedfeed.py"
+    ]
+  },
+  "forge_triple": {
+    "hook": "parameterExtractionValidator — BUILT — validates extracted schema completeness",
+    "action": "extract_hypermill_parameters — BUILT — triggers full extraction pipeline",
+    "skill": "/hypermill-extract — BUILT — user-facing extraction orchestration"
+  },
+  "enforcement": {
+    "pre_level": ["knowledge-consult"],
+    "post_level": ["stub-detector", "constants-checker"],
+    "compact_level": ["review-gate", "forge-triple-gate"]
+  },
+  "mcp_lifecycle": {
+    "session_start": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:memory_recall", "prism_session:system_snapshot"],
+    "during_work": ["prism_session:auto_checkpoint (every 5-10 tool calls)", "prism_session:wip_capture"],
+    "session_end": ["prism_session:memory_save", "prism_session:system_snapshot", "prism_session:checkpoint_enhanced"]
+  },
+  "sessions": [
+    {
+      "id": "HM-KC-MS0-S1",
+      "title": "Core Extraction Scripts — Metric.cfg + omCycles + demo.db",
+      "smart_config": { "role": "data-engineer", "model": "opus", "effort": "MAX", "context_budget": "40%" },
+      "knowledge": [
+        "data/hypermill/Metric.cfg (138 files with cycle parameter defaults)",
+        "data/hypermill/omCycles.txt (cycle type → parameter list mapping)",
+        "data/hypermill/demo.db (SQLite: 547 tools, 29 geometry classes, 2706 cutting techs)",
+        "scripts/extract-hypermill-materials.py (existing pattern)",
+        "scripts/extract-hypermill-speedfeed.py (existing pattern)"
+      ],
+      "intent": "Build 4 extraction scripts that parse Metric.cfg directory into cycle parameter schemas, parse omCycles.txt into cycle-to-parameter mappings, extract demo.db tool geometry and cutting technology schemas, and produce unified JSON schema output for each parameter.",
+      "skills": ["/forge-engines", "/test", "/checkpoint"],
+      "plugins": ["Vitest MCP", "ESLint MCP"],
+      "units": [
+        {
+          "id": "U-HKC01",
+          "title": "MetricCfgExtractor — Parse 138 Metric.cfg files into cycle parameter schemas",
+          "description": "Script that walks the Metric.cfg directory tree, parses each .cfg file (INI-like format with cycle parameter defaults per controller variant), and outputs a JSON schema per cycle type with field name, type, default value, range, and unit. Covers ~6,240 CAM cycle parameters across all variants.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Script parses all 138 Metric.cfg files without error",
+            "Output JSON contains parameter name, type, default, min/max range for each field",
+            "At least 6,000 unique parameters extracted across all cycle types",
+            "Unit tests verify parsing of 3 representative .cfg files with known parameter counts"
+          ],
+          "rollback": {
+            "files_created": ["scripts/extract-hypermill-metric-cfg.ts"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0", "extraction produces < 5,000 parameters"],
+            "rollback_procedure": "git checkout -- scripts/extract-hypermill-metric-cfg.ts"
+          }
+        },
+        {
+          "id": "U-HKC02",
+          "title": "OmCyclesExtractor — Parse omCycles.txt into cycle-to-parameter mapping",
+          "description": "Script that parses omCycles.txt (cycle type enumeration with parameter list per cycle), producing a mapping of cycle_type → [parameter_names] with metadata (required/optional, parameter group). Cross-references with Metric.cfg output to validate completeness.",
+          "depends_on": ["U-HKC01"],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All 120+ cycle types parsed from omCycles.txt",
+            "Each cycle type has complete parameter list with required/optional flags",
+            "Cross-validation against Metric.cfg schemas shows >= 95% parameter coverage",
+            "Unit tests verify 5 representative cycle types match expected parameter counts"
+          ],
+          "rollback": {
+            "files_created": ["scripts/extract-hypermill-omcycles.ts"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0", "cycle count < 100"],
+            "rollback_procedure": "git checkout -- scripts/extract-hypermill-omcycles.ts"
+          }
+        },
+        {
+          "id": "U-HKC03",
+          "title": "DemoDbExtractor — Extract tool geometry + cutting tech schemas from demo.db",
+          "description": "Script that opens demo.db (SQLite), extracts 29 geometry class schemas with all fields (diameter, length, flutes, corner_radius, etc.) and 2,706 cutting technology parameter sets. Outputs JSON schemas for tool parameters and cutting technology parameters.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "All 29 tool geometry classes extracted with complete field lists",
+            "At least 2,500 cutting technology entries extracted with parameter schemas",
+            "Output schema includes field type, range, unit, and nullable flag",
+            "Unit tests verify 3 geometry classes (endmill, ballnose, drill) match known field counts"
+          ],
+          "rollback": {
+            "files_created": ["scripts/extract-hypermill-demodb.ts"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0", "geometry classes < 25"],
+            "rollback_procedure": "git checkout -- scripts/extract-hypermill-demodb.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ 3 extraction scripts produce valid JSON schemas | ✓ >= 6,000 CAM params + 29 geometry classes extracted | omega_floor >= 0.90",
+      "feature_cascade": { "new_hooks": ["parameterExtractionValidator"], "new_actions": ["extract_metric_cfg", "extract_omcycles", "extract_demodb"], "new_skills": [], "available_to": ["HM-KC-MS1", "HM-KC-MS2", "HM-KC-MS3", "HM-KC-MS4", "HM-KC-MS5", "HM-KC-MS6", "HM-KC-MS7"] },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-KC-MS0-S2",
+      "title": "Extended Extraction Scripts — IM_Tool_DB + IM_Macro_DB + XML + Post + Schema Unifier",
+      "smart_config": { "role": "data-engineer", "model": "opus", "effort": "MAX", "context_budget": "40%" },
+      "knowledge": [
+        "data/hypermill/IM_Tool_DB (cutting technology parameter database)",
+        "data/hypermill/IM_Macro_DB (feature macro parameter database)",
+        "data/hypermill/omFeature2JobCatalog_*.xml (feature-to-job parameter mappings)",
+        "data/hypermill/omPP*.xml (post-processor config parameter surface)",
+        "Output schemas from S1 extractors"
+      ],
+      "intent": "Build 5 more extraction scripts covering IM_Tool_DB, IM_Macro_DB, feature-to-job XMLs, post-processor config XMLs, and a schema unifier that merges all extracted schemas into a canonical parameter catalog.",
+      "skills": ["/forge-engines", "/test", "/checkpoint"],
+      "plugins": ["Vitest MCP", "ESLint MCP"],
+      "units": [
+        {
+          "id": "U-HKC04",
+          "title": "IMToolDbExtractor + IMMacroDbExtractor — Cutting tech and macro schemas",
+          "description": "Two extraction scripts: (1) IM_Tool_DB extractor for cutting technology parameters (speeds, feeds, depth-of-cut per material-tool combination), (2) IM_Macro_DB extractor for feature macro parameter schemas (drilling macros, pocket macros with all configurable fields).",
+          "depends_on": ["U-HKC03"],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "IM_Tool_DB extraction produces cutting tech schemas for all tool-material combinations",
+            "IM_Macro_DB extraction produces macro parameter schemas with field types and defaults",
+            "Combined output adds >= 500 new unique parameters not covered by Metric.cfg",
+            "Unit tests validate 3 representative entries from each database"
+          ],
+          "rollback": {
+            "files_created": ["scripts/extract-hypermill-im-tooldb.ts", "scripts/extract-hypermill-im-macrodb.ts"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0"],
+            "rollback_procedure": "git checkout -- scripts/extract-hypermill-im-*.ts"
+          }
+        },
+        {
+          "id": "U-HKC05",
+          "title": "XMLExtractors — Feature2Job catalog + PostProcessor config schemas",
+          "description": "Two extraction scripts: (1) omFeature2JobCatalog XML parser that extracts feature-to-job parameter mappings (which cycle parameters are available per feature type), (2) omPP XML parser that extracts post-processor configuration parameter surface (controller-specific output options).",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Feature2Job parser extracts all feature-to-cycle mappings from XML catalog files",
+            "PostProcessor parser extracts configuration parameters for all post variants",
+            "Combined output covers fixture/setup and NC output parameter domains",
+            "Unit tests verify XML parsing on 2 representative files per type"
+          ],
+          "rollback": {
+            "files_created": ["scripts/extract-hypermill-feature2job.ts", "scripts/extract-hypermill-postconfig.ts"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0"],
+            "rollback_procedure": "git checkout -- scripts/extract-hypermill-feature2job.ts scripts/extract-hypermill-postconfig.ts"
+          }
+        },
+        {
+          "id": "U-HKC06",
+          "title": "SchemaUnifier — Merge all extracted schemas into canonical parameter catalog",
+          "description": "Unifier engine that takes output from all 7 extraction scripts, deduplicates parameters, resolves naming conflicts, assigns canonical IDs (HM-P-XXXX), groups by domain (CAD/Fixture/CAM-Core/CAM-Advanced/Linking/Simulation/NC/Settings), and produces the master HyperMillParameterCatalog JSON used by all subsequent KC milestones.",
+          "depends_on": ["U-HKC01", "U-HKC02", "U-HKC03", "U-HKC04", "U-HKC05"],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Master catalog contains >= 7,500 unique parameters with canonical IDs",
+            "Each parameter has: id, name, domain, type, range, default, unit, source_file",
+            "Domain distribution roughly matches expected: CAD ~275, Fixture ~200, CAM-Core ~2500, CAM-Advanced ~1500, Linking ~960, Sim ~500, Settings ~265",
+            "Zero duplicate parameter IDs in merged output"
+          ],
+          "rollback": {
+            "files_created": ["src/engines/hypermill/HyperMillSchemaUnifierEngine.ts", "data/hypermill/HyperMillParameterCatalog.json"],
+            "files_modified": [],
+            "abort_criteria": ["tsc errors > 0", "total params < 7,000"],
+            "rollback_procedure": "git checkout -- src/engines/hypermill/HyperMillSchemaUnifierEngine.ts data/hypermill/HyperMillParameterCatalog.json"
+          }
+        }
+      ],
+      "exit_gate": "✓ 8 extraction scripts complete | ✓ master catalog >= 7,500 params | ✓ all domains covered | omega_floor >= 0.90",
+      "feature_cascade": { "new_hooks": [], "new_actions": ["extract_im_tooldb", "extract_im_macrodb", "extract_feature2job", "extract_postconfig", "unify_parameter_schemas"], "new_skills": ["/hypermill-extract"], "available_to": ["HM-KC-MS1", "HM-KC-MS2", "HM-KC-MS3", "HM-KC-MS4", "HM-KC-MS5", "HM-KC-MS6", "HM-KC-MS7", "HM-KC-MS8"] },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

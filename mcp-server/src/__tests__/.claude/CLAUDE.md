@@ -1,0 +1,14 @@
+# Test Conventions
+- Framework: vitest (describe/it/expect)
+- File naming: EngineName.test.ts or descriptive-group.test.ts
+- Minimum 10 test cases per engine
+- Use toBeCloseTo for floating-point comparisons (5 decimal places default)
+- Include edge cases: zero, negative, extreme values, NaN, empty arrays
+- No network calls in unit tests — mock external dependencies
+- Import engines directly, not through dispatchers
+- Group related tests in nested describe() blocks
+- Test both success paths and error/rejection paths
+- Physics tests: verify dimensional consistency (units check)
+- Stochastic tests: use seeded PRNG for reproducibility, test distribution shape
+- Integration tests go in dedicated *-integration.test.ts files
+- Helper utilities in __tests__/helpers/ — reuse engineTestHarness.ts

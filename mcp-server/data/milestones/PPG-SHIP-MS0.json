@@ -1,0 +1,336 @@
+{
+  "id": "PPG-SHIP-MS0",
+  "title": "Post Processor Generator — Backend Hardening to Shippable Product",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "omega_target": 1.0,
+  "status": "pending",
+  "depends_on": ["PPG-HARDEN-MS0"],
+  "estimated_sessions": 8,
+  "estimated_units": 24,
+  "confidence_target": 90,
+
+  "mcp_utilization_protocol": {
+    "session_start": "prism_session:context_boot -> dispatcher_map -> memory_recall -> system_snapshot -> action_search '<goal>'",
+    "during_work": "prism_session:auto_checkpoint (every 5-10 calls) -> action_search -> tool_route_best -> wip_capture",
+    "session_end": "prism_session:memory_save -> system_snapshot -> checkpoint_enhanced",
+    "plugins": "mcp__vitest__run_tests | mcp__eslint__lint-files | codebase-memory-mcp search_graph",
+    "feature_cascade": "Read SESSION_ARTIFACTS.json at start -> write via PostCompact hook at end"
+  },
+
+  "enforcement_protocol": {
+    "hooks": [
+      "review-gate.sh: BLOCKS edits after 3 engine changes without /prism-review",
+      "enforce-auto-compact.py: WARN@15, URGENT@25, BLOCK@35 edits",
+      "PostToolUse stub detector: BLOCKS stub returns in engines",
+      "PostToolUse test quality: BLOCKS || true and bare .includes() in tests",
+      "enforce-constants-check.py: BLOCKS inline kc1.1/Taylor constants"
+    ],
+    "skills": ["/forge-engines", "/forge-wiring", "/prism-review", "/test", "/physics-verify", "/scrutinize", "/trace", "/forge-triple", "/navigate"]
+  },
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "CPS Quality Infrastructure — Linter + Simulator",
+      "sessions": ["S1"],
+      "intent": "Build automated tools that catch CPS bugs WITHOUT Fusion 360. A scope linter prevents diameter-class crashes. A CPS simulator runs onSection/getFeed logic against mock Fusion API data."
+    },
+    {
+      "id": "P2",
+      "title": "Data Validation — Cross-Reference All Databases",
+      "sessions": ["S2"],
+      "intent": "Validate every machine, material, and holder in the CPS against PRISM's authoritative registries. Catch spec drift. Verify CORS. Expand G-code test fixtures."
+    },
+    {
+      "id": "P3",
+      "title": "PPG Web Page — 5-Step Wizard Build",
+      "sessions": ["S3", "S4"],
+      "intent": "Refactor the existing 6-tab PPG page into a guided 5-step wizard: Machine → Material → Tools → CAM → Generate. Use WorkspacePrimitives. Dark theme matching calculator."
+    },
+    {
+      "id": "P4",
+      "title": "Full Database Wiring — Search + Auto-Fill",
+      "sessions": ["S5", "S6"],
+      "intent": "Wire the page to PRISM's full databases: 920 machines via machine_search, 6353 materials via material_search, 75K tools via tool_search, 2365 holders. Real-time physics preview on selection."
+    },
+    {
+      "id": "P5",
+      "title": "Integration Tests + Final Regression + Ship Readiness",
+      "sessions": ["S7", "S8"],
+      "intent": "Full E2E tests of the wizard flow. Re-run 20-agent scrutiny on updated CPS. All tests pass. Confidence >= 90."
+    }
+  ],
+
+  "sessions": [
+    {
+      "id": "S1",
+      "title": "CPS Quality Infrastructure",
+      "depends_on": [],
+      "units": ["U-SH01", "U-SH02", "U-SH03"],
+      "smart_config": { "role": "JavaScript AST Specialist + CPS Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Build tools that prevent CPS bugs automatically. The CPS scope linter parses JavaScript AST and flags undefined variables inside methods. The CPS simulator mocks Fusion 360's API and runs onSection/getFeed against sample tool+material data.",
+      "knowledge_sources": {
+        "engines": ["PostValidationHardeningEngine (validates G-code output)", "PostProcessorPipelineEngine (pipeline architecture)"],
+        "reference": ["HURCO_VM30i_PRISM_v11.cps (19,225 lines)", "cps-physics-standalone.test.ts (34 tests, proves vm.runInNewContext works)"]
+      },
+      "exit_gate": "CPS linter catches the 3 known bugs (diameter, .speed.speed, flutes) in a test-modified CPS. CPS simulator produces G-code from mock operations. Both integrated into vitest."
+    },
+    {
+      "id": "S2",
+      "title": "Data Validation + CORS + Fixtures",
+      "depends_on": [],
+      "units": ["U-SH04", "U-SH05", "U-SH06", "U-SH07"],
+      "smart_config": { "role": "Data Engineer + QA Specialist", "model": "sonnet", "effort": "HIGH", "context_budget": "55%" },
+      "intent": "Cross-validate all embedded CPS data against PRISM registries. Verify CORS works for Fusion add-in. Add more real-program test fixtures.",
+      "exit_gate": "All 142 CPS machines validated against MachineRegistry. All 185 CPS materials validated against published kc1.1. CORS test passes. 10+ new G-code fixtures added."
+    },
+    {
+      "id": "S3",
+      "title": "PPG Page Shell — 5-Step Wizard + Hero",
+      "depends_on": [],
+      "units": ["U-SH08", "U-SH09", "U-SH10"],
+      "smart_config": { "role": "Frontend Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "Refactor PostProcessorGeneratorPage.tsx from 6-tab layout to 5-step wizard. Steps: Machine → Material → Tools → CAM → Generate. WorkspacePrimitives throughout.",
+      "exit_gate": "Page renders at /ppg with 5-step wizard. Navigation between steps works. Hero + SummaryTiles update reactively. Dark theme matches calculator."
+    },
+    {
+      "id": "S4",
+      "title": "Machine + Material Search Panels",
+      "depends_on": ["S3"],
+      "units": ["U-SH11", "U-SH12", "U-SH13"],
+      "smart_config": { "role": "Frontend + Data Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Build MachineSearchPanel (debounced search against 920 machines, auto-fill controller + features) and MaterialSearchPanel (ISO group filter, Kienzle/Taylor display).",
+      "exit_gate": "Type 'Haas VF' → results from 920-machine DB. Select → controller auto-fills. Material search with ISO tabs returns from 6353 materials."
+    },
+    {
+      "id": "S5",
+      "title": "Tool + Holder + Physics Preview Panels",
+      "depends_on": ["S4"],
+      "units": ["U-SH14", "U-SH15", "U-SH16"],
+      "smart_config": { "role": "Frontend + Tooling Engineer", "model": "opus", "effort": "MAX", "context_budget": "65%" },
+      "intent": "Build ToolConfigCard (search 75K tools, auto-fill), HolderSelectorPanel (2365 holders, TIR/stiffness), real-time S/F preview when machine+material+tool+holder all selected.",
+      "exit_gate": "Tool search returns from 75K DB. Holder search shows TIR/stiffness. S/F preview updates on any input change."
+    },
+    {
+      "id": "S6",
+      "title": "CAM Selector + Post Generation + Preview",
+      "depends_on": ["S5"],
+      "units": ["U-SH17", "U-SH18", "U-SH19"],
+      "smart_config": { "role": "CAM Integration Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "CAM package dropdown (8 systems), generate button calling pipeline, G-code preview with syntax highlighting, program upload + optimize + diff view.",
+      "exit_gate": "8 CAM packages selectable. Generate produces valid CPS. Preview renders with highlighting. Upload/optimize/diff works."
+    },
+    {
+      "id": "S7",
+      "title": "E2E Tests — Full Wizard Flow",
+      "depends_on": ["S6"],
+      "units": ["U-SH20", "U-SH21", "U-SH22"],
+      "smart_config": { "role": "QA Engineer", "model": "opus", "effort": "MAX", "context_budget": "60%" },
+      "intent": "Comprehensive E2E tests: wizard flow (3 machines), all 8 CAM packages, upload/optimize/diff, offline fallback. Re-run 5-agent CPS scrutiny.",
+      "exit_gate": "20+ E2E tests pass. All 8 CAMs work. Offline fallback serves 200 materials. CPS scrutiny: 0 CRITICAL, 0 HIGH."
+    },
+    {
+      "id": "S8",
+      "title": "Final Regression + Ship Readiness Assessment",
+      "depends_on": ["S7", "S2", "S1"],
+      "units": ["U-SH23", "U-SH24"],
+      "smart_config": { "role": "Product Delivery + QA", "model": "opus", "effort": "MAX", "context_budget": "70%" },
+      "intent": "Run EVERY test. Update CPS on desktop. Write ship-readiness report with confidence score. Document remaining user-testing tasks.",
+      "exit_gate": "All tests pass (target: 1600+). CPS on desktop. Confidence assessment >= 90. Ship-readiness report written."
+    }
+  ],
+
+  "work": {
+    "U-SH01": {
+      "title": "CPS JavaScript scope linter",
+      "description": "Build a vitest that parses the CPS file's JavaScript AST (using acorn or espree) and checks every function for references to variables not in its parameter list or local scope. Must catch: bare 'diameter' in calculateOptimizedSpeed, 'result.speed.speed' property access, string flutes without fallback. Outputs a list of scope violations.",
+      "session": "S1",
+      "files_created": ["src/__tests__/cps-scope-linter.test.ts"],
+      "abort_criteria": ["Linter misses the 3 known bugs", "Linter produces false positives on valid code", "Can't parse CPS JavaScript"],
+      "exit_gate": "Linter detects all 3 historical bugs in a test-modified CPS. Zero false positives on the current clean CPS."
+    },
+    "U-SH02": {
+      "title": "CPS simulator with mock Fusion API",
+      "description": "Build a Node.js harness that extracts PRISM_PHYSICS from the CPS and runs calculateAll() against mock tool/material/operation data. Mock getProperty(), getParameter(), hasParameter(), tool object, currentSection. Verify output RPM/feed are valid numbers, not NaN. Test 5 material+tool combinations.",
+      "session": "S1",
+      "files_created": ["src/__tests__/cps-simulator.test.ts", "src/__tests__/helpers/cps-mock-fusion.ts"],
+      "abort_criteria": ["Can't extract PRISM_PHYSICS via vm module", "Mock Fusion API diverges from real API", "Simulator produces different results than Fusion"],
+      "exit_gate": "Simulator runs 5 material+tool combos. All produce valid RPM/feed. No NaN. Results match hand-calculated expected values within 10%."
+    },
+    "U-SH03": {
+      "title": "CPS regression test suite — prevent future crash bugs",
+      "description": "Expand cps-physics-standalone.test.ts with regression tests for every bug fixed in this sprint: diameter scope, .speed.Vc, flutes fallback, NaN feed, unrounded RPM, HEM speed boost at various ae/D ratios, prove-out derating, TIR-based speed factor. Total: 20+ regression tests.",
+      "session": "S1",
+      "files_modified": ["src/__tests__/cps-physics-standalone.test.ts"],
+      "abort_criteria": ["Any existing test breaks", "New tests don't catch reintroduced bugs"],
+      "exit_gate": "50+ CPS standalone tests pass. Coverage includes every bug fix from PPG-HARDEN."
+    },
+    "U-SH04": {
+      "title": "Cross-validate CPS machineDatabase vs MachineRegistry",
+      "description": "Write a test that reads every machine from the CPS machineDatabase (142 entries) and compares RPM/HP/torque/taper against MachineRegistry (920 machines). Flag mismatches > 10%. Report discrepancies.",
+      "session": "S2",
+      "files_created": ["src/__tests__/cps-machine-validation.test.ts"],
+      "abort_criteria": ["Registry not loadable", "More than 20% of machines have discrepancies"],
+      "exit_gate": "All 142 CPS machines checked. Discrepancies listed. Major mismatches (>20% on RPM or HP) fixed."
+    },
+    "U-SH05": {
+      "title": "Cross-validate CPS materials vs published Kienzle data",
+      "description": "Write a test that checks every material's kc1.1 and mc against known published values (Sandvik catalog, Machinery's Handbook). Flag materials where kc1.1 differs > 15% from published. Verify all 185 materials have complete required fields.",
+      "session": "S2",
+      "files_created": ["src/__tests__/cps-material-validation.test.ts"],
+      "abort_criteria": ["Can't load CPS materials via vm", "More than 10 materials with >15% error"],
+      "exit_gate": "All 185 materials validated. Outliers documented. No material has kc1.1=0 or NaN."
+    },
+    "U-SH06": {
+      "title": "CORS integration test for Fusion add-in panel",
+      "description": "Write a supertest-based test that starts the Express server and sends a request with no origin (simulating file:// protocol from Fusion CEF). Verify Access-Control-Allow-Origin: * is returned.",
+      "session": "S2",
+      "files_created": ["src/__tests__/cors-addin-integration.test.ts"],
+      "abort_criteria": ["Express can't start in test", "CORS header not present"],
+      "exit_gate": "CORS test passes. Both null-origin and localhost origins return correct headers."
+    },
+    "U-SH07": {
+      "title": "Expand G-code test fixtures from real program corpus",
+      "description": "Select 20 additional programs from the 2,883-program corpus (4 per controller: Haas, Okuma, Hurco, Mazak, Siemens). Add to fixtures. Write tests that pipeline-process each successfully.",
+      "session": "S2",
+      "files_created": ["src/__tests__/ppg-corpus-fixtures.test.ts"],
+      "abort_criteria": ["Any program crashes the pipeline", "Fixture programs not representative"],
+      "exit_gate": "20 new fixtures added. All process through pipeline without NaN or crash."
+    },
+    "U-SH08": {
+      "title": "PPG page 5-step wizard shell",
+      "description": "Refactor PostProcessorGeneratorPage.tsx to add a 5-step wizard mode alongside the existing 6-tab mode (toggle between them). Steps: 1.Machine 2.Material 3.Tools 4.CAM 5.Generate. Step indicator at top. WorkspacePrimitives layout.",
+      "session": "S3",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Existing 6-tab mode breaks", "Wizard steps don't navigate", "Dark theme doesn't match"],
+      "exit_gate": "Wizard renders. Steps navigate forward/back. Existing tab mode still works via toggle."
+    },
+    "U-SH09": {
+      "title": "WorkspaceHero + SummaryTiles for PPG wizard",
+      "description": "Hero: 'Post Processor Generator' title. 4 SummaryTiles: Machine (selected or 'Pick a machine'), Material (selected or 'Pick material'), Tools (count), Status (configuring/ready/generating).",
+      "session": "S3",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Tiles don't update from state", "Layout breaks on mobile"],
+      "exit_gate": "Hero renders. Tiles update reactively as user configures. Status tile shows 'Ready' when machine+material+tool set."
+    },
+    "U-SH10": {
+      "title": "Wizard step validation + progressive disclosure",
+      "description": "Step 1 (Machine) must be completed before Step 2 unlocks. Step 2 (Material) before Step 3. Incomplete steps show disabled 'Next' button with hint. Completed steps show green checkmark.",
+      "session": "S3",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["User can skip to Step 5 without setting machine", "Validation too strict"],
+      "exit_gate": "Steps enforce linear flow. User can go back to any completed step. Hints guide next action."
+    },
+    "U-SH11": {
+      "title": "MachineSearchPanel — search 920 machines",
+      "description": "Debounced search input (300ms) calling /api/v1/data/machine_search. Results show brand, model, RPM, HP, torque, taper. Click selects. Selected machine card shows full specs. Controller auto-fills from machine profile.",
+      "session": "S4",
+      "files_created": ["web/src/components/ppg/MachineSearchPanel.tsx"],
+      "abort_criteria": ["Search doesn't return results", "Selection doesn't update wizard state"],
+      "exit_gate": "Type 'Haas VF' → see VF-1/2/2SS/3/4/5. Select VF-2 → specs fill. Controller auto-fills."
+    },
+    "U-SH12": {
+      "title": "FeatureAutoDetectPanel — machine features with toggles",
+      "description": "Auto-detect features from machine profile: TSC (bool+PSI), probing, 4th/5th axis, rigid tapping, chip conveyor. User can toggle each on/off. Features affect generated post.",
+      "session": "S4",
+      "files_created": ["web/src/components/ppg/FeatureAutoDetectPanel.tsx"],
+      "abort_criteria": ["Features don't auto-populate", "Toggles don't persist in wizard state"],
+      "exit_gate": "Haas VF-2 → rigid_tap=on, TSC=off. DMG DMU 50 → TSC=on(1000psi), 5th=on. Toggles work."
+    },
+    "U-SH13": {
+      "title": "MaterialSearchPanel — search 6353 materials",
+      "description": "Search input with ISO group filter tabs (P/M/K/N/S/H/X). Results show name, group, hardness, kc1.1, rec Vc. Selected material card shows full Kienzle/Taylor/thermal data.",
+      "session": "S4",
+      "files_created": ["web/src/components/ppg/MaterialSearchPanel.tsx"],
+      "abort_criteria": ["Search doesn't return results", "ISO tabs don't filter"],
+      "exit_gate": "Type '4140' → see annealed/QT. ISO N tab → aluminum only. Selection shows physics data."
+    },
+    "U-SH14": {
+      "title": "ToolConfigCard — search 75K tools + configure",
+      "description": "Per-tool card: type, diameter, flutes, material, coating, insert nose radius. Search 75K tools via /api/v1/data/tool_search. Select → auto-fills fields. Manual override for any field.",
+      "session": "S5",
+      "files_created": ["web/src/components/ppg/ToolConfigCard.tsx"],
+      "abort_criteria": ["Search doesn't work", "Auto-fill breaks manual inputs"],
+      "exit_gate": "Search 'Sandvik CoroMill' → results. Select → fields auto-fill. Manual override works."
+    },
+    "U-SH15": {
+      "title": "HolderSelectorPanel — search 2365 holders",
+      "description": "Per-tool holder selector. Search by brand/type. Show TIR, stiffness, max RPM. Selected holder affects S/F physics preview (speed derating from TIR, feed from stiffness).",
+      "session": "S5",
+      "files_created": ["web/src/components/ppg/HolderSelectorPanel.tsx"],
+      "abort_criteria": ["Holder search doesn't work", "TIR/stiffness not displayed"],
+      "exit_gate": "Search 'Haimer shrink' → results with TIR. Selection updates physics preview."
+    },
+    "U-SH16": {
+      "title": "Real-time S/F physics preview",
+      "description": "When machine+material+tool+holder all selected, show live preview: RPM, feed (mm/min), SFM, IPT, force (N), power (kW), tool life. Uses SpeedFeedOrchestrator via /api/v1/speed-feed/orchestrate. Updates on any input change.",
+      "session": "S5",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Preview doesn't recalculate on change", "NaN in display"],
+      "exit_gate": "Select VF-2 + 4140 + 12mm endmill → S/F displayed. Change material to 6061 → values update."
+    },
+    "U-SH17": {
+      "title": "CAMPackageSelector + post generation",
+      "description": "Card grid: Fusion 360, Mastercam, hyperMILL, SolidCAM, NX, CATIA, Esprit, GibbsCAM. Generate button calls /api/ppg/generate-post with all wizard selections. Show progress. Download CPS file.",
+      "session": "S6",
+      "files_created": ["web/src/components/ppg/CAMPackageSelector.tsx"],
+      "abort_criteria": ["Not all 8 CAMs listed", "Generation fails"],
+      "exit_gate": "8 CAMs selectable. Generate produces valid CPS. Download works."
+    },
+    "U-SH18": {
+      "title": "G-code preview + syntax highlighting",
+      "description": "Preview panel: line numbers, G-codes green, M-codes blue, comments gray, S/F values highlighted. Copy to clipboard. Handles 1000+ lines without lag.",
+      "session": "S6",
+      "files_created": ["web/src/components/ppg/GcodePreviewPanel.tsx"],
+      "abort_criteria": ["No syntax highlighting", "Large programs lag"],
+      "exit_gate": "Preview renders 1000+ lines. Syntax highlighting works. Copy button works."
+    },
+    "U-SH19": {
+      "title": "Program upload + optimize + diff + prove-out",
+      "description": "Upload NC program, optimize through pipeline, side-by-side diff (original vs optimized), physics reasons per changed line. Prove-out toggle (enable/disable, feed%, speed%).",
+      "session": "S6",
+      "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+      "abort_criteria": ["Upload fails", "Diff doesn't show reasons", "Prove-out toggle broken"],
+      "exit_gate": "Upload → optimize → diff → prove-out → download. Full flow works."
+    },
+    "U-SH20": {
+      "title": "E2E test — full wizard flow (3 machines)",
+      "description": "Test: machine search → select → controller fills → features populate → material → tool → holder → CAM → generate. Test Haas VF-2, Hurco VM30i, DMG DMU 50.",
+      "session": "S7",
+      "files_created": ["web/src/__tests__/ppg-wizard-e2e.test.tsx"],
+      "abort_criteria": ["Any step fails", "Generated CPS missing user data"],
+      "exit_gate": "3 E2E flows pass. Each produces valid CPS."
+    },
+    "U-SH21": {
+      "title": "E2E test — 8 CAM packages + offline fallback",
+      "description": "Test post generation for each CAM package. Test offline mode: server down → page still works with embedded fallback data.",
+      "session": "S7",
+      "files_created": ["web/src/__tests__/ppg-cam-offline.test.tsx"],
+      "abort_criteria": ["Any CAM package fails", "Offline crashes"],
+      "exit_gate": "8 CAM packages produce valid output. Offline serves 200 materials + 142 machines."
+    },
+    "U-SH22": {
+      "title": "Re-run 5-agent CPS scrutiny",
+      "description": "Launch 5 scrutiny agents (scope linter, physics, UX, safety, data integrity) against the current CPS. All CRITICAL and HIGH findings must be resolved.",
+      "session": "S7",
+      "abort_criteria": ["Any CRITICAL finding remains", "Any HIGH finding remains"],
+      "exit_gate": "0 CRITICAL, 0 HIGH. All agents report PASS or MINOR."
+    },
+    "U-SH23": {
+      "title": "Final full regression — all tests",
+      "description": "Run every PPG test file, MOAT regression, CPS standalone, CPS simulator, data validation, E2E. Target: 1600+ tests, 0 failures.",
+      "session": "S8",
+      "abort_criteria": ["Any test failure"],
+      "exit_gate": "All tests pass. 0 failures."
+    },
+    "U-SH24": {
+      "title": "Ship-readiness report + confidence assessment",
+      "description": "Write a comprehensive ship-readiness report documenting: what's tested, what's validated, what requires user testing, confidence score, known limitations, recommended beta test plan.",
+      "session": "S8",
+      "files_created": ["data/docs/PPG_SHIP_READINESS.md"],
+      "abort_criteria": ["Confidence score < 85"],
+      "exit_gate": "Report written. Confidence >= 90. CPS on desktop. Remaining user tasks documented."
+    }
+  }
+}

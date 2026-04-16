@@ -1,0 +1,138 @@
+{
+  "id": "VL-MS0",
+  "version": "6.1.0",
+  "title": "Direct Video Learning Engine — Audio + Vision Pipeline",
+  "created_at": "2026-03-07T17:00:00Z",
+  "description": "Build a VideoLearningEngine that extracts knowledge directly from local video files (MP4/MKV/MOV) using FFmpeg for audio/frame extraction, Whisper API for speech-to-text, and Claude Vision for keyframe analysis. Integrates with existing knowledge extraction and component generation pipeline.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Prerequisites & Infrastructure",
+      "units": [
+        {
+          "id": "U01",
+          "title": "Verify/install FFmpeg, create VideoLearningEngine skeleton with extractAudio + extractKeyframes methods",
+          "status": "complete",
+          "steps": [
+            "Check if ffmpeg is available on PATH, install if needed (winget install ffmpeg)",
+            "Create src/engines/VideoLearningEngine.ts with class structure",
+            "Implement extractAudio(videoPath): extracts audio track to WAV using ffmpeg child_process",
+            "Implement extractKeyframes(videoPath, opts): extracts frames using scene-change detection (-vf select=gt(scene,0.3)) or fixed interval",
+            "Add frame deduplication via perceptual hash to skip near-identical frames",
+            "Export from index.ts, register in engine registry"
+          ],
+          "exit_conditions": [
+            "ffmpeg accessible from Node.js child_process",
+            "extractAudio produces .wav file from test MP4",
+            "extractKeyframes produces PNG files with timestamps",
+            "TypeScript compiles clean"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Implement Whisper API speech-to-text integration with timestamped transcript output",
+          "status": "complete",
+          "steps": [
+            "Add transcribeAudio method using OpenAI Whisper API (or local whisper.cpp fallback)",
+            "Handle audio chunking for files >25MB (Whisper API limit)",
+            "Parse Whisper response into timestamped segments [{start, end, text}]",
+            "Add offline fallback: if no API key, attempt local whisper.cpp binary",
+            "Return TranscriptResult with full text + segments + language detection"
+          ],
+          "exit_conditions": [
+            "Whisper API call succeeds with test audio",
+            "Transcript has accurate timestamps",
+            "Files >25MB are chunked correctly",
+            "Graceful error if no API key and no local whisper"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Vision Analysis & Knowledge Fusion",
+      "units": [
+        {
+          "id": "U03",
+          "title": "Implement Claude Vision keyframe analysis with batched frame processing",
+          "status": "complete",
+          "steps": [
+            "Add analyzeKeyframes method that sends batches of 4-6 frames to Claude Vision",
+            "Craft manufacturing-specific vision prompts: extract parameter values, UI elements, toolpath patterns, machine movements",
+            "Parse vision responses into structured FrameAnalysis objects",
+            "Correlate frame timestamps with transcript segments for context enrichment",
+            "Handle rate limiting and cost tracking"
+          ],
+          "exit_conditions": [
+            "Vision API successfully analyzes test keyframes",
+            "Parameter values extracted from UI screenshots",
+            "Frame-transcript correlation produces merged timeline",
+            "Cost tracking reports per-video API spend"
+          ]
+        },
+        {
+          "id": "U04",
+          "title": "Build knowledge fusion pipeline: transcript + vision → structured knowledge items",
+          "status": "complete",
+          "steps": [
+            "Create fuseKnowledge method that merges transcript segments with frame analysis",
+            "Group by topic/timestamp to produce unified KnowledgeItem objects",
+            "Apply domain classification (CAD/CAM/SHOP) using existing classify logic",
+            "Score confidence based on source (spoken + visible = high, spoken-only = medium, visual-only = medium)",
+            "Deduplicate against existing TribalKnowledgeEngine KNOWLEDGE_BASE",
+            "Output compatible with existing component generation pipeline (knowledge_bridge format)"
+          ],
+          "exit_conditions": [
+            "Knowledge items have provenance (video path + timestamp + frame reference)",
+            "Domain classification matches video content",
+            "No duplicate tips generated vs existing KNOWLEDGE_BASE",
+            "Output format matches knowledge_bridge.py specs"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Integration, Skill, & Testing",
+      "units": [
+        {
+          "id": "U05",
+          "title": "Create prism_video_learn dispatcher action + update /video-learn skill for local files",
+          "status": "complete",
+          "steps": [
+            "Add video_learn_local action to appropriate dispatcher (or create videoLearnDispatcher)",
+            "Accept params: video_path (single file or directory), options (interval, max_frames, domain_override)",
+            "Wire to VideoLearningEngine.processVideo() orchestration method",
+            "Update /video-learn skill to accept local file paths alongside YouTube URLs",
+            "Add batch mode for processing directories of videos"
+          ],
+          "exit_conditions": [
+            "Dispatcher action callable via MCP tool",
+            "/video-learn C:/path/to/video.mp4 triggers local pipeline",
+            "Batch mode processes directory of MP4s",
+            "Results feed into component generation"
+          ]
+        },
+        {
+          "id": "U06",
+          "title": "Tests + process hyperMILL E-Learning videos as validation",
+          "status": "complete",
+          "steps": [
+            "Write unit tests for VideoLearningEngine (mock ffmpeg, mock APIs)",
+            "Test extractAudio, extractKeyframes, transcribeAudio, analyzeKeyframes, fuseKnowledge",
+            "Integration test with a real hyperMILL E-Learning MP4 from HYPERMILL directory",
+            "Verify generated knowledge items are valid and useful",
+            "npm run build + npm test must pass"
+          ],
+          "exit_conditions": [
+            "All unit tests pass",
+            "At least 1 hyperMILL video successfully processed end-to-end",
+            "Generated tips are accurate and non-duplicate",
+            "Build passes, no test regression"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

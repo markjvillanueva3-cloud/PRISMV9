@@ -1,0 +1,115 @@
+{
+  "id": "WEDM-AI-MACRO",
+  "title": "Wire EDM AI — CAD Modeling, Macros, Templates, Automation",
+  "track": "WEDM",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 7,
+  "completed_units": 7,
+  "units": [
+    {
+      "id": "WEDM-MACRO-U1",
+      "title": "CAD modeling AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 3 CAD modeling domains: wedm_cad_modeling (geometry for EDM), wedm_geometry_generation (cut geometry from models), wedm_profile_optimization (wire path optimization)"
+    },
+    {
+      "id": "WEDM-MACRO-U2",
+      "title": "Macro programming AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 3 macro domains: wedm_macro_generation (controller-specific macros), wedm_parametric_programming (variable programs), wedm_variable_strategy (adaptive parameters)"
+    },
+    {
+      "id": "WEDM-MACRO-U3",
+      "title": "Template system AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 3 template domains: wedm_template_design (reusable architecture), wedm_program_template (controller templates), wedm_family_programming (part family strategies)"
+    },
+    {
+      "id": "WEDM-MACRO-U4",
+      "title": "Batch/automation AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 3 automation domains: wedm_batch_optimization (multi-piece production), wedm_nesting_strategy (material layout), wedm_automation_workflow (lights-out production)"
+    },
+    {
+      "id": "WEDM-MACRO-U5",
+      "title": "Tribal synthesis for macro/template domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added all 12 macro/template/automation domains to manufacturingDomains array for tribal knowledge injection"
+    },
+    {
+      "id": "WEDM-MACRO-U6",
+      "title": "WEDMCompleteOrchestrationEngine macro/template integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/WEDMCompleteOrchestrationEngine.ts"
+      ],
+      "details": "Extended collectAIRecommendations() with all 12 new domain calls. Conditional activation: CAD when profiles exist, batch when multi-piece, family when part_name/number provided. Extended ai_recommendations interface with 12 new fields. Enhanced synthesis report with macro/template/automation summaries."
+    },
+    {
+      "id": "WEDM-MACRO-U7",
+      "title": "Macro/template AI test suite",
+      "status": "complete",
+      "files_created": [
+        "src/__tests__/wedm-ai-macro-template.test.ts"
+      ],
+      "details": "25 tests covering: CAD modeling domains (3), macro programming domains (3), template system domains (3), batch/automation domains (3), orchestration integration (6), synthesis report (1), controller-specific macros (3), tribal synthesis (3)"
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 25,
+    "macro_template_domains_registered": 12,
+    "domain_prompts_created": 12,
+    "tribal_synthesis_enabled": true,
+    "orchestration_ai_extended": true
+  },
+  "domain_summary": {
+    "cad_modeling": [
+      "wedm_cad_modeling — CAD geometry design for EDM, corner constraints, start holes",
+      "wedm_geometry_generation — Cut geometry from solid models, offset geometry, bridges",
+      "wedm_profile_optimization — Wire path optimization, arc segmentation, sequence"
+    ],
+    "macro_programming": [
+      "wedm_macro_generation — Controller-specific macros (Mitsubishi/Sodick/Makino/Fanuc)",
+      "wedm_parametric_programming — Variable programs, dimensional relationships",
+      "wedm_variable_strategy — Adaptive strategies for thickness/hardness/quality variations"
+    ],
+    "template_system": [
+      "wedm_template_design — Reusable template architecture, configurable sections",
+      "wedm_program_template — Controller-specific templates with placeholders",
+      "wedm_family_programming — Part family strategies, master programs, variant management"
+    ],
+    "batch_automation": [
+      "wedm_batch_optimization — Multi-piece setup, wire optimization, consumables planning",
+      "wedm_nesting_strategy — Material utilization, wire path, common cuts",
+      "wedm_automation_workflow — CAD import, program generation, DNC, feedback loops"
+    ]
+  },
+  "controller_support": {
+    "mitsubishi": "M800 macro syntax, E-pack technology codes",
+    "sodick": "LN/SPW macro syntax, C### condition codes",
+    "makino": "Hyper-i programming, intelligent setup",
+    "fanuc": "Custom macro B syntax",
+    "agiecharmilles": "ISPG technology parameters"
+  },
+  "integration_points": {
+    "PRISMIntelligenceLayer": "12 macro/template domains + prompts + tribal synthesis",
+    "WEDMCompleteOrchestrationEngine": "Conditional AI collection for CAD, macros, templates, batch, automation"
+  },
+  "summary": "Complete AI hardening for Wire EDM programming scalability. 12 new domains: CAD modeling (geometry, profiles), macro programming (controller-specific, parametric, adaptive), templates (design, programs, families), and automation (batch, nesting, workflows). All domains support Mitsubishi, Sodick, Makino, Fanuc, and AgieCharmilles controllers. Integration enables AI-assisted program generation, part family management, and production automation. 25 tests + prior 44 = 69 total WEDM AI tests."
+}

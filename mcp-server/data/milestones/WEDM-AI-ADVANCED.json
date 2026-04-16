@@ -1,0 +1,112 @@
+{
+  "id": "WEDM-AI-ADVANCED",
+  "title": "Wire EDM Advanced AI — Quality, Diagnostics, Learning, Cost",
+  "track": "WEDM",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 7,
+  "completed_units": 7,
+  "units": [
+    {
+      "id": "WEDM-ADV-U1",
+      "title": "Quality/inspection AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 4 quality domains: wedm_dimensional_verification (measurement planning), wedm_spc_analysis (process control), wedm_metrology_strategy (equipment/procedures), wedm_first_article (AS9102/PPAP FAI)"
+    },
+    {
+      "id": "WEDM-ADV-U2",
+      "title": "Troubleshooting/diagnostics AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 4 diagnostics domains: wedm_wire_break_diagnosis (root cause analysis), wedm_dimension_drift (thermal/wear compensation), wedm_surface_defect (witness lines, recast issues), wedm_process_recovery (restart procedures)"
+    },
+    {
+      "id": "WEDM-ADV-U3",
+      "title": "Learning/optimization AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 4 learning domains: wedm_performance_prediction (outcome forecasting), wedm_historical_analysis (trend identification), wedm_continuous_improvement (OEE/cycle time), wedm_calibration_learning (offset/timing updates)"
+    },
+    {
+      "id": "WEDM-ADV-U4",
+      "title": "Cost/scheduling AI domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added 4 planning domains: wedm_cost_estimation (detailed costing), wedm_cycle_prediction (time forecasting), wedm_machine_routing (job allocation), wedm_capacity_planning (forecast vs capacity)"
+    },
+    {
+      "id": "WEDM-ADV-U5",
+      "title": "Tribal synthesis for advanced domains",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts"
+      ],
+      "details": "Added all 16 advanced domains to manufacturingDomains array for tribal knowledge injection"
+    },
+    {
+      "id": "WEDM-ADV-U6",
+      "title": "WEDMCompleteOrchestrationEngine advanced AI integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/WEDMCompleteOrchestrationEngine.ts"
+      ],
+      "details": "Extended collectAIRecommendations() with 10 new domain calls (quality, diagnostics, performance, cost). Conditional FAI for aerospace/medical. Extended ai_recommendations interface with 16 new fields. Enhanced synthesis report with verification, FAI, wire break, performance, cost, cycle time summaries."
+    },
+    {
+      "id": "WEDM-ADV-U7",
+      "title": "Advanced AI test suite",
+      "status": "complete",
+      "files_created": [
+        "src/__tests__/wedm-ai-advanced.test.ts"
+      ],
+      "details": "26 tests covering: quality/inspection domains (4), troubleshooting domains (4), learning domains (4), cost/scheduling domains (4), orchestration integration (6), synthesis report (1), tribal synthesis (3)"
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 26,
+    "advanced_domains_registered": 16,
+    "domain_prompts_created": 16,
+    "tribal_synthesis_enabled": true,
+    "orchestration_ai_extended": true
+  },
+  "domain_summary": {
+    "quality_inspection": [
+      "wedm_dimensional_verification — measurement planning, CMM/optical, uncertainty",
+      "wedm_spc_analysis — control charts, Cp/Cpk, sampling strategy",
+      "wedm_metrology_strategy — equipment selection, calibration, environment",
+      "wedm_first_article — AS9102/PPAP, balloon drawings, documentation"
+    ],
+    "troubleshooting_diagnostics": [
+      "wedm_wire_break_diagnosis — root cause, flushing/tension/energy analysis",
+      "wedm_dimension_drift — thermal, wear, stress release diagnosis",
+      "wedm_surface_defect — witness lines, recast, pitting correction",
+      "wedm_process_recovery — restart procedures, salvage strategies"
+    ],
+    "learning_optimization": [
+      "wedm_performance_prediction — cycle time, Ra, accuracy forecasting",
+      "wedm_historical_analysis — trend identification, best practice mining",
+      "wedm_continuous_improvement — OEE, cycle time, quality kaizen",
+      "wedm_calibration_learning — offset, timing, material database updates"
+    ],
+    "cost_scheduling": [
+      "wedm_cost_estimation — machine time, wire, consumables, overhead",
+      "wedm_cycle_prediction — cut time, threading, rapids, contingency",
+      "wedm_machine_routing — capability matching, load balancing",
+      "wedm_capacity_planning — forecast vs capacity, shift optimization"
+    ]
+  },
+  "integration_points": {
+    "PRISMIntelligenceLayer": "16 advanced domains + prompts + tribal synthesis",
+    "WEDMCompleteOrchestrationEngine": "Conditional AI for aerospace FAI, diagnostics, cost/cycle prediction"
+  },
+  "summary": "Advanced AI hardening for Wire EDM operations management. 16 new domains covering: quality/inspection (verification, SPC, metrology, FAI), troubleshooting (wire breaks, dimension drift, surface defects, recovery), learning (performance prediction, historical analysis, continuous improvement, calibration), and cost/scheduling (estimation, cycle prediction, routing, capacity). All domains integrated into pipeline with conditional activation. 26 tests + prior 69 = 95 total WEDM AI tests."
+}

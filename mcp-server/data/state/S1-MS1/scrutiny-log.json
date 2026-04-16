@@ -1,0 +1,61 @@
+[
+  {
+    "pass": 1,
+    "focus": "schema_completeness",
+    "score": 0.944,
+    "gaps_found": 1,
+    "gaps": [
+      {
+        "severity": "CRITICAL",
+        "unit": "P4-U04",
+        "field": "entry_conditions",
+        "issue": "Only 1 entry condition, requires >= 2",
+        "status": "FIXED",
+        "fix": "Added 'Build passes with CoolantRegistry and CoatingRegistry loaded' as second entry condition"
+      }
+    ],
+    "timestamp": "2026-02-25T16:00:00Z"
+  },
+  {
+    "pass": 2,
+    "focus": "dependency_integrity",
+    "score": 1.0,
+    "gaps_found": 0,
+    "gaps": [],
+    "notes": "DAG acyclic, all 23 dependency refs valid, parallel batches correct, ASCII graph matches unit arrays",
+    "timestamp": "2026-02-25T16:05:00Z"
+  },
+  {
+    "pass": 3,
+    "focus": "specificity",
+    "score": 0.96,
+    "gaps_found": 2,
+    "gaps": [
+      {
+        "severity": "LOW",
+        "unit": "P1-U07",
+        "issue": "Step 1 'sweep for entries' slightly vague — should specify explicit query",
+        "status": "ACCEPTED",
+        "rationale": "Non-blocking — step context makes intent clear"
+      },
+      {
+        "severity": "LOW",
+        "unit": "P4-U04",
+        "issue": "Total count '29,869+' imprecise",
+        "status": "ACCEPTED",
+        "rationale": "Exact count depends on execution — '+' is pragmatic"
+      }
+    ],
+    "timestamp": "2026-02-25T16:10:00Z"
+  },
+  {
+    "convergence": {
+      "delta_pass_1_to_2": 0,
+      "delta_pass_2_to_3": 0,
+      "criterion_met": true,
+      "criterion": "delta < 2 for two consecutive passes",
+      "final_score": 0.97,
+      "verdict": "APPROVED"
+    }
+  }
+]

@@ -1,0 +1,75 @@
+{
+  "unit": "P0-U03",
+  "title": "Lambda/Phi Validation in Auto-Hook Proxy",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:45:00Z",
+  "status": "PASS",
+
+  "proxy_location": "src/tools/autoHookWrapper.ts",
+
+  "lambda_validation": {
+    "function": "validateSafetyProof(context) — lines 210-270",
+    "threshold": "lambda_min = 0.90 (line 185)",
+    "scope": "Applied to all calcTools (lines 148-166): prism_calc actions + legacy tool names",
+    "logic": [
+      "Start with validityScore = 1.0",
+      "Deduct for: negative speed (-0.3), excessive speed >10000 (-0.1)",
+      "Deduct for: negative force (-0.5), negative power (-0.5), zero/negative tool_life (-0.5)",
+      "Deduct for: power > 100kW (-0.1)",
+      "isValid = validityScore >= 0.90"
+    ],
+    "rejection_behavior": {
+      "score_below_0.5": "Fires CALC-SAFETY-VIOLATION-001 hook, injects _safety_warning into result (line 422-428)",
+      "score_0.5_to_0.89": "Not valid but no violation hook — result passes through (POTENTIAL GAP)",
+      "score_above_0.90": "Passes — valid calculation"
+    },
+    "finding": {
+      "severity": "FIXED",
+      "detail": "Gap between lambda_min (0.90) and violation threshold (0.50) has been FIXED. Previously scores 0.50-0.89 were marked invalid but no warning was injected. Now _safety_warning is injected for ALL !isValid cases with severity='critical' (<0.5) or 'warning' (0.5-0.89).",
+      "fix_applied": "autoHookWrapper.ts line 414: condition changed from `!isValid && score < 0.5` to `!isValid`, with severity tiering for hook and result annotation",
+      "recommendation": "RESOLVED"
+    }
+  },
+
+  "phi_validation": {
+    "function": "verifyFactualClaims(content) — lines 272-314",
+    "thresholds": { "phi_high": 0.85, "phi_moderate": 0.60 },
+    "scope": "Applied to webTools only: ['web_search', 'web_fetch'] (line 168)",
+    "logic": [
+      "Scan content for claimIndicators (11 phrases like 'studies show', 'research indicates')",
+      "No claims found → confidence=1.0, verdict=VERIFIED",
+      "Claims found → start at confidence=0.70",
+      "Deduct 0.10 if >3 claims, deduct 0.05 for hedging language",
+      "phi_high (>=0.85): VERIFIED, phi_moderate (>=0.60): NEEDS_REVIEW, below: UNVERIFIED"
+    ],
+    "rejection_behavior": {
+      "caveats_present": "Injects _fact_verification into result with phi_score+verdict+caveats",
+      "no_caveats": "No injection — result passes through clean"
+    },
+    "finding": {
+      "severity": "OK",
+      "detail": "Phi validation is correctly scoped to web tools only — not applied to manufacturing calculations (which would false-positive on physics terminology)"
+    }
+  },
+
+  "proxy_coverage": {
+    "calc_tools_wrapped": true,
+    "web_tools_wrapped": true,
+    "safety_dispatcher_wrapped": "YES — prism_safety is in DISPATCHER_HOOK_MAP (line 456) with before_calculation/after_calculation hooks",
+    "all_dispatchers_in_map": "Yes — DISPATCHER_HOOK_MAP covers all 45+ dispatchers with category-appropriate hooks"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Lambda validation fires for all calcTools after execution — correct placement" },
+    { "severity": "OK", "finding": "Phi validation correctly scoped to web tools — no false positives on manufacturing calcs" },
+    { "severity": "OK", "finding": "Proxy wraps all dispatchers via DISPATCHER_HOOK_MAP" },
+    { "severity": "FIXED", "finding": "Lambda gap FIXED: _safety_warning now injected for ALL !isValid scores with severity tiering (critical <0.5, warning 0.5-0.89)" },
+    { "severity": "OK", "finding": "SafetyBlockError re-thrown in calcDispatcher (line 1359) — not swallowed by proxy" }
+  ],
+
+  "exit_conditions_met": {
+    "lambda_verified": true,
+    "phi_verified": true,
+    "proxy_confirmed_all_paths": true
+  }
+}

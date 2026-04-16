@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-04-16T00:50:44.995Z",
+  "total_patterns": 5,
+  "patterns": [
+    {
+      "id": "SIP-001",
+      "category": "unresolved_error",
+      "description": "uncategorized in calculations: test error message",
+      "frequency": 5,
+      "severity": "medium",
+      "automation_level": 0,
+      "priority": 2.5,
+      "suggested_fix": "hook",
+      "fix_description": "Add input validation hook for prism_calc:test_action to reject invalid parameters",
+      "source_file": "failure_patterns.jsonl",
+      "domain": "calculations",
+      "last_seen": "2026-04-16T00:50:04.227Z"
+    },
+    {
+      "id": "SIP-002",
+      "category": "unresolved_error",
+      "description": "validation-failure in file-operations: Invalid params for doc_upload",
+      "frequency": 1,
+      "severity": "medium",
+      "automation_level": 0,
+      "priority": 0.5,
+      "suggested_fix": "hook",
+      "fix_description": "Add automated check for validation-failure in file-operations",
+      "source_file": "failure_patterns.jsonl",
+      "domain": "file-operations",
+      "last_seen": "2026-04-12T22:49:37.300Z"
+    },
+    {
+      "id": "SIP-003",
+      "category": "unresolved_error",
+      "description": "uncategorized in file-operations: Command failed: python -c \nimport sys, json\nsys.path.insert(0, \"H:\\\\cad-engine\")\nfrom src.document_extract import extrac",
+      "frequency": 1,
+      "severity": "medium",
+      "automation_level": 0,
+      "priority": 0.5,
+      "suggested_fix": "hook",
+      "fix_description": "Add automated check for uncategorized in file-operations",
+      "source_file": "failure_patterns.jsonl",
+      "domain": "file-operations",
+      "last_seen": "2026-04-12T22:49:55.797Z"
+    },
+    {
+      "id": "SIP-004",
+      "category": "unresolved_error",
+      "description": "stale-reference in other: LearningAdaptationEngine.getStats is not a function",
+      "frequency": 1,
+      "severity": "medium",
+      "automation_level": 0,
+      "priority": 0.5,
+      "suggested_fix": "hook",
+      "fix_description": "Add pre-flight check hook for other to validate references before use",
+      "source_file": "failure_patterns.jsonl",
+      "domain": "other",
+      "last_seen": "2026-04-15T01:46:40.624Z"
+    },
+    {
+      "id": "SIP-005",
+      "category": "unresolved_error",
+      "description": "uncategorized in other: Missing required params: task_description, requirements (array)",
+      "frequency": 1,
+      "severity": "medium",
+      "automation_level": 0,
+      "priority": 0.5,
+      "suggested_fix": "hook",
+      "fix_description": "Add automated check for uncategorized in other",
+      "source_file": "failure_patterns.jsonl",
+      "domain": "other",
+      "last_seen": "2026-04-15T01:46:52.479Z"
+    }
+  ],
+  "aggregate_priority": 4.5,
+  "system_improvement_rate": 0,
+  "sources_read": [
+    "failure_patterns.jsonl",
+    "QUALITY_SCORES.json",
+    "FORMULA_ACCURACY.json",
+    "ERROR_LOG.jsonl",
+    "LEARNING_LOG.jsonl",
+    "session-edit-counter.json"
+  ],
+  "warnings": []
+}

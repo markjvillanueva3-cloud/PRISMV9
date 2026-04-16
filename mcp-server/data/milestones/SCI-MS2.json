@@ -1,0 +1,82 @@
+{
+  "id": "SCI-MS2",
+  "version": "7.0.0",
+  "title": "Validation Framework - Predicted vs Measured",
+  "brief": "Build the scientific validation framework to compare novel algorithm predictions against measured results. Statistical rigor with confidence intervals, hypothesis testing, and calibration.",
+  "created_at": "2026-03-07T22:00:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Validation & Calibration",
+      "units": [
+        {
+          "id": "U01",
+          "title": "PredictionValidationEngine - Statistical comparison framework",
+          "description": "Compare predicted vs measured values with statistical rigor. For each physics quantity (force, temperature, deflection, Ra, cycle time): (1) mean absolute error (MAE), (2) mean absolute percentage error (MAPE), (3) R-squared coefficient, (4) Bland-Altman analysis (bias + limits of agreement), (5) paired t-test (H0: predicted = measured), (6) confidence intervals (95% CI on prediction error). Outputs validation report per algorithm per material.",
+          "exit_conditions": [
+            "6 statistical metrics",
+            "Bland-Altman plots data",
+            "Hypothesis testing",
+            "Per-algorithm per-material reports",
+            "Pass/fail criteria (MAPE < 15%)"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "CalibrationEngine - Systematic model calibration",
+          "description": "Calibrate physics model parameters from experimental data. Implements: (1) least-squares fitting of Kienzle kc11/mc to measured forces, (2) nonlinear regression for Taylor tool life constants (C, n), (3) thermal model calibration (chip heat ratio from measured temperatures), (4) deflection model calibration (effective E*I from measured deflection). Uses Levenberg-Marquardt optimization. Stores calibrated parameters per material/tool/machine combination.",
+          "exit_conditions": [
+            "4 calibration procedures",
+            "Levenberg-Marquardt optimizer",
+            "Per-combination parameter storage",
+            "Before/after accuracy comparison",
+            "Calibration confidence intervals"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "BenchmarkSuiteEngine - Standard test cases for algorithm validation",
+          "description": "Curated set of benchmark machining scenarios with known-good results. Includes: (1) ISO 8688-1 tool life test conditions (5 materials x 3 tools), (2) standard pockets (50x50x20mm Al, 30x30x15mm steel) with conventional vs novel comparison, (3) thin wall test piece (2mm wall, 50mm height) for PTDC validation, (4) high-speed test (Al at 20,000 RPM) for CFCM validation, (5) deep pocket (5xD) for VCER validation. Each benchmark has: input parameters, expected force/temp/Ra ranges, pass criteria.",
+          "exit_conditions": [
+            "15+ benchmark scenarios",
+            "Known-good reference ranges",
+            "Pass/fail criteria per benchmark",
+            "Automated benchmark runner",
+            "Regression detection"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "UncertaintyQuantificationEngine - Prediction confidence bounds",
+          "description": "Quantify uncertainty in every novel algorithm prediction. Implements: (1) Monte Carlo propagation of input uncertainties (material property variance, tool diameter tolerance, machine positioning error), (2) sensitivity analysis (Sobol indices for each input parameter), (3) prediction intervals (not just point estimates), (4) model-form uncertainty (systematic bias from simplified physics). Outputs: prediction +/- uncertainty band. Integrates with MCTP (which already does Monte Carlo for tolerance).",
+          "exit_conditions": [
+            "Monte Carlo uncertainty propagation",
+            "Sobol sensitivity indices",
+            "Prediction intervals",
+            "Model-form uncertainty estimate",
+            "Integration with MCTP"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "ContinuousImprovementEngine - Learning from validation results",
+          "description": "Close the loop: validation results feed back to improve algorithms. Implements: (1) Bayesian model averaging - weight multiple physics models by validation accuracy, (2) residual analysis - identify systematic patterns in prediction errors, (3) correction factors - empirical multipliers learned from data (e.g., 'TGAR overpredicts force by 8% in titanium'), (4) model selection - switch between Kienzle/Johnson-Cook/Oxley based on which validates best per material. Stores correction history per algorithm.",
+          "exit_conditions": [
+            "Bayesian model averaging",
+            "Residual pattern detection",
+            "Correction factor learning",
+            "Model selection per material",
+            "Improvement tracking over time"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

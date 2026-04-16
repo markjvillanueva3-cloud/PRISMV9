@@ -1,0 +1,68 @@
+{
+  "current_version": "2.0.0",
+  "min_supported_version": "1.0.0",
+  "maintainer": "PRISM MCP Server",
+  "updated_at": "2026-04-12T00:00:00Z",
+  "versions": [
+    {
+      "version": "2.0.0",
+      "date": "2026-04-12",
+      "summary": "Schema versioning system introduction. Adds version metadata to all action schemas and establishes baseline for future change tracking.",
+      "changes": [
+        {
+          "schema": "ActionSchemaMap",
+          "type": "addition",
+          "description": "Added SchemaMetadata type with version, deprecated, and since fields for all action schemas."
+        },
+        {
+          "schema": "ValidationResult",
+          "field": "schema_version",
+          "type": "addition",
+          "description": "Added optional schema_version field to validation results for debugging."
+        },
+        {
+          "schema": "schemaVersioning",
+          "type": "addition",
+          "description": "New module: SCHEMA_VERSION constant, validateSchemaVersion(), getSchemaVersion(), SchemaChangeLog types."
+        }
+      ]
+    },
+    {
+      "version": "1.0.0",
+      "date": "2026-01-01",
+      "summary": "Initial schema release. Establishes baseline types for action schemas, health responses, and dispatcher validation.",
+      "changes": [
+        {
+          "schema": "ActionSchemaMap",
+          "type": "addition",
+          "description": "Initial release of action schema type mapping."
+        },
+        {
+          "schema": "ValidationResult",
+          "type": "addition",
+          "description": "Initial validation result structure with valid, errors, errorMessage fields."
+        },
+        {
+          "schema": "HealthResponse",
+          "type": "addition",
+          "description": "Health endpoint response schema with status, dispatchers, heap_used_mb, uptime_s."
+        },
+        {
+          "schema": "HealthResponse",
+          "field": "registry_status",
+          "type": "addition",
+          "description": "Added registry_status for materials, machines, tools, alarms status tracking."
+        },
+        {
+          "schema": "HealthResponse",
+          "field": "opus_config",
+          "type": "addition",
+          "description": "Added opus_config for Opus 4.6 feature verification."
+        }
+      ]
+    }
+  ],
+  "migration_notes": {
+    "1.x_to_2.x": "Version 2.0.0 is backwards compatible with 1.x schemas. The schema_version field is optional in ValidationResult. No breaking changes in this release."
+  }
+}

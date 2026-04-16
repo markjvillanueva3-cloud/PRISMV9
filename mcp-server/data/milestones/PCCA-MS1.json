@@ -1,0 +1,61 @@
+{
+  "id": "PCCA-MS1",
+  "version": "1.0.0",
+  "title": "Skill, Script, and Hook Activation Repair",
+  "brief": "Repair the activation and registry layer so high-value converted assets can actually load and be discovered. Reconcile runtime, docs, and shell layers.",
+  "created_at": "2026-03-30T18:00:00Z",
+  "created_by": "claude-haiku-4-5",
+  "track": "PCCA",
+  "track_name": "PRISM Capability Conversion and Activation",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Activation Infrastructure Repair",
+      "sessions": "3",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Build skill-reconcile script to repair orphan, phantom, and polluted trigger mappings",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Build script-census and script-registry-sync scripts to align real script surface with public index",
+          "effort": 60,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U03",
+          "title": "Build one bundle resolver for task-based loading with deterministic activation order",
+          "effort": 50,
+          "dependencies": ["P0-U01", "P0-U02"]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Reconcile TypeScript hooks, shell hooks, and documented hooks via one truth-sync pass",
+          "effort": 60,
+          "dependencies": ["P0-U03"]
+        },
+        {
+          "id": "P0-U05",
+          "title": "Build route/action contract gate for capability claims with early failure on drift",
+          "effort": 50,
+          "dependencies": ["P0-U04"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["PCCA-MS0"],
+  "exit_conditions": ["High-value bundles auto-load deterministically", "Script catalog truth matches real script surface", "Hook truth reconciled across docs, runtime, and shell", "Route contract drift fails early"],
+  "spec_path": "docs/superpowers/specs/2026-03-25-prism-capability-conversion-roadmap-design.md",
+  "primary_sources": [
+    "skills-consolidated/SKILLS_AUDIT_2026-02-13.md",
+    "skills-consolidated/TRIGGER_MAP.json",
+    "skills-consolidated/AUTO_SKILL_HOOKS.json",
+    "mcp-server/data/docs/SCRIPT_INDEX.json",
+    "mcp-server/data/docs/HOOK_DEFINITIONS_v20.md"
+  ],
+  "notes": "Injection target: Phase 13 (Final Wiring + Web UI). Must complete before Phase 13 finalizes UI wiring."
+}

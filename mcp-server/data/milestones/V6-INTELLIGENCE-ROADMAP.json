@@ -1,0 +1,296 @@
+{
+  "id": "V6-INTELLIGENCE",
+  "title": "PRISM v6.0 Intelligence Roadmap - Maximum Capability",
+  "version": "6.0.0",
+  "created": "2026-03-13",
+  "philosophy": "Make the brain maximally intelligent before building the body. Every calculation must exhaust every mathematical, physical, and scientific possibility. Progressive refinement: more user input = more precise output, but even minimal input produces intelligent defaults.",
+  "core_principle": "VARIABLE S/F IS NON-NEGOTIABLE. A single speed/feed for any operation is ALWAYS suboptimal. Engagement changes at every point: radial width varies in 3D roughing, axial depth reduces approaching surfaces, corners spike engagement to 180deg, ball end mills have zero Vc at tip. The system must compute optimal S and F at every point on the toolpath and the post processor must emit per-block variable S/F. This is architectural - not an add-on.",
+  "pillars": {
+    "SF": "Ultimate Speed/Feed Calculator",
+    "POST": "Ultimate Intelligent Post Processor",
+    "ALG": "Advanced Proprietary Algorithms",
+    "ERP": "Full ERP & Quoting System"
+  },
+  "milestones": [
+    {
+      "id": "SF-MS0",
+      "title": "Progressive Input Speed/Feed - Variable Precision Based on Available Information",
+      "track": "SF",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 8,
+      "description": "The ultimate speed/feed calculator that scales its precision with user input. Tiers: (T0) Material + operation only -> physics defaults from 31 models. (T1) + Machine selection -> apply spindle speed/torque/power limits, rapid traverse limits, axis accel limits. (T2) + Tool selection -> geometry-specific engagement, insert grade correction, coating factor, nose radius effect on Ra. (T3) + Holder/collet/turret -> full stiffness chain spindle->holder->collet->tool, deflection budget allocation, runout stack-up from holder tolerance. (T4) + Workholding/fixture -> part rigidity estimation, clamping force vs cutting force validation, thin wall detection. (T5) + Coolant/air type -> flood/mist/MQL/through-spindle/cryogenic/air blast adjustment factors, Reynolds-based penetration for deep features, MQL droplet coverage for finish passes. (T6) + Kinematics -> 5-axis tool orientation compensation, ABC axis velocity limits, pivot length compensation, RTCP effects on effective feed. Each tier adds physics models and narrows the confidence interval. Missing info uses intelligent defaults with wider uncertainty bounds.",
+      "engines_involved": [
+        "UltimateSpeedFeedEngine (31 models - Kienzle, Taylor, Merchant, J-C, stability lobes, etc.)",
+        "ToolCatalogEngine (46,590 tools - geometry, grades, coatings)",
+        "MachineCatalogEngine (910 machines - power, torque, speed curves)",
+        "MachineKinematicsCatalog (250 kinematic chains)",
+        "CoolantDynamicsEngine (Reynolds, MQL spray, TSC, cryogenic)",
+        "ToolDeflectionPredictionEngine (delta=FL^3/3EI chain)",
+        "SpindleBearingLoadEngine, SpindleTorqueCurveEngine",
+        "FixtureClampingEngine, WorkholdingIntelligenceEngine",
+        "StochasticCuttingForceEngine, StochasticToolLifeEngine"
+      ],
+      "new_engines_needed": [
+        "ProgressiveSpeedFeedOrchestratorEngine - master orchestrator that detects input level and routes to appropriate physics depth",
+        "StiffnessChainEngine - spindle->holder->collet->tool->workpiece full chain model, radial/axial/torsional",
+        "HolderStiffnessEngine - catalog-backed stiffness values per holder type/taper (BT30/40/50, HSK-A63/100, CAT40/50, Capto C4/6/8)",
+        "ColletStiffnessEngine - ER/TG/DA collet grip force, runout contribution, pull-out force at engagement",
+        "TurretStiffnessEngine - BMT/VDI/bolt-on turret rigidity, tool station position effects",
+        "CoolantCorrectionEngine - adjustment factors per coolant type per operation (flood baseline, MQL +/-%, cryo +/-%, air-only derating)"
+      ],
+      "science": "Progressive Bayesian updating: start with wide prior (T0 = material property distributions), narrow posterior with each input tier. Stiffness chain: series spring model k_eff = 1/(1/k_spindle + 1/k_holder + 1/k_collet + 1/k_tool). Deflection budget: allocate total allowed deflection across chain components. Coolant correction: Komanduri-Hou modified with Reynolds penetration depth. Stability: regenerative chatter with full dynamic chain (not just tool). Uncertainty: Monte Carlo with correlated inputs (Cholesky) at each tier."
+    },
+    {
+      "id": "SF-MS1",
+      "title": "EDM/Waterjet/Sinker Parameter Calculator - Non-Cutting Processes",
+      "track": "SF",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "dependencies": [
+        "SF-MS0"
+      ],
+      "description": "Extend the progressive calculator to non-traditional processes. Wire EDM: generator settings (on-time, off-time, peak current, servo voltage, wire tension, flushing pressure) based on material+thickness+surface finish target+wire type (brass/coated/moly). Factor in taper capability, corner radius limits, recut strategy. Sinker EDM: electrode material selection (Cu/graphite/CuW), polarity, orbit/jump settings, electrode wear compensation, flushing strategy, multiple electrodes for roughing/finishing. Waterjet: pump pressure (60K/90K PSI), abrasive type (garnet mesh), flow rate, standoff distance, taper compensation, pierce strategy (static/dynamic/low pressure), stack cutting. Each process uses its own physics models but shares the progressive input architecture.",
+      "new_engines_needed": [
+        "WireEDMParameterOrchestratorEngine - progressive input: material+thickness -> add wire type -> add finish target -> add machine model -> add flushing config",
+        "SinkerEDMParameterOrchestratorEngine - progressive: material+depth -> add electrode material -> add finish target -> add machine model -> add orbit strategy",
+        "WaterjetParameterOrchestratorEngine - progressive: material+thickness -> add pump class -> add abrasive -> add quality target -> add taper comp",
+        "EDMElectrodeDesignEngine - electrode sizing, undersize calculation, wear ratio prediction by material pair",
+        "WaterjetPierceStrategyEngine - pierce type selection based on material brittleness, thickness, stack config"
+      ],
+      "science": "Wire EDM: Dibitonto/DiBitonto discharge energy model, Snoeys MRR model, craterize surface roughness model. Sinker EDM: Holm contact resistance model, DiBitonto plasma channel model, electrode wear ratio empirical correlations. Waterjet: Hashish erosion model for ductile/brittle materials, Finnie erosion for metals, Bitter erosion for ceramics. All with stochastic uncertainty on generator parameters."
+    },
+    {
+      "id": "SF-MS2",
+      "title": "Internal API for Print-to-CNC Program Pipeline",
+      "track": "SF",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 5,
+      "dependencies": [
+        "SF-MS0"
+      ],
+      "description": "Package the progressive speed/feed calculator as an internal API that the Print-to-CNC pipeline can call programmatically. Input: operation type + geometry engagement + material + tool + machine context. Output: optimal S/F + safety checks + confidence. Must handle: (1) batch calculation for all operations in a program, (2) continuous S/F variation along toolpath based on instantaneous engagement (see ALG-MS1), (3) automatic derating for first article vs production, (4) tool life budgeting across multi-tool programs. This is the bridge between the calculator and the program generator.",
+      "new_engines_needed": [
+        "BatchSpeedFeedPipelineEngine - process entire program's worth of operations in one call",
+        "ToolLifeBudgetEngine - allocate tool life across operations, warn when budget exceeded, suggest tool changes"
+      ]
+    },
+    {
+      "id": "POST-MS0",
+      "title": "Intelligent Post Processor Foundation - Machine + Controller + CAM Capability Mapping",
+      "track": "POST",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 8,
+      "description": "Build the intelligence layer that maps the intersection of three capability sets: (1) MACHINE capabilities - axis configuration (3/4/5), travel limits, speed/accel limits per axis, spindle types, tool changer capacity, pallet changer, probing, coolant options, rotary table specs. (2) CONTROLLER capabilities - G/M code dialect (Fanuc/Siemens/Heidenhain/Haas/Mazak/Okuma), canned cycles supported, macro programming (Fanuc Custom Macro B, Siemens ShopMill cycles, Heidenhain TNC), high-speed machining modes (G05.1/COMPCURV/CYCLE832), look-ahead buffer size, NURBS interpolation, polar/cylindrical interpolation, coordinate rotation, tool center point management (RTCP/TCPM/G43.4/G43.5). (3) CAM SOFTWARE post requirements - CL data format, APT output, tool change protocol, work offset protocol. The engine produces a MachineCapabilityProfile that the post generator uses to emit optimal code.",
+      "engines_involved": [
+        "MachineKinematicsCatalog (250 machines, kinematic chains)",
+        "HyperMillControllerCatalogEngine",
+        "ControllerTips (121 entries)",
+        "MultiAxisKinematicEngine"
+      ],
+      "new_engines_needed": [
+        "MachineCapabilityProfileEngine - unified profile merging machine + controller + CAM constraints",
+        "ControllerDialectEngine - maps operations to controller-specific G/M codes with optimization (e.g., G73 vs G83 for peck drilling, canned vs manual cycle selection)",
+        "HighSpeedModeEngine - selects optimal HSM mode per controller (Fanuc AICC/AI Nano, Siemens COMPCURV/COMPCAD, Heidenhain M-codes)",
+        "PostCapabilityMatrixEngine - what each CAM software can output vs what each controller accepts"
+      ],
+      "science": "Kinematic transformation matrices (HTM) for 5-axis configurations, inverse kinematics for AB/AC/BC head types, singularity detection near gimbal lock, feed rate scaling at rotary axis limits, block processing time estimation (controller clock cycle × blocks)"
+    },
+    {
+      "id": "POST-MS1",
+      "title": "Post Generator Engine - Optimal Code Emission for Any Machine",
+      "track": "POST",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 10,
+      "dependencies": [
+        "POST-MS0"
+      ],
+      "description": "The post processor that generates optimal G-code for any machine. Key intelligence: (1) POSITION MOVES - always optimized for shortest safe path considering machine geometry, fixture clearance, part geometry. Rapid moves check clearance planes, retract heights are minimized but safe. Rotary repositioning uses shortest angular path with collision checking. (2) CUTTING MOVES - feed rates adjusted for actual machine axis dynamics (not just programmed feed - compensate for axis deceleration at corners, arc feed rate limiting by axis capability). (3) TOOL CHANGES - optimized sequence minimizing total tool change time, consider magazine position, turret indexing direction. (4) WORK OFFSETS - intelligent G54-G59/G54.1 assignment based on fixture design. (5) PROBING - integrated probe routines for WCS setup, tool measurement, in-process inspection. (6) SAFETY - every program includes proper startup blocks, safe retracts, coolant/spindle management, conditional stops at critical points. Support for: Fanuc (0i/30i/31i), Siemens (840D/828D), Heidenhain (TNC640/530), Haas (NGC), Mazak (SmoothG/Ai), Okuma (OSP-P300/P500), Brother, Hurco, Doosan, DMG MORI.",
+      "new_engines_needed": [
+        "PostGeneratorEngine - master post generation engine",
+        "SafePositionEngine - calculates safe retract/approach positions considering machine geometry + fixture + part",
+        "ToolChangeOptimizerEngine - optimal tool sequence considering magazine layout, tool life remaining, clustering by tool type",
+        "CutterCompensationEngine - G41/G42 strategy selection, entry/exit arc generation, sharp corner handling",
+        "SubprogramOptimizerEngine - detect repeated patterns, convert to subprogram calls (M98/CALL/CYCLE), parametric programming where beneficial"
+      ]
+    },
+    {
+      "id": "POST-MS2",
+      "title": "CAM-Specific Post Optimization - Full Capability Utilization",
+      "track": "POST",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 8,
+      "dependencies": [
+        "POST-MS1"
+      ],
+      "description": "Each CAM software outputs CL data differently and supports different post features. This milestone creates CAM-specific post optimization layers that utilize the FULL capabilities of each supported CAM system. hyperMILL: Global Fitting, 5X helical drilling, barrel cutter support, rest material linking, collision avoidance planes. Mastercam: Dynamic Motion, OptiRough, stock awareness, verify integration. Fusion 360: Adaptive clearing, steep/shallow detection, smoothing, leads/links optimization. SolidCAM: iMachining integration, HSR/HSM, simultaneous 5-axis, turning integration. Siemens NX: IPW tracking, knowledge fusion templates, PMI-driven machining. CATIA: process templates, manufacturing hub integration. GibbsCAM: VoluMill integration, MTM support. The post must translate CAM-specific toolpath types to the optimal controller-specific code, not just generic G1/G2/G3.",
+      "cam_systems_supported": [
+        "hyperMILL",
+        "Mastercam",
+        "Fusion 360",
+        "SolidCAM",
+        "Siemens NX",
+        "CATIA",
+        "GibbsCAM",
+        "Edgecam",
+        "PowerMill",
+        "CAMWorks",
+        "BobCAD",
+        "TopSolid",
+        "SprutCAM",
+        "Cimatron",
+        "Tebis",
+        "WorkNC"
+      ]
+    },
+    {
+      "id": "ALG-MS0",
+      "title": "iMachining-Equivalent Algorithm - Constant Chip Load with Morphing Toolpath",
+      "track": "ALG",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 8,
+      "description": "Replicate and surpass SolidCAM's iMachining. Core algorithm: (1) Voronoi-medial axis of pocket geometry to determine machining regions. (2) Spiral toolpath generation that maintains CONSTANT CHIP LOAD regardless of geometry changes (convex corners, concave pockets, islands). (3) Instantaneous engagement angle calculation at every point on toolpath. (4) Feed rate modulation: F = F_base * (target_engagement / actual_engagement) with smooth ramping. (5) Depth morphing: axial depth varies to maintain constant MRR where radial engagement changes. (6) Entry strategy: helical/ramp entry with controlled engagement. (7) Separation into roughing levels with rest material awareness. The key differentiator: iMachining uses proprietary chip load control. We use Kienzle force + Taylor life + stability lobe + deflection as joint constraints, finding the Pareto-optimal feed at each point.",
+      "new_engines_needed": [
+        "ConstantChipLoadEngine - core algorithm: given toolpath geometry, compute instantaneous engagement and modulate F/S to maintain constant chip load",
+        "VoronoiMedialAxisEngine - compute medial axis of 2D pocket geometry for toolpath planning",
+        "EngagementPredictionEngine - given tool position + remaining stock geometry, compute exact radial engagement angle",
+        "MorphingDepthEngine - vary axial depth to maintain constant MRR where radial changes",
+        "RestMaterialTrackingEngine - track in-process workpiece geometry after each pass for multi-level roughing"
+      ],
+      "science": "Voronoi diagram (Fortune's algorithm), medial axis transform, computational geometry (polygon offsetting, boolean operations), arc-length parameterization of toolpaths, instantaneous uncut chip thickness h(phi) = fz*sin(phi), Kienzle force F = kc1.1 * b * h^(1-mc), engagement angle theta = arccos(1 - ae/R), MRR = ae * ap * Vf, chip load control: Vf(s) = Vf_target * theta_target / theta(s)"
+    },
+    {
+      "id": "ALG-MS1",
+      "title": "VoluMill-Equivalent - Ultra-High Efficiency Roughing with Constant Force",
+      "track": "ALG",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "dependencies": [
+        "ALG-MS0"
+      ],
+      "description": "Replicate and surpass Celeritive/VoluMill's constant-engagement roughing. Different from iMachining: VoluMill uses large axial depth with small radial engagement and very high feed rates. Algorithm: (1) Trochoidal-style toolpath with continuous curvature (no sharp corners). (2) Engagement never exceeds user-specified maximum (typically 10-15% of tool diameter). (3) When approaching walls/corners, toolpath morphs to maintain engagement limit. (4) Chip thinning compensation: feed increases as engagement decreases to maintain target chip thickness. (5) Look-ahead: toolpath generator previews upcoming geometry to smooth transitions. Our advantage: add thermal monitoring (prevent heat accumulation in re-cutting zones), wear prediction per pass, and automatic depth optimization.",
+      "science": "Trochoidal milling mathematics: R_trochoidal = R_tool + stepover, parametric equations x(t) = R*cos(t) + offset*cos(t/R_ratio). Chip thinning: h_actual = fz * sin(arccos(1 - ae/D)). Constant force constraint: Ft = kc1.1 * ap * h^(1-mc) = constant, solve for fz(ae). Thermal accumulation: Jaeger moving heat source, cumulative temperature from overlapping passes."
+    },
+    {
+      "id": "ALG-MS2",
+      "title": "Adaptive Speed/Feed Along Toolpath - Real-Time Engagement-Based Optimization",
+      "track": "ALG",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 6,
+      "dependencies": [
+        "ALG-MS0"
+      ],
+      "description": "Like Fusion 360's Adaptive Clearing but with full PRISM physics. For ANY toolpath (not just our generated ones), analyze the engagement at each segment and optimize speed/feed. Input: existing G-code program + tool + material + machine. Output: optimized G-code with variable S/F per block. Algorithm: (1) Parse toolpath geometry. (2) Simulate material removal to determine instantaneous engagement. (3) At each point, compute: optimal feed (from engagement + force model), optimal speed (from temperature model + wear model), safety check (from stability + deflection model). (4) Rewrite G-code with per-block S/F. This is AutoSpeedFeedEngine v2 - currently it does line-by-line S/F, but doesn't track engagement or material removal.",
+      "new_engines_needed": [
+        "MaterialRemovalSimulatorEngine - dexel/Z-buffer based stock tracking to compute instantaneous engagement",
+        "PerBlockOptimizerEngine - given engagement at block N, compute optimal S/F considering N-1 thermal history and N+1 lookahead"
+      ],
+      "science": "Dexel representation (Z-buffer columns) for efficient stock tracking, boolean subtraction of tool swept volume, engagement computation from dexel intersection, thermal history: convolution of heat input with Green's function, feed scheduling: cubic spline interpolation of discrete S/F values for smooth transitions"
+    },
+    {
+      "id": "ALG-MS3",
+      "title": "Variable Helix / Variable Pitch Optimization Algorithms",
+      "track": "ALG",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 4,
+      "description": "Algorithms that exploit variable helix/pitch tool geometry for chatter suppression. (1) Predict stability improvement from variable pitch tools using Altintas/Budak theory. (2) Recommend optimal pitch variation for given cutting conditions. (3) Variable helix simulation: each flute enters cut at different phase, disrupting regenerative chatter. (4) Combine with stability lobe diagram to show expanded stable zones. (5) Automatic tool recommendation: given a chatter-prone operation, find the variable pitch/helix tool that maximizes stable depth.",
+      "science": "Semi-discretization method for variable pitch stability, Altintas-Budak analytical stability with variable pitch, Fourier series of variable pitch/helix engagement, disruption of regenerative mechanism by phase variation"
+    },
+    {
+      "id": "ERP-MS0",
+      "title": "Job & Order Management - Full Manufacturing ERP Core",
+      "track": "ERP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 10,
+      "description": "Full ERP core: (1) JOBS - create/track manufacturing jobs with multi-operation routing, material requirements, tool requirements, machine assignment. (2) ORDERS - customer POs, line items, due dates, revision tracking. (3) SCHEDULING - finite capacity scheduling across machines, setup minimization, due date optimization, priority-based dispatching. (4) INVENTORY - raw material stock, tool inventory, consumables (coolant, inserts, abrasives). Automatic reorder points from usage prediction. (5) WORK ORDERS - shop floor work orders with operation routing, time tracking, labor allocation. (6) SHIPPING - packing lists, certificates of conformity, shipping labels. All backed by PRISM physics: cycle time estimates are physics-based (not guesses), tool life predictions drive inventory, scheduling uses actual machine capability data.",
+      "engines_involved": [
+        "CycleTimeEstimatorEngine",
+        "CostEstimatorEngine",
+        "MachineSelectionEngine",
+        "PredictiveMaintenanceEngine",
+        "SchedulingEngine"
+      ],
+      "new_engines_needed": [
+        "JobRoutingEngine - generate optimal operation routing from part geometry + tolerances",
+        "FiniteCapacitySchedulerEngine - schedule jobs across machines respecting capacity, setup, and due dates",
+        "InventoryPredictionEngine - predict material/tool consumption from scheduled jobs",
+        "WorkOrderEngine - generate and track shop floor work orders"
+      ]
+    },
+    {
+      "id": "ERP-MS1",
+      "title": "Physics-Backed Quoting System - Win More Jobs at Better Margins",
+      "track": "ERP",
+      "status": "not_started",
+      "priority": "P0",
+      "units": 8,
+      "dependencies": [
+        "SF-MS0"
+      ],
+      "description": "Quoting system that uses PRISM's full physics engine to generate accurate quotes. Flow: (1) Upload print/model or describe part. (2) PRISM auto-identifies: material, operations needed, tolerances, surface finishes, secondary ops. (3) For each operation: auto-select optimal machine (from your 910-machine catalog), auto-select tools, compute physics-based cycle time (not flat rate), predict tool consumption. (4) Add material cost (market-adjusted from MaterialPricingEngine), secondary ops (anodize, heat treat, plating from SecondaryOpsEngine), fixturing, setup time (from SMED analysis). (5) Apply overhead rates, margin targets, volume breaks. (6) Output: detailed quote with confidence intervals, DfM feedback (suggestions to reduce cost), competitive analysis (are we high/low vs market?). (7) After winning/losing: feed outcome back to calibration engine to improve future quotes.",
+      "engines_involved": [
+        "QuoteEngine",
+        "CostEstimatorEngine",
+        "CycleTimeEstimatorEngine",
+        "UltimateSpeedFeedEngine",
+        "MachineSelectionEngine",
+        "ToolSelectionEngine",
+        "MarketMaterialPricingEngine",
+        "SecondaryOpsEngine",
+        "DfMRulesEngine"
+      ],
+      "new_engines_needed": [
+        "QuoteAccuracyTracker - compare quoted vs actual, track win rate, calibrate over time",
+        "CompetitivePositionEngine - estimate market price from part features, suggest margin adjustments",
+        "VolumeBreakEngine - model setup amortization, learning curve, batch optimization for price breaks"
+      ]
+    },
+    {
+      "id": "ERP-MS2",
+      "title": "Print-to-CNC Pipeline - From Drawing to Running Program",
+      "track": "ERP",
+      "status": "not_started",
+      "priority": "P1",
+      "units": 10,
+      "dependencies": [
+        "SF-MS0",
+        "SF-MS2",
+        "POST-MS1",
+        "ALG-MS0"
+      ],
+      "description": "The ultimate automation: input a print/model, output a complete CNC program ready to run. Pipeline: (1) Feature recognition from CAD model (holes, pockets, slots, bosses, contours). (2) Operation planning: which features need which operations in what order. (3) Setup planning: how many setups, what fixtures, what datums. (4) Tool selection: best tool for each operation from your catalog. (5) Toolpath generation: using ALG-MS0/MS1/MS2 algorithms for optimal paths. (6) Speed/feed optimization: SF-MS0 progressive calculator for each operation. (7) Post processing: POST-MS1 for your specific machine. (8) Verification: simulation of generated program for collision/gouge checking. (9) Setup sheet generation. (10) Quote generation (optional). This is the flagship product feature - what no one else can do end-to-end with physics backing every decision."
+    }
+  ],
+  "execution_order": [
+    "Phase 1 (Foundation): SF-MS0 (progressive speed/feed - the core intelligence)",
+    "Phase 2 (Parallel): POST-MS0 (capability mapping) + ALG-MS0 (constant chip load) + ERP-MS1 (quoting)",
+    "Phase 3 (Build on Phase 1-2): SF-MS1 (EDM/waterjet) + POST-MS1 (post generator) + ALG-MS1 (VoluMill) + ALG-MS2 (adaptive S/F)",
+    "Phase 4 (Integration): SF-MS2 (internal API) + POST-MS2 (CAM-specific) + ALG-MS3 (variable helix)",
+    "Phase 5 (Full System): ERP-MS0 (ERP core) + ERP-MS2 (print-to-CNC pipeline)"
+  ],
+  "summary": {
+    "total_milestones": 13,
+    "total_units": 87,
+    "estimated_sessions": "50-70",
+    "new_engines_needed": 25,
+    "key_differentiators": [
+      "Progressive refinement: intelligent output from minimal input, precision improves with each selection",
+      "Full stiffness chain: spindle->holder->collet->tool->workpiece, not just tool deflection",
+      "iMachining + VoluMill equivalent algorithms with superior physics backing (Kienzle+stability+thermal)",
+      "Post processor that optimizes for machine rigidity and controller capabilities, not just code translation",
+      "Physics-backed quoting with win/loss feedback loop for continuous accuracy improvement",
+      "Print-to-CNC: the only system that goes from drawing to running program with physics at every step"
+    ]
+  },
+  "status": "not_started"
+}

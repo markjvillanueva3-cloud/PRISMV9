@@ -1,0 +1,55 @@
+{
+  "unit": "P0-U00",
+  "title": "SafetyEngine S(x) Scoring Formula Verification",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T01:30:00Z",
+  "status": "PASS",
+
+  "formula": {
+    "location": "src/utils/validators.ts:536-675",
+    "function": "computeSafetyScore(material)",
+    "threshold_constant": "SAFETY_THRESHOLD = 0.70 (line 137)",
+    "formula": "S(x) = Σ(component_i.score × component_i.weight) for i in {physical_limits, force_safety, thermal_safety, tool_life, machine_capability, edge_cases}",
+    "total_weight": "0.20 + 0.20 + 0.15 + 0.15 + 0.15 + 0.15 = 1.00"
+  },
+
+  "components": [
+    { "name": "physical_limits", "weight": 0.20, "scoring": "+0.5 valid density (0-25 g/cm³), +0.5 valid melting point (100-4000°C)", "pass_at": ">= 0.7" },
+    { "name": "force_safety", "weight": 0.20, "scoring": "Delegates to validateKienzle(kc1_1, mc, isoGroup)", "pass_at": "kienzleResult.valid", "hard_block_if_zero": true },
+    { "name": "thermal_safety", "weight": 0.15, "scoring": "1.0 if both thermal props present, 0.5 partial credit", "pass_at": "both present" },
+    { "name": "tool_life", "weight": 0.15, "scoring": "Delegates to validateTaylor(C, n, isoGroup)", "pass_at": "taylorResult.valid", "hard_block_if_zero": true },
+    { "name": "machine_capability", "weight": 0.15, "scoring": "1.0 if V30 or recommended_cutting_speed, 0.5 partial", "pass_at": "either present" },
+    { "name": "edge_cases", "weight": 0.15, "scoring": "1.0 if hardness_max >= hardness_min, 0.5 if missing, 0 if inverted", "pass_at": "max >= min" }
+  ],
+
+  "hard_block_logic": {
+    "location": "lines 647-666",
+    "priority_1": "criticalDataMissing (force.score===0 OR toolLife.score===0) → BLOCKED always",
+    "priority_2": "totalScore < 0.70 → BLOCKED",
+    "priority_3": "totalScore >= 0.70 AND not criticalDataMissing → APPROVED",
+    "warning_zone": "ELIMINATED (line 658 comment) — no WARNING path for new computations"
+  },
+
+  "boundary_verification": {
+    "S_0.69": "BLOCKED — 0.69 < 0.70",
+    "S_0.70": "APPROVED — >= operator at line 662",
+    "S_0.71": "APPROVED",
+    "S_0.70_missing_force": "BLOCKED — criticalDataMissing overrides score",
+    "S_0.00_all_missing": "BLOCKED — both critical and score < threshold"
+  },
+
+  "findings": [
+    { "severity": "OK", "finding": "Weights sum to 1.00 — correct normalization" },
+    { "severity": "OK", "finding": "Hard block checks criticalDataMissing BEFORE score threshold — correct priority" },
+    { "severity": "OK", "finding": "WARNING zone removed — only APPROVED/BLOCKED for new results" },
+    { "severity": "OK", "finding": "Force+toolLife are mandatory — correct for manufacturing safety" },
+    { "severity": "LOW", "finding": "SafetyResult type union still includes 'WARNING' — harmless, needed for historical data compat" },
+    { "severity": "LOW", "finding": "Partial credit (0.5) for missing thermal/capability/hardness means S(x) can theoretically pass with incomplete data if force+toolLife are perfect (min achievable with all optionals missing: 0.675 → still BLOCKED)" }
+  ],
+
+  "exit_conditions_met": {
+    "formula_verified": true,
+    "hard_block_confirmed": true,
+    "boundary_cases_documented": true
+  }
+}

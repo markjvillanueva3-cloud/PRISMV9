@@ -1,0 +1,362 @@
+{
+  "id": "PPG-VAR-MS0",
+  "version": "2.0.0",
+  "title": "PPG Product Wiring — Machine-Capable Post Processor Generation That Actually Works",
+  "track": "PPG-VAR",
+  "created_at": "2026-04-05",
+  "priority": "P0",
+  "dependencies": ["PP-MOAT-MS1"],
+  "source": "User: generate a perfect working post processor for user's desired machine, controller, features. Audit revealed: 38-stage pipeline EXISTS but PPG UI calls lightweight template generator instead. All engines exist. Wiring is missing.",
+
+  "description": "Wire the existing 38-stage PostProcessorPipelineEngine into the PPG UI so users get REAL physics-optimized G-code when they click Generate Post. Machine fingerprinting drives pipeline stage selection. Controller dialect drives output formatting. Feature toggles map to pipeline StageConfig flags. The post library becomes a launcher into the real pipeline, not a static template. Result: user selects Haas VF-2SS → gets production-ready G-code with HSM G187, TSC M88/M89, probing macros, physics-optimized S/F per block, Kienzle force-limited feeds, chatter-aware RPM — all formatted in Haas NGC dialect.",
+
+  "knowledge_sources": {
+    "engines_that_already_exist": [
+      "PostProcessorPipelineEngine.ts (4,800 lines) — 38 stages, COMPLETE, produces real optimized G-code",
+      "ControllerDialectEngine.ts (1,348 lines) — 25 dialects with syntax, canned cycles, probing, features",
+      "AdvancedPostProcessorEngine.ts (986 lines) — HSM, adaptive clearing, RTCP, tool management",
+      "PostSelectionEngine.ts (596 lines) — auto-selects features per job context",
+      "SpeedFeedOrchestratorEngine.ts (2,851 lines) — 8 resolvers + Monte Carlo UQ",
+      "OmegaSafetyScoreEngine.ts — safety gate S(x) >= 0.70",
+      "MachineEnvelopeGuardEngine.ts — RPM/feed/power limit enforcement",
+      "PredictionCalibrationEngine.ts (375 lines) — Bayesian calibrated constants (Stage 0.8)",
+      "ThermalWearCouplingEngine.ts (542 lines) — coupled Usui RK4 ODE (Stage 2.7b)",
+      "RLPostProcessorEngine.ts (243 lines) — Q-learning formatting (Stage 6.1c)",
+      "SustainabilityLCAEngine.ts (575 lines) — ISO 14040 LCA (Stage 5.5b)",
+      "ProductEngine.ts — ppg_generate, ppg_validate, ppg_compare (8 working actions)"
+    ],
+    "ui_that_already_exists": [
+      "PostProcessorGeneratorPage.tsx (2,787 lines) — full UI with 5 lanes, file I/O, diff viewer, history",
+      "MachinePickerPanel.tsx — machine fingerprinting (manufacturer + model → controller + features)",
+      "FeatureTogglePanel.tsx — 7 toggleable features with recommendations",
+      "PostLibraryUI.tsx — 13 post templates with search/filter",
+      "ControllerOverridePanel.tsx — manual controller selection",
+      "GcodeComparisonPanel.tsx — side-by-side comparison",
+      "PostPreviewComponent.tsx — preview output"
+    ],
+    "routes_that_exist": [
+      "src/routes/ppg.ts (514 lines, 31 endpoints) — /ppg/generate, /ppg/template, /ppg/optimize, etc.",
+      "/ppg/generate → prism_cam post_process — THIS is the pipeline entry point that exists but UI doesn't use",
+      "/ppg/machine/fingerprint → resolves machine → controller + capabilities",
+      "/ppg/machine/features → firmware features per controller"
+    ],
+    "the_critical_disconnect": [
+      "PPG UI 'Generate Post' → calls /ppg/template → ProductEngine.ppg_generate → returns TEMPLATE",
+      "SHOULD call → /ppg/generate → prism_cam post_process → PostProcessorPipelineEngine.process() → returns OPTIMIZED G-CODE",
+      "The route EXISTS. The pipeline EXISTS. The UI just calls the WRONG endpoint."
+    ]
+  },
+
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Wire Pipeline to UI — Make Generate Post Actually Work",
+      "sessions": [
+        {
+          "id": "PPG-VAR-S1",
+          "title": "Connect Generate Post to Real Pipeline + Machine-Driven Stage Config",
+          "smart_config": {
+            "role": "Full-Stack CNC Pipeline Engineer",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "70%"
+          },
+          "knowledge": [
+            "PostProcessorGeneratorPage.tsx — handleGenerate() at ~line 1000, calls ppgGenerate()",
+            "PostProcessorPipelineEngine.ts — process(input: PipelineInput) is the real entry",
+            "MachinePickerPanel.tsx — FingerprintResult type with controller, features, confidence",
+            "FeatureTogglePanel.tsx — selectedCapabilityIds array",
+            "src/routes/ppg.ts — /ppg/generate route already wired to prism_cam post_process",
+            "ControllerDialectEngine.ts — getDialect() returns full ControllerDialect with features"
+          ],
+          "intent": "User clicks Generate Post → gets real physics-optimized G-code formatted for their specific controller, not a hardcoded template. Every feature toggle maps to a pipeline stage.",
+          "skills": ["/forge-wiring", "/trace", "/test", "/navigate"],
+          "units": [
+            {
+              "id": "U-PVAR01",
+              "title": "Wire handleGenerate() to PostProcessorPipelineEngine via /ppg/generate route",
+              "description": "In PostProcessorGeneratorPage.tsx: Change handleGenerate() to call the REAL pipeline endpoint (/ppg/generate or /ppg/optimize) instead of /ppg/template. Build PipelineInput from the UI state: (1) gcodeInput → input.gcode, (2) fingerprinted machine → input.machine (MachineContext), (3) selected controller → input.controller, (4) selected material (if available) → input.material. Keep the template endpoint as fallback if pipeline fails. The route /ppg/generate already maps to prism_cam post_process which invokes the pipeline.",
+              "depends_on": [],
+              "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx", "web/src/api/client.ts"],
+              "exit_conditions": [
+                "Test: Generate Post with Haas controller + real G-code → output has per-block S/F values (not template defaults)",
+                "Test: output_gcode contains G-code formatted in Haas dialect (G187, O-number format)",
+                "Test: stages array returned with Stage 1.1 base_speed_feed showing real kc1_1 value",
+                "Test: fallback to template if pipeline errors"
+              ],
+              "abort_criteria": [
+                "Output still returns hardcoded 164-line sample",
+                "Pipeline not actually invoked (check network tab)",
+                "No physics data in response (no stages, no forces)"
+              ],
+              "rollback": "git checkout -- web/src/pages/PostProcessorGeneratorPage.tsx web/src/api/client.ts"
+            },
+            {
+              "id": "U-PVAR02",
+              "title": "Map feature toggles to pipeline StageConfig flags",
+              "description": "Build a function mapFeaturesToStageConfig(selectedFeatures: string[], fingerprintResult: FingerprintResult): Partial<StageConfig> that maps: (1) 'probing_cycles' toggle → stages.probe_routines=true, (2) 'tsc' → stages.coolant_strategy=true + coolant.type='tsc', (3) 'high_speed_smoothing' → stages.toolpath_smoothing=true + motion_dynamics=true + look_ahead=true, (4) 'rtcp' → stages.multi_axis=true, (5) 'ssv' → stages.stability_rewrite=true, (6) 'subprograms' → stages.controller_features=true, (7) 'chip_conveyor' → stages.controller_features=true. Also map machine capabilities: fingerprint.max_rpm → machine.max_rpm, fingerprint.axis_count ��� machine.axes.",
+              "depends_on": ["U-PVAR01"],
+              "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+              "exit_conditions": [
+                "Test: toggle HSM on → pipeline output includes Stage 3.1 toolpath_smoothing with status=pass",
+                "Test: toggle probing on → output includes Stage 6.2 probe_routines",
+                "Test: toggle SSV on → output includes Stage 3.4b stability_rpm_rewrite",
+                "Test: no toggles → pipeline still runs core physics (Stages 1.1, 2.1-2.7, 5.1, 6.1)"
+              ],
+              "abort_criteria": [
+                "Feature toggles don't change pipeline behavior",
+                "StageConfig not passed to pipeline input"
+              ],
+              "rollback": "git checkout -- web/src/pages/PostProcessorGeneratorPage.tsx"
+            },
+            {
+              "id": "U-PVAR03",
+              "title": "Add material + tool selection to PPG page — auto S/F from user inputs",
+              "description": "The PPG page has ZERO material or tool selection. Add: (1) Material picker: dropdown/search that queries MaterialRegistry (2,957 materials). Show ISO group badge (P/M/K/N/S/H) + kc1_1 value. Default options: common shop materials (4140, 6061, 304 SS, Ti-6Al-4V, D2, cast iron). Pass selected material as input.material to pipeline. (2) Tool entry: either manual (diameter, flute count, type dropdown matching ToolType enum: flat_endmill/ball/drill/tap/etc, material: carbide/HSS/ceramic/CBN) OR auto-extract from G-code (pipeline parseGCode already extracts T-numbers — enhance to pull diameter from tool change comments like '(TOOL - 10MM 4FL ENDMILL)'). (3) CAM tool import button: accept Fusion 360 .tools JSON or Mastercam .mcam-tools file → parse via FusionToolLibraryExtractorEngine → populate tool list. (4) When material+tool are set, pipeline Stage 1.1 computes Kienzle S/F automatically. Show 'Auto S/F: ON' badge when both are selected. Use lightsaber emerald-cyan border for this section.",
+              "depends_on": ["U-PVAR02"],
+              "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+              "exit_conditions": [
+                "Test: select '4140 Steel' → pipeline input.material has kc1_1=2100, iso_group=P",
+                "Test: enter 10mm 4-flute carbide endmill → pipeline input.tools has diameter_mm=10, flute_count=4",
+                "Test: with material+tool selected, Generate → Stage 1.1 output has real computed S/F values",
+                "Test: S/F values match Kienzle: feed based on fz * z * n, speed from Taylor life target",
+                "Test: 'Auto S/F: ON' badge visible when both material and tool set",
+                "Test: tool type dropdown has all 12 ToolType values",
+                "Test: material picker shows ISO group color badge"
+              ],
+              "abort_criteria": [
+                "No material or tool selection on page",
+                "Material selected but not passed to pipeline input",
+                "Tool geometry not passed to pipeline (diameter missing)"
+              ],
+              "rollback": "git checkout -- web/src/pages/PostProcessorGeneratorPage.tsx"
+            },
+            {
+              "id": "U-PVAR04",
+              "title": "Wire machine fingerprint into pipeline MachineContext + display physics results",
+              "description": "(1) When MachinePickerPanel returns a FingerprintResult, build a full MachineContext from it (map manufacturer+model+year to max_rpm, max_power_kW, rapid_rate, axes, coolant_types, controller, etc). Store as resolved machine state. (2) In the pipeline output display, show the physics results: per-block force, power, tool life, wear, thermal. Add a 'Physics Summary' card (lightsaber emerald-cyan border) after the generated output showing: peak cutting force N, max power kW, estimated tool life min, safety score, stages that ran. (3) Show which PRISM advanced features were active in the output.",
+              "depends_on": ["U-PVAR02"],
+              "files_modified": ["web/src/pages/PostProcessorGeneratorPage.tsx"],
+              "files_created": [],
+              "exit_conditions": [
+                "Test: select 'Haas VF-2' → MachineContext has max_rpm=8100, max_power_kW=22.4, controller='haas'",
+                "Test: physics summary shows non-zero force, power, tool life values",
+                "Test: safety score displayed (0-1 from OmegaSafetyScoreEngine)",
+                "Test: 'PRISM Advanced Features' list shows which stages activated"
+              ],
+              "abort_criteria": [
+                "Physics summary shows all zeros or placeholder text",
+                "Machine fingerprint not forwarded to pipeline"
+              ],
+              "rollback": "git checkout -- web/src/pages/PostProcessorGeneratorPage.tsx"
+            }
+          ],
+          "forge_triple": {
+            "hook": "ppg-pipeline-wiring-guard — warns if PostProcessorGeneratorPage calls ppg_generate (template) instead of post_process (pipeline) for the main generate action",
+            "action": "prism_cam post_process (already exists, now actually used by UI)",
+            "skill": "/ppg-generate — generate physics-optimized post for a machine+controller combo"
+          },
+          "exit_gate": "Generate Post button invokes real 38-stage pipeline. Feature toggles control stage activation. Machine fingerprint drives MachineContext. Physics results displayed. User gets real optimized G-code, not templates.",
+          "feature_cascade": {
+            "new_hooks": ["ppg-pipeline-wiring-guard"],
+            "rewired_actions": ["prism_cam post_process (now called by UI)"],
+            "new_skills": ["/ppg-generate"]
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "id": "PPG-VAR-S2",
+          "title": "Controller-Specific Output Formatting + Post Library as Pipeline Launcher",
+          "smart_config": {
+            "role": "CNC Post Processor Specialist + Controller Dialect Expert",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "70%"
+          },
+          "knowledge": [
+            "ControllerDialectEngine.ts — 25 dialects, ControllerFeatureSet, canned cycles, probing",
+            "AdvancedPostProcessorEngine.ts — enhance() with HSM, RTCP, tool management",
+            "PostLibraryUI.tsx — 13 templates, search, 'Generate for my machine' CTA",
+            "PostProcessorPipelineEngine.ts Stage 6.1 — G-code generation using dialect",
+            "PostProcessorPipelineEngine.ts Stage 3.5 — controller feature injection"
+          ],
+          "intent": "Haas users get Haas-specific G-code (G187, G234, O-numbers). Siemens users get Sinumerik (CYCLE800, TRAORI, COMPCAD). Each post library entry launches the pipeline pre-configured for that machine.",
+          "skills": ["/forge-wiring", "/test", "/trace", "/ppg-quick-start"],
+          "units": [
+            {
+              "id": "U-PVAR05",
+              "title": "Ensure Stage 6.1 G-code output uses full ControllerDialect formatting",
+              "description": "Verify and fix Stage 6.1 gcode_generation: (1) Output program uses dialect.program_start/program_end blocks. (2) Comments use dialect.comment_style (parentheses for Fanuc, semicolons for Siemens, block comments for Heidenhain). (3) Line numbers follow dialect.line_numbers style. (4) Canned cycles use dialect.canned_cycles mapping (G81→CYCLE81 for Siemens). (5) Arc format uses dialect.arc_format (IJK vs R-word). Verify for Haas, Fanuc, Siemens, Heidenhain, Mazak by running pipeline and checking output syntax.",
+              "depends_on": ["U-PVAR04"],
+              "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+              "exit_conditions": [
+                "Test: Haas output starts with O-number, uses G187 for HSM, G81/G83 for drills",
+                "Test: Siemens output uses CYCLE81 not G81, COMPCAD not G187, semicolon comments",
+                "Test: Heidenhain output uses BEGIN PGM, CYCL DEF, block comments",
+                "Test: Fanuc output uses parenthesis comments, N-line numbers, G81 canned cycles",
+                "Test: all 5 controller outputs pass syntax validation against their dialect rules"
+              ],
+              "abort_criteria": [
+                "Output G-code is generic Fanuc regardless of controller selection",
+                "Dialect-specific codes (G187, CYCLE800, CYCL DEF) not present in output"
+              ],
+              "rollback": "git checkout -- src/engines/PostProcessorPipelineEngine.ts"
+            },
+            {
+              "id": "U-PVAR06",
+              "title": "Wire Stage 3.5 controller features: HSM, smoothing, TCPC, look-ahead per dialect",
+              "description": "Verify Stage 3.5 controller_features injects the RIGHT codes per controller: (1) Haas: G187 P1/P2/P3 for smoothing levels, G234 for NURBS. (2) Siemens: CYCLE832 tolerance, COMPCAD, TRAORI for 5-axis. (3) Heidenhain: CYCL DEF 32 tolerance, M128 for TCPC. (4) Mazak: G05.1 Q1 for AI contour, G43.4 for TCPC. (5) Fanuc: G05.1 for AICC, G43.4/G43.5 for TCPC. Use ControllerDialectEngine.getDialect().features to get the codes. Ensure these appear in output G-code when corresponding feature toggle is active.",
+              "depends_on": ["U-PVAR04"],
+              "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+              "exit_conditions": [
+                "Test: Haas + HSM toggle → output contains G187 P1 (rough) or G187 P3 (finish)",
+                "Test: Siemens + HSM → output contains CYCLE832(0.01) or COMPCAD",
+                "Test: Heidenhain + RTCP → output contains M128",
+                "Test: Mazak + HSM → output contains G05.1 Q1",
+                "Test: all feature codes match manufacturer documentation"
+              ],
+              "abort_criteria": [
+                "Feature codes hardcoded instead of sourced from ControllerDialectEngine",
+                "Wrong codes for controller (e.g., G187 emitted for Siemens)"
+              ],
+              "rollback": "git checkout -- src/engines/PostProcessorPipelineEngine.ts"
+            },
+            {
+              "id": "U-PVAR07",
+              "title": "Wire Post Library entries as pipeline launchers with pre-configured machine profiles",
+              "description": "In PostLibraryUI: when user clicks a library entry (e.g., 'Haas NGC 3-Axis'), instead of showing a static template: (1) Pre-populate the PPG form with that machine's MachineContext (max_rpm, power, controller, features). (2) Auto-enable recommended features for that machine. (3) Set the pipeline to generate for that controller. (4) User just needs to paste/upload their G-code and click Generate. Each library entry maps to a real machine profile: {machine: MachineContext, recommended_features: string[], controller: ControllerFamily, description: string}.",
+              "depends_on": ["U-PVAR05"],
+              "files_modified": ["web/src/components/ppg/PostLibraryUI.tsx", "web/src/pages/PostProcessorGeneratorPage.tsx"],
+              "exit_conditions": [
+                "Test: click 'Haas NGC 3-Axis' → form populated with Haas VF-2 specs, probing+HSM recommended",
+                "Test: click 'Siemens 840D 5-Axis' → form populated with DMG DMU 50 specs, RTCP+HSM+probing recommended",
+                "Test: after library selection, user pastes G-code → Generate → gets real pipeline output for that machine",
+                "Test: library entries no longer show static template code"
+              ],
+              "abort_criteria": [
+                "Library still shows hardcoded template code",
+                "Library selection doesn't configure pipeline input"
+              ],
+              "rollback": "git checkout -- web/src/components/ppg/PostLibraryUI.tsx web/src/pages/PostProcessorGeneratorPage.tsx"
+            }
+          ],
+          "forge_triple": {
+            "hook": "ppg-dialect-output-guard — warns if pipeline output G-code contains codes from wrong controller family (e.g., G187 in Siemens output)",
+            "action": "prism_cam ppg_library_detail (now returns pipeline-ready machine profile)",
+            "skill": "/ppg-library — browse machine-specific post profiles and launch pipeline"
+          },
+          "exit_gate": "All 5 major controllers produce correctly formatted output. HSM/RTCP/probing codes match manufacturer specs. Post library launches real pipeline. Output passes controller-specific syntax validation.",
+          "feature_cascade": {
+            "new_hooks": ["ppg-dialect-output-guard"],
+            "rewired_actions": ["ppg_library_detail"],
+            "new_skills": ["/ppg-library"]
+          },
+          "compact_checkpoint": true
+        },
+        {
+          "id": "PPG-VAR-S3",
+          "title": "Advanced PRISM Features in Output + Size-Constrained vs Pipeline Modes",
+          "smart_config": {
+            "role": "CNC Manufacturing Intelligence Architect + Post Processor Expert",
+            "model": "opus",
+            "effort": "MAX",
+            "context_budget": "70%"
+          },
+          "knowledge": [
+            "AdvancedPostProcessorEngine.ts — enhance() with sister tooling, chip thinning, trochoidal",
+            "PredictionCalibrationEngine.ts — Bayesian calibrated constants (Stage 0.8)",
+            "ThermalWearCouplingEngine.ts — coupled thermal-wear ODE (Stage 2.7b)",
+            "SustainabilityLCAEngine.ts — energy/CO2 reporting (Stage 5.5b)",
+            "RLPostProcessorEngine.ts — Q-learning format optimization (Stage 6.1c)",
+            "PostProcessorPipelineEngine.ts Stages 5.1/5.10 — safety gate + omega score"
+          ],
+          "intent": "Two output modes: (A) Self-contained post file with max features embedded in G-code comments/macros, or (B) Pipeline-optimized program where PRISM's full physics ran and the output has per-block optimized S/F. User understands what PRISM added to their program.",
+          "skills": ["/physics-verify", "/test", "/forge-triple"],
+          "units": [
+            {
+              "id": "U-PVAR08",
+              "title": "Add PRISM Advanced Feature injection into output G-code",
+              "description": "After Stage 6.1 generates dialect-formatted G-code, inject PRISM advanced features as structured comments and inline annotations: (1) Per-block force comment: (PRISM: Fc=450N P=2.1kW T_life=18min) (2) Wear derating comment when applied: (PRISM: Wear VB=0.21mm → S derated 15%) (3) Chatter warning: (PRISM: RPM shifted from 6000→5400 — chatter avoidance) (4) Safety score in program header: (PRISM Safety Score: 0.87/1.00 — PASS) (5) Feature list in header: (PRISM Features: HSM G187, Kienzle S/F, Chatter RPM, Thermal Wear ODE) (6) Sustainability in footer: (PRISM LCA: 2.1 kgCO2, 0.8 kWh). These survive even if user strips PRISM branding — the physics is baked into the S/F values.",
+              "depends_on": ["U-PVAR06"],
+              "files_modified": ["src/engines/PostProcessorPipelineEngine.ts"],
+              "exit_conditions": [
+                "Test: output header contains PRISM Safety Score line",
+                "Test: output header lists active PRISM features",
+                "Test: cutting blocks have force/power comments where physics ran",
+                "Test: comments use correct dialect comment syntax (parentheses for Fanuc, semicolons for Siemens)",
+                "Test: G-code is valid even if all PRISM comments are stripped"
+              ],
+              "abort_criteria": [
+                "Comments use wrong syntax for controller",
+                "Physics values in comments don't match actual S/F values in G-code",
+                "Comments break G-code parsing on real controllers"
+              ],
+              "rollback": "git checkout -- src/engines/PostProcessorPipelineEngine.ts"
+            },
+            {
+              "id": "U-PVAR09",
+              "title": "Implement dual output mode: self-contained post file vs pipeline-optimized program",
+              "description": "Add output_mode to PipelineInput: 'self_contained' | 'pipeline_optimized'. (A) self_contained: output is a G-code file sized for controller memory (typically 100KB-10MB). Includes embedded parameter tables as macro variables where the controller supports them (Fanuc G65 P, Siemens R-params, Heidenhain Q-params). S/F values are inline constants. Good for shops without PRISM server access. (B) pipeline_optimized: output is full-detail G-code with PRISM annotations, physics comments, per-block optimization, sustainability data. Designed for PRISM-connected workflows where the server computes and the operator runs. UI shows toggle between modes with explanation.",
+              "depends_on": ["U-PVAR07"],
+              "files_modified": ["src/engines/PostProcessorPipelineEngine.ts", "web/src/pages/PostProcessorGeneratorPage.tsx"],
+              "exit_conditions": [
+                "Test: self_contained mode → output has no PRISM server dependencies, runs standalone on controller",
+                "Test: pipeline_optimized mode → output has full PRISM annotations, per-block physics",
+                "Test: self_contained file size < 500KB for typical 1000-line program",
+                "Test: both modes produce valid G-code that passes syntax validation"
+              ],
+              "abort_criteria": [
+                "Self-contained mode still requires PRISM server to run",
+                "No way for user to choose between modes"
+              ],
+              "rollback": "git checkout -- src/engines/PostProcessorPipelineEngine.ts web/src/pages/PostProcessorGeneratorPage.tsx"
+            },
+            {
+              "id": "U-PVAR10",
+              "title": "Integration tests — real machines, real G-code, real physics assertions",
+              "description": "Write end-to-end tests that simulate the full user flow: (1) Select Haas VF-2 → resolve fingerprint → set features → paste G-code → Generate → verify output is Haas dialect with physics-optimized S/F. (2) Same for Siemens 840D 5-axis. (3) Same for Fanuc Robodrill. (4) Same for Heidenhain TNC640. (5) Same for Mazak SmoothAi. Each test: verify correct dialect formatting, verify physics ran (forces > 0), verify safety score computed, verify feature codes present when toggled, verify output parses as valid G-code. (6) Test self_contained vs pipeline_optimized mode differences. Assert against canonical Kienzle forces for ISO P steel (kc1_1=1800).",
+              "depends_on": ["U-PVAR08"],
+              "files_created": ["src/__tests__/PPGProductIntegration.test.ts"],
+              "exit_conditions": [
+                "Test: >= 20 integration tests across 5 controller families",
+                "Test: ALL use real PostProcessorPipelineEngine.process() — zero mocks",
+                "Test: Haas output has O-number + G187 + parenthesis comments + Kienzle-computed feeds",
+                "Test: Siemens output has CYCLE81 + semicolons + COMPCAD + physics feeds",
+                "Test: Heidenhain output has BEGIN PGM + CYCL DEF + M128 + physics feeds",
+                "Test: Kienzle force for P-steel at ap=2mm fz=0.15mm within 20% of 1800*2*0.15^0.75",
+                "Test: safety score > 0 for all tests",
+                "Test: no NaN, no Infinity in any output"
+              ],
+              "abort_criteria": [
+                "ANY mock of PostProcessorPipelineEngine or ControllerDialectEngine",
+                "Tests that pass with || true or only check .toBeDefined()",
+                "Fewer than 20 tests",
+                "Missing any of the 5 controller families"
+              ],
+              "rollback": "git checkout -- src/__tests__/PPGProductIntegration.test.ts"
+            }
+          ],
+          "forge_triple": {
+            "hook": "ppg-output-safety-guard — blocks any post output with safety_score < 0.70 from being downloadable (must show red warning + require user override)",
+            "action": "prism_cam ppg_advanced_generate (unified: machine + features + mode → complete post)",
+            "skill": "/ppg-full — generate a complete physics-optimized post for any machine with all PRISM advanced features"
+          },
+          "exit_gate": "Full product works: user selects machine → toggles features → uploads G-code → gets production-ready post with correct dialect, physics S/F, safety score, PRISM annotations. 5 controllers verified with real integration tests. Dual output mode (self-contained vs pipeline). >= 20 integration tests, zero mocks.",
+          "feature_cascade": {
+            "new_hooks": ["ppg-output-safety-guard"],
+            "new_actions": ["ppg_advanced_generate"],
+            "new_skills": ["/ppg-full"]
+          },
+          "compact_checkpoint": true
+        }
+      ]
+    }
+  ],
+
+  "exit_gate": "PPG product fully wired: Generate Post invokes real 38-stage pipeline. Machine fingerprint drives MachineContext. Feature toggles drive StageConfig. Controller dialect formats output. Post library launches pipeline. PRISM advanced features (Kienzle S/F, chatter RPM, thermal wear, safety score, LCA) embedded in output. Dual mode (self-contained + pipeline-optimized). 5 controller families tested with real physics assertions. >= 20 integration tests, zero mocks. User gets a REAL post processor, not a template.",
+  "status": "complete",
+  "completed_at": "2026-04-05",
+  "total_units": 10,
+  "completed_units": 10,
+  "test_results": "325/325 tests pass (9 files). 22 integration tests across 5 controllers (Haas/Fanuc/Siemens/Heidenhain/Mazak). Zero mocks. Real Kienzle/Taylor physics assertions."
+}

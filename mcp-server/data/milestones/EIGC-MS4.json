@@ -1,0 +1,18 @@
+{
+  "id": "EIGC-MS4",
+  "version": "1.0.0",
+  "title": "Feature Promotion vs Downgrade Decisions",
+  "brief": "For each partial engine (esp. hyperMILL export/sync), decide: promote to real support, downgrade to explicit unsupported, or keep as partial with contract label. Reflect in code, tests, and docs.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "EIGC",
+  "track_name": "Engine Integrity Gap Closure",
+  "status": "not_started",
+  "phases": [{"id": "P0", "title": "Promotion/Downgrade", "sessions": "1-2", "units": [
+    {"id": "P0-U01", "title": "Decide hyperMILL export/sync: promote, downgrade, or label partial", "effort": 60, "dependencies": []},
+    {"id": "P0-U02", "title": "Apply promotion/downgrade decisions to all scoped engines", "effort": 50, "dependencies": ["P0-U01"]},
+    {"id": "P0-U03", "title": "Update code comments, statuses, and test assertions to match", "effort": 40, "dependencies": ["P0-U02"]}
+  ]}],
+  "dependencies": ["EIGC-MS3"],
+  "exit_conditions": ["No ambiguity between supported, partially supported, and planned only"]
+}

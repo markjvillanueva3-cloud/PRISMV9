@@ -1,0 +1,168 @@
+/**
+ * prism_export — Document Export & Report Dispatcher
+ *
+ * 8 actions: render_pdf, render_csv, render_excel, render_dxf,
+ *   render_step, render_gcode, render_setup_sheet, batch_export
+ *
+ * Engine dependencies: ExportEngine, ReportEngine
+ */
+import { z } from "zod";
+import { log } from "../../utils/Logger.js";
+import { slimResponse } from "../../utils/responseSlimmer.js";
+import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
+import { ACTION_EXPORT_SCHEMAS } from "../../schemas/exportActionSchemas.js";
+
+let _export: any, _report: any;
+async function getEngine(name: string): Promise<any> {
+  switch (name) {
+    case "export": return _export ??= (await import("../../engines/ExportEngine.js")).exportEngine;
+    case "report": return _report ??= (await import("../../engines/ReportEngine.js")).reportEngine;
+    default: throw new Error(`Unknown export engine: ${name}`);
+  }
+}
+
+const ACTIONS = [
+  "render_pdf", "render_csv", "render_excel", "render_dxf",
+  "render_step", "render_gcode", "render_setup_sheet", "batch_export",
+] as const;
+
+/** Registers export dispatcher.
+ * @param server - MCP server instance
+  * @returns void
+ */
+export function registerExportDispatcher(server: any): void {
+  server.tool(
+    "prism_export",
+    `Document Export dispatcher — render PDF, CSV, Excel, DXF, STEP, G-code, setup sheets. Batch export support.
+Actions: ${ACTIONS.join(", ")}.
+Params vary by action — pass relevant fields in params object.`,
+    { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
+    async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
+      log.info(`[prism_export] Action: ${action}`);
+      let result: any;
+      try {
+        // H1-MS2: Auto-normalize snake_case → camelCase params
+        let params = rawParams;
+        try {
+          const { normalizeParams } = await import("../../utils/paramNormalizer.js");
+          params = normalizeParams(rawParams);
+        } catch { /* normalizer not available */ }
+
+        // SYS-MS6: Validate params against per-action Zod schema
+        const validation = validateActionParams(action, params, ACTION_EXPORT_SCHEMAS);
+        if (!validation.valid) {
+          return dispatcherError(
+            `Invalid params for '${action}': ${validation.errorMessage}`,
+            action,
+            "prism_export"
+          );
+        }
+
+        switch (action) {
+          case "render_pdf": {
+            const engine = await getEngine("export");
+            const pdfJob = engine.render("pdf", params.title || "Report", "prism_export", params.data || params);
+            result = { format: "pdf", template: params.template || "default", status: pdfJob.status, job_id: pdfJob.id };
+            break;
+          }
+          case "render_csv": {
+            const engine = await getEngine("export");
+            const rows = params.data || params.rows || [];
+            const cols = params.columns || (rows.length ? Object.keys(rows[0]) : []);
+            const csvJob = engine.render("csv", params.title || "Export", "prism_export", Object.fromEntries(cols.map((c: string, i: number) => [c, rows[0]?.[c] ?? ""])));
+            result = { format: "csv", rows: rows.length, columns: cols.length, status: csvJob.status, job_id: csvJob.id };
+            break;
+          }
+          case "render_excel": {
+            const engine = await getEngine("export");
+            const xlJob = engine.render("excel", params.title || "Export", "prism_export", params.data || {});
+            result = { format: "xlsx", sheets: params.sheets ?? 1, status: xlJob.status, job_id: xlJob.id };
+            break;
+          }
+          case "render_dxf": {
+            const engine = await getEngine("export");
+            const dxfJob = engine.render("dxf", params.title || "DXF Export", "prism_export", params.data || {});
+            result = { format: "dxf", entities: params.entities || 0, layers: params.layers || ["0"], status: dxfJob.status, job_id: dxfJob.id };
+            break;
+          }
+          case "render_step": {
+            const engine = await getEngine("export");
+            const stepJob = engine.render("step", params.title || "STEP Export", "prism_export", params.data || {});
+            result = { format: "step", protocol: "AP214", bodies: params.bodies ?? 1, status: stepJob.status, job_id: stepJob.id };
+            break;
+          }
+          case "render_gcode": {
+            const engine = await getEngine("export");
+            const gcJob = engine.render("gcode", params.title || "G-code", "prism_export", params.data || { gcode: params.gcode });
+            result = { format: "gcode", controller: params.controller || "fanuc", status: gcJob.status, job_id: gcJob.id };
+            break;
+          }
+          case "render_setup_sheet": {
+            const engine = await getEngine("report");
+            result = engine.generateSetupSheet?.(params) ?? {
+              format: "pdf",
+              type: "setup_sheet",
+              sections: ["header", "workholding", "tools", "operations", "notes"],
+              status: "rendered",
+            };
+            break;
+          }
+          case "batch_export": {
+            const items = params.items || [];
+            if (items.length === 0) {
+              result = { error: "No items provided for batch export", hint: "Pass items: [{format: 'pdf', title: '...', data: {...}}, ...]" };
+              break;
+            }
+            const batchId = `batch_${Date.now().toString(36)}`;
+            const engine = await getEngine("export");
+            const batchResults: any[] = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (let i = 0; i < items.length; i++) {
+              const item = items[i];
+              const format = item.format || "pdf";
+              const title = item.title || `Export_${i + 1}`;
+              const data = item.data || item;
+              try {
+                const job = engine.render(format, title, "batch_export", data);
+                batchResults.push({
+                  index: i,
+                  format,
+                  title,
+                  status: job.status || "rendered",
+                  job_id: job.id,
+                });
+                successCount++;
+              } catch (itemErr: any) {
+                batchResults.push({
+                  index: i,
+                  format,
+                  title,
+                  status: "error",
+                  error: (itemErr.message || "render failed").slice(0, 200),
+                });
+                errorCount++;
+              }
+            }
+
+            result = {
+              batch_id: batchId,
+              total_items: items.length,
+              success: successCount,
+              errors: errorCount,
+              items: batchResults,
+              status: errorCount === 0 ? "completed" : "completed_with_errors",
+            };
+            break;
+          }
+          default:
+            result = { error: `Unknown action: ${action}` };
+        }
+      } catch (error) {
+        return dispatcherError(error, action, "prism_export");
+      }
+      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+    }
+  );
+}

@@ -1,0 +1,677 @@
+{
+  "id": "BIZ-MS6",
+  "version": "1.0.0",
+  "title": "Full Business Lifecycle Synchronization",
+  "brief": "Wires all 10 broken cross-engine transitions so data flows automatically from quote to cash with zero manual re-entry. Archaeology audit found 7 of 10 direct sync points broken (quote→order, order→job, job→material PO, job→schedule, scrap→cost, job-complete→invoice, payment→GL) plus 3 feedback loops missing (actual cost→quote calibration, tool wear→life model, cycle time→schedule estimate). Adds BusinessSyncEngine as a central event bus to make all sync points reliable through refactoring, CashFlowProjectionEngine for rolling 30/60/90-day AR+AP projection, and BurdenRateEngine for machine burden rates from GL actuals.",
+  "created_at": "2026-04-09T00:00:00Z",
+  "created_by": "claude-opus-4-6",
+  "track": "BIZ",
+  "track_name": "Business Management Platform",
+  "status": "complete",
+  "total_units": 12,
+  "total_sessions": "6-8",
+  "plan_file": "H:/prism/plans/erp-employee/FULL-BUSINESS-SYNC-PLAN.md",
+  "phases": [
+    {
+      "id": "BIZ-MS6-P1",
+      "title": "Direct Sync Transitions (SYNC-01 through SYNC-07)",
+      "description": "Wire the 7 broken direct engine-to-engine data handoffs: quote acceptance auto-creates an order, order creation auto-creates jobs with routing, job creation triggers inventory check and PO if short, job creation auto-schedules to machine via EDD, scrap recording auto-adjusts job cost, job completion auto-creates invoice and posts to GL, and payment recording auto-posts the double-entry GL debit/credit pair.",
+      "sessions": "3-4",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ46",
+          "title": "Quote Acceptance → Order Auto-Creation (SYNC-01)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 70,
+          "dependencies": [],
+          "steps": [
+            {"number": 1, "instruction": "Read QuoteRevisionEngine.ts in full — locate changeStatus() method, understand its parameter signature and what it currently does on status transitions"},
+            {"number": 2, "instruction": "Read OrderManagerEngine.ts — locate createOrder() signature, identify required fields: customer_id, line_items (array), due_date, source_quote_id, total_value"},
+            {"number": 3, "instruction": "In QuoteRevisionEngine.changeStatus(), add a branch: when newStatus === 'accepted' and current status is not already 'accepted', import orderManagerEngine lazily (await import('../OrderManagerEngine.js')) and call createOrder({ customer_id: quote.customer_id, line_items: quote.line_items, due_date: quote.due_date, source_quote_id: quote.id, total_value: quote.total_price })"},
+            {"number": 4, "instruction": "After createOrder() returns, validate: Math.abs(order.total_value - quote.total_price) <= 0.01 — if outside tolerance throw an Error('Order value $X diverges from quote $Y by more than $0.01') and roll back by calling cancelOrder(order.id)"},
+            {"number": 5, "instruction": "Store the returned order.id on the quote as quote.order_id and call persist() so the linkage survives restart"},
+            {"number": 6, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 7, "instruction": "Write a unit test: call changeStatus(quoteId, 'accepted'), assert orderManagerEngine.getOrder() returns an order with total_value matching quote.total_price within $0.01"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/QuoteRevisionEngine.ts", "type": "source", "description": "changeStatus('accepted') auto-calls orderManagerEngine.createOrder() and validates price match within $0.01"}
+          ],
+          "exit_conditions": [
+            "Accepting a quote in QuoteRevisionEngine.changeStatus() automatically creates an order via OrderManagerEngine",
+            "order.total_value === quote.total_price within $0.01 — mismatch throws and rolls back",
+            "quote.order_id is set and persisted after successful order creation",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/QuoteRevisionEngine.ts",
+            "src/engines/OrderManagerEngine.ts",
+            "src/db/PersistenceBridge.ts"
+          ],
+          "abort_criteria": [
+            "QuoteRevisionEngine has no changeStatus() method — locate the equivalent status-transition method and apply the hook there",
+            "OrderManagerEngine.createOrder() requires fields not present on the quote object — map what is available and add TODO for missing fields"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/QuoteRevisionEngine.ts"],
+            "procedure": "git checkout -- src/engines/QuoteRevisionEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ47",
+          "title": "Order → Job + Routing Auto-Creation (SYNC-02)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 80,
+          "dependencies": ["U-BIZ46"],
+          "steps": [
+            {"number": 1, "instruction": "Read OrderManagerEngine.ts — locate createOrder() and identify where the order is saved and persist() is called"},
+            {"number": 2, "instruction": "Read JobLifecycleEngine.ts — locate createJob() signature: identify required fields (order_id, part_number, routing_steps, estimated_hours, due_date, qty)"},
+            {"number": 3, "instruction": "After the order is saved in createOrder(), iterate order.line_items — for each item where item.type === 'manufactured' (or equivalent producible flag), lazily import jobLifecycleEngine and call createJob({ order_id: order.id, part_number: item.part_number, qty: item.qty, routing_steps: item.operations ?? [], due_date: order.due_date })"},
+            {"number": 4, "instruction": "Calculate estimated_hours per job: sum each routing step's (cycle_time_min * qty / 60) + (setup_time_min / 60). Default cycle_time_min = 0 and setup_time_min = 0 if absent on a step — do not throw for missing times"},
+            {"number": 5, "instruction": "Collect all created job IDs into order.job_ids array and persist the order after all jobs are created"},
+            {"number": 6, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 7, "instruction": "Write a unit test: create an order with 2 manufactured line items each having 3 routing steps, assert 2 jobs are created with correct estimated_hours = Σ(cycle_time × qty / 60) + (setup_time / 60) per step"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/OrderManagerEngine.ts", "type": "source", "description": "createOrder() auto-creates one job per manufactured line item with routing steps and calculated estimated_hours"}
+          ],
+          "exit_conditions": [
+            "Creating an order with manufactured line items auto-creates one job per item via JobLifecycleEngine.createJob()",
+            "job.estimated_hours = Σ(step.cycle_time × qty / 60) + (step.setup_time / 60) for all routing steps",
+            "order.job_ids array is populated and persisted",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/OrderManagerEngine.ts",
+            "src/engines/JobLifecycleEngine.ts"
+          ],
+          "abort_criteria": [
+            "JobLifecycleEngine.createJob() throws synchronously on missing routing_steps — wrap with try/catch and log a warning rather than failing the entire order creation"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/OrderManagerEngine.ts"],
+            "procedure": "git checkout -- src/engines/OrderManagerEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ48",
+          "title": "Job → Inventory Check → Auto-PO (SYNC-03)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": ["U-BIZ47"],
+          "steps": [
+            {"number": 1, "instruction": "Read JobLifecycleEngine.ts — locate createJob() and identify where job is saved. Read InventoryOptimizationEngine.ts — find checkAvailability(material_id, qty_needed) or equivalent method"},
+            {"number": 2, "instruction": "Read PurchaseOrderEngine.ts — find createPO() signature: identify required fields (vendor_id, line_items, material_id, qty, unit_cost, due_date)"},
+            {"number": 3, "instruction": "After job is saved in createJob(), for each routing step that references a material_id (or for the job's primary material), call inventoryOptimizationEngine.checkAvailability(material_id, required_qty). Capture shortage = max(0, required_qty - available_qty)"},
+            {"number": 4, "instruction": "If shortage > 0, calculate EOQ = Math.sqrt(2 * demand * order_cost / holding_cost). Use demand = shortage (immediate need), order_cost = material.default_order_cost_usd ?? 50, holding_cost = material.unit_cost * 0.25 (25% carrying rate). Order qty = Math.max(shortage, EOQ), rounded up to nearest integer"},
+            {"number": 5, "instruction": "Call purchaseOrderEngine.createPO({ job_id: job.id, material_id, qty: orderQty, vendor_id: material.preferred_vendor_id ?? 'DEFAULT', due_date: job.due_date, auto_generated: true })"},
+            {"number": 6, "instruction": "Store returned po_id on job.auto_po_ids array and persist the job"},
+            {"number": 7, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 8, "instruction": "Write a unit test: set inventory level to 0, create a job needing 50 units of material. Assert a PO is created with qty >= 50 and qty >= EOQ(50, order_cost, holding_cost)"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "createJob() checks inventory via InventoryOptimizationEngine; auto-creates PO via PurchaseOrderEngine when shortage exists, using EOQ formula"},
+            {"path": "src/engines/InventoryOptimizationEngine.ts", "type": "source", "description": "checkAvailability() returns available qty for material (verify method exists, add if absent)"},
+            {"path": "src/engines/PurchaseOrderEngine.ts", "type": "source", "description": "createPO() accepts auto_generated flag and job_id linkage (verify and add fields if absent)"}
+          ],
+          "exit_conditions": [
+            "Job creation with material shortage auto-creates a PO via PurchaseOrderEngine",
+            "PO qty = max(shortage, EOQ) where EOQ = sqrt(2DS/H), D=shortage, S=order_cost, H=unit_cost×0.25",
+            "No PO created when inventory is sufficient",
+            "job.auto_po_ids is populated and persisted",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/JobLifecycleEngine.ts",
+            "src/engines/InventoryOptimizationEngine.ts",
+            "src/engines/PurchaseOrderEngine.ts"
+          ],
+          "abort_criteria": [
+            "InventoryOptimizationEngine has no checkAvailability() — search for equivalent method name, adapt accordingly",
+            "PurchaseOrderEngine.createPO() signature is incompatible — add an overload or wrapper rather than changing the existing signature"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/JobLifecycleEngine.ts", "src/engines/InventoryOptimizationEngine.ts", "src/engines/PurchaseOrderEngine.ts"],
+            "procedure": "git checkout -- src/engines/JobLifecycleEngine.ts src/engines/InventoryOptimizationEngine.ts src/engines/PurchaseOrderEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ49",
+          "title": "Job → Auto-Schedule to Machine (SYNC-04)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 4,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 80,
+          "dependencies": ["U-BIZ48"],
+          "steps": [
+            {"number": 1, "instruction": "Read CapacityPlanningEngine.ts — locate scheduleJob() or findBestMachineSlot() method. Identify required parameters: machine_type, estimated_hours, due_date, priority"},
+            {"number": 2, "instruction": "In JobLifecycleEngine.createJob(), after the inventory check (U-BIZ48), call capacityPlanningEngine.scheduleJob({ machine_type: job.machine_type ?? job.routing_steps[0]?.machine_type, estimated_hours: job.estimated_hours, due_date: job.due_date, priority: job.priority ?? 'normal' })"},
+            {"number": 3, "instruction": "The scheduler must use EDD (Earliest Due Date) ordering: among all machines of the required type, pick the one whose next available slot ends earliest while still completing before job.due_date"},
+            {"number": 4, "instruction": "Apply results to job: job.scheduled_start = result.start_time, job.scheduled_end = result.end_time, job.assigned_machine = result.machine_id"},
+            {"number": 5, "instruction": "If no machine has capacity before due_date, set job.schedule_status = 'capacity_risk' and log a warning — do not throw, the job still gets created"},
+            {"number": 6, "instruction": "Persist the job with scheduling fields populated"},
+            {"number": 7, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 8, "instruction": "Write a unit test: register 2 machines of same type with different availability windows, create a job — assert it is scheduled to the machine whose slot ends earliest, and job.assigned_machine is set"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "createJob() auto-schedules to best-fit machine via CapacityPlanningEngine using EDD; sets scheduled_start, scheduled_end, assigned_machine on job"},
+            {"path": "src/engines/CapacityPlanningEngine.ts", "type": "source", "description": "scheduleJob() implements EDD selection among machines of the required type (verify or enhance)"}
+          ],
+          "exit_conditions": [
+            "New jobs receive scheduled_start, scheduled_end, assigned_machine automatically on creation",
+            "Machine selected by EDD: earliest slot that fits estimated_hours before due_date",
+            "Capacity-risk jobs get schedule_status='capacity_risk' rather than throwing",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/JobLifecycleEngine.ts",
+            "src/engines/CapacityPlanningEngine.ts"
+          ],
+          "abort_criteria": [
+            "CapacityPlanningEngine has no scheduleJob() — implement a minimal EDD slot-finder inline in JobLifecycleEngine and add a TODO to refactor into CapacityPlanningEngine"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/JobLifecycleEngine.ts", "src/engines/CapacityPlanningEngine.ts"],
+            "procedure": "git checkout -- src/engines/JobLifecycleEngine.ts src/engines/CapacityPlanningEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ50",
+          "title": "Scrap → Auto Cost Adjustment (SYNC-05)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 5,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 70,
+          "dependencies": [],
+          "steps": [
+            {"number": 1, "instruction": "Read TimeClockEngine.ts — locate jobStop() method. Check if scrap_count is already a parameter (it should be from BIZ-MS0 U-BIZ04). Read ActualCostEngine.ts — locate recordCost() or equivalent method that accepts job_id and a cost breakdown"},
+            {"number": 2, "instruction": "In TimeClockEngine.jobStop(), after the entry is saved, check if params.scrap_count > 0. If so, retrieve the job's material_cost_per_part from JobLifecycleEngine (lazily imported): material_cost_per_part = job.material_cost / job.qty"},
+            {"number": 3, "instruction": "Calculate scrap_material_cost = params.scrap_count * material_cost_per_part"},
+            {"number": 4, "instruction": "Calculate scrap_labor_cost: retrieve the elapsed time entry labor_cost (entry.elapsed_hours * employee.hourly_rate). scrap_labor_cost = (params.scrap_count / (params.good_parts + params.scrap_count)) * labor_cost. If total_parts = 0, scrap_labor_cost = 0"},
+            {"number": 5, "instruction": "Call actualCostEngine.recordScrapCost(job_id, { scrap_count: params.scrap_count, material_cost: scrap_material_cost, labor_cost: scrap_labor_cost, recorded_by: entry.employee_id, recorded_at: new Date().toISOString() })"},
+            {"number": 6, "instruction": "Validate cost conservation: total_cost_before === good_parts_cost + scrap_cost (within $0.01 rounding). Log a warning if conservation fails — do not throw"},
+            {"number": 7, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 8, "instruction": "Write a unit test: stop a job with good_parts=90, scrap_count=10, material_cost_per_part=$5, total_labor=$100. Assert scrap_material_cost=$50, scrap_labor_cost=$10 (10/100 × $100), and ActualCostEngine received recordScrapCost with those values"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "jobStop() auto-calls actualCostEngine.recordScrapCost() when scrap_count > 0, with material and labor cost breakdown"},
+            {"path": "src/engines/ActualCostEngine.ts", "type": "source", "description": "recordScrapCost() method accepts scrap cost breakdown and persists it (verify or add)"}
+          ],
+          "exit_conditions": [
+            "Calling jobStop() with scrap_count > 0 auto-records scrap cost via ActualCostEngine",
+            "scrap_material_cost = scrap_count × material_cost_per_part",
+            "scrap_labor_cost = (scrap_count / total_parts) × total_labor_cost",
+            "Cost conservation check: good_parts_cost + scrap_cost = total_cost within $0.01",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/TimeClockEngine.ts",
+            "src/engines/ActualCostEngine.ts",
+            "src/engines/JobLifecycleEngine.ts"
+          ],
+          "abort_criteria": [
+            "ActualCostEngine has no recordScrapCost() — add it as a thin wrapper around the existing recordCost() with category='scrap'"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/TimeClockEngine.ts", "src/engines/ActualCostEngine.ts"],
+            "procedure": "git checkout -- src/engines/TimeClockEngine.ts src/engines/ActualCostEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ51",
+          "title": "Job Complete → Auto-Invoice + GL Post (SYNC-06)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 6,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ50"],
+          "steps": [
+            {"number": 1, "instruction": "Read JobLifecycleEngine.ts — find _onJobComplete() or the method called when job status transitions to 'complete'. Read InvoicingEngine.ts — find fromJobCost() or createInvoice() signature. Read GeneralLedgerEngine.ts — find recordInvoice() signature and understand chart of accounts (AR=1200, Revenue=4000, COGS=5000, WIP=1400)"},
+            {"number": 2, "instruction": "In _onJobComplete(), after ActualCostEngine has the final cost (ensure actualCostEngine.getJobCost(job.id) is callable and returns total_cost with breakdown), lazy-import invoicingEngine"},
+            {"number": 3, "instruction": "Call invoicingEngine.fromJobCost({ job_id: job.id, customer_id: job.customer_id, actual_cost: cost.total, markup_rate: job.markup_rate ?? 0.30, line_items: cost.breakdown, due_date: addDays(new Date(), 30) })"},
+            {"number": 4, "instruction": "invoice_total = actual_cost * (1 + markup_rate). Validate: invoice_total > 0 and invoice_total >= actual_cost"},
+            {"number": 5, "instruction": "After invoice is created, call generalLedgerEngine.recordInvoice({ invoice_id: invoice.id, revenue: invoice_total, cogs: cost.total }). This posts: Debit AR (1200) += invoice_total, Credit Revenue (4000) += invoice_total, Debit COGS (5000) += cost.total, Credit WIP (1400) += cost.total"},
+            {"number": 6, "instruction": "Validate GL balance: sum of all debit entries === sum of all credit entries within $0.01 after each recordInvoice() call. Log a warning if out of balance — do not throw"},
+            {"number": 7, "instruction": "Calculate and verify: gross_margin = (invoice_total - cost.total) / invoice_total. Assert gross_margin >= 0 (invoice covers cost). Log a warning if negative margin"},
+            {"number": 8, "instruction": "Persist job.invoice_id = invoice.id and call persist()"},
+            {"number": 9, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 10, "instruction": "Write a unit test: complete a job with actual_cost=$1000, markup=30%. Assert invoice_total=$1300, GL AR debit=$1300, Revenue credit=$1300, COGS debit=$1000, WIP credit=$1000, gross_margin=23.08%"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "_onJobComplete() auto-creates invoice via InvoicingEngine and posts Debit AR / Credit Revenue / Debit COGS / Credit WIP to GeneralLedgerEngine"},
+            {"path": "src/engines/InvoicingEngine.ts", "type": "source", "description": "fromJobCost() accepts actual_cost + markup_rate and returns invoice with total = actual_cost × (1 + markup) (verify or add)"},
+            {"path": "src/engines/GeneralLedgerEngine.ts", "type": "source", "description": "recordInvoice() posts double-entry: Debit AR 1200, Credit Revenue 4000, Debit COGS 5000, Credit WIP 1400 (verify or add)"}
+          ],
+          "exit_conditions": [
+            "Job completion auto-creates an invoice with invoice_total = actual_cost × (1 + markup_rate)",
+            "GL double-entry posted: Debit AR, Credit Revenue, Debit COGS, Credit WIP",
+            "GL trial balance remains balanced within $0.01 after the post",
+            "gross_margin = (revenue - COGS) / revenue is computed and logged",
+            "job.invoice_id is persisted",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/JobLifecycleEngine.ts",
+            "src/engines/InvoicingEngine.ts",
+            "src/engines/GeneralLedgerEngine.ts",
+            "src/engines/ActualCostEngine.ts"
+          ],
+          "abort_criteria": [
+            "GeneralLedgerEngine does not track account balances (only logs transactions) — implement a running balance Map keyed by account number alongside existing log",
+            "InvoicingEngine.fromJobCost() does not exist — implement it as a new method rather than changing existing createInvoice() signature"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/JobLifecycleEngine.ts", "src/engines/InvoicingEngine.ts", "src/engines/GeneralLedgerEngine.ts"],
+            "procedure": "git checkout -- src/engines/JobLifecycleEngine.ts src/engines/InvoicingEngine.ts src/engines/GeneralLedgerEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ52",
+          "title": "Payment → GL Auto-Post (SYNC-07)",
+          "phase": "BIZ-MS6-P1",
+          "sequence": 7,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 60,
+          "dependencies": ["U-BIZ51"],
+          "steps": [
+            {"number": 1, "instruction": "Read InvoicingEngine.ts — locate recordPayment() method. Check if it currently posts to GeneralLedgerEngine. Read GeneralLedgerEngine.ts — verify or add recordPayment(invoice_id, amount) method"},
+            {"number": 2, "instruction": "In InvoicingEngine.recordPayment(invoice_id, amount), after marking the invoice as paid, lazily import generalLedgerEngine"},
+            {"number": 3, "instruction": "Call generalLedgerEngine.recordPayment({ invoice_id, amount, debit_account: 1000, credit_account: 1200 }). This posts: Debit Cash (account 1000) += amount, Credit AR (account 1200) -= amount"},
+            {"number": 4, "instruction": "After recordPayment(), call generalLedgerEngine.validateTrialBalance() — returns { balanced: boolean, debit_total: number, credit_total: number, delta: number }. If Math.abs(delta) > 0.01, log an error with the delta amount but do not throw (payment is already recorded)"},
+            {"number": 5, "instruction": "Persist the updated invoice with payment details (paid_at, payment_amount, gl_posted: true)"},
+            {"number": 6, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 7, "instruction": "Write a unit test: record a payment of $1300 against an invoice. Assert GL Debit Cash +$1300, GL Credit AR -$1300, trial balance delta = $0.00 (i.e., balanced to penny)"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/InvoicingEngine.ts", "type": "source", "description": "recordPayment() auto-posts Debit Cash (1000) / Credit AR (1200) to GeneralLedgerEngine and validates trial balance"},
+            {"path": "src/engines/GeneralLedgerEngine.ts", "type": "source", "description": "recordPayment() and validateTrialBalance() methods added/verified"}
+          ],
+          "exit_conditions": [
+            "Calling InvoicingEngine.recordPayment() auto-posts Debit Cash (1000) and Credit AR (1200) to GeneralLedgerEngine",
+            "GL trial balance validated after every payment post — delta must be $0.00 to penny",
+            "invoice.gl_posted = true is persisted",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/InvoicingEngine.ts",
+            "src/engines/GeneralLedgerEngine.ts"
+          ],
+          "abort_criteria": [
+            "GeneralLedgerEngine has no validateTrialBalance() — implement it by summing all debit and credit entries in the GL log and comparing totals"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/InvoicingEngine.ts", "src/engines/GeneralLedgerEngine.ts"],
+            "procedure": "git checkout -- src/engines/InvoicingEngine.ts src/engines/GeneralLedgerEngine.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Data integrity: every sync transition is atomic — if downstream fails, upstream does not silently succeed",
+        "Math correctness: invoice = cost × (1 + markup); GL double-entry balances to penny; scrap cost conservation",
+        "No circular imports: use lazy dynamic imports (await import()) for all cross-engine calls",
+        "Error handling: downstream failures log warnings and set status flags, they do not crash the triggering operation"
+      ]
+    },
+    {
+      "id": "BIZ-MS6-P2",
+      "title": "Feedback Loops (SYNC-08 through SYNC-10)",
+      "description": "Wire the 3 missing continuous-improvement feedback loops: actual job costs calibrate future quote estimates via exponential smoothing, actual tool life data updates Weibull and Taylor parameters via MLE, and actual cycle times update routing estimates via exponential smoothing. All three use alpha=0.2 smoothing factor.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ53",
+          "title": "Actual → Quote Calibration Feedback Loop (SYNC-08)",
+          "phase": "BIZ-MS6-P2",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 75,
+          "dependencies": ["U-BIZ51"],
+          "steps": [
+            {"number": 1, "instruction": "Read QuoteAnalyticsEngine.ts — locate or add a recordActuals() method that accepts { job_id, quote_id, actual_cost, estimated_cost, actual_hours, estimated_hours, actual_material, estimated_material }"},
+            {"number": 2, "instruction": "In JobLifecycleEngine._onJobComplete(), after ActualCostEngine has final costs, check if job.quote_id is set. If yes, lazily import quoteAnalyticsEngine"},
+            {"number": 3, "instruction": "Build the actuals payload: for each cost category (labor, material, overhead), compute variance_pct = (actual - estimated) / estimated * 100"},
+            {"number": 4, "instruction": "Call quoteAnalyticsEngine.recordActuals({ job_id, quote_id: job.quote_id, variances: { labor: labor_variance_pct, material: material_variance_pct, overhead: overhead_variance_pct } })"},
+            {"number": 5, "instruction": "In QuoteAnalyticsEngine.recordActuals(), apply exponential smoothing per category: calibration_factor[category] = 0.8 * calibration_factor[category] + 0.2 * (1 + variance_pct / 100). Default calibration_factor = 1.0 for new categories"},
+            {"number": 6, "instruction": "Persist the updated calibration_factors Map so they survive restarts. Add ENTITY_CONFIGS entry in BusinessStore.ts for 'quote_calibration_factors' if not present"},
+            {"number": 7, "instruction": "Expose getCalibrationFactors() method on QuoteAnalyticsEngine so QuoteEstimatorEngine can apply them: estimated_cost_adjusted = base_estimate * calibration_factor[category]"},
+            {"number": 8, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 9, "instruction": "Write a unit test: start with calibration_factor=1.0. Record 5 jobs where actual labor is always 20% over estimate. Assert calibration_factor converges toward 1.20 using 0.8×old + 0.2×new formula. After 5 iterations: 1.0→1.04→1.072→1.098→1.118→1.134 (approx). Verify final value > 1.10"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "_onJobComplete() calls quoteAnalyticsEngine.recordActuals() when job has a linked quote_id"},
+            {"path": "src/engines/QuoteAnalyticsEngine.ts", "type": "source", "description": "recordActuals() applies exponential smoothing α=0.2 per cost category; getCalibrationFactors() exposes current multipliers"}
+          ],
+          "exit_conditions": [
+            "Every completed job with a quote_id auto-calls QuoteAnalyticsEngine.recordActuals()",
+            "variance_pct = (actual - estimated) / estimated * 100 computed per cost category",
+            "calibration_factor updated with formula: 0.8 × old + 0.2 × (1 + variance_pct/100)",
+            "Calibration factors persist across server restarts",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/JobLifecycleEngine.ts",
+            "src/engines/QuoteAnalyticsEngine.ts",
+            "src/engines/ActualCostEngine.ts",
+            "src/db/BusinessStore.ts"
+          ],
+          "abort_criteria": [
+            "QuoteAnalyticsEngine has no recordActuals() — add the method; it is a new capability",
+            "Job has no quote_id linkage — add quote_id as an optional field on the Job interface and set it in OrderManagerEngine when order has source_quote_id"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/JobLifecycleEngine.ts", "src/engines/QuoteAnalyticsEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/JobLifecycleEngine.ts src/engines/QuoteAnalyticsEngine.ts src/db/BusinessStore.ts"
+          }
+        },
+        {
+          "id": "U-BIZ54",
+          "title": "Tool Wear → Life Model Update (SYNC-09)",
+          "phase": "BIZ-MS6-P2",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 85,
+          "dependencies": [],
+          "steps": [
+            {"number": 1, "instruction": "Read StochasticToolLifeEngine.ts — identify Weibull parameters (beta shape, eta scale) and Taylor parameters (n exponent, C constant). Locate where these are stored and whether they are updateable"},
+            {"number": 2, "instruction": "Create or locate a recordToolReplacement(tool_id, actual_life_minutes, parts_cut, failure_mode, cutting_speed_m_per_min) method in StochasticToolLifeEngine (add if absent)"},
+            {"number": 3, "instruction": "In TimeClockEngine.ts or a ToolUsageEngine (whichever tracks tool replacements), when a tool is recorded as replaced or consumed during a job, lazily import stochasticToolLifeEngine and call recordToolReplacement()"},
+            {"number": 4, "instruction": "In StochasticToolLifeEngine.recordToolReplacement(), append the data point to a tool_life_observations[tool_id] array and call updateWeibullParameters(tool_id)"},
+            {"number": 5, "instruction": "Implement updateWeibullParameters(tool_id): use MLE for Weibull. With n observations t_1..t_n, the MLE equations are: beta_hat = n / (Σ ln(t_i/eta_hat)); iterate via Newton-Raphson (max 50 iterations, convergence threshold 1e-6). Seed with beta_init=2.0, eta_init=mean(observations)"},
+            {"number": 6, "instruction": "Implement updateTaylorParameters(tool_id, cutting_speed, actual_life_minutes): use the Taylor equation VT^n = C. With each new (V, T) data point, update via log-linear regression over all stored points: ln(T) = ln(C)/n - (1/n)*ln(V). Recalculate n_taylor and C from least-squares slope/intercept of ln(V) vs ln(T)"},
+            {"number": 7, "instruction": "Persist updated Weibull and Taylor parameters per tool_id. Add ENTITY_CONFIGS for 'tool_life_parameters' in BusinessStore.ts"},
+            {"number": 8, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 9, "instruction": "Write a unit test: supply 10 synthetic Weibull(beta=2.5, eta=300) observations. Call recordToolReplacement 10 times. Assert the fitted beta_hat is within 0.3 of 2.5 and eta_hat is within 30 minutes of 300 (MLE convergence tolerance for small n)"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/StochasticToolLifeEngine.ts", "type": "source", "description": "recordToolReplacement() stores observation, runs Weibull MLE and Taylor log-linear regression, persists updated parameters per tool_id"},
+            {"path": "src/engines/TimeClockEngine.ts", "type": "source", "description": "Tool replacement event triggers stochasticToolLifeEngine.recordToolReplacement() (or ToolUsageEngine if that is where replacements are tracked)"}
+          ],
+          "exit_conditions": [
+            "Tool replacement events call stochasticToolLifeEngine.recordToolReplacement() with actual life data",
+            "Weibull MLE converges (Newton-Raphson, max 50 iterations, 1e-6 threshold); updates beta and eta per tool",
+            "Taylor log-linear regression recalculates n and C from all observations",
+            "Parameters persisted across restarts",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/StochasticToolLifeEngine.ts",
+            "src/engines/TimeClockEngine.ts",
+            "src/physics/constants.ts (Taylor constants for reference values)"
+          ],
+          "abort_criteria": [
+            "StochasticToolLifeEngine uses pre-loaded Weibull tables with no runtime update path — add a tool_life_override Map that takes precedence over table lookups for tools with >= 3 observations",
+            "Newton-Raphson diverges for small n (<3 observations) — fall back to method of moments: beta_mom = 1.2 / CV where CV = std/mean, eta_mom = mean / Γ(1 + 1/beta_mom)"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/StochasticToolLifeEngine.ts", "src/engines/TimeClockEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/StochasticToolLifeEngine.ts src/engines/TimeClockEngine.ts src/db/BusinessStore.ts"
+          }
+        },
+        {
+          "id": "U-BIZ55",
+          "title": "Cycle Time → Schedule Estimate Update (SYNC-10)",
+          "phase": "BIZ-MS6-P2",
+          "sequence": 3,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 65,
+          "dependencies": ["U-BIZ53"],
+          "steps": [
+            {"number": 1, "instruction": "Read JobLifecycleEngine.ts — in _onJobComplete(), identify how routing_steps are stored on the job and whether actual_time_per_step is tracked. Check if TimeClockEngine job entries have per-step time breakdowns or only total time"},
+            {"number": 2, "instruction": "For each routing step on the completed job, retrieve actual_time_min from the job's time tracking records. If only total time is available, distribute proportionally by estimated_time: actual_step_time = total_actual_time * (step.estimated_time / sum_estimated_times)"},
+            {"number": 3, "instruction": "Apply exponential smoothing to update the routing step estimate: step.estimated_time_min = 0.8 * step.estimated_time_min + 0.2 * actual_step_time_min. Use alpha=0.2 as specified. Do not update if actual_step_time_min <= 0 or is clearly an outlier (> 5x current estimate)"},
+            {"number": 4, "instruction": "Write back the updated routing step times to a routing_estimates store. Add a getRoutingEstimate(part_number, step_index) method that future job creation calls can use to pre-populate estimated_hours"},
+            {"number": 5, "instruction": "Persist the routing_estimates Map. Add ENTITY_CONFIGS in BusinessStore.ts for 'routing_estimates'"},
+            {"number": 6, "instruction": "Wire job creation (U-BIZ47) to call getRoutingEstimate() instead of using raw step.cycle_time when an estimate exists — if no stored estimate, fall back to step.cycle_time"},
+            {"number": 7, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 8, "instruction": "Write a unit test: seed a routing estimate at 60 min. Record 5 jobs with actual time 50 min each. Assert estimate converges: 60→58→56.4→55.1→54.1→53.3 (approx). Verify final estimate < 54 min after 5 iterations"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/JobLifecycleEngine.ts", "type": "source", "description": "_onJobComplete() updates routing_estimates via exponential smoothing α=0.2 per step; createJob() reads updated estimates from routing_estimates store"}
+          ],
+          "exit_conditions": [
+            "Every completed job updates routing step estimates via: Ê(t+1) = 0.8 × Ê(t) + 0.2 × actual",
+            "Outlier guard: actual > 5x estimate is skipped with a warning log",
+            "getRoutingEstimate() returns smoothed estimate when available; falls back to step.cycle_time when not",
+            "Routing estimates persist across restarts",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "src/engines/JobLifecycleEngine.ts",
+            "src/db/BusinessStore.ts"
+          ],
+          "abort_criteria": [
+            "Routing steps have no step_index or unique key — use step.operation_code or step.machine_type + step.sequence as composite key for the estimates Map"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": ["src/engines/JobLifecycleEngine.ts", "src/db/BusinessStore.ts"],
+            "procedure": "git checkout -- src/engines/JobLifecycleEngine.ts src/db/BusinessStore.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Math correctness: exponential smoothing alpha=0.2 formula verified with numeric trace",
+        "Weibull MLE Newton-Raphson convergence tested with synthetic observations",
+        "Taylor log-linear regression: ln(V) vs ln(T) least-squares verified",
+        "Outlier handling: 5x guard on cycle time, minimum observation count on Weibull MLE"
+      ]
+    },
+    {
+      "id": "BIZ-MS6-P3",
+      "title": "Infrastructure — Event Bus + Projection Engines",
+      "description": "Create BusinessSyncEngine as a central publish/subscribe event bus that all 10 sync points can fire through, ensuring they survive refactoring of direct imports. Create CashFlowProjectionEngine for rolling 30/60/90-day AR+AP cash projection. Create BurdenRateEngine for machine burden rates calculated from GL actuals.",
+      "sessions": "2",
+      "primary_role": "R2",
+      "primary_model": "sonnet-4-6",
+      "units": [
+        {
+          "id": "U-BIZ56",
+          "title": "Create BusinessSyncEngine — Central Event Bus",
+          "phase": "BIZ-MS6-P3",
+          "sequence": 1,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 90,
+          "dependencies": ["U-BIZ52"],
+          "steps": [
+            {"number": 1, "instruction": "Check ENGINE_DIGEST.md for any existing event bus or pub/sub engine before creating a new one. If none, proceed"},
+            {"number": 2, "instruction": "Create src/engines/BusinessSyncEngine.ts. Define the BusinessEvent union type covering all 9 event shapes: QuoteAcceptedEvent, OrderCreatedEvent, JobCreatedEvent, JobCompletedEvent, PaymentReceivedEvent, ScrapRecordedEvent, ToolReplacedEvent, PmDueEvent, StockLowEvent. Each event has: type (string literal), payload (typed object), timestamp (ISO string), source_engine (string)"},
+            {"number": 3, "instruction": "Implement BusinessSyncEngine class with: private handlers: Map<string, Array<(event: BusinessEvent) => Promise<void>>>. Method subscribe(eventType: string, handler): unsubscribe function. Method publish(event: BusinessEvent): Promise<void> — calls all registered handlers for event.type in parallel via Promise.all(), catches individual handler errors and logs them without throwing"},
+            {"number": 4, "instruction": "Add publishSync(event) method that calls handlers sequentially (await each) for events that require ordered processing (e.g., invoice before GL post)"},
+            {"number": 5, "instruction": "Add an event log: last 1000 events stored in a circular buffer for auditability. Method getEventLog(eventType?: string, limit?: number): BusinessEvent[]"},
+            {"number": 6, "instruction": "Export singleton: export const businessSyncEngine = new BusinessSyncEngine()"},
+            {"number": 7, "instruction": "Wire existing sync points from P1/P2 to also publish via businessSyncEngine: in QuoteRevisionEngine, after createOrder() succeeds, call businessSyncEngine.publish({ type: 'quote_accepted', payload: { quote_id, order_id }, ... }). Repeat for order_created, job_created, job_completed, payment_received, scrap_recorded"},
+            {"number": 8, "instruction": "In StochasticToolLifeEngine (U-BIZ54), subscribe to 'tool_replaced' events to trigger recordToolReplacement() — this decouples the tool life update from direct imports"},
+            {"number": 9, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 10, "instruction": "Write a unit test: publish a 'quote_accepted' event, assert the registered handler is called with correct payload. Publish 3 events of different types, assert getEventLog() returns all 3 in order"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/BusinessSyncEngine.ts", "type": "source", "description": "NEW — publish/subscribe event bus for 9 business lifecycle events; circular event log (1000 entries); parallel and sequential publish modes; singleton export"}
+          ],
+          "exit_conditions": [
+            "BusinessSyncEngine.ts exists with subscribe(), publish(), publishSync(), getEventLog() methods",
+            "All 9 event types defined: quote_accepted, order_created, job_created, job_completed, payment_received, scrap_recorded, tool_replaced, pm_due, stock_low",
+            "Handler errors are caught and logged without throwing from publish()",
+            "All 10 sync points (from P1 and P2) also publish events through the bus",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "ENGINE_DIGEST.md (check for existing event bus)",
+            "src/engines/QuoteRevisionEngine.ts (U-BIZ46 result)",
+            "src/engines/JobLifecycleEngine.ts (U-BIZ47/48/49/51/53/55 result)",
+            "src/engines/InvoicingEngine.ts (U-BIZ52 result)"
+          ],
+          "abort_criteria": [
+            "ENGINE_DIGEST.md shows an existing event bus engine — use it instead of creating a new one; add missing event types and the 9 business event shapes to it"
+          ],
+          "rollback": {
+            "files_created": ["src/engines/BusinessSyncEngine.ts"],
+            "files_modified": ["src/engines/QuoteRevisionEngine.ts", "src/engines/OrderManagerEngine.ts", "src/engines/JobLifecycleEngine.ts", "src/engines/InvoicingEngine.ts", "src/engines/TimeClockEngine.ts", "src/engines/StochasticToolLifeEngine.ts"],
+            "procedure": "git rm src/engines/BusinessSyncEngine.ts && git checkout -- src/engines/QuoteRevisionEngine.ts src/engines/OrderManagerEngine.ts src/engines/JobLifecycleEngine.ts src/engines/InvoicingEngine.ts src/engines/TimeClockEngine.ts src/engines/StochasticToolLifeEngine.ts"
+          }
+        },
+        {
+          "id": "U-BIZ57",
+          "title": "Create CashFlowProjectionEngine + BurdenRateEngine",
+          "phase": "BIZ-MS6-P3",
+          "sequence": 2,
+          "role": "R2",
+          "role_name": "Builder",
+          "model": "sonnet-4-6",
+          "effort": 95,
+          "dependencies": ["U-BIZ52"],
+          "steps": [
+            {"number": 1, "instruction": "Check ENGINE_DIGEST.md for any existing cash flow or burden rate engine before creating new ones"},
+            {"number": 2, "instruction": "Create src/engines/CashFlowProjectionEngine.ts. Core data sources: AR (from InvoicingEngine.getOpenInvoices()), AP (from PurchaseOrderEngine.getOpenPOs()), scheduled payroll (from PayrollEngine.getNextPayrollDate() and total amount), scheduled POs. Method: project(horizon_days: 30 | 60 | 90): CashFlowProjection"},
+            {"number": 3, "instruction": "CashFlowProjection type: { as_of: string; opening_balance: number; daily_buckets: DailyBucket[]; summary_30: PeriodSummary; summary_60: PeriodSummary; summary_90: PeriodSummary }. DailyBucket: { date: string; inflows: CashFlowLine[]; outflows: CashFlowLine[]; net: number; running_balance: number }. CashFlowLine: { source: string; amount: number; category: 'ar' | 'ap' | 'payroll' | 'po' | 'other' }"},
+            {"number": 4, "instruction": "Implement the projection formula: for each day d from 0 to horizon_days, Net(d) = Σ(inflows scheduled on day d) - Σ(outflows scheduled on day d). running_balance(d) = opening_balance + Σ(Net(0..d)). AR inflows use invoice.due_date as the expected collection date. AP outflows use po.due_date. Payroll outflows use next_payroll_date + every 14 days thereafter"},
+            {"number": 5, "instruction": "PeriodSummary: { total_inflows, total_outflows, net_cash_flow, ending_balance, lowest_balance_date, lowest_balance_amount }. Flag periods where lowest_balance_amount < 0 with risk_flag: true"},
+            {"number": 6, "instruction": "Export singleton: export const cashFlowProjectionEngine = new CashFlowProjectionEngine(). Register with PersistenceBridge for last_projection cache"},
+            {"number": 7, "instruction": "Create src/engines/BurdenRateEngine.ts. Data source: GeneralLedgerEngine.getAccountActivity(account_ids, period). Target accounts for burden: depreciation (account 6100), maintenance (account 6200), utilities (account 6300), insurance (account 6400). Machine available hours from MachineRegistry or CapacityPlanningEngine"},
+            {"number": 8, "instruction": "Method calculateBurdenRate(machine_id: string, period_months: number = 3): BurdenRateResult. BurdenRateResult: { machine_id, period_start, period_end, depreciation, maintenance, utilities, insurance, total_burden_cost, available_hours, burden_rate_per_hour: number, confidence: 'actual' | 'estimated' }"},
+            {"number": 9, "instruction": "Formula: burden_rate_per_hour = (depreciation + maintenance + utilities + insurance) / available_hours. Where available_hours = machine.shift_hours_per_day * working_days_in_period. If GL has no entries for a cost category, use 0 and set confidence = 'estimated'"},
+            {"number": 10, "instruction": "Export singleton: export const burdenRateEngine = new BurdenRateEngine(). Add getAll() to return burden rates for all machines. Add dispatcher action 'burden_rate_get' to businessDispatcher.ts routing to burdenRateEngine.calculateBurdenRate()"},
+            {"number": 11, "instruction": "Run npm run build:fast and verify 0 errors"},
+            {"number": 12, "instruction": "Write unit tests: (a) CashFlowProjection: seed 3 open invoices due in 10/20/30 days and 2 POs due in 5/15 days. Project 30 days. Assert running_balance on day 5 decreased by PO amount, increased on days 10/20/30. (b) BurdenRate: seed GL with depreciation=$2000/month, maintenance=$500/month, utilities=$300/month, insurance=$200/month, available_hours=160. Assert burden_rate = $3000/160 = $18.75/hr"}
+          ],
+          "deliverables": [
+            {"path": "src/engines/CashFlowProjectionEngine.ts", "type": "source", "description": "NEW — rolling 30/60/90-day cash flow projection from AR + AP + payroll + POs; daily bucket model; negative balance risk flags"},
+            {"path": "src/engines/BurdenRateEngine.ts", "type": "source", "description": "NEW — machine burden rate from GL actuals (depreciation + maintenance + utilities + insurance) / available_hours; confidence flag when GL data is sparse"},
+            {"path": "src/tools/dispatchers/businessDispatcher.ts", "type": "source", "description": "Added 'burden_rate_get' and 'cash_flow_project' actions routing to the new engines"}
+          ],
+          "exit_conditions": [
+            "CashFlowProjectionEngine.project(30|60|90) returns daily buckets with running_balance, inflows/outflows by category, and PeriodSummary with risk_flag when balance goes negative",
+            "BurdenRateEngine.calculateBurdenRate() returns burden_rate_per_hour = total_overhead / available_hours from GL actuals",
+            "burden_rate confidence = 'actual' only when all 4 cost accounts have GL entries in the period",
+            "businessDispatcher.ts has 'burden_rate_get' and 'cash_flow_project' actions",
+            "npm run build:fast produces 0 errors"
+          ],
+          "knowledge_sources": [
+            "ENGINE_DIGEST.md (check for existing cash flow / burden engine first)",
+            "src/engines/GeneralLedgerEngine.ts (U-BIZ51/52 result)",
+            "src/engines/InvoicingEngine.ts",
+            "src/engines/PurchaseOrderEngine.ts",
+            "src/engines/PayrollEngine.ts",
+            "src/tools/dispatchers/businessDispatcher.ts",
+            "src/registries/MachineRegistry.ts"
+          ],
+          "abort_criteria": [
+            "ENGINE_DIGEST.md shows existing CashFlowEngine — enhance it rather than creating a new engine",
+            "GeneralLedgerEngine has no getAccountActivity() — add it as a method that filters the GL transaction log by account_id and date range"
+          ],
+          "rollback": {
+            "files_created": ["src/engines/CashFlowProjectionEngine.ts", "src/engines/BurdenRateEngine.ts"],
+            "files_modified": ["src/tools/dispatchers/businessDispatcher.ts"],
+            "procedure": "git rm src/engines/CashFlowProjectionEngine.ts src/engines/BurdenRateEngine.ts && git checkout -- src/tools/dispatchers/businessDispatcher.ts"
+          }
+        }
+      ],
+      "gate": {
+        "omega_floor": 1.0,
+        "safety_floor": 1.0,
+        "test_required": true,
+        "build_required": true,
+        "anti_regression": true,
+        "checkpoint": true,
+        "learning_save": true
+      },
+      "scrutiny_checkpoint": true,
+      "scrutiny_focus": [
+        "Duplicate prevention: ENGINE_DIGEST.md checked before creating BusinessSyncEngine, CashFlowProjectionEngine, BurdenRateEngine",
+        "Event bus: handler errors isolated, publish() never throws from subscriber failures",
+        "Cash flow math: Net(d) = Σinflows(d) - Σoutflows(d); running_balance is a cumulative sum",
+        "Burden rate math: Rate = total_overhead / available_hours; confidence flag when data is sparse"
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "BIZ-MS0",
+      "title": "Persistence & Data Model Hardening",
+      "reason": "All 15 business engines must be wired to PersistenceBridge before sync transitions can be reliable — data written in one engine must survive restart to be read by another engine"
+    }
+  ],
+  "exit_conditions": [
+    "All 7 direct sync transitions fire automatically: quote→order, order→job, job→PO (if shortage), job→schedule, scrap→cost adjustment, job-complete→invoice+GL, payment→GL",
+    "All 3 feedback loops run on job completion: actual costs calibrate quote estimates (α=0.2), tool replacement data updates Weibull MLE + Taylor regression, actual cycle times update routing estimates (α=0.2)",
+    "BusinessSyncEngine event bus publishes all 10 sync events with typed payloads",
+    "CashFlowProjectionEngine.project() returns 30/60/90-day daily bucket projection with risk flags",
+    "BurdenRateEngine.calculateBurdenRate() returns GL-sourced overhead / available_hours",
+    "GL trial balance remains balanced to penny after every invoice and payment post",
+    "Invoice total = actual_cost × (1 + markup_rate); gross_margin = (revenue - COGS) / revenue computed",
+    "EOQ = sqrt(2DS/H) used for PO quantity when auto-triggered",
+    "Weibull MLE: Newton-Raphson convergence verified; fallback to method-of-moments for n < 3",
+    "Exponential smoothing α=0.2 used in both quote calibration and cycle time update",
+    "npm run build:fast produces 0 errors",
+    "npx vitest run shows no regressions from existing tests"
+  ],
+  "forge_triple": {
+    "hook": "biz-sync-guard — warns when any of the 7 trigger methods (changeStatus, createOrder, createJob, jobStop, _onJobComplete, recordPayment) are modified without a corresponding test update, blocking commit until a sync integration test is added or confirmed existing",
+    "action": "prism_business:biz_sync_status — reports the health of all 10 sync points: which are wired, last successful fire timestamp per sync, any sync points that fired but downstream raised an error in the last 24 hours",
+    "skill": "/biz-sync-health — live dashboard of business lifecycle sync state: shows quote→order→job→invoice→payment chain for any quote_id, highlights broken links, reports calibration factor drift per cost category, shows Weibull beta/eta per tool, shows routing estimate convergence per part"
+  },
+  "enforcement": {
+    "pre_hooks": ["search-router-hook.mjs", "navigate-first-hook.mjs", "copilot-dedup-hook.mjs"],
+    "post_hooks": ["build-guard-hook.mjs", "token-economy-hook.mjs"],
+    "review_required": true
+  }
+}

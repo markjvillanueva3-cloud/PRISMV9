@@ -1,0 +1,31 @@
+{
+  "id": "PROBING-AI",
+  "title": "Probing AI — Touch Probe & Inspection Intelligence",
+  "track": "CAM",
+  "status": "complete",
+  "completed_at": "2026-04-15",
+  "total_units": 1,
+  "completed_units": 1,
+  "units": [
+    {
+      "id": "PROBING-AI-U1",
+      "title": "16 Probing AI domains with Claude Opus prompts",
+      "status": "complete",
+      "files_modified": ["src/engines/PRISMIntelligenceLayer.ts"],
+      "details": "Added 16 PROBING-AI domains: probe_calibration (probe qualification), probe_datum_setting (WCS establishment), probe_part_setup (part alignment), probe_feature_measure (bore/boss/web), probe_surface_measure (surface probing), probe_tool_setting (TLS length/diameter), probe_tool_breakage (breakage detection), probe_compensation (auto work offset), probe_spc_integration (SPC data collection), probe_adaptive_machining (adaptive from probe), probe_cycle_selection (O9xxx selection), probe_renishaw (Renishaw-specific), probe_blum (Blum-specific), probe_macro_programming (probing macros), probe_error_handling (error recovery), probe_reporting (results output)"
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 32,
+    "new_domains_registered": 16,
+    "domain_prompts_created": 16,
+    "tribal_synthesis_enabled": true,
+    "probing_cycles_covered": 90
+  },
+  "resources_utilized": {
+    "renishaw_cycles": "90+ Renishaw O9xxx probing cycles",
+    "inspection_posts": "Inspection Plus post processors",
+    "probe_brands": ["Renishaw", "Blum", "Heidenhain TS", "Marposs"]
+  },
+  "summary": "Complete probing AI intelligence with 16 domains covering probe calibration, datum setting, part setup, feature/surface measurement, tool setting, breakage detection, work offset compensation, SPC integration, adaptive machining, cycle selection, Renishaw/Blum specifics, macro programming, error handling, and reporting. Deep expertise from 90+ Renishaw cycles and inspection posts."
+}

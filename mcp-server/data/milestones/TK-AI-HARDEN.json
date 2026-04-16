@@ -1,0 +1,70 @@
+{
+  "id": "TK-AI-HARDEN",
+  "title": "Tribal Knowledge AI Reasoning Hardening",
+  "track": "TK",
+  "status": "complete",
+  "completed_at": "2026-04-14",
+  "total_units": 5,
+  "completed_units": 5,
+  "units": [
+    {
+      "id": "TK-AI-U1",
+      "title": "LLMEngine tribal context type",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/LLMEngine.ts"
+      ],
+      "details": "Added 'tribal' to ContextChunk type union. Enables tribal knowledge to be injected as AI context."
+    },
+    {
+      "id": "TK-AI-U2",
+      "title": "ProcessAdvice tribal knowledge integration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/LLMEngine.ts"
+      ],
+      "details": "Updated processAdvice() to call masterMachinistRecommend() and populate tribal_knowledge[] with senior machinist tips. Lazy imports TribalKnowledgeEngine to avoid circular deps."
+    },
+    {
+      "id": "TK-AI-U3",
+      "title": "Tribal context provider registration",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/LLMEngine.ts"
+      ],
+      "details": "Added registerTribalContextProvider() function that registers a context provider pulling top 10 high-confidence tips. Auto-registered on module load (non-blocking)."
+    },
+    {
+      "id": "TK-AI-U4",
+      "title": "TK-AI hardening test suite",
+      "status": "complete",
+      "files_created": [
+        "src/__tests__/tk-ai-hardening.test.ts"
+      ],
+      "details": "12 tests covering: tribal context provider, processAdvice tribal integration, Master Machinist AI reasoning, PUOA tribal synthesis, and AI learning loop capture."
+    },
+    {
+      "id": "TK-AI-U5",
+      "title": "PRISMIntelligenceLayer tribal synthesis",
+      "status": "complete",
+      "files_modified": [
+        "src/engines/PRISMIntelligenceLayer.ts",
+        "src/__tests__/tk-ai-hardening.test.ts"
+      ],
+      "details": "Added getTribalSynthesis() method and wired into reason() for manufacturing domains. Tribal knowledge now injected into prism_ai reason, speed_feed, tool_select, sequence, strategy, etc. 3 additional tests added."
+    }
+  ],
+  "exit_gate": {
+    "tests_passing": 15,
+    "tribal_context_registered": true,
+    "process_advice_populates_tribal": true,
+    "puoa_synthesis_functional": true
+  },
+  "integration_points": {
+    "LLMEngine": "Tribal context type + registerTribalContextProvider + processAdvice tribal injection",
+    "TribalKnowledgeEngine": "masterMachinistRecommend for AI-ready tips, captureFromLLMReasoning for learning loop",
+    "PRISMUnifiedOrchestratorEngine": "synthesizeTribalForTask for PUOA task execution, queryTribalKnowledge for NL access",
+    "PRISMIntelligenceLayer": "getTribalSynthesis + buildUserPrompt tribal context injection for 11 manufacturing domains"
+  },
+  "summary": "Hardened tribal knowledge integration with PRISM AI/LLM systems. LLMEngine now includes tribal knowledge as context type and auto-injects Master Machinist recommendations. PRISMIntelligenceLayer.reason() now injects tribal synthesis for all manufacturing domains (speed_feed, tool_select, sequence, strategy, etc.). PUOA tribal synthesis validated for task execution. 15 tests covering all integration points."
+}

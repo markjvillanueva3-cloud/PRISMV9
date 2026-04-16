@@ -1,0 +1,445 @@
+{
+  "milestone_id": "PPG-VARIABILITY-SWEEP-MS0",
+  "title": "Full Machine Variability Sweep — Every Machine × Material × Tool × Holder × Fixture × Controller",
+  "description": "Comprehensive testing of ALL 15 shop-floor machines with maximum variability. Tests every combination of material ISO groups, cutting tools, tool holders, fixtures, controller features, and print/program references. Organized by machine type: lathes first, then mills, sinker EDMs, wire EDMs. This milestone is now explicitly the JM Die proving-ground envelope for validating PRISM against a real shop.",
+  "status": "not_started",
+  "updated_at": "2026-04-10T21:05:50.0294546-05:00",
+  "notes": "JM Die is the canonical PRISM development and test shop. Do not start broad variability execution until the JM Die company profile plus machine, controller, holder, tooling, material, and print/program master data have been seeded from H:/PRISM/JM DIE and published through MCAT-MS0 and APPW machine-workspace surfaces.",
+  "canonical_company_profile": {
+    "name": "JM Die",
+    "role": "Primary proving ground for full-shop variability validation",
+    "shop_root": "H:/PRISM/JM DIE",
+    "company_root": "H:/PRISM/JM DIE/JM DIE COMPANY"
+  },
+  "source_of_truth_paths": [
+    "H:/PRISM/JM DIE/CNC LATHE",
+    "H:/PRISM/JM DIE/WIRE EDM",
+    "H:/PRISM/JM DIE/ROKU-ROKU",
+    "H:/PRISM/JM DIE/JM DIE COMPANY"
+  ],
+  "prerequisites": [
+    "MCAT-MS0 publishes JM Die-backed machine, controller, holder, tooling, material, and print/program master data",
+    "APPW-MS8 U-APPW41/U-APPW41A expose routed machine workspaces and selector authority against that same JM Die truth",
+    "EMP-MS0 seeds the JM Die employee and certification system of record for operator-facing validation where required"
+  ],
+  "total_units": 62,
+  "total_sessions": 15,
+  "machines_tested": 15,
+  "variability_targets": {
+    "materials": "1047+ across P/M/K/N/S/H/O",
+    "tools": "500+ from 45 catalogs",
+    "holders": "80+ types across 12 standards",
+    "controllers": "7 families (Okuma OSP, Haas NGC, Hurco WinMax, Fanuc 31i, Mitsubishi EDM)",
+    "fixtures": "Chucks, collets, vises, tombstones, vacuum, magnetic",
+    "prints": "JM Die print/program corpus spanning CNC LATHE, WIRE EDM, ROKU-ROKU, and JM DIE COMPANY assets"
+  },
+
+  "sessions": {
+    "LATHE-L1": {
+      "title": "Okuma Genos L300-M (OSP-P300L-R) — Live Tooling Lathe",
+      "machine": "Okuma Genos L300-M",
+      "controller": "OSP-P300L-R",
+      "type": "lathe_live_tooling",
+      "units": [
+        {
+          "id": "VS-L1-U01",
+          "title": "Machine profile + controller registration",
+          "description": "Register Genos L300-M: max RPM 5000, 25HP spindle, 10-inch chuck, 12-station turret, live tooling C-axis. OSP-P300L-R controller with G/M codes, macro variables, rigid tapping. Create machine-handbook JSON if missing."
+        },
+        {
+          "id": "VS-L1-U02",
+          "title": "Material sweep — all ISO groups for turning",
+          "description": "Test S/F calculation for L300-M across: P steels (1018, 4140, 4340, 8620, 1045, D2, H13, A2), M stainless (304, 316, 17-4PH, 15-5PH), K cast iron (GG25, GG30, ductile), N non-ferrous (6061, 7075, 2024, brass C360, copper), S superalloys (IN718, IN625, Ti-6Al-4V, Hastelloy, Waspaloy), H hardened (>45HRC). Verify kc1.1, mc, Vc, force, power for each."
+        },
+        {
+          "id": "VS-L1-U03",
+          "title": "Turning tool sweep — OD/ID/face/groove/thread/part-off",
+          "description": "Test all turning tool types: CNMG/WNMG/DNMG inserts for OD, boring bars for ID (S20S-MCLNR, A16R-SCLCR), face grooving (KGDF/KGDR), cut-off (N151.2), threading (266RG), knurling. Verify insert grade selection per material. Test with Sandvik, Kennametal, Iscar, Tungaloy holders."
+        },
+        {
+          "id": "VS-L1-U04",
+          "title": "Live tooling sweep — milling/drilling on C-axis",
+          "description": "Test live tooling: endmills (6-16mm), drills (3-12mm), taps (M4-M12), cross-drilling, keyway milling. Verify C-axis positioning, Y-axis if available. Test ER32 collet holders for live tools."
+        },
+        {
+          "id": "VS-L1-U05",
+          "title": "Fixture sweep — chucks, collets, steady rests",
+          "description": "Test workholding: 3-jaw chuck (OD grip, ID grip), collet chucks (5C, 16C, 65mm), steady rest (follower, fixed), live center tailstock, face driver. Verify jaw pressure, clamping force vs material."
+        }
+      ]
+    },
+
+    "LATHE-L2": {
+      "title": "Okuma Genos L200E-M (OSP-P200LA-R) — Economy Live Tooling",
+      "machine": "Okuma Genos L200E-M",
+      "controller": "OSP-P200LA-R",
+      "type": "lathe_live_tooling",
+      "units": [
+        {
+          "id": "VS-L2-U01",
+          "title": "Machine profile + controller registration",
+          "description": "Register Genos L200E-M: compact footprint, 8-inch chuck, 12-station turret, live tooling. OSP-P200LA-R controller. Create machine-handbook JSON. Compare capabilities vs L300-M."
+        },
+        {
+          "id": "VS-L2-U02",
+          "title": "Material + tool sweep (P/M/N groups)",
+          "description": "Focus on production turning materials: P steels (1018, 4140, 1045), M stainless (304, 316), N aluminum (6061, 7075). Test CNMG/WNMG inserts, boring bars, threading. Verify power limits vs L300-M."
+        },
+        {
+          "id": "VS-L2-U03",
+          "title": "Economy vs performance comparison",
+          "description": "Compare L200E-M vs L300-M for same part/material combos. Verify spindle power derating, max RPM limits, turret station restrictions. Document capability gaps."
+        }
+      ]
+    },
+
+    "LATHE-L3": {
+      "title": "Okuma LNC8 — CNC Lathe Fundamentals",
+      "machine": "Okuma LNC8",
+      "controller": "Okuma LNC",
+      "type": "lathe_2_axis",
+      "units": [
+        {
+          "id": "VS-L3-U01",
+          "title": "Machine profile + legacy controller registration",
+          "description": "Register LNC8: older Okuma lathe, 2-axis only, no live tooling. LNC controller (older generation). Create machine-handbook JSON. Document controller limitations vs modern OSP."
+        },
+        {
+          "id": "VS-L3-U02",
+          "title": "Material + tool sweep — turning only",
+          "description": "Test pure turning operations: OD roughing/finishing, ID boring, facing, grooving, threading, parting. Materials: 1018, 4140, 304, 6061, brass. Verify older controller G-code format differences."
+        }
+      ]
+    },
+
+    "LATHE-L4": {
+      "title": "Okuma Crown L1060 (OSP-U10L) — Legacy Precision Lathe",
+      "machine": "Okuma Crown L1060",
+      "controller": "OSP-U10L",
+      "type": "lathe_2_axis",
+      "units": [
+        {
+          "id": "VS-L4-U01",
+          "title": "Machine profile + OSP-U10L controller registration",
+          "description": "Register Crown L1060: precision lathe, OSP-U10L (older OSP generation). Document max RPM, spindle power, chuck size, bar capacity. Create machine-handbook JSON."
+        },
+        {
+          "id": "VS-L4-U02",
+          "title": "Precision turning sweep — finishing passes",
+          "description": "Focus on finish turning: tight tolerances, Ra <1.6um surface finish. Materials: 4140 QT, 304, 6061-T6. Tools: VBMT/DCMT finishing inserts, wiper inserts. Verify S/F for finishing vs roughing."
+        }
+      ]
+    },
+
+    "LATHE-L5": {
+      "title": "Okuma Genos L400II-E (OSP-P300LA-E) — Heavy-Duty Lathe",
+      "machine": "Okuma Genos L400II-E",
+      "controller": "OSP-P300LA-E",
+      "type": "lathe_2_axis",
+      "units": [
+        {
+          "id": "VS-L5-U01",
+          "title": "Machine profile + controller registration",
+          "description": "Register Genos L400II-E: heavy-duty, large swing/bar capacity, OSP-P300LA-E. Document max turning diameter, spindle bore, turret stations. Create machine-handbook JSON."
+        },
+        {
+          "id": "VS-L5-U02",
+          "title": "Heavy roughing sweep — large diameter, deep cuts",
+          "description": "Test heavy material removal: large bar stock (2-6 inch), deep DoC (3-8mm), high feed roughing. Materials: 4140, 4340, 1045, ductile iron. Tools: CNMG 432/542 for heavy roughing. Verify power consumption vs spindle limits."
+        },
+        {
+          "id": "VS-L5-U03",
+          "title": "Large part fixture sweep",
+          "description": "Test workholding for large parts: 12+ inch chuck, soft jaws, face plates, between-centers. Verify steady rest requirements for long shafts. Test tailstock force calculations."
+        }
+      ]
+    },
+
+    "LATHE-L6": {
+      "title": "Okuma LB 3000EX Big Bore Static (OSP P500) — Production Lathe",
+      "machine": "Okuma LB 3000EX Big Bore",
+      "controller": "OSP-P500",
+      "type": "lathe_2_axis",
+      "units": [
+        {
+          "id": "VS-L6-U01",
+          "title": "Machine profile + OSP P500 controller registration",
+          "description": "Register LB 3000EX Big Bore Static: big bore spindle (4+ inch), static tools only, OSP P500 (latest generation). Document max RPM at different chuck sizes, spindle power curve, bar capacity."
+        },
+        {
+          "id": "VS-L6-U02",
+          "title": "Big bore material sweep — tubes, pipes, large ID work",
+          "description": "Test big bore applications: tube turning (1-4 inch ID), pipe threading, large ID boring. Materials: 1018 DOM tubing, 4130 chrome-moly, 304 SS tubing, 6061 tubing. Verify ID tooling reach and clearance."
+        },
+        {
+          "id": "VS-L6-U03",
+          "title": "OSP P500 advanced features",
+          "description": "Test OSP P500 controller features: thermal compensation, collision avoidance, tool life management, adaptive feed control. Compare vs older OSP generations (P300, U10L)."
+        }
+      ]
+    },
+
+    "LATHE-L7": {
+      "title": "Okuma Multus B250II (OSP-P300SA) — Mill-Turn Multi-Axis",
+      "machine": "Okuma Multus B250II",
+      "controller": "OSP-P300SA",
+      "type": "mill_turn",
+      "units": [
+        {
+          "id": "VS-L7-U01",
+          "title": "Machine profile + OSP-P300SA multi-axis registration",
+          "description": "Register Multus B250II: B-axis milling head, C-axis, Y-axis, sub-spindle capable. OSP-P300SA controller. Document 5-axis simultaneous capability, ATC specs, live tool specs."
+        },
+        {
+          "id": "VS-L7-U02",
+          "title": "Full material sweep — turning + milling combos",
+          "description": "Test combined operations per material: OD turn → mill flat → drill cross hole → thread. Materials: 4140, 4340, 304, 316, Ti-6Al-4V, IN718, 6061, 7075. Verify tool change strategy and cycle time."
+        },
+        {
+          "id": "VS-L7-U03",
+          "title": "B-axis milling sweep — angular features",
+          "description": "Test B-axis: angular drilling, compound angle milling, 3+2 positioning, simultaneous 5-axis. Tools: endmills 6-20mm, drills 3-16mm, face mills. Verify RTCP/TCP positioning."
+        },
+        {
+          "id": "VS-L7-U04",
+          "title": "Multi-axis holder + fixture sweep",
+          "description": "Test: Capto C6 tooling system, ER collet holders, Sandvik turning holders, BMT65 for live tools, hydraulic chucks, soft jaws, sub-spindle gripping. Verify tool change time and holder clearance."
+        }
+      ]
+    },
+
+    "MILL-M1": {
+      "title": "Hurco VM30i (WinMax v10.3.0.11467) — Conversational/NC VMC",
+      "machine": "Hurco VM30i",
+      "controller": "WinMax v10.3.0.11467",
+      "type": "3_axis_vmc",
+      "units": [
+        {
+          "id": "VS-M1-U01",
+          "title": "Machine profile + WinMax controller registration",
+          "description": "Register VM30i: 12000 RPM, 25HP, CAT40, 30x16x20 travel, 24-pocket ATC, WinMax v10.3.0.11467 conversational + NC. Create machine-handbook JSON with exact specs."
+        },
+        {
+          "id": "VS-M1-U02",
+          "title": "Full material sweep — all ISO groups for milling",
+          "description": "Test S/F for all materials: P steels (1018-D2 range), M stainless (304, 316, 17-4), K cast iron (GG25, ductile), N aluminum (6061, 7075, brass), S superalloys (Ti-6Al-4V, IN718), H hardened (>45HRC). Verify force/power vs 25HP limit."
+        },
+        {
+          "id": "VS-M1-U03",
+          "title": "Tool sweep — endmills, drills, taps, face mills",
+          "description": "Test all milling tool types: flat endmills (3-25mm), ball endmills (6-16mm), bull nose (8-20mm), drills (1-25mm), taps (M3-M20), reamers, face mills (50-80mm), chamfer mills. Test carbide, HSS, indexable. Verify chip thinning, HEM speed boost."
+        },
+        {
+          "id": "VS-M1-U04",
+          "title": "Holder sweep — CAT40 packages",
+          "description": "Test all CAT40 holder types: shrink fit (HAIMER), hydraulic (Schunk TENDO), collet (ER32/ER40), side-lock, Weldon, shell mill arbor. Compare TIR, stiffness, speed derating per holder. Test with BIG KAISER, Kennametal, REGO-FIX brands."
+        },
+        {
+          "id": "VS-M1-U05",
+          "title": "Fixture sweep — vises, clamps, plates",
+          "description": "Test workholding: Kurt DX6 vise, Orange Vise, 5-axis fixture plate, t-slot clamping, vacuum table, magnetic chuck. Verify clamping force, part accessibility, chip evacuation."
+        }
+      ]
+    },
+
+    "MILL-M2": {
+      "title": "Okuma Genos M460V-5AX (OSP P300MA-H) — 5-Axis VMC",
+      "machine": "Okuma Genos M460V-5AX",
+      "controller": "OSP P300MA-H",
+      "type": "5_axis_trunnion",
+      "units": [
+        {
+          "id": "VS-M2-U01",
+          "title": "Machine profile + OSP P300MA-H 5-axis registration",
+          "description": "Register Genos M460V-5AX: trunnion table (A/C axes), 15000 RPM, BT40/CAT40, OSP P300MA-H. Document work envelope, tilt limits, table load capacity."
+        },
+        {
+          "id": "VS-M2-U02",
+          "title": "5-axis material + tool sweep",
+          "description": "Test 3+2 and simultaneous 5-axis across materials: aerospace (Ti-6Al-4V, IN718, 7075), medical (316L, CoCr, PEEK), mold (P20, H13, S7). Tools: ball endmills, tapered endmills, lollipop cutters, barrel cutters."
+        },
+        {
+          "id": "VS-M2-U03",
+          "title": "5-axis holder + fixture sweep",
+          "description": "Test compact holders for 5-axis clearance: HSK-A63, slim collet chucks, shrink fit, pencil-neck boring bars. Fixtures: 5-axis vises (Lang, Roemheld), tombstones, zero-point systems (Erowa, System 3R)."
+        },
+        {
+          "id": "VS-M2-U04",
+          "title": "RTCP/TCP + collision avoidance testing",
+          "description": "Test OSP P300MA-H RTCP: pivot length calibration, TCP positioning accuracy, tilted work plane G-codes. Verify collision zones, tool length compensation in tilted planes."
+        }
+      ]
+    },
+
+    "MILL-M3": {
+      "title": "Haas VF-2 (Pre-NGC) — Workhorse 3-Axis VMC",
+      "machine": "Haas VF-2",
+      "controller": "Haas Pre-NGC",
+      "type": "3_axis_vmc",
+      "units": [
+        {
+          "id": "VS-M3-U01",
+          "title": "Machine profile + Pre-NGC controller registration",
+          "description": "Register VF-2 Pre-NGC: 8100 RPM, 20HP, CAT40, 30x16x20 travel, 20-pocket ATC. Document Pre-NGC vs NGC differences: macro limits, look-ahead, surface finish settings."
+        },
+        {
+          "id": "VS-M3-U02",
+          "title": "Full material + tool sweep — production milling",
+          "description": "Test production scenarios: 4140 roughing (25mm endmill, HEM), 6061 high-speed (16mm, 3F, full slot), 304 SS (12mm, 4F, trochoidal), cast iron (face mill 63mm). Verify 8100 RPM ceiling effect on small tools."
+        },
+        {
+          "id": "VS-M3-U03",
+          "title": "Pre-NGC controller limitations + workarounds",
+          "description": "Document Pre-NGC limits: no high-speed look-ahead, limited macro variable count, G187 surface finish settings, M97/M98 subprograms. Test workaround strategies for each limitation."
+        }
+      ]
+    },
+
+    "MILL-M4": {
+      "title": "Haas OM-2 (Pre-NGC) — Office Mill / Small Parts",
+      "machine": "Haas OM-2",
+      "controller": "Haas Pre-NGC",
+      "type": "3_axis_vmc",
+      "units": [
+        {
+          "id": "VS-M4-U01",
+          "title": "Machine profile + small-part optimization",
+          "description": "Register OM-2: compact office mill, 15000 RPM, CAT40 or BT40, small work envelope. Document differences vs VF-2: higher RPM, smaller table, lower rigidity."
+        },
+        {
+          "id": "VS-M4-U02",
+          "title": "Small tool + precision material sweep",
+          "description": "Test small tools (1-10mm endmills, micro drills) on: 6061, brass, Delrin, PEEK, 304 SS. Verify high-RPM S/F calculations for small diameters. Test with ER16/ER20 collet holders."
+        },
+        {
+          "id": "VS-M4-U03",
+          "title": "Fixture sweep — small part workholding",
+          "description": "Test: precision vises (2-3 inch), collet blocks, V-blocks, vacuum plates, double-sided tape. Verify clamping force adequate for small parts without deformation."
+        }
+      ]
+    },
+
+    "MILL-M5": {
+      "title": "Roku-Roku HC 658-II (Fanuc 31i-B5 + 3R WorkPartner 1+) — Automated Cell",
+      "machine": "Roku-Roku HC 658-II",
+      "controller": "Fanuc 31i Model B5",
+      "type": "3_axis_vmc",
+      "automation": "GF+ System 3R WorkPartner 1+ Robot Cell",
+      "units": [
+        {
+          "id": "VS-M5-U01",
+          "title": "Machine profile + Fanuc 31i-B5 + robot cell registration",
+          "description": "Register HC 658-II: high-speed graphite/hardened steel VMC, Fanuc 31i-B5, mated to System 3R WorkPartner 1+ robot cell. Document pallet changer, electrode magazine, part loading automation."
+        },
+        {
+          "id": "VS-M5-U02",
+          "title": "Graphite electrode milling sweep",
+          "description": "Test graphite electrode machining: POCO EDM-3, EDM-200, Toyo Tanso. Tools: ball endmills (0.5-6mm), diamond-coated, PCD. Verify dust extraction requirements, surface finish for EDM."
+        },
+        {
+          "id": "VS-M5-U03",
+          "title": "Hardened steel milling sweep — mold/die",
+          "description": "Test hardened steel (>48 HRC): D2, H13 hardened, S7, A2. Tools: AlTiN coated carbide, CBN endmills. Verify force limits, tool life predictions, surface finish achievable."
+        },
+        {
+          "id": "VS-M5-U04",
+          "title": "Robot cell automation sweep",
+          "description": "Test System 3R integration: electrode ID tracking, pallet loading G-code (M-codes for robot), queue management, tool life + electrode wear tracking. Verify Fanuc 31i-B5 macro programming for robot handshake."
+        },
+        {
+          "id": "VS-M5-U05",
+          "title": "Fixture sweep — System 3R pallets + holders",
+          "description": "Test System 3R: MacroMagnum chuck, Macro HP pallet, reference rail, electrode holders (20mm, 50mm, macro), part pallets. Verify repeatability specs and zero-point accuracy."
+        }
+      ]
+    },
+
+    "EDM-S1": {
+      "title": "Mitsubishi EA12S (FP80S) — Sinker EDM Single-Head",
+      "machine": "Mitsubishi EA12S",
+      "controller": "FP80S",
+      "type": "sinker_edm",
+      "units": [
+        {
+          "id": "VS-S1-U01",
+          "title": "Machine profile + FP80S controller registration",
+          "description": "Register EA12S: single-head sinker EDM, FP80S controller, tank size, axis travels, max workpiece weight. Document generator specs, flushing system, electrode changer capacity."
+        },
+        {
+          "id": "VS-S1-U02",
+          "title": "Material × electrode sweep — all sinker EDM combos",
+          "description": "Test sinker EDM material combinations: copper electrodes on D2/H13/S7/A2/carbide. Graphite electrodes on same. Test rough/semi/finish conditions per combo. Verify undercut, overburn, surface finish Ra."
+        },
+        {
+          "id": "VS-S1-U03",
+          "title": "Electrode geometry + wear compensation",
+          "description": "Test electrode shapes: simple round, rectangular, complex form, thin rib. Verify orbiting parameters, electrode wear ratio, Z-axis compensation. Test multi-electrode strategies."
+        }
+      ]
+    },
+
+    "EDM-S2": {
+      "title": "Mitsubishi EA12D (C30EA-2) — Sinker EDM Dual-Head",
+      "machine": "Mitsubishi EA12D",
+      "controller": "C30EA-2",
+      "type": "sinker_edm",
+      "units": [
+        {
+          "id": "VS-S2-U01",
+          "title": "Machine profile + C30EA-2 dual-head registration",
+          "description": "Register EA12D: dual-head sinker EDM, C30EA-2 controller. Document dual-head operation modes (independent, synchronized), axis config per head."
+        },
+        {
+          "id": "VS-S2-U02",
+          "title": "Dual-head productivity sweep",
+          "description": "Test dual-head scenarios: two cavities simultaneously, rough+finish on different electrodes, parallel vs sequential. Compare cycle times vs EA12S single-head."
+        },
+        {
+          "id": "VS-S2-U03",
+          "title": "Controller comparison — C30EA-2 vs FP80S",
+          "description": "Compare C30EA-2 vs FP80S: technology database differences, power supply differences, adaptive control features, remote monitoring. Document migration path between controllers."
+        }
+      ]
+    },
+
+    "EDM-W1": {
+      "title": "Mitsubishi FA10S — Wire EDM Multi-Controller × Multi-Wire",
+      "machine": "Mitsubishi FA10S",
+      "controllers": ["W21FAS-2", "W30FAS-2", "W31MV-2"],
+      "wires": ["MD+ ProII", "MV1200S"],
+      "type": "wire_edm",
+      "units": [
+        {
+          "id": "VS-W1-U01",
+          "title": "Machine profile + 3 controller registrations",
+          "description": "Register FA10S with all 3 controllers: W21FAS-2, W30FAS-2, W31MV-2. Document differences: power supply generation, technology database version, axis speed, taper capability, submerged cutting support."
+        },
+        {
+          "id": "VS-W1-U02",
+          "title": "Wire type sweep — MD+ ProII vs MV1200S",
+          "description": "Test both wire types across same parts: MD+ ProII (standard brass, 0.010 inch), MV1200S (zinc-coated, better flushing). Compare: cutting speed, surface finish, wire break frequency, cost per hour."
+        },
+        {
+          "id": "VS-W1-U03",
+          "title": "Material × thickness sweep — full matrix",
+          "description": "Test WEDM across materials and thicknesses: D2 (0.5-6 inch), H13 (0.5-4 inch), A2 (0.5-3 inch), S7, carbide (0.25-2 inch), 304 SS (0.5-3 inch), 6061 Al (0.5-2 inch), Ti-6Al-4V (0.5-2 inch), copper-tungsten. For each: rough, skim 1, skim 2, skim 3."
+        },
+        {
+          "id": "VS-W1-U04",
+          "title": "Taper + 4-axis sweep",
+          "description": "Test taper cutting: 0-30 degree taper on D2/H13, 4-axis independent UV for draft angles, taper accuracy at different heights. Test each controller's taper capability limits."
+        },
+        {
+          "id": "VS-W1-U05",
+          "title": "Controller comparison matrix — W21 vs W30 vs W31",
+          "description": "Build comparison matrix: technology database depth, power supply (V350 vs older), auto-threading reliability, core removal features, programming differences (G-code variations). Document which controller is best for each scenario."
+        },
+        {
+          "id": "VS-W1-U06",
+          "title": "Fixture + workholding sweep — WEDM specific",
+          "description": "Test WEDM fixtures: Mitsubishi EROWA interface, magnetic chucks (submerged), precision vises (Hirschmann), dedicated WEDM fixture plates, start hole locations. Verify submerge level, flushing nozzle clearance."
+        }
+      ]
+    }
+  }
+}

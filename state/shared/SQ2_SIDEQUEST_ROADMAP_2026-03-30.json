@@ -1,0 +1,78 @@
+{
+  "date": "2026-03-30",
+  "lane": "SQ2",
+  "status": "active-user-directed-sidequest",
+  "currentPosition": {
+    "censusRegistry": "complete",
+    "manufacturerDedup": "complete-enough-for-ingest-avoidance",
+    "bucketManifests": [
+      "archive_resource_pdfs/18.03-spring-2010",
+      "box_resource_pdfs/6.006-spring-2020",
+      "archive_resource_pdfs/3.012-fall-2005",
+      "box_resource_pdfs/6.046j-spring-2015"
+    ],
+    "batchQueues": [
+      "SQ2_BATCH1_PRIMARY_CANDIDATES_2026-03-30",
+      "SQ2_BATCH2_PRIMARY_CANDIDATES_2026-03-30"
+    ],
+    "handbookExposure": "started"
+  },
+  "waves": [
+    {
+      "id": "C1",
+      "name": "Batch 1 Promotion",
+      "status": "ready",
+      "inputs": [
+        "SQ2_BATCH1_PRIMARY_CANDIDATES_2026-03-30"
+      ],
+      "outputs": [
+        "SQ2_BATCH1_PROMOTION_LOG_2026-03-30.md",
+        "SQ2_BATCH1_PROMOTION_LOG_2026-03-30.json"
+      ],
+      "targetAssetCount": 40
+    },
+    {
+      "id": "C2",
+      "name": "Handbook Consumer Readiness",
+      "status": "ready",
+      "inputs": [
+        "SQ2_MACHINE_HANDBOOK_EXPOSURE_MAP_2026-03-30"
+      ],
+      "outputs": [
+        "SQ2_HANDBOOK_CONSUMER_MATRIX_2026-03-30.md",
+        "SQ2_HANDBOOK_CONSUMER_MATRIX_2026-03-30.json"
+      ]
+    },
+    {
+      "id": "C3",
+      "name": "Batch 2 Promotion",
+      "status": "ready",
+      "inputs": [
+        "SQ2_BATCH2_PRIMARY_CANDIDATES_2026-03-30"
+      ],
+      "outputs": [
+        "SQ2_BATCH2_PROMOTION_LOG_2026-03-30.md",
+        "SQ2_BATCH2_PROMOTION_LOG_2026-03-30.json"
+      ],
+      "targetAssetCount": 40
+    },
+    {
+      "id": "D1",
+      "name": "Reservoir Expansion",
+      "status": "blocked-by-runtime-and-c1-c3-ordering"
+    }
+  ],
+  "blockers": [
+    "powershell-runtime-8009001d",
+    "mcp-not-attached-in-thread",
+    "helper-sync-paused-until-runtime-recovery"
+  ],
+  "resumeOrder": [
+    "confirm-shell-and-mcp-health",
+    "refresh-startup-and-task-queue",
+    "execute-wave-c1",
+    "execute-wave-c2-if-batch1-is-runtime-blocked",
+    "execute-wave-c3",
+    "expand-to-next-reservoirs"
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "audit_id": "QA-MS6-P0-U02",
+  "title": "Dispatcher Split Candidate Analysis",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "Dispatcher is already logically decomposed into 32 engine backends. Physical split would add complexity with minimal benefit.",
+
+  "analysis": {
+    "current_architecture": "Single MCP tool (prism_intelligence) with thin routing layer over 32 lazy-loaded engines",
+    "routing_overhead": "Minimal - one .includes() check per action group, cascading ternary",
+    "engine_isolation": "Already isolated - each engine loaded on-demand, no cross-engine coupling",
+    "action_name_clarity": "Prefix-based naming makes action purpose immediately clear"
+  },
+
+  "split_candidates": [
+    {
+      "proposed_dispatcher": "prism_machine_connect",
+      "source_category": "machine_connectivity",
+      "actions": 16,
+      "engine": "MachineConnectivityEngine",
+      "rationale": "Largest action group. Real-time machine monitoring is conceptually distinct from intelligence queries.",
+      "migration_complexity": "LOW",
+      "benefit": "MODERATE - clearer API surface for IoT/machine integration clients"
+    },
+    {
+      "proposed_dispatcher": "prism_products",
+      "source_categories": ["product_sfc", "product_ppg", "product_shop", "product_acnc"],
+      "actions": 40,
+      "engines": ["ProductEngine (4 exports)"],
+      "rationale": "Four product modules already share a single engine file. Natural grouping.",
+      "migration_complexity": "LOW",
+      "benefit": "MODERATE - separates commercial product features from core intelligence"
+    },
+    {
+      "proposed_dispatcher": "prism_integration",
+      "source_categories": ["erp", "cam", "dnc", "mobile", "measurement"],
+      "actions": 42,
+      "engines": ["ERPIntegrationEngine", "CAMIntegrationEngine", "DNCTransferEngine", "MobileInterfaceEngine", "MeasurementIntegrationEngine"],
+      "rationale": "All external system integrations. Clients needing integrations don't need intelligence.",
+      "migration_complexity": "MEDIUM",
+      "benefit": "MODERATE - isolates integration surface for external system vendors"
+    }
+  ],
+
+  "not_recommended_splits": [
+    {
+      "category": "core_intelligence (11 actions)",
+      "reason": "These are the raison d'etre of the dispatcher. Splitting them would lose the unified intelligence API."
+    },
+    {
+      "category": "Small groups (1-5 actions each)",
+      "reason": "Too small for standalone dispatchers. Overhead of separate MCP tool registration exceeds benefit."
+    }
+  ],
+
+  "recommendation": "DEFER physical split. The dispatcher is already a thin routing layer. Each engine is lazy-loaded and self-contained. The 250-action single-tool pattern is actually efficient for LLM clients (one tool to discover, action param for specifics). Splitting would increase MCP tool count from 45 to ~48+ and require updating all client code for marginal benefit.",
+
+  "if_splitting_is_pursued": {
+    "phase_1": "Extract prism_products (40 actions) - lowest risk, single engine file",
+    "phase_2": "Extract prism_machine_connect (16 actions) - real-time monitoring distinct from query",
+    "phase_3": "Extract prism_integration (42 actions) - external system boundary",
+    "backward_compatibility": "Keep prism_intelligence routing all actions during transition, deprecate old paths after clients migrate"
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "split_candidates_identified": true,
+    "proposed_names_and_assignments": true,
+    "migration_complexity_estimated": true
+  }
+}

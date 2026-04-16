@@ -1,0 +1,83 @@
+{
+  "id": "PROD-MS0",
+  "version": "6.0.0",
+  "title": "API Authentication & Authorization",
+  "brief": "Add JWT-based auth, RBAC, API keys, rate limiting, audit logging, and security headers to the MCP server.",
+  "created_at": "2026-03-07T03:50:00Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Authentication & Authorization",
+      "units": [
+        {
+          "id": "U01",
+          "title": "JWT token middleware",
+          "description": "Create JWT middleware for issuing, verifying, and refreshing tokens. Support access + refresh token pattern. Environment-configurable secret and expiry.",
+          "exit_conditions": [
+            "JWT issue/verify/refresh working",
+            "Middleware pluggable on any route",
+            "Tests passing"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U02",
+          "title": "Role-based access control",
+          "description": "Define roles (admin, engineer, operator, viewer) with permission matrices. Implement RBAC middleware that checks role against required permission per route.",
+          "exit_conditions": [
+            "4 roles defined",
+            "Permission matrix covers all dispatcher categories",
+            "Unauthorized returns 403"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U03",
+          "title": "API key management",
+          "description": "API key generation, storage (hashed), validation middleware. Support key rotation and expiry. For external integrations (CAM systems, ERP).",
+          "exit_conditions": [
+            "Key CRUD operations",
+            "Hashed storage",
+            "Key auth middleware working"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U04",
+          "title": "Rate limiting",
+          "description": "Per-client and per-endpoint rate limiting using sliding window. Configurable limits. Return 429 with retry-after header.",
+          "exit_conditions": [
+            "Rate limiter working",
+            "Per-client tracking",
+            "429 responses with headers"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U05",
+          "title": "Audit logging",
+          "description": "Log all write operations with user, timestamp, action, parameters, result. Append-only audit log. Queryable by time range and user.",
+          "exit_conditions": [
+            "Audit log captures all writes",
+            "Queryable",
+            "Tests passing"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "U06",
+          "title": "CORS policy + security headers",
+          "description": "Configure CORS with allowed origins. Add security headers: X-Content-Type-Options, X-Frame-Options, Strict-Transport-Security, CSP. Helmet-style middleware.",
+          "exit_conditions": [
+            "CORS configurable",
+            "Security headers on all responses",
+            "Tests passing"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "status": "complete"
+}

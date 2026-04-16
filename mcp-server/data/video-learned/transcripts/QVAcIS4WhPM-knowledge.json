@@ -1,0 +1,550 @@
+{
+  "videoId": "QVAcIS4WhPM",
+  "title": "Machining TITAN-1M in Inconel 625 on Haas UMC-750 with Kennametal Tools",
+  "channel": "Titans of CNC",
+  "source": "youtube_transcript_auto_subs",
+  "extractedAt": "2026-03-27",
+  "partInfo": {
+    "partName": "TITAN-1M Extra Large (Inconel version)",
+    "program": "BB Aero (Building Blocks Aero) — aerospace training components",
+    "stockDimensions": {
+      "width_in": 1.25,
+      "height_in": 3.0,
+      "length_in": 6.0,
+      "note": "Larger than standard TITAN-1M (was 0.75 in original)"
+    },
+    "stockAllowances": {
+      "x_positive_in": 0.185,
+      "x_negative_in": 0.185,
+      "y_positive_in": 0.115,
+      "y_negative_in": 0.115,
+      "z_top_in": 0.020,
+      "z_bottom_in": 0.340
+    },
+    "finishAllowance_in": 0.005,
+    "features": [
+      "Open pocket (roughed and finished)",
+      "Outside profile (2D contour)",
+      "5/16-18 UNC threaded holes (thread milled)",
+      "Chamfers on all edges and holes",
+      "Datum surface (face milled top)"
+    ]
+  },
+  "machine": {
+    "make": "Haas",
+    "model": "UMC-750",
+    "type": "5-axis vertical machining center",
+    "capabilities": [
+      "5-axis simultaneous machining",
+      "Through-spindle coolant (TSC)",
+      "Automatic tool changer",
+      "Suitable for aerospace superalloy machining"
+    ]
+  },
+  "material": {
+    "name": "Inconel 625",
+    "isoGroup": "S",
+    "type": "Nickel-based superalloy",
+    "industry": "Aerospace",
+    "characteristics": [
+      "High nickel content",
+      "Much harder than titanium",
+      "Work hardens rapidly",
+      "Low thermal conductivity — coolant and lubricity are critical",
+      "Coolant can literally make or break the operation"
+    ],
+    "comparedTo": {
+      "titanium": "Inconel is much harder than titanium; standard SFM for Ti is ~175, Inconel is 50-100 conventional",
+      "15-5_PH": "Similar difficulty tier as 15-5 PH stainless",
+      "monel": "Similar difficulty tier as Monel"
+    }
+  },
+  "operations": [
+    {
+      "opNumber": 1,
+      "name": "Face Mill — Top Datum Surface",
+      "tool": {
+        "type": "Face/Shell Mill",
+        "manufacturer": "Kennametal",
+        "productLine": "Dodeca Mini",
+        "diameter_in": 3.0,
+        "insertCount": 5,
+        "insertGrade": "KCSM40",
+        "insertGradeDescription": "Special blend carbide for superalloys — newer generation, consistent machining in Inconel",
+        "wiperInsert": {
+          "used": true,
+          "count": 1,
+          "flatWidth_in": 0.190,
+          "heightOffset_in": -0.0028,
+          "purpose": "Replaces one standard insert; has flat bottom (not radius) to produce mirror-smooth surface finish. Sits lower than cutting inserts to clean up after them."
+        },
+        "system": "Duo-Lock (modular — screw-in carbide tips to save cost)"
+      },
+      "speedsFeedsInconel": {
+        "sfm": 200,
+        "rpm": 254,
+        "feedPerTooth_in": 0.0056,
+        "feedPerToothRange_in": [0.0056, 0.0228],
+        "note": "Running at low end of range for tutorial/safety. In production, SFM would be raised and chip load adjusted for perfect finish."
+      },
+      "depthOfCut_in": 0.020,
+      "strategy": "Single pass face mill across top surface to establish first datum. 4 inserts cut, then wiper cleans the finish.",
+      "tips": [
+        "Use wiper insert for mirror finish on Inconel face milling",
+        "Start at low SFM and raise on machine while adjusting chip load for finish",
+        "This datum surface is the reference for all subsequent pocket/hole dimensions"
+      ]
+    },
+    {
+      "opNumber": 2,
+      "name": "Pre-Drill Pocket Entry Hole",
+      "tool": {
+        "type": "Solid Carbide Drill",
+        "manufacturer": "Kennametal",
+        "productLine": "GO Drill",
+        "diameter_in": 0.75,
+        "flutes": 2,
+        "pointAngle_deg": 140,
+        "coolantThrough": true,
+        "coating": "Multi-purpose (steels, stainless, titanium, Inconel, Monel)",
+        "note": "For production volumes, switch to KenTIP or KenTIP FS insert drill to reduce per-hole carbide cost."
+      },
+      "speedsFeedsInconel": {
+        "sfmRange": [70, 130],
+        "sfmUsed": 84,
+        "feedPerRev_inRange": [0.004, 0.006],
+        "feedPerRev_inUsed": 0.004,
+        "note": "Running at low end of range — 84 SFM, 0.004 FPR for safe, perfect hole in Inconel."
+      },
+      "strategy": "Drill straight down to full depth without pecking. Through-spindle coolant flushes chips — no peck cycle needed. Drill breaks chips internally.",
+      "purpose": "Pre-drill pocket entry point so end mill drops straight in instead of helical ramping into Inconel (saves tool wear and time).",
+      "tips": [
+        "Sketch a point in CAM at the pocket entry location, then use that point for drill location",
+        "Drill diameter must be larger than roughing end mill (0.75 drill > 0.5 end mill = 0.125 clearance per side)",
+        "No peck needed with coolant-through drills in Inconel — continuous drill to depth",
+        "140-degree point leaves a tapered bottom; end mill must clear this taper (plan depth accordingly)",
+        "Tell CAM you have a pre-drilled hole so end mill drops straight in"
+      ]
+    },
+    {
+      "opNumber": 3,
+      "name": "Rough Pocket and Outside Profile",
+      "tool": {
+        "type": "Solid Carbide End Mill",
+        "manufacturer": "Kennametal",
+        "productLine": "HARVI 3 (nicknamed 'Zombie Cutter')",
+        "diameter_in": 0.5,
+        "flutes": 5,
+        "note": "Nicknamed 'Zombie Cutter' because it keeps going even when dull. Extreme durability in Inconel."
+      },
+      "speedsFeedsInconel": {
+        "sfm": 210,
+        "feedPerTooth_in": 0.0042,
+        "feedRate_ipm": 40,
+        "sfmConventionalRange": [50, 100],
+        "sfmAdvancedRange": [200, 400],
+        "note": "210 SFM seems high vs. conventional 50-100 SFM for Inconel, but advanced peripheral milling with small radial engagement makes it possible and consistent. They routinely run 200-400 SFM in Inconel with this approach."
+      },
+      "depthOfCut": {
+        "axial": "Full depth — approximately 2.5x diameter (1.2 in deep for 0.5 in tool)",
+        "radial": "4% of diameter step-over (0.020 in for 0.5 in tool)"
+      },
+      "strategy": "Peripheral (high-speed adaptive) milling. Drop full depth, small radial step-over, utilize entire flute length for stability/rigidity. Ramp into material rather than plunge. End mill drops into pre-drilled hole, then peripheral mills outward.",
+      "finishAllowance_in": 0.005,
+      "tips": [
+        "NEVER plunge straight down into Inconel with an end mill — pre-drill or ramp in",
+        "Peripheral milling (full depth, small radial) is far superior to conventional (shallow depth, large radial) for Inconel",
+        "Full flute engagement gives stability and rigidity — allows 2-4x higher SFM than traditional",
+        "Small radial + full depth = consistent chip load, better tool life, faster cycle time",
+        "40 IPM feed rate in Inconel is very fast — possible only with advanced toolpaths",
+        "HARVI 3 runs for hours in Inconel even as it dulls"
+      ]
+    },
+    {
+      "opNumber": 4,
+      "name": "Finish Pocket Floor and Walls + Spring Pass",
+      "tool": {
+        "type": "Solid Carbide End Mill (finishing)",
+        "manufacturer": "Kennametal",
+        "productLine": "HARVI 3 (separate finishing tool, fresh)",
+        "diameter_in": 0.5,
+        "flutes": 5,
+        "note": "Uses a different HARVI 3 than roughing — fresh tool for perfect finish. Roughing tool gets dull in Inconel."
+      },
+      "speedsFeedsInconel": {
+        "sfm": 210,
+        "feedPerTooth_in": 0.002,
+        "feedRate_ipm": 19,
+        "note": "Same SFM as roughing (210), but chip load dropped in HALF for finishing (0.002 vs 0.004). Feed rate drops from 40 IPM to 19 IPM."
+      },
+      "strategy": "Ramps into pocket bottom, finishes floor with wider step-over (since only 0.005 material to remove). Finishes inside walls full depth, then spring pass on walls to catch deflection. Then 2D contour full depth on outside profile + spring pass.",
+      "tips": [
+        "Use separate fresh tool for finishing in Inconel — roughing tool will be dull",
+        "Drop feed per tooth in half for finishing (keep SFM same)",
+        "Wider step-over on floor finish is OK since minimal material",
+        "ALWAYS do spring pass on walls in Inconel — tool deflection leaves bottom of pocket undersized",
+        "Spring pass catches deflection without cutting extra material",
+        "2D contour for outside profile with 0.005 finish pass + spring pass",
+        "Walls must be perfect and perpendicular to top datum surface"
+      ]
+    },
+    {
+      "opNumber": 5,
+      "name": "Pre-Drill Thread Holes (5/16-18 Minor Diameter)",
+      "tool": {
+        "type": "Solid Carbide Drill",
+        "manufacturer": "Kennametal",
+        "productLine": "GO Drill",
+        "diameter_in": 0.257,
+        "flutes": 2,
+        "coolantThrough": true,
+        "note": "0.257 in is the minor ID for 5/16-18 UNC thread"
+      },
+      "speedsFeedsInconel": {
+        "sfm": 85,
+        "feedPerRev_in": 0.0025,
+        "sfmRange": [70, 130],
+        "feedPerRevRange_in": [0.002, 0.003],
+        "note": "Smaller drills get slightly less aggressive feeds — 0.002 to 0.003 FPR. Split the difference at 0.0025."
+      },
+      "strategy": "Drill straight down without pecking (coolant-through). No spot drill or center drill needed — GO Drill is self-centering. Strategic decision: drill FIRST, then chamfer AFTER, because Inconel would rapidly wear a center drill/spot drill tip.",
+      "tips": [
+        "GO Drill is self-centering — no spot drill needed in Inconel",
+        "In Inconel, drill first then chamfer (opposite of aluminum where you spot drill first)",
+        "Don't send a center drill or spot drill tip into Inconel — it will wear out fast",
+        "Smaller drills in Inconel: reduce feed per rev to 0.002-0.003 range",
+        "No peck cycle with through-coolant drills — blast chips out continuously"
+      ]
+    },
+    {
+      "opNumber": 6,
+      "name": "Chamfer All Edges and Thread Holes",
+      "tool": {
+        "type": "Chamfer Mill",
+        "manufacturer": "Kennametal",
+        "productLine": "Duo-Lock 6-Flute Chamfer Mill",
+        "diameter_in": 0.625,
+        "flutes": 6,
+        "includedAngle_deg": 90,
+        "halfAngle_deg": 45,
+        "system": "Duo-Lock modular (screw-in tip, saves carbide cost)"
+      },
+      "speedsFeedsInconel": {
+        "sfm_outsideEdges": 120,
+        "feedPerTooth_outsideEdges_in": 0.0022,
+        "rpm_outsideEdges": 733,
+        "feedRate_outsideEdges_ipm": 10,
+        "sfm_holeEntry": 60,
+        "feedPerRev_holeEntry_in": 0.002,
+        "note": "Lower SFM (60) when chamfering into holes — prevents chatter when tool hits full diameter engagement. Keep RPM low for pressure/engagement."
+      },
+      "strategy": "Walk around all edges on part (outside contour, pocket edges) then chamfer the thread holes. For hole chamfering, use a programming trick: tell CAM the tool is larger diameter so it positions closer to wall, engaging flutes higher up for better cutting and bigger chamfer.",
+      "tips": [
+        "Chamfer everything inside the machine in Inconel — no hand deburring",
+        "90-degree included angle: 45 per side, so chamfer depth = chamfer width (easy math)",
+        "In Inconel, use the flutes higher up on the chamfer mill body for holes — better rigidity",
+        "Programming trick: define a larger tool diameter in CAM to position tool closer to wall for deeper chamfer engagement",
+        "Back off RPM on hole chamfering to prevent chatter when full engagement hits",
+        "Keep RPM low to create cutting pressure — prevents tool bounce in Inconel",
+        "Duo-Lock system saves 50%+ on carbide cost in production"
+      ]
+    },
+    {
+      "opNumber": 7,
+      "name": "Thread Mill 5/16-18 UNC Threads",
+      "tool": {
+        "type": "Thread Mill",
+        "manufacturer": "Kennametal",
+        "productLine": "Solid Carbide Thread Mill (full-form, 5/16-18 specific)",
+        "flutes": 3,
+        "threadPitch": "18 TPI (0.0556 in per thread)",
+        "toolDiameter_in": 0.242,
+        "coolantThrough": true,
+        "note": "Full-form thread mill with many teeth, specifically designed for 5/16-18. Smaller than hole (0.242 vs 0.257) for safe entry/exit."
+      },
+      "speedsFeedsInconel": {
+        "sfm": 180,
+        "feedPerTooth_in": 0.0012,
+        "feedRate_ipm": 10,
+        "note": "180 SFM is aggressive for a thread mill in Inconel but works with the proper technique."
+      },
+      "strategy": "3-pass thread milling strategy in Inconel: (1) Roughing pass leaving 0.005 stock, (2) Finish pass removing final 0.005, (3) Spring pass at same diameter to catch deflection. Each pass: drop to bottom, helical interpolate one revolution at 5/16 major diameter while Z rises 0.0556 per revolution. Through-coolant flushes chips from bottom up as tool lifts.",
+      "tips": [
+        "Thread mill over tap in Inconel — adjustable, less catastrophic if it breaks",
+        "Thread mill breaks at neck (above threads) so part is salvageable; broken tap destroys the part",
+        "Thread mill allows compensation for plating/coating thickness",
+        "3-pass strategy: rough (leave 0.005) + finish + spring pass for perfect thread in Inconel",
+        "Spring pass catches any deflection from tool hanging out long in tough material",
+        "Through-coolant flushes chips from bottom of hole as tool helicals upward",
+        "Full-form thread mills cut all threads in one helical revolution — very fast",
+        "Thread gauge check (go/no-go) passed perfectly after thread milling",
+        "Helical Z rise = 1/TPI = 1/18 = 0.0556 per 360 degrees",
+        "Clearance between tool (0.242) and hole (0.257) is only 0.015 — plan chip evacuation"
+      ]
+    }
+  ],
+  "toolingSummary": {
+    "manufacturer": "Kennametal",
+    "toolSystems": [
+      {
+        "system": "Duo-Lock",
+        "description": "Modular end mill system — screw-in carbide tips on reusable body. Saves 50%+ on carbide in production. When tool wears, only replace the tip, not the entire tool."
+      },
+      {
+        "system": "GO Drill",
+        "description": "Multi-purpose solid carbide coolant-through drill. Self-centering (no spot drill needed). Works in steels, stainless, titanium, Inconel, Monel."
+      },
+      {
+        "system": "KenTIP / KenTIP FS",
+        "description": "Insert drill for high-volume production. Lower per-hole cost since only inserts are replaced. Recommended over GO Drill for thousands of parts."
+      }
+    ],
+    "insertGrades": [
+      {
+        "grade": "KCSM40",
+        "application": "Face milling Inconel 625 — new generation carbide blend for consistent aerospace superalloy machining"
+      }
+    ],
+    "endMillLines": [
+      {
+        "line": "HARVI 3",
+        "application": "Roughing and finishing Inconel. Extreme durability — nicknamed 'Zombie Cutter' for relentless cutting even as it dulls."
+      }
+    ]
+  },
+  "coolantStrategy": {
+    "type": "Through-Spindle Coolant (TSC)",
+    "critical": true,
+    "notes": [
+      "Coolant is the single most critical factor in Inconel machining — can make or break the operation",
+      "Through-tool coolant on ALL drills eliminates peck cycles entirely",
+      "Coolant flushes chips from bottom of holes during thread milling",
+      "Flood coolant supplementing TSC on all operations",
+      "High nickel content means heat stays in workpiece — coolant provides both cooling and lubricity"
+    ]
+  },
+  "toolpathStrategies": {
+    "roughing": {
+      "name": "Peripheral / Adaptive Milling (High-Speed Machining style)",
+      "characteristics": [
+        "Full axial depth of cut (2.5x diameter)",
+        "Small radial step-over (4% of diameter = 0.020 in on 0.5 in tool)",
+        "Ramp into material — never plunge",
+        "Utilize entire flute length for stability",
+        "Drop into pre-drilled hole to avoid helical entry in Inconel"
+      ],
+      "advantages": [
+        "2-4x higher SFM than conventional (210 vs 50-100)",
+        "Consistent chip load and tool engagement",
+        "Better tool life (cutter runs for hours)",
+        "40 IPM feed rate in Inconel"
+      ]
+    },
+    "finishing": {
+      "name": "2D Contour + Floor Finish",
+      "characteristics": [
+        "Same SFM as roughing (210 SFM)",
+        "Half the chip load (0.002 vs 0.004 per tooth)",
+        "Wider step-over for floor (minimal material)",
+        "Full-depth wall passes",
+        "Spring pass on all walls to catch deflection"
+      ]
+    },
+    "springPass": {
+      "description": "Final pass at same dimensions as finish pass. Cuts no programmed material — catches leftover stock from tool deflection. Essential in Inconel due to cutting forces causing deflection, especially at bottom of deep walls.",
+      "usedOn": ["Pocket walls (op 4)", "Outside profile (op 4)", "Thread milling (op 7)"]
+    }
+  },
+  "orderOfOperations": [
+    "1. Face mill top surface (establish datum)",
+    "2. Pre-drill pocket entry hole (3/4 GO Drill, larger than end mill)",
+    "3. Rough pocket and outside profile (HARVI 3, peripheral milling)",
+    "4. Finish pocket floor, walls, and outside profile + spring passes (fresh HARVI 3)",
+    "5. Pre-drill thread holes at minor diameter (0.257 GO Drill)",
+    "6. Chamfer all edges and thread holes (Duo-Lock 5/8 chamfer mill)",
+    "7. Thread mill 5/16-18 threads (3-pass: rough + finish + spring)"
+  ],
+  "keyLessons": {
+    "inconelVsAluminum": [
+      "Aluminum: spot drill → drill → ream. Inconel: drill first → chamfer after (protects tool tips)",
+      "Aluminum: helical ramp into pockets. Inconel: pre-drill entry holes to avoid helical entry",
+      "Aluminum: fast peck drilling. Inconel: no peck with through-coolant drills",
+      "Aluminum: single finish pass. Inconel: finish + spring pass on every wall",
+      "Aluminum: one tool can rough and finish. Inconel: use separate fresh tool for finishing"
+    ],
+    "toolDeflection": [
+      "Deflection causes walls to be tapered — perfect at top, undersized at bottom",
+      "Spring pass compensates for deflection without removing programmed material",
+      "Long tools in deep pockets deflect more — always spring pass in Inconel"
+    ],
+    "costSaving": [
+      "Duo-Lock modular system reduces carbide cost 50%+ in production",
+      "KenTIP insert drills cheaper per hole than solid carbide in high volume",
+      "Thread milling saves parts if tool breaks (vs tap breaking = scrapped part)"
+    ]
+  },
+  "speedsFeedsSummaryTable": [
+    {
+      "operation": "Face Mill (Dodeca Mini 3 in)",
+      "material": "Inconel 625",
+      "sfm": 200,
+      "rpm": 254,
+      "feedPerTooth_in": 0.0056,
+      "feedRate_ipm": null,
+      "doc_in": 0.020,
+      "radialDoc_in": null,
+      "note": "Low end of range for tutorial"
+    },
+    {
+      "operation": "Drill 3/4 GO Drill (pocket entry)",
+      "material": "Inconel 625",
+      "sfm": 84,
+      "rpm": null,
+      "feedPerRev_in": 0.004,
+      "feedRate_ipm": null,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "No peck, through-coolant"
+    },
+    {
+      "operation": "Rough End Mill (HARVI 3, 0.5 in, peripheral)",
+      "material": "Inconel 625",
+      "sfm": 210,
+      "rpm": null,
+      "feedPerTooth_in": 0.0042,
+      "feedRate_ipm": 40,
+      "doc_in": 1.2,
+      "radialDoc_in": 0.020,
+      "note": "Full depth, 4% radial, advanced peripheral milling"
+    },
+    {
+      "operation": "Finish End Mill (HARVI 3, 0.5 in)",
+      "material": "Inconel 625",
+      "sfm": 210,
+      "rpm": null,
+      "feedPerTooth_in": 0.002,
+      "feedRate_ipm": 19,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "Half chip load vs roughing, same SFM"
+    },
+    {
+      "operation": "Drill 0.257 GO Drill (thread holes)",
+      "material": "Inconel 625",
+      "sfm": 85,
+      "rpm": null,
+      "feedPerRev_in": 0.0025,
+      "feedRate_ipm": null,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "No peck, through-coolant, self-centering"
+    },
+    {
+      "operation": "Chamfer Mill (Duo-Lock 5/8, 6-flute, edges)",
+      "material": "Inconel 625",
+      "sfm": 120,
+      "rpm": 733,
+      "feedPerTooth_in": 0.0022,
+      "feedRate_ipm": 10,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "Outside edges and pocket edges"
+    },
+    {
+      "operation": "Chamfer Mill (Duo-Lock 5/8, 6-flute, holes)",
+      "material": "Inconel 625",
+      "sfm": 60,
+      "rpm": null,
+      "feedPerRev_in": 0.002,
+      "feedRate_ipm": null,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "Reduced SFM for hole entry — prevents chatter at full engagement"
+    },
+    {
+      "operation": "Thread Mill (5/16-18, 3-flute)",
+      "material": "Inconel 625",
+      "sfm": 180,
+      "rpm": null,
+      "feedPerTooth_in": 0.0012,
+      "feedRate_ipm": 10,
+      "doc_in": null,
+      "radialDoc_in": null,
+      "note": "3 passes: rough (leave 0.005) + finish + spring"
+    }
+  ],
+  "tribalKnowledge": [
+    {
+      "tip": "Pre-drill pocket entries in Inconel — helical ramping wears the bottom of end mills excessively and takes a long time",
+      "context": "Pocket roughing in Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "In Inconel, drill first then chamfer (reverse of aluminum order) — center drills and spot drills wear out fast on the tip in superalloys",
+      "context": "Hole making in Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Through-coolant drills eliminate peck cycles entirely in Inconel — the drill breaks chips internally and coolant flushes them out",
+      "context": "Drilling Inconel 625 with GO Drill",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Peripheral milling with 4% radial and full depth in Inconel enables 200-400 SFM vs conventional 50-100 SFM — the key is full flute engagement for rigidity",
+      "context": "Roughing Inconel 625 with HARVI 3",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Always use a spring pass on finished walls in Inconel — tool deflection makes the bottom of pocket walls undersized, spring pass catches this without cutting extra material",
+      "context": "Finishing walls in Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Use a separate fresh end mill for finishing in Inconel — the roughing tool will be dull even if it's still cutting, and will leave poor surface finish",
+      "context": "Finishing Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "For finish facing with a shell mill, use a wiper insert set 0.0028 lower than cutting inserts — produces mirror finish on Inconel datum surfaces",
+      "context": "Face milling Inconel 625 with Dodeca Mini + wiper",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Thread mill over tap in Inconel: thread mills break cleanly at the neck (part salvageable), taps break inside the hole (part scrapped). Thread mills also allow size compensation for plating.",
+      "context": "Threading Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "On chamfer mills in Inconel holes, reduce RPM before full engagement to prevent chatter — keep RPM low to create cutting pressure so tool engages material without bouncing",
+      "context": "Chamfering holes in Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "For chamfer mill in deep holes: tell CAM the tool has a larger diameter than actual — this positions the tool closer to the wall, engaging flutes higher up for better cutting and bigger chamfer",
+      "context": "Chamfering internal edges in Inconel 625",
+      "confidence": "medium",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "Pre-drill diameter should be larger than roughing end mill (e.g., 0.75 drill for 0.5 end mill = 0.125 clearance per side) to allow straight plunge past the drill point taper",
+      "context": "Pocket pre-drilling strategy",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    },
+    {
+      "tip": "KCSM40 insert grade is the current generation Kennametal recommendation for Inconel face milling — replaces older grades for consistent superalloy cutting",
+      "context": "Insert selection for Inconel 625",
+      "confidence": "high",
+      "source": "Titan (Titans of CNC)"
+    }
+  ]
+}

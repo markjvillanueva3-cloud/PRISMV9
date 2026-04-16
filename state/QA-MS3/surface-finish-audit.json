@@ -1,0 +1,81 @@
+{
+  "audit_id": "QA-MS3-P0-U05",
+  "title": "SurfaceFinishEngine: Ra/Rz Prediction Accuracy",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:55:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS — 1 MEDIUM finding FIXED (milling Ra ae/D factor removed)",
+
+  "surface_finish_model": {
+    "source_file": "src/engines/ManufacturingCalculations.ts",
+    "function": "calculateSurfaceFinish",
+    "line": 539,
+    "turning_formula": "Ra_theoretical = f^2 / (32 * r) * 1000 [μm]",
+    "milling_formula": "Ra_theoretical = f^2 * ae / (32 * D * r) * 1000 [μm]",
+    "process_factor": 2.0,
+    "actual_Ra": "Ra_theoretical * process_factor"
+  },
+
+  "turning_formula_verification": {
+    "standard_reference": "Brammertz: Ra = f^2 / (32 * r_epsilon)",
+    "implementation": "Ra_theoretical = (f*f) / (32*r) * 1000",
+    "unit_conversion": "f in mm, r in mm → f^2/(32*r) in mm → *1000 for μm",
+    "correct": true
+  },
+
+  "Rz_Ra_conversion": {
+    "ratios_by_operation": {
+      "turning": 4.0,
+      "milling": 5.5,
+      "grinding": 6.5,
+      "boring": 4.2,
+      "reaming": 3.8
+    },
+    "reference": "ISO 4287:1997, Machining Data Handbook 3rd Ed.",
+    "reasonable": true,
+    "operation_lookup": "Case-insensitive with fallback to is_milling flag"
+  },
+
+  "Rt_approximation": {
+    "formula": "Rt = Rz * 1.3",
+    "reference_range": "1.2-1.5 typical",
+    "correct": true
+  },
+
+  "process_factor": {
+    "value": 2.0,
+    "description": "Fixed multiplier from theoretical to actual Ra",
+    "reference_range": "1.2 (grinding) to 3.0+ (rough machining)",
+    "note": "2.0 is a reasonable median for general machining operations"
+  },
+
+  "findings": [
+    {
+      "id": "F36",
+      "severity": "MEDIUM",
+      "title": "Milling Ra formula includes non-standard ae/D factor",
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "line": 554,
+      "issue": "Milling Ra is calculated as f^2*ae/(32*D*r), introducing an ae/D ratio that doesn't appear in the standard Brammertz formula. The standard theoretical Ra for milling (nose radius kinematics) is f^2/(32*r), same as turning. The ae/D factor would incorrectly predict smoother surfaces with smaller radial engagement — but surface finish in the feed direction is governed by nose radius geometry regardless of radial depth.",
+      "impact": "Medium — at ae/D=0.5 (common), the predicted Ra is halved compared to reality. At ae/D=0.1 (finishing pass), Ra would be 10x too optimistic.",
+      "fix": "Remove the ae/D factor for nose-radius-based Ra prediction: Ra = f^2/(32*r)*1000 for both turning and milling. The ae/D ratio affects scallop height (stepover-direction roughness), not feed-direction Ra.",
+      "status": "FIXED",
+      "fix_applied": "Removed milling branch with ae/D factor. Now uses standard Brammertz formula for both turning and milling."
+    }
+  ],
+
+  "verification_tests": {
+    "turning_baseline": "f=0.1mm, r=0.8mm → Ra_th = 0.01/(32*0.8)*1000 = 0.39μm, Ra_actual = 0.78μm ✓",
+    "roughing_feed": "f=0.3mm, r=0.4mm → Ra_th = 0.09/(32*0.4)*1000 = 7.03μm, Ra_actual = 14.06μm, 'rough' warning ✓",
+    "Rz_turning": "Ra=0.78μm → Rz = 0.78*4.0 = 3.12μm ✓",
+    "Rz_milling": "Ra=0.78μm → Rz = 0.78*5.5 = 4.29μm ✓",
+    "Rt": "Rz=3.12 → Rt = 3.12*1.3 = 4.06μm ✓",
+    "unknown_operation": "operation='EDM' → warning + fallback to turning/milling ratio ✓"
+  },
+
+  "exit_conditions_met": {
+    "Ra_theoretical_formula_verified": true,
+    "Ra_to_Rz_conversion_verified": true,
+    "tool_nose_radius_effect_verified": true
+  }
+}

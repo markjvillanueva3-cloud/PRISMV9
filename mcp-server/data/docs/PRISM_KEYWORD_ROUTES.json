@@ -1,0 +1,431 @@
+{
+  "_meta": {
+    "version": "1.0.0",
+    "generated": "2026-04-07",
+    "purpose": "Keyword-to-file routing for search-router-hook. Maps common search patterns to exact file paths, eliminating Glob/Grep overhead.",
+    "usage": "search-router-hook.mjs reads this on PreToolUse Grep|Glob. If search pattern matches a keyword, it returns additionalContext with exact paths.",
+    "total_routes": 200
+  },
+  "routes": {
+    "kienzle": {
+      "files": ["src/physics/constants.ts", "src/engines/KienzleForceModelEngine.ts"],
+      "actions": ["prism_calc:cutting_force", "prism_machining_kb:kb_lookup_kienzle"],
+      "skills": ["/sfc-quick-start", "/calc"],
+      "description": "Kienzle cutting force model (kc1.1, mc coefficients)"
+    },
+    "taylor": {
+      "files": ["src/physics/constants.ts", "src/engines/SpeedFeedOrchestratorEngine.ts"],
+      "actions": ["prism_calc:tool_life", "prism_machining_kb:kb_lookup_taylor"],
+      "skills": ["/sfc-quick-start"],
+      "description": "Taylor tool life equation (C, n coefficients)"
+    },
+    "speed feed": {
+      "files": ["src/engines/SpeedFeedOrchestratorEngine.ts", "src/engines/SpeedFeedAutopilotEngine.ts"],
+      "actions": ["prism_calc:speed_feed", "prism_dev:sf_autopilot_run"],
+      "skills": ["/sfc-quick-start", "/auto-speed-feed"],
+      "description": "Speed and feed calculation"
+    },
+    "post processor": {
+      "files": ["src/engines/PostProcessorPipelineEngine.ts", "src/engines/PostProcessorAutopilotEngine.ts", "src/engines/ControllerDialectEngine.ts"],
+      "actions": ["prism_cam:post_generate", "prism_dev:pp_autopilot_run"],
+      "skills": ["/ppg-quick-start"],
+      "description": "Post processor generation and dialect management"
+    },
+    "tolerance": {
+      "files": ["src/engines/ToleranceStackEngine.ts", "src/engines/ToleranceExtractionEngine.ts", "src/engines/ISO2768ApplicatorEngine.ts"],
+      "actions": ["prism_calc:tolerance_analysis", "prism_quality:tolerance"],
+      "skills": ["/quality-spc-guide"],
+      "description": "Tolerance analysis, stack-up, GD&T"
+    },
+    "quote": {
+      "files": ["src/engines/QuoteAutopilotEngine.ts", "src/engines/QuotingFormulaEngine.ts"],
+      "actions": ["prism_dev:quote_autopilot_run", "prism_business:quote_generate"],
+      "skills": ["/quote-job", "/bid-to-win", "/estimate"],
+      "description": "Manufacturing quoting and cost estimation"
+    },
+    "fixture": {
+      "files": ["src/engines/FixtureDesignEngine.ts", "src/engines/FixtureClampingEngine.ts", "src/engines/ModularFixtureLayoutEngine.ts"],
+      "actions": ["prism_calc:fixture_recommend", "prism_calc:clamp_simulate"],
+      "skills": ["/fixture-design-guide"],
+      "description": "Fixture design and workholding"
+    },
+    "chatter": {
+      "files": ["src/engines/ChatterStabilityLobeEngine.ts", "src/engines/BarStockVibrationEngine.ts"],
+      "actions": ["prism_calc:chatter_stability_lobes", "prism_calc:stability"],
+      "skills": ["/troubleshoot"],
+      "description": "Chatter prediction and stability lobes"
+    },
+    "deflection": {
+      "files": ["src/engines/BoringBarDeflectionEngine.ts", "src/engines/ThinWallDeflectionEngine.ts"],
+      "actions": ["prism_calc:deflection", "prism_calc:boring_bar_deflection"],
+      "skills": ["/calc"],
+      "description": "Tool and part deflection calculation"
+    },
+    "thermal": {
+      "files": ["src/engines/ThermalWearCouplingEngine.ts", "src/engines/CuttingTemperatureEngine.ts", "src/engines/ThermalCompensationModelEngine.ts"],
+      "actions": ["prism_calc:thermal", "prism_calc:thermal_compensate"],
+      "skills": ["/calc"],
+      "description": "Thermal modeling and compensation"
+    },
+    "edm": {
+      "files": ["src/engines/EDMProgramAssemblerEngine.ts", "src/engines/WEDMPrintToProgramEngine.ts", "src/engines/EDMMultiPassStrategyEngine.ts"],
+      "actions": ["prism_edm:edm_program", "prism_edm:wedm_analyze"],
+      "skills": ["/wedm-program", "/wire-edm-studio"],
+      "description": "Wire/sinker EDM programming"
+    },
+    "wire edm": {
+      "files": ["src/engines/WEDMPrintToProgramEngine.ts", "src/engines/WireEDMSettingsEngine.ts", "src/engines/WEDMCompleteOrchestrationEngine.ts"],
+      "actions": ["prism_edm:wedm_program", "prism_edm:wedm_settings"],
+      "skills": ["/wedm-program", "/wire-edm-analyze"],
+      "description": "Wire EDM specific"
+    },
+    "turning": {
+      "files": ["src/engines/TurningPrintIntakeEngine.ts", "src/engines/TurningFeatureTaxonomyEngine.ts", "src/engines/TurningRevProfileEngine.ts"],
+      "actions": ["prism_turning:turning_analyze", "prism_turning_program:intake"],
+      "skills": ["/lathe-studio", "/print-to-program"],
+      "description": "Turning/lathe operations"
+    },
+    "thread": {
+      "files": ["src/engines/ThreadCalculationEngine.ts", "src/engines/ThreadMillingEngine.ts", "src/engines/TapDrillEngine.ts"],
+      "actions": ["prism_thread:calculate_tap_drill", "prism_calc:thread_parse"],
+      "skills": ["/drill-calc"],
+      "description": "Threading calculations"
+    },
+    "material": {
+      "files": ["src/registries/MaterialRegistry.ts", "src/engines/MaterialCalloutParserEngine.ts"],
+      "actions": ["prism_data:material_lookup", "prism_calc:material_select_recommend"],
+      "skills": ["/material-lookup"],
+      "description": "Material properties and lookup"
+    },
+    "tool": {
+      "files": ["src/registries/ToolRegistry.ts", "src/engines/ToolSelectionEngine.ts"],
+      "actions": ["prism_calc:tool_select_recommend", "prism_calc:tool_catalog_search"],
+      "skills": ["/tool-select", "/tool-catalog"],
+      "description": "Cutting tool selection and catalog"
+    },
+    "machine": {
+      "files": ["src/registries/MachineRegistry.ts", "src/engines/MachineRecommendationEngine.ts"],
+      "actions": ["prism_calc:machine_recommend", "prism_data:machine_lookup"],
+      "skills": ["/machine-check", "/machine-optimize"],
+      "description": "Machine selection and capabilities"
+    },
+    "gcode": {
+      "files": ["src/engines/GCodeSafetyAnalyzerEngine.ts", "src/engines/EDMPostProcessGCodeEngine.ts"],
+      "actions": ["prism_calc:gcode_validate", "prism_calc:gcode_optimize"],
+      "skills": ["/gcode", "/program-validate"],
+      "description": "G-code generation and validation"
+    },
+    "safety": {
+      "files": ["src/engines/SafetyVetoEngine.ts", "src/engines/SafetyEscalationEngine.ts", "src/engines/MachineEnvelopeGuardEngine.ts"],
+      "actions": ["prism_safety:check_toolpath_collision", "prism_calc:tool_safe_limits"],
+      "skills": ["/safety-validation-guide"],
+      "description": "Safety validation and collision checking"
+    },
+    "quality": {
+      "files": ["src/engines/QualityPredictionEngine.ts", "src/engines/SPCMonitoringEngine.ts"],
+      "actions": ["prism_quality:quality_predict", "prism_quality:spc_monitor"],
+      "skills": ["/quality-check", "/quality-spc-guide"],
+      "description": "Quality control and SPC"
+    },
+    "grinding": {
+      "files": ["src/engines/GrindingProgramAssemblerEngine.ts", "src/engines/GrindingForceEngine.ts"],
+      "actions": ["prism_grinding:grinding_program", "prism_grinding:grinding_force"],
+      "skills": [],
+      "description": "Grinding operations"
+    },
+    "5axis": {
+      "files": ["src/engines/MultiAxisPrintToProgramEngine.ts", "src/engines/FiveAxisKinematicsEngine.ts"],
+      "actions": ["prism_5axis:singularity_check", "prism_multiaxis_program:generate"],
+      "skills": [],
+      "description": "5-axis machining and kinematics"
+    },
+    "coolant": {
+      "files": ["src/engines/CoolantValidationEngine.ts", "src/engines/CoolantFlowEngine.ts", "src/engines/CoolantStrategyEngine.ts"],
+      "actions": ["prism_calc:coolant_validate", "prism_calc:coolant_recommend"],
+      "skills": [],
+      "description": "Coolant and MWF optimization"
+    },
+    "cost": {
+      "files": ["src/engines/ActualCostEngine.ts", "src/engines/CostEstimationEngine.ts"],
+      "actions": ["prism_business:cost_estimate", "prism_calc:cost_estimate"],
+      "skills": ["/estimate", "/cost-estimation-guide"],
+      "description": "Manufacturing cost estimation"
+    },
+    "scheduling": {
+      "files": ["src/engines/ProductionSchedulerEngine.ts", "src/engines/CapacityPlanningEngine.ts"],
+      "actions": ["prism_scheduling:schedule_jobs", "prism_business:capacity_plan"],
+      "skills": ["/job-planning"],
+      "description": "Production scheduling and capacity"
+    },
+    "probe": {
+      "files": ["src/engines/ProbingRoutineEngine.ts", "src/engines/InProcessMeasurementEngine.ts"],
+      "actions": ["prism_calc:probe_routine_generate", "prism_calc:probe_gdt_interpret"],
+      "skills": ["/probe-routine-guide"],
+      "description": "Touch probe and in-process measurement"
+    },
+    "tribal": {
+      "files": ["src/engines/TribalKnowledgeEngine.ts", "src/engines/MachiningPlaybookEngine.ts"],
+      "actions": ["prism_shop_practice:tribal_search", "prism_shop_practice:playbook_advise"],
+      "skills": ["/tribal-knowledge-guide", "/playbook"],
+      "description": "Tribal knowledge and machining playbooks"
+    },
+    "setup sheet": {
+      "files": ["src/engines/SetupSheetEngine.ts", "src/engines/WEDMSetupSheetEngine.ts"],
+      "actions": ["prism_automation:instructions"],
+      "skills": ["/setup-sheet-generate"],
+      "description": "CNC setup sheet generation"
+    },
+    "hypermill": {
+      "files": ["src/engines/hypermill/"],
+      "actions": ["prism_cam:hypermill_lookup"],
+      "skills": ["/hypermill-full-job", "/hypermill-speeds-feeds", "/hypermill-material-lookup"],
+      "description": "hyperMILL CAM integration"
+    },
+    "okuma": {
+      "files": ["src/engines/OkumaOSPParserEngine.ts", "src/engines/OkumaDialectKnowledgeEngine.ts", "src/engines/OkumaMacroHeaderGeneratorEngine.ts"],
+      "actions": [],
+      "skills": ["/okuma-macro"],
+      "description": "Okuma OSP programming"
+    },
+    "haas": {
+      "files": ["src/engines/HaasParserEngine.ts", "src/engines/ControllerDialectEngine.ts"],
+      "actions": ["prism_cam:controller_dialect"],
+      "skills": ["/ppg-quick-start"],
+      "description": "Haas NGC controller"
+    },
+    "fanuc": {
+      "files": ["src/engines/ControllerDialectEngine.ts"],
+      "actions": ["prism_cam:controller_dialect"],
+      "skills": ["/ppg-quick-start"],
+      "description": "Fanuc controller programming"
+    },
+    "siemens": {
+      "files": ["src/engines/ControllerDialectEngine.ts"],
+      "actions": ["prism_cam:controller_dialect"],
+      "skills": ["/ppg-quick-start"],
+      "description": "Siemens Sinumerik controller"
+    },
+    "roadmap": {
+      "files": ["mcp-server/data/roadmap-index.json", "state/CURRENT_POSITION.md"],
+      "actions": [],
+      "skills": ["/rgs", "/pick-task", "/milestone"],
+      "description": "Roadmap navigation and task management"
+    },
+    "svi": {
+      "files": ["state/shared/SVI-compact.md"],
+      "actions": ["prism_dev:svi_read"],
+      "skills": ["/svi", "/status"],
+      "description": "System Variability Index"
+    },
+    "handoff": {
+      "files": ["state/HANDOFF.md", "state/shared/handoffs/"],
+      "actions": [],
+      "skills": ["/handoff", "/precompact"],
+      "description": "Session handoff and continuation"
+    },
+    "census": {
+      "files": ["src/engines/CapabilityCensusEngine.ts", "src/engines/UtilizationContractEngine.ts"],
+      "actions": ["prism_dev:capability_census", "prism_dev:utilization_map"],
+      "skills": ["/census"],
+      "description": "Capability census and utilization"
+    },
+    "pillar": {
+      "files": ["src/engines/ProductPillarEngine.ts"],
+      "actions": ["prism_dev:pillar_summary", "prism_dev:pillar_list"],
+      "skills": ["/pillar"],
+      "description": "Product pillar readiness"
+    },
+    "discover": {
+      "files": ["src/engines/DiscoverabilityEngine.ts"],
+      "actions": ["prism_dev:discover_search", "prism_dev:discover_what_can_i_do"],
+      "skills": ["/discover"],
+      "description": "Capability discovery and search"
+    },
+    "token": {
+      "files": ["src/engines/TokenEconomyEngine.ts", "state/token-economy-session.json"],
+      "actions": ["prism_dev:token_budget", "prism_dev:token_economy_report"],
+      "skills": ["/token-economy", "/token-budget"],
+      "description": "Token budget and economy"
+    },
+    "memory": {
+      "files": ["src/engines/PersistentMemoryEngine.ts", "src/engines/MemoryGraphEngine.ts"],
+      "actions": ["prism_dev:memory_store", "prism_dev:memory_search"],
+      "skills": ["/remember"],
+      "description": "Persistent memory and cross-session learning"
+    },
+    "copilot": {
+      "files": ["src/engines/CodingCopilotEngine.ts"],
+      "actions": ["prism_dev:copilot_suggest", "prism_dev:copilot_check_duplication"],
+      "skills": ["/dedup"],
+      "description": "Coding copilot and dedup detection"
+    },
+    "workflow": {
+      "files": ["src/engines/WorkflowOrchestrationEngine.ts"],
+      "actions": ["prism_dev:workflow_list", "prism_dev:workflow_plan"],
+      "skills": ["/workflow"],
+      "description": "Workflow orchestration"
+    },
+    "learning path": {
+      "files": ["src/engines/CapabilityPathEngine.ts"],
+      "actions": ["prism_dev:capability_path_list"],
+      "skills": ["/learn-path"],
+      "description": "Capability learning paths"
+    },
+    "hook": {
+      "files": [".claude/hooks/lib/", ".claude/hooks/portable-user-settings.json"],
+      "actions": ["prism_hook:hook_list"],
+      "skills": ["/hook-status", "/hook-browse"],
+      "description": "Hook management and enforcement"
+    },
+    "skill": {
+      "files": ["skills-consolidated/"],
+      "actions": ["prism_skill_script:skill_list"],
+      "skills": ["/commands", "/forge-skills"],
+      "description": "Skill management"
+    },
+    "engine": {
+      "files": ["mcp-server/data/docs/ENGINE_DIGEST.md", "src/engines/index.ts"],
+      "actions": ["prism_dev:auto_forge"],
+      "skills": ["/engine-browse", "/forge-engine", "/navigate"],
+      "description": "Engine discovery and creation"
+    },
+    "dispatcher": {
+      "files": ["mcp-server/data/docs/DISPATCHER_DIGEST.md", "src/tools/dispatchers/"],
+      "actions": ["prism_dev:gap_scan"],
+      "skills": ["/action-search", "/action-help"],
+      "description": "Dispatcher and action lookup"
+    },
+    "test": {
+      "files": ["src/__tests__/"],
+      "actions": ["prism_dev:test_gap_scan"],
+      "skills": ["/test", "/forge-tests"],
+      "description": "Test files and coverage"
+    },
+    "build": {
+      "files": ["mcp-server/package.json", "mcp-server/tsconfig.json"],
+      "actions": ["prism_dev:build"],
+      "skills": ["/health"],
+      "description": "Build system and TypeScript config"
+    },
+    "web": {
+      "files": ["mcp-server/web/src/"],
+      "actions": [],
+      "skills": ["/lathe-studio"],
+      "description": "Web application (React/Vite)"
+    },
+    "cad": {
+      "files": ["cad-engine/"],
+      "actions": ["prism_cad:cad_analyze"],
+      "skills": ["/cad-import-guide"],
+      "description": "CAD engine (Python/CadQuery)"
+    },
+    "index": {
+      "files": ["mcp-server/data/docs/MASTER_INDEX_COMPACT.md", "mcp-server/data/docs/CODE_SYSTEM_INDEX.json", "mcp-server/data/docs/PRISM_KEYWORD_ROUTES.json"],
+      "actions": [],
+      "skills": ["/digest-all", "/navigate", "/ref-first"],
+      "description": "System indexes and navigation"
+    },
+    "wear": {
+      "files": ["src/engines/ThermalWearCouplingEngine.ts", "src/engines/AdvancedWearPhysicsEngine.ts"],
+      "actions": ["prism_calc:wear_prediction", "prism_calc:archard_wear"],
+      "skills": ["/wear-analysis"],
+      "description": "Tool wear prediction"
+    },
+    "chip": {
+      "files": ["src/engines/AdvancedChipThicknessEngine.ts"],
+      "actions": ["prism_calc:chip_thinning", "prism_calc:chip_load"],
+      "skills": ["/calc"],
+      "description": "Chip thickness and chip load"
+    },
+    "vibration": {
+      "files": ["src/engines/BarStockVibrationEngine.ts"],
+      "actions": ["prism_vibration_physics:vibration_sdof", "prism_calc:vibration_frf"],
+      "skills": ["/vam-analyze"],
+      "description": "Vibration analysis"
+    },
+    "surface finish": {
+      "files": ["src/engines/SurfaceFinishPredictionEngine.ts"],
+      "actions": ["prism_machining_kb:kb_predict_surface_finish", "prism_calc:surface_finish"],
+      "skills": ["/calc"],
+      "description": "Surface finish prediction"
+    },
+    "dfm": {
+      "files": ["src/engines/DFMPipelineEngine.ts"],
+      "actions": ["prism_feasibility:dfm_check"],
+      "skills": ["/dfm-check", "/feasibility-check"],
+      "description": "Design for manufacturability"
+    },
+    "monte carlo": {
+      "files": ["src/engines/MonteCarloEngine.ts"],
+      "actions": ["prism_calc:monte_carlo_simulate"],
+      "skills": ["/what-if"],
+      "description": "Monte Carlo simulation"
+    },
+    "constants": {
+      "files": ["src/physics/constants.ts"],
+      "actions": ["prism_machining_kb:kb_lookup_kienzle", "prism_machining_kb:kb_lookup_taylor"],
+      "skills": ["/formula-browse"],
+      "description": "Canonical physics constants"
+    },
+    "registry": {
+      "files": ["src/registries/"],
+      "actions": ["prism_data:material_lookup", "prism_data:tool_lookup", "prism_data:machine_lookup"],
+      "skills": ["/registry-browse"],
+      "description": "Data registries (material, tool, machine)"
+    },
+    "algorithm": {
+      "files": ["src/algorithms/"],
+      "actions": ["prism_calc:algorithm_list", "prism_calc:algorithm_calculate"],
+      "skills": ["/algorithm-inspect"],
+      "description": "Mathematical algorithms"
+    },
+    "laser": {
+      "files": ["src/engines/LaserProgramAssemblerEngine.ts"],
+      "actions": ["prism_edm:laser_program"],
+      "skills": [],
+      "description": "Laser cutting/marking/welding"
+    },
+    "waterjet": {
+      "files": ["src/engines/WaterjetProgramAssemblerEngine.ts"],
+      "actions": ["prism_edm:waterjet_program"],
+      "skills": [],
+      "description": "Waterjet cutting"
+    },
+    "fusion": {
+      "files": ["src/engines/FusionPostSyncEngine.ts", "src/engines/FusionCAMExtractorEngine.ts"],
+      "actions": [],
+      "skills": ["/fusion-generate", "/cps-analyze"],
+      "description": "Fusion 360 integration"
+    },
+    "welding": {
+      "files": ["src/engines/WeldingEngine.ts", "src/engines/WeldStrengthEngine.ts"],
+      "actions": ["prism_welding:weld_analyze"],
+      "skills": [],
+      "description": "Welding process calculations"
+    },
+    "bearing": {
+      "files": ["src/engines/BearingSelectionEngine.ts", "src/engines/JournalBearingEngine.ts"],
+      "actions": ["prism_mechanical:bearing_select"],
+      "skills": [],
+      "description": "Bearing selection and analysis"
+    },
+    "gear": {
+      "files": ["src/engines/GearTrainEngine.ts", "src/engines/GearHobbingEngine.ts"],
+      "actions": ["prism_mechanical:gear_train_calculate", "prism_calc:hobbing_calc"],
+      "skills": [],
+      "description": "Gear design and hobbing"
+    },
+    "spring": {
+      "files": ["src/engines/SpringDesignEngine.ts"],
+      "actions": ["prism_mechanical:spring_calculate"],
+      "skills": [],
+      "description": "Spring design"
+    },
+    "fatigue": {
+      "files": ["src/engines/FatigueLifeEngine.ts", "src/engines/CoffinMansonFatigueEngine.ts"],
+      "actions": ["prism_mechanical:thermal_fatigue_calculate"],
+      "skills": [],
+      "description": "Fatigue life prediction"
+    }
+  }
+}

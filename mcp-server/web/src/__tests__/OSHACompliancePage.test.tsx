@@ -1,0 +1,106 @@
+/**
+ * MachineRateDatabaseEngine — TCO-based machine hourly rates.
+ *
+ * Ported from PRISM_COST_DATABASE.js archive (1026 lines).
+ * Provides accurate fully-burdened hourly rates for 50+ machine categories
+ * using Total Cost of Ownership (TCO): depreciation + interest + maintenance +
+ * utilities + floor space, divided by annual operating hours.
+ *
+ * Used by QuoteEstimatorEngine for accurate machining cost calculations.
+ *
+ * @module MachineRateDatabaseEngine
+ * @source archive:PRISM_COST_DATABASE.js
+ */
+// ─── Machine Database ────────────────────────────────────────
+const MACHINES = [
+    // VMC — Vertical Machining Centers
+    { id: "vmc_entry", name: "VMC Entry-Level", family: "vmc", tier: "entry",
+        purchasePrice: { min: 35000, max: 75000, typical: 55000 }, depreciationYears: 10,
+        annualMaintenancePct: 0.03, annualUtilities: 2400, floorSpaceSqFt: 80,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 2000,
+        hourlyRate: { min: 25, max: 45, typical: 35 }, setupMultiplier: 1.5,
+        examples: "Haas Mini Mill, Tormach 1100MX" },
+    { id: "vmc_tier2", name: "VMC Mid-Range", family: "vmc", tier: "tier2",
+        purchasePrice: { min: 75000, max: 200000, typical: 125000 }, depreciationYears: 10,
+        annualMaintenancePct: 0.025, annualUtilities: 4800, floorSpaceSqFt: 150,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 4000,
+        hourlyRate: { min: 45, max: 85, typical: 65 }, setupMultiplier: 1.5,
+        examples: "Haas VF-2, DMG Mori M1, Mazak VCN-430A" },
+    { id: "vmc_production", name: "VMC Production", family: "vmc", tier: "production",
+        purchasePrice: { min: 200000, max: 500000, typical: 350000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities: 7200, floorSpaceSqFt: 250,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 5000,
+        hourlyRate: { min: 75, max: 125, typical: 95 }, setupMultiplier: 1.25,
+        examples: "Haas VF-4SS, Mazak Variaxis i-300, DMG Mori NHX" },
+    { id: "vmc_highperf", name: "VMC High-Performance / 5-Axis", family: "vmc", tier: "highPerformance",
+        purchasePrice: { min: 400000, max: 1500000, typical: 750000 }, depreciationYears: 15,
+        annualMaintenancePct: 0.02, annualUtilities: 12000, floorSpaceSqFt: 400,
+        floorSpaceCostPerSqFtMonth: 18, annualOperatingHours: 5500,
+        hourlyRate: { min: 125, max: 250, typical: 175 }, setupMultiplier: 1.25,
+        examples: "Makino a500Z, Kern Micro, GF Mikron MILL S" },
+    // HMC — Horizontal Machining Centers
+    { id: "hmc_tier2", name: "HMC Mid-Range", family: "hmc", tier: "tier2",
+        purchasePrice: { min: 250000, max: 600000, typical: 400000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities: 9600, floorSpaceSqFt: 350,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 5500,
+        hourlyRate: { min: 85, max: 150, typical: 115 }, setupMultiplier: 1.25,
+        examples: "Mazak HCN-5000, Doosan NHP" },
+    { id: "hmc_production", name: "HMC Production", family: "hmc", tier: "production",
+        purchasePrice: { min: 500000, max: 1200000, typical: 800000 }, depreciationYears: 15,
+        annualMaintenancePct: 0.018, annualUtilities: 14400, floorSpaceSqFt: 500,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 6000,
+        hourlyRate: { min: 135, max: 225, typical: 175 }, setupMultiplier: 1.15,
+        examples: "Mazak HCN-8800, Makino a81nx, DMG Mori NHX 10000" },
+    // CNC Lathes
+    { id: "lathe_entry", name: "CNC Lathe Entry", family: "lathe", tier: "entry",
+        purchasePrice: { min: 30000, max: 60000, typical: 45000 }, depreciationYears: 10,
+        annualMaintenancePct: 0.025, annualUtilities: 2000, floorSpaceSqFt: 60,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 2000,
+        hourlyRate: { min: 25, max: 40, typical: 32 }, setupMultiplier: 1.5,
+        examples: "Haas ST-10, Doosan Lynx 2100" },
+    { id: "lathe_tier2", name: "CNC Lathe w/ Live Tooling", family: "lathe", tier: "tier2",
+        purchasePrice: { min: 80000, max: 200000, typical: 140000 }, depreciationYears: 10,
+        annualMaintenancePct: 0.025, annualUtilities: 4200, floorSpaceSqFt: 120,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 4000,
+        hourlyRate: { min: 45, max: 80, typical: 60 }, setupMultiplier: 1.35,
+        examples: "Haas ST-20Y, Mazak QT-250MY" },
+    { id: "lathe_multiaxis", name: "CNC Lathe Multi-Axis", family: "lathe", tier: "production",
+        purchasePrice: { min: 200000, max: 600000, typical: 380000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities: 7200, floorSpaceSqFt: 180,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 5000,
+        hourlyRate: { min: 75, max: 135, typical: 100 }, setupMultiplier: 1.25,
+        examples: "Mazak Integrex i-200, DMG Mori NLX 2500" },
+    { id: "lathe_swiss", name: "Swiss-Type Automatic", family: "lathe", tier: "production",
+        purchasePrice: { min: 150000, max: 450000, typical: 280000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.025, annualUtilities: 4800, floorSpaceSqFt: 80,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 5500,
+        hourlyRate: { min: 65, max: 120, typical: 85 }, setupMultiplier: 1.75,
+        examples: "Citizen L20, Star SR-20J, Tsugami" },
+    { id: "lathe_millturn", name: "Mill-Turn Center", family: "lathe", tier: "highPerformance",
+        purchasePrice: { min: 400000, max: 1000000, typical: 650000 }, depreciationYears: 15,
+        annualMaintenancePct: 0.02, annualUtilities: 10000, floorSpaceSqFt: 300,
+        floorSpaceCostPerSqFtMonth: 18, annualOperatingHours: 5500,
+        hourlyRate: { min: 110, max: 200, typical: 150 }, setupMultiplier: 1.3,
+        examples: "Mazak Integrex e-500H, DMG Mori CTX beta 2000 TC" },
+    // EDM
+    { id: "edm_sinker_entry", name: "Sinker EDM Entry", family: "edm", tier: "entry",
+        purchasePrice: { min: 50000, max: 120000, typical: 80000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities: 3600, floorSpaceSqFt: 80,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 3000,
+        hourlyRate: { min: 35, max: 60, typical: 45 }, setupMultiplier: 2.0,
+        examples: "Sodick AG40L, Makino EDNC" },
+    { id: "edm_sinker_tier2", name: "Sinker EDM Production", family: "edm", tier: "tier2",
+        purchasePrice: { min: 120000, max: 300000, typical: 200000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities: 6000, floorSpaceSqFt: 120,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 4500,
+        hourlyRate: { min: 55, max: 95, typical: 72 }, setupMultiplier: 1.75,
+        examples: "Sodick AG60L, Makino EDAF3" },
+    { id: "edm_wire_entry", name: "Wire EDM Entry", family: "edm", tier: "entry",
+        purchasePrice: { min: 80000, max: 150000, typical: 110000 }, depreciationYears: 10,
+        annualMaintenancePct: 0.025, annualUtilities: 3000, floorSpaceSqFt: 80,
+        floorSpaceCostPerSqFtMonth: 15, annualOperatingHours: 4000,
+        hourlyRate: { min: 35, max: 55, typical: 45 }, setupMultiplier: 1.5,
+        examples: "Sodick VL400Q, Fanuc Robocut" },
+    { id: "edm_wire_tier2", name: "Wire EDM Mid-Range", family: "edm", tier: "tier2",
+        purchasePrice: { min: 150000, max: 350000, typical: 240000 }, depreciationYears: 12,
+        annualMaintenancePct: 0.02, annualUtilities

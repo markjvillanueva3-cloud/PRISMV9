@@ -1,0 +1,94 @@
+{
+  "audit_id": "QA-MS1-P0-U02",
+  "title": "Safety Dispatcher Coverage Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T22:30:00Z",
+  "status": "COMPLETE",
+  "verdict": "0 CRITICAL, 1 MEDIUM, 1 LOW. 28/28 actions wired (100%). 10/28 tested (36%).",
+
+  "dispatcher_structure": {
+    "entry_point": "src/tools/dispatchers/safetyDispatcher.ts → registerSafetyDispatcher()",
+    "tool_name": "prism_safety",
+    "routing": "Action → category Set → handler function → engine method",
+    "categories": 5,
+    "total_actions": 28
+  },
+
+  "dispatcher_actions": [
+    { "category": "COLLISION", "action": "check_toolpath_collision", "handler": "collisionTools.ts:740", "engine_method": "collisionEngine.generateCollisionReport()", "wired": true, "tested": true },
+    { "category": "COLLISION", "action": "validate_rapid_moves", "handler": "collisionTools.ts:782", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "check_fixture_clearance", "handler": "collisionTools.ts:822", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "calculate_safe_approach", "handler": "collisionTools.ts:870", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "detect_near_miss", "handler": "collisionTools.ts:909", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "generate_collision_report", "handler": "collisionTools.ts:957", "engine_method": "collisionEngine.generateCollisionReport()", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "validate_tool_clearance", "handler": "collisionTools.ts:1010", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+    { "category": "COLLISION", "action": "check_5axis_head_clearance", "handler": "collisionTools.ts:1063", "engine_method": "collisionEngine (inline)", "wired": true, "tested": false },
+
+    { "category": "COOLANT", "action": "validate_coolant_flow", "handler": "coolantValidationTools.ts:373→handleValidateCoolantFlow", "engine_method": "coolantValidationEngine.validateCoolant()", "wired": true, "tested": true },
+    { "category": "COOLANT", "action": "check_through_spindle_coolant", "handler": "coolantValidationTools.ts:377→handleCheckTSC", "engine_method": "coolantValidationEngine.checkThroughSpindleCoolant()", "wired": true, "tested": true },
+    { "category": "COOLANT", "action": "calculate_chip_evacuation", "handler": "coolantValidationTools.ts:380→handleChipEvacuation", "engine_method": "coolantValidationEngine.calculateChipEvacuation()", "wired": true, "tested": false },
+    { "category": "COOLANT", "action": "validate_mql_parameters", "handler": "coolantValidationTools.ts:383→handleValidateMQL", "engine_method": "coolantValidationEngine.validateMQLParameters()", "wired": true, "tested": true },
+    { "category": "COOLANT", "action": "get_coolant_recommendations", "handler": "coolantValidationTools.ts:386→handleGetRecommendations", "engine_method": "coolantValidationEngine.getCoolantRecommendations()", "wired": true, "tested": false },
+
+    { "category": "SPINDLE", "action": "check_spindle_torque", "handler": "spindleProtectionTools.ts:520→handleCheckTorque", "engine_method": "SpindleProtectionEngine", "wired": true, "tested": true },
+    { "category": "SPINDLE", "action": "check_spindle_power", "handler": "spindleProtectionTools.ts:524→handleCheckPower", "engine_method": "SpindleProtectionEngine", "wired": true, "tested": true },
+    { "category": "SPINDLE", "action": "validate_spindle_speed", "handler": "spindleProtectionTools.ts:527→handleValidateSpeed", "engine_method": "SpindleProtectionEngine", "wired": true, "tested": false },
+    { "category": "SPINDLE", "action": "monitor_spindle_thermal", "handler": "spindleProtectionTools.ts:530→handleMonitorThermal", "engine_method": "SpindleProtectionEngine", "wired": true, "tested": false },
+    { "category": "SPINDLE", "action": "get_spindle_safe_envelope", "handler": "spindleProtectionTools.ts:533→handleGetEnvelope", "engine_method": "SpindleProtectionEngine", "wired": true, "tested": false },
+
+    { "category": "BREAKAGE", "action": "predict_tool_breakage", "handler": "toolBreakageTools.ts:505→handlePredictBreakage", "engine_method": "ToolBreakageEngine", "wired": true, "tested": true },
+    { "category": "BREAKAGE", "action": "calculate_tool_stress", "handler": "toolBreakageTools.ts:509→handleCalculateStress", "engine_method": "ToolBreakageEngine", "wired": true, "tested": false },
+    { "category": "BREAKAGE", "action": "check_chip_load_limits", "handler": "toolBreakageTools.ts:512→handleCheckChipLoad", "engine_method": "ToolBreakageEngine", "wired": true, "tested": false },
+    { "category": "BREAKAGE", "action": "estimate_tool_fatigue", "handler": "toolBreakageTools.ts:515→handleEstimateFatigue", "engine_method": "ToolBreakageEngine", "wired": true, "tested": false },
+    { "category": "BREAKAGE", "action": "get_safe_cutting_limits", "handler": "toolBreakageTools.ts:518→handleGetSafeLimits", "engine_method": "ToolBreakageEngine", "wired": true, "tested": false },
+
+    { "category": "WORKHOLDING", "action": "calculate_clamp_force_required", "handler": "workholdingTools.ts:839→handleCalculateClampForce", "engine_method": "WorkholdingEngine", "wired": true, "tested": true },
+    { "category": "WORKHOLDING", "action": "validate_workholding_setup", "handler": "workholdingTools.ts:843→handleValidateWorkholding", "engine_method": "WorkholdingEngine", "wired": true, "tested": true },
+    { "category": "WORKHOLDING", "action": "check_pullout_resistance", "handler": "workholdingTools.ts:846→handleCheckPullout", "engine_method": "WorkholdingEngine", "wired": true, "tested": false },
+    { "category": "WORKHOLDING", "action": "analyze_liftoff_moment", "handler": "workholdingTools.ts:849→handleAnalyzeLiftoff", "engine_method": "WorkholdingEngine", "wired": true, "tested": false },
+    { "category": "WORKHOLDING", "action": "calculate_part_deflection", "handler": "workholdingTools.ts:852→handleCalculateDeflection", "engine_method": "WorkholdingEngine", "wired": true, "tested": false },
+    { "category": "WORKHOLDING", "action": "validate_vacuum_fixture", "handler": "workholdingTools.ts:855→handleValidateVacuumFixture", "engine_method": "WorkholdingEngine", "wired": true, "tested": false }
+  ],
+
+  "engine_methods_without_dispatcher": [],
+
+  "coverage_summary": {
+    "wired_actions": "28/28 (100%)",
+    "tested_actions": "10/28 (36%)",
+    "tested_by_category": {
+      "COLLISION": "1/8 (13%)",
+      "COOLANT": "3/5 (60%)",
+      "SPINDLE": "2/5 (40%)",
+      "BREAKAGE": "1/5 (20%)",
+      "WORKHOLDING": "2/6 (33%)"
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F11",
+      "severity": "MEDIUM",
+      "title": "Only 36% of safety actions have test coverage",
+      "issue": "18 of 28 safety-critical actions have no test in safety-actions.test.ts. Most collision actions (7/8), most breakage actions (4/5), and several workholding/spindle actions are untested. These are BLOCKING safety tools — failure could mean unsafe machining parameters pass unchecked.",
+      "impact": "Regressions in untested actions would not be caught by CI. The untested actions include calculate_chip_evacuation (chip packing → drill fire risk) and estimate_tool_fatigue (undetected fatigue → tool explosion).",
+      "fix": "Add test cases for all 18 untested actions. Priority: calculate_chip_evacuation, estimate_tool_fatigue, check_5axis_head_clearance (highest safety impact)."
+    },
+    {
+      "id": "F12",
+      "severity": "LOW",
+      "title": "Duplicate collision report actions",
+      "issue": "Both check_toolpath_collision and generate_collision_report call collisionEngine.generateCollisionReport() with similar parameters. They appear to be near-duplicates offering slightly different response shapes.",
+      "impact": "User confusion about which action to call. No safety gap.",
+      "fix": "Consider aliasing one to the other or documenting the distinction clearly."
+    }
+  ],
+
+  "summary": {
+    "critical_findings": 0,
+    "medium_findings": 1,
+    "low_findings": 1,
+    "action_wiring": "100% — all 28 dispatcher actions route to handler functions with engine implementations",
+    "test_gap": "36% coverage — 18 untested safety-critical actions need tests",
+    "architecture": "Clean separation: dispatcher → handler → engine. No actions bypass the safety chain."
+  }
+}

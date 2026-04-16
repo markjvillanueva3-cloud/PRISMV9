@@ -1,0 +1,154 @@
+# PRISM — Manufacturing Intelligence Platform
+
+## CRITICAL SLASH COMMANDS — MUST USE PROACTIVELY
+
+### Learning Commands (AUTO-SUGGEST when triggered)
+| Command | When to Use |
+|---------|-------------|
+| `/pdf-learn` | ANY mention of PDF, document, manual, catalog, paper |
+| `/video-learn` | ANY mention of video, youtube, tutorial, training |
+| `/shop-knowledge` | ANY mention of tribal, shop floor, operator wisdom |
+
+### Forge Commands (ALWAYS /dedup FIRST)
+| Command | When to Use |
+|---------|-------------|
+| `/dedup` | BEFORE creating ANY new engine, hook, skill, script |
+| `/forge-triple` | Creating new engines + skills + hooks together |
+
+### Machine Commands
+| Command | When to Use |
+|---------|-------------|
+| `/wire-edm-studio` | Wire EDM programming (Mitsubishi, etc.) |
+| `/lathe-studio` | Lathe/turning programming (Okuma, etc.) |
+| `/machine-harden` | Hardening AI for specific machines |
+
+### Optimization Commands
+| Command | When to Use |
+|---------|-------------|
+| `/auto-speed-feed` | Speed/feed calculations |
+| `/program-optimize` | CNC program optimization |
+| `/scrutinize` | Deep code review |
+
+### Business Commands
+| Command | When to Use |
+|---------|-------------|
+| `/quote-to-ship` | Quotes, estimates, job costing |
+| `/smart` | AI-powered intelligent task routing |
+
+**Full manifest**: `state/shared/PRISM-COMMANDS-MANIFEST.md`
+
+## AI System Intelligence (MANDATORY READ)
+```
+QUICK START: Read state/shared/SESSION-START-INTELLIGENCE.md (compact)
+FULL DETAIL: Read state/shared/PRISM-AI-SYSTEM-INTELLIGENCE.md (188 lines)
+
+BEFORE CREATING: duplicationGuardEngine.mustCheckBeforeCreating(type, name, desc)
+BEFORE EXTRACTING: duplicationGuardEngine.mustNotReExtract(sourceId)
+  → Both methods THROW errors if duplicate found — cannot bypass
+
+ALREADY EXTRACTED (do not re-extract):
+  Mastercam(45), hyperMILL(25), Okuma(63), Fanuc(35), Haas(28), Titans(42)
+```
+
+**Extraction log:** `mcp-server/data/state/extraction-log.json`
+**Asset registry:** `mcp-server/data/state/cross-session-asset-registry.json`
+
+## Self-Awareness (Auto-Inject)
+```
+PRISM: 84 dispatchers / 4,296 actions / 1,660+ engines
+H: Drive: 24,545 JM DIE programs | 100+ customers | 3,700+ tribal tips | 296 playbook rules
+JM DIE Root: H:/PRISM/JM DIE (CNC LATHE, WIRE EDM, CNC MILL HAAS, OKUMA, etc.)
+API: prismSelfAwarenessEngine.getJMDieCustomerPath("ALCOA") → direct file path
+     prismSelfAwarenessEngine.searchTribalKnowledge("thin wall") → tips
+     prismSelfAwarenessEngine.searchPlaybookRules("roughing") → rules
+Full directive: state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md
+```
+
+## Directory Structure
+- `mcp-server/` — MCP server (the main codebase). See `mcp-server/CLAUDE.md` for dev context.
+- `JM DIE/` — JM Die Company program archive (24,545 files, 100+ customers)
+- `PRISM-UNIFIED-ROADMAP-v2.md` — Master roadmap (v2.1, 48 scrutiny fixes applied)
+- `HANDOFF-2026-04-10.md` — Session handoff with 3 pending tasks
+- `plans-archive/` — 101 archived plan files from prior Claude sessions
+- `state/shared/` — Cross-session directives (self-awareness, coordination, SVI)
+
+## Test Shop
+JM Die Company is the canonical test shop for ALL PRISM development.
+See `mcp-server/src/data/jm-die-profile.ts` for full company profile.
+See `mcp-server/src/engines/ShopConfigurationEngine.ts` for 21-machine inventory.
+
+## Quick Start
+```bash
+cd mcp-server
+npm run build:fast    # esbuild only (~3s)
+npm run build         # tsc + esbuild (~30s, 16GB heap)
+npx vitest run        # run all tests
+```
+
+## Verification Discipline
+- Tests must be real behavior checks tied to the changed code, not placeholder pass assertions.
+- For workflow or routing changes, tests must prove upstream/downstream continuity by parsing rendered URLs and asserting concrete params instead of only checking that a link exists.
+- If the hook stack reports missing test legitimacy, fix the test scope first and then run vitest.
+
+## Build Commands
+```bash
+npm run build:fast        # esbuild only (~3s) — use for rapid iteration
+npm run build:incremental # tsc incremental + esbuild (~10s) — faster than full build
+npm run build:verify      # full tsc + esbuild (~30s) — use before commits
+npm run build             # alias for build:verify
+```
+
+## CI/CD
+GitHub Actions workflows in `.github/workflows/`:
+- `ci.yml` — runs on PR: lint, type-check, test, build
+- `deploy.yml` — runs on main merge: build, deploy
+- `nightly.yml` — scheduled: full test suite, coverage report
+
+## Schema Versioning
+All JSON state files require schema versioning:
+- `schemaVersion` field in every state JSON
+- Migrations in `src/migrations/` for version upgrades
+- Backward compatibility maintained for N-1 versions
+
+## Roadmap
+The ONLY roadmap is `PRISM-UNIFIED-ROADMAP-v2.md` (v2.1).
+Do NOT follow old roadmaps in `data/docs/roadmap/` or `plans-archive/`.
+
+## AI Utilization Protocol
+
+### Duplication Guard (MANDATORY)
+Before creating ANY new engine/algorithm/formula/hook/action:
+```typescript
+import { duplicationGuardEngine } from "mcp-server/src/engines/DuplicationGuardEngine.js";
+const check = duplicationGuardEngine.checkBeforeCreating({
+  assetType: "engine", proposedName: "MyEngine",
+  keywords: ["cutting", "force"], description: "..."
+});
+if (!check.shouldProceed) { /* USE existing: check.matches[0] */ }
+```
+
+### Creative Reasoning
+For complex problems, use cross-domain synthesis:
+```typescript
+import { prismCreativeReasoningEngine } from "mcp-server/src/engines/PRISMCreativeReasoningEngine.js";
+const result = prismCreativeReasoningEngine.explore(problem, "optimal");
+// Modes: conventional → exploratory → hybrid → innovative → optimal
+```
+**15 scientific domains**: control theory, materials science, robotics, ML, precision engineering
+**120+ formulas/algorithms**: PID, LQR, Kalman, Johnson-Cook, NURBS, S-curve, CNN, etc.
+
+### Cross-Domain Learning
+```typescript
+import { crossDisciplinaryDeepLearningEngine } from "mcp-server/src/engines/CrossDisciplinaryDeepLearningEngine.js";
+// CONTROL_THEORY: PID, LQR, Extended Kalman Filter
+// MATERIALS_SCIENCE: Johnson-Cook, Kienzle, Voce hardening
+// GEOMETRY: NURBS, Bezier (de Casteljau), Laplacian smoothing
+// ROBOTICS: Forward kinematics, RTCP, S-curve motion
+// MACHINE_LEARNING: Ridge regression, K-means, CNN convolution
+// PRECISION: Error budget RSS, thermal expansion, Abbe error
+```
+
+### Self-Awareness
+Full directive: `state/shared/PRISM-SELF-AWARENESS-DIRECTIVE.md`
+- AI capability inventory, recommended features, multi-agent patterns
+- Automatically injected during compaction survival

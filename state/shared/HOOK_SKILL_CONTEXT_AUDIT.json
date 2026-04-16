@@ -1,0 +1,114 @@
+{
+  "generated_at": "2026-03-28T00:55:17.581Z",
+  "coverage": {
+    "hasSessionCompact": true,
+    "hasPostToolCompressor": true,
+    "hasCoordinationPoll": true,
+    "hasCoordinationDaemon": true,
+    "autoRoute": {
+      "contextBudget": true,
+      "memoryPrune": true,
+      "checkpoint": true,
+      "featureMatrix": true
+    },
+    "candidateSkills": [
+      {
+        "name": "activate-features",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\activate-features",
+        "description": "One-shot activation of all automatic Codex features -- hooks, crons, health checks, telemetry. Run once per fresh setup."
+      },
+      {
+        "name": "checkpoint",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\checkpoint",
+        "description": "Create a named context checkpoint before destructive operations or after milestone completion. Saves current state summary."
+      },
+      {
+        "name": "codebase-memory-exploring",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\codebase-memory-exploring",
+        "description": "Codebase knowledge graph expert. ALWAYS invoke this skill when the user explores code, searches for functions/classes/routes, asks about architecture, or needs codebase orientation. Do not use Grep, Glob, or file search directly — use codebase-memory-mcp search_graph and get_architecture first."
+      },
+      {
+        "name": "codebase-memory-quality",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\codebase-memory-quality",
+        "description": "Code quality analysis expert. ALWAYS invoke this skill when the user asks about dead code, unused functions, complexity, refactor candidates, or cleanup opportunities. Do not search files manually — use codebase-memory-mcp search_graph with degree filters first."
+      },
+      {
+        "name": "codebase-memory-reference",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\codebase-memory-reference",
+        "description": "Codebase-memory-mcp reference guide. ALWAYS invoke this skill when the user asks about MCP tools, graph queries, Cypher syntax, edge types, or how to use the knowledge graph. Do not guess tool parameters — load this reference first."
+      },
+      {
+        "name": "codebase-memory-tracing",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\codebase-memory-tracing",
+        "description": "Call chain and dependency expert. ALWAYS invoke this skill when the user asks who calls a function, what a function calls, needs impact analysis, or traces dependencies. Do not grep for function names directly — use codebase-memory-mcp trace_call_path first."
+      },
+      {
+        "name": "context-budget",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\context-budget",
+        "description": "Monitor context window pressure, recommend compaction, track critical fact survival rate."
+      },
+      {
+        "name": "dispatch-format",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\dispatch-format",
+        "description": "Format PRISM output for Dispatch (phone) consumption. Compact, emoji-free, 1-line summaries with expandable details."
+      },
+      {
+        "name": "feature-matrix",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\feature-matrix",
+        "description": "Show which Codex features are active, which should be activated, and when each triggers automatically."
+      },
+      {
+        "name": "memory-prune",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\memory-prune",
+        "description": "Analyze and prune stale memory entries. Checks referenced files still exist, archives old entries, keeps MEMORY.md under 180 lines."
+      },
+      {
+        "name": "model-router",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\model-router",
+        "description": "\"Recommend optimal Codex model tier (haiku/sonnet/opus) for a given task based on historical success rates and cost efficiency.\""
+      },
+      {
+        "name": "prism-review",
+        "scope": "agent",
+        "path": "C:\\Users\\Admin.DIGITALSTORM-PC\\.agents\\skills\\prism-review",
+        "description": "Run PRISM-specific code review on recent changes. Dispatches physics, wiring, and test review agents in parallel."
+      }
+    ]
+  },
+  "gaps": [
+    "hook coverage should stay focused on recovery, compression, and routing; avoid noisy always-on prompts."
+  ],
+  "recommendations": [
+    {
+      "target": "SessionStart",
+      "purpose": "Inject compact context recovery, memory pressure, SVI watch health, and bridge coverage."
+    },
+    {
+      "target": "PostToolUse(Bash|Read)",
+      "purpose": "Warn when output volume or file size suggests summarization is better than raw echo."
+    },
+    {
+      "target": "UserPromptSubmit",
+      "purpose": "Route hook/context/token prompts toward context-budget, memory-prune, checkpoint, and feature-matrix guidance."
+    },
+    {
+      "target": "PreCompact/Stop",
+      "purpose": "Keep shared directive paths present in survival artifacts so compaction recovery remains durable."
+    },
+    {
+      "target": "SessionStart + UserPromptSubmit",
+      "purpose": "Keep shared Claude/Codex coordination status warm and inject unseen agent updates before replanning."
+    }
+  ]
+}

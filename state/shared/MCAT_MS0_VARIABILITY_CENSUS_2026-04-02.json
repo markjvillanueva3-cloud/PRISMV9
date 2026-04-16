@@ -1,0 +1,833 @@
+{
+  "generatedAt": "2026-04-03T01:37:48.670Z",
+  "date": "2026-04-02",
+  "lane": "MCAT-MS0 / P1-U01 support",
+  "parentMilestone": "MCAT-MS0",
+  "collaborationMode": "finish-current-delivery-first",
+  "gate": "finish-current-backend-and-frontend-work-first",
+  "liveChecks": {
+    "sviSummary": "SVI: 2.4 × 10^43 | Ψ=40.8% →\nEntities: 107,145 | Reachable: 406,549.05\n3 materials | 95608 tools | 910 machines\n1293 engines | 80 dispatchers | 2700 actions\n499 formulas | 208 algorithms | 762 strategies\n9 pipelines | 20 dialects | 926 tests",
+    "sviToolCount": 95608,
+    "sviMachineCount": 910,
+    "holderSampleQuery": {
+      "mode": "mill",
+      "layoutKind": "magazine",
+      "spindleConnectionTypeId": "cat40"
+    },
+    "holderSampleCount": 909
+  },
+  "machineSummary": {
+    "mergedEnhancedCount": 920,
+    "machineRegistryHeaderCount": 824,
+    "extractedMachineTopLevelFamilies": [
+      "BASIC",
+      "CONSOLIDATED",
+      "CORE",
+      "ENHANCED",
+      "LEVEL5"
+    ],
+    "machineRegistrySourceDirs": [
+      "extracted/engines/machines",
+      "extracted/machines/CORE",
+      "extracted/machines/ENHANCED/BY_COUNTRY/GERMANY",
+      "extracted/machines/ENHANCED/BY_COUNTRY/ITALY",
+      "extracted/machines/ENHANCED/BY_COUNTRY/JAPAN",
+      "extracted/machines/ENHANCED/BY_COUNTRY/SPAIN",
+      "extracted/machines/ENHANCED/BY_COUNTRY/TAIWAN",
+      "extracted/machines/ENHANCED/BY_COUNTRY/USA",
+      "extracted/machines/ENHANCED",
+      "extracted/machines/LEVEL5",
+      "extracted/machines"
+    ]
+  },
+  "toolSummary": {
+    "intendedHistoricalCount": 95608,
+    "activeRawRows": 15912,
+    "activeIdBearingRows": 15911,
+    "activeUniqueIds": 13967,
+    "extractedToolJsonFiles": 0,
+    "extractedToolJsFiles": 2,
+    "extractedToolFiles": [
+      "PRISM_CUTTING_TOOL_DATABASE_V2.js",
+      "PRISM_TOOL_TYPES_COMPLETE.js"
+    ]
+  },
+  "materialSummary": {
+    "masterCount": 163,
+    "materialJsonFiles": 223,
+    "materialDetailJsonFiles": 214,
+    "extractedMaterialJsFiles": 46,
+    "materialRegistryHeaderCount": 1047
+  },
+  "workholdingSummary": {
+    "families": {
+      "vises": 5,
+      "chucks": 4,
+      "collets": 4,
+      "fixtures": 5,
+      "toolholders": 2
+    }
+  },
+  "calculatorFallbackSummary": {
+    "machineCount": 17,
+    "toolCount": 19,
+    "materialCount": 40,
+    "workholdingCount": 5,
+    "programmingEnvironmentCount": 66,
+    "toolpathCount": 337
+  },
+  "backendStrategySummary": {
+    "toolpathStrategyHeader": "762+ Strategies across 5 major categories"
+  },
+  "sourceFamilies": [
+    {
+      "domain": "machines",
+      "familyId": "machine_enriched_json",
+      "label": "Merged enhanced machine corpus",
+      "sourcePaths": [
+        "data/machines/ENHANCED/json/ALL_MACHINES_ENRICHED.json"
+      ],
+      "count": 920,
+      "countMethod": "json.length",
+      "wiringState": "calculator_live_and_downstream",
+      "consumers": [
+        "calculator",
+        "program_release",
+        "user_machine_profile"
+      ],
+      "notes": [
+        "Primary merged machine truth currently used by the live calculator machine search path."
+      ]
+    },
+    {
+      "domain": "machines",
+      "familyId": "machine_registry_source_dirs",
+      "label": "MachineRegistry declared machine source directories",
+      "sourcePaths": [
+        "mcp-server/src/registries/MachineRegistry.ts"
+      ],
+      "count": 11,
+      "countMethod": "unique source_dir matches in MachineRegistry.ts",
+      "wiringState": "backend_reference",
+      "consumers": [
+        "machine_registry"
+      ],
+      "notes": [
+        "Registry metadata still references 11 unique machine source directories across extracted and enhanced layers."
+      ]
+    },
+    {
+      "domain": "machines",
+      "familyId": "machine_registry_header_claim",
+      "label": "MachineRegistry stale header claim",
+      "sourcePaths": [
+        "mcp-server/src/registries/MachineRegistry.ts"
+      ],
+      "count": 824,
+      "countMethod": "header regex",
+      "wiringState": "stale_metadata",
+      "consumers": [
+        "docs_only"
+      ],
+      "notes": [
+        "Header still says 824 machines even though merged enhanced JSON currently contains 920."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "cutting_tools_index",
+      "label": "CUTTING_TOOLS_INDEX.json",
+      "sourcePaths": [
+        "data/tools/CUTTING_TOOLS_INDEX.json"
+      ],
+      "count": 1944,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "drilling",
+      "label": "DRILLING.json",
+      "sourcePaths": [
+        "data/tools/DRILLING.json"
+      ],
+      "count": 360,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "endmill_catalogs",
+      "label": "ENDMILL_CATALOGS.json",
+      "sourcePaths": [
+        "data/tools/ENDMILL_CATALOGS.json"
+      ],
+      "count": 937,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "hole_finishing",
+      "label": "HOLE_FINISHING.json",
+      "sourcePaths": [
+        "data/tools/HOLE_FINISHING.json"
+      ],
+      "count": 189,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "indexable_milling_toolholding",
+      "label": "INDEXABLE_MILLING_TOOLHOLDING.json",
+      "sourcePaths": [
+        "data/tools/INDEXABLE_MILLING_TOOLHOLDING.json"
+      ],
+      "count": 984,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "backend_live_only",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": [
+        "Present in backend roots, but not yet fully surfaced in the calculator holder route."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "manufacturer_catalogs",
+      "label": "MANUFACTURER_CATALOGS.json",
+      "sourcePaths": [
+        "data/tools/MANUFACTURER_CATALOGS.json"
+      ],
+      "count": 1051,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "milling",
+      "label": "MILLING.json",
+      "sourcePaths": [
+        "data/tools/MILLING.json"
+      ],
+      "count": 948,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "specialty",
+      "label": "SPECIALTY.json",
+      "sourcePaths": [
+        "data/tools/SPECIALTY.json"
+      ],
+      "count": 240,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "threading",
+      "label": "THREADING.json",
+      "sourcePaths": [
+        "data/tools/THREADING.json"
+      ],
+      "count": 126,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "toolholders",
+      "label": "TOOLHOLDERS.json",
+      "sourcePaths": [
+        "data/tools/TOOLHOLDERS.json"
+      ],
+      "count": 6741,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_holder_live",
+      "consumers": [
+        "calculator",
+        "holder_catalog"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "tools_hierarchy",
+      "label": "TOOLS_HIERARCHY.json",
+      "sourcePaths": [
+        "data/tools/TOOLS_HIERARCHY.json"
+      ],
+      "count": 1,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning",
+      "label": "TURNING.json",
+      "sourcePaths": [
+        "data/tools/TURNING.json"
+      ],
+      "count": 81,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning_holders_expanded",
+      "label": "TURNING_HOLDERS_EXPANDED.json",
+      "sourcePaths": [
+        "data/tools/TURNING_HOLDERS_EXPANDED.json"
+      ],
+      "count": 600,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "backend_live_only",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": [
+        "Present in backend roots, but not yet fully surfaced in the calculator holder route."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning_inserts",
+      "label": "TURNING_INSERTS.json",
+      "sourcePaths": [
+        "data/tools/TURNING_INSERTS.json"
+      ],
+      "count": 1710,
+      "countMethod": "wrapped JSON rows",
+      "wiringState": "calculator_live_via_tool_search",
+      "consumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "notes": []
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_active_unique_ids",
+      "label": "Active unique tool ids across current ToolRegistry data roots",
+      "sourcePaths": [
+        "data/tools/*.json",
+        "extracted/tools/*"
+      ],
+      "count": 13967,
+      "countMethod": "deduped row.id across data/tools + extracted/tools dual-path logic",
+      "wiringState": "backend_live_root",
+      "consumers": [
+        "calculator",
+        "tool_search",
+        "tool_registry"
+      ],
+      "notes": [
+        "Current active live root is far below the intended 95,608-tool historical corpus."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_raw_rows",
+      "label": "Current ToolRegistry raw row count",
+      "sourcePaths": [
+        "data/tools/*.json"
+      ],
+      "count": 15912,
+      "countMethod": "ToolRegistry row wrapping logic",
+      "wiringState": "backend_live_root",
+      "consumers": [
+        "tool_registry"
+      ],
+      "notes": [
+        "Includes one non-id helper row; id-bearing rows are slightly lower."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_intended_historical_corpus",
+      "label": "Intended full PRISM tool corpus",
+      "sourcePaths": [
+        "PRISM-DESKTOP-PROJECT-INSTRUCTIONS.md",
+        "CLAUDE.md",
+        "CAMX-RESTRUCTURED-ROADMAP-v24.md",
+        "api/v1/dev/svi/summary"
+      ],
+      "count": 95608,
+      "countMethod": "project docs and SVI summary",
+      "wiringState": "target_not_recovered",
+      "consumers": [
+        "roadmap_target"
+      ],
+      "notes": [
+        "This is the historical/full corpus target, not the currently active live tool root on disk."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_master_reference",
+      "label": "Materials master reference catalog",
+      "sourcePaths": [
+        "data/materials/MATERIALS_MASTER.json"
+      ],
+      "count": 163,
+      "countMethod": "materials.length",
+      "wiringState": "reference_only",
+      "consumers": [
+        "material_reconciliation"
+      ],
+      "notes": [
+        "MaterialRegistry currently loads ISO-group detail JSONs, not MATERIALS_MASTER.json directly."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_detail_json",
+      "label": "ISO-group material detail JSON files",
+      "sourcePaths": [
+        "data/materials/**/*.json"
+      ],
+      "count": 214,
+      "countMethod": "all JSON files excluding index/master surfaces",
+      "wiringState": "calculator_live_via_material_search",
+      "consumers": [
+        "calculator",
+        "material_search",
+        "material_registry"
+      ],
+      "notes": [
+        "These are the files MaterialRegistry actively loads into the live material search path."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_extracted_js",
+      "label": "Extracted material JS families",
+      "sourcePaths": [
+        "extracted/materials/**/*.js"
+      ],
+      "count": 46,
+      "countMethod": "recursive .js file count",
+      "wiringState": "raw_corpus_only",
+      "consumers": [
+        "future_recovery"
+      ],
+      "notes": [
+        "Present on disk, but not part of the current MaterialRegistry live load path."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "material_registry_header_claim",
+      "label": "MaterialRegistry stale header claim",
+      "sourcePaths": [
+        "mcp-server/src/registries/MaterialRegistry.ts"
+      ],
+      "count": 1047,
+      "countMethod": "header regex",
+      "wiringState": "stale_metadata",
+      "consumers": [
+        "docs_only"
+      ],
+      "notes": [
+        "Registry header still claims 1,047 materials; live master reference currently lists 163 top-level materials and 214 detail JSON files."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "vises",
+      "label": "vises",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "count": 5,
+      "countMethod": "array length",
+      "wiringState": "backend_reference_fallback_ui",
+      "consumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "notes": [
+        "Calculator currently exposes only a small fallback workholding surface rather than the full workholding corpus."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "chucks",
+      "label": "chucks",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "count": 4,
+      "countMethod": "array length",
+      "wiringState": "backend_reference_fallback_ui",
+      "consumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "notes": [
+        "Calculator currently exposes only a small fallback workholding surface rather than the full workholding corpus."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "collets",
+      "label": "collets",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "count": 4,
+      "countMethod": "array length",
+      "wiringState": "backend_reference_fallback_ui",
+      "consumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "notes": [
+        "Calculator currently exposes only a small fallback workholding surface rather than the full workholding corpus."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "fixtures",
+      "label": "fixtures",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "count": 5,
+      "countMethod": "array length",
+      "wiringState": "backend_reference_fallback_ui",
+      "consumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "notes": [
+        "Calculator currently exposes only a small fallback workholding surface rather than the full workholding corpus."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "toolholders",
+      "label": "toolholders",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "count": 2,
+      "countMethod": "array length",
+      "wiringState": "backend_reference_fallback_ui",
+      "consumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "notes": [
+        "Calculator currently exposes only a small fallback workholding surface rather than the full workholding corpus."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_programming_environments",
+      "label": "Calculator programming environment catalog",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 66,
+      "countMethod": "PROGRAMMING_ENVIRONMENTS.length",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Static frontend CAM environment surface; not yet backed by the backend strategy registry."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_toolpaths",
+      "label": "Calculator static toolpath entries",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 337,
+      "countMethod": "sum(PROGRAMMING_ENVIRONMENTS[].toolpaths.length)",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Frontend toolpath surface is still static even though backend strategy registry is much larger."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "backend_strategy_registry_header",
+      "label": "Backend toolpath strategy registry headline count",
+      "sourcePaths": [
+        "mcp-server/src/registries/ToolpathStrategyRegistry.ts"
+      ],
+      "count": "762+ Strategies across 5 major categories",
+      "countMethod": "registry header string",
+      "wiringState": "backend_live_only",
+      "consumers": [
+        "strategy_registry",
+        "future_calculator_binding"
+      ],
+      "notes": [
+        "Strategy registry headline remains much larger than the calculator's current static toolpath set."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_machine_fallback",
+      "label": "Calculator fallback machine catalog",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 17,
+      "countMethod": "MACHINE_CATALOG.length",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Used only when live machine search fails or is unavailable."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_tool_fallback",
+      "label": "Calculator fallback tool catalog",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 19,
+      "countMethod": "TOOL_CATALOG.length",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Very small compared with the active live tool registry and the intended historical tool corpus."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_material_fallback",
+      "label": "Calculator fallback material catalog",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 40,
+      "countMethod": "MATERIAL_CATALOG.length",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Fallback only; live material path is backed by MaterialRegistry detail JSONs."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_workholding_fallback",
+      "label": "Calculator fallback workholding options",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "count": 5,
+      "countMethod": "WORKHOLDING_OPTIONS.length",
+      "wiringState": "calculator_fallback_only",
+      "consumers": [
+        "calculator"
+      ],
+      "notes": [
+        "Workholding is still mostly static in the calculator UI."
+      ]
+    }
+  ],
+  "reconciliations": [
+    {
+      "id": "machines_header_vs_live_enriched",
+      "status": "warning",
+      "left": {
+        "source": "MachineRegistry header",
+        "count": 824
+      },
+      "right": {
+        "source": "ALL_MACHINES_ENRICHED.json",
+        "count": 920
+      },
+      "note": "MachineRegistry metadata still lags the merged enhanced machine corpus."
+    },
+    {
+      "id": "machines_svi_vs_live_enriched",
+      "status": "warning",
+      "left": {
+        "source": "SVI summary",
+        "count": 910
+      },
+      "right": {
+        "source": "ALL_MACHINES_ENRICHED.json",
+        "count": 920
+      },
+      "note": "SVI still reports 910 machines while the merged enhanced machine corpus on disk is 920."
+    },
+    {
+      "id": "tools_target_vs_active_unique",
+      "status": "gap",
+      "left": {
+        "source": "Historical/SVI tool corpus",
+        "count": 95608
+      },
+      "right": {
+        "source": "Active live unique ids",
+        "count": 13967
+      },
+      "note": "The active live tool roots are far below the intended PRISM tool universe and must be recovered before exhaustive calculator proof can be honest."
+    },
+    {
+      "id": "tools_raw_vs_id_bearing",
+      "status": "warning",
+      "left": {
+        "source": "ToolRegistry wrapped raw rows",
+        "count": 15912
+      },
+      "right": {
+        "source": "id-bearing tool rows",
+        "count": 15911
+      },
+      "note": "At least one helper row exists in data/tools that does not carry an id and does not become a live tool record."
+    },
+    {
+      "id": "materials_header_vs_detail_json",
+      "status": "warning",
+      "left": {
+        "source": "MaterialRegistry header",
+        "count": 1047
+      },
+      "right": {
+        "source": "ISO-group detail JSON files",
+        "count": 214
+      },
+      "note": "MaterialRegistry header count and actual live detail-file count do not currently reconcile."
+    },
+    {
+      "id": "calculator_toolpaths_vs_backend_strategy_registry",
+      "status": "warning",
+      "left": {
+        "source": "Calculator static toolpaths",
+        "count": 337
+      },
+      "right": {
+        "source": "Backend strategy registry headline",
+        "count": "762+ Strategies across 5 major categories"
+      },
+      "note": "Calculator toolpath surface is still much smaller and static relative to the backend strategy corpus."
+    }
+  ],
+  "consumerMatrix": [
+    {
+      "consumer": "calculator",
+      "canonicalTruthStatus": "mixed_live_and_fallback",
+      "machine": "live /api/v1/data/machine/search + static fallback",
+      "material": "live /api/v1/data/material/search + static fallback",
+      "tool": "live /api/v1/data/tool/search + tiny static fallback",
+      "holder": "live /api/v1/data/holder/catalog from TOOLHOLDERS.json only",
+      "workholding": "static fallback only",
+      "camAndToolpath": "static fallback only",
+      "status": "partial"
+    },
+    {
+      "consumer": "user_machine_profile",
+      "canonicalTruthStatus": "backend_canonical_contract",
+      "machine": "canonical package + overlay contract exists",
+      "material": "not primary consumer",
+      "tool": "planned preference storage only",
+      "holder": "planned preference storage only",
+      "workholding": "overlay-ready",
+      "camAndToolpath": "preference-ready",
+      "status": "partial"
+    },
+    {
+      "consumer": "program_release",
+      "canonicalTruthStatus": "partially_converged_machine_consumer",
+      "machine": "shared search/lookup/facets live",
+      "material": "not primary consumer",
+      "tool": "not converged",
+      "holder": "not converged",
+      "workholding": "not converged",
+      "camAndToolpath": "not converged",
+      "status": "partial"
+    },
+    {
+      "consumer": "print_to_cnc",
+      "canonicalTruthStatus": "target",
+      "machine": "planned parity target",
+      "material": "planned parity target",
+      "tool": "planned parity target",
+      "holder": "planned parity target",
+      "workholding": "planned parity target",
+      "camAndToolpath": "planned parity target",
+      "status": "pending"
+    }
+  ],
+  "immediateNext": [
+    "U-MVAR02 - define the legality graph and bundle schema against the discovered source families",
+    "Recover the missing tool corpus path so active live tool roots move materially closer to the intended 95,608-tool universe",
+    "Promote workholding and backend toolpath registry surfaces out of fallback-only status in the calculator"
+  ]
+}

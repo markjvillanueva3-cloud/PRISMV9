@@ -1,0 +1,99 @@
+{
+  "id": "CAMX-MS13",
+  "version": "7.0.0",
+  "title": "Cost-Optimal Pipeline Decision Engine",
+  "brief": "Total cost model at every pipeline stage. Tool change, coolant, energy, setup cost optimization. TCO dashboard.",
+  "created_at": "2026-03-22T14:54:56Z",
+  "created_by": "claude-opus-4.6",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Cost Optimization",
+      "units": [
+        {
+          "id": "U01",
+          "title": "PipelineCostModelEngine",
+          "description": "Material + machining + tool wear + energy + overhead + scrap risk. Cost per part breakdown.",
+          "exit_conditions": [
+            "Cost model created ~600L",
+            "All cost streams",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U02",
+          "title": "ToolChangeOptimizationEngine",
+          "description": "Minimize tool changes. Magazine layout. Tool sharing.",
+          "exit_conditions": [
+            "Tool changes minimized",
+            "Magazine optimized",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U03",
+          "title": "CoolantCostOptimizationEngine",
+          "description": "MQL vs flood vs cryo vs dry. Acquisition + disposal + filtration costs.",
+          "exit_conditions": [
+            "Coolant cost compared",
+            "Lifecycle costs",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U04",
+          "title": "EnergyOptimizationEngine",
+          "description": "Minimize energy per part. Spindle power vs idle.",
+          "exit_conditions": [
+            "Energy minimized",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U05",
+          "title": "SetupCostOptimizationEngine",
+          "description": "Minimize total setup cost. Fixture amortization. Datum chain.",
+          "exit_conditions": [
+            "Setup cost minimized",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U06",
+          "title": "TCODashboardEngine",
+          "description": "Aggregate all cost streams. Current vs optimized. Savings opportunity.",
+          "exit_conditions": [
+            "Dashboard data generated",
+            "Tests pass"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U07",
+          "title": "Dispatcher wiring",
+          "description": "6 actions.",
+          "exit_conditions": [
+            "6 actions wired",
+            "Build passes"
+          ],
+          "status": "not_started"
+        },
+        {
+          "id": "U08",
+          "title": "Tests",
+          "description": "30+ tests.",
+          "exit_conditions": [
+            "30+ tests pass"
+          ],
+          "status": "not_started"
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

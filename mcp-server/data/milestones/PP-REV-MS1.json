@@ -1,0 +1,30 @@
+{
+  "id": "PP-REV-MS1",
+  "title": "Setup Sheet + Cycle Time Prediction",
+  "track": "PP-REV",
+  "status": "complete",
+  "description": "Wire SetupSheetFromGCodeEngine and CycleTimeEstimatorEngine to productDispatcher with standalone API routes and web UI pages. Setup sheet auto-extracts tools, offsets, coolant, safety notes from G-code. Cycle time uses S-curve kinematics, corner deceleration, servo settling. Multi-machine comparison finds the fastest machine for a program.",
+  "dependencies": ["PP-REV-MS0"],
+  "sessions": [
+    {
+      "id": "PP-REV-MS1-S1",
+      "title": "Wire Engines to Dispatcher (pre-existing)",
+      "units": [
+        { "id": "U-REV07", "title": "Wire SetupSheetFromGCodeEngine to productDispatcher", "status": "complete" },
+        { "id": "U-REV08", "title": "Wire CycleTimeEstimatorEngine to productDispatcher", "status": "complete" },
+        { "id": "U-REV09", "title": "Tests for setup sheet + cycle time (40 tests)", "status": "complete" }
+      ]
+    },
+    {
+      "id": "PP-REV-MS1-S2",
+      "title": "API Routes + Web UI Pages",
+      "units": [
+        { "id": "U-REV10", "title": "API routes (/ppg/setup-sheet, /ppg/cycle-time, /ppg/cycle-time-compare) + client functions", "status": "complete" },
+        { "id": "U-REV11", "title": "Verify OptimizationReportEngine integration (already uses both engines)", "status": "complete" },
+        { "id": "U-REV12", "title": "SetupSheetPage.tsx + CycleTimePage.tsx + route wiring", "status": "complete" }
+      ]
+    }
+  ],
+  "total_units": 6,
+  "completed_units": 6
+}

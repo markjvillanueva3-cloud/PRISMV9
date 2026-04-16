@@ -1,0 +1,31 @@
+{
+  "id": "CWEDM-MS0",
+  "title": "Wire EDM Calculator → Backend Wiring (51 actions, 6-engine orchestrator)",
+  "track": "WEDM",
+  "status": "complete",
+  "created": "2026-04-02",
+  "updated": "2026-04-03",
+  "session_completed": "CWEDM-MS0-S5",
+  "description": "Wire the PRISM calculator's wire_edm tab (currently UI-only, livePhysics=false, zero backend calls) to the production-grade EDM backend (51 actions, 19 engines, 304 tests). Adapt sfOrchestrate() pattern with auth from client.ts for authenticated EDM calls.",
+  "domain": "wire_edm",
+  "complexity": "L",
+  "estimated_sessions": 5,
+  "estimated_units": 12,
+  "dependencies": ["WEDM-MS0", "WEDM-MS1"],
+  "omega_floor": 0.85,
+  "omega_target": 1.0,
+  "units": [
+    { "id": "U-CWEDM01", "title": "Create web API client with auth + caching (web/src/api/wireEdm.ts)", "status": "complete", "session": "CWEDM-MS0-S1" },
+    { "id": "U-CWEDM02", "title": "Create wedm_calculator_solve 6-engine orchestration action + route", "status": "complete", "session": "CWEDM-MS0-S1" },
+    { "id": "U-CWEDM03", "title": "Enable livePhysics for wire_edm, wire solve button with debounce", "status": "complete", "session": "CWEDM-MS0-S1" },
+    { "id": "U-CWEDM04", "title": "Expand wire EDM machine catalog from MachineRegistry", "status": "complete", "session": "CWEDM-MS0-S2" },
+    { "id": "U-CWEDM05", "title": "Wire tool/wire catalog — brass, coated, moly, diameters", "status": "complete", "session": "CWEDM-MS0-S2" },
+    { "id": "U-CWEDM06", "title": "Wire cost estimation with role-based filtering", "status": "complete", "session": "CWEDM-MS0-S2" },
+    { "id": "U-CWEDM07", "title": "Wire result display — physics cards + controller-specific labels + setup sheet", "status": "complete", "session": "CWEDM-MS0-S3" },
+    { "id": "U-CWEDM08", "title": "Wire multi-pass visualization — skim progression chart", "status": "complete", "session": "CWEDM-MS0-S3" },
+    { "id": "U-CWEDM09", "title": "Wire break risk + corner compensation + taper safety cards", "status": "complete", "session": "CWEDM-MS0-S4" },
+    { "id": "U-CWEDM10", "title": "Wire surface integrity safety card — SAFETY CRITICAL (always visible)", "status": "complete", "session": "CWEDM-MS0-S4" },
+    { "id": "U-CWEDM11", "title": "Route + physics + contract integration tests (20+ tests)", "status": "complete", "session": "CWEDM-MS0-S5" },
+    { "id": "U-CWEDM12", "title": "Frontend component + error handling + manual QA (12+ tests)", "status": "complete", "session": "CWEDM-MS0-S5" }
+  ]
+}

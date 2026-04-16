@@ -1,0 +1,166 @@
+{
+  "generated": "2026-04-05",
+  "version": "1.0.0",
+
+  "summary": {
+    "slash_commands": 45,
+    "hook_event_types": 15,
+    "hook_definitions": 31,
+    "helper_scripts": 65,
+    "mcp_scripts": 36,
+    "cli_commands": 33,
+    "total_automation_surfaces": 210
+  },
+
+  "slash_commands": {
+    "workflow_build_test": [
+      {"name": "de-sloppify", "purpose": "Code quality cleanup", "chain": "build"},
+      {"name": "formula-check", "purpose": "Physics formula validation", "chain": "build"},
+      {"name": "verify-loop", "purpose": "Build + test verification loop", "chain": "build"},
+      {"name": "scrutinize", "purpose": "Multi-agent code review", "chain": "build"}
+    ],
+    "workflow_manufacturing": [
+      {"name": "batch-optimize", "purpose": "Batch S/F optimization", "chain": "product"},
+      {"name": "wedm-batch", "purpose": "WEDM batch physics validation", "chain": "product"},
+      {"name": "wedm-program", "purpose": "WEDM program generation", "chain": "product"},
+      {"name": "wire-edm-analyze", "purpose": "WEDM analysis", "chain": "product"},
+      {"name": "wire-edm-studio", "purpose": "WEDM full studio", "chain": "product"},
+      {"name": "program-optimize", "purpose": "G-code optimization", "chain": "product"},
+      {"name": "program-audit", "purpose": "G-code safety audit", "chain": "product"},
+      {"name": "pp-resolve", "purpose": "Post processor resolution", "chain": "product"},
+      {"name": "machine-harden", "purpose": "Machine config hardening", "chain": "product"},
+      {"name": "macro-convert", "purpose": "Macro conversion", "chain": "product"},
+      {"name": "my-presets", "purpose": "User speed/feed presets", "chain": "product"}
+    ],
+    "workflow_business": [
+      {"name": "quote-to-ship", "purpose": "Full quote pipeline", "chain": "erp"},
+      {"name": "job-cost", "purpose": "Job cost analysis", "chain": "erp"},
+      {"name": "order-status", "purpose": "Order tracking", "chain": "erp"},
+      {"name": "biz-health", "purpose": "Business health dashboard", "chain": "erp"},
+      {"name": "erp-health", "purpose": "ERP system health", "chain": "erp"},
+      {"name": "traveler", "purpose": "Job traveler generation", "chain": "erp"},
+      {"name": "timeline", "purpose": "Production timeline", "chain": "erp"}
+    ],
+    "workflow_shop": [
+      {"name": "shop-knowledge", "purpose": "Tribal knowledge lookup", "chain": "shop"},
+      {"name": "shop-live-status", "purpose": "Real-time shop status", "chain": "shop"},
+      {"name": "shop-schedule", "purpose": "Shop scheduling", "chain": "shop"},
+      {"name": "shop-setup", "purpose": "Shop configuration", "chain": "shop"}
+    ],
+    "workflow_roadmap": [
+      {"name": "continue-roadmap", "purpose": "Resume roadmap execution", "chain": "roadmap"},
+      {"name": "generate-roadmap", "purpose": "Generate new roadmap", "chain": "roadmap"},
+      {"name": "rgs", "purpose": "Roadmap gap scan", "chain": "roadmap"},
+      {"name": "rgs-sync", "purpose": "Cross-agent roadmap sync", "chain": "roadmap"},
+      {"name": "resource-census", "purpose": "Resource inventory", "chain": "roadmap"}
+    ],
+    "workflow_context": [
+      {"name": "context-audit", "purpose": "Context pressure audit", "chain": "context"},
+      {"name": "precompact", "purpose": "Pre-compaction preparation", "chain": "context"},
+      {"name": "smart", "purpose": "Smart context loading", "chain": "context"},
+      {"name": "chat", "purpose": "Agent chat coordination", "chain": "context"}
+    ],
+    "workflow_quality": [
+      {"name": "self-improve", "purpose": "Self-improvement patterns", "chain": "quality"},
+      {"name": "forge-engine", "purpose": "Engine creation forge", "chain": "quality"},
+      {"name": "dedup", "purpose": "Deduplication scan", "chain": "quality"},
+      {"name": "approvals", "purpose": "Approval workflow", "chain": "quality"}
+    ],
+    "workflow_external": [
+      {"name": "pdf-process", "purpose": "PDF knowledge extraction", "chain": "external"},
+      {"name": "desk-search", "purpose": "Desktop search", "chain": "external"},
+      {"name": "e2-setup", "purpose": "E2 shop system setup", "chain": "external"},
+      {"name": "claude-flow-help", "purpose": "Claude flow integration", "chain": "external"},
+      {"name": "claude-flow-memory", "purpose": "Claude flow memory", "chain": "external"},
+      {"name": "claude-flow-swarm", "purpose": "Claude flow swarm", "chain": "external"}
+    ]
+  },
+
+  "hooks": {
+    "PreToolUse": {
+      "count": 8,
+      "chains": [
+        {"matcher": "Write|Edit|MultiEdit", "purpose": "Edit gate — review counter, safety check", "chain": "build"},
+        {"matcher": "Bash", "purpose": "Bash safety gate — command validation", "chain": "build"},
+        {"matcher": "Agent", "purpose": "Agent spawn context injection", "chain": "context"},
+        {"matcher": "Task", "purpose": "Task context injection", "chain": "context"},
+        {"matcher": "Read", "purpose": "Read optimization — caching, dedup", "chain": "context"},
+        {"matcher": "Glob|Grep", "purpose": "Search optimization — ref-first", "chain": "context"},
+        {"matcher": "WebFetch", "purpose": "Web fetch caching", "chain": "context"},
+        {"matcher": "mcp__prism", "purpose": "MCP action routing optimization", "chain": "context"}
+      ]
+    },
+    "PostToolUse": {
+      "count": 7,
+      "chains": [
+        {"matcher": "Write|Edit|MultiEdit", "purpose": "Post-edit: tsc check, test suggest, review counter", "chain": "build"},
+        {"matcher": "Bash", "purpose": "Build state tracking, error recovery", "chain": "build"},
+        {"matcher": "Read", "purpose": "Read-once cache, token savings", "chain": "context"},
+        {"matcher": "Bash|Read", "purpose": "Token savings tracking", "chain": "context"},
+        {"matcher": "*", "purpose": "Loop detection — catch infinite tool loops", "chain": "safety"},
+        {"matcher": "Agent|mcp__prism", "purpose": "Agent/MCP result compression", "chain": "context"},
+        {"matcher": "*", "purpose": "Context pressure tracking", "chain": "context"}
+      ]
+    },
+    "UserPromptSubmit": {"count": 1, "chains": [{"purpose": "Agent coordination — announce work", "chain": "coordination"}]},
+    "SessionStart": {"count": 2, "chains": [{"purpose": "Position sync, SVI refresh", "chain": "context"}, {"purpose": "Compact restore — auto-resume", "chain": "context"}]},
+    "Stop": {"count": 1, "chains": [{"purpose": "Auto-compact gate — block stop during autopilot", "chain": "context"}]},
+    "Notification": {"count": 2, "chains": [{"purpose": "Idle reminder — suggest next work", "chain": "productivity"}, {"purpose": "Unit/branch completion — milestone tracking", "chain": "roadmap"}]},
+    "PreCompact": {"count": 1, "chains": [{"purpose": "Position sync + SVI + coordination + handoff save", "chain": "context"}]},
+    "PostCompact": {"count": 1, "chains": [{"purpose": "Auto-resume injection — continue working after compact", "chain": "context"}]},
+    "PostToolUseFailure": {"count": 1, "chains": [{"purpose": "Error recovery — suggest fix for failed tool calls", "chain": "safety"}]},
+    "SubagentStart": {"count": 1, "chains": [{"purpose": "Subagent context injection — index-first directive", "chain": "context"}]},
+    "SubagentStop": {"count": 1, "chains": [{"purpose": "Subagent result compression", "chain": "context"}]},
+    "SessionEnd": {"count": 1, "chains": [{"purpose": "Session cleanup — save breadcrumbs", "chain": "context"}]},
+    "TaskCompleted": {"count": 1, "chains": [{"purpose": "Task gate — verify quality before marking done", "chain": "quality"}]},
+    "ConfigChange": {"count": 1, "chains": [{"purpose": "Settings validation on change", "chain": "safety"}]},
+    "WorktreeCreate": {"count": 1, "chains": [{"purpose": "Worktree setup — track branches", "chain": "build"}]},
+    "WorktreeRemove": {"count": 1, "chains": [{"purpose": "Worktree cleanup — merge tracking", "chain": "build"}}
+  },
+
+  "gap_analysis": {
+    "missing_chains": [
+      {
+        "chain": "ci_on_commit",
+        "description": "No hook on git commit to run build + test + lint gate. (Not a git repo currently — deferred.)",
+        "severity": "low",
+        "fix": "Wire git pre-commit hook when git is initialized"
+      }
+    ],
+    "partial_chains": [
+      {
+        "chain": "coordination",
+        "status": "70% complete",
+        "has": ["Agent coordination on prompt", "Subagent context injection", "Roadmap sync"],
+        "missing": ["Multi-agent conflict resolution", "Work stealing", "Stale claim reaping"]
+      },
+      {
+        "chain": "roadmap_execution",
+        "status": "85% complete",
+        "has": ["Position tracking", "SVI refresh", "Milestone completion", "Handoff save/restore"],
+        "missing": ["Auto-pick-next-task", "Dependency-aware scheduling"]
+      }
+    ],
+    "well_connected_chains": [
+      {"chain": "wedm_studio", "status": "100%", "note": "Full pipeline: analyze → optimize → program → validate"},
+      {"chain": "speed_feed", "status": "100%", "note": "CLI + web + orchestrator + SpeedFeedAutopilotEngine (ACP-MS4). Full chain with calibration."},
+      {"chain": "post_processor", "status": "100%", "note": "38-stage pipeline + PostProcessorAutopilotEngine (ACP-MS5). 20 dialects, PPG quick-start, print-to-program."},
+      {"chain": "build_guard", "status": "100%", "note": "BuildGuardChainEngine (ACP-MS2). Pre-edit safety, edit tracking, typecheck parsing, affected test resolution, trivial fix suggestion, review gate."},
+      {"chain": "chain_failure_recovery", "status": "100%", "note": "ChainFailureRecoveryEngine (ACP-MS2B). Retry with backoff, graceful degradation, user notifications, health summary."},
+      {"chain": "context_management", "status": "100%", "note": "ContextChainEngine (ACP-MS3). Task-aware bundle loading, pressure estimation, compaction planning, health reporting."},
+      {"chain": "product_autopilot", "status": "100%", "note": "SpeedFeedAutopilotEngine (ACP-MS4) + PostProcessorAutopilotEngine (ACP-MS5). Material→tool→machine→S/F and drawing→features→strategy→G-code."},
+      {"chain": "erp_autopilot", "status": "100%", "note": "QuoteAutopilotEngine (ACP-MS6). Part→DFM→cycle time→costing→qty breaks→quote. Plus telemetry calibration loop."},
+      {"chain": "prompt_classification", "status": "100%", "note": "AutomationChainEngine (ACP-MS0A/MS1). 9-class task classifier with context bundles and chain routing."},
+      {"chain": "learning_feedback", "status": "100%", "note": "QuoteAutopilotEngine telemetry (ACP-MS6). Predicted→actual→calibration→correction factor."},
+      {"chain": "session_context_restore", "status": "100%", "note": "ContextChainEngine (ACP-MS3). Task-aware bundle selection, pressure-driven compaction planning."},
+      {"chain": "test_after_edit", "status": "100%", "note": "BuildGuardChainEngine (ACP-MS2). Affected test resolution + escalating test reminders after N edits."}
+    ]
+  },
+
+  "cli_commands_by_workflow": {
+    "manufacturing": ["sf", "sim", "post", "program", "tool", "playbook", "verify", "what-if", "calibrate", "predict", "export"],
+    "business": ["quote", "jobs", "inventory", "profit", "scrap"],
+    "operations": ["dashboard", "status", "alerts", "shift", "substitute"],
+    "meta": ["batch", "pipe", "benchmark", "config", "show", "set", "reset", "completion", "repl"]
+  }
+}

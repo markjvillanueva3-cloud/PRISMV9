@@ -1,0 +1,258 @@
+{
+  "id": "MCAT-MS0",
+  "version": "1.2.0",
+  "title": "Machine Catalog Convergence for Calculator + Shop Profiles",
+  "brief": "Unify the 920-machine enriched corpus and the JM Die shop asset corpus into a configuration-aware machine-package model that powers the calculator machine-selection module, preserves only legal controller/spindle/coolant/capability combinations, persists user-owned shop machine profiles for downstream reuse by Print to CNC, Program Release, quoting, what-if analysis, and other machine-aware consumers, and extends the calculator with PRISM mode recommendations that prefer owned inventory and rank missing-coverage purchases by price tier and ROI. This milestone now also owns the first-pass master-data spine for JM Die machines, controllers, tool holders, tooling, materials, and print-linked machine context.",
+  "created_at": "2026-04-01T02:30:00Z",
+  "updated_at": "2026-04-10T21:05:50.0294546-05:00",
+  "created_by": "codex-gpt-5",
+  "track": "MCAT",
+  "track_name": "Machine Catalog Convergence",
+  "status": "in_progress",
+  "notes": "As of 2026-04-10, JM Die is the canonical PRISM development and test shop. MCAT-MS0 is therefore the master-data spine for the first real company rollout: machine packages must stay aligned with JM Die controller variants, holder standards, tooling libraries, material naming, and print/program lineage before broader multi-company abstraction.",
+  "canonical_company_profile": {
+    "name": "JM Die",
+    "role": "Primary machine and shop-master-data seed profile",
+    "shop_root": "H:/PRISM/JM DIE",
+    "company_root": "H:/PRISM/JM DIE/JM DIE COMPANY"
+  },
+  "source_of_truth_paths": [
+    "H:/PRISM/JM DIE/CNC LATHE",
+    "H:/PRISM/JM DIE/WIRE EDM",
+    "H:/PRISM/JM DIE/ROKU-ROKU",
+    "H:/PRISM/JM DIE/JM DIE COMPANY"
+  ],
+  "master_data_scope": [
+    "machines",
+    "controllers",
+    "tool_holders",
+    "tooling",
+    "materials",
+    "prints",
+    "program_references"
+  ],
+  "immediate_focus": [
+    "Census JM Die machine, controller, holder, tooling, material, and print/program sources before broader normalization work continues.",
+    "Publish package overlays that let Shop Profile, Program Release, Print to CNC, and employee certification consume the same JM Die-backed truth.",
+    "Keep acquisition and compatibility recommendations tied to what JM Die actually owns versus what PRISM recommends purchasing."
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Truth Hierarchy + Taxonomy",
+      "sessions": "1",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Inventory every machine source and every machine-consuming surface across calculator, registry, machine-profile, and program-release flows",
+          "effort": 50,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Define the canonical machine taxonomy used by calculator modes and subfamilies",
+          "effort": 65,
+          "dependencies": [
+            "P0-U01"
+          ]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define the machine-package schema covering controller, spindle, coolant, capabilities, provenance, and confidence",
+          "effort": 70,
+          "dependencies": [
+            "P0-U01",
+            "P0-U02"
+          ]
+        },
+        {
+          "id": "P0-U04",
+          "title": "Generate the initial brand and machine-family gap matrix from the enriched corpus",
+          "effort": 60,
+          "dependencies": [
+            "P0-U03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Registry Convergence + Configuration Matrices",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Merge duplicate registry rows into configuration-aware machine packages instead of flat model records",
+          "effort": 80,
+          "dependencies": [
+            "P0-U04"
+          ]
+        },
+        {
+          "id": "P1-U02",
+          "title": "Normalize manufacturer, model, controller, spindle, coolant, and capability vocabularies",
+          "effort": 75,
+          "dependencies": [
+            "P1-U01"
+          ]
+        },
+        {
+          "id": "P1-U03",
+          "title": "Build per-machine allowed-option matrices so only legal controller, spindle, coolant, and package combinations survive",
+          "effort": 85,
+          "dependencies": [
+            "P1-U02"
+          ]
+        },
+        {
+          "id": "P1-U04",
+          "title": "Add provenance, confidence, and unresolved-ambiguity queues for incomplete machine data",
+          "effort": 60,
+          "dependencies": [
+            "P1-U03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Calculator Machine-Selection Convergence",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Replace residual heuristic-only filtering with package-driven filtering in the calculator machine-selection module",
+          "effort": 75,
+          "dependencies": [
+            "P1-U04"
+          ]
+        },
+        {
+          "id": "P2-U02",
+          "title": "Surface controller capabilities, spindle packages, and coolant strategies directly from the machine-package truth model",
+          "effort": 75,
+          "dependencies": [
+            "P2-U01"
+          ]
+        },
+        {
+          "id": "P2-U03",
+          "title": "Persist user-owned shop machine profiles and calculator machine presets as overlays on canonical machine packages",
+          "effort": 80,
+          "dependencies": [
+            "P2-U02"
+          ]
+        },
+        {
+          "id": "P2-U04",
+          "title": "Add contract tests so unsupported options never render for the active machine package",
+          "effort": 70,
+          "dependencies": [
+            "P2-U02",
+            "P2-U03"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Downstream Machine-Profile Reuse + Calculator PRISM Mode",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Bind Program Release and Print to CNC to the same canonical machine package plus user overlay used by the calculator",
+          "effort": 75,
+          "dependencies": [
+            "P2-U04"
+          ]
+        },
+        {
+          "id": "P3-U02",
+          "title": "Expose machine-package read/write APIs and resource surfaces for other machine-aware products",
+          "effort": 65,
+          "dependencies": [
+            "P3-U01"
+          ]
+        },
+        {
+          "id": "P3-U03",
+          "title": "Propagate machine-profile reuse into quoting, what-if analysis, scheduling, and feasibility consumers",
+          "effort": 70,
+          "dependencies": [
+            "P3-U02"
+          ]
+        },
+        {
+          "id": "P3-U04",
+          "title": "Add calculator PRISM mode orchestration that derives best-fit tooling, holder, coolant, software, and toolpath categories from the active machine package, saved machine profile, and user inventory",
+          "effort": 85,
+          "dependencies": [
+            "P2-U04",
+            "P3-U01"
+          ]
+        },
+        {
+          "id": "P3-U05",
+          "title": "Add ranked budget, standard, and premium acquisition recommendations with purchase-popup reuse, cutting-data confidence, compatibility, ROI, payback, and distributor evidence",
+          "effort": 80,
+          "dependencies": [
+            "P3-U04"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Validation, Audit, and Operational Hardening",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P4-U01",
+          "title": "Execute brand audit waves in priority order: Okuma, Haas, Mazak, Brother, Citizen, DN Solutions, and DMG MORI",
+          "effort": 80,
+          "dependencies": [
+            "P3-U03"
+          ]
+        },
+        {
+          "id": "P4-U02",
+          "title": "Run calculator and downstream browser/system QA for machine-package selection and reuse",
+          "effort": 80,
+          "dependencies": [
+            "P4-U01"
+          ]
+        },
+        {
+          "id": "P4-U03",
+          "title": "Add admin import/export and remediation flows for shop machine profiles",
+          "effort": 65,
+          "dependencies": [
+            "P3-U02"
+          ]
+        },
+        {
+          "id": "P4-U04",
+          "title": "Publish machine-package coverage dashboards and the remaining ambiguity backlog",
+          "effort": 55,
+          "dependencies": [
+            "P4-U01",
+            "P4-U02",
+            "P4-U03"
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [],
+  "exit_conditions": [
+    "The calculator machine-selection module resolves every supported machine through a canonical machine-package model rather than inconsistent raw rows",
+    "Controller, spindle, coolant, and capability options are filtered by published availability and impossible combinations do not render",
+    "User-owned shop machine profiles can be saved as overlays on canonical machine packages",
+    "Print to CNC and Program Release can consume the same machine package used by the calculator",
+    "The calculator can derive machine-legal, inventory-aware setup recommendations from the saved machine profile instead of forcing the user to hand-pick every category",
+    "Budget, standard, and premium purchase recommendations can be ranked by compatibility, cutting-data confidence, ROI, and payback without inventing unsupported combinations",
+    "JM Die machine, controller, holder, tooling, material, and print/program relationships can be seeded and reused without page-local curation",
+    "Remaining brand or package ambiguities are explicit, ranked, and repairable through audit and remediation flows"
+  ]
+}

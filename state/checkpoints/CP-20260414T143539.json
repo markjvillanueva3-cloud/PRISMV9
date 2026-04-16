@@ -1,0 +1,48 @@
+/**
+ * MatrixNormEngine — Matrix Norms, Condition Number Estimation, Matrix Functions
+ *
+ * Capabilities:
+ *   - Frobenius norm (||A||_F = sqrt(sum a_ij^2))
+ *   - Spectral norm (||A||_2 = sigma_max) via power iteration on A^T*A
+ *   - 1-norm (max column sum) and infinity-norm (max row sum)
+ *   - Condition number estimation without full SVD (Hager's algorithm)
+ *   - Matrix logarithm (inverse Scaling & Squaring + Pade)
+ *   - Matrix square root (Denman-Beavers iteration for SPD)
+ *   - Numerical stability diagnostics
+ *
+ * Used by: iterative solver convergence prediction, FEM stiffness conditioning,
+ *   rotation interpolation (matrix log), covariance decomposition (matrix sqrt).
+ *
+ * References:
+ *   - Higham, "Functions of Matrices" (2008)
+ *   - Hager (1984), "Condition estimates" (1-norm condition estimation)
+ *   - Golub & Van Loan, "Matrix Computations" 4th ed., Chapter 2
+ *
+ * @engine MatrixNormEngine
+ * @milestone SCIMATH-MS0
+ * @unit P1-U03
+ * @courses MIT 18.335
+ */
+/** Comprehensive norm report */
+export interface NormReport {
+    frobenius: number;
+    spectral: number;
+    oneNorm: number;
+    infinityNorm: number;
+}
+/** Condition number result */
+export interface ConditionResult {
+    /** Estimated condition number */
+    conditionNumber: number;
+    /** Method used for estimation */
+    method: string;
+    /** Warning if ill-conditioned */
+    warning?: string;
+}
+/** Matrix stability diagnostics */
+export interface StabilityDiagnostics {
+    /** 1-norm condition number estimate */
+    condEst: number;
+    /** Whether matrix is likely ill-conditioned */
+    illConditioned: boolean;
+    /** Diagonal dominance rati

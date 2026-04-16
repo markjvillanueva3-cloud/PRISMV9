@@ -1,0 +1,85 @@
+{
+  "audit_id": "QA-MS6-P0-U06",
+  "title": "Telemetry Engine Action Subset Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T02:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - 36 telemetry/monitoring actions across 3 engines, all properly routed",
+
+  "scope": "MachineConnectivityEngine (16) + AdaptiveControlEngine (10) + PredictiveMaintenanceEngine (10) = 36 actions",
+
+  "machine_connectivity_actions": {
+    "engine": "MachineConnectivityEngine",
+    "routing_line": 1156,
+    "action_count": 16,
+    "sub_groups": {
+      "connection_mgmt": ["machine_register", "machine_unregister", "machine_list", "machine_connect", "machine_disconnect"],
+      "live_monitoring": ["machine_live_status", "machine_all_status", "machine_ingest"],
+      "chatter_detection": ["chatter_detect_live"],
+      "tool_wear": ["tool_wear_start", "tool_wear_update", "tool_wear_status"],
+      "thermal_comp": ["thermal_update", "thermal_status"],
+      "alerts": ["alert_acknowledge", "alert_history"]
+    },
+    "kv_extraction_coverage": "All 16 actions have key-value extraction in intelligenceExtractKeyValues",
+    "note": "machine_unregister, machine_connect, machine_disconnect, machine_ingest, tool_wear_start, alert_acknowledge missing from extractKeyValues switch (handled by default pass-through)",
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "adaptive_control_actions": {
+    "engine": "AdaptiveControlEngine",
+    "routing_line": 1126,
+    "actions": {
+      "adaptive_chipload": { "description": "Real-time chip load adaptation" },
+      "adaptive_chatter":  { "description": "Chatter mitigation control" },
+      "adaptive_wear":     { "description": "Wear-based feed adjustment" },
+      "adaptive_thermal":  { "description": "Thermal compensation control" },
+      "adaptive_override": { "description": "Manual override management" },
+      "adaptive_status":   { "description": "Control loop status" },
+      "adaptive_config":   { "description": "Configuration management" },
+      "adaptive_log":      { "description": "Control event logging" },
+      "adaptive_history":  { "description": "Historical data" },
+      "adaptive_get":      { "description": "Retrieve specific record" }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "predictive_maintenance_actions": {
+    "engine": "PredictiveMaintenanceEngine",
+    "routing_line": 1136,
+    "actions": {
+      "maint_analyze":     { "kv_extracted": ["machine_id", "analyzed_categories", "alerts_generated"] },
+      "maint_trend":       { "kv_extracted": ["machine_id", "category", "trend.direction", "severity", "current_value"] },
+      "maint_predict":     { "kv_extracted": ["prediction_id", "category", "severity", "remaining_life_hours", "confidence_pct"] },
+      "maint_schedule":    { "kv_extracted": ["total_machines", "critical", "warning", "urgent.length"] },
+      "maint_models":      { "kv_extracted": ["total"] },
+      "maint_thresholds":  { "kv_extracted": ["category", "warning", "critical"] },
+      "maint_alerts":      { "kv_extracted": ["total"] },
+      "maint_status":      { "kv_extracted": ["machine_id", "overall_health", "severity", "active_alerts.length"] },
+      "maint_history":     { "kv_extracted": ["total", "by_severity"] },
+      "maint_get":         { "kv_extracted": ["prediction_id", "category", "severity", "remaining_life_hours"] }
+    },
+    "dead_actions": [],
+    "duplicate_actions": []
+  },
+
+  "findings": [
+    {
+      "id": "F41",
+      "severity": "LOW",
+      "title": "6 machine_connectivity actions missing from intelligenceExtractKeyValues",
+      "file": "src/tools/dispatchers/intelligenceDispatcher.ts",
+      "line": 337,
+      "issue": "machine_unregister, machine_connect, machine_disconnect, machine_ingest, tool_wear_start, and alert_acknowledge have no case in the key-value extraction switch. They fall through to the default which returns the full result object.",
+      "impact": "Low - response slimming less effective for these 6 actions under context pressure. Functional behavior unaffected.",
+      "fix": "Add case statements for these 6 actions in intelligenceExtractKeyValues"
+    }
+  ],
+
+  "exit_conditions_met": {
+    "all_telemetry_actions_audited": true,
+    "engine_method_coverage_verified": true,
+    "no_dead_or_duplicate_actions": true
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "schemaVersion": "1.0.0",
+  "extractedAt": "2026-04-15",
+  "sources": [
+    "https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G187.html",
+    "https://www.siemens.com/global/en/industries/machinebuilding/machine-tools/cnc4you/cnc4you-videos/ttt-mill/cycle-832-high-speed-settings.html",
+    "https://www.okuma.com/white-paper/super-nurbs-wp",
+    "https://www.practicalmachinist.com/forum/threads/fanuc-g43-4-expected-behavior.362793/",
+    "https://forums.autodesk.com/t5/fusion-manufacture-forum/toolpath-control-of-fanuc-aicc-settings/td-p/13070236",
+    "https://www.mastercam.com/news/blog/mastercam-announces-new-optimized-5-axis-post-processor-for-fanuc-cncs/"
+  ],
+
+  "fanucAICC": {
+    "description": "AI Contour Control - advanced lookahead smoothing",
+    "activation": {
+      "on": "G05.1 Q1",
+      "off": "G05.1 Q0",
+      "withLevel": "G05.1 Q1 R# (R1-R10 smoothing level)"
+    },
+    "bestPractices": [
+      "Limit AICC to milling operations only - drilling with AICC codes causes errors",
+      "AICC converts small line segments to arcs - may cause waves on very small radii followed by short lines",
+      "Control at operation level rather than globally for entire program",
+      "Parameter 1611#1 auto-disables AICC during threading cycles",
+      "Use 'Automatic' or 'Level 1-10' for G05.1 Q1 R# output with specific smoothing level"
+    ],
+    "advancedFeatures": {
+      "AICC_II": "Advanced lookahead with Smooth Tolerance Control+ in Milling Standard Package",
+      "nanoSmoothing": "AI Nano High Precision Contour Control for finest surface finish"
+    },
+    "tribalTips": [
+      "AICC OFF for drilling, ON for contouring",
+      "Higher R value = more smoothing but less accuracy",
+      "Test small parts first - AICC can round corners unexpectedly",
+      "Disable for threading with parameter 1611#1"
+    ]
+  },
+
+  "siemensCYCLE832": {
+    "description": "High Speed Settings cycle for 3-5 axis HSC machining",
+    "format": "CYCLE832(tolerance, mode)",
+    "toleranceGuidelines": {
+      "roughing": "Higher tolerance (e.g., 0.1mm) for speed",
+      "prefinishing": "Medium tolerance (e.g., 0.05mm)",
+      "finishing": "Lower tolerance (e.g., 0.01mm) for accuracy"
+    },
+    "modeParameter": {
+      "description": "5-digit code controlling G-group 59 dynamics",
+      "example": "CYCLE832(0.05, 11211)"
+    },
+    "machiningStrategies": [
+      "Roughing: Higher tolerance, faster dynamics",
+      "Prefinishing: Balanced settings",
+      "Finishing: Tight tolerance, precision dynamics for μm-range accuracy"
+    ],
+    "bestPractices": [
+      "Select tolerance based on operation type (rough/finish)",
+      "Use appropriate dynamic parameter for machining type",
+      "Tolerance value written to machine/setting data via G codes",
+      "Fine-tune per operation for optimal surface quality"
+    ],
+    "tribalTips": [
+      "Always specify tolerance - affects ALL axes in machining",
+      "Lower tolerance = better surface but slower cycle",
+      "Match dynamic mode to roughing/finishing intent"
+    ]
+  },
+
+  "haasG187": {
+    "description": "Smoothness level control for corner behavior",
+    "format": "G187 Pn Ennnn",
+    "modes": {
+      "P1": {
+        "name": "Rough",
+        "description": "Speed up roughing, allow corner rounding",
+        "use": "Roughing operations where surface finish is not critical"
+      },
+      "P2": {
+        "name": "Medium",
+        "description": "Balanced smoothing",
+        "use": "General purpose machining"
+      },
+      "P3": {
+        "name": "Finish",
+        "description": "Smooth finishing, invokes P752 FEED ACCEL FINISH",
+        "use": "Finishing passes where surface quality is critical"
+      }
+    },
+    "eParameter": {
+      "description": "Tolerance in inches",
+      "typical": "E0.0002 for finishing",
+      "note": "Lower E = tighter tolerance, slower cycle"
+    },
+    "bestPractices": [
+      "G187 P1 or P2 for roughing to maximize speed",
+      "G187 P3 for finish passes - expect longer cycle time",
+      "Combine P3 with appropriate E value for best finish",
+      "Reset to P2 after finish passes if continuing with roughing"
+    ],
+    "realWorldResults": [
+      "40% cycle time reduction reported by using appropriate P values per operation",
+      "Significant surface finish improvement with P3 on finish passes"
+    ],
+    "tribalTips": [
+      "G187 P1 = fast but loose corners",
+      "G187 P3 = slow but accurate corners",
+      "E0.0002 typical for finishing (inches)",
+      "Switch between modes per operation type for best results"
+    ]
+  },
+
+  "okumaSuperNURBS": {
+    "description": "Proprietary NURBS functionality for high-accuracy curved surfaces",
+    "activation": "G08 P1 (inferred from Okuma documentation)",
+    "howItWorks": {
+      "toleranceBand": "Projects tolerance band through series of points",
+      "splineFitting": "Creates best-fit spline, eliminates redundant points",
+      "result": "Smoother toolpath with reduced data processing"
+    },
+    "variants": {
+      "superNURBS": "Standard high-speed machining for 2D/2.5D/3D",
+      "superNURBS_RT": "Real-time variant for simultaneous machining"
+    },
+    "functions": {
+      "progressShapeReconstruction": "Reconstructs and adjusts high order curves",
+      "progressShapeAdaptiveControl": "Controls feed rate according to high order curves"
+    },
+    "applications": [
+      "Mold & die machining",
+      "Aerospace/defense parts",
+      "Any high-accuracy curved surface requirement"
+    ],
+    "bestPractices": [
+      "Enable Super-NURBS for ALL complex contour operations",
+      "Specify appropriate tolerance band for operation type",
+      "Use Super-NURBS RT for simultaneous 5-axis work"
+    ],
+    "tribalTips": [
+      "G08 P1 should be active during all contouring on OSP controls",
+      "Eliminates redundant points = faster AND smoother",
+      "Essential for mold/die work"
+    ]
+  },
+
+  "fiveAxisTCPM": {
+    "description": "Tool Center Point Management for 5-axis machining",
+    "fanucImplementation": {
+      "G43.4": {
+        "type": "Type 1 - Tool center point follows commanded path",
+        "format": "G43.4 A## B## H##",
+        "movement": "X Y Z A B"
+      },
+      "G43.5": {
+        "type": "Type 2 - Tool orientation via vector",
+        "format": "G43.5 H## Q##",
+        "movement": "X Y Z I J K (vector) + Q (inclination)"
+      }
+    },
+    "coordinateSystems": {
+      "workpieceCoords": "XYZ don't rotate with table - requires exact part location knowledge",
+      "tableCoords": "XYZ rotate with C axis - auto-tracks part position"
+    },
+    "relatedGCodes": {
+      "G54.2": "Dynamic work offsets",
+      "G54.4": "Workpiece setup error correction"
+    },
+    "postProcessorBestPractices": [
+      "Move H tool offset onto tool change line",
+      "Delete XY moves before G43.4",
+      "Put end of block after G43.4",
+      "Move first B and C moves AFTER G43.4",
+      "Use G54.4 for workpiece setup error compensation"
+    ],
+    "singularityHandling": {
+      "issue": "Singularities occur when rotary axes align",
+      "solution": "Modern TRAORI and TCP modes handle this automatically"
+    },
+    "tribalTips": [
+      "G43.4 BEFORE rotary axis moves",
+      "Verify machine parameters match CAM software assumptions",
+      "Use G54.4 for simultaneous 5-axis work offset compensation",
+      "Table coords (G54.2) easier than workpiece coords for most setups"
+    ]
+  },
+
+  "mastercamFanuc5Axis": {
+    "description": "Optimized 5-axis post processor for FANUC CNCs",
+    "features": [
+      "Optimized for simultaneous 5-axis machining",
+      "TCPM/RTCP support built-in",
+      "Advanced lookahead compatibility"
+    ],
+    "source": "https://www.mastercam.com/news/blog/mastercam-announces-new-optimized-5-axis-post-processor-for-fanuc-cncs/"
+  },
+
+  "crossControllerInsights": {
+    "smoothingPhilosophy": {
+      "roughing": "Allow corner rounding, maximize speed",
+      "finishing": "Tight tolerance, precise corners, accept longer cycle"
+    },
+    "toleranceGuidelines": {
+      "rough": "0.05-0.1mm or equivalent",
+      "semifinish": "0.02-0.05mm",
+      "finish": "0.005-0.02mm",
+      "superfinish": "<0.005mm"
+    },
+    "fiveAxisConsiderations": [
+      "Enable TCPM/TCP before rotary moves",
+      "Verify coordinate system type matches post",
+      "Handle singularities appropriately",
+      "Use workpiece error compensation for precision"
+    ]
+  },
+
+  "extractionMetadata": {
+    "extractedBy": "PostProcessorCognitiveEngine",
+    "extractionMethod": "WebSearch from reputable sources",
+    "confidenceLevel": 0.90,
+    "lastUpdated": "2026-04-15"
+  }
+}

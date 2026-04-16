@@ -1,0 +1,164 @@
+{
+  "id": "PB-MS0",
+  "title": "Machining Playbook Orchestration & Auto-Pipeline Integration",
+  "track": "PB",
+  "version": "1.0.0",
+  "created_at": "2026-03-08T12:50:00Z",
+  "status": "not_started",
+  "description": "Wire MachiningPlaybookEngine into PRISM's automatic pipelines so experiential machining wisdom (sequencing, anti-patterns, setup strategy) is automatically surfaced when users run process planning, G-code intelligence pipeline, feature interaction analysis, or speed/feed optimization. Create hooks, skills, and cross-engine fusion points.",
+  "dependencies": [],
+  "total_units": 6,
+  "completed_units": 0,
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Hook Integration — Auto-Trigger Playbook Advice",
+      "units": [
+        {
+          "id": "PB-MS0-P1-U01",
+          "title": "Create post-process-plan hook that auto-injects playbook sequencing validation",
+          "status": "not_started",
+          "steps": [
+            "Add hook M-PB-001 in AdvancedManufacturingHooks.ts: after process_plan_generate, validate operation sequence against playbook rules",
+            "Hook calls machiningPlaybookEngine.sequenceAdvice(features, material) and surfaces warnings for any anti-pattern violations",
+            "Hook calls machiningPlaybookEngine.setupAdvice() and appends workholding/datum suggestions to the plan result",
+            "Severity: WARN for recommended rules, BLOCK for critical anti-patterns (e.g., finishing before roughing)",
+            "Add hook M-PB-002: pre-cam-toolpath hook that surfaces toolpath strategy rules when generating CAM operations",
+            "Register both hooks in HookRegistry with proper metadata"
+          ],
+          "exit_conditions": [
+            "Both hooks registered and callable",
+            "Hook M-PB-001 fires on process_plan_generate and returns sequencing warnings",
+            "Hook M-PB-002 fires on cam toolpath actions and returns strategy advice",
+            "Tests verify hook triggering and rule matching"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Pipeline Integration — Chain Playbook into GCodeIntelligencePipeline",
+      "units": [
+        {
+          "id": "PB-MS0-P2-U01",
+          "title": "Add Stage 0 (Playbook Pre-Check) to GCodeIntelligencePipelineEngine",
+          "status": "not_started",
+          "steps": [
+            "Add optional Stage 0 before Safety Analysis: PlaybookPreCheck",
+            "Stage 0 extracts operation types from G-code comments/structure, maps to features",
+            "Calls machiningPlaybookEngine.advise() with detected features and material",
+            "Surfaces critical warnings in pipeline result (e.g., 'roughing and finishing interleaved — SEQ-003 violation')",
+            "Passes anti-pattern flags to subsequent stages (e.g., 'ANTI-004: flood coolant on carbide detected')",
+            "Stage result included in pipeline output under 'playbook_warnings' key",
+            "Add playbook_enabled flag to pipeline config (default: true)"
+          ],
+          "exit_conditions": [
+            "Pipeline runs 7 stages (0-6) when playbook_enabled=true",
+            "Pipeline still runs 6 stages when playbook_enabled=false (backward compatible)",
+            "Playbook warnings appear in pipeline result",
+            "Existing tests still pass"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Cross-Engine Fusion — ProcessPlan + FeatureInteraction + Playbook",
+      "units": [
+        {
+          "id": "PB-MS0-P3-U01",
+          "title": "Wire playbook validation into ProcessPlanEngine and FeatureInteractionEngine",
+          "status": "not_started",
+          "steps": [
+            "In ProcessPlanEngine.generate(): after generating operation sequence, call playbook.sequenceAdvice() to validate",
+            "Append playbook_warnings and playbook_suggestions to ProcessPlanResult",
+            "In FeatureInteractionEngine.minimizeSetups(): after grouping features, call playbook.setupAdvice() for workholding wisdom",
+            "Append workholding_suggestions and datum_strategy to SetupResult",
+            "Add cross-reference: FeatureInteraction precedence violations that match playbook anti-patterns get elevated severity",
+            "Ensure both engines import machiningPlaybookEngine singleton"
+          ],
+          "exit_conditions": [
+            "process_plan_generate returns playbook_warnings in result",
+            "feature_minimize_setups returns workholding_suggestions",
+            "Anti-pattern matches from playbook elevate precedence violation severity",
+            "No regressions in existing ProcessPlan/FeatureInteraction tests"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P4",
+      "title": "Skill Creation — /playbook Slash Command",
+      "units": [
+        {
+          "id": "PB-MS0-P4-U01",
+          "title": "Create /playbook skill for direct querying",
+          "status": "not_started",
+          "steps": [
+            "Create C:/Users/Admin.DIGITALSTORM-PC/.claude/commands/playbook.md",
+            "Args: empty (show stats), 'sequence <features>' (sequencing advice), 'setup <features>' (setup strategy), 'antipatterns' (list all), 'lookup <category>' (browse by category), 'material <iso>' (material-specific tips), 'add' (interactive rule addition)",
+            "Skill calls shopPracticeDispatcher playbook_* actions",
+            "Output formatted as actionable machining advice with rule IDs for traceability",
+            "Include examples in help text"
+          ],
+          "exit_conditions": [
+            "/playbook command callable and returns formatted advice",
+            "/playbook sequence hole,pocket,thread returns ordered operations",
+            "/playbook antipatterns returns all anti-pattern rules"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Auto-Enrichment — Playbook Rules from Video Pipeline",
+      "units": [
+        {
+          "id": "PB-MS0-P5-U01",
+          "title": "Wire playbook extraction into VideoLearningEngine output",
+          "status": "not_started",
+          "steps": [
+            "In VideoLearningEngine: after knowledge extraction, detect sequencing/best-practice content",
+            "Map extracted practices to PlaybookRule structure with proper categorization",
+            "Auto-call playbook_add_rule for new unique rules (dedup by checking existing rule titles/content)",
+            "Add playbook_rules_extracted count to video learning result",
+            "Update video-learn skill to report playbook rules extracted",
+            "Add provenance: source field = 'VideoLearning — [channel] — [title] ([URL])'"
+          ],
+          "exit_conditions": [
+            "VideoLearningEngine outputs playbook_rules in its result",
+            "New rules auto-added to playbook with proper source provenance",
+            "Duplicate rules detected and skipped",
+            "Video learning result includes playbook_rules_extracted count"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "Tests & Build Gate",
+      "units": [
+        {
+          "id": "PB-MS0-P6-U01",
+          "title": "Integration tests + build verification",
+          "status": "not_started",
+          "steps": [
+            "Write integration test: process_plan_generate with playbook validation",
+            "Write integration test: feature_minimize_setups with playbook workholding advice",
+            "Write integration test: GCodeIntelligencePipeline with Stage 0 playbook pre-check",
+            "Write integration test: playbook_add_rule from video learning pipeline",
+            "Run npm run build — 0 new errors",
+            "Run npm test — 0 regressions",
+            "Verify all new hooks registered in HookRegistry"
+          ],
+          "exit_conditions": [
+            "All new integration tests pass",
+            "Build clean",
+            "No regressions in existing 5000+ tests",
+            "Hook registry includes M-PB-001 and M-PB-002"
+          ]
+        }
+      ]
+    }
+  ]
+}

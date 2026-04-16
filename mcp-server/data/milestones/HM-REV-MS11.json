@@ -1,0 +1,293 @@
+{
+  "id": "HM-REV-MS11",
+  "version": "8.3.0",
+  "title": "PPP-hyperMILL Integration + G43.4 Fix",
+  "track": "HM-REV",
+  "status": "complete",
+  "description": "Wire PostProcessorPipelineEngine (38 stages) to hyperMILL NC output. Fix G43.4 parser bug (dwell misclassification). Build TRAORI passthrough for Siemens 5-axis. Build HyperMillPPPBridgeHooks. Wire 20 controller dialects to hyperMILL post configs.",
+  "dependencies": [
+    "HM-REV-MS9",
+    "HM-REV-MS10"
+  ],
+  "knowledge_sources": {
+    "engines": [
+      "PostProcessorPipelineEngine.ts (38 stages)",
+      "SpeedFeedOrchestratorEngine.ts (2,851 LOC)",
+      "AutoSpeedFeedEngine.ts",
+      "HyperMillControllerCatalogEngine.ts (430 LOC)",
+      "HyperMillCodeGeneratorEngine.ts (982 LOC)"
+    ],
+    "registries": [
+      "ToolpathStrategyRegistry (762 strategies)",
+      "FormulaRegistry (499 formulas)"
+    ],
+    "services": [],
+    "physics": [
+      "src/physics/constants.ts (Kienzle kc1.1, Taylor)"
+    ],
+    "reference": [
+      "hypermill-post-configs.json (17 configs)",
+      "controller-knowledge-tips.ts"
+    ]
+  },
+  "forge_triple": {
+    "hook": "ppp-hypermill-bridge-hook — BUILT here U-HMR62",
+    "action": "cam:hypermill_ppp_process — BUILT here U-HMR61",
+    "skill": "/hypermill-post-optimize — DECLARED here, BUILT in HM-REV-MS12"
+  },
+  "enforcement": {
+    "pre_level": [
+      "knowledge-consult"
+    ],
+    "post_level": [
+      "stub-detector",
+      "constants-checker",
+      "physics-agent"
+    ],
+    "compact_level": [
+      "review-gate",
+      "forge-triple-gate"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint (every 5-10 tool calls)",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "sessions": [
+    {
+      "id": "HM-REV-MS11-S1",
+      "title": "PPP Wiring + G43.4 Fix + TRAORI Passthrough",
+      "smart_config": {
+        "role": "Post-Processor Specialist + G-code Parser Expert",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "40%"
+      },
+      "knowledge": [
+        "PostProcessorPipelineEngine.ts",
+        "hypermill-post-configs.json",
+        "controller-knowledge-tips.ts"
+      ],
+      "intent": "hyperMILL NC output runs through PPP 38 stages for per-block physics. G43.4 5-axis parses correctly. TRAORI blocks pass through.",
+      "skills": [
+        "/forge-engines",
+        "/forge-wiring",
+        "/prism-review",
+        "/test",
+        "/physics-verify",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR59",
+          "title": "Wire PPP input adapter for hyperMILL NC files",
+          "description": "Build input adapter for hyperMILL NC → PPP Phase 1. Handle all 17 post config variants.",
+          "depends_on": [],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Adapter reads hyperMILL NC for all 17 configs",
+            "PPP Phase 1 accepts adapted blocks",
+            "tsc passes",
+            "Unit test per controller family"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/engines/HyperMillPPPInputAdapter.ts"
+            ],
+            "files_modified": [
+              "src/engines/PostProcessorPipelineEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "PPP rejects valid NC"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/HyperMillPPPInputAdapter.ts"
+          }
+        },
+        {
+          "id": "U-HMR60",
+          "title": "Fix G43.4 parser bug + TRAORI passthrough",
+          "description": "Fix dwell misclassification in G43.4. Build TRAORI passthrough for Siemens.",
+          "depends_on": [
+            "U-HMR59"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "G43.4 classified as 5-axis RTCP not dwell",
+            "TRAORI blocks pass through unmodified",
+            "Regression: 10 Fanuc + 5 Siemens programs"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/ppp-g43.4-traori.test.ts"
+            ],
+            "files_modified": [
+              "src/engines/PostProcessorPipelineEngine.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "existing PPP tests fail"
+            ],
+            "rollback_procedure": "git checkout -- src/engines/PostProcessorPipelineEngine.ts"
+          }
+        },
+        {
+          "id": "U-HMR61",
+          "title": "Wire cam:hypermill_ppp_process action + dialect mapping",
+          "description": "Create action: read NC → detect dialect → run PPP → write optimized NC. Map 16 controller families to 20 dialects.",
+          "depends_on": [
+            "U-HMR60"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Action registered in camDispatcher",
+            "16 families mapped",
+            "E2E test for 3 families",
+            "S/F within 5% of manual calc"
+          ],
+          "rollback": {
+            "files_created": [],
+            "files_modified": [
+              "src/tools/dispatchers/camDispatcher.ts",
+              "src/schemas/camSchema.ts"
+            ],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "action not callable"
+            ],
+            "rollback_procedure": "git checkout -- src/tools/dispatchers/camDispatcher.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ PPP processes hyperMILL NC | ✓ G43.4 fixed | ✓ TRAORI passthrough | ✓ action live | ✓ 16 families mapped | omega_floor >= 0.90",
+      "feature_cascade": {
+        "new_hooks": [
+          "ppp-hypermill-bridge-hook"
+        ],
+        "new_actions": [
+          "cam:hypermill_ppp_process"
+        ],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS12",
+          "HM-REV-MS13",
+          "HM-PLG-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    },
+    {
+      "id": "HM-REV-MS11-S2",
+      "title": "PPP Bridge Hooks + Per-Block S/F Verification",
+      "smart_config": {
+        "role": "Physics Engineer + Post-Processor Specialist",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "35%"
+      },
+      "knowledge": [
+        "SpeedFeedOrchestratorEngine.ts",
+        "KienzleForceModelEngine.ts",
+        "AutoSpeedFeedEngine.ts"
+      ],
+      "intent": "Per-block variable S/F injected into hyperMILL NC. Bridge hooks fire at correct PPP phases.",
+      "skills": [
+        "/physics-verify",
+        "/calibrate",
+        "/prism-review",
+        "/test",
+        "/checkpoint",
+        "/scope"
+      ],
+      "plugins": [
+        "Vitest MCP",
+        "ESLint MCP"
+      ],
+      "units": [
+        {
+          "id": "U-HMR62",
+          "title": "Build HyperMillPPPBridgeHooks",
+          "description": "Create hooks at PPP Phase 2 entry + Phase 7 exit. Pre-hook injects hyperMILL context. Post-hook validates controller limits.",
+          "depends_on": [
+            "U-HMR61"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "Pre-hook fires at Phase 2",
+            "Post-hook validates RPM/feed limits",
+            "Hook registered in hookExecutor",
+            "5 test cases"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/hooks/HyperMillPPPBridgeHooks.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "tsc errors > 0",
+              "hooks don't fire"
+            ],
+            "rollback_procedure": "git checkout -- src/hooks/HyperMillPPPBridgeHooks.ts"
+          }
+        },
+        {
+          "id": "U-HMR63",
+          "title": "Per-block S/F verification test suite",
+          "description": "15 tests (5 ISO groups × 3 ops) verifying Kienzle force within 2% of manual. SLD RPM avoidance verified.",
+          "depends_on": [
+            "U-HMR62"
+          ],
+          "four_loop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
+          "exit_criteria": [
+            "15/15 tests within 2%",
+            "SLD avoidance triggered",
+            "Thin wall feed reduction verified",
+            "Machinist acceptance criterion"
+          ],
+          "rollback": {
+            "files_created": [
+              "src/__tests__/hypermill-perblock-sf.test.ts"
+            ],
+            "files_modified": [],
+            "abort_criteria": [
+              "any test > 5% deviation"
+            ],
+            "rollback_procedure": "rm src/__tests__/hypermill-perblock-sf.test.ts"
+          }
+        }
+      ],
+      "exit_gate": "✓ Bridge hooks fire Phase 2+7 | ✓ 15/15 per-block tests pass | ✓ SLD avoidance | ✓ tsc 0 errors | omega_floor >= 0.90 | SVI delta: +3%",
+      "feature_cascade": {
+        "new_hooks": [],
+        "new_actions": [],
+        "new_skills": [],
+        "available_to": [
+          "HM-REV-MS12",
+          "HM-REV-MS13",
+          "HM-PLG-MS4"
+        ]
+      },
+      "compact_checkpoint": true
+    }
+  ],
+  "total_units": 5,
+  "completed_units": 5
+}

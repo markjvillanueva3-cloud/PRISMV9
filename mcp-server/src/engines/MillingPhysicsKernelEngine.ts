@@ -1,0 +1,523 @@
+/**
+ * MillingPhysicsKernelEngine.ts
+ *
+ * FACADE ENGINE — Unifies all milling physics calculations through a single API.
+ * Does NOT implement formulas — delegates to existing canonical engines.
+ *
+ * This is the SINGLE POINT OF ENTRY for milling physics in PRISM.
+ * All milling intelligence engines should import from here, not directly
+ * from individual physics engines.
+ *
+ * Delegates to:
+ * - constants.ts: kienzleForce, taylorLife, extendedTaylorLife, toolDeflection
+ * - ChipFormationPredictionEngine: Merchant shear angle, chip morphology
+ * - LoewenShawHeatPartitionEngine: Loewen-Shaw 1954 temperature model
+ * - AdvancedCuttingMathEngine: Helix angle force decomposition
+ *
+ * @module engines/MillingPhysicsKernelEngine
+ * @version 1.0.0
+ */
+
+import {
+  kienzleForce,
+  taylorLife,
+  extendedTaylorLife,
+  extendedTaylorExponents,
+  toolDeflection,
+  predictedRa,
+} from "../physics/constants.js";
+
+import { chipFormationPredictionEngine } from "./ChipFormationPredictionEngine.js";
+import { loewenShawHeatPartitionEngine } from "./LoewenShawHeatPartitionEngine.js";
+import { advancedCuttingMathEngine } from "./AdvancedCuttingMathEngine.js";
+
+// ==================== TYPE DEFINITIONS ====================
+
+interface AtomicValue {
+  value: number;
+  unit: string;
+  source: string;
+  uncertainty?: number;
+  warning?: string;
+}
+
+interface MillingForceInput {
+  kc1_1: number;           // Specific cutting force at h=1mm [N/mm²]
+  mc: number;              // Kienzle exponent (typically 0.25)
+  ap: number;              // Axial depth of cut [mm]
+  fz: number;              // Feed per tooth [mm]
+  ae?: number;             // Radial depth of cut [mm] (for engagement angle)
+  helix_angle_deg?: number; // Tool helix angle for force decomposition
+  tool_diameter_mm?: number; // For engagement calculations
+}
+
+interface MillingForceResult {
+  tangential_force_N: AtomicValue;
+  radial_force_N: AtomicValue;
+  axial_force_N: AtomicValue;
+  resultant_force_N: AtomicValue;
+  specific_cutting_force_N_mm2: AtomicValue;
+  power_kW: AtomicValue;
+}
+
+interface ToolLifeInput {
+  C: number;               // Taylor constant
+  n: number;               // Speed exponent
+  Vc: number;              // Cutting speed [m/min]
+  coating?: string;        // Tool coating
+  // Extended Taylor (optional)
+  p?: number;              // Feed exponent
+  q?: number;              // Depth exponent
+  f?: number;              // Feed rate [mm]
+  ap?: number;             // Axial depth [mm]
+  iso_group?: string;      // For exponent lookup
+}
+
+interface ToolLifeResult {
+  tool_life_min: AtomicValue;
+  model_used: "basic_taylor" | "extended_taylor";
+  exponents: { n: number; p?: number; q?: number };
+}
+
+interface ChipFormationInput {
+  cutting_speed_m_min: number;
+  feed_mm: number;
+  depth_of_cut_mm?: number;
+  rake_angle_deg: number;
+  friction_coefficient?: number;
+  workpiece_hardness_hrc?: number;
+  coolant_active?: boolean;
+  workpiece_ductility?: "brittle" | "moderate" | "ductile" | "very_ductile";
+  tool_has_chipbreaker?: boolean;
+}
+
+interface TemperatureInput {
+  Vc: number;              // Cutting speed [m/min]
+  fz: number;              // Feed per tooth [mm] (used as chip thickness)
+  ap: number;              // Axial depth [mm]
+  Fc?: number;             // Cutting force [N] (for specific cutting force calc)
+  workpiece: {
+    thermal_conductivity_w_mk: number;
+    specific_heat_j_kgk: number;
+    density_kg_m3: number;
+    name?: string;
+  };
+  tool?: {
+    thermal_conductivity_w_mk: number;
+    specific_heat_j_kgk?: number;
+    density_kg_m3?: number;
+    name?: string;
+  };
+  rake_angle_deg?: number;
+  specific_cutting_force_N_mm2?: number;
+  coolant_type?: "dry" | "flood" | "mist" | "mql" | "cryogenic" | "through_tool";
+}
+
+interface TemperatureResult {
+  chip_temperature_C: AtomicValue;
+  tool_face_temperature_C: AtomicValue;
+  heat_partition_chip: AtomicValue;
+  heat_partition_tool: AtomicValue;
+  heat_partition_workpiece: AtomicValue;
+}
+
+interface DeflectionInput {
+  force_N: number;
+  tool_stickout_mm: number;
+  tool_diameter_mm: number;
+  elastic_modulus_MPa?: number; // Default: carbide 600,000
+}
+
+interface DeflectionResult {
+  deflection_mm: AtomicValue;
+  acceptable: boolean;
+  max_recommended_mm: number;
+}
+
+// ==================== MAIN ENGINE ====================
+
+class MillingPhysicsKernelEngine {
+  private readonly SOURCE = "MillingPhysicsKernelEngine";
+
+  /**
+   * Calculate milling forces using Kienzle model with optional helix decomposition.
+   *
+   * Delegates to:
+   * - kienzleForce() from constants.ts
+   * - helixAngleForceDecomposition() from AdvancedCuttingMathEngine
+   */
+  calculateMillingForces(input: MillingForceInput): MillingForceResult {
+    const { kc1_1, mc, ap, fz, helix_angle_deg = 30, tool_diameter_mm = 10, ae = tool_diameter_mm } = input;
+
+    // 1. Calculate tangential force using Kienzle model
+    const Fc = kienzleForce(kc1_1, mc, ap, fz);
+
+    // 2. Decompose into axial/radial using helix angle
+    const decomposition = advancedCuttingMathEngine.helixAngleForceDecomposition({
+      tangential_force_N: Fc,
+      helix_angle_deg: helix_angle_deg,
+      cutter_diameter_mm: tool_diameter_mm,
+    });
+
+    // 3. Calculate specific cutting force
+    const chipArea = ap * fz;
+    const kc = chipArea > 0 ? Fc / chipArea : kc1_1;
+
+    // 4. Estimate power (P = Fc × Vc / 60000)
+    // Note: Vc not in input, estimate from typical values or return placeholder
+    const powerEstimate = Fc * 100 / 60000; // Assume Vc ≈ 100 m/min
+
+    // 5. Calculate resultant force
+    const Fa = decomposition.axial_force_N.value;
+    const Fr = decomposition.radial_force_N.value;
+    const F_resultant = Math.sqrt(Fc * Fc + Fa * Fa + Fr * Fr);
+
+    return {
+      tangential_force_N: {
+        value: Fc,
+        unit: "N",
+        source: "Kienzle model (constants.ts)",
+      },
+      radial_force_N: decomposition.radial_force_N,
+      axial_force_N: decomposition.axial_force_N,
+      resultant_force_N: {
+        value: F_resultant,
+        unit: "N",
+        source: "RSS of Fc, Fa, Fr",
+      },
+      specific_cutting_force_N_mm2: {
+        value: kc,
+        unit: "N/mm²",
+        source: "kc = Fc / (ap × fz)",
+      },
+      power_kW: {
+        value: powerEstimate,
+        unit: "kW",
+        source: "P = Fc × Vc / 60000 (estimated Vc=100)",
+        warning: "Vc not provided, using estimate",
+      },
+    };
+  }
+
+  /**
+   * Calculate tool life using Taylor or Extended Taylor equation.
+   *
+   * Delegates to:
+   * - taylorLife() from constants.ts (basic)
+   * - extendedTaylorLife() from constants.ts (with feed/depth exponents)
+   * - extendedTaylorExponents() for ISO group lookup
+   */
+  calculateToolLife(input: ToolLifeInput): ToolLifeResult {
+    const { C, n, Vc, coating, p, q, f, ap, iso_group } = input;
+
+    // Determine if we should use extended Taylor
+    const useExtended = (p !== undefined && q !== undefined && f !== undefined && ap !== undefined)
+                     || iso_group !== undefined;
+
+    if (useExtended) {
+      // Get exponents from lookup if not provided
+      let pVal = p;
+      let qVal = q;
+      if ((p === undefined || q === undefined) && iso_group) {
+        const exponents = extendedTaylorExponents(iso_group);
+        pVal = p ?? exponents.p;
+        qVal = q ?? exponents.q;
+      }
+
+      const toolLife = extendedTaylorLife(
+        C, n, pVal ?? 0.3, qVal ?? 0.15,
+        Vc, f ?? 0.1, ap ?? 1.0, coating
+      );
+
+      return {
+        tool_life_min: {
+          value: toolLife,
+          unit: "min",
+          source: "Extended Taylor: T = C / (Vc^n × f^p × ap^q)",
+        },
+        model_used: "extended_taylor",
+        exponents: { n, p: pVal, q: qVal },
+      };
+    } else {
+      // Basic Taylor
+      const toolLife = taylorLife(C, n, Vc, coating);
+
+      return {
+        tool_life_min: {
+          value: toolLife,
+          unit: "min",
+          source: "Taylor: T = (C/Vc)^(1/n)",
+        },
+        model_used: "basic_taylor",
+        exponents: { n },
+      };
+    }
+  }
+
+  /**
+   * Predict chip formation characteristics including Merchant shear angle.
+   *
+   * Delegates to: ChipFormationPredictionEngine
+   */
+  predictChipFormation(input: ChipFormationInput) {
+    return chipFormationPredictionEngine.calculate({
+      cutting_speed_m_min: input.cutting_speed_m_min,
+      feed_mm_rev: input.feed_mm,
+      depth_of_cut_mm: input.depth_of_cut_mm ?? 1.0,
+      rake_angle_deg: input.rake_angle_deg,
+      friction_coefficient: input.friction_coefficient,
+      workpiece_hardness_hrc: input.workpiece_hardness_hrc,
+      coolant_active: input.coolant_active,
+      workpiece_ductility: input.workpiece_ductility,
+      tool_has_chipbreaker: input.tool_has_chipbreaker,
+    });
+  }
+
+  /**
+   * Calculate cutting temperatures using Loewen-Shaw heat partition model.
+   *
+   * Delegates to: LoewenShawHeatPartitionEngine
+   */
+  calculateCuttingTemperature(input: TemperatureInput): TemperatureResult {
+    // Default carbide tool properties
+    const toolProps = input.tool ?? {
+      thermal_conductivity_w_mk: 100,  // Carbide typical
+      specific_heat_j_kgk: 250,
+      density_kg_m3: 14500,
+      name: "carbide",
+    };
+
+    // Calculate specific cutting force if Fc provided
+    const chipArea = input.ap * input.fz;
+    const kc = input.Fc && chipArea > 0 ? input.Fc / chipArea : input.specific_cutting_force_N_mm2 ?? 2000;
+
+    const result = loewenShawHeatPartitionEngine.calculate({
+      chipMaterial: {
+        density: input.workpiece.density_kg_m3,
+        specificHeat: input.workpiece.specific_heat_j_kgk,
+        thermalConductivity: input.workpiece.thermal_conductivity_w_mk,
+        name: input.workpiece.name ?? "workpiece",
+      },
+      workpieceMaterial: {
+        density: input.workpiece.density_kg_m3,
+        specificHeat: input.workpiece.specific_heat_j_kgk,
+        thermalConductivity: input.workpiece.thermal_conductivity_w_mk,
+        name: input.workpiece.name ?? "workpiece",
+      },
+      toolMaterial: {
+        density: toolProps.density_kg_m3 ?? 14500,
+        specificHeat: toolProps.specific_heat_j_kgk ?? 250,
+        thermalConductivity: toolProps.thermal_conductivity_w_mk,
+        name: toolProps.name ?? "carbide",
+      },
+      cuttingSpeed: input.Vc,
+      chipThickness: input.fz,
+      toolRakeAngle: input.rake_angle_deg ?? 5,
+      depthOfCut: input.ap,
+      specificCuttingForce: kc,
+      coolantType: input.coolant_type,
+    });
+
+    return {
+      chip_temperature_C: {
+        value: result.maxChipTemperature,
+        unit: "°C",
+        source: "Loewen-Shaw 1954 heat partition model",
+      },
+      tool_face_temperature_C: {
+        value: result.maxToolTemperature,
+        unit: "°C",
+        source: "Loewen-Shaw 1954 heat partition model",
+      },
+      heat_partition_chip: {
+        value: result.partitionPercent.chip / 100,
+        unit: "fraction",
+        source: "Loewen-Shaw R_L factor",
+      },
+      heat_partition_tool: {
+        value: result.partitionPercent.tool / 100,
+        unit: "fraction",
+        source: "Loewen-Shaw R_L factor",
+      },
+      heat_partition_workpiece: {
+        value: result.partitionPercent.workpiece / 100,
+        unit: "fraction",
+        source: "Loewen-Shaw R_L factor",
+      },
+    };
+  }
+
+  /**
+   * Calculate tool deflection using cantilever beam theory.
+   *
+   * Delegates to: toolDeflection() from constants.ts
+   */
+  calculateToolDeflection(input: DeflectionInput): DeflectionResult {
+    const { force_N, tool_stickout_mm, tool_diameter_mm, elastic_modulus_MPa = 600000 } = input;
+
+    const deflection = toolDeflection(force_N, tool_stickout_mm, tool_diameter_mm, elastic_modulus_MPa);
+
+    // Rule of thumb: deflection should be < 0.1 × finish tolerance
+    // For typical 0.01mm finish tolerance, max 0.001mm deflection
+    // For roughing, allow up to 0.05mm
+    const maxRecommended = 0.05; // mm (roughing)
+    const acceptable = deflection < maxRecommended;
+
+    return {
+      deflection_mm: {
+        value: deflection,
+        unit: "mm",
+        source: "Euler-Bernoulli cantilever: δ = FL³/3EI",
+      },
+      acceptable,
+      max_recommended_mm: maxRecommended,
+    };
+  }
+
+  /**
+   * Calculate predicted surface roughness Ra.
+   *
+   * Delegates to: predictedRa() from constants.ts
+   */
+  calculateSurfaceRoughness(fz: number, cornerRadius_mm: number): AtomicValue {
+    const ra = predictedRa(fz, cornerRadius_mm);
+    return {
+      value: ra,
+      unit: "µm",
+      source: "Brammertz kinematic roughness: Ra = fz²/(32×re)×1000",
+    };
+  }
+
+  /**
+   * Helix angle force decomposition convenience wrapper.
+   *
+   * Delegates to: AdvancedCuttingMathEngine.helixAngleForceDecomposition()
+   */
+  decomposeHelixForces(tangential_force_N: number, helix_angle_deg: number) {
+    return advancedCuttingMathEngine.helixAngleForceDecomposition({
+      tangential_force_N,
+      helix_angle_deg,
+    });
+  }
+
+  /**
+   * Get full physics state for a milling operation.
+   * Combines force, temperature, deflection, and chip formation analysis.
+   */
+  getFullPhysicsState(input: {
+    material: {
+      kc1_1: number;
+      mc: number;
+      thermal_conductivity_w_mk: number;
+      specific_heat_j_kgk: number;
+      density_kg_m3: number;
+      hardness_hrc?: number;
+    };
+    tool: {
+      diameter_mm: number;
+      stickout_mm: number;
+      helix_angle_deg: number;
+      rake_angle_deg: number;
+      corner_radius_mm: number;
+      thermal_conductivity_w_mk: number;
+      coating?: string;
+    };
+    cutting: {
+      Vc: number;
+      fz: number;
+      ap: number;
+      ae: number;
+    };
+    taylor?: {
+      C: number;
+      n: number;
+      iso_group?: string;
+    };
+  }) {
+    // 1. Calculate forces
+    const forces = this.calculateMillingForces({
+      kc1_1: input.material.kc1_1,
+      mc: input.material.mc,
+      ap: input.cutting.ap,
+      fz: input.cutting.fz,
+      ae: input.cutting.ae,
+      helix_angle_deg: input.tool.helix_angle_deg,
+      tool_diameter_mm: input.tool.diameter_mm,
+    });
+
+    // 2. Calculate temperature
+    const temperature = this.calculateCuttingTemperature({
+      Vc: input.cutting.Vc,
+      fz: input.cutting.fz,
+      ap: input.cutting.ap,
+      Fc: forces.tangential_force_N.value,
+      workpiece: {
+        thermal_conductivity_w_mk: input.material.thermal_conductivity_w_mk,
+        specific_heat_j_kgk: input.material.specific_heat_j_kgk,
+        density_kg_m3: input.material.density_kg_m3,
+      },
+      tool: {
+        thermal_conductivity_w_mk: input.tool.thermal_conductivity_w_mk,
+        specific_heat_j_kgk: 250,  // Carbide typical
+        density_kg_m3: 14500,      // Carbide typical
+      },
+      rake_angle_deg: input.tool.rake_angle_deg,
+    });
+
+    // 3. Calculate deflection
+    const deflection = this.calculateToolDeflection({
+      force_N: forces.resultant_force_N.value,
+      tool_stickout_mm: input.tool.stickout_mm,
+      tool_diameter_mm: input.tool.diameter_mm,
+    });
+
+    // 4. Calculate surface roughness
+    const surfaceRoughness = this.calculateSurfaceRoughness(
+      input.cutting.fz,
+      input.tool.corner_radius_mm
+    );
+
+    // 5. Calculate tool life (if Taylor constants provided)
+    let toolLife: ToolLifeResult | undefined;
+    if (input.taylor) {
+      toolLife = this.calculateToolLife({
+        C: input.taylor.C,
+        n: input.taylor.n,
+        Vc: input.cutting.Vc,
+        coating: input.tool.coating,
+        iso_group: input.taylor.iso_group,
+        f: input.cutting.fz,
+        ap: input.cutting.ap,
+      });
+    }
+
+    // 6. Predict chip formation
+    const chipFormation = this.predictChipFormation({
+      cutting_speed_m_min: input.cutting.Vc,
+      feed_mm: input.cutting.fz,
+      depth_of_cut_mm: input.cutting.ap,
+      rake_angle_deg: input.tool.rake_angle_deg,
+      workpiece_hardness_hrc: input.material.hardness_hrc,
+    });
+
+    return {
+      forces,
+      temperature,
+      deflection,
+      surfaceRoughness,
+      toolLife,
+      chipFormation,
+      source: this.SOURCE,
+      engines_consulted: [
+        "constants.ts (kienzleForce, taylorLife, extendedTaylorLife, toolDeflection, predictedRa)",
+        "ChipFormationPredictionEngine (Merchant shear angle)",
+        "LoewenShawHeatPartitionEngine (1954 heat partition model)",
+        "AdvancedCuttingMathEngine (helix angle force decomposition)",
+      ],
+    };
+  }
+}
+
+// Export singleton
+export const millingPhysicsKernelEngine = new MillingPhysicsKernelEngine();
+export { MillingPhysicsKernelEngine };

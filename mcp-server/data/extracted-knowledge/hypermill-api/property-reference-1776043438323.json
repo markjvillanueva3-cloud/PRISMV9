@@ -1,0 +1,2456 @@
+{
+  "tool_properties": [
+    {
+      "name": "kcToolState",
+      "key": "State",
+      "type": "int (ToolState)"
+    },
+    {
+      "name": "kcToolNumber",
+      "key": "Number",
+      "type": "long",
+      "ncVar": "*WKZNUMMER"
+    },
+    {
+      "name": "kcNCToolName",
+      "key": "NCName",
+      "type": "omCString",
+      "ncVar": "*WKZKOMMENTAR"
+    },
+    {
+      "name": "kcToolComment",
+      "key": "Comment",
+      "type": "omCString",
+      "ncVar": "*WKZKOMMENTAR2"
+    },
+    {
+      "name": "kcToolRefPnt",
+      "key": "ToolRef",
+      "type": "short (ToolReference)",
+      "ncVar": "*TOOL_TIP"
+    },
+    {
+      "name": "kcToolRefPnts",
+      "key": "ToolRefs",
+      "type": "om::hm::md::ToolRefPoints"
+    },
+    {
+      "name": "kcTTClearanceLength",
+      "key": "TTClearanceLength",
+      "type": "double",
+      "ncVar": "*TOOL_CLEARANCE_LENGTH"
+    },
+    {
+      "name": "kcTTGageLength",
+      "key": "TTGageLength",
+      "type": "double",
+      "ncVar": "*TOOL_GAGE_LENGTH"
+    },
+    {
+      "name": "kcToolSettingLengthZ",
+      "key": "ToolSettingLengthZ",
+      "type": "double",
+      "ncVar": "*SETTING_LENGTH_Z"
+    },
+    {
+      "name": "kcToolSettingLengthX",
+      "key": "ToolSettingLengthX",
+      "type": "double",
+      "ncVar": "*SETTING_LENGTH_X"
+    },
+    {
+      "name": "kcToolCustomData",
+      "key": "ToolCustomData",
+      "type": "om::hm::md::ToolCustomData",
+      "ncVar": "*TOOL_CUSTOM_DATA"
+    },
+    {
+      "name": "kcHolderAdaptor",
+      "key": "HolderAdaptor",
+      "type": "omCString"
+    },
+    {
+      "name": "kcTTLengthCompensation",
+      "key": "*FRLAENGE",
+      "type": "double",
+      "ncVar": "*FRLAENGE"
+    },
+    {
+      "name": "kcTTUsableLength",
+      "key": "*USELAENGE",
+      "type": "double",
+      "ncVar": "*USABLE_LENGTH"
+    },
+    {
+      "name": "kcTTSpindleMaxRPM",
+      "key": "SpindleMaxRPM",
+      "type": "double",
+      "ncVar": "*MAXDREHZAHL"
+    },
+    {
+      "name": "kcTCuttingProfiles",
+      "key": "TCuttingProfiles",
+      "type": "om::hm::md::CuttingProfilesPtr"
+    },
+    {
+      "name": "kcTTurningSetups",
+      "key": "TTurningSetups",
+      "type": "om::hm::md::TurningSetupsPtr"
+    },
+    {
+      "name": "kcToolClassId",
+      "key": "ToolClassId",
+      "type": "long",
+      "ncVar": "*TOOL_CLASS_ID"
+    },
+    {
+      "name": "kcToolID",
+      "key": "ToolID",
+      "type": "omCString",
+      "ncVar": "*TOOL_ID"
+    },
+    {
+      "name": "kcToolDepotPath",
+      "key": "DepotPath",
+      "type": "omCString",
+      "ncVar": "*TOOL_DEPOTPATH"
+    },
+    {
+      "name": "kcIntToolGUID",
+      "key": "IntToolGUID",
+      "type": "omCString"
+    },
+    {
+      "name": "kcToolType",
+      "key": "Type",
+      "type": "short (ToolType)",
+      "ncVar": "*FRTYP"
+    },
+    {
+      "name": "kcToolName",
+      "key": "Name",
+      "type": "omCString",
+      "ncVar": "*TOOL_NAME"
+    },
+    {
+      "name": "kcToolComment2",
+      "key": "Comment2",
+      "type": "omCString",
+      "ncVar": "*WKZKOMMENTAR3"
+    },
+    {
+      "name": "kcToolLength",
+      "key": "Length",
+      "type": "double",
+      "ncVar": "*TOTAL_TOOL_LENGTH"
+    },
+    {
+      "name": "kcTTSpindleDir",
+      "key": "SpindleDir",
+      "type": "short (SpindleDirection)",
+      "ncVar": "*DREHRICHT"
+    },
+    {
+      "name": "kcTTTurnSpindleDir",
+      "key": "TurnSpindleDir",
+      "type": "short (SpindleDirection)",
+      "ncVar": "*TURN_SPINDLEDIR"
+    },
+    {
+      "name": "kcToolDiameter",
+      "key": "Diameter",
+      "type": "double"
+    },
+    {
+      "name": "kcToolCornerRadius",
+      "key": "CornerRadius",
+      "type": "double",
+      "ncVar": "*FRBOGEN"
+    },
+    {
+      "name": "kcToolTipAngle",
+      "key": "TipAngle",
+      "type": "double",
+      "ncVar": "*TIP_ANGLE"
+    },
+    {
+      "name": "kcToolBreakThroughLength",
+      "key": "ToolBreakThroughLength",
+      "type": "double",
+      "ncVar": "*BREAK_THROUGH_LENGTH"
+    },
+    {
+      "name": "kcToolShaftType",
+      "key": "ShaftType",
+      "type": "short (ToolShaftType)",
+      "ncVar": "*SHAFT_TYPE"
+    },
+    {
+      "name": "kcToolShaftDiameter",
+      "key": "ShaftDiameter",
+      "type": "double",
+      "ncVar": "*SHAFT_DIAMETER"
+    },
+    {
+      "name": "kcToolShaftChamferDefMode",
+      "key": "ShaftChamferDefMode",
+      "type": "short (ToolShaftChamferDefMode)",
+      "ncVar": "*SHAFT_CHAMFER_DEFMODE"
+    },
+    {
+      "name": "kcToolShaftChamferLength",
+      "key": "ShaftChamferLength",
+      "type": "double",
+      "ncVar": "*CHAMFER_LENGTH"
+    },
+    {
+      "name": "kcToolShaftChamferEndPos",
+      "key": "ShaftChamferEndPos",
+      "type": "double",
+      "ncVar": "*SHAFT_CHAMFER_ENDPOS"
+    },
+    {
+      "name": "kcToolShaftChamferAngle",
+      "key": "ShaftChamferAngle",
+      "type": "double",
+      "ncVar": "*SHAFT_CHAMFER_ANGLE"
+    },
+    {
+      "name": "kcToolTipLength",
+      "key": "ToolTipLength",
+      "type": "double",
+      "ncVar": "*TIP_LENGTH"
+    },
+    {
+      "name": "kcToolTipDiameter",
+      "key": "ToolTipDiameter",
+      "type": "double",
+      "ncVar": "*TIP_DIAMETER"
+    },
+    {
+      "name": "kcToolTapered",
+      "key": "Tapered",
+      "type": "short (0 or 1)",
+      "ncVar": "*TAPERED"
+    },
+    {
+      "name": "kcToolTaperAngle",
+      "key": "TaperAngle",
+      "type": "double",
+      "ncVar": "*TAPER_ANGLE"
+    },
+    {
+      "name": "kcToolCollar",
+      "key": "Collar",
+      "type": "short (0 or 1)",
+      "ncVar": "*COLLAR"
+    },
+    {
+      "name": "kcToolFreeTipGeo",
+      "key": "FreeTipGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcToolFreeTipCuttingAreas",
+      "key": "FreeTipCuttingAreas",
+      "type": "om::hm::geo::Contours2dPtr"
+    },
+    {
+      "name": "kcToolFreeShaftGeo",
+      "key": "FreeShaftGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcToolCuttingLength",
+      "key": "CuttingLength",
+      "type": "double",
+      "ncVar": "*CUTTING_LENGTH"
+    },
+    {
+      "name": "kcToolPitch",
+      "key": "ToolPitch",
+      "type": "double",
+      "ncVar": "*PITCH"
+    },
+    {
+      "name": "kcToolThreadSection",
+      "key": "ToolThreadSection",
+      "type": "double",
+      "ncVar": "*THREAD_SECTION"
+    },
+    {
+      "name": "kcToolThreadSectionDiameter",
+      "key": "ToolThreadSectionDiameter",
+      "type": "double",
+      "ncVar": "*THREAD_SECTIONDIA"
+    },
+    {
+      "name": "kcToolThreadBackAngle",
+      "key": "ToolThreadBackAngle",
+      "type": "double",
+      "ncVar": "*THREAD_BACKANGLE"
+    },
+    {
+      "name": "kcToolMinorThreadDiameter",
+      "key": "ToolMinorThreadDiameter",
+      "type": "double",
+      "ncVar": "*MINOR_THREAD_DIAMETER"
+    },
+    {
+      "name": "kcToolMaxDiameter",
+      "key": "ToolMaxDiameter",
+      "type": "double",
+      "ncVar": "*MAX_DIAMETER"
+    },
+    {
+      "name": "kcToolMinDiameter",
+      "key": "ToolMinDiameter",
+      "type": "double",
+      "ncVar": "*MIN_DIAMETER"
+    },
+    {
+      "name": "kcToolTipType",
+      "key": "ToolTipType",
+      "type": "short (ToolTipType)",
+      "ncVar": "*TIP_TYPE"
+    },
+    {
+      "name": "kcToolBarrelRadius",
+      "key": "BarrelRadius",
+      "type": "double",
+      "ncVar": "*BARREL_RADIUS"
+    },
+    {
+      "name": "kcToolBarrelHeight",
+      "key": "BarrelHeight",
+      "type": "double",
+      "ncVar": "*BARREL_HEIGHT"
+    },
+    {
+      "name": "kcToolBarrelTaperAngle",
+      "key": "BarrelTaperAngle",
+      "type": "double (degree)",
+      "ncVar": "*BARREL_TAPER_ANGLE"
+    },
+    {
+      "name": "kcToolBaseDiameter",
+      "key": "BaseDiameter",
+      "type": "double",
+      "ncVar": "*BASE_DIAMETER"
+    },
+    {
+      "name": "kcToolBaseCornerRadius",
+      "key": "BaseCornerRadius",
+      "type": "double",
+      "ncVar": "*BASE_CORNER_RADIUS"
+    },
+    {
+      "name": "kcToolCenterHeight",
+      "key": "CenterHeight",
+      "type": "double (deprecated)",
+      "ncVar": "*CENTER_HEIGHT"
+    },
+    {
+      "name": "kcToolChamferAngle",
+      "key": "ChamferAngle",
+      "type": "double",
+      "ncVar": "*CHAMFER_ANGLE"
+    },
+    {
+      "name": "kcToolDiscHeight",
+      "key": "DiscHeight",
+      "type": "double",
+      "ncVar": "*DISC_HEIGHT"
+    },
+    {
+      "name": "kcNominalDiameter",
+      "key": "NominalDiameter",
+      "type": "double",
+      "ncVar": "*TOOL_NOMINAL_DIAMETER"
+    },
+    {
+      "name": "kcToolCoreDiameter",
+      "key": "CoreDiameter",
+      "type": "double",
+      "ncVar": "*CORE_DIAMETER"
+    },
+    {
+      "name": "kcToolCoreHeight",
+      "key": "CoreHeight",
+      "type": "double",
+      "ncVar": "*CORE_HEIGHT"
+    },
+    {
+      "name": "kcToolLensRadius",
+      "key": "LensRadius",
+      "type": "double",
+      "ncVar": "*LENS_RADIUS"
+    },
+    {
+      "name": "kcToolUpperCornerType",
+      "key": "UpperCornerType",
+      "type": "short (ToolCornerType)",
+      "ncVar": "*UPPER_CORNER_TYPE"
+    },
+    {
+      "name": "kcToolUpperChamferAngle",
+      "key": "UpperChamferAngle",
+      "type": "double",
+      "ncVar": "*UPPER_CHAMFER_ANGLE"
+    },
+    {
+      "name": "kcToolUpperChamferHeight",
+      "key": "UpperChamferHeight",
+      "type": "double",
+      "ncVar": "*UPPER_CHAMFER_HEIGHT"
+    },
+    {
+      "name": "kcToolUpperCornerRadius",
+      "key": "UpperCornerRadius",
+      "type": "double",
+      "ncVar": "*UPPER_CORNER_RADIUS"
+    },
+    {
+      "name": "kcToolLowerCornerType",
+      "key": "LowerCornerType",
+      "type": "short (ToolCornerType)",
+      "ncVar": "*LOWER_CORNER_TYPE"
+    },
+    {
+      "name": "kcToolLowerChamferDefMode",
+      "key": "LowerChamferDefMode",
+      "type": "short (ToolChamferDefMode)",
+      "ncVar": "*LOWER_CHAMFER_DEF_MODE"
+    },
+    {
+      "name": "kcToolLowerChamferAngle",
+      "key": "LowerChamferAngle",
+      "type": "double",
+      "ncVar": "*LOWER_CHAMFER_ANGLE"
+    },
+    {
+      "name": "kcToolLowerChamferHeight",
+      "key": "LowerChamferHeight",
+      "type": "double",
+      "ncVar": "*LOWER_CHAMFER_HEIGHT"
+    },
+    {
+      "name": "kcToolLowerChamferWidth",
+      "key": "LowerChamferWidth",
+      "type": "double",
+      "ncVar": "*LOWER_CHAMFER_WIDTH"
+    },
+    {
+      "name": "kcToolLowerCornerRadius",
+      "key": "LowerCornerRadius",
+      "type": "double",
+      "ncVar": "*LOWER_CORNER_RADIUS"
+    },
+    {
+      "name": "kcToolGrindingHeight",
+      "key": "GrindingHeight",
+      "type": "double",
+      "ncVar": "*GRINDING_HEIGHT"
+    },
+    {
+      "name": "kcToolCuttingEdges",
+      "key": "CuttingEdges",
+      "type": "long",
+      "ncVar": "*CUTTING_EDGES"
+    },
+    {
+      "name": "kcToolBeadDiameter",
+      "key": "BeadDiameter",
+      "type": "double",
+      "ncVar": "*BEAD_DIAMETER"
+    },
+    {
+      "name": "kcToolBeadHeight",
+      "key": "BeadHeight",
+      "type": "double",
+      "ncVar": "*BEAD_HEIGHT"
+    },
+    {
+      "name": "kcToolDistBeadToTop",
+      "key": "DistBeadToTop",
+      "type": "double",
+      "ncVar": "*DIST_BEAD_TO_TOP"
+    },
+    {
+      "name": "kcToolFusionAreaHeight",
+      "key": "FusionAreaHeight",
+      "type": "double",
+      "ncVar": "*FUSION_AREA_HEIGHT"
+    },
+    {
+      "name": "kcRTAxisMinRadius",
+      "key": "AxisMinRadius",
+      "type": "double",
+      "ncVar": "*AXIS_MIN_RADIUS"
+    },
+    {
+      "name": "kcRTAxisMaxRadius",
+      "key": "AxisMaxRadius",
+      "type": "double",
+      "ncVar": "*AXIS_MAX_RADIUS"
+    },
+    {
+      "name": "kcRTMaxCuttingDepth",
+      "key": "MaxCuttingDepth",
+      "type": "double",
+      "ncVar": "*MAX_CUTTING_DEPTH"
+    },
+    {
+      "name": "kcTHeadName",
+      "key": "HeadName",
+      "type": "omCString",
+      "ncVar": "*THEAD_NAME"
+    },
+    {
+      "name": "kcTHeadComment",
+      "key": "HeadComment",
+      "type": "omCString",
+      "ncVar": "*HEADKOMMENTAR"
+    },
+    {
+      "name": "kcTFreeHeadGeo",
+      "key": "FreeHeadGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTHolderName",
+      "key": "HolderName",
+      "type": "omCString",
+      "ncVar": "*THOLDER_NAME"
+    },
+    {
+      "name": "kcTHolderComment",
+      "key": "HolderComment",
+      "type": "omCString",
+      "ncVar": "*HOLDERKOMMENTAR"
+    },
+    {
+      "name": "kcTFreeHolderGeo",
+      "key": "FreeHolderGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTExtensionName",
+      "key": "ExtensionName",
+      "type": "omCString",
+      "ncVar": "*TEXTENSION_NAME"
+    },
+    {
+      "name": "kcTExtensionComment",
+      "key": "ExtensionComment",
+      "type": "omCString",
+      "ncVar": "*EXTENSIONKOMMENTAR"
+    },
+    {
+      "name": "kcTFreeExtensionGeo",
+      "key": "TFreeExtensionGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTExtensionLength",
+      "key": "TExtensionLength",
+      "type": "double"
+    },
+    {
+      "name": "kcTToolHolderType",
+      "key": "TToolHolderType",
+      "type": "short (ToolHolderType)",
+      "ncVar": "*TTOOLHOLDER_TYPE"
+    },
+    {
+      "name": "kcTToolHolderName",
+      "key": "TToolHolderName",
+      "type": "omCString",
+      "ncVar": "*TTOOLHOLDER_NAME"
+    },
+    {
+      "name": "kcTToolHolderComment",
+      "key": "TToolHolderComment",
+      "type": "omCString",
+      "ncVar": "*TTOOLHOLDER_COMMENT"
+    },
+    {
+      "name": "kcTToolHolderIsoCode",
+      "key": "TToolHolderIsoCode",
+      "type": "omCString",
+      "ncVar": "*TTOOLHOLDER_ISO_CODE"
+    },
+    {
+      "name": "kcTFreeExtrusionGeo",
+      "key": "FreeExtrusionGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTFreeFullRevolvedGeo",
+      "key": "FreeFullRevolvedGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTFreeHalfRevolvedGeo",
+      "key": "FreeHalfRevolvedGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTPolyederContourGeo",
+      "key": "PolyederContourGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTUsePolyeder",
+      "key": "UsePolyeder",
+      "type": "bool",
+      "ncVar": "*USE_POLYEDER"
+    },
+    {
+      "name": "kcRTExtrusionThickness",
+      "key": "RTExtrusionthickness",
+      "type": "double",
+      "ncVar": "*EXTRUSION_THICKNESS"
+    },
+    {
+      "name": "kcRTInsertApproachAngle",
+      "key": "RTInsertApproachAngle",
+      "type": "double",
+      "ncVar": "*INSERT_APPROACH_ANGLE"
+    },
+    {
+      "name": "kcRTInsertAxisDistance",
+      "key": "RTInsertAxisDistance",
+      "type": "double",
+      "ncVar": "*INSERT_AXIS_DISTANCE"
+    },
+    {
+      "name": "kcRTInsertShaftDistance",
+      "key": "RTInsertShaftDistance",
+      "type": "double",
+      "ncVar": "*INSERT_SHAFT_DISTANCE"
+    },
+    {
+      "name": "kcTTYOffset",
+      "key": "YOffset",
+      "type": "double",
+      "ncVar": "*INSERT_Y_OFFSET"
+    },
+    {
+      "name": "kcRTInsertInclAxisDistance",
+      "key": "RTInsertInclAxisDistance",
+      "type": "double",
+      "ncVar": "*INSERT_INCL_AXIS_DISTANCE"
+    },
+    {
+      "name": "kcRTInsertInclShaftDistance",
+      "key": "RTInsertInclShaftDistance",
+      "type": "double",
+      "ncVar": "*INSERT_INCL_SHAFT_DISTANCE"
+    },
+    {
+      "name": "kcRTInsertInclYDistance",
+      "key": "RTInsertInclYDistance",
+      "type": "double",
+      "ncVar": "*INSERT_INCL_Y_DISTANCE"
+    },
+    {
+      "name": "kcRTInsertRakeAngle",
+      "key": "RTInsertRakeAngle",
+      "type": "double",
+      "ncVar": "*INSERT_RAKE_ANGLE"
+    },
+    {
+      "name": "kcRTInsertInclinationAngle",
+      "key": "RTInsertInclinationAngle",
+      "type": "double",
+      "ncVar": "*INSERT_INCLINATION_ANGLE"
+    },
+    {
+      "name": "kcRTSideOfInsert",
+      "key": "RTSideOfInsert",
+      "type": "short (SideOfInsert)",
+      "ncVar": "*SIDE_OF_INSERT"
+    },
+    {
+      "name": "kcRTMountSideOfInsert",
+      "key": "RTMountSideOfInsert",
+      "type": "short(InsertMountingDirection)",
+      "ncVar": "*MOUNTING_DIRECTION"
+    },
+    {
+      "name": "kcRTInsertMountingAngle",
+      "key": "RTInsertMountingAngle",
+      "type": "double",
+      "ncVar": "*MOUNTING_ANGLE"
+    },
+    {
+      "name": "kcRTInsertReversed",
+      "key": "RTInsertReversed",
+      "type": "bool",
+      "ncVar": "*INSERT_REVERSED"
+    },
+    {
+      "name": "kcTInsertName",
+      "key": "TInsertName",
+      "type": "omCString",
+      "ncVar": "*TINSERT_NAME"
+    },
+    {
+      "name": "kcTInsertComment",
+      "key": "TInsertComment",
+      "type": "omCString",
+      "ncVar": "*TINSERT_COMMENT"
+    },
+    {
+      "name": "kcTurnType",
+      "key": "TurnType",
+      "type": "short (TT_XXX_INSERT)",
+      "ncVar": "*INSERT_TYPE"
+    },
+    {
+      "name": "kcRTInsertAngle",
+      "key": "RTInsertAngle",
+      "type": "double",
+      "ncVar": "*INSERT_ANGLE"
+    },
+    {
+      "name": "kcRTInsertLength",
+      "key": "RTInsertLength",
+      "type": "double",
+      "ncVar": "*INSERT_LENGTH"
+    },
+    {
+      "name": "kcRTInsertHeight",
+      "key": "RTInsertHeight",
+      "type": "double",
+      "ncVar": "*INSERT_HEIGHT"
+    },
+    {
+      "name": "kcRTInsertWidth",
+      "key": "RTInsertWidth",
+      "type": "double",
+      "ncVar": "*INSERT_WIDTH"
+    },
+    {
+      "name": "kcRTInsertRadius",
+      "key": "RTInsertRadius",
+      "type": "double",
+      "ncVar": "*INSERT_RADIUS"
+    },
+    {
+      "name": "kcRTCuttingWidth",
+      "key": "RTCuttingWidth",
+      "type": "double",
+      "ncVar": "*WIDTH_OF_CUTTING_AREA"
+    },
+    {
+      "name": "kcRTCuttingHeight",
+      "key": "RTCuttingHeight",
+      "type": "double",
+      "ncVar": "*HEIGHT_OF_CUTTING_AREA"
+    },
+    {
+      "name": "kcRTInsertThickness",
+      "key": "RTInsertthickness",
+      "type": "double",
+      "ncVar": "*INSERT_THICKNESS"
+    },
+    {
+      "name": "kcRTInsertIsoCode",
+      "key": "RTInsertIsoCode",
+      "type": "omCString",
+      "ncVar": "*INSERT_ISO_CODE"
+    },
+    {
+      "name": "kcRTInsertInscribedCircleDia",
+      "key": "RTInsertInscribedCircleDia",
+      "type": "double",
+      "ncVar": "*INSCRIBED_CIRCLE_DIAMETER"
+    },
+    {
+      "name": "kcRTInsertTipXOffset",
+      "key": "RTInsertTipXOffset",
+      "type": "double",
+      "ncVar": "*TIP_X_OFFSET"
+    },
+    {
+      "name": "kcRTInsertTipZOffset",
+      "key": "RTInsertTipZOffset",
+      "type": "double",
+      "ncVar": "*TIP_Z_OFFSET"
+    },
+    {
+      "name": "kcRTInsertMinPitch",
+      "key": "RTInsertMinPitch",
+      "type": "double",
+      "ncVar": "*MIN_PITCH"
+    },
+    {
+      "name": "kcRTInsertMaxPitch",
+      "key": "RTInsertMaxPitch",
+      "type": "double",
+      "ncVar": "*MAX_PITCH"
+    },
+    {
+      "name": "kcRTInsertPartingPosition",
+      "key": "RTInsertPartingPosition",
+      "type": "short (PartingPosition)",
+      "ncVar": "*PARTING_POSITION"
+    },
+    {
+      "name": "kcRTInsertCenterZDistance",
+      "key": "RTInsertCenterZDistance",
+      "type": "double",
+      "ncVar": "*INSERT_CENTER_Z_DISTANCE"
+    },
+    {
+      "name": "kcRTInsertCenterXDistance",
+      "key": "RTInsertCenterXDistance",
+      "type": "double",
+      "ncVar": "*INSERT_CENTER_X_DISTANCE"
+    },
+    {
+      "name": "kcTInsertToolGeo",
+      "key": "InsertToolGeo",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcRTInsertFreeFormContour",
+      "key": "RTInsertFreeFormContour",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcRTInsertCuttingArea",
+      "key": "RTInsertCuttingArea",
+      "type": "omCGeContour2d"
+    },
+    {
+      "name": "kcTTMaterial",
+      "key": "Material",
+      "type": "omCString",
+      "ncVar": "*MATERIAL"
+    },
+    {
+      "name": "kcTTFeedrateXY",
+      "key": "FeedrateXY",
+      "type": "double"
+    },
+    {
+      "name": "kcTTFeedrateZ",
+      "key": "FeedrateZ",
+      "type": "double"
+    },
+    {
+      "name": "kcTTReducedFeedrate",
+      "key": "ReducedFeedrate",
+      "type": "double",
+      "ncVar": "*RVORSCHUB"
+    },
+    {
+      "name": "kcTTReducingZAngle",
+      "key": "ReducingZAngle",
+      "type": "double",
+      "ncVar": "*FRED_ANGLE"
+    },
+    {
+      "name": "kcTTSpindleRPM",
+      "key": "SpindleRPM",
+      "type": "double"
+    },
+    {
+      "name": "kcToolCoolants",
+      "key": "Coolants",
+      "type": "omCString"
+    },
+    {
+      "name": "kcTTMdFeedUnit",
+      "key": "FeedUnit",
+      "type": "short (FeedrateUnit)",
+      "ncVar": "*FEEDRATE_UNIT"
+    },
+    {
+      "name": "kcTTMdSpindleUnit",
+      "key": "SpindleUnit",
+      "type": "short (SpindleSpeedUnit)",
+      "ncVar": "*SPINDLE_UNIT"
+    },
+    {
+      "name": "kcTTMdRetFeedrate",
+      "key": "RetFeedrate",
+      "type": "double",
+      "ncVar": "*RFEEDRATE"
+    },
+    {
+      "name": "kcTTFeedrate",
+      "key": "Feedrate",
+      "type": "double",
+      "ncVar": "*FEEDRATE"
+    },
+    {
+      "name": "kcToolCutWidth",
+      "key": "CutWidth",
+      "type": "double",
+      "ncVar": "*T_CUTWIDTH"
+    },
+    {
+      "name": "kcToolCutLength",
+      "key": "CutLength",
+      "type": "double",
+      "ncVar": "*T_CUTLENGTH"
+    },
+    {
+      "name": "kcToolPlungeAngle",
+      "key": "PlungeAngle",
+      "type": "double",
+      "ncVar": "*PLUNGE_ANGLE"
+    },
+    {
+      "name": "kcToolCuttingSpeed",
+      "key": "CuttingSpeed",
+      "type": "double",
+      "ncVar": "*CUT_SPEED"
+    },
+    {
+      "name": "kcToolFeedratePerEdge",
+      "key": "FeedratePerEdge",
+      "type": "double",
+      "ncVar": "*EDGE_FEEDRATE"
+    },
+    {
+      "name": "kcToolFeedratePerRev",
+      "key": "FeedratePerRev",
+      "type": "double",
+      "ncVar": "*FEEDRATE_PER_REV"
+    },
+    {
+      "name": "kcToolDrillingFeedrate",
+      "key": "DrillingFeedrate",
+      "type": "double",
+      "ncVar": "*DRILL_FEEDRATE"
+    },
+    {
+      "name": "kcToolApproachFeedrate",
+      "key": "ToolApproachFeedrate",
+      "type": "double",
+      "ncVar": "*APPROACH_FEEDRATE"
+    },
+    {
+      "name": "kcToolStrokeFeedrate",
+      "key": "StrokeFeedrate",
+      "type": "double",
+      "ncVar": "*STROKE_FEEDRATE"
+    },
+    {
+      "name": "kcToolOverlapTop",
+      "key": "OverlapTop",
+      "type": "double",
+      "ncVar": "*OVERLAP_TOP"
+    },
+    {
+      "name": "kcToolOverlapBottom",
+      "key": "OverlapBottom",
+      "type": "double",
+      "ncVar": "*OVERLAP_BOTTOM"
+    }
+  ],
+  "document_properties": [
+    {
+      "name": "kcDialogMode",
+      "key": "*DIALOGMODE",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDialogSize",
+      "key": "*DIALOGSIZE",
+      "type": "unknown"
+    },
+    {
+      "name": "kcShowTooltips",
+      "key": "*TOOLTIPS",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMessageMode",
+      "key": "*MESSAGEMODE",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutomaticModelCheck",
+      "key": "*AUTOMODELCHECK",
+      "type": "unknown"
+    },
+    {
+      "name": "kcShowLockedOnly",
+      "key": "*SHOWLOCKEDONLY",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSearchPath",
+      "key": "Searchpath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcTmpPath",
+      "key": "TmpPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCfgPath",
+      "key": "CfgPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNshiftPath",
+      "key": "NshiftPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcTooldbPath",
+      "key": "TooldbPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcProjectsPath",
+      "key": "ProjectsPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCCProjectsPath",
+      "key": "CCProjectsPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMachsimPath",
+      "key": "MachsimPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCycleCachePath",
+      "key": "CycleCachePath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcIs64BitWindows",
+      "key": "*IS_64BIT_WINDOWS",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseV6TDB",
+      "key": "V6TDB",
+      "type": "unknown"
+    },
+    {
+      "name": "kcEnableCamClient",
+      "key": "EnableCamClient",
+      "type": "unknown"
+    },
+    {
+      "name": "kcEnableMachiningSim",
+      "key": "EnableMachiningSim",
+      "type": "unknown"
+    },
+    {
+      "name": "kcEnableDockedRemSim",
+      "key": "EnableDockedRemSim",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDispHelpCntxt",
+      "key": "DispHlpCntxt",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCheckDllVersions",
+      "key": "CheckDllVersions",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDelayedUpdate",
+      "key": "DelayedUpdate",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseAllCore",
+      "key": "UseAllCore",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNBackupEn",
+      "key": "NBackupEn",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNBackup",
+      "key": "NBackup",
+      "type": "unknown"
+    },
+    {
+      "name": "kcBackupDirMode",
+      "key": "BackupDirMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcBackupDir",
+      "key": "BackupDir",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalWorkingSpace",
+      "key": "GlobalWorkingSpace",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseProjectOnly",
+      "key": "UseProjectOnly",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLimit2DJobToNCS",
+      "key": "Limit2DJobToNCS",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPreset2DModeByStart",
+      "key": "Preset2DModeByStart",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPeset2DModeAnswered",
+      "key": "Peset2DModeAnswered",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutoRun",
+      "key": "*AUTO_RUN",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPostRunExe",
+      "key": "PostRunExe",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPostRunExeArgs",
+      "key": "PostRunExeArgs",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDynamicProjectPath",
+      "key": "DynamicProjectPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcShowPofSimCcWarning",
+      "key": "ShowPofSimCcWarning",
+      "type": "unknown"
+    },
+    {
+      "name": "kcReadOnlyMode",
+      "key": "ReadOnlyMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNoCalculation",
+      "key": "NoCalculation",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeedbackSetup",
+      "key": "Feedbacks",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeedbackSize",
+      "key": "Size",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbFactor",
+      "key": "FbFactor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcBrowserFb",
+      "key": "BrowserFeedback",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutoShowPath",
+      "key": "AutoShowPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcShowPathMode",
+      "key": "ShowPathMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutoShowStock",
+      "key": "AutoShowStock",
+      "type": "unknown"
+    },
+    {
+      "name": "kcShowStockHv",
+      "key": "ShowStockHv",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbClearanceColor",
+      "key": "Color_Clearanceplane",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbTopColor",
+      "key": "Color_Top",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbBottomColor",
+      "key": "Color_Bottom",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbNcsColor",
+      "key": "Color_Ncs",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbNcsStockColor",
+      "key": "Color_Ncs_Stock",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbFrameColor",
+      "key": "Color_Frame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbTcsColor",
+      "key": "Color_Tcs",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbMaterialToBeRemovedColor",
+      "key": "Color_MaterialToBeremoved",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbBoundaryColor",
+      "key": "Color_Boundary",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbContourColor",
+      "key": "Color_Contour",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbSelContourColor",
+      "key": "Color_SelContour",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSyncLineColor",
+      "key": "Color_SyncLines",
+      "type": "unknown"
+    },
+    {
+      "name": "kcProfileColor",
+      "key": "Color_Profiles",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAcuteAngleColor",
+      "key": "Color_AcuteAngles",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSelfIntersectionColor",
+      "key": "Color_SelfInters",
+      "type": "unknown"
+    },
+    {
+      "name": "kcStepoverColor",
+      "key": "Color_Stepover",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPathdirColor",
+      "key": "Color_Pathdir",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbStockmodelColor",
+      "key": "Color_Stockmodel",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalG0Color",
+      "key": "GlobalG0Color",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalG1Color",
+      "key": "GlobalG1Color",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalPTColor",
+      "key": "GlobalPTColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalCollisionColor",
+      "key": "GlobalCollisionColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalToolAxesColor",
+      "key": "GlobalToolAxesColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalClipColor",
+      "key": "GlobalClipColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalNCG0Color",
+      "key": "GlobalNCG0Color",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGlobalNCG1Color",
+      "key": "GlobalNCG1Color",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbToolColor",
+      "key": "Color_Tool",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbToolextensionColor",
+      "key": "Color_Toolextension",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbToolholderColor",
+      "key": "Color_Toolholder",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbTurnholderColor",
+      "key": "Color_Turnholder",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbToolheadColor",
+      "key": "Color_Toolhead",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbToolinsertColor",
+      "key": "Color_Toolinsert",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbDimensionColor",
+      "key": "Color_Dimension",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbCenterLineColor",
+      "key": "Color_CenterLine",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbCuttingAreaColor",
+      "key": "Color_CuttingArea",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbInsertCuttingAreaColor",
+      "key": "Color_InsertCuttingArea",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFbHighlightColor",
+      "key": "Color_Highlight",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMachSimModelDynamic",
+      "key": "MSimModelDynamic",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMachSimModelSelMode",
+      "key": "MSimModelSelMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMachSimModelFile",
+      "key": "MSimModelFile",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMachSimMachine",
+      "key": "MSimMachine",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSetup",
+      "key": "Setup",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGeneralSetup",
+      "key": "General",
+      "type": "unknown"
+    },
+    {
+      "name": "kcInchmode",
+      "key": "Inchmode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutoCheckCache",
+      "key": "AutoCheckCache",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutoCheckChangedMsg",
+      "key": "AutoCheckChangedMsg",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDisplayTp",
+      "key": "DisplayTp",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDelExistingTp",
+      "key": "DeleteExistingTp",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDisplayTmpGr",
+      "key": "DisplayTmpGr",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDelTmp",
+      "key": "DelTemp",
+      "type": "unknown"
+    },
+    {
+      "name": "kcRepmode",
+      "key": "Repmode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcApplicationPath",
+      "key": "ApplicationPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kc3dfPath",
+      "key": "3DFPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcHmRepPath",
+      "key": "HmRepPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcStockPath",
+      "key": "StockPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPOFPath",
+      "key": "POFPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcReportPath",
+      "key": "ReportPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNCPath",
+      "key": "NCPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcVNCPath",
+      "key": "VNCPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcExpImpPath",
+      "key": "ExpImpPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMacroPath",
+      "key": "MacroPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUDFPath",
+      "key": "UDFPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAddInPath",
+      "key": "AddInPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPrgmTaskPath",
+      "key": "PrgmTaskPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAutomationCenterPath",
+      "key": "AutomationCenterPath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseProjects",
+      "key": "UseProjects",
+      "type": "unknown"
+    },
+    {
+      "name": "kcProjectDir",
+      "key": "ProjectDir",
+      "type": "unknown"
+    },
+    {
+      "name": "kcModelCache",
+      "key": "ModelCache",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCachedModel",
+      "key": "CachedModel",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseJlSubDirs",
+      "key": "JlSubDirs",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPreserveReps",
+      "key": "PreserveReports",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseParameters",
+      "key": "UseParameters",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMaterial",
+      "key": "Material",
+      "type": "unknown"
+    },
+    {
+      "name": "kcGetToolTechno",
+      "key": "ToolTechnoFromDb",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseChaining",
+      "key": "UseChaining",
+      "type": "unknown"
+    },
+    {
+      "name": "kcChainingTol",
+      "key": "ChainingTolerance",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPOFStatCheckGeo",
+      "key": "POFStatCheckGeo",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMaxNoLCS",
+      "key": "MaxNoLCS",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPathModel",
+      "key": "PathOfModel",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseGlobalClearancePlane",
+      "key": "UseGlobalClearancePlane",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatureSetup",
+      "key": "Feature",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMaxHoleDiameter",
+      "key": "MaxHoleDiameter",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMaxSlotWidth",
+      "key": "MaxSlotWidth",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLockedLicensesCnt",
+      "key": "LockedLicensesCnt",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLockedLicenses",
+      "key": "LockedLicenses",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLicenseInfo",
+      "key": "LicenseInfo",
+      "type": "unknown"
+    },
+    {
+      "name": "kcJobUIMode",
+      "key": "JobUIMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDefaultMacroDB",
+      "key": "DefaultMacroDB",
+      "type": "unknown"
+    },
+    {
+      "name": "kcToolDBFile",
+      "key": "ToolDBFile",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSelectToolSettings",
+      "key": "SelectToolSettings",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSelectToolsSettings",
+      "key": "SelectToolsSettings",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNCToolListSettings",
+      "key": "NCToolListSettings",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUpdateToolStates",
+      "key": "UpdateToolStates",
+      "type": "unknown"
+    },
+    {
+      "name": "kcViewManagementEnabled",
+      "key": "ViewManagementEnabled",
+      "type": "unknown"
+    },
+    {
+      "name": "kcJMMOName",
+      "key": "*JM_MO_NAME",
+      "type": "unknown"
+    },
+    {
+      "name": "kcJMDocName",
+      "key": "*JM_DOC_NAME",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatImpExpPath",
+      "key": "*FEATIMPEXP_DIR",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatExpType",
+      "key": "*FEATEXP_TYPE",
+      "type": "unknown"
+    },
+    {
+      "name": "kcDatabaseMode",
+      "key": "*DATABASE_MODE",
+      "type": "short: enum DatabaseMode"
+    },
+    {
+      "name": "kcDBProjectMode",
+      "key": "*DBPROJECT_MODE",
+      "type": "short: enum DBProjectMode"
+    },
+    {
+      "name": "kcDBProjectName",
+      "key": "*DBPROJECT_NAME",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseFLColorTable",
+      "key": "UseFLColorTable",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColorTable",
+      "key": "FLColorTable",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor1",
+      "key": "FLColor1",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor2",
+      "key": "FLColor2",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor3",
+      "key": "FLColor3",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor4",
+      "key": "FLColor4",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor5",
+      "key": "FLColor5",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFLColor6",
+      "key": "FLColor6",
+      "type": "unknown"
+    },
+    {
+      "name": "kcHmBrowser",
+      "key": "HMBrowser",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMessagesPropSet",
+      "key": "_MESSAGES",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLockActive",
+      "key": "LockActive",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLockMode",
+      "key": "LockMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcVGSTire",
+      "key": "VGSTire",
+      "type": "unknown"
+    },
+    {
+      "name": "kcVGSMASurfError",
+      "key": "VGSMillingAreaSurfError",
+      "type": "unknown"
+    },
+    {
+      "name": "kcEnableCheckPitch",
+      "key": "EnableCheckPitch",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNotShowToolpathMsg",
+      "key": "NotShowToolpathMsg",
+      "type": "unknown"
+    },
+    {
+      "name": "kcNotShowJobInfo",
+      "key": "NotShowJobInfo",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPreferFeatlistFrame",
+      "key": "PreferFeatlistFrame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcJobRunningContext",
+      "key": "JobRunningContext",
+      "type": "unknown"
+    }
+  ],
+  "feature_properties": [
+    {
+      "name": "kcFeatlistSet",
+      "key": "FeatlistSet",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLastFeatlistId",
+      "key": "LastFeatlistId",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLastGlobalFeatId",
+      "key": "LastGlobalFeatId",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatShowMode",
+      "key": "FeatShowMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatActiveColor",
+      "key": "FeatActiveColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatSortMode",
+      "key": "FeatSortMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatToolPathAutoShow",
+      "key": "FeatToolPathAutoShow",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUiUpdateEnable",
+      "key": "UiUpdateEnable",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatFilter",
+      "key": "FeatFilter",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatBrowserList",
+      "key": "FeatBrowserList",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCreateFrame",
+      "key": "FeatMapCreateFrame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapFrameMode",
+      "key": "FeatMapFrameMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapSlotInHole",
+      "key": "FeatMapSlotInHole",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCheckSpotDepth",
+      "key": "FeatMapCheckSpotDepth",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCheckBSpotDepth",
+      "key": "FeatMapCheckBSpotDepth",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapSplitByDia",
+      "key": "FeatMapSplitByDia",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCheckMach",
+      "key": "FeatMapCheckMach",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapGapTol",
+      "key": "FeatMapGapTol",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapUseOldFrame",
+      "key": "FeatMapUseOldFrame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCheckModel",
+      "key": "FeatMapCheckModel",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapCheckSlot",
+      "key": "FeatMapCheckSlot",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapBottomOffset",
+      "key": "FeatMapBottomOffset",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapUseRec",
+      "key": "FeatMapUseRec",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecTol",
+      "key": "FeatRecTol",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecSlotTol",
+      "key": "FeatRecSlotTol",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecUseDiaLimit",
+      "key": "FeatRecUseDiaLimit",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecMaxDia",
+      "key": "FeatRecMaxDia",
+      "type": "unknown"
+    },
+    {
+      "name": "kcActiveFeatlistId",
+      "key": "ActiveFeatlistId",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecSlotTolAuto",
+      "key": "FeatRecSlotTolAuto",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecKeepCADFeature",
+      "key": "FeatRecKeepCADFeature",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCadFeature",
+      "key": "FeatCADFeature",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCadPattern",
+      "key": "FeatCADPattern",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCadFeatDefinition",
+      "key": "FeatCADFeatDefinition",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCheckISOFit",
+      "key": "FeatCheckISOFit",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatUseColorTable",
+      "key": "FeatUseColorTable",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecMinCylinderAngle",
+      "key": "FeatRecMinCylinderAngle",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecMinSegCylinderAngle",
+      "key": "FeatRecMinSegCylinderAngle",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecUsePreferDir",
+      "key": "FeatRecUsePreferDir",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecCheckSink",
+      "key": "FeatRecCheckSink",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecOffsetAngle",
+      "key": "FeatRecOffsetAngle",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecPreferDir",
+      "key": "FeatRecPreferDir",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecPreferDirFBPos",
+      "key": "FeatRecPreferDirFBPos",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecShowFB",
+      "key": "FeatRecShowFB",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecUseGenericHoleOnly",
+      "key": "FeatRecUseGenericHoleOnly",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecIncludeTaperedSink",
+      "key": "FeatRecIncludeTaperedSink",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecEnableGenericHole",
+      "key": "FeatRecEnableGenericHole",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecMinTipAngle",
+      "key": "FeatRecMinTipAngle",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatRecCreateAssocPoint",
+      "key": "FeatRecCreateAssocPoint",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapGroupingFeatures",
+      "key": "FeatMapGroupingFeatures",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatMapUseColorTableOnly",
+      "key": "FeatMapUseColorTableOnly",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistId",
+      "key": "FeatlistId",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistName",
+      "key": "FeatlistName",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLastFeatId",
+      "key": "LastFeatId",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistShow",
+      "key": "FeatlistShow",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatColor",
+      "key": "FeatColor",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatFrame",
+      "key": "FeatFrame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatFrameRef",
+      "key": "FeatFrameRef",
+      "type": "added in V96"
+    },
+    {
+      "name": "kcFeatlistVBM",
+      "key": "FeatlistVBM",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatSet",
+      "key": "FeatSet",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatDefinition",
+      "key": "FeatDefinition",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCategory",
+      "key": "FeatCategory",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCategoryVersion",
+      "key": "FeatCategoryVersion",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatID",
+      "key": "ID",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatName",
+      "key": "FeatName",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatClass",
+      "key": "FeatClass",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatTypeLoc",
+      "key": "FeatTypeLoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatSGT",
+      "key": "FeatSGT",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatState",
+      "key": "FeatState",
+      "type": "unknown"
+    },
+    {
+      "name": "kcIsActiveFeature",
+      "key": "IsActiveFeature",
+      "type": "unknown"
+    },
+    {
+      "name": "kcIsJobChanged",
+      "key": "IsJobChanged",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatParaName",
+      "key": "CurFeatParaName",
+      "type": "unknown"
+    },
+    {
+      "name": "kcEnablePropertyChange",
+      "key": "EnablePropertyChange",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatParaValue",
+      "key": "CurFeatParaValue",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatParaValueX",
+      "key": "CurFeatParaValueX",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatParaValueY",
+      "key": "CurFeatParaValueY",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatParaValueZ",
+      "key": "CurFeatParaValueZ",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatAssocCheck",
+      "key": "CurFeatAssocCheck",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCurFeatSelType",
+      "key": "CurFeatSelType",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatPoint",
+      "key": "FeatPoint",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContour2D",
+      "key": "FeatContour2D",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContour3D",
+      "key": "FeatContour3D",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourSlot",
+      "key": "FeatContourSlot",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatBoundary",
+      "key": "FeatBoundary",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatSurface",
+      "key": "FeatSurface",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatFeature",
+      "key": "FeatFeature",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatPointAssoc",
+      "key": "FeatPointAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourAssoc",
+      "key": "FeatContourAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatSurfaceAssoc",
+      "key": "FeatSurfaceAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatShowRefFeats",
+      "key": "FeatShowRefFeats",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCsMat",
+      "key": "FeatCsMat",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContour5X",
+      "key": "FeatContour5X",
+      "type": "unknown"
+    },
+    {
+      "name": "kcPointAssoc",
+      "key": "PointAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcVectorAssoc",
+      "key": "VectorAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLengthAssoc",
+      "key": "LengthAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcAngleAssoc",
+      "key": "AngleAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcSurfaceAssoc",
+      "key": "SurfaceAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFaceAssoc",
+      "key": "FaceAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFrameAssoc",
+      "key": "FrameAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFTAppVersion",
+      "key": "FTAppVersion",
+      "type": "unknown"
+    },
+    {
+      "name": "kcUseFrame",
+      "key": "UseFrame",
+      "type": "unknown"
+    },
+    {
+      "name": "kcCheckModel",
+      "key": "CheckModel",
+      "type": "unknown"
+    },
+    {
+      "name": "kcIsCloned",
+      "key": "IsCloned",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatShow",
+      "key": "FeatShow",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatInFilter",
+      "key": "FeatInFilter",
+      "type": "unknown"
+    },
+    {
+      "name": "kcIsFeatActive",
+      "key": "IsFeatActive",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatVBM",
+      "key": "Bookmark",
+      "type": "unknown"
+    },
+    {
+      "name": "kcModelAssoc",
+      "key": "ModelAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcMillingAreaAssoc",
+      "key": "MillingAreaAssoc",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatPocket",
+      "key": "FeatPocket",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatUseTemplate",
+      "key": "FeatUseTemplate",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatTemplateFileName",
+      "key": "FeatTemplateFileName",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatTemplateID",
+      "key": "FeatTemplateID",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFClassUseSameType",
+      "key": "kcFClassUseSameType",
+      "type": "unknown"
+    },
+    {
+      "name": "kcLocalUDFDefinition",
+      "key": "LocalUDFDefinition",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistUUID",
+      "key": "FeatlistUUID",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatUUID",
+      "key": "FeatUUID",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistReadOnly",
+      "key": "FeatlistReadOnly",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatlistHide",
+      "key": "FeatlistHide",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatReadOnly",
+      "key": "FeatReadOnly",
+      "type": "unknown"
+    },
+    {
+      "name": "kcThreadDefinitions",
+      "key": "ThreadDefinitions",
+      "type": "unknown"
+    },
+    {
+      "name": "kcHCSLocFilePath",
+      "key": "HCSLocFilePath",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatDataInchMode",
+      "key": "FeatDataInchMode",
+      "type": "unknown"
+    },
+    {
+      "name": "kcISOFitDefinitions",
+      "key": "ISOFitDefinitions",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatExtenCadThreadPos",
+      "key": "FeatExtenCadThreadPos",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatExtenCadThreadPosOffset",
+      "key": "FeatExtenCadThreadPosOffset",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourAreaModeTop",
+      "key": "FeatContourAreaModeTop",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourAreaModeBottom",
+      "key": "FeatContourAreaModeBottom",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourAreaValueTop",
+      "key": "FeatContourAreaValueTop",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatContourAreaValueBottom",
+      "key": "FeatContourAreaValueBottom",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatImportCheckISOFit",
+      "key": "FeatImportCheckISOFit",
+      "type": "unknown"
+    },
+    {
+      "name": "kcFeatCADThroughHoleAdaptMode",
+      "key": "FeatCADThroughHoleAdaptMode",
+      "type": "unknown"
+    }
+  ]
+}

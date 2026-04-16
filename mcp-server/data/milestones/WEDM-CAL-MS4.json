@@ -1,0 +1,53 @@
+{
+  "id": "WEDM-CAL-MS4",
+  "title": "Operator Tools & Production Gate",
+  "track": "WEDM-CAL",
+  "version": "1.0.0",
+  "created": "2026-04-10",
+  "depends_on": ["WEDM-CAL-MS3"],
+  "total_units": 4,
+  "completed_units": 4,
+  "status": "complete",
+  "sessions": "2",
+  "roadmap_path": "milestones/WEDM-CALIBRATE-ROADMAP.md",
+  "units": [
+    {
+      "id": "U-CAL18",
+      "title": "Program Comparison Engine",
+      "status": "not_started",
+      "session": 7,
+      "depends_on": ["U-CAL17"],
+      "description": "Create WEDMProgramComparisonEngine: parse real NC + PRISM output, compare per-parameter, output match score and deviation report"
+    },
+    {
+      "id": "U-CAL19",
+      "title": "Deviation Dashboard Panel",
+      "status": "not_started",
+      "session": 7,
+      "depends_on": ["U-CAL18"],
+      "description": "Create WireEdmCalibrationPanel.tsx showing per-parameter deviation chart, calibration history, and 'calibrate from program' button"
+    },
+    {
+      "id": "U-CAL20",
+      "title": "Tighten Benchmark Tolerances",
+      "status": "not_started",
+      "session": 8,
+      "depends_on": ["U-CAL19"],
+      "description": "Tighten benchmark tolerance bands (area ±30%→±20%, kerf ±20%→±15%, finish ±70%→±30%, D2 speed ±70%→±25%)"
+    },
+    {
+      "id": "U-CAL21",
+      "title": "Final Production Readiness Score",
+      "status": "complete",
+      "session": 8,
+      "depends_on": ["U-CAL20"],
+      "description": "Run full validation suite, generate WEDM_FINAL_READINESS.json with overall score (target: 90+), per-dimension scores, calibration confidence",
+      "completed_at": "2026-04-15T00:15:00Z"
+    }
+  ],
+  "forge_triple": {
+    "hook": "wedm-production-gate",
+    "action": "prism_edm:wedm_production_readiness",
+    "skill": "/wedm-readiness"
+  }
+}

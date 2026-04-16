@@ -1,0 +1,139 @@
+{
+  "id": "QS-MS1",
+  "version": "6.3.0",
+  "title": "Correctness Fixes",
+  "track": "QS",
+  "created_at": "2026-03-15T17:00:00Z",
+  "status": "complete",
+  "total_units": 9,
+  "completed_units": 9,
+  "description": "Fix CRITICAL and worst MAJOR findings from the forge-audit: CNCSimulationPipelineEngine formula errors, calcDispatcher 261 unreachable actions, cadDispatcher 24 missing actions, and inline physics replacement in 8 engines. Target quality scores: CNCSimulation 27→75, calcDispatcher 43→85, all others 80+.",
+  "dependencies": [
+    "QS-MS0"
+  ],
+  "phases": [
+    {
+      "id": "P0",
+      "title": "CNCSimulationPipelineEngine formula fixes",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Fix Kienzle force formula",
+          "description": "Fix Kienzle formula to Fc = kc1_1 * ap * fz^(1-mc) (not ae-based). Import constants from src/physics/constants.ts. Add tool material E modulus lookup from CANONICAL_TOOL_MODULUS.",
+          "acceptance": [
+            "Kienzle formula uses correct ap-based formulation",
+            "Constants imported from src/physics/constants.ts",
+            "Tool material E modulus resolved from CANONICAL_TOOL_MODULUS"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U02",
+          "title": "Fix Taylor tool life formula",
+          "description": "Fix Taylor formula to T = (C/Vc)^(1/n) (not C/V^n). Import Taylor constants from src/physics/constants.ts.",
+          "acceptance": [
+            "Taylor formula uses correct T = (C/Vc)^(1/n) formulation",
+            "Taylor constants imported from canonical source"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P0-U03",
+          "title": "CNCSimulation regression tests",
+          "description": "Add 5+ regression tests validating corrected Kienzle and Taylor formulas against known reference values for multiple materials and cutting conditions.",
+          "acceptance": [
+            "5+ regression tests pass",
+            "Tests cover at least 3 different ISO material groups",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "calcDispatcher action gap",
+      "units": [
+        {
+          "id": "P1-U01",
+          "title": "Add 261 missing actions to ACTIONS z.enum",
+          "description": "Add 261 missing actions to the calcDispatcher ACTIONS z.enum array so all switch cases are reachable. Remove 5 duplicate switch cases (ga_optimize, de_optimize, pso_optimize, sa_optimize, pareto_optimize).",
+          "acceptance": [
+            "All 261 missing actions added to ACTIONS z.enum",
+            "5 duplicate switch cases removed",
+            "All 1043+ cases are reachable via schema validation"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P1-U02",
+          "title": "calcDispatcher reachability tests",
+          "description": "Add 3+ tests verifying all calcDispatcher switch cases are reachable via the ACTIONS z.enum. Test that previously-blocked actions now succeed.",
+          "acceptance": [
+            "3+ tests pass",
+            "Previously-blocked actions verified as reachable",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "cadDispatcher action gap",
+      "units": [
+        {
+          "id": "P2-U01",
+          "title": "Add 24 missing cadDispatcher actions",
+          "description": "Add 24 missing actions (sketch/part/assembly/F360/CadQuery) to cadDispatcher ACTIONS z.enum. Add 2+ tests verifying reachability.",
+          "acceptance": [
+            "24 missing actions added to cadDispatcher ACTIONS z.enum",
+            "2+ tests verifying reachability pass",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Inline physics replacement in 8 engines",
+      "units": [
+        {
+          "id": "P3-U01",
+          "title": "Replace inline physics in 4 pipeline engines",
+          "description": "Replace inline KIENZLE_DB/TAYLOR_DB in PrintToProgramPipeline, PostProcessorPipeline, PartGeometryPipeline, and CAMKernelOrchestrator with imports from src/physics/constants.ts.",
+          "acceptance": [
+            "All 4 engines import from src/physics/constants.ts",
+            "No inline Kienzle/Taylor DBs remain in these engines",
+            "Tests verify identical output with canonical constants"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P3-U02",
+          "title": "Replace inline physics in 4 more engines",
+          "description": "Replace inline KIENZLE_DB/TAYLOR_DB in EndToEndPipeline, MillTurnSwissPipeline, ProcessVariabilityIntegration, and CNCSimulationPipeline with imports from src/physics/constants.ts.",
+          "acceptance": [
+            "All 4 engines import from src/physics/constants.ts",
+            "No inline Kienzle/Taylor DBs remain in these engines",
+            "Tests verify identical output with canonical constants"
+          ],
+          "status": "complete"
+        },
+        {
+          "id": "P3-U03",
+          "title": "Inline physics replacement verification tests",
+          "description": "Add tests verifying all 8 engines produce identical output using canonical constants. Ensure zero inline Kienzle/Taylor DBs remain across the entire codebase.",
+          "acceptance": [
+            "Tests verify all 8 engines use canonical constants",
+            "Grep confirms zero inline KIENZLE_DB/TAYLOR_DB definitions outside constants.ts",
+            "Build: 0 errors"
+          ],
+          "status": "complete"
+        }
+      ]
+    }
+  ],
+  "completed_at": "2026-03-15T18:00:00Z"
+}

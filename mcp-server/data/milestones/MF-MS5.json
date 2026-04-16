@@ -1,0 +1,56 @@
+{
+  "id": "MF-MS5",
+  "version": "6.2.0",
+  "title": "Integration Tests + Benchmarks + Skills + Hooks",
+  "created_at": "2026-03-14T16:00:00Z",
+  "description": "End-to-end integration testing across all 43 failure modes. Benchmark feasibility analysis performance. Create slash commands for interactive use. Build hooks for auto-triggering feasibility checks.",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Integration Tests",
+      "units": [
+        {
+          "id": "U01",
+          "title": "End-to-end tests: 43 failure modes × multiple part geometries",
+          "status": "pending",
+          "steps": [
+            "Test each of 7 geometry/access failure modes with specific test cases",
+            "Test each of 9 workholding failure modes with specific test cases",
+            "Test each of 7 rigidity failure modes with specific test cases",
+            "Test each of 5 force/power failure modes with specific test cases",
+            "Test each of 7 sequence/logic failure modes with specific test cases",
+            "Test each of 5 simulation failure modes with specific test cases",
+            "Test each of 3 stock/material failure modes with specific test cases",
+            "Cross-system integration: PP pipeline → feasibility → simulation → output",
+            "Performance: full analysis <2s for 15-operation job"
+          ],
+          "exit_conditions": [
+            "All 43 failure modes covered with at least 1 test each",
+            "No false negatives (every real dead-end detected)",
+            "Performance targets met",
+            "80+ integration tests"
+          ]
+        },
+        {
+          "id": "U02",
+          "title": "Skills: /feasibility-check, /sequence-validate, /what-if + Hooks",
+          "status": "pending",
+          "steps": [
+            "Create /feasibility-check skill: interactive full analysis via MCP chat",
+            "Create /sequence-validate skill: validate operation order with dead-end detection",
+            "Create /what-if skill: explore alternate operation sequences",
+            "Hookify: autofire-feasibility — run quick check before /program-gen output",
+            "Hookify: warn-sequence-risk — warn when operation sequence has >20% failure risk",
+            "Update /commands list with new skills"
+          ],
+          "exit_conditions": [
+            "All 3 skills functional",
+            "Hooks fire correctly",
+            "Total MF track tests: 150+"
+          ]
+        }
+      ]
+    }
+  ],
+  "status": "not_started"
+}

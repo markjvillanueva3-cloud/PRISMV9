@@ -1,0 +1,46 @@
+{
+  "id": "ACP-MS2B",
+  "version": "1.0.0",
+  "title": "Chain Failure Recovery (gap fix)",
+  "brief": "Define retry/partial-rollback/human-escalation chains for when automation fails mid-execution. Covers transient failure retry with backoff, partial rollback to last-known-good state, and human escalation with diagnostic context. Gap fix added during scrutiny.",
+  "created_at": "2026-03-25T14:30:00Z",
+  "created_by": "claude-opus-4.6",
+  "track": "ACP",
+  "track_name": "Automation Control Plane",
+  "status": "not_started",
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Failure Recovery Chains",
+      "sessions": "1-2",
+      "units": [
+        {
+          "id": "P0-U01",
+          "title": "Define retry chain: transient failure detection, exponential backoff with jitter, max-retry limits per chain type",
+          "effort": 70,
+          "dependencies": []
+        },
+        {
+          "id": "P0-U02",
+          "title": "Define partial-rollback chain: checkpoint state before each chain step, rollback to last-known-good on failure",
+          "effort": 80,
+          "dependencies": ["P0-U01"]
+        },
+        {
+          "id": "P0-U03",
+          "title": "Define human-escalation chain: diagnostic context packaging, escalation triggers, user notification with actionable info",
+          "effort": 60,
+          "dependencies": ["P0-U01", "P0-U02"]
+        }
+      ]
+    }
+  ],
+  "dependencies": ["ACP-MS2"],
+  "exit_conditions": [
+    "Retry chain handles transient failures with configurable backoff",
+    "Partial rollback restores last-known-good state on mid-chain failure",
+    "Human escalation packages diagnostic context for user action",
+    "All failure paths tested with simulated chain failures"
+  ],
+  "spec_path": "docs/superpowers/specs/2026-03-25-mcp-automation-control-plane-roadmap-design.md"
+}

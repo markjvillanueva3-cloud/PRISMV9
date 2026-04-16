@@ -1,0 +1,72 @@
+{
+  "id": "SYS-MS6",
+  "title": "Dispatcher Param Schema Validation",
+  "track": "SYS",
+  "priority": "P1",
+  "status": "complete",
+  "description": "Add per-action Zod schema validation to dispatcher entry points. Currently all 45 dispatchers accept params: z.record(z.any()) — no type enforcement at the tool boundary. 21 Zod schemas exist in src/schemas/ but none are wired to dispatcher param validation. ParamNormalizer (40 aliases) is best-effort only. This milestone creates action-specific schemas for high-traffic dispatchers.",
+  "source": "GAP-ANALYSIS-2026-02-28",
+  "findings": [
+    "All 45 dispatchers use params: z.record(z.any()).optional() — zero type enforcement",
+    "21 Zod schemas + 3 JSON Schemas exist but none validate dispatcher params",
+    "ParamNormalizer has 40 aliases but never rejects invalid params or enforces required fields",
+    "Invalid params silently flow into engine logic, causing cryptic errors deep in call stack",
+    "DSL abbreviation system (210 terms) is output-only — no connection to param validation"
+  ],
+  "units": [
+    {
+      "id": "SYS-MS6-U00",
+      "title": "Design Schema Validation Architecture",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Analyze the top 5 dispatchers by traffic: prism_calc, prism_safety, prism_5axis, prism_thread, prism_data"},
+        {"number": 2, "instruction": "For each, catalog required params per action (from engine function signatures)"},
+        {"number": 3, "instruction": "Design a schema registry pattern: ACTION_SCHEMAS map from action→Zod schema"},
+        {"number": 4, "instruction": "Design the validation middleware: after normalizeParams, before engine call, validate against schema"},
+        {"number": 5, "instruction": "Decide on error behavior: return structured validation error vs throw"}
+      ],
+      "exit_conditions": ["Architecture doc with schema registry pattern", "Decision on error behavior"]
+    },
+    {
+      "id": "SYS-MS6-U01",
+      "title": "Create Schemas for prism_calc Actions",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create src/schemas/calcSchemas.ts with Zod schemas for all 56 prism_calc actions"},
+        {"number": 2, "instruction": "Group schemas by engine: Kienzle (force_power, cutting_force), Taylor (tool_life), SpeedFeed (speed_feed), etc."},
+        {"number": 3, "instruction": "Export ACTION_CALC_SCHEMAS: Record<string, z.ZodType>"},
+        {"number": 4, "instruction": "Wire validation into calcDispatcher: after normalizeParams, before engine dispatch"},
+        {"number": 5, "instruction": "Test with invalid params — verify structured error response"}
+      ],
+      "exit_conditions": ["All 56 prism_calc actions have Zod schemas", "Validation wired and tested", "TSC clean"]
+    },
+    {
+      "id": "SYS-MS6-U02",
+      "title": "Create Schemas for Safety-Critical Dispatchers",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create src/schemas/safetySchemas.ts for prism_safety actions"},
+        {"number": 2, "instruction": "Create src/schemas/fiveAxisSchemas.ts for prism_5axis actions"},
+        {"number": 3, "instruction": "Create src/schemas/threadSchemas.ts for prism_thread actions"},
+        {"number": 4, "instruction": "Wire validation into each dispatcher"},
+        {"number": 5, "instruction": "Safety-critical actions must REJECT invalid params (not gracefully degrade)"}
+      ],
+      "exit_conditions": ["Safety dispatchers reject invalid params with clear error messages", "TSC clean", "All tests pass"]
+    },
+    {
+      "id": "SYS-MS6-U03",
+      "title": "Extend to Remaining Dispatchers",
+      "status": "complete",
+      "steps": [
+        {"number": 1, "instruction": "Create schemas for remaining high-value dispatchers: prism_data, prism_toolpath, prism_export"},
+        {"number": 2, "instruction": "For lower-traffic dispatchers, create minimal required-field schemas (action + essential params only)"},
+        {"number": 3, "instruction": "Update ParamNormalizer to also coerce types (string '2.5' → number 2.5) where schema expects number"},
+        {"number": 4, "instruction": "Add schema coverage metric to health endpoint"},
+        {"number": 5, "instruction": "Run full test suite, verify no regressions from schema enforcement"}
+      ],
+      "exit_conditions": ["Schema coverage >= 80% of dispatcher actions", "Type coercion working", "All tests pass"]
+    }
+  ],
+  "dependencies": [],
+  "deliverables": ["Per-action Zod schemas for high-traffic dispatchers", "Schema validation middleware", "Type coercion in ParamNormalizer"]
+}
