@@ -236,6 +236,9 @@ let _ppDecimalPoint: any;
 // PP-BS: Block-skip and stop-code validator
 let _ppBlockSkip: any;
 
+// PP-SS: Spindle state validator
+let _ppSpindleState: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -427,6 +430,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppDecimalPoint ??= (await import("../../engines/PPDecimalPointValidatorEngine.js")).ppDecimalPointValidatorEngine;
     case "blockSkip":
       return _ppBlockSkip ??= (await import("../../engines/PPBlockSkipValidatorEngine.js")).ppBlockSkipValidatorEngine;
+    case "spindleState":
+      return _ppSpindleState ??= (await import("../../engines/PPSpindleStateValidatorEngine.js")).ppSpindleStateValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -805,6 +810,11 @@ const ACTIONS = [
   "pp_bs_validate",                // Full block-skip/stop validation
   "pp_bs_quick",                   // Quick pass/fail + slash/stop counts
   "pp_bs_defaults",                // Default block-skip validator options
+
+  // PP-SS: Spindle state validator
+  "pp_ss_validate",                // Full spindle-state validation
+  "pp_ss_quick",                   // Quick pass/fail + M3/M4/M5 counts
+  "pp_ss_defaults",                // Default spindle-state validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2524,6 +2534,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_bs_defaults": {
             const engine = await getEngine("blockSkip");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_SS (PP-SS — Spindle state validator) =====
+          case "pp_ss_validate": {
+            const engine = await getEngine("spindleState");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_cut_off: params.check_cut_off,
+              check_spindle_on_without_s: params.check_spindle_on_without_s,
+              check_reversal: params.check_reversal,
+              check_tool_change: params.check_tool_change,
+              check_end_without_stop: params.check_end_without_stop,
+              check_missing_initial: params.check_missing_initial,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_ss_quick": {
+            const engine = await getEngine("spindleState");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_ss_defaults": {
+            const engine = await getEngine("spindleState");
             result = engine.defaultOptions();
             break;
           }
