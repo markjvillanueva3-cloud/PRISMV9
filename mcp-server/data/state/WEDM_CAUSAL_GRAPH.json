@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "graphId": "wedm-causal-v1",
+  "generatedAt": "2026-04-15T21:00:00.000Z",
+  "nodes": [
+    { "id": "on_time", "type": "parameter", "domain": "electrical" },
+    { "id": "off_time", "type": "parameter", "domain": "electrical" },
+    { "id": "peak_current", "type": "parameter", "domain": "electrical" },
+    { "id": "wire_tension", "type": "parameter", "domain": "wire" },
+    { "id": "wire_speed", "type": "parameter", "domain": "wire" },
+    { "id": "flushing_pressure", "type": "parameter", "domain": "flushing" },
+    { "id": "dielectric_temp", "type": "parameter", "domain": "flushing" },
+    { "id": "material_hardness", "type": "material", "domain": "workpiece" },
+    { "id": "thickness", "type": "material", "domain": "workpiece" },
+    { "id": "spark_gap", "type": "outcome", "domain": "process" },
+    { "id": "mrr", "type": "outcome", "domain": "process" },
+    { "id": "surface_finish", "type": "outcome", "domain": "quality" },
+    { "id": "wire_break_prob", "type": "outcome", "domain": "reliability" },
+    { "id": "dimensional_accuracy", "type": "outcome", "domain": "quality" }
+  ],
+  "edges": [
+    { "from": "on_time", "to": "mrr", "weight": 0.85, "type": "positive" },
+    { "from": "on_time", "to": "surface_finish", "weight": -0.65, "type": "negative" },
+    { "from": "off_time", "to": "mrr", "weight": -0.60, "type": "negative" },
+    { "from": "off_time", "to": "wire_break_prob", "weight": -0.70, "type": "negative" },
+    { "from": "peak_current", "to": "mrr", "weight": 0.90, "type": "positive" },
+    { "from": "peak_current", "to": "wire_break_prob", "weight": 0.75, "type": "positive" },
+    { "from": "wire_tension", "to": "dimensional_accuracy", "weight": 0.80, "type": "positive" },
+    { "from": "wire_tension", "to": "wire_break_prob", "weight": 0.50, "type": "positive" },
+    { "from": "flushing_pressure", "to": "mrr", "weight": 0.40, "type": "positive" },
+    { "from": "flushing_pressure", "to": "wire_break_prob", "weight": -0.55, "type": "negative" },
+    { "from": "material_hardness", "to": "mrr", "weight": -0.70, "type": "negative" },
+    { "from": "thickness", "to": "mrr", "weight": -0.45, "type": "negative" },
+    { "from": "thickness", "to": "wire_break_prob", "weight": 0.60, "type": "positive" }
+  ],
+  "interventions": [
+    { "variable": "flushing_pressure", "effect_on": "wire_break_prob", "avg_delta": -0.15 },
+    { "variable": "off_time", "effect_on": "wire_break_prob", "avg_delta": -0.10 }
+  ],
+  "lastUpdated": "2026-04-15T21:00:00.000Z"
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:00:00.000Z",
+  "baselineVersion": "1.0.0",
+  "models": {
+    "neural_mrr": {
+      "modelId": "wedm-mrr-v2.1",
+      "baseline": {
+        "mae": 2.8,
+        "rmse": 4.2,
+        "r2": 0.94,
+        "samples": 1250
+      },
+      "current": {
+        "mae": 3.1,
+        "rmse": 4.5,
+        "r2": 0.93,
+        "samples": 85
+      },
+      "drift": {
+        "score": 0.08,
+        "trend": "stable",
+        "lastCheck": "2026-04-15T20:00:00.000Z"
+      },
+      "threshold": 0.20
+    },
+    "neural_ra": {
+      "modelId": "wedm-ra-v1.8",
+      "baseline": {
+        "mae": 0.08,
+        "rmse": 0.12,
+        "r2": 0.91,
+        "samples": 1180
+      },
+      "current": {
+        "mae": 0.09,
+        "rmse": 0.13,
+        "r2": 0.90,
+        "samples": 72
+      },
+      "drift": {
+        "score": 0.05,
+        "trend": "stable",
+        "lastCheck": "2026-04-15T20:00:00.000Z"
+      },
+      "threshold": 0.20
+    },
+    "wire_break_predictor": {
+      "modelId": "wedm-wirebreak-v1.2",
+      "baseline": {
+        "precision": 0.85,
+        "recall": 0.78,
+        "f1": 0.81,
+        "samples": 450
+      },
+      "current": {
+        "precision": 0.82,
+        "recall": 0.75,
+        "f1": 0.78,
+        "samples": 28
+      },
+      "drift": {
+        "score": 0.12,
+        "trend": "slight_decrease",
+        "lastCheck": "2026-04-15T20:00:00.000Z"
+      },
+      "threshold": 0.25
+    }
+  },
+  "retrainTrigger": {
+    "driftScoreThreshold": 0.20,
+    "minSamples": 50,
+    "maxAgeDays": 30
+  }
+}

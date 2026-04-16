@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-15T21:00:00.000Z",
+  "description": "Material transfer learning factors for WEDM parameter adaptation",
+  "transferFactors": [
+    {
+      "from": "D2",
+      "to": "A2",
+      "factor": 1.05,
+      "confidence": 0.92,
+      "notes": "Similar hardness, slight conductivity difference"
+    },
+    {
+      "from": "D2",
+      "to": "M2",
+      "factor": 0.95,
+      "confidence": 0.88,
+      "notes": "M2 slightly more conductive"
+    },
+    {
+      "from": "D2",
+      "to": "S7",
+      "factor": 1.15,
+      "confidence": 0.85,
+      "notes": "S7 shock-resistant, slower cut"
+    },
+    {
+      "from": "carbide",
+      "to": "tungsten carbide",
+      "factor": 1.0,
+      "confidence": 0.95,
+      "notes": "Effectively same material"
+    },
+    {
+      "from": "4140",
+      "to": "4340",
+      "factor": 1.02,
+      "confidence": 0.90,
+      "notes": "4340 slightly harder"
+    },
+    {
+      "from": "stainless-304",
+      "to": "stainless-316",
+      "factor": 0.98,
+      "confidence": 0.88,
+      "notes": "316 slightly better machinability"
+    }
+  ],
+  "parameterScaling": {
+    "on_time": { "transferable": true, "scaleFactor": "linear" },
+    "off_time": { "transferable": true, "scaleFactor": "linear" },
+    "peak_current": { "transferable": false, "notes": "Recalculate based on material conductivity" },
+    "wire_tension": { "transferable": true, "scaleFactor": "none" },
+    "flushing_pressure": { "transferable": true, "scaleFactor": "linear" }
+  },
+  "lastValidation": "2026-04-15T21:00:00.000Z"
+}

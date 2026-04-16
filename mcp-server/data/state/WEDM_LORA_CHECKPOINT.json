@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "adapterName": "wedm-lora-v1",
+  "baseModel": "mistralai/Mistral-7B-v0.1",
+  "status": "not_trained",
+  "lastTraining": null,
+  "config": {
+    "lora_r": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.1,
+    "target_modules": ["q_proj", "v_proj"],
+    "task_type": "CAUSAL_LM"
+  },
+  "trainingData": {
+    "source": "WEDM_OUTCOME_LEDGER.jsonl",
+    "samples": 0,
+    "lastUpdated": null
+  },
+  "metrics": {
+    "trainLoss": null,
+    "valLoss": null,
+    "epochs": 0,
+    "learningRate": 2e-4,
+    "batchSize": 4
+  },
+  "artifacts": {
+    "adapterPath": null,
+    "tokenizerPath": null,
+    "configPath": null
+  },
+  "deployment": {
+    "deployed": false,
+    "deployedAt": null,
+    "inferenceCount": 0
+  }
+}

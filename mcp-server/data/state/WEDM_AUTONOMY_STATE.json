@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "currentLevel": 3,
+  "levelName": "Supervised",
+  "lastTransition": "2026-04-15T20:00:00.000Z",
+  "levels": [
+    { "level": 0, "name": "Manual", "description": "No AI assistance, operator controls all" },
+    { "level": 1, "name": "Advisory", "description": "AI suggests, operator decides and executes" },
+    { "level": 2, "name": "Assisted", "description": "AI prepares, operator approves and monitors" },
+    { "level": 3, "name": "Supervised", "description": "AI executes, operator supervises and can intervene" },
+    { "level": 4, "name": "Monitored", "description": "AI autonomous, operator monitors metrics only" },
+    { "level": 5, "name": "Full Auto", "description": "AI fully autonomous, alerts on exceptions only" }
+  ],
+  "capabilities": {
+    "parameterSuggestion": true,
+    "programGeneration": true,
+    "automaticExecution": false,
+    "adaptiveControl": false,
+    "selfCalibration": false
+  },
+  "constraints": {
+    "maxAutonomyLevel": 4,
+    "requiresApproval": ["program_execute", "parameter_change_critical"],
+    "autoEscalate": ["wire_break", "alarm", "out_of_tolerance"]
+  },
+  "transitions": [
+    { "timestamp": "2026-04-10T08:00:00.000Z", "from": 2, "to": 3, "reason": "Operator certification complete", "approvedBy": "supervisor-001" },
+    { "timestamp": "2026-03-15T14:00:00.000Z", "from": 1, "to": 2, "reason": "Initial deployment", "approvedBy": "admin" }
+  ],
+  "metrics": {
+    "interventionRate": 0.05,
+    "successRate": 0.97,
+    "avgCycleTime_reduction": 0.12
+  }
+}
