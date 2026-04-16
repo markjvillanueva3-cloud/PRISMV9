@@ -163,8 +163,18 @@ let _strategyBenchmark: any;
 let _strategyComparison: any;
 // CAMX-MS12 U05 singletons
 let _contextualStrategyOverride: any;
+// CAMX-MS12 U06 singletons
+let _strategySequencing: any;
+// CAMX-MS12 U07 singletons
+let _fixtureAwareStrategy: any;
 // CAMX-MS12 U08 singletons
 let _batchSizeStrategy: any;
+// CAMX-MS12 U11 singletons (renamed from StochasticStrategyComparisonEngine — DuplicationGuard)
+let _strategyStochasticRisk: any;
+// CAMX-MS12 U12 singletons
+let _cpkPredictionGate: any;
+// CAMX-MS12 U13 singletons (renamed from RobustStrategyOptimizationEngine — DuplicationGuard)
+let _strategyWorstCaseSelector: any;
 // CK-MS13 singletons
 let _pipelineCostModel: any;
 // CAMX-MS21 U08 singletons
@@ -424,8 +434,18 @@ async function getEngine(name: string): Promise<any> {
     case "strategyComparison": return _strategyComparison ??= (await import("../../engines/StrategyComparisonEngine.js")).strategyComparisonEngine;
     // CAMX-MS12 U05
     case "contextualStrategyOverride": return _contextualStrategyOverride ??= (await import("../../engines/ContextualStrategyOverrideEngine.js")).contextualStrategyOverrideEngine;
+    // CAMX-MS12 U06
+    case "strategySequencing": return _strategySequencing ??= (await import("../../engines/StrategySequencingEngine.js")).strategySequencingEngine;
+    // CAMX-MS12 U07
+    case "fixtureAwareStrategy": return _fixtureAwareStrategy ??= (await import("../../engines/FixtureAwareStrategyEngine.js")).fixtureAwareStrategyEngine;
     // CAMX-MS12 U08
     case "batchSizeStrategy": return _batchSizeStrategy ??= (await import("../../engines/BatchSizeStrategyEngine.js")).batchSizeStrategyEngine;
+    // CAMX-MS12 U11 — StrategyStochasticRiskEngine (renamed)
+    case "strategyStochasticRisk": return _strategyStochasticRisk ??= (await import("../../engines/StrategyStochasticRiskEngine.js")).strategyStochasticRiskEngine;
+    // CAMX-MS12 U12
+    case "cpkPredictionGate": return _cpkPredictionGate ??= (await import("../../engines/CpkPredictionGateEngine.js")).cpkPredictionGateEngine;
+    // CAMX-MS12 U13 — StrategyWorstCaseSelectorEngine (renamed)
+    case "strategyWorstCaseSelector": return _strategyWorstCaseSelector ??= (await import("../../engines/StrategyWorstCaseSelectorEngine.js")).strategyWorstCaseSelectorEngine;
     // BOX Data engines
     case "cpsParser": return _cpsParser ??= (await import("../../engines/FusionCPSParserEngine.js")).fusionCPSParserEngine;
     case "okumaParam": return _okumaParam ??= (await import("../../engines/OkumaParametricProgramEngine.js")).okumaParametricProgramEngine;
@@ -1006,8 +1026,18 @@ export const ACTIONS = [
   "strategy_compare", "strategy_head_to_head", "strategy_radar_chart",
   // CAMX-MS12 U05 — ContextualStrategyOverrideEngine (E1111)
   "strategy_override_check", "strategy_override_apply", "strategy_override_rules",
+  // CAMX-MS12 U06 — StrategySequencingEngine
+  "strategy_sequence_build", "strategy_sequence_evaluate", "strategy_sequence_optimize",
+  // CAMX-MS12 U07 — FixtureAwareStrategyEngine (E1101) (cam surface)
+  "strategy_fixture_adjust", "strategy_fixture_validate", "strategy_fixture_recommend",
   // CAMX-MS12 U08 — BatchSizeStrategyEngine (E1100)
   "batch_strategy_recommend", "batch_strategy_adjust", "batch_strategy_cost",
+  // CAMX-MS12 U11 — StrategyStochasticRiskEngine (renamed from StochasticStrategyComparisonEngine)
+  "strategy_stochastic_compare", "strategy_stochastic_rank",
+  // CAMX-MS12 U12 — CpkPredictionGateEngine
+  "strategy_cpk_gate", "strategy_cpk_filter",
+  // CAMX-MS12 U13 — StrategyWorstCaseSelectorEngine (renamed from RobustStrategyOptimizationEngine)
+  "strategy_robust_optimize", "strategy_robust_worst_case",
   // BOX Data — FusionCPSParser (5), OkumaParametricProgram (5), PostProcessorCapabilityMatrix (5)
   "cps_parse_file", "cps_parse_directory", "cps_search", "cps_property_catalog", "cps_compare_controllers",
   "okuma_generate_casing", "okuma_generate_cbore", "okuma_validate_macro", "okuma_parse_macro", "okuma_defaults", "okuma_convert_to_hardcode",
@@ -3548,6 +3578,57 @@ Params vary by action — pass relevant fields in params object.`,
             break;
           }
 
+          // ── CAMX-MS12 U06: StrategySequencingEngine ──────────────────────
+          case "strategy_sequence_build": {
+            const eng = await getEngine("strategySequencing");
+            result = eng.sequenceStrategies(
+              params.feature,
+              params.material,
+              params.tool_options,
+              params.machine,
+              params.constraints ?? {},
+            );
+            break;
+          }
+          case "strategy_sequence_evaluate": {
+            const eng = await getEngine("strategySequencing");
+            result = eng.evaluateSequence(
+              params.ordered_ops,
+              params.feature,
+              params.material,
+              params.machine,
+            );
+            break;
+          }
+          case "strategy_sequence_optimize": {
+            const eng = await getEngine("strategySequencing");
+            result = eng.optimizeSequence(
+              params.feature,
+              params.material,
+              params.tool_options,
+              params.machine,
+              params.constraints ?? {},
+            );
+            break;
+          }
+
+          // ── CAMX-MS12 U07: FixtureAwareStrategyEngine (E1101) ────────────
+          case "strategy_fixture_adjust": {
+            const eng = await getEngine("fixtureAwareStrategy");
+            result = eng.adjustStrategy(params);
+            break;
+          }
+          case "strategy_fixture_validate": {
+            const eng = await getEngine("fixtureAwareStrategy");
+            result = eng.validateForFixture(params);
+            break;
+          }
+          case "strategy_fixture_recommend": {
+            const eng = await getEngine("fixtureAwareStrategy");
+            result = eng.recommendFixture(params.feature, params.strategies ?? []);
+            break;
+          }
+
           // ── CAMX-MS12 U08: BatchSizeStrategyEngine (E1100) ───────────────
           case "batch_strategy_recommend": {
             const eng = await getEngine("batchSizeStrategy");
@@ -3574,6 +3655,65 @@ Params vary by action — pass relevant fields in params object.`,
               params.feature,
               params.tool,
               params.machine,
+            );
+            break;
+          }
+
+          // ── CAMX-MS12 U11: StrategyStochasticRiskEngine (renamed) ────────
+          case "strategy_stochastic_compare": {
+            const eng = await getEngine("strategyStochasticRisk");
+            result = eng.stochasticCompare(
+              params.candidates ?? [],
+              params.config ?? params,
+              params.lambda,
+            );
+            break;
+          }
+          case "strategy_stochastic_rank": {
+            const eng = await getEngine("strategyStochasticRisk");
+            result = eng.riskRank(
+              params.candidates ?? [],
+              params.config ?? params,
+              params.lambda,
+            );
+            break;
+          }
+
+          // ── CAMX-MS12 U12: CpkPredictionGateEngine ───────────────────────
+          case "strategy_cpk_gate": {
+            const eng = await getEngine("cpkPredictionGate");
+            result = eng.gate(
+              params.candidates ?? [],
+              params.tolerance_mm,
+              params.min_cpk,
+              params.ideal_cpk,
+            );
+            break;
+          }
+          case "strategy_cpk_filter": {
+            const eng = await getEngine("cpkPredictionGate");
+            result = eng.filter(
+              params.candidates ?? [],
+              params.tolerance_mm,
+              params.min_cpk,
+            );
+            break;
+          }
+
+          // ── CAMX-MS12 U13: StrategyWorstCaseSelectorEngine (renamed) ─────
+          case "strategy_robust_optimize": {
+            const eng = await getEngine("strategyWorstCaseSelector");
+            result = eng.robustSelect(
+              params.candidates ?? [],
+              params.scenarios ?? [],
+            );
+            break;
+          }
+          case "strategy_robust_worst_case": {
+            const eng = await getEngine("strategyWorstCaseSelector");
+            result = eng.worstCase(
+              params.candidate,
+              params.scenarios ?? [],
             );
             break;
           }

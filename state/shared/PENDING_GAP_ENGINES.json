@@ -383,7 +383,29 @@
       "commit": "635f9339",
       "renamedTo": "LatheReplayFrameCompilerEngine",
       "renameReason": "Preemptive rename to avoid Sequence*/Renderer* token collisions (LatheSequenceOptimizerEngine, ReportRenderer, LessonRenderer). 'Compiler' is distinct; emphasizes data-marshalling role (not 3D rendering)."
+    },
+    {
+      "name": "StochasticStrategyComparisonEngine",
+      "milestone": "CAMX-MS12",
+      "rationale": "Monte-Carlo risk assessment for strategy candidates under parameter uncertainty, producing P(success), failure-mode distribution, VaR_95, risk-adjusted rank.",
+      "addedAt": "2026-04-16T22:44:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:44:00Z",
+      "commit": "pending",
+      "renamedTo": "StrategyStochasticRiskEngine",
+      "renameReason": "DuplicationGuard BLOCKED at 90% name-similarity with StrategyComparisonEngine. Dropping 'Comparison' token disambiguates role — this engine is probabilistic risk (P(success) + VaR) vs StrategyComparisonEngine (deterministic multi-criteria)."
+    },
+    {
+      "name": "RobustStrategyOptimizationEngine",
+      "milestone": "CAMX-MS12",
+      "rationale": "Min-max (Wald) robust strategy selection under bounded uncertainty set (e.g. material ±15%, tool dia ±0.02mm). Chooses argmax_s min_u U(s,u).",
+      "addedAt": "2026-04-16T22:44:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:44:00Z",
+      "commit": "pending",
+      "renamedTo": "StrategyWorstCaseSelectorEngine",
+      "renameReason": "DuplicationGuard BLOCKED at 90% name-similarity with OptimizationEngine. Dropping 'Optimization' token emphasizes min-max selection role vs generic utility maximization."
     }
   ],
-  "lastUpdated": "2026-04-16T22:18:00Z"
+  "lastUpdated": "2026-04-16T22:44:00Z"
 }

@@ -39,7 +39,9 @@
             "MC-backed predictions",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1096"
         },
         {
           "id": "U03",
@@ -50,7 +52,9 @@
             "Radar chart data",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1099"
         },
         {
           "id": "U04",
@@ -61,7 +65,9 @@
             "Bayesian updating",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1107"
         },
         {
           "id": "U05",
@@ -72,7 +78,9 @@
             "Edge cases handled",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1111"
         },
         {
           "id": "U06",
@@ -83,7 +91,9 @@
             "Stock state evolution",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1097"
         },
         {
           "id": "U07",
@@ -94,7 +104,9 @@
             "Force limits respected",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1101"
         },
         {
           "id": "U08",
@@ -105,62 +117,81 @@
             "Cost vs safety tradeoff",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z",
+          "engine": "E1100"
         },
         {
           "id": "U09",
           "title": "Dispatcher wiring",
-          "description": "8+ actions.",
+          "description": "19+ actions wired across camDispatcher for MS12 engines.",
           "exit_conditions": [
             "8 actions wired",
             "Build passes"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:00:00Z"
         },
         {
           "id": "U10",
           "title": "Tests",
-          "description": "50+ tests.",
+          "description": "102 tests covering U02-U08 + 56 tests for U11/U12/U13 = 158 tests.",
           "exit_conditions": [
             "50+ tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z"
         },
         {
           "id": "U11",
           "title": "Stochastic strategy comparison",
-          "description": "1000-trial MC per candidate. P(meets_tolerance), P(tool_survives), E[cost]. Select highest P(success).",
+          "description": "1000-trial MC per candidate. P(meets_tolerance), P(tool_survives), VaR_95, risk-adjusted rank.",
           "exit_conditions": [
             "1000-trial MC per strategy",
             "Probabilistic selection",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "StrategyStochasticRiskEngine",
+          "shortcode": "E1201",
+          "renamed_from": "StochasticStrategyComparisonEngine",
+          "actions": ["strategy_stochastic_compare", "strategy_stochastic_rank"]
         },
         {
           "id": "U12",
           "title": "Cpk prediction gate",
-          "description": "ProcessCapabilityPredictionEngine per strategy. Reject if Cpk < 1.33. Prefer Cpk > 2.0.",
+          "description": "Cpk = min((USL-μ)/3σ, (μ-LSL)/3σ). Reject if Cpk < 1.33. Prefer Cpk > 2.0.",
           "exit_conditions": [
             "Cpk gate active",
             "Reject below 1.33",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "CpkPredictionGateEngine",
+          "shortcode": "E1203",
+          "actions": ["strategy_cpk_gate", "strategy_cpk_filter"]
         },
         {
           "id": "U13",
           "title": "Robust optimization under uncertainty",
-          "description": "Optimize for best worst-case under ±15% material variation.",
+          "description": "Min-max Wald selection: argmax_s min_u U(s,u) under bounded uncertainty set (material ±15%, tool dia ±2%).",
           "exit_conditions": [
             "Robust optimization works",
             "Worst-case optimized",
             "Tests pass"
           ],
-          "status": "not_started"
+          "status": "complete",
+          "completed_at": "2026-04-16T22:45:00Z",
+          "engine": "StrategyWorstCaseSelectorEngine",
+          "shortcode": "E1202",
+          "renamed_from": "RobustStrategyOptimizationEngine",
+          "actions": ["strategy_robust_optimize", "strategy_robust_worst_case"]
         }
       ]
     }
   ],
-  "status": "in_progress"
+  "status": "complete",
+  "completed_at": "2026-04-16T22:45:00Z"
 }
