@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-continuous-learning",
+  "name": "WEDM Continuous Learning Pipeline",
+  "description": "Feedback-driven continuous learning and model calibration workflow",
+  "version": "1.0.0",
+  "trigger": "hook_wedm_learning_trigger",
+  "category": "learning",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Aggregate Feedback",
+      "action": "wedm_aggregate_feedback",
+      "description": "Collect recent feedback entries since last calibration",
+      "inputs": ["last_calibration_timestamp", "feedback_threshold"],
+      "outputs": ["feedback_batch", "feedback_count", "feedback_quality_score"],
+      "timeout_sec": 30,
+      "hooks": ["wedm-calibration-validate"]
+    },
+    {
+      "id": "step-2",
+      "name": "Validate Data Quality",
+      "action": "wedm_validate_feedback_batch",
+      "description": "Check feedback batch for outliers and inconsistencies",
+      "inputs": ["feedback_batch"],
+      "outputs": ["validated_feedback", "rejected_entries", "data_quality_report"],
+      "timeout_sec": 45
+    },
+    {
+      "id": "step-3",
+      "name": "Train Neural Update",
+      "action": "wedm_neural_train_update",
+      "description": "Fine-tune neural models with validated feedback",
+      "inputs": ["validated_feedback", "current_model_version"],
+      "outputs": ["updated_model", "training_metrics", "drift_score"],
+      "timeout_sec": 300,
+      "hooks": ["wedm-neural-sanity", "wedm-drift-alert"]
+    },
+    {
+      "id": "step-4",
+      "name": "Validate Updated Model",
+      "action": "wedm_validate_model",
+      "description": "Test updated model against holdout validation set",
+      "inputs": ["updated_model", "validation_set"],
+      "outputs": ["validation_metrics", "regression_check", "model_approved"],
+      "timeout_sec": 120
+    },
+    {
+      "id": "step-5",
+      "name": "Deploy or Rollback",
+      "action": "wedm_deploy_model",
+      "description": "Deploy new model if validation passes, rollback if not",
+      "inputs": ["updated_model", "model_approved", "validation_metrics"],
+      "outputs": ["deployed_version", "deployment_status", "rollback_available"],
+      "timeout_sec": 60,
+      "condition": "inputs.model_approved === true"
+    }
+  ],
+  "onError": {
+    "action": "wedm_rollback_model",
+    "notify": ["ml_engineer", "supervisor"]
+  },
+  "schedule": {
+    "type": "threshold",
+    "threshold": 10,
+    "metric": "feedback_count",
+    "maxInterval_hours": 168
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-learn"],
+    "relatedEngines": ["WEDMFeedbackCalibrationEngine", "WEDMNeuralMRREngine", "WEDMNeuralRaEngine"],
+    "mlPipeline": true
+  }
+}

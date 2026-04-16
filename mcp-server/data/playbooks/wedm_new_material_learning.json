@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-new-material-learning",
+  "name": "WEDM New Material Learning",
+  "description": "Adaptive workflow to learn optimal parameters for unknown materials",
+  "version": "1.0.0",
+  "trigger": "unknown_material",
+  "category": "learning",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Identify Material Properties",
+      "action": "wedm_identify_material",
+      "description": "Attempt to identify material from user input or similar materials",
+      "inputs": ["material_name", "hardness", "conductivity_estimate"],
+      "outputs": ["material_class", "similar_materials", "base_parameters"],
+      "timeout_sec": 30,
+      "hooks": ["wedm-ood-detector"]
+    },
+    {
+      "id": "step-2",
+      "name": "Select Conservative E-Code",
+      "action": "wedm_select_conservative_ecode",
+      "description": "Choose safe starting E-code based on material class",
+      "inputs": ["material_class", "thickness", "target_finish"],
+      "outputs": ["ecode", "safety_margin"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-3",
+      "name": "Generate Test Coupon Program",
+      "action": "wedm_generate_test_coupon",
+      "description": "Create small test cut program to validate parameters",
+      "inputs": ["ecode", "material_class", "wire_type"],
+      "outputs": ["test_program", "measurement_points"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-4",
+      "name": "Execute Test Cut",
+      "action": "wedm_execute_test",
+      "description": "Run test coupon with monitoring enabled",
+      "inputs": ["test_program", "machine"],
+      "outputs": ["execution_data", "sparking_behavior", "wire_wear"],
+      "timeout_sec": 300,
+      "userConfirmation": true
+    },
+    {
+      "id": "step-5",
+      "name": "Collect Measurements",
+      "action": "wedm_collect_measurements",
+      "description": "Record surface finish, dimensional accuracy, and cut quality",
+      "inputs": ["measurement_points", "test_coupon"],
+      "outputs": ["actual_ra", "actual_dimensions", "cut_quality_score"],
+      "timeout_sec": 60,
+      "userInput": true
+    },
+    {
+      "id": "step-6",
+      "name": "Analyze Results",
+      "action": "wedm_analyze_test_results",
+      "description": "Compare predictions vs actuals, identify deviations",
+      "inputs": ["predicted_ra", "actual_ra", "execution_data"],
+      "outputs": ["deviation_analysis", "adjustment_factors"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-7",
+      "name": "Update Neural Model",
+      "action": "wedm_neural_calibrate",
+      "description": "Fine-tune neural model with new material data",
+      "inputs": ["material_class", "actual_ra", "actual_mrr", "ecode", "deviation_analysis"],
+      "outputs": ["calibration_result", "updated_predictions"],
+      "timeout_sec": 60,
+      "hooks": ["wedm-calibration-validate", "wedm-neural-sanity"]
+    },
+    {
+      "id": "step-8",
+      "name": "Store Material Profile",
+      "action": "wedm_store_material_profile",
+      "description": "Save learned material profile to database",
+      "inputs": ["material_name", "calibration_result", "recommended_ecodes"],
+      "outputs": ["material_profile_id", "confidence_level"],
+      "timeout_sec": 15
+    }
+  ],
+  "onError": {
+    "action": "wedm_flag_material_unknown",
+    "notify": ["engineering"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-learn", "/wedm-studio"],
+    "relatedEngines": ["WEDMFeedbackCalibrationEngine", "WEDMNeuralMRREngine"]
+  }
+}

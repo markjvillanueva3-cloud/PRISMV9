@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-jm-die-customer",
+  "name": "WEDM JM Die Customer-Specific Flow",
+  "description": "Customer-specific WEDM workflow for JM Die Company accounts",
+  "version": "1.0.0",
+  "trigger": "/wedm-jm-die",
+  "category": "customer",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Load Customer Profile",
+      "action": "wedm_load_customer_profile",
+      "description": "Retrieve customer-specific preferences and history",
+      "inputs": ["customer_id"],
+      "outputs": ["customer_profile", "material_preferences", "tolerance_standards", "historical_programs"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-2",
+      "name": "Match Historical Programs",
+      "action": "wedm_match_historical",
+      "description": "Find similar past programs for this customer",
+      "inputs": ["geometry", "material", "customer_id"],
+      "outputs": ["similar_programs", "reuse_candidates", "proven_parameters"],
+      "timeout_sec": 45
+    },
+    {
+      "id": "step-3",
+      "name": "Apply Customer Standards",
+      "action": "wedm_apply_customer_standards",
+      "description": "Apply customer-specific quality and documentation standards",
+      "inputs": ["customer_profile", "program_draft"],
+      "outputs": ["compliant_program", "documentation_requirements"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-4",
+      "name": "Generate Customer Documentation",
+      "action": "wedm_generate_customer_docs",
+      "description": "Create customer-specific setup sheets and reports",
+      "inputs": ["compliant_program", "documentation_requirements", "customer_format"],
+      "outputs": ["setup_sheet", "inspection_report_template", "process_sheet"],
+      "timeout_sec": 45
+    },
+    {
+      "id": "step-5",
+      "name": "Customer Quote Integration",
+      "action": "wedm_integrate_quote",
+      "description": "Link program to customer quote with pricing",
+      "inputs": ["program_id", "customer_id", "quote_id"],
+      "outputs": ["linked_quote", "price_per_piece", "delivery_date"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-6",
+      "name": "Store Customer Record",
+      "action": "wedm_store_customer_record",
+      "description": "Archive program in customer-specific folder structure",
+      "inputs": ["compliant_program", "customer_id", "job_number"],
+      "outputs": ["archive_path", "customer_job_id"],
+      "timeout_sec": 15
+    }
+  ],
+  "onError": {
+    "action": "wedm_notify_customer_service",
+    "notify": ["customer_service", "sales"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-jm-die", "/wire-edm-studio"],
+    "relatedEngines": ["PRISMSelfAwarenessEngine", "WEDMCustomerEngine"],
+    "jmDieIntegration": true,
+    "customerPath": "H:/PRISM/JM DIE/WIRE EDM"
+  }
+}

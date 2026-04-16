@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "id": "wedm-drawing-to-program",
+  "name": "WEDM Drawing to Program",
+  "description": "Complete program generation workflow from drawing to verified G-code",
+  "version": "1.0.0",
+  "trigger": "/wedm-program",
+  "category": "programming",
+  "steps": [
+    {
+      "id": "step-1",
+      "name": "Parse Drawing Input",
+      "action": "wedm_parse_drawing",
+      "description": "Extract geometry, dimensions, and tolerances from drawing",
+      "inputs": ["drawing_path", "format"],
+      "outputs": ["geometry", "tolerances", "material"],
+      "timeout_sec": 60,
+      "retryable": true
+    },
+    {
+      "id": "step-2",
+      "name": "Validate Geometry",
+      "action": "wedm_validate_geometry",
+      "description": "Check geometry is valid for Wire EDM (closed contours, no self-intersections)",
+      "inputs": ["geometry"],
+      "outputs": ["validation_result", "issues"],
+      "timeout_sec": 30,
+      "failOn": "validation_result.valid === false"
+    },
+    {
+      "id": "step-3",
+      "name": "Select Material",
+      "action": "wedm_select_material",
+      "description": "Identify material from drawing or prompt user",
+      "inputs": ["material_hint", "thickness"],
+      "outputs": ["material", "material_properties"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-4",
+      "name": "Select Machine",
+      "action": "wedm_select_machine",
+      "description": "Choose appropriate Wire EDM machine based on part size and requirements",
+      "inputs": ["geometry.bounds", "tolerances", "taper_required"],
+      "outputs": ["machine", "machine_capabilities"],
+      "timeout_sec": 15
+    },
+    {
+      "id": "step-5",
+      "name": "Generate E-Code",
+      "action": "wedm_generate_ecode",
+      "description": "Select optimal E-code for material and finish requirements",
+      "inputs": ["material", "surface_finish_target", "machine.controller"],
+      "outputs": ["ecode", "expected_ra", "expected_mrr"],
+      "timeout_sec": 30
+    },
+    {
+      "id": "step-6",
+      "name": "Compute Taper",
+      "action": "wedm_solve_taper",
+      "description": "Calculate UV coordinates for taper cuts",
+      "inputs": ["geometry", "taper_angle", "thickness"],
+      "outputs": ["uv_coordinates", "approach_strategy"],
+      "timeout_sec": 45,
+      "condition": "inputs.taper_angle > 0"
+    },
+    {
+      "id": "step-7",
+      "name": "Optimize Toolpath",
+      "action": "wedm_optimize_toolpath",
+      "description": "Order cuts for minimum wire travel and optimal entry points",
+      "inputs": ["geometry", "entry_points", "wire_constraints"],
+      "outputs": ["toolpath", "estimated_time"],
+      "timeout_sec": 60
+    },
+    {
+      "id": "step-8",
+      "name": "Generate G-Code",
+      "action": "wedm_generate_gcode",
+      "description": "Post-process toolpath to machine-specific G-code",
+      "inputs": ["toolpath", "machine.controller", "ecode", "uv_coordinates"],
+      "outputs": ["gcode", "program_id"],
+      "timeout_sec": 30,
+      "hooks": ["wedm-gcode-injection", "wedm-ecode-consistency"]
+    },
+    {
+      "id": "step-9",
+      "name": "Simulate Program",
+      "action": "wedm_simulate_program",
+      "description": "Virtual verification of G-code for collisions and errors",
+      "inputs": ["gcode", "machine", "workpiece_setup"],
+      "outputs": ["simulation_result", "warnings"],
+      "timeout_sec": 120
+    },
+    {
+      "id": "step-10",
+      "name": "Estimate Cost",
+      "action": "wedm_estimate_cost",
+      "description": "Calculate wire consumption, time, and total cost",
+      "inputs": ["toolpath", "material", "ecode", "machine.hourly_rate"],
+      "outputs": ["cost_estimate", "wire_usage", "cycle_time"],
+      "timeout_sec": 15,
+      "hooks": ["wedm-cost-confidence"]
+    },
+    {
+      "id": "step-11",
+      "name": "Safety Validation",
+      "action": "wedm_validate_safety",
+      "description": "S(x) safety scoring and final validation",
+      "inputs": ["gcode", "machine", "material", "operator"],
+      "outputs": ["sx_score", "safety_flags"],
+      "timeout_sec": 30,
+      "hooks": ["wedm-sx-safety"],
+      "failOn": "outputs.sx_score < 0.70"
+    },
+    {
+      "id": "step-12",
+      "name": "Store Program",
+      "action": "wedm_store_program",
+      "description": "Save program to database and generate documentation",
+      "inputs": ["gcode", "program_id", "metadata"],
+      "outputs": ["program_path", "documentation"],
+      "timeout_sec": 15
+    }
+  ],
+  "onError": {
+    "action": "wedm_log_error",
+    "rollback": true,
+    "notify": ["operator"]
+  },
+  "metadata": {
+    "author": "PRISM WEDM AGI",
+    "created": "2026-04-15",
+    "relatedSkills": ["/wedm-studio", "/wedm-program"],
+    "relatedEngines": ["WEDMPostProcessorEngine", "WEDMGeometryEngine", "WEDMCostEngine"]
+  }
+}
