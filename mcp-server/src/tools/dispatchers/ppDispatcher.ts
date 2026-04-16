@@ -188,6 +188,9 @@ let _ppArcValidator: any;
 // PP-TC: Tool change safety validator
 let _ppToolChangeValidator: any;
 
+// PP-MIN: G-code minimizer (strip redundant tokens)
+let _ppGCodeMinimizer: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -347,6 +350,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppArcValidator ??= (await import("../../engines/PPArcValidatorEngine.js")).ppArcValidatorEngine;
     case "toolChangeValidator":
       return _ppToolChangeValidator ??= (await import("../../engines/PPToolChangeValidatorEngine.js")).ppToolChangeValidatorEngine;
+    case "gcodeMinimizer":
+      return _ppGCodeMinimizer ??= (await import("../../engines/PPGCodeMinimizerEngine.js")).ppGCodeMinimizerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -644,6 +649,12 @@ const ACTIONS = [
   "pp_tc_validate",                // Full tool-change safety check
   "pp_tc_quick",                   // Quick pass/fail + tool-change count
   "pp_tc_defaults",                // Default TC validator options
+
+  // ===== PP_MIN: G-code minimizer (4 actions) — PP-MIN =====
+  "pp_min_apply",                  // Minimize with custom options
+  "pp_min_aggressive",             // Aggressive minimize (strip comments + N-words)
+  "pp_min_conservative",           // Conservative minimize (keep comments + N-words)
+  "pp_min_defaults",               // Default minimizer options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1946,6 +1957,39 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_tc_defaults": {
             const engine = await getEngine("toolChangeValidator");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_MIN (PP-MIN — G-code minimizer) =====
+          case "pp_min_apply": {
+            const engine = await getEngine("gcodeMinimizer");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              strip_redundant_modal: params.strip_redundant_modal,
+              strip_redundant_fs: params.strip_redundant_fs,
+              strip_block_numbers: params.strip_block_numbers,
+              strip_comments: params.strip_comments,
+              collapse_whitespace: params.collapse_whitespace,
+              preserve_program_header: params.preserve_program_header,
+            };
+            result = engine.minimize(gcode, options);
+            break;
+          }
+          case "pp_min_aggressive": {
+            const engine = await getEngine("gcodeMinimizer");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.minimizeAggressive(gcode);
+            break;
+          }
+          case "pp_min_conservative": {
+            const engine = await getEngine("gcodeMinimizer");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.minimizeConservative(gcode);
+            break;
+          }
+          case "pp_min_defaults": {
+            const engine = await getEngine("gcodeMinimizer");
             result = engine.defaultOptions();
             break;
           }
