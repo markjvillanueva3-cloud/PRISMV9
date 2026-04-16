@@ -2572,6 +2572,7 @@ export { tribalKnowledgeActivationEngine, TribalKnowledgeActivationEngine } from
 export { tribalKnowledgeTrainingEngine, TribalKnowledgeTrainingEngine } from "./TribalKnowledgeTrainingEngine.js";
 export { algorithmWiringEngine, AlgorithmWiringEngine, type AlgorithmInfo, type AlgorithmCategory, type WiringTarget, type AlgorithmWiring, type WiringReport } from "./AlgorithmWiringEngine.js";
 export { reasoningWiringEngine, ReasoningWiringEngine, type ReasoningEngineInfo, type ReasoningCategory, type ReasoningDomain, type DispatcherWiring, type ReasoningWiring, type ReasoningWiringReport } from "./ReasoningWiringEngine.js";
+export { assetWiringSummaryEngine, AssetWiringSummaryEngine, type AssetCategory, type WiringSummary, type UtilizationTrend } from "./AssetWiringSummaryEngine.js";
 export { treeOfThoughtEngine, TreeOfThoughtEngine } from "./TreeOfThoughtEngine.js";
 export { troubleshootingDecisionTreeEngine, TroubleshootingDecisionTreeEngine } from "./TroubleshootingDecisionTreeEngine.js";
 export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingEngine.js";
