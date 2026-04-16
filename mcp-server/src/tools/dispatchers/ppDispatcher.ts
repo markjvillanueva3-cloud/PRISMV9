@@ -161,6 +161,9 @@ let _ppSinkerEDM: any;
 // PP-SSP: Okuma Sub-Spindle Sync Post
 let _ppOkumaSubSpindle: any;
 
+// PP-LINT: G-code syntactic linter
+let _ppGCodeLint: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -302,6 +305,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppSinkerEDM ??= (await import("../../engines/PPSinkerEDMPostEngine.js")).ppSinkerEDMPostEngine;
     case "okumaSubSpindle":
       return _ppOkumaSubSpindle ??= (await import("../../engines/PPOkumaSubSpindleSyncEngine.js")).ppOkumaSubSpindleSyncEngine;
+    case "gcodeLint":
+      return _ppGCodeLint ??= (await import("../../engines/PPGCodeLintEngine.js")).ppGCodeLintEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -550,6 +555,12 @@ const ACTIONS = [
   "pp_ssp_generate",              // Generate twin-spindle program
   "pp_ssp_simple_transfer",       // Simple main→sub transfer program
   "pp_ssp_list_operations",       // List supported operation types
+
+  // ===== PP_LINT: G-code syntactic/modal linter (4 actions) — PP-LINT =====
+  "pp_lint_check",                // Full lint report with issues + summary
+  "pp_lint_quick_check",          // Fast pass/fail + critical count
+  "pp_lint_report",               // Human-readable report string
+  "pp_lint_list_rules",           // List all detected rule IDs
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1597,6 +1608,32 @@ Actions: ${ACTIONS.join(", ")}.`,
               operations: engine.listOperations(),
               machine_models: engine.listMachineModels(),
             };
+            break;
+          }
+
+          // ===== PP_LINT (PP-LINT — G-code syntactic linter) =====
+          case "pp_lint_check": {
+            const engine = await getEngine("gcodeLint");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.lint(gcode, { strict: params.strict, controller: params.controller });
+            break;
+          }
+          case "pp_lint_quick_check": {
+            const engine = await getEngine("gcodeLint");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.check(gcode);
+            break;
+          }
+          case "pp_lint_report": {
+            const engine = await getEngine("gcodeLint");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const linted = engine.lint(gcode);
+            result = { report: engine.report(linted), summary: linted.summary };
+            break;
+          }
+          case "pp_lint_list_rules": {
+            const engine = await getEngine("gcodeLint");
+            result = { rules: engine.listRules() };
             break;
           }
 
