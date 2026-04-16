@@ -305,6 +305,9 @@ let _ppFeedRateReasonability: any;
 // PP-CRR: Coordinate-range reasonableness validator
 let _ppCoordinateRange: any;
 
+// PP-ZMV: Zero-motion / no-op block validator
+let _ppZeroMotion: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -542,6 +545,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppFeedRateReasonability ??= (await import("../../engines/PPFeedRateReasonabilityValidatorEngine.js")).ppFeedRateReasonabilityValidatorEngine;
     case "coordinateRange":
       return _ppCoordinateRange ??= (await import("../../engines/PPCoordinateRangeValidatorEngine.js")).ppCoordinateRangeValidatorEngine;
+    case "zeroMotion":
+      return _ppZeroMotion ??= (await import("../../engines/PPZeroMotionValidatorEngine.js")).ppZeroMotionValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1015,6 +1020,9 @@ const ACTIONS = [
   "pp_crr_validate",               // Coordinate-range reasonableness
   "pp_crr_quick",                  // Quick pass/fail + coord/axes stats
   "pp_crr_defaults",               // Default coordinate-range options
+  "pp_zmv_validate",               // Zero-motion / no-op block detection
+  "pp_zmv_quick",                  // Quick pass/fail + motion block count
+  "pp_zmv_defaults",               // Default zero-motion options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3413,6 +3421,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_crr_defaults": {
             const engine = await getEngine("coordinateRange");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_ZMV (PP-ZMV — Zero-motion / no-op detection) =====
+          case "pp_zmv_validate": {
+            const engine = await getEngine("zeroMotion");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_zero_length_linear: params.check_zero_length_linear,
+              check_redundant_rapid: params.check_redundant_rapid,
+              check_motion_without_axis: params.check_motion_without_axis,
+              check_duplicate_coord_sequence: params.check_duplicate_coord_sequence,
+              check_zero_length_arc_ijk: params.check_zero_length_arc_ijk,
+              duplicate_run_threshold: params.duplicate_run_threshold,
+              position_tolerance: params.position_tolerance,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_zmv_quick": {
+            const engine = await getEngine("zeroMotion");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_zmv_defaults": {
+            const engine = await getEngine("zeroMotion");
             result = engine.defaultOptions();
             break;
           }
