@@ -299,6 +299,9 @@ let _ppONumberRange: any;
 // PP-BLK: Block composition validator
 let _ppBlockComposition: any;
 
+// PP-FRR: Feed-rate reasonableness validator
+let _ppFeedRateReasonability: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -532,6 +535,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppONumberRange ??= (await import("../../engines/PPONumberRangeValidatorEngine.js")).ppONumberRangeValidatorEngine;
     case "blockComposition":
       return _ppBlockComposition ??= (await import("../../engines/PPBlockCompositionValidatorEngine.js")).ppBlockCompositionValidatorEngine;
+    case "feedRateReasonability":
+      return _ppFeedRateReasonability ??= (await import("../../engines/PPFeedRateReasonabilityValidatorEngine.js")).ppFeedRateReasonabilityValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -999,6 +1004,9 @@ const ACTIONS = [
   "pp_blk_validate",               // Block composition / per-block layout
   "pp_blk_quick",                  // Quick pass/fail + block stats
   "pp_blk_defaults",               // Default block composition options
+  "pp_frr_validate",               // Feed-rate reasonableness validation
+  "pp_frr_quick",                  // Quick pass/fail + min/max F
+  "pp_frr_defaults",               // Default feed-rate reasonableness options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3333,6 +3341,37 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_blk_defaults": {
             const engine = await getEngine("blockComposition");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_FRR (PP-FRR — Feed-rate reasonableness validator) =====
+          case "pp_frr_validate": {
+            const engine = await getEngine("feedRateReasonability");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_zero: params.check_zero,
+              check_negative: params.check_negative,
+              check_f_with_rapid: params.check_f_with_rapid,
+              check_above_max: params.check_above_max,
+              check_below_min: params.check_below_min,
+              check_integer_format: params.check_integer_format,
+              check_frequent_changes: params.check_frequent_changes,
+              max_feed: params.max_feed,
+              min_cutting_feed: params.min_cutting_feed,
+              max_f_changes_per_section: params.max_f_changes_per_section,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_frr_quick": {
+            const engine = await getEngine("feedRateReasonability");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_frr_defaults": {
+            const engine = await getEngine("feedRateReasonability");
             result = engine.defaultOptions();
             break;
           }
