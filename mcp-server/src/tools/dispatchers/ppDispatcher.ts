@@ -125,6 +125,9 @@ let _ppBenchmark: any;
 // PP-AGI-WORKFLOW: Multi-step reasoning orchestrator
 let _ppWorkflow: any;
 
+// PP-AGI-AUDITOR: Program Library Auditor
+let _ppLibraryAuditor: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -243,6 +246,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppBenchmark ??= (await import("../../engines/PPAGIBenchmarkEngine.js")).ppAGIBenchmarkEngine;
     case "workflow":
       return _ppWorkflow ??= (await import("../../engines/PPAGIReasoningWorkflowEngine.js")).ppAGIReasoningWorkflowEngine;
+    case "libraryAuditor":
+      return _ppLibraryAuditor ??= (await import("../../engines/PPAGIProgramLibraryAuditorEngine.js")).ppAGIProgramLibraryAuditorEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -466,6 +471,11 @@ const ACTIONS = [
   // ===== PP_WORKFLOW: Multi-step reasoning (2 actions) — PP-AGI-WORKFLOW =====
   "pp_workflow_run",               // Run a named workflow with typed input
   "pp_workflow_list",              // List all available workflow types
+
+  // ===== PP_AUDITOR: Program library auditor (3 actions) — PP-AGI-AUDITOR =====
+  "pp_auditor_audit",              // Full audit of a program library
+  "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
+  "pp_auditor_find_similar",       // Find programs similar to a reference
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1376,6 +1386,29 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_workflow_list": {
             const engine = await getEngine("workflow");
             result = { workflows: engine.listWorkflows() };
+            break;
+          }
+
+          // ===== PP_AUDITOR (PP-AGI-AUDITOR) =====
+          case "pp_auditor_audit": {
+            const engine = await getEngine("libraryAuditor");
+            result = engine.audit(params.programs ?? []);
+            break;
+          }
+          case "pp_auditor_quick_scan": {
+            const engine = await getEngine("libraryAuditor");
+            result = engine.quickScan(params.programs ?? []);
+            break;
+          }
+          case "pp_auditor_find_similar": {
+            const engine = await getEngine("libraryAuditor");
+            result = {
+              matches: engine.findSimilar(
+                params.referenceGcode ?? params.reference_gcode,
+                params.library ?? [],
+                params.limit ?? 5,
+              ),
+            };
             break;
           }
 
