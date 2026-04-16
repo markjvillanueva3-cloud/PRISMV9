@@ -1,7 +1,7 @@
 /**
  * prism_pp — PostProcessor-Specific Dispatcher
  *
- * 89 actions for post processor operations across 16 categories:
+ * 95 actions for post processor operations across 17 categories:
  *   - pp_generate (G-code generation)
  *   - pp_analyze (analysis)
  *   - pp_optimize (optimization)
@@ -17,6 +17,7 @@
  *   - pp_formula (cross-disciplinary formulas) — PP-WIRE-MS1
  *   - pp_learning (MIT courses + algorithms) — PP-WIRE-MS1
  *   - pp_graph (manufacturing knowledge graph) — PP-WIRE-MS1
+ *   - pp_embedding (controller embeddings & transfer) — PP-AGI-MS0
  *   - pp_wiring (asset wiring dashboard) — PP-WIRE-MS5-7
  *
  * Engine dependencies: PostProcessorEngine, PostProcessorPipelineEngine,
@@ -75,6 +76,10 @@ let _algorithmWiring: any;
 let _reasoningWiring: any;
 let _assetWiringSummary: any;
 
+// PP-AGI-MS0: Controller Embeddings & Transfer
+let _ppControllerEmbedding: any;
+let _ppDialectTransfer: any;
+
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "pp":
@@ -99,7 +104,7 @@ async function getEngine(name: string): Promise<any> {
       return _ppVerification ??= (await import("../../engines/PostProcessorVerificationEngine.js")).postProcessorVerificationEngine;
     case "deepReasoning":
       return _ppDeepReasoning ??= (await import("../../engines/PostProcessorDeepReasoningEngine.js")).postProcessorDeepReasoningEngine;
-    case "knowledgeGraph":
+    case "ppKnowledgeGraph":
       return _ppKnowledgeGraph ??= (await import("../../engines/PostProcessorKnowledgeGraphEngine.js")).postProcessorKnowledgeGraphEngine;
     case "cognition":
       return _ppCognition ??= (await import("../../engines/PostProcessorCognitiveEngine.js")).postProcessorCognitiveEngine;
@@ -139,6 +144,12 @@ async function getEngine(name: string): Promise<any> {
       return _reasoningWiring ??= (await import("../../engines/ReasoningWiringEngine.js")).reasoningWiringEngine;
     case "assetWiringSummary":
       return _assetWiringSummary ??= (await import("../../engines/AssetWiringSummaryEngine.js")).assetWiringSummaryEngine;
+
+    // PP-AGI-MS0: Controller Embeddings & Transfer
+    case "controllerEmbedding":
+      return _ppControllerEmbedding ??= (await import("../../engines/PPControllerEmbeddingEngine.js")).ppControllerEmbeddingEngine;
+    case "dialectTransfer":
+      return _ppDialectTransfer ??= (await import("../../engines/PPDialectTransferEngine.js")).ppDialectTransferEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -259,6 +270,14 @@ const ACTIONS = [
   "pp_graph_gaps",               // Detect knowledge gaps
   "pp_graph_tribal",             // Graph-based tribal traversal
   "pp_graph_link",               // Link tribal tip to graph node
+
+  // ===== PP_EMBEDDING: Controller embeddings & transfer (6 actions) — PP-AGI-MS0 =====
+  "pp_embedding_embed",            // Embed a controller to 48-dim vector
+  "pp_embedding_embed_all",        // Embed all 27 known controllers
+  "pp_embedding_compare",          // Compare two controllers (similarity + divergence)
+  "pp_embedding_nearest",          // Find k-nearest controllers
+  "pp_embedding_cluster",          // Cluster all controllers by behavior
+  "pp_embedding_transfer",         // Transfer G-code patterns to unknown controller
 
   // ===== PP_WIRING: Asset wiring (9 actions) — PP-WIRE-MS5-7 =====
   "pp_wiring_algorithms",        // List algorithms with wiring status
@@ -759,6 +778,38 @@ Actions: ${ACTIONS.join(", ")}.`,
             const engine = await getEngine("mfgKnowledgeGraph");
             engine.linkTip?.(params.tipId, params.nodeId, params.relationship, params.weight);
             result = { linked: true };
+            break;
+          }
+
+          // ===== PP_EMBEDDING: Controller embeddings & transfer (PP-AGI-MS0) =====
+          case "pp_embedding_embed": {
+            const engine = await getEngine("controllerEmbedding");
+            result = engine.embed(params.controllerId ?? params.controller_id ?? "generic_fanuc");
+            break;
+          }
+          case "pp_embedding_embed_all": {
+            const engine = await getEngine("controllerEmbedding");
+            result = { embeddings: engine.embedAll() };
+            break;
+          }
+          case "pp_embedding_compare": {
+            const engine = await getEngine("controllerEmbedding");
+            result = engine.compare(params.controllerA ?? params.controller_a, params.controllerB ?? params.controller_b);
+            break;
+          }
+          case "pp_embedding_nearest": {
+            const engine = await getEngine("controllerEmbedding");
+            result = engine.findNearest(params.controllerId ?? params.controller_id, params.k ?? 5);
+            break;
+          }
+          case "pp_embedding_cluster": {
+            const engine = await getEngine("controllerEmbedding");
+            result = engine.cluster(params.k ?? 4);
+            break;
+          }
+          case "pp_embedding_transfer": {
+            const engine = await getEngine("dialectTransfer");
+            result = engine.transfer(params.spec ?? params);
             break;
           }
 
