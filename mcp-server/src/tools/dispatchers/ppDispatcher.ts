@@ -116,6 +116,9 @@ let _ppProgramAnalyzer: any;
 // PP-AGI-DASHBOARD: Unified System Metrics
 let _ppAGIDashboard: any;
 
+// PP-AGI-KNOWLEDGE: Unified Knowledge Index
+let _ppKnowledgeIndex: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -228,6 +231,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramAnalyzer ??= (await import("../../engines/PPGCodeProgramAnalyzerEngine.js")).ppGCodeProgramAnalyzerEngine;
     case "agiDashboard":
       return _ppAGIDashboard ??= (await import("../../engines/PPAGISystemDashboardEngine.js")).ppAGISystemDashboardEngine;
+    case "knowledgeIndex":
+      return _ppKnowledgeIndex ??= (await import("../../engines/PPKnowledgeIndexEngine.js")).ppKnowledgeIndexEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -435,6 +440,13 @@ const ACTIONS = [
   "pp_dashboard_full",             // Full PP-AGI system dashboard
   "pp_dashboard_health",           // Per-engine health check
   "pp_dashboard_summary",          // Concise text summary
+
+  // ===== PP_KNOWLEDGE: Unified knowledge index (5 actions) — PP-AGI-KNOWLEDGE =====
+  "pp_knowledge_search",           // Keyword search across all domains
+  "pp_knowledge_search_domain",    // Restricted to one domain
+  "pp_knowledge_cross_domain",     // Cross-domain search
+  "pp_knowledge_coverage",         // Coverage report for a domain
+  "pp_knowledge_full_coverage",    // Coverage across all domains
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1289,6 +1301,33 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_dashboard_summary": {
             const engine = await getEngine("agiDashboard");
             result = { summary: engine.summary() };
+            break;
+          }
+
+          // ===== PP_KNOWLEDGE (PP-AGI-KNOWLEDGE) =====
+          case "pp_knowledge_search": {
+            const engine = await getEngine("knowledgeIndex");
+            result = engine.search(params.query ?? "", params.limit ?? 20);
+            break;
+          }
+          case "pp_knowledge_search_domain": {
+            const engine = await getEngine("knowledgeIndex");
+            result = engine.searchInDomain(params.query ?? "", params.domain, params.limit ?? 20);
+            break;
+          }
+          case "pp_knowledge_cross_domain": {
+            const engine = await getEngine("knowledgeIndex");
+            result = engine.crossDomainSearch(params.query ?? "", params.limit ?? 5);
+            break;
+          }
+          case "pp_knowledge_coverage": {
+            const engine = await getEngine("knowledgeIndex");
+            result = engine.coverage(params.domain);
+            break;
+          }
+          case "pp_knowledge_full_coverage": {
+            const engine = await getEngine("knowledgeIndex");
+            result = { reports: engine.fullCoverage() };
             break;
           }
 
