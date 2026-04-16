@@ -233,6 +233,9 @@ let _ppAxisTravel: any;
 // PP-DP: Decimal-point validator
 let _ppDecimalPoint: any;
 
+// PP-BS: Block-skip and stop-code validator
+let _ppBlockSkip: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -422,6 +425,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppAxisTravel ??= (await import("../../engines/PPAxisTravelValidatorEngine.js")).ppAxisTravelValidatorEngine;
     case "decimalPoint":
       return _ppDecimalPoint ??= (await import("../../engines/PPDecimalPointValidatorEngine.js")).ppDecimalPointValidatorEngine;
+    case "blockSkip":
+      return _ppBlockSkip ??= (await import("../../engines/PPBlockSkipValidatorEngine.js")).ppBlockSkipValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -795,6 +800,11 @@ const ACTIONS = [
   "pp_dp_validate",                // Full decimal-point validation
   "pp_dp_quick",                   // Quick pass/fail + dim missing
   "pp_dp_defaults",                // Default decimal-point validator options
+
+  // PP-BS: Block-skip and stop-code validator
+  "pp_bs_validate",                // Full block-skip/stop validation
+  "pp_bs_quick",                   // Quick pass/fail + slash/stop counts
+  "pp_bs_defaults",                // Default block-skip validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2488,6 +2498,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_dp_defaults": {
             const engine = await getEngine("decimalPoint");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_BS (PP-BS — Block-skip and stop-code validator) =====
+          case "pp_bs_validate": {
+            const engine = await getEngine("blockSkip");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_slash_without_switch: params.check_slash_without_switch,
+              check_multi_level: params.check_multi_level,
+              check_m0_in_sub: params.check_m0_in_sub,
+              check_m1_info: params.check_m1_info,
+              check_slash_at_start: params.check_slash_at_start,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_bs_quick": {
+            const engine = await getEngine("blockSkip");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_bs_defaults": {
+            const engine = await getEngine("blockSkip");
             result = engine.defaultOptions();
             break;
           }
