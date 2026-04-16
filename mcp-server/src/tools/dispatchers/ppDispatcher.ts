@@ -113,6 +113,9 @@ let _ppTemplateLibrary: any;
 // PP-AGI-ANALYZER: G-code Program Analyzer
 let _ppProgramAnalyzer: any;
 
+// PP-AGI-DASHBOARD: Unified System Metrics
+let _ppAGIDashboard: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -223,6 +226,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppTemplateLibrary ??= (await import("../../engines/PPScenarioTemplateLibraryEngine.js")).ppScenarioTemplateLibraryEngine;
     case "programAnalyzer":
       return _ppProgramAnalyzer ??= (await import("../../engines/PPGCodeProgramAnalyzerEngine.js")).ppGCodeProgramAnalyzerEngine;
+    case "agiDashboard":
+      return _ppAGIDashboard ??= (await import("../../engines/PPAGISystemDashboardEngine.js")).ppAGISystemDashboardEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -425,6 +430,11 @@ const ACTIONS = [
   "pp_analyzer_analyze",           // Full analysis of a G-code program
   "pp_analyzer_batch",             // Batch analyze multiple programs
   "pp_analyzer_compare",           // Compare two programs and list differences
+
+  // ===== PP_DASHBOARD: System metrics (3 actions) — PP-AGI-DASHBOARD =====
+  "pp_dashboard_full",             // Full PP-AGI system dashboard
+  "pp_dashboard_health",           // Per-engine health check
+  "pp_dashboard_summary",          // Concise text summary
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1262,6 +1272,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_analyzer_compare": {
             const engine = await getEngine("programAnalyzer");
             result = engine.compare(params.gcodeA ?? params.gcode_a, params.gcodeB ?? params.gcode_b);
+            break;
+          }
+
+          // ===== PP_DASHBOARD (PP-AGI-DASHBOARD) =====
+          case "pp_dashboard_full": {
+            const engine = await getEngine("agiDashboard");
+            result = engine.getDashboard();
+            break;
+          }
+          case "pp_dashboard_health": {
+            const engine = await getEngine("agiDashboard");
+            result = { checks: engine.healthCheck() };
+            break;
+          }
+          case "pp_dashboard_summary": {
+            const engine = await getEngine("agiDashboard");
+            result = { summary: engine.summary() };
             break;
           }
 
