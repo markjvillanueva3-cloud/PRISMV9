@@ -5407,6 +5407,8 @@ export { makeVsBuyDecisionEngine, type DecisionWeights, type MakeVsBuyJobInput, 
 export { minimumJerkTrajectoryEngine, type Waypoint, type MotionConstraints, type SegmentCoeffs, type TrajectorySegment, type TrajectoryPlan, type MotionState, type JerkProfile, type TrajectoryComparison } from './MinimumJerkTrajectoryEngine.js';
 export { motionCompensationEngine, type ServoParams, type RotaryLimits, type MachineMotionParams, type ControllerCapabilities, type MotionBlock, type ServoCompensationResult, type RotaryAxisResult, type CompatibilityResult, type StageConfig, type StageFilterResult } from './MotionCompensationEngine.js';
 export { okumaOSPParserEngine, type OkumaProgram, type OkumaToolSection, type OkumaOperation, type OkumaVariable, type OkumaSafetyInfo, type SpeedFeedExtraction, type OkumaOpType } from './OkumaOSPParserEngine.js';
+export { okumaGosigerTranscriptMinerEngine, type SrtSegment, type TranscriptTribalTip, type TranscriptTipCategory, type VideoMetadata, type TranscriptMiningResult, type MiningRunResult } from './OkumaGosigerTranscriptMinerEngine.js';
+export { fusionLathePostDeltaRegistryEngine, type LathePostEntry, type LathePostRegistry, type RegistrationResult, type LathePostCapability, type ControllerFamily as LatheControllerFamily, type MachineType as LatheMachineType } from './FusionLathePostDeltaRegistryEngine.js';
 export { optimizationReportEngine, type OptimizationReportInput, type ToolReport, type ReportSummary, type OptimizationReport } from './OptimizationReportEngine.js';
 export { persistenceService, type PersistedTool, type PersistedMachine } from './UserToolLibraryPersistence.js';
 export { postDownloadEngine } from './PostDownloadEngine.js';
@@ -6275,3 +6277,12 @@ export {
   type FormulaValidationResult,
   type FormulaSearchResult,
 } from './FormulaWiringEngine.js';
+
+// --- LATHE-AWARE-HARDEN MS8: Lathe Master Orchestrator Facade ---
+export {
+  latheMasterOrchestratorFacadeEngine,
+  type LatheOrchRequestType,
+  type LatheOrchRequest,
+  type LatheOrchResponse,
+  type LatheAwarenessSnapshot,
+} from './LatheMasterOrchestratorFacadeEngine.js';

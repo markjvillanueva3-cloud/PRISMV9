@@ -82,6 +82,18 @@ const ACTIONS = [
   "lathe_hypermill_strategy_lookup",
   // MS5: Mark's MULTUS Pattern Actions (U-LAT42)
   "lathe_pattern_inject",
+  // MS7: Fusion Lathe Post Lookup (U-LAT54)
+  "lathe_fusion_post_lookup",
+  // MS8: Tribal Knowledge Integration (U-LAT57-60)
+  "lathe_tribal_activate",
+  "lathe_tribal_speedfeed",
+  "lathe_tribal_postprocessor",
+  "lathe_tribal_quality",
+  "lathe_tribal_autoprogram",
+  // MS8: Lathe Awareness Snapshot (U-LAT64)
+  "lathe_awareness_snapshot",
+  // MS8: Lathe Master Orchestrator Facade (U-LAT61)
+  "lathe_orchestrate_facade",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1148,6 +1160,168 @@ Actions: ${ACTIONS.join(", ")}.`,
               // Return all patterns
               result = { patterns: MARKS_MULTUS_PATTERNS, count: MARKS_MULTUS_PATTERNS.length };
             }
+            break;
+          }
+
+          // MS7: Fusion Lathe Post Lookup (U-LAT54)
+          case "lathe_fusion_post_lookup": {
+            const { fusionLathePostDeltaRegistryEngine } = await import("../../engines/FusionLathePostDeltaRegistryEngine.js");
+
+            if (params.manufacturer) {
+              // Lookup by manufacturer
+              const posts = fusionLathePostDeltaRegistryEngine.lookupPost({ manufacturer: params.manufacturer });
+              result = { posts, count: posts.length, query: { manufacturer: params.manufacturer } };
+            } else if (params.controller_family) {
+              // Lookup by controller family
+              const posts = fusionLathePostDeltaRegistryEngine.lookupPost({ controllerFamily: params.controller_family });
+              result = { posts, count: posts.length, query: { controllerFamily: params.controller_family } };
+            } else if (params.machine_model) {
+              // Lookup by machine model
+              const posts = fusionLathePostDeltaRegistryEngine.lookupPost({ machineModel: params.machine_model });
+              result = { posts, count: posts.length, query: { machineModel: params.machine_model } };
+            } else if (params.machine_type) {
+              // Lookup by machine type
+              const posts = fusionLathePostDeltaRegistryEngine.lookupPost({ machineType: params.machine_type });
+              result = { posts, count: posts.length, query: { machineType: params.machine_type } };
+            } else if (params.capability) {
+              // Lookup by capability
+              const posts = fusionLathePostDeltaRegistryEngine.lookupPost({ capability: params.capability });
+              result = { posts, count: posts.length, query: { capability: params.capability } };
+            } else if (params.summary || params.stats) {
+              // Get summary statistics
+              result = fusionLathePostDeltaRegistryEngine.getSummary();
+            } else if (params.refresh || params.scan) {
+              // Refresh/scan posts
+              const scanResult = fusionLathePostDeltaRegistryEngine.scanAndRegister();
+              fusionLathePostDeltaRegistryEngine.saveRegistry();
+              result = {
+                newPosts: scanResult.newPosts,
+                updatedPosts: scanResult.updatedPosts,
+                totalPosts: scanResult.registry.postCount,
+                errors: scanResult.errors,
+              };
+            } else {
+              // Return full registry
+              const registry = fusionLathePostDeltaRegistryEngine.getRegistry();
+              result = { posts: registry.posts, count: registry.postCount };
+            }
+            break;
+          }
+
+          // MS8: Tribal Knowledge Integration (U-LAT57-60)
+          case "lathe_tribal_activate": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            const context = {
+              decision_type: params.decision_type || "turning_roughing",
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation || "turning",
+              machine: params.machine_id,
+              controller: params.controller,
+              tool_type: params.tool_type,
+              tool_diameter_mm: params.tool_diameter_mm,
+              hardness_hrc: params.hardness_hrc,
+              keywords: params.keywords,
+            };
+            result = tribalKnowledgeActivationEngine.activate(context, { limit: params.limit || 5 });
+            break;
+          }
+
+          case "lathe_tribal_speedfeed": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            const context = {
+              decision_type: "speed_feed" as const,
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation || "turning",
+              machine: params.machine_id,
+              cutting_speed: params.cutting_speed,
+              feed_rate: params.feed_rate,
+              depth_of_cut: params.depth_of_cut,
+            };
+            const activation = tribalKnowledgeActivationEngine.activate(context, { limit: 5 });
+            const modifiers = tribalKnowledgeActivationEngine.getParameterModifiers(activation);
+            result = { activation, modifiers };
+            break;
+          }
+
+          case "lathe_tribal_postprocessor": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            const ppParams = {
+              controller: params.controller || "generic",
+              machine_type: "lathe",
+              operation: params.operation,
+              material: params.material,
+              feature: params.feature,
+            };
+            result = tribalKnowledgeActivationEngine.integrateForPP(ppParams);
+            break;
+          }
+
+          case "lathe_tribal_quality": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            const context = {
+              decision_type: "surface_finish" as const,
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation || "turning_finishing",
+              target_ra_um: params.target_ra_um,
+              tool_type: params.tool_type,
+            };
+            result = tribalKnowledgeActivationEngine.activate(context, { limit: 5 });
+            break;
+          }
+
+          case "lathe_tribal_autoprogram": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            const context = {
+              decision_type: params.operation?.includes("thread") ? "threading" as const : "turning_roughing" as const,
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation,
+              machine: params.machine_id,
+              controller: params.controller,
+            };
+            result = tribalKnowledgeActivationEngine.activate(context, { limit: 8 });
+            break;
+          }
+
+          // MS8: Lathe Awareness Snapshot (U-LAT64)
+          case "lathe_awareness_snapshot": {
+            // Return current lathe domain awareness state via facade engine
+            const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
+            result = latheMasterOrchestratorFacadeEngine.getLatheSnapshot();
+            break;
+          }
+
+          // MS8: Lathe Master Orchestrator Facade (U-LAT61)
+          case "lathe_orchestrate_facade": {
+            const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
+            const orchRequest = {
+              type: params.type || "quick",
+              material: params.material,
+              material_iso: params.material_iso,
+              operation: params.operation,
+              machine_id: params.machine_id,
+              controller: params.controller,
+              tool_diameter_mm: params.tool_diameter_mm,
+              tool_type: params.tool_type,
+              rpm: params.rpm,
+              cutting_speed_m_min: params.cutting_speed_m_min,
+              feed_mm_rev: params.feed_mm_rev,
+              depth_of_cut_mm: params.depth_of_cut_mm,
+              hardness_hrc: params.hardness_hrc,
+              target_ra_um: params.target_ra_um,
+              workholding: params.workholding,
+              has_live_tooling: params.has_live_tooling,
+              has_sub_spindle: params.has_sub_spindle,
+              has_y_axis: params.has_y_axis,
+              include_tribal: params.include_tribal ?? true,
+              include_physics: params.include_physics ?? true,
+              program_text: params.program_text,
+              part_geometry: params.part_geometry,
+            };
+            result = await latheMasterOrchestratorFacadeEngine.orchestrate(orchRequest);
             break;
           }
 
