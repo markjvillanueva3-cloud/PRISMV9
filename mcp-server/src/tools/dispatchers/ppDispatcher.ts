@@ -170,6 +170,9 @@ let _ppProgramChunker: any;
 // PP-MERGE: Program merger (inverse of chunker)
 let _ppProgramMerger: any;
 
+// PP-STATS: Descriptive G-code statistics
+let _ppGCodeStatistics: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -317,6 +320,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramChunker ??= (await import("../../engines/PPProgramChunkerEngine.js")).ppProgramChunkerEngine;
     case "programMerger":
       return _ppProgramMerger ??= (await import("../../engines/PPProgramMergerEngine.js")).ppProgramMergerEngine;
+    case "gcodeStatistics":
+      return _ppGCodeStatistics ??= (await import("../../engines/PPGCodeStatisticsEngine.js")).ppGCodeStatisticsEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -581,6 +586,10 @@ const ACTIONS = [
   "pp_merge_chunks",              // Reassemble chunks into a single program
   "pp_merge_validate",            // Validate a merged program is structurally sound
   "pp_merge_defaults",            // Default merge options
+
+  // ===== PP_STATS: Descriptive G-code statistics (2 actions) — PP-STATS =====
+  "pp_stats_analyze",             // Full descriptive statistics for a G-code program
+  "pp_stats_similarity",          // Histogram cosine similarity between 2 programs
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1707,6 +1716,27 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_merge_defaults": {
             const engine = await getEngine("programMerger");
             result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_STATS (PP-STATS — descriptive statistics) =====
+          case "pp_stats_analyze": {
+            const engine = await getEngine("gcodeStatistics");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.analyze(gcode);
+            break;
+          }
+          case "pp_stats_similarity": {
+            const engine = await getEngine("gcodeStatistics");
+            const a = params.gcode_a ?? params.a ?? "";
+            const b = params.gcode_b ?? params.b ?? "";
+            const statsA = engine.analyze(a);
+            const statsB = engine.analyze(b);
+            result = {
+              similarity: engine.similarity(statsA, statsB),
+              a_metrics: { lines: statsA.total_lines, tools: statsA.unique_tool_count },
+              b_metrics: { lines: statsB.total_lines, tools: statsB.unique_tool_count },
+            };
             break;
           }
 
