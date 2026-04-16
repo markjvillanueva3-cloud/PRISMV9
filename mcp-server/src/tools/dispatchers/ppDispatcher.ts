@@ -89,6 +89,9 @@ let _ppMaterialVector: any;
 // PP-AGI-MS2: Cutting Tool Encoder
 let _ppToolEncoder: any;
 
+// PP-DL-MS0: Training Data Pipeline
+let _ppTrainingPipeline: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -183,6 +186,8 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS2: Cutting Tool Encoder
     case "toolEncoder":
       return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
+    case "trainingPipeline":
+      return _ppTrainingPipeline ??= (await import("../../engines/PPTrainingDataPipelineEngine.js")).ppTrainingDataPipelineEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -338,6 +343,11 @@ const ACTIONS = [
   "pp_tool_embed",                 // Embed a tool spec to 36-dim vector
   "pp_tool_compare",               // Compare two tool specs
   "pp_tool_nearest",               // Find nearest tools from reference library
+
+  // ===== PP_TRAINING: Training data pipeline (3 actions) — PP-DL-MS0 =====
+  "pp_training_process",           // Process a G-code program into training record
+  "pp_training_batch",             // Process multiple programs
+  "pp_training_stats",             // Get pipeline statistics
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -927,6 +937,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_tool_nearest": {
             const engine = await getEngine("toolEncoder");
             result = engine.findNearest(params.spec ?? params, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_TRAINING (PP-DL-MS0) =====
+          case "pp_training_process": {
+            const engine = await getEngine("trainingPipeline");
+            result = engine.processProgram(params.gcode, params.sourceFile ?? params.source_file);
+            break;
+          }
+          case "pp_training_batch": {
+            const engine = await getEngine("trainingPipeline");
+            result = { records: engine.processBatch(params.programs ?? []) };
+            break;
+          }
+          case "pp_training_stats": {
+            const engine = await getEngine("trainingPipeline");
+            result = engine.getStats();
             break;
           }
 
