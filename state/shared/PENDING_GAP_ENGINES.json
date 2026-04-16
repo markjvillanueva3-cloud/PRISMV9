@@ -178,7 +178,58 @@
       "built": true,
       "builtAt": "2026-04-16T21:30:00Z",
       "commit": "82c3f081"
+    },
+    {
+      "name": "LatheBarStockNestingEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Lathe bar stock nesting — parts-per-bar with cutoff kerf, end remnant loss, bar-diameter selection for minimum waste. Existing NestingEngine is 2D sheet-metal only (width × height).",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "BarFeedPitchOptimizerEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing NestingEngine (2-D sheet metal); new name emphasizes 1-D bar-feed domain"
+    },
+    {
+      "name": "BarRemnantManagementEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Track bar remnants post-job and evaluate feasibility of reusing them for shorter parts. Inventory-level optimization not covered by any existing engine.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d"
+    },
+    {
+      "name": "LathePartCostModelEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "7-bucket cost-per-part model: machine time (cycle × rate), tool (insert/edge × amortization), material (blank + waste), setup amortized over batch, quality (scrap × value), energy, secondary ops. Existing ActualCost/CostEstimation engines are generic and do not decompose these 7 buckets.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d"
+    },
+    {
+      "name": "LatheCycleTimeBreakdownEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "12+ component lathe cycle time breakdown: rapid, spindle accel/decel (inertia), turret index (BMT vs VDI, CW vs CCW), coolant settling, chuck clamp, tailstock advance, part catcher dwell, G4 dwells, look-ahead decel. Existing CycleTimeEngine is generic.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "LatheAuxAxisTimingEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to CycleTimeEngine; new name emphasizes lathe-specific auxiliary axes (chuck/tailstock/catcher/turret)"
+    },
+    {
+      "name": "LatheCostCalibrationEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Actual-vs-estimated cost feedback recalibrator: compares post-production actuals to predictions and updates Taylor coefficients, cycle time model, and scrap rate. ActualCostEngine stores actuals only; no recalibration of physics parameters.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "LatheActualFeedbackTuningEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to CalibrationEngine (instrument calibration); new name emphasizes post-run actual-vs-predicted physics tuning"
     }
   ],
-  "lastUpdated": "2026-04-16T21:30:00Z"
+  "lastUpdated": "2026-04-16T22:05:00Z"
 }
