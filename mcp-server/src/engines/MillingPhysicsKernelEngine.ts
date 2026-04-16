@@ -85,6 +85,14 @@ import { toolAssemblyDeflectionEngine } from "./ToolAssemblyDeflectionEngine.js"
 import { workpieceDeflectionCompensationEngine } from "./WorkpieceDeflectionCompensationEngine.js";
 import { surfaceLocationErrorEngine } from "./SurfaceLocationErrorEngine.js";
 
+// Additional force/physics engines (6) — MS-WIRE-1/U-WIRE-01 (extends existing 5)
+import { cuttingMechanicsEngine } from "./CuttingMechanicsEngine.js";
+import { advancedCuttingPhysicsEngine } from "./AdvancedCuttingPhysicsEngine.js";
+import { advancedCuttingPhysicsExtEngine } from "./AdvancedCuttingPhysicsExtEngine.js";
+import { fundamentalPhysicsCompletionEngine } from "./FundamentalPhysicsCompletionEngine.js";
+import { drillBreakthroughForceEngine } from "./DrillBreakthroughForceEngine.js";
+import { cutterContactEngine } from "./CutterContactEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1230,6 +1238,90 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // ADDITIONAL FORCE / PHYSICS ENGINES — MS-WIRE-1 / U-WIRE-01 extension (6 more)
+  // =========================================================================
+
+  /**
+   * Cutting mechanics — Merchant shear angle analysis, milling forces,
+   * cutting temperature, crater wear via analytical models.
+   * Delegates to: CuttingMechanicsEngine.
+   */
+  analyzeCuttingMechanics(method: "merchant" | "millingForces" | "cuttingTemp" | "craterWear" |
+                                   "materialData" | "listMaterials",
+                          input?: any) {
+    switch (method) {
+      case "merchant":       return cuttingMechanicsEngine.merchantAnalysis(input);
+      case "millingForces":  return cuttingMechanicsEngine.millingForces(
+                                      input.params, input.f_z_mm, input.a_p_mm, input.a_e_mm, input.D_mm, input.z);
+      case "cuttingTemp":    return cuttingMechanicsEngine.cuttingTemperature(input);
+      case "craterWear":     return cuttingMechanicsEngine.craterWear(input);
+      case "materialData":   return cuttingMechanicsEngine.getMaterialCuttingData(input);
+      case "listMaterials":  return cuttingMechanicsEngine.listMaterials();
+    }
+  }
+
+  /**
+   * Advanced cutting physics — Oxley predictive, oblique cutting, size effect,
+   * Recht shear instability, chip breaking, process damping.
+   * Delegates to: AdvancedCuttingPhysicsEngine.
+   */
+  analyzeAdvancedCuttingPhysics(method: "oxley" | "oblique" | "sizeEffect" |
+                                         "rechtInstability" | "chipBreaking" | "processDamping",
+                                 input: any) {
+    switch (method) {
+      case "oxley":            return advancedCuttingPhysicsEngine.oxleyPredictive(input);
+      case "oblique":          return advancedCuttingPhysicsEngine.obliqueCutting(input);
+      case "sizeEffect":       return advancedCuttingPhysicsEngine.sizeEffect(input);
+      case "rechtInstability": return advancedCuttingPhysicsEngine.rechtShearInstability(input);
+      case "chipBreaking":     return advancedCuttingPhysicsEngine.chipBreakingCriterion(input);
+      case "processDamping":   return advancedCuttingPhysicsEngine.processDamping(input);
+    }
+  }
+
+  /**
+   * Extended advanced cutting physics — additional specialized phenomena.
+   * Delegates to: AdvancedCuttingPhysicsExtEngine.
+   */
+  getAdvancedCuttingPhysicsExt() {
+    return advancedCuttingPhysicsExtEngine;
+  }
+
+  /**
+   * Fundamental physics completion — Archard wear, Merchant shear/force circle,
+   * single-grit mechanics, grinding thermal, Hertz contact.
+   * Delegates to: FundamentalPhysicsCompletionEngine.
+   */
+  analyzeFundamentalPhysics(method: "archardWear" | "archardTool" | "merchantShear" |
+                                     "merchantForce" | "singleGrit" | "grindingThermal" | "hertzContact",
+                             input: any) {
+    switch (method) {
+      case "archardWear":     return fundamentalPhysicsCompletionEngine.archardWear(input);
+      case "archardTool":     return fundamentalPhysicsCompletionEngine.archardToolWear(input);
+      case "merchantShear":   return fundamentalPhysicsCompletionEngine.merchantShearAngle(input);
+      case "merchantForce":   return fundamentalPhysicsCompletionEngine.merchantForceCircle(input);
+      case "singleGrit":      return fundamentalPhysicsCompletionEngine.singleGritMechanics(input);
+      case "grindingThermal": return fundamentalPhysicsCompletionEngine.grindingThermalModel(input);
+      case "hertzContact":    return fundamentalPhysicsCompletionEngine.hertzContact(input);
+    }
+  }
+
+  /**
+   * Drill breakthrough force — predicts force/stress spike at drill exit.
+   * Delegates to: DrillBreakthroughForceEngine.calculate().
+   */
+  calculateDrillBreakthroughForce(input: Parameters<typeof drillBreakthroughForceEngine.calculate>[0]) {
+    return drillBreakthroughForceEngine.calculate(input);
+  }
+
+  /**
+   * Cutter contact point computation (CC/CL for 5-axis toolpath).
+   * Delegates to: CutterContactEngine (module-based).
+   */
+  getCutterContactEngine() {
+    return cutterContactEngine;
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1291,6 +1383,13 @@ class MillingPhysicsKernelEngine {
       "ToolAssemblyDeflectionEngine (stacked holder + tool + extension)",
       "WorkpieceDeflectionCompensationEngine (G-code path offset)",
       "SurfaceLocationErrorEngine (regenerative chatter-induced surface error)",
+      // Additional force/physics engines (MS-WIRE-1/U-WIRE-01 extension)
+      "CuttingMechanicsEngine (Merchant analysis, milling forces, cutting temp)",
+      "AdvancedCuttingPhysicsEngine (Oxley, oblique, size effect, Recht instability)",
+      "AdvancedCuttingPhysicsExtEngine (extended specialized phenomena)",
+      "FundamentalPhysicsCompletionEngine (Archard, Merchant, Hertz, grinding)",
+      "DrillBreakthroughForceEngine (exit force/stress spike prediction)",
+      "CutterContactEngine (CC/CL 5-axis toolpath geometry)",
     ];
   }
 
@@ -1302,7 +1401,8 @@ class MillingPhysicsKernelEngine {
       core_physics: 5,      // constants.ts functions
       chip_formation: 1,    // ChipFormationPredictionEngine
       thermal: 4,           // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal
-      force: 5,             // Kienzle, CuttingForce, Stochastic, Power, Energy
+      force: 11,            // Kienzle, CuttingForce, Stochastic, Power, Energy + 6 new
+                            // (Mechanics, AdvancedPhysics, AdvancedExt, Fundamental, Drill, CutterContact)
       math: 1,              // AdvancedCuttingMath
       deflection: 8,        // ToolDeflectionPrediction + 7 new (Part, BoringBar, Stochastic,
                             // Timoshenko, ToolAssembly, WorkpieceCompensation, SurfaceLocationError)
@@ -1311,8 +1411,8 @@ class MillingPhysicsKernelEngine {
       surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
-      total_engines: 41,
-      total_functions: 50,
+      total_engines: 47,
+      total_functions: 56,
     };
   }
 }
