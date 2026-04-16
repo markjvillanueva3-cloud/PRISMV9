@@ -152,6 +152,9 @@ let _ppCapMatrix: any;
 // PP-TURNING: Okuma Turning Post
 let _ppOkumaTurning: any;
 
+// PP-WEDM: Wire EDM Post
+let _ppWireEDM: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -287,6 +290,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCapMatrix ??= (await import("../../engines/PPAGICapabilityMatrixEngine.js")).ppAGICapabilityMatrixEngine;
     case "okumaTurning":
       return _ppOkumaTurning ??= (await import("../../engines/PPOkumaTurningPostEngine.js")).ppOkumaTurningPostEngine;
+    case "wireEDM":
+      return _ppWireEDM ??= (await import("../../engines/PPWireEDMPostEngine.js")).ppWireEDMPostEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -521,6 +526,10 @@ const ACTIONS = [
   "pp_auditor_audit",              // Full audit of a program library
   "pp_auditor_quick_scan",         // Fast partial audit (no clustering/outliers)
   "pp_auditor_find_similar",       // Find programs similar to a reference
+
+  // ===== PP_WEDM: Wire EDM post (2 actions) — PP-WEDM =====
+  "pp_wedm_generate",             // Generate wire EDM program
+  "pp_wedm_standard_4pass",       // Standard 4-pass strategy (rough + 3 skim)
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1499,6 +1508,22 @@ Actions: ${ACTIONS.join(", ")}.`,
                 params.limit ?? 5,
               ),
             };
+            break;
+          }
+
+          // ===== PP_WEDM (PP-WEDM) =====
+          case "pp_wedm_generate": {
+            const engine = await getEngine("wireEDM");
+            result = engine.generate(params);
+            break;
+          }
+          case "pp_wedm_standard_4pass": {
+            const engine = await getEngine("wireEDM");
+            result = engine.generateStandard4Pass(
+              params.thickness ?? params.thickness_mm ?? 25,
+              params.material ?? "D2",
+              params.wireDia ?? params.wire_dia ?? 0.25,
+            );
             break;
           }
 
