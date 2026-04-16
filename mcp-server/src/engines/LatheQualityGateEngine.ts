@@ -41,6 +41,8 @@ import {
   type ISOGroup,
   type MaterialPhysics,
 } from "../physics/constants.js";
+// MS1 U-LAT14: S(x) safety score hard block
+import { omegaSafetyScoreEngine, type OmegaSafetyResult } from "./OmegaSafetyScoreEngine.js";
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -267,6 +269,9 @@ export interface FullValidationReport {
   all_recommendations: Recommendation[];
   program_approved: boolean;
   approval_conditions?: string[];
+  // MS1 U-LAT14: S(x) safety score hard block
+  omega_safety?: OmegaSafetyResult;
+  omega_blocked?: boolean;
 }
 
 /** Recommendation structure */
@@ -693,8 +698,61 @@ class LatheQualityGateEngineImpl {
       shopReport,
     ]);
 
-    // Determine approval
-    const programApproved = overallStatus !== "fail" && criticalFailures.length === 0;
+    // MS1 U-LAT14: S(x) safety score hard block
+    // Evaluate omega safety for the worst operation (if operations exist)
+    let omegaSafety: OmegaSafetyResult | undefined;
+    let omegaBlocked = false;
+
+    if (context.operations.length > 0 && context.machine) {
+      // Calculate S(x) for first operation as representative (full version would aggregate all)
+      const firstOp = context.operations[0];
+      try {
+        omegaSafety = omegaSafetyScoreEngine.evaluate(
+          {
+            type: firstOp.type.includes("thread") ? "threading" :
+                  firstOp.type.includes("groove") ? "grooving" :
+                  firstOp.type.includes("drill") ? "drilling" : "turning",
+            cutting_speed_m_min: firstOp.params.cutting_speed_m_min,
+            feed_mm_rev: firstOp.params.feed_mm_rev,
+            depth_of_cut_mm: firstOp.params.depth_of_cut_mm,
+            spindle_rpm: firstOp.params.spindle_rpm ?? 1000,
+            diameter_mm: 50, // fallback
+          },
+          {
+            name: context.material.name,
+            iso_group: context.material.iso_group,
+            hardness_hrc: context.material.hardness_hrc ?? 30,
+          },
+          {
+            brand: context.machine.brand ?? "generic",
+            model: context.machine.model ?? "lathe",
+            max_rpm: context.machine.max_spindle_rpm ?? 6000,
+            max_power_kW: context.machine.max_power_kw ?? 15,
+          },
+          {
+            tool_id: firstOp.tool.tool_id,
+            tool_type: firstOp.tool.tool_type,
+            nose_radius_mm: firstOp.tool.nose_radius_mm,
+            overhang_mm: firstOp.tool.overhang_mm ?? 40,
+          },
+          {
+            chuck_type: "3_jaw",
+            jaw_pressure_bar: 30,
+            part_diameter_mm: 50,
+          },
+        );
+        omegaBlocked = !omegaSafety.passed;
+        if (omegaBlocked) {
+          criticalFailures.push(`S(x) HARD BLOCK: ${omegaSafety.omega_safety.toFixed(3)} < 0.70 — G-code output suppressed`);
+          overallStatus = "fail";
+        }
+      } catch (e) {
+        log.warn(`LatheQualityGateEngine: Could not compute S(x): ${e}`);
+      }
+    }
+
+    // Determine approval (now includes omega check)
+    const programApproved = overallStatus !== "fail" && criticalFailures.length === 0 && !omegaBlocked;
     const approvalConditions = programApproved && overallStatus === "warn"
       ? allWarnings.map(w => `Acknowledge: ${w}`)
       : undefined;
@@ -715,9 +773,11 @@ class LatheQualityGateEngineImpl {
       all_recommendations: allRecommendations,
       program_approved: programApproved,
       approval_conditions: approvalConditions,
+      omega_safety: omegaSafety,
+      omega_blocked: omegaBlocked,
     };
 
-    log.info(`LatheQualityGateEngine: Validation complete. Score: ${overallScore}, Status: ${overallStatus}`);
+    log.info(`LatheQualityGateEngine: Validation complete. Score: ${overallScore}, Status: ${overallStatus}${omegaSafety ? `, S(x): ${omegaSafety.omega_safety.toFixed(3)}` : ""}`);
     return report;
   }
 
