@@ -78,6 +78,8 @@ const ACTIONS = [
   "lathe_vendor_tool_lookup", "lathe_insert_grade_select", "lathe_iso_code_resolve",
   // MS3: Machine Kinematics Actions (U-LAT30)
   "lathe_machine_kinematics_lookup",
+  // MS5: HyperMILL Turning Strategy Actions (U-LAT39)
+  "lathe_hypermill_strategy_lookup",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1054,6 +1056,53 @@ Actions: ${ACTIONS.join(", ")}.`,
             } else {
               // Return all machines
               result = { machines: OKUMA_MACHINES_FROM_STEP, count: OKUMA_MACHINES_FROM_STEP.length };
+            }
+            break;
+          }
+
+          // MS5: HyperMILL Turning Strategy Lookup (U-LAT39)
+          case "lathe_hypermill_strategy_lookup": {
+            const {
+              findHyperMillStrategyByCode,
+              getHyperMillStrategiesByGroup,
+              searchHyperMillStrategies,
+              getRoughingStrategies,
+              getFinishingStrategies,
+              get5AxisStrategies,
+              getStrategyStats,
+              HYPERMILL_TURNING_STRATEGIES,
+            } = await import("../../data/hypermill-turning-strategy-catalog.js");
+
+            if (params.code) {
+              // Lookup by code
+              const strategy = findHyperMillStrategyByCode(params.code);
+              result = strategy ? { found: true, strategy } : { found: false, code: params.code };
+            } else if (params.group) {
+              // List by group
+              const strategies = getHyperMillStrategiesByGroup(params.group);
+              result = { strategies, count: strategies.length, group: params.group };
+            } else if (params.search) {
+              // Search by keyword
+              const strategies = searchHyperMillStrategies(params.search);
+              result = { strategies, count: strategies.length, query: params.search };
+            } else if (params.roughing) {
+              // Get roughing strategies
+              const strategies = getRoughingStrategies();
+              result = { strategies, count: strategies.length, type: "roughing" };
+            } else if (params.finishing) {
+              // Get finishing strategies
+              const strategies = getFinishingStrategies();
+              result = { strategies, count: strategies.length, type: "finishing" };
+            } else if (params.five_axis || params.mill_turn) {
+              // Get 5-axis strategies
+              const strategies = get5AxisStrategies();
+              result = { strategies, count: strategies.length, type: "5axis_mill_turn" };
+            } else if (params.stats) {
+              // Get stats
+              result = getStrategyStats();
+            } else {
+              // Return all strategies
+              result = { strategies: HYPERMILL_TURNING_STRATEGIES, count: HYPERMILL_TURNING_STRATEGIES.length };
             }
             break;
           }
