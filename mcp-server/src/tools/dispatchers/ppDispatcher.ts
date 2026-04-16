@@ -104,6 +104,9 @@ let _ppEnsembleUncertainty: any;
 // PP-DL-MS9: Decision Explainer
 let _ppDecisionExplainer: any;
 
+// PP-AGI-ADVISOR: Unified Job Advisor
+let _ppJobAdvisor: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -208,6 +211,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppEnsembleUncertainty ??= (await import("../../engines/PPEnsembleUncertaintyEngine.js")).ppEnsembleUncertaintyEngine;
     case "decisionExplainer":
       return _ppDecisionExplainer ??= (await import("../../engines/PPDecisionExplainerEngine.js")).ppDecisionExplainerEngine;
+    case "jobAdvisor":
+      return _ppJobAdvisor ??= (await import("../../engines/PPJobScenarioAdvisorEngine.js")).ppJobScenarioAdvisorEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -393,6 +398,10 @@ const ACTIONS = [
   "pp_explain_scenario",           // Full explanation with factors, counterfactuals, analogies
   "pp_explain_controller_choice",  // Why chose one controller over another
   "pp_explain_material_sub",       // Explain material substitution safety
+
+  // ===== PP_ADVISOR: Unified job advisor (2 actions) — PP-AGI-ADVISOR =====
+  "pp_advisor_advise",             // Get comprehensive job advice using all PP-AGI engines
+  "pp_advisor_outcome",            // Record actual job outcome for feedback loop
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1145,6 +1154,34 @@ Actions: ${ACTIONS.join(", ")}.`,
               explanation: engine.explainMaterialSubstitution(
                 params.original,
                 params.substitute,
+              ),
+            };
+            break;
+          }
+
+          // ===== PP_ADVISOR (PP-AGI-ADVISOR) =====
+          case "pp_advisor_advise": {
+            const engine = await getEngine("jobAdvisor");
+            result = engine.advise({
+              controller_id: params.controllerId ?? params.controller_id,
+              machine_id: params.machineId ?? params.machine_id,
+              material_id: params.materialId ?? params.material_id,
+              tool: params.tool,
+              toolpath: params.toolpath,
+              physics: params.physics,
+              safety: params.safety,
+              partial_controller: params.partialController ?? params.partial_controller,
+            });
+            break;
+          }
+          case "pp_advisor_outcome": {
+            const engine = await getEngine("jobAdvisor");
+            result = {
+              success: engine.recordOutcome(
+                params.trackerId ?? params.tracker_id,
+                params.actualResult ?? params.actual_result,
+                params.errorMagnitude ?? params.error_magnitude,
+                params.notes,
               ),
             };
             break;
