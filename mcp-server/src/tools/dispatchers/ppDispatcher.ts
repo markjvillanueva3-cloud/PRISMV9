@@ -167,6 +167,9 @@ let _ppGCodeLint: any;
 // PP-CHUNK: Program chunker for DNC drip-feed
 let _ppProgramChunker: any;
 
+// PP-MERGE: Program merger (inverse of chunker)
+let _ppProgramMerger: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -312,6 +315,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppGCodeLint ??= (await import("../../engines/PPGCodeLintEngine.js")).ppGCodeLintEngine;
     case "programChunker":
       return _ppProgramChunker ??= (await import("../../engines/PPProgramChunkerEngine.js")).ppProgramChunkerEngine;
+    case "programMerger":
+      return _ppProgramMerger ??= (await import("../../engines/PPProgramMergerEngine.js")).ppProgramMergerEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -571,6 +576,11 @@ const ACTIONS = [
   "pp_chunk_program",             // Split G-code program into chunks with modal restore
   "pp_chunk_list_strategies",     // List available chunking strategies
   "pp_chunk_defaults",            // Get default options for a given strategy
+
+  // ===== PP_MERGE: Program merger — inverse of chunker (3 actions) — PP-MERGE =====
+  "pp_merge_chunks",              // Reassemble chunks into a single program
+  "pp_merge_validate",            // Validate a merged program is structurally sound
+  "pp_merge_defaults",            // Default merge options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1671,6 +1681,32 @@ Actions: ${ACTIONS.join(", ")}.`,
             const engine = await getEngine("programChunker");
             const strategy = params.strategy ?? "by_lines";
             result = engine.defaultOptions(strategy);
+            break;
+          }
+
+          // ===== PP_MERGE (PP-MERGE — program merger) =====
+          case "pp_merge_chunks": {
+            const engine = await getEngine("programMerger");
+            const chunks = params.chunks ?? [];
+            const options = {
+              strip_modal_restore: params.strip_modal_restore ?? params.stripModalRestore,
+              strip_chunk_markers: params.strip_chunk_markers ?? params.stripChunkMarkers,
+              strip_duplicate_headers: params.strip_duplicate_headers ?? params.stripDuplicateHeaders,
+              chunk_separator_blank: params.chunk_separator_blank ?? params.chunkSeparatorBlank,
+              emit_merge_comment: params.emit_merge_comment ?? params.emitMergeComment,
+            };
+            result = engine.merge(chunks, options);
+            break;
+          }
+          case "pp_merge_validate": {
+            const engine = await getEngine("programMerger");
+            const text = params.text ?? params.gcode ?? "";
+            result = engine.validate(text);
+            break;
+          }
+          case "pp_merge_defaults": {
+            const engine = await getEngine("programMerger");
+            result = engine.defaultOptions();
             break;
           }
 
