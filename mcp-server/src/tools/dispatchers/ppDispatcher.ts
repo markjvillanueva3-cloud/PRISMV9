@@ -308,6 +308,9 @@ let _ppCoordinateRange: any;
 // PP-ZMV: Zero-motion / no-op block validator
 let _ppZeroMotion: any;
 
+// PP-CMC: Commented-out-code validator
+let _ppCommentedCode: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -547,6 +550,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCoordinateRange ??= (await import("../../engines/PPCoordinateRangeValidatorEngine.js")).ppCoordinateRangeValidatorEngine;
     case "zeroMotion":
       return _ppZeroMotion ??= (await import("../../engines/PPZeroMotionValidatorEngine.js")).ppZeroMotionValidatorEngine;
+    case "commentedCode":
+      return _ppCommentedCode ??= (await import("../../engines/PPCommentedCodeValidatorEngine.js")).ppCommentedCodeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1023,6 +1028,9 @@ const ACTIONS = [
   "pp_zmv_validate",               // Zero-motion / no-op block detection
   "pp_zmv_quick",                  // Quick pass/fail + motion block count
   "pp_zmv_defaults",               // Default zero-motion options
+  "pp_cmc_validate",               // Commented-out-code detection
+  "pp_cmc_quick",                  // Quick pass/fail + suspicious comment count
+  "pp_cmc_defaults",               // Default commented-code options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3449,6 +3457,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_zmv_defaults": {
             const engine = await getEngine("zeroMotion");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CMC (PP-CMC — Commented-out-code detection) =====
+          case "pp_cmc_validate": {
+            const engine = await getEngine("commentedCode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_gcode_in_comment: params.check_gcode_in_comment,
+              check_mcode_in_comment: params.check_mcode_in_comment,
+              check_tool_change_in_comment: params.check_tool_change_in_comment,
+              check_large_region: params.check_large_region,
+              check_mixed_comment_code: params.check_mixed_comment_code,
+              large_region_threshold: params.large_region_threshold,
+              ignore_header_lines: params.ignore_header_lines,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cmc_quick": {
+            const engine = await getEngine("commentedCode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cmc_defaults": {
+            const engine = await getEngine("commentedCode");
             result = engine.defaultOptions();
             break;
           }
