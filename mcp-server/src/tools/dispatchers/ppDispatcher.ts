@@ -263,6 +263,9 @@ let _ppRefReturn: any;
 // PP-FM: Feed-mode validator (G93/G94/G95)
 let _ppFeedMode: any;
 
+// PP-SM: Speed-mode validator (G96/G97)
+let _ppSpeedMode: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -472,6 +475,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppRefReturn ??= (await import("../../engines/PPReferenceReturnValidatorEngine.js")).ppReferenceReturnValidatorEngine;
     case "feedMode":
       return _ppFeedMode ??= (await import("../../engines/PPFeedModeValidatorEngine.js")).ppFeedModeValidatorEngine;
+    case "speedMode":
+      return _ppSpeedMode ??= (await import("../../engines/PPSpeedModeValidatorEngine.js")).ppSpeedModeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -895,6 +900,11 @@ const ACTIONS = [
   "pp_fm_validate",                // Full feed-mode validation
   "pp_fm_quick",                   // Quick pass/fail + final mode + cut-block count
   "pp_fm_defaults",                // Default feed-mode validator options
+
+  // PP-SM: Speed-mode validator (G96/G97)
+  "pp_sm_validate",                // Full spindle speed-mode validation
+  "pp_sm_quick",                   // Quick pass/fail + final mode + max-RPM
+  "pp_sm_defaults",                // Default speed-mode validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2860,6 +2870,35 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_fm_defaults": {
             const engine = await getEngine("feedMode");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_SM (PP-SM — Spindle speed-mode validator) =====
+          case "pp_sm_validate": {
+            const engine = await getEngine("speedMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_css_needs_s: params.check_css_needs_s,
+              check_css_needs_max_rpm: params.check_css_needs_max_rpm,
+              check_css_near_center: params.check_css_near_center,
+              check_rpm_needs_s: params.check_rpm_needs_s,
+              check_negative_s: params.check_negative_s,
+              check_mixed_in_block: params.check_mixed_in_block,
+              min_diameter: params.min_diameter,
+              coordinate_mode: params.coordinate_mode,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_sm_quick": {
+            const engine = await getEngine("speedMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_sm_defaults": {
+            const engine = await getEngine("speedMode");
             result = engine.defaultOptions();
             break;
           }
