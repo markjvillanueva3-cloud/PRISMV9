@@ -2,6 +2,17 @@
   "hooks": {
     "PreToolUse": [
       {
+        "matcher": "^(Write|Edit|MultiEdit|NotebookEdit|Bash)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node /h/prism/.claude/hooks/h-drive-enforcement.mjs",
+            "timeout": 2000,
+            "continueOnError": false
+          }
+        ]
+      },
+      {
         "matcher": "^(Write|Edit|MultiEdit)$",
         "hooks": [
           {

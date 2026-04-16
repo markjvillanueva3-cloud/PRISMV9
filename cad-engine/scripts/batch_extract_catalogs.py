@@ -168,6 +168,9 @@ def main() -> None:
     total_parts_extracted = 0
     failures: list[tuple[str, str]] = []
 
+    # Re-run mode: skip PDFs whose target JSONs are newer than the PDF's
+    # original processing time. Here we simply re-run everything — merge
+    # logic dedupes so nothing is lost.
     for pdf in pdfs:
         filename = pdf.name
         vendor = VENDOR_MAP.get(filename, "unknown")
@@ -200,7 +203,7 @@ def main() -> None:
                 )
                 total_added += added
                 if added > 0:
-                    print(f"  + {added:>5} → {target.name} (total {len(merged)})")
+                    print(f"  + {added:>5} -> {target.name} (total {len(merged)})")
 
         except Exception as e:
             print(f"  FAILED: {type(e).__name__}: {e}")
