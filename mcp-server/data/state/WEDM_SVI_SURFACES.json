@@ -6,7 +6,7 @@
     "wedm-engines": {
       "type": "engine-count",
       "target": 51,
-      "current": 51,
+      "current": 71,
       "psi_weight": 0.15,
       "path_pattern": "src/engines/(WEDM*|Wedm*|EDM*|WireEDM*).ts",
       "description": "WEDM engine count and completeness"
@@ -15,7 +15,7 @@
       "type": "action-coverage",
       "target": 256,
       "current": 256,
-      "psi_weight": 0.10,
+      "psi_weight": 0.1,
       "path_pattern": "src/tools/dispatchers/*Dispatcher.ts",
       "filter": "wedm_*",
       "description": "WEDM action coverage in dispatchers"
@@ -24,7 +24,7 @@
       "type": "skill-completeness",
       "target": 12,
       "current": 12,
-      "psi_weight": 0.10,
+      "psi_weight": 0.1,
       "path_pattern": "~/.claude/commands/wedm-*.md",
       "description": "WEDM skill availability"
     },
@@ -47,7 +47,7 @@
     "wedm-state-files": {
       "type": "state-completeness",
       "target": 15,
-      "current": 15,
+      "current": 27,
       "psi_weight": 0.07,
       "path_pattern": "data/state/WEDM_*.json",
       "description": "WEDM state file infrastructure"
@@ -94,15 +94,15 @@
       "type": "test-coverage",
       "target": 60,
       "current": 15,
-      "psi_weight": 0.10,
+      "psi_weight": 0.1,
       "description": "WEDM test suite coverage"
     }
   },
   "psi": {
     "current": 0.875,
-    "target": 1.0,
+    "target": 1,
     "description": "Psi = weighted sum of (current/target) per surface",
-    "lastCalculated": "2026-04-16T15:35:00.000Z"
+    "lastCalculated": "2026-04-16T15:34:20.298Z"
   },
   "milestoneGate": {
     "minPsiDelta": 0.005,
