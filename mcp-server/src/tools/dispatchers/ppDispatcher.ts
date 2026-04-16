@@ -293,6 +293,9 @@ let _ppOperatorStop: any;
 // PP-HDR: Program header/metadata validator
 let _ppProgramHeader: any;
 
+// PP-OMR: O-number range/format validator
+let _ppONumberRange: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -522,6 +525,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppOperatorStop ??= (await import("../../engines/PPOperatorStopValidatorEngine.js")).ppOperatorStopValidatorEngine;
     case "programHeader":
       return _ppProgramHeader ??= (await import("../../engines/PPProgramHeaderValidatorEngine.js")).ppProgramHeaderValidatorEngine;
+    case "oNumberRange":
+      return _ppONumberRange ??= (await import("../../engines/PPONumberRangeValidatorEngine.js")).ppONumberRangeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -983,6 +988,9 @@ const ACTIONS = [
   "pp_hdr_validate",               // Program header/metadata validation
   "pp_hdr_quick",                  // Quick pass/fail + header metrics
   "pp_hdr_defaults",               // Default program header options
+  "pp_omr_validate",               // O-number range/format validation
+  "pp_omr_quick",                  // Quick pass/fail + O-number summary
+  "pp_omr_defaults",               // Default O-number range options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3254,6 +3262,39 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_hdr_defaults": {
             const engine = await getEngine("programHeader");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_OMR (PP-OMR — O-number range/format validator) =====
+          case "pp_omr_validate": {
+            const engine = await getEngine("oNumberRange");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_zero: params.check_zero,
+              check_too_large: params.check_too_large,
+              check_main_range: params.check_main_range,
+              check_sub_range: params.check_sub_range,
+              check_reserved_macro_range: params.check_reserved_macro_range,
+              check_leading_zero_consistency: params.check_leading_zero_consistency,
+              check_format: params.check_format,
+              max_o: params.max_o,
+              main_range: params.main_range,
+              sub_range: params.sub_range,
+              reserved_macro_range: params.reserved_macro_range,
+              macro_tag_pattern: params.macro_tag_pattern,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_omr_quick": {
+            const engine = await getEngine("oNumberRange");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_omr_defaults": {
+            const engine = await getEngine("oNumberRange");
             result = engine.defaultOptions();
             break;
           }
