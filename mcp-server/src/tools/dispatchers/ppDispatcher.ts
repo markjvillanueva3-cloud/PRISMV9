@@ -86,6 +86,9 @@ let _ppMachineVectorEncoder: any;
 // PP-AGI-MS3: Material Property Vector
 let _ppMaterialVector: any;
 
+// PP-AGI-MS7: Multi-Modal Fusion
+let _ppFusion: any;
+
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "pp":
@@ -164,6 +167,10 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS3: Material Property Vector
     case "materialVector":
       return _ppMaterialVector ??= (await import("../../engines/PPMaterialPropertyVectorEngine.js")).ppMaterialPropertyVectorEngine;
+
+    // PP-AGI-MS7: Multi-Modal Fusion
+    case "multiModalFusion":
+      return _ppFusion ??= (await import("../../engines/PPMultiModalFusionEngine.js")).ppMultiModalFusionEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -304,6 +311,11 @@ const ACTIONS = [
   "pp_material_embed_all",         // Embed all materials in database
   "pp_material_compare",           // Compare two materials (substitution safety)
   "pp_material_nearest",           // Find k-nearest materials
+
+  // ===== PP_FUSION: Multi-modal fusion (3 actions) — PP-AGI-MS7 =====
+  "pp_fusion_fuse",                // Fuse controller+machine+material to 120-dim
+  "pp_fusion_search",              // Search similar known scenarios
+  "pp_fusion_analyze_gaps",        // Analyze cross-modal gaps and mismatches
 
   // ===== PP_WIRING: Asset wiring (9 actions) — PP-WIRE-MS5-7 =====
   "pp_wiring_algorithms",        // List algorithms with wiring status
@@ -858,6 +870,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_machine_nearest": {
             const engine = await getEngine("machineVectorEncoder");
             result = engine.findNearest(params.machineId ?? params.machine_id, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_FUSION: Multi-modal fusion (PP-AGI-MS7) =====
+          case "pp_fusion_fuse": {
+            const engine = await getEngine("multiModalFusion");
+            result = engine.fuse({ controller_id: params.controllerId ?? params.controller_id, machine_id: params.machineId ?? params.machine_id, material_id: params.materialId ?? params.material_id });
+            break;
+          }
+          case "pp_fusion_search": {
+            const engine = await getEngine("multiModalFusion");
+            result = engine.searchSimilar({ controller_id: params.controllerId ?? params.controller_id, machine_id: params.machineId ?? params.machine_id, material_id: params.materialId ?? params.material_id }, params.k ?? 5);
+            break;
+          }
+          case "pp_fusion_analyze_gaps": {
+            const engine = await getEngine("multiModalFusion");
+            result = engine.analyzeGaps({ controller_id: params.controllerId ?? params.controller_id, machine_id: params.machineId ?? params.machine_id, material_id: params.materialId ?? params.material_id });
             break;
           }
 
