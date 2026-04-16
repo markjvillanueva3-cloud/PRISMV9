@@ -311,6 +311,9 @@ let _ppZeroMotion: any;
 // PP-CMC: Commented-out-code validator
 let _ppCommentedCode: any;
 
+// PP-SIZE: Program size/complexity validator
+let _ppProgramSize: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -552,6 +555,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppZeroMotion ??= (await import("../../engines/PPZeroMotionValidatorEngine.js")).ppZeroMotionValidatorEngine;
     case "commentedCode":
       return _ppCommentedCode ??= (await import("../../engines/PPCommentedCodeValidatorEngine.js")).ppCommentedCodeValidatorEngine;
+    case "programSize":
+      return _ppProgramSize ??= (await import("../../engines/PPProgramSizeValidatorEngine.js")).ppProgramSizeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1031,6 +1036,9 @@ const ACTIONS = [
   "pp_cmc_validate",               // Commented-out-code detection
   "pp_cmc_quick",                  // Quick pass/fail + suspicious comment count
   "pp_cmc_defaults",               // Default commented-code options
+  "pp_size_validate",              // Program size & complexity thresholds
+  "pp_size_quick",                 // Quick pass/fail + block/tool/kb stats
+  "pp_size_defaults",              // Default program-size options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3485,6 +3493,43 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_cmc_defaults": {
             const engine = await getEngine("commentedCode");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_SIZE (PP-SIZE — Program size & complexity) =====
+          case "pp_size_validate": {
+            const engine = await getEngine("programSize");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_block_count: params.check_block_count,
+              check_tool_count: params.check_tool_count,
+              check_tool_changes: params.check_tool_changes,
+              check_file_size: params.check_file_size,
+              check_subprogram_depth: params.check_subprogram_depth,
+              check_comment_density: params.check_comment_density,
+              check_macro_vars: params.check_macro_vars,
+              check_minimum_size: params.check_minimum_size,
+              max_blocks: params.max_blocks,
+              max_tools: params.max_tools,
+              max_tool_changes: params.max_tool_changes,
+              max_file_kb: params.max_file_kb,
+              max_subprogram_depth: params.max_subprogram_depth,
+              max_comment_ratio: params.max_comment_ratio,
+              max_macro_vars: params.max_macro_vars,
+              min_blocks: params.min_blocks,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_size_quick": {
+            const engine = await getEngine("programSize");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_size_defaults": {
+            const engine = await getEngine("programSize");
             result = engine.defaultOptions();
             break;
           }
