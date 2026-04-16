@@ -117,6 +117,36 @@ const KNOWN_RESOURCE_FOLDERS: Array<{
   { path: "1- Basic Training Day 1", name: "Training Day 1", type: "pdf", status: "not_started", priority: "low" },
   { path: "2- Basic Training Day 2", name: "Training Day 2", type: "pdf", status: "not_started", priority: "low" },
   { path: "3- Basic Training Day 3", name: "Training Day 3", type: "pdf", status: "not_started", priority: "low" },
+
+  // U-AWR17 expansion — previously-dark folders surfaced by 5-agent scrutiny
+  // CAD / Solid Modeling (53% of resources were unknown to ResourceIndex)
+  { path: "SOLIDWORKS", name: "SOLIDWORKS Files (14k+)", type: "cad", status: "not_started", priority: "high" },
+  { path: "RESOURCE PDFS", name: "Resource PDFs (3k+)", type: "pdf", status: "not_started", priority: "high" },
+  { path: "HSMWorks 2026", name: "HSMWorks 2026 Library", type: "program", status: "not_started", priority: "medium" },
+  { path: "Virtual_Machining_Center", name: "Virtual Machining Center", type: "model", status: "not_started", priority: "medium" },
+  { path: "WORKHOLDING AND FIXTURE CATALOGS", name: "Workholding Catalogs", type: "catalog", status: "not_started", priority: "medium" },
+  { path: "SOLIDCAM", name: "SolidCAM Resources", type: "program", status: "not_started", priority: "medium" },
+  { path: "TOOL_HOLDER_CAD_FILES", name: "Tool Holder CAD", type: "cad", status: "not_started", priority: "medium" },
+  { path: "excel_extract", name: "Excel Extractions", type: "catalog", status: "not_started", priority: "medium" },
+  { path: "STEP FILES", name: "STEP CAD Files", type: "cad", status: "not_started", priority: "low" },
+  { path: "IGES", name: "IGES CAD Files", type: "cad", status: "not_started", priority: "low" },
+
+  // Manufacturer references
+  { path: "SANDVIK", name: "Sandvik Materials", type: "catalog", status: "partial", priority: "medium" },
+  { path: "KENNAMETAL", name: "Kennametal Materials", type: "catalog", status: "partial", priority: "medium" },
+  { path: "ISCAR", name: "Iscar Materials", type: "catalog", status: "partial", priority: "medium" },
+  { path: "SECO", name: "Seco Materials", type: "catalog", status: "not_started", priority: "low" },
+  { path: "MITSUBISHI MATERIALS", name: "Mitsubishi Materials", type: "catalog", status: "not_started", priority: "low" },
+  { path: "GUHRING", name: "Guhring Catalog", type: "catalog", status: "partial", priority: "low" },
+  { path: "OSG", name: "OSG Catalog", type: "catalog", status: "not_started", priority: "low" },
+
+  // Program archives
+  { path: "NC PROGRAMS ARCHIVE", name: "NC Programs Archive", type: "program", status: "not_started", priority: "low" },
+  { path: "MACRO LIBRARY", name: "Macro Library", type: "program", status: "not_started", priority: "low" },
+
+  // Simulation / Training
+  { path: "CNC SIMULATOR", name: "CNC Simulator Assets", type: "model", status: "not_started", priority: "low" },
+  { path: "VIDEOS", name: "Training Videos", type: "video", status: "partial", priority: "medium" },
 ];
 
 // JM DIE program folders — expanded per U-AWR18 (8 → 16) to cover previously
