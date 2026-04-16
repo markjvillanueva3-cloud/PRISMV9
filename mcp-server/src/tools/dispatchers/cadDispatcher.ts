@@ -40,7 +40,7 @@ async function getEngine(name: string): Promise<any> {
   }
 }
 
-const ACTIONS = [
+export const ACTIONS = [
   "geometry_create", "geometry_transform", "geometry_analyze",
   "mesh_generate", "mesh_import", "mesh_export",
   "feature_recognize", "feature_edit",
@@ -69,6 +69,9 @@ const ACTIONS = [
   "f360_live_new_doc", "f360_live_execute_raw",
   // PIPE-MS2: PrintToGeometryEngine (previously orphaned)
   "blueprint_to_3d_model", "blueprint_to_cadquery_script",
+  // U-AWR19: CAD extraction pipeline — wire StepImportEngine + CadFileIndexEngine
+  "cad_extract_step", "cad_extract_features", "cad_extract_brep",
+  "cad_wall_thickness", "cad_index_directory",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -529,6 +532,40 @@ Params vary by action — pass relevant fields in params object.`,
             result = printToGeometryEngine.convert(params as any);
             break;
           }
+
+          // ═════════════════════════════════════════════════════════════════
+          // U-AWR19 — CAD extraction pipeline (StepImport + CadFileIndex)
+          // ═════════════════════════════════════════════════════════════════
+          case "cad_extract_step": {
+            const { stepImportEngine } = await import("../../engines/StepImportEngine.js");
+            result = await stepImportEngine.importStep({ file_path: params.file_path as string });
+            break;
+          }
+          case "cad_extract_features": {
+            const { stepImportEngine } = await import("../../engines/StepImportEngine.js");
+            result = await stepImportEngine.extractFeatures({ file_path: params.file_path as string });
+            break;
+          }
+          case "cad_extract_brep": {
+            const { stepImportEngine } = await import("../../engines/StepImportEngine.js");
+            result = await stepImportEngine.toBRepSummary({ file_path: params.file_path as string });
+            break;
+          }
+          case "cad_wall_thickness": {
+            const { stepImportEngine } = await import("../../engines/StepImportEngine.js");
+            result = await stepImportEngine.getWallThickness({
+              file_path: params.file_path as string,
+              ray_count: params.ray_count as number | undefined,
+            });
+            break;
+          }
+          case "cad_index_directory": {
+            const { cadFileIndexEngine } = await import("../../engines/CadFileIndexEngine.js");
+            const rootPaths = Array.isArray(params.root_paths) ? params.root_paths as string[] : [];
+            result = cadFileIndexEngine.index(rootPaths);
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
