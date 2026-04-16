@@ -227,6 +227,9 @@ let _ppRapidMove: any;
 // PP-MV: Macro variable (#n) validator
 let _ppMacroVariable: any;
 
+// PP-AT: Axis travel (envelope) validator
+let _ppAxisTravel: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -412,6 +415,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppRapidMove ??= (await import("../../engines/PPRapidMoveValidatorEngine.js")).ppRapidMoveValidatorEngine;
     case "macroVariable":
       return _ppMacroVariable ??= (await import("../../engines/PPMacroVariableValidatorEngine.js")).ppMacroVariableValidatorEngine;
+    case "axisTravel":
+      return _ppAxisTravel ??= (await import("../../engines/PPAxisTravelValidatorEngine.js")).ppAxisTravelValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -775,6 +780,11 @@ const ACTIONS = [
   "pp_mv_validate",                // Full macro variable validation
   "pp_mv_quick",                   // Quick pass/fail + var count
   "pp_mv_defaults",                // Default macro variable validator options
+
+  // PP-AT: Axis travel (envelope) validator
+  "pp_at_validate",                // Full axis travel validation
+  "pp_at_quick",                   // Quick pass/fail + motion lines
+  "pp_at_defaults",                // Default axis travel validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2416,6 +2426,32 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_mv_defaults": {
             const engine = await getEngine("macroVariable");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_AT (PP-AT — Axis travel envelope validator) =====
+          case "pp_at_validate": {
+            const engine = await getEngine("axisTravel");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              envelope: params.envelope,
+              offsets: params.offsets,
+              default_offset: params.default_offset,
+              margin: params.margin,
+              check_margin: params.check_margin,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_at_quick": {
+            const engine = await getEngine("axisTravel");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode, { envelope: params.envelope, offsets: params.offsets });
+            break;
+          }
+          case "pp_at_defaults": {
+            const engine = await getEngine("axisTravel");
             result = engine.defaultOptions();
             break;
           }
