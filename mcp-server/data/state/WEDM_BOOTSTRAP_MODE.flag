@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "active": true,
+  "createdAt": "2026-04-16T15:40:00.000Z",
+  "description": "WEDM bootstrap mode flag — signals stack can boot from zero state",
+  "phase": "Phase 0 complete (0.1-0.11, 0.17)",
+  "psi": 0.875,
+  "bootOrder": [
+    "WEDM_SVI_SURFACES.json",
+    "WEDM_MACHINE_STATE.json",
+    "WEDM_DIGITAL_TWIN.json",
+    "WEDM_CAUSAL_GRAPH.json",
+    "WEDM_MATERIAL_INDEX.json",
+    "WEDM_CONTROLLER_INDEX.json",
+    "WEDM_PROGRAM_INDEX.json",
+    "WEDM_PARAMETER_CORPUS.json",
+    "WEDM_CUSTOMER_PATTERN_INDEX.json",
+    "WEDM_FORMULA_PROVENANCE_INDEX.json",
+    "WEDM_MIT_OCW_INTEGRATION.json",
+    "WEDM_MIT_TIPS.json"
+  ],
+  "budgetMs": 500,
+  "resolvesParadox": "Allows WEDM stack to initialize from zero without requiring prior session state"
+}
