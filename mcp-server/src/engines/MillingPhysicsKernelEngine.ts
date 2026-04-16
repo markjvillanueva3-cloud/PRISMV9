@@ -93,6 +93,22 @@ import { fundamentalPhysicsCompletionEngine } from "./FundamentalPhysicsCompleti
 import { drillBreakthroughForceEngine } from "./DrillBreakthroughForceEngine.js";
 import { cutterContactEngine } from "./CutterContactEngine.js";
 
+// Thermal engines (7 more) — MS-WIRE-1/U-WIRE-02 (extends existing 4)
+import { cuttingThermalEngine } from "./CuttingThermalEngine.js";
+import { thermalModelingEngine } from "./ThermalModelingEngine.js";
+import { thermalExpansionEngine } from "./ThermalExpansionEngine.js";
+import { lamThermalSofteningEngine } from "./LAMThermalSofteningEngine.js";
+import { thermalFieldToolpathEngine } from "./ThermalFieldToolpathEngine.js";
+import { thermalCompensationModelEngine } from "./ThermalCompensationModelEngine.js";
+import { thermalSimEngine } from "./ThermalSimEngine.js";
+
+// Surface engines (5 more) — MS-WIRE-1/U-WIRE-06 (extends existing 2)
+import { surfaceFinishEngine } from "./SurfaceFinishEngine.js";
+import { surfaceRoughnessEngine } from "./SurfaceRoughnessEngine.js";
+import { stochasticSurfaceFinishEngine } from "./StochasticSurfaceFinishEngine.js";
+import { surfaceIntegrityPredictorEngine } from "./SurfaceIntegrityPredictorEngine.js";
+import { roughnessConversionEngine } from "./RoughnessConversionEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1322,6 +1338,142 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // ADDITIONAL THERMAL ENGINES — MS-WIRE-1 / U-WIRE-02 extension (7 more)
+  // =========================================================================
+
+  /**
+   * Detailed cutting thermal analysis (shear plane, tool-chip interface, heat partition).
+   * Delegates to: CuttingThermalEngine.
+   */
+  analyzeCuttingThermal(method: "shearPlane" | "toolChipInterface" | "heatPartition", input: any) {
+    switch (method) {
+      case "shearPlane":        return cuttingThermalEngine.shearPlaneTemperature(input);
+      case "toolChipInterface": return cuttingThermalEngine.toolChipInterfaceTemp(input);
+      case "heatPartition":     return cuttingThermalEngine.heatPartition(input);
+    }
+  }
+
+  /**
+   * Analytical thermal models (Loewen-Shaw, Trigger, thermal expansion).
+   * Delegates to: ThermalModelingEngine.
+   */
+  analyzeThermalModel(method: "loewenShaw" | "trigger" | "expansion", input: any) {
+    switch (method) {
+      case "loewenShaw": return thermalModelingEngine.loewenShawTemperature(input);
+      case "trigger":    return thermalModelingEngine.triggerTemperature(input);
+      case "expansion":  return thermalModelingEngine.thermalExpansion(input);
+    }
+  }
+
+  /**
+   * Thermal expansion calculations (linear, machine tool, compensation).
+   * Delegates to: ThermalExpansionEngine.
+   */
+  analyzeThermalExpansion(method: "linear" | "machineError" | "compensation" | "getCTE", input: any) {
+    switch (method) {
+      case "linear":       return thermalExpansionEngine.linearExpansion(
+                                    input.originalLength, input.temperatureChange, input.material, input.CTE);
+      case "machineError": return thermalExpansionEngine.machineToolThermalError(input.geometry, input.temps);
+      case "compensation": return thermalExpansionEngine.thermalCompensation(
+                                    input.geometry, input.temps, input.targetTemp);
+      case "getCTE":       return thermalExpansionEngine.getCTE(input);
+    }
+  }
+
+  /**
+   * Laser-assisted machining thermal softening (preheat profile, force reduction,
+   * tool life, optimal spacing, process window).
+   * Delegates to: LAMThermalSofteningEngine.
+   */
+  analyzeLAMThermal(method: "preheat" | "forceReduction" | "toolLife" | "spacing" | "processWindow",
+                    input: any) {
+    switch (method) {
+      case "preheat":         return lamThermalSofteningEngine.preheatProfile(input);
+      case "forceReduction":  return lamThermalSofteningEngine.forceReduction(input);
+      case "toolLife":        return lamThermalSofteningEngine.lamToolLife(input);
+      case "spacing":         return lamThermalSofteningEngine.optimalSpacing(input);
+      case "processWindow":   return lamThermalSofteningEngine.processWindow(input);
+    }
+  }
+
+  /**
+   * Thermal field along toolpath (grid-based time-stepped thermal sim).
+   * Delegates to: ThermalFieldToolpathEngine.
+   */
+  analyzeThermalField(method: "initialize" | "applyHeat" | "step" | "coolZones" | "route", input: any) {
+    switch (method) {
+      case "initialize":  return thermalFieldToolpathEngine.initializeGrid(
+                                  input.width_mm, input.height_mm, input.resolution);
+      case "applyHeat":   return thermalFieldToolpathEngine.applyHeatSource(
+                                  input.grid, input.x_mm, input.y_mm, input.heat_W, input.duration_s);
+      case "step":        return thermalFieldToolpathEngine.stepTimeForward(
+                                  input.grid, input.dt_s, input.convection_coef);
+      case "coolZones":   return thermalFieldToolpathEngine.findCoolZones(input.grid, input.threshold_C);
+      case "route":       return thermalFieldToolpathEngine.routeToolpath(input);
+    }
+  }
+
+  /**
+   * Thermal compensation model — predict error based on machine state.
+   * Delegates to: ThermalCompensationModelEngine.compute().
+   */
+  computeThermalCompensation(input: Parameters<typeof thermalCompensationModelEngine.compute>[0]) {
+    return thermalCompensationModelEngine.compute(input);
+  }
+
+  /**
+   * Thermal sim — general thermal prediction (duration, temperature profile).
+   * Delegates to: ThermalSimEngine.predict().
+   */
+  predictThermal(input: Parameters<typeof thermalSimEngine.predict>[0]) {
+    return thermalSimEngine.predict(input);
+  }
+
+  // =========================================================================
+  // ADDITIONAL SURFACE ENGINES — MS-WIRE-1 / U-WIRE-06 extension (5 more)
+  // =========================================================================
+
+  /**
+   * General surface finish prediction (Brammertz-style Ra with machining).
+   * Delegates to: SurfaceFinishEngine.predict().
+   */
+  predictSurfaceFinish2(input: Parameters<typeof surfaceFinishEngine.predict>[0]) {
+    return surfaceFinishEngine.predict(input);
+  }
+
+  /**
+   * Surface roughness calculation (Ra/Rz/Rq from machining parameters).
+   * Delegates to: SurfaceRoughnessEngine.calculate().
+   */
+  calculateSurfaceRoughness2(input: Parameters<typeof surfaceRoughnessEngine.calculate>[0]) {
+    return surfaceRoughnessEngine.calculate(input);
+  }
+
+  /**
+   * Stochastic surface finish — Monte Carlo Ra with uncertainty propagation.
+   * Delegates to: StochasticSurfaceFinishEngine.compute().
+   */
+  calculateStochasticSurfaceFinish(input: Parameters<typeof stochasticSurfaceFinishEngine.compute>[0]) {
+    return stochasticSurfaceFinishEngine.compute(input);
+  }
+
+  /**
+   * Surface integrity prediction — AtomicValue wrapped detailed integrity analysis.
+   * Delegates to: SurfaceIntegrityPredictorEngine.compute().
+   */
+  predictSurfaceIntegrity(input: Parameters<typeof surfaceIntegrityPredictorEngine.compute>[0]) {
+    return surfaceIntegrityPredictorEngine.compute(input);
+  }
+
+  /**
+   * Surface roughness conversion (Ra ↔ Rz ↔ Rq ↔ Rp ↔ Rv).
+   * Delegates to: RoughnessConversionEngine.
+   */
+  getRoughnessConverter() {
+    return roughnessConversionEngine;
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1390,6 +1542,20 @@ class MillingPhysicsKernelEngine {
       "FundamentalPhysicsCompletionEngine (Archard, Merchant, Hertz, grinding)",
       "DrillBreakthroughForceEngine (exit force/stress spike prediction)",
       "CutterContactEngine (CC/CL 5-axis toolpath geometry)",
+      // Thermal engines (MS-WIRE-1/U-WIRE-02 extension)
+      "CuttingThermalEngine (shear plane, tool-chip interface, heat partition)",
+      "ThermalModelingEngine (Loewen-Shaw, Trigger, thermal expansion)",
+      "ThermalExpansionEngine (linear, machine tool error, compensation)",
+      "LAMThermalSofteningEngine (laser-assisted preheat, force reduction, process window)",
+      "ThermalFieldToolpathEngine (grid-based time-stepped thermal sim)",
+      "ThermalCompensationModelEngine (machine-state-based error prediction)",
+      "ThermalSimEngine (general thermal prediction)",
+      // Surface engines (MS-WIRE-1/U-WIRE-06 extension)
+      "SurfaceFinishEngine (general Brammertz Ra prediction)",
+      "SurfaceRoughnessEngine (Ra/Rz/Rq from params)",
+      "StochasticSurfaceFinishEngine (Monte Carlo Ra with uncertainty)",
+      "SurfaceIntegrityPredictorEngine (AtomicValue wrapped integrity)",
+      "RoughnessConversionEngine (Ra/Rz/Rq/Rp/Rv conversions)",
     ];
   }
 
@@ -1400,7 +1566,9 @@ class MillingPhysicsKernelEngine {
     return {
       core_physics: 5,      // constants.ts functions
       chip_formation: 1,    // ChipFormationPredictionEngine
-      thermal: 4,           // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal
+      thermal: 11,          // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal + 7 new
+                            // (CuttingThermal, ThermalModeling, ThermalExpansion, LAM, ThermalField,
+                            //  ThermalCompensation, ThermalSim)
       force: 11,            // Kienzle, CuttingForce, Stochastic, Power, Energy + 6 new
                             // (Mechanics, AdvancedPhysics, AdvancedExt, Fundamental, Drill, CutterContact)
       math: 1,              // AdvancedCuttingMath
@@ -1408,11 +1576,13 @@ class MillingPhysicsKernelEngine {
                             // Timoshenko, ToolAssembly, WorkpieceCompensation, SurfaceLocationError)
       stability: 10,        // ChatterStabilityLobe + 9 new (Chatter, Regenerative, Stochastic,
                             // MDOF, RPMRewriter, Vibration, Damping, MachineVibration, ThinFloor)
-      surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
+      surface: 7,           // SurfaceFinishPredictor, SurfaceIntegrity + 5 new
+                            // (SurfaceFinish, SurfaceRoughness, StochasticSurfaceFinish,
+                            //  SurfaceIntegrityPredictor, RoughnessConversion)
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
-      total_engines: 47,
-      total_functions: 56,
+      total_engines: 59,
+      total_functions: 68,
     };
   }
 }
