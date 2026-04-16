@@ -6336,3 +6336,52 @@ export {
   type FamilyPlanningResult,
   type MacroROIResult,
 } from './LathePartFamilyPlanningEngine.js';
+
+// --- LATHE-PRO gap-fill engines ---
+export {
+  expandingMandrelEngine,
+  type MandrelSpec,
+  type PartSpec as MandrelPartSpec,
+  type MandrelAnalysisInput,
+  type MandrelAnalysisResult,
+} from './ExpandingMandrelEngine.js';
+
+export {
+  faceDriverTorqueEngine,
+  type FaceDriverSpec,
+  type PartMaterialSpec,
+  type TorqueAnalysisResult,
+} from './FaceDriverTorqueEngine.js';
+
+export {
+  syncCodeVerificationEngine,
+  type SyncDialect,
+  type ChannelProgram,
+  type SyncPoint,
+  type SyncIssue,
+  type VerificationResult as SyncVerificationResult,
+} from './SyncCodeVerificationEngine.js';
+
+export {
+  trilobeDeformationEngine,
+  type TrilobeInput,
+  type TrilobeResult,
+} from './TrilobeDeformationEngine.js';
+
+export {
+  turningRulesGeneratorEngine,
+  type RuleKind,
+  type MachiningRule,
+  type RuleGenerationContext,
+  type RuleSet,
+} from './TurningRulesGeneratorEngine.js';
+
+export {
+  stockFeedCycleEngine,
+  type StockSpec,
+  type PartFeedSpec,
+  type FeedCycleState,
+  type StockEvent,
+  type StockEventKind,
+  type FeedValidation,
+} from './StockFeedCycleEngine.js';

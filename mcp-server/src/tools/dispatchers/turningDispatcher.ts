@@ -108,6 +108,15 @@ const ACTIONS = [
   // MS12: Part Family Planning (U-LAT85, U-LAT86)
   "lathe_family_planning",
   "lathe_macro_roi",
+  // LATHE-PRO gap-fill: workholding + sync + rules + stock feed
+  "lathe_mandrel_analyze",
+  "lathe_face_driver_torque",
+  "lathe_sync_verify",
+  "lathe_trilobe_deformation",
+  "lathe_rules_generate",
+  "lathe_stock_feed_validate",
+  "lathe_stock_feed_advance",
+  "lathe_stock_feed_yield",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1322,6 +1331,99 @@ Actions: ${ACTIONS.join(", ")}.`,
               variable_dimensions: params.variable_dimensions,
             };
             result = lathePartFamilyPlanningEngine.analyzeFamilyPotential(partSpec, customer);
+            break;
+          }
+
+          // LATHE-PRO: Expanding mandrel grip + torque analysis
+          case "lathe_mandrel_analyze": {
+            const { expandingMandrelEngine } = await import("../../engines/ExpandingMandrelEngine.js");
+            result = expandingMandrelEngine.analyze({
+              mandrel: params.mandrel,
+              part: params.part,
+              actuator_force_n: params.actuator_force_n ?? 5000,
+              rpm: params.rpm ?? 2000,
+              mu: params.mu,
+              cutting_force_n: params.cutting_force_n,
+            });
+            break;
+          }
+
+          // LATHE-PRO: Face driver pin-drive torque capacity
+          case "lathe_face_driver_torque": {
+            const { faceDriverTorqueEngine } = await import("../../engines/FaceDriverTorqueEngine.js");
+            result = faceDriverTorqueEngine.analyze(
+              params.driver,
+              params.part_material,
+              params.required_torque_nm
+            );
+            break;
+          }
+
+          // LATHE-PRO: Multi-channel sync-code verification
+          case "lathe_sync_verify": {
+            const { syncCodeVerificationEngine } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = syncCodeVerificationEngine.verify(
+              params.programs ?? [],
+              params.dialect ?? "okuma"
+            );
+            break;
+          }
+
+          // LATHE-PRO: 3-jaw chuck trilobe deformation
+          case "lathe_trilobe_deformation": {
+            const { trilobeDeformationEngine } = await import("../../engines/TrilobeDeformationEngine.js");
+            result = trilobeDeformationEngine.analyze({
+              bore_radius_mm: params.bore_radius_mm ?? 50,
+              wall_thickness_mm: params.wall_thickness_mm ?? 5,
+              grip_length_mm: params.grip_length_mm ?? 40,
+              total_clamp_force_n: params.total_clamp_force_n ?? 10000,
+              jaw_count: params.jaw_count ?? 3,
+              part_youngs_mpa: params.part_youngs_mpa,
+              finish_tolerance_mm: params.finish_tolerance_mm,
+            });
+            break;
+          }
+
+          // LATHE-PRO: Generate machining rule envelopes
+          case "lathe_rules_generate": {
+            const { turningRulesGeneratorEngine } = await import("../../engines/TurningRulesGeneratorEngine.js");
+            result = turningRulesGeneratorEngine.generate({
+              material: params.material ?? "4140",
+              iso_group: params.iso_group,
+              operation: params.operation,
+              tool_type: params.tool_type,
+              machine_class: params.machine_class,
+            });
+            break;
+          }
+
+          // LATHE-PRO: Stock feed cycle validation
+          case "lathe_stock_feed_validate": {
+            const { stockFeedCycleEngine } = await import("../../engines/StockFeedCycleEngine.js");
+            const state = stockFeedCycleEngine.createState(params.bar, params.part);
+            if (typeof params.remaining_bar_mm === "number") {
+              state.remaining_bar_mm = params.remaining_bar_mm;
+            }
+            result = {
+              validation: stockFeedCycleEngine.validateFeed(state),
+              state,
+            };
+            break;
+          }
+
+          // LATHE-PRO: Advance one stock feed cycle
+          case "lathe_stock_feed_advance": {
+            const { stockFeedCycleEngine } = await import("../../engines/StockFeedCycleEngine.js");
+            const state = params.state ?? stockFeedCycleEngine.createState(params.bar, params.part);
+            const event = stockFeedCycleEngine.advanceCycle(state);
+            result = { event, state };
+            break;
+          }
+
+          // LATHE-PRO: Stock yield report
+          case "lathe_stock_feed_yield": {
+            const { stockFeedCycleEngine } = await import("../../engines/StockFeedCycleEngine.js");
+            result = stockFeedCycleEngine.getYield(params.bar, params.part);
             break;
           }
 
