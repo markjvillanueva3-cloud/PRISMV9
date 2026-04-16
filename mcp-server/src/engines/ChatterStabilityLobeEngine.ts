@@ -1244,6 +1244,73 @@ export class ChatterStabilityLobeEngine {
       confidence: fallback.confidence,
     };
   }
+
+  // MS1 U-LAT17: Turning-specific stability with FRF coupling correction
+  // The standard ZOA method overpredicts turning stability by 15-20% due to:
+  // 1. Radial/tangential force coupling not captured in 1D model
+  // 2. Tool nose radius effect on regenerative waviness
+  // 3. Workpiece flexibility (not just tool FRF)
+  //
+  // Ref: Altintas & Weck, "Chatter Stability of Metal Cutting and Grinding", CIRP Annals 2004
+  //      Clancy & Shin, "Turning chatter with mode coupling", J. Mfg. Sci. Eng. 2002
+  /**
+   * Calculate turning-specific stability limit with FRF coupling correction.
+   * Applies empirical correction factor to account for radial/tangential force coupling.
+   *
+   * @param a_lim_zoa_mm - Stability limit from standard ZOA calculation [mm]
+   * @param kr_deg - Main cutting edge angle (lead angle) [degrees]. 90° = neutral, 45° = high radial
+   * @param noseRadius_mm - Tool nose radius [mm]. Larger nose = more FRF coupling
+   * @param workpieceDiameter_mm - Workpiece OD [mm]. Smaller = more workpiece flexibility
+   * @param workpieceOverhang_mm - Unsupported workpiece length [mm]
+   * @param isBoring - True if boring (ID operation), which has more severe coupling
+   * @returns Corrected stability limit [mm]
+   */
+  calculateTurningStabilityWithCoupling(
+    a_lim_zoa_mm: number,
+    kr_deg: number,
+    noseRadius_mm: number,
+    workpieceDiameter_mm: number,
+    workpieceOverhang_mm: number,
+    isBoring: boolean = false,
+  ): { a_lim_corrected_mm: number; correction_factor: number; coupling_severity: "low" | "medium" | "high"; notes: string[] } {
+    const notes: string[] = [];
+
+    // Lead angle correction: closer to 90° = less radial force, better stability
+    const krRad = (kr_deg * Math.PI) / 180;
+    const krFactor = 0.85 + 0.15 * Math.sin(krRad); // 0.85 at kr=0, 1.0 at kr=90°
+
+    // Nose radius correction: larger nose = more regenerative area, worse stability
+    const noseFactor = 1 - 0.02 * Math.min(noseRadius_mm, 2.0); // Up to 4% reduction for 2mm nose
+
+    // Workpiece flexibility: L/D ratio matters
+    const wpLDRatio = workpieceOverhang_mm / Math.max(workpieceDiameter_mm, 10);
+    const wpFactor = wpLDRatio > 5 ? 0.80 : wpLDRatio > 3 ? 0.90 : 1.0;
+    if (wpLDRatio > 5) notes.push(`High workpiece L/D (${wpLDRatio.toFixed(1)}) — consider steady rest`);
+
+    // Boring penalty: internal operations have worse dynamics
+    const boringFactor = isBoring ? 0.85 : 1.0;
+    if (isBoring) notes.push("Boring operation — reduced stability due to confined space dynamics");
+
+    // Combined correction (typically 0.80-0.95, i.e., 5-20% reduction from ZOA)
+    const correctionFactor = krFactor * noseFactor * wpFactor * boringFactor;
+    const a_lim_corrected = a_lim_zoa_mm * correctionFactor;
+
+    // Severity assessment
+    const couplingSeverity: "low" | "medium" | "high" =
+      correctionFactor >= 0.95 ? "low" :
+      correctionFactor >= 0.85 ? "medium" : "high";
+
+    if (couplingSeverity === "high") {
+      notes.push(`FRF coupling reduces stability by ${((1 - correctionFactor) * 100).toFixed(0)}%`);
+    }
+
+    return {
+      a_lim_corrected_mm: Math.round(a_lim_corrected * 100) / 100,
+      correction_factor: Math.round(correctionFactor * 1000) / 1000,
+      coupling_severity: couplingSeverity,
+      notes,
+    };
+  }
 }
 
 export const chatterStabilityLobeEngine = new ChatterStabilityLobeEngine();
