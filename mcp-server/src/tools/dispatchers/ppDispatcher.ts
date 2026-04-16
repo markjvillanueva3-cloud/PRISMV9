@@ -221,6 +221,9 @@ let _ppCallGraph: any;
 // PP-DW: G4 dwell command validator
 let _ppDwell: any;
 
+// PP-RM: Rapid-move (G0) validator
+let _ppRapidMove: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -402,6 +405,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCallGraph ??= (await import("../../engines/PPCallGraphValidatorEngine.js")).ppCallGraphValidatorEngine;
     case "dwell":
       return _ppDwell ??= (await import("../../engines/PPDwellValidatorEngine.js")).ppDwellValidatorEngine;
+    case "rapidMove":
+      return _ppRapidMove ??= (await import("../../engines/PPRapidMoveValidatorEngine.js")).ppRapidMoveValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -755,6 +760,11 @@ const ACTIONS = [
   "pp_dw_validate",                // Full dwell validation
   "pp_dw_quick",                   // Quick pass/fail + dwell count
   "pp_dw_defaults",                // Default dwell validator options
+
+  // PP-RM: Rapid-move (G0) validator
+  "pp_rm_validate",                // Full rapid-move validation
+  "pp_rm_quick",                   // Quick pass/fail + rapid count
+  "pp_rm_defaults",                // Default rapid-move validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2341,6 +2351,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_dw_defaults": {
             const engine = await getEngine("dwell");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_RM (PP-RM — Rapid-move validator) =====
+          case "pp_rm_validate": {
+            const engine = await getEngine("rapidMove");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              clearance_z: params.clearance_z,
+              check_below_clearance: params.check_below_clearance,
+              check_xyz_combined: params.check_xyz_combined,
+              check_rapid_with_feed: params.check_rapid_with_feed,
+              check_first_motion: params.check_first_motion,
+              check_rapid_spindle_off: params.check_rapid_spindle_off,
+              check_missing_tool_length: params.check_missing_tool_length,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_rm_quick": {
+            const engine = await getEngine("rapidMove");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_rm_defaults": {
+            const engine = await getEngine("rapidMove");
             result = engine.defaultOptions();
             break;
           }
