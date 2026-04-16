@@ -281,6 +281,9 @@ let _ppSafeStart: any;
 // PP-CHAR: Character/byte-level validator
 let _ppCharacter: any;
 
+// PP-DWR: Duplicate-word-in-block validator
+let _ppDuplicateWord: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -502,6 +505,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppSafeStart ??= (await import("../../engines/PPSafeStartBlockValidatorEngine.js")).ppSafeStartBlockValidatorEngine;
     case "character":
       return _ppCharacter ??= (await import("../../engines/PPCharacterValidatorEngine.js")).ppCharacterValidatorEngine;
+    case "duplicateWord":
+      return _ppDuplicateWord ??= (await import("../../engines/PPDuplicateWordValidatorEngine.js")).ppDuplicateWordValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -951,6 +956,9 @@ const ACTIONS = [
   "pp_char_validate",              // Byte-level char validation
   "pp_char_quick",                 // Quick pass/fail + BOM/non-ASCII count
   "pp_char_defaults",              // Default character validator options
+  "pp_dwr_validate",               // Duplicate-word-in-block validation
+  "pp_dwr_quick",                  // Quick pass/fail + duplicate count
+  "pp_dwr_defaults",               // Default duplicate-word options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3098,6 +3106,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_char_defaults": {
             const engine = await getEngine("character");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_DWR (PP-DWR — Duplicate word in block) =====
+          case "pp_dwr_validate": {
+            const engine = await getEngine("duplicateWord");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_duplicates: params.check_duplicates,
+              check_multiple_g: params.check_multiple_g,
+              check_multiple_m: params.check_multiple_m,
+              monitored_letters: params.monitored_letters,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_dwr_quick": {
+            const engine = await getEngine("duplicateWord");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_dwr_defaults": {
+            const engine = await getEngine("duplicateWord");
             result = engine.defaultOptions();
             break;
           }
