@@ -284,6 +284,9 @@ let _ppCharacter: any;
 // PP-DWR: Duplicate-word-in-block validator
 let _ppDuplicateWord: any;
 
+// PP-EXP: Macro expression syntax validator
+let _ppExpressionSyntax: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -507,6 +510,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCharacter ??= (await import("../../engines/PPCharacterValidatorEngine.js")).ppCharacterValidatorEngine;
     case "duplicateWord":
       return _ppDuplicateWord ??= (await import("../../engines/PPDuplicateWordValidatorEngine.js")).ppDuplicateWordValidatorEngine;
+    case "expressionSyntax":
+      return _ppExpressionSyntax ??= (await import("../../engines/PPExpressionSyntaxValidatorEngine.js")).ppExpressionSyntaxValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -959,6 +964,9 @@ const ACTIONS = [
   "pp_dwr_validate",               // Duplicate-word-in-block validation
   "pp_dwr_quick",                  // Quick pass/fail + duplicate count
   "pp_dwr_defaults",               // Default duplicate-word options
+  "pp_exp_validate",               // Macro expression syntax validation
+  "pp_exp_quick",                  // Quick pass/fail + nesting depth
+  "pp_exp_defaults",               // Default expression validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3131,6 +3139,37 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_dwr_defaults": {
             const engine = await getEngine("duplicateWord");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_EXP (PP-EXP — Macro expression syntax) =====
+          case "pp_exp_validate": {
+            const engine = await getEngine("expressionSyntax");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_bracket_balance: params.check_bracket_balance,
+              check_nesting_depth: params.check_nesting_depth,
+              check_empty_brackets: params.check_empty_brackets,
+              check_operator_boundary: params.check_operator_boundary,
+              check_consecutive_operators: params.check_consecutive_operators,
+              check_unknown_functions: params.check_unknown_functions,
+              check_divide_by_zero: params.check_divide_by_zero,
+              check_bracket_in_comment: params.check_bracket_in_comment,
+              max_nesting_depth: params.max_nesting_depth,
+              known_functions: params.known_functions,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_exp_quick": {
+            const engine = await getEngine("expressionSyntax");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_exp_defaults": {
+            const engine = await getEngine("expressionSyntax");
             result = engine.defaultOptions();
             break;
           }
