@@ -409,6 +409,65 @@ class PostProcessorPipelineEngineImpl {
         const tools = resolveResult?.tools ?? [];
         const holders = resolveResult?.holders ?? [];
         const coolant = resolveResult?.coolant ?? input.coolant;
+        // Stage 0.55: Strategy validation pre-check (CAMX-MS2/U04)
+        // Validates cam strategy against controller capabilities and machine physical limits.
+        // Non-blocking: warnings are emitted but pipeline continues.
+        if (input.stages?.strategy_validation !== false && (input.operations?.length ?? 0) > 0) {
+            await _localRunStageAsync("0.55_strategy_validation", 0, stages, async () => {
+                try {
+                    const firstOp = input.operations![0];
+                    const strategy = (firstOp as any)?.strategy ?? (firstOp as any)?.type;
+                    if (!strategy) return { skipped: true, reason: "no_strategy" };
+                    const controller = machine?.controller ?? input.controller;
+                    const findings: any = { strategy, warnings: [] as string[] };
+                    if (controller) {
+                        const { controllerStrategyValidatorEngine } = await import("./ControllerStrategyValidatorEngine.js");
+                        try {
+                            const ctrlResult = controllerStrategyValidatorEngine.validate(strategy as any, controller as any);
+                            findings.controller_compatible = ctrlResult.compatible;
+                            findings.controller_score = ctrlResult.score;
+                            if (!ctrlResult.compatible && ctrlResult.fallback_suggestion) {
+                                findings.warnings.push(`Controller: ${ctrlResult.fallback_suggestion}`);
+                                warnings.push(`Strategy '${strategy}' incompatible with ${controller}: ${ctrlResult.fallback_suggestion}`);
+                            }
+                        } catch { /* unknown strategy/controller — skip */ }
+                    }
+                    if (machine) {
+                        const { machineStrategyConstraintEngine } = await import("./MachineStrategyConstraintEngine.js");
+                        try {
+                            const mcapMach = {
+                                machine_id: (machine as any).id ?? "unknown",
+                                name: (machine as any).name ?? "unknown",
+                                max_rpm: (machine as any).max_rpm ?? 12000,
+                                spindle_power_kW: (machine as any).spindle_power_kW ?? 15,
+                                acceleration_g: (machine as any).acceleration_g ?? 0.3,
+                                rapid_traverse_mm_min: (machine as any).rapid_traverse_mm_min ?? 15000,
+                                tool_magazine_capacity: (machine as any).tool_magazine_capacity ?? 20,
+                                spindle_taper: (machine as any).spindle_taper ?? "BT40",
+                                work_envelope_mm: (machine as any).work_envelope_mm ?? { x: 500, y: 400, z: 500 },
+                                coolant_pressure_bar: (machine as any).coolant_pressure_bar ?? 20,
+                                axis_count: (machine as any).axes ?? 3,
+                            };
+                            const machResult = machineStrategyConstraintEngine.validate({ strategy, machine: mcapMach as any });
+                            findings.machine_feasible = machResult.feasible;
+                            findings.machine_score = machResult.score;
+                            if (!machResult.feasible) {
+                                for (const rec of machResult.recommendations.slice(0, 2)) {
+                                    findings.warnings.push(`Machine: ${rec}`);
+                                    warnings.push(`Strategy '${strategy}' machine check: ${rec}`);
+                                }
+                            }
+                        } catch { /* unknown strategy — skip */ }
+                    }
+                    return findings;
+                } catch {
+                    return null;
+                }
+            });
+        } else {
+            stages.push({ stage: "0.55_strategy_validation", phase: 0, status: "skipped", duration_ms: 0, summary: "Disabled or no operations", data: null });
+        }
+
         // Stage 0.6: Smart defaults
         _localRunStage("0.6_smart_defaults", 0, stages, () => {
             return this._applySmartDefaults(input, machine, material, tools, blocks, warnings);
@@ -2706,7 +2765,7 @@ class PostProcessorPipelineEngineImpl {
                 const tips = [];
                 const isoGroup = material.iso_group;
                 // Query tribal knowledge engine for material-specific tips
-                const machineIds = machineInfo?.id ? [machineInfo.id] : [];
+                const machineIds = machine?.id ? [machine.id] : [];
                 const materialQuery = tribalKnowledgeEngine.search({
                     category: "speeds_feeds",
                     material_name: material.name,
