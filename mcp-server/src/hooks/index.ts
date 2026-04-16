@@ -60,6 +60,8 @@ import { hyperMillMillTurnHooks } from "./HyperMillMillTurnHooks.js";
 import { hyperMillDataFreshnessHooks } from "./HyperMillDataFreshnessHook.js";
 import { resourceWatcherHooks } from "./ResourceWatcherHook.js";
 import { knowledgeHooks } from "./KnowledgeHooks.js";
+import { wedmSafetyHooks } from "./WEDMSafetyHooks.js";
+import { wedmSVIHooks } from "./WEDMSVIHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -119,6 +121,8 @@ export const allHooks = [
   ...hyperMillDataFreshnessHooks,   // HM-REV-MS8: data freshness warning
   ...resourceWatcherHooks,          // KAR-MS1: Resource file watcher
   ...knowledgeHooks,                // KAR-MS1: Knowledge wiring + validation
+  ...wedmSafetyHooks,               // PP-0.3: 16 WEDM safety hooks
+  ...wedmSVIHooks,                  // PP-0.10: 2 WEDM SVI coupling hooks
 ];
 
 /**
@@ -146,6 +150,8 @@ export const hookCounts = {
   hyperMillDataFreshness: hyperMillDataFreshnessHooks.length, // HM-REV-MS8
   resourceWatcher: resourceWatcherHooks.length,              // KAR-MS1
   knowledge: knowledgeHooks.length,                          // KAR-MS1
+  wedmSafety: wedmSafetyHooks.length,                        // PP-0.3
+  wedmSVI: wedmSVIHooks.length,                              // PP-0.10
   total: 0 // Computed below
 };
 
