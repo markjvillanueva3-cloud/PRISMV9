@@ -287,6 +287,9 @@ let _ppDuplicateWord: any;
 // PP-EXP: Macro expression syntax validator
 let _ppExpressionSyntax: any;
 
+// PP-OP: Operator-stop (M0/M1) validator
+let _ppOperatorStop: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -512,6 +515,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppDuplicateWord ??= (await import("../../engines/PPDuplicateWordValidatorEngine.js")).ppDuplicateWordValidatorEngine;
     case "expressionSyntax":
       return _ppExpressionSyntax ??= (await import("../../engines/PPExpressionSyntaxValidatorEngine.js")).ppExpressionSyntaxValidatorEngine;
+    case "operatorStop":
+      return _ppOperatorStop ??= (await import("../../engines/PPOperatorStopValidatorEngine.js")).ppOperatorStopValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -967,6 +972,9 @@ const ACTIONS = [
   "pp_exp_validate",               // Macro expression syntax validation
   "pp_exp_quick",                  // Quick pass/fail + nesting depth
   "pp_exp_defaults",               // Default expression validator options
+  "pp_op_validate",                // Operator-stop (M0/M1) validation
+  "pp_op_quick",                   // Quick pass/fail + stop counts
+  "pp_op_defaults",                // Default operator-stop options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3170,6 +3178,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_exp_defaults": {
             const engine = await getEngine("expressionSyntax");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_OP (PP-OP — Operator-stop M0/M1 validator) =====
+          case "pp_op_validate": {
+            const engine = await getEngine("operatorStop");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_m0_comment: params.check_m0_comment,
+              check_m1_comment: params.check_m1_comment,
+              check_excessive_stops: params.check_excessive_stops,
+              check_m0_in_subprogram: params.check_m0_in_subprogram,
+              check_m0_after_end: params.check_m0_after_end,
+              check_m1_optional_hint: params.check_m1_optional_hint,
+              check_tool_change_stop: params.check_tool_change_stop,
+              max_stops: params.max_stops,
+              adjacent_comment_lines: params.adjacent_comment_lines,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_op_quick": {
+            const engine = await getEngine("operatorStop");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_op_defaults": {
+            const engine = await getEngine("operatorStop");
             result = engine.defaultOptions();
             break;
           }
