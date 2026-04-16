@@ -296,6 +296,9 @@ let _ppProgramHeader: any;
 // PP-OMR: O-number range/format validator
 let _ppONumberRange: any;
 
+// PP-BLK: Block composition validator
+let _ppBlockComposition: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -527,6 +530,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramHeader ??= (await import("../../engines/PPProgramHeaderValidatorEngine.js")).ppProgramHeaderValidatorEngine;
     case "oNumberRange":
       return _ppONumberRange ??= (await import("../../engines/PPONumberRangeValidatorEngine.js")).ppONumberRangeValidatorEngine;
+    case "blockComposition":
+      return _ppBlockComposition ??= (await import("../../engines/PPBlockCompositionValidatorEngine.js")).ppBlockCompositionValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -991,6 +996,9 @@ const ACTIONS = [
   "pp_omr_validate",               // O-number range/format validation
   "pp_omr_quick",                  // Quick pass/fail + O-number summary
   "pp_omr_defaults",               // Default O-number range options
+  "pp_blk_validate",               // Block composition / per-block layout
+  "pp_blk_quick",                  // Quick pass/fail + block stats
+  "pp_blk_defaults",               // Default block composition options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3295,6 +3303,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_omr_defaults": {
             const engine = await getEngine("oNumberRange");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_BLK (PP-BLK — Block composition validator) =====
+          case "pp_blk_validate": {
+            const engine = await getEngine("blockComposition");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_words_per_block: params.check_words_per_block,
+              check_multiple_m: params.check_multiple_m,
+              check_same_group_g: params.check_same_group_g,
+              check_empty_block: params.check_empty_block,
+              check_column_limit: params.check_column_limit,
+              check_word_order: params.check_word_order,
+              max_words_per_block: params.max_words_per_block,
+              max_m_per_block: params.max_m_per_block,
+              column_limit: params.column_limit,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_blk_quick": {
+            const engine = await getEngine("blockComposition");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_blk_defaults": {
+            const engine = await getEngine("blockComposition");
             result = engine.defaultOptions();
             break;
           }
