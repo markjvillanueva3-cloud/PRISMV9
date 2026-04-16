@@ -119,6 +119,9 @@ let _ppAGIDashboard: any;
 // PP-AGI-KNOWLEDGE: Unified Knowledge Index
 let _ppKnowledgeIndex: any;
 
+// PP-AGI-BENCHMARK: Quality benchmarks
+let _ppBenchmark: any;
+
 // PP-AGI-MS4: Physics Condition Encoder
 let _ppPhysicsEncoder: any;
 
@@ -233,6 +236,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppAGIDashboard ??= (await import("../../engines/PPAGISystemDashboardEngine.js")).ppAGISystemDashboardEngine;
     case "knowledgeIndex":
       return _ppKnowledgeIndex ??= (await import("../../engines/PPKnowledgeIndexEngine.js")).ppKnowledgeIndexEngine;
+    case "benchmark":
+      return _ppBenchmark ??= (await import("../../engines/PPAGIBenchmarkEngine.js")).ppAGIBenchmarkEngine;
     case "physicsEncoder":
       return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
     case "safetyEnvelope":
@@ -447,6 +452,11 @@ const ACTIONS = [
   "pp_knowledge_cross_domain",     // Cross-domain search
   "pp_knowledge_coverage",         // Coverage report for a domain
   "pp_knowledge_full_coverage",    // Coverage across all domains
+
+  // ===== PP_BENCHMARK: Quality benchmarks (3 actions) — PP-AGI-BENCHMARK =====
+  "pp_benchmark_run_all",          // Run all benchmark cases
+  "pp_benchmark_category",         // Run benchmarks for a category
+  "pp_benchmark_quick",            // Quick CI-style smoke test
 
   // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
   "pp_physics_embed",              // Embed cutting physics to 24-dim vector
@@ -1328,6 +1338,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_knowledge_full_coverage": {
             const engine = await getEngine("knowledgeIndex");
             result = { reports: engine.fullCoverage() };
+            break;
+          }
+
+          // ===== PP_BENCHMARK (PP-AGI-BENCHMARK) =====
+          case "pp_benchmark_run_all": {
+            const engine = await getEngine("benchmark");
+            result = engine.runAll();
+            break;
+          }
+          case "pp_benchmark_category": {
+            const engine = await getEngine("benchmark");
+            result = engine.runCategory(params.category);
+            break;
+          }
+          case "pp_benchmark_quick": {
+            const engine = await getEngine("benchmark");
+            result = engine.quickCheck();
             break;
           }
 
