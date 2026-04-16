@@ -1,12 +1,13 @@
 /**
  * PostProcessor Dispatcher Action Schemas
  * ========================================
- * Per-action Zod schemas for all 50 prism_pp actions.
- * Organized by category: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics.
+ * Per-action Zod schemas for all 75 prism_pp actions.
+ * Organized by category: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics,
+ * strategy, troubleshoot, formula, learning, graph.
  *
  * @module schemas/ppActionSchemas
- * @version 1.0.0
- * @milestone PP-DISPATCHER
+ * @version 1.1.0
+ * @milestone PP-DISPATCHER, PP-WIRE-MS1
  */
 
 import { z } from "zod";
@@ -418,6 +419,66 @@ const pp_tribal_contribute = z.object({
 }).passthrough();
 
 // ============================================================================
+// PP_TRIBAL_ACTIVE: Activated tribal knowledge schemas (5 actions) — PP-TRIBAL-ACTIVATION
+// ============================================================================
+
+const decisionType = z.enum([
+  "speed_feed", "toolpath_strategy", "controller_output", "problem_diagnosis",
+  "tool_selection", "workholding", "surface_finish", "threading", "drilling",
+  "milling_pocket", "milling_profile", "turning_roughing", "turning_finishing",
+  "multi_axis", "general"
+]).optional();
+
+const pp_tribal_active_context = z.object({
+  context: z.object({
+    decision_type: decisionType.unwrap(),
+    material: optStr,
+    iso_group: isoGroup,
+    operation: optStr,
+    machine: optStr,
+    controller: controllerType,
+    tool_type: optStr,
+    tool_diameter_mm: optPosNum,
+    target_ra_um: optPosNum,
+    symptom: optStr,
+    cam_system: optStr,
+    keywords: z.array(z.string()).optional(),
+    hardness_hrc: optPosNum,
+    cutting_speed: optPosNum,
+    feed_rate: optPosNum,
+    depth_of_cut: optPosNum,
+  }).optional(),
+  decision_type: decisionType,
+  material: optStr,
+  operation: optStr,
+  controller: controllerType,
+}).passthrough();
+
+const pp_tribal_active_operation = z.object({
+  operation: z.string().min(1).describe("Operation type (e.g., 'pocket', 'thread', 'drill')"),
+  limit: z.number().int().min(1).max(50).optional().describe("Max tips to return"),
+}).passthrough();
+
+const pp_tribal_active_material = z.object({
+  material: z.string().min(1).describe("Material name or ISO group (e.g., 'titanium', 'D2', 'M')"),
+  limit: z.number().int().min(1).max(50).optional().describe("Max tips to return"),
+}).passthrough();
+
+const pp_tribal_active_controller = z.object({
+  controller: z.string().min(1).describe("Controller type (e.g., 'fanuc', 'siemens', 'okuma')"),
+  limit: z.number().int().min(1).max(50).optional().describe("Max tips to return"),
+}).passthrough();
+
+const pp_tribal_active_integrate = z.object({
+  controller: z.string().min(1).describe("Controller type for PP integration"),
+  machine_type: optStr.describe("Machine type (3_axis, 5_axis, lathe, etc.)"),
+  gcode: optStr.describe("G-code being generated"),
+  operation: optStr.describe("Operation type"),
+  material: optStr.describe("Material being machined"),
+  feature: optStr.describe("Specific feature being output"),
+}).passthrough();
+
+// ============================================================================
 // PP_CONTROLLER: Controller-specific schemas (5 actions)
 // ============================================================================
 
@@ -500,6 +561,178 @@ const pp_kinematics_optimize = z.object({
 }).passthrough();
 
 // ============================================================================
+// PP_STRATEGY: Feature strategy KB schemas (PP-WIRE-MS1) (5 actions)
+// ============================================================================
+
+/** Feature type for strategy lookup */
+const featureType = z.enum([
+  "pocket", "slot", "contour", "face", "hole", "bore", "thread", "freeform", "wall", "rib"
+]).optional();
+
+/** Machine axes configuration */
+const machineAxes = z.enum(["3-axis", "3+2", "5-axis"]).optional();
+
+/** Operation type */
+const operationType = z.enum(["roughing", "semi-finishing", "finishing"]).optional();
+
+const pp_strategy_query = z.object({
+  feature_type: featureType,
+  iso_group: isoGroup,
+  machine_axes: machineAxes,
+  operation: operationType,
+  special_conditions: z.array(z.string()).optional(),
+}).passthrough();
+
+const pp_strategy_best = z.object({
+  feature_type: featureType.unwrap(),
+  iso_group: isoGroup.unwrap(),
+  machine_axes: machineAxes.unwrap(),
+  operation: operationType.unwrap(),
+}).passthrough();
+
+const pp_strategy_list = z.object({
+  feature_type: featureType,
+}).passthrough();
+
+const pp_strategy_add = z.object({
+  rule: z.object({
+    id: z.string().optional(),
+    feature_type: featureType.unwrap(),
+    iso_group: isoGroup.unwrap(),
+    machine_axes: machineAxes.unwrap(),
+    operation: operationType.unwrap(),
+    strategy: z.string(),
+    ae_pct: z.number().min(0).max(100),
+    ap_factor: z.number().positive(),
+    vc_mult: z.number().positive(),
+    fz_mult: z.number().positive(),
+    physics_basis: z.string().optional(),
+    confidence: z.number().min(0).max(1).optional(),
+  }),
+}).passthrough();
+
+const pp_strategy_stats = z.object({}).passthrough();
+
+// ============================================================================
+// PP_TROUBLESHOOT: Root cause diagnosis schemas (PP-WIRE-MS1) (4 actions)
+// ============================================================================
+
+/** Problem domain for troubleshooting */
+const problemDomain = z.enum([
+  "surface_finish", "dimensional_accuracy", "tool_breakage", "chatter_vibration",
+  "chip_problems", "thermal_issues", "machine_alarms", "workholding"
+]);
+
+const pp_troubleshoot_start = z.object({
+  domain: problemDomain,
+  symptoms: z.array(z.string()).optional(),
+}).passthrough();
+
+const pp_troubleshoot_answer = z.object({
+  session_id: z.string(),
+  answer: z.string(),
+}).passthrough();
+
+const pp_troubleshoot_quick = z.object({
+  domain: problemDomain,
+  symptoms: z.array(z.string()).min(1),
+}).passthrough();
+
+const pp_troubleshoot_common = z.object({
+  domain: problemDomain,
+}).passthrough();
+
+// ============================================================================
+// PP_FORMULA: Cross-disciplinary formula schemas (PP-WIRE-MS1) (5 actions)
+// ============================================================================
+
+/** Cross-disciplinary domain */
+const crossDomain = z.enum([
+  "physics", "biology", "economics", "information_theory", "statistics",
+  "psychology", "chemistry", "electrical_engineering", "operations_research",
+  "finance", "graph_theory", "chaos_theory", "music_theory", "ecology", "computer_science"
+]).optional();
+
+const pp_formula_apply = z.object({
+  formulaName: z.string(),
+  inputs: z.record(z.string(), z.number()),
+}).passthrough();
+
+const pp_formula_find = z.object({
+  domain: crossDomain,
+  keywords: z.array(z.string()).optional(),
+}).passthrough();
+
+const pp_formula_explain = z.object({
+  formulaName: z.string(),
+}).passthrough();
+
+const pp_formula_list = z.object({
+  domain: crossDomain,
+}).passthrough();
+
+const pp_formula_stats = z.object({}).passthrough();
+
+// ============================================================================
+// PP_LEARNING: MIT courses + algorithms schemas (PP-WIRE-MS1) (6 actions)
+// ============================================================================
+
+const pp_learning_reason = z.object({
+  query: z.string().min(5),
+}).passthrough();
+
+const pp_learning_execute_formula = z.object({
+  id: z.string(),
+  args: z.array(z.number()).optional(),
+}).passthrough();
+
+const pp_learning_execute_algo = z.object({
+  id: z.string(),
+  config: z.record(z.string(), z.any()).optional(),
+}).passthrough();
+
+const pp_learning_search = z.object({
+  query: z.string().min(2),
+}).passthrough();
+
+const pp_learning_patterns = z.object({}).passthrough();
+
+const pp_learning_summary = z.object({}).passthrough();
+
+// ============================================================================
+// PP_GRAPH: Manufacturing knowledge graph schemas (PP-WIRE-MS1) (5 actions)
+// ============================================================================
+
+const pp_graph_query = z.object({
+  query: z.string().optional(),
+  nodeType: z.enum(["material", "tool", "machine", "operation", "strategy", "part", "tribal_tip"]).optional(),
+  keywords: z.array(z.string()).optional(),
+}).passthrough();
+
+const pp_graph_recommend = z.object({
+  material: z.string().optional(),
+  operation: z.string().optional(),
+  machine: z.string().optional(),
+}).passthrough();
+
+const pp_graph_gaps = z.object({
+  minTips: z.number().int().min(1).optional(),
+  maxGaps: z.number().int().min(1).optional(),
+}).passthrough();
+
+const pp_graph_tribal = z.object({
+  startNode: z.string().optional(),
+  depth: z.number().int().min(1).max(10).optional(),
+}).passthrough();
+
+const pp_graph_link = z.object({
+  tipId: z.string(),
+  nodeId: z.string(),
+  relationship: z.enum(["related_to", "supports", "proves", "contradicts"]).optional(),
+  weight: z.number().min(0).max(1).optional(),
+}).passthrough();
+
+// ============================================================================
 // EXPORT MAP
 // ============================================================================
 
@@ -558,6 +791,13 @@ export const PP_ACTION_SCHEMAS: ActionSchemaMap = {
   pp_tribal_validate,
   pp_tribal_contribute,
 
+  // Tribal Active (PP-TRIBAL-ACTIVATION)
+  pp_tribal_active_context,
+  pp_tribal_active_operation,
+  pp_tribal_active_material,
+  pp_tribal_active_controller,
+  pp_tribal_active_integrate,
+
   // Controller
   pp_controller_capabilities,
   pp_controller_translate,
@@ -571,4 +811,39 @@ export const PP_ACTION_SCHEMAS: ActionSchemaMap = {
   pp_kinematics_limits,
   pp_kinematics_singularity,
   pp_kinematics_optimize,
+
+  // Strategy (PP-WIRE-MS1)
+  pp_strategy_query,
+  pp_strategy_best,
+  pp_strategy_list,
+  pp_strategy_add,
+  pp_strategy_stats,
+
+  // Troubleshoot (PP-WIRE-MS1)
+  pp_troubleshoot_start,
+  pp_troubleshoot_answer,
+  pp_troubleshoot_quick,
+  pp_troubleshoot_common,
+
+  // Formula (PP-WIRE-MS1)
+  pp_formula_apply,
+  pp_formula_find,
+  pp_formula_explain,
+  pp_formula_list,
+  pp_formula_stats,
+
+  // Learning (PP-WIRE-MS1)
+  pp_learning_reason,
+  pp_learning_execute_formula,
+  pp_learning_execute_algo,
+  pp_learning_search,
+  pp_learning_patterns,
+  pp_learning_summary,
+
+  // Graph (PP-WIRE-MS1)
+  pp_graph_query,
+  pp_graph_recommend,
+  pp_graph_gaps,
+  pp_graph_tribal,
+  pp_graph_link,
 };

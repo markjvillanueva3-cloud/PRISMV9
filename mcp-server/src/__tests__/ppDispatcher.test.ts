@@ -1,10 +1,10 @@
 /**
  * PostProcessor Dispatcher Tests
  * ==============================
- * Tests for the prism_pp dispatcher covering all 50 actions across 9 categories.
+ * Tests for the prism_pp dispatcher covering all 80 actions across 15 categories.
  *
  * @module __tests__/ppDispatcher.test
- * @milestone PP-DISPATCHER
+ * @milestone PP-DISPATCHER, PP-WIRE-MS1, PP-TRIBAL-ACTIVATION
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -15,9 +15,9 @@ import { PP_ACTION_SCHEMAS } from "../schemas/ppActionSchemas.js";
 
 describe("ppDispatcher", () => {
   describe("Schema validation", () => {
-    it("should have 50 action schemas defined", () => {
+    it("should have 80 action schemas defined", () => {
       const actionCount = Object.keys(PP_ACTION_SCHEMAS).length;
-      expect(actionCount).toBe(50);
+      expect(actionCount).toBe(80);
     });
 
     it("should have all generate actions", () => {
@@ -311,14 +311,34 @@ describe("ppDispatcher", () => {
       expect(validateCount).toBe(6);
       expect(physicsCount).toBe(6);
       expect(neuralCount).toBe(5);
-      expect(tribalCount).toBe(5);
+      expect(tribalCount).toBe(10); // 5 original + 5 pp_tribal_active_*
       expect(controllerCount).toBe(5);
       expect(kinematicsCount).toBe(5);
 
-      // Total should be 50
+      // Total for these 9 categories should be 55
       const total = generateCount + analyzeCount + optimizeCount + validateCount +
                    physicsCount + neuralCount + tribalCount + controllerCount + kinematicsCount;
-      expect(total).toBe(50);
+      expect(total).toBe(55);
+    });
+
+    it("should have correct PP-WIRE-MS1 categories", () => {
+      const actions = Object.keys(PP_ACTION_SCHEMAS);
+
+      const strategyCount = actions.filter(a => a.startsWith("pp_strategy_")).length;
+      const troubleshootCount = actions.filter(a => a.startsWith("pp_troubleshoot_")).length;
+      const formulaCount = actions.filter(a => a.startsWith("pp_formula_")).length;
+      const learningCount = actions.filter(a => a.startsWith("pp_learning_")).length;
+      const graphCount = actions.filter(a => a.startsWith("pp_graph_")).length;
+
+      expect(strategyCount).toBe(5);
+      expect(troubleshootCount).toBe(4);
+      expect(formulaCount).toBe(5);
+      expect(learningCount).toBe(6);
+      expect(graphCount).toBe(5);
+
+      // Total PP-WIRE additions: 25
+      const wireTotal = strategyCount + troubleshootCount + formulaCount + learningCount + graphCount;
+      expect(wireTotal).toBe(25);
     });
   });
 });

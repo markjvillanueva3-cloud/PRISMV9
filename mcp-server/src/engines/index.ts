@@ -2567,7 +2567,9 @@ export { toolpathSimulationEngine, ToolpathSimulationEngine } from "./ToolpathSi
 export { trustRegionEngine } from "./TrustRegionEngine.js";
 export { topologyEngine } from "./TopologyEngine.js";
 export { CORE_CATEGORIES, tribalKnowledgeEngine, TribalKnowledgeEngine } from "./TribalKnowledgeEngine.js";
+export { tribalKnowledgeActivationEngine, TribalKnowledgeActivationEngine } from "./TribalKnowledgeActivationEngine.js";
 export { tribalKnowledgeTrainingEngine, TribalKnowledgeTrainingEngine } from "./TribalKnowledgeTrainingEngine.js";
+export { algorithmWiringEngine, AlgorithmWiringEngine, type AlgorithmInfo, type AlgorithmCategory, type WiringTarget, type AlgorithmWiring, type WiringReport } from "./AlgorithmWiringEngine.js";
 export { treeOfThoughtEngine, TreeOfThoughtEngine } from "./TreeOfThoughtEngine.js";
 export { troubleshootingDecisionTreeEngine, TroubleshootingDecisionTreeEngine } from "./TroubleshootingDecisionTreeEngine.js";
 export { troubleshootingEngine, TroubleshootingEngine } from "./TroubleshootingEngine.js";
@@ -6008,6 +6010,23 @@ export {
   mitCourseDeepLearning,
 } from './MITCourseDeepLearningEngine.js';
 
+// MITCourseIntegrationEngine — PP-AGI: 216+ MIT OCW course integration
+export {
+  MITCourseIntegrationEngine,
+  mitCourseIntegrationEngine,
+  type PPDomain,
+  type CourseTier,
+  type IntegrationStatus,
+  type MITCourse,
+  type AlgorithmEntry,
+  type CourseDetails,
+  type CourseSearchResult,
+  type AlgorithmExtraction,
+  type ManufacturingApplication,
+  type CourseRecommendation,
+  type IntegrationStats,
+} from './MITCourseIntegrationEngine.js';
+
 // VideoELearningAIEngine — RESOURCE-AI: Video-based learning
 export {
   VideoELearningAIEngine,
@@ -6242,3 +6261,14 @@ export {
   millingPhysicsKernelEngine,
   MillingPhysicsKernelEngine,
 } from './MillingPhysicsKernelEngine.js';
+
+// --- Formula Wiring Engine ---
+export {
+  FormulaWiringEngine,
+  formulaWiringEngine,
+  type FormulaWiring,
+  type WiringReport,
+  type FormulaExecutionTrace,
+  type FormulaValidationResult,
+  type FormulaSearchResult,
+} from './FormulaWiringEngine.js';

@@ -1,7 +1,7 @@
 /**
  * prism_pp — PostProcessor-Specific Dispatcher
  *
- * 50 core actions for post processor operations across 9 categories:
+ * 80 actions for post processor operations across 15 categories:
  *   - pp_generate (G-code generation)
  *   - pp_analyze (analysis)
  *   - pp_optimize (optimization)
@@ -9,17 +9,26 @@
  *   - pp_physics (physics-aware)
  *   - pp_neural (neural network)
  *   - pp_tribal (tribal knowledge)
+ *   - pp_tribal_active (activated tribal knowledge) — PP-TRIBAL-ACTIVATION
  *   - pp_controller (controller-specific)
  *   - pp_kinematics (machine kinematics)
+ *   - pp_strategy (feature strategy KB) — PP-WIRE-MS1
+ *   - pp_troubleshoot (root cause diagnosis) — PP-WIRE-MS1
+ *   - pp_formula (cross-disciplinary formulas) — PP-WIRE-MS1
+ *   - pp_learning (MIT courses + algorithms) — PP-WIRE-MS1
+ *   - pp_graph (manufacturing knowledge graph) — PP-WIRE-MS1
  *
  * Engine dependencies: PostProcessorEngine, PostProcessorPipelineEngine,
  *   PostProcessorAnalyzerEngine, PostProcessorNeuralNetworkEngine,
  *   PostProcessorPhysicsAwareGeneratorEngine, PostProcessorTribalKnowledgeIntegrationEngine,
  *   PostProcessorMachineKinematicsEngine, PostProcessorVerificationEngine,
- *   PostProcessorDeepReasoningEngine, PostProcessorKnowledgeGraphEngine
+ *   PostProcessorDeepReasoningEngine, PostProcessorKnowledgeGraphEngine,
+ *   FeatureStrategyKnowledgeBaseEngine, TroubleshootingAssistantEngine,
+ *   CrossDisciplinaryFormulaIntegrationEngine, CrossDisciplinaryDeepLearningEngine,
+ *   ManufacturingKnowledgeGraphEngine, TribalKnowledgeActivationEngine
  *
  * @module dispatchers/ppDispatcher
- * @milestone PP-DISPATCHER
+ * @milestone PP-DISPATCHER, PP-WIRE-MS1, PP-TRIBAL-ACTIVATION
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -48,6 +57,17 @@ let _ppMetaLearning: any;
 let _ppFeedOptimizer: any;
 let _ppGenerator: any;
 let _ppAPI: any;
+
+// Dormant Giants (PP-WIRE-MS1)
+let _featureStrategy: any;
+let _troubleshoot: any;
+let _crossFormula: any;
+let _crossDeepLearning: any;
+let _mfgKnowledgeGraph: any;
+let _knowledgeGraph: any;
+
+// Tribal Knowledge Activation (PP-TRIBAL-ACTIVATION)
+let _tribalActivation: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -87,13 +107,32 @@ async function getEngine(name: string): Promise<any> {
       return _ppGenerator ??= (await import("../../engines/PostProcessorGeneratorEngine.js")).postProcessorGeneratorEngine;
     case "api":
       return _ppAPI ??= (await import("../../engines/PostProcessorAPIEngine.js")).postProcessorAPIEngine;
+
+    // Dormant Giants (PP-WIRE-MS1)
+    case "featureStrategy":
+      return _featureStrategy ??= (await import("../../engines/FeatureStrategyKnowledgeBaseEngine.js")).featureStrategyKnowledgeBaseEngine;
+    case "troubleshoot":
+      return _troubleshoot ??= (await import("../../engines/TroubleshootingAssistantEngine.js")).troubleshootingAssistantEngine;
+    case "crossFormula":
+      return _crossFormula ??= (await import("../../engines/CrossDisciplinaryFormulaIntegrationEngine.js")).crossDisciplinaryFormulaIntegrationEngine;
+    case "crossDeepLearning":
+      return _crossDeepLearning ??= (await import("../../engines/CrossDisciplinaryDeepLearningEngine.js")).crossDisciplinaryEngine;
+    case "mfgKnowledgeGraph":
+      return _mfgKnowledgeGraph ??= (await import("../../engines/ManufacturingKnowledgeGraphEngine.js")).manufacturingKnowledgeGraphEngine;
+    case "knowledgeGraph":
+      return _knowledgeGraph ??= (await import("../../engines/KnowledgeGraphEngine.js")).knowledgeGraphEngine;
+
+    // Tribal Knowledge Activation (PP-TRIBAL-ACTIVATION)
+    case "tribalActivation":
+      return _tribalActivation ??= (await import("../../engines/TribalKnowledgeActivationEngine.js")).tribalKnowledgeActivationEngine;
+
     default:
       throw new Error(`Unknown PP engine: ${name}`);
   }
 }
 
 // ============================================================================
-// ACTIONS (50 core actions)
+// ACTIONS (80 actions across 15 categories)
 // ============================================================================
 
 const ACTIONS = [
@@ -151,6 +190,13 @@ const ACTIONS = [
   "pp_tribal_validate",          // Validate against tribal rules
   "pp_tribal_contribute",        // Contribute new tribal knowledge
 
+  // ===== PP_TRIBAL_ACTIVE: Activated tribal knowledge (5 actions) — PP-TRIBAL-ACTIVATION =====
+  "pp_tribal_active_context",    // Activate tips for decision context
+  "pp_tribal_active_operation",  // Get tips for specific operation
+  "pp_tribal_active_material",   // Get material-specific tips
+  "pp_tribal_active_controller", // Get controller quirk tips
+  "pp_tribal_active_integrate",  // Integrate tips into PP decision
+
   // ===== PP_CONTROLLER: Controller-specific (5 actions) =====
   "pp_controller_capabilities",  // Get controller capabilities
   "pp_controller_translate",     // Translate between controllers
@@ -164,6 +210,41 @@ const ACTIONS = [
   "pp_kinematics_limits",        // Check kinematic limits
   "pp_kinematics_singularity",   // Detect singularities
   "pp_kinematics_optimize",      // Optimize for kinematics
+
+  // ===== PP_STRATEGY: Feature strategy knowledge (PP-WIRE-MS1) (5 actions) =====
+  "pp_strategy_query",           // Query optimal strategy for feature+material+machine
+  "pp_strategy_best",            // Get single best strategy recommendation
+  "pp_strategy_list",            // List all rules for a feature type
+  "pp_strategy_add",             // Add custom strategy rule
+  "pp_strategy_stats",           // Get strategy KB statistics
+
+  // ===== PP_TROUBLESHOOT: Root cause diagnosis (PP-WIRE-MS1) (4 actions) =====
+  "pp_troubleshoot_start",       // Start interactive diagnosis session
+  "pp_troubleshoot_answer",      // Answer diagnostic question
+  "pp_troubleshoot_quick",       // Quick diagnosis from symptoms
+  "pp_troubleshoot_common",      // Get common problems for domain
+
+  // ===== PP_CROSS_FORMULA: 15-domain formulas (PP-WIRE-MS1) (5 actions) =====
+  "pp_formula_apply",            // Apply cross-disciplinary formula
+  "pp_formula_find",             // Find relevant formulas for problem
+  "pp_formula_explain",          // Get formula explanation
+  "pp_formula_list",             // List formulas by domain
+  "pp_formula_stats",            // Get formula registry statistics
+
+  // ===== PP_CROSS_LEARNING: MIT courses + algorithms (PP-WIRE-MS1) (6 actions) =====
+  "pp_learning_reason",          // Deep cross-domain reasoning
+  "pp_learning_execute_formula", // Execute specific formula
+  "pp_learning_execute_algo",    // Execute specific algorithm
+  "pp_learning_search",          // Search formulas and algorithms
+  "pp_learning_patterns",        // Get learning patterns
+  "pp_learning_summary",         // Get cross-disciplinary summary
+
+  // ===== PP_MFG_GRAPH: Manufacturing knowledge graph (PP-WIRE-MS1) (5 actions) =====
+  "pp_graph_query",              // Natural language graph query
+  "pp_graph_recommend",          // Get recommendations from graph
+  "pp_graph_gaps",               // Detect knowledge gaps
+  "pp_graph_tribal",             // Graph-based tribal traversal
+  "pp_graph_link",               // Link tribal tip to graph node
 ] as const;
 
 // ============================================================================
@@ -178,7 +259,7 @@ export function registerPPDispatcher(server: any): void {
   server.tool(
     "prism_pp",
     `PostProcessor dispatcher — G-code generation, optimization, validation, physics-aware processing.
-50 actions across 9 categories: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics.
+75 actions across 14 categories: generate, analyze, optimize, validate, physics, neural, tribal, controller, kinematics, strategy, troubleshoot, formula, learning, graph.
 Actions: ${ACTIONS.join(", ")}.`,
     { action: z.enum(ACTIONS), params: z.record(z.string(), z.any()).optional() },
     async ({ action, params: rawParams = {} }: { action: typeof ACTIONS[number]; params?: Record<string, any> }) => {
@@ -433,6 +514,33 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
+          // ===== PP_TRIBAL_ACTIVE actions (PP-TRIBAL-ACTIVATION) =====
+          case "pp_tribal_active_context": {
+            const engine = await getEngine("tribalActivation");
+            result = engine.activateTipsForContext(params.context ?? params);
+            break;
+          }
+          case "pp_tribal_active_operation": {
+            const engine = await getEngine("tribalActivation");
+            result = engine.getTipsByOperation(params.operation, params.limit ?? 10);
+            break;
+          }
+          case "pp_tribal_active_material": {
+            const engine = await getEngine("tribalActivation");
+            result = engine.getTipsByMaterial(params.material, params.limit ?? 10);
+            break;
+          }
+          case "pp_tribal_active_controller": {
+            const engine = await getEngine("tribalActivation");
+            result = engine.getTipsByController(params.controller, params.limit ?? 10);
+            break;
+          }
+          case "pp_tribal_active_integrate": {
+            const engine = await getEngine("tribalActivation");
+            result = engine.integrateWithPPDecision(params);
+            break;
+          }
+
           // ===== PP_CONTROLLER actions =====
           case "pp_controller_capabilities": {
             const engine = await getEngine("api");
@@ -484,6 +592,148 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_kinematics_optimize": {
             const engine = await getEngine("kinematics");
             result = engine.optimizeKinematics?.(params) ?? engine.optimize?.(params) ?? { error: "optimizeKinematics not found" };
+            break;
+          }
+
+          // ===== PP_STRATEGY actions (FeatureStrategyKnowledgeBaseEngine) =====
+          case "pp_strategy_query": {
+            const engine = await getEngine("featureStrategy");
+            result = engine.query?.(params) ?? { rules: [] };
+            break;
+          }
+          case "pp_strategy_best": {
+            const engine = await getEngine("featureStrategy");
+            result = engine.getBestStrategy?.(
+              params.feature_type,
+              params.iso_group,
+              params.machine_axes,
+              params.operation
+            ) ?? { error: "getBestStrategy not found" };
+            break;
+          }
+          case "pp_strategy_list": {
+            const engine = await getEngine("featureStrategy");
+            result = engine.listRules?.(params.feature_type) ?? { rules: [] };
+            break;
+          }
+          case "pp_strategy_add": {
+            const engine = await getEngine("featureStrategy");
+            engine.addRule?.(params.rule);
+            result = { added: true };
+            break;
+          }
+          case "pp_strategy_stats": {
+            const engine = await getEngine("featureStrategy");
+            result = engine.getStats?.() ?? engine.getRuleCount?.() ?? { error: "getStats not found" };
+            break;
+          }
+
+          // ===== PP_TROUBLESHOOT actions (TroubleshootingAssistantEngine) =====
+          case "pp_troubleshoot_start": {
+            const engine = await getEngine("troubleshoot");
+            result = engine.startDiagnosis?.({ domain: params.domain, symptoms: params.symptoms }) ?? { error: "startDiagnosis not found" };
+            break;
+          }
+          case "pp_troubleshoot_answer": {
+            const engine = await getEngine("troubleshoot");
+            result = engine.answerQuestion?.({ session_id: params.session_id, answer: params.answer }) ?? { error: "answerQuestion not found" };
+            break;
+          }
+          case "pp_troubleshoot_quick": {
+            const engine = await getEngine("troubleshoot");
+            result = engine.quickDiagnose?.({ domain: params.domain, symptoms: params.symptoms }) ?? { error: "quickDiagnose not found" };
+            break;
+          }
+          case "pp_troubleshoot_common": {
+            const engine = await getEngine("troubleshoot");
+            result = engine.getCommonProblems?.({ domain: params.domain }) ?? { error: "getCommonProblems not found" };
+            break;
+          }
+
+          // ===== PP_FORMULA actions (CrossDisciplinaryFormulaIntegrationEngine) =====
+          case "pp_formula_apply": {
+            const engine = await getEngine("crossFormula");
+            result = engine.applyFormula?.(params.formulaName, params.inputs) ?? { error: "applyFormula not found" };
+            break;
+          }
+          case "pp_formula_find": {
+            const engine = await getEngine("crossFormula");
+            result = engine.findRelevantFormulas?.(params.domain, params.keywords) ?? { formulas: [] };
+            break;
+          }
+          case "pp_formula_explain": {
+            const engine = await getEngine("crossFormula");
+            result = engine.generateFormulaExplanation?.(params.formulaName) ?? { error: "formula not found" };
+            break;
+          }
+          case "pp_formula_list": {
+            const engine = await getEngine("crossFormula");
+            result = engine.listFormulaNames?.(params.domain) ?? { formulas: [] };
+            break;
+          }
+          case "pp_formula_stats": {
+            const engine = await getEngine("crossFormula");
+            result = engine.getStats?.() ?? { error: "getStats not found" };
+            break;
+          }
+
+          // ===== PP_LEARNING actions (CrossDisciplinaryDeepLearningEngine) =====
+          case "pp_learning_reason": {
+            const engine = await getEngine("crossDeepLearning");
+            result = engine.deepReason?.(params.query) ?? { error: "deepReason not found" };
+            break;
+          }
+          case "pp_learning_execute_formula": {
+            const engine = await getEngine("crossDeepLearning");
+            result = engine.executeFormula?.(params.id, ...(params.args || [])) ?? { error: "executeFormula not found" };
+            break;
+          }
+          case "pp_learning_execute_algo": {
+            const engine = await getEngine("crossDeepLearning");
+            result = engine.executeAlgorithm?.(params.id, params.config) ?? { error: "executeAlgorithm not found" };
+            break;
+          }
+          case "pp_learning_search": {
+            const engine = await getEngine("crossDeepLearning");
+            result = engine.search?.(params.query) ?? { formulas: [], algorithms: [] };
+            break;
+          }
+          case "pp_learning_patterns": {
+            const engine = await getEngine("crossDeepLearning");
+            result = engine.getLearningPatterns?.() ?? { patterns: [] };
+            break;
+          }
+          case "pp_learning_summary": {
+            const engine = await getEngine("crossDeepLearning");
+            result = { summary: engine.getSummary?.() ?? "Cross-disciplinary learning engine" };
+            break;
+          }
+
+          // ===== PP_GRAPH actions (ManufacturingKnowledgeGraphEngine) =====
+          case "pp_graph_query": {
+            const engine = await getEngine("mfgKnowledgeGraph");
+            result = engine.calculate?.("query", params) ?? engine.tribalTraverse?.(params) ?? { error: "query not found" };
+            break;
+          }
+          case "pp_graph_recommend": {
+            const engine = await getEngine("mfgKnowledgeGraph");
+            result = engine.contextRecommend?.(params.material, params.operation, params.machine) ?? { recommendations: [] };
+            break;
+          }
+          case "pp_graph_gaps": {
+            const engine = await getEngine("mfgKnowledgeGraph");
+            result = engine.detectKnowledgeGaps?.(params.minTips, params.maxGaps) ?? { gaps: [] };
+            break;
+          }
+          case "pp_graph_tribal": {
+            const engine = await getEngine("mfgKnowledgeGraph");
+            result = engine.tribalGraph?.(params) ?? { graph: {} };
+            break;
+          }
+          case "pp_graph_link": {
+            const engine = await getEngine("mfgKnowledgeGraph");
+            engine.linkTip?.(params.tipId, params.nodeId, params.relationship, params.weight);
+            result = { linked: true };
             break;
           }
 
