@@ -260,6 +260,9 @@ let _ppPlaneSelect: any;
 // PP-RP: Reference return validator (G28/G30/G53)
 let _ppRefReturn: any;
 
+// PP-FM: Feed-mode validator (G93/G94/G95)
+let _ppFeedMode: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -467,6 +470,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppPlaneSelect ??= (await import("../../engines/PPPlaneSelectValidatorEngine.js")).ppPlaneSelectValidatorEngine;
     case "referenceReturn":
       return _ppRefReturn ??= (await import("../../engines/PPReferenceReturnValidatorEngine.js")).ppReferenceReturnValidatorEngine;
+    case "feedMode":
+      return _ppFeedMode ??= (await import("../../engines/PPFeedModeValidatorEngine.js")).ppFeedModeValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -885,6 +890,11 @@ const ACTIONS = [
   "pp_rp_validate",                // Full reference-return validation
   "pp_rp_quick",                   // Quick pass/fail + safe-Z pattern count
   "pp_rp_defaults",                // Default reference-return validator options
+
+  // PP-FM: Feed-mode validator (G93/G94/G95)
+  "pp_fm_validate",                // Full feed-mode validation
+  "pp_fm_quick",                   // Quick pass/fail + final mode + cut-block count
+  "pp_fm_defaults",                // Default feed-mode validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2822,6 +2832,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_rp_defaults": {
             const engine = await getEngine("referenceReturn");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_FM (PP-FM — Feed-mode validator) =====
+          case "pp_fm_validate": {
+            const engine = await getEngine("feedMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_mixed_in_block: params.check_mixed_in_block,
+              check_g95_spindle_off: params.check_g95_spindle_off,
+              check_cutting_without_feed: params.check_cutting_without_feed,
+              check_g93_needs_f: params.check_g93_needs_f,
+              check_g93_unrealistic: params.check_g93_unrealistic,
+              check_mode_restored: params.check_mode_restored,
+              max_g93_f: params.max_g93_f,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_fm_quick": {
+            const engine = await getEngine("feedMode");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_fm_defaults": {
+            const engine = await getEngine("feedMode");
             result = engine.defaultOptions();
             break;
           }
