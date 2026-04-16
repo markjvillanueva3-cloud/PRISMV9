@@ -107,10 +107,10 @@ describe("MillingPhysicsKernel: Thermal+Surface wiring (MS-WIRE-1/U-WIRE-02+06)"
       expect(names).toContain("RoughnessConversionEngine");
     });
 
-    it("getWiringStats reports thermal=11 and surface=7", () => {
+    it("getWiringStats reports thermal >= 11 and surface >= 7", () => {
       const stats = millingPhysicsKernelEngine.getWiringStats();
-      expect(stats.thermal).toBe(11);
-      expect(stats.surface).toBe(7);
+      expect(stats.thermal).toBeGreaterThanOrEqual(11);
+      expect(stats.surface).toBeGreaterThanOrEqual(7);
     });
 
     it("total_engines >= 59", () => {

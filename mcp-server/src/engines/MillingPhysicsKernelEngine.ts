@@ -116,6 +116,26 @@ import { materialInterpolationEngine } from "./MaterialInterpolationEngine.js";
 import { materialEquivalenceEngine } from "./MaterialEquivalenceEngine.js";
 import { materialBatchVariabilityEngine } from "./MaterialBatchVariabilityEngine.js";
 
+// Extended thermal (5 more)
+import { thermalFatigueEngine } from "./ThermalFatigueEngine.js";
+import { thermalGrowthCompensationEngine } from "./ThermalGrowthCompensationEngine.js";
+import { thermalExpansionJointEngine } from "./ThermalExpansionJointEngine.js";
+import { thermalSprayEngine } from "./ThermalSprayEngine.js";
+import { InverseThermalCompensationEngine } from "./InverseThermalCompensationEngine.js";
+const inverseThermalCompensationEngine = new InverseThermalCompensationEngine();
+
+// Extended stability (4 more)
+import { vibrationAssistedMachiningEngine } from "./VibrationAssistedMachiningEngine.js";
+import { vibrationDampeningEngine } from "./VibrationDampeningEngine.js";
+import { vibrationIsolationEngine } from "./VibrationIsolationEngine.js";
+import { vibrationIsolatorEngine } from "./VibrationIsolatorEngine.js";
+
+// Extended surface (3 more)
+import { ContactMechanicsSurfaceEngine } from "./ContactMechanicsSurfaceEngine.js";
+import { surfaceFinishDatabaseEngine } from "./SurfaceFinishDatabaseEngine.js";
+import { surfaceTreatmentEngine } from "./SurfaceTreatmentEngine.js";
+const contactMechanicsSurfaceEngine = new ContactMechanicsSurfaceEngine();
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -1557,6 +1577,78 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // EXTENDED THERMAL (5 more) — MS-WIRE-1/U-WIRE-02 further extension
+  // =========================================================================
+
+  /** Thermal fatigue (cyclic thermal stress, Coffin-Manson). */
+  calculateThermalFatigue(input: Parameters<typeof thermalFatigueEngine.calculate>[0]) {
+    return thermalFatigueEngine.calculate(input);
+  }
+
+  /** Thermal growth compensation (machine warm-up compensation). */
+  calculateThermalGrowthCompensation(input: Parameters<typeof thermalGrowthCompensationEngine.calculate>[0]) {
+    return thermalGrowthCompensationEngine.calculate(input);
+  }
+
+  /** Thermal expansion joint sizing (gap, interference). */
+  calculateThermalExpansionJoint(input: Parameters<typeof thermalExpansionJointEngine.calculate>[0]) {
+    return thermalExpansionJointEngine.calculate(input);
+  }
+
+  /** Thermal spray coating (deposition, bond strength). */
+  calculateThermalSpray(input: Parameters<typeof thermalSprayEngine.calculate>[0]) {
+    return thermalSprayEngine.calculate(input);
+  }
+
+  /** Inverse thermal compensation (infer heat source from measured error). */
+  calculateInverseThermal(input: Parameters<typeof inverseThermalCompensationEngine.calculate>[0]) {
+    return inverseThermalCompensationEngine.calculate(input);
+  }
+
+  // =========================================================================
+  // EXTENDED STABILITY (4 more) — MS-WIRE-1/U-WIRE-05 further extension
+  // =========================================================================
+
+  /** Vibration-assisted machining (UVAM ultrasonic-assisted). */
+  calculateVAM(input: Parameters<typeof vibrationAssistedMachiningEngine.calculate>[0]) {
+    return vibrationAssistedMachiningEngine.calculate(input);
+  }
+
+  /** Vibration dampening system design. */
+  calculateVibrationDampening(input: Parameters<typeof vibrationDampeningEngine.calculate>[0]) {
+    return vibrationDampeningEngine.calculate(input);
+  }
+
+  /** Vibration isolation (passive/active). */
+  calculateVibrationIsolation(input: Parameters<typeof vibrationIsolationEngine.calculate>[0]) {
+    return vibrationIsolationEngine.calculate(input);
+  }
+
+  /** Vibration isolator (rubber/spring/air mount sizing). */
+  calculateVibrationIsolator(input: Parameters<typeof vibrationIsolatorEngine.calculate>[0]) {
+    return vibrationIsolatorEngine.calculate(input);
+  }
+
+  // =========================================================================
+  // EXTENDED SURFACE (3 more) — MS-WIRE-1/U-WIRE-06 further extension
+  // =========================================================================
+
+  /** Contact mechanics for surface (asperity deformation, real contact area). */
+  calculateContactMechanicsSurface(input: Parameters<typeof contactMechanicsSurfaceEngine.calculate>[0]) {
+    return contactMechanicsSurfaceEngine.calculate(input);
+  }
+
+  /** Surface finish database lookup (empirical data by process/material). */
+  getSurfaceFinishDatabase() {
+    return surfaceFinishDatabaseEngine;
+  }
+
+  /** Surface treatment effects (shot peen, nitriding, coating). */
+  calculateSurfaceTreatment(input: Parameters<typeof surfaceTreatmentEngine.calculate>[0]) {
+    return surfaceTreatmentEngine.calculate(input);
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -1645,6 +1737,21 @@ class MillingPhysicsKernelEngine {
       "MaterialInterpolationEngine (find similar, interpolate, compare)",
       "MaterialEquivalenceEngine (DIN/ISO/AISI/JIS equivalents)",
       "MaterialBatchVariabilityEngine (within/between batch uncertainty)",
+      // Extended thermal (5 more)
+      "ThermalFatigueEngine (cyclic thermal stress, Coffin-Manson)",
+      "ThermalGrowthCompensationEngine (machine warm-up compensation)",
+      "ThermalExpansionJointEngine (gap/interference sizing)",
+      "ThermalSprayEngine (coating deposition, bond strength)",
+      "InverseThermalCompensationEngine (infer heat source from error)",
+      // Extended stability (4 more)
+      "VibrationAssistedMachiningEngine (UVAM ultrasonic-assisted)",
+      "VibrationDampeningEngine (damping system design)",
+      "VibrationIsolationEngine (passive/active isolation)",
+      "VibrationIsolatorEngine (rubber/spring/air mount sizing)",
+      // Extended surface (3 more)
+      "ContactMechanicsSurfaceEngine (asperity deformation, real contact area)",
+      "SurfaceFinishDatabaseEngine (empirical finish data)",
+      "SurfaceTreatmentEngine (shot peen, nitriding, coating)",
     ];
   }
 
@@ -1655,24 +1762,20 @@ class MillingPhysicsKernelEngine {
     return {
       core_physics: 5,      // constants.ts functions
       chip_formation: 1,    // ChipFormationPredictionEngine
-      thermal: 11,          // Loewen-Shaw, CuttingTemp, ThermalWear, StochasticThermal + 7 new
-                            // (CuttingThermal, ThermalModeling, ThermalExpansion, LAM, ThermalField,
-                            //  ThermalCompensation, ThermalSim)
+      thermal: 16,          // 11 + 5 more (ThermalFatigue, ThermalGrowth, ThermalExpansionJoint,
+                            //  ThermalSpray, InverseThermal)
       force: 11,            // Kienzle, CuttingForce, Stochastic, Power, Energy + 6 new
                             // (Mechanics, AdvancedPhysics, AdvancedExt, Fundamental, Drill, CutterContact)
       math: 1,              // AdvancedCuttingMath
       deflection: 8,        // ToolDeflectionPrediction + 7 new (Part, BoringBar, Stochastic,
                             // Timoshenko, ToolAssembly, WorkpieceCompensation, SurfaceLocationError)
-      stability: 10,        // ChatterStabilityLobe + 9 new (Chatter, Regenerative, Stochastic,
-                            // MDOF, RPMRewriter, Vibration, Damping, MachineVibration, ThinFloor)
-      surface: 7,           // SurfaceFinishPredictor, SurfaceIntegrity + 5 new
-                            // (SurfaceFinish, SurfaceRoughness, StochasticSurfaceFinish,
-                            //  SurfaceIntegrityPredictor, RoughnessConversion)
+      stability: 14,        // 10 + 4 more (VAM, VibrationDampening, VibrationIsolation, VibrationIsolator)
+      surface: 10,          // 7 + 3 more (ContactMechanics, SurfaceFinishDB, SurfaceTreatment)
       wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
                             // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
       material: 5,          // JohnsonCook, Constitutive, Interpolation, Equivalence, BatchVariability
-      total_engines: 64,
-      total_functions: 74,
+      total_engines: 76,
+      total_functions: 86,
     };
   }
 }
