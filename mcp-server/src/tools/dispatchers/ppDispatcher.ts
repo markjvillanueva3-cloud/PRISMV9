@@ -89,6 +89,12 @@ let _ppMaterialVector: any;
 // PP-AGI-MS2: Cutting Tool Encoder
 let _ppToolEncoder: any;
 
+// PP-AGI-MS4: Physics Condition Encoder
+let _ppPhysicsEncoder: any;
+
+// PP-AGI-MS5: Safety Envelope Vector
+let _ppSafetyEnvelope: any;
+
 // PP-AGI-MS6: Toolpath Strategy Encoder
 let _ppToolpathEncoder: any;
 
@@ -177,6 +183,10 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS2: Cutting Tool Encoder
     case "toolEncoder":
       return _ppToolEncoder ??= (await import("../../engines/PPCuttingToolEncoderEngine.js")).ppCuttingToolEncoderEngine;
+    case "physicsEncoder":
+      return _ppPhysicsEncoder ??= (await import("../../engines/PPPhysicsConditionEncoderEngine.js")).ppPhysicsConditionEncoderEngine;
+    case "safetyEnvelope":
+      return _ppSafetyEnvelope ??= (await import("../../engines/PPSafetyEnvelopeVectorEngine.js")).ppSafetyEnvelopeVectorEngine;
     case "toolpathEncoder":
       return _ppToolpathEncoder ??= (await import("../../engines/PPToolpathStrategyEncoderEngine.js")).ppToolpathStrategyEncoderEngine;
 
@@ -328,6 +338,14 @@ const ACTIONS = [
   "pp_tool_embed",                 // Embed a tool spec to 36-dim vector
   "pp_tool_compare",               // Compare two tool specs
   "pp_tool_nearest",               // Find nearest tools from reference library
+
+  // ===== PP_PHYSICS_VECTOR: Physics condition embeddings (2 actions) — PP-AGI-MS4 =====
+  "pp_physics_embed",              // Embed cutting physics to 24-dim vector
+  "pp_physics_compare",            // Compare two physics conditions
+
+  // ===== PP_SAFETY_VECTOR: Safety envelope embeddings (2 actions) — PP-AGI-MS5 =====
+  "pp_safety_envelope_embed",      // Embed safety envelope to 20-dim vector
+  "pp_safety_envelope_compare",    // Compare two safety envelopes
 
   // ===== PP_TOOLPATH_VECTOR: Toolpath strategy embeddings (3 actions) — PP-AGI-MS6 =====
   "pp_toolpath_embed",             // Embed a toolpath strategy to 28-dim vector
@@ -909,6 +927,30 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_tool_nearest": {
             const engine = await getEngine("toolEncoder");
             result = engine.findNearest(params.spec ?? params, params.k ?? 5);
+            break;
+          }
+
+          // ===== PP_PHYSICS_VECTOR (PP-AGI-MS4) =====
+          case "pp_physics_embed": {
+            const engine = await getEngine("physicsEncoder");
+            result = engine.embed(params.condition ?? params);
+            break;
+          }
+          case "pp_physics_compare": {
+            const engine = await getEngine("physicsEncoder");
+            result = engine.compare(params.conditionA ?? params.condition_a, params.conditionB ?? params.condition_b);
+            break;
+          }
+
+          // ===== PP_SAFETY_VECTOR (PP-AGI-MS5) =====
+          case "pp_safety_envelope_embed": {
+            const engine = await getEngine("safetyEnvelope");
+            result = engine.embed(params.spec ?? params);
+            break;
+          }
+          case "pp_safety_envelope_compare": {
+            const engine = await getEngine("safetyEnvelope");
+            result = engine.compare(params.specA ?? params.spec_a, params.specB ?? params.spec_b);
             break;
           }
 
