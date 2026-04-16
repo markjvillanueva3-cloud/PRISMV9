@@ -430,6 +430,22 @@ class PostProcessorPipelineEngineImpl {
                                 findings.warnings.push(`Controller: ${ctrlResult.fallback_suggestion}`);
                                 warnings.push(`Strategy '${strategy}' incompatible with ${controller}: ${ctrlResult.fallback_suggestion}`);
                             }
+                            // CAMX-MS2/U03: Auto-fallback chain when incompatible
+                            if (!ctrlResult.compatible) {
+                                try {
+                                    const { strategyFallbackChainEngine } = await import("./StrategyFallbackChainEngine.js");
+                                    const chainResult = strategyFallbackChainEngine.choose({
+                                        preferred: strategy as any,
+                                        controller: controller as any,
+                                    });
+                                    findings.fallback_chosen = chainResult.chosen;
+                                    findings.fallback_chain_walked = chainResult.chain_walked.length;
+                                    findings.fallback_explanation = chainResult.explanation;
+                                    if (!chainResult.used_preferred) {
+                                        warnings.push(`Strategy fallback: ${chainResult.explanation}`);
+                                    }
+                                } catch { /* chain walker failed — skip */ }
+                            }
                         } catch { /* unknown strategy/controller — skip */ }
                     }
                     if (machine) {

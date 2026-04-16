@@ -1305,6 +1305,8 @@ export const ACTIONS = [
   // CAMX-MS2/U05+U06 — Cost-optimal & safety-first strategy decisions
   "strategy_cost_compute", "strategy_cost_decide", "strategy_cost_sensitivity",
   "strategy_safety_assess", "strategy_safety_decide", "strategy_safety_filter",
+  // CAMX-MS2/U03 — Strategy fallback chain walker
+  "strategy_fallback_chain", "strategy_fallback_default_chain",
 ] as const;
 
 /** Registers cam dispatcher.
@@ -7642,6 +7644,24 @@ Params vary by action — pass relevant fields in params object.`,
           case "strategy_safety_filter": {
             const { strategySafetyDecisionEngine } = await import("../../engines/StrategySafetyDecisionEngine.js");
             result = strategySafetyDecisionEngine.filterSafe(params.options as any);
+            break;
+          }
+
+          // CAMX-MS2/U03 — Strategy fallback chain walker
+          case "strategy_fallback_chain": {
+            const { strategyFallbackChainEngine } = await import("../../engines/StrategyFallbackChainEngine.js");
+            result = strategyFallbackChainEngine.choose({
+              preferred: params.preferred as any,
+              controller: params.controller as any,
+              custom_chain: params.custom_chain,
+              machine_flags: params.machine_flags,
+            });
+            break;
+          }
+
+          case "strategy_fallback_default_chain": {
+            const { strategyFallbackChainEngine } = await import("../../engines/StrategyFallbackChainEngine.js");
+            result = strategyFallbackChainEngine.getDefaultChain(params.strategy as any);
             break;
           }
 
