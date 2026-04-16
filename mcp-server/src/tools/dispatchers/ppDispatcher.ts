@@ -212,6 +212,9 @@ let _ppLineNumberSanity: any;
 // PP-UM: Units mode (G20/G21) validator
 let _ppUnitsMode: any;
 
+// PP-FO: Feed override (F-word sequencing) validator
+let _ppFeedOverride: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -387,6 +390,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppLineNumberSanity ??= (await import("../../engines/PPLineNumberSanityEngine.js")).ppLineNumberSanityEngine;
     case "unitsMode":
       return _ppUnitsMode ??= (await import("../../engines/PPUnitsModeValidatorEngine.js")).ppUnitsModeValidatorEngine;
+    case "feedOverride":
+      return _ppFeedOverride ??= (await import("../../engines/PPFeedOverrideValidatorEngine.js")).ppFeedOverrideValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -725,6 +730,11 @@ const ACTIONS = [
   "pp_um_validate",                // Full units mode validation
   "pp_um_quick",                   // Quick pass/fail + initial units
   "pp_um_defaults",                // Default units mode validator options
+
+  // PP-FO: Feed override (F-word sequencing) validator
+  "pp_fo_validate",                // Full feed-override validation
+  "pp_fo_quick",                   // Quick pass/fail + first feed
+  "pp_fo_defaults",                // Default feed override validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2235,6 +2245,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_um_defaults": {
             const engine = await getEngine("unitsMode");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_FO (PP-FO — Feed override validator) =====
+          case "pp_fo_validate": {
+            const engine = await getEngine("feedOverride");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              excessive_feed_jump_ratio: params.excessive_feed_jump_ratio,
+              tool_change_feed_window: params.tool_change_feed_window,
+              flag_rapid_with_feed: params.flag_rapid_with_feed,
+              flag_excessive_jump: params.flag_excessive_jump,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_fo_quick": {
+            const engine = await getEngine("feedOverride");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_fo_defaults": {
+            const engine = await getEngine("feedOverride");
             result = engine.defaultOptions();
             break;
           }
