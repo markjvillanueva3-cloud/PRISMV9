@@ -197,6 +197,9 @@ let _ppWorkOffsetValidator: any;
 // PP-SS: Spindle speed safety validator (ramps, flips, dwell)
 let _ppSpindleSpeedSafety: any;
 
+// PP-CO: Coolant sequence (M7/M8/M9) validator
+let _ppCoolantSequence: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -362,6 +365,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppWorkOffsetValidator ??= (await import("../../engines/PPWorkOffsetValidatorEngine.js")).ppWorkOffsetValidatorEngine;
     case "spindleSpeedSafety":
       return _ppSpindleSpeedSafety ??= (await import("../../engines/PPSpindleSpeedSafetyEngine.js")).ppSpindleSpeedSafetyEngine;
+    case "coolantSequence":
+      return _ppCoolantSequence ??= (await import("../../engines/PPCoolantSequenceValidatorEngine.js")).ppCoolantSequenceValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -675,6 +680,11 @@ const ACTIONS = [
   "pp_ss_validate",                // Full spindle safety validation
   "pp_ss_quick",                   // Quick pass/fail + peak RPM
   "pp_ss_defaults",                // Default spindle safety validator options
+
+  // ===== PP_CO: Coolant sequence validator (3 actions) — PP-CO =====
+  "pp_co_validate",                // Full coolant M7/M8/M9 sequence validation
+  "pp_co_quick",                   // Quick pass/fail + final coolant state
+  "pp_co_defaults",                // Default coolant sequence validator options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -2060,6 +2070,31 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_ss_defaults": {
             const engine = await getEngine("spindleSpeedSafety");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CO (PP-CO — Coolant sequence validator) =====
+          case "pp_co_validate": {
+            const engine = await getEngine("coolantSequence");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              required_coolant: params.required_coolant,
+              warn_stale_across_m6: params.warn_stale_across_m6,
+              warn_redundant: params.warn_redundant,
+              require_final_m9: params.require_final_m9,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_co_quick": {
+            const engine = await getEngine("coolantSequence");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_co_defaults": {
+            const engine = await getEngine("coolantSequence");
             result = engine.defaultOptions();
             break;
           }
