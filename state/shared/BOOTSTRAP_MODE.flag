@@ -1,0 +1,45 @@
+{
+  "flag": "BOOTSTRAP_MODE",
+  "active": true,
+  "plantedAt": "2026-04-16T00:00:00.000Z",
+  "plantedBy": "Phase 0.16 U-OP1 — Operational Integrity Layer",
+  "source": "UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md",
+  "schemaVersion": 1,
+  "purpose": "Resolve bootstrap paradox — downgrade enforcement gates to warn-only during first-boot provisioning so Phase 0 stack can bring itself up without self-deadlocking.",
+  "downgradedGates": [
+    {
+      "phase": "0.1",
+      "gate": "PreTool dedup (mustCheckBeforeCreating)",
+      "behavior": "warn-only — logs match but does not block"
+    },
+    {
+      "phase": "0.13",
+      "gate": "awareness score ≥ 0.80 floor",
+      "behavior": "warn-only — missing score logged, boot allowed"
+    },
+    {
+      "phase": "0.14",
+      "gate": "SVI milestone gate (net-zero Ψ delta blocks commit)",
+      "behavior": "warn-only — requires justification once flag removed"
+    },
+    {
+      "phase": "0.15",
+      "gate": "Managed-block guard (AUTO-REFRESHED section edits)",
+      "behavior": "warn-only — hand edits permitted during bootstrap"
+    }
+  ],
+  "removalCondition": "Auto-removed by Phase 0.11 exit gate after: retrofit-existing-artifacts.ts completes, awareness regression suite passes 30/30, boot telemetry p99 ≤2s over 100 consecutive boots.",
+  "removalMechanism": "scripts/phase-0-11-exit-gate.ts unlinks this file and writes RETROFIT_COMPLETE.flag",
+  "warnOnlyEscapeHatch": "Never use HOOK_FEATURE_FLAGS to permanently silence gates — fix the gate or remove it.",
+  "auditTrail": {
+    "createdBy": "Claude session (auto-pickup from 12-scrutiny plan)",
+    "rationale": "31-step Next Immediate Actions queue, step 0. Blocks Phase 0.1-0.15 bring-up otherwise.",
+    "relatedFiles": [
+      "state/shared/HOOK_ORDER_REGISTRY.json (U-OP2)",
+      "state/shared/HOOK_FEATURE_FLAGS.json (U-OP5)",
+      "state/shared/PHASE_CANARY.flag (U-OP10)",
+      "state/shared/CRITICAL_FILES.json (U-OP14)",
+      "state/shared/RETROFIT_COMPLETE.flag (set after retrofit success)"
+    ]
+  }
+}
