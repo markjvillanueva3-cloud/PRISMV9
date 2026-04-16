@@ -76,6 +76,8 @@ const ACTIONS = [
   "lathe_unified_thermal", "lathe_unified_metallurgy", "lathe_unified_chemistry",
   // MS2: Vendor Turning Catalog Actions (U-LAT23-U-LAT25)
   "lathe_vendor_tool_lookup", "lathe_insert_grade_select", "lathe_iso_code_resolve",
+  // MS3: Machine Kinematics Actions (U-LAT30)
+  "lathe_machine_kinematics_lookup",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1004,6 +1006,55 @@ Actions: ${ACTIONS.join(", ")}.`,
               ...resolved,
               iso_shape_angle: resolved.parsed?.iso_shape ? { C: 80, D: 55, E: 75, T: 60, S: 90, R: 360, V: 35, W: 80 }[resolved.parsed.iso_shape] : null,
             };
+            break;
+          }
+
+          // MS3: Machine Kinematics Lookup (U-LAT30)
+          case "lathe_machine_kinematics_lookup": {
+            const { findOkumaMachineByModel, getOkumaMachinesBySeries, getOkumaMachinesByType, OKUMA_MACHINES_FROM_STEP } = await import("../../data/okuma-machines-from-step.js");
+
+            if (params.model) {
+              // Lookup by model name
+              const machine = findOkumaMachineByModel(params.model);
+              result = machine ? {
+                found: true,
+                source: "okuma_step_catalog",
+                machine,
+                work_envelope_mm: machine.work_envelope_mm,
+                kinematic_chain: machine.kinematic_chain,
+                simulation_model_path: machine.simulation_model_path,
+                spindle: machine.spindle,
+                tool_magazine: machine.tool_magazine,
+                controller: machine.controller,
+              } : { found: false, query: params.model };
+            } else if (params.series) {
+              // List by series
+              const machines = getOkumaMachinesBySeries(params.series);
+              result = { machines, count: machines.length, series: params.series };
+            } else if (params.type) {
+              // List by type
+              const machines = getOkumaMachinesByType(params.type);
+              result = { machines, count: machines.length, type: params.type };
+            } else if (params.stats) {
+              // Return catalog stats
+              const bySeries: Record<string, number> = {};
+              const byType: Record<string, number> = {};
+              let fiveAxisCount = 0;
+              for (const m of OKUMA_MACHINES_FROM_STEP) {
+                bySeries[m.series] = (bySeries[m.series] || 0) + 1;
+                byType[m.type] = (byType[m.type] || 0) + 1;
+                if (m.type === "5axis_machining_center") fiveAxisCount++;
+              }
+              result = {
+                total_machines: OKUMA_MACHINES_FROM_STEP.length,
+                by_series: bySeries,
+                by_type: byType,
+                machines_with_5axis: fiveAxisCount,
+              };
+            } else {
+              // Return all machines
+              result = { machines: OKUMA_MACHINES_FROM_STEP, count: OKUMA_MACHINES_FROM_STEP.length };
+            }
             break;
           }
 
