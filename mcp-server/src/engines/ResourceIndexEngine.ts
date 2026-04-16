@@ -119,6 +119,9 @@ const KNOWN_RESOURCE_FOLDERS: Array<{
   { path: "3- Basic Training Day 3", name: "Training Day 3", type: "pdf", status: "not_started", priority: "low" },
 ];
 
+// JM DIE program folders — expanded per U-AWR18 (8 → 16) to cover previously
+// orphaned program sets. Scrutiny found ~722 programs orphaned (MATTHEW 698,
+// QUEUE 20, JM DIE COMPANY 4) and additional setup/project folders.
 const JM_DIE_FOLDERS = [
   "CNC LATHE",
   "CNC MILL HAAS",
@@ -128,7 +131,33 @@ const JM_DIE_FOLDERS = [
   "LATHE",
   "HAAS-HURCO",
   "ROKU-ROKU",
+  // U-AWR18 expansion: previously orphaned folders
+  "MATTHEW",
+  "QUEUE",
+  "JM DIE COMPANY",
+  "SETUPS",
+  "BASEBALL PARTS",
+  "GENERAL BANDAGES",
+  "REVERSE ENGINEERING",
+  "PROGRAMS",
 ];
+
+/** Recognized CNC program extensions (U-AWR18 — includes Mastercam formats) */
+const PROGRAM_EXTENSIONS = [
+  ".nc", ".NC",          // Standard G-code
+  ".MIN", ".min",        // Okuma min format
+  ".mcx", ".MCX",        // Mastercam older
+  ".mcx-8",              // Mastercam X8
+  ".mcam",               // Mastercam 2017+
+];
+
+/** Check whether filename matches a CNC program extension */
+function isProgramFile(filename: string): boolean {
+  for (const ext of PROGRAM_EXTENSIONS) {
+    if (filename.endsWith(ext)) return true;
+  }
+  return false;
+}
 
 // ============================================================================
 // ENGINE
@@ -371,9 +400,7 @@ export class ResourceIndexEngine {
     const programs: string[] = [];
 
     try {
-      const files = fs.readdirSync(fullPath).filter((f) =>
-        f.endsWith(".nc") || f.endsWith(".NC") || f.endsWith(".MIN") || f.endsWith(".min")
-      );
+      const files = fs.readdirSync(fullPath).filter(isProgramFile);
 
       for (const file of files.slice(0, count)) {
         const content = fs.readFileSync(path.join(fullPath, file), "utf-8");
@@ -446,12 +473,7 @@ export class ResourceIndexEngine {
           const stat = fs.statSync(filePath);
           if (stat.isDirectory()) {
             count += this.countProgramsInDir(filePath);
-          } else if (
-            file.endsWith(".nc") ||
-            file.endsWith(".NC") ||
-            file.endsWith(".MIN") ||
-            file.endsWith(".min")
-          ) {
+          } else if (isProgramFile(file)) {
             count++;
           }
         } catch {
