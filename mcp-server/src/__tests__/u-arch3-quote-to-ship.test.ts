@@ -80,13 +80,13 @@ describe("QuoteToShipOrchestratorEngine (U-ARCH3 export + wiring)", () => {
   // 3. Stage structure
   // ═══════════════════════════════════════════════════════════════════
 
-  it("defines all 21 pipeline stages", async () => {
+  it("defines all 27 pipeline stages", async () => {
     const { quoteToShipOrchestratorEngine } = await import(
       "../engines/QuoteToShipOrchestratorEngine.js"
     );
     const descriptors = quoteToShipOrchestratorEngine.getStageDescriptors?.();
     if (descriptors) {
-      expect(descriptors.length).toBe(21);
+      expect(descriptors.length).toBe(27);
     }
   });
 
@@ -97,7 +97,7 @@ describe("QuoteToShipOrchestratorEngine (U-ARCH3 export + wiring)", () => {
     const emptyResults = new Map();
     const statuses = quoteToShipOrchestratorEngine.getStatus(emptyResults);
     expect(Array.isArray(statuses)).toBe(true);
-    expect(statuses.length).toBe(21);
+    expect(statuses.length).toBe(27);
     // All should be "pending" for empty results
     for (const s of statuses) {
       expect(s.status).toBe("pending");

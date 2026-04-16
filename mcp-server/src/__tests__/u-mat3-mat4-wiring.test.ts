@@ -263,11 +263,11 @@ describe("QuoteToShipOrchestratorEngine.validateInput", () => {
 });
 
 describe("QuoteToShipOrchestratorEngine.getStageDescriptors", () => {
-  it("returns all 21 pipeline stages", () => {
+  it("returns all 27 pipeline stages", () => {
     const stages = quoteToShipOrchestratorEngine.getStageDescriptors();
-    expect(stages.length).toBe(21);
+    expect(stages.length).toBe(27);
     expect(stages[0].id).toBe("INTAKE");
-    expect(stages[20].id).toBe("SHIPPING");
+    expect(stages[26].id).toBe("SHIPPING");
   });
 
   it("each stage has required fields", () => {
