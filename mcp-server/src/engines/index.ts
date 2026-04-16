@@ -6315,3 +6315,14 @@ export {
   type StyleDistribution,
   type ScanOptions,
 } from './LatheProgramCatalogEngine.js';
+
+// --- LATHE-AWARE-HARDEN MS11: Programming Cost Model (E109) ---
+export {
+  latheProgrammingCostEngine,
+  type ProgrammingCostOptions,
+  type ProgrammingCostResult,
+  type CompareInput,
+  type CompareResult,
+  type BreakEvenPoint,
+  type BreakEvenAnalysis,
+} from './LatheProgrammingCostEngine.js';

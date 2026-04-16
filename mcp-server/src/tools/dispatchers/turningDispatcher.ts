@@ -101,6 +101,10 @@ const ACTIONS = [
   "lathe_find_similar_programs",
   "lathe_programming_history",
   "lathe_catalog_stats",
+  // MS11: Programming Cost Model (U-LAT77-U-LAT82)
+  "lathe_estimate_programming_cost",
+  "lathe_compare_programming_approaches",
+  "lathe_break_even_analysis",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -1298,6 +1302,53 @@ Actions: ${ACTIONS.join(", ")}.`,
             // Return current lathe domain awareness state via facade engine
             const { latheMasterOrchestratorFacadeEngine } = await import("../../engines/LatheMasterOrchestratorFacadeEngine.js");
             result = latheMasterOrchestratorFacadeEngine.getLatheSnapshot();
+            break;
+          }
+
+          // MS11: Estimate programming cost (U-LAT79)
+          case "lathe_estimate_programming_cost": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            result = latheProgrammingCostEngine.estimateProgrammingCost(
+              params.style ?? "hardcode",
+              params.part_complexity ?? "moderate",
+              params.lot_size ?? 1,
+              {
+                profile_id: params.profile_id,
+                cam_seat_cost_per_hr: params.cam_seat_cost_per_hr,
+                programmer_rate_per_hr: params.programmer_rate_per_hr,
+                machine_rate_per_hr: params.machine_rate_per_hr,
+                setup_rate_per_hr: params.setup_rate_per_hr,
+                feature_surcharge_pct: params.feature_surcharge_pct,
+              }
+            );
+            break;
+          }
+
+          // MS11: Compare programming approaches (U-LAT80)
+          case "lathe_compare_programming_approaches": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            result = latheProgrammingCostEngine.compareApproaches({
+              controller: params.controller,
+              part_complexity: params.part_complexity ?? "moderate",
+              lot_size: params.lot_size ?? 1,
+              has_threading: params.has_threading,
+              has_live_tooling: params.has_live_tooling,
+              requires_5axis: params.requires_5axis,
+              available_cam_seats: params.available_cam_seats,
+              options: params.options,
+            });
+            break;
+          }
+
+          // MS11: Break-even analysis (U-LAT81)
+          case "lathe_break_even_analysis": {
+            const { latheProgrammingCostEngine } = await import("../../engines/LatheProgrammingCostEngine.js");
+            result = latheProgrammingCostEngine.breakEvenAnalysis(
+              params.macro_investment_hr ?? 2,
+              params.lot_sizes ?? [10, 50, 100, 500],
+              params.part_complexity ?? "moderate",
+              params.options ?? {}
+            );
             break;
           }
 
