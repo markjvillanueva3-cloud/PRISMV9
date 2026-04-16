@@ -54,6 +54,17 @@ import { chatterStabilityLobeEngine } from "./ChatterStabilityLobeEngine.js";
 import { surfaceFinishPredictorEngine } from "./SurfaceFinishPredictorEngine.js";
 import { surfaceIntegrityEngine } from "./SurfaceIntegrityEngine.js";
 
+// Wear/Life engines (9) — MS-WIRE-1/U-WIRE-03
+import { toolWearRateEngine } from "./ToolWearRateEngine.js";
+import { toolWearProgressionEngine } from "./ToolWearProgressionEngine.js";
+import { advancedWearPhysicsEngine } from "./AdvancedWearPhysicsEngine.js";
+import { archardAdhesiveWearEngine } from "./ArchardAdhesiveWearEngine.js";
+import { stochasticToolWearEngine } from "./StochasticToolWearEngine.js";
+import { stochasticToolLifeEngine } from "./StochasticToolLifeEngine.js";
+import { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
+import { toolLifeAdaptiveEngine } from "./ToolLifeAdaptiveEngine.js";
+import { advancedCuttingPhenomenaEngine } from "./AdvancedCuttingPhenomenaEngine.js";
+
 // ==================== TYPE DEFINITIONS ====================
 
 interface AtomicValue {
@@ -890,6 +901,112 @@ class MillingPhysicsKernelEngine {
   }
 
   // =========================================================================
+  // WEAR / LIFE ENGINES — MS-WIRE-1 / U-WIRE-03 (9 engines)
+  // =========================================================================
+
+  /**
+   * Tool wear rate (Taylor C/n per tool-material pairing).
+   * Delegates to: ToolWearRateEngine.calculate()
+   */
+  calculateWearRate(input: {
+    cutting_speed_mpm: number;
+    feed_mm?: number;
+    depth_of_cut_mm?: number;
+    tool_material?: "carbide" | "hss" | "ceramic" | "cbn" | "pcd";
+    workpiece?: "steel" | "aluminum" | "stainless" | "cast_iron" | "titanium" | "inconel";
+    coating?: string;
+  }) {
+    return toolWearRateEngine.calculate(input as any);
+  }
+
+  /**
+   * Tool wear progression — three-stage wear curve (initial → steady → accelerated).
+   * Delegates to: ToolWearProgressionEngine.calculate()
+   */
+  calculateWearProgression(input: Parameters<typeof toolWearProgressionEngine.calculate>[0]) {
+    return toolWearProgressionEngine.calculate(input);
+  }
+
+  /**
+   * Advanced wear physics — Kannatey-Asibu stochastic, Fick crater, notch, flank ODE.
+   * Delegates to: AdvancedWearPhysicsEngine (multiple mechanisms).
+   */
+  calculateAdvancedWear(mechanism: "kannateyAsibu" | "fickCrater" | "notch" | "logNormalLife" |
+                                    "rabinowiczAbrasive" | "flankWearODE" | "combined",
+                        input: any) {
+    switch (mechanism) {
+      case "kannateyAsibu": return advancedWearPhysicsEngine.kannateyAsibuStochastic(input);
+      case "fickCrater":    return advancedWearPhysicsEngine.fickCraterWear(input);
+      case "notch":         return advancedWearPhysicsEngine.notchWear(input);
+      case "logNormalLife": return advancedWearPhysicsEngine.logNormalToolLife(input);
+      case "rabinowiczAbrasive": return advancedWearPhysicsEngine.rabinowiczAbrasiveWear(input);
+      case "flankWearODE":  return advancedWearPhysicsEngine.flankWearODE(input);
+      case "combined":      return advancedWearPhysicsEngine.combinedWearMechanisms(input);
+    }
+  }
+
+  /**
+   * Archard adhesive wear model (K·F·L / H).
+   * Delegates to: ArchardAdhesiveWearEngine.calculate()
+   */
+  calculateArchardWear(input: Parameters<typeof archardAdhesiveWearEngine.calculate>[0]) {
+    return archardAdhesiveWearEngine.calculate(input);
+  }
+
+  /**
+   * Stochastic tool wear with Latin Hypercube sampling + Weibull fitting.
+   * Delegates to: StochasticToolWearEngine methods.
+   */
+  calculateStochasticWear(method: "taylor" | "extendedTaylor" | "usui" | "fosmTaylor",
+                          input: any) {
+    switch (method) {
+      case "taylor":         return stochasticToolWearEngine.taylorLife(input.V, input.n, input.C);
+      case "extendedTaylor": return stochasticToolWearEngine.extendedTaylorLife(
+                                      input.V, input.f, input.d, input.n, input.C, input.a, input.b);
+      case "usui":           return stochasticToolWearEngine.usuiWearRate(input.F_n, input.V, input.T, input.A, input.B);
+      case "fosmTaylor":     return stochasticToolWearEngine.fosmTaylor(input);
+    }
+  }
+
+  /**
+   * Stochastic tool life — Weibull distribution with Monte Carlo.
+   * Delegates to: StochasticToolLifeEngine.compute()
+   */
+  calculateStochasticToolLife(input: Parameters<typeof stochasticToolLifeEngine.compute>[0]) {
+    return stochasticToolLifeEngine.compute(input);
+  }
+
+  /**
+   * Bayesian tool life predictor — Gaussian Process regression that learns from observations.
+   * Delegates to: BayesianToolLifeEngine.
+   */
+  createBayesianToolLifePredictor(config?: Parameters<typeof bayesianToolLifeEngine.createPredictor>[0]) {
+    return bayesianToolLifeEngine.createPredictor(config);
+  }
+
+  /**
+   * Adaptive tool life — Weibull reliability/hazard-based replacement scheduling.
+   * Delegates to: ToolLifeAdaptiveEngine.
+   */
+  predictAdaptiveToolLife(input: Parameters<typeof toolLifeAdaptiveEngine.predict>[0]) {
+    return toolLifeAdaptiveEngine.predict(input);
+  }
+
+  /**
+   * Advanced cutting phenomena (BUE, chip segmentation, dead metal zone, burr, etc.).
+   * Delegates to: AdvancedCuttingPhenomenaEngine.
+   */
+  analyzeAdvancedCuttingPhenomena(input: any) {
+    const e: any = advancedCuttingPhenomenaEngine;
+    // Engine exposes multiple specialized methods; caller provides routed input
+    if (input?.phenomenon && typeof e[input.phenomenon] === "function") {
+      return e[input.phenomenon](input);
+    }
+    // Fallback: return engine itself for direct method access
+    return e;
+  }
+
+  // =========================================================================
   // ENGINE REGISTRY
   // =========================================================================
 
@@ -923,6 +1040,16 @@ class MillingPhysicsKernelEngine {
       // Surface engines (Phase 1 continued)
       "SurfaceFinishPredictorEngine (Brammertz Ra, scallop, algorithm effects)",
       "SurfaceIntegrityEngine (residual stress, white layer, fatigue)",
+      // Wear/Life engines (MS-WIRE-1/U-WIRE-03)
+      "ToolWearRateEngine (Taylor C/n per tool-material pairing)",
+      "ToolWearProgressionEngine (three-stage wear curve)",
+      "AdvancedWearPhysicsEngine (Kannatey-Asibu, Fick crater, flank ODE, Rabinowicz)",
+      "ArchardAdhesiveWearEngine (K·F·L / H adhesive wear model)",
+      "StochasticToolWearEngine (LHS + Weibull fitting, FOSM Taylor)",
+      "StochasticToolLifeEngine (Weibull Monte Carlo)",
+      "BayesianToolLifeEngine (Gaussian Process regression)",
+      "ToolLifeAdaptiveEngine (Weibull reliability/hazard replacement)",
+      "AdvancedCuttingPhenomenaEngine (BUE, chip segmentation, burr formation)",
     ];
   }
 
@@ -939,8 +1066,10 @@ class MillingPhysicsKernelEngine {
       deflection: 1,        // ToolDeflectionPrediction
       stability: 1,         // ChatterStabilityLobe
       surface: 2,           // SurfaceFinishPredictor, SurfaceIntegrity
-      total_engines: 16,
-      total_functions: 21,
+      wear_life: 9,         // WearRate, Progression, AdvancedWear, Archard, StochasticWear,
+                            // StochasticLife, Bayesian, Adaptive, AdvancedPhenomena
+      total_engines: 25,
+      total_functions: 30,
     };
   }
 }
