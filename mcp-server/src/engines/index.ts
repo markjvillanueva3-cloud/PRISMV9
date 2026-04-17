@@ -6655,6 +6655,20 @@ export {
   type AcquisitionStats,
 } from './AcquisitionRecommendationEngine.js';
 
+export {
+  machineAuditEngine,
+  type AuditPriority,
+  type AuditStatus,
+  type FieldCompleteness,
+  type BrandAuditConfig,
+  type FieldAuditResult,
+  type MachineAuditResult,
+  type BrandAuditReport,
+  type RemediationItem,
+  type AuditWaveStatus,
+  type AuditStats,
+} from './MachineAuditEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
@@ -6788,6 +6802,20 @@ export {
   type DecisionRecord,
 } from './MillingAwarenessOrchestratorEngine.js';
 
+// MILL-AGI P1.1: Strategy Taxonomy
+export {
+  MillingStrategyTaxonomyEngine,
+  millingStrategyTaxonomyEngine,
+  type StrategyDomain,
+  type StrategyCategory,
+  type EngagementType,
+  type ToolpathPattern,
+  type StrategyDefinition,
+  type StrategyMatch,
+  type StrategyQuery,
+  type TaxonomyStats,
+} from './MillingStrategyTaxonomyEngine.js';
+
 // ===== L2-P4-MS1/P0-U03: DNC & Post-Processing Engines =====
 export {
   DNCGenerateEngine,
@@ -6912,3 +6940,50 @@ export {
   type OverrideInput,
   type OverrideOutput,
 } from './AdaptiveOverrideEngine.js';
+
+// ===== L2-P4-MS1/P0-U05: Surface Finish Engines =====
+export {
+  SFCCalculateEngine,
+  sfcCalculateEngine,
+  type SFCInput,
+  type SFCOutput,
+} from './SFCCalculateEngine.js';
+
+export {
+  SFCCompareEngine,
+  sfcCompareEngine,
+  type Measurement,
+  type Specification,
+  type CompareInput,
+  type CompareOutput,
+} from './SFCCompareEngine.js';
+
+export {
+  SFCOptimizeEngine,
+  sfcOptimizeEngine,
+  type OptimizeInput as SFCOptimizeInput,
+  type OptimizeOutput as SFCOptimizeOutput,
+} from './SFCOptimizeEngine.js';
+
+// ===== L2-P4-MS1/P0-U05: Sustainability Engines =====
+export {
+  SustainOptimizeEngine,
+  sustainOptimizeEngine,
+  type SustainInput,
+  type SustainOutput,
+} from './SustainOptimizeEngine.js';
+
+export {
+  SustainEnergyEngine,
+  sustainEnergyEngine,
+  type EnergyRecord,
+  type EnergyAnalysisInput,
+  type EnergyAnalysisOutput,
+} from './SustainEnergyEngine.js';
+
+export {
+  SustainCarbonEngine,
+  sustainCarbonEngine,
+  type CarbonInput,
+  type CarbonOutput,
+} from './SustainCarbonEngine.js';
