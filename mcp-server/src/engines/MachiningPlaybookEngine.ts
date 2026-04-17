@@ -4456,6 +4456,13 @@ export class MachiningPlaybookEngine {
     const related = map[op] || [];
     return related.some(r => feature.toLowerCase().includes(r));
   }
+
+  /**
+   * Get all rules without filtering
+   */
+  getAllRules(): PlaybookRule[] {
+    return [...this.rules];
+  }
 }
 
 // ============================================================================
