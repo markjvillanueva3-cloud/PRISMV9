@@ -62,6 +62,24 @@
             "command": "node H:/prism/.claude/hooks/pre-rename-guard.mjs",
             "timeout": 2000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/critical-file-guard.mjs",
+            "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/managed-block-guard.mjs",
+            "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/svi-projection.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },
@@ -294,6 +312,18 @@
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/signature-drift-detector.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/svi-watch-refresh.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/doc-cascade.mjs",
             "timeout": 2000,
             "continueOnError": true
           }
@@ -581,6 +611,30 @@
             "type": "command",
             "command": "node H:/prism/.claude/helpers/realtime-session-coordinator.mjs --session-start",
             "timeout": 3000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/awareness-bootstrap.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/goal-stack-init.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/svi-inject.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/doc-freshness-check.mjs",
+            "timeout": 2500,
             "continueOnError": true
           }
         ]
