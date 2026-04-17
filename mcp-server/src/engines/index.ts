@@ -6396,3 +6396,91 @@ export {
   type CoverageReport,
   type FormulaEngineMapping,
 } from './FormulaOrchestrator.js';
+
+// --- AI-AWARE-HARDEN: Resource Extraction Engines (7 engines, 272 tests) ---
+export {
+  ArchiveCrawlerEngine,
+  archiveCrawlerEngine,
+  type ArchiveFormat,
+  type ArchiveEntry,
+  type ArchiveContent,
+  type HighValueFile,
+  type CrawlResult,
+  type ExtractionRoute,
+} from './ArchiveCrawlerEngine.js';
+
+export {
+  DarkContentClassifierEngine,
+  darkContentClassifierEngine,
+  type DarkContentCategory,
+  type ExtractionDifficulty,
+  type ContentAssessment,
+  type DarkContentReport,
+} from './DarkContentClassifierEngine.js';
+
+export {
+  CrossTerminalCoordinationEngine,
+  crossTerminalCoordinationEngine,
+  type WorkItemStatus,
+  type WorkItemPriority,
+  type WorkItem,
+  type TerminalSession,
+  type CoordinationState,
+  type ClaimResult,
+  type DistributionStrategy,
+} from './CrossTerminalCoordinationEngine.js';
+
+export {
+  ImageOCRPipelineEngine,
+  imageOCRPipelineEngine,
+  type ImageFormat,
+  type ContentType as OCRContentType,
+  type OCRQuality,
+  type OCRRegion,
+  type OCRResult,
+  type ExtractedData as OCRExtractedData,
+  type OCRConfig,
+} from './ImageOCRPipelineEngine.js';
+
+export {
+  Drawing2DExtractionEngine,
+  drawing2DExtractionEngine,
+  type DrawingFormat,
+  type DimensionType,
+  type ToleranceType,
+  type GDTSymbol,
+  type Dimension,
+  type Tolerance,
+  type GDTCallout,
+  type TitleBlock,
+  type Note as DrawingNote,
+  type DrawingExtraction,
+  type ExtractionSummary,
+} from './Drawing2DExtractionEngine.js';
+
+export {
+  OfficeDocumentPipelineEngine,
+  officeDocumentPipelineEngine,
+  type DocumentType,
+  type ContentCategory,
+  type DocumentMetadata,
+  type ExtractedTable,
+  type ExtractedSection,
+  type DocumentExtraction,
+  type ManufacturingData,
+} from './OfficeDocumentPipelineEngine.js';
+
+export {
+  MachineLogHarvesterEngine,
+  machineLogHarvesterEngine,
+  type MachineType,
+  type ControllerType,
+  type LogEntryType,
+  type AlarmSeverity,
+  type LogEntry,
+  type CycleData,
+  type AlarmRecord,
+  type ToolUsageRecord,
+  type HarvestResult,
+  type HarvestStatistics,
+} from './MachineLogHarvesterEngine.js';
