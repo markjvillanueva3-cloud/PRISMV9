@@ -5359,7 +5359,6 @@ export { ContactMechanicsSurfaceEngine, type MaterialProps, type HertzContactRes
 export { CurriculumEngine, type Course, type Module, type LessonContent, type Quiz, type Question, type QuestionOption, type DecisionNode, type StudentProgress, type CourseProgress, type QuizScore, type ReviewItem, type ContentType, type QuestionType } from './CurriculumEngine.js';
 export { DXFGeometryParserEngine, dxfGeometryParserEngine, type LineSegment, type ArcSegment, type WireEDMContour, type GeometryIssue, type GeometryParseResult, type GeometrySegment } from './DXFGeometryParserEngine.js';
 export { wedmPostDialectRouterEngine, WEDMPostDialectRouterEngine, type WEDMController, type WEDMPostInput, type WEDMPostOutput, type WEDMOperation as WEDMPostOperation } from './WEDMPostDialectRouterEngine.js';
-export { wedmWirePathCollisionEngine, WEDMWirePathCollisionEngine, type Point3D, type AABB, type WirePathPoint, type WirePath, type MachineGeometry, type Obstacle, type CollisionCheckInput, type CollisionEvent, type CollisionCheckResult } from './WEDMWirePathCollisionEngine.js';
 export { FinishTargetAdvisorEngine, finishTargetAdvisorEngine, type FinishTargetInput, type FinishTargetResult, type FinishOperation, type CoolantStrategy as FinishCoolantStrategy } from './FinishTargetAdvisorEngine.js';
 export { HaasParserEngine, haasParserEngine, type HaasProgram, type HaasToolSection, type HaasOperation, type HaasMacroVariable, type HaasSubCall, type HaasSafetyInfo } from './HaasParserEngine.js';
 export { HoningProcessEngine, honingProcessEngine, type HoningDesignInput, type HoningDesignResult, type StoneSelectionInput, type StoneSelectionResult, type PlateauHoningInput, type PlateauHoningStageParams, type PlateauHoningResult, type StoneType } from './HoningProcessEngine.js';
@@ -6486,28 +6485,3 @@ export {
   type HarvestResult,
   type HarvestStatistics,
 } from './MachineLogHarvesterEngine.js';
-
-// ===== MCAT-MS0: Machine Catalog Convergence =====
-export {
-  machineLayerMerger,
-  type MachineLayerInput,
-  type MergeResult,
-} from './MachineLayerMerger.js';
-
-export {
-  machineVocabularyNormalizerEngine,
-  type NormalizationResult,
-  type VocabularyStats,
-  type ManufacturerCanonical,
-  type ControllerCanonical,
-  type CoolantCanonical,
-} from './MachineVocabularyNormalizerEngine.js';
-
-export {
-  machineConfidenceCalculatorEngine,
-  type FieldConfidenceRule,
-  type ConfidenceResult,
-  type ConfidenceIssue,
-  type AmbiguityQueueItem,
-  type AmbiguityQueueStats,
-} from './MachineConfidenceCalculatorEngine.js';
