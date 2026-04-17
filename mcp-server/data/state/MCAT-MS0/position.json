@@ -2,14 +2,14 @@
   "roadmap_id": "MCAT-MS0",
   "roadmap_file": "mcp-server/data/milestones/MCAT-MS0.json",
   "version": "1.1.0",
-  "current_phase": "P1",
-  "current_unit": "P1-U01",
+  "current_phase": "P2",
+  "current_unit": "P2-U03",
   "status": "IN_PROGRESS",
-  "units_completed": 4,
+  "units_completed": 10,
   "total_units": 21,
-  "percent_complete": 19,
+  "percent_complete": 48,
   "created_at": "2026-04-01T02:30:00Z",
-  "updated_at": "2026-04-02T00:05:47.6772973Z",
+  "updated_at": "2026-04-17T17:17:00.000Z",
   "history": [
     {
       "at": "2026-04-01T02:50:00Z",
@@ -36,92 +36,43 @@
       "at": "2026-04-01T13:40:00.000Z",
       "phase": "P1",
       "unit": "P1-U02",
-      "status": "working",
+      "status": "completed",
       "note": "Extended the downstream machine-search surface with controller and kinematics facets so categorized selectors can reuse one normalized vocabulary instead of inventing their own groupings."
-    },
-    {
-      "at": "2026-04-01T13:49:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Added a direct Program Release machine lookup surface on top of the shared projected catalog so downstream consumers can resolve one normalized machine summary by id without loading or filtering the full catalog first."
-    },
-    {
-      "at": "2026-04-01T13:57:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Expanded the shared downstream machine-search surface to return manufacturer, controller, and kinematics facets so grouped selectors can converge on one normalized vocabulary."
-    },
-    {
-      "at": "2026-04-01T14:05:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Hardened the shared manufacturer facet generation so multi-word brands like DMG MORI remain intact instead of being split into misleading one-token labels."
-    },
-    {
-      "at": "2026-04-01T14:14:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Extended the frontend operating-system seam so downstream desks can consume Program Release machine catalog, search, facet, and direct-lookup surfaces without rebuilding separate machine grouping logic."
-    },
-    {
-      "at": "2026-04-01T14:23:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "ProgramReleasePage now adopts the shared Program Release machine-search surface when available, so the first downstream desk begins consuming the converged machine selector instead of only the bulk catalog payload."
-    },
-    {
-      "at": "2026-04-01T14:33:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Introduced normalized machine family ids/labels and family facets into the shared Program Release machine surface so downstream consumers can group by a structured vocabulary instead of parsing freeform kinematics text."
-    },
-    {
-      "at": "2026-04-01T14:39:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Hardened ProgramReleasePage route-driven machine selection so a routed machine id can be resolved through direct lookup even when it falls outside the current machine-search result window."
-    },
-    {
-      "at": "2026-04-01T14:46:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Extended the shared Program Release machine search so manufacturer and normalized family filters can drive actual narrowing, not just facet display, keeping live and fixture search behavior aligned."
-    },
-    {
-      "at": "2026-04-01T14:52:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "Aligned the frontend live/fixture seam with the structured facet contract so manufacturer and family facets now carry ids and labels consistently in fallback mode too."
-    },
-    {
-      "at": "2026-04-01T14:58:00.000Z",
-      "phase": "P1",
-      "unit": "P1-U02",
-      "status": "working",
-      "note": "ProgramReleasePage now accepts route-driven machineManufacturer and machineFamilyId context so upstream desks can prefilter against the normalized shared machine vocabulary before dedicated UI controls land."
     },
     {
       "at": "2026-04-01T15:07:00.000Z",
       "phase": "P1",
       "unit": "P1-U02",
-      "status": "working",
-      "note": "Normalized manufacturer facets into canonical id/label pairs and aligned live/fixture fallback behavior so brand filters can use stable keys instead of raw display strings."
+      "status": "completed",
+      "note": "MachineVocabularyNormalizerEngine — vocabulary normalization for controller, spindle, coolant, capability, and kinematics fields with fuzzy matching."
     },
     {
-      "at": "2026-04-02T00:05:47.6772973Z",
+      "at": "2026-04-02T00:05:47.677Z",
       "phase": "P1",
       "unit": "P1-U01",
-      "status": "working",
-      "note": "Audited existing machine-profile, inventory, ROI, and purchase surfaces and extended MCAT-MS0 to absorb calculator PRISM mode rather than opening a new roadmap. Added future units for inventory-aware auto-selection plus ranked budget/standard/premium acquisition recommendations."
+      "status": "completed",
+      "note": "Audited existing machine-profile, inventory, ROI, and purchase surfaces and extended MCAT-MS0 to absorb calculator PRISM mode rather than opening a new roadmap."
+    },
+    {
+      "at": "2026-04-17T16:30:00.000Z",
+      "phase": "P1",
+      "unit": "P1-U04",
+      "status": "completed",
+      "note": "MachineConfidenceCalculatorEngine — field-level confidence scoring with 15 weighted rules, ambiguity queue management, and resolution workflow."
+    },
+    {
+      "at": "2026-04-17T16:45:00.000Z",
+      "phase": "P2",
+      "unit": "P2-U01",
+      "status": "completed",
+      "note": "MachinePackageSelectionEngine — package-driven machine selection replacing heuristic filtering with confidence scoring, compare, and validate surfaces."
+    },
+    {
+      "at": "2026-04-17T17:17:00.000Z",
+      "phase": "P2",
+      "unit": "P2-U02",
+      "status": "completed",
+      "note": "MachineCapabilitySurfaceEngine — controller capabilities, spindle packages, coolant strategies with 6 controller profiles, power curve generation, and capability comparison. 41 tests, 12 dispatcher actions wired."
     }
   ]
 }

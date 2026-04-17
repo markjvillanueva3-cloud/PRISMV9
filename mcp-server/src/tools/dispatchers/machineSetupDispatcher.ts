@@ -99,6 +99,19 @@ const ACTIONS = [
   "ctrlk_list_controllers",      // CTRLK: List all available controller families
   "ctrlk_compare",               // CTRLK: Compare two controller families
   "ctrlk_get_all_profiles",      // CTRLK: Get all controller profiles
+  // ===== MCAT-MS0: Machine Catalog Convergence (12 actions) =====
+  "mcat_ctrl_capabilities",      // Get controller capabilities for machine
+  "mcat_spindle_pkg",            // Get spindle package specifications
+  "mcat_coolant_strategy",       // Get coolant strategy options
+  "mcat_capability_summary",     // Full capability summary
+  "mcat_compare_capabilities",   // Compare multiple machines
+  "mcat_find_by_capabilities",   // Find machines by requirements
+  "mcat_vocab_normalize",        // Normalize machine vocabulary
+  "mcat_vocab_stats",            // Get vocabulary normalization stats
+  "mcat_calc_confidence",        // Calculate package confidence
+  "mcat_queue_ambiguities",      // Queue ambiguities for resolution
+  "mcat_resolve_ambiguity",      // Resolve a queued ambiguity
+  "mcat_pkg_select",             // Select machines by requirements
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -472,6 +485,80 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "ctrlk_get_all_profiles") {
           const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
           result = { profiles: controllerKnowledgeEngine.profiles };
+
+        // ===== MCAT-MS0: Machine Catalog Convergence (12 actions) =====
+        } else if (action === "mcat_ctrl_capabilities") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          const machineId = params.machine_id as string;
+          result = machineCapabilitySurfaceEngine.getControllerCapabilities(machineId);
+        } else if (action === "mcat_spindle_pkg") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          const machineId = params.machine_id as string;
+          result = machineCapabilitySurfaceEngine.getSpindlePackage(machineId);
+        } else if (action === "mcat_coolant_strategy") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          const machineId = params.machine_id as string;
+          result = machineCapabilitySurfaceEngine.getCoolantStrategy(machineId);
+        } else if (action === "mcat_capability_summary") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          const machineId = params.machine_id as string;
+          result = machineCapabilitySurfaceEngine.getCapabilitySummary(machineId);
+        } else if (action === "mcat_compare_capabilities") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          const machineIds = (params.machine_ids ?? []) as string[];
+          result = machineCapabilitySurfaceEngine.compareCapabilities(machineIds);
+        } else if (action === "mcat_find_by_capabilities") {
+          const { machineCapabilitySurfaceEngine } = await import("../../engines/MachineCapabilitySurfaceEngine.js");
+          result = machineCapabilitySurfaceEngine.findByCapabilities({
+            minSpindleRpm: params.min_spindle_rpm as number | undefined,
+            minPower: params.min_power as number | undefined,
+            throughSpindleCoolant: params.through_spindle_coolant as boolean | undefined,
+            controllerFeatures: params.controller_features as any[] | undefined,
+          });
+        } else if (action === "mcat_vocab_normalize") {
+          const { machineVocabularyNormalizerEngine } = await import("../../engines/MachineVocabularyNormalizerEngine.js");
+          const field = params.field as string;
+          const value = params.value as string;
+          if (field === "controller") {
+            result = machineVocabularyNormalizerEngine.normalizeController(value);
+          } else if (field === "spindle") {
+            result = machineVocabularyNormalizerEngine.normalizeSpindle(value);
+          } else if (field === "coolant") {
+            result = machineVocabularyNormalizerEngine.normalizeCoolant(value);
+          } else if (field === "capability") {
+            result = machineVocabularyNormalizerEngine.normalizeCapability(value);
+          } else if (field === "kinematics") {
+            result = machineVocabularyNormalizerEngine.normalizeKinematics(value);
+          } else {
+            result = { error: `Unknown field: ${field}. Use controller, spindle, coolant, capability, or kinematics` };
+          }
+        } else if (action === "mcat_vocab_stats") {
+          const { machineVocabularyNormalizerEngine } = await import("../../engines/MachineVocabularyNormalizerEngine.js");
+          result = machineVocabularyNormalizerEngine.getStats();
+        } else if (action === "mcat_calc_confidence") {
+          const { machineConfidenceCalculatorEngine } = await import("../../engines/MachineConfidenceCalculatorEngine.js");
+          const pkg = params.package as any;
+          const provenance = params.provenance as any;
+          result = machineConfidenceCalculatorEngine.calculateConfidence(pkg, provenance);
+        } else if (action === "mcat_queue_ambiguities") {
+          const { machineConfidenceCalculatorEngine } = await import("../../engines/MachineConfidenceCalculatorEngine.js");
+          const machineId = params.machine_id as string;
+          const ambiguities = (params.ambiguities ?? []) as any[];
+          result = machineConfidenceCalculatorEngine.queueAmbiguities(machineId, ambiguities);
+        } else if (action === "mcat_resolve_ambiguity") {
+          const { machineConfidenceCalculatorEngine } = await import("../../engines/MachineConfidenceCalculatorEngine.js");
+          const ambiguityId = params.ambiguity_id as string;
+          const resolution = params.resolution as any;
+          result = machineConfidenceCalculatorEngine.resolveAmbiguity(ambiguityId, resolution);
+        } else if (action === "mcat_pkg_select") {
+          const { machinePackageSelectionEngine } = await import("../../engines/MachinePackageSelectionEngine.js");
+          result = machinePackageSelectionEngine.select({
+            part_envelope_mm: params.part_envelope_mm as any,
+            operations: (params.operations ?? []) as string[],
+            min_confidence: params.min_confidence as number | undefined,
+            min_spindle_rpm: params.min_spindle_rpm as number | undefined,
+            needs_rotary_axes: params.needs_rotary_axes as number | undefined,
+          });
 
         } else {
           const engineKey = engineMap[action];
