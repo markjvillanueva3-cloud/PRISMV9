@@ -348,6 +348,11 @@ const ACTIONS = [
   "wedm_neural_status",
 ] as const;
 
+// MS-P0.5-COORD U-P0.5-COORD-01: Register dispatcher actions with adoption engine (once, at module load)
+import("../../engines/WEDMAwarenessAdoptionEngine.js").then(({ wedmAwarenessAdoptionEngine }) => {
+  wedmAwarenessAdoptionEngine.registerDispatcher({ dispatcher: "edm", actions: ACTIONS });
+}).catch(() => { /* adoption engine optional — fails open */ });
+
 /** Registers edm dispatcher.
  * @param server - MCP server instance
   * @returns void
@@ -397,6 +402,19 @@ Actions: ${ACTIONS.join(", ")}.`,
             }) }]
           };
         }
+
+        // MS-P0.5-COORD U-P0.5-COORD-01: Awareness consult (fails open, <50ms budget)
+        let _awareness: any = null;
+        try {
+          const { consultAwareness } = await import("./awarenessMiddleware.js");
+          const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
+          const keywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
+          const aw = await consultAwareness({ dispatcher: "edm", action, keywords });
+          wedmAwarenessAdoptionEngine.recordAdoption({
+            dispatcher: "edm", action, latencyMs: aw.latencyMs, cached: aw.cached, ok: aw.ok,
+          });
+          _awareness = aw.summary.length > 0 ? aw.summary : null;
+        } catch { /* fails open — never blocks execution */ }
 
         switch (action) {
           // =================================================================
@@ -2938,6 +2956,10 @@ Actions: ${ACTIONS.join(", ")}.`,
       } catch (error: any) {
         if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_edm");
+      }
+      // MS-P0.5-COORD: attach awareness summary when present (metadata, non-blocking)
+      if (_awareness && result && typeof result === "object" && !Array.isArray(result)) {
+        (result as any)._awareness = _awareness;
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

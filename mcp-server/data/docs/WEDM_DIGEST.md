@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T00:46:53.573Z
+**Generated:** 2026-04-17T02:01:42.270Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 95 |
+| Engines | 96 |
 | Playbooks | 8 |
-| State Files | 40 |
+| State Files | 41 |
 
-## Engines (95)
+## Engines (96)
 
 | Engine | Description |
 |--------|-------------|
@@ -43,6 +43,7 @@
 | `WEDMActiveQueryEngine` | WEDMActiveQueryEngine — Information-gain test-cut selection |
 | `WEDMAnalogicalReasoningEngine` | WEDMAnalogicalReasoningEngine — WEDM AGI Phase 2 / U-P2-12 |
 | `WEDMAutonomyEngine` | WEDMAutonomyEngine — SAE J3016-adapted autonomy level management for WEDM. |
+| `WEDMAwarenessAdoptionEngine` | WEDMAwarenessAdoptionEngine — MS-P0.5-COORD U-P0.5-COORD-01 |
 | `WEDMBatchProgramAnalyzerEngine` | WEDMBatchProgramAnalyzerEngine - Comprehensive Wire EDM Program Batch Analysis |
 | `WEDMCalculatorAIEngine` | WEDMCalculatorAIEngine — AI-Powered Wire EDM Calculator for PRISM App |
 | `WEDMCalibrationReportEngine` | WEDMCalibrationReportEngine — Compares shop program parameters to published benc |
@@ -126,7 +127,7 @@
 | `wedm-jm-die-customer` | WEDM JM Die Customer-Specific Flow | 6 |
 | `wedm-continuous-learning` | WEDM Continuous Learning Pipeline | 5 |
 
-## State Files (40)
+## State Files (41)
 
 - `data/state/WEDM_VALIDATION_REPORT.json`
 - `data/state/WEDM_PRODUCTION_READINESS.json`
@@ -168,6 +169,7 @@
 - `data/state/WEDM_RL_POLICY.json`
 - `data/state/WEDM_AUTONOMY_STATE.json`
 - `data/state/WEDM_DIGEST.json`
+- `data/state/WEDM_CONSOLIDATED_BASELINE.json`
 
 ---
 > Regenerate: `npx ts-node scripts/wedm_generate_digest.ts`

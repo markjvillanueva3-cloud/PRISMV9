@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-04-17T00:46:53.591Z",
+  "generated": "2026-04-17T02:01:42.285Z",
   "source": "scripts/wedm_generate_digest.ts",
   "engines": {
-    "count": 95,
+    "count": 96,
     "names": [
       "EDMBiMaterialCompensationEngine",
       "EDMCostDocumentationEngine",
@@ -31,6 +31,7 @@
       "WEDMActiveQueryEngine",
       "WEDMAnalogicalReasoningEngine",
       "WEDMAutonomyEngine",
+      "WEDMAwarenessAdoptionEngine",
       "WEDMBatchProgramAnalyzerEngine",
       "WEDMCalculatorAIEngine",
       "WEDMCalibrationReportEngine",
@@ -116,7 +117,7 @@
     ]
   },
   "state_files": {
-    "count": 40,
+    "count": 41,
     "names": [
       "WEDM_VALIDATION_REPORT.json",
       "WEDM_PRODUCTION_READINESS.json",
@@ -157,7 +158,8 @@
       "WEDM_DRIFT_BASELINE.json",
       "WEDM_RL_POLICY.json",
       "WEDM_AUTONOMY_STATE.json",
-      "WEDM_DIGEST.json"
+      "WEDM_DIGEST.json",
+      "WEDM_CONSOLIDATED_BASELINE.json"
     ]
   },
   "skills": {
@@ -179,8 +181,9 @@
     ]
   },
   "hooks": {
-    "count": 22,
+    "count": 23,
     "names": [
+      "WEDMCoordinationHooks.ts::wedm-awareness-coverage",
       "WEDMLearningHooks.ts::wedm-drift-alert",
       "WEDMLearningHooks.ts::wedm-learning-trigger",
       "WEDMPerceptionHooks.ts::wedm-sensor-anomaly",

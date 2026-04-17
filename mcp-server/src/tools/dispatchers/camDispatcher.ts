@@ -1339,6 +1339,18 @@ export const ACTIONS = [
   "strategy_fallback_chain", "strategy_fallback_default_chain",
 ] as const;
 
+// MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
+import("../../engines/WEDMAwarenessAdoptionEngine.js").then(({ wedmAwarenessAdoptionEngine }) => {
+  wedmAwarenessAdoptionEngine.registerDispatcher({
+    dispatcher: "cam",
+    actions: ACTIONS,
+    wedmActionFilter: (a: string) => {
+      const lower = a.toLowerCase();
+      return lower.includes("edm") || lower.includes("wire_edm") || lower.includes("wedm");
+    },
+  });
+}).catch(() => { /* adoption engine optional */ });
+
 /** Registers cam dispatcher.
  * @param server - MCP server instance
   * @returns void
@@ -1386,6 +1398,21 @@ Params vary by action — pass relevant fields in params object.`,
             }) }]
           };
         }
+
+        // MS-P0.5-COORD U-P0.5-COORD-01: Awareness consult for WEDM-relevant CAM actions (fails open)
+        let _awareness: any = null;
+        try {
+          const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
+          if (wedmAwarenessAdoptionEngine.isWedmAction("cam", action)) {
+            const { consultAwareness } = await import("./awarenessMiddleware.js");
+            const keywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
+            const aw = await consultAwareness({ dispatcher: "cam", action, keywords });
+            wedmAwarenessAdoptionEngine.recordAdoption({
+              dispatcher: "cam", action, latencyMs: aw.latencyMs, cached: aw.cached, ok: aw.ok,
+            });
+            _awareness = aw.summary.length > 0 ? aw.summary : null;
+          }
+        } catch { /* fails open */ }
 
         switch (action) {
           case "toolpath_generate": {
@@ -7819,6 +7846,10 @@ Params vary by action — pass relevant fields in params object.`,
       } catch (error: any) {
         if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_cam");
+      }
+      // MS-P0.5-COORD: attach awareness summary when present
+      if (_awareness && result && typeof result === "object" && !Array.isArray(result)) {
+        (result as any)._awareness = _awareness;
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }

@@ -64,6 +64,7 @@ import { wedmSafetyHooks } from "./WEDMSafetyHooks.js";
 import { wedmSVIHooks } from "./WEDMSVIHooks.js";
 import { wedmPerceptionHooks } from "./WEDMPerceptionHooks.js";
 import { wedmLearningHooks } from "./WEDMLearningHooks.js";
+import { wedmCoordinationHooks } from "./WEDMCoordinationHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -129,6 +130,7 @@ export const allHooks = [
   ...wedmSVIHooks,                  // PP-0.10: 2 WEDM SVI coupling hooks
   ...wedmPerceptionHooks,           // WEDM-AGI P1-MS1: sensor anomaly + twin sync
   ...wedmLearningHooks,             // WEDM-AGI P3-MS1: learning trigger + drift alert
+  ...wedmCoordinationHooks,         // MS-P0.5-COORD U-01: awareness coverage gate
 ];
 
 /**
