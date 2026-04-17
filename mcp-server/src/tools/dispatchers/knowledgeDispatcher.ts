@@ -150,6 +150,17 @@ const VIDEO_ACTIONS = [
   "video_extract_playbook_rules",
 ] as const;
 
+/** PP-AGI-S0/U-S0-05: FormulaOrchestrator wiring — formula discovery, validation, coverage */
+const FORMULA_ORCHESTRATOR_ACTIONS = [
+  "formula_validate",           // Validate formula against physics constraints
+  "formula_wire",               // Wire formula to engine as source/consumer
+  "formula_by_domain",          // Get formulas by domain (lathe/mill/wedm/general)
+  "formula_coverage",           // Get formula coverage report
+  "formula_mapping",            // Get formula-to-engine mapping
+  "formula_orphans",            // Get orphan formulas not wired to any engine
+  "formula_validation_stats",   // Get validation statistics
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -169,6 +180,7 @@ const ACTIONS = [
   ...KNOWLEDGE_SPINE_ACTIONS,
   ...KAR_WIRING_ACTIONS,
   ...VIDEO_ACTIONS,
+  ...FORMULA_ORCHESTRATOR_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -1888,6 +1900,59 @@ export function registerKnowledgeDispatcher(server: any): void {
               params.transcript as any,
               params.keyframes as any,
             );
+            break;
+          }
+          // ========== PP-AGI-S0/U-S0-05: FormulaOrchestrator Wiring ==========
+          case "formula_validate": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.validateFormula(
+              params.formula_id as string,
+              params.test_values as Record<string, number> | undefined
+            );
+            break;
+          }
+          case "formula_wire": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            formulaOrchestrator.wireFormulaToEngine(
+              params.formula_id as string,
+              params.engine_id as string,
+              (params.role as "source" | "consumer") ?? "consumer"
+            );
+            result = { success: true, formulaId: params.formula_id, engineId: params.engine_id, role: params.role ?? "consumer" };
+            break;
+          }
+          case "formula_by_domain": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.getFormulasByDomain(
+              (params.domain as "lathe" | "mill" | "wedm" | "general" | "all") ?? "all"
+            );
+            break;
+          }
+          case "formula_coverage": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.getFormulaCoverage();
+            break;
+          }
+          case "formula_mapping": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.getFormulaMapping(params.formula_id as string);
+            break;
+          }
+          case "formula_orphans": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.getOrphanFormulas();
+            break;
+          }
+          case "formula_validation_stats": {
+            const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
+            await formulaOrchestrator.initialize();
+            result = formulaOrchestrator.getValidationStats();
             break;
           }
         }
