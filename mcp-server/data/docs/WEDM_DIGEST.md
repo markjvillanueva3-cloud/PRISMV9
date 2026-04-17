@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-16T22:14:31.959Z
+**Generated:** 2026-04-17T00:46:53.573Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -11,7 +11,7 @@
 |--------|------:|
 | Engines | 95 |
 | Playbooks | 8 |
-| State Files | 39 |
+| State Files | 40 |
 
 ## Engines (95)
 
@@ -126,7 +126,7 @@
 | `wedm-jm-die-customer` | WEDM JM Die Customer-Specific Flow | 6 |
 | `wedm-continuous-learning` | WEDM Continuous Learning Pipeline | 5 |
 
-## State Files (39)
+## State Files (40)
 
 - `data/state/WEDM_VALIDATION_REPORT.json`
 - `data/state/WEDM_PRODUCTION_READINESS.json`
@@ -167,6 +167,7 @@
 - `data/state/WEDM_DRIFT_BASELINE.json`
 - `data/state/WEDM_RL_POLICY.json`
 - `data/state/WEDM_AUTONOMY_STATE.json`
+- `data/state/WEDM_DIGEST.json`
 
 ---
 > Regenerate: `npx ts-node scripts/wedm_generate_digest.ts`

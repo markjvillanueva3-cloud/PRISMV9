@@ -85,6 +85,80 @@ function scanStateFiles(): string[] {
   return fs.readdirSync(stateDir).filter((f) => f.startsWith("WEDM_"));
 }
 
+function scanSkills(): string[] {
+  const home = process.env.USERPROFILE || process.env.HOME || "";
+  if (!home) return [];
+  const skillsDir = path.resolve(home, ".claude/commands");
+  if (!fs.existsSync(skillsDir)) return [];
+  return fs
+    .readdirSync(skillsDir)
+    .filter((f) => /^(wedm|wire-edm)/i.test(f));
+}
+
+function scanHooks(): string[] {
+  const hooksDir = path.resolve(__dirname, "../src/hooks");
+  if (!fs.existsSync(hooksDir)) return [];
+  const out: string[] = [];
+  const files = fs
+    .readdirSync(hooksDir)
+    .filter((f) => /^WEDM.*Hooks\.ts$/.test(f) || /^WireEDM.*Hooks\.ts$/.test(f));
+  for (const file of files) {
+    try {
+      const content = fs.readFileSync(path.join(hooksDir, file), "utf-8");
+      const idMatches = content.match(/id:\s*"(wedm-[a-z0-9-]+)"/g) || [];
+      for (const m of idMatches) {
+        const id = (m.match(/"(wedm-[a-z0-9-]+)"/) || [])[1];
+        if (id) out.push(`${file}::${id}`);
+      }
+    } catch {}
+  }
+  return out.sort();
+}
+
+function scanActions(): number {
+  const dispatchersDir = path.resolve(__dirname, "../src/tools/dispatchers");
+  if (!fs.existsSync(dispatchersDir)) return 0;
+  const edmDispatcher = path.join(dispatchersDir, "edmDispatcher.ts");
+  if (!fs.existsSync(edmDispatcher)) return 0;
+  const content = fs.readFileSync(edmDispatcher, "utf-8");
+  const enumMatches = content.match(/z\.enum\(\[([\s\S]*?)\]\)/);
+  if (!enumMatches) return 0;
+  const strings = enumMatches[1].match(/"[a-z_][a-z0-9_]*"/gi) || [];
+  return new Set(strings).size;
+}
+
+interface DigestJSON {
+  schemaVersion: 1;
+  generated: string;
+  source: "scripts/wedm_generate_digest.ts";
+  engines: { count: number; names: string[] };
+  playbooks: { count: number; ids: string[] };
+  state_files: { count: number; names: string[] };
+  skills: { count: number; names: string[] };
+  hooks: { count: number; names: string[] };
+  actions: { count: number; source: "edmDispatcher.ts z.enum" };
+}
+
+function generateJSON(): DigestJSON {
+  const engines = scanWEDMEngines();
+  const playbooks = scanPlaybooks();
+  const stateFiles = scanStateFiles();
+  const skills = scanSkills();
+  const hooks = scanHooks();
+  const actionCount = scanActions();
+  return {
+    schemaVersion: 1,
+    generated: new Date().toISOString(),
+    source: "scripts/wedm_generate_digest.ts",
+    engines: { count: engines.length, names: engines.map((e) => e.name) },
+    playbooks: { count: playbooks.length, ids: playbooks.map((p) => p.id) },
+    state_files: { count: stateFiles.length, names: stateFiles },
+    skills: { count: skills.length, names: skills },
+    hooks: { count: hooks.length, names: hooks },
+    actions: { count: actionCount, source: "edmDispatcher.ts z.enum" },
+  };
+}
+
 function generateDigest(): string {
   const engines = scanWEDMEngines();
   const playbooks = scanPlaybooks();
@@ -134,20 +208,24 @@ function generateDigest(): string {
 }
 
 async function main(): Promise<void> {
-  console.log("\nGenerating WEDM_DIGEST.md...");
+  console.log("\nGenerating WEDM_DIGEST.md + WEDM_DIGEST.json...");
 
   const digest = generateDigest();
-  const outputPath = path.resolve(__dirname, "../data/docs/WEDM_DIGEST.md");
+  const mdPath = path.resolve(__dirname, "../data/docs/WEDM_DIGEST.md");
+  const mdDir = path.dirname(mdPath);
+  if (!fs.existsSync(mdDir)) fs.mkdirSync(mdDir, { recursive: true });
+  fs.writeFileSync(mdPath, digest);
+  console.log(`  MD  saved: ${mdPath} (${digest.split("\n").length} lines)`);
 
-  const dir = path.dirname(outputPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-
-  fs.writeFileSync(outputPath, digest);
-
-  console.log(`Digest saved: ${outputPath}`);
-  console.log(`  ${digest.split("\n").length} lines`);
+  const json = generateJSON();
+  const jsonPath = path.resolve(__dirname, "../data/state/WEDM_DIGEST.json");
+  const jsonDir = path.dirname(jsonPath);
+  if (!fs.existsSync(jsonDir)) fs.mkdirSync(jsonDir, { recursive: true });
+  fs.writeFileSync(jsonPath, JSON.stringify(json, null, 2) + "\n");
+  console.log(`  JSON saved: ${jsonPath}`);
+  console.log(
+    `    engines=${json.engines.count} hooks=${json.hooks.count} skills=${json.skills.count} playbooks=${json.playbooks.count} state_files=${json.state_files.count} actions=${json.actions.count}`
+  );
 }
 
 main().catch(console.error);
