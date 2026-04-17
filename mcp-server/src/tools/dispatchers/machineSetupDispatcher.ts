@@ -112,6 +112,15 @@ const ACTIONS = [
   "mcat_queue_ambiguities",      // Queue ambiguities for resolution
   "mcat_resolve_ambiguity",      // Resolve a queued ambiguity
   "mcat_pkg_select",             // Select machines by requirements
+  // ===== MCAT-MS0 P2-U03: Shop Machine Overlays (8 actions) =====
+  "shop_overlay_create",         // Create overlay for shop machine
+  "shop_overlay_get",            // Get overlay by ID
+  "shop_overlay_update",         // Update overlay
+  "shop_overlay_delete",         // Delete overlay
+  "shop_overlay_list",           // List overlays for machine
+  "shop_overlay_set_default",    // Set default overlay
+  "shop_overlay_merged_view",    // Get merged canonical + overlay view
+  "shop_overlay_stats",          // Get overlay coverage stats
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -559,6 +568,45 @@ Actions: ${ACTIONS.join(", ")}.`,
             min_spindle_rpm: params.min_spindle_rpm as number | undefined,
             needs_rotary_axes: params.needs_rotary_axes as number | undefined,
           });
+
+        // ===== MCAT-MS0 P2-U03: Shop Machine Overlays (8 actions) =====
+        } else if (action === "shop_overlay_create") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.createOverlay({
+            shop_machine_id: params.shop_machine_id as string,
+            canonical_package_id: params.canonical_package_id as string | undefined,
+            display_name: params.display_name as string | undefined,
+            is_calculator_preset: params.is_calculator_preset as boolean | undefined,
+            preset_name: params.preset_name as string | undefined,
+            enabled_consumers: params.enabled_consumers as any[] | undefined,
+            user_id: (params.user_id ?? "system") as string,
+            overrides: params.overrides as any,
+          });
+        } else if (action === "shop_overlay_get") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.getOverlay(params.overlay_id as string);
+        } else if (action === "shop_overlay_update") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.updateOverlay({
+            overlay_id: params.overlay_id as string,
+            updates: params.updates as any,
+            user_id: (params.user_id ?? "system") as string,
+          });
+        } else if (action === "shop_overlay_delete") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.deleteOverlay(params.overlay_id as string);
+        } else if (action === "shop_overlay_list") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.getOverlaysForMachine(params.shop_machine_id as string);
+        } else if (action === "shop_overlay_set_default") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.setDefault(params.overlay_id as string, (params.user_id ?? "system") as string);
+        } else if (action === "shop_overlay_merged_view") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.getMergedView(params.shop_machine_id as string);
+        } else if (action === "shop_overlay_stats") {
+          const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
+          result = shopMachineOverlayEngine.getStats();
 
         } else {
           const engineKey = engineMap[action];
