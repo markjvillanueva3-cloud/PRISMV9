@@ -1399,11 +1399,23 @@ PP mirrors MILL-AGI's Phase 0 AGI Foundation structure. PP does NOT re-implement
 | **P6 Frontend Wiring** | 14+8 FE pages + 32 APIs + 14 state | **RETIRED** per SCRUTINY-R5 decision #2 (Universal Phase 0 absorbs) |
 | **P7 Continuous Learning** | 110 tests + feedback loops | PP Stage 10 closes this loop |
 
-**Artifact budget reconciliation:** MILL-AGI total ~820. PP imports ~180 (P2+P3+P4+P5 strategy engines). PP contributes **210 new PP-specific engines** (Stage 1–10 net-new) — no overlap with MILL-AGI's 820.
+**Concrete MILL unit-level PP contracts (see Appendix L for full crosswalk):**
 
-### XXV.3 LATHE-MASTER v2 P0.1 – P0.11 Sub-Phase Imports (`LATHE-MASTER-UNIFIED-ROADMAP.md`)
+| MILL Unit | Description | PP Stage Consumer |
+|---|---|---|
+| **P1.3** — Upstream Validation Handshake | Strategy → post handshake validates UPSTREAM at pick, not downstream. Wire into `OptimalStrategySelectionEngine.select()`. | **Stage 5 U-S5-MS0** (PP must expose strategy-validation API pre-generation) |
+| **P2.7** — Per-block mill physics in PostProcessorPipelineEngine | 38-stage PP pipeline today touches only 2 mill-physics stages. Gap: block-level force, chatter, thermal. | **Stage 1 U-S1-MS2** (PP exposes per-block Kienzle/chatter/thermal hooks into all 38 stages) |
+| **MILL-MS0.5** — POST-ULT dialect reconciliation | 6 units — wire milling output to existing `PostProcessorPipelineEngine` | **Stage 3 U-S3-MS0** (PP absorbs MILL-MS0.5 6 units as dialect-fabric seed) |
+| **MILL-MS6** — Controller-specific hardening (Fanuc, Haas, Okuma, Siemens, Heidenhain, Hurco, Mazak) | 14 units — 7 controller families hardened | **Stage 3 U-S3-MS1** (PP absorbs MILL-MS6 14 units, extends to all 173 dialects) |
+| **MILL-MS9** — Parametric + macro programming (Fanuc-style, Okuma custom-G) | 8 units | **Stage 3 U-S3-MS2** (PP imports macro/parametric capability) |
 
-LATHE-MASTER v2 introduced 11 sub-phase disciplines (U-LTH63 – U-LTH135, 73 new units). PP imports each sub-phase's PROTECTIVE HOOK, which blocks PP downstream emission until the upstream sub-phase passes its own exit gate.
+**Artifact budget reconciliation:** MILL-AGI total ~820. PP imports ~180 (P2+P3+P4+P5 strategy engines + MILL-MS0.5 + MILL-MS6 + MILL-MS9 post-specific work). PP contributes **210 new PP-specific engines** (Stage 1–10 net-new) — no overlap with MILL-AGI's 820.
+
+### XXV.3 LATHE-MASTER v2 P0.1 – P0.11 + P2 + P3 Imports (`LATHE-MASTER-UNIFIED-ROADMAP.md`)
+
+LATHE-MASTER is the **most PP-heavy** of the three mode-specific roadmaps — it contains a full 18-unit Post-Processor Generator + Master Post-Processor track (P2+P3) that PP-MASTER Stage 3 and Stage 9 MUST consume or duplicate.
+
+#### LATHE v2 Sub-Phase Imports (P0.1 – P0.11)
 
 | LATHE v2 Sub-Phase | PP Import | PP Unit Consumer |
 |---|---|---|
@@ -1419,9 +1431,56 @@ LATHE-MASTER v2 introduced 11 sub-phase disciplines (U-LTH63 – U-LTH135, 73 ne
 | **P0.10 Math Depth** | optimal control + info gain + calibrated ensemble | Stage 5 U-S5-MS3 (RL + optimal control) |
 | **P0.11 Frontend Integration** | studio wizard + mode-switch hygiene + Zustand + Swiss dialect | Stage 7 U-S7-MS1/MS2 (aligned with Codex) |
 
-**Hard contract:** Each P0.x sub-phase carries a PROTECTIVE HOOK. PP Stage consuming that sub-phase fails its exit gate until upstream hook releases.
+#### LATHE P2 Post-Processor Generator (U-LTH15 – U-LTH24, **10 units** — PRIMARY PP WORK)
 
-### XXV.4 WEDM MCP FULL UTILIZATION PROTOCOL (`WIRE-EDM-COMPREHENSIVE-ROADMAP.md`)
+**Hard absorption contract:** Every LATHE P2 unit is a PP task. PP-MASTER Stage 3 absorbs these verbatim or Lathe duplicates PP work.
+
+| LATHE P2 Unit | Build | PP Stage Absorption |
+|---|---|---|
+| **U-LTH15** — Controller Spec Ingestion | `LathePostGeneratorSpecIngestEngine` (Fanuc 31i-T, Okuma OSP-P300L, Mitsubishi M80 from PDF/spec) | **Stage 3 U-S3-MS1** — PP owns ControllerSpec normalization for all 173 dialects |
+| **U-LTH16** — Post-Processor Skeleton Generator | `LathePostGeneratorSkeletonEngine` (emits NewLathePost.ts with hooks pre-wired to 27 PP validators) | **Stage 3 U-S3-MS2** — PP generates skeleton for ANY controller, not just lathe |
+| **U-LTH17** — Dialect Transfer Learning (Swiss/Citizen/Tsugami) | `LathePostDialectTransferEngine` (transfers Okuma OSP → Mitsubishi with 5 programs) | **Stage 3 U-S3-MS3** — `PPDialectTransferEngine` is the substrate; Swiss dialect routes via PP |
+| **U-LTH18** — Validator Stack Auto-Wiring | `LathePostGeneratorValidatorWiringEngine` (auto-wires all 27 PP validators to new post) | **Stage 3 U-S3-MS4** — canonical PP validator wiring protocol (all dialects) |
+| **U-LTH19** — Regression Test Auto-Generator | `LathePostGeneratorTestSynthEngine` (≥ 20 fixtures/post from JM Die archive) | **Stage 8 U-S8-MS2** — PP regression corpus generator |
+| **U-LTH20** — Knowledge-Graph Integration | `LathePostGeneratorKnowledgeIndexEngine` (registers into PPKnowledgeIndexEngine + ManufacturingKnowledgeGraphEngine) | **Stage 3 U-S3-MS5** — knowledge-graph registration protocol |
+| **U-LTH21** — Active-Learning Feedback Loop | `LathePostGeneratorActiveLearningEngine` (queues shop-floor failures into PPActiveLearningQueueEngine) | **Stage 10 U-S10-MS1** — continuous-learning feedback into post generator |
+| **U-LTH22** — Uncertainty Quantification | `LathePostGeneratorUncertaintyEngine` (uses PPEnsembleUncertaintyEngine, blocks ship if disagreement > 15%) | **Stage 6 U-S6-MS3** — ensemble uncertainty gate |
+| **U-LTH23** — Dispatcher Wiring | Wire `lathe_postgen_*` 8 actions through camDispatcher | **Stage 3 U-S3-MS6** — dispatcher-wide ppDispatcher extension pattern |
+| **U-LTH24** — Forge-Triple (hook `postgen-validator-skip-guard` + action `prism_lathe:postgen_full` + skill `/lathe-postgen`) | Full wizard | **Stage 7 U-S7-MS2** — Codex-aligned frontend wizard |
+
+#### LATHE P3 Master Post-Processor (U-LTH25 – U-LTH32, **8 units** — PRIMARY PP WORK)
+
+**Hard absorption contract:** LATHE P3 defines "SINGLE canonical post-processor that routes to correct per-machine sub-post." This IS the PP-MASTER Stage 9 product.
+
+| LATHE P3 Unit | Build | PP Stage Absorption |
+|---|---|---|
+| **U-LTH25** — LatheMasterPostRouterEngine | Routes to correct sub-post for all 21 JM Die machines; fallback to generator | **Stage 9 U-S9-MS0** — Master Post Router for 860 machines × 173 dialects |
+| **U-LTH26** — LatheMasterPostUnifiedOutputEngine | Unified header/footer/metadata across sub-posts via PPModalStateTrackerEngine | **Stage 9 U-S9-MS1** — canonical PP output format |
+| **U-LTH27** — LatheMasterPostSelfAwarenessEngine | Continuous drift detection via PostProcessorAGIContinuousLearningEngine | **Stage 10 U-S10-MS2** — self-aware post auditor |
+| **U-LTH28** — LatheMasterPostDeepReasoningEngine | Explains WHY master post picked a sub-post (≥ 4 reasoning steps) | **Stage 6 U-S6-MS2** — ToT reasoning on post selection |
+| **U-LTH29** — LatheMasterPostEnsembleCrossCheckEngine | Ensemble 2+ sub-posts, flag divergence > 10% blocks / 5% cycle-time | **Stage 6 U-S6-MS3** — ensemble cross-check gate |
+| **U-LTH30** — LatheMasterPostAPIEngine + dispatcher | 6 actions routed; REST via `routes/python-api.ts` for UI | **Stage 7 U-S7-MS3** — API layer for master post |
+| **U-LTH31** — 150-cell Regression Test Matrix | 150 jobs × 21 machines × 5 validator groups, diff test | **Stage 8 U-S8-MS1** — master post regression matrix |
+| **U-LTH32** — Forge-Triple for Master Post (hook `masterpost-unknown-machine-guard`) | Full wizard | **Stage 9 U-S9-MS2** — canonical Master Post wizard |
+
+**Hard contract:** Each P0.x / P2 / P3 unit carries a PROTECTIVE HOOK. PP Stage consuming that unit fails its exit gate until upstream hook releases. If LATHE P2/P3 ships first, PP-MASTER Stage 3/9 absorbs; if PP-MASTER Stage 3/9 ships first, LATHE P2/P3 auto-completes via cascade.
+
+### XXV.4 WEDM MCP FULL UTILIZATION PROTOCOL + PP Dialect Contracts (`WIRE-EDM-COMPREHENSIVE-ROADMAP.md`)
+
+WEDM provides TWO things to PP: (a) the canonical per-session/per-unit discipline (below), and (b) specific post-processor architectural fixes and 5-dialect coverage mandates that PP-MASTER Stage 3 and Stage 8 must satisfy.
+
+#### WEDM PP Architectural & Dialect Contracts
+
+| WEDM Unit | Description | PP Stage Absorption |
+|---|---|---|
+| **WEDM-MS0.5 U01** — ARCH FIX | Route ALL `WireEDMPrintToProgramEngine` output through `PostProcessorPipelineEngine`. Remove inline G-code. Single path, all dialects. | **Stage 1 U-S1-MS3** — PP is the ONLY G-code path; no inline generation allowed in WEDM or any mode |
+| **WEDM-MS0.5 U02** — Sodick dialect (LN/SL series, SP/SV power params, AWT auto-thread) | 5 WireEDM controller dialects | **Stage 3 U-S3-MS7** — PP absorbs 5 WEDM dialects (Sodick, Makino, AgieCharmilles, Mitsubishi, Fanuc) into 173-dialect fabric |
+| **WEDM-MS0.5 U03** — Makino dialect (U-series, Hyper-i, EDCAM integration) | Controller-specific | **Stage 3 U-S3-MS7** — same |
+| **WEDM-MS0.5 U04** — AgieCharmilles dialect (CUT E/P format, ISPG, iWire) | Controller-specific | **Stage 3 U-S3-MS7** — same |
+| **WEDM-MS0.5 U05** — Cross-dialect validation | Same progressive-die profile on all 5 controllers | **Stage 8 U-S8-MS5** — PP cross-dialect regression suite |
+| **Existing:** `WireEDMPostProcessorEngine` (~1,400 LOC, 5 dialects) | Baseline WEDM post engine | **Stage 1 U-S1-MS4** — PP wires this into canonical PostProcessorPipelineEngine (no re-implementation) |
+
+#### WEDM MCP FULL UTILIZATION PROTOCOL (session + per-unit discipline)
 
 WEDM established the canonical per-session and per-unit discipline. PP adopts it verbatim.
 
@@ -1622,6 +1681,145 @@ Before closing any PP stage, verify alignment with all four sibling roadmaps:
 - [ ] **Per-Unit Protocol (Section XXVI)**: LOOP 1–4 completed, build green, tests green, exit gate 16-item pass
 
 Fail any item → stage cannot close. No exceptions. Omega = 1.0 demands it.
+
+---
+
+## Appendix L — Mode-Specific → PP-MASTER Unit-Level Crosswalk (ALL 3 roadmaps)
+
+This appendix is the **authoritative crosswalk**. Every PP-related unit in each of the three mode-specific roadmaps (MILL-AGI, LATHE-MASTER, WIRE-EDM-COMPREHENSIVE) maps to exactly one PP-MASTER stage/milestone. If a mode-specific unit is NOT in this table, it is outside PP-MASTER scope.
+
+### L.1 MILL-AGI → PP-MASTER (5 units)
+
+| Mode-Specific Unit | Origin File Line | PP-MASTER Stage | Contract Direction |
+|---|---|---|---|
+| **MILL-AGI P1.3** (Upstream Validation Handshake) | MILL-AGI:106, 235 | Stage 5 U-S5-MS0 | PP exposes pre-generation strategy-validation API |
+| **MILL-AGI P2.7** (Per-block mill physics) | MILL-AGI:112 | Stage 1 U-S1-MS2 | PP publishes per-block force/chatter/thermal hooks |
+| **MILL-AGI MILL-MS0.5** (POST-ULT dialect reconciliation, 6 units) | MILL-AGI:255 | Stage 3 U-S3-MS0 | PP absorbs 6 units into dialect fabric seed |
+| **MILL-AGI MILL-MS6** (Fanuc/Haas/Okuma/Siemens/Heidenhain/Hurco/Mazak, 14 units) | MILL-AGI:261 | Stage 3 U-S3-MS1 | PP absorbs all 14; extends coverage to 173 dialects |
+| **MILL-AGI MILL-MS9** (Parametric + macro programming, 8 units) | MILL-AGI:264 | Stage 3 U-S3-MS2 | PP imports Fanuc-style + Okuma custom-G capability |
+
+### L.2 LATHE-MASTER → PP-MASTER (29 units)
+
+**LATHE v2 sub-phase imports (11 units):**
+
+| Mode-Specific Unit | PP-MASTER Stage | Contract Direction |
+|---|---|---|
+| LATHE P0.1 (Formal Z3/SMT verification) | Stage 6 U-S6-MS1 | PP imports Z3 proof harness |
+| LATHE P0.2 (Local LLM + LoRA, JM Die 5,297 Okuma programs) | Stage 3 U-S3-MS2 | PP imports LoRA per-dialect adapters |
+| LATHE P0.3 (Bayesian + Causal Depth) | Stage 8 U-S8-MS2 | PP imports SPC + causal root-cause |
+| LATHE P0.4 (Asset Utilization) | Stage 3 U-S3-MS3 | PP wires 4,493 tips + 509 formulas |
+| LATHE P0.5 (AGI Safety Containment) | Stage 7 U-S7-MS3 | PP imports corrigibility + goal stability |
+| LATHE P0.6 (Live MTConnect/OPC-UA/THINC) | Stage 8 U-S8-MS3 | PP imports 7 Okuma live streams for validation |
+| LATHE P0.7 (Predictive Twin 60s pre-play) | Stage 8 U-S8-MS4 | PP imports twin pre-play gate |
+| LATHE P0.8 (Multi-Agent Lathe Orchestration) | Stage 6 U-S6-MS2 | PP imports supervisor + 5 specialist agents |
+| LATHE P0.9 (Scientific Simulation Depth) | Stage 2 U-S2-MS4 | PP imports tribology/fatigue/fracture/residual stress |
+| LATHE P0.10 (Math Depth) | Stage 5 U-S5-MS3 | PP imports optimal control + calibrated ensemble |
+| LATHE P0.11 (Frontend Integration) | Stage 7 U-S7-MS1/MS2 | PP imports studio wizard + mode-switch hygiene |
+
+**LATHE P2 Post-Processor Generator (10 units — PRIMARY PP WORK):**
+
+| Mode-Specific Unit | Engine | PP-MASTER Stage | Contract Direction |
+|---|---|---|---|
+| LATHE U-LTH15 | LathePostGeneratorSpecIngestEngine | Stage 3 U-S3-MS1 | PP absorbs ControllerSpec normalization (173 dialects) |
+| LATHE U-LTH16 | LathePostGeneratorSkeletonEngine | Stage 3 U-S3-MS2 | PP absorbs skeleton generator (any controller) |
+| LATHE U-LTH17 | LathePostDialectTransferEngine (Swiss/Citizen/Tsugami) | Stage 3 U-S3-MS3 | PP absorbs; PPDialectTransferEngine is substrate |
+| LATHE U-LTH18 | LathePostGeneratorValidatorWiringEngine | Stage 3 U-S3-MS4 | PP absorbs validator auto-wiring protocol |
+| LATHE U-LTH19 | LathePostGeneratorTestSynthEngine | Stage 8 U-S8-MS2 | PP absorbs regression corpus generator |
+| LATHE U-LTH20 | LathePostGeneratorKnowledgeIndexEngine | Stage 3 U-S3-MS5 | PP absorbs knowledge-graph registration |
+| LATHE U-LTH21 | LathePostGeneratorActiveLearningEngine | Stage 10 U-S10-MS1 | PP absorbs CL feedback into post generator |
+| LATHE U-LTH22 | LathePostGeneratorUncertaintyEngine | Stage 6 U-S6-MS3 | PP absorbs ensemble uncertainty gate |
+| LATHE U-LTH23 | Dispatcher wiring (8 actions through camDispatcher) | Stage 3 U-S3-MS6 | PP extends to ppDispatcher global pattern |
+| LATHE U-LTH24 | Forge-Triple (postgen-validator-skip-guard + prism_lathe:postgen_full + /lathe-postgen) | Stage 7 U-S7-MS2 | PP absorbs Codex-aligned wizard |
+
+**LATHE P3 Master Post-Processor (8 units — PRIMARY PP WORK):**
+
+| Mode-Specific Unit | Engine | PP-MASTER Stage | Contract Direction |
+|---|---|---|---|
+| LATHE U-LTH25 | LatheMasterPostRouterEngine (21 JM Die machines) | Stage 9 U-S9-MS0 | PP absorbs → Master Post Router (860 × 173) |
+| LATHE U-LTH26 | LatheMasterPostUnifiedOutputEngine | Stage 9 U-S9-MS1 | PP absorbs canonical output format |
+| LATHE U-LTH27 | LatheMasterPostSelfAwarenessEngine | Stage 10 U-S10-MS2 | PP absorbs drift detection + self-audit |
+| LATHE U-LTH28 | LatheMasterPostDeepReasoningEngine (≥ 4 steps) | Stage 6 U-S6-MS2 | PP absorbs ToT reasoning on post selection |
+| LATHE U-LTH29 | LatheMasterPostEnsembleCrossCheckEngine | Stage 6 U-S6-MS3 | PP absorbs ensemble cross-check gate |
+| LATHE U-LTH30 | LatheMasterPostAPIEngine + dispatcher (6 actions + REST) | Stage 7 U-S7-MS3 | PP absorbs API layer |
+| LATHE U-LTH31 | 150-cell Regression Test Matrix | Stage 8 U-S8-MS1 | PP absorbs master-post regression |
+| LATHE U-LTH32 | Forge-Triple for Master Post (masterpost-unknown-machine-guard) | Stage 9 U-S9-MS2 | PP absorbs canonical Master Post wizard |
+
+### L.3 WIRE-EDM-COMPREHENSIVE → PP-MASTER (6 units + 1 existing engine)
+
+| Mode-Specific Unit | Description | PP-MASTER Stage | Contract Direction |
+|---|---|---|---|
+| **WEDM-MS0.5 U01** (ARCH FIX) | Route ALL WireEDMPrintToProgramEngine output through PostProcessorPipelineEngine; remove inline G-code | Stage 1 U-S1-MS3 | PP is sole G-code path — blocks ANY inline generation anywhere |
+| **WEDM-MS0.5 U02** (Sodick LN/SL, SP/SV power, AWT auto-thread) | 1 of 5 WEDM dialects | Stage 3 U-S3-MS7 | PP absorbs Sodick dialect |
+| **WEDM-MS0.5 U03** (Makino U-series, Hyper-i, EDCAM) | 1 of 5 WEDM dialects | Stage 3 U-S3-MS7 | PP absorbs Makino dialect |
+| **WEDM-MS0.5 U04** (AgieCharmilles CUT E/P, ISPG, iWire) | 1 of 5 WEDM dialects | Stage 3 U-S3-MS7 | PP absorbs AgieCharmilles dialect |
+| **WEDM-MS0.5 U05** (Cross-dialect validation) | Same progressive-die profile on all 5 controllers | Stage 8 U-S8-MS5 | PP absorbs cross-dialect regression suite |
+| **Existing: WireEDMPostProcessorEngine** (~1,400 LOC, 5 dialects) | Baseline WEDM post | Stage 1 U-S1-MS4 | PP wires existing into canonical pipeline (NO re-impl) |
+| **Plus: WEDM Mitsubishi dialect** (already exists: PPWireEDMPostEngine, committed 2026-04-17 at 08a355a2) | Mitsubishi wire EDM G-code | Stage 3 U-S3-MS7 | PP extends to 5 WEDM dialects (already has 1) |
+
+### L.4 Summary — PP-MASTER Stage Net Absorption from 3 Mode-Specific Roadmaps
+
+| PP-MASTER Stage | MILL-AGI Units Absorbed | LATHE-MASTER Units Absorbed | WEDM Units Absorbed | Total Absorbed |
+|---|---|---|---|---|
+| Stage 1 (Physics Canonical) | 2 (P2.7) | 0 | 2 (U01 + existing) | 4 |
+| Stage 2 (Deep Learning) | 0 | 1 (P0.9) | 0 | 1 |
+| Stage 3 (Neural Dialect Fabric) | 28 (MS0.5 + MS6 + MS9) | 12 (P0.2/P0.4 + U-LTH15–20 + U-LTH23) | 4 (MS0.5 U02–U04 + existing) | 44 |
+| Stage 4 (Machine Fabric) | 0 | 0 | 0 | 0 |
+| Stage 5 (Toolpath RL+Opt) | 1 (P1.3) | 1 (P0.10) | 0 | 2 |
+| Stage 6 (Reasoning SMT/Z3) | 0 | 4 (P0.1 + P0.8 + U-LTH22 + U-LTH28) | 0 | 4 |
+| Stage 7 (Frontend Calc+PPG) | 0 | 4 (P0.5 + P0.11 + U-LTH24 + U-LTH30) | 0 | 4 |
+| Stage 8 (Validate E2E) | 0 | 4 (P0.3 + P0.6 + P0.7 + U-LTH19 + U-LTH31) | 1 (U05) | 5 |
+| Stage 9 (Revenue + Tiers) | 0 | 3 (U-LTH25 + U-LTH26 + U-LTH32) | 0 | 3 |
+| Stage 10 (Launch + CL) | 0 | 2 (U-LTH21 + U-LTH27) | 0 | 2 |
+| **TOTAL MODE-SPECIFIC UNITS ABSORBED** | **31** | **31** | **7** | **69** |
+
+**Key insight:** PP-MASTER's 414 units include **69 absorbed from the 3 mode-specific roadmaps** (31 mill + 31 lathe + 7 wedm). If a mode-specific roadmap completes its PP-relevant units first, PP-MASTER's corresponding stages auto-advance. If PP-MASTER completes first, the mode-specific roadmaps auto-satisfy their PP dependencies.
+
+**Bidirectional cascade:** When any unit in this crosswalk completes in ANY of the 4 roadmaps, a completion event fires in `state/shared/ROADMAP_CROSSWALK.json` — reducing duplicate work across all teams.
+
+### L.5 PP-Relevant Engines Already Existing (do NOT re-implement — wire them)
+
+From `/dont-reinvent` cross-check against LATHE-MASTER P2 knowledge list:
+
+**Already in PRISM (77 PP* engines + 15 MasterPost* + others):**
+- `PPEndToEndPostGeneratorEngine`
+- `PPMachineSpecificPostEngine`
+- `PPControllerEmbeddingEngine`
+- `PPDialectTransferEngine`
+- `PPEnsembleUncertaintyEngine`
+- `PPActiveLearningQueueEngine`
+- `PPOnlineLearningTrackerEngine`
+- `PPMultiModalFusionEngine`
+- `PPKnowledgeIndexEngine`
+- `PPModalStateTrackerEngine`
+- `PPPhysicsConstraintValidatorEngine`
+- `PPSafetyRuleValidatorEngine`
+- `PPGCodeLintEngine`
+- `MasterPostProcessorEngine`
+- `MasterPostProcessorGeniusEngine`
+- `MasterPostProcessorAGIOrchestrationEngine`
+- `PostProcessorAGIContinuousLearningEngine`
+- `PostProcessorAGIMasterRegistryEngine`
+- `PostProcessorAGIWiringIntegrationEngine`
+- `PostProcessorAICoordinationBridge`
+- `PostProcessorAISelfAwarenessIntegrationEngine`
+- `PostProcessorAPIEngine`
+- `PostProcessorAnalysisEngine`
+- `PostProcessorAnalyzerEngine`
+- `PostProcessorAutopilotEngine`
+- `PostProcessorCPSImplementationEngine`
+- `PostProcessorPipelineEngine` (the 38-stage canonical pipeline)
+- `PostProcessorTelemetryEngine`
+- `PostProcessorMachineKinematicsEngine`
+- `WireEDMPostProcessorEngine` (~1,400 LOC, 5 WEDM dialects)
+- `PPWireEDMPostEngine` (Mitsubishi wire EDM, committed at 08a355a2)
+- `PPInlineCornerBreakValidatorEngine` (Fanuc inline ,C/,R, committed at c3829ddf)
+- `LathePostProcessorEngine` (Okuma syntax)
+- `LathePostProcessorAIEngine`
+- `FanucLegacyControllerEngine`
+- `OkumaLegacyControllerEngine`
+- `HaasParserEngine`
+
+**Stage 0 MS0 mandate (Asset Wiring Sprint):** All 37 unwired PP* engines MUST pass through Universal 0.6 auto-wire retrofit. Do NOT create `LathePostGenerator*` as new engines if the `PP*` substrate (e.g., `PPEndToEndPostGeneratorEngine`) already provides 70%+ of the capability — extend via `/dont-reinvent` protocol.
 
 ---
 
