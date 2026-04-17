@@ -6485,3 +6485,73 @@ export {
   type HarvestResult,
   type HarvestStatistics,
 } from './MachineLogHarvesterEngine.js';
+
+// ===== MILL-AGI-P0.3: Neural Network Inference Layer =====
+export {
+  millStrategyNeuralEngine,
+  MillStrategyNeuralEngine,
+  type StrategyFeatureVector,
+  type StrategyPrediction,
+  type NeuralPredictionResult,
+  type TrainingExample,
+} from './MillStrategyNeuralEngine.js';
+
+export {
+  gcodeUnderstandingTransformerEngine,
+  GCodeUnderstandingTransformerEngine,
+  type GCodeToken,
+  type GCodeEmbedding,
+  type OperationClassification,
+  type GCodeUnderstandingResult,
+} from './GCodeUnderstandingTransformerEngine.js';
+
+export {
+  physicsNeuralBridgeEngine,
+  PhysicsNeuralBridgeEngine,
+  type PhysicsInput,
+  type PhysicsPrediction,
+  type NeuralCorrection,
+  type BridgedPrediction,
+  type BridgeResult,
+} from './PhysicsNeuralBridgeEngine.js';
+
+// ===== MCAT-MS0: Machine Catalog Convergence =====
+export {
+  machineVocabularyNormalizerEngine,
+  type ControllerCanonical,
+  type SpindleCanonical,
+  type CoolantCanonical,
+  type CapabilityCanonical,
+  type KinematicsCanonical,
+  type NormalizationResult,
+  type VocabularyStats,
+} from './MachineVocabularyNormalizerEngine.js';
+
+export {
+  machineConfidenceCalculatorEngine,
+  type ConfidenceResult,
+  type FieldConfidenceRule,
+  type QueuedAmbiguity,
+  type AmbiguityQueueStats,
+} from './MachineConfidenceCalculatorEngine.js';
+
+export {
+  machinePackageSelectionEngine,
+  type PackageSelectionRequirements,
+  type PackageCandidate,
+  type SelectionResult,
+} from './MachinePackageSelectionEngine.js';
+
+export {
+  machineCapabilitySurfaceEngine,
+  type ControllerCapabilities,
+  type ControllerFeatureSet,
+  type MacroCapabilities,
+  type SpindlePackage,
+  type PowerCurvePoint,
+  type SpeedRange,
+  type CoolantStrategy,
+  type CoolantOption,
+  type CapabilitySummary,
+  type CapabilityComparison,
+} from './MachineCapabilitySurfaceEngine.js';
