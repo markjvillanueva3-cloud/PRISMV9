@@ -180,6 +180,87 @@ interface DispatcherGraphIndex {
 }
 
 // ============================================================================
+// EXTRACTION INVERSE INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface ExtractionEntry {
+  id: string;
+  name: string;
+  source: string;
+  type: string;
+  description: string;
+  tipsGenerated: number;
+  timestamp: string;
+  status: string;
+  supersededBy?: string;
+  sha256: string;
+}
+
+interface ExtractionInverseIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  extractionCount: number;
+  totalTipsGenerated: number;
+  extractions: Record<string, ExtractionEntry>;
+  bySource: Record<string, string>;
+  byType: Record<string, string[]>;
+  byStatus: Record<string, string[]>;
+}
+
+// ============================================================================
+// ALIAS TABLE INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface AliasEntry {
+  alias: string;
+  canonical: string;
+  reason: string;
+  deprecated: boolean;
+  addedAt: string;
+}
+
+interface AliasTableIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  aliasCount: number;
+  aliases: Record<string, AliasEntry>;
+  byCanonical: Record<string, string[]>;
+}
+
+// ============================================================================
+// SIGNATURE HASH INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface SignatureEntry {
+  file: string;
+  name: string;
+  fullHash: string;
+  normalizedHash: string;
+  lineCount: number;
+  byteSize: number;
+  methodCount: number;
+  exportCount: number;
+}
+
+export interface DuplicateGroup {
+  hash: string;
+  files: string[];
+  type: "exact" | "normalized";
+}
+
+interface SignatureHashIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  fileCount: number;
+  uniqueHashes: number;
+  duplicateGroups: number;
+  signatures: Record<string, SignatureEntry>;
+  byFullHash: Record<string, string[]>;
+  byNormalizedHash: Record<string, string[]>;
+  duplicates: DuplicateGroup[];
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -921,6 +1002,290 @@ export class AwarenessQueryEngine {
       };
     } catch {
       return { total: 0, totalActions: 0, enginesReferenced: 0, avgActionsPerDispatcher: 0 };
+    }
+  }
+
+  // ============================================================================
+  // EXTRACTION INVERSE INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Check if a source has already been extracted
+   * O(1) lookup from EXTRACTION_INVERSE_INDEX.json
+   */
+  async extractionForSource(sourcePath: string): Promise<ExtractionEntry | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "EXTRACTION_INVERSE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] EXTRACTION_INVERSE_INDEX.json not found — run build-extraction-inverse-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ExtractionInverseIndex;
+      const normalizedSource = sourcePath.toLowerCase().replace(/\\/g, "/");
+      const extractionId = content.bySource[normalizedSource];
+      return extractionId ? content.extractions[extractionId] : null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read EXTRACTION_INVERSE_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get extractions by type (pdf, tribal-tips, etc.)
+   */
+  async getExtractionsByType(type: string): Promise<ExtractionEntry[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "EXTRACTION_INVERSE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ExtractionInverseIndex;
+      const ids = content.byType[type] || [];
+      return ids.map((id) => content.extractions[id]).filter((e): e is ExtractionEntry => e !== undefined);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get extraction coverage statistics
+   */
+  async getExtractionCoverageStats(): Promise<{
+    total: number;
+    totalTipsGenerated: number;
+    completed: number;
+    superseded: number;
+    types: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "EXTRACTION_INVERSE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, totalTipsGenerated: 0, completed: 0, superseded: 0, types: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ExtractionInverseIndex;
+      const completed = content.byStatus["completed"]?.length || 0;
+      const superseded = content.byStatus["superseded"]?.length || 0;
+
+      return {
+        total: content.extractionCount,
+        totalTipsGenerated: content.totalTipsGenerated,
+        completed,
+        superseded,
+        types: Object.keys(content.byType).length,
+      };
+    } catch {
+      return { total: 0, totalTipsGenerated: 0, completed: 0, superseded: 0, types: 0 };
+    }
+  }
+
+  // ============================================================================
+  // ALIAS TABLE INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Resolve an engine alias to its canonical name
+   * O(1) lookup from ALIAS_TABLE_INDEX.json
+   */
+  async resolveAlias(alias: string): Promise<string | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ALIAS_TABLE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] ALIAS_TABLE_INDEX.json not found — run build-alias-table-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as AliasTableIndex;
+      const normalizedAlias = alias.toLowerCase();
+      const entry = content.aliases[normalizedAlias];
+      return entry ? entry.canonical : null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read ALIAS_TABLE_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all aliases for a canonical engine name
+   */
+  async getAliasesForEngine(canonical: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ALIAS_TABLE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as AliasTableIndex;
+      return content.byCanonical[canonical] || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get alias entry with full metadata
+   */
+  async getAliasEntry(alias: string): Promise<AliasEntry | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ALIAS_TABLE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as AliasTableIndex;
+      const normalizedAlias = alias.toLowerCase();
+      return content.aliases[normalizedAlias] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Get alias table coverage statistics
+   */
+  async getAliasCoverageStats(): Promise<{
+    totalAliases: number;
+    canonicalEngines: number;
+    knownAliases: number;
+    autoDetected: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ALIAS_TABLE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { totalAliases: 0, canonicalEngines: 0, knownAliases: 0, autoDetected: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as AliasTableIndex;
+      const aliases = Object.values(content.aliases);
+      const known = aliases.filter((a) => !a.reason.startsWith("auto-")).length;
+      const autoDetected = aliases.filter((a) => a.reason.startsWith("auto-")).length;
+
+      return {
+        totalAliases: content.aliasCount,
+        canonicalEngines: Object.keys(content.byCanonical).length,
+        knownAliases: known,
+        autoDetected,
+      };
+    } catch {
+      return { totalAliases: 0, canonicalEngines: 0, knownAliases: 0, autoDetected: 0 };
+    }
+  }
+
+  // ============================================================================
+  // SIGNATURE HASH INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Get signature entry for an engine by name
+   * O(1) lookup from SIGNATURE_HASH_INDEX.json
+   */
+  async getSignature(engineName: string): Promise<SignatureEntry | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SIGNATURE_HASH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] SIGNATURE_HASH_INDEX.json not found — run build-signature-hash-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SignatureHashIndex;
+      return content.signatures[engineName] || null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read SIGNATURE_HASH_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Find engines with the same content hash (exact duplicates)
+   */
+  async findDuplicates(engineName: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SIGNATURE_HASH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SignatureHashIndex;
+      const entry = content.signatures[engineName];
+      if (!entry) return [];
+
+      const duplicates = content.byFullHash[entry.fullHash] || [];
+      return duplicates.filter((n) => n !== engineName);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Find engines with similar content (normalized hash match)
+   */
+  async findSimilar(engineName: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SIGNATURE_HASH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SignatureHashIndex;
+      const entry = content.signatures[engineName];
+      if (!entry) return [];
+
+      const similar = content.byNormalizedHash[entry.normalizedHash] || [];
+      return similar.filter((n) => n !== engineName);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get all duplicate groups in the codebase
+   */
+  async getAllDuplicateGroups(): Promise<DuplicateGroup[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SIGNATURE_HASH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SignatureHashIndex;
+      return content.duplicates;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get signature hash coverage statistics
+   */
+  async getSignatureCoverageStats(): Promise<{
+    totalFiles: number;
+    uniqueHashes: number;
+    duplicateGroups: number;
+    avgLineCount: number;
+    avgMethodCount: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SIGNATURE_HASH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { totalFiles: 0, uniqueHashes: 0, duplicateGroups: 0, avgLineCount: 0, avgMethodCount: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SignatureHashIndex;
+      const sigs = Object.values(content.signatures);
+      const avgLineCount = sigs.length > 0 ? Math.round(sigs.reduce((s, e) => s + e.lineCount, 0) / sigs.length) : 0;
+      const avgMethodCount = sigs.length > 0 ? Math.round(sigs.reduce((s, e) => s + e.methodCount, 0) / sigs.length) : 0;
+
+      return {
+        totalFiles: content.fileCount,
+        uniqueHashes: content.uniqueHashes,
+        duplicateGroups: content.duplicateGroups,
+        avgLineCount,
+        avgMethodCount,
+      };
+    } catch {
+      return { totalFiles: 0, uniqueHashes: 0, duplicateGroups: 0, avgLineCount: 0, avgMethodCount: 0 };
     }
   }
 
