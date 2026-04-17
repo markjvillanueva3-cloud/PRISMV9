@@ -5486,6 +5486,9 @@ export { WireEDMProgramParserEngine, wireEDMProgramParserEngine, type WireEDMDia
 export { MillPatternMinerEngine, millPatternMinerEngine, type MillPattern, type PocketStrategy, type PlungeStrategy, type ChipLoadSample, type HSMProfile, type CannedCycleUsage, type CoolantPattern, type MillMineResult } from './MillPatternMinerEngine.js';
 export { WEDMProgramNeuralAnalysisEngine, wedmProgramNeuralAnalysisEngine, type WEDMParams, type ProgramAnalysis, type OrderValidation, type OrderViolation, type MCodeValidation, type ParameterAnalysis, type PhysicsComparison, type ParameterIssue, type Optimization, type AntiPattern, type RiskAssessment, type RiskFactor, type Improvement, type PatternMatch, type ReasoningStep, type OptimizationResult, type ParameterChange } from './WEDMProgramNeuralAnalysisEngine.js';
 export { WEDMBatchProgramAnalyzerEngine, wedmBatchProgramAnalyzerEngine, type WEDMProgramAnalysis, type WEDMBatchStatistics, type WEDMCustomerProfile, type WEDMBatchAnalysisResult, type WEDMTrainingDataSample } from './WEDMBatchProgramAnalyzerEngine.js';
+export { WEDMProgramSafetyGateEngine, wedmProgramSafetyGateEngine, type SafetyGateInput, type SafetyGateResult, type SafetyComponentScore, type SafetyComponent } from './WEDMProgramSafetyGateEngine.js';
+export { WEDMProgramVerificationEngine, wedmProgramVerificationEngine, type VerificationInput, type VerificationResult, type VerificationCheck, type ControllerDialect } from './WEDMProgramVerificationEngine.js';
+export { WEDMWirePathCollisionEngine, wedmWirePathCollisionEngine, type CollisionInput, type CollisionResult, type CollisionEvent, type SweptVolume } from './WEDMWirePathCollisionEngine.js';
 
 // --- BOX-MS7: Calculator Page — Program Upload + Tool Callout + Auto S/F ---
 export { ProgramUploadAnalyzerEngine, programUploadAnalyzerEngine, type DetectedDialect, type UploadAnalysisResult, type AnalyzedTool, type AnalyzedOperation, type SpeedFeedEntry, type CycleStructure, type ProgramHints } from './ProgramUploadAnalyzerEngine.js';
@@ -6515,6 +6518,26 @@ export {
   type BridgeResult,
 } from './PhysicsNeuralBridgeEngine.js';
 
+// ===== MILL-AGI-P0.4: Deep Logic Trace Engine =====
+export {
+  deepLogicTraceEngine,
+  DeepLogicTraceEngine,
+  ProofTreeBuilder,
+  type AssertionType,
+  type SourceType,
+  type TruthValue,
+  type LogicVariable,
+  type Predicate,
+  type Assertion,
+  type InferenceSource,
+  type ProofNode,
+  type ProofEdge,
+  type ProofTree,
+  type ProofSummary,
+  type ExplainedProof,
+  type ValidationResult,
+} from './DeepLogicTraceEngine.js';
+
 // ===== MCAT-MS0: Machine Catalog Convergence =====
 export {
   machineVocabularyNormalizerEngine,
@@ -6555,3 +6578,12 @@ export {
   type CapabilitySummary,
   type CapabilityComparison,
 } from './MachineCapabilitySurfaceEngine.js';
+
+export {
+  shopMachineOverlayEngine,
+  type ShopMachineOverlay,
+  type CreateOverlayInput,
+  type UpdateOverlayInput,
+  type MergedMachineView,
+  type OverlayStoreState,
+} from './ShopMachineOverlayEngine.js';
