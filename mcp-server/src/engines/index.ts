@@ -6385,3 +6385,14 @@ export {
   type StockEventKind,
   type FeedValidation,
 } from './StockFeedCycleEngine.js';
+
+
+// --- AI-AWARE-HARDEN U-AWR31: Formula Orchestrator ---
+export {
+  formulaOrchestrator,
+  FormulaOrchestrator,
+  type FormulaMetadata,
+  type ValidationResult,
+  type CoverageReport,
+  type FormulaEngineMapping,
+} from './FormulaOrchestrator.js';

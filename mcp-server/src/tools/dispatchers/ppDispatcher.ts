@@ -437,6 +437,9 @@ let _ppToolpathEncoder: any;
 // PP-AGI-MS7: Multi-Modal Fusion
 let _ppFusion: any;
 
+// PP-LABEL: Program Labeling Pipeline (JM DIE training data)
+let _ppProgramLabeling: any;
+
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "pp":
@@ -753,6 +756,10 @@ async function getEngine(name: string): Promise<any> {
     // PP-AGI-MS7: Multi-Modal Fusion
     case "multiModalFusion":
       return _ppFusion ??= (await import("../../engines/PPMultiModalFusionEngine.js")).ppMultiModalFusionEngine;
+
+    // PP-LABEL: Program Labeling Pipeline
+    case "programLabeling":
+      return _ppProgramLabeling ??= (await import("../../engines/ProgramLabelingPipelineEngine.js")).programLabelingPipelineEngine;
 
     default:
       throw new Error(`Unknown PP engine: ${name}`);
@@ -1598,6 +1605,12 @@ const ACTIONS = [
   "pp_wiring_summary",           // Get unified wiring summary
   "pp_wiring_trends",            // Get utilization trends
   "pp_wiring_priority",          // Get prioritized orphan list
+
+  // ===== PP_LABEL: Program labeling pipeline (4 actions) — PP-DATA-MS0 =====
+  "pp_label_program",            // PP-LABEL: Label a single G-code program
+  "pp_label_batch",              // PP-LABEL: Batch label programs in directory
+  "pp_label_stats",              // PP-LABEL: Get labeling statistics
+  "pp_label_export",             // PP-LABEL: Export training data (csv/jsonl/parquet-ready)
 ] as const;
 
 // ============================================================================
@@ -6175,6 +6188,43 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_wiring_priority": {
             const engine = await getEngine("assetWiringSummary");
             result = { priorities: engine.getOrphanPriorityList(params.limit || 10) };
+            break;
+          }
+
+          // ===== PP_LABEL: Program labeling pipeline (PP-DATA-MS0) =====
+          case "pp_label_program": {
+            const engine = await getEngine("programLabeling");
+            const label = engine.labelProgram(params.file_path || params.filePath);
+            result = { label };
+            break;
+          }
+          case "pp_label_batch": {
+            const engine = await getEngine("programLabeling");
+            const config = {
+              rootPath: params.root_path || params.rootPath || "H:/PRISM/JM DIE",
+              filePattern: params.file_pattern || params.filePattern || "**/*.MIN",
+              batchSize: params.batch_size || params.batchSize || 100,
+              outputPath: params.output_path || params.outputPath || "H:/PRISM/mcp-server/data/training/program-labels.json",
+              skipExisting: params.skip_existing ?? params.skipExisting ?? true,
+              maxFiles: params.max_files || params.maxFiles,
+            };
+            const stats = await engine.labelBatch(config);
+            result = { stats };
+            break;
+          }
+          case "pp_label_stats": {
+            const engine = await getEngine("programLabeling");
+            const labelsPath = params.labels_path || params.labelsPath || "H:/PRISM/mcp-server/data/training/program-labels.json";
+            const stats = engine.getStats(labelsPath);
+            result = { stats };
+            break;
+          }
+          case "pp_label_export": {
+            const engine = await getEngine("programLabeling");
+            const labelsPath = params.labels_path || params.labelsPath || "H:/PRISM/mcp-server/data/training/program-labels.json";
+            const format = params.format || "jsonl";
+            const exported = engine.exportTrainingData(labelsPath, format);
+            result = { exported, format };
             break;
           }
 

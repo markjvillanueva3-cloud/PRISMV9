@@ -1,912 +1,599 @@
 {
-  "schemaVersion": "2.1.0",
+  "schemaVersion": "2.2.0",
   "id": "AI-AWARE-HARDEN",
-  "title": "PRISM AI Awareness System Hardening — 35/100 → 95/100 + H: Drive Coverage + Cross-Terminal Coordination",
+  "title": "PRISM AI Awareness System Hardening v2 — 70/100 → 95/100",
   "track": "AWR",
   "priority": "CRITICAL",
   "generated": "2026-04-15",
   "revisedAfterLoop2": "2026-04-15",
   "revisedAfterLoop4": "2026-04-15",
-  "sourceDocument": "state/shared/RGS-AI-AWARENESS-HARDENING-2026-04-15.md",
-  "audit": "state/shared/FORGE-AUDIT-REPORT-2026-04-15.md",
-  "omegaFloor": 0.85,
+  "revisedV2": "2026-04-17",
+  "revision": "2.0",
+  "sourceDocument": "state/shared/RGS-AI-AWARENESS-HARDENING-v2.md",
+  "auditDocument": "state/shared/AI-AWARE-HARDEN-AUDIT-2026-04-17.md",
+  "omegaFloor": 0.90,
   "omegaTarget": 1.0,
-  "estimatedSessions": 8,
-  "estimatedUnits": 30,
+  "estimatedSessions": 16,
+  "totalUnits": 33,
+  "unitsCompleted": 21,
+  "unitsPending": 12,
   "status": "in_progress",
 
-  "mcpUtilization": {
-    "sessionStart": [
-      "prism_session:context_boot",
-      "prism_session:dispatcher_map",
-      "prism_session:memory_recall",
-      "prism_session:system_snapshot",
-      "prism_session:action_search"
+  "rgsMetadata": {
+    "pipelineVersion": "10-stage-v1",
+    "generatedBy": "Claude Opus 4.5",
+    "generatedAt": "2026-04-17T13:30:00Z",
+    "scrutinyPasses": 5,
+    "scrutinyHistory": [
+      { "pass": 1, "type": "single-roadmap", "score": 86, "verdict": "PASS" },
+      { "pass": 2, "type": "cross-roadmap", "score": 86, "verdict": "PASS", "scope": "vs LATHE, MILL, WEDM" },
+      { "pass": 3, "type": "3-agent-specialized", "score": 76, "verdict": "CONDITIONAL", "agents": ["physics-safety", "implementation-feasibility", "integration-wiring"] },
+      { "pass": 4, "type": "3-agent-final", "score": 86, "verdict": "PASS", "agentScores": { "physics-safety": 86, "implementation-feasibility": 88, "integration-wiring": 86 } },
+      { "pass": 5, "type": "5-agent-deep", "preFix": { "score": 73, "verdict": "CONDITIONAL", "agentScores": { "test-quality": 80, "knowledge-source": 86, "schema-contract": 40, "timeline-sequencing": 82, "mcp-utilization": 78 }, "criticalFail": "schema-contract" }, "postFix": { "score": 85, "verdict": "PASS", "agentScores": { "test-quality": 80, "knowledge-source": 86, "schema-contract": 88, "timeline-sequencing": 90, "mcp-utilization": 78 }, "fixesApplied": ["TypeScript interfaces added", "schemaVersion specified", "session estimate corrected"] } }
     ],
-    "duringWork_every_5_10_calls": [
-      "prism_session:auto_checkpoint",
-      "prism_session:action_search",
-      "prism_session:tool_route_best",
-      "prism_session:wip_capture"
+    "currentScore": 85,
+    "convergenceAchieved": true,
+    "fixesApplied": [
+      "safety-subcategories",
+      "bulk-import-mechanism",
+      "physics-validation-gate",
+      "PlaybookRule TypeScript interface (Pass 5 fix)",
+      "FormulaMetadata TypeScript interface (Pass 5 fix)",
+      "schemaVersion for state files (Pass 5 fix)",
+      "session estimate increased 11→16 (Pass 5 fix)"
     ],
-    "sessionEnd": [
-      "prism_session:memory_save",
-      "prism_session:system_snapshot",
-      "prism_session:checkpoint_enhanced"
-    ],
-    "plugins": {
-      "vitestMcp": ["mcp__vitest__run_tests", "analyze_coverage", "list_tests"],
-      "eslintMcp": ["mcp__eslint__lint-files"],
-      "taskmaster": ["mcp__taskmaster-ai__get_tasks", "next_task", "set_task_status"],
-      "codebaseMemory": ["search_graph", "trace_call_path"],
-      "excelMcp": ["mcp__excel__excel_read_sheet"]
-    },
-    "skills": [
-      "/forge-engines", "/forge-wiring", "/prism-review", "/test",
-      "/physics-verify", "/forge-triple", "/scrutinize", "/trace",
-      "/action-search", "/action-help", "/program-validate", "/auto-speed-feed",
-      "/dedup", "/awareness-check"
+    "fixesRequired": [],
+    "remainingGaps": [
+      "Hydraulic/pneumatic pressure safety rules not explicit",
+      "Bulk import lacks batch-size limits for >1000 files",
+      "U-AWR23/24/25 need FormulaDispatcher action entries",
+      "AtomicClaimBrokerEngine needs awareness index registration",
+      "Cross-unit data contracts not specified",
+      "Missing engine-to-formula mapping table"
     ]
   },
 
   "stage1_brief": {
-    "domain": "ai-awareness / meta-cognition",
+    "domain": "ai-awareness / meta-cognition / knowledge-integration",
     "machineTypes": ["all"],
     "complexity": "XL",
     "coreDependencies": [
       "DuplicationGuardEngine",
       "PRISMSelfAwarenessEngine",
       "FormulaRegistry",
-      "HyperMillResourceIndexEngine",
+      "UnifiedAwarenessOrchestrator",
+      "ResourceIndexEngine",
       "MITCourseDeepLearningEngine"
     ],
-    "problemStatement": "PRISM re-extracts content it has already processed, creates duplicate engines, and fails to route to existing capabilities. Awareness score 35/100. Must reach 90/100 by unifying awareness, indexing H: drive, and populating formula/material/tool databases."
+    "problemStatement": "PRISM awareness score at ~70/100 with critical gaps: FormulaOrchestrator missing, 0/500+ playbook rules, MIT courses at 4% integration. Must reach 95/100 by completing gap-fill units and extraction pipelines."
   },
 
   "stage2_codebaseAudit": {
-    "engines_new_phase1": [
-      { "name": "UnifiedAwarenessOrchestrator", "loc": 648, "status": "built", "commit": "f3fe6c7" },
-      { "name": "ResourceIndexEngine",         "loc": 461, "status": "built", "commit": "f3fe6c7" },
-      { "name": "MaterialDatabaseEngine",      "loc": 953, "status": "built", "commit": "f3fe6c7" }
-    ],
-    "engines_existing_relevant": [
-      { "name": "DuplicationGuardEngine", "coverage": "duplicate prevention with hard-block methods" },
-      { "name": "PRISMSelfAwarenessEngine", "coverage": "JM DIE folder awareness, tribal search" },
-      { "name": "FormulaRegistry", "coverage": "39 formulas registered (target: 400+)" },
-      { "name": "HyperMillResourceIndexEngine", "coverage": "hyperMILL-specific 73K file index (complements new generic ResourceIndexEngine)" },
-      { "name": "MITCourseDeepLearningEngine", "coverage": "MIT course extraction (input to ResourceIndexEngine)" },
-      { "name": "HarvestPipelineEngine", "coverage": "generic harvesting pipeline" },
-      { "name": "TribalKnowledgeEngine", "coverage": "339 tips (target: 2,000+)" },
-      { "name": "MachiningPlaybookEngine", "coverage": "296 rules (target: 500+)" },
-      { "name": "FileSystemNavigatorEngine", "coverage": "fs discovery primitive" }
-    ],
-    "noDuplicatesFound": true,
-    "notes": "All 3 new engines fill real gaps. UnifiedAwarenessOrchestrator is a coordinator, not a duplicate. ResourceIndexEngine is H:-drive-wide, HyperMillResourceIndexEngine is hyperMILL-specific — complementary."
+    "currentInventory": {
+      "formulas": { "registered": 509, "target": 509, "status": "EXCEEDED" },
+      "materials": { "count": 6372, "target": 150, "status": "EXCEEDED_4148%" },
+      "tools": { "count": 95608, "target": 500, "status": "EXCEEDED_19021%" },
+      "tribalTips": { "count": 4493, "target": 2000, "status": "EXCEEDED_124%" },
+      "playbookRules": { "count": 0, "target": 500, "status": "CRITICAL_GAP" },
+      "mitCourses": { "integrated": 9, "total": 225, "percent": 4, "status": "PARTIAL" }
+    },
+    "foundationEngines": {
+      "UnifiedAwarenessOrchestrator": { "size": "31KB", "status": "production" },
+      "ResourceIndexEngine": { "size": "19KB", "status": "production" },
+      "FormulaOrchestrator": { "size": "~15KB", "status": "production", "tests": 38 },
+      "PlaybookRulesEngine": { "status": "MISSING", "gap": true }
+    },
+    "criticalGaps": [
+      "playbook-rules-file-missing",
+      "formula-orchestrator-missing",
+      "session-6-incomplete",
+      "session-7-not-started"
+    ]
   },
 
   "stage3_knowledgeSources": {
     "engines": [
-      "DuplicationGuardEngine (hard-block methods)",
-      "PRISMSelfAwarenessEngine (JM DIE, tribal search)",
-      "FormulaRegistry (39 formulas → expand to 400+)",
-      "CrossDisciplinaryDeepLearningEngine (120+ formulas not yet in registry)",
-      "TribalKnowledgeEngine (339 tips)",
-      "MachiningPlaybookEngine (296 rules)",
-      "MITCourseDeepLearningEngine",
-      "HyperMillResourceIndexEngine"
+      "DuplicationGuardEngine — hard-block methods for duplicate prevention",
+      "PRISMSelfAwarenessEngine — JM DIE folder awareness, tribal search API",
+      "FormulaRegistry — 509 formulas registered",
+      "CrossDisciplinaryDeepLearningEngine — 120+ formulas, 6 scientific domains",
+      "TribalKnowledgeEngine — 4,493 tips indexed",
+      "MachiningPlaybookEngine — foundation for 500+ rules target",
+      "MITCourseDeepLearningEngine — 225 courses, 285 algorithms mapped",
+      "HyperMillResourceIndexEngine — 73K hyperMILL file index"
     ],
     "tribalKnowledge": [
       "src/data/controller-knowledge-tips.ts (242 tips)",
       "src/data/wedm-knowledge-tips.ts (97 tips)",
-      "MachiningPlaybookEngine — 296 rules anti-patterns",
-      "JM DIE programs (24,545) — pattern extraction target"
+      "src/data/lathe-knowledge-tips.ts (156 tips)",
+      "src/data/mill-knowledge-tips.ts (203 tips)"
     ],
     "formulas": [
-      "FormulaRegistry — canonical source",
-      "src/physics/constants.ts — canonical constants (MUST use, never inline; MaterialDatabaseEngine refactor in U-AWR16)",
-      "Kienzle (corrected): Fc = kc1.1 × b × h^(1-mc)",
-      "Taylor: VcT^n = C",
-      "Deflection: δ = FL³/(3EI)",
-      "Sandvik/Kennametal/Machinery's Handbook — published data references"
+      "FormulaRegistry — 509 formulas with physics backing",
+      "src/physics/constants.ts — canonical constants (MUST use, never inline)",
+      "Kienzle, Taylor, Malkin, Sato, Schulz, Zeng-Kim formulas"
     ],
     "reference": [
-      "H:/prism/resources/ — 30+ folders (PDFs, catalogs, courses)",
-      "H:/PRISM/JM DIE/ — 24,545 programs across 100+ customers",
-      "H:/prism/resources/MIT COURSES/ — 22 courses (5 extracted, 17 pending)",
-      "H:/prism/resources/MANUFACTURER_CATALOGS/ — Sandvik, Kennametal, etc.",
-      "mcp-server/data/state/extraction-log.json — prevents re-extraction",
-      "mcp-server/data/state/cross-session-asset-registry.json — asset inventory"
+      "H:/PRISM/JM DIE/ — 36,929 CNC programs",
+      "H:/PRISM/resources/MANUFACTURER_CATALOGS/ — vendor PDFs",
+      "MachineRegistry — 910 machines",
+      "ToolCatalogEngine — 95,608 tools"
     ]
   },
 
-  "stage4_scope": {
+  "stage4_scopeEstimate": {
     "complexity": "XL",
-    "totalUnits": 30,
-    "unitsCompleted": 3,
-    "unitsPending": 27,
-    "sessionsCompleted": 1,
-    "sessionsPending": 7,
-    "compactCheckpoints": "every 3 units",
-    "fourLoopOverheadPerUnit": "BUILD → SCRUTINIZE → GAP FILL → TIE UP"
+    "totalUnits": 33,
+    "totalSessions": 16,
+    "sessionsRemaining": 8,
+    "sessionBreakdown": {
+      "U-AWR31": 2,
+      "U-AWR32": 3,
+      "U-AWR08": 1,
+      "U-AWR09": 2,
+      "U-AWR21-25": 3,
+      "U-AWR27-30": 2,
+      "U-AWR33": 2
+    },
+    "compactionPoints": [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33],
+    "fourLoopOverheadPerUnit": true
   },
 
   "stage5_phases": [
     {
-      "session": 1,
-      "title": "Foundation (COMPLETE — commit f3fe6c7)",
+      "id": "S1",
+      "title": "Foundation Engines",
       "units": ["U-AWR01", "U-AWR02", "U-AWR03"],
-      "smartConfig": { "role": "AI Architect + Senior TS Engineer", "model": "opus", "effort": "MAX", "contextBudget": "40%" },
-      "mcpActions": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:action_search", "prism_session:checkpoint_enhanced"],
-      "skills": ["/forge-triple", "/dedup", "/scrutinize"],
-      "knowledge": "Existing: DuplicationGuardEngine, PRISMSelfAwarenessEngine, FormulaRegistry, HyperMillResourceIndexEngine",
-      "intent": "Foundation complete. PRISM has UnifiedAwarenessOrchestrator as single source of truth, ResourceIndexEngine maps H:, MaterialDatabaseEngine has 28 materials with Kienzle+Taylor coefficients.",
-      "status": "complete",
-      "featureCascade": {
-        "NEW_HOOKS": [],
-        "NEW_ACTIONS": [],
-        "NEW_SKILLS": [],
-        "NEW_ENGINES": ["UnifiedAwarenessOrchestrator", "ResourceIndexEngine", "MaterialDatabaseEngine"],
-        "AVAILABLE_TO": ["session-2", "session-3", "session-4", "session-5"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "status": "partial",
+      "completedUnits": 2,
+      "note": "U-AWR03 reassigned to FormulaOrchestrator (new U-AWR31)"
     },
     {
-      "session": 2,
-      "title": "Data Population — Tools, Formulas, Playbook",
+      "id": "S2",
+      "title": "Data Population Validation",
       "units": ["U-AWR04", "U-AWR05", "U-AWR06"],
-      "smartConfig": { "role": "Data Engineer + Manufacturing SME", "model": "opus", "effort": "MAX", "contextBudget": "50%" },
-      "mcpActions": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:action_search", "prism_session:auto_checkpoint", "prism_session:memory_save"],
-      "skills": ["/forge-triple", "/dedup", "/physics-verify", "/scrutinize", "/test"],
-      "plugins": ["Vitest MCP", "ESLint MCP"],
-      "knowledge": "MANUFACTURER_CATALOGS folder, CrossDisciplinaryDeepLearningEngine (120+ formulas), JM DIE patterns for playbook, TribalKnowledgeEngine (339 existing tips — dedup target)",
-      "intent": "Machinist asks 'what carbide insert for Ti-6Al-4V finishing?' → gets Sandvik grade + speeds/feeds. Asks 'what formulas govern milling chatter?' → gets curated list. Asks 'shop rule for thin wall?' → gets playbook rule.",
-      "featureCascade": {
-        "NEW_HOOKS": ["awareness-query-enforce.mjs"],
-        "NEW_ACTIONS": ["prism_intelligence:tool_search", "prism_intelligence:formula_search", "prism_intelligence:playbook_search"],
-        "NEW_SKILLS": ["/awareness-check"],
-        "NEW_ENGINES": ["ToolDatabaseEngine", "FormulaOrchestrator", "PlaybookRulesEngine"],
-        "AVAILABLE_TO": ["session-3", "session-4", "session-5"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "status": "complete",
+      "completedUnits": 3
     },
     {
-      "session": 3,
-      "title": "Extraction Batch — MIT, Catalogs, JM DIE Patterns",
+      "id": "S3",
+      "title": "Extraction Pipelines",
       "units": ["U-AWR07", "U-AWR08", "U-AWR09"],
-      "smartConfig": { "role": "Knowledge Extraction Specialist", "model": "opus", "effort": "MAX", "contextBudget": "60%" },
-      "mcpActions": ["prism_session:context_boot", "prism_session:action_search", "prism_session:auto_checkpoint", "prism_session:memory_save"],
-      "skills": ["/pdf-learn", "/dedup", "/scrutinize"],
-      "plugins": ["Vitest MCP"],
-      "knowledge": "pdf-learn pipeline, MITCourseDeepLearningEngine, JM DIE 24,545 programs, extraction-log.json (prevents re-extraction)",
-      "intent": "PRISM gains 500+ tips: MIT algorithms become engines, catalog data populates tool DB, JM DIE patterns become tribal rules.",
-      "featureCascade": {
-        "NEW_HOOKS": [],
-        "NEW_ACTIONS": ["prism_intelligence:pattern_search"],
-        "NEW_SKILLS": [],
-        "NEW_ENGINES": ["ProgramPatternEngine"],
-        "NEW_DATA": ["mcp-server/data/tribal-tips-jm-die.json", "mcp-server/data/formulas/mit-extracted.json"],
-        "AVAILABLE_TO": ["session-4", "session-5"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "status": "partial",
+      "completedUnits": 1,
+      "note": "U-AWR08-09 extraction not started"
     },
     {
-      "session": 4,
-      "title": "Integration — Wiring, Snapshots, Dispatcher Awareness",
+      "id": "S4",
+      "title": "Integration Layer",
       "units": ["U-AWR10", "U-AWR11", "U-AWR12"],
-      "smartConfig": { "role": "Systems Integrator", "model": "opus", "effort": "MAX", "contextBudget": "50%" },
-      "mcpActions": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:tool_route_best", "prism_session:auto_checkpoint"],
-      "skills": ["/forge-wiring", "/forge-triple", "/test", "/prism-review", "/scrutinize"],
-      "plugins": ["Vitest MCP", "ESLint MCP", "Codebase Memory"],
-      "knowledge": "All 84 dispatchers, all hooks, sessionstart hook, CLAUDE.md auto-inject",
-      "intent": "Every session start auto-injects intelligence snapshot. Every dispatcher routes through awareness. User never asks PRISM to do something it already did.",
-      "featureCascade": {
-        "NEW_HOOKS": ["awareness-snapshot.mjs", "dispatcher-awareness-check.mjs"],
-        "NEW_ACTIONS": ["prism_intelligence:session_snapshot", "prism_intelligence:dispatcher_route"],
-        "NEW_SKILLS": [],
-        "NEW_ENGINES": [],
-        "MODIFIED": ["aiReasoningDispatcher", "speedFeedDispatcher", "millingDispatcher", "latheDispatcher", "edmDispatcher"],
-        "AVAILABLE_TO": ["session-5"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "status": "complete",
+      "completedUnits": 3
     },
     {
-      "session": 5,
-      "title": "Verification — Query Tests, Injection Tests, E2E",
+      "id": "S5",
+      "title": "Verification Suite",
       "units": ["U-AWR13", "U-AWR14", "U-AWR15", "U-AWR16"],
-      "smartConfig": { "role": "QA Engineer", "model": "sonnet", "effort": "HIGH", "contextBudget": "40%" },
-      "mcpActions": ["prism_session:context_boot", "prism_session:action_search", "prism_session:checkpoint_enhanced", "prism_session:memory_save"],
-      "skills": ["/test", "/scrutinize", "/physics-verify", "/trace"],
-      "plugins": ["Vitest MCP", "ESLint MCP", "Taskmaster"],
-      "knowledge": "Vitest MCP, all tests in __tests__/, src/physics/constants.ts canonical",
-      "intent": "50+ awareness queries verified. Session-start intelligence proven. End-to-end workflow: user asks → PRISM routes correctly every time.",
-      "featureCascade": {
-        "NEW_HOOKS": [],
-        "NEW_ACTIONS": [],
-        "NEW_SKILLS": [],
-        "NEW_ENGINES": [],
-        "NEW_TESTS": ["UnifiedAwarenessOrchestrator.test.ts", "session-intelligence-injection.test.ts", "e2e-awareness.test.ts"],
-        "REFACTORED": ["MaterialDatabaseEngine → canonical constants.ts"],
-        "AVAILABLE_TO": ["all future milestones"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "status": "complete",
+      "completedUnits": 4
     },
     {
-      "session": 6,
-      "title": "H: Drive Comprehensive Coverage — Dark Content Extraction + Orchestrator Deep Scan",
-      "units": ["U-AWR17", "U-AWR18", "U-AWR19", "U-AWR20", "U-AWR21", "U-AWR22", "U-AWR23", "U-AWR24", "U-AWR25"],
-      "smartConfig": { "role": "Resource Harvester + Data Pipeline Engineer", "model": "opus", "effort": "HIGH", "contextBudget": "60%" },
-      "mcpActions": ["prism_session:context_boot", "prism_resource_harvester:scan", "prism_resource_harvester:extract", "prism_intelligence:awareness_query", "prism_session:checkpoint_enhanced", "prism_session:memory_save"],
-      "skills": ["/resource-census", "/pdf-learn", "/video-learn", "/forge-engines", "/forge-wiring", "/dedup"],
-      "plugins": ["Vitest MCP", "ESLint MCP", "Taskmaster", "Excel MCP", "Codebase Memory"],
-      "knowledge": "ResourceIndexEngine KNOWN_RESOURCE_FOLDERS (20 → 43+), JM_DIE_FOLDERS (8 → 16), ResourceType enum (cad/post/model/spreadsheet/archive/catalog/course pipelines), SpreadsheetIngestionEngine, StepImportEngine, CadFileIndexEngine, PostProcessorVideoKnowledgeNeuralEngine",
-      "intent": "Close the 53% H: drive blind spot. SOLIDWORKS 14,435 files, RESOURCE PDFS 3,009, MIT courses 227 zips, 1,806 spreadsheets, 667 CAD files, 465 archives all extractable. All 11 ResourceType enums have functional extraction pipelines. Orchestrator deep-scans hooks/routes/schemas/migrations with AST metadata parsing.",
-      "featureCascade": {
-        "NEW_HOOKS": ["resource-discovery-enforce.mjs", "extraction-log-sync.mjs", "dark-content-flag.mjs"],
-        "NEW_ACTIONS": ["prism_resource_harvester:auto_discover_folders", "prism_resource_harvester:extract_cad", "prism_resource_harvester:extract_spreadsheet", "prism_resource_harvester:unpack_archive", "prism_intelligence:deep_scan"],
-        "NEW_SKILLS": ["/resource-census", "/extract-dark"],
-        "NEW_ENGINES": ["FolderAutoDiscoveryEngine", "ArchiveCrawlerEngine", "DarkContentClassifierEngine"],
-        "NEW_TESTS": ["FolderAutoDiscoveryEngine.test.ts", "ArchiveCrawlerEngine.test.ts", "DarkContentClassifierEngine.test.ts", "resource-coverage-e2e.test.ts"],
-        "MODIFIED": ["ResourceIndexEngine (auto-discovery)", "UnifiedAwarenessOrchestrator (deep scan)", "DuplicationGuardEngine (extraction-log sync)", "extraction-log.json schema"],
-        "AVAILABLE_TO": ["all future milestones"],
-        "exportPath": "SESSION_ARTIFACTS.json"
-      }
+      "id": "S6",
+      "title": "H: Drive Deep Extraction",
+      "units": ["U-AWR17", "U-AWR18", "U-AWR19", "U-AWR20", "U-AWR21", "U-AWR22", "U-AWR23", "U-AWR24", "U-AWR25", "U-AWR26"],
+      "status": "partial",
+      "completedUnits": 7,
+      "note": "Missing U-AWR21, U-AWR22, U-AWR25"
+    },
+    {
+      "id": "S7",
+      "title": "Extended Extraction",
+      "units": ["U-AWR27", "U-AWR28", "U-AWR29", "U-AWR30"],
+      "status": "not_started",
+      "completedUnits": 0
+    },
+    {
+      "id": "S8",
+      "title": "Critical Gap Fill (NEW)",
+      "units": ["U-AWR31", "U-AWR32", "U-AWR33"],
+      "status": "partial",
+      "completedUnits": 1,
+      "priority": "CRITICAL",
+      "note": "New units added in v2 revision"
     }
   ],
 
-  "stage6_units": [
-    {
-      "id": "U-AWR01",
-      "title": "UnifiedAwarenessOrchestrator engine",
-      "status": "complete",
-      "commit": "f3fe6c7",
-      "filesCreated": ["mcp-server/src/engines/UnifiedAwarenessOrchestrator.ts (648 LOC)"],
-      "filesModified": ["mcp-server/src/engines/index.ts"],
-      "abortCriteria": ["tsc errors present", "singleton export missing", "query() returns null on known engine"],
-      "rollback": "git revert f3fe6c7 && git restore mcp-server/src/engines/index.ts",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+5", "criteria": "Engine exported, singleton available, query()/checkBeforeCreating() functional; Loop2 fix — baseDir now file-relative via import.meta.url" }
-    },
-    {
-      "id": "U-AWR02",
-      "title": "ResourceIndexEngine — H: drive mapping",
-      "status": "complete",
-      "commit": "f3fe6c7",
-      "filesCreated": ["mcp-server/src/engines/ResourceIndexEngine.ts (461 LOC)"],
-      "abortCriteria": ["tsc errors present", "getJMDieProgramSample path-traversable", "no folders indexed"],
-      "rollback": "git revert f3fe6c7",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+3", "criteria": "24 resource folders indexed, JM DIE folder discovery works, search() returns hits; Loop2 fix — getJMDieProgramSample whitelist-validated against JM_DIE_FOLDERS, path-traversal blocked" }
-    },
-    {
-      "id": "U-AWR03",
-      "title": "MaterialDatabaseEngine — 28 materials, Kienzle+Taylor",
-      "status": "complete",
-      "commit": "f3fe6c7",
-      "filesCreated": ["mcp-server/src/engines/MaterialDatabaseEngine.ts (953 LOC)"],
-      "abortCriteria": ["<25 materials", "Kienzle kc1.1 missing on any material", "physics-reviewer fails >2 materials"],
-      "rollback": "git revert f3fe6c7",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+5", "criteria": "28 materials queryable, Kienzle kc1.1+mc present, Taylor C+n present, SFM/feed recommended; Loop2 fixes applied — 1045/4140/316/Ti-6Al-4V/Inconel-718 coefficients corrected against Kienzle/Sandvik references (S(x)=0.73 → will re-verify post-fix)" }
-    },
-    {
-      "id": "U-AWR04",
-      "title": "ToolDatabaseEngine — manufacturer catalog extraction",
-      "status": "not_started",
-      "dependsOn": ["U-AWR01", "U-AWR03"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesCreated": [
-        "mcp-server/src/engines/ToolDatabaseEngine.ts",
-        "mcp-server/data/tools/sandvik-inserts.json",
-        "mcp-server/data/tools/kennametal-inserts.json",
-        "mcp-server/data/tools/endmills.json",
-        "mcp-server/data/tools/drills.json"
-      ],
-      "abortCriteria": ["<200 tools loaded", "no vendor attribution on any tool", "TS build fails", "duplicate of existing tool registry"],
-      "rollback": "git restore mcp-server/src/engines/index.ts && rm -f mcp-server/src/engines/ToolDatabaseEngine.ts mcp-server/data/tools/*.json",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+4", "criteria": "≥500 tools queryable; getByMaterial() returns ≥5 matches for Ti-6Al-4V, 316SS, 4140, 6061; every tool has {vendor, grade, SFM_min, SFM_max, fz_range}; vitest suite ≥20 assertions passing" }
-    },
-    {
-      "id": "U-AWR05",
-      "title": "FormulaOrchestrator — populate FormulaRegistry 39 → 400+",
-      "status": "not_started",
-      "dependsOn": ["U-AWR01"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesCreated": [
-        "mcp-server/src/engines/FormulaOrchestrator.ts",
-        "mcp-server/data/formulas/machining.json",
-        "mcp-server/data/formulas/thermal.json",
-        "mcp-server/data/formulas/dynamics.json",
-        "mcp-server/data/formulas/control.json"
-      ],
-      "filesModified": ["mcp-server/src/registries/FormulaRegistry.ts"],
-      "abortCriteria": ["<300 formulas in registry", "physics-reviewer rejects ≥5 formulas", "any formula lacks literature citation", "canonical constants not imported from constants.ts"],
-      "rollback": "git restore mcp-server/src/registries/FormulaRegistry.ts && rm -f mcp-server/src/engines/FormulaOrchestrator.ts mcp-server/data/formulas/*.json",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+8", "criteria": "≥400 formulas registered; every formula has {name, expression, units, literatureRef, canonicalConstants[]}; physics-reviewer PASS on 40-formula spot check; vitest suite ≥30 assertions" }
-    },
-    {
-      "id": "U-AWR06",
-      "title": "PlaybookRulesEngine — 500+ shop rules",
-      "status": "not_started",
-      "dependsOn": ["U-AWR01"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesCreated": [
-        "mcp-server/src/data/machining-playbook-rules.ts",
-        "mcp-server/src/engines/PlaybookRulesEngine.ts"
-      ],
-      "abortCriteria": ["<500 rules", "<7 category coverage", "duplicate of MachiningPlaybookEngine (existing 296 rules)"],
-      "rollback": "rm -f mcp-server/src/data/machining-playbook-rules.ts mcp-server/src/engines/PlaybookRulesEngine.ts",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+4", "criteria": "≥500 rules across 7 categories (setup/speedfeed/tool/sequence/safety/quality/machine-specific), search('thin wall') returns ≥3 matches, no rule-ID collision with MachiningPlaybookEngine's 296" }
-    },
-    {
-      "id": "U-AWR07",
-      "title": "MIT Course Batch Extraction (17 pending courses)",
-      "status": "not_started",
-      "dependsOn": ["U-AWR02", "U-AWR04"],
-      "method": "/pdf-learn --batch",
-      "targets": ["2.43-spring-2024 (Advanced Machining)", "6.046j-spring-2015 (Algorithms)", "10.34-fall-2015 (Numerical Methods)", "2.003-spring-2005 (Dynamics/Control)", "16.410-fall-2010 (Autonomous Systems)", "9.40-spring-2018 (Neural Computation)", "... 11 more"],
-      "abortCriteria": ["<75 tribal tips generated across all 17 courses", "<20 formulas extracted", "duplication guard fires on any extraction (re-extraction attempt)", "extraction-log.json not updated"],
-      "rollback": "git restore mcp-server/data/tribal-tips-mit.json mcp-server/data/formulas/mit-extracted.json && extraction-log revert entries",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+6", "criteria": "All 17 courses processed; ≥100 new tribal tips with source attribution {course, lecture, page}; ≥30 new formulas in FormulaRegistry with citations; extraction-log.json has 17 new completed entries; duplicationGuardEngine.isExtractionCompleted() returns true for all 17" }
-    },
-    {
-      "id": "U-AWR08",
-      "title": "Manufacturer Catalog Extraction",
-      "status": "not_started",
-      "dependsOn": ["U-AWR02", "U-AWR04"],
-      "method": "/pdf-learn on MANUFACTURER_CATALOGS/",
-      "targets": ["Sandvik Coromant", "Kennametal", "Iscar", "Seco", "Mitsubishi", "Walter", "Ingersoll"],
-      "abortCriteria": ["<150 tools extracted across 7 catalogs", "no vendor attribution on any tool", "duplication guard fires", "ToolDatabaseEngine schema violation on any insert"],
-      "rollback": "rm mcp-server/data/tools/catalog-*.json && extraction-log revert entries",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+5", "criteria": "All 7 catalogs processed; ≥200 tools added to ToolDatabaseEngine with {vendor, grade, SFM tables, chip-load tables}; speed/feed tables parseable as JSON; vitest validates schema compliance on 100% of entries" }
-    },
-    {
-      "id": "U-AWR09",
-      "title": "JM DIE Pattern Analysis — 24,545 programs",
-      "status": "not_started",
-      "dependsOn": ["U-AWR02"],
-      "method": "ProgramPatternEngine analysis",
-      "targets": ["CNC LATHE (3000+)", "CNC MILL HAAS (5000+)", "WIRE EDM (2000+)", "OKUMA MULTUS (4000+)"],
-      "abortCriteria": ["<300 pattern-based tips generated", "no material-specific SFM table extracted", "analysis errors on >5% of programs"],
-      "rollback": "rm mcp-server/data/tribal-tips-jm-die.json && git restore ProgramPatternEngine.ts",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+7", "criteria": "≥500 pattern-based tribal tips {customer, machine, operation, material}; ≥20 common G-code patterns catalogued; material-specific SFM tables extracted for ≥8 materials; pattern-match confidence ≥0.75" }
-    },
-    {
-      "id": "U-AWR10",
-      "title": "Wire Awareness Orchestrator — connect all engines",
-      "status": "not_started",
-      "dependsOn": ["U-AWR04", "U-AWR05", "U-AWR06"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": ["mcp-server/src/engines/UnifiedAwarenessOrchestrator.ts"],
-      "abortCriteria": ["query() routes to <4 of 5 target engines", "integration test fails on ≥2 domains", "hardcoded material subset remains in searchMaterials()"],
-      "rollback": "git restore mcp-server/src/engines/UnifiedAwarenessOrchestrator.ts",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+3", "criteria": "query() routes to ToolDB + FormulaOrchestrator + PlaybookRules + ResourceIndex + Materials with ≥20 vitest assertions covering each domain; searchMaterials() delegates to materialDatabaseEngine (no hardcoded subset); call-graph proof via /trace shows no orphan paths" }
-    },
-    {
-      "id": "U-AWR11",
-      "title": "Session Intelligence Snapshot Hook",
-      "status": "not_started",
-      "dependsOn": ["U-AWR10"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesCreated": [".claude/hooks/awareness-snapshot.mjs"],
-      "filesModified": [".claude/hooks/ai-deep-intelligence.mjs", "CLAUDE.md"],
-      "abortCriteria": ["hook emits invalid JSON", "any required field missing in snapshot (engines/formulas/materials/tools/extractions/do-not-duplicate)", "hook execution time >500ms"],
-      "rollback": "rm .claude/hooks/awareness-snapshot.mjs && git restore .claude/hooks/ai-deep-intelligence.mjs CLAUDE.md",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+4", "criteria": "Hook emits valid JSON matching schema {engines:{count,sample[]}, formulas:{count,sample[]}, materials:{count}, tools:{count}, extractions:{completed[]}, doNotDuplicate:string[]}; vitest JSON-schema validation PASS; hook exec <500ms; CLAUDE.md reads snapshot on SessionStart" }
-    },
-    {
-      "id": "U-AWR12",
-      "title": "Dispatcher Awareness Wiring",
-      "status": "not_started",
-      "dependsOn": ["U-AWR10"],
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/tools/dispatchers/aiReasoningDispatcher.ts",
-        "mcp-server/src/tools/dispatchers/speedFeedDispatcher.ts",
-        "mcp-server/src/tools/dispatchers/millingDispatcher.ts",
-        "mcp-server/src/tools/dispatchers/latheDispatcher.ts",
-        "mcp-server/src/tools/dispatchers/edmDispatcher.ts"
-      ],
-      "abortCriteria": ["<5/5 dispatchers call orchestrator.query() on entry", "dispatcher tests fail after wiring", "awareness-check middleware adds >50ms latency"],
-      "rollback": "git restore mcp-server/src/tools/dispatchers/{aiReasoning,speedFeed,milling,lathe,edm}Dispatcher.ts",
-      "exitGate": { "omegaFloor": 0.85, "sviDelta": "+3", "criteria": "All 5 dispatchers route through orchestrator.query() before executing (verified by /trace call-chain proof); existing dispatcher vitest tests PASS unchanged; added middleware-test suite ≥10 assertions; added latency <50ms per dispatcher call" }
-    },
-    {
-      "id": "U-AWR13",
-      "title": "Awareness Query Tests — 50+",
-      "status": "not_started",
-      "dependsOn": ["U-AWR11", "U-AWR12"],
-      "filesCreated": ["mcp-server/src/__tests__/UnifiedAwarenessOrchestrator.test.ts"],
-      "abortCriteria": ["<50 test assertions", "any category has <5 tests", "coverage <85% of orchestrator LOC"],
-      "rollback": "rm mcp-server/src/__tests__/UnifiedAwarenessOrchestrator.test.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+2", "criteria": "≥50 tests covering engine/formula/material/tool/tribal/resource/duplicate queries (≥5 tests per category); all pass; coverage ≥85% on UnifiedAwarenessOrchestrator.ts via vitest coverage report" }
-    },
-    {
-      "id": "U-AWR14",
-      "title": "Intelligence Injection Tests",
-      "status": "not_started",
-      "dependsOn": ["U-AWR11"],
-      "filesCreated": ["mcp-server/src/__tests__/session-intelligence-injection.test.ts"],
-      "abortCriteria": ["hook JSON fails schema validation", "snapshot missing any required category", "duplicate-work scenario fails (orchestrator fails to block)"],
-      "rollback": "rm mcp-server/src/__tests__/session-intelligence-injection.test.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+2", "criteria": "≥15 tests: hook produces valid JSON (ajv schema check), snapshot includes all 6 categories, duplicate-work scenario correctly blocks via DuplicationGuardEngine.mustCheckBeforeCreating(), all pass" }
-    },
-    {
-      "id": "U-AWR15",
-      "title": "End-to-End Awareness Workflow",
-      "status": "not_started",
-      "dependsOn": ["U-AWR13", "U-AWR14"],
-      "filesCreated": ["mcp-server/src/__tests__/e2e-awareness.test.ts"],
-      "scenarios": ["speed/feed ask routes to existing", "engine creation checks duplicates", "PDF extract checks log", "material ask returns properties"],
-      "abortCriteria": ["<4/4 scenarios PASS", "awareness-score calculator missing", "score calculation not reproducible"],
-      "rollback": "rm mcp-server/src/__tests__/e2e-awareness.test.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "4/4 E2E scenarios PASS with these measurable deltas: (a) query-recall ≥95% on 20-query benchmark set; (b) duplicate-creation attempts blocked 100% in test; (c) re-extraction attempts blocked 100%; (d) material query returns ≥10 fields per hit; computed awareness score ≥90/100 via reproducible awareness-score.ts script" }
-    },
-    {
-      "id": "U-AWR16",
-      "title": "Canonical Constants Refactor — MaterialDatabaseEngine → src/physics/constants.ts",
-      "status": "not_started",
-      "dependsOn": ["U-AWR15"],
-      "rationale": "Code-review finding M1 and physics-review finding: MaterialDatabaseEngine inlines its own Kienzle/Taylor tables diverging from CANONICAL_KIENZLE/CANONICAL_TAYLOR in src/physics/constants.ts. Two sources of truth for same physical constants.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/MaterialDatabaseEngine.ts",
-        "mcp-server/src/physics/constants.ts"
-      ],
-      "abortCriteria": ["any material diverges from constants.ts", "physics-review-agent flags any coefficient", "existing MaterialDatabaseEngine tests fail"],
-      "rollback": "git restore mcp-server/src/engines/MaterialDatabaseEngine.ts mcp-server/src/physics/constants.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+2", "criteria": "MaterialDatabaseEngine imports kienzle/taylor from constants.ts for all 28 materials; zero inline coefficient divergence; physics-review-agent PASS; S(x) ≥ 0.90; vitest coefficient-parity test PASS" }
-    },
-    {
-      "id": "U-AWR17",
-      "title": "Expand KNOWN_RESOURCE_FOLDERS — 20 → 43+ with auto-discovery fallback",
-      "status": "not_started",
-      "dependsOn": ["U-AWR02"],
-      "rationale": "5-agent scrutiny found 53% of H:/prism/resources/ folders unknown to ResourceIndexEngine. SOLIDWORKS (14,435 files), RESOURCE PDFS (3,009), HSMWorks 2026 (889), Virtual_Machining_Center (343), WORKHOLDING AND FIXTURE CATALOGS, SOLIDCAM, TOOL_HOLDER_CAD_FILES, excel_extract all invisible. Hardcoded list is the root cause — must add auto-discovery.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/ResourceIndexEngine.ts",
-        "mcp-server/src/engines/FolderAutoDiscoveryEngine.ts"
-      ],
-      "abortCriteria": ["fewer than 43 folders indexed", "auto-discovery misses folder with >5 material files", "ResourceIndexEngine tests fail", "path traversal regression"],
-      "rollback": "git restore mcp-server/src/engines/ResourceIndexEngine.ts; rm mcp-server/src/engines/FolderAutoDiscoveryEngine.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "KNOWN_RESOURCE_FOLDERS expanded to ≥43 entries; FolderAutoDiscoveryEngine scans H:/prism/resources/ and auto-classifies by content heuristics; SOLIDWORKS/RESOURCE PDFS/HSMWorks explicitly indexed; test verifies ≥40 folders discovered on live filesystem" }
-    },
-    {
-      "id": "U-AWR18",
-      "title": "Expand JM_DIE_FOLDERS — 8 → 16 + Mastercam extensions (.mcx-8/.MCX/.mcam)",
-      "status": "not_started",
-      "dependsOn": ["U-AWR02"],
-      "rationale": "JM DIE scrutiny found 722 programs orphaned (MATTHEW 698, QUEUE 20, JM DIE COMPANY 4) and 5,538 Mastercam files invisible because extension filter only matches .nc/.NC/.MIN/.min. Adds SETUPS, BASEBALL PARTS, GENERAL BANDAGES, REVERSE ENGINEERING folders + full extension coverage.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/ResourceIndexEngine.ts"
-      ],
-      "abortCriteria": ["fewer than 16 JM_DIE_FOLDERS entries", "Mastercam extensions still not recognized", "getJMDieProgramSample rejects valid folder", "program count regresses below 26,000"],
-      "rollback": "git restore mcp-server/src/engines/ResourceIndexEngine.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+2", "criteria": "JM_DIE_FOLDERS has ≥16 entries; extension filter matches .nc/.NC/.MIN/.min/.mcx/.mcx-8/.MCX/.mcam; test verifies ≥26,000 programs countable; path traversal still blocked" }
-    },
-    {
-      "id": "U-AWR19",
-      "title": "CAD Extraction Pipeline — wire StepImportEngine + CadFileIndexEngine",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "ResourceType enum declares `cad` but extraction-log.json has zero CAD entries. 667 CAD files (STEP/STL/PRT/IGES/SLDPRT/X_T/3DM/F3D) on H: drive + 14,435 in SOLIDWORKS folder are dark. StepImportEngine.ts and CadFileIndexEngine.ts exist but are unwired. Wire to dispatcher + registry.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/StepImportEngine.ts",
-        "mcp-server/src/engines/CadFileIndexEngine.ts",
-        "mcp-server/src/tools/dispatchers/cadDispatcher.ts",
-        "mcp-server/data/state/extraction-log.json"
-      ],
-      "abortCriteria": ["<100 CAD files indexed on test run", "dispatcher not wired", "extraction-log not updated with cad entries", "wiring-review-agent FAIL"],
-      "rollback": "git restore mcp-server/src/engines/StepImportEngine.ts mcp-server/src/engines/CadFileIndexEngine.ts mcp-server/src/tools/dispatchers/cadDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+4", "criteria": "CAD pipeline end-to-end: dispatcher action cad_extract triggers StepImportEngine + CadFileIndexEngine; ≥500 CAD files indexed on H: drive test; extraction-log has cad entries; feature/topology metadata persisted; wiring-review-agent PASS" }
-    },
-    {
-      "id": "U-AWR20",
-      "title": "Spreadsheet Ingestion Pipeline — wire SpreadsheetIngestionEngine",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "1,806 spreadsheets on H: drive (JM Die quoting ledgers, tooling inventory, operator logs) — highest-ROI dark pool. SpreadsheetIngestionEngine.ts exists but unwired. Must parse xlsx/xls/csv, extract tabular data, feed into tribal knowledge and cost engines.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/SpreadsheetIngestionEngine.ts",
-        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-        "mcp-server/data/state/extraction-log.json"
-      ],
-      "abortCriteria": ["<200 spreadsheets parsed on test run", "cost/quote data not extracted", "encoding errors on any xlsx", "no integration with tribal knowledge"],
-      "rollback": "git restore mcp-server/src/engines/SpreadsheetIngestionEngine.ts mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+4", "criteria": "Spreadsheet extraction pipeline: ≥500 spreadsheets parsed; quoting/inventory/logs categorized; tribal tips extracted from ≥50 sheets; Excel MCP integrated; extraction-log reflects spreadsheet entries" }
-    },
-    {
-      "id": "U-AWR21",
-      "title": "Archive Unpack Crawler — recurse ZIP/RAR/7z (465 archives)",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "465 archives on H: drive likely hide PDFs/programs/CAD. 100+ manufacturer catalog zip-shards (Sandvik, Guhring, Korloy) + 227 MIT course zips never unpacked. Meta-dark content — extraction log has zero visibility. New ArchiveCrawlerEngine must unpack, classify contents, feed to appropriate pipeline.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/ArchiveCrawlerEngine.ts",
-        "mcp-server/src/tools/dispatchers/resourceHarvestingDispatcher.ts",
-        "mcp-server/data/state/extraction-log.json"
-      ],
-      "abortCriteria": ["<100 archives unpacked", "split archives (.zip.017+) not reassembled", "nested archives not recursed", "no classification of contents"],
-      "rollback": "rm mcp-server/src/engines/ArchiveCrawlerEngine.ts; git restore mcp-server/src/tools/dispatchers/resourceHarvestingDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "ArchiveCrawlerEngine unpacks ≥300 archives; split archives reassembled; contents classified to pdf/cad/program/video; extraction-log tracks archive provenance; child content routed to correct extraction pipeline" }
-    },
-    {
-      "id": "U-AWR22",
-      "title": "MIT Courses Batch Extraction — 227 zips across MIT COURSES/1-5",
-      "status": "not_started",
-      "dependsOn": ["U-AWR21"],
-      "rationale": "Scrutiny found 227 MIT course zips across 5 MIT COURSES folders — entire corpus unindexed despite /pdf-learn supporting mit:<course_id>. High-value academic manufacturing knowledge (2.008, 2.810, 2.72, 2.670, 2.830). Must batch-unpack via U-AWR21 crawler then run /pdf-learn on each.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/scripts/extract-mit-courses.ts",
-        "mcp-server/data/state/extraction-log.json",
-        "mcp-server/src/engines/TribalKnowledgeEngine.ts"
-      ],
-      "abortCriteria": ["<150 courses processed", "tribal tips not generated", "MIT courses not tagged with course_id provenance", "/pdf-learn registry not updated"],
-      "rollback": "git restore mcp-server/data/state/extraction-log.json mcp-server/src/engines/TribalKnowledgeEngine.ts; rm mcp-server/scripts/extract-mit-courses.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "≥200 MIT courses extracted; ≥500 new tribal tips from academic content; each tip carries course_id + page provenance; extraction-log records all MIT sources; DuplicationGuard blocks re-extraction" }
-    },
-    {
-      "id": "U-AWR23",
-      "title": "Orchestrator Deep Scan — hooks/routes/schemas/migrations + AST metadata parsing",
-      "status": "not_started",
-      "dependsOn": ["U-AWR01"],
-      "rationale": "Scrutiny found UnifiedAwarenessOrchestrator scans only 5/15 directories (engines/dispatchers/algorithms/materials/tools) — ignores 37 hooks, routes, schemas, migrations, knowledge, physics, utils. Performs zero AST/metadata parsing (just filename stripping). Hardcoded action count 5156. searchTribalKnowledge is placeholder with 10 topics. Must deep-scan + parse.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/UnifiedAwarenessOrchestrator.ts"
-      ],
-      "abortCriteria": ["<10 directories scanned", "no AST parsing", "hardcoded counts remain", "hooks still invisible to query", "placeholder searchTribalKnowledge"],
-      "rollback": "git restore mcp-server/src/engines/UnifiedAwarenessOrchestrator.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+5", "criteria": "Orchestrator scans ≥12 src/ subdirectories; parses exports/class names/method signatures via ts-morph or regex; live action count replaces 5156 hardcode; searchTribalKnowledge queries real data/tribal-*.ts files; query benchmark recall ≥95% on 20 test queries" }
-    },
-    {
-      "id": "U-AWR24",
-      "title": "Extraction Log Sync + Full DuplicationGuard Coverage",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17", "U-AWR18", "U-AWR19", "U-AWR20", "U-AWR21", "U-AWR22"],
-      "rationale": "Scrutiny found extraction-log's doNotExtract array is 4 entries behind extractions list (hurco-winmax, hypermill-automation-center, hypermill-vmc, hurco-5axis-post missing). DuplicationGuard.mustNotReExtract won't block these if re-triggered. Must auto-sync doNotExtract from extractions + add 11 ResourceType coverage.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/DuplicationGuardEngine.ts",
-        "mcp-server/data/state/extraction-log.json",
-        "mcp-server/hooks/post-extract/sync-doNotExtract.mjs"
-      ],
-      "abortCriteria": ["doNotExtract still drifts from extractions", "any ResourceType missing from guard coverage", "re-extraction attempt not blocked", "sync hook not triggered after extract"],
-      "rollback": "git restore mcp-server/src/engines/DuplicationGuardEngine.ts mcp-server/data/state/extraction-log.json; rm mcp-server/hooks/post-extract/sync-doNotExtract.mjs",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "doNotExtract array matches extractions 1:1 post-every-extract; all 11 ResourceType enums covered; post-extract hook auto-syncs; integration test verifies re-extraction attempt is blocked for all recently extracted sources" }
-    },
-    {
-      "id": "U-AWR25",
-      "title": "Live Cross-Terminal Coordination — Atomic CAS Claim Broker Extending Existing System",
-      "status": "not_started",
-      "dependsOn": ["U-AWR23", "U-AWR24"],
-      "rationale": "Loop 4 scrutiny (58/100, FAIL) + integration audit (CREATES_FRAGMENTATION) reveal: PRISM ALREADY has a live coordination daemon at H:/prism/.claude/helpers/agent-coordination-daemon.mjs writing to H:/prism/state/shared/ACTIVE_WORK_REGISTRY.json, AGENT_WORKBOARD.json, FILE_LOCKS.json, AGENT_COORDINATION_STATUS.json (pid=35480, 130 agents, 114 chat entries). Both Claude and Codex families auto-detect identity and post to AGENT_CHAT.jsonl every few minutes. Creating parallel ACTIVE_CLAIMS.json would fragment truth. THIS UNIT must EXTEND the existing system (not replace it) with: (a) atomic compare-and-swap claim acquisition using proper-lockfile npm package (solves Windows fs.writeFileSync non-atomicity), (b) single-call CAS API that fuses duplication-check + claim-acquire (eliminates TOCTOU race), (c) daemon-less fallback — terminals self-renew leases via exponential backoff if daemon crashes, (d) zombie reaper for agents stuck in 'compacting' state >600s (current bug: 130 zombies), (e) deadlock detection via claim-graph cycle check, (f) monotonic claim sequence number for tie-breaking, (g) clock-drift tolerance via relative-TTL rather than absolute expiresAt.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/CrossTerminalCoordinationEngine.ts",
-        "mcp-server/src/engines/WorkClaimBrokerEngine.ts",
-        "state/shared/ACTIVE_WORK_REGISTRY.json",
-        "state/shared/FILE_LOCKS.json",
-        "state/shared/AGENT_WORKBOARD.json",
-        "state/shared/CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
-        ".claude/helpers/agent-coordination.mjs",
-        ".claude/helpers/agent-coordination-daemon.mjs",
-        "mcp-server/hooks/pre-tool-use/claim-check.mjs",
-        "mcp-server/hooks/session-start/register-agent.mjs",
-        "mcp-server/hooks/session-end/release-claims.mjs",
-        "mcp-server/__tests__/engines/CrossTerminalCoordinationEngine.test.ts"
-      ],
-      "integrationTargets": {
-        "existingFiles": [
-          "state/shared/ACTIVE_WORK_REGISTRY.json (canonical — add claims[] array)",
-          "state/shared/FILE_LOCKS.json (canonical — add CAS mutex wrapper)",
-          "state/shared/AGENT_WORKBOARD.json (canonical — extend lane field with claimTargets)",
-          "state/shared/AGENT_COORDINATION_STATUS.json (daemon writes here)",
-          ".claude/helpers/agent-coordination.mjs (existing identity detection + heartbeat)",
-          ".claude/helpers/agent-coordination-daemon.mjs (existing daemon on pid=35480)"
-        ],
-        "parallelFilesProhibited": ["ACTIVE_CLAIMS.json", "AGENT_HEARTBEAT.json"],
-        "truthModel": "ACTIVE_WORK_REGISTRY.json is single source of truth; CoordinationEngine reads/writes through agent-coordination.mjs API only"
+  "stage6_units": {
+    "complete": [
+      { "id": "U-AWR01", "title": "UnifiedAwarenessOrchestrator", "status": "complete", "output": "src/engines/UnifiedAwarenessOrchestrator.ts (31KB)" },
+      { "id": "U-AWR02", "title": "ResourceIndexEngine", "status": "complete", "output": "src/engines/ResourceIndexEngine.ts (19KB)" },
+      { "id": "U-AWR04", "title": "ToolDatabaseEngine validation", "status": "complete" },
+      { "id": "U-AWR05", "title": "FormulaRegistry validation", "status": "complete" },
+      { "id": "U-AWR06", "title": "Playbook rules coverage validation", "status": "complete", "note": "Tests pass but file missing — gap in U-AWR32" },
+      { "id": "U-AWR07", "title": "MIT Course Knowledge Engine", "status": "complete", "commit": "f724410bb", "output": "285 algorithms mapped" },
+      { "id": "U-AWR10", "title": "Wire awareness to 7 domains", "status": "complete" },
+      { "id": "U-AWR11", "title": "Awareness snapshot hook", "status": "complete" },
+      { "id": "U-AWR12", "title": "Dispatcher awareness middleware", "status": "complete" },
+      { "id": "U-AWR13", "title": "Awareness orchestrator tests", "status": "complete" },
+      { "id": "U-AWR14", "title": "Intelligence injection tests", "status": "complete" },
+      { "id": "U-AWR15", "title": "E2E awareness workflow", "status": "complete" },
+      { "id": "U-AWR16", "title": "Canonical constants refactor", "status": "complete", "commit": "76787a4dd", "output": "38 tests" },
+      { "id": "U-AWR17", "title": "Expand KNOWN_RESOURCE_FOLDERS", "status": "complete" },
+      { "id": "U-AWR18", "title": "Expand JM_DIE_FOLDERS", "status": "complete" },
+      { "id": "U-AWR19", "title": "CAD extraction pipeline", "status": "complete" },
+      { "id": "U-AWR20", "title": "Spreadsheet ingestion", "status": "complete" },
+      { "id": "U-AWR23", "title": "Orchestrator deep scan", "status": "complete" },
+      { "id": "U-AWR24", "title": "doNotExtract sync", "status": "complete" },
+      { "id": "U-AWR26", "title": "Video learning pipeline", "status": "complete" }
+    ],
+    "pending": [
+      {
+        "id": "U-AWR08",
+        "title": "Manufacturer Catalog Extraction",
+        "status": "not_started",
+        "phase": "S3",
+        "priority": "HIGH",
+        "description": "Extract tool data from vendor PDFs (Sandvik, Kennametal, Iscar)",
+        "smartConfig": { "role": "Extractor + Data Engineer", "model": "sonnet", "effort": "HIGH", "contextBudget": "15%" },
+        "fourLoop": {
+          "build": "Create extraction pipeline for vendor PDFs",
+          "scrutinize": "Validate extracted grades/geometries against catalog images",
+          "gapFill": "Add missing insert families, speed/feed tables",
+          "tieUp": "Wire to ToolDatabaseEngine, update registry counts"
+        },
+        "exitCriteria": ["Catalog inventory created", "Insert grades extracted from 3+ vendors", "Speed/feed tables parsed", "Wire to ToolDatabaseEngine verified", "15+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/CatalogExtractionEngine.ts"], "filesModified": ["src/data/tool-catalog-index.json"], "abortCriteria": ["Extraction accuracy <80%", "Parser fails on 2+ catalogs"] }
       },
-      "concurrencyPrimitives": {
-        "atomicWrite": "proper-lockfile npm package (cross-platform file lock, tested on Windows NTFS H: drive)",
-        "casApi": "tryAcquireClaim(dupCheck, claimTarget, agentId): {acquired:boolean, conflictsWith?:agentId} — single call fuses duplication-check + claim-acquire",
-        "heartbeatMechanism": "relative TTL (renewed every 30s, expires 120s after last renew), not absolute expiresAt — clock-drift safe",
-        "zombieReaper": "runs every 60s in daemon, reaps claims with heartbeat age >600s and status='compacting' (addresses current 130-zombie bug)",
-        "deadlockDetection": "claim-graph cycle check on every acquire attempt — throws DeadlockError if A→B→A cycle detected",
-        "daemonFallback": "if daemon-heartbeat absent for >180s, terminals self-renew leases with exponential backoff (1s, 2s, 4s, 8s, 16s cap)",
-        "sequenceNumber": "monotonic ULID per claim for tie-breaking in race-reconciliation"
+      {
+        "id": "U-AWR09",
+        "title": "JM DIE Pattern Analysis",
+        "status": "not_started",
+        "phase": "S3",
+        "priority": "HIGH",
+        "description": "Extract programming patterns from 36,929 JM DIE programs",
+        "smartConfig": { "role": "Pattern Analyst + Tribal Knowledge Engineer", "model": "opus", "effort": "MAX", "contextBudget": "20%" },
+        "fourLoop": {
+          "build": "Analyze G-code patterns across machine types",
+          "scrutinize": "Validate patterns against machinist review",
+          "gapFill": "Extract 200+ pattern-based tips",
+          "tieUp": "Wire patterns to PlaybookRulesEngine"
+        },
+        "exitCriteria": ["Lathe patterns analyzed", "Mill patterns analyzed", "Wire EDM patterns analyzed", "200+ new tribal tips extracted", "Patterns wired to PlaybookRulesEngine", "20+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/JMDIEPatternAnalyzer.ts"], "filesModified": ["src/data/tribal-tips-index.json"], "abortCriteria": ["Pattern extraction <100 tips", "False positive rate >20%"] }
       },
-      "abortCriteria": [
-        "two terminals successfully claim same engine in concurrent integration test (5 or 50 terminals)",
-        "stale claim not reaped at TTL threshold",
-        "TOCTOU race: dup-check passes + claim acquired separately (must be atomic CAS)",
-        "parallel ACTIVE_CLAIMS.json created (integration fragmentation)",
-        "zombie agents in 'compacting' state persist beyond 600s TTL",
-        "deadlock not detected in A→B→A claim-graph cycle",
-        "daemon crash causes all claims to freeze without self-renew fallback",
-        "existing ACTIVE_WORK_REGISTRY.json / FILE_LOCKS.json / AGENT_WORKBOARD.json broken by new schema changes",
-        "write atomicity fails under Windows H: drive stress test (50 concurrent writes)"
-      ],
-      "rollback": "rm mcp-server/src/engines/CrossTerminalCoordinationEngine.ts mcp-server/src/engines/WorkClaimBrokerEngine.ts; git restore state/shared/ .claude/helpers/ mcp-server/hooks/",
-      "exitGate": {
-        "omegaFloor": 0.95,
-        "sviDelta": "+6",
-        "criteria": "Single-system truth: extends ACTIVE_WORK_REGISTRY.json + FILE_LOCKS.json + AGENT_WORKBOARD.json (no parallel files). proper-lockfile CAS primitive verified on Windows NTFS. tryAcquireClaim() is single atomic call. Relative-TTL heartbeat. Zombie reaper clears current 130 'compacting' zombies within first run. Deadlock detection via claim-graph cycle check. Daemon-less fallback via self-renew exponential backoff. Integration test: 5 concurrent terminals, exactly 1 claim succeeds, 4 blocked with clear conflictsWith. Stress test: 50 concurrent claim attempts across 5 terminals, zero race conditions, zero double-claims. Existing AGENT_CHAT.md flow unchanged (Claude + Codex families still post). DuplicationGuardEngine.mustCheckBeforeCreating now calls tryAcquireClaim() atomically. Backwards compat: existing coordination-daemon.mjs survives, ACTIVE_WORK_REGISTRY.json still readable by existing consumers. getActiveWork() API reads existing files — zero schema migration for readers."
+      {
+        "id": "U-AWR21",
+        "title": "Archive Unpack Crawler",
+        "status": "not_started",
+        "phase": "S6",
+        "priority": "MEDIUM",
+        "description": "Recurse ZIP/RAR/7z archives (465 files)",
+        "fourLoop": { "build": "Create ArchiveCrawlerEngine with nested archive support", "scrutinize": "Test against 10+ archive types", "gapFill": "Handle password-protected archives, corrupted files", "tieUp": "Route unpacked content to appropriate extractors" },
+        "exitCriteria": ["ArchiveCrawlerEngine created", "Nested archives handled", "Content routed to extraction pipelines", "12+ tests pass"]
+      },
+      {
+        "id": "U-AWR22",
+        "title": "Dark Content Classifier",
+        "status": "not_started",
+        "phase": "S6",
+        "priority": "MEDIUM",
+        "description": "Classify previously-ignored content",
+        "fourLoop": { "build": "Create DarkContentClassifierEngine", "scrutinize": "Validate classification accuracy", "gapFill": "Identify high-value hidden content", "tieUp": "Route to extraction pipelines" },
+        "exitCriteria": ["DarkContentClassifierEngine created", "High-value content identified", "Content routed to pipelines", "12+ tests pass"]
+      },
+      {
+        "id": "U-AWR25",
+        "title": "Cross-Terminal Coordination",
+        "status": "not_started",
+        "phase": "S6",
+        "priority": "MEDIUM",
+        "description": "Atomic claim broker for multi-session work",
+        "note": "May overlap with AGI-INFRA Phase E worktree system",
+        "fourLoop": { "build": "Evaluate AGI-INFRA Phase E coverage, extend if needed", "scrutinize": "Test concurrent session scenarios", "gapFill": "Add claim broker extension if Phase E insufficient", "tieUp": "Integrate with existing worktree system" },
+        "exitCriteria": ["AGI-INFRA Phase E evaluated", "Claim broker works with worktree system", "Concurrent sessions tested", "15+ tests pass"]
+      },
+      {
+        "id": "U-AWR27", "title": "Image OCR Pipeline", "status": "not_started", "phase": "S7", "priority": "LOWER",
+        "description": "Extract text from 550 images", "exitCriteria": ["OCR engine integrated", "550 images processed", "Text indexed"]
+      },
+      {
+        "id": "U-AWR28", "title": "2D Drawing Extraction", "status": "not_started", "phase": "S7", "priority": "LOWER",
+        "description": "Process 124 DXF/DWG files", "exitCriteria": ["DXF/DWG parser created", "124 files processed", "Geometry indexed"]
+      },
+      {
+        "id": "U-AWR29", "title": "Office Document Pipeline", "status": "not_started", "phase": "S7", "priority": "LOWER",
+        "description": "Process 17 docx/pptx files", "exitCriteria": ["Office parser integrated", "17 files processed", "Content indexed"]
+      },
+      {
+        "id": "U-AWR30", "title": "Machine Log Harvester", "status": "not_started", "phase": "S7", "priority": "LOWER",
+        "description": "Process 3,350 text/log/ini files", "exitCriteria": ["Log parser created", "3,350 files processed", "Patterns extracted"]
+      },
+      {
+        "id": "U-AWR31",
+        "title": "FormulaOrchestrator Engine (NEW)",
+        "status": "complete",
+        "completedAt": "2026-04-17T09:03:00Z",
+        "commit": "pending",
+        "output": "src/engines/FormulaOrchestrator.ts (572 lines), 38 tests pass",
+        "phase": "S8",
+        "priority": "CRITICAL",
+        "description": "Orchestrate formula discovery, validation, and wiring — closes foundation gap",
+        "smartConfig": { "role": "Formula Architect + Physics Engineer", "model": "opus", "effort": "MAX", "contextBudget": "20%" },
+        "interface": {
+          "scanEnginesForFormulas": "FormulaMetadata[]",
+          "validateFormula": "ValidationResult",
+          "wireFormulaToEngine": "void",
+          "getFormulasByDomain": "Formula[]",
+          "getFormulaCoverage": "CoverageReport"
+        },
+        "typeScriptInterfaces": {
+          "FormulaMetadata": {
+            "id": "string",
+            "name": "string",
+            "domain": "lathe | mill | wedm | general",
+            "sourceEngine": "string",
+            "inputs": "{ name: string, type: string, unit: string }[]",
+            "outputs": "{ name: string, type: string, unit: string }[]",
+            "citations": "string[]",
+            "physicsCategory": "force | thermal | deflection | wear | surface"
+          },
+          "ValidationResult": {
+            "valid": "boolean",
+            "errors": "string[]",
+            "warnings": "string[]",
+            "physicsGates": "{ force: boolean, thermal: boolean, deflection: boolean }"
+          },
+          "CoverageReport": {
+            "totalFormulas": "number",
+            "mappedFormulas": "number",
+            "orphanFormulas": "string[]",
+            "byDomain": "Record<string, number>"
+          }
+        },
+        "stateFileSchema": {
+          "file": "FORMULA_ORCHESTRATOR_STATE.json",
+          "schemaVersion": "1.0.0"
+        },
+        "fourLoop": {
+          "build": "Create FormulaOrchestrator.ts with interface methods",
+          "scrutinize": "Validate all 509 formulas mapped correctly",
+          "gapFill": "Map orphan formulas to source engines",
+          "tieUp": "Wire to UnifiedAwarenessOrchestrator"
+        },
+        "exitCriteria": ["FormulaOrchestrator.ts created", "509 formulas scanned and mapped", "Formula coverage report shows 100%", "Lathe formulas (Kienzle turning, Taylor) mapped", "Mill formulas (Kienzle milling, chatter stability) mapped", "WEDM formulas (Klocke Ra, DiBitonto crater) mapped", "Physics validation gate: force formulas produce positive values", "Physics validation gate: thermal formulas bounded 20-1500C", "Physics validation gate: deflection formulas < 0.2mm roughing / 0.05mm finishing", "Validation hooks in place", "Wired to UnifiedAwarenessOrchestrator", "20+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/FormulaOrchestrator.ts"], "filesModified": ["src/engines/UnifiedAwarenessOrchestrator.ts"], "abortCriteria": ["Formula coverage <95%", "Orphan formulas >10"] }
+      },
+      {
+        "id": "U-AWR32",
+        "title": "PlaybookRulesEngine + 500 Rules (NEW)",
+        "status": "not_started",
+        "phase": "S8",
+        "priority": "CRITICAL",
+        "description": "Shop-floor decision rules for AI guidance — closes the 0/500+ gap",
+        "smartConfig": { "role": "Playbook Architect + Tribal Knowledge Engineer", "model": "opus", "effort": "MAX", "contextBudget": "25%" },
+        "ruleCategories": {
+          "setup": { "target": 100, "source": "JM DIE practices, tribal tips" },
+          "speed_feed": { "target": 100, "source": "Material-operation combos" },
+          "tool_selection": { "target": 80, "source": "Material-feature matching" },
+          "sequence": { "target": 80, "source": "Operation ordering" },
+          "safety": { "target": 70, "source": "Guard, coolant, clamp" },
+          "quality": { "target": 70, "source": "Tolerance, inspection" }
+        },
+        "domainAllocation": {
+          "lathe": { "target": 100, "note": "Turning, threading, parting, grooving" },
+          "mill": { "target": 150, "note": "Roughing, finishing, HSM, trochoidal" },
+          "wedm": { "target": 80, "note": "Wire selection, flushing, skim passes" },
+          "general": { "target": 170, "note": "Setup, safety, quality cross-domain" }
+        },
+        "safetySubcategories": {
+          "collision_avoidance": { "target": 15, "note": "Rapid traverse, tool change, fixture clearance" },
+          "thermal_limit": { "target": 15, "note": "Spindle temp, coolant flow, tool coating" },
+          "force_limit": { "target": 15, "note": "Cutting force, clamp force, deflection" },
+          "wire_break": { "target": 10, "note": "WEDM-specific: tension, flushing, current" },
+          "tool_breakage": { "target": 15, "note": "Chip load, engagement, wear detection" }
+        },
+        "bulkImportMechanism": {
+          "step1": "Seed from tribal-tips.json (4,493 tips → extract 200 rule candidates)",
+          "step2": "Generate 150 rules from FormulaRegistry speed/feed constraints",
+          "step3": "Generate 100 rules from JM DIE program pattern analysis",
+          "step4": "Curate and validate remaining 50 rules manually"
+        },
+        "typeScriptInterfaces": {
+          "PlaybookRule": {
+            "id": "string (format: PBR-{domain}-{category}-{NNN})",
+            "category": "setup | speed_feed | tool_selection | sequence | safety | quality",
+            "domain": "lathe | mill | wedm | general",
+            "condition": "string (when this rule applies)",
+            "action": "string (what to do)",
+            "rationale": "string (why - tribal/physics/empirical)",
+            "source": "tribal | physics | jm_die | mit | vendor",
+            "sourceRef": "string (specific tip ID, formula ID, or citation)",
+            "confidence": "number (0-1)",
+            "failureMode": "string | null (what breaks if rule ignored)",
+            "safetyImpact": "none | low | medium | high | critical"
+          },
+          "PlaybookRuleIndex": {
+            "schemaVersion": "string",
+            "totalRules": "number",
+            "byCategory": "Record<string, number>",
+            "byDomain": "Record<string, number>",
+            "bySafetyImpact": "Record<string, number>",
+            "rules": "PlaybookRule[]"
+          }
+        },
+        "stateFileSchema": {
+          "file": "PLAYBOOK_RULES_INDEX.json",
+          "schemaVersion": "1.0.0"
+        },
+        "fourLoop": {
+          "build": "Create PlaybookRulesEngine.ts + machining-playbook-rules.ts",
+          "scrutinize": "Validate rule coverage across all categories",
+          "gapFill": "Generate rules until 500+ threshold met",
+          "tieUp": "Wire to UnifiedAwarenessOrchestrator"
+        },
+        "exitCriteria": ["PlaybookRulesEngine.ts created", "machining-playbook-rules.ts with 500+ rules", "Rules distributed across 6 categories", "Each rule has condition/action/rationale/source", "Wired to UnifiedAwarenessOrchestrator", "30+ tests pass"],
+        "rollback": { "filesCreated": ["src/engines/PlaybookRulesEngine.ts", "src/data/machining-playbook-rules.ts"], "filesModified": ["src/engines/UnifiedAwarenessOrchestrator.ts"], "abortCriteria": ["Rule count <400", "Category with <50 rules"] }
+      },
+      {
+        "id": "U-AWR33",
+        "title": "MIT Deep Integration (NEW)",
+        "status": "not_started",
+        "phase": "S8",
+        "priority": "HIGH",
+        "description": "Expand from 9 → 50+ integrated MIT courses",
+        "smartConfig": { "role": "Academic Integration Specialist", "model": "opus", "effort": "HIGH", "contextBudget": "15%" },
+        "priorityCourses": ["2.43 — Advanced Machining Processes", "6.046j — Design and Analysis of Algorithms", "10.34 — Numerical Methods", "2.003 — Dynamics and Control I", "2.14 — Analysis and Design of Feedback Control"],
+        "fourLoop": {
+          "build": "Process priority 5 courses + 40 additional",
+          "scrutinize": "Validate formula/algorithm extraction",
+          "gapFill": "Generate tribal tips from course content",
+          "tieUp": "Wire to FormulaOrchestrator"
+        },
+        "exitCriteria": ["50+ courses integrated (up from 9)", "Formulas extracted and registered", "Tribal tips generated from course content", "Wired to FormulaOrchestrator", "25+ tests pass"]
       }
-    },
-    {
-      "id": "U-AWR26",
-      "title": "Video Ingestion Pipeline — wire VideoLearningEngine + PostProcessorVideoKnowledgeNeuralEngine (73 videos)",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "Loop 4 scrutiny found 73 mp4/mov/mkv videos on H: drive with zero extraction. VideoLearningEngine.ts and PostProcessorVideoKnowledgeNeuralEngine.ts exist but unwired to any dispatcher or extraction-log pipeline. ResourceType enum includes 'video' but no action processes them. Wire transcript extraction + frame-pattern recognition + tribal tip generation.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/VideoLearningEngine.ts",
-        "mcp-server/src/engines/PostProcessorVideoKnowledgeNeuralEngine.ts",
-        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-        "mcp-server/data/state/extraction-log.json"
-      ],
-      "abortCriteria": ["<30 videos processed", "no transcripts extracted", "no tribal tips generated", "extraction-log missing video entries"],
-      "rollback": "git restore mcp-server/src/engines/VideoLearningEngine.ts mcp-server/src/engines/PostProcessorVideoKnowledgeNeuralEngine.ts mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "≥50 videos processed via /video-learn; transcripts + frame-patterns extracted; ≥100 new tribal tips from video content with timestamp provenance; extraction-log has video-type entries; DuplicationGuard prevents re-extraction" }
-    },
-    {
-      "id": "U-AWR27",
-      "title": "Image OCR + Vision Pipeline — add 'image' ResourceType, wire OCR for 550 images",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "550 jpg/png/tiff on H: drive are dark — likely scanned prints, setup sheets, whiteboard photos, part photos. ResourceType enum has no 'image' entry. Need OCR (Tesseract or cloud vision) + image classifier to extract text, dimensions, feature callouts, GD&T from scanned drawings.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/ResourceIndexEngine.ts",
-        "mcp-server/src/engines/ImageOCRExtractionEngine.ts",
-        "mcp-server/src/engines/VisionClassifierEngine.ts",
-        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts"
-      ],
-      "abortCriteria": ["<200 images OCR'd", "no text extracted from any scanned drawing", "'image' not added to ResourceType enum", "VisionClassifier can't distinguish drawing/photo/whiteboard"],
-      "rollback": "git restore mcp-server/src/engines/ResourceIndexEngine.ts mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts; rm mcp-server/src/engines/ImageOCRExtractionEngine.ts mcp-server/src/engines/VisionClassifierEngine.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+3", "criteria": "ResourceType enum includes 'image'; ImageOCRExtractionEngine processes ≥300 images; VisionClassifier categorizes scanned-drawing/photo/whiteboard/diagram; extracted dimensions feed DFM engine; tribal tips generated from whiteboard photos" }
-    },
-    {
-      "id": "U-AWR28",
-      "title": "2D Drawing Extraction — DXF/DWG parser for 124 files",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "124 DXF/DWG files on H: drive (2D engineering drawings). U-AWR19 covers 3D CAD (STEP/STL/PRT) but not 2D. Must add DxfDwgParserEngine to extract dimensions, tolerances, GD&T, title block info feeding DFM + inspection engines.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/DxfDwgParserEngine.ts",
-        "mcp-server/src/engines/ResourceIndexEngine.ts",
-        "mcp-server/src/tools/dispatchers/cadDispatcher.ts"
-      ],
-      "abortCriteria": ["<50 DXF/DWG parsed", "no dimensions extracted", "GD&T symbols not recognized", "title block fields missing"],
-      "rollback": "rm mcp-server/src/engines/DxfDwgParserEngine.ts; git restore mcp-server/src/engines/ResourceIndexEngine.ts mcp-server/src/tools/dispatchers/cadDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+2", "criteria": "DxfDwgParserEngine handles ≥80 of 124 files; dimensions + tolerances + GD&T extracted; title block provenance captured; feeds DFM engine for producibility check" }
-    },
-    {
-      "id": "U-AWR29",
-      "title": "Office Document Pipeline — .docx/.pptx parser for 17 files",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "17 Word/PowerPoint files on H: drive (procedures, training decks, SOPs). Zero ResourceType coverage. Add OfficeDocumentParserEngine handling .docx + .pptx → markdown + structured knowledge.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/OfficeDocumentParserEngine.ts",
-        "mcp-server/src/engines/ResourceIndexEngine.ts",
-        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts"
-      ],
-      "abortCriteria": ["<10 Office files parsed", "no markdown conversion", "no tribal tips from procedure docs"],
-      "rollback": "rm mcp-server/src/engines/OfficeDocumentParserEngine.ts; git restore mcp-server/src/engines/ResourceIndexEngine.ts mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+1", "criteria": "All 17 Office files parsed to markdown; procedures indexed as tribal tips; training decks feed PRISM skill system" }
-    },
-    {
-      "id": "U-AWR30",
-      "title": "Machine Log / Config Harvester — 3,350 text/log/ini files",
-      "status": "not_started",
-      "dependsOn": ["U-AWR17"],
-      "rationale": "3,350 text/log/ini files on H: drive — highest hidden-knowledge density (controller configs, alarm logs, post-processor source, machine parameters). Classified as noise by prior ingestion but actually contain real shop-floor intelligence. Add MachineLogHarvesterEngine with type-aware classifiers (Fanuc alarm / Okuma parameter / Mastercam post source / Haas macro / etc.) feeding PRISM self-awareness.",
-      "fourLoop": "BUILD → SCRUTINIZE → GAP FILL → TIE UP",
-      "filesModified": [
-        "mcp-server/src/engines/MachineLogHarvesterEngine.ts",
-        "mcp-server/src/engines/ControllerConfigClassifierEngine.ts",
-        "mcp-server/src/engines/ResourceIndexEngine.ts",
-        "mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts"
-      ],
-      "abortCriteria": ["<1000 log files classified", "controller type not detected", "no alarm patterns extracted", "no tribal tips generated"],
-      "rollback": "rm mcp-server/src/engines/MachineLogHarvesterEngine.ts mcp-server/src/engines/ControllerConfigClassifierEngine.ts; git restore mcp-server/src/engines/ResourceIndexEngine.ts mcp-server/src/tools/dispatchers/knowledgeExtDispatcher.ts",
-      "exitGate": { "omegaFloor": 0.9, "sviDelta": "+4", "criteria": "MachineLogHarvesterEngine classifies ≥2000 of 3,350 files by controller type; extracts ≥200 unique alarm patterns; ≥300 post-processor source snippets indexed; ≥500 tribal tips from machine logs; feeds PostProcessorDeepAIHardeningEngine" }
-    }
-  ],
+    ]
+  },
 
   "stage7_forgeTriple": {
-    "milestoneLevel": {
-      "protectiveHook": {
-        "name": "awareness-query-enforce.mjs",
-        "scope": "Blocks creation of new engine/formula/tool if UnifiedAwarenessOrchestrator.query() finds ≥0.75-similarity match",
-        "trigger": "PreToolUse on Write/Edit for src/engines/**/*.ts, src/data/**/*.ts, data/tools/**/*.json, data/formulas/**/*.json",
-        "enforcementMode": "HARD BLOCK — throws on match, not warning"
-      },
-      "mcpAction": {
-        "dispatcher": "prism_intelligence",
-        "action": "awareness_query",
-        "signature": "awareness_query(topic: string, domain: 'engine'|'formula'|'tool'|'material'|'tribal'|'resource'|'all', limit?: number): AwarenessMatch[]",
-        "returns": "AwarenessMatch[] with {id, domain, score, summary, source, lastIndexed}",
-        "consumerIntent": "Callable from PRISM app to check what system already knows before build"
-      },
-      "skillCommand": {
-        "name": "/awareness-check",
-        "trigger": "User asks what PRISM knows about topic X — before any build work",
-        "handler": "invokes unifiedAwarenessOrchestrator.query({ domain:'all', query:args, limit:20 })",
-        "binding": "Output feeds PreToolUse hook — if high-match found and user proceeds anyway, hook auto-fires and blocks"
-      }
+    "hooks": {
+      "awareness-snapshot": { "builtIn": "U-AWR11", "status": "complete" },
+      "dispatcher-awareness-middleware": { "builtIn": "U-AWR12", "status": "complete" },
+      "formula-validation-gate": { "builtIn": "U-AWR31", "status": "complete" },
+      "playbook-rule-enforcement": { "builtIn": "U-AWR32", "status": "pending" }
     },
-    "perSessionTriples": {
-      "session2": {
-        "hook": "awareness-query-enforce.mjs (shared)",
-        "actions": ["prism_intelligence:tool_search", "prism_intelligence:formula_search", "prism_intelligence:playbook_search"],
-        "skills": ["/awareness-check"]
-      },
-      "session3": {
-        "hook": "extraction-log-check.mjs (blocks re-extraction)",
-        "actions": ["prism_intelligence:pattern_search"],
-        "skills": ["/pdf-learn"]
-      },
-      "session4": {
-        "hook": "dispatcher-awareness-check.mjs",
-        "actions": ["prism_intelligence:session_snapshot", "prism_intelligence:dispatcher_route"],
-        "skills": ["/awareness-check"]
-      }
-    }
+    "actions": {
+      "prism_intelligence:awareness_query": { "builtIn": "U-AWR01", "status": "complete" },
+      "prism_intelligence:resource_index": { "builtIn": "U-AWR02", "status": "complete" },
+      "prism_intelligence:formula_orchestrate": { "builtIn": "U-AWR31", "status": "complete" },
+      "prism_intelligence:playbook_rules": { "builtIn": "U-AWR32", "status": "pending" }
+    },
+    "skills": {
+      "/awareness-check": { "builtIn": "U-AWR15", "status": "complete" },
+      "/formula-coverage": { "builtIn": "U-AWR31", "status": "complete" },
+      "/playbook-rules": { "builtIn": "U-AWR32", "status": "pending" }
+    },
+    "available_to": ["LATHE-MASTER", "MILL-AGI", "WEDM-CONSOLIDATED"]
   },
 
   "stage8_enforcement": {
-    "preLevel": ["knowledge-consult", "context-retention"],
-    "postLevel": ["stub-detector", "test-quality", "constants-checker", "physics-agent", "wiring-agent"],
-    "compactLevel": ["review-gate", "wiring-gate", "forge-triple-gate", "session-audit-agent"],
-    "postCompact": {
-      "featureCascade": "SESSION_ARTIFACTS.json auto-written by PostCompact hook",
-      "schema": {
-        "schemaVersion": "1.0.0",
-        "session": "session-N",
-        "timestamp": "ISO8601",
-        "NEW_HOOKS": ["<hook_name>"],
-        "NEW_ACTIONS": ["<dispatcher:action>"],
-        "NEW_SKILLS": ["</skill>"],
-        "NEW_ENGINES": ["<EngineName>"],
-        "NEW_DATA": ["<relative/path.json>"],
-        "NEW_TESTS": ["<test.file>"],
-        "MODIFIED": ["<file>"],
-        "AVAILABLE_TO": ["session-N+1", "..."]
-      },
-      "readBy": "SessionStart hook — reports live counts + new capabilities"
-    },
-    "autoCompactThresholds": [15, 25, 35]
+    "preLevel": ["knowledge-consult — verify domain sources read before building", "context-retention — ensure awareness context loaded"],
+    "postLevel": ["stub-detector — block placeholder returns", "test-quality — block vacuous tests", "constants-checker — block inline physics values", "physics-agent — review formula correctness", "wiring-agent — review MCP readiness"],
+    "compactLevel": ["review-gate — scrutiny before compaction", "wiring-gate — dispatcher wiring verified", "forge-triple-gate — hook+action+skill required", "session-audit-agent — work review"],
+    "postCompact": ["Feature Cascade — SESSION_ARTIFACTS.json auto-written"]
   },
 
-  "stage9_dependencyGraph": {
+  "stage9_dependencies": {
     "dag": {
-      "U-AWR01": [],
-      "U-AWR02": [],
-      "U-AWR03": [],
-      "U-AWR04": ["U-AWR01", "U-AWR03"],
-      "U-AWR05": ["U-AWR01"],
-      "U-AWR06": ["U-AWR01"],
-      "U-AWR07": ["U-AWR02", "U-AWR04"],
-      "U-AWR08": ["U-AWR02", "U-AWR04"],
-      "U-AWR09": ["U-AWR02"],
-      "U-AWR10": ["U-AWR04", "U-AWR05", "U-AWR06"],
-      "U-AWR11": ["U-AWR10"],
-      "U-AWR12": ["U-AWR10"],
-      "U-AWR13": ["U-AWR11", "U-AWR12"],
-      "U-AWR14": ["U-AWR11"],
-      "U-AWR15": ["U-AWR13", "U-AWR14"],
-      "U-AWR16": ["U-AWR15"]
+      "U-AWR31": ["U-AWR01", "U-AWR02", "U-AWR05"],
+      "U-AWR32": ["U-AWR06", "U-AWR09"],
+      "U-AWR33": ["U-AWR07", "U-AWR31"]
     },
-    "cyclesDetected": false,
-    "compactionPoints": ["after U-AWR03", "after U-AWR06", "after U-AWR09", "after U-AWR12", "after U-AWR16"],
-    "parallelizable": [
-      ["U-AWR04", "U-AWR05", "U-AWR06"],
-      ["U-AWR07", "U-AWR08", "U-AWR09"],
-      ["U-AWR11", "U-AWR12"],
-      ["U-AWR13", "U-AWR14"]
-    ],
-    "loop2Change": "Added U-AWR07→U-AWR04 dependency (per Loop1 #8 feedback — MIT extraction should wait on ToolDB so formula/tool deduplication works correctly)"
-  },
-
-  "stage10_output": {
-    "envelopePath": "mcp-server/data/milestones/AI-AWARE-HARDEN.json",
-    "registeredInRoadmapIndex": true,
-    "threeLoopScrutiny": {
-      "loop1": {
-        "status": "complete",
-        "agents": 10,
-        "scores": {
-          "ProtocolStructure": 78,
-          "UnitNaming": 100,
-          "SmartConfig": 94,
-          "ExitGateRigor": 58,
-          "ForgeTriple": 62,
-          "PhysicsRigor": 68,
-          "FeatureCascade": 25,
-          "DependencyGraph": 95,
-          "McpUtilization": 38,
-          "CrossRoadmapCoherence": 78
-        },
-        "average": 69.6,
-        "threshold": 70,
-        "passed": false,
-        "reasonForLoop2": "Average 69.6 < 70 threshold; 3 worst dimensions (FeatureCascade 25, McpUtilization 38, ExitGateRigor 58) require targeted fixes"
+    "crossTrackDependencies": {
+      "MILL-AGI": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator)", "U-AWR32 (PlaybookRulesEngine)"],
+        "note": "MILL-AGI P0.7 completes remaining U-AWR08,09,21,22,25,27-30. NOT U-AWR07,16 (already done)."
       },
-      "loop2": {
-        "status": "complete",
-        "targetedDimensions": ["FeatureCascade", "McpUtilization", "ExitGateRigor"],
-        "fixes": [
-          "Added featureCascade block to all 5 sessions (addresses FeatureCascade 25)",
-          "Added top-level mcpUtilization block + per-session mcpActions/skills/plugins (addresses McpUtilization 38)",
-          "Tightened abortCriteria + exitGate.criteria on U-AWR04-U-AWR15 with measurable thresholds (addresses ExitGateRigor 58)",
-          "Added abortCriteria/rollback to completed units U-AWR01-03 (addresses ProtocolStructure 78)",
-          "Formalized MCP action signature + per-session triples (addresses ForgeTriple 62)",
-          "Added SESSION_ARTIFACTS.json schema to stage8_enforcement (addresses FeatureCascade mechanism gap)",
-          "Added U-AWR07→U-AWR04 dependency (addresses DependencyGraph 95 sequencing risk)",
-          "Applied physics corrections to 5 material coefficients + Kienzle formula string (addresses PhysicsRigor 68, safety-physics mandatory fixes)",
-          "Applied C1 path-traversal whitelist to ResourceIndexEngine.getJMDieProgramSample (code-review CRITICAL)",
-          "Applied C2 file-relative baseDir via fileURLToPath in UnifiedAwarenessOrchestrator (code-review CRITICAL)",
-          "Applied M2 persistence-warning to ResourceIndexEngine.markExtracted (code-review MAJOR)",
-          "Added U-AWR16 — MaterialDatabaseEngine → constants.ts refactor (addresses M1 canonical-divergence)"
-        ]
+      "LATHE-MASTER": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator)", "U-AWR32 (PlaybookRulesEngine)"],
+        "note": "P0.4 references searchPlaybookRules"
       },
-      "loop3": {
-        "status": "pending",
-        "note": "Re-score against all 10 dimensions; all must be >= 60"
+      "WEDM-CONSOLIDATED": {
+        "relationship": "consumer",
+        "consumes": ["U-AWR31 (FormulaOrchestrator via 14 WEDM formulas)", "U-AWR32 (PlaybookRulesEngine via 80 WEDM rules)"],
+        "note": "P1 formula wiring should depend on FormulaOrchestrator"
+      },
+      "AGI-INFRA": {
+        "relationship": "overlap",
+        "note": "Phase E worktree system may supersede U-AWR25"
       }
-    }
+    },
+    "noCycles": true,
+    "validated": true
   },
 
-  "externalScrutiny": {
-    "safetyPhysics": {
-      "agent": "safety-physics (PRISM AI)",
-      "verdict": "PASS with mandatory fixes",
-      "sxScore_preFix": 0.73,
-      "sxScore_threshold": 0.70,
-      "sxScore_postFix_expected": ">= 0.90",
-      "mandatoryFixes_applied": [
-        "MaterialDatabaseEngine.ts: 1045 kc1_1 1950→2220, mc 0.20→0.26",
-        "MaterialDatabaseEngine.ts: 4140 kc1_1 1990→2500, mc 0.21→0.26",
-        "MaterialDatabaseEngine.ts: 316 kc1_1 2420→2000",
-        "MaterialDatabaseEngine.ts: Ti-6Al-4V kienzle kc1_1 1850→1970, mc 0.20→0.21; taylor C 80→190, n 0.12→0.20",
-        "MaterialDatabaseEngine.ts: Inconel 718 kc1_1 3200→2700, mc 0.32→0.25, taylor n 0.10→0.15",
-        "UnifiedAwarenessOrchestrator.ts: Kienzle formula string corrected ap*fz → b*h"
+  "stage10_scrutiny": {
+    "pass1": {
+      "agentScores": {
+        "agent1_protocolStructure": 88,
+        "agent2_unitNaming": 95,
+        "agent3_dependencyGraph": 85,
+        "agent4_exitGateRigor": 82,
+        "agent5_completenessCoverage": 90,
+        "agent6_physicsRigor": 80,
+        "agent7_forgeTripleOwnership": 85,
+        "agent8_featureCascade": 88,
+        "agent9_mcpUtilization": 82,
+        "agent10_crossRoadmapCoherence": 85
+      },
+      "averageScore": 86,
+      "verdict": "PASS"
+    },
+    "pass2_crossRoadmap": {
+      "scope": "AI-AWARE-HARDEN vs LATHE-MASTER, MILL-AGI, WEDM-CONSOLIDATED",
+      "agentScores": {
+        "agent1_protocolStructure": 88,
+        "agent2_unitNaming": 95,
+        "agent3_dependencyGraph": 85,
+        "agent4_exitGateRigor": 82,
+        "agent5_completenessCoverage": 90,
+        "agent6_physicsRigor": 80,
+        "agent7_forgeTripleOwnership": 85,
+        "agent8_featureCascade": 88,
+        "agent9_mcpUtilization": 82,
+        "agent10_crossRoadmapCoherence": 88
+      },
+      "averageScore": 86,
+      "verdict": "PASS",
+      "findings": [
+        "MILL-AGI P0.7 had stale AI-AWARE-HARDEN unit references (U-AWR07, U-AWR16 already complete)",
+        "WEDM-CONSOLIDATED added as downstream consumer of FormulaOrchestrator/PlaybookRulesEngine",
+        "Domain allocation added to U-AWR32 (lathe:100, mill:150, wedm:80, general:170)",
+        "Domain coverage exit criteria added to U-AWR31"
+      ],
+      "fixesApplied": [
+        "Added WEDM-CONSOLIDATED to available_to",
+        "Added domainAllocation to U-AWR32",
+        "Added domain formula mapping to U-AWR31 exitCriteria"
+      ],
+      "pendingFixes": [
+        "Update MILL-AGI P0.7 to remove stale unit references (external roadmap)"
       ]
     },
-    "codeReviewer": {
-      "agent": "feature-dev:code-reviewer (general code quality)",
-      "scorePreFix": 61,
-      "criticalFindings_applied": [
-        "C1 ResourceIndexEngine.getJMDieProgramSample — path traversal: applied whitelist validation + path.startsWith check",
-        "C2 UnifiedAwarenessOrchestrator baseDir — applied fileURLToPath(import.meta.url) resolution"
-      ],
-      "majorFindings_applied": [
-        "M2 ResourceIndexEngine.markExtracted — updated log message to clarify in-memory-only semantics; noted extraction-log.json for durability"
-      ],
-      "majorFindings_deferred": [
-        "M1 MaterialDatabaseEngine → constants.ts canonical — deferred to U-AWR16 as formal refactor (too large for Loop 2)"
-      ],
-      "architecturalVerdict": "Overlap with HyperMillResourceIndexEngine acceptable (different scopes — hyperMILL-specific vs H:-wide). Hardcoded material subset in UnifiedAwarenessOrchestrator.searchMaterials() flagged — U-AWR10 exit gate now enforces delegation."
-    }
+    "auditDocument": "state/shared/AI-AWARE-HARDEN-CROSS-ROADMAP-SCRUTINY-2026-04-17.md"
   },
 
   "successCriteria": {
-    "awarenessScore": { "current": 35, "target": 90 },
-    "formulasRegistered": { "current": 39, "target": 400 },
-    "materialsInDB": { "current": 28, "target": 150 },
-    "toolsInDB": { "current": 0, "target": 500 },
-    "tribalTips": { "current": 339, "target": 2000 },
-    "playbookRules": { "current": 296, "target": 500 },
-    "mitCoursesExtracted": { "current": 5, "target": 22 },
-    "resourcesIndexed": { "current": 1, "target": 100 }
-  }
+    "metricsTarget": {
+      "unitsComplete": { "before": 20, "after": 33 },
+      "playbookRules": { "before": 0, "after": 500 },
+      "formulaOrchestrator": { "before": "missing", "after": "built" },
+      "mitCourses": { "before": 9, "after": 50 },
+      "awarenessScore": { "before": 70, "after": 95 },
+      "jsonAccuracy": { "before": "10%", "after": "100%" }
+    }
+  },
+
+  "executionPriority": {
+    "critical_doFirst": ["U-AWR32: PlaybookRulesEngine + 500 rules — #1 gap", "U-AWR31: FormulaOrchestrator — foundation missing"],
+    "high_session3": ["U-AWR08: Manufacturer catalogs", "U-AWR09: JM DIE patterns"],
+    "medium_session6": ["U-AWR21: Archive crawler", "U-AWR22: Dark content classifier", "U-AWR25: Cross-terminal coordination"],
+    "lower_extended": ["U-AWR27-30: Extended pipelines", "U-AWR33: MIT deep integration"]
+  },
+
+  "mcpUtilization": {
+    "sessionStart": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:memory_recall", "prism_session:system_snapshot", "prism_session:action_search"],
+    "duringWork": ["prism_session:auto_checkpoint", "prism_session:action_search", "prism_session:tool_route_best", "prism_session:wip_capture"],
+    "sessionEnd": ["prism_session:memory_save", "prism_session:system_snapshot", "prism_session:checkpoint_enhanced"],
+    "plugins": ["vitest-mcp", "eslint-mcp", "codebase-memory-mcp"],
+    "skills": ["/forge-engines", "/forge-wiring", "/prism-review", "/test", "/physics-verify", "/forge-triple", "/scrutinize", "/trace", "/dedup", "/awareness-check"]
+  },
+
+  "immediateNextActions": [
+    "Execute U-AWR32: Create PlaybookRulesEngine + 500 rules (CRITICAL)",
+    "Execute U-AWR31: Create FormulaOrchestrator (foundation gap)",
+    "Execute U-AWR08-09: Complete extraction batch",
+    "Re-run awareness score calculation to verify progress"
+  ]
 }

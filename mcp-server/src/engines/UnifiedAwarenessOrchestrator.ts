@@ -18,6 +18,7 @@ import { log } from "../utils/Logger.js";
 import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
+import { formulaOrchestrator, type CoverageReport } from "./FormulaOrchestrator.js";
 
 // ============================================================================
 // TYPES
@@ -442,6 +443,20 @@ export class UnifiedAwarenessOrchestrator {
     }
 
     return matches.slice(0, limit);
+  }
+
+  /**
+   * Get formula coverage report from FormulaOrchestrator (U-AWR31)
+   */
+  getFormulaCoverage(): CoverageReport {
+    return formulaOrchestrator.getFormulaCoverage();
+  }
+
+  /**
+   * Get formulas by domain from FormulaOrchestrator (U-AWR31)
+   */
+  getFormulasByDomain(domain: "lathe" | "mill" | "wedm" | "general" | "all") {
+    return formulaOrchestrator.getFormulasByDomain(domain);
   }
 
   private async searchMaterials(query: string, limit: number): Promise<AwarenessMatch[]> {

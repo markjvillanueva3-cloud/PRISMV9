@@ -212,7 +212,7 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     name: "Gray Cast Iron (GG25)", iso_group: "K",
     kc1_1: 1100, mc: 0.28, taylor_C: 400, taylor_n: 0.28,
     k_thermal: 48, sigma_y_MPa: 250, density_kg_m3: 7200, hardness_HB: 190,
-    vc_base_roughing: 250, vc_base_finishing: 350, machinability_factor: 1.2,
+    vc_base_roughing: 220, vc_base_finishing: 280, machinability_factor: 1.2,
     cp_J_kgK: 460, E_GPa: 100,
     // Johnson-Cook: Gray iron — discontinuous chip, JC approximation
     jc_A: 250, jc_B: 200, jc_n: 0.15, jc_C: 0.005, jc_m: 0.8,
@@ -292,11 +292,13 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
   },
 
   // ISO H — Hardened
+  // Vc values calibrated to Sandvik CB7015 CBN grade catalog (52-58 HRC)
+  // Note: CBN hard turning typically runs DRY at high speed
   hardened_steel: {
     name: "Hardened Steel (52-58 HRC)", iso_group: "H",
     kc1_1: 3200, mc: 0.30, taylor_C: 200, taylor_n: 0.20,
     k_thermal: 30, sigma_y_MPa: 1600, density_kg_m3: 7800, hardness_HB: 550,
-    vc_base_roughing: 60, vc_base_finishing: 100, machinability_factor: 0.20,
+    vc_base_roughing: 115, vc_base_finishing: 150, machinability_factor: 0.20,
     cp_J_kgK: 450, E_GPa: 210,
     melting_point_C: 1450, latent_heat_J_kg: 270000, resistivity_uOhm_cm: 50,
     thermal_diffusivity_mm2s: 8.5, // 30/(7800×450)×1e6
