@@ -136,6 +136,19 @@ const ACTIONS = [
   "mcat_bind_all_consumers",     // Get bindings for all consumers
   "mcat_bind_list",              // List all bindable machines
   "mcat_bind_stats",             // Get binding statistics
+  // ===== MCAT-MS0 P3-U02: Machine Package API (12 actions) =====
+  "mcat_api_get_package",        // Get machine package details
+  "mcat_api_list_packages",      // List machine packages
+  "mcat_api_search_packages",    // Search machine packages
+  "mcat_api_create_overlay",     // Create machine overlay
+  "mcat_api_update_overlay",     // Update machine overlay
+  "mcat_api_delete_overlay",     // Delete machine overlay
+  "mcat_api_get_capabilities",   // Get machine capabilities
+  "mcat_api_check_compatibility", // Check machine compatibility
+  "mcat_api_validate_profile",   // Validate machine profile
+  "mcat_api_get_renderable",     // Get renderable options
+  "mcat_api_coverage_stats",     // Get coverage statistics
+  "mcat_api_run_tests",          // Run contract tests via API
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -674,6 +687,44 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_bind_stats") {
           const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
           result = machineConsumerBindingEngine.getStats();
+
+        // ===== MCAT-MS0 P3-U02: Machine Package API =====
+        } else if (action === "mcat_api_get_package") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.getPackage(params.machine_id as string);
+        } else if (action === "mcat_api_list_packages") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.listPackages(params);
+        } else if (action === "mcat_api_search_packages") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.searchPackages(params);
+        } else if (action === "mcat_api_create_overlay") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.createOverlay(params as any);
+        } else if (action === "mcat_api_update_overlay") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.updateOverlay(params as any);
+        } else if (action === "mcat_api_delete_overlay") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.deleteOverlay(params.overlay_id as string);
+        } else if (action === "mcat_api_get_capabilities") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.getCapabilities(params.machine_id as string);
+        } else if (action === "mcat_api_check_compatibility") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.checkCompatibility(params as any);
+        } else if (action === "mcat_api_validate_profile") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.validateProfile(params.profile);
+        } else if (action === "mcat_api_get_renderable") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.getRenderableOptions(params.machine_id as string);
+        } else if (action === "mcat_api_coverage_stats") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.getCoverageStats();
+        } else if (action === "mcat_api_run_tests") {
+          const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
+          result = machinePackageAPIEngine.runContractTests(params.machine_id as string);
 
         } else {
           const engineKey = engineMap[action];
