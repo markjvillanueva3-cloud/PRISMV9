@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T02:01:42.270Z
+**Generated:** 2026-04-17T02:06:55.908Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 96 |
+| Engines | 97 |
 | Playbooks | 8 |
 | State Files | 41 |
 
-## Engines (96)
+## Engines (97)
 
 | Engine | Description |
 |--------|-------------|
@@ -80,6 +80,7 @@
 | `WEDMProgramNeuralAnalysisEngine` | WEDMProgramNeuralAnalysisEngine — Deep Reasoning for Wire EDM Program Analysis |
 | `WEDMProgramOptimizerEngine` | WEDMProgramOptimizerEngine — Wire EDM Program Optimizer for JM Die |
 | `WEDMPrototypicalNetworkEngine` | WEDMPrototypicalNetworkEngine — Prototypical-Network material classifier |
+| `WEDMReasoningTraceLedgerEngine` | WEDMReasoningTraceLedgerEngine — MS-P0.5-COORD U-P0.5-COORD-02 |
 | `WEDMRecipeAdaptationEngine` | WEDMRecipeAdaptationEngine — WEDM AGI Phase 2 / U-P2-11 |
 | `WEDMRewardShapingEngine` | WEDMRewardShapingEngine — Shaped-reward signal for WEDM RL controller. |
 | `WEDMRLControllerEngine` | WEDMRLControllerEngine — Reinforcement learning for WEDM parameter control |

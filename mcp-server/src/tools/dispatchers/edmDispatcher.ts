@@ -404,12 +404,15 @@ Actions: ${ACTIONS.join(", ")}.`,
         }
 
         // MS-P0.5-COORD U-P0.5-COORD-01: Awareness consult (fails open, <50ms budget)
+        // MS-P0.5-COORD U-P0.5-COORD-02: Reasoning trace ledger
         let _awareness: any = null;
+        let _awarenessKeywords: string[] = [];
+        const _entryAt = Date.now();
         try {
           const { consultAwareness } = await import("./awarenessMiddleware.js");
           const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
-          const keywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
-          const aw = await consultAwareness({ dispatcher: "edm", action, keywords });
+          _awarenessKeywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
+          const aw = await consultAwareness({ dispatcher: "edm", action, keywords: _awarenessKeywords });
           wedmAwarenessAdoptionEngine.recordAdoption({
             dispatcher: "edm", action, latencyMs: aw.latencyMs, cached: aw.cached, ok: aw.ok,
           });
@@ -2961,6 +2964,19 @@ Actions: ${ACTIONS.join(", ")}.`,
       if (_awareness && result && typeof result === "object" && !Array.isArray(result)) {
         (result as any)._awareness = _awareness;
       }
+      // MS-P0.5-COORD U-02: reasoning trace ledger (fire-and-forget, never throws)
+      try {
+        const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+        const isError = result && typeof result === "object" && "error" in (result as any);
+        wedmReasoningTraceLedgerEngine.recordTraceSync({
+          dispatcher: "edm",
+          action,
+          keywords: _awarenessKeywords,
+          awareness_used: !!_awareness,
+          duration_ms: Date.now() - _entryAt,
+          error: isError ? String((result as any).error) : undefined,
+        });
+      } catch { /* ledger never blocks */ }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }
   );

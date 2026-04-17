@@ -1400,13 +1400,18 @@ Params vary by action — pass relevant fields in params object.`,
         }
 
         // MS-P0.5-COORD U-P0.5-COORD-01: Awareness consult for WEDM-relevant CAM actions (fails open)
+        // MS-P0.5-COORD U-P0.5-COORD-02: Reasoning trace ledger (WEDM actions only)
         let _awareness: any = null;
+        let _awarenessKeywords: string[] = [];
+        let _isWedmAction = false;
+        const _entryAt = Date.now();
         try {
           const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
-          if (wedmAwarenessAdoptionEngine.isWedmAction("cam", action)) {
+          _isWedmAction = wedmAwarenessAdoptionEngine.isWedmAction("cam", action);
+          if (_isWedmAction) {
             const { consultAwareness } = await import("./awarenessMiddleware.js");
-            const keywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
-            const aw = await consultAwareness({ dispatcher: "cam", action, keywords });
+            _awarenessKeywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
+            const aw = await consultAwareness({ dispatcher: "cam", action, keywords: _awarenessKeywords });
             wedmAwarenessAdoptionEngine.recordAdoption({
               dispatcher: "cam", action, latencyMs: aw.latencyMs, cached: aw.cached, ok: aw.ok,
             });
@@ -7850,6 +7855,21 @@ Params vary by action — pass relevant fields in params object.`,
       // MS-P0.5-COORD: attach awareness summary when present
       if (_awareness && result && typeof result === "object" && !Array.isArray(result)) {
         (result as any)._awareness = _awareness;
+      }
+      // MS-P0.5-COORD U-02: reasoning trace ledger (WEDM actions only, fire-and-forget)
+      if (_isWedmAction) {
+        try {
+          const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+          const isError = result && typeof result === "object" && "error" in (result as any);
+          wedmReasoningTraceLedgerEngine.recordTraceSync({
+            dispatcher: "cam",
+            action,
+            keywords: _awarenessKeywords,
+            awareness_used: !!_awareness,
+            duration_ms: Date.now() - _entryAt,
+            error: isError ? String((result as any).error) : undefined,
+          });
+        } catch { /* ledger never blocks */ }
       }
       return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
     }
