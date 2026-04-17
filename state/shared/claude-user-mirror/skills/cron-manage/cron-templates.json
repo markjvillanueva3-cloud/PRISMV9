@@ -1,0 +1,81 @@
+{
+  "templates": [
+    {
+      "id": "build-health",
+      "name": "Build Health Check",
+      "interval": "1h",
+      "prompt": "Run the PRISM build: cd C:/PRISM/mcp-server && npm run build 2>&1 | tail -5. Report: PASS if 0 errors, FAIL with error count and first 3 errors. Save result to ~/.prism/telemetry/cron-results.jsonl as JSON line with {timestamp, cron: build-health, status: pass|fail, details: ...}.",
+      "priority": "P0"
+    },
+    {
+      "id": "test-regression",
+      "name": "Test Regression Sweep",
+      "interval": "6h",
+      "prompt": "Run PRISM test suite: cd C:/PRISM/mcp-server && npx vitest run --reporter=json 2>/dev/null | tail -20. Extract: total tests, passed, failed, skipped. Compare against last run in ~/.prism/telemetry/cron-results.jsonl. Report any NEW failures (tests that passed last time but fail now). Save result as JSON line.",
+      "priority": "P0"
+    },
+    {
+      "id": "dispatcher-sync",
+      "name": "Dispatcher-Engine Sync Check",
+      "interval": "12h",
+      "prompt": "Verify dispatcher wiring: count case statements in C:/PRISM/mcp-server/src/tools/dispatchers/calcDispatcher.ts and compare against last known count. Check if any new engine files exist in src/engines/ without corresponding dispatcher actions. Report mismatches. Save to cron-results.jsonl.",
+      "priority": "P1"
+    },
+    {
+      "id": "schema-drift",
+      "name": "Schema Drift Detection",
+      "interval": "12h",
+      "prompt": "Check for schema drift: compare z.enum values in dispatcher files against actual action handler case statements. Flag any z.enum entries without handlers, and any handlers without z.enum entries. Save findings to cron-results.jsonl.",
+      "priority": "P1"
+    },
+    {
+      "id": "memory-cleanup",
+      "name": "Memory Pruning",
+      "interval": "@weekly",
+      "prompt": "Read C:/Users/Admin.DIGITALSTORM-PC/.claude/projects/C--Windows-System32/memory/MEMORY.md. Count lines. If >180, identify entries referencing files that no longer exist (spot-check 5 random file paths). Recommend entries to archive. Save report to cron-results.jsonl.",
+      "priority": "P2"
+    },
+    {
+      "id": "catalog-freshness",
+      "name": "Catalog Freshness Audit",
+      "interval": "@daily",
+      "prompt": "Check modification dates of key catalog files: machine-profiles-catalog.ts, material data files, tool catalogs in C:/PRISM/mcp-server/src/data/. Flag any not modified in 30+ days. Count total entries per catalog. Save to cron-results.jsonl.",
+      "priority": "P2"
+    },
+    {
+      "id": "dead-code",
+      "name": "Dead Code Detection",
+      "interval": "@weekly",
+      "prompt": "Search for potentially dead code in C:/PRISM/mcp-server/src/engines/: find engine files not exported from index.ts, not imported by any dispatcher, and not referenced in tests. List top 10 candidates. Save to cron-results.jsonl.",
+      "priority": "P2"
+    },
+    {
+      "id": "vulnerability",
+      "name": "Dependency Vulnerability Scan",
+      "interval": "@weekly",
+      "prompt": "Run: cd C:/PRISM/mcp-server && npm audit --json 2>/dev/null | head -50. Parse results for critical and high severity vulnerabilities. If any found, create a summary. Save to cron-results.jsonl.",
+      "priority": "P1"
+    },
+    {
+      "id": "doc-coverage",
+      "name": "Documentation Coverage",
+      "interval": "@weekly",
+      "prompt": "Sample 10 random engine files from C:/PRISM/mcp-server/src/engines/. Check if each has JSDoc on exported functions. Calculate coverage percentage. Compare against last run. Save to cron-results.jsonl.",
+      "priority": "P2"
+    },
+    {
+      "id": "hook-efficiency",
+      "name": "Hook Efficiency Analysis",
+      "interval": "@weekly",
+      "prompt": "Read ~/.prism/telemetry/ JSONL files. Count: tool failures, stop failures, agent spawns, compactions per week. Calculate ratios: failures/total, agents/session. Flag anomalies (>2x previous week). Save analysis to cron-results.jsonl.",
+      "priority": "P2"
+    },
+    {
+      "id": "automation-roi",
+      "name": "Automation ROI Report",
+      "interval": "@monthly",
+      "prompt": "Generate monthly automation report: Count hook fires from telemetry, estimate tokens saved by dedup/redirect hooks, count auto-fixed issues vs manual warnings, calculate cron job success rates. Produce summary with estimated token savings. Save to cron-results.jsonl.",
+      "priority": "P2"
+    }
+  ]
+}

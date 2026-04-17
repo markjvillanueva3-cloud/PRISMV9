@@ -1,0 +1,38 @@
+# Sensitive
+.credentials.json
+
+# Transient state
+history.jsonl
+security_warnings_state_*.json
+stats-cache.json
+file-history/
+shell-snapshots/
+debug/
+backups/
+tasks/
+todos/
+
+# Analytics
+statsig/
+telemetry/
+
+# Plugin cache (large, managed externally)
+cache/
+plugins/
+
+# Commands (auto-generated)
+commands/
+
+# Rules (auto-generated)
+rules/
+
+# Session transcripts and per-session data
+projects/**/*.jsonl
+projects/**/[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*-[0-9a-f]*/
+
+# Other project memory dirs (only track C--Windows-System32/memory)
+projects/C--PRISM*/
+projects/C--Users*/
+
+# MCP auth cache
+mcp-needs-auth-cache.json
