@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "description": "Staged rollout control for Phase 0 hooks. Enables gradual 10%→50%→100% activation.",
+  "lastUpdated": "2026-04-17T15:45:00Z",
+  "phases": {
+    "0.1": { "rolloutPercent": 100, "status": "active" },
+    "0.2": { "rolloutPercent": 100, "status": "active" },
+    "0.6": { "rolloutPercent": 100, "status": "active" },
+    "0.7": { "rolloutPercent": 100, "status": "active" },
+    "0.13": { "rolloutPercent": 50, "status": "canary" },
+    "0.14": { "rolloutPercent": 50, "status": "canary" },
+    "0.15": { "rolloutPercent": 10, "status": "canary" },
+    "0.16": { "rolloutPercent": 10, "status": "canary" },
+    "0.17": { "rolloutPercent": 10, "status": "canary" }
+  },
+  "sessionRolloutSeed": null,
+  "forceAllPhases": false,
+  "notes": "Increment rolloutPercent as stability is verified. forceAllPhases=true bypasses canary."
+}
