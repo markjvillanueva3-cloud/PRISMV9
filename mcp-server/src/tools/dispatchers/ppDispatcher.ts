@@ -329,6 +329,96 @@ let _ppInlineCornerBreak: any;
 // PP-AXIS: Axis-letter vocabulary validator (Fanuc ISO word-letter check)
 let _ppAxisLetter: any;
 
+// PP-AGI-WIRING: Orchestration layer — knowledge-aggregating pipeline runner
+let _ppAgiWiring: any;
+
+// PP-CPS: PRISM CPS implementation knowledge (3 PRISM-enhanced posts, controllers, Okuma M-codes)
+let _ppCPS: any;
+
+// PP-CL: Continuous learning — Bayesian belief over engine correctness from production feedback
+let _ppCL: any;
+
+// PP-BRIDGE: AI coordination bridge — physics + generator + master-AGI orchestration
+let _ppBridge: any;
+
+// PP-PAT: JM Die production patterns (24,469 programs, operations, customers, sequences, macros)
+let _ppPat: any;
+
+// PP-HM: hyperMILL production knowledge (variables, machine configs, patterns, validation)
+let _ppHM: any;
+
+// PP-MPA: Master-Post Architecture (26 machine types, 123 Fusion posts, Hurco V11 tracker)
+let _ppMPA: any;
+
+// PP-COG: Deep cognition (case library, symptom diagnosis, reasoning)
+let _ppCog: any;
+
+// PP-CK: Comprehensive Knowledge (catalog routing, asset ingestion, H-drive resources)
+let _ppCK: any;
+
+// PP-GEN: Master Post Genius (expert reasoning, print-to-program, JM Die patterns)
+let _ppGen: any;
+
+// PP-REG: AGI Master Registry (PP engine routing, capability search, dependency graph)
+let _ppReg: any;
+
+// PP-UPH: Unified Physics Orchestration (analyze + G-code physics optimization)
+let _ppUPH: any;
+
+// PP-AGIO: AGI Orchestration (engine registry, controller knowledge, recommendations)
+let _ppAGIO: any;
+
+// PP-SAW: AI Self-Awareness Integration (PRISM awareness context, JM Die machines)
+let _ppSAW: any;
+
+// PP-DAH: Deep AI Hardening (post conversion, generator, validator, 5-axis safety)
+let _ppDAH: any;
+
+// PP-VID: Video Knowledge Neural (6-layer neural reasoning over video-learned controllers)
+let _ppVID: any;
+
+// PP-MPG: Master Post Generator (complete post skeleton, safety, cycles, M-codes, properties)
+let _ppMPG: any;
+
+// PP-DI: Deep Intelligence (reasoning, CSP, kinematics, collision, deep learning, comprehensive)
+let _ppDI: any;
+
+// PP-TEL: Telemetry (event record, funnel metrics)
+let _ppTel: any;
+
+// PP-TNR: Tool Number Range Validator (T-word validation across G-code)
+let _ppTNR: any;
+
+// PP-TRN: Trainer (dialect calibration via ref vs generated diff)
+let _ppTrn: any;
+
+// PP-MGC: Modal Group Conflict Validator (same-line modal G-code conflicts)
+let _ppMGC: any;
+
+// PP-ANL: Analysis (deep post-processor AI analysis: dead code, logic, modal state)
+let _ppAnl: any;
+
+// PP-AUT: Autopilot (dialect resolution, post config, PPG, print-to-program)
+let _ppAut: any;
+
+// PP-MST: Master Post Processor (unified multi-CAM segment processing)
+let _ppMst: any;
+
+// PP-ULT: Ultimate AI (deep ensemble, episodic retrieval, KG query, ToT, meta-learning, adversarial)
+let _ppUlt: any;
+
+// PP-IOC: Intelligence Orchestrator (intent classification, engine routing, aggregation, proactive suggestions)
+let _ppIoc: any;
+
+// PP-DL: Deep Learning (pattern recognition, feed optimization, controller classification, quality scoring)
+let _ppDl: any;
+
+// PP-UDR: Unified Deep Reasoning (6-layer intelligence + MCTS exploration)
+let _ppUdr: any;
+
+// PP-PCM: Post Capability Matrix (controller capability records, query, compare, post selection)
+let _ppPcm: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -582,6 +672,66 @@ async function getEngine(name: string): Promise<any> {
       return _ppInlineCornerBreak ??= (await import("../../engines/PPInlineCornerBreakValidatorEngine.js")).ppInlineCornerBreakValidatorEngine;
     case "axisLetter":
       return _ppAxisLetter ??= (await import("../../engines/PPAxisLetterValidatorEngine.js")).ppAxisLetterValidatorEngine;
+    case "agiWiring":
+      return _ppAgiWiring ??= (await import("../../engines/PostProcessorAGIWiringIntegrationEngine.js")).postProcessorAGIWiringIntegrationEngine;
+    case "cps":
+      return _ppCPS ??= (await import("../../engines/PostProcessorCPSImplementationEngine.js")).postProcessorCPSImplementationEngine;
+    case "continuousLearning":
+      return _ppCL ??= (await import("../../engines/PostProcessorAGIContinuousLearningEngine.js")).postProcessorAGIContinuousLearningEngine;
+    case "bridge":
+      return _ppBridge ??= (await import("../../engines/PostProcessorAICoordinationBridge.js")).postProcessorAICoordinationBridge;
+    case "productionPattern":
+      return _ppPat ??= (await import("../../engines/PostProcessorProductionPatternEngine.js")).postProcessorProductionPatternEngine;
+    case "hyperMillKnowledge":
+      return _ppHM ??= (await import("../../engines/PostProcessorHyperMillKnowledgeEngine.js")).postProcessorHyperMillKnowledgeEngine;
+    case "masterPostArch":
+      return _ppMPA ??= (await import("../../engines/PostProcessorMasterPostArchitectureEngine.js")).postProcessorMasterPostArchitectureEngine;
+    case "deepCognition":
+      return _ppCog ??= (await import("../../engines/PostProcessorDeepCognitionEngine.js")).postProcessorDeepCognitionEngine;
+    case "comprehensiveKnowledge":
+      return _ppCK ??= (await import("../../engines/PostProcessorComprehensiveKnowledgeEngine.js")).postProcessorComprehensiveKnowledgeEngine;
+    case "masterGenius":
+      return _ppGen ??= (await import("../../engines/MasterPostProcessorGeniusEngine.js")).masterPostProcessorGeniusEngine;
+    case "agiMasterRegistry":
+      return _ppReg ??= (await import("../../engines/PostProcessorAGIMasterRegistryEngine.js")).postProcessorAGIMasterRegistryEngine;
+    case "unifiedPhysics":
+      return _ppUPH ??= (await import("../../engines/PostProcessorUnifiedPhysicsOrchestrationEngine.js")).postProcessorUnifiedPhysicsOrchestrationEngine;
+    case "agiOrchestration":
+      return _ppAGIO ??= (await import("../../engines/MasterPostProcessorAGIOrchestrationEngine.js")).masterPostProcessorAGIOrchestrationEngine;
+    case "selfAwareness":
+      return _ppSAW ??= (await import("../../engines/PostProcessorAISelfAwarenessIntegrationEngine.js")).postProcessorAISelfAwarenessIntegrationEngine;
+    case "deepAIHardening":
+      return _ppDAH ??= (await import("../../engines/PostProcessorDeepAIHardeningEngine.js")).postProcessorDeepAIHardeningEngine;
+    case "videoKnowledgeNeural":
+      return _ppVID ??= (await import("../../engines/PostProcessorVideoKnowledgeNeuralEngine.js")).postProcessorVideoKnowledgeNeuralEngine;
+    case "masterPostGenerator":
+      return _ppMPG ??= (await import("../../engines/MasterPostGeneratorEngine.js")).masterPostGeneratorEngine;
+    case "deepIntelligence":
+      return _ppDI ??= (await import("../../engines/PostProcessorDeepIntelligenceEngine.js")).postProcessorDeepIntelligenceEngine;
+    case "telemetry":
+      return _ppTel ??= (await import("../../engines/PostProcessorTelemetryEngine.js")).postProcessorTelemetryEngine;
+    case "toolNumberRange":
+      return _ppTNR ??= (await import("../../engines/PPToolNumberRangeValidatorEngine.js")).ppToolNumberRangeValidatorEngine;
+    case "trainer":
+      return _ppTrn ??= (await import("../../engines/PostProcessorTrainerEngine.js")).postProcessorTrainerEngine;
+    case "modalGroupConflict":
+      return _ppMGC ??= (await import("../../engines/PPModalGroupConflictValidatorEngine.js")).ppModalGroupConflictValidatorEngine;
+    case "analysis":
+      return _ppAnl ??= (await import("../../engines/PostProcessorAnalysisEngine.js")).postProcessorAnalysisEngine;
+    case "autopilot":
+      return _ppAut ??= (await import("../../engines/PostProcessorAutopilotEngine.js")).postProcessorAutopilotEngine;
+    case "master":
+      return _ppMst ??= (await import("../../engines/MasterPostProcessorEngine.js")).masterPostProcessorEngine;
+    case "ultimate":
+      return _ppUlt ??= (await import("../../engines/PostProcessorUltimateAIEngine.js")).postProcessorUltimateAIEngine;
+    case "ioc":
+      return _ppIoc ??= (await import("../../engines/PostProcessorIntelligenceOrchestratorEngine.js")).postProcessorIntelligenceOrchestrator;
+    case "deepLearning":
+      return _ppDl ??= (await import("../../engines/PostProcessorDeepLearningEngine.js")).postProcessorDeepLearningEngine;
+    case "unifiedReasoning":
+      return _ppUdr ??= (await import("../../engines/PostProcessorUnifiedDeepReasoningEngine.js")).postProcessorUnifiedDeepReasoningEngine;
+    case "postCapMatrix":
+      return _ppPcm ??= (await import("../../engines/PostProcessorCapabilityMatrixEngine.js")).postProcessorCapabilityMatrixEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1080,6 +1230,280 @@ const ACTIONS = [
   "pp_axis_validate",              // Axis-letter vocabulary validation (Fanuc ISO)
   "pp_axis_quick",                 // Quick pass/fail + unknown-letter count
   "pp_axis_defaults",              // Default allowed word-letters + rotary axes
+  "pp_agi_run",                    // Full AGI pipeline with all knowledge engines
+  "pp_agi_verify",                 // Verify wiring of all knowledge engines
+  "pp_agi_plan",                   // Plan execution: routing + knowledge engines
+  "pp_agi_health",                 // Quick health check engine-by-engine
+  "pp_agi_context",                // Full context string for AI consumption
+  "pp_agi_stats",                  // Integration engine statistics
+  "pp_cps_files",                  // List 3 PRISM-enhanced CPS files
+  "pp_cps_find",                   // Find CPS files for a machine/manufacturer
+  "pp_cps_features",               // List roughing features (with filter by category)
+  "pp_cps_benefit",                // Calculate combined benefit of features (diminishing returns)
+  "pp_cps_controllers",            // List controller implementations
+  "pp_cps_controller_find",        // Find controller by query
+  "pp_cps_gcode_detail",           // G-code detail for a controller
+  "pp_cps_issues",                 // Issue solutions by symptom
+  "pp_cps_okuma_mcodes",           // Okuma cycle-time M-codes (optional risk filter)
+  "pp_cps_okuma_savings",          // Calculate Okuma time savings from applied M-codes
+  "pp_cps_recommend",              // Recommend features for a use case
+  "pp_cps_lessons",                // Production lessons learned
+  "pp_cps_stats",                  // CPS engine statistics
+  "pp_cps_context",                // AI context string for CPS knowledge
+  "pp_cl_feedback",                // Record production feedback (Bayesian belief update)
+  "pp_cl_state",                   // Full continuous-learning state snapshot
+  "pp_cl_belief",                  // Single engine's current belief state
+  "pp_cl_mistakes",                // Top mistake patterns observed in production
+  "pp_cl_promoted",                // Promoted knowledge (above confidence threshold)
+  "pp_cl_search",                  // Search learned knowledge by query
+  "pp_cl_rules",                   // Prevention rules for controller + material pair
+  "pp_cl_reset",                   // Reset all learning state (admin)
+  "pp_cl_stats",                   // Continuous-learning engine statistics
+  "pp_bridge_coordinate",          // Coordinate physics + generator + master-AGI for a request
+  "pp_bridge_perf",                // All engine performance records
+  "pp_bridge_perf_engine",         // Performance record for a single engine
+  "pp_bridge_perf_reset",          // Reset performance tracking (admin)
+  "pp_bridge_best",                // Best engine by metric (success_rate/speed/confidence)
+  "pp_bridge_physics_quick",       // Quick physics analysis shortcut
+  "pp_bridge_stats",               // Coordination bridge statistics
+  "pp_pat_operations",             // Operation frequencies (JM Die 24,469 programs)
+  "pp_pat_top_ops",                // Top N operations by frequency
+  "pp_pat_operation",              // Single operation frequency by G/M code
+  "pp_pat_customers",              // All customer patterns
+  "pp_pat_customer",               // Single customer pattern by name
+  "pp_pat_customers_industry",     // Customers filtered by industry
+  "pp_pat_material",               // Material production parameters
+  "pp_pat_materials_all",          // All material production parameters
+  "pp_pat_speeds_feeds",           // Recommend speeds/feeds from production data
+  "pp_pat_sequences",              // All operation sequences (production-proven)
+  "pp_pat_sequence",               // Single sequence by ID
+  "pp_pat_sequences_customer",     // Sequences for a customer
+  "pp_pat_macros",                 // All macro patterns
+  "pp_pat_macro",                  // Single macro pattern by ID
+  "pp_pat_macros_controller",      // Macros for a controller
+  "pp_pat_shop_focus",             // Shop focus profile (top ops + customers)
+  "pp_pat_tribal",                 // Tribal wisdom for a material
+  "pp_pat_stats",                  // Production pattern engine statistics
+  "pp_pat_context",                // AI context string for production patterns
+  "pp_hm_vars",                    // hyperMILL variables
+  "pp_hm_vars_cat",                // hyperMILL variables by category
+  "pp_hm_var",                     // Find single hyperMILL variable
+  "pp_hm_machines",                // All hyperMILL machine configs
+  "pp_hm_machine",                 // Single machine config
+  "pp_hm_machines_ctrl",           // Machines for a controller
+  "pp_hm_patterns",                // All post patterns
+  "pp_hm_patterns_ctrl",           // Patterns for a controller
+  "pp_hm_pattern_search",          // Search patterns by query
+  "pp_hm_precision",               // Precision command for controller + type
+  "pp_hm_coolant",                 // Coolant M-code for controller + type
+  "pp_hm_tips",                    // All tribal tips
+  "pp_hm_validate",                // Validate post structure
+  "pp_hm_header",                  // Generate machine header
+  "pp_hm_capabilities",            // Machine capabilities
+  "pp_hm_stats",                   // hyperMILL engine statistics
+  "pp_mpa_types",                  // All master-post machine types (26 tracked)
+  "pp_mpa_type",                   // Single machine type
+  "pp_mpa_types_cat",              // Machine types by category
+  "pp_mpa_types_status",           // Machine types by master-post status
+  "pp_mpa_hi_priority",            // High-priority planned types
+  "pp_mpa_fusion",                 // Fusion post inventory
+  "pp_mpa_fusion_brand",           // Fusion posts for a brand
+  "pp_mpa_fusion_total",           // Total Fusion post count
+  "pp_mpa_fusion_for_type",        // Fusion posts applicable to a machine type
+  "pp_mpa_templates",              // All master-post templates
+  "pp_mpa_template",               // Template for a machine type
+  "pp_mpa_conversion",             // Conversion rules for a type
+  "pp_mpa_variants",               // Variant diffs for a type
+  "pp_mpa_v11_issues",             // Hurco V11 fine-tuning issues
+  "pp_mpa_v11_by_cat",             // Hurco V11 issues by category
+  "pp_mpa_stats",                  // Master-post architecture stats
+  "pp_mpa_context",                // AI context string for master-post architecture
+  "pp_cog_reason",                 // Deep cognition: full reasoning cycle
+  "pp_cog_cases",                  // All cases in case library
+  "pp_cog_case",                   // Single case by ID
+  "pp_cog_search",                 // Search case library
+  "pp_cog_diagnose",               // Diagnose from symptom list (case-based reasoning)
+  "pp_cog_stats",                  // Deep cognition statistics
+  "pp_cog_context",                // AI context string for deep cognition
+  "pp_ck_machines",                // PP-CK: all machine catalogs
+  "pp_ck_materials",               // PP-CK: all material catalogs
+  "pp_ck_tools",                   // PP-CK: all tool catalogs
+  "pp_ck_holders",                 // PP-CK: all holder catalogs
+  "pp_ck_fixtures",                // PP-CK: all fixture catalogs
+  "pp_ck_by_type",                 // PP-CK: catalogs by type
+  "pp_ck_resources",               // PP-CK: H-drive resources
+  "pp_ck_totals",                  // PP-CK: total entry counts
+  "pp_ck_catalog",                 // PP-CK: single catalog by ID
+  "pp_ck_by_brand",                // PP-CK: catalogs by brand
+  "pp_ck_route",                   // PP-CK: route query to matching catalogs
+  "pp_ck_ingest",                  // PP-CK: ingest single asset
+  "pp_ck_ingest_machine",          // PP-CK: ingest machine asset
+  "pp_ck_ingest_material",         // PP-CK: ingest material asset
+  "pp_ck_ingest_tool",             // PP-CK: ingest tool asset
+  "pp_ck_ingest_holder",           // PP-CK: ingest holder asset
+  "pp_ck_ingest_fixture",          // PP-CK: ingest fixture asset
+  "pp_ck_ingest_program",          // PP-CK: ingest program asset
+  "pp_ck_ingested",                // PP-CK: all ingested assets
+  "pp_ck_ingested_by_type",        // PP-CK: ingested assets by type
+  "pp_ck_ingested_get",            // PP-CK: single ingested asset
+  "pp_ck_ingested_remove",         // PP-CK: remove ingested asset
+  "pp_ck_ingested_clear",          // PP-CK: clear all ingested assets
+  "pp_ck_bulk_ingest",             // PP-CK: bulk ingest array
+  "pp_ck_context",                 // PP-CK: AI context string
+  "pp_ck_stats",                   // PP-CK: engine statistics
+  "pp_gen_master_post",            // PP-GEN: generate master post with expert reasoning
+  "pp_gen_cutting_mechanics",      // PP-GEN: cutting mechanics knowledge
+  "pp_gen_pipeline",               // PP-GEN: print-to-program pipeline stages
+  "pp_gen_patterns",               // PP-GEN: JM Die patterns
+  "pp_gen_machine_db",             // PP-GEN: machine expertise database
+  "pp_gen_advice",                 // PP-GEN: expert advice for scenario
+  "pp_gen_stats",                  // PP-GEN: engine statistics
+  "pp_reg_all",                    // PP-REG: all registered engines
+  "pp_reg_get",                    // PP-REG: engine by ID
+  "pp_reg_by_tier",                // PP-REG: engines by tier
+  "pp_reg_by_priority",            // PP-REG: engines by priority
+  "pp_reg_route",                  // PP-REG: route task to best engines
+  "pp_reg_search",                 // PP-REG: search engines by capability
+  "pp_reg_deps",                   // PP-REG: dependencies of engine
+  "pp_reg_dependents",             // PP-REG: engines depending on given
+  "pp_reg_matrix",                 // PP-REG: capability → engine matrix
+  "pp_reg_tiers",                  // PP-REG: tier distribution
+  "pp_reg_plan",                   // PP-REG: execution plan for task
+  "pp_reg_context",                // PP-REG: AI context string
+  "pp_reg_stats",                  // PP-REG: registry statistics
+  "pp_uph_analyze",                // PP-UPH: unified physics analysis for machining state
+  "pp_uph_optimize",               // PP-UPH: physics-optimized G-code
+  "pp_uph_stats",                  // PP-UPH: unified physics orchestration statistics
+  "pp_agio_generate",              // PP-AGIO: generate AGI post
+  "pp_agio_registry",              // PP-AGIO: engine registry
+  "pp_agio_controllers",           // PP-AGIO: controller knowledge
+  "pp_agio_search",                // PP-AGIO: search engines by query
+  "pp_agio_controller",            // PP-AGIO: controller by ID
+  "pp_agio_recommend",             // PP-AGIO: recommend engines for task
+  "pp_agio_context",               // PP-AGIO: AI context string
+  "pp_agio_stats",                 // PP-AGIO: orchestration statistics
+  "pp_saw_init",                   // PP-SAW: initialize self-awareness integration
+  "pp_saw_context",                // PP-SAW: build self-awareness context for request
+  "pp_saw_generate",               // PP-SAW: generate AI post with awareness
+  "pp_saw_jmdie",                  // PP-SAW: JM Die machine summary
+  "pp_saw_controllers",            // PP-SAW: controller knowledge summary
+  "pp_saw_stats",                  // PP-SAW: engine statistics
+  "pp_dah_convert",                // PP-DAH: convert post between controllers
+  "pp_dah_generate",               // PP-DAH: generate new post processor skeleton
+  "pp_dah_validate",               // PP-DAH: validate post processor
+  "pp_dah_tips",                   // PP-DAH: controller tips for query
+  "pp_dah_jmdie_config",           // PP-DAH: JM Die machine post config
+  "pp_dah_jmdie_list",             // PP-DAH: JM Die machine post configs list
+  "pp_dah_feature_matrix",         // PP-DAH: controller feature compatibility matrix
+  "pp_dah_recommend",              // PP-DAH: recommend post for JM Die job
+  "pp_dah_5axis_safety",           // PP-DAH: validate 5-axis safety line
+  "pp_vid_knowledge",              // PP-VID: controller video knowledge
+  "pp_vid_controllers",            // PP-VID: available video-learned controllers
+  "pp_vid_reason",                 // PP-VID: full neural reasoning pipeline
+  "pp_vid_hsm",                    // PP-VID: HSM code for controller + mode
+  "pp_vid_tcpm",                   // PP-VID: TCPM code for controller
+  "pp_vid_tribal",                 // PP-VID: tribal knowledge for controller
+  "pp_vid_mistakes",               // PP-VID: common mistakes for controller
+  "pp_vid_toolmgmt",               // PP-VID: tool management knowledge
+  "pp_vid_canned",                 // PP-VID: canned cycle format
+  "pp_vid_stats",                  // PP-VID: neural engine statistics
+  "pp_mpg_complete",               // PP-MPG: generate complete post processor
+  "pp_mpg_safety",                 // PP-MPG: generate safety line
+  "pp_mpg_cycles",                 // PP-MPG: generate cycle definitions
+  "pp_mpg_mcodes",                 // PP-MPG: generate M-code mappings
+  "pp_mpg_props",                  // PP-MPG: generate properties
+  "pp_di_machine_caps",            // PP-DI: machine capabilities for controller
+  "pp_di_controller_map",          // PP-DI: controller G-code mapping
+  "pp_di_controllers",             // PP-DI: supported controllers
+  "pp_di_material",                // PP-DI: material by ID
+  "pp_di_materials_by_group",      // PP-DI: materials by ISO group
+  "pp_di_cutting_params",          // PP-DI: recommend cutting parameters
+  "pp_di_toolpath_strategy",       // PP-DI: toolpath strategy details
+  "pp_di_recommend_toolpath",      // PP-DI: recommend toolpath strategy
+  "pp_di_5axis_validate",          // PP-DI: validate 5-axis move
+  "pp_di_collisions",              // PP-DI: check toolpath collisions
+  "pp_di_architectures",           // PP-DI: all deep learning architectures
+  "pp_di_architecture",            // PP-DI: architecture by name
+  "pp_di_reason",                  // PP-DI: deep reasoning with rules
+  "pp_di_constraints",             // PP-DI: solve constraint satisfaction problem
+  "pp_di_analyze",                 // PP-DI: comprehensive analysis
+  "pp_di_stats",                   // PP-DI: engine statistics
+  "pp_tel_record",                 // PP-TEL: record telemetry event
+  "pp_tel_funnel",                 // PP-TEL: funnel metrics
+  "pp_tel_count",                  // PP-TEL: event count
+  "pp_tel_reset",                  // PP-TEL: reset telemetry state
+  "pp_tnr_validate",               // PP-TNR: validate tool number ranges
+  "pp_tnr_quick",                  // PP-TNR: quick pass/fail
+  "pp_tnr_defaults",               // PP-TNR: default options
+  "pp_trn_train",                  // PP-TRN: train dialect calibration
+  "pp_mgc_validate",               // PP-MGC: validate modal group conflicts
+  "pp_mgc_quick",                  // PP-MGC: quick pass/fail
+  "pp_mgc_defaults",               // PP-MGC: default options
+  "pp_anl_analyze",                // PP-ANL: deep post-processor analysis
+  "pp_anl_report",                 // PP-ANL: generate analysis report
+  "pp_anl_fix",                    // PP-ANL: apply auto-fixes
+  "pp_aut_dialect",                // PP-AUT: resolve dialect for controller
+  "pp_aut_config",                 // PP-AUT: generate post config
+  "pp_aut_ppg",                    // PP-AUT: run PPG autopilot
+  "pp_aut_p2p",                    // PP-AUT: run print-to-program
+  "pp_aut_dialects",               // PP-AUT: list dialects
+  "pp_aut_features",               // PP-AUT: dialect features
+  "pp_mst_process",                // PP-MST: unified multi-CAM segment processing
+  "pp_mst_compare",                // PP-MST: compare controllers
+  "pp_mst_templates",              // PP-MST: post templates (optionally by controller)
+  "pp_mst_features",               // PP-MST: machine features
+  "pp_mst_cross_cam",              // PP-MST: cross-CAM features listing
+  "pp_mst_cps_config",             // PP-MST: generate master CPS config for machine
+  "pp_mst_is_master",              // PP-MST: check if controller is master post
+  "pp_mst_stats",                  // PP-MST: engine statistics
+
+  // ===== PP-ULT: Ultimate AI (deep ensemble, episodic, KG, ToT, meta-learning, adversarial) (11 actions) =====
+  "pp_ult_deep_ensemble",          // PP-ULT: deep ensemble across architectures (MoE, GNN, Transformer, Bayesian)
+  "pp_ult_retrieve_episodes",      // PP-ULT: episodic retrieval from memory of past programs
+  "pp_ult_query_kg",               // PP-ULT: knowledge-graph query for post-processing domain
+  "pp_ult_tree_of_thoughts",       // PP-ULT: Tree-of-Thoughts exploration of solution paths
+  "pp_ult_meta_learning",          // PP-ULT: few-shot meta-learning adaptation
+  "pp_ult_adversarial",            // PP-ULT: adversarial validation against attack surfaces
+  "pp_ult_generate_post",          // PP-ULT: generative post-processor synthesis
+  "pp_ult_llm_cli",                // PP-ULT: LLM CLI natural-language rendering
+  "pp_ult_analyze",                // PP-ULT: comprehensive ultimate AI analysis (orchestrated)
+  "pp_ult_store_episode",          // PP-ULT: store episode in memory for future retrieval
+  "pp_ult_stats",                  // PP-ULT: episode/KG statistics
+
+  // ===== PP-IOC: Intelligence Orchestrator (8 actions) =====
+  "pp_ioc_classify_intent",        // PP-IOC: classify intent from user query
+  "pp_ioc_route",                  // PP-IOC: route intent to optimal engines
+  "pp_ioc_expert_rules",           // PP-IOC: run expert-rule checks on G-code
+  "pp_ioc_neural_opt",             // PP-IOC: neural optimization over input
+  "pp_ioc_aggregate",              // PP-IOC: aggregate multi-engine analyses
+  "pp_ioc_response",               // PP-IOC: generate natural-language response
+  "pp_ioc_proactive",              // PP-IOC: proactive suggestions from aggregate
+  "pp_ioc_orchestrate",            // PP-IOC: full orchestration (primary entry)
+
+  // ===== PP-DL: Deep Learning (6 actions) =====
+  "pp_dl_recognize_patterns",      // PP-DL: operation/toolpath/feature pattern recognition
+  "pp_dl_feed_opt",                // PP-DL: per-line feed optimization suggestions
+  "pp_dl_classify_controller",     // PP-DL: infer controller from G-code
+  "pp_dl_cycle_time",              // PP-DL: estimate cycle time via neural model
+  "pp_dl_quality_score",           // PP-DL: multi-dimensional post quality score
+  "pp_dl_analyze",                 // PP-DL: full deep-learning analysis
+
+  // ===== PP-UDR: Unified Deep Reasoning (3 actions) =====
+  "pp_udr_reason",                 // PP-UDR: 6-layer unified reasoning over request
+  "pp_udr_mcts",                   // PP-UDR: Monte-Carlo Tree Search exploration
+  "pp_udr_stats",                  // PP-UDR: controllers/patterns/machines/layers stats
+
+  // ===== PP-PCM: Post Capability Matrix (10 actions) =====
+  "pp_pcm_matrix",                 // PP-PCM: full capability matrix records
+  "pp_pcm_controller",             // PP-PCM: capability record for a controller family
+  "pp_pcm_query",                  // PP-PCM: query records by feature filters
+  "pp_pcm_compare",                // PP-PCM: compare multiple controller families
+  "pp_pcm_select",                 // PP-PCM: select best post for requirements
+  "pp_pcm_smoothing",              // PP-PCM: smoothing support for a family
+  "pp_pcm_retract",                // PP-PCM: retract methods for a family
+  "pp_pcm_multiaxis",              // PP-PCM: multi-axis support for a family
+  "pp_pcm_families",               // PP-PCM: list all controller families
+  "pp_pcm_summary",                // PP-PCM: summary statistics
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3731,6 +4155,1625 @@ Actions: ${ACTIONS.join(", ")}.`,
               rotary_axes: ["A", "B", "C", "U", "V", "W"],
               source: "Fanuc ISO 6983 word-letter vocabulary",
             };
+            break;
+          }
+
+          // ===== PP_AGI (PP-AGI-WIRING — orchestration layer above coordination bridge) =====
+          case "pp_agi_run": {
+            const engine = await getEngine("agiWiring");
+            const request = {
+              task: params.task ?? "",
+              controller: params.controller,
+              machineId: params.machineId ?? params.machine_id,
+              machineType: params.machineType ?? params.machine_type,
+              material: params.material,
+              operations: params.operations,
+              cuttingParams: params.cuttingParams ?? params.cutting_params,
+              options: params.options,
+            };
+            result = await engine.runFullPipeline(request);
+            break;
+          }
+          case "pp_agi_verify": {
+            const engine = await getEngine("agiWiring");
+            result = engine.verifyWiring();
+            break;
+          }
+          case "pp_agi_plan": {
+            const engine = await getEngine("agiWiring");
+            const task = params.task ?? "";
+            result = engine.planExecution(task);
+            break;
+          }
+          case "pp_agi_health": {
+            const engine = await getEngine("agiWiring");
+            result = engine.quickHealthCheck();
+            break;
+          }
+          case "pp_agi_context": {
+            const engine = await getEngine("agiWiring");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+          case "pp_agi_stats": {
+            const engine = await getEngine("agiWiring");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_CPS (PP-CPS — PRISM CPS implementation knowledge) =====
+          case "pp_cps_files": {
+            const engine = await getEngine("cps");
+            result = { files: engine.getCPSFiles() };
+            break;
+          }
+          case "pp_cps_find": {
+            const engine = await getEngine("cps");
+            const query = params.machine ?? params.manufacturer ?? params.query ?? "";
+            result = { matches: engine.findCPSForMachine(query) };
+            break;
+          }
+          case "pp_cps_features": {
+            const engine = await getEngine("cps");
+            const category = params.category;
+            result = {
+              features: category
+                ? engine.getRoughingFeaturesByCategory(category)
+                : engine.getRoughingFeatures(),
+            };
+            break;
+          }
+          case "pp_cps_benefit": {
+            const engine = await getEngine("cps");
+            const featureIds = params.feature_ids ?? params.featureIds ?? [];
+            result = engine.calculateCombinedBenefit(featureIds);
+            break;
+          }
+          case "pp_cps_controllers": {
+            const engine = await getEngine("cps");
+            result = { controllers: engine.getControllerImplementations() };
+            break;
+          }
+          case "pp_cps_controller_find": {
+            const engine = await getEngine("cps");
+            const query = params.query ?? params.controller ?? "";
+            result = { controller: engine.findController(query) ?? null };
+            break;
+          }
+          case "pp_cps_gcode_detail": {
+            const engine = await getEngine("cps");
+            const controllerId = params.controller_id ?? params.controllerId ?? "";
+            const gcode = params.gcode ?? params.code ?? "";
+            result = { detail: engine.getGCodeDetails(controllerId, gcode) ?? null };
+            break;
+          }
+          case "pp_cps_issues": {
+            const engine = await getEngine("cps");
+            const controllerId = params.controller_id ?? params.controllerId ?? "";
+            const symptom = params.symptom ?? params.issue ?? "";
+            result = { solutions: engine.getIssueSolutions(controllerId, symptom) };
+            break;
+          }
+          case "pp_cps_okuma_mcodes": {
+            const engine = await getEngine("cps");
+            const risk = params.risk ?? params.risk_level;
+            result = {
+              mcodes: risk
+                ? engine.getOkumaMCodesByRisk(risk)
+                : engine.getOkumaCycleTimeMCodes(),
+            };
+            break;
+          }
+          case "pp_cps_okuma_savings": {
+            const engine = await getEngine("cps");
+            const mcodes = params.mcodes ?? params.codes ?? [];
+            result = engine.calculateOkumaTimeSavings(mcodes);
+            break;
+          }
+          case "pp_cps_recommend": {
+            const engine = await getEngine("cps");
+            const useCase = {
+              operationType: params.operation_type ?? params.operationType ?? "roughing",
+              controller: params.controller,
+              priority: params.priority,
+            };
+            result = engine.recommendFeatures(useCase);
+            break;
+          }
+          case "pp_cps_lessons": {
+            const engine = await getEngine("cps");
+            result = { lessons: engine.getProductionLessons() };
+            break;
+          }
+          case "pp_cps_stats": {
+            const engine = await getEngine("cps");
+            result = engine.getStatistics();
+            break;
+          }
+          case "pp_cps_context": {
+            const engine = await getEngine("cps");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+
+          // ===== PP_CL (PP-CL — Continuous Learning, Bayesian belief over engines) =====
+          case "pp_cl_feedback": {
+            const engine = await getEngine("continuousLearning");
+            result = engine.recordFeedback(params);
+            break;
+          }
+          case "pp_cl_state": {
+            const engine = await getEngine("continuousLearning");
+            result = engine.getLearningState();
+            break;
+          }
+          case "pp_cl_belief": {
+            const engine = await getEngine("continuousLearning");
+            const engineId = params.engine_id ?? params.engineId ?? "";
+            result = { belief: engine.getEngineBelief(engineId) ?? null };
+            break;
+          }
+          case "pp_cl_mistakes": {
+            const engine = await getEngine("continuousLearning");
+            const limit = params.limit ?? 10;
+            result = { patterns: engine.getTopMistakePatterns(limit) };
+            break;
+          }
+          case "pp_cl_promoted": {
+            const engine = await getEngine("continuousLearning");
+            result = { knowledge: engine.getPromotedKnowledge() };
+            break;
+          }
+          case "pp_cl_search": {
+            const engine = await getEngine("continuousLearning");
+            const query = params.query ?? params.q ?? "";
+            result = { results: engine.searchKnowledge(query) };
+            break;
+          }
+          case "pp_cl_rules": {
+            const engine = await getEngine("continuousLearning");
+            const controller = params.controller ?? "";
+            const material = params.material ?? "";
+            result = { rules: engine.getPreventionRules(controller, material) };
+            break;
+          }
+          case "pp_cl_reset": {
+            const engine = await getEngine("continuousLearning");
+            engine.resetLearning();
+            result = { reset: true };
+            break;
+          }
+          case "pp_cl_stats": {
+            const engine = await getEngine("continuousLearning");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_BRIDGE (PP-BRIDGE — AI coordination bridge) =====
+          case "pp_bridge_coordinate": {
+            const engine = await getEngine("bridge");
+            result = await engine.coordinate(params);
+            break;
+          }
+          case "pp_bridge_perf": {
+            const engine = await getEngine("bridge");
+            result = { records: engine.getPerformanceRecords() };
+            break;
+          }
+          case "pp_bridge_perf_engine": {
+            const engine = await getEngine("bridge");
+            const engineId = params.engine_id ?? params.engineId ?? "";
+            result = { record: engine.getEnginePerformance(engineId) ?? null };
+            break;
+          }
+          case "pp_bridge_perf_reset": {
+            const engine = await getEngine("bridge");
+            engine.resetPerformanceTracking();
+            result = { reset: true };
+            break;
+          }
+          case "pp_bridge_best": {
+            const engine = await getEngine("bridge");
+            const metric = params.metric ?? "success_rate";
+            result = { best: engine.getBestEngine(metric) ?? null };
+            break;
+          }
+          case "pp_bridge_physics_quick": {
+            const engine = await getEngine("bridge");
+            result = engine.quickPhysicsAnalysis(
+              params.operation ?? params.op ?? "",
+              params.controller ?? "fanuc",
+              params.material ?? "",
+              params.parameters ?? params.cutting_params ?? {},
+            );
+            break;
+          }
+          case "pp_bridge_stats": {
+            const engine = await getEngine("bridge");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_PAT (PP-PAT — JM Die Production Patterns) =====
+          case "pp_pat_operations": {
+            const engine = await getEngine("productionPattern");
+            result = { operations: engine.getOperationFrequencies() };
+            break;
+          }
+          case "pp_pat_top_ops": {
+            const engine = await getEngine("productionPattern");
+            const n = params.n ?? params.limit ?? 10;
+            result = { operations: engine.getTopOperations(n) };
+            break;
+          }
+          case "pp_pat_operation": {
+            const engine = await getEngine("productionPattern");
+            const code = params.code ?? params.op ?? "";
+            result = { operation: engine.getOperation(code) ?? null };
+            break;
+          }
+          case "pp_pat_customers": {
+            const engine = await getEngine("productionPattern");
+            result = { customers: engine.getCustomerPatterns() };
+            break;
+          }
+          case "pp_pat_customer": {
+            const engine = await getEngine("productionPattern");
+            const name = params.name ?? params.customer ?? "";
+            result = { customer: engine.getCustomer(name) ?? null };
+            break;
+          }
+          case "pp_pat_customers_industry": {
+            const engine = await getEngine("productionPattern");
+            const industry = params.industry ?? "";
+            result = { customers: engine.getCustomersByIndustry(industry) };
+            break;
+          }
+          case "pp_pat_material": {
+            const engine = await getEngine("productionPattern");
+            const material = params.material ?? "";
+            result = { material: engine.getMaterialParams(material) ?? null };
+            break;
+          }
+          case "pp_pat_materials_all": {
+            const engine = await getEngine("productionPattern");
+            result = { materials: engine.getAllMaterialParams() };
+            break;
+          }
+          case "pp_pat_speeds_feeds": {
+            const engine = await getEngine("productionPattern");
+            result = engine.recommendSpeedsFeeds(
+              params.material ?? "",
+              params.operation ?? params.op ?? "",
+              params.toolDiameter ?? params.tool_diameter ?? params.diameter,
+            );
+            break;
+          }
+          case "pp_pat_sequences": {
+            const engine = await getEngine("productionPattern");
+            result = { sequences: engine.getOperationSequences() };
+            break;
+          }
+          case "pp_pat_sequence": {
+            const engine = await getEngine("productionPattern");
+            const id = params.id ?? "";
+            result = { sequence: engine.getSequence(id) ?? null };
+            break;
+          }
+          case "pp_pat_sequences_customer": {
+            const engine = await getEngine("productionPattern");
+            const customer = params.customer ?? "";
+            result = { sequences: engine.findSequencesForCustomer(customer) };
+            break;
+          }
+          case "pp_pat_macros": {
+            const engine = await getEngine("productionPattern");
+            result = { macros: engine.getMacroPatterns() };
+            break;
+          }
+          case "pp_pat_macro": {
+            const engine = await getEngine("productionPattern");
+            const id = params.id ?? "";
+            result = { macro: engine.getMacroPattern(id) ?? null };
+            break;
+          }
+          case "pp_pat_macros_controller": {
+            const engine = await getEngine("productionPattern");
+            const controller = params.controller ?? "";
+            result = { macros: engine.getMacrosForController(controller) };
+            break;
+          }
+          case "pp_pat_shop_focus": {
+            const engine = await getEngine("productionPattern");
+            result = engine.getShopFocusProfile();
+            break;
+          }
+          case "pp_pat_tribal": {
+            const engine = await getEngine("productionPattern");
+            const material = params.material ?? "";
+            result = { wisdom: engine.getTribalWisdom(material) };
+            break;
+          }
+          case "pp_pat_stats": {
+            const engine = await getEngine("productionPattern");
+            result = engine.getStatistics();
+            break;
+          }
+          case "pp_pat_context": {
+            const engine = await getEngine("productionPattern");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+
+          // ===== PP_HM (PP-HM — hyperMILL Knowledge) =====
+          case "pp_hm_vars": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = { variables: engine.getVariables() };
+            break;
+          }
+          case "pp_hm_vars_cat": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const category = params.category ?? "";
+            result = { variables: engine.getVariablesByCategory(category) };
+            break;
+          }
+          case "pp_hm_var": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const name = params.name ?? "";
+            result = { variable: engine.findVariable(name) ?? null };
+            break;
+          }
+          case "pp_hm_machines": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = { machines: engine.getAllMachineConfigs() };
+            break;
+          }
+          case "pp_hm_machine": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const machineId = params.machine_id ?? params.machineId ?? "";
+            result = { machine: engine.getMachineConfig(machineId) ?? null };
+            break;
+          }
+          case "pp_hm_machines_ctrl": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const controller = params.controller ?? "";
+            result = { machines: engine.getMachinesByController(controller) };
+            break;
+          }
+          case "pp_hm_patterns": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = { patterns: engine.getAllPatterns() };
+            break;
+          }
+          case "pp_hm_patterns_ctrl": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const controller = params.controller ?? "";
+            result = { patterns: engine.getPatternsByController(controller) };
+            break;
+          }
+          case "pp_hm_pattern_search": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const query = params.query ?? params.q ?? "";
+            result = { patterns: engine.searchPatterns(query) };
+            break;
+          }
+          case "pp_hm_precision": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = {
+              command: engine.getPrecisionCommand(
+                params.controller ?? "",
+                params.type ?? params.precision_type ?? "",
+              ),
+            };
+            break;
+          }
+          case "pp_hm_coolant": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = {
+              code: engine.getCoolantCode(
+                params.controller ?? "",
+                params.type ?? params.coolant_type ?? "",
+              ),
+            };
+            break;
+          }
+          case "pp_hm_tips": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = { tips: engine.getAllTribalTips() };
+            break;
+          }
+          case "pp_hm_validate": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = engine.validatePostStructure(params.post ?? params.lines ?? []);
+            break;
+          }
+          case "pp_hm_header": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const machineId = params.machine_id ?? params.machineId ?? "";
+            result = { header: engine.generateMachineHeader(machineId) };
+            break;
+          }
+          case "pp_hm_capabilities": {
+            const engine = await getEngine("hyperMillKnowledge");
+            const machineId = params.machine_id ?? params.machineId ?? "";
+            result = engine.getMachineCapabilities(machineId);
+            break;
+          }
+          case "pp_hm_stats": {
+            const engine = await getEngine("hyperMillKnowledge");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_MPA (PP-MPA — Master-Post Architecture, 26 machine types) =====
+          case "pp_mpa_types": {
+            const engine = await getEngine("masterPostArch");
+            result = { types: engine.getMachineTypes() };
+            break;
+          }
+          case "pp_mpa_type": {
+            const engine = await getEngine("masterPostArch");
+            const id = params.id ?? params.type_id ?? "";
+            result = { type: engine.getMachineType(id) ?? null };
+            break;
+          }
+          case "pp_mpa_types_cat": {
+            const engine = await getEngine("masterPostArch");
+            const category = params.category ?? "";
+            result = { types: engine.getMachineTypesByCategory(category) };
+            break;
+          }
+          case "pp_mpa_types_status": {
+            const engine = await getEngine("masterPostArch");
+            const status = params.status ?? "";
+            result = { types: engine.getMachineTypesByStatus(status) };
+            break;
+          }
+          case "pp_mpa_hi_priority": {
+            const engine = await getEngine("masterPostArch");
+            result = { types: engine.getHighPriorityPlanned() };
+            break;
+          }
+          case "pp_mpa_fusion": {
+            const engine = await getEngine("masterPostArch");
+            result = { fusion: engine.getFusionPostInventory() };
+            break;
+          }
+          case "pp_mpa_fusion_brand": {
+            const engine = await getEngine("masterPostArch");
+            const brand = params.brand ?? "";
+            result = { family: engine.getFusionPostsForBrand(brand) ?? null };
+            break;
+          }
+          case "pp_mpa_fusion_total": {
+            const engine = await getEngine("masterPostArch");
+            result = { total: engine.getTotalFusionPosts() };
+            break;
+          }
+          case "pp_mpa_fusion_for_type": {
+            const engine = await getEngine("masterPostArch");
+            const typeId = params.type_id ?? params.machine_type_id ?? "";
+            result = { families: engine.findFusionPostsForMachineType(typeId) };
+            break;
+          }
+          case "pp_mpa_templates": {
+            const engine = await getEngine("masterPostArch");
+            result = { templates: engine.getMasterPostTemplates() };
+            break;
+          }
+          case "pp_mpa_template": {
+            const engine = await getEngine("masterPostArch");
+            const typeId = params.type_id ?? params.machine_type_id ?? "";
+            result = { template: engine.getMasterPostTemplate(typeId) ?? null };
+            break;
+          }
+          case "pp_mpa_conversion": {
+            const engine = await getEngine("masterPostArch");
+            const typeId = params.type_id ?? params.machine_type_id ?? "";
+            result = { rules: engine.getConversionRules(typeId) };
+            break;
+          }
+          case "pp_mpa_variants": {
+            const engine = await getEngine("masterPostArch");
+            const typeId = params.type_id ?? params.machine_type_id ?? "";
+            result = { variants: engine.getVariants(typeId) };
+            break;
+          }
+          case "pp_mpa_v11_issues": {
+            const engine = await getEngine("masterPostArch");
+            result = { issues: engine.getHurcoV11Issues() };
+            break;
+          }
+          case "pp_mpa_v11_by_cat": {
+            const engine = await getEngine("masterPostArch");
+            const category = params.category ?? "";
+            result = { issues: engine.getHurcoV11ByCategory(category) };
+            break;
+          }
+          case "pp_mpa_stats": {
+            const engine = await getEngine("masterPostArch");
+            result = engine.getStatistics();
+            break;
+          }
+          case "pp_mpa_context": {
+            const engine = await getEngine("masterPostArch");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+
+          // ===== PP_COG (PP-COG — Deep Cognition, case-based reasoning) =====
+          case "pp_cog_reason": {
+            const engine = await getEngine("deepCognition");
+            result = engine.reason(params);
+            break;
+          }
+          case "pp_cog_cases": {
+            const engine = await getEngine("deepCognition");
+            result = { cases: engine.getCaseLibrary() };
+            break;
+          }
+          case "pp_cog_case": {
+            const engine = await getEngine("deepCognition");
+            const id = params.id ?? params.case_id ?? "";
+            result = { case: engine.getCase(id) ?? null };
+            break;
+          }
+          case "pp_cog_search": {
+            const engine = await getEngine("deepCognition");
+            const query = params.query ?? params.q ?? "";
+            result = { cases: engine.searchCases(query) };
+            break;
+          }
+          case "pp_cog_diagnose": {
+            const engine = await getEngine("deepCognition");
+            const symptoms = params.symptoms ?? [];
+            result = { diagnoses: engine.diagnose(symptoms) };
+            break;
+          }
+          case "pp_cog_stats": {
+            const engine = await getEngine("deepCognition");
+            result = engine.getStatistics();
+            break;
+          }
+          case "pp_cog_context": {
+            const engine = await getEngine("deepCognition");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+
+          // ===== PP_CK: Comprehensive Knowledge (PP-CK) =====
+          case "pp_ck_machines": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { catalogs: engine.getMachineCatalogs() };
+            break;
+          }
+          case "pp_ck_materials": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { catalogs: engine.getMaterialCatalogs() };
+            break;
+          }
+          case "pp_ck_tools": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { catalogs: engine.getToolCatalogs() };
+            break;
+          }
+          case "pp_ck_holders": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { catalogs: engine.getHolderCatalogs() };
+            break;
+          }
+          case "pp_ck_fixtures": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { catalogs: engine.getFixtureCatalogs() };
+            break;
+          }
+          case "pp_ck_by_type": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const type = params.type ?? params.catalog_type;
+            result = { catalogs: engine.getCatalogsByType(type) };
+            break;
+          }
+          case "pp_ck_resources": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { resources: engine.getHDriveResources() };
+            break;
+          }
+          case "pp_ck_totals": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = engine.getTotalEntries();
+            break;
+          }
+          case "pp_ck_catalog": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const id = params.catalogId ?? params.catalog_id ?? params.id;
+            const catalog = engine.getCatalog(id);
+            result = { catalog: catalog ?? null, found: !!catalog };
+            break;
+          }
+          case "pp_ck_by_brand": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const brand = params.brand ?? "";
+            result = { catalogs: engine.findCatalogsByBrand(brand) };
+            break;
+          }
+          case "pp_ck_route": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const query = params.query ?? "";
+            result = engine.routeQuery(query);
+            break;
+          }
+          case "pp_ck_ingest": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestAsset(params.asset ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_machine": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestMachine(params.machine ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_material": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestMaterial(params.material ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_tool": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestTool(params.tool ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_holder": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestHolder(params.holder ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_fixture": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestFixture(params.fixture ?? params) };
+            break;
+          }
+          case "pp_ck_ingest_program": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { asset: engine.ingestProgram(params.program ?? params) };
+            break;
+          }
+          case "pp_ck_ingested": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { assets: engine.getIngestedAssets() };
+            break;
+          }
+          case "pp_ck_ingested_by_type": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const type = params.type ?? params.asset_type;
+            result = { assets: engine.getIngestedAssetsByType(type) };
+            break;
+          }
+          case "pp_ck_ingested_get": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const id = params.id ?? params.asset_id;
+            const asset = engine.getIngestedAsset(id);
+            result = { asset: asset ?? null, found: !!asset };
+            break;
+          }
+          case "pp_ck_ingested_remove": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const id = params.id ?? params.asset_id;
+            result = { removed: engine.removeIngestedAsset(id) };
+            break;
+          }
+          case "pp_ck_ingested_clear": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            engine.clearIngestedAssets();
+            result = { cleared: true };
+            break;
+          }
+          case "pp_ck_bulk_ingest": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            const assets = params.assets ?? [];
+            result = engine.bulkIngest(assets);
+            break;
+          }
+          case "pp_ck_context": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+          case "pp_ck_stats": {
+            const engine = await getEngine("comprehensiveKnowledge");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_GEN: Master Post Genius (PP-GEN) =====
+          case "pp_gen_master_post": {
+            const engine = await getEngine("masterGenius");
+            result = engine.generateMasterPost(params.request ?? params);
+            break;
+          }
+          case "pp_gen_cutting_mechanics": {
+            const engine = await getEngine("masterGenius");
+            result = { mechanics: engine.getCuttingMechanics() };
+            break;
+          }
+          case "pp_gen_pipeline": {
+            const engine = await getEngine("masterGenius");
+            result = { pipeline: engine.getPrintToProgramPipeline() };
+            break;
+          }
+          case "pp_gen_patterns": {
+            const engine = await getEngine("masterGenius");
+            result = { patterns: engine.getJMDiePatterns() };
+            break;
+          }
+          case "pp_gen_machine_db": {
+            const engine = await getEngine("masterGenius");
+            result = { database: engine.getMachineExpertiseDatabase() };
+            break;
+          }
+          case "pp_gen_advice": {
+            const engine = await getEngine("masterGenius");
+            const scenario = params.scenario ?? "";
+            result = { advice: engine.getExpertAdvice(scenario) };
+            break;
+          }
+          case "pp_gen_stats": {
+            const engine = await getEngine("masterGenius");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_REG: AGI Master Registry (PP-REG) =====
+          case "pp_reg_all": {
+            const engine = await getEngine("agiMasterRegistry");
+            result = { engines: engine.getAllEngines() };
+            break;
+          }
+          case "pp_reg_get": {
+            const engine = await getEngine("agiMasterRegistry");
+            const id = params.id ?? params.engineId ?? params.engine_id;
+            const entry = engine.getEngine(id);
+            result = { engine: entry ?? null, found: !!entry };
+            break;
+          }
+          case "pp_reg_by_tier": {
+            const engine = await getEngine("agiMasterRegistry");
+            const tier = params.tier;
+            result = { engines: engine.getEnginesByTier(tier) };
+            break;
+          }
+          case "pp_reg_by_priority": {
+            const engine = await getEngine("agiMasterRegistry");
+            const priority = params.priority;
+            result = { engines: engine.getEnginesByPriority(priority) };
+            break;
+          }
+          case "pp_reg_route": {
+            const engine = await getEngine("agiMasterRegistry");
+            const task = params.task ?? "";
+            result = engine.routeTask(task);
+            break;
+          }
+          case "pp_reg_search": {
+            const engine = await getEngine("agiMasterRegistry");
+            const query = params.query ?? "";
+            result = { engines: engine.searchByCapability(query) };
+            break;
+          }
+          case "pp_reg_deps": {
+            const engine = await getEngine("agiMasterRegistry");
+            const id = params.id ?? params.engineId ?? params.engine_id;
+            result = { dependencies: engine.getDependencies(id) };
+            break;
+          }
+          case "pp_reg_dependents": {
+            const engine = await getEngine("agiMasterRegistry");
+            const id = params.id ?? params.engineId ?? params.engine_id;
+            result = { dependents: engine.getDependents(id) };
+            break;
+          }
+          case "pp_reg_matrix": {
+            const engine = await getEngine("agiMasterRegistry");
+            result = { matrix: engine.getCapabilityMatrix() };
+            break;
+          }
+          case "pp_reg_tiers": {
+            const engine = await getEngine("agiMasterRegistry");
+            result = { distribution: engine.getTierDistribution() };
+            break;
+          }
+          case "pp_reg_plan": {
+            const engine = await getEngine("agiMasterRegistry");
+            const task = params.task ?? "";
+            result = engine.getExecutionPlan(task);
+            break;
+          }
+          case "pp_reg_context": {
+            const engine = await getEngine("agiMasterRegistry");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+          case "pp_reg_stats": {
+            const engine = await getEngine("agiMasterRegistry");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_UPH: Unified Physics Orchestration (PP-UPH) =====
+          case "pp_uph_analyze": {
+            const engine = await getEngine("unifiedPhysics");
+            const state = params.state ?? params.machiningState ?? params;
+            result = engine.analyzeUnifiedPhysics(state);
+            break;
+          }
+          case "pp_uph_optimize": {
+            const engine = await getEngine("unifiedPhysics");
+            const gcode = params.gcode ?? params.g_code ?? [];
+            const state = params.state ?? params.machiningState ?? {};
+            result = engine.optimizeGCodeWithPhysics(gcode, state);
+            break;
+          }
+          case "pp_uph_stats": {
+            const engine = await getEngine("unifiedPhysics");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_AGIO: AGI Orchestration (PP-AGIO) =====
+          case "pp_agio_generate": {
+            const engine = await getEngine("agiOrchestration");
+            result = await engine.generateAGIPost(params.request ?? params);
+            break;
+          }
+          case "pp_agio_registry": {
+            const engine = await getEngine("agiOrchestration");
+            result = { engines: engine.getEngineRegistry() };
+            break;
+          }
+          case "pp_agio_controllers": {
+            const engine = await getEngine("agiOrchestration");
+            result = { controllers: engine.getControllerKnowledge() };
+            break;
+          }
+          case "pp_agio_search": {
+            const engine = await getEngine("agiOrchestration");
+            const query = params.query ?? "";
+            result = { engines: engine.searchEngines(query) };
+            break;
+          }
+          case "pp_agio_controller": {
+            const engine = await getEngine("agiOrchestration");
+            const id = params.controllerId ?? params.controller_id ?? params.id;
+            const controller = engine.getController(id);
+            result = { controller: controller ?? null, found: !!controller };
+            break;
+          }
+          case "pp_agio_recommend": {
+            const engine = await getEngine("agiOrchestration");
+            const task = params.task ?? "";
+            result = { recommendations: engine.recommendEngines(task) };
+            break;
+          }
+          case "pp_agio_context": {
+            const engine = await getEngine("agiOrchestration");
+            result = { context: engine.getContextForAI() };
+            break;
+          }
+          case "pp_agio_stats": {
+            const engine = await getEngine("agiOrchestration");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_SAW: Self-Awareness Integration (PP-SAW) =====
+          case "pp_saw_init": {
+            const engine = await getEngine("selfAwareness");
+            await engine.initialize();
+            result = { initialized: true };
+            break;
+          }
+          case "pp_saw_context": {
+            const engine = await getEngine("selfAwareness");
+            result = { context: engine.buildSelfAwarenessContext(params.request ?? params) };
+            break;
+          }
+          case "pp_saw_generate": {
+            const engine = await getEngine("selfAwareness");
+            result = await engine.generatePost(params.request ?? params);
+            break;
+          }
+          case "pp_saw_jmdie": {
+            const engine = await getEngine("selfAwareness");
+            result = { machines: engine.getJMDieMachinesSummary() };
+            break;
+          }
+          case "pp_saw_controllers": {
+            const engine = await getEngine("selfAwareness");
+            result = { controllers: engine.getControllerKnowledgeSummary() };
+            break;
+          }
+          case "pp_saw_stats": {
+            const engine = await getEngine("selfAwareness");
+            result = engine.stats();
+            break;
+          }
+
+          // ===== PP_DAH: Deep AI Hardening (PP-DAH) =====
+          case "pp_dah_convert": {
+            const engine = await getEngine("deepAIHardening");
+            result = engine.convertPostProgram(params.request ?? params);
+            break;
+          }
+          case "pp_dah_generate": {
+            const engine = await getEngine("deepAIHardening");
+            result = engine.generatePostProcessor(params.request ?? params);
+            break;
+          }
+          case "pp_dah_validate": {
+            const engine = await getEngine("deepAIHardening");
+            result = engine.validatePostProcessor(params.request ?? params);
+            break;
+          }
+          case "pp_dah_tips": {
+            const engine = await getEngine("deepAIHardening");
+            result = { tips: engine.getControllerTips(params.query ?? params) };
+            break;
+          }
+          case "pp_dah_jmdie_config": {
+            const engine = await getEngine("deepAIHardening");
+            const id = params.machineId ?? params.machine_id ?? params.id;
+            const config = engine.getJMDieMachineConfig(id);
+            result = { config: config ?? null, found: !!config };
+            break;
+          }
+          case "pp_dah_jmdie_list": {
+            const engine = await getEngine("deepAIHardening");
+            result = { machines: engine.listJMDieMachines() };
+            break;
+          }
+          case "pp_dah_feature_matrix": {
+            const engine = await getEngine("deepAIHardening");
+            result = { matrix: engine.getFeatureCompatibilityMatrix() };
+            break;
+          }
+          case "pp_dah_recommend": {
+            const engine = await getEngine("deepAIHardening");
+            result = { recommendations: engine.recommendPostForJob(params.job ?? params.jobDescription ?? params) };
+            break;
+          }
+          case "pp_dah_5axis_safety": {
+            const engine = await getEngine("deepAIHardening");
+            const code = params.code ?? "";
+            const controller = params.controller ?? "fanuc";
+            result = engine.validate5AxisSafetyLine(code, controller);
+            break;
+          }
+
+          // ===== PP_VID: Video Knowledge Neural (PP-VID) =====
+          case "pp_vid_knowledge": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            result = { knowledge: engine.getControllerKnowledge(controller) };
+            break;
+          }
+          case "pp_vid_controllers": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            result = { controllers: engine.getAvailableControllers() };
+            break;
+          }
+          case "pp_vid_reason": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            result = engine.reason(params.context ?? params);
+            break;
+          }
+          case "pp_vid_hsm": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            const mode = params.mode ?? "rough";
+            result = { code: engine.getHSMCode(controller, mode) };
+            break;
+          }
+          case "pp_vid_tcpm": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            result = { code: engine.getTCPMCode(controller) };
+            break;
+          }
+          case "pp_vid_tribal": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            result = { tips: engine.getTribalKnowledge(controller) };
+            break;
+          }
+          case "pp_vid_mistakes": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            result = { mistakes: engine.getCommonMistakes(controller) };
+            break;
+          }
+          case "pp_vid_toolmgmt": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            result = { toolManagement: engine.getToolManagement(controller) };
+            break;
+          }
+          case "pp_vid_canned": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            const controller = params.controller;
+            const cycleType = params.cycleType ?? params.cycle_type;
+            const cycleName = params.cycleName ?? params.cycle_name;
+            result = { format: engine.getCannedCycleFormat(controller, cycleType, cycleName) };
+            break;
+          }
+          case "pp_vid_stats": {
+            const engine = await getEngine("videoKnowledgeNeural");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP_MPG: Master Post Generator (PP-MPG) =====
+          case "pp_mpg_complete": {
+            const engine = await getEngine("masterPostGenerator");
+            result = engine.generateCompletePost(params.config ?? params);
+            break;
+          }
+          case "pp_mpg_safety": {
+            const engine = await getEngine("masterPostGenerator");
+            const controller = params.controller;
+            const machineConfig = params.machineConfig ?? params.machine_config;
+            result = { safetyLine: engine.generateSafetyLine(controller, machineConfig) };
+            break;
+          }
+          case "pp_mpg_cycles": {
+            const engine = await getEngine("masterPostGenerator");
+            const controller = params.controller;
+            result = { cycles: engine.generateCycleDefinitions(controller) };
+            break;
+          }
+          case "pp_mpg_mcodes": {
+            const engine = await getEngine("masterPostGenerator");
+            const controller = params.controller;
+            result = { mCodes: engine.generateMCodeMappings(controller) };
+            break;
+          }
+          case "pp_mpg_props": {
+            const engine = await getEngine("masterPostGenerator");
+            const controller = params.controller;
+            const features = params.features ?? {};
+            const machineConfig = params.machineConfig ?? params.machine_config;
+            result = { properties: engine.generateProperties(controller, features, machineConfig) };
+            break;
+          }
+
+          // ===== PP_DI: Deep Intelligence (PP-DI) =====
+          case "pp_di_machine_caps": {
+            const engine = await getEngine("deepIntelligence");
+            const controller = params.controller;
+            const caps = engine.getMachineCapabilities(controller);
+            result = { capabilities: caps ?? null, found: !!caps };
+            break;
+          }
+          case "pp_di_controller_map": {
+            const engine = await getEngine("deepIntelligence");
+            const controller = params.controller;
+            const mapping = engine.getControllerMapping(controller);
+            result = { mapping: mapping ?? null, found: !!mapping };
+            break;
+          }
+          case "pp_di_controllers": {
+            const engine = await getEngine("deepIntelligence");
+            result = { controllers: engine.getSupportedControllers() };
+            break;
+          }
+          case "pp_di_material": {
+            const engine = await getEngine("deepIntelligence");
+            const id = params.id ?? params.materialId ?? params.material_id;
+            const material = engine.getMaterial(id);
+            result = { material: material ?? null, found: !!material };
+            break;
+          }
+          case "pp_di_materials_by_group": {
+            const engine = await getEngine("deepIntelligence");
+            const group = params.group ?? params.isoGroup ?? params.iso_group;
+            result = { materials: engine.getMaterialsByGroup(group) };
+            break;
+          }
+          case "pp_di_cutting_params": {
+            const engine = await getEngine("deepIntelligence");
+            const material = params.material ?? params.materialId ?? "";
+            const operation = params.operation ?? "roughing";
+            const toolDiameter = params.toolDiameter ?? params.tool_diameter ?? 10;
+            result = engine.recommendCuttingParams(material, operation, toolDiameter);
+            break;
+          }
+          case "pp_di_toolpath_strategy": {
+            const engine = await getEngine("deepIntelligence");
+            const category = params.category;
+            const strategy = params.strategy;
+            result = { strategy: engine.getToolpathStrategy(category, strategy) };
+            break;
+          }
+          case "pp_di_recommend_toolpath": {
+            const engine = await getEngine("deepIntelligence");
+            const geometry = params.geometry ?? params.geometryType ?? "pocket";
+            const material = params.material ?? params.isoGroup ?? "P";
+            const operation = params.operation ?? "roughing";
+            result = engine.recommendToolpathStrategy(geometry, material, operation);
+            break;
+          }
+          case "pp_di_5axis_validate": {
+            const engine = await getEngine("deepIntelligence");
+            const config = params.config ?? params.kinematicConfig;
+            const angles = params.angles ?? {};
+            result = engine.validate5AxisMove(config, angles);
+            break;
+          }
+          case "pp_di_collisions": {
+            const engine = await getEngine("deepIntelligence");
+            const points = params.points ?? [];
+            const toolRadius = params.toolRadius ?? params.tool_radius ?? 5;
+            const holderRadius = params.holderRadius ?? params.holder_radius ?? 15;
+            const zones = params.zones;
+            result = engine.checkCollisions(points, toolRadius, holderRadius, zones);
+            break;
+          }
+          case "pp_di_architectures": {
+            const engine = await getEngine("deepIntelligence");
+            result = { architectures: engine.getDeepLearningArchitectures() };
+            break;
+          }
+          case "pp_di_architecture": {
+            const engine = await getEngine("deepIntelligence");
+            const name = params.name ?? "";
+            const architecture = engine.getArchitecture(name);
+            result = { architecture: architecture ?? null, found: !!architecture };
+            break;
+          }
+          case "pp_di_reason": {
+            const engine = await getEngine("deepIntelligence");
+            const observations = params.observations ?? [];
+            const goal = params.goal ?? "";
+            const rules = params.rules ?? [];
+            result = engine.reason(observations, goal, rules);
+            break;
+          }
+          case "pp_di_constraints": {
+            const engine = await getEngine("deepIntelligence");
+            result = engine.solveConstraints(params.problem ?? params);
+            break;
+          }
+          case "pp_di_analyze": {
+            const engine = await getEngine("deepIntelligence");
+            const code = params.code ?? "";
+            const machineSpec = params.machineSpec ?? params.machine_spec ?? {};
+            const material = params.material ?? "";
+            result = engine.comprehensiveAnalysis(code, machineSpec, material);
+            break;
+          }
+          case "pp_di_stats": {
+            const engine = await getEngine("deepIntelligence");
+            result = engine.getStats();
+            break;
+          }
+
+          // ===== PP_TEL: Telemetry (PP-TEL) =====
+          case "pp_tel_record": {
+            const engine = await getEngine("telemetry");
+            result = engine.record(params.event ?? params);
+            break;
+          }
+          case "pp_tel_funnel": {
+            const engine = await getEngine("telemetry");
+            result = engine.funnel(params);
+            break;
+          }
+          case "pp_tel_count": {
+            const engine = await getEngine("telemetry");
+            result = { count: engine.eventCount() };
+            break;
+          }
+          case "pp_tel_reset": {
+            const engine = await getEngine("telemetry");
+            engine.reset();
+            result = { reset: true };
+            break;
+          }
+
+          // ===== PP_TNR: Tool Number Range Validator (PP-TNR) =====
+          case "pp_tnr_validate": {
+            const engine = await getEngine("toolNumberRange");
+            const gcode = params.gcode ?? params.g_code ?? "";
+            const options = params.options;
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_tnr_quick": {
+            const engine = await getEngine("toolNumberRange");
+            const gcode = params.gcode ?? params.g_code ?? "";
+            const options = params.options;
+            result = engine.quickCheck(gcode, options);
+            break;
+          }
+          case "pp_tnr_defaults": {
+            const engine = await getEngine("toolNumberRange");
+            result = { defaults: engine.defaultOptions() };
+            break;
+          }
+
+          // ===== PP_TRN: Trainer (PP-TRN) =====
+          case "pp_trn_train": {
+            const engine = await getEngine("trainer");
+            result = engine.train(params.input ?? params);
+            break;
+          }
+
+          // ===== PP_MGC: Modal Group Conflict Validator (PP-MGC) =====
+          case "pp_mgc_validate": {
+            const engine = await getEngine("modalGroupConflict");
+            const gcode = params.gcode ?? params.g_code ?? "";
+            const options = params.options;
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_mgc_quick": {
+            const engine = await getEngine("modalGroupConflict");
+            const gcode = params.gcode ?? params.g_code ?? "";
+            const options = params.options;
+            result = engine.quickCheck(gcode, options);
+            break;
+          }
+          case "pp_mgc_defaults": {
+            const engine = await getEngine("modalGroupConflict");
+            result = { defaults: engine.defaultOptions() };
+            break;
+          }
+
+          // ===== PP_ANL: Analysis (PP-ANL) =====
+          case "pp_anl_analyze": {
+            const engine = await getEngine("analysis");
+            const code = params.code ?? "";
+            const filename = params.filename ?? "unknown.cps";
+            result = engine.analyze(code, filename);
+            break;
+          }
+          case "pp_anl_report": {
+            const engine = await getEngine("analysis");
+            result = { report: engine.generateReport(params.result ?? params) };
+            break;
+          }
+          case "pp_anl_fix": {
+            const engine = await getEngine("analysis");
+            const code = params.code ?? "";
+            const issues = params.issues ?? [];
+            result = engine.applyFixes(code, issues);
+            break;
+          }
+
+          // ===== PP_AUT: Autopilot (PP-AUT) =====
+          case "pp_aut_dialect": {
+            const engine = await getEngine("autopilot");
+            const controller = params.controller ?? "";
+            result = engine.resolveDialect(controller);
+            break;
+          }
+          case "pp_aut_config": {
+            const engine = await getEngine("autopilot");
+            const dialect = params.dialect;
+            const operation = params.operation ?? params.operation_type;
+            result = engine.generatePostConfig(dialect, operation);
+            break;
+          }
+          case "pp_aut_ppg": {
+            const engine = await getEngine("autopilot");
+            result = engine.runPPG(params.input ?? params);
+            break;
+          }
+          case "pp_aut_p2p": {
+            const engine = await getEngine("autopilot");
+            result = engine.runPrintToProgram(params.input ?? params);
+            break;
+          }
+          case "pp_aut_dialects": {
+            const engine = await getEngine("autopilot");
+            result = { dialects: engine.listDialects() };
+            break;
+          }
+          case "pp_aut_features": {
+            const engine = await getEngine("autopilot");
+            const dialect = params.dialect;
+            result = { features: engine.getDialectFeatures(dialect) };
+            break;
+          }
+
+          // ===== PP_MST: Master Post Processor (PP-MST) =====
+          case "pp_mst_process": {
+            const engine = await getEngine("master");
+            const segments = params.segments ?? [];
+            const config = params.config ?? params;
+            result = engine.process(segments, config);
+            break;
+          }
+          case "pp_mst_compare": {
+            const engine = await getEngine("master");
+            const controllers = params.controllers ?? [];
+            result = engine.compareControllers(controllers);
+            break;
+          }
+          case "pp_mst_templates": {
+            const engine = await getEngine("master");
+            const controller = params.controller;
+            result = { templates: engine.getPostTemplates(controller) };
+            break;
+          }
+          case "pp_mst_features": {
+            const engine = await getEngine("master");
+            const controller = params.controller;
+            result = { features: engine.getMachineFeatures(controller) };
+            break;
+          }
+          case "pp_mst_cross_cam": {
+            const engine = await getEngine("master");
+            result = { features: engine.listCrossCamFeatures() };
+            break;
+          }
+          case "pp_mst_cps_config": {
+            const engine = await getEngine("master");
+            const machine = params.machine ?? params;
+            result = engine.generateMasterCpsConfig(machine);
+            break;
+          }
+          case "pp_mst_is_master": {
+            const engine = await getEngine("master");
+            const controller = params.controller ?? "";
+            result = { isMaster: engine.isMasterPostController(controller) };
+            break;
+          }
+          case "pp_mst_stats": {
+            const engine = await getEngine("master");
+            result = engine.stats();
+            break;
+          }
+
+          // ===== PP-ULT: Ultimate AI =====
+          case "pp_ult_deep_ensemble": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.deepEnsemble(input);
+            break;
+          }
+          case "pp_ult_retrieve_episodes": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.retrieveEpisodes(input);
+            break;
+          }
+          case "pp_ult_query_kg": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.queryKnowledgeGraph(input);
+            break;
+          }
+          case "pp_ult_tree_of_thoughts": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.treeOfThoughts(input);
+            break;
+          }
+          case "pp_ult_meta_learning": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.metaLearning(input);
+            break;
+          }
+          case "pp_ult_adversarial": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.adversarialValidation(input);
+            break;
+          }
+          case "pp_ult_generate_post": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.generatePost(input);
+            break;
+          }
+          case "pp_ult_llm_cli": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            const analysis = params.analysis ?? {};
+            result = engine.generateLLMCLIOutput(input, analysis);
+            break;
+          }
+          case "pp_ult_analyze": {
+            const engine = await getEngine("ultimate");
+            const input = params.input ?? params;
+            result = engine.analyze(input);
+            break;
+          }
+          case "pp_ult_store_episode": {
+            const engine = await getEngine("ultimate");
+            const episode = params.episode ?? params;
+            result = { id: engine.storeEpisode(episode) };
+            break;
+          }
+          case "pp_ult_stats": {
+            const engine = await getEngine("ultimate");
+            result = engine.getStats();
+            break;
+          }
+
+          // ===== PP-IOC: Intelligence Orchestrator =====
+          case "pp_ioc_classify_intent": {
+            const engine = await getEngine("ioc");
+            const query = params.query ?? "";
+            const context = params.context;
+            result = engine.classifyIntent(query, context);
+            break;
+          }
+          case "pp_ioc_route": {
+            const engine = await getEngine("ioc");
+            const intent = params.intent ?? params;
+            result = engine.routeToEngines(intent);
+            break;
+          }
+          case "pp_ioc_expert_rules": {
+            const engine = await getEngine("ioc");
+            const gcode = params.gcode ?? params.code ?? "";
+            const context = params.context ?? params;
+            result = engine.runExpertRules(gcode, context);
+            break;
+          }
+          case "pp_ioc_neural_opt": {
+            const engine = await getEngine("ioc");
+            const input = params.input ?? params;
+            result = engine.neuralOptimization(input);
+            break;
+          }
+          case "pp_ioc_aggregate": {
+            const engine = await getEngine("ioc");
+            result = engine.aggregateAnalysis(
+              params.deepLearning ?? params.deep_learning,
+              params.deepReasoning ?? params.deep_reasoning,
+              params.ultimateAI ?? params.ultimate_ai,
+              params.expertRules ?? params.expert_rules,
+              params.neuralOpt ?? params.neural_opt,
+            );
+            break;
+          }
+          case "pp_ioc_response": {
+            const engine = await getEngine("ioc");
+            const input = params.input ?? params;
+            const intent = params.intent;
+            const analysis = params.analysis ?? {};
+            result = engine.generateResponse(input, intent, analysis);
+            break;
+          }
+          case "pp_ioc_proactive": {
+            const engine = await getEngine("ioc");
+            const analysis = params.analysis ?? params;
+            result = engine.generateProactiveSuggestions(analysis);
+            break;
+          }
+          case "pp_ioc_orchestrate": {
+            const engine = await getEngine("ioc");
+            const input = params.input ?? params;
+            result = await engine.orchestrate(input);
+            break;
+          }
+
+          // ===== PP-DL: Deep Learning =====
+          case "pp_dl_recognize_patterns": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.recognizePatterns(input);
+            break;
+          }
+          case "pp_dl_feed_opt": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.predictFeedOptimization(input);
+            break;
+          }
+          case "pp_dl_classify_controller": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.classifyController(input);
+            break;
+          }
+          case "pp_dl_cycle_time": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.estimateCycleTime(input);
+            break;
+          }
+          case "pp_dl_quality_score": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.scorePostQuality(input);
+            break;
+          }
+          case "pp_dl_analyze": {
+            const engine = await getEngine("deepLearning");
+            const input = params.input ?? params;
+            result = engine.analyze(input);
+            break;
+          }
+
+          // ===== PP-UDR: Unified Deep Reasoning =====
+          case "pp_udr_reason": {
+            const engine = await getEngine("unifiedReasoning");
+            const request = params.request ?? params;
+            result = engine.performUnifiedReasoning(request);
+            break;
+          }
+          case "pp_udr_mcts": {
+            const engine = await getEngine("unifiedReasoning");
+            const request = params.request ?? params;
+            const maxSimulations = params.maxSimulations ?? params.max_simulations;
+            result = engine.performMCTSExploration(request, maxSimulations);
+            break;
+          }
+          case "pp_udr_stats": {
+            const engine = await getEngine("unifiedReasoning");
+            result = engine.getStatistics();
+            break;
+          }
+
+          // ===== PP-PCM: Post Capability Matrix =====
+          case "pp_pcm_matrix": {
+            const engine = await getEngine("postCapMatrix");
+            result = engine.getMatrix();
+            break;
+          }
+          case "pp_pcm_controller": {
+            const engine = await getEngine("postCapMatrix");
+            const family = params.family ?? params.controller ?? "";
+            result = engine.getController(family);
+            break;
+          }
+          case "pp_pcm_query": {
+            const engine = await getEngine("postCapMatrix");
+            const q = params.query ?? params.q ?? params;
+            result = engine.query(q);
+            break;
+          }
+          case "pp_pcm_compare": {
+            const engine = await getEngine("postCapMatrix");
+            const families = params.families ?? [];
+            result = engine.compare(families);
+            break;
+          }
+          case "pp_pcm_select": {
+            const engine = await getEngine("postCapMatrix");
+            const requirements = params.requirements ?? params;
+            result = engine.selectPost(requirements);
+            break;
+          }
+          case "pp_pcm_smoothing": {
+            const engine = await getEngine("postCapMatrix");
+            const family = params.family ?? params.controller ?? "";
+            result = engine.getSmoothing(family);
+            break;
+          }
+          case "pp_pcm_retract": {
+            const engine = await getEngine("postCapMatrix");
+            const family = params.family ?? params.controller ?? "";
+            result = engine.getRetractMethods(family);
+            break;
+          }
+          case "pp_pcm_multiaxis": {
+            const engine = await getEngine("postCapMatrix");
+            const family = params.family ?? params.controller ?? "";
+            result = engine.getMultiAxisSupport(family);
+            break;
+          }
+          case "pp_pcm_families": {
+            const engine = await getEngine("postCapMatrix");
+            result = engine.listFamilies();
+            break;
+          }
+          case "pp_pcm_summary": {
+            const engine = await getEngine("postCapMatrix");
+            result = engine.getSummary();
             break;
           }
 
