@@ -93,6 +93,138 @@ describe("PPWireEDMPostEngine", () => {
     });
   });
 
+  // ══════════════════════════════════════════════════════════════════════
+  // U-WGAP01: Imperial coordinate conversion tests
+  // ══════════════════════════════════════════════════════════════════════
+
+  describe("generate — imperial units (U-WGAP01)", () => {
+    it("emits G20 for imperial mode", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{ type: "profile", pass: "rough" }],
+      });
+      expect(r.gcode_text).toContain("G20");
+      expect(r.gcode_text).not.toContain("G21");
+    });
+
+    it("emits G21 for metric mode (default)", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "metric",
+        operations: [{ type: "profile", pass: "rough" }],
+      });
+      expect(r.gcode_text).toContain("G21");
+      expect(r.gcode_text).not.toContain("G20");
+    });
+
+    it("converts coordinates to inches when imperial", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{
+          type: "profile",
+          pass: "rough",
+          start_x: 25.4, // 1 inch
+          start_y: 50.8, // 2 inches
+        }],
+      });
+      // 25.4mm = 1.00000 inches, 50.8mm = 2.00000 inches
+      expect(r.gcode_text).toContain("X1.00000");
+      expect(r.gcode_text).toContain("Y2.00000");
+    });
+
+    it("keeps coordinates in mm when metric", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "metric",
+        operations: [{
+          type: "profile",
+          pass: "rough",
+          start_x: 25.4,
+          start_y: 50.8,
+        }],
+      });
+      // Should be 25.400 and 50.800 (3 decimals for metric)
+      expect(r.gcode_text).toContain("X25.400");
+      expect(r.gcode_text).toContain("Y50.800");
+    });
+
+    it("converts profile points to inches when imperial", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{
+          type: "profile",
+          pass: "rough",
+          profile_points: [
+            { x: 0, y: 0 },
+            { x: 25.4, y: 0 },      // 1 inch, 0
+            { x: 25.4, y: 25.4 },   // 1 inch, 1 inch
+            { x: 0, y: 25.4 },      // 0, 1 inch
+          ],
+        }],
+      });
+      expect(r.gcode_text).toContain("X1.00000 Y0.00000");
+      expect(r.gcode_text).toContain("X1.00000 Y1.00000");
+      expect(r.gcode_text).toContain("X0.00000 Y1.00000");
+    });
+
+    it("converts UV taper axes to inches when imperial", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{
+          type: "taper",
+          pass: "rough",
+          taper_angle_deg: 3,
+          profile_points: [
+            { x: 0, y: 0, u: 2.54, v: 5.08 },  // U=0.1 inch, V=0.2 inch
+          ],
+        }],
+      });
+      expect(r.gcode_text).toContain("U0.10000");
+      expect(r.gcode_text).toContain("V0.20000");
+    });
+
+    it("uses 5 decimal places for imperial, 3 for metric", () => {
+      const rImperial = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{
+          type: "profile",
+          pass: "rough",
+          start_x: 25.4,
+          start_y: 0,
+        }],
+      });
+      // Imperial uses 5 decimals
+      expect(rImperial.gcode_text).toMatch(/X1\.00000/);
+
+      const rMetric = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "metric",
+        operations: [{
+          type: "profile",
+          pass: "rough",
+          start_x: 25.4,
+          start_y: 0,
+        }],
+      });
+      // Metric uses 3 decimals
+      expect(rMetric.gcode_text).toMatch(/X25\.400/);
+    });
+
+    it("labels output as INCH in comments when imperial", () => {
+      const r = ppWireEDMPostEngine.generate({
+        thickness_mm: 25.4,
+        units: "imperial",
+        operations: [{ type: "profile", pass: "rough" }],
+      });
+      expect(r.gcode_text).toContain("INCH");
+    });
+  });
+
   describe("generate — taper cutting", () => {
     it("includes G51 taper on", () => {
       const r = ppWireEDMPostEngine.generate({
