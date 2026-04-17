@@ -70,6 +70,12 @@
           },
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/git-anti-clobber.mjs",
+            "timeout": 2500,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/lib/orphan-detection-hook.mjs",
             "timeout": 2000,
             "continueOnError": true
@@ -163,6 +169,50 @@
             "continueOnError": true
           }
         ]
+      },
+      {
+        "matcher": "^Read$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/file-read-cache.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Grep$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/grep-result-cache.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/bash-result-cache.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Bash$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/git-commit-checkin.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -212,14 +262,29 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/git-anti-clobber-release.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/node-process-janitor.mjs",
+            "timeout": 3000,
+            "async": true,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/helpers/session-breadcrumb.mjs",
             "timeout": 3000,
+            "async": true,
             "continueOnError": true
           },
           {
             "type": "command",
             "command": "node H:/prism/.claude/helpers/cache-writer.mjs",
             "timeout": 2000,
+            "async": true,
             "continueOnError": true
           },
           {
@@ -342,6 +407,32 @@
             "command": "node H:/prism/.claude/helpers/realtime-session-coordinator.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/node-process-janitor.mjs",
+            "timeout": 4000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/capability-reminder.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/periodic-checkin.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       }
@@ -447,6 +538,16 @@
           {
             "type": "command",
             "command": "node H:/prism/.claude/helpers/compact-restore.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/inventory-refresh.mjs",
             "timeout": 3000,
             "continueOnError": true
           }
@@ -581,6 +682,16 @@
             "type": "command",
             "command": "node H:/prism/.claude/helpers/pre-compact.mjs",
             "timeout": 5000,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/session-cost-summary.mjs",
+            "timeout": 2000,
             "continueOnError": true
           }
         ]

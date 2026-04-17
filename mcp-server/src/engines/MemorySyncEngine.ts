@@ -1,5 +1,5 @@
 /**
- * MemorySyncEngine — Phase 0.19 U-LLM8
+ * MemorySyncEngine — Phase 0.19 U-LLM8 + CPP-MS3-U-CPP22 (CRDT merge)
  *
  * Export Qdrant-backed memory to a JSON bundle on the H: drive so the
  * home (RTX 4080) and work (RTX 3080) PCs share tribal tips, program
@@ -26,8 +26,16 @@
  *      bundle wins. Not a true 3-way merge — that lives in a later
  *      milestone if we ever need it.
  *
+ * CPP-MS3-U-CPP22 (CRDT merge for multi-agent bundles):
+ *   Adds `MemoryCRDTEntry` and `mergeEntries()` for merging overlapping
+ *   bundles from N concurrent agents. Merge semantics are set-union on
+ *   entryId with Last-Write-Wins conflict resolution (max timestamp, then
+ *   lexicographic source as deterministic tiebreak). This is a pure
+ *   function — no Qdrant I/O required, so it works for any per-instance
+ *   memory sync scenario.
+ *
  * @module engines/MemorySyncEngine
- * @milestone PP-0.19-U-LLM8
+ * @milestone PP-0.19-U-LLM8, CPP-MS3-U-CPP22
  */
 
 import { mkdir, readFile, writeFile, readdir, stat } from "node:fs/promises";
@@ -114,6 +122,37 @@ export interface MemorySyncDeps {
   store?: QdrantVectorStoreEngine;
   /** Used in bundle metadata for provenance. Defaults to os.hostname(). */
   machineName?: string;
+}
+
+// ── CPP-MS3-U-CPP22: CRDT entry format ─────────────────────────────────
+
+/**
+ * MemoryCRDTEntry — per-entry record for CRDT set-union-LWW merge.
+ *
+ * Enables N concurrent agents to produce overlapping memory bundles that
+ * merge deterministically without coordination. Each entry carries its
+ * own timestamp + source so the merge rule can pick a winner without
+ * needing a central clock.
+ *
+ * Conflict resolution:
+ *   1. set-union on entryId (no entry is dropped just because another
+ *      agent saw it)
+ *   2. On same entryId, keep the record with max(timestamp)
+ *   3. On equal timestamps, lexicographically smaller source wins
+ *      (so merge is commutative, associative, and idempotent)
+ */
+export interface MemoryCRDTEntry {
+  entryId: string;
+  timestamp: string; // ISO 8601
+  source: string; // agent instance that produced this record
+  content: unknown;
+}
+
+export interface MergeReport {
+  merged: MemoryCRDTEntry[];
+  inputCount: number;
+  distinctEntryIds: number;
+  conflictsResolved: number;
 }
 
 export class MemorySyncEngine {
@@ -364,6 +403,77 @@ export class MemorySyncEngine {
     } catch {
       return null;
     }
+  }
+
+  // ── CPP-MS3-U-CPP22: CRDT entry merge ────────────────────────────────
+
+  /**
+   * Merge N bundles of CRDT entries using set-union + last-write-wins.
+   *
+   * This is the correctness-critical primitive for per-agent MemorySync:
+   * each of N terminals writes its own bundle, and any agent (or a
+   * scheduled aggregator) can call this to produce a consensus view
+   * without coordination.
+   *
+   * Properties (verified by the 7-writer test):
+   *   - commutative: merge([a, b]) = merge([b, a])
+   *   - associative: merge([merge([a, b]), c]) = merge([a, merge([b, c])])
+   *   - idempotent:  merge([a, a]) = a
+   *   - preserves distinct entryIds (no lossy union)
+   *   - deterministic conflict resolution when timestamps collide
+   *
+   * Returns merged + stats so callers can telemeter conflict rates.
+   */
+  mergeEntries(bundles: MemoryCRDTEntry[][]): MergeReport {
+    let inputCount = 0;
+    let conflictsResolved = 0;
+    const byId = new Map<string, MemoryCRDTEntry>();
+
+    for (const bundle of bundles) {
+      if (!Array.isArray(bundle)) continue;
+      for (const entry of bundle) {
+        inputCount++;
+        if (!entry || typeof entry.entryId !== "string" || entry.entryId.length === 0) {
+          continue;
+        }
+        const existing = byId.get(entry.entryId);
+        if (!existing) {
+          byId.set(entry.entryId, entry);
+          continue;
+        }
+        conflictsResolved++;
+        if (this.winsOver(entry, existing)) {
+          byId.set(entry.entryId, entry);
+        }
+      }
+    }
+
+    // Deterministic output ordering by entryId for stable diffs.
+    const merged = Array.from(byId.values()).sort((a, b) =>
+      a.entryId < b.entryId ? -1 : a.entryId > b.entryId ? 1 : 0,
+    );
+
+    return {
+      merged,
+      inputCount,
+      distinctEntryIds: byId.size,
+      conflictsResolved,
+    };
+  }
+
+  /**
+   * LWW comparator: does `candidate` win over `existing`?
+   *
+   * Rule: higher timestamp wins. On equal timestamps, lexicographically
+   * smaller source wins — this guarantees commutativity (A-vs-B and
+   * B-vs-A always pick the same winner) without requiring a shared clock.
+   */
+  private winsOver(candidate: MemoryCRDTEntry, existing: MemoryCRDTEntry): boolean {
+    if (candidate.timestamp > existing.timestamp) return true;
+    if (candidate.timestamp < existing.timestamp) return false;
+    // Timestamps equal — break ties by source lexicographic order.
+    if ((candidate.source ?? "") < (existing.source ?? "")) return true;
+    return false;
   }
 
   // ── internals ────────────────────────────────────────────────────────

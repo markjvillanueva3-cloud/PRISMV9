@@ -161,6 +161,8 @@ describe("SessionHandoffV2Engine", () => {
     identity: {
       sessionId: "s1",
       family: "claude",
+      machine: "DESKTOP-TEST",
+      instance: "claude-opus-47/session-42",
       startedAt: "2026-04-16T00:00:00.000Z",
       endedAt: "2026-04-16T01:00:00.000Z",
     },
@@ -206,6 +208,24 @@ describe("SessionHandoffV2Engine", () => {
         identity: { ...base.identity, family: "monkey" as "claude" },
       });
       expect(r.ok).toBe(false);
+    });
+
+    it("rejects missing identity.machine (CPP-MS3-U-CPP21)", () => {
+      const r = engine.validate({
+        ...base,
+        identity: { ...base.identity, machine: "" },
+      });
+      expect(r.ok).toBe(false);
+      expect(r.errors).toContain("identity.machine required");
+    });
+
+    it("rejects missing identity.instance (CPP-MS3-U-CPP21)", () => {
+      const r = engine.validate({
+        ...base,
+        identity: { ...base.identity, instance: "" },
+      });
+      expect(r.ok).toBe(false);
+      expect(r.errors).toContain("identity.instance required");
     });
 
     it("rejects non-array collections", () => {
@@ -258,6 +278,53 @@ describe("SessionHandoffV2Engine", () => {
     it("false on an invalid handoff even if it looks actionable", () => {
       const bad = { ...base, schemaVersion: 99 as 2 };
       expect(engine.isActionable(bad)).toBe(false);
+    });
+  });
+
+  describe("targetPath() (CPP-MS3-U-CPP21)", () => {
+    it("computes HANDOFF-<family>-<machine>-<instance>.md", () => {
+      const p = engine.targetPath({
+        family: "claude",
+        machine: "DESKTOP-N7MI1VB",
+        instance: "opus47-session42",
+      });
+      expect(p).toBe("HANDOFF-claude-DESKTOP-N7MI1VB-opus47-session42.md");
+    });
+
+    it("sanitizes filesystem-unfriendly characters with underscores", () => {
+      const p = engine.targetPath({
+        family: "claude",
+        machine: "host/with spaces",
+        instance: "pid*123?foo",
+      });
+      expect(p).toBe("HANDOFF-claude-host_with_spaces-pid_123_foo.md");
+    });
+
+    it("preserves @ and - in identity (used by agent-instance keys)", () => {
+      const p = engine.targetPath({
+        family: "codex",
+        machine: "host-1",
+        instance: "agent@term-1",
+      });
+      expect(p).toBe("HANDOFF-codex-host-1-agent@term-1.md");
+    });
+
+    it("throws on missing family/machine/instance", () => {
+      expect(() =>
+        engine.targetPath({ family: "" as "claude", machine: "m", instance: "i" }),
+      ).toThrow(/family required/);
+      expect(() =>
+        engine.targetPath({ family: "claude", machine: "", instance: "i" }),
+      ).toThrow(/machine required/);
+      expect(() =>
+        engine.targetPath({ family: "claude", machine: "m", instance: "" }),
+      ).toThrow(/instance required/);
+    });
+
+    it("produces distinct paths for distinct instances on same machine", () => {
+      const a = engine.targetPath({ family: "claude", machine: "m1", instance: "s1" });
+      const b = engine.targetPath({ family: "claude", machine: "m1", instance: "s2" });
+      expect(a).not.toBe(b);
     });
   });
 

@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { mkdtempSync, rmSync, writeFileSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { MemorySyncEngine } from "../engines/MemorySyncEngine.js";
+import { MemorySyncEngine, type MemoryCRDTEntry } from "../engines/MemorySyncEngine.js";
 import type {
   QdrantVectorStoreEngine,
   CollectionSpec,
@@ -306,5 +306,158 @@ describe("MemorySyncEngine", () => {
   it("listBundles on empty or missing dir returns []", async () => {
     const missing = path.join(dir, "nope");
     expect(await engine.listBundles(missing)).toEqual([]);
+  });
+});
+
+describe("MemorySyncEngine CRDT mergeEntries (CPP-MS3-U-CPP22)", () => {
+  const engine = new MemorySyncEngine({ store: makeFakeStore() });
+
+  function entry(
+    id: string,
+    source: string,
+    timestamp: string,
+    content: unknown,
+  ): MemoryCRDTEntry {
+    return { entryId: id, source, timestamp, content };
+  }
+
+  it("set-unions distinct entryIds across 2 bundles", () => {
+    const a = [entry("e1", "agent-A", "2026-04-17T00:00:00Z", "A1")];
+    const b = [entry("e2", "agent-B", "2026-04-17T00:00:00Z", "B2")];
+    const r = engine.mergeEntries([a, b]);
+    expect(r.merged).toHaveLength(2);
+    expect(r.merged.map((e) => e.entryId).sort()).toEqual(["e1", "e2"]);
+    expect(r.distinctEntryIds).toBe(2);
+    expect(r.conflictsResolved).toBe(0);
+  });
+
+  it("max-timestamp wins on conflict", () => {
+    const older = [entry("e1", "agent-A", "2026-04-17T00:00:00Z", "old")];
+    const newer = [entry("e1", "agent-B", "2026-04-17T01:00:00Z", "new")];
+    const r = engine.mergeEntries([older, newer]);
+    expect(r.merged).toHaveLength(1);
+    expect(r.merged[0].content).toBe("new");
+    expect(r.conflictsResolved).toBe(1);
+  });
+
+  it("reverse order of same inputs still gives same winner (commutative)", () => {
+    const older = [entry("e1", "agent-A", "2026-04-17T00:00:00Z", "old")];
+    const newer = [entry("e1", "agent-B", "2026-04-17T01:00:00Z", "new")];
+    const forward = engine.mergeEntries([older, newer]).merged[0];
+    const reverse = engine.mergeEntries([newer, older]).merged[0];
+    expect(forward).toEqual(reverse);
+  });
+
+  it("equal timestamps — lexicographically smaller source wins (deterministic)", () => {
+    const a = [entry("e1", "agent-B", "2026-04-17T00:00:00Z", "B-content")];
+    const b = [entry("e1", "agent-A", "2026-04-17T00:00:00Z", "A-content")];
+    const r1 = engine.mergeEntries([a, b]).merged[0];
+    const r2 = engine.mergeEntries([b, a]).merged[0];
+    expect(r1.source).toBe("agent-A");
+    expect(r1.content).toBe("A-content");
+    expect(r1).toEqual(r2); // commutative on equal timestamps too
+  });
+
+  it("idempotent: merge([x, x]) === merge([x])", () => {
+    const x = [entry("e1", "agent-A", "2026-04-17T00:00:00Z", "v")];
+    const single = engine.mergeEntries([x]);
+    const doubled = engine.mergeEntries([x, x]);
+    expect(doubled.merged).toEqual(single.merged);
+  });
+
+  it("associative: merge([merge([a,b]),c]) === merge([a,merge([b,c])])", () => {
+    const a = [entry("e1", "A", "2026-04-17T00:00:00Z", "a1")];
+    const b = [entry("e1", "B", "2026-04-17T02:00:00Z", "b1")];
+    const c = [entry("e1", "C", "2026-04-17T01:00:00Z", "c1")];
+    const left = engine.mergeEntries([engine.mergeEntries([a, b]).merged, c]).merged;
+    const right = engine.mergeEntries([a, engine.mergeEntries([b, c]).merged]).merged;
+    expect(left).toEqual(right);
+    expect(left[0].content).toBe("b1"); // b has max timestamp
+  });
+
+  it("7-writer scenario: all distinct entries preserved, conflicts resolved", () => {
+    // 7 agents each produce 3 entries: 2 distinct + 1 conflicting on e-shared
+    const bundles: MemoryCRDTEntry[][] = [];
+    for (let i = 0; i < 7; i++) {
+      const agent = `agent-${String.fromCharCode(65 + i)}`;
+      const timestamp = `2026-04-17T0${i}:00:00Z`;
+      bundles.push([
+        entry(`e-${agent}-1`, agent, timestamp, `${agent}-own-1`),
+        entry(`e-${agent}-2`, agent, timestamp, `${agent}-own-2`),
+        entry("e-shared", agent, timestamp, `${agent}-contribution`),
+      ]);
+    }
+
+    const r = engine.mergeEntries(bundles);
+
+    // 7 * 2 distinct + 1 shared = 15 unique entryIds
+    expect(r.distinctEntryIds).toBe(15);
+    expect(r.merged).toHaveLength(15);
+    expect(r.inputCount).toBe(21); // 7 * 3
+
+    // Shared entry: 6 conflicts resolved (7 inputs minus 1 winner)
+    expect(r.conflictsResolved).toBe(6);
+
+    // Winner of e-shared: agent-G had the latest timestamp (07:00:00)
+    const shared = r.merged.find((e) => e.entryId === "e-shared");
+    expect(shared).toBeDefined();
+    expect(shared?.source).toBe("agent-G");
+    expect(shared?.content).toBe("agent-G-contribution");
+
+    // All agents' distinct entries survive
+    for (let i = 0; i < 7; i++) {
+      const agent = `agent-${String.fromCharCode(65 + i)}`;
+      expect(r.merged.some((e) => e.entryId === `e-${agent}-1`)).toBe(true);
+      expect(r.merged.some((e) => e.entryId === `e-${agent}-2`)).toBe(true);
+    }
+  });
+
+  it("7-writer scenario is deterministic under any bundle order", () => {
+    const bundles: MemoryCRDTEntry[][] = [];
+    for (let i = 0; i < 7; i++) {
+      const agent = `agent-${String.fromCharCode(65 + i)}`;
+      bundles.push([entry("e-shared", agent, `2026-04-17T0${i}:00:00Z`, `${agent}-v`)]);
+    }
+    const forward = engine.mergeEntries(bundles).merged;
+    const reverse = engine.mergeEntries([...bundles].reverse()).merged;
+    const shuffled = engine.mergeEntries([bundles[3], bundles[0], bundles[6], bundles[1], bundles[4], bundles[2], bundles[5]]).merged;
+    expect(forward).toEqual(reverse);
+    expect(forward).toEqual(shuffled);
+  });
+
+  it("skips malformed entries (missing or empty entryId)", () => {
+    const bundle = [
+      entry("valid", "A", "2026-04-17T00:00:00Z", "ok"),
+      { entryId: "", source: "A", timestamp: "2026-04-17T00:00:00Z", content: "no" } as MemoryCRDTEntry,
+      null as unknown as MemoryCRDTEntry,
+      undefined as unknown as MemoryCRDTEntry,
+    ];
+    const r = engine.mergeEntries([bundle]);
+    expect(r.merged).toHaveLength(1);
+    expect(r.merged[0].entryId).toBe("valid");
+    expect(r.inputCount).toBe(4); // counted but filtered
+  });
+
+  it("returns deterministic entryId-sorted output for stable diffs", () => {
+    const bundle = [
+      entry("z-last", "A", "2026-04-17T00:00:00Z", ""),
+      entry("a-first", "A", "2026-04-17T00:00:00Z", ""),
+      entry("m-middle", "A", "2026-04-17T00:00:00Z", ""),
+    ];
+    const r = engine.mergeEntries([bundle]);
+    expect(r.merged.map((e) => e.entryId)).toEqual(["a-first", "m-middle", "z-last"]);
+  });
+
+  it("handles empty and null bundles gracefully", () => {
+    const r1 = engine.mergeEntries([]);
+    expect(r1.merged).toEqual([]);
+    expect(r1.inputCount).toBe(0);
+
+    const r2 = engine.mergeEntries([[], [entry("e1", "A", "2026-04-17T00:00:00Z", "v")]]);
+    expect(r2.merged).toHaveLength(1);
+
+    // Non-array bundle slot: should be skipped, not crash
+    const r3 = engine.mergeEntries([null as unknown as MemoryCRDTEntry[], [entry("e1", "A", "2026-04-17T00:00:00Z", "v")]]);
+    expect(r3.merged).toHaveLength(1);
   });
 });
