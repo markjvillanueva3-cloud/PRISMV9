@@ -3010,9 +3010,6 @@ export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.
 // Machine Leveling — tilt limits, foundation sizing, vibration isolation
 export { machineLevelingEngine, MachineLevelingEngine } from "./MachineLevelingEngine.js";
 
-// Machine Layer Merger — multi-layer machine data merge with provenance (MCAT-MS0)
-export { machineLayerMerger, type MachineLayerInput, type MergeResult } from "./MachineLayerMerger.js";
-
 // Tolerance Stack-Up Engine — worst-case & RSS stack-up analysis
 export { toleranceStackUpEngine, ToleranceStackUpEngine } from "./ToleranceStackUpEngine.js";
 
@@ -5361,8 +5358,7 @@ export { ClothoidBlendingEngine, type Point2D, type Point3D, type ClothoidSegmen
 export { ContactMechanicsSurfaceEngine, type MaterialProps, type HertzContactResult, type SubSurfaceStressResult, type PlasticZoneResult, type WhiteLayerResult, type ResidualStressResult, type FullIntegrityResult } from './ContactMechanicsSurfaceEngine.js';
 export { CurriculumEngine, type Course, type Module, type LessonContent, type Quiz, type Question, type QuestionOption, type DecisionNode, type StudentProgress, type CourseProgress, type QuizScore, type ReviewItem, type ContentType, type QuestionType } from './CurriculumEngine.js';
 export { DXFGeometryParserEngine, dxfGeometryParserEngine, type LineSegment, type ArcSegment, type WireEDMContour, type GeometryIssue, type GeometryParseResult, type GeometrySegment } from './DXFGeometryParserEngine.js';
-export { WEDMDwgImportEngine, wedmDwgImportEngine, type DwgImportInput, type DwgImportResult, type ConverterConfig } from './WEDMDwgImportEngine.js';
-export { stepAP242PMIExtractorEngine, type DatumReference, type ToleranceValue, type GeometricTolerance, type DimensionalSize, type SurfaceTexture, type PMIExtractionResult, type GDTFrame } from './STEPAP242PMIExtractorEngine.js';
+export { wedmPostDialectRouterEngine, WEDMPostDialectRouterEngine, type WEDMController, type WEDMPostInput, type WEDMPostOutput, type WEDMOperation as WEDMPostOperation } from './WEDMPostDialectRouterEngine.js';
 export { FinishTargetAdvisorEngine, finishTargetAdvisorEngine, type FinishTargetInput, type FinishTargetResult, type FinishOperation, type CoolantStrategy as FinishCoolantStrategy } from './FinishTargetAdvisorEngine.js';
 export { HaasParserEngine, haasParserEngine, type HaasProgram, type HaasToolSection, type HaasOperation, type HaasMacroVariable, type HaasSubCall, type HaasSafetyInfo } from './HaasParserEngine.js';
 export { HoningProcessEngine, honingProcessEngine, type HoningDesignInput, type HoningDesignResult, type StoneSelectionInput, type StoneSelectionResult, type PlateauHoningInput, type PlateauHoningStageParams, type PlateauHoningResult, type StoneType } from './HoningProcessEngine.js';
@@ -6402,54 +6398,90 @@ export {
   type FormulaEngineMapping,
 } from './FormulaOrchestrator.js';
 
-
-// --- AI-AWARE-HARDEN U-AWR32: Playbook Rules Engine ---
+// --- AI-AWARE-HARDEN: Resource Extraction Engines (7 engines, 272 tests) ---
 export {
-  playbookRulesEngine,
-  PlaybookRulesEngine,
-  type MachineDomain,
-  type DomainRule,
-  type DomainStats,
-  type DomainQuery,
-  type RuleCoverage,
-} from './PlaybookRulesEngine.js';
-
-// --- MILL-AGI-P0: Deep Reasoning + Trace Ledger ---
-export {
-  millingDeepReasoningEngine,
-  MillingDeepReasoningEngine,
-  type ReasoningMode,
-  type Evidence,
-  type ReasoningStep,
-  type CounterfactualResult,
-  type MillingReasoningResult,
-  type MillingContext,
-} from './MillingDeepReasoningEngine.js';
+  ArchiveCrawlerEngine,
+  archiveCrawlerEngine,
+  type ArchiveFormat,
+  type ArchiveEntry,
+  type ArchiveContent,
+  type HighValueFile,
+  type CrawlResult,
+  type ExtractionRoute,
+} from './ArchiveCrawlerEngine.js';
 
 export {
-  millingReasoningTraceLedgerEngine,
-  MillingReasoningTraceLedgerEngine,
-  type MillingReasoningStep,
-  type MillingTraceEntry,
-  type MillingLedgerStats,
-  type MillingLedgerAppendResult,
-} from './MillingReasoningTraceLedgerEngine.js';
+  DarkContentClassifierEngine,
+  darkContentClassifierEngine,
+  type DarkContentCategory,
+  type ExtractionDifficulty,
+  type ContentAssessment,
+  type DarkContentReport,
+} from './DarkContentClassifierEngine.js';
 
 export {
-  counterfactualMillEngine,
-  CounterfactualMillEngine,
-  type MillingBaselineParams,
-  type CounterfactualScenario,
-  type CounterfactualAnalysisResult,
-} from './CounterfactualMillEngine.js';
+  CrossTerminalCoordinationEngine,
+  crossTerminalCoordinationEngine,
+  type WorkItemStatus,
+  type WorkItemPriority,
+  type WorkItem,
+  type TerminalSession,
+  type CoordinationState,
+  type ClaimResult,
+  type DistributionStrategy,
+} from './CrossTerminalCoordinationEngine.js';
 
 export {
-  hypothesisPrioritizerEngine,
-  HypothesisPrioritizerEngine,
-  type HypothesisCategory,
-  type HypothesisPrior,
-  type PriorUpdateInput,
-  type HypothesisRankingInput,
-  type RankedHypothesis,
-  type PrioritizationResult,
-} from './HypothesisPrioritizerEngine.js';
+  ImageOCRPipelineEngine,
+  imageOCRPipelineEngine,
+  type ImageFormat,
+  type ContentType as OCRContentType,
+  type OCRQuality,
+  type OCRRegion,
+  type OCRResult,
+  type ExtractedData as OCRExtractedData,
+  type OCRConfig,
+} from './ImageOCRPipelineEngine.js';
+
+export {
+  Drawing2DExtractionEngine,
+  drawing2DExtractionEngine,
+  type DrawingFormat,
+  type DimensionType,
+  type ToleranceType,
+  type GDTSymbol,
+  type Dimension,
+  type Tolerance,
+  type GDTCallout,
+  type TitleBlock,
+  type Note as DrawingNote,
+  type DrawingExtraction,
+  type ExtractionSummary,
+} from './Drawing2DExtractionEngine.js';
+
+export {
+  OfficeDocumentPipelineEngine,
+  officeDocumentPipelineEngine,
+  type DocumentType,
+  type ContentCategory,
+  type DocumentMetadata,
+  type ExtractedTable,
+  type ExtractedSection,
+  type DocumentExtraction,
+  type ManufacturingData,
+} from './OfficeDocumentPipelineEngine.js';
+
+export {
+  MachineLogHarvesterEngine,
+  machineLogHarvesterEngine,
+  type MachineType,
+  type ControllerType,
+  type LogEntryType,
+  type AlarmSeverity,
+  type LogEntry,
+  type CycleData,
+  type AlarmRecord,
+  type ToolUsageRecord,
+  type HarvestResult,
+  type HarvestStatistics,
+} from './MachineLogHarvesterEngine.js';
