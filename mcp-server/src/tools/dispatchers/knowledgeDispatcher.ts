@@ -95,6 +95,10 @@ const MIT_ACADEMIC_ACTIONS = [
   "mit_course_data",
   "lecture_scan_course", "lecture_extract_formulas", "lecture_get_formulas",
   "lecture_get_problems", "lecture_stats",
+  // PP-AGI-S0/U-S0-03: Additional MIT course integration actions
+  "mit_course_list", "mit_course_detail", "mit_course_apply",
+  "mit_course_recommend", "mit_course_tier", "mit_course_domains",
+  "mit_course_prism_map",
 ] as const;
 
 // PDF-EXT-MS2: Knowledge Ingestion Pipeline
@@ -1507,6 +1511,57 @@ export function registerKnowledgeDispatcher(server: any): void {
             result = {
               metadata,
               resourceCount: contentMap?.size ?? 0,
+            };
+            break;
+          }
+          // PP-AGI-S0/U-S0-03: Additional MIT course integration actions
+          case "mit_course_list": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = {
+              domain: params.domain,
+              courses: mitCourseIntegrationEngine.listCourses(params.domain),
+            };
+            break;
+          }
+          case "mit_course_detail": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = mitCourseIntegrationEngine.getCourse(params.course_id ?? "");
+            break;
+          }
+          case "mit_course_apply": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = mitCourseIntegrationEngine.applyToManufacturing(
+              params.course_id ?? "",
+              params.problem ?? ""
+            );
+            break;
+          }
+          case "mit_course_recommend": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = mitCourseIntegrationEngine.getCourseRecommendations(params.problem ?? "");
+            break;
+          }
+          case "mit_course_tier": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = {
+              tier: params.tier ?? "TIER_1",
+              courses: mitCourseIntegrationEngine.getCoursesByTier(params.tier ?? "TIER_1"),
+            };
+            break;
+          }
+          case "mit_course_domains": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = {
+              domains: mitCourseIntegrationEngine.getDomains(),
+              stats: mitCourseIntegrationEngine.getStats(),
+            };
+            break;
+          }
+          case "mit_course_prism_map": {
+            const { mitCourseIntegrationEngine } = await import("../../engines/MITCourseIntegrationEngine.js");
+            result = {
+              courseId: params.course_id,
+              prismEngines: mitCourseIntegrationEngine.getPrismMapping(params.course_id ?? ""),
             };
             break;
           }
