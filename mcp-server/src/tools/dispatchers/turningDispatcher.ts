@@ -175,6 +175,8 @@ const ACTIONS = [
   "lathe_program_backtrace",
   "lathe_program_signoff_dossier",
   "lathe_replay_frame_compile",
+  // LATHE-MASTER U-LTH24: Post-processor generator full pipeline
+  "postgen_full",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -2374,6 +2376,132 @@ Actions: ${ACTIONS.join(", ")}.`,
               part_geometry: params.part_geometry,
             };
             result = await latheMasterOrchestratorFacadeEngine.orchestrate(orchRequest);
+            break;
+          }
+
+          // LATHE-MASTER U-LTH24: Full post-processor generator pipeline
+          case "postgen_full": {
+            const { PostgenValidatorSkipGuardHook } = await import("../../hooks/PostgenValidatorSkipGuardHook.js");
+            const { LathePostGeneratorSpecIngestEngine } = await import("../../engines/LathePostGeneratorSpecIngestEngine.js");
+            const { LathePostGeneratorDialectEngine } = await import("../../engines/LathePostGeneratorDialectEngine.js");
+            const { LatheSwissPostGeneratorEngine } = await import("../../engines/LatheSwissPostGeneratorEngine.js");
+            const { LathePostGeneratorValidatorWiringEngine } = await import("../../engines/LathePostGeneratorValidatorWiringEngine.js");
+            const { LathePostRegressionTestGeneratorEngine } = await import("../../engines/LathePostRegressionTestGeneratorEngine.js");
+            const { LathePostKnowledgeGraphEngine } = await import("../../engines/LathePostKnowledgeGraphEngine.js");
+            const { LathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            const { LathePostGeneratorUncertaintyEngine } = await import("../../engines/LathePostGeneratorUncertaintyEngine.js");
+
+            const controller = params.controller ?? "fanuc-31it";
+            const stages: any[] = [];
+            const warnings: string[] = [];
+            const errors: string[] = [];
+
+            // 1. Preflight safety check
+            const preflight = PostgenValidatorSkipGuardHook.preflight({
+              controller,
+              skip_categories: params.skip_categories,
+              skip_validators: params.skip_validators,
+              override_safety: params.override_safety,
+            });
+            stages.push({ stage: "preflight", ...preflight });
+            if (!preflight.proceed && !params.override_safety) {
+              result = { success: false, error: preflight.message, stages };
+              break;
+            }
+
+            // 2. Spec ingestion (if provided)
+            let controllerSpec: any = null;
+            if (params.spec_text) {
+              const ingestEngine = new LathePostGeneratorSpecIngestEngine();
+              const ingestResult = ingestEngine.ingestFromText(params.spec_text, controller);
+              controllerSpec = ingestResult.controller;
+              stages.push({ stage: "ingest", success: ingestResult.success, controller: controllerSpec });
+            }
+
+            // 3. Skeleton generation
+            const dialectEngine = new LathePostGeneratorDialectEngine();
+            const dialect = params.dialect ?? dialectEngine.detectDialect(controller);
+            const skeleton = dialectEngine.generateSkeleton(dialect, {
+              features: params.features,
+              reference_programs: params.reference_programs,
+            });
+            stages.push({ stage: "skeleton", dialect, blocks: skeleton.structure?.length ?? 0 });
+
+            // 4. Transfer learning (Swiss-type if applicable)
+            let transfer: any = null;
+            if (params.source_controller || dialect === "citizen" || dialect === "tsugami") {
+              const swissEngine = new LatheSwissPostGeneratorEngine();
+              transfer = swissEngine.transferFromFanuc(
+                params.source_controller ?? "fanuc-31it",
+                controller,
+                { mode: params.transfer_mode ?? "full" }
+              );
+              stages.push({ stage: "transfer", patterns: transfer?.mappings?.length ?? 0 });
+            }
+
+            // 5. Validation
+            const validators = LathePostGeneratorValidatorWiringEngine.listValidators();
+            const gcode = params.gcode ?? skeleton.sample_output ?? ["G28 U0 W0", "T0101", "M30"];
+            const validation = LathePostGeneratorValidatorWiringEngine.validateProgram(
+              gcode,
+              validators.map(v => ({ ...v, enabled: true, strict: params.strict_mode ?? false }))
+            );
+            stages.push({ stage: "validate", passed: validation.passed, failed: validation.failed });
+
+            // 6. Regression test generation
+            let testResult: any = null;
+            if (params.generate_tests !== false && params.reference_programs?.length) {
+              testResult = LathePostRegressionTestGeneratorEngine.generateTest({
+                gcode: params.reference_programs[0].split("\n"),
+                program_id: params.program_id ?? "O0001",
+                controller,
+              });
+              stages.push({ stage: "test_gen", patterns: testResult.patterns_found });
+            }
+
+            // 7. Knowledge graph registration
+            const kgEngine = new LathePostKnowledgeGraphEngine();
+            const kgNode = kgEngine.getNode(controller);
+            const kgStats = kgEngine.getStats();
+            stages.push({ stage: "knowledge_graph", registered: !!kgNode, stats: kgStats });
+
+            // 8. Uncertainty analysis
+            const uncertaintyEngine = new LathePostGeneratorUncertaintyEngine(params.uncertainty_config);
+            const uncertainty = uncertaintyEngine.analyzeProgram(
+              gcode,
+              params.program_id ?? "O0001",
+              controller
+            );
+            stages.push({
+              stage: "uncertainty",
+              confidence: uncertainty.overall_confidence,
+              flagged: uncertainty.flagged_blocks,
+            });
+
+            // 9. Production readiness
+            const prodReady = uncertaintyEngine.isProductionReady(gcode);
+
+            result = {
+              success: validation.success && prodReady.ready,
+              controller,
+              dialect,
+              stages,
+              validation_summary: {
+                total: validation.total_validators,
+                passed: validation.passed,
+                failed: validation.failed,
+              },
+              uncertainty_summary: {
+                overall_confidence: uncertainty.overall_confidence,
+                flagged_blocks: uncertainty.flagged_blocks,
+                risk_distribution: uncertainty.risk_distribution,
+              },
+              production_ready: prodReady.ready,
+              blockers: prodReady.blockers,
+              recommendations: uncertainty.recommendations,
+              warnings,
+              errors,
+            };
             break;
           }
 

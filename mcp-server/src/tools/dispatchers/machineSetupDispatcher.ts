@@ -172,6 +172,13 @@ const ACTIONS = [
   "mcat_acq_roi",                // Calculate ROI for item
   "mcat_acq_distributor",        // Get distributor info
   "mcat_acq_compare",            // Compare multiple items
+  // ===== MCAT-MS0 P4-U01: Machine Audit (6 actions) =====
+  "mcat_audit_brand",            // Audit specific brand
+  "mcat_audit_wave",             // Audit wave of brands
+  "mcat_audit_all",              // Audit all brands
+  "mcat_audit_report",           // Get audit report
+  "mcat_audit_remediations",     // Get remediation items
+  "mcat_audit_stats",            // Get audit statistics
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -815,6 +822,26 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_acq_compare") {
           const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
           result = acquisitionRecommendationEngine.compareItems(params.item_ids as string[]);
+
+        // ===== MCAT-MS0 P4-U01: Machine Audit =====
+        } else if (action === "mcat_audit_brand") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.auditBrand(params.brand as string);
+        } else if (action === "mcat_audit_wave") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.auditWave(params.wave as number);
+        } else if (action === "mcat_audit_all") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.auditAll();
+        } else if (action === "mcat_audit_report") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.getReport(params.brand as string);
+        } else if (action === "mcat_audit_remediations") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.getRemediations(params as any);
+        } else if (action === "mcat_audit_stats") {
+          const { machineAuditEngine } = await import("../../engines/MachineAuditEngine.js");
+          result = machineAuditEngine.getStats();
 
         } else {
           const engineKey = engineMap[action];
