@@ -223,6 +223,12 @@
             "command": "node H:/prism/.claude/hooks/git-commit-checkin.mjs",
             "timeout": 1500,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/staged-hygiene-check.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },
@@ -242,6 +248,12 @@
       {
         "matcher": "^(Write|Edit|MultiEdit)$",
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/session-write-tracker.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/extraction-to-tribal.mjs",
