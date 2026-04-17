@@ -87,27 +87,16 @@ const COOLANT_MULT: Record<string, number> = {
   cryogenic: 1.30,
 };
 
-/** Kienzle kc1.1 (N/mm²) and mc exponent per ISO group.
- *  Source: Sandvik Coromant / Machinery's Handbook kc tables */
-const KIENZLE_DATA: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },   // Carbon / alloy steel
-  M: { kc1_1: 2100, mc: 0.25 },   // Stainless steel
-  K: { kc1_1: 1100, mc: 0.28 },   // Cast iron
-  N: { kc1_1:  700, mc: 0.23 },   // Aluminum alloys
-  S: { kc1_1: 2800, mc: 0.28 },   // Superalloys
-  H: { kc1_1: 3200, mc: 0.30 },   // Hardened steel
-};
+// Kienzle and Taylor constants imported from canonical source
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
-/** Taylor tool-life constant C (m/min at T=1 min) and exponent n per ISO group.
- *  T = (C/Vc)^(1/n). Higher n → life more sensitive to speed. */
-const TAYLOR_DATA: Record<string, { C: number; n: number }> = {
-  P: { C: 280, n: 0.25 },
-  M: { C: 180, n: 0.22 },
-  K: { C: 320, n: 0.28 },
-  N: { C: 600, n: 0.35 },
-  S: { C:  80, n: 0.20 },
-  H: { C: 150, n: 0.22 },
-};
+/** Kienzle kc1.1 (N/mm²) and mc exponent per ISO group (canonical).
+ *  Source: src/physics/constants.ts — Sandvik Coromant / ISO 3685 validated */
+const KIENZLE_DATA = CANONICAL_KIENZLE;
+
+/** Taylor tool-life constant C (m/min at T=1 min) and exponent n per ISO group (canonical).
+ *  T = (C/Vc)^(1/n). Source: src/physics/constants.ts — ISO 3685 / Kronenberg validated */
+const TAYLOR_DATA = CANONICAL_TAYLOR;
 
 const ISO_GROUPS = ["P", "M", "K", "N", "S", "H"] as const;
 type ISOGroup = typeof ISO_GROUPS[number];

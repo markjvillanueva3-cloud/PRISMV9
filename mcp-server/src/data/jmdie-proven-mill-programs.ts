@@ -1,7 +1,7 @@
 /**
- * JM Die PROVEN Mill Programs — Production-Validated Milling Knowledge
+ * JM Die PROVEN Mill Programs - Production-Validated Milling Knowledge
  * =====================================================================
- * Extracted from H:/PRISM/JM DIE/CNC MILL HAAS/*/PROVEN PRG/ folders.
+ * Extracted from H:/PRISM/JM DIE/CNC MILL HAAS/{customer}/PROVEN PRG/ folders.
  * These are validated, production-tested programs that ran successfully.
  *
  * Data Sources:

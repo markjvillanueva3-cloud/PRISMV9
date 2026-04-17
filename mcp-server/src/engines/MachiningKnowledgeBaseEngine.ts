@@ -25,6 +25,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
 // KIENZLE SPECIFIC CUTTING FORCE DATABASE
@@ -140,15 +141,9 @@ export const KIENZLE_DATABASE: KienzleEntry[] = [
  * For specific alloys, use lookupKienzleMaterial().
  */
 export function getKienzleByISO(iso: string): { kc1_1: number; mc: number } {
-  const defaults: Record<string, { kc1_1: number; mc: number }> = {
-    P: { kc1_1: 1800, mc: 0.25 },  // Medium carbon steel (most common)
-    M: { kc1_1: 2100, mc: 0.25 },  // 304/316 (most common)
-    K: { kc1_1: 1100, mc: 0.28 },  // Gray CI (most common)
-    N: { kc1_1: 700, mc: 0.23 },   // 6061-T6 (most common)
-    S: { kc1_1: 2800, mc: 0.28 },  // Ti-6Al-4V (most common)
-    H: { kc1_1: 3200, mc: 0.30 },  // 45-55 HRC (most common)
-  };
-  return defaults[iso] || defaults.P;
+  // Use canonical constants from physics/constants.ts
+  const isoKey = iso.toUpperCase() as keyof typeof CANONICAL_KIENZLE;
+  return CANONICAL_KIENZLE[isoKey] || CANONICAL_KIENZLE.P;
 }
 
 /**

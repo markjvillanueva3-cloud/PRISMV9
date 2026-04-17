@@ -15,6 +15,7 @@ import { kienzleForceModelEngine } from "./KienzleForceModelEngine.js";
 import { machiningPlaybookEngine } from "./MachiningPlaybookEngine.js";
 import { insertGradeSelectionEngine } from "./InsertGradeSelectionEngine.js";
 import { tribalKnowledgeEngine, type KnowledgeTip } from "./TribalKnowledgeEngine.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 function getToolCatalog(): any {
   return toolCatalogEngine as any;
@@ -35,16 +36,8 @@ function getInsertGrade(): any {
   return insertGradeSelectionEngine as any;
 }
 
-// ── Kienzle coefficients by ISO group (canonical — physics/constants.ts) ──
-// F360-REV-MS1 U-SAF04: aligned to CANONICAL_KIENZLE values
-const KIENZLE_BY_GROUP: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },  // Carbon/alloy steel
-  M: { kc1_1: 2100, mc: 0.25 },  // Stainless steel
-  K: { kc1_1: 1100, mc: 0.28 },  // Cast iron
-  N: { kc1_1: 700, mc: 0.23 },   // Aluminum / non-ferrous
-  S: { kc1_1: 2800, mc: 0.25 },  // Superalloys (Ti, Inconel)
-  H: { kc1_1: 3200, mc: 0.30 },  // Hardened steel
-};
+// ── Kienzle coefficients by ISO group (canonical import — physics/constants.ts) ──
+const KIENZLE_BY_GROUP = CANONICAL_KIENZLE;
 
 // ── Scoring weights by optimization goal ───────────────────────
 const WEIGHT_PROFILES: Record<string, number[]> = {

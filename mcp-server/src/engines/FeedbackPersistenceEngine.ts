@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // Interfaces
@@ -152,13 +153,14 @@ interface MaterialDefaults {
   label: string;
 }
 
+// Canonical Kienzle/Taylor + labels (source: src/physics/constants.ts)
 const ISO_MATERIAL_DEFAULTS: Record<string, MaterialDefaults> = {
-  P: { kc1_1: 1800, mc: 0.25, taylorC: 300, taylorN: 0.25, label: 'Steel (ISO P)' },
-  M: { kc1_1: 2100, mc: 0.25, taylorC: 200, taylorN: 0.25, label: 'Stainless (ISO M)' },
-  K: { kc1_1: 1100, mc: 0.25, taylorC: 250, taylorN: 0.25, label: 'Cast Iron (ISO K)' },
-  N: { kc1_1: 800, mc: 0.25, taylorC: 600, taylorN: 0.25, label: 'Aluminum (ISO N)' },
-  S: { kc1_1: 2400, mc: 0.25, taylorC: 80, taylorN: 0.30, label: 'Superalloy (ISO S)' },
-  H: { kc1_1: 3000, mc: 0.25, taylorC: 150, taylorN: 0.25, label: 'Hardened (ISO H)' },
+  P: { ...CANONICAL_KIENZLE.P, taylorC: CANONICAL_TAYLOR.P.C, taylorN: CANONICAL_TAYLOR.P.n, label: 'Steel (ISO P)' },
+  M: { ...CANONICAL_KIENZLE.M, taylorC: CANONICAL_TAYLOR.M.C, taylorN: CANONICAL_TAYLOR.M.n, label: 'Stainless (ISO M)' },
+  K: { ...CANONICAL_KIENZLE.K, taylorC: CANONICAL_TAYLOR.K.C, taylorN: CANONICAL_TAYLOR.K.n, label: 'Cast Iron (ISO K)' },
+  N: { ...CANONICAL_KIENZLE.N, taylorC: CANONICAL_TAYLOR.N.C, taylorN: CANONICAL_TAYLOR.N.n, label: 'Aluminum (ISO N)' },
+  S: { ...CANONICAL_KIENZLE.S, taylorC: CANONICAL_TAYLOR.S.C, taylorN: CANONICAL_TAYLOR.S.n, label: 'Superalloy (ISO S)' },
+  H: { ...CANONICAL_KIENZLE.H, taylorC: CANONICAL_TAYLOR.H.C, taylorN: CANONICAL_TAYLOR.H.n, label: 'Hardened (ISO H)' },
 };
 
 // ============================================================================

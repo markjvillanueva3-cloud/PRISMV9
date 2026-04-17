@@ -18,6 +18,7 @@
  */
 
 import { randomUUID } from "crypto";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, type ISOGroup } from "../physics/constants.js";
 
 // ============================================================================
 // Types
@@ -175,7 +176,7 @@ export interface AvailableTool {
 }
 
 // ============================================================================
-// Inline Kienzle material database
+// Kienzle material database (canonical + thermal extensions)
 // ============================================================================
 
 interface KienzleMaterialData {
@@ -185,29 +186,30 @@ interface KienzleMaterialData {
   thermal_conductivity_wm_k: number;
 }
 
+// Extended material properties (canonical Kienzle + hardness/thermal for adaptation)
+const ISO_THERMAL_EXTENSIONS: Record<string, { hardness_hrc: number; thermal_conductivity_wm_k: number }> = {
+  P: { hardness_hrc: 25, thermal_conductivity_wm_k: 45 },
+  M: { hardness_hrc: 30, thermal_conductivity_wm_k: 15 },
+  K: { hardness_hrc: 20, thermal_conductivity_wm_k: 50 },
+  N: { hardness_hrc: 10, thermal_conductivity_wm_k: 170 },
+  S: { hardness_hrc: 35, thermal_conductivity_wm_k: 7 },
+  H: { hardness_hrc: 55, thermal_conductivity_wm_k: 25 },
+};
+
 const KIENZLE_DB: Record<string, KienzleMaterialData> = {
-  P: { kc1_1: 1800, mc: 0.25, hardness_hrc: 25, thermal_conductivity_wm_k: 45 },
-  M: { kc1_1: 2100, mc: 0.25, hardness_hrc: 30, thermal_conductivity_wm_k: 15 },
-  K: { kc1_1: 1100, mc: 0.28, hardness_hrc: 20, thermal_conductivity_wm_k: 50 },
-  N: { kc1_1: 700, mc: 0.23, hardness_hrc: 10, thermal_conductivity_wm_k: 170 },
-  S: { kc1_1: 2800, mc: 0.28, hardness_hrc: 35, thermal_conductivity_wm_k: 7 },
-  H: { kc1_1: 3200, mc: 0.30, hardness_hrc: 55, thermal_conductivity_wm_k: 25 },
+  P: { ...CANONICAL_KIENZLE.P, ...ISO_THERMAL_EXTENSIONS.P },
+  M: { ...CANONICAL_KIENZLE.M, ...ISO_THERMAL_EXTENSIONS.M },
+  K: { ...CANONICAL_KIENZLE.K, ...ISO_THERMAL_EXTENSIONS.K },
+  N: { ...CANONICAL_KIENZLE.N, ...ISO_THERMAL_EXTENSIONS.N },
+  S: { ...CANONICAL_KIENZLE.S, ...ISO_THERMAL_EXTENSIONS.S },
+  H: { ...CANONICAL_KIENZLE.H, ...ISO_THERMAL_EXTENSIONS.H },
 };
 
 // ============================================================================
-// Taylor tool life constants by ISO group
+// Taylor tool life constants by ISO group (canonical)
 // ============================================================================
 
-interface TaylorData { C: number; n: number; }
-
-const TAYLOR_DB: Record<string, TaylorData> = {
-  P: { C: 350, n: 0.25 },
-  M: { C: 200, n: 0.20 },
-  K: { C: 400, n: 0.28 },
-  N: { C: 600, n: 0.35 },
-  S: { C: 120, n: 0.15 },
-  H: { C: 100, n: 0.12 },
-};
+const TAYLOR_DB = CANONICAL_TAYLOR;
 
 // ============================================================================
 // Tool material hierarchy (higher = better)

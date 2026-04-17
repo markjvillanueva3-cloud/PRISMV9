@@ -105,6 +105,81 @@ interface HookGuardIndex {
 }
 
 // ============================================================================
+// FORMULA PROVENANCE INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface FormulaProvenance {
+  name: string;
+  formulaId: string;
+  domain: string;
+  category: string;
+  equation: string;
+  references: string[];
+  source: string | null;
+  consumers: string[];
+  enginesUsing: string[];
+  sha256: string;
+}
+
+interface FormulaProvenanceIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  formulaCount: number;
+  formulas: Record<string, FormulaProvenance>;
+  byDomain: Record<string, string[]>;
+  byReference: Record<string, string[]>;
+}
+
+// ============================================================================
+// TRIBAL TIP INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface TribalTipEntry {
+  id: string;
+  content: string;
+  domain: string;
+  source: string;
+  keywords: string[];
+  confidence: number;
+  createdAt: string | null;
+  sha256: string;
+}
+
+interface TribalTipIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  tipCount: number;
+  tips: Record<string, TribalTipEntry>;
+  byDomain: Record<string, string[]>;
+  byKeyword: Record<string, string[]>;
+}
+
+// ============================================================================
+// DISPATCHER GRAPH INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface DispatcherNode {
+  name: string;
+  file: string;
+  actions: string[];
+  enginesCalled: string[];
+  importsFrom: string[];
+  exportedFunctions: string[];
+  lineCount: number;
+  sha256: string;
+}
+
+interface DispatcherGraphIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  dispatcherCount: number;
+  totalActions: number;
+  dispatchers: Record<string, DispatcherNode>;
+  byEngine: Record<string, string[]>;
+  byAction: Record<string, string>;
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -611,6 +686,241 @@ export class AwarenessQueryEngine {
       };
     } catch {
       return { total: 0, preToolUse: 0, postToolUse: 0, globsCovered: 0, withGlobs: 0 };
+    }
+  }
+
+  // ============================================================================
+  // FORMULA PROVENANCE INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Get formula provenance by formula ID
+   * O(1) lookup from FORMULA_PROVENANCE_INDEX.json
+   */
+  async formulaProvenance(formulaId: string): Promise<FormulaProvenance | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "FORMULA_PROVENANCE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] FORMULA_PROVENANCE_INDEX.json not found — run build-formula-provenance-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as FormulaProvenanceIndex;
+      return content.formulas[formulaId] || null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read FORMULA_PROVENANCE_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all formulas in a specific domain
+   */
+  async getFormulasByDomain(domain: string): Promise<FormulaProvenance[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "FORMULA_PROVENANCE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as FormulaProvenanceIndex;
+      const formulaIds = content.byDomain[domain] || [];
+      return formulaIds.map((id) => content.formulas[id]).filter((f): f is FormulaProvenance => f !== undefined);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get formula coverage statistics
+   */
+  async getFormulaCoverageStats(): Promise<{
+    total: number;
+    withReferences: number;
+    withEngines: number;
+    domains: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "FORMULA_PROVENANCE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, withReferences: 0, withEngines: 0, domains: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as FormulaProvenanceIndex;
+      const withReferences = Object.values(content.formulas).filter((f) => f.references.length > 0).length;
+      const withEngines = Object.values(content.formulas).filter((f) => f.enginesUsing.length > 0).length;
+
+      return {
+        total: content.formulaCount,
+        withReferences,
+        withEngines,
+        domains: Object.keys(content.byDomain).length,
+      };
+    } catch {
+      return { total: 0, withReferences: 0, withEngines: 0, domains: 0 };
+    }
+  }
+
+  // ============================================================================
+  // TRIBAL TIP INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Search tribal tips by keyword
+   * O(k) where k = number of matching keywords
+   */
+  async tribalTipSearch(keyword: string): Promise<TribalTipEntry[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "TRIBAL_TIP_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] TRIBAL_TIP_INDEX.json not found — run build-tribal-tip-index.ts");
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as TribalTipIndex;
+      const tipIds = content.byKeyword[keyword.toLowerCase()] || [];
+      return tipIds.map((id) => content.tips[id]).filter((t): t is TribalTipEntry => t !== undefined);
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read TRIBAL_TIP_INDEX: ${err}`);
+      return [];
+    }
+  }
+
+  /**
+   * Get tribal tips by domain
+   */
+  async getTipsByDomain(domain: string): Promise<TribalTipEntry[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "TRIBAL_TIP_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as TribalTipIndex;
+      const tipIds = content.byDomain[domain] || [];
+      return tipIds.map((id) => content.tips[id]).filter((t): t is TribalTipEntry => t !== undefined);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get tribal tip coverage statistics
+   */
+  async getTribalTipCoverageStats(): Promise<{
+    total: number;
+    domains: number;
+    keywords: number;
+    avgConfidence: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "TRIBAL_TIP_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, domains: 0, keywords: 0, avgConfidence: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as TribalTipIndex;
+      const tips = Object.values(content.tips);
+      const totalConfidence = tips.reduce((sum, t) => sum + t.confidence, 0);
+      const avgConfidence = tips.length > 0 ? totalConfidence / tips.length : 0;
+
+      return {
+        total: content.tipCount,
+        domains: Object.keys(content.byDomain).length,
+        keywords: Object.keys(content.byKeyword).length,
+        avgConfidence: Math.round(avgConfidence * 100) / 100,
+      };
+    } catch {
+      return { total: 0, domains: 0, keywords: 0, avgConfidence: 0 };
+    }
+  }
+
+  // ============================================================================
+  // DISPATCHER GRAPH INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Get dispatcher call graph by name
+   * O(1) lookup from DISPATCHER_GRAPH_INDEX.json
+   */
+  async dispatcherCallGraph(dispatcherName: string): Promise<DispatcherNode | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "DISPATCHER_GRAPH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] DISPATCHER_GRAPH_INDEX.json not found — run build-dispatcher-graph-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as DispatcherGraphIndex;
+      return content.dispatchers[dispatcherName] || null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read DISPATCHER_GRAPH_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Find which dispatcher owns an action
+   */
+  async dispatcherForAction(action: string): Promise<string | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "DISPATCHER_GRAPH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as DispatcherGraphIndex;
+      return content.byAction[action] || null;
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Find dispatchers that call a specific engine
+   */
+  async dispatchersCallingEngine(engineName: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "DISPATCHER_GRAPH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as DispatcherGraphIndex;
+      return content.byEngine[engineName] || [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get dispatcher coverage statistics
+   */
+  async getDispatcherCoverageStats(): Promise<{
+    total: number;
+    totalActions: number;
+    enginesReferenced: number;
+    avgActionsPerDispatcher: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "DISPATCHER_GRAPH_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, totalActions: 0, enginesReferenced: 0, avgActionsPerDispatcher: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as DispatcherGraphIndex;
+      const avgActions = content.dispatcherCount > 0
+        ? Math.round(content.totalActions / content.dispatcherCount)
+        : 0;
+
+      return {
+        total: content.dispatcherCount,
+        totalActions: content.totalActions,
+        enginesReferenced: Object.keys(content.byEngine).length,
+        avgActionsPerDispatcher: avgActions,
+      };
+    } catch {
+      return { total: 0, totalActions: 0, enginesReferenced: 0, avgActionsPerDispatcher: 0 };
     }
   }
 

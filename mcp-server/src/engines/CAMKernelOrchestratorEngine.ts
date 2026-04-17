@@ -357,13 +357,16 @@ interface KienzleMaterial {
   taylor_C: number; // Taylor constant
 }
 
+// Canonical Kienzle/Taylor + operation-specific Vc (source: src/physics/constants.ts)
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, CANONICAL_MILLING_SPEEDS } from "../physics/constants.js";
+
 const KIENZLE_DB: Record<ISOGroup, KienzleMaterial> = {
-  P: { kc1_1: 1800, mc: 0.25, Vc_rough: 200, Vc_finish: 300, taylor_n: 0.25, taylor_C: 300 },
-  M: { kc1_1: 2100, mc: 0.25, Vc_rough: 120, Vc_finish: 180, taylor_n: 0.20, taylor_C: 200 },
-  K: { kc1_1: 1100, mc: 0.28, Vc_rough: 250, Vc_finish: 400, taylor_n: 0.30, taylor_C: 400 },
-  N: { kc1_1: 700,  mc: 0.23, Vc_rough: 500, Vc_finish: 800, taylor_n: 0.35, taylor_C: 800 },
-  S: { kc1_1: 2800, mc: 0.28, Vc_rough: 40,  Vc_finish: 80,  taylor_n: 0.15, taylor_C: 100 },
-  H: { kc1_1: 3200, mc: 0.30, Vc_rough: 80,  Vc_finish: 150, taylor_n: 0.18, taylor_C: 150 },
+  P: { ...CANONICAL_KIENZLE.P, Vc_rough: CANONICAL_MILLING_SPEEDS.P.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.P.finish, taylor_n: CANONICAL_TAYLOR.P.n, taylor_C: CANONICAL_TAYLOR.P.C },
+  M: { ...CANONICAL_KIENZLE.M, Vc_rough: CANONICAL_MILLING_SPEEDS.M.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.M.finish, taylor_n: CANONICAL_TAYLOR.M.n, taylor_C: CANONICAL_TAYLOR.M.C },
+  K: { ...CANONICAL_KIENZLE.K, Vc_rough: CANONICAL_MILLING_SPEEDS.K.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.K.finish, taylor_n: CANONICAL_TAYLOR.K.n, taylor_C: CANONICAL_TAYLOR.K.C },
+  N: { ...CANONICAL_KIENZLE.N, Vc_rough: CANONICAL_MILLING_SPEEDS.N.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.N.finish, taylor_n: CANONICAL_TAYLOR.N.n, taylor_C: CANONICAL_TAYLOR.N.C },
+  S: { ...CANONICAL_KIENZLE.S, Vc_rough: CANONICAL_MILLING_SPEEDS.S.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.S.finish, taylor_n: CANONICAL_TAYLOR.S.n, taylor_C: CANONICAL_TAYLOR.S.C },
+  H: { ...CANONICAL_KIENZLE.H, Vc_rough: CANONICAL_MILLING_SPEEDS.H.rough, Vc_finish: CANONICAL_MILLING_SPEEDS.H.finish, taylor_n: CANONICAL_TAYLOR.H.n, taylor_C: CANONICAL_TAYLOR.H.C },
 };
 
 // ─── Lazy-loaded Sub-Engine Helpers ───────────────────────────────────

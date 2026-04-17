@@ -179,15 +179,9 @@ export interface ResolvedMaterialContext {
 // CONSTANTS — Material & Machine Databases
 // ============================================================================
 
-/** Kienzle specific cutting force constants by ISO group */
-const KC_ISO: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },
-  M: { kc1_1: 2100, mc: 0.25 },
-  K: { kc1_1: 1100, mc: 0.25 },
-  N: { kc1_1: 700, mc: 0.25 },
-  S: { kc1_1: 2800, mc: 0.22 },
-  H: { kc1_1: 3200, mc: 0.20 },
-};
+/** Kienzle specific cutting force constants by ISO group (canonical import) */
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+const KC_ISO = CANONICAL_KIENZLE;
 
 /** Material thermal and physical properties by ISO group */
 const MATERIAL_PROPS: Record<

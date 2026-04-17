@@ -5,6 +5,8 @@
  * Returns go/no-go with categorized issues.
  */
 
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+
 // Lazy-load dependencies
 const _v: Record<string, any> = {};
 function vLazy(key: string, path: string) {
@@ -17,12 +19,8 @@ function vLazy(key: string, path: string) {
   return _v[key];
 }
 
-// ── Kienzle coefficients ──────────────────────────────────────
-const KC: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 }, M: { kc1_1: 2100, mc: 0.25 },
-  K: { kc1_1: 1100, mc: 0.28 }, N: { kc1_1: 700, mc: 0.23 },
-  S: { kc1_1: 2800, mc: 0.28 }, H: { kc1_1: 3200, mc: 0.30 },
-};
+// ── Kienzle coefficients (canonical import) ──────────────────────────────────────
+const KC = CANONICAL_KIENZLE;
 
 // ── Interfaces ────────────────────────────────────────────────
 export interface VerificationRequest {

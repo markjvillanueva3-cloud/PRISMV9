@@ -23,6 +23,7 @@
  */
 
 import { SAMPLING_TOOL_SETS, type SamplingTool } from "../mcp/sampling.js";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -141,25 +142,22 @@ const CONTROLLER_DIALECTS: Record<string, {
   "generic_conversational": { family: "Generic", features: ["conversational", "graphical"], identifiers: ["Conversational", "Shop mode"], hsmSupport: undefined },
 };
 
-/** Kienzle specific cutting force coefficients by ISO group */
+/** Kienzle specific cutting force coefficients by ISO group (canonical + descriptions) */
+const ISO_DESCRIPTIONS: Record<string, string> = {
+  P: "Steel (carbon/alloy)", M: "Stainless steel", K: "Cast iron",
+  N: "Non-ferrous (aluminum)", S: "Superalloys (Ti, Inconel)", H: "Hardened steel",
+};
 const KIENZLE_DEFAULTS: Record<string, { kc1_1: number; mc: number; description: string }> = {
-  P: { kc1_1: 1800, mc: 0.25, description: "Steel (carbon/alloy)" },
-  M: { kc1_1: 2100, mc: 0.25, description: "Stainless steel" },
-  K: { kc1_1: 1100, mc: 0.25, description: "Cast iron" },
-  N: { kc1_1: 700, mc: 0.23, description: "Non-ferrous (aluminum)" },
-  S: { kc1_1: 2800, mc: 0.25, description: "Superalloys (Ti, Inconel)" },
-  H: { kc1_1: 3200, mc: 0.28, description: "Hardened steel" },
+  P: { ...CANONICAL_KIENZLE.P, description: ISO_DESCRIPTIONS.P },
+  M: { ...CANONICAL_KIENZLE.M, description: ISO_DESCRIPTIONS.M },
+  K: { ...CANONICAL_KIENZLE.K, description: ISO_DESCRIPTIONS.K },
+  N: { ...CANONICAL_KIENZLE.N, description: ISO_DESCRIPTIONS.N },
+  S: { ...CANONICAL_KIENZLE.S, description: ISO_DESCRIPTIONS.S },
+  H: { ...CANONICAL_KIENZLE.H, description: ISO_DESCRIPTIONS.H },
 };
 
-/** Taylor tool life constants by ISO group */
-const TAYLOR_DEFAULTS: Record<string, { C: number; n: number }> = {
-  P: { C: 250, n: 0.25 },
-  M: { C: 180, n: 0.20 },
-  K: { C: 300, n: 0.28 },
-  N: { C: 600, n: 0.40 },
-  S: { C: 120, n: 0.15 },
-  H: { C: 150, n: 0.18 },
-};
+/** Taylor tool life constants by ISO group (canonical import) */
+const TAYLOR_DEFAULTS = CANONICAL_TAYLOR;
 
 /** Standard operations with typical parameters */
 const OPERATION_PROFILES: Record<string, {

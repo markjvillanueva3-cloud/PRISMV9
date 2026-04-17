@@ -48,6 +48,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -267,23 +268,9 @@ export interface ReasoningStep {
 // PHYSICS CONSTANTS (from canonical constants.ts)
 // ============================================================================
 
-const KIENZLE_COEFFICIENTS: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 }, // Steel
-  M: { kc1_1: 2100, mc: 0.25 }, // Stainless
-  K: { kc1_1: 1100, mc: 0.25 }, // Cast iron
-  N: { kc1_1: 700, mc: 0.25 },  // Aluminum
-  S: { kc1_1: 2800, mc: 0.25 }, // Superalloys
-  H: { kc1_1: 3200, mc: 0.25 }, // Hardened steel
-};
-
-const TAYLOR_EXPONENTS: Record<string, { C: number; n: number }> = {
-  P: { C: 350, n: 0.25 },
-  M: { C: 250, n: 0.20 },
-  K: { C: 400, n: 0.25 },
-  N: { C: 800, n: 0.40 },
-  S: { C: 150, n: 0.15 },
-  H: { C: 120, n: 0.12 },
-};
+// Canonical physics constants (imported from physics/constants.ts)
+const KIENZLE_COEFFICIENTS = CANONICAL_KIENZLE;
+const TAYLOR_EXPONENTS = CANONICAL_TAYLOR;
 
 const MATERIAL_PROPERTIES: Record<string, {
   cutting_speed_base_m_min: number;

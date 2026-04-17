@@ -7,6 +7,8 @@
  * Safety: Spindle overload detection, insert load assessment
  */
 
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type TurningOperation = "longitudinal" | "facing" | "parting" | "boring" | "grooving";
@@ -60,15 +62,8 @@ export interface TurningForceResult {
 
 // ─── Constants ─────────────────────────────────────────────────────
 
-/** Kienzle kc1.1 and mc by ISO group — Altintas Table 2.1 */
-const KIENZLE_ISO: Record<ISOGroup, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.25 },   // steel
-  M: { kc1_1: 2100, mc: 0.25 },   // stainless
-  K: { kc1_1: 1100, mc: 0.25 },   // cast iron
-  N: { kc1_1: 700,  mc: 0.25 },   // aluminum/non-ferrous
-  S: { kc1_1: 2800, mc: 0.22 },   // superalloys
-  H: { kc1_1: 3200, mc: 0.20 },   // hardened steel
-};
+/** Kienzle kc1.1 and mc by ISO group (canonical import — physics/constants.ts) */
+const KIENZLE_ISO = CANONICAL_KIENZLE;
 
 /** Force ratios by ISO group: Ff/Fc and Fp/Fc (empirical) */
 const FORCE_RATIOS: Record<ISOGroup, { kf: number; kp: number }> = {
