@@ -19,6 +19,48 @@ import * as path from "path";
 import { fileURLToPath } from "url";
 
 // ============================================================================
+// ENGINE USAGE INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface EngineUsage {
+  dispatchers: string[];
+  actions: string[];
+  skills: string[];
+  hooks: string[];
+  tests: string[];
+  routes: string[];
+  formulas: string[];
+  tipsReferencing: string[];
+}
+
+interface EngineUsageIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  engineCount: number;
+  engines: Record<string, EngineUsage>;
+}
+
+// ============================================================================
+// ACTION RESOLUTION INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface ActionResolution {
+  dispatcher: string;
+  engines: string[];
+  inputSchema: string | null;
+  outputType: string | null;
+  skills: string[];
+  tests: string[];
+}
+
+interface ActionResolutionIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  actionCount: number;
+  actions: Record<string, ActionResolution>;
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -202,6 +244,185 @@ export class AwarenessQueryEngine {
     const normalized = this.normalizePath(filePath);
     const info = cache.dependencies.get(normalized);
     return info?.dependencies || [];
+  }
+
+  /**
+   * Find all consumers of an engine (Universal 0.7)
+   * Reads from ENGINE_USAGE_INDEX.json built by build-engine-usage-index.ts
+   * O(1) lookup via JSON key access
+   */
+  async dependentsOfEngine(engineName: string): Promise<EngineUsage | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ENGINE_USAGE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] ENGINE_USAGE_INDEX.json not found — run build-engine-usage-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as EngineUsageIndex;
+
+      // Try exact match first
+      if (content.engines[engineName]) {
+        return content.engines[engineName];
+      }
+
+      // Try with/without Engine suffix
+      const withSuffix = engineName.endsWith("Engine") ? engineName : `${engineName}Engine`;
+      const withoutSuffix = engineName.endsWith("Engine") ? engineName.slice(0, -6) : engineName;
+
+      if (content.engines[withSuffix]) {
+        return content.engines[withSuffix];
+      }
+      if (content.engines[withoutSuffix]) {
+        return content.engines[withoutSuffix];
+      }
+
+      return null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read ENGINE_USAGE_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all engines that have no dispatcher consumers (potential orphans)
+   * Useful for orphan detection and cleanup tasks
+   */
+  async getOrphanEngines(): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ENGINE_USAGE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as EngineUsageIndex;
+      const orphans: string[] = [];
+
+      for (const [name, usage] of Object.entries(content.engines)) {
+        if (
+          usage.dispatchers.length === 0 &&
+          usage.hooks.length === 0 &&
+          usage.routes.length === 0
+        ) {
+          orphans.push(name);
+        }
+      }
+
+      return orphans;
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get engine coverage statistics
+   */
+  async getEngineCoverageStats(): Promise<{
+    total: number;
+    withDispatchers: number;
+    withTests: number;
+    orphans: number;
+    coverageRatio: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ENGINE_USAGE_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, withDispatchers: 0, withTests: 0, orphans: 0, coverageRatio: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as EngineUsageIndex;
+      let withDispatchers = 0;
+      let withTests = 0;
+      let orphans = 0;
+
+      for (const usage of Object.values(content.engines)) {
+        if (usage.dispatchers.length > 0) withDispatchers++;
+        if (usage.tests.length > 0) withTests++;
+        if (
+          usage.dispatchers.length === 0 &&
+          usage.hooks.length === 0 &&
+          usage.routes.length === 0
+        ) {
+          orphans++;
+        }
+      }
+
+      const total = content.engineCount;
+      const coverageRatio = total > 0 ? withDispatchers / total : 0;
+
+      return { total, withDispatchers, withTests, orphans, coverageRatio };
+    } catch {
+      return { total: 0, withDispatchers: 0, withTests: 0, orphans: 0, coverageRatio: 0 };
+    }
+  }
+
+  /**
+   * Resolve an action to its components (Universal 0.7)
+   * Reads from ACTION_RESOLUTION_INDEX.json built by build-action-resolution-index.ts
+   */
+  async resolveAction(actionId: string): Promise<ActionResolution | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ACTION_RESOLUTION_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] ACTION_RESOLUTION_INDEX.json not found — run build-action-resolution-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ActionResolutionIndex;
+      return content.actions[actionId] || null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read ACTION_RESOLUTION_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all actions for a specific dispatcher
+   */
+  async getActionsByDispatcher(dispatcherFile: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ACTION_RESOLUTION_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) return [];
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ActionResolutionIndex;
+      return Object.entries(content.actions)
+        .filter(([, res]) => res.dispatcher === dispatcherFile)
+        .map(([action]) => action);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get action coverage statistics
+   */
+  async getActionCoverageStats(): Promise<{
+    total: number;
+    withEngines: number;
+    withTests: number;
+    withSkills: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "ACTION_RESOLUTION_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, withEngines: 0, withTests: 0, withSkills: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as ActionResolutionIndex;
+      let withEngines = 0;
+      let withTests = 0;
+      let withSkills = 0;
+
+      for (const res of Object.values(content.actions)) {
+        if (res.engines.length > 0) withEngines++;
+        if (res.tests.length > 0) withTests++;
+        if (res.skills.length > 0) withSkills++;
+      }
+
+      return { total: content.actionCount, withEngines, withTests, withSkills };
+    } catch {
+      return { total: 0, withEngines: 0, withTests: 0, withSkills: 0 };
+    }
   }
 
   /**
