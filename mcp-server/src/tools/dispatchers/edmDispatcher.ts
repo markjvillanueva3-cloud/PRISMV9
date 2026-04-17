@@ -403,20 +403,19 @@ Actions: ${ACTIONS.join(", ")}.`,
           };
         }
 
-        // MS-P0.5-COORD U-P0.5-COORD-01: Awareness consult (fails open, <50ms budget)
-        // MS-P0.5-COORD U-P0.5-COORD-02: Reasoning trace ledger
+        // MS-P0.5-COORD U-P0.5-COORD-08: Multi-agent dispatch coordination
+        // (awareness + bridge + ledger invoked via one facade; fails open)
         let _awareness: any = null;
         let _awarenessKeywords: string[] = [];
-        const _entryAt = Date.now();
+        let _entryAt = Date.now();
         try {
-          const { consultAwareness } = await import("./awarenessMiddleware.js");
-          const { wedmAwarenessAdoptionEngine } = await import("../../engines/WEDMAwarenessAdoptionEngine.js");
-          _awarenessKeywords = wedmAwarenessAdoptionEngine.extractKeywords(action, params);
-          const aw = await consultAwareness({ dispatcher: "edm", action, keywords: _awarenessKeywords });
-          wedmAwarenessAdoptionEngine.recordAdoption({
-            dispatcher: "edm", action, latencyMs: aw.latencyMs, cached: aw.cached, ok: aw.ok,
+          const { wedmMultiAgentDispatchEngine } = await import("../../engines/WEDMMultiAgentDispatchEngine.js");
+          const _coord = await wedmMultiAgentDispatchEngine.coordinateDispatch({
+            dispatcher: "edm", action, params: params as any,
           });
-          _awareness = aw.summary.length > 0 ? aw.summary : null;
+          _awareness = _coord.summary;
+          _awarenessKeywords = _coord.keywords;
+          _entryAt = _coord.entryAt;
         } catch { /* fails open — never blocks execution */ }
 
         switch (action) {
@@ -2964,16 +2963,17 @@ Actions: ${ACTIONS.join(", ")}.`,
       if (_awareness && result && typeof result === "object" && !Array.isArray(result)) {
         (result as any)._awareness = _awareness;
       }
-      // MS-P0.5-COORD U-02: reasoning trace ledger (fire-and-forget, never throws)
+      // MS-P0.5-COORD U-08: unified outcome recording via multi-agent dispatch engine
       try {
-        const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+        const { wedmMultiAgentDispatchEngine } = await import("../../engines/WEDMMultiAgentDispatchEngine.js");
         const isError = result && typeof result === "object" && "error" in (result as any);
-        wedmReasoningTraceLedgerEngine.recordTraceSync({
+        wedmMultiAgentDispatchEngine.recordOutcome({
           dispatcher: "edm",
           action,
           keywords: _awarenessKeywords,
+          entryAt: _entryAt,
+          success: !isError,
           awareness_used: !!_awareness,
-          duration_ms: Date.now() - _entryAt,
           error: isError ? String((result as any).error) : undefined,
         });
       } catch { /* ledger never blocks */ }
