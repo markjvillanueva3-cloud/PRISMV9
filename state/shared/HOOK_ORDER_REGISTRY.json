@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "description": "Deterministic hook ordering registry. Each hook declares phase, priority, dependencies, and mutex locks.",
+  "lastUpdated": "2026-04-17T15:45:00Z",
+  "hooks": {
+    "SessionStart": [
+      {
+        "id": "awareness-bootstrap",
+        "phase": "0.13",
+        "priority": 1,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/awareness-bootstrap.mjs",
+        "description": "Initialize session awareness score, load registries"
+      },
+      {
+        "id": "svi-inject",
+        "phase": "0.14",
+        "priority": 2,
+        "dependsOn": ["awareness-bootstrap"],
+        "mutex": [],
+        "file": ".claude/hooks/svi-inject.mjs",
+        "description": "Inject SVI/Ψ summary into session context"
+      },
+      {
+        "id": "goal-stack-init",
+        "phase": "0.13",
+        "priority": 3,
+        "dependsOn": ["awareness-bootstrap"],
+        "mutex": [],
+        "file": ".claude/hooks/goal-stack-init.mjs",
+        "description": "Initialize goal stack from handoff"
+      }
+    ],
+    "PreToolWrite": [
+      {
+        "id": "dedup-guard",
+        "phase": "0.1",
+        "priority": 1,
+        "dependsOn": [],
+        "mutex": ["cross-session-registry"],
+        "file": ".claude/hooks/engine-duplication-blocker.mjs",
+        "description": "Block duplicate engine/asset creation"
+      },
+      {
+        "id": "semantic-similarity-guard",
+        "phase": "0.2",
+        "priority": 2,
+        "dependsOn": ["dedup-guard"],
+        "mutex": [],
+        "file": ".claude/hooks/semantic-similarity-guard.mjs",
+        "description": "Embedding-based fuzzy duplicate detection"
+      },
+      {
+        "id": "svi-projection",
+        "phase": "0.14",
+        "priority": 3,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/svi-projection.mjs",
+        "description": "Project Ψ delta for proposed write"
+      },
+      {
+        "id": "managed-block-guard",
+        "phase": "0.15",
+        "priority": 4,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/managed-block-guard.mjs",
+        "description": "Block hand-edits to AUTO-REFRESHED sections"
+      },
+      {
+        "id": "critical-file-guard",
+        "phase": "0.16",
+        "priority": 5,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/critical-file-guard.mjs",
+        "description": "Extra approval for Kienzle/Taylor/S(x) edits"
+      }
+    ],
+    "PostToolWrite": [
+      {
+        "id": "sync-awareness",
+        "phase": "0.6",
+        "priority": 1,
+        "dependsOn": [],
+        "mutex": ["cross-session-registry"],
+        "file": ".claude/hooks/sync-awareness.mjs",
+        "description": "Update registries and indexes after write"
+      },
+      {
+        "id": "doc-cascade",
+        "phase": "0.15",
+        "priority": 2,
+        "dependsOn": ["sync-awareness"],
+        "mutex": [],
+        "file": ".claude/hooks/doc-cascade.mjs",
+        "description": "Queue affected docs for auto-refresh"
+      },
+      {
+        "id": "svi-watch-refresh",
+        "phase": "0.14",
+        "priority": 3,
+        "dependsOn": ["sync-awareness"],
+        "mutex": [],
+        "file": ".claude/hooks/svi-watch-refresh.mjs",
+        "description": "Trigger SVI re-scan of touched surface"
+      }
+    ],
+    "PreCompact": [
+      {
+        "id": "handoff-generate",
+        "phase": "0.13",
+        "priority": 1,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/handoff-generate.mjs",
+        "description": "Generate SESSION_HANDOFF_v2.json"
+      },
+      {
+        "id": "doc-freshness-check",
+        "phase": "0.15",
+        "priority": 2,
+        "dependsOn": [],
+        "mutex": [],
+        "file": ".claude/hooks/doc-freshness-check.mjs",
+        "description": "Verify all managed docs are fresh"
+      }
+    ]
+  }
+}

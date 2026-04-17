@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "description": "Safety-critical files requiring extra approval for edits. Kienzle/Taylor/S(x) and physics constants.",
+  "lastUpdated": "2026-04-17T15:45:00Z",
+  "criticalPaths": [
+    {
+      "glob": "mcp-server/src/physics/constants.ts",
+      "reason": "Canonical Kienzle kc1.1 and Taylor coefficients - machining safety critical",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/engines/KienzleForceModelEngine.ts",
+      "reason": "Force calculation affects tool breakage prevention",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/engines/TaylorToolLifeEngine.ts",
+      "reason": "Tool life prediction affects wear and cost",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/engines/*SafetyScore*.ts",
+      "reason": "S(x) safety scoring affects collision prevention",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/engines/CollisionDetection*.ts",
+      "reason": "Collision detection prevents machine crashes",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/data/materials/*.ts",
+      "reason": "Material properties affect cutting parameter safety",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "standard"
+    },
+    {
+      "glob": "mcp-server/src/engines/*ToleranceValidation*.ts",
+      "reason": "Tolerance validation affects part quality",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "standard"
+    },
+    {
+      "glob": "mcp-server/src/algorithms/Kienzle*.ts",
+      "reason": "Kienzle algorithm implementations",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    },
+    {
+      "glob": "mcp-server/src/algorithms/Taylor*.ts",
+      "reason": "Taylor algorithm implementations",
+      "requiredFlag": "--confirm-critical",
+      "auditLevel": "full"
+    }
+  ],
+  "auditLevels": {
+    "full": {
+      "requiresPhysicsReview": true,
+      "requiresTestCoverage": true,
+      "requiresLiteratureCitation": true,
+      "requiresUncertaintyBounds": true
+    },
+    "standard": {
+      "requiresPhysicsReview": false,
+      "requiresTestCoverage": true,
+      "requiresLiteratureCitation": false,
+      "requiresUncertaintyBounds": false
+    }
+  }
+}
