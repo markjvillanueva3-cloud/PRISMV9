@@ -105,6 +105,20 @@
           "rollback": "git reset per-engine on test regress",
           "omega_floor": 1.0,
           "depends_on": ["U-LTH01"],
+          "status": "audit_complete",
+          "completed_at": "2026-04-17T02:15:00Z",
+          "completion_notes": "Audit surfaced 2 engines (LatheChipMechanicsEngine, LatheTransferLearningEngine) with inline canonical values; root cause is CANONICAL_MATERIAL_DB schema lacks Johnson-Cook + AISI designations. Refactor deferred to new unit U-LTH04b (schema extension + engine migration)."
+        },
+        {
+          "id": "U-LTH04b",
+          "title": "Extend CANONICAL_MATERIAL_DB + migrate 3 engines off inline material tables",
+          "description": "Add Johnson-Cook fields (jc_A..jc_m), friction_coefficient, work_hardening_n to MaterialPhysics. Add AISI_ALIAS map (1045->steel, 4140->alloy_steel, 304->stainless_304). Migrate LatheChipMechanicsEngine, LatheThermodynamicsEngine, LatheTransferLearningEngine to use canonical lookups.",
+          "exit_conditions": ["Zero inline physics constants in Lathe*.ts", "Build passes", "No test regressions", "40+ new test assertions verifying AISI alias behavior"],
+          "files_created": [],
+          "files_modified": ["src/physics/constants.ts", "src/engines/LatheChipMechanicsEngine.ts", "src/engines/LatheThermodynamicsEngine.ts", "src/engines/LatheTransferLearningEngine.ts"],
+          "rollback": "git reset per-engine on test regress",
+          "omega_floor": 1.0,
+          "depends_on": ["U-LTH04"],
           "status": "not_started"
         },
         {
@@ -115,7 +129,9 @@
           "files_created": ["state/shared/lathe-knowledge-coverage.md"],
           "omega_floor": 1.0,
           "depends_on": ["U-LTH01", "U-LTH02"],
-          "status": "not_started"
+          "status": "completed",
+          "completed_at": "2026-04-17T02:20:00Z",
+          "completion_notes": "All 5 features (P1-P5) pass 3/3 sources. Pool: 82 lathe-relevant data files + 118 JM Die CNC LATHE customer folders + 2 canonical constants symbols (CANONICAL_KIENZLE, CANONICAL_MATERIAL_DB). P4 Print-to-Program has broadest coverage (78 tribal, 7 programs). P5 ERP has narrowest (58 tribal, 3 programs, 1 formula group)."
         },
         {
           "id": "U-LTH06",
@@ -123,7 +139,7 @@
           "description": "Mark LATHE-PRO-MS0, LATHE-PRO-v2, LATHE-PRO-v3, LATHE-ROADMAP, LATHE-AI as status: archived, superseded_by: LATHE-MASTER; update roadmap-index.json; move legacy .md files to plans-archive/lathe-pre-consolidation/.",
           "exit_conditions": ["All 5 legacy envelopes flagged archived", "LATHE-MASTER shown active in index"],
           "omega_floor": 1.0,
-          "depends_on": ["U-LTH01", "U-LTH02", "U-LTH03", "U-LTH04", "U-LTH05"],
+          "depends_on": ["U-LTH01", "U-LTH02", "U-LTH03", "U-LTH04", "U-LTH04b", "U-LTH05"],
           "status": "not_started"
         }
       ],
