@@ -20,6 +20,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { atomicLockedWrite } from "../utils/atomicLockedWrite.js";
 import * as fs from "fs";
 import * as path from "path";
 
@@ -435,13 +436,11 @@ export class DuplicationGuardEngine {
 
       content.lastUpdated = new Date().toISOString();
 
-      // Ensure directory exists
-      const stateDir = path.dirname(registryPath);
-      if (!fs.existsSync(stateDir)) {
-        fs.mkdirSync(stateDir, { recursive: true });
-      }
-
-      fs.writeFileSync(registryPath, JSON.stringify(content, null, 2));
+      // Phase 0.4: cross-process-locked atomic write. Prevents 6+ concurrent
+      // Claude terminals from clobbering the registry when creating assets
+      // simultaneously. atomicLockedWrite creates the parent dir + handles
+      // proper-lockfile retry/stale-detection.
+      await atomicLockedWrite(registryPath, JSON.stringify(content, null, 2));
       log.info(`[DuplicationGuard] Saved to cross-session registry: ${type}/${name}`);
     } catch (err) {
       log.warn(`[DuplicationGuard] Could not save to cross-session registry: ${err}`);
@@ -529,86 +528,128 @@ export class DuplicationGuardEngine {
   }
 
   private loadFormulas(index: AssetRegistry): void {
-    // Known formulas from CrossDisciplinaryDeepLearningEngine
-    const knownFormulas = [
-      // Physics
+    // Phase 0.5: read live FormulaRegistry (~509 entries across 20 domains)
+    // instead of the 21 hardcoded entries that had shipped here. Registry
+    // access is synchronous after SessionStart load. Fallback to the
+    // minimal baseline set if the registry fails to resolve (bootstrap-safe).
+    let loaded = 0;
+    try {
+      // Lazy require to avoid circular deps on cold start. formulaRegistry is
+      // a singleton populated by FormulaRegistry.ts constructor.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { formulaRegistry } = require("../registries/FormulaRegistry.js");
+      const entries = formulaRegistry?.all?.() ?? [];
+      for (const f of entries) {
+        const id = f.formula_id ?? f.id;
+        const name = f.name;
+        const desc = f.description ?? "";
+        if (!id || !name) continue;
+        index.formulas.set(this.normalizeName(id), {
+          type: "formula",
+          name,
+          description: desc,
+          source: "FormulaRegistry (live)",
+        });
+        // Also index by normalized name so dedup catches "Kienzle" regardless
+        // of formula_id casing (`mat-specific-cutting-force` vs `KIENZLE-001`).
+        index.formulas.set(this.normalizeName(name), {
+          type: "formula",
+          name,
+          description: desc,
+          source: "FormulaRegistry (live)",
+        });
+        loaded++;
+      }
+    } catch (err) {
+      log.warn(`[DuplicationGuard] FormulaRegistry live-read failed, using baseline: ${err}`);
+    }
+
+    if (loaded > 0) {
+      log.debug(`[DuplicationGuard] Loaded ${loaded} formulas from live FormulaRegistry`);
+      return;
+    }
+
+    // Baseline fallback — minimal set from CrossDisciplinaryDeepLearningEngine
+    // kept so dedup works during cold-start or when the registry is torn.
+    const baselineFormulas = [
       { id: "thermo-heat-generation", name: "Cutting Heat Generation", desc: "Heat from mechanical work" },
-      { id: "thermo-carnot-cooling", name: "Carnot Cooling Efficiency", desc: "Maximum cooling efficiency" },
-      { id: "thermo-stefan-boltzmann", name: "Stefan-Boltzmann Radiation", desc: "Heat loss through radiation" },
       { id: "fluid-reynolds", name: "Reynolds Number", desc: "Laminar vs turbulent flow" },
       { id: "wave-vibration-modes", name: "Tool Vibration Modes", desc: "Natural vibration frequencies" },
-      { id: "quantum-tunneling", name: "Quantum Annealing", desc: "Escape local minima" },
-      // Finance
-      { id: "finance-black-scholes", name: "Black-Scholes", desc: "Options pricing" },
-      { id: "finance-value-at-risk", name: "Value at Risk", desc: "Maximum expected loss" },
-      { id: "finance-sharpe-ratio", name: "Sharpe Ratio", desc: "Risk-adjusted return" },
-      // Music
-      { id: "music-harmonics", name: "Harmonic Series", desc: "Fundamental and overtones" },
-      { id: "music-beat-frequency", name: "Beat Frequency", desc: "Interference between frequencies" },
-      // Ecology
-      { id: "ecology-logistic-growth", name: "Logistic Growth", desc: "S-curve saturation" },
-      { id: "ecology-predator-prey", name: "Lotka-Volterra", desc: "Predator-prey dynamics" },
-      // Information Theory
-      { id: "info-shannon-entropy", name: "Shannon Entropy", desc: "Uncertainty measure" },
-      { id: "info-mutual-information", name: "Mutual Information", desc: "Variable dependency" },
-      // Materials Science
       { id: "mat-johnson-cook", name: "Johnson-Cook Flow Stress", desc: "High strain-rate stress" },
       { id: "mat-taylor-toollife", name: "Extended Taylor Tool Life", desc: "Tool life prediction" },
       { id: "mat-specific-cutting-force", name: "Kienzle Specific Cutting Force", desc: "Force per chip area" },
-      // Precision Engineering
       { id: "precision-error-budget", name: "Error Budget RSS", desc: "Root sum square errors" },
       { id: "precision-thermal-expansion", name: "Thermal Expansion", desc: "Length change from temp" },
       { id: "precision-abbe-error", name: "Abbe Error", desc: "Offset measurement error" },
       { id: "precision-merchant-shear", name: "Merchant Shear Plane", desc: "Shear angle calculation" },
+      { id: "info-shannon-entropy", name: "Shannon Entropy", desc: "Uncertainty measure" },
     ];
-
-    for (const f of knownFormulas) {
+    for (const f of baselineFormulas) {
       index.formulas.set(this.normalizeName(f.id), {
         type: "formula",
         name: f.name,
         description: f.desc,
-        source: "CrossDisciplinaryDeepLearningEngine",
+        source: "CrossDisciplinaryDeepLearningEngine (baseline fallback)",
       });
     }
   }
 
   private loadAlgorithms(index: AssetRegistry): void {
-    // Known algorithms
-    const knownAlgorithms = [
-      // Biology
+    // Phase 0.5: read live AlgorithmRegistry (~51 entries) instead of the
+    // 20 hardcoded entries that had shipped here. Fallback to baseline set
+    // if the registry is torn (bootstrap-safe).
+    let loaded = 0;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { algorithmRegistry } = require("../registries/AlgorithmRegistry.js");
+      const entries = algorithmRegistry?.all?.() ?? [];
+      for (const a of entries) {
+        const id = a.id;
+        const name = a.name;
+        const desc = a.description ?? "";
+        if (!id || !name) continue;
+        index.algorithms.set(this.normalizeName(id), {
+          type: "algorithm",
+          name,
+          description: desc,
+          source: "AlgorithmRegistry (live)",
+        });
+        index.algorithms.set(this.normalizeName(name), {
+          type: "algorithm",
+          name,
+          description: desc,
+          source: "AlgorithmRegistry (live)",
+        });
+        loaded++;
+      }
+    } catch (err) {
+      log.warn(`[DuplicationGuard] AlgorithmRegistry live-read failed, using baseline: ${err}`);
+    }
+
+    if (loaded > 0) {
+      log.debug(`[DuplicationGuard] Loaded ${loaded} algorithms from live AlgorithmRegistry`);
+      return;
+    }
+
+    // Baseline fallback
+    const baselineAlgorithms = [
       { id: "bio-genetic-algorithm", name: "Genetic Algorithm", desc: "Evolutionary optimization" },
-      { id: "bio-particle-swarm", name: "Particle Swarm Optimization", desc: "Swarm intelligence" },
-      { id: "bio-ant-colony", name: "Ant Colony Optimization", desc: "Pheromone-based pathfinding" },
-      // Statistics
       { id: "stats-monte-carlo", name: "Monte Carlo Simulation", desc: "Probabilistic simulation" },
       { id: "stats-bayesian-update", name: "Bayesian Update", desc: "Belief updating with evidence" },
-      // Computer Science
-      { id: "cs-voronoi", name: "Fortune's Voronoi", desc: "Voronoi diagram sweep line" },
-      { id: "cs-astar", name: "A* Pathfinding", desc: "Optimal path with heuristic" },
-      // Control Theory
       { id: "control-pid", name: "PID Controller", desc: "Proportional-integral-derivative" },
       { id: "control-lqr", name: "LQR", desc: "Linear quadratic regulator" },
       { id: "control-kalman", name: "Extended Kalman Filter", desc: "Recursive state estimation" },
-      // Geometry
       { id: "geo-nurbs-eval", name: "NURBS Evaluation", desc: "Non-uniform rational B-spline" },
       { id: "geo-bezier", name: "de Casteljau Bezier", desc: "Bezier curve evaluation" },
-      { id: "geo-laplacian-smooth", name: "Laplacian Smoothing", desc: "Mesh smoothing" },
-      // Robotics
-      { id: "robot-forward-kinematics", name: "Forward Kinematics", desc: "End-effector pose from joints" },
-      { id: "robot-rtcp", name: "RTCP Transformation", desc: "Rotary tool center point" },
-      { id: "robot-scurve", name: "S-Curve Motion Profile", desc: "Jerk-limited trajectory" },
-      // Machine Learning
       { id: "ml-linear-regression", name: "Ridge Linear Regression", desc: "L2 regularized regression" },
       { id: "ml-kmeans", name: "K-Means Clustering", desc: "Partition into k clusters" },
-      { id: "ml-cnn-conv2d", name: "2D Convolution", desc: "CNN feature extraction" },
     ];
-
-    for (const a of knownAlgorithms) {
+    for (const a of baselineAlgorithms) {
       index.algorithms.set(this.normalizeName(a.id), {
         type: "algorithm",
         name: a.name,
         description: a.desc,
-        source: "CrossDisciplinaryDeepLearningEngine",
+        source: "CrossDisciplinaryDeepLearningEngine (baseline fallback)",
       });
     }
   }
@@ -721,7 +762,8 @@ export class DuplicationGuardEngine {
       content.doNotExtract = this.buildDoNotExtract(content.extractions);
       content.lastUpdated = new Date().toISOString();
 
-      fs.writeFileSync(logPath, JSON.stringify(content, null, 2));
+      // Phase 0.4: cross-process-locked atomic write
+      await atomicLockedWrite(logPath, JSON.stringify(content, null, 2));
     } catch (err) {
       log.warn(`[DuplicationGuard] Could not update extraction log: ${err}`);
     }
@@ -773,7 +815,8 @@ export class DuplicationGuardEngine {
       const added = rebuilt.filter(x => !before_set.has(x));
       content.doNotExtract = rebuilt;
       content.lastUpdated = new Date().toISOString();
-      fs.writeFileSync(logPath, JSON.stringify(content, null, 2));
+      // Phase 0.4: cross-process-locked atomic write
+      await atomicLockedWrite(logPath, JSON.stringify(content, null, 2));
       return { synced: true, before, after: rebuilt.length, added };
     } catch (err) {
       log.warn(`[DuplicationGuard] syncDoNotExtract failed: ${err}`);
