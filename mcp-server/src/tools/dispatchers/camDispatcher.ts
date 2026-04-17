@@ -87,6 +87,7 @@ import { ACTION_HM_REV_MS8_SCHEMAS } from "../../schemas/hmRevMs8ActionSchemas.j
 import { ACTION_HM_REV_MS10_SCHEMAS } from "../../schemas/hmRevMs10ActionSchemas.js";
 import { ACTION_POST_PROCESSOR_AI_SCHEMAS } from "../../schemas/postProcessorAIActionSchemas.js";
 import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchemas.js";
+import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -139,6 +140,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_HM_REV_MS10_SCHEMAS,
   ...ACTION_POST_PROCESSOR_AI_SCHEMAS,
   ...ACTION_LATHE_SF_SCHEMAS,
+  ...ACTION_LATHE_POSTGEN_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -867,6 +869,9 @@ export const ACTIONS = [
   "cam_cycle_catalog",
   "lathe_post_process", "lathe_sf_calculate", "lathe_sf_advise",
   "lathe_sf_whatif", "lathe_sf_cite_sources", "lathe_sf_explain", "lathe_sf_full",
+  "lathe_postgen_ingest", "lathe_postgen_skeleton", "lathe_postgen_transfer",
+  "lathe_postgen_validate", "lathe_postgen_test", "lathe_postgen_register",
+  "lathe_postgen_feedback", "lathe_postgen_uncertainty",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1823,6 +1828,154 @@ Params vary by action — pass relevant fields in params object.`,
             };
             break;
           }
+
+          // ── Lathe Postgen Actions (U-LTH23) ─────────────────────────────────
+          case "lathe_postgen_ingest": {
+            const { LathePostGeneratorSpecIngestEngine } = await import("../../engines/LathePostGeneratorSpecIngestEngine.js");
+            const engine = new LathePostGeneratorSpecIngestEngine();
+            if (params.spec_text) {
+              result = engine.ingestFromText(params.spec_text, params.controller_hint);
+            } else if (params.spec_file) {
+              result = { success: false, error: "File ingestion not yet implemented - use spec_text" };
+            } else {
+              result = { success: false, error: "spec_text required" };
+            }
+            break;
+          }
+          case "lathe_postgen_skeleton": {
+            const { LathePostGeneratorDialectEngine } = await import("../../engines/LathePostGeneratorDialectEngine.js");
+            const engine = new LathePostGeneratorDialectEngine();
+            const dialect = params.dialect ?? engine.detectDialect(params.controller);
+            const skeleton = engine.generateSkeleton(dialect, {
+              features: params.features,
+              reference_programs: params.reference_programs,
+            });
+            result = { success: true, controller: params.controller, dialect, skeleton };
+            break;
+          }
+          case "lathe_postgen_transfer": {
+            const { LatheSwissPostGeneratorEngine } = await import("../../engines/LatheSwissPostGeneratorEngine.js");
+            const engine = new LatheSwissPostGeneratorEngine();
+            const transfer = engine.transferFromFanuc(
+              params.source_controller,
+              params.target_controller,
+              { mode: params.transfer_mode ?? "full" }
+            );
+            result = { success: true, source: params.source_controller, target: params.target_controller, transfer };
+            break;
+          }
+          case "lathe_postgen_validate": {
+            const { LathePostGeneratorValidatorWiringEngine } = await import("../../engines/LathePostGeneratorValidatorWiringEngine.js");
+            const engine = new LathePostGeneratorValidatorWiringEngine();
+            const validation = engine.validateProgram(params.gcode, params.controller, {
+              categories: params.validator_categories,
+              strict: params.strict_mode,
+            });
+            result = { success: validation.passed, validation };
+            break;
+          }
+          case "lathe_postgen_test": {
+            const { LathePostRegressionTestGeneratorEngine } = await import("../../engines/LathePostRegressionTestGeneratorEngine.js");
+            const engine = new LathePostRegressionTestGeneratorEngine();
+            const patterns = engine.extractPatterns(params.gcode, params.program_id, params.controller);
+            const testCode = params.generate_vitest !== false
+              ? engine.generateVitestSuite(params.program_id, patterns)
+              : undefined;
+            result = { success: true, program_id: params.program_id, patterns, testCode };
+            break;
+          }
+          case "lathe_postgen_register": {
+            const { LathePostKnowledgeGraphEngine } = await import("../../engines/LathePostKnowledgeGraphEngine.js");
+            const engine = new LathePostKnowledgeGraphEngine();
+            if (params.query_type === "get_cycles") {
+              result = { success: true, cycles: engine.getControllerCycles(params.controller_id) };
+            } else if (params.query_type === "get_features") {
+              result = { success: true, features: engine.getControllerFeatures(params.controller_id) };
+            } else if (params.query_type === "get_validators") {
+              result = { success: true, validators: engine.getDialectValidators(params.controller_id) };
+            } else if (params.query_type === "compatible_dialects") {
+              result = { success: true, dialects: engine.getCompatibleDialects(params.controller_id) };
+            } else if (params.query_type === "infer_properties") {
+              const qp = params.query_params ?? {};
+              result = { success: true, inference: engine.inferControllerProperties(qp.manufacturer as string, qp.features as string[] ?? []) };
+            } else if (params.query_type === "find_path") {
+              const qp = params.query_params ?? {};
+              result = { success: true, path: engine.findPath(params.controller_id, qp.target as string) };
+            } else {
+              result = { success: true, node: engine.getNode(params.controller_id), stats: engine.getStats() };
+            }
+            break;
+          }
+          case "lathe_postgen_feedback": {
+            const { LathePostGeneratorActiveLearningEngine } = await import("../../engines/LathePostGeneratorActiveLearningEngine.js");
+            const engine = new LathePostGeneratorActiveLearningEngine();
+            switch (params.operation) {
+              case "queue_failure":
+                result = engine.queueFailure({
+                  program_id: params.program_id!,
+                  controller: params.controller!,
+                  description: params.description!,
+                  machine_message: params.machine_message,
+                  severity: params.severity,
+                });
+                break;
+              case "categorize":
+                result = engine.categorizeFailure(params.description!, params.machine_message);
+                break;
+              case "propose_correction":
+                result = engine.proposeCorrection(params.failure_id!);
+                break;
+              case "verify":
+                result = engine.verifyCorrection(params.failure_id!, params.correction!);
+                break;
+              case "incorporate":
+                result = engine.incorporateCorrection(params.failure_id!);
+                break;
+              case "regenerate":
+                const gcode = Array.isArray(params.gcode) ? params.gcode : [params.gcode as string];
+                result = { success: true, gcode: engine.regenerateWithRules(gcode) };
+                break;
+              case "get_metrics":
+                result = { success: true, metrics: engine.getLearningMetrics() };
+                break;
+              default:
+                result = { success: false, error: `Unknown operation: ${params.operation}` };
+            }
+            break;
+          }
+          case "lathe_postgen_uncertainty": {
+            const { LathePostGeneratorUncertaintyEngine } = await import("../../engines/LathePostGeneratorUncertaintyEngine.js");
+            const engine = new LathePostGeneratorUncertaintyEngine(params.config);
+            switch (params.operation) {
+              case "analyze_block": {
+                const block = Array.isArray(params.gcode) ? params.gcode[0] : params.gcode!;
+                result = { success: true, block: engine.analyzeBlock(block, params.line_number ?? 1) };
+                break;
+              }
+              case "analyze_program": {
+                const gcode = Array.isArray(params.gcode) ? params.gcode : [params.gcode!];
+                result = { success: true, program: engine.analyzeProgram(gcode, params.program_id!, params.controller!) };
+                break;
+              }
+              case "get_flagged": {
+                const gcode = Array.isArray(params.gcode) ? params.gcode : [params.gcode!];
+                result = { success: true, flagged: engine.getFlaggedBlocks(gcode) };
+                break;
+              }
+              case "check_production_ready": {
+                const gcode = Array.isArray(params.gcode) ? params.gcode : [params.gcode!];
+                result = { success: true, ...engine.isProductionReady(gcode) };
+                break;
+              }
+              case "get_config":
+                result = { success: true, config: engine.getConfig() };
+                break;
+              default:
+                result = { success: false, error: `Unknown operation: ${params.operation}` };
+            }
+            break;
+          }
+
           case "probe_generate": {
             const pr = await getEngine("probing");
             result = pr.generate(params, params.config ?? {
