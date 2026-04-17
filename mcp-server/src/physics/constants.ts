@@ -62,6 +62,28 @@ export interface MaterialPhysics {
   porosity_pct?: number;
   /** EDM wear ratio vs workpiece — lower = less electrode consumption */
   edm_wear_ratio?: number;
+
+  // ── Johnson-Cook Flow Stress Model (optional — added for LATHE-MASTER U-LTH04b) ──
+  // σ = [A + B·ε^n] · [1 + C·ln(ε̇/ε̇₀)] · [1 - ((T-T_room)/(T_melt-T_room))^m]
+  // Source: Johnson & Cook (1983), "A constitutive model and data for metals"
+
+  /** Johnson-Cook A parameter [MPa] — yield stress at reference conditions */
+  jc_A?: number;
+  /** Johnson-Cook B parameter [MPa] — strain hardening coefficient */
+  jc_B?: number;
+  /** Johnson-Cook n exponent — strain hardening exponent */
+  jc_n?: number;
+  /** Johnson-Cook C parameter — strain-rate sensitivity coefficient */
+  jc_C?: number;
+  /** Johnson-Cook m exponent — thermal softening exponent */
+  jc_m?: number;
+
+  // ── Chip Formation Physics (optional — added for LATHE-MASTER U-LTH04b) ──
+
+  /** Friction coefficient — Coulomb friction at tool-chip interface */
+  friction_coefficient?: number;
+  /** Work hardening exponent — power law strain hardening (σ = K·ε^n) */
+  work_hardening_n?: number;
 }
 
 /**
@@ -118,6 +140,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 486, E_GPa: 210,
     melting_point_C: 1500, latent_heat_J_kg: 270000, resistivity_uOhm_cm: 15,
     thermal_diffusivity_mm2s: 13.1, // 50/(7850×486)×1e6
+    // Johnson-Cook: AISI 1045 — Source: Jaspers & Dautzenberg (2002), Table 2
+    jc_A: 553, jc_B: 600, jc_n: 0.234, jc_C: 0.0134, jc_m: 1.0,
+    friction_coefficient: 0.5, work_hardening_n: 0.25,
   },
   alloy_steel: {
     name: "Alloy Steel (4140/4340)", iso_group: "P",
@@ -127,6 +152,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 477, E_GPa: 210,
     melting_point_C: 1430, latent_heat_J_kg: 270000, resistivity_uOhm_cm: 22,
     thermal_diffusivity_mm2s: 11.2, // 42/(7850×477)×1e6 — Source: MatWeb 4140
+    // Johnson-Cook: AISI 4340 — Source: Lee & Yeh (1997), Int J Mech Sci
+    jc_A: 792, jc_B: 510, jc_n: 0.26, jc_C: 0.014, jc_m: 1.03,
+    friction_coefficient: 0.5, work_hardening_n: 0.26,
   },
   tool_steel: {
     name: "Tool Steel (D2/H13)", iso_group: "H",
@@ -136,6 +164,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 460, E_GPa: 210,
     melting_point_C: 1421, latent_heat_J_kg: 270000, resistivity_uOhm_cm: 65,
     thermal_diffusivity_mm2s: 7.0, // 25/(7800×460)×1e6 — Source: ASM Handbook Vol 1
+    // Johnson-Cook: H13 — Source: Umbrello et al. (2007), CIRP Annals
+    jc_A: 715, jc_B: 329, jc_n: 0.28, jc_C: 0.03, jc_m: 1.0,
+    friction_coefficient: 0.45, work_hardening_n: 0.28,
   },
 
   // ISO M — Stainless
@@ -147,6 +178,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 500, E_GPa: 193,
     melting_point_C: 1400, latent_heat_J_kg: 280000, resistivity_uOhm_cm: 72,
     thermal_diffusivity_mm2s: 4.0, // 16/(7930×500)×1e6 — Source: ASM Handbook
+    // Johnson-Cook: 304L — Source: Tounsi et al. (2002), Int J Mach Tools Manuf
+    jc_A: 310, jc_B: 1000, jc_n: 0.65, jc_C: 0.07, jc_m: 1.0,
+    friction_coefficient: 0.6, work_hardening_n: 0.45,
   },
   stainless_316: {
     name: "Stainless Steel 316", iso_group: "M",
@@ -156,6 +190,21 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 500, E_GPa: 193,
     melting_point_C: 1375, latent_heat_J_kg: 280000, resistivity_uOhm_cm: 74,
     thermal_diffusivity_mm2s: 3.5, // 14/(7960×500)×1e6
+    // Johnson-Cook: 316L — Source: Chandrasekaran et al. (1998)
+    jc_A: 301, jc_B: 1472, jc_n: 0.807, jc_C: 0.0156, jc_m: 0.754,
+    friction_coefficient: 0.6, work_hardening_n: 0.48,
+  },
+  stainless_17_4ph: {
+    name: "Stainless Steel 17-4PH (H1025)", iso_group: "M",
+    kc1_1: 2800, mc: 0.30, taylor_C: 180, taylor_n: 0.18,
+    k_thermal: 18.4, sigma_y_MPa: 1070, density_kg_m3: 7800, hardness_HB: 340,
+    vc_base_roughing: 80, vc_base_finishing: 120, machinability_factor: 0.35,
+    cp_J_kgK: 460, E_GPa: 197,
+    melting_point_C: 1400, latent_heat_J_kg: 280000, resistivity_uOhm_cm: 80,
+    thermal_diffusivity_mm2s: 5.1, // 18.4/(7800×460)×1e6
+    // Johnson-Cook: 17-4PH H1025 — Source: Callister (2007), estimated from precipitation hardening data
+    jc_A: 1070, jc_B: 850, jc_n: 0.55, jc_C: 0.015, jc_m: 1.05,
+    friction_coefficient: 0.55, work_hardening_n: 0.35,
   },
 
   // ISO K — Cast Iron
@@ -165,6 +214,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     k_thermal: 48, sigma_y_MPa: 250, density_kg_m3: 7200, hardness_HB: 190,
     vc_base_roughing: 250, vc_base_finishing: 350, machinability_factor: 1.2,
     cp_J_kgK: 460, E_GPa: 100,
+    // Johnson-Cook: Gray iron — discontinuous chip, JC approximation
+    jc_A: 250, jc_B: 200, jc_n: 0.15, jc_C: 0.005, jc_m: 0.8,
+    friction_coefficient: 0.4, work_hardening_n: 0.05,
   },
   ductile_iron: {
     name: "Ductile Iron (GGG50)", iso_group: "K",
@@ -172,6 +224,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     k_thermal: 36, sigma_y_MPa: 370, density_kg_m3: 7100, hardness_HB: 230,
     vc_base_roughing: 180, vc_base_finishing: 260, machinability_factor: 0.90,
     cp_J_kgK: 460, E_GPa: 170,
+    // Johnson-Cook: Ductile iron — Source: Hosseinkhani & Ng (2013)
+    jc_A: 370, jc_B: 280, jc_n: 0.2, jc_C: 0.01, jc_m: 0.9,
+    friction_coefficient: 0.45, work_hardening_n: 0.10,
   },
 
   // ISO N — Non-Ferrous
@@ -183,6 +238,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 896, E_GPa: 69,
     melting_point_C: 582, latent_heat_J_kg: 390000, resistivity_uOhm_cm: 2.65,
     thermal_diffusivity_mm2s: 69.0, // 167/(2700×896)×1e6 — Source: ASM
+    // Johnson-Cook: 6061-T6 — Source: Lesuer (2000), LLNL Report
+    jc_A: 324, jc_B: 114, jc_n: 0.42, jc_C: 0.002, jc_m: 1.34,
+    friction_coefficient: 0.35, work_hardening_n: 0.15,
   },
   aluminum_7075: {
     name: "Aluminum 7075-T6", iso_group: "N",
@@ -192,6 +250,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 960, E_GPa: 72,
     melting_point_C: 477, latent_heat_J_kg: 380000, resistivity_uOhm_cm: 5.15,
     thermal_diffusivity_mm2s: 48.2, // 130/(2810×960)×1e6
+    // Johnson-Cook: 7075-T6 — Source: Brar et al. (2009), AIP Conf Proc
+    jc_A: 546, jc_B: 678, jc_n: 0.71, jc_C: 0.024, jc_m: 1.56,
+    friction_coefficient: 0.35, work_hardening_n: 0.18,
   },
   brass: {
     name: "Brass (CuZn39Pb3)", iso_group: "N",
@@ -199,6 +260,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     k_thermal: 120, sigma_y_MPa: 200, density_kg_m3: 8500, hardness_HB: 90,
     vc_base_roughing: 350, vc_base_finishing: 500, machinability_factor: 3.5,
     cp_J_kgK: 380, E_GPa: 100,
+    // Johnson-Cook: Free-cutting brass — Source: estimated from copper alloy data
+    jc_A: 112, jc_B: 505, jc_n: 0.42, jc_C: 0.009, jc_m: 1.68,
+    friction_coefficient: 0.3, work_hardening_n: 0.12,
   },
 
   // ISO S — Superalloys
@@ -210,6 +274,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 526, E_GPa: 114,
     melting_point_C: 1660, latent_heat_J_kg: 295000, resistivity_uOhm_cm: 170,
     thermal_diffusivity_mm2s: 2.9, // 6.7/(4430×526)×1e6 — Source: ASM Ti handbook
+    // Johnson-Cook: Ti-6Al-4V — Source: Lee & Lin (1998), J Mech Phys Solids
+    jc_A: 1098, jc_B: 1092, jc_n: 0.93, jc_C: 0.014, jc_m: 1.1,
+    friction_coefficient: 0.55, work_hardening_n: 0.12,
   },
   inconel_718: {
     name: "Inconel 718", iso_group: "S",
@@ -219,6 +286,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 435, E_GPa: 205,
     melting_point_C: 1336, latent_heat_J_kg: 290000, resistivity_uOhm_cm: 125,
     thermal_diffusivity_mm2s: 3.2, // 11.4/(8190×435)×1e6 — Source: Special Metals Corp
+    // Johnson-Cook: Inconel 718 — Source: Del Guercio et al. (2020)
+    jc_A: 1241, jc_B: 622, jc_n: 0.65, jc_C: 0.017, jc_m: 1.3,
+    friction_coefficient: 0.6, work_hardening_n: 0.35,
   },
 
   // ISO H — Hardened
@@ -230,6 +300,9 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     cp_J_kgK: 450, E_GPa: 210,
     melting_point_C: 1450, latent_heat_J_kg: 270000, resistivity_uOhm_cm: 50,
     thermal_diffusivity_mm2s: 8.5, // 30/(7800×450)×1e6
+    // Johnson-Cook: Hardened AISI 52100 — Source: Mabrouki & Rigal (2006)
+    jc_A: 1500, jc_B: 400, jc_n: 0.08, jc_C: 0.01, jc_m: 0.9,
+    friction_coefficient: 0.45, work_hardening_n: 0.08,
   },
 
   // ── EDM Workpiece Materials (added for WEDM-100PCT-MS0) ──
@@ -323,6 +396,73 @@ export const CANONICAL_MATERIAL_DB: Record<string, MaterialPhysics> = {
     thermal_diffusivity_mm2s: 62.1, // 180/(14500×200)×1e6 — Source: Elmet CuW70 datasheet
     edm_wear_ratio: 0.1, // Extremely low wear
   },
+};
+
+/**
+ * AISI designation alias map — maps AISI alloy codes to canonical material keys.
+ * Use when engines have AISI-keyed material data that needs canonical lookup.
+ *
+ * Usage: const canonical = CANONICAL_MATERIAL_DB[AISI_ALIAS["4140"]]; // → alloy_steel
+ *
+ * Note: Alias provides approximate canonical mapping. Per-AISI precision (e.g.,
+ * kc1_1 1700 for 1018 vs 2100 for 1045) is not preserved — use for generic calcs.
+ * For alloy-specific precision, extend CANONICAL_MATERIAL_DB with specific entries.
+ *
+ * Added for LATHE-MASTER U-LTH04b — enables LatheTransferLearningEngine migration.
+ */
+export const AISI_ALIAS: Record<string, keyof typeof CANONICAL_MATERIAL_DB> = {
+  // ISO P — Low-Carbon Steels (kc1_1 ~1700-1900)
+  "1018": "steel",
+  "1020": "steel",
+  "1045": "steel",
+  "12L14": "steel", // Free-machining
+
+  // ISO P — Alloy Steels (kc1_1 ~2100-2400)
+  "4130": "alloy_steel",
+  "4140": "alloy_steel",
+  "4340": "alloy_steel",
+  "8620": "alloy_steel",
+  "9310": "alloy_steel",
+
+  // ISO H — Tool Steels (kc1_1 ~3000)
+  "D2": "tool_steel",
+  "H13": "tool_steel",
+  "A2": "tool_steel",
+  "M2": "tool_steel",
+  "S7": "tool_steel",
+  "O1": "tool_steel",
+
+  // ISO M — Stainless Steels (kc1_1 ~2100-2800)
+  "303": "stainless_304", // Free-machining, close to 304
+  "304": "stainless_304",
+  "304L": "stainless_304",
+  "316": "stainless_316",
+  "316L": "stainless_316",
+  "410": "stainless_304", // Martensitic, approximate to 304
+  "420": "stainless_304",
+  "17-4PH": "stainless_17_4ph",
+  "17-4": "stainless_17_4ph",
+  "15-5PH": "stainless_17_4ph", // Similar precipitation hardening
+
+  // ISO K — Cast Irons
+  "gray_iron": "cast_iron",
+  "ductile_iron": "ductile_iron",
+
+  // ISO N — Aluminum Alloys
+  "6061": "aluminum_6061",
+  "6061-T6": "aluminum_6061",
+  "7075": "aluminum_7075",
+  "7075-T6": "aluminum_7075",
+  "2024": "aluminum_7075", // Approximate — 2xxx is harder than 6061
+  "2024-T3": "aluminum_7075",
+
+  // ISO S — Superalloys
+  "Ti-6Al-4V": "titanium_gr5",
+  "Ti64": "titanium_gr5",
+  "Grade5": "titanium_gr5",
+  "IN718": "inconel_718",
+  "Inconel718": "inconel_718",
+  "Waspaloy": "inconel_718", // Approximate
 };
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -929,6 +1069,79 @@ export const CANONICAL_TURNING_FEEDS: Record<ISOGroup, { rough: number; finish: 
   N: { rough: 0.40, finish: 0.15 },
   S: { rough: 0.15, finish: 0.06 },
   H: { rough: 0.12, finish: 0.05 },
+};
+
+// ============================================================================
+// AISI GRADE-SPECIFIC CUTTING COEFFICIENTS (U-AWR16)
+// ============================================================================
+// Per-AISI-grade Kienzle and Taylor coefficients for precision machining.
+// Refactored from MaterialDatabaseEngine to establish single source of truth.
+// Sources: Altintas "Manufacturing Automation", ASM Handbook Vol 16,
+//          Sandvik Coromant General Turning, Kennametal Grade Selection Guide.
+
+export interface AISICuttingCoefficients {
+  kc1_1: number;  // Specific cutting force at h=1mm [N/mm²]
+  mc: number;     // Kienzle exponent (dimensionless)
+  taylor_C: number; // Taylor constant [m/min at T=1min]
+  taylor_n: number; // Taylor exponent (dimensionless)
+  iso_group: ISOGroup;
+}
+
+/**
+ * Canonical cutting coefficients per AISI grade.
+ * ALL engines needing grade-specific Kienzle/Taylor MUST import from here.
+ * MaterialDatabaseEngine is the primary consumer.
+ *
+ * Note: These differ from CANONICAL_KIENZLE/CANONICAL_TAYLOR which are ISO-group
+ * averages. Per-grade coefficients account for alloy-specific variations.
+ */
+export const AISI_CUTTING_COEFFICIENTS: Record<string, AISICuttingCoefficients> = {
+  // ── Carbon Steels (ISO P) ──
+  "1018": { kc1_1: 1780, mc: 0.18, taylor_C: 350, taylor_n: 0.25, iso_group: "P" },
+  "1045": { kc1_1: 2220, mc: 0.26, taylor_C: 300, taylor_n: 0.23, iso_group: "P" },
+  "12L14": { kc1_1: 1580, mc: 0.15, taylor_C: 450, taylor_n: 0.28, iso_group: "P" },
+
+  // ── Alloy Steels (ISO P) ──
+  "4140": { kc1_1: 2500, mc: 0.26, taylor_C: 280, taylor_n: 0.22, iso_group: "P" },
+  "4340": { kc1_1: 2180, mc: 0.23, taylor_C: 240, taylor_n: 0.20, iso_group: "P" },
+  "8620": { kc1_1: 1850, mc: 0.19, taylor_C: 300, taylor_n: 0.23, iso_group: "P" },
+
+  // ── Tool Steels (ISO H) ──
+  "D2": { kc1_1: 2850, mc: 0.28, taylor_C: 150, taylor_n: 0.15, iso_group: "H" },
+  "A2": { kc1_1: 2650, mc: 0.26, taylor_C: 170, taylor_n: 0.16, iso_group: "H" },
+  "H13": { kc1_1: 2550, mc: 0.25, taylor_C: 180, taylor_n: 0.17, iso_group: "H" },
+  "S7": { kc1_1: 2400, mc: 0.24, taylor_C: 190, taylor_n: 0.18, iso_group: "H" },
+  "M2": { kc1_1: 3100, mc: 0.30, taylor_C: 120, taylor_n: 0.12, iso_group: "H" },
+
+  // ── Stainless Steels (ISO M) ──
+  "303": { kc1_1: 2100, mc: 0.22, taylor_C: 200, taylor_n: 0.18, iso_group: "M" },
+  "304": { kc1_1: 2350, mc: 0.24, taylor_C: 160, taylor_n: 0.15, iso_group: "M" },
+  "316": { kc1_1: 2000, mc: 0.25, taylor_C: 150, taylor_n: 0.14, iso_group: "M" },
+  "17-4": { kc1_1: 2680, mc: 0.27, taylor_C: 130, taylor_n: 0.13, iso_group: "M" },
+
+  // ── Aluminum Alloys (ISO N) ──
+  "6061-T6": { kc1_1: 790, mc: 0.15, taylor_C: 900, taylor_n: 0.35, iso_group: "N" },
+  "7075-T6": { kc1_1: 870, mc: 0.16, taylor_C: 850, taylor_n: 0.33, iso_group: "N" },
+  "2024-T3": { kc1_1: 820, mc: 0.15, taylor_C: 870, taylor_n: 0.34, iso_group: "N" },
+
+  // ── Titanium Alloys (ISO S) ──
+  "Ti-6Al-4V": { kc1_1: 1970, mc: 0.21, taylor_C: 190, taylor_n: 0.20, iso_group: "S" },
+
+  // ── Nickel Alloys (ISO S) ──
+  "Inconel 718": { kc1_1: 2700, mc: 0.25, taylor_C: 55, taylor_n: 0.15, iso_group: "S" },
+  "Hastelloy C276": { kc1_1: 3100, mc: 0.31, taylor_C: 55, taylor_n: 0.11, iso_group: "S" },
+
+  // ── Copper Alloys (ISO N) ──
+  "C360": { kc1_1: 680, mc: 0.14, taylor_C: 800, taylor_n: 0.32, iso_group: "N" },
+  "C110": { kc1_1: 720, mc: 0.15, taylor_C: 700, taylor_n: 0.30, iso_group: "N" },
+
+  // ── Cast Irons (ISO K) ──
+  "Gray Iron Class 30": { kc1_1: 1150, mc: 0.18, taylor_C: 250, taylor_n: 0.20, iso_group: "K" },
+  "Ductile Iron 65-45-12": { kc1_1: 1450, mc: 0.20, taylor_C: 220, taylor_n: 0.18, iso_group: "K" },
+
+  // ── Plastics (ISO N — approximate) ──
+  "Delrin": { kc1_1: 180, mc: 0.10, taylor_C: 2000, taylor_n: 0.45, iso_group: "N" },
+  "UHMW": { kc1_1: 120, mc: 0.08, taylor_C: 2500, taylor_n: 0.50, iso_group: "N" },
 };
 
 // ============================================================================

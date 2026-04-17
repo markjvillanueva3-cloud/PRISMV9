@@ -13,6 +13,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { AISI_CUTTING_COEFFICIENTS, type AISICuttingCoefficients } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -820,6 +821,69 @@ const MATERIALS: MaterialProperties[] = [
 ];
 
 // ============================================================================
+// CANONICAL COEFFICIENT VALIDATION (U-AWR16)
+// ============================================================================
+// Validates that inline kienzle/taylor values match AISI_CUTTING_COEFFICIENTS.
+// Ensures single source of truth for physics constants.
+
+function validateCoefficientParity(): { valid: boolean; divergences: string[] } {
+  const divergences: string[] = [];
+  const tolerance = 0.001; // Allow 0.1% floating point tolerance
+
+  for (const mat of MATERIALS) {
+    const canonical = AISI_CUTTING_COEFFICIENTS[mat.id];
+    if (!canonical) continue; // No canonical entry for this material
+
+    // Check kc1_1
+    if (Math.abs(mat.kienzle.kc1_1 - canonical.kc1_1) / canonical.kc1_1 > tolerance) {
+      divergences.push(`${mat.id}: kc1_1 diverges (inline=${mat.kienzle.kc1_1}, canonical=${canonical.kc1_1})`);
+    }
+    // Check mc
+    if (Math.abs(mat.kienzle.mc - canonical.mc) / canonical.mc > tolerance) {
+      divergences.push(`${mat.id}: mc diverges (inline=${mat.kienzle.mc}, canonical=${canonical.mc})`);
+    }
+    // Check Taylor C
+    if (Math.abs(mat.taylor.C - canonical.taylor_C) / canonical.taylor_C > tolerance) {
+      divergences.push(`${mat.id}: taylor_C diverges (inline=${mat.taylor.C}, canonical=${canonical.taylor_C})`);
+    }
+    // Check Taylor n
+    if (Math.abs(mat.taylor.n - canonical.taylor_n) / canonical.taylor_n > tolerance) {
+      divergences.push(`${mat.id}: taylor_n diverges (inline=${mat.taylor.n}, canonical=${canonical.taylor_n})`);
+    }
+  }
+
+  return { valid: divergences.length === 0, divergences };
+}
+
+/**
+ * Gets canonical Kienzle coefficients from constants.ts, falling back to inline.
+ * Use this method for calculations to ensure canonical values are used.
+ */
+function getCanonicalKienzle(materialId: string): KienzleCoefficients | null {
+  const canonical = AISI_CUTTING_COEFFICIENTS[materialId];
+  if (canonical) {
+    return { kc1_1: canonical.kc1_1, mc: canonical.mc };
+  }
+  // Fallback to inline for materials not in canonical DB
+  const mat = MATERIALS.find((m) => m.id === materialId);
+  return mat?.kienzle || null;
+}
+
+/**
+ * Gets canonical Taylor coefficients from constants.ts, falling back to inline.
+ * Use this method for calculations to ensure canonical values are used.
+ */
+function getCanonicalTaylor(materialId: string): TaylorCoefficients | null {
+  const canonical = AISI_CUTTING_COEFFICIENTS[materialId];
+  if (canonical) {
+    return { C: canonical.taylor_C, n: canonical.taylor_n };
+  }
+  // Fallback to inline for materials not in canonical DB
+  const mat = MATERIALS.find((m) => m.id === materialId);
+  return mat?.taylor || null;
+}
+
+// ============================================================================
 // ENGINE
 // ============================================================================
 
@@ -829,7 +893,21 @@ export class MaterialDatabaseEngine {
   constructor() {
     this.materials = new Map();
     this.loadMaterials();
+    this.validateCanonicalParity();
     log.info(`[MaterialDB] Initialized with ${this.materials.size} materials`);
+  }
+
+  /**
+   * Validates that inline coefficients match canonical constants.ts.
+   * Logs warnings for any divergences (doesn't throw to allow graceful degradation).
+   */
+  private validateCanonicalParity(): void {
+    const { valid, divergences } = validateCoefficientParity();
+    if (!valid) {
+      log.warn(`[MaterialDB] Coefficient divergence detected from constants.ts:`);
+      divergences.forEach((d) => log.warn(`  ${d}`));
+      log.warn(`[MaterialDB] Update AISI_CUTTING_COEFFICIENTS in src/physics/constants.ts to fix.`);
+    }
   }
 
   private loadMaterials(): void {
@@ -878,19 +956,25 @@ export class MaterialDatabaseEngine {
   }
 
   /**
-   * Get Kienzle coefficients for a material
+   * Get Kienzle coefficients for a material.
+   * Returns canonical values from constants.ts when available.
    */
   getKienzleCoefficients(material: string): KienzleCoefficients | null {
     const mat = this.getMaterial(material);
-    return mat?.kienzle || null;
+    if (!mat) return null;
+    // Prefer canonical constants.ts values
+    return getCanonicalKienzle(mat.id) || mat.kienzle;
   }
 
   /**
-   * Get Taylor coefficients for a material
+   * Get Taylor coefficients for a material.
+   * Returns canonical values from constants.ts when available.
    */
   getTaylorCoefficients(material: string): TaylorCoefficients | null {
     const mat = this.getMaterial(material);
-    return mat?.taylor || null;
+    if (!mat) return null;
+    // Prefer canonical constants.ts values
+    return getCanonicalTaylor(mat.id) || mat.taylor;
   }
 
   /**

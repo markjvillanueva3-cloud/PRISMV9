@@ -10,7 +10,7 @@
  * Route: /wire-edm (separate from /edm calculator page)
  */
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { WedmStudioProvider, useWedmNavigation, useWedmData } from "../contexts/WedmStudioContext";
 import ErrorBoundary from "../components/ErrorBoundary";
 import WizardShell from "../components/wedm-studio/WizardShell";
@@ -21,6 +21,7 @@ import StepWcs from "../components/wedm-studio/StepWcs";
 import StepToolpath from "../components/wedm-studio/StepToolpath";
 import StepOptimize from "../components/wedm-studio/StepOptimize";
 import StepProgram from "../components/wedm-studio/StepProgram";
+import AIReasoningTab from "../components/wedm-studio/AIReasoningTab";
 
 // ============================================================================
 // INNER COMPONENT (needs context)
@@ -111,10 +112,35 @@ function WireEdmStudioInner() {
 // ============================================================================
 
 export default function WireEdmStudioPage() {
+  const [showAI, setShowAI] = useState(false);
+
   return (
     <WedmStudioProvider>
-      <div className="h-[calc(100vh-64px)]">
-        <WireEdmStudioInner />
+      <div className="h-[calc(100vh-64px)] flex flex-col">
+        {/* Main wizard area */}
+        <div className={`flex-1 min-h-0 ${showAI ? "h-[65%]" : "h-full"}`}>
+          <WireEdmStudioInner />
+        </div>
+
+        {/* AI Reasoning toggle */}
+        <div className="flex-shrink-0 border-t border-slate-700">
+          <button
+            onClick={() => setShowAI(!showAI)}
+            className="w-full px-4 py-1.5 text-xs text-slate-400 hover:text-cyan-400 bg-slate-900/80 flex items-center justify-center gap-2 transition-colors"
+          >
+            <span className="text-cyan-500">●</span>
+            AI Reasoning {showAI ? "▼" : "▲"}
+          </button>
+        </div>
+
+        {/* AI Reasoning panel */}
+        {showAI && (
+          <div className="flex-shrink-0 h-[35%] overflow-y-auto bg-slate-900/95 border-t border-slate-700 p-3">
+            <ErrorBoundary>
+              <AIReasoningTab />
+            </ErrorBoundary>
+          </div>
+        )}
       </div>
     </WedmStudioProvider>
   );

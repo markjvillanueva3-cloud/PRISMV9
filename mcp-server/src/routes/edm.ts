@@ -536,5 +536,92 @@ export function createEdmRouter(callTool: CallToolFn): Router {
     },
   );
 
+  // ── MS-P1-FRONT-WIRE: Coordination Substrate API ────────────────────
+  // Exposes the Round 4 coordination engines to the front-end
+
+  /**
+   * GET /coordination/snapshot
+   * Returns combined state of all coordination substrate engines.
+   */
+  router.get("/coordination/snapshot", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmMultiAgentDispatchEngine } = await import("../engines/WEDMMultiAgentDispatchEngine.js");
+      res.json({ ok: true, data: wedmMultiAgentDispatchEngine.snapshot() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/ledger/recent?limit=50
+   * Returns recent reasoning trace entries from the in-memory ring buffer.
+   */
+  router.get("/coordination/ledger/recent", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { wedmReasoningTraceLedgerEngine } = await import("../engines/WEDMReasoningTraceLedgerEngine.js");
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 50, 1), 1000);
+      res.json({ ok: true, data: wedmReasoningTraceLedgerEngine.getRecent(limit) });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/ledger/stats
+   * Returns ledger statistics (topActions, errorRate, awarenessAdoption, silentMinutes).
+   */
+  router.get("/coordination/ledger/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmReasoningTraceLedgerEngine } = await import("../engines/WEDMReasoningTraceLedgerEngine.js");
+      res.json({ ok: true, data: wedmReasoningTraceLedgerEngine.getStats() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/blackboard/stats
+   * Returns blackboard statistics (activeEntries, namespaceCount, postRate).
+   */
+  router.get("/coordination/blackboard/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmBlackboardEngine } = await import("../engines/WEDMBlackboardEngine.js");
+      res.json({ ok: true, data: wedmBlackboardEngine.getStats() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /coordination/blackboard/query
+   * Query blackboard entries by namespace prefix.
+   * Body: { prefix: string, tag?: "observation" | "hypothesis" | "decision" | ... }
+   */
+  router.post("/coordination/blackboard/query", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { wedmBlackboardEngine } = await import("../engines/WEDMBlackboardEngine.js");
+      const { prefix, tag } = req.body;
+      if (!prefix || typeof prefix !== "string") {
+        res.status(400).json({ ok: false, error: "prefix is required" });
+        return;
+      }
+      res.json({ ok: true, data: wedmBlackboardEngine.readByPrefix(prefix, tag) });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/bridge/stats
+   * Returns bridge statistics (avgLatencyMs, avgTipsIngested, bridgeRate).
+   */
+  router.get("/coordination/bridge/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmReasoningBridgeEngine } = await import("../engines/WEDMReasoningBridgeEngine.js");
+      res.json({ ok: true, data: wedmReasoningBridgeEngine.getStats() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/dispatch/stats
+   * Returns dispatch coordinator statistics.
+   */
+  router.get("/coordination/dispatch/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmMultiAgentDispatchEngine } = await import("../engines/WEDMMultiAgentDispatchEngine.js");
+      res.json({ ok: true, data: wedmMultiAgentDispatchEngine.getStats() });
+    } catch (e) { next(e); }
+  });
+
   return router;
 }
