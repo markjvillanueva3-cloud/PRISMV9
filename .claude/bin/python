@@ -1,0 +1,24 @@
+#!/bin/bash
+# PRISM Python Wrapper - finds Python across computers
+
+# Check common Python locations
+if [ -x "/c/Users/Mark Villanueva/.local/bin/python.exe" ]; then
+    "/c/Users/Mark Villanueva/.local/bin/python.exe" "$@"
+    exit $?
+fi
+
+if [ -x "/c/Python312/python.exe" ]; then
+    "/c/Python312/python.exe" "$@"
+    exit $?
+fi
+
+if [ -x "/c/Python311/python.exe" ]; then
+    "/c/Python311/python.exe" "$@"
+    exit $?
+fi
+
+# Try py launcher (Windows)
+py -3 "$@" 2>/dev/null && exit 0
+
+# Fallback to PATH
+python3 "$@" 2>/dev/null || python "$@"

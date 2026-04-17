@@ -80,6 +80,36 @@
             "command": "node H:/prism/.claude/hooks/svi-projection.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/pre-tool-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/pre-tool-awareness-refresh.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/cross-terminal-conflict.mjs",
+            "timeout": 2000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/forge-intent-claim.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/dep-graph-impact.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },
@@ -115,6 +145,30 @@
             "command": "node H:/prism/.claude/hooks/pre-delete-guard.mjs",
             "timeout": 2000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/omega-floor.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/awareness-floor.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/no-re-extract.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/allow-superseding.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },
@@ -326,6 +380,30 @@
             "command": "node H:/prism/.claude/hooks/doc-cascade.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/post-tool-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/post-write-sync-awareness.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/schema-version-read.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/extraction-log-drift.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },
@@ -449,6 +527,12 @@
     "UserPromptSubmit": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/user-prompt-submit-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/ai-auto-command-router.mjs",
@@ -627,6 +711,12 @@
           },
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/session-start-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/svi-inject.mjs",
             "timeout": 2000,
             "continueOnError": true
@@ -642,6 +732,12 @@
       {
         "matcher": "compact",
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/session-start-compact-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs sync-from-git 2>/dev/null || true",
@@ -682,6 +778,12 @@
     "Stop": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/session-end-p1.mjs",
+            "timeout": 3000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/always-build-guard.mjs",
@@ -761,6 +863,12 @@
     "PreCompact": [
       {
         "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/pre-compact-p1.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
           {
             "type": "command",
             "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs sync-from-git 2>/dev/null || true",
