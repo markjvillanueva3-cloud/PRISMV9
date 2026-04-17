@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T02:20:53.783Z
+**Generated:** 2026-04-17T02:30:32.718Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 100 |
+| Engines | 101 |
 | Playbooks | 8 |
 | State Files | 41 |
 
-## Engines (100)
+## Engines (101)
 
 | Engine | Description |
 |--------|-------------|
@@ -69,6 +69,7 @@
 | `WEDMMaterialCharacterizationEngine` | WEDMMaterialCharacterizationEngine — WEDM AGI Phase 1 / U-P1-09 |
 | `WEDMMaterialSparkDatabaseEngine` | WEDMMaterialSparkDatabaseEngine — WEDM AGI Phase 1 / U-P1-10 |
 | `WEDMModelUpdateEngine` | WEDMModelUpdateEngine — Safe model update / rollback manager. |
+| `WEDMNeuralFormulaFusionEngine` | WEDMNeuralFormulaFusionEngine — MS-P0.5-COORD U-P0.5-COORD-06 |
 | `WEDMNeuralTrainingEngine` | WEDMNeuralTrainingEngine — Maximum Mathematical AI for Wire EDM |
 | `WEDMParetoCacheEngine` | WEDMParetoCacheEngine — WEDM AGI Phase 2 / U-P2-06 |
 | `WEDMParetoFrontierSearchEngine` | WEDMParetoFrontierSearchEngine — WEDM AGI Phase 2 / U-P2-05 |
