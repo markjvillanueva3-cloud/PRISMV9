@@ -1,0 +1,194 @@
+{
+  "id": "MS-P1.5-ONESHOT",
+  "title": "WEDM Print→CNC One-Shot Spine Closure (Round 4 patch)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P1.5",
+  "status": "in_progress",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "between MS-P1-INGEST and MS-P2-GAPFILL",
+  "philosophy": "Round 4 scrutiny (goal-planner) measured 47% stage coverage on the 12-stage Print→CNC pipeline for WEDM. AutoPrintToProgramBridgeEngine has ZERO wire-EDM references — the platform's one-shot entry point cannot currently reach WEDM. This milestone closes the pipeline spine: DWG import, STEP AP242 PMI extraction, AutoBridge WEDM capability manifest, multi-controller post, wire-path collision, program verification, consultAwareness wiring.",
+  "scrutiny_round": 4,
+  "blocks_reached_by": ["goal-planner"],
+  "stage_coverage_before": 0.47,
+  "stage_coverage_target": 0.95,
+  "total_units": 7,
+  "completed_units": 1,
+  "sessions": 3,
+  "dependencies": ["MS-P0.5-COORD", "MS-P1-INGEST"],
+  "blocks": ["MS-P2-GAPFILL", "MS-P2.5-SAFETY", "MS-P3-TRIBAL", "MS-P6-VAL30", "MS-P7-UI-M1"],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.035,
+
+  "knowledge_sources": {
+    "engines": [
+      "AutoPrintToProgramBridgeEngine (EXISTS at camDispatcher.ts:2780-2834, NO wire-EDM branch)",
+      "WEDMPrintToProgramEngine (EXISTS, returns success:true unconditionally at line 1603)",
+      "DXFGeometryParser (EXISTS)",
+      "WEDMDwgImportEngine (MISSING — to build)",
+      "STEPAP242PMIExtractor (MISSING — to build)",
+      "WEDMProgramVerificationEngine (MISSING — to build)",
+      "WEDMWirePathCollisionEngine (MISSING — to build)",
+      "EDMPostProcessGCode (EXISTS, single dialect)",
+      "PPWireEDMPostEngine (EXISTS, Mitsubishi only)"
+    ],
+    "formulas": [
+      "STEP AP242 entity reference (ISO 10303-242)",
+      "wire path swept-volume intersection (Abrahamsen 2012)"
+    ],
+    "tribal": [],
+    "reference": [
+      "H:/prism/SCRUTINY-PRINT-TO-CNC-ONESHOT-2026-04-16.md §1-§4",
+      "mcp-server/src/engines/WEDMPrintToProgramEngine.ts",
+      "mcp-server/src/engines/AutoPrintToProgramBridgeEngine.ts",
+      "mcp-server/src/tools/dispatchers/camDispatcher.ts:2780-2834"
+    ]
+  },
+
+  "smart_config": {"role": "PipelineArchitect+CADParserSpecialist+PostProcessorEngineer", "model": "opus", "effort": "MAX", "context_budget_pct": 75},
+
+  "skills": ["/forge-triple", "/dedup", "/wire-edm-studio", "/scope", "/checkpoint"],
+  "plugins": ["Vitest MCP", "codebase-memory-mcp", "ESLint MCP"],
+
+  "session_split": {
+    "session_1": ["U-P1.5-OS-01", "U-P1.5-OS-02"],
+    "session_2": ["U-P1.5-OS-03", "U-P1.5-OS-04", "U-P1.5-OS-05"],
+    "session_3": ["U-P1.5-OS-06", "U-P1.5-OS-07"],
+    "compact_checkpoints": ["after U-P1.5-OS-02", "after U-P1.5-OS-05"]
+  },
+
+  "units": [
+    {
+      "id": "U-P1.5-OS-01",
+      "title": "WEDMDwgImportEngine — DWG file parser with LibreDWG bridge",
+      "files_created": ["mcp-server/src/engines/WEDMDwgImportEngine.ts"],
+      "estimated_loc": 450,
+      "abort_conditions": ["tsc > 0 errors", "parser fails on R2018+ files", "no fallback to DXF"],
+      "exit_criteria": [
+        "DWG R14→R2018 supported via libredwg shim",
+        "geometry extraction to same internal schema as DXF",
+        "fallback: convert to DXF via oda-file-converter when available",
+        "unit tag (mm/inch) extracted from $MEASUREMENT + $INSUNITS",
+        "integration test: 5 JM Die sample DWGs parse without error"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-02",
+      "title": "STEPAP242PMIExtractor — Product Manufacturing Information extraction",
+      "files_created": ["mcp-server/src/engines/STEPAP242PMIExtractorEngine.ts"],
+      "estimated_loc": 550,
+      "abort_conditions": ["tsc > 0 errors", "PMI not attached to geometric features", "tolerances not linked to GD&T frame"],
+      "exit_criteria": [
+        "ISO 10303-242 entity parser covers {GEOMETRIC_TOLERANCE, DATUM_REFERENCE, DIMENSIONAL_SIZE, SURFACE_TEXTURE}",
+        "PMI linked back to geometric feature IDs",
+        "GD&T frame reconstructed with datum precedence",
+        "AtomicValue output for every tolerance {nominal, upper, lower, unit}",
+        "integration test: 3 sample STEP files extract ≥95% of PMI entities"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-03",
+      "title": "AutoBridge wire-EDM branch + WEDM_CAPABILITY_MANIFEST",
+      "files_modified": ["mcp-server/src/engines/AutoPrintToProgramBridgeEngine.ts"],
+      "files_created": ["mcp-server/data/state/WEDM_CAPABILITY_MANIFEST.json"],
+      "estimated_loc": 380,
+      "abort_conditions": ["tsc > 0 errors", "WEDM not reachable from AutoBridge routing", "manifest missing any of 95 WEDM engines"],
+      "exit_criteria": [
+        "AutoPrintToProgramBridgeEngine.route() recognizes wire-EDM capability",
+        "WEDM_CAPABILITY_MANIFEST.json enumerates all 95 WEDM engines + inputs + outputs",
+        "platform 'print → program' entry point produces WEDM G-code when process=wire_edm",
+        "integration test: AutoBridge input {process:'wire_edm', cad:'sample.dxf'} returns complete program"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-04",
+      "title": "Multi-controller post — Mitsubishi/Sodick/Makino/Agie/Fanuc dialects",
+      "files_created": [
+        "mcp-server/src/engines/WEDMPostMitsubishiEngine.ts",
+        "mcp-server/src/engines/WEDMPostSodickEngine.ts",
+        "mcp-server/src/engines/WEDMPostMakinoEngine.ts",
+        "mcp-server/src/engines/WEDMPostAgieEngine.ts",
+        "mcp-server/src/engines/WEDMPostFanucEngine.ts",
+        "mcp-server/src/engines/WEDMPostDialectRouterEngine.ts"
+      ],
+      "estimated_loc": 1100,
+      "abort_conditions": ["tsc > 0 errors", "any dialect fails on reference JM Die program roundtrip", "no E-code/C-code/M-code mapping per controller"],
+      "exit_criteria": [
+        "5 dialects: Mitsubishi FA/MV, Sodick AQ/AL, Makino U/EU, AgieCharmilles CUT, Fanuc ROBOCUT",
+        "dialect router selects by shop profile machine inventory",
+        "each dialect emits proper E-codes (energy), C-codes (condition), M-codes (machine)",
+        "roundtrip test: parse canonical WEDM plan → emit 5 dialects → re-parse → equivalent"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-05",
+      "title": "WEDMWirePathCollisionEngine — wire path swept-volume collision",
+      "files_created": ["mcp-server/src/engines/WEDMWirePathCollisionEngine.ts"],
+      "estimated_loc": 420,
+      "abort_conditions": ["tsc > 0 errors", "collision miss on known colliding sample", "no head-to-fixture check"],
+      "exit_criteria": [
+        "swept-volume intersection for wire + upper/lower heads vs fixture + workpiece",
+        "S(x) contribution: 0 collisions → +0.15, any collision → HARD BLOCK",
+        "wedm-collision-gate hook BUILT here: blocks program emit on any collision",
+        "integration test: collision-positive sample blocks, collision-free sample passes"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-06",
+      "title": "WEDMProgramVerificationEngine — emitted program structural verification",
+      "files_created": ["mcp-server/src/engines/WEDMProgramVerificationEngine.ts"],
+      "estimated_loc": 400,
+      "abort_conditions": ["tsc > 0 errors", "verifier accepts program with unpaired G41/G42", "no end-of-program terminator check"],
+      "exit_criteria": [
+        "verifier catches: unpaired G41/G42, missing M02/M30, mismatched G20/G21 vs input, undefined E-codes, coordinate range exceeded",
+        "every WEDMPrintToProgramEngine output passes verifier or returns success:false",
+        "WEDMPrintToProgramEngine.line:1603 no longer returns unconditional success:true",
+        "wedm-program-verify hook BUILT here"
+      ]
+    },
+    {
+      "id": "U-P1.5-OS-07",
+      "title": "consultAwareness wiring into WEDM pipeline entry",
+      "files_modified": [
+        "mcp-server/src/engines/WEDMPrintToProgramEngine.ts",
+        "mcp-server/src/engines/AutoPrintToProgramBridgeEngine.ts"
+      ],
+      "estimated_loc": 180,
+      "abort_conditions": ["tsc > 0 errors", "awareness call blocks pipeline >50ms", "awareness failure hard-blocks pipeline"],
+      "exit_criteria": [
+        "every pipeline entry calls consultAwareness with {process, machine, material, wire}",
+        "awareness cache hit rate ≥80% in repeat-material test",
+        "pipeline latency regression ≤5% p95",
+        "fails-open: awareness timeout does NOT block pipeline but logs warning"
+      ]
+    }
+  ],
+
+  "forge_triple": {
+    "hook": {"name": "wedm-oneshot-spine-complete", "description": "blocks merge if any of the 12 pipeline stages lacks a wired engine for WEDM", "built_in": "U-P1.5-OS-06"},
+    "action": {"name": "prism_edm:wedm_oneshot", "built_in": "U-P1.5-OS-03"},
+    "skill": {"name": "/wedm-oneshot", "built_in": "U-P1.5-OS-03"}
+  },
+
+  "exit_gate": {
+    "criteria": [
+      "12-stage Print→CNC coverage ≥ 95% (up from 47%)",
+      "AutoPrintToProgramBridgeEngine routes to WEDM for {process:wire_edm}",
+      "5 controller dialects roundtrip clean",
+      "WEDMProgramVerificationEngine gates every pipeline exit",
+      "collision gate BUILT and active",
+      "consultAwareness invoked on every pipeline entry",
+      "integration test: sample DWG → complete verified WEDM program end-to-end"
+    ],
+    "omega_target": 1.0,
+    "svi_delta": "+3.5%"
+  },
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-oneshot-spine-complete", "wedm-collision-gate", "wedm-program-verify"],
+    "new_actions": ["prism_edm:wedm_oneshot"],
+    "new_skills": ["/wedm-oneshot"],
+    "available_to": ["P2", "P2.5", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"]
+  }
+}
