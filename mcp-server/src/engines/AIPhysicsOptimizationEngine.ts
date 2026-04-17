@@ -44,6 +44,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES
@@ -368,14 +369,15 @@ export interface AIOptimizationResult {
 // CONSTANTS
 // ============================================================================
 
-/** ISO material group properties */
+/** ISO material group properties (canonical Kienzle + thermal conductivity) */
+const ISO_THERMAL_K: Record<string, number> = { P: 50, M: 15, K: 50, N: 160, S: 10, H: 25 };
 const ISO_GROUP_PROPERTIES: Record<string, { kc1_1: number; mc: number; k_thermal: number }> = {
-  P: { kc1_1: 1800, mc: 0.25, k_thermal: 50 },
-  M: { kc1_1: 2100, mc: 0.25, k_thermal: 15 },
-  K: { kc1_1: 1100, mc: 0.25, k_thermal: 50 },
-  N: { kc1_1: 700, mc: 0.25, k_thermal: 160 },
-  S: { kc1_1: 2800, mc: 0.25, k_thermal: 10 },
-  H: { kc1_1: 3200, mc: 0.30, k_thermal: 25 },
+  P: { ...CANONICAL_KIENZLE.P, k_thermal: ISO_THERMAL_K.P },
+  M: { ...CANONICAL_KIENZLE.M, k_thermal: ISO_THERMAL_K.M },
+  K: { ...CANONICAL_KIENZLE.K, k_thermal: ISO_THERMAL_K.K },
+  N: { ...CANONICAL_KIENZLE.N, k_thermal: ISO_THERMAL_K.N },
+  S: { ...CANONICAL_KIENZLE.S, k_thermal: ISO_THERMAL_K.S },
+  H: { ...CANONICAL_KIENZLE.H, k_thermal: ISO_THERMAL_K.H },
 };
 
 /** Tool material properties */

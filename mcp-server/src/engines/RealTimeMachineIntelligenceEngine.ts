@@ -15,6 +15,8 @@
  * Lines: ~950
  */
 
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
+
 // ═══════════════════════════════════════════════════════════════
 // Types
 // ═══════════════════════════════════════════════════════════════
@@ -105,25 +107,11 @@ interface DashboardSnapshot {
 // Constants
 // ═══════════════════════════════════════════════════════════════
 
-/** Kienzle specific cutting force constants by ISO group */
-const KIENZLE_DEFAULTS: Record<string, { kc1_1: number; mc: number }> = {
-  P: { kc1_1: 1800, mc: 0.26 },    // Steel
-  M: { kc1_1: 2100, mc: 0.25 },    // Stainless
-  K: { kc1_1: 1200, mc: 0.28 },    // Cast iron
-  N: { kc1_1: 700, mc: 0.23 },     // Non-ferrous
-  S: { kc1_1: 2800, mc: 0.25 },    // Superalloy
-  H: { kc1_1: 3500, mc: 0.27 },    // Hardened
-};
+/** Kienzle specific cutting force constants by ISO group (canonical import) */
+const KIENZLE_DEFAULTS = CANONICAL_KIENZLE;
 
-/** Taylor tool life constants by ISO group */
-const TAYLOR_DEFAULTS: Record<string, { C: number; n: number }> = {
-  P: { C: 250, n: 0.25 },
-  M: { C: 180, n: 0.22 },
-  K: { C: 300, n: 0.28 },
-  N: { C: 600, n: 0.35 },
-  S: { C: 120, n: 0.18 },
-  H: { C: 100, n: 0.15 },
-};
+/** Taylor tool life constants by ISO group (canonical import) */
+const TAYLOR_DEFAULTS = CANONICAL_TAYLOR;
 
 /** CTE values µm/m/°C */
 const CTE_VALUES: Record<string, number> = {
