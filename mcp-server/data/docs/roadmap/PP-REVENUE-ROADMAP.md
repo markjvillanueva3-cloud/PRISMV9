@@ -1,7 +1,14 @@
 # POST PROCESSOR REVENUE MAXIMIZATION ROADMAP
 ## PP-REV-MS0 through PP-REV-MS7 | 8 Milestones | 42 Units | 13 Sessions | Est. 20-30 Session-Hours
 
-**Authority:** This roadmap governs post-processor product commercialization.
+> **🗄️ ARCHIVED (2026-04-17) — SUPERSEDED BY MASTER ROADMAP**
+>
+> All 8 PP-REV milestones + 42 units + 4-tier pricing ($0/$79/$199/$499) consolidated into Stage 9.
+> **Current canonical roadmap:** `H:/prism/PP-MASTER-UNIFIED-ROADMAP-2026-04-16.md` (v1.1).
+>
+> Consolidation record: PP-MASTER §XXIII.3 — all PP-REV work → Stage 9 (Revenue + Tiers).
+
+**Authority (historical):** This roadmap governed post-processor product commercialization.
 **Owner:** Claude (backend + wiring) | Codex (frontend + visualization)
 **Target:** Turn existing 16+ PP engines into a paid product with demo-able value per milestone.
 **Pricing:** Free ($0) → Pro ($79/mo) → Production ($199/mo) → Enterprise ($499/mo+)

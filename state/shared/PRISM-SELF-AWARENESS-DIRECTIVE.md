@@ -447,3 +447,38 @@ Four categories of PRISM capability are easy to forget mid-task:
 
 **Related hook:** `ai-auto-command-router.mjs` covers slash commands; `capability-reminder.mjs` covers scripts, hooks, engines, and stale-data traps that have no slash-command equivalent.
 - CLAUDE.md: Full context available via `generateClaudeMdContext()`
+
+## 🗺️ PP-MASTER-UNIFIED-ROADMAP (2026-04-16, v1.1) — CANONICAL POST-PROCESSOR ROADMAP
+
+**Path:** `H:/prism/PP-MASTER-UNIFIED-ROADMAP-2026-04-16.md` (1,632 lines / 84 KB)
+
+**Authority:** Consolidates 5 prior PP roadmaps + 8 scrutiny passes into a single 10-stage AGI pipeline.
+All 5 source roadmaps have been frozen with ARCHIVED banners — do NOT execute from them.
+
+**Scope:**
+- 49 milestones / 414 units / 210 net-new engines / +1,050 tests
+- 10 stages: Physics → DL → Neural Dialect Fabric → Machine Fabric → RL Toolpath → Reasoning → Frontend → Validate → Revenue → Launch+CL
+- Revenue target: $24,800 MRR post-Stage-10 (4-tier: Free/$79/$199/$499)
+- Omega target: 1.0 (every stage, every milestone, every unit — no exceptions)
+
+**Alignment (v1.1 additions, Sections XXV–XXVII + Appendices J/K):**
+- **Universal Phase 0.1–0.17** — PP consumes awareness, auto-wiring, orphan detection, auto-doc, op-integrity, plugin activation as upstream foundation
+- **MILL-AGI P0–P7** — PP imports P0.3 (5 ONNX models), P0.5 (MetaLearningLoop), P2–P5 (mill/mill-turn/5-axis/CAMX strategy engines)
+- **LATHE-MASTER v2 P0.1–P0.11** — PP imports formal Z3 verification, Local LLM LoRA adapters, Bayesian+causal depth, AGI safety containment, live MTConnect/OPC-UA/THINC data, predictive twin, multi-agent, scientific sim, math depth, frontend integration
+- **WEDM MCP FULL UTILIZATION PROTOCOL** — every PP session follows SESSION-START / DURING-WORK / SESSION-END discipline; every PP unit follows LOOP 1–4 (Scrutinize → Gap Fill → Tie Up → Validate); FORGE-TRIPLE/QUINT cascade mandatory
+- **Codex 134-page frontend** (`mcp-server/web/`) — Stage 7 extends CalculatorPage (6-mode), PPGStudio (8-step wizard based on WedmStudio 6-step template), reduces 46% API client orphan rate to ≤ 10%
+
+**Per-Unit Enforcement (§XXVI):**
+```
+LOOP 1 Scrutinize   → /dont-reinvent + duplicationGuard ≥ 70% blocker
+LOOP 2 Gap Fill     → /forge-triple (engine + hook + skill) or /forge-quint (+ MCP action + state)
+LOOP 3 Tie Up       → dispatcher wiring + z.enum + switch handler + schema + reverse index
+LOOP 4 Validate     → npm run build:fast + vitest + 16-item exit gate + git commit
+```
+Enforced by `always-build-guard.mjs` Stop hook and `PENDING_GAP_ENGINES.json` registry.
+
+**Retirement list (§XXVII):** 18 MILL-AGI + R3 Phases C/D + R4 fixes #4/9/13 + R4 U-PP-01 absorbed by Universal Phase 0 (~5,500 LOC saved). Do NOT re-implement.
+
+**Artifact reconciliation (Appendix J):** ~1,625 net-new engines + ~2,000 units total across Universal + MILL-AGI + LATHE + WEDM + PP-MASTER (no double-count).
+
+**Consult BEFORE any post-processor work.** Supersedes all prior PP roadmaps.

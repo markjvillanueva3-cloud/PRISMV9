@@ -1,7 +1,22 @@
 # POST PROCESSOR MAXIMIZATION ROADMAP
 ## PP-MS0 through PP-MS11 | 12 Milestones | 48 Units | 26 Sessions (20 critical path) | Est. 40-52 Session-Hours
 
-**Authority:** This roadmap governs all post processor product development.
+> **🗄️ ARCHIVED (2026-04-17) — SUPERSEDED BY MASTER ROADMAP**
+>
+> PP-MS0 through PP-MS11 were redistributed across Stages 1–10 of the master pipeline.
+> **Current canonical roadmap:** `H:/prism/PP-MASTER-UNIFIED-ROADMAP-2026-04-16.md` (v1.1).
+>
+> Redistribution record: PP-MASTER §XXIII.2
+>   • PP-MS0 → Stage 1 (Kienzle canonical)
+>   • PP-MS1–MS3 → Stage 3 + Stage 7 (CPS parser, fingerprinting, UI)
+>   • PP-MS4 → Stage 7 (before/after preview)
+>   • PP-MS5 → Stage 8 (prove-out)
+>   • PP-MS6 → Stage 7 (library)
+>   • PP-MS7–MS8 → Stage 8 (coolant/probing/non-traditional)
+>   • PP-MS9 → Stage 8 (integration)
+>   • PP-MS10–MS11 → Stage 9 + Stage 10 (product page, launch)
+
+**Authority (historical):** This roadmap governed all post processor product development.
 **Owner:** Claude (backend + frontend) | Codex (frontend assist)
 **Target:** User-driven post generation — machine make/model/year/controller/features → physics-optimized G-code
 

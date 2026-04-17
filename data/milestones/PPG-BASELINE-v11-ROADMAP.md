@@ -1,0 +1,2822 @@
+# PPG-BASELINE-MS0 — Milling Post Baseline v11 Full Roadmap
+
+> **🗄️ ARCHIVED (2026-04-17) — SUPERSEDED BY MASTER ROADMAP**
+>
+> All 45 units + 43 known bugs from HURCO VM30i v11 baseline consolidated into Stage 8.
+> **Current canonical roadmap:** `H:/prism/PP-MASTER-UNIFIED-ROADMAP-2026-04-16.md` (v1.1).
+>
+> Consolidation record: PP-MASTER §XXIII.4 — PPG-BASELINE → Stage 8 PP-STAGE-8-MS1 (43 bugs tracked individually).
+> HURCO VM30i v11 remains the definitive milling-post reference in Stage 8.
+
+## Track: PPG-BASELINE | Version: 2.0.0 (Loop 2) | Created: 2026-04-07 | Updated: 2026-04-07
+## Milestone: PPG-BASELINE-MS0
+## Title: Fix v10.9 Bugs + CPS Standards Audit + Wire PRISM Intelligence + Features + Certify Milling Baseline
+## Total Sessions: 12 | Total Units: 45 | Complexity: XXL
+## Source: C:/Users/Mark Villanueva/Desktop/HURCO_VM30i_PRISM_v10_9_DRILLFIX_1.cps (22,059 lines)
+## Target: H:/prism/mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps
+## RGS Quality Standard: 16/16 items populated
+## Loop 2 Applied: Dimensions 6 (Features), 7 (CPS Standards), 10 (Coherence) expanded
+
+---
+
+## BRIEF
+
+Fix all 43 bugs in the v10.9 HURCO VM30i post processor (22,059 lines — 8 CRITICAL, 12 HIGH,
+15 MEDIUM, 8 LOW), audit and refactor CPS code to match Autodesk Post Processor Training Guide
+standards (property group/scope, createModal with onchange, writeRetract, standard smoothing/
+coolant/subprogram/probing patterns), refactor 10,700 lines of copy-paste tool pockets into
+loops, wire PRISM engine intelligence (MaterialRegistry, ToolRegistry, MachineRegistry, Kienzle
+force, stability lobes, thermal-wear coupling), add 9 missing features (thread milling, program
+splitting, sub-programs, setup sheet, custom M-codes, G64 UltiMotion, toolpath filtering, 5-axis
+rewind, cycle time accumulation), add Hurco-specific safety analysis, and establish this as the
+definitive milling post baseline from which all other controller posts derive.
+
+This is the most important post processor in the PRISM product. Every milling controller
+dialect (Fanuc, Siemens, Haas, Mazak, Okuma, Heidenhain, Brother, Doosan, etc.) will
+inherit from this baseline. Quality must be production-grade. A machinist loading the output
+G-code must get correct speeds, feeds, force-limited power, and safety-checked motion with
+zero NaN, zero missing F words, and zero unformatted decimals.
+
+---
+
+## CROSS-ROADMAP RELATIONSHIPS
+
+### Relationship to PPG-REAL (Post Processor Generator — Real Implementation)
+```
+Track: PPG-REAL-MS0
+Status: S1 complete (119 tests, 3 CPS HTTPClient stripped, 11 feed formats fixed)
+Relationship: PARALLEL — PPG-BASELINE fixes the v10.9 Hurco CPS directly;
+              PPG-REAL builds the generator that creates CPS posts from PRISM engines.
+Depends On: PPG-BASELINE S0 CPS coding standards inform PPG-REAL generator templates.
+Feeds Into: PPG-REAL uses PPG-BASELINE v11 as reference for "correct" output quality.
+Shared Tests: 576 existing PPG tests (23 files) + 4 test infra files:
+  - src/__tests__/helpers/gcode-comparator.ts
+  - src/__tests__/helpers/ppg-fixture-schema.ts
+  - src/__tests__/helpers/ppg-test-generator.ts
+  - src/__tests__/helpers/ppg-regression.ts
+```
+
+### Relationship to PPG-VAR (Variable Feed Rate Post Hardening)
+```
+Track: PPG-VAR-MS0
+Status: not_started
+Relationship: SEQUENTIAL — PPG-BASELINE must complete first.
+              PPG-VAR extends variable feed output (per-block S/F) across all controllers.
+Depends On: PPG-BASELINE v11 provides the working optimization engine (Bug 2 fix).
+Feeds Into: PPG-VAR validates per-block variability across PPG-BASELINE output.
+```
+
+### Existing CPS Posts Referenced
+```
+BASELINE SOURCE:
+  C:/Users/Mark Villanueva/Desktop/HURCO_VM30i_PRISM_v10_9_DRILLFIX_1.cps (22,059 lines)
+
+PRISM-ENHANCED CPS (14 files):
+  H:/prism/mcp-server/data/posts/prism-enhanced/
+  - fanuc.cps
+  - Roku-Roku-Ai-Enhanced.cps
+  - HURCO_VM30i_PRISM_Enhanced_v8.9.153.cps
+  - haas 2024 Mark's Custom.cps
+  - HAAS_VF2_-Ai-Enhanced (iMachining).cps
+  - OKUMA-M460V-5AX-Ai Enhanced-(iMachining).cps
+  - OKUMA-M460V-5AX-Ai Enhanced-Simulation (test for hardcode).cps
+  - OKUMA_GENOS_L400II_P300LA-Ai-Enhanced.cps
+  - OKUMA_LATHE_LB3000-Ai-Enhanced.cps
+  - OKUMA_MULTUS_B250IIW-Ai-Enhanced.cps
+  - OKUMA_MULTUS_B250IIW-Ai-Enhanced-Fixed.cps
+  - HURCO-VM30i-Ai-Enhanced.cps
+  - HURCO_VM30i_Ai-Enhanced (iMachining).cps
+  - HURCO_VM30i_Enhanced (variable feedrate test).cps
+
+FUSION BASIC POSTS (150+ baseline files — unmodified Autodesk library, reference-only):
+  H:/prism/BOX/FUSION BASIC POSTS/
+  Includes: hurco3d.cps + 5 Hurco turning variants, haas.cps + 50+ Haas variants,
+  fanuc.cps + variants, siemens-840d.cps, heidenhain.cps + variants,
+  mazak mill-turn, okuma mill-turn, brother, doosan, dmg mori variants.
+  Use for CPS coding standards comparison (S0) and regression baseline (S11).
+
+PRISM-MASTER CPS (generated by PPG-REAL):
+  H:/prism/mcp-server/scripts/fusion360-post/PRISM-Master-Haas.cps
+  H:/prism/mcp-server/scripts/fusion360-post/PRISM-Master-Hurco-VM30i.cps
+
+CPS TRAINING GUIDE:
+  H:/PRISM/RESOURCE PDFS/Post Processor Training Guide.pdf
+  H:/PRISM/RESOURCE PDFS/Post+Processor+Documentation+-+2021-02-04.pdf
+```
+
+### Registration
+```
+CURRENT_POSITION.md: PPG-BASELINE-MS0 in_progress (Track PPG-BASELINE)
+Roadmap Index: data/milestones/PPG-BASELINE-MS0.json (envelope)
+Scorecard: data/docs/PPG-BASELINE-SCRUTINY-SCORECARD.md
+Audit: data/docs/PPG-BASELINE-AUDIT-CONSOLIDATED.md (43 bugs + 9 feature gaps)
+```
+
+---
+
+## RGS QUALITY STANDARD — ALL 16 ITEMS
+
+| # | Item | Status |
+|---|------|--------|
+| 1 | Milestone ID + title | PPG-BASELINE-MS0 |
+| 2 | Track assignment | PPG-BASELINE (Track B: Manufacturing Domain Depth) |
+| 3 | Brief with measurable outcome | Fix 43 bugs, CPS standards audit, wire engines, 9 features, 80+ tests |
+| 4 | Knowledge source map (Stage 3) | 52 sources mapped below (+ CPS Training Guide, Post Processor Docs) |
+| 5 | Scope estimation (Stage 4) | XXL, 12 sessions, 47 units, ~24-30 context windows |
+| 6 | Phase decomposition (Stage 5) | 12 sessions with full SMART/KNOWLEDGE/INTENT/WORK |
+| 7 | Unit population (Stage 6) | 45 units: U-PBL-CPS-A..H (8) + U-PBL01..08 (8) + U-PBL-PH01..03 (3) + U-PBL09..23 (15) + U-PBL25..35 (11), all with rollback |
+| 8 | Forge-triple (Stage 7) | HOOK + ACTION + SKILL defined |
+| 9 | Enforcement integration (Stage 8) | 4 hook levels documented |
+| 10 | Dependency resolution (Stage 9) | DAG validated, no cycles |
+| 11 | Exit gate per session | Present for all 12 sessions |
+| 12 | Exit gate for milestone | 43/43 bugs, 80+ tests, 11/11 programs, 9/9 features, Omega >= 0.90 |
+| 13 | Rollback block per unit | FILES_CREATED/MODIFIED + ABORT + ROLLBACK for all 47 |
+| 14 | 4-LOOP gate per unit | BUILD + SCRUTINIZE + GAP FILL + TIE UP |
+| 15 | Feature cascade | Listed per session |
+| 16 | Compaction boundaries | After S0, S2, S5, S7, S10, S11 |
+
+---
+
+## STAGE 3: KNOWLEDGE SOURCE MAP
+
+### 3.1 Primary Source File
+```
+FILE: C:/Users/Mark Villanueva/Desktop/HURCO_VM30i_PRISM_v10_9_DRILLFIX_1.cps
+SIZE: 22,059 lines
+FORMAT: Fusion 360 CPS (JavaScript-based post processor)
+API: Fusion 360 Post Processor API (createFormat, createOutputVariable, writeBlock,
+     getSection, getGlobalParameter, tool.*, getCurrentPosition, etc.)
+KEY SECTIONS:
+  Lines 1-198:      Header, description, revision history
+  Lines 199-999:    Properties (user-configurable parameters)
+  Lines 1000-2500:  Format definitions (xyzFormat, feedFormat, etc.)
+  Lines 2500-5000:  Helper functions (writeBlock, forceXYZ, etc.)
+  Lines 5000-12000: Core G-code generators (onSection, onLinear, onCircular, etc.)
+  Lines 12000-17000: Canned cycles (onDrilling, onTapping, onBoring, etc.)
+  Lines 17000-19000: PRISM intelligence functions (calculateOptimizedFeed, etc.)
+  Lines 19000-22059: Output formatting (getFeed, getSpindle, section end)
+```
+
+### 3.2 PRISM Engine Sources (wired into post)
+
+#### Physics Engines
+```
+ENGINE: SpeedFeedOrchestratorEngine
+  PATH: H:/prism/mcp-server/src/engines/SpeedFeedOrchestratorEngine.ts
+  SIZE: 2,851 lines, 67 integration points, 8 resolvers
+  WIRING: Provides Vc/fz/ap/ae for material+tool+machine combos
+  FORMULAS: Kienzle Fc, Taylor T, power P, MRR, SFM conversion
+
+ENGINE: KienzleForceModelEngine
+  PATH: H:/prism/mcp-server/src/engines/KienzleForceModelEngine.ts
+  FORMULAS: Fc = kc1.1 * ap * fz^(1-mc)
+  CORRECTIONS: Rake angle Ky = 1 - 0.01*(y0 - 6deg), wear, speed, size effect
+  MATERIALS: 12 ISO groups with kc1.1/mc from Altintas Table 2.1
+
+ENGINE: ChatterStabilityLobeEngine
+  PATH: H:/prism/mcp-server/src/engines/ChatterStabilityLobeEngine.ts
+  METHOD: Altintas & Budak (1995) frequency-domain SLD
+  OUTPUT: Stable/unstable RPM classification, nearest stable pocket
+
+ENGINE: AdvancedChipThicknessEngine
+  PATH: H:/prism/mcp-server/src/engines/AdvancedChipThicknessEngine.ts
+  METHOD: WOC-based lookup table, ball nose correction, trochoidal ae
+
+ENGINE: StochasticToolLifeEngine
+  PATH: H:/prism/mcp-server/src/engines/StochasticToolLifeEngine.ts
+  MODELS: Taylor T=(C/Vc)^(1/n), Weibull survival, Bayesian update, Wiener degradation
+  FEATURE: Sister tool offset logic
+
+ENGINE: ToolDeflectionPredictionEngine
+  PATH: H:/prism/mcp-server/src/engines/ToolDeflectionPredictionEngine.ts
+  FORMULA: delta = F*L^3 / (3*E*I), Euler-Bernoulli cantilever
+  OUTPUT: Deflection in mm, pass/fail vs tolerance
+
+ENGINE: ThermalWearCouplingEngine
+  PATH: H:/prism/mcp-server/src/engines/ThermalWearCouplingEngine.ts
+  METHOD: RK4 coupled ODE, Usui wear dW/dt, Loewen-Shaw thermal
+  OUTPUT: Tool temperature, VB progression, cumulative wear
+
+ENGINE: SurfaceFinishPredictorEngine
+  PATH: H:/prism/mcp-server/src/engines/SurfaceFinishPredictorEngine.ts
+  FORMULA: Ra = f^2 / (32 * r_e), Brammertz (1961)
+  OUTPUT: Predicted Ra/Rz per block
+```
+
+#### Registry Engines
+```
+ENGINE: MaterialRegistry
+  PATH: H:/prism/mcp-server/src/registries/MaterialRegistry.ts (or equivalent)
+  DATA: 2,957 materials with ISO group, kc1.1, mc, hardness, thermal conductivity
+  USAGE: Material auto-detection, Kienzle constant lookup
+
+ENGINE: ToolRegistry
+  PATH: H:/prism/mcp-server/src/registries/ToolRegistry.ts (or equivalent)
+  DATA: 95,608 tools with diameter, flutes, flute length, coating, material, limits
+  USAGE: Tool geometry validation, coating speed multiplier lookup
+
+ENGINE: MachineRegistry
+  PATH: H:/prism/mcp-server/src/registries/MachineRegistry.ts (or equivalent)
+  DATA: 910 machines with spindle power curves, max RPM, travel limits
+  USAGE: Hurco VM30i = 15kW, 12000 RPM, 762x406x508mm travel
+
+ENGINE: ToolpathStrategyRegistry
+  PATH: H:/prism/mcp-server/src/registries/ToolpathStrategyRegistry.ts (or equivalent)
+  DATA: 762 toolpath strategies across 18 CAM systems
+```
+
+#### Controller + Safety Engines
+```
+ENGINE: ControllerDialectEngine
+  PATH: H:/prism/mcp-server/src/engines/ControllerDialectEngine.ts
+  DIALECT: hurco_max5 at line 1060 — WinMax/MAX5 specific codes
+  FEATURES: UltiMotion, M16 chip conveyor, M194 washdown, WPS probing
+
+ENGINE: GCodeSafetyAnalyzerEngine
+  PATH: H:/prism/mcp-server/src/engines/GCodeSafetyAnalyzerEngine.ts
+  RULES: 24 safety rules, 6 controller families
+  CHECKS: Rapid-into-material, missing spindle start, missing G43, collision hazards
+
+ENGINE: MachiningPlaybookEngine
+  PATH: H:/prism/mcp-server/src/engines/MachiningPlaybookEngine.ts
+  DATA: 296 rules, 70+ categories
+  USAGE: Best-practice validation of generated operations
+
+ENGINE: TribalKnowledgeEngine
+  PATH: H:/prism/mcp-server/src/engines/TribalKnowledgeEngine.ts
+  DATA: 4,127 tips from 19 CAM systems
+  USAGE: Hurco-specific tribal tips, controller quirks
+
+ENGINE: HurcoParserEngine
+  PATH: H:/prism/mcp-server/src/engines/HurcoParserEngine.ts
+  PURPOSE: Parse existing Hurco programs for analysis/comparison
+
+ENGINE: PostProcessorPipelineEngine
+  PATH: H:/prism/mcp-server/src/engines/PostProcessorPipelineEngine.ts
+  PHASES: P0 Input Norm, P1 Physics, P2 Block-by-Block, P3 Motion, P4 Stochastic,
+          P5 Safety, P6 Output
+  USAGE: Reference architecture — CPS post implements subset of these stages inline
+```
+
+### 3.3 Canonical Physics Constants
+```
+FILE: H:/prism/mcp-server/src/physics/constants.ts
+EXPORTS:
+  CANONICAL_KIENZLE — kc1.1/mc per ISO group (P/M/K/N/S/H)
+  CANONICAL_TAYLOR — C/n per material+coating combo
+  kienzleForce(kc1_1, mc, ap, fz) — returns Fc in N
+  taylorLife(C, Vc, n) — returns T in minutes
+  toolDeflection(F, L, E, I) — returns delta in mm
+  predictedRa(fz, r_e) — returns Ra in microns
+  cuttingPower(Fc, Vc) — returns P in kW
+  spindleTorque(P, n) — returns T in Nm
+  rpmFromVc(Vc, D) — returns n in RPM
+```
+
+### 3.4 Published Reference Data
+```
+TEXTBOOK: Altintas "Manufacturing Automation" 2nd Ed
+  - Table 2.1: kc1.1/mc values for 12 material groups
+  - Chapter 3: Stability lobe theory (Altintas & Budak 1995)
+  - Chapter 2: Oblique cutting model, force predictions
+
+TEXTBOOK: Machinery's Handbook 30th Ed
+  - Material properties tables (hardness, tensile strength)
+  - Threading specifications
+  - Surface finish standards
+
+CATALOG: Sandvik Coromant General Turning/Milling
+  - Vc/fz ranges per ISO material group
+  - Coating grade recommendations
+  - Chip thinning correction tables
+
+CATALOG: Kennametal NOVO / Beyond catalog
+  - Alternative S/F data for cross-validation
+  - Tool geometry specifications
+
+STANDARD: ISO 3685 — Tool life testing
+STANDARD: ISO 4287 — Surface roughness parameters
+STANDARD: IEEE-754 — Floating point precision (Bug 4)
+
+MANUAL: Hurco WinMax Control Programming Guide
+  - UltiMotion parameters and G05.3 codes
+  - M16 chip conveyor, M194 washdown
+  - WPS probing cycle subprogram numbers
+  - G43 tool length comp, G54-G59 work offsets
+```
+
+### 3.5 Existing Test Infrastructure
+```
+TESTS: H:/prism/mcp-server/src/__tests__/
+  - PostProcessorE2E.test.ts — end-to-end PPG tests
+  - PostProcessorMOAT-MS3.test.ts — MOAT hardening tests
+  - pp-arc-motion.test.ts — arc/circular interpolation tests
+  - ppg-test-generator.ts — test helper utilities
+  - benchmark-extended-machine-sweep.test.ts — multi-machine validation
+  - box-ms4-controller-knowledge.test.ts — controller dialect tests
+
+PROGRAMS: H:/prism/mcp-server/data/posts/prism-enhanced/
+  - 14 existing PRISM-enhanced CPS files for comparison
+  - HURCO-VM30i-Ai-Enhanced.cps — prior Hurco post version
+  - HURCO_VM30i_Ai-Enhanced (iMachining).cps — iMachining variant
+  - HURCO_VM30i_Enhanced (variable feedrate test).cps — feedrate test variant
+
+REFERENCE: H:/prism/mcp-server/data/programs/hurco/ (if exists)
+  - Production G-code programs for regression testing
+```
+
+### 3.6 CPS Coding Standards References
+```
+GUIDE: H:/PRISM/RESOURCE PDFS/Post Processor Training Guide.pdf
+  - Property group/scope assignment (every property in a named group with scope)
+  - createFormat, createOutputVariable, createModal with onchange patterns
+  - writeBlock (NOT writeln) as standard output method
+  - writeRetract pattern (conditional retract with onchange tracking)
+  - Standard smoothing pattern (G05.1/G05.3/G5.1/CYCLE832)
+  - Standard coolant pattern (setCoolant with state tracking)
+  - Standard subprogram pattern (with stack + call numbering)
+  - Standard probing pattern (inspectionCycle + Renishaw hooks)
+  - Entry function completeness: all 11 callbacks (onOpen, onSection, onDwell,
+    onSpindleSpeed, onRadiusCompensation, onRapid, onLinear, onCircular,
+    onCycle, onCycleEnd, onSectionEnd, onClose)
+
+GUIDE: H:/PRISM/RESOURCE PDFS/Post+Processor+Documentation+-+2021-02-04.pdf
+  - API reference for all CPS sandbox functions
+  - getGlobalParameter, getParameter, machineConfiguration object model
+  - CAM operation property access patterns
+
+STANDARD: Autodesk Fusion 360 Post Processor Sandbox Constraints
+  - NO HTTPClient, NO network calls, NO TypeScript imports
+  - NO require(), NO import statements, NO eval()
+  - All data must be baked in at generation time or read from Fusion API
+  - CPS runs in isolated V8 sandbox with limited globals
+```
+
+### 3.7 Additional Resource PDFs (H:/PRISM/RESOURCE PDFS/)
+```
+HURCO-SPECIFIC:
+  WinMax-Mill-Intro-Class-Workbook.pdf — Hurco WinMax programming workbook
+    USE IN: S1 (Hurco bugs), S8 (Hurco features), S10 (G64 UltiMotion)
+
+PPG-SPECIFIC:
+  RC2024-PPG-Reference.pdf — PPG reference document (identify contents before S0)
+    USE IN: S0 (CPS standards audit), S11 (certification reference)
+  AI ENHANCED POST PROCESSORS - APPLY PRISM ENHANCEMENTS THEN USE AS TEMPLATES.zip
+    USE IN: S0 (predecessor templates), S11 (regression comparison)
+
+THREAD MILLING:
+  Helical Interpolation for Thread Milling, Holes, and Spiral Ramps.pdf
+    USE IN: S9 U-PBL25 (thread milling feature implementation)
+
+G-CODE REFERENCES:
+  G49 G-Code [Tool Length Compensation Cancel].pdf — USE IN: S1 U-PBL02 (Bug 4/5)
+  Mastering GCode G41, G42, and G40_ Tool Compensation Power.pdf — USE IN: S0 CPS audit
+  G-Code and M-Code List [ Easy Examples & Tutorials ].pdf — USE IN: S1-S2 (bug fixes)
+  Dynamic_Milling.pdf — USE IN: S10 U-PBL31 (toolpath filtering)
+  Feeds and Speeds [The Ultimate Guide, Updated for 2024].pdf — USE IN: S4-S7 (physics)
+
+CONTROLLER MANUALS (for downstream dialect derivation):
+  Programming Haas CNC Control G-Codes and M-Codes.pdf — Haas NGC reference
+  English - Mill Operator's Manual - NGC 2023.pdf — Haas mill manual
+  Mazak EIA - Programming Manual for Mazatrol Matrix.pdf — Mazak EIA
+  Mazak Mazatrol Programming Manual for Mazatrol Matrix.pdf — Mazak conversational
+  Mazak Programming Manual for Mazatrol Matrix 3D.pdf — Mazak 3D
+  Okuma-OSP-P200L-Programming.pdf — Okuma OSP-P200L programming
+  OSP-P200L-Macturn-Multus-Series-Operation-Manual.pdf — Okuma mill-turn
+  function-catalog.pdf — Siemens Sinumerik function catalog
+
+TOOLING:
+  BIG DAISHOWA-tool holders.zip — Tool holder geometry data
+    USE IN: S5 (tooling intelligence, deflection models)
+```
+
+### 3.8 Additional PPG-Related Engines (not referenced in 3.2 but relevant)
+```
+ENGINE: SubprogramStructureEngine
+  PATH: H:/prism/mcp-server/src/engines/SubprogramStructureEngine.ts
+  USAGE: S9 U-PBL27 — subprogram generation for hole patterns
+  WIRING: Provides M98 P call structure, stack depth tracking
+
+ENGINE: CoolantControlConfigEngine
+  PATH: H:/prism/mcp-server/src/engines/CoolantControlConfigEngine.ts
+  USAGE: S0 U-PBL-CPS-E — standard coolant pattern with state machine
+  WIRING: Provides coolant state tracking, setCoolant pattern reference
+
+ENGINE: PostProcessorFeedOptimizerEngine
+  PATH: H:/prism/mcp-server/src/engines/PostProcessorFeedOptimizerEngine.ts
+  USAGE: S3/S6 — feed optimization in post output, per-block variable S/F
+  WIRING: Reference architecture for in-CPS feed adjustment logic
+
+ENGINE: PostProcessorVerificationEngine
+  PATH: H:/prism/mcp-server/src/engines/PostProcessorVerificationEngine.ts
+  USAGE: S11 — post output quality verification for certification
+  WIRING: Verifies G-code output against safety/quality rules
+
+ENGINE: PostProcessorAnalyzerEngine
+  PATH: H:/prism/mcp-server/src/engines/PostProcessorAnalyzerEngine.ts
+  USAGE: S11 — programmatic analysis of CPS structure and quality
+  WIRING: Feeds 43-bug regression baseline, structural audit
+
+ENGINE: PostValidationHardeningEngine
+  PATH: H:/prism/mcp-server/src/engines/PostValidationHardeningEngine.ts
+  USAGE: S11 — hardening evidence for certification exit gate
+
+ENGINE: CpsPostParserEngine
+  PATH: H:/prism/mcp-server/src/engines/CpsPostParserEngine.ts
+  USAGE: S0 — programmatic CPS structure analysis for standards audit
+  WIRING: Reads and parses CPS files for property/function inventory
+```
+
+### 3.9 Fusion 360 CPS API Reference
+```
+API FUNCTIONS (used in post):
+  createFormat({decimals, forceDecimal, forceSign, trim, scale})
+  createOutputVariable({prefix, force}, format)
+  writeBlock(...words) — output one G-code line
+  formatComment(text) — format inline comment
+  getSection() — current CAM operation section
+  getGlobalParameter(name) — job-level parameters (material, stock, etc.)
+  tool.diameter, tool.numberOfFlutes, tool.fluteLength, tool.bodyLength
+  tool.cornerRadius, tool.material, tool.description, tool.comment
+  getCurrentPosition() — current XYZ position
+  getNextSection() — peek at next operation
+  isFirstSection(), isLastSection()
+  hasParameter(name), getParameter(name) — operation parameters
+  machineConfiguration — machine kinematics object
+```
+
+---
+
+## STAGE 4: SCOPE ESTIMATION
+
+### Complexity Classification: XXL
+
+**Justification:**
+- Source file: 22,059 lines (larger than most PRISM engines combined)
+- 43 bugs spanning 4 severity levels (8 CRITICAL, 12 HIGH, 15 MEDIUM, 8 LOW)
+- CPS coding standards audit against Autodesk Post Processor Training Guide
+- 10,700-line copy-paste refactor (24 tool pockets × 446 lines = 48% of file)
+- 6 PRISM engine integrations (material, tool, force, stability, thermal, safety)
+- 9 missing features to implement (thread milling through 5-axis rewind)
+- Hurco-specific feature exploitation (UltiMotion, WPS probing, G64)
+- Comprehensive test suite required (80+ tests)
+- 11 production program regression validation
+- Cross-roadmap coherence with PPG-REAL and PPG-VAR tracks
+
+### Session Count: 12 sessions
+
+```
+SESSION DECOMPOSITION:
+  S0:  CPS coding standards audit (8 units)     — Autodesk CPS standards conformance
+  S1:  Critical bug fixes (5 units)              — Bugs 1-8 (all 8 CRITICAL)
+  S2:  HIGH bug fixes + consolidation (5 units)  — Bugs 9-20 (all 12 HIGH)
+  S3:  Physics bug fixes (3 units)               — SQRT chip thin, velocity, formula reconciliation
+  S4:  Material intelligence (3 units)           — MaterialRegistry wiring
+  S5:  Tooling intelligence (3 units)            — ToolRegistry wiring
+  S6:  Kienzle force + power (3 units)           — KienzleForceModelEngine wiring
+  S7:  Stability + thermal (3 units)             — ChatterStabilityLobe + ThermalWear wiring
+  S8:  Hurco features + safety (3 units)         — ControllerDialect + GCodeSafety wiring
+  S9:  Missing features Part 1 (4 units)         — Thread/Split/Sub/Setup
+  S10: Missing features Part 2 + motion (4 units) — M-codes/UltiMotion/Filter/Rewind
+  S11: Integration test + certification (3 units) — Full test suite + production validation
+
+CONTEXT BUDGET PER SESSION: 35-50% (CPS file is 22K lines, consumes significant context)
+COMPACTION BOUNDARIES: After S0, S2, S5, S7, S10, S11
+  - S0 = 8 units → compact (CPS standards audit complete)
+  - S1+S2 = 10 units → compact (all CRITICAL+HIGH bugs fixed)
+  - S3+S4+S5 = 9 units → compact (physics + intelligence wiring)
+  - S6+S7 = 6 units → compact (force + stability wiring)
+  - S8+S9+S10 = 11 units → compact (features + safety complete)
+  - S11 = 3 units → compact (certification complete)
+
+MID-SESSION COMPACTION TRIGGERS:
+  - Any session exceeding 50% context → compact and split remaining units to next window
+  - S0 may require 2 context windows due to 10,700-line refactor scope
+
+ESTIMATED CONTEXT WINDOWS: 24-30 (2 per session + compaction overhead)
+```
+
+### Unit Naming Convention
+```
+U-PBL-CPS-A through U-PBL-CPS-H (S0: CPS coding standards)
+U-PBL01 through U-PBL08 (S1-S2: Critical + HIGH bug fixes)
+U-PBL-PH01 through U-PBL-PH03 (S3: Physics bug fixes)
+U-PBL09 through U-PBL11 (S4: Material intelligence — renumbered from original 07-09)
+U-PBL12 through U-PBL14 (S5: Tooling intelligence — renumbered from original 10-12)
+U-PBL15 through U-PBL17 (S6: Kienzle force + power)
+U-PBL18 through U-PBL20 (S7: Stability + thermal + wear)
+U-PBL21 through U-PBL23 (S8: Hurco features + safety)
+U-PBL25 through U-PBL28 (S9: Features Part 1)
+U-PBL29 through U-PBL32 (S10: Features Part 2 + motion)
+U-PBL33 through U-PBL35 (S11: Integration testing + certification)
+```
+
+---
+
+## STAGE 5: PHASE DECOMPOSITION — 12 SESSIONS
+
+---
+
+### SESSION PPG-BL-S0: CPS Coding Standards Audit + Refactor (NEW — Loop 2)
+
+```
+SMART CONFIG:
+  Role = CPS Post Processor Standards Expert + Code Architect
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 45%
+  Agent Count = 5 (CPS standards + code architect + Autodesk API expert + refactor + QA)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. Post Processor Training Guide PDF — standard property group/scope patterns
+  2. Post+Processor+Documentation PDF — API reference and sandbox constraints
+  3. v10.9 CPS lines 199-999 — properties block (audit against standards)
+  4. v10.9 CPS lines 1000-2500 — format/variable definitions (createFormat/createOutputVariable)
+  5. v10.9 CPS lines 2500-5000 — helper functions (writeBlock vs writeln audit)
+  6. v10.9 CPS lines 5000-17000 — entry functions (11 callback completeness)
+  7. v10.9 CPS lines 5000-15700 — 24 tool pockets × 446 lines (copy-paste refactor scope)
+  8. ControllerDialectEngine.ts:1060 — hurco_max5 dialect for writeRetract/smoothing patterns
+  9. Existing PRISM-enhanced CPS files — check which already follow standards
+
+INTENT:
+  The v10.9 CPS is brought into compliance with Autodesk Post Processor Training Guide
+  coding standards BEFORE any bug fixes or feature additions. Every property has a named
+  group and scope. All output uses writeBlock (not writeln). Modal variables use createModal
+  with onchange handlers. The writeRetract pattern matches the standard template. Smoothing,
+  coolant, subprogram, and probing patterns match standard templates. The 10,700-line
+  copy-paste tool pocket block is refactored into a parameterized loop. This creates a
+  clean, maintainable foundation that all subsequent sessions build on.
+
+SKILLS:
+  /cps-analyze — CPS structure analysis
+  /de-sloppify — code cleanup
+  /prism-review — CPS standards review
+
+WORK:
+  U-PBL-CPS-A: Property group/scope audit — assign every property to a named group with scope
+  U-PBL-CPS-B: createModal with onchange handlers — audit all modal variables
+  U-PBL-CPS-C: Adopt standard writeRetract pattern (conditional retract + state tracking)
+  U-PBL-CPS-D: Adopt standard smoothing pattern (per Training Guide)
+  U-PBL-CPS-E: Adopt standard coolant pattern (setCoolant with state machine)
+  U-PBL-CPS-F: writeln → writeBlock audit (replace all raw writeln calls)
+  U-PBL-CPS-G: Refactor 10,700-line copy-paste tool pockets into parameterized loop
+  U-PBL-CPS-H: Entry function completeness audit (verify all 11 CPS callbacks present and correct)
+
+FORGE-TRIPLE:
+  HOOK: cps-standards-gate
+    PURPOSE: Blocks CPS edits that violate standards (writeln, unscoped properties)
+    TRIGGER: Any edit to CPS files under data/posts/prism-enhanced/
+    ACTION: Grep for writeln (not writeBlock), unscoped properties → FAIL if found
+  ACTION: prism_dev:audit_cps_standards
+    PURPOSE: Score a CPS file against coding standards
+    SCHEMA: { cps_path: string }
+    RETURNS: { score: number, violations: CpsViolation[], groups_missing: number }
+  SKILL: /cps-standards-check
+    PURPOSE: User-facing CPS standards audit
+    USAGE: /cps-standards-check <cps-file>
+
+EXIT GATE:
+  [ ] Every property has group + scope assigned
+  [ ] Zero writeln calls remain (all converted to writeBlock)
+  [ ] All modal variables use createModal with onchange
+  [ ] writeRetract pattern matches Training Guide template
+  [ ] Smoothing pattern matches standard (G05.3 with proper cancel)
+  [ ] Coolant pattern uses setCoolant state machine
+  [ ] Tool pockets refactored: 10,700 lines → ~500 lines with loop
+  [ ] All 11 CPS entry functions present and documented
+  [ ] Sandbox boundary documented: what data is baked in vs Fusion API
+  [ ] Line count reduced by ~10,000 lines from refactor
+  [ ] /prism-review with CPS-standards agent: 0 CRITICAL/HIGH
+
+FEATURE CASCADE:
+  S0 → ALL: Clean CPS foundation enables all subsequent sessions
+  S0 → S1: Refactored code makes bug locations easier to find
+  S0 → S3: Standard patterns prevent physics integration from introducing new violations
+  S0 → S9-S10: New features follow established patterns from day one
+
+/compact after S0 — CPS standards audit complete. HANDOFF includes:
+  - Property group inventory (group name, scope, property count)
+  - writeln → writeBlock conversion count
+  - Tool pocket refactor: before/after line counts
+  - Entry function inventory (11 callbacks, status of each)
+  - Remaining violations if any (deferred to specific session)
+```
+
+---
+
+### SESSION PPG-BL-S1: Critical Bug Fixes (All 8 CRITICAL — Bugs 1-8)
+
+```
+SMART CONFIG:
+  Role = CPS Post Processor Expert + CNC Programmer + Safety Engineer
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (CPS expert + machinist + safety + G-code reviewer + numerics)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. v10.9 CPS line 19062 — getFeed() returns raw f (Bug 1)
+  2. v10.9 CPS lines 18831-18983 — calculateOptimizedFeed() (Bug 2)
+  3. v10.9 CPS lines 19890-19910 — smart override block (Bug 3)
+  4. v10.9 CPS lines 19565-19676 — tool change section, no G49 (Bug 4)
+  5. v10.9 CPS lines 17777-17781 — safe start block, no G49 (Bug 5)
+  6. v10.9 CPS lines 1000-2500 — gUnitModal defined but never output (Bug 6)
+  7. v10.9 CPS lines 199-999 — property definitions (Bug 7: 5 undefined properties)
+  8. v10.9 CPS lines 436-457 — smoothingTolerance undefined (Bug 8)
+  9. Fusion 360 CPS API: createFormat, createOutputVariable, writeBlock
+  10. ControllerDialectEngine.ts:1060 — hurco_max5 dialect rules
+  11. GCodeSafetyAnalyzerEngine.ts — safety rules (G49, G20/G21 checks)
+
+INTENT:
+  All 8 CRITICAL bugs that produce broken G-code or crash risk are fixed:
+  - Bug 1: F word on every cutting move (facing/chamfer fix)
+  - Bug 2: prismEnabled → prismEnableIntelligence (700 lines of dead code activated)
+  - Bug 3: progFeed defined in smart override scope (no NaN)
+  - Bug 4: G49 output before tool change (prevent Z-crash from stale offset)
+  - Bug 5: G49 in safe start block (prevent restart with wrong offset)
+  - Bug 6: G20/G21 output at program start (prevent unit mode mismatch → crash)
+  - Bug 7: All 5 undefined properties declared (useMultiAxisFeatures, etc.)
+  - Bug 8: smoothingTolerance property defined or G5.2 code removed
+  A machinist loading the output is protected from the most dangerous failure modes.
+
+SKILLS:
+  /cps-analyze — analyze CPS structure before edits
+  /program-validate — validate generated G-code after fixes
+  /prism-review — multi-role review of CPS changes
+
+WORK:
+  U-PBL01: Fix Bugs 1-3 — F word, prismEnabled, progFeed
+  U-PBL02: Fix Bugs 4-5 — G49 before tool change + G49 in safe start
+  U-PBL03: Fix Bugs 6-8 — G20/G21 output, undefined properties, smoothingTolerance
+
+FORGE-TRIPLE: N/A (bug fix session, no new capability to triple)
+
+EXIT GATE:
+  [ ] Bug 1: F word present on every G1/G2/G3 cutting move
+  [ ] Bug 2: prismEnableIntelligence property name correct everywhere
+  [ ] Bug 3: Smart override mode produces numeric feeds, zero NaN
+  [ ] Bug 4: G49 output before every M6 tool change
+  [ ] Bug 5: G49 in safe start block (program start + restart)
+  [ ] Bug 6: G20 or G21 output in program header based on unit mode
+  [ ] Bug 7: All 5 undefined properties declared with appropriate defaults
+  [ ] Bug 8: smoothingTolerance defined or G5.2 block removed
+  [ ] /prism-review completed with 0 CRITICAL findings remaining
+  [ ] Target file exists: H:/prism/mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps
+
+FEATURE CASCADE:
+  S1 → S2 depends on: clean property namespace (Bug 2 + Bug 7 fix)
+  S1 → S4 depends on: working optimization engine (Bug 2 fix enables material intelligence)
+  S1 → S6 depends on: correct feed output (Bug 1 fix enables force-based feed adjustment)
+```
+
+---
+
+### SESSION PPG-BL-S2: HIGH Bug Fixes + Property Consolidation (Bugs 9-20)
+
+```
+SMART CONFIG:
+  Role = CPS Post Processor Expert + Numerical Methods Specialist + Hurco Applications Eng
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (CPS expert + numerics + Hurco specialist + code quality + machinist)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. v10.9 CPS line 14376 — SQRT chip thinning formula (Bug 9 — moved to S3 for dedicated fix)
+  2. v10.9 CPS line 19092 — feed multiplication chain producing 10+ digits (Bug 10)
+  3. v10.9 CPS onSectionEnd — G05.3 never cancelled (Bug 11)
+  4. v10.9 CPS inside if(insertToolCall) — G05.3 only on tool change (Bug 12)
+  5. v10.9 CPS line 17811 — BNC dwell G4 P75.0000 format (Bug 13)
+  6. v10.9 CPS line 17255 — velocity overestimate sqrt(2aL) vs sqrt(aL) (Bug 14 — moved to S3)
+  7. v10.9 CPS lines 5000-15700 — 10,700 copy-paste lines (Bug 15 — done in S0)
+  8. v10.9 CPS lines 18579-18594 — magic number LOC thresholds (Bug 16)
+  9. v10.9 CPS line 17734 — disabled duplicate tool check (Bug 17)
+  10. v10.9 CPS lines 20507-20513 — BNC G83 triple Z-word (Bug 18)
+  11. v10.9 CPS property duplicates — Bug 19
+  12. v10.9 CPS header vs code — G64 UltiMotion claimed but not output (Bug 20)
+  13. IEEE-754 floating point precision reference
+  14. Fusion 360 createFormat API ({decimals, forceDecimal, trim})
+  15. HANDOFF.md from S1 — CRITICAL bug fix state
+
+INTENT:
+  All 12 HIGH severity bugs are fixed. Decimal precision is controlled (4 places max).
+  G05.3 smoothing is properly cancelled and applied per-section. BNC mode compatibility
+  is correct. Duplicate properties are consolidated. The disabled duplicate tool check
+  is re-enabled with proper logic. G64 UltiMotion is either implemented or claim removed.
+  Magic numbers are replaced with named constants and comments.
+
+SKILLS:
+  /cps-analyze — property inventory audit
+  /de-sloppify — dead code cleanup
+  /prism-review — precision and code quality review
+
+WORK:
+  U-PBL04: Fix Bugs 10, 13, 16 — Decimal precision, BNC dwell format, LOC magic numbers
+  U-PBL05: Fix Bugs 11, 12, 18 — G05.3 cancel, per-section smoothing, BNC G83 Z-word
+  U-PBL06: Fix Bugs 17, 19, 20 — Duplicate tool check, property consolidation, G64 claim
+  U-PBL07: Fix MEDIUM Bugs 21-35 — Stickout L/D, Fc formula, 3 chip formulas, tapping G94,
+           M90/M91, G05.3 range, duplicate vars, dead functions, position reset, silent catch,
+           double negation, optMode duplicate, washdown dwell, nested functions
+  U-PBL08: Fix LOW Bugs 36-43 — Y-axis description, div-by-zero, M2→M30, gravity constant,
+           rake sign, surface finish docs, jerk unit, G64 header
+
+FORGE-TRIPLE: N/A (cleanup session)
+
+EXIT GATE:
+  [ ] No output value exceeds 4 decimal places
+  [ ] G05.3 cancelled (G05.3 P0) at end of every section
+  [ ] G05.3 applied per-section based on operation type (not only on tool change)
+  [ ] BNC dwell format: G4 P75000 (milliseconds, no decimal)
+  [ ] BNC G83: single Z-word, not triple
+  [ ] Duplicate tool check re-enabled with correct logic
+  [ ] Zero duplicate property definitions
+  [ ] Zero duplicate variable declarations
+  [ ] LOC thresholds documented as named constants
+  [ ] All MEDIUM bugs 21-35 addressed
+  [ ] All LOW bugs 36-43 addressed
+  [ ] /prism-review completed with 0 CRITICAL/HIGH findings
+  [ ] 20/20 bugs addressed (Bugs 1-8 from S1, Bugs 9-20 from S2, excluding physics → S3)
+  [ ] 43/43 bugs total with MEDIUM+LOW
+
+FEATURE CASCADE:
+  S2 → S3: Physics bugs (9, 14) ready for dedicated fix with formula citations
+  S2 → S4: Clean property namespace enables material property additions
+  S2 → S5: No duplicate caps enables tooling property additions
+  S2 → S6: Correct decimal formatting enables physics value output
+
+/compact after S2 — All bugs fixed (43/43). HANDOFF includes:
+  - Bug fix inventory: all 43 locations and verification status
+  - Clean property inventory (canonical names only)
+  - Format definitions state (decimal places, IJK format)
+  - G05.3 smoothing state (per-section, cancel pattern)
+  - BNC compatibility fixes applied
+```
+
+---
+
+### SESSION PPG-BL-S3: Physics Bug Fixes + Formula Reconciliation (NEW — Loop 2)
+
+```
+SMART CONFIG:
+  Role = Manufacturing Physicist + Numerical Methods PhD + CPS Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (physicist + numerics PhD + machinist + CPS expert + Sandvik ref)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. v10.9 CPS line 14376 — chip thinning formula: 1/sqrt(ae/D)
+  2. Sandvik General Milling catalog — correct formula: 1/sqrt(ae/D*(1-ae/D))
+  3. v10.9 CPS line 17255 — velocity: sqrt(2*a*L) vs correct sqrt(a*L) or sqrt(2*a*L)
+  4. AdvancedChipThicknessEngine.ts — PRISM canonical chip thinning implementation
+  5. src/physics/constants.ts — canonical physics functions
+  6. Three separate chip thickness formulas in CPS (lines ~14376, ~18536, ~21174)
+  7. Altintas "Manufacturing Automation" 2nd Ed — reference kinematic formulas
+  8. Kienzle force formula: Fc = kc1.1 * ap * h^(1-mc) — check CPS line 15609
+
+INTENT:
+  Three physics bugs are fixed with rigorous formula citations. The chip thinning formula
+  uses Sandvik's correct form (accounting for both entry and exit engagement). The velocity
+  estimate uses the correct kinematic formula. All three separate chip thickness formulas
+  in the CPS are reconciled to one canonical implementation. The cutting force formula
+  includes proper engagement width (Bug 22). Every fix includes a comment citing the
+  source formula, equation number, and page reference.
+
+SKILLS:
+  /physics-verify — validate formulas against published data
+  /formula-check — check formula accuracy
+  /what-if — explore error magnitude at different parameters
+  /prism-review — physics specialist review
+
+WORK:
+  U-PBL-PH01: Fix Bug 9 — SQRT chip thinning: 1/sqrt(ae/D) → 1/sqrt(ae/D*(1-ae/D))
+              Error: 13% at 25% WOC, 26% at 45% WOC. Cite Sandvik catalog page.
+  U-PBL-PH02: Fix Bug 14 — Velocity overestimate: sqrt(2*a*L) → correct kinematic formula.
+              Error: 41% overestimate. Cite Altintas eq. number.
+  U-PBL-PH03: Reconcile 3 chip thickness formulas into one canonical function.
+              Audit Bug 22 (Fc missing engagement width) and fix.
+              Ensure all physics chains produce consistent results.
+
+FORGE-TRIPLE: N/A (physics fix session)
+
+EXIT GATE:
+  [ ] Chip thinning at 25% WOC: correct factor vs Sandvik reference (within 2%)
+  [ ] Chip thinning at 45% WOC: correct factor vs Sandvik reference (within 2%)
+  [ ] Chip thinning at 10% WOC: factor = ~3.2x (Sandvik reference)
+  [ ] Velocity estimate matches actual kinematic formula (within 5% of FEA reference)
+  [ ] Only ONE chip thickness function in CPS (others replaced with calls to it)
+  [ ] Fc formula includes engagement width: Fc = kc1.1 * ap * ae * h^(1-mc) / ae
+  [ ] Every formula change has citation comment: source, equation, page
+  [ ] Formulas imported from canonical src/physics/constants.ts where applicable
+  [ ] /prism-review with physicist agent: 0 CRITICAL findings
+  [ ] Error magnitude documented: before vs after for each fix
+
+FEATURE CASCADE:
+  S3 → S6: Correct chip thinning feeds into force calculation accuracy
+  S3 → S7: Correct velocity feeds into thermal and stability calculations
+  S3 → S11: Physics test cases must validate corrected formulas
+
+DEPENDENCIES: S0 (CPS standards), S1 (CRITICAL bugs), S2 (HIGH bugs — decimal precision)
+```
+
+---
+
+### SESSION PPG-BL-S4: Enhanced Material Intelligence (renumbered from original S3)
+
+```
+SMART CONFIG:
+  Role = Materials Scientist + CPS Post Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (materials + machinist + physicist + CPS expert + numerics)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. src/physics/constants.ts — CANONICAL_KIENZLE table (kc1.1/mc per ISO group)
+  2. SpeedFeedOrchestratorEngine.ts — material-to-S/F resolution chain
+  3. Fusion 360 API: getGlobalParameter('material'), getGlobalParameter('material-name'),
+     getGlobalParameter('material-hardness')
+  4. Altintas "Manufacturing Automation" 2nd Ed Table 2.1 — kc1.1/mc reference
+  5. Machinery's Handbook 30th Ed — material properties, hardness conversion tables
+  6. Sandvik Coromant General Milling catalog — Vc ranges per ISO group and grade
+  7. HANDOFF.md from S2 — property namespace state, format definitions
+
+INTENT:
+  The post auto-detects material from Fusion 360's material library, resolves to ISO
+  material group (P/M/K/N/S/H), looks up Kienzle constants (kc1.1, mc), hardness,
+  machinability rating, and thermal conductivity. Speed/feed adjustments are physics-correct.
+  The machinist does NOT manually enter material data — it flows from the CAM setup.
+  Unknown materials get conservative ISO P defaults with a prominent WARNING comment
+  in the G-code so the operator knows to verify.
+
+SKILLS:
+  /material-lookup — validate material assignments
+  /physics-verify — check kc1.1/mc values against published data
+  /prism-review — materials science review
+
+WORK:
+  U-PBL09: Material auto-detection from Fusion material library
+  U-PBL10: Hardness-based speed derating
+  U-PBL11: Material-specific coolant strategy + surface finish hints
+
+FORGE-TRIPLE: N/A (wiring session, no standalone new engine)
+
+EXIT GATE:
+  [ ] 4140 Steel → ISO P, kc1.1 = 1700-1900 MPa, mc = 0.25
+  [ ] 6061-T6 → ISO N, kc1.1 = 600-800 MPa, mc = 0.25
+  [ ] Ti-6Al-4V → ISO S, kc1.1 = 1350-1680 MPa, mc = 0.23
+  [ ] 304/316L → ISO M, kc1.1 = 2000-2400 MPa, mc = 0.26
+  [ ] D2 tool steel → ISO H, kc1.1 = 2500-3000 MPa (HRC dependent)
+  [ ] Unknown material → ISO P defaults + WARNING comment in G-code
+  [ ] Hardness derating: HRC 28 → baseline, HRC 40 → ~70%, HRC 55 → ~45%
+  [ ] Coolant: Ti alloys require flood, aluminum accepts mist
+  [ ] All kc1.1/mc values imported from CANONICAL_KIENZLE, never inline
+  [ ] /prism-review with materials-scientist agent: 0 CRITICAL/HIGH
+
+FEATURE CASCADE:
+  S4 → S6: Material kc1.1/mc feeds directly into Kienzle force calculation
+  S4 → S7: Material thermal conductivity feeds into thermal tracking
+  S4 → S11: Material test cases needed for integration test matrix
+```
+
+---
+
+### SESSION PPG-BL-S5: Enhanced Tooling Intelligence (renumbered from original S4)
+
+```
+SMART CONFIG:
+  Role = Tooling Engineer + CPS Post Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (tooling eng + machinist + deflection analyst + CPS expert + test)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. ToolDeflectionPredictionEngine.ts — delta = F*L^3/(3*E*I) implementation
+  2. StochasticToolLifeEngine.ts — Taylor/Weibull life models
+  3. AdvancedChipThicknessEngine.ts — WOC lookup, ball nose, trochoidal ae
+  4. Fusion 360 API: tool.diameter, tool.numberOfFlutes, tool.fluteLength,
+     tool.bodyLength, tool.cornerRadius, tool.material, tool.description
+  5. Sandvik Solid Round Tools catalog — coating Vc multipliers
+  6. src/physics/constants.ts — CANONICAL_TAYLOR C/n values
+  7. HANDOFF.md from S2 — property state + material intelligence from S3
+
+INTENT:
+  The post reads tool geometry from Fusion 360 (diameter, flutes, length, corner radius,
+  material, coating), calculates deflection limits, predicts tool life, and adjusts S/F
+  based on actual tool capability. Long stickout tools get progressive feed derating
+  based on beam deflection model. Coated tools get speed boosts based on coating type.
+  Tool life is estimated per operation and output as a G-code comment. Sister tool offset
+  triggers when cumulative time exceeds configured life threshold.
+
+SKILLS:
+  /tool-select — validate tool parameters
+  /tool-life-max — tool life optimization reference
+  /physics-verify — deflection formula verification
+  /prism-review — tooling review
+
+WORK:
+  U-PBL12: Tool geometry extraction + stickout intelligence
+  U-PBL13: Coating-aware speed adjustment
+  U-PBL14: Tool life estimation + sister tool support
+
+FORGE-TRIPLE: N/A (wiring session)
+
+EXIT GATE:
+  [ ] 12mm EM at L/D=4 → no derating
+  [ ] 12mm EM at L/D=6 → 15-25% feed reduction
+  [ ] 6mm EM at L/D=8 → 30-40% feed reduction + WARNING
+  [ ] TiAlN coated → 50% higher SFM than uncoated
+  [ ] AlTiN coated → 60% higher SFM (hardened steel applications)
+  [ ] DLC coated → 100% higher SFM (aluminum applications)
+  [ ] Uncoated → baseline SFM, unknown coating → 1.0x + note
+  [ ] Tool life estimate in G-code comment per tool change
+  [ ] Sister tool logic triggers at configurable threshold
+  [ ] Deflection formula imports from canonical constants
+  [ ] /prism-review with tooling-engineer agent: 0 CRITICAL/HIGH
+
+FEATURE CASCADE:
+  S5 → S6: Tool geometry (D, z) needed for force calculation (Fc = kc1.1*ap*fz^(1-mc))
+  S5 → S7: Stickout data needed for stability lobe natural frequency estimate
+  S5 → S11: Tool test matrix needed for integration tests
+
+/compact after S5 — Intelligence wiring phase complete. HANDOFF includes:
+  - Material detection state (40+ presets, ISO group mapping)
+  - Tool geometry extraction state (which Fusion API fields used)
+  - Deflection model state (formula, E/I values for tool materials)
+  - Coating multiplier table (6 coatings, multipliers)
+  - Taylor C/n values used for tool life
+```
+
+---
+
+### SESSION PPG-BL-S6: Wire Kienzle Force + Power Limiting (renumbered from original S5)
+
+```
+SMART CONFIG:
+  Role = Manufacturing Physicist + CPS Post Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 45%
+  Agent Count = 5 (physicist + machinist + numerics PhD + CPS expert + safety)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. KienzleForceModelEngine.ts — Fc = kc1.1 * ap * fz^(1-mc) implementation
+  2. src/physics/constants.ts — kienzleForce(), cuttingPower(), spindleTorque() functions
+  3. CANONICAL_KIENZLE — kc1.1/mc per ISO group
+  4. MachineRegistry — Hurco VM30i: 15kW spindle, 12000 RPM max
+  5. Altintas "Manufacturing Automation" 2nd Ed Section 2.3 — Kienzle model derivation
+  6. Rake angle correction: Ky = 1 - 0.01*(gamma_0 - 6deg) — Altintas Eq. 2.18
+  7. Power: P_kW = Fc * Vc / (60000 * eta), eta = 0.85 typical spindle efficiency
+  8. Torque: T_Nm = P_kW * 9549 / n_RPM
+  9. HANDOFF.md from S4 — material kc1.1/mc + tool geometry from S3/S4
+
+INTENT:
+  Every cutting move has a force prediction. When predicted force multiplied by cutting speed
+  would exceed spindle power, feed is automatically derated. The machinist sees force and
+  power values in G-code comments and knows the post is protecting their machine. At low RPM,
+  torque limits are checked separately (torque can exceed limits even when power is OK). Tool
+  deflection warnings fire when force times cantilever length exceeds tolerance.
+
+  This is the CORE physics integration — Kienzle force drives everything downstream.
+
+SKILLS:
+  /physics-verify — validate force calculations against published data
+  /what-if — explore force sensitivity to parameter changes
+  /prism-review — physics + machinist + numerics review
+
+WORK:
+  U-PBL15: Embed Kienzle force calculation in post
+  U-PBL16: Spindle power limit enforcement
+  U-PBL17: Torque limit at low RPM + deflection warning
+
+FORGE-TRIPLE: N/A (physics wiring session)
+
+EXIT GATE:
+  [ ] 4140 at ap=3mm, fz=0.15mm → Fc = 1300N +/-5% (Altintas reference)
+  [ ] 6061-T6 at ap=3mm, fz=0.15mm → Fc = 470N +/-10%
+  [ ] Ti-6Al-4V at ap=2mm, fz=0.08mm → Fc = 580N +/-10%
+  [ ] Force output in header comment per operation
+  [ ] Power shown as % of 15kW max in operation comment
+  [ ] >80% power → WARNING comment in G-code
+  [ ] >100% power → auto-derate feed + comment showing original vs adjusted
+  [ ] Torque warning at low-RPM heavy cuts (e.g., face mill at 500 RPM)
+  [ ] Deflection warning for L/D > 6 under load
+  [ ] Rake angle correction applied for non-6-degree rake tools
+  [ ] All constants imported from src/physics/constants.ts, never inline
+  [ ] /prism-review with physicist + machinist: 0 CRITICAL findings
+
+FEATURE CASCADE:
+  S6 → S7: Force data feeds thermal calculation (heat = Fc * Vc * fraction)
+  S6 → S7: Force data feeds stability lobe check (force drives chatter amplitude)
+  S6 → S8: Power limiting data feeds safety analysis (over-power = safety violation)
+  S6 → S11: Force/power test cases needed for integration matrix
+```
+
+---
+
+### SESSION PPG-BL-S7: Stability Lobe RPM Selection + Thermal/Wear Tracking (renumbered from original S6)
+
+```
+SMART CONFIG:
+  Role = Dynamics Specialist + Thermal/Wear Analyst + CPS Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (dynamics + thermal + machinist + CPS expert + numerics)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. ChatterStabilityLobeEngine.ts — SLD generation (Altintas & Budak 1995)
+  2. ThermalWearCouplingEngine.ts — RK4 coupled ODE, Usui wear model
+  3. Altintas "Manufacturing Automation" Chapter 3 — stability lobe theory
+  4. Natural frequency estimate: fn = (1/(2*pi)) * sqrt(3*E*I / (m*L^3))
+  5. Usui wear: dW/dt = A * sigma_n * V_s * exp(-B/theta) — Usui et al. (1978)
+  6. Loewen-Shaw thermal: T = C * Vc^0.4 * f^0.2 — Loewen & Shaw (1954)
+  7. HANDOFF.md from S4 — material, tool, force data from S3/S4/S5
+
+INTENT:
+  The post identifies chatter-prone RPM zones and automatically shifts to stable pockets.
+  Thermal accumulation across operations triggers progressive speed derating. Wear
+  progression is estimated per tool and drives progressive feed derating. The machinist
+  gets chatter-free first articles without trial and error, thermal protection without
+  guessing, and wear-aware feed adjustment without manual inspection.
+
+SKILLS:
+  /spindle-optimize — harmonic-aware RPM selection reference
+  /what-if — explore stability sensitivity
+  /physics-verify — validate SLD and thermal calculations
+  /prism-review — dynamics + thermal review
+
+WORK:
+  U-PBL18: Simplified stability lobe RPM check
+  U-PBL19: Thermal accumulation tracking across operations
+  U-PBL20: Wear progression tracking + auto-derating
+
+FORGE-TRIPLE: N/A (physics wiring session)
+
+EXIT GATE:
+  [ ] 12mm 4FL at 30mm overhang: stable/unstable classification correct
+  [ ] If unstable RPM: suggest nearest stable pocket within +/-5%
+  [ ] Stability comment in G-code shows safe RPM range
+  [ ] 5 heavy roughing ops on same tool → progressive speed reduction visible
+  [ ] Dwell suggestion after extended heavy cutting (thermal recovery)
+  [ ] Thermal state resets on tool change
+  [ ] Wear estimate shown per operation in comment
+  [ ] Feed reduces progressively: VB=0.1mm→5%, VB=0.2mm→12%, VB=0.3mm→25%
+  [ ] At VB=0.3mm threshold → strong WARNING about tool change needed
+  [ ] All dynamics formulas cite Altintas & Budak (1995) reference
+  [ ] All thermal formulas cite Loewen & Shaw (1954) reference
+  [ ] All wear formulas cite Usui et al. (1978) reference
+  [ ] /prism-review with dynamics + thermal agents: 0 CRITICAL findings
+
+FEATURE CASCADE:
+  S7 → S8: Stability + thermal data feeds safety analysis completeness
+  S7 → S11: Stability/thermal/wear test cases needed for integration matrix
+
+/compact after S7 — Physics wiring phase complete. HANDOFF includes:
+  - Force model state (Kienzle with corrections, power limiting thresholds)
+  - Stability model state (simplified SLD, natural frequency estimate method)
+  - Thermal model state (accumulation tracking, derating schedule)
+  - Wear model state (VB progression, derating schedule)
+  - All physics formula references with exact equation numbers
+```
+
+---
+
+### SESSION PPG-BL-S8: Advanced Hurco Features + Safety Hardening (renumbered from original S7)
+
+```
+SMART CONFIG:
+  Role = Hurco Applications Engineer + Safety Engineer + CPS Expert
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (Hurco specialist + safety eng + machinist + CPS expert + QA)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. ControllerDialectEngine.ts:1060 — hurco_max5 dialect (UltiMotion, M-codes)
+  2. GCodeSafetyAnalyzerEngine.ts — 24 safety rules, 6 controller families
+  3. MachiningPlaybookEngine.ts — 296 rules (anti-patterns, best practices)
+  4. TribalKnowledgeEngine.ts — 4,127 tips (filter for Hurco-specific)
+  5. Hurco WinMax Control Programming Guide — UltiMotion G05.3 P values
+  6. Hurco WPS probing cycle subprogram numbers
+  7. HANDOFF.md from S6 — full physics wiring state
+
+INTENT:
+  Every Hurco-specific feature is fully exploited. UltiMotion look-ahead is tuned per
+  operation type (tighter tolerance for finishing, relaxed for roughing). Safety checks
+  catch dangerous patterns before they reach the machine: rapid into material, missing
+  spindle start, missing G43, missing retract before tool change. Probing cycles use
+  native Hurco WPS subprograms. The machinist gets maximum machine performance with
+  maximum safety protection.
+
+SKILLS:
+  /program-validate — safety validation of generated G-code
+  /safety-audit — safety chain inspection
+  /controller-enrich — Hurco controller knowledge
+  /prism-review — safety + Hurco specialist review
+
+WORK:
+  U-PBL21: UltiMotion optimization (look-ahead + block rate)
+  U-PBL22: Safety analysis — rapid-into-material, missing codes, collision hazards
+  U-PBL23: Probing support (Hurco WPS probing cycles)
+
+FORGE-TRIPLE:
+  HOOK: ppg-baseline-safety-gate
+    PURPOSE: Blocks future CPS edits that would remove safety checks
+    TRIGGER: Any edit to safety analysis functions in CPS files
+    ACTION: Verify safety check count >= current count, no check removals
+  ACTION: prism_generator:validate_post_safety
+    PURPOSE: Run safety analysis on any CPS post output
+    SCHEMA: { post_output: string, controller: ControllerFamily }
+    RETURNS: { safe: boolean, violations: SafetyViolation[], warnings: string[] }
+  SKILL: /post-safety-check
+    PURPOSE: Operator runs safety check on generated G-code
+    USAGE: /post-safety-check <gcode-file> --controller hurco
+
+EXIT GATE:
+  [ ] 3D finishing → G05.3 P5 (tightest UltiMotion tolerance)
+  [ ] 2D roughing → G05.3 P35 (UltiMotion smooth rapids)
+  [ ] Non-UltiMotion mode → standard P values
+  [ ] G0 at negative Z without prior safe retract → WARNING flagged
+  [ ] M06 without prior Z retract → ERROR comment inserted
+  [ ] G1 without prior M03/M04 → WARNING flagged
+  [ ] Missing G43 after M06 → WARNING flagged
+  [ ] Zero false positives on standard well-formed programs
+  [ ] Bore probe cycle → correct M98 P subprogram call
+  [ ] Surface Z probe → correct cycle output
+  [ ] Probing results file path configurable via property
+  [ ] /prism-review with safety + Hurco agents: 0 CRITICAL findings
+
+FEATURE CASCADE:
+  S8 → S9-S10: Safety rules inform feature implementation safety requirements
+  S8 → S11: Safety rules + UltiMotion + probing all need integration tests
+```
+
+---
+
+### SESSION PPG-BL-S9: Missing Features Part 1 — Thread/Split/Sub/Setup (NEW — Loop 2)
+
+```
+SMART CONFIG:
+  Role = CPS Feature Developer + CNC Programmer + Applications Engineer
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (CPS expert + machinist + applications eng + thread specialist + QA)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. ControllerDialectEngine.ts:1060 — hurco_max5 canned cycles (G84.2/G84.3 rigid tap)
+  2. Post Processor Training Guide — standard subprogram pattern + program splitting
+  3. Fusion 360 API: getSection().getType(), isHelical(), isMilling(), hasParameter('operation:threadPitch')
+  4. Helical thread milling: G2/G3 with simultaneous Z movement, pitch from thread spec
+  5. Subprogram pattern: M98 P with call numbering, stack depth tracking
+  6. Setup sheet: tool table, stock dimensions, fixture notes, total cycle time
+  7. HANDOFF.md from S7 — all physics + safety wiring state
+
+INTENT:
+  Four high-value missing features are implemented. Thread milling produces helical G2/G3+Z
+  moves (not linearized expandCyclePoint). Program splitting at tool changes produces
+  separate files per setup. Sub-program generation extracts hole patterns into M98 P
+  subroutines. Setup sheet generation creates a human-readable summary with tool table,
+  stock dimensions, fixture notes, and total cycle time.
+
+SKILLS:
+  /cps-analyze — feature gap analysis
+  /hypermill-thread — thread standards reference
+  /program-validate — validate thread/sub output
+  /prism-review — feature completeness review
+
+WORK:
+  U-PBL25: Thread milling — helical G2/G3+Z with pitch from operation
+  U-PBL26: Program splitting — separate G-code files at tool changes
+  U-PBL27: Sub-program generation — hole patterns extracted to M98 P subroutines
+  U-PBL28: Setup sheet generation — tool table + stock + fixtures + cycle time
+
+FORGE-TRIPLE: N/A (feature implementation session)
+
+EXIT GATE:
+  [ ] Thread mill produces G2 Z-3.0 I5.0 J0 F200.0 (helical, not linearized)
+  [ ] Thread pitch matches operation:threadPitch parameter
+  [ ] Program split: 3-tool job → 3 separate .hnc files + master program
+  [ ] Sub-program: 10 identical holes → main calls M98 P1000, sub has G81 cycle
+  [ ] Setup sheet: HTML/text with tool table (T#, diameter, flutes, description)
+  [ ] Setup sheet: stock dimensions from getGlobalParameter
+  [ ] Setup sheet: total estimated cycle time (sum of all operations)
+  [ ] All features configurable via properties (enable/disable per feature)
+  [ ] /prism-review with machinist + applications eng: 0 CRITICAL/HIGH
+
+FEATURE CASCADE:
+  S9 → S10: Thread milling informs custom M-code injection needs
+  S9 → S11: All 4 features need integration tests
+
+DEPENDENCIES: S0-S8 (all bug fixes, standards, intelligence, safety must be done first)
+```
+
+---
+
+### SESSION PPG-BL-S10: Missing Features Part 2 + Advanced Motion (NEW — Loop 2)
+
+```
+SMART CONFIG:
+  Role = CPS Feature Developer + Motion Control Engineer + Hurco Applications Eng
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 40%
+  Agent Count = 5 (CPS expert + motion control + Hurco specialist + machinist + QA)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. ControllerDialectEngine.ts:1060 — hurco_max5 UltiMotion G64 parameters
+  2. Hurco WinMax Programming Guide — G64 P/Q tolerance parameters
+  3. Post Processor Training Guide — standard probing/inspectionCycle pattern
+  4. Fusion 360 API: onRewindMachineEntry(), onRewindMachine(), 5-axis rewind callbacks
+  5. Fusion 360 API: getSection().optimizeMachineAnglesByMachine() — 5-axis optimization
+  6. Short segment detection: getNextRecord(), compare distances, merge threshold
+  7. MachiningPlaybookEngine.ts — micro-segment filtering rules
+  8. HANDOFF.md from S9 — feature state from Part 1
+
+INTENT:
+  Four more missing features plus advanced motion control. Custom M-code injection allows
+  before/after tool change hooks. G64 UltiMotion outputs proper tolerance parameters per
+  operation type. Toolpath filtering removes micro-segments (< 0.01mm) that cause jerky
+  motion. 5-axis rewind prevents axis wrap-around at ±180° limits. These complete the
+  feature gap closure.
+
+SKILLS:
+  /cps-analyze — feature analysis
+  /controller-enrich — UltiMotion reference data
+  /program-validate — validate motion output
+  /prism-review — motion + feature review
+
+WORK:
+  U-PBL29: Custom M-code injection — before/after tool change property hooks
+  U-PBL30: G64 UltiMotion output — P tolerance per operation type (rough/finish/drill)
+  U-PBL31: Toolpath filtering — micro-segment removal + short segment merge
+  U-PBL32: 5-axis rewind — onRewindMachineEntry implementation
+
+FORGE-TRIPLE: N/A (feature implementation session)
+
+EXIT GATE:
+  [ ] Custom M-code: M-code before T1 M6 outputs correctly, configurable per tool
+  [ ] G64 UltiMotion: roughing → G64 P0.05, finishing → G64 P0.01, drill → no G64
+  [ ] G64 cancelled (G64 P0 or G61) when switching to non-UltiMotion operations
+  [ ] Toolpath filter: segments < 0.01mm merged into adjacent moves
+  [ ] Filter reports count of removed segments in comment
+  [ ] 5-axis rewind: A/B axis wrapped at ±180° boundary
+  [ ] 5-axis rewind: non-cutting retract, rotate, re-approach sequence
+  [ ] onRewindMachineEntry returns true (not false)
+  [ ] All features configurable via properties
+  [ ] /prism-review with motion control + Hurco specialist: 0 CRITICAL/HIGH
+
+FEATURE CASCADE:
+  S10 → S11: All 4 features need integration tests
+  S10 → PPG-VAR: Variable feed + UltiMotion interaction documented
+
+/compact after S10 — All features + safety complete. HANDOFF includes:
+  - 9/9 missing features implemented
+  - G64 UltiMotion parameter table
+  - Toolpath filter threshold values
+  - 5-axis rewind logic summary
+  - All feature property names for test configuration
+
+DEPENDENCIES: S0-S8 (all previous sessions)
+```
+
+---
+
+### SESSION PPG-BL-S11: Integration Testing + Baseline Certification (renumbered from original S8)
+
+```
+SMART CONFIG:
+  Role = QA Engineer + CNC Machinist + Test Architect
+  Model = OPUS
+  Effort = MAX
+  Context Budget = 50%
+  Agent Count = 5 (QA + machinist + test arch + CPS expert + physics reviewer)
+
+KNOWLEDGE SOURCES (read BEFORE any edits):
+  1. PostProcessorE2E.test.ts — existing E2E test patterns
+  2. ppg-test-generator.ts — test helper utilities
+  3. 562 existing PPG tests across 21 files
+  4. 4 shared test infrastructure files (gcode-comparator, fixture-schema, test-generator, regression)
+  5. Production programs from data/programs/hurco/ (if available)
+  6. All 14 existing PRISM-enhanced CPS files for comparison
+  7. v10.9 source file (for regression comparison)
+  8. HANDOFF.md from S10 — full feature state (43 bugs + intelligence + 9 features)
+  9. All CANONICAL_KIENZLE reference values for physics test assertions
+  10. PPG_TEST_MATRIX.md — comprehensive test scenario spec (1,847 scenarios)
+
+INTENT:
+  The v11 post is certified production-ready. Every one of the 43 original bugs is verified
+  fixed with a dedicated regression test. Every new feature (CPS standards, material intelligence,
+  tooling intelligence, Kienzle force, power limiting, stability RPM, thermal tracking, wear
+  tracking, safety analysis, probing, thread milling, program splitting, sub-programs, setup
+  sheet, custom M-codes, G64 UltiMotion, toolpath filtering, 5-axis rewind) has dedicated
+  tests with physics-correct assertions. All existing Hurco production programs process without
+  error, without NaN, and without precision violations. The post is ready for deployment to
+  Fusion 360.
+
+SKILLS:
+  /test — run test suite
+  /program-validate — validate all generated G-code
+  /physics-verify — cross-check force/power test assertions
+  /prism-review — full QA + physics + machinist review
+
+WORK:
+  U-PBL33: Bug fix regression tests (43 bugs → 43 test cases) + CPS standards verification
+  U-PBL34: New feature integration tests (80+ tests: intelligence + features + physics)
+  U-PBL35: Production program validation + Fusion 360 deployment
+
+FORGE-TRIPLE:
+  HOOK: ppg-baseline-gate
+    PURPOSE: Blocks CPS file edits without passing test suite
+    TRIGGER: Any edit to HURCO_VM30i_PRISM_v11.cps
+    ACTION: Run ppg-v11-regression.test.ts + ppg-v11-features.test.ts → all pass
+  ACTION: prism_generator:generate_post
+    PURPOSE: Generate controller-specific CPS from baseline
+    SCHEMA: { controller: ControllerFamily, machine?: string, options?: PostGenOptions }
+    RETURNS: { cps_content: string, validation: { safe: boolean, test_pass: boolean } }
+  SKILL: /cps-generate
+    PURPOSE: User-facing post generator command
+    USAGE: /cps-generate --controller hurco --machine VM30i [--features all]
+
+EXIT GATE:
+  [ ] 43/43 bug regression tests pass (one test per bug)
+  [ ] 80+ new feature integration tests pass
+  [ ] CPS standards audit: zero writeln, all properties scoped, all modals with onchange
+  [ ] Force calculations within +/-5% of Kienzle/Altintas reference values
+  [ ] Chip thinning within 2% of Sandvik reference at 10/25/45% WOC
+  [ ] Power limit triggers at correct threshold (80% warning, 100% derate)
+  [ ] Thread milling: helical G2/G3+Z, not linearized
+  [ ] Program splitting: N-tool job → N separate files
+  [ ] Sub-programs: repeated holes → M98 P subroutine
+  [ ] Setup sheet: tool table + stock + fixtures + cycle time
+  [ ] G64 UltiMotion: proper P tolerance per operation type
+  [ ] 5-axis rewind: onRewindMachineEntry returns true
+  [ ] 11/11 Hurco production programs process without error (or all available)
+  [ ] Zero NaN in any output across all tests
+  [ ] Zero decimal precision violations (no >4 decimal places)
+  [ ] Diff against v10.9 output: improvements visible, zero regressions
+  [ ] Post copied to deployment location for Fusion 360 testing
+  [ ] Total test count >= 80 (43 regression + 40+ feature)
+  [ ] 9/9 missing features implemented and tested
+  [ ] CPS line count reduced ~10,000 from tool pocket refactor
+  [ ] Omega >= 0.90 for PPG-BASELINE track
+
+/compact after S11 — Milestone complete. HANDOFF includes:
+  - Final bug count: 43/43 fixed
+  - Final test count with pass/fail
+  - Final production program validation count
+  - Feature inventory (every new capability listed, 9/9 features)
+  - CPS standards compliance: property groups, writeBlock, modals
+  - Deployment location for Fusion 360
+  - Known limitations or future enhancement opportunities
+```
+
+---
+
+## STAGE 6: UNIT POPULATION — ALL 47 UNITS
+
+```
+UNIT BLOCK LOCATIONS:
+  S0:  U-PBL-CPS-A..H  (8 units) — defined in SESSION PPG-BL-S0 WORK section (line ~490)
+  S1:  U-PBL01..03      (3 units) — detailed blocks below
+  S2:  U-PBL04..08      (5 units) — detailed blocks below
+  S3:  U-PBL-PH01..03   (3 units) — defined in SESSION PPG-BL-S3 WORK section (line ~700)
+  S4:  U-PBL09..11      (3 units) — detailed blocks below (renumbered from original 07-09)
+  S5:  U-PBL12..14      (3 units) — detailed blocks below (renumbered from original 10-12)
+  S6:  U-PBL15..17      (3 units) — detailed blocks below (renumbered from original 13-15)
+  S7:  U-PBL18..20      (3 units) — detailed blocks below (renumbered from original 16-18)
+  S8:  U-PBL21..23      (3 units) — detailed blocks below (renumbered from original 19-21)
+  S9:  U-PBL25..28      (4 units) — defined in SESSION PPG-BL-S9 WORK section (line ~1095)
+  S10: U-PBL29..32      (4 units) — defined in SESSION PPG-BL-S10 WORK section (line ~1165)
+  S11: U-PBL33..35      (3 units) — detailed blocks below (renumbered from original 22-24)
+
+  TOTAL: 8 + 3 + 5 + 3 + 3 + 3 + 3 + 3 + 3 + 4 + 4 + 3 = 45 units
+
+  All units follow the standard 4-LOOP GATE pattern:
+    BUILD → SCRUTINIZE → GAP FILL → TIE UP
+  All units have ROLLBACK BLOCK with FILES_MODIFIED + ABORT_CRITERIA + ROLLBACK_PROCEDURE
+```
+
+---
+
+---
+
+### U-PBL01: Fix Bugs 1-3 — F word + prismEnabled + progFeed
+
+```
+SESSION: PPG-BL-S1
+KNOWLEDGE:
+  - Bug 1: v10.9 CPS line 19062: getFeed() returns raw f, not feedOutput.format(f)
+  - Bug 2: 5 calls to getProperty('prismEnabled') → should be getProperty('prismEnableIntelligence')
+  - Bug 3: v10.9 CPS lines 19896-19897: progFeed used but never defined in scope
+
+EXIT CRITERIA (machinist-grade):
+  1. F word present on every G1/G2/G3 cutting move (facing, chamfer, all ops)
+  2. Zero references to getProperty('prismEnabled') remain in CPS
+  3. Smart override produces numeric feeds, zero NaN
+  4. calculateOptimizedFeed() returns non-1.0 factors when intelligence enabled
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Any G1 without F word, NaN in feed, optimization stuck at 1.0
+  ROLLBACK_PROCEDURE: Restore from v10.9 source, re-apply only verified fixes
+
+4-LOOP GATE:
+  BUILD: Fix getFeed(), find-replace prismEnabled, define progFeed from movement:feed
+  SCRUTINIZE: /prism-review → CPS expert + machinist confirm
+  GAP FILL: Audit full property definition list vs usage list for other mismatches
+  TIE UP: Property inventory matches usage. No orphaned properties.
+
+DEPENDENCIES: S0 (CPS standards must be applied first)
+```
+
+### U-PBL02: Fix Bugs 4-5 — G49 before tool change + safe start
+
+```
+SESSION: PPG-BL-S1
+KNOWLEDGE:
+  - Bug 4: v10.9 CPS lines 19565-19676 — tool change section, no G49 cancel
+  - Bug 5: v10.9 CPS lines 17777-17781 — safe start block, no G49
+  - G49 cancels tool length compensation — prevents stale offset on new tool
+  - Without G49: Z-axis crash risk if previous tool offset still active
+
+EXIT CRITERIA (machinist-grade):
+  1. G49 output before every M6 tool change line
+  2. G49 in safe start block (program start and restart)
+  3. No Z-crash scenario possible from stale length offset
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Missing G49 before any M6, regression in tool change sequence
+  ROLLBACK_PROCEDURE: Remove G49 lines, revert to original sequence
+
+4-LOOP GATE:
+  BUILD: Add G49 to tool change sequence and safe start block
+  SCRUTINIZE: /prism-review → safety engineer confirms G49 placement
+  GAP FILL: Check: is G49 needed before M30? Before work offset changes?
+  TIE UP: Safety-critical change documented with rationale comment
+
+DEPENDENCIES: None (parallel with U-PBL01)
+```
+
+### U-PBL03: Fix Bugs 6-8 — G20/G21, undefined properties, smoothingTolerance
+
+```
+SESSION: PPG-BL-S1
+KNOWLEDGE:
+  - Bug 6: gUnitModal defined but G20/G21 never output — unit mode mismatch = crash
+  - Bug 7: 5 properties referenced but never declared (useMultiAxisFeatures, etc.)
+  - Bug 8: smoothingTolerance undefined — G5.2 block never outputs
+
+EXIT CRITERIA (machinist-grade):
+  1. G20 or G21 output in program header based on unit mode
+  2. All 5 undefined properties declared with appropriate defaults
+  3. smoothingTolerance defined or G5.2 code path removed
+  4. No undefined reference errors possible at runtime
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Undefined property access at runtime, wrong unit mode
+  ROLLBACK_PROCEDURE: Revert property declarations, fix individually
+
+4-LOOP GATE:
+  BUILD: Add G20/G21 output, declare 5 properties, fix smoothingTolerance
+  SCRUTINIZE: /prism-review → confirm zero undefined references
+  GAP FILL: Full grep for getProperty() calls vs property definitions
+  TIE UP: Every getProperty() call has a matching property definition
+
+DEPENDENCIES: None (parallel with U-PBL01, U-PBL02)
+```
+
+### U-PBL04: Fix Bugs 10, 13, 16 — Decimal precision + BNC dwell + LOC magic numbers
+
+```
+SESSION: PPG-BL-S2
+KNOWLEDGE:
+  - Bug 10: IEEE-754 chain produces 10+ digit decimals in feed output
+  - Bug 13: BNC dwell G4 P75.0000 — BNC interprets decimal as milliseconds
+  - Bug 16: LOC engagement thresholds (0.85/0.75/0.65/0.55) are undocumented magic numbers
+
+EXIT CRITERIA (machinist-grade):
+  1. No output value exceeds 4 decimal places
+  2. BNC dwell: G4 P75000 (integer milliseconds, no decimal)
+  3. LOC thresholds replaced with named constants + documentation comments
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: >4 decimal places in output, BNC alarm, missing safety thresholds
+  ROLLBACK_PROCEDURE: Revert format defs + dwell format + threshold declarations
+
+4-LOOP GATE:
+  BUILD: Fix formats, BNC dwell, name LOC constants
+  SCRUTINIZE: /prism-review with numerics + Hurco specialist
+  GAP FILL: Grep for all raw float paths to writeBlock
+  TIE UP: Every number through format function. Magic numbers documented.
+
+DEPENDENCIES: U-PBL01 (F word fix must be done first)
+```
+
+### U-PBL05: Fix Bugs 11, 12, 18 — G05.3 cancel + per-section smoothing + BNC G83
+
+```
+SESSION: PPG-BL-S2
+KNOWLEDGE:
+  - Bug 11: G05.3 never cancelled in onSectionEnd → stays active during canned cycles
+  - Bug 12: G05.3 only inside if(insertToolCall) → same-tool finishing gets wrong value
+  - Bug 18: BNC G83 outputs triple Z-word → ambiguous for Hurco BNC mode
+
+EXIT CRITERIA (machinist-grade):
+  1. G05.3 P0 output at end of every section (cancel smoothing)
+  2. G05.3 applied per-section based on operation type (rough/finish/drill)
+  3. BNC G83: single Z-word per CPS standards
+  4. No Hurco alarm from smoothing in canned cycle context
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Smoothing alarm, missing smoothing on finish ops, BNC G83 alarm
+  ROLLBACK_PROCEDURE: Revert smoothing logic, revert G83 format
+
+4-LOOP GATE:
+  BUILD: Add G05.3 P0 cancel, move smoothing outside insertToolCall, fix BNC G83
+  SCRUTINIZE: /prism-review with Hurco specialist → confirm no alarms
+  GAP FILL: Check all canned cycles for smoothing interaction
+  TIE UP: Smoothing state machine documented
+
+DEPENDENCIES: U-PBL04 (precision must be correct before smoothing values)
+```
+
+### U-PBL06: Fix Bugs 17, 19, 20 — Duplicate tool check + property consolidation + G64
+
+```
+SESSION: PPG-BL-S2
+KNOWLEDGE:
+  - Bug 17: Duplicate tool check disabled with if(false) at line 17734
+  - Bug 19: maximumFeedrate vs prismMaxFeedRate, minimumFeedrate vs minChipLoadFeed
+  - Bug 20: G64 UltiMotion claimed in header but never output in code
+
+EXIT CRITERIA (machinist-grade):
+  1. Duplicate tool check re-enabled with correct logic
+  2. One max feed property, one min feed property, zero duplicates
+  3. G64 either implemented (→ S10 U-PBL30) or claim removed from header
+  4. Zero dead/unused properties
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Orphaned property references, false duplicate tool alarms
+  ROLLBACK_PROCEDURE: Revert each fix individually
+
+4-LOOP GATE:
+  BUILD: Re-enable tool check, consolidate properties, mark G64 for S10
+  SCRUTINIZE: /prism-review → property defined-vs-used audit
+  GAP FILL: Full property audit for ALL property name mismatches
+  TIE UP: Clean property namespace. Bug 20 deferred to S10 U-PBL30 with cross-reference.
+
+DEPENDENCIES: U-PBL01-03 (CRITICAL bug fixes first)
+```
+
+### U-PBL07: Fix MEDIUM Bugs 21-35
+
+```
+SESSION: PPG-BL-S2
+KNOWLEDGE:
+  - Bug 21: Stickout uses flute length not true stickout (underestimates L/D)
+  - Bug 22: Fc = kc*ap*h missing engagement width (moved to S3 for proper physics fix)
+  - Bug 23: Three different chip thickness formulas (inconsistent — moved to S3)
+  - Bug 24: Tapping doesn't reset feed mode to G94 after G80
+  - Bug 25: M90/M91 not standard Hurco M-codes
+  - Bug 26: G05.3 P range allows 1-100 but WinMax may only accept 1-50
+  - Bug 27: Duplicate var prismEnhancedArcRadius
+  - Bug 28: Dead function getAdjustedChipThinningForLimitedAe
+  - Bug 29: Dead property prismEnableMaterialIntelligence
+  - Bug 30: previousDirection/previousPosition never reset between operations
+  - Bug 31: Silent catch with 100 m/min fallback — dangerous for Ti/Inconel
+  - Bug 32: Double negation logic
+  - Bug 33: optMode duplicate in object literal
+  - Bug 34: Washdown dwell raw string
+  - Bug 35: Confusing nested functions
+
+EXIT CRITERIA (machinist-grade):
+  1. All 15 MEDIUM bugs addressed (Bugs 22, 23 deferred to S3 with cross-ref)
+  2. Zero dead functions/variables/properties
+  3. State resets between operations (position, direction)
+  4. No silent catches — all error paths logged with context
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Any regression from cleanup, broken optimization chain
+  ROLLBACK_PROCEDURE: Each bug fix is independent, revert individually
+
+4-LOOP GATE:
+  BUILD: Fix all 15 bugs (13 direct, 2 cross-referenced to S3)
+  SCRUTINIZE: /prism-review → code quality + machinist safety
+  GAP FILL: Search for other dead code, duplicate vars, silent catches
+  TIE UP: MEDIUM bug inventory complete
+
+DEPENDENCIES: U-PBL04-06 (HIGH bugs first)
+```
+
+### U-PBL08: Fix LOW Bugs 36-43
+
+```
+SESSION: PPG-BL-S2
+KNOWLEDGE:
+  - Bug 36: toolChangePositionY description says "X axis"
+  - Bug 37: Div-by-zero in calculateDynamicDepthFeed
+  - Bug 38: M2 instead of M30 for program end
+  - Bug 39: Gravity constant hardcoded vs computed
+  - Bug 40: Rake angle correction sign convention undocumented
+  - Bug 41: Surface finish formula factor documentation
+  - Bug 42: Missing jerk unit exponent (m/s not m/s^3)
+  - Bug 43: UltiMotion G64 header claim (cross-ref to S10 U-PBL30)
+
+EXIT CRITERIA (machinist-grade):
+  1. All 8 LOW bugs addressed
+  2. Correct axis labels on all properties
+  3. M30 (not M2) for program end
+  4. Div-by-zero guarded in all division operations
+  5. All physics constants documented with units and sources
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  ABORT_CRITERIA: Any regression from documentation/cleanup changes
+  ROLLBACK_PROCEDURE: Revert each individually
+
+4-LOOP GATE:
+  BUILD: Fix all 8 LOW bugs
+  SCRUTINIZE: /prism-review → documentation + safety audit
+  GAP FILL: Search for other wrong descriptions, missing guards
+  TIE UP: 43/43 bugs addressed (S1: 8 CRITICAL, S2: 12 HIGH + 15 MEDIUM + 8 LOW)
+
+DEPENDENCIES: U-PBL07 (MEDIUM bugs first)
+```
+
+### U-PBL09: Material auto-detection from Fusion material library (renumbered from U-PBL07)
+
+```
+SESSION: PPG-BL-S4
+KNOWLEDGE:
+  - Fusion 360 API: getGlobalParameter('material'), getGlobalParameter('material-name'),
+    getGlobalParameter('material-hardness')
+  - src/physics/constants.ts CANONICAL_KIENZLE table — kc1.1/mc per ISO group
+  - ISO 513 material groups: P (steel), M (stainless), K (cast iron), N (non-ferrous),
+    S (superalloys/Ti), H (hardened steel)
+  - Fuzzy matching needed: "AISI 4140" → 4140, "Aluminum 6061-T6" → 6061-T6
+
+EXIT CRITERIA (machinist-grade):
+  1. "AISI 4140" / "4140 Steel" / "4140" → ISO P, kc1.1=1700-1900, mc=0.25
+  2. "6061-T6" / "Aluminum 6061-T6" / "AL6061" → ISO N, kc1.1=600-800, mc=0.25
+  3. "Ti-6Al-4V" / "Titanium Grade 5" → ISO S, kc1.1=1350-1680, mc=0.23
+  4. "304 Stainless" / "AISI 304" / "A2-70" → ISO M, kc1.1=2000-2400, mc=0.26
+  5. "D2 Tool Steel" → ISO H (at HRC 55-60), kc1.1=2500-3000
+  6. Unknown/unrecognized material → ISO P defaults + WARNING comment in G-code
+  7. 40+ material presets with fuzzy matching covering common shop materials
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Wrong ISO group assignment for any of the 5 test materials
+    - Missing Kienzle constants for common material (returns undefined/NaN)
+    - No WARNING for unknown material
+  ROLLBACK_PROCEDURE:
+    - Remove material detection function, revert to hardcoded ISO P defaults
+
+4-LOOP GATE:
+  BUILD: Implement getMaterialProperties() with fuzzy matcher + 40+ presets.
+         Wire to existing calculateOptimizedFeed chain.
+  SCRUTINIZE: /prism-review with materials scientist → verify kc1.1/mc values match
+              Altintas Table 2.1 and CANONICAL_KIENZLE
+  GAP FILL: Check edge cases: empty material, material in different language,
+            material with hardness suffix (e.g., "4140 HRC 28")
+  TIE UP: Material preset table in header comment. All kc1.1/mc from CANONICAL_KIENZLE.
+
+DEPENDENCIES: U-PBL02 (optimization engine must be active), U-PBL05 (clean property namespace)
+```
+
+### U-PBL10: Hardness-based speed derating (renumbered from U-PBL08)
+
+```
+SESSION: PPG-BL-S4
+KNOWLEDGE:
+  - Sandvik Coromant derating curves: baseline at HRC 28, progressive reduction above
+  - Published correction: at HRC 40 → ~70% of baseline SFM
+  - Published correction: at HRC 55 → ~45% of baseline SFM
+  - HB/HRC conversion: HB = 10.2 * HRC + 30 (approximate, per ASTM E140)
+  - Fusion API: getGlobalParameter('material-hardness') or parsed from material name
+
+EXIT CRITERIA (machinist-grade):
+  1. 4140 at HRC 28 → baseline SFM (1.0x factor)
+  2. 4140 at HRC 35 → ~85% of baseline SFM
+  3. 4140 at HRC 40 → ~70% of baseline SFM
+  4. 4140 at HRC 50 → ~55% of baseline SFM
+  5. 4140 at HRC 55 → ~45% of baseline SFM
+  6. Aluminum (any hardness) → ignore hardness derating (always soft)
+  7. No hardness data → use baseline (1.0x) with note
+  8. Derating curve is smooth (no sudden jumps)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Derating factor <0.3 or >1.5 (physically unreasonable)
+    - Wrong direction (harder material = faster speed)
+    - Derating applied to non-ferrous materials (aluminum, brass, etc.)
+  ROLLBACK_PROCEDURE:
+    - Remove hardness derating function, return 1.0 for all hardness values
+
+4-LOOP GATE:
+  BUILD: Implement getHardnessDerating(hrc, iso_group). Wire into speed calculation chain.
+  SCRUTINIZE: /prism-review → physicist confirms derating curve matches Sandvik data
+  GAP FILL: Check: does derating compound with other derating (stickout)? Ensure no
+            double-dipping. Minimum combined factor should be >= 0.25.
+  TIE UP: Derating curve documented in header comment with Sandvik reference.
+
+DEPENDENCIES: U-PBL07 (material detection provides ISO group and hardness)
+```
+
+### U-PBL11: Material-specific coolant strategy + surface finish hints (renumbered from U-PBL09)
+
+```
+SESSION: PPG-BL-S4
+KNOWLEDGE:
+  - Ti alloys: mandatory flood coolant (thermal conductivity too low for mist)
+  - Aluminum: mist/air acceptable, flood optional (BUE risk with flood on some alloys)
+  - Stainless: flood recommended (work hardening worsens without proper cooling)
+  - Cast iron: dry preferred or mist (graphite acts as lubricant, flood creates slurry)
+  - Surface finish: Ra = f^2/(32*r_e) base, but ductile materials need BUE correction
+
+EXIT CRITERIA (machinist-grade):
+  1. Ti-6Al-4V with mist coolant selected → WARNING comment in G-code output
+  2. 6061-T6 with no coolant → no warning (air cutting acceptable for aluminum)
+  3. 316L stainless with flood → no warning (correct coolant)
+  4. 316L Ra prediction accounts for BUE tendency (multiply Ra by 1.3-1.5)
+  5. Cast iron with flood → INFO comment (dry preferred)
+  6. Surface finish correction factor output in operation comment
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Wrong coolant recommendation for any common material
+    - Missing mandatory WARNING for titanium with mist
+    - Surface finish correction factor < 0.5 or > 3.0
+  ROLLBACK_PROCEDURE:
+    - Remove coolant strategy, remove surface finish correction function
+
+4-LOOP GATE:
+  BUILD: Implement getCoolantStrategy(iso_group, coolant_mode). Implement
+         getSurfaceFinishCorrection(iso_group). Wire both into output.
+  SCRUTINIZE: /prism-review with machinist → validate coolant recommendations
+  GAP FILL: Check: what about flood + through-spindle vs standard flood?
+            What about minimum quantity lubrication (MQL)?
+  TIE UP: Coolant strategy table in header comment. BUE correction factors cited.
+
+DEPENDENCIES: U-PBL07 (material detection provides ISO group)
+```
+
+### U-PBL12: Tool geometry extraction + stickout intelligence (renumbered from U-PBL10)
+
+```
+SESSION: PPG-BL-S5
+KNOWLEDGE:
+  - Fusion 360 API: tool.diameter, tool.numberOfFlutes, tool.fluteLength,
+    tool.bodyLength, tool.cornerRadius, tool.material
+  - ToolDeflectionPredictionEngine.ts: delta = F*L^3/(3*E*I)
+  - E (Young's modulus): HSS = 200 GPa, carbide = 620 GPa, ceramic = 380 GPa
+  - I (moment of inertia for round section): I = pi*D^4/64
+  - Practical rule: L/D > 4 → start derating, L/D > 8 → heavy derating + WARNING
+
+EXIT CRITERIA (machinist-grade):
+  1. 12mm EM at 48mm stickout (L/D=4) → no derating (1.0x factor)
+  2. 12mm EM at 60mm stickout (L/D=5) → 5-10% feed reduction
+  3. 12mm EM at 72mm stickout (L/D=6) → 15-25% feed reduction
+  4. 6mm EM at 48mm stickout (L/D=8) → 30-40% feed reduction + WARNING
+  5. 3mm EM at 30mm stickout (L/D=10) → 40-50% reduction + STRONG WARNING
+  6. Tool material (HSS vs carbide) affects derating (carbide stiffer → less derating)
+  7. WARNING in G-code comment shows L/D ratio and derating applied
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Feed increased for long stickout (wrong direction)
+    - No derating at L/D > 6 (feature not working)
+    - Derating > 70% (too aggressive, would stall tool)
+  ROLLBACK_PROCEDURE:
+    - Remove stickout derating function, return 1.0 for all L/D values
+
+4-LOOP GATE:
+  BUILD: Implement getStickoutDerating(tool). Wire into feed calculation chain.
+  SCRUTINIZE: /prism-review → deflection analyst validates against Euler-Bernoulli
+  GAP FILL: Check: what if tool.bodyLength is undefined (Fusion doesn't always provide)?
+            Fallback to tool.fluteLength * 1.5 estimate.
+  TIE UP: L/D derating curve matches published shop practice (Sandvik recommendations).
+
+DEPENDENCIES: U-PBL02 (optimization engine active), U-PBL04 (decimal precision)
+```
+
+### U-PBL13: Coating-aware speed adjustment (renumbered from U-PBL11)
+
+```
+SESSION: PPG-BL-S5
+KNOWLEDGE:
+  - Sandvik Solid Round Tools catalog: coating Vc multipliers
+  - Uncoated: 1.0x (baseline), TiN: 1.2x, TiCN: 1.3x
+  - TiAlN: 1.5x (general), AlTiN: 1.6x (hardened steel), AlCrN: 1.4x
+  - DLC: 2.0x (aluminum only), Diamond: 2.5x (aluminum/composites only)
+  - Fusion API: tool.material (HSS, carbide, etc.), tool.description (may contain coating)
+  - Detection: parse tool.description for coating keywords
+
+EXIT CRITERIA (machinist-grade):
+  1. TiAlN coated carbide → 50% higher SFM than uncoated carbide
+  2. AlTiN coated carbide in hardened steel → 60% higher SFM
+  3. DLC coated in aluminum → 100% higher SFM
+  4. Uncoated HSS → baseline SFM (no coating boost)
+  5. Unknown coating → conservative 1.0x with note in G-code comment
+  6. Coating detection from tool.description string (case-insensitive)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Coating multiplier > 3.0 (physically unreasonable)
+    - Wrong coating detected from description
+    - DLC/Diamond multiplier applied to steel (should be aluminum only)
+  ROLLBACK_PROCEDURE:
+    - Remove coating detection, return 1.0 for all tools
+
+4-LOOP GATE:
+  BUILD: Implement getCoatingMultiplier(tool, iso_group). Parse tool.description.
+  SCRUTINIZE: /prism-review → tooling engineer validates multiplier table
+  GAP FILL: Check: DLC on steel should NOT get 2.0x boost. Material-aware coating logic.
+  TIE UP: Coating multiplier table in header comment with Sandvik reference.
+
+DEPENDENCIES: U-PBL07 (ISO group needed for material-specific coating rules)
+```
+
+### U-PBL14: Tool life estimation + sister tool support (renumbered from U-PBL12)
+
+```
+SESSION: PPG-BL-S5
+KNOWLEDGE:
+  - Taylor: T = (C/Vc)^(1/n), where C and n are material+coating dependent
+  - src/physics/constants.ts CANONICAL_TAYLOR — C/n per combination
+  - StochasticToolLifeEngine.ts — reference implementation
+  - Sister tool concept: T1 → T21 (same tool in position 21 as backup)
+  - Tool break detection: O9800 subprogram (configurable) after drilling/tapping
+
+EXIT CRITERIA (machinist-grade):
+  1. Tool life estimate in G-code comment for each tool change
+  2. Life estimate in minutes, e.g., "(TOOL LIFE EST: 45 min at Vc=200 m/min)"
+  3. Sister tool call when cumulative cutting time > configurable threshold
+  4. Tool break detection subprogram call after drilling operations
+  5. Life estimate uses material-specific C/n from CANONICAL_TAYLOR
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Tool life prediction negative or > 1000 minutes (unreasonable)
+    - Sister tool triggers on first use (threshold = 0 or cumulative tracking broken)
+    - Tool break check crashes post (undefined subprogram reference)
+  ROLLBACK_PROCEDURE:
+    - Remove tool life tracking, remove sister tool logic, remove break detection
+
+4-LOOP GATE:
+  BUILD: Implement taylorToolLife(C, Vc, n). Track cumulative cutting time per tool.
+         Add sister tool offset logic. Add break detection subprogram call.
+  SCRUTINIZE: /prism-review → machinist confirms life estimates are realistic
+  GAP FILL: Check: what happens with multiple identical tools? Tool number mapping.
+            What if C/n not available for material? Fallback values.
+  TIE UP: Taylor reference cited. C/n values imported from CANONICAL_TAYLOR.
+
+DEPENDENCIES: U-PBL07 (material C/n lookup), U-PBL10 (tool geometry for life calculation)
+```
+
+### U-PBL15: Embed Kienzle force calculation in post (renumbered from U-PBL13)
+
+```
+SESSION: PPG-BL-S6
+KNOWLEDGE:
+  - Kienzle: Fc = kc1.1 * ap * fz^(1-mc)
+  - src/physics/constants.ts: kienzleForce() function
+  - CANONICAL_KIENZLE table: kc1.1/mc per ISO group
+  - Rake angle correction: Ky = 1 - 0.01*(gamma_0 - 6deg), from Altintas Eq. 2.18
+  - Wear correction: Kw = 1 + 0.2*VB/VB_ref (approximate)
+  - Speed correction: Kv = (V_ref/Vc)^0.1 (approximate)
+
+EXIT CRITERIA (machinist-grade):
+  1. 4140 (P) at ap=3mm, fz=0.15mm → Fc ≈ 1300N +/-5%
+  2. 6061-T6 (N) at ap=3mm, fz=0.15mm → Fc ≈ 470N +/-10%
+  3. Ti-6Al-4V (S) at ap=2mm, fz=0.08mm → Fc ≈ 580N +/-10%
+  4. 304L (M) at ap=2mm, fz=0.10mm → Fc ≈ 730N +/-10%
+  5. Force output in operation header comment: "(KIENZLE Fc=1305N, Vc=200 m/min)"
+  6. Rake angle correction applied when tool rake angle != 6 degrees
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Force calculation > 50% off published Altintas values
+    - NaN in force output
+    - Force negative (physically impossible)
+  ROLLBACK_PROCEDURE:
+    - Remove Kienzle function from CPS, remove force comments from output
+
+4-LOOP GATE:
+  BUILD: Implement kienzleForce(kc1_1, mc, ap, fz) in CPS. Wire material kc1.1/mc
+         from S3 material detection. Add corrections.
+  SCRUTINIZE: /prism-review with physicist → validate against Altintas Table 2.1 values
+  GAP FILL: Check edge cases: ap=0 (no cut), fz=0 (no feed), very large ap (force exceeds
+            machine capacity). Add sanity bounds.
+  TIE UP: Formula citation: "Kienzle (1952), Altintas Eq. 2.7". Constants from canonical source.
+
+DEPENDENCIES: U-PBL07 (kc1.1/mc from material detection), U-PBL10 (tool geometry for fz)
+```
+
+### U-PBL16: Spindle power limit enforcement (renumbered from U-PBL14)
+
+```
+SESSION: PPG-BL-S6
+KNOWLEDGE:
+  - Power: P_kW = Fc * Vc / (60000 * eta), eta = 0.85 spindle efficiency
+  - Hurco VM30i: 15kW max spindle power (configurable property)
+  - Warning threshold: 80% of max (12kW)
+  - Auto-derate threshold: 100% of max (15kW)
+  - Derate method: reduce feed until P <= 95% of max
+
+EXIT CRITERIA (machinist-grade):
+  1. Power shown in operation comment: "(POWER: 8.5kW / 15kW = 57%)"
+  2. >80% power → WARNING: "(WARNING: POWER 13.2kW = 88% of 15kW max)"
+  3. >100% power → auto-derate feed + comment: "(DERATED: F from 850 to 720, power 15kW→12.8kW)"
+  4. Deration never reduces feed below 10% of original (safety floor)
+  5. Machine max power is configurable property (default 15kW for VM30i)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Power calculation > 50% off actual machine reading
+    - Deration makes feed < 10% of original (would stall tool)
+    - Power percentage negative or > 200% (calculation error)
+  ROLLBACK_PROCEDURE:
+    - Remove power limiting, restore original feed passthrough
+
+4-LOOP GATE:
+  BUILD: Implement calculatePower(Fc, Vc, eta). Compare to max. Derate feed iteratively
+         until power <= 95% max. Output comment.
+  SCRUTINIZE: /prism-review → physicist + machinist validate power calc and deration logic
+  GAP FILL: Check: does power account for chip evacuation power? For Hurco specifically,
+            is 15kW the S1 or S6 rating? Use S1 (continuous) rating.
+  TIE UP: Power formula cited. Machine data from MachineRegistry or configurable property.
+
+DEPENDENCIES: U-PBL13 (Kienzle force provides Fc for power calculation)
+```
+
+### U-PBL17: Torque limit at low RPM + deflection warning (renumbered from U-PBL15)
+
+```
+SESSION: PPG-BL-S6
+KNOWLEDGE:
+  - Torque: T_Nm = P_kW * 9549 / n_RPM (increases as RPM decreases)
+  - Hurco VM30i max torque: ~119 Nm at stall (check MachineRegistry)
+  - At low RPM, torque can exceed machine limit even if power is OK
+  - Deflection: delta = Fc * L^3 / (3 * E * I)
+  - Deflection limit: delta < tolerance/2 (general practice)
+
+EXIT CRITERIA (machinist-grade):
+  1. Face mill at 500 RPM with heavy cut → torque WARNING if T > 80% max
+  2. Deflection WARNING when delta > tolerance/2 for given tool setup
+  3. Both warnings include suggested fix: "Reduce ap" or "Increase RPM"
+  4. Torque check is separate from power check (both can fire independently)
+  5. Deflection check uses actual tool L/D from S4 geometry extraction
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - False torque warning at normal cutting conditions
+    - Deflection calculation off by > 2x from beam theory
+    - Torque or deflection value negative
+  ROLLBACK_PROCEDURE:
+    - Remove torque check, remove deflection warning, keep power limiting only
+
+4-LOOP GATE:
+  BUILD: Implement torqueCheck(P_kW, RPM, max_torque). Implement
+         deflectionCheck(Fc, L, E, I, tolerance). Output warnings.
+  SCRUTINIZE: /prism-review → physicist validates torque formula + deflection model
+  GAP FILL: Edge case: drilling (axial force, not radial) — torque model different.
+            Edge case: interrupted cut (face mill) — force pulsing.
+  TIE UP: Torque + deflection formulas cited. Machine torque from MachineRegistry.
+
+DEPENDENCIES: U-PBL13 (Fc), U-PBL14 (power calc), U-PBL10 (tool geometry for L, E, I)
+```
+
+### U-PBL18: Simplified stability lobe RPM check (renumbered from U-PBL16)
+
+```
+SESSION: PPG-BL-S7
+KNOWLEDGE:
+  - Stability lobe theory: Altintas & Budak (1995)
+  - Simplified: chatter when N*z/60 ≈ f_n (tooth passing frequency = natural frequency)
+  - Natural frequency estimate: fn = (1/(2*pi)) * sqrt(3*E*I / (m*L^3))
+  - For endmill: m = rho * pi * D^2/4 * L, E/rho known per material
+  - ChatterStabilityLobeEngine.ts — full SLD reference implementation
+
+EXIT CRITERIA (machinist-grade):
+  1. 12mm 4FL carbide at 30mm overhang → fn estimated, stable/unstable at requested RPM
+  2. If unstable: suggest nearest stable RPM within +/-5% of original
+  3. Comment in G-code: "(STABILITY: 8000 RPM - STABLE)" or "(STABILITY: 8000 RPM - UNSTABLE,
+     try 7600 RPM)"
+  4. Feature is configurable on/off via property (default: on)
+  5. Conservative approach: flag borderline cases as WARNING rather than auto-change
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - All RPMs classified as unstable (fn estimate wrong)
+    - Suggested RPM outside machine range (0 or > max RPM)
+    - Feature slows post processing by > 2x (too much computation)
+  ROLLBACK_PROCEDURE:
+    - Remove stability check function, remove stability comments from output
+
+4-LOOP GATE:
+  BUILD: Implement estimateNaturalFreq(D, L, E, rho). Implement
+         isStableRPM(RPM, z, fn). Add nearest-stable-pocket finder.
+  SCRUTINIZE: /prism-review with dynamics specialist → validate fn estimation method
+  GAP FILL: Check: what about different tool types (face mill, drill, ball nose)?
+            Ball nose has different cross-section → different I.
+  TIE UP: Altintas & Budak (1995) cited. Simplified model limitations documented.
+
+DEPENDENCIES: U-PBL10 (tool geometry: D, L, z), U-PBL13 (force data for amplitude check)
+```
+
+### U-PBL19: Thermal accumulation tracking across operations (renumbered from U-PBL17)
+
+```
+SESSION: PPG-BL-S7
+KNOWLEDGE:
+  - Heat generation: Q = Fc * Vc * eta_chip (eta_chip ~ 0.8 in chip, 0.1 in tool)
+  - Tool temperature: Loewen-Shaw T = C * Vc^0.4 * f^0.2
+  - ThermalWearCouplingEngine.ts — RK4 coupled ODE reference
+  - Thermal time constant for tool: ~30-60 seconds for carbide
+  - Recovery: temperature drops exponentially during non-cutting time
+
+EXIT CRITERIA (machinist-grade):
+  1. 5 heavy roughing ops on same tool → progressive speed reduction shown in comments
+  2. "(THERMAL: Tool temp est. 450C after 12 min cutting, speed reduced 8%)"
+  3. Dwell suggestion after extended heavy cutting for thermal recovery
+  4. Thermal state resets on tool change
+  5. Temperature estimate uses material thermal conductivity from S3
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Temperature estimate negative
+    - Temperature > 1500C (physically unreasonable for carbide)
+    - Derating > 30% on normal operations
+  ROLLBACK_PROCEDURE:
+    - Remove thermal tracking, remove temperature comments and derating
+
+4-LOOP GATE:
+  BUILD: Implement thermalTracker object. Accumulate heat per tool.
+         Estimate temperature. Apply derating above threshold.
+  SCRUTINIZE: /prism-review → thermal specialist validates model
+  GAP FILL: Check: does cooling time between operations get credited?
+            What about coolant type effect on temperature?
+  TIE UP: Loewen-Shaw reference cited. Thermal model limitations documented.
+
+DEPENDENCIES: U-PBL13 (Fc for heat generation), U-PBL07 (material thermal properties)
+```
+
+### U-PBL20: Wear progression tracking + auto-derating (renumbered from U-PBL18)
+
+```
+SESSION: PPG-BL-S7
+KNOWLEDGE:
+  - Usui wear: dW/dt = A * sigma_n * V_s * exp(-B/theta) — simplified to Taylor-based
+  - Practical: VB progression approximately linear in middle region
+  - Derating schedule: VB=0.1mm → 5%, VB=0.2mm → 12%, VB=0.3mm → 25%
+  - ISO 3685: VB_max = 0.3mm for general machining
+  - StochasticToolLifeEngine.ts — reference implementation
+
+EXIT CRITERIA (machinist-grade):
+  1. Wear estimate in operation comment: "(WEAR: VB est. 0.15mm after 23 min)"
+  2. Feed derating: VB=0.1mm → 5% reduction, VB=0.2mm → 12%, VB=0.3mm → 25%
+  3. At VB=0.3mm → strong WARNING: "(WARNING: TOOL CHANGE RECOMMENDED, VB=0.30mm)"
+  4. Wear tracking is cumulative per tool (resets on tool change)
+  5. Wear rate depends on material + cutting speed (harder material = faster wear)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Wear estimate grows without cutting time accumulating
+    - VB negative or > 1.0mm (physically unreasonable)
+    - Derating > 50% (would make tool useless)
+  ROLLBACK_PROCEDURE:
+    - Remove wear tracking, remove wear comments and derating
+
+4-LOOP GATE:
+  BUILD: Implement wearTracker object. Estimate VB from cutting time and Vc.
+         Apply derating. Output comments.
+  SCRUTINIZE: /prism-review → machinist confirms wear estimates are realistic
+  GAP FILL: Check: what about intermittent cutting (face milling)?
+            What about notch wear (Inconel specific)?
+  TIE UP: Usui reference cited. ISO 3685 VB_max = 0.3mm cited. Derating schedule documented.
+
+DEPENDENCIES: U-PBL12 (Taylor tool life for total life reference), U-PBL07 (material wear rates)
+```
+
+### U-PBL21: UltiMotion optimization (look-ahead + block rate) (renumbered from U-PBL19)
+
+```
+SESSION: PPG-BL-S8
+KNOWLEDGE:
+  - ControllerDialectEngine.ts:1060 hurco_max5 dialect
+  - Hurco UltiMotion: 15,000 block/sec processing, advanced motion control
+  - G05.3 P values: P1-P100, lower = tighter tolerance
+  - Operation type mapping: 3D finishing → P5, 2D roughing → P35, contouring → P15
+  - Hurco MAX5 specific: UltiMotion replaces standard AICC/G05.1 functionality
+
+EXIT CRITERIA (machinist-grade):
+  1. 3D parallel finishing → G05.3 P5 (tightest UltiMotion tolerance)
+  2. 3D scallop finishing → G05.3 P5
+  3. 2D roughing → G05.3 P35 (smooth rapids, less precision needed)
+  4. 2D contouring → G05.3 P15 (medium precision)
+  5. Non-UltiMotion mode (disabled by property) → standard smoothing codes
+  6. G05.3 P values within 1-100 range
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - G05.3 P values out of 1-100 range
+    - UltiMotion active on non-Hurco machine (if post used generically)
+    - UltiMotion interferes with probing or positioning moves
+  ROLLBACK_PROCEDURE:
+    - Remove UltiMotion-specific G05.3 output, revert to standard smoothing
+
+4-LOOP GATE:
+  BUILD: Implement getUltiMotionP(operationType, tolerance). Output G05.3 before
+         operation start, G05.3 P0 after (cancel).
+  SCRUTINIZE: /prism-review → Hurco specialist validates P value mapping
+  GAP FILL: Check: does UltiMotion affect tool change? Probing? Positioning?
+            Should UltiMotion be cancelled during non-cutting moves?
+  TIE UP: UltiMotion P value table in header comment. Hurco manual reference.
+
+DEPENDENCIES: None (Hurco-specific feature, independent of physics wiring)
+```
+
+### U-PBL22: Safety analysis (renumbered from U-PBL20)
+
+```
+SESSION: PPG-BL-S8
+KNOWLEDGE:
+  - GCodeSafetyAnalyzerEngine.ts — 24 safety rules
+  - Critical checks: rapid-into-material, missing spindle start, missing G43
+  - Hurco-specific: M06 without Z retract, missing cutter comp cancel before tool change
+  - MachiningPlaybookEngine.ts — anti-pattern detection rules
+
+EXIT CRITERIA (machinist-grade):
+  1. G0 at negative Z without prior safe Z retract → WARNING inserted as comment
+  2. M06 without prior Z retract to safe position → ERROR comment
+  3. G1 without prior M03/M04 (spindle not running) → WARNING
+  4. Missing G43 after M06 (no tool length comp) → WARNING
+  5. Missing G80 before tool change (canned cycle still active) → WARNING
+  6. Zero false positives on well-formed standard programs
+  7. Severity levels: ERROR (blocking), WARNING (advisory), INFO (note)
+  8. Configurable: advisory mode (comments only) vs blocking mode (insert M00)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - False positive on valid well-formed program
+    - Safety check crashes post processor
+    - Safety comments corrupt G-code syntax
+  ROLLBACK_PROCEDURE:
+    - Remove safety analysis function, remove all safety comments from output
+
+4-LOOP GATE:
+  BUILD: Implement safetyAnalyzer state machine. Track Z position, spindle state,
+         tool comp state, cycle state. Check at each move.
+  SCRUTINIZE: /prism-review with safety engineer → verify zero false positives
+  GAP FILL: Run against all 14 existing PRISM-enhanced CPS outputs. Verify no false positives.
+  TIE UP: Safety rules documented. False positive rate = 0 on test corpus.
+
+DEPENDENCIES: U-PBL01 (correct feed output needed for safety analysis context)
+```
+
+### U-PBL23: Probing support (Hurco WPS probing cycles) (renumbered from U-PBL21)
+
+```
+SESSION: PPG-BL-S8
+KNOWLEDGE:
+  - Hurco WPS (Work Probe System) probing cycles
+  - M98 subprogram calls to Hurco standard probe programs
+  - ControllerDialectEngine.ts hurco_max5 — probing cycle map
+  - UnifiedProbingDialectEngine.ts — cross-controller probing reference
+  - Common probing: bore, boss, surface Z, corner finding
+
+EXIT CRITERIA (machinist-grade):
+  1. Bore probe cycle → correct M98 P call to Hurco bore probe subprogram
+  2. Surface Z probe → correct M98 P call to Hurco surface probe
+  3. Boss probe → correct M98 P call to Hurco boss probe
+  4. Corner probe → correct M98 P call to Hurco corner probe
+  5. Probe retract height configurable via property
+  6. Probing results file path configurable via property
+  7. Probing only active when hasParameter('probing-type') in section
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Probing cycle references wrong subprogram number
+    - Missing probe retract (crash risk)
+    - Probing output when no probing operation in CAM setup
+  ROLLBACK_PROCEDURE:
+    - Remove probing output functions, stub probing sections
+
+4-LOOP GATE:
+  BUILD: Implement onProbing handler. Map Fusion probing types to Hurco WPS calls.
+  SCRUTINIZE: /prism-review → Hurco specialist validates subprogram numbers
+  GAP FILL: Check: what if probe is not calibrated? Add WARNING if no probe tool defined.
+  TIE UP: WPS subprogram mapping documented. Probing section clearly delimited in output.
+
+DEPENDENCIES: None (probing is independent of physics wiring)
+```
+
+### U-PBL33: Bug fix regression tests (43 bugs → 43 test cases) + CPS standards verification (renumbered from U-PBL22)
+
+```
+SESSION: PPG-BL-S11
+KNOWLEDGE:
+  - All 13 bugs from audit (see BRIEF section)
+  - PostProcessorE2E.test.ts — existing test patterns
+  - ppg-test-generator.ts — test helper utilities
+  - Each test must reproduce the original bug condition and verify the fix
+
+EXIT CRITERIA (machinist-grade):
+  1. 13/13 regression tests written and passing
+  2. Test 1: Chamfer contour has F word on every G1/G2/G3 line
+  3. Test 2: prismEnableIntelligence activates optimization (factor != 1.0)
+  4. Test 3: Smart override produces numeric feed, no NaN
+  5. Test 4: No output value exceeds 4 decimal places
+  6. Test 5: No duplicate property definitions
+  7. Test 6: No duplicate variable declarations
+  8. Test 7: No dead functions (getAdjustedChipThinningForLimitedAe removed)
+  9. Test 8: No dead properties (prismEnableMaterialIntelligence removed)
+  10. Test 9: useG54x4 resolved or removed
+  11. Test 10: No dead references in commented code
+  12. Test 11: toolChangePositionY description says "Y axis"
+  13. Test 12: calculateDynamicDepthFeed handles denominator = 0
+  14. Test 13: calculateAxialDepthFactor has clear function structure
+
+ROLLBACK BLOCK:
+  FILES_CREATED: [H:/prism/mcp-server/src/__tests__/ppg-v11-regression.test.ts]
+  FILES_MODIFIED: []
+  ABORT_CRITERIA:
+    - Any regression test fails
+    - Fewer than 13 tests written
+    - Test passes trivially (assertion too weak)
+  ROLLBACK_PROCEDURE:
+    - Delete test file, fix underlying bug, re-create test
+
+4-LOOP GATE:
+  BUILD: Write ppg-v11-regression.test.ts with 13 test cases.
+  SCRUTINIZE: /prism-review → QA engineer validates test assertions are meaningful
+  GAP FILL: Check: are there edge cases within each bug that need sub-tests?
+  TIE UP: Each test documents which bug it covers. All 13 pass.
+
+DEPENDENCIES: U-PBL01 through U-PBL06 (all bugs must be fixed before regression tests)
+```
+
+### U-PBL34: New feature integration tests (80+ tests) (renumbered from U-PBL23)
+
+```
+SESSION: PPG-BL-S11
+KNOWLEDGE:
+  - Material auto-detection: 10 materials × correct ISO group + kc1.1/mc
+  - Hardness derating: 5 HRC levels × correct derating factor
+  - Coating speed adjustment: 6 coatings × correct Vc multiplier
+  - Kienzle force: 5 materials × correct Fc within +/-5-10%
+  - Power limiting: trigger at correct threshold (80% warning, 100% derate)
+  - Stability RPM: stable/unstable classification for known conditions
+  - Thermal tracking: progressive derating over multiple operations
+  - Wear tracking: progressive derating with VB accumulation
+
+EXIT CRITERIA (machinist-grade):
+  1. 40+ new feature tests written and passing
+  2. Material tests: 10 materials correctly identified (ISO group + kc1.1 + mc)
+  3. Hardness tests: 5 levels with correct derating (28/35/40/50/55 HRC)
+  4. Coating tests: 6 coatings with correct multiplier
+  5. Force tests: 5 materials within +/-5-10% of Altintas reference
+  6. Power tests: warning at 80%, derate at 100%, floor at 10%
+  7. Stability tests: known stable/unstable conditions classified correctly
+  8. Thermal tests: progressive derating over 5+ operations
+  9. Wear tests: VB progression and derating schedule correct
+
+ROLLBACK BLOCK:
+  FILES_CREATED: [H:/prism/mcp-server/src/__tests__/ppg-v11-features.test.ts]
+  FILES_MODIFIED: []
+  ABORT_CRITERIA:
+    - Physics tests > 10% off Altintas/Sandvik reference values
+    - Feature test count < 30
+    - Tests pass trivially (no meaningful assertion)
+  ROLLBACK_PROCEDURE:
+    - Delete test file, investigate physics discrepancy, re-create
+
+4-LOOP GATE:
+  BUILD: Write ppg-v11-features.test.ts with 40+ test cases across 8 feature categories.
+  SCRUTINIZE: /prism-review with physicist → validate force/power assertion values
+  GAP FILL: Check: edge case tests (zero values, max values, unknown materials)?
+  TIE UP: Test matrix shows all features covered. Physics assertions cite source.
+
+DEPENDENCIES: U-PBL07 through U-PBL21 (all features must be implemented before testing)
+```
+
+### U-PBL35: Production program validation + Fusion 360 deployment (renumbered from U-PBL24)
+
+```
+SESSION: PPG-BL-S11
+KNOWLEDGE:
+  - All 14 existing PRISM-enhanced CPS in data/posts/prism-enhanced/
+  - Production Hurco programs (if available in data/programs/hurco/)
+  - v10.9 source file for regression comparison (diff)
+  - Fusion 360 deployment location (desktop for testing)
+
+EXIT CRITERIA (machinist-grade):
+  1. All available Hurco production programs process without error
+  2. Zero NaN in any output across all programs
+  3. Zero decimal precision violations
+  4. Force/power comments present in all cutting operations
+  5. Safety analysis runs clean (zero false positives on production programs)
+  6. Diff against v10.9 output shows: F words added, precision fixed, comments improved
+  7. No regressions in v10.9 features (everything that worked still works)
+  8. Post file copied to desktop for Fusion 360 manual testing
+  9. File size reasonable (not bloated by comments — comments are tool change only)
+
+ROLLBACK BLOCK:
+  FILES_MODIFIED: [HURCO_VM30i_PRISM_v11.cps]
+  FILES_CREATED: []
+  ABORT_CRITERIA:
+    - Any production program fails to process
+    - Regression detected in diff vs v10.9 output
+    - Output file size > 2x v10.9 output for same program
+  ROLLBACK_PROCEDURE:
+    - Identify specific regression, fix in CPS, re-validate
+
+4-LOOP GATE:
+  BUILD: Run v11 post against all Hurco programs. Capture output. Diff against v10.9.
+  SCRUTINIZE: /prism-review → machinist reviews actual G-code output for correctness
+  GAP FILL: Check: are there operation types not covered? (boring? tapping? probing?)
+  TIE UP: Validation report saved. Post deployed. README with change log written as
+          header comment in CPS file.
+
+DEPENDENCIES: U-PBL33, U-PBL34 (all tests must pass before production validation)
+```
+
+---
+
+## STAGE 7: FORGE-TRIPLE DEFINITION
+
+### Forge-Triple for PPG-BASELINE-MS0
+
+```
+MILESTONE OUTPUT: 3 products forged from this milestone
+
+1. PROTECTIVE HOOK: ppg-baseline-gate
+   FILE: H:/prism/.claude/settings.json (hook entry)
+   PURPOSE: Blocks future CPS edits that would:
+     - Remove safety checks (safety function count must not decrease)
+     - Remove force/power comments (physics output must persist)
+     - Introduce NaN in feed pipeline (regex check on output)
+     - Remove F word from cutting moves (G1/G2/G3 must have F)
+     - Remove decimal formatting (raw floats in output)
+   TRIGGER: PreToolUse on Edit/Write to any .cps file in data/posts/
+   VALIDATION: Run ppg-v11-regression.test.ts → all pass before edit allowed
+   COMPOUNDING: This hook protects v11 baseline for ALL future post work
+
+2. MCP DISPATCHER ACTION: prism_generator:generate_post
+   FILE: H:/prism/mcp-server/src/tools/dispatchers/generatorDispatcher.ts
+   SCHEMA: {
+     controller: ControllerFamily (required),
+     machine: string (optional, e.g., "VM30i"),
+     material: string (optional, auto-detected if not provided),
+     features: ("material" | "tooling" | "force" | "stability" | "thermal" | "safety" | "all")[]
+   }
+   RETURNS: {
+     cps_content: string,
+     validation: {
+       safe: boolean,
+       test_pass: boolean,
+       force_range: [number, number],
+       power_max_pct: number,
+       stability_issues: string[]
+     }
+   }
+   PURPOSE: Generate controller-specific post from v11 baseline
+
+3. SKILL / SLASH COMMAND: /cps-generate
+   FILE: H:/prism/.claude/commands/cps-generate.md
+   USAGE: /cps-generate --controller hurco --machine VM30i --features all
+   DESCRIPTION: "Generate a PRISM-enhanced post processor for any supported controller.
+     Uses v11 baseline as template, applies controller dialect, wires physics intelligence."
+   MCP WIRING: Calls prism_generator:generate_post internally
+```
+
+### Session-Level Forge-Triple (S7)
+
+```
+1. HOOK: ppg-baseline-safety-gate
+   PURPOSE: Specifically protects safety analysis from removal
+   TRIGGER: Edit to safety functions in CPS files
+   VALIDATION: Safety check count >= baseline count
+
+2. ACTION: prism_generator:validate_post_safety
+   PURPOSE: Run safety analysis on any post output
+   RETURNS: { safe, violations[], warnings[] }
+
+3. SKILL: /post-safety-check
+   USAGE: /post-safety-check <gcode-file> --controller hurco
+```
+
+---
+
+## STAGE 8: ENFORCEMENT INTEGRATION
+
+### Hook Levels Active During PPG-BASELINE Execution
+
+```
+PRE-LEVEL (fires BEFORE tool use):
+  1. pretooluse-unified.sh — file routing + safety
+     - Routes CPS file reads through appropriate context loading
+     - Blocks edits to CPS files outside of roadmap session scope
+  2. review-gate.sh — blocks engine edits when engine_edits_since_review > 3
+     - Applies to CPS file edits (CPS is effectively an engine)
+     - Forces /prism-review after every 3 significant CPS modifications
+  3. ppg-baseline-gate (FORGE-TRIPLE hook, active after S8)
+     - Blocks CPS edits that would break regression tests
+     - Runs ppg-v11-regression.test.ts before allowing edit
+
+POST-LEVEL (fires AFTER tool use):
+  1. posttooluse-unified.sh — syntax checks + compression
+     - Validates CPS JavaScript syntax after edit
+     - Compresses large CPS diffs for context efficiency
+  2. PostToolUse prompt: engine stub detector
+     - Detects if Kienzle/Taylor implementations return hardcoded values
+     - Flags: "Is this REAL physics or a placeholder?"
+  3. PostToolUse prompt: test quality enforcer
+     - Ensures test assertions are meaningful (not just "file exists")
+     - Flags: "Does this test verify PHYSICS or just structure?"
+  4. PostToolUse prompt: knowledge graph reminder
+     - After CPS edit, reminds to check ControllerDialectEngine for dialect rules
+     - After physics edit, reminds to check CANONICAL_KIENZLE/TAYLOR values
+
+COMPACT-LEVEL (fires at /compact):
+  1. precompact-save.sh — saves state
+     - Captures: bug fix count, test count, feature count, property inventory
+  2. stop-completion-check.sh — warns if unfinished
+     - Checks: are all session EXIT GATE items checked?
+     - Warns: "U-PBL05 EXIT GATE not complete — finish before compact"
+
+POST-COMPACT (fires after new session starts):
+  1. auto-resume-injector.mjs — injects RESUME instructions
+     - Reads HANDOFF.md for PPG-BASELINE resume point
+     - Injects: "Continue from U-PBL{next} in session PPG-BL-S{N}"
+  2. session-start-unified.sh — loads context
+     - Loads HANDOFF.md, PPG-BASELINE-MS0.json, roadmap position
+  3. /roadmap-quality-check — verifies previous session completeness
+     - Checks: did all EXIT GATE items pass?
+     - Checks: were /prism-review findings resolved?
+```
+
+### Physics Review Enforcement (specific to PPG-BASELINE)
+
+```
+TRIGGERED BY: Any edit to Kienzle, Taylor, power, torque, deflection, stability,
+  thermal, or wear code in the CPS file.
+
+REVIEW TEAM: 3-5 agents from PHYSICS pool:
+  - Manufacturing physicist — validates formulas against literature
+  - CNC machinist — validates output values against shop experience
+  - Numerics specialist — validates decimal precision and float handling
+  - Optional: dynamics specialist (for stability lobe work)
+  - Optional: thermal specialist (for thermal/wear work)
+
+GATING: CRITICAL findings BLOCK further edits until resolved.
+  HIGH findings must be addressed before session EXIT GATE.
+  MEDIUM findings documented for next session.
+```
+
+---
+
+## STAGE 9: DEPENDENCY RESOLUTION
+
+### Dependency DAG (Directed Acyclic Graph)
+
+```
+U-PBL01 ──┐
+U-PBL02 ──┤── S1 complete ──┐
+U-PBL03 ──┘                 │
+                             ▼
+U-PBL04 ─── depends on U-PBL01 (F word fix before formatting)
+U-PBL05 ─── depends on U-PBL02 (property fix before consolidation)
+U-PBL06 ─── depends on U-PBL04, U-PBL05 ──── S2 complete ──┐
+                                                             │
+                                    /compact after S2        │
+                                                             ▼
+U-PBL07 ─── depends on U-PBL02, U-PBL05 (optimization + clean props)
+U-PBL08 ─── depends on U-PBL07 (ISO group + hardness from material detection)
+U-PBL09 ─── depends on U-PBL07 (ISO group for coolant rules)
+                                              ──── S3 complete ──┐
+                                                                 │
+U-PBL10 ─── depends on U-PBL02, U-PBL04 (optimization + precision)
+U-PBL11 ─── depends on U-PBL07 (ISO group for coating rules)
+U-PBL12 ─── depends on U-PBL07, U-PBL10 (material + tool geometry)
+                                              ──── S4 complete ──┐
+                                                                 │
+                                    /compact after S4            │
+                                                                 ▼
+U-PBL13 ─── depends on U-PBL07, U-PBL10 (material kc1.1/mc + tool fz)
+U-PBL14 ─── depends on U-PBL13 (Fc for power calculation)
+U-PBL15 ─── depends on U-PBL13, U-PBL14, U-PBL10 (Fc + power + geometry)
+                                              ──── S5 complete ──┐
+                                                                 │
+U-PBL16 ─── depends on U-PBL10, U-PBL13 (geometry + force for SLD)
+U-PBL17 ─── depends on U-PBL13, U-PBL07 (Fc + material thermal props)
+U-PBL18 ─── depends on U-PBL12, U-PBL07 (Taylor life + material wear)
+                                              ──── S6 complete ──┐
+                                                                 │
+                                    /compact after S6            │
+                                                                 ▼
+U-PBL19 ─── no dependencies (Hurco-specific, independent)
+U-PBL20 ─── depends on U-PBL01 (correct feed for safety analysis)
+U-PBL21 ─── no dependencies (probing, independent)
+                                              ──── S7 complete ──┐
+                                                                 │
+U-PBL33 ─── depends on U-PBL01..U-PBL08 + U-PBL-PH01..03 (all bugs + physics fixed)
+U-PBL34 ─── depends on U-PBL09..U-PBL23 + U-PBL25..U-PBL32 (all intelligence + features)
+U-PBL35 ─── depends on U-PBL33, U-PBL34 (all tests pass, certification complete)
+                                              ──── S8 complete
+                                    /compact after S8
+```
+
+### DAG Validation
+
+```
+CYCLE CHECK: No cycles detected.
+  - Forward-only dependency flow: bugs → intelligence → physics → features → tests
+  - No unit depends on a later unit
+  - No cross-session backward dependencies
+
+COMPACTION BOUNDARY CHECK: No dependency splits.
+  - /compact after S0: S1+ depends only on CPS standards (complete)
+  - /compact after S2: S3+ depends only on completed S0-S2 (bugs done)
+  - /compact after S5: S6+ depends only on completed S0-S5 (intelligence done)
+  - /compact after S7: S8+ depends only on completed S0-S7 (physics done)
+  - /compact after S10: S11 depends only on completed S0-S10 (features done)
+  - /compact after S11: Milestone complete, no downstream dependencies
+
+PARALLEL EXECUTION OPPORTUNITIES:
+  Within S1: U-PBL01, U-PBL02, U-PBL03 are independent (parallel OK)
+  Within S3: U-PBL08, U-PBL09 both depend on U-PBL07 (sequential: 07→08,09)
+  Within S4: U-PBL10 is independent of U-PBL07; U-PBL11 depends on U-PBL07
+  Within S5: Strictly sequential: 13→14→15
+  Within S6: U-PBL16, U-PBL17, U-PBL18 can partially parallel after U-PBL13
+  Within S7: U-PBL19, U-PBL20, U-PBL21 are mostly independent (parallel OK)
+  Within S8: Strictly sequential: U-PBL21→U-PBL22→U-PBL23
+```
+
+---
+
+## MILESTONE EXIT GATE
+
+```
+PPG-BASELINE-MS0 is COMPLETE when ALL of the following are true:
+
+BUGS:
+  [ ] 43/43 bugs from consolidated 5-agent audit are fixed and regression-tested
+  [ ] See data/docs/PPG-BASELINE-AUDIT-CONSOLIDATED.md for full finding list
+  [ ] Additional findings from machinist audit: G49 missing, G05.3 not cancelled, BNC dwell
+  [ ] Additional findings from physics audit: SQRT chip thinning formula, velocity overestimate
+  [ ] Additional findings from code quality: 5 undefined properties, 10,700 lines copy-paste
+  [ ] Zero NaN in any output
+  [ ] Zero decimal precision violations (no >4 decimal places)
+  [ ] Zero duplicate properties, variables, or functions
+
+FEATURES:
+  [ ] Material auto-detection: 40+ materials, ISO group, kc1.1/mc
+  [ ] Hardness derating: HRC-based speed correction
+  [ ] Coolant strategy: material-specific recommendations
+  [ ] Surface finish hints: BUE-corrected Ra prediction
+  [ ] Tool geometry: stickout L/D derating
+  [ ] Coating: 6 coating types with Vc multipliers
+  [ ] Tool life: Taylor-based estimation with sister tool support
+  [ ] Kienzle force: per-operation Fc calculation with corrections
+  [ ] Power limiting: 80% warning, 100% auto-derate
+  [ ] Torque limiting: low-RPM torque check
+  [ ] Deflection warning: force-based cantilever check
+  [ ] Stability RPM: simplified SLD classification
+  [ ] Thermal tracking: progressive temperature derating
+  [ ] Wear tracking: VB-based progressive feed derating
+  [ ] UltiMotion: operation-type-specific G05.3 P values
+  [ ] Safety analysis: rapid-into-material, missing codes, collision hazards
+  [ ] Probing: Hurco WPS cycle support
+
+TESTS:
+  [ ] 43 regression tests pass (one per bug from consolidated audit)
+  [ ] 40+ feature integration tests pass
+  [ ] Total test count >= 80
+  [ ] Force calculations within +/-5% of Altintas reference
+  [ ] All available production programs process without error
+
+DEPLOYMENT:
+  [ ] v11 CPS file at H:/prism/mcp-server/data/posts/prism-enhanced/HURCO_VM30i_PRISM_v11.cps
+  [ ] Copy on desktop for Fusion 360 testing
+  [ ] Diff vs v10.9: improvements visible, zero regressions
+  [ ] Line count reduced by ~10,000 (tool pocket refactor)
+
+FORGE-TRIPLE:
+  [ ] cps-standards-gate hook active and protecting v11 standards
+  [ ] ppg-baseline-gate hook active and protecting v11 tests
+  [ ] ppg-baseline-safety-gate hook active and protecting safety checks
+  [ ] prism_generator:generate_post action wired
+  [ ] prism_dev:audit_cps_standards action wired
+  [ ] /cps-generate skill created
+  [ ] /cps-standards-check skill created
+  [ ] /post-safety-check skill created
+
+CPS STANDARDS:
+  [ ] Every property has group + scope assigned
+  [ ] Zero writeln calls remain (all writeBlock)
+  [ ] All modal variables use createModal with onchange
+  [ ] writeRetract, smoothing, coolant patterns match Training Guide
+  [ ] All 11 CPS entry functions present
+
+FEATURES:
+  [ ] 9/9 missing features implemented and tested
+  [ ] Thread milling: helical G2/G3+Z
+  [ ] Program splitting: per-tool output files
+  [ ] Sub-programs: M98 P for hole patterns
+  [ ] Setup sheet: tool table + stock + cycle time
+  [ ] Custom M-codes: before/after tool change hooks
+  [ ] G64 UltiMotion: P tolerance per operation type
+  [ ] Toolpath filtering: micro-segment removal
+  [ ] 5-axis rewind: onRewindMachineEntry active
+  [ ] Cycle time accumulation: program total
+
+QUALITY:
+  [ ] /prism-review completed on final state: 0 CRITICAL, 0 HIGH findings
+  [ ] Omega >= 0.90 for PPG-BASELINE track
+  [ ] All physics constants imported from canonical source (never inline)
+  [ ] All formulas cite published references
+  [ ] Cross-roadmap coherence: PPG-REAL, PPG-VAR relationships documented
+  [ ] Registered in CURRENT_POSITION.md
+```
+
+---
+
+## COMPACTION SURVIVAL CHECKLIST
+
+When compacting during PPG-BASELINE execution, PRESERVE these facts:
+
+```
+1. Current session and unit: PPG-BL-S{N}, U-PBL-{XX}
+2. CPS standards audit status: which of 8 S0 units are done
+3. Bug fix status: which of 43 bugs are done (S1: 8 CRITICAL, S2: 35 HIGH/MED/LOW)
+4. Physics fix status: which of 3 S3 units are done (chip thin, velocity, reconciliation)
+5. Property namespace: canonical names for all PRISM properties
+6. Format definitions: decimal places for feed, XYZ, IJK
+7. Material detection: how many presets, fuzzy matcher state
+8. Kienzle constants: which materials have kc1.1/mc wired
+9. Force model: formula + corrections active
+10. Power limit: threshold values (80% warn, 100% derate)
+11. Stability check: natural frequency estimation method
+12. Thermal model: accumulation tracking state
+13. Wear model: VB progression derating schedule
+14. Safety rules: which checks are active
+15. Feature status: which of 9 missing features are implemented
+16. Test count: regression + feature tests passing
+17. CPS line count: current vs original (tracking tool pocket refactor)
+18. Any incomplete EXIT GATE items from current session
+19. CPS file line references for any in-progress edits
+20. Cross-roadmap: PPG-REAL and PPG-VAR status for coherence
+```
+
+---
+
+## SESSION EXECUTION PROTOCOL
+
+Every session follows this exact sequence:
+
+```
+1. Read HANDOFF.md for resume point
+2. Read this roadmap to find current session block
+3. Read KNOWLEDGE SOURCES listed in session block
+4. Per unit:
+   a. BUILD: Implement the unit. npx tsc --noEmit if applicable.
+   b. SCRUTINIZE: /prism-review with domain agents. Fix ALL CRITICAL+HIGH.
+   c. GAP FILL: Run tests. Check wiring. Check constants. Check edge cases.
+   d. TIE UP: No TODO/FIXME. Output matches format. Golden sample saved.
+5. Check all EXIT GATE items
+6. /compact with HANDOFF.md including resume instruction
+```
+
+---
+
+## APPENDIX A: PROPERTY INVENTORY (post-consolidation target)
+
+```
+PRISM Core Properties (after U-PBL06 consolidation):
+  prismEnableIntelligence: boolean — master switch for all PRISM features
+  prismMaxFeedRate: number — absolute feed ceiling (mm/min)
+  prismMinFeedRate: number — absolute feed floor (mm/min)
+  prismMaxSpindleSpeed: number — RPM ceiling
+  prismOptimizationMode: enum — "conservative" | "balanced" | "aggressive"
+
+PRISM Physics Properties:
+  prismEnableForceModel: boolean — Kienzle force calculation
+  prismEnablePowerLimit: boolean — spindle power limiting
+  prismEnableStabilityCheck: boolean — SLD-based RPM check
+  prismEnableThermalTracking: boolean — thermal accumulation derating
+  prismEnableWearTracking: boolean — VB-based wear derating
+  prismMachinePower: number — max spindle power in kW (default 15)
+  prismMachineTorque: number — max spindle torque in Nm (default 119)
+  prismToolLifeThreshold: number — minutes before sister tool trigger
+
+PRISM Safety Properties:
+  prismEnableSafetyAnalysis: boolean — G-code safety checks
+  prismSafetyMode: enum — "advisory" | "blocking"
+
+PRISM Motion Properties (NEW — S10):
+  prismUltiMotion: boolean — Hurco UltiMotion G64 mode
+  prismUltiMotionRoughTol: number — G64 P tolerance for roughing (default 0.05)
+  prismUltiMotionFinishTol: number — G64 P tolerance for finishing (default 0.01)
+  prismEnableToolpathFilter: boolean — micro-segment removal
+  prismFilterThreshold: number — minimum segment length in mm (default 0.01)
+
+PRISM Feature Properties (NEW — S9-S10):
+  prismEnableThreadMilling: boolean — helical thread milling output
+  prismEnableProgramSplit: boolean — split G-code at tool changes
+  prismEnableSubPrograms: boolean — extract hole patterns to subroutines
+  prismEnableSetupSheet: boolean — generate setup sheet with tool table
+  prismCustomMCodeBeforeTC: string — M-code before tool change (empty=none)
+  prismCustomMCodeAfterTC: string — M-code after tool change (empty=none)
+  prismEnable5AxisRewind: boolean — axis rewind at ±180° limits
+
+All properties MUST have:
+  - group: named property group (e.g., "PRISM Intelligence", "PRISM Safety")
+  - scope: "machine" | "post" | "operation" per CPS Training Guide
+  - description: clear text explaining what it does
+```
+
+## APPENDIX B: G-CODE OUTPUT EXAMPLE (target)
+
+```gcode
+%
+O0001 (HURCO VM30i - PRISM v11.0)
+(GENERATED: 2026-04-07)
+(PRISM INTELLIGENCE: ACTIVE)
+(MATERIAL: AISI 4140 STEEL - ISO P)
+(HARDNESS: HRC 28 - BASELINE SFM)
+(Kienzle kc1.1=1800 MPa, mc=0.25)
+
+(TOOL 1 - 12mm 4FL TiAlN ENDMILL)
+(STICKOUT: L/D=4.0 - NO DERATING)
+(COATING: TiAlN - 1.5x SFM BOOST)
+(KIENZLE Fc=1305N at ap=3.0 fz=0.15)
+(POWER: 8.7kW / 15kW = 58%)
+(STABILITY: 8000 RPM - STABLE)
+(TOOL LIFE EST: 45 min at Vc=200)
+N10 G90 G94 G17
+N20 G21
+N30 G28 G91 Z0
+N40 T1 M6
+N50 G90 G54
+N60 G43 H1 Z50.0
+N70 S8000 M3
+N80 G05.3 P35
+N90 G0 X10.0 Y10.0
+N100 G0 Z2.0
+N110 G1 Z-3.0 F720.0
+N120 G1 X50.0 F1200.0
+...
+(THERMAL: Tool temp est. 320C after 8 min)
+(WEAR: VB est. 0.08mm - NO DERATING)
+...
+N500 G05.3 P0
+N510 M5
+N520 G28 G91 Z0
+N530 M30
+%
+```
+
+---
+
+END OF ROADMAP — PPG-BASELINE-MS0 v2.0.0 (Loop 2 Applied)
