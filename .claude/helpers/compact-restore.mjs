@@ -2,6 +2,30 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { spawnSync } from "node:child_process";
+import { z } from "zod";
+
+// CPP-MS4-U-CPP32: Zod schema at the SESSION_ARTIFACTS.json read boundary.
+// Mirrors the canonical schema in mcp-server/src/schemas/hookStateSchemas.ts
+// (SessionArtifactsSchema). Kept inline+minimal because this helper is a
+// .mjs and doesn't transpile through the TypeScript build. Drift between
+// the two is caught by the hookStateSchemas.test.ts suite plus the
+// compact-restore integration test.
+const SessionArtifactsZ = z
+  .object({
+    schemaVersion: z.string().regex(/^\d+\.\d+\.\d+$/),
+    event: z.enum(["seed", "post_compact", "session_end", "manual"]),
+    timestamp: z.string(),
+    recent_additions: z
+      .object({
+        new_engines: z.array(z.string()).optional(),
+        new_hooks: z.array(z.string()).optional(),
+        new_skills: z.array(z.string()).optional(),
+        new_dispatchers: z.array(z.string()).optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
 
 // CPP-MS3-U-CPP23: Per-terminal compaction survival reader.
 // Writers produce `.compaction-survival-<instance>.md` files; this reader
@@ -16,6 +40,26 @@ const HANDOFFS_DIR = "H:\\prism\\state\\shared\\handoffs";
 const SESSION_IDS_FILE = path.join(HANDOFFS_DIR, ".current-session-ids.json");
 const POSITION_FILE = "H:\\prism\\state\\CURRENT_POSITION.md";
 const PRISM_ROOT = "H:\\prism";
+
+// CPP-MS4-U-CPP33: Directive freshness gate. These 10 shared directives are
+// referenced from CLAUDE.md and the self-awareness injection path; if any go
+// stale (>7 days unmodified), we emit a visible warning in the boot block so
+// the agent can choose to refresh them rather than silently loading outdated
+// guidance. Threshold is conservative — most directives are revised weekly.
+const DIRECTIVE_DIR = "H:\\prism\\state\\shared";
+const TRACKED_DIRECTIVES = [
+  "CLAUDE-CODEX-MCP-DIRECTIVE.md",
+  "CLAUDE-CODEX-SVI-DIRECTIVE.md",
+  "CLAUDE-CODEX-COMMAND-BRIDGE.md",
+  "CLAUDE-CODEX-SEARCH-TOKEN-DIRECTIVE.md",
+  "CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+  "CLAUDE-CODEX-ROADMAP-EXECUTION-DIRECTIVE.md",
+  "CLAUDE-CODEX-SPAWNED-AGENT-DIRECTIVE.md",
+  "CLAUDE-CODEX-TASK-QUEUE-DIRECTIVE.md",
+  "CLAUDE-CODEX-COMMAND-AWARENESS-DIRECTIVE.md",
+  "PRISM-SELF-AWARENESS-DIRECTIVE.md",
+];
+const DIRECTIVE_STALE_DAYS = 7;
 
 // Known placeholder RESUME strings that need fallback generation
 const PLACEHOLDER_RESUMES = [
@@ -193,23 +237,103 @@ async function main() {
   }
 
   // 3. Read SESSION_ARTIFACTS.json for Feature Cascade
+  //    CPP-MS4-U-CPP32: Zod validation at this read boundary. Malformed JSON
+  //    or schema violations surface a marker line in the output rather than
+  //    being silently swallowed, so pipeline breakage is visible to the agent.
   try {
-    const artifacts = await fs.readFile("H:\\prism\\state\\shared\\SESSION_ARTIFACTS.json", "utf8");
-    const data = JSON.parse(artifacts);
-    if (data.recent_additions) {
-      const ra = data.recent_additions;
-      const items = [];
-      if (ra.new_engines?.length) items.push(`${ra.new_engines.length} new engines: ${ra.new_engines.join(", ")}`);
-      if (ra.new_hooks?.length) items.push(`${ra.new_hooks.length} new hooks: ${ra.new_hooks.join(", ")}`);
-      if (ra.new_skills?.length) items.push(`${ra.new_skills.length} new skills: ${ra.new_skills.join(", ")}`);
-      if (items.length > 0) {
-        parts.push("\n## Feature Cascade (from prior session):");
-        parts.push(items.join("\n"));
+    const artifactsPath = "H:\\prism\\state\\shared\\SESSION_ARTIFACTS.json";
+    const artifacts = await fs.readFile(artifactsPath, "utf8");
+    let raw;
+    try {
+      raw = JSON.parse(artifacts);
+    } catch (e) {
+      parts.push(`\n## Feature Cascade: SESSION_ARTIFACTS.json malformed (${(e?.message || "parse error").slice(0, 80)})`);
+      raw = null;
+    }
+    if (raw !== null) {
+      const result = SessionArtifactsZ.safeParse(raw);
+      if (!result.success) {
+        const msg = result.error.issues
+          .slice(0, 3)
+          .map((i) => `${i.path.join(".") || "<root>"}: ${i.message}`)
+          .join("; ");
+        parts.push(`\n## Feature Cascade: SESSION_ARTIFACTS.json schema error (${msg})`);
+      } else if (result.data.recent_additions) {
+        const ra = result.data.recent_additions;
+        const items = [];
+        if (ra.new_engines?.length) items.push(`${ra.new_engines.length} new engines: ${ra.new_engines.join(", ")}`);
+        if (ra.new_hooks?.length) items.push(`${ra.new_hooks.length} new hooks: ${ra.new_hooks.join(", ")}`);
+        if (ra.new_skills?.length) items.push(`${ra.new_skills.length} new skills: ${ra.new_skills.join(", ")}`);
+        if (items.length > 0) {
+          parts.push("\n## Feature Cascade (from prior session):");
+          parts.push(items.join("\n"));
+        }
       }
     }
-  } catch { /* no artifacts */ }
+  } catch { /* file unreadable — silent is OK here; schema/parse errors are surfaced above */ }
+
+  // 4. CPP-MS4-U-CPP33: Directive freshness gate. If any tracked shared
+  //    directive hasn't been touched in >7 days, surface it as a warning so
+  //    the agent can refresh before relying on stale coordination rules.
+  //    Missing files are listed separately so the index and reality stay aligned.
+  const freshness = await checkDirectiveFreshness({
+    directives: TRACKED_DIRECTIVES,
+    directiveDir: DIRECTIVE_DIR,
+    staleDays: DIRECTIVE_STALE_DAYS,
+    now: Date.now(),
+  });
+  const block = formatFreshnessBlock(freshness, TRACKED_DIRECTIVES.length, DIRECTIVE_STALE_DAYS);
+  if (block !== null) parts.push(block);
 
   process.stdout.write(parts.join("\n"));
+}
+
+/**
+ * CPP-MS4-U-CPP33: Classify tracked directives into fresh/stale/missing buckets.
+ *
+ * Pure-ish function (touches fs.stat but otherwise side-effect-free). Exported
+ * so the freshness-gate logic is testable without spawning the CLI or
+ * reading compaction-survival state.
+ *
+ * @param {{ directives: string[], directiveDir: string, staleDays: number, now: number }} opts
+ * @returns {Promise<{ stale: Array<{ name: string, ageDays: number }>, missing: string[] }>}
+ */
+export async function checkDirectiveFreshness({ directives, directiveDir, staleDays, now }) {
+  const staleMs = staleDays * 24 * 60 * 60 * 1000;
+  const stale = [];
+  const missing = [];
+  for (const name of directives) {
+    const fp = path.join(directiveDir, name);
+    try {
+      const st = await fs.stat(fp);
+      const ageDays = Math.floor((now - st.mtimeMs) / (24 * 60 * 60 * 1000));
+      if (now - st.mtimeMs > staleMs) {
+        stale.push({ name, ageDays });
+      }
+    } catch {
+      missing.push(name);
+    }
+  }
+  return { stale, missing };
+}
+
+/**
+ * CPP-MS4-U-CPP33: Render the freshness block for the boot injection.
+ * Returns `null` when everything is fresh (no block emitted).
+ */
+export function formatFreshnessBlock(result, total, staleDays) {
+  const { stale, missing } = result;
+  if (stale.length === 0 && missing.length === 0) return null;
+  const lines = [`\n## Directive Freshness Warning (>${staleDays}d stale)`];
+  if (stale.length > 0) {
+    const rendered = stale.map((s) => `${s.name} (${s.ageDays}d)`).join(", ");
+    lines.push(`Stale (${stale.length}/${total}): ${rendered}`);
+  }
+  if (missing.length > 0) {
+    lines.push(`Missing (${missing.length}): ${missing.join(", ")}`);
+  }
+  lines.push("Refresh before relying on these for coordination rules, or accept outdated guidance.");
+  return lines.join("\n");
 }
 
 main().catch(() => {
