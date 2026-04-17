@@ -2,9 +2,31 @@
 
 **Date:** 2026-04-17
 **Scope:** 10-reviewer audit of LATHE-MASTER.json envelope + LATHE-MASTER-UNIFIED-ROADMAP.md
-**Status:** PASS post Loop-2 + Loop-3 (avg 80.4 ≥ 70; all 10 dims ≥ 60)
+**Status:** PASS post Loop-4 (avg 87.4 ≥ 70; all 10 dims ≥78)
 
-## Final Loop-3 Scores (after fixes)
+## Loop-4 Fresh Scrutiny Scores (all 10 dims re-audited)
+
+| # | Dimension | L1 | L3 | L4 |
+|---|-----------|----|----|----|
+| 1 | Protocol Structure | 82 | 82 | 78 |
+| 2 | Unit Naming | 94 | 94 | 96 |
+| 3 | SMART CONFIG | 35 | 88 | 92 |
+| 4 | Exit Gate Rigor | 38 | 74 | 82 |
+| 5 | Forge-Triple | 72 | 72 | 88 |
+| 6 | Physics Rigor | 42 | 82 | 84 |
+| 7 | Feature Cascade | 78 | 78 | 86 |
+| 8 | Dependency Graph | 74 | 74 | 86 |
+| 9 | MCP Utilization | 28 | 88 | 96 |
+| 10 | Cross-Roadmap Coherence | 72 | 72 | 86 |
+| — | **Average** | 61.5 | 80.4 | **87.4** |
+
+## Loop-4 Polish Fixes Applied
+
+1. **Exit Gate**: 3 AGI-safety units (Corrigibility, GoalStability, SelfModApproval) bumped 0.95 → 1.0. Now 135/135 at 1.0 (matches user preference).
+2. **Physics**: constants_import_mandate expanded from 5 → 15 symbols (adds mc, ALTINTAS_SLD_CONSTANTS, MALKIN_CGS, BRAMMERTZ_COEFF, SATO_WEAR_CONSTANTS, BUSHING_K_SWISS, LIVE_TOOL_TORQUE_MAX, TOOL_NOSE_RADIUS, CARSLAW_JAEGER_PECLET, LOEWEN_SHAW_PARTITION).
+3. **Forge-Triple**: Stale "7 forge-triples" in MD line 1727 → "18 forge-triples (v2: +10 scrutiny phases, +1 frontend phase)".
+
+## Final Loop-3 Scores (after Loop-2 fixes)
 
 | # | Dimension | Loop 1 | Loop 3 | Delta |
 |---|-----------|--------|--------|-------|

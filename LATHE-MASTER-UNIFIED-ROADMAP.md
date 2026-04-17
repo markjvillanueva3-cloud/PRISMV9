@@ -1724,7 +1724,7 @@ P0 (audit) ──> P1 (speed/feed) ──> P2 (postgen) ──> P3 (masterpost) 
 
 ---
 
-## FORGE-TRIPLE SUMMARY (RGS Stage 7) — 7 forge-triples total
+## FORGE-TRIPLE SUMMARY (RGS Stage 7) — 18 forge-triples total (v2: +10 scrutiny phases, +1 frontend phase)
 
 | Phase | Hook | Action | Skill |
 |-------|------|--------|-------|

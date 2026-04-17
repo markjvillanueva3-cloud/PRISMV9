@@ -538,7 +538,7 @@
           "title": "LatheAgentCorrigibilityGateEngine (T0-T3 tiers)",
           "description": "Tiers: T0 suggest-only, T1 propose+approve, T2 supervised-execute, T3 autonomous. Gate enforces autonomy tier per decision class.",
           "exit_conditions": ["Each tier testable", "Upgrade requires signed approval", "Downgrade on safety breach"],
-          "omega_floor": 0.95,
+          "omega_floor": 1.0,
           "depends_on": ["U-LTH06"],
           "status": "not_started"
         },
@@ -547,7 +547,7 @@
           "title": "LatheGoalStabilityInvariantEngine (objective-hash check)",
           "description": "Hashes current objective at session start. Every decision checks hash match. Drift -> halt + human review.",
           "exit_conditions": ["Hash persisted", "Drift detection fires on seeded modification", "Halt works"],
-          "omega_floor": 0.95,
+          "omega_floor": 1.0,
           "depends_on": ["U-LTH92"],
           "status": "not_started"
         },
@@ -556,7 +556,7 @@
           "title": "LatheSelfModificationApprovalEngine (signed artifact)",
           "description": "Any self-modification (policy update, tool code change) requires signed artifact from supervisor. Reject unsigned changes.",
           "exit_conditions": ["Unsigned mod rejected", "Signed mod accepted", "Log audit trail"],
-          "omega_floor": 0.95,
+          "omega_floor": 1.0,
           "depends_on": ["U-LTH92"],
           "status": "not_started"
         },
@@ -1952,7 +1952,7 @@
       "swiss_guide_bushing": "Force limit = k_bushing * stickout_ratio; source: Citizen / Tsugami OEM specs",
       "live_tool_torque": "T_live = P_spindle * eta / omega_live; source: Okuma / Mazak B-axis specs"
     },
-    "constants_import_mandate": "import { kc1_1, taylor_n, E_carbide, taylor_C, WHITE_LAYER_THRESHOLDS } from \"src/physics/constants.ts\" — NEVER inline.",
+    "constants_import_mandate": "import { kc1_1, mc, taylor_n, taylor_C, E_carbide, ALTINTAS_SLD_CONSTANTS, MALKIN_CGS, BRAMMERTZ_COEFF, SATO_WEAR_CONSTANTS, BUSHING_K_SWISS, LIVE_TOOL_TORQUE_MAX, TOOL_NOSE_RADIUS, WHITE_LAYER_THRESHOLDS, CARSLAW_JAEGER_PECLET, LOEWEN_SHAW_PARTITION } from \"src/physics/constants.ts\" — NEVER inline. Missing constants must be added to constants.ts (with Sandvik/Kennametal/Machinery's Handbook citation) before physics unit can claim exit.",
     "safety_gate_Sx": "S(x) >= 0.70 per safety-physics agent for ALL force/thermal/stress calculations. Hard block if < 0.70.",
     "citation_requirement": "Every physics unit's knowledge_sources MUST cite Sandvik / Kennametal / Machinery's Handbook / MIT OCW / published paper. Unsourced formulas blocked at physics-review-agent."
   },
