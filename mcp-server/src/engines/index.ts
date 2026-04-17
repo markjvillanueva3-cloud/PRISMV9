@@ -5493,6 +5493,7 @@ export { WEDMUnitTagGateEngine, wedmUnitTagGateEngine, type UnitTagInput, type U
 export { WEDMHeadClearanceGateEngine, wedmHeadClearanceGateEngine, type HeadClearanceGateInput, type HeadClearanceGateResult } from './WEDMHeadClearanceGateEngine.js';
 export { WEDMFlushAdequacyGateEngine, wedmFlushAdequacyGateEngine, type FlushingInput, type FlushingGateResult, type FlushingMode, type ThicknessBand } from './WEDMFlushAdequacyGateEngine.js';
 export { WEDMThermalReleaseGateEngine, wedmThermalReleaseGateEngine, type ThermalInput, type ThermalGateResult, type EDMMaterial, type MaterialThermalProps } from './WEDMThermalReleaseGateEngine.js';
+export { WEDMControllerDialectVerifierEngine, wedmControllerDialectVerifierEngine, type DialectInput, type DialectGateResult, type CodeViolation, type WEDMController as DialectWEDMController } from './WEDMControllerDialectVerifierEngine.js';
 
 // --- BOX-MS7: Calculator Page — Program Upload + Tool Callout + Auto S/F ---
 export { ProgramUploadAnalyzerEngine, programUploadAnalyzerEngine, type DetectedDialect, type UploadAnalysisResult, type AnalyzedTool, type AnalyzedOperation, type SpeedFeedEntry, type CycleStructure, type ProgramHints } from './ProgramUploadAnalyzerEngine.js';
