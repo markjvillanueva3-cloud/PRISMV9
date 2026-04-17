@@ -18,6 +18,8 @@
  * @module StochasticToolpathRoutingEngine
  */
 
+import { CANONICAL_MATERIAL_DB, CANONICAL_TAYLOR } from "../physics/constants.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -159,12 +161,16 @@ const TOOL_CHANGE_TIME_S = 30;
 const RAPID_FEED_MM_MIN = 10000;
 const CUTTING_EFFICIENCY = 0.75; // motor-to-cut efficiency
 
-/** Inline material database for common materials. */
-const MATERIAL_DB: Record<string, MaterialParams> = {
-  steel_1045:    { name: 'steel_1045',    kc1_1: 1800, mc: 0.25, taylor_C: 250, taylor_n: 0.25 },
-  aluminum_6061: { name: 'aluminum_6061', kc1_1: 700,  mc: 0.23, taylor_C: 600, taylor_n: 0.28 },
-  titanium_6al4v:{ name: 'titanium_6al4v',kc1_1: 2800, mc: 0.28, taylor_C: 80,  taylor_n: 0.20 },
+/** Material database using canonical physics constants. */
+const MATERIAL_KEYS: Record<string, string> = {
+  steel_1045: 'carbon_steel', aluminum_6061: 'aluminum_6061', titanium_6al4v: 'titanium_gr5',
 };
+const MATERIAL_DB: Record<string, MaterialParams> = Object.fromEntries(
+  Object.entries(MATERIAL_KEYS).map(([name, key]) => {
+    const c = CANONICAL_MATERIAL_DB[key] ?? { kc1_1: 1800, mc: 0.25, taylor_C: 250, taylor_n: 0.25 };
+    return [name, { name, kc1_1: c.kc1_1, mc: c.mc, taylor_C: c.taylor_C ?? CANONICAL_TAYLOR.P.C, taylor_n: c.taylor_n ?? CANONICAL_TAYLOR.P.n }];
+  })
+);
 
 // ============================================================================
 // PRNG — Mulberry32 (seeded 32-bit generator)

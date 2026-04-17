@@ -36,6 +36,8 @@ import { log } from "../utils/Logger.js";
 import type { TurningMaterial } from "./TurningPrintToProgramEngine.js";
 import {
   CANONICAL_MATERIAL_DB,
+  CANONICAL_KIENZLE,
+  CANONICAL_TAYLOR,
   type ISOGroup,
 } from "../physics/constants.js";
 
@@ -487,16 +489,16 @@ export class MaterialCalloutParserEngine {
     return best!;
   }
 
-  /** Fallback result for unparseable callouts */
+  /** Fallback result for unparseable callouts (defaults to ISO-P canonical values) */
   private fallbackResult(raw: string, warning: string): MaterialParseResult {
     return {
       success: false,
       material: { material_name: raw || "Unknown", iso_group: "P" },
       iso_group: "P",
-      kc1_1: 1800,
-      mc: 0.25,
-      taylor_C: 350,
-      taylor_n: 0.25,
+      kc1_1: CANONICAL_KIENZLE.P.kc1_1,
+      mc: CANONICAL_KIENZLE.P.mc,
+      taylor_C: CANONICAL_TAYLOR.P.C,
+      taylor_n: CANONICAL_TAYLOR.P.n,
       confidence: 0,
       raw_callout: raw,
       warnings: [warning],

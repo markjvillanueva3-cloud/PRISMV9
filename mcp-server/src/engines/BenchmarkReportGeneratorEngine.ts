@@ -10,7 +10,11 @@
  *   L3 — Cross-Engine consistency (SFO vs canonical vs postprocessor vs sim)
  *   L4 — Machine Coverage (all machines within limits)
  *   L5 — Beat Defaults (industry benchmark programs vs CAM defaults)
+ *
+ * NOTE: Benchmark kc1_1/mc values match CANONICAL_KIENZLE from physics/constants.ts
  */
+
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ---------------------------------------------------------------------------
 // Types

@@ -86,6 +86,7 @@ import { ACTION_HM_REV_MS0_SCHEMAS } from "../../schemas/hmRevMs0ActionSchemas.j
 import { ACTION_HM_REV_MS8_SCHEMAS } from "../../schemas/hmRevMs8ActionSchemas.js";
 import { ACTION_HM_REV_MS10_SCHEMAS } from "../../schemas/hmRevMs10ActionSchemas.js";
 import { ACTION_POST_PROCESSOR_AI_SCHEMAS } from "../../schemas/postProcessorAIActionSchemas.js";
+import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -137,6 +138,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_HM_REV_MS8_SCHEMAS,
   ...ACTION_HM_REV_MS10_SCHEMAS,
   ...ACTION_POST_PROCESSOR_AI_SCHEMAS,
+  ...ACTION_LATHE_SF_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -325,6 +327,8 @@ let _hmACConnMgr: any, _hmACScriptExec: any, _hmJobMonitor: any, _hmPPPFileWrite
 let _hmIMToolDb: any, _hmIMMacroDB: any;
 // PP-AI singletons (4 engines: Deep Learning, Deep Reasoning, Ultimate AI, Orchestrator)
 let _ppAIDeepLearning: any, _ppAIDeepReasoning: any, _ppAIUltimate: any, _ppAIOrchestrator: any;
+// LATHE-MASTER P1 singletons (U-LTH07, U-LTH08, U-LTH09, U-LTH12)
+let _latheSFCalc: any, _latheSFDL: any, _latheSFReasoning: any, _latheSFShop: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cam": return _cam ??= (await import("../../engines/CAMKernelEngine.js")).camKernelEngine;
@@ -340,6 +344,10 @@ async function getEngine(name: string): Promise<any> {
     case "hmMaterialMap": return _hmMaterialMap ??= (await import("../../engines/HyperMillMaterialMapEngine.js")).hyperMillMaterialMapEngine;
     case "hmCycleCatalog": return _hmCycleCatalog ??= (await import("../../engines/HyperMillCycleCatalogEngine.js")).hyperMillCycleCatalogEngine;
     case "lathePost": return _lathePost ??= (await import("../../engines/LathePostProcessorEngine.js")).lathePostProcessorEngine;
+    case "latheSFCalc": return _latheSFCalc ??= (await import("../../engines/LatheSpeedFeedCalculatorFacadeEngine.js")).LatheSpeedFeedCalculatorFacadeEngine;
+    case "latheSFDL": return _latheSFDL ??= (await import("../../engines/LatheSpeedFeedDeepLearningAdvisorEngine.js")).LatheSpeedFeedDeepLearningAdvisorEngine;
+    case "latheSFReasoning": return _latheSFReasoning ??= (await import("../../engines/LatheSpeedFeedReasoningBridgeEngine.js")).LatheSpeedFeedReasoningBridgeEngine;
+    case "latheSFShop": return _latheSFShop ??= (await import("../../engines/LatheSpeedFeedShopAwareTuningEngine.js")).LatheSpeedFeedShopAwareTuningEngine;
     case "probing": return _probing ??= (await import("../../engines/ProbingCycleEngine.js")).probingCycleEngine;
     case "subprogram": return _subprogram ??= (await import("../../engines/SubprogramEngine.js")).subprogramEngine;
     case "nesting": return _nesting ??= (await import("../../engines/NestingEngine.js")).nestingEngine;
@@ -856,7 +864,9 @@ export const ACTIONS = [
   "cam_strategy_recommend", "cam_safety_validate",
   "cam_multiaxis_recommend", "cam_material_map",
   "cam_cycle_catalog",
-  "lathe_post_process", "probe_generate",
+  "lathe_post_process", "lathe_sf_calculate", "lathe_sf_advise",
+  "lathe_sf_whatif", "lathe_sf_cite_sources", "lathe_sf_explain", "lathe_sf_full",
+  "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
   "cam_cycle_defaults",
@@ -1627,6 +1637,189 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_post_process": {
             const lp = await getEngine("lathePost");
             result = lp.process(params.input ?? params, params.config ?? params);
+            break;
+          }
+          case "lathe_sf_calculate": {
+            const calc = await getEngine("latheSFCalc");
+            result = calc.calculate(params);
+            break;
+          }
+          case "lathe_sf_advise": {
+            const dl = await getEngine("latheSFDL");
+            result = dl.advise(params);
+            break;
+          }
+          case "lathe_sf_whatif": {
+            const reasoning = await getEngine("latheSFReasoning");
+            result = reasoning.analyze(params);
+            break;
+          }
+          case "lathe_sf_cite_sources": {
+            const calc = await getEngine("latheSFCalc");
+            const calcResult = calc.calculate({
+              material: params.material,
+              tool: { type: "turning_insert" },
+              operation: { type: "roughing" },
+            });
+            result = {
+              material: params.material,
+              sources: calcResult.sources,
+              formulas: params.include_formulas ? [
+                { name: "Kienzle", equation: "Fc = kc1.1 × ap × f^(1-mc)", standard: "ISO 3002" },
+                { name: "Taylor", equation: "T = (C/Vc)^(1/n)", standard: "ISO 3685" },
+                { name: "Surface_Roughness", equation: "Ra = f²/(32×r)", reference: "Machinery's Handbook" },
+              ] : undefined,
+              standards: params.include_standards ? ["ISO 3002", "ISO 3685", "ISO 513"] : undefined,
+            };
+            break;
+          }
+          case "lathe_sf_explain": {
+            const calc = await getEngine("latheSFCalc");
+            const calcResult = calc.calculate({
+              material: params.material,
+              tool: params.tool ?? { type: "turning_insert" },
+              operation: params.operation ?? { type: "roughing" },
+              strategy: params.strategy,
+            });
+            const audience = params.target_audience ?? "machinist";
+            const explanations: Record<string, string> = {
+              machinist: `For ${params.material}: Start at ${calcResult.recommendation.cutting_speed_m_min} m/min, ${calcResult.recommendation.feed_mm_rev} mm/rev. Adjust based on chip formation and sound.`,
+              engineer: `Physics-based recommendation for ${params.material} (${calcResult.material_properties.iso_group}): Vc=${calcResult.recommendation.cutting_speed_m_min} m/min derived from Vc_base × machinability_factor. Feed=${calcResult.recommendation.feed_mm_rev} mm/rev balances Ra target vs force constraint.`,
+              beginner: `For this material, spin the workpiece at about ${calcResult.recommendation.rpm} RPM and move the tool ${calcResult.recommendation.feed_mm_rev}mm per rotation. The tool should cut ${calcResult.recommendation.depth_of_cut_mm}mm deep per pass.`,
+            };
+            result = {
+              explanation: explanations[audience],
+              recommendation: calcResult.recommendation,
+              confidence: calcResult.confidence,
+              reasoning_steps: calcResult.reasoning.map(r => r.step),
+            };
+            break;
+          }
+          case "lathe_sf_full": {
+            // Full orchestration of all lathe speed/feed engines
+            const calc = await getEngine("latheSFCalc");
+            const dl = await getEngine("latheSFDL");
+            const reasoning = await getEngine("latheSFReasoning");
+            const shop = await getEngine("latheSFShop");
+            const guard = await import("../../hooks/LatheSpeedFeedGuardHook.js");
+
+            // 1. Base calculation
+            const calcInput = {
+              material: params.material,
+              iso_group: params.iso_group,
+              tool: params.tool ?? { type: "turning_insert" },
+              operation: params.operation ?? { type: "roughing" },
+              machine: params.machine,
+              workpiece: params.workpiece,
+              strategy: params.strategy,
+            };
+            const calcResult = calc.calculate(calcInput);
+
+            if (!calcResult.success) {
+              result = { success: false, error: calcResult.warnings[0] || "Calculation failed" };
+              break;
+            }
+
+            // 2. Safety guard validation
+            const guardResult = guard.LatheSpeedFeedGuardHook.validate({
+              recommendation: calcResult.recommendation,
+              material_iso_group: calcResult.material_properties.iso_group as any,
+              machine_power_kw: params.machine?.max_power_kw,
+              predicted_power_kw: calcResult.predicted_power_kw,
+              operation_type: params.operation?.type,
+              predicted_ra_um: calcResult.predicted_ra_um,
+              target_ra_um: params.operation?.target_ra_um,
+            });
+
+            // 3. Shop-aware tuning (if profile provided)
+            let shopResult: any = null;
+            if (params.shop_profile_id) {
+              shopResult = shop.tune({
+                base_input: calcInput,
+                shop_profile_id: params.shop_profile_id,
+                include_feedback: true,
+                include_machine_compensation: !!params.machine,
+                machine_id: params.machine_id,
+              });
+            }
+
+            // 4. DL advisor (optional)
+            let dlResult: any = null;
+            if (params.include_dl_advice !== false) {
+              dlResult = dl.advise({
+                material: params.material,
+                tool: params.tool ?? { type: "turning_insert" },
+                operation: params.operation ?? { type: "roughing" },
+                machine: params.machine,
+                workpiece: params.workpiece,
+              });
+            }
+
+            // 5. What-if analysis (optional)
+            let whatIfResult: any = null;
+            if (params.include_whatif !== false) {
+              whatIfResult = reasoning.analyze({
+                base_input: calcInput,
+                scenarios: [
+                  { type: "increase_speed", delta_percent: 10 },
+                  { type: "decrease_speed", delta_percent: 10 },
+                  { type: "change_strategy", params: { strategy: "aggressive" } },
+                ],
+                include_sensitivity: true,
+                include_causal_chain: true,
+              });
+            }
+
+            // 6. Explanation (optional)
+            const audience = params.target_audience ?? "machinist";
+            const explanations: Record<string, string> = {
+              machinist: `For ${params.material}: Start at ${calcResult.recommendation.cutting_speed_m_min} m/min, ${calcResult.recommendation.feed_mm_rev} mm/rev. Adjust based on chip formation and sound.`,
+              engineer: `Physics-based recommendation for ${params.material} (${calcResult.material_properties.iso_group}): Vc=${calcResult.recommendation.cutting_speed_m_min} m/min. Feed=${calcResult.recommendation.feed_mm_rev} mm/rev balances Ra target vs force constraint.`,
+              beginner: `Spin workpiece at about ${calcResult.recommendation.rpm} RPM, move tool ${calcResult.recommendation.feed_mm_rev}mm per rotation, cut ${calcResult.recommendation.depth_of_cut_mm}mm deep per pass.`,
+            };
+
+            // 7. Citations (optional)
+            const citations = params.include_citations !== false ? {
+              formulas: ["Kienzle (1952): Fc = kc1.1 × ap × f^(1-mc)", "Taylor (ISO 3685): T = (C/Vc)^(1/n)"],
+              standards: ["ISO 3002 (tool life)", "ISO 3685 (tool life testing)", "ISO 513 (tool materials)"],
+              sources: calcResult.sources.map((s: any) => s.name),
+            } : undefined;
+
+            result = {
+              success: true,
+              recommendation: guardResult.adjusted_recommendation ?? calcResult.recommendation,
+              band: calcResult.band,
+              confidence: calcResult.confidence,
+              safety: {
+                passed: guardResult.passed,
+                score: guardResult.safety_score,
+                violations: guardResult.violations,
+              },
+              shop_tuning: shopResult ? {
+                profile: shopResult.shop_profile,
+                adjustments: shopResult.adjustments,
+                delta_percent: shopResult.total_delta_percent,
+              } : undefined,
+              dl_advisor: dlResult ? {
+                adjustment: dlResult.adjustment,
+                confidence: dlResult.confidence,
+                top_features: dlResult.feature_importance?.slice(0, 5),
+              } : undefined,
+              what_if: whatIfResult ? {
+                scenarios: whatIfResult.scenarios?.length,
+                sensitivity: whatIfResult.sensitivity_analysis,
+              } : undefined,
+              explanation: params.include_explanation !== false ? explanations[audience] : undefined,
+              citations,
+              material_properties: calcResult.material_properties,
+              predictions: {
+                tool_life_min: calcResult.predicted_tool_life_min,
+                ra_um: calcResult.predicted_ra_um,
+                force_N: calcResult.predicted_force_N,
+                power_kw: calcResult.predicted_power_kw,
+              },
+              reasoning_steps: calcResult.reasoning.map((r: any) => r.step),
+            };
             break;
           }
           case "probe_generate": {

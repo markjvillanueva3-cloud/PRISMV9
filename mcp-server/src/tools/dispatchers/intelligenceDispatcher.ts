@@ -27,7 +27,7 @@ type HookContext = any;
 let _intelligence: any, _jobLearning: any, _algorithmGateway: any, _shopScheduler: any,
     _intentEngine: any, _responseFormatter: any, _workflowChains: any, _onboardingEngine: any,
     _setupSheetEngine: any, _conversationalMemory: any, _userWorkflowSkills: any,
-    _userAssistanceSkills: any;
+    _userAssistanceSkills: any, _prismSelfAwareness: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -43,6 +43,7 @@ async function getEngine(name: string): Promise<any> {
     case "conversationalMemory": return _conversationalMemory ??= (await import("../../engines/ConversationalMemoryEngine.js")).conversationalMemory;
     case "userWorkflowSkills": return _userWorkflowSkills ??= (await import("../../engines/UserWorkflowSkillsEngine.js")).userWorkflowSkills;
     case "userAssistanceSkills": return _userAssistanceSkills ??= (await import("../../engines/UserAssistanceSkillsEngine.js")).userAssistanceSkills;
+    case "prismSelfAwareness": return _prismSelfAwareness ??= (await import("../../engines/PRISMSelfAwarenessEngine.js")).prismSelfAwarenessEngine;
     default: throw new Error(`Unknown intelligence engine: ${name}`);
   }
 }
@@ -149,6 +150,17 @@ const ACTIONS = [
   "assist_confidence",
   "assist_mistakes",
   "assist_safety",
+  // ===== PRISM-SA: PRISM Self-Awareness (10 actions) — PP-AGI-S0/U-S0-02 =====
+  "sa_what_can_i_do",            // SA: Query PRISM capabilities
+  "sa_how_do_i",                 // SA: Get guidance for specific task
+  "sa_who_handles",              // SA: Find engines by domain
+  "sa_analyze_gap",              // SA: Analyze capability gaps
+  "sa_search_tribal",            // SA: Search tribal knowledge
+  "sa_search_playbook",          // SA: Search playbook rules
+  "sa_recommend_ai_features",    // SA: Recommend AI features for task
+  "sa_jm_die_summary",           // SA: Get JM Die program summary
+  "sa_full_awareness",           // SA: Get full drive awareness
+  "sa_proactive_check",          // SA: Quick proactive reasoning check
 ] as const;
 
 // SYS-MS1: Forwarded action arrays — still accepted for backward compatibility
@@ -590,7 +602,56 @@ export function registerIntelligenceDispatcher(server: any): void {
           assist_list: "userAssistanceSkills", assist_get: "userAssistanceSkills", assist_search: "userAssistanceSkills",
           assist_match: "userAssistanceSkills", assist_explain: "userAssistanceSkills", assist_confidence: "userAssistanceSkills",
           assist_mistakes: "userAssistanceSkills", assist_safety: "userAssistanceSkills",
+          // PRISM Self-Awareness (PP-AGI-S0/U-S0-02)
+          sa_what_can_i_do: "prismSelfAwareness", sa_how_do_i: "prismSelfAwareness",
+          sa_who_handles: "prismSelfAwareness", sa_analyze_gap: "prismSelfAwareness",
+          sa_search_tribal: "prismSelfAwareness", sa_search_playbook: "prismSelfAwareness",
+          sa_recommend_ai_features: "prismSelfAwareness", sa_jm_die_summary: "prismSelfAwareness",
+          sa_full_awareness: "prismSelfAwareness", sa_proactive_check: "prismSelfAwareness",
         };
+
+        // Handle PRISM Self-Awareness actions specially (different method signatures)
+        if (action.startsWith("sa_")) {
+          const saEngine = await getEngine("prismSelfAwareness");
+          let saResult: any;
+          switch (action) {
+            case "sa_what_can_i_do":
+              saResult = saEngine.whatCanIDo(params.query || params.task || "general");
+              break;
+            case "sa_how_do_i":
+              saResult = saEngine.howDoI(params.task || params.query);
+              break;
+            case "sa_who_handles":
+              saResult = saEngine.whoHandles(params.domain || params.query);
+              break;
+            case "sa_analyze_gap":
+              saResult = saEngine.analyzeGap(params.query || params.task);
+              break;
+            case "sa_search_tribal":
+              saResult = saEngine.searchTribalKnowledge(params.query, { limit: params.limit, domain: params.domain });
+              break;
+            case "sa_search_playbook":
+              saResult = saEngine.searchPlaybookRules(params.query, { limit: params.limit, domain: params.domain });
+              break;
+            case "sa_recommend_ai_features":
+              saResult = saEngine.recommendAIFeatures(params.task || params.query);
+              break;
+            case "sa_jm_die_summary":
+              saResult = saEngine.getJMDieSummary();
+              break;
+            case "sa_full_awareness":
+              saResult = saEngine.getFullDriveAwareness();
+              break;
+            case "sa_proactive_check":
+              saResult = saEngine.quickProactiveCheck(params.query || params.task);
+              break;
+            default:
+              saResult = { error: `Unknown self-awareness action: ${action}` };
+          }
+          return {
+            content: [{ type: "text" as const, text: JSON.stringify({ action, ...saResult }) }],
+          };
+        }
 
         const engineName = CORE_ROUTING[action];
         const result = engineName

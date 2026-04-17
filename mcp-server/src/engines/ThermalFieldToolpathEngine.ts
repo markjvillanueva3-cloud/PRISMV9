@@ -14,6 +14,8 @@
  * @module ThermalFieldToolpathEngine
  */
 
+import { CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -131,15 +133,22 @@ export interface FieldVsTGARComparison {
 }
 
 // ============================================================================
-// INLINE MATERIALS DATABASE
+// MATERIALS DATABASE (thermal + canonical Kienzle)
 // ============================================================================
-
-const MATERIALS_DB: Record<string, ThermalMaterial> = {
-  steel_1045: { k: 49.8, rho: 7870, c: 486, kc1_1: 1800, mc: 0.25 },
-  aluminum_6061: { k: 167, rho: 2700, c: 896, kc1_1: 800, mc: 0.23 },
-  titanium_6al4v: { k: 6.7, rho: 4430, c: 526, kc1_1: 2800, mc: 0.28 },
-  inconel_718: { k: 11.4, rho: 8190, c: 435, kc1_1: 2800, mc: 0.28 },
+type ThermalExt = Omit<ThermalMaterial, 'kc1_1' | 'mc'> & { canonical_key: string };
+const THERMAL_EXT: Record<string, ThermalExt> = {
+  steel_1045:     { canonical_key: 'carbon_steel',  k: 49.8, rho: 7870, c: 486 },
+  aluminum_6061:  { canonical_key: 'aluminum_6061', k: 167,  rho: 2700, c: 896 },
+  titanium_6al4v: { canonical_key: 'titanium_gr5',  k: 6.7,  rho: 4430, c: 526 },
+  inconel_718:    { canonical_key: 'inconel_718',   k: 11.4, rho: 8190, c: 435 },
 };
+
+const MATERIALS_DB: Record<string, ThermalMaterial> = Object.fromEntries(
+  Object.entries(THERMAL_EXT).map(([name, ext]) => {
+    const canon = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? { kc1_1: 1800, mc: 0.25 };
+    return [name, { k: ext.k, rho: ext.rho, c: ext.c, kc1_1: canon.kc1_1, mc: canon.mc }];
+  })
+);
 
 // ============================================================================
 // HELPER FUNCTIONS

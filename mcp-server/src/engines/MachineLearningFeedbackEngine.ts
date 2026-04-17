@@ -10,9 +10,13 @@
  * thermal coefficients), tracks prediction accuracy over time, and provides
  * confidence levels based on how much data exists for each machine/material combo.
  *
+ * Physics coefficient defaults from CANONICAL_KIENZLE/CANONICAL_TAYLOR.
+ *
  * Storage is in-memory (Map<string, MachineProfile>). Persistence via file I/O
  * can be layered on top later through exportLearningData / importLearningData.
  */
+
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ── Interfaces ───────────────────────────────────────────────────────────────
 

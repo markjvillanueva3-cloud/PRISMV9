@@ -22,6 +22,7 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 // ============================================================================
 
 let _quoteEngine: any, _costEngine: any, _capacityEngine: any, _oeeEngine: any, _jobEngine: any;
+let _qtsOrchestratorEngine: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -35,6 +36,8 @@ async function getEngine(name: string): Promise<any> {
       return _oeeEngine ??= (await import("../../engines/OEECalculatorEngine.js")).oeeCalculatorEngine;
     case "job":
       return _jobEngine ??= (await import("../../engines/JobLifecycleEngine.js")).jobLifecycleEngine;
+    case "qts":
+      return _qtsOrchestratorEngine ??= (await import("../../engines/QuoteToShipOrchestratorEngine.js")).quoteToShipOrchestratorEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -54,6 +57,12 @@ const ACTIONS = [
   "get_machine_rates",
   "invoice_create",
   "invoice_status",
+  // ===== QTS: Quote-to-Ship Orchestrator (5 actions) — PP-AGI-S0/U-S0-02 =====
+  "qts_full_pipeline",         // QTS: Run full 26-stage quote-to-ship pipeline
+  "qts_run_stage",             // QTS: Run specific pipeline stage
+  "qts_get_status",            // QTS: Get pipeline execution status
+  "qts_resume",                // QTS: Resume pipeline from checkpoint
+  "qts_get_stages",            // QTS: Get list of all 26 pipeline stages
 ] as const;
 
 export type BusinessActionType = typeof ACTIONS[number];
@@ -214,6 +223,51 @@ export async function businessDispatch(
         };
       }
 
+      // ===== QTS: Quote-to-Ship Orchestrator (5 actions) =====
+      case "qts_full_pipeline": {
+        const qtsEngine = await getEngine("qts");
+        const result = await qtsEngine.runFullPipeline({
+          customer: params.customer as string,
+          partName: params.part_name as string,
+          quantity: params.quantity as number,
+          material: params.material as string,
+          blueprintPath: params.blueprint_path as string | undefined,
+          stepPath: params.step_path as string | undefined,
+          tolerance: params.tolerance_mm as number | undefined,
+          surfaceFinish: params.surface_finish_ra as number | undefined,
+        });
+        return { success: true, action, data: result };
+      }
+
+      case "qts_run_stage": {
+        const qtsEngine = await getEngine("qts");
+        const stageName = params.stage as string;
+        const pipelineId = params.pipeline_id as string;
+        const stageInput = params.input as Record<string, unknown> | undefined;
+        const result = await qtsEngine.runStage(pipelineId, stageName, stageInput);
+        return { success: true, action, data: result };
+      }
+
+      case "qts_get_status": {
+        const qtsEngine = await getEngine("qts");
+        const pipelineId = params.pipeline_id as string;
+        const status = await qtsEngine.getStatus(pipelineId);
+        return { success: true, action, data: status };
+      }
+
+      case "qts_resume": {
+        const qtsEngine = await getEngine("qts");
+        const pipelineId = params.pipeline_id as string;
+        const result = await qtsEngine.resumeFromCheckpoint(pipelineId);
+        return { success: true, action, data: result };
+      }
+
+      case "qts_get_stages": {
+        const qtsEngine = await getEngine("qts");
+        const stages = qtsEngine.getStageDefinitions();
+        return { success: true, action, data: { stages, count: stages.length } };
+      }
+
       default:
         return { success: false, action, error: `Unknown action: ${action}` };
     }
@@ -255,7 +309,7 @@ Use 'quote_job' with customer, part_name, quantity, material. 'calculate_oee' fo
     }
   );
 
-  log.debug("Registered: prism_business (9 actions)");
+  log.debug("Registered: prism_business (14 actions)");
 }
 
 export default businessDispatch;

@@ -12,16 +12,17 @@
  */
 
 // ── Inline Physics Tables (no imports for speed) ──
+// Values match CANONICAL_KIENZLE and CANONICAL_TAYLOR from physics/constants.ts
 
 /** Kienzle specific cutting force: kc = kc1_1 * h^(-mc) */
 interface KienzleRow { kc1_1: number; mc: number }
 const KIENZLE: Record<string, KienzleRow> = {
-  "P":  { kc1_1: 1800, mc: 0.25 },  // Steel
-  "M":  { kc1_1: 2100, mc: 0.25 },  // Stainless
-  "K":  { kc1_1: 1100, mc: 0.28 },  // Cast iron
-  "N":  { kc1_1: 700,  mc: 0.23 },  // Aluminum
-  "S":  { kc1_1: 2800, mc: 0.28 },  // Superalloys
-  "H":  { kc1_1: 3200, mc: 0.30 },  // Hardened steel
+  "P":  { kc1_1: 1800, mc: 0.25 },  // Steel (=CANONICAL_KIENZLE.P)
+  "M":  { kc1_1: 2100, mc: 0.25 },  // Stainless (=CANONICAL_KIENZLE.M)
+  "K":  { kc1_1: 1100, mc: 0.28 },  // Cast iron (=CANONICAL_KIENZLE.K)
+  "N":  { kc1_1: 700,  mc: 0.23 },  // Aluminum (=CANONICAL_KIENZLE.N)
+  "S":  { kc1_1: 2800, mc: 0.28 },  // Superalloys (=CANONICAL_KIENZLE.S)
+  "H":  { kc1_1: 3200, mc: 0.30 },  // Hardened steel (=CANONICAL_KIENZLE.H)
 };
 
 /** Taylor tool life: T = (C / Vc)^(1/n), minutes */

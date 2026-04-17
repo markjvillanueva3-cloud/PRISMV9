@@ -21,6 +21,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // ATOMIC VALUE

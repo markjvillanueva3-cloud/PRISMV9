@@ -34,6 +34,8 @@
  * @module engines/TurningProgramAssemblerEngine
  */
 
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+
 import { log } from "../utils/Logger.js";
 
 // ============================================================================
@@ -320,53 +322,26 @@ interface TurningMaterialData {
   partoff_Vc_factor: number;
 }
 
-const MATERIAL_DB: Record<string, TurningMaterialData> = {
-  steel: {
-    Vc_rough: 200, Vc_finish: 280, fn_rough: 0.25, fn_finish: 0.12,
-    kc1_1: 1800, mc: 0.26, Vc_drill: 80, fn_drill: 0.18,
-    Vc_thread: 60, groove_Vc_factor: 0.6, partoff_Vc_factor: 0.5,
-  },
-  aluminum: {
-    Vc_rough: 500, Vc_finish: 600, fn_rough: 0.20, fn_finish: 0.08,
-    kc1_1: 700, mc: 0.23, Vc_drill: 120, fn_drill: 0.20,
-    Vc_thread: 80, groove_Vc_factor: 0.7, partoff_Vc_factor: 0.6,
-  },
-  titanium: {
-    Vc_rough: 50, Vc_finish: 80, fn_rough: 0.15, fn_finish: 0.08,
-    kc1_1: 1400, mc: 0.22, Vc_drill: 25, fn_drill: 0.10,
-    Vc_thread: 20, groove_Vc_factor: 0.5, partoff_Vc_factor: 0.4,
-  },
-  stainless: {
-    Vc_rough: 150, Vc_finish: 200, fn_rough: 0.20, fn_finish: 0.10,
-    kc1_1: 2100, mc: 0.27, Vc_drill: 60, fn_drill: 0.15,
-    Vc_thread: 40, groove_Vc_factor: 0.55, partoff_Vc_factor: 0.45,
-  },
-  cast_iron: {
-    Vc_rough: 180, Vc_finish: 250, fn_rough: 0.25, fn_finish: 0.15,
-    kc1_1: 1100, mc: 0.28, Vc_drill: 70, fn_drill: 0.20,
-    Vc_thread: 50, groove_Vc_factor: 0.6, partoff_Vc_factor: 0.5,
-  },
-  inconel: {
-    Vc_rough: 30, Vc_finish: 50, fn_rough: 0.12, fn_finish: 0.06,
-    kc1_1: 2800, mc: 0.25, Vc_drill: 15, fn_drill: 0.08,
-    Vc_thread: 12, groove_Vc_factor: 0.45, partoff_Vc_factor: 0.35,
-  },
-  brass: {
-    Vc_rough: 300, Vc_finish: 400, fn_rough: 0.20, fn_finish: 0.10,
-    kc1_1: 780, mc: 0.18, Vc_drill: 100, fn_drill: 0.18,
-    Vc_thread: 70, groove_Vc_factor: 0.7, partoff_Vc_factor: 0.6,
-  },
-  copper: {
-    Vc_rough: 250, Vc_finish: 350, fn_rough: 0.18, fn_finish: 0.08,
-    kc1_1: 800, mc: 0.20, Vc_drill: 90, fn_drill: 0.16,
-    Vc_thread: 60, groove_Vc_factor: 0.65, partoff_Vc_factor: 0.55,
-  },
-  plastic: {
-    Vc_rough: 400, Vc_finish: 500, fn_rough: 0.15, fn_finish: 0.06,
-    kc1_1: 300, mc: 0.15, Vc_drill: 80, fn_drill: 0.12,
-    Vc_thread: 50, groove_Vc_factor: 0.7, partoff_Vc_factor: 0.6,
-  },
+// Turning-specific extensions (speeds, feeds, operation factors) + ISO group mapping
+type TurnExt = Omit<TurningMaterialData, 'kc1_1' | 'mc'> & { iso: 'P' | 'M' | 'K' | 'N' | 'S' | 'H' };
+const TURN_EXT: Record<string, TurnExt> = {
+  steel:     { iso: 'P', Vc_rough: 200, Vc_finish: 280, fn_rough: 0.25, fn_finish: 0.12, Vc_drill: 80,  fn_drill: 0.18, Vc_thread: 60, groove_Vc_factor: 0.6,  partoff_Vc_factor: 0.5 },
+  aluminum:  { iso: 'N', Vc_rough: 500, Vc_finish: 600, fn_rough: 0.20, fn_finish: 0.08, Vc_drill: 120, fn_drill: 0.20, Vc_thread: 80, groove_Vc_factor: 0.7,  partoff_Vc_factor: 0.6 },
+  titanium:  { iso: 'S', Vc_rough: 50,  Vc_finish: 80,  fn_rough: 0.15, fn_finish: 0.08, Vc_drill: 25,  fn_drill: 0.10, Vc_thread: 20, groove_Vc_factor: 0.5,  partoff_Vc_factor: 0.4 },
+  stainless: { iso: 'M', Vc_rough: 150, Vc_finish: 200, fn_rough: 0.20, fn_finish: 0.10, Vc_drill: 60,  fn_drill: 0.15, Vc_thread: 40, groove_Vc_factor: 0.55, partoff_Vc_factor: 0.45 },
+  cast_iron: { iso: 'K', Vc_rough: 180, Vc_finish: 250, fn_rough: 0.25, fn_finish: 0.15, Vc_drill: 70,  fn_drill: 0.20, Vc_thread: 50, groove_Vc_factor: 0.6,  partoff_Vc_factor: 0.5 },
+  inconel:   { iso: 'S', Vc_rough: 30,  Vc_finish: 50,  fn_rough: 0.12, fn_finish: 0.06, Vc_drill: 15,  fn_drill: 0.08, Vc_thread: 12, groove_Vc_factor: 0.45, partoff_Vc_factor: 0.35 },
+  brass:     { iso: 'N', Vc_rough: 300, Vc_finish: 400, fn_rough: 0.20, fn_finish: 0.10, Vc_drill: 100, fn_drill: 0.18, Vc_thread: 70, groove_Vc_factor: 0.7,  partoff_Vc_factor: 0.6 },
+  copper:    { iso: 'N', Vc_rough: 250, Vc_finish: 350, fn_rough: 0.18, fn_finish: 0.08, Vc_drill: 90,  fn_drill: 0.16, Vc_thread: 60, groove_Vc_factor: 0.65, partoff_Vc_factor: 0.55 },
+  plastic:   { iso: 'N', Vc_rough: 400, Vc_finish: 500, fn_rough: 0.15, fn_finish: 0.06, Vc_drill: 80,  fn_drill: 0.12, Vc_thread: 50, groove_Vc_factor: 0.7,  partoff_Vc_factor: 0.6 },
 };
+
+const MATERIAL_DB: Record<string, TurningMaterialData> = Object.fromEntries(
+  Object.entries(TURN_EXT).map(([name, ext]) => {
+    const canon = CANONICAL_KIENZLE[ext.iso];
+    return [name, { kc1_1: canon.kc1_1, mc: canon.mc, ...ext }];
+  })
+);
 
 // ============================================================================
 // INSERT GEOMETRY DATA

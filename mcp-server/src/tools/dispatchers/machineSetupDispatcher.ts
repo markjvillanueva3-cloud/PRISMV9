@@ -94,6 +94,11 @@ const ACTIONS = [
   "handbook_lookup", "handbook_ingest", "handbook_coverage", "handbook_compare",
   "controller_programming_profile", "controller_custom_codes", "controller_macro_variables",
   "controller_validate_dialect", "controller_enrichment_patch",
+  // ===== CTRLK: Controller Knowledge Engine (4 actions) — PP-AGI-S0/U-S0-02 =====
+  "ctrlk_get_profile",           // CTRLK: Get controller profile by family
+  "ctrlk_list_controllers",      // CTRLK: List all available controller families
+  "ctrlk_compare",               // CTRLK: Compare two controller families
+  "ctrlk_get_all_profiles",      // CTRLK: Get all controller profiles
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -450,6 +455,23 @@ Actions: ${ACTIONS.join(", ")}.`,
           const { controllerProgrammingIntelligenceEngine } = await import("../../engines/ControllerProgrammingIntelligenceEngine.js");
           const { machineHandbookRegistry } = await import("../../engines/MachineHandbookRegistryEngine.js");
           result = controllerProgrammingIntelligenceEngine.getEnrichmentPatch(params.machine_id, machineHandbookRegistry as any);
+
+        // ===== CTRLK: Controller Knowledge Engine (4 actions) =====
+        } else if (action === "ctrlk_get_profile") {
+          const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+          const family = params.family as string || params.controller_family as string;
+          result = controllerKnowledgeEngine.getProfile(family as any);
+        } else if (action === "ctrlk_list_controllers") {
+          const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+          result = { controllers: controllerKnowledgeEngine.getAvailableControllers() };
+        } else if (action === "ctrlk_compare") {
+          const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+          const familyA = params.family_a as string || params.controller_a as string;
+          const familyB = params.family_b as string || params.controller_b as string;
+          result = controllerKnowledgeEngine.compare(familyA as any, familyB as any);
+        } else if (action === "ctrlk_get_all_profiles") {
+          const { controllerKnowledgeEngine } = await import("../../engines/ControllerKnowledgeEngine.js");
+          result = { profiles: controllerKnowledgeEngine.profiles };
 
         } else {
           const engineKey = engineMap[action];

@@ -23,6 +23,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 import {
   type FiveAxisTemplate,
   type FeatureSignature,

@@ -16,9 +16,13 @@
  * - MillingNeuralCognitiveEngine (neural reasoning)
  * - And many more...
  *
+ * Material physics data matches CANONICAL_KIENZLE from physics/constants.ts
+ *
  * @module engines/MillingAGIOrchestrationEngine
  * @version 1.0.0
  */
+
+import { CANONICAL_KIENZLE, CANONICAL_MATERIAL_DB } from "../physics/constants.js";
 
 // ==================== TYPE DEFINITIONS ====================
 

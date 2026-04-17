@@ -9,8 +9,12 @@
  *   - Behavioral pattern tracking from accumulated jobs
  *   - Cross-reference: genome record ↔ existing PRISM material registry
  *
+ * Kienzle/Taylor constants reference CANONICAL_KIENZLE from physics/constants.ts
+ *
  * @version 1.0.0 — R10-Rev1
  */
+
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

@@ -14,9 +14,12 @@
  *   - MachiningPlaybookEngine: 296 experiential rules
  *
  * All sub-engines are lazy-loaded so this module compiles with zero eager imports.
+ * NOTE: MATERIAL_PHYSICS_DB extends CANONICAL_KIENZLE with chatter/thermal factors.
  *
  * @module engines/OptimalStrategySelectionEngine
  */
+
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // LAZY-LOAD HELPERS

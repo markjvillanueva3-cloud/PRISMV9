@@ -446,6 +446,19 @@ const ACTIONS = [
   "pp_cognitive_learn",
   "pp_cognitive_recall",
   "pp_cognitive_stats",
+  // ===== LATHE-AI: Lathe Intelligence Giants (12 actions) — PP-AGI-S0/U-S0-02 =====
+  "lathe_ai_what_can_i_do",      // LATHE-AI: Query lathe capabilities
+  "lathe_ai_how_do_i",           // LATHE-AI: Get guidance for lathe task
+  "lathe_ai_who_handles",        // LATHE-AI: Find engines by domain
+  "lathe_ai_inventory",          // LATHE-AI: Get lathe engine inventory
+  "lathe_ai_find_best_engine",   // LATHE-AI: Route task to best engine
+  "lathe_ai_orchestrate",        // LATHE-AI: Multi-engine orchestration
+  "lathe_ai_jm_die_learn",       // LATHE-AI: Learn from JM Die programs
+  "lathe_ai_cross_domain",       // LATHE-AI: Cross-domain synthesis
+  "lathe_ai_suggest_approach",   // LATHE-AI: Suggest optimal approach
+  "lathe_ai_deep_logic",         // LATHE-AI: Deep logic reasoning
+  "lathe_ai_thermodynamics",     // LATHE-AI: Thermodynamic analysis
+  "lathe_ai_proactive",          // LATHE-AI: Proactive recommendations
 ] as const;
 
 function ok(data: any) {
@@ -5592,6 +5605,66 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "pp_cognitive_stats": {
             const { postProcessorCognitiveEngine } = await import("../../engines/PostProcessorCognitiveEngine.js");
             return ok(postProcessorCognitiveEngine.getStatistics());
+          }
+
+          // ===== LATHE-AI: Lathe Intelligence Giants (12 actions) =====
+          case "lathe_ai_what_can_i_do": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const query = params.query as string || params.task as string || "general lathe operations";
+            return ok(latheSelfAwarenessIntegrationEngine.whatCanIDo(query));
+          }
+          case "lathe_ai_how_do_i": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const task = params.task as string;
+            return ok(latheSelfAwarenessIntegrationEngine.howDoI(task));
+          }
+          case "lathe_ai_who_handles": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const domain = params.domain as string;
+            return ok(latheSelfAwarenessIntegrationEngine.whoHandles(domain));
+          }
+          case "lathe_ai_inventory": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            return ok(latheSelfAwarenessIntegrationEngine.getLatheInventory());
+          }
+          case "lathe_ai_find_best_engine": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const task = params.task as string;
+            return ok(latheSelfAwarenessIntegrationEngine.findBestEngineForTask(task));
+          }
+          case "lathe_ai_orchestrate": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            return ok(latheSelfAwarenessIntegrationEngine.orchestrateMultiEngine(params as any));
+          }
+          case "lathe_ai_jm_die_learn": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const customer = params.customer as string;
+            const material = params.material as string | undefined;
+            const operation = params.operation as string | undefined;
+            return ok(latheSelfAwarenessIntegrationEngine.learnFromJMDie(customer, material, operation));
+          }
+          case "lathe_ai_cross_domain": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            return ok(latheSelfAwarenessIntegrationEngine.synthesizeCrossDomain(params as any));
+          }
+          case "lathe_ai_suggest_approach": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            const problem = params.problem as string || params.task as string;
+            return ok(latheSelfAwarenessIntegrationEngine.suggestOptimalApproach(problem));
+          }
+          case "lathe_ai_deep_logic": {
+            const { latheDeepLogicEngine } = await import("../../engines/LatheDeepLogicEngine.js");
+            const query = params.query as string || params.problem as string;
+            const depth = params.depth as string || "comprehensive";
+            return ok(latheDeepLogicEngine.reason(query, depth as any));
+          }
+          case "lathe_ai_thermodynamics": {
+            const { latheThermodynamicsEngine } = await import("../../engines/LatheThermodynamicsEngine.js");
+            return ok(latheThermodynamicsEngine.analyze(params as any));
+          }
+          case "lathe_ai_proactive": {
+            const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
+            return ok(latheSelfAwarenessIntegrationEngine.getProactiveRecommendations(params as any));
           }
 
           default:

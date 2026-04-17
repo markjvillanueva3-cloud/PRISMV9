@@ -11,7 +11,11 @@
  * 6. Collision-optimized transitions (TransitionPathEngine)
  * 7. Motion dynamics profiling (S-curve velocity)
  * 8. AutoSpeedFeed post-optimization (line-by-line variable S/F)
+ *
+ * KC table matches CANONICAL_KIENZLE from physics/constants.ts
  */
+
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ── Types ─────────────────────────────────────────────────────
 export interface RawSegment {

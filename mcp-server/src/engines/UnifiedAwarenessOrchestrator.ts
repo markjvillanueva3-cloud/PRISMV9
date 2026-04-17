@@ -19,6 +19,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { fileURLToPath } from "url";
 import { formulaOrchestrator, type CoverageReport } from "./FormulaOrchestrator.js";
+import { CANONICAL_KIENZLE, CANONICAL_MATERIAL_DB } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES

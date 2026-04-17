@@ -1,7 +1,7 @@
 # LATHE-MASTER — Session Handoff
 
-**Updated:** 2026-04-17T09:10:00Z
-**Phase:** P1 (Implementation Foundation) — Units 07-13 COMPLETE
+**Updated:** 2026-04-17T09:42:00Z
+**Phase:** P1 (Implementation Foundation) — Units 07-14 COMPLETE
 **Branch:** main
 **Envelope:** `mcp-server/data/milestones/LATHE-MASTER.json`
 **Roadmap:** `LATHE-MASTER-UNIFIED-ROADMAP.md`
@@ -10,7 +10,7 @@
 
 Primary pick-up trigger phrase: **"continue LATHE-MASTER"** or **"resume lathe roadmap"**.
 
-Next unit: **U-LTH14** (Forge-Triple delivery)
+Next unit: **U-LTH15** (Begin Phase P2 — Advanced Operations)
 
 ## Phase P1 Status (Speed & Feed Calculator)
 
@@ -23,15 +23,17 @@ Next unit: **U-LTH14** (Forge-Triple delivery)
 | U-LTH11 | ✅ completed | `LatheSpeedFeedCalculatorPage.tsx` | - |
 | U-LTH12 | ✅ completed | `LatheSpeedFeedShopAwareTuningEngine.ts` | 24 tests |
 | U-LTH13 | ✅ completed | `lathe-speed-feed-regression.test.ts` | 204 tests (191 pass) |
+| U-LTH14 | ✅ completed | Forge-Triple (hook + action + skill) | 30+26 tests |
 
-**Total Phase P1 tests:** 144 core + 191 regression passing (335 total)
+**Total Phase P1 tests:** 144 core + 191 regression + 56 forge = 391 total
 
-### Actions Wired (U-LTH10)
+### Actions Wired (U-LTH10, U-LTH14)
 - `lathe_sf_calculate` — Physics-based speed/feed with confidence
 - `lathe_sf_advise` — DL-backed advisor with SHAP-like features
 - `lathe_sf_whatif` — Causal/counterfactual reasoning
 - `lathe_sf_cite_sources` — Source citation (Kienzle, Taylor, ISO)
 - `lathe_sf_explain` — Plain-language explanation by audience
+- `lathe_sf_full` — Full orchestration (all 5 engines + guard hook)
 
 ### Schema File
 `mcp-server/src/schemas/latheSpeedFeedActionSchemas.ts`

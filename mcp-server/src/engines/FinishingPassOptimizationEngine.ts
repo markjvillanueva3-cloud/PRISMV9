@@ -7,6 +7,8 @@
  * Safety: Critical for achieving target tolerances and surface quality
  */
 
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 export type ToolType = "endmill" | "turning_insert" | "boring_bar" | "face_mill";
@@ -66,13 +68,14 @@ const MODULUS: Record<ToolMaterialFinish, number> = {
   cbn: 680,
 };
 
-/** Estimate kc1_1 from hardness */
+/** Estimate kc1_1 from hardness using canonical ISO group values */
 const estimateKc = (hrc: number): { kc1_1: number; mc: number } => {
-  if (hrc <= 20) return { kc1_1: 1200, mc: 0.25 };
-  if (hrc <= 35) return { kc1_1: 1800, mc: 0.25 };
-  if (hrc <= 45) return { kc1_1: 2200, mc: 0.24 };
-  if (hrc <= 55) return { kc1_1: 2800, mc: 0.22 };
-  return { kc1_1: 3500, mc: 0.20 };
+  // Map hardness to ISO groups: soft→N/P, medium→P, hard→M, very hard→S, hardened→H
+  if (hrc <= 20) return { kc1_1: 1200, mc: 0.25 }; // Soft steel/aluminum (below ISO P average)
+  if (hrc <= 35) return CANONICAL_KIENZLE.P;       // Normal steel → ISO P
+  if (hrc <= 45) return CANONICAL_KIENZLE.M;       // Harder steel/stainless → ISO M
+  if (hrc <= 55) return CANONICAL_KIENZLE.S;       // Superalloys/titanium → ISO S
+  return CANONICAL_KIENZLE.H;                       // Hardened steel → ISO H
 };
 
 // ─── Engine ────────────────────────────────────────────────────────

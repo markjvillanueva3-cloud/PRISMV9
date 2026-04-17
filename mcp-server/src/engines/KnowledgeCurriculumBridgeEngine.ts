@@ -15,6 +15,7 @@
  */
 
 import type { Question } from "./CurriculumEngine.js";
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ═══════════════════════════════════════════════════════════════
 // Types

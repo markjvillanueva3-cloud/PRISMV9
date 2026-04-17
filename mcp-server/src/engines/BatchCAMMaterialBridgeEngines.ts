@@ -6,6 +6,9 @@
  * PRISM's ISO material taxonomy (P/M/K/N/S/H) with machinability correction
  * factors and per-strategy speed/feed multipliers.
  *
+ * NOTE: kc1_1/mc values in cam_specific_params match CANONICAL_KIENZLE from
+ * physics/constants.ts (P=1800, M=2100, K=1100, N=700, S=2800, H=3200).
+ *
  * @engine BatchCAMMaterialBridgeEngines
  * @shortcode E1116
  * @dispatcher camDispatcher
@@ -16,6 +19,8 @@
  *   powermill_material_lookup, powermill_material_search
  * @milestone CAMX-MS7/U01
  */
+
+import { CANONICAL_KIENZLE } from "../physics/constants.js";
 
 // ─── ISO Material Groups ───────────────────────────────────────────────────────
 

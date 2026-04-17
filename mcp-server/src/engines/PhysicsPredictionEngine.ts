@@ -14,6 +14,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_MATERIAL_DB, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 // ============================================================================
 // PHYSICS SOURCE FILE CATALOG
@@ -393,15 +394,29 @@ interface MaterialProps {
   taylor_n: number;    // Taylor exponent
 }
 
-const MATERIAL_DB: Record<string, MaterialProps> = {
-  'AISI 4140': { kc1_1: 2100, mc: 0.25, density: 7850, thermal_conductivity: 42, specific_heat: 473, hardness_hrc: 28, melting_point_c: 1416, austenitizing_c: 845, jc_A: 595, jc_B: 580, jc_n: 0.133, jc_C: 0.023, jc_m: 1.03, taylor_C: 300, taylor_n: 0.25 },
-  'AISI 1045': { kc1_1: 1800, mc: 0.26, density: 7870, thermal_conductivity: 49.8, specific_heat: 486, hardness_hrc: 20, melting_point_c: 1460, austenitizing_c: 843, jc_A: 553, jc_B: 600, jc_n: 0.234, jc_C: 0.013, jc_m: 1.0, taylor_C: 350, taylor_n: 0.25 },
-  '6061-T6': { kc1_1: 800, mc: 0.23, density: 2700, thermal_conductivity: 167, specific_heat: 896, hardness_hrc: 15, melting_point_c: 652, austenitizing_c: 9999, jc_A: 324, jc_B: 114, jc_n: 0.42, jc_C: 0.002, jc_m: 1.34, taylor_C: 800, taylor_n: 0.40 },
-  '7075-T6': { kc1_1: 900, mc: 0.23, density: 2810, thermal_conductivity: 130, specific_heat: 960, hardness_hrc: 18, melting_point_c: 635, austenitizing_c: 9999, jc_A: 546, jc_B: 678, jc_n: 0.71, jc_C: 0.024, jc_m: 1.56, taylor_C: 700, taylor_n: 0.35 },
-  'Ti-6Al-4V': { kc1_1: 2800, mc: 0.28, density: 4430, thermal_conductivity: 6.7, specific_heat: 526, hardness_hrc: 36, melting_point_c: 1660, austenitizing_c: 9999, jc_A: 1098, jc_B: 1092, jc_n: 0.93, jc_C: 0.014, jc_m: 1.1, taylor_C: 100, taylor_n: 0.20 },
-  'Inconel 718': { kc1_1: 2800, mc: 0.25, density: 8190, thermal_conductivity: 11.4, specific_heat: 435, hardness_hrc: 40, melting_point_c: 1336, austenitizing_c: 9999, jc_A: 1241, jc_B: 622, jc_n: 0.6522, jc_C: 0.0134, jc_m: 1.3, taylor_C: 60, taylor_n: 0.15 },
-  '316L': { kc1_1: 2200, mc: 0.25, density: 8000, thermal_conductivity: 16.3, specific_heat: 500, hardness_hrc: 25, melting_point_c: 1400, austenitizing_c: 9999, jc_A: 305, jc_B: 1161, jc_n: 0.61, jc_C: 0.01, jc_m: 1.4, taylor_C: 180, taylor_n: 0.20 },
+// Physics prediction extensions (Johnson-Cook, thermal, hardness)
+type PhysExt = Omit<MaterialProps, 'kc1_1' | 'mc' | 'taylor_C' | 'taylor_n'> & { canonical_key: string };
+const PHYS_EXTENSIONS: Record<string, PhysExt> = {
+  'AISI 4140':   { canonical_key: 'alloy_steel',   density: 7850, thermal_conductivity: 42,   specific_heat: 473, hardness_hrc: 28, melting_point_c: 1416, austenitizing_c: 845,  jc_A: 595,  jc_B: 580,  jc_n: 0.133,  jc_C: 0.023,  jc_m: 1.03 },
+  'AISI 1045':   { canonical_key: 'carbon_steel',  density: 7870, thermal_conductivity: 49.8, specific_heat: 486, hardness_hrc: 20, melting_point_c: 1460, austenitizing_c: 843,  jc_A: 553,  jc_B: 600,  jc_n: 0.234,  jc_C: 0.013,  jc_m: 1.0 },
+  '6061-T6':     { canonical_key: 'aluminum_6061', density: 2700, thermal_conductivity: 167,  specific_heat: 896, hardness_hrc: 15, melting_point_c: 652,  austenitizing_c: 9999, jc_A: 324,  jc_B: 114,  jc_n: 0.42,   jc_C: 0.002,  jc_m: 1.34 },
+  '7075-T6':     { canonical_key: 'aluminum_7075', density: 2810, thermal_conductivity: 130,  specific_heat: 960, hardness_hrc: 18, melting_point_c: 635,  austenitizing_c: 9999, jc_A: 546,  jc_B: 678,  jc_n: 0.71,   jc_C: 0.024,  jc_m: 1.56 },
+  'Ti-6Al-4V':   { canonical_key: 'titanium_gr5',  density: 4430, thermal_conductivity: 6.7,  specific_heat: 526, hardness_hrc: 36, melting_point_c: 1660, austenitizing_c: 9999, jc_A: 1098, jc_B: 1092, jc_n: 0.93,   jc_C: 0.014,  jc_m: 1.1 },
+  'Inconel 718': { canonical_key: 'inconel_718',   density: 8190, thermal_conductivity: 11.4, specific_heat: 435, hardness_hrc: 40, melting_point_c: 1336, austenitizing_c: 9999, jc_A: 1241, jc_B: 622,  jc_n: 0.6522, jc_C: 0.0134, jc_m: 1.3 },
+  '316L':        { canonical_key: 'stainless_316', density: 8000, thermal_conductivity: 16.3, specific_heat: 500, hardness_hrc: 25, melting_point_c: 1400, austenitizing_c: 9999, jc_A: 305,  jc_B: 1161, jc_n: 0.61,   jc_C: 0.01,   jc_m: 1.4 },
 };
+
+const MATERIAL_DB: Record<string, MaterialProps> = Object.fromEntries(
+  Object.entries(PHYS_EXTENSIONS).map(([name, ext]) => {
+    const canon = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? { kc1_1: 1800, mc: 0.25, taylor_C: 300, taylor_n: 0.25 };
+    return [name, {
+      kc1_1: canon.kc1_1, mc: canon.mc,
+      taylor_C: canon.taylor_C ?? CANONICAL_TAYLOR.P.C,
+      taylor_n: canon.taylor_n ?? CANONICAL_TAYLOR.P.n,
+      ...ext,
+    }];
+  })
+);
 
 function getMaterialProps(name: string): MaterialProps {
   // Try exact match, then partial match
