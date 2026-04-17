@@ -34,7 +34,7 @@ import { log } from "../utils/Logger.js";
 // ============================================================================
 
 export type InputFormat = "text" | "step" | "iges" | "dxf" | "auto";
-export type ProcessType = "milling" | "turning" | "mill_turn" | "auto";
+export type ProcessType = "milling" | "turning" | "mill_turn" | "wire_edm" | "auto";
 
 export interface AutoPTPInput {
   /** Raw content — text extracted from PDF, or file content as string */
@@ -107,14 +107,20 @@ function detectProcessType(features: Array<{ type: string }>): ProcessType {
     "thread_id", "part_off", "drill_center", "knurl", "od_profile"]);
   const millingTypes = new Set(["pocket", "slot", "boss", "contour", "face_mill",
     "drill_pattern", "tap_pattern", "surface_3d", "profile_2d"]);
+  const wireEdmTypes = new Set(["wire_profile", "wire_contour", "wire_pocket", "wire_slot",
+    "wire_hole", "wire_taper", "wire_corner", "wire_start_hole", "wire_slug", "wire_tab",
+    "edm_profile", "edm_contour", "punch", "die", "die_opening", "precision_profile"]);
 
   let turningCount = 0;
   let millingCount = 0;
+  let wireEdmCount = 0;
   for (const f of features) {
-    if (turningTypes.has(f.type)) turningCount++;
+    if (wireEdmTypes.has(f.type)) wireEdmCount++;
+    else if (turningTypes.has(f.type)) turningCount++;
     else if (millingTypes.has(f.type)) millingCount++;
   }
 
+  if (wireEdmCount > 0 && wireEdmCount >= turningCount && wireEdmCount >= millingCount) return "wire_edm";
   if (turningCount > 0 && millingCount > 0) return "mill_turn";
   if (turningCount > millingCount) return "turning";
   return "milling";
@@ -297,7 +303,51 @@ export class AutoPrintToProgramBridgeEngine {
     let pipelineUsed = "";
     let setupSheet: Record<string, unknown> | undefined;
 
-    if (processType === "turning") {
+    if (processType === "wire_edm") {
+      // Route to WEDMPrintToProgramEngine for wire EDM
+      try {
+        const { wedmPrintToProgramEngine } = await import("./WEDMPrintToProgramEngine.js");
+        const wedmInput = {
+          part_number: partNumber || "AUTO-WEDM",
+          material: { material_name: material || "Tool Steel", iso_group: isoGroup },
+          geometry: {
+            profiles: features.map((f, i) => ({
+              id: f.id || `P${i + 1}`,
+              type: f.type,
+              contour: [], // Would be populated from geometry parsing
+              dimensions: f.dimensions,
+            })),
+          },
+          machine: {
+            brand: input.machine_brand || "mitsubishi",
+            model: input.machine_model || "FA20S",
+            controller: input.controller || "mitsubishi_fa",
+          },
+          wire: { diameter_mm: 0.25, type: "brass" },
+          optimization_target: input.optimization_target || "balanced",
+          units: input.units || "mm",
+        };
+        const result = await wedmPrintToProgramEngine.calculate?.("wedm_print_to_program", wedmInput as any) ||
+                       wedmPrintToProgramEngine.generate?.(wedmInput as any);
+        if (result && typeof result === "object") {
+          const r = result as any;
+          programText = r.program_text || r.gcode || "";
+          cycleTime = r.estimated_cycle_time_sec || r.cycle_time_sec || 0;
+          toolList = (r.wire_changes || []).map((w: any, i: number) => ({
+            tool_number: i + 1,
+            description: `Wire ${w.diameter_mm || 0.25}mm ${w.type || "brass"}`,
+            diameter_mm: w.diameter_mm,
+          }));
+          confidence = r.confidence_score || 0.8;
+          setupSheet = { setup_notes: r.setup_notes, wire_info: r.wire_info };
+          pipelineUsed = "WEDMPrintToProgramEngine";
+          stages.push("program_generation: wire_edm pipeline");
+        }
+      } catch (err) {
+        warnings.push({ stage: "generation", severity: "critical", message: `Wire EDM pipeline failed: ${err}` });
+        pipelineUsed = "FAILED";
+      }
+    } else if (processType === "turning") {
       // Route to TurningPrintToProgramEngine
       try {
         const { turningPrintToProgramEngine } = await import("./TurningPrintToProgramEngine.js");
