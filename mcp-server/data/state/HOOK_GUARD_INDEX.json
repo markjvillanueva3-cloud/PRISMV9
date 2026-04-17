@@ -1,0 +1,294 @@
+{
+  "schemaVersion": 1,
+  "lastUpdated": "2026-04-17T13:14:57.370Z",
+  "hookCount": 31,
+  "guards": [
+    {
+      "hookFile": "ai-session-sync.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI Session Sync — Stop Hook"
+    },
+    {
+      "hookFile": "extraction-to-tribal.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".json"
+      ],
+      "description": "Extraction to Tribal Knowledge — PostToolUse Hook"
+    },
+    {
+      "hookFile": "ai-auto-command-router.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI Auto-Command Router — UserPromptSubmit Hook"
+    },
+    {
+      "hookFile": "ai-command-awareness.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI Command Awareness — SessionStart Hook"
+    },
+    {
+      "hookFile": "ai-reasoning-inject.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI Reasoning Inject — PreToolUse Hook for Complex Operations"
+    },
+    {
+      "hookFile": "ai-system-activate.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI System Activation — SessionStart Hook"
+    },
+    {
+      "hookFile": "ai-deep-intelligence.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "AI Deep Intelligence — Comprehensive SessionStart Hook"
+    },
+    {
+      "hookFile": "awareness-snapshot.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".ts",
+        ".json"
+      ],
+      "description": "Awareness Snapshot Hook — AI-AWARE-HARDEN/U-AWR11"
+    },
+    {
+      "hookFile": "always-build-guard.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "always-build-guard.mjs — Stop Hook"
+    },
+    {
+      "hookFile": "h-drive-enforcement.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "H: Drive Enforcement Hook — PreToolUse"
+    },
+    {
+      "hookFile": "post-extract-sync.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Post-Extract Sync Hook — AI-AWARE-HARDEN/U-AWR24"
+    },
+    {
+      "hookFile": "git-anti-clobber.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Git Anti-Clobber Hook — PreToolUse"
+    },
+    {
+      "hookFile": "git-anti-clobber-release.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Git Anti-Clobber Release — PostToolUse"
+    },
+    {
+      "hookFile": "node-process-janitor.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Node Process Janitor — PostToolUse / UserPromptSubmit"
+    },
+    {
+      "hookFile": "file-read-cache.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".pdf",
+        ".ipynb",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".gif",
+        ".webp"
+      ],
+      "description": "File Read Cache — PreToolUse Hook"
+    },
+    {
+      "hookFile": "grep-result-cache.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Grep Result Cache — PreToolUse Hook"
+    },
+    {
+      "hookFile": "bash-result-cache.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Bash Result Cache — PreToolUse Hook"
+    },
+    {
+      "hookFile": "capability-reminder.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Capability Reminder — UserPromptSubmit Hook"
+    },
+    {
+      "hookFile": "session-cost-summary.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Session Cost Summary — Stop Hook"
+    },
+    {
+      "hookFile": "inventory-refresh.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "Inventory Refresh — SessionStart hook"
+    },
+    {
+      "hookFile": "git-commit-checkin.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "git-commit-checkin.mjs — PreToolUse check-in on git commit/push"
+    },
+    {
+      "hookFile": "periodic-checkin.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "periodic-checkin.mjs — UserPromptSubmit periodic heartbeat + chat poll"
+    },
+    {
+      "hookFile": "ai-duplication-guard.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".ts"
+      ],
+      "description": "AI Duplication Guard — PreToolUse Hook (Phase 0.1 Fix)"
+    },
+    {
+      "hookFile": "json-read-summarizer.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".json"
+      ],
+      "description": "json-read-summarizer.mjs — PreToolUse large-JSON preview"
+    },
+    {
+      "hookFile": "state-write-watch.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".json"
+      ],
+      "description": "state-write-watch.mjs — PreToolUse concurrent-write detector for state JSONs"
+    },
+    {
+      "hookFile": "doc-freshness-check.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".git",
+        ".md"
+      ],
+      "description": "doc-freshness-check.mjs — PreToolUse staleness warning for Markdown docs"
+    },
+    {
+      "hookFile": "roadmap-completion-logger.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".git"
+      ],
+      "description": "roadmap-completion-logger.mjs — PostToolUse roadmap unit tracker"
+    },
+    {
+      "hookFile": "session-write-tracker.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "session-write-tracker.mjs — PostToolUse per-session write log"
+    },
+    {
+      "hookFile": "staged-hygiene-check.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".git"
+      ],
+      "description": "staged-hygiene-check.mjs — PreToolUse absorption prevention"
+    },
+    {
+      "hookFile": "publish-pipeline-metrics.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [
+        ".md"
+      ],
+      "description": "publish-pipeline-metrics.mjs (CPP-MS5-U-CPP37)"
+    },
+    {
+      "hookFile": "post-pipeline-integrity-check.mjs",
+      "hookType": "Other",
+      "toolPattern": null,
+      "fileGlobs": [],
+      "description": "post-pipeline-integrity-check.mjs (CPP-MS5-U-CPP34)"
+    }
+  ],
+  "byGlob": {
+    ".json": [
+      "extraction-to-tribal.mjs",
+      "awareness-snapshot.mjs",
+      "json-read-summarizer.mjs",
+      "state-write-watch.mjs"
+    ],
+    ".ts": [
+      "awareness-snapshot.mjs",
+      "ai-duplication-guard.mjs"
+    ],
+    ".pdf": [
+      "file-read-cache.mjs"
+    ],
+    ".ipynb": [
+      "file-read-cache.mjs"
+    ],
+    ".png": [
+      "file-read-cache.mjs"
+    ],
+    ".jpg": [
+      "file-read-cache.mjs"
+    ],
+    ".jpeg": [
+      "file-read-cache.mjs"
+    ],
+    ".gif": [
+      "file-read-cache.mjs"
+    ],
+    ".webp": [
+      "file-read-cache.mjs"
+    ],
+    ".git": [
+      "doc-freshness-check.mjs",
+      "roadmap-completion-logger.mjs",
+      "staged-hygiene-check.mjs"
+    ],
+    ".md": [
+      "doc-freshness-check.mjs",
+      "publish-pipeline-metrics.mjs"
+    ]
+  }
+}

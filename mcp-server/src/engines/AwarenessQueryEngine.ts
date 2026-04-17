@@ -61,6 +61,50 @@ interface ActionResolutionIndex {
 }
 
 // ============================================================================
+// SKILL MANIFEST INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface SkillManifest {
+  file: string;
+  name: string;
+  description: string;
+  version: string | null;
+  engines: string[];
+  actions: string[];
+  hooks: string[];
+  dispatchers: string[];
+  sha256: string;
+  lineCount: number;
+}
+
+interface SkillManifestIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  skillCount: number;
+  skills: Record<string, SkillManifest>;
+}
+
+// ============================================================================
+// HOOK GUARD INDEX TYPES (from Universal 0.7)
+// ============================================================================
+
+export interface HookGuard {
+  hookFile: string;
+  hookType: "PreToolUse" | "PostToolUse" | "PreCompact" | "SessionStart" | "Other";
+  toolPattern: string | null;
+  fileGlobs: string[];
+  description: string;
+}
+
+interface HookGuardIndex {
+  schemaVersion: number;
+  lastUpdated: string;
+  hookCount: number;
+  guards: HookGuard[];
+  byGlob: Record<string, string[]>;
+}
+
+// ============================================================================
 // TYPES
 // ============================================================================
 
@@ -422,6 +466,151 @@ export class AwarenessQueryEngine {
       return { total: content.actionCount, withEngines, withTests, withSkills };
     } catch {
       return { total: 0, withEngines: 0, withTests: 0, withSkills: 0 };
+    }
+  }
+
+  /**
+   * Get skill call graph (Universal 0.7)
+   * Returns the skill manifest with its referenced engines, actions, hooks
+   */
+  async skillCallGraph(skillId: string): Promise<SkillManifest | null> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SKILL_MANIFEST_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] SKILL_MANIFEST_INDEX.json not found — run build-skill-manifest-index.ts");
+        return null;
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SkillManifestIndex;
+      return content.skills[skillId] || null;
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read SKILL_MANIFEST_INDEX: ${err}`);
+      return null;
+    }
+  }
+
+  /**
+   * Get all skills that reference a specific engine
+   */
+  async skillsReferencingEngine(engineName: string): Promise<string[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SKILL_MANIFEST_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) return [];
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SkillManifestIndex;
+      return Object.entries(content.skills)
+        .filter(([, manifest]) => manifest.engines.includes(engineName))
+        .map(([name]) => name);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get skill coverage statistics
+   */
+  async getSkillCoverageStats(): Promise<{
+    total: number;
+    withEngines: number;
+    withActions: number;
+    avgLineCount: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "SKILL_MANIFEST_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, withEngines: 0, withActions: 0, avgLineCount: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as SkillManifestIndex;
+      let withEngines = 0;
+      let withActions = 0;
+      let totalLines = 0;
+
+      for (const manifest of Object.values(content.skills)) {
+        if (manifest.engines.length > 0) withEngines++;
+        if (manifest.actions.length > 0) withActions++;
+        totalLines += manifest.lineCount;
+      }
+
+      const avgLineCount = content.skillCount > 0 ? Math.round(totalLines / content.skillCount) : 0;
+      return { total: content.skillCount, withEngines, withActions, avgLineCount };
+    } catch {
+      return { total: 0, withEngines: 0, withActions: 0, avgLineCount: 0 };
+    }
+  }
+
+  // ============================================================================
+  // HOOK GUARD INDEX METHODS (Universal 0.7)
+  // ============================================================================
+
+  /**
+   * Get hooks that guard a specific file glob pattern
+   * O(1) lookup from HOOK_GUARD_INDEX.json
+   */
+  async hooksGuarding(glob: string): Promise<HookGuard[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "HOOK_GUARD_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        log.warn("[AwarenessQuery] HOOK_GUARD_INDEX.json not found — run build-hook-guard-index.ts");
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as HookGuardIndex;
+      const hookFiles = content.byGlob[glob] || [];
+      return content.guards.filter((g) => hookFiles.includes(g.hookFile));
+    } catch (err) {
+      log.warn(`[AwarenessQuery] Failed to read HOOK_GUARD_INDEX: ${err}`);
+      return [];
+    }
+  }
+
+  /**
+   * Get all hooks by type (PreToolUse, PostToolUse, etc.)
+   */
+  async getHooksByType(hookType: HookGuard["hookType"]): Promise<HookGuard[]> {
+    const indexPath = path.join(this.baseDir, "data", "state", "HOOK_GUARD_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return [];
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as HookGuardIndex;
+      return content.guards.filter((g) => g.hookType === hookType);
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * Get hook coverage statistics
+   */
+  async getHookCoverageStats(): Promise<{
+    total: number;
+    preToolUse: number;
+    postToolUse: number;
+    globsCovered: number;
+    withGlobs: number;
+  }> {
+    const indexPath = path.join(this.baseDir, "data", "state", "HOOK_GUARD_INDEX.json");
+    try {
+      if (!fs.existsSync(indexPath)) {
+        return { total: 0, preToolUse: 0, postToolUse: 0, globsCovered: 0, withGlobs: 0 };
+      }
+
+      const content = JSON.parse(fs.readFileSync(indexPath, "utf-8")) as HookGuardIndex;
+      const preToolUse = content.guards.filter((g) => g.hookType === "PreToolUse").length;
+      const postToolUse = content.guards.filter((g) => g.hookType === "PostToolUse").length;
+      const withGlobs = content.guards.filter((g) => g.fileGlobs.length > 0).length;
+
+      return {
+        total: content.hookCount,
+        preToolUse,
+        postToolUse,
+        globsCovered: Object.keys(content.byGlob).length,
+        withGlobs,
+      };
+    } catch {
+      return { total: 0, preToolUse: 0, postToolUse: 0, globsCovered: 0, withGlobs: 0 };
     }
   }
 
