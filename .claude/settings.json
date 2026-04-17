@@ -175,6 +175,12 @@
         "hooks": [
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/json-read-summarizer.mjs",
+            "timeout": 2000,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/file-read-cache.mjs",
             "timeout": 1500,
             "continueOnError": true
@@ -209,6 +215,17 @@
           {
             "type": "command",
             "command": "node H:/prism/.claude/hooks/git-commit-checkin.mjs",
+            "timeout": 1500,
+            "continueOnError": true
+          }
+        ]
+      },
+      {
+        "matcher": "^Write$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/state-write-watch.mjs",
             "timeout": 1500,
             "continueOnError": true
           }
