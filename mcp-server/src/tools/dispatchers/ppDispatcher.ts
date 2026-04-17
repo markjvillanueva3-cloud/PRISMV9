@@ -320,6 +320,9 @@ let _ppRedundantModal: any;
 // PP-G10: G10 data-set block validator
 let _ppG10DataSet: any;
 
+// PP-POLAR: Polar coordinate mode (G15/G16) validator
+let _ppPolarCoordinate: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -567,6 +570,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppRedundantModal ??= (await import("../../engines/PPRedundantModalValidatorEngine.js")).ppRedundantModalValidatorEngine;
     case "g10DataSet":
       return _ppG10DataSet ??= (await import("../../engines/PPG10DataSetValidatorEngine.js")).ppG10DataSetValidatorEngine;
+    case "polarCoordinate":
+      return _ppPolarCoordinate ??= (await import("../../engines/PPPolarCoordinateValidatorEngine.js")).ppPolarCoordinateValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1056,6 +1061,9 @@ const ACTIONS = [
   "pp_g10_validate",               // G10 data-set block validation
   "pp_g10_quick",                  // Quick pass/fail + G10 block count
   "pp_g10_defaults",               // Default G10 validation options
+  "pp_polar_validate",             // Polar coordinate G15/G16 validation
+  "pp_polar_quick",                // Quick pass/fail + G16 activation count
+  "pp_polar_defaults",             // Default polar validation options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3615,6 +3623,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_g10_defaults": {
             const engine = await getEngine("g10DataSet");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_POLAR (PP-POLAR — Polar coordinate G15/G16 validation) =====
+          case "pp_polar_validate": {
+            const engine = await getEngine("polarCoordinate");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_g16_balance: params.check_g16_balance,
+              check_nested_g16: params.check_nested_g16,
+              check_plane_select: params.check_plane_select,
+              check_cutter_comp: params.check_cutter_comp,
+              check_motion_missing_axis: params.check_motion_missing_axis,
+              check_distance_mode_change: params.check_distance_mode_change,
+              check_negative_radius: params.check_negative_radius,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_polar_quick": {
+            const engine = await getEngine("polarCoordinate");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_polar_defaults": {
+            const engine = await getEngine("polarCoordinate");
             result = engine.defaultOptions();
             break;
           }
