@@ -166,6 +166,12 @@ const ACTIONS = [
   "mcat_prism_summary",          // Get quick summary for calculator
   "mcat_prism_inventory",        // Check inventory for tool matches
   "mcat_prism_stats",            // Get PRISM mode statistics
+  // ===== MCAT-MS0 P3-U05: Acquisition Recommendations (5 actions) =====
+  "mcat_acq_recommend",          // Get tiered acquisition recommendations
+  "mcat_acq_best",               // Get single best recommendation
+  "mcat_acq_roi",                // Calculate ROI for item
+  "mcat_acq_distributor",        // Get distributor info
+  "mcat_acq_compare",            // Compare multiple items
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -792,6 +798,23 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_prism_stats") {
           const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
           result = calculatorPRISMModeEngine.getStats();
+
+        // ===== MCAT-MS0 P3-U05: Acquisition Recommendations =====
+        } else if (action === "mcat_acq_recommend") {
+          const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
+          result = acquisitionRecommendationEngine.getRecommendations(params as any);
+        } else if (action === "mcat_acq_best") {
+          const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
+          result = acquisitionRecommendationEngine.getBestRecommendation(params as any);
+        } else if (action === "mcat_acq_roi") {
+          const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
+          result = acquisitionRecommendationEngine.calculateROI(params as any);
+        } else if (action === "mcat_acq_distributor") {
+          const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
+          result = acquisitionRecommendationEngine.getDistributorInfo(params.item_id as string);
+        } else if (action === "mcat_acq_compare") {
+          const { acquisitionRecommendationEngine } = await import("../../engines/AcquisitionRecommendationEngine.js");
+          result = acquisitionRecommendationEngine.compareItems(params.item_ids as string[]);
 
         } else {
           const engineKey = engineMap[action];
