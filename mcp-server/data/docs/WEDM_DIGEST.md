@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T02:18:14.636Z
+**Generated:** 2026-04-17T02:20:53.783Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 99 |
+| Engines | 100 |
 | Playbooks | 8 |
 | State Files | 41 |
 
-## Engines (99)
+## Engines (100)
 
 | Engine | Description |
 |--------|-------------|
@@ -96,6 +96,7 @@
 | `WEDMStrategyLibraryEngine` | WEDMStrategyLibraryEngine — Wire EDM Cutting Strategy Library |
 | `WEDMTabStrategyEngine` | WEDMTabStrategyEngine — WEDM AGI Phase 2 / U-P2-10 |
 | `WEDMTradeoffElicitationEngine` | WEDMTradeoffElicitationEngine — WEDM AGI Phase 2 / U-P2-07 |
+| `WEDMTribalRuntimeEngine` | WEDMTribalRuntimeEngine — MS-P0.5-COORD U-P0.5-COORD-05 |
 | `WEDMVirtualMachineEngine` | WEDMVirtualMachineEngine — WEDM AGI Phase 1 / U-P1-03 (digital twin) |
 | `WEDMWhatIfSimulatorEngine` | WEDMWhatIfSimulatorEngine — WEDM AGI Phase 2 / U-P2-02 |
 | `WireEDMAdvancedNeuralEngine` | WireEDMAdvancedNeuralEngine |
