@@ -6750,3 +6750,90 @@ export {
   type CapabilityQuery,
   type CapabilityAssessment,
 } from './MillingCapabilityManifestEngine.js';
+
+// ===== L2-P4-MS1/P0-U03: DNC & Post-Processing Engines =====
+export {
+  DNCGenerateEngine,
+  dncGenerateEngine,
+  type DNCFormat,
+  type DNCProgram,
+  type GenerateOptions,
+} from './DNCGenerateEngine.js';
+
+export {
+  DNCSendEngine,
+  dncSendEngine,
+  type TransferProtocol,
+  type TransferStatus,
+  type MachineConnection,
+  type TransferJob,
+} from './DNCSendEngine.js';
+
+export {
+  DNCCompareEngine,
+  dncCompareEngine,
+  type DifferenceType,
+  type DifferenceSeverity,
+  type Difference,
+  type CompareResult,
+} from './DNCCompareEngine.js';
+
+export {
+  DNCVerifyEngine,
+  dncVerifyEngine,
+  type VerificationType,
+  type VerificationIssue,
+  type VerificationResult,
+} from './DNCVerifyEngine.js';
+
+export {
+  DNCQREngine,
+  dncQREngine,
+  type QRData,
+  type QRCode,
+  type QRScanResult,
+} from './DNCQREngine.js';
+
+// ===== L2-P4-MS1/P0-U03: CAM Export Engines =====
+export {
+  CAMRecommendEngine,
+  camRecommendEngine,
+  type OperationType,
+  type Strategy,
+  type Recommendation,
+  type PartAnalysis,
+} from './CAMRecommendEngine.js';
+
+export {
+  CAMExportEngine,
+  camExportEngine,
+  type CAMSystem,
+  type ExportFormat,
+  type ToolpathData,
+  type ExportResult,
+} from './CAMExportEngine.js';
+
+export {
+  CAMAnalyzeEngine,
+  camAnalyzeEngine,
+  type OperationAnalysis,
+  type ToolpathInput,
+} from './CAMAnalyzeEngine.js';
+
+export {
+  CAMToolLibraryEngine,
+  camToolLibraryEngine,
+  type ToolType,
+  type ToolMaterial,
+  type ToolCoating,
+  type CAMTool,
+  type ToolLibrary,
+} from './CAMToolLibraryEngine.js';
+
+export {
+  CAMToolGetEngine,
+  camToolGetEngine,
+  type ToolQuery,
+  type ToolData,
+  type ToolSelection,
+} from './CAMToolGetEngine.js';
