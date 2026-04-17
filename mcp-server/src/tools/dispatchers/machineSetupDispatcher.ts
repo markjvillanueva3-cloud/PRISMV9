@@ -149,6 +149,17 @@ const ACTIONS = [
   "mcat_api_get_renderable",     // Get renderable options
   "mcat_api_coverage_stats",     // Get coverage statistics
   "mcat_api_run_tests",          // Run contract tests via API
+  // ===== MCAT-MS0 P3-U03: Machine Profile Propagation (10 actions) =====
+  "mcat_prop_quote_ctx",         // Get quote context for machine
+  "mcat_prop_quote_estimate",    // Calculate quote estimate
+  "mcat_prop_sched_ctx",         // Get scheduling context
+  "mcat_prop_sched_all",         // Get all scheduling contexts
+  "mcat_prop_sched_best",        // Find best machine for scheduling
+  "mcat_prop_feas_ctx",          // Get feasibility context
+  "mcat_prop_feas_check",        // Check feasibility
+  "mcat_prop_whatif",            // Run what-if analysis
+  "mcat_prop_compare",           // Compare machines
+  "mcat_prop_refresh",           // Refresh all propagated contexts
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -725,6 +736,38 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_api_run_tests") {
           const { machinePackageAPIEngine } = await import("../../engines/MachinePackageAPIEngine.js");
           result = machinePackageAPIEngine.runContractTests(params.machine_id as string);
+
+        // ===== MCAT-MS0 P3-U03: Machine Profile Propagation =====
+        } else if (action === "mcat_prop_quote_ctx") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.getQuoteContext(params.machine_id as string);
+        } else if (action === "mcat_prop_quote_estimate") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.calculateQuoteEstimate(params as any);
+        } else if (action === "mcat_prop_sched_ctx") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.getSchedulingContext(params.machine_id as string);
+        } else if (action === "mcat_prop_sched_all") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.getAllSchedulingContexts();
+        } else if (action === "mcat_prop_sched_best") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.findBestMachineForScheduling(params as any);
+        } else if (action === "mcat_prop_feas_ctx") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.getFeasibilityContext(params.machine_id as string);
+        } else if (action === "mcat_prop_feas_check") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.checkFeasibility(params as any);
+        } else if (action === "mcat_prop_whatif") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.runWhatIfAnalysis(params as any);
+        } else if (action === "mcat_prop_compare") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.compareMachines(params as any);
+        } else if (action === "mcat_prop_refresh") {
+          const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
+          result = machineProfilePropagationEngine.propagateAll();
 
         } else {
           const engineKey = engineMap[action];
