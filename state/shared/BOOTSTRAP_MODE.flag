@@ -26,6 +26,11 @@
       "phase": "0.15",
       "gate": "Managed-block guard (AUTO-REFRESHED section edits)",
       "behavior": "warn-only — hand edits permitted during bootstrap"
+    },
+    {
+      "phase": "0.9",
+      "gate": "Orphan detection at write-time (engines without dispatchers)",
+      "behavior": "warn-only — Phase 0 provisioning creates engines before 0.6 auto-wiring; flag auto-removal via 0.11 exit gate requires all orphans resolved"
     }
   ],
   "removalCondition": "Auto-removed by Phase 0.11 exit gate after: retrofit-existing-artifacts.ts completes, awareness regression suite passes 30/30, boot telemetry p99 ≤2s over 100 consecutive boots.",

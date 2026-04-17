@@ -18,6 +18,7 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { createInterface } from 'node:readline';
+import { isBootstrapActive, isDowngradedGate, outputWarnOnly } from './lib/bootstrap-mode.mjs';
 
 const MCP_SERVER = 'H:/prism/mcp-server';
 const REGISTRY_PATH = `${MCP_SERVER}/data/state/cross-session-asset-registry.json`;
@@ -389,7 +390,7 @@ async function main() {
     );
 
     if (hasHighConfidence || warnings.length >= 2) {
-      outputBlock(
+      const blockReason =
         `🚫 DUPLICATION GUARD BLOCKED: Creating "${proposedName}" (${assetType})\n\n` +
         `WARNINGS:\n${warnings.map(w => `  • ${w}`).join('\n')}\n\n` +
         `REQUIRED ACTIONS:\n` +
@@ -397,8 +398,16 @@ async function main() {
         `2. Use existing asset or extend it instead\n` +
         `3. If truly unique, use /forge-triple for proper creation\n\n` +
         `This hook BLOCKS to prevent duplicate work. ` +
-        `DuplicationGuardEngine.mustCheckBeforeCreating() is MANDATORY.`
-      );
+        `DuplicationGuardEngine.mustCheckBeforeCreating() is MANDATORY.`;
+
+      // Phase 0.16 U-OP1: honor BOOTSTRAP_MODE.flag — degrade to warn-only
+      // during first-boot provisioning so the Phase 0 stack can bring itself up.
+      if (isBootstrapActive() && isDowngradedGate('0.1')) {
+        outputWarnOnly(blockReason, { phase: '0.1' });
+        return;
+      }
+
+      outputBlock(blockReason);
       return;
     }
   }

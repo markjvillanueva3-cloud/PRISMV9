@@ -12,6 +12,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { isBootstrapActive, isDowngradedGate } from "./bootstrap-mode.mjs";
 
 // Read hook input from stdin
 let input = "";
@@ -33,15 +34,23 @@ async function main(rawInput) {
 // Keep the internal helpers returning `{ decision, reason }` for readability
 // and only translate at the boundary.
 function emit(result) {
-  const dec = (result && result.decision) === "deny" ? "deny" : "allow";
+  // Phase 0.16 U-OP1: honor BOOTSTRAP_MODE.flag — degrade deny to warn-only
+  // for Phase 0.9 orphan-detection during first-boot provisioning. Flag is
+  // auto-removed by phase-0-11-exit-gate after retrofit completes.
+  let dec = (result && result.decision) === "deny" ? "deny" : "allow";
+  let reason = result && result.reason;
+  if (dec === "deny" && isBootstrapActive() && isDowngradedGate("0.9")) {
+    dec = "allow";
+    reason = `⚠️ BOOTSTRAP WARN-ONLY (0.9): ${reason || "orphan detection would have blocked"}`;
+  }
   const out = {
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       permissionDecision: dec,
     },
   };
-  if (result && result.reason) {
-    out.hookSpecificOutput.permissionDecisionReason = result.reason;
+  if (reason) {
+    out.hookSpecificOutput.permissionDecisionReason = reason;
   }
   console.log(JSON.stringify(out));
 }
