@@ -459,6 +459,32 @@ const ACTIONS = [
   "lathe_ai_deep_logic",         // LATHE-AI: Deep logic reasoning
   "lathe_ai_thermodynamics",     // LATHE-AI: Thermodynamic analysis
   "lathe_ai_proactive",          // LATHE-AI: Proactive recommendations
+  // ===== PP-AGI-S0/U-S0-07: 11 Reasoning Engine Giants (51 actions) =====
+  // BeliefStateReasoningEngine (8 actions)
+  "belief_set", "belief_get", "belief_update", "belief_top_k",
+  "belief_entropy", "belief_probability", "belief_list", "belief_clear",
+  // CausalReasoningEngine (5 actions)
+  "causal_add_edge", "causal_trace_impact", "causal_root_causes", "causal_stats", "causal_clear",
+  // CounterfactualReasoningEngine (5 actions)
+  "counterfactual_create", "counterfactual_generate", "counterfactual_compare",
+  "counterfactual_root_cause", "counterfactual_templates",
+  // PRISMCreativeReasoningEngine (4 actions)
+  "creative_explore", "creative_capabilities", "creative_history", "creative_summary",
+  // ScientificReasoningEngine (4 actions)
+  "sci_dimension_check", "sci_validate_formula", "sci_reason", "sci_reason_material",
+  // TemporalReasoningEngine (6 actions)
+  "temporal_record", "temporal_snapshots", "temporal_value_at",
+  "temporal_project", "temporal_forecast", "temporal_list",
+  // ReasoningExplainerEngine (3 actions)
+  "explain_recommendation", "explain_formula", "explain_reading_level",
+  // LatheAIReasoningEngine (4 actions)
+  "lathe_reasoning", "lathe_reasoning_sequence", "lathe_reasoning_params", "lathe_reasoning_controller",
+  // WEDMAnalogicalReasoningEngine (4 actions)
+  "wedm_analogy_add", "wedm_analogy_retrieve", "wedm_analogy_all", "wedm_analogy_size",
+  // WEDMReasoningBridgeEngine (4 actions)
+  "wedm_bridge_enrich", "wedm_bridge_decision", "wedm_bridge_warning", "wedm_bridge_stats",
+  // WEDMReasoningTraceLedgerEngine (4 actions)
+  "wedm_trace_record", "wedm_trace_recent", "wedm_trace_query", "wedm_trace_validate",
 ] as const;
 
 function ok(data: any) {
@@ -5665,6 +5691,238 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "lathe_ai_proactive": {
             const { latheSelfAwarenessIntegrationEngine } = await import("../../engines/LatheSelfAwarenessIntegrationEngine.js");
             return ok(latheSelfAwarenessIntegrationEngine.getProactiveRecommendations(params as any));
+          }
+
+          // ========== PP-AGI-S0/U-S0-07: 11 Reasoning Engine Giants ==========
+          // BeliefStateReasoningEngine (8 actions)
+          case "belief_set": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok(beliefStateReasoningEngine.set(params.id as string, params.distribution as any, params.description, params.at));
+          }
+          case "belief_get": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok(beliefStateReasoningEngine.get(params.id as string));
+          }
+          case "belief_update": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok(beliefStateReasoningEngine.update(params.id as string, params.likelihood as any, params.at));
+          }
+          case "belief_top_k": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok(beliefStateReasoningEngine.topK(params.id as string, params.k as number | undefined));
+          }
+          case "belief_entropy": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok({ entropy: beliefStateReasoningEngine.entropy(params.id as string) });
+          }
+          case "belief_probability": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok({ probability: beliefStateReasoningEngine.probabilityOf(params.id as string, params.state as string) });
+          }
+          case "belief_list": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            return ok(beliefStateReasoningEngine.list());
+          }
+          case "belief_clear": {
+            const { beliefStateReasoningEngine } = await import("../../engines/BeliefStateReasoningEngine.js");
+            beliefStateReasoningEngine.clear();
+            return ok({ success: true });
+          }
+
+          // CausalReasoningEngine (5 actions)
+          case "causal_add_edge": {
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            return ok(causalReasoningEngine.addEdge(params as any));
+          }
+          case "causal_trace_impact": {
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            return ok(causalReasoningEngine.traceImpact(params.source as string, params.maxHops as number | undefined));
+          }
+          case "causal_root_causes": {
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            return ok({ rootCauses: causalReasoningEngine.rootCauses(params.target as string, params.maxHops as number | undefined) });
+          }
+          case "causal_stats": {
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            return ok({ nodes: causalReasoningEngine.nodeCount(), edges: causalReasoningEngine.edgeCount() });
+          }
+          case "causal_clear": {
+            const { causalReasoningEngine } = await import("../../engines/CausalReasoningEngine.js");
+            causalReasoningEngine.clear();
+            return ok({ success: true });
+          }
+
+          // CounterfactualReasoningEngine (5 actions)
+          case "counterfactual_create": {
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            return ok(counterfactualReasoningEngine.createCausalGraph(params as any));
+          }
+          case "counterfactual_generate": {
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            return ok(counterfactualReasoningEngine.generateCounterfactual(params as any));
+          }
+          case "counterfactual_compare": {
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            return ok(counterfactualReasoningEngine.compareScenarios(params.graphId as string));
+          }
+          case "counterfactual_root_cause": {
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            return ok(counterfactualReasoningEngine.analyzeRootCause(params as any));
+          }
+          case "counterfactual_templates": {
+            const { counterfactualReasoningEngine } = await import("../../engines/CounterfactualReasoningEngine.js");
+            return ok(counterfactualReasoningEngine.getMachiningTemplates());
+          }
+
+          // PRISMCreativeReasoningEngine (4 actions)
+          case "creative_explore": {
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            return ok(prismCreativeReasoningEngine.explore(params.problem as any, params.mode as any));
+          }
+          case "creative_capabilities": {
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            return ok(prismCreativeReasoningEngine.getCapabilitySummary());
+          }
+          case "creative_history": {
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            return ok(prismCreativeReasoningEngine.getHistory());
+          }
+          case "creative_summary": {
+            const { prismCreativeReasoningEngine } = await import("../../engines/PRISMCreativeReasoningEngine.js");
+            return ok({ summary: prismCreativeReasoningEngine.getSummary() });
+          }
+
+          // ScientificReasoningEngine (4 actions)
+          case "sci_dimension_check": {
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            return ok(scientificReasoningEngine.checkDimensionalConsistency(params as any));
+          }
+          case "sci_validate_formula": {
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            return ok(scientificReasoningEngine.validateFormula(params as any));
+          }
+          case "sci_reason": {
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            return ok(scientificReasoningEngine.reason(params as any));
+          }
+          case "sci_reason_material": {
+            const { scientificReasoningEngine } = await import("../../engines/ScientificReasoningEngine.js");
+            return ok(scientificReasoningEngine.reasonMaterial(params as any));
+          }
+
+          // TemporalReasoningEngine (6 actions)
+          case "temporal_record": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok(temporalReasoningEngine.record(params.series as string, params.value as number, params.at, params.note));
+          }
+          case "temporal_snapshots": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok(temporalReasoningEngine.snapshots(params.series as string));
+          }
+          case "temporal_value_at": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok({ value: temporalReasoningEngine.valueAt(params.series as string, params.iso as string) });
+          }
+          case "temporal_project": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok(temporalReasoningEngine.project(params.series as string, params.windowSize as number | undefined));
+          }
+          case "temporal_forecast": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok(temporalReasoningEngine.forecast(params.series as string, params.target as number, params.windowSize, params.nowIso));
+          }
+          case "temporal_list": {
+            const { temporalReasoningEngine } = await import("../../engines/TemporalReasoningEngine.js");
+            return ok({ series: temporalReasoningEngine.listSeries() });
+          }
+
+          // ReasoningExplainerEngine (3 actions)
+          case "explain_recommendation": {
+            const { reasoningExplainerEngine } = await import("../../engines/ReasoningExplainerEngine.js");
+            return ok({ explanation: reasoningExplainerEngine.explainWhy(params.recommendation as string, params.chain as any, params.audience) });
+          }
+          case "explain_formula": {
+            const { reasoningExplainerEngine } = await import("../../engines/ReasoningExplainerEngine.js");
+            return ok({ explanation: reasoningExplainerEngine.explainFormula(params.formula as string, params.audience) });
+          }
+          case "explain_reading_level": {
+            const { reasoningExplainerEngine } = await import("../../engines/ReasoningExplainerEngine.js");
+            return ok({ label: reasoningExplainerEngine.getReadingLevelLabel(params.grade as number) });
+          }
+
+          // LatheAIReasoningEngine (4 actions)
+          case "lathe_reasoning": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            return ok(await latheAIReasoningEngine.reason(params as any));
+          }
+          case "lathe_reasoning_sequence": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            return ok(latheAIReasoningEngine.optimizeSequence(params.operations as any));
+          }
+          case "lathe_reasoning_params": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            return ok(latheAIReasoningEngine.optimizeParameters(params as any));
+          }
+          case "lathe_reasoning_controller": {
+            const { latheAIReasoningEngine } = await import("../../engines/LatheAIReasoningEngine.js");
+            return ok(latheAIReasoningEngine.getControllerRecommendations(params.controller as string));
+          }
+
+          // WEDMAnalogicalReasoningEngine (4 actions)
+          case "wedm_analogy_add": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            wedmAnalogicalReasoningEngine.addCase(params as any);
+            return ok({ success: true, size: wedmAnalogicalReasoningEngine.size() });
+          }
+          case "wedm_analogy_retrieve": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            return ok(wedmAnalogicalReasoningEngine.retrieve(params as any));
+          }
+          case "wedm_analogy_all": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            return ok(wedmAnalogicalReasoningEngine.allCases());
+          }
+          case "wedm_analogy_size": {
+            const { wedmAnalogicalReasoningEngine } = await import("../../engines/WEDMAnalogicalReasoningEngine.js");
+            return ok({ size: wedmAnalogicalReasoningEngine.size() });
+          }
+
+          // WEDMReasoningBridgeEngine (4 actions)
+          case "wedm_bridge_enrich": {
+            const { wedmReasoningBridgeEngine } = await import("../../engines/WEDMReasoningBridgeEngine.js");
+            return ok(wedmReasoningBridgeEngine.enrichContext(params as any));
+          }
+          case "wedm_bridge_decision": {
+            const { wedmReasoningBridgeEngine } = await import("../../engines/WEDMReasoningBridgeEngine.js");
+            wedmReasoningBridgeEngine.postDecision(params as any);
+            return ok({ success: true });
+          }
+          case "wedm_bridge_warning": {
+            const { wedmReasoningBridgeEngine } = await import("../../engines/WEDMReasoningBridgeEngine.js");
+            wedmReasoningBridgeEngine.postWarning(params as any);
+            return ok({ success: true });
+          }
+          case "wedm_bridge_stats": {
+            const { wedmReasoningBridgeEngine } = await import("../../engines/WEDMReasoningBridgeEngine.js");
+            return ok(wedmReasoningBridgeEngine.getStats());
+          }
+
+          // WEDMReasoningTraceLedgerEngine (4 actions)
+          case "wedm_trace_record": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            return ok(await wedmReasoningTraceLedgerEngine.recordTrace(params as any));
+          }
+          case "wedm_trace_recent": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            return ok(wedmReasoningTraceLedgerEngine.getRecent(params.limit as number | undefined));
+          }
+          case "wedm_trace_query": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            return ok(wedmReasoningTraceLedgerEngine.queryByDispatcher(params.dispatcher as string, params.limit as number | undefined));
+          }
+          case "wedm_trace_validate": {
+            const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
+            return ok(wedmReasoningTraceLedgerEngine.validate(params.candidate as any));
           }
 
           default:
