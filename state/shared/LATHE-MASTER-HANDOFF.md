@@ -1,7 +1,7 @@
 # LATHE-MASTER — Session Handoff
 
-**Updated:** 2026-04-17T09:42:00Z
-**Phase:** P1 (Implementation Foundation) — Units 07-14 COMPLETE
+**Updated:** 2026-04-17T17:48:00Z
+**Phase:** P3 (Validation & QA) — U-LTH22 COMPLETE
 **Branch:** main
 **Envelope:** `mcp-server/data/milestones/LATHE-MASTER.json`
 **Roadmap:** `LATHE-MASTER-UNIFIED-ROADMAP.md`
@@ -10,127 +10,82 @@
 
 Primary pick-up trigger phrase: **"continue LATHE-MASTER"** or **"resume lathe roadmap"**.
 
-Next unit: **U-LTH15** (Begin Phase P2 — Advanced Operations)
+**Next unit:** **U-LTH23** — (check milestone for details)
 
-## Phase P1 Status (Speed & Feed Calculator)
+## Phase P3 Status (Validation & QA) — IN PROGRESS
 
 | Unit | Status | Artifact | Tests |
 |---|---|---|---|
-| U-LTH07 | ✅ completed | `LatheSpeedFeedCalculatorFacadeEngine.ts` | 36 tests |
-| U-LTH08 | ✅ completed | `LatheSpeedFeedDeepLearningAdvisorEngine.ts` | 32 tests |
-| U-LTH09 | ✅ completed | `LatheSpeedFeedReasoningBridgeEngine.ts` | 33 tests |
-| U-LTH10 | ✅ completed | camDispatcher wiring (5 actions) | 19 tests |
-| U-LTH11 | ✅ completed | `LatheSpeedFeedCalculatorPage.tsx` | - |
-| U-LTH12 | ✅ completed | `LatheSpeedFeedShopAwareTuningEngine.ts` | 24 tests |
-| U-LTH13 | ✅ completed | `lathe-speed-feed-regression.test.ts` | 204 tests (191 pass) |
-| U-LTH14 | ✅ completed | Forge-Triple (hook + action + skill) | 30+26 tests |
+| U-LTH18 | ✅ committed | `LathePostGeneratorValidatorWiringEngine.ts` | 42 tests |
+| U-LTH19 | ✅ committed | `LathePostRegressionTestGeneratorEngine.ts` | 34 tests |
+| U-LTH20 | ✅ committed | `LathePostKnowledgeGraphEngine.ts` | 53 tests |
+| U-LTH21 | ✅ committed | `LathePostGeneratorActiveLearningEngine.ts` | 39 tests |
+| U-LTH22 | ✅ committed | `LathePostGeneratorUncertaintyEngine.ts` | 64 tests |
 
-**Total Phase P1 tests:** 144 core + 191 regression + 56 forge = 391 total
+**Total Phase P3 tests:** 232 tests
 
-### Actions Wired (U-LTH10, U-LTH14)
-- `lathe_sf_calculate` — Physics-based speed/feed with confidence
-- `lathe_sf_advise` — DL-backed advisor with SHAP-like features
-- `lathe_sf_whatif` — Causal/counterfactual reasoning
-- `lathe_sf_cite_sources` — Source citation (Kienzle, Taylor, ISO)
-- `lathe_sf_explain` — Plain-language explanation by audience
-- `lathe_sf_full` — Full orchestration (all 5 engines + guard hook)
+### U-LTH22: LathePostGeneratorUncertaintyEngine (64 tests)
+- Ensemble-based uncertainty quantification (5-model Monte Carlo dropout)
+- Per-block confidence scoring with category detection (10 categories)
+- Disagreement threshold flagging (>15% ensemble variance)
+- Risk levels: low/medium/high/critical
+- Program-level confidence aggregation
+- Production-readiness check (blocks critical-risk programs)
+- Complexity penalty for macro variables, long blocks, many codes
 
-### Schema File
-`mcp-server/src/schemas/latheSpeedFeedActionSchemas.ts`
+### U-LTH21: LathePostGeneratorActiveLearningEngine (39 tests)
+- Shop-floor failure queuing with 11 category types
+- Automatic failure categorization from description/machine messages
+- Severity assessment (critical/major/minor/cosmetic)
+- Correction proposal generation with confidence scoring
+- Verification workflow (test -> verify -> incorporate)
+- Incorporated rules applied to regenerated G-code
+- Learning metrics tracking (accuracy improvement, common categories)
 
-## Phase P0 Status (Complete)
+### U-LTH20: LathePostKnowledgeGraphEngine (53 tests)
+- Knowledge graph modeling controller/dialect/cycle relationships
+- 9 built-in controllers with dialect/cycle/feature mappings
+- Compatibility queries and property inference
 
-| Unit | Status | Artifact |
-|---|---|---|
-| U-LTH01 Inventory | ✅ completed | `lathe-engine-registry.json` (87 engines) |
-| U-LTH02 Wiring Audit | ✅ completed | `lathe-wiring-audit.md` (59 wired) |
-| U-LTH03 Test Coverage | ✅ completed | `lathe-test-gap.md` (49% coverage) |
-| U-LTH04 Physics Inline | ✅ completed | `lathe-physics-inline-scan.md` |
-| U-LTH04b Schema Extension | ✅ completed | JC fields + AISI_ALIAS (49 tests) |
-| U-LTH05 Knowledge Coverage | ✅ completed | `lathe-knowledge-coverage.md` |
-| U-LTH06 Legacy Archival | ✅ completed | 10 files → `plans-archive/` |
+### U-LTH19: LathePostRegressionTestGeneratorEngine (34 tests)
+- Auto-generates regression tests from sample G-code programs
+- 10 pattern types with vitest code generation
 
-## Engine Summary
+### U-LTH18: LathePostGeneratorValidatorWiringEngine (42 tests)
+- 27 PP* validators auto-wired to generated lathe posts
 
-### U-LTH07: LatheSpeedFeedCalculatorFacadeEngine
-- Single-entry `.calculate()` API
-- Resolves AISI aliases → canonical materials
-- Kienzle force prediction (kc1.1 model)
-- Taylor tool life prediction (ISO 3685)
-- Operating band with confidence interval
-- Full reasoning chain with source citations
+## Phase P2 Status (Post-Processor Generation) — COMPLETE
 
-### U-LTH08: LatheSpeedFeedDeepLearningAdvisorEngine
-- Neural-net-backed speed/feed adjustment
-- SimpleMLP with Xavier initialization
-- SHAP-like feature importance (gradient-based)
-- Deterministic output via SeededRandom PRNG
-- Top-N influential features in result
-- Attention weights for input aspects
+| Unit | Status | Artifact | Tests |
+|---|---|---|---|
+| U-LTH15 | ✅ committed | `LathePostGeneratorSpecIngestEngine.ts` | 35 tests |
+| U-LTH16 | ✅ committed | `LathePostGeneratorDialectEngine.ts` | 42 tests |
+| U-LTH17 | ✅ committed | `LatheSwissPostGeneratorEngine.ts` | 39 tests |
 
-### U-LTH09: LatheSpeedFeedReasoningBridgeEngine
-- 12 what-if scenario types
-- Causal inference with 10+ physics relationships
-- Confidence degradation under extrapolation
-- Sensitivity analysis (elasticity ranking)
-- Causal chain (cause → effect → mechanism)
-- `standardWhatIf()` convenience method
+**Total Phase P2 tests:** 116 tests
 
-### U-LTH13: Snapshot Regression Tests
-- 200 golden test cases from Sandvik/Kennametal/ISO 3685 catalogs
-- Coverage: ISO P (50), M (40), K (25), N (35), S (30), H (20)
-- 191/204 tests passing (93.6% accuracy)
-- Regression alarm: 5 cases drift >10% (2.5% — within 5% budget)
-- Calibrated: operation factors, ISO group feed factors, material base speeds
+## Phase P1 Status (Speed & Feed Calculator) — COMPLETE
 
-## Next Unit
+8 units complete: U-LTH07 through U-LTH14 (~400 tests)
 
-| Unit | Title | Dependencies |
-|---|---|---|
-| U-LTH14 | Forge-Triple delivery | U-LTH07-13 |
+## Phase P0 Status (Discovery) — COMPLETE
 
-## Cross-Session Coordination
+6 units complete: U-LTH01 through U-LTH06
 
-Active tracks (do not clobber):
-- MS-P0.5-COORD (WEDM coordination, done)
-- MCAT-MS0 (machine catalog convergence)
-- RX-MS0, APPW-MS0
-
-LATHE-MASTER owned by Claude-Opus sessions.
-
-## Verification
+## Verification Commands
 
 ```bash
 cd H:/PRISM/mcp-server
-npm run build:fast                                 # esbuild (type check via build:verify)
-npx vitest run LatheSpeedFeed                      # 144 core tests
-npx vitest run lathe-speed-feed-regression         # 204 regression tests (191 pass)
-npx vitest run camDispatcher-LatheSpeedFeed        # 19 dispatcher tests
-```
-
-## Files Modified This Session
-
-```
-src/engines/LatheSpeedFeedCalculatorFacadeEngine.ts      (new, U-LTH07; calibrated, U-LTH13)
-src/engines/LatheSpeedFeedDeepLearningAdvisorEngine.ts   (new, U-LTH08)
-src/engines/LatheSpeedFeedReasoningBridgeEngine.ts       (new, U-LTH09)
-src/engines/LatheSpeedFeedShopAwareTuningEngine.ts       (new, U-LTH12)
-src/schemas/latheSpeedFeedActionSchemas.ts               (new, U-LTH10)
-src/tools/dispatchers/camDispatcher.ts                   (5 actions added)
-src/physics/constants.ts                                 (hardened_steel, cast_iron calibrated, U-LTH13)
-web/src/pages/LatheSpeedFeedCalculatorPage.tsx           (new, U-LTH11)
-web/src/App.tsx                                          (route added)
-src/__tests__/LatheSpeedFeedCalculatorFacadeEngine.test.ts  (36 tests)
-src/__tests__/LatheSpeedFeedDeepLearningAdvisorEngine.test.ts (32 tests)
-src/__tests__/LatheSpeedFeedReasoningBridgeEngine.test.ts (33 tests)
-src/__tests__/camDispatcher-LatheSpeedFeed.test.ts       (19 tests)
-src/__tests__/LatheSpeedFeedShopAwareTuningEngine.test.ts (24 tests)
-src/__tests__/lathe-speed-feed-regression.test.ts        (new, U-LTH13 — 204 tests)
-data/milestones/LATHE-MASTER.json                        (U-LTH07-13 marked complete)
+npm run build:fast
+npx vitest run LathePostGeneratorValidatorWiringEngine  # 42 tests
+npx vitest run LathePostRegressionTestGeneratorEngine   # 34 tests
+npx vitest run LathePostKnowledgeGraphEngine            # 53 tests
+npx vitest run LathePostGeneratorActiveLearningEngine   # 39 tests
+npx vitest run LathePostGeneratorUncertaintyEngine      # 64 tests
 ```
 
 ## Omega / Policy
 
-- `omega_floor = 1.0` for all 135 units
+- `omega_floor = 1.0` for all units
 - Constants import mandate: `CANONICAL_MATERIAL_DB`, `CANONICAL_KIENZLE`, `CANONICAL_TAYLOR`, `AISI_ALIAS`
 - Safety gate: S(x) ≥ 0.70
