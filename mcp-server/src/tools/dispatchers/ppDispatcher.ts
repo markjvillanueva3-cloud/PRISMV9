@@ -314,6 +314,9 @@ let _ppCommentedCode: any;
 // PP-SIZE: Program size/complexity validator
 let _ppProgramSize: any;
 
+// PP-REDUN: Redundant modal re-issuance validator
+let _ppRedundantModal: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -557,6 +560,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppCommentedCode ??= (await import("../../engines/PPCommentedCodeValidatorEngine.js")).ppCommentedCodeValidatorEngine;
     case "programSize":
       return _ppProgramSize ??= (await import("../../engines/PPProgramSizeValidatorEngine.js")).ppProgramSizeValidatorEngine;
+    case "redundantModal":
+      return _ppRedundantModal ??= (await import("../../engines/PPRedundantModalValidatorEngine.js")).ppRedundantModalValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -936,20 +941,20 @@ const ACTIONS = [
   "pp_bs_quick",                   // Quick pass/fail + slash/stop counts
   "pp_bs_defaults",                // Default block-skip validator options
 
-  // PP-SS: Spindle state validator
-  "pp_ss_validate",                // Full spindle-state validation
-  "pp_ss_quick",                   // Quick pass/fail + M3/M4/M5 counts
-  "pp_ss_defaults",                // Default spindle-state validator options
+  // PP-SSTATE: Spindle state validator (renamed from pp_ss_* to resolve z.enum duplicate)
+  "pp_sstate_validate",            // Full spindle-state validation
+  "pp_sstate_quick",               // Quick pass/fail + M3/M4/M5 counts
+  "pp_sstate_defaults",            // Default spindle-state validator options
 
   // PP-TLC: Tool length compensation validator
   "pp_tlc_validate",               // Full G43/G44/G49 validation
   "pp_tlc_quick",                  // Quick pass/fail + G43 count
   "pp_tlc_defaults",               // Default TLC validator options
 
-  // PP-TC: Thread cycle validator (lathe G32/G33/G76/G92)
-  "pp_tc_validate",                // Full threading cycle validation
-  "pp_tc_quick",                   // Quick pass/fail + pass count
-  "pp_tc_defaults",                // Default thread cycle validator options
+  // PP-THREAD: Thread cycle validator (lathe G32/G33/G76/G92) (renamed from pp_tc_* to resolve z.enum duplicate)
+  "pp_thread_validate",            // Full threading cycle validation
+  "pp_thread_quick",               // Quick pass/fail + pass count
+  "pp_thread_defaults",            // Default thread cycle validator options
 
   // PP-CST: Coordinate system transform validator (G68/G51/mirror)
   "pp_cst_validate",               // Full transform validation
@@ -1000,9 +1005,10 @@ const ACTIONS = [
   "pp_mf_validate",                // Full macro-flow validation
   "pp_mf_quick",                   // Quick pass/fail + balanced + nesting
   "pp_mf_defaults",                // Default macro-flow validator options
-  "pp_ss_validate",                // Full safe-start block validation
-  "pp_ss_quick",                   // Quick pass/fail + missing-count
-  "pp_ss_defaults",                // Default safe-start validator options
+  // PP-SAFESTART: Safe-start block validator (renamed from pp_ss_* to resolve z.enum duplicate)
+  "pp_safestart_validate",         // Full safe-start block validation
+  "pp_safestart_quick",            // Quick pass/fail + missing-count
+  "pp_safestart_defaults",         // Default safe-start validator options
   "pp_char_validate",              // Byte-level char validation
   "pp_char_quick",                 // Quick pass/fail + BOM/non-ASCII count
   "pp_char_defaults",              // Default character validator options
@@ -1039,6 +1045,9 @@ const ACTIONS = [
   "pp_size_validate",              // Program size & complexity thresholds
   "pp_size_quick",                 // Quick pass/fail + block/tool/kb stats
   "pp_size_defaults",              // Default program-size options
+  "pp_redun_validate",             // Redundant modal re-issuance detection
+  "pp_redun_quick",                // Quick pass/fail + reissue counts
+  "pp_redun_defaults",             // Default redundant-modal options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -1267,7 +1276,13 @@ Actions: ${ACTIONS.join(", ")}.`,
           // ===== PP_VALIDATE actions =====
           case "pp_validate_program": {
             const engine = await getEngine("verification");
-            result = engine.validateProgram?.(params) ?? engine.verify?.(params) ?? { valid: true, warnings: [] };
+            // SAFETY: fail-closed when engine method missing. A vacuous {valid:true} let
+            // unvalidated programs ship as "passed". Callers must treat valid:false as a real failure.
+            result = engine.validateProgram?.(params) ?? engine.verify?.(params) ?? {
+              valid: false,
+              warnings: ["PostProcessorVerificationEngine.validateProgram/verify method not available — validation skipped (fail-closed)"],
+              errors: ["validator_unavailable"],
+            };
             break;
           }
           case "pp_validate_limits": {
@@ -2762,8 +2777,8 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
-          // ===== PP_SS (PP-SS — Spindle state validator) =====
-          case "pp_ss_validate": {
+          // ===== PP_SSTATE (PP-SSTATE — Spindle state validator, renamed from pp_ss_*) =====
+          case "pp_sstate_validate": {
             const engine = await getEngine("spindleState");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             const options = {
@@ -2777,13 +2792,13 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.validate(gcode, options);
             break;
           }
-          case "pp_ss_quick": {
+          case "pp_sstate_quick": {
             const engine = await getEngine("spindleState");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             result = engine.quickCheck(gcode);
             break;
           }
-          case "pp_ss_defaults": {
+          case "pp_sstate_defaults": {
             const engine = await getEngine("spindleState");
             result = engine.defaultOptions();
             break;
@@ -2815,8 +2830,8 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
-          // ===== PP_TC (PP-TC — Lathe thread cycle validator) =====
-          case "pp_tc_validate": {
+          // ===== PP_THREAD (PP-THREAD — Lathe thread cycle validator, renamed from pp_tc_*) =====
+          case "pp_thread_validate": {
             const engine = await getEngine("threadCycle");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             const options = {
@@ -2830,13 +2845,13 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.validate(gcode, options);
             break;
           }
-          case "pp_tc_quick": {
+          case "pp_thread_quick": {
             const engine = await getEngine("threadCycle");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             result = engine.quickCheck(gcode);
             break;
           }
-          case "pp_tc_defaults": {
+          case "pp_thread_defaults": {
             const engine = await getEngine("threadCycle");
             result = engine.defaultOptions();
             break;
@@ -3124,8 +3139,8 @@ Actions: ${ACTIONS.join(", ")}.`,
             break;
           }
 
-          // ===== PP_SS (PP-SS — Safe-start block validator) =====
-          case "pp_ss_validate": {
+          // ===== PP_SAFESTART (PP-SAFESTART — Safe-start block validator, renamed from pp_ss_*) =====
+          case "pp_safestart_validate": {
             const engine = await getEngine("safeStart");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             const options = {
@@ -3146,13 +3161,13 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.validate(gcode, options);
             break;
           }
-          case "pp_ss_quick": {
+          case "pp_safestart_quick": {
             const engine = await getEngine("safeStart");
             const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
             result = engine.quickCheck(gcode);
             break;
           }
-          case "pp_ss_defaults": {
+          case "pp_safestart_defaults": {
             const engine = await getEngine("safeStart");
             result = engine.defaultOptions();
             break;
@@ -3530,6 +3545,35 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_size_defaults": {
             const engine = await getEngine("programSize");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_REDUN (PP-REDUN — Redundant modal re-issuance) =====
+          case "pp_redun_validate": {
+            const engine = await getEngine("redundantModal");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_gcode_modal: params.check_gcode_modal,
+              check_feed: params.check_feed,
+              check_spindle_speed: params.check_spindle_speed,
+              check_tool_number: params.check_tool_number,
+              check_mcode_modal: params.check_mcode_modal,
+              check_safe_start_skip: params.check_safe_start_skip,
+              safe_start_window: params.safe_start_window,
+              min_repeats_to_report: params.min_repeats_to_report,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_redun_quick": {
+            const engine = await getEngine("redundantModal");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_redun_defaults": {
+            const engine = await getEngine("redundantModal");
             result = engine.defaultOptions();
             break;
           }
