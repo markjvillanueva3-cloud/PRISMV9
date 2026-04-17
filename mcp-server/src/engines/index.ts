@@ -6606,6 +6606,20 @@ export {
   type MultiConsumerBindings,
 } from './MachineConsumerBindingEngine.js';
 
+export {
+  machinePackageAPIEngine,
+  type APIResponse,
+  type PackageListOptions,
+  type PackageSearchOptions,
+  type PackageListResult,
+  type PackageSummary,
+  type PackageDetail,
+  type CapabilityQueryResult,
+  type CompatibilityCheckInput,
+  type CompatibilityCheckResult,
+  type CoverageStats,
+} from './MachinePackageAPIEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
@@ -6699,3 +6713,14 @@ export {
   type MeasurementSummary,
   type PartQualityTrend,
 } from './MeasureSummaryEngine.js';
+
+// MILL-AGI P0.5: Engine Accuracy Tracker
+export {
+  EngineAccuracyTrackerEngine,
+  engineAccuracyTrackerEngine,
+  type PredictionOutcome,
+  type MetricAccuracyStats,
+  type EngineAccuracySummary,
+  type AccuracyReport,
+  type DegradationAlert,
+} from './EngineAccuracyTrackerEngine.js';
