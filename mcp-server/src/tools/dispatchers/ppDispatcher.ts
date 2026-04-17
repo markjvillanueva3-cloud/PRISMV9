@@ -317,6 +317,9 @@ let _ppProgramSize: any;
 // PP-REDUN: Redundant modal re-issuance validator
 let _ppRedundantModal: any;
 
+// PP-G10: G10 data-set block validator
+let _ppG10DataSet: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -562,6 +565,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppProgramSize ??= (await import("../../engines/PPProgramSizeValidatorEngine.js")).ppProgramSizeValidatorEngine;
     case "redundantModal":
       return _ppRedundantModal ??= (await import("../../engines/PPRedundantModalValidatorEngine.js")).ppRedundantModalValidatorEngine;
+    case "g10DataSet":
+      return _ppG10DataSet ??= (await import("../../engines/PPG10DataSetValidatorEngine.js")).ppG10DataSetValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1048,6 +1053,9 @@ const ACTIONS = [
   "pp_redun_validate",             // Redundant modal re-issuance detection
   "pp_redun_quick",                // Quick pass/fail + reissue counts
   "pp_redun_defaults",             // Default redundant-modal options
+  "pp_g10_validate",               // G10 data-set block validation
+  "pp_g10_quick",                  // Quick pass/fail + G10 block count
+  "pp_g10_defaults",               // Default G10 validation options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3574,6 +3582,39 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_redun_defaults": {
             const engine = await getEngine("redundantModal");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_G10 (PP-G10 — G10 data-set block validation) =====
+          case "pp_g10_validate": {
+            const engine = await getEngine("g10DataSet");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_missing_l: params.check_missing_l,
+              check_invalid_l: params.check_invalid_l,
+              check_missing_p: params.check_missing_p,
+              check_p_range: params.check_p_range,
+              check_p_zero: params.check_p_zero,
+              check_missing_axis: params.check_missing_axis,
+              check_missing_r: params.check_missing_r,
+              check_data_entry_balance: params.check_data_entry_balance,
+              check_tool_offset_range: params.check_tool_offset_range,
+              max_wcs_p: params.max_wcs_p,
+              max_tool_offsets: params.max_tool_offsets,
+              allowed_l_values: params.allowed_l_values,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_g10_quick": {
+            const engine = await getEngine("g10DataSet");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_g10_defaults": {
+            const engine = await getEngine("g10DataSet");
             result = engine.defaultOptions();
             break;
           }
