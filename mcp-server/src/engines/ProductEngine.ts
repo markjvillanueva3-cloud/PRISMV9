@@ -30,6 +30,7 @@ import {
   type SurfaceFinishResult,
   type MRRResult,
 } from "./ManufacturingCalculations.js";
+import { CANONICAL_MATERIAL_DB, CANONICAL_TAYLOR } from "../physics/constants.js";
 
 import {
   calculateStabilityLobes,
@@ -455,26 +456,37 @@ export interface SFCOptimizeResult {
 }
 
 // ─── Material Hardness Lookup ───────────────────────────────────────────────
-
-const MATERIAL_HARDNESS: Record<string, { hardness: number; group: string; kc1_1: number; mc: number; C: number; n: number }> = {
-  "1045": { hardness: 200, group: "steel_medium_carbon", kc1_1: 1800, mc: 0.25, C: 250, n: 0.25 },
-  "4140": { hardness: 280, group: "steel_alloy", kc1_1: 2000, mc: 0.25, C: 220, n: 0.22 },
-  "4340": { hardness: 300, group: "steel_alloy", kc1_1: 2100, mc: 0.25, C: 200, n: 0.20 },
-  "316": { hardness: 180, group: "stainless_austenitic", kc1_1: 2100, mc: 0.21, C: 180, n: 0.20 },
-  "316L": { hardness: 170, group: "stainless_austenitic", kc1_1: 2050, mc: 0.21, C: 180, n: 0.20 },
-  "304": { hardness: 170, group: "stainless_austenitic", kc1_1: 2000, mc: 0.21, C: 190, n: 0.20 },
-  "6061": { hardness: 95, group: "aluminum_wrought", kc1_1: 700, mc: 0.30, C: 800, n: 0.30 },
-  "6061-T6": { hardness: 95, group: "aluminum_wrought", kc1_1: 700, mc: 0.30, C: 800, n: 0.30 },
-  "7075": { hardness: 150, group: "aluminum_wrought", kc1_1: 750, mc: 0.28, C: 700, n: 0.28 },
-  "7075-T6": { hardness: 150, group: "aluminum_wrought", kc1_1: 750, mc: 0.28, C: 700, n: 0.28 },
-  "A356": { hardness: 80, group: "aluminum_cast", kc1_1: 600, mc: 0.28, C: 900, n: 0.32 },
-  "Ti-6Al-4V": { hardness: 334, group: "titanium", kc1_1: 2800, mc: 0.28, C: 80, n: 0.18 },
-  "Inconel 718": { hardness: 380, group: "superalloy", kc1_1: 2800, mc: 0.22, C: 50, n: 0.15 },
-  "GG25": { hardness: 190, group: "cast_iron_gray", kc1_1: 1100, mc: 0.28, C: 300, n: 0.25 },
-  "GGG50": { hardness: 220, group: "cast_iron_ductile", kc1_1: 1300, mc: 0.26, C: 280, n: 0.24 },
-  "C360": { hardness: 80, group: "copper_brass", kc1_1: 550, mc: 0.32, C: 600, n: 0.30 },
-  "PEEK": { hardness: 100, group: "plastic_engineering", kc1_1: 250, mc: 0.35, C: 1000, n: 0.35 },
+// Product-specific extensions (hardness, group) + canonical Kienzle/Taylor values
+type MatExt = { canonical_key: string; hardness: number; group: string };
+const PRODUCT_MAT_EXT: Record<string, MatExt> = {
+  "1045":       { canonical_key: "carbon_steel",   hardness: 200, group: "steel_medium_carbon" },
+  "4140":       { canonical_key: "alloy_steel",    hardness: 280, group: "steel_alloy" },
+  "4340":       { canonical_key: "alloy_steel",    hardness: 300, group: "steel_alloy" },
+  "316":        { canonical_key: "stainless_316",  hardness: 180, group: "stainless_austenitic" },
+  "316L":       { canonical_key: "stainless_316",  hardness: 170, group: "stainless_austenitic" },
+  "304":        { canonical_key: "stainless_304",  hardness: 170, group: "stainless_austenitic" },
+  "6061":       { canonical_key: "aluminum_6061",  hardness: 95,  group: "aluminum_wrought" },
+  "6061-T6":    { canonical_key: "aluminum_6061",  hardness: 95,  group: "aluminum_wrought" },
+  "7075":       { canonical_key: "aluminum_7075",  hardness: 150, group: "aluminum_wrought" },
+  "7075-T6":    { canonical_key: "aluminum_7075",  hardness: 150, group: "aluminum_wrought" },
+  "A356":       { canonical_key: "aluminum_6061",  hardness: 80,  group: "aluminum_cast" },
+  "Ti-6Al-4V":  { canonical_key: "titanium_gr5",   hardness: 334, group: "titanium" },
+  "Inconel 718":{ canonical_key: "inconel_718",    hardness: 380, group: "superalloy" },
+  "GG25":       { canonical_key: "cast_iron_gray", hardness: 190, group: "cast_iron_gray" },
+  "GGG50":      { canonical_key: "cast_iron_ductile", hardness: 220, group: "cast_iron_ductile" },
+  "C360":       { canonical_key: "brass_free",     hardness: 80,  group: "copper_brass" },
+  "PEEK":       { canonical_key: "carbon_steel",   hardness: 100, group: "plastic_engineering" }, // fallback for plastics
 };
+
+const MATERIAL_HARDNESS: Record<string, { hardness: number; group: string; kc1_1: number; mc: number; C: number; n: number }> =
+  Object.fromEntries(Object.entries(PRODUCT_MAT_EXT).map(([name, ext]) => {
+    const canon = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? { kc1_1: 1800, mc: 0.25, taylor_C: 250, taylor_n: 0.25 };
+    return [name, {
+      hardness: ext.hardness, group: ext.group,
+      kc1_1: canon.kc1_1, mc: canon.mc,
+      C: canon.taylor_C ?? CANONICAL_TAYLOR.P.C, n: canon.taylor_n ?? CANONICAL_TAYLOR.P.n,
+    }];
+  }));
 
 // ─── SFC Engine Functions ───────────────────────────────────────────────────
 

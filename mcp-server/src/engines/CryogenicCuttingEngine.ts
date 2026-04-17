@@ -17,6 +17,8 @@
  *   Hong & Ding (2001) — Cryogenic machining friction model
  */
 
+import { CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -154,33 +156,22 @@ interface MaterialProps {
   Ra_ratio_cryo: number;   // Ra_cryo / Ra_dry
 }
 
-const MATERIALS: Record<string, MaterialProps> = {
-  'Ti-6Al-4V': {
-    sigma_y_MPa: 880, E_GPa: 114, alpha_per_K: 8.6e-6, k_W_mK: 6.7,
-    phase_transform_C: 882, kc1_1: 2800, mc: 0.28,
-    C_str: 0.0008, n_str: 1.0, k_f: 0.15, dry_mu: 0.45, Ra_ratio_cryo: 0.75,
-  },
-  'Inconel 718': {
-    sigma_y_MPa: 1035, E_GPa: 205, alpha_per_K: 13e-6, k_W_mK: 11.4,
-    phase_transform_C: 720, kc1_1: 2800, mc: 0.25,
-    C_str: 0.0006, n_str: 1.0, k_f: 0.12, dry_mu: 0.50, Ra_ratio_cryo: 0.78,
-  },
-  'AISI 4140': {
-    sigma_y_MPa: 655, E_GPa: 200, alpha_per_K: 12.3e-6, k_W_mK: 42.7,
-    phase_transform_C: 727, kc1_1: 1500, mc: 0.26,
-    C_str: 0.0003, n_str: 1.0, k_f: 0.30, dry_mu: 0.40, Ra_ratio_cryo: 0.85,
-  },
-  'AISI 316L': {
-    sigma_y_MPa: 205, E_GPa: 193, alpha_per_K: 16e-6, k_W_mK: 16.3,
-    phase_transform_C: null, kc1_1: 2100, mc: 0.22,
-    C_str: 0.0010, n_str: 1.0, k_f: 0.20, dry_mu: 0.42, Ra_ratio_cryo: 0.80,
-  },
-  'Al 7075-T6': {
-    sigma_y_MPa: 503, E_GPa: 71.7, alpha_per_K: 23.6e-6, k_W_mK: 130,
-    phase_transform_C: null, kc1_1: 750, mc: 0.18,
-    C_str: 0.0002, n_str: 1.0, k_f: 0.25, dry_mu: 0.35, Ra_ratio_cryo: 0.90,
-  },
+// Cryogenic-specific extensions (thermal, phase change, friction, surface finish)
+type CryoExt = Omit<MaterialProps, 'kc1_1' | 'mc'> & { canonical_key: string };
+const CRYO_EXTENSIONS: Record<string, CryoExt> = {
+  'Ti-6Al-4V':   { canonical_key: 'titanium_gr5',  sigma_y_MPa: 880, E_GPa: 114, alpha_per_K: 8.6e-6, k_W_mK: 6.7, phase_transform_C: 882, C_str: 0.0008, n_str: 1.0, k_f: 0.15, dry_mu: 0.45, Ra_ratio_cryo: 0.75 },
+  'Inconel 718': { canonical_key: 'inconel_718',   sigma_y_MPa: 1035, E_GPa: 205, alpha_per_K: 13e-6, k_W_mK: 11.4, phase_transform_C: 720, C_str: 0.0006, n_str: 1.0, k_f: 0.12, dry_mu: 0.50, Ra_ratio_cryo: 0.78 },
+  'AISI 4140':   { canonical_key: 'alloy_steel',   sigma_y_MPa: 655, E_GPa: 200, alpha_per_K: 12.3e-6, k_W_mK: 42.7, phase_transform_C: 727, C_str: 0.0003, n_str: 1.0, k_f: 0.30, dry_mu: 0.40, Ra_ratio_cryo: 0.85 },
+  'AISI 316L':   { canonical_key: 'stainless_316', sigma_y_MPa: 205, E_GPa: 193, alpha_per_K: 16e-6, k_W_mK: 16.3, phase_transform_C: null, C_str: 0.0010, n_str: 1.0, k_f: 0.20, dry_mu: 0.42, Ra_ratio_cryo: 0.80 },
+  'Al 7075-T6':  { canonical_key: 'aluminum_7075', sigma_y_MPa: 503, E_GPa: 71.7, alpha_per_K: 23.6e-6, k_W_mK: 130, phase_transform_C: null, C_str: 0.0002, n_str: 1.0, k_f: 0.25, dry_mu: 0.35, Ra_ratio_cryo: 0.90 },
 };
+
+const MATERIALS: Record<string, MaterialProps> = Object.fromEntries(
+  Object.entries(CRYO_EXTENSIONS).map(([name, ext]) => {
+    const canonical = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? { kc1_1: 1800, mc: 0.25 };
+    return [name, { kc1_1: canonical.kc1_1, mc: canonical.mc, ...ext }];
+  })
+);
 
 // ============================================================================
 // K_CRYO FACTORS (tool life multipliers from published data)

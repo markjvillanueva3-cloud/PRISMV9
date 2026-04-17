@@ -11,6 +11,8 @@
  * Source: PRISM_CONSTRAINED_OPTIMIZER, PRISM_MULTI_OBJECTIVE_ENGINE, PRISM_ACO_SEQUENCER
  */
 
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR, CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+
 // ============================================================================
 // P-MS2 WAVE 2: OPTIMIZATION SOURCE FILE CATALOG
 // 25 extracted JS modules from H:\prism\extracted\engines\optimization\
@@ -396,15 +398,31 @@ interface MatOpt {
   energy_factor: number; // kWh per cm³ removed
 }
 
-const MAT_DB: Record<string, MatOpt> = {
-  'AISI 4140': { kc1_1: 2100, mc: 0.25, density: 7850, handbook_vc_min: 120, handbook_vc_max: 300, taylor_C: 300, taylor_n: 0.25, machinability_index: 0.65, energy_factor: 0.035 },
-  'AISI 1045': { kc1_1: 1800, mc: 0.26, density: 7870, handbook_vc_min: 150, handbook_vc_max: 350, taylor_C: 350, taylor_n: 0.25, machinability_index: 1.0, energy_factor: 0.030 },
-  '6061-T6':   { kc1_1: 800,  mc: 0.23, density: 2700, handbook_vc_min: 200, handbook_vc_max: 600, taylor_C: 800, taylor_n: 0.40, machinability_index: 4.0, energy_factor: 0.012 },
-  '7075-T6':   { kc1_1: 900,  mc: 0.23, density: 2810, handbook_vc_min: 180, handbook_vc_max: 500, taylor_C: 700, taylor_n: 0.35, machinability_index: 3.5, energy_factor: 0.014 },
-  'Ti-6Al-4V': { kc1_1: 2800, mc: 0.28, density: 4430, handbook_vc_min: 30,  handbook_vc_max: 90,  taylor_C: 100, taylor_n: 0.20, machinability_index: 0.20, energy_factor: 0.060 },
-  'Inconel 718': { kc1_1: 2800, mc: 0.25, density: 8190, handbook_vc_min: 20, handbook_vc_max: 60,  taylor_C: 60,  taylor_n: 0.15, machinability_index: 0.10, energy_factor: 0.080 },
-  '316L':      { kc1_1: 2200, mc: 0.25, density: 8000, handbook_vc_min: 100, handbook_vc_max: 250, taylor_C: 180, taylor_n: 0.20, machinability_index: 0.45, energy_factor: 0.040 },
+// Optimization-specific extensions (handbook speeds, machinability, energy)
+type OptExt = Omit<MatOpt, 'kc1_1' | 'mc' | 'taylor_C' | 'taylor_n'> & { canonical_key: string };
+const OPT_EXTENSIONS: Record<string, OptExt> = {
+  'AISI 4140':   { canonical_key: 'alloy_steel',   density: 7850, handbook_vc_min: 120, handbook_vc_max: 300, machinability_index: 0.65, energy_factor: 0.035 },
+  'AISI 1045':   { canonical_key: 'carbon_steel',  density: 7870, handbook_vc_min: 150, handbook_vc_max: 350, machinability_index: 1.0,  energy_factor: 0.030 },
+  '6061-T6':     { canonical_key: 'aluminum_6061', density: 2700, handbook_vc_min: 200, handbook_vc_max: 600, machinability_index: 4.0,  energy_factor: 0.012 },
+  '7075-T6':     { canonical_key: 'aluminum_7075', density: 2810, handbook_vc_min: 180, handbook_vc_max: 500, machinability_index: 3.5,  energy_factor: 0.014 },
+  'Ti-6Al-4V':   { canonical_key: 'titanium_gr5',  density: 4430, handbook_vc_min: 30,  handbook_vc_max: 90,  machinability_index: 0.20, energy_factor: 0.060 },
+  'Inconel 718': { canonical_key: 'inconel_718',   density: 8190, handbook_vc_min: 20,  handbook_vc_max: 60,  machinability_index: 0.10, energy_factor: 0.080 },
+  '316L':        { canonical_key: 'stainless_316', density: 8000, handbook_vc_min: 100, handbook_vc_max: 250, machinability_index: 0.45, energy_factor: 0.040 },
 };
+
+const MAT_DB: Record<string, MatOpt> = Object.fromEntries(
+  Object.entries(OPT_EXTENSIONS).map(([name, ext]) => {
+    const canonical = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? CANONICAL_MATERIAL_DB['carbon_steel'];
+    return [name, {
+      kc1_1: canonical.kc1_1, mc: canonical.mc,
+      taylor_C: canonical.taylor_C ?? CANONICAL_TAYLOR.P.C,
+      taylor_n: canonical.taylor_n ?? CANONICAL_TAYLOR.P.n,
+      density: ext.density,
+      handbook_vc_min: ext.handbook_vc_min, handbook_vc_max: ext.handbook_vc_max,
+      machinability_index: ext.machinability_index, energy_factor: ext.energy_factor,
+    }];
+  })
+);
 
 function getMatOpt(name: string): MatOpt {
   if (MAT_DB[name]) return MAT_DB[name];

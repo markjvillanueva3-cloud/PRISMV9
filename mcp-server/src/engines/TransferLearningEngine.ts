@@ -22,6 +22,8 @@
  * @module TransferLearningEngine
  */
 
+import { CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 /** Standard PRISM return wrapper with generic payload. */
@@ -237,57 +239,31 @@ export interface ValidateTransferResult {
 }
 
 // ─── Internal Material Database ────────────────────────────────────
-
-const MATERIAL_DB: MaterialEntry[] = [
-  {
-    name: 'AISI 1045', hardness_hb: 200, machinability_index: 0.55,
-    kc1_1: 2100, sigma_y: 530, thermal_conductivity: 49.8,
-  },
-  {
-    name: 'AISI 1212', hardness_hb: 160, machinability_index: 1.00,
-    kc1_1: 1700, sigma_y: 340, thermal_conductivity: 51.9,
-  },
-  {
-    name: 'AISI 4140', hardness_hb: 235, machinability_index: 0.45,
-    kc1_1: 2200, sigma_y: 655, thermal_conductivity: 42.7,
-  },
-  {
-    name: 'AISI 304', hardness_hb: 190, machinability_index: 0.36,
-    kc1_1: 2500, sigma_y: 215, thermal_conductivity: 16.2,
-  },
-  {
-    name: 'AISI 316', hardness_hb: 217, machinability_index: 0.32,
-    kc1_1: 2600, sigma_y: 205, thermal_conductivity: 16.3,
-  },
-  {
-    name: 'Ti-6Al-4V', hardness_hb: 334, machinability_index: 0.22,
-    kc1_1: 1800, sigma_y: 880, thermal_conductivity: 6.7,
-  },
-  {
-    name: 'Inconel 718', hardness_hb: 360, machinability_index: 0.12,
-    kc1_1: 3000, sigma_y: 1035, thermal_conductivity: 11.4,
-  },
-  {
-    name: 'Al 6061-T6', hardness_hb: 95, machinability_index: 1.80,
-    kc1_1: 800, sigma_y: 276, thermal_conductivity: 167,
-  },
-  {
-    name: 'Al 7075-T6', hardness_hb: 150, machinability_index: 1.40,
-    kc1_1: 900, sigma_y: 503, thermal_conductivity: 130,
-  },
-  {
-    name: 'C360 Brass', hardness_hb: 120, machinability_index: 2.00,
-    kc1_1: 700, sigma_y: 310, thermal_conductivity: 115,
-  },
-  {
-    name: 'Gray Cast Iron', hardness_hb: 220, machinability_index: 0.65,
-    kc1_1: 1200, sigma_y: 250, thermal_conductivity: 46,
-  },
-  {
-    name: 'Ductile Iron', hardness_hb: 250, machinability_index: 0.50,
-    kc1_1: 1500, sigma_y: 400, thermal_conductivity: 36,
-  },
+// Transfer learning extensions: machinability, hardness, yield stress, thermal conductivity
+type TransferExt = Omit<MaterialEntry, 'kc1_1'> & { canonical_key: string };
+const TRANSFER_EXTENSIONS: TransferExt[] = [
+  { name: 'AISI 1045',     canonical_key: 'carbon_steel',   hardness_hb: 200, machinability_index: 0.55, sigma_y: 530,  thermal_conductivity: 49.8 },
+  { name: 'AISI 1212',     canonical_key: 'carbon_steel',   hardness_hb: 160, machinability_index: 1.00, sigma_y: 340,  thermal_conductivity: 51.9 },
+  { name: 'AISI 4140',     canonical_key: 'alloy_steel',    hardness_hb: 235, machinability_index: 0.45, sigma_y: 655,  thermal_conductivity: 42.7 },
+  { name: 'AISI 304',      canonical_key: 'stainless_304',  hardness_hb: 190, machinability_index: 0.36, sigma_y: 215,  thermal_conductivity: 16.2 },
+  { name: 'AISI 316',      canonical_key: 'stainless_316',  hardness_hb: 217, machinability_index: 0.32, sigma_y: 205,  thermal_conductivity: 16.3 },
+  { name: 'Ti-6Al-4V',     canonical_key: 'titanium_gr5',   hardness_hb: 334, machinability_index: 0.22, sigma_y: 880,  thermal_conductivity: 6.7 },
+  { name: 'Inconel 718',   canonical_key: 'inconel_718',    hardness_hb: 360, machinability_index: 0.12, sigma_y: 1035, thermal_conductivity: 11.4 },
+  { name: 'Al 6061-T6',    canonical_key: 'aluminum_6061',  hardness_hb: 95,  machinability_index: 1.80, sigma_y: 276,  thermal_conductivity: 167 },
+  { name: 'Al 7075-T6',    canonical_key: 'aluminum_7075',  hardness_hb: 150, machinability_index: 1.40, sigma_y: 503,  thermal_conductivity: 130 },
+  { name: 'C360 Brass',    canonical_key: 'brass_free',     hardness_hb: 120, machinability_index: 2.00, sigma_y: 310,  thermal_conductivity: 115 },
+  { name: 'Gray Cast Iron',canonical_key: 'cast_iron_gray', hardness_hb: 220, machinability_index: 0.65, sigma_y: 250,  thermal_conductivity: 46 },
+  { name: 'Ductile Iron',  canonical_key: 'cast_iron_ductile', hardness_hb: 250, machinability_index: 0.50, sigma_y: 400, thermal_conductivity: 36 },
 ];
+
+const MATERIAL_DB: MaterialEntry[] = TRANSFER_EXTENSIONS.map(ext => ({
+  name: ext.name,
+  hardness_hb: ext.hardness_hb,
+  machinability_index: ext.machinability_index,
+  kc1_1: CANONICAL_MATERIAL_DB[ext.canonical_key]?.kc1_1 ?? 1800,
+  sigma_y: ext.sigma_y,
+  thermal_conductivity: ext.thermal_conductivity,
+}));
 
 // ─── Engine ────────────────────────────────────────────────────────
 

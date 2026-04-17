@@ -26,6 +26,8 @@
  *   Darcy-Weisbach — Pressure drop in pipes
  */
 
+import { CANONICAL_KIENZLE, CANONICAL_TAYLOR } from "../physics/constants.js";
+
 // ============================================================================
 // TYPES
 // ============================================================================
@@ -235,38 +237,34 @@ interface DeepHoleMaterial {
   machinability_factor: number;    // relative to AISI 1045 = 1.0
 }
 
-const MATERIAL_DB: Record<string, DeepHoleMaterial> = {
-  'mild_steel': {
-    kc1_1: 1780, mc: 0.26, E_GPa: 210, density_kg_m3: 7850,
-    thermal_cond_W_mK: 51.9, taylor_C: 350, taylor_n: 0.25, taylor_m: 0.15,
-    hardness_HB: 130, chip_compression_ratio: 2.5, machinability_factor: 1.2,
-  },
-  'alloy_steel': {
-    kc1_1: 2100, mc: 0.25, E_GPa: 210, density_kg_m3: 7850,
-    thermal_cond_W_mK: 42.7, taylor_C: 250, taylor_n: 0.22, taylor_m: 0.18,
-    hardness_HB: 250, chip_compression_ratio: 2.8, machinability_factor: 0.7,
-  },
-  'stainless_steel': {
-    kc1_1: 2350, mc: 0.22, E_GPa: 193, density_kg_m3: 7900,
-    thermal_cond_W_mK: 16.3, taylor_C: 180, taylor_n: 0.20, taylor_m: 0.20,
-    hardness_HB: 200, chip_compression_ratio: 3.0, machinability_factor: 0.55,
-  },
-  'cast_iron': {
-    kc1_1: 1150, mc: 0.28, E_GPa: 170, density_kg_m3: 7200,
-    thermal_cond_W_mK: 46, taylor_C: 400, taylor_n: 0.28, taylor_m: 0.12,
-    hardness_HB: 200, chip_compression_ratio: 1.8, machinability_factor: 1.3,
-  },
-  'aluminum': {
-    kc1_1: 750, mc: 0.18, E_GPa: 71, density_kg_m3: 2700,
-    thermal_cond_W_mK: 167, taylor_C: 800, taylor_n: 0.35, taylor_m: 0.10,
-    hardness_HB: 95, chip_compression_ratio: 2.0, machinability_factor: 2.5,
-  },
-  'titanium': {
-    kc1_1: 2800, mc: 0.28, E_GPa: 114, density_kg_m3: 4430,
-    thermal_cond_W_mK: 6.7, taylor_C: 120, taylor_n: 0.18, taylor_m: 0.22,
-    hardness_HB: 330, chip_compression_ratio: 3.2, machinability_factor: 0.35,
-  },
+// Deep-hole-specific extensions (thermal, hardness, chip behavior, machinability)
+const DEEP_HOLE_EXTENSIONS: Record<string, Omit<DeepHoleMaterial, 'kc1_1' | 'mc' | 'taylor_C' | 'taylor_n'>> = {
+  'mild_steel':     { E_GPa: 210, density_kg_m3: 7850, thermal_cond_W_mK: 51.9, taylor_m: 0.15, hardness_HB: 130, chip_compression_ratio: 2.5, machinability_factor: 1.2 },
+  'alloy_steel':    { E_GPa: 210, density_kg_m3: 7850, thermal_cond_W_mK: 42.7, taylor_m: 0.18, hardness_HB: 250, chip_compression_ratio: 2.8, machinability_factor: 0.7 },
+  'stainless_steel':{ E_GPa: 193, density_kg_m3: 7900, thermal_cond_W_mK: 16.3, taylor_m: 0.20, hardness_HB: 200, chip_compression_ratio: 3.0, machinability_factor: 0.55 },
+  'cast_iron':      { E_GPa: 170, density_kg_m3: 7200, thermal_cond_W_mK: 46,   taylor_m: 0.12, hardness_HB: 200, chip_compression_ratio: 1.8, machinability_factor: 1.3 },
+  'aluminum':       { E_GPa: 71,  density_kg_m3: 2700, thermal_cond_W_mK: 167,  taylor_m: 0.10, hardness_HB: 95,  chip_compression_ratio: 2.0, machinability_factor: 2.5 },
+  'titanium':       { E_GPa: 114, density_kg_m3: 4430, thermal_cond_W_mK: 6.7,  taylor_m: 0.22, hardness_HB: 330, chip_compression_ratio: 3.2, machinability_factor: 0.35 },
 };
+
+// Material → ISO group mapping for canonical lookup
+const MATERIAL_ISO_MAP: Record<string, 'P' | 'M' | 'K' | 'N' | 'S'> = {
+  'mild_steel': 'P', 'alloy_steel': 'P', 'stainless_steel': 'M',
+  'cast_iron': 'K', 'aluminum': 'N', 'titanium': 'S',
+};
+
+const MATERIAL_DB: Record<string, DeepHoleMaterial> = Object.fromEntries(
+  Object.entries(DEEP_HOLE_EXTENSIONS).map(([name, ext]) => {
+    const iso = MATERIAL_ISO_MAP[name];
+    return [name, {
+      kc1_1: CANONICAL_KIENZLE[iso].kc1_1,
+      mc: CANONICAL_KIENZLE[iso].mc,
+      taylor_C: CANONICAL_TAYLOR[iso].C,
+      taylor_n: CANONICAL_TAYLOR[iso].n,
+      ...ext,
+    }];
+  })
+);
 
 // ============================================================================
 // DRILL DATABASE

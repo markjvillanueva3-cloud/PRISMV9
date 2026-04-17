@@ -18,6 +18,8 @@
  *   Arrazola et al. (2013) "Recent advances in modelling of metal machining processes"
  */
 
+import { CANONICAL_MATERIAL_DB } from "../physics/constants.js";
+
 // ─── Types ─────────────────────────────────────────────────────────
 
 /** Standard PRISM return wrapper with generic payload. */
@@ -95,38 +97,29 @@ interface MaterialEntry {
   friction_angle_deg: { mean: number; cv: number };
 }
 
-const MATERIAL_DB: Record<string, MaterialEntry> = {
-  "Ti-6Al-4V": {
-    kc1_1: { mean: 1680, cv: 0.08 },    // High scatter, alpha-beta microstructure sensitive
-    mc:    { mean: 0.23, cv: 0.10 },
-    yield_mpa: { mean: 880, cv: 0.05 },
-    friction_angle_deg: { mean: 38, cv: 0.08 },
-  },
-  "AISI 4140": {
-    kc1_1: { mean: 1820, cv: 0.06 },
-    mc:    { mean: 0.26, cv: 0.07 },
-    yield_mpa: { mean: 655, cv: 0.04 },
-    friction_angle_deg: { mean: 32, cv: 0.06 },
-  },
-  "Al 7075-T6": {
-    kc1_1: { mean: 790, cv: 0.05 },     // Aluminum: lower scatter
-    mc:    { mean: 0.23, cv: 0.06 },
-    yield_mpa: { mean: 503, cv: 0.03 },
-    friction_angle_deg: { mean: 28, cv: 0.05 },
-  },
-  "Inconel 718": {
-    kc1_1: { mean: 2650, cv: 0.10 },    // Nickel superalloy: highest scatter
-    mc:    { mean: 0.25, cv: 0.12 },
-    yield_mpa: { mean: 1035, cv: 0.06 },
-    friction_angle_deg: { mean: 42, cv: 0.09 },
-  },
-  "AISI 316L": {
-    kc1_1: { mean: 2100, cv: 0.07 },    // Austenitic stainless
-    mc:    { mean: 0.25, cv: 0.08 },
-    yield_mpa: { mean: 290, cv: 0.05 },
-    friction_angle_deg: { mean: 35, cv: 0.07 },
-  },
+// Stochastic extensions: CV (coefficient of variation) from Arrazola (2013) and ASM handbooks
+const STOCHASTIC_EXTENSIONS: Record<string, {
+  canonical_key: string; kc1_1_cv: number; mc_cv: number;
+  yield_mpa: { mean: number; cv: number }; friction_angle_deg: { mean: number; cv: number };
+}> = {
+  "Ti-6Al-4V":   { canonical_key: "titanium_gr5",  kc1_1_cv: 0.08, mc_cv: 0.10, yield_mpa: { mean: 880, cv: 0.05 },  friction_angle_deg: { mean: 38, cv: 0.08 } },
+  "AISI 4140":   { canonical_key: "alloy_steel",   kc1_1_cv: 0.06, mc_cv: 0.07, yield_mpa: { mean: 655, cv: 0.04 },  friction_angle_deg: { mean: 32, cv: 0.06 } },
+  "Al 7075-T6":  { canonical_key: "aluminum_7075", kc1_1_cv: 0.05, mc_cv: 0.06, yield_mpa: { mean: 503, cv: 0.03 },  friction_angle_deg: { mean: 28, cv: 0.05 } },
+  "Inconel 718": { canonical_key: "inconel_718",   kc1_1_cv: 0.10, mc_cv: 0.12, yield_mpa: { mean: 1035, cv: 0.06 }, friction_angle_deg: { mean: 42, cv: 0.09 } },
+  "AISI 316L":   { canonical_key: "stainless_316", kc1_1_cv: 0.07, mc_cv: 0.08, yield_mpa: { mean: 290, cv: 0.05 },  friction_angle_deg: { mean: 35, cv: 0.07 } },
 };
+
+const MATERIAL_DB: Record<string, MaterialEntry> = Object.fromEntries(
+  Object.entries(STOCHASTIC_EXTENSIONS).map(([name, ext]) => {
+    const canonical = CANONICAL_MATERIAL_DB[ext.canonical_key] ?? { kc1_1: 1800, mc: 0.25 };
+    return [name, {
+      kc1_1: { mean: canonical.kc1_1, cv: ext.kc1_1_cv },
+      mc:    { mean: canonical.mc, cv: ext.mc_cv },
+      yield_mpa: ext.yield_mpa,
+      friction_angle_deg: ext.friction_angle_deg,
+    }];
+  })
+);
 
 // ─── Deterministic Helpers ─────────────────────────────────────────
 

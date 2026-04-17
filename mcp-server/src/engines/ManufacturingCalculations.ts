@@ -18,6 +18,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { CANONICAL_KIENZLE, CANONICAL_MATERIAL_DB } from "../physics/constants.js";
 
 // ============================================================================
 // SOURCE FILE CROSS-REFERENCE (P-MS2: Links to FormulaRegistry source catalog)
@@ -277,12 +278,12 @@ export const SAFETY_LIMITS = {
   MIN_TOOL_LIFE: 0.1            // minutes
 };
 
-// Default material coefficients (AISI 1045 steel as baseline)
+// Default material coefficients (ISO P group steel as baseline)
 const DEFAULT_KIENZLE: KienzleCoefficients = {
-  kc1_1: 1800,
-  mc: 0.25,
+  kc1_1: CANONICAL_KIENZLE.P.kc1_1,
+  mc: CANONICAL_KIENZLE.P.mc,
   material_id: "AISI-1045",
-  source: "Machining Data Handbook"
+  source: "PRISM Canonical Constants"
 };
 
 const DEFAULT_TAYLOR: TaylorCoefficients = {
@@ -869,23 +870,27 @@ function validateCuttingConditions(conditions: CuttingConditions, warnings: stri
   * @returns kienzle coefficients
  */
 export function getDefaultKienzle(material_group: string): KienzleCoefficients {
-  const defaults: Record<string, KienzleCoefficients> = {
-    "steel_low_carbon": { kc1_1: 1500, mc: 0.25, material_id: "Low Carbon Steel" },
-    "steel_medium_carbon": { kc1_1: 1800, mc: 0.25, material_id: "Medium Carbon Steel" },
-    "steel_high_carbon": { kc1_1: 2100, mc: 0.26, material_id: "High Carbon Steel" },
-    "steel_alloy": { kc1_1: 2000, mc: 0.25, material_id: "Alloy Steel" },
-    "stainless_austenitic": { kc1_1: 2100, mc: 0.21, material_id: "Austenitic Stainless" },
-    "stainless_martensitic": { kc1_1: 1900, mc: 0.23, material_id: "Martensitic Stainless" },
-    "cast_iron_gray": { kc1_1: 1100, mc: 0.28, material_id: "Gray Cast Iron" },
-    "cast_iron_ductile": { kc1_1: 1300, mc: 0.26, material_id: "Ductile Cast Iron" },
-    "aluminum_wrought": { kc1_1: 700, mc: 0.30, material_id: "Wrought Aluminum" },
-    "aluminum_cast": { kc1_1: 600, mc: 0.28, material_id: "Cast Aluminum" },
-    "titanium": { kc1_1: 2800, mc: 0.28, material_id: "Titanium Alloy" },
-    "inconel": { kc1_1: 2800, mc: 0.28, material_id: "Inconel/Nickel Alloy" },
-    "copper": { kc1_1: 800, mc: 0.30, material_id: "Copper Alloy" },
-    "brass": { kc1_1: 600, mc: 0.28, material_id: "Brass" }
+  // Map material groups to ISO groups + material_id labels
+  const ISO_MAP: Record<string, { iso: 'P' | 'M' | 'K' | 'N' | 'S' | 'H'; label: string }> = {
+    "steel_low_carbon":     { iso: 'P', label: "Low Carbon Steel" },
+    "steel_medium_carbon":  { iso: 'P', label: "Medium Carbon Steel" },
+    "steel_high_carbon":    { iso: 'P', label: "High Carbon Steel" },
+    "steel_alloy":          { iso: 'P', label: "Alloy Steel" },
+    "stainless_austenitic": { iso: 'M', label: "Austenitic Stainless" },
+    "stainless_martensitic":{ iso: 'M', label: "Martensitic Stainless" },
+    "cast_iron_gray":       { iso: 'K', label: "Gray Cast Iron" },
+    "cast_iron_ductile":    { iso: 'K', label: "Ductile Cast Iron" },
+    "aluminum_wrought":     { iso: 'N', label: "Wrought Aluminum" },
+    "aluminum_cast":        { iso: 'N', label: "Cast Aluminum" },
+    "titanium":             { iso: 'S', label: "Titanium Alloy" },
+    "inconel":              { iso: 'S', label: "Inconel/Nickel Alloy" },
+    "copper":               { iso: 'N', label: "Copper Alloy" },
+    "brass":                { iso: 'N', label: "Brass" },
   };
-  return defaults[material_group.toLowerCase()] || DEFAULT_KIENZLE;
+  const mapping = ISO_MAP[material_group.toLowerCase()];
+  if (!mapping) return DEFAULT_KIENZLE;
+  const canonical = CANONICAL_KIENZLE[mapping.iso];
+  return { kc1_1: canonical.kc1_1, mc: canonical.mc, material_id: mapping.label };
 }
 
 /**
