@@ -4,9 +4,10 @@
   "title": "Lathe Master Unified Roadmap",
   "track": "LATHE",
   "product_promise": "Print to CNC program in one shot. Extreme level of intelligence and coordination. Quality parity with Universal skills/scripts/hooks roadmap.",
-  "brief": "Unified lathe roadmap consolidating 9 prior envelopes into one 17-phase, 127-unit master plan targeting 5 concrete PRISM app features (Speed/Feed Calculator, Post-Processor Generator, Master Post-Processor, Print-to-Program, ERP/Business) on a shared AGI substrate (deep learning, deep reasoning, deep logic, neural networking, near-AGI intelligence) plus v2 scrutiny gaps (formal verification, local LLM/LoRA, Bayesian/causal depth, asset utilization, AGI safety containment, live machine data, predictive twin, multi-agent orchestration, scientific simulation depth, optimal control + info gain + ensemble).",
+  "brief": "Unified lathe roadmap consolidating 9 prior envelopes into one 18-phase, 135-unit master plan targeting 5 concrete PRISM app features (Speed/Feed Calculator, Post-Processor Generator, Master Post-Processor, Print-to-Program, ERP/Business) on a shared AGI substrate (deep learning, deep reasoning, deep logic, neural networking, near-AGI intelligence) plus v2 scrutiny gaps (formal verification, local LLM/LoRA, Bayesian/causal depth, asset utilization, AGI safety containment, live machine data, predictive twin, multi-agent orchestration, scientific simulation depth, optimal control + info gain + ensemble, and frontend integration into the Codex-built PRISM web app).",
   "created_at": "2026-04-16T23:15:00Z",
   "v2_at": "2026-04-17T00:05:00Z",
+  "v2_frontend_addendum_at": "2026-04-17T00:15:00Z",
   "created_by": "claude-opus-4.7",
   "supersedes": [
     "LATHE-PRO-MS0",
@@ -17,10 +18,11 @@
   ],
   "authoritative_doc": "LATHE-MASTER-UNIFIED-ROADMAP.md",
   "scrutiny_doc": "SCRUTINY-LATHE-MASTER-v2-2026-04-16.md",
+  "scrutiny_doc_r5": "SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md",
   "status": "not_started",
-  "total_units": 127,
+  "total_units": 135,
   "completed_units": 0,
-  "sessions": "45",
+  "sessions": "48",
   "envelope_path": "milestones/LATHE-MASTER.json",
   "features": [
     "Speed & Feed Calculator",
@@ -1008,6 +1010,152 @@
       "exit_gate": "Print-to-program decisions produced by optimal-control argmax with calibrated ensemble + EIG-driven learning + EXP3/UCB policy selection. Brier score improves >=0.05 over any single policy."
     },
     {
+      "id": "P0.11",
+      "title": "Frontend Integration (Codex web app — REUSE, DO NOT CLONE)",
+      "goal": "Close the frontend gaps so the lathe pipeline (P1 -> P4) is callable from the PRISM web app as one-shot flows, with registry-backed UI state, studio-style wizards, typed handoffs, and Playwright E2E coverage. REUSE Codex's existing LatheUploadPage / LatheWizardPage / LatheResultsPage and mirror the WedmStudioProvider + wedm-studio/ folder pattern for the new LatheStudio. Comply with Calculator Studio design language (web/CLAUDE.md: prism-glow-*, prism-chip, prism-spectrum-fill, prism-led-sweep, bg-[rgba(2,6,23,0.78)]).",
+      "scrutiny_origin": "R5 — Codex Frontend + Universal Alignment (SCRUTINY-R5)",
+      "sessions": 3,
+      "smart_config": {
+        "role": "mobile-dev + reviewer + tester",
+        "model": "opus",
+        "effort": "MAX",
+        "context_budget": "70%"
+      },
+      "knowledge_sources": [
+        "mcp-server/web/CLAUDE.md — Codex Page Protection + Calculator Studio design language",
+        "mcp-server/web/src/pages/WireEdmStudioPage.tsx (121 LOC canonical studio wrapper)",
+        "mcp-server/web/src/contexts/WedmStudioContext.tsx (canonical Studio provider pattern)",
+        "mcp-server/web/src/components/wedm-studio/ (WizardShell, StepImport, StepReview, StepWcs, StepToolpath, StepOptimize, StepProgram, ProfileCanvas, StepErrorCard, InfoTip)",
+        "mcp-server/web/src/pages/LatheUploadPage.tsx (210 LOC — already built by Codex, route /lathe)",
+        "mcp-server/web/src/pages/LatheWizardPage.tsx (252 LOC — already built by Codex, route /lathe/wizard)",
+        "mcp-server/web/src/pages/LatheResultsPage.tsx (1265 LOC — already built by Codex, route /lathe/results)",
+        "mcp-server/web/src/components/LatheInputWizard.tsx (0 LOC — EMPTY, needs implementation; exports LatheWizardResult type consumed by LatheResultsPage)",
+        "mcp-server/web/src/components/LatheBackplot.tsx + LatheAIPanel.tsx (already built by Codex)",
+        "mcp-server/web/src/pages/CalculatorPage.tsx (lathe sub-panels + mode-switch hygiene gaps at lines 4271-4383, 1980-1988)",
+        "mcp-server/web/src/state/calculatorWorkspace.ts (MACHINE_MODE_OPTIONS hardcoded defaults line 307, MODE_NOTES line 3194)",
+        "mcp-server/web/src/api/ (87 clients, 7 orphan: cadGeometry, holePattern, multiOp, toolpath, feasibility, adaptiveControl, autonomous)",
+        "SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md"
+      ],
+      "units": [
+        {
+          "id": "U-LTH128",
+          "title": "LatheStudioPage + LatheStudioContext + lathe-studio/ step folder (mirrors WEDM pattern, new capability)",
+          "description": "New route /lathe-studio at mcp-server/web/src/pages/LatheStudioPage.tsx (thin wrapper ~120 LOC). Creates LatheStudioProvider in mcp-server/web/src/contexts/LatheStudioContext.tsx. Creates 6 step components in mcp-server/web/src/components/lathe-studio/: WizardShell (shared stepper UX), StepImport (PDF/DXF/STEP upload), StepFeatureConfirm (feature extraction review), StepStrategyPick (roughing/finishing/threading strategy), StepPreplay (cycle-time + toolpath preview via LatheBackplot), StepProgramValidate (G-code validation + post-processor dialect), StepSignoff (dossier + send-to). LatheCanvas component reuses LatheBackplot. Does NOT duplicate LatheUploadPage/LatheWizardPage/LatheResultsPage — they remain as standalone entry points. Uses Calculator Studio design language (prism-glow-*, bg-[rgba(2,6,23,0.78)], border-white/10).",
+          "exit_conditions": [
+            "LatheStudioPage.tsx exists at <= 150 LOC (thin wrapper)",
+            "LatheStudioContext.tsx exposes useLatheNavigation + useLatheData hooks",
+            "6 step components exist in components/lathe-studio/",
+            "Each step calls typed API client for its pipeline stage (P4 PrintToProgram slice)",
+            "Visual parity with WEDM studio (same WizardShell sizing)",
+            "Calculator Studio design tokens applied (grep confirms prism-glow-* + prism-chip usage)",
+            "Existing LatheUploadPage/WizardPage/ResultsPage untouched (Codex protection)"
+          ],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH47"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH129",
+          "title": "Populate LatheInputWizard.tsx (currently empty) + deep-link existing pages into studio",
+          "description": "Implements the empty mcp-server/web/src/components/LatheInputWizard.tsx (0 LOC today). Exports LatheWizardResult type consumed by LatheResultsPage and shared with LatheStudioContext so the session payload flows through /lathe, /lathe/wizard, /lathe/results, and /lathe-studio. Adds deep-link params on existing Codex routes: /lathe/wizard?studio=1 and /lathe/results?studio=1 navigate forward into LatheStudio equivalent steps without mutating the standalone experience. LatheUploadPage gains a Launch Studio CTA.",
+          "exit_conditions": [
+            "LatheInputWizard.tsx exports LatheWizardResult + LatheInputWizard component",
+            "LatheResultsPage import resolves without any shim",
+            "Existing route behaviour unchanged when studio query param absent",
+            "Deep-link parameter carries job-session id into LatheStudio step"
+          ],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH128"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH130",
+          "title": "Mode-switch hygiene fix (validateModeStateCompatibility)",
+          "description": "Add validateModeStateCompatibility(fromMode, toMode, state) helper. Invoked in CalculatorPage mode-switch handler. Resets selectedTool, selectedMaterial, machineTypeId, operation, selectedControllerOption, programming, selectedToolpath, selectedStation when mode-incompatible.",
+          "exit_conditions": [
+            "Unit test: switching from lathe -> mill clears turning-only state",
+            "Unit test: switching within-lathe keeps compatible state",
+            "No orphaned IDs after 10 random mode-switch sequences"
+          ],
+          "omega_floor": 0.92,
+          "depends_on": [],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH131",
+          "title": "useMachineRegistryDefaults(mode) — eliminate hardcoded IDs",
+          "description": "React hook replacing 'th-jmd-vdi30-turning-baseline' (CalculatorPage.tsx:1980-1988) and MACHINE_MODE_OPTIONS (calculatorWorkspace.ts:307) with live queries to prism_machine:list + registry lookup. Falls back to first JM Die lathe on cold-start.",
+          "exit_conditions": [
+            "grep returns 0 occurrences of hardcoded machine IDs in web/",
+            "Hook returns correct default per mode on 5 test machines",
+            "pre-lathe-ui-require-registry-defaults hook blocks reintroduction"
+          ],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH130"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH132",
+          "title": "Swiss dialect dropdown (standard / citizen-cincom / tsugami-swiss)",
+          "description": "Add dialect selector in lathe calculator. Routes post-processor generation through CitizenPostEngine (citizen-cincom) or TsugamiPostEngine (tsugami-swiss). Standard uses existing LathePostProcessor.",
+          "exit_conditions": [
+            "Dropdown visible when mode=lathe and swiss machine selected",
+            "G-code output matches expected Citizen syntax on 3 test programs",
+            "G-code output matches expected Tsugami syntax on 3 test programs"
+          ],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH131"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH133",
+          "title": "5 orphan API hooks (cadGeometry, holePattern, multiOp, toolpath, feasibility)",
+          "description": "Create useCadGeometry, useHolePattern, useMultiOp, useToolpath, useFeasibility React Query hooks wrapping existing API clients. Wired into LatheStudioPage steps.",
+          "exit_conditions": [
+            "5 hooks exist with types",
+            "Each hook consumed by >=1 studio step",
+            "Orphan count drops 7 -> 2 in web/src/api/"
+          ],
+          "omega_floor": 0.88,
+          "depends_on": ["U-LTH128"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH134",
+          "title": "latheJobSessionStore — Zustand + IndexedDB persistence",
+          "description": "mcp-server/web/src/stores/latheJobSessionStore.ts. Unified job-session state: part, features, strategy, preplay, program, signoff. Persists to IndexedDB; shares session across /calculator, /lathe-studio, /quote, /job-cost.",
+          "exit_conditions": [
+            "Store persists across reload",
+            "Session id flows through all 4 consuming pages",
+            "Zustand middleware prevents concurrent-tab race"
+          ],
+          "omega_floor": 0.90,
+          "depends_on": ["U-LTH129"],
+          "status": "not_started"
+        },
+        {
+          "id": "U-LTH135",
+          "title": "Forge-Triple for frontend + Send-to handoffs + default nav exposure",
+          "description": "Hook pre-lathe-ui-require-registry-defaults.mjs + action prism_lathe:ui_state_audit + skill /lathe-ui-audit. Add Send-to-Quote and Send-to-JobCost buttons at signoff step. Expose /print-to-cnc and /lathe-studio in default nav. Playwright E2E: print -> signoff -> quote -> job-cost.",
+          "exit_conditions": [
+            "All 3 deliverables present",
+            "Playwright test passes end-to-end",
+            "Nav shows /print-to-cnc + /lathe-studio for authenticated users",
+            "Send-to handoffs pre-populate target page with session id"
+          ],
+          "omega_floor": 0.92,
+          "depends_on": ["U-LTH128", "U-LTH132", "U-LTH133", "U-LTH134"],
+          "status": "not_started"
+        }
+      ],
+      "forge_triple": {
+        "hook": "pre-lathe-ui-require-registry-defaults",
+        "action": "prism_lathe:ui_state_audit",
+        "skill": "/lathe-ui-audit"
+      },
+      "exit_gate": "Lathe pipeline is callable end-to-end from the PRISM web app: upload print -> studio wizard -> signoff -> quote -> job-cost, with zero hardcoded machine IDs, registry-backed defaults, Swiss dialect support, unified job-session store, and Playwright E2E proof. Aligned with Universal 0.6 Codex-canonical tree (mcp-server/web/)."
+    },
+    {
       "id": "P1",
       "title": "Speed & Feed Calculator",
       "goal": "Unified, AI-backed speed/feed calculator for PRISM web app + MCP action.",
@@ -1709,15 +1857,15 @@
     }
   ],
   "aggregate_metrics": {
-    "total_phases": 17,
-    "total_units": 127,
-    "total_sessions": 45,
-    "total_hooks": 32,
-    "total_actions": 72,
-    "total_skills": 23,
+    "total_phases": 18,
+    "total_units": 135,
+    "total_sessions": 48,
+    "total_hooks": 33,
+    "total_actions": 75,
+    "total_skills": 24,
     "new_engines": "~75",
-    "test_files": "~125",
-    "test_cases": "~1270",
+    "test_files": "~130",
+    "test_cases": "~1310",
     "omega_target": 1.0,
     "svi_baseline": 0.977,
     "svi_psi_target": 0.98,
@@ -1737,6 +1885,20 @@
       "hooks": "+18",
       "actions": "+10",
       "skills": "+10"
+    },
+    "v2_frontend_addendum": {
+      "phases": "+1",
+      "units": "+8",
+      "sessions": "+3",
+      "hooks": "+1",
+      "actions": "+3",
+      "skills": "+1",
+      "new_pages": "+1 LatheStudioPage",
+      "new_contexts": "+1 LatheStudioContext",
+      "new_components": "+6 lathe-studio/ step components",
+      "reused_pages": "3 (LatheUploadPage, LatheWizardPage, LatheResultsPage — untouched per Codex protection)",
+      "populated_empty_file": "LatheInputWizard.tsx",
+      "design_language": "Calculator Studio (web/CLAUDE.md)"
     }
   },
   "session_map": [
@@ -1767,6 +1929,9 @@
     { "session_id": "P0.9-S2", "phase": "P0.9", "units": ["U-LTH120", "U-LTH121", "U-LTH122"], "smart_config": { "role": "physics-reviewer + backend-dev", "model": "opus", "effort": "MAX", "context_budget": "60%" } },
     { "session_id": "P0.10-S1", "phase": "P0.10", "units": ["U-LTH123", "U-LTH124"], "smart_config": { "role": "ml-developer + system-architect", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
     { "session_id": "P0.10-S2", "phase": "P0.10", "units": ["U-LTH125", "U-LTH126", "U-LTH127"], "smart_config": { "role": "ml-developer", "model": "opus", "effort": "MAX", "context_budget": "65%" } },
+    { "session_id": "P0.11-S1", "phase": "P0.11", "units": ["U-LTH128", "U-LTH129", "U-LTH130"], "smart_config": { "role": "mobile-dev + reviewer", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
+    { "session_id": "P0.11-S2", "phase": "P0.11", "units": ["U-LTH131", "U-LTH132", "U-LTH133"], "smart_config": { "role": "mobile-dev + backend-dev", "model": "opus", "effort": "MAX", "context_budget": "65%" } },
+    { "session_id": "P0.11-S3", "phase": "P0.11", "units": ["U-LTH134", "U-LTH135"], "smart_config": { "role": "mobile-dev + tester", "model": "opus", "effort": "HIGH", "context_budget": "60%" } },
     { "session_id": "P1-S1", "phase": "P1", "units": ["U-LTH07", "U-LTH08", "U-LTH09"], "smart_config": { "role": "backend-dev + physics-reviewer", "model": "opus", "effort": "MAX", "context_budget": "70%" } },
     { "session_id": "P1-S2", "phase": "P1", "units": ["U-LTH10", "U-LTH11", "U-LTH12"], "smart_config": { "role": "backend-dev", "model": "sonnet", "effort": "HIGH", "context_budget": "60%" } },
     { "session_id": "P1-S3", "phase": "P1", "units": ["U-LTH13", "U-LTH14"], "smart_config": { "role": "tester + perf-analyzer", "model": "haiku", "effort": "HIGH", "context_budget": "40%" } },

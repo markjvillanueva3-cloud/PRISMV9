@@ -19,7 +19,7 @@
 
 ## ⚠ CRITICAL SCRUTINY FINDINGS v2 — READ FIRST
 
-A second scrutiny pass (`SCRUTINY-LATHE-MASTER-v2-2026-04-16.md`) flagged v1 (867 lines, 62 units) as **directionally correct but insufficient** to deliver the "print → validated CNC program in one shot" promise at the claimed "extreme intelligence" bar. v2 inserts **10 new sub-phases (P0.1 through P0.10) with 65 new units (U-LTH63..U-LTH127)** before existing P1. Each new phase addresses a specific gap:
+Two scrutiny passes (`SCRUTINY-LATHE-MASTER-v2-2026-04-16.md` + `SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md`) flagged v1 (867 lines, 62 units) as **directionally correct but insufficient** to deliver the "print → validated CNC program in one shot" promise at the claimed "extreme intelligence" bar. v2 inserts **11 new sub-phases (P0.1 through P0.11) with 73 new units (U-LTH63..U-LTH135)** before existing P1. Each new phase addresses a specific gap:
 
 | Gap | Sub-phase (v2) | New units | Forge-Triple deliverable |
 |---|---|---|---|
@@ -33,8 +33,9 @@ A second scrutiny pass (`SCRUTINY-LATHE-MASTER-v2-2026-04-16.md`) flagged v1 (86
 | Multi-agent orchestration (supervisor + 5 specialist agents) | **P0.8 Multi-Agent Lathe Orchestration** | U-LTH111..U-LTH116 (6) | `/lathe-swarm` + `pre-lathe-swarm-budget-check.mjs` + `lathe_swarm_dispatch` |
 | Scientific simulation depth (tribology, fatigue, fracture mechanics, residual stress) | **P0.9 Scientific Simulation Depth (Lathe)** | U-LTH117..U-LTH122 (6) | `/lathe-science-gate` + `post-lathe-strategy-require-science-gates.mjs` + `lathe_science_gate_eval` |
 | Math depth (optimal control, info gain, calibrated ensemble, regret minimization) | **P0.10 Math Depth (Lathe)** | U-LTH123..U-LTH127 (5) | `/lathe-optimal-control` + `pre-lathe-decision-require-optimal-control.mjs` + `lathe_optimal_control_solve` |
+| Frontend integration (Codex web: studio wizard, mode-switch hygiene, registry-aware UI, orphan-API wiring, Zustand session store, Swiss dialect, Send-to-Quote/JobCost, default nav) | **P0.11 Frontend Integration** | U-LTH128..U-LTH135 (8) | `/lathe-ui-audit` + `pre-lathe-ui-require-registry-defaults.mjs` + `lathe_ui_state_audit` |
 
-**v1 → v2 unit count:** 62 → 127. **Expected 3-loop scrutiny score:** 57 (v1) → 91 (v2 target). **Quality reference:** `UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md` (1827 lines, 25 sub-phases).
+**v1 → v2 unit count:** 62 → 135. **Expected 3-loop scrutiny score:** 57 (v1) → 93 (v2 target). **Quality reference:** `UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md` (1827 lines, 25 sub-phases). **Frontend reference:** `SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md` (6 frontend gaps + 5 hardcoded-data risks).
 
 **Anti-regression enforcement:** every v2 sub-phase has a PROTECTIVE HOOK that blocks downstream emission when the sub-phase's output is missing or stale. E.g., `pre-lathe-emit-require-preplay.mjs` prevents G-code emission without a fresh predictive-twin pre-play record; `pre-lathe-gen-require-policy.mjs` blocks generation without the LoRA policy artifact. These hooks fire automatically — no session can ship a lathe artifact that skipped the scrutiny v2 gates.
 
@@ -244,7 +245,7 @@ Every unit in this roadmap runs under the following enforcement stack — **auto
 
 ---
 
-## PHASE STRUCTURE (RGS Stage 5) — 17 phases, 127 units, ~45 sessions (v2)
+## PHASE STRUCTURE (RGS Stage 5) — 18 phases, 135 units, ~48 sessions (v2 + R5)
 
 ```
 LATHE-MASTER (v2)
@@ -259,6 +260,7 @@ LATHE-MASTER (v2)
 ├── P0.8:  Multi-Agent Lathe Orchestration           (6 units)    ← v2 scrutiny
 ├── P0.9:  Scientific Simulation Depth               (6 units)    ← v2 scrutiny
 ├── P0.10: Math Depth (Optimal Control / Info Gain)  (5 units)    ← v2 scrutiny
+├── P0.11: Frontend Integration (Codex web)          (8 units)    ← v2 R5 scrutiny
 ├── P1:    Speed & Feed Calculator                   (8 units)    → feature 1
 ├── P2:    Post-Processor Generator                  (10 units)   → feature 2
 ├── P3:    Master Post-Processor                     (8 units)    → feature 3
@@ -1115,6 +1117,136 @@ Per-session SMART_CONFIG and KNOWLEDGE sources below.
 - NEW_ACTIONS: `lathe_optimal_control_solve`, `lathe_eig_rank`, `lathe_ensemble_vote`, `lathe_regret_state`
 - NEW_SKILLS: `/lathe-optimal-control`
 - AVAILABLE_TO: P1, P4, P5, PX — every strategic lathe decision.
+
+---
+
+# P0.11: FRONTEND INTEGRATION (Codex web alignment) (8 units, 3 sessions) ← v2 scrutiny R5
+
+**⚠️ CODEX PAGE PROTECTION — READ `mcp-server/web/CLAUDE.md` BEFORE ANY WORK IN THIS PHASE.**
+Codex has already built a lathe wizard stack. **DO NOT clone or overwrite it:**
+- `mcp-server/web/src/pages/LatheUploadPage.tsx` (210 LOC) — route `/lathe` — **reuse**
+- `mcp-server/web/src/pages/LatheWizardPage.tsx` (252 LOC) — route `/lathe/wizard` — **reuse**
+- `mcp-server/web/src/pages/LatheResultsPage.tsx` (1265 LOC) — route `/lathe/results` — **reuse**
+- `mcp-server/web/src/components/LatheInputWizard.tsx` — **0 LOC (EMPTY) — populate in U-LTH129**; it owes a `LatheWizardResult` type that `LatheResultsPage` already imports.
+- `mcp-server/web/src/components/LatheAIPanel.tsx`, `LatheBackplot.tsx` — **reuse**
+- `mcp-server/web/src/pages/WireEdmStudioPage.tsx` (121 LOC) + `contexts/WedmStudioContext.tsx` + `components/wedm-studio/{WizardShell, StepImport, StepReview, StepWcs, StepToolpath, StepOptimize, StepProgram, ProfileCanvas, StepErrorCard, InfoTip}.tsx` — **architectural reference** (thin wrapper + provider + step-folder pattern); the Lathe Studio mirrors this shape, it does not copy its steps.
+
+All new UI in this phase MUST use the Calculator Studio design language per `web/CLAUDE.md`: `prism-glow-*`, `prism-chip`, `prism-spectrum-fill`, `prism-led-sweep`, `bg-[rgba(2,6,23,0.78)]`, `border-white/10`.
+
+**Scrutiny origin:** SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md — 6 frontend gaps + 5 hardcoded-data risks that block print-to-program-in-one-shot in the PRISM web app. Codex built 134 pages / ~170 components / 87 API clients but:
+- Lathe is exposed across 3 pages (Upload/Wizard/Results triple) without a studio-style wizard — the WEDM-studio provider + step-folder pattern is the reference to mirror.
+- `LatheInputWizard.tsx` is currently an empty file even though `LatheResultsPage` imports `LatheWizardResult` from it.
+- CalculatorPage mode-switch hygiene is buggy: switching to lathe keeps `selectedTool`, `selectedMaterial`, `operation`, `machineTypeId` etc. → nonsense state.
+- Default machine IDs are hardcoded (`'th-jmd-vdi30-turning-baseline'`) — registry renames silently break the page.
+- Swiss (Citizen/Tsugami) dialect toggle missing on lathe calculator.
+- `postProcessorPath` handoff is URL-only (no direct `pp_*` dispatcher call); "Send to Quote" / "Send to Job Cost" handoffs don't exist.
+- 7 orphan API clients critical to print-to-program (`cadGeometry`, `holePattern`, `multiOp`, `toolpath`, `feasibility`, `adaptiveControl`, `autonomous`) have zero page consumers.
+- `/web/` is 3-week-stale mirror of `/mcp-server/web/` — retire or codegen under Universal 0.6.
+- No unified job-session store: `jobId`-via-URL fails for multi-op jobs (lathe → WEDM in the same fixture).
+- `/print-to-cnc` is reachable only by URL, not default nav.
+- `QuoteFollowUpPage` is a true orphan (no route).
+
+**Goal:** Close the frontend gaps so the lathe pipeline (P1 → P4) is callable from the PRISM web app as one-shot flows, with registry-backed UI state, studio-style wizards that reuse Codex pages, typed handoffs, and Playwright E2E coverage.
+
+### SESSION P0.11-S1 (U-LTH128..U-LTH130)
+**SMART_CONFIG:** Role=mobile-dev + reviewer | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=70%
+**KNOWLEDGE:** `mcp-server/web/CLAUDE.md` (Codex Page Protection + Calculator Studio tokens), `mcp-server/web/src/pages/WireEdmStudioPage.tsx` (architectural reference, 121 LOC), `mcp-server/web/src/contexts/WedmStudioContext.tsx`, `mcp-server/web/src/components/wedm-studio/`, existing Lathe pages (Upload/Wizard/Results) + components (LatheAIPanel, LatheBackplot, LatheInputWizard [empty]), `CalculatorPage.tsx` lines 2443 / 4271-4383 / 5486 / 5682-5684 / 5629, `calculatorWorkspace.ts` (MachineMode + hardcoded defaults at line 307), `calcDispatcher.ts` (1086 actions), `ppDispatcher.ts` (328 actions).
+**INTENT:** User opens `/lathe-studio` on the PRISM web app → 6-step wizard (Upload blueprint → Confirm features → Pick strategy → Review preplay → Validate program → Sign off) matching WEDM studio polish while Codex's existing `/lathe`, `/lathe/wizard`, `/lathe/results` routes stay intact as focused entry points.
+
+### U-LTH128 — LatheStudioPage + LatheStudioContext + lathe-studio/ step folder (REUSE, mirror WEDM pattern)
+- **Build:** NEW assets only — does not touch Codex's LatheUploadPage/WizardPage/ResultsPage.
+  - `mcp-server/web/src/pages/LatheStudioPage.tsx` — thin wrapper (~120 LOC target, matches WireEdmStudioPage shape).
+  - `mcp-server/web/src/contexts/LatheStudioContext.tsx` — provider exposing `useLatheNavigation` + `useLatheData` (mirrors `WedmStudioContext.tsx`).
+  - `mcp-server/web/src/components/lathe-studio/{WizardShell, StepImport, StepFeatureConfirm, StepStrategyPick, StepPreplay, StepProgramValidate, StepSignoff, LatheCanvas, StepErrorCard, InfoTip}.tsx` — 6 step panels + shared chrome. `LatheCanvas` reuses the existing `LatheBackplot` component (not re-implemented).
+  - Route `/lathe-studio` registered in `App.tsx` via `lazyNamed(...)` alongside `WireEdmStudioPage`.
+  - Calculator Studio design tokens applied (`prism-glow-*`, `bg-[rgba(2,6,23,0.78)]`, `border-white/10`) — grep check on final files.
+  - Each step calls the typed API client for its pipeline stage (P1 speed/feed, P3 master post, P4 print-to-program).
+- **Exit Gate:** `LatheStudioPage.tsx ≤ 150 LOC`; 10 components live in `components/lathe-studio/`; provider exports `useLatheNavigation` + `useLatheData`; Playwright smoke test (open → upload sample JM Die print → reach signoff) passes; nav entry visible; `LatheUploadPage`/`LatheWizardPage`/`LatheResultsPage` diff is empty (Codex protection); `WireEdmStudioPage` diff is empty (no shared-component breakage).
+- **Rollback:** FILES_CREATED=[LatheStudioPage.tsx, LatheStudioContext.tsx, components/lathe-studio/*.tsx, Playwright test, App.tsx route edit]; ABORT=wizard cannot round-trip OR any Codex page regresses; ROLLBACK=git rm all new files + revert App.tsx.
+- **4-LOOP:** BUILD → SCRUTINIZE (reviewer agent on component hygiene + Codex protection compliance) → GAP FILL (per-step error boundaries + skeletons + Calculator Studio tokens) → TIE UP (analytics hooks + a11y pass).
+- **Omega floor:** 0.88
+- **Depends on:** P0.10, CAMX-MS12 handoff (feature strategy KB).
+
+### U-LTH129 — Populate empty `LatheInputWizard.tsx` + deep-link Codex pages into studio
+- **Build:** Fills the currently empty `mcp-server/web/src/components/LatheInputWizard.tsx` (0 LOC today). Exports `LatheWizardResult` type (consumed by `LatheResultsPage.tsx:12`) plus `LatheInputWizard` component used by both `LatheWizardPage` (via composition) and `StepFeatureConfirm` (lathe-studio step) so one schema flows through `/lathe`, `/lathe/wizard`, `/lathe/results`, `/lathe-studio`. Adds deep-link query params on existing Codex routes: `/lathe/wizard?studio=1` and `/lathe/results?studio=1` push into the matching LatheStudio step without mutating the standalone experience. `LatheUploadPage` gains an optional "Launch Studio" CTA that navigates to `/lathe-studio` with the uploaded file id pre-loaded. Backward-compatible: query param absent ⇒ legacy behaviour preserved.
+- **Exit Gate:** `LatheInputWizard.tsx` exports `LatheWizardResult` + `LatheInputWizard`; `LatheResultsPage` import resolves without any shim; 3 legacy routes unchanged when query param absent; deep-link into any studio step works; 5 Playwright cases cover standalone + deep-link round-trip; no regression in Codex Upload/Wizard/Results flows.
+- **Rollback:** FILES_CREATED=[LatheInputWizard.tsx content]; FILES_MODIFIED=[LatheUploadPage.tsx (CTA only), LatheWizardPage.tsx (query-param branch), LatheResultsPage.tsx (query-param branch), App.tsx (if routing refactor needed)]; ABORT=regression in legacy flow; ROLLBACK=revert all modified files + leave LatheInputWizard empty.
+- **Omega floor:** 0.88
+- **Depends on:** U-LTH128.
+
+### U-LTH130 — CalculatorPage lathe mode-switch hygiene fix
+- **Build:** Extend mode-switch handler at `CalculatorPage.tsx:4271-4383`. Current gap: does NOT reset `selectedTool`, `selectedMaterial`, `machineTypeId`, `operation`, `selectedControllerOption`, `programming`, `selectedToolpath`, `selectedStation`. Add lathe-specific reset block + cross-mode validation helper `validateModeStateCompatibility(fromMode, toMode, state)` so switching mill→lathe does not preserve a ¾" end mill + face_mill operation.
+- **Exit Gate:** Mill→lathe and lathe→mill switches clear the 8 stale fields; unit tests cover 6×6 mode transitions; visual regression snapshot stable.
+- **Rollback:** FILES_MODIFIED=[CalculatorPage.tsx, calculatorWorkspace.ts]; ABORT=existing lathe flows break; ROLLBACK=revert both files.
+- **Omega floor:** 0.88
+- **Depends on:** U-LTH128.
+
+### SESSION P0.11-S2 (U-LTH131..U-LTH133)
+**SMART_CONFIG:** Role=backend-dev + code-archaeologist | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=65%
+**KNOWLEDGE:** `mcp-server/web/src/api/*` (87 files, 46% orphan rate), `cross-session-asset-registry.json`, MachineRegistry, ControllerRegistry, P2 Post-Processor Generator (U-LTH15..U-LTH24), `cadGeometry`/`holePattern`/`multiOp`/`toolpath`/`feasibility` clients.
+**INTENT:** Every lathe UI control resolves from the registry (no hardcoded defaults), Swiss posts work end-to-end, and the 5 orphan API clients critical to print-to-program are wired.
+
+### U-LTH131 — Remove hardcoded lathe defaults, make registry-aware
+- **Build:** Audit CalculatorPage + calculatorWorkspace for hardcoded lathe IDs. Replace `'th-jmd-vdi30-turning-baseline'` (CalculatorPage.tsx:1980-1988) and `'fanuc-wire-standard'` with registry-fetched defaults via `useMachineRegistryDefaults(mode)`. Similar for MACHINE_MODE_OPTIONS (line 307), MODE_NOTES (line 3194), WORKHOLDING_CATEGORY_OPTIONS (calculatorWorkholding.ts:18).
+- **Exit Gate:** Zero hardcoded machine/controller IDs in lathe-path files; registry rename test (rename one machine, reload calculator, it still works); 8+ unit tests.
+- **Rollback:** FILES_MODIFIED=[CalculatorPage.tsx, calculatorWorkspace.ts, calculatorWorkholding.ts]; ABORT=default selection broken; ROLLBACK=revert 3 files.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH130.
+
+### U-LTH132 — Swiss dialect (Citizen/Tsugami) toggle on lathe calculator
+- **Build:** Add Swiss dialect dropdown to CalculatorPage lathe mode: `{standard, citizen-cincom, tsugami-swiss}`. When Swiss selected, calcDispatcher routes to CitizenPostEngine / TsugamiPostEngine (built in P2 U-LTH17). Handoff carries dialect in `postProcessorPath` URL params.
+- **Exit Gate:** Dropdown renders in lathe mode; selecting Swiss variants invokes correct post engine; Playwright test (mill-turn Swiss fixture → validated G-code) passes.
+- **Rollback:** FILES_MODIFIED=[CalculatorPage.tsx, calcDispatcher routing]; ABORT=dialect routing fails; ROLLBACK=revert.
+- **Omega floor:** 0.88
+- **Depends on:** U-LTH17 (P2 Swiss post engines), U-LTH131.
+
+### U-LTH133 — Wire 5 orphan API clients critical to lathe print-to-program
+- **Build:** Wire `cadGeometry`, `holePattern`, `multiOp`, `toolpath`, `feasibility` clients into the lathe studio + `/print-to-cnc` flows. Each gets a hook (`useCadGeometry`, `useHolePattern`, `useMultiOp`, `useToolpath`, `useFeasibility`) and at least 1 page consumer via P4 print-to-program (U-LTH33-U-LTH47).
+- **Exit Gate:** Each client's `isOrphan===false` after wiring; orphan-API-client test suite green; print-to-program E2E exercises all 5.
+- **Rollback:** FILES_CREATED=[5 hooks]; FILES_MODIFIED=[LatheStudioPage, ProgramReleasePage]; ABORT=orphan count unchanged; ROLLBACK=remove hooks.
+- **Omega floor:** 0.88
+- **Depends on:** U-LTH128, P4 handoff.
+
+### SESSION P0.11-S3 (U-LTH134..U-LTH135)
+**SMART_CONFIG:** Role=mobile-dev + reviewer | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=60%
+**KNOWLEDGE:** React Context pattern (7 existing providers: Auth, Learning, Ppg, Erp, WedmStudio, OperatingSystem, UI), Zustand, quote + job-cost dispatcher actions, Playwright test harness.
+**INTENT:** Multi-op jobs (lathe → WEDM) carry state across pages; calculator hands off to quote + job cost; print→CNC is default-nav-exposed; E2E Playwright locks lathe one-shot flow.
+
+### U-LTH134 — Unified lathe job-session store (lightweight Zustand)
+- **Build:** `mcp-server/web/src/stores/latheJobSessionStore.ts` using Zustand. Holds `{jobId, fixtureId, features[], strategy, toolpath, postArtifact, validationReport, signoffDossier}`. Survives route transitions; clears on explicit "new job"; persists to IndexedDB for reload survival. Exposes `useLatheJobSession()` hook.
+- **Exit Gate:** Multi-op flow (lathe → save → refresh → resume) preserves state; 10+ tests covering hydration/rehydration/multi-tab; no legacy `jobId-via-URL` regressions.
+- **Rollback:** FILES_CREATED=[store + hook + test]; FILES_MODIFIED=[3 lathe pages consume store]; ABORT=state loss on refresh; ROLLBACK=git rm + revert pages.
+- **Omega floor:** 0.88
+- **Depends on:** U-LTH129.
+
+### U-LTH135 — Forge-Triple for Frontend Integration + Send-To handoffs + default nav
+- **Build:** (a) "Send to Quote" + "Send to Job Cost" buttons on LatheStudioPage step 6 → direct dispatcher calls to `prism_business:quote_from_program` and `prism_business:jobcost_from_program`. (b) Default nav exposure for `/print-to-cnc` + `/lathe-studio` in Layout.tsx nav catalog. (c) Forge-Triple: hook `pre-lathe-ui-require-registry-defaults.mjs` (blocks hardcoded ID merges) + action `prism_lathe:ui_state_audit` + skill `/lathe-ui-audit`.
+- **Exit Gate:** Send-to-quote / send-to-jobcost round-trips verified; nav shows both routes; 3 Forge-Triple deliverables shipped; Playwright regression lock on full lathe one-shot flow (upload → quote → jobcost).
+- **Rollback:** FILES_CREATED=[hook, skill, 2 action handlers]; FILES_MODIFIED=[Layout.tsx, LatheStudioPage]; ABORT=any step breaks; ROLLBACK=git rm + revert.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH128, U-LTH129, U-LTH131, U-LTH132, U-LTH133, U-LTH134.
+
+**P0.11 FORGE-TRIPLE:**
+- **Hook:** `pre-lathe-ui-require-registry-defaults.mjs` — blocks commits introducing new hardcoded machine/controller IDs in lathe UI files.
+- **Action:** `prism_lathe:ui_state_audit` — audits CalculatorPage + LatheStudioPage for hardcoded defaults, orphan clients, mode-switch bugs, returns scorecard.
+- **Skill:** `/lathe-ui-audit` — runs audit + surfaces violations in machinist-readable form.
+- **Exit Gate:** `/lathe-ui-audit` on PR: zero hardcoded defaults, zero orphan critical clients, mode-switch cross-matrix green, Playwright suite green.
+
+**P0.11 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-ui-require-registry-defaults`
+- NEW_ACTIONS: `prism_lathe:ui_state_audit`, `prism_business:quote_from_program`, `prism_business:jobcost_from_program`
+- NEW_SKILLS: `/lathe-ui-audit`
+- NEW_STORE: `latheJobSessionStore` (Zustand)
+- NEW_PAGE: `/lathe-studio` (6-step wizard — **mirrors** the WedmStudioProvider + `wedm-studio/` folder pattern, does NOT clone its step contents).
+- NEW_CONTEXT: `LatheStudioContext` (parallel to `WedmStudioContext`).
+- NEW_COMPONENTS: `components/lathe-studio/{WizardShell, StepImport, StepFeatureConfirm, StepStrategyPick, StepPreplay, StepProgramValidate, StepSignoff, LatheCanvas, StepErrorCard, InfoTip}`.
+- POPULATED_FILE: `components/LatheInputWizard.tsx` (was 0 LOC, provides `LatheWizardResult` type already imported by `LatheResultsPage`).
+- REUSED_PAGES (untouched per Codex protection): `LatheUploadPage` (`/lathe`), `LatheWizardPage` (`/lathe/wizard`), `LatheResultsPage` (`/lathe/results`).
+- REUSED_COMPONENTS: `LatheBackplot`, `LatheAIPanel`.
+- DESIGN_LANGUAGE: Calculator Studio tokens (`prism-glow-*`, `prism-chip`, `prism-spectrum-fill`, `bg-[rgba(2,6,23,0.78)]`, `border-white/10`) per `web/CLAUDE.md`.
+- AVAILABLE_TO: P1 (calculator), P2 (post-processor UI), P3 (master post selector), P4 (print-to-program drop zone), P5 (quote/jobcost handoff).
+
+**Alignment with Universal Roadmap:** Executes adjacent to Universal Phase 0 (not parallel). Defers to Universal 0.4 Registry Locks before U-LTH131 lands (prevents concurrent-write corruption of asset registry). U-LTH133 `/web` parity defers to Universal 0.6 Auto-Wiring codegen rather than maintaining a separate mirror.
 
 ---
 

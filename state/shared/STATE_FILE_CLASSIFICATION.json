@@ -1,0 +1,490 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-04-17T00:10:00Z",
+  "generatedBy": "U-CPP18 — Classify all hook-written state files",
+  "source": "CONTEXT-PIPELINE-PERFECTION-RGS.md § CPP-MS3",
+  "scope": {
+    "description": "State files targeted by any .claude/hooks/*.mjs or .claude/helpers/*.mjs writer",
+    "hook_writers_scanned": 10,
+    "helper_writers_scanned": 49,
+    "total_writers_scanned": 59
+  },
+  "classes": {
+    "per-terminal": "Must key by <family>-<machine>-<session> to avoid terminal-to-terminal clobber",
+    "global-mergeable": "Single global file, but safely mergeable via CRDT (append-only JSONL, keyed records, or set-union)",
+    "global-single-writer": "Single global file with last-writer-wins semantics; requires FILE_LOCKS.json coordination"
+  },
+  "abort_criteria_threshold": 5,
+  "unclassifiable_count": 0,
+  "file_count": 68,
+  "files": [
+    {
+      "path": "H:/prism/state/HANDOFF.md",
+      "class": "per-terminal",
+      "rationale": "Per-session handoff text; currently written globally by per-agent-handoff.mjs as LEGACY_HANDOFF alias. CPP-MS3 Session 8 moves to H:/prism/state/shared/handoffs/<family>-<machine>-<session>.md.",
+      "current_writers": ["helpers/per-agent-handoff.mjs"],
+      "remediation": "Redirect writes to per-agent handoff path; keep HANDOFF.md as a latest-pointer symlink/copy only."
+    },
+    {
+      "path": "H:/prism/state/HANDOFF_PACKAGE.json",
+      "class": "per-terminal",
+      "rationale": "Full per-session handoff payload; belongs to one terminal.",
+      "current_writers": ["helpers/pre-compact.mjs", "helpers/precompact-handoff.mjs"],
+      "remediation": "Namespace filename by <family>-<machine>-<session> under handoffs/ dir."
+    },
+    {
+      "path": "H:/prism/state/shared/handoffs/HANDOFF-latest.md",
+      "class": "per-terminal",
+      "rationale": "Alias for latest per-session handoff; already intended per-terminal but key collision occurs when multiple sessions write the 'latest' slot.",
+      "current_writers": ["helpers/auto-resume-injector.mjs", "helpers/post-compact-enhanced.mjs"],
+      "remediation": "Rename to HANDOFF-latest-<family>-<machine>-<session>.md or use symlink per terminal."
+    },
+    {
+      "path": "H:/prism/state/shared/handoffs/.current-session-ids.json",
+      "class": "per-terminal",
+      "rationale": "Session-ID map keyed by machine; already terminal-scoped but single-file global shape risks races when many terminals register.",
+      "current_writers": ["helpers/per-agent-handoff.mjs"],
+      "remediation": "Accept global-mergeable (CRDT keyed by family+machine) as alternative; safer as per-terminal file."
+    },
+    {
+      "path": "H:/prism/state/shared/handoffs/<family>-<machine>-<session>.md",
+      "class": "per-terminal",
+      "rationale": "Explicit per-terminal handoff; current design is correct.",
+      "current_writers": ["helpers/per-agent-handoff.mjs"]
+    },
+    {
+      "path": "H:/prism/state/COMPACTION_SURVIVAL.json",
+      "class": "per-terminal",
+      "rationale": "Pre-compact survival snapshot for a single session. Currently tracked in .claude/helpers/.compaction-survival.md but JSON variant referenced from state/.",
+      "current_writers": ["helpers/pre-compact.mjs", "helpers/compaction-survival.mjs", "helpers/smart-compaction-plan.mjs"]
+    },
+    {
+      "path": "H:/prism/state/RECOVERY_MANIFEST.json",
+      "class": "per-terminal",
+      "rationale": "Session-specific recovery manifest; per-terminal by nature.",
+      "current_writers": ["helpers/compaction-survival.mjs"]
+    },
+    {
+      "path": "H:/prism/state/CURRENT_STATE.json",
+      "class": "per-terminal",
+      "rationale": "Per-session operating state; safe to scope by terminal.",
+      "current_writers": ["helpers/compaction-survival.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/helpers/.compaction-survival.md",
+      "class": "per-terminal",
+      "rationale": "Dotfile sibling inside helpers dir; per-session by semantics. Path is process-local only; safe.",
+      "current_writers": ["helpers/pre-compact.mjs", "helpers/compaction-survival.mjs", "helpers/post-compact-enhanced.mjs", "helpers/smart-compaction-plan.mjs", "helpers/auto-resume-injector.mjs", "helpers/compact-restore.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/helpers/.session-breadcrumb.json",
+      "class": "per-terminal",
+      "rationale": "Single-session breadcrumb trail.",
+      "current_writers": ["helpers/session-breadcrumb.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/helpers/.session-summary.md",
+      "class": "per-terminal",
+      "rationale": "Session summary for the owning terminal.",
+      "current_writers": ["helpers/session-summary.mjs", "helpers/precompact-handoff.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_CHAT.jsonl",
+      "class": "global-mergeable",
+      "rationale": "Append-only JSONL log; line-level append is commutative and safe for concurrent writers (O_APPEND semantics).",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/agent-coordination-daemon.mjs", "helpers/task-queue.mjs", "helpers/codex-command-awareness.mjs", "helpers/realtime-session-coordinator.mjs"]
+    },
+    {
+      "path": "H:/prism/state/SESSION_INSIGHTS_LEDGER.jsonl",
+      "class": "global-mergeable",
+      "rationale": "Append-only JSONL ledger; session-tagged entries are CRDT-safe under O_APPEND.",
+      "current_writers": ["sessionDispatcher.insight_record (engine writer via SessionInsightsLedgerEngine)"]
+    },
+    {
+      "path": "H:/prism/state/shared/SUBAGENT_ACTIVITY.jsonl",
+      "class": "global-mergeable",
+      "rationale": "Append-only subagent activity log; line-append safe.",
+      "current_writers": ["helpers/subagent-results.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/SUBAGENT_ACTIVITY.md",
+      "class": "global-mergeable",
+      "rationale": "Rendered from jsonl; rebuilt on each write. Writer coordinates via rebuild-from-source, but races on read-render-write window — OK as eventually-consistent.",
+      "current_writers": ["helpers/subagent-results.mjs"],
+      "remediation": "Rebuild-from-source pattern: read jsonl, render md, atomic write. No lock needed since md is derivable."
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_CHAT.md",
+      "class": "global-mergeable",
+      "rationale": "Rendered from AGENT_CHAT.jsonl; derivable — eventually consistent.",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/task-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_WORKBOARD.json",
+      "class": "global-mergeable",
+      "rationale": "Keyed by taskId; CRDT LWW-register merge per key is safe.",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/agent-coordination-daemon.mjs", "helpers/task-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_WORKBOARD.md",
+      "class": "global-mergeable",
+      "rationale": "Rendered from workboard.json.",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/task-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_COORDINATION_STATUS.json",
+      "class": "global-mergeable",
+      "rationale": "Keyed by agent ID (family-machine-session); per-agent LWW is CRDT-safe.",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/agent-coordination-daemon.mjs", "helpers/ai-session-sync.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_COORDINATION_STATUS.md",
+      "class": "global-mergeable",
+      "rationale": "Rendered from status.json.",
+      "current_writers": ["helpers/agent-coordination.mjs", "helpers/agent-coordination-daemon.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_COORDINATION_DAEMON.json",
+      "class": "global-single-writer",
+      "rationale": "Singleton daemon lease state; only one daemon per machine holds the lease, but key is global. Requires FILE_LOCKS to prevent split-brain across machines.",
+      "current_writers": ["helpers/agent-coordination-daemon.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/ACTIVE_WORK_REGISTRY.json",
+      "class": "global-mergeable",
+      "rationale": "Keyed by work-item ID; CRDT merge per key.",
+      "current_writers": ["helpers/cross-session-work-aware.mjs", "helpers/codex-command-awareness.mjs", "helpers/realtime-session-coordinator.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/RECENT_COMPLETIONS.json",
+      "class": "global-mergeable",
+      "rationale": "Time-ordered completions list; append + truncate-to-N. Set-union by commit-SHA is CRDT-safe.",
+      "current_writers": ["helpers/cross-session-work-aware.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/CREATION_LOCKS.json",
+      "class": "global-single-writer",
+      "rationale": "Locks file for duplicate-creation prevention; single-writer by design.",
+      "current_writers": ["helpers/cross-session-work-aware.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/PICKUP_QUEUE.json",
+      "class": "global-mergeable",
+      "rationale": "Keyed by handoff ID; set-union merge works.",
+      "current_writers": ["helpers/per-agent-handoff.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/PICKUP_QUEUE.md",
+      "class": "global-mergeable",
+      "rationale": "Rendered from pickup queue json.",
+      "current_writers": ["helpers/per-agent-handoff.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/TASK_QUEUE.json",
+      "class": "global-single-writer",
+      "rationale": "Live queue with mutable task statuses; read-modify-write is not CRDT-safe without per-task locks. Use FILE_LOCKS for the whole file.",
+      "current_writers": ["helpers/task-queue.mjs", "helpers/sync-roadmap-queue.mjs", "helpers/roadmap-to-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/TASK_QUEUE.md",
+      "class": "global-single-writer",
+      "rationale": "Rendered from TASK_QUEUE.json but regenerated inline; single-writer with json.",
+      "current_writers": ["helpers/task-queue.mjs", "helpers/sync-roadmap-queue.mjs", "helpers/roadmap-to-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/SVI.json",
+      "class": "global-single-writer",
+      "rationale": "Computed system-wide index; single canonical snapshot; last-writer-wins under lock.",
+      "current_writers": ["helpers/svi-refresh.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/SVI-compact.md",
+      "class": "global-single-writer",
+      "rationale": "Rendered from SVI.json, same write txn.",
+      "current_writers": ["helpers/svi-refresh.mjs"]
+    },
+    {
+      "path": "H:/prism/state/CURRENT_POSITION.md",
+      "class": "global-single-writer",
+      "rationale": "Canonical 'current phase' marker; races between sessions updating the position clobber each other. Needs FILE_LOCKS on edit.",
+      "current_writers": ["helpers/compact-restore.mjs", "helpers/milestone-tracker.mjs", "helpers/precompact-handoff.mjs", "helpers/position-sync.mjs", "helpers/roadmap-progress.mjs", "helpers/smart-compaction-plan.mjs"]
+    },
+    {
+      "path": "H:/prism/state/ROADMAP_PROGRESS.json",
+      "class": "global-single-writer",
+      "rationale": "Aggregated progress tracker; read-modify-write — needs lock.",
+      "current_writers": ["helpers/roadmap-progress.mjs", "helpers/roadmap-to-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/ROADMAP_COLLABORATION_STATE.json",
+      "class": "global-single-writer",
+      "rationale": "Canonical collaboration state; single writer per commit.",
+      "current_writers": ["helpers/roadmap-sync.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/ROADMAP_COLLABORATION_STATE.md",
+      "class": "global-single-writer",
+      "rationale": "Rendered from collaboration state json.",
+      "current_writers": ["helpers/roadmap-sync.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/GIT_LOCK.json",
+      "class": "global-single-writer",
+      "rationale": "Git operation lock (owner PID/session/deadline); single-writer by definition — it IS the coordination primitive.",
+      "current_writers": ["hooks/git-anti-clobber.mjs", "hooks/git-anti-clobber-release.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/FILE_LOCKS.json",
+      "class": "global-single-writer",
+      "rationale": "The generic file-lock registry itself; single-writer by construction.",
+      "current_writers": ["helpers/task-queue.mjs (read only today — writer planned in CPP-MS3)"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_CONFLICT_ARBITRATION.json",
+      "class": "global-single-writer",
+      "rationale": "RPS arbitration outcome; single-winner writes final verdict.",
+      "current_writers": ["helpers/rps-arbitration.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/AGENT_CONFLICT_ARBITRATION.md",
+      "class": "global-single-writer",
+      "rationale": "Rendered from arbitration json.",
+      "current_writers": ["helpers/rps-arbitration.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/RPS_CHALLENGE.json",
+      "class": "global-single-writer",
+      "rationale": "Current-challenge state for rock-paper-scissors arbitration; mutated atomically.",
+      "current_writers": ["helpers/task-queue.mjs"]
+    },
+    {
+      "path": "H:/prism/state/shared/PENDING_GAP_ENGINES.json",
+      "class": "global-mergeable",
+      "rationale": "Keyed by engine name; set-merge of gaps is safe. Built-flag write needs LWW.",
+      "current_writers": ["hooks/always-build-guard.mjs (read-only today; writer is build-tooling)"]
+    },
+    {
+      "path": "H:/prism/state/shared/UNIFIED_COMMAND_BROADCAST.json",
+      "class": "global-mergeable",
+      "rationale": "Broadcast message set keyed by command-id/timestamp; set-union safe.",
+      "current_writers": ["helpers/codex-command-awareness.mjs", "helpers/realtime-session-coordinator.mjs"]
+    },
+    {
+      "path": "H:/prism/state/agent-spawn-tracker.json",
+      "class": "global-mergeable",
+      "rationale": "Spawn counts keyed by agent type/time-bucket; counter-CRDT safe with per-key LWW.",
+      "current_writers": ["hooks/lib/agent-spawn-guard-hook.mjs"]
+    },
+    {
+      "path": "H:/prism/state/build-guard-tracker.json",
+      "class": "global-single-writer",
+      "rationale": "Single-value build guard counter; needs lock for read-modify-write.",
+      "current_writers": ["hooks/lib/build-guard-hook.mjs"]
+    },
+    {
+      "path": "H:/prism/state/token-economy-session.json",
+      "class": "per-terminal",
+      "rationale": "Named 'session' but written as single global file — THIS IS A BUG. Token economy is inherently per-session; needs to be keyed by terminal.",
+      "current_writers": ["hooks/lib/token-economy-hook.mjs"],
+      "remediation": "Rename to token-economy-<family>-<machine>-<session>.json; hook must read SESSION env before writing."
+    },
+    {
+      "path": "H:/prism/mcp-server/state/tribal_captured_tips.json",
+      "class": "global-mergeable",
+      "rationale": "Array of tips keyed by tip ID; set-union merge safe.",
+      "current_writers": ["helpers/tribal-auto-categorize.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/state/tribal_auto_categorize.log",
+      "class": "global-mergeable",
+      "rationale": "Append-only log; line appends are commutative.",
+      "current_writers": ["helpers/tribal-auto-categorize.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/state/cross-session-asset-registry.json",
+      "class": "global-single-writer",
+      "rationale": "Duplication-guard registry; read-modify-write to add/update assets. Strictly needs lock.",
+      "current_writers": ["hooks/ai-duplication-guard.mjs (consumer)", "helpers/duplication-guard-hook.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/state/BASELINE_INVENTORY.json",
+      "class": "global-single-writer",
+      "rationale": "Canonical baseline counts snapshot; regenerated via script, single writer.",
+      "current_writers": ["helpers/capability-manifest-inject.mjs (read-only)"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/state/HEALTH_CHECK_REPORT.json",
+      "class": "global-single-writer",
+      "rationale": "Canonical health snapshot; single writer per refresh.",
+      "current_writers": ["hooks/ai-system-activate.mjs (read-only)"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/MASTER_INDEX.json",
+      "class": "global-single-writer",
+      "rationale": "Generated by regen-digests; single writer by tool.",
+      "current_writers": ["helpers/regen-digests.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/quick-ref.json",
+      "class": "global-single-writer",
+      "rationale": "Generated artifact; single writer.",
+      "current_writers": ["helpers/capability-manifest-inject.mjs (read-only)"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/roadmap-index.json",
+      "class": "global-single-writer",
+      "rationale": "Canonical roadmap index; updated by milestone tracker — needs lock because multiple sessions may complete units concurrently.",
+      "current_writers": ["helpers/milestone-tracker.mjs", "helpers/sync-roadmap-queue.mjs", "helpers/capability-manifest-inject.mjs (read-only)"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/docs/CODE_SYSTEM_INDEX.json",
+      "class": "global-single-writer",
+      "rationale": "Generated code system index; single writer by script.",
+      "current_writers": ["helpers/macro-expander.mjs (read-only)", "helpers/shortcode-injector.mjs (read-only)", "mcp-server/scripts/regen-code-index.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/docs/ENGINE_DIGEST.md",
+      "class": "global-single-writer",
+      "rationale": "Regenerated digest; single writer.",
+      "current_writers": ["helpers/regen-digests.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/docs/DISPATCHER_DIGEST.md",
+      "class": "global-single-writer",
+      "rationale": "Regenerated digest; single writer.",
+      "current_writers": ["helpers/regen-digests.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/docs/DIRECTORY_DIGEST.md",
+      "class": "global-single-writer",
+      "rationale": "Regenerated digest; single writer.",
+      "current_writers": ["helpers/regen-digests.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/docs/MASTER_INDEX_COMPACT.md",
+      "class": "global-single-writer",
+      "rationale": "Regenerated compact index; single writer.",
+      "current_writers": ["helpers/regen-digests.mjs"]
+    },
+    {
+      "path": "H:/prism/mcp-server/data/state/tribal-knowledge-index.json",
+      "class": "global-single-writer",
+      "rationale": "Generated index; single writer.",
+      "current_writers": ["hooks/extraction-to-tribal.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/build-cache-state.json",
+      "class": "per-terminal",
+      "rationale": "Per-machine build cache; never synced across machines, but multiple sessions per machine race — treat as per-terminal to be safe.",
+      "current_writers": ["helpers/build-cache-manager.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/session-write-set.json",
+      "class": "per-terminal",
+      "rationale": "Per-session file-write tracker; strictly per-terminal.",
+      "current_writers": ["helpers/build-cache-manager.mjs", "helpers/stop-guard.mjs (reader)", "helpers/test-run-gate.mjs (reader)"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/mcp-action-usage.json",
+      "class": "per-terminal",
+      "rationale": "Per-terminal MCP usage tracker.",
+      "current_writers": ["helpers/mcp-posttool-tracker.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/user-macros.json",
+      "class": "per-terminal",
+      "rationale": "Per-user, per-machine macros. Single-user scope — no cross-machine races.",
+      "current_writers": ["helpers/macro-expander.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/schema-drift-history.json",
+      "class": "per-terminal",
+      "rationale": "Per-machine drift history cache.",
+      "current_writers": ["helpers/schema-drift-detector.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/pipeline-health.json",
+      "class": "per-terminal",
+      "rationale": "Per-machine pipeline health cache.",
+      "current_writers": ["helpers/pipeline-health-monitor.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/advisor-session-stats.json",
+      "class": "per-terminal",
+      "rationale": "Per-session advisor stats; currently single file but scoped by machine; recommend sessionization.",
+      "current_writers": ["helpers/advisor-session-log.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/skill-session-stats.json",
+      "class": "per-terminal",
+      "rationale": "Per-session skill stats; same story as advisor.",
+      "current_writers": ["helpers/skill-session-tracker.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/compaction-plan.json",
+      "class": "per-terminal",
+      "rationale": "Per-session compaction plan artifact.",
+      "current_writers": ["helpers/smart-compaction-plan.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/PRISM_REVIEW_LOG.jsonl",
+      "class": "global-mergeable",
+      "rationale": "Append-only review log; JSONL.",
+      "current_writers": ["helpers/review-merge.mjs"]
+    },
+    {
+      "path": "H:/prism/.claude/cache/<misc-tool-counters>",
+      "class": "per-terminal",
+      "rationale": "tool-counter.mjs writes per-name counter files under CACHE_DIR; per-terminal scoped.",
+      "current_writers": ["helpers/tool-counter.mjs", "helpers/web-cache.mjs", "helpers/hook-cache.mjs", "helpers/read-once-cache.mjs", "helpers/search-optimizer.mjs", "helpers/autopilot-flag.mjs", "helpers/context-pressure-tracker.mjs", "helpers/night-mode.mjs"]
+    },
+    {
+      "path": "/tmp/prism-*.json (dispatcher-schema-hint.mjs, build-tracker.mjs, edit-context-enricher.mjs, mcp-action-router.mjs, smart-test-suggest.mjs)",
+      "class": "per-terminal",
+      "rationale": "Temp-file caches are OS-local, implicitly per-machine/per-session by nature.",
+      "current_writers": ["helpers/dispatcher-schema-hint.mjs", "helpers/build-tracker.mjs", "helpers/edit-context-enricher.mjs", "helpers/mcp-action-router.mjs", "helpers/smart-test-suggest.mjs"]
+    }
+  ],
+  "summary_by_class": {
+    "per-terminal": 24,
+    "global-mergeable": 18,
+    "global-single-writer": 26,
+    "unclassifiable": 0
+  },
+  "top_risks": [
+    {
+      "path": "H:/prism/state/token-economy-session.json",
+      "issue": "Named 'session' but written as single global file — multi-terminal writers clobber each other's token accounting.",
+      "fix_urgency": "high"
+    },
+    {
+      "path": "H:/prism/state/CURRENT_POSITION.md",
+      "issue": "6 distinct writers across helpers; last-writer-wins races during active milestone work.",
+      "fix_urgency": "high"
+    },
+    {
+      "path": "H:/prism/state/shared/TASK_QUEUE.json",
+      "issue": "3 writers doing read-modify-write without FILE_LOCKS coordination; concurrent completions silently drop.",
+      "fix_urgency": "high"
+    },
+    {
+      "path": "H:/prism/mcp-server/data/roadmap-index.json",
+      "issue": "Canonical roadmap index updated by multiple concurrent sessions via milestone-tracker; no lock.",
+      "fix_urgency": "high"
+    },
+    {
+      "path": "H:/prism/state/HANDOFF.md",
+      "issue": "Global single file treated as per-session; latest session overwrites others' handoffs. Already known — CPP-MS3 Session 8 fixes via per-agent-handoff redirect.",
+      "fix_urgency": "medium"
+    }
+  ],
+  "followup_units": [
+    "U-CPP19 — classify SESSION_ARTIFACTS.json fate",
+    "U-CPP20 — classify post-compact-log.json fate",
+    "U-CPP21 — per-instance SessionHandoffV2Engine (per-terminal handoffs)",
+    "U-CPP22 — CRDT merge MemorySync (global-mergeable implementation)",
+    "U-CPP23 — per-terminal compaction survival (per-terminal)",
+    "U-CPP24 — ARTIFACT_LIFECYCLE.json fate policy",
+    "U-CPP25 — SessionStart AgentCoordinationDaemon.heartbeat (global-single-writer)"
+  ]
+}

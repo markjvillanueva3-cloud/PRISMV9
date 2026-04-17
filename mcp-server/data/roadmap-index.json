@@ -8210,7 +8210,7 @@
     },
     {
       "id": "LATHE-MASTER",
-      "title": "Lathe Master Unified Roadmap v2.0 — 17-phase / 127-unit plan; 5 features + AGI substrate + formal verification + local LLM + Bayesian/causal depth + AGI safety + live machine data + predictive twin + multi-agent + science depth + optimal control",
+      "title": "Lathe Master Unified Roadmap v2.0 — 18-phase / 135-unit plan; 5 features + AGI substrate + formal verification + local LLM + Bayesian/causal depth + AGI safety + live machine data + predictive twin + multi-agent + science depth + optimal control + frontend integration (reuses Codex-built LatheUpload/Wizard/Results pages; new /lathe-studio mirrors WEDM studio pattern)",
       "version": "2.0.0",
       "track": "LATHE",
       "dependencies": [
@@ -8224,15 +8224,17 @@
         "LATHE-AI"
       ],
       "status": "not_started",
-      "total_units": 127,
+      "total_units": 135,
       "completed_units": 0,
-      "sessions": "49",
+      "sessions": "52",
       "envelope_path": "milestones/LATHE-MASTER.json",
       "authoritative_doc": "LATHE-MASTER-UNIFIED-ROADMAP.md",
       "scrutiny_doc": "SCRUTINY-LATHE-MASTER-v2-2026-04-16.md",
+      "scrutiny_doc_r5": "SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md",
       "product_promise": "Print to CNC program in one shot. Extreme level of intelligence and coordination.",
       "priority": "P0",
-      "owner": "Claude-AI"
+      "owner": "Claude-AI",
+      "codex_protection": "Reuses Codex-built pages LatheUploadPage (/lathe), LatheWizardPage (/lathe/wizard), LatheResultsPage (/lathe/results) + LatheBackplot + LatheAIPanel. Populates empty LatheInputWizard.tsx. New /lathe-studio mirrors WedmStudioProvider + components/wedm-studio/ pattern; does not clone step contents or touch Codex pages."
     },
     {
       "id": "MS-P0-V",
@@ -8502,10 +8504,26 @@
       "owner": "Claude-AI"
     },
     {
+      "id": "MS-P7.5-FE-GAPS",
+      "title": "WEDM Frontend Closure — R5 Codex-Alignment Gaps",
+      "track": "WEDM-CONSOLIDATED",
+      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M5", "MS-P7-UI-M7"],
+      "status": "not_started",
+      "total_units": 6,
+      "completed_units": 0,
+      "sessions": "2",
+      "envelope_path": "milestones/MS-P7.5-FE-GAPS.json",
+      "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
+      "priority": "P0",
+      "owner": "Claude-AI",
+      "scrutiny_round": 5,
+      "closes_gap": "WEDM frontend: studio drift gate + mode hygiene + hardcoded defaults + Print Drop bridge + job-session store + orphan API clients"
+    },
+    {
       "id": "MS-P8-FEBE",
       "title": "WEDM Frontend ↔ Backend Surface Audit",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5", "MS-P7-UI-M7"],
+      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5", "MS-P7-UI-M7", "MS-P7.5-FE-GAPS"],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -8566,6 +8584,7 @@
         "MS-P3-TIER6A", "MS-P3-TIER6B",
         "MS-P4-DL-CORE", "MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30",
         "MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5", "MS-P7-UI-M7",
+        "MS-P7.5-FE-GAPS",
         "MS-P8-FEBE", "MS-P9-WIRE", "MS-P9-XAI", "MS-P9-INT"
       ],
       "status": "not_started",
@@ -8578,6 +8597,6 @@
       "owner": "Claude-AI"
     }
   ],
-  "total_milestones": 630,
+  "total_milestones": 631,
   "completed_milestones": 238
 }

@@ -529,7 +529,7 @@ prism_session:memory_save → system_snapshot → checkpoint_enhanced
 **INTENT**: Every shared state file has a known concurrency class; dead files are populated or retired.
 **SKILLS**: `/scrutinize`, `/concurrency-check`
 
-#### U-CPP18 — Classify all hook-written state files
+#### U-CPP18 — Classify all hook-written state files ✅ DONE 2026-04-17
 - **Role**: R1 | **Model**: opus-4.6 | **Effort**: 90
 - **Dependencies**: MS1 exit
 - **Steps**:
@@ -538,8 +538,9 @@ prism_session:memory_save → system_snapshot → checkpoint_enhanced
   3. Produce `state/shared/STATE_FILE_CLASSIFICATION.json` with `{path, class, rationale, current_writers[]}`
 - **Deliverables**: STATE_FILE_CLASSIFICATION.json (new)
 - **ABORT_CRITERIA**: more than 5 files cannot be classified (indicates hidden coupling).
+- **Outcome**: Scanned 59 hook+helper writers across `.claude/hooks/*.mjs` + `.claude/helpers/*.mjs`. 68 distinct state file targets classified — 24 per-terminal, 18 global-mergeable, 26 global-single-writer, 0 unclassifiable. Top risks surfaced: `token-economy-session.json` (global-file/per-session naming mismatch), `CURRENT_POSITION.md` (6 writers no lock), `TASK_QUEUE.json` (3 RMW writers no lock), `roadmap-index.json` (milestone-tracker races). File: `H:/prism/state/shared/STATE_FILE_CLASSIFICATION.json`.
 
-#### U-CPP19 — Decide fate of SESSION_ARTIFACTS.json
+#### U-CPP19 — Decide fate of SESSION_ARTIFACTS.json ✅ DONE 2026-04-17
 - **Role**: R2 | **Model**: sonnet-4.6 | **Effort**: 70
 - **Dependencies**: U-CPP18, U-CPP10 (SessionEventLogEngine wired)
 - **Steps**:
@@ -548,12 +549,14 @@ prism_session:memory_save → system_snapshot → checkpoint_enhanced
   3. Implement chosen path; update `feature-cascade-write` hook if populating.
 - **FILES_MODIFIED**: SESSION_ARTIFACTS.json (populated or deleted) + ≥6 hooks
 - **ABORT_CRITERIA**: reads depend on a schema not producible by SessionEventLogEngine.
+- **Outcome**: POPULATE path chosen. `compact-restore.mjs` and `session-start-compact.mjs` both read `recent_additions.{new_engines,new_hooks,new_skills}` — canonical shape already produced by `post-compact-enhanced.mjs`. Seeded file with schema-valid stub (`schemaVersion: "1.0.0"` + empty arrays) so readers don't face `{}`. Patched writer to emit `schemaVersion` on every PostCompact write. Deviation from spec: route is via hook writer, not SessionEventLogEngine.query — the engine is session-scoped and cannot reflect cross-session feature-cascade state.
 
-#### U-CPP20 — Decide fate of post-compact-log.json
+#### U-CPP20 — Decide fate of post-compact-log.json ✅ DONE 2026-04-17
 - **Role**: R2 | **Model**: sonnet-4.6 | **Effort**: 70
 - **Dependencies**: U-CPP18
 - **Steps**: mirror U-CPP19. Prefer populate via `SessionLifecycleEngine.recordEvent("post-compact")`.
 - **FILES_MODIFIED**: post-compact-log.json + hook writers
+- **Outcome**: POPULATE path. Two writers found with conflicting schemas: `post-compact-enhanced.mjs` writes `{events: [...]}` (array) while `enforce-post-compact-consolidated.py` was overwriting with `{event, timestamp, handoff_exists, handoff_size}` (single-event, last-writer-wins clobber). Harmonized Python writer to read-append-truncate into the same `{schemaVersion, events: [...]}` shape (last-50 ring). Seeded file with schema stub. Deviation from spec: `SessionLifecycleEngine.recordEvent("post-compact")` does not exist — engine has `record(type, summary, data?)` on `SessionEventLogEngine` instead; routed via hook writer to avoid cross-session pollution of session-scoped event log.
 
 ### SESSION 8: Per-Terminal Addressability (U-CPP21..U-CPP23)
 **SMART CONFIG**: Role=R1 + R2 | MODEL=opus→sonnet | EFFORT=HIGH | CONTEXT_BUDGET=70K
