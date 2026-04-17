@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T02:06:55.908Z
+**Generated:** 2026-04-17T02:16:24.031Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 97 |
+| Engines | 98 |
 | Playbooks | 8 |
 | State Files | 41 |
 
-## Engines (97)
+## Engines (98)
 
 | Engine | Description |
 |--------|-------------|
@@ -45,6 +45,7 @@
 | `WEDMAutonomyEngine` | WEDMAutonomyEngine — SAE J3016-adapted autonomy level management for WEDM. |
 | `WEDMAwarenessAdoptionEngine` | WEDMAwarenessAdoptionEngine — MS-P0.5-COORD U-P0.5-COORD-01 |
 | `WEDMBatchProgramAnalyzerEngine` | WEDMBatchProgramAnalyzerEngine - Comprehensive Wire EDM Program Batch Analysis |
+| `WEDMBlackboardEngine` | WEDMBlackboardEngine — MS-P0.5-COORD U-P0.5-COORD-03 |
 | `WEDMCalculatorAIEngine` | WEDMCalculatorAIEngine — AI-Powered Wire EDM Calculator for PRISM App |
 | `WEDMCalibrationReportEngine` | WEDMCalibrationReportEngine — Compares shop program parameters to published benc |
 | `WEDMCompleteOrchestrationEngine` | WEDMCompleteOrchestrationEngine — 30-Stage Wire EDM Program Generation Pipeline |
