@@ -28,13 +28,14 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { consultAwareness } from "../tools/dispatchers/awarenessMiddleware.js";
 
 // ============================================================================
 // TYPES
 // ============================================================================
 
 export type InputFormat = "text" | "step" | "iges" | "dxf" | "auto";
-export type ProcessType = "milling" | "turning" | "mill_turn" | "auto";
+export type ProcessType = "milling" | "turning" | "mill_turn" | "wire_edm" | "auto";
 
 export interface AutoPTPInput {
   /** Raw content — text extracted from PDF, or file content as string */
@@ -107,14 +108,19 @@ function detectProcessType(features: Array<{ type: string }>): ProcessType {
     "thread_id", "part_off", "drill_center", "knurl", "od_profile"]);
   const millingTypes = new Set(["pocket", "slot", "boss", "contour", "face_mill",
     "drill_pattern", "tap_pattern", "surface_3d", "profile_2d"]);
+  const wireEdmTypes = new Set(["wire_profile", "wire_contour", "die_opening", "punch_profile",
+    "extrusion_die", "blanking_die", "piercing_punch", "wire_taper", "internal_cutout"]);
 
   let turningCount = 0;
   let millingCount = 0;
+  let wireEdmCount = 0;
   for (const f of features) {
     if (turningTypes.has(f.type)) turningCount++;
     else if (millingTypes.has(f.type)) millingCount++;
+    else if (wireEdmTypes.has(f.type)) wireEdmCount++;
   }
 
+  if (wireEdmCount > 0) return "wire_edm";
   if (turningCount > 0 && millingCount > 0) return "mill_turn";
   if (turningCount > millingCount) return "turning";
   return "milling";
@@ -160,6 +166,32 @@ export class AutoPrintToProgramBridgeEngine {
     log.info(`[AutoPTPBridge] Starting automated pipeline`);
     const warnings: AutoPTPResult["warnings"] = [];
     const stages: string[] = [];
+
+    // ── MS-P1.5-ONESHOT/U-P1.5-OS-07: consultAwareness (fails-open) ──
+    try {
+      const awarenessKeywords = [
+        input.process_type ?? "auto",
+        input.material_name ?? "steel",
+        input.machine_brand ?? "",
+        input.controller ?? "",
+      ].filter(Boolean);
+      const awarenessResult = await Promise.race([
+        consultAwareness({
+          dispatcher: "auto_print_to_program",
+          action: "run_auto_pipeline",
+          keywords: awarenessKeywords,
+          limit: 5,
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Awareness timeout")), 50)
+        ),
+      ]);
+      if (awarenessResult.ok) {
+        stages.push("awareness_consulted");
+      }
+    } catch {
+      log.warn(`[AutoPTPBridge] consultAwareness timeout/error — continuing without awareness context`);
+    }
 
     // ── Stage 1: Format Detection ──
     const format = input.format === "auto" || !input.format
@@ -340,6 +372,37 @@ export class AutoPrintToProgramBridgeEngine {
         stages.push("program_generation: turning pipeline");
       } catch (err) {
         warnings.push({ stage: "generation", severity: "critical", message: `Turning pipeline failed: ${err}` });
+        pipelineUsed = "FAILED";
+      }
+    } else if (processType === "wire_edm") {
+      // Route to WEDMPrintToProgramEngine (MS-P1.5-ONESHOT/U-P1.5-OS-07)
+      try {
+        const { wedmPrintToProgramEngine } = await import("./WEDMPrintToProgramEngine.js");
+        const wedmInput = {
+          dxf_content: format === "dxf" ? input.content : undefined,
+          material: material || "D2",
+          thickness_mm: input.stock_z_mm || 25,
+          target_ra_um: features[0]?.dimensions?.surface_finish_Ra_um,
+          target_accuracy_mm: features[0]?.dimensions?.tolerance_mm,
+          controller: (input.controller === "fanuc" ? "fanuc" : "mitsubishi") as "mitsubishi" | "sodick" | "makino" | "agie" | "fanuc",
+          units: input.units === "inch" ? "imperial" : "metric" as "metric" | "imperial",
+          part_name: partNumber,
+        };
+        const result = await wedmPrintToProgramEngine.generate(wedmInput);
+        if (result.success) {
+          programText = result.program_text;
+          cycleTime = result.estimated_time_min * 60;
+          toolList = [{ tool_number: 1, description: `Wire EDM (${result.controller})` }];
+          confidence = result.confidence_score?.overall ?? 0.85;
+          setupSheet = result.setup_sheet as Record<string, unknown>;
+          pipelineUsed = "WEDMPrintToProgramEngine";
+          stages.push("program_generation: wire_edm pipeline");
+        } else {
+          warnings.push({ stage: "generation", severity: "critical", message: `Wire EDM pipeline returned success=false` });
+          pipelineUsed = "FAILED";
+        }
+      } catch (err) {
+        warnings.push({ stage: "generation", severity: "critical", message: `Wire EDM pipeline failed: ${err}` });
         pipelineUsed = "FAILED";
       }
     } else {
