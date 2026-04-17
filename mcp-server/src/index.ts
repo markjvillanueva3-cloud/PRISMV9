@@ -156,6 +156,7 @@ import { registerMonitoringDispatcher } from "./tools/dispatchers/monitoringDisp
 import { registerAuthDispatcher } from "./tools/dispatchers/authDispatcher.js";
 import { registerResourceHarvesterDispatcher } from "./tools/dispatchers/resourceHarvesterDispatcher.js";
 import { registerResourceHarvestingDispatcher } from "./tools/dispatchers/resourceHarvestingDispatcher.js";
+import { registerResourceExtractionDispatcher } from "./tools/dispatchers/resourceExtractionDispatcher.js";
 import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.js";
 
 // L3: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions (#40-#45)
@@ -653,6 +654,7 @@ async function registerTools(): Promise<void> {
   registerAuthDispatcher(server);
   registerResourceHarvesterDispatcher(server);
   registerResourceHarvestingDispatcher(server);   // RESOURCE-HARVEST-MS1: 8 actions (automated pipeline)
+  registerResourceExtractionDispatcher(server);   // AI-AWARE-HARDEN: 14 actions (extraction pipeline)
   registerExportDispatcher(server);
 
   // L3-P1: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions
