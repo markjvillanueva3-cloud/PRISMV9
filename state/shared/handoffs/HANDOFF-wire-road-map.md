@@ -1,9 +1,87 @@
 # HANDOFF: wire-road-map
 
 **Track**: WEDM-CONSOLIDATED (Wire EDM roadmap)
-**Author**: Claude Opus 4.7 — session on home PC
-**Date**: 2026-04-17
-**Resume trigger phrases**: "continue wire road map" | "resume wedm roadmap" | "pick up MS-P0.5-COORD"
+**Author**: Claude Opus 4.5 — work PC session (continued from home PC)
+**Date**: 2026-04-17 (updated)
+**Resume trigger phrases**: "continue wire road map" | "resume wedm roadmap" | "pick up MS-P1-AUTONOMY"
+
+---
+
+## 0. Latest Update (work PC session)
+
+**MS-P1-DIGEST-SELFAWARENESS is COMPLETE (3/3 units).** AI now has comprehensive self-awareness of WEDM subsystem.
+
+**New files for MS-P1-DIGEST-SELFAWARENESS (620 LOC):**
+- `mcp-server/src/engines/WEDMSelfAwarenessEngine.ts` — digest + substrate + autonomy + learning snapshot
+- `mcp-server/src/__tests__/wedm-self-awareness.test.ts` — 33 tests
+- `mcp-server/web/src/api/wedmCoordination.ts` — extended with selfAwarenessApi
+
+**API Endpoints added for self-awareness:**
+- GET /self-awareness/snapshot — complete WEDM subsystem state
+- GET /self-awareness/report — human-readable status report (markdown)
+- GET /self-awareness/digest — cached WEDM_DIGEST.json
+- POST /self-awareness/query — capability search by keyword
+- GET /self-awareness/health — health assessment only
+
+**Previous: MS-P1-AUTONOMY is COMPLETE (3/3 units).** Autonomy L0-L5 gated by substrate health.
+
+**New files for MS-P1-AUTONOMY (850 LOC):**
+- `mcp-server/src/engines/WEDMAutonomySubstrateGateEngine.ts` — health-gated autonomy transitions
+- `mcp-server/web/src/components/wedm-studio/AutonomyPanel.tsx` — React UI for autonomy control
+- `mcp-server/src/__tests__/wedm-autonomy-gate.test.ts` — 24 tests
+
+**API Endpoints added for autonomy:**
+- GET /autonomy/status — current level, health metrics, eligibility
+- GET /autonomy/metrics — substrate health metrics
+- GET /autonomy/eligibility — promotion check
+- POST /autonomy/promote — request level increase (health-gated)
+- POST /autonomy/demote — request level decrease
+- GET /autonomy/degrade-check — check auto-degrade triggers
+- POST /autonomy/auto-degrade — apply automatic degrade
+- GET /autonomy/history — transition history
+
+**Previous: MS-P1-LEARN-LOOP is COMPLETE (5/5 units).** Learning loop closes feedback → tribal tips → neural fusion.
+
+**New files for MS-P1-LEARN-LOOP (1,450 LOC):**
+- `mcp-server/src/engines/WEDMFeedbackIngestionEngine.ts` — feedback processing, ground truth buffering
+- `mcp-server/src/engines/WEDMTribalTipLearnerEngine.ts` — tip generation, approval workflow
+- `mcp-server/web/src/components/wedm-studio/FeedbackPanel.tsx` — React UI for feedback/learning
+- `mcp-server/src/__tests__/wedm-learning-loop.test.ts` — 24 tests
+
+**API Endpoints added:**
+- POST /coordination/feedback — submit job outcome feedback
+- GET /coordination/feedback/recent — recent submissions
+- GET /coordination/feedback/stats — ingestion statistics
+- GET /coordination/learning/tip-candidates — pending tip candidates
+- POST /coordination/learning/process-tips — trigger tribal learner
+- GET /coordination/learning/stats — combined learning stats
+- POST /coordination/learning/update-fusion — wire ground truth to neural fusion
+- POST /coordination/learning/approve-tip — approve pending tip
+- POST /coordination/learning/reject-tip — reject pending tip
+- GET /coordination/learning/pending-tips — tips pending review
+
+**Previous: MS-P1-FRONT-WIRE is COMPLETE (6/6 units).** Coordination substrate now visible in UI.
+
+**New files (1,313 LOC):**
+- `mcp-server/src/routes/edm.ts` — 7 new coordination API endpoints
+- `mcp-server/web/src/api/wedmCoordination.ts` — typed API client
+- `mcp-server/web/src/hooks/useCoordination.ts` — React state hook
+- `mcp-server/web/src/components/wedm-studio/ReasoningTraceDashboard.tsx`
+- `mcp-server/web/src/components/wedm-studio/BlackboardPanel.tsx`
+- `mcp-server/web/src/components/wedm-studio/AIReasoningTab.tsx`
+- `mcp-server/web/src/pages/WireEdmStudioPage.tsx` — collapsible AI panel
+- `mcp-server/src/__tests__/wedm-coordination-routes.test.ts` — 11 tests
+
+**API Endpoints:**
+- GET /coordination/snapshot — combined state of all engines
+- GET /coordination/ledger/recent — reasoning trace entries
+- GET /coordination/ledger/stats — trace statistics
+- GET /coordination/blackboard/stats — blackboard statistics
+- POST /coordination/blackboard/query — namespace-filtered queries
+- GET /coordination/bridge/stats — bridge layer statistics
+- GET /coordination/dispatch/stats — dispatch coordinator stats
+
+**Next phase options:** MS-P1-LEARN-LOOP, MS-P1-AUTONOMY, or MS-P1-DIGEST-SELFAWARENESS
 
 ---
 
@@ -57,18 +135,16 @@ f69d4d57 U-P0.5-COORD-07  ArchiveBackfill — warm-start from historical program
 
 Per the consolidated WEDM roadmap, phases after MS-P0.5-COORD (choose one to drive next):
 
-| Phase | Scope | Rough size |
-|-------|-------|-----------|
-| **MS-P1-FRONT-WIRE** | Wire Codex's front-end studio to the edm dispatcher; call coordinateDispatch via HTTP; expose live ledger + blackboard snapshots in the UI; audit app↔backend parity (what the UI is missing vs backend capability, and vice versa) | 5-8 units |
-| **MS-P1-LEARN-LOOP** | Close the learning loop: feedback endpoint from UI writes adjudicated decisions back through bridge.postDecision; tribal-tip corpus receives new tips from confirmed runs; neural fusion gets real ground-truth observations | 4-6 units |
-| **MS-P1-AUTONOMY** | Extend WEDM autonomy levels L0→L2 gated by substrate health (silent-minutes, error-rate, coverage%); handoff protocol; safety envelope enforcement | 4-5 units |
-| **MS-P1-DIGEST-SELFAWARENESS** | Feed WEDM_DIGEST + substrate snapshot into PRISMSelfAwarenessEngine so the AI knows its own substrate state and can report it to users | 2-3 units |
+| Phase | Scope | Status |
+|-------|-------|--------|
+| ~~MS-P1-FRONT-WIRE~~ | Wire Codex's front-end studio to the edm dispatcher | ✅ COMPLETE |
+| ~~MS-P1-LEARN-LOOP~~ | Close the learning loop: feedback → tips → neural fusion | ✅ COMPLETE |
+| ~~MS-P1-AUTONOMY~~ | Extend WEDM autonomy levels L0→L5 gated by substrate health | ✅ COMPLETE |
+| ~~MS-P1-DIGEST-SELFAWARENESS~~ | Feed WEDM_DIGEST + substrate snapshot into self-awareness | ✅ COMPLETE |
 
-**Recommended next phase**: **MS-P1-FRONT-WIRE** — the user explicitly called it out in the original
-forge-audit prompt ("it should end with wiring to the front end build prism app that codex built.
-we should audit when we get to that point to see what the app ui front end build is lacking relative
-to the back end and vise versa"). The substrate is now ready — the ledger/blackboard/bridge are
-the exact shape the UI needs.
+**All MS-P1 phases are COMPLETE.** The WEDM-CONSOLIDATED roadmap is done.
+
+Next steps would be MS-P2 phases (if defined) or moving to other track roadmaps.
 
 ---
 
@@ -157,6 +233,7 @@ live-tail panel. Those two alone turn the substrate into a visible, debuggable s
 ## 7. Files owned by this track (do-not-clobber list)
 
 ```
+# MS-P0.5-COORD (Round 4 coordination substrate)
 src/engines/WEDMAwarenessAdoptionEngine.ts      (U-01)
 src/engines/WEDMReasoningTraceLedgerEngine.ts   (U-02)
 src/engines/WEDMBlackboardEngine.ts             (U-03)
@@ -165,9 +242,33 @@ src/engines/WEDMTribalRuntimeEngine.ts          (U-05)
 src/engines/WEDMNeuralFormulaFusionEngine.ts    (U-06)
 src/engines/WEDMArchiveBackfillEngine.ts        (U-07)
 src/engines/WEDMMultiAgentDispatchEngine.ts     (U-08)
+
+# MS-P1-FRONT-WIRE (UI wiring)
+src/routes/edm.ts                               (coordination + autonomy + self-awareness routes)
+web/src/api/wedmCoordination.ts                 (API client)
+web/src/hooks/useCoordination.ts
+web/src/components/wedm-studio/ReasoningTraceDashboard.tsx
+web/src/components/wedm-studio/BlackboardPanel.tsx
+web/src/components/wedm-studio/AIReasoningTab.tsx
+
+# MS-P1-LEARN-LOOP (Learning loop)
+src/engines/WEDMFeedbackIngestionEngine.ts
+src/engines/WEDMTribalTipLearnerEngine.ts
+web/src/components/wedm-studio/FeedbackPanel.tsx
+
+# MS-P1-AUTONOMY (Health-gated autonomy)
+src/engines/WEDMAutonomySubstrateGateEngine.ts
+web/src/components/wedm-studio/AutonomyPanel.tsx
+
+# MS-P1-DIGEST-SELFAWARENESS (Self-awareness)
+src/engines/WEDMSelfAwarenessEngine.ts
+
+# Dispatcher wiring
 src/tools/dispatchers/edmDispatcher.ts          (U-08 wiring — lines ~405-420, ~2965-2981)
 src/tools/dispatchers/camDispatcher.ts          (U-08 wiring — lines ~1402-1418, ~7856-7875)
 src/hooks/wedm-awareness-coverage               (U-01)
+
+# State files
 data/state/WEDM_BACKFILL_STATE.json             (U-07 runtime state)
 data/state/WEDM_REASONING_TRACE_LEDGER.jsonl    (U-02 runtime state)
 data/docs/WEDM_DIGEST.md                        (generated)

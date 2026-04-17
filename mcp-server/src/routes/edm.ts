@@ -623,5 +623,366 @@ export function createEdmRouter(callTool: CallToolFn): Router {
     } catch (e) { next(e); }
   });
 
+  // ── MS-P1-LEARN-LOOP: Feedback Ingestion API ────────────────────────────
+
+  /**
+   * POST /coordination/feedback
+   * Submit operator feedback from a completed job.
+   * Routes through bridge.postDecision, records ground truth, queues tip candidates.
+   *
+   * Body: FeedbackSubmission (see WEDMFeedbackIngestionEngine.ts)
+   */
+  router.post("/coordination/feedback", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      const result = await wedmFeedbackIngestionEngine.ingest(req.body);
+      res.json({ ok: result.ok, data: result });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/feedback/recent?limit=50
+   * Returns recent feedback submissions.
+   */
+  router.get("/coordination/feedback/recent", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 50, 1), 200);
+      res.json({ ok: true, data: wedmFeedbackIngestionEngine.getRecentFeedback(limit) });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/feedback/stats
+   * Returns feedback ingestion statistics.
+   */
+  router.get("/coordination/feedback/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      res.json({ ok: true, data: wedmFeedbackIngestionEngine.getStats() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/learning/tip-candidates?limit=100
+   * Returns pending tribal tip candidates for review/processing.
+   */
+  router.get("/coordination/learning/tip-candidates", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 100, 1), 500);
+      res.json({ ok: true, data: wedmFeedbackIngestionEngine.getTipCandidates(limit) });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /coordination/learning/process-tips
+   * Trigger tribal tip learner to process pending candidates.
+   * Body: { max_candidates?: number, auto_approve_threshold?: number }
+   */
+  router.post("/coordination/learning/process-tips", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmTribalTipLearnerEngine } = await import("../engines/WEDMTribalTipLearnerEngine.js");
+      const maxCandidates = req.body.max_candidates ?? 50;
+      const autoApproveThreshold = req.body.auto_approve_threshold ?? 0.85;
+      const result = await wedmTribalTipLearnerEngine.processQueue(maxCandidates, autoApproveThreshold);
+      res.json({ ok: true, data: result });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/learning/stats
+   * Returns combined learning loop statistics.
+   */
+  router.get("/coordination/learning/stats", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      const { wedmTribalTipLearnerEngine } = await import("../engines/WEDMTribalTipLearnerEngine.js");
+      res.json({
+        ok: true,
+        data: {
+          ingestion: wedmFeedbackIngestionEngine.getStats(),
+          learning: wedmTribalTipLearnerEngine.getStats(),
+        },
+      });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /coordination/learning/update-fusion
+   * Trigger neural fusion weight updates from ground truth buffer.
+   * Body: { target?: string, max_points?: number }
+   */
+  router.post("/coordination/learning/update-fusion", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmFeedbackIngestionEngine } = await import("../engines/WEDMFeedbackIngestionEngine.js");
+      const { wedmNeuralFormulaFusionEngine } = await import("../engines/WEDMNeuralFormulaFusionEngine.js");
+
+      const target = req.body.target;
+      const maxPoints = req.body.max_points ?? 100;
+
+      // Get ground truth buffer
+      const groundTruth = wedmFeedbackIngestionEngine.getGroundTruthBuffer(target, maxPoints);
+      if (groundTruth.length === 0) {
+        res.json({ ok: true, data: { updated: 0, message: "No ground truth available" } });
+        return;
+      }
+
+      // Group by target+material and update fusion weights
+      let updated = 0;
+      const byContext = new Map<string, typeof groundTruth>();
+      for (const gt of groundTruth) {
+        const key = `${gt.target}::${gt.material}`;
+        let arr = byContext.get(key);
+        if (!arr) {
+          arr = [];
+          byContext.set(key, arr);
+        }
+        arr.push(gt);
+      }
+
+      for (const [_key, points] of byContext) {
+        for (const pt of points) {
+          // Build estimator array with predicted value
+          const estimators = [{ source: "ai_prediction", value: pt.predicted, priorWeight: 1.0 }];
+          const ctx = { target: pt.target, material: pt.material };
+          wedmNeuralFormulaFusionEngine.recordObservation(estimators, pt.actual, ctx);
+          updated++;
+        }
+      }
+
+      // Clear processed ground truth
+      if (groundTruth.length > 0) {
+        wedmFeedbackIngestionEngine.clearGroundTruthBuffer(groundTruth[groundTruth.length - 1].timestamp);
+      }
+
+      res.json({ ok: true, data: { updated, contexts: byContext.size } });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /coordination/learning/approve-tip
+   * Manually approve a pending tribal tip.
+   * Body: { tip_id: string }
+   */
+  router.post("/coordination/learning/approve-tip", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmTribalTipLearnerEngine } = await import("../engines/WEDMTribalTipLearnerEngine.js");
+      const tipId = req.body.tip_id;
+      if (!tipId) {
+        res.status(400).json({ ok: false, error: "tip_id is required" });
+        return;
+      }
+      const success = wedmTribalTipLearnerEngine.approveTip(tipId);
+      res.json({ ok: success, data: { approved: success } });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /coordination/learning/reject-tip
+   * Reject a pending tribal tip.
+   * Body: { tip_id: string }
+   */
+  router.post("/coordination/learning/reject-tip", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmTribalTipLearnerEngine } = await import("../engines/WEDMTribalTipLearnerEngine.js");
+      const tipId = req.body.tip_id;
+      if (!tipId) {
+        res.status(400).json({ ok: false, error: "tip_id is required" });
+        return;
+      }
+      const success = wedmTribalTipLearnerEngine.rejectTip(tipId);
+      res.json({ ok: success, data: { rejected: success } });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /coordination/learning/pending-tips
+   * Returns tips pending manual review.
+   */
+  router.get("/coordination/learning/pending-tips", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { wedmTribalTipLearnerEngine } = await import("../engines/WEDMTribalTipLearnerEngine.js");
+      const limit = Math.min(Math.max(parseInt(String(req.query.limit), 10) || 50, 1), 100);
+      res.json({ ok: true, data: wedmTribalTipLearnerEngine.getPendingReview(limit) });
+    } catch (e) { next(e); }
+  });
+
+  // ── MS-P1-AUTONOMY: Autonomy Level Management API ────────────────────────
+
+  /**
+   * GET /autonomy/status
+   * Returns current autonomy level, health metrics, and eligibility for promotion.
+   */
+  router.get("/autonomy/status", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      res.json({ ok: true, data: wedmAutonomySubstrateGateEngine.getStatus() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /autonomy/metrics
+   * Returns substrate health metrics used for autonomy gating.
+   */
+  router.get("/autonomy/metrics", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      res.json({ ok: true, data: wedmAutonomySubstrateGateEngine.getMetrics() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /autonomy/eligibility
+   * Check if promotion to next level is allowed.
+   */
+  router.get("/autonomy/eligibility", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      res.json({ ok: true, data: wedmAutonomySubstrateGateEngine.checkPromotionEligibility() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /autonomy/promote
+   * Request autonomy level promotion (subject to health gates).
+   * Body: { actor?: string, reason?: string, counter_sign?: string }
+   */
+  router.post("/autonomy/promote", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      const result = wedmAutonomySubstrateGateEngine.gatedPromote({
+        actor: req.body.actor,
+        reason: req.body.reason,
+        counterSign: req.body.counter_sign,
+      });
+      if (result.success) {
+        res.json({ ok: true, data: result });
+      } else {
+        res.status(400).json({ ok: false, error: result.error, data: result.gate });
+      }
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /autonomy/demote
+   * Request autonomy level demotion.
+   * Body: { actor?: string, reason?: string }
+   */
+  router.post("/autonomy/demote", requirePermission("edm:write"), async (req, res, next) => {
+    try {
+      const { wedmAutonomyEngine } = await import("../engines/WEDMAutonomyEngine.js");
+      const transition = wedmAutonomyEngine.demote({
+        actor: req.body.actor,
+        reason: req.body.reason,
+      });
+      res.json({ ok: true, data: transition });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /autonomy/degrade-check
+   * Check if current health metrics warrant automatic degrade.
+   */
+  router.get("/autonomy/degrade-check", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      res.json({ ok: true, data: wedmAutonomySubstrateGateEngine.checkDegradeTriggers() });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /autonomy/auto-degrade
+   * Trigger automatic degrade if health metrics warrant it.
+   */
+  router.post("/autonomy/auto-degrade", requirePermission("edm:write"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomySubstrateGateEngine } = await import("../engines/WEDMAutonomySubstrateGateEngine.js");
+      const result = wedmAutonomySubstrateGateEngine.autoDegrade();
+      res.json({ ok: true, data: result });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /autonomy/history
+   * Returns autonomy level transition history.
+   */
+  router.get("/autonomy/history", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmAutonomyEngine } = await import("../engines/WEDMAutonomyEngine.js");
+      res.json({ ok: true, data: wedmAutonomyEngine.snapshot() });
+    } catch (e) { next(e); }
+  });
+
+  // ── MS-P1-DIGEST-SELFAWARENESS: Self-Awareness API ────────────────────
+  // Provides the AI with comprehensive awareness of the WEDM subsystem
+
+  /**
+   * GET /self-awareness/snapshot
+   * Returns complete self-awareness snapshot: digest, substrate, autonomy, learning, health.
+   */
+  router.get("/self-awareness/snapshot", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmSelfAwarenessEngine } = await import("../engines/WEDMSelfAwarenessEngine.js");
+      const snapshot = await wedmSelfAwarenessEngine.getSnapshot();
+      res.json({ ok: true, data: snapshot });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /self-awareness/report
+   * Returns human-readable status report for the WEDM subsystem.
+   */
+  router.get("/self-awareness/report", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmSelfAwarenessEngine } = await import("../engines/WEDMSelfAwarenessEngine.js");
+      const report = await wedmSelfAwarenessEngine.generateStatusReport();
+      res.json({ ok: true, data: { report } });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /self-awareness/digest
+   * Returns the cached WEDM_DIGEST (engine inventory).
+   */
+  router.get("/self-awareness/digest", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmSelfAwarenessEngine } = await import("../engines/WEDMSelfAwarenessEngine.js");
+      const digest = await wedmSelfAwarenessEngine.getDigest();
+      res.json({ ok: true, data: digest });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * POST /self-awareness/query
+   * Query WEDM capabilities by keyword.
+   * Body: { query: string }
+   */
+  router.post("/self-awareness/query", requirePermission("edm:read"), async (req, res, next) => {
+    try {
+      const { query } = req.body as { query?: string };
+      if (!query || typeof query !== "string") {
+        res.status(400).json({ ok: false, error: "query is required" });
+        return;
+      }
+      const { wedmSelfAwarenessEngine } = await import("../engines/WEDMSelfAwarenessEngine.js");
+      const result = await wedmSelfAwarenessEngine.queryCapabilities(query);
+      res.json({ ok: true, data: result });
+    } catch (e) { next(e); }
+  });
+
+  /**
+   * GET /self-awareness/health
+   * Returns health assessment only (lighter than full snapshot).
+   */
+  router.get("/self-awareness/health", requirePermission("edm:read"), async (_req, res, next) => {
+    try {
+      const { wedmSelfAwarenessEngine } = await import("../engines/WEDMSelfAwarenessEngine.js");
+      const substrate = wedmSelfAwarenessEngine.getSubstrateState();
+      const health = wedmSelfAwarenessEngine.assessHealth(substrate);
+      res.json({ ok: true, data: health });
+    } catch (e) { next(e); }
+  });
+
   return router;
 }

@@ -224,3 +224,452 @@ export const coordinationApi = {
   /** Get dispatch coordinator statistics */
   getDispatchStats: () => get<DispatchStats>("/coordination/dispatch/stats"),
 };
+
+// ============================================================================
+// TYPES — Learning Loop (MS-P1-LEARN-LOOP)
+// ============================================================================
+
+export interface FeedbackSubmission {
+  job_id: string;
+  dispatcher: "edm" | "cam";
+  action: string;
+  original_params: Record<string, unknown>;
+  success: boolean;
+  predicted: Record<string, unknown>;
+  actual: Record<string, unknown>;
+  corrections?: Array<{
+    key: string;
+    original_value: unknown;
+    corrected_value: unknown;
+    reason?: string;
+  }>;
+  operator_notes?: string;
+  material?: string;
+  thickness_mm?: number;
+  wire_type?: string;
+  machine_id?: string;
+  confidence?: number;
+}
+
+export interface FeedbackResult {
+  ok: boolean;
+  feedback_id: string;
+  decisions_posted: number;
+  observations_posted: number;
+  tip_candidates_queued: number;
+  ground_truth_updated: boolean;
+  errors?: string[];
+}
+
+export interface FeedbackStats {
+  totalFeedback: number;
+  successfulJobs: number;
+  failedJobs: number;
+  correctionsReceived: number;
+  tipCandidatesGenerated: number;
+  groundTruthPoints: number;
+  avgPredictionError: number;
+  pendingTipCandidates: number;
+  pendingGroundTruth: number;
+}
+
+export interface TipCandidate {
+  id: string;
+  source_job: string;
+  pattern_type: "correction" | "success_pattern" | "failure_pattern" | "operator_note";
+  keywords: string[];
+  context: Record<string, unknown>;
+  note?: string;
+  created_at: string;
+}
+
+export interface GeneratedTip {
+  id: string;
+  source_candidate_id: string;
+  text: string;
+  keywords: string[];
+  tags: string[];
+  confidence: number;
+  source: "learned";
+  approved: boolean;
+  created_at: string;
+}
+
+export interface LearningStats {
+  totalProcessed: number;
+  autoApproved: number;
+  manuallyApproved: number;
+  rejected: number;
+  tipsGenerated: number;
+  pendingReviewCount: number;
+  learnedCorpusSize: number;
+}
+
+export interface CombinedLearningStats {
+  ingestion: FeedbackStats;
+  learning: LearningStats;
+}
+
+export interface ProcessTipsResult {
+  processed: number;
+  auto_approved: number;
+  pending_review: number;
+  rejected: number;
+  new_tips: GeneratedTip[];
+}
+
+export interface FusionUpdateResult {
+  updated: number;
+  contexts?: number;
+  message?: string;
+}
+
+// ============================================================================
+// LEARNING LOOP API
+// ============================================================================
+
+// ============================================================================
+// TYPES — Autonomy (MS-P1-AUTONOMY)
+// ============================================================================
+
+export type AutonomyLevel = 0 | 1 | 2 | 3 | 4 | 5;
+
+export type AutonomyCapability =
+  | "suggest_parameters"
+  | "auto_adjust_parameters"
+  | "execute_job_supervised"
+  | "execute_job_unattended"
+  | "self_modify_policy";
+
+export interface SubstrateHealthMetrics {
+  errorRate: number;
+  awarenessAdoption: number;
+  silentMinutes: number;
+  blackboardActive: number;
+  bridgeLatencyMs: number;
+  feedbackTotal: number;
+  tipsLearned: number;
+  coordinations: number;
+  lastActivityAt: string | null;
+}
+
+export interface LevelRequirements {
+  maxErrorRate: number;
+  minAwarenessAdoption: number;
+  maxSilentMinutes: number;
+  minCoordinations?: number;
+  minFeedbackCount?: number;
+  requiresCounterSign?: boolean;
+  sustainedHours?: number;
+}
+
+export interface AutonomyStatusSnapshot {
+  currentLevel: AutonomyLevel;
+  levelName: string;
+  humanRole: string;
+  metrics: SubstrateHealthMetrics;
+  eligibleForPromotion: boolean;
+  promotionBlockers: string[];
+  degradeWarnings: string[];
+  capabilities: Record<AutonomyCapability, boolean>;
+  nextLevelRequirements: LevelRequirements | null;
+}
+
+export interface HealthGateResult {
+  eligible: boolean;
+  currentLevel: AutonomyLevel;
+  targetLevel: AutonomyLevel;
+  metrics: SubstrateHealthMetrics;
+  requirements: LevelRequirements;
+  failedChecks: string[];
+  passedChecks: string[];
+}
+
+export interface DegradeCheckResult {
+  shouldDegrade: boolean;
+  currentLevel: AutonomyLevel;
+  suggestedFloor: AutonomyLevel;
+  triggers: string[];
+  metrics: SubstrateHealthMetrics;
+}
+
+export interface AutonomyTransition {
+  from: AutonomyLevel;
+  to: AutonomyLevel;
+  at: string;
+  actor: string;
+  reason: string;
+  forced: boolean;
+}
+
+export interface AutonomySnapshot {
+  level: AutonomyLevel;
+  name: string;
+  humanRole: string;
+  version: number;
+  last?: AutonomyTransition;
+  history: AutonomyTransition[];
+}
+
+export interface GatedPromoteResult {
+  success: boolean;
+  newLevel?: AutonomyLevel;
+  gate: HealthGateResult;
+  error?: string;
+}
+
+export interface AutoDegradeResult {
+  degraded: boolean;
+  from?: AutonomyLevel;
+  to?: AutonomyLevel;
+  triggers: string[];
+}
+
+// ============================================================================
+// AUTONOMY API
+// ============================================================================
+
+export const autonomyApi = {
+  /** Get current autonomy status with health metrics */
+  getStatus: () => get<AutonomyStatusSnapshot>("/autonomy/status"),
+
+  /** Get substrate health metrics */
+  getMetrics: () => get<SubstrateHealthMetrics>("/autonomy/metrics"),
+
+  /** Check promotion eligibility */
+  checkEligibility: () => get<HealthGateResult>("/autonomy/eligibility"),
+
+  /** Request autonomy level promotion */
+  promote: (actor?: string, reason?: string, counterSign?: string) =>
+    post<GatedPromoteResult>("/autonomy/promote", {
+      actor,
+      reason,
+      counter_sign: counterSign,
+    }),
+
+  /** Request autonomy level demotion */
+  demote: (actor?: string, reason?: string) =>
+    post<AutonomyTransition>("/autonomy/demote", { actor, reason }),
+
+  /** Check if auto-degrade is warranted */
+  checkDegrade: () => get<DegradeCheckResult>("/autonomy/degrade-check"),
+
+  /** Trigger auto-degrade if warranted */
+  autoDegrade: () => post<AutoDegradeResult>("/autonomy/auto-degrade", {}),
+
+  /** Get autonomy transition history */
+  getHistory: () => get<AutonomySnapshot>("/autonomy/history"),
+};
+
+// ============================================================================
+// LEARNING LOOP API
+// ============================================================================
+
+export const learningApi = {
+  /** Submit operator feedback from a completed job */
+  submitFeedback: (feedback: FeedbackSubmission) =>
+    post<FeedbackResult>("/coordination/feedback", feedback),
+
+  /** Get recent feedback submissions */
+  getRecentFeedback: (limit = 50) =>
+    get<FeedbackSubmission[]>(`/coordination/feedback/recent?limit=${limit}`),
+
+  /** Get feedback ingestion statistics */
+  getFeedbackStats: () => get<FeedbackStats>("/coordination/feedback/stats"),
+
+  /** Get pending tip candidates */
+  getTipCandidates: (limit = 100) =>
+    get<TipCandidate[]>(`/coordination/learning/tip-candidates?limit=${limit}`),
+
+  /** Process pending tip candidates through tribal learner */
+  processTips: (maxCandidates = 50, autoApproveThreshold = 0.85) =>
+    post<ProcessTipsResult>("/coordination/learning/process-tips", {
+      max_candidates: maxCandidates,
+      auto_approve_threshold: autoApproveThreshold,
+    }),
+
+  /** Get combined learning statistics */
+  getLearningStats: () => get<CombinedLearningStats>("/coordination/learning/stats"),
+
+  /** Trigger neural fusion weight updates from ground truth */
+  updateFusion: (target?: string, maxPoints = 100) =>
+    post<FusionUpdateResult>("/coordination/learning/update-fusion", {
+      target,
+      max_points: maxPoints,
+    }),
+
+  /** Approve a pending tribal tip */
+  approveTip: (tipId: string) =>
+    post<{ approved: boolean }>("/coordination/learning/approve-tip", { tip_id: tipId }),
+
+  /** Reject a pending tribal tip */
+  rejectTip: (tipId: string) =>
+    post<{ rejected: boolean }>("/coordination/learning/reject-tip", { tip_id: tipId }),
+
+  /** Get tips pending manual review */
+  getPendingTips: (limit = 50) =>
+    get<GeneratedTip[]>(`/coordination/learning/pending-tips?limit=${limit}`),
+};
+
+// ============================================================================
+// SELF-AWARENESS TYPES
+// ============================================================================
+
+export interface SelfAwarenessDigest {
+  engineCount: number;
+  skillCount: number;
+  hookCount: number;
+  formulaCount: number;
+  tipCount: number;
+  lastUpdated: string;
+}
+
+export interface SelfAwarenessSubstrate {
+  ledger: {
+    totalTraces: number;
+    errorRate: number;
+    awarenessAdoption: number;
+    silentMinutes: number;
+    topActions: Array<{ action: string; count: number }>;
+    lastTraceAt: string | null;
+  };
+  blackboard: {
+    totalEntries: number;
+    activeEntries: number;
+    namespaceCount: number;
+  };
+  bridge: {
+    totalBridges: number;
+    avgLatencyMs: number;
+    avgTipsIngested: number;
+  };
+  dispatch: {
+    totalCoordinations: number;
+    totalOutcomes: number;
+    decisionsPosted: number;
+  };
+}
+
+export interface SelfAwarenessAutonomy {
+  level: AutonomyLevel;
+  levelName: string;
+  humanRole: string;
+  capabilities: Record<AutonomyCapability, boolean>;
+  eligibleForPromotion: boolean;
+  degradeWarnings: string[];
+}
+
+export interface SelfAwarenessLearning {
+  feedbackTotal: number;
+  successRate: number;
+  tipsLearned: number;
+  pendingReview: number;
+  avgPredictionError: number;
+}
+
+export interface SelfAwarenessTribal {
+  totalTips: number;
+  learnedTips: number;
+  totalSelections: number;
+  topTipsByUse: Array<{ id: string; count: number }>;
+}
+
+export interface SelfAwarenessHealth {
+  overall: "healthy" | "degraded" | "critical";
+  issues: string[];
+  recommendations: string[];
+}
+
+export interface SelfAwarenessCapabilities {
+  canSuggestParameters: boolean;
+  canAutoAdjust: boolean;
+  canExecuteSupervised: boolean;
+  canExecuteUnattended: boolean;
+  canSelfImprove: boolean;
+  learningLoopActive: boolean;
+  coordinationActive: boolean;
+}
+
+export interface SelfAwarenessSnapshot {
+  timestamp: string;
+  digest: SelfAwarenessDigest;
+  substrate: SelfAwarenessSubstrate;
+  autonomy: SelfAwarenessAutonomy;
+  learning: SelfAwarenessLearning;
+  tribal: SelfAwarenessTribal;
+  health: SelfAwarenessHealth;
+  capabilities: SelfAwarenessCapabilities;
+}
+
+export interface CapabilityQueryResult {
+  query: string;
+  matchedEngines: Array<{
+    name: string;
+    category?: string;
+    confidence: number;
+  }>;
+  matchedSkills: string[];
+  relevantTips: Array<{
+    id: string;
+    title: string;
+    confidence: number;
+  }>;
+  recommendations: string[];
+}
+
+export interface WEDMDigest {
+  schemaVersion: number;
+  generated: string;
+  source: string;
+  engines: {
+    count: number;
+    names: string[];
+    byCategory?: Record<string, string[]>;
+  };
+  skills?: {
+    count: number;
+    names: string[];
+  };
+  hooks?: {
+    count: number;
+    names: string[];
+  };
+  playbooks?: {
+    count: number;
+    names: string[];
+  };
+  stateFiles?: {
+    count: number;
+    names: string[];
+  };
+  tribalTips?: {
+    count: number;
+    sources: string[];
+  };
+  formulas?: {
+    count: number;
+    names: string[];
+  };
+}
+
+// ============================================================================
+// SELF-AWARENESS API
+// ============================================================================
+
+export const selfAwarenessApi = {
+  /** Get complete self-awareness snapshot */
+  getSnapshot: () => get<SelfAwarenessSnapshot>("/self-awareness/snapshot"),
+
+  /** Get human-readable status report */
+  getReport: () => get<{ report: string }>("/self-awareness/report"),
+
+  /** Get cached WEDM digest (engine inventory) */
+  getDigest: () => get<WEDMDigest>("/self-awareness/digest"),
+
+  /** Query WEDM capabilities by keyword */
+  queryCapabilities: (query: string) =>
+    post<CapabilityQueryResult>("/self-awareness/query", { query }),
+
+  /** Get health assessment only */
+  getHealth: () => get<SelfAwarenessHealth>("/self-awareness/health"),
+};
