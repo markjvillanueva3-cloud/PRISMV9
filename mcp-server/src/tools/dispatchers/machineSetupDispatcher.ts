@@ -160,6 +160,12 @@ const ACTIONS = [
   "mcat_prop_whatif",            // Run what-if analysis
   "mcat_prop_compare",           // Compare machines
   "mcat_prop_refresh",           // Refresh all propagated contexts
+  // ===== MCAT-MS0 P3-U04: Calculator PRISM Mode (5 actions) =====
+  "mcat_prism_calculate",        // Generate PRISM mode recommendations
+  "mcat_prism_compare",          // Compare PRISM mode across machines
+  "mcat_prism_summary",          // Get quick summary for calculator
+  "mcat_prism_inventory",        // Check inventory for tool matches
+  "mcat_prism_stats",            // Get PRISM mode statistics
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -768,6 +774,24 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_prop_refresh") {
           const { machineProfilePropagationEngine } = await import("../../engines/MachineProfilePropagationEngine.js");
           result = machineProfilePropagationEngine.propagateAll();
+
+        // ===== MCAT-MS0 P3-U04: Calculator PRISM Mode =====
+        } else if (action === "mcat_prism_calculate") {
+          const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+          result = calculatorPRISMModeEngine.calculate(params as any);
+        } else if (action === "mcat_prism_compare") {
+          const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+          const { machine_ids, ...input } = params as any;
+          result = calculatorPRISMModeEngine.compareForMachines(input, machine_ids);
+        } else if (action === "mcat_prism_summary") {
+          const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+          result = calculatorPRISMModeEngine.getQuickSummary(params.machine_id as string, params.operation_type as string);
+        } else if (action === "mcat_prism_inventory") {
+          const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+          result = calculatorPRISMModeEngine.checkInventory(params.tool_type as string, params.inventory_ids as string[]);
+        } else if (action === "mcat_prism_stats") {
+          const { calculatorPRISMModeEngine } = await import("../../engines/CalculatorPRISMModeEngine.js");
+          result = calculatorPRISMModeEngine.getStats();
 
         } else {
           const engineKey = engineMap[action];
