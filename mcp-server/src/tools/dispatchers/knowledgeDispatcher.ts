@@ -166,6 +166,18 @@ const FORMULA_ORCHESTRATOR_ACTIONS = [
   "formula_validation_stats",   // Get validation statistics
 ] as const;
 
+/** PP-AGI-S0/U-S0-04: Tribal knowledge activation — activate 3,594 dormant tips */
+const TRIBAL_ACTIVATION_ACTIONS = [
+  "tribal_activate",            // Activate tips for decision context
+  "tribal_by_problem",          // Get troubleshooting tips for a problem
+  "tribal_for_speedfeed",       // Tips for speed/feed decisions
+  "tribal_for_toolpath",        // Tips for toolpath selection
+  "tribal_for_controller",      // Tips for controller output
+  "tribal_for_troubleshoot",    // Tips for problem diagnosis
+  "tribal_activation_stats",    // Activation system statistics
+  "tribal_awareness",           // Self-awareness integration
+] as const;
+
 const ACTIONS = [
   "search", "cross_query", "formula", "relations", "stats",
   "tribal_capture", "tribal_search", "tribal_suggest", "tribal_stats", "tribal_recategorize", "tribal_graph", "master_machinist_recommend",
@@ -186,6 +198,7 @@ const ACTIONS = [
   ...KAR_WIRING_ACTIONS,
   ...VIDEO_ACTIONS,
   ...FORMULA_ORCHESTRATOR_ACTIONS,
+  ...TRIBAL_ACTIVATION_ACTIONS,
 ] as const;
 
 export { ACTIONS };
@@ -2021,6 +2034,90 @@ export function registerKnowledgeDispatcher(server: any): void {
             const { formulaOrchestrator } = await import("../../engines/FormulaOrchestrator.js");
             await formulaOrchestrator.initialize();
             result = formulaOrchestrator.getValidationStats();
+            break;
+          }
+          // ========== PP-AGI-S0/U-S0-04: Tribal Knowledge Activation ==========
+          case "tribal_activate": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.activateTipsForContext({
+              decision_type: params.decision_type ?? "general",
+              material: params.material,
+              iso_group: params.iso_group,
+              operation: params.operation,
+              machine: params.machine,
+              controller: params.controller,
+              tool_type: params.tool_type,
+              tool_diameter_mm: params.tool_diameter_mm,
+              target_ra_um: params.target_ra_um,
+              symptom: params.symptom,
+              cam_system: params.cam_system,
+              keywords: params.keywords,
+              hardness_hrc: params.hardness_hrc,
+              cutting_speed: params.cutting_speed,
+              feed_rate: params.feed_rate,
+              depth_of_cut: params.depth_of_cut,
+            });
+            break;
+          }
+          case "tribal_by_problem": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = {
+              problem: params.problem ?? params.symptom ?? "",
+              tips: tribalKnowledgeActivationEngine.getTipsByProblem(
+                params.problem ?? params.symptom ?? "",
+                params.limit ?? 10
+              ),
+            };
+            break;
+          }
+          case "tribal_for_speedfeed": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.activateForSpeedFeed({
+              material: params.material ?? "",
+              operation: params.operation ?? "",
+              tool_type: params.tool_type,
+              tool_diameter_mm: params.tool_diameter_mm,
+              hardness_hrc: params.hardness_hrc,
+            });
+            break;
+          }
+          case "tribal_for_toolpath": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.activateForToolpath({
+              operation: params.operation ?? "",
+              material: params.material,
+              cam_system: params.cam_system,
+              feature: params.feature,
+            });
+            break;
+          }
+          case "tribal_for_controller": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.activateForController({
+              controller: params.controller ?? "",
+              operation: params.operation,
+              feature: params.feature,
+            });
+            break;
+          }
+          case "tribal_for_troubleshoot": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.activateForTroubleshooting({
+              symptom: params.symptom ?? params.problem ?? "",
+              machine: params.machine,
+              operation: params.operation,
+              material: params.material,
+            });
+            break;
+          }
+          case "tribal_activation_stats": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.getStats();
+            break;
+          }
+          case "tribal_awareness": {
+            const { tribalKnowledgeActivationEngine } = await import("../../engines/TribalKnowledgeActivationEngine.js");
+            result = tribalKnowledgeActivationEngine.getSelfAwareness();
             break;
           }
         }
