@@ -1,6 +1,6 @@
 # WEDM_DIGEST — Auto-Generated
 
-**Generated:** 2026-04-17T02:30:32.718Z
+**Generated:** 2026-04-17T02:34:25.378Z
 **Source:** `scripts/wedm_generate_digest.ts` (do not edit manually)
 
 ---
@@ -9,11 +9,11 @@
 
 | Metric | Count |
 |--------|------:|
-| Engines | 101 |
+| Engines | 102 |
 | Playbooks | 8 |
-| State Files | 41 |
+| State Files | 42 |
 
-## Engines (101)
+## Engines (102)
 
 | Engine | Description |
 |--------|-------------|
@@ -42,6 +42,7 @@
 | `WEDMAccessibilityEngine` | WEDMAccessibilityEngine — WEDM AGI Phase 1 / U-P1-08 |
 | `WEDMActiveQueryEngine` | WEDMActiveQueryEngine — Information-gain test-cut selection |
 | `WEDMAnalogicalReasoningEngine` | WEDMAnalogicalReasoningEngine — WEDM AGI Phase 2 / U-P2-12 |
+| `WEDMArchiveBackfillEngine` | WEDMArchiveBackfillEngine — MS-P0.5-COORD U-P0.5-COORD-07 |
 | `WEDMAutonomyEngine` | WEDMAutonomyEngine — SAE J3016-adapted autonomy level management for WEDM. |
 | `WEDMAwarenessAdoptionEngine` | WEDMAwarenessAdoptionEngine — MS-P0.5-COORD U-P0.5-COORD-01 |
 | `WEDMBatchProgramAnalyzerEngine` | WEDMBatchProgramAnalyzerEngine - Comprehensive Wire EDM Program Batch Analysis |
@@ -132,7 +133,7 @@
 | `wedm-jm-die-customer` | WEDM JM Die Customer-Specific Flow | 6 |
 | `wedm-continuous-learning` | WEDM Continuous Learning Pipeline | 5 |
 
-## State Files (41)
+## State Files (42)
 
 - `data/state/WEDM_VALIDATION_REPORT.json`
 - `data/state/WEDM_PRODUCTION_READINESS.json`
@@ -175,6 +176,7 @@
 - `data/state/WEDM_AUTONOMY_STATE.json`
 - `data/state/WEDM_DIGEST.json`
 - `data/state/WEDM_CONSOLIDATED_BASELINE.json`
+- `data/state/WEDM_BACKFILL_STATE.json`
 
 ---
 > Regenerate: `npx ts-node scripts/wedm_generate_digest.ts`
