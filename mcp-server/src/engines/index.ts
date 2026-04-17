@@ -6595,3 +6595,107 @@ export {
   type RenderableOptions,
   type OptionFilterInput,
 } from './MachineOptionContractEngine.js';
+
+export {
+  machineConsumerBindingEngine,
+  type BoundMachineContext,
+  type ProgramReleaseMachineBinding,
+  type PrintToCNCMachineBinding,
+  type QuoteMachineBinding,
+  type ConsumerBindingResult,
+  type MultiConsumerBindings,
+} from './MachineConsumerBindingEngine.js';
+
+// ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
+export {
+  ERPImportEngine,
+  erpImportEngine,
+  type ERPSystem,
+  type WorkOrderImport,
+  type ImportResult,
+  type ImportBatchResult,
+} from './ERPImportEngine.js';
+
+export {
+  ERPCostFeedbackEngine,
+  erpCostFeedbackEngine,
+  type CostCategory,
+  type CostEntry,
+  type CostSummary,
+  type PostResult,
+} from './ERPCostFeedbackEngine.js';
+
+export {
+  ERPQualityEngine,
+  erpQualityEngine,
+  type InspectionResult,
+  type NCR,
+  type QualityMetrics,
+} from './ERPQualityEngine.js';
+
+export {
+  ERPToolInventoryEngine,
+  erpToolInventoryEngine,
+  type ToolItem,
+  type ToolTransaction,
+  type ReorderAlert,
+} from './ERPToolInventoryEngine.js';
+
+export {
+  ERPWorkOrderEngine,
+  erpWorkOrderEngine,
+  type WorkOrderStatus,
+  type WorkOrderSync,
+  type OperationStatus,
+  type SyncResult,
+} from './ERPWorkOrderEngine.js';
+
+// ===== L2-P4-MS1/P0-U02: Measurement & QC Engines =====
+export {
+  CMMImportEngine,
+  cmmImportEngine,
+  type CMMFormat,
+  type MeasurementPoint,
+  type CMMImportResult,
+} from './CMMImportEngine.js';
+
+export {
+  CMMHistoryEngine,
+  cmmHistoryEngine,
+  type MeasurementRecord,
+  type FeatureTrend,
+  type SPCAlert,
+} from './CMMHistoryEngine.js';
+
+export {
+  SurfaceMeasureEngine,
+  surfaceMeasureEngine,
+  type RoughnessParameter,
+  type SurfaceMeasurement,
+  type SurfaceProfile,
+} from './SurfaceMeasureEngine.js';
+
+export {
+  ProbeRecordEngine,
+  probeRecordEngine,
+  type ProbeType,
+  type ProbeCycle,
+  type ProbeRecord,
+  type ToolSetterRecord,
+} from './ProbeRecordEngine.js';
+
+export {
+  ProbeDriftEngine,
+  probeDriftEngine,
+  type CalibrationRecord,
+  type DriftAnalysis,
+  type DriftAlert,
+} from './ProbeDriftEngine.js';
+
+export {
+  MeasureSummaryEngine,
+  measureSummaryEngine,
+  type MeasurementSource,
+  type MeasurementSummary,
+  type PartQualityTrend,
+} from './MeasureSummaryEngine.js';
