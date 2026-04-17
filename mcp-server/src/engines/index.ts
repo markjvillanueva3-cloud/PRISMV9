@@ -6644,6 +6644,17 @@ export {
   type PRISMModeStats,
 } from './CalculatorPRISMModeEngine.js';
 
+export {
+  acquisitionRecommendationEngine,
+  type PriceTier,
+  type AcquisitionInput,
+  type AcquisitionRecommendation,
+  type TieredRecommendations,
+  type ROICalculation,
+  type DistributorInfo,
+  type AcquisitionStats,
+} from './AcquisitionRecommendationEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
@@ -6763,6 +6774,19 @@ export {
   type CapabilityQuery,
   type CapabilityAssessment,
 } from './MillingCapabilityManifestEngine.js';
+
+// MILL-AGI P0.7: Awareness Orchestrator
+export {
+  MillingAwarenessOrchestratorEngine,
+  millingAwarenessOrchestratorEngine,
+  type QueryIntent,
+  type AwarenessQuery,
+  type AwarenessResponse,
+  type ReasoningChain,
+  type ReasoningStep,
+  type SystemHealth,
+  type DecisionRecord,
+} from './MillingAwarenessOrchestratorEngine.js';
 
 // ===== L2-P4-MS1/P0-U03: DNC & Post-Processing Engines =====
 export {
