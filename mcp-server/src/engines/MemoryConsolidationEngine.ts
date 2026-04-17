@@ -74,7 +74,7 @@ interface ConsolidationState {
   patterns: ConsolidatedPattern[];
 }
 
-class MemoryConsolidationEngineImpl {
+export class MemoryConsolidationEngineImpl {
   private state: ConsolidationState;
   private config: ConsolidationConfig;
 
