@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "created": "2026-04-17",
+  "updated": "2026-04-17",
+  "track": "WEDM-CONSOLIDATED",
+  "milestone": "MS-P1.5-ONESHOT",
+  "unit": "U-P1.5-OS-03",
+  "description": "Complete Wire EDM capability inventory for AutoPrintToProgramBridgeEngine routing",
+
+  "process_type": "wire_edm",
+  "feature_types": [
+    "wire_profile", "wire_contour", "wire_pocket", "wire_slot", "wire_hole",
+    "wire_taper", "wire_corner", "wire_start_hole", "wire_slug", "wire_tab"
+  ],
+
+  "primary_pipeline": "WEDMPrintToProgramEngine",
+  "entry_points": [
+    "WEDMPrintToProgramEngine",
+    "WEDMCompleteOrchestrationEngine",
+    "WireEDMAGIOrchestrator",
+    "WireEDMAIPrintToProgramEngine"
+  ],
+
+  "total_engines": 105,
+  "engines": {
+    "core_processing": [
+      {"name": "WEDMPrintToProgramEngine", "category": "pipeline", "inputs": ["dxf", "step", "dwg", "geometry"], "outputs": ["gcode", "setup_sheet"]},
+      {"name": "WEDMCompleteOrchestrationEngine", "category": "orchestration", "inputs": ["job_spec"], "outputs": ["complete_program"]},
+      {"name": "WEDMProgramOptimizerEngine", "category": "optimization", "inputs": ["toolpath"], "outputs": ["optimized_toolpath"]},
+      {"name": "WEDMSequencingEngine", "category": "sequencing", "inputs": ["features"], "outputs": ["operation_sequence"]},
+      {"name": "WEDMProgramAssemblerEngine", "category": "assembly", "inputs": ["operations"], "outputs": ["program"]},
+      {"name": "EDMProgramAssemblerEngine", "category": "assembly", "inputs": ["operations"], "outputs": ["program"]}
+    ],
+    "geometry_import": [
+      {"name": "WEDMDwgImportEngine", "category": "import", "inputs": ["dwg", "dxf"], "outputs": ["geometry"]},
+      {"name": "WEDMPartRecognitionEngine", "category": "recognition", "inputs": ["geometry"], "outputs": ["features"]},
+      {"name": "EDMDrawingInterpretationEngine", "category": "interpretation", "inputs": ["drawing"], "outputs": ["features"]}
+    ],
+    "parameter_calculation": [
+      {"name": "EDMParameterEngine", "category": "parameters", "inputs": ["material", "wire", "machine"], "outputs": ["cutting_params"]},
+      {"name": "EDMCuttingParamFlushEngine", "category": "parameters", "inputs": ["params"], "outputs": ["optimized_params"]},
+      {"name": "WEDMMaterialSparkDatabaseEngine", "category": "database", "inputs": ["material"], "outputs": ["spark_params"]},
+      {"name": "WEDMMaterialCharacterizationEngine", "category": "material", "inputs": ["material_spec"], "outputs": ["material_props"]},
+      {"name": "EDMMaterialMachineWireEngine", "category": "parameters", "inputs": ["material", "machine", "wire"], "outputs": ["params"]}
+    ],
+    "toolpath_strategy": [
+      {"name": "EDMToolpathStrategyEngine", "category": "strategy", "inputs": ["geometry", "constraints"], "outputs": ["toolpath_strategy"]},
+      {"name": "EDMMultiPassStrategyEngine", "category": "strategy", "inputs": ["profile"], "outputs": ["multi_pass_plan"]},
+      {"name": "WEDMStrategyLibraryEngine", "category": "library", "inputs": ["feature_type"], "outputs": ["strategy"]},
+      {"name": "WEDMTabStrategyEngine", "category": "strategy", "inputs": ["profile"], "outputs": ["tab_positions"]}
+    ],
+    "post_processing": [
+      {"name": "EDMPostProcessGCodeEngine", "category": "post", "inputs": ["toolpath"], "outputs": ["gcode"]},
+      {"name": "EDMPostProcessorExtension", "category": "post", "inputs": ["base_gcode"], "outputs": ["controller_gcode"]}
+    ],
+    "safety_validation": [
+      {"name": "WEDMSafetyEnvelopeEngine", "category": "safety", "inputs": ["toolpath", "machine"], "outputs": ["safety_check"]},
+      {"name": "WEDMHeadClearanceEngine", "category": "safety", "inputs": ["toolpath", "fixture"], "outputs": ["clearance_check"]},
+      {"name": "WEDMFailsafeEngine", "category": "safety", "inputs": ["program"], "outputs": ["failsafe_check"]},
+      {"name": "WEDMPreFlightCheckEngine", "category": "validation", "inputs": ["program"], "outputs": ["preflight_result"]},
+      {"name": "WEDMProductionReadinessEngine", "category": "validation", "inputs": ["job"], "outputs": ["readiness_score"]}
+    ],
+    "quality_monitoring": [
+      {"name": "EDMQualityOrchestratorEngine", "category": "quality", "inputs": ["program"], "outputs": ["quality_metrics"]},
+      {"name": "EDMSurfaceIntegrityEngine", "category": "quality", "inputs": ["params"], "outputs": ["surface_prediction"]},
+      {"name": "EDMMonitorSurfaceIntegrityEngine", "category": "monitoring", "inputs": ["cutting_data"], "outputs": ["integrity_score"]},
+      {"name": "WEDMCalibrationReportEngine", "category": "calibration", "inputs": ["machine_data"], "outputs": ["calibration_report"]}
+    ],
+    "ai_reasoning": [
+      {"name": "WEDMCalculatorAIEngine", "category": "ai", "inputs": ["query"], "outputs": ["calculation"]},
+      {"name": "WEDMReasoningBridgeEngine", "category": "ai", "inputs": ["context"], "outputs": ["reasoning"]},
+      {"name": "WEDMReasoningTraceLedgerEngine", "category": "ai", "inputs": ["decision"], "outputs": ["trace"]},
+      {"name": "WEDMAnalogicalReasoningEngine", "category": "ai", "inputs": ["problem"], "outputs": ["analogies"]},
+      {"name": "WireEDMDeepReasoningEngine", "category": "ai", "inputs": ["problem"], "outputs": ["reasoning"]},
+      {"name": "WireEDMDeepLogicEngine", "category": "ai", "inputs": ["query"], "outputs": ["logic_result"]},
+      {"name": "WireEDMDeepNeuralReasoningEngine", "category": "ai", "inputs": ["context"], "outputs": ["neural_reasoning"]}
+    ],
+    "machine_learning": [
+      {"name": "WEDMNeuralTrainingEngine", "category": "ml", "inputs": ["training_data"], "outputs": ["model"]},
+      {"name": "WEDMNeuralFormulaFusionEngine", "category": "ml", "inputs": ["formulas"], "outputs": ["fused_model"]},
+      {"name": "WEDMPrototypicalNetworkEngine", "category": "ml", "inputs": ["examples"], "outputs": ["prototype"]},
+      {"name": "WEDMFewShotEngine", "category": "ml", "inputs": ["examples"], "outputs": ["prediction"]},
+      {"name": "WEDMContinuousLearningEngine", "category": "ml", "inputs": ["feedback"], "outputs": ["updated_model"]},
+      {"name": "WEDMKnowledgeDistillationEngine", "category": "ml", "inputs": ["teacher_model"], "outputs": ["student_model"]},
+      {"name": "WireEDMAdvancedNeuralEngine", "category": "ml", "inputs": ["data"], "outputs": ["prediction"]},
+      {"name": "WireEDMPredictiveIntelligenceEngine", "category": "ml", "inputs": ["history"], "outputs": ["prediction"]}
+    ],
+    "simulation": [
+      {"name": "WEDMVirtualMachineEngine", "category": "simulation", "inputs": ["program"], "outputs": ["simulation"]},
+      {"name": "WEDMWhatIfSimulatorEngine", "category": "simulation", "inputs": ["scenario"], "outputs": ["outcome"]},
+      {"name": "WEDMRolloutSimulatorEngine", "category": "simulation", "inputs": ["policy"], "outputs": ["rollout"]}
+    ],
+    "feedback_learning": [
+      {"name": "WEDMFeedbackIngestionEngine", "category": "feedback", "inputs": ["operator_feedback"], "outputs": ["processed_feedback"]},
+      {"name": "WEDMFeedbackCalibrationEngine", "category": "feedback", "inputs": ["feedback"], "outputs": ["calibration"]},
+      {"name": "WEDMTribalTipLearnerEngine", "category": "learning", "inputs": ["tip"], "outputs": ["learned_rule"]},
+      {"name": "WEDMTribalRuntimeEngine", "category": "runtime", "inputs": ["context"], "outputs": ["tribal_advice"]}
+    ],
+    "autonomy": [
+      {"name": "WEDMAutonomyEngine", "category": "autonomy", "inputs": ["job"], "outputs": ["autonomous_decision"]},
+      {"name": "WEDMAutonomySubstrateGateEngine", "category": "autonomy", "inputs": ["action"], "outputs": ["gate_decision"]},
+      {"name": "WEDMHumanHandoffEngine", "category": "autonomy", "inputs": ["decision"], "outputs": ["handoff_decision"]},
+      {"name": "WEDMRLControllerEngine", "category": "rl", "inputs": ["state"], "outputs": ["action"]},
+      {"name": "WEDMRewardShapingEngine", "category": "rl", "inputs": ["outcome"], "outputs": ["reward"]},
+      {"name": "WEDMRLPolicyPersistence", "category": "rl", "inputs": ["policy"], "outputs": ["persisted_policy"]}
+    ],
+    "diagnostics": [
+      {"name": "WEDMFaultDiagnosisEngine", "category": "diagnostics", "inputs": ["symptoms"], "outputs": ["diagnosis"]},
+      {"name": "WEDMDriftDetectionEngine", "category": "diagnostics", "inputs": ["metrics"], "outputs": ["drift_alert"]},
+      {"name": "WEDMDegradationModelEngine", "category": "diagnostics", "inputs": ["usage"], "outputs": ["degradation"]},
+      {"name": "WEDMRULEngine", "category": "diagnostics", "inputs": ["component"], "outputs": ["remaining_useful_life"]},
+      {"name": "WEDMMaintenanceSchedulerEngine", "category": "maintenance", "inputs": ["rul_data"], "outputs": ["schedule"]},
+      {"name": "WEDMExceptionHandlerEngine", "category": "error", "inputs": ["exception"], "outputs": ["handled_exception"]}
+    ],
+    "knowledge_synthesis": [
+      {"name": "WireEDMKnowledgeSynthesisEngine", "category": "knowledge", "inputs": ["sources"], "outputs": ["synthesized_knowledge"]},
+      {"name": "WireEDMCAMKnowledgeEngine", "category": "knowledge", "inputs": ["query"], "outputs": ["cam_knowledge"]},
+      {"name": "WireEDMUnifiedScienceEngine", "category": "knowledge", "inputs": ["topic"], "outputs": ["science_knowledge"]},
+      {"name": "WireEDMResearchAIEngine", "category": "research", "inputs": ["question"], "outputs": ["research_result"]}
+    ],
+    "orchestration": [
+      {"name": "WireEDMAGIOrchestrator", "category": "orchestration", "inputs": ["job"], "outputs": ["orchestrated_result"]},
+      {"name": "WireEDMNeuralOrchestrationEngine", "category": "orchestration", "inputs": ["task"], "outputs": ["neural_orchestration"]},
+      {"name": "WireEDMMasterAIEngine", "category": "orchestration", "inputs": ["command"], "outputs": ["ai_response"]},
+      {"name": "WEDMMultiAgentDispatchEngine", "category": "dispatch", "inputs": ["tasks"], "outputs": ["dispatch_plan"]},
+      {"name": "WEDMHierarchicalPlannerEngine", "category": "planning", "inputs": ["goal"], "outputs": ["plan"]}
+    ],
+    "state_management": [
+      {"name": "WEDMMachineStateEngine", "category": "state", "inputs": ["machine_id"], "outputs": ["state"]},
+      {"name": "WEDMBlackboardEngine", "category": "state", "inputs": ["key"], "outputs": ["value"]},
+      {"name": "WEDMGovernanceStore", "category": "governance", "inputs": ["policy"], "outputs": ["stored_policy"]}
+    ],
+    "specialized": [
+      {"name": "EDMEngine", "category": "legacy", "inputs": ["params"], "outputs": ["result"]},
+      {"name": "EDMWireEngine", "category": "legacy", "inputs": ["params"], "outputs": ["result"]},
+      {"name": "EDMFeasibilityEngine", "category": "analysis", "inputs": ["part"], "outputs": ["feasibility"]},
+      {"name": "EDMStartHoleSetupEngine", "category": "setup", "inputs": ["profile"], "outputs": ["start_holes"]},
+      {"name": "EDMWireSlugCornerTaperEngine", "category": "specialized", "inputs": ["corner"], "outputs": ["taper_params"]},
+      {"name": "EDMBiMaterialCompensationEngine", "category": "compensation", "inputs": ["materials"], "outputs": ["compensation"]},
+      {"name": "EDMCostDocumentationEngine", "category": "costing", "inputs": ["job"], "outputs": ["cost_doc"]},
+      {"name": "WEDMFixtureInterferenceEngine", "category": "fixture", "inputs": ["toolpath", "fixture"], "outputs": ["interference_check"]},
+      {"name": "WEDMSchedulingEngine", "category": "scheduling", "inputs": ["jobs"], "outputs": ["schedule"]},
+      {"name": "WEDMSetupSheetEngine", "category": "documentation", "inputs": ["job"], "outputs": ["setup_sheet"]},
+      {"name": "WEDMRecipeAdaptationEngine", "category": "adaptation", "inputs": ["base_recipe", "context"], "outputs": ["adapted_recipe"]},
+      {"name": "WEDMBatchProgramAnalyzerEngine", "category": "analysis", "inputs": ["programs"], "outputs": ["analysis"]},
+      {"name": "WEDMProgramNeuralAnalysisEngine", "category": "analysis", "inputs": ["program"], "outputs": ["neural_analysis"]},
+      {"name": "WEDMArchiveBackfillEngine", "category": "archive", "inputs": ["archive"], "outputs": ["backfill_result"]}
+    ],
+    "awareness": [
+      {"name": "WEDMSelfAwarenessEngine", "category": "awareness", "inputs": ["query"], "outputs": ["awareness"]},
+      {"name": "WEDMAwarenessAdoptionEngine", "category": "awareness", "inputs": ["capability"], "outputs": ["adoption_result"]},
+      {"name": "WireEDMSelfAwarenessIntegrationEngine", "category": "awareness", "inputs": ["context"], "outputs": ["integrated_awareness"]},
+      {"name": "WEDMActiveQueryEngine", "category": "query", "inputs": ["question"], "outputs": ["answer"]},
+      {"name": "WEDMCitationCheckEngine", "category": "validation", "inputs": ["claim"], "outputs": ["citation_check"]}
+    ],
+    "caching_optimization": [
+      {"name": "WEDMParetoCacheEngine", "category": "cache", "inputs": ["query"], "outputs": ["cached_result"]},
+      {"name": "WEDMParetoFrontierSearchEngine", "category": "optimization", "inputs": ["objectives"], "outputs": ["pareto_front"]},
+      {"name": "WEDMKalmanFusionEngine", "category": "fusion", "inputs": ["measurements"], "outputs": ["fused_estimate"]},
+      {"name": "WEDMModelUpdateEngine", "category": "update", "inputs": ["new_data"], "outputs": ["updated_model"]}
+    ],
+    "elicitation": [
+      {"name": "WEDMTradeoffElicitationEngine", "category": "elicitation", "inputs": ["options"], "outputs": ["preference"]},
+      {"name": "WEDMProcessCausalityEngine", "category": "causality", "inputs": ["process"], "outputs": ["causal_graph"]}
+    ],
+    "data_integration": [
+      {"name": "WireEDMMachineTechDataEngine", "category": "data", "inputs": ["machine"], "outputs": ["tech_data"]},
+      {"name": "WireEDMSettingsEngine", "category": "settings", "inputs": ["key"], "outputs": ["setting"]},
+      {"name": "WireEDMProgramParserEngine", "category": "parsing", "inputs": ["program"], "outputs": ["parsed_program"]},
+      {"name": "WireEDMDeepAIHardeningEngine", "category": "hardening", "inputs": ["model"], "outputs": ["hardened_model"]}
+    ]
+  },
+
+  "supported_controllers": [
+    "mitsubishi_fa", "mitsubishi_mv", "sodick_aq", "sodick_al",
+    "makino_u", "makino_eu", "agie_cut", "fanuc_robocut"
+  ],
+
+  "supported_wire_types": [
+    "brass_0.20", "brass_0.25", "brass_0.30",
+    "coated_0.20", "coated_0.25", "coated_0.30",
+    "molybdenum_0.18"
+  ],
+
+  "pipeline_stages": [
+    "geometry_import",
+    "feature_recognition",
+    "parameter_calculation",
+    "toolpath_strategy",
+    "sequencing",
+    "safety_validation",
+    "post_processing",
+    "quality_check",
+    "documentation"
+  ]
+}
