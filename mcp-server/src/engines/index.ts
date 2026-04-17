@@ -6631,6 +6631,19 @@ export {
   type PropagationStats,
 } from './MachineProfilePropagationEngine.js';
 
+export {
+  calculatorPRISMModeEngine,
+  type PRISMModeInput,
+  type PRISMModeResult,
+  type ToolingRecommendation,
+  type HolderRecommendation,
+  type CoolantRecommendation,
+  type SoftwareRecommendation,
+  type ToolpathRecommendation,
+  type InventoryMatch,
+  type PRISMModeStats,
+} from './CalculatorPRISMModeEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
@@ -6837,3 +6850,41 @@ export {
   type ToolData,
   type ToolSelection,
 } from './CAMToolGetEngine.js';
+
+// ===== L2-P4-MS1/P0-U04: Adaptive Control Engines (SAFETY-CRITICAL) =====
+export {
+  AdaptiveChiploadEngine,
+  adaptiveChiploadEngine,
+  type ChiploadInput,
+  type ChiploadOutput,
+  type AdaptiveState,
+} from './AdaptiveChiploadEngine.js';
+
+export {
+  AdaptiveChatterEngine,
+  adaptiveChatterEngine,
+  type ChatterInput,
+  type ChatterOutput,
+  type StabilityLobe,
+} from './AdaptiveChatterEngine.js';
+
+export {
+  AdaptiveWearEngine,
+  adaptiveWearEngine,
+  type WearInput,
+  type WearOutput,
+} from './AdaptiveWearEngine.js';
+
+export {
+  AdaptiveThermalEngine,
+  adaptiveThermalEngine,
+  type ThermalInput,
+  type ThermalOutput,
+} from './AdaptiveThermalEngine.js';
+
+export {
+  AdaptiveOverrideEngine,
+  adaptiveOverrideEngine,
+  type OverrideInput,
+  type OverrideOutput,
+} from './AdaptiveOverrideEngine.js';
