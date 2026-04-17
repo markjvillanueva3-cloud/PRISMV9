@@ -419,6 +419,9 @@ let _ppUdr: any;
 // PP-PCM: Post Capability Matrix (controller capability records, query, compare, post selection)
 let _ppPcm: any;
 
+// PP-KN: Knowledge (entry funcs, drilling cycles, UPK switches, misc values, circular settings)
+let _ppKn: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -732,6 +735,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppUdr ??= (await import("../../engines/PostProcessorUnifiedDeepReasoningEngine.js")).postProcessorUnifiedDeepReasoningEngine;
     case "postCapMatrix":
       return _ppPcm ??= (await import("../../engines/PostProcessorCapabilityMatrixEngine.js")).postProcessorCapabilityMatrixEngine;
+    case "knowledge":
+      return _ppKn ??= (await import("../../engines/PostProcessorKnowledgeEngine.js")).postProcessorKnowledgeEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1504,6 +1509,21 @@ const ACTIONS = [
   "pp_pcm_multiaxis",              // PP-PCM: multi-axis support for a family
   "pp_pcm_families",               // PP-PCM: list all controller families
   "pp_pcm_summary",                // PP-PCM: summary statistics
+
+  // ===== PP-KN: Knowledge (entry funcs, drilling cycles, UPK switches) (13 actions) =====
+  "pp_kn_entry_fn",                // PP-KN: lookup entry function by name
+  "pp_kn_entry_fn_cat",            // PP-KN: list entry functions by category
+  "pp_kn_drilling_cycle",          // PP-KN: lookup drilling cycle by type
+  "pp_kn_drilling_cycles_all",     // PP-KN: all drilling cycles
+  "pp_kn_upk_switch",              // PP-KN: lookup UPK switch by name
+  "pp_kn_upk_switches_cat",        // PP-KN: list UPK switches by category
+  "pp_kn_misc_value",              // PP-KN: lookup misc value by id
+  "pp_kn_circular_settings",       // PP-KN: circular interpolation settings
+  "pp_kn_search",                  // PP-KN: full-text search across knowledge
+  "pp_kn_recommended",             // PP-KN: recommended settings for machine type
+  "pp_kn_validate_config",         // PP-KN: validate post-processor configuration
+  "pp_kn_fn_template",             // PP-KN: generate entry function template
+  "pp_kn_stats",                   // PP-KN: knowledge registry statistics
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -5774,6 +5794,83 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_pcm_summary": {
             const engine = await getEngine("postCapMatrix");
             result = engine.getSummary();
+            break;
+          }
+
+          // ===== PP-KN: Knowledge =====
+          case "pp_kn_entry_fn": {
+            const engine = await getEngine("knowledge");
+            const name = params.name ?? "";
+            result = engine.getEntryFunction(name);
+            break;
+          }
+          case "pp_kn_entry_fn_cat": {
+            const engine = await getEngine("knowledge");
+            const category = params.category ?? "";
+            result = engine.getEntryFunctionsByCategory(category);
+            break;
+          }
+          case "pp_kn_drilling_cycle": {
+            const engine = await getEngine("knowledge");
+            const cycleType = params.cycleType ?? params.cycle_type ?? "";
+            result = engine.getDrillingCycle(cycleType);
+            break;
+          }
+          case "pp_kn_drilling_cycles_all": {
+            const engine = await getEngine("knowledge");
+            result = engine.getAllDrillingCycles();
+            break;
+          }
+          case "pp_kn_upk_switch": {
+            const engine = await getEngine("knowledge");
+            const name = params.name ?? "";
+            result = engine.getUPKSwitch(name);
+            break;
+          }
+          case "pp_kn_upk_switches_cat": {
+            const engine = await getEngine("knowledge");
+            const category = params.category ?? "";
+            result = engine.getUPKSwitchesByCategory(category);
+            break;
+          }
+          case "pp_kn_misc_value": {
+            const engine = await getEngine("knowledge");
+            const id = params.id ?? "";
+            result = engine.getMiscValue(id);
+            break;
+          }
+          case "pp_kn_circular_settings": {
+            const engine = await getEngine("knowledge");
+            result = engine.getCircularSettings();
+            break;
+          }
+          case "pp_kn_search": {
+            const engine = await getEngine("knowledge");
+            const query = params.query ?? "";
+            result = engine.search(query);
+            break;
+          }
+          case "pp_kn_recommended": {
+            const engine = await getEngine("knowledge");
+            const machineType = params.machineType ?? params.machine_type ?? "";
+            result = engine.getRecommendedSettings(machineType);
+            break;
+          }
+          case "pp_kn_validate_config": {
+            const engine = await getEngine("knowledge");
+            const config = params.config ?? params;
+            result = engine.validateConfiguration(config);
+            break;
+          }
+          case "pp_kn_fn_template": {
+            const engine = await getEngine("knowledge");
+            const functionName = params.functionName ?? params.function_name ?? params.name ?? "";
+            result = { template: engine.generateFunctionTemplate(functionName) };
+            break;
+          }
+          case "pp_kn_stats": {
+            const engine = await getEngine("knowledge");
+            result = engine.getStatistics();
             break;
           }
 
