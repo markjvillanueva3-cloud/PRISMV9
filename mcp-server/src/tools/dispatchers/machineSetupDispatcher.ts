@@ -128,6 +128,14 @@ const ACTIONS = [
   "mcat_contract_geometry",      // Validate geometry constraints
   "mcat_contract_tests_gen",     // Generate contract test cases
   "mcat_contract_tests_run",     // Run contract tests for machine
+  // ===== MCAT-MS0 P3-U01: Machine Consumer Binding (7 actions) =====
+  "mcat_bind",                   // Bind shop machine to canonical package
+  "mcat_bind_program_release",   // Get Program Release binding
+  "mcat_bind_print_to_cnc",      // Get Print to CNC binding
+  "mcat_bind_quote",             // Get Quote binding
+  "mcat_bind_all_consumers",     // Get bindings for all consumers
+  "mcat_bind_list",              // List all bindable machines
+  "mcat_bind_stats",             // Get binding statistics
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -643,6 +651,29 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "mcat_contract_tests_run") {
           const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
           result = machineOptionContractEngine.runContractTests(params.machine_id as string);
+
+        // ===== MCAT-MS0 P3-U01: Machine Consumer Binding =====
+        } else if (action === "mcat_bind") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.bind(params.shop_machine_id as string);
+        } else if (action === "mcat_bind_program_release") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.forProgramRelease(params.shop_machine_id as string);
+        } else if (action === "mcat_bind_print_to_cnc") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.forPrintToCNC(params.shop_machine_id as string);
+        } else if (action === "mcat_bind_quote") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.forQuoting(params.shop_machine_id as string);
+        } else if (action === "mcat_bind_all_consumers") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.forAllConsumers(params.shop_machine_id as string);
+        } else if (action === "mcat_bind_list") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.listBindable();
+        } else if (action === "mcat_bind_stats") {
+          const { machineConsumerBindingEngine } = await import("../../engines/MachineConsumerBindingEngine.js");
+          result = machineConsumerBindingEngine.getStats();
 
         } else {
           const engineKey = engineMap[action];
