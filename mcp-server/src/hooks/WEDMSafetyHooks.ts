@@ -1,8 +1,8 @@
 /**
  * WEDM Safety Hooks — Phase 0.3 of WEDM AGI Roadmap
  *
- * 16 WEDM-specific hooks for Wire EDM safety, quality, and workflow control:
- *   - 6 Blocking (CRITICAL safety checks)
+ * 17 WEDM-specific hooks for Wire EDM safety, quality, and workflow control:
+ *   - 7 Blocking (CRITICAL safety checks, including citation enforcement)
  *   - 5 Warning (quality gates)
  *   - 3 Logging (audit trail)
  *   - 2 Trigger (automation)
@@ -831,6 +831,86 @@ const wedmLearningTrigger: HookDefinition = {
 };
 
 /**
+ * Hook: hook_wedm_synthetic_block
+ * Trigger: PreCommit on WEDM engine files
+ * CI HARD BLOCK: Rejects commits with synthetic/placeholder parameters
+ *
+ * MS-P1-100PCT U-P1-02: Citation verification
+ * All WEDM engine outputs must trace to published citations.
+ */
+const wedmSyntheticBlock: HookDefinition = {
+  id: "wedm-synthetic-block",
+  name: "WEDM Synthetic Parameter Block",
+  description:
+    "CI HARD BLOCK: Rejects WEDM engine files containing synthetic or placeholder parameters. All values must cite published sources.",
+  phase: "pre-commit",
+  category: "enforcement",
+  mode: "blocking",
+  priority: "critical",
+  enabled: true,
+  tags: ["wedm", "citation", "synthetic", "blocking", "ci"],
+  handler: async (ctx: HookContext): Promise<HookResult> => {
+    const files = (ctx.target?.files ?? []) as string[];
+
+    // Only check WEDM/EDM engine files
+    const wedmFiles = files.filter(
+      (f) => (f.includes("WEDM") || f.includes("EDM") || f.includes("WireEDM")) &&
+             f.endsWith(".ts") &&
+             !f.endsWith(".test.ts")
+    );
+
+    if (wedmFiles.length === 0) {
+      return hookSuccess(wedmSyntheticBlock, "No WEDM engine files in commit", { skipped: true });
+    }
+
+    // Import citation check engine dynamically
+    try {
+      const { wedmCitationCheckEngine } = await import("../engines/WEDMCitationCheckEngine.js");
+
+      const criticalIssues: Array<{ file: string; issues: string[] }> = [];
+
+      for (const file of wedmFiles) {
+        const result = await wedmCitationCheckEngine.checkEngine(file.split("/").pop() ?? file);
+
+        if (!result.passed) {
+          const errorIssues = result.issues
+            .filter((i) => i.severity === "error")
+            .map((i) => `Line ${i.line}: [${i.type}] ${i.snippet}`);
+
+          if (errorIssues.length > 0) {
+            criticalIssues.push({ file, issues: errorIssues });
+          }
+        }
+      }
+
+      if (criticalIssues.length > 0) {
+        const summary = criticalIssues
+          .map((ci) => `${ci.file}: ${ci.issues.length} synthetic/uncited values`)
+          .join("; ");
+
+        log.error("wedm-synthetic-block", `HARD BLOCK: ${summary}`);
+        return hookBlock(
+          wedmSyntheticBlock,
+          `WEDM Citation Check FAILED: ${criticalIssues.length} file(s) contain synthetic or uncited parameters. Run /wedm-cite for details.`,
+          { criticalIssues, filesChecked: wedmFiles.length }
+        );
+      }
+
+      return hookSuccess(wedmSyntheticBlock, `${wedmFiles.length} WEDM file(s) pass citation check`, {
+        filesChecked: wedmFiles.length,
+      });
+    } catch (err) {
+      // If citation engine isn't available, warn but don't block
+      log.warn("wedm-synthetic-block", `Citation engine unavailable: ${err}`);
+      return hookSuccess(wedmSyntheticBlock, "Citation engine unavailable, skipping check", {
+        skipped: true,
+        error: String(err),
+      });
+    }
+  },
+};
+
+/**
  * Hook: hook_wedm_awareness_inject
  * Trigger: SessionStart
  * Injects WEDM context when session involves Wire EDM
@@ -876,16 +956,17 @@ const wedmAwarenessInject: HookDefinition = {
 // ============================================================================
 
 /**
- * All 16 WEDM Safety Hooks
+ * All 17 WEDM Safety Hooks
  */
 export const wedmSafetyHooks: HookDefinition[] = [
-  // Blocking (6)
+  // Blocking (7) — includes new citation enforcement
   wedmCalibrationValidate,
   wedmNeuralSanity,
   wedmGcodeInjection,
   wedmEcodeConsistency,
   wedmTaperLimits,
   wedmTensionSafety,
+  wedmSyntheticBlock, // MS-P1-100PCT: CI HARD BLOCK on synthetic parameters
   // Quality/Warning (5)
   wedmCostConfidence,
   wedmBatchDeps,
@@ -911,6 +992,7 @@ export {
   wedmEcodeConsistency,
   wedmTaperLimits,
   wedmTensionSafety,
+  wedmSyntheticBlock,
   wedmCostConfidence,
   wedmBatchDeps,
   wedmScheduleConflict,

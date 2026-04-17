@@ -879,6 +879,17 @@ export const WEDM_PIPELINE_ACTION_SCHEMAS: ActionSchemaMap = {
   wedm_reserve_machine,
   wedm_check_availability,
   wedm_cancel_reservation,
+
+  // WEDMCitationCheckEngine — MS-P1-100PCT U-P1-02
+  wedm_citation_check: z.object({
+    engine: z.string().optional().describe("Specific engine file to check (e.g., 'WEDMSelfAwarenessEngine.ts'). If omitted, checks all WEDM engines."),
+  }).describe("Check WEDM engine(s) for synthetic/uncited parameters"),
+
+  wedm_citation_report: z.object({
+    files: z.array(z.string()).optional().describe("Specific files to include in report. If omitted, reports on all WEDM engines."),
+  }).describe("Generate markdown report of citation coverage"),
+
+  wedm_synthetics_list: z.object({}).describe("List all WEDM engines that contain synthetic parameters"),
 };
 
 export const WEDM_PIPELINE_ACTIONS: string[] = Object.keys(WEDM_PIPELINE_ACTION_SCHEMAS);

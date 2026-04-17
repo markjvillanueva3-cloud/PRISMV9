@@ -64,6 +64,8 @@ let _wedmKnowledgeSynthesis: any;
 let _wedmPredictiveIntelligence: any;
 // WEDM Deep Neural Reasoning Engine (WEDM-NEURAL-REASON-MS1)
 let _wedmDeepNeuralReasoning: any;
+// MS-P1-100PCT U-P1-02: Citation verification
+let _wedmCitationCheck: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -117,6 +119,8 @@ async function getEngine(name: string): Promise<any> {
     case "wedmPredictiveIntelligence": return _wedmPredictiveIntelligence ??= (await import("../../engines/WireEDMPredictiveIntelligenceEngine.js")).wireEDMPredictiveIntelligenceEngine;
     // WEDM Deep Neural Reasoning Engine (WEDM-NEURAL-REASON-MS1)
     case "wedmDeepNeuralReasoning": return _wedmDeepNeuralReasoning ??= (await import("../../engines/WireEDMDeepNeuralReasoningEngine.js")).wireEDMDeepNeuralReasoningEngine;
+    // MS-P1-100PCT U-P1-02: Citation verification
+    case "wedmCitationCheck": return _wedmCitationCheck ??= (await import("../../engines/WEDMCitationCheckEngine.js")).wedmCitationCheckEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -346,6 +350,11 @@ const ACTIONS = [
   "wedm_neural_ecode_lookup",
   "wedm_neural_material_embedding",
   "wedm_neural_status",
+
+  // MS-P1-100PCT U-P1-02: Citation verification
+  "wedm_citation_check",
+  "wedm_citation_report",
+  "wedm_synthetics_list",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register dispatcher actions with adoption engine (once, at module load)
@@ -2941,6 +2950,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_neural_status": {
             const engine = await getEngine("wedmDeepNeuralReasoning");
             result = engine.getStatus();
+            break;
+          }
+
+          // ══════════════════════════════════════════════════════════════════
+          // MS-P1-100PCT U-P1-02: Citation verification actions
+          // ══════════════════════════════════════════════════════════════════
+
+          case "wedm_citation_check": {
+            const engine = await getEngine("wedmCitationCheck");
+            const engineName = params.engine as string | undefined;
+            if (engineName) {
+              result = await engine.checkEngine(engineName);
+            } else {
+              result = await engine.checkAllWEDMEngines();
+            }
+            break;
+          }
+
+          case "wedm_citation_report": {
+            const engine = await getEngine("wedmCitationCheck");
+            const files = params.files as string[] | undefined;
+            result = { report: await engine.generateReport(files) };
+            break;
+          }
+
+          case "wedm_synthetics_list": {
+            const engine = await getEngine("wedmCitationCheck");
+            result = { engines: await engine.getEnginesWithSynthetics() };
             break;
           }
 
