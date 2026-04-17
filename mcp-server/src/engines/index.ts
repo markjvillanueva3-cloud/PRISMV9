@@ -6620,6 +6620,17 @@ export {
   type CoverageStats,
 } from './MachinePackageAPIEngine.js';
 
+export {
+  machineProfilePropagationEngine,
+  type QuoteContext,
+  type SchedulingContext,
+  type FeasibilityContext,
+  type WhatIfScenario,
+  type WhatIfResult,
+  type MachineComparisonResult,
+  type PropagationStats,
+} from './MachineProfilePropagationEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
@@ -6724,3 +6735,18 @@ export {
   type AccuracyReport,
   type DegradationAlert,
 } from './EngineAccuracyTrackerEngine.js';
+
+// MILL-AGI P0.6: Capability Manifest
+export {
+  MillingCapabilityManifestEngine,
+  millingCapabilityManifestEngine,
+  type CapabilityCategory,
+  type ConfidenceLevel,
+  type CoverageLevel,
+  type ArgumentSpec,
+  type CapabilityPredicate,
+  type CapabilityGap,
+  type CapabilityManifest,
+  type CapabilityQuery,
+  type CapabilityAssessment,
+} from './MillingCapabilityManifestEngine.js';
