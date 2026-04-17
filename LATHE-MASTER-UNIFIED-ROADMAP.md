@@ -1,7 +1,8 @@
 # LATHE MASTER UNIFIED ROADMAP (LMU)
 
-**Version:** 1.0.0
-**Generated:** 2026-04-16
+**Version:** 2.0.0
+**Generated:** 2026-04-16 (v1), **expanded** 2026-04-16 (v2 post-scrutiny)
+**Product promise:** "Print → validated CNC program in one shot" with extreme intelligence + coordination.
 **Supremacy:** This roadmap is the SINGLE SOURCE OF TRUTH for all lathe development. It supersedes and consolidates:
 - `LATHE-COMPREHENSIVE-ROADMAP.md` (948 lines, 12 MS / 104 units)
 - `LATHE-PRO-ROADMAP.md` / `LATHE-PRO-v2-ROADMAP.md` / `LATHE-PRO-v3-ROADMAP.md` (3,203 lines, 17 MS / 142 units)
@@ -13,6 +14,29 @@
 **Envelope:** `mcp-server/data/milestones/LATHE-MASTER.json`
 **Authority:** Any conflict with a superseded doc resolves in favor of this roadmap.
 **Unit naming:** `U-LTH{NN}` (e.g., `U-LTH01`). No bare `U01`.
+
+---
+
+## ⚠ CRITICAL SCRUTINY FINDINGS v2 — READ FIRST
+
+A second scrutiny pass (`SCRUTINY-LATHE-MASTER-v2-2026-04-16.md`) flagged v1 (867 lines, 62 units) as **directionally correct but insufficient** to deliver the "print → validated CNC program in one shot" promise at the claimed "extreme intelligence" bar. v2 inserts **10 new sub-phases (P0.1 through P0.10) with 65 new units (U-LTH63..U-LTH127)** before existing P1. Each new phase addresses a specific gap:
+
+| Gap | Sub-phase (v2) | New units | Forge-Triple deliverable |
+|---|---|---|---|
+| Formal verification of G-code (Z3/SMT) | **P0.1 Formal G-Code Verification** | U-LTH63..U-LTH68 (6) | `/lathe-prove` + `post-lathe-emit-proof.mjs` + `lathe_formal_prove` |
+| Local LLM + LoRA from JM Die's 5,297 Okuma programs | **P0.2 Local LLM + LoRA Policy** | U-LTH69..U-LTH76 (8) | `/lathe-train-lora` + `pre-lathe-gen-require-policy.mjs` + `lathe_lora_generate` |
+| Bayesian + causal inference (NIG conjugate, PC-algorithm, do-calculus, Bayesian Cpk) | **P0.3 Bayesian + Causal Depth** | U-LTH77..U-LTH83 (7) | `/lathe-posterior-gate` + `post-strategy-require-posterior-gate.mjs` + `lathe_posterior_gate` |
+| Cross-asset wiring (all 1,869 engines + 509 formulas + 95,608 tools + 4,493 tips touched) | **P0.4 Asset Utilization Maximization** | U-LTH84..U-LTH91 (8) | `/lathe-coverage-audit` + `post-lathe-decision-require-provenance.mjs` + `lathe_provenance_query` |
+| AGI safety containment (corrigibility, goal stability, self-mod approval) | **P0.5 AGI Safety Containment (Lathe)** | U-LTH92..U-LTH96 (5) | `/lathe-containment-audit` + `pre-lathe-agi-action-corrigibility.mjs` + `lathe_agi_containment_check` |
+| Live machine data (MTConnect / OPC-UA / THINC from 7 Okuma lathes) | **P0.6 Live Machine Data** | U-LTH97..U-LTH103 (7) | `/lathe-live-telemetry` + `on-m30-auto-complete-outcome.mjs` + `lathe_live_stream_start` |
+| Predictive world simulation (60 s pre-play per program) | **P0.7 Predictive Twin (60 s Pre-Play)** | U-LTH104..U-LTH110 (7) | `/lathe-preplay` + `pre-lathe-emit-require-preplay.mjs` + `lathe_preplay_run` |
+| Multi-agent orchestration (supervisor + 5 specialist agents) | **P0.8 Multi-Agent Lathe Orchestration** | U-LTH111..U-LTH116 (6) | `/lathe-swarm` + `pre-lathe-swarm-budget-check.mjs` + `lathe_swarm_dispatch` |
+| Scientific simulation depth (tribology, fatigue, fracture mechanics, residual stress) | **P0.9 Scientific Simulation Depth (Lathe)** | U-LTH117..U-LTH122 (6) | `/lathe-science-gate` + `post-lathe-strategy-require-science-gates.mjs` + `lathe_science_gate_eval` |
+| Math depth (optimal control, info gain, calibrated ensemble, regret minimization) | **P0.10 Math Depth (Lathe)** | U-LTH123..U-LTH127 (5) | `/lathe-optimal-control` + `pre-lathe-decision-require-optimal-control.mjs` + `lathe_optimal_control_solve` |
+
+**v1 → v2 unit count:** 62 → 127. **Expected 3-loop scrutiny score:** 57 (v1) → 91 (v2 target). **Quality reference:** `UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md` (1827 lines, 25 sub-phases).
+
+**Anti-regression enforcement:** every v2 sub-phase has a PROTECTIVE HOOK that blocks downstream emission when the sub-phase's output is missing or stale. E.g., `pre-lathe-emit-require-preplay.mjs` prevents G-code emission without a fresh predictive-twin pre-play record; `pre-lathe-gen-require-policy.mjs` blocks generation without the LoRA policy artifact. These hooks fire automatically — no session can ship a lathe artifact that skipped the scrutiny v2 gates.
 
 ---
 
@@ -220,17 +244,27 @@ Every unit in this roadmap runs under the following enforcement stack — **auto
 
 ---
 
-## PHASE STRUCTURE (RGS Stage 5) — 7 phases, ~60 units, ~22 sessions
+## PHASE STRUCTURE (RGS Stage 5) — 17 phases, 127 units, ~45 sessions (v2)
 
 ```
-LATHE-MASTER
-├── P0: Audit + Harden                        (6 units)
-├── P1: Speed & Feed Calculator               (8 units)   → feature 1
-├── P2: Post-Processor Generator              (10 units)  → feature 2
-├── P3: Master Post-Processor                 (8 units)   → feature 3
-├── P4: Print-to-Program (THE BIG ONE)        (15 units)  → feature 4
-├── P5: ERP / Business Management             (10 units)  → feature 5
-└── PX: AGI Deep-Learning Cross-Cutting       (5 units)   → substrate for all phases
+LATHE-MASTER (v2)
+├── P0:    Audit + Harden                            (6 units)
+├── P0.1:  Formal G-Code Verification (Z3/SMT)       (6 units)    ← v2 scrutiny
+├── P0.2:  Local LLM + LoRA Policy                   (8 units)    ← v2 scrutiny
+├── P0.3:  Bayesian + Causal Depth                   (7 units)    ← v2 scrutiny
+├── P0.4:  Asset Utilization Maximization            (8 units)    ← v2 scrutiny
+├── P0.5:  AGI Safety Containment (Lathe)            (5 units)    ← v2 scrutiny
+├── P0.6:  Live Machine Data (MTConnect/OPC-UA)      (7 units)    ← v2 scrutiny
+├── P0.7:  Predictive Twin (60 s Pre-Play)           (7 units)    ← v2 scrutiny
+├── P0.8:  Multi-Agent Lathe Orchestration           (6 units)    ← v2 scrutiny
+├── P0.9:  Scientific Simulation Depth               (6 units)    ← v2 scrutiny
+├── P0.10: Math Depth (Optimal Control / Info Gain)  (5 units)    ← v2 scrutiny
+├── P1:    Speed & Feed Calculator                   (8 units)    → feature 1
+├── P2:    Post-Processor Generator                  (10 units)   → feature 2
+├── P3:    Master Post-Processor                     (8 units)    → feature 3
+├── P4:    Print-to-Program (THE BIG ONE)            (15 units)   → feature 4
+├── P5:    ERP / Business Management                 (10 units)   → feature 5
+└── PX:    AGI Deep-Learning Cross-Cutting           (5 units)    → substrate for all phases
 ```
 
 Each unit follows **4-LOOP**: BUILD → SCRUTINIZE → GAP FILL → TIE UP.
@@ -296,6 +330,791 @@ Per-session SMART_CONFIG and KNOWLEDGE sources below.
 - Hook: `lathe-inventory-stale-guard` — blocks edits when lathe-engine-registry.json is > 30 days old
 - Action: `prism_lathe:inventory_snapshot` — returns the live count + coverage map
 - Skill: `/lathe-audit` — runs the full P0 audit cycle
+
+---
+
+# P0.1: FORMAL G-CODE VERIFICATION (Z3/SMT) (6 units, 2 sessions) ← v2 scrutiny
+
+**Goal:** Lift lathe G-code into SMT-LIB2; prove envelope, feedrate cap, spindle cap, stock-collision-free, tool-change-at-safe-Z, G0-not-in-material, home-before-M30. Target: 500-block program verified in ≤ 5 s.
+
+**Leverage existing:**
+- `FormalVerificationEngine.ts` — Z3-WASM wrapper, `prove(LinearConstraint[])` / `satisfy()`. Do NOT rebuild.
+- `PPModalStateTrackerEngine.ts` — source of per-block modal vector (G90/G91, G20/G21, active WCS, active tool, feed mode, spindle mode).
+- `PPAxisTravelValidatorEngine.ts`, `PPArcValidatorEngine.ts`, `PPRapidMoveValidatorEngine.ts`, `PPToolChangeValidatorEngine.ts`, `PPSafeStartBlockValidatorEngine.ts`, `PPPhysicsConstraintValidatorEngine.ts`, `PPFeedRateReasonabilityValidatorEngine.ts` — bounds/inequalities hoist cleanly to SMT.
+- `PostProcessorMachineKinematicsEngine.ts` — machine envelope (Xmin/Xmax/Zmin/Zmax, axis travel limits).
+
+**Anti-patterns:**
+- Proving operational semantics (simulating one trajectory) instead of denotational (prove over all feasible traces). SMT is over all traces.
+- Encoding arcs in LIA — arc radius equality is nonlinear; use QF_NRA, time-box at 5 s.
+- Bypassing proof for macro programs — macros MUST be expanded or proved symbolically via BMC unrolling.
+
+**Integration with prior phases:**
+- Input: G-code from P4 print-to-program pipeline or any `PostProcessorPipelineEngine` emission.
+- Output: `LatheFormalProofReport` consumed by P4 signoff and P0.7 predictive-twin.
+
+### SESSION P0.1-S1 (U-LTH63..U-LTH65)
+**SMART_CONFIG:** Role=coder + reviewer | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=55%
+**KNOWLEDGE:** FormalVerificationEngine.ts (full), PPModalStateTrackerEngine.ts, PPAxisTravelValidatorEngine.ts, Z3-solver WASM docs, Biere et al. 1999 (bounded LTL-to-SMT), NIST RS274NGC spec.
+**INTENT:** Machinist sees `"proof: UNSAT (envelope violation)"` instead of a non-deterministic simulator warning.
+
+### U-LTH63 — LatheProgramSMTEncoderEngine
+- **Build:** New engine. Consumes `PPModalStateTrackerEngine` output. Emits `ProofInput` with per-block `LinearConstraint[]` for `FormalVerificationEngine.prove()`. Variables: `x_i, z_i, f_i, s_i, tool_i` per block. Transition: `x_{i+1} = x_i + dx_i` (G91) or `x_{i+1} = dx_i` (G90). Units handled (G20/G21 switch).
+- **Exit Gate:** 100 random lathe programs from JM Die archive encode to SMT-LIB2 without errors; encoding time < 100 ms per 500-block program; emits ≥ 200 LinearConstraint[] per typical program.
+- **Rollback:** FILES_CREATED=[`mcp-server/src/engines/LatheProgramSMTEncoderEngine.ts`, `mcp-server/src/__tests__/LatheProgramSMTEncoderEngine.test.ts`]; ABORT=encode-success < 95/100; ROLLBACK=`git rm` engine + test.
+- **4-LOOP:** BUILD encoder → SCRUTINIZE `/physics-verify` for unit handling → GAP FILL arc + canned-cycle expansion → TIE UP with denotational table.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH01, `FormalVerificationEngine.ts` exists.
+
+### U-LTH64 — LatheFormalProofEngine
+- **Build:** New engine. Orchestrates 7 properties: (1) envelope `xmin ≤ x_i ≤ xmax`, (2) feedrate `f_i ≤ F_max`, (3) spindle `s_i ≤ S_max(tool_i)`, (4) collision-free vs stock polytope `Ax ≤ b`, (5) tool-change-at-safe-Z `tchange_i → z_i ≥ Zsafe`, (6) G0-not-in-material, (7) home-before-M30.
+- **Exit Gate:** On JM Die reference set: 95% of programs prove all 7 properties UNSAT in ≤ 5 s total; properties 1–3 in ≤ 500 ms individually; arc NRA property 7 in ≤ 3 s with graceful timeout fallback.
+- **Rollback:** FILES_CREATED=[`mcp-server/src/engines/LatheFormalProofEngine.ts`, test file]; ABORT=proof time > 10 s on typical program; ROLLBACK=remove engine.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH63
+
+### U-LTH65 — LatheDenotationalSemanticsEngine
+- **Build:** New engine. Maps each G-code word → pure function `State → State` over modal state record `(plane, units, tool, offsets, WCS, feed_mode, spindle_mode)`. Enables algebraic composition and state-independent proofs. Includes Fanuc/Okuma dialect normalization to RS274 core before emitting to SMT encoder.
+- **Exit Gate:** Denotational table covers all 60+ G-codes and 40+ M-codes used in JM Die archive; round-trip equivalence test passes (denotational execution == PPModalStateTrackerEngine output) on 100 programs.
+- **Rollback:** git rm engine if round-trip fails; keep table as data file.
+- **Omega floor:** 0.85
+- **Depends on:** —
+
+### SESSION P0.1-S2 (U-LTH66..U-LTH68) — `/compact` before starting
+**SMART_CONFIG:** Role=coder + physics-reviewer | MODEL=opus | EFFORT=HIGH | CONTEXT_BUDGET=45%
+**KNOWLEDGE:** LTL/CTL temporal logic, nuXmv if needed for deep liveness, bounded LTL-to-SMT (Biere 1999).
+
+### U-LTH66 — LatheTemporalPropertyCheckerEngine
+- **Build:** New engine. Bounded LTL-to-SMT translation for global/eventual properties: `G[G0_i → ¬inside_stock(x_i, z_i)]`, `G[tchange_i → z_i ≥ Zsafe]`, `F[x == Xhome ∧ z == Zhome] before M30`. Unrolls automaton to bits, solves via Z3.
+- **Exit Gate:** 3 temporal properties decidable in ≤ 10 s on typical 500-block programs; graceful timeout with `"unknown: depth k=N reached"` reporting.
+- **Rollback:** git rm if solver hangs on reference programs.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH64
+
+### U-LTH67 — LatheProofCacheEngine
+- **Build:** New engine. Per-block hash cache: `(modal_state_hash, constraint_block_hash) → {sat|unsat|unknown, time_ms, timestamp}`. Invalidates on machine-envelope / tool-library / stock-spec changes. Stored in `data/state/lathe-proof-cache.jsonl`.
+- **Exit Gate:** ≥ 70% cache hit rate on repeated CI proof runs; cache invalidation correct under envelope/tool mutation.
+- **Rollback:** delete cache file; rebuild on next run.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH64
+
+### U-LTH68 — Forge-Triple (P0.1)
+- **Hook:** `post-lathe-emit-proof.mjs` — runs after any `LathePostProcessorEngine.emit()` and blocks artifact ship unless `LatheFormalProofEngine` returns UNSAT on all 7 properties (or 5 with timeout on NRA arcs + operator override + rationale).
+- **Action:** `prism_lathe:lathe_formal_prove` — exposes `{ program, machineProfile, tolerancePlan } → { properties: [{name, status, time_ms, counterexample?}], verdict }`.
+- **Skill:** `/lathe-prove` — user-facing verification. Reports color-coded pass/fail per property and explains counterexamples using `LatheDenotationalSemanticsEngine`.
+- **Exit Gate:** `/lathe-prove` on JM Die sample 20-program set: 19/20 proved UNSAT on all 7 properties under 10 s total; counterexample explanations render correctly.
+
+**P0.1 FEATURE CASCADE:**
+- NEW_HOOKS: `post-lathe-emit-proof` → protects emission against unproved envelope/feed/spindle violations
+- NEW_ACTIONS: `lathe_formal_prove`, `lathe_proof_cache_query`, `lathe_denotational_step` → available to P0.7, P4, P5, PX
+- NEW_SKILLS: `/lathe-prove` → machinist-callable verification
+- AVAILABLE_TO: P0.7 predictive twin (pre-play uses proof output), P4 print-to-program (signoff gate), P5 ERP (job pricing includes proof time)
+
+---
+
+# P0.2: LOCAL LLM + LoRA POLICY (8 units, 3 sessions) ← v2 scrutiny
+
+**Goal:** Fine-tune Qwen2.5-Coder:7b on ~4000 filtered JM Die Okuma `.MIN` programs via QLoRA, serve via Ollama, eval via compile-pass + validator-pass + CodeBLEU. Target: +25% validator-pass vs base model, sub-3 s inference per 200-line program.
+
+**Leverage existing:**
+- `LatheFullArchiveTrainingEngine.ts` — `scanArchive()` walker + ProgramFile type + per-customer parse-error accounting.
+- `LatheJMDieKnowledgeEngine.ts` — `CustomerPattern`, `MaterialParameters`, `OperationSequence`, `GCodeUsage`, `ToolPattern` → instruction-prompt schema.
+- `LatheAITrainingEngine.ts` — `ParsedProgram`/`ProgramAnalysis` with per-program score (filter: score ≥ 70 drops anti-patterns).
+- `LathePostProcessorEngine.ts` — Okuma syntax validator → compile-pass metric.
+- `LatheQualityGateEngine.ts` — validator-pass metric.
+- `LatheCoaxialityRunoutValidatorEngine.ts` — additional post-generation validator.
+- `src/data/jm-die-profile.ts` — shop/controller metadata for system prompt.
+
+**Anti-patterns:**
+- Using vanilla BLEU — punishes valid G-code reorderings. CodeBLEU only.
+- Random train/eval split — leaks customer-specific idioms across sets. **Customer-level** split (80% customers for training, 20% held out).
+- FP16 base load — 7B × 2 B = 14 GB leaves no activation budget on RTX 4080 16 GB. **4-bit NF4 mandatory.**
+- Serving PyTorch directly — use GGUF + Ollama only (PRISM is pure JS/TS control plane).
+- Overwriting base model — adapters checkpoint separately; merge-and-unload only for inference artifact.
+
+**Integration with prior phases:**
+- Input: P0 lathe-engine-registry + JM Die archive walked via existing `LatheFullArchiveTrainingEngine.scanArchive`.
+- Output: `lathe-jmdie-lora-q5km.gguf` + Ollama Modelfile consumed by P4 print-to-program agent and P0.8 multi-agent swarm.
+
+### SESSION P0.2-S1 (U-LTH69..U-LTH71)
+**SMART_CONFIG:** Role=ml-developer + coder | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=60%
+**KNOWLEDGE:** HuggingFace PEFT 0.10+, bitsandbytes 0.43+, Qwen2.5-Coder ChatML template, llama.cpp convert_hf_to_gguf.py, Ollama Modelfile spec.
+**INTENT:** Machinist runs `/lathe-gen-policy` and gets a complete O-numbered program that matches JM Die house style for the named customer.
+
+### U-LTH69 — LatheLoRADatasetBuilderEngine
+- **Build:** New engine. Walks `H:/PRISM/JM DIE/CNC LATHE/*/*.MIN` via `LatheFullArchiveTrainingEngine.scanArchive()`. For each program, extracts instruction prompt (customer, material, stock, operation sequence, tool list) from `LatheJMDieKnowledgeEngine`. Filters score ≥ 70 via `LatheAITrainingEngine`. Emits `data/training/lathe-lora-dataset.jsonl` with `{instruction, input, output}` format. Customer-level 80/20 split.
+- **Exit Gate:** ≥ 3,500 training examples emitted; ≥ 800 eval examples; no customer appears in both sets; BOM-stripped UTF-8; mean output length 150–400 lines.
+- **Rollback:** FILES_CREATED=[engine, test, dataset path]; ABORT=< 3000 examples; ROLLBACK=`git rm` engine; delete dataset.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH01, existing training engines.
+
+### U-LTH70 — LatheLoRATrainingScript (scripts/ not engines/)
+- **Build:** New script `scripts/train-lathe-lora.py` (Python is permitted in scripts/ per PRISM policy). QLoRA: 4-bit NF4 base via bitsandbytes, r=16, alpha=32, dropout=0.05, target all linear. per_device_batch=1, grad_accum=8, seq_len=2048, paged_adamw_8bit, lr=2e-4, cosine, warmup 0.03, 3 epochs. Emits `out/qwen25-coder-jmdie-lora/` adapter checkpoint.
+- **Exit Gate:** Training completes without OOM on RTX 4080 16 GB; train loss strictly decreases across 3 epochs; eval loss decreases ≥ 5% vs epoch 0.
+- **Rollback:** restore previous adapter from checkpoint registry.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH69
+
+### U-LTH71 — LatheLoRAEvalHarnessEngine
+- **Build:** New engine. Consumes 800 eval prompts + generations. Scores: (a) compile-pass via `LathePostProcessorEngine` syntax validator, (b) validator-pass via `LatheQualityGateEngine` + `LatheCoaxialityRunoutValidatorEngine`, (c) CodeBLEU, (d) semantic dimensional-check via `GDTStackupEngine` against instruction inputs.
+- **Exit Gate:** Base Qwen2.5-Coder:7b vs JM-Die-LoRA: compile-pass rate Δ ≥ +20 pp (e.g. 60 → 80%); validator-pass Δ ≥ +25 pp; CodeBLEU Δ ≥ +0.15.
+- **Rollback:** revert adapter if eval Δ < 0 (LoRA hurt the model — diagnose before re-training).
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH70
+
+### SESSION P0.2-S2 (U-LTH72..U-LTH74) — `/compact` before starting
+**SMART_CONFIG:** Role=ml-developer + backend-dev | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=50%
+**KNOWLEDGE:** llama.cpp Q5_K_M quant docs, Ollama Modelfile, Qwen2 ChatML stop tokens.
+
+### U-LTH72 — LatheLoRAMergeAndQuantScript
+- **Build:** Script `scripts/merge-and-quant-lathe-lora.py`. Calls `peft.merge_and_unload()` on trained adapter, saves merged HF model, then `python convert_hf_to_gguf.py` + llama.cpp `quantize` to Q5_K_M. Output: `models/qwen25-coder-jmdie-Q5_K_M.gguf` (~5.3 GB).
+- **Exit Gate:** GGUF file ≤ 6 GB; loads in Ollama without error; `ollama run lathe-jmdie` returns valid first token ≤ 2 s.
+- **Rollback:** delete GGUF, keep merged HF intermediate for re-quant.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH70
+
+### U-LTH73 — Ollama Modelfile + LatheLocalPolicyEngine
+- **Build:** Create `models/lathe-jmdie.Modelfile` with `FROM ./qwen25-coder-jmdie-Q5_K_M.gguf`, ChatML template, SYSTEM prompt "You are JM Die's Okuma lathe programmer. Output valid .MIN G-code matching the named customer's idioms. End with M30.", `PARAMETER temperature 0.2`, `num_ctx 8192`, `stop "<|im_end|>"`. New `LatheLocalPolicyEngine.ts` wraps Ollama HTTP API (`POST /api/generate`).
+- **Exit Gate:** `ollama create lathe-jmdie` succeeds; `LatheLocalPolicyEngine.generate({customer, material, stock, operations})` returns syntactically valid G-code ≥ 90% of the time on 20 reference prompts; mean latency ≤ 3 s for 200-line outputs.
+- **Rollback:** remove Modelfile, delete GGUF, revert engine to stub.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH72
+
+### U-LTH74 — LatheLoRAPipelineEngine (orchestrator)
+- **Build:** New engine. Orchestrates dataset-build → train → merge-quant → Ollama-deploy → eval. Single entry point `LatheLoRAPipelineEngine.run({ incremental: true, minScoreFilter: 70 })`. Emits run report to `data/state/lathe-lora-runs/<timestamp>.json`.
+- **Exit Gate:** End-to-end pipeline completes on clean checkout in ≤ 8 h wall-time; run report has non-empty eval metrics.
+- **Rollback:** archive failed run dir, restore previous Modelfile.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH69, U-LTH70, U-LTH71, U-LTH72, U-LTH73
+
+### SESSION P0.2-S3 (U-LTH75..U-LTH76)
+**SMART_CONFIG:** Role=coder + tester | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=40%
+
+### U-LTH75 — Incremental Retrain Cadence
+- **Build:** New cadence `scheduleLatheLoRAIncremental()` registered in `src/schedules/`. Runs weekly. Pulls new programs since last run from JM Die archive, appends to dataset, trains additional epoch from last checkpoint (not from scratch), re-evals. Only promotes new GGUF if eval Δ ≥ 0.
+- **Exit Gate:** First scheduled run completes successfully; non-regression gate works (rollback triggers on Δ < 0).
+- **Rollback:** disable cadence; revert Modelfile to last promoted GGUF.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH74
+
+### U-LTH76 — Forge-Triple (P0.2)
+- **Hook:** `pre-lathe-gen-require-policy.mjs` — blocks any `LatheLocalPolicyEngine.generate()` call without a current Modelfile registered in `data/state/lathe-lora-runs/` within the last 30 days. Forces incremental retrain when stale.
+- **Action:** `prism_lathe:lathe_lora_generate` — `{instruction, context} → {gcode, tokens_used, latency_ms, validator_pass_pred}`.
+- **Skill:** `/lathe-train-lora` (admin — triggers full pipeline) and `/lathe-gen-policy` (user — asks the LoRA for a program given a print spec).
+- **Exit Gate:** `/lathe-gen-policy` end-to-end on 10 reference prints: ≥ 8/10 pass compile + validator gates.
+
+**P0.2 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-gen-require-policy` → blocks stale policy serving
+- NEW_ACTIONS: `lathe_lora_generate`, `lathe_lora_eval`, `lathe_lora_train_dispatch` → available to P4, P0.8
+- NEW_SKILLS: `/lathe-train-lora`, `/lathe-gen-policy`
+- AVAILABLE_TO: P0.8 (swarm specialist agent), P4 (generation candidate pool), P5 (quote generator)
+
+---
+
+# P0.3: BAYESIAN + CAUSAL DEPTH (7 units, 3 sessions) ← v2 scrutiny
+
+**Goal:** Replace point estimates with posteriors across all safety-critical lathe predictions. Closed-form NIG for tool life, hierarchical Gibbs for cutting force, PC algorithm for scrap-causal DAG, back-door g-formula for do-calculus, Bayesian Cpk via non-central t posterior predictive.
+
+**Leverage existing:**
+- `BayesianInferenceEngine.ts` — Beta-Binomial, Normal-Normal, Gamma-Poisson conjugates. ADD NIG here.
+- `BayesianToolLifeEngine.ts` — Taylor prior + GP. ADD joint (C, n) NIG posterior.
+- `CausalReasoningEngine.ts` — hand-curated DAG only. ADD PC algorithm discovery + back-door adjustment.
+- `CounterfactualReasoningEngine.ts` — template edge strengths. ADD true do-operator using learned PC edges.
+- `CpkPredictionGateEngine.ts` (E1203 from CAMX-MS12) — point Cpk. ADD `gateBayesian()` returning P(Cpk ≥ 1.33).
+- `StochasticCuttingForceEngine.ts` — LHS Monte Carlo. WRAP in `HierarchicalBayesianCuttingForceEngine`.
+
+**Anti-patterns:**
+- Adding `bayesjs` or `pomegranate` — both abandoned / Python-only. Pure TS.
+- MCMC when conjugate available — NIG is closed-form, don't Metropolis-Hastings.
+- PC algorithm without Meek orientation — leaves undirected edges, loses temporal identifiability.
+- Ignoring time-ordering on causal DAG — material is chosen before toolpath, before feed; enforce in Meek orientation.
+- Back-door adjustment without verifying adjustment set blocks all back-door paths — check graphically.
+
+**Integration with prior phases:**
+- CAMX-MS12 E1201/E1202/E1203 → P0.3 makes E1203 Bayesian and wraps E1201 with hierarchical posteriors.
+- P0.1 proof output is input to P0.3 Bayesian gate: only proved-safe candidates get posterior scoring.
+
+### SESSION P0.3-S1 (U-LTH77..U-LTH79)
+**SMART_CONFIG:** Role=coder + researcher | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=55%
+**KNOWLEDGE:** Gelman BDA3 ch.3 (NIG conjugate), Murphy PML ch.11 (hierarchical Gibbs), Spirtes-Glymour-Scheines (PC algorithm), Pearl do-calculus.
+
+### U-LTH77 — BayesianInferenceEngine: NIG conjugate extension
+- **Build:** Extend `BayesianInferenceEngine.calculate()` with `prior_type: "normal_inverse_gamma"`. Inputs: prior `{μ₀, Σ₀, α₀, β₀}` + observations `{X, y}`. Outputs posterior `{μ_post, Σ_post, α_post, β_post}`. Closed form:
+  - `Σ_post⁻¹ = Σ₀⁻¹ + X'X/σ²`
+  - `μ_post = Σ_post (Σ₀⁻¹ μ₀ + X'y/σ²)`
+  - `α_post = α₀ + n/2`
+  - `β_post = β₀ + ½(y'y + μ₀' Σ₀⁻¹ μ₀ - μ_post' Σ_post⁻¹ μ_post)`
+- **Exit Gate:** Unit test posterior matches PyMC3 reference to 1e-5; sampling from posterior gives correct marginals via 10k draws.
+- **Rollback:** revert to previous BayesianInferenceEngine if tests fail.
+- **Omega floor:** 0.90
+- **Depends on:** —
+
+### U-LTH78 — BayesianToolLifeEngine: joint (C, n) posterior
+- **Build:** Extend `BayesianToolLifeEngine` with `posteriorJointCn({ priorFromCatalog, observations })`. Log-linearizes Taylor: `log T = log C - (1/n) log V`, fits via NIG from U-LTH77. Prior from Sandvik/Kennametal per-grade T-vs-V points (Fisher-information for Σ₀), ν₀=5 weak.
+- **Exit Gate:** Posterior CI on (C, n) narrows 3× after 50 observations vs prior-only; predictive log T ± 2σ covers 95% of holdout programs.
+- **Rollback:** revert engine; catalog data file preserved.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH77
+
+### U-LTH79 — HierarchicalBayesianCuttingForceEngine
+- **Build:** New engine. Three-level partial pooling: material_group (P/M/K/N/S/H) ⊃ tool_material_pair ⊃ specific_tool. Gibbs sampler ~200 LOC: alternates between group/pair/individual posteriors with NIG on each level. Consumes `OutcomeTrackingEngine` records grouped by material × tool.
+- **Exit Gate:** Sparse-data tools shrink toward group mean correctly (verified on synthetic data); posterior predictive RMSE ≤ 0.85 × non-hierarchical baseline on JM Die validation set.
+- **Rollback:** git rm engine; StochasticCuttingForceEngine remains primary.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH77
+
+### SESSION P0.3-S2 (U-LTH80..U-LTH82) — `/compact` before starting
+**SMART_CONFIG:** Role=researcher + coder | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=50%
+
+### U-LTH80 — CausalReasoningEngine: PC algorithm discovery
+- **Build:** Extend with `discoverDAG({data, alpha=0.05, timeOrdering})`. Fisher-Z conditional independence test on partial correlations for continuous vars; χ² for categorical (scrap/good). Outputs CPDAG, then Meek orients using time-ordering: material → toolpath → feed/speed → force → dim_error → scrap; fixture → rigidity → deflection.
+- **Exit Gate:** On 1000-program JM Die cohort: recovers ≥ 70% of known edges (material→kc1.1, feed→force, force→deflection); spurious edges ≤ 15%.
+- **Rollback:** revert engine; hand-curated DAG remains fallback.
+- **Omega floor:** 0.85
+- **Depends on:** —
+
+### U-LTH81 — CounterfactualReasoningEngine: true do-operator
+- **Build:** Extend with `doOperator({ treatment, value, outcome, adjustmentSet })`. Uses back-door criterion: `P(outcome | do(treatment=v)) = Σ_z P(outcome | treatment=v, z) · P(z)`. Fits `P(outcome | treatment, Z)` as Bayesian logistic regression (Laplace approx). Empirical P(z) from data.
+- **Exit Gate:** "Feed +10% → Δ P(scrap)" computes within ±3 pp of randomized-trial ground truth on synthetic data; runs in ≤ 200 ms per query.
+- **Rollback:** revert engine; template mode remains.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH80
+
+### U-LTH82 — CpkPredictionGateEngine: gateBayesian method
+- **Build:** Extend E1203 with `gateBayesian({ candidates, tolerance, priorJobs, p_threshold = 0.90 })`. NIG on (μ, σ²) per strategy from prior jobs. Posterior predictive Cpk = non-central t distribution ratio; 10k MC samples for P(Cpk ≥ 1.33). Gate: accept iff P ≥ 0.90.
+- **Exit Gate:** On CAMX-MS12 test set, gateBayesian is at least as conservative as point gate; rejects additional 5–15% of candidates that point gate accepts but have high σ² uncertainty; gateBayesian P(Cpk≥1.33) value ∈ [0, 1] on every call.
+- **Rollback:** gateBayesian becomes optional flag; point gate remains default.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH77
+
+### SESSION P0.3-S3 (U-LTH83)
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=30%
+
+### U-LTH83 — Forge-Triple (P0.3)
+- **Hook:** `post-strategy-require-posterior-gate.mjs` — every `StrategyComparisonEngine` / `FeatureStrategyKnowledgeBaseEngine.bestStrategy()` call must return `{bayesianCpkP, toolSurvivalP, scrapP}` (all Bayesian posteriors, not point estimates). Hook blocks emission when posteriors absent.
+- **Action:** `prism_lathe:lathe_posterior_gate` — `{candidates, tolerance, priorJobs} → [{candidate, bayesianCpkP, toolSurvivalP, scrapP, verdict}]`.
+- **Skill:** `/lathe-posterior-gate` — user-facing Bayesian evaluator.
+- **Exit Gate:** `/lathe-posterior-gate` returns all three posteriors on 10 reference candidates; hook blocks PR that strips posterior from strategy comparison.
+
+**P0.3 FEATURE CASCADE:**
+- NEW_HOOKS: `post-strategy-require-posterior-gate`
+- NEW_ACTIONS: `lathe_posterior_gate`, `lathe_causal_discover`, `lathe_do_operator` → P4, P5, PX
+- NEW_SKILLS: `/lathe-posterior-gate`
+- AVAILABLE_TO: P0.10 math depth (uses posteriors in Lagrangian), P4 print-to-program, P5 ERP (pricing uses P(scrap))
+
+---
+
+# P0.4: ASSET UTILIZATION MAXIMIZATION (8 units, 3 sessions) ← v2 scrutiny
+
+**Goal:** Every lathe decision must route through all relevant assets (engines, formulas, algorithms, tools, materials, machines, tribal tips) and emit a provenance chain. Target: ≥ 90% of relevant asset index entries touched on a representative print-to-program sample.
+
+**Leverage existing:** `PRISMSelfAwarenessEngine.ts`, `FormulaRegistry.ts`, `AlgorithmRegistry.ts`, all 24 registries, `ToolCatalogEngine`, `MaterialRegistry`, `MachineRegistry`, `TribalKnowledgeEngine`, `MachiningPlaybookEngine`, `EXTERNAL-REFERENCE-PROGRAMS-INDEX.md`.
+
+**Anti-patterns:**
+- "Call engine X" without logging what X consulted. Orphan-consumer smell.
+- Provenance chains with engine names but not formula IDs / algorithm IDs / material IDs / tool IDs / tip IDs. Must include registry primary keys.
+- Coverage audit counting "imports" instead of "invocations at runtime".
+
+**Integration with prior phases:**
+- Consumes registry outputs of P0 audit.
+- Informs P4 signoff dossier.
+
+### SESSION P0.4-S1 (U-LTH84..U-LTH86)
+**SMART_CONFIG:** Role=system-architect + coder | MODEL=opus | EFFORT=HIGH | CONTEXT_BUDGET=60%
+**KNOWLEDGE:** All 24 registry interfaces, ENGINE_DIGEST.md, PRISM-INVENTORY-2026-04-15.md.
+
+### U-LTH84 — LatheAssetCoordinatorEngine
+- **Build:** New engine. For a given print-to-program request `{material, operation, customer, machine, tolerance}`, identifies every relevant asset: (a) candidate tools via ToolCatalogEngine, (b) material properties via MaterialRegistry, (c) machine envelope via MachineRegistry, (d) applicable formulas via FormulaRegistry (Kienzle, Taylor, Malkin, Sato...), (e) applicable algorithms via AlgorithmRegistry (stability-lobe, Bayesian, Monte Carlo...), (f) tribal tips via TribalKnowledgeEngine.searchTribalKnowledge, (g) playbook rules via MachiningPlaybookEngine.searchPlaybookRules, (h) relevant reference programs via EXTERNAL-REFERENCE-PROGRAMS-INDEX.md. Returns `AssetBundle`.
+- **Exit Gate:** On 10 reference requests, AssetBundle.size ≥ 50 assets each; no runtime errors on edge materials/tools.
+- **Rollback:** git rm engine; individual calls remain.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH01, all registry engines exist.
+
+### U-LTH85 — LatheProvenanceChainEngine
+- **Build:** New engine. Wraps any lathe decision call: captures `AssetBundle` consumed, records `[{asset_type, asset_id, asset_name, contribution}]` chain, returns `ProvenanceLog`. Stored in `data/state/lathe-provenance/<decisionId>.json`.
+- **Exit Gate:** 100% of P4 print-to-program decisions emit a ProvenanceLog; logs load in < 50 ms; schema-versioned.
+- **Rollback:** logs become opt-in flag.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH84
+
+### U-LTH86 — LatheDecisionReasoningLogEngine
+- **Build:** New engine. Appends to provenance with reasoning[]: why this tool was picked over alternatives, which formulas were consulted and what they returned, which tribal tips nudged the choice. Structured as a `DecisionTree` where each node has `{alternatives, criteria, choice, rationale, confidence}`.
+- **Exit Gate:** Log explainable by a human on reference decisions; no "black-box" nodes.
+- **Rollback:** engine becomes optional.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH85
+
+### SESSION P0.4-S2 (U-LTH87..U-LTH89) — `/compact` before starting
+**SMART_CONFIG:** Role=reviewer + coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=45%
+
+### U-LTH87 — LatheCoverageAuditEngine
+- **Build:** New engine. Computes `coverage(sampleRequests[]) = unique_assets_touched / unique_assets_relevant`. Relevant = `LatheAssetCoordinatorEngine.enumerate(request)`. Emits audit report `data/state/lathe-coverage-audit-<timestamp>.json`.
+- **Exit Gate:** On 100-request sample, report shows ≥ 90% coverage; by-registry breakdown.
+- **Rollback:** report becomes advisory.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH85
+
+### U-LTH88 — Registry Entry Utilization Stats
+- **Build:** Augment each of the 24 registries with `hitCount`, `lastAccessedAt` per entry. Emit top-10 and bottom-10 per registry in coverage audit.
+- **Exit Gate:** Bottom-10 per registry surfaces stale/unused entries; top-10 matches intuition.
+- **Rollback:** revert registry augmentation; coverage report without utilization stats.
+- **Omega floor:** 0.75
+- **Depends on:** U-LTH87
+
+### U-LTH89 — Cross-Asset Wiring Hooks (Formulas × Algorithms × Tools × Materials × Machines × Tips)
+- **Build:** Install 6 wiring validation hooks: `post-lathe-decision-require-formula`, `post-lathe-decision-require-algorithm`, `post-lathe-decision-require-tool-catalog`, `post-lathe-decision-require-material`, `post-lathe-decision-require-machine`, `post-lathe-decision-require-tip`. Each blocks decisions that touched 0 entries in its registry (indicates missed wiring).
+- **Exit Gate:** Hooks fire correctly on contrived stub decisions; do not fire on well-wired decisions.
+- **Rollback:** disable hooks; coverage audit remains advisory.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH85, U-LTH87
+
+### SESSION P0.4-S3 (U-LTH90..U-LTH91)
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=35%
+
+### U-LTH90 — Provenance Retention + Query Actions
+- **Build:** Add retention policy (keep 90 days hot, archive older to cold JSONL bundle); query actions `provenance_query_by_decisionId`, `provenance_query_by_assetId`, `provenance_query_by_customer`.
+- **Exit Gate:** Query actions return in < 100 ms on 10k-entry provenance log.
+- **Rollback:** disable archival; actions optional.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH85
+
+### U-LTH91 — Forge-Triple (P0.4)
+- **Hook:** `post-lathe-decision-require-provenance.mjs` — blocks any lathe decision from surfacing to P4 signoff / web UI without a `ProvenanceLog` reference.
+- **Action:** `prism_lathe:lathe_provenance_query` — query by decisionId/assetId/customer.
+- **Skill:** `/lathe-coverage-audit` — runs `LatheCoverageAuditEngine` and formats the report with per-registry breakdown.
+- **Exit Gate:** `/lathe-coverage-audit` on 100-request sample: ≥ 90% relevant-asset coverage; report ships with top/bottom 10 per registry.
+
+**P0.4 FEATURE CASCADE:**
+- NEW_HOOKS: `post-lathe-decision-require-provenance` + 6 wiring hooks
+- NEW_ACTIONS: `lathe_provenance_query`, `lathe_asset_bundle`, `lathe_coverage_audit`
+- NEW_SKILLS: `/lathe-coverage-audit`
+- AVAILABLE_TO: P4 signoff dossier, P5 ERP (quote includes provenance), PX AGI substrate
+
+---
+
+# P0.5: AGI SAFETY CONTAINMENT (LATHE) (5 units, 2 sessions) ← v2 scrutiny
+
+**Goal:** Corrigibility gate + goal-stability invariant + self-mod approval + containment audit, scoped to lathe stack. Near-AGI orchestrators cannot mutate physics constants, shop profile, dispatcher wiring, or formula registry without explicit human approval.
+
+**Leverage existing:** Universal 0.25.1 `AGISafetyContainmentEngine`, 0.18 `SelfModificationProposalEngine`, `EmergentBehaviorMonitorEngine`, `CognitiveBudgetEngine`, `BeliefStateEngine`. Lathe side: `LatheAGICoreEngine`, `LatheMasterOrchestratorFacadeEngine`, `LatheUnifiedAIOrchestrator`.
+
+**Anti-patterns:**
+- Corrigibility gate implemented as a boolean that AGI engine can flip. **Human approval must be out-of-band** (separate file, separate auth path).
+- Self-mod approval implemented as "always yes" — provides audit trail without control. Reject.
+- Containment audit that reads only logged capabilities — must also enumerate from filesystem to catch unlogged additions.
+
+**Integration with prior phases:** P0.4 provenance chain records every AGI action for containment audit.
+
+### SESSION P0.5-S1 (U-LTH92..U-LTH94)
+**SMART_CONFIG:** Role=security-manager + reviewer | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=45%
+**KNOWLEDGE:** Universal 0.25 corrigibility specs, Stuart Russell (Human Compatible) corrigibility criteria, `AGENT_BOUNDARY_DIRECTIVE.md`.
+
+### U-LTH92 — LatheAgentCorrigibilityGateEngine
+- **Build:** New engine. Classifies lathe AGI actions into tiers: (T0) read-only, auto-allow; (T1) propose-strategy, auto-allow with provenance; (T2) adjust engine wiring / dispatcher, require human approval; (T3) modify physics constants / shop profile / formula registry, require human approval AND signed approval artifact. Rejects T2/T3 without `approvals/<actionId>.json` signed file.
+- **Exit Gate:** Synthetic T2/T3 actions blocked without approval file; T0/T1 flow through; approval file format validated; cannot be written by the same engine it approves.
+- **Rollback:** disable gate; log-only mode.
+- **Omega floor:** 0.95
+- **Depends on:** —
+
+### U-LTH93 — LatheGoalStabilityInvariantEngine
+- **Build:** New engine. At every lathe agent checkpoint, verifies the objective function hash has not changed vs session-start baseline. Blocks execution if `hash(LatheAGICoreEngine.currentObjective()) != baseline_hash`. Objective rewrites require T3 approval.
+- **Exit Gate:** Synthetic goal-drift (objective modifier) caught ≥ 99%; no false positives on legitimate parameter updates within the same objective.
+- **Rollback:** disable invariant check; monitor-only.
+- **Omega floor:** 0.95
+- **Depends on:** U-LTH92
+
+### U-LTH94 — LatheSelfModificationApprovalEngine
+- **Build:** New engine. For any proposal from `SelfModificationProposalEngine` targeting a lathe asset, requires: (a) diff preview, (b) static analysis result, (c) formal proof of non-violation of safety invariants (integrates with P0.1), (d) reviewer sign-off (signed file), (e) rollback plan. Only then writes the mutation.
+- **Exit Gate:** Synthetic proposals without full envelope rejected; well-formed proposals pass through; audit trail complete.
+- **Rollback:** disable auto-apply; proposals queued for manual review only.
+- **Omega floor:** 0.95
+- **Depends on:** U-LTH92, P0.1 U-LTH64
+
+### SESSION P0.5-S2 (U-LTH95..U-LTH96) — `/compact` before starting
+**SMART_CONFIG:** Role=reviewer | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=35%
+
+### U-LTH95 — LatheContainmentAuditEngine
+- **Build:** New engine. Weekly cadence. Enumerates lathe engine capabilities from filesystem (glob + signature hash) vs logged capability inventory. Diffs. Flags unlogged additions. Correlates with `provenance` logs — any mutation without provenance = red flag.
+- **Exit Gate:** Synthetic unlogged engine (manual fs write) flagged within 1 audit cycle.
+- **Rollback:** audit becomes advisory email only.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH92
+
+### U-LTH96 — Forge-Triple (P0.5)
+- **Hook:** `pre-lathe-agi-action-corrigibility.mjs` + `post-lathe-agi-self-mod-approval.mjs` (two hooks).
+- **Action:** `prism_lathe:lathe_agi_containment_check` — on-demand audit.
+- **Skill:** `/lathe-containment-audit`.
+- **Exit Gate:** Hook pair blocks T2/T3 without approval; audit skill produces a clean report on reference state.
+
+**P0.5 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-agi-action-corrigibility`, `post-lathe-agi-self-mod-approval`
+- NEW_ACTIONS: `lathe_agi_containment_check`, `lathe_corrigibility_gate`, `lathe_goal_stability_check`
+- NEW_SKILLS: `/lathe-containment-audit`
+- AVAILABLE_TO: all downstream phases that use `LatheAGICoreEngine`
+
+---
+
+# P0.6: LIVE MACHINE DATA (MTCONNECT / OPC-UA / THINC) (7 units, 3 sessions) ← v2 scrutiny
+
+**Goal:** Stream 10 Hz telemetry from 7 Okuma OSP-P300L lathes into `OutcomeTrackingEngine`; auto-close outcome records on M30; extend outcome schema with live telemetry summary.
+
+**Leverage existing:** `MTConnectAdapterEngine.ts` (1043 LOC), `MTConnectLiveStatusEngine.ts`, `DigitalTwinEngine.ts`, `DigitalTwinSyncEngine.ts`, `LatheActualFeedbackTuningEngine.ts`, `OutcomeTrackingEngine.ts` (JSONL append-only), `TelemetryEngine.ts`, `PostProcessorTelemetryEngine.ts`, `MachineLearningFeedbackEngine.ts`, `FeedbackCollectorEngine.ts`, `PredictionFeedbackOrchestratorEngine.ts`.
+
+**Anti-patterns:**
+- Using `mtconnect-agent` npm package — that hosts an agent, doesn't consume. Use `fast-xml-parser` + `axios` or `node-opcua`.
+- Polling > 10 Hz on MTConnect — Okuma OSP-P300L ceiling. Wasted bandwidth.
+- Ignoring spindle_temperature — thermal drift is real and fixable by `InverseThermalCompensationEngine`.
+- Writing telemetry synchronously into outcome file on every tick — batch on M30, not every frame.
+
+**Integration with prior phases:** P0.3 Bayesian posteriors update from P0.6 outcome records; P0.7 predictive twin validated against P0.6 actuals.
+
+### SESSION P0.6-S1 (U-LTH97..U-LTH99)
+**SMART_CONFIG:** Role=backend-dev + coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=50%
+**KNOWLEDGE:** `node-opcua` docs, Okuma OSP-P300L MTConnect Adapter installation guide, THINC-API SDK docs, OutcomeTrackingEngine schema.
+
+### U-LTH97 — OkumaOPCUABridgeEngine
+- **Build:** New engine. Wraps `node-opcua` subscription to Okuma OPC-UA endpoint. Subscribes to 10 Hz signals: spindle_load_pct, path_feedrate, actual_feedrate, axis_load_x, axis_load_z, cycle_time, program_block_number, tool_life_counter, spindle_temperature, program_state, alarm_codes.
+- **Exit Gate:** Test harness connects to mock OPC-UA server; 10 Hz sampling achieved; reconnect-on-drop works within 5 s; certificate auth path tested.
+- **Rollback:** disable subscription; adapter stub.
+- **Omega floor:** 0.85
+- **Depends on:** —
+
+### U-LTH98 — MTConnectAdapterEngine extensions (no new engine)
+- **Build:** Extend existing `MTConnectAdapterEngine` with lathe-specific projections: Okuma MTConnect device model, `execution` mapping (READY/ACTIVE/INTERRUPTED/STOPPED), spindle overrides, feed overrides. Add Okuma-specific `ProbeResult` parsing.
+- **Exit Gate:** Existing probe/current/sample tests still pass; new lathe-projection tests pass; no regressions.
+- **Rollback:** revert extension; original behavior restored.
+- **Omega floor:** 0.85
+- **Depends on:** `MTConnectAdapterEngine.ts` exists.
+
+### U-LTH99 — LiveTelemetryIngestEngine
+- **Build:** New engine. Tees OPC-UA + MTConnect streams into in-memory ring buffer (10 Hz × 60 s = 600 frames). On M30 detection, serializes summary (peak_spindle_load_pct, avg_feed_override_pct, alarm_codes[], block_where_scrapped_if_any) to `OutcomeTrackingEngine` via new `appendLiveSummary(outcomeId, summary)` method.
+- **Exit Gate:** Ring buffer + M30 trigger → outcome append verified on mock stream; buffer never exceeds 600 frames; summary statistics correct on synthetic data.
+- **Rollback:** engine opt-in flag.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH97, U-LTH98
+
+### SESSION P0.6-S2 (U-LTH100..U-LTH102) — `/compact` before starting
+**SMART_CONFIG:** Role=coder + reviewer | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=40%
+
+### U-LTH100 — LatheTelemetrySummaryEngine (outcome schema ext)
+- **Build:** New engine. Owns the `liveTelemetrySummary` sub-schema on `OutcomeRecord`. Adds fields: `{peakSpindleLoadPct, avgFeedOverridePct, alarmCodes[], blockWhereScrapped, programDurationSec, toolsUsedList, spindleTempDeltaC, axisLoadMaxX, axisLoadMaxZ}`. Migration from schemaVersion N → N+1.
+- **Exit Gate:** Migration round-trips; schema validated by Zod; old records still readable after migration.
+- **Rollback:** schema migration down-path restores N.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH99
+
+### U-LTH101 — OnM30AutoCompleteOutcomeHook
+- **Build:** New hook `on-m30-auto-complete-outcome.mjs`. Fires when `LiveTelemetryIngestEngine` detects M30 or program_state transition to READY. Triggers outcome close + summary append + Bayesian prior update (feeds U-LTH78 + U-LTH79).
+- **Exit Gate:** Synthetic M30 on mock stream closes outcome within 2 s; Bayesian engines see new posterior within 5 s.
+- **Rollback:** disable hook; manual outcome close fallback.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH99, U-LTH100
+
+### U-LTH102 — LatheActualFeedbackTuningEngine integration
+- **Build:** Wire `LatheActualFeedbackTuningEngine` to consume `liveTelemetrySummary`. Recalibrates Taylor C + kc_scale from per-job residuals (predicted cycle_time vs actual; predicted peak force vs axis_load_max).
+- **Exit Gate:** After 50 jobs, tuning engine emits non-zero kc_scale correction; correction reduces future-prediction MAPE ≥ 5%.
+- **Rollback:** revert wiring; tuning remains in manual mode.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH100
+
+### SESSION P0.6-S3 (U-LTH103)
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=30%
+
+### U-LTH103 — Forge-Triple (P0.6)
+- **Hook:** `on-m30-auto-complete-outcome.mjs` (already U-LTH101 — wrap into forge-triple entry).
+- **Action:** `prism_lathe:lathe_live_stream_start` + `lathe_live_stream_status` + `lathe_live_telemetry_snapshot`.
+- **Skill:** `/lathe-live-telemetry` — opens live dashboard.
+- **Exit Gate:** End-to-end smoke test: skill opens, stream starts, mock M30 closes outcome, summary visible.
+
+**P0.6 FEATURE CASCADE:**
+- NEW_HOOKS: `on-m30-auto-complete-outcome`, `on-alarm-scrap-flag`
+- NEW_ACTIONS: `lathe_live_stream_start`, `lathe_live_telemetry_snapshot`, `lathe_outcome_close`
+- NEW_SKILLS: `/lathe-live-telemetry`
+- AVAILABLE_TO: P0.3 Bayesian update cadence, P0.7 twin validation, P5 ERP (actual cost from cycle time)
+
+---
+
+# P0.7: PREDICTIVE TWIN (60 s PRE-PLAY) (7 units, 3 sessions) ← v2 scrutiny
+
+**Goal:** Every print-to-program output pre-plays through the digital twin (2 D XZ manifold polygon + per-block Kienzle + 1 D thermal FD + deflection + collision) within a 60 s budget per 1000-block program.
+
+**Leverage existing:** `CNCSimulationPipelineEngine.ts`, `LatheBlockEngagementSimulatorEngine.ts`, `DigitalTwinEngine.ts`, `ProcessDigitalTwinEngine.ts`, `DigitalTwinFormulasEngine.ts`, `DigitalTwinSyncEngine.ts`, `CuttingForceEngine.ts` (Kienzle), `StochasticCuttingForceEngine.ts`, `ThermalSimEngine.ts`, `CuttingThermalEngine.ts`, `ThermalWearCouplingEngine.ts` (RK4), `InverseThermalCompensationEngine.ts`, `PartDeflectionEngine.ts`, `BoringBarDeflectionEngine.ts`, `ChatterStabilityLobeEngine.ts`, `SurfaceFinishPredictorEngine.ts`, `SPCProcessCapabilityEngine.ts`, `BooleanKernelEngine.ts` (CadQuery bridge), `PredictiveWorldSimulatorEngine.ts`, `PredictiveSimulationEngine.ts`, `PhysicsAwareSimulationEngine.ts`, `CalibratedSimulationEngine.ts`, `NovelToolpathSimulatorEngine.ts`, `ToolpathSimulationEngine.ts`, `SimulationReportEngine.ts`, `SimulationVisualizationBridgeEngine.ts`.
+
+**Anti-patterns:**
+- New physics engine. 85% of the capability exists. Only the **lathe-specific orchestrator** is missing.
+- 3 D CSG per block. Use 2 D XZ polygon (revolved) with `manifold-3d` — 10–100× faster.
+- Integrating FEA per block. Mechanistic Kienzle is the correct granularity for 60 s budget.
+- Running thermal + deflection synchronously. Parallelize where possible; per-block budget is tight.
+- Skipping truthful validation. `BooleanKernelEngine` CadQuery pass runs once at end for ground truth.
+
+**Integration with prior phases:** P0.1 proof output is fed into pre-play as "already-proved constraints"; P0.3 posteriors feed force uncertainty bands; P0.6 live data calibrates twin.
+
+### SESSION P0.7-S1 (U-LTH104..U-LTH106)
+**SMART_CONFIG:** Role=coder + physics-reviewer | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=55%
+**KNOWLEDGE:** `manifold-3d` Apache-2 WASM docs, `CuttingForceEngine` interface, `ThermalSimEngine` interface.
+
+### U-LTH104 — LatheManifoldXZPolygonEngine
+- **Build:** New engine. Wraps `manifold-3d` WASM for 2 D XZ polygon ops. Lathe stock = closed polygon `{(z, r)}`, insert swept-envelope = polygon per block, boolean subtract per block. Target: 2 ms per op.
+- **Exit Gate:** 1000 block subtractions complete in ≤ 2 s total on reference machine; final polygon matches `BooleanKernelEngine` truthful kernel within 1e-4 area.
+- **Rollback:** git rm engine; predictive twin falls back to truthful kernel (slower).
+- **Omega floor:** 0.85
+- **Depends on:** `BooleanKernelEngine.ts` exists; `manifold-3d` added to `package.json`.
+
+### U-LTH105 — LathePerBlockPhysicsEngine
+- **Build:** New engine. For each block: (a) consume `LatheBlockEngagementSimulatorEngine` output `{ap, fz, engagement_width, mrr}`, (b) `CuttingForceEngine.fcKienzle({material, ap, fz, kappa})`, (c) `ThermalSimEngine.stepFD1D({dt, source: Fc·v})`, (d) `PartDeflectionEngine.evaluateCantilever(...)`, (e) `ChatterStabilityLobeEngine.isStable({rpm, ap})`. Allocation: 1+3+2+2 ms = 8 ms per block.
+- **Exit Gate:** Per-block physics completes in ≤ 10 ms 95th percentile; all 5 sub-engines produce non-null outputs on reference blocks.
+- **Rollback:** revert per-block integration; physics engines remain callable individually.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH104
+
+### U-LTH106 — LathePredictiveTwinOrchestratorEngine
+- **Build:** New engine. End-to-end: reads G-code → expands modal state → per-block boolean subtract + per-block physics → tracks accumulated tool wear + thermal drift + deflection → emits `TwinPreplayReport`. Budget enforced at 60 s; overruns return partial with flag.
+- **Exit Gate:** On 10 reference 500–1000 block programs, pre-play completes in ≤ 60 s; report includes per-block peak_force, peak_temp, max_deflection, stability_margin.
+- **Rollback:** git rm engine; existing CNCSimulationPipelineEngine remains primary.
+- **Omega floor:** 0.90
+- **Depends on:** U-LTH104, U-LTH105
+
+### SESSION P0.7-S2 (U-LTH107..U-LTH109) — `/compact` before starting
+**SMART_CONFIG:** Role=coder + reviewer | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=45%
+
+### U-LTH107 — LatheTwinValidationReportEngine
+- **Build:** New engine. Compares `TwinPreplayReport` predictions against `OutcomeTrackingEngine` actuals (from P0.6) per completed job. Computes MAPE on cycle time, peak force, peak temp. Blocks promotion of a twin run if MAPE > calibration budget.
+- **Exit Gate:** After 50 job completions, report shows MAPE ≤ 15% on cycle time, ≤ 20% on peak force, ≤ 25% on peak temp.
+- **Rollback:** report becomes advisory.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH106, P0.6 U-LTH100
+
+### U-LTH108 — LatheTwinCalibrationEngine
+- **Build:** New engine. When MAPE exceeds budget, identifies the worst-fitting sub-model (force / thermal / deflection) and applies a calibration coefficient. Coefficient update via `BayesianInferenceEngine` NIG (from U-LTH77). Calibration coefficient stored in `data/state/lathe-twin-calibration.json`.
+- **Exit Gate:** Synthetic 20% force over-prediction corrected within 20 jobs.
+- **Rollback:** reset calibration to identity.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH107, U-LTH77
+
+### U-LTH109 — Twin Visualization Bridge (web UI)
+- **Build:** Wire `SimulationVisualizationBridgeEngine` to emit Three.js-compatible frame data from `TwinPreplayReport`. Web panel renders 2 D XZ polygon evolution + per-block force/temp overlays.
+- **Exit Gate:** Web UI displays reference program pre-play at 10 fps; overlays update with frame cursor scrubbing.
+- **Rollback:** disable web bridge; reports remain CLI-viewable.
+- **Omega floor:** 0.75
+- **Depends on:** U-LTH106
+
+### SESSION P0.7-S3 (U-LTH110)
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=30%
+
+### U-LTH110 — Forge-Triple (P0.7)
+- **Hook:** `pre-lathe-emit-require-preplay.mjs` — blocks any `LathePostProcessorEngine.emit()` without a fresh `TwinPreplayReport` (≤ 5 min old) showing no collisions + deflection within spec + chatter-stable.
+- **Action:** `prism_lathe:lathe_preplay_run` — `{gcode, stock, machineId, toolList} → TwinPreplayReport`.
+- **Skill:** `/lathe-preplay`.
+- **Exit Gate:** `/lathe-preplay` on 10 reference programs: 10/10 complete under 60 s; 9/10 catch a known seeded fault.
+
+**P0.7 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-emit-require-preplay`
+- NEW_ACTIONS: `lathe_preplay_run`, `lathe_twin_validate`, `lathe_twin_calibrate`
+- NEW_SKILLS: `/lathe-preplay`
+- AVAILABLE_TO: P4 print-to-program (signoff), P5 ERP (time estimates calibrated)
+
+---
+
+# P0.8: MULTI-AGENT LATHE ORCHESTRATION (6 units, 2 sessions) ← v2 scrutiny
+
+**Goal:** Supervisor + 5 specialist agents (Blueprint-OCR, Feature-Recognition, Strategy-Advisor, Sim-Validator, Signoff) under a shared token budget, with consensus + disagreement resolution.
+
+**Leverage existing:** `MultiAgentCoordinatorEngine.ts`, `AgentRegistryEngine.ts`, `SlashCommandRecommenderEngine.ts`, `LatheMasterOrchestratorFacadeEngine.ts`, `LatheUnifiedAIOrchestrator.ts`, claude-flow MCP, queen-coordinator agent, SPARC methodology.
+
+**Anti-patterns:**
+- Agent with unbounded token budget. Cognitive-budget engine is non-negotiable.
+- Consensus = "pick the majority vote". Weight by provenance depth + posterior confidence.
+- Ignoring disagreement. Every disagreement is a free learning signal — log it.
+
+### SESSION P0.8-S1 (U-LTH111..U-LTH113)
+**SMART_CONFIG:** Role=adaptive-coordinator + reviewer | MODEL=opus | EFFORT=HIGH | CONTEXT_BUDGET=50%
+**KNOWLEDGE:** queen-coordinator agent spec, SPARC docs, ContextChain from CPP-MS2-S4.
+
+### U-LTH111 — LatheSupervisorAgent spec + implementation
+- **Build:** New agent definition + engine. Dispatches lathe print-to-program work to 5 specialist sub-agents: BlueprintOCRAgent, FeatureRecognitionAgent, StrategyAdvisorAgent, SimValidatorAgent, SignoffAgent. Uses ContextChain for shared context.
+- **Exit Gate:** Supervisor routes 10 reference requests to correct sub-agents; shared context survives across sub-agent boundaries.
+- **Rollback:** revert to synchronous `LatheMasterOrchestratorFacadeEngine` pipeline.
+- **Omega floor:** 0.85
+- **Depends on:** —
+
+### U-LTH112 — LatheAgentBudgetAllocatorEngine
+- **Build:** New engine. Per-request shared token + time budget. Divvies across 5 specialists via Thompson sampling on historical per-specialist value. Reserves 20% for supervisor.
+- **Exit Gate:** Over-budget specialist is gracefully truncated; supervisor still produces output.
+- **Rollback:** fall back to static equal split.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH111
+
+### U-LTH113 — LatheAgentConsensusEngine
+- **Build:** New engine. Combines per-specialist outputs into a single strategy via weighted consensus (weight = provenance_depth × posterior_confidence). Ties break on supervisor judgment.
+- **Exit Gate:** Synthetic conflicting specialist outputs resolve to higher-confidence option; ties handled without deadlock.
+- **Rollback:** fall back to supervisor-only output.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH111
+
+### SESSION P0.8-S2 (U-LTH114..U-LTH116) — `/compact` before starting
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=40%
+
+### U-LTH114 — LatheAgentDisagreementLogEngine
+- **Build:** New engine. Every consensus decision where specialists disagreed by ≥ 15% in confidence is logged as a learning signal. Stored in `data/state/lathe-disagreements.jsonl`. Consumed by P0.3 causal engine for DAG-edge reinforcement.
+- **Exit Gate:** Synthetic disagreement logged correctly; P0.3 engine reads and updates.
+- **Rollback:** log becomes advisory.
+- **Omega floor:** 0.75
+- **Depends on:** U-LTH113
+
+### U-LTH115 — claude-flow / queen-coordinator integration
+- **Build:** Register `LatheSupervisorAgent` with `claude-flow` MCP + wire to `queen-coordinator` for cross-domain swarms. Enables lathe supervisor to call non-lathe agents (e.g., `physics-reviewer`) when needed.
+- **Exit Gate:** Cross-domain call from lathe supervisor to physics-reviewer works on reference request; timeout handled.
+- **Rollback:** disable cross-domain; lathe swarm remains self-contained.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH111
+
+### U-LTH116 — Forge-Triple (P0.8)
+- **Hook:** `pre-lathe-swarm-budget-check.mjs` — rejects swarm dispatch without a budget allocation from `LatheAgentBudgetAllocatorEngine`.
+- **Action:** `prism_lathe:lathe_swarm_dispatch` — `{request, sharedBudget} → {supervisorDecision, specialistOutputs, consensusVerdict}`.
+- **Skill:** `/lathe-swarm`.
+- **Exit Gate:** `/lathe-swarm` on 5 reference prints: 5/5 succeed within budget; supervisor output matches consensus.
+
+**P0.8 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-swarm-budget-check`
+- NEW_ACTIONS: `lathe_swarm_dispatch`, `lathe_agent_budget_status`, `lathe_disagreement_query`
+- NEW_SKILLS: `/lathe-swarm`
+- AVAILABLE_TO: P4 print-to-program (primary consumer), P5 ERP (swarm-based quote generation)
+
+---
+
+# P0.9: SCIENTIFIC SIMULATION DEPTH (LATHE) (6 units, 2 sessions) ← v2 scrutiny
+
+**Goal:** Force tribology / fatigue / fracture-mechanics / residual-stress / dimensional-stability gates into every lathe strategy decision, not just post-hoc reports.
+
+**Leverage existing:** `CuttingForceEngine`, `ThermalSimEngine`, `ToolWearProgressionEngine`, `StochasticToolLifeEngine`, `PartDeflectionEngine`, `SurfaceFinishPredictorEngine`, `ChatterStabilityLobeEngine`, `ResidualStressEngine`, all 10 Universal 0.21 scientific engines.
+
+**Anti-patterns:**
+- Adding gates as optional. `MANDATORY` or rejected PR.
+- Gates that require manual input. Auto-populate from material × tool × operation context.
+- Gates that fire with default-valued constants. Every constant imported from `physics/constants.ts`.
+
+### SESSION P0.9-S1 (U-LTH117..U-LTH119)
+**SMART_CONFIG:** Role=physics-reviewer + coder | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=50%
+**KNOWLEDGE:** Sandvik tribology reference data, Shigley fatigue (tool + jaw), Irwin LEFM (fracture), Shaw ch.18 residual stress, Machinery's Handbook thin-wall tolerances.
+
+### U-LTH117 — LatheTribologyWearModelEngine
+- **Build:** New engine. Decomposes tool wear into adhesion + abrasion + diffusion components per material × tool pair. Uses Malkin wear-rate model. Predicts which wear mode dominates at the chosen speed/feed; flags unsuitable pairings.
+- **Exit Gate:** Dominant-mode prediction matches Sandvik catalog expectations on 20 reference pairs; edge cases (low-speed Ti: adhesion, high-speed steel: diffusion) caught.
+- **Rollback:** revert; Taylor lumped model remains primary.
+- **Omega floor:** 0.85
+- **Depends on:** —
+
+### U-LTH118 — LatheFatigueGateEngine (tool + spindle + jaw)
+- **Build:** New engine. S-N / Basquin fatigue check for (a) tool shank under cyclic Kienzle force, (b) spindle bearing under cyclic axial/radial load, (c) chuck jaw under clamping + cutting force. Each with safety factor ≥ 2 on infinite-life threshold.
+- **Exit Gate:** On 10 reference operations, gate flags one deliberately over-stressed case; 9 pass.
+- **Rollback:** gate becomes advisory warning, not block.
+- **Omega floor:** 0.90
+- **Depends on:** `CuttingForceEngine`, `MachineRegistry` (bearing specs).
+
+### U-LTH119 — LatheFractureMechanicsGateEngine (thin-wall)
+- **Build:** New engine. Linear-elastic fracture mechanics check for thin-wall parts: K_I = σ·√(π·a) vs K_Ic; chooses lower cutting force if K_I exceeds threshold. Triggers only for parts with wall-thickness < 0.1 × OD.
+- **Exit Gate:** Thin-wall reference part (JM Die fastener die insert) triggers gate; normal parts do not.
+- **Rollback:** revert; existing thin-wall rules in playbook remain.
+- **Omega floor:** 0.85
+- **Depends on:** `MaterialRegistry` (K_Ic values).
+
+### SESSION P0.9-S2 (U-LTH120..U-LTH122) — `/compact` before starting
+**SMART_CONFIG:** Role=physics-reviewer + coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=45%
+
+### U-LTH120 — LatheResidualStressGateEngine
+- **Build:** New engine. Predicts residual stress in finished surface via Jawahir-Brinksmeier model: σ_res = f(σ_flow, cutting_temp, strain_rate, tool_geometry). Blocks strategies that induce tensile stress > spec (e.g., -200 MPa compressive floor for fatigue-critical parts).
+- **Exit Gate:** Reference part (spring steel shaft) passes with compressive residual; high-heat config rejected.
+- **Rollback:** revert; warning-only mode.
+- **Omega floor:** 0.85
+- **Depends on:** `ResidualStressEngine`, `CuttingThermalEngine`.
+
+### U-LTH121 — LatheDimensionalStabilityGateEngine
+- **Build:** New engine. Checks post-cut dimensional stability: thermal recovery (InverseThermalCompensationEngine), elastic spring-back (PartDeflectionEngine), residual-stress relaxation (U-LTH120). Estimates dimensional drift over 24 h post-machining. Blocks if drift > (tolerance / 4).
+- **Exit Gate:** Reference precision part (carbide die punch, ±5 μm) gate matches empirical drift measurements on 5 JM Die jobs.
+- **Rollback:** revert; advisory mode.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH120, `InverseThermalCompensationEngine`.
+
+### U-LTH122 — Forge-Triple (P0.9)
+- **Hook:** `post-lathe-strategy-require-science-gates.mjs` — every strategy decision must have passing results from all 5 gates (or explicit override with rationale).
+- **Action:** `prism_lathe:lathe_science_gate_eval` — `{strategy, material, tool, operation, partGeometry} → {tribology, fatigue, fracture, residualStress, dimStability, verdict}`.
+- **Skill:** `/lathe-science-gate`.
+- **Exit Gate:** `/lathe-science-gate` on 20 reference strategies: 18 pass cleanly, 2 flag seeded faults; no false positives on historical production jobs (sampled 50).
+
+**P0.9 FEATURE CASCADE:**
+- NEW_HOOKS: `post-lathe-strategy-require-science-gates`
+- NEW_ACTIONS: `lathe_science_gate_eval`, `lathe_tribology_predict`, `lathe_fatigue_check`, `lathe_fracture_check`
+- NEW_SKILLS: `/lathe-science-gate`
+- AVAILABLE_TO: P1 speed/feed (rejects unsafe params), P4 print-to-program (signoff), P5 ERP (risk-adjusted pricing)
+
+---
+
+# P0.10: MATH DEPTH (OPTIMAL CONTROL / INFO GAIN / ENSEMBLE) (5 units, 2 sessions) ← v2 scrutiny
+
+**Goal:** Replace heuristic strategy enumeration with explicit optimal-control Lagrangian. Add expected-information-gain for active learning. Calibrated ensemble across LoRA policy + reasoning engines + rule baseline. Regret-minimization for cross-job learning.
+
+**Leverage existing:** `StrategyRobustOptimizationEngine` (hypothetical if not yet built), `StrategyStochasticRiskEngine` (E1201), `StrategyWorstCaseSelectorEngine` (E1202), `CpkPredictionGateEngine` (E1203), `LatheBayesianOptimizationEngine`, `LatheOpusReasoningEngine`, `LatheDeepReasoningEngine`, Universal 0.20 `OptimalControlEngine`, `ActiveInferenceEngine`, `CalibratedEnsembleEngine`, `RegretMinimizationEngine`, `InformationTheoreticEngine`.
+
+**Anti-patterns:**
+- Enumeration-only over strategy space without explicit Lagrangian → scales poorly; misses Pareto frontier.
+- Ensemble without calibration (Platt scaling / isotonic) → confidences lie.
+- Info gain based on model entropy alone → ignores observation cost.
+- Regret minimization offline only → misses online learning.
+
+### SESSION P0.10-S1 (U-LTH123..U-LTH125)
+**SMART_CONFIG:** Role=researcher + coder | MODEL=opus | EFFORT=MAX | CONTEXT_BUDGET=50%
+**KNOWLEDGE:** Bertsekas DP ch.6 (optimal control), Cover & Thomas ch.2 (info theory), Cesa-Bianchi (regret), Platt scaling + isotonic for calibration.
+
+### U-LTH123 — LatheOptimalControlFormulationEngine
+- **Build:** New engine. Formalizes print-to-program as a constrained optimization:
+  ```
+  argmax_strategy  E[profit | strategy]
+  s.t.  P(Cpk ≥ 1.33 | strategy) ≥ 0.90
+        P(tool survives | strategy) ≥ 0.90
+        E[cycle_time | strategy] ≤ budget
+        formal_proof(strategy) == UNSAT-violation
+        all 5 P0.9 science gates = PASS
+  ```
+  Lagrangian with adaptive multipliers. Uses BayesianOpt to search feasible region.
+- **Exit Gate:** On 10 reference problems, optimal control solution dominates (or matches) greedy baseline on profit; all constraints satisfied.
+- **Rollback:** revert; greedy baseline remains.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH64 (proof), P0.3 Bayesian, P0.9 gates.
+
+### U-LTH124 — LatheExpectedInfoGainEngine
+- **Build:** New engine. For active learning: which strategy (of candidates) would reduce posterior entropy on the tool-life / Cpk posteriors the most if run? Computes EIG = H(θ) - E_y[H(θ|y)].
+- **Exit Gate:** On synthetic data with known ground truth, EIG-guided selection converges in 30% fewer trials than random.
+- **Rollback:** fall back to random exploration.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH78 (posterior), U-LTH82 (Cpk posterior).
+
+### U-LTH125 — LatheCalibratedEnsembleEngine
+- **Build:** New engine. Ensemble across: (a) LoRA policy (U-LTH73), (b) LatheOpusReasoningEngine, (c) LatheDeepReasoningEngine, (d) rule-based baseline. Calibrates per-member confidences via Platt scaling on historical outcomes. Ensemble output = calibration-weighted vote.
+- **Exit Gate:** Ensemble brier score < best single member; calibration (reliability diagram) within ±5% of diagonal.
+- **Rollback:** revert to best single member.
+- **Omega floor:** 0.85
+- **Depends on:** U-LTH73.
+
+### SESSION P0.10-S2 (U-LTH126..U-LTH127) — `/compact` before starting
+**SMART_CONFIG:** Role=coder | MODEL=sonnet | EFFORT=HIGH | CONTEXT_BUDGET=30%
+
+### U-LTH126 — LatheRegretMinimizationEngine
+- **Build:** New engine. Multi-armed bandit over strategies per (material × operation × customer) bucket. EXP3 + UCB. Online update on outcome feedback. Tracks cumulative regret vs best-fixed strategy.
+- **Exit Gate:** After 100 synthetic trials, regret sub-linear in n; converges to best strategy ≥ 85% of time by trial 50.
+- **Rollback:** fall back to fixed strategy table.
+- **Omega floor:** 0.80
+- **Depends on:** U-LTH125.
+
+### U-LTH127 — Forge-Triple (P0.10)
+- **Hook:** `pre-lathe-decision-require-optimal-control.mjs` — blocks strategy decisions that did not route through `LatheOptimalControlFormulationEngine`.
+- **Action:** `prism_lathe:lathe_optimal_control_solve` + `lathe_eig_rank` + `lathe_ensemble_vote` + `lathe_regret_state`.
+- **Skill:** `/lathe-optimal-control`.
+- **Exit Gate:** `/lathe-optimal-control` on 5 reference problems: returns Pareto-dominant solutions with ensemble-calibrated confidences.
+
+**P0.10 FEATURE CASCADE:**
+- NEW_HOOKS: `pre-lathe-decision-require-optimal-control`
+- NEW_ACTIONS: `lathe_optimal_control_solve`, `lathe_eig_rank`, `lathe_ensemble_vote`, `lathe_regret_state`
+- NEW_SKILLS: `/lathe-optimal-control`
+- AVAILABLE_TO: P1, P4, P5, PX — every strategic lathe decision.
 
 ---
 

@@ -70,6 +70,72 @@
 
 ---
 
+## 📱 CANONICAL FRONTEND REFERENCE (added 2026-04-16)
+
+**Source of truth:** `H:/prism/SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md`
+
+This scrutiny is THE authoritative reference for what Codex built on the web
+frontend and where the frontend/backend gaps are. **Consult BEFORE proposing
+any work that touches the web app, calculator, post-processor UI, or
+MachineMode surfaces** — 18 MILL-AGI units and R3 Phases C/D are already
+retired here as redundant with Phase 0, and all calc-expansion milestones
+(CALC-MILL-MS0..MS3, CALC-LATHE/WEDM/SEDM/GRIND/CROSS-MS0) are scoped.
+
+### What Codex already built (doc §1)
+- **134 pages / ~170 components / 87 API clients** at `mcp-server/web/` (canonical tree)
+- **WireEdmStudioPage** = template 6-step wizard pattern — clone for `/mill-studio`, `/lathe-studio`
+- **7 Context providers + 45 custom hooks**, no Zustand/Redux
+- **`/web/` is a 3-week-stale mirror** — retire or codegen under Phase 0.6
+
+### Backend gaps — what PRISM must support (doc §2 + §3.3 additive)
+1. **Mill calculator sub-panels** — chatter, tool-life, cost, workholding, deflection (lathe has 7, mill has 0)
+2. **Mode-switch state hygiene** — `selectedTool`/`selectedMaterial`/`operation`/`machineTypeId` don't reset on mode change
+3. **`pp_ss_*` / `pp_tc_*` duplicate `z.enum` entries** in `ppDispatcher.ts` (R4 Fix #3)
+4. **`pp_validate_program` vacuous-true** bug at `ppDispatcher.ts:1228-1231` (R4 Fix #5 — SAFETY CRITICAL)
+5. **Mitsubishi-Mill / Citizen / Tsugami post engines** — net-new dialects (R4 Fix #10)
+6. **ProgramReleaseEngine + `/api/v1/release/*`** (R4 Fix #7)
+7. **MillToPPHandoff typed adapter** (R4 Fix #6)
+8. **5 `pp_generate_*` stubs** — absorbed into Phase 0.23 U-UTL12 PostProcessorUnificationEngine
+9. **AtomicValue migration** for 8 calc actions (R4 Fix #8)
+
+### Frontend gaps — what the web app still needs (doc §6)
+1. **"Print Drop" bridge page** — single CAD/PDF entry auto-dispatching to correct wizard
+2. **Unified job-session store** — replace URL-based `jobId` handoff for multi-op jobs (Zustand or shared Context)
+3. **`/mill-studio` + `/lathe-studio`** — clone WEDM 6-step wizard pattern
+4. **Wire 7 orphan API clients** — `cadGeometry`, `holePattern`, `fiveAxis`, `multiAxisProgram`, `multiOp`, `toolpath`, `feasibility`
+5. **Default nav exposure** for `/print-to-cnc` (currently reachable only by URL)
+6. **Wire or delete `QuoteFollowUpPage`** (only true orphan among 134 pages)
+
+### Mill calculator expansion — mill-first sequence (doc §3.4)
+| Milestone | LOC | Week | Exit |
+|-----------|-----|------|------|
+| **CALC-MILL-MS0** (baseline) | ~2,400 | W4 | Mill tab 100% wired, Playwright green |
+| **CALC-MILL-MS1** (sub-panels) | ~680 | W4 | Parity with lathe sub-panel count |
+| **CALC-MILL-MS2** (operations) | ~1,125 | W5 | Peck/trochoidal/thread-mill/rigid-tap/face-mill/engagement-angle |
+| **CALC-MILL-MS3** (studio) | ~400 | W5 | Embedded program studio + dispatcher-bridged handoff |
+| CALC-LATHE-MS0 | ~2,000 | W5 | Swiss dialect toggle post R4 Fix #10 |
+| CALC-WEDM-MS0 | ~1,300 | W6 | |
+| CALC-SEDM-MS0 | ~900 | W6 | |
+| CALC-GRIND-MS0 | ~800 | W6 | |
+| CALC-CROSS-MS0 (mode hygiene) | ~1,200 | W6 | Mode-switch clears tool/material/operation |
+
+**Aggregate calc expansion:** ~8,600 LOC / 34 units / 3.5 engineering weeks adjacent to Universal W4–W6.
+
+### Retired work (doc §3.2) — do NOT execute parallel to Phase 0
+~18 MILL-AGI units (P0.1/0.2/0.4/0.6/0.7 + P6.1/6.2) + R3 Phases C/D retired as redundant. Full retirement list in scrutiny §3.2. **Executing adjacent — as consumers of Phase 0, not parallel — saves ~5,500 LOC.**
+
+### Three decisions required before W1 (doc §5)
+1. **Mill-only-first** (recommended) vs all-modes-parallel
+2. **Local LLM in Phase 0?** — recommended: defer to W7-W8, MILL-AGI P0.3 ships cloud-first
+3. **`/web` parity mechanism** — recommended: codegen under 0.6 (~200 LOC, zero-drift CI)
+
+### Related scrutinies (chain of discovery)
+- **R3** `SCRUTINY-PRINT-TO-CNC-ONESHOT-2026-04-16.md` — one-shot print→CNC pipeline
+- **R4** `SCRUTINY-R4-CALC-PP-WIRING-2026-04-16.md` — calc↔PP wiring fixes (referenced above)
+- **R5** (this) — codex frontend inventory + universal alignment
+
+---
+
 ## ⚠ CRITICAL SCRUTINY FINDINGS — READ FIRST
 
 **Pass 1** (`SCRUTINY-UNIVERSAL-HOOKS-PLAN-2026-04-15.md`) — awareness + duplication:

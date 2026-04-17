@@ -426,6 +426,12 @@ TASK-DECOMPOSITION: For quote/plan/design tasks
 - Compaction survival: Preserves minimal context
 - MEMORY.md: Cross-session self-awareness sync
 
+## 📱 Codex Frontend Canonical Reference
+**Scrutiny R5 is THE reference for what Codex built on the frontend and where the gaps are:**
+`H:/prism/SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md`
+
+Summarizes: 134 pages / ~170 components / 87 API clients at `mcp-server/web/` (canonical tree, `/web/` is stale mirror); mill calculator tab is catastrophically shallow vs lathe (0 vs 7 sub-panels); 18 MILL-AGI units + R3 Phases C/D retired as redundant with Phase 0; CALC-MILL-MS0..MS3 expansion plan. Also detailed in `UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md` §CANONICAL FRONTEND REFERENCE. Consult BEFORE any frontend/calculator/post-processor work.
+
 ## 🔎 Capability Discovery — Surface Tools at Moment of Need
 Four categories of PRISM capability are easy to forget mid-task:
 1. **Token-saving hooks** (FileReadCache, GrepResultCache, JsonStateSummarizer) — silent when working, invisible when forgotten
