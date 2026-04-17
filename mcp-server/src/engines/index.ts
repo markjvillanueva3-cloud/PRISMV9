@@ -5497,6 +5497,7 @@ export { WEDMProgramSafetyGateEngine, wedmProgramSafetyGateEngine, type SafetyGa
 export { WEDMProgramVerificationEngine, wedmProgramVerificationEngine, type VerificationInput, type VerificationResult, type VerificationCheck, type ControllerDialect } from './WEDMProgramVerificationEngine.js';
 export { WEDMWirePathCollisionEngine, wedmWirePathCollisionEngine, type CollisionInput, type CollisionResult, type CollisionEvent, type SweptVolume } from './WEDMWirePathCollisionEngine.js';
 export { WEDMUnitTagGateEngine, wedmUnitTagGateEngine, type UnitTagInput, type UnitTagResult, type UnitMismatch, type DeclaredUnit, type AtomicValue } from './WEDMUnitTagGateEngine.js';
+export { WEDMHeadClearanceGateEngine, wedmHeadClearanceGateEngine, type HeadClearanceGateInput, type HeadClearanceGateResult } from './WEDMHeadClearanceGateEngine.js';
 
 // --- BOX-MS7: Calculator Page — Program Upload + Tool Callout + Auto S/F ---
 export { ProgramUploadAnalyzerEngine, programUploadAnalyzerEngine, type DetectedDialect, type UploadAnalysisResult, type AnalyzedTool, type AnalyzedOperation, type SpeedFeedEntry, type CycleStructure, type ProgramHints } from './ProgramUploadAnalyzerEngine.js';
