@@ -121,6 +121,13 @@ const ACTIONS = [
   "shop_overlay_set_default",    // Set default overlay
   "shop_overlay_merged_view",    // Get merged canonical + overlay view
   "shop_overlay_stats",          // Get overlay coverage stats
+  // ===== MCAT-MS0 P2-U04: Machine Option Contract Tests (6 actions) =====
+  "mcat_contract_validate",      // Validate machine profile against contracts
+  "mcat_contract_renderable",    // Get renderable options for machine
+  "mcat_contract_combo_check",   // Check if controller/spindle/coolant combo is valid
+  "mcat_contract_geometry",      // Validate geometry constraints
+  "mcat_contract_tests_gen",     // Generate contract test cases
+  "mcat_contract_tests_run",     // Run contract tests for machine
 ] as const;
 
 export function registerMachineSetupDispatcher(server: any): void {
@@ -607,6 +614,35 @@ Actions: ${ACTIONS.join(", ")}.`,
         } else if (action === "shop_overlay_stats") {
           const { shopMachineOverlayEngine } = await import("../../engines/ShopMachineOverlayEngine.js");
           result = shopMachineOverlayEngine.getStats();
+
+        // ===== MCAT-MS0 P2-U04: Machine Option Contract Tests =====
+        } else if (action === "mcat_contract_validate") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.validateProfile(params.profile);
+        } else if (action === "mcat_contract_renderable") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.getRenderableOptions(params);
+        } else if (action === "mcat_contract_combo_check") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.isValidCombination(
+            params.controller_id as string,
+            params.spindle_id as string,
+            params.coolant_ids as string[],
+            params.allowed_options as any[]
+          );
+        } else if (action === "mcat_contract_geometry") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.validateGeometry(
+            params.weight_kg as number,
+            params.diameter_mm as number,
+            params.restrictions
+          );
+        } else if (action === "mcat_contract_tests_gen") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.generateContractTests(params.machine_id as string);
+        } else if (action === "mcat_contract_tests_run") {
+          const { machineOptionContractEngine } = await import("../../engines/MachineOptionContractEngine.js");
+          result = machineOptionContractEngine.runContractTests(params.machine_id as string);
 
         } else {
           const engineKey = engineMap[action];

@@ -6587,3 +6587,11 @@ export {
   type MergedMachineView,
   type OverlayStoreState,
 } from './ShopMachineOverlayEngine.js';
+
+export {
+  machineOptionContractEngine,
+  type ContractViolation,
+  type ContractValidationResult,
+  type RenderableOptions,
+  type OptionFilterInput,
+} from './MachineOptionContractEngine.js';
