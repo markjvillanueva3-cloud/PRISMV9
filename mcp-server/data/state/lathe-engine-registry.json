@@ -1,0 +1,2909 @@
+{
+  "schemaVersion": 1,
+  "generated_at": "2026-04-17T01:51:09.604Z",
+  "generated_by": "U-LTH01 (LATHE-MASTER Phase P0)",
+  "filesystem_count": 87,
+  "registry_count": 87,
+  "count_delta": 0,
+  "test_coverage": {
+    "with_test": 43,
+    "without_test": 44,
+    "percent": 49
+  },
+  "total_loc": 103875,
+  "avg_loc": 1194,
+  "categories_count": {
+    "post_processor": 4,
+    "physics": 9,
+    "orchestration": 6,
+    "quality_pipeline": 4,
+    "programming": 11,
+    "setup_workholding": 6,
+    "intelligence": 13,
+    "reasoning": 4,
+    "ml": 18,
+    "uncategorized": 4,
+    "learning_pipeline": 6,
+    "agi": 1,
+    "cost_business": 3,
+    "process_control": 12
+  },
+  "duplicate_candidates": [
+    {
+      "prefix": "PostProcesso",
+      "candidates": [
+        "LathePostProcessorEngine",
+        "LathePostProcessorAIEngine"
+      ]
+    },
+    {
+      "prefix": "DeepLearning",
+      "candidates": [
+        "LatheDeepLearningEngine",
+        "LatheDeepLearningIntelligenceEngine"
+      ]
+    }
+  ],
+  "engines": [
+    {
+      "name": "LatheActiveLearningEngine",
+      "shortcode": "ActiveLearning",
+      "file": "src/engines/LatheActiveLearningEngine.ts",
+      "loc": 2306,
+      "export_count": 18,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheDataPoint"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperation"
+        },
+        {
+          "kind": "type",
+          "name": "QualityClass"
+        },
+        {
+          "kind": "type",
+          "name": "QueryStrategy"
+        },
+        {
+          "kind": "interface",
+          "name": "PredictionWithUncertainty"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": "src/__tests__/LatheActiveLearningEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheActualFeedbackTuningEngine",
+      "shortcode": "ActualFeedbackTuning",
+      "file": "src/engines/LatheActualFeedbackTuningEngine.ts",
+      "loc": 244,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "OpCalibrationRecord"
+        },
+        {
+          "kind": "interface",
+          "name": "TaylorParams"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheFeedbackTuningInput"
+        },
+        {
+          "kind": "interface",
+          "name": "FeedbackTuningRecommendation"
+        },
+        {
+          "kind": "const",
+          "name": "latheActualFeedbackTuningEngine"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheActualFeedbackTuningEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheAdvancedOperationsEngine",
+      "shortcode": "AdvancedOperations",
+      "file": "src/engines/LatheAdvancedOperationsEngine.ts",
+      "loc": 965,
+      "export_count": 17,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LiveToolingOperation"
+        },
+        {
+          "kind": "type",
+          "name": "ThreadForm"
+        },
+        {
+          "kind": "type",
+          "name": "GrooveType"
+        },
+        {
+          "kind": "interface",
+          "name": "LiveToolingParams"
+        },
+        {
+          "kind": "interface",
+          "name": "LiveToolingResult"
+        }
+      ],
+      "categories": [
+        "uncategorized"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAGICoreEngine",
+      "shortcode": "AGICore",
+      "file": "src/engines/LatheAGICoreEngine.ts",
+      "loc": 1174,
+      "export_count": 2,
+      "top_exports": [
+        {
+          "kind": "class",
+          "name": "LatheAGICoreEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheAGICoreEngine"
+        }
+      ],
+      "categories": [
+        "agi"
+      ],
+      "test_file": "src/__tests__/LatheAGICoreEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheAIFeatureRegistration",
+      "shortcode": "AIFeatureRegistration",
+      "file": "src/engines/LatheAIFeatureRegistration.ts",
+      "loc": 591,
+      "export_count": 8,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheAIEngine"
+        },
+        {
+          "kind": "const",
+          "name": "LATHE_AI_ENGINE_REGISTRY"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheAIStats"
+        },
+        {
+          "kind": "function",
+          "name": "getLatheAIStats"
+        },
+        {
+          "kind": "function",
+          "name": "getEnginesByCapability"
+        }
+      ],
+      "categories": [
+        "uncategorized"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAIOrchestrationEngine",
+      "shortcode": "AIOrchestration",
+      "file": "src/engines/LatheAIOrchestrationEngine.ts",
+      "loc": 2477,
+      "export_count": 42,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "EngineStatus"
+        },
+        {
+          "kind": "type",
+          "name": "EnginePriority"
+        },
+        {
+          "kind": "type",
+          "name": "DependencyType"
+        },
+        {
+          "kind": "type",
+          "name": "EngineCategory"
+        },
+        {
+          "kind": "interface",
+          "name": "OrchestatedEngine"
+        }
+      ],
+      "categories": [
+        "orchestration"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAIReasoningEngine",
+      "shortcode": "AIReasoning",
+      "file": "src/engines/LatheAIReasoningEngine.ts",
+      "loc": 936,
+      "export_count": 9,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheOperationContext"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheAIReasoningResult"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheRecommendation"
+        },
+        {
+          "kind": "interface",
+          "name": "RiskAssessment"
+        },
+        {
+          "kind": "interface",
+          "name": "ThreadingAIResult"
+        }
+      ],
+      "categories": [
+        "reasoning"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAITrainingEngine",
+      "shortcode": "AITraining",
+      "file": "src/engines/LatheAITrainingEngine.ts",
+      "loc": 955,
+      "export_count": 10,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ParsedToolBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "ExtractedParams"
+        },
+        {
+          "kind": "type",
+          "name": "ToolType"
+        },
+        {
+          "kind": "interface",
+          "name": "ParsedProgram"
+        },
+        {
+          "kind": "interface",
+          "name": "ValidationIssue"
+        }
+      ],
+      "categories": [
+        "learning_pipeline"
+      ],
+      "test_file": "src/__tests__/LatheAITrainingEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheAIUltraEngine",
+      "shortcode": "AIUltra",
+      "file": "src/engines/LatheAIUltraEngine.ts",
+      "loc": 1988,
+      "export_count": 24,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheControllerFamily"
+        },
+        {
+          "kind": "type",
+          "name": "LatheControllerModel"
+        },
+        {
+          "kind": "type",
+          "name": "ProgrammingMode"
+        },
+        {
+          "kind": "type",
+          "name": "MacroDialect"
+        },
+        {
+          "kind": "interface",
+          "name": "ControllerCapabilities"
+        }
+      ],
+      "categories": [
+        "orchestration"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAnomalyDetectionEngine",
+      "shortcode": "AnomalyDetection",
+      "file": "src/engines/LatheAnomalyDetectionEngine.ts",
+      "loc": 2589,
+      "export_count": 22,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheDataPoint"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheProgram"
+        },
+        {
+          "kind": "interface",
+          "name": "GCodeBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "ProgramMetadata"
+        },
+        {
+          "kind": "interface",
+          "name": "AnomalyResult"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAttentionMechanismEngine",
+      "shortcode": "AttentionMechanism",
+      "file": "src/engines/LatheAttentionMechanismEngine.ts",
+      "loc": 2825,
+      "export_count": 30,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "AttentionConfig"
+        },
+        {
+          "kind": "type",
+          "name": "AttentionType"
+        },
+        {
+          "kind": "interface",
+          "name": "GCodeToken"
+        },
+        {
+          "kind": "type",
+          "name": "GCodeTokenType"
+        },
+        {
+          "kind": "type",
+          "name": "SemanticRole"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheAuxAxisTimingEngine",
+      "shortcode": "AuxAxisTiming",
+      "file": "src/engines/LatheAuxAxisTimingEngine.ts",
+      "loc": 200,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "TurretKinematics"
+        },
+        {
+          "kind": "interface",
+          "name": "AuxAxisOpInput"
+        },
+        {
+          "kind": "interface",
+          "name": "AuxAxisTimingInput"
+        },
+        {
+          "kind": "interface",
+          "name": "AuxAxisComponent"
+        },
+        {
+          "kind": "interface",
+          "name": "AuxAxisTimingResult"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheAuxAxisTimingEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheBayesianOptimizationEngine",
+      "shortcode": "BayesianOptimization",
+      "file": "src/engines/LatheBayesianOptimizationEngine.ts",
+      "loc": 2126,
+      "export_count": 20,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "KernelType"
+        },
+        {
+          "kind": "type",
+          "name": "AcquisitionType"
+        },
+        {
+          "kind": "type",
+          "name": "OptimizationDirection"
+        },
+        {
+          "kind": "interface",
+          "name": "ParameterBounds"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheParameterBounds"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheBirdNestPredictorEngine",
+      "shortcode": "BirdNestPredictor",
+      "file": "src/engines/LatheBirdNestPredictorEngine.ts",
+      "loc": 291,
+      "export_count": 8,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "Ductility"
+        },
+        {
+          "kind": "type",
+          "name": "ChipbreakerClass"
+        },
+        {
+          "kind": "type",
+          "name": "CoolantDelivery"
+        },
+        {
+          "kind": "interface",
+          "name": "BirdNestInput"
+        },
+        {
+          "kind": "type",
+          "name": "RiskLevel"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheBirdNestPredictorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheBlockEngagementSimulatorEngine",
+      "shortcode": "BlockEngagementSimulator",
+      "file": "src/engines/LatheBlockEngagementSimulatorEngine.ts",
+      "loc": 172,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheMotionType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheSimBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBlockEngagementInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBlockEngagementStep"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBlockEngagementResult"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheBlockEngagementSimulatorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheBlockTimeProfilerEngine",
+      "shortcode": "BlockTimeProfiler",
+      "file": "src/engines/LatheBlockTimeProfilerEngine.ts",
+      "loc": 180,
+      "export_count": 7,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "BlockTimeCategory"
+        },
+        {
+          "kind": "interface",
+          "name": "BlockTimeInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBlockTimeProfileInput"
+        },
+        {
+          "kind": "interface",
+          "name": "BlockTimeStep"
+        },
+        {
+          "kind": "interface",
+          "name": "CategoryShare"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheBlockTimeProfilerEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheCAMIntelligenceEngine",
+      "shortcode": "CAMIntelligence",
+      "file": "src/engines/LatheCAMIntelligenceEngine.ts",
+      "loc": 1387,
+      "export_count": 14,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheToolpathType"
+        },
+        {
+          "kind": "type",
+          "name": "LatheCADFeature"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePartGeometry"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheCADFeatureInstance"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheMachineConfig"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheCausalInferenceEngine",
+      "shortcode": "CausalInference",
+      "file": "src/engines/LatheCausalInferenceEngine.ts",
+      "loc": 2847,
+      "export_count": 20,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "VariableType"
+        },
+        {
+          "kind": "type",
+          "name": "VariableRole"
+        },
+        {
+          "kind": "interface",
+          "name": "CausalVariable"
+        },
+        {
+          "kind": "interface",
+          "name": "ObservedValue"
+        },
+        {
+          "kind": "interface",
+          "name": "CausalEdge"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheChangeoverBriefEngine",
+      "shortcode": "ChangeoverBrief",
+      "file": "src/engines/LatheChangeoverBriefEngine.ts",
+      "loc": 219,
+      "export_count": 4,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheTurretEntry"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheChangeoverBriefInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheChangeoverBriefOutput"
+        },
+        {
+          "kind": "const",
+          "name": "latheChangeoverBriefEngine"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheChangeoverBriefEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheChipMechanicsEngine",
+      "shortcode": "ChipMechanics",
+      "file": "src/engines/LatheChipMechanicsEngine.ts",
+      "loc": 1984,
+      "export_count": 16,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "AtomicValue"
+        },
+        {
+          "kind": "type",
+          "name": "ChipType"
+        },
+        {
+          "kind": "type",
+          "name": "ChipShape"
+        },
+        {
+          "kind": "type",
+          "name": "ChipControlQuality"
+        },
+        {
+          "kind": "interface",
+          "name": "ChipMaterialProperties"
+        }
+      ],
+      "categories": [
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheChuckJawSetupEngine",
+      "shortcode": "ChuckJawSetup",
+      "file": "src/engines/LatheChuckJawSetupEngine.ts",
+      "loc": 156,
+      "export_count": 3,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheChuckJawInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheChuckJawResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheChuckJawSetupEngine"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": "src/__tests__/LatheChuckJawSetupEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheCoaxialityRunoutValidatorEngine",
+      "shortcode": "CoaxialityRunoutValidator",
+      "file": "src/engines/LatheCoaxialityRunoutValidatorEngine.ts",
+      "loc": 204,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "RunoutCallout"
+        },
+        {
+          "kind": "interface",
+          "name": "CoaxRunoutInput"
+        },
+        {
+          "kind": "type",
+          "name": "CoaxVerdict"
+        },
+        {
+          "kind": "interface",
+          "name": "CoaxRunoutResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheCoaxialityRunoutValidatorEngine"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": "src/__tests__/LatheCoaxialityRunoutValidatorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheCollisionZoneEngine",
+      "shortcode": "CollisionZone",
+      "file": "src/engines/LatheCollisionZoneEngine.ts",
+      "loc": 745,
+      "export_count": 13,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheTurretConfig"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheWorkpieceConfig"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheMachineConfig"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheToolStation"
+        },
+        {
+          "kind": "interface",
+          "name": "CollisionCheckInput"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheCoolantAdvisorEngine",
+      "shortcode": "CoolantAdvisor",
+      "file": "src/engines/LatheCoolantAdvisorEngine.ts",
+      "loc": 347,
+      "export_count": 7,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "CoolantMode"
+        },
+        {
+          "kind": "type",
+          "name": "LatheIsoGroup"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOpType"
+        },
+        {
+          "kind": "type",
+          "name": "ToolMat"
+        },
+        {
+          "kind": "interface",
+          "name": "CoolantAdvisorInput"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheCoolantAdvisorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheCSSOptimizerEngine",
+      "shortcode": "CSSOptimizer",
+      "file": "src/engines/LatheCSSOptimizerEngine.ts",
+      "loc": 240,
+      "export_count": 3,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "CSSOptimizationInput"
+        },
+        {
+          "kind": "interface",
+          "name": "CSSOptimizationResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheCSSOptimizerEngine"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheCSSOptimizerEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheCuttingChemistryEngine",
+      "shortcode": "CuttingChemistry",
+      "file": "src/engines/LatheCuttingChemistryEngine.ts",
+      "loc": 2295,
+      "export_count": 27,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "CoolantBaseType"
+        },
+        {
+          "kind": "type",
+          "name": "CoolantAdditive"
+        },
+        {
+          "kind": "type",
+          "name": "WorkpieceMaterial"
+        },
+        {
+          "kind": "type",
+          "name": "ToolMaterial"
+        },
+        {
+          "kind": "type",
+          "name": "ToolCoating"
+        }
+      ],
+      "categories": [
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheDatumReferenceFrameEngine",
+      "shortcode": "DatumReferenceFrame",
+      "file": "src/engines/LatheDatumReferenceFrameEngine.ts",
+      "loc": 250,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "TurnedFeatureKind"
+        },
+        {
+          "kind": "interface",
+          "name": "TurnedFeature"
+        },
+        {
+          "kind": "interface",
+          "name": "DRFInput"
+        },
+        {
+          "kind": "interface",
+          "name": "DatumAssignment"
+        },
+        {
+          "kind": "interface",
+          "name": "DRFResult"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": "src/__tests__/LatheDatumReferenceFrameEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheDeepAIHardeningEngine",
+      "shortcode": "DeepAIHardening",
+      "file": "src/engines/LatheDeepAIHardeningEngine.ts",
+      "loc": 1935,
+      "export_count": 27,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ISOGroup"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheMaterial"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheCuttingParams"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheTool"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperationType"
+        }
+      ],
+      "categories": [
+        "uncategorized"
+      ],
+      "test_file": "src/__tests__/LatheDeepAIHardeningEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheDeepLearningEngine",
+      "shortcode": "DeepLearning",
+      "file": "src/engines/LatheDeepLearningEngine.ts",
+      "loc": 1025,
+      "export_count": 11,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "HistoricalJob"
+        },
+        {
+          "kind": "interface",
+          "name": "PatternMatch"
+        },
+        {
+          "kind": "interface",
+          "name": "LearningFeedback"
+        },
+        {
+          "kind": "interface",
+          "name": "AdaptedParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "AdaptationFactor"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheDeepLearningIntelligenceEngine",
+      "shortcode": "DeepLearningIntelligence",
+      "file": "src/engines/LatheDeepLearningIntelligenceEngine.ts",
+      "loc": 1415,
+      "export_count": 2,
+      "top_exports": [
+        {
+          "kind": "class",
+          "name": "LatheDeepLearningIntelligenceEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheDeepLearningIntelligenceEngine"
+        }
+      ],
+      "categories": [
+        "ml",
+        "intelligence"
+      ],
+      "test_file": "src/__tests__/LatheDeepLearningIntelligenceEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheDeepLogicEngine",
+      "shortcode": "DeepLogic",
+      "file": "src/engines/LatheDeepLogicEngine.ts",
+      "loc": 2915,
+      "export_count": 42,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "PropositionalVariable"
+        },
+        {
+          "kind": "type",
+          "name": "PropFormulaType"
+        },
+        {
+          "kind": "interface",
+          "name": "PropFormula"
+        },
+        {
+          "kind": "interface",
+          "name": "PropositionalRule"
+        },
+        {
+          "kind": "interface",
+          "name": "SATResult"
+        }
+      ],
+      "categories": [
+        "reasoning"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheDeepReasoningEngine",
+      "shortcode": "DeepReasoning",
+      "file": "src/engines/LatheDeepReasoningEngine.ts",
+      "loc": 1564,
+      "export_count": 18,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ISOGroup"
+        },
+        {
+          "kind": "interface",
+          "name": "ReasoningStep"
+        },
+        {
+          "kind": "interface",
+          "name": "ReasoningChain"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePartDefinition"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheFeature"
+        }
+      ],
+      "categories": [
+        "reasoning"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheDeviationMapEngine",
+      "shortcode": "DeviationMap",
+      "file": "src/engines/LatheDeviationMapEngine.ts",
+      "loc": 150,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "DeviationSample"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheDeviationMapInput"
+        },
+        {
+          "kind": "interface",
+          "name": "DeviationPoint"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheDeviationMapResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheDeviationMapEngine"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheDeviationMapEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheEnsembleLearningEngine",
+      "shortcode": "EnsembleLearning",
+      "file": "src/engines/LatheEnsembleLearningEngine.ts",
+      "loc": 2477,
+      "export_count": 17,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheTrainingPoint"
+        },
+        {
+          "kind": "interface",
+          "name": "EncodedFeatures"
+        },
+        {
+          "kind": "interface",
+          "name": "BaseLearner"
+        },
+        {
+          "kind": "interface",
+          "name": "TreeNode"
+        },
+        {
+          "kind": "interface",
+          "name": "DecisionTree"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheEnvelopeBreachReplayEngine",
+      "shortcode": "EnvelopeBreachReplay",
+      "file": "src/engines/LatheEnvelopeBreachReplayEngine.ts",
+      "loc": 178,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheBreachBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBreachEnvelope"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheEnvelopeBreachReplayInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheBreachHit"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheEnvelopeBreachReplayResult"
+        }
+      ],
+      "categories": [
+        "programming",
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheEnvelopeBreachReplayEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheExpertAdvisorEngine",
+      "shortcode": "ExpertAdvisor",
+      "file": "src/engines/LatheExpertAdvisorEngine.ts",
+      "loc": 1557,
+      "export_count": 19,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "MaterialCategory"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperation"
+        },
+        {
+          "kind": "type",
+          "name": "DifficultGeometry"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialStrategy"
+        },
+        {
+          "kind": "interface",
+          "name": "InsertRecommendation"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheFirstPieceApprovalEngine",
+      "shortcode": "FirstPieceApproval",
+      "file": "src/engines/LatheFirstPieceApprovalEngine.ts",
+      "loc": 149,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "FirstPieceReading"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheFirstPieceApprovalInput"
+        },
+        {
+          "kind": "interface",
+          "name": "FirstPieceFeatureResult"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheFirstPieceApprovalResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheFirstPieceApprovalEngine"
+        }
+      ],
+      "categories": [
+        "post_processor",
+        "quality_pipeline"
+      ],
+      "test_file": "src/__tests__/LatheFirstPieceApprovalEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheFullArchiveTrainingEngine",
+      "shortcode": "FullArchiveTraining",
+      "file": "src/engines/LatheFullArchiveTrainingEngine.ts",
+      "loc": 559,
+      "export_count": 2,
+      "top_exports": [
+        {
+          "kind": "class",
+          "name": "LatheFullArchiveTrainingEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheFullArchiveTrainingEngine"
+        }
+      ],
+      "categories": [
+        "learning_pipeline"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheGeneticAlgorithmEngine",
+      "shortcode": "GeneticAlgorithm",
+      "file": "src/engines/LatheGeneticAlgorithmEngine.ts",
+      "loc": 2316,
+      "export_count": 12,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ParameterBounds"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheIndividual"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheObjective"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheConstraint"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheGAConfig"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": "src/__tests__/LatheGeneticAlgorithmEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheIntelligenceEngine",
+      "shortcode": "Intelligence",
+      "file": "src/engines/LatheIntelligenceEngine.ts",
+      "loc": 930,
+      "export_count": 10,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheOperationType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheMachineConfig"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePartProfile"
+        },
+        {
+          "kind": "interface",
+          "name": "MacroRecommendation"
+        },
+        {
+          "kind": "interface",
+          "name": "LiveToolingRecommendation"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheJMDieKnowledgeEngine",
+      "shortcode": "JMDieKnowledge",
+      "file": "src/engines/LatheJMDieKnowledgeEngine.ts",
+      "loc": 1076,
+      "export_count": 9,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "CustomerPattern"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationSequence"
+        },
+        {
+          "kind": "interface",
+          "name": "GCodeUsage"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolPattern"
+        }
+      ],
+      "categories": [
+        "learning_pipeline",
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheKinematicsDeepLearningEngine",
+      "shortcode": "KinematicsDeepLearning",
+      "file": "src/engines/LatheKinematicsDeepLearningEngine.ts",
+      "loc": 1188,
+      "export_count": 2,
+      "top_exports": [
+        {
+          "kind": "class",
+          "name": "LatheKinematicsDeepLearningEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheKinematicsDeepLearningEngine"
+        }
+      ],
+      "categories": [
+        "ml",
+        "physics"
+      ],
+      "test_file": "src/__tests__/LatheKinematicsDeepLearningEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheKnowledgeGraphEngine",
+      "shortcode": "KnowledgeGraph",
+      "file": "src/engines/LatheKnowledgeGraphEngine.ts",
+      "loc": 2624,
+      "export_count": 19,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheNodeType"
+        },
+        {
+          "kind": "type",
+          "name": "LatheEdgeType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheGraphNode"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialNodeProps"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationNodeProps"
+        }
+      ],
+      "categories": [
+        "ml",
+        "learning_pipeline"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheKnowledgeHarvesterEngine",
+      "shortcode": "KnowledgeHarvester",
+      "file": "src/engines/LatheKnowledgeHarvesterEngine.ts",
+      "loc": 1104,
+      "export_count": 10,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheKnowledgeEntry"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperationType"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialKnowledge"
+        },
+        {
+          "kind": "interface",
+          "name": "CustomerPreference"
+        },
+        {
+          "kind": "interface",
+          "name": "UnifiedLatheKnowledge"
+        }
+      ],
+      "categories": [
+        "learning_pipeline"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheMachineIntelligenceEngine",
+      "shortcode": "MachineIntelligence",
+      "file": "src/engines/LatheMachineIntelligenceEngine.ts",
+      "loc": 1275,
+      "export_count": 14,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheMachineType"
+        },
+        {
+          "kind": "interface",
+          "name": "AxisConfiguration"
+        },
+        {
+          "kind": "interface",
+          "name": "MachineCapabilityProfile"
+        },
+        {
+          "kind": "interface",
+          "name": "PartRequirements"
+        },
+        {
+          "kind": "interface",
+          "name": "MachineSelectionResult"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheMasterOrchestratorFacadeEngine",
+      "shortcode": "MasterOrchestratorFacade",
+      "file": "src/engines/LatheMasterOrchestratorFacadeEngine.ts",
+      "loc": 646,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheOrchRequestType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheOrchRequest"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheOrchResponse"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheAwarenessSnapshot"
+        },
+        {
+          "kind": "const",
+          "name": "latheMasterOrchestratorFacadeEngine"
+        }
+      ],
+      "categories": [
+        "orchestration"
+      ],
+      "test_file": "src/__tests__/LatheMasterOrchestratorFacadeEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheMetaLearningEngine",
+      "shortcode": "MetaLearning",
+      "file": "src/engines/LatheMetaLearningEngine.ts",
+      "loc": 2933,
+      "export_count": 52,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "MetaLearningTask"
+        },
+        {
+          "kind": "type",
+          "name": "TaskType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheExample"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperationType"
+        },
+        {
+          "kind": "type",
+          "name": "QualityClass"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheMetallurgyEngine",
+      "shortcode": "Metallurgy",
+      "file": "src/engines/LatheMetallurgyEngine.ts",
+      "loc": 2277,
+      "export_count": 21,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "GrainSizeASTM"
+        },
+        {
+          "kind": "type",
+          "name": "SteelPhase"
+        },
+        {
+          "kind": "type",
+          "name": "CarbideType"
+        },
+        {
+          "kind": "interface",
+          "name": "PhaseComposition"
+        },
+        {
+          "kind": "interface",
+          "name": "CarbideDistribution"
+        }
+      ],
+      "categories": [
+        "ml",
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheMultiOpPlannerEngine",
+      "shortcode": "MultiOpPlanner",
+      "file": "src/engines/LatheMultiOpPlannerEngine.ts",
+      "loc": 481,
+      "export_count": 9,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "FeatureAccess"
+        },
+        {
+          "kind": "interface",
+          "name": "MultiOpFeature"
+        },
+        {
+          "kind": "interface",
+          "name": "MultiOpInput"
+        },
+        {
+          "kind": "interface",
+          "name": "OpPlan"
+        },
+        {
+          "kind": "interface",
+          "name": "SoftJawBoringProgram"
+        }
+      ],
+      "categories": [
+        "post_processor",
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheMultiOpPlannerEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheNeuralIntelligenceEngine",
+      "shortcode": "NeuralIntelligence",
+      "file": "src/engines/LatheNeuralIntelligenceEngine.ts",
+      "loc": 2610,
+      "export_count": 24,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ActivationFunction"
+        },
+        {
+          "kind": "type",
+          "name": "LossFunction"
+        },
+        {
+          "kind": "type",
+          "name": "OptimizerType"
+        },
+        {
+          "kind": "type",
+          "name": "LayerType"
+        },
+        {
+          "kind": "interface",
+          "name": "DenseLayerConfig"
+        }
+      ],
+      "categories": [
+        "ml",
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheOnMachineProbeCycleEngine",
+      "shortcode": "OnMachineProbeCycle",
+      "file": "src/engines/LatheOnMachineProbeCycleEngine.ts",
+      "loc": 158,
+      "export_count": 4,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ProbeCycleType"
+        },
+        {
+          "kind": "interface",
+          "name": "ProbeCycleInput"
+        },
+        {
+          "kind": "interface",
+          "name": "ProbeCycleOutput"
+        },
+        {
+          "kind": "const",
+          "name": "latheOnMachineProbeCycleEngine"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": "src/__tests__/LatheOnMachineProbeCycleEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheOpTimeBreakdownEngine",
+      "shortcode": "OpTimeBreakdown",
+      "file": "src/engines/LatheOpTimeBreakdownEngine.ts",
+      "loc": 257,
+      "export_count": 3,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheOpSummary"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheOpTimeBreakdown"
+        },
+        {
+          "kind": "const",
+          "name": "latheOpTimeBreakdownEngine"
+        }
+      ],
+      "categories": [
+        "cost_business"
+      ],
+      "test_file": "src/__tests__/LatheOpTimeBreakdownEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheOpusReasoningEngine",
+      "shortcode": "OpusReasoning",
+      "file": "src/engines/LatheOpusReasoningEngine.ts",
+      "loc": 2528,
+      "export_count": 14,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ReasoningStep"
+        },
+        {
+          "kind": "interface",
+          "name": "ReasoningChain"
+        },
+        {
+          "kind": "interface",
+          "name": "CounterfactualScenario"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationCost"
+        },
+        {
+          "kind": "interface",
+          "name": "HybridStrategy"
+        }
+      ],
+      "categories": [
+        "reasoning"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheOrchestrationEngine",
+      "shortcode": "Orchestration",
+      "file": "src/engines/LatheOrchestrationEngine.ts",
+      "loc": 1178,
+      "export_count": 9,
+      "top_exports": [
+        {
+          "kind": "const",
+          "name": "LATHE_STAGES"
+        },
+        {
+          "kind": "type",
+          "name": "LatheStage"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheOrchestrationInput"
+        },
+        {
+          "kind": "interface",
+          "name": "StageRecord"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationForceAnalysis"
+        }
+      ],
+      "categories": [
+        "orchestration"
+      ],
+      "test_file": "src/__tests__/LatheOrchestrationEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LathePartClassifierEngine",
+      "shortcode": "PartClassifier",
+      "file": "src/engines/LathePartClassifierEngine.ts",
+      "loc": 447,
+      "export_count": 7,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LathePartFamily"
+        },
+        {
+          "kind": "type",
+          "name": "StockForm"
+        },
+        {
+          "kind": "type",
+          "name": "RoughingCycle"
+        },
+        {
+          "kind": "type",
+          "name": "WorkholdingDefault"
+        },
+        {
+          "kind": "interface",
+          "name": "PartGeometryInput"
+        }
+      ],
+      "categories": [
+        "quality_pipeline"
+      ],
+      "test_file": "src/__tests__/LathePartClassifierEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LathePartCostModelEngine",
+      "shortcode": "PartCostModel",
+      "file": "src/engines/LathePartCostModelEngine.ts",
+      "loc": 185,
+      "export_count": 4,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheOperationCost"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePartCostInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePartCostResult"
+        },
+        {
+          "kind": "const",
+          "name": "lathePartCostModelEngine"
+        }
+      ],
+      "categories": [
+        "cost_business"
+      ],
+      "test_file": "src/__tests__/LathePartCostModelEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LathePartFamilyPlanningEngine",
+      "shortcode": "PartFamilyPlanning",
+      "file": "src/engines/LathePartFamilyPlanningEngine.ts",
+      "loc": 506,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "CustomerIndustry"
+        },
+        {
+          "kind": "type",
+          "name": "InvestmentLevel"
+        },
+        {
+          "kind": "interface",
+          "name": "FamilyPartSpec"
+        },
+        {
+          "kind": "interface",
+          "name": "FamilyPlanningResult"
+        },
+        {
+          "kind": "interface",
+          "name": "MacroROIResult"
+        }
+      ],
+      "categories": [
+        "quality_pipeline"
+      ],
+      "test_file": "src/__tests__/LathePartFamilyPlanningEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LathePartingChipClearanceEngine",
+      "shortcode": "PartingChipClearance",
+      "file": "src/engines/LathePartingChipClearanceEngine.ts",
+      "loc": 194,
+      "export_count": 4,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "PartingChipInput"
+        },
+        {
+          "kind": "type",
+          "name": "ClearanceVerdict"
+        },
+        {
+          "kind": "interface",
+          "name": "PartingChipResult"
+        },
+        {
+          "kind": "const",
+          "name": "lathePartingChipClearanceEngine"
+        }
+      ],
+      "categories": [
+        "physics",
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LathePartingChipClearanceEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LathePostProcessorAIEngine",
+      "shortcode": "PostProcessorAI",
+      "file": "src/engines/LathePostProcessorAIEngine.ts",
+      "loc": 2103,
+      "export_count": 23,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheControllerFamily"
+        },
+        {
+          "kind": "type",
+          "name": "PostControllerModel"
+        },
+        {
+          "kind": "type",
+          "name": "CycleType"
+        },
+        {
+          "kind": "type",
+          "name": "PostOptimizationType"
+        },
+        {
+          "kind": "interface",
+          "name": "PostDebugResult"
+        }
+      ],
+      "categories": [
+        "post_processor"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LathePostProcessorEngine",
+      "shortcode": "PostProcessor",
+      "file": "src/engines/LathePostProcessorEngine.ts",
+      "loc": 637,
+      "export_count": 8,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "LatheController"
+        },
+        {
+          "kind": "interface",
+          "name": "LathePostConfig"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheInput"
+        },
+        {
+          "kind": "type",
+          "name": "LatheMoveType"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheMove"
+        }
+      ],
+      "categories": [
+        "post_processor"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LathePredictiveIntelligenceEngine",
+      "shortcode": "PredictiveIntelligence",
+      "file": "src/engines/LathePredictiveIntelligenceEngine.ts",
+      "loc": 933,
+      "export_count": 13,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ISOGroup"
+        },
+        {
+          "kind": "interface",
+          "name": "Prediction"
+        },
+        {
+          "kind": "interface",
+          "name": "CuttingConditions"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolState"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolWearPrediction"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheProgramBacktraceEngine",
+      "shortcode": "ProgramBacktrace",
+      "file": "src/engines/LatheProgramBacktraceEngine.ts",
+      "loc": 161,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "BacktraceBlockKind"
+        },
+        {
+          "kind": "interface",
+          "name": "BacktraceBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheProgramBacktraceInput"
+        },
+        {
+          "kind": "interface",
+          "name": "BacktraceCause"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheProgramBacktraceResult"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheProgramBacktraceEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheProgramCatalogEngine",
+      "shortcode": "ProgramCatalog",
+      "file": "src/engines/LatheProgramCatalogEngine.ts",
+      "loc": 561,
+      "export_count": 8,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "CamSystem"
+        },
+        {
+          "kind": "interface",
+          "name": "ProgramCatalogEntry"
+        },
+        {
+          "kind": "interface",
+          "name": "PartSpec"
+        },
+        {
+          "kind": "interface",
+          "name": "SimilarityMatch"
+        },
+        {
+          "kind": "interface",
+          "name": "ProgrammingHistory"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheProgramCatalogEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheProgrammingCostEngine",
+      "shortcode": "ProgrammingCost",
+      "file": "src/engines/LatheProgrammingCostEngine.ts",
+      "loc": 485,
+      "export_count": 7,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ProgrammingCostOptions"
+        },
+        {
+          "kind": "interface",
+          "name": "ProgrammingCostResult"
+        },
+        {
+          "kind": "interface",
+          "name": "CompareInput"
+        },
+        {
+          "kind": "interface",
+          "name": "CompareResult"
+        },
+        {
+          "kind": "interface",
+          "name": "BreakEvenPoint"
+        }
+      ],
+      "categories": [
+        "programming",
+        "cost_business"
+      ],
+      "test_file": "src/__tests__/LatheProgrammingCostEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheProgrammingStyleSelectorEngine",
+      "shortcode": "ProgrammingStyleSelector",
+      "file": "src/engines/LatheProgrammingStyleSelectorEngine.ts",
+      "loc": 660,
+      "export_count": 13,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "ProgrammingStyle"
+        },
+        {
+          "kind": "type",
+          "name": "ConversationalType"
+        },
+        {
+          "kind": "type",
+          "name": "PartComplexity"
+        },
+        {
+          "kind": "type",
+          "name": "OperatorSkill"
+        },
+        {
+          "kind": "type",
+          "name": "TimeConstraint"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheProgrammingStyleSelectorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheProgramOptimizerEngine",
+      "shortcode": "ProgramOptimizer",
+      "file": "src/engines/LatheProgramOptimizerEngine.ts",
+      "loc": 1513,
+      "export_count": 15,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ProgramLine"
+        },
+        {
+          "kind": "interface",
+          "name": "ParsedBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "LineIssue"
+        },
+        {
+          "kind": "interface",
+          "name": "LineOptimization"
+        },
+        {
+          "kind": "interface",
+          "name": "ProgramChange"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheProgramSignoffDossierEngine",
+      "shortcode": "ProgramSignoffDossier",
+      "file": "src/engines/LatheProgramSignoffDossierEngine.ts",
+      "loc": 153,
+      "export_count": 9,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "SignoffVerdict"
+        },
+        {
+          "kind": "interface",
+          "name": "SignoffEngagementSummary"
+        },
+        {
+          "kind": "interface",
+          "name": "SignoffStockSummary"
+        },
+        {
+          "kind": "interface",
+          "name": "SignoffBreachSummary"
+        },
+        {
+          "kind": "interface",
+          "name": "SignoffTimeSummary"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheProgramSignoffDossierEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheQualityGateEngine",
+      "shortcode": "QualityGate",
+      "file": "src/engines/LatheQualityGateEngine.ts",
+      "loc": 2430,
+      "export_count": 21,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "QualityGateMaterial"
+        },
+        {
+          "kind": "interface",
+          "name": "QualityGateCuttingParams"
+        },
+        {
+          "kind": "interface",
+          "name": "QualityGateTool"
+        },
+        {
+          "kind": "type",
+          "name": "LatheOperationType"
+        },
+        {
+          "kind": "interface",
+          "name": "QualityGateOperation"
+        }
+      ],
+      "categories": [
+        "quality_pipeline"
+      ],
+      "test_file": "src/__tests__/LatheQualityGateEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheReinforcementLearningEngine",
+      "shortcode": "ReinforcementLearning",
+      "file": "src/engines/LatheReinforcementLearningEngine.ts",
+      "loc": 2048,
+      "export_count": 29,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "PartGeometryState"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialState"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationState"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolWearState"
+        },
+        {
+          "kind": "interface",
+          "name": "MachineState"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheReplayFrameCompilerEngine",
+      "shortcode": "ReplayFrameCompiler",
+      "file": "src/engines/LatheReplayFrameCompilerEngine.ts",
+      "loc": 138,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ReplaySourceBlock"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheReplayFrameInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheReplayFrame"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheReplayFrameCompileResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheReplayFrameCompilerEngine"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheReplayFrameCompilerEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheResourceKnowledgeEngine",
+      "shortcode": "ResourceKnowledge",
+      "file": "src/engines/LatheResourceKnowledgeEngine.ts",
+      "loc": 1046,
+      "export_count": 3,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheKnowledgeBase"
+        },
+        {
+          "kind": "class",
+          "name": "LatheResourceKnowledgeEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheResourceKnowledgeEngine"
+        }
+      ],
+      "categories": [
+        "learning_pipeline",
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheScienceHardeningEngine",
+      "shortcode": "ScienceHardening",
+      "file": "src/engines/LatheScienceHardeningEngine.ts",
+      "loc": 473,
+      "export_count": 14,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "TurningChatterInput"
+        },
+        {
+          "kind": "interface",
+          "name": "ChatterResult"
+        },
+        {
+          "kind": "interface",
+          "name": "HardTurningInput"
+        },
+        {
+          "kind": "interface",
+          "name": "HardTurningResult"
+        },
+        {
+          "kind": "interface",
+          "name": "ThreadPassScheduleInput"
+        }
+      ],
+      "categories": [
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheSelfAwarenessIntegrationEngine",
+      "shortcode": "SelfAwarenessIntegration",
+      "file": "src/engines/LatheSelfAwarenessIntegrationEngine.ts",
+      "loc": 3199,
+      "export_count": 34,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LatheEngineCapability"
+        },
+        {
+          "kind": "type",
+          "name": "LatheEngineCategory"
+        },
+        {
+          "kind": "interface",
+          "name": "EngineRoutingDecision"
+        },
+        {
+          "kind": "interface",
+          "name": "JMDieContext"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialPattern"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheSequenceOptimizerEngine",
+      "shortcode": "SequenceOptimizer",
+      "file": "src/engines/LatheSequenceOptimizerEngine.ts",
+      "loc": 419,
+      "export_count": 6,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "OperationType"
+        },
+        {
+          "kind": "type",
+          "name": "SpindleMode"
+        },
+        {
+          "kind": "interface",
+          "name": "SequenceOperation"
+        },
+        {
+          "kind": "interface",
+          "name": "SequenceConstraints"
+        },
+        {
+          "kind": "interface",
+          "name": "SequenceResult"
+        }
+      ],
+      "categories": [
+        "programming"
+      ],
+      "test_file": "src/__tests__/LatheSequenceOptimizerEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheShopAwareOptimizationEngine",
+      "shortcode": "ShopAwareOptimization",
+      "file": "src/engines/LatheShopAwareOptimizationEngine.ts",
+      "loc": 778,
+      "export_count": 2,
+      "top_exports": [
+        {
+          "kind": "class",
+          "name": "LatheShopAwareOptimizationEngine"
+        },
+        {
+          "kind": "const",
+          "name": "latheShopAwareOptimizationEngine"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": "src/__tests__/LatheShopAwareOptimizationEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheStockEvolutionEngine",
+      "shortcode": "StockEvolution",
+      "file": "src/engines/LatheStockEvolutionEngine.ts",
+      "loc": 157,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LathePass"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheStockEvolutionInput"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheProfilePoint"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheStockEvolutionResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheStockEvolutionEngine"
+        }
+      ],
+      "categories": [
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheStockEvolutionEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheSubSpindleTransferPurgeEngine",
+      "shortcode": "SubSpindleTransferPurge",
+      "file": "src/engines/LatheSubSpindleTransferPurgeEngine.ts",
+      "loc": 267,
+      "export_count": 4,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "SubSpindlePurgeInput"
+        },
+        {
+          "kind": "interface",
+          "name": "PurgePhase"
+        },
+        {
+          "kind": "interface",
+          "name": "SubSpindlePurgeResult"
+        },
+        {
+          "kind": "const",
+          "name": "latheSubSpindleTransferPurgeEngine"
+        }
+      ],
+      "categories": [
+        "ml",
+        "process_control"
+      ],
+      "test_file": "src/__tests__/LatheSubSpindleTransferPurgeEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheThermodynamicsEngine",
+      "shortcode": "Thermodynamics",
+      "file": "src/engines/LatheThermodynamicsEngine.ts",
+      "loc": 2799,
+      "export_count": 22,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "AtomicValue"
+        },
+        {
+          "kind": "interface",
+          "name": "CuttingParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolGeometry"
+        },
+        {
+          "kind": "type",
+          "name": "ToolCoating"
+        },
+        {
+          "kind": "type",
+          "name": "ToolSubstrate"
+        }
+      ],
+      "categories": [
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheTransferLearningEngine",
+      "shortcode": "TransferLearning",
+      "file": "src/engines/LatheTransferLearningEngine.ts",
+      "loc": 2906,
+      "export_count": 19,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "AtomicValue"
+        },
+        {
+          "kind": "interface",
+          "name": "MaterialDomain"
+        },
+        {
+          "kind": "interface",
+          "name": "OperationDomain"
+        },
+        {
+          "kind": "interface",
+          "name": "MachineDomain"
+        },
+        {
+          "kind": "interface",
+          "name": "ShopDomain"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheTransformerEngine",
+      "shortcode": "Transformer",
+      "file": "src/engines/LatheTransformerEngine.ts",
+      "loc": 2467,
+      "export_count": 39,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "GCodeTokenType"
+        },
+        {
+          "kind": "interface",
+          "name": "VocabEntry"
+        },
+        {
+          "kind": "const",
+          "name": "SPECIAL_TOKENS"
+        },
+        {
+          "kind": "type",
+          "name": "ActivationFn"
+        },
+        {
+          "kind": "interface",
+          "name": "TransformerConfig"
+        }
+      ],
+      "categories": [
+        "ml"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheTribalInjectorEngine",
+      "shortcode": "TribalInjector",
+      "file": "src/engines/LatheTribalInjectorEngine.ts",
+      "loc": 317,
+      "export_count": 8,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "InjectionTarget"
+        },
+        {
+          "kind": "interface",
+          "name": "TribalTip"
+        },
+        {
+          "kind": "interface",
+          "name": "InjectionContext"
+        },
+        {
+          "kind": "interface",
+          "name": "InjectedTip"
+        },
+        {
+          "kind": "interface",
+          "name": "InjectionResult"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": "src/__tests__/LatheTribalInjectorEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheTroubleshootingIntelligenceEngine",
+      "shortcode": "TroubleshootingIntelligence",
+      "file": "src/engines/LatheTroubleshootingIntelligenceEngine.ts",
+      "loc": 1623,
+      "export_count": 22,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "ToolSetup"
+        },
+        {
+          "kind": "interface",
+          "name": "WorkpieceSetup"
+        },
+        {
+          "kind": "interface",
+          "name": "CuttingParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolOverhangAnalysis"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolOverhangRecommendation"
+        }
+      ],
+      "categories": [
+        "intelligence"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheUnifiedAIEngine",
+      "shortcode": "UnifiedAI",
+      "file": "src/engines/LatheUnifiedAIEngine.ts",
+      "loc": 1284,
+      "export_count": 26,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "LathePartDefinition"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheFeature"
+        },
+        {
+          "kind": "interface",
+          "name": "ToleranceSpec"
+        },
+        {
+          "kind": "interface",
+          "name": "SurfaceFinishSpec"
+        },
+        {
+          "kind": "interface",
+          "name": "LatheProcessPlan"
+        }
+      ],
+      "categories": [
+        "uncategorized"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheUnifiedAIOrchestrator",
+      "shortcode": "UnifiedAIOrchestrator",
+      "file": "src/engines/LatheUnifiedAIOrchestrator.ts",
+      "loc": 702,
+      "export_count": 5,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "OrchestrationRequest"
+        },
+        {
+          "kind": "interface",
+          "name": "OrchestrationResult"
+        },
+        {
+          "kind": "interface",
+          "name": "ReasoningStep"
+        },
+        {
+          "kind": "class",
+          "name": "LatheUnifiedAIOrchestrator"
+        },
+        {
+          "kind": "const",
+          "name": "latheUnifiedAIOrchestrator"
+        }
+      ],
+      "categories": [
+        "orchestration"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheUnifiedPhysicsOrchestrationEngine",
+      "shortcode": "UnifiedPhysicsOrchestration",
+      "file": "src/engines/LatheUnifiedPhysicsOrchestrationEngine.ts",
+      "loc": 2586,
+      "export_count": 19,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "JohnsonCookParams"
+        },
+        {
+          "kind": "interface",
+          "name": "TurningToolGeometry"
+        },
+        {
+          "kind": "interface",
+          "name": "CuttingParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "MachineCapability"
+        },
+        {
+          "kind": "interface",
+          "name": "CoolantConfig"
+        }
+      ],
+      "categories": [
+        "physics",
+        "orchestration"
+      ],
+      "test_file": "src/__tests__/LatheUnifiedPhysicsOrchestrationEngine.test.ts",
+      "has_test": true
+    },
+    {
+      "name": "LatheUnifiedScienceEngine",
+      "shortcode": "UnifiedScience",
+      "file": "src/engines/LatheUnifiedScienceEngine.ts",
+      "loc": 852,
+      "export_count": 7,
+      "top_exports": [
+        {
+          "kind": "interface",
+          "name": "MaterialProperties"
+        },
+        {
+          "kind": "interface",
+          "name": "CuttingParameters"
+        },
+        {
+          "kind": "interface",
+          "name": "ToolGeometry"
+        },
+        {
+          "kind": "interface",
+          "name": "UnifiedScienceResult"
+        },
+        {
+          "kind": "class",
+          "name": "LatheUnifiedScienceEngine"
+        }
+      ],
+      "categories": [
+        "physics"
+      ],
+      "test_file": null,
+      "has_test": false
+    },
+    {
+      "name": "LatheWorkholdingEngine",
+      "shortcode": "Workholding",
+      "file": "src/engines/LatheWorkholdingEngine.ts",
+      "loc": 648,
+      "export_count": 15,
+      "top_exports": [
+        {
+          "kind": "type",
+          "name": "JawType"
+        },
+        {
+          "kind": "type",
+          "name": "SpecialtyType"
+        },
+        {
+          "kind": "type",
+          "name": "StockForm"
+        },
+        {
+          "kind": "interface",
+          "name": "JawSelectionInput"
+        },
+        {
+          "kind": "interface",
+          "name": "JawSelectionResult"
+        }
+      ],
+      "categories": [
+        "setup_workholding"
+      ],
+      "test_file": null,
+      "has_test": false
+    }
+  ]
+}
