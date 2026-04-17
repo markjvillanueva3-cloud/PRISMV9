@@ -485,6 +485,8 @@ const ACTIONS = [
   "wedm_bridge_enrich", "wedm_bridge_decision", "wedm_bridge_warning", "wedm_bridge_stats",
   // WEDMReasoningTraceLedgerEngine (4 actions)
   "wedm_trace_record", "wedm_trace_recent", "wedm_trace_query", "wedm_trace_validate",
+  // MillingReasoningTraceLedgerEngine (5 actions) — MILL-AGI-P0.2
+  "milling_trace_record", "milling_trace_recent", "milling_trace_query", "milling_trace_stats", "milling_trace_with_reasoning",
 ] as const;
 
 function ok(data: any) {
@@ -5923,6 +5925,28 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "wedm_trace_validate": {
             const { wedmReasoningTraceLedgerEngine } = await import("../../engines/WEDMReasoningTraceLedgerEngine.js");
             return ok(wedmReasoningTraceLedgerEngine.validate(params.candidate as any));
+          }
+
+          // MillingReasoningTraceLedgerEngine (5 actions) — MILL-AGI-P0.2
+          case "milling_trace_record": {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            return ok(await millingReasoningTraceLedgerEngine.recordTrace(params as any));
+          }
+          case "milling_trace_recent": {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            return ok(millingReasoningTraceLedgerEngine.getRecent(params.limit as number | undefined));
+          }
+          case "milling_trace_query": {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            return ok(millingReasoningTraceLedgerEngine.queryByAction(params.action as string, params.limit as number | undefined));
+          }
+          case "milling_trace_stats": {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            return ok(millingReasoningTraceLedgerEngine.getStats());
+          }
+          case "milling_trace_with_reasoning": {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            return ok(millingReasoningTraceLedgerEngine.queryWithReasoning(params.limit as number | undefined));
           }
 
           default:

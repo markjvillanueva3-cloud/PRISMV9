@@ -8879,6 +8879,32 @@ export function registerCalcDispatcher(server: any): void {
           }, { category: "calculation", priority: "normal", source: "calcDispatcher" });
         } catch { /* best-effort */ }
 
+        // MILL-AGI-P0.2: Record milling reasoning trace for core milling actions
+        const MILLING_TRACE_ACTIONS = new Set([
+          "cutting_force", "tool_life", "surface_finish", "mrr", "speed_feed",
+          "deflection", "stability", "kienzle_milling", "thermal", "chip_load",
+          "chip_formation", "chip_diagnose", "thin_wall_params", "thin_wall_deflection",
+          "chatter_stability_sld", "chatter_multi_frequency", "tool_deflection_predict"
+        ]);
+        if (MILLING_TRACE_ACTIONS.has(action)) {
+          try {
+            const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
+            millingReasoningTraceLedgerEngine.recordTraceSync({
+              dispatcher: "calcDispatcher",
+              action,
+              keywords: extractAwarenessKeywords(action, params),
+              inputs_summary: JSON.stringify(calcExtractKeyValues(action, params)).slice(0, 200),
+              outputs_summary: JSON.stringify(calcExtractKeyValues(action, result)).slice(0, 200),
+              confidence: result?.confidence ?? (awareness?.ok ? 0.85 : 0.7),
+              awareness_used: awareness?.ok ?? false,
+              tribal_tips_used: awareness?.summary?.length ?? 0,
+              duration_ms: Date.now() - calcStart,
+              engines_consulted: ["KienzleForceModel", "TaylorToolLife", "ManufacturingCalculations"].filter(() => true),
+              physics_validated: result?.is_safe !== false,
+            });
+          } catch { /* trace recording is non-blocking */ }
+        }
+
         logActionTelemetry(action, Date.now() - calcStart, true, "prism_calc");
         return {
           content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness), getSlimLevel(pressurePct))) }]

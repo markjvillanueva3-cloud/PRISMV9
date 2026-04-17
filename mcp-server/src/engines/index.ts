@@ -6412,3 +6412,24 @@ export {
   type DomainQuery,
   type RuleCoverage,
 } from './PlaybookRulesEngine.js';
+
+// --- MILL-AGI-P0: Deep Reasoning + Trace Ledger ---
+export {
+  millingDeepReasoningEngine,
+  MillingDeepReasoningEngine,
+  type ReasoningMode,
+  type Evidence,
+  type ReasoningStep,
+  type CounterfactualResult,
+  type MillingReasoningResult,
+  type MillingContext,
+} from './MillingDeepReasoningEngine.js';
+
+export {
+  millingReasoningTraceLedgerEngine,
+  MillingReasoningTraceLedgerEngine,
+  type MillingReasoningStep,
+  type MillingTraceEntry,
+  type MillingLedgerStats,
+  type MillingLedgerAppendResult,
+} from './MillingReasoningTraceLedgerEngine.js';
