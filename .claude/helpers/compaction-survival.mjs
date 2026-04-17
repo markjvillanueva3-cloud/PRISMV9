@@ -99,6 +99,68 @@ async function getBuildSize() {
 }
 
 /**
+ * CPP-MS5-U-CPP36: Inline mirror of ContextWindowMapEngine.chart() for the
+ * SessionStart boot block. Estimates tokens from file bytes (≈4 bytes/token
+ * for English prose; good enough for a proportional bar chart) and emits
+ * the same fixed-width format the engine produces. Integration test keeps
+ * this mirror in sync with the engine.
+ */
+async function buildContextChart() {
+  const CONTEXT_LIMIT = 200000;
+  const TOKENS_PER_BYTE = 1 / 4;
+  const sources = [
+    { type: "system", path: "H:\\prism\\CLAUDE.md" },
+    { type: "system", path: "H:\\prism\\mcp-server\\CLAUDE.md" },
+    { type: "memory", path: "C:\\Users\\wompu\\.claude\\projects\\H--prism\\memory\\MEMORY.md" },
+    { type: "file", path: PATHS.positionFile },
+  ];
+  // Directives count as 'system' (boot-block rules).
+  for (const d of DIRECTIVES) sources.push({ type: "system", path: d });
+  // Add freshest handoff if any.
+  try {
+    const handoffs = await fs.readdir("H:\\prism\\state\\shared\\handoffs");
+    const hand = handoffs.filter((n) => n.startsWith("HANDOFF-"));
+    if (hand.length > 0) {
+      sources.push({
+        type: "conversation",
+        path: path.join("H:\\prism\\state\\shared\\handoffs", hand[0]),
+      });
+    }
+  } catch { /* no handoffs dir */ }
+
+  const byType = {};
+  let totalTokens = 0;
+  for (const s of sources) {
+    try {
+      const st = await fs.stat(s.path);
+      const tokens = Math.round(st.size * TOKENS_PER_BYTE);
+      if (tokens <= 0) continue;
+      const e = byType[s.type] ?? { count: 0, tokens: 0 };
+      e.count++;
+      e.tokens += tokens;
+      byType[s.type] = e;
+      totalTokens += tokens;
+    } catch { /* missing file — skip */ }
+  }
+
+  if (totalTokens === 0) return { chart: "(no context sources visible)", totalTokens: 0, pct: 0 };
+
+  const maxBar = 30;
+  const entries = Object.entries(byType).sort((a, b) => b[1].tokens - a[1].tokens);
+  const lines = [];
+  for (const [type, data] of entries) {
+    const ratio = data.tokens / totalTokens;
+    const bar = "#".repeat(Math.round(ratio * maxBar));
+    const pct = Math.round(ratio * 100);
+    lines.push(
+      type.padEnd(14) + " " + bar.padEnd(maxBar) + " " + pct + "% (" + data.tokens + " tok)",
+    );
+  }
+  const utilization = Math.round((totalTokens / CONTEXT_LIMIT) * 100);
+  return { chart: lines.join("\n"), totalTokens, pct: utilization };
+}
+
+/**
  * Read roadmap-index.json for compact progress + claim summary.
  */
 async function getActiveWork() {
@@ -144,16 +206,21 @@ async function getRoadmapProgress() {
 
 async function main() {
   const positionFile = (await exists(PATHS.positionFile)) ? PATHS.positionFile : PATHS.fallbackPositionFile;
-  const [positionRaw, buildSize, roadmap, activeWork] = await Promise.all([
+  const [positionRaw, buildSize, roadmap, activeWork, contextChart] = await Promise.all([
     readText(positionFile),
     getBuildSize(),
     getRoadmapProgress(),
     getActiveWork(),
+    buildContextChart(),
   ]);
   const phase = extractPhase(positionRaw);
   const recent = runGit(["log", "--oneline", "-10", "--since=8 hours ago"]) || "none";
   const timestamp = new Date().toISOString();
   const directiveLines = DIRECTIVES.map((directive) => `  - ${directive}`).join("\n");
+
+  // CPP-MS5-U-CPP35: resolve identity early so we can embed machine-readable
+  // family/machine/instance in the header for Codex boundary rule consumers.
+  const identity = inferAgentIdentity({});
 
   // Generate RESUME with claim awareness
   const resumeParts = [];
@@ -202,6 +269,12 @@ async function main() {
     `# Compaction Survival — ${timestamp}`,
     "## DO NOT DELETE — Read this after context compaction",
     "",
+    "## Identity",
+    `- Family: ${identity.family}`,
+    `- Machine: ${identity.machine}`,
+    `- Instance: ${identity.instance}`,
+    `- Session: ${identity.sessionKey}`,
+    "",
     "## AGENT BOUNDARY (STRICT)",
     boundaryWarning,
     "",
@@ -227,6 +300,12 @@ async function main() {
     "",
     "## Build Status",
     `Last build size: ${buildSize}`,
+    "",
+    "## Context Window Map (CPP-MS5-U-CPP36)",
+    `Total: ${contextChart.totalTokens} tokens (~${contextChart.pct}% of 200K window)`,
+    "```",
+    contextChart.chart,
+    "```",
     "",
     "## Key Instruction",
     "- Roadmap: PRISM-UNIFIED-ROADMAP-v2.md (supreme authority)",
@@ -259,7 +338,6 @@ async function main() {
   // CPP-MS3-U-CPP23: Write BOTH per-instance file (primary) and legacy file
   // (one-session backward compat). Readers that know the new pattern glob
   // per-instance files; old readers keep reading the legacy single file.
-  const identity = inferAgentIdentity({});
   const perInstancePath = perInstanceSurvivalPath(identity);
 
   await Promise.all([

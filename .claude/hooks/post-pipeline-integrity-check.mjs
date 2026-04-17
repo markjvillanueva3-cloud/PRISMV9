@@ -24,6 +24,7 @@
 import { promises as fs } from "node:fs";
 import * as path from "node:path";
 import { createHash } from "node:crypto";
+import { inferAgentIdentity } from "../helpers/agent-identity.mjs";
 
 const PRISM_ROOT = "H:\\prism";
 const SURVIVAL_DIR = "H:\\prism\\.claude\\helpers";
@@ -144,10 +145,16 @@ async function atomicWrite(filePath, data) {
 async function main() {
   const artifacts = await collectArtifacts();
   const verification = verifyChain(artifacts);
+  // CPP-MS5-U-CPP35: encode family/machine/instance so integrity snapshot
+  // identifies the writing agent (Codex boundary rule can machine-read this).
+  const identity = inferAgentIdentity({});
   const payload = {
     schemaVersion: 1,
     captured_at: new Date().toISOString(),
     pid: process.pid,
+    family: identity.family,
+    machine: identity.machine,
+    instance: identity.instance,
     valid: verification.valid,
     score: verification.score,
     summary: verification.summary,
