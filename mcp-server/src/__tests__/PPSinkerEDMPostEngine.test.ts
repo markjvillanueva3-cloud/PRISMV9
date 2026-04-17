@@ -371,4 +371,140 @@ describe("PPSinkerEDMPostEngine", () => {
       expect(r.gcode_text).toContain("EA28V");
     });
   });
+
+  // ══════════════════════════════════════════════════════════════════════
+  // U-WGAP01: Imperial coordinate conversion tests
+  // ══════════════════════════════════════════════════════════════════════
+
+  describe("generate — imperial units (U-WGAP01)", () => {
+    it("emits G20 for imperial mode", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{ stage: "rough", target_depth_mm: 25.4 }],
+      });
+      expect(r.gcode_text).toContain("G20");
+      expect(r.gcode_text).not.toContain("G21");
+    });
+
+    it("emits G21 for metric mode (default)", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "metric",
+        operations: [{ stage: "rough", target_depth_mm: 25.4 }],
+      });
+      expect(r.gcode_text).toContain("G21");
+      expect(r.gcode_text).not.toContain("G20");
+    });
+
+    it("converts XY coordinates to inches when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          start_x: 25.4, // 1 inch
+          start_y: 50.8, // 2 inches
+        }],
+      });
+      // 25.4mm = 1.00000 inches, 50.8mm = 2.00000 inches
+      expect(r.gcode_text).toContain("X1.00000");
+      expect(r.gcode_text).toContain("Y2.00000");
+    });
+
+    it("keeps XY coordinates in mm when metric", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "metric",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          start_x: 25.4,
+          start_y: 50.8,
+        }],
+      });
+      // Should be 25.400 and 50.800 (3 decimals for metric)
+      expect(r.gcode_text).toContain("X25.400");
+      expect(r.gcode_text).toContain("Y50.800");
+    });
+
+    it("converts Z coordinates to inches when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 25.4, // 1 inch target depth
+          start_z: 12.7, // 0.5 inch retract plane
+        }],
+      });
+      // Retract Z = 12.7mm = 0.5 inch
+      expect(r.gcode_text).toContain("Z0.50000");
+    });
+
+    it("converts orbit radius to inches when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          orbit_pattern: "circle",
+          orbit_radius_mm: 2.54, // 0.1 inch
+        }],
+      });
+      expect(r.gcode_text).toContain("R0.10000");
+    });
+
+    it("uses 5 decimal places for imperial, 3 for metric", () => {
+      const rImperial = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          start_x: 25.4, // 1 inch
+          start_y: 0,
+        }],
+      });
+      // Imperial uses 5 decimals
+      expect(rImperial.gcode_text).toMatch(/X1\.00000/);
+
+      const rMetric = ppSinkerEDMPostEngine.generate({
+        units: "metric",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          start_x: 25.4,
+          start_y: 0,
+        }],
+      });
+      // Metric uses 3 decimals
+      expect(rMetric.gcode_text).toMatch(/X25\.400/);
+    });
+
+    it("labels output as INCH in comments when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{ stage: "rough", target_depth_mm: 10 }],
+      });
+      expect(r.gcode_text).toContain("INCH");
+    });
+
+    it("converts final retract Z to inches when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{ stage: "rough", target_depth_mm: 10 }],
+      });
+      // 50mm retract = ~1.9685 inches
+      expect(r.gcode_text).toMatch(/Z1\.9685\d/);
+    });
+
+    it("converts peck retract Q to inches when imperial", () => {
+      const r = ppSinkerEDMPostEngine.generate({
+        units: "imperial",
+        operations: [{
+          stage: "rough",
+          target_depth_mm: 10,
+          flush_cycle_sec: 5,
+          retract_depth_mm: 2.54, // 0.1 inch
+        }],
+      });
+      expect(r.gcode_text).toContain("Q0.10000");
+    });
+  });
 });
