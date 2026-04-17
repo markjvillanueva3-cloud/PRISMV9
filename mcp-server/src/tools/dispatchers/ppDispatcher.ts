@@ -326,6 +326,9 @@ let _ppPolarCoordinate: any;
 // PP-CHAM: Inline corner-break (,C / ,R chamfer/round) validator
 let _ppInlineCornerBreak: any;
 
+// PP-AXIS: Axis-letter vocabulary validator (Fanuc ISO word-letter check)
+let _ppAxisLetter: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -577,6 +580,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppPolarCoordinate ??= (await import("../../engines/PPPolarCoordinateValidatorEngine.js")).ppPolarCoordinateValidatorEngine;
     case "inlineCornerBreak":
       return _ppInlineCornerBreak ??= (await import("../../engines/PPInlineCornerBreakValidatorEngine.js")).ppInlineCornerBreakValidatorEngine;
+    case "axisLetter":
+      return _ppAxisLetter ??= (await import("../../engines/PPAxisLetterValidatorEngine.js")).ppAxisLetterValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1072,6 +1077,9 @@ const ACTIONS = [
   "pp_cham_validate",              // Inline ,C / ,R corner-break validation
   "pp_cham_quick",                 // Quick pass/fail + chamfer/round counts
   "pp_cham_defaults",              // Default corner-break validation options
+  "pp_axis_validate",              // Axis-letter vocabulary validation (Fanuc ISO)
+  "pp_axis_quick",                 // Quick pass/fail + unknown-letter count
+  "pp_axis_defaults",              // Default allowed word-letters + rotary axes
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3688,6 +3696,41 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "pp_cham_defaults": {
             const engine = await getEngine("inlineCornerBreak");
             result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_AXIS (PP-AXIS — Axis-letter vocabulary validator) =====
+          case "pp_axis_validate": {
+            const engine = await getEngine("axisLetter");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              allowed_letters: params.allowed_letters,
+              enabled_axes: params.enabled_axes,
+              case_insensitive: params.case_insensitive,
+              skip_comments: params.skip_comments,
+              max_issues: params.max_issues,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_axis_quick": {
+            const engine = await getEngine("axisLetter");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              allowed_letters: params.allowed_letters,
+              enabled_axes: params.enabled_axes,
+              case_insensitive: params.case_insensitive,
+            };
+            result = engine.quickCheck(gcode, options);
+            break;
+          }
+          case "pp_axis_defaults": {
+            const engine = await getEngine("axisLetter");
+            result = {
+              allowed_letters: engine.defaultAllowedLetters(),
+              rotary_axes: ["A", "B", "C", "U", "V", "W"],
+              source: "Fanuc ISO 6983 word-letter vocabulary",
+            };
             break;
           }
 

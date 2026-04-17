@@ -181,6 +181,12 @@
           },
           {
             "type": "command",
+            "command": "node H:/prism/.claude/hooks/doc-freshness-check.mjs",
+            "timeout": 2500,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
             "command": "node H:/prism/.claude/hooks/file-read-cache.mjs",
             "timeout": 1500,
             "continueOnError": true
@@ -281,6 +287,12 @@
             "type": "command",
             "command": "node H:/prism/.claude/hooks/git-anti-clobber-release.mjs",
             "timeout": 1500,
+            "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/roadmap-completion-logger.mjs",
+            "timeout": 3000,
             "continueOnError": true
           },
           {
