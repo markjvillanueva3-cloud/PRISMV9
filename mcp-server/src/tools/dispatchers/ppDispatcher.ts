@@ -323,6 +323,9 @@ let _ppG10DataSet: any;
 // PP-POLAR: Polar coordinate mode (G15/G16) validator
 let _ppPolarCoordinate: any;
 
+// PP-CHAM: Inline corner-break (,C / ,R chamfer/round) validator
+let _ppInlineCornerBreak: any;
+
 // PP-AGI-REPORT: Markdown Report Generator
 let _ppReportGenerator: any;
 
@@ -572,6 +575,8 @@ async function getEngine(name: string): Promise<any> {
       return _ppG10DataSet ??= (await import("../../engines/PPG10DataSetValidatorEngine.js")).ppG10DataSetValidatorEngine;
     case "polarCoordinate":
       return _ppPolarCoordinate ??= (await import("../../engines/PPPolarCoordinateValidatorEngine.js")).ppPolarCoordinateValidatorEngine;
+    case "inlineCornerBreak":
+      return _ppInlineCornerBreak ??= (await import("../../engines/PPInlineCornerBreakValidatorEngine.js")).ppInlineCornerBreakValidatorEngine;
     case "physicsValidator":
       return _ppPhysicsValidator ??= (await import("../../engines/PPPhysicsConstraintValidatorEngine.js")).ppPhysicsConstraintValidatorEngine;
     case "safetyRuleValidator":
@@ -1064,6 +1069,9 @@ const ACTIONS = [
   "pp_polar_validate",             // Polar coordinate G15/G16 validation
   "pp_polar_quick",                // Quick pass/fail + G16 activation count
   "pp_polar_defaults",             // Default polar validation options
+  "pp_cham_validate",              // Inline ,C / ,R corner-break validation
+  "pp_cham_quick",                 // Quick pass/fail + chamfer/round counts
+  "pp_cham_defaults",              // Default corner-break validation options
 
   // ===== PP_TURNING: Okuma turning post (2 actions) — PP-TURNING =====
   "pp_turning_generate",           // Generate complete Okuma turning program
@@ -3651,6 +3659,34 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "pp_polar_defaults": {
             const engine = await getEngine("polarCoordinate");
+            result = engine.defaultOptions();
+            break;
+          }
+
+          // ===== PP_CHAM (PP-CHAM — Inline corner-break ,C/,R validator) =====
+          case "pp_cham_validate": {
+            const engine = await getEngine("inlineCornerBreak");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            const options = {
+              check_non_g1: params.check_non_g1,
+              check_program_end: params.check_program_end,
+              check_both_c_r: params.check_both_c_r,
+              check_negative_size: params.check_negative_size,
+              check_size_vs_segment: params.check_size_vs_segment,
+              check_rapid_approach: params.check_rapid_approach,
+              next_motion_window: params.next_motion_window,
+            };
+            result = engine.validate(gcode, options);
+            break;
+          }
+          case "pp_cham_quick": {
+            const engine = await getEngine("inlineCornerBreak");
+            const gcode = params.gcode ?? params.gcode_text ?? params.text ?? "";
+            result = engine.quickCheck(gcode);
+            break;
+          }
+          case "pp_cham_defaults": {
+            const engine = await getEngine("inlineCornerBreak");
             result = engine.defaultOptions();
             break;
           }
