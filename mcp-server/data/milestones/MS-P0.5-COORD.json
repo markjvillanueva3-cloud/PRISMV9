@@ -1,0 +1,201 @@
+{
+  "id": "MS-P0.5-COORD",
+  "title": "WEDM Coordination Substrate — Shared Cognitive Layer (Round 4 patch)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P0.5",
+  "status": "complete",
+  "created": "2026-04-16",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "between MS-P0-FOUND and MS-P1-INGEST",
+  "philosophy": "Round 4 convergent scrutiny identified a 0.148-0.20/1.0 synergy floor across WEDM. The 2,114 engines are a capability surplus masquerading as intelligence — the ceiling is not math, it is the lack of a shared cognitive substrate. This milestone installs the 8 coordination primitives (awareness middleware adoption, reasoning trace ledger, cross-engine blackboard, reasoning↔execution bridge, tribal runtime, neural↔formula fusion, archive backfill, multi-agent dispatch) that every downstream P1-P10 milestone silently depends on.",
+  "scrutiny_round": 4,
+  "blocks_reached_by": ["collective-intelligence-coordinator", "goal-planner", "safety-physics"],
+  "total_units": 8,
+  "completed_units": 8,
+  "sessions": 3,
+  "dependencies": ["MS-P0-FOUND"],
+  "blocks": ["MS-P1-INGEST", "MS-P1.5-ONESHOT", "MS-P2-GAPFILL", "MS-P3-TRIBAL", "MS-P4-DL-PRED", "MS-P5-AGI-CORE", "MS-P6-VAL30", "MS-P7-UI-M1", "MS-P8-FEBE", "MS-P9-XAI", "MS-P10-CI"],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.04,
+
+  "knowledge_sources": {
+    "engines": [
+      "awarenessMiddleware (EXISTS, orphan — 0/87 dispatchers invoke)",
+      "ReasoningTraceLedger (MISSING — to build)",
+      "WEDMBlackboardEngine (MISSING — to build)",
+      "WEDMReasoningBridgeEngine (MISSING — to build)",
+      "WEDMTribalRuntimeEngine (MISSING — to build, 4,493 tips unused at runtime)",
+      "NeuralFormulaFusionEngine (MISSING — to build)",
+      "WEDMArchiveBackfillEngine (MISSING — to build, 2,474/2,500 JM Die programs unindexed)",
+      "WEDMMultiAgentDispatchEngine (MISSING — to build)",
+      "PRISMCreativeReasoningEngine (EXISTS, 15 domains, 120+ formulas — to bridge)",
+      "CrossDisciplinaryDeepLearningEngine (EXISTS — to bridge)",
+      "duplicationGuardEngine (EXISTS — to consult)"
+    ],
+    "formulas": [
+      "EWC++ Fisher information (Chaudhry 2018)",
+      "HNSW O(log n) graph-attention (Malkov 2018)",
+      "LoRA rank-4 decomposition (Hu 2021)"
+    ],
+    "tribal": [
+      "4,493 tips in WEDM + platform corpus — 0 propagated at runtime"
+    ],
+    "reference": [
+      "H:/prism/SCRUTINY-PRINT-TO-CNC-ONESHOT-2026-04-16.md",
+      "state/shared/WEDM-CONSOLIDATED-ROADMAP.md §1-§5",
+      "mcp-server/src/middleware/awarenessMiddleware.ts",
+      "mcp-server/src/engines/PRISMCreativeReasoningEngine.ts",
+      "mcp-server/src/engines/CrossDisciplinaryDeepLearningEngine.ts"
+    ]
+  },
+
+  "smart_config": {"role": "SystemArchitect+CognitiveSubstrateEngineer", "model": "opus", "effort": "MAX", "context_budget_pct": 75},
+
+  "skills": ["/forge-triple", "/dedup", "/scope", "/checkpoint", "/prism-review"],
+  "plugins": ["Vitest MCP", "codebase-memory-mcp", "ESLint MCP"],
+
+  "session_split": {
+    "session_1": ["U-P0.5-COORD-01", "U-P0.5-COORD-02", "U-P0.5-COORD-03"],
+    "session_2": ["U-P0.5-COORD-04", "U-P0.5-COORD-05", "U-P0.5-COORD-06"],
+    "session_3": ["U-P0.5-COORD-07", "U-P0.5-COORD-08"],
+    "compact_checkpoints": ["after U-P0.5-COORD-03", "after U-P0.5-COORD-06"]
+  },
+
+  "units": [
+    {
+      "id": "U-P0.5-COORD-01",
+      "title": "WEDMAwarenessAdoption — wire consultAwareness into all WEDM dispatchers",
+      "files_created": ["mcp-server/src/engines/WEDMAwarenessAdoptionEngine.ts"],
+      "files_modified": ["mcp-server/src/tools/dispatchers/edmDispatcher.ts", "mcp-server/src/tools/dispatchers/edmOperationsDispatcher.ts", "mcp-server/src/tools/dispatchers/camDispatcher.ts"],
+      "estimated_loc": 250,
+      "abort_conditions": ["tsc > 0 errors", "any dispatcher action exceeds 50ms awareness budget", "middleware fails closed instead of fails-open"],
+      "rollback": "git checkout dispatchers && rm -f engine",
+      "exit_criteria": [
+        "consultAwareness invoked on every WEDM dispatcher entry",
+        "30s cache + <50ms budget + fails-open verified in tests",
+        "wedm-awareness-coverage hook clean: 100% of WEDM actions covered (BUILT here)",
+        "zero latency regression on existing actions"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-02",
+      "title": "WEDMReasoningTraceLedger — persistent reasoning trace storage",
+      "files_created": ["mcp-server/src/engines/WEDMReasoningTraceLedgerEngine.ts", "mcp-server/data/state/WEDM_REASONING_LEDGER.jsonl"],
+      "estimated_loc": 350,
+      "abort_conditions": ["tsc > 0 errors", "ledger write exceeds 10ms p95", "no atomic append guarantee"],
+      "exit_criteria": [
+        "every reasoning step stamped {timestamp, engine, inputs_hash, outputs_hash, confidence, source_chain}",
+        "atomic append via writeFileSyncAtomic",
+        "ledger replay reconstructs decision graph",
+        "WEDM_REASONING_LEDGER seeded with prior 30-day backfill"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-03",
+      "title": "WEDMBlackboardEngine — cross-engine working memory",
+      "files_created": ["mcp-server/src/engines/WEDMBlackboardEngine.ts", "mcp-server/data/state/WEDM_BLACKBOARD.json"],
+      "estimated_loc": 280,
+      "abort_conditions": ["tsc > 0 errors", "race condition on concurrent writers", "no TTL eviction"],
+      "exit_criteria": [
+        "publish/subscribe API with topic routing",
+        "TTL eviction policy (default 300s)",
+        "last-writer-wins with vector clock fallback",
+        "≥5 WEDM engines read/write on the blackboard in integration test"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-04",
+      "title": "WEDMReasoningBridgeEngine — couple PRISMCreativeReasoning to execution",
+      "files_created": ["mcp-server/src/engines/WEDMReasoningBridgeEngine.ts"],
+      "estimated_loc": 320,
+      "abort_conditions": ["tsc > 0 errors", "creative reasoning output not converted to execution plan", "no S(x) gate on bridge output"],
+      "exit_criteria": [
+        "PRISMCreativeReasoningEngine.explore('optimal') output routed to execution plan",
+        "each reasoning mode (conventional→innovative→optimal) produces typed ExecutionPlan",
+        "bridge output S(x) ≥ 0.70 before accepting",
+        "integration test: 'thin wall wire break risk' input produces executable parameter overrides"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-05",
+      "title": "WEDMTribalRuntimeEngine — runtime tribal tip propagation",
+      "files_created": ["mcp-server/src/engines/WEDMTribalRuntimeEngine.ts"],
+      "estimated_loc": 280,
+      "abort_conditions": ["tsc > 0 errors", "<25% tips indexed", "runtime query >100ms p95"],
+      "exit_criteria": [
+        "all 4,493 tips indexed into embedding lattice",
+        "runtime similarity search <100ms p95 (HNSW)",
+        "every WEDM parameter recommendation attaches ≥1 relevant tip when available",
+        "wedm-tribal-propagation hook clean (BUILT here)"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-06",
+      "title": "NeuralFormulaFusionEngine — neural prediction ↔ deterministic formula fusion",
+      "files_created": ["mcp-server/src/engines/NeuralFormulaFusionEngine.ts"],
+      "estimated_loc": 400,
+      "abort_conditions": ["tsc > 0 errors", "fused output not bounded by formula envelope", "no uncertainty propagation"],
+      "exit_criteria": [
+        "bayesian fusion: neural mean ± σ combined with formula ± uncertainty",
+        "formula envelope hard-clamps neural prediction (safety rail)",
+        "AtomicValue output with combined uncertainty",
+        "MAE on WEDM_JOB_HISTORY holdout ≤ min(neural_MAE, formula_MAE)"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-07",
+      "title": "WEDMArchiveBackfillEngine — index remaining JM Die WEDM programs",
+      "files_created": ["mcp-server/src/engines/WEDMArchiveBackfillEngine.ts", "mcp-server/data/state/WEDM_ARCHIVE_INDEX.json"],
+      "estimated_loc": 320,
+      "abort_conditions": ["<2,000 programs indexed", "no extraction of {wire, material, thickness, Ra, feed, IP, OFF, ON}", "duplicate guard bypassed"],
+      "exit_criteria": [
+        "≥2,474 JM Die WEDM programs parsed and embedded (out of 2,500)",
+        "structured extraction: wire spec + material + thickness + Ra + parameter envelope",
+        "duplicationGuardEngine.mustNotReExtract enforced",
+        "WEDM_ARCHIVE_INDEX.json committed with schemaVersion 1"
+      ]
+    },
+    {
+      "id": "U-P0.5-COORD-08",
+      "title": "WEDMMultiAgentDispatchEngine — multi-agent orchestration primitive",
+      "files_created": ["mcp-server/src/engines/WEDMMultiAgentDispatchEngine.ts"],
+      "estimated_loc": 380,
+      "abort_conditions": ["tsc > 0 errors", "no deadline-aware scheduling", "no consensus on conflicting outputs"],
+      "exit_criteria": [
+        "fan-out to N agents with deadline budget",
+        "consensus via median + MAD for numeric, majority vote for categorical",
+        "Byzantine-tolerant mode behind flag",
+        "integration test: 3 agents (formula, neural, tribal) agree on wire-break risk within 15%"
+      ]
+    }
+  ],
+
+  "forge_triple": {
+    "hook": {"name": "wedm-awareness-coverage", "description": "blocks merge if any WEDM dispatcher action bypasses consultAwareness", "built_in": "U-P0.5-COORD-01"},
+    "action": {"name": "prism_edm:wedm_coordinate", "built_in": "U-P0.5-COORD-08"},
+    "skill": {"name": "/wedm-coordinate", "built_in": "U-P0.5-COORD-08"}
+  },
+
+  "exit_gate": {
+    "criteria": [
+      "all 8 coordination engines green",
+      "100% of WEDM dispatchers invoke consultAwareness",
+      "reasoning ledger populated with ≥500 traces",
+      "blackboard read/write verified across ≥5 engines",
+      "≥2,474 archive programs indexed",
+      "tribal runtime latency <100ms p95",
+      "synergy axis measurement ≥ 0.65/1.0 (up from 0.20)",
+      "1255 existing tests still green"
+    ],
+    "omega_target": 1.0,
+    "svi_delta": "+4%"
+  },
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-awareness-coverage", "wedm-tribal-propagation"],
+    "new_actions": ["prism_edm:wedm_coordinate"],
+    "new_skills": ["/wedm-coordinate"],
+    "available_to": ["P1", "P1.5", "P2", "P2.5", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"]
+  }
+}

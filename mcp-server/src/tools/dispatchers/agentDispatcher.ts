@@ -23,6 +23,7 @@
 
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 const ACTIONS = [
   "chat",
@@ -38,13 +39,17 @@ const ACTIONS = [
 type Action = typeof ACTIONS[number];
 
 /** Standardized response wrapper — matches the {success, data} pattern
- *  used by the rest of PRISM's dispatcher fleet. */
-function okResult(data: unknown) {
+ *  used by the rest of PRISM's dispatcher fleet.
+ *  MILL-AGI-P0.1: Optionally includes awareness metadata. */
+function okResult(data: unknown, awareness?: AwarenessConsultResult | null) {
+  const result = awareness && awareness.ok && awareness.summary.length > 0
+    ? { success: true, data, _awareness: awareness.summary }
+    : { success: true, data };
   return {
     content: [
       {
         type: "text" as const,
-        text: JSON.stringify({ success: true, data }),
+        text: JSON.stringify(result),
       },
     ],
   };
@@ -77,6 +82,17 @@ export function registerAgentDispatcher(server: any): void {
     async ({ action, params = {} }: { action: Action; params: Record<string, any> }) => {
       log.info(`[prism_agent] ${action}`);
 
+      // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+      let awareness: AwarenessConsultResult | null = null;
+      try {
+        const keywords = extractAwarenessKeywords(action, params);
+        awareness = await consultAwareness({
+          dispatcher: "agent",
+          action,
+          keywords,
+        });
+      } catch { /* awareness failure is non-blocking */ }
+
       try {
         switch (action) {
           // ── chat ────────────────────────────────────────────────────
@@ -92,7 +108,7 @@ export function registerAgentDispatcher(server: any): void {
               context: params.context,
               config: params.config,
             });
-            return okResult(response);
+            return okResult(response, awareness);
           }
 
           // ── context_create ─────────────────────────────────────────
@@ -103,7 +119,7 @@ export function registerAgentDispatcher(server: any): void {
             const maxTokens =
               typeof params.max_tokens === "number" ? params.max_tokens : undefined;
             const ctx = contextCompactionEngine.createContext(maxTokens);
-            return okResult(ctx);
+            return okResult(ctx, awareness);
           }
 
           // ── context_add ─────────────────────────────────────────────
@@ -138,7 +154,7 @@ export function registerAgentDispatcher(server: any): void {
                 metadata: params.metadata,
               }
             );
-            return okResult({ item, context: params.context });
+            return okResult({ item, context: params.context }, awareness);
           }
 
           // ── context_compact ─────────────────────────────────────────
@@ -157,7 +173,7 @@ export function registerAgentDispatcher(server: any): void {
               strategy,
               params.config
             );
-            return okResult({ result, context: params.context });
+            return okResult({ result, context: params.context }, awareness);
           }
 
           // ── memory ──────────────────────────────────────────────────
@@ -177,7 +193,7 @@ export function registerAgentDispatcher(server: any): void {
                     tags: params.tags,
                     confidence: params.confidence,
                     priority: params.priority,
-                  })
+                  }), awareness
                 );
               case "remember_preference":
                 if (!params.content) return errResult("Missing content");
@@ -186,7 +202,7 @@ export function registerAgentDispatcher(server: any): void {
                     tags: params.tags,
                     confidence: params.confidence,
                     priority: params.priority,
-                  })
+                  }), awareness
                 );
               case "remember_correction":
                 if (!params.incorrect || !params.correct)
@@ -200,7 +216,7 @@ export function registerAgentDispatcher(server: any): void {
                       relatedEntity: params.related_entity,
                       tags: params.tags,
                     }
-                  )
+                  ), awareness
                 );
               case "query":
                 return okResult(
@@ -213,26 +229,26 @@ export function registerAgentDispatcher(server: any): void {
                     limit: params.limit,
                     sortBy: params.sort_by,
                     sortOrder: params.sort_order,
-                  })
+                  }), awareness
                 );
               case "search":
                 if (!params.query) return errResult("Missing query");
-                return okResult(await agentMemoryFabricEngine.search(params.query));
+                return okResult(await agentMemoryFabricEngine.search(params.query), awareness);
               case "reinforce":
                 if (!params.memory_id) return errResult("Missing memory_id");
-                return okResult(await agentMemoryFabricEngine.reinforce(params.memory_id));
+                return okResult(await agentMemoryFabricEngine.reinforce(params.memory_id), awareness);
               case "forget":
                 if (!params.memory_id) return errResult("Missing memory_id");
                 return okResult({
                   forgotten: await agentMemoryFabricEngine.forget(params.memory_id),
-                });
+                }, awareness);
               case "stats":
-                return okResult(await agentMemoryFabricEngine.getStats());
+                return okResult(await agentMemoryFabricEngine.getStats(), awareness);
               case "context_injection":
                 return okResult(
                   await agentMemoryFabricEngine.getForContextInjection(
                     params.max_tokens ?? 1000
-                  )
+                  ), awareness
                 );
               default:
                 return errResult(
@@ -257,7 +273,7 @@ export function registerAgentDispatcher(server: any): void {
                 const target = params.target ?? "actions"; // "actions" | "engines" | "both"
                 if (target === "engines") {
                   return okResult(
-                    await engineDigestEngine.search(params.query, params.limit ?? 10)
+                    await engineDigestEngine.search(params.query, params.limit ?? 10), awareness
                   );
                 }
                 if (target === "both") {
@@ -270,34 +286,34 @@ export function registerAgentDispatcher(server: any): void {
                       params.query,
                       params.limit ?? 10
                     ),
-                  });
+                  }, awareness);
                 }
                 return okResult(
-                  await capabilityIndexEngine.search(params.query, params.limit ?? 10)
+                  await capabilityIndexEngine.search(params.query, params.limit ?? 10), awareness
                 );
               }
               case "by_tool":
                 if (!params.tool) return errResult("Missing tool");
-                return okResult(await capabilityIndexEngine.getByTool(params.tool));
+                return okResult(await capabilityIndexEngine.getByTool(params.tool), awareness);
               case "by_category":
                 if (!params.category) return errResult("Missing category");
                 return okResult(
-                  await capabilityIndexEngine.getByCategory(params.category)
+                  await capabilityIndexEngine.getByCategory(params.category), awareness
                 );
               case "engine_by_name":
                 if (!params.name) return errResult("Missing name");
-                return okResult(await engineDigestEngine.findByName(params.name));
+                return okResult(await engineDigestEngine.findByName(params.name), awareness);
               case "engine_deps":
                 if (!params.name) return errResult("Missing name");
-                return okResult(await engineDigestEngine.getDependencies(params.name));
+                return okResult(await engineDigestEngine.getDependencies(params.name), awareness);
               case "engine_dependents":
                 if (!params.name) return errResult("Missing name");
-                return okResult(await engineDigestEngine.getDependents(params.name));
+                return okResult(await engineDigestEngine.getDependents(params.name), awareness);
               case "stats":
                 return okResult({
                   actions: await capabilityIndexEngine.getStats(),
                   engines: await engineDigestEngine.getStats(),
-                });
+                }, awareness);
               default:
                 return errResult(
                   `Unknown capabilities op: ${op}. Valid: search, by_tool, by_category, engine_by_name, engine_deps, engine_dependents, stats`
@@ -342,7 +358,7 @@ export function registerAgentDispatcher(server: any): void {
 
             const compact =
               params.compact === true ? serializeCompact(model) : undefined;
-            return okResult({ model, compact });
+            return okResult({ model, compact }, awareness);
           }
 
           // ── stats ───────────────────────────────────────────────────
@@ -377,7 +393,7 @@ export function registerAgentDispatcher(server: any): void {
               memory,
               learning,
               agentic_loop: loop,
-            });
+            }, awareness);
           }
 
           default:

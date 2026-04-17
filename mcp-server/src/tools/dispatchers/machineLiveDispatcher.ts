@@ -17,6 +17,7 @@ import { z } from "zod";
 import { log } from "../../utils/Logger.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { slimResponse, getCurrentPressurePct, getSlimLevel } from "../../utils/responseSlimmer.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { MACHINE_LIVE_ACTION_SCHEMAS } from "../../schemas/machineLiveActionSchemas.js";
 import { formatByLevel, type ResponseLevel } from "../../types/ResponseLevel.js";
@@ -282,6 +283,17 @@ export function registerMachineLiveDispatcher(server: any): void {
           );
         }
 
+        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+        let awareness: AwarenessConsultResult | null = null;
+        try {
+          const keywords = extractAwarenessKeywords(action, params);
+          awareness = await consultAwareness({
+            dispatcher: "machine_live",
+            action,
+            keywords,
+          });
+        } catch { /* awareness failure is non-blocking */ }
+
         // Pre-hooks
         const hookCtx = {
           operation: action,
@@ -373,13 +385,13 @@ export function registerMachineLiveDispatcher(server: any): void {
           const keyValues = machineLiveExtractKeyValues(action, result);
           return {
             content: [{ type: "text" as const, text: JSON.stringify(slimResponse(
-              { action, ...result, _keyValues: keyValues },
+              wrapWithAwareness({ action, ...result, _keyValues: keyValues }, awareness),
               getSlimLevel(pressure)
             )) }],
           };
         }
 
-        return { content: [{ type: "text" as const, text: JSON.stringify({ action, ...result }) }] };
+        return { content: [{ type: "text" as const, text: JSON.stringify(wrapWithAwareness({ action, ...result }, awareness)) }] };
       } catch (err: any) {
         log.error(`[prism_machine_live] ${action} failed: ${err.message}`);
         return dispatcherError(err, action, "prism_machine_live");

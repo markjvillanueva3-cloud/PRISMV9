@@ -16,6 +16,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any;
@@ -104,6 +105,17 @@ Params vary by action — pass relevant fields in params object.`,
             "prism_cad"
           );
         }
+
+        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+        let awareness: AwarenessConsultResult | null = null;
+        try {
+          const keywords = extractAwarenessKeywords(action, params);
+          awareness = await consultAwareness({
+            dispatcher: "cad",
+            action,
+            keywords,
+          });
+        } catch { /* awareness failure is non-blocking */ }
 
         switch (action) {
           case "geometry_create": {
@@ -572,7 +584,7 @@ Params vary by action — pass relevant fields in params object.`,
       } catch (error) {
         return dispatcherError(error, action, "prism_cad");
       }
-      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness))) }] };
     }
   );
 }

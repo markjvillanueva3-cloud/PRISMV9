@@ -8,6 +8,7 @@ import { log } from "../../utils/Logger.js";
 import { slimResponse } from "../../utils/responseSlimmer.js";
 import { validateActionParams, dispatcherError } from "../../utils/dispatcherMiddleware.js";
 import { ACTION_KNOWLEDGE_SCHEMAS } from "../../schemas/knowledgeActionSchemas.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 const ACADEMY_ACTIONS = [
   "academy_courses", "academy_course_detail",
@@ -266,6 +267,18 @@ export function registerKnowledgeDispatcher(server: any): void {
             action, "prism_knowledge"
           );
         }
+
+        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+        let awareness: AwarenessConsultResult | null = null;
+        try {
+          const keywords = extractAwarenessKeywords(action, params);
+          awareness = await consultAwareness({
+            dispatcher: "knowledge",
+            action,
+            keywords,
+          });
+        } catch { /* awareness failure is non-blocking */ }
+
         switch (action) {
           case "search": {
             if (!engine) { result = { error: "KnowledgeQueryEngine not loaded" }; break; }
@@ -624,7 +637,7 @@ export function registerKnowledgeDispatcher(server: any): void {
             const kg = await getKGEngine();
             if (!kg) return dispatcherError(new Error("KG engine unavailable"), action, "prism_knowledge");
             const kgResult = kg.calculate(action, params);
-            return { content: [{ type: "text", text: JSON.stringify(slimResponse(kgResult)) }] };
+            return { content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness(kgResult, awareness))) }] };
           }
           // ── Troubleshooting Decision Tree ──────────────────
           case "troubleshoot_diagnose":
@@ -1956,7 +1969,7 @@ export function registerKnowledgeDispatcher(server: any): void {
             break;
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(slimResponse(result)) }] };
+        return { content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness))) }] };
       } catch (error: any) {
         return dispatcherError(error, action, "prism_knowledge");
       }

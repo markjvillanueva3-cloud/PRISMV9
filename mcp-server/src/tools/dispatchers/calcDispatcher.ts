@@ -16,6 +16,7 @@ import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js
 import { eventBus, EventTypes } from "../../engines/EventBus.js";
 import { logActionTelemetry } from "../../utils/actionTelemetry.js";
 import { safeFunctionEval } from "../../utils/safeMathEval.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 /** Zod-validated params — dispatcher validates via ACTION_CALC_SCHEMAS before engine calls.
  *  Type is `any` because Zod runtime validation guarantees shape correctness; static types
@@ -1132,6 +1133,17 @@ export function registerCalcDispatcher(server: any): void {
             "prism_calc"
           );
         }
+
+        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+        let awareness: AwarenessConsultResult | null = null;
+        try {
+          const keywords = extractAwarenessKeywords(action, params);
+          awareness = await consultAwareness({
+            dispatcher: "calc",
+            action,
+            keywords,
+          });
+        } catch { /* awareness failure is non-blocking */ }
 
         // === PRE-CALCULATION HOOKS (9 hooks: lesson recall, validation, compatibility, force bounds, circuit breaker) ===
         const hookCtx = {
@@ -8854,7 +8866,7 @@ export function registerCalcDispatcher(server: any): void {
             if (extracted && Object.keys(extracted).length > 0) {
               const slimLevel = getSlimLevel(pressurePct);
               return {
-                content: [{ type: "text", text: JSON.stringify(slimResponse({ action, ...extracted, _slimmed: true }, slimLevel)) }]
+                content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness({ action, ...extracted, _slimmed: true }, awareness), slimLevel)) }]
               };
             }
           } catch (e: any) { log.debug(`[prism] ${e?.message?.slice(0, 80)}`); }
@@ -8869,7 +8881,7 @@ export function registerCalcDispatcher(server: any): void {
 
         logActionTelemetry(action, Date.now() - calcStart, true, "prism_calc");
         return {
-          content: [{ type: "text", text: JSON.stringify(slimResponse(result, getSlimLevel(pressurePct))) }]
+          content: [{ type: "text", text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness), getSlimLevel(pressurePct))) }]
         };
 
       } catch (error) {

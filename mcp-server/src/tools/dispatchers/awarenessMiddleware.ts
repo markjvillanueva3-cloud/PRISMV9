@@ -179,3 +179,55 @@ export function clearAwarenessCache(): void {
 export function awarenessCacheSize(): number {
   return CACHE.size;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// HELPER: Extract keywords from action + params for awareness queries
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Known param keys that yield useful search terms. */
+const KEYWORD_PARAM_KEYS = new Set([
+  "material", "material_id", "material_name", "iso_group",
+  "tool_type", "operation", "strategy", "process",
+  "machine", "machine_id", "controller",
+  "part_type", "feature", "feature_type"
+]);
+
+/**
+ * Extract 2-6 relevant keywords from action name + params.
+ * Used by dispatchers to auto-populate awareness consult.
+ */
+export function extractAwarenessKeywords(
+  action: string,
+  params: Record<string, unknown>
+): string[] {
+  const keywords: string[] = [];
+
+  // Split action by underscore to get domain terms
+  const actionParts = action.split("_").filter(p => p.length > 2);
+  keywords.push(...actionParts.slice(0, 3));
+
+  // Extract values from known param keys
+  for (const key of KEYWORD_PARAM_KEYS) {
+    const val = params[key];
+    if (typeof val === "string" && val.length > 1 && val.length < 50) {
+      keywords.push(val.toLowerCase());
+    }
+  }
+
+  // Dedupe and limit to 6
+  return [...new Set(keywords)].slice(0, 6);
+}
+
+/**
+ * Wraps a dispatcher result with awareness metadata.
+ * Call this at the end of dispatcher execution to attach _awareness.
+ */
+export function wrapWithAwareness<T extends Record<string, unknown>>(
+  result: T,
+  awareness: AwarenessConsultResult | null
+): T & { _awareness?: string[] } {
+  if (!awareness || !awareness.ok || awareness.summary.length === 0) {
+    return result;
+  }
+  return { ...result, _awareness: awareness.summary };
+}

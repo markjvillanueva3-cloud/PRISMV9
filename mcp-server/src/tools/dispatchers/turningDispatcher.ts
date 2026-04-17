@@ -15,6 +15,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { TURNING_ACTION_SCHEMAS } from "../../schemas/turningActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { validateCrossFieldPhysics } from "../../validation/crossFieldPhysics.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 let _chuck: any, _tail: any, _steady: any, _live: any, _bar: any, _thread: any, _partoff: any;
 async function getEngine(name: string): Promise<any> {
@@ -206,6 +207,17 @@ Actions: ${ACTIONS.join(", ")}.`,
             "prism_turning"
           );
         }
+
+        // MILL-AGI-P0.1: Awareness middleware — consult PRISM knowledge before execution
+        let awareness: AwarenessConsultResult | null = null;
+        try {
+          const keywords = extractAwarenessKeywords(action, params);
+          awareness = await consultAwareness({
+            dispatcher: "turning",
+            action,
+            keywords,
+          });
+        } catch { /* awareness failure is non-blocking */ }
 
         // PRE-CALCULATION SAFETY HOOKS — blocks unsafe turning params
         const hookCtx = {
@@ -2415,7 +2427,7 @@ Actions: ${ACTIONS.join(", ")}.`,
         if (error?.name === "SafetyBlockError") throw error;
         return dispatcherError(error, action, "prism_turning");
       }
-      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(result)) }] };
+      return { content: [{ type: "text" as const, text: JSON.stringify(slimResponse(wrapWithAwareness(result, awareness))) }] };
     }
   );
 }

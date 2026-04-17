@@ -22,6 +22,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 // Merge legacy + pipeline schemas
 const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS };

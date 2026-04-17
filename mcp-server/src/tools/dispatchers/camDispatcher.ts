@@ -143,6 +143,7 @@ const MERGED_CAM_SCHEMAS = {
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
+import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 let _cam: any, _toolpath: any, _post: any, _collision: any, _stock: any, _toolAsm: any, _fixture: any, _hmStrategy: any, _hmSafety: any, _hmMultiAxis: any, _hmMaterialMap: any, _hmCycleCatalog: any, _hmController: any, _hmCycleDefaults: any, _hmThread: any, _lathePost: any, _probing: any, _subprogram: any, _nesting: any, _tpSim: any, _advPost: any, _portability: any, _multiCam: any, _feedOpt: any, _transpiler: any, _stabilityRPM: any, _probeGen: any, _cycleTimeEst: any, _gcodeSafety: any, _thermal: any, _energy: any, _kinematic: any, _setupSheet: any, _autoSF: any, _instEngage: any, _multiCamPost: any, _prodToolpath: any, _ppAPI: any, _scalableOrch: any, _unifiedPipe: any, _smartTool: any, _adaptRouter: any, _cumStock: any, _featCluster: any, _prodPackage: any, _edmAsm: any, _grindAsm: any, _laserAsm: any, _wjAsm: any, _multiProc: any, _millTurn: any, _selfLearn: any, _turningProfile: any, _sheetNesting: any, _dxfParser: any, _stochRouter: any, _probingProg: any, _dfmFeedback: any;
 // CK-MS12 singletons

@@ -1,7 +1,7 @@
 {
   "version": "9.2.0",
   "title": "PRISM Unified Roadmap v2.0 - 11 Lanes, 4 Seats",
-  "updated_at": "2026-04-16",
+  "updated_at": "2026-04-17",
   "milestones": [
     {
       "id": "INGEST-MS0",
@@ -3209,7 +3209,10 @@
       "deprecated_at": "2026-04-16",
       "deprecated_by": "MS-P0-V U-P0-V04",
       "migration_doc": "state/shared/CAMX-V17-P9-MIGRATION.md",
-      "superseded_by": ["MS-P3-TIER6A", "MS-P3-TIER6B"],
+      "superseded_by": [
+        "MS-P3-TIER6A",
+        "MS-P3-TIER6B"
+      ],
       "total_units": 5,
       "completed_units": 0,
       "sessions": "2-5",
@@ -8201,16 +8204,21 @@
     },
     {
       "id": "AI-AWARE-HARDEN",
-      "title": "PRISM AI Awareness System Hardening — 35/100 → 90/100 + H: Drive Coverage + Cross-Terminal Coordination",
+      "title": "PRISM AI Awareness System Hardening v2 — 70/100 → 95/100",
       "track": "AWR",
       "dependencies": [],
       "status": "in_progress",
-      "total_units": 25,
-      "completed_units": 3,
-      "sessions": "6",
+      "total_units": 33,
+      "completed_units": 20,
+      "sessions": "11",
       "envelope_path": "milestones/AI-AWARE-HARDEN.json",
       "priority": "P0",
-      "owner": "Claude-AI"
+      "owner": "Claude-AI",
+      "revision": "2.0",
+      "revised_date": "2026-04-17",
+      "critical_gaps": ["playbook-rules", "formula-orchestrator"],
+      "rgs_pipeline": "10-stage-v1",
+      "scrutiny_score": 86
     },
     {
       "id": "LATHE-MASTER",
@@ -8245,24 +8253,28 @@
       "title": "WEDM Consolidated Roadmap Validation Gate",
       "track": "WEDM-CONSOLIDATED",
       "dependencies": [],
-      "status": "not_started",
+      "status": "complete",
       "total_units": 4,
-      "completed_units": 0,
+      "completed_units": 4,
       "sessions": "1",
       "envelope_path": "milestones/MS-P0-V.json",
       "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
       "priority": "P0",
-      "owner": "Claude-AI"
+      "owner": "Claude-AI",
+      "completed_at": "2026-04-17T01:50:11.709Z"
     },
     {
       "id": "MS-P0.5-COORD",
       "title": "WEDM Coordination Substrate — Shared Cognitive Layer (Round 4 patch)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P0-V"],
-      "status": "not_started",
+      "dependencies": [
+        "MS-P0-V"
+      ],
+      "status": "complete",
       "total_units": 8,
-      "completed_units": 0,
+      "completed_units": 8,
       "sessions": "3",
+      "completed_at": "2026-04-17T15:35:00.000Z",
       "envelope_path": "milestones/MS-P0.5-COORD.json",
       "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
       "priority": "P0",
@@ -8274,8 +8286,13 @@
       "id": "MS-P1-100PCT",
       "title": "WEDM Physics-First Completion (supersedes WEDM-100PCT-MS0 tail)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P0-V", "MS-P0.5-COORD"],
-      "supersedes_tail_of": ["WEDM-100PCT-MS0"],
+      "dependencies": [
+        "MS-P0-V",
+        "MS-P0.5-COORD"
+      ],
+      "supersedes_tail_of": [
+        "WEDM-100PCT-MS0"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -8289,7 +8306,10 @@
       "id": "MS-P1.5-ONESHOT",
       "title": "WEDM Print->CNC One-Shot Spine Closure (Round 4 patch)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P0.5-COORD", "MS-P1-100PCT"],
+      "dependencies": [
+        "MS-P0.5-COORD",
+        "MS-P1-100PCT"
+      ],
       "status": "not_started",
       "total_units": 7,
       "completed_units": 0,
@@ -8305,11 +8325,16 @@
       "id": "MS-P2-GAPFILL",
       "title": "WEDM Production Hardening (alias of WEDM-GAPFILL-MS0)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P1-100PCT", "MS-P1.5-ONESHOT"],
+      "dependencies": [
+        "MS-P1-100PCT",
+        "MS-P1.5-ONESHOT"
+      ],
       "alias_of": "WEDM-GAPFILL-MS0",
-      "status": "not_started",
+      "status": "complete",
       "total_units": 11,
-      "completed_units": 0,
+      "completed_units": 11,
+      "completed_at": "2026-04-17T15:05:00.000Z",
+      "note": "Implemented ahead of dependency chain - 118 tests pass",
       "sessions": "5",
       "envelope_path": "milestones/MS-P2-GAPFILL.json",
       "authoritative_doc": "state/shared/WEDM-CONSOLIDATED-ROADMAP.md",
@@ -8320,7 +8345,10 @@
       "id": "MS-P2.5-SAFETY",
       "title": "WEDM Runtime Safety Gate Closure — S(x) >= 0.70 hard-gate (Round 4 patch)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P1.5-ONESHOT", "MS-P2-GAPFILL"],
+      "dependencies": [
+        "MS-P1.5-ONESHOT",
+        "MS-P2-GAPFILL"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -8336,8 +8364,13 @@
       "id": "MS-P3-TIER6A",
       "title": "WEDM Tier 6 — Progressive Die + Multi-Slide",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P2-GAPFILL", "MS-P2.5-SAFETY"],
-      "supersedes": ["CAMX-V17-P9"],
+      "dependencies": [
+        "MS-P2-GAPFILL",
+        "MS-P2.5-SAFETY"
+      ],
+      "supersedes": [
+        "CAMX-V17-P9"
+      ],
       "status": "not_started",
       "total_units": 7,
       "completed_units": 0,
@@ -8351,7 +8384,10 @@
       "id": "MS-P3-TIER6B",
       "title": "WEDM Tier 6 — Spline Broach + PCD",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P2-GAPFILL", "MS-P2.5-SAFETY"],
+      "dependencies": [
+        "MS-P2-GAPFILL",
+        "MS-P2.5-SAFETY"
+      ],
       "status": "not_started",
       "total_units": 7,
       "completed_units": 0,
@@ -8365,7 +8401,11 @@
       "id": "MS-P4-DL-CORE",
       "title": "WEDM On-Device Learning Infrastructure (LoRA + EWC + Few-Shot)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P1-100PCT", "MS-P2-GAPFILL", "MS-P2.5-SAFETY"],
+      "dependencies": [
+        "MS-P1-100PCT",
+        "MS-P2-GAPFILL",
+        "MS-P2.5-SAFETY"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -8379,7 +8419,9 @@
       "id": "MS-P4-DL-PRED",
       "title": "WEDM Predictive Heads (Ra / Wire-Break / Recast)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P4-DL-CORE"],
+      "dependencies": [
+        "MS-P4-DL-CORE"
+      ],
       "status": "not_started",
       "total_units": 4,
       "completed_units": 0,
@@ -8393,7 +8435,9 @@
       "id": "MS-P5-GNN",
       "title": "WEDM Graph-Neural Reasoning Lattice",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P4-DL-CORE"],
+      "dependencies": [
+        "MS-P4-DL-CORE"
+      ],
       "status": "not_started",
       "total_units": 6,
       "completed_units": 0,
@@ -8407,7 +8451,13 @@
       "id": "MS-P6-VAL30",
       "title": "WEDM 30-Part Validation Suite (absorbs WEDM-UNIFIED M6)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P3-TIER6A", "MS-P3-TIER6B", "MS-P4-DL-CORE", "MS-P4-DL-PRED", "MS-P5-GNN"],
+      "dependencies": [
+        "MS-P3-TIER6A",
+        "MS-P3-TIER6B",
+        "MS-P4-DL-CORE",
+        "MS-P4-DL-PRED",
+        "MS-P5-GNN"
+      ],
       "status": "not_started",
       "total_units": 8,
       "completed_units": 0,
@@ -8421,7 +8471,10 @@
       "id": "MS-P7-UI-M1",
       "title": "WEDM Upload + Results Pages (wraps WEDM-UNIFIED M1)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P2-GAPFILL", "MS-P6-VAL30"],
+      "dependencies": [
+        "MS-P2-GAPFILL",
+        "MS-P6-VAL30"
+      ],
       "wraps": "WEDM-UNIFIED-MS1",
       "status": "not_started",
       "total_units": 6,
@@ -8436,7 +8489,9 @@
       "id": "MS-P7-UI-M2",
       "title": "WEDM Feature Editor Wire Mode (wraps WEDM-UNIFIED M2)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1"],
+      "dependencies": [
+        "MS-P7-UI-M1"
+      ],
       "wraps": "WEDM-UNIFIED-MS2",
       "status": "not_started",
       "total_units": 4,
@@ -8451,7 +8506,9 @@
       "id": "MS-P7-UI-M3",
       "title": "WEDM Studio Wizard Integration (wraps WEDM-UNIFIED M3)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1"],
+      "dependencies": [
+        "MS-P7-UI-M1"
+      ],
       "wraps": "WEDM-UNIFIED-MS3",
       "status": "not_started",
       "total_units": 4,
@@ -8466,7 +8523,9 @@
       "id": "MS-P7-UI-M4",
       "title": "WEDM Shop Profile Wire EDM (wraps WEDM-UNIFIED M4)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1"],
+      "dependencies": [
+        "MS-P7-UI-M1"
+      ],
       "wraps": "WEDM-UNIFIED-MS4",
       "status": "not_started",
       "total_units": 4,
@@ -8481,7 +8540,10 @@
       "id": "MS-P7-UI-M5",
       "title": "WEDM Enhanced Calculator Panels (wraps WEDM-UNIFIED M5)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P4-DL-PRED", "MS-P7-UI-M1"],
+      "dependencies": [
+        "MS-P4-DL-PRED",
+        "MS-P7-UI-M1"
+      ],
       "wraps": "WEDM-UNIFIED-MS5",
       "status": "not_started",
       "total_units": 6,
@@ -8496,7 +8558,13 @@
       "id": "MS-P7-UI-M7",
       "title": "Lathe Backport of Shared WEDM Components (wraps WEDM-UNIFIED M7)",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5"],
+      "dependencies": [
+        "MS-P7-UI-M1",
+        "MS-P7-UI-M2",
+        "MS-P7-UI-M3",
+        "MS-P7-UI-M4",
+        "MS-P7-UI-M5"
+      ],
       "wraps": "WEDM-UNIFIED-MS7",
       "status": "not_started",
       "total_units": 6,
@@ -8511,7 +8579,13 @@
       "id": "MS-P7.5-FE-GAPS",
       "title": "WEDM Frontend Closure — R5 Codex-Alignment Gaps",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M5", "MS-P7-UI-M7", "APPW-MS0", "APPW-MS1"],
+      "dependencies": [
+        "MS-P7-UI-M1",
+        "MS-P7-UI-M5",
+        "MS-P7-UI-M7",
+        "APPW-MS0",
+        "APPW-MS1"
+      ],
       "status": "not_started",
       "total_units": 7,
       "completed_units": 0,
@@ -8528,7 +8602,15 @@
       "id": "MS-P8-FEBE",
       "title": "WEDM Frontend ↔ Backend Surface Audit",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5", "MS-P7-UI-M7", "MS-P7.5-FE-GAPS"],
+      "dependencies": [
+        "MS-P7-UI-M1",
+        "MS-P7-UI-M2",
+        "MS-P7-UI-M3",
+        "MS-P7-UI-M4",
+        "MS-P7-UI-M5",
+        "MS-P7-UI-M7",
+        "MS-P7.5-FE-GAPS"
+      ],
       "status": "not_started",
       "total_units": 5,
       "completed_units": 0,
@@ -8542,7 +8624,9 @@
       "id": "MS-P9-WIRE",
       "title": "WEDM P9 UI Wiring — Top-10 backend→frontend exposures",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P8-FEBE"],
+      "dependencies": [
+        "MS-P8-FEBE"
+      ],
       "status": "not_started",
       "total_units": 10,
       "completed_units": 0,
@@ -8556,7 +8640,10 @@
       "id": "MS-P9-XAI",
       "title": "WEDM Explainability + Feedback + Drift UI",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P5-GNN", "MS-P8-FEBE"],
+      "dependencies": [
+        "MS-P5-GNN",
+        "MS-P8-FEBE"
+      ],
       "status": "not_started",
       "total_units": 3,
       "completed_units": 0,
@@ -8570,7 +8657,10 @@
       "id": "MS-P9-INT",
       "title": "WEDM P9 End-to-End Integration Tests",
       "track": "WEDM-CONSOLIDATED",
-      "dependencies": ["MS-P9-WIRE", "MS-P9-XAI"],
+      "dependencies": [
+        "MS-P9-WIRE",
+        "MS-P9-XAI"
+      ],
       "status": "not_started",
       "total_units": 1,
       "completed_units": 0,
@@ -8585,12 +8675,29 @@
       "title": "WEDM V2 Launch Gate (consolidated)",
       "track": "WEDM-CONSOLIDATED",
       "dependencies": [
-        "MS-P0-V", "MS-P0.5-COORD", "MS-P1-100PCT", "MS-P1.5-ONESHOT", "MS-P2-GAPFILL", "MS-P2.5-SAFETY",
-        "MS-P3-TIER6A", "MS-P3-TIER6B",
-        "MS-P4-DL-CORE", "MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30",
-        "MS-P7-UI-M1", "MS-P7-UI-M2", "MS-P7-UI-M3", "MS-P7-UI-M4", "MS-P7-UI-M5", "MS-P7-UI-M7",
+        "MS-P0-V",
+        "MS-P0.5-COORD",
+        "MS-P1-100PCT",
+        "MS-P1.5-ONESHOT",
+        "MS-P2-GAPFILL",
+        "MS-P2.5-SAFETY",
+        "MS-P3-TIER6A",
+        "MS-P3-TIER6B",
+        "MS-P4-DL-CORE",
+        "MS-P4-DL-PRED",
+        "MS-P5-GNN",
+        "MS-P6-VAL30",
+        "MS-P7-UI-M1",
+        "MS-P7-UI-M2",
+        "MS-P7-UI-M3",
+        "MS-P7-UI-M4",
+        "MS-P7-UI-M5",
+        "MS-P7-UI-M7",
         "MS-P7.5-FE-GAPS",
-        "MS-P8-FEBE", "MS-P9-WIRE", "MS-P9-XAI", "MS-P9-INT"
+        "MS-P8-FEBE",
+        "MS-P9-WIRE",
+        "MS-P9-XAI",
+        "MS-P9-INT"
       ],
       "status": "not_started",
       "total_units": 6,
@@ -8603,5 +8710,5 @@
     }
   ],
   "total_milestones": 631,
-  "completed_milestones": 238
+  "completed_milestones": 239
 }

@@ -3010,6 +3010,9 @@ export { spindleRunoutEngine, SpindleRunoutEngine } from "./SpindleRunoutEngine.
 // Machine Leveling — tilt limits, foundation sizing, vibration isolation
 export { machineLevelingEngine, MachineLevelingEngine } from "./MachineLevelingEngine.js";
 
+// Machine Layer Merger — multi-layer machine data merge with provenance (MCAT-MS0)
+export { machineLayerMerger, type MachineLayerInput, type MergeResult } from "./MachineLayerMerger.js";
+
 // Tolerance Stack-Up Engine — worst-case & RSS stack-up analysis
 export { toleranceStackUpEngine, ToleranceStackUpEngine } from "./ToleranceStackUpEngine.js";
 
@@ -5358,6 +5361,7 @@ export { ClothoidBlendingEngine, type Point2D, type Point3D, type ClothoidSegmen
 export { ContactMechanicsSurfaceEngine, type MaterialProps, type HertzContactResult, type SubSurfaceStressResult, type PlasticZoneResult, type WhiteLayerResult, type ResidualStressResult, type FullIntegrityResult } from './ContactMechanicsSurfaceEngine.js';
 export { CurriculumEngine, type Course, type Module, type LessonContent, type Quiz, type Question, type QuestionOption, type DecisionNode, type StudentProgress, type CourseProgress, type QuizScore, type ReviewItem, type ContentType, type QuestionType } from './CurriculumEngine.js';
 export { DXFGeometryParserEngine, dxfGeometryParserEngine, type LineSegment, type ArcSegment, type WireEDMContour, type GeometryIssue, type GeometryParseResult, type GeometrySegment } from './DXFGeometryParserEngine.js';
+export { WEDMDwgImportEngine, wedmDwgImportEngine, type DwgImportInput, type DwgImportResult, type ConverterConfig } from './WEDMDwgImportEngine.js';
 export { FinishTargetAdvisorEngine, finishTargetAdvisorEngine, type FinishTargetInput, type FinishTargetResult, type FinishOperation, type CoolantStrategy as FinishCoolantStrategy } from './FinishTargetAdvisorEngine.js';
 export { HaasParserEngine, haasParserEngine, type HaasProgram, type HaasToolSection, type HaasOperation, type HaasMacroVariable, type HaasSubCall, type HaasSafetyInfo } from './HaasParserEngine.js';
 export { HoningProcessEngine, honingProcessEngine, type HoningDesignInput, type HoningDesignResult, type StoneSelectionInput, type StoneSelectionResult, type PlateauHoningInput, type PlateauHoningStageParams, type PlateauHoningResult, type StoneType } from './HoningProcessEngine.js';
@@ -6396,3 +6400,15 @@ export {
   type CoverageReport,
   type FormulaEngineMapping,
 } from './FormulaOrchestrator.js';
+
+
+// --- AI-AWARE-HARDEN U-AWR32: Playbook Rules Engine ---
+export {
+  playbookRulesEngine,
+  PlaybookRulesEngine,
+  type MachineDomain,
+  type DomainRule,
+  type DomainStats,
+  type DomainQuery,
+  type RuleCoverage,
+} from './PlaybookRulesEngine.js';
