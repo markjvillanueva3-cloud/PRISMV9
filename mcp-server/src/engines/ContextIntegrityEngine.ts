@@ -49,6 +49,42 @@ export interface IntegrityReport {
   healthScore: number; // 0-100, higher = more integrity
 }
 
+/**
+ * A single link in the context pipeline hash chain — one artifact (e.g. the
+ * pre-compact survival file, the handoff, the first-task response) fed into
+ * verifyChain() to prove continuity across session-boundary transitions.
+ */
+export interface ChainArtifact {
+  /** Stage label: "compaction_survival" | "handoff" | "session_start" | "first_task" ... */
+  stage: string;
+  /** Original file path (recorded for reporting; not used in hashing). */
+  path: string;
+  /** Raw contents at the time of capture. */
+  contents: string;
+  /** Optional timestamp (epoch ms) — forward-compat, not hashed. */
+  timestamp?: number;
+}
+
+export interface ChainLink {
+  stage: string;
+  path: string;
+  eventHash: string;   // sha256 of (priorHash || contents)
+  priorHash: string;   // "" for the first link
+  lengthBytes: number; // contents.length — surfaces dead artifacts (0-3B)
+  empty: boolean;      // true when lengthBytes === 0 or contents is whitespace-only
+}
+
+export interface ChainVerification {
+  valid: boolean;
+  links: ChainLink[];
+  /** Index of the first empty / zero-byte link, or null. */
+  firstEmptyAt: number | null;
+  /** 0-100 score: 100 − 10·empty − 20·broken; floor 0. */
+  score: number;
+  /** Human-readable summary for the boot block / telemetry. */
+  summary: string;
+}
+
 const STALE_THRESHOLD_CALLS = 30;   // file is "stale" after 30 tool calls
 const STALE_THRESHOLD_MS = 300000;  // or 5 minutes
 
@@ -296,6 +332,67 @@ export class ContextIntegrityEngine {
   }
 
   /**
+   * CPP-MS5-U-CPP34: Verify integrity of the context pipeline transition
+   * chain (compaction-survival → session-start → handoff → first-task …).
+   *
+   * Pure function — takes ordered `artifacts[]` captured by the hooks, walks
+   * them, and computes a SHA-256 hash chain. Each link's `eventHash` is
+   * `sha256(priorHash + contents)`; any downstream tamper or skip will
+   * invalidate every subsequent link.
+   *
+   * Empty / whitespace-only artifacts (the classic "3-byte dead file"
+   * failure from the CPP analysis) are flagged so the pipeline is visibly
+   * non-functional rather than silently empty.
+   *
+   * The engine itself does no I/O — the calling hook is responsible for
+   * reading the files and persisting the returned verification to
+   * `state/shared/PIPELINE_INTEGRITY.json`.
+   *
+   * @param artifacts Ordered list of chain artifacts (one per pipeline stage).
+   * @param hasher Optional DI seam — defaults to node:crypto SHA-256. Tests
+   *   can inject a deterministic fake without requiring node runtime.
+   */
+  verifyChain(
+    artifacts: ChainArtifact[],
+    hasher: (input: string) => string = sha256Hex,
+  ): ChainVerification {
+    const links: ChainLink[] = [];
+    let priorHash = "";
+    let firstEmptyAt: number | null = null;
+
+    for (let i = 0; i < artifacts.length; i++) {
+      const a = artifacts[i];
+      const contents = a.contents ?? "";
+      const lengthBytes = contents.length;
+      const empty = contents.trim().length === 0;
+      if (empty && firstEmptyAt === null) firstEmptyAt = i;
+
+      const eventHash = hasher(priorHash + contents);
+      links.push({
+        stage: a.stage,
+        path: a.path,
+        eventHash,
+        priorHash,
+        lengthBytes,
+        empty,
+      });
+      priorHash = eventHash;
+    }
+
+    const emptyCount = links.filter((l) => l.empty).length;
+    const valid = emptyCount === 0 && links.length > 0;
+    const score = Math.max(0, 100 - emptyCount * 10 - (valid ? 0 : 20));
+
+    const summary = links.length === 0
+      ? "chain empty (no artifacts supplied)"
+      : valid
+        ? `chain OK — ${links.length} links, all populated`
+        : `chain BROKEN — ${emptyCount}/${links.length} artifact(s) empty (first at #${firstEmptyAt}: ${links[firstEmptyAt ?? 0].stage})`;
+
+    return { valid, links, firstEmptyAt, score, summary };
+  }
+
+  /**
    * Reset all tracking state.
    */
   reset(): void {
@@ -313,6 +410,19 @@ export class ContextIntegrityEngine {
   private basename(path: string): string {
     return path.split("/").pop() || path;
   }
+}
+
+/**
+ * CPP-MS5-U-CPP34: Default SHA-256 hasher used by verifyChain(). Kept outside
+ * the class so the engine file stays pure-TypeScript and tests can still
+ * inject a deterministic fake without loading node:crypto.
+ */
+function sha256Hex(input: string): string {
+  // Lazy require so the engine stays portable — verifyChain() supports a DI
+  // override so non-node environments (browser, deno shim) can substitute.
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { createHash } = require("node:crypto") as typeof import("node:crypto");
+  return createHash("sha256").update(input, "utf8").digest("hex");
 }
 
 /** Singleton instance */
