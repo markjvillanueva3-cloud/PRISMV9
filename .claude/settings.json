@@ -56,6 +56,12 @@
             "command": "node H:/prism/.claude/hooks/lib/orphan-detection-hook.mjs",
             "timeout": 2000,
             "continueOnError": true
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/pre-rename-guard.mjs",
+            "timeout": 2000,
+            "continueOnError": false
           }
         ]
       },
@@ -84,6 +90,12 @@
             "type": "command",
             "command": "bash /h/prism/.claude/helpers/completion-gate.sh 2>/dev/null || true",
             "timeout": 8000,
+            "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/pre-delete-guard.mjs",
+            "timeout": 2000,
             "continueOnError": false
           }
         ]
@@ -278,6 +290,12 @@
             "command": "node H:/prism/.claude/helpers/test-quality-gate.mjs",
             "timeout": 3000,
             "continueOnError": false
+          },
+          {
+            "type": "command",
+            "command": "node H:/prism/.claude/hooks/signature-drift-detector.mjs",
+            "timeout": 2000,
+            "continueOnError": true
           }
         ]
       },

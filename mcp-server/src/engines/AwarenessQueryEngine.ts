@@ -1289,6 +1289,274 @@ export class AwarenessQueryEngine {
     }
   }
 
+  // ============================================================================
+  // IMPACT / RENAME / DELETE PROTOCOL (Universal 0.8)
+  // ============================================================================
+
+  /**
+   * Compute blast-radius impact analysis before editing an engine
+   * Returns all dependents that would be affected by changes
+   */
+  async impactAnalysis(engineId: string): Promise<{
+    engineId: string;
+    exists: boolean;
+    dispatchers: string[];
+    actions: string[];
+    skills: string[];
+    hooks: string[];
+    tests: string[];
+    formulas: string[];
+    aliases: string[];
+    totalDependents: number;
+    safeToModify: boolean;
+    warnings: string[];
+  }> {
+    const warnings: string[] = [];
+
+    const engineUsagePath = path.join(this.baseDir, "data", "state", "ENGINE_USAGE_INDEX.json");
+    const aliasPath = path.join(this.baseDir, "data", "state", "ALIAS_TABLE_INDEX.json");
+
+    let dispatchers: string[] = [];
+    let actions: string[] = [];
+    let skills: string[] = [];
+    let hooks: string[] = [];
+    let tests: string[] = [];
+    let formulas: string[] = [];
+    let aliases: string[] = [];
+    let exists = false;
+
+    try {
+      if (fs.existsSync(engineUsagePath)) {
+        const usageIndex = JSON.parse(fs.readFileSync(engineUsagePath, "utf-8")) as EngineUsageIndex;
+        const usage = usageIndex.engines[engineId];
+        if (usage) {
+          exists = true;
+          dispatchers = usage.dispatchers || [];
+          actions = usage.actions || [];
+          skills = usage.skills || [];
+          hooks = usage.hooks || [];
+          tests = usage.tests || [];
+          formulas = usage.formulas || [];
+        }
+      }
+
+      if (fs.existsSync(aliasPath)) {
+        const aliasIndex = JSON.parse(fs.readFileSync(aliasPath, "utf-8")) as AliasTableIndex;
+        aliases = aliasIndex.byCanonical[engineId] || [];
+      }
+    } catch (err) {
+      warnings.push(`Failed to read indexes: ${err}`);
+    }
+
+    const totalDependents = dispatchers.length + actions.length + skills.length + hooks.length;
+    const safeToModify = totalDependents === 0 || (dispatchers.length <= 1 && skills.length === 0);
+
+    if (dispatchers.length > 3) {
+      warnings.push(`High dispatcher coupling: ${dispatchers.length} dispatchers depend on this engine`);
+    }
+    if (skills.length > 0) {
+      warnings.push(`Skill coupling: ${skills.length} skills reference this engine`);
+    }
+    if (aliases.length > 0) {
+      warnings.push(`Alias coupling: ${aliases.length} aliases point to this engine`);
+    }
+
+    return {
+      engineId,
+      exists,
+      dispatchers,
+      actions,
+      skills,
+      hooks,
+      tests,
+      formulas,
+      aliases,
+      totalDependents,
+      safeToModify,
+      warnings,
+    };
+  }
+
+  /**
+   * Generate a rename plan for coordinated multi-file rename
+   * Returns all files that need updating and the specific changes
+   */
+  async renamePlan(oldId: string, newId: string): Promise<{
+    oldId: string;
+    newId: string;
+    valid: boolean;
+    reason?: string;
+    filesToUpdate: Array<{ file: string; type: string; changes: string[] }>;
+    aliasToAdd: { alias: string; canonical: string; reason: string } | null;
+    testFileRename: { from: string; to: string } | null;
+    estimatedChanges: number;
+  }> {
+    if (!oldId || !newId) {
+      return { oldId, newId, valid: false, reason: "Both oldId and newId are required", filesToUpdate: [], aliasToAdd: null, testFileRename: null, estimatedChanges: 0 };
+    }
+
+    if (oldId === newId) {
+      return { oldId, newId, valid: false, reason: "oldId and newId are identical", filesToUpdate: [], aliasToAdd: null, testFileRename: null, estimatedChanges: 0 };
+    }
+
+    const impact = await this.impactAnalysis(oldId);
+    if (!impact.exists) {
+      return { oldId, newId, valid: false, reason: `Engine ${oldId} not found`, filesToUpdate: [], aliasToAdd: null, testFileRename: null, estimatedChanges: 0 };
+    }
+
+    const filesToUpdate: Array<{ file: string; type: string; changes: string[] }> = [];
+
+    for (const dispatcher of impact.dispatchers) {
+      filesToUpdate.push({
+        file: `src/tools/dispatchers/${dispatcher}.ts`,
+        type: "dispatcher",
+        changes: [`Update import: ${oldId} → ${newId}`, `Update engine references`],
+      });
+    }
+
+    for (const skill of impact.skills) {
+      filesToUpdate.push({
+        file: `~/.claude/commands/${skill}.md`,
+        type: "skill",
+        changes: [`Update engine reference: ${oldId} → ${newId}`],
+      });
+    }
+
+    for (const hook of impact.hooks) {
+      filesToUpdate.push({
+        file: `src/hooks/${hook}`,
+        type: "hook",
+        changes: [`Update engine reference: ${oldId} → ${newId}`],
+      });
+    }
+
+    for (const test of impact.tests) {
+      filesToUpdate.push({
+        file: test,
+        type: "test",
+        changes: [`Update import: ${oldId} → ${newId}`, `Update test descriptions`],
+      });
+    }
+
+    filesToUpdate.push({
+      file: `src/engines/${oldId}.ts`,
+      type: "engine",
+      changes: [`Rename file to ${newId}.ts`, `Update class name`, `Update exports`],
+    });
+
+    const aliasToAdd = {
+      alias: oldId,
+      canonical: newId,
+      reason: "renamed",
+    };
+
+    const testFileRename = impact.tests.length > 0 ? {
+      from: `src/__tests__/${oldId}.test.ts`,
+      to: `src/__tests__/${newId}.test.ts`,
+    } : null;
+
+    const estimatedChanges = filesToUpdate.reduce((sum, f) => sum + f.changes.length, 0);
+
+    return {
+      oldId,
+      newId,
+      valid: true,
+      filesToUpdate,
+      aliasToAdd,
+      testFileRename,
+      estimatedChanges,
+    };
+  }
+
+  /**
+   * Generate a delete plan with safety checks
+   * Returns whether deletion is safe and what cleanup is needed
+   */
+  async deletePlan(engineId: string): Promise<{
+    engineId: string;
+    canDelete: boolean;
+    reason?: string;
+    blockingDependents: string[];
+    filesToRemove: string[];
+    registriesToUpdate: string[];
+    archiveActions: string[];
+    warnings: string[];
+  }> {
+    const impact = await this.impactAnalysis(engineId);
+    const warnings: string[] = [];
+
+    if (!impact.exists) {
+      return {
+        engineId,
+        canDelete: false,
+        reason: `Engine ${engineId} not found`,
+        blockingDependents: [],
+        filesToRemove: [],
+        registriesToUpdate: [],
+        archiveActions: [],
+        warnings: [],
+      };
+    }
+
+    const blockingDependents: string[] = [];
+
+    if (impact.dispatchers.length > 0) {
+      blockingDependents.push(...impact.dispatchers.map((d) => `dispatcher:${d}`));
+    }
+    if (impact.skills.length > 0) {
+      blockingDependents.push(...impact.skills.map((s) => `skill:${s}`));
+    }
+    if (impact.hooks.length > 0) {
+      blockingDependents.push(...impact.hooks.map((h) => `hook:${h}`));
+    }
+
+    const canDelete = blockingDependents.length === 0;
+
+    if (!canDelete) {
+      return {
+        engineId,
+        canDelete: false,
+        reason: `${blockingDependents.length} dependents still reference this engine`,
+        blockingDependents,
+        filesToRemove: [],
+        registriesToUpdate: [],
+        archiveActions: [],
+        warnings: [`Remove all dependents before deleting`],
+      };
+    }
+
+    const filesToRemove = [
+      `src/engines/${engineId}.ts`,
+      ...impact.tests,
+    ];
+
+    const registriesToUpdate = [
+      "data/state/cross-session-asset-registry.json",
+      "data/state/ENGINE_USAGE_INDEX.json",
+      "data/state/SIGNATURE_HASH_INDEX.json",
+    ];
+
+    if (impact.aliases.length > 0) {
+      registriesToUpdate.push("data/state/ALIAS_TABLE_INDEX.json");
+      warnings.push(`${impact.aliases.length} aliases will become orphaned: ${impact.aliases.join(", ")}`);
+    }
+
+    const archiveActions = [
+      `Archive engine metadata to extraction-log.json`,
+      `Mark as deleted in cross-session-asset-registry.json`,
+    ];
+
+    return {
+      engineId,
+      canDelete: true,
+      blockingDependents: [],
+      filesToRemove,
+      registriesToUpdate,
+      archiveActions,
+      warnings,
+    };
+  }
+
   /**
    * Get last invocation timestamp for an asset
    * O(n) where n = invocation records (capped at MAX_INVOCATION_RECORDS)
