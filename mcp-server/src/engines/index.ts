@@ -3218,6 +3218,7 @@ export { latheJobSchedulingEngine } from "./LatheJobSchedulingEngine.js";
 export { latheCustomerOrderLifecycleEngine } from "./LatheCustomerOrderLifecycleEngine.js";
 export { lathePurchaseOrderAutomationEngine } from "./LathePurchaseOrderAutomationEngine.js";
 export { latheInventoryIntelligenceEngine } from "./LatheInventoryIntelligenceEngine.js";
+export { latheCapacityPlanningEngine } from "./LatheCapacityPlanningEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
