@@ -65,6 +65,7 @@ import { wedmSVIHooks } from "./WEDMSVIHooks.js";
 import { wedmPerceptionHooks } from "./WEDMPerceptionHooks.js";
 import { wedmLearningHooks } from "./WEDMLearningHooks.js";
 import { wedmCoordinationHooks } from "./WEDMCoordinationHooks.js";
+import { machineValidationHooks } from "./MachineValidationHooks.js";
 
 // ============================================================================
 // RE-EXPORT INDIVIDUAL HOOKS
@@ -96,6 +97,7 @@ export * from "./ResourceWatcherHook.js";
 export * from "./KnowledgeHooks.js";
 export * from "./WEDMPerceptionHooks.js";
 export * from "./WEDMLearningHooks.js";
+export * from "./MachineValidationHooks.js";
 
 // ============================================================================
 // COMBINED EXPORTS
@@ -131,6 +133,7 @@ export const allHooks = [
   ...wedmPerceptionHooks,           // WEDM-AGI P1-MS1: sensor anomaly + twin sync
   ...wedmLearningHooks,             // WEDM-AGI P3-MS1: learning trigger + drift alert
   ...wedmCoordinationHooks,         // MS-P0.5-COORD U-01: awareness coverage gate
+  ...machineValidationHooks,        // MCAT-MS0/U-MCAT08: 5 machine safety hooks
 ];
 
 /**
@@ -162,6 +165,7 @@ export const hookCounts = {
   wedmSVI: wedmSVIHooks.length,                              // PP-0.10
   wedmPerception: wedmPerceptionHooks.length,                // WEDM-AGI P1-MS1
   wedmLearning: wedmLearningHooks.length,                    // WEDM-AGI P3-MS1
+  machineValidation: machineValidationHooks.length,          // MCAT-MS0/U-MCAT08
   total: 0 // Computed below
 };
 
@@ -189,6 +193,7 @@ export const hooksByCategory = {
   specialtyManufacturing: specialtyManufacturingHooks,
   specialtyCadence: specialtyCadences,
   forgeTriple: forgeTripleHooks,
+  machineValidation: machineValidationHooks,
 };
 
 // ============================================================================
