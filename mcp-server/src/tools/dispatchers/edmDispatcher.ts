@@ -285,6 +285,8 @@ const ACTIONS = [
 
   // U-WGAP09: Pre-flight safety checklist
   "wedm_preflight_check",
+  // U-WGAP03/04: Wire break recovery planning
+  "wedm_plan_break_recovery",
 
   // WEDM-CAL-MS4 U-CAL21: Production readiness scoring
   "wedm_production_readiness",
@@ -1803,6 +1805,20 @@ Actions: ${ACTIONS.join(", ")}.`,
               estimated_time_min: params.estimated_time_min,
               is_unattended: params.is_unattended,
             });
+            break;
+          }
+
+          // =================================================================
+          // U-WGAP03/04: Wire break recovery planning
+          // =================================================================
+          case "wedm_plan_break_recovery": {
+            const { edmCuttingParamFlushEngine } = await import("../../engines/EDMCuttingParamFlushEngine.js");
+            result = edmCuttingParamFlushEngine.calculateBreakRecovery(
+              Number(params.break_position_mm ?? 0),
+              Number(params.pass_number ?? 1),
+              String(params.material ?? "steel"),
+              params.base_power !== undefined ? Number(params.base_power) : undefined,
+            );
             break;
           }
 
