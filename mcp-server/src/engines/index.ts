@@ -3221,6 +3221,7 @@ export { latheInventoryIntelligenceEngine } from "./LatheInventoryIntelligenceEn
 export { latheCapacityPlanningEngine } from "./LatheCapacityPlanningEngine.js";
 export { latheProductionQualityTrackingEngine } from "./LatheProductionQualityTrackingEngine.js";
 export { latheDeliveryPerformanceEngine } from "./LatheDeliveryPerformanceEngine.js";
+export { latheFinancialReportingEngine } from "./LatheFinancialReportingEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
