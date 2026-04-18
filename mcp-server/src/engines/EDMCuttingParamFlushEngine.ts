@@ -716,7 +716,7 @@ class EDMCuttingParamFlushEngine {
 
     // Crater geometry (DiBitonto model, simplified)
     // d_c = K1 × E^(1/3), E in mJ → d_c in μm
-    const K1 = 4.8; // empirical constant for metallic workpiece
+    const K1 = EDM_PHYSICS.dibitonto.K1_um_per_mJ_third;
     const craterDiam_um = K1 * Math.pow(E_mj, 1 / 3);
 
     // Crater depth: h_c = K2 × E^(1/3) / sqrt(k), k in W/mK
