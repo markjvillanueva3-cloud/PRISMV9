@@ -405,6 +405,121 @@ function generateMakinoHyperiCode(
 }
 
 // ============================================================================
+// AGIECHARMILLES ISPG/IPG CODE GENERATOR (U-W100-35)
+// ============================================================================
+// AgieCharmilles uses ISPG (Intelligent Spark Generator) for rough and
+// IPG (Intelligent Power Generator) for finish passes.
+// Format: ISPG{material_group}{power_level} or IPG{finish_level}
+// Reference: GF AgieCharmilles CUT Series Programming Manual
+
+const AGIE_MATERIAL_CODES: Record<string, string> = {
+  steel: "ST", tool_steel: "ST", d2: "ST", h13: "ST", s7: "ST", a2: "ST", p20: "ST",
+  stainless: "SS", "304": "SS", "316": "SS", "304ss": "SS", "316ss": "SS",
+  carbide: "WC", wc: "WC", tungsten_carbide: "WC", tungsten: "WC",
+  copper: "CU", brass: "CU",
+  aluminum: "AL", "6061": "AL", "7075": "AL",
+  titanium: "TI", ti64: "TI", inconel: "NI",
+};
+
+function getAgiePowerLevel(thickness_mm: number, passType: "rough" | "semi" | "finish" | "super"): number {
+  // Power level 1-9, higher = more power
+  const baseLevel = passType === "rough" ? 7 : passType === "semi" ? 4 : passType === "finish" ? 2 : 1;
+  // Thicker material needs more power
+  if (thickness_mm > 80) return Math.min(9, baseLevel + 2);
+  if (thickness_mm > 40) return Math.min(9, baseLevel + 1);
+  return baseLevel;
+}
+
+/**
+ * Generate AgieCharmilles ISPG/IPG code from material, thickness, and pass type.
+ * Returns "ISPG{material}{power}" for rough or "IPG{finish_level}" for finish.
+ */
+function generateAgieIspgCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = AGIE_MATERIAL_CODES[matKey] ?? "ST";
+  const powerLevel = getAgiePowerLevel(thickness_mm, passType);
+
+  if (passType === "rough") {
+    return `ISPG-${matCode}-${powerLevel}`;
+  } else {
+    // IPG for finish passes — level 1-4 (super, fine, standard, fast)
+    const ipgLevel = passType === "super" ? 1 : passType === "finish" ? 2 : 3;
+    return `IPG-${ipgLevel}`;
+  }
+}
+
+// ============================================================================
+// FANUC TECHNOLOGY REGISTER MAPPER (U-W100-35)
+// ============================================================================
+// Fanuc uses technology registers (E-pack) with specific numbering:
+// E{material}{thickness_band}{quality}{pass_number}
+// Also implements G61.1/G64 corner control
+// Reference: Fanuc Alpha-iC Programming Manual Ch.12
+
+const FANUC_MATERIAL_CODES: Record<string, number> = {
+  steel: 1, tool_steel: 1, d2: 1, h13: 1, s7: 1, a2: 1, p20: 1,
+  stainless: 2, "304": 2, "316": 2, "304ss": 2, "316ss": 2,
+  carbide: 3, wc: 3, tungsten_carbide: 3, tungsten: 3,
+  copper: 4, brass: 4,
+  aluminum: 5, "6061": 5, "7075": 5,
+  titanium: 6, ti64: 6, inconel: 7,
+};
+
+function getFanucThicknessBand(thickness_mm: number): number {
+  if (thickness_mm < 15) return 1;
+  if (thickness_mm < 30) return 2;
+  if (thickness_mm < 50) return 3;
+  if (thickness_mm < 80) return 4;
+  if (thickness_mm < 120) return 5;
+  return 6;
+}
+
+function getFanucQualityCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 1;
+    case "semi": return 2;
+    case "finish": return 3;
+    case "super": return 4;
+    default: return 1;
+  }
+}
+
+/**
+ * Generate Fanuc technology register (E-pack) code from material, thickness, and pass.
+ * Returns "E{material}{thickness}{quality}{pass}" e.g., "E1231" for steel 15-30mm finish pass 1.
+ */
+function generateFanucEpackCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super",
+  passNumber: number
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = FANUC_MATERIAL_CODES[matKey] ?? 1;
+  const thickBand = getFanucThicknessBand(thickness_mm);
+  const qualCode = getFanucQualityCode(passType);
+  return `E${matCode}${thickBand}${qualCode}${Math.min(9, passNumber)}`;
+}
+
+/**
+ * Get Fanuc corner control code based on pass type and strategy.
+ * G61.1 = exact stop (sharp corners), G64 = continuous path (smooth)
+ */
+function getFanucCornerCode(
+  passType: "rough" | "semi" | "finish" | "super",
+  strategy?: string
+): string {
+  if (strategy === "exact_stop") return "G61.1";
+  if (strategy === "continuous") return "G64";
+  // Default: exact for finish, continuous for rough
+  return passType === "finish" || passType === "super" ? "G61.1" : "G64";
+}
+
+// ============================================================================
 // WIRE BREAK RECOVERY HELPERS (U-W100-31)
 // ============================================================================
 
@@ -1557,13 +1672,27 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number}: ${passType} - OFFSET ${pass.offset_mm}mm`)}`);
       lineNum += 10;
 
-      // E-pack technology table selection (Fanuc-specific)
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK: ${pass.technology_table}`)}`);
+      // U-W100-35: Fanuc E-pack technology register from material + thickness
+      const fanucPassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const epackCode = generateFanucEpackCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        fanucPassType,
+        pass.pass_number
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK: ${epackCode} (${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm)`)}`);
       lineNum += 10;
 
       // Technology parameters
-      lines.push(`${buildLineNumber(cfg, lineNum)} E${pass.technology_table} ${buildComment(cfg, "TECHNOLOGY TABLE SELECT")}`);
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${epackCode} ${buildComment(cfg, "TECHNOLOGY REGISTER SELECT")}`);
       lineNum += 10;
+      // Legacy reference
+      if (pass.technology_table && pass.technology_table !== epackCode) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `ORIG REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       // Wire speed and tension
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `WIRE SPEED: ${pass.wire_speed_m_min}m/min, TENSION: ${pass.tension_N}N`)}`);
@@ -1577,11 +1706,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
         lineNum += 10;
       }
 
-      // Corner strategy (Fanuc: G61.1 exact stop, G64 continuous)
-      const cornerCode = pass.corner_strategy === "exact_stop" ? cfg.corner_exact
-        : pass.corner_strategy === "continuous" ? cfg.corner_continuous
-        : isRough ? cfg.corner_continuous : cfg.corner_exact;
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${cornerCode} ${buildComment(cfg, cornerCode === cfg.corner_exact ? "EXACT STOP MODE" : "CONTINUOUS PATH")}`);
+      // U-W100-35: Fanuc G61.1/G64 corner control based on pass type
+      const cornerCode = getFanucCornerCode(fanucPassType, pass.corner_strategy);
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${cornerCode} ${buildComment(cfg, cornerCode === "G61.1" ? "EXACT STOP MODE" : "CONTINUOUS PATH")}`);
       lineNum += 10;
 
       // Taper mode — UV offsets computed per contour point (not G51 which is scaling)
@@ -2753,8 +2880,22 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number} - ${passType}`)}`);
       lineNum += 10;
 
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `TECH: ${pass.technology_table} - ${isRough ? "ISPG ROUGH" : "IPG FINISH"}`)}`);
+      // U-W100-35: AgieCharmilles ISPG/IPG technology code
+      const agiePassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const ispgCode = generateAgieIspgCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        agiePassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `${ispgCode} - ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm`)}`);
       lineNum += 10;
+      // Legacy E-pack reference
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       if (passIdx === 0 || pi > 0) {
         lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.rapid_code} X${formatCoord(profile.start_hole.x, dp, cs)} Y${formatCoord(profile.start_hole.y, dp, cs)}`);
@@ -3112,6 +3253,14 @@ export class EDMPostProcessGCodeEngine {
    */
   generate_makino(input: Omit<EDMGCodeInput, "controller">): EDMGCodeResult {
     return generateMakinoGCode({ ...input, controller: "makino" });
+  }
+
+  /**
+   * Generate AgieCharmilles CUT series wire EDM G-code directly.
+   * ISPG/IPG technology, ACO, TAPER-EXPERT, M50 threading.
+   */
+  generate_agiecharmilles(input: Omit<EDMGCodeInput, "controller">): EDMGCodeResult {
+    return generateAgieCharmillesGCode({ ...input, controller: "agiecharmilles" });
   }
 
   /**
