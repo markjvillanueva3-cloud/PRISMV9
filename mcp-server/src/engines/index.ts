@@ -7083,3 +7083,13 @@ export {
   type EnsemblePrediction,
   type SelectorConfig,
 } from './EnsembleModelSelectorEngine.js';
+
+export {
+  TransferLearningAdapterEngine,
+  transferLearningAdapterEngine,
+  type DomainDescriptor,
+  type TransferTask,
+  type AdaptationResult,
+  type FeatureAlignment,
+  type AdapterConfig,
+} from './TransferLearningAdapterEngine.js';
