@@ -2442,6 +2442,7 @@ export { bSplineEngine } from "./BSplineEngine.js";
 export { backplotEngine } from "./BackplotEngine.js";
 export { batchOptimizationEngine, BatchOptimizationEngine } from "./BatchOptimizationEngine.js";
 export { bayesianOptimizationEngine } from "./BayesianOptimizationEngine.js";
+export { bayesianSafetyEngine, BayesianSafetyEngine } from "./BayesianSafetyEngine.js";
 export { bloomDedupEngine, BloomDedupEngine, AssetBloomFilters, assetBloomFilters } from "./BloomDedupEngine.js";
 export { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
 export { bvhEngine } from "./BVHEngine.js";
@@ -2779,6 +2780,7 @@ export { toolCallBatchEngine, ToolCallBatchEngine } from "./ToolCallBatchEngine.
 export { stopConditionEngine, StopConditionEngine } from "./StopConditionEngine.js";
 
 // Hook Efficiency — hook token savings tracker and ROI metrics
+export { hookControllerEngine, HookControllerEngine } from "./HookControllerEngine.js";
 export { hookEfficiencyEngine, HookEfficiencyEngine } from "./HookEfficiencyEngine.js";
 
 // Context Snapshot — minimal session state snapshots for handoffs
