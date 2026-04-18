@@ -6675,6 +6675,15 @@ export {
   type AuditStats,
 } from './MachineAuditEngine.js';
 
+// ===== MCAT-MS0/U-MCAT12: Machine-Aware Speed/Feed =====
+export {
+  machineAwareSpeedFeedEngine,
+  MachineAwareSpeedFeedEngine,
+  type SpeedFeedInput,
+  type MachineConstraints,
+  type ConstrainedSpeedFeed,
+} from './MachineAwareSpeedFeedEngine.js';
+
 // ===== L2-P4-MS1/P0-U02: ERP Bridge Engines =====
 export {
   ERPImportEngine,
