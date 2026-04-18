@@ -3482,6 +3482,7 @@ export { AdaptiveFeedControlEngine, adaptiveFeedControlEngine } from "./Adaptive
 export { AdaptiveSpindleControlEngine, adaptiveSpindleControlEngine } from "./AdaptiveSpindleControlEngine.js";
 export { BayesianAdaptiveEngine, bayesianAdaptiveEngine } from "./BayesianAdaptiveEngine.js";
 export { ToolLifeAdaptiveEngine, toolLifeAdaptiveEngine } from "./ToolLifeAdaptiveEngine.js";
+export { ToolLifeGnnEngine, toolLifeGnnEngine } from "./ToolLifeGnnEngine.js";
 export { DigitalTwinSyncEngine, digitalTwinSyncEngine } from "./DigitalTwinSyncEngine.js";
 
 // SCI-MS2 — Validation Framework
