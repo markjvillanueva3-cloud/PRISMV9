@@ -655,7 +655,7 @@ describe("Edge Cases", () => {
     expect(result.html.length).toBeGreaterThan(100);
   });
 
-  it("GF-47: G-code safety header does not appear in non-Mitsubishi posts", async () => {
+  it("GF-47: G-code safety header appears in all controllers (U-WGAP10)", async () => {
     const mod = await import("../engines/EDMPostProcessGCodeEngine.js");
     const engine = mod.edmPostProcessGCodeEngine;
     const result = engine.generate_gcode({
@@ -669,8 +669,8 @@ describe("Edge Cases", () => {
       passes: [{ pass_number: 1, offset_mm: 0.15, technology_table: "E1221", wire_speed_m_min: 10, tension_N: 15 }],
       wire_type: "brass_0.25",
     });
-    // Fanuc doesn't have the Mitsubishi-specific safety header (M78/M84)
-    expect(result.gcode).not.toContain("PRE-CUT SAFETY CHECKLIST");
+    // U-WGAP10: all controllers emit the PRE-CUT SAFETY CHECKLIST via emitSafetyHeader().
+    expect(result.gcode).toContain("PRE-CUT SAFETY CHECKLIST");
   });
 
   it("GF-48: empty IGES content returns error", async () => {
