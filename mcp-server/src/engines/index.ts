@@ -2522,6 +2522,7 @@ export { parametricSurfaceEngine } from "./ParametricSurfaceEngine.js";
 export { parametricPartLibraryEngine } from "./ParametricPartLibraryEngine.js";
 export { particleSwarmOptimizationEngine } from "./ParticleSwarmOptimizationEngine.js";
 export { passivationEngine, PassivationEngine } from "./PassivationEngine.js";
+export { pageRankEngine, PageRankEngine } from "./PageRankEngine.js";
 export { platingAllowanceEngine, PlatingAllowanceEngine } from "./PlatingAllowanceEngine.js";
 export { pluginEngine, PluginEngine } from "./PluginEngine.js";
 export { probeRoutineEngine, ProbeRoutineEngine } from "./ProbeRoutineEngine.js";
