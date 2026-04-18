@@ -90,6 +90,8 @@ export interface EDMGCodeInput {
   guide_distance_mm?: number;
   /** Machine UV axis travel limit in mm (default 75). Used for overtravel validation. */
   uv_travel_limit_mm?: number;
+  /** U-WGAP10: Workpiece material name; used for safety-header material-specific cautions. */
+  material?: string;
 }
 
 /**
@@ -1073,6 +1075,50 @@ function buildLineNumber(cfg: ControllerPostConfig, lineNum: number): string {
   return `${cfg.line_number_prefix}${lineNum}`;
 }
 
+/**
+ * U-WGAP10: Emit a controller-agnostic pre-cut safety checklist as comment lines.
+ * Inserted in the program header, before any tank-fill/power-on M-codes.
+ * Material-specific cautions:
+ *   - carbide   → recommend coated wire, verify guide contacts
+ *   - titanium  → alpha-case + fire risk, fire suppression armed
+ *   - aluminum  → low melting point, reduced flush
+ *   - coated wire → guide-contact cleanliness
+ */
+function emitSafetyHeader(cfg: ControllerPostConfig, input: EDMGCodeInput): string[] {
+  const out: string[] = [];
+  const mat = (input.material ?? "").toLowerCase();
+  const wire = (input.wire_type ?? "").toLowerCase();
+
+  out.push(buildComment(cfg, "=== PRE-CUT SAFETY CHECKLIST ==="));
+  out.push(buildComment(cfg, "[ ] E-STOP tested and functional"));
+  out.push(buildComment(cfg, "[ ] Tank interlocks engaged"));
+  out.push(buildComment(cfg, "[ ] Dielectric level verified"));
+  out.push(buildComment(cfg, "[ ] Fire suppression ARMED"));
+  out.push(buildComment(cfg, `[ ] Wire loaded: ${input.wire_type ?? "brass_0.25"}`));
+  if (input.submerged !== false) {
+    out.push(buildComment(cfg, "[ ] Tank fill valve in AUTO position"));
+  }
+
+  // Material-specific cautions
+  if (/carbide|tungsten/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Carbide — coated wire recommended (zinc/brass-zinc)"));
+    out.push(buildComment(cfg, "CAUTION: Carbide — cobalt binder re-ignition hard; verify flush"));
+  }
+  if (/titanium|ti-|ti6|inconel/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Titanium/Ni-alloy — alpha case + fire risk"));
+    out.push(buildComment(cfg, "CAUTION: Verify fire suppression and dielectric flow before start"));
+  }
+  if (/aluminum|aluminium|al-|6061|7075/.test(mat)) {
+    out.push(buildComment(cfg, "CAUTION: Aluminum — low melting point; reduce flush pressure"));
+  }
+  if (/coated|zinc|moly/.test(wire)) {
+    out.push(buildComment(cfg, "NOTE: Coated wire in use — verify guide contacts are clean"));
+  }
+
+  out.push(buildComment(cfg, "================================="));
+  return out;
+}
+
 /** Move point for approach/departure/contour with optional arc data. */
 interface MovePoint {
   x: number;
@@ -1394,6 +1440,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `DATE: ${new Date().toISOString().slice(0, 10)}`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Machine setup — G40 cancels any residual compensation from prior program
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 G80 ${buildComment(cfg, "CANCEL COMP + CANNED CYCLE")}`);
   lineNum += 10;
@@ -1406,6 +1455,9 @@ function generateFanucGCode(input: EDMGCodeInput): EDMGCodeResult {
 
   // Submerged dielectric setup
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
     if (input.flush_pressure_bar) {
@@ -1674,6 +1726,9 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PROFILES: ${input.profiles.length}, PASSES: ${input.passes.length}`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Sodick machine setup — G40 cancels residual comp, SF-Liner servo system
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -1688,6 +1743,9 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
 
   // Submerged mode
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M14 ${buildComment(cfg, "FILL DIELECTRIC TANK")}`);
     lineNum += 10;
   }
@@ -1926,6 +1984,9 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `HYPERCUT FINISH TECHNOLOGY`)}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // Makino setup — G40 cancel residual comp, HyperCut and anti-electrolysis
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -1944,11 +2005,17 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
   if (needsAntiElec) {
     lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "ANTI-ELECTROLYSIS MODE ENABLED")}`);
     lineNum += 10;
+    // U-WGAP10: Safety verification before anti-electrolysis power-on
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Wire path clear, workpiece clamped, door closed")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M80 ${buildComment(cfg, "ANTI-ELECTROLYSIS ON")}`);
     lineNum += 10;
   }
 
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
   }
@@ -2201,21 +2268,8 @@ function generateMitsubishiGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(buildComment(cfg, new Date().toISOString().slice(0, 10)));
   lines.push("");
 
-  // U-WGAP10: Pre-cut safety checklist summary in header comments
-  lines.push(buildComment(cfg, "=== PRE-CUT SAFETY CHECKLIST ==="));
-  lines.push(buildComment(cfg, "[ ] E-STOP tested and functional"));
-  lines.push(buildComment(cfg, "[ ] Tank interlocks engaged"));
-  lines.push(buildComment(cfg, "[ ] Dielectric level verified"));
-  lines.push(buildComment(cfg, "[ ] Fire suppression ARMED"));
-  lines.push(buildComment(cfg, `[ ] Wire loaded: ${input.wire_type ?? "brass_0.25"}`));
-  if (input.submerged !== false) {
-    lines.push(buildComment(cfg, "[ ] Tank fill valve in AUTO position"));
-  }
-  // Wire-type safety hints
-  if (/coated|zinc|moly/i.test(input.wire_type ?? "")) {
-    lines.push(buildComment(cfg, "NOTE: Coated wire in use — verify guide contacts are clean"));
-  }
-  lines.push(buildComment(cfg, "================================="));
+  // U-WGAP10: Pre-cut safety checklist (unified helper — includes material cautions)
+  lines.push(...emitSafetyHeader(cfg, input));
   lines.push("");
 
   // U-W100-15: Detect taper mode — any profile with taper_angle_deg > 0
@@ -2547,6 +2601,9 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
   lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "ISPG/IPG GENERATOR TECHNOLOGY")}`);
   lineNum += 10;
 
+  // U-WGAP10: Pre-cut safety checklist
+  lines.push(...emitSafetyHeader(cfg, input));
+
   // AgieCharmilles setup — G40 cancel residual comp, ACO
   lines.push(`${buildLineNumber(cfg, lineNum)} G40 ${buildComment(cfg, "CANCEL RESIDUAL COMP")}`);
   lineNum += 10;
@@ -2565,6 +2622,9 @@ function generateAgieCharmillesGCode(input: EDMGCodeInput): EDMGCodeResult {
   }
 
   if (input.submerged) {
+    // U-WGAP10: Safety verification before tank fill
+    lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "VERIFY: Tank valve AUTO, dielectric level OK, interlocks engaged")}`);
+    lineNum += 10;
     lines.push(`${buildLineNumber(cfg, lineNum)} M28 ${buildComment(cfg, "FILL TANK")}`);
     lineNum += 10;
   }
