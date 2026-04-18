@@ -23,8 +23,8 @@ import { prismIntelligence, type AIReasoningResult } from "./PRISMIntelligenceLa
 // CONSTANTS
 // ============================================================================
 
-const STATE_FILE = "H:/prism/mcp-server/data/state/wedm-reservations.json";
-const STATE_DIR  = "H:/prism/mcp-server/data/state";
+const STATE_FILE = "data/state/wedm-reservations.json";
+const STATE_DIR  = "data/state";
 
 const DEFAULT_MACHINE_ID   = "mitsubishi-fa10s";
 const DEFAULT_MACHINE_NAME = "Mitsubishi FA-10S";
