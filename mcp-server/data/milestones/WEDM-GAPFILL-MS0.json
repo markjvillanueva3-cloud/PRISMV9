@@ -1,6 +1,6 @@
-﻿{
+{
     "id":  "WEDM-GAPFILL-MS0",
-    "title":  "Wire EDM Gap Fill â€” 91â†’100 Production Hardening",
+    "title":  "Wire EDM Gap Fill — 91→100 Production Hardening",
     "track":  "WEDM-GAPFILL",
     "version":  "1.0.0",
     "created_at":  "2026-04-11",
@@ -15,7 +15,7 @@
                          "source":  "10-role scrutiny audit (2026-04-11)",
                          "starting_score":  91,
                          "target_score":  98,
-                         "note":  "100 requires machine I/O integration (electrical safety) and scheduling infrastructure â€” those are INFRA-MS0 dependencies, not WEDM scope",
+                         "note":  "100 requires machine I/O integration (electrical safety) and scheduling infrastructure — those are INFRA-MS0 dependencies, not WEDM scope",
                          "gaps":  [
                                       {
                                           "id":  "GAP-1",
@@ -60,7 +60,7 @@
                                                         "EDMFeasibilityEngine.ts",
                                                         "CapacityPlanningEngine.ts"
                                                     ],
-                                          "note":  "Partially blocked by INFRA â€” but basic queue awareness can be added"
+                                          "note":  "Partially blocked by INFRA — but basic queue awareness can be added"
                                       },
                                       {
                                           "id":  "GAP-4",
@@ -141,7 +141,7 @@
                                      {
                                          "id":  "U-WGAP03",
                                          "title":  "Wire break recovery: backup distance calculation",
-                                         "description":  "New function calculateBreakRecovery(breakPosition, passNumber, material) â†’ {backup_mm, retry_count, reduced_params}. Based on tribal knowledge tip wedm-kb-003 (2mm behind break) with material-specific adjustments.",
+                                         "description":  "New function calculateBreakRecovery(breakPosition, passNumber, material) → {backup_mm, retry_count, reduced_params}. Based on tribal knowledge tip wedm-kb-003 (2mm behind break) with material-specific adjustments.",
                                          "depends_on":  [
 
                                                         ],
@@ -188,7 +188,7 @@
                                      {
                                          "id":  "U-WGAP05",
                                          "title":  "WEDM machine queue awareness",
-                                         "description":  "Wire CapacityPlanningEngine\u0027s machine_availability check into EDMFeasibilityEngine. When checking delivery feasibility, query machine queue for estimated available slot. Not full scheduling â€” just \u0027machine busy until X, your job takes Y hours\u0027.",
+                                         "description":  "Wire CapacityPlanningEngine\u0027s machine_availability check into EDMFeasibilityEngine. When checking delivery feasibility, query machine queue for estimated available slot. Not full scheduling — just \u0027machine busy until X, your job takes Y hours\u0027.",
                                          "depends_on":  [
 
                                                         ],
@@ -229,7 +229,7 @@
                                      },
                                      {
                                          "id":  "U-WGAP07",
-                                         "title":  "STEP file import â†’ WEDM contour extraction",
+                                         "title":  "STEP file import → WEDM contour extraction",
                                          "description":  "Wire StepImportEngine output into WEDMPrintToProgramEngine. Route /photo-to-program and /gcode-export-from-dxf accept step_content parameter. Extract 2D profiles from 3D STEP solid for wire EDM path planning.",
                                          "depends_on":  [
 
@@ -250,7 +250,7 @@
                                      },
                                      {
                                          "id":  "U-WGAP08",
-                                         "title":  "IGES file import â†’ WEDM contour extraction",
+                                         "title":  "IGES file import → WEDM contour extraction",
                                          "description":  "Same as U-WGAP07 but for IGES files. Wire IGESImportEngine output into P2P pipeline.",
                                          "depends_on":  [
                                                             "U-WGAP07"
@@ -275,7 +275,7 @@
                                      {
                                          "id":  "U-WGAP09",
                                          "title":  "Pre-flight safety checklist engine",
-                                         "description":  "New pre-flight checklist that the operator must acknowledge before the machine runs a PRISM-generated program. Checklist items are dynamic based on job parameters (thickness, material, taper, submerged mode). Not machine I/O â€” human verification gate.",
+                                         "description":  "New pre-flight checklist that the operator must acknowledge before the machine runs a PRISM-generated program. Checklist items are dynamic based on job parameters (thickness, material, taper, submerged mode). Not machine I/O — human verification gate.",
                                          "depends_on":  [
 
                                                         ],
@@ -298,7 +298,7 @@
                                      {
                                          "id":  "U-WGAP10",
                                          "title":  "Safety interlock simulation in G-code comments",
-                                         "description":  "Add safety verification comments to generated G-code. Before M84 (power on), emit comment block reminding operator to verify interlocks. Before M78 (tank fill), verify tank valve position. These are comments, not M-codes â€” controller ignores them but operator sees them on screen.",
+                                         "description":  "Add safety verification comments to generated G-code. Before M84 (power on), emit comment block reminding operator to verify interlocks. Before M78 (tank fill), verify tank valve position. These are comments, not M-codes — controller ignores them but operator sees them on screen.",
                                          "depends_on":  [
                                                             "U-WGAP09"
                                                         ],
@@ -307,7 +307,7 @@
                                                             ],
                                          "exit_criteria":  [
                                                                "Safety verification comments before M84, M78, M20",
-                                                               "Material-specific caution comments (carbide â†’ wire type, titanium â†’ alpha case)",
+                                                               "Material-specific caution comments (carbide → wire type, titanium → alpha case)",
                                                                "Pre-cut checklist summary in program header comments"
                                                            ]
                                      },
@@ -337,23 +337,23 @@
                    }
                ],
     "forge_triple":  {
-                         "protective_hook":  "wedm-production-gate â€” blocks program download if pre-flight checklist not acknowledged",
+                         "protective_hook":  "wedm-production-gate — blocks program download if pre-flight checklist not acknowledged",
                          "mcp_actions":  [
-                                             "wedm_preflight_check â€” generates pre-flight safety checklist",
-                                             "wedm_plan_break_recovery â€” calculates wire break recovery parameters",
-                                             "wedm_reserve_machine â€” books machine time slot",
-                                             "wedm_check_availability â€” queries machine queue"
+                                             "wedm_preflight_check — generates pre-flight safety checklist",
+                                             "wedm_plan_break_recovery — calculates wire break recovery parameters",
+                                             "wedm_reserve_machine — books machine time slot",
+                                             "wedm_check_availability — queries machine queue"
                                          ],
                          "skills":  [
-                                        "/wedm-preflight â€” run pre-flight check before cutting",
-                                        "/wedm-quote-photo â€” photo-to-quote shortcut (already implemented)"
+                                        "/wedm-preflight — run pre-flight check before cutting",
+                                        "/wedm-quote-photo — photo-to-quote shortcut (already implemented)"
                                     ]
                      },
     "score_projection":  {
-                             "after_P1":  "+4 pts (imperial + wire break recovery) â†’ 95/100",
-                             "after_P2":  "+3.5 pts (scheduling + STEP/IGES) â†’ 98.5/100",
-                             "after_P3":  "+1.5 pts (safety hardening) â†’ ~98/100",
-                             "theoretical_max":  "98/100 â€” remaining 2 pts require machine I/O integration (INFRA dependency)",
+                             "after_P1":  "+4 pts (imperial + wire break recovery) → 95/100",
+                             "after_P2":  "+3.5 pts (scheduling + STEP/IGES) → 98.5/100",
+                             "after_P3":  "+1.5 pts (safety hardening) → ~98/100",
+                             "theoretical_max":  "98/100 — remaining 2 pts require machine I/O integration (INFRA dependency)",
                              "roles_at_9_plus":  "All 10 roles at 9.0+ after P3"
                          },
     "risks":  [
