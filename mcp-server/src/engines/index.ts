@@ -3231,6 +3231,7 @@ export { latheFormalProofEngine } from "./LatheFormalProofEngine.js";
 export { latheDenotationalSemanticsEngine, INITIAL_STATE } from "./LatheDenotationalSemanticsEngine.js";
 export { latheTemporalPropertyCheckerEngine } from "./LatheTemporalPropertyCheckerEngine.js";
 export { latheProofCacheEngine } from "./LatheProofCacheEngine.js";
+export { latheLoRADatasetBuilderEngine } from "./LatheLoRADatasetBuilderEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
