@@ -3199,6 +3199,7 @@ export { latheMasterPostUnifiedOutputEngine } from "./LatheMasterPostUnifiedOutp
 export { latheMasterPostSelfAwarenessEngine } from "./LatheMasterPostSelfAwarenessEngine.js";
 export { latheMasterPostDeepReasoningEngine } from "./LatheMasterPostDeepReasoningEngine.js";
 export { latheMasterPostEnsembleCrossCheckEngine } from "./LatheMasterPostEnsembleCrossCheckEngine.js";
+export { latheMasterPostAPIEngine, LATHE_MASTERPOST_ACTIONS } from "./LatheMasterPostAPIEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
