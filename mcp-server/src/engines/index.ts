@@ -2586,6 +2586,7 @@ export { novelToolpathEngine, computeNovelToolpath, listNovelAlgorithms, NOVEL_A
 export { novelToolpathSimulatorEngine } from "./NovelToolpathSimulatorEngine.js";
 export { collisionIntegrationEngine } from "./CollisionIntegrationEngine.js";
 export { surfaceFinishPredictorEngine, SurfaceFinishPredictorEngine } from "./SurfaceFinishPredictorEngine.js";
+export { surfaceFinishCnnEngine, SurfaceFinishCnnEngine } from "./SurfaceFinishCnnEngine.js";
 export { cycleTimeAccuracyEngine, CycleTimeAccuracyEngine } from "./CycleTimeAccuracyEngine.js";
 export { restMachiningEngine, RestMachiningEngine } from "./RestMachiningEngine.js";
 export { operationSequencerEngine, OperationSequencerEngine } from "./OperationSequencerEngine.js";
