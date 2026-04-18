@@ -3211,6 +3211,7 @@ export { latheSetupSheetGeneratorEngine } from "./LatheSetupSheetGeneratorEngine
 export { lathePrintToProgramDLIntelligenceEngine } from "./LathePrintToProgramDLIntelligenceEngine.js";
 export { lathePrintToProgramReasoningEngine } from "./LathePrintToProgramReasoningEngine.js";
 export { lathePrintToProgramKnowledgeGraphEngine } from "./LathePrintToProgramKnowledgeGraphEngine.js";
+export { lathePrintToProgramRegressionEngine, GOLDEN_BASELINE } from "./LathePrintToProgramRegressionEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
