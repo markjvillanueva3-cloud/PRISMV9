@@ -356,6 +356,12 @@ const ACTIONS = [
   "wedm_citation_check",
   "wedm_citation_report",
   "wedm_synthetics_list",
+
+  // MS-P1.5-ONESHOT: Print→Program one-shot spine (U-P1.5-OS-03..07)
+  "wedm_auto_bridge",          // AutoPrintToProgramBridgeEngine — process-type routing
+  "wedm_post_dialect",         // WEDMPostDialectRouterEngine — multi-controller post
+  "wedm_collision_check",      // WEDMWirePathCollisionEngine — swept-volume collision
+  "wedm_verify_program",       // WEDMProgramVerificationEngine — end-of-pipeline gate
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register dispatcher actions with adoption engine (once, at module load)
@@ -2979,6 +2985,41 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_synthetics_list": {
             const engine = await getEngine("wedmCitationCheck");
             result = { engines: await engine.getEnginesWithSynthetics() };
+            break;
+          }
+
+          // ═════════════════════════════════════════════════════════════════
+          // MS-P1.5-ONESHOT: Print→Program one-shot spine
+          // (U-P1.5-OS-07: consultAwareness wiring — these actions flow
+          // through the top-of-dispatcher multi-agent coordination above,
+          // which invokes consultAwareness via wedmMultiAgentDispatchEngine)
+          // ═════════════════════════════════════════════════════════════════
+          case "wedm_auto_bridge": {
+            const { autoPrintToProgramBridgeEngine } = await import(
+              "../../engines/AutoPrintToProgramBridgeEngine.js"
+            );
+            result = await autoPrintToProgramBridgeEngine.runAutoPipeline(params as any);
+            break;
+          }
+          case "wedm_post_dialect": {
+            const { wedmPostDialectRouterEngine } = await import(
+              "../../engines/WEDMPostDialectRouterEngine.js"
+            );
+            result = wedmPostDialectRouterEngine.route(params as any);
+            break;
+          }
+          case "wedm_collision_check": {
+            const { wedmWirePathCollisionEngine } = await import(
+              "../../engines/WEDMWirePathCollisionEngine.js"
+            );
+            result = wedmWirePathCollisionEngine.check(params as any);
+            break;
+          }
+          case "wedm_verify_program": {
+            const { wedmProgramVerificationEngine } = await import(
+              "../../engines/WEDMProgramVerificationEngine.js"
+            );
+            result = wedmProgramVerificationEngine.verify(params as any);
             break;
           }
 
