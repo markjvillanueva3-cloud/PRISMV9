@@ -3205,6 +3205,7 @@ export { lathePrintIngestPipelineEngine } from "./LathePrintIngestPipelineEngine
 export { latheFeatureRecognitionEngine } from "./LatheFeatureRecognitionEngine.js";
 export { latheToolpathPlannerEngine } from "./LatheToolpathPlannerEngine.js";
 export { latheProgramGeneratorEngine } from "./LatheProgramGeneratorEngine.js";
+export { lathePrintToProgramOrchestratorEngine } from "./LathePrintToProgramOrchestratorEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
