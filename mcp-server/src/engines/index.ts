@@ -2446,6 +2446,7 @@ export { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
 export { bvhEngine } from "./BVHEngine.js";
 export { cacheEngine, CacheEngine } from "./CacheEngine.js";
 export { chatterPredictionEngine } from "./ChatterPredictionEngine.js";
+export { chatterNeuralClassifierEngine, ChatterNeuralClassifierEngine } from "./ChatterNeuralClassifierEngine.js";
 export { clusteringEngine } from "./ClusteringEngine.js";
 export { configEngine, ConfigEngine } from "./ConfigEngine.js";
 export { constructionGeometryEngine } from "./ConstructionGeometryEngine.js";
