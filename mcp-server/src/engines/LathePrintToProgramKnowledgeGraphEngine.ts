@@ -580,6 +580,54 @@ class LathePrintToProgramKnowledgeGraphEngine {
     }
   }
 
+  /**
+   * Save graph to file (persistence)
+   */
+  async saveToFile(filePath: string): Promise<{ success: boolean; path: string; size: number }> {
+    const { writeFile } = await import("fs/promises");
+    const data = this.exportGraph();
+    const json = JSON.stringify(data, null, 2);
+    await writeFile(filePath, json, "utf-8");
+    return {
+      success: true,
+      path: filePath,
+      size: json.length
+    };
+  }
+
+  /**
+   * Load graph from file (persistence)
+   */
+  async loadFromFile(filePath: string): Promise<{ success: boolean; nodes: number; edges: number }> {
+    const { readFile } = await import("fs/promises");
+    try {
+      const json = await readFile(filePath, "utf-8");
+      const data = JSON.parse(json) as { nodes: KGNode[]; edges: KGEdge[] };
+      this.importGraph(data);
+      return {
+        success: true,
+        nodes: data.nodes.length,
+        edges: data.edges.length
+      };
+    } catch (err) {
+      return { success: false, nodes: 0, edges: 0 };
+    }
+  }
+
+  /**
+   * Clear the graph
+   */
+  clear(): void {
+    this.graph.nodes.clear();
+    this.graph.edges.clear();
+    for (const [_, set] of this.graph.index.by_type) {
+      set.clear();
+    }
+    this.graph.index.by_label.clear();
+    this.graph.index.embeddings = [];
+    this.graph.index.embedding_ids = [];
+  }
+
   // ============================================================================
   // PRIVATE METHODS
   // ============================================================================
