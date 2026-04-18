@@ -79,6 +79,12 @@ export interface FeasibilityResult {
     available: boolean;
     queue_depth: number;
     next_available_at: string | null;
+    /** U-WGAP05: Wait time until machine free, in hours. 0 when available=true. */
+    queue_wait_hours: number;
+    /** U-WGAP05: Cutting time + queue wait, rounded to 0.1 h. */
+    total_delivery_hours: number;
+    /** U-WGAP05: True when total_delivery_hours <= input.delivery_hours (if provided). */
+    meets_deadline_with_queue: boolean;
   };
 }
 
@@ -384,7 +390,24 @@ class EDMFeasibilityEngine {
     }
 
     // U-WGAP05 — Machine queue awareness (JM Die Mitsubishi FA-10S)
-    const machineAvail = this._getMachineAvailability();
+    const machineAvail = this._getMachineAvailability(
+      time_estimate.total_hours,
+      input.delivery_hours,
+    );
+    if (
+      machineAvail &&
+      !machineAvail.meets_deadline_with_queue &&
+      input.delivery_hours != null
+    ) {
+      warnings.push(
+        `Machine queue wait ${machineAvail.queue_wait_hours.toFixed(1)} h + cutting ${time_estimate.total_hours.toFixed(1)} h exceeds deadline of ${input.delivery_hours} h`,
+      );
+      recommendations.push(
+        machineAvail.next_available_at
+          ? `Reserve alternate machine or shift start to ${machineAvail.next_available_at}`
+          : "Reserve alternate machine or extend deadline",
+      );
+    }
 
     const result: FeasibilityResult = {
       overall_feasible,
@@ -896,34 +919,69 @@ class EDMFeasibilityEngine {
   /**
    * Check JM Die's Mitsubishi FA-10S wire EDM availability from reservation file.
    * Returns default available=true when no reservation file exists.
+   *
+   * U-WGAP05: Adds queue_wait_hours / total_delivery_hours / meets_deadline_with_queue
+   * so that callers can see whether the job misses the deadline once queue wait is included.
    */
-  private _getMachineAvailability(): FeasibilityResult["machine_availability"] {
+  private _getMachineAvailability(
+    cuttingHours: number,
+    deadlineHours: number | undefined,
+  ): FeasibilityResult["machine_availability"] {
     const JM_WIRE_EDM_ID = "mitsubishi-fa10s";
     const JM_WIRE_EDM_NAME = "Mitsubishi FA-10S";
     const RESERVATIONS_PATH = "data/state/wedm-reservations.json";
 
+    const buildResult = (
+      available: boolean,
+      queueDepth: number,
+      nextAvailableAt: string | null,
+      queueWaitHours: number,
+    ): FeasibilityResult["machine_availability"] => {
+      const totalHours = Math.round((cuttingHours + queueWaitHours) * 10) / 10;
+      return {
+        machine_id: JM_WIRE_EDM_ID,
+        machine_name: JM_WIRE_EDM_NAME,
+        available,
+        queue_depth: queueDepth,
+        next_available_at: nextAvailableAt,
+        queue_wait_hours: Math.round(queueWaitHours * 10) / 10,
+        total_delivery_hours: totalHours,
+        meets_deadline_with_queue: deadlineHours == null ? true : totalHours <= deadlineHours,
+      };
+    };
+
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const fs = require("fs");
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const path = require("path");
       const filePath = path.resolve(RESERVATIONS_PATH);
       if (!fs.existsSync(filePath)) {
-        return { machine_id: JM_WIRE_EDM_ID, machine_name: JM_WIRE_EDM_NAME, available: true, queue_depth: 0, next_available_at: null };
+        return buildResult(true, 0, null, 0);
       }
       const data = JSON.parse(fs.readFileSync(filePath, "utf-8"));
       const reservations = Array.isArray(data.reservations) ? data.reservations : [];
       const now = new Date();
       const active = reservations.filter((r: any) => new Date(r.end_time) > now);
-      return {
-        machine_id: JM_WIRE_EDM_ID,
-        machine_name: JM_WIRE_EDM_NAME,
-        available: active.length === 0,
-        queue_depth: active.length,
-        next_available_at: active.length > 0
-          ? active.sort((a: any, b: any) => new Date(a.end_time).getTime() - new Date(b.end_time).getTime())[0].end_time
-          : null,
-      };
+      if (active.length === 0) {
+        return buildResult(true, 0, null, 0);
+      }
+      const latestEnd = active
+        .map((r: any) => new Date(r.end_time).getTime())
+        .reduce((a: number, b: number) => Math.max(a, b), 0);
+      const nextAvailableMs = active
+        .map((r: any) => new Date(r.end_time).getTime())
+        .reduce((a: number, b: number) => Math.min(a, b), Number.POSITIVE_INFINITY);
+      const waitMs = Math.max(0, latestEnd - now.getTime());
+      const waitHours = waitMs / 3600_000;
+      return buildResult(
+        false,
+        active.length,
+        new Date(nextAvailableMs).toISOString(),
+        waitHours,
+      );
     } catch {
-      return { machine_id: JM_WIRE_EDM_ID, machine_name: JM_WIRE_EDM_NAME, available: true, queue_depth: 0, next_available_at: null };
+      return buildResult(true, 0, null, 0);
     }
   }
 }
