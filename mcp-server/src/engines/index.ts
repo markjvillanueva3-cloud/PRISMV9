@@ -7120,6 +7120,12 @@ export {
   type ReasoningHypothesis,
 } from './MillingReasoningDefaultEngine.js';
 
+// MillingReasoningTraceLedgerEngine — MILL-AGI-P0.2: Reasoning audit trail for milling
+export {
+  millingReasoningTraceLedgerEngine,
+  MillingReasoningTraceLedgerEngine,
+} from './MillingReasoningTraceLedgerEngine.js';
+
 // UpstreamValidationHandshakeEngine — MILL-AGI-P1/U-P1.3: 4-validator chain before strategy selection
 export {
   UpstreamValidationHandshakeEngine,

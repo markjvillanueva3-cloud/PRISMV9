@@ -27,8 +27,18 @@ async function getEngine(name: string): Promise<any> {
 }
 
 const ACTIONS = [
+  // Core 5-Axis Kinematics (5 actions)
   "rtcp_calc", "singularity_check", "tilt_optimize",
   "work_envelope", "inverse_kin",
+  // MILL-HARD-MS2: 4th Axis (2 actions)
+  "fourth_axis_index", "fourth_axis_decide",
+  // MILL-HARD-MS3-MS8: 5-Axis Advanced (12 actions)
+  "five_axis_decide", "five_axis_toolpath_synthesize",
+  "five_axis_deep_learn", "five_axis_cad_template",
+  "five_axis_orchestrate", "five_axis_orchestrate_sequence",
+  "five_axis_ai_nl", "five_axis_ai_predict_life",
+  "five_axis_ai_score", "five_axis_ai_explain",
+  "five_axis_ai_troubleshoot", "five_axis_ai_rl",
 ] as const;
 
 /** Registers five axis dispatcher.
@@ -104,6 +114,91 @@ Actions: ${ACTIONS.join(", ")}.`,
             result = engine.solve?.(params) ?? engine.calculate?.(params) ?? engine.compute?.(params) ?? { error: "IK method not found" };
             break;
           }
+
+          // MILL-HARD-MS2: 4th Axis Indexing
+          case "fourth_axis_index": {
+            const { fourthAxisIndexingEngine } = await import("../../engines/FourthAxisIndexingEngine.js");
+            result = fourthAxisIndexingEngine.computeIndexing(params as any);
+            break;
+          }
+          case "fourth_axis_decide": {
+            const { fourthAxisDecisionEngine } = await import("../../engines/FourthAxisDecisionEngine.js");
+            result = fourthAxisDecisionEngine.decide(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS3: 5-Axis Decision
+          case "five_axis_decide": {
+            const { fiveAxisDecisionEngine } = await import("../../engines/FiveAxisDecisionEngine.js");
+            result = fiveAxisDecisionEngine.decide(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS4: Toolpath Synthesis
+          case "five_axis_toolpath_synthesize": {
+            const { fiveAxisToolpathSynthesisEngine } = await import("../../engines/FiveAxisToolpathSynthesisEngine.js");
+            result = fiveAxisToolpathSynthesisEngine.synthesize(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS5: Deep Learning
+          case "five_axis_deep_learn": {
+            const { fiveAxisDeepLearningEngine } = await import("../../engines/FiveAxisDeepLearningEngine.js");
+            result = fiveAxisDeepLearningEngine.findSimilar?.(params as any) ?? fiveAxisDeepLearningEngine.learn?.(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS6: CAD Templates
+          case "five_axis_cad_template": {
+            const { fiveAxisCADTemplateEngine } = await import("../../engines/FiveAxisCADTemplateEngine.js");
+            result = fiveAxisCADTemplateEngine.generateTemplate?.(params as any) ?? fiveAxisCADTemplateEngine.matchTemplate?.(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS7: Orchestration
+          case "five_axis_orchestrate": {
+            const { fiveAxisOrchestrationEngine } = await import("../../engines/FiveAxisOrchestrationEngine.js");
+            result = fiveAxisOrchestrationEngine.orchestrate?.(params as any) ?? fiveAxisOrchestrationEngine.plan?.(params as any);
+            break;
+          }
+          case "five_axis_orchestrate_sequence": {
+            const { fiveAxisOrchestrationEngine } = await import("../../engines/FiveAxisOrchestrationEngine.js");
+            result = fiveAxisOrchestrationEngine.generateSequence?.(params as any);
+            break;
+          }
+
+          // MILL-HARD-MS8: AI Ultra-Intelligence
+          case "five_axis_ai_nl": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.processNL?.(params as any);
+            break;
+          }
+          case "five_axis_ai_predict_life": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.predictToolLife?.(params as any);
+            break;
+          }
+          case "five_axis_ai_score": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.scoreToolpath?.(params as any);
+            break;
+          }
+          case "five_axis_ai_explain": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.explain?.(params as any);
+            break;
+          }
+          case "five_axis_ai_troubleshoot": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.troubleshoot?.(params as any);
+            break;
+          }
+          case "five_axis_ai_rl": {
+            const { fiveAxisAIUltraIntelligenceEngine } = await import("../../engines/FiveAxisAIUltraIntelligenceEngine.js");
+            result = fiveAxisAIUltraIntelligenceEngine.learnFromOutcome?.(params as any);
+            break;
+          }
+
           default:
             result = { error: `Unknown action: ${action}` };
         }
