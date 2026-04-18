@@ -126,6 +126,7 @@ const DepartmentDashboardPage = lazyNamed(() => import('./pages/DepartmentDashbo
 const LatheUploadPage = lazyNamed(() => import('./pages/LatheUploadPage'), 'LatheUploadPage');
 const LatheWizardPage = lazyNamed(() => import('./pages/LatheWizardPage'), 'LatheWizardPage');
 const LatheResultsPage = lazyNamed(() => import('./pages/LatheResultsPage'), 'LatheResultsPage');
+const LathePrintToProgramPage = lazyNamed(() => import('./pages/LathePrintToProgramPage'), 'LathePrintToProgramPage');
 const MillingUploadPage = lazyNamed(() => import('./pages/MillingUploadPage'), 'MillingUploadPage');
 const MillingWizardPage = lazyNamed(() => import('./pages/MillingWizardPage'), 'MillingWizardPage');
 const MillingResultsPage = lazyNamed(() => import('./pages/MillingResultsPage'), 'MillingResultsPage');
@@ -321,6 +322,7 @@ export function App() {
               <Route path="lathe" element={lazyElement(<LatheUploadPage />)} />
               <Route path="lathe/wizard" element={lazyElement(<LatheWizardPage />)} />
               <Route path="lathe/results" element={lazyElement(<LatheResultsPage />)} />
+              <Route path="lathe/print-to-program" element={lazyElement(<LathePrintToProgramPage />)} />
               <Route path="milling" element={lazyElement(<MillingUploadPage />)} />
               <Route path="milling/wizard" element={lazyElement(<MillingWizardPage />)} />
               <Route path="milling/results" element={lazyElement(<MillingResultsPage />)} />
