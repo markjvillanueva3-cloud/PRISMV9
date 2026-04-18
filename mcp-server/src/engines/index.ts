@@ -7104,3 +7104,15 @@ export {
   type ModelStatus,
   type OrchestratorConfig,
 } from './MillingInferenceOrchestratorEngine.js';
+
+export {
+  RealTimeOptimizationEngine,
+  realTimeOptimizationEngine,
+  type OptimizationObjective,
+  type ParameterBounds,
+  type Constraint,
+  type OptimizationState,
+  type ParameterSet,
+  type OptimizationResult,
+  type OptimizerConfig,
+} from './RealTimeOptimizationEngine.js';
