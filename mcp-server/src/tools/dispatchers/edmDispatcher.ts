@@ -1780,11 +1780,41 @@ Actions: ${ACTIONS.join(", ")}.`,
 
           // =================================================================
           // U-WGAP06: WEDMSchedulingEngine — Machine Reservation (Book-Ahead)
-          // TEMP: Disabled — engine file removed
           // =================================================================
-          // case "wedm_reserve_machine": { ... }
-          // case "wedm_check_availability": { ... }
-          // case "wedm_cancel_reservation": { ... }
+          case "wedm_reserve_machine": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.reserveMachine({
+              machine_id: params.machine_id,
+              machine_name: params.machine_name,
+              job_id: params.job_id,
+              job_name: params.job_name,
+              material: params.material,
+              estimated_hours: params.estimated_hours ?? 1,
+              starts_at: params.starts_at ?? new Date().toISOString(),
+              ends_at: params.ends_at,
+              created_by: params.created_by,
+            });
+            break;
+          }
+          case "wedm_check_availability": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.checkAvailability({
+              machine_id: params.machine_id,
+              starts_at: params.starts_at ?? new Date().toISOString(),
+              ends_at: params.ends_at ?? new Date(Date.now() + 3600_000).toISOString(),
+            });
+            break;
+          }
+          case "wedm_cancel_reservation": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = wedmSchedulingEngine.cancelReservation(params.reservation_id);
+            break;
+          }
+          case "wedm_list_reservations": {
+            const { wedmSchedulingEngine } = await import("../../engines/WEDMSchedulingEngine.js");
+            result = { reservations: wedmSchedulingEngine.listReservations(params.machine_id) };
+            break;
+          }
 
           // =================================================================
           // U-WGAP09: Pre-flight safety checklist
