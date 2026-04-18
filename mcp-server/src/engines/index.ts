@@ -7052,3 +7052,14 @@ export {
   type TrainingStats,
   type PolicyOutput,
 } from './MillingReinforcementLearningEngine.js';
+
+export {
+  MillingOnlineLearningTrackerEngine,
+  millingOnlineLearningTrackerEngine,
+  type LearningMetrics,
+  type DriftStatus,
+  type ModelVariant,
+  type LearningState,
+  type TrackerConfig,
+  type CheckpointData,
+} from './MillingOnlineLearningTrackerEngine.js';
