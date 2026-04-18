@@ -3207,6 +3207,7 @@ export { latheToolpathPlannerEngine } from "./LatheToolpathPlannerEngine.js";
 export { latheProgramGeneratorEngine } from "./LatheProgramGeneratorEngine.js";
 export { lathePrintToProgramOrchestratorEngine } from "./LathePrintToProgramOrchestratorEngine.js";
 export { latheProgramVerificationEngine } from "./LatheProgramVerificationEngine.js";
+export { latheSetupSheetGeneratorEngine } from "./LatheSetupSheetGeneratorEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
