@@ -3195,6 +3195,7 @@ export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
 
 export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPostProcessorEngine.js";
 export { latheMasterPostRouterEngine } from "./LatheMasterPostRouterEngine.js";
+export { latheMasterPostUnifiedOutputEngine } from "./LatheMasterPostUnifiedOutputEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
