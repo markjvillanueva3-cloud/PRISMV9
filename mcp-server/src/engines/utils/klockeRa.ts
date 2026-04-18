@@ -116,3 +116,46 @@ export function energyForTargetRa(targetRa: number, material = "tool_steel"): nu
   const exponent = (alpha + beta) / 2;
   return Math.pow(targetRa / k_ra, 1 / exponent) / 10;
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Puertas & Luis (2004) Model — Alternative empirical coefficients
+// Used by EDMProgramAssemblerEngine for validated program generation.
+// NOTE: These coefficients are 50-70% different from Klocke (2013) and
+// produce different absolute Ra values. Both are valid empirical models;
+// Klocke is from Table 8.3 of "Manufacturing Processes 4", while Puertas&Luis
+// is from J. Materials Processing Technology 153-154.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PuertasLuisCoefficients {
+  C_ra: number;
+  alpha: number;
+  beta: number;
+}
+
+/**
+ * Puertas & Luis (2004) Ra calculation.
+ * Ra = C_ra × I_peak^α × t_on^β
+ *
+ * @param I_p - Peak current in Amperes
+ * @param t_on - Pulse on-time in microseconds
+ * @param coeffs - Material-specific coefficients
+ * @returns Ra in micrometers
+ */
+export function puertasLuisRa(
+  I_p: number, t_on: number,
+  coeffs: PuertasLuisCoefficients
+): number {
+  return coeffs.C_ra * Math.pow(I_p, coeffs.alpha) * Math.pow(t_on, coeffs.beta);
+}
+
+/**
+ * Inverse Puertas&Luis: solve for I_p given target Ra and t_on.
+ * I_p = (Ra / (C_ra × t_on^β))^(1/α)
+ */
+export function puertasLuisInverseI(
+  targetRa: number, t_on: number,
+  coeffs: PuertasLuisCoefficients
+): number {
+  const denominator = coeffs.C_ra * Math.pow(t_on, coeffs.beta);
+  return Math.pow(targetRa / denominator, 1 / coeffs.alpha);
+}
