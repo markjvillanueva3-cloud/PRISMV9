@@ -6777,47 +6777,21 @@ export {
   type DegradationAlert,
 } from './EngineAccuracyTrackerEngine.js';
 
-// MILL-AGI P0.6: Capability Manifest
+// ===== MCAT-MS0 U-MCAT01/U-MCAT02: Machine Data Audit =====
 export {
-  MillingCapabilityManifestEngine,
-  millingCapabilityManifestEngine,
-  type CapabilityCategory,
-  type ConfidenceLevel,
-  type CoverageLevel,
-  type ArgumentSpec,
-  type CapabilityPredicate,
-  type CapabilityGap,
-  type CapabilityManifest,
-  type CapabilityQuery,
-  type CapabilityAssessment,
-} from './MillingCapabilityManifestEngine.js';
-
-// MILL-AGI P0.7: Awareness Orchestrator
-export {
-  MillingAwarenessOrchestratorEngine,
-  millingAwarenessOrchestratorEngine,
-  type QueryIntent,
-  type AwarenessQuery,
-  type AwarenessResponse,
-  type ReasoningChain,
-  type ReasoningStep,
-  type SystemHealth,
-  type DecisionRecord,
-} from './MillingAwarenessOrchestratorEngine.js';
-
-// MILL-AGI P1.1: Strategy Taxonomy
-export {
-  MillingStrategyTaxonomyEngine,
-  millingStrategyTaxonomyEngine,
-  type StrategyDomain,
-  type StrategyCategory,
-  type EngagementType,
-  type ToolpathPattern,
-  type StrategyDefinition,
-  type StrategyMatch,
-  type StrategyQuery,
-  type TaxonomyStats,
-} from './MillingStrategyTaxonomyEngine.js';
+  MachineDataAuditEngine,
+  machineDataAuditEngine,
+  type SpindlePackage,
+  type AxisPackage,
+  type ControllerPackage,
+  type CoolantPackage,
+  type EnvelopePackage,
+  type ToolChangerPackage,
+  type CanonicalMachinePackage,
+  type FieldCompletenessReport,
+  type LayerCompletenessReport,
+  type MachineAuditResult,
+} from './MachineDataAuditEngine.js';
 
 // ===== L2-P4-MS1/P0-U03: DNC & Post-Processing Engines =====
 export {
