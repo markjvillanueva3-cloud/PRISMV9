@@ -7025,3 +7025,11 @@ export {
   type StabilitySummary,
   type CrossToolResult,
 } from './CrossToolCouplingEngine.js';
+
+// ===== MILL-AGI Phase 0.3: Neural Network Inference Layer =====
+export {
+  ForceNeuralPredictorEngine,
+  forceNeuralPredictorEngine,
+  type ForceInputFeatures,
+  type ForcePrediction,
+} from './ForceNeuralPredictorEngine.js';
