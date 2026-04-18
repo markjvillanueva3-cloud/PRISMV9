@@ -3216,6 +3216,7 @@ export { latheAutoQuoteFromPrintEngine } from "./LatheAutoQuoteFromPrintEngine.j
 export { latheActualCostReconciliationEngine } from "./LatheActualCostReconciliationEngine.js";
 export { latheJobSchedulingEngine } from "./LatheJobSchedulingEngine.js";
 export { latheCustomerOrderLifecycleEngine } from "./LatheCustomerOrderLifecycleEngine.js";
+export { lathePurchaseOrderAutomationEngine } from "./LathePurchaseOrderAutomationEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
