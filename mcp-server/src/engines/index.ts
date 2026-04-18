@@ -7074,3 +7074,12 @@ export {
   type BanditConfig,
   type OptimizationResult,
 } from './BanditParameterOptimizerEngine.js';
+
+export {
+  EnsembleModelSelectorEngine,
+  ensembleModelSelectorEngine,
+  type EnsembleMember,
+  type MemberPerformance,
+  type EnsemblePrediction,
+  type SelectorConfig,
+} from './EnsembleModelSelectorEngine.js';
