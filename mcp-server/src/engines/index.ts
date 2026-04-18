@@ -7093,3 +7093,39 @@ export {
   type FeatureAlignment,
   type AdapterConfig,
 } from './TransferLearningAdapterEngine.js';
+
+export {
+  MillingInferenceOrchestratorEngine,
+  millingInferenceOrchestratorEngine,
+  type MillingConditions,
+  type InferenceRequest,
+  type PredictionResult,
+  type InferenceResponse,
+  type ModelStatus,
+  type OrchestratorConfig,
+} from './MillingInferenceOrchestratorEngine.js';
+
+export {
+  RealTimeOptimizationEngine,
+  realTimeOptimizationEngine,
+  type OptimizationObjective,
+  type ParameterBounds,
+  type Constraint,
+  type OptimizationState,
+  type ParameterSet,
+  type OptimizationResult,
+  type OptimizerConfig,
+} from './RealTimeOptimizationEngine.js';
+
+export {
+  MillingDigitalTwinEngine,
+  millingDigitalTwinEngine,
+  type MachineState,
+  type ProcessState,
+  type QualityState,
+  type HealthState,
+  type TwinState,
+  type SimulationResult,
+  type HistoricalSnapshot,
+  type TwinConfig,
+} from './MillingDigitalTwinEngine.js';
