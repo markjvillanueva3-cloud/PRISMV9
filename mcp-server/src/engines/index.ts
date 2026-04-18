@@ -3229,6 +3229,7 @@ export { latheNotificationEngine } from "./LatheNotificationEngine.js";
 export { latheProgramSMTEncoderEngine } from "./LatheProgramSMTEncoderEngine.js";
 export { latheFormalProofEngine } from "./LatheFormalProofEngine.js";
 export { latheDenotationalSemanticsEngine, INITIAL_STATE } from "./LatheDenotationalSemanticsEngine.js";
+export { latheTemporalPropertyCheckerEngine } from "./LatheTemporalPropertyCheckerEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
