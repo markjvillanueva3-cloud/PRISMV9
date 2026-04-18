@@ -3224,6 +3224,7 @@ export { latheDeliveryPerformanceEngine } from "./LatheDeliveryPerformanceEngine
 export { latheFinancialReportingEngine } from "./LatheFinancialReportingEngine.js";
 export { latheBusinessDashboardEngine } from "./LatheBusinessDashboardEngine.js";
 export { latheWorkflowOrchestrationEngine } from "./LatheWorkflowOrchestrationEngine.js";
+export { latheSystemIntegrationEngine } from "./LatheSystemIntegrationEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
