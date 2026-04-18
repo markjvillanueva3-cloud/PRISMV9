@@ -174,6 +174,10 @@ const ACTIONS = [
   "lathe_program_backtrace",
   "lathe_program_signoff_dossier",
   "lathe_replay_frame_compile",
+  // P0.1: Formal Verification (U-LTH68)
+  "lathe_formal_prove",
+  "lathe_temporal_check",
+  "lathe_proof_cache_stats",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -2362,6 +2366,55 @@ Actions: ${ACTIONS.join(", ")}.`,
               part_geometry: params.part_geometry,
             };
             result = await latheMasterOrchestratorFacadeEngine.orchestrate(orchRequest);
+            break;
+          }
+
+          // P0.1: Formal Verification (U-LTH68)
+          case "lathe_formal_prove": {
+            const { latheFormalProofEngine } = await import("../../engines/LatheFormalProofEngine.js");
+            const machineProfile = params.machine_profile ? {
+              machine_id: params.machine_profile.machine_id,
+              x_min: params.machine_profile.x_min,
+              x_max: params.machine_profile.x_max,
+              z_min: params.machine_profile.z_min,
+              z_max: params.machine_profile.z_max,
+              f_max: params.machine_profile.f_max,
+              s_max: params.machine_profile.s_max,
+              z_safe: params.machine_profile.z_safe ?? 10,
+              x_home: params.machine_profile.x_home ?? 0,
+              z_home: params.machine_profile.z_home ?? 0,
+            } : undefined;
+            const report = latheFormalProofEngine.prove(
+              params.program_id ?? "unknown",
+              params.program ?? params.program_text ?? "",
+              machineProfile
+            );
+            result = {
+              ...report,
+              formatted: latheFormalProofEngine.formatReport(report),
+            };
+            break;
+          }
+
+          case "lathe_temporal_check": {
+            const { latheTemporalPropertyCheckerEngine } = await import("../../engines/LatheTemporalPropertyCheckerEngine.js");
+            const trace = latheTemporalPropertyCheckerEngine.parseTrace(params.blocks ?? []);
+            if (params.property_id) {
+              result = latheTemporalPropertyCheckerEngine.checkProperty(params.property_id, trace);
+            } else {
+              result = {
+                results: latheTemporalPropertyCheckerEngine.checkAllProperties(trace),
+                formatted: latheTemporalPropertyCheckerEngine.formatResults(
+                  latheTemporalPropertyCheckerEngine.checkAllProperties(trace)
+                ),
+              };
+            }
+            break;
+          }
+
+          case "lathe_proof_cache_stats": {
+            const { latheProofCacheEngine } = await import("../../engines/LatheProofCacheEngine.js");
+            result = latheProofCacheEngine.getStats();
             break;
           }
 
