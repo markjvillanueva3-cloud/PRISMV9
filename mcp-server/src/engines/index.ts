@@ -7012,3 +7012,16 @@ export {
   type MicroCuttingConditions,
   type MicroMillingResult,
 } from './MicroMillingEngine.js';
+
+export {
+  CrossToolCouplingEngine,
+  crossToolCouplingEngine,
+  type ToolStation,
+  type WorkpieceProperties,
+  type FixtureProperties,
+  type CouplingInput,
+  type CouplingMatrix,
+  type CoupledMode,
+  type StabilitySummary,
+  type CrossToolResult,
+} from './CrossToolCouplingEngine.js';
