@@ -15,8 +15,8 @@
   "omegaTarget": 1.0,
   "estimatedSessions": 16,
   "totalUnits": 33,
-  "unitsCompleted": 21,
-  "unitsPending": 12,
+  "unitsCompleted": 28,
+  "unitsPending": 5,
   "status": "in_progress",
 
   "rgsMetadata": {
@@ -181,16 +181,15 @@
       "id": "S6",
       "title": "H: Drive Deep Extraction",
       "units": ["U-AWR17", "U-AWR18", "U-AWR19", "U-AWR20", "U-AWR21", "U-AWR22", "U-AWR23", "U-AWR24", "U-AWR25", "U-AWR26"],
-      "status": "partial",
-      "completedUnits": 7,
-      "note": "Missing U-AWR21, U-AWR22, U-AWR25"
+      "status": "complete",
+      "completedUnits": 10
     },
     {
       "id": "S7",
       "title": "Extended Extraction",
       "units": ["U-AWR27", "U-AWR28", "U-AWR29", "U-AWR30"],
-      "status": "not_started",
-      "completedUnits": 0
+      "status": "complete",
+      "completedUnits": 4
     },
     {
       "id": "S8",
@@ -224,7 +223,14 @@
       { "id": "U-AWR20", "title": "Spreadsheet ingestion", "status": "complete" },
       { "id": "U-AWR23", "title": "Orchestrator deep scan", "status": "complete" },
       { "id": "U-AWR24", "title": "doNotExtract sync", "status": "complete" },
-      { "id": "U-AWR26", "title": "Video learning pipeline", "status": "complete" }
+      { "id": "U-AWR26", "title": "Video learning pipeline", "status": "complete" },
+      { "id": "U-AWR21", "title": "Archive Unpack Crawler", "status": "complete", "output": "ArchiveCrawlerEngine.ts, 22 tests" },
+      { "id": "U-AWR22", "title": "Dark Content Classifier", "status": "complete", "output": "DarkContentClassifierEngine.ts, 18 tests" },
+      { "id": "U-AWR25", "title": "Cross-Terminal Coordination", "status": "complete", "output": "CrossTerminalCoordinationEngine.ts, 23 tests" },
+      { "id": "U-AWR27", "title": "Image OCR Pipeline", "status": "complete", "output": "ImageOCRPipelineEngine.ts, 13 tests" },
+      { "id": "U-AWR28", "title": "2D Drawing Extraction", "status": "complete", "output": "Drawing2DExtractionEngine.ts, 13 tests" },
+      { "id": "U-AWR29", "title": "Office Document Pipeline", "status": "complete", "output": "OfficeDocumentPipelineEngine.ts, 13 tests" },
+      { "id": "U-AWR30", "title": "Machine Log Harvester", "status": "complete", "output": "MachineLogHarvesterEngine.ts, 14 tests" }
     ],
     "pending": [
       {
@@ -260,53 +266,6 @@
         },
         "exitCriteria": ["Lathe patterns analyzed", "Mill patterns analyzed", "Wire EDM patterns analyzed", "200+ new tribal tips extracted", "Patterns wired to PlaybookRulesEngine", "20+ tests pass"],
         "rollback": { "filesCreated": ["src/engines/JMDIEPatternAnalyzer.ts"], "filesModified": ["src/data/tribal-tips-index.json"], "abortCriteria": ["Pattern extraction <100 tips", "False positive rate >20%"] }
-      },
-      {
-        "id": "U-AWR21",
-        "title": "Archive Unpack Crawler",
-        "status": "not_started",
-        "phase": "S6",
-        "priority": "MEDIUM",
-        "description": "Recurse ZIP/RAR/7z archives (465 files)",
-        "fourLoop": { "build": "Create ArchiveCrawlerEngine with nested archive support", "scrutinize": "Test against 10+ archive types", "gapFill": "Handle password-protected archives, corrupted files", "tieUp": "Route unpacked content to appropriate extractors" },
-        "exitCriteria": ["ArchiveCrawlerEngine created", "Nested archives handled", "Content routed to extraction pipelines", "12+ tests pass"]
-      },
-      {
-        "id": "U-AWR22",
-        "title": "Dark Content Classifier",
-        "status": "not_started",
-        "phase": "S6",
-        "priority": "MEDIUM",
-        "description": "Classify previously-ignored content",
-        "fourLoop": { "build": "Create DarkContentClassifierEngine", "scrutinize": "Validate classification accuracy", "gapFill": "Identify high-value hidden content", "tieUp": "Route to extraction pipelines" },
-        "exitCriteria": ["DarkContentClassifierEngine created", "High-value content identified", "Content routed to pipelines", "12+ tests pass"]
-      },
-      {
-        "id": "U-AWR25",
-        "title": "Cross-Terminal Coordination",
-        "status": "not_started",
-        "phase": "S6",
-        "priority": "MEDIUM",
-        "description": "Atomic claim broker for multi-session work",
-        "note": "May overlap with AGI-INFRA Phase E worktree system",
-        "fourLoop": { "build": "Evaluate AGI-INFRA Phase E coverage, extend if needed", "scrutinize": "Test concurrent session scenarios", "gapFill": "Add claim broker extension if Phase E insufficient", "tieUp": "Integrate with existing worktree system" },
-        "exitCriteria": ["AGI-INFRA Phase E evaluated", "Claim broker works with worktree system", "Concurrent sessions tested", "15+ tests pass"]
-      },
-      {
-        "id": "U-AWR27", "title": "Image OCR Pipeline", "status": "not_started", "phase": "S7", "priority": "LOWER",
-        "description": "Extract text from 550 images", "exitCriteria": ["OCR engine integrated", "550 images processed", "Text indexed"]
-      },
-      {
-        "id": "U-AWR28", "title": "2D Drawing Extraction", "status": "not_started", "phase": "S7", "priority": "LOWER",
-        "description": "Process 124 DXF/DWG files", "exitCriteria": ["DXF/DWG parser created", "124 files processed", "Geometry indexed"]
-      },
-      {
-        "id": "U-AWR29", "title": "Office Document Pipeline", "status": "not_started", "phase": "S7", "priority": "LOWER",
-        "description": "Process 17 docx/pptx files", "exitCriteria": ["Office parser integrated", "17 files processed", "Content indexed"]
-      },
-      {
-        "id": "U-AWR30", "title": "Machine Log Harvester", "status": "not_started", "phase": "S7", "priority": "LOWER",
-        "description": "Process 3,350 text/log/ini files", "exitCriteria": ["Log parser created", "3,350 files processed", "Patterns extracted"]
       },
       {
         "id": "U-AWR31",
