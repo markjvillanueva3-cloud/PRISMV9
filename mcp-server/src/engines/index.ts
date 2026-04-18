@@ -2780,6 +2780,7 @@ export { toolCallBatchEngine, ToolCallBatchEngine } from "./ToolCallBatchEngine.
 export { stopConditionEngine, StopConditionEngine } from "./StopConditionEngine.js";
 
 // Hook Efficiency — hook token savings tracker and ROI metrics
+export { hookControllerEngine, HookControllerEngine } from "./HookControllerEngine.js";
 export { hookEfficiencyEngine, HookEfficiencyEngine } from "./HookEfficiencyEngine.js";
 
 // Context Snapshot — minimal session state snapshots for handoffs
