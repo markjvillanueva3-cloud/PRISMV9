@@ -3207,6 +3207,7 @@ export { latheMasterPostDeepReasoningEngine } from "./LatheMasterPostDeepReasoni
 export { latheMasterPostEnsembleCrossCheckEngine } from "./LatheMasterPostEnsembleCrossCheckEngine.js";
 export { latheMasterPostAPIEngine, LATHE_MASTERPOST_ACTIONS } from "./LatheMasterPostAPIEngine.js";
 export { latheMasterPostRegressionMatrixEngine } from "./LatheMasterPostRegressionMatrixEngine.js";
+export { lathePrintIngestPipelineEngine } from "./LathePrintIngestPipelineEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
