@@ -92,6 +92,8 @@ export interface EDMGCodeInput {
   uv_travel_limit_mm?: number;
   /** U-WGAP10: Workpiece material name; used for safety-header material-specific cautions. */
   material?: string;
+  /** U-W100-34: Workpiece thickness in mm; used for Sodick/Makino condition code generation. */
+  thickness_mm?: number;
 }
 
 /**
@@ -299,6 +301,108 @@ const CONTROLLER_CONFIGS: Record<WireEDMController, ControllerPostConfig> = {
     ccw_arc_code: "G03",
   },
 };
+
+// ============================================================================
+// SODICK C### CONDITION CODE GENERATOR (U-W100-34)
+// ============================================================================
+// Sodick uses C### format where:
+//   First digit: Material group (0=steel, 1=stainless, 2=carbide, 3=copper, 4=aluminum, 5=titanium)
+//   Second digit: Thickness range (0=<10mm, 1=10-30mm, 2=30-60mm, 3=60-100mm, 4=>100mm)
+//   Third digit: Condition quality (0=rough, 1=semi, 2=finish, 3=superfine)
+// Reference: Sodick ALC/SLC Programming Manual Ch.7
+
+const SODICK_MATERIAL_CODES: Record<string, number> = {
+  steel: 0, tool_steel: 0, d2: 0, h13: 0, s7: 0, a2: 0, p20: 0,
+  stainless: 1, "304": 1, "316": 1, "304ss": 1, "316ss": 1,
+  carbide: 2, wc: 2, tungsten_carbide: 2, tungsten: 2,
+  copper: 3, brass: 3,
+  aluminum: 4, "6061": 4, "7075": 4,
+  titanium: 5, ti64: 5, inconel: 5,
+};
+
+function getSodickThicknessCode(thickness_mm: number): number {
+  if (thickness_mm < 10) return 0;
+  if (thickness_mm < 30) return 1;
+  if (thickness_mm < 60) return 2;
+  if (thickness_mm < 100) return 3;
+  return 4;
+}
+
+function getSodickPassCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 0;
+    case "semi": return 1;
+    case "finish": return 2;
+    case "super": return 3;
+    default: return 0;
+  }
+}
+
+/**
+ * Generate Sodick C### condition code from material, thickness, and pass type.
+ * Returns format "C{material}{thickness}{quality}" e.g., "C012" for steel 10-30mm finish.
+ */
+function generateSodickConditionCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = SODICK_MATERIAL_CODES[matKey] ?? 0;
+  const thickCode = getSodickThicknessCode(thickness_mm);
+  const passCode = getSodickPassCode(passType);
+  return `C${matCode}${thickCode}${passCode}`;
+}
+
+// ============================================================================
+// MAKINO HYPER-i CONDITION MAPPER (U-W100-34)
+// ============================================================================
+// Makino uses H### codes for HYPER-i technology:
+//   H{material_group}{quality_level}{speed_index}
+// Reference: Makino HYPER-i Programming Guide
+
+const MAKINO_MATERIAL_CODES: Record<string, number> = {
+  steel: 1, tool_steel: 1, d2: 1, h13: 1, s7: 1, a2: 1, p20: 1,
+  stainless: 2, "304": 2, "316": 2, "304ss": 2, "316ss": 2,
+  carbide: 3, wc: 3, tungsten_carbide: 3, tungsten: 3,
+  copper: 4, brass: 4,
+  aluminum: 5, "6061": 5, "7075": 5,
+  titanium: 6, ti64: 6, inconel: 6,
+};
+
+function getMakinoQualityCode(passType: "rough" | "semi" | "finish" | "super"): number {
+  switch (passType) {
+    case "rough": return 1;
+    case "semi": return 2;
+    case "finish": return 3;
+    case "super": return 4;
+    default: return 1;
+  }
+}
+
+function getMakinoSpeedIndex(thickness_mm: number): number {
+  // Speed index: thicker parts need slower settings (higher index)
+  if (thickness_mm < 20) return 1;
+  if (thickness_mm < 50) return 2;
+  if (thickness_mm < 100) return 3;
+  return 4;
+}
+
+/**
+ * Generate Makino HYPER-i condition code from material, thickness, and pass type.
+ * Returns format "H{material}{quality}{speed}" e.g., "H131" for steel finish 20mm.
+ */
+function generateMakinoHyperiCode(
+  material: string,
+  thickness_mm: number,
+  passType: "rough" | "semi" | "finish" | "super"
+): string {
+  const matKey = material.toLowerCase().replace(/[\s\-]/g, "_");
+  const matCode = MAKINO_MATERIAL_CODES[matKey] ?? 1;
+  const qualCode = getMakinoQualityCode(passType);
+  const speedCode = getMakinoSpeedIndex(thickness_mm);
+  return `H${matCode}${qualCode}${speedCode}`;
+}
 
 // ============================================================================
 // WIRE BREAK RECOVERY HELPERS (U-W100-31)
@@ -1734,9 +1838,22 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number} - ${passType}`)}`);
       lineNum += 10;
 
-      // Sodick condition code (C### format)
-      const condCode = `C${pass.technology_table.replace(/\D/g, "").padStart(3, "0")}`;
-      lines.push(`${buildLineNumber(cfg, lineNum)} ${condCode} ${buildComment(cfg, "CONDITION CODE SELECT")}`);
+      // U-W100-34: Sodick C### condition code from material + thickness + pass type
+      const sodickPassType = isRough ? "rough"
+        : passIdx === input.passes.length - 1 ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const condCode = generateSodickConditionCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        sodickPassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${condCode} ${buildComment(cfg, `CONDITION: ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm ${sodickPassType.toUpperCase()}`)}`);
+      lineNum += 10;
+      // Legacy fallback comment for reference
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
       lineNum += 10;
 
       if (pass.servo_voltage) {
@@ -1864,8 +1981,12 @@ function generateSodickGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push("");
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "TAB CUTTING - FINISH PARAMETERS")}`);
       lineNum += 10;
-      const lastPass = input.passes[input.passes.length - 1];
-      const condCode = `C${lastPass.technology_table.replace(/\D/g, "").padStart(3, "0")}`;
+      // U-W100-34: Use Sodick condition generator for tabs (finish pass)
+      const condCode = generateSodickConditionCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        "finish"
+      );
 
       for (const tab of profile.tabs) {
         if (tab.position_index < profile.contour_points.length) {
@@ -2005,8 +2126,22 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `PASS ${pass.pass_number}: ${passType}`)}`);
       lineNum += 10;
 
-      lines.push(`${buildLineNumber(cfg, lineNum)} E${pass.technology_table} ${buildComment(cfg, "E-PACK TECHNOLOGY")}`);
+      // U-W100-34: Makino HYPER-i condition code from material + thickness + pass type
+      const makinoPassType = isRough ? "rough"
+        : isFinish ? "finish"
+        : passIdx === input.passes.length - 2 ? "semi" : "semi";
+      const hyperiCode = generateMakinoHyperiCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        makinoPassType
+      );
+      lines.push(`${buildLineNumber(cfg, lineNum)} ${hyperiCode} ${buildComment(cfg, `HYPER-i: ${input.material ?? "STEEL"} ${input.thickness_mm ?? 25}mm ${makinoPassType.toUpperCase()}`)}`);
       lineNum += 10;
+      // Legacy E-pack reference comment
+      if (pass.technology_table) {
+        lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, `E-PACK REF: ${pass.technology_table}`)}`);
+        lineNum += 10;
+      }
 
       if (isFinish) {
         lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "HYPERCUT MODE - ULTRA FINE FINISH")}`);
@@ -2134,7 +2269,12 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
       lines.push("");
       lines.push(`${buildLineNumber(cfg, lineNum)} ${buildComment(cfg, "TAB CUTS - HYPERCUT FINISH PARAMS")}`);
       lineNum += 10;
-      const lastPass = input.passes[input.passes.length - 1];
+      // U-W100-34: Makino HYPER-i for tabs (finish pass)
+      const tabHyperiCode = generateMakinoHyperiCode(
+        input.material ?? "steel",
+        input.thickness_mm ?? 25,
+        "finish"
+      );
       for (const tab of profile.tabs) {
         if (tab.position_index < profile.contour_points.length) {
           const tabPt = profile.contour_points[tab.position_index];
@@ -2142,7 +2282,7 @@ function generateMakinoGCode(input: EDMGCodeInput): EDMGCodeResult {
           lineNum += 10;
           lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.thread_code} ${buildComment(cfg, "THREAD FOR TAB")}`);
           lineNum += 10;
-          lines.push(`${buildLineNumber(cfg, lineNum)} E${lastPass.technology_table}`);
+          lines.push(`${buildLineNumber(cfg, lineNum)} ${tabHyperiCode} ${buildComment(cfg, "HYPER-i FINISH")}`);
           lineNum += 10;
           lines.push(`${buildLineNumber(cfg, lineNum)} ${cfg.corner_exact}`);
           lineNum += 10;
