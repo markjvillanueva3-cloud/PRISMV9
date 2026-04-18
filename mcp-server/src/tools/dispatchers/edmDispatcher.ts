@@ -77,6 +77,17 @@ let _wedmPredictiveIntelligence: any;
 let _wedmDeepNeuralReasoning: any;
 // MS-P1-100PCT U-P1-02: Citation verification
 let _wedmCitationCheck: any;
+// WEDM-INTEGRITY-MS0 U-INT-03/04: Autonomy and Safety layer engines
+let _wedmAutonomy: any;
+let _wedmRLController: any;
+let _wedmKalmanFusion: any;
+let _wedmHierarchicalPlanner: any;
+let _wedmFaultDiagnosis: any;
+let _wedmDegradationModel: any;
+let _wedmRUL: any;
+let _wedmSafetyEnvelope: any;
+let _wedmFailsafe: any;
+let _wedmVirtualMachine: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -132,6 +143,18 @@ async function getEngine(name: string): Promise<any> {
     case "wedmDeepNeuralReasoning": return _wedmDeepNeuralReasoning ??= (await import("../../engines/WireEDMDeepNeuralReasoningEngine.js")).wireEDMDeepNeuralReasoningEngine;
     // MS-P1-100PCT U-P1-02: Citation verification
     case "wedmCitationCheck": return _wedmCitationCheck ??= (await import("../../engines/WEDMCitationCheckEngine.js")).wedmCitationCheckEngine;
+    // WEDM-INTEGRITY-MS0 U-INT-03: Autonomy layer engines
+    case "wedmAutonomy": return _wedmAutonomy ??= (await import("../../engines/WEDMAutonomyEngine.js")).wedmAutonomyEngine;
+    case "wedmRLController": return _wedmRLController ??= (await import("../../engines/WEDMRLControllerEngine.js")).wedmRLControllerEngine;
+    case "wedmKalmanFusion": return _wedmKalmanFusion ??= (await import("../../engines/WEDMKalmanFusionEngine.js")).wedmKalmanFusionEngine;
+    case "wedmHierarchicalPlanner": return _wedmHierarchicalPlanner ??= (await import("../../engines/WEDMHierarchicalPlannerEngine.js")).wedmHierarchicalPlannerEngine;
+    case "wedmFaultDiagnosis": return _wedmFaultDiagnosis ??= (await import("../../engines/WEDMFaultDiagnosisEngine.js")).wedmFaultDiagnosisEngine;
+    // WEDM-INTEGRITY-MS0 U-INT-04: Safety layer engines
+    case "wedmDegradationModel": return _wedmDegradationModel ??= (await import("../../engines/WEDMDegradationModelEngine.js")).wedmDegradationModelEngine;
+    case "wedmRUL": return _wedmRUL ??= (await import("../../engines/WEDMRULEngine.js")).wedmRULEngine;
+    case "wedmSafetyEnvelope": return _wedmSafetyEnvelope ??= (await import("../../engines/WEDMSafetyEnvelopeEngine.js")).wedmSafetyEnvelopeEngine;
+    case "wedmFailsafe": return _wedmFailsafe ??= (await import("../../engines/WEDMFailsafeEngine.js")).wedmFailsafeEngine;
+    case "wedmVirtualMachine": return _wedmVirtualMachine ??= (await import("../../engines/WEDMVirtualMachineEngine.js")).wedmVirtualMachineEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -374,6 +397,34 @@ const ACTIONS = [
   "wedm_post_dialect",         // WEDMPostDialectRouterEngine — multi-controller post
   "wedm_collision_check",      // WEDMWirePathCollisionEngine — swept-volume collision
   "wedm_verify_program",       // WEDMProgramVerificationEngine — end-of-pipeline gate
+
+  // WEDM-INTEGRITY-MS0 U-INT-03: Autonomy layer engines
+  "wedm_autonomy_level",       // WEDMAutonomyEngine — get/set autonomy level
+  "wedm_autonomy_can",         // WEDMAutonomyEngine — check capability authorization
+  "wedm_autonomy_promote",     // WEDMAutonomyEngine — promote autonomy level
+  "wedm_autonomy_demote",      // WEDMAutonomyEngine — demote autonomy level
+  "wedm_autonomy_snapshot",    // WEDMAutonomyEngine — full state snapshot
+  "wedm_rl_action",            // WEDMRLControllerEngine — get RL action
+  "wedm_rl_update",            // WEDMRLControllerEngine — update RL policy
+  "wedm_rl_status",            // WEDMRLControllerEngine — RL controller status
+  "wedm_kalman_fuse",          // WEDMKalmanFusionEngine — sensor fusion
+  "wedm_kalman_state",         // WEDMKalmanFusionEngine — get filter state
+  "wedm_planner_plan",         // WEDMHierarchicalPlannerEngine — hierarchical plan
+  "wedm_planner_status",       // WEDMHierarchicalPlannerEngine — planner status
+  "wedm_fault_diagnose",       // WEDMFaultDiagnosisEngine — fault diagnosis
+  "wedm_fault_history",        // WEDMFaultDiagnosisEngine — fault history
+
+  // WEDM-INTEGRITY-MS0 U-INT-04: Safety layer engines
+  "wedm_degradation_predict",  // WEDMDegradationModelEngine — degradation prediction
+  "wedm_degradation_update",   // WEDMDegradationModelEngine — update model
+  "wedm_rul_estimate",         // WEDMRULEngine — remaining useful life
+  "wedm_rul_components",       // WEDMRULEngine — component RUL breakdown
+  "wedm_safety_envelope",      // WEDMSafetyEnvelopeEngine — safety envelope check
+  "wedm_safety_limits",        // WEDMSafetyEnvelopeEngine — get safety limits
+  "wedm_failsafe_trigger",     // WEDMFailsafeEngine — trigger failsafe
+  "wedm_failsafe_status",      // WEDMFailsafeEngine — failsafe status
+  "wedm_virtual_simulate",     // WEDMVirtualMachineEngine — virtual simulation
+  "wedm_virtual_state",        // WEDMVirtualMachineEngine — virtual machine state
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register dispatcher actions with adoption engine (once, at module load)
@@ -3458,6 +3509,135 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_wire_tension_compare_scenarios": {
             const engine = await getEngine("wireTensionOpt");
             result = engine.compareScenarios(params.scenarios);
+            break;
+          }
+
+          // =================================================================
+          // WEDM-INTEGRITY-MS0 U-INT-03: AUTONOMY LAYER ENGINES
+          // =================================================================
+          case "wedm_autonomy_level": {
+            const engine = await getEngine("wedmAutonomy");
+            result = { level: engine.getLevel(), name: engine.getName(), humanRole: engine.getHumanRole() };
+            break;
+          }
+          case "wedm_autonomy_can": {
+            const engine = await getEngine("wedmAutonomy");
+            const { capability } = params as { capability: string };
+            result = { capability, authorized: engine.can(capability) };
+            break;
+          }
+          case "wedm_autonomy_promote": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.promote(params as any);
+            break;
+          }
+          case "wedm_autonomy_demote": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.demote(params as any);
+            break;
+          }
+          case "wedm_autonomy_snapshot": {
+            const engine = await getEngine("wedmAutonomy");
+            result = engine.snapshot();
+            break;
+          }
+          case "wedm_rl_action": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.selectAction?.(params as any) ?? engine.getAction?.(params as any) ?? { error: "RL action method not found" };
+            break;
+          }
+          case "wedm_rl_update": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.update?.(params as any) ?? engine.learn?.(params as any) ?? { error: "RL update method not found" };
+            break;
+          }
+          case "wedm_rl_status": {
+            const engine = await getEngine("wedmRLController");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "RL status method not found" };
+            break;
+          }
+          case "wedm_kalman_fuse": {
+            const engine = await getEngine("wedmKalmanFusion");
+            result = engine.fuse?.(params as any) ?? engine.update?.(params as any) ?? { error: "Kalman fuse method not found" };
+            break;
+          }
+          case "wedm_kalman_state": {
+            const engine = await getEngine("wedmKalmanFusion");
+            result = engine.getState?.() ?? engine.state?.() ?? { error: "Kalman state method not found" };
+            break;
+          }
+          case "wedm_planner_plan": {
+            const engine = await getEngine("wedmHierarchicalPlanner");
+            result = engine.plan?.(params as any) ?? engine.generatePlan?.(params as any) ?? { error: "Planner plan method not found" };
+            break;
+          }
+          case "wedm_planner_status": {
+            const engine = await getEngine("wedmHierarchicalPlanner");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "Planner status method not found" };
+            break;
+          }
+          case "wedm_fault_diagnose": {
+            const engine = await getEngine("wedmFaultDiagnosis");
+            result = engine.diagnose?.(params as any) ?? engine.analyze?.(params as any) ?? { error: "Fault diagnose method not found" };
+            break;
+          }
+          case "wedm_fault_history": {
+            const engine = await getEngine("wedmFaultDiagnosis");
+            result = engine.getHistory?.() ?? engine.history?.() ?? { error: "Fault history method not found" };
+            break;
+          }
+
+          // =================================================================
+          // WEDM-INTEGRITY-MS0 U-INT-04: SAFETY LAYER ENGINES
+          // =================================================================
+          case "wedm_degradation_predict": {
+            const engine = await getEngine("wedmDegradationModel");
+            result = engine.predict?.(params as any) ?? engine.forecast?.(params as any) ?? { error: "Degradation predict method not found" };
+            break;
+          }
+          case "wedm_degradation_update": {
+            const engine = await getEngine("wedmDegradationModel");
+            result = engine.update?.(params as any) ?? engine.train?.(params as any) ?? { error: "Degradation update method not found" };
+            break;
+          }
+          case "wedm_rul_estimate": {
+            const engine = await getEngine("wedmRUL");
+            result = engine.estimate?.(params as any) ?? engine.predict?.(params as any) ?? { error: "RUL estimate method not found" };
+            break;
+          }
+          case "wedm_rul_components": {
+            const engine = await getEngine("wedmRUL");
+            result = engine.getComponents?.() ?? engine.components?.() ?? { error: "RUL components method not found" };
+            break;
+          }
+          case "wedm_safety_envelope": {
+            const engine = await getEngine("wedmSafetyEnvelope");
+            result = engine.check?.(params as any) ?? engine.validate?.(params as any) ?? { error: "Safety envelope check method not found" };
+            break;
+          }
+          case "wedm_safety_limits": {
+            const engine = await getEngine("wedmSafetyEnvelope");
+            result = engine.getLimits?.() ?? engine.limits?.() ?? { error: "Safety limits method not found" };
+            break;
+          }
+          case "wedm_failsafe_trigger": {
+            const engine = await getEngine("wedmFailsafe");
+            result = engine.trigger?.(params as any) ?? engine.activate?.(params as any) ?? { error: "Failsafe trigger method not found" };
+            break;
+          }
+          case "wedm_failsafe_status": {
+            const engine = await getEngine("wedmFailsafe");
+            result = engine.status?.() ?? engine.getStatus?.() ?? { error: "Failsafe status method not found" };
+            break;
+          }
+          case "wedm_virtual_simulate": {
+            const engine = await getEngine("wedmVirtualMachine");
+            result = engine.simulate?.(params as any) ?? engine.run?.(params as any) ?? { error: "Virtual simulate method not found" };
+            break;
+          }
+          case "wedm_virtual_state": {
+            const engine = await getEngine("wedmVirtualMachine");
+            result = engine.getState?.() ?? engine.state?.() ?? { error: "Virtual state method not found" };
             break;
           }
 

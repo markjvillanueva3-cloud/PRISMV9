@@ -1,0 +1,200 @@
+{
+  "id": "WEDM-INTEGRITY-MS0",
+  "title": "WEDM System Integrity — Zero Gaps, Full Wiring, Complete Coverage",
+  "track": "WEDM-INTEGRITY",
+  "status": "near_complete",
+  "created": "2026-04-18",
+  "rgs_version": "v24",
+  "total_units": 12,
+  "completed_units": 11,
+  "philosophy": "Mathematical and statistical perfection requires: (1) ZERO inline physics constants — single source of truth in constants.ts; (2) 100% engine wiring — every engine reachable via dispatcher; (3) Full test coverage — every formula validated against published data. This milestone closes all gaps found in the forge audit.",
+
+  "audit_findings": {
+    "orphan_engines": {
+      "count": 59,
+      "rate": "50.4%",
+      "top_10": [
+        "WEDMAutonomyEngine",
+        "WEDMRLControllerEngine",
+        "WEDMKalmanFusionEngine",
+        "WEDMHierarchicalPlannerEngine",
+        "WEDMFaultDiagnosisEngine",
+        "WEDMDegradationModelEngine",
+        "WEDMRULEngine",
+        "WEDMSafetyEnvelopeEngine",
+        "WEDMFailsafeEngine",
+        "WEDMVirtualMachineEngine"
+      ]
+    },
+    "inline_constants": {
+      "count": 12,
+      "file": "WEDMCompleteOrchestrationEngine.ts",
+      "violations": [
+        "MATERIAL_RA_MODELS (lines 583-590) — duplicates EDM_PHYSICS.klocke.ra_models",
+        "ENERGY_CASCADE_GAMMA (lines 598-606) — duplicates EDM_PHYSICS.toenshoff.gamma",
+        "K1=4.8 (line 2884) — duplicates EDM_PHYSICS.dibitonto.K1_um_per_mJ_third",
+        "eta=0.40 (line 2929) — duplicates EDM_PHYSICS.kunieda.eta"
+      ]
+    },
+    "test_coverage": {
+      "engines_total": 206,
+      "engines_tested": 75,
+      "coverage_rate": "36%",
+      "untested_priority": [
+        "EDMBiMaterialCompensationEngine",
+        "EDMCostDocumentationEngine",
+        "EDMDrawingInterpretationEngine",
+        "EDMMaterialMachineWireEngine",
+        "EDMMonitorSurfaceIntegrityEngine",
+        "EDMMultiPassStrategyEngine"
+      ]
+    }
+  },
+
+  "phases": [
+    {
+      "id": "P1",
+      "title": "Constants Consolidation — Single Source of Truth",
+      "units": ["U-INT-01", "U-INT-02"],
+      "rationale": "Inline constants cause drift. All physics values must import from EDM_PHYSICS."
+    },
+    {
+      "id": "P2",
+      "title": "Orphan Engine Wiring — Autonomy Layer",
+      "units": ["U-INT-03", "U-INT-04", "U-INT-05"],
+      "rationale": "59 engines exist but are unreachable. Wire Phase 4 autonomy/safety engines to edmDispatcher."
+    },
+    {
+      "id": "P3",
+      "title": "Test Coverage — Physics Validation",
+      "units": ["U-INT-06", "U-INT-07", "U-INT-08", "U-INT-09"],
+      "rationale": "36% coverage is insufficient for safety-critical code. Add tests for all physics engines."
+    },
+    {
+      "id": "P4",
+      "title": "Statistical Validation — Published Data Verification",
+      "units": ["U-INT-10", "U-INT-11", "U-INT-12"],
+      "rationale": "Every formula must be validated against published literature values ±15%."
+    }
+  ],
+
+  "units": {
+    "U-INT-01": {
+      "title": "Refactor WEDMCompleteOrchestrationEngine to import from EDM_PHYSICS",
+      "status": "complete",
+      "phase": "P1",
+      "description": "Replace inline MATERIAL_RA_MODELS, ENERGY_CASCADE_GAMMA, K1, eta with imports from src/physics/constants.ts. Delete duplicate definitions. Run tests to verify no regression.",
+      "depends_on": [],
+      "files_modified": ["src/engines/WEDMCompleteOrchestrationEngine.ts"],
+      "exit_criteria": "Zero inline physics constants. All values import from EDM_PHYSICS. Tests pass."
+    },
+    "U-INT-02": {
+      "title": "Audit all WEDM engines for remaining inline constants",
+      "status": "complete",
+      "phase": "P1",
+      "description": "Grep all WEDM engines for magic numbers: k_ra, K1, eta, gamma, 0.25, 0.38, 4.8, 0.40. Any found must be replaced with EDM_PHYSICS imports.",
+      "depends_on": ["U-INT-01"],
+      "files_modified": ["src/engines/*.ts"],
+      "exit_criteria": "Zero inline physics constants across all WEDM engines."
+    },
+    "U-INT-03": {
+      "title": "Wire autonomy engines to edmDispatcher (10 engines)",
+      "status": "complete",
+      "phase": "P2",
+      "description": "Add dispatcher actions for: WEDMAutonomyEngine, WEDMRLControllerEngine, WEDMKalmanFusionEngine, WEDMHierarchicalPlannerEngine, WEDMFaultDiagnosisEngine. Each needs wedm_ prefixed action.",
+      "depends_on": [],
+      "files_modified": ["src/tools/dispatchers/edmDispatcher.ts"],
+      "exit_criteria": "5 new actions wired and documented. Actions callable via MCP."
+    },
+    "U-INT-04": {
+      "title": "Wire safety engines to edmDispatcher (5 engines)",
+      "status": "complete",
+      "phase": "P2",
+      "description": "Add dispatcher actions for: WEDMDegradationModelEngine, WEDMRULEngine, WEDMSafetyEnvelopeEngine, WEDMFailsafeEngine, WEDMVirtualMachineEngine.",
+      "depends_on": [],
+      "files_modified": ["src/tools/dispatchers/edmDispatcher.ts"],
+      "exit_criteria": "5 new actions wired. Safety engines accessible via MCP."
+    },
+    "U-INT-05": {
+      "title": "Wire remaining orphan engines (44 engines)",
+      "status": "not_started",
+      "phase": "P2",
+      "description": "Batch wire remaining 44 orphan engines. Group by functionality and add to appropriate dispatcher.",
+      "depends_on": ["U-INT-03", "U-INT-04"],
+      "files_modified": ["src/tools/dispatchers/edmDispatcher.ts", "src/tools/dispatchers/camDispatcher.ts"],
+      "exit_criteria": "All 59 orphan engines wired. Orphan count = 0."
+    },
+    "U-INT-06": {
+      "title": "Add tests for EDMMultiPassStrategyEngine physics",
+      "status": "complete",
+      "phase": "P3",
+      "description": "Test Toenshoff energy cascade, pass count optimization, Ra prediction vs Klocke. Validate against published 4-pass D2 programs.",
+      "depends_on": ["U-INT-01"],
+      "files_created": ["src/__tests__/edm-multipass-physics.test.ts"],
+      "exit_criteria": "≥15 test cases. Ra predictions within ±15% of Klocke. Pass counts match published data."
+    },
+    "U-INT-07": {
+      "title": "Add tests for EDMMonitorSurfaceIntegrityEngine",
+      "status": "complete",
+      "phase": "P3",
+      "description": "Test Carslaw&Jaeger recast prediction, AMS 2628 compliance gate, surface integrity metrics.",
+      "depends_on": [],
+      "files_created": ["src/__tests__/edm-surface-integrity.test.ts"],
+      "exit_criteria": "≥10 test cases. Recast predictions validated. Spec compliance gates working."
+    },
+    "U-INT-08": {
+      "title": "Add tests for EDMCuttingParamFlushEngine",
+      "status": "complete",
+      "phase": "P3",
+      "description": "Test pulse parameter derivation, published condition lookup, material interpolation, wire safety limits.",
+      "depends_on": [],
+      "files_created": ["src/__tests__/edm-cutting-param-flush.test.ts"],
+      "exit_criteria": "≥20 test cases. All pulse params validated against Klocke/Lemhunter published data."
+    },
+    "U-INT-09": {
+      "title": "Add tests for EDMMaterialMachineWireEngine",
+      "status": "complete",
+      "phase": "P3",
+      "description": "Test material/wire compatibility, machine spec lookup, galvanic risk matrix, published machine data integration.",
+      "depends_on": [],
+      "files_created": ["src/__tests__/edm-material-machine-wire.test.ts"],
+      "exit_criteria": "≥15 test cases. All 9 published machines validated. Galvanic matrix covered."
+    },
+    "U-INT-10": {
+      "title": "Validate all Klocke Ra predictions against published literature",
+      "status": "complete",
+      "phase": "P4",
+      "description": "For all 8 materials in EDM_PHYSICS.klocke.ra_models, compute Ra for standard conditions (I_p=10A, t_on=5µs) and verify within ±15% of published Klocke/Puertas data.",
+      "depends_on": ["U-INT-01"],
+      "files_created": ["src/__tests__/klocke-ra-validation.test.ts"],
+      "exit_criteria": "All 8 materials validated. Mean error <10%. Max error <15%."
+    },
+    "U-INT-11": {
+      "title": "Validate DiBitonto crater model against real offset data",
+      "status": "complete",
+      "phase": "P4",
+      "description": "Compare DiBitonto-predicted offsets against ITW SHAKEPROOF real program offsets (H1-H4). Validate K1=4.8 produces correct crater/gap predictions.",
+      "depends_on": ["U-INT-01"],
+      "files_created": ["src/__tests__/dibitonto-offset-validation.test.ts"],
+      "exit_criteria": "Offset predictions within ±15% of ITW SHAKEPROOF. K1 validated."
+    },
+    "U-INT-12": {
+      "title": "Validate Kunieda MRR against published feed rates",
+      "status": "complete",
+      "phase": "P4",
+      "description": "For all materials in EDM_PHYSICS.kunieda.eta, compute MRR and derived feed rates. Validate against Lemhunter published speeds.",
+      "depends_on": ["U-INT-01"],
+      "files_created": ["src/__tests__/kunieda-mrr-validation.test.ts"],
+      "exit_criteria": "Feed rates within ±15% of Lemhunter. All eta values validated."
+    }
+  },
+
+  "exit_gate": {
+    "orphan_engines": 0,
+    "inline_constants": 0,
+    "test_coverage_min": "60%",
+    "formula_validation": "All physics formulas ±15% of published data",
+    "build": "PASS",
+    "omega": 1.0
+  }
+}

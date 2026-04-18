@@ -28,6 +28,7 @@
  */
 
 import { log } from "../utils/Logger.js";
+import { EDM_PHYSICS } from "../physics/constants.js";
 
 // ============================================================================
 // TYPES — Deep Reasoning Structures
@@ -632,8 +633,8 @@ export class WireEDMDeepReasoningEngine {
       case "surface_roughness":
       case "ra": {
         const basePasses = context.num_passes ?? 4;
-        // Klocke cascade: Ra_n = Ra_1 × γ^(n-1), γ ≈ 0.35
-        const gamma = 0.35;
+        // Klocke cascade: Ra_n = Ra_1 × γ^(n-1)
+        const gamma = EDM_PHYSICS.toenshoff.gamma.steel;
         const ra1 = 3.2; // Typical rough cut Ra
         const mean = ra1 * Math.pow(gamma, basePasses - 1);
         const std = mean * 0.15; // 15% variation
