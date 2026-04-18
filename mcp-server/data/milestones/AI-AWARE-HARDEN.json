@@ -15,8 +15,8 @@
   "omegaTarget": 1.0,
   "estimatedSessions": 16,
   "totalUnits": 33,
-  "unitsCompleted": 28,
-  "unitsPending": 5,
+  "unitsCompleted": 30,
+  "unitsPending": 3,
   "status": "in_progress",
 
   "rgsMetadata": {
@@ -159,9 +159,8 @@
       "id": "S3",
       "title": "Extraction Pipelines",
       "units": ["U-AWR07", "U-AWR08", "U-AWR09"],
-      "status": "partial",
-      "completedUnits": 1,
-      "note": "U-AWR08-09 extraction not started"
+      "status": "complete",
+      "completedUnits": 3
     },
     {
       "id": "S4",
@@ -198,7 +197,7 @@
       "status": "partial",
       "completedUnits": 1,
       "priority": "CRITICAL",
-      "note": "New units added in v2 revision"
+      "note": "U-AWR31 complete. U-AWR32 has 363/500 rules, U-AWR33 has 27/50 courses - targets partially met"
     }
   ],
 
@@ -230,43 +229,11 @@
       { "id": "U-AWR27", "title": "Image OCR Pipeline", "status": "complete", "output": "ImageOCRPipelineEngine.ts, 13 tests" },
       { "id": "U-AWR28", "title": "2D Drawing Extraction", "status": "complete", "output": "Drawing2DExtractionEngine.ts, 13 tests" },
       { "id": "U-AWR29", "title": "Office Document Pipeline", "status": "complete", "output": "OfficeDocumentPipelineEngine.ts, 13 tests" },
-      { "id": "U-AWR30", "title": "Machine Log Harvester", "status": "complete", "output": "MachineLogHarvesterEngine.ts, 14 tests" }
+      { "id": "U-AWR30", "title": "Machine Log Harvester", "status": "complete", "output": "MachineLogHarvesterEngine.ts, 14 tests" },
+      { "id": "U-AWR08", "title": "Manufacturer Catalog Extraction", "status": "complete", "output": "CatalogExtractionEngine.ts, 34 tests" },
+      { "id": "U-AWR09", "title": "JM DIE Pattern Analysis", "status": "complete", "output": "JMDIEPatternAnalyzer.ts, 36 tests" }
     ],
     "pending": [
-      {
-        "id": "U-AWR08",
-        "title": "Manufacturer Catalog Extraction",
-        "status": "not_started",
-        "phase": "S3",
-        "priority": "HIGH",
-        "description": "Extract tool data from vendor PDFs (Sandvik, Kennametal, Iscar)",
-        "smartConfig": { "role": "Extractor + Data Engineer", "model": "sonnet", "effort": "HIGH", "contextBudget": "15%" },
-        "fourLoop": {
-          "build": "Create extraction pipeline for vendor PDFs",
-          "scrutinize": "Validate extracted grades/geometries against catalog images",
-          "gapFill": "Add missing insert families, speed/feed tables",
-          "tieUp": "Wire to ToolDatabaseEngine, update registry counts"
-        },
-        "exitCriteria": ["Catalog inventory created", "Insert grades extracted from 3+ vendors", "Speed/feed tables parsed", "Wire to ToolDatabaseEngine verified", "15+ tests pass"],
-        "rollback": { "filesCreated": ["src/engines/CatalogExtractionEngine.ts"], "filesModified": ["src/data/tool-catalog-index.json"], "abortCriteria": ["Extraction accuracy <80%", "Parser fails on 2+ catalogs"] }
-      },
-      {
-        "id": "U-AWR09",
-        "title": "JM DIE Pattern Analysis",
-        "status": "not_started",
-        "phase": "S3",
-        "priority": "HIGH",
-        "description": "Extract programming patterns from 36,929 JM DIE programs",
-        "smartConfig": { "role": "Pattern Analyst + Tribal Knowledge Engineer", "model": "opus", "effort": "MAX", "contextBudget": "20%" },
-        "fourLoop": {
-          "build": "Analyze G-code patterns across machine types",
-          "scrutinize": "Validate patterns against machinist review",
-          "gapFill": "Extract 200+ pattern-based tips",
-          "tieUp": "Wire patterns to PlaybookRulesEngine"
-        },
-        "exitCriteria": ["Lathe patterns analyzed", "Mill patterns analyzed", "Wire EDM patterns analyzed", "200+ new tribal tips extracted", "Patterns wired to PlaybookRulesEngine", "20+ tests pass"],
-        "rollback": { "filesCreated": ["src/engines/JMDIEPatternAnalyzer.ts"], "filesModified": ["src/data/tribal-tips-index.json"], "abortCriteria": ["Pattern extraction <100 tips", "False positive rate >20%"] }
-      },
       {
         "id": "U-AWR31",
         "title": "FormulaOrchestrator Engine (NEW)",
