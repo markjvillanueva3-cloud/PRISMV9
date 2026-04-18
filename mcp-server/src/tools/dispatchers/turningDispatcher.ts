@@ -178,6 +178,15 @@ const ACTIONS = [
   "lathe_formal_prove",
   "lathe_temporal_check",
   "lathe_proof_cache_stats",
+  // P0.2: Local LLM + LoRA Policy (U-LTH69-76)
+  "lathe_lora_build_dataset",
+  "lathe_lora_generate_training",
+  "lathe_lora_evaluate",
+  "lathe_lora_merge_quant",
+  "lathe_lora_ollama_deploy",
+  "lathe_lora_pipeline_run",
+  "lathe_lora_cadence_status",
+  "lathe_lora_inference",
 ] as const;
 
 /** Registers turning dispatcher.
@@ -2415,6 +2424,170 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "lathe_proof_cache_stats": {
             const { latheProofCacheEngine } = await import("../../engines/LatheProofCacheEngine.js");
             result = latheProofCacheEngine.getStats();
+            break;
+          }
+
+          // P0.2: Local LLM + LoRA Policy (U-LTH69-76)
+          case "lathe_lora_build_dataset": {
+            const { latheLoRADatasetBuilderEngine } = await import("../../engines/LatheLoRADatasetBuilderEngine.js");
+            if (params.config) {
+              latheLoRADatasetBuilderEngine.setConfig(params.config);
+            }
+            if (params.validate_path) {
+              result = latheLoRADatasetBuilderEngine.validateDataset(params.validate_path);
+            } else {
+              result = await latheLoRADatasetBuilderEngine.build();
+            }
+            break;
+          }
+
+          case "lathe_lora_generate_training": {
+            const { latheLoRATrainingScriptEngine } = await import("../../engines/LatheLoRATrainingScriptEngine.js");
+            if (params.config) {
+              latheLoRATrainingScriptEngine.setConfig(params.config);
+            }
+            if (params.preset) {
+              latheLoRATrainingScriptEngine.applyPreset(params.preset);
+            }
+            const validation = latheLoRATrainingScriptEngine.validateConfig();
+            result = {
+              ...latheLoRATrainingScriptEngine.generateScript(),
+              validation,
+              inference_script: latheLoRATrainingScriptEngine.generateInferenceScript(),
+            };
+            break;
+          }
+
+          case "lathe_lora_evaluate": {
+            const { latheLoRAEvalHarnessEngine } = await import("../../engines/LatheLoRAEvalHarnessEngine.js");
+            if (params.config) {
+              latheLoRAEvalHarnessEngine.setConfig(params.config);
+            }
+            if (params.sample) {
+              result = latheLoRAEvalHarnessEngine.evaluateSample(
+                params.sample.instruction,
+                params.sample.input,
+                params.sample.expected,
+                params.sample.generated,
+                params.sample.latency_ms
+              );
+            } else {
+              result = {
+                script: latheLoRAEvalHarnessEngine.generateEvalScript(),
+                config: latheLoRAEvalHarnessEngine.getConfig(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_merge_quant": {
+            const { latheLoRAMergeQuantEngine } = await import("../../engines/LatheLoRAMergeQuantEngine.js");
+            if (params.config) {
+              latheLoRAMergeQuantEngine.setConfig(params.config);
+            }
+            result = {
+              merge_script: latheLoRAMergeQuantEngine.generateMergeScript(),
+              quant_script: latheLoRAMergeQuantEngine.generateQuantScript(),
+              pipeline_script: latheLoRAMergeQuantEngine.generateFullPipeline(),
+              size_estimate: latheLoRAMergeQuantEngine.estimateSize(params.model_name || "llama-3-8b"),
+              validation: latheLoRAMergeQuantEngine.validateConfig(),
+              recommendation: params.use_case ? latheLoRAMergeQuantEngine.recommendFormat(params.use_case) : undefined,
+            };
+            break;
+          }
+
+          case "lathe_lora_ollama_deploy": {
+            const { latheOllamaIntegrationEngine } = await import("../../engines/LatheOllamaIntegrationEngine.js");
+            if (params.config) {
+              latheOllamaIntegrationEngine.setConfig(params.config);
+            }
+            result = {
+              modelfile: latheOllamaIntegrationEngine.generateModelfile(),
+              commands: {
+                create: latheOllamaIntegrationEngine.getCreateCommand(),
+                run: latheOllamaIntegrationEngine.getRunCommand(),
+                show: latheOllamaIntegrationEngine.getShowCommand(),
+              },
+              deploy_script: latheOllamaIntegrationEngine.generateDeployScript(),
+              health_check: latheOllamaIntegrationEngine.getHealthCheckScript(),
+              python_client: latheOllamaIntegrationEngine.generatePythonClient(),
+              validation: latheOllamaIntegrationEngine.validateConfig(),
+            };
+            break;
+          }
+
+          case "lathe_lora_pipeline_run": {
+            const { latheLoRAPipelineEngine } = await import("../../engines/LatheLoRAPipelineEngine.js");
+            if (params.config) {
+              latheLoRAPipelineEngine.setConfig(params.config);
+            }
+            if (params.init) {
+              result = latheLoRAPipelineEngine.initializePipeline();
+            } else if (params.start_stage) {
+              result = latheLoRAPipelineEngine.startStage(params.start_stage);
+            } else if (params.complete_stage) {
+              result = latheLoRAPipelineEngine.completeStage(
+                params.complete_stage,
+                params.outputs,
+                params.metrics
+              );
+            } else {
+              result = {
+                script: latheLoRAPipelineEngine.generatePipelineScript(),
+                report: latheLoRAPipelineEngine.generateReport(),
+                state: latheLoRAPipelineEngine.getState(),
+                validation: latheLoRAPipelineEngine.validateConfig(),
+                estimate: latheLoRAPipelineEngine.getEstimatedDuration(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_cadence_status": {
+            const { latheLoRACadenceEngine } = await import("../../engines/LatheLoRACadenceEngine.js");
+            if (params.config) {
+              latheLoRACadenceEngine.setConfig(params.config);
+            }
+            if (params.record_programs) {
+              latheLoRACadenceEngine.recordNewPrograms(params.record_programs);
+            }
+            if (params.start_run) {
+              result = latheLoRACadenceEngine.startRun(params.trigger || "manual", params.notes);
+            } else if (params.complete_run) {
+              result = latheLoRACadenceEngine.completeRun(
+                params.complete_run,
+                params.metrics,
+                params.model_path
+              );
+            } else if (params.promote_version) {
+              result = latheLoRACadenceEngine.promoteVersion(params.promote_version);
+            } else {
+              result = {
+                summary: latheLoRACadenceEngine.getSummary(),
+                should_trigger: latheLoRACadenceEngine.shouldTriggerRun(),
+                cron: latheLoRACadenceEngine.getCronExpression(),
+                run_history: latheLoRACadenceEngine.getRunHistory(5),
+                version_history: latheLoRACadenceEngine.getVersionHistory(5),
+                active_version: latheLoRACadenceEngine.getActiveVersion(),
+              };
+            }
+            break;
+          }
+
+          case "lathe_lora_inference": {
+            const { latheOllamaIntegrationEngine } = await import("../../engines/LatheOllamaIntegrationEngine.js");
+            if (params.config) {
+              latheOllamaIntegrationEngine.setConfig(params.config);
+            }
+            const request = latheOllamaIntegrationEngine.buildGenerateRequest(
+              params.instruction,
+              params.input
+            );
+            result = {
+              request,
+              api_url: latheOllamaIntegrationEngine.getApiUrl("generate"),
+              curl: latheOllamaIntegrationEngine.getCurlGenerate(params.instruction),
+            };
             break;
           }
 
