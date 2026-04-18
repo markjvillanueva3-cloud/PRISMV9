@@ -3235,6 +3235,7 @@ export { latheLoRADatasetBuilderEngine } from "./LatheLoRADatasetBuilderEngine.j
 export { latheLoRATrainingScriptEngine } from "./LatheLoRATrainingScriptEngine.js";
 export { latheLoRAEvalHarnessEngine } from "./LatheLoRAEvalHarnessEngine.js";
 export { latheLoRAMergeQuantEngine } from "./LatheLoRAMergeQuantEngine.js";
+export { latheOllamaIntegrationEngine } from "./LatheOllamaIntegrationEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
