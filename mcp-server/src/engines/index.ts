@@ -3223,6 +3223,7 @@ export { latheProductionQualityTrackingEngine } from "./LatheProductionQualityTr
 export { latheDeliveryPerformanceEngine } from "./LatheDeliveryPerformanceEngine.js";
 export { latheFinancialReportingEngine } from "./LatheFinancialReportingEngine.js";
 export { latheBusinessDashboardEngine } from "./LatheBusinessDashboardEngine.js";
+export { latheWorkflowOrchestrationEngine } from "./LatheWorkflowOrchestrationEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
