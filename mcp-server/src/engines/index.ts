@@ -3200,6 +3200,7 @@ export { ColumnBucklingEngine, columnBucklingEngine } from './ColumnBucklingEngi
 export { FlatPatternEngine, flatPatternEngine } from './FlatPatternEngine.js';
 
 export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPostProcessorEngine.js";
+export { latheMasterPostRouterEngine } from "./LatheMasterPostRouterEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
