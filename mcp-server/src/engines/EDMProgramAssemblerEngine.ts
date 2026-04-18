@@ -47,6 +47,7 @@ import { PipelineCheckpointManager } from "../utils/pipelineCheckpoint.js";
 import { resolveMaterial, resolveMachine } from "./PipelineRegistryBridge.js";
 import { machineEnvelopeGuardEngine } from "./MachineEnvelopeGuardEngine.js";
 import { tribalKnowledgeEngine } from "./TribalKnowledgeEngine.js";
+import { puertasLuisRa, puertasLuisInverseI, type PuertasLuisCoefficients } from "./utils/klockeRa.js";
 /** EDM material database — 10 materials with full physics coefficients.
  *  References: Machinery's Handbook Ch.32, Charmilles Application Guide,
  *              Puertas & Luis (2004), DiBitonto et al. (1989). */
@@ -591,12 +592,12 @@ function sinkerMRR_mm3_min(C_mrr, I_peak_A, t_on_us, a, b, density_g_cm3) {
     return numerator / density_g_cm3;
 }
 /**
- * Surface roughness Ra [µm] — empirical power-law model.
+ * Surface roughness Ra [µm] — via shared Puertas&Luis utility (U-W100-03b).
  * Ra = C_ra × I_peak^α × t_on^β
  * Reference: Puertas & Luis (2004), J. Materials Processing Technology 153-154.
  */
-function surfaceRoughness_Ra(C_ra, I_peak_A, t_on_us, alpha, beta) {
-    return C_ra * Math.pow(I_peak_A, alpha) * Math.pow(t_on_us, beta);
+function surfaceRoughness_Ra(C_ra: number, I_peak_A: number, t_on_us: number, alpha: number, beta: number): number {
+    return puertasLuisRa(I_peak_A, t_on_us, { C_ra, alpha, beta });
 }
 /**
  * Recast layer thickness [µm].
@@ -960,11 +961,11 @@ export class EDMProgramAssemblerEngine {
             const finalPassDefault = getWirePassSettings(totalPasses, mat);
             const defaultFinishRa = surfaceRoughness_Ra(mat.ra_C, finalPassDefault.I_peak_A, finalPassDefault.t_on_us, mat.ra_alpha, mat.ra_beta);
             if (input.target_Ra_um < defaultFinishRa * 0.9) {
-                // Solve for I_peak: Ra = C_ra * I^alpha * t_on^beta
+                // Solve for I_peak via shared Puertas&Luis utility (U-W100-03b)
                 // Reduce t_on proportionally, then solve for I_peak
                 const t_on_target = finalPassDefault.t_on_us * (input.target_Ra_um / defaultFinishRa);
                 const t_on_clamped = Math.max(t_on_target, mat.finish_ton_us * 0.3); // min 30% of finish t_on
-                const I_target = Math.pow(input.target_Ra_um / (mat.ra_C * Math.pow(t_on_clamped, mat.ra_beta)), 1 / mat.ra_alpha);
+                const I_target = puertasLuisInverseI(input.target_Ra_um, t_on_clamped, { C_ra: mat.ra_C, alpha: mat.ra_alpha, beta: mat.ra_beta });
                 const I_clamped = Math.max(I_target, mat.finish_current_A * 0.2); // min 20% of finish current
                 raTargetFinishOverride = {
                     ...finalPassDefault,

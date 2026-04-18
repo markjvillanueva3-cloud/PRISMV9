@@ -1712,10 +1712,11 @@
 
       "U-W100-03b": {
         "title": "Ra formula standardization: 2 larger engines (CuttingParamFlush, ProgramAssembler)",
-        "status": "not_started",
+        "status": "complete",
+        "completed_at": "2026-04-18T01:05:00Z",
         "phase": "P1",
         "session": "S2",
-        "description": "SPLIT from U-W100-03. Standardize Ra in EDMCuttingParamFlushEngine (1624 LOC) and EDMProgramAssemblerEngine (2705 LOC) — the two largest engines with the most test coverage. Use the shared klockeRa() utility from U-W100-03a. These engines have ~15 downstream tests that may need assertion updates.",
+        "description": "SPLIT from U-W100-03. Standardize Ra in EDMCuttingParamFlushEngine (1624 LOC) and EDMProgramAssemblerEngine (2705 LOC) — the two largest engines with the most test coverage. Use the shared klockeRa() utility from U-W100-03a. NOTE: ProgramAssembler uses Puertas&Luis (2004) coefficients which differ 65%+ from Klocke; added puertasLuisRa() to shared utility to preserve validated outputs.",
         "depends_on": ["U-W100-03a"],
         "four_loop": {
           "build": "Update both engines to use shared klockeRa(). Update test assertions.",
