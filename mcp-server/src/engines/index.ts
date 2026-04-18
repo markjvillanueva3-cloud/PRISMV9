@@ -3215,6 +3215,7 @@ export { lathePrintToProgramRegressionEngine, GOLDEN_BASELINE } from "./LathePri
 export { latheAutoQuoteFromPrintEngine } from "./LatheAutoQuoteFromPrintEngine.js";
 export { latheActualCostReconciliationEngine } from "./LatheActualCostReconciliationEngine.js";
 export { latheJobSchedulingEngine } from "./LatheJobSchedulingEngine.js";
+export { latheCustomerOrderLifecycleEngine } from "./LatheCustomerOrderLifecycleEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
