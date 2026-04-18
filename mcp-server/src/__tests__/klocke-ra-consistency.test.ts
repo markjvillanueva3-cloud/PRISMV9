@@ -5,7 +5,7 @@
  * and produce consistent Ra values for equivalent inputs.
  */
 import { describe, it, expect } from "vitest";
-import { klockeRa, klockeRaFromEnergy, getRaCoefficients } from "../engines/utils/klockeRa.js";
+import { klockeRa, klockeRaFromEnergy, getRaCoefficients, puertasLuisRa, puertasLuisInverseI } from "../engines/utils/klockeRa.js";
 import { edmWireEngine } from "../engines/EDMWireEngine.js";
 import { stochasticEDMEngine } from "../engines/StochasticEDMEngine.js";
 import { edmParameterEngine } from "../engines/EDMParameterEngine.js";
@@ -124,5 +124,43 @@ describe("U-W100-03a: Klocke Ra formula consistency", () => {
     const steel = getRaCoefficients("tool_steel");
 
     expect(unknown).toEqual(steel);
+  });
+
+  // U-W100-03b: Puertas & Luis (2004) model tests
+  it("Puertas&Luis Ra calculation matches expected form", () => {
+    // Ra = C_ra × I^α × t_on^β
+    const coeffs = { C_ra: 1.25, alpha: 0.39, beta: 0.25 };
+    const I_p = 10;
+    const t_on = 50;
+
+    const expected = 1.25 * Math.pow(I_p, 0.39) * Math.pow(t_on, 0.25);
+    const actual = puertasLuisRa(I_p, t_on, coeffs);
+
+    expect(actual).toBeCloseTo(expected, 6);
+  });
+
+  it("Puertas&Luis inverse solves correctly for I_p", () => {
+    const coeffs = { C_ra: 1.25, alpha: 0.39, beta: 0.25 };
+    const t_on = 50;
+
+    // Start with known Ra, solve for I, then verify forward calculation
+    const targetRa = 5.0;
+    const solvedI = puertasLuisInverseI(targetRa, t_on, coeffs);
+    const verifyRa = puertasLuisRa(solvedI, t_on, coeffs);
+
+    expect(verifyRa).toBeCloseTo(targetRa, 4);
+  });
+
+  it("Puertas&Luis differs significantly from Klocke (expected)", () => {
+    // These are DIFFERENT empirical models — Ra values should NOT match
+    const I_p = 10;
+    const t_on = 50;
+
+    const klockeVal = klockeRa(I_p, t_on, "d2");
+    const puertasVal = puertasLuisRa(I_p, t_on, { C_ra: 1.25, alpha: 0.39, beta: 0.25 });
+
+    // Expect >30% difference (they are different models)
+    const diff = Math.abs(puertasVal - klockeVal) / klockeVal;
+    expect(diff).toBeGreaterThan(0.3);
   });
 });

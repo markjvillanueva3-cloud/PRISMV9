@@ -32,6 +32,7 @@ import {
   type PassType as PublishedPassType,
 } from "../data/wedm-published-conditions.js";
 import { EDM_PHYSICS } from "../physics/constants.js";
+import { klockeRa, getRaCoefficients } from "./utils/klockeRa.js";
 
 // ============================================================================
 // TYPES & INTERFACES
@@ -557,22 +558,23 @@ class EDMCuttingParamFlushEngine {
     };
   }
 
-  /** Resolve Klocke Ra model coefficients for a material, from EDM_PHYSICS canonical source */
+  /** Resolve Klocke Ra model coefficients for a material via shared utility (U-W100-03b) */
   private resolveRaModel(material: string): { k_ra: number; alpha: number; beta: number } {
     const group = resolveMaterialGroup(material);
-    const models = EDM_PHYSICS.klocke.ra_models;
-    const pick = (m: typeof models[keyof typeof models]) =>
-      ({ k_ra: m.k_ra as number, alpha: m.alpha as number, beta: m.beta as number });
-
-    if (group === "low_carbon_steel" || group === "hardened_steel") return pick(models.steel);
-    if (group === "tool_steel") return pick(models.tool_steel);
-    if (group === "stainless_steel") return pick(models.stainless);
-    if (group === "aluminum") return pick(models.aluminum);
-    if (group === "tungsten_carbide") return pick(models.carbide);
-    if (group === "titanium") return pick(models.titanium);
-    if (group === "inconel") return pick(models.inconel);
-    if (group === "copper") return pick(models.copper);
-    return pick(models.steel); // default for unmapped
+    // Map EDMMaterialGroup to klockeRa category
+    const categoryMap: Record<string, string> = {
+      low_carbon_steel: "tool_steel",
+      hardened_steel: "tool_steel",
+      tool_steel: "tool_steel",
+      stainless_steel: "stainless",
+      aluminum: "aluminum",
+      tungsten_carbide: "carbide",
+      titanium: "titanium",
+      inconel: "inconel",
+      copper: "copper",
+    };
+    const category = categoryMap[group] ?? "tool_steel";
+    return getRaCoefficients(category);
   }
 
   // --------------------------------------------------------------------------
@@ -1278,32 +1280,22 @@ class EDMCuttingParamFlushEngine {
   // --------------------------------------------------------------------------
 
   private estimateRa(t_on_us: number, I_p_A: number, mat: MaterialEDMProps): number {
-    // Klocke canonical: Ra = k_ra × I_p^alpha × t_on^beta [µm]
-    // Source: Klocke (2013) "Manufacturing Processes 4", Table 8.3
-    // Uses material-specific coefficients from EDM_PHYSICS
-    const models = EDM_PHYSICS.klocke.ra_models;
-    // Map MaterialEDMProps to Klocke model via thermal/electrical properties
-    let k_ra: number = models.steel.k_ra;
-    let alpha: number = models.steel.alpha;
-    let beta: number = models.steel.beta;
+    // Klocke canonical via shared utility (U-W100-03b)
+    // Map MaterialEDMProps to material category via thermal/electrical properties
+    const category = this.mapPropsToMaterialCategory(mat);
+    return klockeRa(I_p_A, t_on_us, category);
+  }
 
-    if (mat.melting_point_C > 2500) {
-      k_ra = models.carbide.k_ra; alpha = models.carbide.alpha; beta = models.carbide.beta;
-    } else if (mat.thermal_conductivity_W_mK > 300) {
-      k_ra = models.copper.k_ra; alpha = models.copper.alpha; beta = models.copper.beta;
-    } else if (mat.thermal_conductivity_W_mK > 150) {
-      k_ra = models.aluminum.k_ra; alpha = models.aluminum.alpha; beta = models.aluminum.beta;
-    } else if (mat.electrical_resistivity_uOhm_cm > 90) {
-      k_ra = models.inconel.k_ra; alpha = models.inconel.alpha; beta = models.inconel.beta;
-    } else if (mat.electrical_resistivity_uOhm_cm > 60) {
-      k_ra = models.stainless.k_ra; alpha = models.stainless.alpha; beta = models.stainless.beta;
-    } else if (mat.melting_point_C > 1600) {
-      k_ra = models.titanium.k_ra; alpha = models.titanium.alpha; beta = models.titanium.beta;
-    } else if (mat.machinability_index < 0.95 && mat.melting_point_C > 1400) {
-      k_ra = models.tool_steel.k_ra; alpha = models.tool_steel.alpha; beta = models.tool_steel.beta;
-    }
-
-    return k_ra * Math.pow(I_p_A, alpha) * Math.pow(t_on_us, beta);
+  /** Map MaterialEDMProps to klockeRa material category via physical properties */
+  private mapPropsToMaterialCategory(mat: MaterialEDMProps): string {
+    if (mat.melting_point_C > 2500) return "carbide";
+    if (mat.thermal_conductivity_W_mK > 300) return "copper";
+    if (mat.thermal_conductivity_W_mK > 150) return "aluminum";
+    if (mat.electrical_resistivity_uOhm_cm > 90) return "inconel";
+    if (mat.electrical_resistivity_uOhm_cm > 60) return "stainless";
+    if (mat.melting_point_C > 1600) return "titanium";
+    if (mat.machinability_index < 0.95 && mat.melting_point_C > 1400) return "tool_steel";
+    return "tool_steel"; // default
   }
 
   // --------------------------------------------------------------------------
