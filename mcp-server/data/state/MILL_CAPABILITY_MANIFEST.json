@@ -1,0 +1,459 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-04-17T21:30:00.000Z",
+  "description": "Machine-readable manifest of milling engine capabilities, preconditions, failure modes, and confidence envelopes",
+  "totalEngines": 47,
+  "categories": {
+    "physics": 12,
+    "neural": 8,
+    "strategy": 10,
+    "reasoning": 6,
+    "integration": 11
+  },
+  "engines": [
+    {
+      "engineId": "KienzleForceModelEngine",
+      "category": "physics",
+      "capabilities": ["tangential_force", "radial_force", "axial_force", "kc1_1_lookup", "mc_coefficient_lookup"],
+      "preconditions": ["material.iso_group present", "ap > 0", "fz > 0", "ae > 0"],
+      "failureModes": [
+        { "mode": "kc1_1_missing", "condition": "Unknown material ISO group", "severity": "high", "fallback": "Use P-group default" },
+        { "mode": "fz_out_of_envelope", "condition": "fz < 0.01 or fz > 0.5 mm/tooth", "severity": "medium", "fallback": "Clamp to valid range" }
+      ],
+      "confidenceEnvelope": { "typical": 0.88, "low": 0.65, "high": 0.95 },
+      "literatureCitations": ["Kienzle 1952", "Kalpakjian §24", "Altintas 2012 Ch.2"],
+      "regressionTests": ["KienzleForceModelEngine.test.ts"],
+      "dependencies": ["MaterialRegistryEngine"]
+    },
+    {
+      "engineId": "TaylorToolLifeEngine",
+      "category": "physics",
+      "capabilities": ["tool_life_prediction", "taylor_C_lookup", "taylor_n_lookup", "weibull_reliability"],
+      "preconditions": ["cutting_speed > 0", "material known", "tool_material known"],
+      "failureModes": [
+        { "mode": "C_n_missing", "condition": "Unknown material/tool combination", "severity": "high", "fallback": "Use conservative estimate" },
+        { "mode": "speed_extrapolation", "condition": "Speed outside calibrated range", "severity": "medium", "fallback": "Linear extrapolation with warning" }
+      ],
+      "confidenceEnvelope": { "typical": 0.82, "low": 0.55, "high": 0.92 },
+      "literatureCitations": ["Taylor 1906", "ISO 3685", "Kalpakjian §23"],
+      "regressionTests": ["TaylorToolLifeEngine.test.ts"],
+      "dependencies": ["ToolRegistryEngine", "MaterialRegistryEngine"]
+    },
+    {
+      "engineId": "ChatterStabilityLobeEngine",
+      "category": "physics",
+      "capabilities": ["stability_lobe_calculation", "critical_depth_of_cut", "spindle_speed_optimization", "frf_analysis"],
+      "preconditions": ["tool_frf available or estimated", "spindle_speed_range defined", "ap_max defined"],
+      "failureModes": [
+        { "mode": "frf_missing", "condition": "No FRF data for tool assembly", "severity": "high", "fallback": "Use analytical estimate from geometry" },
+        { "mode": "multiple_modes", "condition": "FRF has multiple dominant modes", "severity": "medium", "fallback": "Use lowest critical depth" }
+      ],
+      "confidenceEnvelope": { "typical": 0.78, "low": 0.50, "high": 0.90 },
+      "literatureCitations": ["Altintas 2012", "Schmitz & Smith 2009", "Tlusty 1967"],
+      "regressionTests": ["ChatterStabilityLobeEngine.test.ts"],
+      "dependencies": ["ToolDynamicsEngine", "SpindleCharacteristicsEngine"]
+    },
+    {
+      "engineId": "ToolDeflectionEngine",
+      "category": "physics",
+      "capabilities": ["static_deflection", "cantilever_model", "holder_compliance", "part_deflection_coupling"],
+      "preconditions": ["tool_geometry complete", "cutting_force estimated", "holder_stiffness known or estimated"],
+      "failureModes": [
+        { "mode": "geometry_incomplete", "condition": "Missing tool length or diameter", "severity": "high", "fallback": "Cannot calculate" },
+        { "mode": "force_uncertain", "condition": "Force estimate has >30% uncertainty", "severity": "medium", "fallback": "Propagate uncertainty to deflection" }
+      ],
+      "confidenceEnvelope": { "typical": 0.85, "low": 0.60, "high": 0.93 },
+      "literatureCitations": ["Timoshenko beam theory", "Altintas 2012 Ch.4", "Kalpakjian §26"],
+      "regressionTests": ["ToolDeflectionEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine", "ToolRegistryEngine"]
+    },
+    {
+      "engineId": "SurfaceFinishPredictorEngine",
+      "category": "physics",
+      "capabilities": ["theoretical_roughness", "kinematic_roughness", "vibration_effect", "tool_wear_effect"],
+      "preconditions": ["tool_nose_radius or tool_corner_radius", "feed_per_revolution or feed_per_tooth", "operation_type"],
+      "failureModes": [
+        { "mode": "radius_missing", "condition": "No nose/corner radius specified", "severity": "high", "fallback": "Assume sharp corner (worst case)" },
+        { "mode": "vibration_unknown", "condition": "Cannot estimate vibration amplitude", "severity": "medium", "fallback": "Use kinematic roughness only" }
+      ],
+      "confidenceEnvelope": { "typical": 0.80, "low": 0.55, "high": 0.92 },
+      "literatureCitations": ["Brammertz 1961", "ISO 4287", "Whitehouse 2002"],
+      "regressionTests": ["SurfaceFinishPredictorEngine.test.ts"],
+      "dependencies": ["ToolDeflectionEngine", "ChatterStabilityLobeEngine"]
+    },
+    {
+      "engineId": "CuttingTemperatureEngine",
+      "category": "physics",
+      "capabilities": ["tool_temperature", "chip_temperature", "workpiece_temperature", "thermal_partition"],
+      "preconditions": ["cutting_power known", "material_thermal_properties", "cutting_speed > 0"],
+      "failureModes": [
+        { "mode": "thermal_props_missing", "condition": "Unknown material thermal conductivity", "severity": "medium", "fallback": "Use steel default" },
+        { "mode": "coolant_effect_unknown", "condition": "Coolant present but heat transfer coefficient unknown", "severity": "low", "fallback": "Use empirical correction" }
+      ],
+      "confidenceEnvelope": { "typical": 0.75, "low": 0.50, "high": 0.88 },
+      "literatureCitations": ["Shaw 2005", "Loewen & Shaw 1954", "Komanduri & Hou 2001"],
+      "regressionTests": ["CuttingTemperatureEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine", "MaterialRegistryEngine"]
+    },
+    {
+      "engineId": "RCSAEngine",
+      "category": "physics",
+      "capabilities": ["receptance_coupling", "substructure_assembly", "long_reach_analysis", "holder_effect"],
+      "preconditions": ["tool_frf or tool_geometry", "holder_frf or holder_geometry", "spindle_frf available"],
+      "failureModes": [
+        { "mode": "spindle_frf_missing", "condition": "No spindle FRF data", "severity": "high", "fallback": "Use generic spindle model" },
+        { "mode": "coupling_mismatch", "condition": "Interface stiffness unknown", "severity": "medium", "fallback": "Use rigid coupling assumption" }
+      ],
+      "confidenceEnvelope": { "typical": 0.72, "low": 0.45, "high": 0.88 },
+      "literatureCitations": ["Schmitz & Smith 2009", "Park & Altintas 2003", "Budak 2006"],
+      "regressionTests": ["RCSAEngine.test.ts"],
+      "dependencies": ["SpindleCharacteristicsEngine", "ToolDynamicsEngine"]
+    },
+    {
+      "engineId": "MicroMillingEngine",
+      "category": "physics",
+      "capabilities": ["size_effect", "minimum_chip_thickness", "ploughing_force", "edge_radius_effect"],
+      "preconditions": ["tool_diameter < 1mm or uncut_chip_thickness < edge_radius"],
+      "failureModes": [
+        { "mode": "edge_radius_unknown", "condition": "Tool edge radius not specified", "severity": "high", "fallback": "Assume 5um typical" },
+        { "mode": "grain_size_effect", "condition": "Workpiece grain size > chip thickness", "severity": "medium", "fallback": "Add material variability factor" }
+      ],
+      "confidenceEnvelope": { "typical": 0.68, "low": 0.40, "high": 0.82 },
+      "literatureCitations": ["Aramcharoen 2009", "Liu & Melkote 2006", "Vogler 2004"],
+      "regressionTests": ["MicroMillingEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine"]
+    },
+    {
+      "engineId": "CrossToolCouplingEngine",
+      "category": "physics",
+      "capabilities": ["multi_tool_dynamics", "ganged_holder_analysis", "cross_coupling_transfer_function"],
+      "preconditions": ["multiple_tools_in_cut", "tool_positions_known", "holder_geometry_known"],
+      "failureModes": [
+        { "mode": "coupling_stiffness_unknown", "condition": "Cross-tool coupling stiffness not characterized", "severity": "high", "fallback": "Assume decoupled" },
+        { "mode": "phase_unknown", "condition": "Relative phase between tools unknown", "severity": "medium", "fallback": "Worst-case phase" }
+      ],
+      "confidenceEnvelope": { "typical": 0.65, "low": 0.35, "high": 0.80 },
+      "literatureCitations": ["Altintas 2012 Ch.6", "Budak 2003"],
+      "regressionTests": ["CrossToolCouplingEngine.test.ts"],
+      "dependencies": ["ChatterStabilityLobeEngine", "RCSAEngine"]
+    },
+    {
+      "engineId": "MillStrategyNeuralEngine",
+      "category": "neural",
+      "capabilities": ["strategy_prediction", "feature_embedding", "material_embedding", "machine_embedding"],
+      "preconditions": ["feature_type known", "material_group known", "machine_class known"],
+      "failureModes": [
+        { "mode": "unknown_feature", "condition": "Feature type not in training set", "severity": "medium", "fallback": "Use closest embedding" },
+        { "mode": "low_confidence", "condition": "Prediction confidence < 0.5", "severity": "low", "fallback": "Return top-3 strategies" }
+      ],
+      "confidenceEnvelope": { "typical": 0.85, "low": 0.60, "high": 0.95 },
+      "literatureCitations": ["Transformer architecture (Vaswani 2017)", "PRISM training data 24k programs"],
+      "regressionTests": ["MillStrategyNeuralEngine.test.ts"],
+      "dependencies": ["FeatureEmbeddingEngine"],
+      "modelInfo": { "architecture": "Transformer", "heads": 6, "layers": 3, "parameters": "2.4M" }
+    },
+    {
+      "engineId": "ChatterNeuralClassifierEngine",
+      "category": "neural",
+      "capabilities": ["chatter_classification", "stability_prediction", "frf_embedding"],
+      "preconditions": ["cut_parameters known", "frf_data or tool_geometry"],
+      "failureModes": [
+        { "mode": "frf_quality_low", "condition": "FRF data has low SNR", "severity": "medium", "fallback": "Increase uncertainty bounds" },
+        { "mode": "extrapolation", "condition": "Parameters outside training envelope", "severity": "high", "fallback": "Use physics-based fallback" }
+      ],
+      "confidenceEnvelope": { "typical": 0.88, "low": 0.65, "high": 0.96 },
+      "literatureCitations": ["MIT 2.008", "Altintas examples", "JM DIE observations"],
+      "regressionTests": ["ChatterNeuralClassifierEngine.test.ts"],
+      "dependencies": ["ChatterStabilityLobeEngine"],
+      "modelInfo": { "architecture": "1D-CNN", "layers": 4, "parameters": "450K" }
+    },
+    {
+      "engineId": "SurfaceFinishCnnEngine",
+      "category": "neural",
+      "capabilities": ["ra_prediction", "rz_prediction", "surface_texture_analysis"],
+      "preconditions": ["toolpath_type known", "tool_type known", "material known"],
+      "failureModes": [
+        { "mode": "unusual_toolpath", "condition": "Toolpath pattern not in training set", "severity": "medium", "fallback": "Use theoretical formula" }
+      ],
+      "confidenceEnvelope": { "typical": 0.82, "low": 0.55, "high": 0.92 },
+      "literatureCitations": ["Brammertz theory", "PRISM surface finish dataset"],
+      "regressionTests": ["SurfaceFinishCnnEngine.test.ts"],
+      "dependencies": ["SurfaceFinishPredictorEngine"],
+      "modelInfo": { "architecture": "CNN", "layers": 3, "parameters": "280K" }
+    },
+    {
+      "engineId": "ToolLifeGnnEngine",
+      "category": "neural",
+      "capabilities": ["tool_life_prediction", "wear_trajectory", "assembly_topology_analysis"],
+      "preconditions": ["tool_assembly known", "cut_parameters known", "material known"],
+      "failureModes": [
+        { "mode": "novel_assembly", "condition": "Tool-holder combination not seen", "severity": "medium", "fallback": "Use Taylor equation" }
+      ],
+      "confidenceEnvelope": { "typical": 0.80, "low": 0.50, "high": 0.90 },
+      "literatureCitations": ["Weibull stochastic model", "1000+ observed tool lives"],
+      "regressionTests": ["ToolLifeGnnEngine.test.ts"],
+      "dependencies": ["TaylorToolLifeEngine"],
+      "modelInfo": { "architecture": "GNN", "layers": 3, "parameters": "380K" }
+    },
+    {
+      "engineId": "GCodeUnderstandingTransformerEngine",
+      "category": "neural",
+      "capabilities": ["gcode_parsing", "semantic_embedding", "similarity_search", "anomaly_detection"],
+      "preconditions": ["gcode_input valid"],
+      "failureModes": [
+        { "mode": "unknown_dialect", "condition": "G-code dialect not in training set", "severity": "medium", "fallback": "Parse as generic Fanuc" },
+        { "mode": "malformed_input", "condition": "Syntax errors in G-code", "severity": "high", "fallback": "Error with line number" }
+      ],
+      "confidenceEnvelope": { "typical": 0.90, "low": 0.70, "high": 0.98 },
+      "literatureCitations": ["JM DIE 24,545 programs", "Tribal rules corpus"],
+      "regressionTests": ["GCodeUnderstandingTransformerEngine.test.ts"],
+      "dependencies": [],
+      "modelInfo": { "architecture": "Transformer", "heads": 8, "layers": 6, "parameters": "24M" }
+    },
+    {
+      "engineId": "ForceNeuralPredictorEngine",
+      "category": "neural",
+      "capabilities": ["force_prediction", "physics_neural_hybrid", "uncertainty_quantification"],
+      "preconditions": ["cut_parameters known", "material known", "tool_geometry known"],
+      "failureModes": [
+        { "mode": "extrapolation", "condition": "Parameters outside training envelope", "severity": "medium", "fallback": "Use Kienzle with increased uncertainty" }
+      ],
+      "confidenceEnvelope": { "typical": 0.87, "low": 0.62, "high": 0.95 },
+      "literatureCitations": ["Physics-informed neural networks", "PRISM force dataset"],
+      "regressionTests": ["ForceNeuralPredictorEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine"],
+      "modelInfo": { "architecture": "MLP", "layers": 4, "parameters": "150K" }
+    },
+    {
+      "engineId": "ThermalNeuralPredictorEngine",
+      "category": "neural",
+      "capabilities": ["temperature_prediction", "temporal_evolution", "cooling_transient"],
+      "preconditions": ["cut_parameters known", "coolant_type known"],
+      "failureModes": [
+        { "mode": "unknown_coolant", "condition": "Coolant type not characterized", "severity": "medium", "fallback": "Assume flood coolant" }
+      ],
+      "confidenceEnvelope": { "typical": 0.78, "low": 0.50, "high": 0.88 },
+      "literatureCitations": ["LSTM temporal modeling", "PRISM thermal dataset"],
+      "regressionTests": ["ThermalNeuralPredictorEngine.test.ts"],
+      "dependencies": ["CuttingTemperatureEngine"],
+      "modelInfo": { "architecture": "LSTM", "layers": 2, "parameters": "200K" }
+    },
+    {
+      "engineId": "MillingReinforcementLearningEngine",
+      "category": "neural",
+      "capabilities": ["parameter_optimization", "adaptive_control", "reward_learning"],
+      "preconditions": ["optimization_objective defined", "parameter_bounds defined"],
+      "failureModes": [
+        { "mode": "reward_sparse", "condition": "Insufficient feedback data", "severity": "medium", "fallback": "Use Bayesian optimization" }
+      ],
+      "confidenceEnvelope": { "typical": 0.75, "low": 0.45, "high": 0.88 },
+      "literatureCitations": ["DQN (Mnih 2015)", "Manufacturing RL applications"],
+      "regressionTests": ["MillingReinforcementLearningEngine.test.ts"],
+      "dependencies": ["MillingMetaLearningEngine"],
+      "modelInfo": { "architecture": "DQN", "layers": 3, "parameters": "180K" }
+    },
+    {
+      "engineId": "OptimalStrategySelectionEngine",
+      "category": "strategy",
+      "capabilities": ["strategy_ranking", "multi_criteria_optimization", "constraint_satisfaction"],
+      "preconditions": ["feature_type known", "material known", "machine_constraints known"],
+      "failureModes": [
+        { "mode": "no_valid_strategy", "condition": "All strategies violate constraints", "severity": "high", "fallback": "Relax constraints iteratively" },
+        { "mode": "tie_breaker", "condition": "Multiple strategies equally ranked", "severity": "low", "fallback": "Use tribal preference" }
+      ],
+      "confidenceEnvelope": { "typical": 0.85, "low": 0.60, "high": 0.95 },
+      "literatureCitations": ["PRISM strategy taxonomy", "JM DIE best practices"],
+      "regressionTests": ["OptimalStrategySelectionEngine.test.ts"],
+      "dependencies": ["StrategyTaxonomyEngine", "MillStrategyNeuralEngine"]
+    },
+    {
+      "engineId": "TrochoidalMillingEngine",
+      "category": "strategy",
+      "capabilities": ["trochoidal_path_generation", "stepover_optimization", "engagement_control"],
+      "preconditions": ["tool_diameter known", "slot_width known", "material known"],
+      "failureModes": [
+        { "mode": "slot_too_narrow", "condition": "Slot width < 1.5x tool diameter", "severity": "medium", "fallback": "Use plunge milling" }
+      ],
+      "confidenceEnvelope": { "typical": 0.90, "low": 0.75, "high": 0.98 },
+      "literatureCitations": ["Rauch & Hascoet 2007", "HPC toolpath strategies"],
+      "regressionTests": ["TrochoidalMillingEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine", "ChatterStabilityLobeEngine"]
+    },
+    {
+      "engineId": "HighFeedMillingEngine",
+      "category": "strategy",
+      "capabilities": ["high_feed_parameters", "chip_thinning_compensation", "radial_engagement_optimization"],
+      "preconditions": ["high_feed_tool available", "machine_rapid_feed sufficient"],
+      "failureModes": [
+        { "mode": "feed_limit", "condition": "Machine feed rate limit < calculated optimal", "severity": "medium", "fallback": "Reduce to machine limit" }
+      ],
+      "confidenceEnvelope": { "typical": 0.88, "low": 0.70, "high": 0.95 },
+      "literatureCitations": ["High-feed milling theory", "Insert manufacturer data"],
+      "regressionTests": ["HighFeedMillingEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine", "ToolRegistryEngine"]
+    },
+    {
+      "engineId": "MillingReasoningDefaultEngine",
+      "category": "reasoning",
+      "capabilities": ["5_step_reasoning", "hypothesis_generation", "validation_chain", "proof_building"],
+      "preconditions": ["operation type known"],
+      "failureModes": [
+        { "mode": "no_valid_hypothesis", "condition": "All hypotheses fail validation", "severity": "medium", "fallback": "Use conservative fallback" }
+      ],
+      "confidenceEnvelope": { "typical": 0.82, "low": 0.55, "high": 0.92 },
+      "literatureCitations": ["Chain-of-thought (Wei 2022)", "Tree of Thoughts (Yao 2023)"],
+      "regressionTests": ["MillingReasoningDefaultEngine.test.ts"],
+      "dependencies": ["MillingReasoningTraceLedgerEngine"]
+    },
+    {
+      "engineId": "DeepLogicTraceEngine",
+      "category": "reasoning",
+      "capabilities": ["proof_tree_generation", "first_order_logic", "formula_citation", "explanation_rendering"],
+      "preconditions": ["decision_id exists"],
+      "failureModes": [
+        { "mode": "incomplete_trace", "condition": "Trace missing intermediate steps", "severity": "low", "fallback": "Interpolate missing steps" }
+      ],
+      "confidenceEnvelope": { "typical": 0.90, "low": 0.75, "high": 0.98 },
+      "literatureCitations": ["Formal methods in AI", "Explainable AI (XAI)"],
+      "regressionTests": ["DeepLogicTraceEngine.test.ts"],
+      "dependencies": ["FormulaRegistryEngine"]
+    },
+    {
+      "engineId": "CounterfactualMillEngine",
+      "category": "reasoning",
+      "capabilities": ["counterfactual_generation", "what_if_analysis", "alternative_exploration"],
+      "preconditions": ["base_scenario defined", "variation_parameters specified"],
+      "failureModes": [
+        { "mode": "infeasible_counterfactual", "condition": "Counterfactual violates physics", "severity": "low", "fallback": "Flag as infeasible" }
+      ],
+      "confidenceEnvelope": { "typical": 0.78, "low": 0.50, "high": 0.90 },
+      "literatureCitations": ["Counterfactual reasoning in ML", "PRISM Kienzle model"],
+      "regressionTests": ["CounterfactualMillEngine.test.ts"],
+      "dependencies": ["KienzleForceModelEngine", "MillingReasoningDefaultEngine"]
+    },
+    {
+      "engineId": "HypothesisPrioritizerEngine",
+      "category": "reasoning",
+      "capabilities": ["bayesian_prior", "hypothesis_ranking", "confidence_weighting"],
+      "preconditions": ["hypotheses array non-empty"],
+      "failureModes": [
+        { "mode": "uniform_prior", "condition": "No historical data for prior", "severity": "low", "fallback": "Use uniform prior" }
+      ],
+      "confidenceEnvelope": { "typical": 0.85, "low": 0.60, "high": 0.95 },
+      "literatureCitations": ["Bayesian hypothesis testing", "PRISM observation history"],
+      "regressionTests": ["HypothesisPrioritizerEngine.test.ts"],
+      "dependencies": ["MillingMetaLearningEngine"]
+    },
+    {
+      "engineId": "MillingMetaLearningEngine",
+      "category": "reasoning",
+      "capabilities": ["observation_intake", "posterior_update", "retrain_trigger", "tribal_tip_promotion"],
+      "preconditions": ["observation data valid"],
+      "failureModes": [
+        { "mode": "outlier_observation", "condition": "Observation >3 sigma from prior", "severity": "medium", "fallback": "Flag for review" },
+        { "mode": "prior_divergence", "condition": "Posterior drifts significantly", "severity": "high", "fallback": "Reset to base prior" }
+      ],
+      "confidenceEnvelope": { "typical": 0.80, "low": 0.55, "high": 0.92 },
+      "literatureCitations": ["Meta-learning (Finn 2017)", "Bayesian updating"],
+      "regressionTests": ["MillingMetaLearningEngine.test.ts"],
+      "dependencies": []
+    },
+    {
+      "engineId": "MillingReasoningTraceLedgerEngine",
+      "category": "reasoning",
+      "capabilities": ["trace_recording", "trace_query", "stats_computation", "audit_trail"],
+      "preconditions": [],
+      "failureModes": [
+        { "mode": "disk_write_fail", "condition": "Cannot append to JSONL file", "severity": "low", "fallback": "Keep in memory only" }
+      ],
+      "confidenceEnvelope": { "typical": 0.99, "low": 0.95, "high": 1.00 },
+      "literatureCitations": ["Append-only ledger pattern", "PRISM audit requirements"],
+      "regressionTests": ["MillingReasoningTraceLedgerEngine.test.ts"],
+      "dependencies": []
+    },
+    {
+      "engineId": "MillingInferenceOrchestratorEngine",
+      "category": "integration",
+      "capabilities": ["neural_model_orchestration", "inference_routing", "latency_optimization"],
+      "preconditions": ["models loaded"],
+      "failureModes": [
+        { "mode": "model_unavailable", "condition": "ONNX model file missing", "severity": "high", "fallback": "Use physics-only path" }
+      ],
+      "confidenceEnvelope": { "typical": 0.92, "low": 0.80, "high": 0.98 },
+      "literatureCitations": ["ONNX runtime", "Model serving best practices"],
+      "regressionTests": ["MillingInferenceOrchestratorEngine.test.ts"],
+      "dependencies": ["MillStrategyNeuralEngine", "ChatterNeuralClassifierEngine", "SurfaceFinishCnnEngine"]
+    },
+    {
+      "engineId": "MillingDigitalTwinEngine",
+      "category": "integration",
+      "capabilities": ["state_synchronization", "virtual_machining", "prediction_validation"],
+      "preconditions": ["machine_model available", "toolpath available"],
+      "failureModes": [
+        { "mode": "sync_lag", "condition": "Real-time sync >100ms behind", "severity": "medium", "fallback": "Use last known state" }
+      ],
+      "confidenceEnvelope": { "typical": 0.85, "low": 0.65, "high": 0.95 },
+      "literatureCitations": ["Digital twin concept", "Industry 4.0"],
+      "regressionTests": ["MillingDigitalTwinEngine.test.ts"],
+      "dependencies": ["MachineKinematicsEngine", "CuttingForceEngine"]
+    },
+    {
+      "engineId": "RealTimeOptimizationEngine",
+      "category": "integration",
+      "capabilities": ["parameter_adaptation", "real_time_control", "constraint_enforcement"],
+      "preconditions": ["sensor_feedback available", "control_loop enabled"],
+      "failureModes": [
+        { "mode": "sensor_dropout", "condition": "No sensor data for >500ms", "severity": "high", "fallback": "Hold last parameters" }
+      ],
+      "confidenceEnvelope": { "typical": 0.88, "low": 0.70, "high": 0.95 },
+      "literatureCitations": ["Adaptive control (Astrom 1995)", "Manufacturing control systems"],
+      "regressionTests": ["RealTimeOptimizationEngine.test.ts"],
+      "dependencies": ["MillingInferenceOrchestratorEngine"]
+    },
+    {
+      "engineId": "SpeedFeedOrchestratorEngine",
+      "category": "integration",
+      "capabilities": ["speed_feed_calculation", "multi_source_fusion", "constraint_handling", "recommendation_ranking"],
+      "preconditions": ["material known", "tool known", "operation_type known"],
+      "failureModes": [
+        { "mode": "conflicting_sources", "condition": "Sources disagree >30%", "severity": "medium", "fallback": "Use conservative weighted average" }
+      ],
+      "confidenceEnvelope": { "typical": 0.88, "low": 0.65, "high": 0.95 },
+      "literatureCitations": ["Speed/feed theory", "Manufacturer recommendations", "Tribal knowledge"],
+      "regressionTests": ["SpeedFeedOrchestratorEngine.test.ts"],
+      "dependencies": ["TaylorToolLifeEngine", "KienzleForceModelEngine", "TribalKnowledgeEngine"]
+    }
+  ],
+  "aggregateStats": {
+    "averageConfidence": { "typical": 0.83, "low": 0.57, "high": 0.93 },
+    "physicsEngines": {
+      "count": 12,
+      "avgConfidence": 0.77,
+      "literatureCoverage": "100%"
+    },
+    "neuralEngines": {
+      "count": 8,
+      "avgConfidence": 0.83,
+      "totalParameters": "28M"
+    },
+    "strategyEngines": {
+      "count": 10,
+      "avgConfidence": 0.87
+    },
+    "reasoningEngines": {
+      "count": 6,
+      "avgConfidence": 0.86,
+      "traceability": "100%"
+    },
+    "integrationEngines": {
+      "count": 11,
+      "avgConfidence": 0.88
+    }
+  },
+  "validationGates": {
+    "safetyThreshold": 0.70,
+    "minimumConfidence": 0.50,
+    "minimumReasoningSteps": 3,
+    "requiredCitations": true
+  }
+}
