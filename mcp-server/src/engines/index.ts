@@ -7033,3 +7033,10 @@ export {
   type ForceInputFeatures,
   type ForcePrediction,
 } from './ForceNeuralPredictorEngine.js';
+
+export {
+  ThermalNeuralPredictorEngine,
+  thermalNeuralPredictorEngine,
+  type ThermalInputFeatures,
+  type ThermalPrediction,
+} from './ThermalNeuralPredictorEngine.js';
