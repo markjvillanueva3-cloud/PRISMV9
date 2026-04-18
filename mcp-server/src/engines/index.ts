@@ -3208,6 +3208,9 @@ export { latheProgramGeneratorEngine } from "./LatheProgramGeneratorEngine.js";
 export { lathePrintToProgramOrchestratorEngine } from "./LathePrintToProgramOrchestratorEngine.js";
 export { latheProgramVerificationEngine } from "./LatheProgramVerificationEngine.js";
 export { latheSetupSheetGeneratorEngine } from "./LatheSetupSheetGeneratorEngine.js";
+export { lathePrintToProgramDLIntelligenceEngine } from "./LathePrintToProgramDLIntelligenceEngine.js";
+export { lathePrintToProgramReasoningEngine } from "./LathePrintToProgramReasoningEngine.js";
+export { lathePrintToProgramKnowledgeGraphEngine } from "./LathePrintToProgramKnowledgeGraphEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,

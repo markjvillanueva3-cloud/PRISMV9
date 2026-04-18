@@ -866,6 +866,9 @@ export const ACTIONS = [
   "cam_cycle_catalog",
   "lathe_post_process", "lathe_sf_calculate", "lathe_sf_advise",
   "lathe_sf_whatif", "lathe_sf_cite_sources", "lathe_sf_explain", "lathe_sf_full",
+  // LATHE-MASTER P4: Print-to-Program (7 actions)
+  "lathe_print_full", "lathe_print_ingest", "lathe_print_recognize",
+  "lathe_print_plan", "lathe_print_generate", "lathe_print_verify", "lathe_print_setup",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1820,6 +1823,28 @@ Params vary by action — pass relevant fields in params object.`,
               },
               reasoning_steps: calcResult.reasoning.map((r: any) => r.step),
             };
+            break;
+          }
+          // ── LATHE-MASTER P4: Print-to-Program Pipeline (7 actions) ──
+          case "lathe_print_full":
+          case "lathe_print_ingest":
+          case "lathe_print_recognize":
+          case "lathe_print_plan":
+          case "lathe_print_generate":
+          case "lathe_print_verify":
+          case "lathe_print_setup": {
+            const { dispatchLathePrintToProgram, LathePrintToProgramAction } = await import(
+              "../../../dispatchers/lathePrintToProgramDispatcher.js"
+            );
+            const p2pAction = action.replace("lathe_", "") as any;
+            if (!LathePrintToProgramAction.safeParse(p2pAction).success) {
+              throw new Error(`Invalid lathe P2P action: ${p2pAction}`);
+            }
+            const dispatchResult = await dispatchLathePrintToProgram(p2pAction, params);
+            if (!dispatchResult.success) {
+              throw new Error(dispatchResult.error || "Lathe P2P dispatch failed");
+            }
+            result = dispatchResult.data;
             break;
           }
           case "probe_generate": {
