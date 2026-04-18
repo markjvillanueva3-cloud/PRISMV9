@@ -3213,6 +3213,7 @@ export { lathePrintToProgramReasoningEngine } from "./LathePrintToProgramReasoni
 export { lathePrintToProgramKnowledgeGraphEngine } from "./LathePrintToProgramKnowledgeGraphEngine.js";
 export { lathePrintToProgramRegressionEngine, GOLDEN_BASELINE } from "./LathePrintToProgramRegressionEngine.js";
 export { latheAutoQuoteFromPrintEngine } from "./LatheAutoQuoteFromPrintEngine.js";
+export { latheActualCostReconciliationEngine } from "./LatheActualCostReconciliationEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
