@@ -14,7 +14,7 @@
     {
       "id": "U-CAL14",
       "title": "Pipeline Run — D2 Blanking Die (vs ITW SHAKEPROOF)",
-      "status": "not_started",
+      "status": "complete",
       "session": 5,
       "depends_on": ["U-CAL09", "U-CAL13"],
       "description": "Create DXF matching ITW geometry, run through WEDMPrintToProgramEngine, compare generated NC to real shop program"
@@ -22,7 +22,7 @@
     {
       "id": "U-CAL15",
       "title": "Pipeline Run — Taper Part (vs NOZE TEST)",
-      "status": "not_started",
+      "status": "complete",
       "session": 5,
       "depends_on": ["U-CAL14"],
       "description": "Create DXF for taper geometry, run through pipeline with SS/taper/5-pass, compare to NOZE TEST NC"
@@ -30,7 +30,7 @@
     {
       "id": "U-CAL16",
       "title": "5-Part Pipeline Benchmark",
-      "status": "not_started",
+      "status": "complete",
       "session": 6,
       "depends_on": ["U-CAL15"],
       "description": "Run pipeline for 5 diverse scenarios (D2/SS/carbide/aluminum/titanium) across 3 controllers, validate all pass"
@@ -38,7 +38,7 @@
     {
       "id": "U-CAL17",
       "title": "Pipeline Error Handling",
-      "status": "not_started",
+      "status": "complete",
       "session": 6,
       "depends_on": ["U-CAL16"],
       "description": "Test 6 error cases: non-conductive, blind pocket, >300mm, wire mismatch, empty DXF, malformed G-code"
