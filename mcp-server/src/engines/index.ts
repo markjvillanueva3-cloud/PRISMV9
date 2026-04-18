@@ -2442,6 +2442,7 @@ export { bSplineEngine } from "./BSplineEngine.js";
 export { backplotEngine } from "./BackplotEngine.js";
 export { batchOptimizationEngine, BatchOptimizationEngine } from "./BatchOptimizationEngine.js";
 export { bayesianOptimizationEngine } from "./BayesianOptimizationEngine.js";
+export { bloomDedupEngine, BloomDedupEngine, AssetBloomFilters, assetBloomFilters } from "./BloomDedupEngine.js";
 export { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
 export { bvhEngine } from "./BVHEngine.js";
 export { cacheEngine, CacheEngine } from "./CacheEngine.js";
@@ -7103,3 +7104,48 @@ export {
   type HistoricalSnapshot,
   type TwinConfig,
 } from './MillingDigitalTwinEngine.js';
+
+// ============================================================================
+// MILL-AGI Foundation Engines (P0+P1+P2)
+// ============================================================================
+
+// MillingReasoningDefaultEngine — MILL-AGI-P0/U-P0.2: 5-step chain reasoning for milling physics
+export {
+  MillingReasoningDefaultEngine,
+  millingReasoningDefaultEngine,
+  type ReasoningConfig,
+  type ReasoningResult,
+  type ReasoningStep,
+  type ReasoningContext,
+  type ReasoningHypothesis,
+} from './MillingReasoningDefaultEngine.js';
+
+// UpstreamValidationHandshakeEngine — MILL-AGI-P1/U-P1.3: 4-validator chain before strategy selection
+export {
+  UpstreamValidationHandshakeEngine,
+  upstreamValidationHandshakeEngine,
+  type ValidationHandshakeResult,
+  type ValidatorResult,
+  type HandshakeConfig,
+} from './UpstreamValidationHandshakeEngine.js';
+
+// HSMDwellAtCornerEngine — MILL-AGI-P2/MS7-04: HSM corner dwell physics (servo settling, thermal accumulation)
+export {
+  HSMDwellAtCornerEngine,
+  type CornerGeometry,
+  type MachineServo,
+  type HSMParameters,
+  type DwellAnalysis,
+  type CornerOptimization,
+} from './HSMDwellAtCornerEngine.js';
+
+// MicroMillingSizeEffectEngine — MILL-AGI-P2/MS7-05: Size effect corrected forces (Aramcharoen 2009)
+export {
+  MicroMillingSizeEffectEngine,
+  type MicroTool,
+  type MicroCut,
+  type MicroMaterial,
+  type SizeEffectResult,
+  type ChipFormationAnalysis,
+  type MicroMillingRecommendation,
+} from './MicroMillingSizeEffectEngine.js';

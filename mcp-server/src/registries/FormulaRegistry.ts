@@ -825,6 +825,131 @@ const BUILT_IN_FORMULAS: Formula[] = [
     consumers: ["energy_efficiency", "thermal_analysis", "process_optimization"]
   },
 
+  // ── MILL-AGI-P2: HSM and Micro-Milling Physics Formulas ────────────────────
+
+  // F-SIZEEFFECT-001: Aramcharoen Size Effect Model (2009)
+  {
+    formula_id: "F-SIZEEFFECT-001",
+    name: "Aramcharoen Size Effect Model",
+    domain: "physics",
+    category: "micro_cutting",
+    equation: "k_{c,eff} = k_{c1.1} \\cdot \\left(\\frac{h}{h_0}\\right)^{-m_c} \\cdot \\left(1 + \\left(\\frac{r_e}{h}\\right)^n\\right)",
+    equation_plain: "kc_eff = kc1_1 * (h/h0)^(-mc) * (1 + (r_edge/h)^n)",
+    parameters: [
+      { name: "kc1_1", symbol: "k_{c1.1}", unit: "N/mm²", description: "Specific cutting force at h=1mm", type: "input" },
+      { name: "h", symbol: "h", unit: "µm", description: "Uncut chip thickness", type: "input", range: { min: 0.1, max: 100 } },
+      { name: "h0", symbol: "h_0", unit: "mm", description: "Reference chip thickness (1mm)", type: "constant", default: 1 },
+      { name: "mc", symbol: "m_c", unit: "-", description: "Kienzle exponent", type: "input", range: { min: 0.15, max: 0.45 } },
+      { name: "r_edge", symbol: "r_e", unit: "µm", description: "Cutting edge radius", type: "input", range: { min: 1, max: 20 } },
+      { name: "n", symbol: "n", unit: "-", description: "Size effect exponent (typ. 0.5-1.0)", type: "input", default: 0.7 },
+      { name: "kc_eff", symbol: "k_{c,eff}", unit: "N/mm²", description: "Effective specific cutting force with size effect", type: "output" }
+    ],
+    validation: {
+      required_inputs: ["kc1_1", "h", "mc", "r_edge"],
+      output_range: { min: 500, max: 50000 },
+      safety_checks: ["h must be > h_min to avoid pure ploughing"]
+    },
+    description: "Corrects Kienzle cutting force for micro-scale size effects where edge radius becomes significant relative to chip thickness.",
+    theory: "At micro-scale, the cutting edge radius r_e becomes comparable to chip thickness h, causing transition from cutting to ploughing. The size effect factor (1 + (r_e/h)^n) captures the increased specific force.",
+    assumptions: ["Edge radius >> rake angle effect at micro scale", "Isotropic material", "Steady-state cutting"],
+    limitations: ["Exponent n varies by material (0.5 for aluminum, 1.0 for steel)", "Not valid for h < 0.2*r_e (pure ploughing)"],
+    references: ["Aramcharoen, A., Mativenga, P.T. (2009). Size effect and tool geometry in micromilling. CIRP Annals 58(1):45-48"],
+    consumers: ["MicroMillingSizeEffectEngine", "micro_size_effect", "micro_cutting_force"]
+  },
+
+  // F-HMIN-001: Minimum Chip Thickness
+  {
+    formula_id: "F-HMIN-001",
+    name: "Minimum Chip Thickness",
+    domain: "physics",
+    category: "micro_cutting",
+    equation: "h_{min} = k \\cdot r_e",
+    equation_plain: "h_min = k * r_edge (k ≈ 0.2 for most materials)",
+    parameters: [
+      { name: "r_edge", symbol: "r_e", unit: "µm", description: "Cutting edge radius", type: "input", range: { min: 1, max: 20 } },
+      { name: "k", symbol: "k", unit: "-", description: "Material-dependent constant (typ. 0.2-0.4)", type: "input", default: 0.2 },
+      { name: "h_min", symbol: "h_{min}", unit: "µm", description: "Minimum chip thickness for material removal", type: "output" }
+    ],
+    validation: {
+      required_inputs: ["r_edge"],
+      output_range: { min: 0.1, max: 10 }
+    },
+    description: "Below h_min, material undergoes elastic recovery (ploughing) rather than chip formation. Critical for micro-milling feed selection.",
+    theory: "When chip thickness h < h_min, the negative effective rake angle causes workpiece material to flow under the tool rather than form a chip. This threshold depends on edge sharpness and material properties.",
+    references: ["Liu, X., DeVor, R.E., Kapoor, S.G. (2006). J. Manufacturing Science & Engineering 128:788-798"],
+    consumers: ["MicroMillingSizeEffectEngine", "micro_recommend", "feed_selection"]
+  },
+
+  // F-SERVOSETTLE-001: Servo Settling Time
+  {
+    formula_id: "F-SERVOSETTLE-001",
+    name: "Servo Settling Time (2% criterion)",
+    domain: "control",
+    category: "machine_dynamics",
+    equation: "t_s = \\frac{4.6}{2\\pi f_{bw}}",
+    equation_plain: "t_settle = 4.6 / (2 * pi * f_bandwidth)",
+    parameters: [
+      { name: "f_bw", symbol: "f_{bw}", unit: "Hz", description: "Servo bandwidth (-3dB frequency)", type: "input", range: { min: 10, max: 200 } },
+      { name: "t_settle", symbol: "t_s", unit: "ms", description: "Settling time to 2% of final value", type: "output" }
+    ],
+    validation: {
+      required_inputs: ["f_bw"],
+      output_range: { min: 1, max: 100 }
+    },
+    description: "Time for servo axis to settle within 2% of target position after step input. Critical for HSM dwell-at-corner calculations.",
+    theory: "For a second-order critically-damped system, settling time to 2% is approximately 4.6 time constants. With bandwidth f_bw, time constant τ = 1/(2πf_bw).",
+    references: ["Ogata, K. (2010). Modern Control Engineering, 5th ed., Prentice Hall, Ch. 5"],
+    consumers: ["HSMDwellAtCornerEngine", "hsm_analyze_dwell", "corner_velocity"]
+  },
+
+  // F-CORNERVEL-001: Corner Velocity Change
+  {
+    formula_id: "F-CORNERVEL-001",
+    name: "HSM Corner Velocity Change",
+    domain: "kinematics",
+    category: "toolpath",
+    equation: "\\Delta v = 2v \\sin\\left(\\frac{\\theta}{2}\\right)",
+    equation_plain: "delta_v = 2 * v * sin(theta/2)",
+    parameters: [
+      { name: "v", symbol: "v", unit: "mm/min", description: "Programmed feedrate", type: "input" },
+      { name: "theta", symbol: "\\theta", unit: "rad", description: "Corner angle (0=straight, π=180° reversal)", type: "input", range: { min: 0, max: 3.14159 } },
+      { name: "delta_v", symbol: "\\Delta v", unit: "mm/min", description: "Required velocity change vector magnitude", type: "output" }
+    ],
+    validation: {
+      required_inputs: ["v", "theta"],
+      output_range: { min: 0, max: 20000 }
+    },
+    description: "Calculates velocity change magnitude required at a corner. Sharp corners require large velocity changes, causing dwell.",
+    theory: "Vector subtraction of approach and exit velocity vectors. At 90° corner, Δv = √2·v; at 180° reversal, Δv = 2v.",
+    references: ["FANUC 30i Series Operator's Manual, Section 2.3.4: Corner Deceleration"],
+    consumers: ["HSMDwellAtCornerEngine", "hsm_analyze_dwell", "corner_optimization"]
+  },
+
+  // F-THERMALDWELL-001: Thermal Accumulation Factor
+  {
+    formula_id: "F-THERMALDWELL-001",
+    name: "Thermal Accumulation Factor at Corner",
+    domain: "thermal",
+    category: "hsm",
+    equation: "\\lambda = 1 + \\alpha \\cdot \\frac{t_{dwell}}{\\tau_{th}}",
+    equation_plain: "lambda = 1 + alpha * (t_dwell / tau_thermal)",
+    parameters: [
+      { name: "t_dwell", symbol: "t_{dwell}", unit: "ms", description: "Dwell time at corner", type: "input" },
+      { name: "tau_th", symbol: "\\tau_{th}", unit: "ms", description: "Thermal time constant (typ. 50-200ms)", type: "input", default: 100 },
+      { name: "alpha", symbol: "\\alpha", unit: "-", description: "Heat accumulation coefficient (0.1-0.5)", type: "input", default: 0.3 },
+      { name: "lambda", symbol: "\\lambda", unit: "-", description: "Thermal accumulation factor (1.0 = no extra heating)", type: "output" }
+    ],
+    validation: {
+      required_inputs: ["t_dwell"],
+      output_range: { min: 1, max: 3 },
+      safety_checks: ["lambda > 1.5 may cause surface burn marks"]
+    },
+    description: "Estimates relative heat buildup during corner dwell. Longer dwell = more heat accumulation = potential surface damage.",
+    theory: "Tool-workpiece contact without feed motion causes localized heating. The factor λ multiplies baseline temperature rise to estimate actual corner temperature.",
+    limitations: ["Simplified model, actual thermal depends on coolant, material, and coating"],
+    consumers: ["HSMDwellAtCornerEngine", "hsm_analyze_dwell", "surface_quality"]
+  },
+
   // ── HM-REV-MS10: 20 hyperMILL formulas (F-HM-001 to F-HM-020) ────────────
   ...HYPERMILL_FORMULAS,
 ];
