@@ -3203,6 +3203,7 @@ export { masterPostProcessorEngine, MasterPostProcessorEngine } from "./MasterPo
 export { latheMasterPostRouterEngine } from "./LatheMasterPostRouterEngine.js";
 export { latheMasterPostUnifiedOutputEngine } from "./LatheMasterPostUnifiedOutputEngine.js";
 export { latheMasterPostSelfAwarenessEngine } from "./LatheMasterPostSelfAwarenessEngine.js";
+export { latheMasterPostDeepReasoningEngine } from "./LatheMasterPostDeepReasoningEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
