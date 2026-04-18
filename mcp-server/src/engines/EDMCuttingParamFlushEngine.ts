@@ -1801,6 +1801,105 @@ class EDMCuttingParamFlushEngine {
   }
 
   // ==========================================================================
+  // U-WGAP03 — WIRE BREAK RECOVERY
+  // ==========================================================================
+
+  /**
+   * Calculate recovery parameters after a wire break.
+   *
+   * Based on tribal knowledge tip wedm-kb-003 ("back up 2mm behind break")
+   * plus material-specific adjustments and pass-number scaling. Returns
+   * the backup distance along the tool path, the maximum retry count, and
+   * a set of reduced cutting parameters for the re-ignition attempt.
+   *
+   * @param breakPosition - Arc length (mm) along path where break occurred
+   * @param passNumber    - 1=rough, 2+=skim (skims use smaller backup)
+   * @param material      - Material family (case-insensitive; maps via MATERIAL_DB)
+   * @param basePower     - Optional base power to derive reduced_params from (default 60)
+   */
+  calculateBreakRecovery(
+    breakPosition: number,
+    passNumber: number,
+    material: string,
+    basePower: number = 60,
+  ): {
+    backup_mm: number;
+    retry_count: number;
+    restart_position_mm: number;
+    reduced_params: {
+      power_pct: number;
+      on_time_us: number;
+      off_time_us: number;
+      wire_tension_pct: number;
+    };
+    material_family: string;
+    notes: string[];
+  } {
+    const notes: string[] = [];
+    const key = (material || "").toLowerCase();
+
+    let family = "tool_steel";
+    let baseBackup = 2.0;
+    if (/carbide|wc|tungsten/.test(key)) {
+      family = "carbide";
+      baseBackup = 3.0;
+      notes.push("Carbide: larger backup — hard re-ignition, avoid crater edge");
+    } else if (/aluminum|al[-\s_]?6061|al[-\s_]?7075|\bal\b/.test(key)) {
+      family = "aluminum";
+      baseBackup = 1.5;
+      notes.push("Aluminum: shorter backup — low melting point re-ignites quickly");
+    } else if (/titanium|ti[-\s]?6|ti64|inconel|nickel/.test(key)) {
+      family = "titanium";
+      baseBackup = 2.5;
+      notes.push("Titanium/Inconel: extra backup — alpha case / reactive surface");
+    } else if (/copper|cu[-\s_]|brass/.test(key)) {
+      family = "copper";
+      baseBackup = 1.5;
+      notes.push("Copper/brass: shorter backup — excellent conductivity");
+    }
+
+    // Skim passes (pass 2+) use smaller backup because spark gap is narrower
+    // and the wire is re-entering an already-trimmed path.
+    const passScale = passNumber >= 2 ? 0.75 : 1.0;
+    let backup_mm = baseBackup * passScale;
+
+    // Clamp to published industry range 1.5–3.0 mm
+    backup_mm = Math.max(1.5, Math.min(3.0, backup_mm));
+
+    const restart_position_mm = Math.max(0, breakPosition - backup_mm);
+
+    // Industry standard retry count: 3 (Sodick AWT manual, Mitsubishi M-code M28)
+    const retry_count = 3;
+
+    // Reduced re-ignition parameters:
+    //   -20% power (baseline protection against re-break)
+    //   +10% on-time  (more energy per pulse to re-establish arc)
+    //   +15% off-time (extra dielectric recovery time)
+    //   -5% wire tension (reduce mechanical stress at restart)
+    const reduced_params = {
+      power_pct: Math.round(basePower * 0.8),
+      on_time_us: passNumber === 1 ? 12 : 5,
+      off_time_us: passNumber === 1 ? 14 : 9,
+      wire_tension_pct: 95,
+    };
+
+    if (passNumber >= 3) {
+      notes.push(
+        `Pass ${passNumber}: if break recurs, abandon skim and continue — dimensional impact < Ra impact`,
+      );
+    }
+
+    return {
+      backup_mm: Number(backup_mm.toFixed(2)),
+      retry_count,
+      restart_position_mm: Number(restart_position_mm.toFixed(3)),
+      reduced_params,
+      material_family: family,
+      notes,
+    };
+  }
+
+  // ==========================================================================
   // METADATA
   // ==========================================================================
 
