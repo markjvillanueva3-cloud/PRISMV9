@@ -6990,3 +6990,17 @@ export {
   type CarbonInput,
   type CarbonOutput,
 } from './SustainCarbonEngine.js';
+
+// ===== MILL-AGI Phase 2 (MILL-MS7): Physics Hardening =====
+export {
+  RCSAEngine,
+  rcsaEngine,
+  type ComplexNumber,
+  type FRFPoint,
+  type SubstructureFRF,
+  type ToolGeometry,
+  type HolderGeometry,
+  type ExtensionGeometry,
+  type RCSAInput,
+  type RCSAResult,
+} from './RCSAEngine.js';
