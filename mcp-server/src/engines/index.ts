@@ -7063,3 +7063,14 @@ export {
   type TrackerConfig,
   type CheckpointData,
 } from './MillingOnlineLearningTrackerEngine.js';
+
+export {
+  BanditParameterOptimizerEngine,
+  banditParameterOptimizerEngine,
+  type ParameterArm,
+  type ArmStats,
+  type Context as BanditContext,
+  type RewardSignal,
+  type BanditConfig,
+  type OptimizationResult,
+} from './BanditParameterOptimizerEngine.js';
