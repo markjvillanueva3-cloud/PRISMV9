@@ -7116,3 +7116,16 @@ export {
   type OptimizationResult,
   type OptimizerConfig,
 } from './RealTimeOptimizationEngine.js';
+
+export {
+  MillingDigitalTwinEngine,
+  millingDigitalTwinEngine,
+  type MachineState,
+  type ProcessState,
+  type QualityState,
+  type HealthState,
+  type TwinState,
+  type SimulationResult,
+  type HistoricalSnapshot,
+  type TwinConfig,
+} from './MillingDigitalTwinEngine.js';
