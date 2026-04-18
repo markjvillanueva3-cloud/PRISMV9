@@ -487,6 +487,14 @@ const ACTIONS = [
   "wedm_trace_record", "wedm_trace_recent", "wedm_trace_query", "wedm_trace_validate",
   // MillingReasoningTraceLedgerEngine (5 actions) — MILL-AGI-P0.2
   "milling_trace_record", "milling_trace_recent", "milling_trace_query", "milling_trace_stats", "milling_trace_with_reasoning",
+  // MillingReasoningDefaultEngine (2 actions) — MILL-AGI-P0.2-01
+  "milling_reason_default", "milling_reason_chain",
+  // UpstreamValidationHandshakeEngine (2 actions) — MILL-AGI-P1.3-01
+  "milling_upstream_validate", "milling_handshake_all",
+  // HSMDwellAtCornerEngine (3 actions) — MILL-AGI-P2/MS7-04
+  "hsm_analyze_dwell", "hsm_optimize_corner", "hsm_corner_feed",
+  // MicroMillingSizeEffectEngine (3 actions) — MILL-AGI-P2/MS7-05
+  "micro_size_effect", "micro_chip_formation", "micro_recommend",
 ] as const;
 
 function ok(data: any) {
@@ -5947,6 +5955,54 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "milling_trace_with_reasoning": {
             const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
             return ok(millingReasoningTraceLedgerEngine.queryWithReasoning(params.limit as number | undefined));
+          }
+
+          // MillingReasoningDefaultEngine (2 actions) — MILL-AGI-P0.2-01
+          case "milling_reason_default": {
+            const { millingReasoningDefaultEngine } = await import("../../engines/MillingReasoningDefaultEngine.js");
+            return ok(await millingReasoningDefaultEngine.reason(params as any));
+          }
+          case "milling_reason_chain": {
+            const { millingReasoningDefaultEngine } = await import("../../engines/MillingReasoningDefaultEngine.js");
+            return ok(await millingReasoningDefaultEngine.reasonWithChain(params as any));
+          }
+
+          // UpstreamValidationHandshakeEngine (2 actions) — MILL-AGI-P1.3-01
+          case "milling_upstream_validate": {
+            const { upstreamValidationHandshakeEngine } = await import("../../engines/UpstreamValidationHandshakeEngine.js");
+            return ok(await upstreamValidationHandshakeEngine.validateSingle(params.validator as any, params.context as any));
+          }
+          case "milling_handshake_all": {
+            const { upstreamValidationHandshakeEngine } = await import("../../engines/UpstreamValidationHandshakeEngine.js");
+            return ok(await upstreamValidationHandshakeEngine.validateAll(params as any));
+          }
+
+          // HSMDwellAtCornerEngine (3 actions) — MILL-AGI-P2/MS7-04
+          case "hsm_analyze_dwell": {
+            const { HSMDwellAtCornerEngine } = await import("../../engines/HSMDwellAtCornerEngine.js");
+            return ok(HSMDwellAtCornerEngine.analyzeDwell(params.corner as any, params.servo as any, params.hsm_params as any));
+          }
+          case "hsm_optimize_corner": {
+            const { HSMDwellAtCornerEngine } = await import("../../engines/HSMDwellAtCornerEngine.js");
+            return ok(HSMDwellAtCornerEngine.optimizeCorner(params.corner as any, params.servo as any, params.hsm_params as any));
+          }
+          case "hsm_corner_feed": {
+            const { HSMDwellAtCornerEngine } = await import("../../engines/HSMDwellAtCornerEngine.js");
+            return ok(HSMDwellAtCornerEngine.calculateCornerFeed(params.angle_rad as number, params.base_feed as number, params.max_accel as number));
+          }
+
+          // MicroMillingSizeEffectEngine (3 actions) — MILL-AGI-P2/MS7-05
+          case "micro_size_effect": {
+            const { MicroMillingSizeEffectEngine } = await import("../../engines/MicroMillingSizeEffectEngine.js");
+            return ok(MicroMillingSizeEffectEngine.calculateSizeEffect(params.tool as any, params.cut as any, params.material as any));
+          }
+          case "micro_chip_formation": {
+            const { MicroMillingSizeEffectEngine } = await import("../../engines/MicroMillingSizeEffectEngine.js");
+            return ok(MicroMillingSizeEffectEngine.analyzeChipFormation(params.tool as any, params.cut as any, params.material as any));
+          }
+          case "micro_recommend": {
+            const { MicroMillingSizeEffectEngine } = await import("../../engines/MicroMillingSizeEffectEngine.js");
+            return ok(MicroMillingSizeEffectEngine.recommend(params.tool as any, params.material as any));
           }
 
           default:
