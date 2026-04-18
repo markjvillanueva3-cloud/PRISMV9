@@ -14,7 +14,7 @@
     {
       "id": "U-CAL01",
       "title": "Parse ITW SHAKEPROOF — Parameter Extraction Test",
-      "status": "not_started",
+      "status": "complete",
       "session": 1,
       "depends_on": [],
       "description": "Parse real ITW SHAKEPROOF NC program with WireEDMProgramParserEngine and validate extracted offsets (H1-H4), feeds (F0.12-F0.20), E-codes (E1221-E1224), pass count (4), and M-codes match actual values",
@@ -26,7 +26,7 @@
     {
       "id": "U-CAL02",
       "title": "Parse NOZE TEST — Taper & UV Extraction Test",
-      "status": "not_started",
+      "status": "complete",
       "session": 1,
       "depends_on": ["U-CAL01"],
       "description": "Parse NOZE TEST taper program, validate UV axis extraction (±0.048\" U, ±0.003\" V), 5 passes with E2821-E2825, feed progression F0.16→F0.30",
@@ -38,7 +38,7 @@
     {
       "id": "U-CAL03",
       "title": "Expand NC Program Corpus",
-      "status": "not_started",
+      "status": "complete",
       "session": 1,
       "depends_on": [],
       "description": "Scan Box/WIRE EDM/ folder for diverse NC programs, copy 5-10 programs covering different materials/thicknesses/pass counts, create SHOP_NC_PROGRAM_CATALOG.json",
@@ -50,7 +50,7 @@
     {
       "id": "U-CAL04",
       "title": "Parser Regression Suite",
-      "status": "not_started",
+      "status": "complete",
       "session": 1,
       "depends_on": ["U-CAL01", "U-CAL02", "U-CAL03"],
       "description": "Parse ALL programs in data/programs/wire-edm/, create golden parameter snapshots, write regression tests that lock parser output",
