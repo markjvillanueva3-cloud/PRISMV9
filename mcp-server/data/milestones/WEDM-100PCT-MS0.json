@@ -8,7 +8,7 @@
   "rgs_version": "v24",
   "philosophy": "Programs must be 100% accurate from PHYSICS FIRST PRINCIPLES + MANUFACTURER PUBLISHED DATA. Existing shop programs were written by amateurs — they are sanity checks, not targets. PRISM output should be BETTER than those programs: optimized speeds, minimal passes for target Ra, correct offsets from discharge physics. Every synthetic parameter must be replaced with a published or derived value. This is SAFETY-CRITICAL — wrong parameters can crash machines and injure operators.",
   "total_units": 38,
-  "completed_units": 35,
+  "completed_units": 36,
   "sessions": 13,
   "dependencies": [],
 
@@ -1528,7 +1528,7 @@
     "new_units": {
       "U-W100-00": {
         "title": "Data Readiness Sprint: verify MaterialRegistry + published data coverage",
-        "status": "not_started",
+        "status": "complete",
         "phase": "P0",
         "session": "S0",
         "description": "BLOCKING prerequisite. (1) Verify MaterialRegistry has thermal_diffusivity, cp, Lm, melting_point for D2, 304SS, 6061, WC, Inconel 718 — if missing, populate from ASM Handbook Vol. 1. (2) Extract additional cutting conditions from downloaded PDFs (Mitsubishi FA catalog, Sodick manual, Reliable EDM Ch5) to supplement the 10 existing data points. Target: ≥20 published data points (lowered from 40 per data librarian review). (3) Verify Klocke Ra k_ra values: published range is 0.35-0.42 for steel, NOT 0.13-0.23 as in current engines. (4) Verify DiBitonto K1=4.8 transfers from sinker to wire EDM — if not, fit K1 from ITW SHAKEPROOF real offset data. (5) Widen exit gate tolerances to ±15% (from ±5%) per published literature scatter.",
