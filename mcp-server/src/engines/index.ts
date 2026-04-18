@@ -7040,3 +7040,15 @@ export {
   type ThermalInputFeatures,
   type ThermalPrediction,
 } from './ThermalNeuralPredictorEngine.js';
+
+// ===== MILL-AGI Phase 0.4: Online Learning Layer =====
+export {
+  MillingReinforcementLearningEngine,
+  millingReinforcementLearningEngine,
+  type MillingState,
+  type MillingAction,
+  type MillingReward,
+  type RLConfig,
+  type TrainingStats,
+  type PolicyOutput,
+} from './MillingReinforcementLearningEngine.js';
