@@ -2442,6 +2442,7 @@ export { bSplineEngine } from "./BSplineEngine.js";
 export { backplotEngine } from "./BackplotEngine.js";
 export { batchOptimizationEngine, BatchOptimizationEngine } from "./BatchOptimizationEngine.js";
 export { bayesianOptimizationEngine } from "./BayesianOptimizationEngine.js";
+export { bayesianSafetyEngine, BayesianSafetyEngine } from "./BayesianSafetyEngine.js";
 export { bloomDedupEngine, BloomDedupEngine, AssetBloomFilters, assetBloomFilters } from "./BloomDedupEngine.js";
 export { bayesianToolLifeEngine } from "./BayesianToolLifeEngine.js";
 export { bvhEngine } from "./BVHEngine.js";
