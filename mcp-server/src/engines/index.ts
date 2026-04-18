@@ -3237,6 +3237,7 @@ export { latheLoRAEvalHarnessEngine } from "./LatheLoRAEvalHarnessEngine.js";
 export { latheLoRAMergeQuantEngine } from "./LatheLoRAMergeQuantEngine.js";
 export { latheOllamaIntegrationEngine } from "./LatheOllamaIntegrationEngine.js";
 export { latheLoRAPipelineEngine } from "./LatheLoRAPipelineEngine.js";
+export { latheLoRACadenceEngine } from "./LatheLoRACadenceEngine.js";
 export {
   masterPostGeneratorEngine,
   MasterPostGeneratorEngine,
