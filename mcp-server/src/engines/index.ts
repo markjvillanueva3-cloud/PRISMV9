@@ -7004,3 +7004,11 @@ export {
   type RCSAInput,
   type RCSAResult,
 } from './RCSAEngine.js';
+
+export {
+  MicroMillingEngine,
+  microMillingEngine,
+  type MicroToolGeometry,
+  type MicroCuttingConditions,
+  type MicroMillingResult,
+} from './MicroMillingEngine.js';
