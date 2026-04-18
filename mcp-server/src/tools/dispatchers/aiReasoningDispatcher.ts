@@ -495,6 +495,19 @@ const ACTIONS = [
   "hsm_analyze_dwell", "hsm_optimize_corner", "hsm_corner_feed",
   // MicroMillingSizeEffectEngine (3 actions) — MILL-AGI-P2/MS7-05
   "micro_size_effect", "micro_chip_formation", "micro_recommend",
+  // MillingInferenceOrchestratorEngine (2 actions) — MILL-AGI-P0.5
+  "milling_inference_orchestrate", "milling_inference_status",
+  // MillingDigitalTwinEngine (3 actions) — MILL-AGI-P0.5
+  "milling_twin_sync", "milling_twin_state", "milling_twin_simulate",
+  // MillingAIUltraIntelligenceEngine (6 actions) — MILL-AI-MS1
+  "milling_ai_nl", "milling_ai_strategy", "milling_ai_predict",
+  "milling_ai_score", "milling_ai_explain", "milling_ai_troubleshoot",
+  // MillingAIIntegrationEngine (3 actions) — MILL-AI-MS2
+  "milling_jmdie_search", "milling_jmdie_learn", "milling_jmdie_recommend",
+  // MillingDeepAIHardeningEngine (3 actions) — MILL-AI-MS3
+  "milling_deep_harden", "milling_deep_validate", "milling_deep_optimize",
+  // MillingMachineIntelligenceEngine (4 actions) — MILL-AI-MS4
+  "milling_machine_profile", "milling_machine_select", "milling_machine_compare", "milling_machine_capability",
 ] as const;
 
 function ok(data: any) {
@@ -6003,6 +6016,102 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "micro_recommend": {
             const { MicroMillingSizeEffectEngine } = await import("../../engines/MicroMillingSizeEffectEngine.js");
             return ok(MicroMillingSizeEffectEngine.recommend(params.tool as any, params.material as any));
+          }
+
+          // MillingInferenceOrchestratorEngine (2 actions) — MILL-AGI-P0.5
+          case "milling_inference_orchestrate": {
+            const { millingInferenceOrchestratorEngine } = await import("../../engines/MillingInferenceOrchestratorEngine.js");
+            return ok(await millingInferenceOrchestratorEngine.orchestrate?.(params as any) ?? millingInferenceOrchestratorEngine.predict?.(params as any));
+          }
+          case "milling_inference_status": {
+            const { millingInferenceOrchestratorEngine } = await import("../../engines/MillingInferenceOrchestratorEngine.js");
+            return ok(millingInferenceOrchestratorEngine.getStatus?.() ?? { status: "available" });
+          }
+
+          // MillingDigitalTwinEngine (3 actions) — MILL-AGI-P0.5
+          case "milling_twin_sync": {
+            const { millingDigitalTwinEngine } = await import("../../engines/MillingDigitalTwinEngine.js");
+            return ok(await millingDigitalTwinEngine.sync?.(params as any) ?? millingDigitalTwinEngine.updateState?.(params as any));
+          }
+          case "milling_twin_state": {
+            const { millingDigitalTwinEngine } = await import("../../engines/MillingDigitalTwinEngine.js");
+            return ok(millingDigitalTwinEngine.getState?.() ?? millingDigitalTwinEngine.getCurrentState?.());
+          }
+          case "milling_twin_simulate": {
+            const { millingDigitalTwinEngine } = await import("../../engines/MillingDigitalTwinEngine.js");
+            return ok(await millingDigitalTwinEngine.simulate?.(params as any));
+          }
+
+          // MillingAIUltraIntelligenceEngine (6 actions) — MILL-AI-MS1
+          case "milling_ai_nl": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(await millingAIUltraIntelligenceEngine.processNL?.(params as any));
+          }
+          case "milling_ai_strategy": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(millingAIUltraIntelligenceEngine.recommendStrategy?.(params as any));
+          }
+          case "milling_ai_predict": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(millingAIUltraIntelligenceEngine.predictToolLife?.(params as any));
+          }
+          case "milling_ai_score": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(millingAIUltraIntelligenceEngine.scoreToolpath?.(params as any));
+          }
+          case "milling_ai_explain": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(millingAIUltraIntelligenceEngine.explain?.(params as any));
+          }
+          case "milling_ai_troubleshoot": {
+            const { millingAIUltraIntelligenceEngine } = await import("../../engines/MillingAIUltraIntelligenceEngine.js");
+            return ok(await millingAIUltraIntelligenceEngine.troubleshoot?.(params as any));
+          }
+
+          // MillingAIIntegrationEngine (3 actions) — MILL-AI-MS2
+          case "milling_jmdie_search": {
+            const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
+            return ok(await millingAIIntegrationEngine.searchPrograms?.(params as any) ?? millingAIIntegrationEngine.search?.(params as any));
+          }
+          case "milling_jmdie_learn": {
+            const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
+            return ok(await millingAIIntegrationEngine.learnFromProgram?.(params as any));
+          }
+          case "milling_jmdie_recommend": {
+            const { millingAIIntegrationEngine } = await import("../../engines/MillingAIIntegrationEngine.js");
+            return ok(millingAIIntegrationEngine.recommendFromHistory?.(params as any) ?? millingAIIntegrationEngine.recommend?.(params as any));
+          }
+
+          // MillingDeepAIHardeningEngine (3 actions) — MILL-AI-MS3
+          case "milling_deep_harden": {
+            const { millingDeepAIHardeningEngine } = await import("../../engines/MillingDeepAIHardeningEngine.js");
+            return ok(await millingDeepAIHardeningEngine.harden?.(params as any));
+          }
+          case "milling_deep_validate": {
+            const { millingDeepAIHardeningEngine } = await import("../../engines/MillingDeepAIHardeningEngine.js");
+            return ok(millingDeepAIHardeningEngine.validate?.(params as any));
+          }
+          case "milling_deep_optimize": {
+            const { millingDeepAIHardeningEngine } = await import("../../engines/MillingDeepAIHardeningEngine.js");
+            return ok(await millingDeepAIHardeningEngine.optimize?.(params as any));
+          }
+
+          // MillingMachineIntelligenceEngine (4 actions) — MILL-AI-MS4
+          case "milling_machine_profile": {
+            const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
+            return ok(millingMachineIntelligenceEngine.getMachineProfile?.(params as any) ?? millingMachineIntelligenceEngine.getProfile?.(params as any));
+          }
+          case "milling_machine_select": {
+            const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
+            return ok(millingMachineIntelligenceEngine.selectMachine?.(params as any));
+          }
+          case "milling_machine_compare": {
+            const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
+            return ok(millingMachineIntelligenceEngine.compareMachines?.(params as any));
+          }
+          case "milling_machine_capability": {
+            const { millingMachineIntelligenceEngine } = await import("../../engines/MillingMachineIntelligenceEngine.js");
+            return ok(millingMachineIntelligenceEngine.checkCapability?.(params as any) ?? millingMachineIntelligenceEngine.getCapabilities?.(params as any));
           }
 
           default:
