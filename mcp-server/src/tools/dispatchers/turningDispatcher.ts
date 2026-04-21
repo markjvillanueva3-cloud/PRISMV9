@@ -39,6 +39,8 @@ const ACTIONS = [
   "mill_turn_bar_feeder", "mill_turn_swiss",
   // LATHE-PRO-MS6a: Swiss multi-channel G-code emission (U-LPM01..U-LPM03)
   "turning_swiss_channel_emit", "turning_swiss_sync_verify_schedule", "turning_swiss_part_transfer",
+  // LATHE-PRO-MS6a: Channel balancing + simultaneous-cut collision (U-LPM04..U-LPM05)
+  "turning_swiss_channel_balance", "turning_swiss_collision_check",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -338,6 +340,17 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_swiss_part_transfer": {
             const { swissPartTransferSequenceEngine: spt } = await import("../../engines/SwissPartTransferSequenceEngine.js");
             result = spt.generate(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6a: Channel balancing + simultaneous-cut collision (U-LPM04..U-LPM05)
+          case "turning_swiss_channel_balance": {
+            const { swissChannelGanttSchedulerEngine: sgs } = await import("../../engines/SwissChannelGanttSchedulerEngine.js");
+            result = sgs.balance(params as any);
+            break;
+          }
+          case "turning_swiss_collision_check": {
+            const { multiChannelCollisionEngine: mcc } = await import("../../engines/MultiChannelCollisionEngine.js");
+            result = mcc.check(params as any);
             break;
           }
           // LATHE-MS0: Collision zone actions
