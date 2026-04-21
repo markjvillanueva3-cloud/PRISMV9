@@ -2530,6 +2530,63 @@ ${web}
         : null
     };
   }
+
+  // ==========================================================================
+  // MILL DOMAIN DELEGATION (MILL-MASTER-P1-U04-SA-INTEG)
+  // Delegates mill-specific recommendations to MillAISelfAwarenessIntegration,
+  // augmented with PRISM-level AI feature suggestions. Lazy-imports to avoid
+  // circular dependency.
+  // ==========================================================================
+
+  /**
+   * Recommend mill engines + supporting AI features for a task.
+   * Combines MillAISelfAwarenessIntegrationEngine.recommendEngine (domain pick)
+   * with recommendAIFeatures (cross-cutting reasoning).
+   *
+   * @param task - Natural-language task description
+   * @returns Mill-scoped recommendation bundle
+   */
+  async recommendMillFeatures(task: string): Promise<{
+    mill_scoped: true;
+    task: string;
+    mill_engines: Array<{ engine: string; category: string; confidence: number; reasoning: string }>;
+    ai_features: {
+      primary: string | null;
+      supporting: string[];
+      multi_agent_strategy: string;
+      advisor_approach: string;
+    };
+    ts: string;
+  }> {
+    // Lazy import — avoids top-level circular dep if MillAI later imports us
+    const { millAISelfAwarenessIntegrationEngine } = await import(
+      "./MillAISelfAwarenessIntegrationEngine.js"
+    );
+
+    const millRecs = (task && task.trim().length > 0)
+      ? millAISelfAwarenessIntegrationEngine.recommendEngine(task)
+      : [];
+
+    const aiRec = this.recommendAIFeatures(task || "");
+
+    return {
+      mill_scoped: true,
+      task: task || "",
+      mill_engines: millRecs.map((r) => ({
+        engine: r.engine.name,
+        category: r.engine.category,
+        confidence: r.confidence,
+        reasoning: r.reasoning,
+      })),
+      ai_features: {
+        primary: aiRec.primaryFeature?.name ?? null,
+        supporting: aiRec.supportingFeatures.map((f) => f.name),
+        multi_agent_strategy: aiRec.multiAgentStrategy,
+        advisor_approach: aiRec.advisorApproach,
+      },
+      ts: new Date().toISOString(),
+    };
+  }
 }
 
 // ============================================================================

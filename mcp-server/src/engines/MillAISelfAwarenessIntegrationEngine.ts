@@ -25,6 +25,9 @@
  */
 
 import { JM_DIE_MILL_STATS } from "../data/jmdie-mill-program-index.js";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 // ============================================================================
 // MILL ENGINE REGISTRY (114 engines)
@@ -1384,6 +1387,108 @@ API METHODS:
         MILL_PHYSICS_CAPABILITY_MAP.stability.models.length,
       operations: Object.keys(OPERATION_PHYSICS_REQUIREMENTS).length
     };
+  }
+
+  // ============================================================================
+  // REGISTRY REFRESH (MILL-MASTER-P1-U04-SA-INTEG)
+  // Scans disk for Mill*.ts + Milling*.ts engines and reports drift against
+  // the static MILL_ENGINE_REGISTRY. Non-destructive: the static list is the
+  // "curated" view; discovered-but-uncatalogued engines are tracked in-memory.
+  // ============================================================================
+
+  private discoveredEngines: string[] = [];
+  private lastScanAt: string | null = null;
+
+  /**
+   * Scan src/engines/ for Mill*.ts + Milling*.ts files and compare against
+   * the curated MILL_ENGINE_REGISTRY.
+   *
+   * @returns Drift report with curated + on-disk counts, new discoveries, and
+   *          curated entries whose source files are missing.
+   */
+  public refreshRegistry(): {
+    curated_count: number;
+    on_disk_count: number;
+    newly_discovered: string[];
+    missing_from_disk: string[];
+    merged_count: number;
+    scanned_at: string;
+    scan_root: string;
+  } {
+    const scanRoot = this.resolveEnginesDir();
+    const onDisk = this.scanMillEngineFiles(scanRoot);
+    const curatedNames = new Set(MILL_ENGINE_REGISTRY.map((e) => e.name));
+    const onDiskSet = new Set(onDisk);
+
+    const newly_discovered = onDisk.filter((n) => !curatedNames.has(n));
+    const missing_from_disk = MILL_ENGINE_REGISTRY
+      .filter((e) => !onDiskSet.has(e.name))
+      .map((e) => e.name);
+
+    this.discoveredEngines = newly_discovered;
+    this.lastScanAt = new Date().toISOString();
+
+    return {
+      curated_count: MILL_ENGINE_REGISTRY.length,
+      on_disk_count: onDisk.length,
+      newly_discovered,
+      missing_from_disk,
+      merged_count: curatedNames.size + newly_discovered.length,
+      scanned_at: this.lastScanAt,
+      scan_root: scanRoot,
+    };
+  }
+
+  /** Return a merged view: curated + last-discovered engine names. */
+  public getMergedEngineNames(): string[] {
+    return [
+      ...MILL_ENGINE_REGISTRY.map((e) => e.name),
+      ...this.discoveredEngines,
+    ];
+  }
+
+  /** Timestamp of last refreshRegistry() call, or null if never scanned. */
+  public getLastScanAt(): string | null {
+    return this.lastScanAt;
+  }
+
+  /** Locate src/engines directory; tolerates builds run from different cwds. */
+  private resolveEnginesDir(): string {
+    const candidates: string[] = [];
+    try {
+      const here = path.dirname(fileURLToPath(import.meta.url));
+      candidates.push(here); // this file already lives in src/engines
+    } catch {
+      /* import.meta.url not available in some contexts */
+    }
+    candidates.push(path.resolve(process.cwd(), "src/engines"));
+    candidates.push(path.resolve(process.cwd(), "mcp-server/src/engines"));
+    for (const dir of candidates) {
+      try {
+        const st = fs.statSync(dir);
+        if (st.isDirectory()) return dir;
+      } catch {
+        /* candidate not present */
+      }
+    }
+    // Last resort — return a path even if missing so error surfaces in scan step
+    return candidates[0] ?? path.resolve(process.cwd(), "src/engines");
+  }
+
+  /** Read directory, filter to Mill*.ts / Milling*.ts (exclude tests + .d.ts). */
+  private scanMillEngineFiles(dir: string): string[] {
+    let entries: string[] = [];
+    try {
+      entries = fs.readdirSync(dir);
+    } catch {
+      return [];
+    }
+    return entries
+      .filter((f) => /^Mill(ing)?[A-Z0-9].*\.ts$/.test(f))
+      .filter((f) => !f.endsWith(".test.ts"))
+      .filter((f) => !f.endsWith(".d.ts"))
+      .map((f) => f.replace(/\.ts$/, ""))
+      .sort();
   }
 
   /**
