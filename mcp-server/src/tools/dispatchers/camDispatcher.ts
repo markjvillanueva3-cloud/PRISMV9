@@ -1353,6 +1353,10 @@ export const ACTIONS = [
   "strategy_safety_assess", "strategy_safety_decide", "strategy_safety_filter",
   // CAMX-MS2/U03 — Strategy fallback chain walker
   "strategy_fallback_chain", "strategy_fallback_default_chain",
+  // MILL-MASTER-P1-U06-CAM-AGI-WIRE — CAM vendor AGI routing through CAMAGIMasterOrchestratorEngine
+  "cam_agi_route",        // pick single best CAM vendor with rationale
+  "cam_compare_systems",  // score every vendor side-by-side
+  "cam_ensemble",         // top-K weighted ensemble
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -1372,6 +1376,13 @@ import("../../engines/WEDMAwarenessAdoptionEngine.js").then(({ wedmAwarenessAdop
   * @returns void
  */
 export function registerCamDispatcher(server: any): void {
+  // MILL-MASTER-P1-U06: close the P1-U03 CAMAGIBinding loop so MillingAGIMaster
+  // can delegate vendor choice to the real CAMAGIMasterOrchestratorEngine.
+  // Fire-and-forget — binding only affects mill → CAM delegation (non-critical
+  // for CAM dispatcher operation itself). Error is logged, not raised.
+  import("../../engines/CAMAGIMasterOrchestratorEngine.js")
+    .then(({ camAGIMasterOrchestratorEngine }) => camAGIMasterOrchestratorEngine.bindToMillAGI())
+    .catch((err) => log.warn(`[camDispatcher] CAMAGI bind to MillingAGIMaster deferred: ${err.message}`));
   server.tool(
     "prism_cam",
     `CAM/Toolpath dispatcher — toolpath generation, simulation, optimization, post-processing, collision detection, fixturing.
@@ -8180,6 +8191,65 @@ Params vary by action — pass relevant fields in params object.`,
           case "strategy_fallback_default_chain": {
             const { strategyFallbackChainEngine } = await import("../../engines/StrategyFallbackChainEngine.js");
             result = strategyFallbackChainEngine.getDefaultChain(params.strategy as any);
+            break;
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // MILL-MASTER-P1-U06-CAM-AGI-WIRE
+          // Vendor routing through CAMAGIMasterOrchestratorEngine.
+          // All three actions share a required-field contract: material + operation.
+          // ─────────────────────────────────────────────────────────────────
+          case "cam_agi_route": {
+            if (!params.material || !params.operation) {
+              result = { error: "Missing required params: material, operation" };
+              break;
+            }
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            result = camAGIMasterOrchestratorEngine.pickVendor({
+              material: params.material as string,
+              material_iso: params.material_iso as any,
+              operation: params.operation as string,
+              part_features: params.part_features as string[] | undefined,
+              machine_class: params.machine_class as any,
+              complexity: params.complexity as any,
+              existing_templates: params.existing_templates as boolean | undefined,
+              shop_licenses: params.shop_licenses as string[] | undefined,
+            });
+            break;
+          }
+
+          case "cam_compare_systems": {
+            if (!params.material || !params.operation) {
+              result = { error: "Missing required params: material, operation" };
+              break;
+            }
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            result = camAGIMasterOrchestratorEngine.compareSystems({
+              material: params.material as string,
+              material_iso: params.material_iso as any,
+              operation: params.operation as string,
+              part_features: params.part_features as string[] | undefined,
+              machine_class: params.machine_class as any,
+              complexity: params.complexity as any,
+            });
+            break;
+          }
+
+          case "cam_ensemble": {
+            if (!params.material || !params.operation) {
+              result = { error: "Missing required params: material, operation" };
+              break;
+            }
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            const k = typeof params.k === "number" ? params.k : 3;
+            result = camAGIMasterOrchestratorEngine.ensemble({
+              material: params.material as string,
+              material_iso: params.material_iso as any,
+              operation: params.operation as string,
+              part_features: params.part_features as string[] | undefined,
+              machine_class: params.machine_class as any,
+              complexity: params.complexity as any,
+            }, k);
             break;
           }
 
