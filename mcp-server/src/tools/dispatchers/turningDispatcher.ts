@@ -54,6 +54,8 @@ const ACTIONS = [
   "turning_spc_predict", "turning_gage_rr_check", "turning_quality_package",
   // LATHE-PRO-MS9: Quality compliance AS9100/ISO 13485/FDA (U-LPR01..U-LPR06)
   "turning_biocompat_check", "turning_compliance_check",
+  // LATHE-PRO-MS10: Cost optimization & batch economics (U-LPE01..U-LPE08)
+  "turning_cost_per_part", "turning_cost_optimize",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -461,6 +463,24 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_compliance_check": {
             const { turningComplianceCheckEngine: tcc } = await import("../../engines/TurningComplianceCheckEngine.js");
             result = tcc.check(params as any);
+            break;
+          }
+          // LATHE-PRO-MS10: Cost optimization & batch economics (U-LPE01..U-LPE08)
+          case "turning_cost_per_part": {
+            const { turningCostPerPartEngine: tcpp } = await import("../../engines/TurningCostPerPartEngine.js");
+            result = tcpp.calculate(params as any);
+            break;
+          }
+          case "turning_cost_optimize": {
+            // Omnibus: 7-bucket cost + Gilbert/Taylor economic speed in one call.
+            const p = params as any;
+            const [costMod, gilbertMod] = await Promise.all([
+              import("../../engines/TurningCostPerPartEngine.js"),
+              import("../../engines/GilbertEconomicSpeedEngine.js"),
+            ]);
+            const cost = costMod.turningCostPerPartEngine.calculate(p.cost);
+            const gilbert = p.gilbert ? gilbertMod.gilbertEconomicSpeedEngine.compute(p.gilbert) : undefined;
+            result = { cost, gilbert };
             break;
           }
           case "turning_chip_analysis": {
