@@ -37,6 +37,8 @@ const ACTIONS = [
   "turning_assemble_program", "turning_auto_tools", "turning_cycle_time", "turning_validate",
   "mill_turn_live_tool", "mill_turn_sub_spindle", "mill_turn_multi_channel",
   "mill_turn_bar_feeder", "mill_turn_swiss",
+  // LATHE-PRO-MS6a: Swiss multi-channel G-code emission (U-LPM01..U-LPM03)
+  "turning_swiss_channel_emit", "turning_swiss_sync_verify_schedule", "turning_swiss_part_transfer",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -320,6 +322,22 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "mill_turn_swiss": {
             const { millTurnSwissPipelineEngine: mte } = await import("../../engines/MillTurnSwissPipelineEngine.js");
             result = mte.calculate({ action: "swiss_machining", params: params as any });
+            break;
+          }
+          // LATHE-PRO-MS6a: Swiss multi-channel G-code emission (U-LPM01..U-LPM03)
+          case "turning_swiss_channel_emit": {
+            const { swissChannelFileEmitterEngine: sce } = await import("../../engines/SwissChannelFileEmitterEngine.js");
+            result = sce.emit(params as any);
+            break;
+          }
+          case "turning_swiss_sync_verify_schedule": {
+            const { syncCodeVerificationEngine: sve } = await import("../../engines/SyncCodeVerificationEngine.js");
+            result = sve.verifySchedule(params as any);
+            break;
+          }
+          case "turning_swiss_part_transfer": {
+            const { swissPartTransferSequenceEngine: spt } = await import("../../engines/SwissPartTransferSequenceEngine.js");
+            result = spt.generate(params as any);
             break;
           }
           // LATHE-MS0: Collision zone actions

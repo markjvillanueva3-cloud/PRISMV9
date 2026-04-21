@@ -291,6 +291,235 @@ class SyncCodeVerificationEngineImpl {
   }
 
   /**
+   * Schedule-level verification (MS6a / U-LPM02).
+   *
+   * Runs BEFORE G-code emission, on the raw multi-channel schedule produced by
+   * `MillTurnSwissPipelineEngine.calculateMultiChannel()`. Complements the
+   * text-based `verify()` method above (which runs AFTER emission on raw
+   * G-code).
+   *
+   * Checks:
+   *   1. Matched pairs — every sync has ≥ 2 participating channels.
+   *   2. Deadlock — cross-channel wait graph is a DAG (tri-colour DFS).
+   *   3. Monotonic order — sync points within a channel are in execution order.
+   *   4. Safe position — each channel is retracted at every sync it participates in.
+   */
+  verifySchedule(input: {
+    sync_points: Array<{
+      after_op: string;
+      wait_channels: number[];
+      idle_time_s?: number;
+      type?: "generic" | "part_transfer" | "tool_change" | "simultaneous_start";
+    }>;
+    ops: Array<{
+      op_id: string;
+      channel_id: number;
+      start_s: number;
+      end_s: number;
+      end_position?: { x_mm?: number; z_mm?: number; retracted: boolean };
+      depends_on?: string[];
+    }>;
+  }): {
+    is_safe: boolean;
+    critical_count: number;
+    warning_count: number;
+    violations: Array<{
+      severity: "critical" | "warning" | "info";
+      kind:
+        | "unmatched_pair"
+        | "deadlock_cycle"
+        | "non_monotonic_sync"
+        | "unsafe_position"
+        | "unknown_channel"
+        | "empty_sync";
+      message: string;
+      path?: string[];
+      after_op?: string;
+    }>;
+    summary: string;
+  } {
+    type V = {
+      severity: "critical" | "warning" | "info";
+      kind:
+        | "unmatched_pair"
+        | "deadlock_cycle"
+        | "non_monotonic_sync"
+        | "unsafe_position"
+        | "unknown_channel"
+        | "empty_sync";
+      message: string;
+      path?: string[];
+      after_op?: string;
+    };
+    const violations: V[] = [];
+
+    // (1) Matched pairs + unknown-channel check
+    const channelsPresent = new Set(input.ops.map((o) => o.channel_id));
+    for (const sp of input.sync_points) {
+      const refs = new Set(sp.wait_channels);
+      if (refs.size === 0) {
+        violations.push({
+          severity: "warning",
+          kind: "empty_sync",
+          message: `Sync after ${sp.after_op} has no wait_channels.`,
+          after_op: sp.after_op,
+        });
+        continue;
+      }
+      if (refs.size < 2) {
+        violations.push({
+          severity: "critical",
+          kind: "unmatched_pair",
+          message:
+            `Sync after ${sp.after_op} references only 1 channel — no matching pair. ` +
+            `Every sync must be acknowledged by ≥ 2 channels.`,
+          after_op: sp.after_op,
+        });
+      }
+      for (const c of refs) {
+        if (!channelsPresent.has(c)) {
+          violations.push({
+            severity: "critical",
+            kind: "unknown_channel",
+            message: `Sync after ${sp.after_op} references channel ${c} which is not in the op schedule.`,
+            after_op: sp.after_op,
+          });
+        }
+      }
+    }
+
+    // (2) Deadlock: cross-channel wait graph cycle detection (iterative tri-colour DFS)
+    const adj = new Map<string, string[]>();
+    const opById = new Map<string, typeof input.ops[number]>();
+    for (const o of input.ops) {
+      adj.set(o.op_id, []);
+      opById.set(o.op_id, o);
+    }
+    for (const o of input.ops) {
+      for (const dep of o.depends_on ?? []) {
+        const depOp = opById.get(dep);
+        if (!depOp) continue;
+        if (depOp.channel_id === o.channel_id) continue; // same-channel deps cannot deadlock
+        adj.get(o.op_id)!.push(dep);
+      }
+    }
+    const colour = new Map<string, 0 | 1 | 2>();
+    for (const id of adj.keys()) colour.set(id, 0);
+    for (const start of adj.keys()) {
+      if (colour.get(start) !== 0) continue;
+      const stack: Array<{ node: string; i: number }> = [{ node: start, i: 0 }];
+      const path: string[] = [];
+      while (stack.length > 0) {
+        const top = stack[stack.length - 1]!;
+        if (colour.get(top.node) === 0) {
+          colour.set(top.node, 1);
+          path.push(top.node);
+        }
+        const neigh = adj.get(top.node) ?? [];
+        if (top.i < neigh.length) {
+          const next = neigh[top.i++]!;
+          const c = colour.get(next);
+          if (c === 1) {
+            const idx = path.indexOf(next);
+            const cycle = idx >= 0 ? path.slice(idx).concat(next) : [next, top.node, next];
+            violations.push({
+              severity: "critical",
+              kind: "deadlock_cycle",
+              message:
+                `Deadlock: wait cycle detected (${cycle.join(" → ")}). ` +
+                `Break by reordering ops or removing a sync edge.`,
+              path: cycle,
+            });
+          } else if (c === 0) {
+            stack.push({ node: next, i: 0 });
+          }
+        } else {
+          colour.set(top.node, 2);
+          path.pop();
+          stack.pop();
+        }
+      }
+    }
+
+    // (3) Monotonic ordering per channel
+    const endTime = new Map(input.ops.map((o) => [o.op_id, o.end_s] as [string, number]));
+    const byChannel = new Map<number, typeof input.sync_points>();
+    for (const sp of input.sync_points) {
+      for (const ch of sp.wait_channels) {
+        const list = byChannel.get(ch) ?? [];
+        list.push(sp);
+        byChannel.set(ch, list);
+      }
+    }
+    for (const [ch, list] of byChannel.entries()) {
+      const keyed = list.map((sp) => ({ sp, t: endTime.get(sp.after_op) ?? Infinity }));
+      for (let i = 1; i < keyed.length; i++) {
+        if (keyed[i]!.t < keyed[i - 1]!.t) {
+          violations.push({
+            severity: "warning",
+            kind: "non_monotonic_sync",
+            message:
+              `Channel ${ch}: sync after ${keyed[i]!.sp.after_op} (t=${keyed[i]!.t}s) ` +
+              `appears before sync after ${keyed[i - 1]!.sp.after_op} (t=${keyed[i - 1]!.t}s).`,
+            after_op: keyed[i]!.sp.after_op,
+          });
+        }
+      }
+    }
+
+    // (4) Safe-position invariant
+    const lastOpByChannel = new Map<number, typeof input.ops>();
+    for (const o of input.ops) {
+      const list = lastOpByChannel.get(o.channel_id) ?? [];
+      list.push(o);
+      lastOpByChannel.set(o.channel_id, list);
+    }
+    for (const arr of lastOpByChannel.values()) arr.sort((a, b) => a.end_s - b.end_s);
+
+    for (const sp of input.sync_points) {
+      const t = endTime.get(sp.after_op);
+      if (t == null) continue;
+      for (const ch of sp.wait_channels) {
+        const ops = lastOpByChannel.get(ch);
+        if (!ops) continue;
+        let latest: typeof input.ops[number] | undefined;
+        for (const o of ops) {
+          if (o.end_s <= t + 1e-6) latest = o;
+          else break;
+        }
+        if (!latest) continue;
+        if (latest.end_position && latest.end_position.retracted === false) {
+          violations.push({
+            severity: "warning",
+            kind: "unsafe_position",
+            message:
+              `Channel ${ch} at sync after ${sp.after_op}: last op ${latest.op_id} ` +
+              `ended in non-retracted position — add G00 retract before sync.`,
+            after_op: sp.after_op,
+          });
+        }
+      }
+    }
+
+    const critical = violations.filter((v) => v.severity === "critical").length;
+    const warnings = violations.filter((v) => v.severity === "warning").length;
+    const is_safe = critical === 0;
+    const summary = is_safe
+      ? warnings === 0
+        ? `OK — ${input.sync_points.length} sync point(s) verified.`
+        : `${warnings} warning(s) — safe to emit, review before run.`
+      : `BLOCK — ${critical} critical violation(s) detected.`;
+
+    return {
+      is_safe,
+      critical_count: critical,
+      warning_count: warnings,
+      violations,
+      summary,
+    };
+  }
+
+  /**
    * List supported dialects.
    */
   getSupportedDialects(): SyncDialect[] {
