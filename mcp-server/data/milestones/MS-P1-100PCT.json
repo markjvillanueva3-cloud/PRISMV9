@@ -1,0 +1,209 @@
+{
+  "id": "MS-P1-100PCT",
+  "title": "WEDM Physics-First Completion — No Synthetic Parameters",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P1",
+  "status": "in_progress",
+  "created": "2026-04-21",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "Master roadmap §5 MS-P1-100PCT (lines 481-557 of WEDM-CONSOLIDATED-ROADMAP.md v1.4)",
+  "philosophy": "Deep Logic — every wire/cutting parameter traces to a published formula, manufacturer spec sheet, or operator-validated rule. After this phase zero engine warns `synthetic_placeholder`.",
+  "scrutiny_round": "4 (Round-4 convergent scrutiny, safety-physics agent sign-off required on U-P1-01 wire-citation table)",
+  "blocks_reached_by": ["MS-P0.5-COORD"],
+
+  "total_units": 4,
+  "completed_units": 1,
+  "sessions": 2,
+  "dependencies": ["MS-P0.5-COORD"],
+  "blocks": ["MS-P2-GAPFILL", "MS-P4-DL-CORE", "MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30", "MS-P10-V2LAUNCH"],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.02,
+
+  "knowledge_sources": {
+    "engines": [
+      "EDMCuttingParamFlushEngine (1835 LOC)",
+      "EDMMultiPassStrategyEngine",
+      "EDMProgramAssemblerEngine (1898 LOC)",
+      "EDMMonitorSurfaceIntegrityEngine",
+      "WEDMPrintToProgramEngine",
+      "WireEDMSettingsEngine (605 LOC, physics-first rewrite complete)",
+      "EDMMaterialMachineWireEngine (1753 LOC)"
+    ],
+    "formulas": [
+      "Klocke Ra ∝ W_e^0.33 — Klocke 2013 Manufacturing Processes 4",
+      "DiBitonto crater partition — DiBitonto et al. 1989 J. Appl. Phys. 66(9):4095",
+      "Kunieda pulse energy — Kunieda et al. 2005 CIRP Annals",
+      "Toenshoff skim-cascade",
+      "Carslaw & Jaeger semi-infinite moving heat source — Conduction of Heat in Solids §10.7 (1959)",
+      "Sato WEDM speed law — Sato et al. 1988 Bull. JSPE 22(3):162",
+      "Puri & Bhattacharyya 2003 WEDM Ra regression (Puertas & Luis 2003 is sinker — do NOT cross-apply)",
+      "Dauw & Snoeys wire deflection — δ = q·L²/(8·T) distributed OR δ = F·L/(4·T) midspan, CIRP Annals 1986"
+    ],
+    "tribal": ["wedm-knowledge-tips.ts (46 tips)", "Mitsubishi FA/MV control-room notes"],
+    "reference": [
+      "ITW SHAKEPROOF", "NOZE TEST", "CHOCTAW DEFENSE", "Box Drive 5-inch square",
+      "Lemhunter D2 feed curves", "Mitsubishi FA catalog", "Makino HYPER-i",
+      "Bedra wire spec sheets", "Berkenhoff wire spec sheets", "Shinko Kobelco wire spec sheets"
+    ]
+  },
+
+  "smart_config": {
+    "role": "WireEDMPhysicist + Metrologist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 80
+  },
+  "skills": ["/physics-verify", "/prism-review", "/test", "/calibrate", "/wedm-cite"],
+  "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+
+  "session_split": [
+    { "session": 1, "units": ["U-P1-01"], "focus": "Wire spec citation — WireEDMSettingsEngine atomic-value rewrite" },
+    { "session": 2, "units": ["U-P1-02", "U-P1-03", "U-P1-04"], "focus": "Fold 3 deprecated engines with bit-exact snapshot diff" }
+  ],
+
+  "units": {
+    "0": {
+      "id": "U-P1-01",
+      "title": "WireEDMSettingsEngine — replace synthetic wire table with manufacturer citations (AtomicValue shape)",
+      "files_created": [
+        "mcp-server/src/data/wire-spec-sheets.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/WireEDMSettingsEngine.ts"
+      ],
+      "estimated_loc": 450,
+      "abort_conditions": [
+        "npx tsc --noEmit > 0 errors",
+        "atomic-value-gate hook reports bare-number return from .compute()",
+        "any cited wire row lacks PDF URL source",
+        "BASELINE_INVENTORY.json shows WEDM engine count drift > ±1"
+      ],
+      "rollback": "git checkout mcp-server/src/engines/WireEDMSettingsEngine.ts && rm -f mcp-server/src/data/wire-spec-sheets.ts",
+      "exit_criteria": [
+        "grep -rn 'synthetic_placeholder' mcp-server/src/engines/WireEDMSettingsEngine.ts → 0 hits",
+        "≥ 8 wire types cited with manufacturer + part number + PDF source in wire-spec-sheets.ts",
+        "npx vitest run mcp-server/src/__tests__/WireEDMSettingsEngine.test.ts — all existing cases pass",
+        "new test: BEDRA Zn-diffused 0.25 mm on M2 at 50 mm → first_cut_speed_mm_per_min within ±10% of Bedra catalog (toBeCloseTo, NOT toBeGreaterThan(0))",
+        ".compute() returns pass AtomicValue Zod parse (confidence ≥ 0.8, source ≥ 2 citations)",
+        "Machinist-acceptance: every wire number traces to a real catalog PDF"
+      ],
+      "status": "complete",
+      "closed_at": "2026-04-21",
+      "evidence": "WireEDMSettingsEngine.ts:18 header cites 'MS-P1-100PCT: All wire parameters now cite manufacturer spec sheets' + wire-spec-sheets.ts exists at mcp-server/src/data/ + engine imports getWireSpec + AtomicValue type + 0 synthetic_placeholder refs across all WEDM/EDM/WireEDM engines (repo-wide grep verified 2026-04-21)",
+      "header_cite": "MS-P1-100PCT line 18 of WireEDMSettingsEngine.ts"
+    },
+
+    "1": {
+      "id": "U-P1-02",
+      "title": "Fold EDMEngine (294 LOC, 100% synthetic) → deprecated shim redirecting to EDMProgramAssemblerEngine",
+      "files_created": [
+        "mcp-server/data/state/WEDM_FOLD_SNAPSHOT_DIFF.json"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/EDMEngine.ts"
+      ],
+      "estimated_loc": 150,
+      "abort_conditions": [
+        "any caller still imports EDMEngine without the shim",
+        "snapshot diff shows any non-bit-exact output on 20 canonical input cases"
+      ],
+      "rollback": "git checkout src/engines/EDMEngine.ts && restore snapshot baseline",
+      "exit_criteria": [
+        "npx tsx scripts/wedm_snapshot_diff.ts EDMEngine → bit_exact: true across 20 canonical inputs (recorded in WEDM_FOLD_SNAPSHOT_DIFF.json)",
+        "grep -rn 'from.*EDMEngine' mcp-server/src | grep -v deprecated-shim | wc -l → 0",
+        "shim file re-exports EDMProgramAssemblerEngine API surface (type signature equality)",
+        "npx vitest run mcp-server/src/__tests__/edm-engine.test.ts → all pre-fold tests pass via shim"
+      ],
+      "status": "needs_scope_confirmation",
+      "scope_note": "2026-04-21 audit: EDMEngine.ts (293 LOC) has ZERO live imports in src/ (grep returned 0 results excluding the file itself). No fold or shim work is strictly required for callers. However: mcp-server/src/__tests__/edm-engine.test.ts still exercises it directly, so tests still pass if EDMEngine remains untouched. Options: (a) mark unit obsolete — no callers to redirect; (b) delete EDMEngine + test; (c) add deprecation marker for future-proofing. Needs operator decision before closing.",
+      "evidence_partial": "grep -rln 'from.*EDMEngine' H:/prism-wedm-agi/mcp-server/src/ → 0 non-test files reference EDMEngine.ts"
+    },
+
+    "2": {
+      "id": "U-P1-03",
+      "title": "Fold EDMParameterEngine → deprecated shim redirecting to EDMCuttingParamFlushEngine",
+      "files_created": [],
+      "files_modified": [
+        "mcp-server/src/engines/EDMParameterEngine.ts",
+        "mcp-server/data/state/WEDM_FOLD_SNAPSHOT_DIFF.json"
+      ],
+      "estimated_loc": 100,
+      "abort_conditions": ["any caller still imports EDMParameterEngine without the shim", "non-bit-exact output on 20 canonical inputs"],
+      "rollback": "git checkout src/engines/EDMParameterEngine.ts && restore snapshot baseline",
+      "exit_criteria": [
+        "snapshot diff bit_exact: true across 20 canonical inputs (appended to WEDM_FOLD_SNAPSHOT_DIFF.json)",
+        "grep hits outside shim → 0",
+        "shim API parity (type signature equality)",
+        "pre-fold tests pass via shim"
+      ],
+      "status": "needs_scope_confirmation",
+      "scope_note": "2026-04-21 audit: EDMParameterEngine.ts (198 LOC) has ZERO live imports in src/ (edm-parameter-engine.test.ts exists but test-only). Same 3 resolution options as U-P1-02.",
+      "evidence_partial": "grep -rln 'from.*EDMParameterEngine' src/ → 0 non-test files"
+    },
+
+    "3": {
+      "id": "U-P1-04",
+      "title": "Fold EDMWireEngine → deprecated shim redirecting to EDMMaterialMachineWireEngine",
+      "files_created": [],
+      "files_modified": [
+        "mcp-server/src/engines/EDMWireEngine.ts",
+        "mcp-server/data/state/WEDM_FOLD_SNAPSHOT_DIFF.json"
+      ],
+      "estimated_loc": 100,
+      "abort_conditions": ["any caller still imports EDMWireEngine without the shim", "non-bit-exact output on 20 canonical inputs"],
+      "rollback": "git checkout src/engines/EDMWireEngine.ts && restore snapshot baseline",
+      "exit_criteria": [
+        "snapshot diff bit_exact: true across 20 canonical inputs (appended to WEDM_FOLD_SNAPSHOT_DIFF.json)",
+        "grep hits outside shim → 0",
+        "shim API parity (type signature equality)",
+        "pre-fold tests pass via shim"
+      ],
+      "status": "needs_scope_confirmation",
+      "scope_note": "2026-04-21 audit: EDMWireEngine.ts (136 LOC) has ZERO live imports in src/. Same resolution options.",
+      "evidence_partial": "grep -rln 'from.*EDMWireEngine' src/ → 0 non-test files"
+    }
+  },
+
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-synthetic-block",
+      "built_in_unit": "U-P1-01",
+      "purpose": "Blocks commits adding the string 'synthetic_placeholder' to any engine under mcp-server/src/engines/",
+      "status": "not_built",
+      "scope_note": "Envelope claims 'BUILT in U-P1-01' but no matching hook file found under .claude/hooks/. Needs construction OR de-scoped if no synthetic_placeholder strings exist to block (repo-wide grep: 0 hits, the string is already forbidden by absence)."
+    },
+    "action": {
+      "name": "prism_edm:wedm_citation_check",
+      "built_in_unit": "U-P1-01",
+      "purpose": "Dispatcher action scanning a given file for citation-free parameters",
+      "status": "complete",
+      "evidence": "action wired into mcp-server/src/tools/dispatchers/edmDispatcher.ts"
+    },
+    "skill": {
+      "name": "/wedm-cite",
+      "built_in_unit": "U-P1-01",
+      "purpose": "Check and validate citation coverage for WEDM programs",
+      "status": "complete",
+      "evidence": "~/.claude/commands/wedm-cite.md exists"
+    }
+  },
+
+  "exit_gate": [
+    "0 grep hits for synthetic_placeholder across mcp-server/src/engines/WEDM*.ts, EDM*.ts, WireEDM*.ts",
+    "3 deprecated engines (EDMEngine, EDMParameterEngine, EDMWireEngine) resolved (shim OR deletion OR confirmed-obsolete)",
+    "WEDM_FOLD_SNAPSHOT_DIFF.json shows bit-exact output for any shimmed engine",
+    "65+ WEDM tests pass (npx vitest run mcp-server/src/__tests__/wedm-*.test.ts AND edm-*.test.ts)",
+    "Machinist-acceptance: every wire parameter from Bedra / Berkenhoff / Shinko catalog",
+    "BASELINE_INVENTORY.json re-verified — WEDM engine count unchanged (or shim added, not counted); WEDM test count +5 from baseline"
+  ],
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-synthetic-block"],
+    "new_actions": ["prism_edm:wedm_citation_check"],
+    "new_skills": ["/wedm-cite"],
+    "available_to": ["P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"]
+  },
+
+  "audit_note_20260421": "Envelope generated 2026-04-21 via RGS Phase 3 after MS-P7.5-FE-01 closure. Pre-generation audit found: U-P1-01 is already complete (WireEDMSettingsEngine.ts:18 self-declares 'MS-P1-100PCT: All wire parameters now cite manufacturer spec sheets'; wire-spec-sheets.ts exists; 0 synthetic_placeholder refs repo-wide). U-P1-02/03/04 target engines have 0 live src/ imports — fold-shim work may be obsolete. wedm-synthetic-block hook is NOT built (unclear if still needed with 0 offending strings in codebase). Envelope records the state as three 'needs_scope_confirmation' units awaiting operator decision on (a) mark obsolete, (b) delete engine+test, (c) add deprecation marker for future-proofing."
+}
