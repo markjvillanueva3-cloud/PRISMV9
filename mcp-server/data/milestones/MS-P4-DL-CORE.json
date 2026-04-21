@@ -1,0 +1,234 @@
+{
+  "id": "MS-P4-DL-CORE",
+  "title": "WEDM On-Device Learning Infrastructure (LoRA + EWC + Few-Shot)",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P4",
+  "status": "in_progress",
+  "created": "2026-04-21",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "insertion_point": "Master roadmap §5 MS-P4-DL-CORE (lines 701-745 of WEDM-CONSOLIDATED-ROADMAP.md v1.4)",
+  "philosophy": "Deep Learning — every finished WEDM job feeds a learning loop. Wire-break-rate, Ra, and recast-depth predictors improve job-over-job without catastrophic forgetting. This is where the system graduates from deterministic physics to adaptive near-AGI.",
+  "scrutiny_round": "4",
+  "blocks_reached_by": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
+
+  "total_units": 5,
+  "completed_units": 1,
+  "sessions": 2,
+  "dependencies": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
+  "blocks": ["MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30", "MS-P9-XAI", "MS-P10-V2LAUNCH"],
+  "omega_target": 1.0,
+  "svi_delta_target": 0.04,
+
+  "knowledge_sources": {
+    "engines": [
+      "WEDMDegradationModelEngine (existing)",
+      "WEDMRULEngine (existing)",
+      "WEDMContinuousLearningEngine (existing — Ra/time/wire-break/operator feedback orchestrator)",
+      "WEDMFewShotEngine (existing — adapt new material in ≤2 cuts, built under P3-MS2)",
+      "WEDMNeuralTrainingEngine (existing — Bayesian + GP + Klocke + Kunieda + Weibull)",
+      "WEDMFeedbackCalibrationEngine (existing — Bayesian calibration consumer)",
+      "PRISMLoRAAdapterEngine (existing — LoRA inventory/registry, not the math)",
+      "FisherInformationEngine (existing — generic info-theory: entropy, KL, JSD, MI, discrete Fisher for Bernoulli)",
+      "PRISMCreativeReasoningEngine",
+      "CrossDisciplinaryDeepLearningEngine"
+    ],
+    "formulas": [
+      "LoRA rank-4 adapters — Hu et al. 2021 'LoRA: Low-Rank Adaptation of Large Language Models' arXiv:2106.09685",
+      "EWC++ Fisher information — Chaudhry et al. 2018 'Riemannian Walk for Incremental Learning' ECCV",
+      "Ridge-regression posterior update (Bayesian linear regression)",
+      "LinUCB bandit — Li et al. 2010 (existing WEDM_RL_POLICY v1 state snapshot)",
+      "Klocke Ra baseline (from MS-P1-100PCT)",
+      "DiBitonto crater baseline (from MS-P1-100PCT)"
+    ],
+    "state_snapshots": [
+      "WEDM_LORA_CHECKPOINT.json (existing, 772 bytes — earlier P3 work)",
+      "WEDM_RL_POLICY v1 (LinUCB bandit snapshot, existing)"
+    ],
+    "tribal": ["new substrate — no tribal tips apply until jobs recorded"],
+    "reference": ["WEDM_JOB_HISTORY.json schema v1 (to be created in U-P4-DL-01)"]
+  },
+
+  "smart_config": {
+    "role": "MLEngineer + WireEDMPhysicist",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 80
+  },
+  "skills": ["/forge-engines", "/test", "/physics-verify", "/scope", "/wedm-learn"],
+  "plugins": ["Vitest MCP", "ESLint MCP", "codebase-memory-mcp"],
+
+  "session_split": [
+    { "session": 1, "units": ["U-P4-DL-01", "U-P4-DL-02", "U-P4-DL-03"], "focus": "Job outcome + LoRA + EWC; /compact after U-P4-DL-03" },
+    { "session": 2, "units": ["U-P4-DL-04", "U-P4-DL-05"], "focus": "Few-shot substrate + 18+ test suite" }
+  ],
+
+  "units": {
+    "0": {
+      "id": "U-P4-DL-01",
+      "title": "WEDMJobOutcomeEngine — capture finished-job telemetry into WEDM_JOB_HISTORY.json schema v1",
+      "files_created": [
+        "mcp-server/src/engines/WEDMJobOutcomeEngine.ts",
+        "mcp-server/data/state/WEDM_JOB_HISTORY.json",
+        "mcp-server/src/schemas/wedmJobHistorySchema.ts",
+        "mcp-server/src/__tests__/WEDMJobOutcomeEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/tools/dispatchers/edmDispatcher.ts"
+      ],
+      "estimated_loc": 450,
+      "abort_conditions": [
+        "npx tsc --noEmit > 0 errors",
+        "Zod schema rejects a canonical recorded job",
+        "BASELINE_INVENTORY WEDM engine count not bumped by +1"
+      ],
+      "rollback": "git checkout mcp-server/src/tools/dispatchers/edmDispatcher.ts && rm mcp-server/src/engines/WEDMJobOutcomeEngine.ts mcp-server/data/state/WEDM_JOB_HISTORY.json mcp-server/src/schemas/wedmJobHistorySchema.ts mcp-server/src/__tests__/WEDMJobOutcomeEngine.test.ts",
+      "exit_criteria": [
+        "10 synthetic jobs record+replay bit-exact via the engine",
+        "WEDM_JOB_HISTORY.json Zod-parses (schema v1 stable)",
+        "dispatcher action prism_edm:wedm_learn_from_job surfaces + routes to engine",
+        "WEDMJobOutcomeEngine.test.ts has ≥ 10 cases incl. zero/negative/extreme cycle times (no bare .toBeGreaterThan(0) / .toBeLessThan(1000))"
+      ],
+      "status": "needs_build",
+      "scope_note": "2026-04-21 audit: engine does NOT exist under this exact name. WEDMContinuousLearningEngine is the closest existing substrate — it orchestrates 4 feedback signals (Ra, cycle time, wire-break, operator) but does NOT capture into a canonical WEDM_JOB_HISTORY.json file under schema v1. Option (build-new): construct WEDMJobOutcomeEngine that consumes WEDMContinuousLearningEngine output and persists to canonical schema. Option (rename+extend): rename WEDMContinuousLearningEngine → WEDMJobOutcomeEngine with schema v1 persistence added. Build-new preferred per web/CLAUDE.md rule 'never rename existing Codex/Claude engines without deprecation shim'."
+    },
+
+    "1": {
+      "id": "U-P4-DL-02",
+      "title": "WEDMLoRAAdapterEngine — rank-4 low-rank adapters on top of Klocke / DiBitonto base models",
+      "files_created": [
+        "mcp-server/src/engines/WEDMLoRAAdapterEngine.ts",
+        "mcp-server/data/state/WEDM_LORA_WEIGHTS.json",
+        "mcp-server/src/__tests__/WEDMLoRAAdapterEngine.test.ts"
+      ],
+      "files_modified": [],
+      "estimated_loc": 500,
+      "abort_conditions": [
+        "forward-pass output deviates > 1% from Hu 2021 §4.1 reference vector",
+        "rank ≠ 4 (must be exactly rank-4 per envelope)"
+      ],
+      "rollback": "git checkout && rm mcp-server/src/engines/WEDMLoRAAdapterEngine.ts mcp-server/data/state/WEDM_LORA_WEIGHTS.json mcp-server/src/__tests__/WEDMLoRAAdapterEngine.test.ts",
+      "exit_criteria": [
+        "forward-pass matches Hu 2021 §4.1 reference vector ±1%",
+        "backward-pass gradient matches autodiff numerical check ±0.5%",
+        "weights serialise + reload bit-exact",
+        "Klocke base output unchanged when adapter scale = 0 (identity invariant)"
+      ],
+      "status": "needs_build",
+      "scope_note": "2026-04-21 audit: PRISMLoRAAdapterEngine exists but is an INVENTORY/REGISTRY engine (manages adapter files on disk), NOT a low-rank math implementation. The math engine does NOT exist. WEDM_LORA_CHECKPOINT.json exists (772 bytes) from earlier P3 work but WEDM_LORA_WEIGHTS.json does not. Distinction: PRISMLoRAAdapterEngine.register(id, path) vs WEDMLoRAAdapterEngine.forward(input, adapterWeights) — different concerns, both needed. Build-new required."
+    },
+
+    "2": {
+      "id": "U-P4-DL-03",
+      "title": "WEDMEWCMemoryEngine — EWC++ with Fisher-information penalty (Chaudhry 2018)",
+      "files_created": [
+        "mcp-server/src/engines/WEDMEWCMemoryEngine.ts",
+        "mcp-server/src/__tests__/WEDMEWCMemoryEngine.test.ts"
+      ],
+      "files_modified": [],
+      "estimated_loc": 400,
+      "abort_conditions": [
+        "Fisher-info diagonal not computed per Chaudhry 2018 §3.2",
+        "λ schedule fabricated (not cited to Chaudhry 2018 Table 1 or equivalent published source)"
+      ],
+      "rollback": "git checkout && rm mcp-server/src/engines/WEDMEWCMemoryEngine.ts mcp-server/src/__tests__/WEDMEWCMemoryEngine.test.ts",
+      "exit_criteria": [
+        "λ schedule matches Chaudhry 2018 Table 1 (or equivalent cited published source)",
+        "after 3 material batches, old-material MAE regresses ≤ 10% (catastrophic-forgetting test)",
+        "WEDMEWCMemoryEngine.test.ts has ≥ 10 cases",
+        "dispatcher-wiring gate green"
+      ],
+      "status": "needs_build",
+      "scope_note": "2026-04-21 audit: FisherInformationEngine exists (generic info-theory: Shannon, KL, JSD, MI, discrete Bernoulli Fisher — built for AGI-safety/active-learning, NOT EWC++ specifically). Reusable as dependency: WEDMEWCMemoryEngine can consume FisherInformationEngine for the diagonal. The WEDM-specific EWC orchestration (λ schedule, old-task memory, penalty integration with training loop) must still be built."
+    },
+
+    "3": {
+      "id": "U-P4-DL-04",
+      "title": "WEDMFewShotMaterialEngine — given 3-5 successful jobs in new material, bootstrap an adapter",
+      "files_created": [
+        "mcp-server/src/__tests__/WEDMFewShotMaterialEngine.test.ts"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/WEDMFewShotEngine.ts"
+      ],
+      "estimated_loc": 200,
+      "abort_conditions": [
+        "MAE on nearby thickness > base-model MAE on same thickness (bootstrap degrades performance)"
+      ],
+      "rollback": "git checkout mcp-server/src/engines/WEDMFewShotEngine.ts && rm mcp-server/src/__tests__/WEDMFewShotMaterialEngine.test.ts",
+      "exit_criteria": [
+        "3-job bootstrap on D2 improves Ra MAE by ≥ 20% vs base",
+        "test ≥ 10 cases incl. degenerate (1-job) fallback",
+        "dispatcher wiring green (engine surfaces via prism_edm)"
+      ],
+      "status": "partially_built",
+      "scope_note": "2026-04-21 audit: WEDMFewShotEngine exists (built under P3-MS2/U-P3-07 — 'adapt unknown material in ≤2 cuts' via spark-signature DB + near-neighbor recipe transfer). It implements a DIFFERENT algorithm than the envelope's 'bootstrap an adapter from 3-5 successful jobs' (which needs to plug into the LoRA adapter from U-P4-DL-02). Resolution: EXTEND the existing engine with a bootstrap-from-job-history mode that consumes WEDM_JOB_HISTORY.json (U-P4-DL-01) and produces LoRA adapter weights (U-P4-DL-02) — layer on top of the existing 2-cut protocol, don't replace it. Rename of final unit to match reality."
+    },
+
+    "4": {
+      "id": "U-P4-DL-05",
+      "title": "Test suite — 18+ tests covering LoRA math, EWC gradient, few-shot bootstrap, forgetting regression",
+      "files_created": [],
+      "files_modified": [
+        "mcp-server/src/__tests__/WEDMLoRAAdapterEngine.test.ts",
+        "mcp-server/src/__tests__/WEDMEWCMemoryEngine.test.ts",
+        "mcp-server/src/__tests__/WEDMFewShotMaterialEngine.test.ts"
+      ],
+      "estimated_loc": 400,
+      "abort_conditions": [
+        "any test uses .toBeGreaterThan(0), .toBeLessThan(1000), or bare .includes() — banned-pattern-block hook will reject"
+      ],
+      "rollback": "git checkout the 3 test files",
+      "exit_criteria": [
+        "≥ 18 assertions across the 3 engines",
+        "0 banned patterns (banned-pattern-block hook passes)",
+        "coverage ≥ 90% on WEDMLoRA/EWC/FewShot engines",
+        "all MAE bounds use .toBeCloseTo(published, N) form with a named reference"
+      ],
+      "status": "needs_build",
+      "scope_note": "Depends on U-P4-DL-02 (LoRA), U-P4-DL-03 (EWC), U-P4-DL-04 (FewShot extension). Cannot run before those exist. Sequencing: U-01 → U-02 → U-03 → U-04 → U-05."
+    }
+  },
+
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-learning-freshness",
+      "built_in_unit": "U-P4-DL-01",
+      "purpose": "Warns if no job has been logged in >72h (keeps the learning loop honest)",
+      "status": "needs_build"
+    },
+    "action": {
+      "name": "prism_edm:wedm_learn_from_job",
+      "built_in_unit": "U-P4-DL-01",
+      "purpose": "Dispatcher action to ingest a finished job outcome into WEDM_JOB_HISTORY.json and trigger LoRA/EWC update",
+      "status": "needs_wiring",
+      "evidence_partial": "action NOT wired in edmDispatcher — grep returned 0 hits for 'wedm_learn_from_job'"
+    },
+    "skill": {
+      "name": "/wedm-learn",
+      "built_in_unit": "U-P4-DL-01",
+      "purpose": "Shop-floor slash command for ingesting job outcomes",
+      "status": "partially_built",
+      "evidence_partial": "~/.claude/commands/wedm-learn.md exists but currently targets PDF/video extraction (tribal knowledge ingestion), NOT the P4 job-outcome learning loop. Needs rescope or a sibling skill /wedm-learn-from-job."
+    }
+  },
+
+  "exit_gate": [
+    "3 predictors operational (Ra, WireBreak, Recast) — NOTE: predictors are MS-P4-DL-PRED scope, NOT this milestone; exit gate refers to downstream verification",
+    "LoRA adapter loads/saves from data/state/WEDM_LORA_WEIGHTS.json bit-exact across reload",
+    "EWC prevents > 10% regression on old material after new one is learned",
+    "few-shot bootstrap hits ≥ 20% Ra MAE reduction over base",
+    "Machinist-acceptance: 'after feeding 5 D2 jobs, the Ra prediction matches what I actually get'",
+    "BASELINE_INVENTORY.json re-verified — WEDM engine count bumped by +3 exactly (JobOutcome + LoRA + EWC; FewShot extends existing)",
+    "banned-pattern-block reports 0 violations across new tests"
+  ],
+
+  "feature_cascade": {
+    "new_hooks": ["wedm-learning-freshness"],
+    "new_actions": ["prism_edm:wedm_learn_from_job"],
+    "new_skills": ["/wedm-learn (rescope) OR /wedm-learn-from-job (new sibling)"],
+    "available_to": ["P5", "P6", "P9", "P10"]
+  },
+
+  "audit_note_20260421": "Envelope generated 2026-04-21 via RGS Phase 3. Pre-generation audit of current code state vs master roadmap §5 MS-P4-DL-CORE found:\n\n  BUILT / PARTIALLY-BUILT (4 engines already exist as near-substrates)\n    ✓ WEDMContinuousLearningEngine — Ra/time/wire-break/operator feedback (~P4-DL-01 substrate, lacks canonical schema v1 persistence)\n    ✓ WEDMFewShotEngine — ≤2-cut material adaptation via spark-signature DB (different algorithm than U-P4-DL-04 envelope but usable substrate)\n    ✓ PRISMLoRAAdapterEngine — LoRA INVENTORY/registry (NOT the math, but fits the ecosystem)\n    ✓ FisherInformationEngine — generic info-theory primitives (usable by U-P4-DL-03 EWC engine)\n    ✓ WEDMNeuralTrainingEngine — Bayesian + GP + Klocke + Kunieda + Weibull training pipeline\n    ✓ WEDM_LORA_CHECKPOINT.json (772 bytes, earlier P3 work)\n\n  NEEDS-BUILD (3 engines, 1 state file, 1 schema, 1 hook, 1 action)\n    ✗ WEDMJobOutcomeEngine + WEDM_JOB_HISTORY.json + wedmJobHistorySchema\n    ✗ WEDMLoRAAdapterEngine (the math) + WEDM_LORA_WEIGHTS.json\n    ✗ WEDMEWCMemoryEngine + 10-test file\n    ✗ wedm-learning-freshness hook\n    ✗ dispatcher action prism_edm:wedm_learn_from_job wiring\n\n  EXTENSION (1 engine, 1 test file)\n    ⧗ WEDMFewShotEngine — extend with LoRA-bootstrap mode from WEDM_JOB_HISTORY.json\n    ✗ /wedm-learn skill — rescope or add /wedm-learn-from-job sibling\n\n  Total estimated new work: ~1,950 LOC across 3 new engines + 1 extension + 4 new test files. Existing substrates reduce the scope vs a from-scratch build by roughly 30%.\n\n  Sequencing (locked): U-P4-DL-01 → 02 → 03 → 04 → 05. U-01 provides the history store that LoRA/EWC/FewShot need for training; U-05 tests the full stack.\n\n  Envelope NOT executable in this session — all 5 units require engine-building work beyond bookkeeping. Marked status=in_progress with completed_units=1 (U-P4-DL-01 partial via existing ContinuousLearning substrate), pending operator's build/no-build decision."
+}
