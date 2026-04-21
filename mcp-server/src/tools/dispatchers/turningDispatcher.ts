@@ -42,6 +42,8 @@ const ACTIONS = [
   "turning_swiss_channel_emit", "turning_swiss_sync_verify_schedule", "turning_swiss_part_transfer",
   // LATHE-PRO-MS6a: Channel balancing + simultaneous-cut collision (U-LPM04..U-LPM05)
   "turning_swiss_channel_balance", "turning_swiss_collision_check",
+  // LATHE-PRO-MS6b: Swiss production intelligence (U-LPS21..U-LPS23)
+  "turning_swiss_guide_bush_decide", "turning_swiss_back_work_op2", "turning_swiss_gang_layout",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -354,6 +356,22 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_swiss_collision_check": {
             const { multiChannelCollisionEngine: mcc } = await import("../../engines/MultiChannelCollisionEngine.js");
             result = mcc.check(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6b: Swiss production intelligence (U-LPS21..U-LPS23)
+          case "turning_swiss_guide_bush_decide": {
+            const { swissGuideBushDecisionEngine: gbe } = await import("../../engines/SwissGuideBushDecisionEngine.js");
+            result = gbe.decide(params as any);
+            break;
+          }
+          case "turning_swiss_back_work_op2": {
+            const { swissBackWorkingOp2Engine: bwe } = await import("../../engines/SwissBackWorkingOp2Engine.js");
+            result = bwe.generate(params as any);
+            break;
+          }
+          case "turning_swiss_gang_layout": {
+            const { swissGangSlideTurretEngine: sge } = await import("../../engines/SwissGangSlideTurretEngine.js");
+            result = sge.layout(params as any);
             break;
           }
           // LATHE-MS0: Collision zone actions
