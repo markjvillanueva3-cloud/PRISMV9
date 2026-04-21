@@ -704,6 +704,130 @@ export class ThreadingPipelineEngine {
 
     return lines.join("\n");
   }
+
+  // ==========================================================================
+  // MULTI-START THREADING (MILL-MASTER-P3-U01-THREAD-MULTI)
+  // Emits N G76 blocks with Q offset 360/starts° — works on controllers that
+  // don't support the H parameter for phase shift (older Fanuc, many Haas,
+  // Mitsubishi, and generic ISO variants). For controllers with native H
+  // (Fanuc 30i+, Haas NGC), H mode is still available and preferred.
+  // ==========================================================================
+
+  /**
+   * Generate multi-start external thread G-code with controller-appropriate
+   * phase-offset mechanism. Never throws — returns a structured result with
+   * validation warnings on bad input.
+   */
+  generateMultiStart(input: {
+    major_diameter_mm: number;
+    minor_diameter_mm: number;
+    pitch_mm: number;
+    starts: number;
+    thread_length_mm: number;
+    controller: "fanuc" | "haas" | "mitsubishi" | "okuma" | "siemens" | "heidenhain" | string;
+    /** h_param = Fanuc 30i+ style; q_offset = N blocks with Q angle×1000; z_offset = N blocks with Z pre-shifted by pitch/starts. "auto" picks by controller. */
+    multi_start_mode?: "h_param" | "q_offset" | "z_offset" | "auto";
+    /** Microns — first cut depth. Default 180µm. */
+    first_cut_microns?: number;
+    /** Microns — finish infeed minimum. Default 50µm. */
+    min_infeed_microns?: number;
+    chamfer_threads?: number;
+    included_angle_deg?: number;
+    infeed_strategy?: "radial" | "modified_flank" | "alternating_flank";
+  }): {
+    gcode: string[];
+    angular_spacing_deg: number;
+    lead_mm: number;
+    start_blocks: number;
+    strategy: string;
+    mode: "h_param" | "q_offset" | "z_offset";
+    warnings: string[];
+  } {
+    const warnings: string[] = [];
+    const starts = Math.max(1, Math.round(input.starts));
+    if (input.starts !== starts) warnings.push(`starts rounded to ${starts}`);
+    if (input.starts > 6) warnings.push("starts > 6 is unusual for turning — verify intent");
+
+    const pitch = input.pitch_mm;
+    const threadD = input.major_diameter_mm;
+    const minorD = input.minor_diameter_mm;
+    const threadLen = input.thread_length_mm;
+    const totalDepthMicrons = Math.round(((threadD - minorD) / 2) * 1000);
+    const firstCutMicrons = input.first_cut_microns ?? 180;
+    const minInfeedMicrons = input.min_infeed_microns ?? 50;
+    const chamferThreads = input.chamfer_threads ?? 1;
+    const angle = input.included_angle_deg ?? 60;
+    const angleCode = Math.round(angle / 10).toString().padStart(2, "0"); // 60→06, 55→05, 29→03
+    const infeedAngleCode = input.infeed_strategy === "modified_flank" || input.infeed_strategy === "alternating_flank" ? "29" : "00";
+
+    // Controller → default mode selection
+    const autoMode = this.pickMultiStartMode(input.controller);
+    const mode = input.multi_start_mode && input.multi_start_mode !== "auto" ? input.multi_start_mode : autoMode;
+
+    const angular_spacing_deg = starts > 1 ? 360 / starts : 0;
+    const lead_mm = pitch * starts;
+
+    const lines: string[] = [];
+    lines.push(`(Multi-start thread: ${starts} starts, pitch ${pitch}mm, lead ${lead_mm}mm)`);
+    lines.push(`(Mode: ${mode} — controller: ${input.controller})`);
+
+    for (let s = 0; s < starts; s++) {
+      lines.push(`(Start ${s + 1} of ${starts}${s > 0 ? ` — offset ${(angular_spacing_deg * s).toFixed(1)}°` : ""})`);
+
+      // Pre-position (common to all modes) — optionally Z-offset by s·pitch for z_offset mode
+      const zPrePos = mode === "z_offset" ? (5.0 + s * pitch) : 5.0;
+      lines.push(`G00 X${(threadD + 2).toFixed(1)} Z${zPrePos.toFixed(3)}`);
+
+      // G76 line 1 (setup) — same across modes
+      lines.push(`G76 P01${chamferThreads}0${angleCode}${infeedAngleCode} Q${minInfeedMicrons} R0.03`);
+
+      // G76 line 2 — mode-specific offset mechanism
+      const zEnd = (-threadLen).toFixed(1);
+      const pDepth = totalDepthMicrons;
+      const qFirst = firstCutMicrons;
+      const fPitch = pitch.toFixed(3);
+
+      if (mode === "h_param") {
+        // Fanuc 30i+ / Haas NGC H parameter (start number 0..starts-1 in modern, or 1-based)
+        const hVal = s; // 0-based per Fanuc 30i spec
+        lines.push(`G76 X${minorD.toFixed(3)} Z${zEnd}${s > 0 ? " R0" : ""} P${pDepth} Q${qFirst} F${fPitch}${s > 0 ? ` H${hVal}` : ""}`);
+      } else if (mode === "q_offset") {
+        // Older controllers: Q in this position encodes shift angle × 1000 (thousandths of deg)
+        // Per "N G76 blocks with Q offset 360/starts°"
+        const qOffsetMicroDeg = s > 0 ? Math.round(angular_spacing_deg * s * 1000) : 0;
+        lines.push(
+          `G76 X${minorD.toFixed(3)} Z${zEnd}${s > 0 ? " R0" : ""} P${pDepth} Q${qFirst} F${fPitch}` +
+            (qOffsetMicroDeg > 0 ? ` Q${qOffsetMicroDeg}` : ""),
+        );
+      } else {
+        // z_offset mode: no angle param, offset comes from the pre-positioned Z above
+        lines.push(`G76 X${minorD.toFixed(3)} Z${zEnd}${s > 0 ? " R0" : ""} P${pDepth} Q${qFirst} F${fPitch}`);
+      }
+    }
+
+    return {
+      gcode: lines,
+      angular_spacing_deg,
+      lead_mm,
+      start_blocks: starts,
+      strategy: starts > 1 ? "multi-start" : "single-start",
+      mode,
+      warnings,
+    };
+  }
+
+  /** Pick sensible default multi-start mode per controller family. */
+  private pickMultiStartMode(controller: string): "h_param" | "q_offset" | "z_offset" {
+    const c = (controller || "").toLowerCase();
+    if (c.includes("30i") || c.includes("31i") || c.includes("32i")) return "h_param";
+    if (c.includes("ngc") || c.includes("haas")) return "h_param";
+    if (c.includes("osp") || c.includes("okuma")) return "q_offset";
+    if (c.includes("mitsubishi") || c.includes("m80") || c.includes("m800")) return "q_offset";
+    if (c === "fanuc") return "q_offset"; // generic fanuc — safer than assuming H
+    if (c.includes("siemens") || c.includes("840d") || c.includes("828d")) return "z_offset";
+    if (c.includes("heidenhain") || c.includes("tnc")) return "z_offset";
+    return "q_offset"; // safest universal default
+  }
 }
 
 /** Singleton instance. */
