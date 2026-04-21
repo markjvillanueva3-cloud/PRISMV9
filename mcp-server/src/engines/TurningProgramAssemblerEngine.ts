@@ -125,6 +125,12 @@ export interface TurningToolAssignment {
   insert_shape?: string;
   /** Nose radius [mm]. */
   nose_radius_mm: number;
+  /**
+   * Cutting edge width [mm] — primarily for grooving/parting inserts.
+   * Used to compute the G75 Z-step stepover (Q = insert_width - overlap)
+   * so passes neither leave ridges nor overcut. MILL-MASTER-P3-U07.
+   */
+  insert_width_mm?: number;
   /** Tool orientation code 1–9 per ISO 1832 (for TNRC direction). */
   orientation: number;
   /** Geometry offset register number. */
@@ -1990,8 +1996,26 @@ class TurningProgramAssemblerEngineImpl {
     // RPM at groove diameter (constant, not CSS for grooving safety)
     const rpm = calcRPM(vc, profileDia, maxRpm);
 
+    // MILL-MASTER-P3-U07-GROOVE-Q: G75 Z-step Q must = insert_width - overlap,
+    // NOT half the groove_width (the prior bug). With insert width W and
+    // overlap o (10% of W, clamped to [0.1 mm, 30% of W]), each pass steps
+    // Q=W-o in Z, producing a clean floor without ridges or overcut. When the
+    // groove is narrower than W, we step by groove_width - o so we don't
+    // overrun the groove. If insert_width is missing we fall back to a safe
+    // 3 mm default (typical grooving insert).
+    const insertWidth = tool.insert_width_mm && tool.insert_width_mm > 0
+      ? tool.insert_width_mm
+      : 3.0;
+    const overlap = Math.min(
+      Math.max(0.1, insertWidth * 0.10),
+      insertWidth * 0.30,
+    );
+    const effectiveWidth = Math.min(insertWidth, groove.width_mm);
+    const qStep_mm = Math.max(0.1, effectiveWidth - overlap);
+    const qStep_micro = Math.round(qStep_mm * 1000);
+
     const lines: string[] = [];
-    lines.push(`${nl()} ${dialect.tool_change(tool.station, tool.offset_number)} ${dialect.comment(`${side.toUpperCase()} GROOVE W${groove.width_mm} D${groove.depth_mm} AT Z${groove.z_position_mm}`)}`);
+    lines.push(`${nl()} ${dialect.tool_change(tool.station, tool.offset_number)} ${dialect.comment(`${side.toUpperCase()} GROOVE W${groove.width_mm} D${groove.depth_mm} AT Z${groove.z_position_mm} INSERT_W${insertWidth}`)}`);
     lines.push(`${nl()} ${dialect.speed_clamp(maxRpm)}`);
     lines.push(`${nl()} ${dialect.rpm_mode(rpm)} ${dialect.spindle_cw} ${dialect.comment(`DIRECT RPM ${rpm} FOR GROOVING`)}`);
     lines.push(`${nl()} ${dialect.coolant_on}`);
@@ -1999,7 +2023,7 @@ class TurningProgramAssemblerEngineImpl {
 
     // G75 peck grooving cycle
     lines.push(`${nl()} G75 R${fmt(0.5)} ${dialect.comment("RETRACT AMOUNT")}`);
-    lines.push(`${nl()} G75 X${fmt(bottomX)} Z${fmt(groove.z_position_mm - groove.width_mm)} P${Math.round(peckDepth * 1000)} Q${Math.round(groove.width_mm * 500)} F${fmt(fn)}`);
+    lines.push(`${nl()} G75 X${fmt(bottomX)} Z${fmt(groove.z_position_mm - groove.width_mm)} P${Math.round(peckDepth * 1000)} Q${qStep_micro} F${fmt(fn)} ${dialect.comment(`Q=INSERT_W(${insertWidth})-OVERLAP(${overlap.toFixed(3)})`)}`);
 
     if (groove.bottom_radius_mm && groove.bottom_radius_mm > 0) {
       lines.push(`${nl()} ${dialect.comment(`BOTTOM RADIUS R${groove.bottom_radius_mm} FORMED BY INSERT GEOMETRY`)}`);
