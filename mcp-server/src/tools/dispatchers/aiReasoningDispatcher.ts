@@ -487,6 +487,13 @@ const ACTIONS = [
   "wedm_trace_record", "wedm_trace_recent", "wedm_trace_query", "wedm_trace_validate",
   // MillingReasoningTraceLedgerEngine (5 actions) — MILL-AGI-P0.2
   "milling_trace_record", "milling_trace_recent", "milling_trace_query", "milling_trace_stats", "milling_trace_with_reasoning",
+  // MILL-MASTER-P1-U05-PRISM-AI-ROUTE (6 actions) — Facade-routed entry points from prism_ai side
+  "route_mill_pipeline",        // pipeline router — caller picks type (quick/scientific/agi/validate/wisdom/print_to_program)
+  "mill_agi_reason",            // facade-routed AGI reasoning (type=agi)
+  "mill_awareness_query",       // mill self-awareness + disk-scan drift report (uses P1-U04 refreshRegistry)
+  "mill_recommend_features",    // PRISMSelfAwareness.recommendMillFeatures (P1-U04) — task → engines + AI features
+  "mill_scientific_analyze",    // facade-routed unified science (type=scientific)
+  "mill_validate_approach",     // facade-routed validate (type=validate)
 ] as const;
 
 function ok(data: any) {
@@ -5947,6 +5954,68 @@ export function registerAIReasoningDispatcher(server: any): void {
           case "milling_trace_with_reasoning": {
             const { millingReasoningTraceLedgerEngine } = await import("../../engines/MillingReasoningTraceLedgerEngine.js");
             return ok(millingReasoningTraceLedgerEngine.queryWithReasoning(params.limit as number | undefined));
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // MILL-MASTER-P1-U05-PRISM-AI-ROUTE — facade-routed entry points
+          // All 6 actions flow through MillMasterOrchestratorFacadeEngine so
+          // the prism_ai side gets the SAME cohesion guarantee as the
+          // prism_mill dispatcher. No direct-to-sub-engine bypass.
+          // ─────────────────────────────────────────────────────────────────
+          case "route_mill_pipeline": {
+            const { millMasterOrchestratorFacadeEngine } = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
+            const validTypes = ["print_to_program", "scientific", "agi", "validate", "quick", "wisdom"] as const;
+            const reqType = (params.type as typeof validTypes[number]) || "quick";
+            if (!validTypes.includes(reqType)) {
+              return ok({ error: `Invalid type '${reqType}'. Valid: ${validTypes.join(", ")}` });
+            }
+            if (!params.material) return ok({ error: "Missing required param: material" });
+            return ok(millMasterOrchestratorFacadeEngine.orchestrate({ ...(params as any), type: reqType }));
+          }
+
+          case "mill_agi_reason": {
+            const { millMasterOrchestratorFacadeEngine } = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
+            if (!params.material) return ok({ error: "Missing required param: material" });
+            return ok(millMasterOrchestratorFacadeEngine.orchestrate({ ...(params as any), type: "agi" }));
+          }
+
+          case "mill_scientific_analyze": {
+            const { millMasterOrchestratorFacadeEngine } = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
+            if (!params.material) return ok({ error: "Missing required param: material" });
+            return ok(millMasterOrchestratorFacadeEngine.orchestrate({ ...(params as any), type: "scientific" }));
+          }
+
+          case "mill_validate_approach": {
+            const { millMasterOrchestratorFacadeEngine } = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
+            if (!params.material) return ok({ error: "Missing required param: material" });
+            return ok(millMasterOrchestratorFacadeEngine.orchestrate({ ...(params as any), type: "validate" }));
+          }
+
+          case "mill_awareness_query": {
+            const { millAISelfAwarenessIntegrationEngine } = await import("../../engines/MillAISelfAwarenessIntegrationEngine.js");
+            const { millMasterOrchestratorFacadeEngine } = await import("../../engines/MillMasterOrchestratorFacadeEngine.js");
+            const mode = (params.mode as string) || "full";
+            if (mode === "drift") {
+              return ok(millAISelfAwarenessIntegrationEngine.refreshRegistry());
+            }
+            if (mode === "stats") {
+              return ok(millAISelfAwarenessIntegrationEngine.getStatistics());
+            }
+            if (mode === "facade") {
+              return ok(millMasterOrchestratorFacadeEngine.getSelfAwareness());
+            }
+            // full: combine all three
+            return ok({
+              drift: millAISelfAwarenessIntegrationEngine.refreshRegistry(),
+              stats: millAISelfAwarenessIntegrationEngine.getStatistics(),
+              facade: millMasterOrchestratorFacadeEngine.getSelfAwareness(),
+            });
+          }
+
+          case "mill_recommend_features": {
+            const { prismSelfAwarenessEngine } = await import("../../engines/PRISMSelfAwarenessEngine.js");
+            const task = (params.task as string) || "";
+            return ok(await prismSelfAwarenessEngine.recommendMillFeatures(task));
           }
 
           default:
