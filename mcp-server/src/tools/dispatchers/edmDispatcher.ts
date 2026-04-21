@@ -51,6 +51,8 @@ let _biMaterial: any;
 let _feedbackCalibration: any, _calibrationReport: any, _programParser: any;
 // MS-P4-DL-CORE U-P4-DL-01: on-device learning substrate
 let _wedmJobOutcome: any;
+// MS-P4-DL-CORE U-P4-DL-03: EWC++ memory
+let _wedmEWCMemory: any;
 let _wireEDMDeepAIHardening: any;
 let _wedmCalculatorAI: any;
 let _wedmScheduling: any;
@@ -133,6 +135,8 @@ async function getEngine(name: string): Promise<any> {
     case "feedbackCalibration": return _feedbackCalibration ??= (await import("../../engines/WEDMFeedbackCalibrationEngine.js")).wedmFeedbackCalibrationEngine;
     // MS-P4-DL-CORE U-P4-DL-01
     case "wedmJobOutcome": return _wedmJobOutcome ??= (await import("../../engines/WEDMJobOutcomeEngine.js")).wedmJobOutcomeEngine;
+    // MS-P4-DL-CORE U-P4-DL-03
+    case "wedmEWCMemory": return _wedmEWCMemory ??= (await import("../../engines/WEDMEWCMemoryEngine.js")).wedmEWCMemoryEngine;
     case "calibrationReport": return _calibrationReport ??= new (await import("../../engines/WEDMCalibrationReportEngine.js")).WEDMCalibrationReportEngine();
     case "programParser": return _programParser ??= new (await import("../../engines/WireEDMProgramParserEngine.js")).WireEDMProgramParserEngine();
     case "wireEDMDeepAIHardening": return _wireEDMDeepAIHardening ??= (await import("../../engines/WireEDMDeepAIHardeningEngine.js")).wireEDMDeepAIHardeningEngine;
@@ -366,6 +370,9 @@ const ACTIONS = [
 
   // MS-P4-DL-CORE U-P4-DL-01: on-device learning — capture finished-job outcome
   "wedm_learn_from_job", "wedm_job_history_stats",
+
+  // MS-P4-DL-CORE U-P4-DL-03: EWC++ memory — anti-catastrophic-forgetting
+  "wedm_ewc_snapshot_task", "wedm_ewc_penalty", "wedm_ewc_list_tasks",
 
   // Photo-to-quote shortcut
   "wedm_photo_to_quote",
@@ -1828,6 +1835,35 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_job_history_stats": {
             const engine = await getEngine("wedmJobOutcome");
             result = engine.stats();
+            break;
+          }
+
+          // ── MS-P4-DL-CORE U-P4-DL-03: EWC++ memory actions ──
+          case "wedm_ewc_snapshot_task": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = engine.snapshotTask({
+              taskId: params.task_id ?? params.taskId,
+              material: params.material,
+              adapter: params.adapter,
+              fisher: params.fisher,
+              lambda: params.lambda,
+              lambdaPreset: params.lambda_preset ?? params.lambdaPreset,
+            });
+            break;
+          }
+
+          case "wedm_ewc_penalty": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = {
+              penalty: engine.penalty(params.adapter),
+              gradient: engine.penaltyGradient(params.adapter),
+            };
+            break;
+          }
+
+          case "wedm_ewc_list_tasks": {
+            const engine = await getEngine("wedmEWCMemory");
+            result = { tasks: engine.listTasks(params.adapter_name ?? params.adapterName) };
             break;
           }
 
