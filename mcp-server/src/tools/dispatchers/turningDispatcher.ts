@@ -52,6 +52,8 @@ const ACTIONS = [
   // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence (U-LPQ01..U-LPQ08)
   "turning_inspection_plan", "turning_fai_generate", "turning_cmm_program",
   "turning_spc_predict", "turning_gage_rr_check", "turning_quality_package",
+  // LATHE-PRO-MS9: Quality compliance AS9100/ISO 13485/FDA (U-LPR01..U-LPR06)
+  "turning_biocompat_check", "turning_compliance_check",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -448,6 +450,17 @@ Actions: ${ACTIONS.join(", ")}.`,
             const p = params as any;
             const requirements = tqc.planRequirements(p);
             result = p.produced ? tqc.checkPackage(requirements, p.produced) : requirements;
+            break;
+          }
+          // LATHE-PRO-MS9: Quality compliance AS9100/ISO 13485/FDA (U-LPR01..U-LPR06)
+          case "turning_biocompat_check": {
+            const { turningBiocompatibleMaterialGuardEngine: bcg } = await import("../../engines/TurningBiocompatibleMaterialGuardEngine.js");
+            result = bcg.check(params as any);
+            break;
+          }
+          case "turning_compliance_check": {
+            const { turningComplianceCheckEngine: tcc } = await import("../../engines/TurningComplianceCheckEngine.js");
+            result = tcc.check(params as any);
             break;
           }
           case "turning_chip_analysis": {
