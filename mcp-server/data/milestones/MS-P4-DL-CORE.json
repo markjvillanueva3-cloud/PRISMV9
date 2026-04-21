@@ -13,7 +13,7 @@
   "blocks_reached_by": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
 
   "total_units": 5,
-  "completed_units": 1,
+  "completed_units": 2,
   "sessions": 2,
   "dependencies": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
   "blocks": ["MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30", "MS-P9-XAI", "MS-P10-V2LAUNCH"],
@@ -89,8 +89,10 @@
         "dispatcher action prism_edm:wedm_learn_from_job surfaces + routes to engine",
         "WEDMJobOutcomeEngine.test.ts has ≥ 10 cases incl. zero/negative/extreme cycle times (no bare .toBeGreaterThan(0) / .toBeLessThan(1000))"
       ],
-      "status": "needs_build",
-      "scope_note": "2026-04-21 audit: engine does NOT exist under this exact name. WEDMContinuousLearningEngine is the closest existing substrate — it orchestrates 4 feedback signals (Ra, cycle time, wire-break, operator) but does NOT capture into a canonical WEDM_JOB_HISTORY.json file under schema v1. Option (build-new): construct WEDMJobOutcomeEngine that consumes WEDMContinuousLearningEngine output and persists to canonical schema. Option (rename+extend): rename WEDMContinuousLearningEngine → WEDMJobOutcomeEngine with schema v1 persistence added. Build-new preferred per web/CLAUDE.md rule 'never rename existing Codex/Claude engines without deprecation shim'."
+      "status": "complete",
+      "completed_at": "2026-04-21",
+      "commit": "670932b95",
+      "scope_note": "BUILT 2026-04-21. WEDMJobOutcomeEngine (235 LOC) + wedmJobHistorySchema.ts (226 LOC) + WEDM_JOB_HISTORY.json (cold-start) + 16 tests (290 LOC) + 2 dispatcher actions (wedm_learn_from_job, wedm_job_history_stats). Option chosen: build-new side-by-side with WEDMContinuousLearningEngine (no rename, no deprecation). Schema v1 with ULID job_id, ISO-8601 UTC recorded_at, AtomicValue shape for measurements, superRefine invariants (wire_break_events.length === wire_break_count, accepted ⇔ rejection_codes.empty). Atomic write via .tmp → rename. 16/16 tests green, 0 banned patterns, 0 new tsc errors."
     },
 
     "1": {
