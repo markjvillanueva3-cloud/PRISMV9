@@ -13,7 +13,7 @@
   "blocks_reached_by": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
 
   "total_units": 5,
-  "completed_units": 2,
+  "completed_units": 3,
   "sessions": 2,
   "dependencies": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
   "blocks": ["MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30", "MS-P9-XAI", "MS-P10-V2LAUNCH"],
@@ -116,8 +116,10 @@
         "weights serialise + reload bit-exact",
         "Klocke base output unchanged when adapter scale = 0 (identity invariant)"
       ],
-      "status": "needs_build",
-      "scope_note": "2026-04-21 audit: PRISMLoRAAdapterEngine exists but is an INVENTORY/REGISTRY engine (manages adapter files on disk), NOT a low-rank math implementation. The math engine does NOT exist. WEDM_LORA_CHECKPOINT.json exists (772 bytes) from earlier P3 work but WEDM_LORA_WEIGHTS.json does not. Distinction: PRISMLoRAAdapterEngine.register(id, path) vs WEDMLoRAAdapterEngine.forward(input, adapterWeights) — different concerns, both needed. Build-new required."
+      "status": "complete",
+      "completed_at": "2026-04-21",
+      "commit": "c34af2ab6",
+      "scope_note": "BUILT 2026-04-21. WEDMLoRAAdapterEngine (410 LOC) + WEDM_LORA_WEIGHTS.json (cold-start) + 18 tests (320 LOC). Rank locked at 4 via z.literal(4). Math: ΔW = B·A, forward = (α/r)·scale·B·A·x, backward derives dL/dB and dL/dA (Hu 2021 §3). Init follows §4.1: A ~ N(0, 1/r) via Mulberry32 PRNG + Box-Muller, B = 0 (identity invariant). Hand-computed reference case (A=[[1,0],[0,1],[0.5,0.5],[0.3,0.7]], B=[[1,0,0,0],[0,1,0,0]], α=8, x=[1,2]) verified bit-exact to 12 digits (forward=[2,4], gradB=[[2,4,3,3.4],[2,4,3,3.4]], gradA=[[2,4],[2,4],[0,0],[0,0]]). Finite-difference gradient check ±0.5% on randomly-seeded adapter. 200-step SGD reduces quadratic loss ≥10×. Persistence: atomic write, multi-adapter registry keyed by name, deterministic re-init from seed."
     },
 
     "2": {
