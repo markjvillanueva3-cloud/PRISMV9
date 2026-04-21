@@ -1458,6 +1458,306 @@ export class MillTurnSwissPipelineEngine {
 function round4(n) {
     return Math.round(n * 10000) / 10000;
 }
+
+// ============================================================================
+// MILL-MASTER-P3-U03-MT-ASSEMBLE — Multi-channel assembly with 6 dialects
+// ============================================================================
+// The existing MillTurnSwissPipelineEngine.assembleProgram produces a single
+// serialized program. True mill-turn / Swiss-type machines need PARALLEL
+// channels (main-spindle turret runs while sub-spindle does back-work) with
+// controller-specific sync codes at handoff points.
+//
+// The 6 supported dialects:
+//   citizen_cincom — $1/$2/$3 channel markers, M-code synchronization
+//   fanuc_wait_m   — comment blocks + M200-range wait codes
+//   mazak_smooth   — !L (wait) / C (signal) sync pairs
+//   siemens_waitm  — WAITM(id, waitCh, signalCh) + CHANDATA(N) header
+//   index_cline    — GETIME / WTIME paired sync
+//   tsugami        — Tsugami-specific @-markers, similar to citizen format
+
+const MULTI_CHANNEL_DIALECTS = [
+    "citizen_cincom",
+    "fanuc_wait_m",
+    "mazak_smooth",
+    "siemens_waitm",
+    "index_cline",
+    "tsugami",
+];
+
+/**
+ * Map a controller name to its sync-code dialect.
+ * @param controller - User-facing controller name
+ * @returns Dialect key from MULTI_CHANNEL_DIALECTS
+ */
+function resolveDialect(controller) {
+    const c = String(controller || "").toLowerCase();
+    if (c.includes("citizen") || c.includes("cincom")) return "citizen_cincom";
+    if (c.includes("mazak") || c.includes("smooth")) return "mazak_smooth";
+    if (c.includes("siemens") || c.includes("840d") || c.includes("828d")) return "siemens_waitm";
+    if (c.includes("index") || c.includes("cline")) return "index_cline";
+    if (c.includes("tsugami")) return "tsugami";
+    return "fanuc_wait_m"; // Default — widest compatibility
+}
+
+/**
+ * Generate header lines for a specific dialect.
+ * @param dialect - Sync-code dialect
+ * @param numChannels - Number of channels in the program
+ * @param programNumber - O-word program number
+ * @param comment - Program comment
+ * @returns Header G-code lines
+ */
+function dialectHeader(dialect, numChannels, programNumber, comment) {
+    const progStr = String(programNumber).padStart(4, "0");
+    const commentStr = comment || "MILL-TURN MULTI-CHANNEL";
+    switch (dialect) {
+        case "citizen_cincom":
+            return [
+                `O${progStr} (${commentStr} — CITIZEN CINCOM)`,
+                `( ${numChannels}-CHANNEL PROGRAM )`,
+                `( CH1 = MAIN SPINDLE / MAIN TURRET )`,
+                numChannels >= 2 ? `( CH2 = SUB SPINDLE / BACK WORK )` : "",
+                numChannels >= 3 ? `( CH3 = SECONDARY TURRET )` : "",
+            ].filter(Boolean);
+        case "siemens_waitm":
+            return [
+                `;O${progStr} (${commentStr})`,
+                `;Siemens 840D multi-channel`,
+                `CHANDATA(${numChannels})`,
+                `CHANNAME[1]="MAIN"`,
+                numChannels >= 2 ? `CHANNAME[2]="SUB"` : "",
+            ].filter(Boolean);
+        case "mazak_smooth":
+            return [
+                `O${progStr} (${commentStr} — MAZAK SMOOTHX)`,
+                `( ${numChannels}-CHANNEL MILL-TURN PROGRAM )`,
+                `( USE L/C SYNC PAIRS AT HANDOFF POINTS )`,
+            ];
+        case "index_cline":
+            return [
+                `O${progStr} (${commentStr} — INDEX CLINE)`,
+                `( ${numChannels} channels — GETIME/WTIME sync pairs )`,
+            ];
+        case "tsugami":
+            return [
+                `O${progStr} (${commentStr} — TSUGAMI SWISS)`,
+                `( ${numChannels}-CHANNEL SWISS PROGRAM )`,
+                `@CHANNEL_COUNT=${numChannels}`,
+            ];
+        case "fanuc_wait_m":
+        default:
+            return [
+                `O${progStr} (${commentStr} — FANUC M-WAIT)`,
+                `( ${numChannels}-CHANNEL MILL-TURN PROGRAM )`,
+                `( M200+ RANGE USED FOR INTER-CHANNEL SYNC )`,
+            ];
+    }
+}
+
+/**
+ * Generate channel file content separator for dialects that concatenate
+ * multiple channels into one file (vs multiple files).
+ * @param dialect - Sync-code dialect
+ * @param channelId - Channel number (1-based)
+ * @returns Separator string
+ */
+function dialectChannelSeparator(dialect, channelId) {
+    switch (dialect) {
+        case "citizen_cincom": return `$${channelId}`;
+        case "tsugami":        return `@CH${channelId}`;
+        case "fanuc_wait_m":   return `(===== CHANNEL ${channelId} =====)`;
+        case "mazak_smooth":   return `( --- CHANNEL ${channelId} --- )`;
+        case "siemens_waitm":  return `;CHANNEL_${channelId}`;
+        case "index_cline":    return `( INDEX CH${channelId} )`;
+        default:               return `( CHANNEL ${channelId} )`;
+    }
+}
+
+/**
+ * Generate an inter-channel wait instruction for a specific dialect.
+ * @param dialect - Sync-code dialect
+ * @param syncId - Unique sync ID (3-digit)
+ * @param waitCh - Channel that's waiting
+ * @param signalCh - Channel being waited on
+ * @param label - Human-readable label
+ * @returns Sync code line
+ */
+function dialectSync(dialect, syncId, waitCh, signalCh, label) {
+    switch (dialect) {
+        case "citizen_cincom": return `$${waitCh} M${200 + (syncId % 100)} ; wait for $${signalCh} (${label})`;
+        case "fanuc_wait_m":   return `M${200 + (syncId % 100)} (CH${waitCh} waits for CH${signalCh} — ${label})`;
+        case "mazak_smooth":   return `!L${waitCh} C${signalCh} ; ${label}`;
+        case "siemens_waitm":  return `WAITM(${syncId},${waitCh},${signalCh}) ; ${label}`;
+        case "index_cline":    return `GETIME(${syncId}) WTIME(${syncId}) ; ${label}`;
+        case "tsugami":        return `@SYNC ${syncId} CH${waitCh}<-CH${signalCh} ; ${label}`;
+        default:               return `SYNC_WAIT(${syncId}) ; CH${waitCh} waits for CH${signalCh} after ${label}`;
+    }
+}
+
+/**
+ * Assemble a multi-channel mill-turn / Swiss program with dialect-specific
+ * header, per-channel G-code streams, and sync codes at handoff points.
+ *
+ * Unlike the serialized assembleProgram method, this returns structured
+ * channels so downstream tools can emit separate files (Citizen, Tsugami)
+ * or concatenate with dialect-specific separators (Fanuc, Mazak).
+ *
+ * Envelope P3-U03 contract: N-channel output across 6 dialects with sync
+ * codes at (a) main→sub handoff, (b) end-of-back-work, (c) parallel-op
+ * boundaries when live tool runs simultaneously with turning.
+ *
+ * @param input - Multi-channel program input
+ * @returns Structured result with channels, sync points, header, warnings
+ */
+MillTurnSwissPipelineEngine.prototype.assembleMultiChannelProgram = function (input) {
+    const warnings = [];
+    const controller = input.controller ?? "fanuc";
+    const dialect = input.dialect ?? resolveDialect(controller);
+    if (!MULTI_CHANNEL_DIALECTS.includes(dialect)) {
+        warnings.push(`Unknown dialect '${dialect}' — defaulting to fanuc_wait_m`);
+    }
+    const resolvedDialect = MULTI_CHANNEL_DIALECTS.includes(dialect) ? dialect : "fanuc_wait_m";
+
+    // Classify ops into channels
+    const mainOps = input.turning_ops || [];
+    const liveOps = input.live_tool_ops || [];
+    const subOps  = input.sub_spindle_ops || [];
+    const hasSub = subOps.length > 0 || !!input.transfer;
+    const numChannels = hasSub ? 2 : 1;
+
+    const progNum = input.program_number ?? 1;
+    const comment = input.program_comment ?? "MILL-TURN MULTI-CHANNEL";
+
+    // --- Header ---
+    const headerLines = dialectHeader(resolvedDialect, numChannels, progNum, comment);
+    if (input.material) {
+        headerLines.push(`( MATERIAL: ${input.material.name ?? "unknown"} ISO ${input.material.iso_group ?? "?"} )`);
+    }
+    if (input.stock_od_mm) {
+        headerLines.push(`( STOCK: OD${input.stock_od_mm}mm L${input.part_length_mm ?? "?"}mm )`);
+    }
+
+    // --- Build channel 1 (main spindle) ---
+    const ch1Lines = [];
+    ch1Lines.push(dialectChannelSeparator(resolvedDialect, 1));
+    // Safety block
+    ch1Lines.push("G28 U0 W0");
+    ch1Lines.push("G18 G40 G80 G99");
+    for (const op of mainOps) {
+        ch1Lines.push(`(--- ${op.type?.toUpperCase() ?? "TURN"} ---)`);
+        ch1Lines.push(`T${String(op.tool_number).padStart(2, "0")}${String(op.offset_number).padStart(2, "0")}`);
+        const rpm = Math.round((1000 * (op.cutting_speed_m_min ?? 200)) / (Math.PI * (input.stock_od_mm ?? 25)));
+        ch1Lines.push(op.css ? `G96 S${Math.round(op.cutting_speed_m_min ?? 200)} M03` : `G97 S${rpm} M03`);
+        ch1Lines.push(`G00 X${round4(op.start_x_mm ?? 0)} Z${round4(op.start_z_mm ?? 0)}`);
+        ch1Lines.push(`G01 X${round4(op.end_x_mm ?? 0)} Z${round4(op.end_z_mm ?? 0)} F${round4(op.feed_mm_rev ?? 0.1)}`);
+    }
+    for (const op of liveOps) {
+        ch1Lines.push(`(--- LIVE: ${op.type?.toUpperCase() ?? "MILL"} ---)`);
+        ch1Lines.push(`T${String(op.tool_number).padStart(2, "0")}${String(op.offset_number).padStart(2, "0")}`);
+        ch1Lines.push("M05");
+        ch1Lines.push(`G97 S${op.spindle_rpm ?? 3000} M03`);
+        ch1Lines.push(`G00 Z${round4(op.z_start_mm ?? 0)}`);
+        ch1Lines.push(`G01 Z${round4(op.z_end_mm ?? (op.z_start_mm ?? 0) - (op.depth_mm ?? 5))} F${round4(op.feed_mm_min ?? 100)}`);
+    }
+
+    // --- Sync points (always include part transfer + end-of-sub when applicable) ---
+    const syncPoints = [];
+    let nextSyncId = 101;
+
+    if (hasSub) {
+        // Sync 1 — at part transfer (main waits for sub ready)
+        syncPoints.push({
+            sync_id: nextSyncId,
+            after_op: "main_turning_complete",
+            wait_channel: 1,
+            signal_channel: 2,
+            sync_code: dialectSync(resolvedDialect, nextSyncId, 1, 2, "part transfer handshake"),
+        });
+        ch1Lines.push("");
+        ch1Lines.push("M05 ; stop main for transfer");
+        ch1Lines.push(syncPoints[syncPoints.length - 1].sync_code);
+        nextSyncId++;
+    }
+
+    // Channel 1 program end
+    ch1Lines.push("");
+    ch1Lines.push("G28 U0 W0");
+    ch1Lines.push("M05");
+    ch1Lines.push("M09");
+    ch1Lines.push("M30");
+
+    // --- Build channel 2 (sub spindle) if applicable ---
+    const ch2Lines = [];
+    if (hasSub) {
+        ch2Lines.push(dialectChannelSeparator(resolvedDialect, 2));
+        ch2Lines.push("G28 U0 W0");
+        // Wait for transfer sync
+        const transferSync = syncPoints.find((s) => s.after_op === "main_turning_complete");
+        if (transferSync) {
+            ch2Lines.push(dialectSync(resolvedDialect, transferSync.sync_id, 2, 1, "wait for part from main"));
+        }
+        ch2Lines.push("M68 ; sub-spindle clamp");
+        for (const op of subOps) {
+            ch2Lines.push(`(--- SUB: ${op.type?.toUpperCase() ?? "TURN"} ---)`);
+            ch2Lines.push(`T${String(op.tool_number).padStart(2, "0")}${String(op.offset_number).padStart(2, "0")}`);
+            const subRpm = Math.round((1000 * (op.cutting_speed_m_min ?? 200)) / (Math.PI * (input.stock_od_mm ?? 25)));
+            ch2Lines.push(`G97 S${subRpm} M04`);
+            ch2Lines.push(`G00 X${round4(op.start_x_mm ?? 0)} Z${round4(op.start_z_mm ?? 0)}`);
+            ch2Lines.push(`G01 X${round4(op.end_x_mm ?? 0)} Z${round4(op.end_z_mm ?? 0)} F${round4(op.feed_mm_rev ?? 0.1)}`);
+        }
+        // Sync 2 — end-of-back-work notification
+        syncPoints.push({
+            sync_id: nextSyncId,
+            after_op: "sub_work_complete",
+            wait_channel: 1,
+            signal_channel: 2,
+            sync_code: dialectSync(resolvedDialect, nextSyncId, 1, 2, "sub complete — main may restart"),
+        });
+        ch2Lines.push(syncPoints[syncPoints.length - 1].sync_code);
+        ch2Lines.push("M05");
+        ch2Lines.push("M30");
+        nextSyncId++;
+    }
+
+    // --- Validation warnings ---
+    if (mainOps.length === 0 && liveOps.length === 0 && subOps.length === 0) {
+        warnings.push("No operations defined — program contains only header/footer");
+    }
+    if (hasSub && mainOps.length === 0) {
+        warnings.push("Sub-spindle operations defined but no main-spindle ops — verify intent");
+    }
+
+    return {
+        dialect: resolvedDialect,
+        channel_count: numChannels,
+        channels: [
+            { channel_id: 1, role: "main", gcode_lines: ch1Lines, op_count: mainOps.length + liveOps.length },
+            ...(hasSub ? [{ channel_id: 2, role: "sub", gcode_lines: ch2Lines, op_count: subOps.length }] : []),
+        ],
+        sync_points: syncPoints,
+        header_lines: headerLines,
+        warnings,
+    };
+};
+
+/**
+ * Flatten a multi-channel result into a single concatenated G-code string.
+ * Respects dialect-specific separators and ordering.
+ * @param result - Output of assembleMultiChannelProgram
+ * @returns Single G-code string
+ */
+MillTurnSwissPipelineEngine.prototype.formatMultiChannelAsText = function (result) {
+    const out = [];
+    out.push(...result.header_lines);
+    out.push("");
+    for (const ch of result.channels) {
+        out.push(...ch.gcode_lines);
+        out.push("");
+    }
+    out.push("%");
+    return out.join("\n");
+};
+
 /** Singleton instance. */
 export const millTurnSwissPipelineEngine = new MillTurnSwissPipelineEngine();
 //# sourceMappingURL=MillTurnSwissPipelineEngine.js.map
