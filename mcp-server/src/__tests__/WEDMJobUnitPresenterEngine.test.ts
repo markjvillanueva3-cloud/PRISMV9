@@ -276,3 +276,124 @@ describe("WEDMJobUnitPresenterEngine — shape invariants", () => {
     expect(view.outcome.rejection_codes).toEqual(["RA_OUT_OF_SPEC"]);
   });
 });
+
+describe("WEDMJobUnitPresenterEngine — feedbackFromUS", () => {
+  it("converts thickness_in and Ra µin fields to SI WEDMFeedback shape", () => {
+    const si = presenter.feedbackFromUS({
+      material: "D2",
+      thickness_in: 0.500,
+      predicted_ra_uin: 32,
+      actual_ra_uin: 30,
+      predicted_time_min: 42.3,
+      actual_time_min: 43.1,
+      notes: "first D2 cut of the week",
+      wire_breaks: 1,
+      machine: "MS-WedM-01",
+    });
+    expect(si.thickness_mm).toBe(12.7);
+    expect(si.predicted_ra_um).toBe(0.8128);
+    expect(si.actual_ra_um).toBe(0.762);
+    // Time fields pass through unchanged (minutes universal)
+    expect(si.predicted_time_min).toBe(42.3);
+    expect(si.actual_time_min).toBe(43.1);
+    // Scalar / string fields pass through unchanged
+    expect(si.material).toBe("D2");
+    expect(si.notes).toBe("first D2 cut of the week");
+    expect(si.wire_breaks).toBe(1);
+    expect(si.machine).toBe("MS-WedM-01");
+  });
+
+  it("preserves optional fields as undefined when absent", () => {
+    const si = presenter.feedbackFromUS({
+      material: "M2",
+      thickness_in: 0.250,
+      predicted_ra_uin: 40,
+      actual_ra_uin: 42,
+      predicted_time_min: 20,
+      actual_time_min: 21,
+    });
+    expect(si.notes).toBeUndefined();
+    expect(si.wire_breaks).toBeUndefined();
+    expect(si.machine).toBeUndefined();
+    expect(si.thickness_mm).toBe(6.35);
+  });
+});
+
+describe("WEDMJobUnitPresenterEngine — workpieceFromUS", () => {
+  it("converts 3D workpiece geometry with height defaulting to thickness", () => {
+    const si = presenter.workpieceFromUS({
+      thickness_in: 0.500,
+      length_in: 4.0,
+      width_in: 3.0,
+    });
+    expect(si.thickness_mm).toBe(12.7);
+    expect(si.length_mm).toBe(101.6);
+    // 3.0 * 25.4 = 76.19999... in IEEE-754 binary-64 (not exactly representable)
+    expect(si.width_mm).toBeCloseTo(76.2, 10);
+    expect(si.height_mm).toBe(12.7); // defaults to thickness
+  });
+
+  it("respects explicit height_in when supplied", () => {
+    const si = presenter.workpieceFromUS({
+      thickness_in: 0.500,
+      length_in: 4.0,
+      width_in: 3.0,
+      height_in: 1.0,
+    });
+    expect(si.height_mm).toBe(25.4);
+  });
+});
+
+describe("WEDMJobUnitPresenterEngine — convertValue (generic)", () => {
+  it("in_to_mm and mm_to_in are exact reciprocals", () => {
+    const fwd = presenter.convertValue({ value: 0.500, pair: "in_to_mm" });
+    expect(fwd.to_value).toBe(12.7);
+    expect(fwd.from_unit).toBe("in");
+    expect(fwd.to_unit).toBe("mm");
+    expect(fwd.factor).toBe(25.4);
+    const back = presenter.convertValue({ value: 12.7, pair: "mm_to_in" });
+    // 12.7 / 25.4 = 0.4999... in binary-64 (float-repr of 12.7 is not exact)
+    expect(back.to_value).toBeCloseTo(0.500, 12);
+  });
+
+  it("uin_to_um and um_to_uin round-trip a standard Ra value (32 µin = 0.8128 µm)", () => {
+    const fwd = presenter.convertValue({ value: 32, pair: "uin_to_um" });
+    expect(fwd.to_value).toBe(0.8128);
+    const back = presenter.convertValue({ value: 0.8128, pair: "um_to_uin" });
+    expect(back.to_value).toBeCloseTo(32, 10);
+  });
+
+  it("ft_to_m converts 608 ft → 185.3184 m exactly", () => {
+    const r = presenter.convertValue({ value: 608, pair: "ft_to_m" });
+    expect(r.to_value).toBe(185.3184);
+  });
+
+  it("in²/min ↔ mm²/min uses 645.16 (= 25.4²) factor", () => {
+    const fwd = presenter.convertValue({
+      value: 1,
+      pair: "in2_per_min_to_mm2_per_min",
+    });
+    expect(fwd.to_value).toBe(645.16);
+    expect(fwd.factor).toBe(645.16);
+    const back = presenter.convertValue({
+      value: 645.16,
+      pair: "mm2_per_min_to_in2_per_min",
+    });
+    expect(back.to_value).toBeCloseTo(1, 12);
+  });
+
+  it("rejects non-finite values", () => {
+    expect(() =>
+      presenter.convertValue({ value: Number.NaN, pair: "in_to_mm" }),
+    ).toThrowError(/finite/);
+    expect(() =>
+      presenter.convertValue({ value: Number.POSITIVE_INFINITY, pair: "in_to_mm" }),
+    ).toThrowError(/finite/);
+  });
+
+  it("rejects unknown pair at runtime (type-level exhaustive switch)", () => {
+    expect(() =>
+      presenter.convertValue({ value: 1, pair: "bogus" as never }),
+    ).toThrowError(/unknown pair/);
+  });
+});
