@@ -44,6 +44,8 @@ const ACTIONS = [
   "turning_swiss_channel_balance", "turning_swiss_collision_check",
   // LATHE-PRO-MS6b: Swiss production intelligence (U-LPS21..U-LPS23)
   "turning_swiss_guide_bush_decide", "turning_swiss_back_work_op2", "turning_swiss_gang_layout",
+  // LATHE-PRO-MS6b: Bar-stock management + unmanned readiness (U-LPS24..U-LPS25)
+  "turning_swiss_bar_management", "turning_swiss_unmanned_score",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -372,6 +374,17 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_swiss_gang_layout": {
             const { swissGangSlideTurretEngine: sge } = await import("../../engines/SwissGangSlideTurretEngine.js");
             result = sge.layout(params as any);
+            break;
+          }
+          // LATHE-PRO-MS6b: Bar-stock management + unmanned readiness (U-LPS24..U-LPS25)
+          case "turning_swiss_bar_management": {
+            const { swissBarProductionEngine: bpe } = await import("../../engines/SwissBarProductionEngine.js");
+            result = bpe.plan(params as any);
+            break;
+          }
+          case "turning_swiss_unmanned_score": {
+            const { swissUnmannedReadinessEngine: ure } = await import("../../engines/SwissUnmannedReadinessEngine.js");
+            result = ure.assess(params as any);
             break;
           }
           // LATHE-MS0: Collision zone actions
