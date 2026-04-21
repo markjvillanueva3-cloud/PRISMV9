@@ -162,7 +162,10 @@ Actions: ${ACTIONS.join(", ")}.`,
         switch (action) {
           case "turning_print_to_program": {
             const eng = await getEngine();
-            const turningResult = eng.calculate(action, params) as any;
+            // MILL-MASTER-P3-U04: TurningPrintToProgramEngine.calculate is async;
+            // missing await returned a Promise that skipped postprocessor and
+            // leaked as the dispatcher response. Fixed by awaiting.
+            const turningResult = (await eng.calculate(action, params)) as any;
             // PIPELINE-VAR U-PV02: Auto-chain PostProcessor for per-block S/F optimization
             if (turningResult?.program_text && turningResult.program_text.length > 0) {
               try {
@@ -190,7 +193,8 @@ Actions: ${ACTIONS.join(", ")}.`,
           }
           case "turning_process_plan": {
             const eng = await getEngine();
-            const result = eng.calculate(action, params);
+            // MILL-MASTER-P3-U04: async calculate — missing await (see above)
+            const result = await eng.calculate(action, params);
             return dispatcherResult(result);
           }
           case "turning_blueprint_intake": {
@@ -254,7 +258,8 @@ Actions: ${ACTIONS.join(", ")}.`,
             // Full pipeline from UI wizard: intake → pipeline → result
             // Accepts the same TurningInput the UI wizard produces
             const eng = await getEngine();
-            const result = eng.calculate("turning_print_to_program", params);
+            // MILL-MASTER-P3-U04: async calculate — missing await (see above)
+            const result = await eng.calculate("turning_print_to_program", params);
             return dispatcherResult(result);
           }
           case "lathe_orchestrate": {
