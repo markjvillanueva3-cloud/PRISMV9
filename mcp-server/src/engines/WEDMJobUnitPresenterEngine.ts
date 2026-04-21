@@ -210,6 +210,80 @@ export interface USStatsView {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// FEEDBACK — US submission shape (matches WEDMFeedbackCalibrationEngine.submit_feedback)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface USFeedback {
+  material: string;
+  thickness_in: number;
+  predicted_ra_uin: number;
+  actual_ra_uin: number;
+  predicted_time_min: number;
+  actual_time_min: number;
+  notes?: string;
+  wire_breaks?: number;
+  machine?: string;
+}
+
+export interface SIFeedback {
+  material: string;
+  thickness_mm: number;
+  predicted_ra_um: number;
+  actual_ra_um: number;
+  predicted_time_min: number;
+  actual_time_min: number;
+  notes?: string;
+  wire_breaks?: number;
+  machine?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// WORKPIECE — US feasibility input (matches EDMFeasibilityEngine.assess(...).workpiece)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface USWorkpiece {
+  thickness_in: number;
+  length_in: number;
+  width_in: number;
+  height_in?: number;
+}
+
+export interface SIWorkpiece {
+  thickness_mm: number;
+  length_mm: number;
+  width_mm: number;
+  height_mm: number;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GENERIC CONVERSION — named unit pairs spanning the WEDM surface
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type WEDMUnitPair =
+  | "in_to_mm"
+  | "mm_to_in"
+  | "uin_to_um"
+  | "um_to_uin"
+  | "ft_to_m"
+  | "m_to_ft"
+  | "in2_per_min_to_mm2_per_min"
+  | "mm2_per_min_to_in2_per_min";
+
+export interface ConvertValueInput {
+  value: number;
+  pair: WEDMUnitPair;
+}
+
+export interface ConvertValueResult {
+  from_value: number;
+  from_unit: string;
+  to_value: number;
+  to_unit: string;
+  factor: number;
+  pair: WEDMUnitPair;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // CONVERSION PRIMITIVES (exact constants, no rounding)
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -409,6 +483,96 @@ export class WEDMJobUnitPresenterEngine {
       _units_system: "US",
     };
     return view;
+  }
+
+  /**
+   * Convert a WEDMFeedback submission from US units to SI. Matches the shape
+   * consumed by WEDMFeedbackCalibrationEngine.submit_feedback().
+   *   thickness_in     × 25.4    → thickness_mm
+   *   predicted_ra_uin × 0.0254  → predicted_ra_um
+   *   actual_ra_uin    × 0.0254  → actual_ra_um
+   *   predicted_time_min, actual_time_min — universal (minutes)
+   */
+  feedbackFromUS(us: USFeedback): SIFeedback {
+    return {
+      material: us.material,
+      thickness_mm: inToMm(us.thickness_in),
+      predicted_ra_um: uinToUm(us.predicted_ra_uin),
+      actual_ra_um: uinToUm(us.actual_ra_uin),
+      predicted_time_min: us.predicted_time_min,
+      actual_time_min: us.actual_time_min,
+      notes: us.notes,
+      wire_breaks: us.wire_breaks,
+      machine: us.machine,
+    };
+  }
+
+  /** Convert a workpiece geometry spec from inches to mm (height defaults to thickness). */
+  workpieceFromUS(us: USWorkpiece): SIWorkpiece {
+    return {
+      thickness_mm: inToMm(us.thickness_in),
+      length_mm: inToMm(us.length_in),
+      width_mm: inToMm(us.width_in),
+      height_mm: inToMm(us.height_in ?? us.thickness_in),
+    };
+  }
+
+  /**
+   * Single-value converter for any named unit pair. Useful for ad-hoc
+   * dispatcher calls where the caller knows the source/target unit pair.
+   * No rounding — full IEEE-754 precision is preserved.
+   */
+  convertValue(input: ConvertValueInput): ConvertValueResult {
+    const { value, pair } = input;
+    if (!Number.isFinite(value)) {
+      throw new RangeError(`convertValue: value must be finite, got ${value}`);
+    }
+    let to_value: number;
+    let from_unit: string;
+    let to_unit: string;
+    let factor: number;
+    switch (pair) {
+      case "in_to_mm":
+        to_value = value * MM_PER_INCH_EXACT;
+        from_unit = "in"; to_unit = "mm"; factor = MM_PER_INCH_EXACT;
+        break;
+      case "mm_to_in":
+        to_value = value * INCHES_PER_MM;
+        from_unit = "mm"; to_unit = "in"; factor = INCHES_PER_MM;
+        break;
+      case "uin_to_um":
+        to_value = value * UM_PER_UIN_EXACT;
+        from_unit = "µin"; to_unit = "µm"; factor = UM_PER_UIN_EXACT;
+        break;
+      case "um_to_uin":
+        to_value = value * UIN_PER_UM;
+        from_unit = "µm"; to_unit = "µin"; factor = UIN_PER_UM;
+        break;
+      case "ft_to_m":
+        to_value = value * M_PER_FT_EXACT;
+        from_unit = "ft"; to_unit = "m"; factor = M_PER_FT_EXACT;
+        break;
+      case "m_to_ft":
+        to_value = value * FT_PER_M;
+        from_unit = "m"; to_unit = "ft"; factor = FT_PER_M;
+        break;
+      case "in2_per_min_to_mm2_per_min":
+        // Area ratio is (25.4)^2 = 645.16 exactly.
+        to_value = value * (MM_PER_INCH_EXACT * MM_PER_INCH_EXACT);
+        from_unit = "in²/min"; to_unit = "mm²/min";
+        factor = MM_PER_INCH_EXACT * MM_PER_INCH_EXACT;
+        break;
+      case "mm2_per_min_to_in2_per_min":
+        to_value = value / (MM_PER_INCH_EXACT * MM_PER_INCH_EXACT);
+        from_unit = "mm²/min"; to_unit = "in²/min";
+        factor = 1 / (MM_PER_INCH_EXACT * MM_PER_INCH_EXACT);
+        break;
+      default: {
+        const _exhaustive: never = pair;
+        throw new RangeError(`convertValue: unknown pair ${_exhaustive}`);
+      }
+    }
+    return { from_value: value, from_unit, to_value, to_unit, factor, pair };
   }
 
   /** Translate history stats to US display units (mean_ra_um → mean_ra_uin). */
