@@ -265,6 +265,77 @@ export interface ReasoningStep {
 }
 
 // ============================================================================
+// CAM-AGI BINDING TYPES (MILL-MASTER-P1-U03-AGI-BIND)
+// ============================================================================
+// Bidirectional binding contract between MillingAGIMasterEngine and the
+// external CAMAGIMasterOrchestratorEngine (created/wired in P1-U06).
+// Dependency injection avoids circular imports and lets the mill engine run
+// standalone until the CAM side is bound.
+
+/** Context required to pick a CAM vendor (Mastercam / hyperMILL / Fusion360 / InventorHSM / SolidCAM). */
+export interface CamVendorChoiceContext {
+  material: string;
+  material_iso?: "P" | "M" | "K" | "N" | "S" | "H";
+  operation: string;
+  part_features?: string[];
+  machine_class?: "3-axis" | "4-axis" | "5-axis" | "mill-turn" | "swiss";
+  complexity?: "simple" | "moderate" | "complex" | "extreme";
+  existing_templates?: boolean;
+  shop_licenses?: string[];
+}
+
+/** CAM vendor pick returned by the external CAMAGIMasterOrchestrator. */
+export interface CamVendorChoiceResult {
+  delegated: true;
+  vendor: "mastercam" | "hypermill" | "fusion360" | "inventorcam" | "solidcam";
+  confidence: number;
+  rationale: string;
+  fallbacks: string[];
+  source: string;
+}
+
+/** Fallback shape when no CAMAGI is bound — never throws, always structured. */
+export interface CamVendorChoiceFallback {
+  delegated: false;
+  reason: string;
+  hint: string;
+  milling_side_recommendation?: string;
+}
+
+/** Interface the external CAMAGIMasterOrchestrator must implement for binding. */
+export interface CAMAGIBinding {
+  pickVendor(ctx: CamVendorChoiceContext): CamVendorChoiceResult;
+}
+
+/** Inbound request from CAMAGIMaster needing mill-domain AGI reasoning. */
+export interface MillReasoningInboundRequest {
+  source: "cam_agi" | "external_agent";
+  material: string;
+  material_iso?: "P" | "M" | "K" | "N" | "S" | "H";
+  operation?: string;
+  question?: string;
+  context?: Record<string, unknown>;
+}
+
+/** Mill-domain reasoning returned to CAMAGIMaster (or any external caller). */
+export interface MillReasoningInboundResult {
+  request_source: string;
+  material: string;
+  wisdom: string[];
+  wisdom_category: string;
+  recommended_physics_touchpoints: string[];
+  confidence: number;
+  ts: string;
+}
+
+/** Status snapshot of the binding — introspection for tests + observability. */
+export interface CAMAGIBindingStatus {
+  cam_agi_bound: boolean;
+  bound_at: string | null;
+  call_count: number;
+}
+
+// ============================================================================
 // PHYSICS CONSTANTS (from canonical constants.ts)
 // ============================================================================
 
@@ -698,6 +769,132 @@ export class MillingAGIMasterEngine {
       wisdom_categories: Object.keys(MASTER_MACHINIST_WISDOM).length,
       strategies: Object.values(STRATEGY_SELECTION_MATRIX).reduce((sum, s) => sum + Object.keys(s).length, 0),
     };
+  }
+
+  // ============================================================================
+  // CAM-AGI BINDING (MILL-MASTER-P1-U03-AGI-BIND)
+  // Bidirectional: external CAMAGIMaster calls handleMillReasoningRequest for
+  // mill-domain reasoning; we call delegateCamVendorChoice for vendor picks.
+  // DI avoids circular imports — CAMAGI binds via P1-U06.
+  // ============================================================================
+
+  private camAGIBinding: CAMAGIBinding | null = null;
+  private camAGIBoundAt: string | null = null;
+  private camAGICallCount = 0;
+
+  /**
+   * Register (or clear with null) the external CAMAGIMasterOrchestrator binding.
+   * Called during P1-U06 wiring or by tests that inject a mock.
+   *
+   * @param binding - CAMAGIBinding implementation, or null to unbind
+   */
+  bindCAMAGIMaster(binding: CAMAGIBinding | null): void {
+    this.camAGIBinding = binding;
+    this.camAGIBoundAt = binding ? new Date().toISOString() : null;
+    this.camAGICallCount = 0;
+    log.info(`[MillingAGIMasterEngine] CAMAGI binding ${binding ? "set" : "cleared"}`);
+  }
+
+  /** Returns true when a CAMAGIBinding is registered. */
+  isCAMAGIBound(): boolean {
+    return this.camAGIBinding !== null;
+  }
+
+  /** Snapshot of the binding state for tests + telemetry. */
+  getBindingStatus(): CAMAGIBindingStatus {
+    return {
+      cam_agi_bound: this.isCAMAGIBound(),
+      bound_at: this.camAGIBoundAt,
+      call_count: this.camAGICallCount,
+    };
+  }
+
+  /**
+   * Delegate CAM-vendor choice to the bound CAMAGIMasterOrchestrator.
+   * Returns a structured fallback (never throws) when no binding is present.
+   *
+   * @param ctx - CAM vendor choice context (material, operation, machine class, etc.)
+   * @returns Delegated result when bound, structured fallback when not
+   */
+  delegateCamVendorChoice(
+    ctx: CamVendorChoiceContext,
+  ): CamVendorChoiceResult | CamVendorChoiceFallback {
+    if (!ctx || !ctx.material || !ctx.operation) {
+      return {
+        delegated: false,
+        reason: "invalid_context",
+        hint: "CamVendorChoiceContext requires at minimum { material, operation }",
+      };
+    }
+    if (!this.camAGIBinding) {
+      return {
+        delegated: false,
+        reason: "cam_agi_not_bound",
+        hint: "CAMAGIMasterOrchestrator binding not registered. Wire via P1-U06 (bindCAMAGIMaster).",
+        milling_side_recommendation: this.internalVendorHeuristic(ctx),
+      };
+    }
+    this.camAGICallCount++;
+    return this.camAGIBinding.pickVendor(ctx);
+  }
+
+  /**
+   * Handle an inbound request for mill-domain AGI reasoning (typically from
+   * CAMAGIMaster needing mill-specific wisdom before picking a CAM vendor).
+   * Reuses existing master wisdom + physics-touchpoint heuristics.
+   *
+   * @param req - MillReasoningInboundRequest
+   * @returns Structured mill-domain reasoning + physics touchpoints
+   */
+  handleMillReasoningRequest(req: MillReasoningInboundRequest): MillReasoningInboundResult {
+    const category = this.categorizeRequest(req);
+    const wisdom = this.getMasterWisdom(category);
+    const touchpoints = this.physicsTouchpointsForMaterial(req.material_iso);
+    const confidence = wisdom.length > 0 ? 0.9 : 0.7;
+    return {
+      request_source: req.source,
+      material: req.material,
+      wisdom,
+      wisdom_category: category,
+      recommended_physics_touchpoints: touchpoints,
+      confidence,
+      ts: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Internal heuristic returned when CAMAGI is unbound — gives the caller
+   * a best-effort mill-side vendor hint without blocking.
+   */
+  private internalVendorHeuristic(ctx: CamVendorChoiceContext): string {
+    if (ctx.machine_class === "5-axis" || ctx.machine_class === "mill-turn") {
+      return "hypermill (deep 5-axis strategy library)";
+    }
+    if (ctx.complexity === "simple" || ctx.complexity === "moderate") {
+      return "fusion360 (fast turnaround, good for simple-to-moderate parts)";
+    }
+    return "mastercam (broadest shop adoption, most templates)";
+  }
+
+  /** Pick a wisdom category that best matches the inbound request. */
+  private categorizeRequest(req: MillReasoningInboundRequest): string {
+    if (req.operation?.match(/rough/i)) return "roughing";
+    if (req.operation?.match(/finish/i)) return "finishing";
+    if (req.material_iso === "S" || req.material_iso === "H") return "difficult_materials";
+    if (req.operation?.match(/thread|tap/i)) return "threading";
+    return "general";
+  }
+
+  /** Enumerate the physics formulas most relevant to a material group. */
+  private physicsTouchpointsForMaterial(iso?: "P" | "M" | "K" | "N" | "S" | "H"): string[] {
+    const base = ["Kienzle (Fc = kc1.1 × ap × fz^(1-mc))", "Taylor (VcT^n = C)"];
+    if (iso === "S" || iso === "H") {
+      return [...base, "Johnson-Cook flow stress", "Archard wear", "Komanduri-Hou thermal"];
+    }
+    if (iso === "N") {
+      return [...base, "Altintas-Budak SLD (chatter-prone aluminum)"];
+    }
+    return [...base, "Surface finish Ra = f²/(32·r)"];
   }
 
   // ============================================================================
