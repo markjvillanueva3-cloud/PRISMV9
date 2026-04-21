@@ -161,6 +161,7 @@ import { registerExportDispatcher } from "./tools/dispatchers/exportDispatcher.j
 // L3: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions (#40-#45)
 import { registerTurningDispatcher } from "./tools/dispatchers/turningDispatcher.js";
 import { registerFiveAxisDispatcher } from "./tools/dispatchers/fiveAxisDispatcher.js";
+import { registerMillDispatcher } from "./tools/dispatchers/millDispatcher.js"; // MILL-MASTER-P1-U01
 import { registerEdmDispatcher } from "./tools/dispatchers/edmDispatcher.js";
 import { registerGrindingDispatcher } from "./tools/dispatchers/grindingDispatcher.js";
 import { registerIndustryDispatcher } from "./tools/dispatchers/industryDispatcher.js";
@@ -658,6 +659,7 @@ async function registerTools(): Promise<void> {
   // L3-P1: PASS2 Specialty Dispatchers — 6 dispatchers, 28 actions
   registerTurningDispatcher(server);
   registerFiveAxisDispatcher(server);
+  registerMillDispatcher(server); // MILL-MASTER-P1-U01: 46 actions, cohesion core via MillMasterOrchestratorFacadeEngine
   registerEdmDispatcher(server);
   registerGrindingDispatcher(server);
   registerIndustryDispatcher(server);
