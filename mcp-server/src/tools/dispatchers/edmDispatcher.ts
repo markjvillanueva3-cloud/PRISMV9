@@ -59,6 +59,8 @@ let _monitorSurface: any, _postProcessGCode: any;
 let _costDocumentation: any, _qualityOrchestrator: any;
 let _biMaterial: any;
 let _feedbackCalibration: any, _calibrationReport: any, _programParser: any;
+// MS-P4-DL-CORE U-P4-DL-01: on-device learning substrate
+let _wedmJobOutcome: any;
 let _wireEDMDeepAIHardening: any;
 let _wedmCalculatorAI: any;
 let _wedmScheduling: any;
@@ -139,6 +141,8 @@ async function getEngine(name: string): Promise<any> {
     case "qualityOrchestrator": return _qualityOrchestrator ??= (await import("../../engines/EDMQualityOrchestratorEngine.js")).edmQualityOrchestratorEngine;
     case "biMaterial": return _biMaterial ??= (await import("../../engines/EDMBiMaterialCompensationEngine.js")).edmBiMaterialCompensationEngine;
     case "feedbackCalibration": return _feedbackCalibration ??= (await import("../../engines/WEDMFeedbackCalibrationEngine.js")).wedmFeedbackCalibrationEngine;
+    // MS-P4-DL-CORE U-P4-DL-01
+    case "wedmJobOutcome": return _wedmJobOutcome ??= (await import("../../engines/WEDMJobOutcomeEngine.js")).wedmJobOutcomeEngine;
     case "calibrationReport": return _calibrationReport ??= new (await import("../../engines/WEDMCalibrationReportEngine.js")).WEDMCalibrationReportEngine();
     case "programParser": return _programParser ??= new (await import("../../engines/WireEDMProgramParserEngine.js")).WireEDMProgramParserEngine();
     case "wireEDMDeepAIHardening": return _wireEDMDeepAIHardening ??= (await import("../../engines/WireEDMDeepAIHardeningEngine.js")).wireEDMDeepAIHardeningEngine;
@@ -369,6 +373,9 @@ const ACTIONS = [
 
   // Feedback loop — calibration, program parsing, feedback submission
   "wedm_submit_feedback", "wedm_calibration_report", "wedm_parse_program",
+
+  // MS-P4-DL-CORE U-P4-DL-01: on-device learning — capture finished-job outcome
+  "wedm_learn_from_job", "wedm_job_history_stats",
 
   // Photo-to-quote shortcut
   "wedm_photo_to_quote",
@@ -1799,6 +1806,38 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_parse_program": {
             const engine = await getEngine("programParser");
             result = engine.parse(params.program_text ?? params.nc_text ?? "");
+            break;
+          }
+
+          // ── MS-P4-DL-CORE U-P4-DL-01: capture finished-job outcome ──
+          case "wedm_learn_from_job": {
+            const engine = await getEngine("wedmJobOutcome");
+            const record = engine.record({
+              job_id: params.job_id,
+              recorded_at: params.recorded_at,
+              shop_id: params.shop_id ?? "jm-die",
+              machine_id: params.machine_id,
+              operator_id: params.operator_id,
+              customer: params.customer,
+              part_number: params.part_number,
+              program_file: params.program_file,
+              input: params.input,
+              outcome: params.outcome,
+              predicted: params.predicted,
+              notes: params.notes,
+            });
+            result = {
+              job_id: record.job_id,
+              recorded_at: record.recorded_at,
+              sequence: engine.stats().sequence,
+              file_path: engine.path(),
+            };
+            break;
+          }
+
+          case "wedm_job_history_stats": {
+            const engine = await getEngine("wedmJobOutcome");
+            result = engine.stats();
             break;
           }
 
