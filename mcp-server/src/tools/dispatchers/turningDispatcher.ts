@@ -49,6 +49,9 @@ const ACTIONS = [
   // LATHE-PRO-MS7: Chip control + coolant strategy (U-LPC01..U-LPC06)
   "turning_chip_breaker_validate", "turning_chip_wrapping_risk",
   "turning_chip_unmanned_score", "turning_coolant_strategy", "turning_chip_analysis",
+  // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence (U-LPQ01..U-LPQ08)
+  "turning_inspection_plan", "turning_fai_generate", "turning_cmm_program",
+  "turning_spc_predict", "turning_gage_rr_check", "turning_quality_package",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -409,6 +412,42 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_coolant_strategy": {
             const { coolantStrategyEngine: cse } = await import("../../engines/CoolantStrategyEngine.js");
             result = cse.calculate(params as any);
+            break;
+          }
+          // LATHE-PRO-MS8: GD&T, inspection & metrology intelligence (U-LPQ01..U-LPQ08)
+          case "turning_inspection_plan": {
+            const { turningInspectionPlanEngine: tipe } = await import("../../engines/TurningInspectionPlanEngine.js");
+            result = tipe.generate(params as any);
+            break;
+          }
+          case "turning_fai_generate": {
+            const { firstArticleInspectionPipelineEngine: faiE } = await import("../../engines/FirstArticleInspectionPipelineEngine.js");
+            const p = params as any;
+            const fai = await faiE.runFAI(p);
+            const forms = p.fai_id ? faiE.generateForms(p.fai_id) : undefined;
+            result = { fai, forms };
+            break;
+          }
+          case "turning_cmm_program": {
+            const { cmmPathPlanningEngine: cmm } = await import("../../engines/CMMPathPlanningEngine.js");
+            result = cmm.planPath(params as any);
+            break;
+          }
+          case "turning_spc_predict": {
+            const { processCapabilityPredictionEngine: pcp } = await import("../../engines/ProcessCapabilityPredictionEngine.js");
+            result = pcp.predict(params as any);
+            break;
+          }
+          case "turning_gage_rr_check": {
+            const { metrologyUncertaintyEngine: mue } = await import("../../engines/MetrologyUncertaintyEngine.js");
+            result = mue.gageRR(params as any);
+            break;
+          }
+          case "turning_quality_package": {
+            const { turningQualityComplianceEngine: tqc } = await import("../../engines/TurningQualityComplianceEngine.js");
+            const p = params as any;
+            const requirements = tqc.planRequirements(p);
+            result = p.produced ? tqc.checkPackage(requirements, p.produced) : requirements;
             break;
           }
           case "turning_chip_analysis": {
