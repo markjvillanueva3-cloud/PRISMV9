@@ -46,6 +46,9 @@ const ACTIONS = [
   "turning_swiss_guide_bush_decide", "turning_swiss_back_work_op2", "turning_swiss_gang_layout",
   // LATHE-PRO-MS6b: Bar-stock management + unmanned readiness (U-LPS24..U-LPS25)
   "turning_swiss_bar_management", "turning_swiss_unmanned_score",
+  // LATHE-PRO-MS7: Chip control + coolant strategy (U-LPC01..U-LPC06)
+  "turning_chip_breaker_validate", "turning_chip_wrapping_risk",
+  "turning_chip_unmanned_score", "turning_coolant_strategy", "turning_chip_analysis",
   // LATHE-MS0: Collision zone + safety checks
   "lathe_collision_check", "lathe_swing_check", "lathe_grooving_overhang",
   "lathe_chip_thickness", "lathe_boring_reach", "lathe_g71_type",
@@ -385,6 +388,45 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "turning_swiss_unmanned_score": {
             const { swissUnmannedReadinessEngine: ure } = await import("../../engines/SwissUnmannedReadinessEngine.js");
             result = ure.assess(params as any);
+            break;
+          }
+          // LATHE-PRO-MS7: Chip control + coolant strategy (U-LPC01..U-LPC06)
+          case "turning_chip_breaker_validate": {
+            const { turningChipbreakerCatalogEngine: cce } = await import("../../engines/TurningChipbreakerCatalogEngine.js");
+            result = cce.validate(params as any);
+            break;
+          }
+          case "turning_chip_wrapping_risk": {
+            const { turningChipWrappingRiskEngine: cwr } = await import("../../engines/TurningChipWrappingRiskEngine.js");
+            result = cwr.assess(params as any);
+            break;
+          }
+          case "turning_chip_unmanned_score": {
+            const { turningChipUnmannedScoreEngine: cus } = await import("../../engines/TurningChipUnmannedScoreEngine.js");
+            result = cus.assess(params as any);
+            break;
+          }
+          case "turning_coolant_strategy": {
+            const { coolantStrategyEngine: cse } = await import("../../engines/CoolantStrategyEngine.js");
+            result = cse.calculate(params as any);
+            break;
+          }
+          case "turning_chip_analysis": {
+            // Omnibus action: run chip-breaker validate + wrapping-risk + unmanned score in one call.
+            const p = params as any;
+            const [cceMod, cwrMod, cusMod] = await Promise.all([
+              import("../../engines/TurningChipbreakerCatalogEngine.js"),
+              import("../../engines/TurningChipWrappingRiskEngine.js"),
+              import("../../engines/TurningChipUnmannedScoreEngine.js"),
+            ]);
+            const breaker = p.chipbreaker ? cceMod.turningChipbreakerCatalogEngine.validate(p.chipbreaker) : undefined;
+            const wrapping = p.wrapping ? cwrMod.turningChipWrappingRiskEngine.assess(p.wrapping) : undefined;
+            const unmanned = p.unmanned ? cusMod.turningChipUnmannedScoreEngine.assess({
+              ...p.unmanned,
+              wrapping_risk_score: p.unmanned.wrapping_risk_score ?? wrapping?.risk_score ?? 0,
+              mitigations_applied: p.unmanned.mitigations_applied ?? wrapping?.mitigations.length ?? 0,
+            }) : undefined;
+            result = { breaker, wrapping, unmanned };
             break;
           }
           // LATHE-MS0: Collision zone actions
