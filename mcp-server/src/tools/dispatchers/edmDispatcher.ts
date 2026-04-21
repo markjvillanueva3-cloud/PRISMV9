@@ -390,6 +390,7 @@ const ACTIONS = [
 
   // WEDM-US-UNITS: inch-first I/O for US shops (JM Die + customer landing)
   "wedm_record_job_us", "wedm_job_to_us_view", "wedm_job_history_stats_us",
+  "wedm_submit_feedback_us", "wedm_assess_feasibility_us", "wedm_convert_inches",
 
   // Photo-to-quote shortcut
   "wedm_photo_to_quote",
@@ -1925,6 +1926,49 @@ Actions: ${ACTIONS.join(", ")}.`,
             const presenter = await getEngine("wedmJobUnitPresenter");
             const outcome = await getEngine("wedmJobOutcome");
             result = presenter.statsToUS(outcome.stats());
+            break;
+          }
+
+          case "wedm_submit_feedback_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const fb = await getEngine("feedbackCalibration");
+            const si = presenter.feedbackFromUS({
+              material: params.material,
+              thickness_in: params.thickness_in,
+              predicted_ra_uin: params.predicted_ra_uin,
+              actual_ra_uin: params.actual_ra_uin,
+              predicted_time_min: params.predicted_time_min,
+              actual_time_min: params.actual_time_min,
+              notes: params.notes,
+              wire_breaks: params.wire_breaks,
+              machine: params.machine,
+            });
+            result = fb.submit_feedback(si);
+            break;
+          }
+
+          case "wedm_assess_feasibility_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const feas = await getEngine("feasibility");
+            const siWorkpiece = presenter.workpieceFromUS({
+              thickness_in: params.thickness_in,
+              length_in: params.length_in,
+              width_in: params.width_in,
+              height_in: params.height_in,
+            });
+            result = feas.assess({
+              ...params,
+              workpiece: siWorkpiece,
+            });
+            break;
+          }
+
+          case "wedm_convert_inches": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            result = presenter.convertValue({
+              value: params.value,
+              pair: params.pair,
+            });
             break;
           }
 
