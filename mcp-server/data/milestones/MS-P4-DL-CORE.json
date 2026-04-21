@@ -13,7 +13,7 @@
   "blocks_reached_by": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
 
   "total_units": 5,
-  "completed_units": 3,
+  "completed_units": 4,
   "sessions": 2,
   "dependencies": ["MS-P1-100PCT", "MS-P2-GAPFILL"],
   "blocks": ["MS-P4-DL-PRED", "MS-P5-GNN", "MS-P6-VAL30", "MS-P9-XAI", "MS-P10-V2LAUNCH"],
@@ -142,8 +142,10 @@
         "WEDMEWCMemoryEngine.test.ts has ≥ 10 cases",
         "dispatcher-wiring gate green"
       ],
-      "status": "needs_build",
-      "scope_note": "2026-04-21 audit: FisherInformationEngine exists (generic info-theory: Shannon, KL, JSD, MI, discrete Bernoulli Fisher — built for AGI-safety/active-learning, NOT EWC++ specifically). Reusable as dependency: WEDMEWCMemoryEngine can consume FisherInformationEngine for the diagonal. The WEDM-specific EWC orchestration (λ schedule, old-task memory, penalty integration with training loop) must still be built."
+      "status": "complete",
+      "completed_at": "2026-04-21",
+      "commit": "fe840b101",
+      "scope_note": "BUILT 2026-04-21. WEDMEWCMemoryEngine (390 LOC) + 16 tests (520 LOC) + 3 dispatcher actions (wedm_ewc_snapshot_task, wedm_ewc_penalty, wedm_ewc_list_tasks). All constants literature-cited: ONLINE_FISHER_ALPHA=0.9 (Chaudhry 2018 §3.2), LAMBDA_PRESETS={PERMUTED_MNIST:100, SPLIT_MNIST:10, RIEMANNIAN_WALK_CIFAR:500, KIRKPATRICK_2017_STRONG:10000} — no fabricated values. Decoupled from WEDMLoRAAdapterEngine via structural AdapterState type (no circular import). Catastrophic-forgetting exit gate verified: 3 synthetic linear-task batches (D2→M2→S7) with EWC anchoring keep post-task-0 MAE within 10% of initial (envelope requirement). Penalty & gradient hand-computed on scalar drift case (λ=10, F=2, drift=0.3 → 0.9). Finite-difference gradient check ±0.5% on 16-param random drift. Fisher EMA converges to g² under constant signal after ~100 steps."
     },
 
     "3": {
