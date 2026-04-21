@@ -63,6 +63,8 @@ let _feedbackCalibration: any, _calibrationReport: any, _programParser: any;
 let _wedmJobOutcome: any;
 // MS-P4-DL-CORE U-P4-DL-03: EWC++ memory
 let _wedmEWCMemory: any;
+// WEDM-US-UNITS: inch-first presentation adapter
+let _wedmJobUnitPresenter: any;
 let _wireEDMDeepAIHardening: any;
 let _wedmCalculatorAI: any;
 let _wedmScheduling: any;
@@ -147,6 +149,8 @@ async function getEngine(name: string): Promise<any> {
     case "wedmJobOutcome": return _wedmJobOutcome ??= (await import("../../engines/WEDMJobOutcomeEngine.js")).wedmJobOutcomeEngine;
     // MS-P4-DL-CORE U-P4-DL-03
     case "wedmEWCMemory": return _wedmEWCMemory ??= (await import("../../engines/WEDMEWCMemoryEngine.js")).wedmEWCMemoryEngine;
+    // WEDM-US-UNITS: inch-first presentation
+    case "wedmJobUnitPresenter": return _wedmJobUnitPresenter ??= (await import("../../engines/WEDMJobUnitPresenterEngine.js")).wedmJobUnitPresenterEngine;
     case "calibrationReport": return _calibrationReport ??= new (await import("../../engines/WEDMCalibrationReportEngine.js")).WEDMCalibrationReportEngine();
     case "programParser": return _programParser ??= new (await import("../../engines/WireEDMProgramParserEngine.js")).WireEDMProgramParserEngine();
     case "wireEDMDeepAIHardening": return _wireEDMDeepAIHardening ??= (await import("../../engines/WireEDMDeepAIHardeningEngine.js")).wireEDMDeepAIHardeningEngine;
@@ -383,6 +387,9 @@ const ACTIONS = [
 
   // MS-P4-DL-CORE U-P4-DL-03: EWC++ memory — anti-catastrophic-forgetting
   "wedm_ewc_snapshot_task", "wedm_ewc_penalty", "wedm_ewc_list_tasks",
+
+  // WEDM-US-UNITS: inch-first I/O for US shops (JM Die + customer landing)
+  "wedm_record_job_us", "wedm_job_to_us_view", "wedm_job_history_stats_us",
 
   // Photo-to-quote shortcut
   "wedm_photo_to_quote",
@@ -1874,6 +1881,50 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_ewc_list_tasks": {
             const engine = await getEngine("wedmEWCMemory");
             result = { tasks: engine.listTasks(params.adapter_name ?? params.adapterName) };
+            break;
+          }
+
+          // ── WEDM-US-UNITS: inch-first I/O actions ──
+          case "wedm_record_job_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            const siInput = presenter.fromUSInput(params);
+            const record = outcome.record(siInput);
+            result = {
+              job_id: record.job_id,
+              recorded_at: record.recorded_at,
+              sequence: outcome.stats().sequence,
+              file_path: outcome.path(),
+              view: presenter.toUSView(record),
+            };
+            break;
+          }
+
+          case "wedm_job_to_us_view": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            if (params.record) {
+              result = presenter.toUSView(params.record);
+              break;
+            }
+            if (params.job_id) {
+              const file = outcome.load();
+              const rec = file.records.find((r: any) => r.job_id === params.job_id);
+              if (!rec) {
+                result = { error: `job_id not found: ${params.job_id}` };
+                break;
+              }
+              result = presenter.toUSView(rec);
+              break;
+            }
+            result = { error: "provide either `record` or `job_id`" };
+            break;
+          }
+
+          case "wedm_job_history_stats_us": {
+            const presenter = await getEngine("wedmJobUnitPresenter");
+            const outcome = await getEngine("wedmJobOutcome");
+            result = presenter.statsToUS(outcome.stats());
             break;
           }
 
