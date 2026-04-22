@@ -17,9 +17,9 @@ import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../schemas/lathePostgenActionSchem
 // ─── Schema Validation Tests (real assertions) ──────────────────────────
 
 describe("Lathe Postgen Schemas", () => {
-  it("exports exactly 8 action schemas with correct keys", () => {
+  it("exports exactly 9 action schemas with correct keys", () => {
     const keys = Object.keys(ACTION_LATHE_POSTGEN_SCHEMAS);
-    expect(keys).toHaveLength(8);
+    expect(keys).toHaveLength(9);
     expect(keys).toContain("lathe_postgen_ingest");
     expect(keys).toContain("lathe_postgen_skeleton");
     expect(keys).toContain("lathe_postgen_transfer");
@@ -28,6 +28,7 @@ describe("Lathe Postgen Schemas", () => {
     expect(keys).toContain("lathe_postgen_register");
     expect(keys).toContain("lathe_postgen_feedback");
     expect(keys).toContain("lathe_postgen_uncertainty");
+    expect(keys).toContain("lathe_postgen_full");
   });
 
   describe("lathe_postgen_ingest schema", () => {
