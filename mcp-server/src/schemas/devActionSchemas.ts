@@ -95,4 +95,20 @@ export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
     }).describe("Partial config to merge"),
   }),
   reorient_reset: z.object({}).optional(),
+
+  // Model-aware self-awareness (Opus 4.7 1M only)
+  model_aware_detect: z.object({
+    model: z.string().optional().describe("Override model identifier (else env/settings)"),
+  }).optional(),
+  model_aware_zone: z.object({
+    consumed_tokens: z.number().describe("Cumulative tokens consumed in session"),
+    context_window: z.number().optional().describe("Context window size (default 1_000_000)"),
+  }),
+  model_aware_cadence: z.object({
+    zone: z.enum(["fresh", "warm", "degrading", "critical"]).describe("Context zone"),
+  }),
+  model_aware_current_cadence: z.object({
+    consumed_tokens: z.number().optional().describe("Override consumed tokens (else read from context_pressure.json)"),
+    model: z.string().optional().describe("Override model identifier"),
+  }).optional(),
 };

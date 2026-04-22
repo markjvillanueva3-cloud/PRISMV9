@@ -271,6 +271,15 @@ const worktrees = [];
 
 if (worktrees.length === 0) exit(0);
 
+// Normalize paths for cross-platform comparison (Windows is case-insensitive).
+// Declared early so the [MAIN] override block below can use currentWt.
+function normalize(p) {
+  return path.resolve(p).replace(/\\/g, "/").toLowerCase();
+}
+
+const cwdNorm = normalize(process.cwd());
+const currentWt = worktrees.find((w) => cwdNorm === normalize(w.path));
+
 // ── [MAIN] override scope-drift check ───────────────────────────────
 // If we got here via [MAIN] override and the inferred file scope is strong,
 // re-evaluate: is there a themed worktree for the inferred scope? If yes,
@@ -341,14 +350,6 @@ if (isMainOverride && globalThis.__inferredScope) {
     ].join("\n"),
   );
 }
-
-// Normalize paths for cross-platform comparison (Windows is case-insensitive).
-function normalize(p) {
-  return path.resolve(p).replace(/\\/g, "/").toLowerCase();
-}
-
-const cwdNorm = normalize(process.cwd());
-const currentWt = worktrees.find((w) => cwdNorm === normalize(w.path));
 
 // ── Match scope → worktree ───────────────────────────────────────────
 // Branch basename = last segment of branch ref (work/lathe-master → lathe-master)

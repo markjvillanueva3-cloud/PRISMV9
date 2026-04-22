@@ -231,8 +231,8 @@ export class ToolCallParallelizationEngine {
         lastTimestamp = ts;
         continue;
       }
-      // Within window AND compatible
-      const sameWindow = ts - lastTimestamp <= PARALLEL_WINDOW_MS * 60;
+      // Within window AND compatible (PARALLEL_WINDOW_MS already in ms; previous *60 was a bug — flagged 60s window)
+      const sameWindow = ts - lastTimestamp <= PARALLEL_WINDOW_MS;
       if (sameWindow && this.isParallelizable([...cluster, call])) {
         cluster.push(call);
         lastTimestamp = ts;

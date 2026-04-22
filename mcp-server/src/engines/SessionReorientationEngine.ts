@@ -32,6 +32,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { atomicWriteJson, safeReadJson, resolveSessionId, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export type AnchorType =
   | "task_anchor"
@@ -101,7 +102,7 @@ interface State {
 
 const STATE_DIR = "H:/prism/state/session-reorientation";
 const getStateFile = (sessionId?: string): string => {
-  const id = sessionId || process.env.CLAUDE_SESSION_ID || "default";
+  const id = sessionId || resolveSessionId();
   return `${STATE_DIR}/reorientation-${id}.json`;
 };
 
@@ -121,19 +122,9 @@ export class SessionReorientationEngine {
   }
 
   private loadState(): State {
-    const sessionId = process.env.CLAUDE_SESSION_ID || "default";
-    try {
-      const file = getStateFile(sessionId);
-      if (existsSync(file)) {
-        const loaded = JSON.parse(readFileSync(file, "utf-8")) as State;
-        // Backfill any missing config fields with defaults
-        loaded.config = { ...DEFAULT_CONFIG, ...loaded.config };
-        return loaded;
-      }
-    } catch {
-      // ignore
-    }
-    return {
+    const sessionId = resolveSessionId();
+    const file = getStateFile(sessionId);
+    const fresh: State = {
       sessionId,
       anchors: [],
       stats: {
@@ -148,21 +139,27 @@ export class SessionReorientationEngine {
       config: { ...DEFAULT_CONFIG },
       briefHistory: [],
     };
+    const loaded = safeReadJson<State>(file, fresh);
+    if (loaded !== fresh) {
+      loaded.config = { ...DEFAULT_CONFIG, ...loaded.config };
+      snapshotLastGood(file, loaded);
+    }
+    return loaded;
   }
 
   private saveState(): void {
-    if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
     if (this.state.anchors.length > this.state.config.maxAnchors) {
-      // Keep highest-importance + most-recent active anchors
-      this.state.anchors = this.state.anchors
-        .sort((a, b) => {
-          if (a.active !== b.active) return a.active ? -1 : 1;
-          if (a.importance !== b.importance) return b.importance - a.importance;
-          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-        })
-        .slice(0, this.state.config.maxAnchors);
+      // Sort a COPY so storage retains chronological order; only the
+      // returned slice is by-importance.
+      const sorted = [...this.state.anchors].sort((a, b) => {
+        if (a.active !== b.active) return a.active ? -1 : 1;
+        if (a.importance !== b.importance) return b.importance - a.importance;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+      });
+      const kept = new Set(sorted.slice(0, this.state.config.maxAnchors).map((a) => a.id));
+      this.state.anchors = this.state.anchors.filter((a) => kept.has(a.id));
     }
-    writeFileSync(getStateFile(this.state.sessionId), JSON.stringify(this.state, null, 2));
+    atomicWriteJson(getStateFile(this.state.sessionId), this.state);
   }
 
   private generateId(): string {
@@ -508,7 +505,7 @@ export class SessionReorientationEngine {
   /** Reset state (new session or test cleanup) */
   reset(): void {
     this.state = {
-      sessionId: process.env.CLAUDE_SESSION_ID || "default",
+      sessionId: resolveSessionId(),
       anchors: [],
       stats: {
         promptsSeen: 0,
