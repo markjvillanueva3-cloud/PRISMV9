@@ -53,6 +53,16 @@ const ACTIONS = [
   "catalog_search",
   "catalog_engine",
   "catalog_stats",
+  // Identity model — U-SAV2-01: agent role, boundaries, invariants
+  "identity_register",
+  "identity_get",
+  "identity_heartbeat",
+  "identity_check_boundary",
+  "identity_capabilities",
+  "identity_list",
+  "identity_siblings",
+  "identity_deregister",
+  "identity_stats",
 ] as const;
 
 const STATE_DIR = PATHS.STATE_DIR;
@@ -841,6 +851,63 @@ ${todoState.blockingIssues.length > 0 ? todoState.blockingIssues.map(i => `- ${i
           }
           case "catalog_stats": {
             const stats = await getCatalogStats();
+            return ok(stats);
+          }
+
+          // ─────────────────────────────────────────────────────────────────
+          // Identity Model — U-SAV2-01
+          // ─────────────────────────────────────────────────────────────────
+          case "identity_register": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const result = identityModelEngine.register(params);
+            return ok({ registered: true, identity: result });
+          }
+
+          case "identity_get": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const identity = identityModelEngine.get(params.sessionId);
+            return ok({ found: identity !== null, identity });
+          }
+
+          case "identity_heartbeat": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const updated = identityModelEngine.heartbeat(params.sessionId);
+            return ok({ updated });
+          }
+
+          case "identity_check_boundary": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const result = identityModelEngine.checkBoundary(params.sessionId, params.boundaryName);
+            return ok(result);
+          }
+
+          case "identity_capabilities": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const capabilities = identityModelEngine.getCapabilities(params.sessionId);
+            return ok({ sessionId: params.sessionId, capabilities });
+          }
+
+          case "identity_list": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const sessions = identityModelEngine.listSessions();
+            return ok({ count: sessions.length, sessions });
+          }
+
+          case "identity_siblings": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const siblings = identityModelEngine.getSiblings(params.sessionId);
+            return ok({ count: siblings.length, siblings: siblings.map(s => s.sessionId) });
+          }
+
+          case "identity_deregister": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const removed = identityModelEngine.deregister(params.sessionId);
+            return ok({ removed });
+          }
+
+          case "identity_stats": {
+            const { identityModelEngine } = await import("../../engines/IdentityModelEngine.js");
+            const stats = identityModelEngine.getStats();
             return ok(stats);
           }
 
