@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "generated": "2026-04-22T10:30:00.000Z",
+  "generator": "MS-P0-V / U-P0-V03",
+  "platform": "PRISM",
+  "track": "WEDM-CONSOLIDATED",
+
+  "summary": {
+    "totalEngines": 62,
+    "wiredEngines": 6,
+    "orphanEngines": 56,
+    "orphanRatio": 0.90,
+    "platformOrphanRatio": 0.70,
+    "note": "WEDM orphan ratio (90%) is higher than platform average (70%) — P9 wiring work is critical"
+  },
+
+  "engines": {
+    "wired": [
+      { "name": "WEDMCreditCostEngine", "route": "wedm-erp.ts", "actions": ["wedm_credit_cost"] },
+      { "name": "WEDMInvoiceLineEngine", "route": "wedm-erp.ts", "actions": ["wedm_invoice_line"] },
+      { "name": "WEDMJobCreatorEngine", "route": "wedm-erp.ts", "actions": ["wedm_job_create"] },
+      { "name": "WEDMOverageApprovalEngine", "route": "wedm-erp.ts", "actions": ["wedm_overage_approve"] },
+      { "name": "WEDMQuoteBridgeEngine", "route": "wedm-erp.ts", "actions": ["wedm_quote_bridge"] },
+      { "name": "WEDMSafetyEnvelopeEngine", "route": "wedm-erp.ts", "actions": ["wedm_safety_envelope"] }
+    ],
+    "orphan": [
+      "WEDMAdaptivePassEngine",
+      "WEDMAutonomyAuditEngine",
+      "WEDMAutonomySubstrateGateEngine",
+      "WEDMBenchmarkToleranceEngine",
+      "WEDMControllerDialectVerifierEngine",
+      "WEDMCornerPhysicsEngine",
+      "WEDMCurrentDensityGuardEngine",
+      "WEDMDeviationToTipEngine",
+      "WEDMDielectricCorrectionEngine",
+      "WEDMDielectricFlushAdjustEngine",
+      "WEDMDXFClosureValidatorEngine",
+      "WEDMEWCMemoryEngine",
+      "WEDMFeedbackIngestionEngine",
+      "WEDMFewShotMaterialEngine",
+      "WEDMFlushAdequacyGateEngine",
+      "WEDMGraphAttentionEngine",
+      "WEDMJobCostEngine",
+      "WEDMJobOutcomeEngine",
+      "WEDMJobPatternLearnerEngine",
+      "WEDMKerfWidthEngine",
+      "WEDMLatticeGraphEngine",
+      "WEDMLearningLoopEngine",
+      "WEDMLoRAAdapterEngine",
+      "WEDMLoRACadenceEngine",
+      "WEDMLoRADatasetBuilderEngine",
+      "WEDMMultiProfileBatchEngine",
+      "WEDMNeighborQueryEngine",
+      "WEDMPostAgieEngine",
+      "WEDMPostDialectRouterEngine",
+      "WEDMPostFanucEngine",
+      "WEDMPostMakinoEngine",
+      "WEDMPostMitsubishiEngine",
+      "WEDMPostSodickEngine",
+      "WEDMPostTypes",
+      "WEDMPowerDensityGuardEngine",
+      "WEDMProgramComparisonEngine",
+      "WEDMProgramVerificationEngine",
+      "WEDMProgressTrackerEngine",
+      "WEDMPulseLimitEngine",
+      "WEDMRaPredictorEngine",
+      "WEDMReasoningExplainEngine",
+      "WEDMRecastDepthPredictorEngine",
+      "WEDMSlugTabRetentionEngine",
+      "WEDMStartPointOptimizationEngine",
+      "WEDMTaperErrorBudgetEngine",
+      "WEDMThermalReleaseGateEngine",
+      "WEDMThinWireDerateEngine",
+      "WEDMTribalTipLearnerEngine",
+      "WEDMUnitTagGateEngine",
+      "WEDMWireBreakPredictorEngine",
+      "WEDMWireBreakRiskCostEngine",
+      "WEDMWireDeflectionEngine",
+      "WEDMWireHeatingEngine",
+      "WEDMWirePathCollisionEngine",
+      "WEDMWirePremiumROIEngine",
+      "WEDMWireSpoolConsumptionEngine",
+      "WEDMWireThreadingMinEngine"
+    ],
+    "background": []
+  },
+
+  "dispatchers": {
+    "primary": "camDispatcher.ts",
+    "wedmReferences": 36,
+    "notes": "WEDM actions embedded in camDispatcher; no standalone edmDispatcher.ts"
+  },
+
+  "skills": {
+    "count": 23,
+    "files": [
+      "wedm-ai-advisor.md",
+      "wedm-batch.md",
+      "wedm-cite.md",
+      "wedm-compare.md",
+      "wedm-controller.md",
+      "wedm-cost.md",
+      "wedm-drift.md",
+      "wedm-explain.md",
+      "wedm-feasibility.md",
+      "wedm-feedback.md",
+      "wedm-harden.md",
+      "wedm-hook-disable.md",
+      "wedm-jm-die.md",
+      "wedm-learn.md",
+      "wedm-optimize.md",
+      "wedm-pcd.md",
+      "wedm-program.md",
+      "wedm-reason.md",
+      "wedm-report.md",
+      "wedm-studio.md",
+      "wedm-tier6.md",
+      "wedm-troubleshoot.md",
+      "wedm-validate.md"
+    ]
+  },
+
+  "tests": {
+    "count": 101,
+    "pattern": "*wedm*.test.ts | *edm*.test.ts"
+  },
+
+  "stateFiles": {
+    "count": 11,
+    "files": [
+      "WEDM_AGENT_UTILIZATION_LEDGER.jsonl",
+      "WEDM_BACKFILL_STATE.json",
+      "WEDM_BOOT_TELEMETRY.jsonl",
+      "WEDM_CAPABILITY_MANIFEST.json",
+      "WEDM_DIGEST.json",
+      "WEDM_FEEDBACK_LEDGER.jsonl",
+      "WEDM_GNN_WEIGHTS.json",
+      "WEDM_LATTICE_GRAPH.json",
+      "WEDM_OUTCOME_LEDGER.jsonl",
+      "WEDM_REASONING_TRACE_LEDGER.jsonl",
+      "WEDM_SVI_DELTA_LEDGER.jsonl",
+      "wedm-reservations.json"
+    ]
+  },
+
+  "controllerDialects": ["Mitsubishi", "Sodick", "Makino", "AgieCharmilles", "Fanuc"],
+
+  "milestones": {
+    "consolidated": {
+      "total": 22,
+      "notStarted": 22,
+      "inProgress": 0,
+      "complete": 0
+    },
+    "preConsolidation": {
+      "WEDM-CODEX-INTEGRATION-MS0": "complete",
+      "WEDM-P2P-PRODUCTION-MS0": "complete",
+      "WEDM-ERP-MS0": "complete"
+    }
+  },
+
+  "svi": {
+    "psi": 0.875,
+    "target": 1.0,
+    "gap": 0.125
+  },
+
+  "roadmapPosition": {
+    "currentPhase": "P0",
+    "currentMilestone": "MS-P0-V",
+    "currentUnit": "U-P0-V03",
+    "criticalPath": "P0 → P0.5 → P1 → P1.5 → P2 → P2.5 → P6 → P7 → P7.5 → P8 → P9 → P10"
+  },
+
+  "verification": {
+    "digestFile": "WEDM_DIGEST.json",
+    "verifiedAt": "2026-04-22T10:30:00.000Z",
+    "verifiedBy": "MS-P0-V / U-P0-V03"
+  }
+}
