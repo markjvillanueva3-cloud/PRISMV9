@@ -98,13 +98,13 @@ export class LegalGateEngine {
       "US_8489224",
       {
         patent_number: "US 8,489,224",
-        title: "iMachining method and system",
+        title: "Morphed spiral toolpath method",
         holder: "SolidCAM",
         status: "active",
         affected_features: ["imachining", "imachining_3d", "morphed_spiral"],
         cleanroom_required: true,
         workaround_available: true,
-        notes: "Alternative trochoidal/adaptive strategies available",
+        notes: "Use PRISM Forces (physics-based adaptive clearing) instead — Kienzle force prediction + engagement dynamics, no patent conflict",
       },
     ],
   ]);
@@ -286,9 +286,12 @@ export class LegalGateEngine {
       );
 
       if (isAffected && patent.cleanroom_required) {
+        const workaroundMsg = patent.workaround_available
+          ? "Use PRISM Forces (physics-based adaptive clearing) instead."
+          : "";
         return {
           allowed: false,
-          reason: `BLOCKED: Feature '${featureName}' potentially infringes ${patent.patent_number} (${patent.title}). Cleanroom implementation required. ${patent.workaround_available ? "Workaround available." : ""}`,
+          reason: `BLOCKED: Feature '${featureName}' potentially infringes ${patent.patent_number} (${patent.title}). Cleanroom implementation required. ${workaroundMsg}`,
           auditRef,
           gateType: "patent_cleanroom",
           timestamp,

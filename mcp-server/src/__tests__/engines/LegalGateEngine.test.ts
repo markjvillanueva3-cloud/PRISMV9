@@ -151,10 +151,11 @@ describe("LegalGateEngine", () => {
       expect(result.allowed).toBe(true);
     });
 
-    it("mentions workaround when available", () => {
+    it("mentions PRISM Forces as workaround when available", () => {
       const result = engine.checkPatentCleanroom("iMachining");
 
-      expect(result.reason).toContain("Workaround available");
+      expect(result.reason).toContain("PRISM Forces");
+      expect(result.reason).toContain("physics-based adaptive clearing");
     });
 
     it("returns list of active patent blocks", () => {
