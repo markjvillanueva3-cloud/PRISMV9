@@ -1,0 +1,129 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "mastercam",
+  "module_id": "function_index",
+  "module_name": "Mastercam Unified Function Index",
+  "description": "Top-level index that cross-references every extracted Mastercam module (2D toolpaths, 3D/HST toolpaths, multiaxis, lathe, wire EDM, simulation). Consumed by MastercamFunctionIndexEngine for lookup, dependency tracing, and AI orchestration.",
+  "indexed_at": "2026-04-22T17:00:00Z",
+  "modules": [
+    {
+      "module_id": "2d_toolpaths",
+      "path": "cam-functions/mastercam/2d-toolpaths.json",
+      "covered_units": ["U-CAM14"],
+      "parameter_count_estimate": 312,
+      "description": "Dynamic Mill, Contour, Pocket, Facing, Slot Mill, Circle Mill, Thread Mill, Engrave, FBM Drill",
+      "dependencies": []
+    },
+    {
+      "module_id": "3d_hst_toolpaths",
+      "path": "cam-functions/mastercam/3d-hst-toolpaths.json",
+      "covered_units": ["U-CAM15"],
+      "parameter_count_estimate": 412,
+      "description": "3D Roughing, Waterline, Scallop, Pencil, Parallel, Radial, Project Curve, Flowline, Hybrid",
+      "dependencies": ["2d_toolpaths"]
+    },
+    {
+      "module_id": "multiaxis_toolpaths",
+      "path": "cam-functions/mastercam/multiaxis-toolpaths.json",
+      "covered_units": ["U-CAM16"],
+      "parameter_count_estimate": 485,
+      "description": "5-axis Swarf, Morph, Flow, Rotary, Port, Deburr, Blade, Impeller, Advanced Multiaxis",
+      "dependencies": ["3d_hst_toolpaths"]
+    },
+    {
+      "module_id": "lathe_toolpaths",
+      "path": "cam-functions/mastercam/lathe-toolpaths.json",
+      "covered_units": ["U-CAM17"],
+      "parameter_count_estimate": 380,
+      "description": "Face, Rough, Finish, Thread, Groove, Cutoff, Bore, Drill, C-axis Mill-Turn",
+      "dependencies": []
+    },
+    {
+      "module_id": "wire_edm",
+      "path": "cam-functions/mastercam/wire-edm.json",
+      "covered_units": ["U-CAM18"],
+      "parameter_count_estimate": 245,
+      "description": "Contour Wire EDM, No Core, 4-axis Taper, Tab, Multi-pass, Skim cuts",
+      "dependencies": []
+    },
+    {
+      "module_id": "machine_simulation",
+      "path": "cam-functions/mastercam/machine-simulation.json",
+      "covered_units": ["U-CAM19"],
+      "parameter_count_estimate": 68,
+      "description": "Verify, Machine Simulation, Collision Detection, Backplot, Solid Verify",
+      "dependencies": ["2d_toolpaths", "3d_hst_toolpaths", "multiaxis_toolpaths", "lathe_toolpaths", "wire_edm"]
+    },
+    {
+      "module_id": "x8_2d_3d_hst_catalog",
+      "path": "cam-functions/mastercam/MASTERCAM_X8_2D_3D_HS_CATALOG.json",
+      "covered_units": ["U-CAM14", "U-CAM15"],
+      "parameter_count_estimate": 923,
+      "description": "Legacy X8 format comprehensive 2D/3D/HST catalog with full parameter mappings",
+      "dependencies": []
+    },
+    {
+      "module_id": "x8_advanced_modules_audit",
+      "path": "cam-functions/mastercam/MASTERCAM_X8_ADVANCED_MODULES_AUDIT.json",
+      "covered_units": ["U-CAM16", "U-CAM17", "U-CAM18"],
+      "parameter_count_estimate": 650,
+      "description": "Legacy X8 format advanced modules audit including multiaxis, lathe, and wire",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "physics_formulas": [
+      "CUTTING_SPEED",
+      "FEED_PER_TOOTH",
+      "KIENZLE_FORCE",
+      "TAYLOR_TOOL_LIFE",
+      "TOOL_DEFLECTION",
+      "SURFACE_FINISH_RA",
+      "CHIP_THINNING",
+      "MRR",
+      "STABILITY_LOBE",
+      "THREADMILL_HELICAL_FORCE",
+      "TURNING_POWER",
+      "WIRE_EDM_GAP_VOLTAGE"
+    ],
+    "dispatchers_touched": ["prism_cam", "prism_calc", "prism_safety", "prism_turning", "prism_edm"],
+    "engines_linked": [
+      "MastercamFunctionIndexEngine",
+      "MastercamStrategySelectorEngine",
+      "MastercamDynamicMillEngine",
+      "MastercamHSTEngine",
+      "MastercamMultiaxisEngine",
+      "MastercamLatheEngine",
+      "MastercamWireEDMEngine",
+      "MastercamSimulationEngine",
+      "MastercamBridgeEngine",
+      "PostProcessorPipelineEngine",
+      "ToolDeflectionEngine",
+      "TaylorToolLifeEngine",
+      "SpeedFeedOrchestratorEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 8,
+    "total_units_covered": ["U-CAM14", "U-CAM15", "U-CAM16", "U-CAM17", "U-CAM18", "U-CAM19"],
+    "estimated_parameter_total": 3475,
+    "pdf_sources_bound": [
+      "Mastercam Mill Training Guide.pdf",
+      "Mastercam Lathe Training Guide.pdf",
+      "Mastercam Wire Training Guide.pdf",
+      "Mastercam Multiaxis Training Guide.pdf",
+      "Mastercam for SolidWorks Guide.pdf",
+      "Mastercam Dynamic Motion Technology Guide.pdf"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 45,
+    "categories": [
+      "dynamic_motion_best_practices",
+      "hst_surface_quality",
+      "multiaxis_gouge_avoidance",
+      "lathe_chip_control",
+      "wire_edm_wire_tension"
+    ]
+  }
+}
