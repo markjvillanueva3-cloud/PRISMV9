@@ -21,11 +21,12 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
+import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
-// Merge legacy + pipeline schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
