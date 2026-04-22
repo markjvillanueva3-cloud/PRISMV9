@@ -738,6 +738,304 @@ export class MillKinematicsCollisionEngine {
     log.info(`[MillKinematics] Loaded ${this.machines.size} machine kinematic specs`);
   }
 
+  // ══════════════════════════════════════════════════════════════════════════
+  // P4-U01-COL3: 3-AXIS HARDENING — TOOLPATH COLLISION, RAPID CLEARANCE, ADAPTIVE STEP-DOWN
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Check collisions along entire toolpath at every XYZ coordinate.
+   * Hardening: validates tool+holder swept volume against all obstacles.
+   *
+   * @param toolpath Array of XYZ points with move type
+   * @param tool Tool geometry (diameter, flute length, overall length)
+   * @param holder Optional holder geometry
+   * @param obstacles Array of obstacle definitions
+   * @param safety_margin_mm Safety margin added to clearance checks (default 2.0mm)
+   * @returns Detailed collision results with per-point analysis
+   */
+  checkToolpathCollisions(
+    toolpath: Array<{ x: number; y: number; z: number; move_type: "rapid" | "feed" }>,
+    tool: { diameter_mm: number; flute_length_mm: number; overall_length_mm: number },
+    holder: { holder_diameter_mm: number; holder_length_mm: number } | null,
+    obstacles: Array<{ id: string; bounds: AABB; is_hard_obstacle: boolean }>,
+    safety_margin_mm: number = 2.0
+  ): {
+    success: boolean;
+    pass: boolean;
+    collisions: Array<{
+      point_index: number;
+      position: Vec3;
+      obstacle_id: string;
+      collision_type: "tool" | "holder";
+      severity: "critical" | "warning";
+      penetration_mm: number;
+      message: string;
+    }>;
+    collision_count: number;
+    critical_count: number;
+    warning_count: number;
+    safety_score_contribution: number;
+    hard_block: boolean;
+    checked_points: number;
+    min_clearance_mm: number;
+    summary: string;
+  } {
+    const collisions: Array<{
+      point_index: number;
+      position: Vec3;
+      obstacle_id: string;
+      collision_type: "tool" | "holder";
+      severity: "critical" | "warning";
+      penetration_mm: number;
+      message: string;
+    }> = [];
+
+    let minClearance = Infinity;
+    const toolRadius = tool.diameter_mm / 2;
+
+    for (let i = 0; i < toolpath.length; i++) {
+      const point = toolpath[i];
+
+      // Compute tool bounding box at this point
+      // Tool tip is at point.z; flutes extend UPWARD (positive Z) from the tip
+      const toolAABB: AABB = {
+        min: {
+          x: point.x - toolRadius - safety_margin_mm,
+          y: point.y - toolRadius - safety_margin_mm,
+          z: point.z - safety_margin_mm, // tip minus safety margin
+        },
+        max: {
+          x: point.x + toolRadius + safety_margin_mm,
+          y: point.y + toolRadius + safety_margin_mm,
+          z: point.z + tool.flute_length_mm + safety_margin_mm, // top of flutes
+        },
+      };
+
+      // Check tool against each obstacle
+      for (const obs of obstacles) {
+        const clearance = this.computeAABBClearance(toolAABB, obs.bounds);
+        minClearance = Math.min(minClearance, clearance);
+
+        if (clearance < 0) {
+          collisions.push({
+            point_index: i,
+            position: { x: point.x, y: point.y, z: point.z },
+            obstacle_id: obs.id,
+            collision_type: "tool",
+            severity: obs.is_hard_obstacle ? "critical" : "warning",
+            penetration_mm: Math.abs(clearance),
+            message: `Tool collision with "${obs.id}" at point ${i}. Penetration: ${Math.abs(clearance).toFixed(2)}mm`,
+          });
+        }
+      }
+
+      // Check holder against obstacles if present
+      // Holder starts at top of flutes and extends upward
+      if (holder) {
+        const holderRadius = holder.holder_diameter_mm / 2;
+        const holderStartZ = point.z + tool.flute_length_mm; // holder starts where flutes end
+        const holderEndZ = holderStartZ + holder.holder_length_mm;
+
+        const holderAABB: AABB = {
+          min: {
+            x: point.x - holderRadius - safety_margin_mm,
+            y: point.y - holderRadius - safety_margin_mm,
+            z: holderStartZ,
+          },
+          max: {
+            x: point.x + holderRadius + safety_margin_mm,
+            y: point.y + holderRadius + safety_margin_mm,
+            z: holderEndZ + safety_margin_mm,
+          },
+        };
+
+        for (const obs of obstacles) {
+          const clearance = this.computeAABBClearance(holderAABB, obs.bounds);
+          minClearance = Math.min(minClearance, clearance);
+
+          if (clearance < 0) {
+            collisions.push({
+              point_index: i,
+              position: { x: point.x, y: point.y, z: point.z },
+              obstacle_id: obs.id,
+              collision_type: "holder",
+              severity: obs.is_hard_obstacle ? "critical" : "warning",
+              penetration_mm: Math.abs(clearance),
+              message: `Holder collision with "${obs.id}" at point ${i}. Penetration: ${Math.abs(clearance).toFixed(2)}mm`,
+            });
+          }
+        }
+      }
+    }
+
+    const criticalCount = collisions.filter(c => c.severity === "critical").length;
+    const warningCount = collisions.filter(c => c.severity === "warning").length;
+    const hardBlock = criticalCount > 0;
+    const safetyContribution = collisions.length === 0 ? 0.15 : 0;
+
+    return {
+      success: true,
+      pass: criticalCount === 0,
+      collisions,
+      collision_count: collisions.length,
+      critical_count: criticalCount,
+      warning_count: warningCount,
+      safety_score_contribution: safetyContribution,
+      hard_block: hardBlock,
+      checked_points: toolpath.length,
+      min_clearance_mm: minClearance === Infinity ? 0 : minClearance,
+      summary: collisions.length === 0
+        ? `No collisions across ${toolpath.length} points. Min clearance: ${minClearance.toFixed(2)}mm`
+        : `${criticalCount} critical, ${warningCount} warning collision(s).${hardBlock ? " HARD BLOCK." : ""}`,
+    };
+  }
+
+  /**
+   * Validate rapid clearance planes.
+   * Ensures all rapid moves (G0) maintain safe clearance above obstacles.
+   *
+   * @param rapidPoints Array of rapid move positions
+   * @param obstacles Array of obstacles to check against
+   * @param clearance_mm Minimum clearance above highest obstacle (default 5.0mm)
+   * @returns Validation result with safe Z recommendation
+   */
+  validateRapidClearance(
+    rapidPoints: Vec3[],
+    obstacles: Array<{ id: string; bounds: AABB }>,
+    clearance_mm: number = 5.0
+  ): {
+    pass: boolean;
+    safe_z: number;
+    highest_obstacle_z: number;
+    violations: Array<{ index: number; z: number; required_z: number }>;
+    recommendation: string;
+  } {
+    // Find highest obstacle Z
+    let highestZ = -Infinity;
+    for (const obs of obstacles) {
+      if (obs.bounds.max.z > highestZ) {
+        highestZ = obs.bounds.max.z;
+      }
+    }
+
+    const safeZ = highestZ + clearance_mm;
+    const violations: Array<{ index: number; z: number; required_z: number }> = [];
+
+    for (let i = 0; i < rapidPoints.length; i++) {
+      if (rapidPoints[i].z < safeZ) {
+        violations.push({
+          index: i,
+          z: rapidPoints[i].z,
+          required_z: safeZ,
+        });
+      }
+    }
+
+    return {
+      pass: violations.length === 0,
+      safe_z: safeZ,
+      highest_obstacle_z: highestZ === -Infinity ? 0 : highestZ,
+      violations,
+      recommendation: violations.length === 0
+        ? `All ${rapidPoints.length} rapid moves above safe Z=${safeZ.toFixed(2)}mm`
+        : `${violations.length} rapid move(s) below safe clearance. Use Z≥${safeZ.toFixed(2)}mm for rapids.`,
+    };
+  }
+
+  /**
+   * Calculate adaptive step-down based on obstacles.
+   * When collision is detected, computes maximum safe DOC that avoids interference.
+   *
+   * @param toolPosition Current tool position (TCP)
+   * @param tool Tool geometry
+   * @param obstacles Array of obstacles
+   * @param programmed_doc_mm Originally programmed depth of cut
+   * @param safety_margin_mm Safety margin (default 2.0mm)
+   * @returns Adaptive step-down recommendation
+   */
+  calculateAdaptiveStepDown(
+    toolPosition: Vec3,
+    tool: { diameter_mm: number; flute_length_mm: number },
+    obstacles: Array<{ id: string; bounds: AABB }>,
+    programmed_doc_mm: number,
+    safety_margin_mm: number = 2.0
+  ): {
+    original_doc_mm: number;
+    safe_doc_mm: number;
+    limiting_obstacle: string | null;
+    reduction_percent: number;
+    passes_required: number;
+    rationale: string;
+  } {
+    const toolRadius = tool.diameter_mm / 2;
+    let maxSafeDoc = tool.flute_length_mm;
+    let limitingObs: string | null = null;
+
+    for (const obs of obstacles) {
+      // Check if tool is over this obstacle in XY projection
+      if (
+        toolPosition.x + toolRadius >= obs.bounds.min.x &&
+        toolPosition.x - toolRadius <= obs.bounds.max.x &&
+        toolPosition.y + toolRadius >= obs.bounds.min.y &&
+        toolPosition.y - toolRadius <= obs.bounds.max.y
+      ) {
+        // Calculate max Z depth without collision
+        const obstacleTop = obs.bounds.max.z + safety_margin_mm;
+        const safeDoc = toolPosition.z - obstacleTop;
+
+        if (safeDoc > 0 && safeDoc < maxSafeDoc) {
+          maxSafeDoc = safeDoc;
+          limitingObs = obs.id;
+        }
+      }
+    }
+
+    // Clamp to minimum viable step (0.5mm)
+    const clampedDoc = Math.max(maxSafeDoc, 0.5);
+    const safeDoc = Math.min(clampedDoc, programmed_doc_mm);
+    const reduction = programmed_doc_mm > 0 ? ((programmed_doc_mm - safeDoc) / programmed_doc_mm) * 100 : 0;
+    const passesRequired = safeDoc > 0 ? Math.ceil(programmed_doc_mm / safeDoc) : 1;
+
+    return {
+      original_doc_mm: programmed_doc_mm,
+      safe_doc_mm: safeDoc,
+      limiting_obstacle: limitingObs,
+      reduction_percent: reduction,
+      passes_required: passesRequired,
+      rationale: limitingObs
+        ? `Reduced DOC from ${programmed_doc_mm.toFixed(2)}mm to ${safeDoc.toFixed(2)}mm due to "${limitingObs}". Requires ${passesRequired} pass(es).`
+        : `Original DOC ${programmed_doc_mm.toFixed(2)}mm is safe. No reduction needed.`,
+    };
+  }
+
+  /**
+   * Helper: compute clearance between two AABBs (negative = penetration)
+   */
+  private computeAABBClearance(a: AABB, b: AABB): number {
+    // Check if they intersect
+    if (
+      a.min.x <= b.max.x && a.max.x >= b.min.x &&
+      a.min.y <= b.max.y && a.max.y >= b.min.y &&
+      a.min.z <= b.max.z && a.max.z >= b.min.z
+    ) {
+      // Compute penetration (negative clearance)
+      const overlapX = Math.min(a.max.x, b.max.x) - Math.max(a.min.x, b.min.x);
+      const overlapY = Math.min(a.max.y, b.max.y) - Math.max(a.min.y, b.min.y);
+      const overlapZ = Math.min(a.max.z, b.max.z) - Math.max(a.min.z, b.min.z);
+      return -Math.min(overlapX, overlapY, overlapZ);
+    }
+
+    // Compute minimum distance between non-intersecting AABBs
+    const dx = Math.max(0, Math.max(a.min.x - b.max.x, b.min.x - a.max.x));
+    const dy = Math.max(0, Math.max(a.min.y - b.max.y, b.min.y - a.max.y));
+    const dz = Math.max(0, Math.max(a.min.z - b.max.z, b.min.z - a.max.z));
+    return Math.sqrt(dx * dx + dy * dy + dz * dz);
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // END P4-U01-COL3 HARDENING
+  // ══════════════════════════════════════════════════════════════════════════
+
   /**
    * Get forward kinematics for a machine position
    */

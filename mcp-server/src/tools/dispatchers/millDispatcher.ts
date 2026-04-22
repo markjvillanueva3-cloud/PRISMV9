@@ -76,6 +76,13 @@ async function getHolders(): Promise<any> {
     .toolHolderRegistryEngine);
 }
 
+// P4-U01-COL3: Collision engine lazy loader
+let _collision: any;
+async function getCollision(): Promise<any> {
+  return (_collision ??= (await import("../../engines/MillKinematicsCollisionEngine.js"))
+    .millKinematicsCollisionEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -104,6 +111,8 @@ const ACTIONS = [
   "mill_learn_ingest_pdf", "mill_learn_ingest_video", "mill_learn_ingest_programs",
   "mill_learn_harmonize", "mill_learn_train_model", "mill_learn_eval",
   "mill_learn_deploy", "mill_learn_rollback",
+  // P4-U01-COL3: Collision detection
+  "mill_collision_check", "mill_rapid_clearance", "mill_adaptive_stepdown",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -274,6 +283,53 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       return pending("P-LEARN-U10-MILL-EVAL-HARNESS", "Deployment gate + model registry");
     case "mill_learn_rollback":
       return pending("P-LEARN-U10-MILL-EVAL-HARNESS", "Model registry rollback");
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // P4-U01-COL3: COLLISION DETECTION
+    // ═══════════════════════════════════════════════════════════════════════
+
+    case "mill_collision_check": {
+      const collision = await getCollision();
+      const result = collision.checkToolpathCollisions(
+        params.toolpath,
+        params.tool,
+        params.holder ?? null,
+        params.obstacles,
+        params.safety_margin_mm ?? 2.0
+      );
+      return slimResponse({
+        action: "mill_collision_check",
+        ...result,
+      });
+    }
+
+    case "mill_rapid_clearance": {
+      const collision = await getCollision();
+      const result = collision.validateRapidClearance(
+        params.rapid_points,
+        params.obstacles,
+        params.clearance_mm ?? 5.0
+      );
+      return slimResponse({
+        action: "mill_rapid_clearance",
+        ...result,
+      });
+    }
+
+    case "mill_adaptive_stepdown": {
+      const collision = await getCollision();
+      const result = collision.calculateAdaptiveStepDown(
+        params.tool_position,
+        params.tool,
+        params.obstacles,
+        params.programmed_doc_mm,
+        params.safety_margin_mm ?? 2.0
+      );
+      return slimResponse({
+        action: "mill_adaptive_stepdown",
+        ...result,
+      });
+    }
 
     default:
       return { error: `Unknown action: ${action as string}` };

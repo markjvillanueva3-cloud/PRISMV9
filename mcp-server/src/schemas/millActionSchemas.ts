@@ -337,6 +337,76 @@ const mill_learn_rollback = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U01-COL3: COLLISION DETECTION ACTIONS
+// ============================================================================
+
+/** 3D point schema */
+const point3d = z.object({
+  x: z.number(),
+  y: z.number(),
+  z: z.number(),
+});
+
+/** Toolpath point with move type */
+const toolpathPoint = z.object({
+  x: z.number(),
+  y: z.number(),
+  z: z.number(),
+  move_type: z.enum(["rapid", "feed"]),
+});
+
+/** AABB bounds */
+const aabbBounds = z.object({
+  min: point3d,
+  max: point3d,
+});
+
+/** Obstacle definition */
+const obstacle = z.object({
+  id: z.string(),
+  bounds: aabbBounds,
+  is_hard_obstacle: z.boolean().default(true),
+});
+
+/** Tool geometry for collision */
+const toolGeometry = z.object({
+  diameter_mm: z.number().positive(),
+  flute_length_mm: z.number().positive(),
+  overall_length_mm: z.number().positive(),
+});
+
+/** Holder geometry for collision */
+const holderGeometry = z.object({
+  holder_diameter_mm: z.number().positive(),
+  holder_length_mm: z.number().positive(),
+}).optional();
+
+const mill_collision_check = z.object({
+  toolpath: z.array(toolpathPoint).min(1).describe("Array of toolpath points with XYZ + move_type"),
+  tool: toolGeometry.describe("Tool geometry"),
+  holder: holderGeometry.describe("Optional holder geometry"),
+  obstacles: z.array(obstacle).describe("Obstacles to check against"),
+  safety_margin_mm: z.number().min(0).default(2.0).describe("Safety margin (mm)"),
+}).passthrough();
+
+const mill_rapid_clearance = z.object({
+  rapid_points: z.array(point3d).min(1).describe("Rapid move positions"),
+  obstacles: z.array(z.object({ id: z.string(), bounds: aabbBounds })).describe("Obstacles"),
+  clearance_mm: z.number().min(0).default(5.0).describe("Minimum clearance above obstacles (mm)"),
+}).passthrough();
+
+const mill_adaptive_stepdown = z.object({
+  tool_position: point3d.describe("Current tool TCP position"),
+  tool: z.object({
+    diameter_mm: z.number().positive(),
+    flute_length_mm: z.number().positive(),
+  }).describe("Tool geometry"),
+  obstacles: z.array(z.object({ id: z.string(), bounds: aabbBounds })).describe("Obstacles"),
+  programmed_doc_mm: z.number().positive().describe("Originally programmed depth of cut (mm)"),
+  safety_margin_mm: z.number().min(0).default(2.0).describe("Safety margin (mm)"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -397,4 +467,8 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_learn_eval,
   mill_learn_deploy,
   mill_learn_rollback,
+  // P4-U01-COL3: Collision detection
+  mill_collision_check,
+  mill_rapid_clearance,
+  mill_adaptive_stepdown,
 };
