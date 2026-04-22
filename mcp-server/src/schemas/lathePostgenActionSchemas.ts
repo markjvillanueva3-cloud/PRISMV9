@@ -259,6 +259,53 @@ const lathe_postgen_uncertainty = z
   })
   .passthrough();
 
+// ─── lathe_postgen_full ───────────────────────────────────────────────────
+
+const lathe_postgen_full = z
+  .object({
+    controller_hint: z
+      .string()
+      .min(1)
+      .describe("Controller identification hint (e.g. 'mitsubishi-m80-l', 'fanuc-31i-t')."),
+    spec_text: z
+      .string()
+      .optional()
+      .describe("Raw controller specification text (optional if using built-in)."),
+    spec_file: z
+      .string()
+      .optional()
+      .describe("Path to spec file (PDF/TXT). Alternative to spec_text."),
+    features: z
+      .array(z.string())
+      .optional()
+      .describe("Required post features (e.g. ['live_tooling', 'sub_spindle'])."),
+    reference_programs: z
+      .array(z.string())
+      .optional()
+      .describe("Sample G-code programs for pattern extraction and testing."),
+    transfer_from: z
+      .string()
+      .optional()
+      .describe("Source controller ID to transfer knowledge from."),
+    include_tests: z
+      .boolean()
+      .optional()
+      .describe("Generate regression tests. Default: true."),
+    register: z
+      .boolean()
+      .optional()
+      .describe("Register in knowledge graph after validation. Default: true."),
+    strict_mode: z
+      .boolean()
+      .optional()
+      .describe("Treat warnings as errors. Default: false."),
+    output_dir: z
+      .string()
+      .optional()
+      .describe("Output directory for generated post files."),
+  })
+  .passthrough();
+
 // ─── Export map ───────────────────────────────────────────────────────────
 
 export const ACTION_LATHE_POSTGEN_SCHEMAS: ActionSchemaMap = {
@@ -270,4 +317,5 @@ export const ACTION_LATHE_POSTGEN_SCHEMAS: ActionSchemaMap = {
   lathe_postgen_register,
   lathe_postgen_feedback,
   lathe_postgen_uncertainty,
+  lathe_postgen_full,
 };
