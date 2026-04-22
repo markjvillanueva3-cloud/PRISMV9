@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -44,6 +44,7 @@ async function getEngine(name: string): Promise<any> {
     case "impeller": return _impeller ??= (await import("../../engines/ImpellerCADEngine.js")).impellerCADEngine;
     case "blisk": return _blisk ??= new (await import("../../engines/BliskCADEngine.js")).BliskCADEngine();
     case "cadCorpusOrch": return _cadCorpusOrch ??= (await import("../../engines/CADTrainingCorpusOrchestratorEngine.js")).cadTrainingCorpusOrchestratorEngine;
+    case "cadEmbedIndex": return _cadEmbedIndex ??= (await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js")).cadEmbeddingIndexOrchestratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -103,6 +104,8 @@ const ACTIONS = [
   "blisk_list_profiles",
   // CAD Training Corpus Orchestrator (U-CADC17)
   "cad_corpus_orchestrate", "cad_corpus_scan", "cad_corpus_status",
+  // CAD Embedding Index Orchestrator (U-CADC18)
+  "cad_index_ingest", "cad_index_query", "cad_index_stats", "cad_index_clear", "cad_index_similar",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -823,6 +826,44 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("cadCorpusOrch");
             const status = engine.status(params?.corpusPath);
             result = { success: true, ...status };
+            break;
+          }
+          // CAD Embedding Index Orchestrator (U-CADC18)
+          case "cad_index_ingest": {
+            const engine = await getEngine("cadEmbedIndex");
+            if (params?.entries) {
+              const ingestResult = engine.ingestEntries(params.entries, params);
+              result = { success: true, ...ingestResult };
+            } else if (params?.corpusPath) {
+              const ingestResult = engine.ingest(params.corpusPath, params);
+              result = { success: true, ...ingestResult };
+            } else {
+              result = { error: "cad_index_ingest requires corpusPath or entries" };
+            }
+            break;
+          }
+          case "cad_index_query": {
+            const engine = await getEngine("cadEmbedIndex");
+            const results = engine.query(params);
+            result = { success: true, results, count: results.length };
+            break;
+          }
+          case "cad_index_stats": {
+            const engine = await getEngine("cadEmbedIndex");
+            const stats = engine.stats();
+            result = { success: true, ...stats };
+            break;
+          }
+          case "cad_index_clear": {
+            const engine = await getEngine("cadEmbedIndex");
+            const clearResult = engine.clear();
+            result = { success: true, ...clearResult };
+            break;
+          }
+          case "cad_index_similar": {
+            const engine = await getEngine("cadEmbedIndex");
+            const similar = engine.findSimilar(params?.sourcePath, params?.k ?? 5);
+            result = { success: true, results: similar, count: similar.length };
             break;
           }
           default:
