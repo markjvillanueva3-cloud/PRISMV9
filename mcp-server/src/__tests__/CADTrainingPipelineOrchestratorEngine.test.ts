@@ -15,15 +15,22 @@ async function invokeDispatcher(action: string, params: Record<string, unknown>)
   const { cadTrainingPipelineOrchestratorEngine: engine } = await import(
     "../engines/CADTrainingPipelineOrchestratorEngine.js"
   );
+  const { cadTrainingCorpusOrchestratorEngine: corpusEngine } = await import(
+    "../engines/CADTrainingCorpusOrchestratorEngine.js"
+  );
   switch (action) {
     case "cad_pipeline_run":
+    case "cad_training_start":
       return { success: true, ...engine.run(params as any) };
     case "cad_pipeline_validate":
       return { success: true, ...engine.validateIndex((params?.sampleSize as number) ?? 10) };
     case "cad_pipeline_status":
+    case "cad_training_status":
       return { success: true, ...engine.status() };
     case "cad_pipeline_clear":
       return { success: true, ...engine.clear() };
+    case "cad_training_corpus_stats":
+      return { success: true, ...corpusEngine.status(params?.corpusPath as string | undefined) };
     default:
       return { error: `Unknown action: ${action}` };
   }
@@ -375,6 +382,46 @@ describe("CADTrainingPipelineOrchestratorEngine", () => {
     it("unknown action returns error", async () => {
       const result = (await invokeDispatcher("cad_pipeline_unknown", {})) as any;
       expect(result.error).toContain("Unknown action");
+    });
+  });
+
+  // ── U-CADC20: Training MCP Actions ─────────────────────────────────────────
+
+  describe("training MCP actions (U-CADC20)", () => {
+    it("cad_training_start via dispatcher", async () => {
+      fs.writeFileSync(path.join(tempDir, "housing.step"), "housing data");
+      const result = (await invokeDispatcher("cad_training_start", {
+        rootPath: tempDir,
+        outputDir: tempDir,
+        skipValidation: true,
+      })) as any;
+      expect(result.success).toBe(true);
+      expect(result.status).toBe("completed");
+      expect(result.pipelineId).toMatch(/^CADPIPE-/);
+    });
+
+    it("cad_training_status via dispatcher", async () => {
+      const result = (await invokeDispatcher("cad_training_status", {})) as any;
+      expect(result.success).toBe(true);
+      expect(result).toHaveProperty("corpus");
+      expect(result).toHaveProperty("index");
+      expect(result).toHaveProperty("stats");
+    });
+
+    it("cad_training_corpus_stats via dispatcher", async () => {
+      const result = (await invokeDispatcher("cad_training_corpus_stats", {})) as any;
+      expect(result.success).toBe(true);
+      expect(result).toHaveProperty("exists");
+    });
+
+    it("cad_training_corpus_stats with specific path", async () => {
+      const corpusPath = path.join(tempDir, "test_corpus.jsonl");
+      fs.writeFileSync(corpusPath, '{"test":1}\n');
+      const result = (await invokeDispatcher("cad_training_corpus_stats", {
+        corpusPath,
+      })) as any;
+      expect(result.success).toBe(true);
+      expect(result.exists).toBe(true);
     });
   });
 
