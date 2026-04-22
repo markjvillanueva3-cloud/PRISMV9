@@ -1,14 +1,14 @@
 /**
  * prism_mill — Mill-Specific Dispatcher
- * MILL-MASTER/P1-U01-MILL-DISP
+ * MILL-MASTER/P1-U01-MILL-DISP, P1-U04-SA-INTEG
  *
  * First-class MCP surface for milling operations. Consolidates mill actions
  * previously scattered across camDispatcher, fiveAxisDispatcher, multiAxisDispatcher.
  *
  * Routes through MillMasterOrchestratorFacadeEngine as primary entry (P1-U02).
  *
- * 45 actions covering: print_to_program, strategy, toolpath, physics, AGI,
- * pattern mining, digital twin, validation, optimization.
+ * 49 actions covering: print_to_program, strategy, toolpath, physics, AGI,
+ * self-awareness, pattern mining, digital twin, validation, optimization.
  */
 import { z } from "zod";
 import { log } from "../../utils/Logger.js";
@@ -132,6 +132,12 @@ export const MILL_ACTIONS = [
   "mill_deeplearn_predict",
   "mill_pattern_mine",
   "mill_wisdom_query",
+
+  // Self-awareness & capability discovery
+  "mill_selfaware_registry",
+  "mill_selfaware_recommend",
+  "mill_selfaware_find",
+  "mill_selfaware_stats",
 
   // Digital twin
   "mill_twin_sync",
@@ -390,6 +396,32 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_wisdom_query": {
             const engine = await getEngine("wisdom");
             result = engine.query?.(params) ?? { tips: [] };
+            break;
+          }
+
+          // ============================================================
+          // SELF-AWARENESS & CAPABILITY DISCOVERY
+          // ============================================================
+          case "mill_selfaware_registry": {
+            const engine = await getEngine("selfaware");
+            result = { registry: engine.getRegistry(), stats: engine.getStats() };
+            break;
+          }
+          case "mill_selfaware_recommend": {
+            const engine = await getEngine("selfaware");
+            const task = params.task ?? params.query ?? "";
+            result = { recommendations: engine.recommendFeatures(task) };
+            break;
+          }
+          case "mill_selfaware_find": {
+            const engine = await getEngine("selfaware");
+            const query = params.query ?? params.task ?? "";
+            result = { matches: engine.findEngines(query) };
+            break;
+          }
+          case "mill_selfaware_stats": {
+            const engine = await getEngine("selfaware");
+            result = engine.getStats();
             break;
           }
 
