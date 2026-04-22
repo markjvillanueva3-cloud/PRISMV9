@@ -652,6 +652,188 @@ describe("InventorHSMFunctionIndexEngine", () => {
     });
   });
 
+  describe("Turning & Mill-Turn Operations (U-CAM30)", () => {
+    it("includes turning section", () => {
+      const sections = InventorHSMFunctionIndexEngine.listSections();
+      expect(sections).toContain("turning");
+    });
+
+    it("returns turning section with 14 operations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("turning");
+      expect("error" in section).toBe(false);
+      if (!("error" in section)) {
+        expect(section.section_key).toBe("turning");
+        expect(Object.keys(section.operations).length).toBe(14);
+      }
+    });
+
+    it("includes profile_roughing operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const roughing = ops.find((op) => op.operation_id === "profile_roughing");
+      expect(roughing).toBeDefined();
+      expect(roughing?.display_name).toBe("Profile Roughing");
+      expect(roughing?.category).toBe("turning_roughing");
+    });
+
+    it("includes profile_finishing operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const finishing = ops.find((op) => op.operation_id === "profile_finishing");
+      expect(finishing).toBeDefined();
+      expect(finishing?.display_name).toBe("Profile Finishing");
+      expect(finishing?.category).toBe("turning_finishing");
+    });
+
+    it("includes threading operation with all thread forms", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("turning");
+      if (!("error" in section)) {
+        const threading = section.operations["threading"];
+        expect(threading).toBeDefined();
+        expect(threading.parameters.geometry.threadForm.values).toContain("metric");
+        expect(threading.parameters.geometry.threadForm.values).toContain("unified");
+        expect(threading.parameters.geometry.threadForm.values).toContain("acme");
+        expect(threading.parameters.passes.infeedMethod.values).toContain("modified_flank");
+      }
+    });
+
+    it("includes boring operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const boring = ops.find((op) => op.operation_id === "boring");
+      expect(boring).toBeDefined();
+      expect(boring?.category).toBe("turning_roughing");
+    });
+
+    it("includes grooving operation with all groove types", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("turning");
+      if (!("error" in section)) {
+        const grooving = section.operations["grooving"];
+        expect(grooving).toBeDefined();
+        expect(grooving.parameters.geometry.grooveType.values).toContain("external");
+        expect(grooving.parameters.geometry.grooveType.values).toContain("internal");
+        expect(grooving.parameters.geometry.grooveType.values).toContain("face");
+      }
+    });
+
+    it("includes parting operation with feed reduction", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("turning");
+      if (!("error" in section)) {
+        const parting = section.operations["parting"];
+        expect(parting).toBeDefined();
+        expect(parting.parameters.passes.feedReduction).toBeDefined();
+        expect(parting.parameters.passes.feedReduction.default).toBe(50);
+      }
+    });
+
+    it("includes caxis_milling operation (mill-turn)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const caxis = ops.find((op) => op.operation_id === "caxis_milling");
+      expect(caxis).toBeDefined();
+      expect(caxis?.display_name).toBe("C-Axis Milling");
+      expect(caxis?.category).toBe("millturn_milling");
+    });
+
+    it("includes yaxis_milling operation (mill-turn)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const yaxis = ops.find((op) => op.operation_id === "yaxis_milling");
+      expect(yaxis).toBeDefined();
+      expect(yaxis?.display_name).toBe("Y-Axis Milling");
+      expect(yaxis?.category).toBe("millturn_milling");
+    });
+
+    it("includes baxis_milling operation (mill-turn)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const baxis = ops.find((op) => op.operation_id === "baxis_milling");
+      expect(baxis).toBeDefined();
+      expect(baxis?.display_name).toBe("B-Axis Milling");
+    });
+
+    it("includes stock_transfer operation (mill-turn coordination)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const transfer = ops.find((op) => op.operation_id === "stock_transfer");
+      expect(transfer).toBeDefined();
+      expect(transfer?.category).toBe("millturn_coordination");
+    });
+
+    it("includes synchronized_spindle operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const sync = ops.find((op) => op.operation_id === "synchronized_spindle");
+      expect(sync).toBeDefined();
+      expect(sync?.display_name).toBe("Synchronized Spindle");
+    });
+
+    it("includes back_turning operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const back = ops.find((op) => op.operation_id === "back_turning");
+      expect(back).toBeDefined();
+      expect(back?.category).toBe("millturn_coordination");
+    });
+
+    it("all 14 operations are present in section", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const opsTurning = ops.filter((op) => op.section === "turning");
+      expect(opsTurning.length).toBe(14);
+      const expectedOps = [
+        "profile_roughing", "profile_finishing", "facing", "boring",
+        "grooving", "threading", "parting", "drilling_turning",
+        "caxis_milling", "yaxis_milling", "baxis_milling",
+        "stock_transfer", "synchronized_spindle", "back_turning"
+      ];
+      for (const expected of expectedOps) {
+        expect(opsTurning.find((op) => op.operation_id === expected)).toBeDefined();
+      }
+    });
+
+    it("turning section has 6 training topics", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("turning");
+      expect(topics.length).toBe(6);
+      const topicNames = topics.map((t) => t.topic);
+      expect(topicNames).toContain("Turning Roughing Strategies");
+      expect(topicNames).toContain("Threading Infeed Methods");
+      expect(topicNames).toContain("Mill-Turn Coordination");
+    });
+
+    it("getOperationsByCategory returns turning_roughing operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("turning_roughing");
+      expect(results.length).toBeGreaterThanOrEqual(3);
+      const roughing = results.find((r) => r.operation_id === "profile_roughing");
+      expect(roughing).toBeDefined();
+    });
+
+    it("getOperationsByCategory returns millturn_milling operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("millturn_milling");
+      expect(results.length).toBeGreaterThanOrEqual(3);
+      const caxis = results.find((r) => r.operation_id === "caxis_milling");
+      expect(caxis).toBeDefined();
+    });
+
+    it("findParameter finds infeedMethod in threading", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("infeedMethod");
+      const threading = results.find((r) => r.operation_id === "threading");
+      expect(threading).toBeDefined();
+    });
+
+    it("findParameter finds polarInterpolation in caxis_milling", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("polarInterpolation");
+      const caxis = results.find((r) => r.operation_id === "caxis_milling");
+      expect(caxis).toBeDefined();
+    });
+
+    it("getIndex totals include turning operations", () => {
+      const index = InventorHSMFunctionIndexEngine.getIndex();
+      // 11 2.5D + 12 3D + 9 5axis + 6 multiaxis + 14 turning = 52 minimum
+      expect(index.total_operations).toBeGreaterThanOrEqual(52);
+    });
+
+    it("turning section has machine_considerations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("turning");
+      if (!("error" in section)) {
+        const raw = section as any;
+        expect(raw.machine_considerations).toBeDefined();
+        expect(raw.machine_considerations.lathe_types).toBeDefined();
+        expect(raw.machine_considerations.lathe_types.twin_spindle).toBeDefined();
+      }
+    });
+  });
+
   describe("Edge cases", () => {
     it("handles empty search query gracefully", () => {
       const results = InventorHSMFunctionIndexEngine.searchParameters("");

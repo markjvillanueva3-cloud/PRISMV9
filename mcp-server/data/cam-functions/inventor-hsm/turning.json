@@ -1,0 +1,492 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "turning",
+  "summary": {
+    "total_operations": 14,
+    "total_parameters": 156,
+    "categories": ["turning_roughing", "turning_finishing", "turning_grooving", "turning_threading", "turning_parting", "turning_holemaking", "millturn_milling", "millturn_coordination"]
+  },
+  "operations": {
+    "profile_roughing": {
+      "display_name": "Profile Roughing",
+      "category": "turning_roughing",
+      "description": "OD/ID roughing with multiple depth cuts using constant chip load or adaptive strategies.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "profileContour": { "type": "selection", "required": true, "description": "Profile to rough", "tab": "Geometry" },
+          "turningMode": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "description": "Radial stock for finish", "tab": "Geometry" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "description": "Axial stock for finish", "tab": "Geometry" }
+        },
+        "passes": {
+          "depthOfCut": { "type": "number", "unit": "mm", "description": "Radial DOC per pass", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" },
+          "cuttingStrategy": { "type": "enum", "values": ["constant_depth", "constant_chip_load", "adaptive"], "default": "constant_depth", "tab": "Passes" },
+          "finishingPass": { "type": "boolean", "default": false, "tab": "Passes" },
+          "finishingStockRadial": { "type": "number", "unit": "mm", "default": 0.1, "tab": "Passes" }
+        },
+        "tool": {
+          "spindleSpeed": { "type": "number", "unit": "rpm", "tab": "Tool" },
+          "surfaceSpeed": { "type": "number", "unit": "m/min", "description": "CSS mode", "tab": "Tool" },
+          "feedPerRevolution": { "type": "number", "unit": "mm/rev", "tab": "Tool" },
+          "coolant": { "type": "enum", "values": ["disabled", "flood", "mist", "through_tool"], "default": "flood", "tab": "Tool" }
+        }
+      }
+    },
+
+    "profile_finishing": {
+      "display_name": "Profile Finishing",
+      "category": "turning_finishing",
+      "description": "OD/ID finish turning with spring passes for surface quality.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "profileContour": { "type": "selection", "required": true, "tab": "Geometry" },
+          "turningMode": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" }
+        },
+        "passes": {
+          "numberOfPasses": { "type": "integer", "default": 1, "range": [1, 5], "tab": "Passes" },
+          "stockPerPass": { "type": "number", "unit": "mm", "description": "Radial stock per pass", "tab": "Passes" },
+          "springPass": { "type": "boolean", "default": true, "description": "Zero-stock final pass", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" },
+          "dwellAtCorners": { "type": "number", "unit": "s", "default": 0, "description": "Dwell time at sharp corners", "tab": "Passes" }
+        }
+      }
+    },
+
+    "facing": {
+      "display_name": "Face",
+      "category": "turning_roughing",
+      "description": "Face turning from OD to center or ID.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes"],
+      "parameter_count": 7,
+      "parameters": {
+        "geometry": {
+          "faceDiameter": { "type": "number", "unit": "mm", "description": "Face OD", "tab": "Geometry" },
+          "centerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "Face ID (0 = center)", "tab": "Geometry" },
+          "facePosition": { "type": "number", "unit": "mm", "description": "Z position of face", "tab": "Geometry" }
+        },
+        "passes": {
+          "depthOfCut": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "numberOfPasses": { "type": "integer", "default": 1, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["outside_in", "inside_out"], "default": "outside_in", "tab": "Passes" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" }
+        }
+      }
+    },
+
+    "boring": {
+      "display_name": "Bore",
+      "category": "turning_roughing",
+      "description": "Internal boring operations for holes and cavities.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "boreProfile": { "type": "selection", "required": true, "description": "Internal profile", "tab": "Geometry" },
+          "startDiameter": { "type": "number", "unit": "mm", "description": "Pre-drilled hole diameter", "tab": "Geometry" },
+          "finishDiameter": { "type": "number", "unit": "mm", "required": true, "description": "Target bore diameter", "tab": "Geometry" },
+          "boreDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+        },
+        "passes": {
+          "depthOfCut": { "type": "number", "unit": "mm", "description": "Radial DOC", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" },
+          "finishingPasses": { "type": "integer", "default": 1, "tab": "Passes" },
+          "springPass": { "type": "boolean", "default": true, "tab": "Passes" }
+        },
+        "tool": {
+          "minimumBoreDiameter": { "type": "number", "unit": "mm", "description": "Tool minimum bore capability", "tab": "Tool" },
+          "overhangRatio": { "type": "number", "default": 4, "description": "L/D ratio limit", "tab": "Tool" }
+        }
+      }
+    },
+
+    "grooving": {
+      "display_name": "Groove",
+      "category": "turning_grooving",
+      "description": "External, internal, or face grooving with plunge or zigzag strategies.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "grooveType": { "type": "enum", "values": ["external", "internal", "face"], "default": "external", "tab": "Geometry" },
+          "grooveWidth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "grooveDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "groovePosition": { "type": "number", "unit": "mm", "description": "Z position", "tab": "Geometry" },
+          "cornerRadius": { "type": "number", "unit": "mm", "default": 0, "description": "Groove corner radii", "tab": "Geometry" }
+        },
+        "passes": {
+          "plungeMethod": { "type": "enum", "values": ["single_plunge", "multiple_plunge", "zigzag"], "default": "multiple_plunge", "tab": "Passes" },
+          "depthPerPlunge": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "description": "Axial stepover", "tab": "Passes" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Passes" },
+          "retractAmount": { "type": "number", "unit": "mm", "default": 0.5, "description": "Retract between plunges", "tab": "Passes" }
+        }
+      }
+    },
+
+    "threading": {
+      "display_name": "Thread",
+      "category": "turning_threading",
+      "description": "Single-point threading with multiple infeed methods.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes"],
+      "parameter_count": 16,
+      "parameters": {
+        "geometry": {
+          "threadType": { "type": "enum", "values": ["external", "internal"], "default": "external", "tab": "Geometry" },
+          "threadForm": { "type": "enum", "values": ["metric", "unified", "whitworth", "npt", "acme", "buttress", "trapezoidal"], "default": "metric", "tab": "Geometry" },
+          "pitch": { "type": "number", "unit": "mm", "required": true, "description": "Thread pitch", "tab": "Geometry" },
+          "majorDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "threadLength": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "threadAngle": { "type": "number", "unit": "deg", "default": 60, "description": "Thread flank angle", "tab": "Geometry" },
+          "numberOfStarts": { "type": "integer", "default": 1, "description": "Multi-start threads", "tab": "Geometry" },
+          "threadClass": { "type": "enum", "values": ["6g", "6h", "4h", "2A", "2B", "3A", "3B"], "default": "6g", "tab": "Geometry" }
+        },
+        "passes": {
+          "infeedMethod": { "type": "enum", "values": ["radial", "flank", "modified_flank", "alternating"], "default": "modified_flank", "tab": "Passes" },
+          "numberOfPasses": { "type": "integer", "range": [1, 50], "description": "Threading passes", "tab": "Passes" },
+          "firstCutDepth": { "type": "number", "unit": "mm", "description": "First pass depth", "tab": "Passes" },
+          "lastCutDepth": { "type": "number", "unit": "mm", "description": "Final pass depth", "tab": "Passes" },
+          "springPasses": { "type": "integer", "default": 1, "description": "Zero-cut spring passes", "tab": "Passes" },
+          "threadChamfer": { "type": "boolean", "default": true, "description": "Chamfer thread start", "tab": "Passes" },
+          "infeedAngle": { "type": "number", "unit": "deg", "default": 29.5, "description": "Flank infeed angle", "tab": "Passes" }
+        }
+      }
+    },
+
+    "parting": {
+      "display_name": "Part",
+      "category": "turning_parting",
+      "description": "Part-off / cutoff operation with feed reduction at center.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "partingPosition": { "type": "number", "unit": "mm", "required": true, "description": "Z cutoff position", "tab": "Geometry" },
+          "stockDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "centerDiameter": { "type": "number", "unit": "mm", "default": 0, "description": "ID or 0 for solid", "tab": "Geometry" }
+        },
+        "passes": {
+          "feedReduction": { "type": "number", "unit": "percent", "default": 50, "description": "Feed reduction at center", "tab": "Passes" },
+          "reductionDiameter": { "type": "number", "unit": "mm", "description": "Start feed reduction diameter", "tab": "Passes" },
+          "pecking": { "type": "boolean", "default": false, "description": "Peck parting for deep cuts", "tab": "Passes" },
+          "peckDepth": { "type": "number", "unit": "mm", "description": "Peck depth if enabled", "tab": "Passes" },
+          "retractAmount": { "type": "number", "unit": "mm", "default": 0.5, "tab": "Passes" },
+          "partCatcher": { "type": "boolean", "default": false, "description": "Use part catcher", "tab": "Passes" },
+          "dwellBeforeCutoff": { "type": "number", "unit": "s", "default": 0, "tab": "Passes" }
+        }
+      }
+    },
+
+    "drilling_turning": {
+      "display_name": "Drill (Turning)",
+      "category": "turning_holemaking",
+      "description": "Center drilling and axial drilling on lathe with rotating spindle.",
+      "dialog_tabs": ["Tool", "Geometry", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "geometry": {
+          "holeDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "holeDiameter": { "type": "number", "unit": "mm", "description": "From tool", "tab": "Geometry" },
+          "startPosition": { "type": "number", "unit": "mm", "default": 0, "description": "Z start", "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["drilling", "peck_drilling", "chip_breaking", "reaming", "tapping", "boring"], "default": "drilling", "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "description": "Peck increment", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractType": { "type": "enum", "values": ["full", "partial"], "default": "full", "tab": "Cycle" },
+          "throughCoolant": { "type": "boolean", "default": false, "tab": "Cycle" }
+        }
+      }
+    },
+
+    "caxis_milling": {
+      "display_name": "C-Axis Milling",
+      "category": "millturn_milling",
+      "description": "Milling operations using C-axis (spindle positioning) with live tooling.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "C-Axis"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "millingType": { "type": "enum", "values": ["face", "pocket", "contour", "slot", "drilling"], "default": "pocket", "tab": "Geometry" },
+          "geometry": { "type": "selection", "required": true, "description": "Milling geometry", "tab": "Geometry" },
+          "axialDepth": { "type": "number", "unit": "mm", "description": "Z depth", "tab": "Geometry" }
+        },
+        "passes": {
+          "stepdown": { "type": "number", "unit": "mm", "description": "Axial stepdown", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "description": "Radial stepover", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+        },
+        "caxis": {
+          "workDiameter": { "type": "number", "unit": "mm", "required": true, "description": "Part diameter at milling location", "tab": "C-Axis" },
+          "cAxisPosition": { "type": "number", "unit": "deg", "default": 0, "description": "C-axis angle for feature", "tab": "C-Axis" },
+          "polarInterpolation": { "type": "boolean", "default": false, "description": "G12.1 polar interpolation", "tab": "C-Axis" },
+          "feedMode": { "type": "enum", "values": ["linear", "rotary"], "default": "linear", "description": "Feed rate interpretation", "tab": "C-Axis" },
+          "liveToolSpeed": { "type": "number", "unit": "rpm", "tab": "C-Axis" },
+          "feedPerTooth": { "type": "number", "unit": "mm/tooth", "tab": "C-Axis" }
+        }
+      }
+    },
+
+    "yaxis_milling": {
+      "display_name": "Y-Axis Milling",
+      "category": "millturn_milling",
+      "description": "Off-center milling using Y-axis on mill-turn machines.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Y-Axis"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "millingType": { "type": "enum", "values": ["pocket", "contour", "face", "slot", "drilling"], "default": "pocket", "tab": "Geometry" },
+          "geometry": { "type": "selection", "required": true, "tab": "Geometry" },
+          "depth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "passes": {
+          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+        },
+        "yaxis": {
+          "yOffset": { "type": "number", "unit": "mm", "default": 0, "description": "Y-axis offset from center", "tab": "Y-Axis" },
+          "workDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Y-Axis" },
+          "cAxisLock": { "type": "boolean", "default": true, "description": "Lock C-axis during milling", "tab": "Y-Axis" },
+          "cAxisPosition": { "type": "number", "unit": "deg", "default": 0, "tab": "Y-Axis" },
+          "liveToolSpeed": { "type": "number", "unit": "rpm", "tab": "Y-Axis" }
+        }
+      }
+    },
+
+    "baxis_milling": {
+      "display_name": "B-Axis Milling",
+      "category": "millturn_milling",
+      "description": "Angled milling using B-axis tilt on advanced mill-turn machines.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "B-Axis"],
+      "parameter_count": 11,
+      "parameters": {
+        "geometry": {
+          "millingType": { "type": "enum", "values": ["face", "contour", "drilling"], "default": "face", "tab": "Geometry" },
+          "geometry": { "type": "selection", "required": true, "tab": "Geometry" },
+          "depth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "passes": {
+          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" }
+        },
+        "baxis": {
+          "bAxisAngle": { "type": "number", "unit": "deg", "required": true, "description": "B-axis tilt angle", "tab": "B-Axis" },
+          "workDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "B-Axis" },
+          "cAxisPosition": { "type": "number", "unit": "deg", "default": 0, "tab": "B-Axis" },
+          "simultaneousBC": { "type": "boolean", "default": false, "description": "Simultaneous B+C interpolation", "tab": "B-Axis" },
+          "tcpMode": { "type": "boolean", "default": true, "description": "Tool center point mode", "tab": "B-Axis" }
+        }
+      }
+    },
+
+    "stock_transfer": {
+      "display_name": "Stock Transfer",
+      "category": "millturn_coordination",
+      "description": "Transfer part between main and sub-spindle for back operations.",
+      "dialog_tabs": ["Transfer", "Timing", "Verification"],
+      "parameter_count": 10,
+      "parameters": {
+        "transfer": {
+          "transferType": { "type": "enum", "values": ["push", "pull", "synchronized"], "default": "synchronized", "tab": "Transfer" },
+          "overlapDistance": { "type": "number", "unit": "mm", "required": true, "description": "Spindle overlap during transfer", "tab": "Transfer" },
+          "clampPressure": { "type": "enum", "values": ["low", "medium", "high"], "default": "medium", "tab": "Transfer" },
+          "mainSpindleAction": { "type": "enum", "values": ["unclamp", "soft_unclamp", "hold"], "default": "unclamp", "tab": "Transfer" }
+        },
+        "timing": {
+          "dwellAfterClamp": { "type": "number", "unit": "s", "default": 0.5, "tab": "Timing" },
+          "dwellBeforeUnclamp": { "type": "number", "unit": "s", "default": 0.2, "tab": "Timing" },
+          "synchronizeRPM": { "type": "boolean", "default": true, "description": "Match spindle speeds", "tab": "Timing" }
+        },
+        "verification": {
+          "verifyClamp": { "type": "boolean", "default": true, "description": "Verify clamp before proceed", "tab": "Verification" },
+          "partPresentSensor": { "type": "boolean", "default": false, "tab": "Verification" }
+        }
+      }
+    },
+
+    "synchronized_spindle": {
+      "display_name": "Synchronized Spindle",
+      "category": "millturn_coordination",
+      "description": "Synchronized spindle operations for cross-drilling and polygon turning.",
+      "dialog_tabs": ["Geometry", "Synchronization", "Passes"],
+      "parameter_count": 11,
+      "parameters": {
+        "geometry": {
+          "operationType": { "type": "enum", "values": ["cross_drilling", "polygon_turning", "thread_whirling", "gear_hobbing"], "default": "cross_drilling", "tab": "Geometry" },
+          "workDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "featurePosition": { "type": "number", "unit": "mm", "description": "Z position", "tab": "Geometry" }
+        },
+        "synchronization": {
+          "speedRatio": { "type": "number", "default": 1, "description": "Live tool / main spindle ratio", "tab": "Synchronization" },
+          "phaseAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Phase offset", "tab": "Synchronization" },
+          "syncMode": { "type": "enum", "values": ["ratio", "phase_locked", "c_axis"], "default": "ratio", "tab": "Synchronization" },
+          "numberOfFeatures": { "type": "integer", "default": 1, "description": "Features around circumference", "tab": "Synchronization" }
+        },
+        "passes": {
+          "depth": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "feedRate": { "type": "number", "unit": "mm/min", "tab": "Passes" },
+          "plungeRate": { "type": "number", "unit": "mm/min", "tab": "Passes" }
+        }
+      }
+    },
+
+    "back_turning": {
+      "display_name": "Back Turning",
+      "category": "millturn_coordination",
+      "description": "Machining on sub-spindle after stock transfer for complete part processing.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Coordination"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "profileContour": { "type": "selection", "required": true, "description": "Back-side profile", "tab": "Geometry" },
+          "operationType": { "type": "enum", "values": ["facing", "roughing", "finishing", "grooving", "threading"], "default": "facing", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "passes": {
+          "depthOfCut": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "numberOfPasses": { "type": "integer", "default": 1, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["forward", "reverse"], "default": "forward", "tab": "Passes" }
+        },
+        "coordination": {
+          "spindleSelection": { "type": "enum", "values": ["main", "sub", "auto"], "default": "sub", "tab": "Coordination" },
+          "turretSelection": { "type": "enum", "values": ["upper", "lower", "auto"], "default": "auto", "tab": "Coordination" },
+          "coordinatedWithMain": { "type": "boolean", "default": false, "description": "Simultaneous main spindle op", "tab": "Coordination" }
+        }
+      }
+    }
+  },
+
+  "training_topics": [
+    {
+      "topic": "Turning Roughing Strategies",
+      "key_concepts": [
+        "Constant chip load maintains consistent cutting forces",
+        "Direction affects chip flow and surface quality",
+        "Stock allowance balances rough speed vs finish quality",
+        "Adaptive turning adjusts DOC based on engagement"
+      ],
+      "best_practices": [
+        "Use constant chip load for interrupted cuts",
+        "Leave 0.2-0.5mm radial stock for finishing",
+        "Match feed direction to chip evacuation needs",
+        "Reduce DOC approaching shoulders and features"
+      ]
+    },
+    {
+      "topic": "Threading Infeed Methods",
+      "key_concepts": [
+        "Radial infeed: Simple but high forces, good for soft materials",
+        "Flank infeed: Reduces rubbing, better for hard materials",
+        "Modified flank: 29.5° angle reduces both cutting edges engaging",
+        "Alternating: Balances wear across both cutting edges"
+      ],
+      "best_practices": [
+        "Use modified flank for most applications",
+        "Decrease infeed depth progressively (constant chip area)",
+        "Add 1-2 spring passes for thread accuracy",
+        "Verify thread class tolerance requirements"
+      ]
+    },
+    {
+      "topic": "Grooving and Parting",
+      "key_concepts": [
+        "Tool width limits single-plunge depth",
+        "Pecking prevents chip packing in deep grooves",
+        "Feed reduction at center prevents tool grabbing",
+        "Part catcher timing critical for automation"
+      ],
+      "best_practices": [
+        "Use zigzag for grooves wider than tool",
+        "Reduce feed 50% when approaching center",
+        "Enable pecking for grooves deeper than 2x width",
+        "Dwell at bottom to break chip for clean finish"
+      ]
+    },
+    {
+      "topic": "C-Axis Milling (Polar Interpolation)",
+      "key_concepts": [
+        "G12.1 enables XY-like programming on C+Z axes",
+        "Work diameter affects actual surface speed",
+        "Feed rate is linear at programmed diameter",
+        "Polar distortion occurs with large diameter changes"
+      ],
+      "best_practices": [
+        "Enable polar interpolation for complex contours",
+        "Verify work diameter is accurate for feed calc",
+        "Use appropriate live tool speeds (typically higher RPM)",
+        "Consider Y-axis if machine has it for better accuracy"
+      ]
+    },
+    {
+      "topic": "Mill-Turn Coordination",
+      "key_concepts": [
+        "Stock transfer enables complete part in one setup",
+        "Synchronized spindles allow cross-drilling/polygon turning",
+        "Channel programming coordinates multiple turrets",
+        "Collision avoidance critical with multiple tools"
+      ],
+      "best_practices": [
+        "Verify clamp pressure adequate before transfer",
+        "Synchronize spindle speeds to prevent marking",
+        "Use overlap distance appropriate for part rigidity",
+        "Simulate full program for collision detection"
+      ]
+    },
+    {
+      "topic": "B-Axis Angled Operations",
+      "key_concepts": [
+        "B-axis tilt enables angled features without special fixtures",
+        "TCP (Tool Center Point) mode simplifies programming",
+        "Combined B+C motion enables complex contours",
+        "Tool length and diameter affect reach limits"
+      ],
+      "best_practices": [
+        "Enable TCP mode for intuitive programming",
+        "Verify B-axis range covers required angles",
+        "Check tool clearance at tilted positions",
+        "Use 3+2 positioning when simultaneous not needed"
+      ]
+    }
+  ],
+
+  "machine_considerations": {
+    "lathe_types": {
+      "2_axis": {
+        "description": "Basic lathe with X/Z axes only",
+        "supported_ops": ["profile_roughing", "profile_finishing", "facing", "grooving", "threading", "parting", "drilling_turning", "boring"]
+      },
+      "caxis": {
+        "description": "Lathe with live tooling and C-axis positioning",
+        "supported_ops": ["all_turning", "caxis_milling"],
+        "requirements": ["Live tool spindle", "C-axis servo"]
+      },
+      "yaxis": {
+        "description": "Mill-turn with Y-axis for off-center milling",
+        "supported_ops": ["all_turning", "caxis_milling", "yaxis_milling"],
+        "requirements": ["Y-axis linear", "Live tool spindle", "C-axis servo"]
+      },
+      "baxis": {
+        "description": "Advanced mill-turn with tilting B-axis",
+        "supported_ops": ["all"],
+        "requirements": ["B-axis rotary", "Y-axis linear", "Live tool spindle", "TCPC support"]
+      },
+      "twin_spindle": {
+        "description": "Dual spindle for complete part processing",
+        "supported_ops": ["all", "stock_transfer", "back_turning"],
+        "requirements": ["Sub-spindle", "Stock transfer mechanism"]
+      }
+    },
+    "controller_features": {
+      "polar_interpolation": "G12.1/G13.1 for C-axis milling",
+      "cylindrical_interpolation": "G7.1 for wrapped milling",
+      "thread_cycles": "G76/G92/G32 variations by controller",
+      "tool_center_point": "G43.4/G43.5 for B-axis operations"
+    }
+  }
+}
