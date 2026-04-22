@@ -403,6 +403,154 @@ describe("InventorHSMFunctionIndexEngine", () => {
     });
   });
 
+  describe("5-Axis Operations (U-CAM28)", () => {
+    it("includes 5axis section", () => {
+      const sections = InventorHSMFunctionIndexEngine.listSections();
+      expect(sections).toContain("5axis");
+    });
+
+    it("returns 5axis section with 9 operations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("5axis");
+      expect("error" in section).toBe(false);
+      if (!("error" in section)) {
+        expect(section.section_key).toBe("5axis");
+        expect(Object.keys(section.operations).length).toBe(9);
+      }
+    });
+
+    it("includes swarf_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const swarf = ops.find((op) => op.operation_id === "swarf_5axis");
+      expect(swarf).toBeDefined();
+      expect(swarf?.display_name).toBe("Swarf");
+      expect(swarf?.category).toBe("multi_axis");
+    });
+
+    it("includes contour_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const contour = ops.find((op) => op.operation_id === "contour_5axis");
+      expect(contour).toBeDefined();
+      expect(contour?.display_name).toBe("Multi-Axis Contour");
+      expect(contour?.category).toBe("multi_axis");
+    });
+
+    it("includes flow_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const flow = ops.find((op) => op.operation_id === "flow_5axis");
+      expect(flow).toBeDefined();
+      expect(flow?.display_name).toBe("Flow");
+    });
+
+    it("includes drilling_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const drilling = ops.find((op) => op.operation_id === "drilling_5axis");
+      expect(drilling).toBeDefined();
+      expect(drilling?.display_name).toBe("Multi-Axis Drilling");
+    });
+
+    it("includes impeller_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const impeller = ops.find((op) => op.operation_id === "impeller_5axis");
+      expect(impeller).toBeDefined();
+      expect(impeller?.display_name).toBe("Impeller");
+    });
+
+    it("includes port_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const port = ops.find((op) => op.operation_id === "port_5axis");
+      expect(port).toBeDefined();
+      expect(port?.display_name).toBe("Port Machining");
+    });
+
+    it("includes tilted_plane_3plus2 operation (3+2 positioning)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const tilted = ops.find((op) => op.operation_id === "tilted_plane_3plus2");
+      expect(tilted).toBeDefined();
+      expect(tilted?.display_name).toBe("Tilted Work Plane (3+2)");
+      expect(tilted?.category).toBe("positioning");
+    });
+
+    it("includes deburring_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const deburr = ops.find((op) => op.operation_id === "deburring_5axis");
+      expect(deburr).toBeDefined();
+      expect(deburr?.display_name).toBe("Deburring / Edge Break");
+    });
+
+    it("all 9 operations are present in section", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const ops5axis = ops.filter((op) => op.section === "5axis");
+      expect(ops5axis.length).toBe(9);
+      const expectedOps = [
+        "swarf_5axis", "contour_5axis", "flow_5axis", "drilling_5axis",
+        "impeller_5axis", "port_5axis", "tilted_plane_3plus2",
+        "trimming_5axis", "deburring_5axis"
+      ];
+      for (const expected of expectedOps) {
+        expect(ops5axis.find((op) => op.operation_id === expected)).toBeDefined();
+      }
+    });
+
+    it("5axis section has training topics", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("5axis");
+      expect(topics.length).toBeGreaterThan(0);
+      expect(topics[0]).toHaveProperty("topic");
+      expect(topics[0]).toHaveProperty("key_concepts");
+      expect(topics[0]).toHaveProperty("best_practices");
+    });
+
+    it("has 8 training topics covering all strategies", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("5axis");
+      expect(topics.length).toBe(8);
+      const topicNames = topics.map((t) => t.topic);
+      expect(topicNames).toContain("Swarf Cutting Fundamentals");
+      expect(topicNames).toContain("3+2 Positioning (Tilted Work Plane)");
+      expect(topicNames).toContain("Impeller and Blade Machining");
+    });
+
+    it("findParameter finds toolAxisMode in swarf_5axis", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("toolAxisMode");
+      expect(results.length).toBeGreaterThan(0);
+      const swarf = results.find((r) => r.operation_id === "swarf_5axis");
+      expect(swarf).toBeDefined();
+    });
+
+    it("findParameter finds leadAngle across multiple 5-axis operations", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("leadAngle");
+      const ops5axis = results.filter((r) => r.section === "5axis");
+      expect(ops5axis.length).toBeGreaterThanOrEqual(5);
+    });
+
+    it("getOperationsByCategory returns multi_axis operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("multi_axis");
+      expect(results.length).toBeGreaterThanOrEqual(7);
+      const swarf = results.find((r) => r.operation_id === "swarf_5axis");
+      expect(swarf).toBeDefined();
+    });
+
+    it("getOperationsByCategory returns positioning operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("positioning");
+      expect(results.length).toBeGreaterThanOrEqual(1);
+      const tilted = results.find((r) => r.operation_id === "tilted_plane_3plus2");
+      expect(tilted).toBeDefined();
+    });
+
+    it("getIndex totals include 5-axis operations", () => {
+      const index = InventorHSMFunctionIndexEngine.getIndex();
+      // 11 2.5D + 12 3D + 9 5axis = 32 minimum
+      expect(index.total_operations).toBeGreaterThanOrEqual(32);
+    });
+
+    it("5axis operations have parameter_count set", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("5axis");
+      if (!("error" in section)) {
+        for (const [opId, op] of Object.entries(section.operations)) {
+          expect(op.parameter_count).toBeGreaterThan(0);
+        }
+      }
+    });
+  });
+
   describe("Edge cases", () => {
     it("handles empty search query gracefully", () => {
       const results = InventorHSMFunctionIndexEngine.searchParameters("");
