@@ -1,0 +1,98 @@
+/**
+ * Dev Action Schemas - Zod schemas for prism_dev dispatcher actions
+ */
+import { z } from "zod";
+
+export const ACTION_DEV_SCHEMAS: Record<string, z.ZodType<any>> = {
+  session_boot: z.object({}).optional(),
+  build: z.object({ fast: z.boolean().optional() }).optional(),
+  code_template: z.object({ template: z.string() }).optional(),
+  code_search: z.object({ pattern: z.string(), maxResults: z.number().optional() }).optional(),
+  file_read: z.object({ path: z.string() }).optional(),
+  file_write: z.object({ path: z.string(), content: z.string() }).optional(),
+  server_info: z.object({}).optional(),
+  test_smoke: z.object({}).optional(),
+  test_results: z.object({}).optional(),
+
+  edit_impact_build_graph: z.object({
+    srcRoot: z.string().optional().describe("Source root directory to scan"),
+  }).optional(),
+
+  edit_impact_predict: z.object({
+    filePath: z.string().describe("File path to analyze impact for"),
+  }),
+
+  edit_impact_stats: z.object({}).optional(),
+
+  // Tool call parallelization
+  tool_call_record: z.object({
+    tool: z.string().describe("Tool name (Read|Write|Edit|Glob|Grep|Bash|Agent|Other)"),
+    inputs: z.record(z.string(), z.any()).optional().describe("Tool input parameters"),
+    in_parallel_batch: z.boolean().optional().describe("Was this part of a parallel batch?"),
+    token_cost: z.number().optional().describe("Token cost estimate for this call"),
+  }),
+  tool_call_analyze: z.object({}).optional(),
+  tool_call_reset: z.object({}).optional(),
+
+  // File read deduplication
+  file_read_record: z.object({
+    path: z.string().describe("Absolute file path"),
+    content: z.string().describe("Content that was read"),
+    offset: z.number().optional().describe("Byte/line offset of partial read"),
+    limit: z.number().optional().describe("Length of partial read (0=full)"),
+    mtime_ms: z.number().optional().describe("File mtime at read time"),
+  }),
+  file_read_should_skip: z.object({
+    path: z.string().describe("Absolute file path"),
+    offset: z.number().optional(),
+    limit: z.number().optional(),
+    current_mtime_ms: z.number().optional(),
+  }),
+  file_read_report: z.object({}).optional(),
+
+  // Conversation stale detector
+  stale_segment_record: z.object({
+    type: z.enum(["user_message", "assistant_response", "tool_call", "tool_result", "system_reminder"])
+      .describe("Segment type"),
+    text: z.string().describe("Segment text content"),
+    status: z.enum(["open", "resolved", "abandoned", "completed"]).optional()
+      .describe("Status of the work the segment represents"),
+    resolves: z.string().optional().describe("ID of segment this resolves/supersedes"),
+  }),
+  stale_segment_prune: z.object({}).optional(),
+  stale_segment_mark: z.object({
+    segment_id: z.string().describe("Segment ID to update"),
+    status: z.enum(["open", "resolved", "abandoned", "completed"]).describe("New status"),
+  }),
+
+  // Session reorientation
+  reorient_record_anchor: z.object({
+    type: z.enum(["task_anchor", "decision", "file_modified", "error_resolved", "milestone", "user_directive"])
+      .describe("Anchor type"),
+    summary: z.string().describe("Compact summary of what happened (<= 200 chars)"),
+    rationale: z.string().optional().describe("Why (for decisions)"),
+    files: z.array(z.string()).optional().describe("Files referenced"),
+    importance: z.number().min(1).max(10).optional().describe("1-10, default by type"),
+    tags: z.array(z.string()).optional().describe("Custom tags (overrides auto-extracted)"),
+  }),
+  reorient_deactivate_anchor: z.object({
+    anchor_id: z.string().describe("Anchor ID to deactivate"),
+  }),
+  reorient_record_prompt: z.object({}).optional(),
+  reorient_record_tool_call: z.object({}).optional(),
+  reorient_generate_brief: z.object({
+    trigger: z.string().optional().describe("Trigger label (manual|auto|drift)"),
+  }),
+  reorient_should_generate: z.object({}).optional(),
+  reorient_stats: z.object({}).optional(),
+  reorient_update_config: z.object({
+    config: z.object({
+      promptInterval: z.number().optional(),
+      toolCallInterval: z.number().optional(),
+      maxAnchors: z.number().optional(),
+      driftWindowSize: z.number().optional(),
+      driftThreshold: z.number().optional(),
+    }).describe("Partial config to merge"),
+  }),
+  reorient_reset: z.object({}).optional(),
+};

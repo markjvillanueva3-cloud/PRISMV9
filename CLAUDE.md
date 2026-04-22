@@ -160,11 +160,161 @@ The ONLY roadmap is `PRISM-UNIFIED-ROADMAP-v2.md` (v2.1). Ignore everything in `
 - **Last verified**: 2026-04-22 (MS-P0-V U-P0-V01/V02)
 <!-- AUTO-WEDM-END -->
 
+## AI ENGINE USAGE MATRIX (200+ engines — use, don't rebuild)
+| Need | Engine | Dispatcher Action |
+|------|--------|-------------------|
+| Cutting force calc | `KienzleForceEngine` | `prism_calc:kienzle_force` |
+| Tool life prediction | `TaylorToolLifeEngine` | `prism_calc:tool_life` |
+| Surface finish calc | `SurfaceFinishEngine` | `prism_calc:surface_finish` |
+| Speed/feed optimization | `SpeedFeedEngine` | `prism_calc:speed_feed` |
+| Chip thinning | `ChipThinningEngine` | `prism_calc:chip_thinning` |
+| Deflection analysis | `DeflectionEngine` | `prism_calc:deflection` |
+| Thermal analysis | `ThermalEngine` | `prism_calc:thermal` |
+| Chatter prediction | `ChatterPredictionEngine` | `prism_calc:chatter_predict` |
+| Duplicate check | `DuplicationGuardEngine` | `prism_dev:dedup_check` |
+| Self-awareness | `PRISMSelfAwarenessEngine` | `prism_dev:capability_census` |
+| Creative reasoning | `PRISMCreativeReasoningEngine` | `prism_sp:brainstorm` |
+| CAM strategy | `CAMStrategyEngine` | `prism_cam:cam_strategy_recommend` |
+| Post processing | `PostProcessorEngine` | `prism_cam:post_process` |
+| Quality/SPC | `SPCEngine` | `prism_quality:spc_calculate` |
+| Tribal knowledge | `TribalKnowledgeEngine` | `prism_knowledge:tribal_search` |
+| Workflow orchestration | `ATCSEngine` | `prism_atcs:task_init` |
+
+**Rule: Search ENGINE_DIGEST.md or call `prism_dev:capability_census` before building ANY new engine.**
+
+## CHAIN-OF-THOUGHT TEMPLATES (structured reasoning)
+### Physics Calculation
+```
+1. IDENTIFY: What physical phenomenon? (force, thermal, vibration, wear)
+2. MODEL: Which equations apply? (Kienzle, Taylor, Johnson-Cook, Merchant)
+3. INPUTS: List all required parameters with units
+4. CONSTANTS: Pull from src/physics/constants.ts — NEVER inline
+5. COMPUTE: Show dimensional analysis (units must balance)
+6. VALIDATE: Is result physically reasonable? Cross-check with empirical data
+7. UNCERTAINTY: Report confidence interval or error bounds
+```
+
+### Engine Creation
+```
+1. DEDUP: Call duplicationGuardEngine.mustCheckBeforeCreating() — THROWS if exists
+2. INTERFACE: Define types/schemas before implementation
+3. PHYSICS: Use canonical constants, cite sources (Sandvik, Machinist Handbook)
+4. EDGE CASES: Empty inputs, extreme values, invalid states
+5. ERROR HANDLING: Meaningful messages, never swallow errors
+6. TESTS: Real assertions, not placeholders — hook blocks `toBeDefined()` only
+7. WIRE: Add to dispatcher with Zod schema + lazy import
+8. DOCUMENT: JSDoc with @param/@returns, formula references
+```
+
+### Error Investigation
+```
+1. SYMPTOM: What exactly failed? (error message, stack trace, behavior)
+2. CONTEXT: What was being attempted? What worked before?
+3. ISOLATE: Minimal reproduction — remove variables until root cause clear
+4. ROOT CAUSE: Why did it fail? (logic bug, missing data, race condition)
+5. FIX: Address root cause, not symptom — avoid workarounds
+6. PREVENT: Can a hook/gate prevent recurrence?
+7. TEST: Add regression test for this exact scenario
+```
+
+## DECISION TREES
+### Agent vs Direct Tool
+```
+Use Agent when:
+  - Task requires multiple tool calls with decisions between them
+  - Domain expertise needed (physics-reviewer, test-runner)
+  - Want parallel execution of independent subtasks
+  - Task might exceed 3-4 turns of back-and-forth
+
+Use direct tools when:
+  - Single read/write/edit operation
+  - Outcome is predictable (no branching logic)
+  - You already know exactly what to do
+```
+
+### Parallel vs Sequential
+```
+PARALLEL (single message, multiple tool calls):
+  - Independent reads (multiple files, no dependencies)
+  - Independent searches (different patterns/dirs)
+  - Independent MCP calls (different dispatchers)
+  
+SEQUENTIAL (wait for result before next):
+  - Read file → edit based on content
+  - Search → read matched files
+  - Build → test → fix based on failures
+  - Any operation where next step depends on previous result
+```
+
+### When to Use MCP vs Direct Code
+```
+USE MCP DISPATCHER when:
+  - Action already exists (check DISPATCHER_DIGEST.md)
+  - Calculation is physics/manufacturing domain
+  - Need audit trail / state persistence
+  - Cross-engine orchestration required
+
+WRITE CODE when:
+  - No existing action matches need
+  - One-off transformation or analysis
+  - Performance-critical path
+  - Prototyping before committing to dispatcher
+```
+
+## QUALITY GATES (hook-enforced thresholds)
+| Gate | Threshold | Enforcement |
+|------|-----------|-------------|
+| Omega score | ≥ 0.70 | BLOCK release if S(x) < 0.70 |
+| Test coverage | ≥ 80% | WARN on new files without tests |
+| Complexity | ≤ 10 cyclomatic | WARN on complex functions |
+| Function length | ≤ 50 lines | WARN on long functions |
+| Nesting depth | ≤ 4 levels | WARN on deep nesting |
+| Safety S(x) | ≥ 0.70 | BLOCK safety-critical code below threshold |
+| Type safety | No `any` spreading | WARN on unsafe types |
+| Constants | No inline physics | BLOCK inline Kienzle/Taylor/material values |
+
+## TOKEN ECONOMY (maximize value per token)
+1. **RTK prefix always**: `rtk git status`, `rtk vitest run` — 60-99% savings
+2. **Parallel tool calls**: Independent operations in single message
+3. **Read selectively**: Use `offset`/`limit` for large files
+4. **Index-first search**: Check MASTER_INDEX before Glob/Grep
+5. **Batch operations**: Combine related edits, avoid round-trips
+6. **Offload to Ollama**: Explanations, summaries, documentation (80%+ savings)
+7. **Cache awareness**: Don't re-read files you just wrote
+8. **Dispatcher over code**: MCP actions are optimized, tested, audited
+
+### Efficiency engines (self-instrumenting)
+| Need | Engine / Action | Skill |
+|------|-----------------|-------|
+| Detect missed parallelism | `prism_dev:tool_call_analyze` | `/parallel-audit` |
+| Avoid re-reading same file | `prism_dev:file_read_should_skip` | `/read-dedup-check` |
+| Drop stale segments before /compact | `prism_dev:stale_segment_prune` | `/stale-prune` |
+| Score what to keep through /compact | `prism_dev:compaction_survival_plan` | (built-in) |
+| Cache reusable text blocks | `prism_dev:output_cache_store` / `_get` | (built-in) |
+| Track per-session token spend | `prism_dev:token_economy_report` | `/token-dashboard` |
+
+Hooks fire automatically: `auto-record-tool-call.mjs` (records every call), `warn-redundant-read.mjs` (warns on Read of file already in context), `precompact-stale-prune-suggest.mjs` (suggests pruning before /compact).
+
+## ERROR RECOVERY PLAYBOOK
+| Error Pattern | Fix |
+|---------------|-----|
+| `Cannot find module` | Check import path, run `npm run build:fast` |
+| `Type 'X' is not assignable` | Check interface definitions, add type assertion |
+| `ENOENT: no such file` | Verify path, check working directory |
+| `Test timeout` | Increase timeout, check for infinite loops |
+| `Hook blocked operation` | Read hook message, fix the underlying issue |
+| `Duplicate detected` | Use existing asset, don't recreate |
+| `Zod validation failed` | Check schema against input shape |
+| `Build failed: tsc` | Run `npx tsc --noEmit` for detailed errors |
+
 ## ONE-GLANCE CHECKLIST (every new task)
 1. Read HANDOFF for this chat via per-agent-handoff.mjs `read`
 2. If building/auditing/investigating → hooks auto-inject inventory + duplicate guards
 3. Check `PRISM-INVENTORY-LATEST.md` if you need counts
-4. Use MCP dispatcher actions before reinventing logic
-5. Obey shared directives for coordination (6 chats running)
-6. Finish current delivery before starting next roadmap pass (per ROADMAP_COLLABORATION_STATE.md gate)
-7. On session end → `/handoff` writes to per-chat file; `/compact` also wires this automatically
+4. **Search AI ENGINE USAGE MATRIX above before building**
+5. Use MCP dispatcher actions before reinventing logic
+6. Obey shared directives for coordination (6 chats running)
+7. Finish current delivery before starting next roadmap pass (per ROADMAP_COLLABORATION_STATE.md gate)
+8. On session end → `/handoff` writes to per-chat file; `/compact` also wires this automatically
+9. **Apply CHAIN-OF-THOUGHT templates for complex reasoning**
+10. **Follow DECISION TREES for agent/tool/parallel choices**

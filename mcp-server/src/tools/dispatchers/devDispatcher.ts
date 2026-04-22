@@ -26,7 +26,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
 const STATE_DIR = PATHS.STATE_DIR;
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1635,23 +1635,132 @@ export function registerDevDispatcher(server: any): void {
 
           // ── Token Economy (MXU-MS2) ────────────────────────────
           case "token_budget": {
-            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
-            result = tokenEconomyEngine.getBudget(params.task_class || "general");
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            result = tracker.getBudgetStatus();
             break;
           }
           case "token_record_spending": {
-            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
-            result = tokenEconomyEngine.recordSpending(params.session_id || "", params.task_class || "general", params.actual || {});
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            result = tracker.recordSpend({
+              sessionId: params.session_id || "unknown",
+              operation: params.operation || "other",
+              inputTokens: params.input_tokens || 0,
+              outputTokens: params.output_tokens || 0,
+              model: params.model || "unknown",
+              tool: params.tool,
+              file: params.file,
+              savingsSource: params.savings_source,
+            });
             break;
           }
           case "token_detect_waste": {
-            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
-            result = tokenEconomyEngine.detectWaste(params.tool_calls || 0, params.file_reads || 0, params.unique_files || 0, params.searches || 0, params.agents || 0);
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            const stats = tracker.getStats();
+            const report = tracker.generateReport("day");
+            result = {
+              wastePatterns: report.topWastePatterns,
+              recommendations: report.recommendations,
+              efficiency: stats.avgEfficiency,
+            };
             break;
           }
           case "token_economy_report": {
-            const { tokenEconomyEngine } = await import("../../engines/TokenEconomyEngine.js");
-            result = tokenEconomyEngine.generateReport();
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            result = tracker.generateReport(params.period || "day");
+            break;
+          }
+          case "token_economy_stats": {
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            result = tracker.getStats();
+            break;
+          }
+          case "token_economy_session": {
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            result = tracker.getSessionSummary(params.session_id || "");
+            break;
+          }
+          case "token_economy_set_budget": {
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            tracker.setBudget(params.daily, params.weekly);
+            result = { success: true, budget: tracker.getBudgetStatus() };
+            break;
+          }
+          case "token_economy_reset": {
+            const { TokenEconomyTrackerEngine } = await import("../../engines/TokenEconomyTrackerEngine.js");
+            const tracker = new TokenEconomyTrackerEngine();
+            tracker.reset();
+            result = { success: true, message: "Token economy state reset" };
+            break;
+          }
+
+          // ── Output Cache (Token Savings) ────────────────────────────
+          case "output_cache_store": {
+            const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
+            const cache = new OutputCacheEngine();
+            const block = cache.store(params.content || "", params.category);
+            result = block ? { success: true, block, reference: cache.getReference(block) } : { success: false, reason: "Content too short or too long" };
+            break;
+          }
+          case "output_cache_get": {
+            const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
+            const cache = new OutputCacheEngine();
+            const block = cache.get(params.id || params.hash || "");
+            result = block ? { success: true, block } : { success: false, reason: "Block not found" };
+            break;
+          }
+          case "output_cache_find": {
+            const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
+            const cache = new OutputCacheEngine();
+            result = cache.find({ category: params.category, hashPrefix: params.hash_prefix, limit: params.limit });
+            break;
+          }
+          case "output_cache_stats": {
+            const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
+            const cache = new OutputCacheEngine();
+            result = cache.getStats();
+            break;
+          }
+          case "output_cache_reset": {
+            const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
+            const cache = new OutputCacheEngine();
+            cache.reset();
+            result = { success: true, message: "Output cache cleared" };
+            break;
+          }
+
+          // ── Compaction Survival ────────────────────────────
+          case "compaction_survival_record": {
+            const { CompactionSurvivalEngine } = await import("../../engines/CompactionSurvivalEngine.js");
+            const survival = new CompactionSurvivalEngine();
+            result = survival.record(params.type || "discovery", params.content || "", {
+              priority: params.priority,
+              references: params.references,
+            });
+            break;
+          }
+          case "compaction_survival_plan": {
+            const { CompactionSurvivalEngine } = await import("../../engines/CompactionSurvivalEngine.js");
+            const survival = new CompactionSurvivalEngine();
+            result = survival.planSurvival(params.target_tokens || 2000);
+            break;
+          }
+          case "compaction_survival_handoff": {
+            const { CompactionSurvivalEngine } = await import("../../engines/CompactionSurvivalEngine.js");
+            const survival = new CompactionSurvivalEngine();
+            result = { handoff: survival.generateHandoff(params.target_tokens || 2000) };
+            break;
+          }
+          case "compaction_survival_stats": {
+            const { CompactionSurvivalEngine } = await import("../../engines/CompactionSurvivalEngine.js");
+            const survival = new CompactionSurvivalEngine();
+            result = survival.getStats();
             break;
           }
 
@@ -1821,6 +1930,185 @@ export function registerDevDispatcher(server: any): void {
             const { prismSelfAwarenessEngine } = await import("../../engines/PRISMSelfAwarenessEngine.js");
             const query = params.query || params.q || "";
             result = await prismSelfAwarenessEngine.findCapabilities(query);
+            break;
+          }
+
+          case "edit_impact_build_graph": {
+            const { editImpactPredictorEngine } = await import("../../engines/EditImpactPredictorEngine.js");
+            const srcRoot = params.srcRoot || params.src_root || SRC_DIR;
+            const nodeCount = await editImpactPredictorEngine.buildGraph(srcRoot);
+            const stats = editImpactPredictorEngine.getGraphStats();
+            result = { success: true, nodeCount, ...stats };
+            break;
+          }
+
+          case "edit_impact_predict": {
+            const { editImpactPredictorEngine } = await import("../../engines/EditImpactPredictorEngine.js");
+            const filePath = params.filePath || params.file_path || params.path;
+            if (!filePath) {
+              result = { error: "missing_param", message: "filePath is required" };
+              break;
+            }
+            if (!editImpactPredictorEngine.isGraphFresh()) {
+              await editImpactPredictorEngine.buildGraph(SRC_DIR);
+            }
+            result = await editImpactPredictorEngine.predict(filePath);
+            break;
+          }
+
+          case "edit_impact_stats": {
+            const { editImpactPredictorEngine } = await import("../../engines/EditImpactPredictorEngine.js");
+            const stats = editImpactPredictorEngine.getGraphStats();
+            const fresh = editImpactPredictorEngine.isGraphFresh();
+            result = { success: true, ...stats, graphFresh: fresh };
+            break;
+          }
+
+          // ── Tool Call Parallelization ───────────────────────
+          case "tool_call_record": {
+            const { toolCallParallelizationEngine } = await import("../../engines/ToolCallParallelizationEngine.js");
+            const record = toolCallParallelizationEngine.recordCall(
+              params.tool || "Other",
+              params.inputs || {},
+              {
+                inParallelBatch: params.in_parallel_batch ?? params.inParallelBatch ?? false,
+                tokenCost: params.token_cost ?? params.tokenCost,
+              }
+            );
+            result = { success: true, record };
+            break;
+          }
+          case "tool_call_analyze": {
+            const { toolCallParallelizationEngine } = await import("../../engines/ToolCallParallelizationEngine.js");
+            result = { success: true, report: toolCallParallelizationEngine.analyze() };
+            break;
+          }
+          case "tool_call_reset": {
+            const { toolCallParallelizationEngine } = await import("../../engines/ToolCallParallelizationEngine.js");
+            toolCallParallelizationEngine.reset();
+            result = { success: true, reset: true };
+            break;
+          }
+
+          // ── File Read Deduplication ─────────────────────────
+          case "file_read_record": {
+            const { fileReadDeduplicationEngine } = await import("../../engines/FileReadDeduplicationEngine.js");
+            const out = fileReadDeduplicationEngine.recordRead(
+              String(params.path || ""),
+              String(params.content || ""),
+              {
+                offset: params.offset,
+                limit: params.limit,
+                mtimeMs: params.mtime_ms ?? params.mtimeMs,
+              }
+            );
+            result = { success: true, record: out.record, redundant: out.redundant };
+            break;
+          }
+          case "file_read_should_skip": {
+            const { fileReadDeduplicationEngine } = await import("../../engines/FileReadDeduplicationEngine.js");
+            result = {
+              success: true,
+              ...fileReadDeduplicationEngine.shouldSkip(String(params.path || ""), {
+                offset: params.offset,
+                limit: params.limit,
+                currentMtimeMs: params.current_mtime_ms ?? params.currentMtimeMs,
+              }),
+            };
+            break;
+          }
+          case "file_read_report": {
+            const { fileReadDeduplicationEngine } = await import("../../engines/FileReadDeduplicationEngine.js");
+            result = { success: true, report: fileReadDeduplicationEngine.report() };
+            break;
+          }
+
+          // ── Conversation Stale Detector ─────────────────────
+          case "stale_segment_record": {
+            const { conversationStaleDetectorEngine } = await import("../../engines/ConversationStaleDetectorEngine.js");
+            const segment = conversationStaleDetectorEngine.recordSegment(
+              params.type || "user_message",
+              String(params.text || ""),
+              { status: params.status, resolves: params.resolves }
+            );
+            result = { success: true, segment };
+            break;
+          }
+          case "stale_segment_prune": {
+            const { conversationStaleDetectorEngine } = await import("../../engines/ConversationStaleDetectorEngine.js");
+            result = { success: true, report: conversationStaleDetectorEngine.prune() };
+            break;
+          }
+          case "stale_segment_mark": {
+            const { conversationStaleDetectorEngine } = await import("../../engines/ConversationStaleDetectorEngine.js");
+            const ok = conversationStaleDetectorEngine.markStatus(
+              String(params.segment_id || params.segmentId || ""),
+              params.status
+            );
+            result = { success: ok, marked: ok };
+            break;
+          }
+
+          // ── Session Reorientation ───────────────────────────
+          case "reorient_record_anchor": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const anchor = sessionReorientationEngine.recordAnchor(
+              params.type || "decision",
+              String(params.summary || ""),
+              {
+                rationale: params.rationale,
+                files: params.files,
+                importance: params.importance,
+                tags: params.tags,
+              }
+            );
+            result = { success: true, anchor };
+            break;
+          }
+          case "reorient_deactivate_anchor": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const ok = sessionReorientationEngine.deactivate(String(params.anchor_id || params.anchorId || ""));
+            result = { success: ok, deactivated: ok };
+            break;
+          }
+          case "reorient_record_prompt": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const trigger = sessionReorientationEngine.recordPrompt();
+            result = { success: true, briefTriggered: trigger };
+            break;
+          }
+          case "reorient_record_tool_call": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const trigger = sessionReorientationEngine.recordToolCall();
+            result = { success: true, briefTriggered: trigger };
+            break;
+          }
+          case "reorient_generate_brief": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const brief = sessionReorientationEngine.generateBrief(String(params.trigger || "manual"));
+            result = { success: true, brief };
+            break;
+          }
+          case "reorient_should_generate": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            result = { success: true, ...sessionReorientationEngine.shouldGenerateBrief() };
+            break;
+          }
+          case "reorient_stats": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            result = { success: true, stats: sessionReorientationEngine.getStats() };
+            break;
+          }
+          case "reorient_update_config": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            const cfg = sessionReorientationEngine.updateConfig(params.config || {});
+            result = { success: true, config: cfg };
+            break;
+          }
+          case "reorient_reset": {
+            const { sessionReorientationEngine } = await import("../../engines/SessionReorientationEngine.js");
+            sessionReorientationEngine.reset();
+            result = { success: true, reset: true };
             break;
           }
 

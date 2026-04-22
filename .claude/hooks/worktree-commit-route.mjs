@@ -97,8 +97,101 @@ const subject = extractSubject(cmd);
 // No subject → let git handle it (editor opens). We don't route these.
 if (!subject) exit(0);
 
-// Explicit override
-if (/^\s*\[\s*MAIN\s*\]/i.test(subject)) exit(0);
+// [MAIN-FORCE] is the unconditional bypass — use only when you've explicitly
+// acknowledged scope drift and still want to commit on the current tree.
+if (/^\s*\[\s*MAIN-FORCE\s*\]/i.test(subject)) exit(0);
+
+// Explicit override — but FIRST check whether [MAIN] is being used to mask
+// scope drift. The user's policy: [MAIN] should be reserved for genuinely
+// cross-cutting work, not as an easy bypass for misclassified work.
+const isMainOverride = /^\s*\[\s*MAIN\s*\]/i.test(subject);
+if (isMainOverride) {
+  // Inspect staged files; if they cluster strongly around a single theme
+  // for which a themed worktree exists, warn the user before allowing.
+  const stagedRes = spawnSyncSafe(["diff", "--cached", "--name-only"]);
+  if (stagedRes && stagedRes.status === 0 && stagedRes.stdout.trim()) {
+    const stagedFiles = stagedRes.stdout.split(/\r?\n/).filter(Boolean);
+    const inferred = inferScopeFromFiles(stagedFiles);
+    if (inferred.dominant && inferred.confidence >= 0.6) {
+      // Check if a worktree exists for the inferred scope
+      // (Worktree list query happens later — defer the deny to that point.)
+      // Stash inferred scope on globals for the post-worktree-query check.
+      globalThis.__inferredScope = inferred.dominant;
+      globalThis.__inferredConfidence = inferred.confidence;
+      globalThis.__inferredFiles = stagedFiles;
+      // Fall through to worktree query below; the [MAIN] override will be
+      // re-evaluated AFTER we know whether a themed worktree exists.
+    } else {
+      exit(0); // genuinely cross-cutting, allow [MAIN]
+    }
+  } else {
+    exit(0); // no staged files / git unavailable, allow [MAIN]
+  }
+}
+
+function spawnSyncSafe(args) {
+  try {
+    const git = findGit();
+    if (!git) return null;
+    return spawnSync(git, args, { cwd: process.cwd(), timeout: 2000, encoding: "utf-8" });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Infer the dominant scope from a list of file paths by counting topic
+ * keywords. Returns {dominant, confidence} where confidence is the share
+ * of files attributed to the dominant topic.
+ */
+function inferScopeFromFiles(files) {
+  const TOPIC_PATTERNS = {
+    session: /(session|reorientation|compaction|handoff|context|token-?economy|output-?cache|tool-?call-?paral|file-?read-?dedup|stale-?detect)/i,
+    cam: /(cam[-A-Z]|cam\/|camDispatcher|hyperMill|mastercam|solidcam|powermill)/i,
+    cad: /(cad[-A-Z]|cadDispatcher|cad\/)/i,
+    mill: /(mill[-A-Z]|millDispatcher|mill\/)/i,
+    lathe: /(lathe[-A-Z]|latheDispatcher|lathe\/)/i,
+    wedm: /(wedm|wire-?edm)/i,
+    sinker: /(sinker)/i,
+    edm: /(edm[-A-Z]|edmDispatcher)/i,
+    grinder: /(grinder|grinding)/i,
+    welder: /(welder|welding)/i,
+    safety: /(safety|safetyDispatcher|collision|forceCapability)/i,
+    physics: /(physics\/|kienzle|taylor|johnsonCook)/i,
+    test: /(__tests__|\.test\.ts$|\.spec\.ts$)/i,
+    hooks: /(\.claude\/hooks\/|hookDispatcher)/i,
+    docs: /\.(md|txt)$/i,
+  };
+  const counts = new Map();
+  let total = 0;
+  for (const f of files) {
+    let matched = false;
+    for (const [topic, re] of Object.entries(TOPIC_PATTERNS)) {
+      if (re.test(f)) {
+        counts.set(topic, (counts.get(topic) ?? 0) + 1);
+        matched = true;
+      }
+    }
+    if (matched) total += 1;
+  }
+  // Strip docs/test/hooks weight when determining dominant content topic
+  const NON_CONTENT = new Set(["test", "hooks", "docs"]);
+  let dominant = null;
+  let dominantCount = 0;
+  let contentTotal = 0;
+  for (const [topic, n] of counts.entries()) {
+    if (NON_CONTENT.has(topic)) continue;
+    contentTotal += n;
+    if (n > dominantCount) {
+      dominantCount = n;
+      dominant = topic;
+    }
+  }
+  if (!dominant || contentTotal === 0) {
+    return { dominant: null, confidence: 0 };
+  }
+  return { dominant, confidence: dominantCount / contentTotal };
+}
 
 // ── Extract scope token from subject ─────────────────────────────────
 // Subject shape on this project: "LAYER-PHASE-MS0/U-XYZ-WIRE: descriptive"
@@ -177,6 +270,77 @@ const worktrees = [];
 }
 
 if (worktrees.length === 0) exit(0);
+
+// ── [MAIN] override scope-drift check ───────────────────────────────
+// If we got here via [MAIN] override and the inferred file scope is strong,
+// re-evaluate: is there a themed worktree for the inferred scope? If yes,
+// deny and route. If no, suggest creating one.
+if (isMainOverride && globalThis.__inferredScope) {
+  const inferredScope = globalThis.__inferredScope;
+  const inferredConfidence = globalThis.__inferredConfidence;
+  const inferredFiles = globalThis.__inferredFiles || [];
+
+  // Find themed worktrees that match the INFERRED scope
+  const inferredMatches = worktrees.filter((w) => {
+    const head = branchBasename(w.branch);
+    return head !== "main" && head !== "master" && scopeMatchesBranch(inferredScope, head);
+  });
+
+  // Current branch
+  const curBranch = currentWt ? branchBasename(currentWt.branch) : null;
+  const curMatchesInferred = curBranch && scopeMatchesBranch(inferredScope, curBranch);
+
+  // If we're already on a worktree matching the inferred scope → silent allow (the
+  // [MAIN] prefix is harmless; user is in the right place).
+  if (curMatchesInferred) exit(0);
+
+  if (inferredMatches.length > 0) {
+    deny(
+      [
+        `WORKTREE-ROUTE: [MAIN] override is masking scope drift.`,
+        ``,
+        `Detected file scope: "${inferredScope}" (${(inferredConfidence * 100).toFixed(0)}% of staged files)`,
+        `Sample staged files:`,
+        ...inferredFiles.slice(0, 5).map((f) => `  • ${f}`),
+        ``,
+        `You are on: ${currentWt?.path ?? process.cwd()} (${currentWt?.branch ?? "unknown"})`,
+        `Subject prefix [MAIN] would normally allow this, but a dedicated worktree exists:`,
+        ...inferredMatches.map((w) => `  • ${w.path}   (${w.branch})`),
+        ``,
+        `ACTION: cd into the matching worktree and re-run the commit:`,
+        `  cd "${inferredMatches[0].path}"`,
+        `  ${cmd.slice(0, 200)}`,
+        ``,
+        `If this is genuinely cross-cutting and the [MAIN] prefix is correct, prefix`,
+        `the commit subject with [MAIN-FORCE] (instead of [MAIN]) to bypass this check.`,
+      ].join("\n"),
+    );
+  }
+
+  // No matching worktree exists — suggest creating one
+  const suggestedPath = `../prism-${inferredScope}`;
+  const suggestedBranch = `work/${inferredScope}`;
+  deny(
+    [
+      `WORKTREE-ROUTE: [MAIN] override is masking scope drift, no themed tree for inferred scope.`,
+      ``,
+      `Detected file scope: "${inferredScope}" (${(inferredConfidence * 100).toFixed(0)}% of staged files)`,
+      `Sample staged files:`,
+      ...inferredFiles.slice(0, 5).map((f) => `  • ${f}`),
+      ``,
+      `ACTION — create the dedicated worktree and re-run the commit there:`,
+      `  git worktree add "${suggestedPath}" -b ${suggestedBranch}`,
+      `  cd "${suggestedPath}"`,
+      `  ${cmd.slice(0, 200)}`,
+      ``,
+      `If this is genuinely cross-cutting work that belongs on main, prefix the commit`,
+      `subject with [MAIN-FORCE] to bypass this check (instead of just [MAIN]).`,
+      ``,
+      `Rationale: [MAIN] was being used to dump session-efficiency / infra work into`,
+      `unrelated themed worktrees. [MAIN-FORCE] requires explicit acknowledgement.`,
+    ].join("\n"),
+  );
+}
 
 // Normalize paths for cross-platform comparison (Windows is case-insensitive).
 function normalize(p) {
