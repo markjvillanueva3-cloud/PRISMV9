@@ -20,6 +20,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { atomicWriteJson, safeReadJson, resolveSessionId, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export type SegmentType =
   | "user_message"
@@ -83,7 +84,7 @@ interface State {
 
 const STATE_DIR = "H:/prism/state/conversation-stale-detector";
 const getStateFile = (sessionId?: string): string => {
-  const id = sessionId || process.env.CLAUDE_SESSION_ID || "default";
+  const id = sessionId || resolveSessionId();
   return `${STATE_DIR}/segments-${id}.json`;
 };
 
@@ -133,24 +134,19 @@ export class ConversationStaleDetectorEngine {
   }
 
   private loadState(): State {
-    const sessionId = process.env.CLAUDE_SESSION_ID || "default";
-    try {
-      const file = getStateFile(sessionId);
-      if (existsSync(file)) {
-        return JSON.parse(readFileSync(file, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return { sessionId, segments: [] };
+    const sessionId = resolveSessionId();
+    const file = getStateFile(sessionId);
+    const fresh: State = { sessionId, segments: [] };
+    const loaded = safeReadJson<State>(file, fresh);
+    if (loaded !== fresh) snapshotLastGood(file, loaded);
+    return loaded;
   }
 
   private saveState(): void {
-    if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
     if (this.state.segments.length > MAX_SEGMENTS) {
       this.state.segments = this.state.segments.slice(-MAX_SEGMENTS);
     }
-    writeFileSync(getStateFile(this.state.sessionId), JSON.stringify(this.state, null, 2));
+    atomicWriteJson(getStateFile(this.state.sessionId), this.state);
   }
 
   private generateId(): string {
@@ -258,14 +254,18 @@ export class ConversationStaleDetectorEngine {
     if (this.matches(RESOLUTION_PATTERNS, segment.summary) && segment.type === "tool_result") {
       dropReasons.push("resolved_error");
     }
-    // Detect duplicate attempts (same topics, same type, no status change)
-    const similar = this.state.segments.filter(
-      (s) =>
-        s.id !== segment.id &&
-        s.type === segment.type &&
-        s.topics.length > 0 &&
-        s.topics.every((t) => segment.topics.includes(t))
-    );
+    // Detect duplicate attempts (same topics, same type, no status change).
+    // BOTH segments must have non-empty topics — otherwise empty-topic segments
+    // trivially match each other and get false-positive flagged as duplicates.
+    const similar = segment.topics.length === 0
+      ? []
+      : this.state.segments.filter(
+          (s) =>
+            s.id !== segment.id &&
+            s.type === segment.type &&
+            s.topics.length > 0 &&
+            s.topics.every((t) => segment.topics.includes(t))
+        );
     if (similar.length >= 2) {
       dropReasons.push("duplicate_attempt");
     }
@@ -360,7 +360,7 @@ export class ConversationStaleDetectorEngine {
   /** Reset state */
   reset(): void {
     this.state = {
-      sessionId: process.env.CLAUDE_SESSION_ID || "default",
+      sessionId: resolveSessionId(),
       segments: [],
     };
     this.saveState();

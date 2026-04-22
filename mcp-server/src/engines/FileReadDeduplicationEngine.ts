@@ -17,6 +17,7 @@
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { atomicWriteJson, safeReadJson, resolveSessionId, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export interface ReadRecord {
   id: string;
@@ -58,7 +59,7 @@ interface State {
 
 const STATE_DIR = "H:/prism/state/file-read-dedup";
 const getStateFile = (sessionId?: string): string => {
-  const id = sessionId || process.env.CLAUDE_SESSION_ID || "default";
+  const id = sessionId || resolveSessionId();
   return `${STATE_DIR}/dedup-${id}.json`;
 };
 
@@ -73,16 +74,12 @@ export class FileReadDeduplicationEngine {
   }
 
   private loadState(): State {
-    const sessionId = process.env.CLAUDE_SESSION_ID || "default";
-    try {
-      const file = getStateFile(sessionId);
-      if (existsSync(file)) {
-        return JSON.parse(readFileSync(file, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return { sessionId, reads: [], flags: [] };
+    const sessionId = resolveSessionId();
+    const file = getStateFile(sessionId);
+    const fresh: State = { sessionId, reads: [], flags: [] };
+    const loaded = safeReadJson<State>(file, fresh);
+    if (loaded !== fresh) snapshotLastGood(file, loaded);
+    return loaded;
   }
 
   private saveState(): void {
@@ -90,7 +87,7 @@ export class FileReadDeduplicationEngine {
     if (this.state.reads.length > MAX_READS) {
       this.state.reads = this.state.reads.slice(-MAX_READS);
     }
-    writeFileSync(getStateFile(this.state.sessionId), JSON.stringify(this.state, null, 2));
+    atomicWriteJson(getStateFile(this.state.sessionId), this.state);
   }
 
   private generateId(): string {
@@ -303,7 +300,7 @@ export class FileReadDeduplicationEngine {
   /** Clear all state */
   reset(): void {
     this.state = {
-      sessionId: process.env.CLAUDE_SESSION_ID || "default",
+      sessionId: resolveSessionId(),
       reads: [],
       flags: [],
     };

@@ -16,6 +16,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { atomicWriteJson, safeReadJson, resolveSessionId, snapshotLastGood } from "../utils/atomicSessionWrite.js";
 
 export type ToolName =
   | "Read"
@@ -73,7 +74,7 @@ interface State {
 
 const STATE_DIR = "H:/prism/state/tool-call-parallelization";
 const getStateFile = (sessionId?: string): string => {
-  const id = sessionId || process.env.CLAUDE_SESSION_ID || "default";
+  const id = sessionId || resolveSessionId();
   return `${STATE_DIR}/parallelization-${id}.json`;
 };
 
@@ -96,24 +97,19 @@ export class ToolCallParallelizationEngine {
   }
 
   private loadState(): State {
-    const sessionId = process.env.CLAUDE_SESSION_ID || "default";
-    try {
-      const file = getStateFile(sessionId);
-      if (existsSync(file)) {
-        return JSON.parse(readFileSync(file, "utf-8"));
-      }
-    } catch {
-      // ignore
-    }
-    return { sessionId, calls: [], reports: [] };
+    const sessionId = resolveSessionId();
+    const file = getStateFile(sessionId);
+    const fresh: State = { sessionId, calls: [], reports: [] };
+    const loaded = safeReadJson<State>(file, fresh);
+    if (loaded !== fresh) snapshotLastGood(file, loaded);
+    return loaded;
   }
 
   private saveState(): void {
-    if (!existsSync(STATE_DIR)) mkdirSync(STATE_DIR, { recursive: true });
     if (this.state.calls.length > MAX_CALLS) {
       this.state.calls = this.state.calls.slice(-MAX_CALLS);
     }
-    writeFileSync(getStateFile(this.state.sessionId), JSON.stringify(this.state, null, 2));
+    atomicWriteJson(getStateFile(this.state.sessionId), this.state);
   }
 
   private generateId(): string {
@@ -322,7 +318,7 @@ export class ToolCallParallelizationEngine {
   /** Reset state (for testing or new session) */
   reset(): void {
     this.state = {
-      sessionId: process.env.CLAUDE_SESSION_ID || "default",
+      sessionId: resolveSessionId(),
       calls: [],
       reports: [],
     };

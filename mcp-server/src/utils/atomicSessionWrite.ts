@@ -30,6 +30,11 @@ import { dirname } from "node:path";
  * several env vars before defaulting — previously hooks and engines
  * collapsed to "default" too eagerly, which broke per-session isolation
  * across 8 concurrent chats.
+ *
+ * Includes machine hostname prefix so the SAME H: drive plugged into
+ * two different computers doesn't collide on shared state files.
+ * Multi-computer scenario: H: drive shared across machines means session
+ * state must be namespaced by machine, not just terminal/process.
  */
 export function resolveSessionId(): string {
   const candidates = [
@@ -42,10 +47,21 @@ export function resolveSessionId(): string {
   ];
   for (const c of candidates) {
     if (c && String(c).trim().length > 0) {
+      // Explicit env var IDs are already unique per-process — no hostname needed
       return String(c).replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64);
     }
   }
-  return "default";
+  // Fallback case: include hostname so 8 chats on two different computers
+  // sharing the H: drive don't all collapse onto "default"
+  let machinePart = "";
+  try {
+    const os = require("node:os") as typeof import("node:os");
+    const host = String(os.hostname() || "").replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 16);
+    if (host) machinePart = `${host}_`;
+  } catch {
+    // ignore
+  }
+  return `${machinePart}default`;
 }
 
 /**
