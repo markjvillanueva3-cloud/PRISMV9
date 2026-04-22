@@ -19,6 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
+let _cadCorpusOrch: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -42,6 +43,7 @@ async function getEngine(name: string): Promise<any> {
     case "nxGen": return _nxGen ??= (await import("../../engines/NXCodeGeneratorEngine.js")).nxCodeGeneratorEngine;
     case "impeller": return _impeller ??= (await import("../../engines/ImpellerCADEngine.js")).impellerCADEngine;
     case "blisk": return _blisk ??= new (await import("../../engines/BliskCADEngine.js")).BliskCADEngine();
+    case "cadCorpusOrch": return _cadCorpusOrch ??= (await import("../../engines/CADTrainingCorpusOrchestratorEngine.js")).cadTrainingCorpusOrchestratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -99,6 +101,8 @@ const ACTIONS = [
   // Blisk CAD Generator (U-CADC16)
   "blisk_generate", "blisk_validate", "blisk_recommend_blades",
   "blisk_list_profiles",
+  // CAD Training Corpus Orchestrator (U-CADC17)
+  "cad_corpus_orchestrate", "cad_corpus_scan", "cad_corpus_status",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -800,6 +804,25 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("blisk");
             const profiles = engine.listProfiles();
             result = { success: true, profiles, count: profiles.length };
+            break;
+          }
+          // CAD Training Corpus Orchestrator (U-CADC17)
+          case "cad_corpus_orchestrate": {
+            const engine = await getEngine("cadCorpusOrch");
+            const orchResult = engine.orchestrate(params);
+            result = { success: true, ...orchResult };
+            break;
+          }
+          case "cad_corpus_scan": {
+            const engine = await getEngine("cadCorpusOrch");
+            const files = engine.scanOnly(params);
+            result = { success: true, files, count: files.length };
+            break;
+          }
+          case "cad_corpus_status": {
+            const engine = await getEngine("cadCorpusOrch");
+            const status = engine.status(params?.corpusPath);
+            result = { success: true, ...status };
             break;
           }
           default:
