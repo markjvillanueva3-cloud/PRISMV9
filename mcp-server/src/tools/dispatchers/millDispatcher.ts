@@ -117,6 +117,25 @@ async function getChatterSLD(): Promise<any> {
     .chatterStabilityLobeEngine);
 }
 
+// P4-U07-PHYS: Physics prediction engines (thermal, wear, surface)
+let _cuttingThermal: any;
+async function getCuttingThermal(): Promise<any> {
+  return (_cuttingThermal ??= (await import("../../engines/CuttingThermalEngine.js"))
+    .cuttingThermalEngine);
+}
+
+let _toolWearRate: any;
+async function getToolWearRate(): Promise<any> {
+  return (_toolWearRate ??= (await import("../../engines/ToolWearRateEngine.js"))
+    .toolWearRateEngine);
+}
+
+let _surfaceFinish: any;
+async function getSurfaceFinish(): Promise<any> {
+  return (_surfaceFinish ??= (await import("../../engines/SurfaceFinishPredictorEngine.js"))
+    .surfaceFinishPredictorEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -287,10 +306,103 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         tolerance_target_mm: params.tolerance_target_mm,
       });
     }
-    case "mill_thermal_predict":
-    case "mill_wear_predict":
-    case "mill_surface_predict":
-      return facade.orchestrate({ ...params, type: "scientific" });
+    case "mill_thermal_predict": {
+      const thermal = await getCuttingThermal();
+      const Vc = params.cutting_speed_m_min ?? params.cutting_speed_mpm ?? 100;
+      const f = params.feed_per_tooth_mm ?? params.feed_mm ?? 0.1;
+      const ap = params.axial_depth_mm ?? params.depth_of_cut_mm ?? 2;
+      const shearStrength = params.shear_strength_mpa ?? 400;
+      const shearAngle = (params.shear_angle_deg ?? 25) * Math.PI / 180;
+      const rakeAngle = (params.rake_angle_deg ?? 6) * Math.PI / 180;
+      const shearResult = thermal.shearPlaneTemperature({
+        cuttingSpeed: Vc,
+        feed: f,
+        shearStrength,
+        shearAngle,
+        rakeAngle,
+        material: {
+          density: params.material_density_kg_m3,
+          specificHeat: params.material_specific_heat_j_kgk,
+          thermalConductivity: params.material_thermal_conductivity_w_mk,
+          ambientTemp: params.ambient_temp_c ?? 25,
+        },
+      });
+      const interfaceResult = thermal.toolChipInterfaceTemp({
+        cuttingSpeed: Vc,
+        feed: f,
+        depthOfCut: ap,
+        specificCuttingEnergy: params.specific_cutting_energy_j_mm3 ?? 3.5,
+        material: {
+          density: params.material_density_kg_m3,
+          specificHeat: params.material_specific_heat_j_kgk,
+          thermalConductivity: params.material_thermal_conductivity_w_mk,
+          ambientTemp: params.ambient_temp_c ?? 25,
+        },
+        tool: {
+          thermalConductivity: params.tool_thermal_conductivity_w_mk,
+          density: params.tool_density_kg_m3,
+          specificHeat: params.tool_specific_heat_j_kgk,
+        },
+      });
+      const partitionResult = thermal.heatPartition({
+        cuttingSpeed: Vc,
+        workMaterial: params.work_material,
+        toolMaterial: params.tool_material,
+      });
+      return {
+        shear_zone: shearResult,
+        interface: interfaceResult,
+        heat_partition: partitionResult,
+        summary: {
+          peak_temperature_c: Math.max(shearResult.shearZoneTemp_C, interfaceResult.interfaceTemperature_C),
+          tool_average_temp_c: interfaceResult.toolAverageTemp_C,
+          heat_to_chip_pct: partitionResult.toChip_percent,
+          heat_to_tool_pct: partitionResult.toTool_percent,
+          heat_regime: shearResult.heatRegime,
+        },
+      };
+    }
+    case "mill_wear_predict": {
+      const wear = await getToolWearRate();
+      const result = wear.calculate({
+        cutting_speed_mpm: params.cutting_speed_m_min ?? params.cutting_speed_mpm ?? 100,
+        feed_mm: params.feed_per_tooth_mm ?? params.feed_mm ?? 0.15,
+        depth_of_cut_mm: params.axial_depth_mm ?? params.depth_of_cut_mm ?? 1,
+        tool_material: params.tool_substrate ?? params.tool_material ?? "carbide",
+        work_material: params.work_material ?? "steel",
+        current_flank_wear_mm: params.current_flank_wear_mm,
+        max_flank_wear_mm: params.max_flank_wear_mm ?? 0.3,
+        cutting_time_min: params.cutting_time_min,
+      });
+      return result;
+    }
+    case "mill_surface_predict": {
+      const surface = await getSurfaceFinish();
+      const segments = params.segments ?? [{
+        x: 0, y: 0, z: 0,
+        ae_mm: params.radial_depth_mm ?? params.stepover_mm ?? 1,
+        ap_mm: params.axial_depth_mm ?? 2,
+        rpm: params.spindle_rpm ?? 10000,
+        feed_mmmin: params.feed_rate_mmmin ?? 1000,
+        fz_mm: params.feed_per_tooth_mm,
+      }];
+      const tool = params.tool ?? {
+        type: params.tool_type ?? "flat",
+        diameter_mm: params.tool_diameter_mm ?? 10,
+        corner_radius_mm: params.corner_radius_mm,
+        flute_count: params.flute_count ?? 4,
+        edge_radius_um: params.edge_radius_um ?? 5,
+      };
+      const result = surface.predict({
+        segments,
+        tool,
+        algorithm: params.algorithm,
+        target_ra_um: params.target_ra_um ?? 1.6,
+        material: params.material ?? params.work_material,
+        coolant: params.coolant_mode ?? params.coolant,
+      });
+      return result;
+    }
 
     // ── Strategy + program ──────────────────────────────────────
     case "mill_strategy_recommend":

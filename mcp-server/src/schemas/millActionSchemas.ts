@@ -156,14 +156,31 @@ const mill_chatter_sld = z.object({
 
 const mill_thermal_predict = z.object({
   ...millContext,
+  shear_strength_mpa: optPosNum.describe("Shear strength of workpiece material (MPa) — typically 0.5-0.7 × UTS"),
+  shear_angle_deg: z.number().min(5).max(45).optional().describe("Shear plane angle (°) — typically 20-30° for metals"),
+  rake_angle_deg: z.number().min(-20).max(30).optional().describe("Tool rake angle (°) — positive for aluminum, negative for hard materials"),
+  material_density_kg_m3: optPosNum.describe("Workpiece density (kg/m³) — steel ~7850, aluminum ~2700"),
+  material_specific_heat_j_kgk: optPosNum.describe("Specific heat capacity (J/kg·K) — steel ~500, aluminum ~900"),
+  material_thermal_conductivity_w_mk: optPosNum.describe("Thermal conductivity (W/m·K) — steel ~50, aluminum ~205"),
+  ambient_temp_c: z.number().min(-40).max(100).optional().describe("Ambient temperature (°C) — default 25"),
+  specific_cutting_energy_j_mm3: optPosNum.describe("Specific cutting energy (J/mm³) — typically 2-5 for steels"),
+  tool_thermal_conductivity_w_mk: optPosNum.describe("Tool thermal conductivity (W/m·K) — carbide ~80, ceramic ~30"),
+  tool_density_kg_m3: optPosNum.describe("Tool density (kg/m³) — carbide ~14000, ceramic ~3900"),
+  tool_specific_heat_j_kgk: optPosNum.describe("Tool specific heat (J/kg·K) — carbide ~300, ceramic ~800"),
+  work_material: z.enum(["steel", "aluminum", "titanium", "stainless", "cast_iron", "inconel"]).optional(),
+  tool_material: z.enum(["carbide", "ceramic", "hss", "cbn", "pcd"]).optional(),
   coolant_mode: z.enum(["flood", "mist", "mql", "cryogenic_ln2", "cryogenic_lco2", "through_tool", "dry"]).optional(),
-}).passthrough();
+}).passthrough().describe("Predict cutting zone temperatures using Trigger-Chao shear plane and Jaeger interface models");
 
 const mill_wear_predict = z.object({
   ...millContext,
-  tool_substrate: z.enum(["carbide", "cbn", "ceramic", "hss", "pcd", "coated"]).optional(),
-  target_tool_life_min: optPosNum,
-}).passthrough();
+  tool_substrate: z.enum(["carbide", "cbn", "ceramic", "hss", "pcd", "cermet"]).optional().describe("Tool material for Taylor constants"),
+  work_material: z.enum(["steel", "aluminum", "titanium", "stainless", "cast_iron", "inconel"]).optional().describe("Workpiece material"),
+  current_flank_wear_mm: z.number().min(0).max(1).optional().describe("Current flank wear VB (mm) — for remaining life calculation"),
+  max_flank_wear_mm: z.number().min(0.1).max(1).optional().describe("Maximum allowable flank wear VB_max (mm) — typically 0.3 for carbide"),
+  cutting_time_min: optPosNum.describe("Accumulated cutting time (min) — for wear progression tracking"),
+  target_tool_life_min: optPosNum.describe("Target tool life (min) — for speed optimization"),
+}).passthrough().describe("Predict tool wear and life using Taylor equation V×T^n = C with feed/depth corrections");
 
 const mill_deflection_check = z.object({
   tool_diameter_mm: posNum.describe("Tool diameter (mm)"),
@@ -180,8 +197,31 @@ const mill_deflection_check = z.object({
 
 const mill_surface_predict = z.object({
   ...millContext,
-  target_ra_um: optPosNum,
-}).passthrough();
+  target_ra_um: optPosNum.describe("Target surface roughness Ra (µm) — 0.4 fine, 1.6 standard, 3.2 rough"),
+  tool_type: z.enum(["flat", "ball", "barrel", "bull_nose"]).optional().describe("Endmill type — affects scallop height model"),
+  corner_radius_mm: optPosNum.describe("Corner radius for bull_nose (mm)"),
+  edge_radius_um: z.number().min(1).max(100).optional().describe("Cutting edge radius (µm) — typically 5-20"),
+  stepover_mm: optPosNum.describe("Stepover/radial depth ae (mm) — determines scallop height"),
+  algorithm: z.enum(["HRAF", "CFSF", "PTDC", "HBCF", "MACS", "TGAR", "VCER", "MTHZD"]).optional()
+    .describe("CAM algorithm affecting finish: HRAF (harmonic resonance), CFSF (constant force), PTDC (deflection comp), HBCF (barrel cutter)"),
+  coolant: z.enum(["dry", "flood", "mist", "mql", "cryogenic"]).optional().describe("Coolant mode — affects surface quality"),
+  segments: z.array(z.object({
+    x: z.number(), y: z.number(), z: z.number(),
+    ae_mm: z.number().positive(),
+    ap_mm: z.number().positive(),
+    rpm: z.number().positive(),
+    feed_mmmin: z.number().positive(),
+    fz_mm: z.number().positive().optional(),
+  })).optional().describe("Toolpath segments for per-point finish prediction"),
+  tool: z.object({
+    type: z.enum(["flat", "ball", "barrel", "bull_nose"]),
+    diameter_mm: z.number().positive(),
+    corner_radius_mm: z.number().positive().optional(),
+    barrel_radius_mm: z.number().positive().optional(),
+    edge_radius_um: z.number().positive().optional(),
+    flute_count: z.number().int().min(1).max(12).optional(),
+  }).optional().describe("Full tool specification for multi-segment analysis"),
+}).passthrough().describe("Predict surface finish using Brammertz kinematic roughness + scallop + waviness models");
 
 // ============================================================================
 // STRATEGY + PROGRAM LAYER — print-to-program + sequencing
