@@ -25,11 +25,12 @@ import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.
 import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
 import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
 import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
+import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -3137,6 +3138,43 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_online_drift": {
             const engine = await getEngine("onlineLearning");
             result = engine.detectDrift(params.material, params.machine_id);
+            break;
+          }
+
+          // =================================================================
+          // WEDM THERMAL FIELD (P2-THERMAL U-WN05)
+          // =================================================================
+          case "wedm_thermal_field": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeThermalFieldSimple(params.material, params.parameters, params.thickness);
+            if (params.includeTransient) {
+              result.transient = engine.computeTransientAnalysisSimple(params.material, params.parameters, 10);
+            }
+            break;
+          }
+          case "wedm_thermal_transient": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeTransientAnalysisSimple(params.material, params.parameters, params.pulseCount, params.timeResolution);
+            break;
+          }
+          case "wedm_thermal_recast": {
+            const engine = await getEngine("thermalField");
+            result = engine.estimateRecastLayerSimple(params.material, params.parameters, params.passType, params.flushingEfficiency);
+            break;
+          }
+          case "wedm_thermal_validate": {
+            const engine = await getEngine("thermalField");
+            result = engine.validateParametersSimple(params.material, params.parameters, params.targetRecast, params.targetHAZ);
+            break;
+          }
+          case "wedm_thermal_materials": {
+            const engine = await getEngine("thermalField");
+            result = engine.listMaterialsByCategory(params.category);
+            break;
+          }
+          case "wedm_thermal_optimize": {
+            const engine = await getEngine("thermalField");
+            result = engine.optimizeForRecast(params.material, params.targetRecast, params.targetMRR, params.constraints);
             break;
           }
 
