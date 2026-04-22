@@ -86,6 +86,7 @@ export class InventorHSMFunctionIndexEngine {
       { file: "2.5d-milling.json", key: "2.5d_milling" },
       { file: "3d-hsm.json", key: "3d_hsm" },
       { file: "5axis.json", key: "5axis" },
+      { file: "multiaxis.json", key: "multiaxis" },
       { file: "turning.json", key: "turning" },
       { file: "drilling.json", key: "drilling" },
     ];

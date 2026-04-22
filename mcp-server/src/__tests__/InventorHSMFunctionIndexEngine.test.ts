@@ -551,6 +551,107 @@ describe("InventorHSMFunctionIndexEngine", () => {
     });
   });
 
+  describe("Multiaxis Operations (U-CAM29)", () => {
+    it("includes multiaxis section", () => {
+      const sections = InventorHSMFunctionIndexEngine.listSections();
+      expect(sections).toContain("multiaxis");
+    });
+
+    it("returns multiaxis section with 6 operations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("multiaxis");
+      expect("error" in section).toBe(false);
+      if (!("error" in section)) {
+        expect(section.section_key).toBe("multiaxis");
+        expect(Object.keys(section.operations).length).toBe(6);
+      }
+    });
+
+    it("includes geodesic_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const geodesic = ops.find((op) => op.operation_id === "geodesic_5axis");
+      expect(geodesic).toBeDefined();
+      expect(geodesic?.display_name).toBe("Geodesic");
+      expect(geodesic?.category).toBe("multiaxis_advanced");
+    });
+
+    it("includes rotary_4axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const rotary = ops.find((op) => op.operation_id === "rotary_4axis");
+      expect(rotary).toBeDefined();
+      expect(rotary?.display_name).toBe("Rotary (4-Axis)");
+      expect(rotary?.category).toBe("rotary");
+    });
+
+    it("includes wrap_toolpath operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const wrap = ops.find((op) => op.operation_id === "wrap_toolpath");
+      expect(wrap).toBeDefined();
+      expect(wrap?.display_name).toBe("Wrap");
+    });
+
+    it("includes indexed_multiaxis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const indexed = ops.find((op) => op.operation_id === "indexed_multiaxis");
+      expect(indexed).toBeDefined();
+      expect(indexed?.category).toBe("multiaxis_advanced");
+    });
+
+    it("includes morph_between operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const morph = ops.find((op) => op.operation_id === "morph_between");
+      expect(morph).toBeDefined();
+      expect(morph?.display_name).toBe("Morph Between Curves");
+    });
+
+    it("includes projection_5axis operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const proj = ops.find((op) => op.operation_id === "projection_5axis");
+      expect(proj).toBeDefined();
+      expect(proj?.display_name).toBe("Project Onto Surface");
+    });
+
+    it("all 6 operations are present in section", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const opsMultiaxis = ops.filter((op) => op.section === "multiaxis");
+      expect(opsMultiaxis.length).toBe(6);
+      const expectedOps = [
+        "geodesic_5axis", "rotary_4axis", "wrap_toolpath",
+        "indexed_multiaxis", "morph_between", "projection_5axis"
+      ];
+      for (const expected of expectedOps) {
+        expect(opsMultiaxis.find((op) => op.operation_id === expected)).toBeDefined();
+      }
+    });
+
+    it("multiaxis section has 5 training topics", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("multiaxis");
+      expect(topics.length).toBe(5);
+      const topicNames = topics.map((t) => t.topic);
+      expect(topicNames).toContain("Geodesic Toolpath Strategy");
+      expect(topicNames).toContain("4-Axis Rotary Machining");
+      expect(topicNames).toContain("Wrap Toolpath Conversion");
+    });
+
+    it("getOperationsByCategory returns rotary operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("rotary");
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      const rotary = results.find((r) => r.operation_id === "rotary_4axis");
+      expect(rotary).toBeDefined();
+    });
+
+    it("findParameter finds wrapRadius in wrap_toolpath", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("wrapRadius");
+      const wrap = results.find((r) => r.operation_id === "wrap_toolpath");
+      expect(wrap).toBeDefined();
+    });
+
+    it("getIndex totals include multiaxis operations", () => {
+      const index = InventorHSMFunctionIndexEngine.getIndex();
+      // 11 2.5D + 12 3D + 9 5axis + 6 multiaxis = 38 minimum
+      expect(index.total_operations).toBeGreaterThanOrEqual(38);
+    });
+  });
+
   describe("Edge cases", () => {
     it("handles empty search query gracefully", () => {
       const results = InventorHSMFunctionIndexEngine.searchParameters("");

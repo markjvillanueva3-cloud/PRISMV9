@@ -1,0 +1,249 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "multiaxis",
+  "summary": {
+    "total_operations": 6,
+    "total_parameters": 82,
+    "categories": ["multiaxis_advanced", "rotary"]
+  },
+  "operations": {
+    "geodesic_5axis": {
+      "display_name": "Geodesic",
+      "category": "multiaxis_advanced",
+      "description": "Constant surface distance toolpath following geodesic curves on complex surfaces. Ideal for uniform scallop finish on sculptured parts.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking", "Multi-Axis"],
+      "parameter_count": 15,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "description": "Target surfaces", "tab": "Geometry" },
+          "boundarySurfaces": { "type": "selection", "description": "Boundary definition", "tab": "Geometry" },
+          "checkSurfaces": { "type": "selection", "description": "Collision avoidance", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "mm", "description": "Geodesic stepover distance", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["outward", "inward", "both_ways"], "default": "outward", "tab": "Passes" },
+          "startPoint": { "type": "enum", "values": ["center", "boundary", "point"], "default": "center", "tab": "Passes" },
+          "spiralMode": { "type": "boolean", "default": false, "description": "Spiral outward from center", "tab": "Passes" }
+        },
+        "multi_axis": {
+          "toolOrientation": { "type": "enum", "values": ["normal", "tilted", "lead_lag"], "default": "normal", "tab": "Multi-Axis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-30, 30], "tab": "Multi-Axis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "range": [-15, 15], "tab": "Multi-Axis" },
+          "smoothing": { "type": "boolean", "default": true, "tab": "Multi-Axis" }
+        }
+      }
+    },
+
+    "rotary_4axis": {
+      "display_name": "Rotary (4-Axis)",
+      "category": "rotary",
+      "description": "4-axis rotary machining with continuous A or B axis rotation. For cylindrical parts and wrapped toolpaths.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Rotary"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
+          "centerAxis": { "type": "enum", "values": ["X", "Y", "Z"], "default": "X", "description": "Rotary center axis", "tab": "Geometry" },
+          "stockDiameter": { "type": "number", "unit": "mm", "required": true, "description": "Stock outer diameter", "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "mm", "description": "Linear stepover along axis", "tab": "Passes" },
+          "angularStepover": { "type": "number", "unit": "deg", "description": "Angular stepover", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "climb", "tab": "Passes" }
+        },
+        "rotary": {
+          "rotaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "A", "description": "Active rotary axis", "tab": "Rotary" },
+          "wrapMode": { "type": "enum", "values": ["cylindrical", "conical", "freeform"], "default": "cylindrical", "tab": "Rotary" },
+          "rotationDirection": { "type": "enum", "values": ["cw", "ccw", "shortest"], "default": "shortest", "tab": "Rotary" },
+          "fullRotation": { "type": "boolean", "default": false, "description": "Allow 360+ degree rotation", "tab": "Rotary" },
+          "unwrapAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Starting unwrap angle", "tab": "Rotary" }
+        }
+      }
+    },
+
+    "wrap_toolpath": {
+      "display_name": "Wrap",
+      "category": "rotary",
+      "description": "Wrap flat 2D toolpath onto cylindrical surface. Converts XY motion to rotary + linear.",
+      "dialog_tabs": ["Tool", "Geometry", "Wrap", "Passes"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "flatToolpath": { "type": "selection", "required": true, "description": "Source flat toolpath", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "wrap": {
+          "wrapAxis": { "type": "enum", "values": ["X", "Y"], "default": "X", "description": "Axis to wrap around", "tab": "Wrap" },
+          "wrapRadius": { "type": "number", "unit": "mm", "required": true, "description": "Wrap cylinder radius", "tab": "Wrap" },
+          "wrapDirection": { "type": "enum", "values": ["inside", "outside"], "default": "outside", "tab": "Wrap" },
+          "scaleToRadius": { "type": "boolean", "default": true, "description": "Scale feed for radius", "tab": "Wrap" },
+          "rotaryAxis": { "type": "enum", "values": ["A", "B", "C"], "default": "A", "tab": "Wrap" }
+        },
+        "passes": {
+          "compensateRadius": { "type": "boolean", "default": true, "description": "Compensate for tool radius on curved surface", "tab": "Passes" },
+          "depthCorrection": { "type": "boolean", "default": true, "description": "Correct depth for curvature", "tab": "Passes" }
+        }
+      }
+    },
+
+    "indexed_multiaxis": {
+      "display_name": "Indexed Multi-Axis",
+      "category": "multiaxis_advanced",
+      "description": "Multiple indexed positions with 3-axis machining at each. Combines efficiency of 3-axis with 5-axis flexibility.",
+      "dialog_tabs": ["Tool", "Geometry", "Orientations", "Passes"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "orientations": {
+          "autoDetect": { "type": "boolean", "default": true, "description": "Auto-detect optimal orientations", "tab": "Orientations" },
+          "maxOrientations": { "type": "integer", "default": 8, "range": [1, 24], "description": "Maximum orientations", "tab": "Orientations" },
+          "minAreaPercent": { "type": "number", "unit": "percent", "default": 5, "description": "Min area per orientation", "tab": "Orientations" },
+          "overlapPercent": { "type": "number", "unit": "percent", "default": 10, "description": "Overlap between orientations", "tab": "Orientations" }
+        },
+        "passes": {
+          "operationType": { "type": "enum", "values": ["adaptive", "parallel", "contour", "pocket"], "default": "adaptive", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+        }
+      }
+    },
+
+    "morph_between": {
+      "display_name": "Morph Between Curves",
+      "category": "multiaxis_advanced",
+      "description": "5-axis toolpath morphing between two boundary curves on sculptured surface. Smooth transitions for complex surfaces.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Multi-Axis"],
+      "parameter_count": 13,
+      "parameters": {
+        "geometry": {
+          "startCurve": { "type": "selection", "required": true, "description": "Start boundary curve", "tab": "Geometry" },
+          "endCurve": { "type": "selection", "required": true, "description": "End boundary curve", "tab": "Geometry" },
+          "surfaces": { "type": "selection", "description": "Reference surfaces", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "numberOfPasses": { "type": "integer", "default": 10, "range": [2, 200], "description": "Passes between curves", "tab": "Passes" },
+          "distribution": { "type": "enum", "values": ["uniform", "cosine", "custom"], "default": "uniform", "tab": "Passes" },
+          "bothWays": { "type": "boolean", "default": true, "tab": "Passes" }
+        },
+        "multi_axis": {
+          "toolOrientation": { "type": "enum", "values": ["normal", "interpolated", "fixed"], "default": "interpolated", "tab": "Multi-Axis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+          "smoothTransitions": { "type": "boolean", "default": true, "tab": "Multi-Axis" }
+        }
+      }
+    },
+
+    "projection_5axis": {
+      "display_name": "Project Onto Surface",
+      "category": "multiaxis_advanced",
+      "description": "Project 2D curves onto 3D surfaces with 5-axis tool orientation. For logos, engraving, and trimming on complex surfaces.",
+      "dialog_tabs": ["Tool", "Geometry", "Projection", "Multi-Axis"],
+      "parameter_count": 14,
+      "parameters": {
+        "geometry": {
+          "curves": { "type": "selection", "required": true, "description": "Curves to project", "tab": "Geometry" },
+          "surfaces": { "type": "selection", "required": true, "description": "Target surfaces", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "projection": {
+          "projectionDirection": { "type": "enum", "values": ["Z", "normal_to_surface", "custom"], "default": "Z", "tab": "Projection" },
+          "projectionVector": { "type": "object", "description": "Custom projection direction XYZ", "tab": "Projection" },
+          "bothSides": { "type": "boolean", "default": false, "description": "Project from both sides", "tab": "Projection" }
+        },
+        "multi_axis": {
+          "toolOrientation": { "type": "enum", "values": ["normal_to_surface", "along_projection", "fixed"], "default": "normal_to_surface", "tab": "Multi-Axis" },
+          "leadAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+          "tiltAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Multi-Axis" },
+          "depth": { "type": "number", "unit": "mm", "default": 0.5, "description": "Engrave depth", "tab": "Multi-Axis" },
+          "passes": { "type": "integer", "default": 1, "description": "Number of depth passes", "tab": "Multi-Axis" }
+        }
+      }
+    }
+  },
+
+  "training_topics": [
+    {
+      "topic": "Geodesic Toolpath Strategy",
+      "key_concepts": [
+        "Maintains constant surface distance between passes",
+        "True geodesic curves are shortest paths on surface",
+        "Produces uniform scallop height on complex curvatures",
+        "Outward spiral from center provides best coverage"
+      ],
+      "best_practices": [
+        "Use for sculptured surfaces with varying curvature",
+        "Start from center point for complete coverage",
+        "Enable spiral mode for continuous toolpath",
+        "Verify stepover vs scallop relationship on surface"
+      ]
+    },
+    {
+      "topic": "4-Axis Rotary Machining",
+      "key_concepts": [
+        "Continuous rotation of A or B axis during cutting",
+        "Linear + rotary interpolation (G-code varies by controller)",
+        "Stock diameter critical for feed rate calculations",
+        "Actual surface speed varies with radius"
+      ],
+      "best_practices": [
+        "Define accurate stock diameter for correct feeds",
+        "Use CSS (constant surface speed) if controller supports",
+        "Check full rotation capability of machine",
+        "Verify rotary axis direction matches machine convention"
+      ]
+    },
+    {
+      "topic": "Wrap Toolpath Conversion",
+      "key_concepts": [
+        "Converts flat XY motion to rotary + linear",
+        "Y motion becomes rotary angle, X stays linear (or vice versa)",
+        "Feed rate must scale with wrap radius",
+        "Tool compensation needed for curved surface"
+      ],
+      "best_practices": [
+        "Enable radius compensation for accurate depth",
+        "Verify wrap radius matches actual part",
+        "Scale feeds appropriately - higher radius = faster angular feed",
+        "Test on simple geometry before complex patterns"
+      ]
+    },
+    {
+      "topic": "Indexed Multi-Axis Strategy",
+      "key_concepts": [
+        "Multiple 3-axis orientations cover complex geometry",
+        "More rigid than simultaneous 5-axis",
+        "Auto-detect finds optimal orientations",
+        "Overlap ensures no missed areas between orientations"
+      ],
+      "best_practices": [
+        "Use for heavy roughing before simultaneous finishing",
+        "Set 10-15% overlap to avoid witness lines",
+        "Limit orientations to minimize repositioning time",
+        "Group similar orientations when possible"
+      ]
+    },
+    {
+      "topic": "Morph Between Curves",
+      "key_concepts": [
+        "Interpolates toolpath between two boundary curves",
+        "Distribution controls pass spacing (uniform vs cosine)",
+        "Tool orientation interpolates smoothly",
+        "Ideal for transition surfaces and fillets"
+      ],
+      "best_practices": [
+        "Curves should have similar parameterization",
+        "Use cosine distribution for better edge blending",
+        "Enable smooth transitions to avoid axis jerks",
+        "Verify both curves are on or near target surface"
+      ]
+    }
+  ]
+}
