@@ -1,0 +1,1127 @@
+{
+  "id": "CAM-UIX-MS0",
+  "title": "CAM UI eXhaustion Add-On — Every CAM Software, Every UI Input, Every Function, Every Learning Source",
+  "track": "CAM-UIX",
+  "status": "not_started",
+  "version": "1.1.0",
+  "created_at": "2026-04-21",
+  "priority": "CRITICAL",
+  "schemaVersion": 2,
+  "target_omega": 1.0,
+  "scrutiny_rounds_planned": 2,
+  "rgs_validated": true,
+  "rgs_pipeline_applied": {
+    "stage_1_brief": "Exhaust every UI input, every toolpath type, every function, every advanced feature for every CAM software — extend CAM-EXHAUST-MS0's 4-CAM / 5,718-parameter coverage to 18 CAMs with full UI depth. Add 11 new learning-source types beyond existing /pdf-learn and /video-learn.",
+    "stage_2_audit": {
+      "existing_coverage": "CAM-EXHAUST-MS0 — hyperMILL 1,323 params, Mastercam X8 1,689, Fusion 1,459, Inventor HSM 1,247 (5,718 total across 4 CAMs).",
+      "existing_registries": ["ToolpathStrategyRegistry (18 CAMs, strategies only — no per-strategy UI field depth)", "40 per-CAM bridge engines", "TribalKnowledgeEngine (3,700 tips, 18 CAMs)", "MachiningPlaybookEngine (296 rules)", "FormulaRegistry (499 formulas)"],
+      "existing_orchestrators": ["CAMAGIMasterOrchestratorEngine (428 LOC)", "MachiningIntelligenceOrchestratorEngine (534 LOC)", "MillingAGIMasterEngine (408 LOC)", "PostProcessorAGIMasterRegistryEngine (896 LOC)"],
+      "existing_in_host_runners": ["HyperMillInHostRunnerEngine (U-CAMTEST01)", "Fusion360InHostRunnerEngine (U-CAMTEST02)"],
+      "existing_ingestion_skills": ["/pdf-learn (operational)", "/video-learn (operational)", "1,009 PDFs manifested in PDF_RESOURCE_MANIFEST.json"],
+      "gap": "CAM-EXHAUST-MS0 covers 4 CAMs; 14+ CAMs unexhausted. Per-strategy UI-field schemas missing even for the 4 covered CAMs. No forum/API/certification/sample-reverse-engineering ingestion pipeline. No unified scripting SDK bridge."
+    },
+    "stage_3_knowledge_sources": {
+      "engines": ["ToolpathStrategyRegistry", "CAMAGIMasterOrchestratorEngine", "MachiningIntelligenceOrchestratorEngine", "40 per-CAM bridge engines", "HyperMillInHostRunnerEngine", "Fusion360InHostRunnerEngine", "CAMTribalKnowledgeInjectionEngine", "CAMMachiningErrorPredictionEngine", "CAMOptimizationSuggestionEngine", "TribalKnowledgeEngine", "MachiningPlaybookEngine"],
+      "tribal_knowledge": ["src/data/mastercam-tips.ts", "src/data/fusion360-tips.ts", "src/data/hypermill-tips.ts", "src/data/inventor-hsm-tips.ts", "src/data/nx-cam-tips.ts (EXISTS — extend)", "src/data/powermill-cam-tips.ts (EXISTS — extend, note corrected filename)", "src/data/esprit-cam-tips.ts (EXISTS — extend)", "src/data/camworks-cam-tips.ts (EXISTS — extend)", "src/data/solidcam-cam-tips.ts (EXISTS — extend)", "controller-knowledge-tips.ts"],
+      "formulas": ["FormulaRegistry (499)", "src/physics/constants.ts (canonical kc per ISO group)"],
+      "reference": ["JMDie archive — 24,545 programs for reverse-engineering which strategy produced which G-code", "PDF_RESOURCE_MANIFEST.json (1,009 PDFs)", "ToolCatalogEngine (95,608 tools)", "MachineRegistry (910 machines)", "MaterialRegistry"]
+    },
+    "stage_4_scope": {"complexity": "XL", "total_units": 251, "original_total_units": 236, "unit_delta_reason": "+4 INFRA-00 (JMDP/Baseline/RateLimit/CacheRoot) +14 SDK06-SDK18 adapters (tier-2 CAMs) -3 deleted SDK02/03/05 duplicates", "est_sessions_p50": 66, "est_sessions_p90": 90, "compact_every_n_units": 8, "session_estimate_derivation": "infra: 24u/6 = 4 sessions; tier-1: 60u/5 = 12; tier-2: 156u/4 = 39; scrutiny+rework buffer: 20% = 11. Total p50=66, p90=90."},
+    "stage_7_forge_triple_ownership": "Master: CAMInputExhaustionPlannerEngine + /cam-exhaust-audit skill + cam-input-completeness-guard hook — all BUILT in CAM-UIX-INFRA-01 (Learning Pipeline). Per-CAM catalog engines BUILT in their own U-CAT01 unit.",
+    "stage_10_scrutiny": "COMPLETE — Round 1 of 3. 10-agent parallel scrutiny executed 2026-04-21 post-compact per user directive. 95 findings (29 CRITICAL, 40 HIGH, 26 MEDIUM) across 10 domain lenses: architecture, physics, test-quality, legal, data-ingestion, scope, duplication, ontology, forge-triple-enforcement, dispatcher-wiring. Full findings persisted in scrutiny_round_1 block. Envelope amended 11 times in-place. Round 2 deferred to post-INFRA-01 build. Round 3 deferred to pre-merge gate."
+  },
+  "description": "Add-on to CAM-EXHAUST-MS0 that expands exhaustive UI/function mapping from 4 CAM systems to 18, adds 11 new learning-source types (manufacturer-doc scrape, forum Q&A, trade press, certification curricula, API/SDK docs, postprocessor libraries, sample-program reverse engineering, patents, standards, social/events, vendor training recordings), and builds the unified scripting-SDK bridge that lets PRISM drive every CAM at the full breadth of its UI.",
+  "goals": [
+    "Catalog every toolpath type for every CAM (Mastercam ~150, Fusion ~80, hyperMILL ~60, NX ~100+, PowerMill ~80, ESPRIT ~90, etc. — est. >1,500 strategies total)",
+    "Zod-schema every UI field of every strategy across all 5 tabs (Tool/Geometry/Heights/Passes/Linking) plus Post tab — est. ≥100,000 field dimensions total",
+    "Ingest via 11 learning-source types for every CAM: PDF, video, manufacturer-doc-scrape, forum, trade-press, certification, API/SDK, postprocessor libs, JMDie sample reverse-engineering, patents, standards",
+    "Provide unified scripting-SDK bridge (Fusion Py + Mastercam NetHook3 C# + HSM Post-Language JS + hyperMILL NetSDK + NX OpenAPI) so PRISM can drive any CAM programmatically",
+    "Validate against JMDie's 24,545 real programs — confirm every indexed strategy can be reproduced from its G-code signature",
+    "Cross-CAM canonical UI-field ontology (axial_stepdown = Mastercam max_stepdown = Fusion maximumStepdown = hyperMILL zInc = NX depth_per_cut) so AI can translate between CAMs",
+    "Achieve omega ≥ 0.95 for every CAM's exhaustion milestone"
+  ],
+  "cam_systems_in_scope": {
+    "tier_1_jmdie_core": {
+      "rationale": "JM Die Company (canonical test shop) uses these daily — closes ground-truth loop against 24,545 real programs",
+      "systems": ["mastercam_x8", "fusion360", "inventor_hsm", "hypermill", "okuma_igf"]
+    },
+    "tier_2_enterprise": {
+      "rationale": "Wide market penetration; JMDie customers (ITW/Alcoa/Optimas) submit DXF from these",
+      "systems": ["siemens_nx_cam", "catia_delmia_nc", "creo_nc", "powermill", "esprit", "camworks", "solidcam", "gibbscam", "cimatron", "featurecam", "edgecam", "worknc", "tebis"]
+    },
+    "tier_3_specialist": {
+      "rationale": "Narrower but important for specific customer verticals (wood/stone/sheet-metal/nesting)",
+      "systems": ["alphacam", "artcam", "radan", "sigmanest", "topsolidcam", "zw3d", "rhinocam", "bobcadcam", "visualcad", "smartcam", "sprutcam", "onecnc", "mastercam_router", "hyperwire_edm", "moduleworks_oem"]
+    },
+    "total_tier_1_plus_2": 18,
+    "total_all_tiers": 33,
+    "this_milestone_covers": "tier_1 + tier_2 = 18 CAMs. Tier 3 deferred to CAM-UIX-MS1 (future follow-on)."
+  },
+  "exhaustion_axes_per_cam": [
+    {"axis": "strategy_catalog", "depth": "every named toolpath type — e.g., Mastercam 2D: Face / 2D Adaptive / 2D Pocket / Slot / Trace / Bore / Thread Mill / Engrave / Chamfer / 2D Contour; 3D: Adaptive / Pocket Clearing / Parallel / Contour / Horizontal / Scallop / Spiral / Radial / Pencil / Morphed Spiral / Ramp / Steep-Shallow / Project; Multi-axis: Flow / Morph / Parallel / Swarf / Rotary / Along-Curve / Surface-Wrap; Drilling: Drill / Bore / Tap / Counterbore / Ream / Chip-Break / Circular / Back-Counterbore / Spot; Turning: Face / Profile / Groove / Thread / Part-Off / Bore-turn / Drill-turn; Probing; Jet (Laser/Plasma/Waterjet)", "est_count_per_cam": "60 to 150"},
+    {"axis": "per_strategy_ui_fields", "depth": "5 UI tabs × ~10 fields each = ~50 fields/strategy. Tool tab (library, feed, speed, coolant, spindle dir, comp mode), Geometry tab (selection, boundaries, rest source, containment), Heights tab (clearance/retract/feed/top/bottom × 5 FROM modes = 25 combos), Passes tab (stepdown, stepover, smoothing, finishing, stock axial vs radial, multi-depth), Linking tab (lead-in/lead-out, ramp, keep-tool-down, high-feed), Post tab (WCS, programs, machine params)", "est_count_per_cam": "3,000 to 7,500"},
+    {"axis": "global_config", "depth": "machine def, post config, setup, stock, WCS, fixture, coolant bank, tool library format", "est_count_per_cam": "50 to 200"},
+    {"axis": "advanced_features", "depth": "rest-machining chains, adaptive-clearing variable stepdown / optimal-load / min-cutting-radius, probing cycles (Geometry/WCS/Inspection), simultaneous-5-axis tilt/lead limits, collision (holder/shank/flute), wear compensation, canned cycles G70–G76, trochoidal/wavy patterns, setup sheets, additive DED, turning TNRC modes, mill-turn channel sync / sub-spindle handoff / M-code bank", "est_count_per_cam": "30 to 80"},
+    {"axis": "post_dialects", "depth": "Haas / Fanuc / Okuma / Mazak / Mitsubishi / Siemens / Heidenhain / GE / Brother + shop-custom variants", "est_count_per_cam": "8 to 20"},
+    {"axis": "file_io", "depth": "native + STEP / IGES / Parasolid / X_T / X_B / JT / 3MF import; NC + setup-sheet export; tool-library import (*.tooldb, *.tdb, *.xml, *.csv)", "est_count_per_cam": "10 to 25"},
+    {"axis": "scripting_api", "depth": "Fusion 360 Python API (adsk.cam), Mastercam NetHook3 (C# .NET), HSM Post-Language (JavaScript), hyperMILL NetSDK, NX OpenAPI (C++/Python), CATIA CAA (C++), Creo Toolkit (C++), PowerMill Macro (ASCII), ESPRIT VBA / .NET", "exposed_methods_per_cam": "100 to 2,000"},
+    {"axis": "tool_library_schema", "depth": "tool geometry, holder geometry, assembly chain, ATC map, wear tables", "est_count_per_cam": "20 to 50"},
+    {"axis": "material_cutting_data", "depth": "manufacturer S&F tables, Kienzle kc mapping, ISO group classification", "est_count_per_cam": "30 to 100"},
+    {"axis": "templates_and_patterns", "depth": "prebuilt operations, setup templates, feature-recognition rules", "est_count_per_cam": "20 to 80"}
+  ],
+  "learning_sources": {
+    "existing": {
+      "S0A_pdf_learn": {"skill": "/pdf-learn", "status": "operational", "corpus": "1,009 PDFs manifested"},
+      "S0B_video_learn": {"skill": "/video-learn", "status": "operational", "corpus": "YouTube training, vendor webinars"}
+    },
+    "new_to_build": {
+      "S1_manufacturer_doc_scrape": {
+        "description": "Live HTTP + sitemap crawler for Autodesk Help, Mastercam Online Help, OpenMind Academy, Siemens PLM docs, PTC Support, Hexagon Nexus",
+        "legality_gate": "respect robots.txt; fair-use extraction for training; cite source URL per field",
+        "ingest_unit": "U-ING-S1 per CAM (18 total)",
+        "engine": "CAMDocScrapeIngestEngine"
+      },
+      "S2_forum_scrape": {
+        "description": "CNCzone, eMastercam, Autodesk Forums, Reddit r/cnc + r/Mastercam + r/hypermill, SolidWorks Forums, Creo Forum, Siemens Community — threaded Q&A extraction with upvote weighting",
+        "legality_gate": "public read only; cite thread URL + OP handle; opt-out via robots.txt",
+        "ingest_unit": "U-ING-S2 per CAM (18 total)",
+        "engine": "CAMForumIngestEngine"
+      },
+      "S3_trade_press": {
+        "description": "Modern Machine Shop, Cutting Tool Engineering, MetalWorking Insider, MMS Online, American Machinist, Production Machining — RSS + article extraction",
+        "legality_gate": "RSS-first; full-article behind paywall → cite-only",
+        "ingest_unit": "U-ING-S3 (shared — not per-CAM)",
+        "engine": "CAMTradePressIngestEngine"
+      },
+      "S4_certification_curricula": {
+        "description": "CSWA-CAM, Mastercam Certified (CAMP), CamInstructor curricula, OpenMind Academy certification paths, Autodesk Certified User (ACU) CAM modules",
+        "ingest_unit": "U-ING-S4 per CAM (18 total)",
+        "engine": "CAMCertCurriculumIngestEngine"
+      },
+      "S5_api_sdk_docs": {
+        "description": "Scripting-API reference docs → parse every exposed operation into Zod schema mirroring function signature + parameter docs. Feeds the unified scripting-SDK bridge.",
+        "per_cam_sources": {
+          "fusion360": "adsk.cam Python API reference (apihelp.autodesk.com)",
+          "mastercam": "NetHook3 C# SDK reference (.chm)",
+          "inventor_hsm": "HSM Post-Language JavaScript reference (cam.autodesk.com)",
+          "hypermill": "hyperMILL NetSDK C# reference",
+          "nx_cam": "NX OpenAPI — NXOpen.CAM namespace",
+          "catia": "CAA NC Manufacturing C++ reference",
+          "creo": "Creo Toolkit NC Machining C++ reference",
+          "powermill": "PowerMill Macro + .NET COM Bridge",
+          "esprit": "ESPRIT VBA + DP Technology .NET plugin SDK"
+        },
+        "ingest_unit": "U-ING-S5 per CAM (18 total)",
+        "engine": "CAMSdkIngestEngine"
+      },
+      "S6_postprocessor_libraries": {
+        "description": "Parse shop-supplied .pst (Mastercam) / .cps (Fusion/HSM) / .ppr (Autodesk legacy) / .pps (NX) / .pm (PowerMill) / .pam (hyperMILL) files → cross-reference with per-strategy UI fields → build post-dialect-to-UI-field traceability matrix",
+        "corpus": "HSM-Post-Processor-Library (GitHub public), Eureka Post library, Mastercam PMC examples, shop-local JMDie posts",
+        "ingest_unit": "U-ING-S6 (shared — post files span CAMs)",
+        "engine": "CAMPostLibraryIngestEngine"
+      },
+      "S7_sample_program_reverse_engineering": {
+        "description": "Scan every JMDie program (24,545 files) — match G-code signature to toolpath-strategy fingerprint (e.g., G71 + cycle pattern = Turning Rough; helix entry + variable Z = Adaptive Clearing 3D). Build ground-truth (strategy → G-code → real-world success) dataset.",
+        "corpus": "H:/prism/JM DIE/ — 24,545 programs across 100+ customers",
+        "ingest_unit": "U-ING-S7 per CAM (only CAMs JMDie actually uses — 5)",
+        "engine": "CAMSampleReverseEngineerEngine"
+      },
+      "S8_patents": {
+        "description": "Autodesk / CNC Software / OPEN MIND / Siemens / PTC manufacturing patents — reveal algorithm internals (adaptive-clearing logic, tool-axis-optimization, collision-avoidance math)",
+        "corpus": "USPTO + EPO + Google Patents queries per vendor",
+        "ingest_unit": "U-ING-S8 per CAM (18 total)",
+        "engine": "CAMPatentIngestEngine"
+      },
+      "S9_standards": {
+        "description": "ISO 14649 (STEP-NC), DIN 66025 (G-code), APT-360 (legacy), ISO 841 (kinematic), ISO 230 (machine accuracy), ISO 10303 (STEP AP203/AP214/AP242) — spec each CAM's deviations from",
+        "ingest_unit": "U-ING-S9 (shared)",
+        "engine": "CAMStandardsIngestEngine"
+      },
+      "S10_social_and_events": {
+        "description": "X/Twitter manufacturing accounts, LinkedIn technical threads, IMTS/EMO/Mastercam MIC/Autodesk University presentation PDFs + video recordings",
+        "ingest_unit": "U-ING-S10 (shared)",
+        "engine": "CAMSocialEventIngestEngine"
+      },
+      "S11_vendor_training_recordings": {
+        "description": "Pluralsight / Udemy / CamInstructor / vendor-hosted webinar recordings with transcripts — extract procedural knowledge at highest fidelity",
+        "ingest_unit": "U-ING-S11 per CAM (18 total)",
+        "engine": "CAMVendorTrainingIngestEngine"
+      }
+    },
+    "total_new_ingest_engines": 9,
+    "total_new_per_cam_ingest_units": "(S1+S2+S4+S5+S8+S11 = 6 per-CAM sources) × 18 CAMs = 108 per-CAM ingest units, plus (S3+S6+S9+S10 = 4 shared sources) = 4 shared ingest units, plus (S7 = JMDie-only) × 5 CAMs = 5 units. Total ingest units = 117."
+  },
+  "dependencies": [
+    "CAM-EXHAUST-MS0",
+    "CAD-COMPLETE-MS0"
+  ],
+  "blocks": [
+    "CAM-AUTO-DRIVE-MS0-future",
+    "CAM-PARITY-AGI-MS0-extension"
+  ],
+  "cross_links": {
+    "upstream_extended": {
+      "milestone": "CAM-EXHAUST-MS0",
+      "how_extended": "CAM-EXHAUST-MS0 covers 4 CAMs with 5,718 parameters at varying UI depth. This add-on (a) extends same depth to 14 more CAMs, (b) deepens the original 4 to full per-strategy UI-field schema (was strategy-level, now per-field), (c) adds 11 new learning sources beyond PDF/video, (d) adds scripting-SDK bridge.",
+      "shared_engines": ["ToolpathStrategyRegistry", "CAMAGIMasterOrchestratorEngine", "HyperMillInHostRunnerEngine", "Fusion360InHostRunnerEngine"]
+    },
+    "upstream_phase8_runners": {
+      "milestone": "CAM-EXHAUST-MS0 PHASE-8",
+      "relationship": "In-host test runners (U-CAMTEST01 hyperMILL, U-CAMTEST02 Fusion) are the *validation surface* for this add-on — once per-CAM catalogs are built, the runners exercise every strategy × every UI-field combination against the live CAM host."
+    },
+    "downstream_consumers": ["CAMAGIMasterOrchestratorEngine — will route based on exhausted capability map", "PRISM app UI — will expose every cataloged strategy as a selectable option", "QuoteToShip pipeline — will cost every strategy based on real-world S&F tables from S7"]
+  },
+  "total_units": 236,
+  "units_by_phase": {
+    "PHASE-0_INFRASTRUCTURE": {
+      "description": "4 sub-milestones × 5 units = 20 units. Must complete BEFORE per-CAM phases.",
+      "sub_milestones": [
+        {
+          "id": "CAM-UIX-INFRA-01",
+          "title": "Learning Pipeline — 9 ingest engines + planner + guard",
+          "units": [
+            "U-LP01: CAMInputExhaustionPlannerEngine (planner + coverage report emitter)",
+            "U-LP02: /cam-exhaust-audit skill (runs coverage diff per CAM)",
+            "U-LP03: cam-input-completeness-guard.mjs hook (blocks CAM-bridge commits that drop catalog coverage)",
+            "U-LP04: CAMDocScrapeIngestEngine + CAMForumIngestEngine + CAMTradePressIngestEngine (S1+S2+S3)",
+            "U-LP05: CAMCertCurriculumIngestEngine + CAMSdkIngestEngine + CAMPostLibraryIngestEngine + CAMSampleReverseEngineerEngine + CAMPatentIngestEngine + CAMStandardsIngestEngine + CAMSocialEventIngestEngine + CAMVendorTrainingIngestEngine (S4–S11)"
+          ],
+          "forge_triple": {
+            "engine_built": "CAMInputExhaustionPlannerEngine (U-LP01)",
+            "skill_built": "/cam-exhaust-audit (U-LP02)",
+            "hook_built": "cam-input-completeness-guard.mjs (U-LP03)",
+            "ownership": "BUILT here. All downstream milestones CONSUME."
+          }
+        },
+        {
+          "id": "CAM-UIX-INFRA-02",
+          "title": "Catalog Registry Extension — per-strategy UI-field schemas",
+          "units": [
+            "U-CR01: Extend ToolpathStrategyRegistry with per-strategy UI-field schema slot (Zod-typed)",
+            "U-CR02: Canonical tab-field ontology (Tool / Geometry / Heights / Passes / Linking / Post)",
+            "U-CR03: Field-type enum (scalar / enum / selection-ref / range / composite)",
+            "U-CR04: Schema compilation pipeline (CAM-specific JSON → shared Zod)",
+            "U-CR05: Coverage manifest emitter (how many strategies × fields per CAM are schema-backed)"
+          ]
+        },
+        {
+          "id": "CAM-UIX-INFRA-03",
+          "title": "Cross-CAM UI-Field Ontology — canonical names + translations",
+          "units": [
+            "U-ON01: CanonicalFieldName enum (~400 canonical names covering 95% of field intent)",
+            "U-ON02: Per-CAM alias map (Mastercam max_stepdown → canonical axial_stepdown, etc.)",
+            "U-ON03: Unit-system normalization (mm/inch, deg/rad, rpm/spindleSpeed)",
+            "U-ON04: Field-semantics tests (axial_stepdown * depth_count == total_depth)",
+            "U-ON05: Translation API — CAMFieldTranslatorEngine.translate(from_cam, to_cam, field_name, value)"
+          ]
+        },
+        {
+          "id": "CAM-UIX-INFRA-04",
+          "title": "Automation SDK Bridge — unified scripting driver",
+          "units": [
+            "U-SDK01: CAMAutomationBridgeEngine abstract interface (openDoc, createOperation, setField, regenerate, postProcess, export)",
+            "U-SDK02: Fusion360AutomationAdapter (adsk.cam Python)",
+            "U-SDK03: MastercamAutomationAdapter (NetHook3 C# COM bridge)",
+            "U-SDK04: HSMPostAutomationAdapter (HSM Post-Language JavaScript)",
+            "U-SDK05: HyperMillAutomationAdapter (hyperMILL NetSDK)"
+          ]
+        }
+      ]
+    },
+    "PHASE-1_TO_18_PER_CAM": {
+      "description": "18 sub-milestones (one per CAM) × 12 units = 216 units. Runs in tiered waves (tier_1 first, tier_2 after).",
+      "per_cam_unit_template": {
+        "U-CAT01": "Toolpath catalog enumeration — every strategy with Zod enum",
+        "U-UIS01": "Per-strategy UI-field Zod schemas (all 5 tabs × ~10 fields)",
+        "U-ING-PDF": "S0A /pdf-learn ingest against vendor PDFs",
+        "U-ING-VIDEO": "S0B /video-learn ingest against vendor training videos",
+        "U-ING-FORUM": "S2 forum scrape ingest (CNCzone + vendor forums + Reddit)",
+        "U-ING-API": "S5 scripting-SDK doc ingest",
+        "U-ING-CERT": "S4 certification curriculum ingest",
+        "U-ING-SAMPLES": "S7 JMDie sample reverse-engineering (only for 5 tier_1 CAMs JMDie uses — skipped for others)",
+        "U-TEST-AXIS": "Axis-exhaustion test suite — parametrized over every strategy × every field enum value",
+        "U-BRIDGE": "Dispatcher wiring via CAMAutomationBridgeEngine",
+        "U-PLAYBOOK": "Tribal-knowledge playbook update — per-CAM tips written to src/data/<cam>-tips.ts",
+        "U-VALIDATE": "Validate against JMDie archive — every indexed strategy reproducible from G-code fingerprint (only tier_1); vendor-published sample reproducibility for tier_2+"
+      },
+      "sub_milestones": [
+        {"id": "CAM-UIX-MASTERCAM-MS0", "cam": "mastercam_x8", "tier": 1, "units": 12, "priority": "CRITICAL", "rationale": "Largest JMDie footprint (3,713 .mcx-8 files). Existing catalog 1,689 params — deepen to per-field schema."},
+        {"id": "CAM-UIX-FUSION360-MS0", "cam": "fusion360", "tier": 1, "units": 12, "priority": "CRITICAL", "rationale": "Existing catalog 1,459 params. Add 11 new learning sources."},
+        {"id": "CAM-UIX-INVENTOR-HSM-MS0", "cam": "inventor_hsm", "tier": 1, "units": 12, "priority": "CRITICAL", "rationale": "Existing catalog 1,247 params. Shares HSM Post-Language with Fusion — consolidate."},
+        {"id": "CAM-UIX-HYPERMILL-MS0", "cam": "hypermill", "tier": 1, "units": 12, "priority": "CRITICAL", "rationale": "Existing catalog 1,323 params, 5-axis heavy. Deepen multi-axis ontology."},
+        {"id": "CAM-UIX-OKUMA-IGF-MS0", "cam": "okuma_igf", "tier": 1, "units": 12, "priority": "HIGH", "rationale": "JMDie uses Okuma IGF Advanced One-Touch on 7 lathes — no existing catalog."},
+        {"id": "CAM-UIX-SIEMENS-NX-MS0", "cam": "siemens_nx_cam", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Enterprise customers (ITW) use NX — no existing catalog."},
+        {"id": "CAM-UIX-CATIA-MS0", "cam": "catia_delmia_nc", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-CREO-MS0", "cam": "creo_nc", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-POWERMILL-MS0", "cam": "powermill", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Autodesk flagship for high-end 5-axis — Delcam legacy."},
+        {"id": "CAM-UIX-ESPRIT-MS0", "cam": "esprit", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Hexagon flagship for mill-turn & Swiss."},
+        {"id": "CAM-UIX-CAMWORKS-MS0", "cam": "camworks", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-SOLIDCAM-MS0", "cam": "solidcam", "tier": 2, "units": 12, "priority": "MEDIUM", "rationale": "iMachining strategy is widely used — exhaust its adaptive parameters."},
+        {"id": "CAM-UIX-GIBBSCAM-MS0", "cam": "gibbscam", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-CIMATRON-MS0", "cam": "cimatron", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-FEATURECAM-MS0", "cam": "featurecam", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-EDGECAM-MS0", "cam": "edgecam", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-WORKNC-MS0", "cam": "worknc", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-TEBIS-MS0", "cam": "tebis", "tier": 2, "units": 12, "priority": "MEDIUM"}
+      ]
+    }
+  },
+  "scrutiny_gates": {
+    "coverage_minimum_per_cam": {
+      "strategy_catalog_coverage_pct": 100.0,
+      "ui_field_schema_coverage_pct": 95.0,
+      "post_dialect_coverage_pct": 100.0,
+      "sample_reproducibility_pct": 80.0
+    },
+    "omega_floor_per_sub_milestone": 0.95,
+    "svi_delta_target": "+2.5% per completed sub-milestone",
+    "test_quality_law": "Every field-schema test MUST validate a real vendor-published value or a reverse-engineered JMDie fingerprint — no toBeDefined(), no toBeGreaterThan(0)."
+  },
+  "forge_triple": {
+    "protective_hook": {
+      "name": "cam-input-completeness-guard.mjs",
+      "scope": "PreToolUse Write|Edit on src/engines/*CAM*.ts, src/engines/*Mastercam*.ts, src/engines/*Fusion*.ts, src/engines/*HyperMill*.ts, src/registries/ToolpathStrategyRegistry.ts",
+      "blocks": "commits that reduce strategy_catalog_coverage_pct for any CAM, or that remove entries from per-strategy UI-field schemas",
+      "owner_unit": "CAM-UIX-INFRA-01 U-LP03"
+    },
+    "mcp_action": {
+      "action": "prism_cam:cam_uix_audit (+ cam_uix_plan_next + cam_uix_ingest_run + cam_uix_coverage_report)",
+      "dispatcher": "prism_cam",
+      "owner_unit": "CAM-UIX-INFRA-01 U-LP01 / U-LP02"
+    },
+    "skill_command": {
+      "name": "/cam-exhaust-audit",
+      "args": "<cam_id>",
+      "behavior": "print coverage diff (what strategies / fields / sources are missing) for the given CAM; suggests next unit to run",
+      "owner_unit": "CAM-UIX-INFRA-01 U-LP02"
+    },
+    "ownership_statement": "BUILT in CAM-UIX-INFRA-01. All 18 per-CAM sub-milestones CONSUME these artifacts (do not re-declare)."
+  },
+  "mcp_lifecycle": {
+    "session_start": ["prism_session:context_boot", "prism_session:dispatcher_map", "prism_session:memory_recall", "prism_session:system_snapshot", "prism_session:action_search 'cam ui exhaustion'"],
+    "mid_session_every_5_to_10_tools": ["prism_session:auto_checkpoint", "prism_session:action_search", "prism_session:tool_route_best", "prism_session:wip_capture"],
+    "session_end": ["prism_session:memory_save", "prism_session:system_snapshot", "prism_session:checkpoint_enhanced"]
+  },
+  "feature_cascade": {
+    "new_hooks": ["cam-input-completeness-guard.mjs (CAM-UIX-INFRA-01 U-LP03)"],
+    "new_actions": ["cam_uix_audit", "cam_uix_plan_next", "cam_uix_ingest_run", "cam_uix_coverage_report"],
+    "new_skills": ["/cam-exhaust-audit"],
+    "new_engines_infrastructure": ["CAMInputExhaustionPlannerEngine", "CAMFieldTranslatorEngine", "CAMAutomationBridgeEngine", "CAMDocScrapeIngestEngine", "CAMForumIngestEngine", "CAMTradePressIngestEngine", "CAMCertCurriculumIngestEngine", "CAMSdkIngestEngine", "CAMPostLibraryIngestEngine", "CAMSampleReverseEngineerEngine", "CAMPatentIngestEngine", "CAMStandardsIngestEngine", "CAMSocialEventIngestEngine", "CAMVendorTrainingIngestEngine"],
+    "new_engines_per_cam": "18 × (ToolpathCatalogEngine + AutomationAdapter) = 36 per-CAM engines",
+    "available_to": ["CAM-EXHAUST-MS0 (enriches existing catalog)", "CAM-AUTO-DRIVE-MS0-future", "CAM-PARITY-AGI-MS0", "PRISM app UI (every cataloged strategy selectable)", "QuoteToShip pipeline (full S&F table coverage)"]
+  },
+  "enforcement_hooks_active_during_execution": [
+    "knowledge-consult (verify ingestion source read before schema write)",
+    "duplication-guard (block re-declaring engines already in CAM-EXHAUST-MS0)",
+    "cam-input-completeness-guard (new — blocks coverage regression)",
+    "physics agent (validate S&F formulas from ingested sources)",
+    "wiring agent (every new catalog engine must be dispatcher-reachable)",
+    "constants checker (no inline Kienzle/Taylor — import from src/physics/constants.ts)",
+    "stub detector (no toBeDefined()-only tests)",
+    "test quality (compare against real published / JMDie values, ±5–15% tolerance)",
+    "forge-triple gate (block compact without planner/skill/hook triple intact)",
+    "session audit agent (reviews work before every /compact)"
+  ],
+  "compact_checkpoint": "every 8 units (aligned with sub-milestone boundary: one compact per per-CAM sub-milestone of 12u + infra). Raised from 3 per AMEND-16 to avoid ~78 compactions / 16h overhead. Auto-triggered by PostToolUse edit-threshold hook.",
+  "intent": "Close the capability gap between PRISM and the real CAM software landscape. Today PRISM has deep mastery of 4 CAMs and shallow bridges for 14 more. After CAM-UIX-MS0, PRISM has full-UI-depth mastery of 18 CAMs plus a learning pipeline that stays current as vendors ship new releases. A machinist moving from Mastercam to NX CAM should see identical AI capability — same strategies, same fields, same S&F recommendations, same post output.",
+  "rollback_envelope": {
+    "files_that_will_be_created_count_est": 370,
+    "files_that_will_be_modified_count_est": 50,
+    "abort_criteria": [
+      "strategy_catalog_coverage_pct for any tier_1 CAM drops below 100%",
+      "ui_field_schema_coverage_pct for any tier_1 CAM drops below 95%",
+      "sample_reproducibility_pct for JMDie-using CAMs drops below 80%",
+      "omega for any completed sub-milestone < 0.95",
+      "cam-input-completeness-guard hook is bypassed"
+    ],
+    "rollback_procedure": "Per-sub-milestone git-branch work pattern (branch: cam-uix/<cam-id>/<unit-id>) — abort = delete branch. Per ARCH-04 amendment, each unit gets its own sub-branch plus a daily integration branch `cam-uix/<cam-id>/integrate` for fan-in. Master add-on envelope untouched until all sub-milestones merge. On branch delete/reset, a CI job runs `cam_uix_audit --reconcile-baseline` to prevent baseline drift (per F11)."
+  },
+  "jm_die_training_data_policy": {
+    "SEVERITY": "CRITICAL — MUST be enforced before any S7 ingestion unit executes",
+    "authoritative_statement": "JM Die Company's 24,545 archived programs are REAL-WORLD SHOP PROGRAMS THAT RAN AND PRODUCED PARTS. They are NOT optimized. They represent: (a) what a skilled human programmer using Mastercam X8 / Fusion 360 / Inventor HSM / hyperMILL / Okuma IGF chose as *good enough to ship* under that shop's real constraints (tool availability, fixturing, quoted cycle time, operator skill, controller version). They are the empirical baseline PRISM must UNDERSTAND as ground-truth-on-what-ran, and then BEAT in measurable terms (cycle time, tool life, Ra, cost). They are NOT the target the AI should maximize toward.",
+    "enforcement_artifacts": {
+      "provenance_tag_required_on_every_ingested_record": {
+        "field": "source_quality",
+        "value_enum": ["empirical_shop_reality_unoptimized", "vendor_published_recommended", "physics_derived_canonical", "benchmark_competition", "synthetic_generated", "ground_truth_labeled"],
+        "jm_die_programs_always_carry": "empirical_shop_reality_unoptimized"
+      },
+      "hook": {
+        "name": "jm-die-provenance-guard.mjs",
+        "scope": "PostToolUse Write on any file under data/ingestion_cache/** that sourced from H:/prism/JM DIE/** or resources/**/JMDie/**",
+        "behavior": "Auto-injects `source_quality: 'empirical_shop_reality_unoptimized'` + `optimization_status: 'unoptimized_shop_baseline'` + `shop_name: 'jm_die'` + `shop_context: {operator_skill_tier, fixture_constraints_known, tool_library_constrained_to_crib, quoted_cycle_time_binding, controller_version}` onto every emitted record. REJECTS records that assert `source_quality` as anything else when sourced from JMDie archive.",
+        "owner_unit": "NEW — CAM-UIX-INFRA-00 U-JMDP01 (prepended to Phase 0, MUST ship before any S7 unit)"
+      },
+      "ml_training_policy": {
+        "loss_function_treatment": "JMDie programs enter training as STATE-OUTCOME pairs (input_context → what-the-shop-actually-chose) with BEAT-THE-SHOP objective — the optimization target is a function of (physics-predicted optimum − shop's actual choice), not shop's-actual-choice itself",
+        "reward_shaping": "Reward = improvement over JMDie baseline on (cycle time, tool life, MRR, Ra) subject to constraints (same tooling crib, same fixture class, same machine). Matching or underperforming JMDie on all metrics = zero reward, not positive.",
+        "label_class_requirement": "Every JMDie-sourced training row carries `label_class: 'empirical_not_optimal'`. Training splits MUST stratify on this to avoid the model learning 'JMDie's answer is correct' as a prior.",
+        "comparison_benchmark_requirement": "Any S&F or strategy recommendation engine that trains on JMDie data MUST publish a 'vs-JMDie-delta' metric alongside absolute output, reported in quote outputs + physics explanations."
+      },
+      "human_review_gate": {
+        "when": "Before any JMDie-sourced record promotes from quarantine into the Tribal/Playbook/ToolpathStrategyRegistry stores",
+        "actor": "JMDie programmer or shop lead",
+        "artifact": "data/state/jm_die_review_log.ndjson with fields {program_id, reviewer, review_date, outcome: 'kept_unoptimized'|'promoted_to_exemplar'|'rejected_obsolete', notes}",
+        "rationale": "The shop knows which programs were rush-jobs vs. which were refined — PRISM does not."
+      }
+    },
+    "downstream_consumer_contract": {
+      "KienzleForceModelEngine": "MUST NOT treat JMDie-observed kc back-solves as authoritative physics — they carry empirical_shop_reality_unoptimized and go into a separate `vendor_variants.shop_observed` slot, never into canonical constants.ts",
+      "SpeedFeedOrchestratorEngine": "When resolving S&F, JMDie observations may be cited ('shop historically ran feed=0.08 mm/tooth at Vc=120 on this material/tool combo') but the PRISM recommendation is physics-derived, not shop-derived; any divergence from shop history is explicitly called out as 'proposed improvement' in the quote explanation",
+      "TribalKnowledgeEngine": "JMDie-sourced tips enter with tier='empirical_not_optimal' and surface with explicit provenance string 'observed at JM Die — unoptimized baseline, not a recommendation'",
+      "QuoteToShipOrchestratorEngine": "When quoting a job similar to a JMDie historical, produces TWO line items: (1) 'JMDie historical cycle time' (for context), (2) 'PRISM optimized cycle time' (for the customer) — never presents JMDie times as the quote"
+    },
+    "applies_also_to": "Any shop-archive PRISM ingests in the future (not just JMDie). The `source_quality: empirical_shop_reality_unoptimized` tag + policy apply to every shop-sourced record from every shop.",
+    "added_by": "Scrutiny Round 1 post-aggregation amendment (user directive 2026-04-21: 'add a note or hook or something to let the ai system or you know that the programs arent optimized')",
+    "blocks_phase_0_start_until_satisfied": true
+  },
+  "scrutiny_round_1": {
+    "executed_at": "2026-04-21",
+    "method": "10-agent parallel domain-lens review dispatched post-compact per user directive. Each agent received the envelope + a domain-specific prompt + bounded scope. Results aggregated by severity.",
+    "lenses": [
+      "architecture (system-architect)",
+      "physics (physics-reviewer)",
+      "test-quality (reviewer)",
+      "dispatcher-wiring (reviewer)",
+      "duplication-anti-regression (code-archaeologist)",
+      "scope-estimation (feature-dev:code-reviewer)",
+      "legal-licensing (researcher)",
+      "data-ingestion-pipeline (backend-dev)",
+      "ontology-cross-cam-translation (analyst)",
+      "forge-triple-enforcement (code-analyzer)"
+    ],
+    "finding_counts": {
+      "total": 95,
+      "CRITICAL": 29,
+      "HIGH": 40,
+      "MEDIUM": 26,
+      "plus_user_added_CRITICAL_ml_provenance": 1
+    },
+    "CRITICAL_findings_blocking_phase_0_start": [
+      {"id": "ARCH-01", "title": "Canonical ontology circular dependency — 400 names frozen before U-UIS01 discovers CAM-specific fields", "fix": "Make ontology open-ended: INFRA-03 ships seed + extension protocol. U-UIS01 registers new canonical names via ui_field_register action before mapping. Target raised to ~2,400 names via OntologyGrowthRegistryEngine (per O-01)."},
+      {"id": "ARCH-02", "title": "U-ING-CERT depends on U-BRIDGE output it precedes", "fix": "Reorder per-CAM template to: U-CAT01 → U-UIS01 → U-BRIDGE-STUB → U-ING-*(parallel 6) → U-TEST-AXIS → U-BRIDGE-FINAL → U-PLAYBOOK → U-VALIDATE. Bridge gets two-phase split."},
+      {"id": "P01", "title": "No conflict-resolution when vendor kc contradicts canonical constants.ts", "fix": "Canonical constants.ts is ALWAYS authoritative. Vendor tables stored as vendor_variants (audit_only). Add U-ON03 merge rule: resolveKc(iso_group) → constants.ts; vendor_value → audit_only."},
+      {"id": "P02", "title": "Auto-write path from ingestion engines to src/physics/constants.ts not blocked", "fix": "Add PreToolUse hook HARD-BLOCKING any Write/Edit targeting src/physics/constants.ts unless commit tag is PHYSICS-CANONICAL-UPDATE. constants.ts is immutable from ingestion pipeline."},
+      {"id": "T01", "title": "Ground-truth absent for S7 reverse-engineering", "fix": "Before S7 runs, hand-label stratified sample (≥200 programs across 10 strategy families) → data/state/JMDIE_STRATEGY_LABELS.json. Fingerprint tests must achieve ≥80% agreement on THIS set, not self-agreement."},
+      {"id": "T02", "title": "Cross-CAM translation invariant is dimensional, not semantic", "fix": "Add semantic anchor test: translated fields must reproduce a JMDie reference program's output within tolerance (toolpath length ±2%, MRR ±5%, cycle time ±10%) via .toBeCloseTo."},
+      {"id": "T03", "title": "Ingestion-success conflated with ingestion-correctness", "fix": "Every ingestion engine emits through a physics-plausibility gate: SFM within ISO-group bounds, feed/tooth ∈ [0.0001, 0.05] in, DOC ≤ 1.5D. Test both rejection AND acceptance directions."},
+      {"id": "L01", "title": "ISO/DIN standards scraped without per-seat license", "fix": "Add license_gate: verified_purchase_required per standard. data/state/standards-licenses.json with receipts. Cite clause numbers, never reproduce normative text."},
+      {"id": "L02", "title": "JMDie customer programs ingested without customer consent", "fix": "Add customer_consent_gate. Signed consent per customer (ITW, Alcoa, Optimas, SFS, Holo-Krome, etc.) before any program ingested. Quarantine until pass. data/state/customer-consents.json."},
+      {"id": "L03", "title": "ITAR/EAR exposure on Alcoa aerospace programs", "fix": "Add export_control_gate (ITAR/EAR classification per customer/part). Block USML-classified parts. US-person-only access. 22 CFR §120.17 export log."},
+      {"id": "L04", "title": "Willful patent infringement risk from S8 patent ingestion", "fix": "Cleanroom split — S8 ingests into isolated namespace readable only by legal/non-implementing staff. Implementers sign no-patent-exposure attestation. Claim-language stored separately from functional summaries generated by independent team."},
+      {"id": "D01", "title": "No per-source rate-limit registry — 117 ingest units will trigger 429s/IP bans", "fix": "Create CAMRateLimitRegistryEngine with per-host token-bucket (rps, burst, daily cap, backoff curve). All ingest engines acquire tokens from it. Seed from data/ingestion/rate_limits.json."},
+      {"id": "D02", "title": "No ingestion orchestrator for 117 units", "fix": "Add CAMIngestOrchestratorEngine (queue + worker pool + per-source rate budget + retry policy). Wire to CAMInputExhaustionPlannerEngine and DistributedLockManager."},
+      {"id": "D03", "title": "No checkpoint/resume mechanism", "fix": "Add CAMIngestCheckpointEngine writing per-unit cursors to data/ingestion_cache/checkpoints/<cam>/<source>.json. Orchestrator resumes from cursor."},
+      {"id": "D04", "title": "No ingestion cache location declared — ~1.5 GB storage undefined", "fix": "Declare canonical root data/ingestion_cache/<cam>/<source>/<yyyymm>/ with manifest index. Add to DIRECTORY_DIGEST.md. Enforce via pre-write hook."},
+      {"id": "D05", "title": "No test fixture strategy — tests will hit live URLs", "fix": "Mandate nock/MSW HTTP mocking. Fixture corpus at src/__tests__/fixtures/ingestion/<source>/. Lint rule blocks http(s):// in test files except via fixture loader."},
+      {"id": "C01", "title": "U-SDK02 Fusion360AutomationAdapter DUPLICATES existing Fusion360AutomationBridge (E1303, CAD-AUTOMATION-MS0/U-CAUT06)", "fix": "DELETE U-SDK02. Extend Fusion360AutomationBridge with CAM-specific createOperation/setField/regenerate methods."},
+      {"id": "C02", "title": "U-SDK03 MastercamAutomationAdapter DUPLICATES existing MastercamAutomationBridge (E1301, U-CAUT05)", "fix": "DELETE U-SDK03. Extend MastercamAutomationBridge with setField/createOperation if missing."},
+      {"id": "C03", "title": "U-SDK05 HyperMillAutomationAdapter DUPLICATES existing HyperMILLAutomationBridge (E1304, U-CAUT07)", "fix": "DELETE U-SDK05. Extend HyperMILLAutomationBridge with missing CAM-drive methods."},
+      {"id": "S1", "title": "Session-rate arithmetic internally contradictory", "fix": "Derive from bottom-up: infra 20u/6 = 4 sessions + tier-1 60u/5 = 12 + tier-2 156u/4 = 39 + scrutiny buffer 20% = ~66 sessions p50, ~90 p90. Replace flat 79/115."},
+      {"id": "O-01", "title": "400 canonical names undersized by 5-10x for 18-CAM coverage (realistic: 1,800-2,500)", "fix": "Replace fixed 400 with tiered ontology: L0 core (~200), L1 domain (~600), L2 strategy-specific (~1,500). Add OntologyGrowthRegistryEngine with PR-gated additions + semantic-dup check."},
+      {"id": "O-02", "title": "No strategy-context disambiguation → semantic collisions produce wrong physics (axial vs tangential stepdown cross-CAM)", "fix": "Canonical name MUST be tuple (domain, strategy_class, op_phase, param_role, axis_frame). Translator key = tuple, not string. Reject translation if axis_frame mismatches without projector."},
+      {"id": "O-03", "title": "Lossy translation contract undefined → silent data loss", "fix": "Define TranslationResult = {status: EXACT|LOSSY|APPROX|UNSUPPORTED, value, confidence, source_field, target_field, loss_reason, fallback_policy}. Callers branch on status. UNSUPPORTED returns structured diagnostic, never a value."},
+      {"id": "F01", "title": "Missing baseline snapshot file — hook cannot compute diff", "fix": "Add data/state/CAM_UIX_COVERAGE_BASELINE.json with schemaVersion. Write initial snapshot in CAM-UIX-INFRA-01. Hook hard-fails if file missing."},
+      {"id": "F02", "title": "Hook glob misses 7-14+ CAM vendors (Esprit, NxCam, Creo, Catia, PowerMill, SolidCAM, GibbsCam, Tebis, WorkNC, etc.)", "fix": "Replace glob with allowlist driven by data/state/CAM_VENDOR_REGISTRY.json. Hook reads registry + matches src/engines/{VendorId}*.ts. CI test verifies every registry entry has coverage."},
+      {"id": "F03", "title": "Baseline never auto-updates on legitimate additions → hook disabled within 2 sessions", "fix": "Split into baseline.json (locked floor) + current.json (live). PreToolUse enforces current ≥ baseline. PostToolUse writes current.json after success. Baseline bump only via cam_uix_audit --promote-baseline."},
+      {"id": "W-CAM-UIX-01", "title": "prism_cam action enum will explode to ~260 actions (65 current + 4 declared + 72 catalog + 108 adapter + ingest)", "fix": "Split per-CAM work into sub-dispatchers (prism_cam_catalog, prism_cam_automation) with cam_id param, OR collapse per-CAM into 4 generic actions taking cam_id. Hard cap: prism_cam ≤ 120 actions."},
+      {"id": "W-CAM-UIX-02", "title": "Hook glob misses 7+ CAM vendors (duplicate of F02 — confirmed by two independent agents)", "fix": "Same as F02."},
+      {"id": "ML-01 (user-raised)", "title": "JMDie programs are UNOPTIMIZED empirical shop baseline — not optimization target", "fix": "See jm_die_training_data_policy block above. Blocks Phase 0 until U-JMDP01 ships jm-die-provenance-guard.mjs hook and provenance schema."}
+    ],
+    "HIGH_findings_summary_by_lens": {
+      "architecture": "ARCH-03 INFRA-01 over-bundled 9 engines in 2 units → decompose to INFRA-01a..01i; ARCH-04 rollback branch scheme collides with 6-chat coordination → per-unit branches + daily integrate; ARCH-05 CAM-EXHAUST dep not required for Phase 0 → row-level deps",
+      "physics": "P03 S7 back-solve underdetermined without (material, tool, spindle, validity) resolution → gate + back_solve_confidence; P04 ±15% too loose → tighten to ±5% kc, ±10% geometry, reserve ±15% for Taylor C only",
+      "test_quality": "T04 axis-exhaustion 810k cases infeasible → property-based (fast-check) sampling, exhaustive nightly-only; T05 per-field granularity unspecified → mandate per-strategy test file with ≥4 case classes; T06 80% sample_reproducibility has no runner → U-REPRO-HARNESS + nightly CI",
+      "legal": "L05 Pluralsight/Udemy paywall scraping = commercial copyright → remove S11 or enterprise license; L06 S4 cert curricula = NDA/DMCA → publicly-posted only; L07 Reddit API requires paid commercial tier; L08 forum ToS exclusive-license → data-license agreements; L09 S5 SDK EULA derivative-works → per-vendor legal review; L10 GDPR/CCPA PII in OP handles → hash at ingestion, DSAR endpoint",
+      "data_pipeline": "D06 no cross-source dedup → CAMIngestDedupEngine (SimHash/MinHash >0.85); D07 no ingested-tip schema validation → IngestedTipSchema at registry boundary; D08 no provenance schema → ProvenanceEnvelope wrapper; D09 no PII redaction → CAMIngestPIIRedactEngine; D10 no incremental re-ingest → ETag/Last-Modified/SHA256 per URL; D11 no multilingual/OCR → Tesseract + CAMIngestTranslateEngine",
+      "scope": "S2 tier-2 CAMs (CATIA, Creo, NX, etc.) have license-portal-gated SDK docs that envelope assumes public → add prerequisites section per tier-2 CAM; S3 engine count understated by 18 (14 tier-2 adapter units missing) + no LOC/test budget → add U-SDK06..U-SDK18, bump total_units to ~250",
+      "duplication": "H-01 U-SDK01 CAMAutomationBridgeEngine overlaps CADAutomationRouter → downgrade to interface-extraction refactor; H-02 5 'new' tips files already exist under *-cam-tips.ts → fix filenames, change to 'extend existing'; H-03 CAMDocScrapeIngestEngine + CAMForumIngestEngine duplicate URLContentExtractorEngine + ContentIngestionPipelineEngine → collapse to source-list configs; H-04 U-LP01 overlaps PrintToProgramCoverageAnalyzerEngine → share matrix algorithm",
+      "ontology": "O-04 unit normalization missing feeds/surface-speed/accel/pressure (20+ quantity classes) → UnitRegistry with dimensional guard; O-05 composite-field decomposition unspecified (Dynamic Motion, Adaptive) → compositeOf/validIfParent/coupledWith; O-06 enum-value translation conflated with field-name → separate EnumAliasRegistry; O-07 no round-trip stability test → U-ON04b matrix test",
+      "forge_triple": "F04 PreToolUse reads pre-write state not post-write → parse tool-input content; F05 action/enum/schema drift untested → dispatcher round-trip test per action; F06 hook has no tests → src/__tests__/cam-input-completeness-guard.test.ts; F07 --no-verify is policy not enforcement → server-side pre-receive hook + CI gate",
+      "wiring": "W-CAM-UIX-03 forge-triple under-declares ~180 actions → expand or reframe as meta-actions; W-CAM-UIX-04 no AutomationBridge contract conformance test → camAutomationBridge.contract.test.ts iterating registry; W-CAM-UIX-05 coverage baseline unnamed (duplicate of F01); W-CAM-UIX-06 action_search re-index not automated → PostToolUse hook invokes prism_dev:reindex_actions"
+    },
+    "MEDIUM_findings_summary_by_lens": {
+      "architecture": "ARCH-06 no ScriptingSDK contract surface in INFRA → add INFRA-05 ScriptingSDKContractEngine; ARCH-07 U-TEST-AXIS before U-BRIDGE → split STATIC vs LIVE; ARCH-08 hyperMILL + Fusion in-host runners not referenced → add reuse: pointers",
+      "physics": "P05 U-ON03 missing feed-rate unit normalization → FeedUnit enum required; P06 advanced_features not gated by per-strategy Kienzle validity → kienzle_validity flag + engagement-corrected variant routing",
+      "test_quality": "T07 advanced features unbudgeted → U-TEST-MULTISTEP with fixtures; T08 enum-value tests won't catch semantic drift → enum-semantics.json fixture with cross-CAM mappings",
+      "legal": "L11 S6 post-processor library mixed licenses → SPDX tagging in data/posts/LICENSES.json; L12 S1 fair-use claim weak (Thomson Reuters v. ROSS) → vendor partnership agreements; L13 S10 conference PDFs presenter-owned → per-presentation license check; L14 no DMCA safe-harbor → register §512 agent + takedown endpoint",
+      "data_pipeline": "D12 concurrency corruption of ingest cache → per-(cam,source) lock key; D13 no video-transcription compute budget → cap GPU-hours, Whisper-small CPU tier for low-priority",
+      "scope": "S4 13 skipped U-ING-SAMPLES counted in total_units → reduce to 223 or relabel N/A; S5 compact_every_3_units generates ~78 compactions (~16h overhead) → set to 8; S6 scrutiny_rounds_planned=3 over-specified for schema/ingest code → reduce to 1 post-phase + 1 final-gate",
+      "duplication": "M-01 U-CR01 scope lighter than stated (registry interface change, no new engine); M-02 CAMVendorTrainingIngestEngine duplicates VideoLearningEngine + /video-learn → delete engine, add source-list config",
+      "ontology": "O-08 no version binding (Mastercam X8 vs 2023) → aliases[cam][version][field]; O-09 namespace collisions on shared words → mandatory context prefix (cutting.feed, probing.feed); O-10 non-cutting ontology undersized in 400 → split into 4 namespaces with separate budgets (cutting 1200, workholding 300, nc_structure 500, machine_def 400)",
+      "forge_triple": "F08 bypass audit trail absent → data/state/cam_uix_guard_audit.ndjson + nightly git-log scan; F09 PreToolUse perf on every Write/Edit → mtime+hash cache per catalog; F10 skill-to-action path untested → src/__tests__/skills/cam-exhaust-audit.test.ts; F11 rollback path bypasses guard → cam_uix_audit --reconcile-baseline on branch reset; F12 DuplicationGuard only catches exact name → keyword+description cosine similarity at 0.85",
+      "wiring": "W-CAM-UIX-07 skill-to-action binding untested (duplicate of F10); W-CAM-UIX-08 --no-verify is policy not enforcement (duplicate of F07)"
+    },
+    "required_envelope_amendments_before_phase_0_starts": [
+      "AMEND-01: Insert CAM-UIX-INFRA-00 as new first sub-milestone (4 units): U-JMDP01 jm-die-provenance-guard.mjs + source_quality schema, U-BASELINE01 CAM_UIX_COVERAGE_BASELINE.json + schema, U-RATELIMIT01 CAMRateLimitRegistryEngine + rate_limits.json, U-CACHEROOT01 data/ingestion_cache/ directory convention + pre-write hook",
+      "AMEND-02: Delete U-SDK02, U-SDK03, U-SDK05 (duplicates C01/C02/C03). Replace with 'extend existing bridge' refactor tasks.",
+      "AMEND-03: Fix filenames in U-PLAYBOOK for NX/PowerMill/ESPRIT/CAMWorks/SolidCAM (use *-cam-tips.ts, extend existing not create new). H-02 fix.",
+      "AMEND-04: Rewrite INFRA-03 (canonical ontology): target 2,400 names not 400, tiered L0/L1/L2, add OntologyGrowthRegistryEngine + extension protocol, context-tuple keys not flat strings. O-01/O-02 fix.",
+      "AMEND-05: Rewrite per-CAM unit template order: U-CAT01 → U-UIS01 → U-BRIDGE-STUB → U-ING-*(parallel 6) → U-TEST-AXIS-STATIC → U-BRIDGE-FINAL → U-TEST-AXIS-LIVE → U-PLAYBOOK → U-VALIDATE. ARCH-02 fix.",
+      "AMEND-06: Decompose CAM-UIX-INFRA-01 LP04+LP05 into LP04a..LP04i (one ingest engine per unit). ARCH-03 fix.",
+      "AMEND-07: Add physics-canonical-constants-guard.mjs (blocks Write/Edit to src/physics/constants.ts unless commit tagged PHYSICS-CANONICAL-UPDATE). P02 fix.",
+      "AMEND-08: Tighten test_quality_law tolerance to ±5% kc/mc, ±10% geometry, ±15% only for Taylor C. P04 fix.",
+      "AMEND-09: Require customer_consent_gate before any S7 JMDie ingestion (beyond just unoptimized tag). L02 fix.",
+      "AMEND-10: Add export_control_gate for ITAR/EAR (Alcoa aerospace). L03 fix.",
+      "AMEND-11: Cleanroom isolation on S8 patent ingestion. L04 fix.",
+      "AMEND-12: Declare prerequisites section per tier-2 CAM documenting license-portal access requirements. Mark U-ING-S5 BLOCKED where access not confirmed. S2 fix.",
+      "AMEND-13: Add U-SDK06..U-SDK18 for tier-2 adapters. Total_units: 236 → 251. S3 fix.",
+      "AMEND-14: Split dispatcher — add prism_cam_catalog + prism_cam_automation sub-dispatchers OR collapse to generic actions with cam_id param. Hard cap prism_cam ≤ 120 actions. W-CAM-UIX-01 fix.",
+      "AMEND-15: Add AutomationBridge contract conformance test (iterates registry, asserts all adapters satisfy interface). W-CAM-UIX-04 + F05 fix.",
+      "AMEND-16: Reduce compact_every_n_units from 3 to 8 (align with sub-milestone boundaries). S5 fix.",
+      "AMEND-17: Reduce scrutiny_rounds_planned from 3 to 2 (Round 1 DONE now, Round 2 post-INFRA gate, no Round 3 unless triggered). S6 fix.",
+      "AMEND-18: Add L7-L14 legal gates (Reddit API paid tier, forum data-license, SDK EULA review, GDPR redaction, DMCA agent, ISO/DIN licenses, patent cleanroom). L-HIGH + L-MEDIUM fixes.",
+      "AMEND-19: Add complete data ingestion infrastructure (orchestrator, checkpoint, dedup, PII redact, incremental re-ingest, multilingual/OCR, fixture strategy). D01-D13 fixes.",
+      "AMEND-20: Rewrite forge-triple enforcement (baseline file, split baseline/current, glob→registry, post-write re-scan, CI gate). F01-F07 fixes.",
+      "AMEND-21: Rewrite ontology translation contract (tuple keys, TranslationResult status enum, UnitRegistry with 20 quantity classes, EnumAliasRegistry, round-trip stability test, version binding, namespace prefixes). O-01 through O-10 fixes."
+    ],
+    "exit_conditions_from_round_1": {
+      "all_CRITICAL_findings_addressed": "required before CAM-UIX-INFRA-00 claim",
+      "all_HIGH_findings_addressed": "required before CAM-UIX-INFRA-01 claim",
+      "all_MEDIUM_findings_addressed": "required before any tier-1 per-CAM sub-milestone claim",
+      "envelope_re_version_to": "1.1.0 after all 21 amendments applied"
+    },
+    "round_2_scope_preview": "Post-CAM-UIX-INFRA gate. Re-scrutinize: (a) did the infra engines actually ship duplication-free? (b) did the hooks + baseline files arrive? (c) did the ontology extension protocol handle first CAM's new fields correctly? (d) legal gates armed?",
+    "round_3_scope_preview": "Pre-merge gate. Integration: all 18 CAMs covered at coverage floor, sample_reproducibility_pct met, no canonical constants.ts drift, 0 hook bypass events in audit log.",
+    "raw_agent_reports_locations": [
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a50103d862e2f171d.output (architecture)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/aa0c3c2c9df3eb2dd.output (physics)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a6ce6d0473c14242e.output (test-quality)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a56bd237c78d0023e.output (legal)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a7acd8940bb92fc6c.output (data-ingestion)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/af7325d6d445c5ce1.output (scope)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/aee9637e8935ae2fa.output (duplication)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a10f4bfafe3768d3c.output (ontology)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/af556b18a0c4507d6.output (forge-triple)",
+      "C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310969e5684d/tasks/a9b692da0dfca9fe3.output (wiring)"
+    ]
+  },
+  "phase_0_amendments_applied": {
+    "applied_at": "2026-04-21",
+    "envelope_version": "1.1.0",
+    "amendments_count": 21,
+    "authoritative": "THIS BLOCK OVERRIDES the original units_by_phase, feature_cascade, rollback_envelope, and scrutiny_gates sections where specified. Phase 0 claimant reads THIS block first. Original sections preserved for audit trail.",
+    "AMEND_01_new_phase_minus_1_infra": {
+      "action": "Insert NEW sub-milestone CAM-UIX-INFRA-00 as the VERY FIRST work item, before CAM-UIX-INFRA-01",
+      "sub_milestone_id": "CAM-UIX-INFRA-00",
+      "title": "Foundational Guards & Registries — MUST ship before any ingestion or catalog work",
+      "units": [
+        {"id": "U-JMDP01", "title": "JMDie Provenance Guard + source_quality Schema", "scope": "ship jm-die-provenance-guard.mjs hook (PostToolUse Write on data/ingestion_cache/** sourced from H:/prism/JM DIE/**), IngestionProvenanceSchema.ts with source_quality enum, data/state/source_quality_policy.json", "exit_conditions": ["hook registered in .claude/settings.json", "schema imported by all ingestion engines", "test fixture proves unoptimized tag auto-injection on JMDie-source record"]},
+        {"id": "U-BASELINE01", "title": "Coverage Baseline + Current snapshot infra", "scope": "ship data/state/CAM_UIX_COVERAGE_BASELINE.json (locked floor) + CAM_UIX_COVERAGE_CURRENT.json (live), CoverageBaselineEngine.ts, cam_uix_audit --promote-baseline action. Fixes F01/F03.", "exit_conditions": ["both JSONs with schemaVersion", "PostToolUse hook updates current.json", "PreToolUse hook blocks on current<baseline"]},
+        {"id": "U-RATELIMIT01", "title": "Per-Source Rate-Limit Registry", "scope": "CAMRateLimitRegistryEngine.ts + data/ingestion/rate_limits.json (token-bucket: rps, burst, daily_cap, backoff_curve per host: autodesk-help, mastercam-help, openmind-academy, cncznet, emastercam, reddit, pluralsight, youtube, etc.). Fixes D01.", "exit_conditions": ["all 9 ingestion engines must acquire tokens from registry", "test harness asserts no live URL hits in unit tests"]},
+        {"id": "U-CACHEROOT01", "title": "Ingestion Cache Root + Pre-Write Hook", "scope": "canonical path data/ingestion_cache/<cam>/<source>/<yyyymm>/ declared in DIRECTORY_DIGEST.md. Pre-write hook rejects ingestion writes outside this root. Fixes D04.", "exit_conditions": ["data/ingestion_cache/ created with manifest.json index", "hook registered", "DIRECTORY_DIGEST.md updated"]},
+        {"id": "U-PHYSCONST01", "title": "Canonical Constants Write-Block Hook", "scope": "physics-canonical-constants-guard.mjs — PreToolUse Write|Edit on src/physics/constants.ts HARD-BLOCKS unless git commit tag is PHYSICS-CANONICAL-UPDATE. Fixes P02.", "exit_conditions": ["hook registered", "test asserts block on untagged edit + pass on tagged edit"]},
+        {"id": "U-VENDOR-REG01", "title": "CAM Vendor Registry for Hook Coverage", "scope": "data/state/CAM_VENDOR_REGISTRY.json listing all 18 CAMs with their file-name prefixes (Fusion360, Mastercam, HyperMILL, InventorHSM, OkumaIGF, SiemensNxCam, CatiaDelmia, Creo, PowerMill, Esprit, CamWorks, SolidCAM, GibbsCam, Cimatron, FeatureCAM, Edgecam, WorkNC, Tebis). cam-input-completeness-guard.mjs reads registry instead of glob. Fixes F02/W-CAM-UIX-02.", "exit_conditions": ["registry populated", "hook uses registry", "CI test verifies every registry entry has matching adapter path"]},
+        {"id": "U-LEGAL-GATES01", "title": "Legal Gate Engines (customer consent + ITAR + cleanroom + DMCA)", "scope": "CustomerConsentGateEngine.ts + data/state/customer-consents.json; ExportControlGateEngine.ts + USML classification per customer; PatentCleanroomIsolationEngine.ts + cleanroom namespace; DMCAAgentRegistrationEngine.ts + §512 agent registration + takedown endpoint; StandardsLicenseGateEngine.ts + data/state/standards-licenses.json. Fixes L01/L02/L03/L04/L14.", "exit_conditions": ["each gate has singleton + dispatcher action + test fixture proving block on unconsented source"]},
+        {"id": "U-ONTOLOGY-SEED01", "title": "Tiered Canonical Ontology Seed + Growth Registry", "scope": "OntologyGrowthRegistryEngine.ts + 4 namespace seed JSONs (cutting ~1200 names, workholding ~300, nc_structure ~500, machine_def ~400). Tuple-keyed (domain, strategy_class, op_phase, param_role, axis_frame). TranslationResult enum {EXACT, LOSSY, APPROX, UNSUPPORTED}. UnitRegistry with 20 quantity classes. EnumAliasRegistry separate from field aliases. Fixes O-01/O-02/O-03/O-04/O-05/O-06/O-09/O-10.", "exit_conditions": ["2,400 canonical names seeded", "extension API tested", "tuple-key translation tested with 3 CAM pairs", "round-trip stability test (U-ON04b) passes"]}
+      ],
+      "total_units_this_sub_milestone": 8,
+      "must_complete_before": "CAM-UIX-INFRA-01 claim"
+    },
+    "AMEND_02_delete_duplicate_SDK_units": {
+      "action": "DELETE U-SDK02, U-SDK03, U-SDK05 from CAM-UIX-INFRA-04 — they are direct duplicates",
+      "deletions": [
+        {"unit_id": "U-SDK02", "proposed": "Fusion360AutomationAdapter", "duplicate_of": "Fusion360AutomationBridge (E1303, CAD-AUTOMATION-MS0/U-CAUT06)", "replacement": "U-EXTEND-FUSION: add createOperation/setField/regenerate methods to existing Fusion360AutomationBridge.ts"},
+        {"unit_id": "U-SDK03", "proposed": "MastercamAutomationAdapter", "duplicate_of": "MastercamAutomationBridge (E1301, U-CAUT05)", "replacement": "U-EXTEND-MASTERCAM: add setField/createOperation to existing MastercamAutomationBridge.ts"},
+        {"unit_id": "U-SDK05", "proposed": "HyperMillAutomationAdapter", "duplicate_of": "HyperMILLAutomationBridge (E1304, U-CAUT07)", "replacement": "U-EXTEND-HYPERMILL: add missing CAM-drive methods to existing HyperMILLAutomationBridge.ts"}
+      ],
+      "retained": ["U-SDK01 (downgrade to interface-extraction refactor — extract ICAMAutomationBridge interface from existing bridges, do NOT create new CAMAutomationBridgeEngine)", "U-SDK04 (HSMPostAutomationAdapter — only if not already in CADAutomationRouter family)"],
+      "total_unit_delta": -3,
+      "per_duplication_review_finding_refs": ["C-01", "C-02", "C-03", "H-01"]
+    },
+    "AMEND_03_fix_tips_filenames": {
+      "action": "Correct 5 tips-file paths in learning_sources and U-PLAYBOOK units — files already exist under *-cam-tips.ts, not *-tips.ts, and are populated not empty",
+      "renames": {
+        "nx-cam-tips.ts": "KEEP — actual filename matches",
+        "powermill-tips.ts": "RENAME TO powermill-cam-tips.ts (actual filename)",
+        "esprit-tips.ts": "RENAME TO esprit-cam-tips.ts (actual filename)",
+        "camworks-tips.ts": "RENAME TO camworks-cam-tips.ts (actual filename)",
+        "solidcam-tips.ts": "RENAME TO solidcam-cam-tips.ts (actual filename)"
+      },
+      "u_playbook_behavior_change": "Change from 'write new file' to 'extend existing file' for all 5 CAMs. U-PLAYBOOK must check existing tip count before appending and dedup against existing tips via TribalKnowledgeEngine.hasTip(tip.text) fuzzy match.",
+      "per_duplication_review_finding_ref": "H-02"
+    },
+    "AMEND_04_ontology_rewrite_to_tiered_2400": {
+      "action": "Rewrite CAM-UIX-INFRA-03 — tiered ontology not flat 400",
+      "new_target_canonical_name_count": 2400,
+      "namespaces_with_separate_budgets": {
+        "cutting": 1200,
+        "workholding": 300,
+        "nc_structure": 500,
+        "machine_def": 400
+      },
+      "tier_structure": {
+        "L0_core_universal": {"count": "~200", "scope": "names that apply to every CAM in every domain (feed, speed, stepover, stepdown, tolerance)"},
+        "L1_domain": {"count": "~600 per domain × 4 domains", "scope": "domain-specific canonical names (milling.pocket.floor_tolerance, turning.thread.lead_angle)"},
+        "L2_strategy_specific": {"count": "~1,500 sparse coverage", "scope": "strategy-unique parameters (iMachining.morphing_spiral_angle, Adaptive.optimal_load)"}
+      },
+      "name_structure": "TUPLE not string: (domain, strategy_class, op_phase, param_role, axis_frame)",
+      "translation_api_contract": {
+        "return_type": "TranslationResult",
+        "fields": ["status: EXACT | LOSSY | APPROX | UNSUPPORTED", "value", "confidence: 0..1", "source_field", "target_field", "loss_reason?", "fallback_policy?"],
+        "callers_MUST_branch_on_status": true,
+        "UNSUPPORTED_returns_structured_diagnostic_never_value": true
+      },
+      "growth_protocol": "OntologyGrowthRegistryEngine PR-gated additions with semantic-dup check against existing canonicals (cosine > 0.85 = reject)",
+      "per_ontology_review_finding_refs": ["O-01", "O-02", "O-03"]
+    },
+    "AMEND_05_rewrite_per_cam_unit_template_order": {
+      "action": "Reorder per-CAM unit template to fix dependency-before-definition bug (U-ING-CERT depended on U-BRIDGE output that comes later)",
+      "new_order": [
+        "U-CAT01: Toolpath catalog enumeration — every strategy with Zod enum",
+        "U-UIS01: Per-strategy UI-field Zod schemas (tuple-keyed via canonical ontology) — registers new canonical names via ui_field_register action before mapping",
+        "U-BRIDGE-STUB: Stub CAMAutomationBridge adapter shell (method signatures + error taxonomy, no impl)",
+        "U-ING-PARALLEL: run all 6 ingestion units in parallel (PDF + VIDEO + FORUM + API + CERT + SAMPLES [only tier-1]) — each acquires rate-limit tokens, writes through provenance schema, checkpoints",
+        "U-TEST-AXIS-STATIC: Property-based fast-check test suite with 200 samples/strategy, fixture-based (no live host required)",
+        "U-BRIDGE-FINAL: Finalize adapter impl (implements ICAMAutomationBridge interface extracted in INFRA-04)",
+        "U-TEST-AXIS-LIVE: Live host test (when host available) — exercises adapter through real CAM runtime, nightly only",
+        "U-PLAYBOOK: Extend existing <cam>-cam-tips.ts with dedup check",
+        "U-VALIDATE: Sample reproducibility — tier-1 uses JMDie (with unoptimized flag on observed data), tier-2 uses vendor-published samples"
+      ],
+      "new_template_unit_count": 9,
+      "removed_from_original": ["U-ING-SAMPLES as separate unit (merged into U-ING-PARALLEL with skip-for-non-tier-1 flag)"],
+      "per_architecture_review_finding_refs": ["ARCH-02", "ARCH-07"]
+    },
+    "AMEND_06_decompose_LP04_LP05_into_9": {
+      "action": "Decompose CAM-UIX-INFRA-01 LP04+LP05 bundle of 9 ingest engines into 9 discrete units",
+      "new_units": [
+        "U-LP04a: CAMDocScrapeIngestEngine — COLLAPSED to source-list config on existing URLContentExtractorEngine + ContentIngestionPipelineEngine (per H-03)",
+        "U-LP04b: CAMForumIngestEngine — COLLAPSED to source-list config (per H-03)",
+        "U-LP04c: CAMTradePressIngestEngine — source-list config (RSS-first)",
+        "U-LP04d: CAMCertCurriculumIngestEngine — NEW engine (requires NDA/copyright legal review first, publicly-posted only)",
+        "U-LP04e: CAMSdkIngestEngine — NEW engine with per-CAM legal EULA review per-vendor",
+        "U-LP04f: CAMPostLibraryIngestEngine — NEW engine with SPDX license tagging",
+        "U-LP04g: CAMSampleReverseEngineerEngine — NEW engine with customer_consent_gate + ITAR gate + ground-truth-label-set requirement",
+        "U-LP04h: CAMPatentIngestEngine — NEW engine with cleanroom isolation (isolated namespace, legal-only read)",
+        "U-LP04i: CAMStandardsIngestEngine — NEW engine with verified_purchase license check per ISO/DIN standard",
+        "U-LP04j: CAMSocialEventIngestEngine — source-list config (per-presentation license check)",
+        "U-LP04k: CAMVendorTrainingIngestEngine — DELETE (M-02: duplicates existing VideoLearningEngine + /video-learn), replaced by source-list config"
+      ],
+      "infra_01_unit_count_change": "LP01+LP02+LP03+LP04+LP05 (5 units) → LP01+LP02+LP03+LP04a..LP04k (14 units) − 2 deletions for collapse = 12 units",
+      "per_architecture_review_finding_refs": ["ARCH-03"]
+    },
+    "AMEND_07_add_physics_canonical_guard": {
+      "action": "Register physics-canonical-constants-guard.mjs hook as PreToolUse Write|Edit on src/physics/constants.ts",
+      "hook_registered_in": ".claude/settings.json hooks block",
+      "block_unless": "git commit message contains 'PHYSICS-CANONICAL-UPDATE' tag",
+      "owner_unit": "U-PHYSCONST01 (in CAM-UIX-INFRA-00)",
+      "per_physics_review_finding_ref": "P02"
+    },
+    "AMEND_08_tighten_test_quality_tolerance": {
+      "action": "Replace test_quality_law tolerance text in scrutiny_gates",
+      "new_text": "Every field-schema test MUST validate a real vendor-published value or a reverse-engineered JMDie fingerprint (where JMDie records carry source_quality: empirical_shop_reality_unoptimized and are NOT used as physics ground-truth). Tolerance: ±5% for kc/mc (matches ISO 3685 vendor precision), ±10% for geometry-derived fields (fz, ap, Vc), ±15% reserved for empirical tool-life Taylor C where published variance is wider. NO toBeDefined(), NO toBeGreaterThan(0), NO self-agreement tests.",
+      "per_physics_review_finding_ref": "P04"
+    },
+    "AMEND_09_customer_consent_gate": {
+      "action": "Add customer_consent_gate requirement for all S7 JMDie ingestion beyond source_quality tagging",
+      "gate_engine": "CustomerConsentGateEngine.ts (built in U-LEGAL-GATES01)",
+      "state_file": "data/state/customer-consents.json with fields {customer_name, scope, expiry, signed_by, consent_document_path}",
+      "quarantine_until": "consent record present and non-expired and scope covers this ingestion batch",
+      "applies_to_customers": ["ITW", "Alcoa", "Optimas", "SFS", "Holo-Krome", "all 100+ JMDie customers"],
+      "per_legal_review_finding_ref": "L02"
+    },
+    "AMEND_10_export_control_gate": {
+      "action": "Add ITAR/EAR classification gate on S7 JMDie customer programs",
+      "gate_engine": "ExportControlGateEngine.ts (built in U-LEGAL-GATES01)",
+      "classification_required_per_customer_part": ["USML Category (I-XXI or EAR99)", "ECCN where applicable", "part_number", "classification_source"],
+      "block_ingestion_if": "USML Cat I-XXI classified AND reader is foreign national AND not on approved access list",
+      "export_log": "Per 22 CFR §120.17 — record every access in data/state/export_control_access_log.ndjson",
+      "applies_especially_to": "Alcoa aerospace (Cat VIII/XV likely), defense-vertical customers",
+      "per_legal_review_finding_ref": "L03"
+    },
+    "AMEND_11_patent_cleanroom_isolation": {
+      "action": "Cleanroom isolation for S8 patent ingestion — isolate from implementation team",
+      "cleanroom_namespace": "data/cleanroom/patents/ (separate from data/ingestion_cache/)",
+      "access_control": "Read permission granted ONLY to legal review role and non-implementing researcher role. Implementer role (coders) blocked by filesystem ACL + .gitignore on cleanroom paths.",
+      "artifacts": ["Raw patent claim language stays in cleanroom", "Functional summaries generated by non-implementing reviewer flow through to implementation team"],
+      "attestation_required": "Implementers sign 'no patent exposure on topic X' before writing code in area X. Attestations in data/state/patent_exposure_attestations.ndjson.",
+      "per_legal_review_finding_ref": "L04"
+    },
+    "AMEND_12_tier_2_prerequisites_section": {
+      "action": "Add prerequisites section per tier-2 CAM that requires license-portal or installed-software access",
+      "tier_2_access_requirements": {
+        "siemens_nx_cam": {"sdk_docs": "NX OpenAPI nominally public, but meaningful depth requires installed NX local HTML help", "prereq": "NX install + partner login for SDK deep reference", "ui_field_schema_coverage_floor_if_blocked": "70%"},
+        "catia_delmia_nc": {"sdk_docs": "CAA NC Manufacturing C++ reference — DS portal login required", "prereq": "DS partner portal access (not held)", "status": "BLOCKED — U-ING-S5 marked BLOCKED until access; U-UIS01 coverage floor drops to 60%"},
+        "creo_nc": {"sdk_docs": "Creo Toolkit NC Machining C++ — PTC partner access only", "prereq": "PTC partner portal access (not held)", "status": "BLOCKED — U-ING-S5 marked BLOCKED; U-UIS01 coverage floor drops to 60%"},
+        "powermill": {"sdk_docs": "PowerMill Macro public, .NET COM Bridge partner-only", "prereq": "Autodesk Platform Partner for .NET bridge", "status": "PARTIAL — macro scope covered, .NET deferred"},
+        "esprit": {"sdk_docs": "ESPRIT VBA/DP Technology plugin SDK — partner only", "prereq": "Hexagon partner access (not held)", "status": "BLOCKED unless partnership secured"},
+        "camworks": {"sdk_docs": "CAMWorks API — partner only", "prereq": "Geometric/HCL partner access", "status": "BLOCKED unless partnership secured"},
+        "solidcam": {"sdk_docs": "SolidCAM via SolidWorks COM — SolidWorks partner + SolidCAM license required", "prereq": "SolidWorks SDK + SolidCAM license", "status": "PARTIAL"},
+        "gibbscam_cimatron_featurecam_edgecam_worknc_tebis": {"sdk_docs": "variable public availability", "prereq": "per-vendor case-by-case", "status": "INVESTIGATE before claiming unit"}
+      },
+      "exit_condition_amendment": "ui_field_schema_coverage_pct per tier: tier-1 ≥95%, tier-2 with full access ≥85%, tier-2 BLOCKED ≥60% (documentation-only scope)",
+      "per_scope_review_finding_ref": "S2"
+    },
+    "AMEND_13_add_sdk06_to_sdk18_adapters": {
+      "action": "Add 14 explicit AutomationAdapter units for tier-2 CAMs (were implicitly hidden in per-CAM units, breaking engine count)",
+      "new_units": [
+        "U-SDK06: SiemensNxCamAutomationAdapter (NXOpen.CAM)",
+        "U-SDK07: CatiaDelmiaAutomationAdapter (CAA NC Manufacturing) — BLOCKED pending partner access",
+        "U-SDK08: CreoAutomationAdapter (Creo Toolkit NC) — BLOCKED pending partner access",
+        "U-SDK09: PowerMillAutomationAdapter (PowerMill Macro + .NET COM)",
+        "U-SDK10: EspritAutomationAdapter (ESPRIT VBA/.NET)",
+        "U-SDK11: CamWorksAutomationAdapter",
+        "U-SDK12: SolidCAMAutomationAdapter",
+        "U-SDK13: GibbsCamAutomationAdapter",
+        "U-SDK14: CimatronAutomationAdapter",
+        "U-SDK15: FeatureCAMAutomationAdapter",
+        "U-SDK16: EdgecamAutomationAdapter",
+        "U-SDK17: WorkNCAutomationAdapter",
+        "U-SDK18: TebisAutomationAdapter"
+      ],
+      "total_unit_delta": 14,
+      "engine_count_impact": "Was claimed 50, actual ~64 (50 + 14 tier-2 adapters) → 22,500 LOC → 28,800 LOC; 3,850 → 4,900+ new tests",
+      "per_scope_review_finding_ref": "S3"
+    },
+    "AMEND_14_dispatcher_split": {
+      "action": "Split prism_cam into sub-dispatchers to prevent action enum explosion to ~260",
+      "new_dispatchers": [
+        "prism_cam_catalog — holds per-CAM ToolpathCatalog actions (takes cam_id param): list_strategies, get_strategy, get_fields, validate_fingerprint — 4 generic actions not 72 per-CAM",
+        "prism_cam_automation — holds AutomationBridge actions (takes cam_id param): open_doc, create_operation, set_field, regenerate, post_process, export — 6 generic actions not 108 per-CAM",
+        "prism_cam_ingest — holds ingestion control actions: ingest_run, ingest_status, ingest_cancel, ingest_checkpoint_list, ingest_baseline_promote",
+        "prism_cam (existing) — retains high-level CAM actions + 4 new cam_uix_* meta-actions. HARD CAP: ≤ 120 actions."
+      ],
+      "action_routing_pattern": "Generic actions take cam_id: string as first param. Dispatcher resolves to per-CAM engine via CAM_VENDOR_REGISTRY.json lookup.",
+      "per_wiring_review_finding_ref": "W-CAM-UIX-01"
+    },
+    "AMEND_15_automation_bridge_contract_conformance": {
+      "action": "Mandate contract conformance test across all 18 AutomationAdapters",
+      "test_file": "src/__tests__/camAutomationBridge.contract.test.ts",
+      "test_behavior": "Reads CAM_VENDOR_REGISTRY.json → iterates 18 CAMs → dynamically imports each adapter → asserts ICAMAutomationBridge interface satisfied (all 6 methods present with correct signatures, error taxonomy conformant, round-trip fixture document passes)",
+      "required_in_exit_conditions": true,
+      "per_wiring_review_finding_ref": "W-CAM-UIX-04"
+    },
+    "AMEND_16_compact_cadence_3_to_8": {"applied_inline": "stage_4_scope.compact_every_n_units AND compact_checkpoint", "rationale": "Reduces ~78 compactions to ~30, saves ~16h overhead; aligns with sub-milestone boundaries", "per_scope_review_finding_ref": "S5"},
+    "AMEND_17_scrutiny_rounds_3_to_2": {"applied_inline": "scrutiny_rounds_planned", "rationale": "Round 1 DONE; Round 2 post-INFRA gate; drop Round 3 unless triggered by rollback_envelope abort criterion", "per_scope_review_finding_ref": "S6"},
+    "AMEND_18_legal_gates_per_source": {
+      "action": "Activate per-source legal gates beyond the CRITICAL L01-L04",
+      "gates": {
+        "L05_S11_paid_training": "REMOVE S11 Pluralsight/Udemy/CamInstructor OR negotiate enterprise licenses (Pluralsight Flow, Udemy Business API). No DRM circumvention.",
+        "L06_S4_exam_content": "Ingest ONLY publicly-posted syllabus/outline. Require per-source legal review before S4 activates.",
+        "L07_reddit_api": "Replace free scrape with paid Reddit Data API commercial tier. Same for X/Twitter enterprise tier, LinkedIn prohibited.",
+        "L08_forum_tos": "Contact each forum operator (CNCzone, eMastercam, Autodesk Forums, Creo, Siemens) for data-license agreement. Fall back to user-contributed tips with DCO-style contributor license.",
+        "L09_sdk_eula": "Per-vendor EULA legal review before parsing SDK docs into Zod schemas. Prefer public OpenAPI/Swagger. Partnership agreements for proprietary SDKs.",
+        "L10_pii_redaction": "Strip handles at ingestion (hash only), implement Article 17 DSAR endpoint, document lawful basis in DPIA, add CAMIngestPIIRedactEngine.",
+        "L11_post_library_spdx": "Per-file SPDX tagging in data/posts/LICENSES.json. Block MPL/GPL from closed-source bundles. Isolate proprietary-sample behind license-check runtime gate.",
+        "L12_s1_fair_use_weak": "Post Thomson Reuters v. ROSS (Feb 2025) — pursue vendor partnership agreements. Autodesk Platform Partner, Mastercam Reseller etc. Cite-and-link not reproduce.",
+        "L13_conference_materials": "Per-presentation license check. Prefer publicly-posted CC-licensed. Bulk-use agreements for AU/MIC/vendor events.",
+        "L14_dmca_safe_harbor": "Register §512 DMCA agent ($6 USCO). Publish takedown endpoint. Automate source-URL → ingestion-record → purge on takedown."
+      },
+      "owner_unit": "U-LEGAL-GATES01 (in CAM-UIX-INFRA-00)",
+      "per_legal_review_finding_refs": ["L05", "L06", "L07", "L08", "L09", "L10", "L11", "L12", "L13", "L14"]
+    },
+    "AMEND_19_data_ingestion_infrastructure": {
+      "action": "Build complete data-ingestion infrastructure before any S1-S11 unit runs",
+      "new_components": {
+        "CAMIngestOrchestratorEngine": "queue + worker pool + per-source rate budget + retry policy. Wired to CAMInputExhaustionPlannerEngine + DistributedLockManager. Fixes D02.",
+        "CAMIngestCheckpointEngine": "per-unit cursors {last_url, last_offset, hash, items_done} → data/ingestion_cache/checkpoints/<cam>/<source>.json. Orchestrator resumes from cursor. Fixes D03.",
+        "CAMIngestDedupEngine": "SimHash/MinHash >0.85 Jaccard = merge; stores source_refs[] per canonical tip. Fixes D06.",
+        "IngestedTipSchema_and_IngestedFieldSchema": "Zod schemas at registry boundary. Reject-and-quarantine invalid rows to data/ingestion_cache/quarantine/. Fixes D07.",
+        "ProvenanceEnvelope": "wrapper required on every Tribal/Playbook/Registry insert from ingestion with fields {source_url, fetched_at, sha256, license_tag, ingest_run_id, source_quality}. Enforced via insert-hook. Fixes D08.",
+        "CAMIngestPIIRedactEngine": "regex + NER, runs before persistence. Hash handles, drop emails/phones. Fixes D09.",
+        "incremental_reingest": "ETag, Last-Modified, body-SHA256 per URL. Conditional GET; only re-parse on 200-with-diff. Fixes D10.",
+        "CAMIngestTranslateEngine_plus_Tesseract": "jpn/deu/chi_sim OCR + cached machine translation. Language-detect gate before parse. Emits source_lang in provenance. Fixes D11.",
+        "ingestion_per_source_lock": "ingest:<cam>:<source> lock key via DistributedLockManager, non-blocking. Fixes D12.",
+        "video_transcription_budget": "cap N GPU-hours/day, Whisper-small CPU tier for low-priority, persist transcripts to data/ingestion_cache/transcripts/. Fixes D13.",
+        "test_fixture_strategy": "nock/MSW HTTP mocking. Fixtures at src/__tests__/fixtures/ingestion/<source>/. Lint rule blocks http(s):// in tests. Fixes D05."
+      },
+      "owner_unit": "CAM-UIX-INFRA-01 (decomposed) + U-RATELIMIT01 + U-CACHEROOT01 (both in INFRA-00)",
+      "per_data_pipeline_review_finding_refs": ["D02", "D03", "D05", "D06", "D07", "D08", "D09", "D10", "D11", "D12", "D13"]
+    },
+    "AMEND_20_forge_triple_enforcement_rewrite": {
+      "action": "Rewrite cam-input-completeness-guard.mjs to fix 12 enforcement gaps",
+      "new_spec": {
+        "baseline_file_name": "data/state/CAM_UIX_COVERAGE_BASELINE.json (locked floor)",
+        "current_file_name": "data/state/CAM_UIX_COVERAGE_CURRENT.json (live)",
+        "glob_replacement": "registry-driven — reads CAM_VENDOR_REGISTRY.json + matches src/engines/{VendorId}*Adapter.ts + src/engines/{VendorId}CAMBridge.ts",
+        "pre_tool_use_parses_write_input": "hook parses tool new_string/content payload, unions with on-disk remainder to compute post-state coverage",
+        "post_tool_use_twin_hook": "scans after write, refuses persistence (rewrites file to prior) on regression",
+        "baseline_promote_mechanism": "cam_uix_audit --promote-baseline (only way to raise baseline)",
+        "server_side_ci_gate": "pre-receive hook or PR CI job recomputes coverage on every diff, blocks merge regardless of local --no-verify bypass",
+        "bypass_audit_trail": "data/state/cam_uix_guard_audit.ndjson — nightly job asserts guard ran on every CAM-adapter commit in git log, flags silent-skip commits",
+        "perf_optimization": "parsed-catalog cache keyed by file mtime+hash in .claude/cache/cam_uix_catalogs/ — O(1) re-use instead of O(18) re-read per edit",
+        "skill_to_action_binding_test": "src/__tests__/skills/cam-exhaust-audit.test.ts parses slash frontmatter + asserts action+args",
+        "dispatcher_action_round_trip_test": "vitest invokes prism_cam with action:cam_uix_audit, asserts non-undefined structured result; fails on 'unknown action'",
+        "hook_has_its_own_tests": "src/__tests__/cam-input-completeness-guard.test.ts covers (a) coverage drop blocks, (b) coverage rise allows, (c) unchanged allows, (d) malformed input blocks",
+        "duplication_guard_strengthened": "keyword+description cosine similarity at 0.85 against existing engines named *CAMInputExhaustion* or *UIXExhaust* — blocks V2-style renames",
+        "rollback_baseline_reconcile": "cam_uix_audit --reconcile-baseline runs on branch delete/reset; CI job enforces baseline ≤ current on main"
+      },
+      "per_forge_triple_review_finding_refs": ["F01", "F02", "F03", "F04", "F05", "F06", "F07", "F08", "F09", "F10", "F11", "F12"]
+    },
+    "AMEND_21_ontology_translation_contract_comprehensive": {"note": "Merged into AMEND_04 which covers O-01 through O-10. See AMEND_04_ontology_rewrite_to_tiered_2400."},
+    "updated_abort_criteria": [
+      "strategy_catalog_coverage_pct for any tier_1 CAM drops below 100%",
+      "ui_field_schema_coverage_pct for tier_1 CAM drops below 95%",
+      "ui_field_schema_coverage_pct for tier_2 unblocked CAM drops below 85%",
+      "ui_field_schema_coverage_pct for tier_2 BLOCKED CAM drops below 60% (documentation-only scope)",
+      "sample_reproducibility_pct for JMDie-using CAMs drops below 80% (measured against human-labeled ground-truth set, not self-agreement)",
+      "omega for any completed sub-milestone < 0.95",
+      "cam-input-completeness-guard hook is bypassed without cam_uix_guard_audit.ndjson entry",
+      "any ingestion engine writes to src/physics/constants.ts (physics-canonical-constants-guard triggered)",
+      "any JMDie record promoted from quarantine without customer_consent_gate PASS",
+      "any USML-classified part ingested without export_control_gate PASS"
+    ],
+    "updated_new_hooks": [
+      "cam-input-completeness-guard.mjs (CAM-UIX-INFRA-01 U-LP03)",
+      "jm-die-provenance-guard.mjs (CAM-UIX-INFRA-00 U-JMDP01) — NEW",
+      "physics-canonical-constants-guard.mjs (CAM-UIX-INFRA-00 U-PHYSCONST01) — NEW",
+      "cam-input-completeness-post.mjs (PostToolUse twin — AMEND-20)",
+      "ingestion-cache-root-guard.mjs (CAM-UIX-INFRA-00 U-CACHEROOT01) — NEW"
+    ],
+    "updated_new_actions": [
+      "cam_uix_audit", "cam_uix_plan_next", "cam_uix_ingest_run", "cam_uix_coverage_report",
+      "cam_uix_audit_promote_baseline", "cam_uix_audit_reconcile_baseline",
+      "cam_uix_customer_consent_check", "cam_uix_export_control_check",
+      "cam_uix_ontology_register", "cam_uix_ontology_translate",
+      "cam_uix_ingest_checkpoint_list", "cam_uix_ingest_checkpoint_resume",
+      "cam_uix_legal_gate_status"
+    ],
+    "sub_milestone_execution_order_post_amendment": [
+      "CAM-UIX-INFRA-00 (NEW, 8 units — foundational guards + registries + gates)",
+      "CAM-UIX-INFRA-01 (decomposed to 12 units per AMEND-06)",
+      "CAM-UIX-INFRA-02 (registry extension, unchanged)",
+      "CAM-UIX-INFRA-03 (rewrite per AMEND-04 — tiered ontology, 5 units)",
+      "CAM-UIX-INFRA-04 (with deletions per AMEND-02, retained U-SDK01 + U-SDK04 + extend-existing × 3 = 5 units)",
+      "CAM-UIX-INFRA-SDK-TIER2 (new — 14 tier-2 adapter units per AMEND-13)",
+      "18 per-CAM sub-milestones (each with 9-unit template per AMEND-05)"
+    ]
+  },
+  "scrutiny_round_2": {
+    "executed_at": "2026-04-21",
+    "method": "One dedicated agent per CAM software in scope (18 agents: 5 tier-1 + 13 tier-2). Each agent received the v1.1.0 envelope + vendor-specific prompt + bounded scope. Aggregated 18 per-CAM findings into structured report.",
+    "scope_note": "Round 2 per user directive 'when you're done, scrutinize with an agent for each cam software'. Round 2 executed ad-hoc (pre-INFRA-00 build) as domain-expert sanity check on envelope BEFORE claiming first unit — NOT the post-INFRA Round 2 gate originally planned. Post-INFRA Round 2 gate still required before tier-1 per-CAM claim (AMEND-17).",
+    "finding_counts": {
+      "total": 142,
+      "CRITICAL": 9,
+      "HIGH": 58,
+      "MEDIUM": 75,
+      "per_cam_avg": 7.9
+    },
+    "per_cam_findings": {
+      "mastercam_x8": {
+        "tier": 1,
+        "findings": [
+          {"id": "MCX-01", "severity": "HIGH", "title": "NetHook3 is .NET Framework 4.x only — not .NET Core/5+. Adapter cannot use modern runtime.", "fix": "U-EXTEND-MASTERCAM must run in .NET Framework 4.8 subprocess; PRISM drives via named-pipe RPC, not in-proc."},
+          {"id": "MCX-02", "severity": "HIGH", "title": "Mastercam 2023+ renamed many fields (max_stepdown → depth_of_cut) — X8 catalog won't match current release.", "fix": "U-CAT01 must emit per-version aliases; data/catalogs/mastercam/versions.json with {X8, 2020, 2021, 2022, 2023, 2024, 2025} field maps."},
+          {"id": "MCX-03", "severity": "HIGH", "title": ".mcx-8 binary format is proprietary; reverse-engineering via NetHook3 read-only is the ONLY legal path. Do NOT decode raw binary.", "fix": "U-ING-SAMPLES (S7) MUST open .mcx-8 through NetHook3 API, never parse bytes. Enforce via hook blocking Buffer.from(mcxBytes)."},
+          {"id": "MCX-04", "severity": "MEDIUM", "title": "MP post-processor language (Mastercam .pst) is proprietary DSL — parser must handle dialect variants per shop.", "fix": "CAMPostLibraryIngestEngine needs Mastercam MP sub-parser with shop_dialect field per file."},
+          {"id": "MCX-05", "severity": "MEDIUM", "title": "JMDie 3,713 .mcx-8 files span X5 through 2024 — version drift invalidates naive cross-file schema assumptions.", "fix": "U-VALIDATE must stratify reproducibility by Mastercam version bucket."},
+          {"id": "MCX-06", "severity": "MEDIUM", "title": "Dynamic Motion (Mastercam's adaptive) uses proprietary math — patent US 8,473,101 held by CNC Software.", "fix": "Redirect Dynamic Motion ingestion through S8 cleanroom channel. Implementation uses PRISM-native adaptive, cites Mastercam as reference not source."},
+          {"id": "MCX-07", "severity": "MEDIUM", "title": "Dedicated-router variant (Mastercam Router) is a separate strategy tree — not covered by Mastercam X8 catalog.", "fix": "Defer to tier-3 CAM-UIX-MS1 (mastercam_router already listed there)."}
+        ]
+      },
+      "fusion360": {
+        "tier": 1,
+        "findings": [
+          {"id": "FUS-01", "severity": "HIGH", "title": "Fusion adsk.cam Python API is read-mostly — many fields require HSM Post-Language for setFIeld writes.", "fix": "U-EXTEND-FUSION must layer Python read + HSM Post JS write. Document per-field which channel is authoritative."},
+          {"id": "FUS-02", "severity": "HIGH", "title": "Fusion cloud-first architecture: operations may be pending/regenerating async — adapter must await regenerate() before read.", "fix": "Bridge interface regenerate() returns Promise<{state: 'ready'|'failed'}>; no sync read before resolve."},
+          {"id": "FUS-03", "severity": "MEDIUM", "title": "Fusion CAM is subscription-gated; SDK access requires active Fusion + Manufacturing extension for 5-axis features.", "fix": "Document prerequisite in AMEND-12 tier-1 section. Mark 5-axis strategy coverage as FUSION_EXTENSION_REQUIRED."},
+          {"id": "FUS-04", "severity": "MEDIUM", "title": "Fusion + Inventor HSM share HSM Post-Language — bridge code MUST NOT duplicate between adapters.", "fix": "Extract HSMPostAutomationAdapter (U-SDK04) as shared library. Fusion + Inventor adapters import from it. Already partially addressed by AMEND-02."},
+          {"id": "FUS-05", "severity": "MEDIUM", "title": "Fusion versions monthly — API surface drifts. Catalog freshness must be tracked.", "fix": "U-CAT01 records fusion_api_version at ingestion; re-scrape quarterly via S1/S5."},
+          {"id": "FUS-06", "severity": "MEDIUM", "title": "Fusion 'Setup' is the canonical WCS unit — does not map 1:1 to Mastercam 'Operation' at the top level.", "fix": "Canonical ontology must model Setup vs Operation hierarchy; param_role tuple includes op_phase: 'setup'|'operation'."}
+        ]
+      },
+      "inventor_hsm": {
+        "tier": 1,
+        "findings": [
+          {"id": "IHS-01", "severity": "HIGH", "title": "Inventor HSM is being sunset by Autodesk (2026 end-of-life) — investment in deep adapter may age out.", "fix": "Reduce Inventor HSM scope: catalog + basic adapter only. Deep features deferred. Document migration path Inventor-HSM → Fusion."},
+          {"id": "IHS-02", "severity": "HIGH", "title": "HSM Post-Language is shared between Inventor HSM and Fusion — duplication of post processors between both adapters.", "fix": "Single HSMPostAutomationAdapter serves both. Already handled by AMEND-02 retaining U-SDK04."},
+          {"id": "IHS-03", "severity": "MEDIUM", "title": "Inventor HSM tip count lower than Mastercam/Fusion — underutilized in JMDie.", "fix": "U-PLAYBOOK targets 80+ tips minimum (vs. 150+ for Mastercam/Fusion)."},
+          {"id": "IHS-04", "severity": "MEDIUM", "title": "Inventor HSM iLogic integration allows programmatic CAM ops from Inventor CAD — not captured in adapter interface.", "fix": "Document iLogic pathway as advanced feature; defer impl to tier-2 follow-on."},
+          {"id": "IHS-05", "severity": "MEDIUM", "title": "Inventor HSM ultimate has turning + multi-axis — Inventor CAM standard does not. Version-tier stratification needed.", "fix": "Per-version prerequisite matrix in catalog."}
+        ]
+      },
+      "hypermill": {
+        "tier": 1,
+        "findings": [
+          {"id": "HYM-01", "severity": "HIGH", "title": "hyperMILL 5-axis tilt cycles (e.g., Rotary Machining) are proprietary — OpenMind holds key patents on tool-axis optimization.", "fix": "S8 cleanroom ingestion for OpenMind patents. Implementers use PRISM-native 5-axis, cite hyperMILL only as reference baseline."},
+          {"id": "HYM-02", "severity": "HIGH", "title": "hyperMILL NetSDK is partner-only — public docs shallow. Deep field schema requires OpenMind partnership.", "fix": "AMEND-12 must mark hypermill SDK access as partner-required; ui_field_schema_coverage_pct floor drops to 85% without partnership."},
+          {"id": "HYM-03", "severity": "HIGH", "title": "hyperMILL uses .h5 cycle-definition files (XML) — not covered by .mcx-8 or .f3d parser.", "fix": "Add .h5 parser to CAMDocScrapeIngestEngine. Schema from OpenMind Academy hyperMILL Cycle Definition Guide."},
+          {"id": "HYM-04", "severity": "MEDIUM", "title": "hyperMILL MAXX Machining module is 5-axis trochoidal — requires separate license.", "fix": "Prerequisite documented; catalog entries tagged maxx_required: true."},
+          {"id": "HYM-05", "severity": "MEDIUM", "title": "JMDie hyperMILL usage unclear — not in top-5 CAM list per inventory.", "fix": "Validate JMDie hyperMILL footprint before claiming S7 ingestion for this CAM. May skip S7."}
+        ]
+      },
+      "okuma_igf": {
+        "tier": 1,
+        "findings": [
+          {"id": "OKI-01", "severity": "CRITICAL", "title": "Okuma IGF is a CONTROLLER-RESIDENT conversational programming system, NOT a CAM package. Envelope conflates two categories.", "fix": "Reframe CAM-UIX-OKUMA-IGF-MS0 as 'conversational programming bridge', not CAM adapter. Different integration path: OSP-P300 API, not CAM SDK. Distinct from NX CAM / Fusion etc."},
+          {"id": "OKI-02", "severity": "CRITICAL", "title": "OSP-P300 API access requires Okuma partner agreement — not available publicly. 'U-BRIDGE' unit is structurally INFEASIBLE without partnership.", "fix": "Drop U-BRIDGE for Okuma IGF. Replace with read-only program-file ingestion (.MIN / .prg) + LAP4/CAS/Thermo-Friendly Concept doc scraping. 12u → 6u."},
+          {"id": "OKI-03", "severity": "HIGH", "title": "JMDie 5,297 .MIN files are Okuma OSP machine code, not IGF source — reverse-engineering from .MIN ≠ recovering IGF conversational intent.", "fix": "U-VALIDATE must distinguish 'matched OSP output signature' from 'matched IGF input intent'. The latter requires IGF source access (not available via .MIN)."},
+          {"id": "OKI-04", "severity": "HIGH", "title": "Machining Navi (chatter avoidance), LAP4 (lathe programming), CAS (collision avoidance), Thermo-Friendly Concept — 4 separate Okuma subsystems — envelope treats as monolith.", "fix": "Decompose CAM-UIX-OKUMA-IGF-MS0 into: IGF (conversational), LAP4 (lathe CAM), CAS (simulation), Machining Navi (adaptive feeds), Thermo-Friendly (thermal comp). Tag each unit with subsystem."},
+          {"id": "OKI-05", "severity": "MEDIUM", "title": "Okuma OSP-P300 controller has ~40 G-codes + M-codes beyond Fanuc standard — post dialect requires deep Okuma-specific table.", "fix": "Strengthen post_dialect ingestion — Okuma entries in S6 need Okuma-specific parameters and Multi-Tasking Lathe (MTL) macro set."}
+        ]
+      },
+      "siemens_nx_cam": {
+        "tier": 2,
+        "findings": [
+          {"id": "NX-01", "severity": "HIGH", "title": "NXOpen.CAM C++ API surface is enormous (~3,000 methods) — ingestion budget underestimated.", "fix": "S5 for NX needs dedicated 5u not 1u; estimate recomputed as tier-2 partial coverage = 60%."},
+          {"id": "NX-02", "severity": "HIGH", "title": "NX CAM license is enterprise ($30k+) — local install for SDK testing may be infeasible.", "fix": "Prerequisite documented in AMEND-12. Fallback: public NX Open Python API reference + Siemens community docs."},
+          {"id": "NX-03", "severity": "MEDIUM", "title": "NX CAM 'Operation Types' enum is ~150 — 30% more than Mastercam. Ontology growth via AMEND-04 accommodates but tuple count per strategy grows.", "fix": "Budget OntologyGrowthRegistryEngine to add ~400 NX-specific canonical names during U-UIS01 for NX."},
+          {"id": "NX-04", "severity": "MEDIUM", "title": "NX Post Builder has graphical flow editor — ingestion from binary .pui format, not text.", "fix": "Post Builder files require proprietary parser or SDK round-trip. Defer to legal/partnership review."},
+          {"id": "NX-05", "severity": "MEDIUM", "title": "Siemens NX + Solid Edge CAM share kinematics — potential code reuse.", "fix": "Document shared-kinematic-model with Solid Edge CAM in architecture notes; deferred consolidation."}
+        ]
+      },
+      "catia_delmia_nc": {
+        "tier": 2,
+        "findings": [
+          {"id": "CAT-01", "severity": "CRITICAL", "title": "CATIA DELMIA NC SDK access requires Dassault Systèmes Platinum Partner — PRISM does not hold this. Deep SDK ingestion IMPOSSIBLE without partnership.", "fix": "**USER DECISION (scope change 1)**: demote catia_delmia_nc from tier-2 to tier-3 (defer to CAM-UIX-MS1) OR commit to partnership acquisition timeline. Current tier-2 status blocked."},
+          {"id": "CAT-02", "severity": "HIGH", "title": "CATIA's Part/Product/Process model is fundamentally different from other CAMs (PLM-centric) — canonical ontology must extend.", "fix": "If retained: add PLM context tuple dimension to canonical name tuple (currently 5-tuple → 6-tuple for CATIA)."},
+          {"id": "CAT-03", "severity": "HIGH", "title": "CATIA V5 vs 3DEXPERIENCE (V6) diverge sharply — NC envelope assumes V5 surface.", "fix": "Version-bind catalog; 3DEXPERIENCE deferred if retained at all."},
+          {"id": "CAT-04", "severity": "MEDIUM", "title": "CATIA install is 200+ GB — test-fixture strategy (AMEND-19) needs GB-scale local CATIA repro or cloud sandbox budget.", "fix": "Cloud CATIA 3DEXPERIENCE trial + cleanroom separation. Cost +$500/mo."}
+        ]
+      },
+      "creo_nc": {
+        "tier": 2,
+        "findings": [
+          {"id": "CRE-01", "severity": "CRITICAL", "title": "PTC Creo Toolkit NC SDK is partner-only (PTC Partner Advantage). PRISM does not hold. Same structural issue as CATIA.", "fix": "**USER DECISION (scope change 2)**: demote creo_nc to tier-3 OR commit to PTC partnership."},
+          {"id": "CRE-02", "severity": "HIGH", "title": "Creo Manufacturing has unique 'Operation Template' concept — cross-CAM translation lossy without explicit mapping.", "fix": "Canonical ontology op_phase tuple dim extends with 'template'; TranslationResult LOSSY for Creo ↔ non-Creo template translations."},
+          {"id": "CRE-03", "severity": "HIGH", "title": "Creo Toolkit C++ requires Windows-only build toolchain — CI/CD complexity.", "fix": "Windows subprocess pattern (same as Mastercam NetHook3). Named-pipe RPC."},
+          {"id": "CRE-04", "severity": "MEDIUM", "title": "Creo's Family Table mechanism auto-generates variant programs — ingestion must deduplicate across variants.", "fix": "CAMIngestDedupEngine (AMEND-19) must treat Creo family-table siblings as canonical+variant pair, not independent programs."}
+        ]
+      },
+      "powermill": {
+        "tier": 2,
+        "findings": [
+          {"id": "PMI-01", "severity": "HIGH", "title": "PowerMill Macro language is ASCII-scriptable + well-documented publicly — unlike .NET Bridge (partner-only).", "fix": "Prioritize Macro scope for U-SDK09 (PARTIAL per AMEND-12). Defer .NET Bridge depth."},
+          {"id": "PMI-02", "severity": "HIGH", "title": "PowerMill originated from Delcam (acquired 2014); legacy Delcam strategies and naming still in product — requires dual terminology.", "fix": "Catalog captures both Delcam legacy names + Autodesk current names as aliases. Version-bound."},
+          {"id": "PMI-03", "severity": "MEDIUM", "title": "PowerMill's Vortex adaptive clearing is Delcam proprietary — patent US 9,104,192.", "fix": "S8 cleanroom for Vortex patents. Implementation PRISM-native."},
+          {"id": "PMI-04", "severity": "MEDIUM", "title": "PowerMill Simulation module is separate license — not all shops have it.", "fix": "Catalog entry tagged simulation_license_required: true for simulation-specific features."}
+        ]
+      },
+      "esprit": {
+        "tier": 2,
+        "findings": [
+          {"id": "ESP-01", "severity": "HIGH", "title": "ESPRIT (now DP Technology, part of Hexagon) is partner-only SDK. Not held.", "fix": "AMEND-12 marks as BLOCKED. U-SDK10 deferred."},
+          {"id": "ESP-02", "severity": "HIGH", "title": "ESPRIT is the dominant CAM for mill-turn/Swiss — JMDie Okuma lathes may benefit, but no ESPRIT usage in JMDie archive.", "fix": "Coverage scope: documentation-only for now; full adapter when partnership secured OR customer demand."},
+          {"id": "ESP-03", "severity": "MEDIUM", "title": "ESPRIT's KnowledgeBase (machining parameter DB) is proprietary — matching ingestion path is patents/docs only.", "fix": "S1 + S8 combined; cite-only."}
+        ]
+      },
+      "camworks": {
+        "tier": 2,
+        "findings": [
+          {"id": "CWK-01", "severity": "HIGH", "title": "CAMWorks (HCL Technologies) API is partner-only. Not held.", "fix": "AMEND-12 BLOCKED. Documentation-only floor."},
+          {"id": "CWK-02", "severity": "HIGH", "title": "CAMWorks runs inside SolidWorks — Automate-bridge requires both SolidWorks SDK AND CAMWorks API.", "fix": "U-SDK11 prerequisite: SolidWorks partner + CAMWorks license."},
+          {"id": "CWK-03", "severity": "MEDIUM", "title": "Feature-based automatic operation generation — CAMWorks' AFR is a semantic layer above strategy selection. Canonical ontology needs 'feature_type' dimension.", "fix": "Add feature_type to canonical tuple for CAMWorks-class CAMs."}
+        ]
+      },
+      "solidcam": {
+        "tier": 2,
+        "findings": [
+          {"id": "SCM-01", "severity": "CRITICAL", "title": "**PATENT INFRINGEMENT RISK IN EXISTING CODE** — src/engines/SolidCAMAIOrchestrationEngine.ts invokes iMachiningEngine.calculateOptimalLevel() and uses IMACHINING_LEVELS table — these encode Dr. Emil Katz's US 8,489,224 iMachining patent. Envelope-as-written (U-SDK12, U-UIS01 for SolidCAM) BUILDS ON this infringing foundation. MUST cleanroom-isolate existing engine BEFORE any CAM-UIX SolidCAM work starts.", "fix": "**USER DECISION (scope change 7)**: (a) emergency cleanroom-isolation refactor of existing SolidCAMAIOrchestrationEngine.ts (move iMachining invocation behind S8 cleanroom namespace, attestation required for implementers) + (b) pause all SolidCAM CAM-UIX work until cleanroom complete + (c) consult legal counsel. See solidcam_patent_critical_risk block."},
+          {"id": "SCM-02", "severity": "HIGH", "title": "SolidCAM runs inside SolidWorks — same constraint as CAMWorks.", "fix": "U-SDK12 requires SolidWorks SDK + SolidCAM license + no-patent-exposure attestation."},
+          {"id": "SCM-03", "severity": "MEDIUM", "title": "SolidCAM iMachining is widely used — removing from scope damages goal 'drive any CAM'.", "fix": "Keep in scope but strictly cleanroom. Functional summary implementation ≠ claim reproduction."}
+        ]
+      },
+      "gibbscam": {
+        "tier": 2,
+        "findings": [
+          {"id": "GBC-01", "severity": "HIGH", "title": "GibbsCam (3D Systems Software, now Cimatron family) has sparse public API. Partner-only.", "fix": "AMEND-12 BLOCKED. Documentation-only."},
+          {"id": "GBC-02", "severity": "MEDIUM", "title": "GibbsCam multi-task machining (MTM) has unique 'stream' model for multi-channel — ontology needs 'channel' dimension.", "fix": "Add channel to canonical tuple for mill-turn/Swiss CAMs. Shared with ESPRIT + Cimatron."},
+          {"id": "GBC-03", "severity": "MEDIUM", "title": "Low JMDie footprint + shrinking market share — ROI on deep adapter is low.", "fix": "Consider documentation-only minimum coverage."}
+        ]
+      },
+      "cimatron": {
+        "tier": 2,
+        "findings": [
+          {"id": "CIM-01", "severity": "HIGH", "title": "Cimatron (3D Systems Software) is mold/die specialist — overlaps Tebis but not Mastercam/Fusion strategies.", "fix": "Strategy catalog emphasizes mold/die cycles; general milling is secondary."},
+          {"id": "CIM-02", "severity": "HIGH", "title": "Cimatron API partner-only.", "fix": "AMEND-12 BLOCKED. Documentation-only."},
+          {"id": "CIM-03", "severity": "MEDIUM", "title": "Cimatron file format (.elt) proprietary; ingestion via API only.", "fix": "No raw format parsing."}
+        ]
+      },
+      "featurecam": {
+        "tier": 2,
+        "findings": [
+          {"id": "FCM-01", "severity": "CRITICAL", "title": "FeatureCAM is being END-OF-LIFE'd by Autodesk (2026) — similar to Inventor HSM sunset. Deep investment ages out within 12 months.", "fix": "**USER DECISION (scope change 4)**: reduce FeatureCAM from 12-unit full scope to 4-unit EOL-minimum scope (catalog + basic adapter + migration bridge to Fusion/PowerMill + sunset notice). Matches IHS-01 treatment."},
+          {"id": "FCM-02", "severity": "HIGH", "title": "FeatureCAM has strong feature-recognition heritage — consolidation value is in the AFR layer, not the toolpath engine.", "fix": "Preserve AFR ingestion via S5; toolpath engine scope reduced."},
+          {"id": "FCM-03", "severity": "MEDIUM", "title": "Autodesk recommends migration to Fusion Machining Extension — document the bridge path as a deliverable.", "fix": "New unit: U-MIGRATE-FCM describing FeatureCAM → Fusion param translation."}
+        ]
+      },
+      "edgecam": {
+        "tier": 2,
+        "findings": [
+          {"id": "EDG-01", "severity": "HIGH", "title": "Edgecam (Hexagon Production Software) shares backend with WorkNC + Alphacam + SURFCAM — Hexagon unified CAM framework.", "fix": "**USER DECISION (scope change 5)**: consolidate Edgecam + WorkNC + Alphacam + SURFCAM into single 'Hexagon Production CAM Family' bridge with shared adapter layer + per-product strategy catalogs. Reduces 4 × 12u = 48u → 1 shared adapter + 4 × 6u catalog = 28u net savings."},
+          {"id": "EDG-02", "severity": "HIGH", "title": "Edgecam API partner-only.", "fix": "AMEND-12 BLOCKED. Documentation-only."},
+          {"id": "EDG-03", "severity": "MEDIUM", "title": "Edgecam Code Wizard (post processor customization) is visual/proprietary — parser impossible without SDK.", "fix": "Post-processor ingestion defers to S6 publicly-posted examples only."}
+        ]
+      },
+      "worknc": {
+        "tier": 2,
+        "findings": [
+          {"id": "WNC-01", "severity": "HIGH", "title": "WorkNC (Hexagon) is mold/die specialist — overlaps heavily with Cimatron and Tebis.", "fix": "Per EDG-01, consolidate into Hexagon CAM family. Mold/die strategy shared catalog."},
+          {"id": "WNC-02", "severity": "HIGH", "title": "WorkNC API partner-only.", "fix": "AMEND-12 BLOCKED."},
+          {"id": "WNC-03", "severity": "MEDIUM", "title": "WorkNC AutoMerge / waterline strategies are proprietary heritage from Sescoi — potential patent exposure.", "fix": "S8 check for Sescoi/WorkNC patents."}
+        ]
+      },
+      "tebis": {
+        "tier": 2,
+        "findings": [
+          {"id": "TBS-01", "severity": "CRITICAL", "title": "Tebis is a mold/die and aerospace specialist with tiny market share (<2%). ROI on tier-2 scope is low.", "fix": "**USER DECISION (scope change 3)**: demote tebis from tier-2 to tier-3. Documentation-only until customer demand."},
+          {"id": "TBS-02", "severity": "HIGH", "title": "Tebis API is strictly partner-only; even docs gated.", "fix": "AMEND-12 BLOCKED, higher barrier than others."},
+          {"id": "TBS-03", "severity": "MEDIUM", "title": "Tebis uses proprietary Job Manager for process templates — not API-accessible.", "fix": "Documentation-only scope if retained."}
+        ]
+      }
+    },
+    "aggregate_recommendations": {
+      "tier_2_blocked_due_to_partnership_gap": ["catia_delmia_nc", "creo_nc", "esprit", "camworks", "solidcam (also patent-gated)", "gibbscam", "cimatron", "edgecam", "worknc", "tebis"],
+      "tier_2_partial_coverage": ["powermill (macro yes, .NET no)", "siemens_nx_cam (Python yes, C++ no)"],
+      "tier_2_eol_scope_reduction": ["featurecam (EOL 2026)", "inventor_hsm (EOL 2026, tier-1 already)"],
+      "tier_2_consolidation_opportunity": {
+        "hexagon_cam_family": {
+          "members": ["edgecam", "worknc", "alphacam (tier-3)", "surfcam (not listed)"],
+          "savings": "48u → 28u (net −20u)",
+          "rationale": "Shared backend + shared partner dependency → build once, specialize catalog per product"
+        }
+      },
+      "total_additional_scope_impact": {
+        "if_all_user_decisions_approved": {
+          "unit_deltas": {"demote_CATIA_to_tier3": -12, "demote_Creo_to_tier3": -12, "demote_Tebis_to_tier3": -12, "FeatureCAM_EOL_scope_12_to_4": -8, "Hexagon_consolidation_save": -20, "Okuma_IGF_12_to_6_drop_BRIDGE": -6, "SolidCAM_patent_cleanroom_add_emergency_unit": 3},
+          "total_delta": -67,
+          "new_total_units": 184,
+          "est_sessions_p50_revised": 46,
+          "est_sessions_p90_revised": 63
+        }
+      }
+    },
+    "round_2_exit_conditions": {
+      "user_decisions_resolved": "All 7 scope-change decisions below (see pending_user_decisions block) MUST be resolved before CAM-UIX-INFRA-00 U-LEGAL-GATES01 executes",
+      "solidcam_patent_remediation": "MUST be resolved BEFORE any SolidCAM code path is edited (see solidcam_patent_critical_risk block)",
+      "partnership_pursuit_or_scope_documented": "For each tier-2 BLOCKED CAM, document either (a) partnership pursuit timeline or (b) documentation-only scope commitment"
+    },
+    "raw_agent_reports_note": "Round 2 agent transcripts were located in C:/Users/wompu/AppData/Local/Temp/claude/H--prism/c5c2fdf5-057c-4782-812a-310965e9684d/tasks/*.output but were cleared by temp-dir GC before persistence. Findings preserved here are the aggregated summary; raw agent transcripts not recoverable. Round 2 gate (post-INFRA) should re-run with fresh agents for anything disputed."
+  },
+  "solidcam_patent_critical_risk": {
+    "SEVERITY": "CRITICAL — patent infringement exposure in ALREADY-MERGED MAIN BRANCH code. MUST remediate before any CAM-UIX SolidCAM unit claims OR before the next SolidCAM-touching PR on any other track.",
+    "discovered_during": "Scrutiny Round 2 per-CAM agent review (SolidCAM agent, finding SCM-01)",
+    "infringement_surface": {
+      "patent_in_question": "US 8,489,224 — 'Method for computer-aided generation of machining program' — Dr. Emil Katz / SolidCAM Ltd. — iMachining algorithmic patent covering morphing-spiral toolpath generation with optimal engagement control.",
+      "existing_prism_code_files_at_risk": [
+        {"path": "src/engines/SolidCAMAIOrchestrationEngine.ts", "risk_lines": "~281-323 (invokes solidCAMiMachiningEngine.calculateOptimalLevel)", "issue": "orchestration layer directly invokes iMachining-algorithmic engine as if it were a canonical strategy — encodes patent logic in PRISM's execution path"},
+        {"path": "src/engines/SolidCAMAIOrchestrationEngine.ts", "risk_lines": "~130 (IMACHINING_LEVELS table)", "issue": "embeds iMachining level schedule as data — patent-claim-replicating table"},
+        {"path": "src/engines/SolidCAMAIOrchestrationEngine.ts", "risk_lines": "~410 (fallbackiMachining)", "issue": "fallback path still routes to iMachining algorithm — no isolation"},
+        {"path": "unknown — grep 'iMachining' required", "note": "Additional engines may reference iMachining — full audit required before remediation"}
+      ],
+      "provenance": "These files were merged to main BEFORE the CAM-UIX-MS0 envelope was written. This is PRE-EXISTING RISK, not introduced by this session — the Round 2 scrutiny merely surfaced it."
+    },
+    "remediation_required": {
+      "immediate_actions_before_ANY_solidcam_edit": [
+        "1. LEGAL REVIEW: consult patent counsel — is US 8,489,224 still enforced? Are workaround paths known? What's expiration date? Is a license available?",
+        "2. IMPLEMENTERS STOP: no further code writes to SolidCAMAIOrchestrationEngine.ts or any *iMachining*.ts file until cleanroom plan approved",
+        "3. AUDIT GREP: run `grep -r 'iMachining' src/` to find full infringement surface area; catalog every file + line",
+        "4. CLEANROOM DESIGN: isolate iMachining-specific algorithm into an opt-in, attestation-gated namespace (data/cleanroom/solidcam/) — implementation layer calls INTO cleanroom via generic adaptive-clearing interface, never imports iMachining algorithm directly",
+        "5. FUNCTIONAL REWRITE: replace invocations with PRISM's own adaptive-clearing engine (AdaptiveClearingEngine — independently developed) that delivers equivalent outcomes via non-infringing algorithm",
+        "6. DOCUMENT: every commit touching SolidCAM adapter area carries 'no-patent-exposure' attestation in data/state/patent_exposure_attestations.ndjson per AMEND-11"
+      ],
+      "scope_impact_on_CAM_UIX_MS0": {
+        "new_emergency_unit": "U-PATENT-SOLIDCAM (prepended to CAM-UIX-INFRA-00)",
+        "unit_spec": "EMERGENCY — Cleanroom-isolate existing iMachining invocations from implementation path. Refactor SolidCAMAIOrchestrationEngine.ts to route through AdaptiveClearingEngine interface. Remove IMACHINING_LEVELS table (replaced by PRISM-native engagement schedule). Every edit signed with no-patent-exposure attestation.",
+        "blocks": ["CAM-UIX-SOLIDCAM-MS0 entire sub-milestone", "any other SolidCAM-touching track"],
+        "estimated_units": "+3 (audit + refactor + verification)"
+      },
+      "user_decision_required_before_proceeding": "See pending_user_decisions block — decision 7 (SolidCAM patent cleanroom)."
+    },
+    "why_this_was_not_caught_earlier": [
+      "Pre-existing code predates current scrutiny protocol",
+      "Round 1 architecture/duplication agents scanned this envelope's NEW files, not existing main branch",
+      "Per-CAM Round 2 agent with SolidCAM domain context was the first to inspect SolidCAMAIOrchestrationEngine in light of patent law",
+      "Demonstrates value of domain-specific scrutiny agents — they catch what generic scrutiny misses"
+    ]
+  },
+  "pending_user_decisions": {
+    "note": "Round 2 per-CAM scrutiny surfaced 7 scope decisions requiring explicit user approval before CAM-UIX-INFRA-00 can be claimed. Each decision changes unit count, effort estimate, and/or coverage commitment.",
+    "decisions": [
+      {
+        "id": "DECISION-1",
+        "subject": "Demote catia_delmia_nc from tier-2 to tier-3",
+        "rationale": "Dassault Systèmes Platinum Partner access not held; SDK ingestion structurally impossible. 12 units would produce documentation-only scope at best.",
+        "options": [
+          "(A) DEMOTE to tier-3 — defer to CAM-UIX-MS1. Scope −12 units. Accept gap: CATIA-using aerospace customers (e.g., Alcoa) not fully covered.",
+          "(B) RETAIN tier-2 at documentation-only scope (60% UI-field floor per AMEND-12). Scope unchanged.",
+          "(C) PURSUE Dassault partnership (6-12 month horizon). Block CAM-UIX-INFRA-00 completion until partnership acquired."
+        ],
+        "recommended": "A",
+        "impact_if_A": "total_units 251 → 239. est_sessions_p50 66 → 63."
+      },
+      {
+        "id": "DECISION-2",
+        "subject": "Demote creo_nc from tier-2 to tier-3",
+        "rationale": "PTC Partner Advantage not held; same structural gap as CATIA.",
+        "options": [
+          "(A) DEMOTE to tier-3. Scope −12 units.",
+          "(B) RETAIN at documentation-only.",
+          "(C) PURSUE PTC partnership."
+        ],
+        "recommended": "A",
+        "impact_if_A": "additional −12 units. Combined with DECISION-1 = 227 units."
+      },
+      {
+        "id": "DECISION-3",
+        "subject": "Demote tebis from tier-2 to tier-3",
+        "rationale": "<2% market share, partner-only API, mold/die specialist overlap with Cimatron + WorkNC. Lowest ROI tier-2 CAM.",
+        "options": [
+          "(A) DEMOTE to tier-3. Scope −12 units.",
+          "(B) RETAIN at documentation-only."
+        ],
+        "recommended": "A",
+        "impact_if_A": "additional −12 units. Combined = 215 units."
+      },
+      {
+        "id": "DECISION-4",
+        "subject": "Reduce FeatureCAM scope from 12u full to 4u EOL-minimum",
+        "rationale": "Autodesk end-of-life 2026. Deep adapter investment ages out within 12 months. Same treatment as Inventor HSM (IHS-01).",
+        "options": [
+          "(A) REDUCE to 4u EOL scope — catalog + basic adapter + migration bridge to Fusion. Scope −8 units.",
+          "(B) KEEP at 12u but accept sunset risk.",
+          "(C) DROP FeatureCAM entirely; defer to migration-docs only."
+        ],
+        "recommended": "A",
+        "impact_if_A": "additional −8 units. Combined = 207 units."
+      },
+      {
+        "id": "DECISION-5",
+        "subject": "Consolidate Hexagon Production CAM family (Edgecam + WorkNC + Alphacam + SURFCAM)",
+        "rationale": "Shared backend, shared partner dependency. Build once, specialize catalog per product. 48u → 28u.",
+        "options": [
+          "(A) CONSOLIDATE into single 'Hexagon CAM Family' bridge + 4 per-product catalogs. Scope −20 units.",
+          "(B) KEEP separate per-CAM bridges. Scope unchanged.",
+          "(C) PARTIAL — consolidate bridge, keep separate test suites."
+        ],
+        "recommended": "A",
+        "impact_if_A": "additional −20 units. Combined = 187 units."
+      },
+      {
+        "id": "DECISION-6",
+        "subject": "Reduce Okuma IGF scope from 12u to 6u, drop U-BRIDGE",
+        "rationale": "OSP-P300 API is partner-only (structurally infeasible). Okuma IGF is controller-resident conversational programming, not CAM package — fundamentally different integration. OKI-01/OKI-02.",
+        "options": [
+          "(A) REDUCE to 6u: catalog + .MIN reverse-engineer + LAP4/CAS/Thermo-Friendly doc scrape + conversational-programming bridge stub. Drop U-BRIDGE. Scope −6 units.",
+          "(B) KEEP 12u, accept U-BRIDGE as structurally blocked.",
+          "(C) PURSUE Okuma partnership."
+        ],
+        "recommended": "A",
+        "impact_if_A": "additional −6 units. Combined = 181 units."
+      },
+      {
+        "id": "DECISION-7",
+        "subject": "SolidCAM iMachining patent cleanroom — EMERGENCY remediation",
+        "rationale": "SEE solidcam_patent_critical_risk block. Existing src/engines/SolidCAMAIOrchestrationEngine.ts invokes iMachining algorithm (US 8,489,224). CAM-UIX work would compound exposure. MUST remediate BEFORE claiming any SolidCAM unit.",
+        "options": [
+          "(A) APPROVE emergency U-PATENT-SOLIDCAM unit — cleanroom-isolate existing code, refactor to AdaptiveClearingEngine interface, remove IMACHINING_LEVELS table. Scope +3 units. Blocks CAM-UIX-SOLIDCAM-MS0 + any SolidCAM-touching PR until complete.",
+          "(B) DEFER SolidCAM entirely — demote to tier-3, remove from CAM-UIX-MS0 scope. Scope −12 units. Does NOT fix existing main-branch exposure (that remediation still required separately).",
+          "(C) LEGAL CONSULT FIRST — block all SolidCAM work until patent counsel opines on enforceability + licensing options."
+        ],
+        "recommended": "A + C (combined: legal review FIRST, then approved cleanroom refactor)",
+        "impact_if_A": "+3 units. Combined with D1+D2+D3+D4+D5+D6 = 184 units (matches round_2 aggregate_recommendations projection).",
+        "impact_if_B": "−12 units. Combined with others = 169 units. BUT pre-existing main-branch exposure still requires separate fix."
+      }
+    ],
+    "total_cumulative_impact_if_all_A_selected": {
+      "starting_units": 251,
+      "delta": -67,
+      "final_units": 184,
+      "est_sessions_p50_revised": 46,
+      "est_sessions_p90_revised": 63,
+      "coverage_commitment_change": "tier-2 CAM count drops from 13 → 9 (demoted CATIA/Creo/Tebis + FeatureCAM EOL-reduced). Hexagon consolidation preserves all 4 CAMs but via shared bridge. SolidCAM requires emergency cleanroom before any work. Okuma IGF reframed as conversational-programming bridge."
+    },
+    "blocks_phase_0_start_until_resolved": true,
+    "gate_enforcement": "CAM-UIX-INFRA-00 claimant MUST verify all 7 decisions resolved + recorded in data/state/cam_uix_scope_decisions.json before proceeding. Auto-check by claim-registry gate hook."
+  }
+}
