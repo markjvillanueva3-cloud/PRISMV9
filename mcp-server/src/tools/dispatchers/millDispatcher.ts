@@ -104,6 +104,19 @@ async function getWorkholdingForce(): Promise<any> {
     .workholdingForceEngine);
 }
 
+// P4-U06-SCI: Tool deflection and chatter stability engines
+let _toolDeflection: any;
+async function getToolDeflection(): Promise<any> {
+  return (_toolDeflection ??= (await import("../../engines/ToolDeflectionPredictionEngine.js"))
+    .toolDeflectionPredictionEngine);
+}
+
+let _chatterSLD: any;
+async function getChatterSLD(): Promise<any> {
+  return (_chatterSLD ??= (await import("../../engines/ChatterStabilityLobeEngine.js"))
+    .chatterStabilityLobeEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -226,10 +239,56 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       const D = params.tool_diameter_mm;
       return uni.quickAnalyze(params.material, Vc, fz, ap, ae, D);
     }
-    case "mill_chatter_sld":
+    case "mill_chatter_sld": {
+      const sld = await getChatterSLD();
+      return sld.compute({
+        tool: {
+          diameter_mm: params.tool_diameter_mm,
+          flute_count: params.tool_flutes ?? 4,
+          overhang_mm: params.tool_overhang_mm,
+          material: params.tool_material ?? "carbide",
+        },
+        workpiece: {
+          iso_group: params.material_iso ?? "P",
+          kc11_mpa: params.kc11_mpa,
+        },
+        machine: {
+          machine_id: params.machine_id,
+          natural_frequency_hz: params.natural_frequency_hz,
+          damping_ratio: params.damping_ratio,
+          stiffness_n_um: params.stiffness_n_um,
+          max_rpm: params.max_rpm,
+          min_rpm: params.min_rpm,
+        },
+        cutting: {
+          radial_immersion_ratio: params.radial_immersion_ratio ?? 0.5,
+          up_milling: params.up_milling ?? false,
+          cutting_speed_mpm: params.cutting_speed_mpm,
+        },
+        rpm_range: params.min_rpm && params.max_rpm ? [params.min_rpm, params.max_rpm] : undefined,
+        process_damping: params.process_damping_clearance_deg ? {
+          clearance_angle_deg: params.process_damping_clearance_deg,
+          wear_land_mm: params.process_damping_wear_land_mm,
+        } : undefined,
+      });
+    }
+    case "mill_deflection_check": {
+      const defl = await getToolDeflection();
+      return defl.calculate({
+        tool_diameter_mm: params.tool_diameter_mm,
+        tool_overhang_mm: params.tool_overhang_mm,
+        cutting_force_N: params.cutting_force_n,
+        force_direction: params.force_direction,
+        tool_material: params.tool_material,
+        holder_diameter_mm: params.holder_diameter_mm,
+        holder_length_mm: params.holder_length_mm,
+        flute_count: params.flute_count,
+        helix_angle_deg: params.helix_angle_deg,
+        tolerance_target_mm: params.tolerance_target_mm,
+      });
+    }
     case "mill_thermal_predict":
     case "mill_wear_predict":
-    case "mill_deflection_check":
     case "mill_surface_predict":
       return facade.orchestrate({ ...params, type: "scientific" });
 

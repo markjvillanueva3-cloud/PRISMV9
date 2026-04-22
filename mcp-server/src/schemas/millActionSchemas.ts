@@ -131,12 +131,28 @@ const mill_force_kienzle = z.object({
   radial_depth_mm: optPosNum,
 }).passthrough();
 
+// P4-U06: Tool material types for deflection/chatter
+const toolMaterialType = z.enum(["carbide", "hss", "ceramic", "cermet", "cbn", "pcd"]);
+
 const mill_chatter_sld = z.object({
-  ...millContext,
-  spindle_fmax_hz: optPosNum.describe("Spindle FRF dominant mode (Hz)"),
-  spindle_stiffness_n_per_m: optPosNum,
-  damping_ratio: optNum.describe("Damping ratio 0-1"),
-}).passthrough();
+  tool_diameter_mm: posNum.describe("Tool diameter (mm)"),
+  tool_flutes: z.number().int().min(1).max(12).describe("Number of flutes"),
+  tool_overhang_mm: posNum.describe("Tool stickout from holder (mm)"),
+  tool_material: toolMaterialType.optional().describe("Tool material (default: carbide)"),
+  material_iso: materialIso.describe("Workpiece ISO 513 group P/M/K/N/S/H"),
+  kc11_mpa: optPosNum.describe("Specific cutting force (MPa) — uses Kienzle canonical if omitted"),
+  machine_id: optStr.describe("Machine ID for FRF registry lookup"),
+  natural_frequency_hz: optPosNum.describe("Manual FRF mode (Hz) — used if no machine_id"),
+  damping_ratio: z.number().min(0.001).max(0.5).optional().describe("Damping ratio ζ (default ~0.03)"),
+  stiffness_n_um: optPosNum.describe("Dynamic stiffness (N/μm)"),
+  max_rpm: posNum.describe("Maximum spindle RPM to analyze"),
+  min_rpm: optPosNum.describe("Minimum spindle RPM (default: 1000)"),
+  radial_immersion_ratio: z.number().min(0.01).max(1.0).optional().describe("ae/D radial engagement ratio"),
+  up_milling: optBool.describe("Up milling vs down milling (default: false = climb)"),
+  cutting_speed_mpm: optPosNum.describe("Cutting speed (m/min) for process damping"),
+  process_damping_clearance_deg: z.number().min(1).max(30).optional().describe("Tool relief angle (°) for process damping"),
+  process_damping_wear_land_mm: z.number().min(0).max(1).optional().describe("Flank wear VB (mm) for process damping"),
+}).passthrough().describe("Compute stability lobe diagram (SLD) for chatter prediction");
 
 const mill_thermal_predict = z.object({
   ...millContext,
@@ -150,10 +166,17 @@ const mill_wear_predict = z.object({
 }).passthrough();
 
 const mill_deflection_check = z.object({
-  ...millContext,
-  stickout_mm: posNum,
-  tool_youngs_modulus_gpa: optPosNum.describe("Young's modulus (default carbide 600 GPa)"),
-}).passthrough();
+  tool_diameter_mm: posNum.describe("Tool diameter (mm)"),
+  tool_overhang_mm: posNum.describe("Tool stickout from holder face (mm)"),
+  cutting_force_n: posNum.describe("Cutting force perpendicular to tool axis (N) — from Kienzle Fc"),
+  force_direction: z.enum(["radial", "axial", "resultant"]).optional().describe("Force direction (default: radial)"),
+  tool_material: toolMaterialType.optional().describe("Tool material for E modulus (default: carbide 600 GPa)"),
+  holder_diameter_mm: optPosNum.describe("Holder diameter for stepped shaft model (mm)"),
+  holder_length_mm: optPosNum.describe("Holder unsupported length (mm)"),
+  flute_count: z.number().int().min(1).max(12).optional().describe("Number of flutes (reduces effective I)"),
+  helix_angle_deg: z.number().min(0).max(60).optional().describe("Helix angle for axial force component (°)"),
+  tolerance_target_mm: optPosNum.describe("Part tolerance for pass/fail evaluation (mm)"),
+}).passthrough().describe("Calculate tool deflection using Euler-Bernoulli cantilever beam model");
 
 const mill_surface_predict = z.object({
   ...millContext,
