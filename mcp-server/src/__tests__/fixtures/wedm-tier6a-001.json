@@ -1,0 +1,74 @@
+{
+  "$schema": "../../schemas/wedmTier6Fixture.schema.json",
+  "schemaVersion": 1,
+  "part_id": "WEDM-TIER6A-001",
+  "material": "D2",
+  "thickness_mm": 25,
+  "part_width_mm": 180,
+  "part_height_mm": 60,
+  "wire_diameter_mm": 0.25,
+  "spark_gap_mm": 0.04,
+  "progressive_die_mode": true,
+  "station_count": 4,
+  "station_pitch_mm": 40,
+  "stations": [
+    {
+      "station_number": 1,
+      "pitch_mm": 40,
+      "feature": "pierce",
+      "corners": [
+        { "id": "S1-C1", "radius_mm": 0.50, "angle_deg": 90, "x": 5, "y": 10 },
+        { "id": "S1-C2", "radius_mm": 0.50, "angle_deg": 90, "x": 35, "y": 10 }
+      ]
+    },
+    {
+      "station_number": 2,
+      "pitch_mm": 40,
+      "feature": "blank",
+      "corners": [
+        { "id": "S2-C1", "radius_mm": 0.45, "angle_deg": 90, "x": 45, "y": 10 },
+        { "id": "S2-C2", "radius_mm": 0.45, "angle_deg": 90, "x": 75, "y": 10 }
+      ]
+    },
+    {
+      "station_number": 3,
+      "pitch_mm": 40,
+      "feature": "form",
+      "corners": [
+        { "id": "S3-C1", "radius_mm": 0.40, "angle_deg": 90, "x": 85, "y": 10 },
+        { "id": "S3-C2", "radius_mm": 0.40, "angle_deg": 90, "x": 115, "y": 10 }
+      ]
+    },
+    {
+      "station_number": 4,
+      "pitch_mm": 40,
+      "feature": "cutoff",
+      "corners": [
+        { "id": "S4-C1", "radius_mm": 0.50, "angle_deg": 90, "x": 125, "y": 10 },
+        { "id": "S4-C2", "radius_mm": 0.50, "angle_deg": 90, "x": 155, "y": 10 }
+      ]
+    }
+  ],
+  "corners": [
+    { "id": "outer-1", "radius_mm": 0.50, "angle_deg": 90, "x": 0, "y": 0 },
+    { "id": "outer-2", "radius_mm": 0.50, "angle_deg": 90, "x": 180, "y": 0 },
+    { "id": "outer-3", "radius_mm": 0.50, "angle_deg": 90, "x": 180, "y": 60 },
+    { "id": "outer-4", "radius_mm": 0.50, "angle_deg": 90, "x": 0, "y": 60 }
+  ],
+  "slots": [
+    { "id": "pilot-slot-1", "width_mm": 3.0, "length_mm": 8.0 },
+    { "id": "pilot-slot-2", "width_mm": 3.0, "length_mm": 8.0 },
+    { "id": "relief-slot", "width_mm": 2.0, "length_mm": 15.0 }
+  ],
+  "machine_envelope_x_mm": 500,
+  "machine_envelope_y_mm": 350,
+  "machine_envelope_z_mm": 250,
+  "reference_toolpath_length_mm": 720.0,
+  "reference_nc_lines": 412,
+  "metadata": {
+    "created": "2026-04-22",
+    "source": "MS-P3-TIER6A/U-P3-T6A-05",
+    "description": "4-station progressive die, D2 tool steel, typical pierce-blank-form-cutoff sequence",
+    "jm_die_reference": "JM-PD-2024-001"
+  }
+}

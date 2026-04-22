@@ -1,0 +1,103 @@
+{
+  "$schema": "../../schemas/wedmTier6Fixture.schema.json",
+  "schemaVersion": 1,
+  "part_id": "WEDM-TIER6A-004",
+  "material": "M2",
+  "thickness_mm": 50,
+  "part_width_mm": 320,
+  "part_height_mm": 95,
+  "wire_diameter_mm": 0.30,
+  "spark_gap_mm": 0.040,
+  "progressive_die_mode": true,
+  "station_count": 7,
+  "station_pitch_mm": 40,
+  "stations": [
+    {
+      "station_number": 1,
+      "pitch_mm": 40,
+      "feature": "pilot_pierce",
+      "corners": [
+        { "id": "S1-C1", "radius_mm": 0.65, "angle_deg": 90, "x": 8, "y": 16 },
+        { "id": "S1-C2", "radius_mm": 0.65, "angle_deg": 90, "x": 32, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 2,
+      "pitch_mm": 40,
+      "feature": "pierce_1",
+      "corners": [
+        { "id": "S2-C1", "radius_mm": 0.60, "angle_deg": 90, "x": 48, "y": 16 },
+        { "id": "S2-C2", "radius_mm": 0.60, "angle_deg": 90, "x": 72, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 3,
+      "pitch_mm": 40,
+      "feature": "pierce_2",
+      "corners": [
+        { "id": "S3-C1", "radius_mm": 0.55, "angle_deg": 90, "x": 88, "y": 16 },
+        { "id": "S3-C2", "radius_mm": 0.55, "angle_deg": 90, "x": 112, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 4,
+      "pitch_mm": 40,
+      "feature": "notch",
+      "corners": [
+        { "id": "S4-C1", "radius_mm": 0.50, "angle_deg": 90, "x": 128, "y": 16 },
+        { "id": "S4-C2", "radius_mm": 0.50, "angle_deg": 90, "x": 152, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 5,
+      "pitch_mm": 40,
+      "feature": "form",
+      "corners": [
+        { "id": "S5-C1", "radius_mm": 0.48, "angle_deg": 90, "x": 168, "y": 16 },
+        { "id": "S5-C2", "radius_mm": 0.48, "angle_deg": 90, "x": 192, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 6,
+      "pitch_mm": 40,
+      "feature": "blank",
+      "corners": [
+        { "id": "S6-C1", "radius_mm": 0.45, "angle_deg": 90, "x": 208, "y": 16 },
+        { "id": "S6-C2", "radius_mm": 0.45, "angle_deg": 90, "x": 232, "y": 16 }
+      ]
+    },
+    {
+      "station_number": 7,
+      "pitch_mm": 40,
+      "feature": "cutoff",
+      "corners": [
+        { "id": "S7-C1", "radius_mm": 0.50, "angle_deg": 90, "x": 248, "y": 16 },
+        { "id": "S7-C2", "radius_mm": 0.50, "angle_deg": 90, "x": 272, "y": 16 }
+      ]
+    }
+  ],
+  "corners": [
+    { "id": "outer-1", "radius_mm": 0.65, "angle_deg": 90, "x": 0, "y": 0 },
+    { "id": "outer-2", "radius_mm": 0.65, "angle_deg": 90, "x": 320, "y": 0 },
+    { "id": "outer-3", "radius_mm": 0.65, "angle_deg": 90, "x": 320, "y": 95 },
+    { "id": "outer-4", "radius_mm": 0.65, "angle_deg": 90, "x": 0, "y": 95 }
+  ],
+  "slots": [
+    { "id": "pilot-slot-1", "width_mm": 4.0, "length_mm": 11.0 },
+    { "id": "pilot-slot-2", "width_mm": 4.0, "length_mm": 11.0 },
+    { "id": "relief-slot-1", "width_mm": 3.0, "length_mm": 16.0 },
+    { "id": "relief-slot-2", "width_mm": 3.0, "length_mm": 16.0 },
+    { "id": "notch-relief", "width_mm": 2.5, "length_mm": 18.0 }
+  ],
+  "machine_envelope_x_mm": 500,
+  "machine_envelope_y_mm": 350,
+  "machine_envelope_z_mm": 250,
+  "reference_toolpath_length_mm": 1380.0,
+  "reference_nc_lines": 745,
+  "metadata": {
+    "created": "2026-04-22",
+    "source": "MS-P3-TIER6A/U-P3-T6A-05",
+    "description": "7-station progressive die, M2 HSS, heavy 50mm stock, complex multi-pierce sequence",
+    "jm_die_reference": "JM-PD-2024-004"
+  }
+}

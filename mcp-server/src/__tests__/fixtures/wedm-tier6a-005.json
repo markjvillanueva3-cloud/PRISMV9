@@ -1,0 +1,74 @@
+{
+  "$schema": "../../schemas/wedmTier6Fixture.schema.json",
+  "schemaVersion": 1,
+  "part_id": "WEDM-TIER6A-005",
+  "material": "S7",
+  "thickness_mm": 15,
+  "part_width_mm": 160,
+  "part_height_mm": 55,
+  "wire_diameter_mm": 0.20,
+  "spark_gap_mm": 0.025,
+  "progressive_die_mode": true,
+  "station_count": 4,
+  "station_pitch_mm": 35,
+  "stations": [
+    {
+      "station_number": 1,
+      "pitch_mm": 35,
+      "feature": "pierce",
+      "corners": [
+        { "id": "S1-C1", "radius_mm": 0.40, "angle_deg": 90, "x": 4, "y": 9 },
+        { "id": "S1-C2", "radius_mm": 0.40, "angle_deg": 90, "x": 31, "y": 9 }
+      ]
+    },
+    {
+      "station_number": 2,
+      "pitch_mm": 35,
+      "feature": "blank",
+      "corners": [
+        { "id": "S2-C1", "radius_mm": 0.38, "angle_deg": 90, "x": 39, "y": 9 },
+        { "id": "S2-C2", "radius_mm": 0.38, "angle_deg": 90, "x": 66, "y": 9 }
+      ]
+    },
+    {
+      "station_number": 3,
+      "pitch_mm": 35,
+      "feature": "form",
+      "corners": [
+        { "id": "S3-C1", "radius_mm": 0.35, "angle_deg": 90, "x": 74, "y": 9 },
+        { "id": "S3-C2", "radius_mm": 0.35, "angle_deg": 90, "x": 101, "y": 9 }
+      ]
+    },
+    {
+      "station_number": 4,
+      "pitch_mm": 35,
+      "feature": "cutoff",
+      "corners": [
+        { "id": "S4-C1", "radius_mm": 0.40, "angle_deg": 90, "x": 109, "y": 9 },
+        { "id": "S4-C2", "radius_mm": 0.40, "angle_deg": 90, "x": 136, "y": 9 }
+      ]
+    }
+  ],
+  "corners": [
+    { "id": "outer-1", "radius_mm": 0.45, "angle_deg": 90, "x": 0, "y": 0 },
+    { "id": "outer-2", "radius_mm": 0.45, "angle_deg": 90, "x": 160, "y": 0 },
+    { "id": "outer-3", "radius_mm": 0.45, "angle_deg": 90, "x": 160, "y": 55 },
+    { "id": "outer-4", "radius_mm": 0.45, "angle_deg": 90, "x": 0, "y": 55 }
+  ],
+  "slots": [
+    { "id": "pilot-slot-1", "width_mm": 2.5, "length_mm": 7.0 },
+    { "id": "pilot-slot-2", "width_mm": 2.5, "length_mm": 7.0 },
+    { "id": "relief-slot", "width_mm": 1.8, "length_mm": 10.0 }
+  ],
+  "machine_envelope_x_mm": 500,
+  "machine_envelope_y_mm": 350,
+  "machine_envelope_z_mm": 250,
+  "reference_toolpath_length_mm": 560.0,
+  "reference_nc_lines": 328,
+  "metadata": {
+    "created": "2026-04-22",
+    "source": "MS-P3-TIER6A/U-P3-T6A-06",
+    "description": "4-station progressive die, S7 shock-resistant tool steel, thin 15mm stock, fine wire",
+    "jm_die_reference": "JM-PD-2024-005"
+  }
+}

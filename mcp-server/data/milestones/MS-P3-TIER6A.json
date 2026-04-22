@@ -1,0 +1,183 @@
+{
+  "id": "MS-P3-TIER6A",
+  "title": "WEDM Tier 6 — Progressive Die + Multi-Slide",
+  "track": "WEDM-CONSOLIDATED",
+  "phase": "P3",
+  "status": "complete",
+  "created": "2026-04-16",
+  "completed": "2026-04-22",
+  "rgs_version": "v10",
+  "schemaVersion": 1,
+  "supersedes": [
+    "CAMX-V17-P9 (14 of 40 units)"
+  ],
+  "total_units": 7,
+  "completed_units": 7,
+  "completed_unit_ids": ["U-P3-T6A-01", "U-P3-T6A-02", "U-P3-T6A-03", "U-P3-T6A-04", "U-P3-T6A-05", "U-P3-T6A-06", "U-P3-T6A-07"],
+  "sessions": 2,
+  "dependencies": [
+    "MS-P2-GAPFILL"
+  ],
+  "omega_target": 1,
+  "svi_delta_target": 0.015,
+  "knowledge_sources": {
+    "engines": [
+      "EDMMultiPassStrategyEngine",
+      "EDMWireSlugCornerTaperEngine",
+      "EDMProgramAssemblerEngine",
+      "WEDMTier6GeomGateEngine"
+    ],
+    "formulas": [
+      "stagger math for progressive die",
+      "slug management",
+      "corner compensation"
+    ],
+    "tribal": [
+      "JM Die progressive-die tips"
+    ],
+    "reference": [
+      "H:/PRISM/JM DIE/CNC MILL HAAS/*progressive*",
+      "M2 punch validation suite"
+    ]
+  },
+  "smart_config": {
+    "role": "ProgressiveDieEngineer",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget_pct": 80
+  },
+  "skills": [
+    "/wedm-program",
+    "/program-validate",
+    "/wedm-preflight",
+    "/test",
+    "/scope",
+    "/checkpoint"
+  ],
+  "plugins": [
+    "Vitest MCP",
+    "codebase-memory-mcp"
+  ],
+  "session_split": {
+    "session_1": [
+      "U-P3-T6A-01",
+      "U-P3-T6A-02",
+      "U-P3-T6A-03",
+      "U-P3-T6A-04"
+    ],
+    "session_2": [
+      "U-P3-T6A-05",
+      "U-P3-T6A-06",
+      "U-P3-T6A-07"
+    ],
+    "compact_checkpoints": [
+      "after U-P3-T6A-04"
+    ]
+  },
+  "units": [
+    {
+      "id_range": "U-P3-T6A-01..07",
+      "title": "7 progressive-die parts, D2/M2/S7 at 15-60mm, 4-8 stations",
+      "files_created": [
+        "mcp-server/src/__tests__/fixtures/wedm-tier6a-{part_id}.json"
+      ],
+      "files_modified": [
+        "mcp-server/src/engines/EDMMultiPassStrategyEngine.ts",
+        "mcp-server/src/engines/EDMWireSlugCornerTaperEngine.ts",
+        "mcp-server/src/engines/EDMProgramAssemblerEngine.ts"
+      ],
+      "abort_conditions": [
+        "npx tsc --noEmit > 0 errors",
+        "wedm-production-gate pre-flight: safe:false",
+        "toolpath-length-mm diverges > ±10%"
+      ],
+      "rollback": "git checkout the three modified engines",
+      "exit_criteria_minimum": 5,
+      "exit_criteria": [
+        "program assembles without TS/Zod error",
+        "toolpath-length-mm matches JM Die reference within ±10%",
+        "NC-line count within ±10%",
+        "G-code contains G41/G42, M00/M01, wire-thread markers",
+        "wedm-tier6-geom-gate passes",
+        "machinist sign-off in WEDM-TIER6-MACHINIST-SIGNOFF.md"
+      ],
+      "description": "7 progressive-die parts, D2/M2/S7 at 15-60mm, 4-8 stations — follow 4-LOOP (BUILD → SCRUTINIZE → GAP FILL → TIE UP), consult KNOWLEDGE_SOURCES before coding, forge-triple ownership in milestone header.",
+      "four_loop": [
+        "BUILD",
+        "SCRUTINIZE",
+        "GAP FILL",
+        "TIE UP"
+      ]
+    }
+  ],
+  "forge_triple": {
+    "hook": {
+      "name": "wedm-tier6-geom-gate",
+      "description": "blocks if min_radius < wire_dia + 2·gap",
+      "built_in": "U-P3-T6A-01"
+    },
+    "action": {
+      "name": "prism_edm:wedm_validate_tier6",
+      "built_in": "U-P3-T6A-01"
+    },
+    "skill": {
+      "name": "/wedm-tier6",
+      "built_in": "U-P3-T6A-01"
+    }
+  },
+  "exit_gate": {
+    "criteria": [
+      "7/7 generate",
+      "≥2 match ±10% toolpath-length-mm",
+      "machinist sign-off"
+    ],
+    "omega_target": 1,
+    "svi_delta": "+1.5%"
+  },
+  "feature_cascade": {
+    "new_hooks": [
+      "wedm-tier6-geom-gate"
+    ],
+    "new_actions": [
+      "prism_edm:wedm_validate_tier6"
+    ],
+    "new_skills": [
+      "/wedm-tier6"
+    ],
+    "available_to": [
+      "P6",
+      "P7",
+      "P10"
+    ]
+  },
+  "mcp_lifecycle": {
+    "session_start": [
+      "prism_session:context_boot",
+      "prism_session:dispatcher_map",
+      "prism_session:memory_recall",
+      "prism_session:system_snapshot",
+      "prism_session:action_search"
+    ],
+    "during_work": [
+      "prism_session:auto_checkpoint",
+      "prism_session:tool_route_best",
+      "prism_session:wip_capture"
+    ],
+    "session_end": [
+      "prism_session:memory_save",
+      "prism_session:system_snapshot",
+      "prism_session:checkpoint_enhanced"
+    ]
+  },
+  "intent": "Deliver WEDM Tier 6 — Progressive Die + Multi-Slide per roadmap spec.",
+  "compact_checkpoint": "every 3 units — auto-triggered by hook",
+  "enforcement_hooks_active": [
+    "physics agent",
+    "wiring agent",
+    "constants checker",
+    "stub detector",
+    "test quality",
+    "forge-triple gate",
+    "session audit agent"
+  ]
+}
