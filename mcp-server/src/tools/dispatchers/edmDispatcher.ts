@@ -24,10 +24,11 @@ import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSc
 import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
 import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
 import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
+import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -46,6 +47,7 @@ let _biMaterial: any;
 let _mlParamOptimizer: any;
 let _featureImportance: any;
 let _transferLearning: any;
+let _onlineLearning: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -76,6 +78,7 @@ async function getEngine(name: string): Promise<any> {
     case "mlParamOptimizer": return _mlParamOptimizer ??= (await import("../../engines/WEDMMLParameterOptimizerEngine.js")).wedmMLParameterOptimizerEngine;
     case "featureImportance": return _featureImportance ??= (await import("../../engines/WEDMFeatureImportanceEngine.js")).wedmFeatureImportanceEngine;
     case "transferLearning": return _transferLearning ??= (await import("../../engines/WEDMTransferLearningEngine.js")).wedmTransferLearningEngine;
+    case "onlineLearning": return _onlineLearning ??= (await import("../../engines/WEDMOnlineLearningEngine.js")).wedmOnlineLearningEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -199,6 +202,11 @@ const ACTIONS = [
 
   // WEDM-NEXT-MS0: Transfer Learning (cross-material/machine)
   "wedm_transfer_params", "wedm_material_similarity", "wedm_batch_transfer", "wedm_similar_materials", "wedm_validate_transfer",
+
+  // WEDM-NEXT-MS0: Online Learning (incremental production feedback)
+  "wedm_online_init", "wedm_online_predict", "wedm_online_update", "wedm_online_batch_update",
+  "wedm_online_stats", "wedm_online_state", "wedm_online_reset", "wedm_online_export",
+  "wedm_online_import", "wedm_online_list", "wedm_online_drift",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -996,6 +1004,70 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_validate_transfer": {
             const engine = await getEngine("transferLearning");
             result = engine.validateTransfer(params.parameters, params.target_material);
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN04: Online Learning Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_online_init": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.initializeModel(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_predict": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.predict(
+              params.material,
+              params.parameters,
+              params.thickness,
+              params.machine_id
+            );
+            break;
+          }
+          case "wedm_online_update": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.updateFromFeedback(params.feedback);
+            break;
+          }
+          case "wedm_online_batch_update": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.batchUpdate(params.feedback_list);
+            break;
+          }
+          case "wedm_online_stats": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getStats(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_state": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.getModelState(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_reset": {
+            const engine = await getEngine("onlineLearning");
+            result = { reset: engine.resetModel(params.material, params.machine_id) };
+            break;
+          }
+          case "wedm_online_export": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.exportModel(params.material, params.machine_id);
+            break;
+          }
+          case "wedm_online_import": {
+            const engine = await getEngine("onlineLearning");
+            result = { imported: engine.importModel(params.model_id, params.state, params.history) };
+            break;
+          }
+          case "wedm_online_list": {
+            const engine = await getEngine("onlineLearning");
+            result = { models: engine.listModels() };
+            break;
+          }
+          case "wedm_online_drift": {
+            const engine = await getEngine("onlineLearning");
+            result = engine.detectDrift(params.material, params.machine_id);
             break;
           }
 
