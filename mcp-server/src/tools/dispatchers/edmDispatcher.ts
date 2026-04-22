@@ -30,10 +30,11 @@ import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchema
 import { WEDM_GAP_VOLTAGE_SCHEMAS } from "../../schemas/wedmGapVoltageSchemas.js";
 import { WEDM_MRR_SCHEMAS } from "../../schemas/wedmMRRSchemas.js";
 import { WEDM_WIRE_STRESS_SCHEMAS } from "../../schemas/wedmWireStressSchemas.js";
+import { WEDM_WIRE_TENSION_OPT_SCHEMAS } from "../../schemas/wedmWireTensionOptSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS, ...WEDM_WIRE_STRESS_SCHEMAS, ...WEDM_WIRE_TENSION_OPT_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -58,6 +59,7 @@ let _sparkErosion: any;
 let _gapVoltage: any;
 let _mrrPhysics: any;
 let _wireStress: any;
+let _wireTensionOpt: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -94,6 +96,7 @@ async function getEngine(name: string): Promise<any> {
     case "gapVoltage": return _gapVoltage ??= (await import("../../engines/WEDMGapVoltageControlEngine.js")).wedmGapVoltageControlEngine;
     case "mrrPhysics": return _mrrPhysics ??= (await import("../../engines/WEDMMRRPhysicsEngine.js")).wedmMRRPhysicsEngine;
     case "wireStress": return _wireStress ??= (await import("../../engines/WEDMWireStressAnalysisEngine.js")).wedmWireStressAnalysisEngine;
+    case "wireTensionOpt": return _wireTensionOpt ??= (await import("../../engines/WEDMWireTensionOptimizerEngine.js")).wedmWireTensionOptimizerEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -240,6 +243,9 @@ const ACTIONS = [
 
   // WEDM-BIZ-MS0: Wire Stress Analysis (mechanical fatigue + thermal stress)
   "wedm_wire_stress_analyze", "wedm_wire_stress_optimize_tension", "wedm_wire_stress_accumulate_damage",
+
+  // WEDM-BIZ-MS0: Wire Tension Optimizer (geometry + material → optimal tension)
+  "wedm_wire_tension_optimize", "wedm_wire_tension_compare_scenarios",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1352,6 +1358,18 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_wire_stress_accumulate_damage": {
             const engine = await getEngine("wireStress");
             result = engine.accumulateDamage(params.segments);
+            break;
+          }
+
+          case "wedm_wire_tension_optimize": {
+            const engine = await getEngine("wireTensionOpt");
+            result = engine.optimize(params);
+            break;
+          }
+
+          case "wedm_wire_tension_compare_scenarios": {
+            const engine = await getEngine("wireTensionOpt");
+            result = engine.compareScenarios(params.scenarios);
             break;
           }
 
