@@ -26,10 +26,11 @@ import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImport
 import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
 import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
 import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
+import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -50,6 +51,7 @@ let _featureImportance: any;
 let _transferLearning: any;
 let _onlineLearning: any;
 let _thermalField: any;
+let _sparkErosion: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -82,6 +84,7 @@ async function getEngine(name: string): Promise<any> {
     case "transferLearning": return _transferLearning ??= (await import("../../engines/WEDMTransferLearningEngine.js")).wedmTransferLearningEngine;
     case "onlineLearning": return _onlineLearning ??= (await import("../../engines/WEDMOnlineLearningEngine.js")).wedmOnlineLearningEngine;
     case "thermalField": return _thermalField ??= (await import("../../engines/WEDMThermalFieldEngine.js")).wedmThermalFieldEngine;
+    case "sparkErosion": return _sparkErosion ??= (await import("../../engines/WEDMSparkErosionModelEngine.js")).wedmSparkErosionModelEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -214,6 +217,9 @@ const ACTIONS = [
   // WEDM-NEXT-MS0: Thermal Field (FEM-based thermal prediction)
   "wedm_thermal_field", "wedm_thermal_transient", "wedm_thermal_recast",
   "wedm_thermal_validate", "wedm_thermal_materials", "wedm_thermal_optimize",
+
+  // WEDM-BIZ-MS0: Spark Erosion Physics (DiBitonto-Sato hybrid model)
+  "wedm_spark_erosion", "wedm_spark_erosion_compare", "wedm_spark_erosion_validate", "wedm_spark_erosion_cut_time",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1112,6 +1118,60 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_thermal_optimize": {
             const engine = await getEngine("thermalField");
             result = engine.optimizeForRecast(params.material, params.targetRecast, params.targetMRR, params.constraints);
+            break;
+          }
+
+          // =================================================================
+          // WEDM SPARK EROSION MODEL (WEDM-BIZ-MS0 U-WB01)
+          // DiBitonto-Sato hybrid: crater geometry, MRR, Ra, energy per spark
+          // =================================================================
+          case "wedm_spark_erosion": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.calculate({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              voltage_V: params.voltage_V,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_compare": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.compareMaterials({
+              materials: params.materials,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_validate": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.validateParameters({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_cut_time": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.predictCutTime({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              cut_length_mm: params.cut_length_mm,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
             break;
           }
 
