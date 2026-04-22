@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -46,6 +46,7 @@ async function getEngine(name: string): Promise<any> {
     case "cadCorpusOrch": return _cadCorpusOrch ??= (await import("../../engines/CADTrainingCorpusOrchestratorEngine.js")).cadTrainingCorpusOrchestratorEngine;
     case "cadEmbedIndex": return _cadEmbedIndex ??= (await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js")).cadEmbeddingIndexOrchestratorEngine;
     case "cadPipeline": return _cadPipeline ??= (await import("../../engines/CADTrainingPipelineOrchestratorEngine.js")).cadTrainingPipelineOrchestratorEngine;
+    case "cadRegenTest": return _cadRegenTest ??= (await import("../../engines/CADRegenerationTestEngine.js")).cadRegenerationTestEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -111,6 +112,8 @@ const ACTIONS = [
   "cad_pipeline_run", "cad_pipeline_validate", "cad_pipeline_status", "cad_pipeline_clear",
   // CAD Training MCP Actions (U-CADC20)
   "cad_training_start", "cad_training_status", "cad_training_corpus_stats",
+  // CAD Regeneration Test Engine (U-CADC21)
+  "cad_regen_test", "cad_regen_batch", "cad_regen_compare", "cad_regen_thresholds",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -914,6 +917,38 @@ Params vary by action — pass relevant fields in params object.`,
             const corpusPath = params?.corpusPath as string | undefined;
             const corpusStatus = engine.status(corpusPath);
             result = { success: true, ...corpusStatus };
+            break;
+          }
+          // U-CADC21: Regeneration Test Engine
+          case "cad_regen_test": {
+            const engine = await getEngine("cadRegenTest");
+            const testResult = await engine.test(params);
+            result = { success: true, ...testResult };
+            break;
+          }
+          case "cad_regen_batch": {
+            const engine = await getEngine("cadRegenTest");
+            const batchResult = await engine.batch(params);
+            result = { success: true, ...batchResult };
+            break;
+          }
+          case "cad_regen_compare": {
+            const engine = await getEngine("cadRegenTest");
+            const original = params?.original as any;
+            const generated = params?.generated as any;
+            const thresholds = params?.thresholds as any;
+            const compareResult = engine.compare(original, generated, thresholds);
+            result = { success: true, ...compareResult };
+            break;
+          }
+          case "cad_regen_thresholds": {
+            const engine = await getEngine("cadRegenTest");
+            if (params?.set) {
+              const updated = engine.setThresholds(params.set as any);
+              result = { success: true, thresholds: updated };
+            } else {
+              result = { success: true, thresholds: engine.getThresholds() };
+            }
             break;
           }
           default:
