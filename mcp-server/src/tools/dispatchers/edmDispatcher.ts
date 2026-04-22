@@ -23,10 +23,11 @@ import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
 import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
 import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
+import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -44,6 +45,7 @@ let _costDocumentation: any, _qualityOrchestrator: any;
 let _biMaterial: any;
 let _mlParamOptimizer: any;
 let _featureImportance: any;
+let _transferLearning: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -73,6 +75,7 @@ async function getEngine(name: string): Promise<any> {
     case "biMaterial": return _biMaterial ??= (await import("../../engines/EDMBiMaterialCompensationEngine.js")).edmBiMaterialCompensationEngine;
     case "mlParamOptimizer": return _mlParamOptimizer ??= (await import("../../engines/WEDMMLParameterOptimizerEngine.js")).wedmMLParameterOptimizerEngine;
     case "featureImportance": return _featureImportance ??= (await import("../../engines/WEDMFeatureImportanceEngine.js")).wedmFeatureImportanceEngine;
+    case "transferLearning": return _transferLearning ??= (await import("../../engines/WEDMTransferLearningEngine.js")).wedmTransferLearningEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -193,6 +196,9 @@ const ACTIONS = [
 
   // WEDM-NEXT-MS0: Feature Importance (SHAP-inspired)
   "wedm_feature_importance", "wedm_partial_dependence", "wedm_feature_interactions", "wedm_optimization_guidance",
+
+  // WEDM-NEXT-MS0: Transfer Learning (cross-material/machine)
+  "wedm_transfer_params", "wedm_material_similarity", "wedm_batch_transfer", "wedm_similar_materials", "wedm_validate_transfer",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -945,6 +951,51 @@ Actions: ${ACTIONS.join(", ")}.`,
               params.target_outcome ?? "mrr",
               params.direction ?? "maximize"
             );
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN03: Transfer Learning Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_transfer_params": {
+            const engine = await getEngine("transferLearning");
+            result = engine.transfer({
+              sourceMaterial: params.source_material,
+              targetMaterial: params.target_material,
+              sourceMachine: params.source_machine,
+              targetMachine: params.target_machine,
+              sourceParameters: params.source_parameters,
+              sourceOutcomes: params.source_outcomes,
+            });
+            break;
+          }
+          case "wedm_material_similarity": {
+            const engine = await getEngine("transferLearning");
+            result = engine.computeMaterialSimilarity(
+              params.source_material,
+              params.target_material
+            );
+            break;
+          }
+          case "wedm_batch_transfer": {
+            const engine = await getEngine("transferLearning");
+            result = engine.batchTransfer(
+              params.source_parameters,
+              params.source_material,
+              params.target_materials,
+              params.source_machine,
+              params.target_machine
+            );
+            break;
+          }
+          case "wedm_similar_materials": {
+            const engine = await getEngine("transferLearning");
+            result = engine.findSimilarMaterials(params.material, params.top_n ?? 3);
+            break;
+          }
+          case "wedm_validate_transfer": {
+            const engine = await getEngine("transferLearning");
+            result = engine.validateTransfer(params.parameters, params.target_material);
             break;
           }
 
