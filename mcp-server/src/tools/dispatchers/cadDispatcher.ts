@@ -18,7 +18,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
-let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any;
+let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -39,6 +39,7 @@ async function getEngine(name: string): Promise<any> {
     case "swGen": return _swGen ??= (await import("../../engines/SolidWorksCodeGeneratorEngine.js")).solidWorksCodeGeneratorEngine;
     case "mcGen": return _mcGen ??= (await import("../../engines/MastercamCodeGeneratorEngine.js")).mastercamCodeGeneratorEngine;
     case "hcGen": return _hcGen ??= (await import("../../engines/HyperCADSCodeGeneratorEngine.js")).hyperCADSCodeGeneratorEngine;
+    case "nxGen": return _nxGen ??= (await import("../../engines/NXCodeGeneratorEngine.js")).nxCodeGeneratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -87,6 +88,9 @@ const ACTIONS = [
   // Fusion 360 Unified Code Generator (U-CADC13)
   "fusion360_generate_script", "fusion360_build_part", "fusion360_execute",
   "fusion360_capabilities",
+  // Siemens NX Unified Code Generator (U-CADC14)
+  "nx_generate_script", "nx_build_part", "nx_execute",
+  "nx_capabilities",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -705,6 +709,37 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "fusion360_capabilities": {
             const engine = await getEngine("f360Gen");
+            const caps = engine.getCapabilities();
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // ─── Siemens NX Code Generator (U-CADC14) ───────────────────────
+          case "nx_generate_script": {
+            const engine = await getEngine("nxGen");
+            const ops = params.operations ?? [];
+            const ctx = { projectName: params.projectName ?? "prism_part", units: params.units ?? "mm", targetVersion: params.targetVersion, outputDir: params.outputDir, partTemplate: params.partTemplate, useUserFunction: params.useUserFunction };
+            const script = engine.buildScript(ops, ctx);
+            result = { success: true, script: script.body, filename: script.filename, imports: script.imports, warnings: script.warnings, parameters: Object.fromEntries(script.parameters) };
+            break;
+          }
+          case "nx_build_part": {
+            const engine = await getEngine("nxGen");
+            const ops = params.operations ?? [];
+            const ctx = { projectName: params.projectName ?? "prism_part", units: params.units ?? "mm", targetVersion: params.targetVersion, outputDir: params.outputDir };
+            const script = engine.buildScript(ops, ctx);
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, script: script.body, output: execResult.output, durationMs: execResult.durationMs, error: execResult.error, metrics: execResult.metrics };
+            break;
+          }
+          case "nx_execute": {
+            const engine = await getEngine("nxGen");
+            const script = { body: params.script, cadSystem: "nx" as const, filename: params.filename ?? "script.py", parameters: new Map(), lineage: [], warnings: [], imports: [] };
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, output: execResult.output, durationMs: execResult.durationMs, error: execResult.error, metrics: execResult.metrics };
+            break;
+          }
+          case "nx_capabilities": {
+            const engine = await getEngine("nxGen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
             break;
