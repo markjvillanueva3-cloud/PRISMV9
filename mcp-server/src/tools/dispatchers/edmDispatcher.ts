@@ -25,10 +25,11 @@ import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.
 import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
 import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
 import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
+import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -48,6 +49,7 @@ let _mlParamOptimizer: any;
 let _featureImportance: any;
 let _transferLearning: any;
 let _onlineLearning: any;
+let _thermalField: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -79,6 +81,7 @@ async function getEngine(name: string): Promise<any> {
     case "featureImportance": return _featureImportance ??= (await import("../../engines/WEDMFeatureImportanceEngine.js")).wedmFeatureImportanceEngine;
     case "transferLearning": return _transferLearning ??= (await import("../../engines/WEDMTransferLearningEngine.js")).wedmTransferLearningEngine;
     case "onlineLearning": return _onlineLearning ??= (await import("../../engines/WEDMOnlineLearningEngine.js")).wedmOnlineLearningEngine;
+    case "thermalField": return _thermalField ??= (await import("../../engines/WEDMThermalFieldEngine.js")).wedmThermalFieldEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -207,6 +210,10 @@ const ACTIONS = [
   "wedm_online_init", "wedm_online_predict", "wedm_online_update", "wedm_online_batch_update",
   "wedm_online_stats", "wedm_online_state", "wedm_online_reset", "wedm_online_export",
   "wedm_online_import", "wedm_online_list", "wedm_online_drift",
+
+  // WEDM-NEXT-MS0: Thermal Field (FEM-based thermal prediction)
+  "wedm_thermal_field", "wedm_thermal_transient", "wedm_thermal_recast",
+  "wedm_thermal_validate", "wedm_thermal_materials", "wedm_thermal_optimize",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1068,6 +1075,43 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_online_drift": {
             const engine = await getEngine("onlineLearning");
             result = engine.detectDrift(params.material, params.machine_id);
+            break;
+          }
+
+          // =================================================================
+          // WEDM THERMAL FIELD (P2-THERMAL U-WN05)
+          // =================================================================
+          case "wedm_thermal_field": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeThermalFieldSimple(params.material, params.parameters, params.thickness);
+            if (params.includeTransient) {
+              result.transient = engine.computeTransientAnalysisSimple(params.material, params.parameters, 10);
+            }
+            break;
+          }
+          case "wedm_thermal_transient": {
+            const engine = await getEngine("thermalField");
+            result = engine.computeTransientAnalysisSimple(params.material, params.parameters, params.pulseCount, params.timeResolution);
+            break;
+          }
+          case "wedm_thermal_recast": {
+            const engine = await getEngine("thermalField");
+            result = engine.estimateRecastLayerSimple(params.material, params.parameters, params.passType, params.flushingEfficiency);
+            break;
+          }
+          case "wedm_thermal_validate": {
+            const engine = await getEngine("thermalField");
+            result = engine.validateParametersSimple(params.material, params.parameters, params.targetRecast, params.targetHAZ);
+            break;
+          }
+          case "wedm_thermal_materials": {
+            const engine = await getEngine("thermalField");
+            result = engine.listMaterialsByCategory(params.category);
+            break;
+          }
+          case "wedm_thermal_optimize": {
+            const engine = await getEngine("thermalField");
+            result = engine.optimizeForRecast(params.material, params.targetRecast, params.targetMRR, params.constraints);
             break;
           }
 
