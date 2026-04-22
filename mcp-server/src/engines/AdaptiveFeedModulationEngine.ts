@@ -1,4 +1,3 @@
-// WIRE-EXEMPT: Internal physics engine consumed by EngagementDynamicsEngine and toolpath generators
 /**
  * AdaptiveFeedModulationEngine — PRISM Forces Dynamic Feed Control
  *

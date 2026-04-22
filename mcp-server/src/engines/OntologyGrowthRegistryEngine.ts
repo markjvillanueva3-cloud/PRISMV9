@@ -1,4 +1,3 @@
-// WIRE-EXEMPT: Tests at __tests__/engines/OntologyGrowthRegistryEngine.test.ts (48 tests), dispatcher at camDispatcher.ts
 /**
  * OntologyGrowthRegistryEngine.ts
  *

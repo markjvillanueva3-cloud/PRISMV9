@@ -90,7 +90,6 @@ import { ACTION_POST_PROCESSOR_AI_SCHEMAS } from "../../schemas/postProcessorAIA
 import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchemas.js";
 import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSchemas.js";
 import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPostUnifiedOutputActionSchemas.js";
-import { ACTION_LATHE_SELFAWARE_SCHEMAS } from "../../schemas/latheMasterPostSelfAwarenessActionSchemas.js";
 import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -146,7 +145,6 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_LATHE_SF_SCHEMAS,
   ...ACTION_LATHE_POSTGEN_SCHEMAS,
   ...ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS,
-  ...ACTION_LATHE_SELFAWARE_SCHEMAS,
   ...ACTION_ONTOLOGY_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -938,7 +936,6 @@ export const ACTIONS = [
   "lathe_postgen_feedback", "lathe_postgen_uncertainty", "lathe_postgen_full",
   "lathe_master_post_route", "lathe_master_post_machines", "lathe_master_post_controllers",
   "lathe_unified_output_header", "lathe_unified_output_footer", "lathe_unified_output_full", "lathe_unified_output_compare",
-  "lathe_selfaware_register", "lathe_selfaware_detect_drift", "lathe_selfaware_audit", "lathe_selfaware_get_stats", "lathe_selfaware_update_status", "lathe_selfaware_seed_drift",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1060,8 +1057,6 @@ export const ACTIONS = [
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
-  "edm_program_assemble", "edm_program_dialects", "edm_program_create_passes",
-  "wedm_tier6_validate", "wedm_tier6_corner_check", "wedm_tier6_recommend_wire", "wedm_tier6_batch_validate",
   // Grinding
   "grind_surface_program", "grind_cylindrical_program", "grind_centerless_program", "grind_creepfeed_program", "grind_uncertainty",
   // Laser
@@ -1466,8 +1461,6 @@ export const ACTIONS = [
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
   "ontology_stats", "ontology_get_range", "ontology_get_valid_values", "ontology_check_applicable",
-  // CAM-UIX-INFRA-01/U-LP01 — Coverage planning and auditing
-  "cam_uix_plan_next", "cam_uix_coverage_report", "cam_uix_audit_cam", "cam_uix_promote_coverage", "cam_uix_list_cams",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -2975,70 +2968,6 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             break;
           }
 
-          case "lathe_selfaware_register": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const entry = LatheMasterPostSelfAwarenessEngine.registerSubPost(params);
-            result = { success: true, data: entry };
-            break;
-          }
-
-          case "lathe_selfaware_detect_drift": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const driftResult = LatheMasterPostSelfAwarenessEngine.detectDrift(
-              params.subPostId,
-              params.currentState
-            );
-            result = { success: true, data: driftResult };
-            break;
-          }
-
-          case "lathe_selfaware_audit": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const auditReport = LatheMasterPostSelfAwarenessEngine.auditAllSubPosts(params);
-            result = { success: true, data: auditReport };
-            break;
-          }
-
-          case "lathe_selfaware_get_stats": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const stats = LatheMasterPostSelfAwarenessEngine.getStatistics();
-            result = { success: true, data: stats };
-            break;
-          }
-
-          case "lathe_selfaware_update_status": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const updated = LatheMasterPostSelfAwarenessEngine.updateValidationStatus(
-              params.subPostId,
-              params.status
-            );
-            result = { success: !!updated, data: updated };
-            break;
-          }
-
-          case "lathe_selfaware_seed_drift": {
-            const { LatheMasterPostSelfAwarenessEngine } = await import(
-              "../../engines/LatheMasterPostSelfAwarenessEngine.js"
-            );
-            const seeded = LatheMasterPostSelfAwarenessEngine.seedDriftForTesting(
-              params.subPostId,
-              params.driftType,
-              params.driftDetails
-            );
-            result = { success: true, data: seeded };
-            break;
-          }
-
           case "probe_generate": {
             const pr = await getEngine("probing");
             result = pr.generate(params, params.config ?? {
@@ -4433,43 +4362,6 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "edm_multi_pass_recast": {
             const { edmMultiPassStrategyEngine } = await import("../../engines/EDMMultiPassStrategyEngine.js");
             result = { success: true, recast_um: edmMultiPassStrategyEngine.calculateRecastAfterPasses(params.pass_count ?? 1), passes_needed: edmMultiPassStrategyEngine.passesForTargetRecast(params.target_recast_um ?? 5) };
-            break;
-          }
-          // ── MS-P3-TIER6A: EDMProgramAssemblerEngine (3 actions) ──
-          case "edm_program_assemble": {
-            const { edmProgramAssemblerEngine } = await import("../../engines/EDMProgramAssemblerEngine.js");
-            result = edmProgramAssemblerEngine.assemble(params);
-            break;
-          }
-          case "edm_program_dialects": {
-            const { edmProgramAssemblerEngine } = await import("../../engines/EDMProgramAssemblerEngine.js");
-            result = { success: true, dialects: edmProgramAssemblerEngine.getSupportedDialects() };
-            break;
-          }
-          case "edm_program_create_passes": {
-            const { edmProgramAssemblerEngine } = await import("../../engines/EDMProgramAssemblerEngine.js");
-            result = { success: true, passes: edmProgramAssemblerEngine.createPassBlocksFromStrategy(params.passes ?? [], params.compensation ?? "left", params.base_time ?? 10) };
-            break;
-          }
-          // ── MS-P3-TIER6A/U-P3-T6A-04: WEDMTier6GeomGateEngine (4 actions) ──
-          case "wedm_tier6_validate": {
-            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
-            result = wedmTier6GeomGateEngine.validate(params);
-            break;
-          }
-          case "wedm_tier6_corner_check": {
-            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
-            result = { success: true, achievable: wedmTier6GeomGateEngine.isCornerAchievable(params.radius_mm, params.wire_diameter_mm, params.spark_gap_mm) };
-            break;
-          }
-          case "wedm_tier6_recommend_wire": {
-            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
-            result = { success: true, recommended_wire_mm: wedmTier6GeomGateEngine.recommendWireForRadius(params.target_radius_mm, params.spark_gap_mm) };
-            break;
-          }
-          case "wedm_tier6_batch_validate": {
-            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
-            result = { success: true, results: wedmTier6GeomGateEngine.validateBatch(params.parts ?? []) };
             break;
           }
           // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──
@@ -10014,39 +9906,6 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 params.machineType as string
               ),
             };
-            break;
-          }
-
-          // ══════════════════════════════════════════════════════════════════
-          // CAM-UIX-INFRA-01/U-LP01 — Coverage Planning Actions
-          // ══════════════════════════════════════════════════════════════════
-          case "cam_uix_plan_next": {
-            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            result = camInputExhaustionPlannerEngine.planNext();
-            break;
-          }
-          case "cam_uix_coverage_report": {
-            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            result = camInputExhaustionPlannerEngine.getCoverageReport();
-            break;
-          }
-          case "cam_uix_audit_cam": {
-            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            result = camInputExhaustionPlannerEngine.auditCam(params.cam_id as string);
-            break;
-          }
-          case "cam_uix_promote_coverage": {
-            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            camInputExhaustionPlannerEngine.promoteCoverage(
-              params.cam_id as string,
-              params.updates as Record<string, number>
-            );
-            result = { success: true, cam_id: params.cam_id };
-            break;
-          }
-          case "cam_uix_list_cams": {
-            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
-            result = { cams: camInputExhaustionPlannerEngine.getInScopeCams() };
             break;
           }
 

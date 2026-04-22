@@ -1,4 +1,3 @@
-// WIRE-EXEMPT: Internal physics engine consumed by AdaptiveFeedModulationEngine and toolpath generators
 /**
  * EngagementDynamicsEngine — Real-Time Engagement Calculation
  *
