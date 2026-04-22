@@ -27,10 +27,11 @@ import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearni
 import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
 import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
 import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchemas.js";
+import { WEDM_GAP_VOLTAGE_SCHEMAS } from "../../schemas/wedmGapVoltageSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -52,6 +53,7 @@ let _transferLearning: any;
 let _onlineLearning: any;
 let _thermalField: any;
 let _sparkErosion: any;
+let _gapVoltage: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -85,6 +87,7 @@ async function getEngine(name: string): Promise<any> {
     case "onlineLearning": return _onlineLearning ??= (await import("../../engines/WEDMOnlineLearningEngine.js")).wedmOnlineLearningEngine;
     case "thermalField": return _thermalField ??= (await import("../../engines/WEDMThermalFieldEngine.js")).wedmThermalFieldEngine;
     case "sparkErosion": return _sparkErosion ??= (await import("../../engines/WEDMSparkErosionModelEngine.js")).wedmSparkErosionModelEngine;
+    case "gapVoltage": return _gapVoltage ??= (await import("../../engines/WEDMGapVoltageControlEngine.js")).wedmGapVoltageControlEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -220,6 +223,10 @@ const ACTIONS = [
 
   // WEDM-BIZ-MS0: Spark Erosion Physics (DiBitonto-Sato hybrid model)
   "wedm_spark_erosion", "wedm_spark_erosion_compare", "wedm_spark_erosion_validate", "wedm_spark_erosion_cut_time",
+
+  // WEDM-BIZ-MS0: Gap Voltage Control (discharge probability, servo optimization)
+  "wedm_gap_voltage", "wedm_gap_voltage_validate", "wedm_gap_voltage_optimize_servo",
+  "wedm_gap_voltage_compare_dielectrics", "wedm_gap_voltage_list_dielectrics",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1172,6 +1179,58 @@ Actions: ${ACTIONS.join(", ")}.`,
               cut_length_mm: params.cut_length_mm,
               wire_diameter_mm: params.wire_diameter_mm,
             });
+            break;
+          }
+
+          // ── WEDM-BIZ-MS0: Gap Voltage Control ──────────────────────────────────
+          case "wedm_gap_voltage": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.calculate({
+              dielectric_type: params.dielectric_type,
+              debris_ppm: params.debris_ppm,
+              gap_distance_um: params.gap_distance_um,
+              peak_current_A: params.peak_current_A,
+              pulse_on_us: params.pulse_on_us,
+              workpiece_material: params.workpiece_material,
+            });
+            break;
+          }
+
+          case "wedm_gap_voltage_validate": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.validateParameters({
+              dielectric_type: params.dielectric_type,
+              debris_ppm: params.debris_ppm,
+              gap_distance_um: params.gap_distance_um,
+              peak_current_A: params.peak_current_A,
+              pulse_on_us: params.pulse_on_us,
+              workpiece_material: params.workpiece_material,
+            });
+            break;
+          }
+
+          case "wedm_gap_voltage_optimize_servo": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.optimizeServo(
+              params.target_discharge_probability,
+              params.dielectric_type,
+              params.max_debris_ppm,
+            );
+            break;
+          }
+
+          case "wedm_gap_voltage_compare_dielectrics": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.compareDielectrics(
+              params.debris_ppm,
+              params.gap_distance_um,
+            );
+            break;
+          }
+
+          case "wedm_gap_voltage_list_dielectrics": {
+            const engine = await getEngine("gapVoltage");
+            result = engine.listDielectrics();
             break;
           }
 
