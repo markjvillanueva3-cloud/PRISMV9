@@ -2,13 +2,13 @@
  * Mill Dispatcher Action Schemas
  * ===============================
  * Per-action Zod schemas for `prism_mill` dispatcher.
- * MILL-MASTER/P1-U01-MILL-DISP
+ * MILL-MASTER/P1-U01-MILL-DISP, P1-U04-SA-INTEG
  *
- * 45 actions covering: print-to-program pipeline, strategy, toolpath,
- * physics, collision, tool selection, AI/AGI, digital twin, scientific pipeline.
+ * 49 actions covering: print-to-program pipeline, strategy, toolpath,
+ * physics, collision, tool selection, AI/AGI, self-awareness, digital twin, scientific pipeline.
  *
  * @module schemas/millActionSchemas
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 import { z } from "zod";
@@ -425,6 +425,37 @@ const mill_wisdom_query = z
   })
   .passthrough();
 
+// ─── SELF-AWARENESS & CAPABILITY DISCOVERY ──────────────────────────────────
+
+const mill_selfaware_registry = z
+  .object({
+    refresh: z.boolean().optional().describe("Force registry refresh."),
+  })
+  .passthrough();
+
+const mill_selfaware_recommend = z
+  .object({
+    task: z.string().min(1).describe("Task description for feature recommendations."),
+    query: z.string().optional().describe("Alternative to task parameter."),
+  })
+  .passthrough();
+
+const mill_selfaware_find = z
+  .object({
+    query: z.string().min(1).describe("Query to find matching milling engines."),
+    task: z.string().optional().describe("Alternative to query parameter."),
+  })
+  .passthrough();
+
+const mill_selfaware_stats = z
+  .object({
+    category: z
+      .enum(["orchestrator", "agi", "physics", "kinematics", "lora", "neural", "strategy", "validation", "tribal"])
+      .optional()
+      .describe("Filter stats by category."),
+  })
+  .passthrough();
+
 // ─── DIGITAL TWIN ───────────────────────────────────────────────────────────
 
 const mill_twin_sync = z
@@ -598,6 +629,12 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_deeplearn_predict,
   mill_pattern_mine,
   mill_wisdom_query,
+
+  // Self-awareness & capability discovery
+  mill_selfaware_registry,
+  mill_selfaware_recommend,
+  mill_selfaware_find,
+  mill_selfaware_stats,
 
   // Digital twin
   mill_twin_sync,
