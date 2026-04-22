@@ -93,6 +93,7 @@ import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPo
 import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js";
 import { ACTION_LATHE_MASTERPOST_API_SCHEMAS } from "../../schemas/latheMasterPostAPIActionSchemas.js";
 import { ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS } from "../../schemas/fusion360FunctionIndexActionSchemas.js";
+import { ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam25DFunctionIndexActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -150,6 +151,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_ONTOLOGY_SCHEMAS,
   ...ACTION_LATHE_MASTERPOST_API_SCHEMAS,
   ...ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -227,6 +229,8 @@ let _mastercamAddInGen: any, _solidCAMAddInGen: any, _nxCAMAddInGen: any, _hyper
 let _cpsParser: any, _okumaParam: any, _ppCapMatrix: any;
 // E1118 — SolidCAMCodeGeneratorEngine singleton
 let _solidcamCodeGen: any;
+// CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine singleton
+let _solidcam25dIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -534,6 +538,8 @@ async function getEngine(name: string): Promise<any> {
     case "hyperMillCodeGen": return _hyperMillCodeGen ??= (await import("../../engines/HyperMillCodeGeneratorEngine.js")).hyperMillCodeGeneratorEngine;
     // E1118 — SolidCAMCodeGeneratorEngine
     case "solidcamCodeGen": return _solidcamCodeGen ??= (await import("../../engines/SolidCAMCodeGeneratorEngine.js")).solidCAMCodeGeneratorEngine;
+    // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine
+    case "solidcam25dIndex": return _solidcam25dIndex ??= (await import("../../engines/SolidCAM25DFunctionIndexEngine.js")).SolidCAM25DFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -948,6 +954,7 @@ export const ACTIONS = [
   "lathe_p2p_recognize_features", "lathe_p2p_recognize_batch", "lathe_p2p_feature_taxonomy", "lathe_p2p_recognition_stats",
   "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch", "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
   "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan", "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate",
+  "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1181,6 +1188,8 @@ export const ACTIONS = [
   "powermill_material_lookup", "powermill_material_search",
   // E1118 — SolidCAMCodeGeneratorEngine (2 actions)
   "solidcam_code_generate", "solidcam_code_templates",
+  // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine (6 actions)
+  "solidcam_25d_index", "solidcam_25d_summary", "solidcam_25d_list_ops", "solidcam_25d_get_op", "solidcam_25d_by_category", "solidcam_25d_imachining",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -3466,6 +3475,37 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintFeatureStrategySelectorEngine.js"
             );
             result = lathePrintFeatureStrategySelectorEngine.validate(params.plan);
+            break;
+          }
+
+          case "lathe_p2p_sequence_plan": {
+            const { lathePrintSequencePlannerEngine } = await import(
+              "../../engines/LathePrintSequencePlannerEngine.js"
+            );
+            result = lathePrintSequencePlannerEngine.planSequence(
+              params.strategy_plan,
+              params.initial_stock,
+              params.features
+            );
+            break;
+          }
+
+          case "lathe_p2p_sequence_summarize": {
+            const { lathePrintSequencePlannerEngine } = await import(
+              "../../engines/LathePrintSequencePlannerEngine.js"
+            );
+            result = lathePrintSequencePlannerEngine.summarize(params.sequence_plan);
+            break;
+          }
+
+          case "lathe_p2p_sequence_autofix": {
+            const { lathePrintSequencePlannerEngine } = await import(
+              "../../engines/LathePrintSequencePlannerEngine.js"
+            );
+            result = lathePrintSequencePlannerEngine.autoFix(
+              params.sequence_plan,
+              params.features
+            );
             break;
           }
 
@@ -6220,6 +6260,38 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_code_templates": {
             const eng = await getEngine("solidcamCodeGen");
             result = eng.getTemplates(params.category);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM33: SolidCAM25DFunctionIndexEngine ─────
+          case "solidcam_25d_index": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_25d_summary": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_25d_list_ops": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_25d_get_op": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_25d_by_category": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_25d_imachining": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getIMachiningParams();
             break;
           }
 
