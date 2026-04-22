@@ -26,11 +26,12 @@ import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImport
 import { WEDM_TRANSFER_LEARNING_SCHEMAS } from "../../schemas/wedmTransferLearningSchemas.js";
 import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSchemas.js";
 import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
+import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
-// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -3175,6 +3176,60 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_thermal_optimize": {
             const engine = await getEngine("thermalField");
             result = engine.optimizeForRecast(params.material, params.targetRecast, params.targetMRR, params.constraints);
+            break;
+          }
+
+          // =================================================================
+          // WEDM SPARK EROSION MODEL (WEDM-BIZ-MS0 U-WB01)
+          // DiBitonto-Sato hybrid: crater geometry, MRR, Ra, energy per spark
+          // =================================================================
+          case "wedm_spark_erosion": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.calculate({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              voltage_V: params.voltage_V,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_compare": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.compareMaterials({
+              materials: params.materials,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_validate": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.validateParameters({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
+            break;
+          }
+          case "wedm_spark_erosion_cut_time": {
+            const engine = await getEngine("sparkErosion");
+            result = engine.predictCutTime({
+              material: params.material,
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+              cut_length_mm: params.cut_length_mm,
+              wire_diameter_mm: params.wire_diameter_mm,
+            });
             break;
           }
 
