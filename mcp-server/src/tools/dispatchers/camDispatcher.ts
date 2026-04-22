@@ -94,6 +94,7 @@ import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js"
 import { ACTION_LATHE_MASTERPOST_API_SCHEMAS } from "../../schemas/latheMasterPostAPIActionSchemas.js";
 import { ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS } from "../../schemas/fusion360FunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam25DFunctionIndexActionSchemas.js";
+import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -152,6 +153,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_LATHE_MASTERPOST_API_SCHEMAS,
   ...ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
