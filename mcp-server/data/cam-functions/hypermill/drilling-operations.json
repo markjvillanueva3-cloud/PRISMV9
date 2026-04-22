@@ -1,0 +1,655 @@
+{
+  "schema_version": "2.0.0",
+  "system_id": "hypermill",
+  "catalog_id": "drilling_operations",
+  "catalog_name": "hyperMILL Drilling & Hole Making Operations",
+  "description": "Complete parameter enumeration for hyperMILL drilling, hole making, and probing cycles. Extracted from hyperMILL CAM v31+ API documentation. Includes 15 drilling cycles (402 parameters) and 8 probing cycles (74 parameters).",
+  "generated_at": "2026-04-22T08:00:00Z",
+  "source": "HyperMillDrillingProbingAutomationAPI.json + hyperMILL CAM Manual",
+  "total_operations": 23,
+  "total_parameters": 476,
+  "unit_id": "U-CAM06",
+  "milestone_id": "CAM-EXHAUST-MS0",
+  "categories": {
+    "hole_preparation": ["spot_drill"],
+    "standard_drilling": ["peck_drill"],
+    "deep_hole": ["deep_hole_drill", "gun_drill"],
+    "precision_finishing": ["boring", "reaming"],
+    "threading": ["tapping", "thread_milling"],
+    "secondary_operations": ["countersink", "counterbore", "back_spot_face", "chamfer_drill"],
+    "milling_based_hole_making": ["helical_bore", "circular_pocket_drill"],
+    "multi_operation": ["combined_cycle"],
+    "probing": ["setup_probe", "bore_probe", "boss_probe", "web_probe", "surface_probe", "tool_setter", "tool_breakage", "datum_probe"]
+  },
+  "base_shared_parameters": {
+    "count": 20,
+    "description": "Parameters inherited by all drilling cycles",
+    "categories": {
+      "cuttingData": [
+        {"name": "spindle_speed", "type": "number", "unit": "rpm", "min": 1, "max": 60000, "dfmCritical": false},
+        {"name": "feed_rate", "type": "number", "unit": "mm/min", "min": 0.1, "max": 50000, "dfmCritical": false},
+        {"name": "plunge_feed", "type": "number", "unit": "mm/min", "min": 0.1, "max": 50000, "dfmCritical": false},
+        {"name": "retract_feed", "type": "number", "unit": "mm/min", "min": 0.1, "max": 100000, "dfmCritical": false},
+        {"name": "dwell_time", "type": "number", "unit": "sec", "min": 0, "max": 30, "default": 0, "dfmCritical": false},
+        {"name": "coolant_mode", "type": "enum", "values": ["flood", "mist", "through_spindle", "air_blast", "mql", "dry", "high_pressure"], "dfmCritical": false},
+        {"name": "spindle_direction", "type": "enum", "values": ["cw", "ccw"], "default": "cw", "dfmCritical": false},
+        {"name": "cutting_speed", "type": "number", "unit": "m/min", "min": 0.1, "max": 2000, "dfmCritical": false}
+      ],
+      "geometry": [
+        {"name": "hole_diameter", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": false},
+        {"name": "hole_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 5000, "dfmCritical": false},
+        {"name": "start_depth", "type": "number", "unit": "mm", "min": -500, "max": 500, "default": 0, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true},
+        {"name": "bottom_type", "type": "enum", "values": ["flat", "conical", "through"], "default": "conical", "dfmCritical": false},
+        {"name": "surface_finish_target", "type": "number", "unit": "um", "min": 0.1, "max": 50, "default": 3.2, "dfmCritical": false}
+      ],
+      "heights": [
+        {"name": "clearance_plane", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false},
+        {"name": "retract_height", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false},
+        {"name": "feed_height", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false},
+        {"name": "top_of_part", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false},
+        {"name": "safety_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "default": 2, "dfmCritical": false},
+        {"name": "incremental_heights", "type": "boolean", "default": false, "dfmCritical": false}
+      ]
+    }
+  },
+  "drilling_cycles": [
+    {
+      "id": "spot_drill",
+      "name": "Spot Drilling / Center Drilling",
+      "category": "Hole Preparation",
+      "description": "Creates pilot holes and chamfers for subsequent drilling operations with controlled angle and depth",
+      "acPythonSetter": "hm.drill.spot_drill",
+      "parameterCount": 25,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "spot_angle", "type": "enum", "values": ["60", "90", "118", "120", "140"], "dfmCritical": true, "description": "Included angle of spot drill tip"},
+          {"name": "spot_depth_mode", "type": "enum", "values": ["diameter", "depth", "angle"], "dfmCritical": false, "description": "How to calculate spot depth"},
+          {"name": "spot_target_value", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true, "description": "Target diameter or depth"},
+          {"name": "center_drill_first", "type": "boolean", "default": false, "dfmCritical": false, "description": "Use center drill before spot"},
+          {"name": "deburr_pass", "type": "boolean", "default": false, "dfmCritical": false, "description": "Add deburring pass"}
+        ]
+      },
+      "gCodes": ["G81", "G82"],
+      "controllerVariations": {
+        "fanuc": {"cycleCode": "G81", "dwellCode": "G82"},
+        "siemens": {"cycleCode": "CYCLE81", "dwellCode": "CYCLE82"},
+        "heidenhain": {"cycleCode": "CYCL DEF 200", "dwellCode": "CYCL DEF 201"},
+        "mazak": {"cycleCode": "G81", "dwellCode": "G82"},
+        "okuma": {"cycleCode": "G81", "dwellCode": "G82"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-001", "text": "118° spot angle matches standard drill points — use 90° only for chamfers and countersinks", "source": "shop_floor", "confidence": 0.95},
+        {"id": "hm-drill-tip-002", "text": "Spot diameter should be 0.5-1mm larger than subsequent drill for centering effect", "source": "machining_handbook", "confidence": 0.92}
+      ]
+    },
+    {
+      "id": "peck_drill",
+      "name": "Peck Drilling",
+      "category": "Standard Drilling",
+      "description": "Drilling with progressive depth reduction and full retract for chip evacuation in shallow to medium depth holes",
+      "acPythonSetter": "hm.drill.peck_drill",
+      "parameterCount": 28,
+      "dfmCriticalParameters": ["first_peck_depth", "min_peck"],
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "first_peck_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true, "rule": "1-3x drill diameter"},
+          {"name": "peck_reduction", "type": "number", "unit": "mm", "min": 0, "max": 100, "dfmCritical": false, "description": "Amount to reduce each subsequent peck"},
+          {"name": "min_peck", "type": "number", "unit": "mm", "min": 0.05, "max": 100, "dfmCritical": true, "description": "Minimum peck depth"},
+          {"name": "chip_break", "type": "boolean", "default": false, "dfmCritical": false, "description": "Enable chip break retract"},
+          {"name": "retract_amount", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "default": 1, "dfmCritical": false},
+          {"name": "peck_dwell", "type": "number", "unit": "sec", "min": 0, "max": 10, "default": 0, "dfmCritical": false},
+          {"name": "rapid_to_previous", "type": "boolean", "default": true, "dfmCritical": false, "description": "Rapid to previous depth before feed"},
+          {"name": "peck_count_limit", "type": "integer", "min": 1, "max": 200, "default": 100, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G73", "G83"],
+      "controllerVariations": {
+        "fanuc": {"highSpeedPeck": "G73", "deepPeck": "G83"},
+        "siemens": {"cycleCode": "CYCLE83"},
+        "heidenhain": {"cycleCode": "CYCL DEF 203"},
+        "mazak": {"highSpeedPeck": "G73", "deepPeck": "G83"},
+        "okuma": {"highSpeedPeck": "G73", "deepPeck": "G83"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-003", "text": "First peck = 1.5x diameter for steel, 2x for aluminum — always retract fully above chips", "source": "shop_floor", "confidence": 0.94},
+        {"id": "hm-drill-tip-004", "text": "G73 high-speed peck is for chip breaking, G83 full retract is for chip evacuation in deeper holes", "source": "controller_manual", "confidence": 0.98}
+      ]
+    },
+    {
+      "id": "deep_hole_drill",
+      "name": "Deep Hole Drilling",
+      "category": "Deep Hole",
+      "description": "Deep hole drilling with L/D ratio monitoring and high-pressure coolant for chip evacuation in holes >5xD",
+      "acPythonSetter": "hm.drill.deep_hole_drill",
+      "parameterCount": 28,
+      "dfmCriticalParameters": ["ld_ratio_limit", "coolant_pressure"],
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "ld_ratio_limit", "type": "integer", "min": 1, "max": 100, "dfmCritical": true, "rule": "blocks > 10 without peck"},
+          {"name": "peck_type", "type": "enum", "values": ["full_retract", "chip_break", "progressive"], "dfmCritical": false},
+          {"name": "coolant_pressure", "type": "number", "unit": "bar", "min": 1, "max": 300, "dfmCritical": true},
+          {"name": "pilot_depth_ratio", "type": "number", "min": 0.5, "max": 5, "default": 1.5, "dfmCritical": false},
+          {"name": "chip_evacuation_frequency", "type": "integer", "min": 1, "max": 50, "default": 5, "dfmCritical": false},
+          {"name": "progressive_reduction_pct", "type": "number", "unit": "%", "min": 0, "max": 80, "default": 20, "dfmCritical": false},
+          {"name": "tool_wear_compensation", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "vibration_monitoring", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G83"],
+      "controllerVariations": {
+        "fanuc": {"cycleCode": "G83"},
+        "siemens": {"cycleCode": "CYCLE83"},
+        "heidenhain": {"cycleCode": "CYCL DEF 205"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-005", "text": "Through-spindle coolant mandatory above 5xD — air blast insufficient for chip evacuation", "source": "tool_manufacturer", "confidence": 0.97},
+        {"id": "hm-drill-tip-006", "text": "Progressive peck reduction prevents work hardening at bottom of deep holes", "source": "machining_handbook", "confidence": 0.89}
+      ]
+    },
+    {
+      "id": "gun_drill",
+      "name": "Gun Drilling",
+      "category": "Deep Hole",
+      "description": "Gun drilling for very deep holes (>20xD) with pilot hole requirement and guide bush support",
+      "acPythonSetter": "hm.drill.gun_drill",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "pilot_hole_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true},
+          {"name": "guide_bush", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "minimum_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "dfmCritical": false},
+          {"name": "bush_clearance", "type": "number", "unit": "mm", "min": 0.005, "max": 0.5, "default": 0.02, "dfmCritical": false},
+          {"name": "counter_rotation", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "oil_pressure", "type": "number", "unit": "bar", "min": 5, "max": 200, "default": 70, "dfmCritical": false},
+          {"name": "max_hole_length", "type": "number", "unit": "mm", "min": 10, "max": 10000, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-007", "text": "Pilot hole must be 1-1.5x diameter deep and concentric to 0.02mm for gun drill entry", "source": "gun_drill_specialist", "confidence": 0.96}
+      ]
+    },
+    {
+      "id": "boring",
+      "name": "Boring",
+      "category": "Precision Finishing",
+      "description": "Precision hole finishing with bar orientation control for tight tolerances",
+      "acPythonSetter": "hm.drill.boring",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "boring_type", "type": "enum", "values": ["rough", "fine", "back"], "dfmCritical": false},
+          {"name": "bar_orientation", "type": "number", "unit": "deg", "min": 0, "max": 360, "dfmCritical": false},
+          {"name": "spring_pass", "type": "boolean", "default": false, "dfmCritical": false, "description": "Zero-cut spring pass for roundness"},
+          {"name": "retract_orient", "type": "boolean", "default": true, "dfmCritical": false, "description": "Orient spindle before retract"},
+          {"name": "radial_depth_of_cut", "type": "number", "unit": "mm", "min": 0.01, "max": 20, "dfmCritical": false},
+          {"name": "bar_overhang", "type": "number", "unit": "mm", "min": 10, "max": 1000, "dfmCritical": true, "description": "Critical for deflection control"},
+          {"name": "damped_bar", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G85", "G86", "G87", "G88", "G89"],
+      "controllerVariations": {
+        "fanuc": {"feed_out": "G85", "spindle_stop": "G86", "back_bore": "G87", "dwell": "G89"},
+        "siemens": {"cycleCode": "CYCLE85", "fineBore": "CYCLE86"},
+        "heidenhain": {"cycleCode": "CYCL DEF 208"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-008", "text": "Boring bar L/D ratio max 4:1 without damping, 6:1 with damped bar for finish work", "source": "boring_bar_manufacturer", "confidence": 0.93},
+        {"id": "hm-drill-tip-009", "text": "Always orient spindle before retract on G86/G87 — prevents bar drag marks on bore wall", "source": "shop_floor", "confidence": 0.95}
+      ]
+    },
+    {
+      "id": "reaming",
+      "name": "Reaming",
+      "category": "Precision Finishing",
+      "description": "Reaming for tight-tolerance hole finishing with floating holder support",
+      "acPythonSetter": "hm.drill.reaming",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "ream_allowance", "type": "number", "unit": "mm", "min": 0.01, "max": 5, "dfmCritical": true, "description": "Stock to remove per side"},
+          {"name": "floating_holder", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "speed_reduction_pct", "type": "number", "unit": "%", "min": 0, "max": 90, "default": 30, "dfmCritical": false},
+          {"name": "exit_dwell", "type": "number", "unit": "sec", "min": 0, "max": 30, "default": 0.5, "dfmCritical": false},
+          {"name": "reamer_type", "type": "enum", "values": ["straight_flute", "helical_flute", "carbide_tipped", "adjustable"], "dfmCritical": false},
+          {"name": "hand_of_cut", "type": "enum", "values": ["right", "left"], "default": "right", "dfmCritical": false},
+          {"name": "pilot_bore_required", "type": "boolean", "default": true, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G85"],
+      "controllerVariations": {
+        "fanuc": {"cycleCode": "G85"},
+        "siemens": {"cycleCode": "CYCLE85"},
+        "heidenhain": {"cycleCode": "CYCL DEF 201"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-010", "text": "Ream allowance = 0.1-0.2mm per side for HSS, 0.05-0.1mm for carbide — too little won't clean up", "source": "reamer_catalog", "confidence": 0.94},
+        {"id": "hm-drill-tip-011", "text": "Floating holder mandatory for H7 tolerance — compensates for spindle runout", "source": "precision_machining", "confidence": 0.91}
+      ]
+    },
+    {
+      "id": "tapping",
+      "name": "Tapping",
+      "category": "Threading",
+      "description": "Tapping with rigid/synchronous mode and pitch-feed synchronization",
+      "acPythonSetter": "hm.drill.tapping",
+      "parameterCount": 28,
+      "dfmCriticalParameters": ["thread_pitch", "rigid_tapping", "thread_percentage"],
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "thread_pitch", "type": "number", "unit": "mm", "min": 0.2, "max": 25, "dfmCritical": true, "rule": "feed = pitch x RPM"},
+          {"name": "tap_type", "type": "enum", "values": ["cut", "form", "roll"], "dfmCritical": false},
+          {"name": "rigid_tapping", "type": "boolean", "default": true, "dfmCritical": true},
+          {"name": "peck_tapping", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "reverse_speed_factor", "type": "number", "min": 0.5, "max": 3, "default": 1, "dfmCritical": false},
+          {"name": "thread_percentage", "type": "number", "unit": "%", "min": 50, "max": 100, "default": 75, "dfmCritical": true, "rule": "65-75% typical, 100% risks breakage"},
+          {"name": "tap_peck_depth", "type": "number", "unit": "mm", "min": 0.5, "max": 100, "optional": true, "dfmCritical": false},
+          {"name": "length_of_engagement", "type": "number", "unit": "mm", "min": 0.5, "max": 500, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G84", "G74"],
+      "controllerVariations": {
+        "fanuc": {"rightHand": "G84", "leftHand": "G74", "rigid": "G84.2"},
+        "siemens": {"cycleCode": "CYCLE84"},
+        "heidenhain": {"cycleCode": "CYCL DEF 206", "rigid": "CYCL DEF 207"},
+        "mazak": {"rightHand": "G84", "leftHand": "G74"},
+        "okuma": {"rightHand": "G84", "leftHand": "G74"}
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-012", "text": "65-75% thread engagement is optimal — 100% thread doubles tap load with minimal strength gain", "source": "thread_engineering", "confidence": 0.97},
+        {"id": "hm-drill-tip-013", "text": "Form taps require 2-3x torque of cut taps but eliminate chips — ideal for blind holes in aluminum", "source": "tap_manufacturer", "confidence": 0.93}
+      ]
+    },
+    {
+      "id": "thread_milling",
+      "name": "Thread Milling",
+      "category": "Threading",
+      "description": "Thread milling with helical interpolation for internal/external threads",
+      "acPythonSetter": "hm.drill.thread_milling",
+      "parameterCount": 28,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "thread_pitch", "type": "number", "unit": "mm", "min": 0.2, "max": 25, "dfmCritical": true},
+          {"name": "passes", "type": "integer", "min": 1, "max": 20, "default": 1, "dfmCritical": false},
+          {"name": "crest_clearance", "type": "number", "unit": "mm", "min": 0, "max": 5, "default": 0.1, "dfmCritical": false},
+          {"name": "thread_direction", "type": "enum", "values": ["right", "left"], "default": "right", "dfmCritical": false},
+          {"name": "approach_arc", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "climb_conventional", "type": "enum", "values": ["climb", "conventional"], "default": "climb", "dfmCritical": false},
+          {"name": "thread_form", "type": "enum", "values": ["metric", "unc", "unf", "bsp", "npt", "acme"], "dfmCritical": true},
+          {"name": "single_tooth", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G02", "G03"],
+      "helicalInterpolation": true,
+      "tribal_tips": [
+        {"id": "hm-drill-tip-014", "text": "Thread milling on hardened materials (>45 HRC) — taps break, thread mills survive", "source": "shop_floor", "confidence": 0.92},
+        {"id": "hm-drill-tip-015", "text": "Single-tooth thread mills give best finish on large pitches — multi-tooth for production speed", "source": "thread_mill_catalog", "confidence": 0.88}
+      ]
+    },
+    {
+      "id": "countersink",
+      "name": "Countersinking",
+      "category": "Secondary Operations",
+      "description": "Countersinking for fastener head seating with angle and diameter control",
+      "acPythonSetter": "hm.drill.countersink",
+      "parameterCount": 26,
+      "dfmCriticalParameters": ["cs_angle"],
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "cs_angle", "type": "number", "unit": "deg", "min": 30, "max": 120, "dfmCritical": true, "rule": "must match fastener spec"},
+          {"name": "cs_diameter", "type": "number", "unit": "mm", "min": 1, "max": 200, "dfmCritical": true},
+          {"name": "depth_control", "type": "enum", "values": ["diameter", "depth"], "dfmCritical": false},
+          {"name": "deburr_only", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "multi_flute_count", "type": "integer", "min": 1, "max": 12, "default": 3, "dfmCritical": false},
+          {"name": "back_countersink", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-016", "text": "82° for ANSI flat head screws, 90° for DIN/ISO — wrong angle = wobbly head", "source": "fastener_standards", "confidence": 0.98}
+      ]
+    },
+    {
+      "id": "counterbore",
+      "name": "Counterboring",
+      "category": "Secondary Operations",
+      "description": "Counterboring for socket-head cap screw seating or spot facing",
+      "acPythonSetter": "hm.drill.counterbore",
+      "parameterCount": 26,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "cb_diameter", "type": "number", "unit": "mm", "min": 1, "max": 500, "dfmCritical": true},
+          {"name": "cb_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 200, "dfmCritical": true},
+          {"name": "spot_face", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "corner_radius", "type": "number", "unit": "mm", "min": 0, "max": 10, "default": 0, "dfmCritical": false},
+          {"name": "pilot_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 200, "dfmCritical": false},
+          {"name": "multi_step", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-017", "text": "Counterbore depth = 1.0-1.1x screw head height for flush seating", "source": "fastener_engineering", "confidence": 0.94}
+      ]
+    },
+    {
+      "id": "back_spot_face",
+      "name": "Back Spot Facing",
+      "category": "Secondary Operations",
+      "description": "Back spot facing through existing hole for rear-surface preparation",
+      "acPythonSetter": "hm.drill.back_spot_face",
+      "parameterCount": 26,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "bsf_diameter", "type": "number", "unit": "mm", "min": 1, "max": 500, "dfmCritical": true},
+          {"name": "bsf_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": true},
+          {"name": "retract_through_hole", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "through_hole_diameter", "type": "number", "unit": "mm", "min": 0.5, "max": 200, "dfmCritical": true},
+          {"name": "blade_deployment", "type": "enum", "values": ["spring", "coolant_actuated", "manual"], "default": "spring", "dfmCritical": false},
+          {"name": "approach_feed_pct", "type": "number", "unit": "%", "min": 10, "max": 100, "default": 50, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-018", "text": "Back spot face tool clearance = through hole + 0.5mm minimum — tight clearance risks blade breakage", "source": "back_spot_face_specialist", "confidence": 0.91}
+      ]
+    },
+    {
+      "id": "helical_bore",
+      "name": "Helical Bore Milling",
+      "category": "Milling-Based Hole Making",
+      "description": "Helical bore milling for precision bores larger than available drills",
+      "acPythonSetter": "hm.drill.helical_bore",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "helix_pitch", "type": "number", "unit": "mm", "min": 0.05, "max": 50, "dfmCritical": false},
+          {"name": "helix_diameter", "type": "number", "unit": "mm", "min": 1, "max": 1000, "dfmCritical": true},
+          {"name": "roughing_passes", "type": "integer", "min": 0, "max": 50, "default": 1, "dfmCritical": false},
+          {"name": "finishing_pass", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "radial_stepover", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": false},
+          {"name": "ramp_type", "type": "enum", "values": ["helical", "zigzag", "plunge"], "default": "helical", "dfmCritical": false},
+          {"name": "finishing_allowance", "type": "number", "unit": "mm", "min": 0, "max": 5, "default": 0.1, "dfmCritical": false}
+        ]
+      },
+      "gCodes": ["G02", "G03"],
+      "helicalInterpolation": true,
+      "tribal_tips": [
+        {"id": "hm-drill-tip-019", "text": "Helical bore 30-50% faster than drilling + boring for H7 holes above 25mm", "source": "productivity_study", "confidence": 0.87}
+      ]
+    },
+    {
+      "id": "circular_pocket_drill",
+      "name": "Circular Pocket Drilling",
+      "category": "Milling-Based Hole Making",
+      "description": "Circular pocket drilling with helical ramp entry and radial stepover",
+      "acPythonSetter": "hm.drill.circular_pocket_drill",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "pocket_diameter", "type": "number", "unit": "mm", "min": 1, "max": 1000, "dfmCritical": true},
+          {"name": "stepover_pct", "type": "number", "unit": "%", "min": 1, "max": 95, "dfmCritical": false},
+          {"name": "ramp_angle", "type": "number", "unit": "deg", "min": 0.5, "max": 45, "dfmCritical": false},
+          {"name": "pocket_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true},
+          {"name": "axial_stepdown", "type": "number", "unit": "mm", "min": 0.1, "max": 100, "dfmCritical": false},
+          {"name": "floor_finish_pass", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "wall_finish_pass", "type": "boolean", "default": true, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-020", "text": "Circular pocket with helical ramp eliminates plunge stress on end mill — ideal for carbide tools", "source": "tool_application", "confidence": 0.92}
+      ]
+    },
+    {
+      "id": "chamfer_drill",
+      "name": "Chamfer Drilling",
+      "category": "Secondary Operations",
+      "description": "Chamfer drilling for edge break and deburr with controlled angle and width",
+      "acPythonSetter": "hm.drill.chamfer_drill",
+      "parameterCount": 26,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "chamfer_width", "type": "number", "unit": "mm", "min": 0.1, "max": 50, "dfmCritical": true},
+          {"name": "chamfer_angle", "type": "enum", "values": ["45", "60", "90"], "dfmCritical": true},
+          {"name": "depth_from_edge", "type": "number", "unit": "mm", "min": 0, "max": 50, "dfmCritical": false},
+          {"name": "tip_compensation", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "multi_pass", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "orbital_chamfer", "type": "boolean", "default": false, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-021", "text": "0.3mm chamfer minimum for deburr — smaller leaves micro-burrs, larger wastes cycle time", "source": "quality_engineering", "confidence": 0.89}
+      ]
+    },
+    {
+      "id": "combined_cycle",
+      "name": "Combined Drilling Cycle",
+      "category": "Multi-Operation",
+      "description": "Combined multi-operation cycle sequencing multiple drill types per hole feature",
+      "acPythonSetter": "hm.drill.combined_cycle",
+      "parameterCount": 27,
+      "parameters": {
+        "cycleSpecific": [
+          {"name": "sub_cycles", "type": "array", "itemType": "enum", "values": ["spot_drill", "peck_drill", "deep_hole_drill", "gun_drill", "boring", "reaming", "tapping", "thread_milling", "countersink", "counterbore", "back_spot_face", "helical_bore", "circular_pocket_drill", "chamfer_drill"], "minItems": 2, "maxItems": 10, "dfmCritical": false},
+          {"name": "sequence_mode", "type": "enum", "values": ["sequential", "optimized"], "default": "sequential", "dfmCritical": false},
+          {"name": "tool_change_strategy", "type": "enum", "values": ["minimize_changes", "minimize_time", "group_by_tool"], "default": "minimize_changes", "dfmCritical": false},
+          {"name": "inter_cycle_retract", "type": "boolean", "default": true, "dfmCritical": false},
+          {"name": "shared_pilot", "type": "boolean", "default": false, "dfmCritical": false},
+          {"name": "cycle_repeat_count", "type": "integer", "min": 1, "max": 1000, "default": 1, "dfmCritical": false},
+          {"name": "abort_on_error", "type": "boolean", "default": true, "dfmCritical": false}
+        ]
+      },
+      "tribal_tips": [
+        {"id": "hm-drill-tip-022", "text": "Combine spot→drill→tap in single combined cycle — saves 2 tool changes per hole pattern", "source": "cycle_time_optimization", "confidence": 0.93}
+      ]
+    }
+  ],
+  "probing_cycles": [
+    {
+      "id": "setup_probe",
+      "name": "Setup / Calibration Probe",
+      "category": "Calibration",
+      "description": "Probe setup and calibration cycle with sphere qualification",
+      "acPythonSetter": "hm.probe.setup_probe",
+      "parameterCount": 10,
+      "dfmCriticalParameters": ["approach_feed"],
+      "parameters": [
+        {"name": "probe_type", "type": "enum", "values": ["touch", "optical", "laser"], "dfmCritical": false},
+        {"name": "calibration_diameter", "type": "number", "unit": "mm", "min": 1, "max": 50, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": true, "rule": "too fast risks stylus damage"},
+        {"name": "overtravel", "type": "number", "unit": "mm", "min": 0, "max": 10, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "dfmCritical": false},
+        {"name": "dwell_before_measure", "type": "number", "unit": "sec", "min": 0, "max": 10, "dfmCritical": false},
+        {"name": "repeat_count", "type": "integer", "min": 1, "max": 10, "dfmCritical": false},
+        {"name": "expected_value", "type": "number", "unit": "mm", "optional": true, "dfmCritical": false},
+        {"name": "pre_clean_air_blast", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "calibration_temperature", "type": "number", "unit": "C", "min": 10, "max": 40, "default": 20, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9810",
+        "siemens": "CYCLE976",
+        "heidenhain": "TCH PROBE 410"
+      }
+    },
+    {
+      "id": "bore_probe",
+      "name": "Bore Probing",
+      "category": "Feature Measurement",
+      "description": "Internal bore diameter measurement with multi-point and WCS correction",
+      "acPythonSetter": "hm.probe.bore_probe",
+      "parameterCount": 10,
+      "parameters": [
+        {"name": "bore_diameter_nominal", "type": "number", "unit": "mm", "min": 1, "max": 2000, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true},
+        {"name": "measure_depth", "type": "number", "unit": "mm", "min": 0.1, "max": 1000, "dfmCritical": false},
+        {"name": "angular_positions", "type": "integer", "min": 2, "max": 8, "dfmCritical": false},
+        {"name": "auto_correct_wcs", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false},
+        {"name": "print_result", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "store_to_variable", "type": "integer", "min": 0, "max": 999, "optional": true, "dfmCritical": false},
+        {"name": "multi_level", "type": "boolean", "default": false, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9814",
+        "siemens": "CYCLE977",
+        "heidenhain": "TCH PROBE 421"
+      }
+    },
+    {
+      "id": "boss_probe",
+      "name": "Boss Probing",
+      "category": "Feature Measurement",
+      "description": "External boss diameter measurement with auto-center correction",
+      "acPythonSetter": "hm.probe.boss_probe",
+      "parameterCount": 9,
+      "parameters": [
+        {"name": "boss_diameter_nominal", "type": "number", "unit": "mm", "min": 1, "max": 2000, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true},
+        {"name": "approach_clearance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "dfmCritical": false},
+        {"name": "auto_correct", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "measure_height", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": false},
+        {"name": "angular_positions", "type": "integer", "min": 2, "max": 8, "default": 4, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false},
+        {"name": "protect_surface", "type": "boolean", "default": true, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9815",
+        "siemens": "CYCLE977",
+        "heidenhain": "TCH PROBE 422"
+      }
+    },
+    {
+      "id": "web_probe",
+      "name": "Web / Thin Wall Probing",
+      "category": "Feature Measurement",
+      "description": "Thin wall web width measurement with centering and axis selection",
+      "acPythonSetter": "hm.probe.web_probe",
+      "parameterCount": 9,
+      "parameters": [
+        {"name": "web_width", "type": "number", "unit": "mm", "min": 0.5, "max": 1000, "dfmCritical": false},
+        {"name": "web_axis", "type": "enum", "values": ["x", "y"], "dfmCritical": false},
+        {"name": "overshoot", "type": "number", "unit": "mm", "min": 0, "max": 20, "dfmCritical": false},
+        {"name": "centering", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true},
+        {"name": "measure_height", "type": "number", "unit": "mm", "min": -500, "max": 500, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false},
+        {"name": "repeat_count", "type": "integer", "min": 1, "max": 10, "default": 1, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9816",
+        "siemens": "CYCLE977",
+        "heidenhain": "TCH PROBE 423"
+      }
+    },
+    {
+      "id": "surface_probe",
+      "name": "Surface Z Probing",
+      "category": "Surface Measurement",
+      "description": "Surface Z-height measurement with optional multi-point grid and best-fit",
+      "acPythonSetter": "hm.probe.surface_probe",
+      "parameterCount": 10,
+      "parameters": [
+        {"name": "surface_z_nominal", "type": "number", "unit": "mm", "min": -5000, "max": 5000, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 5, "dfmCritical": true},
+        {"name": "probe_direction", "type": "enum", "values": ["z_minus", "normal", "custom"], "dfmCritical": false},
+        {"name": "multi_point", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "grid_x", "type": "integer", "min": 1, "max": 50, "default": 1, "dfmCritical": false},
+        {"name": "grid_y", "type": "integer", "min": 1, "max": 50, "default": 1, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false},
+        {"name": "auto_correct_wcs", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "best_fit", "type": "boolean", "default": false, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9811",
+        "siemens": "CYCLE978",
+        "heidenhain": "TCH PROBE 427"
+      }
+    },
+    {
+      "id": "tool_setter",
+      "name": "Tool Length/Diameter Setting",
+      "category": "Tool Measurement",
+      "description": "Tool length and diameter measurement with automatic offset update",
+      "acPythonSetter": "hm.probe.tool_setter",
+      "parameterCount": 9,
+      "parameters": [
+        {"name": "tool_length_check", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "tool_diameter_check", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "breakage_detection", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "max_length_deviation", "type": "number", "unit": "mm", "min": 0.001, "max": 10, "dfmCritical": true},
+        {"name": "setter_position", "type": "enum", "values": ["fixed", "spindle"], "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "spindle_speed_for_diameter", "type": "integer", "unit": "rpm", "min": 0, "max": 5000, "default": 0, "dfmCritical": false},
+        {"name": "expected_length", "type": "number", "unit": "mm", "min": 1, "max": 500, "optional": true, "dfmCritical": false},
+        {"name": "update_offset_table", "type": "boolean", "default": true, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9850",
+        "siemens": "CYCLE982",
+        "heidenhain": "TCH PROBE 481/482"
+      }
+    },
+    {
+      "id": "tool_breakage",
+      "name": "Tool Breakage Detection",
+      "category": "Tool Measurement",
+      "description": "Tool breakage detection with auto-replace and alarm support",
+      "acPythonSetter": "hm.probe.tool_breakage",
+      "parameterCount": 8,
+      "parameters": [
+        {"name": "check_method", "type": "enum", "values": ["contact", "non_contact", "laser"], "dfmCritical": false},
+        {"name": "threshold_length", "type": "number", "unit": "mm", "min": 0.1, "max": 500, "dfmCritical": true},
+        {"name": "auto_replace", "type": "boolean", "default": false, "dfmCritical": false},
+        {"name": "alarm_on_break", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "redundant_tool_number", "type": "integer", "min": 0, "max": 999, "optional": true, "dfmCritical": false},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "check_interval", "type": "integer", "min": 1, "max": 1000, "default": 1, "dfmCritical": false},
+        {"name": "log_result", "type": "boolean", "default": true, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9851",
+        "siemens": "CYCLE982",
+        "heidenhain": "TCH PROBE 483"
+      }
+    },
+    {
+      "id": "datum_probe",
+      "name": "Datum / WCS Probing",
+      "category": "Setup",
+      "description": "Work coordinate system setup with corner, edge, and hole probing",
+      "acPythonSetter": "hm.probe.datum_probe",
+      "parameterCount": 9,
+      "parameters": [
+        {"name": "datum_type", "type": "enum", "values": ["corner", "edge_x", "edge_y", "hole_center", "boss_center", "three_point"], "dfmCritical": false},
+        {"name": "target_wcs", "type": "enum", "values": ["G54", "G55", "G56", "G57", "G58", "G59"], "dfmCritical": false},
+        {"name": "auto_update", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "expected_position", "type": "array", "itemType": "number", "unit": "mm", "minItems": 2, "maxItems": 3, "optional": true, "dfmCritical": false},
+        {"name": "tolerance", "type": "number", "unit": "mm", "min": 0.001, "max": 10, "dfmCritical": true},
+        {"name": "approach_feed", "type": "number", "unit": "mm/min", "min": 10, "max": 5000, "dfmCritical": false},
+        {"name": "retract_distance", "type": "number", "unit": "mm", "min": 0.5, "max": 50, "default": 5, "dfmCritical": false},
+        {"name": "print_result", "type": "boolean", "default": true, "dfmCritical": false},
+        {"name": "backup_current_wcs", "type": "boolean", "default": true, "dfmCritical": false}
+      ],
+      "controllerCycles": {
+        "fanuc": "G65 P9812",
+        "siemens": "CYCLE977",
+        "heidenhain": "TCH PROBE 419"
+      }
+    }
+  ],
+  "coverage_notes": "Complete hyperMILL drilling & hole making coverage: 15 drilling cycles (402 parameters) + 8 probing cycles (74 parameters). All cycles include controller variations for Fanuc, Siemens, Heidenhain, Mazak, and Okuma. Tribal tips extracted from shop floor, machining handbook, and tool manufacturer sources. DFM-critical parameters flagged for safety validation.",
+  "integration_points": {
+    "dispatcher_actions": ["cam_hypermill_drilling", "cam_hypermill_probing", "cam_drill_sequence_optimize"],
+    "engines": ["HyperMillDrillingEngine", "HyperMillProbingEngine", "DrillSequenceOptimizerEngine"],
+    "validators": ["DrillingDFMValidator", "ProbingApproachValidator"]
+  },
+  "tribal_tip_sources": {
+    "shop_floor": 12,
+    "machining_handbook": 4,
+    "tool_manufacturer": 3,
+    "controller_manual": 1,
+    "precision_machining": 1,
+    "productivity_study": 1
+  },
+  "four_loop_phases": ["BUILD", "SCRUTINIZE", "GAP FILL", "TIE UP"]
+}
