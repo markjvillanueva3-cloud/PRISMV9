@@ -91,6 +91,7 @@ import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchem
 import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSchemas.js";
 import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPostUnifiedOutputActionSchemas.js";
 import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js";
+import { ACTION_LATHE_MASTERPOST_API_SCHEMAS } from "../../schemas/latheMasterPostAPIActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -146,6 +147,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_LATHE_POSTGEN_SCHEMAS,
   ...ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS,
   ...ACTION_ONTOLOGY_SCHEMAS,
+  ...ACTION_LATHE_MASTERPOST_API_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -936,6 +938,7 @@ export const ACTIONS = [
   "lathe_postgen_feedback", "lathe_postgen_uncertainty", "lathe_postgen_full",
   "lathe_master_post_route", "lathe_master_post_machines", "lathe_master_post_controllers",
   "lathe_unified_output_header", "lathe_unified_output_footer", "lathe_unified_output_full", "lathe_unified_output_compare",
+  "lathe_masterpost_route", "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_explain", "lathe_masterpost_cross_check", "lathe_masterpost_audit",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -2964,6 +2967,101 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               headerMatch: comparison.headerMatch,
               footerMatch: comparison.footerMatch,
               metadataMatch: comparison.metadataMatch,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_route": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const routeResult = LatheMasterPostAPIEngine.route(params);
+            result = {
+              success: routeResult.success,
+              selectedDialect: routeResult.selectedDialect,
+              selectedSubPost: routeResult.selectedSubPost,
+              machineId: routeResult.machineId,
+              capabilities: routeResult.capabilities,
+              confidence: routeResult.confidence,
+              alternativeDialects: routeResult.alternativeDialects,
+              routingTimeMs: routeResult.routingTimeMs,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_emit": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const emitResult = LatheMasterPostAPIEngine.emit(params);
+            result = {
+              success: emitResult.success,
+              gcode: emitResult.gcode,
+              dialect: emitResult.dialect,
+              blockCount: emitResult.blockCount,
+              estimatedCycleTime: emitResult.estimatedCycleTime,
+              metadata: emitResult.metadata,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_validate": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const validateResult = LatheMasterPostAPIEngine.validate(params);
+            result = {
+              success: validateResult.success,
+              valid: validateResult.valid,
+              issues: validateResult.issues,
+              checkedRules: validateResult.checkedRules,
+              dialect: validateResult.dialect,
+              validationTimeMs: validateResult.validationTimeMs,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_explain": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const explainResult = LatheMasterPostAPIEngine.explain(params);
+            result = {
+              success: explainResult.success,
+              selectedDialect: explainResult.selectedDialect,
+              reasoning: explainResult.reasoning,
+              decisionChain: explainResult.decisionChain,
+              alternatives: explainResult.alternatives,
+              summary: explainResult.summary,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_cross_check": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const crossCheckResult = LatheMasterPostAPIEngine.crossCheck(params);
+            result = {
+              success: crossCheckResult.success,
+              candidateCount: crossCheckResult.candidateCount,
+              hasCriticalDivergence: crossCheckResult.hasCriticalDivergence,
+              divergences: crossCheckResult.divergences,
+              recommendation: crossCheckResult.recommendation,
+              gcode: crossCheckResult.gcode,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_audit": {
+            const { LatheMasterPostAPIEngine } = await import(
+              "../../engines/LatheMasterPostAPIEngine.js"
+            );
+            const auditResult = LatheMasterPostAPIEngine.audit(params);
+            result = {
+              success: auditResult.success,
+              records: auditResult.records,
+              statistics: auditResult.statistics,
             };
             break;
           }
