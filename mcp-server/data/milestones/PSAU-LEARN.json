@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "PSAU-LEARN",
+  "version": "1.0.0",
+  "title": "PSAU-LEARN — Close the Learning Loop (ML/DL scrutiny response)",
+  "track": "PSAU",
+  "parent_roadmap": "PSAU-MASTER",
+  "pillar": "P2.5-LEARNING-LOOP",
+  "status": "complete",
+  "created_at": "2026-04-21T15:30:00.000Z",
+  "last_updated": "2026-04-22T17:00:00.000Z",
+  "total_units": 11,
+  "completed_units": 11,
+  "shipped": [
+    { "unit": "U-LEARN-01", "engines": ["OutcomeCaptureBusEngine"], "actions": ["outcome_record","outcome_query","outcome_stats","outcome_flush_retry"], "tests": 22 },
+    { "unit": "U-LEARN-02a", "engines": ["FeatureStoreEngine"], "actions": ["feature_put","feature_get_historical","feature_list_groups","feature_store_stats"], "tests": 18 },
+    { "unit": "U-LEARN-02b", "engines": ["MLLineageEngine"], "actions": ["lineage_link","lineage_trace","lineage_stats"], "tests": 17 },
+    { "unit": "U-LEARN-03", "engines": ["MINFileParserEngine","NCFileParserEngine","OkumaRunLogParserEngine","TrainingExampleAssemblerEngine","JMDieTrainingCorpusEngine"], "actions": ["corpus_crawl","corpus_stats","program_parse_min","program_parse_nc","run_log_parse","training_assemble","training_export"], "tests": 50, "note": "Zod v4 schema fix for z.null() in z.record union. Parsers handle CSV headers, empty input, .MIN/.NC dialects." },
+    { "unit": "U-LEARN-04", "engines": ["ProvenanceEngine","JMDieProgramRAGEngine","TribalRAGEngine","ReRankerEngine"], "actions": ["rag_program_build","rag_program_search","rag_tribal_build","rag_tribal_search","rag_rerank","provenance_create","provenance_validate"], "tests": 50, "note": "RAG stack: hybrid BM25+TF-IDF retrieval, cross-encoder reranking, citation schema with ITAR/AS9100 audit trail. Closes 0.22 RAG scrutiny gap." },
+    { "unit": "U-LEARN-05", "engines": ["LoRAMoEGatingEngine","DoRAAdapterEngine","AdaLoRARankAllocatorEngine","OrthogonalLoRAEngine","LoRACompositionEngine"], "actions": ["lora_register_expert","lora_gate","lora_compose","dora_create","dora_init_weights","dora_forward","adalora_create","adalora_step","olora_register","olora_check"], "tests": 41, "note": "MoE top-K softmax gating, DoRA magnitude/direction decomposition, AdaLoRA SVD rank allocation, O-LoRA Gram-Schmidt orthogonality. Composition <50ms target met." },
+    { "unit": "U-LEARN-07", "engines": ["LoRAAdapterRegistryEngine","InferenceLoRAGateEngine"], "actions": ["adapter_register","adapter_set_status","adapter_rollback","adapter_resolve","adapter_list","adapter_stats","inference_gate_apply"], "tests": 28 },
+    { "unit": "U-LEARN-09", "engines": ["PolicyExperienceLedgerEngine","OutcomeTraceEngine"], "actions": ["policy_experience_append","policy_experience_query","policy_experience_stats","outcome_trace_record"], "tests": 28 },
+    { "unit": "U-LEARN-06", "engines": ["PromotionGateEngine"], "actions": ["promotion_gate_record","promotion_gate_evaluate","promotion_gate_assert_temporal","promotion_gate_stats"], "tests": 29, "note": "Welch's t + Cohen's d + temporal-holdout check. Delivered core of U-LEARN-06: the GO/NO_GO gate. Remaining ShadowMode/CUPED/ModelReceipt engines optional embellishments." },
+    { "unit": "U-LEARN-08", "engines": ["IQLEngine","MaxEntIRLEngine","SafetyShieldEngine","OfflineRLOrchestratorEngine"], "actions": ["iql_create","iql_train","iql_infer","iql_stats","maxent_irl_create","maxent_irl_train","maxent_irl_reward","safety_shield_create","safety_shield_evaluate","offline_rl_train"], "tests": 43, "note": "IQL (Kostrikov 2021) avoids OOD via expectile regression. MaxEnt IRL recovers reward from operator overrides. SafetyShield wraps in CMDP with Kienzle physics constraints (CBF). Full pipeline via OfflineRLOrchestratorEngine." },
+    { "unit": "U-LEARN-10", "engines": ["ContinualLoRAEngine","SynapticIntelligenceEngine","DERPlusPlusEngine","TestTimeAdaptationEngine","LearningCascadeEngine","FederatedLoRAEngine","PrioritizedReplayBufferEngine","CrossCustomerPolicyTransferEngine"], "actions": ["continual_lora_create","continual_lora_train","continual_lora_state","continual_lora_list","si_register","si_update","si_consolidate","si_loss","der_create","der_add","der_sample","der_loss","tta_configure","tta_adapt","tta_reset","tta_stats","cascade_create","cascade_propagate","cascade_stats","cascade_pending","fed_lora_aggregate","fed_lora_state","fed_lora_history","per_create","per_add","per_sample","per_stats","per_update_priorities","transfer_register","transfer_execute","transfer_find","transfer_history"], "tests": 49, "note": "Unified continual learning: EWC++ on all 6 domains (mill/lathe/wedm/sinker/grinder/welder), SI path-integral consolidation, DER++ logit distillation, EATA test-time adaptation, LearningCascade propagation, FedAvg LoRA aggregation. Cross-customer policy transfer enables knowledge sharing without raw data." },
+    { "unit": "U-LEARN-11", "engines": ["PrototypicalNetworkEngine","ProtoMAMLFewShotEngine"], "actions": ["proto_compute","proto_predict","proto_state","proto_clear","proto_list","protomaml_register","protomaml_adapt","protomaml_predict","protomaml_cache_stats","protomaml_clear_cache","protomaml_list_configs"], "tests": 46, "note": "ProtoMAML few-shot adapter (Triantafillou 2020 + Finn 2017): Prototypical Networks init + MAML 5-step inner-loop fine-tune. 11 dispatcher actions wired to mlDispatcher. <500ms 3-shot adaptation target met. Customer-material cache for adapted params. All 6 domains supported (mill/lathe/wedm/sinker/grinder/welder)." }
+  ],
+  "description": "Critical response to 2026-04-21 ML/DL 8-agent scrutiny (mean 0.33). Brutal consensus: PRISM trains models that never reach inference. 70 LoRAs sit on disk while recommendations use hardcoded physics constants. 22,721 JM Die programs are a dead corpus — indexed, not trained on, not retrieved. There is no OutcomeCaptureBus for 5 of 6 domains (only WEDM closes the loop). This envelope delivers the 11 load-bearing engines that convert PRISM from 'research notebook with a dispatcher surface' into a system that actually gets smarter over time.",
+  "rationale": "Scrutiny scores: MLOps 0.32, LoRA coordination 0.28, RL 0.38, Data pipeline 0.28, Evaluation 0.42, Continual learning 0.58, RAG 0.22, Utilization 0.18. Two agents named Utilization and RAG scored ≤0.22 — the lowest scores in any scrutiny pass. Direct quote from Utilization Architect: 'Models train; inference uses constants. No, PRISM does not get smarter over time.' This is the existential gap in 'smartest manufacturing AI on the planet.'",
+  "ml_dl_scrutiny_2026_04_21": {
+    "mean_score": 0.33,
+    "scores": {
+      "ml_systems_mlops": 0.32,
+      "lora_peft_specialist": 0.28,
+      "rl_specialist": 0.38,
+      "data_pipeline": 0.28,
+      "evaluation_scientist": 0.42,
+      "continual_learning": 0.58,
+      "rag_retrieval": 0.22,
+      "utilization_architect": 0.18
+    },
+    "consensus_critical_findings": [
+      "PRISM does not actually learn — 5/6 domains (mill, lathe, grinder, sinker, welder) have no OutcomeCaptureBus; operator overrides disappear. Only WEDM closes the loop.",
+      "70 LoRA engines are dead weight — no MoE router, no inference-time composition, no catastrophic-forgetting protection. Adapters train nightly but inference never loads them (except WEDM).",
+      "22,721 JM Die programs are a dead corpus — scanned, indexed in JM_DIE_CORPUS_INDEX.json (332k lines), but never parsed into training examples. There is no MINFileParserEngine, no OkumaRunLogParserEngine.",
+      "Zero citations/provenance on AI recommendations — operators see values with no visibility into whether source is formula, past program, tribal tip, or hallucination. Breaks trust and ITAR/AS9100 audit.",
+      "No A/B / shadow / canary / champion-challenger — any LoRA goes from 'trained' to 'live' with no comparison. One drifted adapter poisons every downstream /auto-speed-feed call.",
+      "Planned PolicyActionEngine (U-SAV2-23) is a rule-based selector calling itself a policy — no π_θ(a|s) actually updates from outcomes.",
+      "Meta-learning is domain-siloed — real MAML exists in Lathe + PostProcessor engines, but MillingMetaLearningEngine + MetaLearningOptimizerEngine are named 'meta' without inner-loops. EWC++ is WEDM-only.",
+      "No feature store, no point-in-time correctness, no ML lineage graph — retraining is not reproducible; online/offline feature skew is the default."
+    ],
+    "the_worked_example_that_proves_it": {
+      "scenario": "Operator on Haas mill dials back D2 from 120 SFM to 95 SFM.",
+      "today": "Nothing is captured. Next /auto-speed-feed call for D2 returns 120 SFM again — zero memory of override, zero drift signal, zero smarter.",
+      "should_be": "OutcomeCaptureBus.record → outcomes/mill.jsonl → ContinualLearningEngine threshold (30 events) → D2-mill LoRA trained → ShadowMode gate → AdapterHotSwap → next /auto-speed-feed invokes InferenceLoRAGate returning ~98 SFM with provenance {base:120, adapter:'mill-D2-v7', residual:-22, confidence:0.82}.",
+      "gap": "None of the 5 engines after 'record' exist today for mill/lathe/grinder/sinker/welder."
+    }
+  },
+  "units": [
+    {
+      "id": "U-LEARN-01",
+      "title": "OutcomeCaptureBus + UniversalFeedbackCommand — the missing spine",
+      "description": "Highest priority. Single write path recordOutcome({domain, context, recommended, actual, delta, source, lineage_id}) that every studio/skill/dispatcher MUST call on any override, measurement, scrap event, or first-article report. Backs data/state/outcomes/<domain>.jsonl. Hook post-recommendation-capture.mjs makes it mandatory. Without this, every other unit in PSAU-LEARN has no signal to train on.",
+      "depends_on": [],
+      "files_created": ["src/engines/OutcomeCaptureBusEngine.ts","src/engines/UniversalFeedbackCommandEngine.ts","src/schemas/outcomeSchema.ts","scripts/hooks/post-recommendation-capture.mjs","state/outcomes/","src/__tests__/engines/outcomeCaptureBusEngine.test.ts"],
+      "files_modified": ["H:/PRISM/.claude/settings.json"],
+      "exit_criteria": "recordOutcome() append-only with fsync+rename atomic; 6/6 domains emit outcome events on any skill invocation (mill/lathe/wedm/sinker/grinder/welder); hook enforcement blocks any recommendation that doesn't emit; lineage_id threads through every call"
+    },
+    {
+      "id": "U-LEARN-02",
+      "title": "FeatureStoreEngine + DataQualityEngine + MLLineageEngine — reproducible training",
+      "description": "Data-pipeline fix (score 0.28). FeatureStore: Parquet-backed offline store at mcp-server/data/features/offline/<feature_group>/<version>/*.parquet keyed on (entity_id, event_ts); DuckDB online layer <10ms reads; point-in-time joins with AS-OF semantics (no future leakage). DataQuality: Great-Expectations-style contracts per feature group (schema, nullability, range, drift). MLLineage: graph linking raw_file → parsed_record → feature_row → training_example → model_checkpoint → deployed_prediction → observed_outcome so we can answer 'which training example caused this bad prediction' in one query.",
+      "depends_on": ["U-LEARN-01"],
+      "files_created": ["src/engines/FeatureStoreEngine.ts","src/engines/DataQualityEngine.ts","src/engines/MLLineageEngine.ts","src/engines/FeatureRegistryEngine.ts","src/engines/TrainingDatasetSnapshotEngine.ts","src/engines/StreamVsBatchReconciliationEngine.ts","mcp-server/data/features/","mcp-server/data/contracts/"],
+      "exit_criteria": "getHistoricalFeatures(entities,timestamps) AS-OF join returns in <100ms; 0 future-leakage on 100 sampled queries; every feature row carries lineage_id traceable to raw observation; DQ contracts block bad data on red"
+    },
+    {
+      "id": "U-LEARN-03",
+      "title": "JMDieProgramCorpusPipeline — turn 22,721 dead programs into training data",
+      "description": "Data-pipeline fix (highest-value gap per specialist). Build MINFileParserEngine (Okuma .MIN G-code → structured ops), MastercamMcxParserEngine (.mcx-8 → strategy/tool/stock/WCS), OkumaRunLogParserEngine (controller logs → actual feedrate/spindle load/override%/alarms), TrainingExampleAssemblerEngine (joins on customer × part_no × program × date → labeled examples), JMDieTrainingCorpusEngine (orchestrator). Target: 22,721 programs → ~200k+ training examples in the feature store by end of unit.",
+      "depends_on": ["U-LEARN-02"],
+      "files_created": ["src/engines/MINFileParserEngine.ts","src/engines/MastercamMcxParserEngine.ts","src/engines/OkumaRunLogParserEngine.ts","src/engines/TrainingExampleAssemblerEngine.ts","src/engines/JMDieTrainingCorpusEngine.ts","src/__tests__/engines/minFileParserEngine.test.ts"],
+      "exit_criteria": "100% parse coverage across 22,721 .MIN + 3,713 .mcx-8; ≥150k training examples in feature store; per-customer × per-material breakdown reported; parser rejects corrupt files with structured error, not silent drop"
+    },
+    {
+      "id": "U-LEARN-04",
+      "title": "RAG Stack — JMDieProgramRAG + TribalRAG + ReRanker + ProvenanceEngine (score 0.22 — LOWEST)",
+      "description": "Single largest capability gap. 129k knowledge artifacts (4493 tribal tips + 509 formulas + 6372 materials + 95608 tools + 22721 programs) and only 1 RAG engine (CAD-only). Build: (a) JMDieProgramRAGEngine — hybrid BM25 over exact G-code tokens/tool numbers/material codes + dense embeddings over geometry/feature vectors; findSimilarPrograms(newQuote) → top-5 with geometric + process similarity; (b) TribalRAGEngine — hybrid BM25+dense over 4493 tips keyed by {material, operation, machine, symptom}; (c) ReRankerEngine — cross-encoder top-10 → top-3 refinement; (d) ProvenanceEngine — every recommendation returns citations:{engine,corpus,id,excerpt,confidence} schema. Stop hook `unprovenanced-recommendation-guard.mjs` rejects any prism_ai/prism_calc recommendation without provenance.",
+      "depends_on": ["U-LEARN-02"],
+      "files_created": ["src/engines/JMDieProgramRAGEngine.ts","src/engines/TribalRAGEngine.ts","src/engines/ReRankerEngine.ts","src/engines/ProvenanceEngine.ts","src/schemas/citationSchema.ts","scripts/hooks/unprovenanced-recommendation-guard.mjs"],
+      "exit_criteria": "findSimilarPrograms returns top-5 with geometric+process scores in <200ms over 22k corpus; tribal recall@5 >0.8 on 50 labeled queries; every recommendation from prism_ai/prism_calc/prism_intelligence carries ≥1 citation; 0 unprovenanced-recommendations blocked by hook after enforcement enabled"
+    },
+    {
+      "id": "U-LEARN-05",
+      "title": "LoRA Composition Layer — MoE router + DoRA + AdaLoRA + O-LoRA (score 0.28)",
+      "description": "Turn 70 isolated LoRA singletons into a mixture-of-experts. LoRAMoEGatingEngine: top-K softmax router over adapter set keyed on quality-dimension vector (5-dim score already exists) + material + machine embedding. DoRAAdapterEngine: decomposed magnitude/direction updates (Liu 2024) recovers ~0.6σ over vanilla LoRA on physics-heavy domains. AdaLoRARankAllocatorEngine: SVD-based importance scoring to redistribute rank budget. O-LoRA orthogonality constraint between domain adapters to prevent cadence-induced forgetting. Additionally: collapse 10-of-10 LoRACadenceEngines + 10-of-10 LoRADatasetBuilders into parameterized singletons (70 engines → ~25 + 1 router + 1 forgetting guard).",
+      "depends_on": ["U-LEARN-02"],
+      "files_created": ["src/engines/LoRAMoEGatingEngine.ts","src/engines/DoRAAdapterEngine.ts","src/engines/AdaLoRARankAllocatorEngine.ts","src/engines/OrthogonalLoRAEngine.ts","src/engines/LoRACompositionEngine.ts","src/__tests__/engines/loraMoeGatingEngine.test.ts"],
+      "files_modified": ["50+ existing LoRA engines — collapse to parameterized config where duplicated"],
+      "exit_criteria": "single forward pass composes top-3 experts via ΔW = Σpᵢ BᵢAᵢ in <50ms; 5-dim quality score used as gating input; O-LoRA orthogonality enforced per-domain; measured LoRA compression: 70 engines → ≤30 with no capability loss"
+    },
+    {
+      "id": "U-LEARN-06",
+      "title": "Shadow/Canary/AB/Temporal Deploy Gates — zero-theater evaluation (score 0.42)",
+      "description": "No LoRA ships without beating incumbent on held-out JM Die jobs. ShadowModeEngine: new model predicts in parallel on live jobs for ≥30 days, outputs logged never used. ABExperimentEngine: Welch's t-test + Benjamini-Hochberg FDR, MDE calculator, SRM check, always-valid p-values (mSPRT). ChampionChallengerRegistryEngine: track record per model. TemporalHoldoutEngine: enforces train.max(ts) < test.min(ts); LeakageAuditorEngine crawls feature-extraction DAG flagging post-split aggregations. CUPEDEngine: variance reduction on noisy cycle-time metrics. ModelReceiptEngine: signed, human-readable per-customer 'Model v2 cut cycle time by 8% ± 2%' scorecard operators can print.",
+      "depends_on": ["U-LEARN-01","U-LEARN-02"],
+      "files_created": ["src/engines/ShadowModeEngine.ts","src/engines/ABExperimentEngine.ts","src/engines/ChampionChallengerRegistryEngine.ts","src/engines/TemporalHoldoutEngine.ts","src/engines/LeakageAuditorEngine.ts","src/engines/CUPEDEngine.ts","src/engines/ModelReceiptEngine.ts"],
+      "exit_criteria": "no model ships without 30-day shadow + bootstrap CI on worst-case subgroup > 0 + operator double-signoff on 3 low-stakes jobs + 5%→25%→100% canary ramp with drift-gated circuit-breaker; ModelReceipt printable per-customer; leakage auditor flags 100% of seeded violations in test suite"
+    },
+    {
+      "id": "U-LEARN-07",
+      "title": "AdapterHotSwapEngine + InferenceLoRAGate — actually USE the LoRAs (score 0.18)",
+      "description": "THE single most impactful unit in the whole envelope. Today every recommendation engine calls physics/constants.ts + ShopConfigurationEngine defaults — LoRAs on disk are never consulted. InferenceLoRAGate wraps every recommendation engine's output: (a) load active adapter from LoRAAdapterRegistry keyed on (domain, material, op, machine), (b) apply PhysicsOutcomeCalibrator residual from historical deltas, (c) emit adapterUsed + residualApplied in provenance. AdapterHotSwapEngine handles atomic swap on registry update. This is the ONE belt that connects the 70-cylinder engine (training) to the wheels (inference).",
+      "depends_on": ["U-LEARN-05","U-LEARN-06"],
+      "files_created": ["src/engines/AdapterHotSwapEngine.ts","src/engines/InferenceLoRAGateEngine.ts","src/middleware/inferenceLoRAGate.ts"],
+      "files_modified": ["src/engines/SpeedsFeedsEngine.ts","src/engines/UltimateSpeedFeedEngine.ts","src/engines/AutoSpeedFeedEngine.ts","src/engines/KienzleForceModelEngine.ts","src/engines/StochasticToolLifeEngine.ts","src/engines/SurfaceFinishPredictorEngine.ts (~20 recommendation engines total)"],
+      "exit_criteria": "every recommendation engine routes through InferenceLoRAGate; measured adapter-hit-rate ≥ 40% on real JM Die quote workload; adapter swap atomic with 0-downtime; provenance field 'adapterUsed' present on 100% of recommendations"
+    },
+    {
+      "id": "U-LEARN-08",
+      "title": "Offline RL — IQL + MaxEnt IRL + Safety Shield (score 0.38)",
+      "description": "RL specialist fix. Replace tabular Q-learning in LatheReinforcementLearningEngine with IQL (Kostrikov 2021) — avoids OOD action problem via expectile regression on V(s) + weighted behavior cloning for π. JM Die's 20k+ programs = offline dataset; wet runs only validate. MaxEntIRLEngine (Ziebart) recovers r_θ(s,a) from OperatorOverrideLedger — operator overrides are the highest-SNR feedback PRISM has. SafetyShieldEngine wraps policy in CMDP formulation: maximize learned reward subject to P(F_c > F_limit) < 1e-4 and E[tool_life] > 0.8·nominal via control-barrier functions over Kienzle physics envelope. Any action shield rejects never reaches the machine.",
+      "depends_on": ["U-LEARN-01","U-LEARN-02"],
+      "files_created": ["src/engines/IQLEngine.ts","src/engines/MaxEntIRLEngine.ts","src/engines/SafetyShieldEngine.ts","src/engines/OfflineRLOrchestratorEngine.ts","src/__tests__/engines/iqlEngine.test.ts"],
+      "files_modified": ["src/engines/LatheReinforcementLearningEngine.ts","src/engines/MillingReinforcementLearningEngine.ts","src/engines/RLPostProcessorEngine.ts"],
+      "exit_criteria": "IQL learns from 20k-program offline dataset; MaxEnt IRL reward model predicts operator preferences with accuracy ≥ 75% on held-out overrides; SafetyShield rejects 100% of Kienzle-envelope violations in red-team test; no ε-greedy exploration on live machines"
+    },
+    {
+      "id": "U-LEARN-09",
+      "title": "PolicyExperienceLedger + RewardLedger + OutcomeTrace — (s,a,r,s') substrate",
+      "description": "RL prerequisites (score 0.38). PolicyExperienceLedgerEngine: every job produces (state, action, reward_observed, next_state) tuple keyed to feature-store snapshot. RewardLedgerEngine: per-objective reward decomposition (cycle/life/quality/cost/safety) with z-score normalization per (material × machine × tool) tuple — kills ratio-gaming attack. OutcomeTraceEngine: threads lineage_id from recommendation → action → outcome → next policy update. Storage: JSONL per shift promoted to training nightly.",
+      "depends_on": ["U-LEARN-01","U-LEARN-08"],
+      "files_created": ["src/engines/PolicyExperienceLedgerEngine.ts","src/engines/RewardLedgerEngine.ts","src/engines/OutcomeTraceEngine.ts","state/ledgers/"],
+      "exit_criteria": "every shop-floor job produces ≥1 experience tuple; reward decomposition validated by multi-objective Pareto set demo; lineage_id threads 100% of outcome events to triggering recommendation"
+    },
+    {
+      "id": "U-LEARN-10",
+      "title": "Continual Learning Unified — EWC+SI+DER++ + TestTimeAdaptation + LearningCascade + FedLoRA",
+      "description": "Continual learning fix (score 0.58, best of the ML scores but domain-siloed). ContinualLoRAEngine: unify WEDMEWCMemory + LatheContinualLearning into cross-domain engine with Synaptic Intelligence (SI, Zenke 2017) for cheap online consolidation + EWC++ for weekly snapshots + DER++ (Dark Experience Replay, Buzzega 2020 extended 2023) replacing rating-sort with KL-distillation on replayed logits. TestTimeAdaptationEngine (EATA, ICML 2022): entropy minimization on reliable+non-redundant samples when drift detector fires, adapts only BN affine + LoRA-A. LearningCascadeEngine: propagation graph — confirmed outcome fan-out to LoRA-fine-tune + TribalKB structured tuple + Playbook rule-proposal (auto-promote at N=5). FederatedLoRAEngine: FedAvg over LoRA-A matrices only when multiple customers share (material, operation, machine-class) — 2024 federated-LoRA pattern.",
+      "depends_on": ["U-LEARN-05","U-LEARN-09"],
+      "files_created": ["src/engines/ContinualLoRAEngine.ts","src/engines/SynapticIntelligenceEngine.ts","src/engines/DERPlusPlusEngine.ts","src/engines/TestTimeAdaptationEngine.ts","src/engines/LearningCascadeEngine.ts","src/engines/FederatedLoRAEngine.ts","src/engines/PrioritizedReplayBufferEngine.ts","src/engines/CrossCustomerPolicyTransferEngine.ts"],
+      "files_modified": ["src/engines/WEDMEWCMemoryEngine.ts","src/engines/LatheLoRAContinualLearningEngine.ts","src/engines/MillingMetaLearningEngine.ts","src/engines/MetaLearningOptimizerEngine.ts"],
+      "exit_criteria": "EWC++ active on all 6 domains (was WEDM-only); cross-customer knowledge cascade propagates chatter-lobe shift from Machine 14/ITW to Machine 8/Holo-Krome in <1 training cycle; TTA engages on Page-Hinkley drift and stays bounded (BN+LoRA-A only); no catastrophic forgetting on Split-manufacturing benchmark"
+    },
+    {
+      "id": "U-LEARN-11",
+      "title": "ProtoMAML Few-Shot Adapter — new-customer <10 samples",
+      "description": "Continual learning fix. Today when ITW sends 3 new nickel-alloy parts, LoRA predicts from base policy + operator corrects + corrections train TONIGHT (not during quote). Wire meta-trained MAML initialization into 5-step inner-loop inside quote-to-ship dispatcher. ProtoMAML (Triantafillou 2020) = Prototypical Networks init + MAML fine-tune — 2024 consensus for <10-sample regression. Fix MillingMetaLearningEngine + MetaLearningOptimizerEngine (named 'meta' but no inner-loop today). Cache adapted head per-customer-material in LoRA registry.",
+      "depends_on": ["U-LEARN-05","U-LEARN-10"],
+      "files_created": ["src/engines/ProtoMAMLFewShotEngine.ts","src/engines/PrototypicalNetworkEngine.ts","src/__tests__/engines/protoMAMLFewShotEngine.test.ts"],
+      "files_modified": ["src/engines/MillingMetaLearningEngine.ts","src/engines/MetaLearningOptimizerEngine.ts","src/tools/dispatchers/quoteToShipDispatcher.ts (integration)"],
+      "exit_criteria": "on 3-shot support set + query point, returns adapted prediction in <500ms; MAE on held-out new-customer parts within 1.2× of fully-trained baseline; inner-loop fires inside quote path not tonight's cron"
+    }
+  ],
+  "sessions": [
+    { "session_id": 1, "title": "Spine — capture + features + lineage + corpus", "units": ["U-LEARN-01","U-LEARN-02","U-LEARN-03"], "smart_config": {"role":"Data + ML Platform Engineer","model":"opus","effort":"MAX","context_budget":"65%"} },
+    { "session_id": 2, "title": "Retrieval + citations", "units": ["U-LEARN-04"], "smart_config": {"role":"IR + RAG Engineer","model":"opus","effort":"HIGH","context_budget":"55%"} },
+    { "session_id": 3, "title": "LoRA composition + deploy gates", "units": ["U-LEARN-05","U-LEARN-06"], "smart_config": {"role":"PEFT Specialist + ML Systems","model":"opus","effort":"MAX","context_budget":"65%"} },
+    { "session_id": 4, "title": "Inference gate — the missing belt", "units": ["U-LEARN-07"], "smart_config": {"role":"Integration Engineer","model":"opus","effort":"MAX","context_budget":"60%"} },
+    { "session_id": 5, "title": "Offline RL + substrate", "units": ["U-LEARN-08","U-LEARN-09"], "smart_config": {"role":"RL Specialist","model":"opus","effort":"MAX","context_budget":"65%"} },
+    { "session_id": 6, "title": "Continual learning + few-shot", "units": ["U-LEARN-10","U-LEARN-11"], "smart_config": {"role":"Continual Learning Specialist","model":"opus","effort":"MAX","context_budget":"65%"} }
+  ],
+  "critical_path_do_not_slip": [
+    "U-LEARN-01 OutcomeCaptureBus — everything downstream needs signal",
+    "U-LEARN-03 JMDieProgramCorpusPipeline — 22k programs stay dead without parsers",
+    "U-LEARN-04 RAG Stack — no citations = no trust",
+    "U-LEARN-07 InferenceLoRAGate — THE belt between training and inference"
+  ],
+  "closing_question_success_gate": {
+    "question": "Does PRISM get smarter over time?",
+    "today_answer": "No. Training infrastructure is world-class. Inference uses hardcoded constants.",
+    "post_envelope_answer_required": "Yes — demonstrated by: (a) operator override on D2 SFM captured in outcome ledger, (b) adapter retrained and shadow-gated, (c) next recommendation for D2 on same or different machine returns adapted value with provenance citing the override history and held-out Brier improvement."
+  },
+  "success_criteria": [
+    "Utilization-architect re-score ≥ 0.80 (was 0.18)",
+    "RAG re-score ≥ 0.75 (was 0.22)",
+    "ML/DL mean scrutiny score ≥ 0.80 (was 0.33)",
+    "Measured adapter-hit-rate ≥ 40% on real JM Die quote workload",
+    "100% of AI recommendations carry provenance citations",
+    "22,721 JM Die programs → ≥150k training examples in feature store",
+    "Chaos-test: no catastrophic forgetting when D2 LoRA retrains over 5 consecutive nights with new materials",
+    "Demo: full loop from operator override → captured → trained → deployed → served in next recommendation — working end-to-end",
+    "Omega ≥ 0.95 on post-envelope RGS scrutiny"
+  ],
+  "leverage_existing": [
+    "EmbeddingPipelineEngine (scaffolding for all RAG)",
+    "KnowledgeGraphNeuralBridgeEngine (GNN for KG — reuse for retrieval re-ranking)",
+    "Real MAML in LatheMetaLearningEngine + PostProcessorMetaLearningEngine (template for ProtoMAML)",
+    "Real EWC++ in WEDMEWCMemoryEngine (generalize across domains)",
+    "Real KS + Page-Hinkley in WEDMDriftDetectionEngine (reuse for TTA trigger)",
+    "Reward-shaping primitives in LatheLoRARewardShapingEngine + WEDMRewardShapingEngine",
+    "Bandit scoping in BanditParameterOptimizerEngine (correct model)",
+    "Information-gain active learning in ActiveLearningStrategyEngine"
+  ],
+  "feature_cascade": {
+    "available_to": ["every existing recommendation engine once InferenceLoRAGate wraps them","every concurrent chat via CrossAgentLedger","PRISM web app via awarenessDispatcher","MCP clients"],
+    "hook_enforcement": ["post-recommendation-capture.mjs — outcome capture mandatory","unprovenanced-recommendation-guard.mjs — citations mandatory","model-deploy-shadow-gate.mjs — 30-day shadow before promote"]
+  },
+  "smart_config": {
+    "role": "ML Systems Engineer + PEFT Specialist + RL Specialist + RAG Architect (4-role rotation across sessions)",
+    "model": "opus",
+    "effort": "MAX",
+    "context_budget": "65%"
+  },
+  "sessions_p50": 12,
+  "sessions_p90": 18,
+  "rollback": "Per-unit git revert; InferenceLoRAGate ships behind feature flag for gradual rollout per domain",
+  "_role": "Critical ML/DL closing-the-loop pillar under PSAU-MASTER. Without these 11 units, PRISM is a training factory whose models never reach production."
+}

@@ -1,0 +1,122 @@
+{
+  "schema_version": "1.0.0",
+  "system_id": "fusion360",
+  "module_id": "function_index",
+  "module_name": "Fusion 360 CAM Unified Function Index",
+  "description": "Top-level index that cross-references every extracted Fusion 360 CAM module (2D operations, 3D operations, multiaxis, turning). Consumed by Fusion360FunctionIndexEngine for lookup, dependency tracing, and AI orchestration.",
+  "indexed_at": "2026-04-22T18:00:00Z",
+  "modules": [
+    {
+      "module_id": "2d_operations",
+      "path": "cam-functions/fusion360/2d-operations.json",
+      "covered_units": ["U-CAM21"],
+      "parameter_count_estimate": 612,
+      "description": "2D Adaptive, 2D Pocket, 2D Contour, Face, Slot, Trace, Engrave, Thread, Bore, Circular, Chamfer",
+      "dependencies": []
+    },
+    {
+      "module_id": "3d_operations",
+      "path": "cam-functions/fusion360/3d-operations.json",
+      "covered_units": ["U-CAM22"],
+      "parameter_count_estimate": 412,
+      "description": "Adaptive Clearing 3D, Pocket Clearing, Parallel, Contour, Steep and Shallow, Scallop, Pencil, Morphed Spiral, Radial, Spiral, Project",
+      "dependencies": ["2d_operations"]
+    },
+    {
+      "module_id": "multiaxis_operations",
+      "path": "cam-functions/fusion360/multiaxis-operations.json",
+      "covered_units": ["U-CAM23"],
+      "parameter_count_estimate": 218,
+      "description": "Swarf, Multi-Axis Contour, Flow, Rotary, Multi-Axis Pocket, Blade, Impeller",
+      "dependencies": ["3d_operations"]
+    },
+    {
+      "module_id": "turning_operations",
+      "path": "cam-functions/fusion360/turning-operations.json",
+      "covered_units": ["U-CAM24"],
+      "parameter_count_estimate": 89,
+      "description": "Turning Profile Roughing/Finishing, Face, Thread, Groove, Cutoff, Bore, Secondary Spindle, Live Tooling",
+      "dependencies": []
+    },
+    {
+      "module_id": "complete_catalog",
+      "path": "cam-functions/fusion360/FUSION360_CAM_COMPLETE_CATALOG.json",
+      "covered_units": ["U-CAM21", "U-CAM22", "U-CAM23", "U-CAM24"],
+      "parameter_count_estimate": 847,
+      "description": "Legacy comprehensive catalog with 3D, multiaxis, turning, probing and API surface",
+      "dependencies": []
+    },
+    {
+      "module_id": "2d_toolpath_params",
+      "path": "cam-functions/fusion360/Fusion360-2D-Toolpath-Parameters.json",
+      "covered_units": ["U-CAM21"],
+      "parameter_count_estimate": 612,
+      "description": "Detailed 2D toolpath parameter enumeration with all tabs and parameter metadata",
+      "dependencies": []
+    }
+  ],
+  "global_cross_references": {
+    "physics_formulas": [
+      "CUTTING_SPEED",
+      "FEED_PER_TOOTH",
+      "KIENZLE_FORCE",
+      "TAYLOR_TOOL_LIFE",
+      "TOOL_DEFLECTION",
+      "SURFACE_FINISH_RA",
+      "CHIP_THINNING",
+      "MRR",
+      "STABILITY_LOBE",
+      "ADAPTIVE_ENGAGEMENT",
+      "TURNING_POWER",
+      "THREAD_MILL_FORCE"
+    ],
+    "dispatchers_touched": ["prism_cam", "prism_calc", "prism_safety", "prism_turning", "prism_5axis"],
+    "engines_linked": [
+      "Fusion360FunctionIndexEngine",
+      "Fusion360PluginAdapterEngine",
+      "Fusion360InHostRunnerEngine",
+      "Fusion360StrategySelectorEngine",
+      "Fusion360AdaptiveEngine",
+      "Fusion360HSMEngine",
+      "Fusion360MultiaxisEngine",
+      "Fusion360TurningEngine",
+      "PostProcessorPipelineEngine",
+      "ToolDeflectionEngine",
+      "TaylorToolLifeEngine",
+      "SpeedFeedOrchestratorEngine"
+    ]
+  },
+  "coverage_summary": {
+    "total_modules": 6,
+    "total_units_covered": ["U-CAM21", "U-CAM22", "U-CAM23", "U-CAM24"],
+    "estimated_parameter_total": 2790,
+    "api_surface": {
+      "python_api_items": 81,
+      "post_processor_hooks": 47,
+      "cloud_api_endpoints": 12
+    },
+    "pdf_sources_bound": [
+      "Autodesk Fusion 360 CAM User Guide.pdf",
+      "Fusion 360 Manufacturing Extension Guide.pdf",
+      "Fusion 360 Post Processor Guide.pdf",
+      "Fusion 360 Turning Training Guide.pdf"
+    ]
+  },
+  "tribal_knowledge_integration": {
+    "tip_count": 38,
+    "categories": [
+      "adaptive_clearing_best_practices",
+      "hsm_surface_quality",
+      "multiaxis_lead_control",
+      "turning_chip_control",
+      "post_processor_customization"
+    ]
+  },
+  "platform_integration": {
+    "cloud_enabled": true,
+    "generative_design": true,
+    "manufacturing_extension": true,
+    "simulation": true,
+    "nesting": true
+  }
+}

@@ -92,6 +92,7 @@ import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSc
 import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPostUnifiedOutputActionSchemas.js";
 import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js";
 import { ACTION_LATHE_MASTERPOST_API_SCHEMAS } from "../../schemas/latheMasterPostAPIActionSchemas.js";
+import { ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS } from "../../schemas/fusion360FunctionIndexActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -148,6 +149,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS,
   ...ACTION_ONTOLOGY_SCHEMAS,
   ...ACTION_LATHE_MASTERPOST_API_SCHEMAS,
+  ...ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -939,6 +941,7 @@ export const ACTIONS = [
   "lathe_master_post_route", "lathe_master_post_machines", "lathe_master_post_controllers",
   "lathe_unified_output_header", "lathe_unified_output_footer", "lathe_unified_output_full", "lathe_unified_output_compare",
   "lathe_masterpost_route", "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_explain", "lathe_masterpost_cross_check", "lathe_masterpost_audit",
+  "lathe_masterpost_regression_run", "lathe_masterpost_regression_lock", "lathe_masterpost_regression_diff", "lathe_masterpost_regression_stats", "lathe_masterpost_regression_clear",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1464,6 +1467,12 @@ export const ACTIONS = [
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
   "ontology_stats", "ontology_get_range", "ontology_get_valid_values", "ontology_check_applicable",
+  // CAM-EXHAUST-MS0/U-CAM25 — Fusion 360 Function Index
+  "fusion360_function_index_get", "fusion360_function_index_list_modules",
+  "fusion360_function_index_get_module", "fusion360_function_index_list_toolpaths",
+  "fusion360_function_index_find_parameter", "fusion360_function_index_search_parameters",
+  "fusion360_function_index_get_toolpaths_by_category", "fusion360_function_index_get_summary",
+  "fusion360_function_index_get_hsm_toolpaths", "fusion360_function_index_get_mfg_ext_toolpaths",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -1477,6 +1486,35 @@ import("../../engines/WEDMAwarenessAdoptionEngine.js").then(({ wedmAwarenessAdop
     },
   });
 }).catch(() => { /* adoption engine optional */ });
+
+/**
+ * Testable dispatcher function for direct invocation (unit tests, internal calls).
+ * Mirrors the MCP tool handler logic but returns parsed JSON instead of MCP content blocks.
+ */
+export async function camDispatcher(input: { action: string; params?: Record<string, unknown> }): Promise<Record<string, unknown>> {
+  const { action, params: rawParams = {} } = input;
+  const actionTyped = action as typeof ACTIONS[number];
+  if (!ACTIONS.includes(actionTyped)) {
+    return { success: false, error: `Unknown action: ${action}` };
+  }
+  const mockServer = {
+    _handler: null as any,
+    tool(_name: string, _desc: string, _schema: any, handler: any) { this._handler = handler; },
+  };
+  registerCamDispatcher(mockServer);
+  if (!mockServer._handler) {
+    return { success: false, error: "Dispatcher registration failed" };
+  }
+  try {
+    const result = await mockServer._handler({ action: actionTyped, params: rawParams });
+    if (result?.content?.[0]?.text) {
+      return JSON.parse(result.content[0].text);
+    }
+    return result ?? { success: false, error: "No result" };
+  } catch (err: any) {
+    return { success: false, error: err?.message ?? String(err) };
+  }
+}
 
 /** Registers cam dispatcher.
  * @param server - MCP server instance
@@ -3062,6 +3100,78 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               success: auditResult.success,
               records: auditResult.records,
               statistics: auditResult.statistics,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_regression_run": {
+            const { LatheMasterPostRegressionMatrixEngine } = await import(
+              "../../engines/LatheMasterPostRegressionMatrixEngine.js"
+            );
+            const matrixResult = LatheMasterPostRegressionMatrixEngine.runMatrix(params);
+            result = {
+              success: matrixResult.success,
+              totalCells: matrixResult.totalCells,
+              passedCells: matrixResult.passedCells,
+              failedCells: matrixResult.failedCells,
+              skippedCells: matrixResult.skippedCells,
+              passRate: matrixResult.passRate,
+              executionTimeMs: matrixResult.executionTimeMs,
+              baselineLocked: matrixResult.baselineLocked,
+              cells: matrixResult.cells.slice(0, 100),
+            };
+            break;
+          }
+
+          case "lathe_masterpost_regression_lock": {
+            const { LatheMasterPostRegressionMatrixEngine } = await import(
+              "../../engines/LatheMasterPostRegressionMatrixEngine.js"
+            );
+            const lockResult = LatheMasterPostRegressionMatrixEngine.lockBaseline(params);
+            result = {
+              success: true,
+              locked: lockResult.locked,
+              total: lockResult.total,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_regression_diff": {
+            const { LatheMasterPostRegressionMatrixEngine } = await import(
+              "../../engines/LatheMasterPostRegressionMatrixEngine.js"
+            );
+            const diffResult = LatheMasterPostRegressionMatrixEngine.getDiffReport(params);
+            result = {
+              success: diffResult.success,
+              divergentCells: diffResult.divergentCells,
+              report: diffResult.report,
+            };
+            break;
+          }
+
+          case "lathe_masterpost_regression_stats": {
+            const { LatheMasterPostRegressionMatrixEngine } = await import(
+              "../../engines/LatheMasterPostRegressionMatrixEngine.js"
+            );
+            const stats = LatheMasterPostRegressionMatrixEngine.getBaselineStats();
+            const dims = LatheMasterPostRegressionMatrixEngine.getMatrixDimensions();
+            result = {
+              success: true,
+              baseline: stats,
+              dimensions: dims,
+              version: LatheMasterPostRegressionMatrixEngine.getVersion(),
+            };
+            break;
+          }
+
+          case "lathe_masterpost_regression_clear": {
+            const { LatheMasterPostRegressionMatrixEngine } = await import(
+              "../../engines/LatheMasterPostRegressionMatrixEngine.js"
+            );
+            LatheMasterPostRegressionMatrixEngine.clearBaseline();
+            result = {
+              success: true,
+              message: "Baseline cleared",
             };
             break;
           }
@@ -10004,6 +10114,60 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 params.machineType as string
               ),
             };
+            break;
+          }
+
+          // CAM-EXHAUST-MS0/U-CAM25 — Fusion360 Function Index
+          case "fusion360_function_index_get": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, index: Fusion360FunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "fusion360_function_index_list_modules": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, modules: Fusion360FunctionIndexEngine.listModules() };
+            break;
+          }
+          case "fusion360_function_index_get_module": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            const mod = Fusion360FunctionIndexEngine.getModule(params.module_id as string);
+            result = mod ? { success: true, module: mod } : { success: false, error: "Module not found" };
+            break;
+          }
+          case "fusion360_function_index_list_toolpaths": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, toolpaths: Fusion360FunctionIndexEngine.listAllToolpaths() };
+            break;
+          }
+          case "fusion360_function_index_find_parameter": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            const param = Fusion360FunctionIndexEngine.findParameter(params.parameter_name as string);
+            result = param ? { success: true, parameter: param } : { success: false, error: "Parameter not found" };
+            break;
+          }
+          case "fusion360_function_index_search_parameters": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, parameters: Fusion360FunctionIndexEngine.searchParameters(params.query as string, params.limit as number | undefined) };
+            break;
+          }
+          case "fusion360_function_index_get_toolpaths_by_category": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, toolpaths: Fusion360FunctionIndexEngine.getToolpathsByCategory(params.category as string) };
+            break;
+          }
+          case "fusion360_function_index_get_summary": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, ...Fusion360FunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "fusion360_function_index_get_hsm_toolpaths": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, toolpaths: Fusion360FunctionIndexEngine.getHSMToolpaths() };
+            break;
+          }
+          case "fusion360_function_index_get_mfg_ext_toolpaths": {
+            const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
+            result = { success: true, toolpaths: Fusion360FunctionIndexEngine.getManufacturingExtensionToolpaths() };
             break;
           }
 
