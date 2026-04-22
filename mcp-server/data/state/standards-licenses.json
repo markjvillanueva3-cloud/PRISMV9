@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-04-22T08:40:00Z",
+  "description": "Registry of standards body content licenses. Most ISO/DIN/ANSI standards are paywalled — only ingest content we have rights to.",
+  "owner_unit": "CAM-UIX-INFRA-00/U-LEGAL-GATES01",
+  "license_types": {
+    "purchased_single": {
+      "description": "Single-user license for one copy of the standard",
+      "allows_ai_training": false,
+      "allows_internal_reference": true,
+      "allows_extraction": false
+    },
+    "site_license": {
+      "description": "Site-wide license for organization use",
+      "allows_ai_training": false,
+      "allows_internal_reference": true,
+      "allows_extraction": false
+    },
+    "developer_license": {
+      "description": "Special license for software development embedding",
+      "allows_ai_training": "check_terms",
+      "allows_internal_reference": true,
+      "allows_extraction": "check_terms"
+    },
+    "public_abstract": {
+      "description": "Publicly available abstract/scope (no purchase required)",
+      "allows_ai_training": true,
+      "allows_internal_reference": true,
+      "allows_extraction": true
+    },
+    "withdrawn_free": {
+      "description": "Withdrawn standard now freely available",
+      "allows_ai_training": true,
+      "allows_internal_reference": true,
+      "allows_extraction": true
+    }
+  },
+  "standards": {
+    "ISO_3685_1993": {
+      "title": "Tool-life testing with single-point turning tools",
+      "body": "ISO",
+      "license_type": "public_abstract",
+      "license_status": "available",
+      "abstract_ingested": true,
+      "full_text_ingested": false,
+      "notes": "Taylor equation reference — abstract sufficient for kc/n derivation"
+    },
+    "ISO_513_2012": {
+      "title": "Classification and application of hard cutting materials for metal removal",
+      "body": "ISO",
+      "license_type": "purchased_single",
+      "license_status": "owned",
+      "purchase_date": "2024-06-15",
+      "abstract_ingested": true,
+      "full_text_ingested": false,
+      "notes": "ISO material group (P/M/K/N/S/H) reference"
+    },
+    "DIN_6584_1982": {
+      "title": "Kienzle specific cutting force",
+      "body": "DIN",
+      "license_type": "public_abstract",
+      "license_status": "available",
+      "abstract_ingested": true,
+      "full_text_ingested": false,
+      "notes": "Kienzle kc1.1 and mc derivation — canonical physics reference"
+    },
+    "ANSI_ASME_B5_62_2018": {
+      "title": "Machining center test code",
+      "body": "ANSI/ASME",
+      "license_type": "site_license",
+      "license_status": "owned",
+      "purchase_date": "2025-01-10",
+      "abstract_ingested": true,
+      "full_text_ingested": false
+    },
+    "ISO_1302_2002": {
+      "title": "Geometrical product specifications — Surface texture indication",
+      "body": "ISO",
+      "license_type": "public_abstract",
+      "license_status": "available",
+      "abstract_ingested": true,
+      "full_text_ingested": false,
+      "notes": "Ra/Rz surface finish specification"
+    },
+    "ISO_286_2010": {
+      "title": "Geometrical product specifications — ISO code system for tolerances",
+      "body": "ISO",
+      "license_type": "public_abstract",
+      "license_status": "available",
+      "abstract_ingested": true,
+      "full_text_ingested": false,
+      "notes": "IT grade tolerance reference"
+    }
+  },
+  "ingestion_policy": {
+    "abstract_always_allowed": true,
+    "full_text_requires_license": true,
+    "extraction_for_ai_requires_developer_license": true,
+    "cite_source_always": true,
+    "block_on_unknown_standard": true
+  },
+  "blocked_standards": {
+    "reason": "No license and full text required for meaningful extraction",
+    "list": []
+  }
+}
