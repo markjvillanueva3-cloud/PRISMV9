@@ -90,6 +90,7 @@ import { ACTION_POST_PROCESSOR_AI_SCHEMAS } from "../../schemas/postProcessorAIA
 import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchemas.js";
 import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSchemas.js";
 import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPostUnifiedOutputActionSchemas.js";
+import { ACTION_ONTOLOGY_SCHEMAS } from "../../schemas/ontologyActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -144,6 +145,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_LATHE_SF_SCHEMAS,
   ...ACTION_LATHE_POSTGEN_SCHEMAS,
   ...ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS,
+  ...ACTION_ONTOLOGY_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -1052,6 +1054,8 @@ export const ACTIONS = [
   "wedm_flush_adequacy_evaluate", "wedm_flush_adequacy_gate",
   "wedm_thermal_release_evaluate", "wedm_thermal_release_gate",
   "wedm_dialect_verify", "wedm_dialect_gate", "wedm_dialect_resolve",
+  // MS-P3-TIER6A — Progressive Die + Multi-Slide
+  "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
   // Grinding
   "grind_surface_program", "grind_cylindrical_program", "grind_centerless_program", "grind_creepfeed_program", "grind_uncertainty",
   // Laser
@@ -1452,6 +1456,10 @@ export const ACTIONS = [
   "cam_inhost_hypermill_register", "cam_inhost_hypermill_plan", "cam_inhost_hypermill_summarize", "cam_inhost_hypermill_stats", "cam_inhost_hypermill_reset",
   // CAM-EXHAUST-MS0 U-CAMTEST02 — Fusion 360 in-host runner (PRISM-side companion)
   "cam_inhost_fusion360_register", "cam_inhost_fusion360_plan", "cam_inhost_fusion360_summarize", "cam_inhost_fusion360_stats", "cam_inhost_fusion360_reset",
+  // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM field translation
+  "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
+  "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
+  "ontology_stats", "ontology_get_range", "ontology_get_valid_values", "ontology_check_applicable",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -4320,6 +4328,23 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
             const eng = new WEDMControllerDialectVerifierEngine();
             result = { controller: eng.resolveController(params.name || params.controller || "") };
+            break;
+          }
+          // ── MS-P3-TIER6A: EDMWireSlugCornerTaperEngine (3 actions) ──
+          case "edm_corner_taper_analyze": {
+            const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
+            result = edmWireSlugCornerTaperEngine.analyze(params);
+            break;
+          }
+          case "edm_corner_taper_min_radius": {
+            const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
+            result = { success: true, min_radius_mm: edmWireSlugCornerTaperEngine.computeMinRadius(params.wire_diameter_mm ?? 0.25, params.spark_gap_mm ?? 0.025) };
+            break;
+          }
+          case "edm_slug_drop_predict": {
+            const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
+            const full = edmWireSlugCornerTaperEngine.analyze(params);
+            result = { success: full.success, ...full.slug_prediction };
             break;
           }
           // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──
@@ -9777,6 +9802,93 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { Fusion360InHostRunnerEngine } = await import("../../engines/Fusion360InHostRunnerEngine.js");
             Fusion360InHostRunnerEngine.resetSession((params.session_id as string) ?? "default");
             result = { reset: true, session_id: params.session_id };
+            break;
+          }
+
+          // CAM-UIX-MS0/U-ONTOLOGY-SEED01 — Cross-CAM ontology translation
+          case "ontology_translate": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = ontologyGrowthRegistryEngine.translate(
+              params.sourceCAM as string,
+              params.targetCAM as string,
+              params.fieldName as string
+            );
+            break;
+          }
+          case "ontology_translate_strategy": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = ontologyGrowthRegistryEngine.translateStrategy(
+              params.sourceCAM as string,
+              params.targetCAM as string,
+              params.strategyName as string
+            );
+            break;
+          }
+          case "ontology_get_canonical": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = {
+              cam: params.cam,
+              fieldName: params.fieldName,
+              canonical: ontologyGrowthRegistryEngine.getCanonical(
+                params.cam as string,
+                params.fieldName as string
+              ),
+            };
+            break;
+          }
+          case "ontology_get_aliases": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = {
+              canonical: params.canonical,
+              cam: params.cam,
+              aliases: ontologyGrowthRegistryEngine.getAliasesForCanonical(
+                params.canonical as string,
+                params.cam as string | undefined
+              ),
+            };
+            break;
+          }
+          case "ontology_list_canonicals": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = { canonicals: ontologyGrowthRegistryEngine.getAllCanonicals() };
+            break;
+          }
+          case "ontology_list_cams": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = { cams: ontologyGrowthRegistryEngine.getSupportedCAMs() };
+            break;
+          }
+          case "ontology_stats": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = ontologyGrowthRegistryEngine.getOntologyStats();
+            break;
+          }
+          case "ontology_get_range": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = {
+              canonical: params.canonical,
+              range: ontologyGrowthRegistryEngine.getTypicalRange(params.canonical as string),
+            };
+            break;
+          }
+          case "ontology_get_valid_values": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = {
+              canonical: params.canonical,
+              validValues: ontologyGrowthRegistryEngine.getValidValues(params.canonical as string),
+            };
+            break;
+          }
+          case "ontology_check_applicable": {
+            const { ontologyGrowthRegistryEngine } = await import("../../engines/OntologyGrowthRegistryEngine.js");
+            result = {
+              canonical: params.canonical,
+              machineType: params.machineType,
+              applicable: ontologyGrowthRegistryEngine.isApplicableTo(
+                params.canonical as string,
+                params.machineType as string
+              ),
+            };
             break;
           }
 
