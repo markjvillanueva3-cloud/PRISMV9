@@ -23,6 +23,8 @@ let _physics: any, _thermal: any, _pattern: any, _twin: any;
 let _deeplearn: any, _neural: any, _wisdom: any, _adaptive: any;
 let _toolpath: any, _toolsel: any, _program: any, _validate: any;
 let _agi: any, _selfaware: any, _scientific: any, _kinematics: any;
+// P1-U09-L2-AGG: L2 aggregator orchestrators
+let _aiLearn: any, _millTurn: any, _fiveAxisAgg: any, _multiAxisAgg: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -79,6 +81,16 @@ async function getEngine(name: string): Promise<any> {
       return _adaptive ??= (await import("../../engines/AdaptiveToolpathRouterEngine.js")).adaptiveToolpathRouterEngine;
     case "wisdom":
       return _wisdom ??= (await import("../../engines/TribalKnowledgeAdvisorEngine.js")).tribalKnowledgeAdvisorEngine;
+
+    // P1-U09-L2-AGG: L2 aggregator orchestrators
+    case "ai_learn":
+      return _aiLearn ??= (await import("../../engines/MillingAILearningOrchestratorEngine.js")).millingAILearningOrchestratorEngine;
+    case "mill_turn":
+      return _millTurn ??= (await import("../../engines/MillTurnOrchestrationEngine.js")).millTurnOrchestrationEngine;
+    case "five_axis_agg":
+      return _fiveAxisAgg ??= (await import("../../engines/FiveAxisAggregatorEngine.js")).fiveAxisAggregatorEngine;
+    case "multi_axis_agg":
+      return _multiAxisAgg ??= (await import("../../engines/MultiAxisAggregatorEngine.js")).multiAxisAggregatorEngine;
 
     default:
       throw new Error(`Unknown mill engine: ${name}`);
@@ -158,6 +170,12 @@ export const MILL_ACTIONS = [
   "mill_validate_setup",
   "mill_validate_safety",
   "mill_spc_analyze",
+
+  // P1-U09-L2-AGG: L2 aggregator routing
+  "mill_ai_orchestrate",
+  "mill_turn_orchestrate",
+  "mill_5axis_orchestrate",
+  "mill_multiaxis_orchestrate",
 ] as const;
 
 export const MILL_DISPATCHER_ACTION_COUNT = MILL_ACTIONS.length;
@@ -498,6 +516,30 @@ Actions: ${MILL_ACTIONS.join(", ")}.`,
           case "mill_spc_analyze": {
             const engine = await getEngine("validate");
             result = engine.analyzeSPC?.(params) ?? { cpk: 0, inControl: true };
+            break;
+          }
+
+          // ============================================================
+          // P1-U09-L2-AGG: L2 AGGREGATOR ROUTING
+          // ============================================================
+          case "mill_ai_orchestrate": {
+            const engine = await getEngine("ai_learn");
+            result = await engine.orchestrate(params);
+            break;
+          }
+          case "mill_turn_orchestrate": {
+            const engine = await getEngine("mill_turn");
+            result = await engine.orchestrate(params);
+            break;
+          }
+          case "mill_5axis_orchestrate": {
+            const engine = await getEngine("five_axis_agg");
+            result = await engine.orchestrate(params);
+            break;
+          }
+          case "mill_multiaxis_orchestrate": {
+            const engine = await getEngine("multi_axis_agg");
+            result = await engine.orchestrate(params);
             break;
           }
 
