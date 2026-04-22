@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "2.5d_milling",
+  "extraction_source": "InventorCAM2024_2.5D_Milling_Training_Course.pdf + INVENTOR_HSM_COMPLETE_PARAMETER_CATALOG.json",
+  "extraction_date": "2026-04-22",
+  "milestone": "CAM-EXHAUST-MS0/U-CAM26",
+  "summary": {
+    "total_operations": 11,
+    "total_parameters": 247,
+    "categories": ["roughing", "finishing", "holemaking"]
+  },
+  "operations": {
+    "adaptive_2d": {
+      "display_name": "2D Adaptive Clearing",
+      "category": "roughing",
+      "description": "High-efficiency constant engagement clearing with helix ramping. Uses optimal load (WOC as % of tool diameter) to maintain constant chip load and minimize tool wear. Supports rest machining for efficient rough-to-finish transitions.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 32,
+      "parameters": {
+        "geometry": {
+          "contours": { "type": "selection", "description": "Boundary contours", "tab": "Geometry", "required": true },
+          "pocketSelection": { "type": "boolean", "default": false, "description": "Use pocket selection mode", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "range": [0, 10], "description": "Radial stock to leave", "tab": "Geometry" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "range": [0, 10], "description": "Axial stock to leave", "tab": "Geometry" },
+          "model": { "type": "selection", "description": "Machining model", "tab": "Geometry" },
+          "restMachining": { "type": "boolean", "default": false, "description": "Enable rest machining", "tab": "Geometry" },
+          "restMachiningTool": { "type": "tool_reference", "description": "Previous tool for rest calculation", "tab": "Geometry" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "default": 25.4, "description": "Safe retract height above stock", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "default": 6.35, "description": "Rapid retract height", "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "default": 2.54, "description": "Height to switch to feed", "tab": "Heights" },
+          "topHeight": { "type": "number", "unit": "mm", "default": 0, "description": "Top of feature", "tab": "Heights" },
+          "bottomHeight": { "type": "number", "unit": "mm", "default": -25.4, "description": "Bottom of feature", "tab": "Heights" },
+          "heightsFrom": { "type": "enum", "values": ["selection", "stock top", "model top", "origin"], "default": "stock top", "tab": "Heights" }
+        },
+        "passes": {
+          "optimalLoad": { "type": "number", "unit": "percent", "default": 40, "range": [5, 50], "description": "Target engagement as % of tool diameter", "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "range": [0.1, 100], "description": "Maximum axial depth per pass", "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": true, "description": "Enable multiple depth passes", "tab": "Passes" },
+          "useSlotClearing": { "type": "boolean", "default": true, "description": "Trochoidal clearing in narrow areas", "tab": "Passes" },
+          "minimumCuttingRadius": { "type": "number", "unit": "mm", "description": "Minimum internal corner radius", "tab": "Passes" },
+          "bothWays": { "type": "boolean", "default": false, "description": "Bidirectional machining", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "orderByDepth": { "type": "boolean", "default": true, "description": "Complete each depth before moving deeper", "tab": "Passes" },
+          "finishingOverlap": { "type": "number", "unit": "mm", "default": 0.5, "description": "Overlap at pass start/end", "tab": "Passes" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "plunge"], "default": "helix", "description": "Tool entry method", "tab": "Linking" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 50, "range": [10, 100], "description": "Helix diameter as % of tool", "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "range": [0.5, 10], "description": "Helix ramp angle", "tab": "Linking" },
+          "leadRadius": { "type": "number", "unit": "mm", "description": "Lead-in arc radius", "tab": "Linking" },
+          "leadInVertical": { "type": "boolean", "default": false, "description": "Vertical lead-in", "tab": "Linking" },
+          "transitionType": { "type": "enum", "values": ["safe_retract", "direct", "minimal_lift"], "default": "safe_retract", "tab": "Linking" },
+          "stayDown": { "type": "boolean", "default": true, "description": "Minimize retracts", "tab": "Linking" }
+        }
+      }
+    },
+    "contour_2d": {
+      "display_name": "2D Contour",
+      "category": "finishing",
+      "description": "Profile machining of 2D contours with cutter compensation support. Ideal for finishing sidewalls and profiles with precise dimensional control.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 26,
+      "parameters": {
+        "geometry": {
+          "contours": { "type": "selection", "description": "Contours to machine", "tab": "Geometry", "required": true },
+          "side": { "type": "enum", "values": ["left", "right", "center"], "default": "right", "description": "Compensation side", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "range": [-5, 10], "description": "Stock to leave (negative = overcut)", "tab": "Geometry" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0, "range": [0, 10], "description": "Axial stock to leave", "tab": "Geometry" },
+          "chamferWidth": { "type": "number", "unit": "mm", "default": 0, "description": "Chamfer size if chamfer tool", "tab": "Geometry" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "default": 25.4, "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "default": 6.35, "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "default": 2.54, "tab": "Heights" },
+          "topHeight": { "type": "number", "unit": "mm", "default": 0, "tab": "Heights" },
+          "bottomHeight": { "type": "number", "unit": "mm", "default": -25.4, "tab": "Heights" },
+          "bottomOffset": { "type": "number", "unit": "mm", "default": 0, "description": "Offset from bottom", "tab": "Heights" }
+        },
+        "passes": {
+          "multipleDepths": { "type": "boolean", "default": true, "description": "Multiple depth passes", "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "description": "Max depth per pass", "tab": "Passes" },
+          "finishingStepdown": { "type": "number", "unit": "mm", "default": 0, "description": "Final pass depth", "tab": "Passes" },
+          "numberOfStepdowns": { "type": "integer", "description": "Fixed number of passes", "tab": "Passes" },
+          "compensationType": { "type": "enum", "values": ["computer", "control", "wear", "inverse_wear", "off"], "default": "computer", "tab": "Passes" },
+          "compensationDeltaRadius": { "type": "number", "unit": "mm", "default": 0, "description": "Radius adjustment", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "repeatPass": { "type": "boolean", "default": false, "description": "Spring pass", "tab": "Passes" }
+        },
+        "linking": {
+          "leadInType": { "type": "enum", "values": ["tangent_arc", "perpendicular_arc", "tangent_line", "perpendicular_line", "none"], "default": "tangent_arc", "tab": "Linking" },
+          "leadInRadius": { "type": "number", "unit": "mm", "description": "Lead-in arc radius", "tab": "Linking" },
+          "leadInSweep": { "type": "number", "unit": "deg", "default": 90, "range": [15, 180], "description": "Lead-in arc sweep", "tab": "Linking" },
+          "leadOutType": { "type": "enum", "values": ["tangent_arc", "perpendicular_arc", "tangent_line", "perpendicular_line", "none"], "default": "tangent_arc", "tab": "Linking" },
+          "leadOutRadius": { "type": "number", "unit": "mm", "tab": "Linking" },
+          "verticalLeadIn": { "type": "boolean", "default": false, "tab": "Linking" }
+        }
+      }
+    },
+    "pocket_2d": {
+      "display_name": "2D Pocket",
+      "category": "roughing",
+      "description": "Traditional offset pocket clearing with multiple pattern options. Supports zigzag, one-way, spiral, and morphed spiral patterns for efficient material removal.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "geometry": {
+          "contours": { "type": "selection", "required": true, "tab": "Geometry" },
+          "islands": { "type": "selection", "description": "Island boundaries", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" },
+          "stockToLeaveAxial": { "type": "number", "unit": "mm", "default": 0.2, "tab": "Geometry" }
+        },
+        "passes": {
+          "pocketType": { "type": "enum", "values": ["zigzag", "one_way", "spiral", "morphed_spiral"], "default": "zigzag", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "percent", "default": 60, "range": [10, 100], "description": "WOC as % of tool diameter", "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "orderByDepth": { "type": "boolean", "default": true, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "minimumStepover": { "type": "number", "unit": "mm", "default": 0.1, "description": "Minimum stepover in tight areas", "tab": "Passes" },
+          "smoothingDeviation": { "type": "number", "unit": "mm", "default": 0.01, "description": "Path smoothing tolerance", "tab": "Passes" }
+        }
+      }
+    },
+    "face_2d": {
+      "display_name": "Face",
+      "category": "roughing",
+      "description": "Top face surfacing with adjustable patterns. Creates flat top surfaces using zigzag, one-way, or spiral patterns with configurable pass angle.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "faceContour": { "type": "selection", "description": "Face boundary (stock if not specified)", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "passes": {
+          "facingPattern": { "type": "enum", "values": ["zigzag", "one_way", "spiral"], "default": "zigzag", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "percent", "default": 75, "range": [50, 95], "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "faceAngle": { "type": "number", "unit": "deg", "default": 45, "range": [0, 90], "description": "Pattern rotation angle", "tab": "Passes" },
+          "passExtension": { "type": "number", "unit": "mm", "default": 0, "description": "Extend passes beyond boundary", "tab": "Passes" }
+        }
+      }
+    },
+    "slot_2d": {
+      "display_name": "Slot",
+      "category": "roughing",
+      "description": "Dedicated slot milling with trochoidal motion. Optimized for narrow slot features with center, trochoidal, or offset cutting strategies.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "slotContours": { "type": "selection", "required": true, "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "passes": {
+          "slotType": { "type": "enum", "values": ["center", "trochoidal", "offset"], "default": "trochoidal", "tab": "Passes" },
+          "trochoidalStepover": { "type": "number", "unit": "percent", "default": 10, "range": [5, 25], "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" }
+        }
+      }
+    },
+    "trace_2d": {
+      "display_name": "Trace",
+      "category": "finishing",
+      "description": "Follow 2D/3D curves for engraving or tracing operations. Uses selected curves as toolpath with optional multiple depth passes.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 6,
+      "parameters": {
+        "geometry": {
+          "curves": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" },
+          "depthIncrement": { "type": "number", "unit": "mm", "tab": "Passes" }
+        }
+      }
+    },
+    "engrave_2d": {
+      "display_name": "Engrave",
+      "category": "finishing",
+      "description": "Engraving text and logos with V-bits or ball mills. Supports text input with font selection or imported curves.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "text": { "type": "string", "description": "Text to engrave", "tab": "Geometry" },
+          "font": { "type": "string", "description": "Font name", "tab": "Geometry" },
+          "textHeight": { "type": "number", "unit": "mm", "description": "Character height", "tab": "Geometry" },
+          "curves": { "type": "selection", "description": "Curves to engrave", "tab": "Geometry" }
+        },
+        "passes": {
+          "depth": { "type": "number", "unit": "mm", "description": "Engraving depth", "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": false, "tab": "Passes" }
+        }
+      }
+    },
+    "bore_2d": {
+      "display_name": "Bore",
+      "category": "holemaking",
+      "description": "Precision boring cycles for holes requiring tight tolerances. Supports boring, fine boring, back boring, and reaming.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "holeDiameter": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["boring", "fine_boring", "back_boring", "reaming"], "default": "boring", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "description": "Dwell time at hole bottom", "tab": "Cycle" },
+          "retractAmount": { "type": "number", "unit": "mm", "default": 0, "description": "Retract before dwell", "tab": "Cycle" },
+          "orientationAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Spindle orientation", "tab": "Cycle" },
+          "shift": { "type": "number", "unit": "mm", "default": 0, "description": "Shift before retract", "tab": "Cycle" }
+        }
+      }
+    },
+    "circular_2d": {
+      "display_name": "Circular",
+      "category": "holemaking",
+      "description": "Circular pocket milling for large holes that exceed available drill sizes. Uses helical entry with stepover-based material removal.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "holeCenters": { "type": "selection", "required": true, "tab": "Geometry" },
+          "diameter": { "type": "number", "unit": "mm", "required": true, "description": "Hole diameter", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "percent", "default": 50, "tab": "Passes" },
+          "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "helixEntry": { "type": "boolean", "default": true, "tab": "Passes" }
+        }
+      }
+    },
+    "thread_mill_2d": {
+      "display_name": "Thread Mill",
+      "category": "holemaking",
+      "description": "Thread milling for internal and external threads. Uses helical interpolation with configurable pitch and multiple radial passes.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "threadType": { "type": "enum", "values": ["internal", "external"], "default": "internal", "tab": "Geometry" },
+          "threadPitch": { "type": "number", "unit": "mm", "required": true, "description": "Thread pitch", "tab": "Geometry" },
+          "majorDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+        },
+        "cycle": {
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Cycle" },
+          "multiplePasses": { "type": "boolean", "default": false, "description": "Multiple radial passes", "tab": "Cycle" },
+          "numberOfPasses": { "type": "integer", "default": 1, "tab": "Cycle" },
+          "entryHelical": { "type": "boolean", "default": true, "tab": "Cycle" }
+        }
+      }
+    },
+    "chamfer_2d": {
+      "display_name": "Chamfer",
+      "category": "finishing",
+      "description": "Edge chamfering with chamfer mills. Creates consistent chamfers along selected contours with configurable width and angle.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "contours": { "type": "selection", "required": true, "tab": "Geometry" },
+          "chamferWidth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "chamferAngle": { "type": "number", "unit": "deg", "default": 45, "tab": "Geometry" }
+        },
+        "passes": {
+          "chamferTipOffset": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "2D Adaptive Clearing Strategy",
+      "key_concepts": ["optimal load percentage", "constant engagement", "helix entry", "rest machining"],
+      "best_practices": [
+        "Use 25-40% optimal load for most materials",
+        "Enable slot clearing for narrow areas",
+        "Set helix diameter to 50% of tool for stable entry",
+        "Use rest machining to efficiently transition to smaller tools"
+      ]
+    },
+    {
+      "topic": "2D Contour Finishing",
+      "key_concepts": ["cutter compensation", "lead-in/lead-out", "spring passes", "multiple depth strategy"],
+      "best_practices": [
+        "Use tangent arc lead-in for smooth entry",
+        "Enable spring pass for improved surface finish",
+        "Choose climb milling for better finish on most materials",
+        "Set compensation type based on controller capability"
+      ]
+    },
+    {
+      "topic": "2D Pocket Clearing",
+      "key_concepts": ["pocket patterns", "stepover optimization", "island handling", "depth ordering"],
+      "best_practices": [
+        "Use zigzag for general pockets, spiral for circular",
+        "50-70% stepover balances productivity and tool life",
+        "Order by depth for consistent chip load",
+        "Enable smoothing for better surface quality"
+      ]
+    },
+    {
+      "topic": "Facing Operations",
+      "key_concepts": ["face patterns", "pass angle", "boundary extension"],
+      "best_practices": [
+        "45° face angle provides good chip evacuation",
+        "75% stepover for face mills with wiper flats",
+        "Extend passes beyond boundary for clean edges"
+      ]
+    },
+    {
+      "topic": "Slot Milling",
+      "key_concepts": ["trochoidal motion", "slot types", "narrow feature handling"],
+      "best_practices": [
+        "Trochoidal for slots narrower than 2x tool diameter",
+        "10-15% trochoidal stepover for tool life",
+        "Use center strategy for wide slots"
+      ]
+    },
+    {
+      "topic": "Holemaking Operations",
+      "key_concepts": ["circular milling", "thread milling", "boring cycles"],
+      "best_practices": [
+        "Circular milling for holes > 1.5x tool diameter",
+        "Helical entry prevents shock loading",
+        "Thread mill climb for right-hand threads"
+      ]
+    }
+  ]
+}

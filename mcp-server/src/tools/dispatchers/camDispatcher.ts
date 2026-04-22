@@ -1475,6 +1475,12 @@ export const ACTIONS = [
   "fusion360_function_index_find_parameter", "fusion360_function_index_search_parameters",
   "fusion360_function_index_get_toolpaths_by_category", "fusion360_function_index_get_summary",
   "fusion360_function_index_get_hsm_toolpaths", "fusion360_function_index_get_mfg_ext_toolpaths",
+  // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
+  "inventor_hsm_function_index_get", "inventor_hsm_function_index_list_sections",
+  "inventor_hsm_function_index_get_section", "inventor_hsm_function_index_list_operations",
+  "inventor_hsm_function_index_find_parameter", "inventor_hsm_function_index_search_parameters",
+  "inventor_hsm_function_index_get_operations_by_category", "inventor_hsm_function_index_get_summary",
+  "inventor_hsm_function_index_get_hsm_operations", "inventor_hsm_function_index_get_25d_operations",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -10275,6 +10281,63 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "fusion360_function_index_get_mfg_ext_toolpaths": {
             const { Fusion360FunctionIndexEngine } = await import("../../engines/Fusion360FunctionIndexEngine.js");
             result = { success: true, toolpaths: Fusion360FunctionIndexEngine.getManufacturingExtensionToolpaths() };
+            break;
+          }
+
+          // CAM-EXHAUST-MS0/U-CAM26 — Inventor HSM Function Index
+          case "inventor_hsm_function_index_get": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, index: InventorHSMFunctionIndexEngine.getIndex() };
+            break;
+          }
+          case "inventor_hsm_function_index_list_sections": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, sections: InventorHSMFunctionIndexEngine.listSections() };
+            break;
+          }
+          case "inventor_hsm_function_index_get_section": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            const sectionKey = params.section_key as string;
+            result = { success: true, section: InventorHSMFunctionIndexEngine.getSection(sectionKey) };
+            break;
+          }
+          case "inventor_hsm_function_index_list_operations": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, operations: InventorHSMFunctionIndexEngine.listOperations() };
+            break;
+          }
+          case "inventor_hsm_function_index_find_parameter": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            const paramName = params.parameter_name as string;
+            result = { success: true, results: InventorHSMFunctionIndexEngine.findParameter(paramName) };
+            break;
+          }
+          case "inventor_hsm_function_index_search_parameters": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            const query = params.query as string;
+            const limit = params.limit as number | undefined;
+            result = { success: true, results: InventorHSMFunctionIndexEngine.searchParameters(query, limit) };
+            break;
+          }
+          case "inventor_hsm_function_index_get_operations_by_category": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            const category = params.category as string;
+            result = { success: true, operations: InventorHSMFunctionIndexEngine.getOperationsByCategory(category) };
+            break;
+          }
+          case "inventor_hsm_function_index_get_summary": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, ...InventorHSMFunctionIndexEngine.getSummary() };
+            break;
+          }
+          case "inventor_hsm_function_index_get_hsm_operations": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, operations: InventorHSMFunctionIndexEngine.getHSMOperations() };
+            break;
+          }
+          case "inventor_hsm_function_index_get_25d_operations": {
+            const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
+            result = { success: true, operations: InventorHSMFunctionIndexEngine.get25DOperations() };
             break;
           }
 
