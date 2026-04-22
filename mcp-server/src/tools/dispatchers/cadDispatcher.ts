@@ -109,6 +109,8 @@ const ACTIONS = [
   "cad_index_ingest", "cad_index_query", "cad_index_stats", "cad_index_clear", "cad_index_similar",
   // CAD Training Pipeline Orchestrator (U-CADC19)
   "cad_pipeline_run", "cad_pipeline_validate", "cad_pipeline_status", "cad_pipeline_clear",
+  // CAD Training MCP Actions (U-CADC20)
+  "cad_training_start", "cad_training_status", "cad_training_corpus_stats",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -892,6 +894,26 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("cadPipeline");
             const clearResult = engine.clear();
             result = { success: true, ...clearResult };
+            break;
+          }
+          // U-CADC20: Training MCP Actions
+          case "cad_training_start": {
+            const engine = await getEngine("cadPipeline");
+            const pipelineResult = engine.run(params);
+            result = { success: true, ...pipelineResult };
+            break;
+          }
+          case "cad_training_status": {
+            const engine = await getEngine("cadPipeline");
+            const status = engine.status();
+            result = { success: true, ...status };
+            break;
+          }
+          case "cad_training_corpus_stats": {
+            const engine = await getEngine("cadCorpusOrch");
+            const corpusPath = params?.corpusPath as string | undefined;
+            const corpusStatus = engine.status(corpusPath);
+            result = { success: true, ...corpusStatus };
             break;
           }
           default:
