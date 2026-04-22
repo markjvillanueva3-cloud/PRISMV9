@@ -1056,6 +1056,7 @@ export const ACTIONS = [
   "wedm_dialect_verify", "wedm_dialect_gate", "wedm_dialect_resolve",
   // MS-P3-TIER6A — Progressive Die + Multi-Slide
   "edm_corner_taper_analyze", "edm_corner_taper_min_radius", "edm_slug_drop_predict",
+  "edm_multi_pass_plan", "edm_multi_pass_cycle_time", "edm_multi_pass_recast",
   // Grinding
   "grind_surface_program", "grind_cylindrical_program", "grind_centerless_program", "grind_creepfeed_program", "grind_uncertainty",
   // Laser
@@ -4345,6 +4346,22 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { edmWireSlugCornerTaperEngine } = await import("../../engines/EDMWireSlugCornerTaperEngine.js");
             const full = edmWireSlugCornerTaperEngine.analyze(params);
             result = { success: full.success, ...full.slug_prediction };
+            break;
+          }
+          // ── MS-P3-TIER6A: EDMMultiPassStrategyEngine (3 actions) ──
+          case "edm_multi_pass_plan": {
+            const { edmMultiPassStrategyEngine } = await import("../../engines/EDMMultiPassStrategyEngine.js");
+            result = edmMultiPassStrategyEngine.plan(params);
+            break;
+          }
+          case "edm_multi_pass_cycle_time": {
+            const { edmMultiPassStrategyEngine } = await import("../../engines/EDMMultiPassStrategyEngine.js");
+            result = { success: true, cycle_time_min: edmMultiPassStrategyEngine.estimateCycleTime(params.finish_class ?? "standard", params.thickness_mm, params.cut_length_mm, params.material) };
+            break;
+          }
+          case "edm_multi_pass_recast": {
+            const { edmMultiPassStrategyEngine } = await import("../../engines/EDMMultiPassStrategyEngine.js");
+            result = { success: true, recast_um: edmMultiPassStrategyEngine.calculateRecastAfterPasses(params.pass_count ?? 1), passes_needed: edmMultiPassStrategyEngine.passesForTargetRecast(params.target_recast_um ?? 5) };
             break;
           }
           // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──

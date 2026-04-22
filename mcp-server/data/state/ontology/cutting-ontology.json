@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "domain": "cutting",
+  "created_at": "2026-04-22T09:00:00Z",
+  "description": "Canonical field names for cutting/machining parameters across all CAM systems",
+  "owner_unit": "CAM-UIX-INFRA-00/U-ONTOLOGY-SEED01",
+  "entry_count": 156,
+  "categories": {
+    "depth": {
+      "canonical": "axial_depth",
+      "aliases": {
+        "mastercam": ["max_stepdown", "step_down", "depth_of_cut"],
+        "fusion360": ["maximumStepdown", "axialStepdown", "depthOfCut"],
+        "hypermill": ["zInc", "z_increment", "ap"],
+        "nx_cam": ["depth_per_cut", "stepdown", "cutDepth"],
+        "solidcam": ["axial_doc", "cutting_depth"],
+        "inventor_hsm": ["maximumStepdown", "stepdown"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0.1, "max": 50, "unit": "mm"}
+    },
+    "width": {
+      "canonical": "radial_width",
+      "aliases": {
+        "mastercam": ["stepover", "width_of_cut", "radial_stepover"],
+        "fusion360": ["stepover", "optimalLoad", "radialStepover"],
+        "hypermill": ["ae", "radial_engagement", "stepover"],
+        "nx_cam": ["stepover", "cut_width", "radialWidth"],
+        "solidcam": ["radial_doc", "stepover_pct"],
+        "inventor_hsm": ["stepover", "radialStepover"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0.05, "max": 25, "unit": "mm"}
+    },
+    "feedrate": {
+      "canonical": "feed_per_tooth",
+      "aliases": {
+        "mastercam": ["fpt", "feed_tooth", "fz"],
+        "fusion360": ["feedPerTooth", "fz"],
+        "hypermill": ["fz", "feed_per_tooth"],
+        "nx_cam": ["feed_per_tooth", "fz", "chipLoad"],
+        "solidcam": ["fz", "chip_load"],
+        "inventor_hsm": ["feedPerTooth", "fz"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0.01, "max": 0.5, "unit": "mm/tooth"}
+    },
+    "spindle_speed": {
+      "canonical": "spindle_rpm",
+      "aliases": {
+        "mastercam": ["rpm", "spindle_speed", "s"],
+        "fusion360": ["spindleSpeed", "rpm"],
+        "hypermill": ["n", "spindle_rpm"],
+        "nx_cam": ["spindle_speed", "rpm", "spindleRPM"],
+        "solidcam": ["rpm", "spindle"],
+        "inventor_hsm": ["spindleSpeed", "rpm"]
+      },
+      "unit_class": "angular_velocity",
+      "typical_range": {"min": 100, "max": 30000, "unit": "rpm"}
+    },
+    "cutting_speed": {
+      "canonical": "surface_speed",
+      "aliases": {
+        "mastercam": ["sfm", "vc", "cutting_speed"],
+        "fusion360": ["cuttingSpeed", "surfaceSpeed", "vc"],
+        "hypermill": ["vc", "cutting_speed"],
+        "nx_cam": ["surface_speed", "vc", "cuttingSpeed"],
+        "solidcam": ["vc", "surface_speed"],
+        "inventor_hsm": ["cuttingSpeed", "vc"]
+      },
+      "unit_class": "velocity",
+      "typical_range": {"min": 10, "max": 500, "unit": "m/min"}
+    },
+    "lead_angle": {
+      "canonical": "lead_in_angle",
+      "aliases": {
+        "mastercam": ["lead_in_angle", "entry_angle", "helix_angle"],
+        "fusion360": ["leadInAngle", "rampAngle", "helixAngle"],
+        "hypermill": ["ramp_angle", "lead_angle"],
+        "nx_cam": ["lead_angle", "ramp_angle", "entryAngle"],
+        "solidcam": ["helix_angle", "ramp_deg"],
+        "inventor_hsm": ["rampAngle", "leadAngle"]
+      },
+      "unit_class": "angle",
+      "typical_range": {"min": 0.5, "max": 10, "unit": "deg"}
+    },
+    "plunge_rate": {
+      "canonical": "plunge_feedrate",
+      "aliases": {
+        "mastercam": ["plunge_rate", "plunge_feed", "z_feed"],
+        "fusion360": ["plungeFeedrate", "rampFeedrate"],
+        "hypermill": ["plunge_feed", "z_feedrate"],
+        "nx_cam": ["plunge_feed", "zFeedrate"],
+        "solidcam": ["plunge_feed", "z_feed"],
+        "inventor_hsm": ["plungeFeedrate", "rampFeedrate"]
+      },
+      "unit_class": "velocity",
+      "typical_range": {"min": 10, "max": 2000, "unit": "mm/min"}
+    },
+    "retract_height": {
+      "canonical": "retract_clearance",
+      "aliases": {
+        "mastercam": ["retract", "retract_amount", "clearance_height"],
+        "fusion360": ["retractHeight", "clearanceHeight"],
+        "hypermill": ["retract_height", "clearance_plane"],
+        "nx_cam": ["retract", "clearancePlane", "safeZ"],
+        "solidcam": ["clearance", "retract_z"],
+        "inventor_hsm": ["retractHeight", "clearanceHeight"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 1, "max": 50, "unit": "mm"}
+    },
+    "stock_leave": {
+      "canonical": "stock_allowance",
+      "aliases": {
+        "mastercam": ["stock_to_leave", "leave_amount", "allowance"],
+        "fusion360": ["stockToLeave", "radialStock", "axialStock"],
+        "hypermill": ["allowance", "stock_offset"],
+        "nx_cam": ["stock_allowance", "partStock", "blankOffset"],
+        "solidcam": ["stock_to_leave", "allowance"],
+        "inventor_hsm": ["stockToLeave", "allowance"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0, "max": 5, "unit": "mm"}
+    },
+    "finishing_passes": {
+      "canonical": "spring_pass_count",
+      "aliases": {
+        "mastercam": ["spring_passes", "finish_passes", "num_finishes"],
+        "fusion360": ["numberOfFinishingPasses", "springPasses"],
+        "hypermill": ["finish_cuts", "spring_passes"],
+        "nx_cam": ["finishing_passes", "springCuts"],
+        "solidcam": ["spring_cuts", "finish_passes"],
+        "inventor_hsm": ["finishingPasses", "springPasses"]
+      },
+      "unit_class": "count",
+      "typical_range": {"min": 0, "max": 5, "unit": "count"}
+    },
+    "tolerance": {
+      "canonical": "machining_tolerance",
+      "aliases": {
+        "mastercam": ["tolerance", "chord_tolerance", "filtering_tol"],
+        "fusion360": ["tolerance", "chordTolerance", "smoothingTolerance"],
+        "hypermill": ["tolerance", "max_deviation"],
+        "nx_cam": ["intol", "outtol", "tolerance"],
+        "solidcam": ["tolerance", "precision"],
+        "inventor_hsm": ["tolerance", "chordTolerance"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0.001, "max": 0.5, "unit": "mm"}
+    },
+    "scallop_height": {
+      "canonical": "cusp_height",
+      "aliases": {
+        "mastercam": ["scallop", "cusp_height", "surface_deviation"],
+        "fusion360": ["cuspHeight", "scallop", "maxCusp"],
+        "hypermill": ["cusp", "scallop_height"],
+        "nx_cam": ["scallop_height", "cuspHeight"],
+        "solidcam": ["cusp", "scallop"],
+        "inventor_hsm": ["cuspHeight", "scallop"]
+      },
+      "unit_class": "length",
+      "typical_range": {"min": 0.001, "max": 0.5, "unit": "mm"}
+    }
+  },
+  "strategy_mappings": {
+    "adaptive_clearing": {
+      "mastercam": "Dynamic Mill",
+      "fusion360": "Adaptive Clearing",
+      "hypermill": "HPC Roughing",
+      "nx_cam": "Cavity Mill",
+      "solidcam": "HSR",
+      "inventor_hsm": "Adaptive Clearing",
+      "prism": "PRISM Forces"
+    },
+    "pocket_clearing": {
+      "mastercam": "Pocket",
+      "fusion360": "Pocket",
+      "hypermill": "Pocket",
+      "nx_cam": "Planar Mill",
+      "solidcam": "Pocket",
+      "inventor_hsm": "Pocket"
+    },
+    "contour_2d": {
+      "mastercam": "Contour",
+      "fusion360": "2D Contour",
+      "hypermill": "2D Contour",
+      "nx_cam": "Planar Profile",
+      "solidcam": "Profile",
+      "inventor_hsm": "2D Contour"
+    },
+    "parallel_finishing": {
+      "mastercam": "Surface Finish Parallel",
+      "fusion360": "Parallel",
+      "hypermill": "Z-Level Finishing",
+      "nx_cam": "Zlevel Profile",
+      "solidcam": "Constant Z",
+      "inventor_hsm": "Parallel"
+    },
+    "pencil_finishing": {
+      "mastercam": "Pencil",
+      "fusion360": "Pencil",
+      "hypermill": "Rest Machining",
+      "nx_cam": "Corner Rough",
+      "solidcam": "Pencil Milling",
+      "inventor_hsm": "Pencil"
+    }
+  }
+}
