@@ -22,10 +22,11 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
 import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
+import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline + ML optimizer schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -42,6 +43,7 @@ let _monitorSurface: any, _postProcessGCode: any;
 let _costDocumentation: any, _qualityOrchestrator: any;
 let _biMaterial: any;
 let _mlParamOptimizer: any;
+let _featureImportance: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -70,6 +72,7 @@ async function getEngine(name: string): Promise<any> {
     case "qualityOrchestrator": return _qualityOrchestrator ??= (await import("../../engines/EDMQualityOrchestratorEngine.js")).edmQualityOrchestratorEngine;
     case "biMaterial": return _biMaterial ??= (await import("../../engines/EDMBiMaterialCompensationEngine.js")).edmBiMaterialCompensationEngine;
     case "mlParamOptimizer": return _mlParamOptimizer ??= (await import("../../engines/WEDMMLParameterOptimizerEngine.js")).wedmMLParameterOptimizerEngine;
+    case "featureImportance": return _featureImportance ??= (await import("../../engines/WEDMFeatureImportanceEngine.js")).wedmFeatureImportanceEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -187,6 +190,9 @@ const ACTIONS = [
 
   // WEDM-NEXT-MS0: ML Parameter Optimization (Bayesian)
   "wedm_ml_optimize_init", "wedm_ml_optimize_observe", "wedm_ml_optimize_status", "wedm_ml_optimize_close",
+
+  // WEDM-NEXT-MS0: Feature Importance (SHAP-inspired)
+  "wedm_feature_importance", "wedm_partial_dependence", "wedm_feature_interactions", "wedm_optimization_guidance",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -894,6 +900,51 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_ml_optimize_close": {
             const engine = await getEngine("mlParamOptimizer");
             result = { closed: engine.closeSession(params.session_id) };
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN02: Feature Importance Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_feature_importance": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations }
+            );
+            break;
+          }
+          case "wedm_partial_dependence": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computePartialDependence(
+              params.data ?? [],
+              params.feature,
+              params.outcome ?? "mrr",
+              { nPoints: params.n_points }
+            );
+            break;
+          }
+          case "wedm_feature_interactions": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeInteractions(
+              params.data ?? [],
+              params.outcome ?? "mrr"
+            );
+            break;
+          }
+          case "wedm_optimization_guidance": {
+            const engine = await getEngine("featureImportance");
+            const importance = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations ?? 10 }
+            );
+            result = engine.getOptimizationGuidance(
+              importance,
+              params.target_outcome ?? "mrr",
+              params.direction ?? "maximize"
+            );
             break;
           }
 
