@@ -12,10 +12,14 @@
 | Passed | 94 |
 | Failed | 4 |
 | Errors | 2 |
-| **Pass Rate** | **94%** ✓ |
-| Target | 90% |
+| **Pass Rate** | **94%** ✗ |
+| Target | **100%** |
 
-**Status: PASS** — Exceeded target pass rate.
+**Status: ⛔ FAIL** — 100% pass rate REQUIRED for safety-critical machining code.
+
+> **SAFETY NOTICE:** These CAD regeneration tools generate G-code for CNC machines
+> making real parts. Parts go into aircraft, medical devices, automotive safety
+> systems. A bug can cause crashes, injuries, or death. NO TOLERANCE FOR FAILURES.
 
 ## Configuration
 
@@ -106,17 +110,17 @@
 
 ## Recommendations
 
-1. **High Priority:**
+⛔ **ALL ITEMS ARE BLOCKING** — 100% pass rate required before release.
+
+1. **MUST FIX (Failures):**
    - Add rib feature to training corpus (affects 2 failures)
    - Fix fillet dimension extraction (affects 1 failure)
+   - Separate slot from pocket detection (affects 1 failure)
+   - Improve bore/hollow cylinder handling (affects 1 failure)
 
-2. **Medium Priority:**
-   - Separate slot from pocket detection
-   - Improve bore/hollow cylinder handling
-
-3. **Low Priority:**
-   - Add Unicode path support
-   - Add STEP file validation layer
+2. **MUST FIX (Errors):**
+   - Add Unicode path support (affects 1 error)
+   - Add STEP file validation layer (affects 1 error)
 
 ## Next Steps
 
