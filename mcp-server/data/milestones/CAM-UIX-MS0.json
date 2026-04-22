@@ -3,8 +3,9 @@
   "title": "CAM UI eXhaustion Add-On — Every CAM Software, Every UI Input, Every Function, Every Learning Source",
   "track": "CAM-UIX",
   "status": "not_started",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "created_at": "2026-04-21",
+  "updated_at": "2026-04-22T07:00:00Z",
   "priority": "CRITICAL",
   "schemaVersion": 2,
   "target_omega": 1.0,
@@ -47,15 +48,17 @@
     },
     "tier_2_enterprise": {
       "rationale": "Wide market penetration; JMDie customers (ITW/Alcoa/Optimas) submit DXF from these",
-      "systems": ["siemens_nx_cam", "catia_delmia_nc", "creo_nc", "powermill", "esprit", "camworks", "solidcam", "gibbscam", "cimatron", "featurecam", "edgecam", "worknc", "tebis"]
+      "systems": ["siemens_nx_cam", "powermill", "esprit", "camworks", "solidcam", "gibbscam", "cimatron", "featurecam", "hexagon_unified"],
+      "note": "Round-2 scope: Hexagon consolidates Edgecam+WorkNC; CATIA/Creo/Tebis demoted to tier-3; FeatureCAM at EOL scope (4 units)"
     },
     "tier_3_specialist": {
-      "rationale": "Narrower but important for specific customer verticals (wood/stone/sheet-metal/nesting)",
-      "systems": ["alphacam", "artcam", "radan", "sigmanest", "topsolidcam", "zw3d", "rhinocam", "bobcadcam", "visualcad", "smartcam", "sprutcam", "onecnc", "mastercam_router", "hyperwire_edm", "moduleworks_oem"]
+      "rationale": "Narrower but important for specific customer verticals (wood/stone/sheet-metal/nesting), or demoted from tier-2",
+      "systems": ["catia_delmia_nc", "creo_nc", "tebis", "alphacam", "artcam", "radan", "sigmanest", "topsolidcam", "zw3d", "rhinocam", "bobcadcam", "visualcad", "smartcam", "sprutcam", "onecnc", "mastercam_router", "hyperwire_edm", "moduleworks_oem"],
+      "demoted_from_tier2": ["catia_delmia_nc", "creo_nc", "tebis"]
     },
-    "total_tier_1_plus_2": 18,
-    "total_all_tiers": 33,
-    "this_milestone_covers": "tier_1 + tier_2 = 18 CAMs. Tier 3 deferred to CAM-UIX-MS1 (future follow-on)."
+    "total_tier_1_plus_2": 14,
+    "total_all_tiers": 36,
+    "this_milestone_covers": "tier_1 (5 CAMs) + tier_2 (9 CAMs including Hexagon consolidated) = 14 CAMs. CATIA/Creo/Tebis demoted to tier-3 per Round-2 scrutiny. FeatureCAM EOL scope (4 units). Hexagon consolidates Edgecam+WorkNC."
   },
   "exhaustion_axes_per_cam": [
     {"axis": "strategy_catalog", "depth": "every named toolpath type — e.g., Mastercam 2D: Face / 2D Adaptive / 2D Pocket / Slot / Trace / Bore / Thread Mill / Engrave / Chamfer / 2D Contour; 3D: Adaptive / Pocket Clearing / Parallel / Contour / Horizontal / Scallop / Spiral / Radial / Pencil / Morphed Spiral / Ramp / Steep-Shallow / Project; Multi-axis: Flow / Morph / Parallel / Swarf / Rotary / Along-Curve / Surface-Wrap; Drilling: Drill / Bore / Tap / Counterbore / Ream / Chip-Break / Circular / Back-Counterbore / Spot; Turning: Face / Profile / Groove / Thread / Part-Off / Bore-turn / Drill-turn; Probing; Jet (Laser/Plasma/Waterjet)", "est_count_per_cam": "60 to 150"},
@@ -171,7 +174,11 @@
     },
     "downstream_consumers": ["CAMAGIMasterOrchestratorEngine — will route based on exhausted capability map", "PRISM app UI — will expose every cataloged strategy as a selectable option", "QuoteToShip pipeline — will cost every strategy based on real-world S&F tables from S7"]
   },
-  "total_units": 236,
+  "total_units": 196,
+  "total_units_history": [
+    {"version": "1.1.0", "total": 236, "note": "original 18-CAM scope"},
+    {"version": "1.2.0", "total": 196, "note": "Round-2 scrutiny scope changes: CATIA/Creo/Tebis→tier-3 (-24), FeatureCAM EOL (-8), Hexagon consolidation Edgecam+WorkNC→unified (-8)"}
+  ],
   "units_by_phase": {
     "PHASE-0_INFRASTRUCTURE": {
       "description": "4 sub-milestones × 5 units = 20 units. Must complete BEFORE per-CAM phases.",
@@ -251,18 +258,17 @@
         {"id": "CAM-UIX-HYPERMILL-MS0", "cam": "hypermill", "tier": 1, "units": 12, "priority": "CRITICAL", "rationale": "Existing catalog 1,323 params, 5-axis heavy. Deepen multi-axis ontology."},
         {"id": "CAM-UIX-OKUMA-IGF-MS0", "cam": "okuma_igf", "tier": 1, "units": 12, "priority": "HIGH", "rationale": "JMDie uses Okuma IGF Advanced One-Touch on 7 lathes — no existing catalog."},
         {"id": "CAM-UIX-SIEMENS-NX-MS0", "cam": "siemens_nx_cam", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Enterprise customers (ITW) use NX — no existing catalog."},
-        {"id": "CAM-UIX-CATIA-MS0", "cam": "catia_delmia_nc", "tier": 2, "units": 12, "priority": "MEDIUM"},
-        {"id": "CAM-UIX-CREO-MS0", "cam": "creo_nc", "tier": 2, "units": 12, "priority": "MEDIUM"},
+        {"id": "CAM-UIX-CATIA-MS0", "cam": "catia_delmia_nc", "tier": 3, "units": 4, "priority": "LOW", "demoted_reason": "Round-2 scrutiny: low JM Die usage, complex CAA licensing, deferred to CAM-UIX-MS1 for full coverage"},
+        {"id": "CAM-UIX-CREO-MS0", "cam": "creo_nc", "tier": 3, "units": 4, "priority": "LOW", "demoted_reason": "Round-2 scrutiny: low JM Die usage, Creo Toolkit licensing complexity, deferred to CAM-UIX-MS1"},
         {"id": "CAM-UIX-POWERMILL-MS0", "cam": "powermill", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Autodesk flagship for high-end 5-axis — Delcam legacy."},
         {"id": "CAM-UIX-ESPRIT-MS0", "cam": "esprit", "tier": 2, "units": 12, "priority": "HIGH", "rationale": "Hexagon flagship for mill-turn & Swiss."},
         {"id": "CAM-UIX-CAMWORKS-MS0", "cam": "camworks", "tier": 2, "units": 12, "priority": "MEDIUM"},
         {"id": "CAM-UIX-SOLIDCAM-MS0", "cam": "solidcam", "tier": 2, "units": 12, "priority": "MEDIUM", "rationale": "iMachining strategy is widely used — exhaust its adaptive parameters."},
         {"id": "CAM-UIX-GIBBSCAM-MS0", "cam": "gibbscam", "tier": 2, "units": 12, "priority": "MEDIUM"},
         {"id": "CAM-UIX-CIMATRON-MS0", "cam": "cimatron", "tier": 2, "units": 12, "priority": "MEDIUM"},
-        {"id": "CAM-UIX-FEATURECAM-MS0", "cam": "featurecam", "tier": 2, "units": 12, "priority": "MEDIUM"},
-        {"id": "CAM-UIX-EDGECAM-MS0", "cam": "edgecam", "tier": 2, "units": 12, "priority": "MEDIUM"},
-        {"id": "CAM-UIX-WORKNC-MS0", "cam": "worknc", "tier": 2, "units": 12, "priority": "MEDIUM"},
-        {"id": "CAM-UIX-TEBIS-MS0", "cam": "tebis", "tier": 2, "units": 12, "priority": "MEDIUM"}
+        {"id": "CAM-UIX-FEATURECAM-MS0", "cam": "featurecam", "tier": 2, "units": 4, "priority": "LOW", "eol_scope": "Autodesk discontinuing FeatureCAM — maintenance-mode only, 4 core units"},
+        {"id": "CAM-UIX-HEXAGON-MS0", "cam": "hexagon_unified", "tier": 2, "units": 16, "priority": "MEDIUM", "consolidates": ["edgecam", "worknc"], "rationale": "Hexagon 4-CAM consolidation: Edgecam+WorkNC share parent company, unified SDK, common post architecture. Alphacam+SURFCAM deferred to tier-3."},
+        {"id": "CAM-UIX-TEBIS-MS0", "cam": "tebis", "tier": 3, "units": 4, "priority": "LOW", "demoted_reason": "Round-2 scrutiny: specialist die/mold focus, low JM Die usage, deferred to CAM-UIX-MS1"}
       ]
     }
   },
@@ -1123,5 +1129,26 @@
     },
     "blocks_phase_0_start_until_resolved": true,
     "gate_enforcement": "CAM-UIX-INFRA-00 claimant MUST verify all 7 decisions resolved + recorded in data/state/cam_uix_scope_decisions.json before proceeding. Auto-check by claim-registry gate hook."
+  },
+  "scope_decisions_resolved": {
+    "resolved_at": "2026-04-22T07:00:00Z",
+    "resolved_by": "user",
+    "decisions": {
+      "DECISION-1": {"choice": "A", "note": "CATIA demoted to tier-3, 12u→4u"},
+      "DECISION-2": {"choice": "A", "note": "Creo demoted to tier-3, 12u→4u"},
+      "DECISION-3": {"choice": "A", "note": "Tebis demoted to tier-3, 12u→4u"},
+      "DECISION-4": {"choice": "A", "note": "FeatureCAM EOL scope 12u→4u"},
+      "DECISION-5": {"choice": "A", "note": "Hexagon consolidation: Edgecam+WorkNC merged to unified hexagon_cam, 24u→16u"},
+      "DECISION-6": {"choice": "B", "note": "Okuma IGF RETAINED at 12u full scope — user declined reduction"},
+      "DECISION-7": {"choice": "C", "note": "SolidCAM patent: DEFERRED for legal review — continue build without changes, flag for legal counsel"}
+    },
+    "scope_impact_actual": {
+      "starting_units": 236,
+      "delta": -40,
+      "final_units": 196,
+      "note": "D1-D5 approved (-48u), D6 rejected (0u), D7 deferred (+0u emergency units for now). Net -40u excluding Okuma reduction."
+    },
+    "blocks_cleared": ["CAM-UIX-INFRA-00 scope decisions gate"],
+    "remaining_blocks": ["DECISION-7 SolidCAM patent — legal review pending before any SolidCAM-touching code"]
   }
 }
