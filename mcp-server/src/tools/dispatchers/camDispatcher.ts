@@ -942,6 +942,8 @@ export const ACTIONS = [
   "lathe_unified_output_header", "lathe_unified_output_footer", "lathe_unified_output_full", "lathe_unified_output_compare",
   "lathe_masterpost_route", "lathe_masterpost_emit", "lathe_masterpost_validate", "lathe_masterpost_explain", "lathe_masterpost_cross_check", "lathe_masterpost_audit",
   "lathe_masterpost_regression_run", "lathe_masterpost_regression_lock", "lathe_masterpost_regression_diff", "lathe_masterpost_regression_stats", "lathe_masterpost_regression_clear",
+  "lathe_masterpost_deep_explain", "lathe_masterpost_deep_causal", "lathe_masterpost_deep_counterfactual", "lathe_masterpost_deep_history", "lathe_masterpost_deep_stats", "lathe_masterpost_deep_clear",
+  "lathe_masterpost_ensemble_run", "lathe_masterpost_ensemble_candidates", "lathe_masterpost_ensemble_ambiguous", "lathe_masterpost_ensemble_divergences", "lathe_masterpost_ensemble_history", "lathe_masterpost_ensemble_stats", "lathe_masterpost_ensemble_clear",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3148,6 +3150,136 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               success: true,
               message: "Baseline cleared",
             };
+            break;
+          }
+
+          case "lathe_masterpost_deep_explain": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            const deepResult = LatheMasterPostDeepReasoningEngine.explainSelection(params);
+            result = { success: deepResult.success, ...deepResult };
+            break;
+          }
+
+          case "lathe_masterpost_deep_causal": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            const queries = LatheMasterPostDeepReasoningEngine.generateCausalInference(
+              params.machineId,
+              params.operation
+            );
+            result = { success: true, queries };
+            break;
+          }
+
+          case "lathe_masterpost_deep_counterfactual": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            const cfQueries = LatheMasterPostDeepReasoningEngine.generateCounterfactual(
+              params.machineId,
+              params.hypotheticalChange
+            );
+            result = { success: true, queries: cfQueries };
+            break;
+          }
+
+          case "lathe_masterpost_deep_history": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            const history = LatheMasterPostDeepReasoningEngine.getTraceHistory(params.limit ?? 100);
+            result = { success: true, history, count: history.length };
+            break;
+          }
+
+          case "lathe_masterpost_deep_stats": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            const deepStats = LatheMasterPostDeepReasoningEngine.getStatistics();
+            result = { success: true, ...deepStats, version: LatheMasterPostDeepReasoningEngine.getVersion() };
+            break;
+          }
+
+          case "lathe_masterpost_deep_clear": {
+            const { LatheMasterPostDeepReasoningEngine } = await import(
+              "../../engines/LatheMasterPostDeepReasoningEngine.js"
+            );
+            LatheMasterPostDeepReasoningEngine.clearHistory();
+            result = { success: true, message: "Deep reasoning history cleared" };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_run": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const ensembleResult = LatheMasterPostEnsembleCrossCheckEngine.runEnsemble(params);
+            result = { success: ensembleResult.success, ...ensembleResult };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_candidates": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const candidates = LatheMasterPostEnsembleCrossCheckEngine.findCandidates(
+              params.machineId,
+              params.operation
+            );
+            result = { success: true, candidates, count: candidates.length };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_ambiguous": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const isAmbig = LatheMasterPostEnsembleCrossCheckEngine.isAmbiguous(params.machineId);
+            const ambigCount = LatheMasterPostEnsembleCrossCheckEngine.getAmbiguousMachineCount();
+            result = { success: true, isAmbiguous: isAmbig, ambiguousMachineCount: ambigCount };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_divergences": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const divergences = LatheMasterPostEnsembleCrossCheckEngine.computeDivergences(
+              params.outputs ?? [],
+              params.threshold ?? 0.8
+            );
+            result = { success: true, divergences };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_history": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const ensHistory = LatheMasterPostEnsembleCrossCheckEngine.getHistory(params.limit ?? 100);
+            result = { success: true, history: ensHistory, count: ensHistory.length };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_stats": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            const ensStats = LatheMasterPostEnsembleCrossCheckEngine.getStatistics();
+            result = { success: true, ...ensStats, version: LatheMasterPostEnsembleCrossCheckEngine.getVersion() };
+            break;
+          }
+
+          case "lathe_masterpost_ensemble_clear": {
+            const { LatheMasterPostEnsembleCrossCheckEngine } = await import(
+              "../../engines/LatheMasterPostEnsembleCrossCheckEngine.js"
+            );
+            LatheMasterPostEnsembleCrossCheckEngine.clearHistory();
+            result = { success: true, message: "Ensemble history cleared" };
             break;
           }
 
