@@ -930,6 +930,7 @@ export const ACTIONS = [
   "lathe_postgen_ingest", "lathe_postgen_skeleton", "lathe_postgen_transfer",
   "lathe_postgen_validate", "lathe_postgen_test", "lathe_postgen_register",
   "lathe_postgen_feedback", "lathe_postgen_uncertainty", "lathe_postgen_full",
+  "lathe_master_post_route", "lathe_master_post_machines", "lathe_master_post_controllers",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -2781,6 +2782,74 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 test: testResult.success ? "✓" : "✗",
                 register: registerResult.registered ? "✓" : "–",
               },
+            };
+            break;
+          }
+
+          case "lathe_master_post_route": {
+            const { latheMasterPostRouterEngine } = await import(
+              "../../engines/LatheMasterPostRouterEngine.js"
+            );
+            result = latheMasterPostRouterEngine.route({
+              machineId: params.machine_id as string,
+              operation: params.operation as any,
+              controller: params.controller as string | undefined,
+              program: params.program as string | undefined,
+              options: {
+                strictMode: params.strict_mode as boolean | undefined,
+                includeComments: params.include_comments as boolean | undefined,
+                lineNumbers: params.line_numbers as boolean | undefined,
+              },
+            });
+            break;
+          }
+
+          case "lathe_master_post_machines": {
+            const { LatheMasterPostRouterEngine } = await import(
+              "../../engines/LatheMasterPostRouterEngine.js"
+            );
+            const machineType = params.type as string | undefined;
+            const controllerFamily = params.controller_family as string | undefined;
+            let machines = LatheMasterPostRouterEngine.getMachineInventory();
+            if (machineType) {
+              machines = machines.filter(m => m.type === machineType);
+            }
+            if (controllerFamily) {
+              machines = machines.filter(m => m.controllerFamily === controllerFamily);
+            }
+            result = {
+              success: true,
+              count: machines.length,
+              machines: machines.map(m => ({
+                id: m.id,
+                name: m.name,
+                type: m.type,
+                manufacturer: m.manufacturer,
+                model: m.model,
+                controller: m.controller,
+                controllerFamily: m.controllerFamily,
+                capabilities: m.capabilities,
+              })),
+            };
+            break;
+          }
+
+          case "lathe_master_post_controllers": {
+            const { LatheMasterPostRouterEngine } = await import(
+              "../../engines/LatheMasterPostRouterEngine.js"
+            );
+            const controllers = LatheMasterPostRouterEngine.getSupportedControllers();
+            result = {
+              success: true,
+              count: controllers.length,
+              controllers: controllers.map(id => {
+                const info = LatheMasterPostRouterEngine.getDialectInfo(id);
+                return {
+                  id,
+                  dialect: info?.dialect ?? "unknown",
+                  family: info?.family ?? "generic",
+                };
+              }),
             };
             break;
           }
