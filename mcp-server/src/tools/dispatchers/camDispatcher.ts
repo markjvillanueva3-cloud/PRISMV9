@@ -217,6 +217,8 @@ let _mastercamAddInGen: any, _solidCAMAddInGen: any, _nxCAMAddInGen: any, _hyper
 let _cpsParser: any, _okumaParam: any, _ppCapMatrix: any;
 // E1118 — SolidCAMCodeGeneratorEngine singleton
 let _solidcamCodeGen: any;
+// CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine singleton
+let _solidcam25dIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -524,6 +526,8 @@ async function getEngine(name: string): Promise<any> {
     case "hyperMillCodeGen": return _hyperMillCodeGen ??= (await import("../../engines/HyperMillCodeGeneratorEngine.js")).hyperMillCodeGeneratorEngine;
     // E1118 — SolidCAMCodeGeneratorEngine
     case "solidcamCodeGen": return _solidcamCodeGen ??= (await import("../../engines/SolidCAMCodeGeneratorEngine.js")).solidCAMCodeGeneratorEngine;
+    // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine
+    case "solidcam25dIndex": return _solidcam25dIndex ??= (await import("../../engines/SolidCAM25DFunctionIndexEngine.js")).SolidCAM25DFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -1100,6 +1104,8 @@ export const ACTIONS = [
   "powermill_material_lookup", "powermill_material_search",
   // E1118 — SolidCAMCodeGeneratorEngine (2 actions)
   "solidcam_code_generate", "solidcam_code_templates",
+  // CAM-EXHAUST-MS0/U-CAM33 — SolidCAM25DFunctionIndexEngine (6 actions)
+  "solidcam_25d_index", "solidcam_25d_summary", "solidcam_25d_list_ops", "solidcam_25d_get_op", "solidcam_25d_by_category", "solidcam_25d_imachining",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -4925,6 +4931,38 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "solidcam_code_templates": {
             const eng = await getEngine("solidcamCodeGen");
             result = eng.getTemplates(params.category);
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM33: SolidCAM25DFunctionIndexEngine ─────
+          case "solidcam_25d_index": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_25d_summary": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_25d_list_ops": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_25d_get_op": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_25d_by_category": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_25d_imachining": {
+            const eng = await getEngine("solidcam25dIndex");
+            result = eng.getIMachiningParams();
             break;
           }
 
