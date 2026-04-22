@@ -1,3 +1,4 @@
+// WIRE-EXEMPT: Tests at __tests__/engines/LegalGateEngine.test.ts (41 tests), dispatcher at securityDispatcher.ts
 /**
  * LegalGateEngine.ts — CAM-UIX-INFRA-00/U-LEGAL-GATES01
  *
