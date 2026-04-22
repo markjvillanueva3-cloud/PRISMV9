@@ -28,11 +28,12 @@ import { WEDM_ONLINE_LEARNING_SCHEMAS } from "../../schemas/wedmOnlineLearningSc
 import { WEDM_THERMAL_FIELD_SCHEMAS } from "../../schemas/wedmThermalFieldSchemas.js";
 import { WEDM_SPARK_EROSION_SCHEMAS } from "../../schemas/wedmSparkErosionSchemas.js";
 import { WEDM_GAP_VOLTAGE_SCHEMAS } from "../../schemas/wedmGapVoltageSchemas.js";
+import { WEDM_MRR_SCHEMAS } from "../../schemas/wedmMRRSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
 // Merge legacy + pipeline + ML optimizer + feature importance + transfer learning + online learning + thermal field + spark erosion schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS };
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS, ...WEDM_TRANSFER_LEARNING_SCHEMAS, ...WEDM_ONLINE_LEARNING_SCHEMAS, ...WEDM_THERMAL_FIELD_SCHEMAS, ...WEDM_SPARK_EROSION_SCHEMAS, ...WEDM_GAP_VOLTAGE_SCHEMAS, ...WEDM_MRR_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -3283,6 +3284,96 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_gap_voltage_list_dielectrics": {
             const engine = await getEngine("gapVoltage");
             result = engine.listDielectrics();
+            break;
+          }
+
+          // ── WEDM-BIZ-MS0: MRR Physics ───────────────────────────────────────
+          case "wedm_mrr_calculate": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.calculate(params);
+            break;
+          }
+
+          case "wedm_mrr_cut_time": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.estimateCutTime(
+              {
+                material: params.material,
+                thickness_mm: params.thickness_mm,
+                wire_type: params.wire_type,
+                wire_diameter_mm: params.wire_diameter_mm,
+                pulse_on_us: params.pulse_on_us,
+                pulse_off_us: params.pulse_off_us,
+                current_A: params.current_A,
+                voltage_V: params.voltage_V,
+                servo: params.servo,
+                flushing_pressure_bar: params.flushing_pressure_bar,
+              },
+              params.profile_length_mm,
+              {
+                num_skim_passes: params.num_skim_passes,
+                num_start_holes: params.num_start_holes,
+                include_setup: params.include_setup,
+              }
+            );
+            break;
+          }
+
+          case "wedm_mrr_compare_materials": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.compareMaterials(params.materials, {
+              thickness_mm: params.thickness_mm,
+              pulse_on_us: params.pulse_on_us,
+              pulse_off_us: params.pulse_off_us,
+              current_A: params.current_A,
+            });
+            break;
+          }
+
+          case "wedm_mrr_optimize": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.optimizeForMRR(
+              params.target_mrr_mm3_min,
+              params.material,
+              params.thickness_mm,
+              {
+                max_current_A: params.max_current_A,
+                max_pulse_on_us: params.max_pulse_on_us,
+                min_surface_finish: params.min_surface_finish,
+              }
+            );
+            break;
+          }
+
+          case "wedm_mrr_validate": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.validateAgainstEmpirical(
+              {
+                material: params.material,
+                thickness_mm: params.thickness_mm,
+                wire_type: params.wire_type,
+                wire_diameter_mm: params.wire_diameter_mm,
+                pulse_on_us: params.pulse_on_us,
+                pulse_off_us: params.pulse_off_us,
+                current_A: params.current_A,
+                voltage_V: params.voltage_V,
+                servo: params.servo,
+                flushing_pressure_bar: params.flushing_pressure_bar,
+              },
+              params.measured_mrr_mm3_min
+            );
+            break;
+          }
+
+          case "wedm_mrr_list_materials": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.listMaterials();
+            break;
+          }
+
+          case "wedm_mrr_list_wires": {
+            const engine = await getEngine("mrrPhysics");
+            result = engine.listWireTypes();
             break;
           }
 
