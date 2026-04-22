@@ -834,6 +834,222 @@ describe("InventorHSMFunctionIndexEngine", () => {
     });
   });
 
+  describe("Drilling & Probing Operations (U-CAM31)", () => {
+    it("includes drilling section", () => {
+      const sections = InventorHSMFunctionIndexEngine.listSections();
+      expect(sections).toContain("drilling");
+    });
+
+    it("returns drilling section with 12 operations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("drilling");
+      expect("error" in section).toBe(false);
+      if (!("error" in section)) {
+        expect(section.section_key).toBe("drilling");
+        expect(Object.keys(section.operations).length).toBe(12);
+      }
+    });
+
+    it("includes drill operation (G81)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const drill = ops.find((op) => op.operation_id === "drill");
+      expect(drill).toBeDefined();
+      expect(drill?.display_name).toBe("Drill");
+      expect(drill?.category).toBe("holemaking");
+    });
+
+    it("includes peck_drill operation (G83)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const peck = ops.find((op) => op.operation_id === "peck_drill");
+      expect(peck).toBeDefined();
+      expect(peck?.display_name).toBe("Peck Drill");
+      expect(peck?.category).toBe("holemaking");
+    });
+
+    it("includes chip_breaking operation (G73)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const chipBreak = ops.find((op) => op.operation_id === "chip_breaking");
+      expect(chipBreak).toBeDefined();
+      expect(chipBreak?.display_name).toBe("Chip Breaking");
+    });
+
+    it("includes spot_drill operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const spot = ops.find((op) => op.operation_id === "spot_drill");
+      expect(spot).toBeDefined();
+      expect(spot?.display_name).toBe("Spot Drill");
+    });
+
+    it("includes counterbore operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const cbore = ops.find((op) => op.operation_id === "counterbore");
+      expect(cbore).toBeDefined();
+      expect(cbore?.display_name).toBe("Counterbore");
+    });
+
+    it("includes countersink operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const csink = ops.find((op) => op.operation_id === "countersink");
+      expect(csink).toBeDefined();
+      expect(csink?.display_name).toBe("Countersink");
+    });
+
+    it("includes tapping operation (G84)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const tap = ops.find((op) => op.operation_id === "tapping");
+      expect(tap).toBeDefined();
+      expect(tap?.display_name).toBe("Tap");
+      expect(tap?.category).toBe("threading");
+    });
+
+    it("includes thread_milling operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const threadMill = ops.find((op) => op.operation_id === "thread_milling");
+      expect(threadMill).toBeDefined();
+      expect(threadMill?.display_name).toBe("Thread Mill");
+      expect(threadMill?.category).toBe("threading");
+    });
+
+    it("includes reaming operation (G85)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const ream = ops.find((op) => op.operation_id === "reaming");
+      expect(ream).toBeDefined();
+      expect(ream?.display_name).toBe("Ream");
+      expect(ream?.category).toBe("reaming");
+    });
+
+    it("includes boring_precision operation (G76)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const bore = ops.find((op) => op.operation_id === "boring_precision");
+      expect(bore).toBeDefined();
+      expect(bore?.display_name).toBe("Bore (Precision)");
+      expect(bore?.category).toBe("reaming");
+    });
+
+    it("includes probe_geometry operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const probeGeom = ops.find((op) => op.operation_id === "probe_geometry");
+      expect(probeGeom).toBeDefined();
+      expect(probeGeom?.display_name).toBe("Probe Geometry");
+      expect(probeGeom?.category).toBe("probing");
+    });
+
+    it("includes probe_work_offset operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const probeWCS = ops.find((op) => op.operation_id === "probe_work_offset");
+      expect(probeWCS).toBeDefined();
+      expect(probeWCS?.display_name).toBe("Probe Work Offset");
+      expect(probeWCS?.category).toBe("probing");
+    });
+
+    it("all 12 operations are present in section", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const opsDrilling = ops.filter((op) => op.section === "drilling");
+      expect(opsDrilling.length).toBe(12);
+      const expectedOps = [
+        "drill", "peck_drill", "chip_breaking", "spot_drill",
+        "counterbore", "countersink", "tapping", "thread_milling",
+        "reaming", "boring_precision", "probe_geometry", "probe_work_offset"
+      ];
+      for (const expected of expectedOps) {
+        expect(opsDrilling.find((op) => op.operation_id === expected)).toBeDefined();
+      }
+    });
+
+    it("drilling section has 5 training topics", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("drilling");
+      expect(topics.length).toBe(5);
+      const topicNames = topics.map((t) => t.topic);
+      expect(topicNames).toContain("Drilling Cycle Selection (G81/G83/G73)");
+      expect(topicNames).toContain("Thread Milling vs Tapping");
+      expect(topicNames).toContain("Precision Boring Cycles");
+      expect(topicNames).toContain("Probing for WCS Setup");
+      expect(topicNames).toContain("Hole Sequence Optimization");
+    });
+
+    it("getOperationsByCategory returns holemaking operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("holemaking");
+      expect(results.length).toBeGreaterThanOrEqual(6);
+      const drill = results.find((r) => r.operation_id === "drill");
+      expect(drill).toBeDefined();
+    });
+
+    it("getOperationsByCategory returns threading operations (drilling section)", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("threading");
+      const tapOp = results.find((r) => r.operation_id === "tapping");
+      const threadMillOp = results.find((r) => r.operation_id === "thread_milling");
+      expect(tapOp).toBeDefined();
+      expect(threadMillOp).toBeDefined();
+    });
+
+    it("getOperationsByCategory returns reaming operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("reaming");
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      const ream = results.find((r) => r.operation_id === "reaming");
+      expect(ream).toBeDefined();
+    });
+
+    it("getOperationsByCategory returns probing operations", () => {
+      const results = InventorHSMFunctionIndexEngine.getOperationsByCategory("probing");
+      expect(results.length).toBeGreaterThanOrEqual(2);
+      const probeGeom = results.find((r) => r.operation_id === "probe_geometry");
+      expect(probeGeom).toBeDefined();
+    });
+
+    it("findParameter finds peckDepth in peck_drill", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("peckDepth");
+      const peck = results.find((r) => r.operation_id === "peck_drill");
+      expect(peck).toBeDefined();
+    });
+
+    it("findParameter finds rigidTapping in tapping", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("rigidTapping");
+      const tap = results.find((r) => r.operation_id === "tapping");
+      expect(tap).toBeDefined();
+    });
+
+    it("findParameter finds orientedStop in boring_precision", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("orientedStop");
+      const bore = results.find((r) => r.operation_id === "boring_precision");
+      expect(bore).toBeDefined();
+    });
+
+    it("findParameter finds workOffset in probe_work_offset", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("workOffset");
+      const probe = results.find((r) => r.operation_id === "probe_work_offset");
+      expect(probe).toBeDefined();
+    });
+
+    it("drilling section has canned_cycle_reference", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("drilling");
+      if (!("error" in section)) {
+        const raw = section as any;
+        expect(raw.canned_cycle_reference).toBeDefined();
+        expect(raw.canned_cycle_reference.drilling).toBeDefined();
+        expect(raw.canned_cycle_reference.drilling.G81).toBeDefined();
+        expect(raw.canned_cycle_reference.drilling.G83).toBeDefined();
+        expect(raw.canned_cycle_reference.boring).toBeDefined();
+        expect(raw.canned_cycle_reference.boring.G76).toBeDefined();
+        expect(raw.canned_cycle_reference.tapping).toBeDefined();
+        expect(raw.canned_cycle_reference.tapping.G84).toBeDefined();
+      }
+    });
+
+    it("getIndex totals include drilling operations", () => {
+      const index = InventorHSMFunctionIndexEngine.getIndex();
+      // 11 2.5D + 12 3D + 9 5axis + 6 multiaxis + 14 turning + 12 drilling = 64 minimum
+      expect(index.total_operations).toBeGreaterThanOrEqual(64);
+    });
+
+    it("drilling operations have parameter_count set", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("drilling");
+      if (!("error" in section)) {
+        for (const [opId, op] of Object.entries(section.operations)) {
+          expect(op.parameter_count).toBeGreaterThan(0);
+        }
+      }
+    });
+  });
+
   describe("Edge cases", () => {
     it("handles empty search query gracefully", () => {
       const results = InventorHSMFunctionIndexEngine.searchParameters("");

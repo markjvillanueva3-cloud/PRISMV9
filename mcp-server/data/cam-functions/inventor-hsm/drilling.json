@@ -1,0 +1,400 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "drilling",
+  "summary": {
+    "total_operations": 12,
+    "total_parameters": 108,
+    "categories": ["holemaking", "threading", "reaming", "probing"]
+  },
+  "operations": {
+    "drill": {
+      "display_name": "Drill",
+      "category": "holemaking",
+      "description": "Basic drilling cycle (G81) for simple through or blind holes.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 11,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "description": "Hole positions", "tab": "Geometry" },
+          "selectSameDiameter": { "type": "boolean", "default": true, "tab": "Geometry" },
+          "optimizeOrder": { "type": "boolean", "default": true, "description": "Optimize drilling sequence", "tab": "Geometry" }
+        },
+        "cycle": {
+          "cycleType": { "type": "enum", "values": ["drilling", "counter_boring"], "default": "drilling", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "bottomHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "tipThrough": { "type": "boolean", "default": false, "description": "Tip breaks through", "tab": "Heights" },
+          "tipThroughAmount": { "type": "number", "unit": "mm", "description": "Amount past bottom", "tab": "Heights" }
+        }
+      }
+    },
+
+    "peck_drill": {
+      "display_name": "Peck Drill",
+      "category": "holemaking",
+      "description": "Deep hole drilling with full retract pecking (G83) for chip evacuation.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "holeDepth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "peckDepth": { "type": "number", "unit": "mm", "required": true, "description": "Peck increment", "tab": "Cycle" },
+          "peckDepthReduction": { "type": "number", "unit": "percent", "default": 0, "description": "Reduction per peck", "tab": "Cycle" },
+          "minimumPeckDepth": { "type": "number", "unit": "mm", "description": "Minimum peck", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "retractType": { "type": "enum", "values": ["full_retract", "partial_retract"], "default": "full_retract", "tab": "Cycle" },
+          "retractAmount": { "type": "number", "unit": "mm", "description": "Partial retract amount", "tab": "Cycle" }
+        }
+      }
+    },
+
+    "chip_breaking": {
+      "display_name": "Chip Breaking",
+      "category": "holemaking",
+      "description": "High-speed peck drilling (G73) with minimal retract for chip breaking.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 7,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "holeDepth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "peckDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Cycle" },
+          "backoffAmount": { "type": "number", "unit": "mm", "default": 0.25, "description": "Chip break retract", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "spot_drill": {
+      "display_name": "Spot Drill",
+      "category": "holemaking",
+      "description": "Center/spot drilling for hole starts and chamfering.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 7,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" }
+        },
+        "cycle": {
+          "depthType": { "type": "enum", "values": ["diameter", "depth", "shoulder"], "default": "diameter", "tab": "Cycle" },
+          "spotDiameter": { "type": "number", "unit": "mm", "description": "Resulting spot diameter", "tab": "Cycle" },
+          "spotDepth": { "type": "number", "unit": "mm", "description": "Spot depth if not by diameter", "tab": "Cycle" },
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "counterbore": {
+      "display_name": "Counterbore",
+      "category": "holemaking",
+      "description": "Counterbore/spotface for bolt heads and washers.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "counterboreDepth": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "counterboreDiameter": { "type": "number", "unit": "mm", "description": "From tool or override", "tab": "Geometry" }
+        },
+        "cycle": {
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.5, "description": "Dwell for flat bottom", "tab": "Cycle" },
+          "pecking": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "countersink": {
+      "display_name": "Countersink",
+      "category": "holemaking",
+      "description": "Countersink for flat-head screws.",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 7,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "countersinkDiameter": { "type": "number", "unit": "mm", "required": true, "description": "Top diameter", "tab": "Geometry" },
+          "countersinkAngle": { "type": "number", "unit": "deg", "default": 82, "description": "Included angle", "tab": "Geometry" }
+        },
+        "cycle": {
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "tapping": {
+      "display_name": "Tap",
+      "category": "threading",
+      "description": "Rigid or floating tap cycles (G84/G74).",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "threadPitch": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "threadDepth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "tapType": { "type": "enum", "values": ["right_hand", "left_hand"], "default": "right_hand", "tab": "Cycle" },
+          "rigidTapping": { "type": "boolean", "default": true, "tab": "Cycle" },
+          "chipBreaking": { "type": "boolean", "default": false, "tab": "Cycle" },
+          "peckDepth": { "type": "number", "unit": "mm", "description": "Peck if chip breaking", "tab": "Cycle" },
+          "spindleSpeedMode": { "type": "enum", "values": ["rpm", "css"], "default": "rpm", "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "thread_milling": {
+      "display_name": "Thread Mill",
+      "category": "threading",
+      "description": "Helical thread milling for internal or external threads.",
+      "dialog_tabs": ["Tool", "Geometry", "Passes", "Linking"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "threadType": { "type": "enum", "values": ["internal", "external"], "default": "internal", "tab": "Geometry" },
+          "threadPitch": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "majorDiameter": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" },
+          "threadLength": { "type": "number", "unit": "mm", "required": true, "tab": "Geometry" }
+        },
+        "passes": {
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "numberOfPasses": { "type": "integer", "default": 1, "range": [1, 10], "tab": "Passes" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" },
+          "multipleFlutes": { "type": "boolean", "default": true, "description": "Single or multi-flute thread mill", "tab": "Passes" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["plunge", "ramp", "helix"], "default": "helix", "tab": "Linking" },
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3, "tab": "Linking" }
+        }
+      }
+    },
+
+    "reaming": {
+      "display_name": "Ream",
+      "category": "reaming",
+      "description": "Precision hole finishing with reamers (G85).",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 9,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "holeDepth": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0.2, "tab": "Cycle" },
+          "retractFeed": { "type": "enum", "values": ["rapid", "feed_rate"], "default": "feed_rate", "description": "G85 vs G89", "tab": "Cycle" },
+          "retractFeedRate": { "type": "number", "unit": "mm/min", "tab": "Cycle" },
+          "spinOnRetract": { "type": "boolean", "default": true, "description": "Spindle on during retract", "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "feedHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "boring_precision": {
+      "display_name": "Bore (Precision)",
+      "category": "reaming",
+      "description": "Precision boring with oriented spindle stop (G76).",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Cycle"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "holes": { "type": "selection", "required": true, "tab": "Geometry" },
+          "holeDepth": { "type": "number", "unit": "mm", "tab": "Geometry" },
+          "finishDiameter": { "type": "number", "unit": "mm", "tab": "Geometry" }
+        },
+        "cycle": {
+          "dwellAtBottom": { "type": "number", "unit": "s", "default": 0, "tab": "Cycle" },
+          "orientedStop": { "type": "boolean", "default": true, "description": "Orient spindle before retract", "tab": "Cycle" },
+          "orientAngle": { "type": "number", "unit": "deg", "default": 0, "description": "Spindle orient angle", "tab": "Cycle" },
+          "shiftAmount": { "type": "number", "unit": "mm", "description": "Shift away from wall", "tab": "Cycle" },
+          "shiftDirection": { "type": "enum", "values": ["x_plus", "x_minus", "y_plus", "y_minus"], "default": "x_plus", "tab": "Cycle" }
+        },
+        "heights": {
+          "clearanceHeight": { "type": "number", "unit": "mm", "tab": "Heights" },
+          "retractHeight": { "type": "number", "unit": "mm", "tab": "Heights" }
+        }
+      }
+    },
+
+    "probe_geometry": {
+      "display_name": "Probe Geometry",
+      "category": "probing",
+      "description": "Measure part geometry for verification using touch probe.",
+      "dialog_tabs": ["Probe", "Geometry", "Output"],
+      "parameter_count": 9,
+      "parameters": {
+        "geometry": {
+          "probeType": { "type": "enum", "values": ["point", "line", "plane", "circle", "sphere", "cylinder", "cone"], "default": "point", "tab": "Geometry" },
+          "probePoints": { "type": "selection", "description": "Points to probe", "tab": "Geometry" },
+          "approachDirection": { "type": "enum", "values": ["x_plus", "x_minus", "y_plus", "y_minus", "z_minus", "z_plus"], "default": "z_minus", "tab": "Geometry" },
+          "probeFeed": { "type": "number", "unit": "mm/min", "default": 100, "tab": "Geometry" }
+        },
+        "output": {
+          "printResults": { "type": "boolean", "default": true, "tab": "Output" },
+          "outputVariable": { "type": "string", "description": "G-code variable name", "tab": "Output" },
+          "tolerance": { "type": "number", "unit": "mm", "description": "Pass/fail tolerance", "tab": "Output" },
+          "outOfTolerance": { "type": "enum", "values": ["alarm", "warning", "continue"], "default": "alarm", "tab": "Output" }
+        }
+      }
+    },
+
+    "probe_work_offset": {
+      "display_name": "Probe Work Offset",
+      "category": "probing",
+      "description": "Establish work coordinate system from probing.",
+      "dialog_tabs": ["Probe", "Geometry", "Output"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "probeSequence": { "type": "enum", "values": ["x_then_y", "corner", "bore", "boss", "web_pocket", "single_surface"], "default": "corner", "tab": "Geometry" },
+          "cornerType": { "type": "enum", "values": ["inside", "outside"], "default": "outside", "tab": "Geometry" },
+          "nominalPosition": { "type": "object", "description": "Expected XYZ position", "tab": "Geometry" }
+        },
+        "output": {
+          "workOffset": { "type": "enum", "values": ["G54", "G55", "G56", "G57", "G58", "G59", "G54.1 P1", "G54.1 P2", "G54.1 P3"], "default": "G54", "tab": "Output" },
+          "updateX": { "type": "boolean", "default": true, "tab": "Output" },
+          "updateY": { "type": "boolean", "default": true, "tab": "Output" },
+          "updateZ": { "type": "boolean", "default": false, "tab": "Output" },
+          "printResults": { "type": "boolean", "default": true, "tab": "Output" }
+        }
+      }
+    }
+  },
+
+  "training_topics": [
+    {
+      "topic": "Drilling Cycle Selection (G81/G83/G73)",
+      "key_concepts": [
+        "G81: Simple drilling - no pecking, fast cycle times",
+        "G83: Full retract peck - chip evacuation for deep holes",
+        "G73: Chip break - minimal retract, faster than G83",
+        "Hole depth / diameter ratio determines cycle choice"
+      ],
+      "best_practices": [
+        "Use G81 for L/D < 3 in most materials",
+        "Use G73 for L/D 3-5 with good chip breaking",
+        "Use G83 for L/D > 5 or gummy materials",
+        "Reduce peck depth progressively for very deep holes"
+      ]
+    },
+    {
+      "topic": "Thread Milling vs Tapping",
+      "key_concepts": [
+        "Thread milling: One tool for multiple sizes, interpolated",
+        "Rigid tapping: Faster, requires synchronized spindle",
+        "Thread milling: Better for hard materials and large threads",
+        "Tapping: Simpler programming, faster cycle time"
+      ],
+      "best_practices": [
+        "Use rigid tapping when machine supports it",
+        "Thread mill interrupted holes or hardened materials",
+        "Climb milling for thread milling gives better finish",
+        "Use multi-flute thread mills for productivity"
+      ]
+    },
+    {
+      "topic": "Precision Boring Cycles",
+      "key_concepts": [
+        "G76: Oriented spindle stop before retract",
+        "G85: Feed rate retract for finish",
+        "G89: Dwell + feed rate retract",
+        "Shift amount prevents drag marks on retract"
+      ],
+      "best_practices": [
+        "Use oriented stop (G76) for tight tolerance bores",
+        "Set shift amount to 0.02-0.05mm",
+        "Dwell at bottom for better finish",
+        "Feed rate retract prevents tool marks"
+      ]
+    },
+    {
+      "topic": "Probing for WCS Setup",
+      "key_concepts": [
+        "Corner probing establishes XY datum",
+        "Boss/bore probing finds center position",
+        "Single surface probing for Z datum",
+        "Web/pocket probing for complex datums"
+      ],
+      "best_practices": [
+        "Probe at slow feed rates (50-150 mm/min)",
+        "Verify probe calibration regularly",
+        "Set reasonable tolerance for pass/fail",
+        "Use extended work offsets (G54.1 Pn) for multi-fixture"
+      ]
+    },
+    {
+      "topic": "Hole Sequence Optimization",
+      "key_concepts": [
+        "Nearest-neighbor reduces rapid travel",
+        "Pattern recognition groups similar holes",
+        "Tool change minimization clusters by tool",
+        "Z-level sorting for deep pockets"
+      ],
+      "best_practices": [
+        "Enable optimize order for random hole patterns",
+        "Group holes by tool to minimize changes",
+        "Process holes before pocketing operations",
+        "Use same diameter selection for tool reuse"
+      ]
+    }
+  ],
+
+  "canned_cycle_reference": {
+    "drilling": {
+      "G81": { "description": "Spot drill / drill", "retract": "rapid", "dwell": false },
+      "G82": { "description": "Counterbore / spot face", "retract": "rapid", "dwell": true },
+      "G83": { "description": "Peck drill (deep hole)", "retract": "full", "dwell": false },
+      "G73": { "description": "Chip break drill", "retract": "partial", "dwell": false }
+    },
+    "boring": {
+      "G85": { "description": "Bore (feed retract)", "retract": "feed", "dwell": false },
+      "G86": { "description": "Bore (spindle stop)", "retract": "rapid", "dwell": false },
+      "G87": { "description": "Back bore", "retract": "manual", "dwell": false },
+      "G88": { "description": "Bore (dwell + manual)", "retract": "manual", "dwell": true },
+      "G89": { "description": "Bore (dwell + feed)", "retract": "feed", "dwell": true },
+      "G76": { "description": "Fine bore (orient)", "retract": "shift+rapid", "dwell": false }
+    },
+    "tapping": {
+      "G84": { "description": "Rigid tap (right)", "retract": "reverse", "dwell": false },
+      "G74": { "description": "Rigid tap (left)", "retract": "reverse", "dwell": false }
+    }
+  }
+}
