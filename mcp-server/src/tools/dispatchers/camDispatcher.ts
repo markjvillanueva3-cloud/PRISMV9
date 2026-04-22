@@ -1491,31 +1491,6 @@ import("../../engines/WEDMAwarenessAdoptionEngine.js").then(({ wedmAwarenessAdop
  * Testable dispatcher function for direct invocation (unit tests, internal calls).
  * Mirrors the MCP tool handler logic but returns parsed JSON instead of MCP content blocks.
  */
-export async function camDispatcher(input: { action: string; params?: Record<string, unknown> }): Promise<Record<string, unknown>> {
-  const { action, params: rawParams = {} } = input;
-  const actionTyped = action as typeof ACTIONS[number];
-  if (!ACTIONS.includes(actionTyped)) {
-    return { success: false, error: `Unknown action: ${action}` };
-  }
-  const mockServer = {
-    _handler: null as any,
-    tool(_name: string, _desc: string, _schema: any, handler: any) { this._handler = handler; },
-  };
-  registerCamDispatcher(mockServer);
-  if (!mockServer._handler) {
-    return { success: false, error: "Dispatcher registration failed" };
-  }
-  try {
-    const result = await mockServer._handler({ action: actionTyped, params: rawParams });
-    if (result?.content?.[0]?.text) {
-      return JSON.parse(result.content[0].text);
-    }
-    return result ?? { success: false, error: "No result" };
-  } catch (err: any) {
-    return { success: false, error: err?.message ?? String(err) };
-  }
-}
-
 /** Registers cam dispatcher.
  * @param server - MCP server instance
   * @returns void
