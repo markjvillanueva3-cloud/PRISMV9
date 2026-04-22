@@ -22,11 +22,12 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
 import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
+import { WEDM_FEATURE_IMPORTANCE_SCHEMAS } from "../../schemas/wedmFeatureImportanceSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 import { consultAwareness, extractAwarenessKeywords, wrapWithAwareness, type AwarenessConsultResult } from "./awarenessMiddleware.js";
 
-// Merge legacy + pipeline + ML optimizer schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer + feature importance schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS, ...WEDM_FEATURE_IMPORTANCE_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -2980,6 +2981,51 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_synthetics_list": {
             const engine = await getEngine("wedmCitationCheck");
             result = { engines: await engine.getEnginesWithSynthetics() };
+            break;
+          }
+
+          // ═══════════════════════════════════════════════════════════════════
+          // WEDM-NEXT-MS0 U-WN02: Feature Importance Engine
+          // ═══════════════════════════════════════════════════════════════════
+          case "wedm_feature_importance": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations }
+            );
+            break;
+          }
+          case "wedm_partial_dependence": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computePartialDependence(
+              params.data ?? [],
+              params.feature,
+              params.outcome ?? "mrr",
+              { nPoints: params.n_points }
+            );
+            break;
+          }
+          case "wedm_feature_interactions": {
+            const engine = await getEngine("featureImportance");
+            result = engine.computeInteractions(
+              params.data ?? [],
+              params.outcome ?? "mrr"
+            );
+            break;
+          }
+          case "wedm_optimization_guidance": {
+            const engine = await getEngine("featureImportance");
+            const importance = engine.computeImportance(
+              params.data ?? [],
+              params.target_outcome ?? "mrr",
+              { nPermutations: params.n_permutations ?? 10 }
+            );
+            result = engine.getOptimizationGuidance(
+              importance,
+              params.target_outcome ?? "mrr",
+              params.direction ?? "maximize"
+            );
             break;
           }
 
