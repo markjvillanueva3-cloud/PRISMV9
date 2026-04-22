@@ -407,6 +407,47 @@ const mill_adaptive_stepdown = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U02-DIALECT: Controller Dialect Schemas
+// ============================================================================
+
+/** Controller family enum for dialect operations */
+const controllerFamily = z.enum([
+  "fanuc_0i", "fanuc_16i", "fanuc_18i", "fanuc_30i", "fanuc_31i",
+  "siemens_810d", "siemens_828d", "siemens_840d", "siemens_one",
+  "heidenhain_tnc640", "heidenhain_tnc7",
+  "haas_ngc",
+  "mazak_smooth_ai", "mazak_smooth_g",
+  "okuma_osp_p300", "okuma_osp_p500",
+  "makino_pro5", "makino_pro6",
+  "brother_speedio",
+  "mitsubishi_m80",
+  "hurco_max5",
+  "generic_fanuc", "generic_iso",
+]);
+
+const mill_dialect_get = z.object({
+  controller: controllerFamily.describe("Controller family to get dialect for"),
+}).passthrough();
+
+const mill_dialect_list = z.object({}).passthrough();
+
+const mill_dialect_translate = z.object({
+  cycle: z.string().describe("G-code cycle to translate (e.g., 'G81', 'CYCLE81')"),
+  from_controller: controllerFamily.describe("Source controller family"),
+  to_controller: controllerFamily.describe("Target controller family"),
+}).passthrough();
+
+const mill_dialect_validate = z.object({
+  controller: controllerFamily.describe("Controller family for validation"),
+  line: z.string().describe("G-code line to validate"),
+}).passthrough();
+
+const mill_dialect_features = z.object({
+  controller: controllerFamily.describe("Controller family"),
+  operation_type: z.enum(["roughing", "semi_finishing", "finishing"]).describe("Operation type"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -471,4 +512,10 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_collision_check,
   mill_rapid_clearance,
   mill_adaptive_stepdown,
+  // P4-U02-DIALECT: Controller dialect reconciliation
+  mill_dialect_get,
+  mill_dialect_list,
+  mill_dialect_translate,
+  mill_dialect_validate,
+  mill_dialect_features,
 };

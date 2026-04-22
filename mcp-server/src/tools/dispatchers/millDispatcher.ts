@@ -83,6 +83,13 @@ async function getCollision(): Promise<any> {
     .millKinematicsCollisionEngine);
 }
 
+// P4-U02-DIALECT: Controller dialect engine lazy loader
+let _dialect: any;
+async function getDialect(): Promise<any> {
+  return (_dialect ??= (await import("../../engines/ControllerDialectEngine.js"))
+    .controllerDialectEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -113,6 +120,9 @@ const ACTIONS = [
   "mill_learn_deploy", "mill_learn_rollback",
   // P4-U01-COL3: Collision detection
   "mill_collision_check", "mill_rapid_clearance", "mill_adaptive_stepdown",
+  // P4-U02-DIALECT: Controller dialect reconciliation
+  "mill_dialect_get", "mill_dialect_list", "mill_dialect_translate",
+  "mill_dialect_validate", "mill_dialect_features",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -328,6 +338,65 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       return slimResponse({
         action: "mill_adaptive_stepdown",
         ...result,
+      });
+    }
+
+    // ── P4-U02-DIALECT: Controller dialect reconciliation ──────────
+    case "mill_dialect_get": {
+      const dialect = await getDialect();
+      const info = dialect.getDialect(params.controller);
+      return slimResponse({
+        action: "mill_dialect_get",
+        controller: params.controller,
+        dialect: info,
+      });
+    }
+
+    case "mill_dialect_list": {
+      const dialect = await getDialect();
+      const dialects = dialect.listDialects();
+      return slimResponse({
+        action: "mill_dialect_list",
+        count: dialects.length,
+        dialects,
+      });
+    }
+
+    case "mill_dialect_translate": {
+      const dialect = await getDialect();
+      const translated = dialect.translateCannedCycle(
+        params.cycle,
+        params.from_controller,
+        params.to_controller
+      );
+      return slimResponse({
+        action: "mill_dialect_translate",
+        original: params.cycle,
+        from: params.from_controller,
+        to: params.to_controller,
+        translated,
+      });
+    }
+
+    case "mill_dialect_validate": {
+      const dialect = await getDialect();
+      const validation = dialect.validateLine(params.controller, params.line);
+      return slimResponse({
+        action: "mill_dialect_validate",
+        controller: params.controller,
+        line: params.line,
+        ...validation,
+      });
+    }
+
+    case "mill_dialect_features": {
+      const dialect = await getDialect();
+      const codes = dialect.getFeatureCodes(params.controller, params.operation_type);
+      return slimResponse({
+        action: "mill_dialect_features",
+        controller: params.controller,
+        operation_type: params.operation_type,
+        feature_codes: codes,
       });
     }
 
