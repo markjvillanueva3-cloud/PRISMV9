@@ -576,6 +576,107 @@ const mill_spc_analyze = z
   })
   .passthrough();
 
+// ─── P1-U09-L2-AGG: L2 AGGREGATOR SCHEMAS ──────────────────────────────────
+
+const mill_ai_orchestrate = z
+  .object({
+    request_type: z
+      .enum([
+        "ai_reasoning",
+        "strategy_lookup",
+        "rl_train",
+        "pattern_mine",
+        "online_update",
+        "reasoning_trace",
+        "meta_learn",
+        "neural_predict",
+        "deep_predict",
+      ])
+      .describe("Which AI/ML sub-engine to route to."),
+    intent: z.string().optional().describe("Natural-language intent (for ai_reasoning)."),
+    context: z.record(z.string(), z.any()).optional().describe("Domain context."),
+    dataset_id: z.string().optional().describe("Dataset identifier (for pattern_mine, rl_train)."),
+    episode_count: z.number().int().nonnegative().optional().describe("RL training episodes."),
+    reward: z.number().optional().describe("RL reward signal."),
+    query: z.string().optional().describe("Query string (for strategy_lookup, reasoning_trace)."),
+    features: z.record(z.string(), z.any()).optional().describe("Feature vector for prediction."),
+    model_id: z.string().optional().describe("Model identifier."),
+  })
+  .passthrough();
+
+const mill_turn_orchestrate = z
+  .object({
+    request_type: z
+      .enum(["cam_generate", "swiss_pipeline", "sub_spindle", "live_tool", "multi_channel", "bar_feeder"])
+      .describe("Which mill-turn operation to route."),
+    machine_class: z
+      .enum(["integrex", "swiss", "lb_series", "ctx", "wt_series", "generic"])
+      .optional()
+      .describe("Mill-turn machine class."),
+    part_geometry: z.record(z.string(), z.any()).optional().describe("Part geometry description."),
+    operations: z.array(z.record(z.string(), z.any())).optional().describe("Operation list."),
+    bar_diameter_mm: z.number().positive().optional().describe("Bar stock diameter in mm."),
+    bar_length_mm: z.number().positive().optional().describe("Bar stock length in mm."),
+    sub_spindle_enabled: z.boolean().optional().describe("Sub-spindle transfer enabled."),
+    live_tool_spindle_rpm: z.number().optional().describe("Live tool spindle RPM."),
+    channels: z.number().int().positive().optional().describe("Number of synchronized channels."),
+  })
+  .passthrough();
+
+const mill_5axis_orchestrate = z
+  .object({
+    request_type: z
+      .enum([
+        "orchestrate",
+        "ai_ultra",
+        "deep_learn",
+        "cam_integrate",
+        "toolpath_fuse",
+        "toolpath_synth",
+        "post_process",
+        "decide",
+        "cad_template",
+        "rtcp_check",
+      ])
+      .describe("Which 5-axis sub-engine to route to."),
+    kinematics: z
+      .enum(["head_head", "head_table", "table_table", "gantry", "generic"])
+      .optional()
+      .describe("5-axis kinematics configuration."),
+    part: z.record(z.string(), z.any()).optional().describe("Part definition."),
+    tool: z.record(z.string(), z.any()).optional().describe("Tool definition."),
+    lead_angle_deg: z.number().optional().describe("Lead angle in degrees."),
+    tilt_angle_deg: z.number().optional().describe("Tilt angle in degrees."),
+    tool_axis: z.tuple([z.number(), z.number(), z.number()]).optional().describe("Tool axis vector [i, j, k]."),
+    strategy: z.string().optional().describe("Strategy name."),
+    gcode: z.string().optional().describe("G-code input (for post_process)."),
+    controller: z.string().optional().describe("Controller identifier."),
+  })
+  .passthrough();
+
+const mill_multiaxis_orchestrate = z
+  .object({
+    request_type: z
+      .enum(["kinematic_fk", "kinematic_ik", "print_to_prog", "validate_reach"])
+      .describe("Which multi-axis operation to route."),
+    axis_count: z.union([z.literal(4), z.literal(5), z.literal(6)]).optional().describe("Axis count: 4, 5, or 6."),
+    joint_values: z.array(z.number()).optional().describe("Joint angles (for FK)."),
+    tcp_target: z
+      .object({
+        x: z.number(),
+        y: z.number(),
+        z: z.number(),
+        a: z.number().optional(),
+        b: z.number().optional(),
+        c: z.number().optional(),
+      })
+      .optional()
+      .describe("Target TCP pose (for IK)."),
+    part: z.record(z.string(), z.any()).optional().describe("Part definition."),
+    machine: z.record(z.string(), z.any()).optional().describe("Machine configuration."),
+  })
+  .passthrough();
+
 // ─── EXPORT ─────────────────────────────────────────────────────────────────
 
 /**
@@ -655,4 +756,10 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_validate_setup,
   mill_validate_safety,
   mill_spc_analyze,
+
+  // P1-U09-L2-AGG: L2 aggregator routing
+  mill_ai_orchestrate,
+  mill_turn_orchestrate,
+  mill_5axis_orchestrate,
+  mill_multiaxis_orchestrate,
 };

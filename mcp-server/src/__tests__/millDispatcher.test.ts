@@ -11,9 +11,9 @@ import { MILL_ACTION_SCHEMAS } from "../schemas/millActionSchemas.js";
 
 describe("millDispatcher", () => {
   describe("action count anti-regression", () => {
-    it("should have exactly 45 actions", () => {
-      expect(MILL_DISPATCHER_ACTION_COUNT).toBe(45);
-      expect(MILL_ACTIONS.length).toBe(45);
+    it("should have exactly 53 actions", () => {
+      expect(MILL_DISPATCHER_ACTION_COUNT).toBe(53);
+      expect(MILL_ACTIONS.length).toBe(53);
     });
 
     it("should have all actions prefixed with mill_", () => {
@@ -41,9 +41,9 @@ describe("millDispatcher", () => {
   });
 
   describe("schema coverage", () => {
-    it("should have schemas for all 45 actions", () => {
+    it("should have schemas for all 53 actions", () => {
       const schemaKeys = Object.keys(MILL_ACTION_SCHEMAS);
-      expect(schemaKeys.length).toBe(45);
+      expect(schemaKeys.length).toBe(53);
     });
 
     it("should have matching action names between dispatcher and schemas", () => {
