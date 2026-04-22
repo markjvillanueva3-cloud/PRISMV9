@@ -32,22 +32,38 @@ export function dispatcherError(
   };
 }
 
+/** Validation result with compatibility properties */
+export interface ValidationResult {
+  /** True if validation passed (compat: alias for success) */
+  valid: boolean;
+  /** True if validation passed */
+  success: boolean;
+  /** Validated data if successful */
+  data?: unknown;
+  /** Zod error if failed */
+  error?: z.ZodError;
+  /** Error message string (compat) */
+  errorMessage?: string;
+}
+
 /**
  * Validate action parameters against a schema map.
- * Returns validation result or null if no schema exists for the action.
+ * Returns validation result or a pass-through if no schema exists for the action.
  */
 export function validateActionParams(
   action: string,
   params: Record<string, unknown>,
   schemas: Record<string, z.ZodTypeAny>,
-): { success: true; data: unknown } | { success: false; error: z.ZodError } | null {
+): ValidationResult {
   const schema = schemas[action];
   if (!schema) {
-    return null;
+    // No schema = pass through (valid)
+    return { valid: true, success: true, data: params };
   }
   const result = schema.safeParse(params);
   if (result.success) {
-    return { success: true, data: result.data };
+    return { valid: true, success: true, data: result.data };
   }
-  return { success: false, error: result.error };
+  const errorMessage = result.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ");
+  return { valid: false, success: false, error: result.error, errorMessage };
 }

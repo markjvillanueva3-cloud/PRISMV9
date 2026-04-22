@@ -21,10 +21,11 @@ import { slimResponse } from "../../utils/responseSlimmer.js";
 import { dispatcherError, validateActionParams } from "../../utils/dispatcherMiddleware.js";
 import { EDM_ACTION_SCHEMAS } from "../../schemas/edmActionSchemas.js";
 import { WEDM_PIPELINE_ACTION_SCHEMAS } from "../../schemas/wedmPipelineActionSchemas.js";
+import { WEDM_ML_OPTIMIZER_SCHEMAS } from "../../schemas/wedmMLOptimizerSchemas.js";
 import { hookExecutor } from "../../engines/HookExecutor.js";
 
-// Merge legacy + pipeline schemas
-const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS };
+// Merge legacy + pipeline + ML optimizer schemas
+const ALL_EDM_SCHEMAS = { ...EDM_ACTION_SCHEMAS, ...WEDM_PIPELINE_ACTION_SCHEMAS, ...WEDM_ML_OPTIMIZER_SCHEMAS };
 
 // Legacy engine lazy loaders
 let _electrode: any, _wire: any, _surface: any, _micro: any;
@@ -40,6 +41,7 @@ let _cuttingParamFlush: any, _wireSlugCornerTaper: any;
 let _monitorSurface: any, _postProcessGCode: any;
 let _costDocumentation: any, _qualityOrchestrator: any;
 let _biMaterial: any;
+let _mlParamOptimizer: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -67,6 +69,7 @@ async function getEngine(name: string): Promise<any> {
     case "costDocumentation": return _costDocumentation ??= (await import("../../engines/EDMCostDocumentationEngine.js")).edmCostDocumentationEngine;
     case "qualityOrchestrator": return _qualityOrchestrator ??= (await import("../../engines/EDMQualityOrchestratorEngine.js")).edmQualityOrchestratorEngine;
     case "biMaterial": return _biMaterial ??= (await import("../../engines/EDMBiMaterialCompensationEngine.js")).edmBiMaterialCompensationEngine;
+    case "mlParamOptimizer": return _mlParamOptimizer ??= (await import("../../engines/WEDMMLParameterOptimizerEngine.js")).wedmMLParameterOptimizerEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -181,6 +184,9 @@ const ACTIONS = [
   // WEDM-100PCT-MS0: Complete 30-stage orchestrator (physics-optimized, all dialects)
   "wedm_generate_complete_program",
   "wedm_generate_optimized_program", // forge-triple alias → routes to same orchestrator
+
+  // WEDM-NEXT-MS0: ML Parameter Optimization (Bayesian)
+  "wedm_ml_optimize_init", "wedm_ml_optimize_observe", "wedm_ml_optimize_status", "wedm_ml_optimize_close",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -858,6 +864,36 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_generate_optimized_program": {
             const { wedmCompleteOrchestrationEngine } = await import("../../engines/WEDMCompleteOrchestrationEngine.js");
             result = await wedmCompleteOrchestrationEngine.generateCompleteProgram(params as any);
+            break;
+          }
+
+          // =================================================================
+          // WEDM-NEXT-MS0: ML Parameter Optimization (Bayesian)
+          // =================================================================
+          case "wedm_ml_optimize_init": {
+            const engine = await getEngine("mlParamOptimizer");
+            result = engine.initializeOptimization({
+              material: params.material,
+              thickness: params.thickness,
+              objective: params.objective,
+              bounds: params.bounds,
+              priorObservations: params.prior_observations
+            });
+            break;
+          }
+          case "wedm_ml_optimize_observe": {
+            const engine = await getEngine("mlParamOptimizer");
+            result = engine.addObservation(params.session_id, params.observation);
+            break;
+          }
+          case "wedm_ml_optimize_status": {
+            const engine = await getEngine("mlParamOptimizer");
+            result = engine.getSessionStatus(params.session_id);
+            break;
+          }
+          case "wedm_ml_optimize_close": {
+            const engine = await getEngine("mlParamOptimizer");
+            result = { closed: engine.closeSession(params.session_id) };
             break;
           }
 
