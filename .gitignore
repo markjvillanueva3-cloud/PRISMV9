@@ -20,3 +20,27 @@ state/logs/
 *.jsonl
 plans-archive/claude-memory/
 claude-backup-from-c/
+
+# Churning state files (regenerated every session)
+state/shared/AGENT_*.json
+state/shared/AGENT_*.md
+state/shared/HANDOFF-latest.md
+state/shared/ROADMAP_COLLABORATION_STATE.*
+state/shared/SVI.json
+state/shared/SVI-compact.md
+state/shared/TASK_QUEUE.*
+state/shared/QUALITY_SCORES.json
+state/shared/QUALITY_SCORES_COMPACT.md
+state/shared/GAP_REPORT.json
+state/shared/SUBAGENT_ACTIVITY.md
+state/shared/handoffs/*.json
+state/shared/agent-coordination/**/*.json
+state/shared/node-orphan-cleaner.state.json
+state/token-economy-session.json
+state/CURRENT_POSITION.md
+
+# Junctioned folders (H:\.claude → local .claude symlink)
+.claude/
+.claude-flow/
+.claude-user-state/
+%SystemDrive%/
