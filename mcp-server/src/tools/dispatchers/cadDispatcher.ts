@@ -1,7 +1,7 @@
 /**
  * prism_cad — CAD/Geometry Dispatcher
  *
- * 61 actions: geometry (3), mesh (3), feature (2), stock/wcs/dfm (5),
+ * 65 actions: geometry (3), mesh (3), feature (2), stock/wcs/dfm (5), grasshopper (4),
  *   sketch (5), part (7), part_library (2), assembly (6),
  *   cad_taxonomy (3), cadquery (5), f360_codegen (4), f360_live (14), blueprint (2)
  *
@@ -18,7 +18,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
-let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any;
+let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -36,6 +36,7 @@ async function getEngine(name: string): Promise<any> {
     case "cadQueryGen": return _cadQueryGen ??= (await import("../../engines/CadQueryCodeGeneratorEngine.js")).cadQueryCodeGeneratorEngine;
     case "f360Gen": return _f360Gen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
     case "f360Bridge": return _f360Bridge ??= (await import("../../engines/Fusion360LiveBridgeEngine.js")).fusion360LiveBridgeEngine;
+    case "swGen": return _swGen ??= (await import("../../engines/SolidWorksCodeGeneratorEngine.js")).solidWorksCodeGeneratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -69,6 +70,12 @@ const ACTIONS = [
   "f360_live_new_doc", "f360_live_execute_raw",
   // PIPE-MS2: PrintToGeometryEngine (previously orphaned)
   "blueprint_to_3d_model", "blueprint_to_cadquery_script",
+  // Rhino Grasshopper PRISM Components
+  "grasshopper_list_components", "grasshopper_get_component",
+  "grasshopper_execute", "grasshopper_registry",
+  // SolidWorks Code Generator (U-CADC10)
+  "solidworks_generate_script", "solidworks_build_part", "solidworks_execute",
+  "solidworks_capabilities",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -527,6 +534,75 @@ Params vary by action — pass relevant fields in params object.`,
           case "blueprint_to_cadquery_script": {
             const { printToGeometryEngine } = await import("../../engines/PrintToGeometryEngine.js");
             result = printToGeometryEngine.convert(params as any);
+            break;
+          }
+          // ── Rhino Grasshopper PRISM Components ──
+          case "grasshopper_list_components": {
+            const { RhinoGrasshopperPRISMComponentsEngine } = await import("../../engines/RhinoGrasshopperPRISMComponentsEngine.js");
+            const engine = new RhinoGrasshopperPRISMComponentsEngine({
+              dispatcher: { invoke: () => ({ ok: true, result: {} }) },
+            });
+            result = { success: true, components: engine.listComponents({ category: params.category, includeObsolete: params.includeObsolete }) };
+            break;
+          }
+          case "grasshopper_get_component": {
+            const { RhinoGrasshopperPRISMComponentsEngine } = await import("../../engines/RhinoGrasshopperPRISMComponentsEngine.js");
+            const engine = new RhinoGrasshopperPRISMComponentsEngine({
+              dispatcher: { invoke: () => ({ ok: true, result: {} }) },
+            });
+            const comp = engine.getComponent(params.componentId);
+            result = comp ? { success: true, component: comp } : { success: false, error: "Component not found" };
+            break;
+          }
+          case "grasshopper_execute": {
+            const { RhinoGrasshopperPRISMComponentsEngine } = await import("../../engines/RhinoGrasshopperPRISMComponentsEngine.js");
+            const engine = new RhinoGrasshopperPRISMComponentsEngine({
+              dispatcher: {
+                invoke: (dispatcher: string, action: string, p: Record<string, unknown>) => {
+                  return { ok: true, result: { dispatcher, action, params: p } };
+                },
+              },
+            });
+            result = engine.execute(params.componentId, params.inputs ?? [], params.context ?? { documentId: "default", tolerance: 0.001 });
+            break;
+          }
+          case "grasshopper_registry": {
+            const { RhinoGrasshopperPRISMComponentsEngine } = await import("../../engines/RhinoGrasshopperPRISMComponentsEngine.js");
+            const engine = new RhinoGrasshopperPRISMComponentsEngine({
+              dispatcher: { invoke: () => ({ ok: true, result: {} }) },
+            });
+            result = { success: true, registry: engine.getRegistry() };
+            break;
+          }
+          // SolidWorks Code Generator (U-CADC10)
+          case "solidworks_generate_script": {
+            const engine = await getEngine("swGen");
+            const ops = params.operations ?? [];
+            const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm" };
+            const buildResult = engine.buildScript(ops, context);
+            result = { success: true, script: buildResult.script.body, warnings: buildResult.warnings, parameters: buildResult.script.parameters, lineage: buildResult.script.lineage };
+            break;
+          }
+          case "solidworks_build_part": {
+            const engine = await getEngine("swGen");
+            const ops = params.operations ?? [];
+            const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm", outputDir: params.outputDir };
+            const buildResult = engine.buildScript(ops, context);
+            const execResult = await engine.executeScript(buildResult.script, context);
+            result = { success: execResult.success, script: buildResult.script.body, outputPath: execResult.outputPath, executionTime: execResult.executionTime, warnings: buildResult.warnings, errors: execResult.errors };
+            break;
+          }
+          case "solidworks_execute": {
+            const engine = await getEngine("swGen");
+            const script = { body: params.script, language: "vba" as const, cadSystem: "solidworks" as const, parameters: [], lineage: [] };
+            const context = { partName: params.partName ?? "PRISMPart", units: params.units ?? "mm" };
+            const execResult = await engine.executeScript(script, context);
+            result = { success: execResult.success, outputPath: execResult.outputPath, executionTime: execResult.executionTime, logs: execResult.logs, errors: execResult.errors };
+            break;
+          }
+          case "solidworks_capabilities": {
+            const engine = await getEngine("swGen");
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: engine.capabilities };
             break;
           }
           default:
