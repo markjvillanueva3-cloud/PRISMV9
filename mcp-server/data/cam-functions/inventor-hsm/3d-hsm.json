@@ -1,0 +1,357 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "3d_hsm",
+  "summary": {
+    "total_operations": 12,
+    "total_parameters": 156,
+    "categories": ["roughing", "finishing"]
+  },
+  "operations": {
+    "adaptive_3d": {
+      "display_name": "Adaptive Clearing 3D",
+      "category": "roughing",
+      "description": "3D adaptive clearing with constant engagement on complex surfaces",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 18,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "description": "Surfaces to machine", "tab": "Geometry" },
+          "restSurfaces": { "type": "selection", "description": "Previous operation surfaces", "tab": "Geometry" },
+          "boundaryContours": { "type": "selection", "description": "Boundary limits", "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" },
+          "restMachining": { "type": "boolean", "default": false, "tab": "Geometry" }
+        },
+        "passes": {
+          "optimalLoad": { "type": "number", "unit": "percent", "default": 40, "range": [5, 50], "description": "Target engagement as % of tool diameter", "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "description": "Max Z depth per pass", "tab": "Passes" },
+          "flatAreaMachining": { "type": "boolean", "default": true, "description": "Machine flat areas", "tab": "Passes" },
+          "bothWays": { "type": "boolean", "default": false, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "useSlotClearing": { "type": "boolean", "default": true, "tab": "Passes" }
+        },
+        "linking": {
+          "entryMethod": { "type": "enum", "values": ["helix", "ramp", "predrill"], "default": "helix", "tab": "Linking" },
+          "helixDiameter": { "type": "number", "unit": "percent", "default": 50, "tab": "Linking" },
+          "helixAngle": { "type": "number", "unit": "deg", "default": 2, "tab": "Linking" },
+          "transitionType": { "type": "enum", "values": ["safe_retract", "follow_surface"], "default": "safe_retract", "tab": "Linking" }
+        }
+      }
+    },
+
+    "pocket_clearing_3d": {
+      "display_name": "Pocket Clearing 3D",
+      "category": "roughing",
+      "description": "Traditional pocket clearing on 3D surfaces",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "percent", "default": 60, "tab": "Passes" },
+          "stepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "pocketType": { "type": "enum", "values": ["zigzag", "spiral", "morphed_spiral"], "default": "zigzag", "tab": "Passes" }
+        }
+      }
+    },
+
+    "parallel_3d": {
+      "display_name": "Parallel",
+      "category": "finishing",
+      "description": "Constant Z parallel passes for finishing",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 17,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "checkSurfaces": { "type": "selection", "description": "Collision check surfaces", "tab": "Geometry" },
+          "boundaryContours": { "type": "selection", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "mm", "description": "Stepover distance", "tab": "Passes" },
+          "stepoverPercent": { "type": "number", "unit": "percent", "description": "Stepover as % of tool", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+          "passDirection": { "type": "number", "unit": "deg", "default": 0, "range": [0, 360], "description": "Pass angle from X", "tab": "Passes" },
+          "wallTaper": { "type": "number", "unit": "deg", "default": 0, "description": "Draft angle", "tab": "Passes" },
+          "maxStepdown": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "scallop": { "type": "number", "unit": "mm", "description": "Target scallop height", "tab": "Passes" }
+        }
+      }
+    },
+
+    "contour_3d": {
+      "display_name": "Contour 3D",
+      "category": "finishing",
+      "description": "Z-level contouring (waterline) machining",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "checkSurfaces": { "type": "selection", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepdown": { "type": "number", "unit": "mm", "description": "Z level step", "tab": "Passes" },
+          "scallop": { "type": "number", "unit": "mm", "description": "Max scallop height", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" },
+          "orderByArea": { "type": "boolean", "default": true, "description": "Order passes by area", "tab": "Passes" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0, "tab": "Passes" }
+        }
+      }
+    },
+
+    "scallop_3d": {
+      "display_name": "Scallop",
+      "category": "finishing",
+      "description": "Constant scallop height finishing",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "scallop": { "type": "number", "unit": "mm", "required": true, "description": "Target scallop height", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+          "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" }
+        }
+      }
+    },
+
+    "pencil_3d": {
+      "display_name": "Pencil",
+      "category": "finishing",
+      "description": "Rest machining in corners and fillets",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 10,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.005, "tab": "Geometry" }
+        },
+        "passes": {
+          "multipleDepths": { "type": "boolean", "default": true, "tab": "Passes" },
+          "stepdown": { "type": "number", "unit": "mm", "description": "Z step in corners", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" },
+          "minimumRadius": { "type": "number", "unit": "mm", "description": "Minimum corner radius to machine", "tab": "Passes" }
+        }
+      }
+    },
+
+    "radial_3d": {
+      "display_name": "Radial",
+      "category": "finishing",
+      "description": "Radial pattern for circular features",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "deg", "description": "Angular stepover", "tab": "Passes" },
+          "startAngle": { "type": "number", "unit": "deg", "default": 0, "tab": "Passes" },
+          "endAngle": { "type": "number", "unit": "deg", "default": 360, "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+        }
+      }
+    },
+
+    "spiral_3d": {
+      "display_name": "Spiral",
+      "category": "finishing",
+      "description": "Spiral pattern for circular/dome features",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 8,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional"], "default": "climb", "tab": "Passes" }
+        }
+      }
+    },
+
+    "morphed_spiral_3d": {
+      "display_name": "Morphed Spiral",
+      "category": "finishing",
+      "description": "Boundary-following spiral with blending",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 9,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "innerBoundary": { "type": "selection", "description": "Inner boundary contour", "tab": "Geometry" },
+          "outerBoundary": { "type": "selection", "description": "Outer boundary contour", "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "spiralType": { "type": "enum", "values": ["inward", "outward"], "default": "outward", "tab": "Passes" }
+        }
+      }
+    },
+
+    "steep_shallow_3d": {
+      "display_name": "Steep and Shallow",
+      "category": "finishing",
+      "description": "Combined strategy for complex surfaces - contour on steep, parallel on shallow",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 12,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "thresholdAngle": { "type": "number", "unit": "deg", "default": 45, "range": [20, 70], "description": "Steep/shallow boundary angle", "tab": "Passes" },
+          "steepStepdown": { "type": "number", "unit": "mm", "description": "Z step for steep areas", "tab": "Passes" },
+          "shallowStepover": { "type": "number", "unit": "mm", "description": "Stepover for shallow areas", "tab": "Passes" },
+          "blendZone": { "type": "number", "unit": "deg", "default": 5, "description": "Blend transition zone", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+        }
+      }
+    },
+
+    "horizontal_3d": {
+      "display_name": "Horizontal",
+      "category": "finishing",
+      "description": "Machine only flat/horizontal surfaces",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 7,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "tolerance": { "type": "number", "unit": "mm", "default": 0.01, "tab": "Geometry" }
+        },
+        "passes": {
+          "horizontalThreshold": { "type": "number", "unit": "deg", "default": 5, "description": "Max angle from horizontal", "tab": "Passes" },
+          "stepover": { "type": "number", "unit": "mm", "tab": "Passes" },
+          "direction": { "type": "enum", "values": ["climb", "conventional", "both_ways"], "default": "both_ways", "tab": "Passes" }
+        }
+      }
+    },
+
+    "ramp_3d": {
+      "display_name": "Ramp",
+      "category": "roughing",
+      "description": "Ramping entry into 3D features",
+      "dialog_tabs": ["Tool", "Geometry", "Heights", "Passes", "Linking"],
+      "parameter_count": 6,
+      "parameters": {
+        "geometry": {
+          "surfaces": { "type": "selection", "required": true, "tab": "Geometry" },
+          "stockToLeave": { "type": "number", "unit": "mm", "default": 0.3, "tab": "Geometry" }
+        },
+        "passes": {
+          "rampAngle": { "type": "number", "unit": "deg", "default": 3, "range": [0.5, 15], "tab": "Passes" },
+          "maximumStepdown": { "type": "number", "unit": "mm", "tab": "Passes" }
+        }
+      }
+    }
+  },
+
+  "training_topics": [
+    {
+      "topic": "3D Adaptive Clearing",
+      "key_concepts": [
+        "Constant engagement maintains optimal cutting conditions",
+        "optimalLoad controls WOC as percentage of tool diameter (typically 40%)",
+        "Helix entry avoids axial plunging stress",
+        "Flat area machining option for complete pocket floors"
+      ],
+      "best_practices": [
+        "Start with 40% optimal load for general roughing",
+        "Use helix entry with 2-3 degree angle",
+        "Enable flat area machining for pockets with floors",
+        "Slot clearing handles narrow grooves automatically"
+      ]
+    },
+    {
+      "topic": "Z-Level Finishing (Contour 3D)",
+      "key_concepts": [
+        "Waterline machining maintains constant Z height",
+        "Best for steep walls (>45 degrees)",
+        "Stepdown controls Z-level increment",
+        "Scallop height affects surface finish quality"
+      ],
+      "best_practices": [
+        "Use for walls steeper than 45 degrees",
+        "Calculate stepdown from target scallop: stepdown = 2*sqrt(scallop*(2R-scallop))",
+        "Order by area reduces retracts",
+        "Combine with Parallel for shallow areas"
+      ]
+    },
+    {
+      "topic": "Scallop-Constant Finishing",
+      "key_concepts": [
+        "Maintains uniform scallop height across varying surface angles",
+        "Automatically adjusts stepover based on local curvature",
+        "Spiral patterns provide continuous motion",
+        "Better surface finish than constant stepover"
+      ],
+      "best_practices": [
+        "Target scallop = surface roughness / 4",
+        "Use ball end mills for best results",
+        "Outward spiral for convex, inward for concave",
+        "Tolerance affects path accuracy (0.01mm typical)"
+      ]
+    },
+    {
+      "topic": "Steep and Shallow Strategy",
+      "key_concepts": [
+        "Automatically switches between contour and parallel machining",
+        "Threshold angle defines steep/shallow boundary",
+        "Blend zone smooths transitions between strategies",
+        "Single operation covers entire surface efficiently"
+      ],
+      "best_practices": [
+        "Set threshold angle at 45 degrees for balanced results",
+        "Increase blend zone (5-10 deg) for smoother transitions",
+        "Match steep stepdown and shallow stepover for consistent scallop",
+        "Use for complex molds and dies"
+      ]
+    },
+    {
+      "topic": "Pencil/Rest Finishing",
+      "key_concepts": [
+        "Detects and machines corners missed by larger tools",
+        "Multiple depths clean fillets completely",
+        "Minimum radius filter controls which corners to machine",
+        "Tight tolerance (0.005mm) for accurate detection"
+      ],
+      "best_practices": [
+        "Run after main finishing pass",
+        "Use ball end mill 50% smaller than previous tool",
+        "Set minimum radius to previous tool radius",
+        "Enable both ways for bidirectional cleaning"
+      ]
+    },
+    {
+      "topic": "Radial and Spiral Patterns",
+      "key_concepts": [
+        "Radial: passes radiate from center outward",
+        "Spiral: continuous spiral path around feature",
+        "Best for rotationally symmetric features",
+        "Angular stepover controls pass density"
+      ],
+      "best_practices": [
+        "Use radial for impeller blades and turbine disks",
+        "Use spiral for domes and hemispheres",
+        "Morphed spiral adapts to irregular boundaries",
+        "Outward spiral for convex surfaces"
+      ]
+    }
+  ]
+}

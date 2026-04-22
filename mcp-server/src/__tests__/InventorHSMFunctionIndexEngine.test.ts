@@ -295,6 +295,114 @@ describe("InventorHSMFunctionIndexEngine", () => {
     });
   });
 
+  describe("3D HSM Operations (U-CAM27)", () => {
+    it("includes 3d_hsm section", () => {
+      const sections = InventorHSMFunctionIndexEngine.listSections();
+      expect(sections).toContain("3d_hsm");
+    });
+
+    it("returns 3d_hsm section with 12 operations", () => {
+      const section = InventorHSMFunctionIndexEngine.getSection("3d_hsm");
+      expect("error" in section).toBe(false);
+      if (!("error" in section)) {
+        expect(section.section_key).toBe("3d_hsm");
+        expect(Object.keys(section.operations).length).toBe(12);
+      }
+    });
+
+    it("includes adaptive_3d operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const adaptive = ops.find((op) => op.operation_id === "adaptive_3d");
+      expect(adaptive).toBeDefined();
+      expect(adaptive?.display_name).toBe("Adaptive Clearing 3D");
+      expect(adaptive?.category).toBe("roughing");
+    });
+
+    it("includes contour_3d operation (waterline)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const contour = ops.find((op) => op.operation_id === "contour_3d");
+      expect(contour).toBeDefined();
+      expect(contour?.display_name).toBe("Contour 3D");
+      expect(contour?.category).toBe("finishing");
+    });
+
+    it("includes parallel_3d operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const parallel = ops.find((op) => op.operation_id === "parallel_3d");
+      expect(parallel).toBeDefined();
+      expect(parallel?.display_name).toBe("Parallel");
+    });
+
+    it("includes scallop_3d operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const scallop = ops.find((op) => op.operation_id === "scallop_3d");
+      expect(scallop).toBeDefined();
+      expect(scallop?.display_name).toBe("Scallop");
+    });
+
+    it("includes pencil_3d operation (rest finishing)", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const pencil = ops.find((op) => op.operation_id === "pencil_3d");
+      expect(pencil).toBeDefined();
+      expect(pencil?.category).toBe("finishing");
+    });
+
+    it("includes steep_shallow_3d operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const steepShallow = ops.find((op) => op.operation_id === "steep_shallow_3d");
+      expect(steepShallow).toBeDefined();
+      expect(steepShallow?.display_name).toBe("Steep and Shallow");
+    });
+
+    it("includes morphed_spiral_3d operation", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const morphed = ops.find((op) => op.operation_id === "morphed_spiral_3d");
+      expect(morphed).toBeDefined();
+    });
+
+    it("includes all 12 3D operations", () => {
+      const ops = InventorHSMFunctionIndexEngine.listOperations();
+      const ops3d = ops.filter((op) => op.section === "3d_hsm");
+      expect(ops3d.length).toBe(12);
+      const expectedOps = [
+        "adaptive_3d", "pocket_clearing_3d", "parallel_3d", "contour_3d",
+        "scallop_3d", "pencil_3d", "radial_3d", "spiral_3d",
+        "morphed_spiral_3d", "steep_shallow_3d", "horizontal_3d", "ramp_3d"
+      ];
+      for (const expected of expectedOps) {
+        expect(ops3d.find((op) => op.operation_id === expected)).toBeDefined();
+      }
+    });
+
+    it("getHSMOperations includes adaptive_3d", () => {
+      const results = InventorHSMFunctionIndexEngine.getHSMOperations();
+      const adaptive3d = results.find((r) => r.operation_id === "adaptive_3d");
+      expect(adaptive3d).toBeDefined();
+      expect(adaptive3d?.section).toBe("3d_hsm");
+    });
+
+    it("3d_hsm section has training topics", () => {
+      const topics = InventorHSMFunctionIndexEngine.getTrainingTopics("3d_hsm");
+      expect(topics.length).toBeGreaterThan(0);
+      expect(topics[0]).toHaveProperty("topic");
+      expect(topics[0]).toHaveProperty("key_concepts");
+      expect(topics[0]).toHaveProperty("best_practices");
+    });
+
+    it("findParameter finds thresholdAngle in steep_shallow_3d", () => {
+      const results = InventorHSMFunctionIndexEngine.findParameter("thresholdAngle");
+      expect(results.length).toBeGreaterThan(0);
+      const steepShallow = results.find((r) => r.operation_id === "steep_shallow_3d");
+      expect(steepShallow).toBeDefined();
+    });
+
+    it("getIndex totals include 3D operations", () => {
+      const index = InventorHSMFunctionIndexEngine.getIndex();
+      // 11 2.5D + 12 3D = 23 minimum
+      expect(index.total_operations).toBeGreaterThanOrEqual(23);
+    });
+  });
+
   describe("Edge cases", () => {
     it("handles empty search query gracefully", () => {
       const results = InventorHSMFunctionIndexEngine.searchParameters("");
