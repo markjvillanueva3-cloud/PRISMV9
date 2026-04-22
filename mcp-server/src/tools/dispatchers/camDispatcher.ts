@@ -944,6 +944,7 @@ export const ACTIONS = [
   "lathe_masterpost_regression_run", "lathe_masterpost_regression_lock", "lathe_masterpost_regression_diff", "lathe_masterpost_regression_stats", "lathe_masterpost_regression_clear",
   "lathe_masterpost_deep_explain", "lathe_masterpost_deep_causal", "lathe_masterpost_deep_counterfactual", "lathe_masterpost_deep_history", "lathe_masterpost_deep_stats", "lathe_masterpost_deep_clear",
   "lathe_masterpost_ensemble_run", "lathe_masterpost_ensemble_candidates", "lathe_masterpost_ensemble_ambiguous", "lathe_masterpost_ensemble_divergences", "lathe_masterpost_ensemble_history", "lathe_masterpost_ensemble_stats", "lathe_masterpost_ensemble_clear",
+  "lathe_p2p_ingest", "lathe_p2p_ingest_batch", "lathe_p2p_validate_extraction",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3286,6 +3287,39 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             );
             LatheMasterPostEnsembleCrossCheckEngine.clearHistory();
             result = { success: true, message: "Ensemble history cleared" };
+            break;
+          }
+
+          case "lathe_p2p_ingest": {
+            const { lathePrintIngestPipelineEngine } = await import(
+              "../../engines/LathePrintIngestPipelineEngine.js"
+            );
+            result = lathePrintIngestPipelineEngine.ingest({
+              raw_text: params.raw_text,
+              filename: params.filename,
+              format: params.format ?? "text",
+              page_count: params.page_count,
+            });
+            break;
+          }
+
+          case "lathe_p2p_ingest_batch": {
+            const { lathePrintIngestPipelineEngine } = await import(
+              "../../engines/LathePrintIngestPipelineEngine.js"
+            );
+            result = lathePrintIngestPipelineEngine.batchIngest(params.inputs ?? []);
+            break;
+          }
+
+          case "lathe_p2p_validate_extraction": {
+            const { lathePrintIngestPipelineEngine } = await import(
+              "../../engines/LathePrintIngestPipelineEngine.js"
+            );
+            const intake = lathePrintIngestPipelineEngine.ingest({
+              raw_text: params.raw_text,
+              filename: params.filename,
+            });
+            result = lathePrintIngestPipelineEngine.validateExtraction(intake, params.ground_truth ?? {});
             break;
           }
 
