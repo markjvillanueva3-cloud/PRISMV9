@@ -211,28 +211,12 @@ const matchedWts = worktrees.filter((w) => {
 // "node:process" it never returns, which means the callers do not need
 // `return` — `return` at module top-level is illegal in ES modules.
 function deny(reason) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "deny",
-        permissionDecisionReason: reason,
-      },
-    }),
-  );
+  console.log(JSON.stringify({ continue: false, reason }));
   exit(0);
 }
 
 function warn(reason) {
-  process.stdout.write(
-    JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: "PreToolUse",
-        permissionDecision: "allow",
-        permissionDecisionReason: reason,
-      },
-    }),
-  );
+  console.log(JSON.stringify({ continue: true, message: reason }));
   exit(0);
 }
 

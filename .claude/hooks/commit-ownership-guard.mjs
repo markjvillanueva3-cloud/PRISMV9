@@ -89,7 +89,7 @@ function main() {
   // Only run for git commit commands
   if (toolName !== "Bash" || !command.includes("git commit")) {
     // Pass through — not a commit
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    console.log(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -100,7 +100,7 @@ function main() {
   // Get staged files
   const staged = getStagedFiles();
   if (staged.length === 0) {
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    console.log(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -156,7 +156,7 @@ function main() {
   // Decision
   if (foreignFiles.length === 0) {
     // All clear
-    process.stdout.write(JSON.stringify({ decision: "allow" }));
+    console.log(JSON.stringify({ continue: true }));
     return;
   }
 
@@ -178,8 +178,8 @@ function main() {
       "  3. Coordinate with other sessions via state/shared/AGENT_CHAT.md",
     ].join("\n");
 
-    process.stdout.write(JSON.stringify({
-      decision: "block",
+    console.log(JSON.stringify({
+      continue: false,
       reason: msg,
     }));
     return;
@@ -193,9 +193,9 @@ function main() {
     "Proceeding anyway. Consider coordinating via state/shared/AGENT_CHAT.md",
   ].join("\n");
 
-  process.stdout.write(JSON.stringify({
-    decision: "allow",
-    reason: msg,
+  console.log(JSON.stringify({
+    continue: true,
+    message: msg,
   }));
 }
 

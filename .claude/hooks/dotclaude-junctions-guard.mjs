@@ -15,7 +15,8 @@ import { homedir } from "node:os";
 
 const JUNCTION_DIRS = [
   "commands", "agents", "hooks", "skills", "rules",
-  "plans", "plugins", "helpers", "bin", "projects",
+  "plans", "plugins", "helpers", "bin",
+  // NOTE: "projects" intentionally excluded — contains PC-specific conversation data
 ];
 
 const DRIFT_LOG = "H:\\PRISM\\mcp-server\\data\\state\\dotclaude-junctions-drift.jsonl";
