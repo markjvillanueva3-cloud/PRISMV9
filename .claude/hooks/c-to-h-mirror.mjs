@@ -2,20 +2,26 @@
 /**
  * c-to-h-mirror.mjs — PostToolUse hook
  *
- * After any Write/Edit/MultiEdit touches a CLI-owned root file on C:\Users\*\.claude\,
+ * After any Write/Edit/MultiEdit touches a CLI-owned file on C:\Users\*\.claude\,
  * mirror it to H:\.claude\ so the portable drive stays canonical.
  *
- * Mirrored files: settings.json, settings.local.json, .mcp.json, CLAUDE.md, keybindings.json
+ * Mirrored ROOT files: settings.json, settings.local.json, .mcp.json, CLAUDE.md, keybindings.json
+ * Mirrored SUBDIRS:    commands/, hooks/, agents/, plugins/, skills/, projects/
+ *                      (skills, slash commands, custom hooks/agents — anything user-added)
  *
  * Rationale: H:\.claude\ is the portable master (travels between machines). C: exists
  * only because Claude CLI reads from $HOME/.claude at runtime. Keep them in lock-step.
+ *
+ * NOTE: Most subdirs are already JUNCTIONED (per dotclaude-junctions-guard) so writes
+ * to C: land on H: automatically. This hook is the safety net for non-junctioned paths
+ * AND for the root files that are NOT junctioned.
  *
  * Input: JSON on stdin { tool_name, tool_input, tool_response? }
  * Output: never blocks. Emits a short suggestion message if a mirror happened.
  */
 
-import { readFileSync, copyFileSync, existsSync, mkdirSync, statSync } from "node:fs";
-import { dirname, basename } from "node:path";
+import { readFileSync, copyFileSync, existsSync, mkdirSync, statSync, lstatSync } from "node:fs";
+import { dirname, basename, relative } from "node:path";
 import { exit } from "node:process";
 
 let input = "";
@@ -46,24 +52,57 @@ if (!filePath) exit(0);
 // Normalize to forward slashes
 const norm = filePath.replace(/\\/g, "/");
 
-// Is this a CLI-owned root file under C:\Users\*\.claude\ ?
-// Match:  C:/Users/<user>/.claude/<file>   or   /c/Users/<user>/.claude/<file>
-const re = /^(?:[cC]:\/Users\/([^/]+)\/\.claude\/|\/c\/Users\/([^/]+)\/\.claude\/)([^/]+)$/;
+// Is this anything under C:\Users\*\.claude\ ?
+// Match:  C:/Users/<user>/.claude/<rest>   or   /c/Users/<user>/.claude/<rest>
+const re = /^(?:[cC]:\/Users\/([^/]+)\/\.claude\/|\/c\/Users\/([^/]+)\/\.claude\/)(.+)$/;
 const match = norm.match(re);
 if (!match) exit(0);
 
-const fileName = match[3];
-const MIRRORED = new Set([
+const relPath = match[3]; // e.g. "settings.json" or "commands/reorient.md"
+
+// ROOT files we mirror unconditionally
+const MIRRORED_ROOT = new Set([
   "settings.json",
   "settings.local.json",
   ".mcp.json",
   "CLAUDE.md",
   "keybindings.json",
 ]);
-if (!MIRRORED.has(fileName)) exit(0);
+
+// SUBDIRS we mirror (any file under these paths)
+const MIRRORED_SUBDIRS = [
+  "commands/",   // slash commands / skills
+  "hooks/",      // custom user hooks
+  "agents/",     // custom agents
+  "plugins/",    // plugin configs
+  "skills/",     // skill definitions
+  "rules/",      // rule files
+];
+
+const isRoot = MIRRORED_ROOT.has(relPath);
+const isSubdir = MIRRORED_SUBDIRS.some((p) => relPath.startsWith(p));
+if (!isRoot && !isSubdir) exit(0);
 
 const src = filePath.replace(/\\/g, "/");
-const dst = `H:/.claude/${fileName}`;
+const dst = `H:/.claude/${relPath}`;
+
+// Check if src is a junction/symlink — if so, no mirror needed
+// (writing through a junction lands on the target directly)
+try {
+  const lst = lstatSync(src);
+  if (lst.isSymbolicLink()) exit(0);
+} catch {
+  // Not a problem; continue
+}
+
+// Check if PARENT dir of src is a junction/symlink (common case)
+try {
+  const parent = dirname(src);
+  const parentLst = lstatSync(parent);
+  if (parentLst.isSymbolicLink()) exit(0);
+} catch {
+  // Not a problem; continue
+}
 
 try {
   if (!existsSync(dirname(dst))) {
@@ -87,7 +126,7 @@ try {
     JSON.stringify({
       hookSpecificOutput: {
         hookEventName: "PostToolUse",
-        additionalContext: `[c-to-h-mirror] ${fileName} mirrored C: → H: (H: is canonical master)`,
+        additionalContext: `[c-to-h-mirror] ${relPath} mirrored C: → H: (H: is canonical master)`,
       },
     }),
   );
