@@ -87,6 +87,7 @@ import { ACTION_HM_REV_MS10_SCHEMAS } from "../../schemas/hmRevMs10ActionSchemas
 import { ACTION_POST_PROCESSOR_AI_SCHEMAS } from "../../schemas/postProcessorAIActionSchemas.js";
 import { ACTION_LATHE_SF_SCHEMAS } from "../../schemas/latheSpeedFeedActionSchemas.js";
 import { ACTION_LATHE_POSTGEN_SCHEMAS } from "../../schemas/lathePostgenActionSchemas.js";
+import { ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS } from "../../schemas/latheMasterPostUnifiedOutputActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
   ...ACTION_ADVANCED_SCIENCE_SCHEMAS, ...ACTION_CNC_PROGRAMMING_SCHEMAS,
@@ -140,6 +141,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_POST_PROCESSOR_AI_SCHEMAS,
   ...ACTION_LATHE_SF_SCHEMAS,
   ...ACTION_LATHE_POSTGEN_SCHEMAS,
+  ...ACTION_LATHE_UNIFIED_OUTPUT_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
 import { ACTION_CAMX_MS9_U03_SCHEMAS } from "../../schemas/camxMs9U03ActionSchemas.js";
@@ -880,6 +882,7 @@ export const ACTIONS = [
   "lathe_postgen_validate", "lathe_postgen_test", "lathe_postgen_register",
   "lathe_postgen_feedback", "lathe_postgen_uncertainty", "lathe_postgen_full",
   "lathe_master_post_route", "lathe_master_post_machines", "lathe_master_post_controllers",
+  "lathe_unified_output_header", "lathe_unified_output_footer", "lathe_unified_output_full", "lathe_unified_output_compare",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -996,6 +999,8 @@ export const ACTIONS = [
   "wedm_unit_tag_evaluate", "wedm_unit_tag_gate",
   "wedm_head_clearance_evaluate", "wedm_head_clearance_gate",
   "wedm_flush_adequacy_evaluate", "wedm_flush_adequacy_gate",
+  "wedm_thermal_release_evaluate", "wedm_thermal_release_gate",
+  "wedm_dialect_verify", "wedm_dialect_gate", "wedm_dialect_resolve",
   // Grinding
   "grind_surface_program", "grind_cylindrical_program", "grind_centerless_program", "grind_creepfeed_program", "grind_uncertainty",
   // Laser
@@ -2246,6 +2251,106 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                   family: info?.family ?? "generic",
                 };
               }),
+            };
+            break;
+          }
+
+          case "lathe_unified_output_header": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import(
+              "../../engines/LatheMasterPostUnifiedOutputEngine.js"
+            );
+            const header = LatheMasterPostUnifiedOutputEngine.generateHeader({
+              dialect: params.dialect,
+              metadata: {
+                ...params.metadata,
+                generatedAt: params.metadata.generatedAt ?? new Date().toISOString(),
+                generator: params.metadata.generator ?? "PRISM-LATHE-MASTER-POST",
+                version: params.metadata.version ?? "1.0.0",
+              },
+              includeToolList: params.include_tool_list,
+              includeSetupNotes: params.include_setup_notes,
+              includeChecksum: params.include_checksum,
+              commentStyle: params.comment_style,
+              lineNumberStart: params.line_number_start,
+              lineNumberIncrement: params.line_number_increment,
+            });
+            result = {
+              success: true,
+              header,
+              lineCount: header.length,
+            };
+            break;
+          }
+
+          case "lathe_unified_output_footer": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import(
+              "../../engines/LatheMasterPostUnifiedOutputEngine.js"
+            );
+            const footer = LatheMasterPostUnifiedOutputEngine.generateFooter({
+              dialect: params.dialect,
+              includeStatistics: params.include_statistics,
+              includeReturnToHome: params.include_return_to_home,
+              homePosition: params.home_position,
+              programEndCode: params.program_end_code,
+              commentStyle: params.comment_style,
+            });
+            result = {
+              success: true,
+              footer,
+              lineCount: footer.length,
+            };
+            break;
+          }
+
+          case "lathe_unified_output_full": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import(
+              "../../engines/LatheMasterPostUnifiedOutputEngine.js"
+            );
+            const output = LatheMasterPostUnifiedOutputEngine.generateUnifiedOutput({
+              dialect: params.dialect,
+              metadata: {
+                ...params.metadata,
+                generatedAt: params.metadata.generatedAt ?? new Date().toISOString(),
+                generator: params.metadata.generator ?? "PRISM-LATHE-MASTER-POST",
+                version: params.metadata.version ?? "1.0.0",
+              },
+              includeToolList: params.include_tool_list,
+              includeSetupNotes: params.include_setup_notes,
+              footerConfig: {
+                includeStatistics: params.include_statistics,
+                includeReturnToHome: params.include_return_to_home,
+                programEndCode: params.program_end_code,
+              },
+            });
+            result = {
+              success: true,
+              header: output.header,
+              footer: output.footer,
+              safeStartBlock: output.safeStartBlock,
+              modalResetBlock: output.modalResetBlock,
+              dialectDifferences: output.dialectDifferences,
+              metadata: output.metadata,
+            };
+            break;
+          }
+
+          case "lathe_unified_output_compare": {
+            const { LatheMasterPostUnifiedOutputEngine } = await import(
+              "../../engines/LatheMasterPostUnifiedOutputEngine.js"
+            );
+            const comparison = LatheMasterPostUnifiedOutputEngine.compareOutputs(
+              params.program_a,
+              params.program_b
+            );
+            result = {
+              success: true,
+              identical: comparison.identical,
+              dialectDifferencesOnly: comparison.dialectDifferencesOnly,
+              structuralDifferences: comparison.structuralDifferences,
+              dialectDifferences: comparison.dialectDifferences,
+              headerMatch: comparison.headerMatch,
+              footerMatch: comparison.footerMatch,
+              metadataMatch: comparison.metadataMatch,
             };
             break;
           }
@@ -3579,6 +3684,38 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const { WEDMFlushAdequacyGateEngine } = await import("../../engines/WEDMFlushAdequacyGateEngine.js");
             const eng = new WEDMFlushAdequacyGateEngine();
             result = eng.gate(params);
+            break;
+          }
+          // ── MS-P2.5-SAFETY: WEDMThermalReleaseGateEngine (2 actions) ──
+          case "wedm_thermal_release_evaluate": {
+            const { WEDMThermalReleaseGateEngine } = await import("../../engines/WEDMThermalReleaseGateEngine.js");
+            const eng = new WEDMThermalReleaseGateEngine();
+            result = eng.evaluate(params);
+            break;
+          }
+          case "wedm_thermal_release_gate": {
+            const { WEDMThermalReleaseGateEngine } = await import("../../engines/WEDMThermalReleaseGateEngine.js");
+            const eng = new WEDMThermalReleaseGateEngine();
+            result = eng.gate(params);
+            break;
+          }
+          // ── MS-P2.5-SAFETY: WEDMControllerDialectVerifierEngine (3 actions) ──
+          case "wedm_dialect_verify": {
+            const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
+            const eng = new WEDMControllerDialectVerifierEngine();
+            result = eng.verify(params);
+            break;
+          }
+          case "wedm_dialect_gate": {
+            const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
+            const eng = new WEDMControllerDialectVerifierEngine();
+            result = eng.gate(params);
+            break;
+          }
+          case "wedm_dialect_resolve": {
+            const { WEDMControllerDialectVerifierEngine } = await import("../../engines/WEDMControllerDialectVerifierEngine.js");
+            const eng = new WEDMControllerDialectVerifierEngine();
+            result = { controller: eng.resolveController(params.name || params.controller || "") };
             break;
           }
           // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──
