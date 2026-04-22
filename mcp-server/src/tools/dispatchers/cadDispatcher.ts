@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -45,6 +45,7 @@ async function getEngine(name: string): Promise<any> {
     case "blisk": return _blisk ??= new (await import("../../engines/BliskCADEngine.js")).BliskCADEngine();
     case "cadCorpusOrch": return _cadCorpusOrch ??= (await import("../../engines/CADTrainingCorpusOrchestratorEngine.js")).cadTrainingCorpusOrchestratorEngine;
     case "cadEmbedIndex": return _cadEmbedIndex ??= (await import("../../engines/CADEmbeddingIndexOrchestratorEngine.js")).cadEmbeddingIndexOrchestratorEngine;
+    case "cadPipeline": return _cadPipeline ??= (await import("../../engines/CADTrainingPipelineOrchestratorEngine.js")).cadTrainingPipelineOrchestratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -106,6 +107,8 @@ const ACTIONS = [
   "cad_corpus_orchestrate", "cad_corpus_scan", "cad_corpus_status",
   // CAD Embedding Index Orchestrator (U-CADC18)
   "cad_index_ingest", "cad_index_query", "cad_index_stats", "cad_index_clear", "cad_index_similar",
+  // CAD Training Pipeline Orchestrator (U-CADC19)
+  "cad_pipeline_run", "cad_pipeline_validate", "cad_pipeline_status", "cad_pipeline_clear",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -864,6 +867,31 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("cadEmbedIndex");
             const similar = engine.findSimilar(params?.sourcePath, params?.k ?? 5);
             result = { success: true, results: similar, count: similar.length };
+            break;
+          }
+          // CAD Training Pipeline Orchestrator (U-CADC19)
+          case "cad_pipeline_run": {
+            const engine = await getEngine("cadPipeline");
+            const pipelineResult = engine.run(params);
+            result = { success: true, ...pipelineResult };
+            break;
+          }
+          case "cad_pipeline_validate": {
+            const engine = await getEngine("cadPipeline");
+            const validation = engine.validateIndex(params?.sampleSize ?? 10);
+            result = { success: true, ...validation };
+            break;
+          }
+          case "cad_pipeline_status": {
+            const engine = await getEngine("cadPipeline");
+            const status = engine.status();
+            result = { success: true, ...status };
+            break;
+          }
+          case "cad_pipeline_clear": {
+            const engine = await getEngine("cadPipeline");
+            const clearResult = engine.clear();
+            result = { success: true, ...clearResult };
             break;
           }
           default:
