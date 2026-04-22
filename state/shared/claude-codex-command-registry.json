@@ -1,0 +1,4563 @@
+{
+  "generated_at": "2026-04-14T01:10:12.181Z",
+  "generator": "H:\\PRISM\\scripts\\index\\build-command-bridge.mjs",
+  "sources": {
+    "global_commands": "C:\\Users\\Mark Villanueva\\.claude\\commands",
+    "project_commands": "H:\\PRISM\\.claude\\commands",
+    "project_settings": "H:\\PRISM\\.claude\\settings.json",
+    "project_helpers": "H:\\PRISM\\.claude\\helpers"
+  },
+  "outputs": {
+    "registry": "H:\\PRISM\\state\\shared\\claude-codex-command-registry.json",
+    "bridge_doc": "H:\\PRISM\\state\\shared\\CLAUDE-CODEX-COMMAND-BRIDGE.md"
+  },
+  "overview": {
+    "global_markdown_commands": 0,
+    "project_markdown_commands": 141,
+    "hook_entries": 67,
+    "helper_files": 138,
+    "virtual_commands": 1,
+    "total_file_backed_commands": 141
+  },
+  "commands": [
+    {
+      "id": "project:advisor-strategy",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "advisor-strategy",
+      "slash_command": "/advisor-strategy",
+      "slash_command_guess": "/advisor-strategy",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\advisor-strategy.md",
+      "relative_path": "advisor-strategy.md",
+      "categories": [],
+      "title": "Claude Advisor Strategy — Anthropic `advisor_20260301` Integration",
+      "summary": "Reference for using Anthropic's Advisor Tool (beta, released 2026-04-09) across PRISM slash commands.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:analysis/bottleneck-detect",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/bottleneck-detect",
+      "slash_command": null,
+      "slash_command_guess": "/bottleneck-detect",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\bottleneck-detect.md",
+      "relative_path": "analysis/bottleneck-detect.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "bottleneck detect",
+      "summary": "Analyze performance bottlenecks in swarm operations and suggest optimizations.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/COMMAND_COMPLIANCE_REPORT",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/COMMAND_COMPLIANCE_REPORT",
+      "slash_command": null,
+      "slash_command_guess": "/COMMAND_COMPLIANCE_REPORT",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\COMMAND_COMPLIANCE_REPORT.md",
+      "relative_path": "analysis/COMMAND_COMPLIANCE_REPORT.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "Analysis Commands Compliance Report",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/performance-bottlenecks",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/performance-bottlenecks",
+      "slash_command": null,
+      "slash_command_guess": "/performance-bottlenecks",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\performance-bottlenecks.md",
+      "relative_path": "analysis/performance-bottlenecks.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "Performance Bottleneck Analysis",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/performance-report",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/performance-report",
+      "slash_command": null,
+      "slash_command_guess": "/performance-report",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\performance-report.md",
+      "relative_path": "analysis/performance-report.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "performance-report",
+      "summary": "Generate comprehensive performance reports for swarm operations.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\README.md",
+      "relative_path": "analysis/README.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "Analysis Commands",
+      "summary": "Commands for analysis operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/token-efficiency",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/token-efficiency",
+      "slash_command": null,
+      "slash_command_guess": "/token-efficiency",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\token-efficiency.md",
+      "relative_path": "analysis/token-efficiency.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "Token Usage Optimization",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:analysis/token-usage",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "analysis/token-usage",
+      "slash_command": null,
+      "slash_command_guess": "/token-usage",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\analysis\\token-usage.md",
+      "relative_path": "analysis/token-usage.md",
+      "categories": [
+        "analysis"
+      ],
+      "title": "token-usage",
+      "summary": "Analyze token usage patterns and optimize for efficiency.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:approvals",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "approvals",
+      "slash_command": "/approvals",
+      "slash_command_guess": "/approvals",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\approvals.md",
+      "relative_path": "approvals.md",
+      "categories": [],
+      "title": "/approvals — Approval Workflow Management",
+      "summary": "Query and manage approval workflows for PRISM entities (quotes, POs, invoices, payroll, NCRs, jobs, change orders, credit memos).",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:automation/auto-agent",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/auto-agent",
+      "slash_command": null,
+      "slash_command_guess": "/auto-agent",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\auto-agent.md",
+      "relative_path": "automation/auto-agent.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "auto agent",
+      "summary": "Automatically spawn and manage agents based on task requirements.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\README.md",
+      "relative_path": "automation/README.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "Automation Commands",
+      "summary": "Commands for automation operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/self-healing",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/self-healing",
+      "slash_command": null,
+      "slash_command_guess": "/self-healing",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\self-healing.md",
+      "relative_path": "automation/self-healing.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "Self-Healing Workflows",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/session-memory",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/session-memory",
+      "slash_command": null,
+      "slash_command_guess": "/session-memory",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\session-memory.md",
+      "relative_path": "automation/session-memory.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "Cross-Session Memory",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/smart-agents",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/smart-agents",
+      "slash_command": null,
+      "slash_command_guess": "/smart-agents",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\smart-agents.md",
+      "relative_path": "automation/smart-agents.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "Smart Agent Auto-Spawning",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/smart-spawn",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/smart-spawn",
+      "slash_command": null,
+      "slash_command_guess": "/smart-spawn",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\smart-spawn.md",
+      "relative_path": "automation/smart-spawn.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "smart-spawn",
+      "summary": "Intelligently spawn agents based on workload analysis.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:automation/workflow-select",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "automation/workflow-select",
+      "slash_command": null,
+      "slash_command_guess": "/workflow-select",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\automation\\workflow-select.md",
+      "relative_path": "automation/workflow-select.md",
+      "categories": [
+        "automation"
+      ],
+      "title": "workflow-select",
+      "summary": "Automatically select optimal workflow based on task type.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:batch-optimize",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "batch-optimize",
+      "slash_command": "/batch-optimize",
+      "slash_command_guess": "/batch-optimize",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\batch-optimize.md",
+      "relative_path": "batch-optimize.md",
+      "categories": [],
+      "title": "/batch-optimize — Fleet-Wide Physics Optimization",
+      "summary": "Run Kienzle/Taylor/Brammertz physics optimization on ALL programs in a Box folder. Generates a fleet-wide report showing total time savings, material distribution, and safety findings.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:biz-health",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "biz-health",
+      "slash_command": "/biz-health",
+      "slash_command_guess": "/biz-health",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\biz-health.md",
+      "relative_path": "biz-health.md",
+      "categories": [],
+      "title": "Business Wiring Health Check",
+      "summary": "Check the health of cross-engine business wiring chains.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:chat",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "chat",
+      "slash_command": "/chat",
+      "slash_command_guess": "/chat",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\chat.md",
+      "relative_path": "chat.md",
+      "categories": [],
+      "title": "Shared Agent Chat",
+      "summary": "Post a shared note that both Claude and Codex can see through the PRISM coordination surfaces.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:claude-flow-help",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "claude-flow-help",
+      "slash_command": "/claude-flow-help",
+      "slash_command_guess": "/claude-flow-help",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\claude-flow-help.md",
+      "relative_path": "claude-flow-help.md",
+      "categories": [],
+      "title": "Claude-Flow Commands",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "claude-flow-help",
+        "description": "Show Claude-Flow commands and usage"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:claude-flow-memory",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "claude-flow-memory",
+      "slash_command": "/claude-flow-memory",
+      "slash_command_guess": "/claude-flow-memory",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\claude-flow-memory.md",
+      "relative_path": "claude-flow-memory.md",
+      "categories": [],
+      "title": "🧠 Claude-Flow Memory System",
+      "summary": "The memory system provides persistent storage for cross-session and cross-agent collaboration with CRDT-based conflict resolution.",
+      "frontmatter": {
+        "name": "claude-flow-memory",
+        "description": "Interact with Claude-Flow memory system"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:claude-flow-swarm",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "claude-flow-swarm",
+      "slash_command": "/claude-flow-swarm",
+      "slash_command_guess": "/claude-flow-swarm",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\claude-flow-swarm.md",
+      "relative_path": "claude-flow-swarm.md",
+      "categories": [],
+      "title": "🐝 Claude-Flow Swarm Coordination",
+      "summary": "Advanced multi-agent coordination system with timeout-free execution, distributed memory sharing, and intelligent load balancing.",
+      "frontmatter": {
+        "name": "claude-flow-swarm",
+        "description": "Coordinate multi-agent swarms for complex tasks"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:context-audit",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "context-audit",
+      "slash_command": "/context-audit",
+      "slash_command_guess": "/context-audit",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\context-audit.md",
+      "relative_path": "context-audit.md",
+      "categories": [],
+      "title": "Context Audit — What's Eating Your Context Window",
+      "summary": "Audit the current context window to identify token waste and suggest pruning. This is a read-only diagnostic — it doesn't change anything.",
+      "frontmatter": {
+        "effort": "low",
+        "maxTurns": "5",
+        "model": "haiku",
+        "disallowedTools": ""
+      },
+      "notes": []
+    },
+    {
+      "id": "project:continue-roadmap",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "continue-roadmap",
+      "slash_command": "/continue-roadmap",
+      "slash_command_guess": "/continue-roadmap",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\continue-roadmap.md",
+      "relative_path": "continue-roadmap.md",
+      "categories": [],
+      "title": "continue-roadmap",
+      "summary": "Continue executing a roadmap from its current position.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:de-sloppify",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "de-sloppify",
+      "slash_command": "/de-sloppify",
+      "slash_command_guess": "/de-sloppify",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\de-sloppify.md",
+      "relative_path": "de-sloppify.md",
+      "categories": [],
+      "title": "De-Sloppify — Focused Post-Generation Cleanup",
+      "summary": "A focused cleanup pass that runs AFTER code generation and review. Catches mechanical issues that creative/review agents tend to miss: formatting, naming inconsistencies, import order, dead code, and style drift.",
+      "frontmatter": {
+        "effort": "medium",
+        "maxTurns": "15",
+        "model": "haiku"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:dedup",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "dedup",
+      "slash_command": "/dedup",
+      "slash_command_guess": "/dedup",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\dedup.md",
+      "relative_path": "dedup.md",
+      "categories": [],
+      "title": "Engine Deduplication Scanner",
+      "summary": "Scan the engine registry for duplicate or overlapping engines that should be consolidated.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:desk-search",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "desk-search",
+      "slash_command": "/desk-search",
+      "slash_command_guess": "/desk-search",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\desk-search.md",
+      "relative_path": "desk-search.md",
+      "categories": [],
+      "title": "/desk-search — Role-Based Desks + Global Search",
+      "summary": "Query desk payloads, saved views, pinned entities, recents, and global cross-entity search.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:e2-setup",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "e2-setup",
+      "slash_command": "/e2-setup",
+      "slash_command_guess": "/e2-setup",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\e2-setup.md",
+      "relative_path": "e2-setup.md",
+      "categories": [],
+      "title": "E2 Setup — E2 Shop System Connection Wizard",
+      "summary": "Connect PRISM to your E2 Shop System instance for bidirectional work order sync, tool inventory import, and time tracking feedback.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:erp-health",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "erp-health",
+      "slash_command": "/erp-health",
+      "slash_command_guess": "/erp-health",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\erp-health.md",
+      "relative_path": "erp-health.md",
+      "categories": [],
+      "title": "ERP Persistence Health Check",
+      "summary": "Check the PersistenceBridge health status for all registered business engines.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:forge-engine",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "forge-engine",
+      "slash_command": "/forge-engine",
+      "slash_command_guess": "/forge-engine",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\forge-engine.md",
+      "relative_path": "forge-engine.md",
+      "categories": [],
+      "title": "Forge Engine — Auto-Generate a Fully Wired PRISM Engine",
+      "summary": "Generate all 7 artifacts for a new PRISM engine from a name and description, then wire them.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:forge-triple",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "forge-triple",
+      "slash_command": "/forge-triple",
+      "slash_command_guess": "/forge-triple",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\forge-triple.md",
+      "relative_path": "forge-triple.md",
+      "categories": [],
+      "title": "Forge Triple — Engines + Skills + Hooks Pipeline",
+      "summary": "Run three forge pipelines back-to-back in a single session for maximum system growth.",
+      "frontmatter": {
+        "effort": "high",
+        "maxTurns": "30"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:formula-check",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "formula-check",
+      "slash_command": "/formula-check",
+      "slash_command_guess": "/formula-check",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\formula-check.md",
+      "relative_path": "formula-check.md",
+      "categories": [],
+      "title": "Formula Accuracy Check",
+      "summary": "Run the FormulaValidationEngine to validate all PRISM physics formulas against published reference data.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:generate-roadmap",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "generate-roadmap",
+      "slash_command": "/generate-roadmap",
+      "slash_command_guess": "/generate-roadmap",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\generate-roadmap.md",
+      "relative_path": "generate-roadmap.md",
+      "categories": [],
+      "title": "generate-roadmap",
+      "summary": "Generate a fully-detailed RGS-format roadmap from a brief.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:github/code-review",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/code-review",
+      "slash_command": null,
+      "slash_command_guess": "/code-review",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\code-review.md",
+      "relative_path": "github/code-review.md",
+      "categories": [
+        "github"
+      ],
+      "title": "code-review",
+      "summary": "Automated code review with swarm intelligence.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/code-review-swarm",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/code-review-swarm",
+      "slash_command": null,
+      "slash_command_guess": "/code-review-swarm",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\code-review-swarm.md",
+      "relative_path": "github/code-review-swarm.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Code Review Swarm - Automated Code Review with AI Agents",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/github-modes",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/github-modes",
+      "slash_command": null,
+      "slash_command_guess": "/github-modes",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\github-modes.md",
+      "relative_path": "github/github-modes.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub Integration Modes",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/github-swarm",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/github-swarm",
+      "slash_command": null,
+      "slash_command_guess": "/github-swarm",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\github-swarm.md",
+      "relative_path": "github/github-swarm.md",
+      "categories": [
+        "github"
+      ],
+      "title": "github swarm",
+      "summary": "Create a specialized swarm for GitHub repository management.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/issue-tracker",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/issue-tracker",
+      "slash_command": null,
+      "slash_command_guess": "/issue-tracker",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\issue-tracker.md",
+      "relative_path": "github/issue-tracker.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub Issue Tracker",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/issue-triage",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/issue-triage",
+      "slash_command": null,
+      "slash_command_guess": "/issue-triage",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\issue-triage.md",
+      "relative_path": "github/issue-triage.md",
+      "categories": [
+        "github"
+      ],
+      "title": "issue-triage",
+      "summary": "Intelligent issue classification and triage.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/multi-repo-swarm",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/multi-repo-swarm",
+      "slash_command": null,
+      "slash_command_guess": "/multi-repo-swarm",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\multi-repo-swarm.md",
+      "relative_path": "github/multi-repo-swarm.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Multi-Repo Swarm - Cross-Repository Swarm Orchestration",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/pr-enhance",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/pr-enhance",
+      "slash_command": null,
+      "slash_command_guess": "/pr-enhance",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\pr-enhance.md",
+      "relative_path": "github/pr-enhance.md",
+      "categories": [
+        "github"
+      ],
+      "title": "pr-enhance",
+      "summary": "AI-powered pull request enhancements.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/pr-manager",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/pr-manager",
+      "slash_command": null,
+      "slash_command_guess": "/pr-manager",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\pr-manager.md",
+      "relative_path": "github/pr-manager.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub PR Manager",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/project-board-sync",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/project-board-sync",
+      "slash_command": null,
+      "slash_command_guess": "/project-board-sync",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\project-board-sync.md",
+      "relative_path": "github/project-board-sync.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Project Board Sync - GitHub Projects Integration",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\README.md",
+      "relative_path": "github/README.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Github Commands",
+      "summary": "Commands for github operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/release-manager",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/release-manager",
+      "slash_command": null,
+      "slash_command_guess": "/release-manager",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\release-manager.md",
+      "relative_path": "github/release-manager.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub Release Manager",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/release-swarm",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/release-swarm",
+      "slash_command": null,
+      "slash_command_guess": "/release-swarm",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\release-swarm.md",
+      "relative_path": "github/release-swarm.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Release Swarm - Intelligent Release Automation",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/repo-analyze",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/repo-analyze",
+      "slash_command": null,
+      "slash_command_guess": "/repo-analyze",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\repo-analyze.md",
+      "relative_path": "github/repo-analyze.md",
+      "categories": [
+        "github"
+      ],
+      "title": "repo-analyze",
+      "summary": "Deep analysis of GitHub repository with AI insights.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/repo-architect",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/repo-architect",
+      "slash_command": null,
+      "slash_command_guess": "/repo-architect",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\repo-architect.md",
+      "relative_path": "github/repo-architect.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub Repository Architect",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/swarm-issue",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/swarm-issue",
+      "slash_command": null,
+      "slash_command_guess": "/swarm-issue",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\swarm-issue.md",
+      "relative_path": "github/swarm-issue.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Swarm Issue - Issue-Based Swarm Coordination",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/swarm-pr",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/swarm-pr",
+      "slash_command": null,
+      "slash_command_guess": "/swarm-pr",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\swarm-pr.md",
+      "relative_path": "github/swarm-pr.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Swarm PR - Managing Swarms through Pull Requests",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/sync-coordinator",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/sync-coordinator",
+      "slash_command": null,
+      "slash_command_guess": "/sync-coordinator",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\sync-coordinator.md",
+      "relative_path": "github/sync-coordinator.md",
+      "categories": [
+        "github"
+      ],
+      "title": "GitHub Sync Coordinator",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:github/workflow-automation",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "github/workflow-automation",
+      "slash_command": null,
+      "slash_command_guess": "/workflow-automation",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\github\\workflow-automation.md",
+      "relative_path": "github/workflow-automation.md",
+      "categories": [
+        "github"
+      ],
+      "title": "Workflow Automation - GitHub Actions Integration",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/overview",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/overview",
+      "slash_command": null,
+      "slash_command_guess": "/overview",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\overview.md",
+      "relative_path": "hooks/overview.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "Claude Code Hooks for claude-flow",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/post-edit",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/post-edit",
+      "slash_command": null,
+      "slash_command_guess": "/post-edit",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\post-edit.md",
+      "relative_path": "hooks/post-edit.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "hook post-edit",
+      "summary": "Execute post-edit processing including formatting, validation, and memory updates.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/post-task",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/post-task",
+      "slash_command": null,
+      "slash_command_guess": "/post-task",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\post-task.md",
+      "relative_path": "hooks/post-task.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "hook post-task",
+      "summary": "Execute post-task cleanup, performance analysis, and memory storage.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/pre-edit",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/pre-edit",
+      "slash_command": null,
+      "slash_command_guess": "/pre-edit",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\pre-edit.md",
+      "relative_path": "hooks/pre-edit.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "hook pre-edit",
+      "summary": "Execute pre-edit validations and agent assignment before file modifications.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/pre-task",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/pre-task",
+      "slash_command": null,
+      "slash_command_guess": "/pre-task",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\pre-task.md",
+      "relative_path": "hooks/pre-task.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "hook pre-task",
+      "summary": "Execute pre-task preparations and context loading.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\README.md",
+      "relative_path": "hooks/README.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "Hooks Commands",
+      "summary": "Commands for hooks operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/session-end",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/session-end",
+      "slash_command": null,
+      "slash_command_guess": "/session-end",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\session-end.md",
+      "relative_path": "hooks/session-end.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "hook session-end",
+      "summary": "Cleanup and persist session state before ending work.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:hooks/setup",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "hooks/setup",
+      "slash_command": null,
+      "slash_command_guess": "/setup",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\hooks\\setup.md",
+      "relative_path": "hooks/setup.md",
+      "categories": [
+        "hooks"
+      ],
+      "title": "Setting Up ruv-swarm Hooks",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:ingest",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "ingest",
+      "slash_command": "/ingest",
+      "slash_command_guess": "/ingest",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\ingest.md",
+      "relative_path": "ingest.md",
+      "categories": [],
+      "title": "/ingest — Shop Data Ingestion Pipeline",
+      "summary": "You are running the PRISM data ingestion pipeline for JM Die Company.",
+      "frontmatter": {
+        "description": "\"Scan JM Die source roots and ingest files into PRISM. Scans for new/changed CNC programs, prints, CAD files, spreadsheets, and routes each to the right engine.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_data\", \"Bash\", \"Read\", \"Grep\", \"Glob\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:job-cost",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "job-cost",
+      "slash_command": "/job-cost",
+      "slash_command_guess": "/job-cost",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\job-cost.md",
+      "relative_path": "job-cost.md",
+      "categories": [],
+      "title": "Job Cost Estimator",
+      "summary": "Estimate complete job costs using PRISM's JobCostingEngine with shop-configured rates.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:machine-harden",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "machine-harden",
+      "slash_command": "/machine-harden",
+      "slash_command_guess": "/machine-harden",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\machine-harden.md",
+      "relative_path": "machine-harden.md",
+      "categories": [],
+      "title": "Machine Harden — Machine Database Hardening Pipeline",
+      "summary": "Audit, enrich, and validate the 910-machine database.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:macro-convert",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "macro-convert",
+      "slash_command": "/macro-convert",
+      "slash_command_guess": "/macro-convert",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\macro-convert.md",
+      "relative_path": "macro-convert.md",
+      "categories": [],
+      "title": "/macro-convert — Convert Hardcoded Programs to Parametric Macros",
+      "summary": "Convert any hardcoded Okuma program to a parametric macro with V variables for stock size, drill sizes, boring bar sizes, and auto-calculated speeds/feeds.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:material-stock",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "material-stock",
+      "slash_command": "/material-stock",
+      "slash_command_guess": "/material-stock",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\material-stock.md",
+      "relative_path": "material-stock.md",
+      "categories": [],
+      "title": "/material-stock — Material Stock & Inventory Management",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"View and manage material inventory — stock levels, reorder alerts, ISO group lookup, and JM Die seeding.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_data\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:monitoring/agent-metrics",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/agent-metrics",
+      "slash_command": null,
+      "slash_command_guess": "/agent-metrics",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\agent-metrics.md",
+      "relative_path": "monitoring/agent-metrics.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "agent-metrics",
+      "summary": "View agent performance metrics.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:monitoring/agents",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/agents",
+      "slash_command": null,
+      "slash_command_guess": "/agents",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\agents.md",
+      "relative_path": "monitoring/agents.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "List Active Patterns",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:monitoring/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\README.md",
+      "relative_path": "monitoring/README.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "Monitoring Commands",
+      "summary": "Commands for monitoring operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:monitoring/real-time-view",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/real-time-view",
+      "slash_command": null,
+      "slash_command_guess": "/real-time-view",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\real-time-view.md",
+      "relative_path": "monitoring/real-time-view.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "real-time-view",
+      "summary": "Real-time view of swarm activity.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:monitoring/status",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/status",
+      "slash_command": null,
+      "slash_command_guess": "/status",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\status.md",
+      "relative_path": "monitoring/status.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "Check Coordination Status",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:monitoring/swarm-monitor",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "monitoring/swarm-monitor",
+      "slash_command": null,
+      "slash_command_guess": "/swarm-monitor",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\monitoring\\swarm-monitor.md",
+      "relative_path": "monitoring/swarm-monitor.md",
+      "categories": [
+        "monitoring"
+      ],
+      "title": "swarm-monitor",
+      "summary": "Real-time swarm monitoring.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:my-presets",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "my-presets",
+      "slash_command": "/my-presets",
+      "slash_command_guess": "/my-presets",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\my-presets.md",
+      "relative_path": "my-presets.md",
+      "categories": [],
+      "title": "/my-presets — Preset Library & Learning Progression",
+      "summary": "Manage speed/feed presets, toolpath presets, fixture setups, and course-based learning progression.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:my-shop",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "my-shop",
+      "slash_command": "/my-shop",
+      "slash_command_guess": "/my-shop",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\my-shop.md",
+      "relative_path": "my-shop.md",
+      "categories": [],
+      "title": "/my-shop — My Shop Dashboard",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"View My Shop dashboard — data completeness, domain counts, and recommended actions to populate your shop profile.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_data\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:optimization/auto-topology",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/auto-topology",
+      "slash_command": null,
+      "slash_command_guess": "/auto-topology",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\auto-topology.md",
+      "relative_path": "optimization/auto-topology.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "Automatic Topology Selection",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:optimization/cache-manage",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/cache-manage",
+      "slash_command": null,
+      "slash_command_guess": "/cache-manage",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\cache-manage.md",
+      "relative_path": "optimization/cache-manage.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "cache-manage",
+      "summary": "Manage operation cache for performance.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:optimization/parallel-execute",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/parallel-execute",
+      "slash_command": null,
+      "slash_command_guess": "/parallel-execute",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\parallel-execute.md",
+      "relative_path": "optimization/parallel-execute.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "parallel-execute",
+      "summary": "Execute tasks in parallel for maximum efficiency.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:optimization/parallel-execution",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/parallel-execution",
+      "slash_command": null,
+      "slash_command_guess": "/parallel-execution",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\parallel-execution.md",
+      "relative_path": "optimization/parallel-execution.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "Parallel Task Execution",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:optimization/README",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/README",
+      "slash_command": null,
+      "slash_command_guess": "/README",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\README.md",
+      "relative_path": "optimization/README.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "Optimization Commands",
+      "summary": "Commands for optimization operations in Claude Flow.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:optimization/topology-optimize",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "optimization/topology-optimize",
+      "slash_command": null,
+      "slash_command_guess": "/topology-optimize",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\optimization\\topology-optimize.md",
+      "relative_path": "optimization/topology-optimize.md",
+      "categories": [
+        "optimization"
+      ],
+      "title": "topology-optimize",
+      "summary": "Optimize swarm topology for current workload.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:order-status",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "order-status",
+      "slash_command": "/order-status",
+      "slash_command_guess": "/order-status",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\order-status.md",
+      "relative_path": "order-status.md",
+      "categories": [],
+      "title": "/order-status — Customer Portal & Milestone Tracking",
+      "summary": "Track customer orders through 14 milestones, manage portal access tokens, quality documents, and customer messaging.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:page-sweep",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "page-sweep",
+      "slash_command": "/page-sweep",
+      "slash_command_guess": "/page-sweep",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\page-sweep.md",
+      "relative_path": "page-sweep.md",
+      "categories": [],
+      "title": "/page-sweep - APPW Browser Verification Sweep",
+      "summary": "Run the shared APPW browser-backed verification suites and write a durable report for the canonical web app.",
+      "frontmatter": {
+        "effort": "medium",
+        "maxTurns": "10"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:pdf-process",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "pdf-process",
+      "slash_command": "/pdf-process",
+      "slash_command_guess": "/pdf-process",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\pdf-process.md",
+      "relative_path": "pdf-process.md",
+      "categories": [],
+      "title": "PDF Process — PDF Extraction Pipeline",
+      "summary": "Classify, extract, and normalize manufacturing knowledge from PDFs across PRISM locations.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:pp-resolve",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "pp-resolve",
+      "slash_command": "/pp-resolve",
+      "slash_command_guess": "/pp-resolve",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\pp-resolve.md",
+      "relative_path": "pp-resolve.md",
+      "categories": [],
+      "title": "/pp-resolve — Resolve Machine + Material + Tool from Catalogs",
+      "summary": "Resolve machine, material, and tool context from PRISM's registries and show the resolved parameters that PostProcessor will use.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:precompact",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "precompact",
+      "slash_command": "/precompact",
+      "slash_command_guess": "/precompact",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\precompact.md",
+      "relative_path": "precompact.md",
+      "categories": [],
+      "title": "Pre-Compact — Session Continuation Handoff",
+      "summary": "You are about to prepare for `/compact`. This is the LAST thing you do before the user runs the real `/compact` command. Your job is to capture everything needed so the next session can seamlessly continue.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:prints",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "prints",
+      "slash_command": "/prints",
+      "slash_command_guess": "/prints",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\prints.md",
+      "relative_path": "prints.md",
+      "categories": [],
+      "title": "/prints — Print & Drawing Library Management",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"Manage engineering prints/drawings, search by part number or customer, view revision history, and track print library stats.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_doc\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:process-docs",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "process-docs",
+      "slash_command": "/process-docs",
+      "slash_command_guess": "/process-docs",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\process-docs.md",
+      "relative_path": "process-docs.md",
+      "categories": [],
+      "title": "/process-docs — Business Document Extraction Pipeline",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"Extract structured data from POs, invoices, and RFQs. Auto-classify documents, review pending extractions, and approve or reject.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_data\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:program-audit",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "program-audit",
+      "slash_command": "/program-audit",
+      "slash_command_guess": "/program-audit",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\program-audit.md",
+      "relative_path": "program-audit.md",
+      "categories": [],
+      "title": "/program-audit — Full CNC Program Audit Pipeline",
+      "summary": "Run a complete audit on any CNC program from the Box drive: parse → identify material/tools → physics optimization → safety check → comparison report.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:program-optimize",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "program-optimize",
+      "slash_command": "/program-optimize",
+      "slash_command_guess": "/program-optimize",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\program-optimize.md",
+      "relative_path": "program-optimize.md",
+      "categories": [],
+      "title": "/program-optimize — Re-run Per-Block Physics on G-code",
+      "summary": "Re-run per-block physics optimization on existing G-code. Returns optimized program with variable S/F per block.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:quote-to-ship",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "quote-to-ship",
+      "slash_command": "/quote-to-ship",
+      "slash_command_guess": "/quote-to-ship",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\quote-to-ship.md",
+      "relative_path": "quote-to-ship.md",
+      "categories": [],
+      "title": "Quote-to-Ship Pipeline",
+      "summary": "Run the 21-stage QuoteToShip pipeline from blueprint intake through shipping.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:resource-census",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "resource-census",
+      "slash_command": "/resource-census",
+      "slash_command_guess": "/resource-census",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\resource-census.md",
+      "relative_path": "resource-census.md",
+      "categories": [],
+      "title": "Resource Census — Inventory All Resources Across PRISM Locations",
+      "summary": "Scan and categorize all manufacturing resources (PDFs, videos, CAD models, catalogs, data files) across 3 filesystem locations.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:rgs",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "rgs",
+      "slash_command": "/rgs",
+      "slash_command_guess": "/rgs",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\rgs.md",
+      "relative_path": "rgs.md",
+      "categories": [],
+      "title": "RGS — Roadmap Generation System",
+      "summary": "You are the unified entry point for the PRISM Roadmap Generation System. Based on the arguments, route to the appropriate RGS operation.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:rgs-sync",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "rgs-sync",
+      "slash_command": "/rgs-sync",
+      "slash_command_guess": "/rgs-sync",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\rgs-sync.md",
+      "relative_path": "rgs-sync.md",
+      "categories": [],
+      "title": "Shared RGS Sync",
+      "summary": "Use this command when Claude or Codex needs to align on roadmap sequencing, execution gating, or the readiness to begin the next SVI-maximization roadmap pass.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:scrutinize",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "scrutinize",
+      "slash_command": "/scrutinize",
+      "slash_command_guess": "/scrutinize",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\scrutinize.md",
+      "relative_path": "scrutinize.md",
+      "categories": [],
+      "title": "scrutinize",
+      "summary": "Run scrutinization on a roadmap file.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:self-improve",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "self-improve",
+      "slash_command": "/self-improve",
+      "slash_command_guess": "/self-improve",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\self-improve.md",
+      "relative_path": "self-improve.md",
+      "categories": [],
+      "title": "Self-Improvement Pattern Scanner",
+      "summary": "Run the SelfImprovementPatternEngine to detect recurring patterns worth automating.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:shop-knowledge",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "shop-knowledge",
+      "slash_command": "/shop-knowledge",
+      "slash_command_guess": "/shop-knowledge",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\shop-knowledge.md",
+      "relative_path": "shop-knowledge.md",
+      "categories": [],
+      "title": "/shop-knowledge — Query Shop-Specific Knowledge from Box Programs",
+      "summary": "Query the knowledge mined from 2000+ Box drive programs. Get shop patterns for speeds/feeds, tool station layouts, operation sequences, safety practices, and Okuma dialect specifics.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:shop-live-status",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "shop-live-status",
+      "slash_command": "/shop-live-status",
+      "slash_command_guess": "/shop-live-status",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\shop-live-status.md",
+      "relative_path": "shop-live-status.md",
+      "categories": [],
+      "title": "/shop-live-status — Live Shop Floor Status",
+      "summary": "Inspect canonical shop contracts, active jobs, labor sessions, and WebSocket room health.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:shop-schedule",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "shop-schedule",
+      "slash_command": "/shop-schedule",
+      "slash_command_guess": "/shop-schedule",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\shop-schedule.md",
+      "relative_path": "shop-schedule.md",
+      "categories": [],
+      "title": "Shop Schedule",
+      "summary": "Schedule jobs across machines using PRISM's ShopSchedulerEngine with registry-backed machine capabilities.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:shop-setup",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "shop-setup",
+      "slash_command": "/shop-setup",
+      "slash_command_guess": "/shop-setup",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\shop-setup.md",
+      "relative_path": "shop-setup.md",
+      "categories": [],
+      "title": "Shop Setup Wizard",
+      "summary": "Configure shop-wide rates, machines, and overhead for accurate costing across all PRISM engines.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:smart",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "smart",
+      "slash_command": "/smart",
+      "slash_command_guess": "/smart",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\smart.md",
+      "relative_path": "smart.md",
+      "categories": [],
+      "title": "smart",
+      "summary": "You are about to execute a prompt with intelligent auto-configuration. Follow this protocol exactly.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:sparc/analyzer",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/analyzer",
+      "slash_command": null,
+      "slash_command_guess": "/analyzer",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\analyzer.md",
+      "relative_path": "sparc/analyzer.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Analyzer Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/architect",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/architect",
+      "slash_command": null,
+      "slash_command_guess": "/architect",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\architect.md",
+      "relative_path": "sparc/architect.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Architect Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/ask",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/ask",
+      "slash_command": null,
+      "slash_command_guess": "/ask",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\ask.md",
+      "relative_path": "sparc/ask.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "❓Ask",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-ask",
+        "description": "❓Ask - You are a task-formulation guide that helps users navigate, ask, and delegate tasks to the correc..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/batch-executor",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/batch-executor",
+      "slash_command": null,
+      "slash_command_guess": "/batch-executor",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\batch-executor.md",
+      "relative_path": "sparc/batch-executor.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Batch Executor Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/code",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/code",
+      "slash_command": null,
+      "slash_command_guess": "/code",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\code.md",
+      "relative_path": "sparc/code.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🧠 Auto-Coder",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-code",
+        "description": "🧠 Auto-Coder - You write clean, efficient, modular code based on pseudocode and architecture. You use configurat..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/coder",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/coder",
+      "slash_command": null,
+      "slash_command_guess": "/coder",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\coder.md",
+      "relative_path": "sparc/coder.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Coder Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/debug",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/debug",
+      "slash_command": null,
+      "slash_command_guess": "/debug",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\debug.md",
+      "relative_path": "sparc/debug.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🪲 Debugger",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-debug",
+        "description": "🪲 Debugger - You troubleshoot runtime bugs, logic errors, or integration failures by tracing, inspecting, and ..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/debugger",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/debugger",
+      "slash_command": null,
+      "slash_command_guess": "/debugger",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\debugger.md",
+      "relative_path": "sparc/debugger.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Debugger Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/designer",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/designer",
+      "slash_command": null,
+      "slash_command_guess": "/designer",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\designer.md",
+      "relative_path": "sparc/designer.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Designer Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/devops",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/devops",
+      "slash_command": null,
+      "slash_command_guess": "/devops",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\devops.md",
+      "relative_path": "sparc/devops.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🚀 DevOps",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-devops",
+        "description": "🚀 DevOps - You are the DevOps automation and infrastructure specialist responsible for deploying, managing, ..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/docs-writer",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/docs-writer",
+      "slash_command": null,
+      "slash_command_guess": "/docs-writer",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\docs-writer.md",
+      "relative_path": "sparc/docs-writer.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "📚 Documentation Writer",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-docs-writer",
+        "description": "📚 Documentation Writer - You write concise, clear, and modular Markdown documentation that explains usage, integration, se..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/documenter",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/documenter",
+      "slash_command": null,
+      "slash_command_guess": "/documenter",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\documenter.md",
+      "relative_path": "sparc/documenter.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Documenter Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/innovator",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/innovator",
+      "slash_command": null,
+      "slash_command_guess": "/innovator",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\innovator.md",
+      "relative_path": "sparc/innovator.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Innovator Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/integration",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/integration",
+      "slash_command": null,
+      "slash_command_guess": "/integration",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\integration.md",
+      "relative_path": "sparc/integration.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🔗 System Integrator",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-integration",
+        "description": "🔗 System Integrator - You merge the outputs of all modes into a working, tested, production-ready system. You ensure co..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/mcp",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/mcp",
+      "slash_command": null,
+      "slash_command_guess": "/mcp",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\mcp.md",
+      "relative_path": "sparc/mcp.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "♾️ MCP Integration",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-mcp",
+        "description": "♾️ MCP Integration - You are the MCP (Management Control Panel) integration specialist responsible for connecting to a..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/memory-manager",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/memory-manager",
+      "slash_command": null,
+      "slash_command_guess": "/memory-manager",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\memory-manager.md",
+      "relative_path": "sparc/memory-manager.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Memory Manager Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/optimizer",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/optimizer",
+      "slash_command": null,
+      "slash_command_guess": "/optimizer",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\optimizer.md",
+      "relative_path": "sparc/optimizer.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Optimizer Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/orchestrator",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/orchestrator",
+      "slash_command": null,
+      "slash_command_guess": "/orchestrator",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\orchestrator.md",
+      "relative_path": "sparc/orchestrator.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Orchestrator Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/post-deployment-monitoring-mode",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/post-deployment-monitoring-mode",
+      "slash_command": null,
+      "slash_command_guess": "/post-deployment-monitoring-mode",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\post-deployment-monitoring-mode.md",
+      "relative_path": "sparc/post-deployment-monitoring-mode.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "📈 Deployment Monitor",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-post-deployment-monitoring-mode",
+        "description": "📈 Deployment Monitor - You observe the system post-launch, collecting performance, logs, and user feedback. You flag reg..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/refinement-optimization-mode",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/refinement-optimization-mode",
+      "slash_command": null,
+      "slash_command_guess": "/refinement-optimization-mode",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\refinement-optimization-mode.md",
+      "relative_path": "sparc/refinement-optimization-mode.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🧹 Optimizer",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-refinement-optimization-mode",
+        "description": "🧹 Optimizer - You refactor, modularize, and improve system performance. You enforce file size limits, dependenc..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/researcher",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/researcher",
+      "slash_command": null,
+      "slash_command_guess": "/researcher",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\researcher.md",
+      "relative_path": "sparc/researcher.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Researcher Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/reviewer",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/reviewer",
+      "slash_command": null,
+      "slash_command_guess": "/reviewer",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\reviewer.md",
+      "relative_path": "sparc/reviewer.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Reviewer Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/security-review",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/security-review",
+      "slash_command": null,
+      "slash_command_guess": "/security-review",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\security-review.md",
+      "relative_path": "sparc/security-review.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🛡️ Security Reviewer",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-security-review",
+        "description": "🛡️ Security Reviewer - You perform static and dynamic audits to ensure secure code practices. You flag secrets, poor mod..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/sparc",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/sparc",
+      "slash_command": null,
+      "slash_command_guess": "/sparc",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\sparc.md",
+      "relative_path": "sparc/sparc.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "⚡️ SPARC Orchestrator",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-sparc",
+        "description": "⚡️ SPARC Orchestrator - You are SPARC, the orchestrator of complex workflows. You break down large objectives into delega..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/sparc-modes",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/sparc-modes",
+      "slash_command": null,
+      "slash_command_guess": "/sparc-modes",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\sparc-modes.md",
+      "relative_path": "sparc/sparc-modes.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Modes Overview",
+      "summary": "SPARC (Specification, Planning, Architecture, Review, Code) is a comprehensive development methodology with 17 specialized modes, all integrated with MCP tools for enhanced coordination and execution.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/spec-pseudocode",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/spec-pseudocode",
+      "slash_command": null,
+      "slash_command_guess": "/spec-pseudocode",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\spec-pseudocode.md",
+      "relative_path": "sparc/spec-pseudocode.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "📋 Specification Writer",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-spec-pseudocode",
+        "description": "📋 Specification Writer - You capture full project context—functional requirements, edge cases, constraints—and translate t..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/supabase-admin",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/supabase-admin",
+      "slash_command": null,
+      "slash_command_guess": "/supabase-admin",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\supabase-admin.md",
+      "relative_path": "sparc/supabase-admin.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "🔐 Supabase Admin",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-supabase-admin",
+        "description": "🔐 Supabase Admin - You are the Supabase database, authentication, and storage specialist. You design and implement d..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/swarm-coordinator",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/swarm-coordinator",
+      "slash_command": null,
+      "slash_command_guess": "/swarm-coordinator",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\swarm-coordinator.md",
+      "relative_path": "sparc/swarm-coordinator.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Swarm Coordinator Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/tdd",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/tdd",
+      "slash_command": null,
+      "slash_command_guess": "/tdd",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\tdd.md",
+      "relative_path": "sparc/tdd.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC TDD Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/tester",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/tester",
+      "slash_command": null,
+      "slash_command_guess": "/tester",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\tester.md",
+      "relative_path": "sparc/tester.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Tester Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/tutorial",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/tutorial",
+      "slash_command": null,
+      "slash_command_guess": "/tutorial",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\tutorial.md",
+      "relative_path": "sparc/tutorial.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "📘 SPARC Tutorial",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "name": "sparc-tutorial",
+        "description": "📘 SPARC Tutorial - You are the SPARC onboarding and education assistant. Your job is to guide users through the full..."
+      },
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:sparc/workflow-manager",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "sparc/workflow-manager",
+      "slash_command": null,
+      "slash_command_guess": "/workflow-manager",
+      "invocation_kind": "pack_member",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\sparc\\workflow-manager.md",
+      "relative_path": "sparc/workflow-manager.md",
+      "categories": [
+        "sparc"
+      ],
+      "title": "SPARC Workflow Manager Mode",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {},
+      "notes": [
+        "This file lives inside a repo command pack. The exact Claude slash alias may depend on pack routing, so use the relative path and file contents as the canonical spec."
+      ]
+    },
+    {
+      "id": "project:startup",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "startup",
+      "slash_command": "/startup",
+      "slash_command_guess": "/startup",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\startup.md",
+      "relative_path": "startup.md",
+      "categories": [],
+      "title": "Session Startup Macro",
+      "summary": "You are initializing a PRISM development session. Run through this checklist to establish context, detect issues, and present the work surface. Execute all steps — do not ask questions until the summary is ready.",
+      "frontmatter": {
+        "effort": "high",
+        "maxTurns": "25"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:timeline",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "timeline",
+      "slash_command": "/timeline",
+      "slash_command_guess": "/timeline",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\timeline.md",
+      "relative_path": "timeline.md",
+      "categories": [],
+      "title": "/timeline — Entity Timeline & Comments",
+      "summary": "View the activity timeline and manage comments for any PRISM entity (jobs, quotes, POs, invoices, NCRs, etc.).",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:tooling",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "tooling",
+      "slash_command": "/tooling",
+      "slash_command_guess": "/tooling",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\tooling.md",
+      "relative_path": "tooling.md",
+      "categories": [],
+      "title": "/tooling — Tool Holder & Tooling Inventory Management",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"Manage tool holder inventory, search by taper/machine/brand, check stock levels, and get reorder alerts.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_data\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:traveler",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "traveler",
+      "slash_command": "/traveler",
+      "slash_command_guess": "/traveler",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\traveler.md",
+      "relative_path": "traveler.md",
+      "categories": [],
+      "title": "/traveler — Job Traveler & Machine Dispatch",
+      "summary": "Manage E2-style job travelers with ordered routing steps, dual time tracking (setup + cycle), QR scan, and machine dispatch queues.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:vendor",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "vendor",
+      "slash_command": "/vendor",
+      "slash_command_guess": "/vendor",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\vendor.md",
+      "relative_path": "vendor.md",
+      "categories": [],
+      "title": "/vendor — Vendor & Supply Chain Management",
+      "summary": "No summary extracted. Read the command file directly before mirroring it.",
+      "frontmatter": {
+        "description": "\"Manage vendors, view scorecards, map supply chain, track brand preferences, and assess supply risk for JM Die.\"",
+        "model": "sonnet",
+        "effort": "high",
+        "allowed-tools": "[\"mcp__prism__prism_business\", \"Bash\", \"Read\"]"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:verify-loop",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "verify-loop",
+      "slash_command": "/verify-loop",
+      "slash_command_guess": "/verify-loop",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\verify-loop.md",
+      "relative_path": "verify-loop.md",
+      "categories": [],
+      "title": "Verify Loop — Build + Test + Review Pipeline",
+      "summary": "Run the full verification pipeline: build check, test run, and optional review. Ensures code is correct, tested, and reviewed before proceeding.",
+      "frontmatter": {
+        "effort": "high",
+        "maxTurns": "20"
+      },
+      "notes": []
+    },
+    {
+      "id": "project:wedm-batch",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "wedm-batch",
+      "slash_command": "/wedm-batch",
+      "slash_command_guess": "/wedm-batch",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\wedm-batch.md",
+      "relative_path": "wedm-batch.md",
+      "categories": [],
+      "title": "/wedm-batch — Wire EDM Batch Operations",
+      "summary": "Run batch validation, generation, or testing across the WEDM material×thickness×wire×dialect matrix.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:wedm-program",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "wedm-program",
+      "slash_command": "/wedm-program",
+      "slash_command_guess": "/wedm-program",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\wedm-program.md",
+      "relative_path": "wedm-program.md",
+      "categories": [],
+      "title": "/wedm-program — Physics-Optimized Wire EDM Program Generator",
+      "summary": "Generate a complete, production-ready Wire EDM NC program with physics-derived parameters, per-pass optimization, and full traceability.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:wire-edm-analyze",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "wire-edm-analyze",
+      "slash_command": "/wire-edm-analyze",
+      "slash_command_guess": "/wire-edm-analyze",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\wire-edm-analyze.md",
+      "relative_path": "wire-edm-analyze.md",
+      "categories": [],
+      "title": "/wire-edm-analyze — Wire EDM Deep Analysis",
+      "summary": "Run full surface integrity, recast layer, fatigue, and compliance analysis on a Wire EDM job.",
+      "frontmatter": {},
+      "notes": []
+    },
+    {
+      "id": "project:wire-edm-studio",
+      "source_scope": "project",
+      "execution_kind": "markdown_macro",
+      "command_key": "wire-edm-studio",
+      "slash_command": "/wire-edm-studio",
+      "slash_command_guess": "/wire-edm-studio",
+      "invocation_kind": "slash_command",
+      "mirror_strategy": "read_markdown_spec",
+      "supports_codex_mirroring": true,
+      "path": "H:\\PRISM\\.claude\\commands\\wire-edm-studio.md",
+      "relative_path": "wire-edm-studio.md",
+      "categories": [],
+      "title": "/wire-edm-studio — Wire EDM Studio Pipeline",
+      "summary": "Launch the Wire EDM Studio wizard — full pipeline from DXF/contour to optimized G-code with per-pass discharge energy, surface integrity analysis, and stochastic uncertainty.",
+      "frontmatter": {},
+      "notes": []
+    }
+  ],
+  "virtual_commands": [
+    {
+      "id": "virtual:compact",
+      "slash_command": "/compact",
+      "source_scope": "project_hooks",
+      "execution_kind": "hook_pipeline",
+      "mirror_strategy": "follow_hook_pipeline",
+      "supports_codex_mirroring": true,
+      "summary": "Hook-backed compaction pipeline that snapshots critical state before compaction and restores recovery context on the next compact-aware session start.",
+      "stages": [
+        {
+          "event": "SessionStart",
+          "matcher": "compact",
+          "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs sync-from-git 2>/dev/null || true",
+          "timeout_ms": 5000,
+          "async": false,
+          "continue_on_error": true
+        },
+        {
+          "event": "SessionStart",
+          "matcher": "compact",
+          "command": "node H:/prism/.claude/helpers/compact-restore.mjs",
+          "timeout_ms": 3000,
+          "async": false,
+          "continue_on_error": true
+        },
+        {
+          "event": "Stop",
+          "matcher": null,
+          "command": "node H:/prism/.claude/helpers/compaction-survival.mjs",
+          "timeout_ms": 5000,
+          "async": false,
+          "continue_on_error": true
+        },
+        {
+          "event": "PreCompact",
+          "matcher": null,
+          "command": "node H:/prism/.claude/helpers/pre-compact.mjs",
+          "timeout_ms": 5000,
+          "async": false,
+          "continue_on_error": true
+        }
+      ],
+      "helper_refs": [],
+      "artifact_refs": [],
+      "notes": [
+        "Codex can mirror the behavior by consulting the helper scripts and survival artifact, but cannot invoke Claude's slash-command runtime directly."
+      ]
+    }
+  ],
+  "hook_entries": [
+    {
+      "id": "PreToolUse:0:0",
+      "event": "PreToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/file-protect.sh \"$TOOL_INPUT_file_path\" 2>/dev/null",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": false,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:0:1",
+      "event": "PreToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "echo \"$TOOL_INPUT_file_path\" | grep -q '\\.ts$' && echo \"$TOOL_INPUT_file_path\" | grep -q 'mcp-server/src/' && ! echo \"$TOOL_INPUT_file_path\" | grep -q '\\.test\\.' && ! echo \"$TOOL_INPUT_file_path\" | grep -q '\\.spec\\.' && echo '{\"additionalContext\": \"TS QUALITY REMINDER: Ensure no console.log in production code, no \\\"any\\\" types, use import (not require), use execFileNoThrow (not exec) for shell commands, handle async errors.\"}' || true",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:0:2",
+      "event": "PreToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/review-gate.sh 2>/dev/null",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": false,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:1:0",
+      "event": "PreToolUse",
+      "matcher": "^Bash$",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/bash-intercept.sh \"$TOOL_INPUT_command\" 2>/dev/null",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": false,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:1:1",
+      "event": "PreToolUse",
+      "matcher": "^Bash$",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/completion-gate.sh 2>/dev/null || true",
+      "timeout_ms": 8000,
+      "async": false,
+      "continue_on_error": false,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:2:0",
+      "event": "PreToolUse",
+      "matcher": "^Task$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/task-context-injector.mjs",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:3:0",
+      "event": "PreToolUse",
+      "matcher": "^Read$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/read-optimizer.mjs",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:4:0",
+      "event": "PreToolUse",
+      "matcher": "^(Glob|Grep)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/search-optimizer.mjs",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:5:0",
+      "event": "PreToolUse",
+      "matcher": "^WebFetch$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/web-cache.mjs",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:6:0",
+      "event": "PreToolUse",
+      "matcher": "^mcp__prism",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/mcp-pretool-injector.mjs",
+      "timeout_ms": 1500,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:7:0",
+      "event": "PreToolUse",
+      "matcher": "^Agent$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/subagent-context.mjs",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreToolUse:8:0",
+      "event": "PreToolUse",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/context-aware-inject.mjs",
+      "timeout_ms": 1500,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:0:0",
+      "event": "PostToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "fp=\"$TOOL_INPUT_file_path\"; echo \"$fp\" | grep -q 'mcp-server/src/' && rm -f /tmp/prism-build-cache /tmp/prism-test-cache /tmp/prism-tsc-cache 2>/dev/null; echo \"$fp\" | grep -q '\\.test\\.' && rm -f /tmp/prism-test-cache 2>/dev/null; true",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:0:1",
+      "event": "PostToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/build-cache-manager.mjs",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:0:2",
+      "event": "PostToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/test-quality-gate.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": false,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:1:0",
+      "event": "PostToolUse",
+      "matcher": "^(Write|Edit|MultiEdit)$",
+      "type": "command",
+      "command": "echo \"$TOOL_INPUT_file_path\" | grep -qE '(schema|Schema|types|Types|interface)' && node H:/prism/.claude/helpers/schema-drift-detector.mjs || true",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:2:0",
+      "event": "PostToolUse",
+      "matcher": "^Bash$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/session-breadcrumb.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:2:1",
+      "event": "PostToolUse",
+      "matcher": "^Bash$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/cache-writer.mjs",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:2:2",
+      "event": "PostToolUse",
+      "matcher": "^Bash$",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/review-complete.sh 2>/dev/null || true",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:3:0",
+      "event": "PostToolUse",
+      "matcher": "^Read$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/read-tracker.mjs",
+      "timeout_ms": 1000,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:4:0",
+      "event": "PostToolUse",
+      "matcher": "^(Bash|Read)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/posttooluse-compressor.mjs",
+      "timeout_ms": 1500,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:4:1",
+      "event": "PostToolUse",
+      "matcher": "^(Bash|Read)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/context-economy-v2.mjs",
+      "timeout_ms": 2000,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:4:2",
+      "event": "PostToolUse",
+      "matcher": "^(Bash|Read)$",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/dsl-output-compressor.mjs",
+      "timeout_ms": 1500,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:5:0",
+      "event": "PostToolUse",
+      "matcher": "^mcp__prism",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/mcp-posttool-tracker.mjs",
+      "timeout_ms": 2000,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUse:6:0",
+      "event": "PostToolUse",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/loop-detector.mjs",
+      "timeout_ms": 2000,
+      "async": true,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "UserPromptSubmit:0:0",
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/shortcode-injector.mjs",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "UserPromptSubmit:0:1",
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/knowledge-augmented-reasoning-v3.mjs",
+      "timeout_ms": 3500,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "UserPromptSubmit:0:2",
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/agent-coordination.mjs poll --agent Claude --agent-instance \"Claude@${COMPUTERNAME:-$(hostname)}/ppid-$PPID\" --consume",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "UserPromptSubmit:0:3",
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/auto-route.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "UserPromptSubmit:0:4",
+      "event": "UserPromptSubmit",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/tribal-categorize-reminder.mjs",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:0",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/context-economy-v2.mjs reset 2>/dev/null || true",
+      "timeout_ms": 1000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:1",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/pipeline-health-monitor.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:2",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/position-sync.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:3",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/svi-refresh.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:4",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/per-agent-handoff.mjs register --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\" --agent-family \"${PRISM_AGENT_FAMILY:-Claude}\"",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:5",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/agent-coordination-daemon.mjs start",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:6",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/agent-coordination.mjs poll --agent Claude --agent-instance \"Claude@${COMPUTERNAME:-$(hostname)}/ppid-$PPID\" --consume",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:7",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/sync-memory.mjs",
+      "timeout_ms": 10000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:0:8",
+      "event": "SessionStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/session-start-compact.mjs",
+      "timeout_ms": 2500,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:1:0",
+      "event": "SessionStart",
+      "matcher": "compact",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs sync-from-git 2>/dev/null || true",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionStart:1:1",
+      "event": "SessionStart",
+      "matcher": "compact",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/compact-restore.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:0",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/tribal-auto-categorize.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:1",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/stop-guard.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:2",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/session-summary.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:3",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/sync-memory.mjs",
+      "timeout_ms": 10000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:4",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/per-agent-handoff.mjs stop --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\" --resume \"$TOOL_INPUT\" --state \"Session stopped\"",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:5",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/compaction-survival.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:6",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/skill-session-tracker.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Stop:0:7",
+      "event": "Stop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/advisor-session-log.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "Notification:0:0",
+      "event": "Notification",
+      "matcher": "idle_prompt",
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/idle-reminder.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:0",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs sync-from-git 2>/dev/null || true",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:1",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/milestone-tracker.mjs fix 2>/dev/null || true",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:2",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/position-sync.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:3",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/svi-refresh.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:4",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/coordination-sync.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:5",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/precompact-handoff.mjs --terminal \"${PRISM_TERMINAL:-auto-$(echo $PPID)}\"",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:6",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/smart-compaction-plan.mjs 2>/dev/null || true",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PreCompact:0:7",
+      "event": "PreCompact",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/pre-compact.mjs",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUseFailure:0:0",
+      "event": "PostToolUseFailure",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/error-recovery.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "PostToolUseFailure:0:1",
+      "event": "PostToolUseFailure",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/smart-recovery.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SubagentStart:0:0",
+      "event": "SubagentStart",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/subagent-context.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SessionEnd:0:0",
+      "event": "SessionEnd",
+      "matcher": null,
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/session-end.sh 2>/dev/null || true",
+      "timeout_ms": 5000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "TaskCompleted:0:0",
+      "event": "TaskCompleted",
+      "matcher": null,
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/task-gate.sh 2>/dev/null || true",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "ConfigChange:0:0",
+      "event": "ConfigChange",
+      "matcher": "project_settings",
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/config-guard.sh 2>/dev/null || true",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "WorktreeCreate:0:0",
+      "event": "WorktreeCreate",
+      "matcher": null,
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/worktree-track.sh 2>/dev/null || true",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "WorktreeRemove:0:0",
+      "event": "WorktreeRemove",
+      "matcher": null,
+      "type": "command",
+      "command": "bash /h/prism/.claude/helpers/worktree-cleanup.sh 2>/dev/null || true",
+      "timeout_ms": 2000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    },
+    {
+      "id": "SubagentStop:0:0",
+      "event": "SubagentStop",
+      "matcher": null,
+      "type": "command",
+      "command": "node H:/prism/.claude/helpers/subagent-results.mjs",
+      "timeout_ms": 3000,
+      "async": false,
+      "continue_on_error": true,
+      "prism_paths": [],
+      "helper_refs": []
+    }
+  ],
+  "helper_files": [
+    {
+      "name": ".compaction-survival.md",
+      "path": "H:\\PRISM\\.claude\\helpers\\.compaction-survival.md",
+      "purpose": "Compaction Survival — 2026-04-14T01:07:54.348Z"
+    },
+    {
+      "name": ".session-breadcrumb.json",
+      "path": "H:\\PRISM\\.claude\\helpers\\.session-breadcrumb.json",
+      "purpose": "Helper artifact indexed from H:\\PRISM\\.claude\\helpers. Read the file directly for details."
+    },
+    {
+      "name": ".session-summary.md",
+      "path": "H:\\PRISM\\.claude\\helpers\\.session-summary.md",
+      "purpose": "Session Summary -- 2026-04-14T01:07:54.309Z"
+    },
+    {
+      "name": "adr-compliance.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\adr-compliance.sh",
+      "purpose": "Claude Flow V3 - ADR Compliance Checker Worker"
+    },
+    {
+      "name": "advisor-session-log.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\advisor-session-log.mjs",
+      "purpose": "advisor-session-log.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "agent-coordination-daemon.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\agent-coordination-daemon.mjs",
+      "purpose": "agent-coordination-daemon.mjs: import { promises as fs, watch as watchFs } from \"node:fs\";"
+    },
+    {
+      "name": "agent-coordination.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\agent-coordination.mjs",
+      "purpose": "agent-coordination.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "agent-identity.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\agent-identity.mjs",
+      "purpose": "agent-identity.mjs: import os from \"node:os\";"
+    },
+    {
+      "name": "agent-index-injector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\agent-index-injector.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "auto-commit.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\auto-commit.sh",
+      "purpose": "Auto-commit helper for Claude Code hooks"
+    },
+    {
+      "name": "auto-compact-gate.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\auto-compact-gate.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "auto-resume-injector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\auto-resume-injector.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "auto-route.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\auto-route.mjs",
+      "purpose": "auto-route.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "autopilot-flag.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\autopilot-flag.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "autopilot-watchdog.ps1",
+      "path": "H:\\PRISM\\.claude\\helpers\\autopilot-watchdog.ps1",
+      "purpose": "Helper artifact indexed from H:\\PRISM\\.claude\\helpers. Read the file directly for details."
+    },
+    {
+      "name": "bash-intercept.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\bash-intercept.sh",
+      "purpose": "PreToolUse hook: skip redundant bash commands when cached results are valid."
+    },
+    {
+      "name": "build-cache-manager.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\build-cache-manager.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "build-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\build-tracker.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "cache-writer.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\cache-writer.mjs",
+      "purpose": "cache-writer.mjs: import crypto from \"node:crypto\";"
+    },
+    {
+      "name": "capability-manifest-inject.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\capability-manifest-inject.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "checkpoint-manager.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\checkpoint-manager.sh",
+      "purpose": "Claude Checkpoint Manager"
+    },
+    {
+      "name": "codex-parity-audit.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\codex-parity-audit.mjs",
+      "purpose": "codex-parity-audit.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "compact-counter.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\compact-counter.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "compact-restore.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\compact-restore.mjs",
+      "purpose": "compact-restore.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "compaction-survival.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\compaction-survival.mjs",
+      "purpose": "compaction-survival.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "completion-gate.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\completion-gate.sh",
+      "purpose": "completion-gate.sh — PreToolUse hook for Bash"
+    },
+    {
+      "name": "config-guard.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\config-guard.sh",
+      "purpose": "ConfigChange hook: audit and guard settings.json modifications."
+    },
+    {
+      "name": "context-aware-inject.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\context-aware-inject.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "context-economy-v2.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\context-economy-v2.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "context-pressure-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\context-pressure-tracker.mjs",
+      "purpose": "context-pressure-tracker.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "coordination-sync.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\coordination-sync.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "daemon-manager.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\daemon-manager.sh",
+      "purpose": "Claude Flow V3 - Daemon Manager"
+    },
+    {
+      "name": "ddd-tracker.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\ddd-tracker.sh",
+      "purpose": "Claude Flow V3 - DDD Progress Tracker Worker"
+    },
+    {
+      "name": "directory-freeze.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\directory-freeze.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "dispatcher-schema-hint.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\dispatcher-schema-hint.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "dsl-output-compressor.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\dsl-output-compressor.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "edit-context-enricher.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\edit-context-enricher.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "error-recovery.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\error-recovery.mjs",
+      "purpose": "error-recovery.mjs: import path from \"node:path\";"
+    },
+    {
+      "name": "file-protect.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\file-protect.sh",
+      "purpose": "file-protect.sh — PreToolUse hook guard that blocks edits to frozen files"
+    },
+    {
+      "name": "github-safe.js",
+      "path": "H:\\PRISM\\.claude\\helpers\\github-safe.js",
+      "purpose": "*"
+    },
+    {
+      "name": "github-setup.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\github-setup.sh",
+      "purpose": "Setup GitHub integration for Claude Flow"
+    },
+    {
+      "name": "guidance-hook.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\guidance-hook.sh",
+      "purpose": "Capture hook guidance for Claude visibility"
+    },
+    {
+      "name": "guidance-hooks.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\guidance-hooks.sh",
+      "purpose": "Guidance Hooks for Claude Flow V3"
+    },
+    {
+      "name": "health-monitor.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\health-monitor.sh",
+      "purpose": "Claude Flow V3 - Health Monitor Worker"
+    },
+    {
+      "name": "hook-cache.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\hook-cache.mjs",
+      "purpose": "hook-cache.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "idle-reminder.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\idle-reminder.mjs",
+      "purpose": "idle-reminder.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "install-node-cleaner-task.ps1",
+      "path": "H:\\PRISM\\.claude\\helpers\\install-node-cleaner-task.ps1",
+      "purpose": "Helper artifact indexed from H:\\PRISM\\.claude\\helpers. Read the file directly for details."
+    },
+    {
+      "name": "knowledge-augmented-reasoning-v2.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\knowledge-augmented-reasoning-v2.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "knowledge-augmented-reasoning-v3.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\knowledge-augmented-reasoning-v3.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "knowledge-augmented-reasoning.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\knowledge-augmented-reasoning.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "learning-hooks.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\learning-hooks.sh",
+      "purpose": "Claude Flow V3 - Learning Hooks"
+    },
+    {
+      "name": "learning-optimizer.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\learning-optimizer.sh",
+      "purpose": "Claude Flow V3 - Learning Optimizer Worker"
+    },
+    {
+      "name": "learning-service.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\learning-service.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "loop-detector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\loop-detector.mjs",
+      "purpose": "loop-detector.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "macro-expander.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\macro-expander.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "mcp-action-router.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\mcp-action-router.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "mcp-health-recovery.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\mcp-health-recovery.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "mcp-posttool-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\mcp-posttool-tracker.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "mcp-pretool-injector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\mcp-pretool-injector.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "metrics-db.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\metrics-db.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "milestone-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\milestone-tracker.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "node-orphan-cleaner.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\node-orphan-cleaner.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "output-compression-guide.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\output-compression-guide.mjs",
+      "purpose": "output-compression-guide.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "page-sweep.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\page-sweep.mjs",
+      "purpose": "page-sweep.mjs: import { spawnSync } from \"node:child_process\";"
+    },
+    {
+      "name": "pattern-consolidator.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\pattern-consolidator.sh",
+      "purpose": "Claude Flow V3 - Pattern Consolidator Worker"
+    },
+    {
+      "name": "pattern-extractor.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\pattern-extractor.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "per-agent-handoff.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\per-agent-handoff.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "perf-worker.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\perf-worker.sh",
+      "purpose": "Claude Flow V3 - Performance Benchmark Worker"
+    },
+    {
+      "name": "pipeline-health-monitor.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\pipeline-health-monitor.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "position-sync.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\position-sync.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "post-compact-enhanced.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\post-compact-enhanced.mjs",
+      "purpose": "post-compact-enhanced.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "posttooluse-compressor.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\posttooluse-compressor.mjs",
+      "purpose": "posttooluse-compressor.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "pre-compact.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\pre-compact.mjs",
+      "purpose": "pre-compact.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "precompact-handoff.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\precompact-handoff.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "pretooluse-token-saver.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\pretooluse-token-saver.sh",
+      "purpose": "pretooluse-token-saver.sh — Intercepts large Read/Glob calls"
+    },
+    {
+      "name": "quick-start.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\quick-start.sh",
+      "purpose": "Quick start guide for Claude Flow"
+    },
+    {
+      "name": "read-once-cache.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\read-once-cache.mjs",
+      "purpose": "read-once-cache.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "read-optimizer.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\read-optimizer.mjs",
+      "purpose": "read-optimizer.mjs: import { createReadStream } from \"node:fs\";"
+    },
+    {
+      "name": "read-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\read-tracker.mjs",
+      "purpose": "read-tracker.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "README.md",
+      "path": "H:\\PRISM\\.claude\\helpers\\README.md",
+      "purpose": "Claude Flow V3 Helpers"
+    },
+    {
+      "name": "ref-first-agent-gate.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\ref-first-agent-gate.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "ref-first-command-gate.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\ref-first-command-gate.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "regen-digests.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\regen-digests.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "review-complete.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\review-complete.sh",
+      "purpose": "review-complete.sh — PostToolUse hook for Bash"
+    },
+    {
+      "name": "review-gate.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\review-gate.sh",
+      "purpose": "review-gate.sh — PreToolUse hook for Write/Edit"
+    },
+    {
+      "name": "review-merge.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\review-merge.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "review-rubric.json",
+      "path": "H:\\PRISM\\.claude\\helpers\\review-rubric.json",
+      "purpose": "Helper artifact indexed from H:\\PRISM\\.claude\\helpers. Read the file directly for details."
+    },
+    {
+      "name": "roadmap-progress.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\roadmap-progress.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "roadmap-sync.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\roadmap-sync.mjs",
+      "purpose": "roadmap-sync.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "roadmap-to-queue.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\roadmap-to-queue.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "rollback-ecc.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\rollback-ecc.sh",
+      "purpose": "rollback-ecc.sh — Emergency rollback for ECC integration changes"
+    },
+    {
+      "name": "rps-arbitration.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\rps-arbitration.mjs",
+      "purpose": "rps-arbitration.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "safety-escalation.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\safety-escalation.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "safety-gates.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\safety-gates.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "schema-drift-detector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\schema-drift-detector.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "search-optimizer.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\search-optimizer.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "security-scanner.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\security-scanner.sh",
+      "purpose": "Claude Flow V3 - Security Scanner Worker"
+    },
+    {
+      "name": "session-breadcrumb.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\session-breadcrumb.mjs",
+      "purpose": "session-breadcrumb.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "session-end.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\session-end.sh",
+      "purpose": "SessionEnd hook: final cleanup when session truly ends."
+    },
+    {
+      "name": "session-start-compact.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\session-start-compact.mjs",
+      "purpose": "session-start-compact.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "session-summary.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\session-summary.mjs",
+      "purpose": "session-summary.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "setup-mcp.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\setup-mcp.sh",
+      "purpose": "Setup MCP server for Claude Flow"
+    },
+    {
+      "name": "shortcode-injector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\shortcode-injector.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "skill-session-tracker.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\skill-session-tracker.mjs",
+      "purpose": "skill-session-tracker.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "smart-compaction-plan.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\smart-compaction-plan.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "smart-recovery.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\smart-recovery.mjs",
+      "purpose": "smart-recovery.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "smart-test-suggest.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\smart-test-suggest.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "standard-checkpoint-hooks.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\standard-checkpoint-hooks.sh",
+      "purpose": "Standard checkpoint hook functions for Claude settings.json (without GitHub features)"
+    },
+    {
+      "name": "statusline-hook.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\statusline-hook.sh",
+      "purpose": "Claude Flow V3 Statusline Hook"
+    },
+    {
+      "name": "statusline.cjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\statusline.cjs",
+      "purpose": "*"
+    },
+    {
+      "name": "stop-guard.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\stop-guard.mjs",
+      "purpose": "stop-guard.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "subagent-context.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\subagent-context.mjs",
+      "purpose": "subagent-context.mjs: import { inferAgentIdentity } from \"./agent-identity.mjs\";"
+    },
+    {
+      "name": "subagent-results.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\subagent-results.mjs",
+      "purpose": "subagent-results.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "svi-refresh.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\svi-refresh.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "swarm-comms.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\swarm-comms.sh",
+      "purpose": "Claude Flow V3 - Optimized Swarm Communications"
+    },
+    {
+      "name": "swarm-hooks.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\swarm-hooks.sh",
+      "purpose": "Claude Flow V3 - Swarm Communication Hooks"
+    },
+    {
+      "name": "swarm-monitor.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\swarm-monitor.sh",
+      "purpose": "Claude Flow V3 - Real-time Swarm Activity Monitor"
+    },
+    {
+      "name": "sync-memory.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\sync-memory.mjs",
+      "purpose": "sync-memory.mjs: import { execFileSync } from \"node:child_process\";"
+    },
+    {
+      "name": "sync-roadmap-queue.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\sync-roadmap-queue.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "sync-v3-metrics.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\sync-v3-metrics.sh",
+      "purpose": "Claude Flow V3 - Auto-sync Metrics from Actual Implementation"
+    },
+    {
+      "name": "task-context-injector.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\task-context-injector.mjs",
+      "purpose": "task-context-injector.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "task-gate.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\task-gate.sh",
+      "purpose": "TaskCompleted hook: verify build+test pass before task completion."
+    },
+    {
+      "name": "task-queue.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\task-queue.mjs",
+      "purpose": "task-queue.mjs: import { promises as fs } from \"node:fs\";"
+    },
+    {
+      "name": "test-quality-gate.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\test-quality-gate.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "test-run-gate.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\test-run-gate.mjs",
+      "purpose": "test-run-gate.mjs: import { existsSync, readFileSync } from \"node:fs\";"
+    },
+    {
+      "name": "token-savings-report.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\token-savings-report.mjs",
+      "purpose": "token-savings-report.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "tool-counter.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\tool-counter.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "tribal-auto-categorize.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\tribal-auto-categorize.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "tribal-categorize-reminder.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\tribal-categorize-reminder.mjs",
+      "purpose": "*"
+    },
+    {
+      "name": "tsc-error-dedup.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\tsc-error-dedup.mjs",
+      "purpose": "tsc-error-dedup.mjs: import process from \"node:process\";"
+    },
+    {
+      "name": "update-v3-progress.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\update-v3-progress.sh",
+      "purpose": "V3 Progress Update Script"
+    },
+    {
+      "name": "v3-quick-status.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\v3-quick-status.sh",
+      "purpose": "V3 Quick Status - Compact development status overview"
+    },
+    {
+      "name": "v3.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\v3.sh",
+      "purpose": "V3 Helper Alias Script - Quick access to all V3 development tools"
+    },
+    {
+      "name": "validate-v3-config.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\validate-v3-config.sh",
+      "purpose": "V3 Configuration Validation Script"
+    },
+    {
+      "name": "web-cache.mjs",
+      "path": "H:\\PRISM\\.claude\\helpers\\web-cache.mjs",
+      "purpose": "web-cache.mjs: import crypto from \"node:crypto\";"
+    },
+    {
+      "name": "worker-manager.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\worker-manager.sh",
+      "purpose": "Claude Flow V3 - Unified Worker Manager"
+    },
+    {
+      "name": "worktree-cleanup.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\worktree-cleanup.sh",
+      "purpose": "WorktreeRemove hook: clean up worktree tracking."
+    },
+    {
+      "name": "worktree-track.sh",
+      "path": "H:\\PRISM\\.claude\\helpers\\worktree-track.sh",
+      "purpose": "WorktreeCreate hook: track active worktrees for parallel execution."
+    }
+  ],
+  "limitations": [
+    "The registry covers only command behavior exposed through markdown files, project settings, or helper scripts.",
+    "Codex can mirror behavior from these sources, but cannot invoke Claude's private slash-command runtime directly.",
+    "Repo command-pack members may not have a guaranteed one-to-one slash alias; use their relative command key and file path as the canonical reference.",
+    "Refresh this registry after any command, settings, or helper change."
+  ]
+}

@@ -1,0 +1,39 @@
+/**
+ * MachineModelDownloaderEngine — Automated STEP File Fetcher
+ *
+ * Uses HTTP requests to search and download CNC machine 3D models from:
+ * 1. GrabCAD API (search endpoint is public, download needs session)
+ * 2. PostProcessor.su (public STEP files)
+ * 3. 3Dfindit API (public search)
+ *
+ * For Playwright-based download (browser automation), generates
+ * executable scripts that the /acquire-models skill can run.
+ *
+ * Flow:
+ *   1. generateSearchPlan() → list of machines + URLs to search
+ *   2. searchGrabCAD() → find matching models (public API)
+ *   3. generatePlaywrightScript() → automation code for download
+ */
+import * as fs from "fs";
+import * as path from "path";
+import * as os from "os";
+import * as https from "https";
+const MODEL_DIR = path.join(os.homedir(), ".prism", "machine-models");
+const RESULTS_FILE = path.join(os.homedir(), ".prism", "model-search-results.json");
+class MachineModelDownloaderEngine {
+    name = "MachineModelDownloaderEngine";
+    /**
+     * Search GrabCAD's public library endpoint for a machine model.
+     * GrabCAD search is accessible without login — download requires it.
+     */
+    async searchGrabCAD(query) {
+        const url = `https://grabcad.com/community/api/v1/models?per_page=5&query=${encodeURIComponent(query)}&softwares=step-slash-iges`;
+        return new Promise((resolve) => {
+            const req = https.get(url, {
+                headers: {
+                    "Accept": "application/json",
+                    "User-Agent": "PRISM-MachineModelAcquisition/1.0",
+                },
+                timeout: 10000,
+            }, (res) => {
+                let da

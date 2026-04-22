@@ -1,0 +1,88 @@
+{
+  "config": {
+    "chain_id": "chain_1771726006993_ba8d",
+    "name": "analyze_and_recommend",
+    "response_level": "full",
+    "log_to_disk": true,
+    "input": {
+      "scenario": "High tool wear rate when milling Inconel 718",
+      "material": "Inconel 718",
+      "machine": "unspecified",
+      "constraints": "none specified"
+    },
+    "steps": [
+      {
+        "name": "classify",
+        "model_tier": "haiku",
+        "max_tokens": 400,
+        "temperature": 0.2,
+        "prompt_template": "Analyze this manufacturing scenario and extract key parameters.\n\nScenario: {{scenario}}\nMaterial: {{material}}\nMachine: {{machine}}\nConstraints: {{constraints}}\n\nProvide a concise structured classification:\n1. PROBLEM TYPE: (one of: cutting_parameters, tool_selection, workholding, process_planning, quality_issue, machine_selection)\n2. MATERIAL GROUP: (ISO group P/M/K/N/S/H or unknown)\n3. KEY PARAMETERS: (list 3-5 critical numerical or categorical parameters from the scenario)\n4. COMPLEXITY: (simple/moderate/complex)\n5. CLASSIFICATION SUMMARY: (1 sentence)"
+      },
+      {
+        "name": "generate_solutions",
+        "model_tier": "haiku",
+        "max_tokens": 600,
+        "temperature": 0.4,
+        "depends_on": [
+          "classify"
+        ],
+        "prompt_template": "Based on this manufacturing problem classification, generate 3-4 candidate solutions.\n\nCLASSIFICATION:\n{{classify_output}}\n\nOriginal Scenario: {{scenario}}\n\nFor each candidate solution, provide:\n- SOLUTION: (brief title)\n- APPROACH: (2-3 sentences describing the technical approach)\n- PARAMETERS: (specific values where applicable)\n- TRADE-OFFS: (pros and cons)\n\nFormat each solution as: CANDIDATE [N]: ..."
+      },
+      {
+        "name": "rank_solutions",
+        "model_tier": "haiku",
+        "max_tokens": 700,
+        "temperature": 0.2,
+        "depends_on": [
+          "generate_solutions"
+        ],
+        "prompt_template": "Evaluate and rank these manufacturing solution candidates.\n\nCANDIDATES:\n{{generate_solutions_output}}\n\nSCENARIO: {{scenario}}\nCONSTRAINTS: {{constraints}}\n\nRank from best to worst. For each, provide:\nRANK [N]:\n- SOLUTION: (title from above)\n- RATIONALE: (why this rank, 1-2 sentences)\n- CONFIDENCE: (0.0-1.0, reflecting certainty given available information)\n- RECOMMENDATION: (specific next action)\n\nEnd with: RECOMMENDED_ACTION: (the single most important next step)"
+      }
+    ]
+  },
+  "result": {
+    "chain_id": "chain_1771726006993_ba8d",
+    "name": "analyze_and_recommend",
+    "steps_completed": 3,
+    "total_steps": 3,
+    "total_tokens": {
+      "input": 3294,
+      "output": 1700
+    },
+    "total_duration_ms": 18565,
+    "final_output": "# RANKING: High Tool Wear – Inconel 718 Milling\n\n---\n\n## RANK 1: Upgrade to Ceramic or CBN Tool + TSC (High-Performance)\n\n**SOLUTION:** Switch to ceramic (Al₂O₃-TiC) or CBN insert with through-spindle coolant (>50 bar).\n\n**RATIONALE:**  \nInconel 718 (S-group superalloy, kc1_1 ~2500 N/mm²) generates extreme adhesion wear and crater formation at moderate speeds due to work-hardening and thermal diffusion. TSC eliminates thermal cycling at the tool-chip interface and ceramic/CBN's superior hot hardness (>1200 °C) directly addresses the root cause of premature failure. This solution delivers 2–3× tool life extension and 50–80% MRR increase versus conservative speed reduction, justifying capital investment for production runs >500 parts.\n\n**CONFIDENCE:** 0.92  \n(S-group metallurgy is well-characterized; TSC + ceramic is industry-standard for Inconel; risk only if spindle lacks TSC capability or feed rigidity is poor.)\n\n**RECOMMENDATION:**  \n1. Verify spindle has TSC capability (check pump pressure rating ≥50 bar); if not, proceed to Rank 2.  \n2. Source ceramic insert (Sialon preferred for Inconel; e.g., Sandvik CC670, Kennametal KY3200) with TSC-compatible geometry.  \n3. Trial at **Vc = 100 m/min, fz = 0.10 mm/tooth, ap = 4 mm, TSC 60 bar** (synthetic coolant, high pressure).  \n4. Monitor flank wear (VB) and crater depth (KT); target tool life ≥90 min per edge.\n\n---\n\n## RANK 2: Optimize Cutting Speed + Flood Coolant (Conservative, High-Confidence)\n\n**SOLUTION:** Reduce cutting speed to 40–60 m/min and implement flood coolant (10–12 bar, soluble oil/synthetic).\n\n**RATIONALE:**  \nThis is the proven baseline for S-group materials when TSC infrastructure is unavailable. Flood coolant provides adequate thermal control and chip evacuation to suppress adhesion wear; speed reduction (vs. aggressive practice) minimizes crater formation. Tool life improves 50–70% with minimal capital cost and is immediately deployable. Suitable for job-shop or low-volume production where TSC ROI is marginal.\n\n**CONFIDENCE:** 0.88  \n(Flood cooling is universally available; Inconel response is predictable; limitation is MRR penalty and coolant disposal cost.)\n\n**RECOMMENDATION:**  \n1. Confirm flood coolant system delivers ≥10 bar at tool (check pump capacity and nozzle design).  \n2. Trial at **Vc = 50 m/min, fz = 0.10 mm/tooth,",
+    "step_results": [
+      {
+        "step_name": "classify",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 794,
+          "output": 400
+        },
+        "duration_ms": 4456,
+        "output": "# Manufacturing Analysis: High Tool Wear – Inconel 718 Milling\n\n## 1. PROBLEM TYPE\n**tool_selection** + **cutting_parameters** (coupled issue)\n\n## 2. MATERIAL GROUP\n**S** — Heat-resistant superalloy (Inconel 718: Ni-Fe-Cr base, 40–50 HRC typical, kc1_1 ≈ 2200–2800 N/mm²)\n\n## 3. KEY PARAMETERS\n\n| Parameter | Value/Status | Criticality |\n|-----------|--------------|-------------|\n| **Material hardness** | ~40–50 HRC | High — drives tool stress |\n| **Cutting speed (Vc)** | Unspecified | **Critical gap** — likely excessive |\n| **Coolant strategy** | Unspecified | **Critical gap** — S-group requires flood/TSC |\n| **Tool grade** | Unspecified | **Critical gap** — must be coated carbide or ceramic |\n| **Wear mode observed** | Not specified | Likely crater wear + adhesion (typical S-group) |\n\n## 4. COMPLEXITY\n**Moderate–Complex**  \n(Superalloy milling is inherently demanding; root cause requires coolant + speed + tool grade confirmation)\n\n## 5. CLASSIFICATION SUMMARY\n**High wear in Inconel 718 milling is typically caused by inadequate cutting speed, insufficient coolant delivery, or wrong tool grade—all three must be verified and optimized together.**\n\n---\n\n## Immediate Diagnostic Questions\n1. **What cutting speed (m/min) is currently set?** (S-group: 30–80 m/min typical; >100 m"
+      },
+      {
+        "step_name": "generate_solutions",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 1138,
+          "output": 600
+        },
+        "duration_ms": 6390,
+        "output": "# CANDIDATE SOLUTIONS: High Tool Wear – Inconel 718 Milling\n\n---\n\n## CANDIDATE 1: Optimize Cutting Speed + Flood Coolant (Conservative, High-Confidence)\n\n**SOLUTION:**  \nReduce cutting speed to S-group optimum and implement flood coolant delivery.\n\n**APPROACH:**  \nInconel 718 exhibits crater wear and adhesion when speed is excessive (>80 m/min) or coolant is absent/insufficient. Lower speed reduces thermal load and diffusion wear; flood coolant (8–15 bar, soluble oil or synthetic) provides thermal control and chip evacuation. This is the baseline S-group strategy.\n\n**PARAMETERS:**\n- **Cutting speed:** 40–60 m/min (start 50 m/min if unspecified)\n- **Feed per tooth (fz):** 0.08–0.15 mm/tooth (moderate, avoid BUE)\n- **Axial depth (ap):** 3–5 mm (conservative for finish/semi-finish)\n- **Coolant:** Flood, 10–12 bar, soluble oil or synthetic (NOT dry, NOT MQL alone)\n- **Expected tool life:** 30–60 min per edge (carbide coated)\n\n**TRADE-OFFS:**\n- ✅ **Pros:** Immediate wear reduction (50–70%), minimal capital cost, proven for Inconel, low risk.\n- ❌ **Cons:** Lower MRR (~30–40% vs. aggressive speed); requires coolant infrastructure; chip management critical.\n\n---\n\n## CANDIDATE 2: Upgrade to Ceramic or CBN Tool + TSC (High-Performance)\n\n**SOLUTION:**  \nSwitch to ceramic (Al₂O₃-TiC) or CBN insert with through-spindle coolant (TSC) delivery.\n\n**APPROACH:**  \nCeramic/CBN tools tolerate higher temperatures (1200–1400 °C) and resist crater wear better than coated carbide. TSC (>50 bar) delivers coolant directly to the cutting edge, eliminating thermal cycling and adhesion. This enables speed increase to 80–120 m/min while extending tool life 2–3×.\n\n**PARAMETERS:**\n- **Tool grade:** Ceramic (Sialon or Al₂O₃-TiC) or CBN for Inconel\n- **Cutting speed:** 80–120 m/min (ceramic); 100–150 m/min (CBN, if spindle allows)\n- **Feed per tooth (f"
+      },
+      {
+        "step_name": "rank_solutions",
+        "model": "claude-haiku-4-5-20251001",
+        "tokens": {
+          "input": 1362,
+          "output": 700
+        },
+        "duration_ms": 7719,
+        "output": "# RANKING: High Tool Wear – Inconel 718 Milling\n\n---\n\n## RANK 1: Upgrade to Ceramic or CBN Tool + TSC (High-Performance)\n\n**SOLUTION:** Switch to ceramic (Al₂O₃-TiC) or CBN insert with through-spindle coolant (>50 bar).\n\n**RATIONALE:**  \nInconel 718 (S-group superalloy, kc1_1 ~2500 N/mm²) generates extreme adhesion wear and crater formation at moderate speeds due to work-hardening and thermal diffusion. TSC eliminates thermal cycling at the tool-chip interface and ceramic/CBN's superior hot hardness (>1200 °C) directly addresses the root cause of premature failure. This solution delivers 2–3× tool life extension and 50–80% MRR increase versus conservative speed reduction, justifying capital investment for production runs >500 parts.\n\n**CONFIDENCE:** 0.92  \n(S-group metallurgy is well-characterized; TSC + ceramic is industry-standard for Inconel; risk only if spindle lacks TSC capability or feed rigidity is poor.)\n\n**RECOMMENDATION:**  \n1. Verify spindle has TSC capability (check pump pressure rating ≥50 bar); if not, proceed to Rank 2.  \n2. Source ceramic insert (Sialon preferred for Inconel; e.g., Sandvik CC670, Kennametal KY3200) with TSC-compatible geometry.  \n3. Trial at **Vc = 100 m/min, fz = 0.10 mm/tooth, ap = 4 mm, TSC 60 bar** (synthetic coolant, high pressure).  \n4. Monitor flank wear (VB) and crater depth (KT); target tool life ≥90 min per edge.\n\n---\n\n## RANK 2: Optimize Cutting Speed + Flood Coolant (Conservative, High-Confidence)\n\n**SOLUTION:** Reduce cutting speed to 40–60 m/min and implement flood coolant (10–12 bar, soluble oil/synthetic).\n\n**RATIONALE:**  \nThis is the proven baseline for S-group materials when TSC infrastructure is unavailable. Flood coolant provides adequate thermal control and chip evacuation to suppress adhesion wear; speed reduction (vs. aggressive practice) minimizes crater formation. Tool life improves 50–70% with minimal capital cost and is immediately deployable. Suitable for job-shop or low-volume production where TSC ROI is marginal.\n\n**CONFIDENCE:** 0.88  \n(Flood cooling is universally available; Inconel response is predictable; limitation is MRR penalty and coolant disposal cost.)\n\n**RECOMMENDATION:**  \n1. Confirm flood coolant system delivers ≥10 bar at tool (check pump capacity and nozzle design).  \n2. Trial at **Vc = 50 m/min, fz = 0.10 mm/tooth,"
+      }
+    ],
+    "status": "completed"
+  }
+}

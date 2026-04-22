@@ -1,0 +1,34 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+import {
+  init_Logger,
+  log
+} from "./chunk-GCBAS5AO.js";
+
+// src/engines/PowerMillCodeGeneratorEngine.ts
+init_Logger();
+var PM_TOOL_TYPE_MAP = {
+  ball_nosed: "BALLNOSED",
+  bull_nosed: "BULLNOSED",
+  drill: "DRILL",
+  end_mill: "END_MILL",
+  face_mill: "FACEMILL",
+  slot_mill: "SLOTMILL",
+  tap: "TAP",
+  thread_mill: "THREADMILL",
+  tipped_disc: "TIPPED_DISC"
+};
+var PM_COOLANT_MAP = {
+  flood: "FLOOD",
+  mist: "MIST",
+  air: "AIR",
+  off: "OFF",
+  through_tool: "THROUGH_TOOL"
+};
+var PM_POST_CONTROLLER_MAP = {
+  fanuc: {
+    family: "FANUC",
+    post_name: "ductpost_fanuc",
+    notes: [
+      "Standard G/M-code output with G43 tool length compensation",
+      "Sub-programs via M98/M99",
+      "5-axis

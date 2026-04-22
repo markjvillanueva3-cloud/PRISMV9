@@ -1,0 +1,82 @@
+{
+  "audit_id": "QA-MS3-P0-U02",
+  "title": "SpeedFeedEngine: Recommendation Logic + Material Coverage",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-27T23:55:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS with 1 MEDIUM finding — feed recommendation ignores material properties",
+
+  "speed_calculation": {
+    "source_file": "src/engines/ManufacturingCalculations.ts",
+    "function": "calculateSpeedFeed",
+    "line": 664,
+    "formula": "Vc = base_speed(tool_material) * (200/hardness)^0.3 * operation_factor",
+    "base_speeds": {
+      "HSS": 30, "Carbide": 150, "Ceramic": 300, "CBN": 200, "Diamond": 500
+    },
+    "hardness_exponent": 0.3,
+    "operation_factors": { "roughing": 0.8, "semi-finishing": 1.0, "finishing": 1.2 },
+    "approach": "Hardness-adjusted base speed per tool material — reasonable empirical model"
+  },
+
+  "spindle_speed": {
+    "formula": "n = 1000 * Vc / (pi * D)",
+    "correct": true,
+    "units": "Vc in m/min, D in mm → n in RPM"
+  },
+
+  "feed_calculation": {
+    "formula": "fz = D * 0.02, clamped to [0.02, 0.5]",
+    "adjustments": { "finishing": "fz * 0.5", "roughing": "fz * 1.2" },
+    "feed_rate": "Vf = fz * z * n",
+    "issue": "Feed is purely diameter-based. No material-specific adjustment."
+  },
+
+  "depth_of_cut": {
+    "roughing": "ap = min(D*1.0, 10), ae = D*0.5",
+    "finishing": "ap = min(D*0.5, 3), ae = D*0.1",
+    "semi_finishing": "ap = min(D*0.75, 5), ae = D*0.3"
+  },
+
+  "material_coverage": {
+    "dispatcher_integration": "calcDispatcher auto-looks up material from registry for hardness, Kienzle, and Taylor coefficients",
+    "hardness_lookup": "mat.mechanical?.hardness?.brinell",
+    "kienzle_passthrough": "If mat.kienzle exists, passed to sfInput (currently unused by calculateSpeedFeed)",
+    "taylor_passthrough": "If mat.taylor exists, passed to sfInput (currently unused by calculateSpeedFeed)",
+    "coverage": "Any material with hardness data in registry is supported. Fallback: hardness=200 (medium carbon steel equivalent)"
+  },
+
+  "case_insensitive_fix": {
+    "line": 674,
+    "description": "QA-MS3 FIX already applied: tool_material lookup is now case-insensitive via lowercased map",
+    "before": "Title-cased keys broke HSS→Hss, CBN→Cbn lookups",
+    "after": "All keys lowercased, input normalized"
+  },
+
+  "findings": [
+    {
+      "id": "F34",
+      "severity": "MEDIUM",
+      "title": "Feed recommendation ignores material machinability",
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "line": 686,
+      "issue": "Feed per tooth is calculated as fz = D * 0.02 regardless of material. Aluminum (machinability index ~4x steel) can handle much higher feeds than titanium at the same tool diameter. The function accepts material_hardness for speed adjustment but ignores it entirely for feed.",
+      "impact": "Medium — feed recommendations will be conservative for easy-to-machine materials and potentially aggressive for difficult ones. Speed/feed balance is suboptimal.",
+      "fix": "Apply a machinability factor to feed: fz *= machinability_factor(material_hardness). Example: fz_factor = (300 / hardness)^0.2 would boost soft materials and reduce hard ones."
+    }
+  ],
+
+  "verification_tests": {
+    "carbide_baseline": "D=12, z=4, HB=200, semi-finishing → Vc=150, n=3979, fz=0.24 → reasonable ✓",
+    "HSS_soft_material": "D=12, z=4, HB=100, roughing → Vc ≈ 30*1.23*0.8 = 29.5 ✓",
+    "ceramic_hard_material": "D=12, z=4, HB=400, finishing → Vc = 300*(200/400)^0.3*1.2 ≈ 293 ✓",
+    "small_tool": "D=3 → fz = 0.06 (clamped from 0.06), recommendation 'Small tool - reduce feed, high RPM' ✓",
+    "feed_rate_calc": "Vf = fz * z * n → correct ✓"
+  },
+
+  "exit_conditions_met": {
+    "recommendation_logic_verified": true,
+    "material_coverage_assessed": true,
+    "fallback_logic_verified": true
+  }
+}

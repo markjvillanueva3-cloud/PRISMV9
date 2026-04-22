@@ -1,0 +1,225 @@
+{
+  "id": "MCAT-MS0-RISK-REGISTRY-2026-04-02",
+  "parentMilestone": "MCAT-MS0",
+  "lane": "MCAT-MS0/P1-U01-support",
+  "status": "working",
+  "priorityBrands": [
+    {
+      "brand": "Okuma",
+      "riskLevel": "critical",
+      "reasons": [
+        "high controller-feature variation",
+        "big-plus / coolant / high-speed package drift risk",
+        "local shop-audit importance"
+      ],
+      "focusFamilies": [
+        "3_axis_vertical",
+        "5_axis_vertical",
+        "mill_turn",
+        "lathe"
+      ]
+    },
+    {
+      "brand": "Haas",
+      "riskLevel": "high",
+      "reasons": [
+        "large family count",
+        "many optional spindle and coolant packages",
+        "fallback-machine benchmark family in calculator"
+      ],
+      "focusFamilies": [
+        "3_axis_vertical",
+        "5_axis_vertical",
+        "lathe"
+      ]
+    },
+    {
+      "brand": "Mazak",
+      "riskLevel": "high",
+      "reasons": [
+        "mixed mill, lathe, and mill-turn families",
+        "controller and package naming drift"
+      ],
+      "focusFamilies": [
+        "mill_turn",
+        "lathe",
+        "horizontal"
+      ]
+    },
+    {
+      "brand": "Brother",
+      "riskLevel": "medium",
+      "reasons": [
+        "compact high-speed drill/tap style machines",
+        "holder and tooling-layout sensitivity"
+      ],
+      "focusFamilies": [
+        "3_axis_vertical"
+      ]
+    },
+    {
+      "brand": "Citizen",
+      "riskLevel": "high",
+      "reasons": [
+        "swiss-specific gang/live-tool legality",
+        "guide-bushing and tooling-topology edge cases"
+      ],
+      "focusFamilies": [
+        "swiss"
+      ]
+    },
+    {
+      "brand": "DN Solutions",
+      "riskLevel": "medium",
+      "reasons": [
+        "Doosan/DN naming drift",
+        "mixed mill and turning families"
+      ],
+      "focusFamilies": [
+        "3_axis_vertical",
+        "lathe",
+        "mill_turn"
+      ]
+    },
+    {
+      "brand": "DMG MORI",
+      "riskLevel": "critical",
+      "reasons": [
+        "multi-word brand normalization history",
+        "broad multi-axis and mill-turn families",
+        "route and consumer grouping sensitivity"
+      ],
+      "focusFamilies": [
+        "5_axis_vertical",
+        "5_axis_horizontal",
+        "mill_turn",
+        "lathe"
+      ]
+    }
+  ],
+  "globalRisks": [
+    {
+      "id": "tool_corpus_gap",
+      "level": "critical",
+      "description": "Intended 95,608-tool corpus is not active in current live roots.",
+      "currentEvidence": {
+        "intended": 95608,
+        "activeUniqueLiveIds": 13967,
+        "activeRawRows": 15912
+      },
+      "requiredMitigation": [
+        "recover missing tool roots",
+        "distinguish active live corpus from historical target in every proof report"
+      ]
+    },
+    {
+      "id": "machine_count_drift",
+      "level": "high",
+      "description": "MachineRegistry metadata and SVI summary do not match merged enhanced machine corpus.",
+      "currentEvidence": {
+        "machineRegistryHeader": 824,
+        "svi": 910,
+        "mergedEnhancedJson": 920
+      },
+      "requiredMitigation": [
+        "treat merged enhanced JSON as current calculator truth",
+        "repair stale metadata claims"
+      ]
+    },
+    {
+      "id": "workholding_fallback_only",
+      "level": "high",
+      "description": "Calculator workholding is still mostly static fallback instead of canonical live legality.",
+      "requiredMitigation": [
+        "bind workholding engine data into calculator legality surface",
+        "block unsupported fixture claims from fallback-only presets"
+      ]
+    },
+    {
+      "id": "toolpath_registry_gap",
+      "level": "high",
+      "description": "Calculator static toolpath catalog is materially smaller than backend strategy registry.",
+      "currentEvidence": {
+        "calculatorToolpaths": 337,
+        "backendStrategyHeadline": "762+"
+      },
+      "requiredMitigation": [
+        "bind calculator CAM/toolpath surface to backend canonical strategy registry",
+        "treat fallback CAM/toolpaths as consumer-only until bound"
+      ]
+    },
+    {
+      "id": "holder_surface_partial",
+      "level": "medium",
+      "description": "Calculator holder route currently surfaces TOOLHOLDERS.json but not all backend holder-like families.",
+      "currentEvidence": {
+        "toolholders": 6741,
+        "indexableMillingToolholding": 984,
+        "turningHoldersExpanded": 600
+      },
+      "requiredMitigation": [
+        "bind expanded turning holders and indexable milling toolholding into holder legality",
+        "preserve topology and interface constraints while widening coverage"
+      ]
+    }
+  ],
+  "namedHotspots": [
+    {
+      "id": "okuma_vertical_finish_stack",
+      "brand": "Okuma",
+      "tuple": [
+        "machine_package",
+        "spindle_package",
+        "coolant_set",
+        "holder_bundle",
+        "toolpath_strategy"
+      ],
+      "reason": "local shop-critical M460 family and coolant/high-speed package drift risk"
+    },
+    {
+      "id": "swiss_live_tooling_stack",
+      "brand": "Citizen",
+      "tuple": [
+        "machine_package",
+        "tooling_layout_topology",
+        "holder_bundle",
+        "tool_bundle",
+        "workholding_bundle"
+      ],
+      "reason": "swiss legality is topology-sensitive and easy to over-broaden"
+    },
+    {
+      "id": "mill_turn_bridge_stack",
+      "brand": "DMG MORI",
+      "tuple": [
+        "machine_package",
+        "controller_feature_bundle",
+        "holder_bundle",
+        "tool_bundle",
+        "cam_environment"
+      ],
+      "reason": "mill-turn bridge logic is the highest-risk mixed-mode area"
+    }
+  ],
+  "requiredFloorsByRiskLevel": {
+    "critical": {
+      "Cov_1": 1.0,
+      "criticalCov_2": 1.0,
+      "criticalCov_bundle": 1.0,
+      "hotspotCov_tMin": 0.97,
+      "Met_pass": 1.0
+    },
+    "high": {
+      "Cov_1": 1.0,
+      "criticalCov_2": 1.0,
+      "hotspotCov_tMin": 0.95,
+      "Met_pass": 1.0
+    },
+    "medium": {
+      "Cov_1": 1.0,
+      "criticalCov_2": 0.98,
+      "hotspotCov_tMin": 0.93,
+      "Met_pass": 1.0
+    }
+  }
+}

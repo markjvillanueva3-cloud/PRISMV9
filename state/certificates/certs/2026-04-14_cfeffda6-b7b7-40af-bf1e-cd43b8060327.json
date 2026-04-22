@@ -1,0 +1,23 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+
+// src/engines/BatchCAMStrategyEngines2.ts
+var BaseCAMStrategyEngine = class {
+  camSystem;
+  strategies;
+  constructor(camSystem, strategies) {
+    this.camSystem = camSystem;
+    this.strategies = strategies;
+  }
+  recommend(feature, material, priority = "balanced") {
+    const candidates = this.strategies.filter(
+      (s) => s.suitable_features.includes(feature.type) || s.suitable_features.length === 0
+    );
+    const scored = candidates.map((s) => {
+      let score = 50;
+      switch (priority) {
+        case "cycle_time":
+          score += s.cycle_time_rating * 4;
+          score += s.hsm_capable ? 8 : 0;
+          break;
+        case "tool_life":
+          score += s.tool_life_rating * 4;

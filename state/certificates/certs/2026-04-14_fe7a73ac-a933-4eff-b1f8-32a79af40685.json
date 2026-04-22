@@ -1,0 +1,24 @@
+/**
+ * PostValidationReportEngine — Structured validation report generation
+ *
+ * Takes ValidationResult from PostValidationHardeningEngine and produces
+ * human-readable reports in multiple formats:
+ *
+ *   - text: Plain-text summary suitable for G-code header comments
+ *   - json: Structured JSON for API consumers / UI rendering
+ *   - detailed: Full per-block report with remediation recommendations
+ *
+ * Each report includes:
+ *   1. Pass/fail verdict per validation dimension
+ *   2. Per-block flag list with severity color-coding
+ *   3. Specific parameter adjustment recommendations
+ *   4. Machine capability summary for operator reference
+ *
+ * References:
+ *   - AS9102 Rev C (First Article Inspection), adapted for G-code validation
+ *   - ISO 22514-7 (Capability of measurement processes)
+ *
+ * @module engines/PostValidationReportEngine
+ * @version 1.0.0
+ */
+// ─── Dimension Labels ──────────────�

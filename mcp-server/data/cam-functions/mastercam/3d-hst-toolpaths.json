@@ -1,0 +1,756 @@
+{
+  "schemaVersion": 1,
+  "system_id": "mastercam",
+  "module": {
+    "total_params": 412,
+    "toolpaths": [
+      {
+        "id": "dynamic_optirough",
+        "name": "Dynamic OptiRough",
+        "params_count": 86,
+        "pages": {
+          "toolpath_type": {
+            "params": [
+              {
+                "id": "cut_pattern",
+                "type": "enum",
+                "values": [
+                  "standard",
+                  "from_outside",
+                  "from_inside",
+                  "stay_inside"
+                ],
+                "default": "standard"
+              },
+              {
+                "id": "stepover_percent",
+                "type": "percentage",
+                "default": 10,
+                "range": [
+                  1,
+                  50
+                ],
+                "tribal_tip": "10-15% for HPC, 25-40% for conventional roughing"
+              },
+              {
+                "id": "stepdown",
+                "type": "distance",
+                "unit": "mm",
+                "default": 10,
+                "range": [
+                  0.5,
+                  100
+                ]
+              },
+              {
+                "id": "max_stepdown_variation",
+                "type": "percentage",
+                "default": 20,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "optimize_stepdown",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "entry_helix_diameter",
+                "type": "percentage",
+                "default": 80,
+                "range": [
+                  50,
+                  100
+                ]
+              },
+              {
+                "id": "entry_helix_pitch",
+                "type": "distance",
+                "unit": "mm",
+                "default": 2,
+                "range": [
+                  0.5,
+                  20
+                ]
+              },
+              {
+                "id": "ramp_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 3,
+                "range": [
+                  0.5,
+                  15
+                ]
+              },
+              {
+                "id": "micro_lift_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.05,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "detect_open_pockets",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "open_pocket_direction",
+                "type": "enum",
+                "values": [
+                  "auto",
+                  "z_plus",
+                  "z_minus",
+                  "x_plus",
+                  "x_minus",
+                  "y_plus",
+                  "y_minus"
+                ],
+                "default": "auto"
+              }
+            ]
+          },
+          "cutting_method": {
+            "params": [
+              {
+                "id": "climb_or_conventional",
+                "type": "enum",
+                "values": [
+                  "climb",
+                  "conventional"
+                ],
+                "default": "climb"
+              },
+              {
+                "id": "corner_rounding",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "corner_rounding_radius",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.5,
+                "range": [
+                  0,
+                  10
+                ]
+              },
+              {
+                "id": "minimize_tool_burial",
+                "type": "boolean",
+                "default": true,
+                "tribal_tip": "Critical for hardened steels - prevents excessive heat buildup"
+              },
+              {
+                "id": "stock_above_surfaces",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.5,
+                "range": [
+                  0,
+                  10
+                ]
+              },
+              {
+                "id": "stock_on_surfaces",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.3,
+                "range": [
+                  0,
+                  10
+                ]
+              }
+            ]
+          },
+          "avoidance": {
+            "params": [
+              {
+                "id": "avoid_check_surfaces",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "avoid_check_offset",
+                "type": "distance",
+                "unit": "mm",
+                "default": 1,
+                "range": [
+                  0,
+                  50
+                ]
+              },
+              {
+                "id": "avoid_solid_model",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "containment_boundary",
+                "type": "enum",
+                "values": [
+                  "chain",
+                  "silhouette",
+                  "stock"
+                ],
+                "default": "silhouette"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "area_clearance_3d",
+        "name": "3D Area Clearance",
+        "params_count": 72,
+        "pages": {
+          "roughing_method": {
+            "params": [
+              {
+                "id": "roughing_style",
+                "type": "enum",
+                "values": [
+                  "zigzag",
+                  "constant_overlap_spiral",
+                  "high_speed_core",
+                  "plunge_rough",
+                  "z_roughing"
+                ],
+                "default": "zigzag"
+              },
+              {
+                "id": "start_point",
+                "type": "enum",
+                "values": [
+                  "inside",
+                  "outside"
+                ],
+                "default": "inside"
+              },
+              {
+                "id": "finish_passes",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "rest_machining",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "rest_tool_diameter",
+                "type": "distance",
+                "unit": "mm",
+                "range": [
+                  1,
+                  200
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "core_mill_3d",
+        "name": "3D Core Mill",
+        "params_count": 58,
+        "pages": {
+          "core_parameters": {
+            "params": [
+              {
+                "id": "offset_direction",
+                "type": "enum",
+                "values": [
+                  "inside",
+                  "outside"
+                ],
+                "default": "outside"
+              },
+              {
+                "id": "offset_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01,
+                "range": [
+                  0.001,
+                  1
+                ]
+              },
+              {
+                "id": "minimum_width",
+                "type": "percentage",
+                "default": 25,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "maximum_width",
+                "type": "percentage",
+                "default": 100,
+                "range": [
+                  0,
+                  200
+                ]
+              },
+              {
+                "id": "cut_to_flat_depth",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "rest_mill_3d",
+        "name": "3D Rest Mill",
+        "params_count": 64,
+        "pages": {
+          "rest_detection": {
+            "params": [
+              {
+                "id": "compute_from",
+                "type": "enum",
+                "values": [
+                  "previous_operations",
+                  "tool_diameter",
+                  "stock_model"
+                ],
+                "default": "previous_operations"
+              },
+              {
+                "id": "previous_tool_diameter",
+                "type": "distance",
+                "unit": "mm"
+              },
+              {
+                "id": "reference_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.1
+              },
+              {
+                "id": "minimum_area",
+                "type": "distance",
+                "unit": "mm",
+                "default": 1,
+                "tribal_tip": "Set min area > tool radius to avoid air cutting"
+              },
+              {
+                "id": "z_limit_top",
+                "type": "distance",
+                "unit": "mm"
+              },
+              {
+                "id": "z_limit_bottom",
+                "type": "distance",
+                "unit": "mm"
+              },
+              {
+                "id": "merge_small_regions",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "parallel_3d",
+        "name": "3D Parallel (Finishing)",
+        "params_count": 54,
+        "pages": {
+          "cut_pattern": {
+            "params": [
+              {
+                "id": "cut_method",
+                "type": "enum",
+                "values": [
+                  "zigzag",
+                  "one_way_climb",
+                  "one_way_conventional"
+                ],
+                "default": "zigzag"
+              },
+              {
+                "id": "stepover",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.5,
+                "range": [
+                  0.01,
+                  50
+                ]
+              },
+              {
+                "id": "cut_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 45,
+                "range": [
+                  0,
+                  180
+                ],
+                "tribal_tip": "45 degree angle hides toolpath lines on flat areas"
+              },
+              {
+                "id": "perpendicular_cut",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "spiral_machining",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "along_curves",
+                "type": "boolean",
+                "default": false
+              }
+            ]
+          },
+          "surface_parameters": {
+            "params": [
+              {
+                "id": "surface_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01,
+                "range": [
+                  0.001,
+                  1
+                ]
+              },
+              {
+                "id": "scallop_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01,
+                "range": [
+                  0.001,
+                  1
+                ]
+              },
+              {
+                "id": "use_scallop_height",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "detect_shallow_areas",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "shallow_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 15,
+                "range": [
+                  0,
+                  90
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "scallop_3d",
+        "name": "3D Scallop",
+        "params_count": 48,
+        "pages": {
+          "scallop_params": {
+            "params": [
+              {
+                "id": "scallop_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01,
+                "range": [
+                  0.001,
+                  0.5
+                ]
+              },
+              {
+                "id": "stepover_max",
+                "type": "distance",
+                "unit": "mm",
+                "default": 1,
+                "range": [
+                  0.1,
+                  50
+                ]
+              },
+              {
+                "id": "start_at_center",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "cut_direction",
+                "type": "enum",
+                "values": [
+                  "climb",
+                  "conventional"
+                ],
+                "default": "climb"
+              },
+              {
+                "id": "offset_direction",
+                "type": "enum",
+                "values": [
+                  "inside_out",
+                  "outside_in"
+                ],
+                "default": "inside_out"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "pencil_3d",
+        "name": "3D Pencil",
+        "params_count": 42,
+        "pages": {
+          "pencil_params": {
+            "params": [
+              {
+                "id": "corner_radius_threshold",
+                "type": "distance",
+                "unit": "mm",
+                "default": 2,
+                "range": [
+                  0.1,
+                  50
+                ]
+              },
+              {
+                "id": "reference_tool_diameter",
+                "type": "distance",
+                "unit": "mm",
+                "range": [
+                  1,
+                  200
+                ]
+              },
+              {
+                "id": "detect_corners",
+                "type": "enum",
+                "values": [
+                  "concave_only",
+                  "convex_only",
+                  "both"
+                ],
+                "default": "concave_only"
+              },
+              {
+                "id": "multiple_passes",
+                "type": "number",
+                "default": 1,
+                "range": [
+                  1,
+                  10
+                ]
+              },
+              {
+                "id": "pass_offset",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.1,
+                "range": [
+                  0,
+                  2
+                ],
+                "tribal_tip": "0.1mm offset between passes for smooth blend"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "contour_3d",
+        "name": "3D Contour (Z-Level)",
+        "params_count": 56,
+        "pages": {
+          "z_level_params": {
+            "params": [
+              {
+                "id": "stepdown",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.5,
+                "range": [
+                  0.02,
+                  20
+                ]
+              },
+              {
+                "id": "machining_direction",
+                "type": "enum",
+                "values": [
+                  "climb",
+                  "conventional"
+                ],
+                "default": "climb"
+              },
+              {
+                "id": "profile_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01
+              },
+              {
+                "id": "smoothing",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "smooth_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.05
+              },
+              {
+                "id": "detect_steep_regions",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "steep_threshold",
+                "type": "angle",
+                "unit": "deg",
+                "default": 45,
+                "tribal_tip": "Z-level for walls >45 deg, parallel for flatter"
+              },
+              {
+                "id": "spiral_connect",
+                "type": "boolean",
+                "default": true,
+                "tribal_tip": "Enable to eliminate witness lines between passes"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "horizontal_area_3d",
+        "name": "3D Horizontal Area",
+        "params_count": 38,
+        "pages": {
+          "flat_detection": {
+            "params": [
+              {
+                "id": "flat_angle_threshold",
+                "type": "angle",
+                "unit": "deg",
+                "default": 10,
+                "range": [
+                  0,
+                  45
+                ]
+              },
+              {
+                "id": "cut_pattern",
+                "type": "enum",
+                "values": [
+                  "parallel",
+                  "spiral",
+                  "contour"
+                ],
+                "default": "parallel"
+              },
+              {
+                "id": "cut_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 45,
+                "range": [
+                  0,
+                  180
+                ]
+              },
+              {
+                "id": "stepover",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.3,
+                "range": [
+                  0.05,
+                  20
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "blend_3d",
+        "name": "3D Blend",
+        "params_count": 44,
+        "pages": {
+          "blend_params": {
+            "params": [
+              {
+                "id": "from_surface",
+                "type": "geometry_ref"
+              },
+              {
+                "id": "to_surface",
+                "type": "geometry_ref"
+              },
+              {
+                "id": "blend_type",
+                "type": "enum",
+                "values": [
+                  "linear",
+                  "cubic",
+                  "smooth"
+                ],
+                "default": "smooth"
+              },
+              {
+                "id": "number_passes",
+                "type": "number",
+                "default": 10,
+                "range": [
+                  2,
+                  100
+                ]
+              },
+              {
+                "id": "distribution",
+                "type": "enum",
+                "values": [
+                  "even",
+                  "cosine",
+                  "curvature"
+                ],
+                "default": "even"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "consolidated_source": "MASTERCAM_X8_2D_3D_HS_CATALOG.json",
+    "split_at": "2026-04-21T20:00:19.307Z",
+    "split_rule": {
+      "module_id": "3d_high_speed",
+      "out_basename": "3d-hst-toolpaths.json"
+    }
+  }
+}

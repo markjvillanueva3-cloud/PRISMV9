@@ -1,0 +1,80 @@
+﻿PRISM STATE RESEARCH FINDINGS - 03/30/2026 19:47:15
+============================================================
+
+TASK QUEUE STATUS:
+=== TASK_QUEUE.json ===
+Total Queue Items: 0
+Completed Tasks: 0
+Available Tasks: 0
+Blocked Tasks: 0
+
+Available tasks:
+  - 
+
+Blocked tasks:
+  - 
+
+
+=== ROADMAP_COLLABORATION_STATE.md ===
+# Roadmap Collaboration State
+
+SVI METRICS:
+# PRISM System Variability Index
+**Updated**: 2026-03-31T00:33:11.822Z
+**SVI**: 2.2 Ã— 10^43
+**Reachability (Î¨)**: 40.8%
+**Trend**: stable (Î”=0)
+**SVI Watch**: stable across 12 targets
+
+## Counts
+| Subsystem | Entities | Dims | Variability | Wired% | Reachable |
+|-----------|----------|------|-------------|--------|-----------|
+| Materials | 3 | 8 | 24 | 85% | 20.4 |
+| Tools | 95,608 | 10 | 956,080 | 40% | 382,432 |
+| Machines | 910 | 14 | 12,740 | 60% | 7,644 |
+| Tribal Tips | 4,127 | 2 | 8,254 | 30% | 2,476.2 |
+| Handbooks | 0 | 11 | 0 | 45% | 0 |
+| Formulas | 499 | 5 | 2,495 | 70% | 1,746.5 |
+| Algorithms | 208 | 4 | 832 | 55% | 457.6 |
+| Strategies | 762 | 8 | 6,096 | 50% | 3,048 |
+| Engines | 1,258 | 3 | 3,774 | 65% | 2,453.1 |
+| Dispatchers | 79 | 1 | 79 | 90% | 71.1 |
+
+CLAUDE.MD INFO:
+# PRISM System Context â€” Auto-loaded every session
+
+## What PRISM Is
+CNC manufacturing intelligence platform that takes engineering drawings and produces
+physics-optimized CNC programs with per-block variable speeds/feeds. The system matches
+AND improves upon human-programmed results.
+
+## Architecture
+```
+MCP Server (TypeScript):  H:/prism/mcp-server/ â€” 1,302 engines, 79 dispatchers, 3,898 actions (2,351 total across all trees)
+Web App (React/Vite):     H:/prism/mcp-server/web/src/ â€” 45 pages, partially wired to backend
+CAD Engine (Python):      H:/prism/cad-engine/ â€” CadQuery 2.x + OpenCascade, 176 Python files
+Physics Constants:        H:/prism/mcp-server/src/physics/constants.ts â€” canonical Kienzle/Taylor
+Registries:               H:/prism/mcp-server/src/registries/ â€” 24 registries, 23K LOC
+Data:                     95,608 tools, 910 machines, 2,957 materials, 3,700+ tribal tips
+
+ROADMAP COLLABORATION STATE:
+# Roadmap Collaboration State
+
+Generated: 2026-03-30T19:55:30.832Z
+
+## Collaboration Mode
+
+- Mode: `finish-current-delivery-first`
+
+## Current Gate
+
+- ID: `finish-current-backend-and-frontend-work-first`
+- Status: `active`
+- Description: Finish the current backend and frontend work already in motion before opening a new large roadmap expansion pass.
+
+## Ownership
+
+- Claude: Backend-first: contracts, persistence, realtime sync, event flow, live system wiring.
+- Codex: Frontend-first: shells, desks, provider seams, workflow UX, employee/shop-facing integration.
+
+## Active Families

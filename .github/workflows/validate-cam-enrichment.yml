@@ -1,0 +1,56 @@
+name: Validate CAM enrichment (U-CAM-ENRICH-04)
+
+on:
+  push:
+    paths:
+      - 'mcp-server/src/engines/CAMCatalogPhysicsLinkerEngine.ts'
+      - 'mcp-server/src/engines/CAMTribalTipLinkerEngine.ts'
+      - 'mcp-server/src/engines/CAMAIActionLinkerEngine.ts'
+      - 'mcp-server/src/engines/CAMCatalogEnrichmentValidator.ts'
+      - 'mcp-server/data/cam-functions/**'
+      - 'mcp-server/data/state/CAM_PHYSICS_LINKS_INDEX.json'
+      - 'mcp-server/data/state/CAM_TRIBAL_TIP_INDEX.json'
+      - 'mcp-server/data/state/CAM_AI_ACTIONS_INDEX.json'
+      - 'mcp-server/data/state/PHASE_0.6_ENRICHMENT_BASELINE.json'
+      - 'mcp-server/scripts/validate-cam-enrichment.ts'
+      - '.github/workflows/validate-cam-enrichment.yml'
+  pull_request:
+    paths:
+      - 'mcp-server/src/engines/CAMCatalog**'
+      - 'mcp-server/src/engines/CAMTribalTipLinkerEngine.ts'
+      - 'mcp-server/src/engines/CAMAIActionLinkerEngine.ts'
+      - 'mcp-server/data/cam-functions/**'
+      - 'mcp-server/data/state/CAM_*_INDEX.json'
+
+jobs:
+  validate:
+    name: Enforce CAM enrichment baseline
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mcp-server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: mcp-server/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Run enrichment validator
+        env:
+          CAM_ENRICH_DRIFT_TOL: '0.10'
+        run: npm run validate:cam-enrichment
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cam-enrichment-validation-${{ github.run_id }}
+          path: mcp-server/data/state/PHASE_0.6_ENRICHMENT_VALIDATION.json
+          if-no-files-found: warn
+          retention-days: 30

@@ -1,0 +1,352 @@
+{
+  "timestamp": "2026-02-01T19:24:38.813073",
+  "mcp_server": {
+    "total_tools": 106,
+    "categories": {
+      "prism_agent": 4,
+      "prism_alarm": 2,
+      "prism_attention": 1,
+      "prism_batch": 1,
+      "prism_cache": 1,
+      "prism_checkpoint": 2,
+      "prism_compaction": 1,
+      "prism_context": 5,
+      "prism_decision": 3,
+      "prism_error": 3,
+      "prism_event": 3,
+      "prism_formula": 8,
+      "prism_gsd": 1,
+      "prism_handoff": 1,
+      "prism_hook": 8,
+      "prism_json": 1,
+      "prism_machine": 3,
+      "prism_material": 4,
+      "prism_orch": 5,
+      "prism_physics": 12,
+      "prism_prompt": 1,
+      "prism_quality": 4,
+      "prism_queue": 1,
+      "prism_registry": 1,
+      "prism_relevance": 1,
+      "prism_resource": 3,
+      "prism_safety": 2,
+      "prism_session": 2,
+      "prism_skill": 10,
+      "prism_state": 8,
+      "prism_template": 1,
+      "prism_transcript": 1,
+      "prism_validate": 2
+    },
+    "tools_by_category": {
+      "prism_skill": [
+        "prism_skill_load",
+        "prism_skill_list",
+        "prism_skill_relevance",
+        "prism_skill_select",
+        "prism_skill_dependencies",
+        "prism_skill_consumers",
+        "prism_skill_read",
+        "prism_skill_search",
+        "prism_skill_list_all",
+        "prism_skill_stats"
+      ],
+      "prism_agent": [
+        "prism_agent_list",
+        "prism_agent_select",
+        "prism_agent_spawn",
+        "prism_agent_status"
+      ],
+      "prism_hook": [
+        "prism_hook_list",
+        "prism_hook_trigger",
+        "prism_hook_get",
+        "prism_hook_search",
+        "prism_hook_by_domain",
+        "prism_hook_by_trigger",
+        "prism_hook_categories",
+        "prism_hook_stats"
+      ],
+      "prism_formula": [
+        "prism_formula_list",
+        "prism_formula_apply",
+        "prism_formula_get",
+        "prism_formula_search",
+        "prism_formula_by_category",
+        "prism_formula_dependencies",
+        "prism_formula_categories",
+        "prism_formula_stats"
+      ],
+      "prism_material": [
+        "prism_material_get",
+        "prism_material_search",
+        "prism_material_property",
+        "prism_material_similar"
+      ],
+      "prism_machine": [
+        "prism_machine_get",
+        "prism_machine_search",
+        "prism_machine_capabilities"
+      ],
+      "prism_alarm": [
+        "prism_alarm_get",
+        "prism_alarm_search"
+      ],
+      "prism_physics": [
+        "prism_physics_kienzle",
+        "prism_physics_taylor",
+        "prism_physics_johnson_cook",
+        "prism_physics_stability",
+        "prism_physics_deflection",
+        "prism_physics_surface",
+        "prism_physics_validate_kienzle",
+        "prism_physics_check_limits",
+        "prism_physics_unit_convert",
+        "prism_physics_optimize_speed",
+        "prism_physics_optimize_feed",
+        "prism_physics_optimize_doc"
+      ],
+      "prism_state": [
+        "prism_state_get",
+        "prism_state_update",
+        "prism_state_checkpoint",
+        "prism_state_restore",
+        "prism_state_rollback",
+        "prism_state_reconstruct",
+        "prism_state_append",
+        "prism_state_rebuild"
+      ],
+      "prism_event": [
+        "prism_event_append",
+        "prism_event_search",
+        "prism_event_recent"
+      ],
+      "prism_decision": [
+        "prism_decision_record",
+        "prism_decision_search",
+        "prism_decision_recent"
+      ],
+      "prism_quality": [
+        "prism_quality_omega",
+        "prism_quality_safety",
+        "prism_quality_reasoning",
+        "prism_quality_code"
+      ],
+      "prism_validate": [
+        "prism_validate_gates",
+        "prism_validate_anti_regression"
+      ],
+      "prism_safety": [
+        "prism_safety_check_limits",
+        "prism_safety_check_collision"
+      ],
+      "prism_gsd": [
+        "prism_gsd_get"
+      ],
+      "prism_compaction": [
+        "prism_compaction_detect"
+      ],
+      "prism_transcript": [
+        "prism_transcript_read"
+      ],
+      "prism_checkpoint": [
+        "prism_checkpoint_create",
+        "prism_checkpoint_restore"
+      ],
+      "prism_session": [
+        "prism_session_resume",
+        "prism_session_end"
+      ],
+      "prism_context": [
+        "prism_context_inject",
+        "prism_context_pressure",
+        "prism_context_size",
+        "prism_context_compress",
+        "prism_context_expand"
+      ],
+      "prism_handoff": [
+        "prism_handoff_prepare"
+      ],
+      "prism_cache": [
+        "prism_cache_validate"
+      ],
+      "prism_json": [
+        "prism_json_sort"
+      ],
+      "prism_error": [
+        "prism_error_log",
+        "prism_error_analyze",
+        "prism_error_learn"
+      ],
+      "prism_attention": [
+        "prism_attention_focus"
+      ],
+      "prism_relevance": [
+        "prism_relevance_score"
+      ],
+      "prism_prompt": [
+        "prism_prompt_build"
+      ],
+      "prism_template": [
+        "prism_template_get"
+      ],
+      "prism_batch": [
+        "prism_batch_execute"
+      ],
+      "prism_queue": [
+        "prism_queue_status"
+      ],
+      "prism_resource": [
+        "prism_resource_get",
+        "prism_resource_search",
+        "prism_resource_list"
+      ],
+      "prism_registry": [
+        "prism_registry_get"
+      ],
+      "prism_orch": [
+        "prism_orch_status",
+        "prism_orch_context",
+        "prism_orch_compress",
+        "prism_orch_checkpoint",
+        "prism_orch_add_usage"
+      ]
+    }
+  },
+  "resources": {
+    "skills": {
+      "total": 153,
+      "real": 146,
+      "placeholder": 7,
+      "real_pct": 95.4
+    },
+    "scripts": {
+      "total": 443,
+      "by_type": {
+        "other": 383,
+        "generator": 22,
+        "test": 11,
+        "mcp": 27
+      },
+      "substantial": 425
+    },
+    "hooks": {
+      "total": 6797,
+      "domains": 64,
+      "blocking": 668
+    },
+    "formulas": {
+      "total": 490,
+      "categories": 27,
+      "by_novelty": {
+        "STANDARD": 279,
+        "ENHANCED": 106,
+        "NOVEL": 39,
+        "INVENTION": 66
+      }
+    },
+    "agents": {
+      "total": 64,
+      "tiers": {
+        "OPUS": 18,
+        "SONNET": 37,
+        "HAIKU": 9
+      }
+    },
+    "patterns": {
+      "swarm_orchestrator": true,
+      "ralph_loops": true,
+      "claude_flow": true,
+      "api_executor": true,
+      "batch_processor": true,
+      "parallel_executor": true,
+      "manus_integration": false,
+      "obsidian_sync": false,
+      "swarm_found": true,
+      "claude_flow_found": true,
+      "batch_found": true,
+      "parallel_found": true,
+      "manus_found": true,
+      "ralph_found": true,
+      "api_found": true,
+      "obsidian_found": true
+    },
+    "registries": {
+      "count": 44,
+      "files": [
+        "AGENT_REGISTRY",
+        "CAPABILITY_MATRIX",
+        "COMPLETE_ARCHITECTURE_v16",
+        "COMPLETE_HIERARCHY",
+        "COMPLETE_HIERARCHY_v15",
+        "CONSTANTS_FOUNDATION",
+        "DATABASE_REGISTRY",
+        "ENGINE_EXPANSION_PHYSICS",
+        "ENGINE_REGISTRY",
+        "ENGINE_REGISTRY_WAVE1",
+        "ENGINE_REGISTRY_WAVE2",
+        "ENGINE_REGISTRY_WAVE3",
+        "EXTERNAL_RESOURCES_REGISTRY",
+        "FORMULA_REGISTRY",
+        "FORMULA_REGISTRY_WAVE1",
+        "FORMULA_REGISTRY_WAVE2",
+        "FORMULA_REGISTRY_WAVE3",
+        "FORMULA_REGISTRY_WAVE4",
+        "HOOK_REGISTRY",
+        "HOOK_REGISTRY_EXPANDED",
+        "HOOK_REGISTRY_WAVE3",
+        "ILP_TEST_RESULTS",
+        "LAYER_TAXONOMY_v16",
+        "MCP_MASTER_MANIFEST",
+        "MCP_RESOURCE_REGISTRY",
+        "PRECISE_WIRING_D2F",
+        "PRECISE_WIRING_E2S",
+        "PRECISE_WIRING_F2E",
+        "PRECISE_WIRING_v16",
+        "SCRIPT_REGISTRY",
+        "SCRIPT_REGISTRY_WAVE3",
+        "SKILL_PRODUCT_WIRING",
+        "SKILL_REGISTRY",
+        "SKILL_REGISTRY_EXPANDED",
+        "SYNERGY_MATRIX",
+        "TYPE_SYSTEM",
+        "ULTIMATE_WIRING",
+        "VALIDATORS",
+        "WIRING_EXHAUSTIVE",
+        "WIRING_EXHAUSTIVE_FINAL",
+        "WIRING_REGISTRY",
+        "WIRING_REGISTRY_EXPANDED",
+        "WIRING_REGISTRY_FINAL",
+        "WIRING_SEMANTIC"
+      ]
+    }
+  },
+  "utilization": {
+    "mcp_coverage": {
+      "hooks": true,
+      "formulas": true,
+      "skills": true,
+      "materials": true,
+      "physics": true,
+      "agents": true,
+      "orchestrator": true,
+      "batch": true,
+      "context": true,
+      "validation": true
+    }
+  },
+  "gaps": [],
+  "recommendations": [
+    "Verify orchestrator uses ALL MCP tools for routing"
+  ],
+  "summary": {
+    "mcp_tools": 106,
+    "skills": 153,
+    "skills_real": 146,
+    "scripts": 443,
+    "hooks": 6797,
+    "formulas": 490,
+    "agents": 64,
+    "registries": 44,
+    "gaps": 0
+  }
+}

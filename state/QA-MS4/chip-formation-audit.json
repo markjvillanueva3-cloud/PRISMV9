@@ -1,0 +1,86 @@
+{
+  "audit_id": "QA-MS4-P0-U03",
+  "title": "Chip Formation / Chip Thickness Models Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T00:10:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - Chip thickness models correctly implemented across 3 modules",
+
+  "implementations_found": {
+    "ChipBreakingModel": {
+      "file": "src/algorithms/ChipBreakingModel.ts",
+      "class": "ChipBreakingModel",
+      "chip_thickness_formula": "h = fz * sin(kappa_r)",
+      "chip_width_formula": "b = ap / sin(kappa_r)",
+      "compression_ratio": "Material-dependent base * speed_factor * rake_factor",
+      "chip_type_classification": "ISO 3685 codes 1-8 by material group and geometry",
+      "correct": true
+    },
+    "ManufacturingCalculations_Martellotti": {
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "function": "calculateKienzleCuttingForce",
+      "line": 254,
+      "chip_thickness_formula": "h_mean = fz * (1 - cos(phi_e)) / phi_e",
+      "engagement_angle": "phi_e = arccos(1 - 2*ae/D)",
+      "single_point": "h = fz directly",
+      "reference": "Martellotti (1941), Altintas Ch.2",
+      "correct": true
+    },
+    "calculateChipLoad": {
+      "file": "src/engines/ManufacturingCalculations.ts",
+      "function": "calculateChipLoad",
+      "line": 822,
+      "formula": "fz = Vf / (n * z), hex adjusted for ae/D",
+      "thin_chip_compensation": "chip_thinning_factor = fz / hex, recommended_fz_compensated",
+      "consistent_with_kienzle": true
+    },
+    "ChipVolumeRate": {
+      "file": "src/algorithms/ChipVolumeRate.ts",
+      "class": "ChipVolumeRatePredictor",
+      "slot_milling": "h_avg = fz * 2/pi (average over semicircle)",
+      "side_milling": "h_avg = fz * sin(phi/2) * ae/D",
+      "turning": "h = f * sin(lead_angle)",
+      "correct": true
+    }
+  },
+
+  "chip_thickness_verification": {
+    "turning_single_point": {
+      "formula": "h = f * sin(kappa_r)",
+      "at_90deg": "h = f (most common turning setup)",
+      "at_45deg": "h = f * 0.707",
+      "reference": "Standard orthogonal cutting theory",
+      "correct": true
+    },
+    "milling_martellotti": {
+      "formula": "h_mean = fz * (1 - cos(phi_e)) / phi_e",
+      "full_slot": "h_mean = fz * 2/pi = 0.637*fz (consistent with ChipVolumeRate slot formula)",
+      "half_radial": "ae/D=0.5 -> phi_e=pi/2 -> h_mean = fz * (1-0)/1.571 = 0.637*fz",
+      "light_radial": "ae/D=0.1 -> phi_e=0.644 -> h_mean = fz * 0.310/0.644 = 0.481*fz",
+      "correct": true
+    },
+    "chip_compression_ratio": {
+      "formula": "r_c = base_ratio * speed_factor * rake_factor",
+      "ISO_P_steel": "base=2.5, typical r_c = 2.0-3.0",
+      "ISO_K_cast_iron": "base=1.5, typical r_c = 1.2-1.8 (segmented chip)",
+      "ISO_N_aluminum": "base=3.5, typical r_c = 3.0-4.0 (continuous/stringy)",
+      "reasonable": true
+    }
+  },
+
+  "chip_classification": {
+    "scheme": "ISO 3685:1993 chip form codes",
+    "types_implemented": ["broken", "segmented", "continuous", "stringy", "snarled"],
+    "form_codes": "1-8 mapped by material group + geometry",
+    "bue_risk_assessment": "Speed-range based per ISO group",
+    "comprehensive": true
+  },
+
+  "findings": [],
+
+  "exit_conditions_met": {
+    "chip_thickness_model_verified": true,
+    "chip_compression_ratio_verified": true,
+    "shear_plane_angle": "Not explicitly calculated (uses empirical compression ratio instead - reasonable approach)"
+  }
+}

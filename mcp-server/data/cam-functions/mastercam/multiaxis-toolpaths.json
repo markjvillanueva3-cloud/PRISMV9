@@ -1,0 +1,1601 @@
+{
+  "schemaVersion": 1,
+  "system_id": "mastercam",
+  "section_key": "multiAxisToolpaths",
+  "section": {
+    "category": "MULTIAXIS_TOOLPATHS",
+    "totalStrategies": 32,
+    "totalParameters": 312,
+    "curve5Axis": {
+      "mastercamCycle": "Multiaxis Curve 5-axis",
+      "cycleCode": "MCR5X",
+      "group": "5Axis-Curve",
+      "description": "5-axis toolpath following drive curves with tool axis control relative to surface normal",
+      "pages": {
+        "toolpathType": {
+          "parameters": [
+            {
+              "name": "drive_method",
+              "type": "enum",
+              "values": [
+                "curve",
+                "surface",
+                "solid_face"
+              ],
+              "default": "curve"
+            },
+            {
+              "name": "cut_pattern",
+              "type": "enum",
+              "values": [
+                "zig",
+                "zag",
+                "zigzag",
+                "one_way"
+              ],
+              "default": "zigzag"
+            },
+            {
+              "name": "stepover_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "scallop_height",
+                "cusp_height"
+              ],
+              "default": "constant"
+            }
+          ]
+        },
+        "toolAxisControl": {
+          "parameters": [
+            {
+              "name": "axis_control_mode",
+              "type": "enum",
+              "values": [
+                "lead_lag",
+                "tilt",
+                "swarf",
+                "automatic",
+                "from_surface",
+                "interpolated",
+                "to_point"
+              ],
+              "default": "lead_lag"
+            },
+            {
+              "name": "lead_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -45,
+                45
+              ],
+              "default": 5
+            },
+            {
+              "name": "lag_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -45,
+                45
+              ],
+              "default": 0
+            },
+            {
+              "name": "tilt_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -90,
+                90
+              ],
+              "default": 0
+            },
+            {
+              "name": "max_tilt_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                90
+              ],
+              "default": 45
+            },
+            {
+              "name": "min_tilt_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -90,
+                0
+              ],
+              "default": -45
+            }
+          ]
+        },
+        "cutParameters": {
+          "parameters": [
+            {
+              "name": "stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                50
+              ],
+              "default": 0.5
+            },
+            {
+              "name": "stepdown_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                50
+              ],
+              "default": 0.5
+            },
+            {
+              "name": "stock_to_leave_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                -0.5,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "tolerance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.001,
+                0.5
+              ],
+              "default": 0.01
+            },
+            {
+              "name": "max_stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                100
+              ],
+              "default": 5
+            }
+          ]
+        },
+        "linking": {
+          "parameters": [
+            {
+              "name": "retract_method",
+              "type": "enum",
+              "values": [
+                "clearance",
+                "incremental",
+                "absolute"
+              ],
+              "default": "incremental"
+            },
+            {
+              "name": "retract_distance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                500
+              ],
+              "default": 5
+            },
+            {
+              "name": "feed_plane_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                500
+              ],
+              "default": 2
+            },
+            {
+              "name": "lead_in_type",
+              "type": "enum",
+              "values": [
+                "none",
+                "perpendicular",
+                "tangent_arc",
+                "helix"
+              ],
+              "default": "tangent_arc"
+            },
+            {
+              "name": "lead_in_radius_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                50
+              ],
+              "default": 2
+            },
+            {
+              "name": "lead_out_type",
+              "type": "enum",
+              "values": [
+                "none",
+                "perpendicular",
+                "tangent_arc"
+              ],
+              "default": "tangent_arc"
+            }
+          ]
+        }
+      }
+    },
+    "swarf5Axis": {
+      "mastercamCycle": "Multiaxis Swarf",
+      "cycleCode": "MCS5X",
+      "group": "5Axis-Swarf",
+      "description": "Flank milling with full tool flute engagement on ruled surfaces",
+      "pages": {
+        "surfaceSelection": {
+          "parameters": [
+            {
+              "name": "surface_type",
+              "type": "enum",
+              "values": [
+                "ruled",
+                "near_ruled",
+                "drive_check"
+              ],
+              "default": "ruled"
+            },
+            {
+              "name": "drive_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "check_surfaces",
+              "type": "surface_list",
+              "required": false
+            }
+          ]
+        },
+        "toolAxisControl": {
+          "parameters": [
+            {
+              "name": "swarf_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "angle_limit_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                90
+              ],
+              "default": 5
+            },
+            {
+              "name": "undercut_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -10,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "tool_offset_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                -10,
+                10
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "cutPattern": {
+          "parameters": [
+            {
+              "name": "cut_direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional",
+                "mixed"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "cut_order",
+              "type": "enum",
+              "values": [
+                "depth_first",
+                "pass_first"
+              ],
+              "default": "depth_first"
+            },
+            {
+              "name": "roll_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -5,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "linking": {
+          "parameters": [
+            {
+              "name": "entry_method",
+              "type": "enum",
+              "values": [
+                "plunge",
+                "ramp",
+                "helix",
+                "tangent"
+              ],
+              "default": "tangent"
+            },
+            {
+              "name": "retract_type",
+              "type": "enum",
+              "values": [
+                "full",
+                "incremental",
+                "stay_down"
+              ],
+              "default": "incremental"
+            },
+            {
+              "name": "retract_distance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                100
+              ],
+              "default": 5
+            }
+          ]
+        }
+      }
+    },
+    "flow5Axis": {
+      "mastercamCycle": "Multiaxis Flow",
+      "cycleCode": "MCF5X",
+      "group": "5Axis-Flow",
+      "description": "5-axis toolpath following UV flow lines of surface parameterization",
+      "pages": {
+        "driveMethod": {
+          "parameters": [
+            {
+              "name": "drive_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "flow_direction",
+              "type": "enum",
+              "values": [
+                "u_direction",
+                "v_direction",
+                "cross_flow"
+              ],
+              "default": "u_direction"
+            },
+            {
+              "name": "cross_curve",
+              "type": "curve",
+              "required": false
+            }
+          ]
+        },
+        "stepover": {
+          "parameters": [
+            {
+              "name": "stepover_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "scallop",
+                "cusp"
+              ],
+              "default": "scallop"
+            },
+            {
+              "name": "scallop_height_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.001,
+                0.1
+              ],
+              "default": 0.005
+            },
+            {
+              "name": "max_stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                50
+              ],
+              "default": 3
+            },
+            {
+              "name": "min_stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                10
+              ],
+              "default": 0.1
+            }
+          ]
+        },
+        "toolAxisControl": {
+          "parameters": [
+            {
+              "name": "axis_mode",
+              "type": "enum",
+              "values": [
+                "from_surface",
+                "interpolated",
+                "to_point"
+              ],
+              "default": "from_surface"
+            },
+            {
+              "name": "lead_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                30
+              ],
+              "default": 5
+            },
+            {
+              "name": "tilt_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -15,
+                15
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "collisionControl": {
+          "parameters": [
+            {
+              "name": "collision_check",
+              "type": "enum",
+              "values": [
+                "off",
+                "gouge_check",
+                "holder_check",
+                "full_machine"
+              ],
+              "default": "holder_check"
+            },
+            {
+              "name": "holder_clearance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                50
+              ],
+              "default": 2
+            },
+            {
+              "name": "collision_action",
+              "type": "enum",
+              "values": [
+                "retract",
+                "tilt_away",
+                "skip"
+              ],
+              "default": "tilt_away"
+            }
+          ]
+        }
+      }
+    },
+    "port5Axis": {
+      "mastercamCycle": "Multiaxis Port",
+      "cycleCode": "MCP5X",
+      "group": "5Axis-Port",
+      "description": "Specialized 5-axis for intake/exhaust ports, impeller channels, and internal passages",
+      "pages": {
+        "portDefinition": {
+          "parameters": [
+            {
+              "name": "entry_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "exit_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "floor_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "wall_surfaces",
+              "type": "surface_list",
+              "required": false
+            }
+          ]
+        },
+        "cutPattern": {
+          "parameters": [
+            {
+              "name": "pattern_type",
+              "type": "enum",
+              "values": [
+                "spiral",
+                "helical",
+                "z_level",
+                "flow"
+              ],
+              "default": "spiral"
+            },
+            {
+              "name": "cut_direction",
+              "type": "enum",
+              "values": [
+                "entry_to_exit",
+                "exit_to_entry"
+              ],
+              "default": "entry_to_exit"
+            },
+            {
+              "name": "overlap_percent",
+              "type": "float",
+              "unit": "percent",
+              "range": [
+                0,
+                50
+              ],
+              "default": 10
+            }
+          ]
+        },
+        "depthControl": {
+          "parameters": [
+            {
+              "name": "stepdown_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "stock_to_leave_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0.2
+            },
+            {
+              "name": "floor_stock_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0.1
+            }
+          ]
+        }
+      }
+    },
+    "drill5Axis": {
+      "mastercamCycle": "Multiaxis Drill",
+      "cycleCode": "MCD5X",
+      "group": "5Axis-Drill",
+      "description": "Drilling at compound angles with 5-axis orientation",
+      "pages": {
+        "holeDefinition": {
+          "parameters": [
+            {
+              "name": "hole_points",
+              "type": "point_list",
+              "required": true
+            },
+            {
+              "name": "hole_axis_vectors",
+              "type": "vector_list",
+              "required": true
+            },
+            {
+              "name": "depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                500
+              ],
+              "default": 10
+            }
+          ]
+        },
+        "drillCycle": {
+          "parameters": [
+            {
+              "name": "cycle_type",
+              "type": "enum",
+              "values": [
+                "drill",
+                "peck",
+                "chip_break",
+                "deep_hole",
+                "tap",
+                "bore",
+                "ream"
+              ],
+              "default": "drill"
+            },
+            {
+              "name": "peck_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                50
+              ],
+              "default": 2
+            },
+            {
+              "name": "dwell_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "retract_type",
+              "type": "enum",
+              "values": [
+                "rapid",
+                "feed"
+              ],
+              "default": "rapid"
+            }
+          ]
+        },
+        "axisControl": {
+          "parameters": [
+            {
+              "name": "orientation_method",
+              "type": "enum",
+              "values": [
+                "vector",
+                "euler_angles",
+                "tool_plane"
+              ],
+              "default": "vector"
+            },
+            {
+              "name": "a_axis_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -180,
+                180
+              ],
+              "default": 0
+            },
+            {
+              "name": "b_axis_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -180,
+                180
+              ],
+              "default": 0
+            },
+            {
+              "name": "c_axis_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                -360,
+                360
+              ],
+              "default": 0
+            }
+          ]
+        }
+      }
+    },
+    "multiSurface5Axis": {
+      "mastercamCycle": "Multiaxis Multi-Surface",
+      "cycleCode": "MCMS5X",
+      "group": "5Axis-MultiSurface",
+      "description": "5-axis finishing across multiple blended surfaces with smooth axis transitions",
+      "pages": {
+        "surfaceSelection": {
+          "parameters": [
+            {
+              "name": "drive_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "check_surfaces",
+              "type": "surface_list",
+              "required": false
+            },
+            {
+              "name": "containment_boundary",
+              "type": "curve",
+              "required": false
+            }
+          ]
+        },
+        "cutPattern": {
+          "parameters": [
+            {
+              "name": "pattern_type",
+              "type": "enum",
+              "values": [
+                "parallel",
+                "radial",
+                "spiral",
+                "flowline",
+                "morph"
+              ],
+              "default": "parallel"
+            },
+            {
+              "name": "cut_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 0
+            },
+            {
+              "name": "stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                50
+              ],
+              "default": 0.3
+            }
+          ]
+        },
+        "toolAxisControl": {
+          "parameters": [
+            {
+              "name": "blend_tolerance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.001,
+                0.5
+              ],
+              "default": 0.01
+            },
+            {
+              "name": "max_axis_change_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0.1,
+                45
+              ],
+              "default": 5
+            },
+            {
+              "name": "smoothing_factor",
+              "type": "float",
+              "unit": "none",
+              "range": [
+                0,
+                1
+              ],
+              "default": 0.5
+            }
+          ]
+        }
+      }
+    },
+    "rotary4Axis": {
+      "mastercamCycle": "Rotary 4-Axis",
+      "cycleCode": "MCR4X",
+      "group": "4Axis-Rotary",
+      "description": "4-axis simultaneous or indexed machining with rotary axis control",
+      "pages": {
+        "rotaryConfig": {
+          "parameters": [
+            {
+              "name": "rotary_axis",
+              "type": "enum",
+              "values": [
+                "A",
+                "B",
+                "C"
+              ],
+              "default": "A"
+            },
+            {
+              "name": "wrap_method",
+              "type": "enum",
+              "values": [
+                "diameter",
+                "radius",
+                "flat_to_wrap"
+              ],
+              "default": "diameter"
+            },
+            {
+              "name": "cylinder_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                1,
+                1000
+              ],
+              "default": 100
+            },
+            {
+              "name": "cylinder_axis_direction",
+              "type": "enum",
+              "values": [
+                "X",
+                "Y",
+                "Z"
+              ],
+              "default": "X"
+            }
+          ]
+        },
+        "cutPattern": {
+          "parameters": [
+            {
+              "name": "pattern_type",
+              "type": "enum",
+              "values": [
+                "spiral",
+                "axial",
+                "helical",
+                "contour"
+              ],
+              "default": "spiral"
+            },
+            {
+              "name": "stepover_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0.1,
+                180
+              ],
+              "default": 5
+            },
+            {
+              "name": "stepdown_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                50
+              ],
+              "default": 1
+            }
+          ]
+        },
+        "indexedPositions": {
+          "parameters": [
+            {
+              "name": "indexed_mode",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "index_positions",
+              "type": "float_list",
+              "unit": "degrees"
+            },
+            {
+              "name": "position_tolerance_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0.001,
+                1
+              ],
+              "default": 0.01
+            }
+          ]
+        }
+      }
+    },
+    "impeller5Axis": {
+      "mastercamCycle": "Multiaxis Impeller",
+      "cycleCode": "MCI5X",
+      "group": "5Axis-Impeller",
+      "description": "Specialized impeller machining including roughing, hub finishing, blade finishing, and fillet cleanup",
+      "strategies": [
+        {
+          "name": "Impeller Roughing",
+          "cycleCode": "MCIR5X",
+          "parameters": [
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "splitter_surfaces",
+              "type": "surface_list",
+              "required": false
+            },
+            {
+              "name": "hub_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "shroud_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "stepdown_factor",
+              "type": "float",
+              "range": [
+                0.3,
+                1
+              ],
+              "default": 0.8
+            },
+            {
+              "name": "stepover_factor",
+              "type": "float",
+              "range": [
+                0.2,
+                0.6
+              ],
+              "default": 0.4
+            }
+          ]
+        },
+        {
+          "name": "Impeller Hub Finishing",
+          "cycleCode": "MCIF5X",
+          "parameters": [
+            {
+              "name": "hub_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "blade_clearance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                10
+              ],
+              "default": 0.5
+            },
+            {
+              "name": "scallop_height_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.001,
+                0.05
+              ],
+              "default": 0.005
+            }
+          ]
+        },
+        {
+          "name": "Impeller Blade Finishing",
+          "cycleCode": "MCIP5X",
+          "parameters": [
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "finish_type",
+              "type": "enum",
+              "values": [
+                "point_milling",
+                "swarf",
+                "flow"
+              ],
+              "default": "point_milling"
+            },
+            {
+              "name": "stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                5
+              ],
+              "default": 0.3
+            }
+          ]
+        },
+        {
+          "name": "Impeller Fillet",
+          "cycleCode": "MCIT5X",
+          "parameters": [
+            {
+              "name": "fillet_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "hub_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "pass_count",
+              "type": "integer",
+              "range": [
+                1,
+                20
+              ],
+              "default": 5
+            }
+          ]
+        },
+        {
+          "name": "Impeller Edge",
+          "cycleCode": "MCIE5X",
+          "parameters": [
+            {
+              "name": "leading_edge_curves",
+              "type": "curve_list",
+              "required": true
+            },
+            {
+              "name": "trailing_edge_curves",
+              "type": "curve_list",
+              "required": true
+            },
+            {
+              "name": "edge_offset_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                2
+              ],
+              "default": 0
+            }
+          ]
+        }
+      ]
+    },
+    "blade5Axis": {
+      "mastercamCycle": "Multiaxis Blade",
+      "cycleCode": "MCB5X",
+      "group": "5Axis-Blade",
+      "description": "Turbine and compressor blade machining strategies",
+      "strategies": [
+        {
+          "name": "Blade Fillet Machining",
+          "cycleCode": "MCBF5X",
+          "parameters": [
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "hub_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "shroud_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "hub_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "shroud_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "leading_edge_curves",
+              "type": "curve_list"
+            },
+            {
+              "name": "trailing_edge_curves",
+              "type": "curve_list"
+            }
+          ]
+        },
+        {
+          "name": "Blade Platform",
+          "cycleCode": "MCBP5X",
+          "parameters": [
+            {
+              "name": "platform_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "drive_curves",
+              "type": "curve_list",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "Blade Swarf",
+          "cycleCode": "MCBS5X",
+          "parameters": [
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "hub_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "shroud_curve",
+              "type": "curve",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "Blade Top Cutting",
+          "cycleCode": "MCBT5X",
+          "parameters": [
+            {
+              "name": "tip_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "Blade Tangent",
+          "cycleCode": "MCBG5X",
+          "parameters": [
+            {
+              "name": "blade_surfaces",
+              "type": "surface_list",
+              "required": true
+            },
+            {
+              "name": "drive_surfaces",
+              "type": "surface_list",
+              "required": true
+            }
+          ]
+        }
+      ]
+    },
+    "dentalCycles": {
+      "mastercamCycle": "Multiaxis Dental",
+      "cycleCode": "MCDEN",
+      "group": "5Axis-Dental",
+      "strategies": [
+        {
+          "name": "Dental Crown",
+          "cycleCode": "MCDC5X",
+          "parameters": [
+            {
+              "name": "crown_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "margin_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "occlusal_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "stepdown_factor",
+              "type": "float",
+              "range": [
+                0.1,
+                0.5
+              ],
+              "default": 0.3
+            },
+            {
+              "name": "finish_stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                0.3
+              ],
+              "default": 0.1
+            }
+          ]
+        },
+        {
+          "name": "Dental Bridge",
+          "cycleCode": "MCDB5X",
+          "parameters": [
+            {
+              "name": "bridge_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "connector_curves",
+              "type": "curve_list",
+              "required": true
+            },
+            {
+              "name": "abutment_surfaces",
+              "type": "surface_list",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "Dental Abutment",
+          "cycleCode": "MCDA5X",
+          "parameters": [
+            {
+              "name": "abutment_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "connection_surface",
+              "type": "surface",
+              "required": true
+            },
+            {
+              "name": "interface_curve",
+              "type": "curve",
+              "required": true
+            },
+            {
+              "name": "tolerance_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.001,
+                0.02
+              ],
+              "default": 0.005
+            }
+          ]
+        }
+      ]
+    },
+    "commonMultiAxisParameters": {
+      "description": "Parameters common to all multi-axis toolpath types",
+      "categories": {
+        "collisionAvoidance": [
+          {
+            "name": "collision_control",
+            "type": "enum",
+            "values": [
+              "off",
+              "gouge_check",
+              "holder_check",
+              "full_machine",
+              "tilting"
+            ],
+            "default": "holder_check"
+          },
+          {
+            "name": "gouge_tolerance_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              0.0001,
+              0.1
+            ],
+            "default": 0.001
+          },
+          {
+            "name": "holder_clearance_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              0,
+              50
+            ],
+            "default": 2
+          },
+          {
+            "name": "tool_shank_clearance_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              0,
+              50
+            ],
+            "default": 5
+          },
+          {
+            "name": "tilt_to_avoid",
+            "type": "boolean",
+            "default": true
+          },
+          {
+            "name": "max_tilt_for_avoidance_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              0,
+              90
+            ],
+            "default": 30
+          }
+        ],
+        "toolDefinition": [
+          {
+            "name": "tool_type",
+            "type": "enum",
+            "values": [
+              "ballnose",
+              "bullnose",
+              "endmill",
+              "barrel",
+              "circle_segment",
+              "tapered"
+            ],
+            "default": "ballnose"
+          },
+          {
+            "name": "tool_diameter_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              0.1,
+              100
+            ],
+            "default": 10
+          },
+          {
+            "name": "corner_radius_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              0,
+              25
+            ],
+            "default": 0
+          },
+          {
+            "name": "flute_length_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              1,
+              200
+            ],
+            "default": 30
+          },
+          {
+            "name": "overall_length_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              10,
+              500
+            ],
+            "default": 75
+          },
+          {
+            "name": "holder_diameter_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              10,
+              150
+            ],
+            "default": 50
+          },
+          {
+            "name": "holder_length_mm",
+            "type": "float",
+            "unit": "mm",
+            "range": [
+              20,
+              300
+            ],
+            "default": 80
+          }
+        ],
+        "feedsAndSpeeds": [
+          {
+            "name": "spindle_speed_rpm",
+            "type": "float",
+            "unit": "rpm",
+            "range": [
+              100,
+              60000
+            ],
+            "default": 10000
+          },
+          {
+            "name": "cutting_feed_mmpm",
+            "type": "float",
+            "unit": "mm/min",
+            "range": [
+              10,
+              20000
+            ],
+            "default": 1000
+          },
+          {
+            "name": "plunge_feed_mmpm",
+            "type": "float",
+            "unit": "mm/min",
+            "range": [
+              10,
+              5000
+            ],
+            "default": 200
+          },
+          {
+            "name": "retract_feed_mmpm",
+            "type": "float",
+            "unit": "mm/min",
+            "range": [
+              100,
+              50000
+            ],
+            "default": 5000
+          },
+          {
+            "name": "rapid_speed_mmpm",
+            "type": "float",
+            "unit": "mm/min",
+            "range": [
+              1000,
+              100000
+            ],
+            "default": 30000
+          }
+        ],
+        "axisLimits": [
+          {
+            "name": "a_axis_min_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              -360,
+              0
+            ],
+            "default": -120
+          },
+          {
+            "name": "a_axis_max_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              0,
+              360
+            ],
+            "default": 30
+          },
+          {
+            "name": "b_axis_min_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              -360,
+              0
+            ],
+            "default": -360
+          },
+          {
+            "name": "b_axis_max_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              0,
+              360
+            ],
+            "default": 360
+          },
+          {
+            "name": "c_axis_min_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              -360,
+              0
+            ],
+            "default": -360
+          },
+          {
+            "name": "c_axis_max_deg",
+            "type": "float",
+            "unit": "degrees",
+            "range": [
+              0,
+              360
+            ],
+            "default": 360
+          }
+        ]
+      }
+    }
+  },
+  "provenance": {
+    "consolidated_source": "MASTERCAM_X8_ADVANCED_MODULES_AUDIT.json",
+    "split_at": "2026-04-21T20:00:19.301Z",
+    "split_rule": {
+      "key": "multiAxisToolpaths",
+      "out_basename": "multiaxis-toolpaths.json"
+    }
+  }
+}

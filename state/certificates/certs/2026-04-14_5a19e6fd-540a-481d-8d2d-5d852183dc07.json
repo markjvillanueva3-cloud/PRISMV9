@@ -1,0 +1,29 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+import {
+  macroValidationEngine
+} from "./chunk-GE4X66AC.js";
+import {
+  okumaMacroHeaderGeneratorEngine
+} from "./chunk-BZXR7TJQ.js";
+import {
+  programMacroConverterEngine
+} from "./chunk-OUQIEWMT.js";
+import {
+  init_Logger,
+  log
+} from "./chunk-GCBAS5AO.js";
+import "./chunk-QS4TQUPO.js";
+import "./chunk-R27X3T46.js";
+
+// src/engines/BatchMacroConversionEngine.ts
+init_Logger();
+var BatchMacroConversionEngine = class {
+  /**
+   * Convert a batch of parsed Okuma programs to parametric macros.
+   *
+   * @param input - Programs and conversion options
+   * @returns Batch results with individual records and summary
+   */
+  convertBatch(input) {
+    const unitSystem = input.unit_system ?? "imperial";
+    

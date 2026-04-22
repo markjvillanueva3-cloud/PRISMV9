@@ -1,0 +1,212 @@
+================================================================================
+VAGUE ABORT_CRITERIA INDEX (38 units)
+All units with non-measurable ABORT_CRITERIA
+================================================================================
+
+Format: UNIT (Line): ABORT_CRITERIA TEXT [PROBLEM]
+
+SECTION 1: DIALECT & ENGINE UNITS
+────────────────────────────────────────────────────────────
+
+U-PP02 (90):   test failure, missing M-code definition, type error
+               [PROBLEM: "test failure" undefined; "missing M-code" no count threshold]
+
+U-PP03 (98):   test failure, dialect ID collision, missing sync code
+               [PROBLEM: no test count; "collision" undefined mechanism]
+
+U-PP04 (106):  test failure, CELOS variant detection logic error, alias collision
+               [PROBLEM: "logic error" not measurable; "collision" undefined]
+
+SECTION 2: CPS PARSER & WIRING UNITS
+──────────────────────────────────────
+
+U-PP06 (157):  mapping produces invalid dialect config, arc_format mismatch
+               [PROBLEM: "invalid" no validation logic; "mismatch" not specified]
+
+U-PP09 (189):  route 404, dispatcher action not found, schema validation failure
+               [PROBLEM: "schema validation failure" no error count]
+
+SECTION 3: MACHINE FINGERPRINT UNITS
+────────────────────────────────────
+
+U-PP13 (256):  recommendation includes feature machine can't support
+               [PROBLEM: "can't support" subjective; no validation test specified]
+
+U-PP14 (264):  route 404, dispatcher action missing, schema validation error
+               [PROBLEM: "missing" no count; "error" no severity]
+
+SECTION 4: UI COMPONENT UNITS
+──────────────────────────────────────────────────────────────────
+
+U-PP15 (292):  search returns 0 results for known machines, cascade breaks on mode switch
+               [PROBLEM: "cascade breaks" not measurable]
+
+U-PP16 (301):  toggles don't update post config, required features can be unchecked
+               [PROBLEM: "don't update" no test specified]
+
+U-PP17 (310):  override doesn't propagate to post config, warning logic inverted
+               [PROBLEM: "doesn't propagate" no observable test]
+
+U-PP18 (322):  machine selection breaks existing generate flow, API 404 on fingerprint
+               [PROBLEM: "breaks" undefined failure mode]
+
+U-PP19 (332):  feature toggle doesn't update preview, pipeline stage enable/disable broken
+               [PROBLEM: "doesn't update" no observable condition]
+
+U-PP21 (360):  diff markers wrong, syntax highlighting breaks on long programs
+               [PROBLEM: "wrong" no comparison; "breaks" no test condition]
+
+U-PP22 (369):  generated file has wrong extension, header block missing machine info
+               [PROBLEM: "wrong" no validation; "missing" no field list]
+
+U-PP23 (378):  annotations don't render, copy-to-clipboard fails, scroll broken
+               [PROBLEM: "don't render" no test; "scroll broken" no browser/viewport]
+
+SECTION 5: VALIDATION & SAFETY UNITS
+──────────────────────────────────────
+
+U-PP25 (393):  valid program falsely blocked, invalid program not caught
+               [PROBLEM: "falsely blocked" no test count]
+
+U-PP26 (402):  report generation crash, severity flags missing
+               [PROBLEM: "crash" no exception type; "missing" no count]
+
+U-PP27 (410):  prove-out toggle doesn't update preview, validation report not rendering
+               [PROBLEM: "doesn't update" no observable test]
+
+SECTION 6: SAFETY & PROVE-OUT
+──────────────────────────────────
+
+U-PP28 (426):  valid program falsely blocked, invalid program not caught
+               [PROBLEM: duplicate of U-PP25]
+
+U-PP29 (434):  report generation crash, severity flags missing, recommendations empty
+               [PROBLEM: "crash" no stack trace; "empty" no field check]
+
+U-PP30 (442):  prove-out toggle doesn't update preview, validation report not rendering
+               [PROBLEM: duplicate messaging; no measurable test]
+
+U-PP31 (450):  prove-out toggle doesn't update preview, validation report not rendering
+               [PROBLEM: 3rd occurrence of same text; no measurable test]
+
+SECTION 7: POST LIBRARY UNITS
+──────────────────────────────────────────────
+
+U-PP32 (458):  search returns 0 for known manufacturer, compatibility score NaN
+               [PROBLEM: "0 results" measurable but "NaN" vague programming issue]
+
+U-PP33 (465):  filter returns empty for known category, card click doesn't navigate
+               [PROBLEM: "empty" no data check; "doesn't navigate" no routing test]
+
+U-PP34 (473):  version hash collision, diff produces empty for changed posts
+               [PROBLEM: "collision" no probability; "empty" no comparison logic]
+
+U-PP35 (481):  history tab not rendering, can't navigate between versions
+               [PROBLEM: "not rendering" no component test; "can't navigate" no route test]
+
+U-PP36 (488):  controller syntax wrong, edit doesn't update, save produces corrupt post
+               [PROBLEM: "syntax wrong" no validation rule; "corrupt" no integrity check]
+
+U-PP37 (496):  edit loses work on page refresh, preview not updating live
+               [PROBLEM: "loses work" no storage check; "not updating live" no event test]
+
+SECTION 8: EXPORT & SETTINGS UNITS
+───────────────────────────────────
+
+U-PP38 (504):  export doesn't generate file, download fails, format conversion wrong
+               [PROBLEM: "doesn't generate" no file system check]
+
+U-PP39 (516):  form doesn't prefill, selector value not persisting
+               [PROBLEM: "doesn't prefill" no form test; "not persisting" no storage check]
+
+U-PP40 (524):  calculator not evaluating ROI factors, costs not updating
+               [PROBLEM: "not evaluating" no math test; "not updating" no state check]
+
+SECTION 9: PERFORMANCE & IMPORT UNITS
+──────────────────────────────────────
+
+U-PP41 (532):  import fails for existing post, conversion logic wrong
+               [PROBLEM: "import fails" no error code; "conversion wrong" no data diff]
+
+U-PP42 (541):  performance regression >50ms, OOM on large files
+               [PROBLEM: ">50ms" IS measurable; "OOM" vague memory threshold]
+
+SECTION 10: TESTING & HEALTH UNITS
+──────────────────────────────────
+
+U-PP43 (549):  coverage drops below 80%, critical paths untested
+               [PROBLEM: "coverage drops" is measurable but "critical paths" undefined]
+
+U-PP44 (557):  critical test fails, warning logged, performance threshold exceeded
+               [PROBLEM: "critical test" no test list; "threshold" no value]
+
+U-PP45 (566):  health check fails, post latency >1s, telemetry events missing
+               [PROBLEM: "health check fails" no condition; ">1s" IS measurable]
+
+SECTION 11: TELEMETRY UNIT
+──────────────────────────
+
+U-PP47 (722):  telemetry events not firing, funnel metrics missing a step
+               [PROBLEM: "not firing" no event count; "missing a step" no pipeline list]
+
+SECTION 12: DOCUMENTATION UNIT
+──────────────────────────────
+
+U-PP48 (738):  tooltips don't render, FAQ content missing, guide section empty
+               [PROBLEM: "don't render" no test; "missing" no count]
+
+================================================================================
+SUMMARY BY PATTERN
+================================================================================
+
+PATTERN: "test failure" or "test fails"         | 8 units
+PATTERN: "invalid" / "wrong" / "corrupt"        | 6 units
+PATTERN: "doesn't/don't" (render/update/work)   | 11 units
+PATTERN: "missing" / "empty"                    | 8 units
+PATTERN: "broken" / "crash" / "fails"           | 9 units
+PATTERN: "can't" / "doesn't" (navigate/catch)   | 6 units
+
+================================================================================
+UNITS WITH TRULY MEASURABLE CRITERIA (9 units)
+For comparison, see main report for these exceptions
+================================================================================
+
+U-PP01 (73):   force delta >15%
+U-PP05 (144):  <80% property extraction
+U-PP07 (169):  >10% parse failure rate
+U-PP08 (178):  <70% match rate
+U-PP10 (198):  <90% match rate
+U-PP11 (239):  <80% resolution rate
+U-PP12 (248):  <10 controller families
+U-PP24 (418):  >40% feed reduction, <70% RPM cap
+U-PP41 (489):  version hash collision, diff empty
+
+================================================================================
+UNITS BY COMPLEXITY (Vaguest Category)
+================================================================================
+
+MOST VAGUE (no measurable aspect at all): 24 units
+  U-PP02, U-PP03, U-PP04, U-PP06, U-PP14, U-PP16, U-PP17, U-PP19,
+  U-PP21, U-PP22, U-PP25, U-PP26, U-PP27, U-PP29, U-PP30, U-PP31,
+  U-PP33, U-PP35, U-PP36, U-PP37, U-PP38, U-PP39, U-PP40, U-PP48
+
+PARTIALLY MEASURABLE (1 aspect + vague): 14 units
+  U-PP09, U-PP13, U-PP15, U-PP23, U-PP32, U-PP34, U-PP41, U-PP42,
+  U-PP43, U-PP44, U-PP45, U-PP47
+
+================================================================================
+CONCLUSION
+================================================================================
+
+All 38 units lack adequate measurable gates. Fix priority:
+
+1. U-PP15-U-PP23: UI units (8 units, most complex testing)
+2. U-PP02-U-PP04: Dialect units (3 units, test infrastructure exists)
+3. U-PP25-U-PP31: Safety units (7 units, validation testing needed)
+4. U-PP32-U-PP40: Library/export units (9 units, integration testing)
+5. U-PP41-U-PP48: Final units (4 units, misc testing)
+
+Recommended approach: Fix by category in parallel (team of 2-3 engineers)
+Estimated effort: 10-15 hours total (2-3 hours per category)
+
+================================================================================

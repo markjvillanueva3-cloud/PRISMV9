@@ -1,0 +1,27 @@
+{
+    "mcpServers": {
+        "prism": {
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+                "H:/prism/mcp-server/node_modules/tsx/dist/cli.mjs",
+                "H:/prism/mcp-server/scripts/prism-context-only.ts"
+            ],
+            "env": {
+                "LOG_LEVEL": "info"
+            }
+        },
+        "prism-full": {
+            "command": "C:\\Program Files\\nodejs\\node.exe",
+            "args": [
+                "H:/prism/mcp-server/dist/index.js"
+            ],
+            "env": {
+                "TRANSPORT": "stdio",
+                "LOG_LEVEL": "info"
+            }
+        },
+        "codebase-memory-mcp": {
+            "command": "C:\\Users\\wompu/.local/bin/codebase-memory-mcp.exe"
+        }
+    }
+}

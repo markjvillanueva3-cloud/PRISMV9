@@ -1,0 +1,72 @@
+{
+  "last_updated": "2026-03-03T19:10:00Z",
+  "queue_version": "1.1.0",
+  "processed_catalogs": [
+    {
+      "path": "H:/prism/CATALOGS/GC_2023-2024_US_Milling.pdf",
+      "processed_date": "2026-03-04",
+      "actual_content": "Tungaloy General Catalog (turning, milling, boring, grooving, threading, drilling)",
+      "yield": "66 strategies, 16 materials, 6 operations, 1345 raw entries",
+      "commit": "a7dc5a3b"
+    }
+  ],
+  "suggested_catalogs": [
+    {
+      "rank": 1,
+      "path": "H:/prism/CATALOGS/GC_2023-2024_US_Drilling.pdf",
+      "reason": "Drilling catalog — peck cycle recommendations, drill point angles, breakthrough parameters.",
+      "domain": "cam",
+      "expected_yield": "20+ drilling strategies, coolant-through data, peck depth tables",
+      "priority": "HIGH"
+    },
+    {
+      "rank": 2,
+      "path": "H:/prism/CATALOGS/GC_2023-2024_US_Turning-Grooving.pdf",
+      "reason": "Turning catalog — insert grade selection, cutting data by material.",
+      "domain": "cam",
+      "expected_yield": "30+ turning strategies, grade selection tables",
+      "priority": "HIGH"
+    },
+    {
+      "rank": 3,
+      "path": "H:/prism/CATALOGS/Threading 2018.1.pdf",
+      "reason": "Threading catalog — thread milling vs tapping decision trees.",
+      "domain": "cam",
+      "expected_yield": "15+ threading strategies",
+      "priority": "HIGH"
+    },
+    {
+      "rank": 4,
+      "path": "H:/prism/CATALOGS/Solid End Mills.pdf",
+      "reason": "End mill geometry catalog — flute count, helix angle, coating by material.",
+      "domain": "tooling",
+      "expected_yield": "Tool geometry selection rules",
+      "priority": "MEDIUM"
+    },
+    {
+      "rank": 5,
+      "path": "H:/prism/CATALOGS/Metalmorphosis-2021-FINAL-reduced-for-Web.pdf",
+      "reason": "Comprehensive metalworking reference — grinding, EDM, surface finish.",
+      "domain": "cam",
+      "expected_yield": "Grinding parameters, surface finish tables",
+      "priority": "MEDIUM"
+    }
+  ],
+  "suggested_videos": [
+    {
+      "query": "CNC milling speeds and feeds aluminum steel titanium tutorial",
+      "reason": "Cross-validate catalog data with video-sourced speeds/feeds",
+      "priority": "MEDIUM"
+    },
+    {
+      "query": "surface grinding setup feeds speeds tutorial",
+      "reason": "Grinding domain has 0 learning sources",
+      "priority": "MEDIUM"
+    }
+  ],
+  "thin_domains": [
+    {"domain": "turning", "source_count": 1, "engine_count": 2, "gap": "No insert/grade selection"},
+    {"domain": "threading", "source_count": 0, "engine_count": 2, "gap": "No thread milling params"},
+    {"domain": "shop", "source_count": 0, "engine_count": 0, "gap": "Seed data only"}
+  ]
+}

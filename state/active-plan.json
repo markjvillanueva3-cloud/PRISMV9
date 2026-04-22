@@ -1,0 +1,21 @@
+{
+  "date": "2026-03-29",
+  "engine": "QualityScoreEngine",
+  "purpose": "AUTO-0: Build development quality scoring engine. Computes Q = 0.25W + 0.20T + 0.20P + 0.15S + 0.10D + 0.10A for every engine in the system. Software dev quality, NOT manufacturing quality.",
+  "methods": [
+    "compute(engineName?: string): QualityReport",
+    "read(): QualityReport | null",
+    "summary(report?: QualityReport): string"
+  ],
+  "knowledge_consulted": [
+    "ENGINE_DIGEST.md (confirmed no duplicate)",
+    "MASTER_INDEX_COMPACT.md (full system map)",
+    "ProcessCapabilityPredictionEngine.ts (Cp/Cpk — manufacturing, not applicable)",
+    "ISO 4287/4288 refs in SurfaceFinishPredictor, EDM engines (surface roughness — not applicable)",
+    "SPC/Cpk refs in AdvancedReportRenderer, AssemblyOptimization (manufacturing quality — not applicable)",
+    "SystemVariabilityIndexEngine.ts (SVI pattern — reused for file scanning)",
+    "SafetyQualityHooks.ts (hook pattern reference)",
+    "devDispatcher.ts (svi_compute wiring pattern)",
+    "MCP-AUTOMATION-HARDENING-ROADMAP.md (AUTO-0 spec)"
+  ]
+}

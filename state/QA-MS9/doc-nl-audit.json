@@ -1,0 +1,27 @@
+{
+  "audit_id": "QA-MS9-P0-U05",
+  "title": "prism_doc + prism_nl_hook Audit",
+  "auditor": "claude-opus-4.6",
+  "timestamp": "2026-02-28T05:00:00Z",
+  "status": "COMPLETE",
+  "verdict": "PASS - prism_doc (7 actions, document CRUD + roadmap) + prism_nl_hook (8 actions, NL-to-hook authoring)",
+
+  "prism_doc": {
+    "file": "src/tools/dispatchers/documentDispatcher.ts",
+    "tool_name": "prism_doc",
+    "total_actions": 7,
+    "actions": ["list", "read", "write", "append", "roadmap_status", "action_tracker", "migrate"],
+    "note": "Document management for state files — read/write/append + roadmap progress tracking"
+  },
+
+  "prism_nl_hook": {
+    "file": "src/tools/dispatchers/nlHookDispatcher.ts",
+    "tool_name": "prism_nl_hook",
+    "total_actions": 8,
+    "actions": ["create", "parse", "approve", "remove", "list", "get", "stats", "config"],
+    "note": "Natural language hook authoring — parse NL descriptions into live hooks with approval workflow"
+  },
+
+  "findings": [],
+  "exit_conditions_met": { "doc_actions_inventoried": true, "nl_hook_actions_inventoried": true, "engine_wiring_verified": true }
+}

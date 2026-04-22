@@ -1,0 +1,118 @@
+{
+  "id": "QA-MS0-U01",
+  "title": "Ground-Truth Inventory: Dispatchers & Engines",
+  "generated_at": "2026-02-27T14:00:00Z",
+  "generated_by": "claude-opus-4.6",
+  "method": "Static code analysis — Grep of const ACTIONS / z.enum patterns in all dispatcher files, Glob of engine directory",
+
+  "summary": {
+    "total_dispatchers": 45,
+    "total_actions": 1060,
+    "total_actions_excluding_intelligence_subarrays": 821,
+    "intelligence_note": "prism_intelligence has 250 main z.enum actions + 239 sub-engine routed actions = 489 total action paths. The 1060 total uses 489; the 821 total uses 250.",
+    "total_engine_files": 191,
+    "total_engine_named_files": 169,
+    "engine_note": "191 .ts files in src/engines/, 169 match *Engine.ts pattern, remainder are utilities/types/indexes"
+  },
+
+  "dispatchers": [
+    { "file": "authDispatcher.ts", "tool_name": "prism_auth", "actions": 8, "layer": "L4", "safety_critical": false },
+    { "file": "autoPilotDispatcher.ts", "tool_name": "prism_autopilot_d", "actions": 7, "layer": "L7", "safety_critical": false },
+    { "file": "nlHookDispatcher.ts", "tool_name": "prism_nl_hook", "actions": 8, "layer": "L5", "safety_critical": false },
+    { "file": "edmDispatcher.ts", "tool_name": "prism_edm", "actions": 4, "layer": "L6", "safety_critical": true },
+    { "file": "automationDispatcher.ts", "tool_name": "prism_automation", "actions": 5, "layer": "L7", "safety_critical": false },
+    { "file": "atcsDispatcher.ts", "tool_name": "prism_atcs", "actions": 12, "layer": "L7", "safety_critical": false },
+    { "file": "grindingDispatcher.ts", "tool_name": "prism_grinding", "actions": 4, "layer": "L6", "safety_critical": true },
+    { "file": "camDispatcher.ts", "tool_name": "prism_cam", "actions": 9, "layer": "L6", "safety_critical": false },
+    { "file": "qualityDispatcher.ts", "tool_name": "prism_quality", "actions": 8, "layer": "L3", "safety_critical": false },
+    { "file": "documentDispatcher.ts", "tool_name": "prism_doc", "actions": 7, "layer": "L8", "safety_critical": false },
+    { "file": "autonomousDispatcher.ts", "tool_name": "prism_autonomous", "actions": 8, "layer": "L7", "safety_critical": false },
+    { "file": "manusDispatcher.ts", "tool_name": "prism_manus", "actions": 11, "layer": "L6", "safety_critical": false },
+    { "file": "generatorDispatcher.ts", "tool_name": "prism_generator", "actions": 6, "layer": "L6", "safety_critical": false },
+    { "file": "contextDispatcher.ts", "tool_name": "prism_context", "actions": 26, "layer": "L5", "safety_critical": false },
+    { "file": "devDispatcher.ts", "tool_name": "prism_dev", "actions": 9, "layer": "L5", "safety_critical": false },
+    { "file": "calcDispatcher.ts", "tool_name": "prism_calc", "actions": 56, "layer": "L1", "safety_critical": true },
+    {
+      "file": "intelligenceDispatcher.ts",
+      "tool_name": "prism_intelligence",
+      "actions": 489,
+      "actions_main_enum": 250,
+      "actions_sub_arrays": 239,
+      "layer": "L5",
+      "safety_critical": false,
+      "note": "Mega-dispatcher: 44% of system actions. Has 31 sub-engine arrays spread into main ACTIONS. Candidate for decomposition (QA-MS6)."
+    },
+    { "file": "guardDispatcher.ts", "tool_name": "prism_guard", "actions": 14, "layer": "L3", "safety_critical": true },
+    { "file": "fiveAxisDispatcher.ts", "tool_name": "prism_5axis", "actions": 5, "layer": "L6", "safety_critical": true },
+    { "file": "l2EngineDispatcher.ts", "tool_name": "prism_l2", "actions": 38, "layer": "L2", "safety_critical": false },
+    { "file": "validationDispatcher.ts", "tool_name": "prism_validate", "actions": 7, "layer": "L3", "safety_critical": true },
+    { "file": "orchestrationDispatcher.ts", "tool_name": "prism_orchestrate", "actions": 27, "layer": "L7", "safety_critical": false },
+    { "file": "omegaDispatcher.ts", "tool_name": "prism_omega", "actions": 5, "layer": "L3", "safety_critical": true },
+    { "file": "schedulingDispatcher.ts", "tool_name": "prism_scheduling", "actions": 8, "layer": "L6", "safety_critical": false },
+    { "file": "cadDispatcher.ts", "tool_name": "prism_cad", "actions": 10, "layer": "L6", "safety_critical": false },
+    { "file": "industryDispatcher.ts", "tool_name": "prism_industry", "actions": 4, "layer": "L6", "safety_critical": false },
+    { "file": "turningDispatcher.ts", "tool_name": "prism_turning", "actions": 6, "layer": "L6", "safety_critical": true },
+    { "file": "sessionDispatcher.ts", "tool_name": "prism_session", "actions": 32, "layer": "L5", "safety_critical": false },
+    { "file": "ralphDispatcher.ts", "tool_name": "prism_ralph", "actions": 3, "layer": "L3", "safety_critical": false },
+    { "file": "hookDispatcher.ts", "tool_name": "prism_hook", "actions": 20, "layer": "L4", "safety_critical": false },
+    { "file": "skillScriptDispatcher.ts", "tool_name": "prism_skill_script", "actions": 27, "layer": "L5", "safety_critical": false },
+    { "file": "spDispatcher.ts", "tool_name": "prism_sp", "actions": 19, "layer": "L5", "safety_critical": false },
+    { "file": "knowledgeDispatcher.ts", "tool_name": "prism_knowledge", "actions": 5, "layer": "L5", "safety_critical": false },
+    { "file": "gsdDispatcher.ts", "tool_name": "prism_gsd", "actions": 6, "layer": "L5", "safety_critical": false },
+    { "file": "exportDispatcher.ts", "tool_name": "prism_export", "actions": 8, "layer": "L8", "safety_critical": false },
+    {
+      "file": "safetyDispatcher.ts",
+      "tool_name": "prism_safety",
+      "actions": 29,
+      "layer": "L3",
+      "safety_critical": true,
+      "sub_groups": {
+        "COLLISION_ACTIONS": 8,
+        "COOLANT_ACTIONS": 5,
+        "SPINDLE_ACTIONS": 5,
+        "BREAKAGE_ACTIONS": 5,
+        "WORKHOLDING_ACTIONS": 6
+      }
+    },
+    { "file": "threadDispatcher.ts", "tool_name": "prism_thread", "actions": 12, "layer": "L6", "safety_critical": false },
+    { "file": "complianceDispatcher.ts", "tool_name": "prism_compliance", "actions": 8, "layer": "L4", "safety_critical": false },
+    { "file": "bridgeDispatcher.ts", "tool_name": "prism_bridge", "actions": 13, "layer": "L4", "safety_critical": false },
+    { "file": "tenantDispatcher.ts", "tool_name": "prism_tenant", "actions": 15, "layer": "L4", "safety_critical": false },
+    { "file": "pfpDispatcher.ts", "tool_name": "prism_pfp", "actions": 6, "layer": "L5", "safety_critical": false },
+    { "file": "dataDispatcher.ts", "tool_name": "prism_data", "actions": 35, "layer": "L0", "safety_critical": false },
+    { "file": "telemetryDispatcher.ts", "tool_name": "prism_telemetry", "actions": 7, "layer": "L5", "safety_critical": false },
+    { "file": "memoryDispatcher.ts", "tool_name": "prism_memory", "actions": 6, "layer": "L5", "safety_critical": false },
+    { "file": "toolpathDispatcher.ts", "tool_name": "prism_toolpath", "actions": 8, "layer": "L6", "safety_critical": false }
+  ],
+
+  "action_distribution": {
+    "by_layer": {
+      "L0_data": { "dispatchers": 1, "actions": 35 },
+      "L1_calc": { "dispatchers": 1, "actions": 56 },
+      "L2_engines": { "dispatchers": 1, "actions": 38 },
+      "L3_safety_quality": { "dispatchers": 5, "actions": 53 },
+      "L4_auth_hooks": { "dispatchers": 4, "actions": 55 },
+      "L5_intelligence": { "dispatchers": 10, "actions": 623 },
+      "L6_manufacturing": { "dispatchers": 10, "actions": 81 },
+      "L7_orchestration": { "dispatchers": 4, "actions": 52 },
+      "L8_ui_docs": { "dispatchers": 2, "actions": 15 }
+    },
+    "safety_critical_dispatchers": 8,
+    "safety_critical_actions": 120,
+    "mega_dispatcher_threshold": 50,
+    "mega_dispatchers": [
+      { "tool": "prism_intelligence", "actions": 489 },
+      { "tool": "prism_calc", "actions": 56 },
+      { "tool": "prism_data", "actions": 35 },
+      { "tool": "prism_session", "actions": 32 }
+    ]
+  },
+
+  "engines": {
+    "directory": "mcp-server/src/engines/",
+    "total_ts_files": 191,
+    "named_engine_files": 169,
+    "non_engine_files": 22,
+    "non_engine_note": "Includes types.ts, index.ts, utils, base classes, and other support files"
+  }
+}

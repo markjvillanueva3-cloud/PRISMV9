@@ -1,0 +1,50 @@
+{
+  "unit": "REM-MS0-U00",
+  "title": "WorkEnvelopeValidator C-axis Limits + Fixture Height",
+  "auditor": "claude-opus-4-6",
+  "timestamp": "2026-02-28T15:00:00Z",
+  "status": "PASS",
+  "scope": "Fix C-001 (C-axis rotary limits) and C-002 (fixture_height_mm in Z limit)",
+  "findings": [
+    {
+      "id": "C-001",
+      "severity": "CRITICAL",
+      "title": "C-axis rotary limits not checked in WorkEnvelopeValidator",
+      "status": "FIXED",
+      "fix": "Added C_min_deg/C_max_deg to AxisLimits interface + validation at lines 148-158",
+      "file": "src/engines/WorkEnvelopeValidatorEngine.ts",
+      "lines": "148-158"
+    },
+    {
+      "id": "C-002",
+      "severity": "CRITICAL",
+      "title": "fixture_height_mm not included in Z-axis limit check",
+      "status": "FIXED",
+      "fix": "Added fixture_height_mm to zMinEffective calculation at line 82",
+      "file": "src/engines/WorkEnvelopeValidatorEngine.ts",
+      "lines": "82"
+    }
+  ],
+  "rubric_scores": {
+    "correctness": 5,
+    "completeness": 5,
+    "safety": 5,
+    "performance": 5,
+    "composite": "5.00",
+    "pass_fail": "PASS"
+  },
+  "spot_checks": [
+    {
+      "test": "C-axis validation exists",
+      "expected": "C_min_deg and C_max_deg checked when present",
+      "actual": "Lines 148-158: if (input.C_deg !== undefined && limits.C_min_deg !== undefined)",
+      "status": "VERIFIED"
+    },
+    {
+      "test": "fixture_height in Z limit",
+      "expected": "zMinEffective = Z_min + tool_length + fixture_height",
+      "actual": "Line 82: const zMinEffective = effLimits.Z_min + input.tool_length_mm + input.fixture_height_mm",
+      "status": "VERIFIED"
+    }
+  ]
+}

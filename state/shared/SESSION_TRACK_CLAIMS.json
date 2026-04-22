@@ -1,0 +1,18 @@
+{
+  "schema_version": "3.0.0",
+  "description": "Track claims keyed by ACTUAL session identity (PID or session ID). DO NOT use placeholder keys like THIS_SESSION.",
+  "updated": "2026-04-19T05:10:00Z",
+  "claims": {},
+  "available_tracks": [
+    "LATHE-PROD-READY-MS0",
+    "CAD-COMPLETE-MS0",
+    "MIO-MS0"
+  ],
+  "blocked_tracks": [
+    "CADCAM-DAGI-MS0 (paused)",
+    "APPW-* (Codex only)",
+    "FMERGE-* (Codex only)"
+  ],
+  "how_to_use": "Use prism_orchestrate:claim_track { track, session_id: <your_pid> } to claim. Keys MUST be real session IDs like 'pid-12345' not 'THIS_SESSION'. compaction-survival.mjs reads this file and matches by session identity.",
+  "IMPORTANT": "THIS_SESSION placeholder was a bug causing cross-session context bleed. Fixed in schema v3."
+}

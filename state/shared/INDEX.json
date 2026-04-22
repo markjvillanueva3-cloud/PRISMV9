@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Navigation index for state/shared/. Tells Claude/Codex which files to read for which purpose, which to skip by default, and which have been archived.",
+  "lastUpdated": "2026-04-16",
+  "maintainer": "AGI-INFRA Phase A — see UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN",
+
+  "readOnSessionStart": [
+    "PRISM-SELF-AWARENESS-DIRECTIVE.md",
+    "AGENT_BOUNDARY_DIRECTIVE.md",
+    "AGENT_COORDINATION_DAEMON.json",
+    "CLAUDE-CODEX-COORDINATION-DIRECTIVE.md",
+    "CLAUDE-CODEX-COMMAND-BRIDGE.md",
+    "ACTIVE_WORK_REGISTRY.json"
+  ],
+
+  "activeCoordination": {
+    "description": "Updated frequently (multiple times per day). Read before starting new work.",
+    "files": [
+      "AGENT_CHAT.md",
+      "AGENT_CHAT.jsonl",
+      "AGENT_WORKBOARD.json",
+      "AGENT_WORKBOARD.md",
+      "AGENT_COORDINATION_STATUS.json",
+      "ROADMAP_COLLABORATION_STATE.json",
+      "TASK_QUEUE.json",
+      "PICKUP_QUEUE.json"
+    ]
+  },
+
+  "largeStateFiles": {
+    "description": "Over 100KB. Read via ToolOutputSummarizerEngine (json-state type) or with explicit offset/limit.",
+    "files": [
+      { "name": "TEST_GAP_REPORT.json", "sizeKB": 806, "purpose": "Auto-generated test coverage gaps. Regenerated daily." },
+      { "name": "GAP_REPORT.json", "sizeKB": 616, "purpose": "Auto-generated feature/wiring gaps." },
+      { "name": "MACHINE_HARDENING.json", "sizeKB": 428, "purpose": "Per-machine AI hardening state." },
+      { "name": "SCHEMA_GAP_REPORT.json", "sizeKB": 420, "purpose": "Auto-generated schema version mismatches." },
+      { "name": "TASK_QUEUE.json", "sizeKB": 268, "purpose": "Active work queue across chats." },
+      { "name": "ROUTE_SYNC_REPORT.json", "sizeKB": 212, "purpose": "API route sync diagnostics." },
+      { "name": "claude-codex-command-registry.json", "sizeKB": 178, "purpose": "Registry of all /commands across agents." },
+      { "name": "AGENT_WORKBOARD.json", "sizeKB": 128, "purpose": "Cross-chat workboard; updated continuously." },
+      { "name": "PICKUP_QUEUE.json", "sizeKB": 106, "purpose": "Handoff-ready tasks awaiting pickup." }
+    ]
+  },
+
+  "milestoneArtifacts": {
+    "description": "Point-in-time outputs from completed milestones. Rarely re-read. Candidates for archive after 14 days.",
+    "prefixes": ["MCAT_MS0_*", "SQ2_*", "APPW-MS*", "CALCULATOR_MACHINE_*", "U-*"],
+    "guidance": "If the task doesn't require these, do not scan them on session start."
+  },
+
+  "archive": {
+    "location": "state/shared/archive/",
+    "description": "Files moved out of default scan surface. Kept for history. Do not read unless the task explicitly requires the archived content.",
+    "contents": [
+      { "name": "MCAT_MS0_CANONICAL_LEGALITY_EXTRACT_2026-04-02.json", "sizeKB": 2854, "archivedAt": "2026-04-16", "reason": "2.8MB / 14d stale / only written by scripts/mcat-legality-extract.mjs generator", "regenerateVia": "node scripts/mcat-legality-extract.mjs" },
+      { "name": "CLAUDE-CODEX-MCP-DEVELOPMENT-DIRECTIVE.md", "archivedAt": "pre-2026-04-16", "reason": "Superseded by CLAUDE-CODEX-MCP-DIRECTIVE.md" },
+      { "name": "CLAUDE-CODEX-MCP-FULL-POWER-PLAYBOOK.md", "archivedAt": "pre-2026-04-16", "reason": "Historical playbook" },
+      { "name": "CLAUDE-CODEX-MCP-FULL-UTILIZATION-DIRECTIVE.md", "archivedAt": "pre-2026-04-16", "reason": "Historical directive" }
+    ]
+  },
+
+  "archivePolicy": {
+    "thresholdDays": 14,
+    "thresholdSizeKB": 500,
+    "criteria": "File must satisfy BOTH: (a) not modified in the last 14 days, (b) not read by any code in mcp-server/src/ or scripts/ (grep test). If only generator writes to it, safe to archive — generator will recreate at the original path when re-run.",
+    "process": "Use `git mv <file> state/shared/archive/` to preserve history; update this INDEX.json 'archive' section."
+  },
+
+  "scanningGuidance": {
+    "default": "Read files in 'readOnSessionStart' and 'activeCoordination'. Skip 'milestoneArtifacts' and 'archive' unless task explicitly requires them.",
+    "largeFileRule": "For any file > 100KB, prefer reading with offset/limit. For JSON state, the ToolOutputSummarizerEngine will auto-summarize via Read tool output.",
+    "crossChatSafety": "AGENT_WORKBOARD.json, AGENT_CHAT.md, TASK_QUEUE.json update continuously — expect merge conflicts if you edit them; prefer appending to append-only sinks where possible."
+  }
+}

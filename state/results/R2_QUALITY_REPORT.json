@@ -1,0 +1,82 @@
+{
+  "phase": "R2",
+  "phase_name": "Engine Calibration",
+  "timestamp": "2026-02-21T20:30:00Z",
+  "gate": "MS4-T2",
+  "status": "RELEASE_READY",
+
+  "omega": {
+    "score": 0.77,
+    "threshold": 0.70,
+    "pass": true,
+    "components": {
+      "R": { "score": 0.95, "weighted": 0.2375, "weight": 0.25, "justification": "150/150 golden benchmarks (100%), 5/5 spot checks, 20/20 edge cases. Physics formulas verified against Altintas textbook." },
+      "C": { "score": 0.90, "weighted": 0.18, "weight": 0.20, "justification": "3.9MB build clean, all symbol checks pass. 31 dispatchers, 368 actions." },
+      "P": { "score": 0.80, "weighted": 0.12, "weight": 0.15, "justification": "Build 121ms. 150 benchmarks <10s. 20 edge cases <5s." },
+      "S": { "score": 0.85, "weighted": 0.255, "weight": 0.30, "justification": "SAFETY_LIMITS enforced. Boundary conditions properly rejected. TSC, FULL_SLOT, TAYLOR_CLIFF, KC_INFLATED warnings. Stability Re[G] corrected per Altintas." },
+      "L": { "score": 0.75, "weighted": 0.075, "weight": 0.10, "justification": "Three test runners, formatByLevel wired, JSON results for CI, clean commit history." }
+    }
+  },
+
+  "safety": {
+    "score": 0.85,
+    "threshold": 0.70,
+    "pass": true,
+    "hard_constraint_passed": true,
+    "checks": {
+      "boundary_rejection_zero_speed": { "pass": true, "evidence": "EC009: SAFETY BLOCK for cutting_speed=0" },
+      "boundary_rejection_negative_feed": { "pass": true, "evidence": "EC010: SAFETY BLOCK for feed_per_tooth=-0.1" },
+      "boundary_rejection_nan_input": { "pass": true, "evidence": "EC011: SAFETY BLOCK for tool_diameter=NaN" },
+      "ae_exceeds_D_warning": { "pass": true, "evidence": "EC012: Radial depth warning issued" },
+      "full_slot_warning": { "pass": true, "evidence": "EC016: FULL_SLOT warning at ae=49.5, D=50" },
+      "taylor_cliff_warning": { "pass": true, "evidence": "EC015: TAYLOR_CLIFF at 300 m/min Inconel" },
+      "kc_inflated_warning": { "pass": true, "evidence": "EC005: KC_INFLATED at 0.001mm/tooth" },
+      "stability_re_g_correctness": { "pass": true, "evidence": "EC019: Correct FRF minimum per Altintas Eq 3.13-3.16" },
+      "deflection_slender_tool_warning": { "pass": true, "evidence": "EC014/EC017: L/D ratio warning" },
+      "tsc_machine_capability": { "pass": true, "evidence": "B083/B044: TSC validated" }
+    }
+  },
+
+  "benchmarks": {
+    "golden": { "pass": 150, "total": 150, "pct": 100.0, "threshold_pct": 80 },
+    "spot_checks": { "pass": 5, "total": 5, "pct": 100.0 },
+    "edge_cases": { "pass": 20, "total": 20, "pct": 100.0 }
+  },
+
+  "build": {
+    "size_mb": 3.93,
+    "size_range": [3.5, 5.0],
+    "symbols_ok": 7,
+    "bad_patterns": 0,
+    "tool": "esbuild",
+    "time_ms": 121
+  },
+
+  "milestone_summary": {
+    "MS0": { "status": "COMPLETE", "score": "7/50 (14%)", "notes": "50 golden benchmarks, 8 failure categories" },
+    "MS1": { "status": "COMPLETE", "score": "150/150 (100%)", "notes": "T1-T3 pre-resolved by MS2, T4-T6 via Claude Code" },
+    "MS1.5": { "status": "COMPLETE", "score": "Ralph 0.72", "notes": "Rz, TSC, material normalization, adapter integrity" },
+    "MS2": { "status": "COMPLETE", "score": "150/150 (100%)", "notes": "All 6 tiers physics calibrated" },
+    "MS3": { "status": "COMPLETE", "score": "20/20 (100%)", "notes": "Edge cases + stability Re[G] fix" },
+    "MS4": { "status": "COMPLETE", "score": "Ω=0.77", "notes": "Phase gate passed" }
+  },
+
+  "key_physics_fixes": [
+    "Stability Re[G] formula: -1/(2*k*ζ*√(1-ζ²)) per Altintas Eq 3.13-3.16",
+    "N/m → N/mm unit conversion in stability engine",
+    "Kienzle kc1.1/mc per-material calibration for all 6 ISO groups",
+    "Taylor C/n per-material calibration",
+    "Rz process-dependent lookup",
+    "TSC machine capability validation",
+    "Material name normalization (case-insensitive)"
+  ],
+
+  "commits": [
+    { "hash": "3dfe9a7", "desc": "Build fix (ESM compat)" },
+    { "hash": "077871d", "desc": "T5 response level schema" },
+    { "hash": "abc7ff7", "desc": "T6 spot-check script" },
+    { "hash": "59644d4", "desc": "R2-MS1 roadmap docs update" },
+    { "hash": "cd9b3cc", "desc": "R2-MS3 edge cases + stability fix" },
+    { "hash": "2612a69", "desc": "R2-MS3 roadmap docs" }
+  ]
+}

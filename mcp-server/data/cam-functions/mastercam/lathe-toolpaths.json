@@ -1,0 +1,1462 @@
+{
+  "schemaVersion": 1,
+  "system_id": "mastercam",
+  "section_key": "latheToolpaths",
+  "section": {
+    "category": "LATHE_TOOLPATHS",
+    "totalStrategies": 18,
+    "totalParameters": 218,
+    "roughTurning": {
+      "mastercamCycle": "Lathe Rough",
+      "gCode": "G71",
+      "description": "OD/ID roughing with canned cycle or pattern repeat",
+      "pages": {
+        "toolpathType": {
+          "parameters": [
+            {
+              "name": "rough_type",
+              "type": "enum",
+              "values": [
+                "od_rough",
+                "id_rough",
+                "face_rough",
+                "pattern"
+              ],
+              "default": "od_rough"
+            },
+            {
+              "name": "rough_direction",
+              "type": "enum",
+              "values": [
+                "z_minus",
+                "z_plus",
+                "x_minus",
+                "x_plus"
+              ],
+              "default": "z_minus"
+            },
+            {
+              "name": "cutting_method",
+              "type": "enum",
+              "values": [
+                "one_way",
+                "zigzag"
+              ],
+              "default": "one_way"
+            }
+          ]
+        },
+        "cutParameters": {
+          "parameters": [
+            {
+              "name": "depth_of_cut_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "stock_to_leave_od_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0.2
+            },
+            {
+              "name": "stock_to_leave_face_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0.1
+            },
+            {
+              "name": "first_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                30
+              ],
+              "default": 3
+            },
+            {
+              "name": "last_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                10
+              ],
+              "default": 0.5
+            }
+          ]
+        },
+        "feedsAndSpeeds": {
+          "parameters": [
+            {
+              "name": "spindle_mode",
+              "type": "enum",
+              "values": [
+                "rpm",
+                "css"
+              ],
+              "default": "css"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "float",
+              "unit": "rpm or m/min",
+              "range": [
+                10,
+                5000
+              ],
+              "default": 200
+            },
+            {
+              "name": "max_spindle_rpm",
+              "type": "float",
+              "unit": "rpm",
+              "range": [
+                100,
+                10000
+              ],
+              "default": 4000
+            },
+            {
+              "name": "feed_rate_mmrev",
+              "type": "float",
+              "unit": "mm/rev",
+              "range": [
+                0.01,
+                2
+              ],
+              "default": 0.3
+            },
+            {
+              "name": "plunge_feed_mmrev",
+              "type": "float",
+              "unit": "mm/rev",
+              "range": [
+                0.01,
+                1
+              ],
+              "default": 0.15
+            }
+          ]
+        },
+        "entryExit": {
+          "parameters": [
+            {
+              "name": "lead_in_type",
+              "type": "enum",
+              "values": [
+                "none",
+                "tangent",
+                "perpendicular",
+                "ramp"
+              ],
+              "default": "tangent"
+            },
+            {
+              "name": "lead_in_length_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "lead_out_type",
+              "type": "enum",
+              "values": [
+                "none",
+                "tangent",
+                "perpendicular"
+              ],
+              "default": "tangent"
+            },
+            {
+              "name": "clearance_x_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                50
+              ],
+              "default": 2
+            },
+            {
+              "name": "clearance_z_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                50
+              ],
+              "default": 2
+            }
+          ]
+        }
+      }
+    },
+    "finishTurning": {
+      "mastercamCycle": "Lathe Finish",
+      "gCode": "G70",
+      "description": "Finish profile turning following rough geometry",
+      "pages": {
+        "finishType": {
+          "parameters": [
+            {
+              "name": "finish_type",
+              "type": "enum",
+              "values": [
+                "profile",
+                "od_finish",
+                "id_finish",
+                "face_finish"
+              ],
+              "default": "profile"
+            },
+            {
+              "name": "number_of_passes",
+              "type": "integer",
+              "range": [
+                1,
+                10
+              ],
+              "default": 1
+            },
+            {
+              "name": "spring_passes",
+              "type": "integer",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "cutParameters": {
+          "parameters": [
+            {
+              "name": "finish_stock_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                2
+              ],
+              "default": 0
+            },
+            {
+              "name": "stepover_per_pass_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                0.5
+              ],
+              "default": 0.1
+            },
+            {
+              "name": "dwell_at_depth_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "toolCompensation": {
+          "parameters": [
+            {
+              "name": "compensation_type",
+              "type": "enum",
+              "values": [
+                "computer",
+                "control",
+                "off",
+                "wear",
+                "reverse"
+              ],
+              "default": "control"
+            },
+            {
+              "name": "compensation_direction",
+              "type": "enum",
+              "values": [
+                "left",
+                "right",
+                "auto"
+              ],
+              "default": "auto"
+            },
+            {
+              "name": "tool_nose_radius_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                3.2
+              ],
+              "default": 0.8
+            }
+          ]
+        }
+      }
+    },
+    "grooving": {
+      "mastercamCycle": "Lathe Groove",
+      "gCode": "G75",
+      "description": "OD, ID, and face grooving operations",
+      "pages": {
+        "grooveType": {
+          "parameters": [
+            {
+              "name": "groove_type",
+              "type": "enum",
+              "values": [
+                "od_groove",
+                "id_groove",
+                "face_groove",
+                "turn_groove"
+              ],
+              "default": "od_groove"
+            },
+            {
+              "name": "groove_shape",
+              "type": "enum",
+              "values": [
+                "rectangular",
+                "round_bottom",
+                "v_groove",
+                "custom"
+              ],
+              "default": "rectangular"
+            }
+          ]
+        },
+        "grooveGeometry": {
+          "parameters": [
+            {
+              "name": "groove_width_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.5,
+                50
+              ],
+              "default": 3
+            },
+            {
+              "name": "groove_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                50
+              ],
+              "default": 5
+            },
+            {
+              "name": "bottom_radius_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "side_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                45
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "cuttingMethod": {
+          "parameters": [
+            {
+              "name": "pecking_enabled",
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "first_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "subsequent_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                10
+              ],
+              "default": 1
+            },
+            {
+              "name": "retract_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                5
+              ],
+              "default": 0.1
+            },
+            {
+              "name": "dwell_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        }
+      }
+    },
+    "threading": {
+      "mastercamCycle": "Lathe Thread",
+      "gCode": "G76",
+      "description": "Single and multi-start threading",
+      "pages": {
+        "threadType": {
+          "parameters": [
+            {
+              "name": "thread_type",
+              "type": "enum",
+              "values": [
+                "external",
+                "internal",
+                "multi_start"
+              ],
+              "default": "external"
+            },
+            {
+              "name": "thread_standard",
+              "type": "enum",
+              "values": [
+                "metric",
+                "unified",
+                "british",
+                "custom"
+              ],
+              "default": "metric"
+            },
+            {
+              "name": "thread_form",
+              "type": "enum",
+              "values": [
+                "V60",
+                "acme",
+                "buttress",
+                "trapezoidal",
+                "custom"
+              ],
+              "default": "V60"
+            }
+          ]
+        },
+        "threadGeometry": {
+          "parameters": [
+            {
+              "name": "pitch_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.25,
+                20
+              ],
+              "default": 1.5
+            },
+            {
+              "name": "thread_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                15
+              ],
+              "default": 0.97
+            },
+            {
+              "name": "thread_length_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                1,
+                500
+              ],
+              "default": 20
+            },
+            {
+              "name": "thread_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                90
+              ],
+              "default": 60
+            },
+            {
+              "name": "starts_count",
+              "type": "integer",
+              "range": [
+                1,
+                12
+              ],
+              "default": 1
+            },
+            {
+              "name": "start_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "cuttingMethod": {
+          "parameters": [
+            {
+              "name": "infeed_method",
+              "type": "enum",
+              "values": [
+                "radial",
+                "flank",
+                "modified_flank",
+                "alternating"
+              ],
+              "default": "modified_flank"
+            },
+            {
+              "name": "infeed_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                45
+              ],
+              "default": 29.5
+            },
+            {
+              "name": "first_cut_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                2
+              ],
+              "default": 0.15
+            },
+            {
+              "name": "min_cut_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                0.5
+              ],
+              "default": 0.02
+            },
+            {
+              "name": "spring_passes",
+              "type": "integer",
+              "range": [
+                0,
+                5
+              ],
+              "default": 1
+            },
+            {
+              "name": "lead_in_threads",
+              "type": "float",
+              "range": [
+                0,
+                5
+              ],
+              "default": 1
+            },
+            {
+              "name": "lead_out_threads",
+              "type": "float",
+              "range": [
+                0,
+                5
+              ],
+              "default": 1
+            }
+          ]
+        }
+      }
+    },
+    "cutoff": {
+      "mastercamCycle": "Lathe Cutoff",
+      "gCode": "G75",
+      "description": "Part-off / parting operation",
+      "pages": {
+        "cutoffType": {
+          "parameters": [
+            {
+              "name": "cutoff_method",
+              "type": "enum",
+              "values": [
+                "plunge",
+                "peck",
+                "step"
+              ],
+              "default": "peck"
+            },
+            {
+              "name": "part_off_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                500
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "peckingParams": {
+          "parameters": [
+            {
+              "name": "first_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 3
+            },
+            {
+              "name": "subsequent_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                10
+              ],
+              "default": 2
+            },
+            {
+              "name": "retract_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.01,
+                5
+              ],
+              "default": 0.2
+            },
+            {
+              "name": "final_dwell_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0.5
+            }
+          ]
+        },
+        "feedControl": {
+          "parameters": [
+            {
+              "name": "feed_rate_mmrev",
+              "type": "float",
+              "unit": "mm/rev",
+              "range": [
+                0.01,
+                0.5
+              ],
+              "default": 0.08
+            },
+            {
+              "name": "reduced_feed_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                50
+              ],
+              "default": 5
+            },
+            {
+              "name": "reduced_feed_percentage",
+              "type": "float",
+              "unit": "percent",
+              "range": [
+                10,
+                100
+              ],
+              "default": 50
+            }
+          ]
+        }
+      }
+    },
+    "drilling": {
+      "mastercamCycle": "Lathe Drill",
+      "gCodes": [
+        "G74",
+        "G83",
+        "G81"
+      ],
+      "description": "Center drilling, drilling, peck drilling, and deep hole drilling",
+      "pages": {
+        "drillType": {
+          "parameters": [
+            {
+              "name": "drill_type",
+              "type": "enum",
+              "values": [
+                "center_drill",
+                "drill",
+                "peck_drill",
+                "deep_hole",
+                "tap",
+                "ream"
+              ],
+              "default": "drill"
+            },
+            {
+              "name": "drill_point",
+              "type": "enum",
+              "values": [
+                "standard",
+                "flat",
+                "pilot"
+              ],
+              "default": "standard"
+            }
+          ]
+        },
+        "holeGeometry": {
+          "parameters": [
+            {
+              "name": "hole_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                500
+              ],
+              "default": 20
+            },
+            {
+              "name": "drill_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.5,
+                100
+              ],
+              "default": 10
+            },
+            {
+              "name": "point_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                90,
+                180
+              ],
+              "default": 118
+            }
+          ]
+        },
+        "peckingParams": {
+          "parameters": [
+            {
+              "name": "first_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                50
+              ],
+              "default": 5
+            },
+            {
+              "name": "subsequent_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                30
+              ],
+              "default": 3
+            },
+            {
+              "name": "peck_reduction_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0
+            },
+            {
+              "name": "min_peck_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                10
+              ],
+              "default": 1
+            },
+            {
+              "name": "chip_break_retract_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                5
+              ],
+              "default": 0.2
+            },
+            {
+              "name": "dwell_at_bottom_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                10
+              ],
+              "default": 0
+            }
+          ]
+        }
+      }
+    },
+    "boring": {
+      "mastercamCycle": "Lathe Bore",
+      "gCodes": [
+        "G76",
+        "G85",
+        "G86",
+        "G87",
+        "G88",
+        "G89"
+      ],
+      "description": "Boring, fine boring, and reaming operations",
+      "pages": {
+        "boreType": {
+          "parameters": [
+            {
+              "name": "bore_type",
+              "type": "enum",
+              "values": [
+                "rough_bore",
+                "finish_bore",
+                "fine_bore",
+                "back_bore"
+              ],
+              "default": "rough_bore"
+            },
+            {
+              "name": "bore_method",
+              "type": "enum",
+              "values": [
+                "single_pass",
+                "multiple_pass",
+                "step_bore"
+              ],
+              "default": "single_pass"
+            }
+          ]
+        },
+        "cutParameters": {
+          "parameters": [
+            {
+              "name": "bore_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                500
+              ],
+              "default": 30
+            },
+            {
+              "name": "bore_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                1,
+                500
+              ],
+              "default": 25
+            },
+            {
+              "name": "stock_to_leave_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                2
+              ],
+              "default": 0
+            },
+            {
+              "name": "depth_per_pass_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "spring_passes",
+              "type": "integer",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "toolRetract": {
+          "parameters": [
+            {
+              "name": "retract_method",
+              "type": "enum",
+              "values": [
+                "rapid",
+                "feed",
+                "spindle_stop"
+              ],
+              "default": "rapid"
+            },
+            {
+              "name": "orient_spindle",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "orient_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 0
+            },
+            {
+              "name": "shift_amount_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        }
+      }
+    },
+    "facing": {
+      "mastercamCycle": "Lathe Face",
+      "gCode": "G72",
+      "description": "Face roughing and finishing",
+      "pages": {
+        "faceType": {
+          "parameters": [
+            {
+              "name": "face_type",
+              "type": "enum",
+              "values": [
+                "rough_face",
+                "finish_face",
+                "boss_face"
+              ],
+              "default": "rough_face"
+            },
+            {
+              "name": "cut_direction",
+              "type": "enum",
+              "values": [
+                "od_to_center",
+                "center_to_od",
+                "zigzag"
+              ],
+              "default": "od_to_center"
+            }
+          ]
+        },
+        "geometry": {
+          "parameters": [
+            {
+              "name": "start_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                1000
+              ],
+              "default": 50
+            },
+            {
+              "name": "end_diameter_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                1000
+              ],
+              "default": 0
+            },
+            {
+              "name": "face_stock_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "stock_to_leave_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0,
+                2
+              ],
+              "default": 0.1
+            }
+          ]
+        },
+        "cutParams": {
+          "parameters": [
+            {
+              "name": "depth_per_pass_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                10
+              ],
+              "default": 1
+            },
+            {
+              "name": "stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            }
+          ]
+        }
+      }
+    },
+    "cAxisContour": {
+      "mastercamCycle": "Lathe C-Axis Contour",
+      "description": "C-axis milling using polar interpolation for flats, keyways, and contours",
+      "pages": {
+        "contourType": {
+          "parameters": [
+            {
+              "name": "contour_type",
+              "type": "enum",
+              "values": [
+                "profile",
+                "pocket",
+                "slot",
+                "face_contour"
+              ],
+              "default": "profile"
+            },
+            {
+              "name": "live_tool_position",
+              "type": "enum",
+              "values": [
+                "front",
+                "rear",
+                "upper",
+                "lower"
+              ],
+              "default": "front"
+            }
+          ]
+        },
+        "cAxisControl": {
+          "parameters": [
+            {
+              "name": "c_axis_zero_position_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 0
+            },
+            {
+              "name": "max_c_axis_rpm",
+              "type": "float",
+              "unit": "rpm",
+              "range": [
+                0,
+                1000
+              ],
+              "default": 200
+            },
+            {
+              "name": "interpolation_type",
+              "type": "enum",
+              "values": [
+                "polar",
+                "cylindrical"
+              ],
+              "default": "polar"
+            }
+          ]
+        },
+        "cutParameters": {
+          "parameters": [
+            {
+              "name": "depth_of_cut_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 2
+            },
+            {
+              "name": "stepover_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                20
+              ],
+              "default": 3
+            },
+            {
+              "name": "plunge_rate_mmpm",
+              "type": "float",
+              "unit": "mm/min",
+              "range": [
+                10,
+                2000
+              ],
+              "default": 200
+            },
+            {
+              "name": "cutting_feed_mmpm",
+              "type": "float",
+              "unit": "mm/min",
+              "range": [
+                50,
+                5000
+              ],
+              "default": 500
+            }
+          ]
+        }
+      }
+    },
+    "cAxisCrossDrill": {
+      "mastercamCycle": "Lathe C-Axis Cross Drill",
+      "description": "Cross-drilled holes using C-axis positioning",
+      "pages": {
+        "holePattern": {
+          "parameters": [
+            {
+              "name": "hole_count",
+              "type": "integer",
+              "range": [
+                1,
+                100
+              ],
+              "default": 1
+            },
+            {
+              "name": "angular_spacing_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 90
+            },
+            {
+              "name": "start_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                0,
+                360
+              ],
+              "default": 0
+            },
+            {
+              "name": "z_position_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                -500,
+                500
+              ],
+              "default": 0
+            }
+          ]
+        },
+        "drillCycle": {
+          "parameters": [
+            {
+              "name": "cycle_type",
+              "type": "enum",
+              "values": [
+                "drill",
+                "peck",
+                "tap",
+                "ream",
+                "bore"
+              ],
+              "default": "drill"
+            },
+            {
+              "name": "hole_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                200
+              ],
+              "default": 10
+            },
+            {
+              "name": "peck_depth_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                50
+              ],
+              "default": 2
+            },
+            {
+              "name": "dwell_sec",
+              "type": "float",
+              "unit": "seconds",
+              "range": [
+                0,
+                5
+              ],
+              "default": 0
+            }
+          ]
+        }
+      }
+    },
+    "dynamicTurning": {
+      "mastercamCycle": "Dynamic Turning",
+      "description": "Constant chip load turning with engagement control (similar to Dynamic Mill)",
+      "pages": {
+        "engagementControl": {
+          "parameters": [
+            {
+              "name": "max_engagement_percent",
+              "type": "float",
+              "unit": "percent",
+              "range": [
+                5,
+                100
+              ],
+              "default": 60
+            },
+            {
+              "name": "max_depth_of_cut_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.5,
+                20
+              ],
+              "default": 5
+            },
+            {
+              "name": "chip_load_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                1
+              ],
+              "default": 0.25
+            },
+            {
+              "name": "engagement_angle_deg",
+              "type": "float",
+              "unit": "degrees",
+              "range": [
+                10,
+                90
+              ],
+              "default": 45
+            }
+          ]
+        },
+        "transitionControl": {
+          "parameters": [
+            {
+              "name": "corner_slowdown",
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "corner_feed_percent",
+              "type": "float",
+              "unit": "percent",
+              "range": [
+                20,
+                100
+              ],
+              "default": 70
+            },
+            {
+              "name": "smooth_transitions",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      }
+    },
+    "profitTurning": {
+      "mastercamCycle": "ProfitTurning",
+      "description": "Constant chip load turning strategy for extended tool life",
+      "pages": {
+        "chipControl": {
+          "parameters": [
+            {
+              "name": "target_chip_load_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.05,
+                0.8
+              ],
+              "default": 0.2
+            },
+            {
+              "name": "max_chip_load_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.1,
+                1.2
+              ],
+              "default": 0.35
+            },
+            {
+              "name": "min_chip_load_mm",
+              "type": "float",
+              "unit": "mm",
+              "range": [
+                0.02,
+                0.3
+              ],
+              "default": 0.08
+            }
+          ]
+        },
+        "engagementLimits": {
+          "parameters": [
+            {
+              "name": "max_doc_factor",
+              "type": "float",
+              "range": [
+                0.5,
+                3
+              ],
+              "default": 1.5
+            },
+            {
+              "name": "engagement_limit_percent",
+              "type": "float",
+              "unit": "percent",
+              "range": [
+                10,
+                100
+              ],
+              "default": 70
+            },
+            {
+              "name": "speed_multiplier",
+              "type": "float",
+              "range": [
+                1,
+                2.5
+              ],
+              "default": 1.5
+            }
+          ]
+        }
+      }
+    }
+  },
+  "provenance": {
+    "consolidated_source": "MASTERCAM_X8_ADVANCED_MODULES_AUDIT.json",
+    "split_at": "2026-04-21T20:00:19.303Z",
+    "split_rule": {
+      "key": "latheToolpaths",
+      "out_basename": "lathe-toolpaths.json"
+    }
+  }
+}

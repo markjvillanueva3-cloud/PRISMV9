@@ -1,0 +1,727 @@
+{
+  "schemaVersion": 1,
+  "system_id": "mastercam",
+  "module": {
+    "total_params": 312,
+    "toolpaths": [
+      {
+        "id": "dynamic_mill",
+        "name": "Dynamic Mill",
+        "sub_types": [
+          "area_mill",
+          "core_mill",
+          "peel_mill",
+          "blend_mill"
+        ],
+        "params_count": 78,
+        "pages": {
+          "toolpath_type": {
+            "params": [
+              {
+                "id": "machining_strategy",
+                "type": "enum",
+                "values": [
+                  "area",
+                  "core",
+                  "peel",
+                  "blend"
+                ],
+                "default": "area"
+              },
+              {
+                "id": "entry_method",
+                "type": "enum",
+                "values": [
+                  "helix",
+                  "ramp",
+                  "entry_chain"
+                ],
+                "default": "helix"
+              },
+              {
+                "id": "approach_distance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "micro_lift_distance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.025,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "back_feedrate",
+                "type": "percentage",
+                "default": 100,
+                "range": [
+                  1,
+                  200
+                ]
+              },
+              {
+                "id": "motion_gap_size",
+                "type": "enum",
+                "values": [
+                  "micro_lift",
+                  "broken",
+                  "full_retract"
+                ],
+                "default": "micro_lift"
+              },
+              {
+                "id": "stock_to_leave",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0,
+                "range": [
+                  0,
+                  10
+                ]
+              },
+              {
+                "id": "stepover_percent",
+                "type": "percentage",
+                "default": 10,
+                "range": [
+                  1,
+                  50
+                ],
+                "tribal_tip": "10-15% for HPC with full depth engagement"
+              }
+            ]
+          },
+          "cut_parameters": {
+            "params": [
+              {
+                "id": "compensation_type",
+                "type": "enum",
+                "values": [
+                  "computer",
+                  "control_left",
+                  "control_right",
+                  "off",
+                  "wear"
+                ],
+                "default": "computer"
+              },
+              {
+                "id": "compensation_direction",
+                "type": "enum",
+                "values": [
+                  "left",
+                  "right"
+                ],
+                "default": "left"
+              },
+              {
+                "id": "tip_compensation",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "roll_cutter_around_corners",
+                "type": "enum",
+                "values": [
+                  "none",
+                  "sharp",
+                  "all"
+                ],
+                "default": "sharp"
+              },
+              {
+                "id": "max_depth_variance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.1,
+                "range": [
+                  0,
+                  5
+                ]
+              },
+              {
+                "id": "stock_recognition",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "gap_size_small",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "gap_size_large",
+                "type": "distance",
+                "unit": "mm",
+                "default": 25,
+                "range": [
+                  0,
+                  500
+                ]
+              },
+              {
+                "id": "optimize_depth_cuts",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "use_depth_regions",
+                "type": "boolean",
+                "default": false
+              }
+            ]
+          },
+          "linking_parameters": {
+            "params": [
+              {
+                "id": "retract_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 25,
+                "absolute": true
+              },
+              {
+                "id": "feed_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5,
+                "incremental": true
+              },
+              {
+                "id": "top_of_stock",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0
+              },
+              {
+                "id": "depth",
+                "type": "distance",
+                "unit": "mm",
+                "range": [
+                  0,
+                  500
+                ]
+              },
+              {
+                "id": "clearance_height",
+                "type": "distance",
+                "unit": "mm",
+                "default": 50
+              },
+              {
+                "id": "rapid_retract",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "same_height_retracts",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "output_transitions",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          },
+          "arc_filter": {
+            "params": [
+              {
+                "id": "line_arc_filter",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "minimum_arc_radius",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.1
+              },
+              {
+                "id": "maximum_arc_radius",
+                "type": "distance",
+                "unit": "mm",
+                "default": 1000
+              },
+              {
+                "id": "use_line_filter",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "line_filter_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.001
+              },
+              {
+                "id": "arc_filter_tolerance",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.01
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "dynamic_contour",
+        "name": "Dynamic Contour",
+        "params_count": 52,
+        "pages": {
+          "toolpath_type": {
+            "params": [
+              {
+                "id": "cut_method",
+                "type": "enum",
+                "values": [
+                  "zigzag",
+                  "one_way"
+                ],
+                "default": "zigzag"
+              },
+              {
+                "id": "machining_direction",
+                "type": "enum",
+                "values": [
+                  "climb",
+                  "conventional"
+                ],
+                "default": "climb"
+              },
+              {
+                "id": "ramp_entry",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "ramp_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 3,
+                "range": [
+                  0.1,
+                  45
+                ]
+              },
+              {
+                "id": "helix_entry",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "helix_radius_percent",
+                "type": "percentage",
+                "default": 50,
+                "range": [
+                  10,
+                  100
+                ]
+              }
+            ]
+          },
+          "cut_parameters": {
+            "params": [
+              {
+                "id": "depth_cuts",
+                "type": "number",
+                "default": 1,
+                "range": [
+                  1,
+                  100
+                ]
+              },
+              {
+                "id": "depth_cut_max",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5,
+                "range": [
+                  0.1,
+                  50
+                ]
+              },
+              {
+                "id": "tapered_walls",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "taper_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 0,
+                "range": [
+                  -45,
+                  45
+                ]
+              },
+              {
+                "id": "lead_in_out",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "lead_length",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "lead_arc_radius",
+                "type": "percentage",
+                "default": 100,
+                "range": [
+                  10,
+                  200
+                ]
+              },
+              {
+                "id": "overlap",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0,
+                "range": [
+                  0,
+                  50
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "area_roughing",
+        "name": "Area Roughing (Legacy Pocket)",
+        "params_count": 48,
+        "pages": {
+          "pocket_type": {
+            "params": [
+              {
+                "id": "cutting_method",
+                "type": "enum",
+                "values": [
+                  "zigzag",
+                  "constant_overlap_spiral",
+                  "parallel_spiral",
+                  "parallel_spiral_clean_corners",
+                  "morph_spiral",
+                  "high_speed",
+                  "one_way",
+                  "true_spiral"
+                ],
+                "default": "zigzag"
+              },
+              {
+                "id": "stepover_percent",
+                "type": "percentage",
+                "default": 50,
+                "range": [
+                  1,
+                  100
+                ]
+              },
+              {
+                "id": "stepover_distance",
+                "type": "distance",
+                "unit": "mm",
+                "range": [
+                  0.1,
+                  100
+                ]
+              },
+              {
+                "id": "start_point",
+                "type": "enum",
+                "values": [
+                  "center",
+                  "lower_left",
+                  "lower_right",
+                  "upper_left",
+                  "upper_right"
+                ],
+                "default": "center"
+              }
+            ]
+          },
+          "roughing_finishing": {
+            "params": [
+              {
+                "id": "roughing_passes",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "finishing_passes",
+                "type": "number",
+                "default": 0,
+                "range": [
+                  0,
+                  10
+                ]
+              },
+              {
+                "id": "finish_pass_spacing",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0.2
+              },
+              {
+                "id": "finish_outer_boundary",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "keep_tool_down",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "spring_cuts",
+                "type": "number",
+                "default": 0,
+                "range": [
+                  0,
+                  5
+                ],
+                "tribal_tip": "Use 1-2 spring cuts for tight tolerance pockets"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "rest_mill_2d",
+        "name": "2D Rest Mill",
+        "params_count": 42,
+        "pages": {
+          "rest_material": {
+            "params": [
+              {
+                "id": "source",
+                "type": "enum",
+                "values": [
+                  "operation",
+                  "tool_diameter",
+                  "stock_model"
+                ],
+                "default": "tool_diameter"
+              },
+              {
+                "id": "previous_tool_diameter",
+                "type": "distance",
+                "unit": "mm",
+                "range": [
+                  1,
+                  200
+                ]
+              },
+              {
+                "id": "adjust_to_stock_model",
+                "type": "boolean",
+                "default": false
+              },
+              {
+                "id": "minimum_tool_diameter_percent",
+                "type": "percentage",
+                "default": 0,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "compute_remaining_stock",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "contour_2d",
+        "name": "2D Contour (Legacy)",
+        "params_count": 44,
+        "pages": {
+          "contour_type": {
+            "params": [
+              {
+                "id": "chain_direction",
+                "type": "enum",
+                "values": [
+                  "cw",
+                  "ccw"
+                ],
+                "default": "cw"
+              },
+              {
+                "id": "cut_side",
+                "type": "enum",
+                "values": [
+                  "left",
+                  "right",
+                  "on"
+                ],
+                "default": "left"
+              },
+              {
+                "id": "depth_cuts",
+                "type": "number",
+                "default": 1
+              },
+              {
+                "id": "max_rough_depth",
+                "type": "distance",
+                "unit": "mm",
+                "default": 5
+              },
+              {
+                "id": "finish_depth",
+                "type": "distance",
+                "unit": "mm",
+                "default": 0
+              },
+              {
+                "id": "number_finish_cuts",
+                "type": "number",
+                "default": 0
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "face_2d",
+        "name": "2D Face",
+        "params_count": 38,
+        "pages": {
+          "facing": {
+            "params": [
+              {
+                "id": "cut_method",
+                "type": "enum",
+                "values": [
+                  "zigzag",
+                  "one_way_climb",
+                  "one_way_conventional"
+                ],
+                "default": "zigzag"
+              },
+              {
+                "id": "stepover_percent",
+                "type": "percentage",
+                "default": 66,
+                "range": [
+                  10,
+                  100
+                ],
+                "tribal_tip": "66% stepover balances MRR and insert life"
+              },
+              {
+                "id": "high_speed_loops",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "lead_in_percent",
+                "type": "percentage",
+                "default": 50,
+                "range": [
+                  0,
+                  100
+                ]
+              },
+              {
+                "id": "overlap_amount",
+                "type": "percentage",
+                "default": 5,
+                "range": [
+                  0,
+                  50
+                ]
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "slot_mill",
+        "name": "Slot Mill",
+        "params_count": 36,
+        "pages": {
+          "slot_type": {
+            "params": [
+              {
+                "id": "entry_method",
+                "type": "enum",
+                "values": [
+                  "plunge",
+                  "ramp",
+                  "helix"
+                ],
+                "default": "ramp"
+              },
+              {
+                "id": "ramp_angle",
+                "type": "angle",
+                "unit": "deg",
+                "default": 3,
+                "range": [
+                  0.5,
+                  20
+                ]
+              },
+              {
+                "id": "stepdown",
+                "type": "distance",
+                "unit": "mm",
+                "default": 2,
+                "range": [
+                  0.1,
+                  50
+                ]
+              },
+              {
+                "id": "finish_walls",
+                "type": "boolean",
+                "default": true
+              },
+              {
+                "id": "finish_floor",
+                "type": "boolean",
+                "default": true
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "consolidated_source": "MASTERCAM_X8_2D_3D_HS_CATALOG.json",
+    "split_at": "2026-04-21T20:00:19.307Z",
+    "split_rule": {
+      "module_id": "2d_high_speed",
+      "out_basename": "2d-toolpaths.json"
+    }
+  }
+}

@@ -1,0 +1,347 @@
+#!/usr/bin/env node
+/**
+ * worktree-commit-route.mjs — PreToolUse(Bash) worktree-routing enforcement
+ *
+ * WHY: 6 concurrent chats all try to commit to H:/prism (the main
+ * worktree). git-anti-clobber.mjs serializes but does NOT route — two
+ * chats doing unrelated work still collide on HEAD. The user has 15
+ * worktrees already set up, one per active work theme. This hook
+ * intercepts `git commit` and checks whether the current working
+ * directory matches a worktree whose branch name maps to the commit's
+ * intent. If not, it deny-with-reason so the chat can re-enter the right
+ * worktree or create a new one.
+ *
+ * FIRES ON:  PreToolUse, matcher ^Bash$
+ * ACTION:    deny when the commit would land on main while a matching
+ *            work/* worktree exists, OR when the commit subject does not
+ *            correspond to any active worktree AND the cwd is main.
+ * NON-BLOCKING PATHS (allow):
+ *   - commit from within a non-main worktree whose branch matches the
+ *     commit scope token (e.g. committing on work/lathe-master while
+ *     subject contains LATHE)
+ *   - commits with subject prefix [MAIN] (explicit user override)
+ *   - empty/no-subject commits (let git decide — the anti-clobber hook
+ *     handles serialization, not routing)
+ *
+ * DETECTION:
+ *   1. Parse cmd: `git commit [-am "subject"]` / `git commit -m "..."` /
+ *      heredoc form (`git commit -m "$(cat <<EOF ... EOF)"`).
+ *   2. Extract the subject line (first line of the -m arg).
+ *   3. Extract a SCOPE TOKEN from the subject — first token before
+ *      colon/slash (e.g. "LATHE-PROD-READY-MS0/U-LPR-CRUD-WIRE: …"
+ *      → "LATHE").
+ *   4. Call `git worktree list --porcelain`. For each worktree, extract
+ *      the branch basename (work/lathe-master → "lathe-master").
+ *   5. Match scope token against branch basename via substring (case
+ *      insensitive): SCOPE matches BRANCH iff scope.includes(branchHead)
+ *      OR branchHead.includes(scope.toLowerCase()). Heuristic but
+ *      practical — "LATHE" matches "lathe-master".
+ *   6. Decide:
+ *        - If cwd is a matching worktree       → allow
+ *        - If cwd is main AND a match exists   → deny with route hint
+ *        - If cwd is main AND no match exists  → allow with warning
+ *          (the user is genuinely on a main-branch task)
+ *        - If cwd is a non-matching worktree   → deny (wrong tree)
+ *
+ * SIDE EFFECTS: none. Reads `git worktree list` via spawnSync (synchronous
+ * because this is a PreToolUse decision). Max timeout 2s.
+ */
+
+import { readFileSync, existsSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import path from "node:path";
+import { exit } from "node:process";
+
+// ── Parse stdin ────────────────────────────────────────────────────────
+let payload;
+try {
+  payload = JSON.parse(readFileSync(0, "utf-8"));
+} catch {
+  exit(0);
+}
+
+const tool = payload?.tool_name || payload?.tool || "";
+if (tool !== "Bash") exit(0);
+
+const cmd = String(payload?.tool_input?.command ?? payload?.input?.command ?? "");
+if (!cmd.trim()) exit(0);
+
+// ── Match git commit (NOT commit-tree, NOT log) ──────────────────────
+const COMMIT_RE = /\bgit(?:\.exe)?\s+(?:-[A-Za-z-]+\s+|--[A-Za-z-]+(?:=\S+)?\s+)*commit(?!-tree)\b/;
+if (!COMMIT_RE.test(cmd)) exit(0);
+
+// ── Extract commit subject ────────────────────────────────────────────
+// Try, in order:
+//   1. -m "subject" / -m 'subject' / -m subject
+//   2. heredoc inside "$(cat <<'EOF' ... EOF )"
+//   3. -F /path/to/file → skip (can't read without IO)
+
+function firstLine(s) {
+  if (!s) return "";
+  const i = s.indexOf("\n");
+  return (i === -1 ? s : s.slice(0, i)).trim();
+}
+
+function extractSubject(command) {
+  // Heredoc form — common on this project
+  const hd = command.match(/-m\s+"\$\(cat\s+<<['"]?(\w+)['"]?\s*\n([\s\S]*?)\n\1\s*\)"/);
+  if (hd) return firstLine(hd[2]);
+  // Plain -m form
+  const m = command.match(/-m\s+(?:"((?:\\.|[^"\\])*)"|'((?:\\.|[^'\\])*)'|(\S+))/);
+  if (m) return firstLine(m[1] ?? m[2] ?? m[3] ?? "");
+  return "";
+}
+
+const subject = extractSubject(cmd);
+
+// No subject → let git handle it (editor opens). We don't route these.
+if (!subject) exit(0);
+
+// Explicit override
+if (/^\s*\[\s*MAIN\s*\]/i.test(subject)) exit(0);
+
+// ── Extract scope token from subject ─────────────────────────────────
+// Subject shape on this project: "LAYER-PHASE-MS0/U-XYZ-WIRE: descriptive"
+// Scope token = text before the first "-" or "/" in the leading ALL-CAPS
+// prefix. Fallback: first word.
+function extractScope(subj) {
+  const pre = subj.split(":")[0] || subj;
+  // Grab the leading ALL-CAPS hyphenated prefix (e.g. "LATHE-PROD-READY-MS0")
+  const uppercasePrefix = pre.match(/^[A-Z][A-Z0-9]+(?:[-][A-Z0-9]+)*/);
+  if (!uppercasePrefix) {
+    // Fallback: first whitespace-delimited word, lowercased
+    return (pre.split(/\s+/)[0] || "").toLowerCase();
+  }
+  // Use the FIRST segment of that prefix (e.g. "LATHE") as the scope key
+  const first = uppercasePrefix[0].split("-")[0];
+  return first.toLowerCase();
+}
+
+const scope = extractScope(subject);
+if (!scope) exit(0);
+
+// ── Query git worktrees ──────────────────────────────────────────────
+const gitCandidates = [
+  "git", // shell PATH
+  "C:\\Program Files\\Git\\cmd\\git.exe",
+  "C:\\Program Files (x86)\\Git\\cmd\\git.exe",
+];
+
+function findGit() {
+  for (const g of gitCandidates) {
+    try {
+      const p = spawnSync(g, ["--version"], { timeout: 1500, encoding: "utf-8" });
+      if (p.status === 0) return g;
+    } catch { /* try next */ }
+  }
+  return null;
+}
+
+const git = findGit();
+if (!git) exit(0); // no git → can't route, let command through
+
+const wtRes = spawnSync(git, ["worktree", "list", "--porcelain"], {
+  cwd: process.cwd(),
+  timeout: 2000,
+  encoding: "utf-8",
+});
+if (wtRes.status !== 0) exit(0);
+
+// Parse porcelain format:
+//   worktree H:/prism
+//   HEAD ...
+//   branch refs/heads/main
+//   (blank line)
+//   worktree H:/prism-lathe-master
+//   HEAD ...
+//   branch refs/heads/work/lathe-master
+//   (blank line)
+const worktrees = [];
+{
+  let cur = {};
+  for (const raw of wtRes.stdout.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) {
+      if (cur.path) worktrees.push(cur);
+      cur = {};
+      continue;
+    }
+    const [k, ...rest] = line.split(" ");
+    const v = rest.join(" ");
+    if (k === "worktree") cur.path = v;
+    else if (k === "branch") cur.branch = v.replace(/^refs\/heads\//, "");
+    else if (k === "HEAD") cur.head = v;
+    else if (k === "detached") cur.detached = true;
+  }
+  if (cur.path) worktrees.push(cur);
+}
+
+if (worktrees.length === 0) exit(0);
+
+// Normalize paths for cross-platform comparison (Windows is case-insensitive).
+function normalize(p) {
+  return path.resolve(p).replace(/\\/g, "/").toLowerCase();
+}
+
+const cwdNorm = normalize(process.cwd());
+const currentWt = worktrees.find((w) => cwdNorm === normalize(w.path));
+
+// ── Match scope → worktree ───────────────────────────────────────────
+// Branch basename = last segment of branch ref (work/lathe-master → lathe-master)
+function branchBasename(b) {
+  if (!b) return "";
+  return b.split("/").pop().toLowerCase();
+}
+
+function scopeMatchesBranch(scopeToken, branchHead) {
+  if (!scopeToken || !branchHead) return false;
+  return (
+    branchHead.includes(scopeToken) ||
+    scopeToken.includes(branchHead.split("-")[0]) // main token of branch
+  );
+}
+
+const matchedWts = worktrees.filter((w) => {
+  const head = branchBasename(w.branch);
+  return head !== "main" && head !== "master" && scopeMatchesBranch(scope, head);
+});
+
+// ── Decision ──────────────────────────────────────────────────────────
+// deny()/warn() emit JSON + exit(0). Because `exit` is imported from
+// "node:process" it never returns, which means the callers do not need
+// `return` — `return` at module top-level is illegal in ES modules.
+function deny(reason) {
+  process.stdout.write(
+    JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "deny",
+        permissionDecisionReason: reason,
+      },
+    }),
+  );
+  exit(0);
+}
+
+function warn(reason) {
+  process.stdout.write(
+    JSON.stringify({
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse",
+        permissionDecision: "allow",
+        permissionDecisionReason: reason,
+      },
+    }),
+  );
+  exit(0);
+}
+
+// Case 1: cwd is itself a matching worktree → allow silently
+if (currentWt) {
+  const head = branchBasename(currentWt.branch);
+  if (head === "main" || head === "master") {
+    // On main tree. Is there a matching work/* worktree we should route to?
+    if (matchedWts.length > 0) {
+      const candidates = matchedWts
+        .map((w) => `  • ${w.path}   (${w.branch})`)
+        .join("\n");
+      deny(
+        [
+          `WORKTREE-ROUTE: commit subject scope="${scope}" belongs in a dedicated worktree.`,
+          "",
+          `You are on: ${currentWt.path} (${currentWt.branch}) — the shared main tree.`,
+          `Matching worktree(s):`,
+          candidates,
+          "",
+          `ACTION: cd into the matching worktree and re-run the commit there:`,
+          `  cd "${matchedWts[0].path}" && ${cmd.slice(0, 180)}`,
+          "",
+          `OR, if this really belongs on main, prefix the commit subject with [MAIN]`,
+          `to override this hook. Reason: prevent 6 concurrent chats from colliding`,
+          `on main/HEAD when themed worktrees are available.`,
+        ].join("\n"),
+      );
+    }
+    // On main and no themed match exists → DENY with actionable
+    // "start a new tree" command. Per user directive: "if one doesn't
+    // exist, start a new tree." Previously this was a warn; now it
+    // blocks with an exact command so cross-chat routing is deterministic.
+    // Override: prefix subject with [MAIN] for genuinely cross-cutting work.
+    const newWtPath = `../prism-${scope}`;
+    const newBranch = `work/${scope}`;
+    deny(
+      [
+        `WORKTREE-ROUTE: no worktree exists for scope="${scope}". Start one before committing.`,
+        ``,
+        `You are on: ${currentWt.path} (${currentWt.branch}) — the shared main tree.`,
+        ``,
+        `ACTION — create the dedicated worktree and re-run the commit there:`,
+        `  git worktree add "${newWtPath}" -b ${newBranch}`,
+        `  cd "${newWtPath}"`,
+        `  ${cmd.slice(0, 200)}`,
+        ``,
+        `OR, if this genuinely is cross-cutting main-tree work, prefix the commit`,
+        `subject with [MAIN] to override this hook.`,
+        ``,
+        `Rationale: 6 concurrent chats all auto-committing to main collide on HEAD.`,
+        `Themed worktrees eliminate the collision and give a clean audit trail per scope.`,
+      ].join("\n"),
+    );
+  }
+  // On a non-main worktree. Does it match the commit scope?
+  if (scopeMatchesBranch(scope, head)) {
+    exit(0); // perfect — silent allow
+  }
+  // On a worktree that does NOT match the scope.
+  const candidates = matchedWts.length > 0
+    ? matchedWts.map((w) => `  • ${w.path}   (${w.branch})`).join("\n")
+    : "  (none — but consider creating one: git worktree add ../prism-" + scope + " work/" + scope + ")";
+  deny(
+    [
+      `WORKTREE-ROUTE: wrong tree for this commit.`,
+      "",
+      `You are on:           ${currentWt.path} (${currentWt.branch})`,
+      `Commit subject scope: ${scope}`,
+      `Matching worktree(s):`,
+      candidates,
+      "",
+      `ACTION: cd to the matching worktree and commit there, OR prefix the`,
+      `commit subject with [MAIN] to override. This prevents cross-contamination`,
+      `between parallel chats working on unrelated scopes.`,
+    ].join("\n"),
+  );
+}
+
+// Case 2: cwd is NOT a registered worktree (e.g. subdirectory). Bubble up
+// to the enclosing worktree.
+const ancestor = worktrees.find((w) =>
+  cwdNorm.startsWith(normalize(w.path) + "/") || cwdNorm === normalize(w.path),
+);
+if (ancestor) {
+  // Re-run decision with the enclosing worktree as "currentWt".
+  const head = branchBasename(ancestor.branch);
+  if (head === "main" || head === "master") {
+    if (matchedWts.length > 0) {
+      const candidates = matchedWts
+        .map((w) => `  • ${w.path}   (${w.branch})`)
+        .join("\n");
+      deny(
+        [
+          `WORKTREE-ROUTE: commit subject scope="${scope}" belongs in a dedicated worktree.`,
+          "",
+          `Enclosing worktree: ${ancestor.path} (${ancestor.branch}) — the shared main tree.`,
+          `Matching worktree(s):`,
+          candidates,
+          "",
+          `ACTION: cd into the matching worktree and re-run the commit.`,
+          `Override: prefix commit subject with [MAIN].`,
+        ].join("\n"),
+      );
+    }
+    exit(0);
+  }
+  if (scopeMatchesBranch(scope, head)) exit(0);
+}
+
+// Fallback: unknown cwd relationship — allow with no message.
+exit(0);

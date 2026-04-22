@@ -1,0 +1,1813 @@
+{
+  "id": "MCAT-MS0-UNWIRED-RECOVERY-2026-04-02",
+  "parentMilestone": "MCAT-MS0",
+  "lane": "MCAT-MS0/P1-U01-support",
+  "status": "working",
+  "generatedAt": {
+    "date": "2026-04-02",
+    "iso": "2026-04-03T02:24:18.253Z"
+  },
+  "derivedFrom": [
+    "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.json",
+    "H:/PRISM/state/shared/MCAT_MS0_CANONICAL_LEGALITY_EXTRACT_2026-04-02.json"
+  ],
+  "context": {
+    "toolIntendedCorpus": 95608,
+    "toolActiveUniqueIds": 13967,
+    "calculatorToolpaths": 337,
+    "backendStrategyHeadline": "762+ Strategies across 5 major categories",
+    "zeroHolderSignatures": 25,
+    "holderSignatureCount": 51
+  },
+  "summary": {
+    "sourceFamilyCount": 36,
+    "recoveryFamilyCount": 22,
+    "p0FamilyCount": 3,
+    "p1FamilyCount": 11,
+    "baselineFamilyCount": 14
+  },
+  "recoveryWaves": [
+    {
+      "id": "W2-fallback-retirement",
+      "familyCount": 12,
+      "domains": [
+        {
+          "id": "workholding",
+          "count": 5
+        },
+        {
+          "id": "calculator_fallback",
+          "count": 4
+        },
+        {
+          "id": "cam_toolpaths",
+          "count": 2
+        },
+        {
+          "id": "materials",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "W0-denominator-recovery",
+      "familyCount": 5,
+      "domains": [
+        {
+          "id": "tools",
+          "count": 3
+        },
+        {
+          "id": "machines",
+          "count": 1
+        },
+        {
+          "id": "materials",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "W1-backend-promotion",
+      "familyCount": 5,
+      "domains": [
+        {
+          "id": "tools",
+          "count": 3
+        },
+        {
+          "id": "cam_toolpaths",
+          "count": 1
+        },
+        {
+          "id": "materials",
+          "count": 1
+        }
+      ]
+    }
+  ],
+  "families": [
+    {
+      "domain": "machines",
+      "familyId": "machine_enriched_json",
+      "label": "Merged enhanced machine corpus",
+      "count": 920,
+      "currentWiringState": "calculator_live_and_downstream",
+      "sourcePaths": [
+        "data/machines/ENHANCED/json/ALL_MACHINES_ENRICHED.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "program_release",
+        "user_machine_profile"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "machines",
+      "familyId": "machine_registry_source_dirs",
+      "label": "MachineRegistry declared machine source directories",
+      "count": 11,
+      "currentWiringState": "backend_reference",
+      "sourcePaths": [
+        "mcp-server/src/registries/MachineRegistry.ts"
+      ],
+      "currentConsumers": [
+        "machine_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_reference",
+      "recoveryAction": "keep_reference_only",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Reference catalog only; not a direct calculator denominator family."
+      ]
+    },
+    {
+      "domain": "machines",
+      "familyId": "machine_registry_header_claim",
+      "label": "MachineRegistry stale header claim",
+      "count": 824,
+      "currentWiringState": "stale_metadata",
+      "sourcePaths": [
+        "mcp-server/src/registries/MachineRegistry.ts"
+      ],
+      "currentConsumers": [
+        "docs_only"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "metadata_reconciled",
+      "recoveryAction": "reconcile_metadata_claims",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P2",
+      "blockers": [
+        "Published headers still disagree with live data on disk."
+      ],
+      "rationale": [
+        "Metadata drift is not a live-surface blocker, but it distorts roadmap and audit truth."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "cutting_tools_index",
+      "label": "CUTTING_TOOLS_INDEX.json",
+      "count": 1944,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/CUTTING_TOOLS_INDEX.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "drilling",
+      "label": "DRILLING.json",
+      "count": 360,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/DRILLING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "endmill_catalogs",
+      "label": "ENDMILL_CATALOGS.json",
+      "count": 937,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/ENDMILL_CATALOGS.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "hole_finishing",
+      "label": "HOLE_FINISHING.json",
+      "count": 189,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/HOLE_FINISHING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "indexable_milling_toolholding",
+      "label": "INDEXABLE_MILLING_TOOLHOLDING.json",
+      "count": 984,
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "data/tools/INDEXABLE_MILLING_TOOLHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "manufacturer_catalogs",
+      "label": "MANUFACTURER_CATALOGS.json",
+      "count": 1051,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/MANUFACTURER_CATALOGS.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "milling",
+      "label": "MILLING.json",
+      "count": 948,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/MILLING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "specialty",
+      "label": "SPECIALTY.json",
+      "count": 240,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/SPECIALTY.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "threading",
+      "label": "THREADING.json",
+      "count": 126,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/THREADING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "toolholders",
+      "label": "TOOLHOLDERS.json",
+      "count": 6741,
+      "currentWiringState": "calculator_holder_live",
+      "sourcePaths": [
+        "data/tools/TOOLHOLDERS.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "holder_catalog"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "extend_holder_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "Holder routing exists, but the legality extract proves it still misses swiss/gang and ambiguous lathe interfaces."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tools_hierarchy",
+      "label": "TOOLS_HIERARCHY.json",
+      "count": 1,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/TOOLS_HIERARCHY.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning",
+      "label": "TURNING.json",
+      "count": 81,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/TURNING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning_holders_expanded",
+      "label": "TURNING_HOLDERS_EXPANDED.json",
+      "count": 600,
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "data/tools/TURNING_HOLDERS_EXPANDED.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning_inserts",
+      "label": "TURNING_INSERTS.json",
+      "count": 1710,
+      "currentWiringState": "calculator_live_via_tool_search",
+      "sourcePaths": [
+        "data/tools/TURNING_INSERTS.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_tool_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_active_unique_ids",
+      "label": "Active unique tool ids across current ToolRegistry data roots",
+      "count": 13967,
+      "currentWiringState": "backend_live_root",
+      "sourcePaths": [
+        "data/tools/*.json",
+        "extracted/tools/*"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search",
+        "tool_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root_reconciled",
+      "recoveryAction": "reconcile_live_root_counts",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "Active live root counts still disagree with the intended corpus and SVI headline."
+      ],
+      "rationale": [
+        "These roots drive the current backend denominator and must be reconciled before higher-order coverage can mean anything."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_raw_rows",
+      "label": "Current ToolRegistry raw row count",
+      "count": 15912,
+      "currentWiringState": "backend_live_root",
+      "sourcePaths": [
+        "data/tools/*.json"
+      ],
+      "currentConsumers": [
+        "tool_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root_reconciled",
+      "recoveryAction": "reconcile_live_root_counts",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "Active live root counts still disagree with the intended corpus and SVI headline."
+      ],
+      "rationale": [
+        "These roots drive the current backend denominator and must be reconciled before higher-order coverage can mean anything."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_intended_historical_corpus",
+      "label": "Intended full PRISM tool corpus",
+      "count": 95608,
+      "currentWiringState": "target_not_recovered",
+      "sourcePaths": [
+        "PRISM-DESKTOP-PROJECT-INSTRUCTIONS.md",
+        "CLAUDE.md",
+        "CAMX-RESTRUCTURED-ROADMAP-v24.md",
+        "api/v1/dev/svi/summary"
+      ],
+      "currentConsumers": [
+        "roadmap_target"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root",
+      "recoveryAction": "recover_missing_corpus",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "13,967 active unique ids are still far below the 95,608 intended tool corpus."
+      ],
+      "rationale": [
+        "Coverage denominators cannot be honest while the intended tool universe is missing from the live roots."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_master_reference",
+      "label": "Materials master reference catalog",
+      "count": 163,
+      "currentWiringState": "reference_only",
+      "sourcePaths": [
+        "data/materials/MATERIALS_MASTER.json"
+      ],
+      "currentConsumers": [
+        "material_reconciliation"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "reference_or_live_decision",
+      "recoveryAction": "decide_reference_role",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Currently documented or referenced, but not yet committed to a canonical live role."
+      ],
+      "rationale": [
+        "Reference-only families should either become canonical or stay explicitly non-live."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_detail_json",
+      "label": "ISO-group material detail JSON files",
+      "count": 214,
+      "currentWiringState": "calculator_live_via_material_search",
+      "sourcePaths": [
+        "data/materials/**/*.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "material_search",
+        "material_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_via_material_search",
+      "recoveryAction": "maintain_baseline",
+      "recoveryWave": "baseline",
+      "priority": "baseline",
+      "blockers": [],
+      "rationale": [
+        "Already wired enough to serve as a baseline family for later coverage generators."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_extracted_js",
+      "label": "Extracted material JS families",
+      "count": 46,
+      "currentWiringState": "raw_corpus_only",
+      "sourcePaths": [
+        "extracted/materials/**/*.js"
+      ],
+      "currentConsumers": [
+        "future_recovery"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "classified_for_promotion_or_archive",
+      "recoveryAction": "classify_raw_corpus",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P2",
+      "blockers": [
+        "Present on disk but not part of the current live registry load path."
+      ],
+      "rationale": [
+        "These families need a keep/promote/archive decision before they can affect legality denominators."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "material_registry_header_claim",
+      "label": "MaterialRegistry stale header claim",
+      "count": 1047,
+      "currentWiringState": "stale_metadata",
+      "sourcePaths": [
+        "mcp-server/src/registries/MaterialRegistry.ts"
+      ],
+      "currentConsumers": [
+        "docs_only"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "metadata_reconciled",
+      "recoveryAction": "reconcile_metadata_claims",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P2",
+      "blockers": [
+        "Published headers still disagree with live data on disk."
+      ],
+      "rationale": [
+        "Metadata drift is not a live-surface blocker, but it distorts roadmap and audit truth."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "vises",
+      "label": "vises",
+      "count": 5,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "chucks",
+      "label": "chucks",
+      "count": 4,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "collets",
+      "label": "collets",
+      "count": 4,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "fixtures",
+      "label": "fixtures",
+      "count": 5,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "toolholders",
+      "label": "toolholders",
+      "count": 2,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_programming_environments",
+      "label": "Calculator programming environment catalog",
+      "count": 66,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are static while backend strategy registry headline is 762+ Strategies across 5 major categories."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_toolpaths",
+      "label": "Calculator static toolpath entries",
+      "count": 337,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are static while backend strategy registry headline is 762+ Strategies across 5 major categories."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "backend_strategy_registry_header",
+      "label": "Backend toolpath strategy registry headline count",
+      "count": "762+ Strategies across 5 major categories",
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "mcp-server/src/registries/ToolpathStrategyRegistry.ts"
+      ],
+      "currentConsumers": [
+        "strategy_registry",
+        "future_calculator_binding"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are still static versus 762+ Strategies across 5 major categories in the backend registry headline."
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_machine_fallback",
+      "label": "Calculator fallback machine catalog",
+      "count": 17,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_tool_fallback",
+      "label": "Calculator fallback tool catalog",
+      "count": 19,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_material_fallback",
+      "label": "Calculator fallback material catalog",
+      "count": 40,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_workholding_fallback",
+      "label": "Calculator fallback workholding options",
+      "count": 5,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    }
+  ],
+  "familiesNeedingRecovery": [
+    {
+      "domain": "tools",
+      "familyId": "tool_intended_historical_corpus",
+      "label": "Intended full PRISM tool corpus",
+      "count": 95608,
+      "currentWiringState": "target_not_recovered",
+      "sourcePaths": [
+        "PRISM-DESKTOP-PROJECT-INSTRUCTIONS.md",
+        "CLAUDE.md",
+        "CAMX-RESTRUCTURED-ROADMAP-v24.md",
+        "api/v1/dev/svi/summary"
+      ],
+      "currentConsumers": [
+        "roadmap_target"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root",
+      "recoveryAction": "recover_missing_corpus",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "13,967 active unique ids are still far below the 95,608 intended tool corpus."
+      ],
+      "rationale": [
+        "Coverage denominators cannot be honest while the intended tool universe is missing from the live roots."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_active_unique_ids",
+      "label": "Active unique tool ids across current ToolRegistry data roots",
+      "count": 13967,
+      "currentWiringState": "backend_live_root",
+      "sourcePaths": [
+        "data/tools/*.json",
+        "extracted/tools/*"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search",
+        "tool_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root_reconciled",
+      "recoveryAction": "reconcile_live_root_counts",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "Active live root counts still disagree with the intended corpus and SVI headline."
+      ],
+      "rationale": [
+        "These roots drive the current backend denominator and must be reconciled before higher-order coverage can mean anything."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "tool_registry_raw_rows",
+      "label": "Current ToolRegistry raw row count",
+      "count": 15912,
+      "currentWiringState": "backend_live_root",
+      "sourcePaths": [
+        "data/tools/*.json"
+      ],
+      "currentConsumers": [
+        "tool_registry"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "backend_live_root_reconciled",
+      "recoveryAction": "reconcile_live_root_counts",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P0",
+      "blockers": [
+        "Active live root counts still disagree with the intended corpus and SVI headline."
+      ],
+      "rationale": [
+        "These roots drive the current backend denominator and must be reconciled before higher-order coverage can mean anything."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "backend_strategy_registry_header",
+      "label": "Backend toolpath strategy registry headline count",
+      "count": "762+ Strategies across 5 major categories",
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "mcp-server/src/registries/ToolpathStrategyRegistry.ts"
+      ],
+      "currentConsumers": [
+        "strategy_registry",
+        "future_calculator_binding"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are still static versus 762+ Strategies across 5 major categories in the backend registry headline."
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "indexable_milling_toolholding",
+      "label": "INDEXABLE_MILLING_TOOLHOLDING.json",
+      "count": 984,
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "data/tools/INDEXABLE_MILLING_TOOLHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "toolholders",
+      "label": "TOOLHOLDERS.json",
+      "count": 6741,
+      "currentWiringState": "calculator_holder_live",
+      "sourcePaths": [
+        "data/tools/TOOLHOLDERS.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "holder_catalog"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "extend_holder_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "Holder routing exists, but the legality extract proves it still misses swiss/gang and ambiguous lathe interfaces."
+      ]
+    },
+    {
+      "domain": "tools",
+      "familyId": "turning_holders_expanded",
+      "label": "TURNING_HOLDERS_EXPANDED.json",
+      "count": 600,
+      "currentWiringState": "backend_live_only",
+      "sourcePaths": [
+        "data/tools/TURNING_HOLDERS_EXPANDED.json"
+      ],
+      "currentConsumers": [
+        "calculator",
+        "tool_search"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "promote_backend_surface",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P1",
+      "blockers": [
+        "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+        "Zero-holder legality for gang:gang (34 machines)",
+        "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+        "Zero-holder legality for turret:disc (7 machines)"
+      ],
+      "rationale": [
+        "The corpus is already present in backend truth but is not yet fully promoted into calculator or downstream consumers."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_programming_environments",
+      "label": "Calculator programming environment catalog",
+      "count": 66,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are static while backend strategy registry headline is 762+ Strategies across 5 major categories."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "cam_toolpaths",
+      "familyId": "calculator_toolpaths",
+      "label": "Calculator static toolpath entries",
+      "count": 337,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "337 calculator toolpaths are static while backend strategy registry headline is 762+ Strategies across 5 major categories."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "chucks",
+      "label": "chucks",
+      "count": 4,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "collets",
+      "label": "collets",
+      "count": 4,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "fixtures",
+      "label": "fixtures",
+      "count": 5,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "toolholders",
+      "label": "toolholders",
+      "count": 2,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "workholding",
+      "familyId": "vises",
+      "label": "vises",
+      "count": 5,
+      "currentWiringState": "backend_reference_fallback_ui",
+      "sourcePaths": [
+        "data/workholding/WORKHOLDING.json"
+      ],
+      "currentConsumers": [
+        "calculator_fallback",
+        "future_fixture_engine"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "replace_fallback_with_backend_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P1",
+      "blockers": [
+        "Calculator still renders only a tiny static fallback for this domain."
+      ],
+      "rationale": [
+        "These domains are present in backend reference data but not exposed as canonical live calculator surfaces yet."
+      ]
+    },
+    {
+      "domain": "machines",
+      "familyId": "machine_registry_header_claim",
+      "label": "MachineRegistry stale header claim",
+      "count": 824,
+      "currentWiringState": "stale_metadata",
+      "sourcePaths": [
+        "mcp-server/src/registries/MachineRegistry.ts"
+      ],
+      "currentConsumers": [
+        "docs_only"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "user_machine_profile",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "metadata_reconciled",
+      "recoveryAction": "reconcile_metadata_claims",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P2",
+      "blockers": [
+        "Published headers still disagree with live data on disk."
+      ],
+      "rationale": [
+        "Metadata drift is not a live-surface blocker, but it distorts roadmap and audit truth."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "material_registry_header_claim",
+      "label": "MaterialRegistry stale header claim",
+      "count": 1047,
+      "currentWiringState": "stale_metadata",
+      "sourcePaths": [
+        "mcp-server/src/registries/MaterialRegistry.ts"
+      ],
+      "currentConsumers": [
+        "docs_only"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "metadata_reconciled",
+      "recoveryAction": "reconcile_metadata_claims",
+      "recoveryWave": "W0-denominator-recovery",
+      "priority": "P2",
+      "blockers": [
+        "Published headers still disagree with live data on disk."
+      ],
+      "rationale": [
+        "Metadata drift is not a live-surface blocker, but it distorts roadmap and audit truth."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_extracted_js",
+      "label": "Extracted material JS families",
+      "count": 46,
+      "currentWiringState": "raw_corpus_only",
+      "sourcePaths": [
+        "extracted/materials/**/*.js"
+      ],
+      "currentConsumers": [
+        "future_recovery"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "classified_for_promotion_or_archive",
+      "recoveryAction": "classify_raw_corpus",
+      "recoveryWave": "W1-backend-promotion",
+      "priority": "P2",
+      "blockers": [
+        "Present on disk but not part of the current live registry load path."
+      ],
+      "rationale": [
+        "These families need a keep/promote/archive decision before they can affect legality denominators."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_machine_fallback",
+      "label": "Calculator fallback machine catalog",
+      "count": 17,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_material_fallback",
+      "label": "Calculator fallback material catalog",
+      "count": 40,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_tool_fallback",
+      "label": "Calculator fallback tool catalog",
+      "count": 19,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "calculator_fallback",
+      "familyId": "calculator_workholding_fallback",
+      "label": "Calculator fallback workholding options",
+      "count": 5,
+      "currentWiringState": "calculator_fallback_only",
+      "sourcePaths": [
+        "mcp-server/web/src/data/calculatorWorkspace.ts"
+      ],
+      "currentConsumers": [
+        "calculator"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "program_release",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "calculator_live_and_downstream",
+      "recoveryAction": "retire_fallback_surface",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Live backend parity does not exist yet for this fallback surface."
+      ],
+      "rationale": [
+        "Static fallback surfaces hide denominator gaps and prevent downstream consumers from sharing the same truth."
+      ]
+    },
+    {
+      "domain": "materials",
+      "familyId": "materials_master_reference",
+      "label": "Materials master reference catalog",
+      "count": 163,
+      "currentWiringState": "reference_only",
+      "sourcePaths": [
+        "data/materials/MATERIALS_MASTER.json"
+      ],
+      "currentConsumers": [
+        "material_reconciliation"
+      ],
+      "impactedConsumers": [
+        "calculator",
+        "print_to_cnc"
+      ],
+      "targetWiringState": "reference_or_live_decision",
+      "recoveryAction": "decide_reference_role",
+      "recoveryWave": "W2-fallback-retirement",
+      "priority": "P2",
+      "blockers": [
+        "Currently documented or referenced, but not yet committed to a canonical live role."
+      ],
+      "rationale": [
+        "Reference-only families should either become canonical or stay explicitly non-live."
+      ]
+    }
+  ],
+  "topBlockers": [
+    {
+      "reason": "Calculator still renders only a tiny static fallback for this domain.",
+      "familyCount": 5
+    },
+    {
+      "reason": "Live backend parity does not exist yet for this fallback surface.",
+      "familyCount": 4
+    },
+    {
+      "reason": "Lathe-style tooling layout is missing a published turret interface. (63 machines)",
+      "familyCount": 3
+    },
+    {
+      "reason": "Mill spindle interface is unpublished, so holder legality cannot be resolved. (8 machines)",
+      "familyCount": 3
+    },
+    {
+      "reason": "Zero-holder legality for gang:gang (34 machines)",
+      "familyCount": 3
+    },
+    {
+      "reason": "Zero-holder legality for turret:disc (7 machines)",
+      "familyCount": 3
+    },
+    {
+      "reason": "337 calculator toolpaths are static while backend strategy registry headline is 762+ Strategies across 5 major categories.",
+      "familyCount": 2
+    },
+    {
+      "reason": "Active live root counts still disagree with the intended corpus and SVI headline.",
+      "familyCount": 2
+    },
+    {
+      "reason": "Published headers still disagree with live data on disk.",
+      "familyCount": 2
+    },
+    {
+      "reason": "13,967 active unique ids are still far below the 95,608 intended tool corpus.",
+      "familyCount": 1
+    },
+    {
+      "reason": "337 calculator toolpaths are still static versus 762+ Strategies across 5 major categories in the backend registry headline.",
+      "familyCount": 1
+    },
+    {
+      "reason": "Currently documented or referenced, but not yet committed to a canonical live role.",
+      "familyCount": 1
+    },
+    {
+      "reason": "Present on disk but not part of the current live registry load path.",
+      "familyCount": 1
+    }
+  ]
+}

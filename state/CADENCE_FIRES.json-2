@@ -1,0 +1,12 @@
+/**
+ * ReliabilityWeibullEngine — Weibull reliability analysis
+ *
+ * Models: Weibull distribution (R(t)=e^(-(t/η)^β)), MTTF,
+ *         failure rate, B-life (B10, B50), confidence bounds
+ * References: Abernethy "The New Weibull Handbook", MIL-HDBK-217
+ * Safety: Warranty period, replacement interval, redundancy
+ */
+function mkAv(v, u, unc, s, w) {
+    return { value: v, unit: u, uncertainty: unc, source: s, warning: w };
+}
+// Gamma function appro

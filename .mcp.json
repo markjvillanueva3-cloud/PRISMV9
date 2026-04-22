@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "prism": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "H:/prism/mcp-server/dist/index.js"
+      ],
+      "env": {
+        "TRANSPORT": "stdio",
+        "LOG_LEVEL": "info"
+      }
+    },
+    "prism_safe": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "H:/prism/mcp-server/node_modules/tsx/dist/cli.mjs",
+        "H:/prism/mcp-server/scripts/prism-context-only.ts"
+      ],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-postgres",
+        "${DATABASE_URL}"
+      ]
+    },
+    "sentry": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sentry/mcp-server"
+      ],
+      "env": {
+        "SENTRY_AUTH_TOKEN": "${SENTRY_AUTH_TOKEN}",
+        "SENTRY_ORG": "${SENTRY_ORG_SLUG}"
+      }
+    },
+    "claude-flow": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "claude-flow",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}

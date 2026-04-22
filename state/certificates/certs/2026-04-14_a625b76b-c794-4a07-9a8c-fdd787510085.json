@@ -1,0 +1,38 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+
+// src/engines/GrindingWheelDressingOptimizationEngine.ts
+var BASE_G_RATIO = {
+  vitrified: 40,
+  resinoid: 20,
+  CBN: 3e3,
+  diamond: 5e3
+};
+var MATERIAL_G_FACTOR = {
+  "aluminum": 2.5,
+  "brass": 2,
+  "cast_iron": 1.2,
+  "carbon_steel": 1,
+  "alloy_steel": 0.8,
+  "stainless_steel": 0.6,
+  "tool_steel": 0.5,
+  "titanium": 0.35,
+  "inconel": 0.25,
+  "hardened_steel": 0.4,
+  "ceramic": 0.15,
+  "tungsten_carbide": 0.1
+};
+var SPECIFIC_ENERGY = {
+  "aluminum": 8,
+  "brass": 12,
+  "cast_iron": 25,
+  "carbon_steel": 35,
+  "alloy_steel": 40,
+  "stainless_steel": 50,
+  "tool_steel": 55,
+  "titanium": 60,
+  "inconel": 70,
+  "hardened_steel": 45,
+  "ceramic": 80,
+  "tungsten_carbide": 90
+};
+var RA_DEGRADATI

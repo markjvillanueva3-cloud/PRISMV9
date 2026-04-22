@@ -1,0 +1,114 @@
+import { persistenceBridge } from "../db/PersistenceBridge.js";
+class PurchaseOrderEngine {
+    orders = new Map();
+    receivings = new Map();
+    nextId = 1;
+    // U-XWIRE3: Receive callbacks — engines register hooks to react to PO receiving
+    // without creating circular imports. ToolUsageEngine uses this for auto-restock.
+    _receiveHooks = [];
+    onReceive(hook) {
+        this._receiveHooks.push(hook);
+    }
+    createOrder(params) {
+        const id = `PO-${String(this.nextId++).padStart(5, '0')}`;
+        const items = params.line_items.map((li, i) => ({
+            ...li,
+            id: `${id}-L${i + 1}`,
+            quantity_received: 0,
+            total: li.quantity_ordered * li.unit_price,
+        }));
+        const subtotal = items.reduce((s, li) => s + li.total, 0);
+        const taxRate = params.tax_rate ?? 0.08;
+        const po = {
+            id,
+            supplier_id: params.supplier_id,
+            supplier_name: params.supplier_name,
+            status: 'draft',
+            created_at: new Date().toISOString(),
+            line_items: items,
+            subtotal,
+            tax: subtotal * taxRate,
+            shipping: 0,
+            total: subtotal * (1 + taxRate),
+            payment_terms: params.payment_terms ?? 'Net 30',
+            notes: params.notes,
+            linked_jobs: params.linked_jobs ?? [],
+        };
+        this.orders.set(id, po);
+        persistenceBridge.persist("purchase_orders", id, po);
+        return po;
+    }
+    approveOrder(po_id, approved_by) {
+        const po = this.orders.get(po_id);
+        if (!po)
+            throw new Error(`PO ${po_id} not found`);
+        if (po.status !== 'draft' && po.status !== 'submitted')
+            throw new Error(`Cannot approve PO in status ${po.status}`);
+        po.status = 'approved';
+        po.approved_by = approved_by;
+        po.approved_at = new Date().toISOString();
+        persistenceBridge.persist("purchase_orders", po_id, po);
+        return po;
+    }
+    receiveGoods(params) {
+        const po = this.orders.get(params.po_id);
+        if (!po)
+            throw new Error(`PO ${params.po_id} not found`);
+        const rec = {
+            id: `RCV-${Date.now()}`,
+            po_id: params.po_id,
+            received_at: new Date().toISOString(),
+            received_by: params.received_by,
+            line_items: params.line_items.map((li) => ({
+                line_id: li.line_id,
+                quantity_received: li.quantity_received,
+                condition: li.condition ?? 'good',
+                notes: li.notes,
+            })),
+            packing_slip: params.packing_slip,
+        };
+        // Update PO line quantities
+        for (const ri of params.line_items) {
+            const poLine = po.line_items.find((l) => l.id === ri.line_id);
+            if (poLine) {
+                poLine.quantity_received += ri.quantity_received;
+            }
+        }
+        const allReceived = po.line_items.every((l) => l.quantity_received >= l.quantity_ordered);
+        const someReceived = po.line_items.some((l) => l.quantity_received > 0);
+        po.status = allReceived ? 'received' : someReceived ? 'partially_received' : po.status;
+        const existing = this.receivings.get(params.po_id) ?? [];
+        existing.push(rec);
+        this.receivings.set(params.po_id, existing);
+        persistenceBridge.persist("purchase_orders", params.po_id, po);
+        persistenceBridge.persistAppend("po_receivings", rec);
+        // U-XWIRE3: Fire receive hooks (e.g., ToolUsageEngine auto-restock)
+        for (const hook of this._receiveHooks) {
+            try {
+                hook(po, rec);
+            }
+            catch { /* cascade failure must not block PO receive */ }
+        }
+        return rec;
+    }
+    threeWayMatch(po_id, invoice_total, invoice_line_prices) {
+        const po = this.orders.get(po_id);
+        if (!po)
+            throw new Error(`PO ${po_id} not found`);
+        // Receiving total is the sum of received quantities at PO unit prices (no tax markup)
+        const receiving_total = po.line_items.reduce((s, li) => s + (li.quantity_received * li.unit_price), 0);
+        const discrepancies = [];
+        // PO vs Invoice comparison
+        if (Math.abs(po.total - invoice_total) > 0.01) {
+            discrepancies.push({ field: 'total', po_value: po.total, invoice_value: invoice_total, diff: invoice_total - po.total });
+        }
+        // Receipt vs PO subtotal comparison (true 3-way: receipt leg vs PO)
+        const receipt_vs_po_discrepancy = Math.abs(receiving_total - po.subtotal);
+        if (receipt_vs_po_discrepancy > 0.01) {
+            discrepancies.push({ field: 'receipt_vs_po_subtotal', po_value: po.subtotal, invoice_value: receiving_total, diff: receiving_total - po.subtotal });
+        }
+        // Receipt vs Invoice subtotal comparison (true 3-way: receipt leg vs Invoice)
+        // Invoice total includes tax/shipping, so compare receipt to invoice for awareness
+        const receipt_vs_invoice_discrepancy = Math.abs(receiving_total - invoice_total);
+        if (receipt_vs_invoice_discrepancy > 0.01) {
+            discrepancies.push({ field: 'receipt_vs_invoice', po_value: recei

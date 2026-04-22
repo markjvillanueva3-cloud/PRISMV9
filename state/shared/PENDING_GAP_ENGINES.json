@@ -1,0 +1,411 @@
+{
+  "schemaVersion": 1,
+  "description": "Gap engines identified by analysis but not yet built. Rule: ALWAYS BUILD, NEVER SKIP. Stop-hook enforces.",
+  "gaps": [
+    {
+      "name": "LatheBirdNestPredictorEngine",
+      "milestone": "LATHE-PRO-MS7",
+      "rationale": "Continuous-chip wrap risk on rotating workpiece — lathe-specific failure mode.",
+      "addedAt": "2026-04-16T15:45:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T15:40:00Z",
+      "commit": "0017a6b2"
+    },
+    {
+      "name": "LathePartingChipClearanceEngine",
+      "milestone": "LATHE-PRO-MS7",
+      "rationale": "Parting/grooving narrow-deep slot coolant access + chip extraction.",
+      "addedAt": "2026-04-16T15:45:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T15:40:00Z",
+      "commit": "0017a6b2"
+    },
+    {
+      "name": "LatheSubSpindleTransferPurgeEngine",
+      "milestone": "LATHE-PRO-MS7",
+      "rationale": "Swiss/twin-spindle chip-wash cycle timing — physics-based.",
+      "addedAt": "2026-04-16T15:45:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T15:40:00Z",
+      "commit": "0017a6b2"
+    },
+    {
+      "name": "GDTCalloutParserEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Parse drawing GD&T callouts (feature, symbol, tolerance, datums, material modifiers M/L/F) into structured data. Nothing currently parses raw callout text.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "LatheDatumReferenceFrameEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Build A|B|C datum reference frame for turned parts — typical A=axis, B=face, C=clocking. Decision logic not covered by existing engines.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "LatheCoaxialityRunoutValidatorEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Given coaxial/runout callout, validate achievable TIR from spindle + chuck + deflection stack. Differs from RunoutEffect (tool life) and SpindleRunout (spindle alone).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "RoundnessCylindricitySamplingEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "ISO 12181 probe-point sampling plan: number of points, spacing, UPR filter cutoff for given roundness tolerance + method (2-pt, 3-pt vee, rotary).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "GageRRMSAEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Gage R&R / Measurement System Analysis (ANOVA or range method). Operator × part variance decomposition. No MSA engine exists; SPC engines are downstream.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8"
+    },
+    {
+      "name": "ToleranceBandAllocationEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Inverse of GDTStackup: given assembly tolerance, allocate across components (equal / cost-weighted / capability-weighted).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "InverseStackupAllocatorEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing ToleranceEngine"
+    },
+    {
+      "name": "FeatureControlFrameValidatorEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "ASME Y14.5 feature control frame syntax validator — catches invalid symbol/modifier combinations (e.g., diameter on flatness, M modifier on form).",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "FCFSyntaxValidatorEngine",
+      "renameReason": "Shorter canonical name for FCF"
+    },
+    {
+      "name": "ProfileToleranceAnalyzerEngine",
+      "milestone": "LATHE-PRO-MS8",
+      "rationale": "Profile-of-line / profile-of-surface deviation from basis curve. Lathe-specific: NURBS/parametric profile inspection; not covered by existing engines.",
+      "addedAt": "2026-04-16T15:55:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T16:10:00Z",
+      "commit": "db33a7a8",
+      "renamedTo": "ProfileDeviationAnalyzerEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing ToleranceEngine"
+    },
+    {
+      "name": "ISO13485QMSEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "ISO 13485:2016 medical device QMS validator — distinct from AS9100 aerospace QMS. Design controls, DMR/DHR, sterilization traceability, medical-specific clauses.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "NadcapProcessQualificationEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "Nadcap AC7xxx special-process audit criteria (heat treat AC7102, NDT AC7114, chemical processing AC7108). No engine covers Nadcap-specific process qualification.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "DesignHistoryFileEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "FDA 21 CFR 820.30 Design History File artifact compilation — design inputs, outputs, reviews, verification, validation, transfer. FDA21CFRPart11 only covers e-records signatures.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "ProcessValidationIQOQPQEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "IQ/OQ/PQ protocol generation per FDA Process Validation Guidance + GHTF SG3. Installation, Operational, Performance Qualification criteria. Not covered by existing engines.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "CAPAWorkflowEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "Corrective and Preventive Action workflow — nonconformance → root cause analysis → CA/PA plan → effectiveness check. FDA 21 CFR 820.100 + ISO 13485 §8.5. No CAPA engine exists.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "ISO14971RiskManagementEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "Medical device risk management per ISO 14971:2019 — hazard identification, risk estimation (severity × probability), risk control, residual risk, benefit-risk. Distinct from ARP4761 aerospace safety.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "EngineeringChangeOrderEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "ECO/ECN workflow — change request → impact assessment → approval matrix → effectivity date → configuration record. Config management per EIA-649 / MIL-HDBK-61A. Not covered.",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "CounterfeitPartPreventionEngine",
+      "milestone": "LATHE-PRO-MS9",
+      "rationale": "AS5553 (electronics) / AS6174 (material) counterfeit prevention — supplier provenance scoring, chain-of-custody verification, authentication tests. Distinct from material cert traceability (source chain only).",
+      "addedAt": "2026-04-16T16:20:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T21:30:00Z",
+      "commit": "82c3f081"
+    },
+    {
+      "name": "LatheBarStockNestingEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Lathe bar stock nesting — parts-per-bar with cutoff kerf, end remnant loss, bar-diameter selection for minimum waste. Existing NestingEngine is 2D sheet-metal only (width × height).",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "BarFeedPitchOptimizerEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing NestingEngine (2-D sheet metal); new name emphasizes 1-D bar-feed domain"
+    },
+    {
+      "name": "BarRemnantManagementEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Track bar remnants post-job and evaluate feasibility of reusing them for shorter parts. Inventory-level optimization not covered by any existing engine.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d"
+    },
+    {
+      "name": "LathePartCostModelEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "7-bucket cost-per-part model: machine time (cycle × rate), tool (insert/edge × amortization), material (blank + waste), setup amortized over batch, quality (scrap × value), energy, secondary ops. Existing ActualCost/CostEstimation engines are generic and do not decompose these 7 buckets.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d"
+    },
+    {
+      "name": "LatheCycleTimeBreakdownEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "12+ component lathe cycle time breakdown: rapid, spindle accel/decel (inertia), turret index (BMT vs VDI, CW vs CCW), coolant settling, chuck clamp, tailstock advance, part catcher dwell, G4 dwells, look-ahead decel. Existing CycleTimeEngine is generic.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "LatheAuxAxisTimingEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to CycleTimeEngine; new name emphasizes lathe-specific auxiliary axes (chuck/tailstock/catcher/turret)"
+    },
+    {
+      "name": "LatheCostCalibrationEngine",
+      "milestone": "LATHE-PRO-MS10",
+      "rationale": "Actual-vs-estimated cost feedback recalibrator: compares post-production actuals to predictions and updates Taylor coefficients, cycle time model, and scrap rate. ActualCostEngine stores actuals only; no recalibration of physics parameters.",
+      "addedAt": "2026-04-16T21:40:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:05:00Z",
+      "commit": "a956369d",
+      "renamedTo": "LatheActualFeedbackTuningEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to CalibrationEngine (instrument calibration); new name emphasizes post-run actual-vs-predicted physics tuning"
+    },
+    {
+      "name": "DNCFileTransferEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "DNC file transfer protocol adapter: FTP/RS232 drip-feed/USB/Ethernet with machine-specific control chars (Fanuc DNC / Okuma DNC-A). No existing engine covers protocol-level NC file movement.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "MTConnectLiveStatusEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "MTConnect XML stream parser — machine execution/program/alarm/spindle state. Standard protocol (MTConnect 1.5/2.x) not currently covered. Distinct from OEE (aggregated KPI) and ShopFloorCheckIn (human log-in).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheJobSetupSheetEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Operator-facing setup sheet generator: tooling, offsets, chuck/jaw pos, tailstock, coolant settings. Distinct from JobTravelerEngine (routing) and OperatorDashboardOrchestrator (live UI).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52",
+      "renamedTo": "LatheChangeoverBriefEngine",
+      "renameReason": "DuplicationGuard 90% name-similarity to existing SetupSheetEngine (generic tool/op-oriented); new name emphasizes workholding-oriented changeover brief (chuck, jaws, tailstock) distinct from the tool/op-level document"
+    },
+    {
+      "name": "LatheFirstPieceApprovalEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "First-off sign-off gate — inspection readings vs tolerance, accept/reject + hold codes. Different from FirstArticleInspectionPipeline (FAI for PPAP/AS9102 first production).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheOnMachineProbeCycleEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "OMV on-machine probe cycle library (Renishaw/Marposs) — OD, ID, face, groove, thread start, work-offset bump. G-code macro sequences not covered by existing engines.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheChuckJawSetupEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Soft-jaw boring calc + grip length + jaw balance — lathe-specific fixture math not covered by ChuckGripForce (jaw force only) or FixtureStiffness (generic).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "CNCToolOffsetPersistenceEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Sync tool offset tables between CNC memory (H/D/W words) and ERP; track drift across shifts + RMAs. Not covered by tool-life or tool-crib engines.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "OperatorActionAuditTrailEngine",
+      "milestone": "LATHE-PRO-MS11",
+      "rationale": "Operator override/e-stop/cycle-skip audit log with reason codes for AS9100/FDA traceability. Distinct from ShopFloorCheckIn (login) and ShiftHandoff (narrative).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:01:00Z",
+      "commit": "4d961a52"
+    },
+    {
+      "name": "LatheBlockEngagementSimulatorEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Per-block tool engagement simulator: XZ toolpath evolution with chip thickness, MRR, and engagement width per block. Distinct from ToolpathSimulationEngine (generic), AdaptiveEngagementEngine (mill-focused control), EngagementGeometryEngine (static geometry).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheStockEvolutionEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "2D cross-section stock profile evolution across sequential passes — final part geometry produced by the simulated program. Distinct from StockMaterialDatabase (material catalog) and MaterialRemovalSimulationEngine (3D mill-centric).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheCollisionReplayEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Replay simulated run block-by-block with turret/holder/tailstock/chuck geometry, flagging first-collision block. Distinct from LatheCollisionZoneEngine (static zone check) and VideoReplayOrchestratorEngine (video UI replay).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheEnvelopeBreachReplayEngine",
+      "renameReason": "DuplicationGuard 90% match vs existing CollisionEngine — renamed to emphasize forbidden-volume intrusion scope (chuck/tailstock/steady/limits)."
+    },
+    {
+      "name": "LatheCycleTimeProfilerEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Per-block cycle-time decomposition into rapid / feed / dwell / tool-change / retract / M-code segments with bottleneck ranking. Distinct from LatheOpTimeBreakdownEngine (operation-level rollup) and LatheAuxAxisTimingEngine (aux axis overlap).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheBlockTimeProfilerEngine",
+      "renameReason": "DuplicationGuard 90% match vs existing CycleTimeEngine — renamed to emphasize block-granularity (the actual distinguishing feature vs operation/whole-program rollup)."
+    },
+    {
+      "name": "LatheDeviationMapEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Compare simulated final profile to CAD nominal, producing per-feature deviation map (max/min/RMS) with hot-spot flagging. Distinct from LatheProfileDeviationEngine (measured profile analytics) — this is simulated-vs-CAD prediction.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheProgramBacktraceEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Given a failed/out-of-tol block, trace back through the program to identify the root-cause source block (offset edit, mis-fed N-block, wrong WCS). Distinct from LatheTroubleshootingIntelligenceEngine (symptom-to-cause LLM) — this is deterministic block-walk.",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339"
+    },
+    {
+      "name": "LatheVerificationReportEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Consolidate simulation outputs (collision, deviation, cycle time, engagement) into a lathe-specific pass/fail verification report with severity-ranked findings. Distinct from SimulationReportEngine (generic format) and LatheQualityGateEngine (post-inspection gate).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheProgramSignoffDossierEngine",
+      "renameReason": "Preemptive rename to avoid SimulationReportEngine + multi-VerificationEngine overlap. 'Dossier' is a distinct token; emphasizes signoff-aggregation role (bundles engagement + stock + breach + time + deviation summaries into verdict)."
+    },
+    {
+      "name": "LatheRenderFrameSequenceEngine",
+      "milestone": "LATHE-PRO-MS12",
+      "rationale": "Emit rendering-ready frame snapshots (stock profile + tool pose + cut region) at sampled block indices for UI playback. Distinct from VisualizationEngine (generic) and SimulationVisualizationBridgeEngine (cross-tool data marshal).",
+      "addedAt": "2026-04-16T22:10:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:18:00Z",
+      "commit": "635f9339",
+      "renamedTo": "LatheReplayFrameCompilerEngine",
+      "renameReason": "Preemptive rename to avoid Sequence*/Renderer* token collisions (LatheSequenceOptimizerEngine, ReportRenderer, LessonRenderer). 'Compiler' is distinct; emphasizes data-marshalling role (not 3D rendering)."
+    },
+    {
+      "name": "StochasticStrategyComparisonEngine",
+      "milestone": "CAMX-MS12",
+      "rationale": "Monte-Carlo risk assessment for strategy candidates under parameter uncertainty, producing P(success), failure-mode distribution, VaR_95, risk-adjusted rank.",
+      "addedAt": "2026-04-16T22:44:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:44:00Z",
+      "commit": "pending",
+      "renamedTo": "StrategyStochasticRiskEngine",
+      "renameReason": "DuplicationGuard BLOCKED at 90% name-similarity with StrategyComparisonEngine. Dropping 'Comparison' token disambiguates role — this engine is probabilistic risk (P(success) + VaR) vs StrategyComparisonEngine (deterministic multi-criteria)."
+    },
+    {
+      "name": "RobustStrategyOptimizationEngine",
+      "milestone": "CAMX-MS12",
+      "rationale": "Min-max (Wald) robust strategy selection under bounded uncertainty set (e.g. material ±15%, tool dia ±0.02mm). Chooses argmax_s min_u U(s,u).",
+      "addedAt": "2026-04-16T22:44:00Z",
+      "built": true,
+      "builtAt": "2026-04-16T22:44:00Z",
+      "commit": "pending",
+      "renamedTo": "StrategyWorstCaseSelectorEngine",
+      "renameReason": "DuplicationGuard BLOCKED at 90% name-similarity with OptimizationEngine. Dropping 'Optimization' token emphasizes min-max selection role vs generic utility maximization."
+    }
+  ],
+  "lastUpdated": "2026-04-16T22:44:00Z"
+}

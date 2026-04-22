@@ -1,0 +1,120 @@
+{
+  "generated": "2026-03-30",
+  "task_anchor": "SQ2-0-CENSUS",
+  "wave_anchor": "U-CENSUS1-B",
+  "buckets": [
+    {
+      "bucket_id": "archive_resource_pdfs/18.03-spring-2010",
+      "descriptor_count": 343,
+      "resource_type_counts": {
+        "Document": 213,
+        "Video": 32,
+        "Image": 34,
+        "Other": 64
+      },
+      "payload_flags": {
+        "has_file": 311,
+        "has_captions_file": 32,
+        "has_transcript_file": 32,
+        "has_archive_url": 32
+      },
+      "primary_asset_counts": {
+        "primary_documents": 181,
+        "primary_videos": 32,
+        "primary_images": 34
+      },
+      "derived_asset_counts": {
+        "threeplay_pdf_documents": 32,
+        "threeplay_caption_assets": 64
+      },
+      "learning_type_counts": {
+        "Problem-solving Notes": 45,
+        "Lecture Notes": 37,
+        "Lecture Videos": 32,
+        "Problem Sets": 12,
+        "Problem Sets; Problem Set Solutions": 9,
+        "Exams": 7,
+        "Exams with Solutions": 3
+      },
+      "representative_primary_assets": [
+        {
+          "title": "MIT18_031S10_chapter_25.pdf",
+          "resource_type": "Document"
+        },
+        {
+          "title": "Lecture Video Correlation Table",
+          "resource_type": "Document"
+        },
+        {
+          "title": "Lecture 19: Introduction to the Laplace Transform",
+          "resource_type": "Video",
+          "youtube_key": "sZ2qulI6GEk"
+        }
+      ],
+      "normalization_rules": [
+        "Treat title=3play pdf file as transcript derivatives linked to video descriptors.",
+        "Treat title=3play caption file as caption derivatives linked to video descriptors.",
+        "Promote non-3play documents as primary extraction targets."
+      ]
+    },
+    {
+      "bucket_id": "box_resource_pdfs/6.006-spring-2020",
+      "descriptor_count": 224,
+      "resource_type_counts": {
+        "Document": 123,
+        "Video": 32,
+        "Image": 2,
+        "Other": 67
+      },
+      "payload_flags": {
+        "has_file": 195,
+        "has_captions_file": 32,
+        "has_transcript_file": 32,
+        "has_archive_url": 29
+      },
+      "primary_asset_counts": {
+        "primary_documents": 95,
+        "primary_videos": 32,
+        "primary_images": 2,
+        "primary_non_caption_other": 7
+      },
+      "derived_asset_counts": {
+        "threeplay_pdf_documents": 28,
+        "threeplay_caption_assets": 60
+      },
+      "learning_type_counts": {
+        "Problem-solving Notes": 36,
+        "Lecture Videos": 24,
+        "Lecture Notes": 20,
+        "Problem Sets": 16,
+        "Problem Sets; Problem Set Solutions": 9,
+        "Exams": 7,
+        "Exams with Solutions": 7
+      },
+      "representative_primary_assets": [
+        {
+          "title": "Problem Set 3",
+          "resource_type": "Document"
+        },
+        {
+          "title": "Problem Set 4 Solutions",
+          "resource_type": "Document"
+        },
+        {
+          "title": "Lecture 15: Dynamic Programming, Part 1: SRTBOT, Fib, DAGs, Bowling",
+          "resource_type": "Video",
+          "youtube_key": "r4-cftqTcdI"
+        },
+        {
+          "title": "Problem Set 5 Template",
+          "resource_type": "Other"
+        }
+      ],
+      "normalization_rules": [
+        "Treat title=3play pdf file as transcript derivatives linked to video descriptors.",
+        "Treat title=3play caption file as caption derivatives linked to video descriptors.",
+        "Keep non-caption Other rows as primary supplemental assets."
+      ]
+    }
+  ]
+}

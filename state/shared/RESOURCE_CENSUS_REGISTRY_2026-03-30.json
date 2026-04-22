@@ -1,0 +1,349 @@
+{
+  "generated": "2026-03-30",
+  "task_anchor": "SQ2-0-CENSUS",
+  "roadmap_anchors": [
+    "H:\\PRISM\\mcp-server\\data\\docs\\roadmap\\ULTIMATE-PRISM-ROADMAP-v25.md",
+    "H:\\PRISM\\mcp-server\\data\\docs\\roadmap\\RESOURCE-LEARNING-HARDENING-ROADMAP.md"
+  ],
+  "summary": {
+    "reservoir_groups_scanned": 19,
+    "total_files": 18944,
+    "pdf_files": 2519,
+    "source_videos": 4,
+    "cad_files": 403,
+    "note": "Several PDF or course corpora are mixed packages containing json, html, js, captions, and zip payloads in addition to PDFs."
+  },
+  "location_summary": [
+    {
+      "location": "active",
+      "path_root": "H:\\PRISM",
+      "corpus_count": 4,
+      "total_files": 787,
+      "pdf_files": 151,
+      "source_videos": 0,
+      "cad_files": 0
+    },
+    {
+      "location": "archive",
+      "path_root": "H:\\PRISM_ARCHIVE_2026-02-01",
+      "corpus_count": 7,
+      "total_files": 4226,
+      "pdf_files": 817,
+      "source_videos": 2,
+      "cad_files": 25
+    },
+    {
+      "location": "box",
+      "path_root": "C:\\Users\\Mark Villanueva\\Box\\PRISM",
+      "corpus_count": 8,
+      "total_files": 13931,
+      "pdf_files": 1551,
+      "source_videos": 2,
+      "cad_files": 378
+    }
+  ],
+  "corpora": [
+    {
+      "id": "active_resource_pdfs",
+      "location": "active",
+      "path": "H:\\PRISM\\RESOURCE PDFS",
+      "category": "pdf corpus",
+      "live_count": 594,
+      "signal_summary": "113 pdf, 99 json, 98 html, 90 zip",
+      "extraction_status": "mixed raw + packaged",
+      "validation_state": "needs normalization",
+      "consumer_tags": [
+        "document-learning",
+        "formula-extraction",
+        "learning-ui"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "active_manufacturer_catalogs",
+      "location": "active",
+      "path": "H:\\PRISM\\MANUFACTURER_CATALOGS",
+      "category": "catalog corpus",
+      "live_count": 116,
+      "signal_summary": "38 pdf dominant",
+      "extraction_status": "raw catalog pack",
+      "validation_state": "deduped against archive mirror candidate",
+      "consumer_tags": [
+        "calculator",
+        "quoting",
+        "tooling-rules"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "active_machine_handbooks",
+      "location": "active",
+      "path": "H:\\PRISM\\mcp-server\\data\\machine-handbooks",
+      "category": "handbook corpus",
+      "live_count": 8,
+      "signal_summary": "8 json structured handbooks",
+      "extraction_status": "extracted structured",
+      "validation_state": "needs consumer exposure audit",
+      "consumer_tags": [
+        "diagnosis",
+        "machine-setup",
+        "machine-live",
+        "handbook-registry"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "active_video_learned",
+      "location": "active",
+      "path": "H:\\PRISM\\mcp-server\\data\\video-learned",
+      "category": "video corpus",
+      "live_count": 69,
+      "signal_summary": "53 srt, 16 json",
+      "extraction_status": "extracted transcripts + metadata",
+      "validation_state": "needs source linkage and normalized promotion",
+      "consumer_tags": [
+        "video-learning",
+        "learning-ui",
+        "promotion-queue"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "archive_mit_courses",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\MIT COURSES",
+      "category": "course corpus",
+      "live_count": 1081,
+      "signal_summary": "227 zip, 196 pdf, 125 vtt, 106 json",
+      "extraction_status": "raw mixed course pack",
+      "validation_state": "needs normalization and mirror comparison versus Box",
+      "consumer_tags": [
+        "training-modules",
+        "formulas",
+        "algorithms",
+        "learning-ui"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "archive_resource_pdfs",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\RESOURCE PDFS",
+      "category": "pdf corpus",
+      "live_count": 3004,
+      "signal_summary": "750 json, 730 html, 583 pdf, 112 zip",
+      "extraction_status": "raw mixed reference pack",
+      "validation_state": "needs normalization and mirror comparison versus Box",
+      "consumer_tags": [
+        "document-learning",
+        "formula-extraction",
+        "process-rules"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "archive_manufacturer_catalogs",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\MANUFACTURER_CATALOGS",
+      "category": "catalog corpus",
+      "live_count": 116,
+      "signal_summary": "38 pdf dominant",
+      "extraction_status": "raw catalog pack",
+      "validation_state": "mirror candidate of active_manufacturer_catalogs",
+      "consumer_tags": [
+        "tooling-rules",
+        "quoting",
+        "calculator"
+      ],
+      "priority": "medium"
+    },
+    {
+      "id": "archive_machine_models",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\MACHINE_SIMULATION_MODELS",
+      "category": "machine model corpus",
+      "live_count": 0,
+      "signal_summary": "directory exists, no files surfaced",
+      "extraction_status": "empty or unsynced",
+      "validation_state": "needs sync verification",
+      "consumer_tags": [
+        "simulation",
+        "machine-capability",
+        "digital-twin"
+      ],
+      "priority": "investigate"
+    },
+    {
+      "id": "archive_generic_machine_models",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\GENERIC_MACHINE_MODELS",
+      "category": "machine model corpus",
+      "live_count": 0,
+      "signal_summary": "directory exists, no files surfaced",
+      "extraction_status": "empty or unsynced",
+      "validation_state": "needs sync verification",
+      "consumer_tags": [
+        "simulation",
+        "machine-capability",
+        "learning-assets"
+      ],
+      "priority": "investigate"
+    },
+    {
+      "id": "archive_tool_holder_models",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\TOOL_HOLDER_CAD_FILES",
+      "category": "holder model corpus",
+      "live_count": 25,
+      "signal_summary": "25 cad",
+      "extraction_status": "raw cad corpus",
+      "validation_state": "ready for small bounded registry pass",
+      "consumer_tags": [
+        "holder-tool-compatibility",
+        "setup-planning"
+      ],
+      "priority": "medium"
+    },
+    {
+      "id": "archive_cad_files",
+      "location": "archive",
+      "path": "H:\\PRISM_ARCHIVE_2026-02-01\\RESOURCES\\CAD_FILES",
+      "category": "cad corpus",
+      "live_count": 0,
+      "signal_summary": "directory exists, no files surfaced",
+      "extraction_status": "empty or unsynced",
+      "validation_state": "needs sync verification",
+      "consumer_tags": [
+        "geometry-ingestion",
+        "simulation"
+      ],
+      "priority": "investigate"
+    },
+    {
+      "id": "box_mit_courses",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\MIT COURSES",
+      "category": "course corpus",
+      "live_count": 7436,
+      "signal_summary": "1822 json, 1697 html, 734 pdf, 373 vtt",
+      "extraction_status": "raw mixed course pack",
+      "validation_state": "highest-value LR-1 backlog",
+      "consumer_tags": [
+        "training-modules",
+        "formulas",
+        "algorithms",
+        "learning-ui"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "box_resource_pdfs",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\RESOURCE PDFS",
+      "category": "pdf corpus",
+      "live_count": 6070,
+      "signal_summary": "1188 json, 1118 html, 815 pdf, 191 vtt",
+      "extraction_status": "raw mixed reference pack",
+      "validation_state": "highest-value LR-1 backlog",
+      "consumer_tags": [
+        "document-learning",
+        "formula-extraction",
+        "process-rules"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "box_manufacturer_catalogs",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\MANUFACTURER_CATALOGS",
+      "category": "catalog corpus",
+      "live_count": 0,
+      "signal_summary": "path exists, no files surfaced",
+      "extraction_status": "empty or unsynced",
+      "validation_state": "needs sync verification",
+      "consumer_tags": [
+        "tooling-rules",
+        "quoting",
+        "sourcing"
+      ],
+      "priority": "investigate"
+    },
+    {
+      "id": "box_machine_models",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\MACHINE MODELS FOR LEARNING ENGINE AND SIMULATION",
+      "category": "machine model corpus",
+      "live_count": 272,
+      "signal_summary": "234 step, 37 zip",
+      "extraction_status": "raw cad corpus",
+      "validation_state": "ready for machine or geometry registry pass",
+      "consumer_tags": [
+        "simulation",
+        "machine-capability",
+        "digital-twin"
+      ],
+      "priority": "highest"
+    },
+    {
+      "id": "box_tool_holder_models",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\TOOL HOLDER MODELS FOR LEARNING ENGINE",
+      "category": "holder model corpus",
+      "live_count": 113,
+      "signal_summary": "110 cad",
+      "extraction_status": "raw cad corpus",
+      "validation_state": "ready for compatibility registry pass",
+      "consumer_tags": [
+        "holder-tool-compatibility",
+        "setup-planning"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "box_part_models",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\PART MODELS FOR LEARNING ENGINE",
+      "category": "part model corpus",
+      "live_count": 33,
+      "signal_summary": "32 cad",
+      "extraction_status": "raw cad corpus",
+      "validation_state": "ready for part-registry pass",
+      "consumer_tags": [
+        "part-similarity",
+        "training-modules",
+        "learning-engine"
+      ],
+      "priority": "high"
+    },
+    {
+      "id": "box_fixture_catalogs",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\WORKHOLDING AND FIXTURE CATALOGS",
+      "category": "fixture corpus",
+      "live_count": 0,
+      "signal_summary": "vendor directories exist, no files surfaced",
+      "extraction_status": "directory-only or unsynced",
+      "validation_state": "needs sync verification",
+      "consumer_tags": [
+        "workholding-selection",
+        "setup-planning"
+      ],
+      "priority": "investigate"
+    },
+    {
+      "id": "box_training_videos",
+      "location": "box",
+      "path": "C:\\Users\\Mark Villanueva\\Box\\PRISM\\PRISM CAD-CAM TRAINING",
+      "category": "video corpus",
+      "live_count": 7,
+      "signal_summary": "2 pdf, 2 cad, 0 source video",
+      "extraction_status": "mixed seed pack",
+      "validation_state": "needs reclassification",
+      "consumer_tags": [
+        "training-pipeline",
+        "learning-ui"
+      ],
+      "priority": "low"
+    }
+  ]
+}

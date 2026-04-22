@@ -1,0 +1,1951 @@
+{
+  "schemaVersion": 1,
+  "system_id": "fusion360",
+  "section_key": "3d_toolpaths",
+  "section": {
+    "adaptive_clearing_3d": {
+      "fusion_name": "Adaptive Clearing",
+      "operation_type": "3D Roughing",
+      "description": "High-efficiency 3D roughing with constant tool engagement. Maintains consistent chip load through complex geometry by dynamically adjusting toolpath.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "description": "Select cutting tool from library",
+              "required": true
+            },
+            {
+              "name": "coolant",
+              "type": "enum",
+              "values": [
+                "flood",
+                "mist",
+                "air_blast",
+                "through_tool",
+                "through_spindle",
+                "disabled"
+              ],
+              "default": "flood"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm",
+              "min": 1,
+              "max": 60000,
+              "description": "Spindle rotation speed"
+            },
+            {
+              "name": "surface_speed",
+              "type": "number",
+              "unit": "m/min",
+              "min": 1,
+              "max": 1000,
+              "description": "Surface speed (Vc)"
+            },
+            {
+              "name": "ramp_spindle_speed",
+              "type": "number",
+              "unit": "rpm",
+              "description": "Spindle speed during ramp/entry"
+            },
+            {
+              "name": "feed_per_tooth",
+              "type": "number",
+              "unit": "mm",
+              "min": 0.001,
+              "max": 5,
+              "description": "Feed per tooth (fz)"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "min": 1,
+              "max": 50000,
+              "description": "Cutting feedrate"
+            },
+            {
+              "name": "feed_per_revolution",
+              "type": "number",
+              "unit": "mm/rev",
+              "description": "Feed per revolution"
+            },
+            {
+              "name": "lead_in_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "description": "Feed rate during lead-in"
+            },
+            {
+              "name": "lead_out_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "description": "Feed rate during lead-out"
+            },
+            {
+              "name": "ramp_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "description": "Feed rate during ramping"
+            },
+            {
+              "name": "plunge_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "description": "Plunge feedrate"
+            },
+            {
+              "name": "retract_feed",
+              "type": "number",
+              "unit": "mm/min",
+              "description": "Retract feedrate"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection",
+              "description": "Boundary for toolpath",
+              "options": [
+                "selection",
+                "silhouette",
+                "stock_contours"
+              ]
+            },
+            {
+              "name": "machining_boundary_mode",
+              "type": "enum",
+              "values": [
+                "inside",
+                "outside",
+                "on"
+              ],
+              "default": "inside"
+            },
+            {
+              "name": "additional_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "description": "Additional offset from boundary"
+            },
+            {
+              "name": "tool_containment",
+              "type": "enum",
+              "values": [
+                "tool_center_on_boundary",
+                "tool_inside_boundary",
+                "tool_outside_boundary"
+              ],
+              "default": "tool_center_on_boundary"
+            },
+            {
+              "name": "avoid_surfaces",
+              "type": "selection",
+              "description": "Surfaces to avoid"
+            },
+            {
+              "name": "rest_machining",
+              "type": "boolean",
+              "default": false,
+              "description": "Enable rest machining from previous operation"
+            },
+            {
+              "name": "rest_machining_source",
+              "type": "enum",
+              "values": [
+                "from_previous_operation",
+                "from_setup",
+                "from_tool"
+              ],
+              "default": "from_previous_operation"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "min": 0,
+              "max": 50,
+              "description": "Radial stock to leave"
+            },
+            {
+              "name": "stock_to_leave_axial",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "min": 0,
+              "max": 50,
+              "description": "Axial stock to leave"
+            }
+          ]
+        },
+        "heights": {
+          "params": [
+            {
+              "name": "clearance_height_mode",
+              "type": "enum",
+              "values": [
+                "from_stock_top",
+                "from_retract_height",
+                "absolute"
+              ],
+              "default": "from_retract_height"
+            },
+            {
+              "name": "clearance_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 5,
+              "description": "Clearance above stock/part"
+            },
+            {
+              "name": "retract_height_mode",
+              "type": "enum",
+              "values": [
+                "from_stock_top",
+                "absolute",
+                "clearance_height"
+              ],
+              "default": "from_stock_top"
+            },
+            {
+              "name": "retract_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 3,
+              "description": "Retract height offset"
+            },
+            {
+              "name": "feed_height_mode",
+              "type": "enum",
+              "values": [
+                "from_stock_top",
+                "from_top_height",
+                "absolute"
+              ],
+              "default": "from_stock_top"
+            },
+            {
+              "name": "feed_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 1,
+              "description": "Feed height above material"
+            },
+            {
+              "name": "top_height_mode",
+              "type": "enum",
+              "values": [
+                "from_stock_top",
+                "from_model_top",
+                "selection",
+                "absolute"
+              ],
+              "default": "from_stock_top"
+            },
+            {
+              "name": "top_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "description": "Top of machining area"
+            },
+            {
+              "name": "bottom_height_mode",
+              "type": "enum",
+              "values": [
+                "from_model_bottom",
+                "from_stock_bottom",
+                "selection",
+                "absolute"
+              ],
+              "default": "from_model_bottom"
+            },
+            {
+              "name": "bottom_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "description": "Bottom of machining area"
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.01,
+              "min": 0.0001,
+              "max": 1,
+              "description": "Toolpath tolerance"
+            },
+            {
+              "name": "optimal_load",
+              "type": "number",
+              "unit": "mm",
+              "min": 0.1,
+              "max": 100,
+              "description": "Maximum radial engagement (stepover)"
+            },
+            {
+              "name": "optimal_load_percentage",
+              "type": "number",
+              "unit": "%",
+              "min": 1,
+              "max": 100,
+              "default": 40,
+              "description": "Optimal load as percentage of tool diameter"
+            },
+            {
+              "name": "maximum_roughing_stepdown",
+              "type": "number",
+              "unit": "mm",
+              "min": 0.1,
+              "max": 100,
+              "description": "Maximum axial depth of cut"
+            },
+            {
+              "name": "use_flat_area_detection",
+              "type": "boolean",
+              "default": true,
+              "description": "Detect and machine flat areas separately"
+            },
+            {
+              "name": "flat_area_stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Stepdown for flat areas"
+            },
+            {
+              "name": "fine_stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Final fine stepdown"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional",
+                "both"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "minimum_cutting_radius",
+              "type": "number",
+              "unit": "mm",
+              "default": 0,
+              "description": "Minimum internal corner radius"
+            },
+            {
+              "name": "use_slot_clearing",
+              "type": "boolean",
+              "default": false,
+              "description": "Enable slot clearing mode"
+            },
+            {
+              "name": "slot_clearing_width",
+              "type": "number",
+              "unit": "mm",
+              "description": "Width threshold for slot detection"
+            },
+            {
+              "name": "order",
+              "type": "enum",
+              "values": [
+                "depth_first",
+                "by_area"
+              ],
+              "default": "depth_first"
+            },
+            {
+              "name": "order_by_depth",
+              "type": "boolean",
+              "default": true,
+              "description": "Machine by depth levels"
+            },
+            {
+              "name": "order_by_area",
+              "type": "boolean",
+              "default": false,
+              "description": "Machine area by area"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true,
+              "description": "Enable path smoothing"
+            },
+            {
+              "name": "smoothing_tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.01,
+              "description": "Smoothing deviation tolerance"
+            },
+            {
+              "name": "use_reduced_feedrate_for_regions",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "reduced_feedrate_radius",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "reduced_feedrate_percentage",
+              "type": "number",
+              "unit": "%",
+              "default": 50
+            }
+          ]
+        },
+        "linking": {
+          "params": [
+            {
+              "name": "retraction_policy",
+              "type": "enum",
+              "values": [
+                "minimum",
+                "full",
+                "clear_height"
+              ],
+              "default": "minimum"
+            },
+            {
+              "name": "stay_down_distance",
+              "type": "number",
+              "unit": "mm",
+              "default": 5,
+              "description": "Max distance to stay down"
+            },
+            {
+              "name": "stay_down_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 45,
+              "description": "Max ramp angle while staying down"
+            },
+            {
+              "name": "lift_height",
+              "type": "number",
+              "unit": "mm",
+              "default": 1,
+              "description": "Lift height for retracts"
+            },
+            {
+              "name": "ramp_type",
+              "type": "enum",
+              "values": [
+                "helix",
+                "profile",
+                "zigzag",
+                "plunge"
+              ],
+              "default": "helix"
+            },
+            {
+              "name": "ramp_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 2,
+              "min": 0.1,
+              "max": 90,
+              "description": "Ramp angle for entry"
+            },
+            {
+              "name": "ramp_diameter",
+              "type": "number",
+              "unit": "mm",
+              "description": "Helix diameter for entry"
+            },
+            {
+              "name": "ramp_diameter_percentage",
+              "type": "number",
+              "unit": "%",
+              "default": 90,
+              "description": "Helix diameter as % of tool"
+            },
+            {
+              "name": "ramp_clearance_height",
+              "type": "number",
+              "unit": "mm",
+              "default": 1
+            },
+            {
+              "name": "ramp_taper_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 0
+            },
+            {
+              "name": "maximum_ramp_stepdown",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "entry_position",
+              "type": "enum",
+              "values": [
+                "inside",
+                "outside",
+                "center"
+              ],
+              "default": "inside"
+            },
+            {
+              "name": "use_predrill",
+              "type": "boolean",
+              "default": false,
+              "description": "Use predrilled hole for entry"
+            },
+            {
+              "name": "predrill_position",
+              "type": "point3d",
+              "description": "Position of predrill hole"
+            },
+            {
+              "name": "lead_in_radius",
+              "type": "number",
+              "unit": "mm",
+              "description": "Lead-in arc radius"
+            },
+            {
+              "name": "lead_out_radius",
+              "type": "number",
+              "unit": "mm",
+              "description": "Lead-out arc radius"
+            },
+            {
+              "name": "lead_in_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 90
+            },
+            {
+              "name": "lead_out_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 90
+            },
+            {
+              "name": "perpendicular_lead_in",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "perpendicular_lead_out",
+              "type": "boolean",
+              "default": false
+            }
+          ]
+        }
+      },
+      "output_params_count": 78
+    },
+    "pocket_clearing_3d": {
+      "fusion_name": "Pocket",
+      "operation_type": "3D Roughing",
+      "description": "Traditional pocket clearing with parallel or spiral patterns. Variable engagement, suitable for shallow pockets.",
+      "hsm_capable": false,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "coolant",
+              "type": "enum",
+              "values": [
+                "flood",
+                "mist",
+                "air_blast",
+                "through_tool",
+                "disabled"
+              ],
+              "default": "flood"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "surface_speed",
+              "type": "number",
+              "unit": "m/min"
+            },
+            {
+              "name": "feed_per_tooth",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            },
+            {
+              "name": "ramp_feed",
+              "type": "number",
+              "unit": "mm/min"
+            },
+            {
+              "name": "plunge_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "machining_boundary_mode",
+              "type": "enum",
+              "values": [
+                "inside",
+                "outside"
+              ],
+              "default": "inside"
+            },
+            {
+              "name": "tool_containment",
+              "type": "enum",
+              "values": [
+                "tool_center_on_boundary",
+                "tool_inside_boundary"
+              ],
+              "default": "tool_inside_boundary"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "stock_to_leave_axial",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "heights": {
+          "params": [
+            {
+              "name": "clearance_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 5
+            },
+            {
+              "name": "retract_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 3
+            },
+            {
+              "name": "feed_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 1
+            },
+            {
+              "name": "top_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "bottom_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.01
+            },
+            {
+              "name": "maximum_stepover",
+              "type": "number",
+              "unit": "mm",
+              "description": "Maximum radial stepover"
+            },
+            {
+              "name": "stepover_percentage",
+              "type": "number",
+              "unit": "%",
+              "default": 50
+            },
+            {
+              "name": "maximum_stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Maximum axial stepdown"
+            },
+            {
+              "name": "pattern",
+              "type": "enum",
+              "values": [
+                "parallel",
+                "offset",
+                "spiral"
+              ],
+              "default": "offset"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional",
+                "both"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "order",
+              "type": "enum",
+              "values": [
+                "depth_first",
+                "by_area"
+              ],
+              "default": "depth_first"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        },
+        "linking": {
+          "params": [
+            {
+              "name": "ramp_type",
+              "type": "enum",
+              "values": [
+                "helix",
+                "zigzag",
+                "plunge"
+              ],
+              "default": "helix"
+            },
+            {
+              "name": "ramp_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 3
+            },
+            {
+              "name": "ramp_diameter_percentage",
+              "type": "number",
+              "unit": "%",
+              "default": 80
+            }
+          ]
+        }
+      },
+      "output_params_count": 38
+    },
+    "parallel": {
+      "fusion_name": "Parallel",
+      "operation_type": "3D Finishing",
+      "description": "3D parallel finishing with constant stepover. Creates uniform cusp patterns on freeform surfaces.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "coolant",
+              "type": "enum",
+              "values": [
+                "flood",
+                "mist",
+                "air_blast",
+                "disabled"
+              ],
+              "default": "flood"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "surface_speed",
+              "type": "number",
+              "unit": "m/min"
+            },
+            {
+              "name": "feed_per_tooth",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "contact_point_boundary",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "tool_containment",
+              "type": "enum",
+              "values": [
+                "tool_center_on_boundary",
+                "tool_inside_boundary"
+              ],
+              "default": "tool_inside_boundary"
+            },
+            {
+              "name": "additional_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "heights": {
+          "params": [
+            {
+              "name": "clearance_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 5
+            },
+            {
+              "name": "retract_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 3
+            },
+            {
+              "name": "top_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "bottom_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepover",
+              "type": "number",
+              "unit": "mm",
+              "description": "Stepover between passes"
+            },
+            {
+              "name": "stepover_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "scallop_height"
+              ],
+              "default": "constant"
+            },
+            {
+              "name": "cusp_height",
+              "type": "number",
+              "unit": "mm",
+              "description": "Target cusp height for scallop mode"
+            },
+            {
+              "name": "direction",
+              "type": "number",
+              "unit": "deg",
+              "default": 0,
+              "description": "Pass direction angle"
+            },
+            {
+              "name": "pass_direction",
+              "type": "enum",
+              "values": [
+                "one_way",
+                "zigzag"
+              ],
+              "default": "zigzag"
+            },
+            {
+              "name": "direction_reference",
+              "type": "enum",
+              "values": [
+                "along_x",
+                "along_y",
+                "custom"
+              ],
+              "default": "along_x"
+            },
+            {
+              "name": "limit_passes_to_angle",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "maximum_slope_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 45,
+              "description": "Max slope for parallel passes"
+            },
+            {
+              "name": "minimum_slope_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 0
+            },
+            {
+              "name": "order",
+              "type": "enum",
+              "values": [
+                "forward",
+                "backward",
+                "alternating"
+              ],
+              "default": "forward"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "smoothing_filter",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.01
+            }
+          ]
+        },
+        "linking": {
+          "params": [
+            {
+              "name": "lead_in_radius",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "lead_out_radius",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "vertical_lead_in",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "vertical_lead_out",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "retraction_policy",
+              "type": "enum",
+              "values": [
+                "minimum",
+                "full"
+              ],
+              "default": "minimum"
+            },
+            {
+              "name": "stay_down_distance",
+              "type": "number",
+              "unit": "mm",
+              "default": 5
+            }
+          ]
+        }
+      },
+      "output_params_count": 42
+    },
+    "contour": {
+      "fusion_name": "Contour",
+      "operation_type": "3D Finishing",
+      "description": "Z-level constant-Z finishing for steep walls. Creates horizontal scallop marks.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "coolant",
+              "type": "enum",
+              "values": [
+                "flood",
+                "mist",
+                "air_blast",
+                "disabled"
+              ],
+              "default": "flood"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "tool_containment",
+              "type": "enum",
+              "values": [
+                "tool_center_on_boundary",
+                "tool_inside_boundary"
+              ],
+              "default": "tool_inside_boundary"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "heights": {
+          "params": [
+            {
+              "name": "clearance_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 5
+            },
+            {
+              "name": "top_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "bottom_height_offset",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Z-level stepdown"
+            },
+            {
+              "name": "stepdown_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "cusp_height"
+              ],
+              "default": "constant"
+            },
+            {
+              "name": "cusp_height",
+              "type": "number",
+              "unit": "mm",
+              "description": "Target cusp height"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional",
+                "both"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "limit_to_steep",
+              "type": "boolean",
+              "default": true,
+              "description": "Only machine steep areas"
+            },
+            {
+              "name": "minimum_steep_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 45,
+              "description": "Minimum angle to consider steep"
+            },
+            {
+              "name": "continuous_spiral",
+              "type": "boolean",
+              "default": false,
+              "description": "Use continuous spiral instead of loops"
+            },
+            {
+              "name": "order",
+              "type": "enum",
+              "values": [
+                "top_down",
+                "bottom_up"
+              ],
+              "default": "top_down"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        },
+        "linking": {
+          "params": [
+            {
+              "name": "lead_in_radius",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "lead_out_radius",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "lead_vertical",
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "stay_down_distance",
+              "type": "number",
+              "unit": "mm",
+              "default": 3
+            }
+          ]
+        }
+      },
+      "output_params_count": 35
+    },
+    "scallop": {
+      "fusion_name": "Scallop",
+      "operation_type": "3D Finishing",
+      "description": "Constant scallop height finishing that adapts stepover to maintain consistent surface roughness.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "tool_containment",
+              "type": "enum",
+              "values": [
+                "tool_center_on_boundary",
+                "tool_inside_boundary"
+              ],
+              "default": "tool_inside_boundary"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "scallop_height",
+              "type": "number",
+              "unit": "mm",
+              "description": "Target scallop/cusp height",
+              "min": 0.001,
+              "max": 1
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "order",
+              "type": "enum",
+              "values": [
+                "inside_out",
+                "outside_in"
+              ],
+              "default": "inside_out"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 22
+    },
+    "pencil": {
+      "fusion_name": "Pencil",
+      "operation_type": "3D Finishing",
+      "description": "Corner and fillet finishing that traces internal corners. Removes rest material in tight areas.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Z stepdown between passes"
+            },
+            {
+              "name": "multiple_passes",
+              "type": "boolean",
+              "default": true,
+              "description": "Use multiple Z levels"
+            },
+            {
+              "name": "detection_radius",
+              "type": "number",
+              "unit": "mm",
+              "description": "Corner detection radius"
+            },
+            {
+              "name": "corner_radius_filter",
+              "type": "number",
+              "unit": "mm",
+              "description": "Minimum corner radius to process"
+            },
+            {
+              "name": "passes_per_corner",
+              "type": "number",
+              "default": 1,
+              "description": "Number of passes per corner"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 24
+    },
+    "radial": {
+      "fusion_name": "Radial",
+      "operation_type": "3D Finishing",
+      "description": "Radial passes emanating from center point. Ideal for circular or radially symmetric features.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "center_point",
+              "type": "point3d",
+              "description": "Center of radial pattern"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepover",
+              "type": "number",
+              "unit": "mm",
+              "description": "Angular stepover at outer edge"
+            },
+            {
+              "name": "angle_step",
+              "type": "number",
+              "unit": "deg",
+              "description": "Angular increment between passes"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "inward",
+                "outward",
+                "both"
+              ],
+              "default": "outward"
+            },
+            {
+              "name": "start_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 0
+            },
+            {
+              "name": "end_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 360
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 21
+    },
+    "spiral": {
+      "fusion_name": "Spiral",
+      "operation_type": "3D Finishing",
+      "description": "Continuous spiral finishing pattern for smooth surface finish with no step marks.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "center_point",
+              "type": "point3d"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepover",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "inward",
+                "outward"
+              ],
+              "default": "outward"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 18
+    },
+    "morphed_spiral": {
+      "fusion_name": "Morphed Spiral",
+      "operation_type": "3D Finishing",
+      "description": "Spiral toolpath morphing between boundary curves. Excellent for blended surfaces.",
+      "hsm_capable": true,
+      "manufacturing_extension": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "inner_boundary",
+              "type": "selection",
+              "required": true,
+              "description": "Inner boundary curve"
+            },
+            {
+              "name": "outer_boundary",
+              "type": "selection",
+              "required": true,
+              "description": "Outer boundary curve"
+            },
+            {
+              "name": "guide_curves",
+              "type": "selection",
+              "description": "Optional guide curves for morphing"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepover",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "stepover_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "scallop"
+              ],
+              "default": "constant"
+            },
+            {
+              "name": "cusp_height",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "inward",
+                "outward"
+              ],
+              "default": "outward"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 24
+    },
+    "steep_and_shallow": {
+      "fusion_name": "Steep and Shallow",
+      "operation_type": "3D Finishing",
+      "description": "Automatic combination of parallel and Z-level based on surface angle. Threshold-based strategy switching.",
+      "hsm_capable": true,
+      "manufacturing_extension": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "threshold_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 45,
+              "min": 0,
+              "max": 90,
+              "description": "Angle to switch between steep and shallow strategies"
+            },
+            {
+              "name": "shallow_stepover",
+              "type": "number",
+              "unit": "mm",
+              "description": "Stepover for shallow areas"
+            },
+            {
+              "name": "steep_stepdown",
+              "type": "number",
+              "unit": "mm",
+              "description": "Stepdown for steep areas"
+            },
+            {
+              "name": "shallow_direction",
+              "type": "number",
+              "unit": "deg",
+              "default": 0,
+              "description": "Direction for parallel passes"
+            },
+            {
+              "name": "machining_order",
+              "type": "enum",
+              "values": [
+                "steep_first",
+                "shallow_first",
+                "top_first"
+              ],
+              "default": "steep_first"
+            },
+            {
+              "name": "continuous_spiral",
+              "type": "boolean",
+              "default": true,
+              "description": "Use continuous spiral for steep areas"
+            },
+            {
+              "name": "overlap_distance",
+              "type": "number",
+              "unit": "mm",
+              "description": "Overlap between steep and shallow regions"
+            },
+            {
+              "name": "blend_passes",
+              "type": "boolean",
+              "default": true,
+              "description": "Blend transition between regions"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 32
+    },
+    "horizontal": {
+      "fusion_name": "Horizontal",
+      "operation_type": "3D Finishing",
+      "description": "Machine only horizontal or near-horizontal surfaces. Useful for flat bottoms and ledges.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "machining_boundary",
+              "type": "selection"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "stepover",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "maximum_slope_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 5,
+              "description": "Max slope to consider horizontal"
+            },
+            {
+              "name": "pattern",
+              "type": "enum",
+              "values": [
+                "parallel",
+                "offset"
+              ],
+              "default": "parallel"
+            },
+            {
+              "name": "direction",
+              "type": "number",
+              "unit": "deg",
+              "default": 0
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 19
+    },
+    "ramp": {
+      "fusion_name": "Ramp",
+      "operation_type": "3D Finishing",
+      "description": "Create continuous ramp or helix patterns. Used for specialized finishing.",
+      "hsm_capable": true,
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "cutting_feed",
+              "type": "number",
+              "unit": "mm/min"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "boundary_curve",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "tolerance",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.005
+            },
+            {
+              "name": "ramp_angle",
+              "type": "number",
+              "unit": "deg",
+              "description": "Angle of ramp descent"
+            },
+            {
+              "name": "total_depth",
+              "type": "number",
+              "unit": "mm",
+              "description": "Total depth of ramp"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "climb",
+                "conventional"
+              ],
+              "default": "climb"
+            },
+            {
+              "name": "smoothing",
+              "type": "boolean",
+              "default": true
+            }
+          ]
+        }
+      },
+      "output_params_count": 17
+    }
+  },
+  "provenance": {
+    "consolidated_source": "FUSION360_CAM_COMPLETE_CATALOG.json",
+    "split_at": "2026-04-21T20:00:19.309Z",
+    "split_rule": {
+      "key": "3d_toolpaths",
+      "out_basename": "3d-operations.json"
+    }
+  }
+}

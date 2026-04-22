@@ -1,0 +1,62 @@
+{
+  "id": "calculator-machine-gap-matrix-2026-04-01",
+  "created_at": "2026-04-01T02:50:00Z",
+  "gaps": [
+    {
+      "id": "G1",
+      "severity": "critical",
+      "label": "Program Release machine drift",
+      "surface": "H:/PRISM/mcp-server/src/engines/ProgramReleaseCatalogEngine.ts",
+      "impact": "Print to CNC does not yet consume the same canonical machine source as the calculator."
+    },
+    {
+      "id": "G2",
+      "severity": "critical",
+      "label": "Type taxonomy fragmentation",
+      "surface": "H:/PRISM/data/machines/ENHANCED/json/ALL_MACHINES_ENRICHED.json",
+      "impact": "Naive filtering will miscategorize machines and leak unsupported options across families."
+    },
+    {
+      "id": "G3",
+      "severity": "high",
+      "label": "Legacy MachineProfileEngine contract drift",
+      "surface": "H:/PRISM/mcp-server/src/engines/MachineProfileEngine.ts",
+      "impact": "User-owned machine profiles cannot yet flow through the same package model as the calculator."
+    },
+    {
+      "id": "G4",
+      "severity": "high",
+      "label": "Manufacturer alias drift",
+      "surface": "machine normalization and enriched corpus",
+      "impact": "Brand filters and analytics can fragment by alias such as Doosan vs DN Solutions."
+    },
+    {
+      "id": "G5",
+      "severity": "high",
+      "label": "Provenance not yet propagated downstream",
+      "surface": "downstream machine-aware consumers",
+      "impact": "Consumers beyond the calculator still cannot distinguish published vs inferred machine packages."
+    },
+    {
+      "id": "G6",
+      "severity": "medium",
+      "label": "Fallback catalog lacks full package metadata",
+      "surface": "H:/PRISM/mcp-server/web/src/data/calculatorWorkspace.ts",
+      "impact": "Offline/degraded mode remains thinner than the live package contract."
+    },
+    {
+      "id": "G7",
+      "severity": "medium",
+      "label": "Browser-level machine-selection QA still incomplete",
+      "surface": "calculator UI verification",
+      "impact": "Long-tail brand and configuration combinations still need broader browser/system proof."
+    }
+  ],
+  "execution_priority": [
+    "G2",
+    "G3",
+    "G1",
+    "G4",
+    "G6"
+  ]
+}

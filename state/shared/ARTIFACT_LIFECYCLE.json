@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "1.0.0",
+  "generated": "2026-04-17T01:15:00Z",
+  "generatedBy": "CPP-MS3-S9/U-CPP24 — ARTIFACT_LIFECYCLE registry",
+  "source": "CONTEXT-PIPELINE-PERFECTION-RGS.md § CPP-MS3 Session 9 U-CPP24",
+  "description": "Canonical registry of lifecycle decisions for state artifacts that were retired, revived, or deprecated during CPP-MS3. Each entry documents WHY the decision was made and WHAT replaces (or resurrects) it, so future sessions do not re-open closed questions.",
+  "decisions": [
+    {
+      "path": "H:/prism/state/HANDOFF.md",
+      "decision": "retired",
+      "retired_in_unit": "CPP-MS3-U-CPP21",
+      "rationale": "Single-file HANDOFF.md was written per-session by per-agent-handoff.mjs as LEGACY_HANDOFF alias, but N terminals writing the same file caused lossy clobber — last writer's RESUME silently overwrote the previous one.",
+      "replacement": "H:/prism/state/shared/handoffs/HANDOFF-<family>-<machine>-<session>.md",
+      "replacement_engine": "SessionHandoffV2Engine.targetPath({family, machine, instance})",
+      "current_writers_post_retirement": [
+        "helpers/per-agent-handoff.mjs (per-instance path)",
+        "engines/SessionHandoffV2Engine.ts (typed API)"
+      ],
+      "migration_window": "immediate — legacy path still written as latest-pointer for 1-session backward-compat, then removable",
+      "removal_target_milestone": "CPP-MS4"
+    },
+    {
+      "path": "H:/prism/.claude/helpers/.compaction-survival.md",
+      "decision": "deprecated",
+      "retired_in_unit": "CPP-MS3-U-CPP23",
+      "rationale": "Single legacy dotfile was the only destination for pre-compact survival snapshot; concurrent /precompact from 2+ terminals overwrote each other's RESUME directives.",
+      "replacement": "H:/prism/.claude/helpers/.compaction-survival-<family>-<machine>-<sessionKey>.md",
+      "replacement_engine": "compaction-survival.mjs + pre-compact.mjs (dual-write)",
+      "reader": "compact-restore.mjs globs SURVIVAL_DIR, picks freshest mtime within 30m, falls back to legacy file",
+      "current_writers_post_retirement": [
+        "helpers/compaction-survival.mjs (dual-write: per-instance + legacy)",
+        "helpers/pre-compact.mjs (dual-write: per-instance + legacy)"
+      ],
+      "migration_window": "1 session — legacy single file kept writable for readers that have not yet been upgraded to per-instance glob pattern",
+      "removal_target_milestone": "CPP-MS4"
+    },
+    {
+      "path": "H:/prism/state/shared/SESSION_ARTIFACTS.json",
+      "decision": "revived",
+      "retired_in_unit": "CPP-MS3-U-CPP19",
+      "rationale": "File existed as 3-byte `{}` zombie despite 6+ hook references that assumed populated content. Readers received empty objects and silently no-oped; the feature-cascade propagation chain was effectively dead.",
+      "replacement": "same path — populated with canonical v1.0.0 schema {schemaVersion, event, timestamp, system_counts{}, recent_additions{}, feature_cascade{}}",
+      "replacement_engine": "SessionEventLogEngine (writer) + compact-restore.mjs (reader, emits Feature Cascade block)",
+      "current_writers_post_retirement": [
+        "CPP-MS3 Session 7 populated schema + seed data",
+        "Future sessions: append to recent_additions when new engines/hooks/skills ship"
+      ],
+      "migration_window": "n/a — revived in place",
+      "removal_target_milestone": "none — permanent"
+    },
+    {
+      "path": "H:/prism/state/shared/post-compact-log.json",
+      "decision": "revived",
+      "retired_in_unit": "CPP-MS3-U-CPP20",
+      "rationale": "Same 3-byte zombie pattern as SESSION_ARTIFACTS.json — file existed but was empty, so post-compact hooks that appended lifecycle events silently dropped them.",
+      "replacement": "same path — populated with canonical v1.0.0 schema {schemaVersion, events[]}",
+      "replacement_engine": "SessionLifecycleEngine.recordEvent() (writer, append semantics)",
+      "current_writers_post_retirement": [
+        "helpers/post-compact-enhanced.mjs (appends event per compaction)",
+        "SessionLifecycleEngine (typed append API)"
+      ],
+      "migration_window": "n/a — revived in place",
+      "removal_target_milestone": "none — permanent"
+    }
+  ],
+  "summary": {
+    "total_decisions": 4,
+    "retired": 1,
+    "deprecated": 1,
+    "revived": 2,
+    "covers_units": ["U-CPP19", "U-CPP20", "U-CPP21", "U-CPP23"]
+  }
+}

@@ -1,0 +1,423 @@
+{
+  "id": "MCAT-MS0-VARCOV-2026-04-02",
+  "parentMilestone": "MCAT-MS0",
+  "lane": "MCAT-MS0/P1-U01-support",
+  "status": "working",
+  "roadmapPosture": "supporting_execution_roadmap",
+  "gate": {
+    "collaborationMode": "finish-current-delivery-first",
+    "activeGate": "finish-current-backend-and-frontend-work-first",
+    "activeParentUnit": "P1-U01",
+    "newLargeRoadmapAllowed": false
+  },
+  "executionStatus": {
+    "completedUnits": [
+      {
+        "id": "U-MVAR01",
+        "title": "Build the corpus census and count-reconciliation ledger",
+        "completedAt": "2026-04-03T01:38:31.449Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.json"
+        ]
+      },
+      {
+        "id": "U-MVAR02",
+        "title": "Define the legality graph and bundle schema",
+        "completedAt": "2026-04-03T01:45:00.000Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_LEGALITY_GRAPH_SPEC_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_LEGALITY_GRAPH_SPEC_2026-04-02.json"
+        ]
+      },
+      {
+        "id": "U-MVAR03",
+        "title": "Publish the coverage metric and risk contract",
+        "completedAt": "2026-04-03T01:47:00.000Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_COVERAGE_METRIC_CONTRACT_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_COVERAGE_METRIC_CONTRACT_2026-04-02.json",
+          "H:/PRISM/state/shared/MCAT_MS0_RISK_REGISTRY_2026-04-02.json"
+        ]
+      },
+      {
+        "id": "U-MVAR04",
+        "title": "Build legality extractors from backend canonical registries",
+        "completedAt": "2026-04-03T02:21:14.102Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_CANONICAL_LEGALITY_EXTRACT_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_CANONICAL_LEGALITY_EXTRACT_2026-04-02.json"
+        ]
+      },
+      {
+        "id": "U-MVAR05",
+        "title": "Recover unwired source families",
+        "completedAt": "2026-04-03T02:24:18.258Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_UNWIRED_SOURCE_RECOVERY_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_UNWIRED_SOURCE_RECOVERY_2026-04-02.json"
+        ]
+      },
+      {
+        "id": "U-MVAR06",
+        "title": "Early thin live proof and downstream sample",
+        "completedAt": "2026-04-03T02:34:22.165Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_THIN_LIVE_PROOF_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_THIN_LIVE_PROOF_2026-04-02.json",
+          "H:/PRISM/output/playwright/program-release-live-proof-2026-04-02.png"
+        ]
+      },
+      {
+        "id": "U-MVAR07",
+        "title": "Build exact value, pairwise, and bundle coverage generators",
+        "completedAt": "2026-04-03T02:47:07.740Z",
+        "artifacts": [
+          "H:/PRISM/state/shared/MCAT_MS0_EXACT_COVERAGE_GENERATORS_2026-04-02.md",
+          "H:/PRISM/state/shared/MCAT_MS0_EXACT_COVERAGE_GENERATORS_2026-04-02.json",
+          "H:/PRISM/scripts/mcat-exact-coverage-generators.mjs"
+        ]
+      }
+    ],
+    "currentUnit": "U-MVAR08",
+    "nextUnit": "U-MVAR09",
+    "session1Status": "complete",
+    "session2Status": "U-MVAR07 complete"
+  },
+  "baselineCounts": {
+    "machines": {
+      "canonicalMergedSurface": 920,
+      "machineSourceFamilyWarning": {
+        "staleAdvertisedCount": 824,
+        "sourceDirectories": 11
+      }
+    },
+    "tools": {
+      "historicalIntendedCorpus": 95608,
+      "activeRegistryRawRecords": 15912,
+      "activeRegistryUniqueIds": 13967,
+      "sourceFamilies": {
+        "milling": 948,
+        "drilling": 360,
+        "threading": 126,
+        "holeFinishing": 189,
+        "turning": 81,
+        "turningInserts": 1710,
+        "endmillCatalogs": 937,
+        "cuttingToolsIndex": 1944,
+        "manufacturerCatalogs": 1051,
+        "specialty": 240,
+        "turningHoldersExpanded": 600
+      }
+    },
+    "holders": {
+      "toolholders": 6741,
+      "indexableMillingToolholding": 984,
+      "turningHoldersExpanded": 600,
+      "standardsLayer": true
+    },
+    "materials": {
+      "materialsMaster": 163,
+      "jsonFiles": 223,
+      "detailJsonFiles": 214,
+      "extractedJsFiles": 46
+    },
+    "workholding": {
+      "topLevelRecords": 20,
+      "vises": 5,
+      "chucks": 4,
+      "collets": 4,
+      "fixtures": 5,
+      "toolholders": 2
+    },
+    "camAndToolpaths": {
+      "frontendProgrammingPackages": 66,
+      "frontendToolpaths": 337,
+      "backendStrategiesApprox": 721
+    }
+  },
+  "consumerMatrix": {
+    "calculator": {
+      "role": "primary_ui_consumer",
+      "sourceOfTruth": false,
+      "status": "active"
+    },
+    "userMachineProfile": {
+      "role": "canonical_persistence_contract",
+      "sourceOfTruth": true,
+      "status": "active"
+    },
+    "programRelease": {
+      "role": "downstream_consumer",
+      "sourceOfTruth": false,
+      "status": "partial",
+      "knownGaps": [
+        "controller feature bundles are still partially synthesized",
+        "coolant packages are still partially generic"
+      ]
+    },
+    "printToProgram": {
+      "role": "downstream_consumer",
+      "sourceOfTruth": false,
+      "status": "target",
+      "knownGaps": [
+        "must be explicitly bound to the canonical legality model"
+      ]
+    }
+  },
+  "universeDimensions": [
+    "machinePackage",
+    "configurationPackage",
+    "controllerBundle",
+    "spindlePackage",
+    "coolantSet",
+    "capabilityBundle",
+    "toolBundle",
+    "holderBundle",
+    "programmingEnvironment",
+    "toolpathStrategy",
+    "materialState",
+    "fixtureBundle",
+    "cuttingParameterBand",
+    "finishState",
+    "userOverlay"
+  ],
+  "coverageModel": {
+    "universe": "U_legal = {(m,cfg,ctl_bundle,sp,cool_set,feat_bundle,tool_bundle,holder_bundle,cam_pkg,path_strategy,mat_state,fixture_bundle,cut_band,finish_state,overlay) | all legality constraints hold}",
+    "partitioningRule": "Sum(Product(...)) is an upper bound only; denominators must come from enumerated legal tuples or legal tuple generators.",
+    "exactCoverage": {
+      "valueCoverage": "Cov_1(d) = tested_values(d) / legal_values(d)",
+      "pairwiseCoverage": "Cov_2(d_i,d_j) = tested_pairs(i,j) / legal_pairs(i,j)",
+      "bundleCoverage": "Cov_bundle(d) = tested_bundle_classes(d) / legal_bundle_classes(d)"
+    },
+    "higherOrderCoverage": {
+      "baselineT": 3,
+      "highRiskT": 4,
+      "hotspotT": 5,
+      "formula": "Cov_t(stratum) = covered_legal_tuples(stratum) / enumerated_legal_tuples(stratum)",
+      "requires": [
+        "explicit risk registry",
+        "weighting function per stratum",
+        "mixed-strength assignment rules",
+        "stopping rule"
+      ]
+    },
+    "boundaryCoverage": "Cov_b = tested_boundaries / defined_boundaries",
+    "numericCoverage": "Cov_num = within_tolerance_cases / oracle_scored_cases",
+    "metamorphicCoverage": "Met_pass = passed_invariants / executed_invariants",
+    "wiringCoverage": {
+      "sourceCoverage": "Wire_cov_source = wired_source_families / discovered_source_families",
+      "consumerCoverage": "Wire_cov_consumer = consumers_using_canonical_truth / target_consumers"
+    },
+    "ambiguityPenalty": "Penalty = unresolved_legality_edges / total_legality_edges",
+    "dashboardScore": "Q_cov = 0.15*Cov_1 + 0.20*Cov_2 + 0.10*Cov_bundle + 0.15*Cov_t + 0.10*Cov_b + 0.15*Cov_num + 0.10*Met_pass + 0.05*Wire_cov_source - Penalty"
+  },
+  "releaseGates": {
+    "Cov_1_min": 1,
+    "criticalPairwiseMin": 1,
+    "criticalBundleMin": 1,
+    "hotspotTMin": 0.95,
+    "Cov_num_min": 0.97,
+    "requiredInvariantPassRate": 1,
+    "Wire_cov_source_min": 0.95,
+    "Wire_cov_consumer_min": 0.9,
+    "penaltyMaxPriorityBrands": 0.02,
+    "requiresSourceCountReconciliation": true,
+    "Q_cov_dashboard_min": 0.92
+  },
+  "riskRegistryRequirements": {
+    "mustInclude": [
+      "named brands",
+      "named machine families",
+      "named high-risk pairs",
+      "named high-risk quintuplets",
+      "required per-stratum coverage floors"
+    ],
+    "priorityBrands": [
+      "Okuma",
+      "Haas",
+      "Mazak",
+      "Brother",
+      "Citizen",
+      "DN Solutions",
+      "DMG MORI"
+    ]
+  },
+  "phases": [
+    {
+      "session": 1,
+      "title": "Universe, Reconciliation, and Contract",
+      "units": [
+        {
+          "id": "U-MVAR01",
+          "title": "Build the corpus census and count-reconciliation ledger",
+          "artifacts": [
+            "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.md",
+            "H:/PRISM/state/shared/MCAT_MS0_VARIABILITY_CENSUS_2026-04-02.json"
+          ],
+          "abortCriteria": [
+            "tool corpus mismatch is not explicitly reconciled",
+            "a relevant source family has no classification",
+            "counts cannot be reproduced from scripts",
+            "wiring state cannot distinguish live, fallback, and backend-only"
+          ]
+        },
+        {
+          "id": "U-MVAR02",
+          "title": "Define the legality graph and bundle schema",
+          "artifacts": [
+            "H:/PRISM/state/shared/MCAT_MS0_LEGALITY_GRAPH_SPEC_2026-04-02.md",
+            "H:/PRISM/state/shared/MCAT_MS0_LEGALITY_GRAPH_SPEC_2026-04-02.json"
+          ],
+          "abortCriteria": [
+            "graph cannot represent mill, lathe, swiss, and mill-turn separately",
+            "user overlay bypasses canonical legality",
+            "holder or tool compatibility lacks interface-level representation",
+            "bundle-class legality is flattened away"
+          ]
+        },
+        {
+          "id": "U-MVAR03",
+          "title": "Publish the coverage metric and risk contract",
+          "artifacts": [
+            "H:/PRISM/state/shared/MCAT_MS0_COVERAGE_METRIC_CONTRACT_2026-04-02.md",
+            "H:/PRISM/state/shared/MCAT_MS0_COVERAGE_METRIC_CONTRACT_2026-04-02.json",
+            "H:/PRISM/state/shared/MCAT_MS0_RISK_REGISTRY_2026-04-02.json"
+          ],
+          "abortCriteria": [
+            "metrics do not separate value, pair, bundle, higher-order, numeric, and wiring coverage",
+            "no explicit ambiguity penalty exists",
+            "no explicit consumer propagation matrix exists",
+            "Cov_t or release floors are undefined"
+          ]
+        }
+      ],
+      "exitGate": [
+        "every source family is classified",
+        "legality graph dimensions are explicit",
+        "risk registry is machine-readable",
+        "coverage formulas are fixed and executable"
+      ],
+      "compactCheckpoint": true
+    },
+    {
+      "session": 2,
+      "title": "Canonical Extraction, Corpus Recovery, and Early Proof",
+      "units": [
+        {
+          "id": "U-MVAR04",
+          "title": "Build legality extractors from backend canonical registries"
+        },
+        {
+          "id": "U-MVAR05",
+          "title": "Recover unwired source families"
+        },
+        {
+          "id": "U-MVAR06",
+          "title": "Early thin live proof and downstream sample"
+        }
+      ],
+      "exitGate": [
+        "unwired source families are named and counted",
+        "legality matrices exist for machine-tool-holder-coolant-toolpath interactions",
+        "thin live proof artifacts exist",
+        "at least one downstream consumer proves the same canonical machine truth"
+      ],
+      "compactCheckpoint": true
+    },
+    {
+      "session": 3,
+      "title": "Coverage Harness Generation",
+      "units": [
+        {
+          "id": "U-MVAR07",
+          "title": "Build exact value, pairwise, and bundle coverage generators"
+        },
+        {
+          "id": "U-MVAR08",
+          "title": "Build mixed-strength weighted t-wise and numeric oracle generators"
+        },
+        {
+          "id": "U-MVAR09",
+          "title": "Build metamorphic and roundtrip harnesses"
+        }
+      ],
+      "exitGate": [
+        "proof harnesses are generated from legality, not hand-curated arrays",
+        "named high-risk strata exist in automated form",
+        "invariants are encoded as automated proofs"
+      ],
+      "compactCheckpoint": true
+    },
+    {
+      "session": 4,
+      "title": "Calculator Route and Live-System Proof",
+      "units": [
+        {
+          "id": "U-MVAR10",
+          "title": "Data-layer proof"
+        },
+        {
+          "id": "U-MVAR11",
+          "title": "UI contract proof"
+        },
+        {
+          "id": "U-MVAR12",
+          "title": "Live browser proof and ambiguity capture"
+        }
+      ],
+      "exitGate": [
+        "calculator route proves legality at data and UI layers",
+        "unsupported options do not render live",
+        "every live failure produces an artifact and backlog entry"
+      ],
+      "compactCheckpoint": true
+    },
+    {
+      "session": 5,
+      "title": "Consumer Propagation and Protective Gate",
+      "units": [
+        {
+          "id": "U-MVAR13",
+          "title": "Consumer parity"
+        },
+        {
+          "id": "U-MVAR14",
+          "title": "Coverage dashboard and ambiguity backlog"
+        },
+        {
+          "id": "U-MVAR15",
+          "title": "Protective gate and follow-up execution queue"
+        }
+      ],
+      "exitGate": [
+        "coverage metrics are published",
+        "downstream consumers prove shared truth",
+        "future calculator expansions have a coverage gate",
+        "all hard release floors pass"
+      ],
+      "compactCheckpoint": true
+    }
+  ],
+  "forgeTriple": {
+    "hook": "calculator-coverage-gate",
+    "action": "prism_dev:calculator_variability_audit",
+    "skillOrCommand": "/calculator-proof"
+  },
+  "immediateStart": [
+    "U-MVAR04",
+    "U-MVAR05",
+    "U-MVAR06"
+  ],
+  "criticalMismatch": {
+    "domain": "tool-corpus",
+    "historicalIntendedCount": 95608,
+    "activeRawCount": 15912,
+    "activeUniqueIds": 13967,
+    "notes": [
+      "PRISM docs and prior roadmaps repeatedly cite a 95,608-tool corpus.",
+      "Current ToolRegistry load roots expose a much smaller active surface than the documented corpus.",
+      "Coverage execution must treat corpus recovery and wiring parity as first-class work."
+    ]
+  }
+}

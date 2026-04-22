@@ -1,0 +1,1055 @@
+﻿=== TASK_QUEUE.json ===
+{
+  "version": 2,
+  "updated_at": "2026-03-31T00:34:04.929Z",
+  "tasks": [
+    {
+      "id": "M-0-1-RFIX1",
+      "title": "Fix /quote/ path mismatch (30 endpoints â†’ 9 pages)",
+      "sprint": "M-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.812Z",
+      "completed_by": "Codex",
+      "priority": 1,
+      "estimated_loc": 50,
+      "files": [
+        "src/routes/index.ts",
+        "src/routes/erp.ts"
+      ],
+      "description": "Frontend calls /api/v1/quote/* but backend mounts at /api/v1/quotes/*. Add /api/v1/quote route alias or 30 bare-path aliases. Verify 9 quoting pages get 200 responses.",
+      "notes": "CRITICAL BLOCKER â€” blocks user testing of quoting pages tomorrow"
+    },
+    {
+      "id": "M-0-1-RFIX2",
+      "title": "Mount billing.ts in routes/index.ts",
+      "sprint": "M-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 1,
+      "estimated_loc": 15,
+      "files": [
+        "src/routes/index.ts",
+        "src/routes/billing.ts"
+      ],
+      "description": "Import createBillingRouter and mount at /api/v1/billing. Add Stripe webhook raw body parser BEFORE json middleware for /api/v1/billing/webhook.",
+      "notes": "billing.ts exists with 6 handlers but is never imported. Security: webhook needs raw body."
+    },
+    {
+      "id": "M-0-2-PROV1",
+      "title": "Backend: messages + hot jobs endpoints",
+      "sprint": "M-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 2,
+      "estimated_loc": 200,
+      "files": [
+        "src/routes/operating-system.ts",
+        "src/db/migrations/003_messages_hotjobs.sql"
+      ],
+      "description": "Add 5 endpoints: POST messages/workspace, POST hot-jobs, POST hot-jobs/set, POST hot-jobs/clear, WebSocket hot-jobs-subscribe. Add migration for messages + hot_jobs tables. Add WebSocket token auth.",
+      "notes": "Codex's top convergence request. Unblocks MessagesPage + EmployeePortal live data."
+    },
+    {
+      "id": "M-0-2-PROV2",
+      "title": "Backend: job approvals + job packet endpoints",
+      "sprint": "M-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 2,
+      "estimated_loc": 150,
+      "files": [
+        "src/routes/operating-system.ts"
+      ],
+      "description": "Add 3 endpoints: POST jobs/:jobId/approvals, POST jobs/:jobId/packet, POST jobs/intake-preview. Wire to ApprovalWorkflowEngine + JobTravelerEngine.",
+      "notes": "Unblocks fixture-only provider methods for job desk"
+    },
+    {
+      "id": "M-0-2-FE-SWAP",
+      "title": "Frontend: swap fixture providers for messages + hot jobs",
+      "sprint": "M-0",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": "Codex@DigitalStorm-PC/019d303e-54af-73c1-85d1-c4ab92947d62",
+      "claimed_at": "2026-03-30T02:43:28.846Z",
+      "heartbeat_at": "2026-03-30T02:43:36.811Z",
+      "completed_at": "2026-03-30T02:48:03.855Z",
+      "completed_by": "Codex@DigitalStorm-PC/019d303e-54af-73c1-85d1-c4ab92947d62",
+      "priority": 3,
+      "estimated_loc": 100,
+      "files": [
+        "web/src/features/operating-system/liveProvider.ts"
+      ],
+      "description": "Swap getMessagesWorkspace, getHotJobs, subscribeHotJobs, setJobHot, clearJobHot from fixture to live backend calls.",
+      "notes": "Depends on Claude landing M-0-2-PROV1 endpoints first"
+    },
+    {
+      "id": "M-0-2-TESTS",
+      "title": "E2E tests for M-0 endpoints",
+      "sprint": "M-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:32:35.538Z",
+      "completed_by": "Claude",
+      "priority": 3,
+      "estimated_loc": 200,
+      "files": [
+        "src/__tests__/m0-route-fixes.test.ts"
+      ],
+      "description": "Integration tests: all /quote/* paths return 200, billing endpoints respond, messages/hot-jobs/approvals/packet endpoints work. Cover expired token, WebSocket auth, and error cases.",
+      "notes": "QA scrutiny finding: every new endpoint needs tests"
+    },
+    {
+      "id": "M-1-1-PARTS1",
+      "title": "Backend: wire parts.ts routes to frontend API client",
+      "sprint": "M-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 5,
+      "estimated_loc": 150,
+      "files": [
+        "web/src/api/client.ts",
+        "src/db/migrations/004_files_parts.sql"
+      ],
+      "description": "Add parts/files API functions to client.ts. Add migration for files + parts + part_revisions tables. File upload: 50MB limit, extension whitelist, content-type check.",
+      "notes": "parts.ts has 20 endpoints, all orphaned. Security: file upload constraints from scrutiny."
+    },
+    {
+      "id": "M-1-1-PARTS2",
+      "title": "Frontend: PartsLibraryPage or wire into ProgramRelease",
+      "sprint": "M-1",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 6,
+      "estimated_loc": 300,
+      "files": [
+        "web/src/pages/ProgramReleasePage.tsx"
+      ],
+      "description": "File upload widget with drag-drop, parts list with search + similarity, revision history view, attachment management.",
+      "notes": "Can integrate into existing ProgramReleasePage or create new PartsLibraryPage"
+    },
+    {
+      "id": "M-1-2-TRAV1",
+      "title": "Backend: wire traveler.ts routes to frontend",
+      "sprint": "M-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 5,
+      "estimated_loc": 100,
+      "files": [
+        "web/src/api/client.ts",
+        "src/db/migrations/005_traveler_dispatch.sql"
+      ],
+      "description": "Add traveler + dispatch API functions to client.ts. Add migration for travelers + traveler_steps + dispatch_queue tables.",
+      "notes": "traveler.ts has 13 endpoints, all orphaned"
+    },
+    {
+      "id": "M-1-2-TRAV2",
+      "title": "Frontend: traveler + dispatch board UI",
+      "sprint": "M-1",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 6,
+      "estimated_loc": 400,
+      "files": [
+        "web/src/pages/ShopFloorClockPage.tsx"
+      ],
+      "description": "Wire traveler flow: create â†’ start-setup â†’ start-cycle â†’ complete-step â†’ scan. Dispatch board: machine queues, drag-reorder, what-if.",
+      "notes": "Can wire into ShopFloorClockPage or create dedicated TravelerPage"
+    },
+    {
+      "id": "M-1-3-PORT1",
+      "title": "Backend: wire portal.ts to frontend + migration",
+      "sprint": "M-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 5,
+      "estimated_loc": 100,
+      "files": [
+        "web/src/api/client.ts",
+        "src/db/migrations/006_portal_milestones.sql"
+      ],
+      "description": "Add portal API functions to client.ts. Add migration for portal_tokens + milestones tables. Token expiry + revocation + rate limiting.",
+      "notes": "portal.ts has 14 endpoints, all orphaned. Security: token management from scrutiny."
+    },
+    {
+      "id": "M-1-3-PORT2",
+      "title": "Frontend: CustomerPortalPage wiring",
+      "sprint": "M-1",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 6,
+      "estimated_loc": 300,
+      "files": [
+        "web/src/pages/CustomersPage.tsx"
+      ],
+      "description": "Customer portal: share quote link, order tracking, document access, messaging, milestone view.",
+      "notes": "Can extend CustomersPage or create dedicated CustomerPortalPage"
+    },
+    {
+      "id": "M-1-3-DFM1",
+      "title": "Backend: wire dfm.ts into QuoteBuilder flow",
+      "sprint": "M-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:16:33.609Z",
+      "completed_by": "Claude@MARKV",
+      "priority": 7,
+      "estimated_loc": 50,
+      "files": [
+        "web/src/api/client.ts"
+      ],
+      "description": "Add DFM API functions: analyze, quick, tolerance-check, cost-impact, rules. Wire into QuoteBuilderPage DFM panel.",
+      "notes": "Already complete from prior sessions: routes+client+engine+dispatcher+frontend+tests all wired. 75/75 DFM tests pass."
+    },
+    {
+      "id": "M-1-3-PSET1",
+      "title": "Backend: wire preset endpoints to frontend",
+      "sprint": "M-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T02:24:06.813Z",
+      "completed_by": "Codex",
+      "priority": 7,
+      "estimated_loc": 80,
+      "files": [
+        "web/src/api/client.ts"
+      ],
+      "description": "Add preset API functions: CRUD, search, share, compare, validate, use. Wire to CalculatorPage or new PresetsPage.",
+      "notes": "presets-learning.ts has 10 preset endpoints, all orphaned"
+    },
+    {
+      "id": "M-2-1-BIZ1",
+      "title": "Wire quotes.ts instant quote into QuoteBuilder",
+      "sprint": "M-2",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:17:09.885Z",
+      "completed_by": "Claude@MARKV",
+      "priority": 10,
+      "estimated_loc": 80,
+      "files": [
+        "web/src/api/client.ts",
+        "web/src/pages/QuoteBuilderPage.tsx"
+      ],
+      "description": "Wire /quotes/instant, /quotes/qty-breaks, /quotes/lead-time, revision flow into QuoteBuilder.",
+      "notes": "Already complete: QuoteBuilderPage wires quoteInstant, quoteQtyBreaks, quoteLeadTime, quoteHistory, quoteShareToken. Routes in quotes.ts. Client functions in client.ts."
+    },
+    {
+      "id": "M-2-2-LEARN1",
+      "title": "Wire learning course endpoints to LearningDashboard",
+      "sprint": "M-2",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:17:29.655Z",
+      "completed_by": "Claude@MARKV+Codex",
+      "priority": 10,
+      "estimated_loc": 80,
+      "files": [
+        "web/src/api/client.ts"
+      ],
+      "description": "Wire /learning/courses CRUD, enroll, my-progress, checkpoint, media, facets to LearningDashboard.",
+      "notes": "Complete: routes in presets-learning.ts (9 learning endpoints), frontend client in learningProgression.ts, LearningDashboard + useLearningCourseRegistry hook built by Codex."
+    },
+    {
+      "id": "M-2-3-OS1",
+      "title": "Wire views/pins/recents to shell navigation",
+      "sprint": "M-2",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [
+        "M-0-2-FE-SWAP"
+      ],
+      "claimed_by": "Codex@DigitalStorm-PC/019d303e-54af-73c1-85d1-c4ab92947d62",
+      "claimed_at": "2026-03-30T12:27:17.588Z",
+      "heartbeat_at": "2026-03-30T12:47:47.942Z",
+      "completed_at": "2026-03-30T12:50:59.110Z",
+      "completed_by": "Codex@DigitalStorm-PC/019d303e-54af-73c1-85d1-c4ab92947d62",
+      "priority": 10,
+      "estimated_loc": 200,
+      "files": [
+        "web/src/features/operating-system/liveProvider.ts"
+      ],
+      "description": "Wire saved views CRUD, pin/unpin, recents tracking into shell. 17 operating-system endpoints currently orphaned.",
+      "notes": "Depends on operating-system provider being live"
+    },
+    {
+      "id": "M-2-4-LIVE1",
+      "title": "Wire machineLive routes to Dashboard",
+      "sprint": "M-2",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:27:23.643Z",
+      "completed_by": "Claude@MARKV/pid-37492 (auto-reconcile)",
+      "priority": 10,
+      "estimated_loc": 100,
+      "files": [
+        "web/src/api/client.ts"
+      ],
+      "description": "Wire machineLive.ts endpoints (57 actions) to DashboardPage or new MachineLivePage. Real-time machine monitoring.",
+      "notes": "Complete: 7 client functions added to client.ts (machineLiveList/Status/Adaptive/Maintenance/Twin/Acknowledge/Connect). Types added to types.ts. Route tests 3/3 passing. Routes already existed in machineLive.ts. | Auto-reconciled: deliverables verified on disk."
+    },
+    {
+      "id": "M-3-1-VERIFY",
+      "title": "All 51 pages live-backed verification sweep",
+      "sprint": "M-3",
+      "owner_family": "any",
+      "status": "completed",
+      "blocked_by": [
+        "M-2-4-LIVE1"
+      ],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:49:31.232Z",
+      "completed_by": "Claude@MARKV",
+      "priority": 20,
+      "estimated_loc": 50,
+      "files": [],
+      "description": "Page-by-page verification: every page makes at least one real backend call, every form hits real endpoint, every table populates from API. Remove all remaining hardcoded demo data.",
+      "notes": "Complete: 47/52 pages (90.4%) make real backend calls. WhatIfPage and ToolpathAdvisorPage wired to sfQuick. 5 remaining use OS providers or local capture. Build PASSES (tsconfig fixed: module ES2022)."
+    },
+    {
+      "id": "M-3-2-RT",
+      "title": "WebSocket + real-time integration",
+      "sprint": "M-3",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T19:13:18.126Z",
+      "completed_by": "Claude@MARKV/pid-14456",
+      "priority": 20,
+      "estimated_loc": 300,
+      "files": [
+        "src/routes/index.ts"
+      ],
+      "description": "Wire WebSocket channels: hot-jobs, machine-status, alarms, dashboard updates. SSE for long-running ops: QuoteToShip progress, program generation.",
+      "notes": "WebSocket handler exists at /ws with 6 channels. Add auth + new channels."
+    },
+    {
+      "id": "M-3-3-UX",
+      "title": "Unified error handling + loading states",
+      "sprint": "M-3",
+      "owner_family": "Codex",
+      "status": "available",
+      "blocked_by": [
+        "M-3-1-VERIFY"
+      ],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 20,
+      "estimated_loc": 200,
+      "files": [
+        "web/src/components/"
+      ],
+      "description": "Retry logic, timeout handling, offline mode, user-friendly errors. Loading skeletons, optimistic updates.",
+      "notes": "Every page needs consistent loading/error/empty state"
+    },
+    {
+      "id": "M-4-SCENARIOS",
+      "title": "User scenario testing (USER PROVIDES SCENARIOS)",
+      "sprint": "M-4",
+      "owner_family": "any",
+      "status": "blocked",
+      "blocked_by": [
+        "M-3-1-VERIFY",
+        "M-3-2-RT",
+        "M-3-3-UX"
+      ],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 30,
+      "estimated_loc": 0,
+      "files": [],
+      "description": "User provides business scenarios: quote-to-ship, daily ops, emergency, financial analysis, growth. Both Claude and Codex verify end-to-end.",
+      "notes": "CHECKPOINT: user decides when to start. Requires M-3 complete."
+    },
+    {
+      "id": "SQ1-0-GAP",
+      "title": "SQ1: Build GapDetectionEngine + /gap-scan skill",
+      "sprint": "SQ1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": "Claude@MARKV/pid-36724",
+      "claimed_at": "2026-03-30T19:28:12.913Z",
+      "heartbeat_at": "2026-03-30T19:28:12.913Z",
+      "completed_at": "2026-03-30T19:44:19.622Z",
+      "completed_by": "Claude@MARKV/pid-16084",
+      "priority": 15,
+      "estimated_loc": 400,
+      "files": [
+        "src/engines/GapDetectionEngine.ts"
+      ],
+      "description": "Scan engines, dispatchers, schemas, routes, API client for missing wiring. Output gap report with severity + auto-fix suggestions. Build /gap-scan skill.",
+      "notes": "GapDetectionEngine: 8 dimensions, 3 dispatcher actions, Zod schemas, 18 tests, /gap-scan skill. Build clean."
+    },
+    {
+      "id": "SQ1-1-TMPL",
+      "title": "SQ1: Template auto-generation system",
+      "sprint": "SQ1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "SQ1-0-GAP"
+      ],
+      "claimed_by": "Claude@DESKTOP-N7MI1VB/pid-24472",
+      "claimed_at": "2026-03-30T23:58:12.120Z",
+      "heartbeat_at": "2026-03-30T23:58:12.120Z",
+      "completed_at": "2026-03-31T00:10:29.840Z",
+      "completed_by": "Claude@DESKTOP-N7MI1VB/pid-13228",
+      "priority": 15,
+      "estimated_loc": 500,
+      "files": [
+        "src/engines/AutoForgeEngine.ts"
+      ],
+      "description": "Input: engine name + description â†’ Output: engine.ts + dispatcher case + Zod schema + test + index.ts export + API client function + route handler. All auto-wired.",
+      "notes": "The forge: one command to generate and wire a complete feature"
+    },
+    {
+      "id": "SQ2-0-CENSUS",
+      "title": "SQ2: Resource census across PRISM + Archive + Box",
+      "sprint": "SQ2",
+      "owner_family": "any",
+      "status": "completed",
+      "blocked_by": [],
+      "claimed_by": "Claude@DESKTOP-N7MI1VB/pid-29692",
+      "claimed_at": "2026-03-31T00:10:53.473Z",
+      "heartbeat_at": "2026-03-31T00:10:53.473Z",
+      "completed_at": "2026-03-31T00:29:20.409Z",
+      "completed_by": "Claude@DESKTOP-N7MI1VB/pid-25468",
+      "priority": 15,
+      "estimated_loc": 200,
+      "files": [],
+      "description": "Inventory all PDFs (1000+), videos (84+), handbooks, course packs, catalogs, machine models (271 STEP), tool holders, part models, fixture catalogs across 3 locations. Build canonical resource registry.",
+      "notes": "Side quest â€” can start immediately. Codex already found the resource locations."
+    },
+    {
+      "id": "SQ2-1-PDF",
+      "title": "SQ2: PDF processing pipeline (1000+ PDFs)",
+      "sprint": "SQ2",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "SQ2-0-CENSUS"
+      ],
+      "claimed_by": "Claude@DESKTOP-N7MI1VB/pid-14012",
+      "claimed_at": "2026-03-31T00:29:48.292Z",
+      "heartbeat_at": "2026-03-31T00:29:48.292Z",
+      "completed_at": "2026-03-31T00:34:04.929Z",
+      "completed_by": "Claude@DESKTOP-N7MI1VB/pid-7900",
+      "priority": 15,
+      "estimated_loc": 300,
+      "files": [],
+      "description": "Process college courses, manufacturer catalogs, machining handbooks via pdf-learn. Extract formulas, procedures, material data, cutting parameters. Normalize into typed knowledge objects.",
+      "notes": "Extraction accuracy target: â‰¥90% on 10 known documents"
+    },
+    {
+      "id": "SQ3-0-MACH",
+      "title": "SQ3: Machine database hardening (910 machines)",
+      "sprint": "SQ3",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 200,
+      "files": [
+        "src/data/machine-torque-curves.ts"
+      ],
+      "description": "Enrich 910 machines: spindle torque curves, travel limits, rapid rates, tool magazine capacity, controller capabilities. Validate against HSMAdvisor + GWizard. Ingest 271 Box STEP machine models.",
+      "notes": "Side quest â€” can run on any terminal"
+    },
+    {
+      "id": "SQ3-1-TOOL",
+      "title": "SQ3: Tooling + holder database enrichment",
+      "sprint": "SQ3",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 200,
+      "files": [],
+      "description": "Enrich 95,608 tools: cutting data by ISO group, Taylor coefficients, geometry. Ingest tool holder models from Box. Build holder-to-tool compatibility matrix.",
+      "notes": "Side quest â€” can run on any terminal"
+    },
+    {
+      "id": "SQ4-0-ERP",
+      "title": "SQ4: E2 + Multi-ERP connector framework",
+      "sprint": "SQ4",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 500,
+      "files": [
+        "src/engines/E2ShopConnectorEngine.ts"
+      ],
+      "description": "Deep E2 two-way sync. IERPConnector abstraction. Epicor Kinetic, ProShop, Generic CSV adapters. Unified interface for all ERPs.",
+      "notes": "Side quest â€” depends on route fixes being done first"
+    },
+    {
+      "id": "SQ4-1-QUOTE",
+      "title": "SQ4: Quoting + cost engine hardening",
+      "sprint": "SQ4",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 400,
+      "files": [],
+      "description": "Add 8 missing formulas: activity-based costing, learning curve, batch sizing, Cpk prediction, OEE decomposition, quote calibration, setup complexity, scrap reserve. Physics-fed cost accuracy.",
+      "notes": "From Loop 2 scrutiny: these formulas enable full automation"
+    },
+    {
+      "id": "SQ4-2-LEGAL",
+      "title": "SQ4: Legal + compliance operating layer",
+      "sprint": "SQ4",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 300,
+      "files": [],
+      "description": "NDA tracking, ITAR/EAR compliance, AS9100/ISO 13485/NADCAP requirements, audit trail, document retention, OSHA safety tracking.",
+      "notes": "Archive has legal module assets: PRISM_LEGAL_NOTICE.js"
+    },
+    {
+      "id": "SQ4-3-ACCT",
+      "title": "SQ4: Accounting + finance hardening",
+      "sprint": "SQ4",
+      "owner_family": "Claude",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 400,
+      "files": [],
+      "description": "Double-entry GL completeness, bank reconciliation auto-match, multi-period financials, QuickBooks Online sync, WIP valuation, variance analysis, cost-to-complete forecasting.",
+      "notes": "GL engine exists but needs proper double-entry ledger schema"
+    },
+    {
+      "id": "SQ4-4-SVC",
+      "title": "SQ4: Customer service + portal hardening",
+      "sprint": "SQ4",
+      "owner_family": "any",
+      "status": "available",
+      "blocked_by": [],
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": null,
+      "completed_by": null,
+      "priority": 15,
+      "estimated_loc": 300,
+      "files": [],
+      "description": "Self-service RFQ, real-time order tracking, quality doc access, messaging, case creation, SLA tracking, escalation rules, customer satisfaction scoring.",
+      "notes": "Archive has customer manager assets: PRISM_CUSTOMER_MANAGER.js"
+    },
+    {
+      "id": "AUTO-0-QS1",
+      "title": "Build QualityScoreEngine â€” compute Q for every engine",
+      "sprint": "AUTO-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [],
+      "priority": 8,
+      "estimated_loc": 400,
+      "files": [
+        "src/engines/QualityScoreEngine.ts"
+      ],
+      "description": "Scan engines for wiring/test/schema/route/API coverage. Compute W,T,P,S,D,A dimensions. Composite Q = weighted sum. Store in QUALITY_SCORES.json.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.482Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-0-QS2",
+      "title": "Build /quality-score skill + PostToolUse hook",
+      "sprint": "AUTO-0",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 8,
+      "estimated_loc": 150,
+      "files": [
+        ".claude/commands/quality-score.md"
+      ],
+      "description": "Skill: /quality-score [name] shows Q. Hook: on engine write, auto-compute Q. Alert if Q<0.70.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-1-AW1",
+      "title": "Build AutoWiringEngine â€” zero-touch engine wiring",
+      "sprint": "AUTO-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 9,
+      "estimated_loc": 500,
+      "files": [
+        "src/engines/AutoWiringEngine.ts"
+      ],
+      "description": "Input: engine path. Output: index.ts export + dispatcher case + Zod schema + route handler + API client function + test stub. Dry-run by default.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-1-AW2",
+      "title": "PostToolUse hook for auto-wiring suggestions",
+      "sprint": "AUTO-1",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-1-AW1"
+      ],
+      "priority": 9,
+      "estimated_loc": 100,
+      "files": [
+        ".claude/settings.json"
+      ],
+      "description": "On Write to src/engines/*.ts: run AutoWiringEngine dry-run, show suggested wiring as additionalContext.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-2-AS1",
+      "title": "Schema gap scanner + auto-generator",
+      "sprint": "AUTO-2",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 10,
+      "estimated_loc": 300,
+      "files": [],
+      "description": "For each dispatcher: check all actions have Zod schemas. Auto-generate missing schemas from engine signatures. Target: Schema_Coverage >= 0.95.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-3-AT1",
+      "title": "Test gap scanner + auto-test generator",
+      "sprint": "AUTO-3",
+      "owner_family": "any",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 10,
+      "estimated_loc": 300,
+      "files": [],
+      "description": "For each engine: check test file exists. Auto-generate vitest stubs. For physics engines: add manufacturer data tests. Target: Test_Coverage >= 0.80.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-4-AR1",
+      "title": "Route-to-client sync scanner + auto-sync",
+      "sprint": "AUTO-4",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 10,
+      "estimated_loc": 200,
+      "files": [],
+      "description": "Parse all routes + all client.ts functions. Match pairs. Auto-generate missing client functions for orphaned routes. Target: Sync_Score >= 0.90.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-5-FA1",
+      "title": "Formula accuracy validation suite",
+      "sprint": "AUTO-5",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS1"
+      ],
+      "priority": 10,
+      "estimated_loc": 400,
+      "files": [],
+      "description": "Define expected input/output pairs from Sandvik/ISO/Kennametal for each formula. Continuous validation hook: block edits that drop accuracy below 0.90. Target: Accuracy >= 0.95.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-6-SI1",
+      "title": "Self-improvement pattern detection + auto-fix pipeline",
+      "sprint": "AUTO-6",
+      "owner_family": "Claude",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-5-FA1",
+        "AUTO-1-AW1"
+      ],
+      "priority": 12,
+      "estimated_loc": 400,
+      "files": [],
+      "description": "Monitor test failures, hook blocks, Q drops. Detect patterns. Auto-generate fix candidates. Human approval gate. Target: Improvement_Rate >= 0.50.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    },
+    {
+      "id": "AUTO-7-CD1",
+      "title": "Continuous quality dashboard page",
+      "sprint": "AUTO-7",
+      "owner_family": "Codex",
+      "status": "completed",
+      "blocked_by": [
+        "AUTO-0-QS2",
+        "AUTO-4-AR1"
+      ],
+      "priority": 12,
+      "estimated_loc": 300,
+      "files": [
+        "web/src/pages/DashboardPage.tsx"
+      ],
+      "description": "Charts: Q score trend, coverage radar, test rate, formula accuracy. Alerts on regressions. MCP action: prism_dev:quality_dashboard.",
+      "notes": "AUTO-0..7 roadmap fully complete (verified 2026-03-30). All engines built, wired, tested.",
+      "claimed_by": null,
+      "claimed_at": null,
+      "heartbeat_at": null,
+      "completed_at": "2026-03-30T18:18:16.483Z",
+      "completed_by": "Claude@MARKV"
+    }
+  ]
+}
+
+
+=== CLAUDE.md ===
+# PRISM System Context â€” Auto-loaded every session
+
+## What PRISM Is
+CNC manufacturing intelligence platform that takes engineering drawings and produces
+physics-optimized CNC programs with per-block variable speeds/feeds. The system matches
+AND improves upon human-programmed results.
+
+## Architecture
+```
+MCP Server (TypeScript):  H:/prism/mcp-server/ â€” 1,302 engines, 79 dispatchers, 3,898 actions (2,351 total across all trees)
+Web App (React/Vite):     H:/prism/mcp-server/web/src/ â€” 45 pages, partially wired to backend
+CAD Engine (Python):      H:/prism/cad-engine/ â€” CadQuery 2.x + OpenCascade, 176 Python files
+Physics Constants:        H:/prism/mcp-server/src/physics/constants.ts â€” canonical Kienzle/Taylor
+Registries:               H:/prism/mcp-server/src/registries/ â€” 24 registries, 23K LOC
+Data:                     95,608 tools, 910 machines, 2,957 materials, 3,700+ tribal tips
+```
+
+## What's Built â€” Use These Instead of Building New
+### 9 Manufacturing Pipelines (DON'T rebuild, wire to them):
+- `PrintToProgramPipelineEngine` â€” milling (has X0 Y0 bug, planned fix)
+- `TurningPrintToProgramEngine` â€” turning (G96/G97, TNRC, 24 gaps)
+- `MultiAxisPrintToProgramEngine` â€” 5-axis
+- `MillTurnSwissPipelineEngine` â€” mill-turn/swiss (multi-channel)
+- `EDMProgramAssemblerEngine` â€” wire/sinker/micro EDM (6 dialects, production-ready)
+- `GrindingProgramAssemblerEngine` â€” 5 types, 6 dialects (ONLY engine using canonical enrichment)
+- `LaserProgramAssemblerEngine` â€” cut/mark/weld/drill + nesting (7 dialects)
+- `WaterjetProgramAssemblerEngine` â€” AWJ/pure/taper/depth + nesting (6 dialects)
+- `QuoteToShipOrchestratorEngine` â€” 21-stage business pipeline (NOT exported from index.ts yet)
+
+### PostProcessor (38 stages, production-grade):
+- `PostProcessorPipelineEngine` â€” per-block S/F variability, 20 controller dialects
+- 7 phases: input normalization â†’ physics â†’ block-by-block â†’ motion â†’ stochastic â†’ safety â†’ output
+
+### Central Physics Hub:
+- `SpeedFeedOrchestratorEngine` â€” 8 resolvers, 2,851 lines, Monte Carlo UQ
+- `KienzleForceModelEngine` â€” Kienzle with corrections (rake, wear, speed, size effect)
+- `ChatterStabilityLobeEngine` â€” SLD generation
+- `ThermalWearCouplingEngine` â€” coupled ODE (RK4), Usui wear
+
+### Key Registries (USE these, don't hardcode data):
+- `MaterialRegistry` â€” 2,957 materials with physics properties
+- `ToolRegistry` â€” 95,608 tools with geometry
+- `MachineRegistry` â€” 910 machines with kinematics
+- `ToolpathStrategyRegistry` â€” 762 strategies across 18 CAM systems
+- `FormulaRegistry` â€” 499 formulas
+- `AlgorithmRegistry` â€” 51 algorithms
+
+### Also exist (check ENGINE_DIGEST.md for full list):
+- Quality: SPC, FAI (AS9102), MaterialCert, Metrology â€” need wiring
+- Business: 42 engines wired to businessDispatcher (Quote, Cost, Capacity, OEE, etc.)
+- Learning: Onboarding, Apprentice, Playbook (296 rules), TribalKnowledge (3,700+ tips)
+- Memory: MemoryGraph, SessionEventLog, Telemetry, ContextSnapshot
+
+## Token-Efficient Navigation (use INSTEAD of Glob/Grep):
+- `ENGINE_DIGEST.md` â€” ALL 1,245 engines with 1-line descriptions
+- `DISPATCHER_DIGEST.md` â€” ALL 77 dispatchers with action counts
+- `MASTER_INDEX_COMPACT.md` â€” full system map (~735 tokens)
+- `/navigate <topic>` â€” zero-IO file routing
+- `/code-index <shortcode>` â€” resolve E0001â†’path instantly
+
+## Roadmap:
+`H:/prism/CAMX-RESTRUCTURED-ROADMAP-v24.md` | Current position: HANDOFF.md
+```
+0-A/B/C: COMPLETE | 0-D: IN PROGRESS (registry wiring + CAD engine)
+Phase 1-4: Knowledge â†’ Business â†’ Physics Fusion â†’ Simulation
+Phase 5-14: Per-machine pipelines â†’ Validation â†’ Web UI â†’ Future
+```
+
+## Compact Instructions
+When compacting this conversation, PRESERVE these critical facts:
+- Current roadmap position (read from HANDOFF.md)
+- Any physics constants or formulas being worked on (exact values, not approximations)
+- Engine wiring state: which engines were modified and whether tests/review passed
+- Incomplete work: what was started but not finished, with exact file paths
+- Build state: last known build pass/fail and test counts
+- Active bugs or regressions discovered during this session
+
+After compaction, IMMEDIATELY:
+1. Read H:/prism/state/HANDOFF.md for the RESUME section
+2. Execute the resume instruction without asking the user
+3. Do NOT summarize what happened â€” just continue working
+
+## V24 ROADMAP EXECUTION PROTOCOL â€” MANDATORY, NOT ADVISORY
+
+**THIS IS A BLOCKING REQUIREMENT. You MUST follow these steps IN ORDER when working on
+any v24 roadmap session. Skipping steps is a bug, not an optimization. If you catch yourself
+writing engine code without having done steps 1-3, STOP and go back.**
+
+### Session Start (before writing ANY code):
+1. **READ the session block** from `CAMX-RESTRUCTURED-ROADMAP-v24.md` â€” find the exact
+   SESSION heading (e.g., "SESSION 0-D-7b") and read its SMART CONFIG, KNOWLEDGE SOURCES,
+   INTENT, WORK, and EXIT GATE sections completely.
+2. **CREATE TASKS** from the WORK section â€” one task per unit (e.g., U-PROC1, U-PROC2).
+   Each task must include the 4-LOOP steps as subtasks.
+3. **READ the KNOWLEDGE SOURCES** listed in the session block before touching any code.
+
+### Per Unit (the 4-LOOP â€” execute ALL three, no exceptions):
+4. **LOOP 1 â€” BUILD**: Write/modify the code. Run `npx tsc --noEmit` â†’ 0 errors.
+5. **LOOP 2 â€” SCRUTINIZE**: Run `/prism-review` with domain-adaptive agents.
+   Fix ALL CRITICAL + HIGH + MEDIUM findings. Do NOT label issues "pre-existing" to skip them.
+   Do NOT cap at 3 fixes and move on. Fix them ALL.
+6. **LOOP 3 â€” GAP FILL + TIE UP**: Run affected tests â†’ 0 failures. Check wiring
+   (import + call + result). Check constants are from canonical source. Confirm the output
+   would be accepted by a machinist.
+
+### Session Exit (before /compact):
+7. **EXIT GATE**: Verify every checkbox in the session block's EXIT GATE line.
+8. **FORGE-TRIPLE** (if specified): Create hook + MCP action + skill enhancement.
+9. **`/compact`** â€” writes HANDOFF.md with RESUME line for next session.
+
+### Enforcement:
+- A PreToolUse hook (`review-gate.sh`) BLOCKS engine edits when `engine_edits_since_review > 3`
+  without a `/prism-review` run. This is mechanical â€” you cannot override it.
+- The `session-edit-counter.json` tracks your progress. It resets on review completion.
+- If you find yourself wanting to skip a step "because it's simple" or "just a small change" â€”
+  that is EXACTLY when the protocol matters most. Small changes compound into large gaps.
+
+## Critical Rules
+- **Effort: MAX always** (`/effort max` every session)
+- **Compact every 2-3 units** (never exceed 3 without compacting)
+- **Real-world validation** â€” all tests compare to manufacturer data
+- **Multi-role scrutiny** at session exits (/prism-review with domain-adaptive agents)
+- **Follow V24 PROTOCOL above** â€” read session block â†’ tasks â†’ 4-LOOP â†’ EXIT GATE
+- **Don't rebuild what exists** â€” check ENGINE_DIGEST.md first
+- **Canonical constants** â€” import from src/physics/constants.ts, never inline
+- **Desktop Claude coordination** â€” read/write H:/prism/state/shared/ for sync
+
+
+=== SVI-compact.md ===
+# PRISM System Variability Index
+**Updated**: 2026-03-31T00:33:11.822Z
+**SVI**: 2.2 Ã— 10^43
+**Reachability (Î¨)**: 40.8%
+**Trend**: stable (Î”=0)
+**SVI Watch**: stable across 12 targets
+
+## Counts
+| Subsystem | Entities | Dims | Variability | Wired% | Reachable |
+|-----------|----------|------|-------------|--------|-----------|
+| Materials | 3 | 8 | 24 | 85% | 20.4 |
+| Tools | 95,608 | 10 | 956,080 | 40% | 382,432 |
+| Machines | 910 | 14 | 12,740 | 60% | 7,644 |
+| Tribal Tips | 4,127 | 2 | 8,254 | 30% | 2,476.2 |
+| Handbooks | 0 | 11 | 0 | 45% | 0 |
+| Formulas | 499 | 5 | 2,495 | 70% | 1,746.5 |
+| Algorithms | 208 | 4 | 832 | 55% | 457.6 |
+| Strategies | 762 | 8 | 6,096 | 50% | 3,048 |
+| Engines | 1,258 | 3 | 3,774 | 65% | 2,453.1 |
+| Dispatchers | 79 | 1 | 79 | 90% | 71.1 |
+| Actions | 2,700 | 1 | 2,700 | 85% | 2,295 |
+| Pipelines | 9 | 50 | 450 | 100% | 450 |
+| Dialects | 20 | 38 | 760 | 80% | 608 |
+| Tests | 875 | 3 | 2,625 | 100% | 2,625 |
+
+## Pipelines
+| Pipeline | Stages | Registries | Formulas | Dialects | Reach |
+|----------|--------|------------|----------|----------|-------|
+| PrintToProgram | 12 | materials,tools,machines,strategies | 15 | 20 | 90% |
+| Turning | 10 | materials,tools,machines | 12 | 20 | 74% |
+| MultiAxis | 14 | materials,tools,machines,strategies | 18 | 15 | 91% |
+| MillTurn | 16 | materials,tools,machines,strategies | 20 | 12 | 92% |
+| EDM | 8 | materials,machines | 6 | 6 | 38% |
+| Grinding | 10 | materials,tools,machines | 8 | 6 | 52% |
+| Laser | 8 | materials,machines | 5 | 7 | 37% |
+| Waterjet | 8 | materials,machines | 5 | 6 | 36% |
+| QuoteToShip | 21 | materials,tools,machines | 10 | 1 | 51% |
+
+## Formula
+SVI = âˆ(subsystem_variability) â‰ˆ 10^43.34
+Î¨ = reachable / total = 406,326.9 / 996,909 = 40.8%
+
+*Every session should read this file. Every wiring improvement increases Î¨ toward 1.0.*

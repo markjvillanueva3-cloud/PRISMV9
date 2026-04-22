@@ -1,0 +1,24 @@
+import { createRequire } from 'module'; import { fileURLToPath } from 'url'; import { dirname } from 'path'; const require = createRequire(import.meta.url); const __filename = fileURLToPath(import.meta.url); const __dirname = dirname(__filename);
+
+// src/engines/DamperDesignEngine.ts
+function mkAv(v, u, unc, s, w) {
+  return { value: v, unit: u, uncertainty: unc, source: s, warning: w };
+}
+var LEAK_RATES = { I: 4, II: 10, III: 40 };
+var DamperDesignEngine = class {
+  calculate(input) {
+    const {
+      airflow_m3_h: Qh,
+      upstream_pressure_Pa: Pup = 250,
+      damper_type = "opposed_blade",
+      leakage_class = "II"
+    } = input;
+    const recs = [];
+    const Q = Qh / 3600;
+    let W = input.duct_width_mm;
+    let H = input.duct_height_mm;
+    if (!W || !H) {
+      const targetV = 6;
+      const area = Q / targetV;
+      const side = Math.sqrt(area) * 1e3;
+      const stdSizes = [200, 250, 300, 400, 500, 600, 800, 1e3, 1200, 1500, 

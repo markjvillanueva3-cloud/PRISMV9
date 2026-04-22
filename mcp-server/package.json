@@ -1,0 +1,124 @@
+{
+    "name": "prism-mcp-server",
+    "version": "1.0.0",
+    "description": "PRISM Manufacturing Intelligence MCP Server - CNC machining data, calculations, and AI orchestration",
+    "main": "dist/index.js",
+    "bin": {
+        "prism": "dist/cli.js"
+    },
+    "type": "module",
+    "scripts": {
+        "patch": "node scripts/close_gaps.js && node scripts/add_atcs_renames.js",
+        "extract": "node scripts/extract_ahw.js",
+        "build": "node --max-old-space-size=16384 node_modules/typescript/bin/tsc --noEmit && node esbuild.config.mjs",
+        "build:tsc": "node --max-old-space-size=16384 node_modules/typescript/bin/tsc",
+        "start": "node dist/index.js",
+        "start:http": "node scripts/start-http.mjs",
+        "dev": "tsx watch src/index.ts",
+        "lint": "eslint src/",
+        "test": "vitest --cache --experimental.fsModuleCache",
+        "test:coverage": "vitest run --coverage --coverage.reporter=json-summary --coverage.reporter=html --coverage.reporter=text",
+        "inspector": "npx @modelcontextprotocol/inspector",
+        "prebuild": "node scripts/prebuild-gate.cjs",
+        "postbuild": "node scripts/postbuild-fix-createRequire.cjs && node scripts/build-catalog-json.mjs && node scripts/postbuild-verify.cjs",
+        "build:incremental": "node --max-old-space-size=16384 node_modules/typescript/bin/tsc --incremental && node esbuild.config.mjs",
+        "build:verify": "node scripts/postbuild-verify.cjs",
+        "build:fast": "node esbuild.config.mjs",
+        "release-gate": "npx tsx scripts/release-gate.ts",
+        "validate:cam-enrichment": "npx tsx scripts/validate-cam-enrichment.ts",
+        "release-gate:dry": "npx tsx scripts/release-gate.ts --dry-run",
+        "schema-check": "npx tsx scripts/schema-version-check.ts",
+        "schema-check:strict": "npx tsx scripts/schema-version-check.ts --strict",
+        "schema-baseline": "npx tsx scripts/schema-version-check.ts --update-baseline",
+        "build:cli": "node esbuild.config.mjs --entry=src/cli/index.ts --out=dist/cli.js --no-splitting",
+        "build:web": "cd web && npm run build",
+        "build:all": "npm run build:fast && npm run build:web",
+        "prepare": "husky"
+    },
+    "keywords": [
+        "mcp",
+        "manufacturing",
+        "cnc",
+        "machining",
+        "prism",
+        "cad",
+        "cam"
+    ],
+    "author": "PRISM Manufacturing Intelligence",
+    "license": "PROPRIETARY",
+    "dependencies": {
+        "@anthropic-ai/sdk": "^0.78.0",
+        "@modelcontextprotocol/sdk": "^1.27.1",
+        "@qdrant/js-client-rest": "^1.17.0",
+        "@types/better-sqlite3": "^7.6.13",
+        "@types/multer": "^2.1.0",
+        "@xenova/transformers": "^2.17.2",
+        "better-sqlite3": "^12.8.0",
+        "bullmq": "^5.73.0",
+        "commander": "^14.0.3",
+        "dotenv": "^17.3.1",
+        "express": "^5.2.1",
+        "ioredis": "^5.10.1",
+        "multer": "^2.1.1",
+        "node-opcua": "^2.164.2",
+        "occt-import-js": "^0.0.23",
+        "ollama": "^0.6.3",
+        "pdf-parse": "^2.4.5",
+        "pg": "^8.20.0",
+        "proper-lockfile": "^4.1.2",
+        "winston": "^3.11.0",
+        "ws": "^8.19.0",
+        "z3-solver": "^4.16.0",
+        "zod": "^4.3.6",
+        "zod-to-json-schema": "^3.25.1"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "^4.11.1",
+        "@eslint/js": "^10.0.1",
+        "@size-limit/file": "^11.1.4",
+        "@swc/cli": "^0.8.0",
+        "@swc/core": "^1.15.18",
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
+        "@types/express": "^5.0.6",
+        "@types/ioredis": "^4.28.10",
+        "@types/node": "^25.3.3",
+        "@types/pg": "^8.20.0",
+        "@types/ws": "^8.18.1",
+        "@typescript-eslint/eslint-plugin": "^8.56.1",
+        "@typescript-eslint/parser": "^8.56.1",
+        "@vitest/coverage-v8": "^4.0.18",
+        "esbuild": "^0.27.2",
+        "eslint": "^10.0.2",
+        "husky": "^9.1.7",
+        "lint-staged": "^16.4.0",
+        "size-limit": "^11.1.4",
+        "ts-morph": "^28.0.0",
+        "tsx": "^4.6.2",
+        "typescript": "^5.9.3",
+        "vitest": "^4.0.18",
+        "xlsx": "^0.18.5"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "lint-staged": {
+        "*.ts": [
+            "npx tsc --noEmit --pretty"
+        ]
+    },
+    "size-limit": [
+        {
+            "name": "MCP Server Bundle",
+            "path": "dist/index.js",
+            "limit": "70 MB",
+            "gzip": false
+        },
+        {
+            "name": "CLI Bundle",
+            "path": "dist/cli.js",
+            "limit": "10 MB",
+            "gzip": false
+        }
+    ]
+}

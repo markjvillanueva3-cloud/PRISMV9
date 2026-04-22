@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "section_key": "imachining_technology",
+  "section": {
+    "description": "SolidCAM iMachining technology (when InventorCAM licensed through SolidCAM)",
+    "levels": {
+      "1": {
+        "cutting_feed_pct": 50,
+        "step_down_mm": 3,
+        "step_over_pct": 8,
+        "mrr_multiplier": 1.5,
+        "tool_life_multiplier": 1.3,
+        "description": "Conservative - new users/unknown conditions"
+      },
+      "2": {
+        "cutting_feed_pct": 60,
+        "step_down_mm": 5,
+        "step_over_pct": 10,
+        "mrr_multiplier": 2,
+        "tool_life_multiplier": 1.5,
+        "description": "Light - standard machines"
+      },
+      "3": {
+        "cutting_feed_pct": 70,
+        "step_down_mm": 8,
+        "step_over_pct": 12,
+        "mrr_multiplier": 2.5,
+        "tool_life_multiplier": 1.8,
+        "description": "Moderate - good rigidity"
+      },
+      "4": {
+        "cutting_feed_pct": 80,
+        "step_down_mm": 10,
+        "step_over_pct": 15,
+        "mrr_multiplier": 3,
+        "tool_life_multiplier": 2,
+        "description": "Standard - recommended default"
+      },
+      "5": {
+        "cutting_feed_pct": 90,
+        "step_down_mm": 12,
+        "step_over_pct": 17,
+        "mrr_multiplier": 3.5,
+        "tool_life_multiplier": 2.2,
+        "description": "Aggressive - experienced users"
+      },
+      "6": {
+        "cutting_feed_pct": 100,
+        "step_down_mm": 15,
+        "step_over_pct": 20,
+        "mrr_multiplier": 4,
+        "tool_life_multiplier": 2.5,
+        "description": "High performance - rigid setup"
+      },
+      "7": {
+        "cutting_feed_pct": 110,
+        "step_down_mm": 18,
+        "step_over_pct": 22,
+        "mrr_multiplier": 4.5,
+        "tool_life_multiplier": 2.8,
+        "description": "Very aggressive - optimized tools"
+      },
+      "8": {
+        "cutting_feed_pct": 120,
+        "step_down_mm": 20,
+        "step_over_pct": 25,
+        "mrr_multiplier": 5,
+        "tool_life_multiplier": 3,
+        "description": "Maximum - expert only"
+      }
+    },
+    "material_recommendations": {
+      "P": {
+        "max_level": 8,
+        "notes": "Steel - all levels viable"
+      },
+      "M": {
+        "max_level": 6,
+        "notes": "Stainless - avoid work hardening"
+      },
+      "K": {
+        "max_level": 8,
+        "notes": "Cast iron - tolerates high engagement"
+      },
+      "N": {
+        "max_level": 8,
+        "notes": "Aluminum - levels 6-8 typical"
+      },
+      "S": {
+        "max_level": 3,
+        "notes": "Superalloys - conservative only"
+      },
+      "H": {
+        "max_level": 4,
+        "notes": "Hardened - careful thermal management"
+      }
+    }
+  },
+  "provenance": {
+    "consolidated_source": "INVENTOR_HSM_COMPLETE_PARAMETER_CATALOG.json",
+    "split_at": "2026-04-21T20:00:19.314Z",
+    "split_rule": {
+      "key": "imachining_technology",
+      "out_basename": "imachining.json"
+    }
+  }
+}

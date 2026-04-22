@@ -1,0 +1,1257 @@
+{
+  "schemaVersion": 1,
+  "system_id": "hypermill",
+  "module": {
+    "module_id": "millturn",
+    "module_name": "Mill-Turn Module",
+    "description": "Integrated turning and milling for mill-turn machines",
+    "total_operations": 10,
+    "total_parameters": 179,
+    "operations": [
+      {
+        "id": "turn_roughing",
+        "name": "Turning Roughing",
+        "cfg_file": "hmTrnr.cfg",
+        "description": "Longitudinal and face turning roughing cycles",
+        "dialogs": [
+          {
+            "id": "turn_rough_cutting",
+            "name": "Cutting Parameters",
+            "parameters": [
+              {
+                "id": "TCUTTINGSPEED",
+                "name": "Cutting Speed",
+                "type": "number",
+                "default": 200,
+                "unit": "m/min"
+              },
+              {
+                "id": "TSPINDLESPEED_INTERNAL_MAX",
+                "name": "Max Internal Spindle Speed",
+                "type": "number",
+                "default": 0,
+                "unit": "rpm"
+              },
+              {
+                "id": "CUTTINGSPEED_UNIT",
+                "name": "Cutting Speed Unit",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "FEEDRATE",
+                "name": "Feed Rate",
+                "type": "number",
+                "default": 0.3,
+                "unit": "mm/rev"
+              },
+              {
+                "id": "FVORSCHUB",
+                "name": "Finish Feed",
+                "type": "number",
+                "default": 0.1,
+                "unit": "mm/rev"
+              },
+              {
+                "id": "TFEEDRATE",
+                "name": "Thread Feed",
+                "type": "number",
+                "default": 0.1,
+                "unit": "mm/rev"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_depth",
+            "name": "Depth of Cut",
+            "parameters": [
+              {
+                "id": "INFEED_LENGTH",
+                "name": "Infeed Length",
+                "type": "number",
+                "default": 1,
+                "unit": "mm"
+              },
+              {
+                "id": "INFEED_MODE",
+                "name": "Infeed Mode",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "id": "ADD_STEP",
+                "name": "Additional Step",
+                "type": "number",
+                "default": 0.25,
+                "unit": "mm"
+              },
+              {
+                "id": "ADD_STEP_MIN",
+                "name": "Min Additional Step",
+                "type": "number",
+                "default": 0.5,
+                "unit": "mm"
+              },
+              {
+                "id": "ADD_STEP_MAX",
+                "name": "Max Additional Step",
+                "type": "number",
+                "default": 5,
+                "unit": "mm"
+              },
+              {
+                "id": "CRAMP_STEP",
+                "name": "Ramp Step",
+                "type": "number",
+                "default": 0.5,
+                "unit": "mm"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_allowance",
+            "name": "Allowances",
+            "parameters": [
+              {
+                "id": "ALLOWANCE",
+                "name": "Total Allowance",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              },
+              {
+                "id": "RADIAL_ALLOWANCE",
+                "name": "Radial Allowance",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              },
+              {
+                "id": "AXIAL_ALLOWANCE",
+                "name": "Axial Allowance",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_strategy",
+            "name": "Strategy",
+            "parameters": [
+              {
+                "id": "METHOD",
+                "name": "Method",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  4
+                ],
+                "description": "0=Constant, 1=Decreasing, 2=Mixed, 3=Plunge, 4=Contour"
+              },
+              {
+                "id": "LEFT_RIGHT",
+                "name": "Left/Right",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "FINISH_PATH",
+                "name": "Finish Path",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "INTERIOR",
+                "name": "Interior",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "CUT_DIR",
+                "name": "Cut Direction",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "PLANE_DIR",
+                "name": "Plane Direction",
+                "type": "integer",
+                "default": 2,
+                "range": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "id": "FALLING",
+                "name": "Falling",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "ACCEPT_UNDERCUT",
+                "name": "Accept Undercut",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "TRIM_UNDERCUT",
+                "name": "Trim Undercut",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_infeed",
+            "name": "Infeed Control",
+            "parameters": [
+              {
+                "id": "INFEED_TYPE",
+                "name": "Infeed Type",
+                "type": "integer",
+                "default": 3,
+                "range": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "id": "FINTRIM_STOCK",
+                "name": "Finish Trim Stock",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "LEFT_INFEED_TYPE",
+                "name": "Left Infeed Type",
+                "type": "integer",
+                "default": 2,
+                "range": [
+                  0,
+                  3
+                ]
+              },
+              {
+                "id": "TRIM_TANGLEN_LEFT",
+                "name": "Left Trim Tangent Length",
+                "type": "number",
+                "default": 5,
+                "unit": "mm"
+              },
+              {
+                "id": "TRIM_TANGLEN_RIGHT",
+                "name": "Right Trim Tangent Length",
+                "type": "number",
+                "default": 5,
+                "unit": "mm"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_approach",
+            "name": "Approach",
+            "parameters": [
+              {
+                "id": "APPROACH_TYPE",
+                "name": "Approach Type",
+                "type": "integer",
+                "default": 2,
+                "range": [
+                  0,
+                  4
+                ],
+                "description": "0=Direct, 1=Axial, 2=Circular, 3=Ramp, 4=Tangent"
+              },
+              {
+                "id": "APPROACH_LENGTH_CIRC",
+                "name": "Approach Circular Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "APPROACH_LENGTH_AX",
+                "name": "Approach Axial Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "APPROACH_LENGTH_RAMP",
+                "name": "Approach Ramp Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "APPROACH_LENGTH_TAN",
+                "name": "Approach Tangent Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "APPROACH_ANGLE_RAMP",
+                "name": "Approach Ramp Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              },
+              {
+                "id": "APPROACH_ANGLE_CIRC",
+                "name": "Approach Circular Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              },
+              {
+                "id": "APPROACH_ANGLE_TAN",
+                "name": "Approach Tangent Angle",
+                "type": "number",
+                "default": 15,
+                "unit": "deg"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_retract",
+            "name": "Retract",
+            "parameters": [
+              {
+                "id": "RETRACT_TYPE",
+                "name": "Retract Type",
+                "type": "integer",
+                "default": 4,
+                "range": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "id": "RETRACT_LENGTH_CIRC",
+                "name": "Retract Circular Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_LENGTH_AX",
+                "name": "Retract Axial Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_LENGTH_RAMP",
+                "name": "Retract Ramp Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_LENGTH_TAN",
+                "name": "Retract Tangent Length",
+                "type": "number",
+                "default": 2,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_ANGLE_RAMP",
+                "name": "Retract Ramp Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              },
+              {
+                "id": "RETRACT_ANGLE_CIRC",
+                "name": "Retract Circular Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              },
+              {
+                "id": "RETRACT_ANGLE_TAN",
+                "name": "Retract Tangent Angle",
+                "type": "number",
+                "default": 15,
+                "unit": "deg"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_radial",
+            "name": "Radial Lift",
+            "parameters": [
+              {
+                "id": "RADIAL_LIFT",
+                "name": "Radial Lift",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "RADIAL_RADIUS",
+                "name": "Radial Radius",
+                "type": "number",
+                "default": 1,
+                "unit": "mm"
+              },
+              {
+                "id": "RADIAL_ANGLE",
+                "name": "Radial Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_clearance",
+            "name": "Clearances",
+            "parameters": [
+              {
+                "id": "CLEARANCE_DISTANCE",
+                "name": "Clearance Distance",
+                "type": "number",
+                "default": 5,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_HEIGHT_IN",
+                "name": "Retract Height In",
+                "type": "number",
+                "default": 10,
+                "unit": "mm"
+              },
+              {
+                "id": "MACRO_CLEARANCE",
+                "name": "Macro Clearance",
+                "type": "number",
+                "default": 0.05,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_HEIGHT_OUT",
+                "name": "Retract Height Out",
+                "type": "number",
+                "default": 100,
+                "unit": "mm"
+              },
+              {
+                "id": "SICHEBENE",
+                "name": "Clearance Plane",
+                "type": "number",
+                "default": 15,
+                "unit": "mm"
+              },
+              {
+                "id": "RETRACT_PLAN",
+                "name": "Retract Plan",
+                "type": "number",
+                "default": 20,
+                "unit": "mm"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_rapid",
+            "name": "Rapid Angles",
+            "parameters": [
+              {
+                "id": "TRANSITION_MODE",
+                "name": "Transition Mode",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "id": "RAPID_ANGLE1",
+                "name": "Rapid Angle 1",
+                "type": "number",
+                "default": 20,
+                "unit": "deg"
+              },
+              {
+                "id": "RAPID_ANGLE2",
+                "name": "Rapid Angle 2",
+                "type": "number",
+                "default": 20,
+                "unit": "deg"
+              },
+              {
+                "id": "RAPID_ANGLE3",
+                "name": "Rapid Angle 3",
+                "type": "number",
+                "default": 20,
+                "unit": "deg"
+              },
+              {
+                "id": "RAPID_ANGLE_APPROACH",
+                "name": "Rapid Approach Angle",
+                "type": "number",
+                "default": 20,
+                "unit": "deg"
+              },
+              {
+                "id": "RAPID_ANGLE_RETRACT",
+                "name": "Rapid Retract Angle",
+                "type": "number",
+                "default": 20,
+                "unit": "deg"
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_insert",
+            "name": "Insert Control",
+            "parameters": [
+              {
+                "id": "TREG_TIP",
+                "name": "Tip Register",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  1,
+                  9
+                ]
+              },
+              {
+                "id": "INSERT_Y_OFFSET",
+                "name": "Insert Y Offset",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              },
+              {
+                "id": "INSERT_REFERENCE_ANGLE",
+                "name": "Insert Reference Angle",
+                "type": "number",
+                "default": 0,
+                "unit": "deg"
+              },
+              {
+                "id": "COLL_ANGLE",
+                "name": "Collision Angle",
+                "type": "number",
+                "default": 2,
+                "unit": "deg"
+              },
+              {
+                "id": "ROTATE_SPINDLE",
+                "name": "Rotate Spindle",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "ANGLE_X",
+                "name": "Angle X",
+                "type": "number",
+                "default": 0,
+                "unit": "deg"
+              },
+              {
+                "id": "TOOLANGLE_SET",
+                "name": "Tool Angle Set",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          },
+          {
+            "id": "turn_rough_stock",
+            "name": "Stock Control",
+            "parameters": [
+              {
+                "id": "COLL_CHECK",
+                "name": "Collision Check",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "GENERATE_STOCK",
+                "name": "Generate Stock",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "GENERATE_MILLSTOCK",
+                "name": "Generate Mill Stock",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "FROM_MILLSTOCK",
+                "name": "From Mill Stock",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "turn_finishing",
+        "name": "Turning Finishing",
+        "cfg_file": "hmTrnf.cfg",
+        "description": "Contour turning finishing with corner control",
+        "dialogs": [
+          {
+            "id": "turn_fin_corner",
+            "name": "Corner Control",
+            "parameters": [
+              {
+                "id": "CORNERBRAKE",
+                "name": "Corner Break",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "CORNER_MODE",
+                "name": "Corner Mode",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "id": "CHAMFER_LENGTH",
+                "name": "Chamfer Length",
+                "type": "number",
+                "default": 0.5,
+                "unit": "mm"
+              },
+              {
+                "id": "CORNER_ANGLE",
+                "name": "Corner Angle",
+                "type": "number",
+                "default": 90,
+                "unit": "deg"
+              },
+              {
+                "id": "CHAMFER_ANGLE",
+                "name": "Chamfer Angle",
+                "type": "number",
+                "default": 45,
+                "unit": "deg"
+              },
+              {
+                "id": "ROUNDING_RADIUS",
+                "name": "Rounding Radius",
+                "type": "number",
+                "default": 0.5,
+                "unit": "mm"
+              },
+              {
+                "id": "CORNER_TYPE",
+                "name": "Corner Type",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          {
+            "id": "turn_fin_strategy",
+            "name": "Strategy",
+            "parameters": [
+              {
+                "id": "METHOD",
+                "name": "Method",
+                "type": "integer",
+                "default": 4,
+                "range": [
+                  0,
+                  4
+                ]
+              },
+              {
+                "id": "SLOPE_CONDITION",
+                "name": "Slope Condition",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "SLOPE_ANGLE",
+                "name": "Slope Angle",
+                "type": "number",
+                "default": 60,
+                "unit": "deg"
+              },
+              {
+                "id": "CUTCOMP",
+                "name": "Cutter Compensation",
+                "type": "integer",
+                "default": 1,
+                "range": [
+                  0,
+                  2
+                ]
+              }
+            ]
+          },
+          {
+            "id": "turn_fin_blending",
+            "name": "Blending",
+            "parameters": [
+              {
+                "id": "BLEND_LENGTH",
+                "name": "Blend Length",
+                "type": "number",
+                "default": 1,
+                "unit": "mm"
+              },
+              {
+                "id": "BLEND_DIST",
+                "name": "Blend Distance",
+                "type": "number",
+                "default": 0.05,
+                "unit": "mm"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "turn_grooving",
+        "name": "Grooving",
+        "cfg_file": "hmTrnl.cfg",
+        "description": "Face and OD/ID grooving cycles",
+        "inherits_from": "turn_finishing",
+        "additional_parameters": [
+          {
+            "id": "GROOVE_WIDTH",
+            "name": "Groove Width",
+            "type": "number",
+            "unit": "mm"
+          },
+          {
+            "id": "GROOVE_DEPTH",
+            "name": "Groove Depth",
+            "type": "number",
+            "unit": "mm"
+          },
+          {
+            "id": "GROOVE_STYLE",
+            "name": "Groove Style",
+            "type": "integer",
+            "range": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "id": "turn_parting",
+        "name": "Parting",
+        "cfg_file": "hmTrnp.cfg",
+        "description": "Part-off/parting cycles",
+        "inherits_from": "turn_roughing"
+      },
+      {
+        "id": "turn_threading",
+        "name": "Threading",
+        "cfg_file": "hmTrnt.cfg",
+        "description": "Single and multi-start threading cycles",
+        "dialogs": [
+          {
+            "id": "turn_thread_transfer",
+            "name": "Transfer Settings",
+            "parameters": [
+              {
+                "id": "TRANSFER_USE_PARTING",
+                "name": "Use Parting",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "TRANSFER_CLEANUPTOOL",
+                "name": "Cleanup Tool",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "TRANSFER_DIR",
+                "name": "Transfer Direction",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "TRANSFER_ROT_DIR",
+                "name": "Rotation Direction",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "TRANSFER_SPINDLE_SPEED",
+                "name": "Transfer Spindle Speed",
+                "type": "number",
+                "default": 100,
+                "unit": "rpm"
+              },
+              {
+                "id": "TRANSFER_ANGLE",
+                "name": "Transfer Angle",
+                "type": "number",
+                "default": 0,
+                "unit": "deg"
+              },
+              {
+                "id": "TRANSFER_POSITION",
+                "name": "Transfer Position",
+                "type": "number",
+                "default": 10000,
+                "unit": "mm"
+              },
+              {
+                "id": "TRANSFER_FEED_RED_DIST",
+                "name": "Feed Reduction Distance",
+                "type": "number",
+                "default": 1000,
+                "unit": "mm"
+              },
+              {
+                "id": "TRANSFER_FEED",
+                "name": "Transfer Feed",
+                "type": "number",
+                "default": 100,
+                "unit": "mm/min"
+              }
+            ]
+          },
+          {
+            "id": "turn_thread_parting",
+            "name": "Parting Settings",
+            "parameters": [
+              {
+                "id": "PARTING_PO_PLUNGE",
+                "name": "Plunge Parting",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "PARTING_PO_OVERRUN_X",
+                "name": "X Overrun",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              },
+              {
+                "id": "PARTING_PO_ALLOW_Z",
+                "name": "Allow Z",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "PARTING_CLEARANCE_DISTANCE",
+                "name": "Clearance Distance",
+                "type": "number",
+                "default": 5,
+                "unit": "mm"
+              },
+              {
+                "id": "PARTING_RETRACT_HEIGHT",
+                "name": "Retract Height",
+                "type": "number",
+                "default": 100,
+                "unit": "mm"
+              },
+              {
+                "id": "PARTING_DWELL_TIME",
+                "name": "Dwell Time",
+                "type": "number",
+                "default": 1,
+                "unit": "s"
+              },
+              {
+                "id": "PARTING_DWELL_ROTATIONS",
+                "name": "Dwell Rotations",
+                "type": "number",
+                "default": 1
+              },
+              {
+                "id": "PARTING_DWELL_MODE",
+                "name": "Dwell Mode",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "PARTING_PO_CHAMFER",
+                "name": "Parting Chamfer",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "PARTING_PO_CHAMFER_SIZE",
+                "name": "Chamfer Size",
+                "type": "number",
+                "default": 0,
+                "unit": "mm"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "live_tool_face",
+        "name": "Live Tool Face Milling (C-Axis)",
+        "description": "Face milling with C-axis positioning",
+        "parameters": [
+          {
+            "id": "C_AXIS_ANGLE",
+            "name": "C-Axis Angle",
+            "type": "number",
+            "unit": "deg"
+          },
+          {
+            "id": "C_AXIS_CLAMP",
+            "name": "Clamp C-Axis",
+            "type": "integer",
+            "range": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "SPINDLE_SPEED",
+            "name": "Milling Spindle Speed",
+            "type": "number",
+            "unit": "rpm"
+          },
+          {
+            "id": "FEED_RATE",
+            "name": "Feed Rate",
+            "type": "number",
+            "unit": "mm/min"
+          }
+        ]
+      },
+      {
+        "id": "live_tool_radial",
+        "name": "Live Tool Radial Milling (Y-Axis)",
+        "description": "Radial milling with Y-axis",
+        "parameters": [
+          {
+            "id": "Y_AXIS_OFFSET",
+            "name": "Y-Axis Offset",
+            "type": "number",
+            "unit": "mm"
+          },
+          {
+            "id": "Y_AXIS_LIMIT",
+            "name": "Y-Axis Travel Limit",
+            "type": "number",
+            "unit": "mm"
+          },
+          {
+            "id": "C_AXIS_INDEX",
+            "name": "C-Axis Index Angle",
+            "type": "number",
+            "unit": "deg"
+          }
+        ]
+      },
+      {
+        "id": "b_axis_milling",
+        "name": "B-Axis Operations",
+        "description": "Tilting B-axis milling operations",
+        "parameters": [
+          {
+            "id": "B_AXIS_ANGLE",
+            "name": "B-Axis Angle",
+            "type": "number",
+            "unit": "deg",
+            "range": [
+              -120,
+              120
+            ]
+          },
+          {
+            "id": "B_AXIS_INTERPOLATION",
+            "name": "B-Axis Interpolation",
+            "type": "integer",
+            "range": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "B_AXIS_CLAMP",
+            "name": "Clamp B-Axis",
+            "type": "integer",
+            "range": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "TOOL_ORIENTATION",
+            "name": "Tool Orientation",
+            "type": "integer",
+            "range": [
+              0,
+              3
+            ]
+          }
+        ]
+      },
+      {
+        "id": "feature_recognition_turn",
+        "name": "Turning Feature Recognition",
+        "cfg_file": "hmRecTurn.cfg",
+        "description": "Automatic feature detection for turning",
+        "dialogs": [
+          {
+            "id": "turn_feature_main",
+            "name": "Main Settings",
+            "parameters": [
+              {
+                "id": "TURNTOLERANCE",
+                "name": "Turn Tolerance",
+                "type": "number",
+                "default": 0.01,
+                "unit": "mm"
+              },
+              {
+                "id": "SPLITPOINTON",
+                "name": "Split Point On",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "SPLITPOINTON2",
+                "name": "Second Split Point",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "CREATETURNINGAREA",
+                "name": "Create Turning Area",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "id": "SELECTMODE",
+                "name": "Select Mode",
+                "type": "integer",
+                "default": 0,
+                "range": [
+                  0,
+                  2
+                ]
+              },
+              {
+                "id": "LAYERNAME",
+                "name": "Layer Name",
+                "type": "string",
+                "default": "Default"
+              },
+              {
+                "id": "COLORCURVES",
+                "name": "Curve Color",
+                "type": "integer",
+                "default": 255
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "spindle_control",
+        "name": "Spindle Control",
+        "description": "Main and sub-spindle control parameters",
+        "parameters": [
+          {
+            "id": "MAIN_SPINDLE_RPM",
+            "name": "Main Spindle RPM",
+            "type": "number",
+            "unit": "rpm"
+          },
+          {
+            "id": "SUB_SPINDLE_RPM",
+            "name": "Sub-Spindle RPM",
+            "type": "number",
+            "unit": "rpm"
+          },
+          {
+            "id": "SPINDLE_SYNC",
+            "name": "Spindle Synchronization",
+            "type": "integer",
+            "range": [
+              0,
+              2
+            ]
+          },
+          {
+            "id": "SPINDLE_CLAMP",
+            "name": "Spindle Clamp",
+            "type": "integer",
+            "range": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "SPINDLE_ORIENT",
+            "name": "Spindle Orientation",
+            "type": "number",
+            "unit": "deg"
+          },
+          {
+            "id": "CSS_MODE",
+            "name": "Constant Surface Speed Mode",
+            "type": "integer",
+            "range": [
+              0,
+              1
+            ]
+          },
+          {
+            "id": "CSS_MAX_RPM",
+            "name": "CSS Max RPM",
+            "type": "number",
+            "unit": "rpm"
+          }
+        ]
+      }
+    ]
+  },
+  "provenance": {
+    "consolidated_source": "5axis-maxx-millturn-catalog.json",
+    "split_at": "2026-04-21T19:56:51.770Z",
+    "split_rule": {
+      "module_id": "millturn",
+      "out_basename": "turning-operations.json"
+    }
+  }
+}

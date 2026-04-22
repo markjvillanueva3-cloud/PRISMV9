@@ -1,0 +1,479 @@
+{
+  "schemaVersion": 1,
+  "system_id": "fusion360",
+  "section_key": "turning_toolpaths",
+  "section": {
+    "turning_profile_roughing": {
+      "fusion_name": "Turning Profile Roughing",
+      "operation_type": "Turning Roughing",
+      "description": "OD/ID profile roughing with multiple passes.",
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true,
+              "description": "Turning insert or boring bar"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "surface_speed",
+              "type": "number",
+              "unit": "m/min"
+            },
+            {
+              "name": "feed_per_revolution",
+              "type": "number",
+              "unit": "mm/rev"
+            },
+            {
+              "name": "coolant",
+              "type": "enum",
+              "values": [
+                "flood",
+                "mist",
+                "high_pressure",
+                "disabled"
+              ],
+              "default": "flood"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "profile_selection",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "turning_mode",
+              "type": "enum",
+              "values": [
+                "outside",
+                "inside",
+                "face"
+              ],
+              "default": "outside"
+            },
+            {
+              "name": "stock_to_leave_radial",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.5
+            },
+            {
+              "name": "stock_to_leave_axial",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.25
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "depth_of_cut",
+              "type": "number",
+              "unit": "mm",
+              "description": "Radial depth per pass"
+            },
+            {
+              "name": "maximum_depth",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "step_type",
+              "type": "enum",
+              "values": [
+                "constant",
+                "variable"
+              ],
+              "default": "constant"
+            },
+            {
+              "name": "roughing_pattern",
+              "type": "enum",
+              "values": [
+                "parallel",
+                "zigzag",
+                "one_way"
+              ],
+              "default": "parallel"
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "towards_chuck",
+                "away_from_chuck"
+              ],
+              "default": "towards_chuck"
+            }
+          ]
+        },
+        "heights": {
+          "params": [
+            {
+              "name": "clearance_distance",
+              "type": "number",
+              "unit": "mm",
+              "default": 5
+            },
+            {
+              "name": "retract_distance",
+              "type": "number",
+              "unit": "mm",
+              "default": 2
+            }
+          ]
+        }
+      },
+      "output_params_count": 24
+    },
+    "turning_profile_finishing": {
+      "fusion_name": "Turning Profile Finishing",
+      "operation_type": "Turning Finishing",
+      "description": "Single-pass profile finishing for OD/ID features.",
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "surface_speed",
+              "type": "number",
+              "unit": "m/min"
+            },
+            {
+              "name": "feed_per_revolution",
+              "type": "number",
+              "unit": "mm/rev",
+              "description": "Finish feed rate"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "profile_selection",
+              "type": "selection",
+              "required": true
+            },
+            {
+              "name": "turning_mode",
+              "type": "enum",
+              "values": [
+                "outside",
+                "inside"
+              ],
+              "default": "outside"
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "number_of_finish_passes",
+              "type": "number",
+              "default": 1
+            },
+            {
+              "name": "spring_passes",
+              "type": "number",
+              "default": 0,
+              "description": "Zero-cut spring passes"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            }
+          ]
+        }
+      },
+      "output_params_count": 16
+    },
+    "turning_face": {
+      "fusion_name": "Face",
+      "operation_type": "Turning Facing",
+      "description": "Face turning operation.",
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "feed_per_revolution",
+              "type": "number",
+              "unit": "mm/rev"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "outer_diameter",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "inner_diameter",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "face_depth",
+              "type": "number",
+              "unit": "mm"
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "depth_per_pass",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "stock_to_leave",
+              "type": "number",
+              "unit": "mm",
+              "default": 0
+            },
+            {
+              "name": "direction",
+              "type": "enum",
+              "values": [
+                "center_to_od",
+                "od_to_center"
+              ],
+              "default": "od_to_center"
+            }
+          ]
+        }
+      },
+      "output_params_count": 14
+    },
+    "turning_groove": {
+      "fusion_name": "Groove",
+      "operation_type": "Turning Grooving",
+      "description": "External and internal grooving operations.",
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true,
+              "description": "Grooving insert"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            },
+            {
+              "name": "feed_per_revolution",
+              "type": "number",
+              "unit": "mm/rev"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "groove_type",
+              "type": "enum",
+              "values": [
+                "external",
+                "internal",
+                "face"
+              ],
+              "default": "external"
+            },
+            {
+              "name": "groove_width",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "groove_depth",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "groove_position",
+              "type": "number",
+              "unit": "mm",
+              "description": "Z position of groove"
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "pecking_depth",
+              "type": "number",
+              "unit": "mm",
+              "description": "Depth per peck"
+            },
+            {
+              "name": "dwell_time",
+              "type": "number",
+              "unit": "sec",
+              "default": 0
+            },
+            {
+              "name": "retract_amount",
+              "type": "number",
+              "unit": "mm",
+              "default": 0.5
+            }
+          ]
+        }
+      },
+      "output_params_count": 15
+    },
+    "turning_thread": {
+      "fusion_name": "Thread",
+      "operation_type": "Turning Threading",
+      "description": "Single or multi-start thread turning.",
+      "tabs": {
+        "tool": {
+          "params": [
+            {
+              "name": "tool",
+              "type": "tool_selection",
+              "required": true,
+              "description": "Threading insert"
+            },
+            {
+              "name": "spindle_speed",
+              "type": "number",
+              "unit": "rpm"
+            }
+          ]
+        },
+        "geometry": {
+          "params": [
+            {
+              "name": "thread_type",
+              "type": "enum",
+              "values": [
+                "external",
+                "internal"
+              ],
+              "default": "external"
+            },
+            {
+              "name": "thread_standard",
+              "type": "enum",
+              "values": [
+                "metric",
+                "metric_fine",
+                "unc",
+                "unf",
+                "npt",
+                "bsp",
+                "custom"
+              ],
+              "default": "metric"
+            },
+            {
+              "name": "major_diameter",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "pitch",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "thread_length",
+              "type": "number",
+              "unit": "mm"
+            },
+            {
+              "name": "starts",
+              "type": "number",
+              "default": 1,
+              "description": "Number of thread starts"
+            }
+          ]
+        },
+        "passes": {
+          "params": [
+            {
+              "name": "infeed_mode",
+              "type": "enum",
+              "values": [
+                "radial",
+                "flank",
+                "modified_flank",
+                "alternating"
+              ],
+              "default": "modified_flank"
+            },
+            {
+              "name": "infeed_angle",
+              "type": "number",
+              "unit": "deg",
+              "default": 29.5
+            },
+            {
+              "name": "number_of_passes",
+              "type": "number"
+            },
+            {
+              "name": "depth_degression",
+              "type": "number",
+              "default": 0.7,
+              "description": "Depth reduction factor per pass"
+            },
+            {
+              "name": "spring_passes",
+              "type": "number",
+              "default": 2
+            }
+          ]
+        }
+      },
+      "output_params_count": 20
+    }
+  },
+  "provenance": {
+    "consolidated_source": "FUSION360_CAM_COMPLETE_CATALOG.json",
+    "split_at": "2026-04-21T20:00:19.311Z",
+    "split_rule": {
+      "key": "turning_toolpaths",
+      "out_basename": "turning-operations.json"
+    }
+  }
+}

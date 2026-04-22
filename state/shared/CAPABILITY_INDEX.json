@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "1.0",
+  "purpose": "Maps user-prompt trigger phrases to PRISM capabilities so the UserPromptSubmit hook (capability-reminder.mjs) can surface the right tool at the moment of need. Complements ai-auto-command-router.mjs (which suggests slash commands) by covering scripts, hooks, engines, and stale-data traps.",
+  "lastUpdated": "2026-04-16",
+  "maintainer": "AGI-INFRA Phase A — /capabilities command, CAP-MS1 + CAP-MS5 (Codex frontend reference)",
+  "matchingRules": {
+    "caseSensitive": false,
+    "scope": "user prompt text only (does not read file contents)",
+    "dedupe": "if multiple entries match, emit at most 3 reminders per prompt, ordered by priority asc",
+    "cooldown": "each entry fires at most once per 10 minutes per session to avoid nag loops"
+  },
+  "entries": [
+    {
+      "id": "file-read-cache",
+      "priority": 1,
+      "category": "token-efficiency",
+      "triggers": ["re-read", "read again", "read it again", "same file", "look at that file", "look at that again", "re read"],
+      "hint": "FileReadCache hook blocks duplicate Read (same session + path + mtime + offset + limit). If you genuinely need a fresh read, pass a different offset/limit or touch the file."
+    },
+    {
+      "id": "grep-result-cache",
+      "priority": 1,
+      "category": "token-efficiency",
+      "triggers": ["same grep", "same search", "re-grep", "search again", "grep again"],
+      "hint": "GrepResultCache hook blocks duplicate Grep within 5 min (same pattern+path+glob+type). Narrow the query or wait for TTL."
+    },
+    {
+      "id": "inventory-stale",
+      "priority": 0,
+      "category": "stale-data-trap",
+      "triggers": ["how many engines", "how many dispatchers", "how many actions", "how many tests", "engine count", "action count", "baseline counts", "count of engines", "total engines"],
+      "hint": "Read PRISM-INVENTORY-LATEST.md for live counts. Do NOT quote numbers from CLAUDE.md or MEMORY.md — those are frozen snapshots and routinely drift 100-1000s behind."
+    },
+    {
+      "id": "inventory-refresh",
+      "priority": 2,
+      "category": "token-efficiency",
+      "triggers": ["outdated inventory", "stale inventory", "inventory is old", "refresh inventory", "update inventory"],
+      "hint": "Run `node scripts/update-prism-inventory.mjs --quiet`. SessionStart hook auto-refreshes with 24h throttle. PRISM-INVENTORY-LATEST.md is always the freshest snapshot."
+    },
+    {
+      "id": "json-state-summarizer",
+      "priority": 2,
+      "category": "token-efficiency",
+      "triggers": ["large json", "huge state file", "big json file", "megabyte state", "this file is huge", "summarize json"],
+      "hint": "ToolOutputSummarizerEngine detects json-state automatically. For manual use: import { toolOutputSummarizerEngine } from 'src/engines/ToolOutputSummarizerEngine.js'; r = engine.summarize(output). Achieves >80% token reduction on state files."
+    },
+    {
+      "id": "duplication-guard",
+      "priority": 0,
+      "category": "pre-creation-check",
+      "triggers": ["create engine", "new engine", "build engine", "add engine", "create algorithm", "new algorithm", "new dispatcher", "add action", "new hook", "build hook", "new skill"],
+      "hint": "BEFORE creating: duplicationGuardEngine.checkBeforeCreating({ assetType, proposedName, keywords, description }). Throws if duplicate. Cross-session registry at mcp-server/data/state/cross-session-asset-registry.json. Also run /dedup slash command."
+    },
+    {
+      "id": "mcat-archived",
+      "priority": 3,
+      "category": "file-moved",
+      "triggers": ["MCAT_MS0_CANONICAL_LEGALITY_EXTRACT", "mcat canonical legality", "mcat extract json"],
+      "hint": "MCAT_MS0_CANONICAL_LEGALITY_EXTRACT_2026-04-02.json has been moved to state/shared/archive/. Regenerate at original path via `node scripts/mcat-legality-extract.mjs`."
+    },
+    {
+      "id": "state-shared-navigation",
+      "priority": 2,
+      "category": "discovery",
+      "triggers": ["state/shared", "state shared", "shared directory", "shared state files", "what's in shared"],
+      "hint": "Read state/shared/INDEX.json for navigation: readOnSessionStart / activeCoordination / largeStateFiles / milestoneArtifacts / archive. Skip milestoneArtifacts + archive by default."
+    },
+    {
+      "id": "forge-audit-preflight",
+      "priority": 1,
+      "category": "slash-command-protocol",
+      "triggers": ["forge audit", "forge-audit", "full audit", "code audit", "quality audit"],
+      "hint": "/forge-audit has a MANDATORY preflight: runs `node scripts/update-prism-inventory.mjs --quiet` then reads PRISM-INVENTORY-LATEST.md. Do not quote old counts from CLAUDE.md during the audit."
+    },
+    {
+      "id": "creative-reasoning",
+      "priority": 3,
+      "category": "advanced-capability",
+      "triggers": ["complex problem", "think outside", "novel approach", "creative solution", "hybrid strategy", "out of the box"],
+      "hint": "Use PRISMCreativeReasoningEngine.explore(problem, 'optimal'). Modes: conventional → exploratory → hybrid → innovative → optimal. 15 scientific domains, 120+ formulas. Good for: roughing strategies, material selection, fixture design."
+    },
+    {
+      "id": "cross-disciplinary",
+      "priority": 3,
+      "category": "advanced-capability",
+      "triggers": ["PID controller", "kalman filter", "control theory", "johnson-cook", "NURBS", "S-curve motion", "Abbe error", "cross-domain"],
+      "hint": "CrossDisciplinaryDeepLearningEngine covers: CONTROL_THEORY (PID, LQR, EKF), MATERIALS_SCIENCE (Johnson-Cook, Kienzle, Voce), GEOMETRY (NURBS, Bezier, Laplacian), ROBOTICS (RTCP, S-curve), ML (ridge, K-means, CNN), PRECISION (error budget, thermal expansion)."
+    },
+    {
+      "id": "jm-die-profile",
+      "priority": 2,
+      "category": "domain-data",
+      "triggers": ["JM die", "JM Die Company", "test shop", "canonical customer", "cold heading", "fastener dies"],
+      "hint": "JM Die is the canonical test shop. Profile: src/data/jm-die-profile.ts (21 machines: 7 Okuma lathes + 5 mills + 3 EDMs + 6 support). Shop config: ShopConfigurationEngine.DEFAULT_PROFILE_ID = 'jm-die'. Programs at H:/PRISM/JM DIE/ (36,929 files, 100+ customers)."
+    },
+    {
+      "id": "self-awareness-engine",
+      "priority": 2,
+      "category": "advanced-capability",
+      "triggers": ["JM die path", "tribal knowledge search", "playbook rules", "H drive access", "shop floor knowledge"],
+      "hint": "prismSelfAwarenessEngine exposes: getJMDieCustomerPath(name), getJMDieProgramPaths('lathe'), searchTribalKnowledge(q) [4,493 tips], searchPlaybookRules(q) [296 rules], generateWebSearch(q) [trusted sources], getFullDriveAwareness(), recommendAIFeatures(task)."
+    },
+    {
+      "id": "build-watch",
+      "priority": 3,
+      "category": "developer-flow",
+      "triggers": ["rebuild", "iterate fast", "watch mode", "during development", "hot reload", "fast iteration"],
+      "hint": "Use `npm run build:watch` (tsc watch ~10s) + `npm run build:watch:esbuild` (bundle rebuild) in separate terminals. Cuts full-rebuild wait from 30s to 10s."
+    },
+    {
+      "id": "universal-roadmap",
+      "priority": 2,
+      "category": "roadmap",
+      "triggers": ["universal skills", "universal roadmap", "universal-skills-scripts-hooks", "phase 0", "AGI substrate", "AGI roadmap"],
+      "hint": "Main AGI roadmap: H:/prism/UNIVERSAL-SKILLS-SCRIPTS-HOOKS-PLAN-2026-04-15.md (1827 lines, 17 sub-phases). Phase A (quick wins) is in this worktree on branch agi-infra-phase-a. Coordinate edits to state/shared/ with 4 concurrent chats."
+    },
+    {
+      "id": "concurrent-chats",
+      "priority": 1,
+      "category": "coordination",
+      "triggers": ["other chat", "other chats", "concurrent chat", "parallel chat", "4 chats", "coordination hazard"],
+      "hint": "Active concurrent chats: Universal skills/scripts/hooks, Mill consolidation, Wire EDM AGI, Lathe AGI, Post-processor AGI. Boundary: don't edit WEDM/lathe/pp/mill files. Use isolated git worktrees for Phase A style work. Settings.json edits require coordination — see .claude/hooks/AGI_INFRA_PHASE_A_WIRING.md."
+    },
+    {
+      "id": "capability-discovery",
+      "priority": 2,
+      "category": "meta",
+      "triggers": ["what can you do", "what capabilities", "list capabilities", "what tools exist", "what's available", "what can we use"],
+      "hint": "Run /capabilities slash command to list all entries in CAPABILITY_INDEX.json by category. Or read state/shared/CAPABILITY_INDEX.json directly."
+    },
+    {
+      "id": "codex-frontend-reference",
+      "priority": 1,
+      "category": "canonical-reference",
+      "triggers": ["codex frontend", "frontend inventory", "what codex built", "what's on the frontend", "frontend pages", "calculator page", "mill tab", "mode switch", "web app pages", "ppg page", "post processor page", "wedm studio", "mill studio", "lathe studio", "print drop", "what pages exist", "frontend gap", "backend gap", "api client orphan", "web/ vs mcp-server/web"],
+      "hint": "Read H:/prism/SCRUTINY-R5-CODEX-FRONTEND-UNIVERSAL-ALIGNMENT-2026-04-16.md — THE canonical reference for what Codex built (134 pages / 170 components / 87 API clients at mcp-server/web/), backend gaps PRISM must support, and frontend gaps the web app still needs. Consult BEFORE proposing any frontend-touching work."
+    },
+    {
+      "id": "mill-calc-shallow",
+      "priority": 1,
+      "category": "canonical-reference",
+      "triggers": ["mill calculator", "mill calc", "mill panels", "mill sub-panels", "mill chatter", "mill tool life", "mill cost", "mill deflection", "mill workholding", "calc-mill"],
+      "hint": "Mill calculator tab is catastrophically shallow (0 sub-panels vs 7 for lathe). Expansion plan is CALC-MILL-MS0/1/2/3 in SCRUTINY-R5 §3.4 (~4,605 LOC over W4-W5). Mode-switch also leaks selectedTool/Material/operation/machineTypeId across modes — fix per §2 hygiene section."
+    }
+  ]
+}
