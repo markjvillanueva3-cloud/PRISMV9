@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "PRISM dual-perspective review rubric. All reviewers evaluate against this identical schema.",
+  "version": "1.0.0",
+
+  "dimensions": {
+    "correctness": {
+      "description": "Code logic is correct, no bugs or regressions introduced",
+      "checks": [
+        "No off-by-one errors in loops or array indexing",
+        "Conditional logic matches the intended behavior",
+        "Return values match declared types",
+        "Async/await used correctly (no unhandled promises)"
+      ],
+      "weight": 1.0
+    },
+    "completeness": {
+      "description": "All required functionality is implemented, nothing missing",
+      "checks": [
+        "All actions specified in the task are implemented",
+        "Edge cases handled (empty input, null, undefined, NaN)",
+        "Error paths return structured error objects, not thrown exceptions",
+        "Required exports are present in index.ts"
+      ],
+      "weight": 1.0
+    },
+    "consistency": {
+      "description": "Code follows project conventions and patterns",
+      "checks": [
+        "Follows PRISM engine conventions (static methods, AtomicValue returns)",
+        "Uses Zod schemas for input validation",
+        "Naming matches existing patterns (PascalCaseEngine.ts)",
+        "Import style matches project (import from, not require)"
+      ],
+      "weight": 0.8
+    },
+    "safety": {
+      "description": "No security vulnerabilities or unsafe operations",
+      "checks": [
+        "No hardcoded secrets or API keys",
+        "No console.log in production code",
+        "No 'any' type annotations",
+        "No shell command injection (use execFileNoThrow, not exec)",
+        "No unsafe filesystem operations outside project directory"
+      ],
+      "weight": 1.0
+    },
+    "performance": {
+      "description": "Code is reasonably efficient, no unnecessary computation",
+      "checks": [
+        "No O(n²) where O(n) is possible",
+        "No unnecessary re-computation in loops",
+        "Large data structures use lazy loading",
+        "Async operations parallelized where independent"
+      ],
+      "weight": 0.6
+    },
+    "physics_accuracy": {
+      "description": "Physics formulas and constants are correct per canonical sources",
+      "checks": [
+        "Kienzle kc1.1 values imported from src/physics/constants.ts (never inline)",
+        "Taylor tool life exponents (C, n) from tool registry or constants",
+        "Uncertainty propagation uses RSS for independent variables",
+        "AtomicValue includes unit, uncertainty, source, confidence",
+        "Dimensional consistency verified (Force=Pa*m², Power=Force*velocity)",
+        "Safety factors applied AFTER uncertainty, never before",
+        "Numerical constants cite their source (ISO, Sandvik, Kennametal, textbook)"
+      ],
+      "weight": 1.5
+    },
+    "shop_acceptance": {
+      "description": "Output would be accepted by a CNC machinist on the shop floor",
+      "checks": [
+        "Depth of cut sustainable for material + machine combination",
+        "Spindle load prediction < 90% of machine rated capacity",
+        "Feed rate within machine servo limits",
+        "Tool coating temperature limit respected (AlTiN ~900C, uncoated ~600C)",
+        "Recommended RPM is within machine spindle range (min/max)",
+        "Coolant strategy matches operation type (flood, mist, through-spindle)",
+        "Surface finish prediction is realistic for the cutting parameters"
+      ],
+      "weight": 1.2
+    }
+  },
+
+  "scoring": {
+    "levels": ["PASS", "WARN", "FAIL"],
+    "per_dimension": "Each dimension scored independently as PASS/WARN/FAIL",
+    "aggregation": "Overall PASS if all dimensions are PASS or WARN. Overall FAIL if any dimension is FAIL.",
+    "threshold": "WARN means 'acceptable with noted concerns'. FAIL means 'must fix before proceeding'."
+  },
+
+  "disputed_findings_policy": {
+    "agreed_critical_high": "MUST FIX — both reviewers found this issue",
+    "disputed_critical_high": "MUST FIX — even if only 1 reviewer found it, CRITICAL/HIGH issues cannot be ignored",
+    "disputed_medium": "DEFER with written justification — logged in PRISM_REVIEW_LOG.jsonl for audit trail",
+    "agreed_low": "Optional fix — nice to have but not blocking",
+    "disputed_low": "Ignore — low confidence, low impact"
+  },
+
+  "file_criticality_weights": {
+    "engine_files": 10,
+    "dispatcher_schema_files": 5,
+    "test_files": 3,
+    "utility_files": 2,
+    "documentation_files": 1
+  },
+
+  "reviewer_output_schema": {
+    "type": "object",
+    "required": ["reviewer_role", "files_reviewed", "dimensions", "findings", "overall_verdict"],
+    "properties": {
+      "reviewer_role": {
+        "type": "string",
+        "enum": ["physics", "wiring", "test"]
+      },
+      "files_reviewed": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "dimensions": {
+        "type": "object",
+        "description": "Per-dimension verdicts",
+        "additionalProperties": {
+          "type": "object",
+          "properties": {
+            "verdict": { "enum": ["PASS", "WARN", "FAIL"] },
+            "notes": { "type": "string" }
+          }
+        }
+      },
+      "findings": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["severity", "file", "description"],
+          "properties": {
+            "severity": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+            "file": { "type": "string" },
+            "line": { "type": "number" },
+            "dimension": { "type": "string" },
+            "description": { "type": "string" },
+            "suggested_fix": { "type": "string" }
+          }
+        }
+      },
+      "overall_verdict": { "enum": ["PASS", "FAIL"] }
+    }
+  }
+}
