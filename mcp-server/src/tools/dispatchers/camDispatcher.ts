@@ -923,6 +923,14 @@ export const ACTIONS = [
   "cam_ml_predict_baseline",
   "cam_ml_train_lora",
   "cam_ml_predict_lora",
+  "cam_lora_predict",
+  "cam_lora_apply_delta",
+  "cam_lora_validate",
+  "cam_lora_check_health",
+  "cam_lora_list",
+  "cam_lora_select",
+  "cam_lora_ensemble",
+  "cam_lora_standardize",
   "cam_ml_drift_run",
   "cam_ml_drift_read_log",
   "cam_enrich_link_physics",
@@ -955,6 +963,7 @@ export const ACTIONS = [
   "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch", "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
   "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan", "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate",
   "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix",
+  "lathe_p2p_setup_select", "lathe_p2p_setup_from_features", "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -2104,6 +2113,83 @@ Params vary by action — pass relevant fields in params object.`,
               params.baseline as any,
               params.vector as any
             );
+            break;
+          }
+          // ─── U-CAM107: CAMLoRAEngine framework (inference + management) ──
+          case "cam_lora_predict": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = camLoRAEngine.predict({
+              adapter: params.adapter as any,
+              baseline: params.baseline as any,
+              xStd: params.x_std as number[],
+            });
+            break;
+          }
+          case "cam_lora_apply_delta": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = {
+              delta: camLoRAEngine.applyDelta(
+                params.adapter as any,
+                params.x_std as number[]
+              ),
+            };
+            break;
+          }
+          case "cam_lora_validate": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = camLoRAEngine.validateAdapterFor(
+              params.adapter as any,
+              params.expected_dim as number
+            );
+            break;
+          }
+          case "cam_lora_check_health": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            const now = typeof params.now === "string"
+              ? new Date(params.now as string)
+              : new Date();
+            result = camLoRAEngine.checkAdapter(params.adapter as any, now);
+            break;
+          }
+          case "cam_lora_list": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = {
+              entries: camLoRAEngine.listAdapters(params.model_dir as string),
+            };
+            break;
+          }
+          case "cam_lora_select": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            const selected = camLoRAEngine.selectAdapter(
+              params.model_dir as string,
+              params.cam_slug as any,
+              params.target as any,
+              params.expected_dim as number
+            );
+            result = selected === null
+              ? { found: false, adapter: null, source_path: null }
+              : { found: true, adapter: selected.adapter, source_path: selected.sourcePath };
+            break;
+          }
+          case "cam_lora_ensemble": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = camLoRAEngine.ensemble({
+              adapters: params.adapters as any,
+              baseline: params.baseline as any,
+              xStd: params.x_std as number[],
+              weights: (params.weights as number[] | undefined) ?? undefined,
+            });
+            break;
+          }
+          case "cam_lora_standardize": {
+            const { camLoRAEngine } = await import("../../engines/CAMLoRAEngine.js");
+            result = {
+              x_std: camLoRAEngine.standardize(
+                params.raw as number[],
+                params.mean as number[],
+                params.std as number[]
+              ),
+            };
             break;
           }
           // ─── U-CAM-ML-07: drift monitor (continuous evaluation) ────────────
@@ -3506,6 +3592,48 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               params.sequence_plan,
               params.features
             );
+            break;
+          }
+
+          case "lathe_p2p_setup_select": {
+            const { lathePrintSetupSelectionEngine } = await import(
+              "../../engines/LathePrintSetupSelectionEngine.js"
+            );
+            result = lathePrintSetupSelectionEngine.selectSetup(
+              params.geometry,
+              params.material,
+              params.loads,
+              params.available_chucks
+            );
+            break;
+          }
+
+          case "lathe_p2p_setup_from_features": {
+            const { lathePrintSetupSelectionEngine } = await import(
+              "../../engines/LathePrintSetupSelectionEngine.js"
+            );
+            result = lathePrintSetupSelectionEngine.planFromFeatures(
+              params.features,
+              params.material,
+              params.sequence_plan,
+              params.available_chucks
+            );
+            break;
+          }
+
+          case "lathe_p2p_setup_validate": {
+            const { lathePrintSetupSelectionEngine } = await import(
+              "../../engines/LathePrintSetupSelectionEngine.js"
+            );
+            result = lathePrintSetupSelectionEngine.validate(params.setup);
+            break;
+          }
+
+          case "lathe_p2p_setup_infer_geometry": {
+            const { lathePrintSetupSelectionEngine } = await import(
+              "../../engines/LathePrintSetupSelectionEngine.js"
+            );
+            result = lathePrintSetupSelectionEngine.inferGeometry(params.features);
             break;
           }
 
