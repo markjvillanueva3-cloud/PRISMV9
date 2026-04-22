@@ -18,7 +18,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
-let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any;
+let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -37,6 +37,7 @@ async function getEngine(name: string): Promise<any> {
     case "f360Gen": return _f360Gen ??= (await import("../../engines/Fusion360CodeGeneratorEngine.js")).fusion360CodeGeneratorEngine;
     case "f360Bridge": return _f360Bridge ??= (await import("../../engines/Fusion360LiveBridgeEngine.js")).fusion360LiveBridgeEngine;
     case "swGen": return _swGen ??= (await import("../../engines/SolidWorksCodeGeneratorEngine.js")).solidWorksCodeGeneratorEngine;
+    case "mcGen": return _mcGen ??= (await import("../../engines/MastercamCodeGeneratorEngine.js")).mastercamCodeGeneratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -76,6 +77,9 @@ const ACTIONS = [
   // SolidWorks Code Generator (U-CADC10)
   "solidworks_generate_script", "solidworks_build_part", "solidworks_execute",
   "solidworks_capabilities",
+  // Mastercam Code Generator (U-CADC11)
+  "mastercam_generate_script", "mastercam_build_part", "mastercam_execute",
+  "mastercam_capabilities",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -603,6 +607,37 @@ Params vary by action — pass relevant fields in params object.`,
           case "solidworks_capabilities": {
             const engine = await getEngine("swGen");
             result = { success: true, cadSystem: engine.cadSystem, capabilities: engine.capabilities };
+            break;
+          }
+          // Mastercam Code Generator (U-CADC11)
+          case "mastercam_generate_script": {
+            const engine = await getEngine("mcGen");
+            const ops = params.operations ?? [];
+            const context = { projectName: params.projectName ?? "PRISMProject", units: params.units ?? "mm", targetVersion: params.targetVersion ?? "2024" };
+            const script = engine.buildScript(ops, context);
+            result = { success: true, script: script.body, filename: script.filename, warnings: script.warnings, parameters: Object.fromEntries(script.parameters), lineage: script.lineage, imports: script.imports };
+            break;
+          }
+          case "mastercam_build_part": {
+            const engine = await getEngine("mcGen");
+            const ops = params.operations ?? [];
+            const context = { projectName: params.projectName ?? "PRISMProject", units: params.units ?? "mm", outputDir: params.outputDir, targetVersion: params.targetVersion ?? "2024" };
+            const script = engine.buildScript(ops, context);
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, script: script.body, filename: script.filename, outputFiles: execResult.outputFiles, durationMs: execResult.durationMs, warnings: script.warnings, error: execResult.error };
+            break;
+          }
+          case "mastercam_execute": {
+            const engine = await getEngine("mcGen");
+            const script = { body: params.script, cadSystem: "mastercam" as const, filename: params.filename ?? "script.cs", parameters: new Map(), lineage: [], warnings: [], imports: [] };
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, outputFiles: execResult.outputFiles, durationMs: execResult.durationMs, metrics: execResult.metrics, error: execResult.error };
+            break;
+          }
+          case "mastercam_capabilities": {
+            const engine = await getEngine("mcGen");
+            const caps = engine.getCapabilities();
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
             break;
           }
           default:
