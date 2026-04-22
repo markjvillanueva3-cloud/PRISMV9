@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-04-22T08:00:00Z",
+  "description": "Canonical ingestion cache root. All scraped/crawled/fetched content lands here, never in src/ or data/state/.",
+  "owner_unit": "CAM-UIX-INFRA-00/U-CACHEROOT01",
+  "enforced_by": ".claude/hooks/ingestion-cache-root-guard.mjs",
+  "directory_structure": {
+    "pattern": "<cam>/<source>/<yyyymm>/",
+    "examples": [
+      "mastercam/s1_doc_scrape/202604/",
+      "fusion360/s2_forum/202604/",
+      "shared/s3_trade_press/202604/"
+    ]
+  },
+  "source_prefixes": {
+    "s1_doc_scrape": "S1 — Manufacturer documentation scrape",
+    "s2_forum": "S2 — Forum Q&A extraction",
+    "s3_trade_press": "S3 — Trade publication RSS/article",
+    "s4_certification": "S4 — Certification curricula",
+    "s5_api_sdk": "S5 — API/SDK reference parsing",
+    "s6_postprocessor": "S6 — Postprocessor library analysis",
+    "s7_sample_reverse": "S7 — JMDie program reverse engineering",
+    "s8_patents": "S8 — Patent database extraction",
+    "s9_standards": "S9 — Standards body (ISO/DIN) abstracts",
+    "s10_social_events": "S10 — Social media / event archives",
+    "s11_training_video": "S11 — Vendor training recordings"
+  },
+  "subdirectories": {
+    "rate_limits/": "Per-domain token bucket state",
+    "quarantine/": "Records failing validation (moved by guard hooks)",
+    "checkpoints/": "Cursor/progress state for resumable crawls",
+    "transcripts/": "Video/audio transcription output"
+  },
+  "total_files": 0,
+  "total_bytes": 0,
+  "last_scan": null
+}
