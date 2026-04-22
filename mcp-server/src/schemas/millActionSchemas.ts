@@ -226,11 +226,31 @@ const mill_fixture_select = z.object({
   clamp_force_n_max: optPosNum,
 }).passthrough();
 
+// Workholding type for vise/chuck calculations
+const workholdingType = z.enum([
+  "vise", "chuck_3jaw", "chuck_6jaw", "vacuum", "magnetic", "fixture_plate",
+]).describe("Workholding device type");
+
 const mill_workholding_force = z.object({
-  ...millContext,
-  fixture_type: z.string(),
-  cutting_force_n: optPosNum,
-}).passthrough();
+  cutting_force_n: posNum.describe("Cutting force to overcome (N) — from Kienzle Fc"),
+  workholding_type: workholdingType.optional().describe("Workholding device type (default: vise)"),
+  friction_coefficient: z.number().min(0.05).max(1.0).optional().describe("μ between workpiece and fixture (default by type)"),
+  safety_factor: z.number().min(1.0).max(10.0).optional().describe("SF for clamping (default by type, typically 2.0–3.0)"),
+  num_clamps: z.number().int().min(1).max(12).optional().describe("Number of clamp points (default: 1 for vise, 2 for plates)"),
+  workpiece_mass_kg: optPosNum.describe("Workpiece mass for gravity check in vertical setups"),
+}).passthrough().describe("Calculate required clamping force to hold workpiece against cutting forces");
+
+const mill_workholding_chuck = z.object({
+  cutting_force_tangential_n: posNum.describe("Tangential cutting force (Fc) in turning/facing"),
+  cutting_force_radial_n: optPosNum.describe("Radial cutting force (Fr, typically 0.4×Fc)"),
+  workpiece_diameter_mm: posNum.describe("Workpiece diameter at chuck grip (mm)"),
+  chuck_diameter_mm: optPosNum.describe("Chuck diameter (mm) — for balance checks"),
+  rpm: posNum.describe("Spindle speed (rev/min)"),
+  workpiece_mass_kg: posNum.describe("Workpiece mass (kg) — critical for centrifugal force"),
+  num_jaws: z.number().int().min(2).max(6).optional().describe("Number of chuck jaws (default: 3)"),
+  friction_coefficient: z.number().min(0.05).max(1.0).optional().describe("μ between jaw and workpiece (default: 0.20)"),
+  safety_factor: z.number().min(1.0).max(10.0).optional().describe("SF for gripping (default: 2.5)"),
+}).passthrough().describe("Calculate required chuck jaw force with centrifugal derating");
 
 // ============================================================================
 // QUALITY + MEASUREMENT LAYER
@@ -517,6 +537,7 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_tool_holder_pair,
   mill_fixture_select,
   mill_workholding_force,
+  mill_workholding_chuck,
   // Quality + measurement
   mill_setup_author,
   mill_measurement_feedback,

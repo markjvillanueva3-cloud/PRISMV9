@@ -97,6 +97,13 @@ async function getMachineDb(): Promise<any> {
     .jmDieMachineConfigEngine);
 }
 
+// P4-U05-VISE: Workholding force engine lazy loader
+let _workholdingForce: any;
+async function getWorkholdingForce(): Promise<any> {
+  return (_workholdingForce ??= (await import("../../engines/WorkholdingForceEngine.js"))
+    .workholdingForceEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -115,7 +122,7 @@ const ACTIONS = [
   "mill_cycle_time_estimate", "mill_toolpath_validate",
   // Machine + fixture + holder
   "mill_machine_select", "mill_capability_exploit", "mill_tool_holder_pair",
-  "mill_fixture_select", "mill_workholding_force",
+  "mill_fixture_select", "mill_workholding_force", "mill_workholding_chuck",
   // Quality + measurement
   "mill_setup_author", "mill_measurement_feedback", "mill_offset_adjust",
   "mill_probe_routine",
@@ -245,8 +252,31 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
       return pending("P73-U04-TOOL-HOLDER-PAIR", "MillToolHolderPairingEngine lands in P73");
     case "mill_fixture_select":
       return pending("P52", "Workholding exhaustive catalog + selector lands in P52");
-    case "mill_workholding_force":
-      return facade.orchestrate({ ...params, type: "scientific" });
+    case "mill_workholding_force": {
+      const wh = await getWorkholdingForce();
+      return wh.clampForce({
+        cutting_force_n: params.cutting_force_n,
+        workholding_type: params.workholding_type,
+        friction_coefficient: params.friction_coefficient,
+        safety_factor: params.safety_factor,
+        num_clamps: params.num_clamps,
+        workpiece_mass_kg: params.workpiece_mass_kg,
+      });
+    }
+    case "mill_workholding_chuck": {
+      const wh = await getWorkholdingForce();
+      return wh.chuckForce({
+        cutting_force_tangential_n: params.cutting_force_tangential_n,
+        cutting_force_radial_n: params.cutting_force_radial_n,
+        workpiece_diameter_mm: params.workpiece_diameter_mm,
+        chuck_diameter_mm: params.chuck_diameter_mm,
+        rpm: params.rpm,
+        workpiece_mass_kg: params.workpiece_mass_kg,
+        num_jaws: params.num_jaws,
+        friction_coefficient: params.friction_coefficient,
+        safety_factor: params.safety_factor,
+      });
+    }
 
     // ── Quality + measurement ───────────────────────────────────
     case "mill_setup_author":
