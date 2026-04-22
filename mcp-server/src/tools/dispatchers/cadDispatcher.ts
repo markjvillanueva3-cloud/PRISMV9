@@ -84,6 +84,9 @@ const ACTIONS = [
   // hyperCAD-S Code Generator (U-CADC12)
   "hypercads_generate_script", "hypercads_build_part", "hypercads_execute",
   "hypercads_capabilities",
+  // Fusion 360 Unified Code Generator (U-CADC13)
+  "fusion360_generate_script", "fusion360_build_part", "fusion360_execute",
+  "fusion360_capabilities",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -671,6 +674,37 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "hypercads_capabilities": {
             const engine = await getEngine("hcGen");
+            const caps = engine.getCapabilities();
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // ── Fusion 360 Unified Code Generator (U-CADC13) ──
+          case "fusion360_generate_script": {
+            const engine = await getEngine("f360Gen");
+            const ops = params.operations ?? [];
+            const context = { projectName: params.projectName ?? "PRISMProject", units: params.units ?? "mm", targetVersion: params.targetVersion ?? "2024", componentName: params.componentName };
+            const script = engine.buildScript(ops, context);
+            result = { success: true, script: script.body, filename: script.filename, warnings: script.warnings, parameters: Object.fromEntries(script.parameters), lineage: script.lineage, imports: script.imports };
+            break;
+          }
+          case "fusion360_build_part": {
+            const engine = await getEngine("f360Gen");
+            const ops = params.operations ?? [];
+            const context = { projectName: params.projectName ?? "PRISMProject", units: params.units ?? "mm", outputDir: params.outputDir, targetVersion: params.targetVersion ?? "2024", componentName: params.componentName };
+            const script = engine.buildScript(ops, context);
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, script: script.body, filename: script.filename, outputFiles: execResult.outputFiles, durationMs: execResult.durationMs, warnings: script.warnings, error: execResult.error };
+            break;
+          }
+          case "fusion360_execute": {
+            const engine = await getEngine("f360Gen");
+            const script = { body: params.script, cadSystem: "fusion360" as const, filename: params.filename ?? "script.py", parameters: new Map(), lineage: [], warnings: [], imports: [] };
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, output: execResult.output, durationMs: execResult.durationMs, error: execResult.error, metrics: execResult.metrics };
+            break;
+          }
+          case "fusion360_capabilities": {
+            const engine = await getEngine("f360Gen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
             break;
