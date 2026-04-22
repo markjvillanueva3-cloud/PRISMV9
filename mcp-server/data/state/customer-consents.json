@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "created_at": "2026-04-22T08:40:00Z",
+  "description": "Customer consent registry for CAM-UIX ingestion. Programs can only be ingested from customers who have granted explicit consent for AI training use.",
+  "owner_unit": "CAM-UIX-INFRA-00/U-LEGAL-GATES01",
+  "consent_types": {
+    "ai_training": {
+      "description": "Customer permits their NC programs to be used for AI model training",
+      "legal_basis": "Explicit written consent (email/contract clause)",
+      "retention_period_years": 5,
+      "revocable": true
+    },
+    "anonymized_analytics": {
+      "description": "Customer permits anonymized usage statistics (no program content)",
+      "legal_basis": "Terms of service acceptance",
+      "retention_period_years": 3,
+      "revocable": true
+    },
+    "benchmarking": {
+      "description": "Customer permits their programs to be included in industry benchmarks",
+      "legal_basis": "Explicit written consent",
+      "retention_period_years": 5,
+      "revocable": true
+    }
+  },
+  "customers": {
+    "jmdie_internal": {
+      "display_name": "JM Die Company (Internal)",
+      "consent_status": "granted",
+      "consents_granted": ["ai_training", "anonymized_analytics", "benchmarking"],
+      "consent_date": "2026-01-15",
+      "consent_method": "internal_policy",
+      "consent_document_ref": "JMDie-AI-Policy-2026-Q1",
+      "revocation_date": null,
+      "programs_in_scope": 24545,
+      "notes": "All internal JM Die programs are consented for full AI training use"
+    },
+    "itw": {
+      "display_name": "Illinois Tool Works (ITW)",
+      "consent_status": "pending",
+      "consents_granted": [],
+      "consent_date": null,
+      "consent_method": null,
+      "consent_document_ref": null,
+      "revocation_date": null,
+      "programs_in_scope": 0,
+      "notes": "Consent request sent 2026-03-01, awaiting legal review"
+    },
+    "alcoa": {
+      "display_name": "Alcoa Corporation",
+      "consent_status": "pending",
+      "consents_granted": [],
+      "consent_date": null,
+      "consent_method": null,
+      "consent_document_ref": null,
+      "revocation_date": null,
+      "programs_in_scope": 0,
+      "notes": "Large aerospace supplier — ITAR considerations"
+    },
+    "optimas": {
+      "display_name": "Optimas Solutions",
+      "consent_status": "not_requested",
+      "consents_granted": [],
+      "consent_date": null,
+      "consent_method": null,
+      "consent_document_ref": null,
+      "revocation_date": null,
+      "programs_in_scope": 0
+    },
+    "sfs_group": {
+      "display_name": "SFS Group",
+      "consent_status": "not_requested",
+      "consents_granted": [],
+      "consent_date": null,
+      "consent_method": null,
+      "consent_document_ref": null,
+      "revocation_date": null,
+      "programs_in_scope": 0
+    },
+    "holo_krome": {
+      "display_name": "Holo-Krome",
+      "consent_status": "not_requested",
+      "consents_granted": [],
+      "consent_date": null,
+      "consent_method": null,
+      "consent_document_ref": null,
+      "revocation_date": null,
+      "programs_in_scope": 0
+    }
+  },
+  "default_policy": {
+    "unconsented_customer_action": "block",
+    "allow_anonymized_without_consent": false,
+    "require_explicit_opt_in": true,
+    "audit_all_access": true
+  },
+  "audit_log_path": "data/ingestion_cache/consent_audit.ndjson"
+}
