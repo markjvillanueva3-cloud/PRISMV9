@@ -353,6 +353,68 @@ const JM_DIE_MACHINES: readonly MachineConfig[] = [
     gCodeDialect: "fanuc",
     status: "active",
   },
+  {
+    id: "haas-umc-750",
+    name: "Haas UMC-750",
+    oem: "Haas",
+    model: "UMC-750",
+    type: "5axis",
+    controller: "NGC",
+    axes: { linear: ["X", "Y", "Z"], rotary: ["B", "C"], totalAxes: 5 },
+    spindle: { maxRpm: 8100, powerKw: 22.4, bore: null, taper: "CAT40" },
+    workEnvelope: {
+      xTravel: 762, yTravel: 508, zTravel: 508,
+      maxTurningDiameter: null, maxTurningLength: null, tableSizeMm: "508x508",
+    },
+    toolCapacity: 40,
+    coolantModes: ["flood", "tsc"],
+    probing: "Renishaw OMP40-2",
+    postProcessor: "HAAS_UMC-750_NGC_PRISM.cps",
+    gCodeDialect: "haas_ngc",
+    status: "active",
+  },
+  {
+    id: "roku-roku-ba8",
+    name: "Roku-Roku BA-8",
+    oem: "Roku-Roku",
+    model: "BA-8",
+    type: "5axis",
+    controller: "Mitsubishi",
+    axes: { linear: ["X", "Y", "Z"], rotary: ["A", "B"], totalAxes: 5 },
+    spindle: { maxRpm: 50000, powerKw: 4.5, bore: null, taper: "HSK-E32" },
+    workEnvelope: {
+      xTravel: 400, yTravel: 350, zTravel: 200,
+      maxTurningDiameter: null, maxTurningLength: null, tableSizeMm: "150x150",
+    },
+    toolCapacity: 12,
+    coolantModes: ["mist", "air"],
+    probing: null,
+    postProcessor: null,
+    gCodeDialect: "fanuc",
+    status: "active",
+  },
+
+  // ── HURCO LATHES ─────────────────────────────────────────────────────────
+  {
+    id: "hurco-tm10i",
+    name: "Hurco TM10i",
+    oem: "Hurco",
+    model: "TM10i",
+    type: "lathe",
+    controller: "WinMAX",
+    axes: { linear: ["X", "Z"], rotary: ["C"], totalAxes: 3 },
+    spindle: { maxRpm: 4000, powerKw: 15, bore: 66, taper: null },
+    workEnvelope: {
+      xTravel: 175, yTravel: null, zTravel: 406,
+      maxTurningDiameter: 254, maxTurningLength: 406, tableSizeMm: null,
+    },
+    toolCapacity: 12,
+    coolantModes: ["flood"],
+    probing: null,
+    postProcessor: "HURCO_TM10i_WINMAX_PRISM.cps",
+    gCodeDialect: "fanuc",
+    status: "active",
+  },
 
   // ── EDM (3) ──────────────────────────────────────────────────────────────
   {
@@ -552,7 +614,7 @@ const JM_DIE_MACHINES: readonly MachineConfig[] = [
  */
 export class JmDieMachineConfigEngine {
   /** Total machine count in JM Die's shop */
-  static readonly MACHINE_COUNT = 21;
+  static readonly MACHINE_COUNT = 24;
 
   /**
    * Returns all 21 machine configurations.

@@ -448,6 +448,33 @@ const mill_dialect_features = z.object({
 }).passthrough();
 
 // ============================================================================
+// P4-U03-MACHDB: JM Die Machine Database Schemas
+// ============================================================================
+
+/** Machine type classification */
+const machineType = z.enum([
+  "lathe", "vmc", "mill_turn", "wire_edm", "sinker_edm",
+  "5axis", "grinder", "saw", "manual_lathe",
+]);
+
+const mill_machine_db_get = z.object({
+  machine_id: z.string().describe("Machine ID (e.g., 'haas-umc-750', 'okuma-genos-l300')"),
+}).passthrough();
+
+const mill_machine_db_list = z.object({}).passthrough();
+
+const mill_machine_db_filter = z.object({
+  filter_type: z.enum(["type", "oem"]).describe("Filter field"),
+  filter_value: z.string().describe("Filter value (e.g., 'vmc', 'Haas', '5axis', 'Okuma')"),
+}).passthrough();
+
+const mill_machine_db_mills = z.object({}).passthrough();
+
+const mill_machine_db_capabilities = z.object({
+  machine_id: z.string().describe("Machine ID to get capabilities for"),
+}).passthrough();
+
+// ============================================================================
 // SCHEMA REGISTRY
 // ============================================================================
 
@@ -518,4 +545,10 @@ export const MILL_ACTION_SCHEMAS: ActionSchemaMap = {
   mill_dialect_translate,
   mill_dialect_validate,
   mill_dialect_features,
+  // P4-U03-MACHDB: JM Die machine database
+  mill_machine_db_get,
+  mill_machine_db_list,
+  mill_machine_db_filter,
+  mill_machine_db_mills,
+  mill_machine_db_capabilities,
 };

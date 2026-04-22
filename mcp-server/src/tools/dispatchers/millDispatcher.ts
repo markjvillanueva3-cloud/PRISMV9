@@ -90,6 +90,13 @@ async function getDialect(): Promise<any> {
     .controllerDialectEngine);
 }
 
+// P4-U03-MACHDB: JM Die machine config engine lazy loader
+let _machineDb: any;
+async function getMachineDb(): Promise<any> {
+  return (_machineDb ??= (await import("../../engines/JmDieMachineConfigEngine.js"))
+    .jmDieMachineConfigEngine);
+}
+
 const ACTIONS = [
   // Facade routing
   "mill_orchestrate", "mill_quick", "mill_scientific", "mill_agi",
@@ -123,6 +130,9 @@ const ACTIONS = [
   // P4-U02-DIALECT: Controller dialect reconciliation
   "mill_dialect_get", "mill_dialect_list", "mill_dialect_translate",
   "mill_dialect_validate", "mill_dialect_features",
+  // P4-U03-MACHDB: JM Die machine database
+  "mill_machine_db_get", "mill_machine_db_list", "mill_machine_db_filter",
+  "mill_machine_db_mills", "mill_machine_db_capabilities",
 ] as const;
 
 type MillAction = (typeof ACTIONS)[number];
@@ -397,6 +407,95 @@ async function executeAction(action: MillAction, params: Record<string, any>): P
         controller: params.controller,
         operation_type: params.operation_type,
         feature_codes: codes,
+      });
+    }
+
+    // ── P4-U03-MACHDB: JM Die machine database ─────────────────────
+    case "mill_machine_db_get": {
+      const db = await getMachineDb();
+      const config = db.getConfig(params.machine_id);
+      if (!config) {
+        return slimResponse({
+          action: "mill_machine_db_get",
+          success: false,
+          error: `Machine not found: ${params.machine_id}`,
+        });
+      }
+      return slimResponse({
+        action: "mill_machine_db_get",
+        success: true,
+        machine: config,
+      });
+    }
+
+    case "mill_machine_db_list": {
+      const db = await getMachineDb();
+      const machines = db.getAllConfigs();
+      return slimResponse({
+        action: "mill_machine_db_list",
+        count: machines.length,
+        machines: machines.map((m: any) => ({
+          id: m.id,
+          name: m.name,
+          oem: m.oem,
+          type: m.type,
+          status: m.status,
+        })),
+      });
+    }
+
+    case "mill_machine_db_filter": {
+      const db = await getMachineDb();
+      let machines: any[];
+      if (params.filter_type === "type") {
+        machines = db.getByType(params.filter_value);
+      } else if (params.filter_type === "oem") {
+        machines = db.getByOem(params.filter_value);
+      } else {
+        machines = db.getAllConfigs();
+      }
+      return slimResponse({
+        action: "mill_machine_db_filter",
+        filter: { type: params.filter_type, value: params.filter_value },
+        count: machines.length,
+        machines,
+      });
+    }
+
+    case "mill_machine_db_mills": {
+      const db = await getMachineDb();
+      const mills = db.getMills();
+      return slimResponse({
+        action: "mill_machine_db_mills",
+        count: mills.length,
+        mills,
+      });
+    }
+
+    case "mill_machine_db_capabilities": {
+      const db = await getMachineDb();
+      const config = db.getConfig(params.machine_id);
+      if (!config) {
+        return slimResponse({
+          action: "mill_machine_db_capabilities",
+          success: false,
+          error: `Machine not found: ${params.machine_id}`,
+        });
+      }
+      return slimResponse({
+        action: "mill_machine_db_capabilities",
+        success: true,
+        machine_id: config.id,
+        capabilities: {
+          axes: config.axes,
+          spindle: config.spindle,
+          work_envelope: config.workEnvelope,
+          tool_capacity: config.toolCapacity,
+          coolant_modes: config.coolantModes,
+          probing: config.probing,
+          controller: config.controller,
+          g_code_dialect: config.gCodeDialect,
+        },
       });
     }
 
