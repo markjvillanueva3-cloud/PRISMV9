@@ -947,6 +947,7 @@ export const ACTIONS = [
   "lathe_p2p_ingest", "lathe_p2p_ingest_batch", "lathe_p2p_validate_extraction",
   "lathe_p2p_recognize_features", "lathe_p2p_recognize_batch", "lathe_p2p_feature_taxonomy", "lathe_p2p_recognition_stats",
   "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch", "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
+  "lathe_p2p_strategy_select", "lathe_p2p_strategy_batch", "lathe_p2p_strategy_plan", "lathe_p2p_strategy_stats", "lathe_p2p_strategy_validate",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3412,6 +3413,59 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintToleranceStackEngine.js"
             );
             result = lathePrintToleranceStackEngine.validate(params.output);
+            break;
+          }
+
+          case "lathe_p2p_strategy_select": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = lathePrintFeatureStrategySelectorEngine.selectStrategy(
+              params.feature,
+              params.material,
+              params.machine
+            );
+            break;
+          }
+
+          case "lathe_p2p_strategy_batch": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = lathePrintFeatureStrategySelectorEngine.batchSelectStrategies(
+              params.features ?? [],
+              params.material,
+              params.machine
+            );
+            break;
+          }
+
+          case "lathe_p2p_strategy_plan": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = lathePrintFeatureStrategySelectorEngine.generateStrategyPlan(
+              params.features ?? [],
+              params.material,
+              params.machine,
+              params.tolerance_output
+            );
+            break;
+          }
+
+          case "lathe_p2p_strategy_stats": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = lathePrintFeatureStrategySelectorEngine.getStrategyStats(params.plan);
+            break;
+          }
+
+          case "lathe_p2p_strategy_validate": {
+            const { lathePrintFeatureStrategySelectorEngine } = await import(
+              "../../engines/LathePrintFeatureStrategySelectorEngine.js"
+            );
+            result = lathePrintFeatureStrategySelectorEngine.validate(params.plan);
             break;
           }
 
