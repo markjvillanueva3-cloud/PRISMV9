@@ -946,6 +946,7 @@ export const ACTIONS = [
   "lathe_masterpost_ensemble_run", "lathe_masterpost_ensemble_candidates", "lathe_masterpost_ensemble_ambiguous", "lathe_masterpost_ensemble_divergences", "lathe_masterpost_ensemble_history", "lathe_masterpost_ensemble_stats", "lathe_masterpost_ensemble_clear",
   "lathe_p2p_ingest", "lathe_p2p_ingest_batch", "lathe_p2p_validate_extraction",
   "lathe_p2p_recognize_features", "lathe_p2p_recognize_batch", "lathe_p2p_feature_taxonomy", "lathe_p2p_recognition_stats",
+  "lathe_p2p_tolerance_propagate", "lathe_p2p_tolerance_batch", "lathe_p2p_tolerance_stats", "lathe_p2p_tolerance_validate",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1483,6 +1484,8 @@ export const ACTIONS = [
   "inventor_hsm_function_index_find_parameter", "inventor_hsm_function_index_search_parameters",
   "inventor_hsm_function_index_get_operations_by_category", "inventor_hsm_function_index_get_summary",
   "inventor_hsm_function_index_get_hsm_operations", "inventor_hsm_function_index_get_25d_operations",
+  // MILL-MASTER/P1-U06 — CAM AGI Master Orchestrator (3 actions)
+  "cam_agi_route", "cam_compare_systems", "cam_ensemble",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -3369,6 +3372,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const intakes = lathePrintIngestPipelineEngine.batchIngest(params.inputs ?? []);
             const recognitions = latheTurningFeatureRecognizerEngine.batchRecognize(intakes);
             result = latheTurningFeatureRecognizerEngine.getRecognitionStats(recognitions);
+            break;
+          }
+
+          case "lathe_p2p_tolerance_propagate": {
+            const { lathePrintToleranceStackEngine } = await import(
+              "../../engines/LathePrintToleranceStackEngine.js"
+            );
+            result = lathePrintToleranceStackEngine.propagate(params.recognition, {
+              tolerance_budget_mm: params.tolerance_budget_mm,
+              target_cpk: params.target_cpk,
+              process_class: params.process_class,
+            });
+            break;
+          }
+
+          case "lathe_p2p_tolerance_batch": {
+            const { lathePrintToleranceStackEngine } = await import(
+              "../../engines/LathePrintToleranceStackEngine.js"
+            );
+            result = lathePrintToleranceStackEngine.batchPropagate(params.recognitions ?? [], {
+              tolerance_budget_mm: params.tolerance_budget_mm,
+              target_cpk: params.target_cpk,
+              process_class: params.process_class,
+            });
+            break;
+          }
+
+          case "lathe_p2p_tolerance_stats": {
+            const { lathePrintToleranceStackEngine } = await import(
+              "../../engines/LathePrintToleranceStackEngine.js"
+            );
+            result = lathePrintToleranceStackEngine.getStackStats(params.output);
+            break;
+          }
+
+          case "lathe_p2p_tolerance_validate": {
+            const { lathePrintToleranceStackEngine } = await import(
+              "../../engines/LathePrintToleranceStackEngine.js"
+            );
+            result = lathePrintToleranceStackEngine.validate(params.output);
             break;
           }
 
@@ -10421,6 +10464,73 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "inventor_hsm_function_index_get_25d_operations": {
             const { InventorHSMFunctionIndexEngine } = await import("../../engines/InventorHSMFunctionIndexEngine.js");
             result = { success: true, operations: InventorHSMFunctionIndexEngine.get25DOperations() };
+            break;
+          }
+
+          // MILL-MASTER/P1-U06 — CAM AGI Master Orchestrator (3 actions)
+          case "cam_agi_route": {
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            const orchestrationResult = camAGIMasterOrchestratorEngine.orchestrate({
+              request_type: (params.request_type as "recommend" | "compare" | "generate" | "analyze" | "tribal") ?? "recommend",
+              reasoning_mode: params.reasoning_mode,
+              part_name: params.part_name,
+              material: params.material,
+              material_iso: params.material_iso,
+              hardness_hrc: params.hardness_hrc,
+              machine_type: params.machine_type,
+              machine_model: params.machine_model,
+              controller: params.controller,
+              feature_type: params.feature_type,
+              operation: params.operation,
+              tool_diameter_mm: params.tool_diameter_mm,
+              tool_flutes: params.tool_flutes,
+              part_complexity: params.part_complexity,
+              tolerance_mm: params.tolerance_mm,
+              surface_finish_ra: params.surface_finish_ra,
+              has_undercuts: params.has_undercuts,
+              requires_5axis: params.requires_5axis,
+              available_cams: params.available_cams,
+              preferred_cam: params.preferred_cam,
+              include_tribal: params.include_tribal,
+              include_comparison: params.include_comparison,
+              include_reasoning_chain: params.include_reasoning_chain,
+            });
+            result = { success: true, ...orchestrationResult };
+            break;
+          }
+          case "cam_compare_systems": {
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            const featureType = params.feature_type ?? "pocket_2d";
+            const comparison = camAGIMasterOrchestratorEngine.compareStrategies(featureType, {
+              request_type: "compare",
+              feature_type: featureType,
+              material: params.material,
+              material_iso: params.material_iso,
+              operation: params.operation,
+              part_complexity: params.part_complexity,
+              available_cams: params.available_cams,
+            });
+            result = { success: true, comparison };
+            break;
+          }
+          case "cam_ensemble": {
+            const { camAGIMasterOrchestratorEngine } = await import("../../engines/CAMAGIMasterOrchestratorEngine.js");
+            const ensembleResult = camAGIMasterOrchestratorEngine.orchestrate({
+              request_type: "analyze",
+              reasoning_mode: params.reasoning_mode ?? "multi_path",
+              part_name: params.part_name,
+              material: params.material,
+              material_iso: params.material_iso,
+              machine_type: params.machine_type,
+              feature_type: params.feature_type,
+              operation: params.operation,
+              part_complexity: params.part_complexity,
+              available_cams: params.available_cams ?? ["hypermill", "mastercam", "fusion360", "inventorcam"],
+              include_tribal: true,
+              include_comparison: true,
+              include_reasoning_chain: true,
+            });
+            result = { success: true, ensemble: ensembleResult };
             break;
           }
 
