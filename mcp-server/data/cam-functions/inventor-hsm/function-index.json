@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "system_id": "inventor-hsm",
+  "system_display_name": "Inventor HSM / InventorCAM",
+  "generated_at": "2026-04-22T15:50:00Z",
+  "generated_by": "CAM-EXHAUST-MS0/U-CAM32",
+  "summary": {
+    "total_operations": 64,
+    "total_parameters": 873,
+    "total_sections": 6,
+    "total_training_topics": 31,
+    "categories": [
+      "roughing",
+      "finishing",
+      "holemaking",
+      "multi_axis",
+      "positioning",
+      "multiaxis_advanced",
+      "rotary",
+      "turning_roughing",
+      "turning_finishing",
+      "turning_grooving",
+      "turning_threading",
+      "turning_parting",
+      "turning_holemaking",
+      "millturn_milling",
+      "millturn_coordination",
+      "threading",
+      "reaming",
+      "probing"
+    ]
+  },
+  "sections": {
+    "2.5d_milling": {
+      "file": "2.5d-milling.json",
+      "total_operations": 11,
+      "total_parameters": 247,
+      "categories": ["roughing", "finishing", "holemaking"],
+      "training_topics_count": 6,
+      "operations": [
+        "adaptive_2d",
+        "pocket_2d",
+        "contour_2d",
+        "facing",
+        "slot_milling",
+        "chamfer",
+        "engrave_text",
+        "trace",
+        "bore",
+        "circular_pocket",
+        "thread_mill_2d"
+      ]
+    },
+    "3d_hsm": {
+      "file": "3d-hsm.json",
+      "total_operations": 12,
+      "total_parameters": 156,
+      "categories": ["roughing", "finishing"],
+      "training_topics_count": 6,
+      "operations": [
+        "adaptive_3d",
+        "pocket_3d",
+        "parallel_3d",
+        "scallop_3d",
+        "pencil_3d",
+        "contour_3d",
+        "horizontal_3d",
+        "radial_3d",
+        "spiral_3d",
+        "ramp_3d",
+        "project_3d",
+        "morph_3d"
+      ]
+    },
+    "5axis": {
+      "file": "5axis.json",
+      "total_operations": 9,
+      "total_parameters": 124,
+      "categories": ["multi_axis", "positioning"],
+      "training_topics_count": 8,
+      "operations": [
+        "swarf_5axis",
+        "contour_5axis",
+        "flow_5axis",
+        "drilling_5axis",
+        "impeller_5axis",
+        "port_5axis",
+        "tilted_plane_3plus2",
+        "trimming_5axis",
+        "deburring_5axis"
+      ]
+    },
+    "multiaxis": {
+      "file": "multiaxis.json",
+      "total_operations": 6,
+      "total_parameters": 82,
+      "categories": ["multiaxis_advanced", "rotary"],
+      "training_topics_count": 5,
+      "operations": [
+        "geodesic_5axis",
+        "rotary_4axis",
+        "wrap_toolpath",
+        "indexed_multiaxis",
+        "morph_between",
+        "projection_5axis"
+      ]
+    },
+    "turning": {
+      "file": "turning.json",
+      "total_operations": 14,
+      "total_parameters": 156,
+      "categories": [
+        "turning_roughing",
+        "turning_finishing",
+        "turning_grooving",
+        "turning_threading",
+        "turning_parting",
+        "turning_holemaking",
+        "millturn_milling",
+        "millturn_coordination"
+      ],
+      "training_topics_count": 6,
+      "operations": [
+        "turning_profile_rough",
+        "turning_profile_finish",
+        "turning_facing",
+        "turning_grooving",
+        "turning_threading",
+        "turning_parting",
+        "turning_bore",
+        "turning_drill",
+        "turning_tap",
+        "turning_ream",
+        "millturn_milling",
+        "millturn_caxis",
+        "millturn_baxis",
+        "millturn_coordination"
+      ]
+    },
+    "drilling": {
+      "file": "drilling.json",
+      "total_operations": 12,
+      "total_parameters": 108,
+      "categories": ["holemaking", "threading", "reaming", "probing"],
+      "training_topics_count": 5,
+      "canned_cycles": ["G81", "G82", "G83", "G73", "G76", "G84", "G85", "G89"],
+      "operations": [
+        "drill",
+        "peck_drill",
+        "chip_breaking",
+        "spot_drill",
+        "counterbore",
+        "countersink",
+        "tapping",
+        "thread_milling",
+        "reaming",
+        "boring_precision",
+        "probe_geometry",
+        "probe_work_offset"
+      ]
+    }
+  },
+  "cross_references": {
+    "canned_cycle_coverage": {
+      "G81": "drill (simple drilling)",
+      "G82": "counterbore (dwell at bottom)",
+      "G83": "peck_drill (deep hole peck)",
+      "G73": "chip_breaking (high-speed peck)",
+      "G76": "turning_threading (fine bore)",
+      "G84": "tapping (rigid tap)",
+      "G85": "reaming (feed out)",
+      "G89": "boring_precision (bore with dwell)"
+    },
+    "adaptive_operations": [
+      "adaptive_2d",
+      "adaptive_3d"
+    ],
+    "probing_operations": [
+      "probe_geometry",
+      "probe_work_offset"
+    ],
+    "multiaxis_operations": [
+      "swarf_5axis",
+      "contour_5axis",
+      "flow_5axis",
+      "drilling_5axis",
+      "impeller_5axis",
+      "port_5axis",
+      "tilted_plane_3plus2",
+      "trimming_5axis",
+      "deburring_5axis",
+      "geodesic_5axis",
+      "rotary_4axis",
+      "wrap_toolpath",
+      "indexed_multiaxis",
+      "morph_between",
+      "projection_5axis"
+    ]
+  },
+  "training_integration": {
+    "total_topics": 31,
+    "topic_sources": {
+      "2.5d_milling": 6,
+      "3d_hsm": 6,
+      "5axis": 8,
+      "multiaxis": 5,
+      "turning": 6,
+      "drilling": 5
+    },
+    "recommended_learning_path": [
+      "2.5d_milling",
+      "drilling",
+      "3d_hsm",
+      "turning",
+      "5axis",
+      "multiaxis"
+    ]
+  }
+}
