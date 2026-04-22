@@ -1466,6 +1466,8 @@ export const ACTIONS = [
   "ontology_translate", "ontology_translate_strategy", "ontology_get_canonical",
   "ontology_get_aliases", "ontology_list_canonicals", "ontology_list_cams",
   "ontology_stats", "ontology_get_range", "ontology_get_valid_values", "ontology_check_applicable",
+  // CAM-UIX-INFRA-01/U-LP01 — Coverage planning and auditing
+  "cam_uix_plan_next", "cam_uix_coverage_report", "cam_uix_audit_cam", "cam_uix_promote_coverage", "cam_uix_list_cams",
 ] as const;
 
 // MS-P0.5-COORD U-P0.5-COORD-01: Register CAM dispatcher with WEDM-action filter
@@ -4447,6 +4449,27 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
           case "edm_program_create_passes": {
             const { edmProgramAssemblerEngine } = await import("../../engines/EDMProgramAssemblerEngine.js");
             result = { success: true, passes: edmProgramAssemblerEngine.createPassBlocksFromStrategy(params.passes ?? [], params.compensation ?? "left", params.base_time ?? 10) };
+            break;
+          }
+          // ── MS-P3-TIER6A/U-P3-T6A-04: WEDMTier6GeomGateEngine (4 actions) ──
+          case "wedm_tier6_validate": {
+            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
+            result = wedmTier6GeomGateEngine.validate(params);
+            break;
+          }
+          case "wedm_tier6_corner_check": {
+            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
+            result = { success: true, achievable: wedmTier6GeomGateEngine.isCornerAchievable(params.radius_mm, params.wire_diameter_mm, params.spark_gap_mm) };
+            break;
+          }
+          case "wedm_tier6_recommend_wire": {
+            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
+            result = { success: true, recommended_wire_mm: wedmTier6GeomGateEngine.recommendWireForRadius(params.target_radius_mm, params.spark_gap_mm) };
+            break;
+          }
+          case "wedm_tier6_batch_validate": {
+            const { wedmTier6GeomGateEngine } = await import("../../engines/WEDMTier6GeomGateEngine.js");
+            result = { success: true, results: wedmTier6GeomGateEngine.validateBatch(params.parts ?? []) };
             break;
           }
           // ── CK-MS7: GrindingProgramAssemblerEngine (5 actions) ──
@@ -9991,6 +10014,39 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
                 params.machineType as string
               ),
             };
+            break;
+          }
+
+          // ══════════════════════════════════════════════════════════════════
+          // CAM-UIX-INFRA-01/U-LP01 — Coverage Planning Actions
+          // ══════════════════════════════════════════════════════════════════
+          case "cam_uix_plan_next": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            result = camInputExhaustionPlannerEngine.planNext();
+            break;
+          }
+          case "cam_uix_coverage_report": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            result = camInputExhaustionPlannerEngine.getCoverageReport();
+            break;
+          }
+          case "cam_uix_audit_cam": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            result = camInputExhaustionPlannerEngine.auditCam(params.cam_id as string);
+            break;
+          }
+          case "cam_uix_promote_coverage": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            camInputExhaustionPlannerEngine.promoteCoverage(
+              params.cam_id as string,
+              params.updates as Record<string, number>
+            );
+            result = { success: true, cam_id: params.cam_id };
+            break;
+          }
+          case "cam_uix_list_cams": {
+            const { camInputExhaustionPlannerEngine } = await import("../../engines/CAMInputExhaustionPlannerEngine.js");
+            result = { cams: camInputExhaustionPlannerEngine.getInScopeCams() };
             break;
           }
 
