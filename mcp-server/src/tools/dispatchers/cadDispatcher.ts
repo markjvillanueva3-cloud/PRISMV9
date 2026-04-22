@@ -18,7 +18,7 @@ import { dispatcherError, validateActionParams } from "../../utils/dispatcherMid
 import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
-let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any;
+let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -40,6 +40,7 @@ async function getEngine(name: string): Promise<any> {
     case "mcGen": return _mcGen ??= (await import("../../engines/MastercamCodeGeneratorEngine.js")).mastercamCodeGeneratorEngine;
     case "hcGen": return _hcGen ??= (await import("../../engines/HyperCADSCodeGeneratorEngine.js")).hyperCADSCodeGeneratorEngine;
     case "nxGen": return _nxGen ??= (await import("../../engines/NXCodeGeneratorEngine.js")).nxCodeGeneratorEngine;
+    case "impeller": return _impeller ??= (await import("../../engines/ImpellerCADEngine.js")).impellerCADEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -91,6 +92,9 @@ const ACTIONS = [
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
+  // Impeller CAD Generator (U-CADC15)
+  "impeller_generate", "impeller_validate", "impeller_recommend_blades",
+  "impeller_list_profiles",
 ] as const;
 
 /** Registers cad dispatcher.
@@ -742,6 +746,31 @@ Params vary by action — pass relevant fields in params object.`,
             const engine = await getEngine("nxGen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // Impeller CAD Generator (U-CADC15)
+          case "impeller_generate": {
+            const engine = await getEngine("impeller");
+            const genResult = engine.generate(params.spec);
+            result = { success: true, ...genResult };
+            break;
+          }
+          case "impeller_validate": {
+            const engine = await getEngine("impeller");
+            const valResult = engine.validate(params.spec);
+            result = { success: true, ...valResult };
+            break;
+          }
+          case "impeller_recommend_blades": {
+            const engine = await getEngine("impeller");
+            const rec = engine.recommendBladeCount(params.flowType, params.specificSpeed_Ns);
+            result = { success: true, ...rec };
+            break;
+          }
+          case "impeller_list_profiles": {
+            const engine = await getEngine("impeller");
+            const profiles = engine.listProfiles();
+            result = { success: true, profiles, count: profiles.length };
             break;
           }
           default:
