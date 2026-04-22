@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "resolved_at": "2026-04-22T07:00:00Z",
+  "resolved_by": "user",
+  "source_envelope": "milestones/CAM-UIX-MS0.json",
+  "source_version": "1.2.0",
+  "decisions": {
+    "DECISION-1": {
+      "subject": "Demote catia_delmia_nc from tier-2 to tier-3",
+      "choice": "A",
+      "note": "CATIA demoted to tier-3, 12u→4u. Deferred to CAM-UIX-MS1.",
+      "impact_units": -8
+    },
+    "DECISION-2": {
+      "subject": "Demote creo_nc from tier-2 to tier-3",
+      "choice": "A",
+      "note": "Creo demoted to tier-3, 12u→4u. Deferred to CAM-UIX-MS1.",
+      "impact_units": -8
+    },
+    "DECISION-3": {
+      "subject": "Demote tebis from tier-2 to tier-3",
+      "choice": "A",
+      "note": "Tebis demoted to tier-3, 12u→4u. Deferred to CAM-UIX-MS1.",
+      "impact_units": -8
+    },
+    "DECISION-4": {
+      "subject": "Reduce FeatureCAM scope from 12u full to 4u EOL-minimum",
+      "choice": "A",
+      "note": "FeatureCAM EOL scope 12u→4u. Catalog + basic adapter + migration bridge only.",
+      "impact_units": -8
+    },
+    "DECISION-5": {
+      "subject": "Consolidate Hexagon Production CAM family (Edgecam + WorkNC)",
+      "choice": "A",
+      "note": "Hexagon consolidation: Edgecam+WorkNC merged to unified hexagon_cam, 24u→16u",
+      "impact_units": -8
+    },
+    "DECISION-6": {
+      "subject": "Reduce Okuma IGF scope from 12u to 6u, drop U-BRIDGE",
+      "choice": "B",
+      "note": "RETAINED at 12u full scope — user declined reduction. Keep full scope for JM Die core system.",
+      "impact_units": 0
+    },
+    "DECISION-7": {
+      "subject": "SolidCAM iMachining patent cleanroom — EMERGENCY remediation",
+      "choice": "C",
+      "note": "DEFERRED for legal review — continue build without changes, flag for legal counsel. No cleanroom refactor until legal opines.",
+      "impact_units": 0,
+      "remaining_block": true,
+      "block_scope": ["CAM-UIX-SOLIDCAM-MS0", "any SolidCAM-touching PR"]
+    }
+  },
+  "scope_impact_summary": {
+    "starting_units": 236,
+    "total_delta": -40,
+    "final_units": 196,
+    "tier_2_cam_count_before": 13,
+    "tier_2_cam_count_after": 9,
+    "demoted_to_tier_3": ["catia_delmia_nc", "creo_nc", "tebis"],
+    "consolidated": {"hexagon_unified": ["edgecam", "worknc"]},
+    "eol_reduced": ["featurecam"]
+  },
+  "gate_cleared": "CAM-UIX-INFRA-00 scope decisions gate",
+  "remaining_blocks": ["DECISION-7 SolidCAM patent legal review"]
+}
