@@ -973,6 +973,7 @@ export const ACTIONS = [
   "lathe_p2p_sequence_plan", "lathe_p2p_sequence_summarize", "lathe_p2p_sequence_autofix",
   "lathe_p2p_setup_select", "lathe_p2p_setup_from_features", "lathe_p2p_setup_validate", "lathe_p2p_setup_infer_geometry",
   "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate", "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
+  "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -3681,6 +3682,38 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintToolpathGeneratorEngine.js"
             );
             result = lathePrintToolpathGeneratorEngine.getCycleTimeBreakdown(params.program);
+            break;
+          }
+
+          case "lathe_p2p_emit": {
+            const { lathePrintProgramEmitterEngine } = await import(
+              "../../engines/LathePrintProgramEmitterEngine.js"
+            );
+            result = lathePrintProgramEmitterEngine.emit(params.program, params.options);
+            break;
+          }
+
+          case "lathe_p2p_emit_validate": {
+            const { lathePrintProgramEmitterEngine } = await import(
+              "../../engines/LathePrintProgramEmitterEngine.js"
+            );
+            result = lathePrintProgramEmitterEngine.validate(params.emitted);
+            break;
+          }
+
+          case "lathe_p2p_emit_controllers": {
+            const { lathePrintProgramEmitterEngine } = await import(
+              "../../engines/LathePrintProgramEmitterEngine.js"
+            );
+            result = { controllers: lathePrintProgramEmitterEngine.listControllers() };
+            break;
+          }
+
+          case "lathe_p2p_emit_dry_run": {
+            const { lathePrintProgramEmitterEngine } = await import(
+              "../../engines/LathePrintProgramEmitterEngine.js"
+            );
+            result = lathePrintProgramEmitterEngine.dryRun(params.program, params.options);
             break;
           }
 
