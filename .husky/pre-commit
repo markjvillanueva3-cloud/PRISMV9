@@ -1,3 +1,9 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Add common node paths for Windows
+export PATH="$PATH:/c/Program Files/nodejs:/c/Users/$USER/AppData/Roaming/npm"
+
 npx lint-staged
 
 # U-CAM-ENRICH-05: Phase-5 real-impl gate
