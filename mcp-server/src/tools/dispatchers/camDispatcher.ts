@@ -96,6 +96,7 @@ import { ACTION_FUSION360_FUNCTION_INDEX_SCHEMAS } from "../../schemas/fusion360
 import { ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam25DFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcamIMachiningFunctionIndexActionSchemas.js";
 import { ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam3DHSSHSRFunctionIndexActionSchemas.js";
+import { ACTION_SOLIDCAM_5_AXIS_FUNCTION_INDEX_SCHEMAS } from "../../schemas/solidcam5AxisFunctionIndexActionSchemas.js";
 import { ACTION_CAM_LORA_FRAMEWORK_SCHEMAS } from "../../schemas/camLoRAFrameworkActionSchemas.js";
 const MERGED_CAM_SCHEMAS = {
   ...ACTION_CAM_SCHEMAS, ...ACTION_POST_PROCESSOR_EXT_SCHEMAS,
@@ -157,6 +158,7 @@ const MERGED_CAM_SCHEMAS = {
   ...ACTION_SOLIDCAM_25D_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_IMACHINING_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_SOLIDCAM_3D_HSS_HSR_FUNCTION_INDEX_SCHEMAS,
+  ...ACTION_SOLIDCAM_5_AXIS_FUNCTION_INDEX_SCHEMAS,
   ...ACTION_CAM_LORA_FRAMEWORK_SCHEMAS,
 };
 import { ACTION_CAMX_MS10_U01_SCHEMAS } from "../../schemas/camxMs10U01ActionSchemas.js";
@@ -241,6 +243,7 @@ let _solidcam25dIndex: any;
 let _solidcamIMachiningIndex: any;
 // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine singleton
 let _solidcam3DHSSHSRIndex: any;
+let _solidcam5AxisIndex: any;
 // E1122 — CATIACodeGeneratorEngine singleton
 let _catiaCodeGen: any;
 // E1120 — HyperMillCodeGeneratorEngine singleton
@@ -554,6 +557,7 @@ async function getEngine(name: string): Promise<any> {
     case "solidcamIMachiningIndex": return _solidcamIMachiningIndex ??= (await import("../../engines/SolidCAMIMachiningFunctionIndexEngine.js")).SolidCAMIMachiningFunctionIndexEngine;
     // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine
     case "solidcam3DHSSHSRIndex": return _solidcam3DHSSHSRIndex ??= (await import("../../engines/SolidCAM3DHSSHSRFunctionIndexEngine.js")).SolidCAM3DHSSHSRFunctionIndexEngine;
+    case "solidcam5AxisIndex": return _solidcam5AxisIndex ??= (await import("../../engines/SolidCAM5AxisFunctionIndexEngine.js")).SolidCAM5AxisFunctionIndexEngine;
     // E1122 — CATIACodeGeneratorEngine
     case "catiaCodeGen": return _catiaCodeGen ??= (await import("../../engines/CATIACodeGeneratorEngine.js")).catiaCodeGeneratorEngine;
     // E1121 — PowerMillCodeGeneratorEngine
@@ -981,6 +985,7 @@ export const ACTIONS = [
   "lathe_p2p_toolpath_generate", "lathe_p2p_toolpath_validate", "lathe_p2p_toolpath_gcode", "lathe_p2p_toolpath_cycle_time",
   "lathe_p2p_emit", "lathe_p2p_emit_validate", "lathe_p2p_emit_controllers", "lathe_p2p_emit_dry_run",
   "lathe_p2p_signoff_generate", "lathe_p2p_signoff_approve", "lathe_p2p_signoff_markdown", "lathe_p2p_signoff_json", "lathe_p2p_signoff_is_approved",
+  "lathe_p2p_dl_predict", "lathe_p2p_dl_rank_alternatives", "lathe_p2p_dl_batch", "lathe_p2p_dl_evaluate_accuracy", "lathe_p2p_dl_export_weights",
   "probe_generate",
   "subprogram_call", "subprogram_pattern",
   "cam_controller_catalog",
@@ -1219,6 +1224,7 @@ export const ACTIONS = [
   "solidcam_imachining_index", "solidcam_imachining_summary", "solidcam_imachining_list_ops", "solidcam_imachining_get_op", "solidcam_imachining_by_category", "solidcam_imachining_wizard", "solidcam_imachining_find_param",
   // CAM-EXHAUST-MS0/U-CAM35 — SolidCAM3DHSSHSRFunctionIndexEngine (8 actions)
   "solidcam_3d_hss_hsr_index", "solidcam_3d_hss_hsr_summary", "solidcam_3d_hss_hsr_list_ops", "solidcam_3d_hss_hsr_get_op", "solidcam_3d_hss_hsr_by_category", "solidcam_3d_hss_hsr_find_param", "solidcam_3d_hss_hsr_recommend", "solidcam_3d_hss_hsr_step_from_scallop",
+  "solidcam_5_axis_index", "solidcam_5_axis_summary", "solidcam_5_axis_list_ops", "solidcam_5_axis_get_op", "solidcam_5_axis_by_category", "solidcam_5_axis_find_param", "solidcam_5_axis_recommend", "solidcam_5_axis_validate_axis", "solidcam_5_axis_singularity",
   // E1122 — CATIACodeGeneratorEngine (2 actions)
   "catia_code_generate", "catia_code_templates",
   // E1120 — HyperMillCodeGeneratorEngine (2 actions)
@@ -3768,6 +3774,46 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
               "../../engines/LathePrintProgramSignoffEngine.js"
             );
             result = { fully_approved: lathePrintProgramSignoffEngine.isFullyApproved(params.package) };
+            break;
+          }
+
+          case "lathe_p2p_dl_predict": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import(
+              "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
+            );
+            result = lathePrintToProgramDLIntelligenceEngine.predict(params.input);
+            break;
+          }
+
+          case "lathe_p2p_dl_rank_alternatives": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import(
+              "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
+            );
+            result = lathePrintToProgramDLIntelligenceEngine.rankAlternatives(params.alternatives);
+            break;
+          }
+
+          case "lathe_p2p_dl_batch": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import(
+              "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
+            );
+            result = lathePrintToProgramDLIntelligenceEngine.predictBatch(params.inputs);
+            break;
+          }
+
+          case "lathe_p2p_dl_evaluate_accuracy": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import(
+              "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
+            );
+            result = lathePrintToProgramDLIntelligenceEngine.evaluateAccuracy(params.labeled);
+            break;
+          }
+
+          case "lathe_p2p_dl_export_weights": {
+            const { lathePrintToProgramDLIntelligenceEngine } = await import(
+              "../../engines/LathePrintToProgramDLIntelligenceEngine.js"
+            );
+            result = { weights: lathePrintToProgramDLIntelligenceEngine.exportWeights() };
             break;
           }
 
@@ -6634,6 +6680,57 @@ ${patterns.map(p => `  it("has ${p.type} at line ${p.line}", () => { expect("${p
             const eng = await getEngine("solidcam3DHSSHSRIndex");
             const step = eng.stepOverFromScallop(params.tool_radius_mm, params.scallop_height_mm);
             result = { step_over_mm: step, valid: step !== null };
+            break;
+          }
+
+          // ── CAM-EXHAUST-MS0/U-CAM36: SolidCAM5AxisFunctionIndexEngine ──
+          case "solidcam_5_axis_index": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getIndex();
+            break;
+          }
+          case "solidcam_5_axis_summary": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getSummary();
+            break;
+          }
+          case "solidcam_5_axis_list_ops": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.listOperations();
+            break;
+          }
+          case "solidcam_5_axis_get_op": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getOperation(params.operation_id);
+            break;
+          }
+          case "solidcam_5_axis_by_category": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.getOperationsByCategory(params.category);
+            break;
+          }
+          case "solidcam_5_axis_find_param": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.findParameter(params.parameter_name, params.limit ?? 20);
+            break;
+          }
+          case "solidcam_5_axis_recommend": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.recommendByFeature(params.feature);
+            break;
+          }
+          case "solidcam_5_axis_validate_axis": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.validateAxisChange(
+              params.feed_rate_mm_per_min,
+              params.axis_change_deg_per_mm,
+              params.machine_max_rotary_deg_per_sec,
+            );
+            break;
+          }
+          case "solidcam_5_axis_singularity": {
+            const eng = await getEngine("solidcam5AxisIndex");
+            result = eng.singularityCheck(params.tilt_deg);
             break;
           }
 
