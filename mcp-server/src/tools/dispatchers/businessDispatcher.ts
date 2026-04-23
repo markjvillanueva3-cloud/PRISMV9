@@ -107,6 +107,7 @@ let _approvalWorkflow: any;
 let _recordTimeline: any;
 let _toolInventoryOrchestrator: any;
 let _latheAutoQuoteFromPrint: any;
+let _billing: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -302,6 +303,10 @@ async function getEngine(name: string): Promise<any> {
       return _latheAutoQuoteFromPrint ??= (
         await import("../../engines/LatheAutoQuoteFromPrintEngine.js")
       ).latheAutoQuoteFromPrintEngine;
+    case "billing":
+      return _billing ??= (
+        await import("../../engines/BillingEngine.js")
+      ).billingEngine;
     default:
       throw new Error(`Unknown business engine: ${name}`);
   }
@@ -3175,6 +3180,48 @@ Params vary by action — pass relevant fields in params object.`,
           case "lathe_auto_quote_reconcile": {
             const engine = await getEngine("latheAutoQuoteFromPrint");
             result = engine.reconcileAgainstActual(params.quote, params.actual_cost_usd);
+            break;
+          }
+
+          // ── Billing (SaaS multi-tenant) ──
+          case "billing_get_plans": {
+            const engine = await getEngine("billing");
+            result = { plans: engine.getPlans() };
+            break;
+          }
+          case "billing_get_post_prices": {
+            const engine = await getEngine("billing");
+            result = { tiers: engine.getPostPrices() };
+            break;
+          }
+          case "billing_calc_post_price": {
+            const engine = await getEngine("billing");
+            result = engine.calcPostPrice({ qty: params.qty });
+            break;
+          }
+          case "billing_create_checkout": {
+            const engine = await getEngine("billing");
+            result = engine.createCheckout(params as any);
+            break;
+          }
+          case "billing_create_portal": {
+            const engine = await getEngine("billing");
+            result = engine.createPortal(params as any);
+            break;
+          }
+          case "billing_create_post_checkout": {
+            const engine = await getEngine("billing");
+            result = engine.createPostCheckout(params as any);
+            break;
+          }
+          case "billing_handle_webhook": {
+            const engine = await getEngine("billing");
+            result = engine.handleWebhook(params as any);
+            break;
+          }
+          case "billing_stats": {
+            const engine = await getEngine("billing");
+            result = engine.stats();
             break;
           }
 
