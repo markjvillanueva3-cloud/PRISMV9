@@ -15,10 +15,17 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
+import { spawnSync } from "node:child_process";
+
+// Absolute paths required — portable-node's PATH often lacks System32.
+const WIN_WMIC = "C:/Windows/System32/wbem/WMIC.exe";
+const WIN_PS = "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe";
 
 const SESSION_CACHE_FILE = "H:/prism/state/shared/handoffs/.stable-session-cache.json";
+const PIN_FILE = "H:/prism/state/shared/handoffs/.active-sessions-by-pid.json";
 const STALE_SESSION_HOURS = 8; // Sessions older than this are considered stale
 const TRANSCRIPT_ACTIVE_MS = 5 * 60 * 1000; // Only treat a transcript as "this chat" if modified in last 5 min
+const PIN_FRESH_MS = 10 * 60 * 1000; // Only trust a PID pin if updated within last 10 min
 
 function loadCache() {
   try {
@@ -102,20 +109,114 @@ function readClaudeTranscriptSessionId() {
   return null;
 }
 
+function readPidPinnedSessionId() {
+  // Walk our own parent-PID chain and look up any matching entry in the
+  // pin file written by session-id-pin.mjs on UserPromptSubmit / SessionStart.
+  // This is the MOST RELIABLE anchor when called from Bash (no stdin).
+  // Claude Code's PID is an ancestor of every tool it spawns, so the
+  // mapping `{ccPid: session_id}` deterministically identifies this chat
+  // even with 10 concurrent chats sharing one project directory.
+  try {
+    if (!fs.existsSync(PIN_FILE)) return null;
+    const reg = JSON.parse(fs.readFileSync(PIN_FILE, "utf-8"));
+    if (!reg?.pids) return null;
+
+    // Collect fresh pins (updated within PIN_FRESH_MS)
+    const now = Date.now();
+    const fresh = {};
+    for (const [pid, entry] of Object.entries(reg.pids)) {
+      const last = new Date(entry.last_seen || entry.created_at || 0).getTime();
+      if (now - last < PIN_FRESH_MS) fresh[pid] = entry;
+    }
+    if (Object.keys(fresh).length === 0) return null;
+
+    // Walk our ancestry: start with process.pid, climb via OS lookup.
+    // On Windows, use wmic. On POSIX, /proc/<pid>/status.
+    const ancestors = collectAncestors(process.pid, 12);
+    for (const pid of ancestors) {
+      if (fresh[String(pid)]) return fresh[String(pid)].session_id;
+    }
+    // Degradation fallback: if exactly ONE unique session_id is fresh in
+    // the registry (single active chat, PID walk failed to hit it), use it.
+    // This covers WMIC failures or hooks running under a protected parent
+    // that PID lookups can't traverse.
+    const uniqueSids = [...new Set(Object.values(fresh).map(e => e.session_id))];
+    if (uniqueSids.length === 1) return uniqueSids[0];
+    return null;
+  } catch { return null; }
+}
+
+function collectAncestors(startPid, maxDepth = 8) {
+  const chain = [];
+  let pid = Number(startPid);
+  let depth = 0;
+  while (pid && pid > 1 && depth < maxDepth) {
+    chain.push(pid);
+    const ppid = getParentPid(pid);
+    if (!ppid || ppid === pid) break;
+    pid = ppid;
+    depth++;
+  }
+  return chain;
+}
+
+function getParentPid(pid) {
+  try {
+    if (process.platform === "win32") {
+      // WMIC (absolute path — portable-node PATH often lacks System32).
+      // WMIC is deprecated but installed on every current Windows release.
+      if (fs.existsSync(WIN_WMIC)) {
+        const r = spawnSync(
+          WIN_WMIC,
+          ["process", "where", `processid=${pid}`, "get", "parentprocessid", "/value"],
+          { encoding: "utf-8", timeout: 1500 }
+        );
+        if (r.status === 0 && r.stdout) {
+          const m = r.stdout.match(/ParentProcessId=(\d+)/);
+          if (m) return Number(m[1]);
+        }
+      }
+      // Fallback: PowerShell CIM
+      if (fs.existsSync(WIN_PS)) {
+        const r = spawnSync(
+          WIN_PS,
+          ["-NoProfile", "-Command", `Get-CimInstance Win32_Process -Filter "ProcessId=${pid}" | Select-Object -ExpandProperty ParentProcessId`],
+          { encoding: "utf-8", timeout: 3000 }
+        );
+        if (r.status === 0 && r.stdout) {
+          const n = Number(r.stdout.trim());
+          if (Number.isFinite(n) && n > 0) return n;
+        }
+      }
+      return null;
+    } else {
+      const status = fs.readFileSync(`/proc/${pid}/status`, "utf-8");
+      const m = status.match(/^PPid:\s*(\d+)/m);
+      return m ? Number(m[1]) : null;
+    }
+  } catch { return null; }
+}
+
 function getStableIdentifier() {
   // (1) Claude's own session_id via stdin (most stable — survives /compact)
   const stdinSid = readStdinSessionId();
   if (stdinSid) return `claude-sid-${stdinSid}`;
 
-  // (2) Explicit override via env (useful for scripts)
+  // (2) PID-anchored pin (most reliable when called from Bash).
+  //     Walks parent PIDs to find Claude Code's PID in the pin registry
+  //     written by session-id-pin.mjs. Works deterministically even with
+  //     10 concurrent chats sharing the same project directory.
+  const pidSid = readPidPinnedSessionId();
+  if (pidSid) return `claude-sid-${pidSid}`;
+
+  // (3) Explicit override via env (useful for scripts)
   if (process.env.CLAUDE_SESSION_ID) {
     return `claude-sid-${process.env.CLAUDE_SESSION_ID.slice(0, 36)}`;
   }
 
-  // (3) Claude transcript file (most recent ACTIVE transcript in this project).
-  //     Moved BEFORE terminal env vars because env vars like WT_SESSION are per
-  //     terminal-window, not per-chat — two chats in the same Windows Terminal
-  //     would share it. The transcript file is per-chat by construction.
+  // (4) Claude transcript file (LAST RESORT — unreliable with concurrent chats).
+  //     Demoted from (3) because with 6+ chats sharing one project dir, the
+  //     "most recent transcript" winner flips each time any chat flushes.
   const txSid = readClaudeTranscriptSessionId();
   if (txSid) return `claude-tx-${txSid}`;
 
@@ -168,6 +269,18 @@ function gcStaleEntries(cache) {
   return cache;
 }
 
+function deriveTerminalFromIdentifier(identifier) {
+  // precompact-handoff.mjs uses `claude-${sessionId.slice(0,8)}` as the
+  // terminal name. For per-agent-handoff read to find the right file, we
+  // must emit the SAME format. Match identifier forms:
+  //   "claude-sid-<full-uuid>"      → "claude-<first8>"   (stdin, env, pin)
+  //   "claude-tx-<full-uuid>"       → "claude-<first8>"   (transcript-derived)
+  //   anything else                 → return null (fall through to UUID cache)
+  const m = identifier.match(/^claude-(?:sid|tx)-([0-9a-f]{8})/i);
+  if (m) return `claude-${m[1].toLowerCase()}`;
+  return null;
+}
+
 function main() {
   let cache = loadCache();
 
@@ -176,16 +289,34 @@ function main() {
 
   const identifier = getStableIdentifier();
 
-  // Check if we have a cached session for this identifier
+  // If the identifier is derived from Claude's own session_id (stdin, pin,
+  // env, or transcript), emit `claude-<first8>` so this matches the filename
+  // precompact-handoff.mjs uses when it writes the per-agent handoff.
+  const derivedTerminal = deriveTerminalFromIdentifier(identifier);
+  if (derivedTerminal) {
+    // Still update cache so other callers can see activity
+    cache.sessions[identifier] = cache.sessions[identifier] || {
+      session_id: derivedTerminal,
+      identifier,
+      machine: os.hostname(),
+      created_at: new Date().toISOString(),
+    };
+    cache.sessions[identifier].last_seen = new Date().toISOString();
+    cache.sessions[identifier].session_id = derivedTerminal;
+    saveCache(cache);
+    console.log(derivedTerminal);
+    return;
+  }
+
+  // Fallback path (env-based / slot-based identifiers) — check cached UUID
   if (cache.sessions[identifier]) {
-    // Update last_seen
     cache.sessions[identifier].last_seen = new Date().toISOString();
     saveCache(cache);
     console.log(cache.sessions[identifier].session_id);
     return;
   }
 
-  // Generate a new stable session ID
+  // Last resort: generate a new stable session ID
   const sessionId = `claude-${crypto.randomUUID().slice(0, 8)}`;
 
   cache.sessions[identifier] = {
