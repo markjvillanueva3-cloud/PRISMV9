@@ -8,6 +8,13 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const HOOKS_DIR = "H:/prism/.claude/hooks";
+const HELPERS_DIR = "H:/prism/.claude/helpers";
+
+// Extra helper-dir targets (live in helpers/, not hooks/)
+const HELPER_TARGETS = [
+  "search-optimizer",    // emits "Tool catalogs..." on every Grep
+  "context-economy-v2",  // emits "WASTE: grep_instead_of_Grep" on every Bash
+];
 
 const TARGETS = [
   "reference-value-injector",
@@ -67,6 +74,32 @@ for (const name of TARGETS) {
   ].join("\n");
   writeFileSync(file, patched);
   console.log(`disabled: ${name}`);
+  disabled++;
+}
+
+for (const name of HELPER_TARGETS) {
+  const file = join(HELPERS_DIR, `${name}.mjs`);
+  if (!existsSync(file)) {
+    console.log(`MISSING: helpers/${name}`);
+    missing++;
+    continue;
+  }
+  const original = readFileSync(file, "utf8");
+  if (original.includes(MARKER)) {
+    console.log(`already disabled: helpers/${name}`);
+    alreadyDisabled++;
+    continue;
+  }
+  const lines = original.split("\n");
+  let insertAt = 0;
+  if (lines[0] && lines[0].startsWith("#!")) insertAt = 1;
+  const patched = [
+    ...lines.slice(0, insertAt),
+    ...STUB_LINES,
+    ...lines.slice(insertAt),
+  ].join("\n");
+  writeFileSync(file, patched);
+  console.log(`disabled: helpers/${name}`);
   disabled++;
 }
 

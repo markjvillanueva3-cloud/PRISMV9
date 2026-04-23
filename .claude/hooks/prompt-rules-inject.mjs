@@ -28,7 +28,23 @@
  */
 
 import fs from "node:fs";
+import path from "node:path";
+import os from "node:os";
 import { spawnSync } from "node:child_process";
+
+// Rate-limit: the STATIC_BRIEF hits Anthropic prompt cache in theory but
+// in practice gets re-injected every turn as a fresh system-reminder.
+// Cap at once per RATE_WINDOW_MS per stable session to stop the bleed.
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+const RATE_FILE = path.join(os.tmpdir(), "prism-hook-state", "prompt-rules-inject.last.json");
+function loadRate() { try { return JSON.parse(fs.readFileSync(RATE_FILE, "utf8")); } catch { return {}; } }
+function saveRate(s) {
+  try {
+    const d = path.dirname(RATE_FILE);
+    if (!fs.existsSync(d)) fs.mkdirSync(d, { recursive: true });
+    fs.writeFileSync(RATE_FILE, JSON.stringify(s));
+  } catch { /* ignore */ }
+}
 
 const STABLE_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
 const CLAIMS_ROOT = "H:/prism/mcp-server/data/claims";
@@ -134,6 +150,22 @@ function main() {
   }
 
   const sid = currentSessionId();
+
+  // Rate-limit: skip full brief if we've injected for this session recently.
+  const now = Date.now();
+  const rateState = loadRate();
+  const rateKey = sid || "anon";
+  const lastAt = rateState[rateKey] ?? 0;
+  if (now - lastAt < RATE_WINDOW_MS) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+  rateState[rateKey] = now;
+  for (const k of Object.keys(rateState)) {
+    if (now - rateState[k] > RATE_WINDOW_MS * 10) delete rateState[k];
+  }
+  saveRate(rateState);
+
   const dynamic = buildDynamic(sid);
   let brief = STATIC_BRIEF + dynamic;
   if (brief.length > MAX_CHARS) brief = brief.slice(0, MAX_CHARS) + "\n[… truncated]";
