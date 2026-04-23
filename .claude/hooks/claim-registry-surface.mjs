@@ -16,7 +16,7 @@ const REG = resolve("H:/prism/.claude/helpers/roadmap-claim-registry.mjs");
 
 function terminalId() {
   try {
-    const r = spawnSync("node", [resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
+    const r = spawnSync(process.execPath, [resolve("H:/prism/.claude/helpers/stable-session-id.mjs")], {
       encoding: "utf-8",
       timeout: 2000,
     });
@@ -30,13 +30,13 @@ function main() {
   const tid = terminalId();
 
   // Restore any claims this terminal had flushed before compact
-  spawnSync("node", [REG, "compact-restore", "--terminal", tid], { timeout: 3000 });
+  spawnSync(process.execPath, [REG, "compact-restore", "--terminal", tid], { timeout: 3000 });
 
   // GC stale claims across all terminals
-  spawnSync("node", [REG, "gc"], { timeout: 3000 });
+  spawnSync(process.execPath, [REG, "gc"], { timeout: 3000 });
 
   // Surface the active-claims list
-  const out = spawnSync("node", [REG, "list"], {
+  const out = spawnSync(process.execPath, [REG, "list"], {
     encoding: "utf-8",
     timeout: 3000,
   });

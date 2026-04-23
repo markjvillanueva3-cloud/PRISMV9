@@ -1,0 +1,126 @@
+#!/usr/bin/env node
+/**
+ * prompt-rules-inject.mjs — UserPromptSubmit hook
+ *
+ * Fires on every user prompt. Injects a tiny, cache-friendly "operating
+ * rules" brief into the conversation context so Claude stays on task,
+ * follows Karpathy discipline, and avoids drift/hallucination even late
+ * in long sessions.
+ *
+ * Design:
+ *   - The STATIC portion of the brief is identical byte-for-byte on every
+ *     prompt → hits the Anthropic prompt cache, so cost ≈ 0 after turn 1.
+ *   - A tiny DYNAMIC tail shows the session's active claim + last commit,
+ *     giving the model an anchor for "what are we in the middle of?".
+ *   - Complements session-reorient-inject.mjs (which fires every 15 prompts
+ *     with a larger brief). This one is a per-prompt nudge, not a reset.
+ *   - Hard-capped at 1400 chars (~350 tokens) so injection stays cheap.
+ *
+ * Output: {"continue": true, "message": "<brief>"}  — the harness appends
+ * `message` to the prompt context. On failure: {"continue": true} only.
+ *
+ * Skip policy:
+ *   - If the user prompt starts with "/" (slash command), skip — slash
+ *     commands have their own context and the brief would be redundant.
+ *   - If PRISM_DISABLE_RULES_INJECT=1, skip.
+ */
+
+import fs from "node:fs";
+import { spawnSync } from "node:child_process";
+
+const STABLE_ID_HELPER = "H:/prism/.claude/helpers/stable-session-id.mjs";
+const CLAIMS_ROOT = "H:/prism/mcp-server/data/claims";
+const HANDOFF_DIR = "H:/prism/state/shared/handoffs";
+const MAX_CHARS = 1400;
+
+const STATIC_BRIEF = [
+  "## ★ Operating Rules (auto-injected — cache-cached after turn 1)",
+  "",
+  "**Karpathy discipline** — think → simplify → surgical → goal-driven.",
+  "Before writing code: (1) CLASSIFY problem type, (2) name TECHNIQUE, (3) list EDGE CASES, (4) anticipate FAILURE MODES, then write code that handles all of them from line 1. No TODO/FIXME/empty-catch/stubs. Every changed line must trace to the user's request.",
+  "",
+  "**Anti-drift** — finish in-progress work before starting new work. Check `TaskList` before spawning new tasks. Commit format: `[SCOPE]/U-ID: title`. Physics constants only from `src/physics/constants.ts`. Check `ENGINE_DIGEST.md` before creating any new engine. `duplicationGuardEngine.mustCheckBeforeCreating()` if in doubt.",
+  "",
+  "**Token budget** — parallel independent tool calls in ONE message · `rtk <cmd>` for bash · MCP dispatcher actions > reimplementation · `Glob`/`Grep` over bash find/grep · `Read` with `offset`/`limit` on large files · don't re-read files you just wrote · delegate broad research to Agent with Explore subagent.",
+  "",
+  "**Safety gates** — Omega ≥ 0.70 to release · S(x) ≥ 0.70 on safety-critical code · never inline Kienzle/Taylor/material constants.",
+  "",
+].join("\n");
+
+function readStdin() {
+  try {
+    if (process.stdin.isTTY) return "";
+    return fs.readFileSync(0, "utf-8");
+  } catch { return ""; }
+}
+
+function currentSessionId() {
+  try {
+    const r = spawnSync(process.execPath, [STABLE_ID_HELPER], { encoding: "utf-8", timeout: 1500 });
+    return (r.stdout || "").trim() || null;
+  } catch { return null; }
+}
+
+function activeClaimFor(sid) {
+  if (!sid || !fs.existsSync(CLAIMS_ROOT)) return null;
+  try {
+    for (const dir of fs.readdirSync(CLAIMS_ROOT)) {
+      const p = `${CLAIMS_ROOT}/${dir}/claim.json`;
+      if (!fs.existsSync(p)) continue;
+      const claim = JSON.parse(fs.readFileSync(p, "utf-8"));
+      const owner = String(claim.claimed_by || claim.holder || claim.by || "");
+      if (owner.includes(sid) && claim.status !== "completed") {
+        return { unit: claim.unit_id || dir, title: claim.title || "", status: claim.status || "in_progress" };
+      }
+    }
+  } catch { /* ignore */ }
+  return null;
+}
+
+function latestCommit() {
+  try {
+    const r = spawnSync("git", ["log", "-1", "--pretty=format:%s"], { encoding: "utf-8", timeout: 1500, cwd: process.cwd() });
+    if (r.status === 0) return (r.stdout || "").trim().slice(0, 120);
+  } catch { /* ignore */ }
+  return null;
+}
+
+function buildDynamic(sid) {
+  const parts = [];
+  const claim = activeClaimFor(sid);
+  if (claim) parts.push(`**Active claim**: \`${claim.unit}\` — ${claim.title} (${claim.status})`);
+  const commit = latestCommit();
+  if (commit) parts.push(`**Last commit**: ${commit}`);
+  if (parts.length === 0) return "";
+  return "\n## Session state\n" + parts.join("\n") + "\n";
+}
+
+function main() {
+  if (process.env.PRISM_DISABLE_RULES_INJECT === "1") {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  const raw = readStdin();
+  let prompt = "";
+  try {
+    const j = raw ? JSON.parse(raw) : {};
+    prompt = String(j.prompt || j.user_prompt || "").trim();
+  } catch { /* ignore */ }
+
+  // Skip slash commands — they have their own context and injecting here
+  // would double-inject with the command's own template.
+  if (prompt.startsWith("/")) {
+    console.log(JSON.stringify({ continue: true }));
+    return;
+  }
+
+  const sid = currentSessionId();
+  const dynamic = buildDynamic(sid);
+  let message = STATIC_BRIEF + dynamic;
+  if (message.length > MAX_CHARS) message = message.slice(0, MAX_CHARS) + "\n[… truncated]";
+
+  console.log(JSON.stringify({ continue: true, message }));
+}
+
+try { main(); } catch { console.log(JSON.stringify({ continue: true })); }
