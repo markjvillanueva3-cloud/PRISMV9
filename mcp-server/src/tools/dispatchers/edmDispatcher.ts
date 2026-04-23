@@ -66,6 +66,8 @@ let _wireHeating: any;
 let _kerfWidth: any;
 let _wireDeflection: any;
 let _thinWireDerate: any;
+let _printToProgram: any;
+let _autoPrintBridge: any;
 
 async function getEngine(name: string): Promise<any> {
   switch (name) {
@@ -108,6 +110,8 @@ async function getEngine(name: string): Promise<any> {
     case "kerfWidth": return _kerfWidth ??= (await import("../../engines/WEDMKerfWidthEngine.js")).wedmKerfWidthEngine;
     case "wireDeflection": return _wireDeflection ??= (await import("../../engines/WEDMWireDeflectionEngine.js")).wedmWireDeflectionEngine;
     case "thinWireDerate": return _thinWireDerate ??= (await import("../../engines/WEDMThinWireDerateEngine.js")).wedmThinWireDerateEngine;
+    case "printToProgram": return _printToProgram ??= (await import("../../engines/WEDMPrintToProgramEngine.js")).wedmPrintToProgramEngine;
+    case "autoPrintBridge": return _autoPrintBridge ??= (await import("../../engines/AutoPrintToProgramBridgeEngine.js")).autoPrintToProgramBridgeEngine;
 
     default: throw new Error(`Unknown engine: ${name}`);
   }
@@ -269,6 +273,9 @@ const ACTIONS = [
   "wedm_kerf_overcut", "wedm_kerf_width", "wedm_kerf_roughness",
   "wedm_wire_deflection_calc", "wedm_wire_flush_deflection",
   "wedm_thin_wire_derate_summary", "wedm_thin_wire_derate_current", "wedm_thin_wire_derate_ton",
+
+  // WEDM print-to-program pipelines
+  "wedm_print_to_program", "auto_print_to_program_run",
 ] as const;
 
 /** Registers edm dispatcher.
@@ -1508,6 +1515,18 @@ Actions: ${ACTIONS.join(", ")}.`,
           case "wedm_thin_wire_derate_ton": {
             const engine = await getEngine("thinWireDerate");
             result = engine.calculateTonDerateFactor(params.wire_diameter_mm);
+            break;
+          }
+
+          case "wedm_print_to_program": {
+            const engine = await getEngine("printToProgram");
+            result = await engine.generate(params);
+            break;
+          }
+
+          case "auto_print_to_program_run": {
+            const engine = await getEngine("autoPrintBridge");
+            result = await engine.runAutoPipeline(params);
             break;
           }
 

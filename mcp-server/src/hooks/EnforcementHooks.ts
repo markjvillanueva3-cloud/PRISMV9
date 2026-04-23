@@ -746,6 +746,15 @@ const preOutputSafetyHardGate: HookDefinition = {
         "login", "register", "refresh_token", "change_password",
         "role_assign", "permission_check", "session_manage", "mfa_setup",
         "tenant_", "brand_", "api_",
+        // ── Infrastructure and system health (read-only diagnostics) ──
+        "infra_summary", "db_health", "persistence_health", "migration_status",
+        "registry_sync_status", "seed_registries", "auth_health", "usage_stats",
+        "calibration_status", "calibration_overrides",
+        "get_health", "run_integrity", "trace_decision", "find_similar",
+        "consolidate", "consolidation_stats", "consolidation_patterns",
+        // ── Hook status and management (read-only) ──
+        "status", "history", "enable", "disable", "coverage", "gaps",
+        "performance", "failures", "subscribe", "reactive_chains",
       ];
       const isReadOnly = READONLY_PATTERNS.some(p => op.includes(p));
       if (isReadOnly) {

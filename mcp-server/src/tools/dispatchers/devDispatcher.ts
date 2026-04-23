@@ -26,7 +26,7 @@ const SRC_DIR = path.join(MCP_ROOT, "src");
 const DIST_DIR = path.join(MCP_ROOT, "dist");
 const DOCS_DIR = path.join(MCP_ROOT, "data", "docs");
 const STATE_DIR = PATHS.STATE_DIR;
-const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence"] as const;
+const ACTIONS = ["session_boot", "build", "code_template", "code_search", "file_read", "file_write", "server_info", "test_smoke", "test_results", "svi_compute", "svi_read", "svi_summary", "erp_persistence_health", "engine_overlap_scan", "quality_score", "quality_score_read", "quality_score_summary", "auto_wiring_analyze", "auto_wiring_scan", "schema_gap_scan", "test_gap_scan", "formula_accuracy", "formula_accuracy_read", "formula_accuracy_summary", "self_improvement_scan", "self_improvement_read", "self_improvement_summary", "auto_fix_generate", "auto_fix_read", "auto_fix_summary", "auto_fix_approve", "auto_fix_promote", "quality_dashboard", "quality_dashboard_read", "quality_dashboard_summary", "output_budget_enforce", "output_budget_stats", "output_budget_set_rule", "context_inventory_add", "context_inventory_query", "context_inventory_summary", "cost_route", "cost_route_infer", "import_cost_analyze", "import_cost_heavy", "import_cost_report", "token_ledger_record", "token_ledger_summary", "token_ledger_project", "token_ledger_reset", "tool_cost_predict", "tool_cost_affordable", "tool_fingerprint_check", "tool_fingerprint_stats", "tool_fingerprint_reset", "schema_generate", "schema_generate_read", "schema_generate_summary", "test_generate", "test_generate_scan", "test_generate_read", "test_generate_summary", "route_sync_scan", "route_sync_read", "route_sync_summary", "gap_scan", "gap_scan_read", "gap_scan_summary", "auto_forge", "auto_forge_summary", "resource_census", "resource_census_read", "resource_census_summary", "pdf_pipeline_classify", "pdf_pipeline_extract", "pdf_pipeline_read", "pdf_pipeline_summary", "machine_harden_audit", "machine_harden_enrich", "machine_harden_validate", "machine_harden_read", "machine_harden_summary", "error_remediation", "memory_consolidation", "build_guard_validate", "build_guard_track_edit", "build_guard_typecheck", "build_guard_affected_tests", "build_guard_chain", "build_guard_classify", "chain_recover", "chain_health", "chain_notify", "context_pressure", "context_load_plan", "context_compact_plan", "context_health", "sf_autopilot_run", "sf_autopilot_resolve_material", "sf_autopilot_resolve_tool", "pp_autopilot_run", "pp_autopilot_resolve_dialect", "pp_autopilot_print_to_program", "quote_autopilot_run", "quote_autopilot_calibrate", "quote_autopilot_record_actual", "capability_census", "capability_census_report", "capability_census_save", "copilot_suggest", "copilot_check_duplication", "copilot_template", "token_budget", "token_record_spending", "token_detect_waste", "token_economy_report", "token_economy_stats", "token_economy_session", "token_economy_set_budget", "token_economy_reset", "skill_inline_record", "skill_inline_decision", "skill_inline_plan", "skill_inline_content", "skill_inline_format", "skill_inline_top", "skill_inline_clear", "output_cache_store", "output_cache_get", "output_cache_find", "output_cache_stats", "output_cache_reset", "compaction_survival_record", "compaction_survival_plan", "compaction_survival_handoff", "compaction_survival_stats", "memory_store", "memory_search", "memory_stats", "memory_record_learning", "memory_set_preference", "memory_get_preference", "capability_path_list", "capability_path_progress", "capability_path_suggest", "workflow_list", "workflow_plan", "workflow_create", "pillar_list", "pillar_score", "pillar_summary", "pillar_gate", "discover_search", "discover_browse", "discover_recommend", "discover_what_can_i_do", "effectiveness_report", "effectiveness_score", "effectiveness_record", "effectiveness_validate", "self_awareness_refresh", "self_awareness_manifest", "self_awareness_gaps", "self_awareness_recommend", "self_awareness_find", "edit_impact_build_graph", "edit_impact_predict", "edit_impact_stats", "change_radius_predict", "change_radius_predict_sync", "build_plan", "build_plan_from_unit", "step_decompose", "gap_predict", "gap_scan_file", "gap_scan_batch", "user_model_get", "user_model_set_experience", "user_model_record_edit", "user_model_reset", "coder_mode_current", "coder_mode_set", "coder_mode_should_surface", "build_advise", "build_debrief", "build_debrief_recent", "simulate_build", "overlay_preview", "risk_forecast", "risk_warnings", "risk_record_outcome", "gate_history_record", "gate_history_aggregates", "gate_history_calibration", "gate_history_summary", "critical_path", "critical_path_announce", "critical_units", "roadmap_dag_stats", "roadmap_dag_node", "roadmap_dag_ancestors", "roadmap_dag_descendants", "integration_foresight", "integration_validate", "integration_similar", "context_budget_forecast", "context_should_compact", "rollback_plan", "rollback_verify", "rollback_plan_and_verify", "rollback_render_script", "knowledge_gap_scan", "knowledge_gap_check", "no_go_respond", "disclose_shape", "disclose_raw", "anchor_claim", "anchor_stats", "tool_call_record", "tool_call_analyze", "tool_call_reset", "file_read_record", "file_read_should_skip", "file_read_report", "stale_segment_record", "stale_segment_prune", "stale_segment_mark", "reorient_record_anchor", "reorient_deactivate_anchor", "reorient_record_prompt", "reorient_record_tool_call", "reorient_generate_brief", "reorient_should_generate", "reorient_stats", "reorient_update_config", "reorient_reset", "model_aware_detect", "model_aware_zone", "model_aware_cadence", "model_aware_current_cadence"] as const;
 
 const CODE_TEMPLATES: Record<string, string> = {
   tool_registration: `// Pattern: register tool\nimport { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";\nimport { z } from "zod";\nexport function registerMyTools(server: McpServer): void {\n  server.tool("tool_name", "Description", { param: z.string() }, async (args) => {\n    return { content: [{ type: "text", text: JSON.stringify({}) }] };\n  });\n}`,
@@ -1700,6 +1700,64 @@ export function registerDevDispatcher(server: any): void {
             break;
           }
 
+          // ── Skill Inlining / MCP-first Skill Digests ─────────────────
+          case "skill_inline_record": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            optimizer.recordUsage(
+              String(params.skill_id || params.skill || ""),
+              Number(params.tokens_saved || 0),
+              params.success !== false
+            );
+            result = { success: true, stats: optimizer.getStats(String(params.skill_id || params.skill || "")) };
+            break;
+          }
+          case "skill_inline_decision": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            result = optimizer.shouldInline(String(params.skill_id || params.skill || ""));
+            break;
+          }
+          case "skill_inline_plan": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            result = optimizer.computeInliningPlan(params.available_budget);
+            break;
+          }
+          case "skill_inline_content": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            if (params.skill_id || params.skill) {
+              result = {
+                skillId: String(params.skill_id || params.skill),
+                digest: optimizer.generateDigest(String(params.skill_id || params.skill)),
+              };
+            } else {
+              optimizer.computeInliningPlan(params.available_budget);
+              result = optimizer.getInlinedContent();
+            }
+            break;
+          }
+          case "skill_inline_format": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            result = { content: optimizer.formatForInjection() };
+            break;
+          }
+          case "skill_inline_top": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            result = optimizer.getTopSkills(params.limit || 5);
+            break;
+          }
+          case "skill_inline_clear": {
+            const { SkillInliningOptimizerEngine } = await import("../../engines/SkillInliningOptimizerEngine.js");
+            const optimizer = new SkillInliningOptimizerEngine(params.token_budget);
+            optimizer.clearStats();
+            result = { success: true, message: "Skill inlining stats cleared" };
+            break;
+          }
+
           // ── Output Cache (Token Savings) ────────────────────────────
           case "output_cache_store": {
             const { OutputCacheEngine } = await import("../../engines/OutputCacheEngine.js");
@@ -2499,6 +2557,53 @@ export function registerDevDispatcher(server: any): void {
               typeof params.minMatches === "number" ? params.minMatches : undefined
             );
             result = { success: true, hasPriorArt };
+            break;
+          }
+          case "no_go_respond": {
+            const { teachingNoGoEngine } = await import(
+              "../../engines/TeachingNoGoEngine.js"
+            );
+            const response = teachingNoGoEngine.respond(params.input as any);
+            const compact = teachingNoGoEngine.renderCompact(response);
+            result = { success: true, response, compact };
+            break;
+          }
+          case "disclose_shape": {
+            const { progressiveDisclosureEngine } = await import(
+              "../../engines/ProgressiveDisclosureEngine.js"
+            );
+            const rendered = progressiveDisclosureEngine.shape(params.input as any);
+            result = { success: true, rendered };
+            break;
+          }
+          case "disclose_raw": {
+            const { progressiveDisclosureEngine } = await import(
+              "../../engines/ProgressiveDisclosureEngine.js"
+            );
+            const report = progressiveDisclosureEngine.disclose(params.input as any);
+            result = { success: true, report };
+            break;
+          }
+          case "anchor_claim": {
+            const { anchoredConfidenceEngine } = await import(
+              "../../engines/AnchoredConfidenceEngine.js"
+            );
+            const anchored = anchoredConfidenceEngine.anchor(
+              params.claim,
+              params.anchor as any
+            );
+            const rendered = anchoredConfidenceEngine.render(anchored, {
+              showDisagreement: params.showDisagreement === true,
+            });
+            result = { success: true, anchored, rendered };
+            break;
+          }
+          case "anchor_stats": {
+            const { anchoredConfidenceEngine } = await import(
+              "../../engines/AnchoredConfidenceEngine.js"
+            );
+            const stats = anchoredConfidenceEngine.recentStats();
+            result = { success: true, stats };
             break;
           }
 

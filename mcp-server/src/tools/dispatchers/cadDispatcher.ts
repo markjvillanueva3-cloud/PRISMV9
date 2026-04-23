@@ -19,7 +19,7 @@ import { ACTION_CAD_SCHEMAS } from "../../schemas/cadActionSchemas.js";
 
 let _cad: any, _geometry: any, _mesh: any, _feature: any, _stock: any, _wcs: any, _dfm: any, _dfmPipeline: any, _sketch: any, _partLib: any, _assembly: any;
 let _cadTaxonomy: any, _cadQueryGen: any, _f360Gen: any, _f360Bridge: any, _swGen: any, _mcGen: any, _hcGen: any, _nxGen: any, _impeller: any, _blisk: any;
-let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any;
+let _cadCorpusOrch: any, _cadEmbedIndex: any, _cadPipeline: any, _cadRegenTest: any, _geoCompare: any, _cadRegistry: any, _inventorGen: any;
 async function getEngine(name: string): Promise<any> {
   switch (name) {
     case "cad": return _cad ??= (await import("../../engines/CADKernelEngine.js")).cadKernelEngine;
@@ -49,6 +49,7 @@ async function getEngine(name: string): Promise<any> {
     case "cadRegenTest": return _cadRegenTest ??= (await import("../../engines/CADRegenerationTestEngine.js")).cadRegenerationTestEngine;
     case "geoCompare": return _geoCompare ??= (await import("../../engines/CADGeometryComparisonEngine.js")).cadGeometryComparisonEngine;
     case "cadRegistry": return _cadRegistry ??= (await import("../../engines/UniversalCADIndexEngine.js")).universalCADIndexEngine;
+    case "inventorGen": return _inventorGen ??= (await import("../../engines/InventorCADCodeGeneratorEngine.js")).inventorCADCodeGeneratorEngine;
     default: throw new Error(`Unknown CAD engine: ${name}`);
   }
 }
@@ -102,6 +103,9 @@ const ACTIONS = [
   // Siemens NX Unified Code Generator (U-CADC14)
   "nx_generate_script", "nx_build_part", "nx_execute",
   "nx_capabilities",
+  // Autodesk Inventor Code Generator (U-CADC08)
+  "inventor_generate_script", "inventor_build_part", "inventor_execute",
+  "inventor_capabilities",
   // Impeller CAD Generator (U-CADC15)
   "impeller_generate", "impeller_validate", "impeller_recommend_blades",
   "impeller_list_profiles",
@@ -802,6 +806,37 @@ Params vary by action — pass relevant fields in params object.`,
           }
           case "nx_capabilities": {
             const engine = await getEngine("nxGen");
+            const caps = engine.getCapabilities();
+            result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
+            break;
+          }
+          // ─── Autodesk Inventor Code Generator (U-CADC08) ─────────────────
+          case "inventor_generate_script": {
+            const engine = await getEngine("inventorGen");
+            const ops = params.operations ?? [];
+            const ctx = { projectName: params.projectName ?? "prism_part", units: params.units ?? "mm", targetVersion: params.targetVersion, outputDir: params.outputDir };
+            const script = engine.buildScript(ops, ctx);
+            result = { success: true, script: script.body, filename: script.filename, imports: script.imports, warnings: script.warnings, parameters: Object.fromEntries(script.parameters) };
+            break;
+          }
+          case "inventor_build_part": {
+            const engine = await getEngine("inventorGen");
+            const ops = params.operations ?? [];
+            const ctx = { projectName: params.projectName ?? "prism_part", units: params.units ?? "mm", targetVersion: params.targetVersion, outputDir: params.outputDir };
+            const script = engine.buildScript(ops, ctx);
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, script: script.body, output: execResult.output, durationMs: execResult.durationMs, error: execResult.error, metrics: execResult.metrics };
+            break;
+          }
+          case "inventor_execute": {
+            const engine = await getEngine("inventorGen");
+            const script = { body: params.script, cadSystem: "inventor" as const, filename: params.filename ?? "script.iLogicVb", parameters: new Map(), lineage: [], warnings: [], imports: [] };
+            const execResult = await engine.executeScript(script);
+            result = { success: execResult.ok, output: execResult.output, durationMs: execResult.durationMs, error: execResult.error, metrics: execResult.metrics };
+            break;
+          }
+          case "inventor_capabilities": {
+            const engine = await getEngine("inventorGen");
             const caps = engine.getCapabilities();
             result = { success: true, cadSystem: engine.cadSystem, capabilities: { ...caps, supportedOps: Array.from(caps.supportedOps) } };
             break;

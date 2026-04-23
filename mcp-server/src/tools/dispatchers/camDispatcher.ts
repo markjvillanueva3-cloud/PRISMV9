@@ -1,5 +1,3 @@
-// @ts-nocheck
-// TODO: Fix TypeScript errors in this file
 /**
  * prism_cam — CAM/Toolpath Dispatcher
  *

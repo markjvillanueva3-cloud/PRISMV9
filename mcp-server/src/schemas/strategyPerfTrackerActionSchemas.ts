@@ -1,0 +1,6 @@
+/**
+ * strategyPerfTrackerActionSchemas — Zod validation schemas (stub for dispatcher import)
+ */
+import { z } from "zod";
+
+export const ACTION_STRATEGY_PERF_TRACKER_SCHEMAS: Record<string, z.ZodType> = {};

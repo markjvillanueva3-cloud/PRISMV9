@@ -61,6 +61,8 @@ let _continualLoRA: typeof import("../../engines/ContinualLoRAEngine.js").contin
 // U-LEARN-11 ProtoMAML Few-Shot engines
 let _protoNet: typeof import("../../engines/PrototypicalNetworkEngine.js").prototypicalNetworkEngine | null = null;
 let _protoMAML: typeof import("../../engines/ProtoMAMLFewShotEngine.js").protoMAMLFewShotEngine | null = null;
+// Ollama task offloading
+let _offloader: typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine | null = null;
 
 async function getEngine(name: string): Promise<unknown> {
   switch (name) {
@@ -122,6 +124,8 @@ async function getEngine(name: string): Promise<unknown> {
       return _protoNet ??= (await import("../../engines/PrototypicalNetworkEngine.js")).prototypicalNetworkEngine;
     case "protoMAML":
       return _protoMAML ??= (await import("../../engines/ProtoMAMLFewShotEngine.js")).protoMAMLFewShotEngine;
+    case "offloader":
+      return _offloader ??= (await import("../../engines/OllamaTaskOffloaderEngine.js")).ollamaTaskOffloaderEngine;
     default:
       throw new Error(`Unknown engine: ${name}`);
   }
@@ -1210,6 +1214,38 @@ export function registerMLDispatcher(server: unknown): void {
             const engine = await getEngine("protoMAML") as typeof import("../../engines/ProtoMAMLFewShotEngine.js").protoMAMLFewShotEngine;
             const configs = engine.listConfigs();
             result = { success: true, configs };
+            break;
+          }
+
+          // Ollama task offloading
+          case "offload_decide": {
+            const engine = await getEngine("offloader") as typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine;
+            const decision = await engine.decide(params.task as string);
+            result = { success: true, ...decision };
+            break;
+          }
+
+          case "offload_execute": {
+            const engine = await getEngine("offloader") as typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine;
+            const task = params.task as string;
+            const systemPrompt = (params.system_prompt as string) || "You are a helpful assistant for a CNC manufacturing platform.";
+            const decision = await engine.decide(task);
+            if (!decision.offloadable || !decision.targetModel) {
+              result = { success: false, reason: decision.reason, offloadable: false };
+              break;
+            }
+            const model = (params.model as string) || decision.targetModel;
+            const execResult = await engine.executeOffloaded(task, systemPrompt, model);
+            result = { success: execResult.success, result: execResult.result, latencyMs: execResult.latencyMs, model };
+            break;
+          }
+
+          case "offload_stats": {
+            const engine = await getEngine("offloader") as typeof import("../../engines/OllamaTaskOffloaderEngine.js").ollamaTaskOffloaderEngine;
+            const models = engine.getInstalledModels();
+            const categories = engine.getSupportedCategories();
+            const available = await engine.checkOllamaAvailable();
+            result = { success: true, ollamaAvailable: available, installedModels: models, supportedCategories: categories };
             break;
           }
 

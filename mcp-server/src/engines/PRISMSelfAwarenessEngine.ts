@@ -31,6 +31,7 @@ export interface CapabilityManifest {
   lastUpdated: string;
   version: string;
   stats: ManifestStats;
+  counts: ManifestCounts;
 }
 
 export interface ManifestStats {
@@ -41,6 +42,18 @@ export interface ManifestStats {
   skillCount: number;
   tribalTipCount: number;
   formulaCount: number;
+}
+
+export interface ManifestCounts {
+  engines: number;
+  dispatchers: number;
+  actions: number;
+  hooks: number;
+  skills: number;
+  tribalTips: number;
+  formulas: number;
+  jmDiePrograms: number;
+  jmDieCustomers: number;
 }
 
 export interface EngineEntry {
@@ -133,6 +146,33 @@ const ENGINE_DIGEST_PATH = path.join(MCP_SERVER, "data/docs/ENGINE_DIGEST.md");
 const DISPATCHER_DIGEST_PATH = path.join(MCP_SERVER, "data/docs/DISPATCHER_DIGEST.md");
 const TRIBAL_KNOWLEDGE_PATH = path.join(MCP_SERVER, "data/registries/tribal-knowledge.json");
 const JM_DIE_ROOT = path.join(PRISM_ROOT, "JM DIE");
+const ENV_USER_HOME = (process.env.USERPROFILE || "").replace(/\\/g, "/");
+const FALLBACK_USER_HOME = "C:/Users/Mark Villanueva";
+const USER_HOME =
+  ENV_USER_HOME && (
+    fs.existsSync(path.join(ENV_USER_HOME, ".agents/skills")) ||
+    fs.existsSync(path.join(ENV_USER_HOME, ".codex/skills"))
+  )
+    ? ENV_USER_HOME
+    : FALLBACK_USER_HOME;
+const QUERY_STOP_TERMS = new Set([
+  "a",
+  "an",
+  "and",
+  "for",
+  "in",
+  "of",
+  "on",
+  "the",
+  "to",
+  "with",
+  "engine",
+  "engines",
+  "feature",
+  "features",
+  "system",
+  "systems",
+]);
 
 // ============================================================================
 // ENGINE IMPLEMENTATION
@@ -166,6 +206,7 @@ class PRISMSelfAwarenessEngine {
     const hooks = this.loadHooks();
     const skills = this.loadSkills();
     const stats = this.computeStats();
+    const counts = this.toCounts(stats);
 
     this.manifest = {
       engines,
@@ -176,6 +217,7 @@ class PRISMSelfAwarenessEngine {
       lastUpdated: new Date().toISOString(),
       version: "1.0.0",
       stats,
+      counts,
     };
 
     this.lastRefresh = new Date();
@@ -190,7 +232,14 @@ class PRISMSelfAwarenessEngine {
     const matches: CapabilityMatch[] = [];
     const safeQuery = query ?? "";
     const queryLower = safeQuery.toLowerCase();
-    const queryTerms = queryLower.split(/\s+/);
+    const queryTerms = queryLower
+      .split(/\s+/)
+      .map((term) => term.trim())
+      .filter((term) => term.length > 1 && !QUERY_STOP_TERMS.has(term));
+
+    if (queryTerms.length === 0) {
+      return [];
+    }
 
     // Search engines
     for (const engine of manifest.engines) {
@@ -232,6 +281,54 @@ class PRISMSelfAwarenessEngine {
           confidence: Math.min(score / queryTerms.length / 3, 1),
           action: action.action,
           dispatcher: action.dispatcher,
+        });
+      }
+    }
+
+    // Search hooks, including Codex bridge hooks. These are capability surfaces,
+    // not just lifecycle plumbing.
+    for (const hook of manifest.hooks) {
+      const nameLower = hook.name.toLowerCase();
+      const eventLower = hook.event.toLowerCase();
+      const pathLower = hook.path.toLowerCase();
+
+      let score = 0;
+      for (const term of queryTerms) {
+        if (nameLower.includes(term)) score += 3;
+        if (eventLower.includes(term)) score += 1;
+        if (pathLower.includes(term)) score += 2;
+      }
+
+      if (score > 0) {
+        matches.push({
+          capability: hook.name,
+          confidence: Math.min(score / queryTerms.length / 3, 1) * 0.75,
+          path: hook.path,
+        });
+      }
+    }
+
+    // Search skills and command surfaces so Codex can discover its own operating
+    // instructions and profile-side PRISM skills.
+    for (const skill of manifest.skills) {
+      const nameLower = skill.name.toLowerCase();
+      const descLower = (skill.description || "").toLowerCase();
+      const triggerLower = (skill.triggers || []).join(" ").toLowerCase();
+      const pathLower = skill.path.toLowerCase();
+
+      let score = 0;
+      for (const term of queryTerms) {
+        if (nameLower.includes(term)) score += 3;
+        if (descLower.includes(term)) score += 2;
+        if (triggerLower.includes(term)) score += 2;
+        if (pathLower.includes(term)) score += 1;
+      }
+
+      if (score > 0) {
+        matches.push({
+          capability: skill.name,
+          confidence: Math.min(score / queryTerms.length / 3, 1) * 0.8,
+          path: skill.path,
         });
       }
     }
@@ -501,24 +598,28 @@ class PRISMSelfAwarenessEngine {
 
   private loadHooks(): HookEntry[] {
     const hooks: HookEntry[] = [];
-    const hooksDir = path.join(PRISM_ROOT, ".claude/hooks");
+    const hookRoots = [
+      { dir: path.join(PRISM_ROOT, ".claude/hooks"), prefix: ".claude/hooks" },
+      { dir: path.join(PRISM_ROOT, ".codex/hooks"), prefix: ".codex/hooks" },
+    ];
 
-    try {
-      if (fs.existsSync(hooksDir)) {
-        const files = fs.readdirSync(hooksDir).filter((f) => f.endsWith(".mjs") || f.endsWith(".js"));
+    for (const root of hookRoots) {
+      try {
+        if (!fs.existsSync(root.dir)) continue;
+        const files = fs.readdirSync(root.dir).filter((f) => f.endsWith(".mjs") || f.endsWith(".js"));
 
         for (const file of files) {
           const name = path.basename(file).replace(/\.(mjs|js)$/, "");
           hooks.push({
             name,
             event: this.inferHookEvent(name),
-            priority: 50,
-            path: `.claude/hooks/${file}`,
+            priority: root.prefix.includes(".codex") ? 60 : 50,
+            path: `${root.prefix}/${file}`,
           });
         }
+      } catch (err) {
+        log("error", `Failed to load hooks from ${root.dir}: ${err}`);
       }
-    } catch (err) {
-      log("error", `Failed to load hooks: ${err}`);
     }
 
     return hooks;
@@ -526,45 +627,82 @@ class PRISMSelfAwarenessEngine {
 
   private loadSkills(): SkillEntry[] {
     const skills: SkillEntry[] = [];
-    const skillsDir = path.join(PRISM_ROOT, ".claude/commands");
+    const skillRoots = [
+      { dir: path.join(PRISM_ROOT, ".claude/commands"), prefix: ".claude/commands", mode: "files" },
+      { dir: path.join(USER_HOME, ".agents/skills"), prefix: `${USER_HOME}/.agents/skills`, mode: "directories" },
+      { dir: path.join(USER_HOME, ".codex/skills"), prefix: `${USER_HOME}/.codex/skills`, mode: "directories" },
+    ];
 
-    try {
-      if (fs.existsSync(skillsDir)) {
-        const files = fs.readdirSync(skillsDir).filter((f) => f.endsWith(".md"));
+    for (const root of skillRoots) {
+      try {
+        if (!fs.existsSync(root.dir)) continue;
 
-        for (const file of files) {
-          const name = path.basename(file, ".md");
+        if (root.mode === "files") {
+          const files = fs.readdirSync(root.dir).filter((f) => f.endsWith(".md"));
+          for (const file of files) {
+            skills.push({
+              name: path.basename(file, ".md"),
+              path: `${root.prefix}/${file}`,
+            });
+          }
+          continue;
+        }
+
+        const directories = fs.readdirSync(root.dir, { withFileTypes: true }).filter((entry) => entry.isDirectory());
+        for (const entry of directories) {
+          const skillPath = path.join(root.dir, entry.name, "SKILL.md");
+          const description = this.readSkillDescription(skillPath);
           skills.push({
-            name,
-            path: `.claude/commands/${file}`,
+            name: entry.name,
+            path: `${root.prefix}/${entry.name}/SKILL.md`,
+            description,
           });
         }
+      } catch (err) {
+        log("error", `Failed to load skills from ${root.dir}: ${err}`);
       }
-    } catch (err) {
-      log("error", `Failed to load skills: ${err}`);
+    }
+
+    const codexAgentsPath = path.join(PRISM_ROOT, ".codex/AGENTS.md");
+    if (fs.existsSync(codexAgentsPath)) {
+      skills.push({
+        name: "codex-agents",
+        path: ".codex/AGENTS.md",
+        description: "Codex PRISM operating rules, startup, self-awareness, MCP, task queue, and hook protocols.",
+      });
     }
 
     return skills;
+  }
+
+  private readSkillDescription(skillPath: string): string | undefined {
+    try {
+      if (!fs.existsSync(skillPath)) return undefined;
+      const content = fs.readFileSync(skillPath, "utf8");
+      const match = content.match(/^description:\s*["']?(.+?)["']?\s*$/m);
+      return match?.[1];
+    } catch {
+      return undefined;
+    }
   }
 
   private computeStats(): ManifestStats {
     try {
       if (fs.existsSync(INVENTORY_PATH)) {
         const content = fs.readFileSync(INVENTORY_PATH, "utf8");
-        const engineMatch = content.match(/Engines:\s*(\d+)/i);
-        const dispatcherMatch = content.match(/Dispatchers:\s*(\d+)/i);
-        const actionMatch = content.match(/Actions:\s*(\d+)/i);
-        const hookMatch = content.match(/Hooks:\s*(\d+)/i);
-        const skillMatch = content.match(/Skills:\s*(\d+)/i);
+        const readCount = (label: string): number => {
+          const match = content.match(new RegExp(`${label}:\\s*([\\d,]+)`, "i"));
+          return match ? Number.parseInt(match[1].replace(/,/g, ""), 10) : 0;
+        };
 
         return {
-          engineCount: engineMatch ? parseInt(engineMatch[1]) : 0,
-          dispatcherCount: dispatcherMatch ? parseInt(dispatcherMatch[1]) : 0,
-          actionCount: actionMatch ? parseInt(actionMatch[1]) : 0,
-          hookCount: hookMatch ? parseInt(hookMatch[1]) : 0,
-          skillCount: skillMatch ? parseInt(skillMatch[1]) : 0,
+          engineCount: readCount("Engines"),
+          dispatcherCount: readCount("Dispatchers"),
+          actionCount: readCount("Actions"),
+          hookCount: readCount("Hooks"),
+          skillCount: readCount("Skills"),
           tribalTipCount: 0,
-          formulaCount: 0,
+          formulaCount: readCount("Formulas"),
         };
       }
     } catch {
@@ -580,6 +718,56 @@ class PRISMSelfAwarenessEngine {
       tribalTipCount: 0,
       formulaCount: 0,
     };
+  }
+
+  private toCounts(stats: ManifestStats): ManifestCounts {
+    return {
+      engines: stats.engineCount,
+      dispatchers: stats.dispatcherCount,
+      actions: stats.actionCount,
+      hooks: stats.hookCount,
+      skills: stats.skillCount,
+      tribalTips: stats.tribalTipCount,
+      formulas: stats.formulaCount,
+      jmDiePrograms: this.countFiles(JM_DIE_ROOT, [".nc", ".eia", ".min", ".txt", ".h"]),
+      jmDieCustomers: this.countDirectories(JM_DIE_ROOT),
+    };
+  }
+
+  private countFiles(root: string, extensions: string[]): number {
+    try {
+      if (!fs.existsSync(root)) return 0;
+      let count = 0;
+      const stack = [root];
+      const extSet = new Set(extensions.map((ext) => ext.toLowerCase()));
+
+      while (stack.length > 0) {
+        const dir = stack.pop();
+        if (!dir) continue;
+
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+          const full = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            stack.push(full);
+          } else if (extSet.has(path.extname(entry.name).toLowerCase())) {
+            count += 1;
+          }
+        }
+      }
+
+      return count;
+    } catch {
+      return 0;
+    }
+  }
+
+  private countDirectories(root: string): number {
+    try {
+      if (!fs.existsSync(root)) return 0;
+      return fs.readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory()).length;
+    } catch {
+      return 0;
+    }
   }
 
   private inferCapabilities(engineName: string): string[] {

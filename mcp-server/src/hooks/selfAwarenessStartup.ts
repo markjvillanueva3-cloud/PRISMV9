@@ -13,7 +13,6 @@
  */
 
 import {
-  prismSelfAwarenessEngine,
   generateClaudeMdContext,
   generateMinimalContext,
   refreshSelfAwareness,
@@ -59,6 +58,10 @@ const DEFAULT_CONFIG: StartupConfig = {
   maxTokenBudget: 1000
 };
 
+let cachedManifest: CapabilityManifest | null = null;
+let cachedFullContext = "";
+let cachedMinimalContext = "";
+
 // ============================================================================
 // STARTUP FUNCTIONS
 // ============================================================================
@@ -82,7 +85,14 @@ export async function runSelfAwarenessStartup(
   try {
     // Refresh manifest
     const manifestStart = Date.now();
-    const { manifest, context, minimalContext } = await refreshSelfAwareness();
+    const manifest = await refreshSelfAwareness();
+    const [context, minimalContext] = await Promise.all([
+      generateClaudeMdContext(),
+      generateMinimalContext()
+    ]);
+    cachedManifest = manifest;
+    cachedFullContext = context;
+    cachedMinimalContext = minimalContext;
     timing.manifestMs = Date.now() - manifestStart;
 
     // Determine context size
@@ -157,7 +167,10 @@ export async function runSelfAwarenessStartup(
  * Returns a one-liner suitable for status displays
  */
 export function quickSelfAwarenessCheck(): string {
-  const manifest = prismSelfAwarenessEngine.getManifest();
+  const manifest = cachedManifest;
+  if (!manifest) {
+    return "PRISM: self-awareness ready; run startup for live counts";
+  }
   return `PRISM: ${manifest.counts.dispatchers}d/${manifest.counts.actions}a/${manifest.counts.engines}e ready`;
 }
 
@@ -166,7 +179,12 @@ export function quickSelfAwarenessCheck(): string {
  * Use this when you need the context string without running full startup
  */
 export function getSelfAwarenessContext(mode: "full" | "minimal" = "full"): string {
-  return mode === "full" ? generateClaudeMdContext() : generateMinimalContext();
+  const context = mode === "full" ? cachedFullContext : cachedMinimalContext;
+  if (context) {
+    return context;
+  }
+
+  return "PRISM self-awareness context is not cached yet. Run codex-self-awareness startup first.";
 }
 
 // ============================================================================
