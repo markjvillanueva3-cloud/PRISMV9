@@ -363,31 +363,31 @@ class MillMasterOrchestratorFacadeEngine {
   }
 
   /**
-   * Feature recognition from geometry
+   * Feature recognition from geometry — NOT WIRED.
+   * Would delegate to a real CAD feature-recognition engine; returning
+   * fake fixture features is banned by the no-fake-code rule.
+   * @throws NotWiredError
    */
-  async recognizeFeatures(params: Record<string, unknown>): Promise<{ features: unknown[]; confidence: number }> {
-    log.info("[MillMasterFacade] Recognizing features");
-    return {
-      features: [
-        { id: "F1", type: "pocket_2d", depth_mm: 10, width_mm: 50 },
-        { id: "F2", type: "hole", diameter_mm: 12, depth_mm: 25 },
-      ],
-      confidence: 0.85,
-    };
+  async recognizeFeatures(_params: Record<string, unknown>): Promise<never> {
+    throw new NotWiredError(
+      "recognizeFeatures",
+      "CADFeatureRecognitionEngine",
+      "No real feature-recognition engine wired yet — use CAD dispatcher or STEP parser",
+    );
   }
 
   /**
-   * Process planning for features
+   * Process planning for features — NOT WIRED.
+   * Would delegate to a real ProcessPlannerEngine; returning fake
+   * fixture operations is banned.
+   * @throws NotWiredError
    */
-  async planProcess(params: Record<string, unknown>): Promise<{ operations: unknown[]; sequence: string[] }> {
-    log.info("[MillMasterFacade] Planning process");
-    return {
-      operations: [
-        { id: "OP1", feature: "F1", strategy: "adaptive_clearing", tool_d: 12 },
-        { id: "OP2", feature: "F2", strategy: "drill_peck", tool_d: 11.8 },
-      ],
-      sequence: ["OP1", "OP2"],
-    };
+  async planProcess(_params: Record<string, unknown>): Promise<never> {
+    throw new NotWiredError(
+      "planProcess",
+      "ProcessPlannerEngine",
+      "Real process planner not yet built; do not treat fixture sequences as real plans",
+    );
   }
 
   /**

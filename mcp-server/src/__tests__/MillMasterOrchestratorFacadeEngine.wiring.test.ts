@@ -241,23 +241,16 @@ describe("MillMasterOrchestratorFacadeEngine wiring", () => {
   });
 
   describe("helper methods", () => {
-    it("recognizeFeatures returns feature array with confidence", async () => {
-      // recognizeFeatures is a helper stub that fabricates fixture features —
-      // keeping it for now as it's only called internally and returns
-      // documented placeholder shape. Callers should use a real recognizer.
-      const result = await millMasterOrchestratorFacadeEngine.recognizeFeatures({});
-      expect(Array.isArray(result.features)).toBe(true);
-      expect(result.features.length).toBeGreaterThan(0);
-      expect(result.confidence).toBeGreaterThan(0);
-      expect(result.confidence).toBeLessThanOrEqual(1);
+    it("recognizeFeatures throws NotWiredError (no fabricated features)", async () => {
+      await expect(
+        millMasterOrchestratorFacadeEngine.recognizeFeatures({})
+      ).rejects.toThrow(/not wired|CADFeatureRecognitionEngine/i);
     });
 
-    it("planProcess returns operations and sequence", async () => {
-      const result = await millMasterOrchestratorFacadeEngine.planProcess({});
-      expect(Array.isArray(result.operations)).toBe(true);
-      expect(result.operations.length).toBeGreaterThan(0);
-      expect(Array.isArray(result.sequence)).toBe(true);
-      expect(result.sequence.length).toBe(result.operations.length);
+    it("planProcess throws NotWiredError (no fabricated plan)", async () => {
+      await expect(
+        millMasterOrchestratorFacadeEngine.planProcess({})
+      ).rejects.toThrow(/not wired|ProcessPlannerEngine/i);
     });
 
     it("getStats should track invocation counts", async () => {
