@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "system_id": "nxcam",
+  "section_key": "fbm",
+  "version": "2306",
+  "extracted_from": "Siemens NX 2306 CAM Feature-Based Machining (FBM) Guide + NX Help Library (Machining Knowledge Editor, AUTO_3D, HOLE_MAKING templates)",
+  "categories": [
+    "feature_recognition",
+    "manual_feature",
+    "machining_knowledge",
+    "process_template",
+    "feature_group"
+  ],
+  "operations": {
+    "auto_feature_recognition": {
+      "category": "feature_recognition",
+      "display_name": "Auto Feature Recognition (FBM_FIND_FEATURES)",
+      "description": "Scan solid body, classify every face into a machinable feature type (pocket, hole, boss, slot, face, fillet). Output drives downstream AUTO_3D template application.",
+      "parameter_count": 20,
+      "dialog_tabs": ["geometry", "recognition", "filter", "classification", "output"],
+      "parameters": {
+        "geometry": {
+          "target_solid": { "type": "geometry_ref", "required": true },
+          "recognize_scope": { "type": "enum", "values": ["whole_body", "selected_faces", "feature_group"], "default": "whole_body" },
+          "stock_body": { "type": "geometry_ref", "required": false }
+        },
+        "recognition": {
+          "recognize_pockets": { "type": "boolean", "default": true },
+          "recognize_holes": { "type": "boolean", "default": true },
+          "recognize_bosses": { "type": "boolean", "default": true },
+          "recognize_slots": { "type": "boolean", "default": true },
+          "recognize_faces": { "type": "boolean", "default": true },
+          "recognize_fillets": { "type": "boolean", "default": false }
+        },
+        "filter": {
+          "min_feature_size_mm": { "type": "number", "min": 0.01, "max": 50, "default": 0.5 },
+          "max_feature_size_mm": { "type": "number", "min": 1, "max": 2000, "default": 500 },
+          "min_depth_mm": { "type": "number", "min": 0, "max": 100, "default": 0.1 },
+          "ignore_open_sides": { "type": "boolean", "default": false }
+        },
+        "classification": {
+          "hole_aspect_ratio_limit": { "type": "number", "min": 1, "max": 20, "default": 10 },
+          "pocket_depth_to_width_limit": { "type": "number", "min": 0.1, "max": 10, "default": 4 },
+          "slot_length_to_width_min": { "type": "number", "min": 1.5, "max": 20, "default": 3 }
+        },
+        "output": {
+          "create_feature_group": { "type": "boolean", "default": true },
+          "group_name": { "type": "string", "default": "FBM_AUTO" },
+          "color_by_type": { "type": "boolean", "default": true },
+          "report_unrecognized": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "hole_feature_recognition": {
+      "category": "feature_recognition",
+      "display_name": "Hole Feature Recognition (FBM_FIND_HOLES)",
+      "description": "Specialized hole-only recognizer; classifies by function: simple, counterbore, countersink, threaded, tapered, pattern.",
+      "parameter_count": 15,
+      "dialog_tabs": ["geometry", "hole_types", "dimensions", "output"],
+      "parameters": {
+        "geometry": {
+          "target_solid": { "type": "geometry_ref", "required": true },
+          "wcs_reference": { "type": "geometry_ref", "required": false }
+        },
+        "hole_types": {
+          "recognize_simple": { "type": "boolean", "default": true },
+          "recognize_counterbore": { "type": "boolean", "default": true },
+          "recognize_countersink": { "type": "boolean", "default": true },
+          "recognize_threaded": { "type": "boolean", "default": true },
+          "recognize_tapered": { "type": "boolean", "default": false },
+          "recognize_through": { "type": "boolean", "default": true },
+          "recognize_blind": { "type": "boolean", "default": true }
+        },
+        "dimensions": {
+          "min_hole_diameter_mm": { "type": "number", "min": 0.1, "max": 100, "default": 1.0 },
+          "max_hole_diameter_mm": { "type": "number", "min": 1, "max": 500, "default": 100 },
+          "pattern_detect_tolerance_mm": { "type": "number", "min": 0.001, "max": 1, "default": 0.01 }
+        },
+        "output": {
+          "detect_patterns": { "type": "boolean", "default": true },
+          "group_coaxial": { "type": "boolean", "default": true },
+          "color_by_function": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "pocket_feature_recognition": {
+      "category": "feature_recognition",
+      "display_name": "Pocket Feature Recognition (FBM_FIND_POCKETS)",
+      "description": "Pocket-only recognizer; classifies by closure (closed, open, through), floor type (flat, contoured, stepped), and steep wall angles.",
+      "parameter_count": 14,
+      "dialog_tabs": ["geometry", "pocket_types", "walls", "output"],
+      "parameters": {
+        "geometry": {
+          "target_solid": { "type": "geometry_ref", "required": true }
+        },
+        "pocket_types": {
+          "recognize_closed": { "type": "boolean", "default": true },
+          "recognize_open_one_side": { "type": "boolean", "default": true },
+          "recognize_through": { "type": "boolean", "default": true },
+          "recognize_stepped_floor": { "type": "boolean", "default": true },
+          "recognize_contoured_floor": { "type": "boolean", "default": false }
+        },
+        "walls": {
+          "max_wall_draft_deg": { "type": "number", "min": 0, "max": 45, "default": 3 },
+          "min_wall_height_mm": { "type": "number", "min": 0, "max": 50, "default": 1 },
+          "corner_radius_min_mm": { "type": "number", "min": 0, "max": 20, "default": 0.5 },
+          "min_wall_thickness_mm": { "type": "number", "min": 0, "max": 25, "default": 0.5 }
+        },
+        "output": {
+          "min_pocket_area_mm2": { "type": "number", "min": 1, "max": 100000, "default": 50 },
+          "min_pocket_depth_mm": { "type": "number", "min": 0.1, "max": 100, "default": 0.5 },
+          "include_islands": { "type": "boolean", "default": true },
+          "report_non_planar_walls": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "manual_feature_create": {
+      "category": "manual_feature",
+      "display_name": "Manual Feature Create (FBM_USER_DEFINED)",
+      "description": "User-defined feature by selecting faces/edges. Required when AUTO recognition misses a feature or when a custom template is needed.",
+      "parameter_count": 12,
+      "dialog_tabs": ["identity", "geometry", "classification", "output"],
+      "parameters": {
+        "identity": {
+          "feature_name": { "type": "string", "required": true },
+          "feature_type_override": { "type": "enum", "values": ["pocket", "hole", "boss", "slot", "face", "custom"], "default": "custom" }
+        },
+        "geometry": {
+          "selected_faces": { "type": "geometry_ref", "required": true },
+          "selected_edges": { "type": "geometry_ref", "required": false },
+          "reference_plane": { "type": "geometry_ref", "required": false },
+          "approach_vector": { "type": "vector3", "required": false }
+        },
+        "classification": {
+          "assigned_depth_mm": { "type": "number", "min": 0, "max": 1000, "required": false },
+          "assigned_min_radius_mm": { "type": "number", "min": 0, "max": 500, "required": false },
+          "user_priority": { "type": "number", "min": 1, "max": 10, "default": 5 }
+        },
+        "output": {
+          "add_to_group": { "type": "string", "required": false },
+          "auto_apply_template": { "type": "boolean", "default": false },
+          "lock_from_re_recognition": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "feature_painting": {
+      "category": "manual_feature",
+      "display_name": "Feature Painting (FBM_PAINT_FACES)",
+      "description": "Brush-select faces onto an existing feature; extend recognition output or fix mis-classification.",
+      "parameter_count": 10,
+      "dialog_tabs": ["target", "painting", "behavior"],
+      "parameters": {
+        "target": {
+          "host_feature": { "type": "string", "required": true },
+          "paint_mode": { "type": "enum", "values": ["add", "remove", "replace"], "default": "add" }
+        },
+        "painting": {
+          "face_selection": { "type": "geometry_ref", "required": true },
+          "propagate_tangent": { "type": "boolean", "default": true },
+          "propagate_angle_deg": { "type": "number", "min": 0, "max": 45, "default": 5 },
+          "stop_at_crease": { "type": "boolean", "default": true }
+        },
+        "behavior": {
+          "update_classification": { "type": "boolean", "default": true },
+          "invalidate_existing_template": { "type": "boolean", "default": false },
+          "preview_before_commit": { "type": "boolean", "default": true },
+          "log_painted_count": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "machining_knowledge_rule": {
+      "category": "machining_knowledge",
+      "display_name": "Machining Knowledge Rule (MKE_RULE)",
+      "description": "Single rule in the Machining Knowledge Editor mapping feature class + material + tool availability → process template.",
+      "parameter_count": 18,
+      "dialog_tabs": ["identity", "match", "action", "constraints", "priority"],
+      "parameters": {
+        "identity": {
+          "rule_id": { "type": "string", "required": true },
+          "rule_name": { "type": "string", "required": true },
+          "rule_description": { "type": "string", "required": false }
+        },
+        "match": {
+          "feature_type": { "type": "enum", "values": ["pocket", "hole", "boss", "slot", "face", "any"], "default": "any" },
+          "material_filter": { "type": "string", "required": false },
+          "min_depth_mm": { "type": "number", "required": false },
+          "max_depth_mm": { "type": "number", "required": false },
+          "min_diameter_mm": { "type": "number", "required": false },
+          "max_diameter_mm": { "type": "number", "required": false }
+        },
+        "action": {
+          "applied_template": { "type": "string", "required": true },
+          "override_tool": { "type": "string", "required": false },
+          "override_feed_pct": { "type": "number", "min": 20, "max": 200, "default": 100 },
+          "override_speed_pct": { "type": "number", "min": 20, "max": 200, "default": 100 }
+        },
+        "constraints": {
+          "required_machine_class": { "type": "enum", "values": ["mill_3axis", "mill_5axis", "lathe", "mill_turn", "any"], "default": "any" },
+          "max_stickout_length_mm": { "type": "number", "required": false },
+          "minimum_rigidity_level": { "type": "enum", "values": ["low", "medium", "high"], "default": "medium" }
+        },
+        "priority": {
+          "priority": { "type": "number", "min": 1, "max": 1000, "default": 100 },
+          "enabled": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "machining_knowledge_library": {
+      "category": "machining_knowledge",
+      "display_name": "Machining Knowledge Library (MKE_LIBRARY)",
+      "description": "Named collection of MKE rules. Typical shops ship separate libraries per material-family (aluminum, steel, titanium, stainless).",
+      "parameter_count": 12,
+      "dialog_tabs": ["identity", "rules", "inheritance", "validation"],
+      "parameters": {
+        "identity": {
+          "library_id": { "type": "string", "required": true },
+          "library_name": { "type": "string", "required": true },
+          "library_scope": { "type": "enum", "values": ["shop_global", "cell_specific", "job_specific", "user"], "default": "shop_global" }
+        },
+        "rules": {
+          "rule_count": { "type": "number", "min": 0, "max": 10000, "default": 0 },
+          "rule_ids": { "type": "array_string", "required": false }
+        },
+        "inheritance": {
+          "parent_library_id": { "type": "string", "required": false },
+          "override_parent_rules": { "type": "boolean", "default": false }
+        },
+        "validation": {
+          "enable_conflict_detection": { "type": "boolean", "default": true },
+          "warn_on_priority_tie": { "type": "boolean", "default": true },
+          "require_tested_templates_only": { "type": "boolean", "default": false },
+          "last_validated_iso_date": { "type": "string", "required": false },
+          "validation_pass_rate_pct": { "type": "number", "min": 0, "max": 100, "required": false }
+        }
+      }
+    },
+    "template_auto_3d": {
+      "category": "process_template",
+      "display_name": "AUTO_3D Process Template (FBM_AUTO_3D)",
+      "description": "Apply the full AUTO_3D template chain: rough cavity → rest mill → zlevel finish → surface finish. Uses smallest-fit tool selection against the recognized feature's minimum radius.",
+      "parameter_count": 16,
+      "dialog_tabs": ["template", "tool_selection", "operation_overrides", "scope"],
+      "parameters": {
+        "template": {
+          "template_id": { "type": "string", "default": "AUTO_3D" },
+          "template_source_library": { "type": "string", "default": "nx_sample_mill_library" }
+        },
+        "tool_selection": {
+          "tool_selection_rule": { "type": "enum", "values": ["smallest_fit", "largest_available", "user_ranked"], "default": "smallest_fit" },
+          "min_tool_diameter_mm": { "type": "number", "min": 0.1, "max": 50, "default": 1 },
+          "max_tool_diameter_mm": { "type": "number", "min": 1, "max": 200, "default": 50 },
+          "prefer_existing_magazine": { "type": "boolean", "default": true }
+        },
+        "operation_overrides": {
+          "rough_stepover_pct": { "type": "number", "min": 10, "max": 95, "default": 50 },
+          "rough_depth_per_cut_mm": { "type": "number", "min": 0.1, "max": 25, "default": 2 },
+          "finish_stepover_mm": { "type": "number", "min": 0.05, "max": 5, "default": 0.5 },
+          "finish_stock_to_leave_mm": { "type": "number", "min": 0, "max": 5, "default": 0 }
+        },
+        "scope": {
+          "apply_to_all_features_in_group": { "type": "boolean", "default": true },
+          "feature_group_name": { "type": "string", "required": false },
+          "skip_features_below_min_size": { "type": "boolean", "default": true },
+          "generate_tool_paths_immediately": { "type": "boolean", "default": true },
+          "log_skipped_features": { "type": "boolean", "default": true },
+          "abort_on_first_collision": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "template_hole_making": {
+      "category": "process_template",
+      "display_name": "HOLE_MAKING Process Template (FBM_HOLE_MAKING)",
+      "description": "Applies hole-making template chain: spot → drill → (ream/counterbore/countersink/tap) based on classified hole function.",
+      "parameter_count": 14,
+      "dialog_tabs": ["template", "operation_chain", "tapping", "overrides"],
+      "parameters": {
+        "template": {
+          "template_id": { "type": "string", "default": "HOLE_MAKING" },
+          "apply_spot_drill_first": { "type": "boolean", "default": true }
+        },
+        "operation_chain": {
+          "use_peck_for_deep_holes": { "type": "boolean", "default": true },
+          "peck_depth_to_diameter_ratio": { "type": "number", "min": 0.5, "max": 5, "default": 2 },
+          "use_chip_break_cycle": { "type": "boolean", "default": false },
+          "finish_by_ream_if_tolerance_below_um": { "type": "number", "min": 1, "max": 50, "default": 10 }
+        },
+        "tapping": {
+          "rigid_tapping_enabled": { "type": "boolean", "default": true },
+          "tap_chamfer_lead_threads": { "type": "number", "min": 0, "max": 5, "default": 2 },
+          "tap_retract_feed_multiplier": { "type": "number", "min": 0.5, "max": 2, "default": 1 }
+        },
+        "overrides": {
+          "spot_drill_depth_mm": { "type": "number", "min": 0.5, "max": 10, "default": 2 },
+          "drill_point_angle_deg": { "type": "number", "min": 60, "max": 180, "default": 135 },
+          "coolant_mode": { "type": "enum", "values": ["flood", "mist", "through_spindle", "mql", "off"], "default": "flood" },
+          "abort_on_broken_tap": { "type": "boolean", "default": true },
+          "generate_paths_immediately": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "template_library_mgmt": {
+      "category": "process_template",
+      "display_name": "Template Library Management (FBM_TEMPLATE_LIBRARY)",
+      "description": "Namespace and versioning for process templates; enforces that each template used in production has been explicitly validated on a coupon or sample part.",
+      "parameter_count": 10,
+      "dialog_tabs": ["library", "validation", "import_export"],
+      "parameters": {
+        "library": {
+          "library_id": { "type": "string", "required": true },
+          "version_tag": { "type": "string", "required": true },
+          "template_count": { "type": "number", "min": 0, "max": 10000, "default": 0 },
+          "parent_library_id": { "type": "string", "required": false }
+        },
+        "validation": {
+          "all_templates_validated": { "type": "boolean", "default": false },
+          "validation_coupon_part_id": { "type": "string", "required": false },
+          "last_validation_iso_date": { "type": "string", "required": false }
+        },
+        "import_export": {
+          "import_source_path": { "type": "string", "required": false },
+          "export_target_path": { "type": "string", "required": false },
+          "sign_on_export": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "feature_group_operation": {
+      "category": "feature_group",
+      "display_name": "Feature Group Batch Operation (FBM_FEATURE_GROUP)",
+      "description": "Group of recognized/painted features operated on together to amortize tool changes. Batching economics: feature_count ÷ tool_count drives efficiency.",
+      "parameter_count": 14,
+      "dialog_tabs": ["group", "batching", "ordering", "cycle_time"],
+      "parameters": {
+        "group": {
+          "group_id": { "type": "string", "required": true },
+          "group_name": { "type": "string", "required": true },
+          "member_feature_ids": { "type": "array_string", "required": false },
+          "parent_group_id": { "type": "string", "required": false }
+        },
+        "batching": {
+          "batch_by_tool": { "type": "boolean", "default": true },
+          "batch_by_depth": { "type": "boolean", "default": false },
+          "minimum_feature_count_per_tool": { "type": "number", "min": 1, "max": 100, "default": 3 },
+          "allow_tool_change_per_feature": { "type": "boolean", "default": false }
+        },
+        "ordering": {
+          "ordering_rule": { "type": "enum", "values": ["spatial_tsp", "depth_first", "diameter_ascending", "user"], "default": "spatial_tsp" },
+          "shortest_path_optimization": { "type": "boolean", "default": true },
+          "respect_clamp_zones": { "type": "boolean", "default": true }
+        },
+        "cycle_time": {
+          "estimated_tool_change_sec": { "type": "number", "min": 0, "max": 120, "default": 8 },
+          "estimated_rapid_between_sec": { "type": "number", "min": 0, "max": 60, "default": 3 },
+          "report_cycle_estimate": { "type": "boolean", "default": true }
+        }
+      }
+    },
+    "feature_cad_sync": {
+      "category": "feature_group",
+      "display_name": "CAD Associativity / Feature Sync (FBM_SYNC)",
+      "description": "Keeps recognized features linked to the source solid body. When CAD updates, classified features re-evaluate and propagate changes downstream.",
+      "parameter_count": 10,
+      "dialog_tabs": ["linkage", "propagation", "conflicts"],
+      "parameters": {
+        "linkage": {
+          "source_solid": { "type": "geometry_ref", "required": true },
+          "linked_feature_group": { "type": "string", "required": true },
+          "linkage_mode": { "type": "enum", "values": ["synchronous", "parametric", "snapshot"], "default": "synchronous" }
+        },
+        "propagation": {
+          "auto_re_recognize_on_update": { "type": "boolean", "default": true },
+          "auto_regenerate_paths": { "type": "boolean", "default": false },
+          "notify_on_geometry_change": { "type": "boolean", "default": true },
+          "preserve_manual_painting": { "type": "boolean", "default": true }
+        },
+        "conflicts": {
+          "on_feature_disappearance": { "type": "enum", "values": ["mark_stale", "delete", "keep_and_warn"], "default": "mark_stale" },
+          "on_topology_change": { "type": "enum", "values": ["invalidate_path", "keep_old_path", "recompute"], "default": "invalidate_path" },
+          "require_user_ack_before_regen": { "type": "boolean", "default": true }
+        }
+      }
+    }
+  },
+  "training_topics": [
+    {
+      "topic": "Feature Recognition Accuracy Heuristics",
+      "key_concepts": [
+        "Pocket classification: floor must be planar/contoured and walls closed or single-side-open",
+        "Hole classification: aspect ratio ≤ 10 for simple; above requires deep-hole template",
+        "Slots must have length-to-width ≥ 3 to avoid mis-classification as pocket"
+      ],
+      "best_practices": [
+        "Set min_feature_size_mm generously (0.5mm+) — tiny features clutter the recognition result",
+        "Use ignore_open_sides=true if the stock model already removes those edges",
+        "Always report unrecognized to surface coverage gaps — they are future manual features"
+      ]
+    },
+    {
+      "topic": "Smallest-Fit Tool Selection Rule",
+      "key_concepts": [
+        "AUTO_3D picks the smallest available tool whose radius ≤ feature_min_radius",
+        "A pocket with 5mm corner radius needs a tool with radius ≤ 5mm to finish corners",
+        "Using a smaller tool than required adds cycle time (more passes) but is safer"
+      ],
+      "best_practices": [
+        "Maintain a magazine with a geometric progression (2, 4, 6, 8, 10mm) so smallest-fit has granularity",
+        "Enable prefer_existing_magazine to avoid tool changes",
+        "Flag features whose min_radius < magazine's smallest tool — they need manual rework"
+      ]
+    },
+    {
+      "topic": "Machining Knowledge Editor (MKE) Structure",
+      "key_concepts": [
+        "Rules are ordered by priority (ascending); first matching rule wins",
+        "Match conditions: feature_type + material + dimension envelope + machine class",
+        "Libraries are scoped per shop/cell/job/user and can inherit from parents"
+      ],
+      "best_practices": [
+        "Separate libraries per material family (aluminum, steel, titanium, stainless)",
+        "Always use priority with gaps (10, 20, 30…) — leaves room for inserts",
+        "Turn on conflict detection; a priority tie between rules means non-determinism"
+      ]
+    },
+    {
+      "topic": "AUTO_3D vs Manual Path Tradeoffs",
+      "key_concepts": [
+        "AUTO_3D: rough cavity → rest mill → zlevel finish → surface finish chain",
+        "Auto-recognition misses: undercuts, features split by tangent boundaries, tiny geometry",
+        "Manual features override auto output and lock from re-recognition"
+      ],
+      "best_practices": [
+        "Review FBM output in simulation before posting — recognition errors propagate downstream",
+        "Use manual_feature_create for anything auto misses",
+        "Lock critical manual features to prevent auto re-recognition from wiping them"
+      ]
+    },
+    {
+      "topic": "Batching Economics / Feature-to-Tool Ratio",
+      "key_concepts": [
+        "Group efficiency = (feature_count / tool_count) — higher is better",
+        "Below 1.0 = more tool changes than features (waste)",
+        "Above 3.0 = good amortization of tool-change time"
+      ],
+      "best_practices": [
+        "Use spatial_tsp ordering inside a tool batch to minimize rapids",
+        "Set minimum_feature_count_per_tool = 3 as a sanity gate",
+        "Respect clamp zones — TSP will happily route through a fixture otherwise"
+      ]
+    },
+    {
+      "topic": "CAD Associativity (Synchronous Modeling Link)",
+      "key_concepts": [
+        "synchronous: features track CAD topology exactly; changes propagate automatically",
+        "parametric: features driven by CAD parameters; edits invalidate paths",
+        "snapshot: frozen at recognition time; best for archival"
+      ],
+      "best_practices": [
+        "Use synchronous during active development; lock to snapshot before release",
+        "Always preserve_manual_painting=true — manual work should survive CAD edits",
+        "Require user ack before auto-regen on topology change to avoid silent path corruption"
+      ]
+    }
+  ]
+}
